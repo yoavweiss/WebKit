@@ -7572,7 +7572,7 @@ bool Document::shouldForceNoOpenerBasedOnCOOP() const
         return false;
 
     auto COOPValue = topDocument().crossOriginOpenerPolicy().value;
-    return (COOPValue == CrossOriginOpenerPolicyValue::SameOrigin || COOPValue == CrossOriginOpenerPolicyValue::SameOriginPlusCOEP) && !isSameOriginAsTopDocument();
+    return ((COOPValue == CrossOriginOpenerPolicyValue::SameOrigin || COOPValue == CrossOriginOpenerPolicyValue::SameOriginPlusCOEP) && !isSameOriginAsTopDocument());
 }
 
 bool Document::isContextThread() const

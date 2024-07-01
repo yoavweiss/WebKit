@@ -52,6 +52,8 @@ static ASCIILiteral crossOriginOpenerPolicyToString(const CrossOriginOpenerPolic
         return "same-origin"_s;
     case CrossOriginOpenerPolicyValue::SameOriginAllowPopups:
         return "same-origin-allow-popups"_s;
+    case CrossOriginOpenerPolicyValue::NoopenerAllowPopups:
+        return "noopener-allow-popups"_s;
     case CrossOriginOpenerPolicyValue::UnsafeNone:
         break;
     }
@@ -67,6 +69,8 @@ static ASCIILiteral crossOriginOpenerPolicyValueToEffectivePolicyString(CrossOri
         return "same-origin"_s;
     case CrossOriginOpenerPolicyValue::SameOriginPlusCOEP:
         return "same-origin-plus-coep"_s;
+    case CrossOriginOpenerPolicyValue::NoopenerAllowPopups:
+        return "noopener-allow-popups"_s;
     case CrossOriginOpenerPolicyValue::UnsafeNone:
         break;
     }
@@ -114,6 +118,13 @@ bool coopValuesRequireBrowsingContextGroupSwitch(bool isInitialAboutBlank, Cross
     // https://html.spec.whatwg.org/multipage/origin.html#matching-coop
     if (activeDocumentCOOPValue == CrossOriginOpenerPolicyValue::UnsafeNone && responseCOOPValue == CrossOriginOpenerPolicyValue::UnsafeNone)
         return false;
+
+    if (responseCOOPValue == CrossOriginOpenerPolicyValue::NoopenerAllowPopups)
+        return true;
+
+    if (activeDocumentCOOPValue == CrossOriginOpenerPolicyValue::NoopenerAllowPopups && (responseCOOPValue == CrossOriginOpenerPolicyValue::UnsafeNone || responseCOOPValue == CrossOriginOpenerPolicyValue::SameOriginAllowPopups))
+        return false;
+
     if (activeDocumentCOOPValue == responseCOOPValue && activeDocumentNavigationOrigin.isSameOriginAs(responseOrigin))
         return false;
 
@@ -207,8 +218,10 @@ CrossOriginOpenerPolicy obtainCrossOriginOpenerPolicy(const ResourceResponse& re
                 value = CrossOriginOpenerPolicyValue::SameOriginPlusCOEP;
             else
                 value = CrossOriginOpenerPolicyValue::SameOrigin;
-        } else if (policyString->string() == "same-origin-allow-popups"_s)
+        } else if (policyString->string() == "same-origin-allow-popups"_s) {
             value = CrossOriginOpenerPolicyValue::SameOriginAllowPopups;
+        } else if (policyString->string() == "noopener-allow-popups"_s)
+            value = CrossOriginOpenerPolicyValue::NoopenerAllowPopups;
 
         if (auto* reportToString = coopParsingResult->second.getIf<String>("report-to"_s))
             reportingEndpoint = *reportToString;
