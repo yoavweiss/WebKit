@@ -349,7 +349,10 @@ void ImageLoader::didUpdateCachedImage(RelevantMutation relevantMutation, Cached
 void ImageLoader::updateFromElementIgnoringPreviousError(RelevantMutation relevantMutation)
 {
     clearFailedLoadURL();
-    updateFromElement(relevantMutation);
+    Ref document = element().document();
+    document->eventLoop().queueMicrotask([imageLoader = this, relevantMutation] {
+        imageLoader->updateFromElement(relevantMutation);
+    });
 }
 
 CachedResourceHandle<CachedImage> ImageLoader::protectedImage() const
