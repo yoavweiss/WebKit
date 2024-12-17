@@ -776,4 +776,19 @@ bool ContentSecurityPolicyDirectiveList::shouldReportSample(const String& violat
     return directive && directive->shouldReportSample();
 }
 
+const ContentSecurityPolicySourceListDirective* ContentSecurityPolicyDirectiveList::hashReportDirectiveForScript() const
+{
+    auto* operativeDirective = this->operativeDirectiveScript(m_scriptSrcElem.get(), ContentSecurityPolicyDirectiveNames::scriptSrcElem);
+    if (!operativeDirective || !operativeDirective->reportHash())
+        return nullptr;
+
+    return operativeDirective;
+}
+
+HashAlgorithmSet ContentSecurityPolicyDirectiveList::reportHash() const
+{
+    const ContentSecurityPolicySourceListDirective* directive = hashReportDirectiveForScript();
+    return directive ? directive->reportHash() : 0;
+}
+
 } // namespace WebCore

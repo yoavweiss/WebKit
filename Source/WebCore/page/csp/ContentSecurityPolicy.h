@@ -87,6 +87,9 @@ enum class AllowTrustedTypePolicy : uint8_t {
     DisallowedDuplicateName,
 };
 
+using HashAlgorithmSet = uint8_t;
+using HashAlgorithmSetCollection = Vector<std::pair<HashAlgorithmSet, Vector<String>>>;
+
 class ContentSecurityPolicy final : public CanMakeThreadSafeCheckedPtr<ContentSecurityPolicy> {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(ContentSecurityPolicy, WEBCORE_EXPORT);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(ContentSecurityPolicy);
@@ -230,6 +233,7 @@ public:
     const String& webAssemblyErrorMessage() const { return m_lastPolicyWebAssemblyDisabledErrorMessage; }
 
     ContentSecurityPolicyModeForExtension contentSecurityPolicyModeForExtension() const { return m_contentSecurityPolicyModeForExtension; }
+    const HashAlgorithmSetCollection* hashesToReport();
 
 private:
     void logToConsole(const String& message, const String& contextURL = String(), const OrdinalNumber& contextLine = OrdinalNumber::beforeFirst(), const OrdinalNumber& contextColumn = OrdinalNumber::beforeFirst(), JSC::JSGlobalObject* = nullptr) const;
@@ -290,6 +294,7 @@ private:
     mutable std::optional<ContentSecurityPolicyResponseHeaders> m_cachedResponseHeaders;
     bool m_isHeaderDelivered { false };
     ContentSecurityPolicyModeForExtension m_contentSecurityPolicyModeForExtension { ContentSecurityPolicyModeForExtension::None };
+    std::unique_ptr<HashAlgorithmSetCollection> m_hashesToReport;
 };
 
 } // namespace WebCore
