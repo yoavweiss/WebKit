@@ -184,6 +184,7 @@ void PingLoader::sendViolationReport(LocalFrame& frame, const URL& reportURL, Re
         request.setHTTPContentType("application/csp-report"_s);
         break;
     case ViolationReportType::COEPInheritenceViolation:
+    case ViolationReportType::CSPHashReport:
     case ViolationReportType::CORPViolation:
     case ViolationReportType::CrossOriginOpenerPolicy:
     case ViolationReportType::Deprecation:

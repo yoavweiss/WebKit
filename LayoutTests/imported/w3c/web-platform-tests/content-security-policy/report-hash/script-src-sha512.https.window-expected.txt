@@ -1,12 +1,10 @@
 
-Harness Error (TIMEOUT), message = null
-
-FAIL Reporting endpoints received hash for same-origin CORS script. assert_unreached: A report of csp-hash from https://localhost:9443/content-security-policy/report-hash/script-src-sha512.https.window.html is not found. Reached unreachable code
-FAIL Reporting endpoints received hash for same-origin no-CORS script. assert_unreached: A report of csp-hash from https://localhost:9443/content-security-policy/report-hash/script-src-sha512.https.window.html is not found. Reached unreachable code
-TIMEOUT Reporting endpoints received hash for cross-origin CORS script. Test timed out
-NOTRUN Reporting endpoints received no hash for cross-origin no-CORS script.
-NOTRUN Reporting endpoints received the right hash for same-origin CORS script with integrity.
-NOTRUN Reporting endpoints received no report for failed integrity check with sha256.
-NOTRUN Reporting endpoints received no report for failed integrity check with sha512.
-NOTRUN Reporting endpoints received no report for CORS stylesheet.
+FAIL Reporting endpoints received hash for same-origin CORS script. assert_equals: expected "sha512-hG4x56V5IhUUepZdYU/lX7UOQJ2M7f6ud2EI7os4JV3OwXSZ002P3zkb9tXQkjpOO8UbtjuEufvdcU67Qt2tlw==" but got "sha256-1XF/E08XndkoxwN6eIa5J89hYn3OVZ/UyB8BrU5jgzk="
+FAIL Reporting endpoints received hash for same-origin no-CORS script. assert_equals: expected "sha512-hG4x56V5IhUUepZdYU/lX7UOQJ2M7f6ud2EI7os4JV3OwXSZ002P3zkb9tXQkjpOO8UbtjuEufvdcU67Qt2tlw==" but got "sha256-1XF/E08XndkoxwN6eIa5J89hYn3OVZ/UyB8BrU5jgzk="
+FAIL Reporting endpoints received hash for cross-origin CORS script. assert_equals: expected "sha512-hG4x56V5IhUUepZdYU/lX7UOQJ2M7f6ud2EI7os4JV3OwXSZ002P3zkb9tXQkjpOO8UbtjuEufvdcU67Qt2tlw==" but got "sha256-1XF/E08XndkoxwN6eIa5J89hYn3OVZ/UyB8BrU5jgzk="
+PASS Reporting endpoints received no hash for cross-origin no-CORS script.
+FAIL Reporting endpoints received the right hash for same-origin CORS script with integrity. assert_equals: expected "sha512-hG4x56V5IhUUepZdYU/lX7UOQJ2M7f6ud2EI7os4JV3OwXSZ002P3zkb9tXQkjpOO8UbtjuEufvdcU67Qt2tlw==" but got "sha256-1XF/E08XndkoxwN6eIa5J89hYn3OVZ/UyB8BrU5jgzk="
+PASS Reporting endpoints received no report for failed integrity check with sha256.
+PASS Reporting endpoints received no report for failed integrity check with sha512.
+PASS Reporting endpoints received no report for CORS stylesheet.
 

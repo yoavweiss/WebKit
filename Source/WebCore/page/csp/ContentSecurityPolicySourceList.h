@@ -60,6 +60,9 @@ public:
     bool allowUnsafeHashes() const { return m_allowUnsafeHashes; }
     bool shouldReportSample() const { return m_reportSample; }
 
+    std::optional<ResourceCryptographicDigest::Algorithm> reportHash() const { return m_reportHash; }
+
+
 private:
     struct Host {
         StringView value;
@@ -103,6 +106,7 @@ private:
     bool m_allowNonParserInsertedScripts { false };
     bool m_allowUnsafeHashes { false };
     bool m_reportSample { false };
+    std::optional<ResourceCryptographicDigest::Algorithm> m_reportHash;
 };
 
 } // namespace WebCore

@@ -1189,4 +1189,15 @@ void ContentSecurityPolicy::setInsecureNavigationRequestsToUpgrade(HashSet<Secur
     m_insecureNavigationRequestsToUpgrade = WTFMove(insecureNavigationRequests);
 }
 
+const HashAlgorithmMap* ContentSecurityPolicy::hashesToReport()
+{
+    if (!m_hashesToReport) {
+        m_hashesToReport = WTF::makeUnique<HashAlgorithmMap>();
+        for (auto& policy : m_policies) {
+            if (auto hash = policy->reportHash())
+                m_hashesToReport->set(static_cast<uint8_t>(hash.value()), policy->reportToTokens());
+        }
+    }
+    return m_hashesToReport.get();
+}
 }

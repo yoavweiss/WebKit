@@ -30,6 +30,7 @@
 #include "ParsingUtilities.h"
 #include "ResourceCryptographicDigest.h"
 #include "SharedBuffer.h"
+#include "SubresourceLoader.h"
 #include <wtf/text/MakeString.h>
 #include <wtf/text/StringParsingBuffer.h>
 
@@ -161,7 +162,82 @@ static Vector<EncodedResourceCryptographicDigest> strongestMetadataFromSet(Vecto
     return result;
 }
 
-bool matchIntegrityMetadataSlow(const CachedResource& resource, const String& integrityMetadataList)
+static Ref<FormData> createReportFormData(const String& type, const URL& url, const String& userAgent, const Function<void(JSON::Object&)>& populateBody)
+{
+    auto body = JSON::Object::create();
+    populateBody(body);
+
+    // https://www.w3.org/TR/reporting-1/#queue-report, step 2.3.1.
+    auto reportObject = JSON::Object::create();
+    reportObject->setObject("body"_s, WTFMove(body));
+    reportObject->setString("type"_s, type);
+    reportObject->setString("user_agent"_s, userAgent);
+    reportObject->setInteger("age"_s, 0); // We currently do not delay sending the reports.
+    reportObject->setInteger("attempts"_s, 0);
+    if (url.isValid())
+        reportObject->setString("url"_s, url.string());
+
+    auto reportList = JSON::Array::create();
+    reportList->pushObject(reportObject);
+
+    return FormData::create(reportList->toJSONString().utf8());
+}
+
+static String addHashPrefix(ResourceCryptographicDigest::Algorithm algorithm, const String& hash)
+{
+    switch (algorithm) {
+    case ResourceCryptographicDigest::Algorithm::SHA256:
+        return makeString("sha256-"_s, hash);
+    case ResourceCryptographicDigest::Algorithm::SHA384:
+        return makeString("sha384-"_s, hash);
+    case ResourceCryptographicDigest::Algorithm::SHA512:
+        return makeString("sha512-"_s, hash);
+    }
+}
+
+static void reportHashesIfNeeded(const CachedResource& resource)
+{
+    // TODO: make the vector static!
+    const Vector<ResourceCryptographicDigest::Algorithm> algorithms = { ResourceCryptographicDigest::Algorithm::SHA256, ResourceCryptographicDigest::Algorithm::SHA384, ResourceCryptographicDigest::Algorithm::SHA512 };
+    if (!resource.loader())
+        return;
+
+    LocalFrame* frame = resource.loader()->frame();
+    if (!frame)
+        return;
+
+    Document* document = frame->document();
+    if (!document)
+        return;
+
+    auto csp = document->checkedContentSecurityPolicy();
+    const HashAlgorithmMap* hashesToReport = csp->hashesToReport();
+    if (!hashesToReport || hashesToReport->isEmpty())
+        return;
+
+    bool canExposeHashes = isResponseEligible(resource);
+    for (auto hashAlgorithm : algorithms) {
+        auto hashIt = hashesToReport->find(static_cast<uint8_t>(hashAlgorithm));
+        if (hashIt == hashesToReport->end())
+            continue;
+
+        String hash = ""_s;
+        if (canExposeHashes)
+            hash = addHashPrefix(hashAlgorithm, base64EncodeToString(resource.cryptographicDigest(hashAlgorithm).value));
+        // XXX trimmed document URL and subresource URL!!!
+        Ref<FormData> report = createReportFormData("csp-hash"_s, document->url(), document->httpUserAgent(), [&](auto& body) {
+            body.setString("documentURL"_s, document->url().string());
+            body.setString("subresourceURL"_s, resource.url().string());
+            body.setString("hash"_s, hash);
+            body.setString("type"_s, "subresource"_s);
+            body.setString("destination"_s, "script"_s);
+        });
+        document->sendReportToEndpoints(document->url(), Vector<String>(), hashIt->value, WTFMove(report), ViolationReportType::CSPHashReport);
+
+    }
+}
+
+static bool matchIntegrityMetadataImpl(const CachedResource& resource, const String& integrityMetadataList)
 {
     // 1. Let parsedMetadata be the result of parsing metadataList.
     auto parsedMetadata = parseIntegrityMetadata(integrityMetadataList);
@@ -198,6 +274,14 @@ bool matchIntegrityMetadataSlow(const CachedResource& resource, const String& in
     }
     
     return false;
+}
+
+bool matchIntegrityMetadataSlow(const CachedResource& resource, const String& integrityMetadataList)
+{
+    bool result = matchIntegrityMetadataImpl(resource, integrityMetadataList);
+    if (result)
+        reportHashesIfNeeded(resource);
+    return result;
 }
 
 String integrityMismatchDescription(const CachedResource& resource, const String& integrityMetadata)

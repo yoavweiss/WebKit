@@ -50,6 +50,7 @@ public:
     bool allowWasmEval() const { return m_sourceList.allowWasmEval(); }
     bool allowNonParserInsertedScripts() const { return m_sourceList.allowNonParserInsertedScripts(); }
     bool shouldReportSample() const { return m_sourceList.shouldReportSample(); }
+    std::optional<ResourceCryptographicDigest::Algorithm> reportHash() const { return m_sourceList.reportHash(); }
 
     OptionSet<ContentSecurityPolicyHashAlgorithm> hashAlgorithmsUsed() const { return m_sourceList.hashAlgorithmsUsed(); }
 
