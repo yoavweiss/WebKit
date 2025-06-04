@@ -4513,6 +4513,7 @@ sub GenerateImplementation
 
     AddToImplIncludes("${implType}.h") if $interface->isNamespaceObject;
     AddToImplIncludes("ElementInlines.h") if $interfaceName eq "Node";
+    AddToImplIncludes("DocumentInlines.h") if $interfaceName =~ /Document/;
 
     @implContent = ();
 
