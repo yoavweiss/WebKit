@@ -605,7 +605,6 @@ rendering/svg/legacy/LegacyRenderSVGResource.cpp
 rendering/svg/legacy/LegacyRenderSVGResourceClipper.cpp
 rendering/svg/legacy/LegacyRenderSVGResourceContainer.cpp
 rendering/svg/legacy/LegacyRenderSVGResourceGradient.cpp
-rendering/svg/legacy/LegacyRenderSVGResourceMasker.cpp
 rendering/svg/legacy/LegacyRenderSVGResourcePattern.cpp
 rendering/svg/legacy/LegacyRenderSVGResourceSolidColor.cpp
 rendering/svg/legacy/LegacyRenderSVGShape.cpp

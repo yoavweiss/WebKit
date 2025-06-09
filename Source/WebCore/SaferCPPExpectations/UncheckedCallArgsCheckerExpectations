@@ -789,16 +789,10 @@ rendering/svg/legacy/LegacyRenderSVGModelObject.cpp
 rendering/svg/legacy/LegacyRenderSVGPath.cpp
 rendering/svg/legacy/LegacyRenderSVGResource.cpp
 rendering/svg/legacy/LegacyRenderSVGResourceClipper.cpp
-rendering/svg/legacy/LegacyRenderSVGResourceClipperInlines.h
 rendering/svg/legacy/LegacyRenderSVGResourceContainer.cpp
 rendering/svg/legacy/LegacyRenderSVGResourceFilter.cpp
-rendering/svg/legacy/LegacyRenderSVGResourceFilterInlines.h
 rendering/svg/legacy/LegacyRenderSVGResourceFilterPrimitive.cpp
 rendering/svg/legacy/LegacyRenderSVGResourceGradient.cpp
-rendering/svg/legacy/LegacyRenderSVGResourceMarker.cpp
-rendering/svg/legacy/LegacyRenderSVGResourceMarkerInlines.h
-rendering/svg/legacy/LegacyRenderSVGResourceMasker.cpp
-rendering/svg/legacy/LegacyRenderSVGResourceMaskerInlines.h
 rendering/svg/legacy/LegacyRenderSVGResourcePattern.cpp
 rendering/svg/legacy/LegacyRenderSVGResourceSolidColor.cpp
 rendering/svg/legacy/LegacyRenderSVGRoot.cpp
