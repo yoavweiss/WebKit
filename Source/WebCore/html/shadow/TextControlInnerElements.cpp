@@ -128,7 +128,10 @@ std::optional<Style::UnadjustedStyle> TextControlInnerElement::resolveCustomStyl
     newStyle->setFlexGrow(1);
 
     // Needed for correct shrinking.
-    newStyle->setLogicalMinWidth(0_css_px);
+    if (newStyle->writingMode().isHorizontal())
+        newStyle->setMinWidth(Length { 0, LengthType::Fixed });
+    else
+        newStyle->setMinHeight(Length { 0, LengthType::Fixed });
 
     newStyle->setDisplay(DisplayType::Block);
     newStyle->setDirection(TextDirection::LTR);
@@ -146,7 +149,7 @@ std::optional<Style::UnadjustedStyle> TextControlInnerElement::resolveCustomStyl
         // for the root element style, the parent element style, and the render view.
         auto emSize = CSSPrimitiveValue::create(1, CSSUnitType::CSS_EM);
         int pixels = emSize->resolveAsLength<int>(CSSToLengthConversionData { *newStyle, nullptr, nullptr, nullptr });
-        newStyle->setFlexBasis(Style::FlexBasis::Fixed { static_cast<float>(pixels) });
+        newStyle->setFlexBasis(Length { pixels, LengthType::Fixed });
     }
 
     return Style::UnadjustedStyle { WTFMove(newStyle) };

@@ -133,12 +133,8 @@ public:
         auto* documentElement = document.documentElement();
         if (!documentElement || documentElement == &element)
             m_rootElementStyle = document.initialContainingBlockStyle();
-        else if (documentElementStyle)
-            m_rootElementStyle = documentElementStyle;
-        else if (auto* documentElementRenderStyle = documentElement->renderStyle())
-            m_rootElementStyle = documentElementRenderStyle;
         else
-            m_rootElementStyle = document.initialContainingBlockStyle();
+            m_rootElementStyle = documentElementStyle ? documentElementStyle : documentElement->renderStyle();
     }
 
     const Element* element() const { return m_element; }

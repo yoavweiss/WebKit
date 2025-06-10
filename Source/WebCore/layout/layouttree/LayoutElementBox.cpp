@@ -206,9 +206,7 @@ LayoutUnit ElementBox::intrinsicWidth() const
     ASSERT(hasIntrinsicWidth());
     if (m_replacedData && m_replacedData->intrinsicSize)
         return m_replacedData->intrinsicSize->width();
-
-    // FIXME: Document what invariant holds to allow not checking if the logicalWidth() is fixed.
-    return LayoutUnit { style().logicalWidth().tryFixed()->value };
+    return LayoutUnit { style().logicalWidth().value() };
 }
 
 LayoutUnit ElementBox::intrinsicHeight() const
@@ -216,9 +214,7 @@ LayoutUnit ElementBox::intrinsicHeight() const
     ASSERT(hasIntrinsicHeight());
     if (m_replacedData && m_replacedData->intrinsicSize)
         return m_replacedData->intrinsicSize->height();
-
-    // FIXME: Document what invariant holds to allow not checking if the logicalHeight() is fixed.
-    return LayoutUnit { style().logicalHeight().tryFixed()->value };;
+    return LayoutUnit { style().logicalHeight().value() };
 }
 
 LayoutUnit ElementBox::intrinsicRatio() const

@@ -39,9 +39,7 @@ static_assert(sizeof(StyleBoxData) == sizeof(SameSizeAsStyleBoxData), "StyleBoxD
 DEFINE_ALLOCATOR_WITH_HEAP_IDENTIFIER(StyleBoxData);
 
 StyleBoxData::StyleBoxData()
-    : m_width(RenderStyle::initialSize())
-    , m_height(RenderStyle::initialSize())
-    , m_minWidth(RenderStyle::initialMinSize())
+    : m_minWidth(RenderStyle::initialMinSize())
     , m_maxWidth(RenderStyle::initialMaxSize())
     , m_minHeight(RenderStyle::initialMinSize())
     , m_maxHeight(RenderStyle::initialMaxSize())

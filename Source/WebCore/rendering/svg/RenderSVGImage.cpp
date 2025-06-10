@@ -93,8 +93,8 @@ FloatRect RenderSVGImage::calculateObjectBoundingBox() const
     Ref imageElement = this->imageElement();
     SVGLengthContext lengthContext(imageElement.ptr());
 
-    auto& width = style().width();
-    auto& height = style().height();
+    Length width = style().width();
+    Length height = style().height();
 
     float concreteWidth;
     if (!width.isAuto())

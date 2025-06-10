@@ -81,7 +81,7 @@ static void resetOverriddenHeight(RenderBox* box, const RenderObject* ancestor)
     ASSERT(box != ancestor);
     if (!box || box->style().logicalHeight().isAuto())
         return; // Null box or its height was not overridden.
-    box->mutableStyle().setLogicalHeight(CSS::Keyword::Auto { });
+    box->mutableStyle().setLogicalHeight(Length { LengthType::Auto });
     for (RenderObject* renderer = box; renderer != ancestor; renderer = renderer->parent()) {
         ASSERT(renderer);
         renderer->setNeedsLayout(MarkOnlyThis);
@@ -141,10 +141,10 @@ void RenderTextControlSingleLine::layout()
         if (inputContentBoxLogicalHeight != innerTextLogicalHeight)
             setNeedsLayout(MarkOnlyThis);
 
-        innerTextRenderer->mutableStyle().setLogicalHeight(Style::PreferredSize::Fixed { inputContentBoxLogicalHeight });
+        innerTextRenderer->mutableStyle().setLogicalHeight(Length(inputContentBoxLogicalHeight, LengthType::Fixed));
         innerTextRenderer->setNeedsLayout(MarkOnlyThis);
         if (innerBlockRenderer) {
-            innerBlockRenderer->mutableStyle().setLogicalHeight(Style::PreferredSize::Fixed { inputContentBoxLogicalHeight });
+            innerBlockRenderer->mutableStyle().setLogicalHeight(Length(inputContentBoxLogicalHeight, LengthType::Fixed));
             innerBlockRenderer->setNeedsLayout(MarkOnlyThis);
         }
         innerTextLogicalHeight = inputContentBoxLogicalHeight;
@@ -176,16 +176,16 @@ void RenderTextControlSingleLine::layout()
             if (autoFillStrongPasswordButtonRenderer->logicalTop() < innerBlockRenderer->logicalBottom())
                 newContainerHeight = std::max<LayoutUnit>(newContainerHeight, autoFillStrongPasswordButtonRenderer->logicalHeight());
 
-            containerRenderer->mutableStyle().setLogicalHeight(Style::PreferredSize::Fixed { newContainerHeight });
+            containerRenderer->mutableStyle().setLogicalHeight(Length { newContainerHeight, LengthType::Fixed });
             setNeedsLayout(MarkOnlyThis);
         } else if (containerLogicalHeight > logicalHeightLimit) {
-            containerRenderer->mutableStyle().setLogicalHeight(Style::PreferredSize::Fixed { logicalHeightLimit });
+            containerRenderer->mutableStyle().setLogicalHeight(Length(logicalHeightLimit, LengthType::Fixed));
             setNeedsLayout(MarkOnlyThis);
         } else if (containerRenderer->logicalHeight() < contentBoxLogicalHeight()) {
-            containerRenderer->mutableStyle().setLogicalHeight(Style::PreferredSize::Fixed { contentBoxLogicalHeight() });
+            containerRenderer->mutableStyle().setLogicalHeight(Length(contentBoxLogicalHeight(), LengthType::Fixed));
             setNeedsLayout(MarkOnlyThis);
         } else
-            containerRenderer->mutableStyle().setLogicalHeight(Style::PreferredSize::Fixed { containerLogicalHeight });
+            containerRenderer->mutableStyle().setLogicalHeight(Length(containerLogicalHeight, LengthType::Fixed));
     }
 
     // If we need another layout pass, we have changed one of children's height so we need to relayout them.
@@ -223,7 +223,7 @@ void RenderTextControlSingleLine::layout()
         auto innerTextWidth = LayoutUnit { };
         if (innerTextRenderer)
             innerTextWidth = innerTextRenderer->logicalWidth();
-        placeholderBox->mutableStyle().setWidth(Style::PreferredSize::Fixed { innerTextWidth - placeholderBox->horizontalBorderAndPaddingExtent() });
+        placeholderBox->mutableStyle().setWidth(Length(innerTextWidth - placeholderBox->horizontalBorderAndPaddingExtent(), LengthType::Fixed));
         bool neededLayout = placeholderBox->needsLayout();
         bool placeholderBoxHadLayout = placeholderBox->everHadLayout();
         if (innerTextSizeChanged) {
@@ -307,13 +307,13 @@ void RenderTextControlSingleLine::styleDidChange(StyleDifference diff, const Ren
     // Reset them now to avoid getting a spurious layout hint.
     HTMLElement* innerBlock = innerBlockElement();
     if (auto* innerBlockRenderer = innerBlock ? innerBlock->renderer() : nullptr) {
-        innerBlockRenderer->mutableStyle().setHeight(CSS::Keyword::Auto { });
-        innerBlockRenderer->mutableStyle().setWidth(CSS::Keyword::Auto { });
+        innerBlockRenderer->mutableStyle().setHeight(Length());
+        innerBlockRenderer->mutableStyle().setWidth(Length());
     }
     HTMLElement* container = containerElement();
     if (auto* containerRenderer = container ? container->renderer() : nullptr) {
-        containerRenderer->mutableStyle().setHeight(CSS::Keyword::Auto { });
-        containerRenderer->mutableStyle().setWidth(CSS::Keyword::Auto { });
+        containerRenderer->mutableStyle().setHeight(Length());
+        containerRenderer->mutableStyle().setWidth(Length());
     }
     if (diff == StyleDifference::Layout) {
         if (auto innerTextRenderer = innerTextElement()->renderer())

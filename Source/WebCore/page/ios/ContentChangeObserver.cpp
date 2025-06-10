@@ -102,25 +102,26 @@ bool ContentChangeObserver::isVisuallyHidden(const Node& node)
     if (!style.opacity())
         return true;
 
-    auto fixedWidth = style.logicalWidth().tryFixed();
-    auto fixedHeight = style.logicalHeight().tryFixed();
-    if ((fixedWidth && !fixedWidth->value) || (fixedHeight && !fixedHeight->value))
+    auto width = style.logicalWidth();
+    auto height = style.logicalHeight();
+    if ((width.isFixed() && !width.value()) || (height.isFixed() && !height.value()))
         return true;
 
-    auto fixedTop = style.logicalTop().tryFixed();
-    auto fixedLeft = style.logicalLeft().tryFixed();
+    auto top = style.logicalTop();
+    auto left = style.logicalLeft();
     // FIXME: This is trying to check if the element is outside of the viewport. This is incorrect for many reasons.
-    if (fixedLeft && fixedWidth && -fixedLeft->value >= fixedWidth->value)
+    if (auto fixedLeft = left.tryFixed(); fixedLeft && width.isFixed() && -fixedLeft->value >= width.value())
         return true;
-    if (fixedTop && fixedHeight && -fixedTop->value >= fixedHeight->value)
+    if (auto fixedTop = top.tryFixed(); fixedTop && height.isFixed() && -fixedTop->value >= height.value())
         return true;
 
     // It's a common technique used to position content offscreen.
-    if (style.hasOutOfFlowPosition() && fixedLeft && fixedLeft->value <= -999)
+    if (auto fixedLeft = left.tryFixed(); style.hasOutOfFlowPosition() && fixedLeft && fixedLeft->value <= -999)
         return true;
 
     // FIXME: Check for other cases like zero height with overflow hidden.
-    if (auto fixedMaxHeight = style.maxHeight().tryFixed(); fixedMaxHeight && !fixedMaxHeight->value)
+    auto maxHeight = style.maxHeight();
+    if (maxHeight.isFixed() && !maxHeight.value())
         return true;
 
     // Special case opacity, because a descendant with non-zero opacity should still be considered hidden when one of its ancetors has opacity: 0;
@@ -144,13 +145,16 @@ bool ContentChangeObserver::isConsideredVisible(const Node& node)
     if (isVisuallyHidden(node))
         return false;
 
-    // 1px width or height content is not considered visible.
     auto& style = *node.renderStyle();
+    auto width = style.logicalWidth();
+    // 1px width or height content is not considered visible.
+    if (width.isFixed() && width.value() <= 1)
+        return false;
 
-    if (auto fixedWidth = style.logicalWidth().tryFixed(); fixedWidth && fixedWidth->value <= 1)
+    auto height = style.logicalHeight();
+    if (height.isFixed() && height.value() <= 1)
         return false;
-    if (auto fixedHeight = style.logicalHeight().tryFixed(); fixedHeight && fixedHeight->value <= 1)
-        return false;
+
     return true;
 }
 

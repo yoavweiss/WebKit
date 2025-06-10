@@ -85,12 +85,12 @@ public:
         bool hasCells() const { return cells.size() > 0; }
     };
 
-    using Row = Vector<CellStruct>;
+    typedef Vector<CellStruct> Row;
     struct RowStruct {
         Row row;
         RenderTableRow* rowRenderer { nullptr };
         LayoutUnit baseline;
-        Style::PreferredSize logicalHeight { CSS::Keyword::Auto { } };
+        Length logicalHeight;
     };
 
     inline const BorderValue& borderAdjoiningTableStart() const;

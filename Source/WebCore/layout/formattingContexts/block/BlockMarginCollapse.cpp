@@ -275,7 +275,7 @@ bool BlockMarginCollapse::marginAfterCollapsesWithParentMarginAfter(const Elemen
     if (layoutBox.isInlineBlockBox())
         return false;
 
-    // Only the last inflow child collapses with parent.
+    // Only the last inlflow child collapses with parent.
     if (layoutBox.nextInFlowSibling())
         return false;
 
@@ -301,8 +301,8 @@ bool BlockMarginCollapse::marginAfterCollapsesWithParentMarginAfter(const Elemen
         return false;
 
     // nor (if the box's min-height is non-zero) with the box's top margin.
-    auto& logicalMinHeight = containingBlock.style().logicalMinHeight();
-    if (!logicalMinHeight.isAuto() && !logicalMinHeight.isZero() && marginAfterCollapsesWithParentMarginBefore(layoutBox))
+    auto computedMinHeight = containingBlock.style().logicalMinHeight();
+    if (!computedMinHeight.isAuto() && computedMinHeight.value() && marginAfterCollapsesWithParentMarginBefore(layoutBox))
         return false;
 
     return true;
@@ -340,8 +340,9 @@ bool BlockMarginCollapse::marginAfterCollapsesWithLastInFlowChildMarginAfter(con
         return false;
 
     // nor (if the box's min-height is non-zero) with the box's top margin.
-    auto& logicalMinHeight = layoutBox.style().logicalMinHeight();
-    if (!logicalMinHeight.isAuto() && !logicalMinHeight.isZero() && (marginAfterCollapsesWithParentMarginBefore(*lastInFlowChild) || hasClearance(*lastInFlowChild)))
+    auto computedMinHeight = layoutBox.style().logicalMinHeight();
+    if (!computedMinHeight.isAuto() && computedMinHeight.value()
+        && (marginAfterCollapsesWithParentMarginBefore(*lastInFlowChild) || hasClearance(*lastInFlowChild)))
         return false;
 
     // Margins of inline-block boxes do not collapse.
@@ -384,7 +385,8 @@ bool BlockMarginCollapse::marginsCollapseThrough(const ElementBox& layoutBox) co
         return false;
 
     auto& style = layoutBox.style();
-    if (auto& height = style.height(); !(height.isAuto() || (height.isFixed() && height.isZero())))
+    auto computedHeightValueIsZero = style.height().isFixed() && !style.height().value();
+    if (!(style.height().isAuto() || computedHeightValueIsZero))
         return false;
 
     // FIXME: Check for computed 0 height.

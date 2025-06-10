@@ -84,24 +84,10 @@ void RenderScrollbarPart::layoutVerticalPart()
     } 
 }
 
-static int calcScrollbarThicknessUsing(const Style::PreferredSize& preferredSize)
+static int calcScrollbarThicknessUsing(RenderBox::SizeType sizeType, const Length& length)
 {
-    if (!preferredSize.isPercentOrCalculated() && !preferredSize.isIntrinsicOrLegacyIntrinsicOrAuto())
-        return Style::evaluateMinimum(preferredSize, { });
-    return ScrollbarTheme::theme().scrollbarThickness();
-}
-
-static int calcScrollbarThicknessUsing(const Style::MinimumSize& minimumSize)
-{
-    if ((!minimumSize.isPercentOrCalculated() && !minimumSize.isIntrinsicOrLegacyIntrinsicOrAuto()) || minimumSize.isAuto())
-        return Style::evaluateMinimum(minimumSize, { });
-    return ScrollbarTheme::theme().scrollbarThickness();
-}
-
-static int calcScrollbarThicknessUsing(const Style::MaximumSize& maximumSize)
-{
-    if (!maximumSize.isPercentOrCalculated() && !maximumSize.isIntrinsicOrLegacyIntrinsic())
-        return Style::evaluateMinimum(maximumSize, { });
+    if ((!length.isPercentOrCalculated() && !length.isIntrinsicOrAuto()) || (sizeType == RenderBox::SizeType::MinSize && length.isAuto()))
+        return minimumValueForLength(length, { });
     return ScrollbarTheme::theme().scrollbarThickness();
 }
 
@@ -109,9 +95,9 @@ void RenderScrollbarPart::computeScrollbarWidth()
 {
     if (!m_scrollbar->owningRenderer())
         return;
-    auto width = calcScrollbarThicknessUsing(style().width());
-    auto minWidth = calcScrollbarThicknessUsing(style().minWidth());
-    auto maxWidth = style().maxWidth().isNone() ? width : calcScrollbarThicknessUsing(style().maxWidth());
+    int width = calcScrollbarThicknessUsing(RenderBox::SizeType::MainOrPreferredSize, style().width());
+    int minWidth = calcScrollbarThicknessUsing(RenderBox::SizeType::MinSize, style().minWidth());
+    int maxWidth = style().maxWidth().isUndefined() ? width : calcScrollbarThicknessUsing(RenderBox::SizeType::MaxSize, style().maxWidth());
     setWidth(std::max(minWidth, std::min(maxWidth, width)));
     
     // Buttons and track pieces can all have margins along the axis of the scrollbar. 
@@ -123,9 +109,9 @@ void RenderScrollbarPart::computeScrollbarHeight()
 {
     if (!m_scrollbar->owningRenderer())
         return;
-    auto height = calcScrollbarThicknessUsing(style().height());
-    auto minHeight = calcScrollbarThicknessUsing(style().minHeight());
-    auto maxHeight = style().maxHeight().isNone() ? height : calcScrollbarThicknessUsing(style().maxHeight());
+    int height = calcScrollbarThicknessUsing(RenderBox::SizeType::MainOrPreferredSize, style().height());
+    int minHeight = calcScrollbarThicknessUsing(RenderBox::SizeType::MinSize, style().minHeight());
+    int maxHeight = style().maxHeight().isUndefined() ? height : calcScrollbarThicknessUsing(RenderBox::SizeType::MaxSize, style().maxHeight());
     setHeight(std::max(minHeight, std::min(maxHeight, height)));
 
     // Buttons and track pieces can all have margins along the axis of the scrollbar. 

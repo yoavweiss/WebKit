@@ -172,7 +172,7 @@ void RenderTableCell::colSpanOrRowSpanChanged()
         section()->setNeedsCellRecalc();
 }
 
-Style::PreferredSize RenderTableCell::logicalWidthFromColumns(RenderTableCol* firstColForThisCell, const Style::PreferredSize& widthFromStyle) const
+Length RenderTableCell::logicalWidthFromColumns(RenderTableCol* firstColForThisCell, Length widthFromStyle) const
 {
     ASSERT(firstColForThisCell && firstColForThisCell == table()->colElement(col()));
     RenderTableCol* tableCol = firstColForThisCell;
@@ -180,19 +180,17 @@ Style::PreferredSize RenderTableCell::logicalWidthFromColumns(RenderTableCol* fi
     unsigned colSpanCount = colSpan();
     LayoutUnit colWidthSum;
     for (unsigned i = 1; i <= colSpanCount; i++) {
-        auto& colWidth = tableCol->style().logicalWidth();
-
-        auto fixedColWidth = colWidth.tryFixed();
+        Length colWidth = tableCol->style().logicalWidth();
 
         // Percentage value should be returned only for colSpan == 1.
         // Otherwise we return original width for the cell.
-        if (!fixedColWidth) {
+        if (!colWidth.isFixed()) {
             if (colSpanCount > 1)
                 return widthFromStyle;
             return colWidth;
         }
 
-        colWidthSum += fixedColWidth->value;
+        colWidthSum += colWidth.value();
         tableCol = tableCol->nextColumn();
         // If no next <col> tag found for the span we just return what we have for now.
         if (!tableCol)
@@ -202,8 +200,8 @@ Style::PreferredSize RenderTableCell::logicalWidthFromColumns(RenderTableCol* fi
     // Column widths specified on <col> apply to the border box of the cell, see bug 8126.
     // FIXME: Why is border/padding ignored in the negative width case?
     if (colWidthSum > 0)
-        return Style::PreferredSize::Fixed { std::max<LayoutUnit>(0, colWidthSum - borderAndPaddingLogicalWidth()) };
-    return Style::PreferredSize::Fixed { colWidthSum };
+        return Length(std::max<LayoutUnit>(0, colWidthSum - borderAndPaddingLogicalWidth()), LengthType::Fixed);
+    return Length(colWidthSum, LengthType::Fixed);
 }
 
 void RenderTableCell::computePreferredLogicalWidths()
@@ -227,13 +225,14 @@ void RenderTableCell::computePreferredLogicalWidths()
     if (!element() || !style().autoWrap() || !element()->hasAttributeWithoutSynchronization(nowrapAttr))
         return;
 
-    if (auto fixedLogicalWidth = styleOrColLogicalWidth().tryFixed()) {
+    Length w = styleOrColLogicalWidth();
+    if (w.isFixed()) {
         // Nowrap is set, but we didn't actually use it because of the
         // fixed width set on the cell. Even so, it is a WinIE/Moz trait
         // to make the minwidth of the cell into the fixed width. They do this
         // even in strict mode, so do not make this a quirk. Affected the top
         // of hiptop.com.
-        m_minPreferredLogicalWidth = std::max(LayoutUnit(fixedLogicalWidth->value), m_minPreferredLogicalWidth);
+        m_minPreferredLogicalWidth = std::max(LayoutUnit(w.value()), m_minPreferredLogicalWidth);
     }
 }
 

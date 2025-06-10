@@ -554,7 +554,7 @@ template<auto styleGetter, auto boxGetter> Ref<CSSValue> extractZoomAdjustedPref
         if (!isNonReplacedInline(*state.renderer))
             return ExtractorConverter::convertNumberAsPixels(state, (sizingBox(*state.renderer).*boxGetter)());
     }
-    return ExtractorConverter::convertPreferredSize(state, (state.style.*styleGetter)());
+    return ExtractorConverter::convertLength(state, (state.style.*styleGetter)());
 }
 
 template<auto styleGetter, auto boxGetter> void extractZoomAdjustedPreferredSizeSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
@@ -579,26 +579,26 @@ template<auto styleGetter, auto boxGetter> void extractZoomAdjustedPreferredSize
         }
     }
 
-    ExtractorSerializer::serializePreferredSize(state, builder, context, (state.style.*styleGetter)());
+    ExtractorSerializer::serializeLength(state, builder, context, (state.style.*styleGetter)());
 }
 
 template<auto styleGetter> Ref<CSSValue> extractZoomAdjustedMaxSizeValue(ExtractorState& state)
 {
     auto unzoomedLength = (state.style.*styleGetter)();
-    if (unzoomedLength.isNone())
+    if (unzoomedLength.isUndefined())
         return CSSPrimitiveValue::create(CSSValueNone);
-    return ExtractorConverter::convertMaximumSize(state, unzoomedLength);
+    return ExtractorConverter::convertLength(state, unzoomedLength);
 }
 
 template<auto styleGetter> void extractZoomAdjustedMaxSizeSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     auto unzoomedLength = (state.style.*styleGetter)();
-    if (unzoomedLength.isNone()) {
+    if (unzoomedLength.isUndefined()) {
         CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
         return;
     }
 
-    ExtractorSerializer::serializeMaximumSize(state, builder, context, unzoomedLength);
+    ExtractorSerializer::serializeLength(state, builder, context, unzoomedLength);
 }
 
 template<auto styleGetter> Ref<CSSValue> extractZoomAdjustedMinSizeValue(ExtractorState& state)
@@ -614,7 +614,7 @@ template<auto styleGetter> Ref<CSSValue> extractZoomAdjustedMinSizeValue(Extract
             return CSSPrimitiveValue::create(CSSValueAuto);
         return ExtractorConverter::convertNumberAsPixels(state, 0);
     }
-    return ExtractorConverter::convertMinimumSize(state, unzoomedLength);
+    return ExtractorConverter::convertLength(state, unzoomedLength);
 }
 
 template<auto styleGetter> void extractZoomAdjustedMinSizeSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
@@ -635,7 +635,7 @@ template<auto styleGetter> void extractZoomAdjustedMinSizeSerialization(Extracto
         return;
     }
 
-    ExtractorSerializer::serializeMinimumSize(state, builder, context, unzoomedLength);
+    ExtractorSerializer::serializeLength(state, builder, context, unzoomedLength);
 }
 
 template<CSSPropertyID propertyID> Ref<CSSValue> extractCounterValue(ExtractorState& state)

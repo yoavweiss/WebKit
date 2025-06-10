@@ -335,10 +335,10 @@ Style::PaddingBox RenderThemeAdwaita::popupInternalPaddingBox(const RenderStyle&
     int rightPadding = menuListButtonPadding + (style.writingMode().isBidiLTR() ? zoomedArrowSize : 0);
 
     return {
-        Style::PaddingEdge::Fixed { static_cast<float>(menuListButtonPadding) },
-        Style::PaddingEdge::Fixed { static_cast<float>(rightPadding) },
-        Style::PaddingEdge::Fixed { static_cast<float>(menuListButtonPadding) },
-        Style::PaddingEdge::Fixed { static_cast<float>(leftPadding) },
+        Style::Length<CSS::Nonnegative> { static_cast<float>(menuListButtonPadding) },
+        Style::Length<CSS::Nonnegative> { static_cast<float>(rightPadding) },
+        Style::Length<CSS::Nonnegative> { static_cast<float>(menuListButtonPadding) },
+        Style::Length<CSS::Nonnegative> { static_cast<float>(leftPadding) },
     };
 }
 
@@ -359,8 +359,8 @@ void RenderThemeAdwaita::adjustSliderThumbSize(RenderStyle& style, const Element
     if (appearance != StyleAppearance::SliderThumbHorizontal && appearance != StyleAppearance::SliderThumbVertical)
         return;
 
-    style.setWidth(Style::PreferredSize::Fixed { static_cast<float>(sliderThumbSize) });
-    style.setHeight(Style::PreferredSize::Fixed { static_cast<float>(sliderThumbSize) });
+    style.setWidth(Length(sliderThumbSize, LengthType::Fixed));
+    style.setHeight(Length(sliderThumbSize, LengthType::Fixed));
 }
 
 IntSize RenderThemeAdwaita::sliderTickSize() const
@@ -382,30 +382,28 @@ void RenderThemeAdwaita::adjustListButtonStyle(RenderStyle& style, const Element
         style.setMarginLeft(-2_css_px);
 }
 
-Style::PreferredSizePair RenderThemeAdwaita::controlSize(StyleAppearance appearance, const FontCascade& fontCascade, const Style::PreferredSizePair& zoomedSize, float zoomFactor) const
+LengthSize RenderThemeAdwaita::controlSize(StyleAppearance appearance, const FontCascade& fontCascade, const LengthSize& zoomedSize, float zoomFactor) const
 {
-    if (!zoomedSize.width().isIntrinsicOrLegacyIntrinsicOrAuto() && !zoomedSize.height().isIntrinsicOrLegacyIntrinsicOrAuto())
+    if (!zoomedSize.width.isIntrinsicOrAuto() && !zoomedSize.height.isIntrinsicOrAuto())
         return RenderTheme::controlSize(appearance, fontCascade, zoomedSize, zoomFactor);
 
     switch (appearance) {
     case StyleAppearance::Checkbox:
     case StyleAppearance::Radio: {
-        auto buttonSizeWidth = zoomedSize.width();
-        auto buttonSizeHeight = zoomedSize.height();
-        if (buttonSizeWidth.isIntrinsicOrLegacyIntrinsicOrAuto())
-            buttonSizeWidth = 12_css_px * zoomFactor;
-        if (buttonSizeHeight.isIntrinsicOrLegacyIntrinsicOrAuto())
-            buttonSizeHeight = 12_css_px * zoomFactor;
-        return { WTFMove(buttonSizeWidth), WTFMove(buttonSizeHeight) };
+        auto buttonSize = zoomedSize;
+        if (buttonSize.width.isIntrinsicOrAuto())
+            buttonSize.width = Length(12 * zoomFactor, LengthType::Fixed);
+        if (buttonSize.height.isIntrinsicOrAuto())
+            buttonSize.height = Length(12 * zoomFactor, LengthType::Fixed);
+        return buttonSize;
     }
     case StyleAppearance::InnerSpinButton: {
-        auto spinButtonSizeWidth = zoomedSize.width();
-        auto spinButtonSizeHeight = zoomedSize.height();
-        if (spinButtonSizeWidth.isIntrinsicOrLegacyIntrinsicOrAuto())
-            spinButtonSizeWidth = Style::PreferredSize::Fixed { static_cast<float>(static_cast<int>(arrowSize * zoomFactor)) };
-        if (spinButtonSizeHeight.isIntrinsicOrLegacyIntrinsicOrAuto() || fontCascade.size() > arrowSize)
-            spinButtonSizeHeight = Style::PreferredSize::Fixed { fontCascade.size() };
-        return { WTFMove(spinButtonSizeWidth), WTFMove(spinButtonSizeHeight) };
+        auto spinButtonSize = zoomedSize;
+        if (spinButtonSize.width.isIntrinsicOrAuto())
+            spinButtonSize.width = Length(static_cast<int>(arrowSize * zoomFactor), LengthType::Fixed);
+        if (spinButtonSize.height.isIntrinsicOrAuto() || fontCascade.size() > arrowSize)
+            spinButtonSize.height = Length(fontCascade.size(), LengthType::Fixed);
+        return spinButtonSize;
     }
     default:
         break;
@@ -414,20 +412,17 @@ Style::PreferredSizePair RenderThemeAdwaita::controlSize(StyleAppearance appeara
     return RenderTheme::controlSize(appearance, fontCascade, zoomedSize, zoomFactor);
 }
 
-Style::MinimumSizePair RenderThemeAdwaita::minimumControlSize(StyleAppearance, const FontCascade&, const Style::MinimumSizePair& zoomedSize, float) const
+LengthSize RenderThemeAdwaita::minimumControlSize(StyleAppearance, const FontCascade&, const LengthSize& zoomedSize, float) const
 {
-    if (!zoomedSize.width().isIntrinsicOrLegacyIntrinsicOrAuto() && !zoomedSize.height().isIntrinsicOrLegacyIntrinsicOrAuto())
+    if (!zoomedSize.width.isIntrinsicOrAuto() && !zoomedSize.height.isIntrinsicOrAuto())
         return zoomedSize;
 
-    auto resultWidth = zoomedSize.width();
-    auto resultHeight = zoomedSize.height();
-
-    if (resultWidth.isIntrinsicOrLegacyIntrinsicOrAuto())
-        resultWidth = 0_css_px;
-    if (resultHeight.isIntrinsicOrLegacyIntrinsicOrAuto())
-        resultHeight = 0_css_px;
-
-    return { WTFMove(resultWidth), WTFMove(resultHeight) };
+    auto minSize = zoomedSize;
+    if (minSize.width.isIntrinsicOrAuto())
+        minSize.width = Length(0, LengthType::Fixed);
+    if (minSize.height.isIntrinsicOrAuto())
+        minSize.height = Length(0, LengthType::Fixed);
+    return minSize;
 }
 
 LengthBox RenderThemeAdwaita::controlBorder(StyleAppearance appearance, const FontCascade& font, const LengthBox& zoomedBox, float zoomFactor) const

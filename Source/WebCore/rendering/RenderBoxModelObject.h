@@ -247,9 +247,7 @@ public:
     enum class ScaleByUsedZoom : bool { No, Yes };
     LayoutSize calculateImageIntrinsicDimensions(StyleImage*, const LayoutSize& scaledPositioningAreaSize, ScaleByUsedZoom) const;
 
-    RenderBlock* containingBlockForAutoHeightDetection(const Style::PreferredSize& logicalHeight) const;
-    RenderBlock* containingBlockForAutoHeightDetection(const Style::MinimumSize& logicalHeight) const;
-    RenderBlock* containingBlockForAutoHeightDetection(const Style::MaximumSize& logicalHeight) const;
+    RenderBlock* containingBlockForAutoHeightDetection(Length logicalHeight) const;
 
     void removeOutOfFlowBoxesIfNeededOnStyleChange(RenderBlock& delegateBlock, const RenderStyle& oldStyle, const RenderStyle& newStyle);
 
@@ -276,10 +274,8 @@ protected:
 
 private:
     ContinuationChainNode& ensureContinuationChainNode();
-
+    
     virtual LayoutRect frameRectForStickyPositioning() const = 0;
-
-    RenderBlock* containingBlockForAutoHeightDetectionGeneric(const auto& logicalHeight) const;
 };
 
 } // namespace WebCore

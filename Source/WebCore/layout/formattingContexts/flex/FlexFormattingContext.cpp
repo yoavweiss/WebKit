@@ -90,10 +90,10 @@ FlexLayout::LogicalFlexItems FlexFormattingContext::convertFlexItemsToLogicalSpa
             auto crossAxis = LogicalFlexItem::CrossAxisGeometry { };
 
             auto propertyValueForLength = [&](auto& propertyValue, auto availableSize) -> std::optional<LayoutUnit> {
-                if (auto fixedPropertyValue = propertyValue.tryFixed())
-                    return LayoutUnit { fixedPropertyValue->value };
+                if (propertyValue.isFixed())
+                    return LayoutUnit { propertyValue.value() };
                 if (propertyValue.isSpecified() && availableSize)
-                    return Style::evaluate(propertyValue, *availableSize);
+                    return valueForLength(propertyValue, *availableSize);
                 return { };
             };
 

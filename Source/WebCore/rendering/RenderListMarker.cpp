@@ -415,8 +415,8 @@ void RenderListMarker::updateInlineMargins()
     };
 
     auto [marginStart, marginEnd] = isInside() ? marginsForInsideMarker() : marginsForOutsideMarker();
-    mutableStyle().setMarginStart(Style::MarginEdge::Fixed { marginStart });
-    mutableStyle().setMarginEnd(Style::MarginEdge::Fixed { marginEnd });
+    mutableStyle().setMarginStart(Style::Length<> { marginStart });
+    mutableStyle().setMarginEnd(Style::Length<> { marginEnd });
 }
 
 LayoutUnit RenderListMarker::lineHeight(bool firstLine, LineDirectionMode direction, LinePositionMode linePositionMode) const

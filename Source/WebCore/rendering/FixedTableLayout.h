@@ -40,7 +40,7 @@ public:
 private:
     float calcWidthArray();
 
-    Vector<Style::PreferredSize> m_width;
+    Vector<Length> m_width;
 };
 
 } // namespace WebCore
