@@ -8125,7 +8125,7 @@ void WebPage::getInformationFromImageData(const Vector<uint8_t>& data, Completio
 }
 #endif
 
-#if PLATFORM(MAC)
+#if PLATFORM(MAC) || PLATFORM(WPE)
 void WebPage::flushPendingThemeColorChange()
 {
     if (!m_pendingThemeColorChange)

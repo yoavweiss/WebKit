@@ -186,6 +186,10 @@ void LayerTreeHost::flushLayers()
     page->updateRendering();
     page->flushPendingEditorStateUpdate();
 
+#if PLATFORM(WPE)
+    page->flushPendingThemeColorChange();
+#endif
+
     if (m_overlayCompositingLayer)
         m_overlayCompositingLayer->flushCompositingState(visibleContentsRect());
 

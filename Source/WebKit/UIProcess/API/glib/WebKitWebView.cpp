@@ -116,6 +116,7 @@
 #if ENABLE(WPE_PLATFORM)
 #include "WebKitInputMethodContextImplWPE.h"
 #endif
+#include "WebKitColor.h"
 #endif
 
 #if ENABLE(2022_GLIB_API)
@@ -243,6 +244,10 @@ enum {
 
     PROP_WEB_EXTENSION_MODE,
     PROP_DEFAULT_CONTENT_SECURITY_POLICY,
+
+#if PLATFORM(WPE)
+    PROP_THEME_COLOR,
+#endif
 
     N_PROPERTIES,
 };
@@ -555,6 +560,13 @@ void WebKitWebViewClient::didReceiveUserMessage(WKWPE::View&, UserMessage&& mess
 WebKitWebResourceLoadManager* WebKitWebViewClient::webResourceLoadManager()
 {
     return webkitWebViewGetWebResourceLoadManager(m_webView);
+}
+
+void WebKitWebViewClient::themeColorDidChange()
+{
+#if PLATFORM(WPE)
+    g_object_notify_by_pspec(G_OBJECT(m_webView), sObjProperties[PROP_THEME_COLOR]);
+#endif
 }
 
 #if ENABLE(FULLSCREEN_API)
@@ -1177,6 +1189,14 @@ static void webkitWebViewGetProperty(GObject* object, guint propId, GValue* valu
     case PROP_DEFAULT_CONTENT_SECURITY_POLICY:
         g_value_set_string(value, webkit_web_view_get_default_content_security_policy(webView));
         break;
+#if PLATFORM(WPE)
+    case PROP_THEME_COLOR: {
+        auto* color = static_cast<WebKitColor*>(fastMalloc(sizeof(WebKitColor)));
+        webkit_web_view_get_theme_color(webView, color);
+        g_value_take_boxed(value, static_cast<gconstpointer>(color));
+        break;
+    }
+#endif
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
     }
@@ -1709,6 +1729,21 @@ static void webkit_web_view_class_init(WebKitWebViewClass* webViewClass)
         nullptr, nullptr,
         nullptr,
         static_cast<GParamFlags>(WEBKIT_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+
+#if PLATFORM(WPE)
+    /**
+     * WebKitWebView:theme-color:
+     *
+     * The theme color of the WebView's current page.
+     *
+     * Since: 2.50
+     */
+    sObjProperties[PROP_THEME_COLOR] = g_param_spec_boxed(
+        "theme-color",
+        nullptr, nullptr,
+        WEBKIT_TYPE_COLOR,
+        WEBKIT_PARAM_READABLE);
+#endif
 
     g_object_class_install_properties(gObjectClass, N_PROPERTIES, sObjProperties.data());
 

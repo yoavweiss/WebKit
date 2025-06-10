@@ -1636,6 +1636,60 @@ static void testWebViewBackgroundColor(WebViewTest* test, gconstpointer)
     // MiniBrowser --bg-color="<color-value>" for manually testing this API.
 }
 
+#if PLATFORM(WPE)
+class ThemeColorWebViewTest : public WebViewTest {
+public:
+    MAKE_GLIB_TEST_FIXTURE(ThemeColorWebViewTest);
+
+    static void themeColorChanged(GObject*, GParamSpec*, ThemeColorWebViewTest* test)
+    {
+        g_signal_handlers_disconnect_by_func(test->m_webView.get(), reinterpret_cast<void*>(themeColorChanged), test);
+        g_main_loop_quit(test->m_mainLoop);
+    }
+
+    void testThemeColorResult()
+    {
+        WebKitColor rgba;
+        g_assert_true(webkit_web_view_get_theme_color(m_webView.get(), &rgba));
+        g_assert_cmpfloat(rgba.red, ==, targetColor.red);
+        g_assert_cmpfloat(rgba.green, ==, targetColor.green);
+        g_assert_cmpfloat(rgba.blue, ==, targetColor.blue);
+        g_assert_cmpfloat(rgba.alpha, ==, targetColor.alpha);
+    }
+
+    void waitUntilThemeColorChanged()
+    {
+        g_signal_connect(m_webView.get(), "notify::theme-color", G_CALLBACK(themeColorChanged), this);
+        g_main_loop_run(m_mainLoop);
+    }
+
+    WebKitColor targetColor { 0.0, 0.0, 0.0, 0.0 };
+};
+
+static void testWebViewThemeColor(ThemeColorWebViewTest* test, gconstpointer)
+{
+    WebKitColor rgba;
+
+    test->showInWindow();
+
+    g_assert_false(webkit_web_view_get_theme_color(test->m_webView.get(), &rgba));
+
+    test->targetColor = WebKitColor(1.0, 0.0, 0.0, 1.0);
+    test->loadHtml("<html style='width: 325px; height: 615px'><meta name='theme-color' content='#FF0000' /></html>", nullptr);
+    test->waitUntilThemeColorChanged();
+    test->testThemeColorResult();
+
+    test->targetColor = WebKitColor(0.0, 1.0, 0.0, 1.0);
+    test->loadHtml("<html style='width: 325px; height: 615px'><meta name='theme-color' content='#00FF00' /></html>", nullptr);
+    test->waitUntilThemeColorChanged();
+    test->testThemeColorResult();
+
+    test->loadHtml("<html style='width: 325px; height: 615px'></html>", nullptr);
+    test->waitUntilThemeColorChanged();
+    g_assert_false(webkit_web_view_get_theme_color(test->m_webView.get(), &rgba));
+}
+#endif
+
 #if PLATFORM(GTK)
 static void testWebViewPreferredSize(WebViewTest* test, gconstpointer)
 {
@@ -2112,6 +2166,9 @@ void beforeAll()
 #endif
     IsPlayingAudioWebViewTest::add("WebKitWebView", "is-playing-audio", testWebViewIsPlayingAudio);
     WebViewTest::add("WebKitWebView", "background-color", testWebViewBackgroundColor);
+#if PLATFORM(WPE)
+    ThemeColorWebViewTest::add("WebKitWebView", "theme-color", testWebViewThemeColor);
+#endif
 #if PLATFORM(GTK)
     WebViewTest::add("WebKitWebView", "preferred-size", testWebViewPreferredSize);
 #endif
