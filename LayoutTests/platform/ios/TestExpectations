@@ -7924,3 +7924,5 @@ webkit.org/b/294277 [ Release ] imported/w3c/web-platform-tests/css/css-position
 [ Debug ] imported/w3c/web-platform-tests/html/canvas/offscreen/manual/text/canvas.2d.offscreen.worker.direction.inherit.html [ Pass Crash ]
 
 webkit.org/b/294291 [ Debug ] ipc/invalid-addSourceBuffer-to-GPU-process-crash.html [ Failure ]
+
+webkit.org/b/294274 [ Debug ] platform/ios/mediastream/audio-muted-in-background-tab.html [ Crash ]
