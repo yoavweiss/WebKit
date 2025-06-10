@@ -32,7 +32,8 @@ namespace WebCore {
 
 class WebCoreOpaqueRoot {
 public:
-    template<typename T, typename = typename std::enable_if_t<!std::is_same_v<T, void>>>
+    template<typename T>
+        requires (!std::same_as<T, void>)
     explicit WebCoreOpaqueRoot(T* pointer)
         : m_pointer(static_cast<void*>(pointer))
     {
