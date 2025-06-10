@@ -1252,8 +1252,8 @@ bool RenderTheme::isSpinUpButtonPartPressed(const RenderObject& renderer) const
 
 bool RenderTheme::isReadOnlyControl(const RenderObject& renderer) const
 {
-    if (auto* element = dynamicDowncast<HTMLFormControlElement>(renderer.node()))
-        return !static_cast<Element&>(*element).matchesReadWritePseudoClass();
+    if (RefPtr element = dynamicDowncast<Element>(renderer.node()))
+        return is<HTMLFormControlElement>(*element) && !element->matchesReadWritePseudoClass();
     return false;
 }
 
