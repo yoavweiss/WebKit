@@ -2572,7 +2572,6 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         break;
     }
         
-    case StringCharCodeAt:
     case StringCodePointAt:
         setNonCellTypeForNode(node, SpecInt32Only);
         break;
@@ -2596,9 +2595,33 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         setTypeForNode(node, SpecStringResolved);
         break;
 
-    case StringCharAt:
+    case StringCharAt: {
+        auto& value = forNode(node->child1());
+        JSValue constant = value.value();
+        if (constant && constant.isString()) {
+            auto* string = asString(constant);
+            if (node->child2()->isInt32Constant() && node->child2()->asInt32() == 0 && string->length() == 1 && !string->isRope()) {
+                forNode(node) = value;
+                break;
+            }
+        }
         setTypeForNode(node, SpecStringResolved);
         break;
+    }
+
+    case StringCharCodeAt: {
+        if (auto string = node->child1()->tryGetString(m_graph); !string.isNull()) {
+            if (node->child2()->isInt32Constant()) {
+                int32_t index = node->child2()->asInt32();
+                if (index >= 0 && static_cast<unsigned>(index) < string.length()) {
+                    setConstant(node, jsNumber(string.characterAt(static_cast<unsigned>(index))));
+                    break;
+                }
+            }
+        }
+        setNonCellTypeForNode(node, SpecInt32Only);
+        break;
+    }
 
     case StringAt: {
         if (node->arrayMode().isOutOfBounds())
