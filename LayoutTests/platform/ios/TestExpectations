@@ -7911,3 +7911,5 @@ webkit.org/b/294222 [ Debug ] compositing/cocoa/clip-sticky-element-with-overflo
 webkit.org/b/294225 [ Debug ] fast/page-color-sampling/basic-fixed-container-edge-sampling.html [ Crash ]
 
 webkit.org/b/294229 http/tests/site-isolation/page-scale.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/294274 [ Debug ] fast/speechrecognition/ios/audio-capture.html [ Crash ]
