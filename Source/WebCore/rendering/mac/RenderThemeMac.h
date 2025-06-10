@@ -78,8 +78,8 @@ public:
 
     std::optional<FontCascadeDescription> controlFont(StyleAppearance, const FontCascade&, float zoomFactor) const final;
     Style::PaddingBox controlPadding(StyleAppearance, const Style::PaddingBox&, float zoomFactor) const final;
-    LengthSize controlSize(StyleAppearance, const FontCascade&, const LengthSize&, float zoomFactor) const final;
-    LengthSize minimumControlSize(StyleAppearance, const FontCascade&, const LengthSize&, float zoomFactor) const final;
+    Style::PreferredSizePair controlSize(StyleAppearance, const FontCascade&, const Style::PreferredSizePair&, float) const final;
+    Style::MinimumSizePair minimumControlSize(StyleAppearance, const FontCascade&, const Style::MinimumSizePair& zoomedSize, float zoomFactor) const final;
     LengthBox controlBorder(StyleAppearance, const FontCascade&, const LengthBox& zoomedBox, float zoomFactor) const final;
     bool controlRequiresPreWhiteSpace(StyleAppearance) const final;
 
