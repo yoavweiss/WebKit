@@ -7915,3 +7915,5 @@ webkit.org/b/294229 http/tests/site-isolation/page-scale.html [ Pass ImageOnlyFa
 webkit.org/b/294274 [ Debug ] fast/speechrecognition/ios/audio-capture.html [ Crash ]
 
 webkit.org/b/294276 [ Debug ] http/wpt/mediarecorder/MediaRecorder-first-frame.html [ Failure ]
+
+webkit.org/b/294277 [ Release ] imported/w3c/web-platform-tests/css/css-position/sticky/position-sticky-fixed-ancestor-iframe.html [ Pass ImageOnlyFailure ]
