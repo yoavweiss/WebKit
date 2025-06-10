@@ -201,6 +201,8 @@ JSC_DEFINE_HOST_FUNCTION(mathProtoFuncHypot, (JSGlobalObject* globalObject, Call
 
     unsigned argsCount = callFrame->argumentCount();
 
+    if (!argsCount) [[unlikely]]
+        return JSValue::encode(jsDoubleNumber(0));
     if (argsCount == 1) {
         double arg0 = callFrame->uncheckedArgument(0).toNumber(globalObject);
         RETURN_IF_EXCEPTION(scope, { });
