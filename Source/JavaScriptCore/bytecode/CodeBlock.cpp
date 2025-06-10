@@ -1946,6 +1946,8 @@ void CodeBlock::stronglyVisitStrongReferences(const ConcurrentJSLocker& locker, 
         DFG::CommonData* dfgCommon = m_jitCode->dfgCommon();
         if (auto* statuses = dfgCommon->recordedStatuses.get())
             statuses->visitAggregate(visitor);
+        for (auto& cache : dfgCommon->m_concatKeyAtomStringCaches)
+            cache->visitAggregate(visitor);
         visitOSRExitTargets(locker, visitor);
 #endif
     }

@@ -33,6 +33,7 @@
 #include "CodeBlock.h"
 #include "CodeBlockInlines.h"
 #include "CommonSlowPathsInlines.h"
+#include "ConcatKeyAtomStringCacheInlines.h"
 #include "DFGDriver.h"
 #include "DFGJITCode.h"
 #include "DFGToFTLDeferredCompilationCallback.h"
@@ -3647,6 +3648,40 @@ JSC_DEFINE_JIT_OPERATION(operationMakeAtomString3, JSString*, (JSGlobalObject* g
     CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
     JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
     auto scope = DECLARE_THROW_SCOPE(vm);
+
+    OPERATION_RETURN(scope, jsAtomString(globalObject, vm, a, b, c));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationMakeAtomString2WithCache, JSString*, (JSGlobalObject* globalObject, JSString* a, JSString* b, ConcatKeyAtomStringCache* cache))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    auto* result = cache->getOrInsert(vm, a, b, nullptr, [&](VM&) {
+        return jsAtomString(globalObject, vm, a, b);
+    });
+    OPERATION_RETURN_IF_EXCEPTION(scope, nullptr);
+    if (result)
+        OPERATION_RETURN(scope, result);
+
+    OPERATION_RETURN(scope, jsAtomString(globalObject, vm, a, b));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationMakeAtomString3WithCache, JSString*, (JSGlobalObject* globalObject, JSString* a, JSString* b, JSString* c, ConcatKeyAtomStringCache* cache))
+{
+    VM& vm = globalObject->vm();
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    auto* result = cache->getOrInsert(vm, a, b, c, [&](VM&) {
+        return jsAtomString(globalObject, vm, a, b, c);
+    });
+    OPERATION_RETURN_IF_EXCEPTION(scope, nullptr);
+    if (result)
+        OPERATION_RETURN(scope, result);
 
     OPERATION_RETURN(scope, jsAtomString(globalObject, vm, a, b, c));
 }

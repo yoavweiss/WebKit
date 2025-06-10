@@ -10976,12 +10976,37 @@ IGNORE_CLANG_WARNINGS_END
         case 1:
             setJSValue(vmCall(pointerType(), operationMakeAtomString1, weakPointer(globalObject), strings[0]));
             break;
-        case 2:
-            setJSValue(vmCall(pointerType(), operationMakeAtomString2, weakPointer(globalObject), strings[0], strings[1]));
+        case 2: {
+            const ConcatKeyAtomStringCache* cache = nullptr;
+            if (auto string = m_node->child1()->tryGetString(m_graph); !string.isNull())
+                cache = m_graph.tryAddConcatKeyAtomStringCache(string, emptyString(), ConcatKeyAtomStringCache::Mode::Variable1);
+            else if (auto string = m_node->child2()->tryGetString(m_graph); !string.isNull())
+                cache = m_graph.tryAddConcatKeyAtomStringCache(string, emptyString(), ConcatKeyAtomStringCache::Mode::Variable0);
+
+            if (cache)
+                setJSValue(vmCall(pointerType(), operationMakeAtomString2WithCache, weakPointer(globalObject), strings[0], strings[1], m_out.constIntPtr(cache)));
+            else
+                setJSValue(vmCall(pointerType(), operationMakeAtomString2, weakPointer(globalObject), strings[0], strings[1]));
             break;
-        case 3:
-            setJSValue(vmCall(pointerType(), operationMakeAtomString3, weakPointer(globalObject), strings[0], strings[1], strings[2]));
+        }
+        case 3: {
+            const ConcatKeyAtomStringCache* cache = nullptr;
+            if (auto s0 = m_node->child1()->tryGetString(m_graph); !s0.isNull()) {
+                if (auto s1 = m_node->child2()->tryGetString(m_graph); !s1.isNull())
+                    cache = m_graph.tryAddConcatKeyAtomStringCache(s0, s1, ConcatKeyAtomStringCache::Mode::Variable2);
+                else if (auto s2 = m_node->child3()->tryGetString(m_graph); !s2.isNull())
+                    cache = m_graph.tryAddConcatKeyAtomStringCache(s0, s2, ConcatKeyAtomStringCache::Mode::Variable1);
+            } else if (auto s1 = m_node->child2()->tryGetString(m_graph); !s1.isNull()) {
+                if (auto s2 = m_node->child3()->tryGetString(m_graph); !s2.isNull())
+                    cache = m_graph.tryAddConcatKeyAtomStringCache(s1, s2, ConcatKeyAtomStringCache::Mode::Variable0);
+            }
+
+            if (cache)
+                setJSValue(vmCall(pointerType(), operationMakeAtomString3WithCache, weakPointer(globalObject), strings[0], strings[1], strings[2], m_out.constIntPtr(cache)));
+            else
+                setJSValue(vmCall(pointerType(), operationMakeAtomString3, weakPointer(globalObject), strings[0], strings[1], strings[2]));
             break;
+        }
         default:
             RELEASE_ASSERT_NOT_REACHED();
             break;

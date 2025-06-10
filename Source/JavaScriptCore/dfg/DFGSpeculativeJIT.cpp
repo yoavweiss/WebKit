@@ -16524,12 +16524,37 @@ void SpeculativeJIT::compileMakeAtomString(Node* node)
     case 1:
         callOperation(operationMakeAtomString1, resultGPR, LinkableConstant::globalObject(*this, node), opGPRs[0]);
         break;
-    case 2:
-        callOperation(operationMakeAtomString2, resultGPR, LinkableConstant::globalObject(*this, node), opGPRs[0], opGPRs[1]);
+    case 2: {
+        const ConcatKeyAtomStringCache* cache = nullptr;
+        if (auto string = node->child1()->tryGetString(m_graph); !string.isNull())
+            cache = m_graph.tryAddConcatKeyAtomStringCache(string, emptyString(), ConcatKeyAtomStringCache::Mode::Variable1);
+        else if (auto string = node->child2()->tryGetString(m_graph); !string.isNull())
+            cache = m_graph.tryAddConcatKeyAtomStringCache(string, emptyString(), ConcatKeyAtomStringCache::Mode::Variable0);
+
+        if (cache)
+            callOperation(operationMakeAtomString2WithCache, resultGPR, LinkableConstant::globalObject(*this, node), opGPRs[0], opGPRs[1], TrustedImmPtr(cache));
+        else
+            callOperation(operationMakeAtomString2, resultGPR, LinkableConstant::globalObject(*this, node), opGPRs[0], opGPRs[1]);
         break;
-    case 3:
-        callOperation(operationMakeAtomString3, resultGPR, LinkableConstant::globalObject(*this, node), opGPRs[0], opGPRs[1], opGPRs[2]);
+    }
+    case 3: {
+        const ConcatKeyAtomStringCache* cache = nullptr;
+        if (auto s0 = node->child1()->tryGetString(m_graph); !s0.isNull()) {
+            if (auto s1 = node->child2()->tryGetString(m_graph); !s1.isNull())
+                cache = m_graph.tryAddConcatKeyAtomStringCache(s0, s1, ConcatKeyAtomStringCache::Mode::Variable2);
+            else if (auto s2 = node->child3()->tryGetString(m_graph); !s2.isNull())
+                cache = m_graph.tryAddConcatKeyAtomStringCache(s0, s2, ConcatKeyAtomStringCache::Mode::Variable1);
+        } else if (auto s1 = node->child2()->tryGetString(m_graph); !s1.isNull()) {
+            if (auto s2 = node->child3()->tryGetString(m_graph); !s2.isNull())
+                cache = m_graph.tryAddConcatKeyAtomStringCache(s1, s2, ConcatKeyAtomStringCache::Mode::Variable0);
+        }
+
+        if (cache)
+            callOperation(operationMakeAtomString3WithCache, resultGPR, LinkableConstant::globalObject(*this, node), opGPRs[0], opGPRs[1], opGPRs[2], TrustedImmPtr(cache));
+        else
+            callOperation(operationMakeAtomString3, resultGPR, LinkableConstant::globalObject(*this, node), opGPRs[0], opGPRs[1], opGPRs[2]);
         break;
+    }
     default:
         RELEASE_ASSERT_NOT_REACHED();
         break;
