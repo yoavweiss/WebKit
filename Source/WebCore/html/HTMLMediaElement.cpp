@@ -7466,7 +7466,7 @@ void HTMLMediaElement::enterFullscreen(VideoFullscreenMode mode)
         if (RefPtr asVideo = dynamicDowncast<HTMLVideoElement>(element)) {
             auto& client = element.document().page()->chrome().client();
             auto supportsFullscreen = client.supportsVideoFullscreen(mode);
-            auto canEnterFullscreen = client.canEnterVideoFullscreen(mode);
+            auto canEnterFullscreen = client.canEnterVideoFullscreen(*asVideo, mode);
             if (supportsFullscreen && canEnterFullscreen) {
                 ALWAYS_LOG_WITH_THIS(&element, logIdentifier, "Entering fullscreen mode ", mode, ", element.m_videoFullscreenStandby = ", element.m_videoFullscreenStandby);
 

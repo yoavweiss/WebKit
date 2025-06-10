@@ -1425,10 +1425,10 @@ void WebChromeClient::prepareForVideoFullscreen()
         page->videoPresentationManager();
 }
 
-bool WebChromeClient::canEnterVideoFullscreen(HTMLMediaElementEnums::VideoFullscreenMode mode) const
+bool WebChromeClient::canEnterVideoFullscreen(HTMLVideoElement& videoElement, HTMLMediaElementEnums::VideoFullscreenMode mode) const
 {
     RefPtr page = m_page.get();
-    return page && page->videoPresentationManager().canEnterVideoFullscreen(mode);
+    return page && page->videoPresentationManager().canEnterVideoFullscreen(videoElement, mode);
 }
 
 bool WebChromeClient::supportsVideoFullscreen(HTMLMediaElementEnums::VideoFullscreenMode mode)
