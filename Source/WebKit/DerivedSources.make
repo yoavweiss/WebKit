@@ -1033,7 +1033,6 @@ WEBKIT_ADDITIONS_SWIFT_FILES = \
 	WKIdentityDocumentPresentmentRequest.swift \
 	WKIdentityDocumentPresentmentResponse.swift \
 	WKIdentityDocumentRawRequestValidator.swift \
-	WKPDFPageNumberIndicatorAdditions.swift \
 #
 
 $(WEBKIT_ADDITIONS_SWIFT_FILES): %.swift : %.swift.in
