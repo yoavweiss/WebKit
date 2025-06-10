@@ -2111,12 +2111,15 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         if (!renderer.isFixedPositioned() && !renderer.isStickilyPositioned())
             return NotFixedOrSticky;
 
+        bool isProbablyDimmingContainer = false;
         if (CheckedPtr box = dynamicDowncast<RenderBox>(renderer)) {
             if (isHiddenOrNearlyTransparent(*box))
                 return IsHiddenOrTransparent;
 
             if (box->canBeScrolledAndHasScrollableArea())
                 return IsScrollable;
+
+            isProbablyDimmingContainer = box->hasBackground() && !box->firstChild() && box->isTransparent();
         }
 
         if (side == BoxSide::Left || side == BoxSide::Right) {
@@ -2124,7 +2127,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
                 return TooSmall;
         }
 
-        if (isNearlyViewportSized(adjacentSideInClockwiseOrder(side), renderer))
+        if (!isProbablyDimmingContainer && isNearlyViewportSized(adjacentSideInClockwiseOrder(side), renderer))
             return TooLarge;
 
         return IsCandidate;
