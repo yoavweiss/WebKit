@@ -213,7 +213,9 @@ WK_OBJECT_DISABLE_DISABLE_KVC_IVAR_ACCESS;
 
 - (NSString *)description
 {
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     return [NSString stringWithFormat:@"<%@: %p; processPool = %@; preferences = %@>", NSStringFromClass(self.class), self, self.processPool, self.preferences];
+    ALLOW_DEPRECATED_DECLARATIONS_END
 }
 
 + (BOOL)supportsSecureCoding
@@ -223,7 +225,9 @@ WK_OBJECT_DISABLE_DISABLE_KVC_IVAR_ACCESS;
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     [coder encodeObject:self.processPool forKey:@"processPool"];
+    ALLOW_DEPRECATED_DECLARATIONS_END
     [coder encodeObject:self.preferences forKey:@"preferences"];
     [coder encodeObject:self.userContentController forKey:@"userContentController"];
     [coder encodeObject:self.websiteDataStore forKey:@"websiteDataStore"];
@@ -269,7 +273,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     if (!(self = [self init]))
         return nil;
 
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     self.processPool = [coder decodeObjectOfClass:[WKProcessPool class] forKey:@"processPool"];
+    ALLOW_DEPRECATED_DECLARATIONS_END
     self.preferences = [coder decodeObjectOfClass:[WKPreferences class] forKey:@"preferences"];
     self.userContentController = [coder decodeObjectOfClass:[WKUserContentController class] forKey:@"userContentController"];
     self.websiteDataStore = [coder decodeObjectOfClass:[WKWebsiteDataStore class] forKey:@"websiteDataStore"];

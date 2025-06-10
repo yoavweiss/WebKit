@@ -3801,8 +3801,10 @@ static bool isLockdownModeWarningNeeded()
     if (WTF::IOSApplication::isMobileSafari())
         return false;
 
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (![WKProcessPool _lockdownModeEnabledGloballyForTesting] || [[NSUserDefaults standardUserDefaults] boolForKey:WebKitLockdownModeAlertShownKey])
         return false;
+    ALLOW_DEPRECATED_DECLARATIONS_END
 
     return true;
 }

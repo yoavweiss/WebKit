@@ -594,7 +594,9 @@ static void addBrowsingContextControllerMethodStubsIfNeeded()
     }
     ALLOW_DEPRECATED_DECLARATIONS_END
 
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     Ref processPool = *[_configuration processPool]->_processPool;
+    ALLOW_DEPRECATED_DECLARATIONS_END
 
     // FIXME: This copy is probably not necessary.
     Ref pageConfiguration = Ref { *_configuration->_pageConfiguration }->copy();
