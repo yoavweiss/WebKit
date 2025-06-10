@@ -205,6 +205,7 @@
 #include <WebCore/ArchiveError.h>
 #include <WebCore/BitmapImage.h>
 #include <WebCore/CaptureDeviceManager.h>
+#include <WebCore/CaptureDeviceWithCapabilities.h>
 #include <WebCore/CompositionHighlight.h>
 #include <WebCore/CrossSiteNavigationDataTransfer.h>
 #include <WebCore/CryptoKey.h>
@@ -8208,10 +8209,10 @@ void WebPageProxy::decidePolicyForNewWindowAction(IPC::Connection& connection, N
 
     RefPtr frame = WebFrameProxy::webFrame(frameInfo.frameID);
     if (!frame)
-        return;
+        return completionHandler({ });
 
     Ref process = WebProcessProxy::fromConnection(connection);
-    MESSAGE_CHECK_URL(process, request.url());
+    MESSAGE_CHECK_URL_COMPLETION(process, request.url(), completionHandler({ }));
 
     RefPtr<API::FrameInfo> sourceFrameInfo;
     if (frame)
@@ -8552,7 +8553,7 @@ void WebPageProxy::createNewPage(IPC::Connection& connection, WindowFeatures&& w
     auto& originatingFrameInfoData = navigationActionData.originatingFrameInfoData;
     auto& request = navigationActionData.request;
     bool openedBlobURL = request.url().protocolIsBlob();
-    MESSAGE_CHECK_BASE(WebFrameProxy::webFrame(originatingFrameInfoData.frameID), connection);
+    MESSAGE_CHECK_COMPLETION_BASE(WebFrameProxy::webFrame(originatingFrameInfoData.frameID), connection, reply(std::nullopt, std::nullopt));
 
     Ref process = WebProcessProxy::fromConnection(connection);
     auto navigationDataForNewProcess = navigationActionData.hasOpener ? nullptr : makeUnique<NavigationActionData>(navigationActionData);
@@ -8832,7 +8833,7 @@ void WebPageProxy::runJavaScriptAlert(IPC::Connection& connection, FrameIdentifi
 {
     RefPtr frame = WebFrameProxy::webFrame(frameID);
     if (!frame)
-        return;
+        return reply();
 
     exitFullscreenImmediately();
 
@@ -8856,7 +8857,7 @@ void WebPageProxy::runJavaScriptConfirm(IPC::Connection& connection, FrameIdenti
 {
     RefPtr frame = WebFrameProxy::webFrame(frameID);
     if (!frame)
-        return;
+        return reply(false);
 
     exitFullscreenImmediately();
 
@@ -8880,7 +8881,7 @@ void WebPageProxy::runJavaScriptPrompt(IPC::Connection& connection, FrameIdentif
 {
     RefPtr frame = WebFrameProxy::webFrame(frameID);
     if (!frame)
-        return;
+        return reply({ });
 
     exitFullscreenImmediately();
 
@@ -9015,7 +9016,7 @@ void WebPageProxy::runBeforeUnloadConfirmPanel(IPC::Connection& connection, Fram
 {
     RefPtr frame = WebFrameProxy::webFrame(frameID);
     if (!frame)
-        return;
+        return reply(false);
 
     Ref webProcess = WebProcessProxy::fromConnection(connection);
     if (&frame->frameProcess().process() != webProcess.ptr()) {
@@ -9107,18 +9108,22 @@ void WebPageProxy::runOpenPanel(IPC::Connection& connection, FrameIdentifier fra
 
 void WebPageProxy::showShareSheet(IPC::Connection& connection, ShareDataWithParsedURL&& shareData, CompletionHandler<void(bool)>&& completionHandler)
 {
-    MESSAGE_CHECK_BASE(!shareData.url || shareData.url->protocolIsInHTTPFamily() || shareData.url->protocolIsData(), connection);
-    MESSAGE_CHECK_BASE(shareData.files.isEmpty() || protectedPreferences()->webShareFileAPIEnabled(), connection);
-    MESSAGE_CHECK_BASE(shareData.originator == ShareDataOriginator::Web, connection);
+    MESSAGE_CHECK_COMPLETION_BASE(!shareData.url || shareData.url->protocolIsInHTTPFamily() || shareData.url->protocolIsData(), connection, completionHandler(false));
+    MESSAGE_CHECK_COMPLETION_BASE(shareData.files.isEmpty() || protectedPreferences()->webShareFileAPIEnabled(), connection, completionHandler(false));
+    MESSAGE_CHECK_COMPLETION_BASE(shareData.originator == ShareDataOriginator::Web, connection, completionHandler(false));
     if (RefPtr pageClient = this->pageClient())
         pageClient->showShareSheet(WTFMove(shareData), WTFMove(completionHandler));
+    else
+        completionHandler(false);
 }
 
 void WebPageProxy::showContactPicker(IPC::Connection& connection, ContactsRequestData&& requestData, CompletionHandler<void(std::optional<Vector<ContactInfo>>&&)>&& completionHandler)
 {
-    MESSAGE_CHECK_BASE(protectedPreferences()->contactPickerAPIEnabled(), connection);
+    MESSAGE_CHECK_COMPLETION_BASE(protectedPreferences()->contactPickerAPIEnabled(), connection, completionHandler(std::nullopt));
     if (RefPtr pageClient = this->pageClient())
         pageClient->showContactPicker(WTFMove(requestData), WTFMove(completionHandler));
+    else
+        completionHandler(std::nullopt);
 }
 
 #if ENABLE(WEB_AUTHN)
@@ -9174,7 +9179,7 @@ void WebPageProxy::printFrame(IPC::Connection& connection, FrameIdentifier frame
 
     RefPtr frame = WebFrameProxy::webFrame(frameID);
     if (!frame)
-        return;
+        return completionHandler();
 
     frame->didChangeTitle(WTFMove(title));
 
@@ -12345,15 +12350,16 @@ void WebPageProxy::willStartCapture(UserMediaPermissionRequestProxy& request, Co
         return callback();
 
     Ref gpuProcess = configuration().protectedProcessPool()->ensureGPUProcess();
+#if PLATFORM(IOS_FAMILY)
+    gpuProcess->setOrientationForMediaCapture(m_orientationForMediaCapture);
+#endif
+
     if (RefPtr frame = WebFrameProxy::webFrame(request.frameID())) {
         auto webProcessIdentifier = frame->process().coreProcessIdentifier();
         gpuProcess->updateCaptureAccess(request.requiresAudioCapture(), request.requiresVideoCapture(), request.requiresDisplayCapture(), webProcessIdentifier, identifier(), WTFMove(callback));
         gpuProcess->updateCaptureOrigin(request.topLevelDocumentSecurityOrigin().data(), webProcessIdentifier);
-    }
-
-#if PLATFORM(IOS_FAMILY)
-    gpuProcess->setOrientationForMediaCapture(m_orientationForMediaCapture);
-#endif
+    } else
+        return callback();
 #else
     callback();
 #endif
@@ -12389,7 +12395,7 @@ void WebPageProxy::enumerateMediaDevicesForFrame(IPC::Connection& connection, Fr
 {
     RefPtr frame = WebFrameProxy::webFrame(frameID);
     if (!frame)
-        return;
+        return completionHandler({ }, { });
 
     protectedUserMediaPermissionRequestManager()->enumerateMediaDevicesForFrame(frameID, userMediaDocumentOriginData.securityOrigin(), topLevelDocumentOriginData.securityOrigin(), WTFMove(completionHandler));
 }
@@ -12628,7 +12634,7 @@ void WebPageProxy::shouldAllowDeviceOrientationAndMotionAccess(IPC::Connection& 
 {
     RefPtr frame = WebFrameProxy::webFrame(frameID);
     if (!frame)
-        return;
+        return completionHandler(DeviceOrientationOrMotionPermissionState::Denied);
 
     protectedWebsiteDataStore()->protectedDeviceOrientationAndMotionAccessController()->shouldAllowAccess(*this, *frame, WTFMove(frameInfo), mayPrompt, WTFMove(completionHandler));
 }
@@ -14381,9 +14387,9 @@ void WebPageProxy::stopURLSchemeTask(IPC::Connection& connection, WebURLSchemeHa
 
 void WebPageProxy::loadSynchronousURLSchemeTask(IPC::Connection& connection, URLSchemeTaskParameters&& parameters, CompletionHandler<void(const WebCore::ResourceResponse&, const WebCore::ResourceError&, Vector<uint8_t>&&)>&& reply)
 {
-    MESSAGE_CHECK_BASE(decltype(Internals::urlSchemeHandlersByIdentifier)::isValidKey(parameters.handlerIdentifier), connection);
+    MESSAGE_CHECK_COMPLETION_BASE(decltype(Internals::urlSchemeHandlersByIdentifier)::isValidKey(parameters.handlerIdentifier), connection, reply({ }, { }, { }));
     auto iterator = internals().urlSchemeHandlersByIdentifier.find(parameters.handlerIdentifier);
-    MESSAGE_CHECK_BASE(iterator != internals().urlSchemeHandlersByIdentifier.end(), connection);
+    MESSAGE_CHECK_COMPLETION_BASE(iterator != internals().urlSchemeHandlersByIdentifier.end(), connection, reply({ }, { }, { }));
 
     Ref { iterator->value }->startTask(*this, m_legacyMainFrameProcess, m_webPageID, WTFMove(parameters), WTFMove(reply));
 }
