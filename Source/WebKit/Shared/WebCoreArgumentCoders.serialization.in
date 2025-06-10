@@ -4067,7 +4067,7 @@ header: <WebCore/FEComponentTransfer.h>
     float diffuseConstant();
     float kernelUnitLengthX();
     float kernelUnitLengthY();
-    Ref<WebCore::LightSource> lightSource();
+    WebCore::LightSource lightSource();
 
     WebCore::DestinationColorSpace operatingColorSpace();
 };
@@ -4144,7 +4144,7 @@ header: <WebCore/FEComponentTransfer.h>
     float specularExponent();
     float kernelUnitLengthX();
     float kernelUnitLengthY();
-    Ref<WebCore::LightSource> lightSource();
+    WebCore::LightSource lightSource();
 
     WebCore::DestinationColorSpace operatingColorSpace();
 };
