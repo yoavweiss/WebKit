@@ -119,7 +119,7 @@ WK_CLASS_AVAILABLE(macos(10.10), ios(8.0))
 
 /*! @abstract The web extension controller to associate with the web view.
 */
-@property (nullable, nonatomic, strong) WKWebExtensionController *webExtensionController WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+@property (nullable, nonatomic, strong) WKWebExtensionController *webExtensionController WK_API_AVAILABLE(macos(15.4), ios(18.4), visionos(2.4));
 
 /*! @abstract The website data store to be used by the web view.
  */
