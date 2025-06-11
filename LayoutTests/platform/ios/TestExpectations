@@ -7926,3 +7926,7 @@ webkit.org/b/294277 [ Release ] imported/w3c/web-platform-tests/css/css-position
 webkit.org/b/294291 [ Debug ] ipc/invalid-addSourceBuffer-to-GPU-process-crash.html [ Failure ]
 
 webkit.org/b/294274 [ Debug ] platform/ios/mediastream/audio-muted-in-background-tab.html [ Crash ]
+
+# webkit.org/b/293827 [macOS] 2x tests in webgl are constant failures (flaky in EWS)
+ webgl/1.0.x/conformance/textures/misc/gl-teximage.html [ Failure ]
+ webgl/2.0.y/conformance/textures/misc/gl-teximage.html [ Failure ]
