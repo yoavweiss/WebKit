@@ -142,7 +142,7 @@ RenderTheme& RenderTheme::singleton()
 
 bool RenderThemeMac::canPaint(const PaintInfo& paintInfo, const Settings& settings, StyleAppearance appearance) const
 {
-#if !ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
+#if !ENABLE(FORM_CONTROL_REFRESH)
     UNUSED_PARAM(settings);
 #endif
 
@@ -187,9 +187,9 @@ bool RenderThemeMac::canPaint(const PaintInfo& paintInfo, const Settings& settin
     case StyleAppearance::TextArea:
     case StyleAppearance::TextField:
         return true;
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
+#if ENABLE(FORM_CONTROL_REFRESH)
     case StyleAppearance::ListButton:
-        return settings.vectorBasedControlsOnMacEnabled();
+        return settings.formControlRefreshEnabled();
 #endif
     default:
         break;
@@ -204,8 +204,8 @@ RenderThemeMac::RenderThemeMac()
 
 bool RenderThemeMac::canCreateControlPartForRenderer(const RenderObject& renderer) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (renderer.settings().vectorBasedControlsOnMacEnabled())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (renderer.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::canCreateControlPartForRendererForVectorBasedControls(renderer);
 #endif
 
@@ -241,8 +241,8 @@ bool RenderThemeMac::canCreateControlPartForRenderer(const RenderObject& rendere
 
 bool RenderThemeMac::canCreateControlPartForBorderOnly(const RenderObject& renderer) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (renderer.settings().vectorBasedControlsOnMacEnabled())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (renderer.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::canCreateControlPartForBorderOnlyForVectorBasedControls(renderer);
 #endif
 
@@ -254,8 +254,8 @@ bool RenderThemeMac::canCreateControlPartForBorderOnly(const RenderObject& rende
 
 bool RenderThemeMac::canCreateControlPartForDecorations(const RenderObject& renderer) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (renderer.settings().vectorBasedControlsOnMacEnabled())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (renderer.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::canCreateControlPartForDecorationsForVectorBasedControls(renderer);
 #endif
 
@@ -732,8 +732,8 @@ bool RenderThemeMac::usesTestModeFocusRingColor() const
 
 bool RenderThemeMac::searchFieldShouldAppearAsTextField(const RenderStyle& style, const Settings& settings) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (settings.vectorBasedControlsOnMacEnabled())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (settings.formControlRefreshEnabled())
         return false;
 #else
     UNUSED_PARAM(settings);
@@ -1100,8 +1100,8 @@ static void inflateControlPaintRect(StyleAppearance appearance, FloatRect& zoome
 
 void RenderThemeMac::inflateRectForControlRenderer(const RenderObject& renderer, FloatRect& rect)
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (renderer.settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (renderer.settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::inflateRectForControlRenderer(renderer, rect);
         return;
     }
@@ -1228,8 +1228,8 @@ static void setFontFromControlSize(RenderStyle& style, NSControlSize controlSize
 
 void RenderThemeMac::adjustListButtonStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (element && element->document().settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustListButtonStyle(style, element);
         return;
     }
@@ -1314,8 +1314,8 @@ static std::span<const IntSize, 4> menuListButtonSizes()
 
 void RenderThemeMac::adjustMenuListStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (element && element->document().settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustMenuListStyle(style, element);
         return;
     }
@@ -1452,8 +1452,8 @@ void RenderThemeMac::setSearchFieldSize(RenderStyle& style) const
 
 void RenderThemeMac::adjustSearchFieldStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (element && element->document().settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSearchFieldStyle(style, element);
         return;
     }
@@ -1495,8 +1495,8 @@ std::span<const IntSize, 4> RenderThemeMac::cancelButtonSizes() const
 
 void RenderThemeMac::adjustSearchFieldCancelButtonStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (element && element->document().settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSearchFieldCancelButtonStyle(style, element);
         return;
     }
@@ -1520,8 +1520,8 @@ std::span<const IntSize, 4> RenderThemeMac::resultsButtonSizes() const
 const int emptyResultsOffset = 9;
 void RenderThemeMac::adjustSearchFieldDecorationPartStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (element && element->document().settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSearchFieldDecorationPartStyle(style, element);
         return;
     }
@@ -1543,8 +1543,8 @@ void RenderThemeMac::adjustSearchFieldDecorationPartStyle(RenderStyle& style, co
 
 void RenderThemeMac::adjustSearchFieldResultsDecorationPartStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (element && element->document().settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSearchFieldResultsDecorationPartStyle(style, element);
         return;
     }
@@ -1560,8 +1560,8 @@ void RenderThemeMac::adjustSearchFieldResultsDecorationPartStyle(RenderStyle& st
 
 void RenderThemeMac::adjustSearchFieldResultsButtonStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (element && element->document().settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSearchFieldResultsButtonStyle(style, element);
         return;
     }
@@ -1591,8 +1591,8 @@ constexpr int sliderThumbThickness = 17;
 
 void RenderThemeMac::adjustSliderThumbSize(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    if (element && element->document().settings().vectorBasedControlsOnMacEnabled()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSliderThumbSize(style, element);
         return;
     }

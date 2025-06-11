@@ -181,11 +181,11 @@ bool FrameView::scrollAnimatorEnabled() const
     return false;
 }
 
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-bool FrameView::vectorBasedControlsEnabled() const
+#if ENABLE(FORM_CONTROL_REFRESH)
+bool FrameView::formControlRefreshEnabled() const
 {
     if (RefPtr page = frame().page())
-        return page->settings().vectorBasedControlsOnMacEnabled();
+        return page->settings().formControlRefreshEnabled();
 
     return false;
 }

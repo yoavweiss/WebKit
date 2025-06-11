@@ -105,8 +105,8 @@ private:
     ScrollableArea* enclosingScrollableArea() const final;
 
     bool scrollAnimatorEnabled() const final;
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    bool vectorBasedControlsEnabled() const final;
+#if ENABLE(FORM_CONTROL_REFRESH)
+    bool formControlRefreshEnabled() const final;
 #endif
 };
 

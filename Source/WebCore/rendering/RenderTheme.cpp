@@ -219,8 +219,8 @@ static bool devolvableWidgetsEnabledAndSupported(const Element* element)
 static bool shouldCheckLegacyStylesForNativeAppearance(const Element* element)
 {
 #if PLATFORM(MAC)
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-    return element && !element->document().settings().vectorBasedControlsOnMacEnabled();
+#if ENABLE(FORM_CONTROL_REFRESH)
+    return element && !element->document().settings().formControlRefreshEnabled();
 #else
     UNUSED_PARAM(element);
     return true;

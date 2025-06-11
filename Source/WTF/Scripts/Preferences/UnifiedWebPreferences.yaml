@@ -3012,6 +3012,20 @@ ForceWebGLUsesLowPower:
     WebCore:
       default: false
 
+FormControlRefreshEnabled:
+  type: bool
+  status: internal
+  humanReadableName: "Form control refresh for Cocoa platforms"
+  humanReadableDescription: "Enable form control refresh for Cocoa platforms"
+  condition: ENABLE(FORM_CONTROL_REFRESH)
+  defaultValue:
+    WebKit:
+      default: defaultFormControlRefreshEnabled()
+    WebKitLegacy:
+      default: WebKit::defaultFormControlRefreshEnabled()
+    WebCore:
+      default: false
+
 FullScreenEnabled:
   type: bool
   status: embedder
@@ -4478,20 +4492,6 @@ LowPowerVideoAudioBufferSizeEnabled:
       default: false
     WebKit:
       default: true
-      
-MacStyleControlsOnCatalyst:
-  type: bool
-  status: internal
-  humanReadableName: "Mac style controls on Catalyst"
-  humanReadableDescription: "Use Mac style controls on Catalyst"
-  condition: ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-  defaultValue:
-    WebKit:
-      default: defaultMacStyleControlsOnCatalyst()
-    WebKitLegacy:
-      default: WebKit::defaultMacStyleControlsOnCatalyst()
-    WebCore:
-      default: false
 
 MainContentUserGestureOverrideEnabled:
   type: bool
@@ -8114,20 +8114,6 @@ VP9DecoderEnabled:
       default: false
     WebKit:
       default: true
-
-VectorBasedControlsOnMacEnabled:
-  type: bool
-  status: internal
-  humanReadableName: "Vector based controls on macOS"
-  humanReadableDescription: "Enable vector based controls on macOS"
-  condition: ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
-  defaultValue:
-    WebKit:
-      default: defaultVectorBasedControlsOnMacEnabled()
-    WebKitLegacy:
-      default: WebKit::defaultVectorBasedControlsOnMacEnabled()
-    WebCore:
-      default: false
 
 VerifyWindowOpenUserGestureFromUIProcess:
   type: bool

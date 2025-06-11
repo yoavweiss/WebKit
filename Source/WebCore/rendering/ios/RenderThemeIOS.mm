@@ -98,10 +98,6 @@
 #import <wtf/StdLibExtras.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
 
-#if USE(APPLE_INTERNAL_SDK)
-#import <WebKitAdditions/RenderThemeIOSAdditions.mm>
-#endif
-
 #import <pal/ios/UIKitSoftLink.h>
 
 namespace WebCore {
@@ -133,15 +129,8 @@ bool RenderThemeIOS::canCreateControlPartForRenderer(const RenderObject& rendere
 #endif
 }
 
-void RenderThemeIOS::adjustCheckboxStyle(RenderStyle& style, const Element* element) const
+void RenderThemeIOS::adjustCheckboxStyle(RenderStyle& style, const Element*) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (adjustCheckboxStyleForCatalyst(style, element))
-        return;
-#else
-    UNUSED_PARAM(element);
-#endif
-
     adjustMinimumIntrinsicSizeForAppearance(StyleAppearance::Checkbox, style);
 
     if (!style.width().isIntrinsicOrAuto() && !style.height().isAuto())
@@ -198,15 +187,8 @@ void RenderThemeIOS::adjustMinimumIntrinsicSizeForAppearance(StyleAppearance app
         style.setMinHeight(WTFMove(minimumControlSize.height));
 }
 
-void RenderThemeIOS::adjustRadioStyle(RenderStyle& style, const Element* element) const
+void RenderThemeIOS::adjustRadioStyle(RenderStyle& style, const Element*) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (adjustRadioStyleForCatalyst(style, element))
-        return;
-#else
-    UNUSED_PARAM(element);
-#endif
-
     adjustMinimumIntrinsicSizeForAppearance(StyleAppearance::Radio, style);
 
     if (!style.width().isIntrinsicOrAuto() && !style.height().isAuto())
@@ -229,8 +211,8 @@ static void applyCommonNonCapsuleBorderRadiusToStyle(RenderStyle& style)
 
 void RenderThemeIOS::adjustTextFieldStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (element && element->document().settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustTextFieldStyle(style, element);
         return;
     }
@@ -299,11 +281,6 @@ void RenderThemeIOS::paintTextFieldInnerShadow(const PaintInfo& paintInfo, const
 
 void RenderThemeIOS::paintTextFieldDecorations(const RenderBox& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (paintTextFieldDecorationsForCatalyst(box, paintInfo, rect))
-        return;
-#endif
-
     auto& context = paintInfo.context();
     GraphicsContextStateSaver stateSaver(context);
 
@@ -327,8 +304,8 @@ void RenderThemeIOS::paintTextFieldDecorations(const RenderBox& box, const Paint
 
 void RenderThemeIOS::adjustTextAreaStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (element && element->document().settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustTextAreaStyle(style, element);
         return;
     }
@@ -347,11 +324,6 @@ void RenderThemeIOS::adjustTextAreaStyle(RenderStyle& style, const Element* elem
 
 void RenderThemeIOS::paintTextAreaDecorations(const RenderBox& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (paintTextAreaDecorationsForCatalyst(box, paintInfo, rect))
-        return;
-#endif
-
     paintTextFieldDecorations(box, paintInfo, rect);
 }
 
@@ -497,8 +469,8 @@ static void adjustInputElementButtonStyle(RenderStyle& style, const HTMLInputEle
 
 void RenderThemeIOS::adjustMenuListButtonStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (element && element->document().settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustMenuListButtonStyle(style, element);
         return;
     }
@@ -526,8 +498,8 @@ void RenderThemeIOS::adjustMenuListButtonStyle(RenderStyle& style, const Element
 
 void RenderThemeIOS::paintMenuListButtonDecorations(const RenderBox& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (box.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (box.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::paintMenuListButtonDecorations(box, paintInfo, rect);
 #endif
 
@@ -625,8 +597,8 @@ const int kDefaultSliderThumbSize = 16;
 
 void RenderThemeIOS::adjustSliderTrackStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (element && element->document().settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSliderTrackStyle(style, element);
         return;
     }
@@ -643,8 +615,8 @@ constexpr auto nativeControlBorderInlineSize = 1.0f;
 
 bool RenderThemeIOS::paintSliderTrack(const RenderObject& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (box.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (box.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::paintSliderTrack(box, paintInfo, rect);
 #endif
 
@@ -722,8 +694,8 @@ bool RenderThemeIOS::paintSliderTrack(const RenderObject& box, const PaintInfo& 
 
 void RenderThemeIOS::adjustSliderThumbSize(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (element && element->document().settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSliderThumbSize(style, element);
         return;
     }
@@ -749,8 +721,8 @@ constexpr auto reducedMotionProgressAnimationMaxOpacity = 0.6f;
 
 bool RenderThemeIOS::paintProgressBar(const RenderObject& renderer, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (renderer.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (renderer.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::paintProgressBar(renderer, paintInfo, rect);
 #endif
 
@@ -856,8 +828,8 @@ int RenderThemeIOS::sliderTickOffsetFromTrackCenter() const
 
 void RenderThemeIOS::adjustSearchFieldStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (element && element->document().settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSearchFieldStyle(style, element);
         return;
     }
@@ -882,11 +854,6 @@ void RenderThemeIOS::adjustSearchFieldStyle(RenderStyle& style, const Element* e
 
 void RenderThemeIOS::paintSearchFieldDecorations(const RenderBox& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (paintSearchFieldDecorationsForCatalyst(box, paintInfo, rect))
-        return;
-#endif
-
     paintTextFieldDecorations(box, paintInfo, rect);
 }
 
@@ -934,8 +901,8 @@ void RenderThemeIOS::adjustButtonLikeControlStyle(RenderStyle& style, const Elem
 
 void RenderThemeIOS::adjustButtonStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (element && element->document().settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustButtonStyle(style, element);
         return;
     }
@@ -1059,8 +1026,8 @@ bool RenderThemeIOS::shouldHaveSpinButton(const HTMLInputElement&) const
 
 bool RenderThemeIOS::supportsFocusRing(const RenderObject& renderer, const RenderStyle& style) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (renderer.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (renderer.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::supportsFocusRing(renderer, style);
 #else
     UNUSED_PARAM(renderer);
@@ -1528,8 +1495,8 @@ void RenderThemeIOS::paintCheckboxRadioInnerShadow(const PaintInfo& paintInfo, c
 
 bool RenderThemeIOS::paintCheckbox(const RenderObject& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (box.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (box.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::paintCheckbox(box, paintInfo, rect);
 #endif
 
@@ -1618,8 +1585,8 @@ bool RenderThemeIOS::paintCheckbox(const RenderObject& box, const PaintInfo& pai
 
 bool RenderThemeIOS::paintRadio(const RenderObject& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (box.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (box.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::paintRadio(box, paintInfo, rect);
 #endif
 
@@ -1680,8 +1647,8 @@ bool RenderThemeIOS::supportsMeter(StyleAppearance appearance) const
 
 bool RenderThemeIOS::paintMeter(const RenderObject& renderer, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (renderer.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (renderer.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::paintMeter(renderer, paintInfo, rect);
 #endif
 
@@ -1737,8 +1704,8 @@ bool RenderThemeIOS::paintMeter(const RenderObject& renderer, const PaintInfo& p
 
 bool RenderThemeIOS::paintListButton(const RenderObject& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (box.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (box.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::paintListButton(box, paintInfo, rect);
 #endif
 
@@ -1845,8 +1812,8 @@ void RenderThemeIOS::paintSliderTicks(const RenderObject& box, const PaintInfo& 
 
 void RenderThemeIOS::paintColorWellDecorations(const RenderObject& renderer, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (renderer.settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (renderer.settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::paintColorWellDecorations(renderer, paintInfo, rect);
         return;
     }
@@ -1886,8 +1853,8 @@ void RenderThemeIOS::paintColorWellDecorations(const RenderObject& renderer, con
 
 void RenderThemeIOS::adjustSearchFieldDecorationPartStyle(RenderStyle& style, const Element* element) const
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (element && element->document().settings().macStyleControlsOnCatalyst()) {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled()) {
         RenderThemeCocoa::adjustSearchFieldDecorationPartStyle(style, element);
         return;
     }
@@ -1911,8 +1878,8 @@ void RenderThemeIOS::adjustSearchFieldDecorationPartStyle(RenderStyle& style, co
 
 bool RenderThemeIOS::paintSearchFieldDecorationPart(const RenderObject& box, const PaintInfo& paintInfo, const FloatRect& rect)
 {
-#if ENABLE(MAC_STYLE_CONTROLS_ON_CATALYST)
-    if (box.settings().macStyleControlsOnCatalyst())
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (box.settings().formControlRefreshEnabled())
         return RenderThemeCocoa::paintSearchFieldDecorationPart(box, paintInfo, rect);
 #endif
 

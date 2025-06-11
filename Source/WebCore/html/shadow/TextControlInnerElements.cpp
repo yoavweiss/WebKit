@@ -88,7 +88,7 @@ static inline bool isStrongPasswordTextField(const Element* element)
     return inputElement && inputElement->hasAutofillStrongPasswordButton();
 }
 
-#if ENABLE(VECTOR_BASED_CONTROLS_ON_MAC)
+#if ENABLE(FORM_CONTROL_REFRESH)
 static inline bool isNumberInput(const Element* element)
 {
     RefPtr inputElement = dynamicDowncast<HTMLInputElement>(element);
