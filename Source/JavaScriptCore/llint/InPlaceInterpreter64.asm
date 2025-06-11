@@ -3212,6 +3212,8 @@ ipintOp(_simd, macro()
     # TODO: for relaxed SIMD, handle parsing the value.
     # Metadata? Could just hardcode loading two bytes though
     decodeLEBVarUInt32(1, t0, t1, t2, t3, t4)
+    # Security guarantee: always less than 256 (0x00 -> 0xff)
+    biaeq t0, 0x100, .ipint_simd_nonexistent
     if ARM64 or ARM64E
         pcrtoaddr _ipint_simd_v128_load_mem, t1
         emit "add x0, x1, x0, lsl 8"
@@ -3222,6 +3224,9 @@ ipintOp(_simd, macro()
         addq t1, t0
         jmp t0
     end
+
+.ipint_simd_nonexistent:
+    break
 end)
 
 ipintOp(_atomic, macro()
