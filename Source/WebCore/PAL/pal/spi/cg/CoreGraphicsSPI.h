@@ -25,11 +25,16 @@
 
 #pragma once
 
+#import <wtf/Platform.h>
+
 DECLARE_SYSTEM_HEADER
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
+
+#ifdef __cplusplus
 #include <wtf/text/WTFString.h>
+#endif
 
 #if HAVE(IOSURFACE)
 #include <wtf/spi/cocoa/IOSurfaceSPI.h>
@@ -70,6 +75,7 @@ struct CGFontHMetrics {
     int minLeftSideBearing;
     int minRightSideBearing;
 };
+typedef struct CGFontHMetrics CGFontHMetrics;
 
 typedef CF_ENUM (int32_t, CGContextDelegateCallbackName)
 {
@@ -466,9 +472,13 @@ CG_EXTERN void CGEnterLockdownModeForFonts();
 
 WTF_EXTERN_C_END
 
+#ifdef __cplusplus
+
 inline String CGPDFDictionaryGetNameString(CGPDFDictionaryRef dictionary, ASCIILiteral key)
 {
     const char* value = nullptr;
     CGPDFDictionaryGetName(dictionary, key.characters(), &value);
     return value ? String::fromUTF8(value) : String();
 }
+
+#endif // __cplusplus
