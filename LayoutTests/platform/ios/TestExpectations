@@ -7930,3 +7930,5 @@ webkit.org/b/294274 [ Debug ] platform/ios/mediastream/audio-muted-in-background
 # webkit.org/b/293827 [macOS] 2x tests in webgl are constant failures (flaky in EWS)
  webgl/1.0.x/conformance/textures/misc/gl-teximage.html [ Failure ]
  webgl/2.0.y/conformance/textures/misc/gl-teximage.html [ Failure ]
+
+webkit.org/b/294346 fast/events/ios/select-all-with-existing-selection.html [ Pass Crash ]
