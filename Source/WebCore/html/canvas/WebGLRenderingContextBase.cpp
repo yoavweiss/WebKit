@@ -5588,7 +5588,7 @@ void WebGLRenderingContextBase::recycleContext()
     destroyGraphicsContextGL();
 }
 
-IGNORE_CLANG_STATIC_ANALYZER_WARNINGS_ATTRIBUTE("alpha.webkit.UncountedCallArgsChecker")
+IGNORE_CLANG_STATIC_ANALYZER_WARNINGS_ATTRIBUTE_ON_FUNCTION("alpha.webkit.UncountedCallArgsChecker")
 void WebGLRenderingContextBase::addMembersToOpaqueRoots(JSC::AbstractSlotVisitor& visitor)
 {
     Locker locker { objectGraphLock() };

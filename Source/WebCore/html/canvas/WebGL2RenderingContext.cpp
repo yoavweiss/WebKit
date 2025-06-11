@@ -3050,7 +3050,7 @@ bool WebGL2RenderingContext::checkAndTranslateAttachments(ASCIILiteral functionN
     return true;
 }
 
-IGNORE_CLANG_STATIC_ANALYZER_WARNINGS_ATTRIBUTE("alpha.webkit.UncountedCallArgsChecker")
+IGNORE_CLANG_STATIC_ANALYZER_WARNINGS_ATTRIBUTE_ON_FUNCTION("alpha.webkit.UncountedCallArgsChecker")
 void WebGL2RenderingContext::addMembersToOpaqueRoots(JSC::AbstractSlotVisitor& visitor)
 {
     WebGLRenderingContextBase::addMembersToOpaqueRoots(visitor);
