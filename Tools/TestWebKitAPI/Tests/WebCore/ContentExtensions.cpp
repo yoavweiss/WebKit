@@ -1301,7 +1301,7 @@ TEST_F(ContentExtensionTest, LargeJumps)
         combinedBytecode.appendVector(bytecode);
     }
     
-    DFABytecodeInterpreter interpreter({ combinedBytecode.data(), combinedBytecode.size() });
+    DFABytecodeInterpreter interpreter(combinedBytecode.span());
     
     patternId = 0;
     for (char c1 = 'A'; c1 <= 'Z'; ++c1) {

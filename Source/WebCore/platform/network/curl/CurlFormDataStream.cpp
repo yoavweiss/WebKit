@@ -160,7 +160,7 @@ std::optional<size_t> CurlFormDataStream::readFromFile(const FormDataElement::En
 std::optional<size_t> CurlFormDataStream::readFromData(const Vector<uint8_t>& data, char* buffer, size_t size)
 {
     size_t elementSize = data.size() - m_dataOffset;
-    const uint8_t* elementBuffer = data.data() + m_dataOffset;
+    const uint8_t* elementBuffer = data.subspan(m_dataOffset).data();
 
     size_t readBytes = elementSize > size ? size : elementSize;
     memcpy(buffer, elementBuffer, readBytes);

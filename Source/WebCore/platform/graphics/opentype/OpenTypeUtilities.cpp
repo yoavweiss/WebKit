@@ -178,7 +178,7 @@ void EOTHeader::appendBigEndianString(const BigEndianUShort* string, unsigned sh
 {
     size_t oldSize = m_buffer.size();
     m_buffer.grow(oldSize + length + 2 * sizeof(unsigned short));
-    UChar* dst = reinterpret_cast<UChar*>(m_buffer.data() + oldSize);
+    UChar* dst = reinterpret_cast<UChar*>(m_buffer.mutableSpan().subspan(oldSize).data());
     unsigned i = 0;
     dst[i++] = length;
     unsigned numCharacters = length / 2;
@@ -270,7 +270,7 @@ RefPtr<FontMemoryResource> renameAndActivateFont(const SharedBuffer& fontData, c
         return { };
 
     DWORD numFonts = 0;
-    HANDLE fontHandle = AddFontMemResourceEx(rewrittenFontData.data(), rewrittenFontData.size(), 0, &numFonts);
+    HANDLE fontHandle = AddFontMemResourceEx(rewrittenFontData.mutableSpan().data(), rewrittenFontData.size(), 0, &numFonts);
     if (!fontHandle)
         return { };
     if (numFonts < 1) {

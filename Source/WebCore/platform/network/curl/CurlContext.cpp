@@ -271,7 +271,7 @@ CURLMcode CurlMultiHandle::removeHandle(CURL* handle)
 CURLMcode CurlMultiHandle::poll(const Vector<curl_waitfd>& extraFds, int timeoutMS)
 {
     int numFds = 0;
-    return curl_multi_poll(m_multiHandle, const_cast<curl_waitfd*>(extraFds.data()), extraFds.size(), timeoutMS, &numFds);
+    return curl_multi_poll(m_multiHandle, const_cast<curl_waitfd*>(extraFds.span().data()), extraFds.size(), timeoutMS, &numFds);
 }
 
 CURLMcode CurlMultiHandle::wakeUp()
@@ -349,7 +349,7 @@ void CurlHandle::enableSSL()
     if (auto* path = std::get_if<String>(&sslHandle.getCACertInfo()))
         setCACertPath(path->utf8().data());
     else if (auto data = std::get_if<CertificateInfo::Certificate>(&sslHandle.getCACertInfo()))
-        setCACertBlob(const_cast<uint8_t*>(data->data()), data->size());
+        setCACertBlob(const_cast<uint8_t*>(data->span().data()), data->size());
 #endif
 }
 

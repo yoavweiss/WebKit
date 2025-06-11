@@ -41,7 +41,7 @@ void NetworkStateNotifier::updateStateWithoutNotifying()
         return;
 
     Vector<char> buffer(size);
-    auto addresses = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(buffer.data());
+    auto addresses = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(buffer.mutableSpan().data());
     if (::GetAdaptersAddresses(AF_UNSPEC, 0, 0, addresses, &size) != ERROR_SUCCESS)
         return;
 

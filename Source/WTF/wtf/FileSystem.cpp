@@ -792,10 +792,10 @@ String createTemporaryDirectory()
     std::string newTempDirTemplate = tempDir + "XXXXXXXX";
 
     Vector<char> newTempDir(std::span<const char> { newTempDirTemplate });
-    if (!mkdtemp(newTempDir.data()))
+    if (!mkdtemp(newTempDir.mutableSpan().data()))
         return String();
 
-    return stringFromFileSystemRepresentation(newTempDir.data());
+    return stringFromFileSystemRepresentation(newTempDir.span().data());
 }
 
 #endif // !OS(WINDOWS) && !PLATFORM(COCOA)

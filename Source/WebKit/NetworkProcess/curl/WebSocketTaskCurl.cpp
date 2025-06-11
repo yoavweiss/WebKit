@@ -283,7 +283,7 @@ bool WebSocketTask::appendReceivedBuffer(const WebCore::SharedBuffer& buffer)
 
 void WebSocketTask::skipReceivedBuffer(size_t length)
 {
-    memmove(m_receiveBuffer.data(), m_receiveBuffer.data() + length, m_receiveBuffer.size() - length);
+    memmoveSpan(m_receiveBuffer.mutableSpan(), m_receiveBuffer.subspan(length));
     m_receiveBuffer.shrink(m_receiveBuffer.size() - length);
 }
 
@@ -365,7 +365,7 @@ std::optional<String> WebSocketTask::receiveFrames(Function<void(WebCore::WebSoc
             callback(frame.opCode, frame.payload);
 
         if (!m_receiveBuffer.isEmpty())
-            skipReceivedBuffer(frameEnd - m_receiveBuffer.data());
+            skipReceivedBuffer(frameEnd - m_receiveBuffer.begin());
     }
 
     return std::nullopt;
@@ -441,7 +441,7 @@ bool WebSocketTask::sendFrame(WebCore::WebSocketFrame::OpCode opCode, std::span<
     frame.makeFrameData(frameData);
 
     auto buffer = makeUniqueArray<uint8_t>(frameData.size());
-    memcpy(buffer.get(), frameData.data(), frameData.size());
+    memcpySpan(unsafeMakeSpan(buffer.get(), frameData.size()), frameData.span());
 
     m_scheduler.send(m_streamID, WTFMove(buffer), frameData.size());
     return true;

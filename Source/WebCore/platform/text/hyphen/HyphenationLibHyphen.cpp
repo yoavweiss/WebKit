@@ -271,7 +271,7 @@ size_t lastHyphenLocation(StringView string, size_t beforeIndex, const AtomStrin
     // The libhyphen documentation specifies that this array should be 5 bytes longer than
     // the byte length of the input string.
     Vector<char> hyphenArray(utf8StringCopy.length() - leadingSpaceBytes + 5);
-    char* hyphenArrayData = hyphenArray.data();
+    char* hyphenArrayData = hyphenArray.mutableSpan().data();
 
     AtomString lowercaseLocaleIdentifier = localeIdentifier.convertToASCIILowercase();
 

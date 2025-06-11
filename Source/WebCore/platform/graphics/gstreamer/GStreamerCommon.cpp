@@ -1804,7 +1804,7 @@ GRefPtr<GstBuffer> wrapSpanData(const std::span<const uint8_t>& span)
 
     Vector<uint8_t> data { span };
     auto bufferSize = data.size();
-    auto bufferData = data.data();
+    auto bufferData = data.mutableSpan().data();
     auto buffer = adoptGRef(gst_buffer_new_wrapped_full(GST_MEMORY_FLAG_READONLY, bufferData, bufferSize, 0, bufferSize, new Vector<uint8_t>(WTFMove(data)), [](gpointer data) {
         delete static_cast<Vector<uint8_t>*>(data);
     }));

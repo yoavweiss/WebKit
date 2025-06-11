@@ -67,9 +67,9 @@ String formatLocalizedString(const wchar_t* format, ...)
     va_start(arguments, format);
     int len = _vscwprintf(format, arguments);
     Vector<wchar_t> buffer(len + 1);
-    _vsnwprintf(buffer.data(), len + 1, format, arguments);
+    _vsnwprintf(buffer.mutableSpan().data(), len + 1, format, arguments);
     va_end(arguments);
-    return { buffer.data() };
+    return { buffer.span().data() };
 }
 #else
 // Because |format| is used as the second parameter to va_start, it cannot be a reference
@@ -1078,7 +1078,7 @@ String imageTitle(const String& filename, const IntSize& size)
 
     return WEB_UI_FORMAT_CFSTRING("%@ %@×%@ pixels", "window title for a standalone image (uses multiplication symbol, not x)", filename.createCFString().get(), widthString.get(), heightString.get());
 #elif PLATFORM(WIN)
-    return WEB_UI_FORMAT_STRING("%s %d×%d pixels", "window title for a standalone image (uses multiplication symbol, not x)", filename.wideCharacters().data(), size.width(), size.height());
+    return WEB_UI_FORMAT_STRING("%s %d×%d pixels", "window title for a standalone image (uses multiplication symbol, not x)", filename.wideCharacters().span().data(), size.width(), size.height());
 #elif USE(GLIB)
     return WEB_UI_FORMAT_STRING("%s %d×%d pixels", "window title for a standalone image (uses multiplication symbol, not x)", filename.utf8().data(), size.width(), size.height());
 #else
