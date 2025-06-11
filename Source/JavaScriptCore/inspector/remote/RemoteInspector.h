@@ -105,6 +105,7 @@ public:
 #if PLATFORM(COCOA)
             std::optional<bool> allowInsecureMediaCapture;
             std::optional<bool> suppressICECandidateFiltering;
+            std::optional<bool> alwaysAllowAutoplay;
 #endif
         };
 
