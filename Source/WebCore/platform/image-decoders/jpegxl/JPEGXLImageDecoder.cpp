@@ -433,7 +433,7 @@ LCMSProfilePtr JPEGXLImageDecoder::tryDecodeICCColorProfile()
         return nullptr;
 
     Vector<uint8_t> profileData(profileSize);
-    if (JxlDecoderGetColorAsICCProfile(m_decoder.get(), &s_pixelFormat, JXL_COLOR_PROFILE_TARGET_DATA, profileData.data(), profileData.size()) != JXL_DEC_SUCCESS)
+    if (JxlDecoderGetColorAsICCProfile(m_decoder.get(), &s_pixelFormat, JXL_COLOR_PROFILE_TARGET_DATA, profileData.mutableSpan().data(), profileData.size()) != JXL_DEC_SUCCESS)
         return nullptr;
 #else
     if (JxlDecoderGetICCProfileSize(m_decoder.get(), JXL_COLOR_PROFILE_TARGET_DATA, &profileSize) != JXL_DEC_SUCCESS)
