@@ -44,10 +44,10 @@ String logLevelString()
 
     Vector<char> buffer(length);
 
-    if (!GetEnvironmentVariableA(loggingEnvironmentVariable, buffer.data(), length))
+    if (!GetEnvironmentVariableA(loggingEnvironmentVariable, buffer.mutableSpan().data(), length))
         return emptyString();
 
-    return String::fromLatin1(buffer.data());
+    return String::fromLatin1(buffer.span().data());
 #else
     return String();
 #endif
