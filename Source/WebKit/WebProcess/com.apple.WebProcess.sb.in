@@ -1506,6 +1506,7 @@
         SYS_lseek
         SYS_lstat64
         SYS_madvise
+        SYS_mincore
         SYS_mkdir
         SYS_mmap
         SYS_mprotect
@@ -1584,7 +1585,6 @@
     SYS_kqueue ;; See <rdar://problem/88241768>. Remove after <rdar://56634240> is resolved.
     SYS_kqueue_workloop_ctl ;; <rdar://problem/50999499>
     SYS_listxattr
-    SYS_mincore
     SYS_psynch_rw_unlock
     SYS_psynch_rw_wrlock
     SYS_sigprocmask
