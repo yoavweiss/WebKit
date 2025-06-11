@@ -702,7 +702,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 {
     WEBPAGE_RELEASE_LOG(Loading, "constructor:");
 
-#if ENABLE(CONTENT_INSET_BACKGROUND_FILL) && __has_include(<WebKitAdditions/WebPreferencesDefaultValuesAdditions.h>)
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     cachedValueDefaultContentInsetBackgroundFillEnabled() = parameters.defaultContentInsetBackgroundFillEnabled;
 #endif
 
