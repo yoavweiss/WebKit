@@ -84,13 +84,17 @@ private struct MaterialHostingView<P: MaterialHostingProvider>: View {
         case .none:
             return nil
         case .blur:
-            return Material._hostedBlurMaterial
+            return Material._glass(.regular)
         case .thinBlur:
-            return Material._hostedThinBlurMaterial
+            return Material._glass(.regular.forceSubdued())
         case .mediaControls:
-            return Material._hostedMediaControlsMaterial
+#if canImport(SwiftUI, _version: 7.0.60)
+            return Material._glass(.regular.adaptive(false))
+#else
+            return Material._glass(.regular)
+#endif
         case .thinMediaControls:
-            return Material._hostedThinMediaControlsMaterial
+            return Material._glass(.avplayer.forceSubdued())
         @unknown default:
             return nil
         }

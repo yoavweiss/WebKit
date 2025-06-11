@@ -61,10 +61,6 @@
 #include "AppleVisualEffect.h"
 #endif
 
-#if USE(APPLE_INTERNAL_SDK)
-#include <WebKitAdditions/CSSValueKeywordsAdditions.h>
-#endif
-
 namespace WebCore {
 
 template<typename TargetType> TargetType fromCSSValue(const CSSValue& value)
@@ -2016,13 +2012,13 @@ constexpr CSSValueID toCSSValueID(AppleVisualEffect effect)
         return CSSValueAppleSystemBlurMaterialChrome;
 #if HAVE(MATERIAL_HOSTING)
     case AppleVisualEffect::HostedBlurMaterial:
-        return CSSValueAppleSystemHostedBlurMaterial;
+        return CSSValueAppleSystemGlassMaterial;
     case AppleVisualEffect::HostedThinBlurMaterial:
-        return CSSValueAppleSystemHostedThinBlurMaterial;
+        return CSSValueAppleSystemGlassMaterialSubdued;
     case AppleVisualEffect::HostedMediaControlsMaterial:
-        return CSSValueAppleSystemHostedMediaControlsMaterial;
+        return CSSValueAppleSystemGlassMaterialMediaControls;
     case AppleVisualEffect::HostedThinMediaControlsMaterial:
-        return CSSValueAppleSystemHostedThinMediaControlsMaterial;
+        return CSSValueAppleSystemGlassMaterialMediaControlsSubdued;
 #endif
     case AppleVisualEffect::VibrancyLabel:
         return CSSValueAppleSystemVibrancyLabel;
@@ -2061,13 +2057,13 @@ template<> constexpr AppleVisualEffect fromCSSValueID(CSSValueID valueID)
     case CSSValueAppleSystemBlurMaterialChrome:
         return AppleVisualEffect::BlurChromeMaterial;
 #if HAVE(MATERIAL_HOSTING)
-    case CSSValueAppleSystemHostedBlurMaterial:
+    case CSSValueAppleSystemGlassMaterial:
         return AppleVisualEffect::HostedBlurMaterial;
-    case CSSValueAppleSystemHostedThinBlurMaterial:
+    case CSSValueAppleSystemGlassMaterialSubdued:
         return AppleVisualEffect::HostedThinBlurMaterial;
-    case CSSValueAppleSystemHostedMediaControlsMaterial:
+    case CSSValueAppleSystemGlassMaterialMediaControls:
         return AppleVisualEffect::HostedMediaControlsMaterial;
-    case CSSValueAppleSystemHostedThinMediaControlsMaterial:
+    case CSSValueAppleSystemGlassMaterialMediaControlsSubdued:
         return AppleVisualEffect::HostedThinMediaControlsMaterial;
 #endif
     case CSSValueAppleSystemVibrancyLabel:

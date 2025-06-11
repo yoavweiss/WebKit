@@ -44,10 +44,10 @@ static bool isKeywordValidForAppleVisualEffect(CSSValueID keyword)
     case CSSValueID::CSSValueAppleSystemBlurMaterialThin:
     case CSSValueID::CSSValueAppleSystemBlurMaterialUltraThin:
 #if HAVE(MATERIAL_HOSTING)
-    case CSSValueID::CSSValueAppleSystemHostedBlurMaterial:
-    case CSSValueID::CSSValueAppleSystemHostedThinBlurMaterial:
-    case CSSValueID::CSSValueAppleSystemHostedMediaControlsMaterial:
-    case CSSValueID::CSSValueAppleSystemHostedThinMediaControlsMaterial:
+    case CSSValueID::CSSValueAppleSystemGlassMaterial:
+    case CSSValueID::CSSValueAppleSystemGlassMaterialSubdued:
+    case CSSValueID::CSSValueAppleSystemGlassMaterialMediaControls:
+    case CSSValueID::CSSValueAppleSystemGlassMaterialMediaControlsSubdued:
 #endif
     case CSSValueID::CSSValueAppleSystemVibrancyFill:
     case CSSValueID::CSSValueAppleSystemVibrancyLabel:
@@ -63,6 +63,7 @@ static bool isKeywordValidForAppleVisualEffect(CSSValueID keyword)
     }
 }
 
+// FIXME: Use auto-generated parsing.
 RefPtr<CSSValue> consumeAppleVisualEffect(CSSParserTokenRange& range, CSS::PropertyParserState&)
 {
     return consumeIdent(range, isKeywordValidForAppleVisualEffect);
