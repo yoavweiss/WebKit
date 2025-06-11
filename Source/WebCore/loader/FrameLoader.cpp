@@ -3160,7 +3160,7 @@ void FrameLoader::checkLoadComplete(LoadWillContinueInAnotherProcess loadWillCon
     // FIXME: Always traversing the entire frame tree is a bit inefficient, but 
     // is currently needed in order to null out the previous history item for all frames.
     Vector<Ref<LocalFrame>, 16> frames;
-    for (RefPtr frame = &m_frame->mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = m_frame->mainFrame(); frame; frame = frame->tree().traverseNext()) {
         if (RefPtr localFrame = dynamicDowncast<LocalFrame>(frame))
             frames.append(localFrame.releaseNonNull());
     }
@@ -4499,7 +4499,7 @@ void FrameLoader::loadDifferentDocumentItem(HistoryItem& item, HistoryItem* from
 // Loads content into this frame, as specified by history item
 void FrameLoader::loadItem(HistoryItem& item, HistoryItem* fromItem, FrameLoadType loadType, ShouldTreatAsContinuingLoad shouldTreatAsContinuingLoad)
 {
-    m_requestedHistoryItem = &item;
+    m_requestedHistoryItem = item;
     RefPtr currentItem = history().currentItem();
 
     if (frame().document() && frame().document()->settings().navigationAPIEnabled() && fromItem && SecurityOrigin::create(item.url())->isSameOriginAs(SecurityOrigin::create(fromItem->url()))) {

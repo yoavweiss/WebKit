@@ -1579,7 +1579,7 @@ std::partial_ordering AXCoreObject::partialOrder(const AXCoreObject& other)
         return std::partial_ordering::equivalent;
 
     RefPtr current = this;
-    RefPtr otherCurrent = &other;
+    RefPtr otherCurrent = other;
 
     auto orderingFromIndices = [&] (unsigned ourAncestorIndex, unsigned otherAncestorIndex) {
         if (ourAncestorIndex < otherAncestorIndex)

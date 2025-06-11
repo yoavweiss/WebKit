@@ -199,7 +199,7 @@ ContentChangeObserver::ContentChangeObserver(Document& document)
 
 static void willNotProceedWithClick(LocalFrame& mainFrame)
 {
-    for (RefPtr<Frame> frame = &mainFrame; frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr<Frame> frame = mainFrame; frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
         if (!localFrame)
             continue;

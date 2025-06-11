@@ -1113,7 +1113,7 @@ bool Page::showAllPlugins() const
 
 inline std::optional<std::pair<WeakRef<MediaCanStartListener>, WeakRef<Document, WeakPtrImplWithEventTargetData>>>  Page::takeAnyMediaCanStartListener()
 {
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -1297,7 +1297,7 @@ unsigned Page::findMatchesForText(const String& target, FindOptions options, uns
 
     unsigned matchCount = 0;
 
-    RefPtr frame = &mainFrame();
+    RefPtr frame = mainFrame();
     do {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(frame.get());
         if (!localFrame) {
@@ -1559,7 +1559,7 @@ void Page::setDefersLoading(bool defers)
     }
 
     m_defersLoading = defers;
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         if (RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame))
             localFrame->protectedLoader()->setDefersLoading(defers);
     }
@@ -1912,7 +1912,7 @@ void Page::lockAllOverlayScrollbarsToHidden(bool lockOverlayScrollbars)
 
     view->lockOverlayScrollbarStateToHidden(lockOverlayScrollbars);
     
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -1998,7 +1998,7 @@ void Page::setIsInWindow(bool isInWindow)
 
 void Page::setIsInWindowInternal(bool isInWindow)
 {
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -2532,7 +2532,7 @@ bool Page::shouldUpdateAccessibilityRegions() const
             protectedMainDocument = localMainFrame ? localMainFrame->document() : nullptr;
         else if (RefPtr remoteFrame = dynamicDowncast<RemoteFrame>(mainFrame())) {
             if (auto* owner = remoteFrame->ownerElement())
-                protectedMainDocument = &(owner->document());
+                protectedMainDocument = owner->document();
         }
 
         // If accessibility is enabled and we have a main document, that document should have an AX object cache.
@@ -2789,7 +2789,7 @@ void Page::setDebugger(JSC::Debugger* debugger)
 
     m_debugger = debugger;
 
-    for (RefPtr frame = &m_mainFrame.get(); frame; frame = frame->tree().traverseNext())
+    for (RefPtr frame = m_mainFrame.get(); frame; frame = frame->tree().traverseNext())
         frame->protectedWindowProxy()->attachDebugger(m_debugger);
 }
 
@@ -2823,7 +2823,7 @@ void Page::setMemoryCacheClientCallsEnabled(bool enabled)
     if (!enabled || !m_hasPendingMemoryCacheLoadNotifications)
         return;
 
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         if (RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame))
             localFrame->protectedLoader()->tellClientAboutPastMemoryCacheLoads();
     }
@@ -3226,7 +3226,7 @@ void Page::setActivityState(OptionSet<ActivityState> activityState)
 
 void Page::stopKeyboardScrollAnimation()
 {
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -3673,7 +3673,7 @@ void Page::addRelevantUnpaintedObject(const RenderObject& object, const LayoutRe
 
 void Page::suspendActiveDOMObjectsAndAnimations()
 {
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         if (RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame))
             localFrame->suspendActiveDOMObjectsAndAnimations();
     }
@@ -3681,7 +3681,7 @@ void Page::suspendActiveDOMObjectsAndAnimations()
 
 void Page::resumeActiveDOMObjectsAndAnimations()
 {
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         if (RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame))
             localFrame->resumeActiveDOMObjectsAndAnimations();
     }
@@ -3924,7 +3924,7 @@ void Page::setSessionID(PAL::SessionID sessionID)
 
     if (sessionID != m_sessionID) {
         constexpr auto doNotCreate = StorageNamespaceProvider::ShouldCreateNamespace::No;
-        RefPtr topOrigin = &mainFrameOrigin();
+        RefPtr topOrigin = mainFrameOrigin();
         if (RefPtr sessionStorage = topOrigin ? m_storageNamespaceProvider->sessionStorageNamespace(*topOrigin, *this, doNotCreate) : nullptr)
             sessionStorage->setSessionIDForTesting(sessionID);
     }
@@ -4083,7 +4083,7 @@ void Page::setAllowsMediaDocumentInlinePlayback(bool flag)
 IDBClient::IDBConnectionToServer& Page::idbConnection()
 {
     if (!m_idbConnectionToServer)
-        m_idbConnectionToServer = &m_databaseProvider->idbConnectionToServerForSession(m_sessionID);
+        m_idbConnectionToServer = m_databaseProvider->idbConnectionToServerForSession(m_sessionID);
     
     return *m_idbConnectionToServer;
 }
@@ -4382,7 +4382,7 @@ RenderingUpdateScheduler* Page::existingRenderingUpdateScheduler()
 void Page::forEachDocumentFromMainFrame(const Frame& mainFrame, NOESCAPE const Function<void(Document&)>& functor)
 {
     Vector<Ref<Document>, 8> documents;
-    for (RefPtr frame = &mainFrame; frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame; frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -4401,7 +4401,7 @@ void Page::forEachDocument(NOESCAPE const Function<void(Document&)>& functor) co
 
 bool Page::findMatchingLocalDocument(NOESCAPE const Function<bool(Document&)>& functor) const
 {
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -4417,7 +4417,7 @@ bool Page::findMatchingLocalDocument(NOESCAPE const Function<bool(Document&)>& f
 void Page::forEachRenderableDocument(NOESCAPE const Function<void(Document&)>& functor) const
 {
     Vector<Ref<Document>, 8> documents;
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -4448,7 +4448,7 @@ void Page::forEachMediaElement(NOESCAPE const Function<void(HTMLMediaElement&)>&
 void Page::forEachLocalFrame(NOESCAPE const Function<void(LocalFrame&)>& functor)
 {
     Vector<Ref<LocalFrame>> frames;
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         if (RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame))
             frames.append(localFrame.releaseNonNull());
     }
@@ -4461,7 +4461,7 @@ void Page::forEachWindowEventLoop(NOESCAPE const Function<void(WindowEventLoop&)
 {
     UncheckedKeyHashSet<Ref<WindowEventLoop>> windowEventLoops;
     RefPtr<WindowEventLoop> lastEventLoop;
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -4555,7 +4555,7 @@ enum class DispatchedOnDocumentEventLoop : bool { No, Yes };
 static void dispatchPrintEvent(Frame& mainFrame, const AtomString& eventType, DispatchedOnDocumentEventLoop dispatchedOnDocumentEventLoop)
 {
     Vector<Ref<LocalFrame>> frames;
-    for (RefPtr frame = &mainFrame; frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame; frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
         if (!localFrame)
             continue;
@@ -4599,7 +4599,7 @@ bool Page::startApplePayAMSUISession(const URL& originatingURL, ApplePayAMSUIPay
     if (hasActiveApplePayAMSUISession())
         return false;
 
-    m_activeApplePayAMSUIPaymentHandler = &paymentHandler;
+    m_activeApplePayAMSUIPaymentHandler = paymentHandler;
 
     chrome().client().startApplePayAMSUISession(originatingURL, request, [weakThis = WeakPtr { *this }, paymentHandler = Ref { paymentHandler }] (std::optional<bool>&& result) {
         RefPtr protectedThis = weakThis.get();
@@ -5044,7 +5044,7 @@ void Page::setupForRemoteWorker(const URL& scriptURL, const SecurityOriginData& 
 
 void Page::forceRepaintAllFrames()
 {
-    for (RefPtr frame = &mainFrame(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame)
             continue;
@@ -5153,7 +5153,7 @@ void Page::reloadExecutionContextsForOrigin(const ClientOrigin& origin, std::opt
     if (!localMainFrame || localMainFrame->protectedDocument()->topOrigin().data() != origin.topOrigin)
         return;
 
-    for (RefPtr frame = &m_mainFrame.get(); frame;) {
+    for (RefPtr frame = m_mainFrame.get(); frame;) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         if (!localFrame || frame->frameID() == triggeringFrame) {
             frame = frame->tree().traverseNext();
@@ -5321,7 +5321,7 @@ bool Page::hasActiveImmersiveSession() const
 
 RefPtr<WebXRSession> Page::activeImmersiveXRSession() const
 {
-    for (RefPtr frame = &m_mainFrame.get(); frame; frame = frame->tree().traverseNext()) {
+    for (RefPtr frame = m_mainFrame.get(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(*frame);
         RefPtr window = localFrame ? localFrame->window() : nullptr;
         if (!window)

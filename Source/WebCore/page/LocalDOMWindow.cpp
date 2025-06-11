@@ -2707,7 +2707,7 @@ ExceptionOr<RefPtr<WindowProxy>> LocalDOMWindow::open(LocalDOMWindow& activeWind
     // In those cases, we schedule a location change right now and return early.
     RefPtr<Frame> targetFrame;
     if (isTopTargetFrameName(frameName))
-        targetFrame = &frame->tree().top();
+        targetFrame = frame->tree().top();
     else if (isParentTargetFrameName(frameName)) {
         if (RefPtr parent = frame->tree().parent())
             targetFrame = parent.get();

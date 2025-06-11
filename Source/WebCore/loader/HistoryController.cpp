@@ -441,7 +441,7 @@ void HistoryController::goToItemForNavigationAPI(HistoryItem& targetItem, FrameL
 
 void HistoryController::goToItemShared(HistoryItem& targetItem, CompletionHandler<void(ShouldGoToHistoryItem)>&& completionHandler, ProcessSwapDisposition processSwapDisposition)
 {
-    m_policyItem = &targetItem;
+    m_policyItem = targetItem;
 
     // Same document navigations must continue synchronously from here,
     // therefore their policy checks must go down the synchronous path.
@@ -937,7 +937,7 @@ void HistoryController::recursiveSetProvisionalItem(HistoryItem& item, HistoryIt
             return;
     } else {
         // Set provisional item, which will be committed in recursiveUpdateForCommit.
-        m_provisionalItem = &item;
+        m_provisionalItem = item;
     }
 
     for (Ref childItem : item.children()) {

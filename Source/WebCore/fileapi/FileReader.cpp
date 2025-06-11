@@ -120,7 +120,7 @@ ExceptionOr<void> FileReader::readInternal(Blob& blob, FileReaderLoader::ReadTyp
     if (m_state == LOADING)
         return Exception { ExceptionCode::InvalidStateError };
 
-    m_blob = &blob;
+    m_blob = blob;
     m_readType = type;
     m_state = LOADING;
     m_error = nullptr;

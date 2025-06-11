@@ -281,7 +281,7 @@ auto UserSelectNoneStateCache::computeState(Node& targetNode) -> State
     if (!Position::nodeIsUserSelectNone(&targetNode))
         return State::NotUserSelectNone;
     auto state = State::OnlyUserSelectNone;
-    RefPtr currentNode = &targetNode;
+    RefPtr currentNode = targetNode;
     bool foundMixed = false;
     while (currentNode) {
         if (!Position::nodeIsUserSelectNone(currentNode.get())) {
@@ -850,12 +850,12 @@ RefPtr<Node> StyledMarkupAccumulator::traverseNodesForSerialization(Node& startN
             else
                 wrapWithNode(node);
         }
-        lastClosed = &node;
+        lastClosed = node;
     };
 
     RefPtr<Node> lastNode;
     RefPtr<Node> next;
-    for (RefPtr n = &startNode; n != pastEnd; lastNode = n, n = next) {
+    for (RefPtr n = startNode; n != pastEnd; lastNode = n, n = next) {
 
         Vector<RefPtr<Node>, 8> exitedAncestors;
         next = nullptr;
@@ -1046,7 +1046,7 @@ static RefPtr<Node> highestAncestorToWrapMarkup(const Position& start, const Pos
     if (!specialCommonAncestor && parentTabSpanNode(&commonAncestor))
         specialCommonAncestor = commonAncestor.parentNode();
     if (!specialCommonAncestor && tabSpanNode(&commonAncestor))
-        specialCommonAncestor = &commonAncestor;
+        specialCommonAncestor = commonAncestor;
 
     if (RefPtr enclosingAnchor = enclosingElementWithTag(firstPositionInNode(specialCommonAncestor ? specialCommonAncestor.get() : &commonAncestor), aTag))
         specialCommonAncestor = WTFMove(enclosingAnchor);

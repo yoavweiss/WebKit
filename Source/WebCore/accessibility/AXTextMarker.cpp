@@ -1614,7 +1614,7 @@ AXIsolatedObject* findObjectWithRuns(AXIsolatedObject& start, AXDirection direct
                 }
             }
 
-            RefPtr current = &object;
+            RefPtr current = object;
             RefPtr next = object.nextSiblingIncludingIgnored(/* updateChildrenIfNeeded */ true);
             for (; !next; next = current->nextSiblingIncludingIgnored(/* updateChildrenIfNeeded */ true)) {
                 if (shouldStop(*current))

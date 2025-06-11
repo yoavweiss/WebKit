@@ -501,7 +501,7 @@ TextFieldSelectionDirection HTMLTextFormControlElement::computeSelectionDirectio
 static void setContainerAndOffsetForRange(Node& node, unsigned offset, RefPtr<Node>& containerNode, unsigned& offsetInContainer)
 {
     if (node.isTextNode()) {
-        containerNode = &node;
+        containerNode = node;
         offsetInContainer = offset;
     } else {
         containerNode = node.parentNode();

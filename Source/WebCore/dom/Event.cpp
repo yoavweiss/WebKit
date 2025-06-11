@@ -158,7 +158,7 @@ void Event::setCurrentTarget(RefPtr<EventTarget>&& currentTarget, std::optional<
 
 void Event::setEventPath(const EventPath& path)
 {
-    m_eventPath = &path;
+    m_eventPath = path;
 }
 
 Vector<Ref<EventTarget>> Event::composedPath(JSC::JSGlobalObject& lexicalGlobalObject) const
@@ -184,9 +184,9 @@ DOMHighResTimeStamp Event::timeStampForBindings(ScriptExecutionContext& context)
 {
     RefPtr<Performance> performance;
     if (auto* globalScope = dynamicDowncast<WorkerGlobalScope>(context))
-        performance = &globalScope->performance();
+        performance = globalScope->performance();
     else if (RefPtr window = downcast<Document>(context).domWindow())
-        performance = &window->performance();
+        performance = window->performance();
 
     if (!performance)
         return 0;

@@ -222,7 +222,7 @@ void ContentVisibilityDocumentState::updateContentRelevancyForScrollIfNeeded(con
     auto findSkippedContentRoot = [](const Element& element) -> RefPtr<const Element> {
         RefPtr<const Element> found;
         if (element.renderer() && element.renderer()->isSkippedContent()) {
-            for (RefPtr candidate = &element; candidate; candidate = candidate->parentElementInComposedTree()) {
+            for (RefPtr candidate = element; candidate; candidate = candidate->parentElementInComposedTree()) {
                 if (candidate->renderer() && candidate->renderStyle()->contentVisibility() == ContentVisibility::Auto)
                     found = candidate;
             }

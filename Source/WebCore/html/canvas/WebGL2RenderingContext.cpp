@@ -1780,7 +1780,7 @@ void WebGL2RenderingContext::beginQuery(GCGLenum target, WebGLQuery& query)
         synthesizeGLError(GraphicsContextGL::INVALID_OPERATION, "beginQuery"_s, "query object of target is already active"_s);
         return;
     }
-    m_activeQueries[*activeQueryKey] = &query;
+    m_activeQueries[*activeQueryKey] = query;
     protectedGraphicsContextGL()->beginQuery(target, query.object());
     query.setTarget(target);
 }

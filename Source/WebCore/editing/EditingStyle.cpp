@@ -1331,7 +1331,7 @@ Ref<EditingStyle> EditingStyle::wrappingStyleForSerialization(Node& context, boo
     auto wrappingStyle = EditingStyle::create();
 
     // When not annotating for interchange, we only preserve inline style declarations.
-    for (RefPtr node = &context; node && !node->isDocumentNode(); node = node->parentNode()) {
+    for (RefPtr node = context; node && !node->isDocumentNode(); node = node->parentNode()) {
         if (auto* element = dynamicDowncast<StyledElement>(*node); element && !isMailBlockquote(*element))
             wrappingStyle->mergeInlineAndImplicitStyleOfElement(*element, DoNotOverrideValues, PropertiesToInclude::EditingPropertiesInEffect, standardFontFamilySerializationMode);
     }

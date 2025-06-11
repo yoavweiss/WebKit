@@ -118,7 +118,7 @@ void ProgressTracker::progressStarted(LocalFrame& frame)
     if (!m_numProgressTrackedFrames || m_originatingProgressFrame == &frame) {
         reset();
         m_progressValue = initialProgressValue;
-        m_originatingProgressFrame = &frame;
+        m_originatingProgressFrame = frame;
 
         m_progressHeartbeatTimer.startRepeating(progressHeartbeatInterval);
         RefPtr originatingProgressFrame = m_originatingProgressFrame.get();

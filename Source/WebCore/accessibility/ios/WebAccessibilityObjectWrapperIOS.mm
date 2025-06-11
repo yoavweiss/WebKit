@@ -1392,12 +1392,12 @@ static void appendStringToResult(NSMutableString *result, NSString *string)
     RefPtr<AXCoreObject> listItemAncestor;
     Accessibility::findAncestor<AXCoreObject>(*self.axBackingObject, true, [&] (auto& object) {
         if (object.isExposedTableCell()) {
-            tableCellAncestor = &object;
+            tableCellAncestor = object;
             return true;
         }
 
         if (object.isListItem()) {
-            listItemAncestor = &object;
+            listItemAncestor = object;
             return true;
         }
         return false;

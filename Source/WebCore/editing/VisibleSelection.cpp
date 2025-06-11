@@ -523,7 +523,7 @@ static bool isInUserAgentShadowRootOrHasEditableShadowAncestor(Node& node)
     if (shadowRoot->mode() == ShadowRootMode::UserAgent)
         return true;
 
-    for (RefPtr currentNode = &node; currentNode; currentNode = currentNode->parentOrShadowHostNode()) {
+    for (RefPtr currentNode = node; currentNode; currentNode = currentNode->parentOrShadowHostNode()) {
         if (currentNode->hasEditableStyle())
             return true;
     }

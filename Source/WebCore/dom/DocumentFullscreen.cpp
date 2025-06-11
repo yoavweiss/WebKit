@@ -309,7 +309,7 @@ ExceptionOr<void> DocumentFullscreen::willEnterFullscreen(Element& element, HTML
     ASSERT(&element == m_pendingFullscreenElement);
     m_pendingFullscreenElement = nullptr;
 
-    m_fullscreenElement = &element;
+    m_fullscreenElement = element;
 
     Vector<Ref<Element>> ancestors { { element } };
     for (RefPtr<Frame> frame = element.document().frame(); frame; frame = frame->tree().parent()) {
@@ -399,7 +399,7 @@ LocalFrame* DocumentFullscreen::frame() const
 static Vector<Ref<Document>> documentsToUnfullscreen(Frame& firstFrame)
 {
     Vector<Ref<Document>> documents;
-    for (RefPtr frame = &firstFrame; frame; frame = frame->tree().parent()) {
+    for (RefPtr frame = firstFrame; frame; frame = frame->tree().parent()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
         if (!localFrame)
             continue;

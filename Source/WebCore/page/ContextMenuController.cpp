@@ -150,7 +150,7 @@ static std::unique_ptr<ContextMenuItem> separatorItem()
 
 void ContextMenuController::showContextMenu(Event& event, ContextMenuProvider& provider)
 {
-    m_menuProvider = &provider;
+    m_menuProvider = provider;
 
     auto contextType = provider.contextMenuContextType();
 
@@ -192,7 +192,7 @@ static void prepareContextForQRCode(ContextMenuContext& context)
     RefPtr<Element> element;
     for (auto& lineage : lineageOfType<Element>(*nodeElement)) {
         if (is<HTMLTableElement>(lineage) || is<HTMLCanvasElement>(lineage) || is<HTMLImageElement>(lineage) || is<SVGSVGElement>(lineage)) {
-            element = &lineage;
+            element = lineage;
             break;
         }
     }

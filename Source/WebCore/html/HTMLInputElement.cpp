@@ -2220,7 +2220,7 @@ RefPtr<HTMLInputElement> HTMLInputElement::checkedRadioButtonForGroup() const
     RefPtr<HTMLInputElement> checkedRadio;
     RadioInputType::forEachButtonInDetachedGroup(rootNode(), name, [&](auto& input) {
         if (input.checked()) {
-            checkedRadio = &input;
+            checkedRadio = input;
             return false;
         }
         return true;

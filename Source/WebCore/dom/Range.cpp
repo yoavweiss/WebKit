@@ -859,10 +859,10 @@ ExceptionOr<void> Range::surroundContents(Node& newParent)
     Ref protectedNewParent = newParent;
 
     // Step 1: If a non-Text node is partially contained in the context object, then throw an InvalidStateError.
-    RefPtr startNonTextContainer = &startContainer();
+    RefPtr startNonTextContainer = startContainer();
     if (is<Text>(startNonTextContainer))
         startNonTextContainer = startNonTextContainer->parentNode();
-    RefPtr endNonTextContainer = &endContainer();
+    RefPtr endNonTextContainer = endContainer();
     if (is<Text>(endNonTextContainer))
         endNonTextContainer = endNonTextContainer->parentNode();
     if (startNonTextContainer != endNonTextContainer)
