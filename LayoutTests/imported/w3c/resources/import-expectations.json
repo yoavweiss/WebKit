@@ -76,7 +76,7 @@
     "web-platform-tests/css/css-device-adapt": "import",
     "web-platform-tests/css/css-display": "import",
     "web-platform-tests/css/css-easing": "import",
-    "web-platform-tests/css/css-env": "skip",
+    "web-platform-tests/css/css-env": "import",
     "web-platform-tests/css/css-exclusions": "skip",
     "web-platform-tests/css/css-fill-stroke": "import",
     "web-platform-tests/css/css-flexbox": "import",
