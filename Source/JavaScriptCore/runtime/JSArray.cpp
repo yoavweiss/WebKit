@@ -2014,7 +2014,7 @@ JSArray* tryCloneArrayFromFast(JSGlobalObject* globalObject, JSValue arrayValue)
 
     Butterfly* butterfly= array->butterfly();
     unsigned resultSize = butterfly->publicLength();
-    if (hasAnyArrayStorage(sourceType) || resultSize >= MIN_SPARSE_ARRAY_INDEX) {
+    if (hasAnyArrayStorage(sourceType) || resultSize >= MIN_SPARSE_ARRAY_INDEX) [[unlikely]] {
         JSArray* result = constructEmptyArray(globalObject, nullptr, resultSize);
         RETURN_IF_EXCEPTION(scope, { });
 
@@ -2036,16 +2036,18 @@ JSArray* tryCloneArrayFromFast(JSGlobalObject* globalObject, JSValue arrayValue)
     }
 
     IndexingType resultType = sourceType;
-    if (sourceType == ArrayWithDouble) {
-        double* buffer = butterfly->contiguousDouble().data();
-        if (containsHole(buffer, resultSize)) [[unlikely]]
+    if constexpr (fillMode == ArrayFillMode::Undefined)  {
+        if (sourceType == ArrayWithDouble) {
+            double* buffer = butterfly->contiguousDouble().data();
+            if (containsHole(buffer, resultSize)) [[unlikely]]
+                resultType = ArrayWithContiguous;
+        } else if (sourceType == ArrayWithInt32) {
+            auto* buffer = butterfly->contiguous().data();
+            if (containsHole(buffer, resultSize)) [[unlikely]]
+                resultType = ArrayWithContiguous;
+        } else if (sourceType == ArrayWithUndecided && resultSize)
             resultType = ArrayWithContiguous;
-    } else if (sourceType == ArrayWithInt32) {
-        auto* buffer = butterfly->contiguous().data();
-        if (containsHole(buffer, resultSize)) [[unlikely]]
-            resultType = ArrayWithContiguous;
-    } else if (sourceType == ArrayWithUndecided && resultSize)
-        resultType = ArrayWithContiguous;
+    }
 
     Structure* resultStructure = globalObject->arrayStructureForIndexingTypeDuringAllocation(resultType);
     if (hasAnyArrayStorage(resultStructure->indexingType())) [[unlikely]]
@@ -2068,6 +2070,11 @@ JSArray* tryCloneArrayFromFast(JSGlobalObject* globalObject, JSValue arrayValue)
 
     switch (resultType) {
     case ArrayWithUndecided:
+        if constexpr (fillMode == ArrayFillMode::Empty) {
+            auto* buffer = resultButterfly->contiguous().data();
+            copyArrayElements<ArrayFillMode::Empty, NeedsGCSafeOps::No>(buffer, 0, butterfly->contiguous().data(), 0, resultSize, ArrayWithUndecided);
+            break;
+        }
         ASSERT(!resultSize);
         break;
     case ArrayWithDouble: {
