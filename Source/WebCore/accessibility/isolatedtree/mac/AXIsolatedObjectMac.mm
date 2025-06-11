@@ -241,12 +241,12 @@ AXTextMarkerRange AXIsolatedObject::textMarkerRange() const
         // {ID 5, Role Group}
         //
         // We would expect the returned range to be: {ID 2, offset 0} to {ID 4, offset 3}
-        auto* stopObject = nextSiblingIncludingIgnoredOrParent();
+        std::optional stopAtID = idOfNextSiblingIncludingIgnoredOrParent();
 
         auto thisMarker = AXTextMarker { *this, 0 };
         AXTextMarkerRange range { thisMarker, thisMarker };
-        auto startMarker = thisMarker.toTextRunMarker();
-        auto endMarker = startMarker.findLastBefore(stopObject ? std::optional { stopObject->objectID() } : std::nullopt);
+        auto startMarker = thisMarker.toTextRunMarker(stopAtID);
+        auto endMarker = startMarker.findLastBefore(stopAtID);
         if (endMarker.isValid() && endMarker.isInTextRun()) {
             // One or more of our descendants have text, so let's form a range from the first and last text positions.
             range = { WTFMove(startMarker), WTFMove(endMarker) };
@@ -272,6 +272,17 @@ AXTextMarkerRange AXIsolatedObject::textMarkerRangeForNSRange(const NSRange& ran
         if (start < text->length() && end <= text->length())
             return { tree()->treeID(), objectID(), start, end };
     }
+
+#if ENABLE(AX_THREAD_TEXT_APIS)
+    if (AXObjectCache::useAXThreadTextApis()) {
+        if (std::optional markerRange = markerRangeFrom(range, *this)) {
+            if (range.length > markerRange->toString().length())
+                return { };
+            return WTFMove(*markerRange);
+        }
+        return { };
+    }
+#endif // ENABLE(AX_THREAD_TEXT_APIS)
 
     return Accessibility::retrieveValueFromMainThread<AXTextMarkerRange>([&range, this] () -> AXTextMarkerRange {
         auto* axObject = associatedAXObject();

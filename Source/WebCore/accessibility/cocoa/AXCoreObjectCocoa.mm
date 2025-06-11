@@ -618,8 +618,22 @@ PlatformRoleMap createPlatformRoleMap()
     return roleMap;
 }
 
-} // namespace Accessibility
+#if ENABLE(AX_THREAD_TEXT_APIS)
+std::optional<AXTextMarkerRange> markerRangeFrom(NSRange range, const AXCoreObject& object)
+{
+    std::optional stopAtID = object.idOfNextSiblingIncludingIgnoredOrParent();
+    auto markerToLocation = AXTextMarker { object, 0 }.nextMarkerFromOffset(range.location, ForceSingleOffsetMovement::Yes, stopAtID);
+    if (!markerToLocation.isValid())
+        return std::nullopt;
 
+    auto markerToRangeEnd = markerToLocation.nextMarkerFromOffset(range.length, ForceSingleOffsetMovement::Yes, stopAtID);
+    if (!markerToRangeEnd.isValid())
+        return std::nullopt;
+    return std::optional(AXTextMarkerRange { WTFMove(markerToLocation), WTFMove(markerToRangeEnd) });
+}
+#endif // ENABLE(AX_THREAD_TEXT_APIS)
+
+} // namespace Accessibility
 
 #endif // PLATFORM(MAC)
 

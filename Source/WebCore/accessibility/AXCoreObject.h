@@ -798,7 +798,7 @@ public:
     String dbg(bool verbose = false) const { return dbgInternal(verbose, { }); }
     String dbg(OptionSet<AXDebugStringOption> options) const { return dbgInternal(false, options); }
 
-    AXID objectID() const { return m_id; }
+    inline AXID objectID() const { return m_id; }
     virtual std::optional<AXID> treeID() const = 0;
     virtual ProcessID processID() const = 0;
 
@@ -1329,6 +1329,11 @@ public:
     AXCoreObject* nextSiblingIncludingIgnored(bool updateChildrenIfNeeded) const;
     AXCoreObject* nextUnignoredSibling(bool updateChildrenIfNeeded, AXCoreObject* unignoredParent = nullptr) const;
     AXCoreObject* nextSiblingIncludingIgnoredOrParent() const;
+    std::optional<AXID> idOfNextSiblingIncludingIgnoredOrParent() const
+    {
+        auto* object = nextSiblingIncludingIgnoredOrParent();
+        return object ? std::optional(object->objectID()) : std::nullopt;
+    }
 
     AXCoreObject* previousInPreOrder(bool updateChildrenIfNeeded = true, AXCoreObject* stayWithin = nullptr);
     AXCoreObject* previousSiblingIncludingIgnored(bool updateChildrenIfNeeded);
@@ -1938,6 +1943,9 @@ using PlatformRoleMap = HashMap<AccessibilityRole, String, DefaultHash<unsigned>
 void initializeRoleMap();
 PlatformRoleMap createPlatformRoleMap();
 String roleToPlatformString(AccessibilityRole);
+#if ENABLE(AX_THREAD_TEXT_APIS)
+std::optional<AXTextMarkerRange> markerRangeFrom(NSRange, const AXCoreObject&);
+#endif
 
 } // namespace Accessibility
 

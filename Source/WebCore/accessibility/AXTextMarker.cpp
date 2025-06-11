@@ -722,9 +722,7 @@ CharacterRange AXTextMarker::characterRangeForLine(unsigned lineIndex) const
     // This implementation doesn't respect the offset as the only known callsite hardcodes zero. We'll need to make changes to support this if a usecase arrives for it.
     TEXT_MARKER_ASSERT(!offset(), "characterRangeForLine");
 
-    auto* stopObject = object->nextSiblingIncludingIgnoredOrParent();
-    auto stopAtID = stopObject ? std::optional { stopObject->objectID() } : std::nullopt;
-
+    std::optional stopAtID = object->idOfNextSiblingIncludingIgnoredOrParent();
     auto textRunMarker = toTextRunMarker(stopAtID);
     // If we couldn't convert this object to a text-run marker, it means we are a text control with no text descendant.
     if (!textRunMarker.isValid())
@@ -770,14 +768,13 @@ int AXTextMarker::lineNumberForIndex(unsigned index) const
     RefPtr object = isolatedObject();
     if (!object)
         return -1;
-    auto* stopObject = object->nextSiblingIncludingIgnoredOrParent();
-    auto stopAtID = stopObject ? std::optional { stopObject->objectID() } : std::nullopt;
 
     if (object->isTextControl() && index >= object->textMarkerRange().toString().length() - 1) {
         // Mimic behavior of AccessibilityRenderObject::visiblePositionForIndex.
         return -1;
     }
 
+    std::optional stopAtID = object->idOfNextSiblingIncludingIgnoredOrParent();
     unsigned lineIndex = 0;
     auto currentMarker = *this;
     while (index) {
@@ -896,18 +893,18 @@ unsigned AXTextMarker::offsetFromRoot() const
     return 0;
 }
 
-AXTextMarker AXTextMarker::nextMarkerFromOffset(unsigned offset, ForceSingleOffsetMovement forceSingleOffsetMovement) const
+AXTextMarker AXTextMarker::nextMarkerFromOffset(unsigned offset, ForceSingleOffsetMovement forceSingleOffsetMovement, std::optional<AXID> stopAtID) const
 {
     RELEASE_ASSERT(!isMainThread());
 
     if (!isValid())
         return { };
     if (!isInTextRun())
-        return toTextRunMarker().nextMarkerFromOffset(offset, forceSingleOffsetMovement);
+        return toTextRunMarker(stopAtID).nextMarkerFromOffset(offset, forceSingleOffsetMovement, stopAtID);
 
     auto marker = *this;
     while (offset) {
-        if (auto newMarker = marker.findMarker(AXDirection::Next, CoalesceObjectBreaks::No, IgnoreBRs::No, /* stopAtID */ std::nullopt, forceSingleOffsetMovement))
+        if (auto newMarker = marker.findMarker(AXDirection::Next, CoalesceObjectBreaks::No, IgnoreBRs::No, stopAtID, forceSingleOffsetMovement))
             marker = WTFMove(newMarker);
         else
             break;
