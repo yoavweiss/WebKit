@@ -115,7 +115,7 @@ public:
         virtual String browserVersion() const { return { }; }
         virtual void requestAutomationSession(const String& sessionIdentifier, const SessionCapabilities&) = 0;
         virtual void requestedDebuggablesToWakeUp() { };
-#if USE(INSPECTOR_SOCKET_SERVER)
+#if USE(INSPECTOR_SOCKET_SERVER) || USE(GLIB)
         virtual void closeAutomationSession() = 0;
 #endif
     };
@@ -170,6 +170,7 @@ public:
 
 #if USE(GLIB)
     void requestAutomationSession(const char* sessionID, const Client::SessionCapabilities&);
+    void automationConnectionDidClose();
 #endif
 #if USE(GLIB) || USE(INSPECTOR_SOCKET_SERVER)
     void setup(TargetID);
