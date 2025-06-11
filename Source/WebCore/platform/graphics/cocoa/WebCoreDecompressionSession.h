@@ -35,6 +35,7 @@
 #include <wtf/Lock.h>
 #include <wtf/MediaTime.h>
 #include <wtf/OSObjectPtr.h>
+#include <wtf/OptionSet.h>
 #include <wtf/Ref.h>
 #include <wtf/RetainPtr.h>
 #include <wtf/ThreadSafeWeakPtr.h>
@@ -62,7 +63,13 @@ public:
     WEBCORE_EXPORT RetainPtr<CVPixelBufferRef> decodeSampleSync(CMSampleBufferRef);
 
     using DecodingPromise = NativePromise<Vector<RetainPtr<CMSampleBufferRef>>, OSStatus>;
-    WEBCORE_EXPORT Ref<DecodingPromise> decodeSample(CMSampleBufferRef, bool displaying);
+    enum class DecodingFlag : uint8_t {
+        NonDisplaying = 1 << 0,
+        RealTime = 1 << 1,
+    };
+    using DecodingFlags = OptionSet<DecodingFlag>;
+
+    WEBCORE_EXPORT Ref<DecodingPromise> decodeSample(CMSampleBufferRef, DecodingFlags);
     WEBCORE_EXPORT void flush();
 
     void setResourceOwner(const ProcessIdentity& resourceOwner) { m_resourceOwner = resourceOwner; }
@@ -77,7 +84,7 @@ private:
 
     Expected<RetainPtr<VTDecompressionSessionRef>, OSStatus> ensureDecompressionSessionForSample(CMSampleBufferRef);
 
-    Ref<DecodingPromise> decodeSampleInternal(CMSampleBufferRef, bool displaying);
+    Ref<DecodingPromise> decodeSampleInternal(CMSampleBufferRef, DecodingFlags);
     void assignResourceOwner(CVImageBufferRef);
 
     Ref<MediaPromise> initializeVideoDecoder(FourCharCode, std::span<const uint8_t>, const std::optional<PlatformVideoColorSpace>&);
@@ -93,7 +100,7 @@ private:
     RefPtr<VideoDecoder> m_videoDecoder WTF_GUARDED_BY_LOCK(m_lock);
     bool m_videoDecoderCreationFailed { false };
     struct PendingDecodeData {
-        bool displaying { false };
+        DecodingFlags flags;
     };
     std::optional<PendingDecodeData> m_pendingDecodeData WTF_GUARDED_BY_CAPABILITY(m_decompressionQueue.get());
     Vector<RetainPtr<CMSampleBufferRef>> m_lastDecodedSamples WTF_GUARDED_BY_CAPABILITY(m_decompressionQueue.get());
