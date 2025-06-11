@@ -5470,6 +5470,18 @@ imported/w3c/web-platform-tests/css/css-multicol/spanner-in-opacity.html [ Image
 imported/w3c/web-platform-tests/css/css-multicol/subpixel-column-rule-width.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-multicol/table/table-cell-multicol-nested-002.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-multicol/column-pseudo-background-color.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-002.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-003.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-004.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-005.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-006.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-007.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-008.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-009.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-011.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/column-height-012.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/multicol-fill-balance-030.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-multicol/multicol-span-float-004.html [ ImageOnlyFailure ]
 
 # Crashes
 webkit.org/b/279421 [ Debug ] imported/w3c/web-platform-tests/css/css-multicol/crashtests/inline-float-parallel-flow.html [ Skip ]

@@ -5033,6 +5033,7 @@
         "web-platform-tests/css/css-multicol/broken-column-rule-1-ref.html",
         "web-platform-tests/css/css-multicol/column-balancing-paged-001-print-ref.html",
         "web-platform-tests/css/css-multicol/column-balancing-paged-001-print.html",
+        "web-platform-tests/css/css-multicol/column-height-009-ref.html",
         "web-platform-tests/css/css-multicol/column-pseudo-background-color-ref.html",
         "web-platform-tests/css/css-multicol/column-rule-001-ref.html",
         "web-platform-tests/css/css-multicol/column-rule-002-ref.html",
