@@ -351,6 +351,7 @@ RefPtr<Page> WebChromeClient::createWindow(LocalFrame& frame, const String& open
     if (!page)
         return nullptr;
 
+    auto& originalRequest = navigationAction.originalRequest();
     NavigationActionData navigationActionData {
         navigationAction.type(),
         modifiersForNavigationAction(navigationAction),
@@ -391,8 +392,9 @@ RefPtr<Page> WebChromeClient::createWindow(LocalFrame& frame, const String& open
         webFrame->page()->webPageProxyIdentifier(),
         webFrame->info(), /* frameInfo */
         std::nullopt, /* navigationID */
-        navigationAction.originalRequest(), /* originalRequest */
-        navigationAction.originalRequest() /* request */
+        originalRequest, /* originalRequest */
+        originalRequest, /* request */
+        originalRequest.url().isValid() ? String() : originalRequest.url().string(), /* invalidURLString */
     };
 
     auto sendResult = webProcess.parentProcessConnection()->sendSync(Messages::WebPageProxy::CreateNewPage(windowFeatures, navigationActionData), page->identifier(), IPC::Timeout::infinity(), { IPC::SendSyncOption::MaintainOrderingWithAsyncMessages });
