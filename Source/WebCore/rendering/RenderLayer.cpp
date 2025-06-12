@@ -3743,6 +3743,24 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
         return isPaintingCompositedBackground;
     }();
 
+    if (shouldPaintContent && paintingInfo.subtreePaintRoot) {
+        RenderLayer* subtreeRootLayer = paintingInfo.subtreePaintRoot->enclosingLayer();
+
+        if (subtreeRootLayer) {
+            bool isLayerInSubtree = (this == subtreeRootLayer) || isDescendantOf(*subtreeRootLayer);
+
+            if (isLayerInSubtree) {
+                if (paintingInfo.subtreePaintRoot != &renderer()) {
+                    if (CheckedPtr rootAsBlock = dynamicDowncast<RenderBlock>(paintingInfo.subtreePaintRoot)) {
+                        if (!rootAsBlock->isContainingBlockAncestorFor(renderer()))
+                            shouldPaintContent = false;
+                    }
+                }
+            } else
+                shouldPaintContent = false;
+        }
+    }
+
     if (localPaintFlags.contains(PaintLayerFlag::PaintingRootBackgroundOnly) && !renderer().isRenderView() && !renderer().isDocumentElementRenderer()) {
         // If beginTransparencyLayers was called prior to this, ensure the transparency state is cleaned up before returning.
         if (haveTransparency && m_usedTransparency && !m_paintingInsideReflection) {
