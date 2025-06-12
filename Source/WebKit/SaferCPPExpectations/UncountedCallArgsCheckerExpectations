@@ -113,7 +113,6 @@ WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebNavigationEventCocoa.mm
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIWebRequestEventCocoa.mm
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIWindowsCocoa.mm
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIWindowsEventCocoa.mm
-WebProcess/Extensions/Bindings/Cocoa/JSWebExtensionWrapperCocoa.mm
 WebProcess/FullScreen/WebFullScreenManager.cpp
 WebProcess/GPU/graphics/RemoteRenderingBackendProxy.cpp
 WebProcess/GPU/media/MediaPlayerPrivateRemote.cpp

@@ -26,7 +26,6 @@ NetworkProcess/cocoa/NetworkSessionCocoa.mm
 NetworkProcess/cocoa/NetworkTaskCocoa.mm
 NetworkProcess/cocoa/WKURLSessionTaskDelegate.mm
 NetworkProcess/cocoa/WebSocketTaskCocoa.mm
-NetworkProcess/storage/IDBStorageManager.cpp
 NetworkProcess/storage/LocalStorageManager.cpp
 NetworkProcess/storage/NetworkStorageManager.cpp
 NetworkProcess/storage/SQLiteStorageArea.cpp
@@ -35,7 +34,6 @@ Platform/IPC/ArgumentCoders.h
 Platform/IPC/Connection.cpp
 Platform/IPC/StreamClientConnection.cpp
 Platform/cocoa/_WKWebViewTextInputNotifications.mm
-Shared/EditingRange.cpp
 Shared/RemoteLayerTree/RemoteLayerBackingStoreCollection.mm
 Shared/RemoteLayerTree/RemoteLayerTreeTransaction.mm
 Shared/RemoteLayerTree/RemoteScrollingCoordinatorTransaction.cpp
@@ -122,8 +120,6 @@ WebProcess/WebCoreSupport/mac/WebDragClientMac.mm
 WebProcess/WebCoreSupport/mac/WebPopupMenuMac.mm
 WebProcess/WebPage/Cocoa/TextAnimationController.mm
 WebProcess/WebPage/Cocoa/WebPageCocoa.mm
-WebProcess/WebPage/DrawingArea.cpp
-WebProcess/WebPage/FindController.cpp
 WebProcess/WebPage/MomentumEventDispatcher.cpp
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemote.mm
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemoteTiledBacking.cpp
