@@ -100,4 +100,7 @@ WEBCORE_EXPORT CFStringRef contentSizeCategory();
 
 VariationDefaultsMap defaultVariationValues(CTFontRef, ShouldLocalizeAxisNames);
 
+WEBCORE_EXPORT Lock& userInstalledFontMapLock();
+WEBCORE_EXPORT HashMap<String, URL>& userInstalledFontMap() WTF_REQUIRES_LOCK(userInstalledFontMapLock());
+
 } // namespace WebCore
