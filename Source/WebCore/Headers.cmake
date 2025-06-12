@@ -1642,6 +1642,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     loader/archive/Archive.h
     loader/archive/ArchiveError.h
     loader/archive/ArchiveResource.h
+    loader/archive/ArchiveResourceCollection.h
 
     loader/archive/mhtml/MHTMLArchive.h
 
@@ -1656,6 +1657,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     loader/cache/CachedResourceHandle.h
     loader/cache/CachedResourceLoader.h
     loader/cache/CachedResourceRequest.h
+    loader/cache/CachedSVGDocumentReference.h
     loader/cache/CachedStyleSheetClient.h
     loader/cache/KeepaliveRequestTracker.h
     loader/cache/MemoryCache.h
