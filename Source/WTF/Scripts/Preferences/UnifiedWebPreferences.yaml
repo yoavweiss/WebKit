@@ -8632,6 +8632,21 @@ WebCryptoX25519Enabled:
     WebCore:
       default: true
 
+WebExtensionBookmarksEnabled:
+  type: bool
+  status: testable
+  category: extensions
+  humanReadableName: "WebExtension Bookmarks API"
+  humanReadableDescription: "Enable support for WebExtensions using the Bookmarks API"
+  condition: ENABLE(WK_WEB_EXTENSIONS_BOOKMARKS)
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 WebExtensionSidebarEnabled:
   type: bool
   status: testable
