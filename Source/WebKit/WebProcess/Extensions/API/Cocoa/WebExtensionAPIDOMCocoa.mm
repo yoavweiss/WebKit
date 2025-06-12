@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,27 +23,24 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WKBundleScriptWorld_h
-#define WKBundleScriptWorld_h
-
-#include <WebKit/WKBase.h>
-
-#ifdef __cplusplus
-extern "C" {
+#if !__has_feature(objc_arc)
+#error This file requires ARC. Add the "-fobjc-arc" compiler flag for this file.
 #endif
 
-WK_EXPORT WKTypeID WKBundleScriptWorldGetTypeID();
+#import "config.h"
+#import "WebExtensionAPIDOM.h"
 
-WK_EXPORT WKBundleScriptWorldRef WKBundleScriptWorldCreateWorld();
-WK_EXPORT WKBundleScriptWorldRef WKBundleScriptWorldNormalWorld();
-WK_EXPORT void WKBundleScriptWorldClearWrappers(WKBundleScriptWorldRef scriptWorld);
-WK_EXPORT void WKBundleScriptWorldMakeAllShadowRootsOpen(WKBundleScriptWorldRef scriptWorld);
-WK_EXPORT void WKBundleScriptWorldExposeClosedShadowRootsForExtensions(WKBundleScriptWorldRef scriptWorld);
-WK_EXPORT void WKBundleScriptWorldDisableOverrideBuiltinsBehavior(WKBundleScriptWorldRef scriptWorld);
-WK_EXPORT WKStringRef WKBundleScriptWorldCopyName(WKBundleScriptWorldRef scriptWorld);
+#if ENABLE(WK_WEB_EXTENSIONS)
 
-#ifdef __cplusplus
+namespace WebKit {
+
+JSValue *WebExtensionAPIDOM::openOrClosedShadowRoot(JSValue *element)
+{
+    // Documentation: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/dom/openOrClosedShadowRoot
+
+    return [element valueForProperty:@"openOrClosedShadowRoot"];
 }
-#endif
 
-#endif /* WKBundleScriptWorld_h */
+} // namespace WebKit
+
+#endif // ENABLE(WK_WEB_EXTENSIONS)

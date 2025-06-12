@@ -165,7 +165,7 @@ Vector<Ref<EventTarget>> Event::composedPath(JSC::JSGlobalObject& lexicalGlobalO
 {
     if (!m_eventPath)
         return Vector<Ref<EventTarget>>();
-    if (JSC::jsCast<JSDOMGlobalObject*>(&lexicalGlobalObject)->world().shadowRootIsAlwaysOpen())
+    if (JSC::jsCast<JSDOMGlobalObject*>(&lexicalGlobalObject)->world().canAccessAnyShadowRoot())
         return m_eventPath->computePathTreatingAllShadowRootsAsOpen();
     return m_eventPath->computePathUnclosedToTarget(*protectedCurrentTarget());
 }

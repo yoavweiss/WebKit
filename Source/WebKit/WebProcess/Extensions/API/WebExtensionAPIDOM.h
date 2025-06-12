@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,27 +23,26 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WKBundleScriptWorld_h
-#define WKBundleScriptWorld_h
+#pragma once
 
-#include <WebKit/WKBase.h>
+#if ENABLE(WK_WEB_EXTENSIONS)
 
-#ifdef __cplusplus
-extern "C" {
+#include "JSWebExtensionAPIDOM.h"
+#include "WebExtensionAPIObject.h"
+
+namespace WebKit {
+
+class WebPage;
+
+class WebExtensionAPIDOM : public WebExtensionAPIObject, public JSWebExtensionWrappable {
+    WEB_EXTENSION_DECLARE_JS_WRAPPER_CLASS(WebExtensionAPIDOM, dom, dom);
+
+public:
+#if PLATFORM(COCOA)
+    JSValue *openOrClosedShadowRoot(JSValue *element);
 #endif
+};
 
-WK_EXPORT WKTypeID WKBundleScriptWorldGetTypeID();
+} // namespace WebKit
 
-WK_EXPORT WKBundleScriptWorldRef WKBundleScriptWorldCreateWorld();
-WK_EXPORT WKBundleScriptWorldRef WKBundleScriptWorldNormalWorld();
-WK_EXPORT void WKBundleScriptWorldClearWrappers(WKBundleScriptWorldRef scriptWorld);
-WK_EXPORT void WKBundleScriptWorldMakeAllShadowRootsOpen(WKBundleScriptWorldRef scriptWorld);
-WK_EXPORT void WKBundleScriptWorldExposeClosedShadowRootsForExtensions(WKBundleScriptWorldRef scriptWorld);
-WK_EXPORT void WKBundleScriptWorldDisableOverrideBuiltinsBehavior(WKBundleScriptWorldRef scriptWorld);
-WK_EXPORT WKStringRef WKBundleScriptWorldCopyName(WKBundleScriptWorldRef scriptWorld);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* WKBundleScriptWorld_h */
+#endif // ENABLE(WK_WEB_EXTENSIONS)
