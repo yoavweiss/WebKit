@@ -2332,6 +2332,7 @@ private:
     UncheckedKeyHashSet<WeakRef<Element, WeakPtrImplWithEventTargetData>> m_articleElements;
 
     WeakHashSet<VisibilityChangeClient> m_visibilityStateCallbackClients;
+    bool m_deferResizeEventForVisibilityChange { false };
 
     std::unique_ptr<UncheckedKeyHashMap<String, WeakPtr<Element, WeakPtrImplWithEventTargetData>, ASCIICaseInsensitiveHash>> m_accessKeyCache;
 

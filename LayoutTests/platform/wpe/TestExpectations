@@ -934,6 +934,7 @@ webkit.org/b/173419 fast/events/page-visibility-iframe-delete-test.html [ Timeou
 webkit.org/b/173419 fast/events/page-visibility-iframe-move-test.html [ Timeout ]
 webkit.org/b/173419 fast/events/page-visibility-iframe-propagation-test.html [ Timeout ]
 webkit.org/b/173419 fast/events/page-visibility-onvisibilitychange.html [ Timeout ]
+webkit.org/b/173419 fast/events/page-visibility-resize-event-order.html [ Timeout ]
 webkit.org/b/173419 fast/events/page-visibility-transition-test.html [ Timeout ]
 webkit.org/b/173419 fast/events/scroll-in-scaled-page-with-overflow-hidden.html [ Failure Timeout ]
 webkit.org/b/173419 fast/events/shadow-event-path-2.html [ Failure ]
