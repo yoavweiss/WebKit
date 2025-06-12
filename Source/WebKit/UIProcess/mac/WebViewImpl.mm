@@ -7000,8 +7000,10 @@ void WebViewImpl::updateScrollPocket()
     auto bounds = [view bounds];
     auto topInsetFrame = NSMakeRect(NSMinX(bounds), NSMinY(bounds), NSWidth(bounds), std::min<CGFloat>(topContentInset, NSHeight(bounds)));
 
-    for (NSView *pocketContainer in m_viewsAboveScrollPocket.get())
-        topInsetFrame = NSUnionRect(topInsetFrame, [view convertRect:pocketContainer.bounds fromView:pocketContainer]);
+    if ([m_view _usesAutomaticContentInsetBackgroundFill]) {
+        for (NSView *pocketContainer in m_viewsAboveScrollPocket.get())
+            topInsetFrame = NSUnionRect(topInsetFrame, [view convertRect:pocketContainer.bounds fromView:pocketContainer]);
+    }
 
     topInsetFrame = [m_topScrollPocket frameForAlignmentRect:topInsetFrame];
 
