@@ -71,13 +71,12 @@ bool GraphicsLayerCARemote::filtersCanBeComposited(const FilterOperations& filte
 Ref<PlatformCALayer> GraphicsLayerCARemote::createPlatformCALayer(PlatformCALayer::LayerType layerType, PlatformCALayerClient* owner)
 {
     Ref context = *m_context;
-    auto result = PlatformCALayerRemote::create(layerType, owner, context.get());
+    Ref result = PlatformCALayerRemote::create(layerType, owner, context.get());
 
     if (result->canHaveBackingStore()) {
-        auto* localMainFrameView = context->webPage().localMainFrameView();
-        result->setContentsFormat(PlatformCALayer::contentsFormatForLayer(localMainFrameView, owner));
+        RefPtr localMainFrameView = context->webPage().localMainFrameView();
+        result->setContentsFormat(PlatformCALayer::contentsFormatForLayer(localMainFrameView.get(), owner));
     }
-
     return WTFMove(result);
 }
 

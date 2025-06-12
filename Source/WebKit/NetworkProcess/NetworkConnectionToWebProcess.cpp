@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2012-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -261,7 +261,7 @@ bool NetworkConnectionToWebProcess::dispatchMessage(IPC::Connection& connection,
     MESSAGE_CHECK_WITH_RETURN_VALUE(decoder.messageReceiverName() != Messages::NetworkProcess::messageReceiverName(), false);
 
     if (decoder.messageReceiverName() == Messages::NetworkBroadcastChannelRegistry::messageReceiverName()) {
-        if (auto* networkSession = this->networkSession())
+        if (CheckedPtr networkSession = this->networkSession())
             networkSession->protectedBroadcastChannelRegistry()->didReceiveMessage(connection, decoder);
         return true;
     }
@@ -290,7 +290,7 @@ bool NetworkConnectionToWebProcess::dispatchMessage(IPC::Connection& connection,
 #if ENABLE(WEB_PUSH_NOTIFICATIONS)
     if (decoder.messageReceiverName() == Messages::NotificationManagerMessageHandler::messageReceiverName()) {
         MESSAGE_CHECK_WITH_RETURN_VALUE(builtInNotificationsEnabled(), false);
-        if (auto* networkSession = this->networkSession())
+        if (CheckedPtr networkSession = this->networkSession())
             networkSession->protectedNotificationManager()->didReceiveMessage(connection, decoder);
         return true;
     }
@@ -419,7 +419,7 @@ bool NetworkConnectionToWebProcess::dispatchSyncMessage(IPC::Connection& connect
 #if ENABLE(WEB_PUSH_NOTIFICATIONS)
     if (decoder.messageReceiverName() == Messages::NotificationManagerMessageHandler::messageReceiverName()) {
         MESSAGE_CHECK_WITH_RETURN_VALUE(builtInNotificationsEnabled(), false);
-        if (auto* networkSession = this->networkSession())
+        if (CheckedPtr networkSession = this->networkSession())
             return networkSession->protectedNotificationManager()->didReceiveSyncMessage(connection, decoder, reply);
         return false;
     }
@@ -456,7 +456,7 @@ void NetworkConnectionToWebProcess::didClose(IPC::Connection& connection)
     while (!m_networkResourceLoaders.isEmpty())
         Ref { m_networkResourceLoaders.begin()->value }->abort();
 
-    if (auto* networkSession = this->networkSession()) {
+    if (CheckedPtr networkSession = this->networkSession()) {
         networkSession->protectedBroadcastChannelRegistry()->removeConnection(connection);
         for (auto& [url, topOrigin] : m_blobURLs)
             networkSession->blobRegistry().unregisterBlobURL(url, topOrigin);
@@ -521,7 +521,7 @@ Vector<RefPtr<WebCore::BlobDataFileReference>> NetworkConnectionToWebProcess::re
 {
     CONNECTION_RELEASE_LOG(Loading, "resolveBlobReferences: (parentPID=%d, pageProxyID=%" PRIu64 ", webPageID=%" PRIu64 ", frameID=%" PRIu64 ", resourceID=%" PRIu64 ")", loadParameters.parentPID, loadParameters.webPageProxyID.toUInt64(), loadParameters.webPageID.toUInt64(), loadParameters.webFrameID.toUInt64(), loadParameters.identifier ? loadParameters.identifier->toUInt64() : 0);
 
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return { };
 
@@ -555,7 +555,7 @@ void NetworkConnectionToWebProcess::scheduleResourceLoad(NetworkResourceLoadPara
 
     CONNECTION_RELEASE_LOG(Loading, "scheduleResourceLoad: (parentPID=%d, pageProxyID=%" PRIu64 ", webPageID=%" PRIu64 ", frameID=%" PRIu64 ", resourceID=%" PRIu64 ", existingLoaderToResume=%" PRIu64 ")", loadParameters.parentPID, loadParameters.webPageProxyID.toUInt64(), loadParameters.webPageID.toUInt64(), loadParameters.webFrameID.toUInt64(), loadParameters.identifier ? loadParameters.identifier->toUInt64() : 0, existingLoaderToResume ? existingLoaderToResume->toUInt64() : 0);
 
-    if (auto* session = networkSession()) {
+    if (CheckedPtr session = networkSession()) {
         if (Ref server = session->ensureSWServer(); !server->isImportCompleted()) {
             server->whenImportIsCompleted([this, protectedThis = Ref { *this }, loadParameters = WTFMove(loadParameters), existingLoaderToResume]() mutable {
                 if (!protectedNetworkProcess()->webProcessConnection(webProcessIdentifier()))
@@ -576,7 +576,7 @@ void NetworkConnectionToWebProcess::scheduleResourceLoad(NetworkResourceLoadPara
     ASSERT(!m_networkResourceLoaders.contains(*identifier));
 
     if (existingLoaderToResume) {
-        if (auto session = networkSession()) {
+        if (CheckedPtr session = networkSession()) {
             if (auto existingLoader = session->takeLoaderAwaitingWebProcessTransfer(*existingLoaderToResume)) {
                 CONNECTION_RELEASE_LOG(Loading, "scheduleResourceLoad: Resuming existing NetworkResourceLoader");
                 m_networkResourceLoaders.add(*identifier, *existingLoader);
@@ -589,8 +589,8 @@ void NetworkConnectionToWebProcess::scheduleResourceLoad(NetworkResourceLoadPara
     }
 
     if (loadParameters.shouldRecordFrameLoadForStorageAccess && loadParameters.mainResourceNavigationDataForAnyFrame) {
-        if (auto* session = networkSession()) {
-            if (auto* resourceLoadStatistics = session->resourceLoadStatistics(); resourceLoadStatistics)
+        if (CheckedPtr session = networkSession()) {
+            if (RefPtr resourceLoadStatistics = session->resourceLoadStatistics())
                 resourceLoadStatistics->recordFrameLoadForStorageAccess(loadParameters.webPageProxyID, loadParameters.webFrameID, RegistrableDomain { loadParameters.request.url() });
         }
     }
@@ -682,7 +682,7 @@ void NetworkConnectionToWebProcess::prefetchDNS(const String& hostname)
 void NetworkConnectionToWebProcess::sendH2Ping(NetworkResourceLoadParameters&& parameters, CompletionHandler<void(Expected<Seconds, ResourceError>&&)>&& completionHandler)
 {
 #if ENABLE(SERVER_PRECONNECT)
-    auto* networkSession = this->networkSession();
+    CheckedPtr networkSession = this->networkSession();
     if (!networkSession)
         return completionHandler(makeUnexpected(internalError(parameters.request.url())));
 
@@ -715,7 +715,7 @@ void NetworkConnectionToWebProcess::preconnectTo(std::optional<WebCore::Resource
 #endif
 
 #if ENABLE(SERVER_PRECONNECT)
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (session && session->allowsServerPreconnect()) {
         Ref preconnectTask = PreconnectTask::create(*session, loadParameters.networkLoadParameters());
         preconnectTask->start([completionHandler = WTFMove(completionHandler)] (const ResourceError& error, const WebCore::NetworkLoadMetrics&) {
@@ -808,7 +808,7 @@ void NetworkConnectionToWebProcess::cookiesForDOM(const URL& firstParty, const S
         return completionHandler({ }, false);
     auto result = networkStorageSession->cookiesForDOM(firstParty, sameSiteInfo, url, frameID, pageID, includeSecureCookies, ApplyTrackingPrevention::Yes, protectedNetworkProcess()->shouldRelaxThirdPartyCookieBlockingForPage(webPageProxyID));
 #if !RELEASE_LOG_DISABLED
-    if (auto* session = networkSession()) {
+    if (CheckedPtr session = networkSession()) {
         if (session->shouldLogCookieInformation())
             NetworkResourceLoader::logCookieInformation(*this, "NetworkConnectionToWebProcess::cookiesForDOM"_s, reinterpret_cast<const void*>(this), *networkStorageSession, firstParty, sameSiteInfo, url, emptyString(), frameID, pageID, std::nullopt);
     }
@@ -832,7 +832,7 @@ void NetworkConnectionToWebProcess::setCookiesFromDOM(const URL& firstParty, con
         return;
     networkStorageSession->setCookiesFromDOM(firstParty, sameSiteInfo, url, frameID, pageID, ApplyTrackingPrevention::Yes, requiresScriptTelemetry, cookieString, protectedNetworkProcess()->shouldRelaxThirdPartyCookieBlockingForPage(webPageProxyID));
 #if !RELEASE_LOG_DISABLED
-    if (auto* session = networkSession()) {
+    if (CheckedPtr session = networkSession()) {
         if (session->shouldLogCookieInformation())
             NetworkResourceLoader::logCookieInformation(*this, "NetworkConnectionToWebProcess::setCookiesFromDOM"_s, reinterpret_cast<const void*>(this), *networkStorageSession, firstParty, sameSiteInfo, url, emptyString(), frameID, pageID, std::nullopt);
     }
@@ -950,7 +950,7 @@ void NetworkConnectionToWebProcess::cookiesForDOMAsync(const URL& firstParty, co
         return completionHandler(std::nullopt);
     auto result = networkStorageSession->cookiesForDOMAsVector(firstParty, sameSiteInfo, url, frameID, pageID, includeSecureCookies, ApplyTrackingPrevention::Yes, protectedNetworkProcess()->shouldRelaxThirdPartyCookieBlockingForPage(webPageProxyID), WTFMove(options));
 #if !RELEASE_LOG_DISABLED
-    if (auto* session = networkSession()) {
+    if (CheckedPtr session = networkSession()) {
         if (session->shouldLogCookieInformation())
             NetworkResourceLoader::logCookieInformation(*this, "NetworkConnectionToWebProcess::cookiesForDOMAsync"_s, reinterpret_cast<const void*>(this), *networkStorageSession, firstParty, sameSiteInfo, url, emptyString(), frameID, pageID, std::nullopt);
     }
@@ -975,7 +975,7 @@ void NetworkConnectionToWebProcess::setCookieFromDOMAsync(const URL& firstParty,
 
     auto result = networkStorageSession->setCookieFromDOM(firstParty, sameSiteInfo, url, frameID, pageID, ApplyTrackingPrevention::Yes, requiresScriptTelemetry, cookie, protectedNetworkProcess()->shouldRelaxThirdPartyCookieBlockingForPage(webPageProxyID));
 #if !RELEASE_LOG_DISABLED
-    if (auto* session = networkSession()) {
+    if (CheckedPtr session = networkSession()) {
         if (session->shouldLogCookieInformation())
             NetworkResourceLoader::logCookieInformation(*this, "NetworkConnectionToWebProcess::setCookiesFromDOMAsync"_s, reinterpret_cast<const void*>(this), *networkStorageSession, firstParty, sameSiteInfo, url, emptyString(), frameID, pageID, std::nullopt);
     }
@@ -1079,7 +1079,7 @@ void NetworkConnectionToWebProcess::registerInternalFileBlobURL(const URL& url, 
 {
     MESSAGE_CHECK(!url.isEmpty());
 
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
     if (blobFileAccessEnforcementEnabled() && shouldCheckBlobFileAccess())
@@ -1091,7 +1091,7 @@ void NetworkConnectionToWebProcess::registerInternalFileBlobURL(const URL& url, 
 
 void NetworkConnectionToWebProcess::registerInternalBlobURL(const URL& url, Vector<BlobPart>&& blobParts, const String& contentType)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1101,7 +1101,7 @@ void NetworkConnectionToWebProcess::registerInternalBlobURL(const URL& url, Vect
 
 void NetworkConnectionToWebProcess::registerBlobURL(const URL& url, const URL& srcURL, PolicyContainer&& policyContainer, const std::optional<SecurityOriginData>& topOrigin)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1112,7 +1112,7 @@ void NetworkConnectionToWebProcess::registerBlobURL(const URL& url, const URL& s
 void NetworkConnectionToWebProcess::registerInternalBlobURLOptionallyFileBacked(URL&& url, URL&& srcURL, const String& fileBackedPath, String&& contentType)
 {
     MESSAGE_CHECK(!url.isEmpty() && !srcURL.isEmpty() && !fileBackedPath.isEmpty());
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
     if (blobFileAccessEnforcementEnabled() && shouldCheckBlobFileAccess())
@@ -1124,7 +1124,7 @@ void NetworkConnectionToWebProcess::registerInternalBlobURLOptionallyFileBacked(
 
 void NetworkConnectionToWebProcess::registerInternalBlobURLForSlice(const URL& url, const URL& srcURL, int64_t start, int64_t end, const String& contentType)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1134,7 +1134,7 @@ void NetworkConnectionToWebProcess::registerInternalBlobURLForSlice(const URL& u
 
 void NetworkConnectionToWebProcess::unregisterBlobURL(const URL& url, const std::optional<WebCore::SecurityOriginData>& topOrigin)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1144,7 +1144,7 @@ void NetworkConnectionToWebProcess::unregisterBlobURL(const URL& url, const std:
 
 void NetworkConnectionToWebProcess::registerBlobURLHandle(const URL& url, const std::optional<SecurityOriginData>& topOrigin)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1154,7 +1154,7 @@ void NetworkConnectionToWebProcess::registerBlobURLHandle(const URL& url, const 
 
 void NetworkConnectionToWebProcess::unregisterBlobURLHandle(const URL& url, const std::optional<SecurityOriginData>& topOrigin)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1164,13 +1164,13 @@ void NetworkConnectionToWebProcess::unregisterBlobURLHandle(const URL& url, cons
 
 void NetworkConnectionToWebProcess::blobType(const URL& url, CompletionHandler<void(String)>&& completionHandler)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     completionHandler(session ? session->blobRegistry().blobType(url) : emptyString());
 }
 
 void NetworkConnectionToWebProcess::blobSize(const URL& url, CompletionHandler<void(uint64_t)>&& completionHandler)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     completionHandler(session ? session->blobRegistry().blobSize(url) : 0);
 }
 
@@ -1193,7 +1193,7 @@ void NetworkConnectionToWebProcess::writeBlobsToTemporaryFilesForIndexedDB(const
         for (auto& file : fileReferences)
             file->revokeFileAccess();
 
-        if (auto* session = networkSession())
+        if (CheckedPtr session = networkSession())
             session->protectedStorageManager()->registerTemporaryBlobFilePaths(Ref { m_connection }, filePaths);
 
         // Web process might create Blob with these files during index key generation.
@@ -1230,7 +1230,7 @@ void NetworkConnectionToWebProcess::setCaptureExtraNetworkLoadMetricsEnabled(boo
 
 void NetworkConnectionToWebProcess::clearPageSpecificData(PageIdentifier pageID)
 {
-    if (auto* session = networkSession())
+    if (CheckedPtr session = networkSession())
         session->protectedNetworkLoadScheduler()->clearPageData(pageID);
 
     if (auto* storageSession = protectedNetworkProcess()->storageSession(m_sessionID))
@@ -1245,20 +1245,20 @@ void NetworkConnectionToWebProcess::removeStorageAccessForFrame(FrameIdentifier 
 
 void NetworkConnectionToWebProcess::logUserInteraction(RegistrableDomain&& domain)
 {
-    if (auto* networkSession = this->networkSession()) {
-        if (auto* resourceLoadStatistics = networkSession->resourceLoadStatistics())
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics())
             resourceLoadStatistics->logUserInteraction(WTFMove(domain), [] { });
     }
 }
 
 void NetworkConnectionToWebProcess::resourceLoadStatisticsUpdated(Vector<ResourceLoadStatistics>&& statistics, CompletionHandler<void()>&& completionHandler)
 {
-    if (auto* networkSession = this->networkSession()) {
+    if (CheckedPtr networkSession = this->networkSession()) {
         if (networkSession->sessionID().isEphemeral()) {
             completionHandler();
             return;
         }
-        if (auto* resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
             resourceLoadStatistics->resourceLoadStatisticsUpdated(WTFMove(statistics), WTFMove(completionHandler));
             return;
         }
@@ -1268,14 +1268,13 @@ void NetworkConnectionToWebProcess::resourceLoadStatisticsUpdated(Vector<Resourc
 
 void NetworkConnectionToWebProcess::hasStorageAccess(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, FrameIdentifier frameID, PageIdentifier pageID, CompletionHandler<void(bool)>&& completionHandler)
 {
-    if (auto* networkSession = this->networkSession()) {
-        if (auto* resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
             resourceLoadStatistics->hasStorageAccess(WTFMove(subFrameDomain), WTFMove(topFrameDomain), frameID, pageID, WTFMove(completionHandler));
             return;
-        } else {
-            storageSession()->hasCookies(subFrameDomain, WTFMove(completionHandler));
-            return;
         }
+        storageSession()->hasCookies(subFrameDomain, WTFMove(completionHandler));
+        return;
     }
 
     completionHandler(false);
@@ -1283,8 +1282,8 @@ void NetworkConnectionToWebProcess::hasStorageAccess(RegistrableDomain&& subFram
 
 void NetworkConnectionToWebProcess::requestStorageAccess(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, FrameIdentifier frameID, PageIdentifier webPageID, WebPageProxyIdentifier webPageProxyID, StorageAccessScope scope, CompletionHandler<void(WebCore::RequestStorageAccessResult result)>&& completionHandler)
 {
-    if (auto* networkSession = this->networkSession()) {
-        if (auto* resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
             resourceLoadStatistics->requestStorageAccess(WTFMove(subFrameDomain), WTFMove(topFrameDomain), frameID, webPageID, webPageProxyID, scope, WTFMove(completionHandler));
             return;
         }
@@ -1302,8 +1301,8 @@ void NetworkConnectionToWebProcess::setLoginStatus(RegistrableDomain&& domain, I
         lastAuthentication = umanagedAuthentication.releaseReturnValue();
     }
 
-    if (auto* networkSession = this->networkSession()) {
-        if (auto* resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
             resourceLoadStatistics->setLoginStatus(WTFMove(domain), loggedInStatus, WTFMove(lastAuthentication), WTFMove(completionHandler));
             return;
         }
@@ -1313,8 +1312,8 @@ void NetworkConnectionToWebProcess::setLoginStatus(RegistrableDomain&& domain, I
 
 void NetworkConnectionToWebProcess::isLoggedIn(RegistrableDomain&& domain, CompletionHandler<void(bool)>&& completionHandler)
 {
-    if (auto* networkSession = this->networkSession()) {
-        if (auto* resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
             resourceLoadStatistics->isLoggedIn(WTFMove(domain), WTFMove(completionHandler));
             return;
         }
@@ -1329,8 +1328,8 @@ void NetworkConnectionToWebProcess::storageAccessQuirkForTopFrameDomain(URL&& to
 
 void NetworkConnectionToWebProcess::requestStorageAccessUnderOpener(WebCore::RegistrableDomain&& domainInNeedOfStorageAccess, PageIdentifier openerPageID, WebCore::RegistrableDomain&& openerDomain)
 {
-    if (auto* networkSession = this->networkSession()) {
-        if (auto* resourceLoadStatistics = networkSession->resourceLoadStatistics())
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics())
             resourceLoadStatistics->requestStorageAccessUnderOpener(WTFMove(domainInNeedOfStorageAccess), openerPageID, WTFMove(openerDomain));
     }
 }
@@ -1448,8 +1447,8 @@ size_t NetworkConnectionToWebProcess::findNetworkActivityTracker(WebCore::Resour
 void NetworkConnectionToWebProcess::establishSharedWorkerContextConnection(WebPageProxyIdentifier, WebCore::Site&& site, CompletionHandler<void()>&& completionHandler)
 {
     CONNECTION_RELEASE_LOG(SharedWorker, "establishSharedWorkerContextConnection:");
-    auto* session = networkSession();
-    if (auto* swServer = session ? session->sharedWorkerServer() : nullptr)
+    CheckedPtr session = networkSession();
+    if (CheckedPtr swServer = session ? session->sharedWorkerServer() : nullptr)
         m_sharedWorkerContextConnection = WebSharedWorkerServerToContextConnection::create(*this, WTFMove(site), *swServer);
     completionHandler();
 }
@@ -1459,7 +1458,7 @@ void NetworkConnectionToWebProcess::establishSharedWorkerServerConnection()
     if (m_sharedWorkerConnection)
         return;
 
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1654,7 +1653,7 @@ void NetworkConnectionToWebProcess::setCORSDisablingPatterns(WebCore::PageIdenti
 
 void NetworkConnectionToWebProcess::setResourceLoadSchedulingMode(WebCore::PageIdentifier pageIdentifier, WebCore::LoadSchedulingMode mode)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1663,7 +1662,7 @@ void NetworkConnectionToWebProcess::setResourceLoadSchedulingMode(WebCore::PageI
 
 void NetworkConnectionToWebProcess::prioritizeResourceLoads(const Vector<WebCore::ResourceLoaderIdentifier>& loadIdentifiers)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session)
         return;
 
@@ -1701,7 +1700,7 @@ void NetworkConnectionToWebProcess::useRedirectionForCurrentNavigation(WebCore::
 #if ENABLE(DECLARATIVE_WEB_PUSH)
 void NetworkConnectionToWebProcess::navigatorSubscribeToPushService(URL&& scopeURL, Vector<uint8_t>&& applicationServerKey, CompletionHandler<void(Expected<WebCore::PushSubscriptionData, WebCore::ExceptionData>&&)>&& completionHandler)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session) {
         completionHandler(makeUnexpected(ExceptionData { ExceptionCode::InvalidStateError, "No active network session"_s }));
         return;
@@ -1709,7 +1708,7 @@ void NetworkConnectionToWebProcess::navigatorSubscribeToPushService(URL&& scopeU
 
     auto registrableDomain = RegistrableDomain(scopeURL);
     session->protectedNotificationManager()->subscribeToPushService(WTFMove(scopeURL), WTFMove(applicationServerKey), [weakThis = WeakPtr { *this }, completionHandler = WTFMove(completionHandler), registrableDomain = WTFMove(registrableDomain)] (Expected<PushSubscriptionData, ExceptionData>&& result) mutable {
-        if (auto resourceLoadStatistics = weakThis && weakThis->networkSession() ? weakThis->networkSession()->resourceLoadStatistics() : nullptr; result && resourceLoadStatistics) {
+        if (RefPtr resourceLoadStatistics = weakThis && weakThis->networkSession() ? weakThis->networkSession()->resourceLoadStatistics() : nullptr; result && resourceLoadStatistics) {
             return resourceLoadStatistics->setMostRecentWebPushInteractionTime(WTFMove(registrableDomain), [result = WTFMove(result), completionHandler = WTFMove(completionHandler)]() mutable {
                 completionHandler(WTFMove(result));
             });
@@ -1720,7 +1719,7 @@ void NetworkConnectionToWebProcess::navigatorSubscribeToPushService(URL&& scopeU
 
 void NetworkConnectionToWebProcess::navigatorUnsubscribeFromPushService(URL&& scopeURL, const PushSubscriptionIdentifier& subscriptionIdentifier, CompletionHandler<void(Expected<bool, WebCore::ExceptionData>&&)>&& completionHandler)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session) {
         completionHandler(makeUnexpected(ExceptionData { ExceptionCode::InvalidStateError, "No active network session"_s }));
         return;
@@ -1732,7 +1731,7 @@ void NetworkConnectionToWebProcess::navigatorUnsubscribeFromPushService(URL&& sc
 
 void NetworkConnectionToWebProcess::navigatorGetPushSubscription(URL&& scopeURL, CompletionHandler<void(Expected<std::optional<WebCore::PushSubscriptionData>, WebCore::ExceptionData>&&)>&& completionHandler)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session) {
         completionHandler(makeUnexpected(ExceptionData { ExceptionCode::InvalidStateError, "No active network session"_s }));
         return;
@@ -1743,7 +1742,7 @@ void NetworkConnectionToWebProcess::navigatorGetPushSubscription(URL&& scopeURL,
 
 void NetworkConnectionToWebProcess::navigatorGetPushPermissionState(URL&& scopeURL, CompletionHandler<void(Expected<uint8_t, WebCore::ExceptionData>&&)>&& completionHandler)
 {
-    auto* session = networkSession();
+    CheckedPtr session = networkSession();
     if (!session) {
         completionHandler(makeUnexpected(ExceptionData { ExceptionCode::InvalidStateError, "No active network session"_s }));
         return;
@@ -1780,8 +1779,8 @@ void NetworkConnectionToWebProcess::destroyWebTransportSession(WebTransportSessi
 
 void NetworkConnectionToWebProcess::clearFrameLoadRecordsForStorageAccess(WebCore::FrameIdentifier frameID)
 {
-    if (auto* session = networkSession()) {
-        if (auto* resourceLoadStatistics = session->resourceLoadStatistics())
+    if (CheckedPtr session = networkSession()) {
+        if (RefPtr resourceLoadStatistics = session->resourceLoadStatistics())
             resourceLoadStatistics->clearFrameLoadRecordsForStorageAccess(frameID);
     }
 }
