@@ -561,6 +561,12 @@ void PageClientImpl::didChangeBackgroundColor()
 {
 }
 
+void PageClientImpl::themeColorDidChange()
+{
+    if (WEBKIT_IS_WEB_VIEW(m_viewWidget))
+        webkitWebViewEmitThemeColorChanged(WEBKIT_WEB_VIEW(m_viewWidget));
+}
+
 void PageClientImpl::refView()
 {
     g_object_ref(m_viewWidget);

@@ -104,6 +104,8 @@ void webkitWebViewPermissionStateQuery(WebKitWebView*, WebKitPermissionStateQuer
 bool webkitWebViewEmitRunColorChooser(WebKitWebView*, WebKitColorChooserRequest*);
 #endif
 
+void webkitWebViewEmitThemeColorChanged(WebKitWebView*);
+
 bool webkitWebViewShowOptionMenu(WebKitWebView*, const WebCore::IntRect&, WebKitOptionMenu*);
 
 gboolean webkitWebViewAuthenticate(WebKitWebView*, WebKitAuthenticationRequest*);

@@ -1636,7 +1636,6 @@ static void testWebViewBackgroundColor(WebViewTest* test, gconstpointer)
     // MiniBrowser --bg-color="<color-value>" for manually testing this API.
 }
 
-#if PLATFORM(WPE)
 class ThemeColorWebViewTest : public WebViewTest {
 public:
     MAKE_GLIB_TEST_FIXTURE(ThemeColorWebViewTest);
@@ -1649,7 +1648,7 @@ public:
 
     void testThemeColorResult()
     {
-        WebKitColor rgba;
+        ColorType rgba;
         g_assert_true(webkit_web_view_get_theme_color(m_webView.get(), &rgba));
         g_assert_cmpfloat(rgba.red, ==, targetColor.red);
         g_assert_cmpfloat(rgba.green, ==, targetColor.green);
@@ -1663,23 +1662,23 @@ public:
         g_main_loop_run(m_mainLoop);
     }
 
-    WebKitColor targetColor { 0.0, 0.0, 0.0, 0.0 };
+    ColorType targetColor { 0.0, 0.0, 0.0, 0.0 };
 };
 
 static void testWebViewThemeColor(ThemeColorWebViewTest* test, gconstpointer)
 {
-    WebKitColor rgba;
+    ColorType rgba;
 
     test->showInWindow();
 
     g_assert_false(webkit_web_view_get_theme_color(test->m_webView.get(), &rgba));
 
-    test->targetColor = WebKitColor(1.0, 0.0, 0.0, 1.0);
+    test->targetColor = ColorType(1.0, 0.0, 0.0, 1.0);
     test->loadHtml("<html style='width: 325px; height: 615px'><meta name='theme-color' content='#FF0000' /></html>", nullptr);
     test->waitUntilThemeColorChanged();
     test->testThemeColorResult();
 
-    test->targetColor = WebKitColor(0.0, 1.0, 0.0, 1.0);
+    test->targetColor = ColorType(0.0, 1.0, 0.0, 1.0);
     test->loadHtml("<html style='width: 325px; height: 615px'><meta name='theme-color' content='#00FF00' /></html>", nullptr);
     test->waitUntilThemeColorChanged();
     test->testThemeColorResult();
@@ -1688,7 +1687,6 @@ static void testWebViewThemeColor(ThemeColorWebViewTest* test, gconstpointer)
     test->waitUntilThemeColorChanged();
     g_assert_false(webkit_web_view_get_theme_color(test->m_webView.get(), &rgba));
 }
-#endif
 
 #if PLATFORM(GTK)
 static void testWebViewPreferredSize(WebViewTest* test, gconstpointer)
@@ -2178,9 +2176,7 @@ void beforeAll()
 #endif
     IsPlayingAudioWebViewTest::add("WebKitWebView", "is-playing-audio", testWebViewIsPlayingAudio);
     WebViewTest::add("WebKitWebView", "background-color", testWebViewBackgroundColor);
-#if PLATFORM(WPE)
     ThemeColorWebViewTest::add("WebKitWebView", "theme-color", testWebViewThemeColor);
-#endif
 #if PLATFORM(GTK)
     WebViewTest::add("WebKitWebView", "preferred-size", testWebViewPreferredSize);
 #if !USE(GTK4)

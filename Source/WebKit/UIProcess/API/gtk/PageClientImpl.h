@@ -154,6 +154,7 @@ private:
     void wheelEventWasNotHandledByWebCore(const NativeWebWheelEvent&) override;
 
     void didChangeBackgroundColor() override;
+    void themeColorDidChange() override;
 
     void refView() override;
     void derefView() override;

@@ -186,7 +186,7 @@ void LayerTreeHost::flushLayers()
     page->updateRendering();
     page->flushPendingEditorStateUpdate();
 
-#if PLATFORM(WPE)
+#if PLATFORM(WPE) || PLATFORM(GTK)
     page->flushPendingThemeColorChange();
 #endif
 

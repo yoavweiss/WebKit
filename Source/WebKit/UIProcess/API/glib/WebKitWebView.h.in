@@ -914,6 +914,12 @@ webkit_web_view_get_theme_color                      (WebKitWebView             
                                                       WebKitColor               *color);
 #endif
 
+#if PLATFORM(GTK)
+WEBKIT_API gboolean
+webkit_web_view_get_theme_color                      (WebKitWebView             *web_view,
+                                                      GdkRGBA                   *rgba);
+#endif
+
 #if USE(GI_FINISH_FUNC_ANNOTATION)
 /**
  * webkit_web_view_run_async_javascript_function_in_world: (finish-func webkit_web_view_run_javascript_in_world_finish)

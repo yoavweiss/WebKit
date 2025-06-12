@@ -245,9 +245,7 @@ enum {
     PROP_WEB_EXTENSION_MODE,
     PROP_DEFAULT_CONTENT_SECURITY_POLICY,
 
-#if PLATFORM(WPE)
     PROP_THEME_COLOR,
-#endif
 
     N_PROPERTIES,
 };
@@ -564,9 +562,7 @@ WebKitWebResourceLoadManager* WebKitWebViewClient::webResourceLoadManager()
 
 void WebKitWebViewClient::themeColorDidChange()
 {
-#if PLATFORM(WPE)
-    g_object_notify_by_pspec(G_OBJECT(m_webView), sObjProperties[PROP_THEME_COLOR]);
-#endif
+    webkitWebViewEmitThemeColorChanged(m_webView);
 }
 
 #if ENABLE(FULLSCREEN_API)
@@ -1189,14 +1185,18 @@ static void webkitWebViewGetProperty(GObject* object, guint propId, GValue* valu
     case PROP_DEFAULT_CONTENT_SECURITY_POLICY:
         g_value_set_string(value, webkit_web_view_get_default_content_security_policy(webView));
         break;
-#if PLATFORM(WPE)
     case PROP_THEME_COLOR: {
+#if PLATFORM(GTK)
+        GdkRGBA color;
+        webkit_web_view_get_theme_color(webView, &color);
+        g_value_set_boxed(value, static_cast<gconstpointer>(&color));
+#else
         auto* color = static_cast<WebKitColor*>(fastMalloc(sizeof(WebKitColor)));
         webkit_web_view_get_theme_color(webView, color);
         g_value_take_boxed(value, static_cast<gconstpointer>(color));
+#endif
         break;
     }
-#endif
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
     }
@@ -1730,7 +1730,6 @@ static void webkit_web_view_class_init(WebKitWebViewClass* webViewClass)
         nullptr,
         static_cast<GParamFlags>(WEBKIT_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
-#if PLATFORM(WPE)
     /**
      * WebKitWebView:theme-color:
      *
@@ -1741,9 +1740,12 @@ static void webkit_web_view_class_init(WebKitWebViewClass* webViewClass)
     sObjProperties[PROP_THEME_COLOR] = g_param_spec_boxed(
         "theme-color",
         nullptr, nullptr,
+#if PLATFORM(WPE)
         WEBKIT_TYPE_COLOR,
-        WEBKIT_PARAM_READABLE);
+#else
+        GDK_TYPE_RGBA,
 #endif
+        WEBKIT_PARAM_READABLE);
 
     g_object_class_install_properties(gObjectClass, N_PROPERTIES, sObjProperties.data());
 
@@ -2750,6 +2752,11 @@ void webkitWebViewRunAsModal(WebKitWebView* webView)
     gdk_threads_enter();
     ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
+}
+
+void webkitWebViewEmitThemeColorChanged(WebKitWebView* webView)
+{
+    g_object_notify_by_pspec(G_OBJECT(webView), sObjProperties[PROP_THEME_COLOR]);
 }
 
 void webkitWebViewClosePage(WebKitWebView* webView)
