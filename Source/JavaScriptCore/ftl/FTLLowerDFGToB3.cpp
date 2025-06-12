@@ -1589,6 +1589,9 @@ private:
         case NumberIsFinite:
             compileNumberIsFinite();
             break;
+        case NumberIsSafeInteger:
+            compileNumberIsSafeInteger();
+            break;
         case IsCellWithType:
             compileIsCellWithType();
             break;
@@ -14643,6 +14646,55 @@ IGNORE_CLANG_WARNINGS_END
                 setBoolean(m_out.phi(Int32, fastResult, slowResult));
             } else
                 setBoolean(vmCall(Int32, operationNumberIsFinite, argument));
+            break;
+        }
+        default:
+            DFG_CRASH(m_graph, m_node, "Bad use kind");
+            break;
+        }
+    }
+
+    void compileNumberIsSafeInteger()
+    {
+        switch (m_node->child1().useKind()) {
+        case DoubleRepUse: {
+            LValue argument = lowDouble(m_node->child1());
+
+            // check if the value is finite
+            LValue diff = m_out.doubleSub(argument, argument);
+            LValue isFinite = m_out.doubleEqual(diff, diff);
+
+            // check if the value is an integer
+            LValue isInteger = m_out.doubleEqual(argument, m_out.doubleTrunc(argument));
+
+            // check if the value is in the range
+            LValue limit = m_out.constDouble(maxSafeInteger());
+            LValue isInRange = m_out.doubleLessThanOrEqual(m_out.doubleAbs(argument), limit);
+
+            LValue isValid = m_out.bitAnd(isFinite, isInteger);
+            LValue result = m_out.bitAnd(isValid, isInRange);
+
+            setBoolean(result);
+            break;
+        }
+        case UntypedUse: {
+            LValue argument = lowJSValue(m_node->child1());
+            bool mayBeInt32 = abstractValue(m_node->child1()).m_type & SpecInt32Only;
+            if (mayBeInt32) {
+                LBasicBlock notInt32NumberCase = m_out.newBlock();
+                LBasicBlock continuation = m_out.newBlock();
+
+                ValueFromBlock fastResult = m_out.anchor(m_out.constInt32(1));
+                m_out.branch(isInt32(argument, provenType(m_node->child1())), unsure(continuation), unsure(notInt32NumberCase));
+
+                LBasicBlock lastNext = m_out.appendTo(notInt32NumberCase, continuation);
+                ValueFromBlock slowResult = m_out.anchor(vmCall(Int32, operationNumberIsSafeInteger, argument));
+                m_out.jump(continuation);
+
+                m_out.appendTo(continuation, lastNext);
+                setBoolean(m_out.phi(Int32, fastResult, slowResult));
+            } else
+                setBoolean(vmCall(Int32, operationNumberIsSafeInteger, argument));
             break;
         }
         default:

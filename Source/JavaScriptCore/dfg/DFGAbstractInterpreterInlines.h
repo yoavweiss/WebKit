@@ -2079,6 +2079,24 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         break;
     }
 
+    case NumberIsSafeInteger: {
+        AbstractValue& child = forNode(node->child1());
+        if (JSValue value = child.value()) {
+            if (value.isInt32()) {
+                setConstant(node, jsBoolean(true));
+                break;
+            }
+            if (!value.isDouble()) {
+                setConstant(node, jsBoolean(false));
+                break;
+            }
+            setConstant(node, jsBoolean(isSafeInteger(value.asDouble())));
+            break;
+        }
+        setNonCellTypeForNode(node, SpecBoolean);
+        break;
+    }
+
     case TypeOf: {
         JSValue child = forNode(node->child1()).value();
         AbstractValue& abstractChild = forNode(node->child1());

@@ -16899,6 +16899,74 @@ void SpeculativeJIT::compileNumberIsFinite(Node* node)
     }
 }
 
+void SpeculativeJIT::compileNumberIsSafeInteger(Node* node)
+{
+    switch (node->child1().useKind()) {
+    case DoubleRepUse: {
+        SpeculateDoubleOperand argument(this, node->child1());
+        GPRTemporary scratch(this);
+        GPRTemporary isValid(this);
+        FPRTemporary temp(this);
+        FPRTemporary limit(this);
+
+        FPRReg argumentFPR = argument.fpr();
+        GPRReg scratchGPR = scratch.gpr();
+        GPRReg isValidGPR = isValid.gpr();
+        FPRReg tempFPR = temp.fpr();
+        FPRReg limitFPR = limit.fpr();
+
+        // check if the value is an integer
+        if (supportsFloatingPointRounding()) {
+            truncDouble(argumentFPR, tempFPR);
+            compareDouble(DoubleEqualAndOrdered, argumentFPR, tempFPR, isValidGPR);
+        } else {
+            silentSpillAllRegisters(tempFPR);
+            callOperationWithoutExceptionCheck(Math::truncDouble, tempFPR, argumentFPR);
+            silentFillAllRegisters();
+            compareDouble(DoubleEqualAndOrdered, argumentFPR, tempFPR, isValidGPR);
+        }
+
+        // check if the value is finite
+        subDouble(argumentFPR, argumentFPR, tempFPR);
+        compareDouble(DoubleEqualAndOrdered, tempFPR, tempFPR, scratchGPR);
+        and32(scratchGPR, isValidGPR);
+
+        // check if the value is in the range
+        absDouble(argumentFPR, tempFPR);
+        move64ToDouble(TrustedImm64(std::bit_cast<uint64_t>(maxSafeInteger())), limitFPR);
+        compareDouble(DoubleLessThanOrEqualAndOrdered, tempFPR, limitFPR, scratchGPR);
+        and32(scratchGPR, isValidGPR);
+
+        unblessedBooleanResult(isValidGPR, node);
+        break;
+    }
+    case UntypedUse: {
+        JSValueOperand argument(this, node->child1());
+        GPRTemporary scratch1(this);
+
+        bool mayBeInt32 = m_interpreter.forNode(node->child1()).m_type & SpecInt32Only;
+
+        JSValueRegs argumentRegs = argument.jsValueRegs();
+        GPRReg scratch1GPR = scratch1.gpr();
+
+        flushRegisters();
+        Jump isInt32;
+        if (mayBeInt32) {
+            move(TrustedImm32(1), scratch1GPR);
+            isInt32 = branchIfInt32(argumentRegs);
+        }
+        callOperation(operationNumberIsSafeInteger, scratch1GPR, argumentRegs);
+        if (mayBeInt32)
+            isInt32.link(this);
+        unblessedBooleanResult(scratch1GPR, node);
+        break;
+    }
+    default:
+        DFG_CRASH(m_graph, node, "Bad use kind");
+        break;
+    }
+}
+
 void SpeculativeJIT::compileToIntegerOrInfinity(Node* node)
 {
     switch (node->child1().useKind()) {
