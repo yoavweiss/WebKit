@@ -29,7 +29,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-WK_CLASS_AVAILABLE(macos(10.10), ios(8.0))
+WK_EXTERN WK_API_DEPRECATED("Creating and using multiple instances of WKProcessPool no longer has any effect.", macos(10.10, 12.0), ios(8.0, 15.0), visionos(1.0, 1.0))
 @interface _WKProcessPoolConfiguration : NSObject <NSCopying>
 
 @property (nonatomic, copy) NSURL *injectedBundleURL;

@@ -100,6 +100,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
 
 WK_OBJECT_DISABLE_DISABLE_KVC_IVAR_ACCESS;
 
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
 - (instancetype)_initWithConfiguration:(_WKProcessPoolConfiguration *)configuration
 {
     if (!(self = [super init]))
@@ -114,6 +115,7 @@ WK_OBJECT_DISABLE_DISABLE_KVC_IVAR_ACCESS;
 {
     return [self _initWithConfiguration:adoptNS([[_WKProcessPoolConfiguration alloc] init]).get()];
 }
+ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)dealloc
 {
@@ -157,10 +159,12 @@ WK_OBJECT_DISABLE_DISABLE_KVC_IVAR_ACCESS;
     return [NSString stringWithFormat:@"<%@: %p; configuration = %@>", NSStringFromClass(self.class), self, wrapper(_processPool->configuration())];
 }
 
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
 - (_WKProcessPoolConfiguration *)_configuration
 {
     return wrapper(_processPool->configuration().copy()).autorelease();
 }
+ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (API::Object&)_apiObject
 {
