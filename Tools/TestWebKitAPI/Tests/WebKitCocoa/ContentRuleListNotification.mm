@@ -257,6 +257,32 @@ TEST(ContentRuleList, DisplayNoneInAboutBlankIFrame)
     TestWebKitAPI::Util::run(&isDone);
 }
 
+TEST(ContentRuleList, DisplayNoneAfterIgnoreFollowingRules)
+{
+    NSString *html = @"<h1 id='A'></h1><h1 id='B'></h1>";
+
+    NSString *headerADisplay = @"window.getComputedStyle(document.querySelector('h1[id*=\"A\"]')).getPropertyValue('display')";
+    NSString *headerBDisplay = @"window.getComputedStyle(document.querySelector('h1[id*=\"B\"]')).getPropertyValue('display')";
+
+    auto list = makeContentRuleList(@"["
+        "{ \"action\": { \"type\" : \"css-display-none\", \"selector\": \"h1[id*='A']\" }, \"trigger\": { \"url-filter\": \".*\" }},"
+        "{ \"action\": { \"type\" : \"ignore-following-rules\" }, \"trigger\": { \"url-filter\": \"webkit.org\" }},"
+        "{ \"action\": { \"type\" : \"css-display-none\", \"selector\": \"h1[id*='B']\" }, \"trigger\": { \"url-filter\": \".*\" }}"
+    "]");
+
+    auto configuration = adoptNS([WKWebViewConfiguration new]);
+    [[configuration userContentController] addContentRuleList:list.get()];
+    auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configuration.get()]);
+
+    [webView synchronouslyLoadHTMLString:html];
+    EXPECT_WK_STREQ([webView objectByEvaluatingJavaScript:headerADisplay], "none");
+    EXPECT_WK_STREQ([webView objectByEvaluatingJavaScript:headerBDisplay], "none");
+
+    [webView synchronouslyLoadHTMLString:html baseURL:[NSURL URLWithString:@"https://webkit.org/"]];
+    EXPECT_WK_STREQ([webView objectByEvaluatingJavaScript:headerADisplay], "none");
+    EXPECT_WK_STREQ([webView objectByEvaluatingJavaScript:headerBDisplay], "block");
+}
+
 TEST(ContentRuleList, PerformedActionForURL)
 {
     NSString *firstList = @"[{\"action\":{\"type\":\"notify\",\"notification\":\"testnotification\"},\"trigger\":{\"url-filter\":\"notify\"}}]";
