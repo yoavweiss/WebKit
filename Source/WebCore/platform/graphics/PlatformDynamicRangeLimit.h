@@ -49,7 +49,7 @@ public:
     static constexpr PlatformDynamicRangeLimit initialValue() { return noLimit(); }
     static constexpr PlatformDynamicRangeLimit initialValueForVideos() { return noLimit(); }
 
-    static constexpr PlatformDynamicRangeLimit defaultWhenSuppressingHDR() { return standard(); }
+    static constexpr PlatformDynamicRangeLimit defaultWhenSuppressingHDR() { return constrained(); }
     static constexpr PlatformDynamicRangeLimit defaultWhenSuppressingHDRInVideos() { return constrained(); }
 
     // `dynamic-range-limit` mapped to PlatformDynamicRangeLimit.value():

@@ -957,6 +957,7 @@ public:
     std::optional<WebCore::SpatialBackdropSource> spatialBackdropSource() const;
 #endif
 
+    bool shouldSuppressHDR() const { return m_shouldSuppressHDR; }
     void setShouldSuppressHDR(bool);
 
     WebCore::Color underlayColor() const;
@@ -3913,6 +3914,7 @@ private:
 
     const Ref<AboutSchemeHandler> m_aboutSchemeHandler;
     RefPtr<WebPageProxyTesting> m_pageForTesting;
+    bool m_shouldSuppressHDR { false };
 };
 
 } // namespace WebKit
