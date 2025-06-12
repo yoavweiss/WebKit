@@ -9,10 +9,9 @@ Do NOT modify or remove this file.
 
 ------------------------------------------------------------------------
 Properties requiring vendor prefixes:
-user-select
+None
 Property values requiring vendor prefixes:
 None
 ------------------------------------------------------------------------
 List of files:
-/LayoutTests/imported/w3c/web-platform-tests/pointerevents/deviceproperties/get-device-properties-uniqueid-from-pointer-event.tentative.html
-/LayoutTests/imported/w3c/web-platform-tests/pointerevents/deviceproperties/pointer-event-has-device-properties-uniqueid-from-pointer-event-init.tentative.html
+/LayoutTests/imported/w3c/web-platform-tests/pointerevents/crashtests/longpress-crash.html
