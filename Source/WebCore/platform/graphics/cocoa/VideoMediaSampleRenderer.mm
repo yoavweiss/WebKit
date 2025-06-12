@@ -61,6 +61,12 @@
 @end
 #endif
 
+#if HAVE(RECOMMENDED_PIXEL_ATTRIBUTES_API)
+@interface AVSampleBufferVideoRenderer (Staging_152246223)
+@property (readonly, nonnull) NSDictionary<NSString*, NS_SWIFT_SENDABLE id> *recommendedPixelBufferAttributes;
+@end
+#endif
+
 // Equivalent to WTF_DECLARE_CF_TYPE_TRAIT(CMSampleBuffer);
 // Needed due to requirement of specifying the PAL namespace.
 template <>
@@ -645,7 +651,14 @@ void VideoMediaSampleRenderer::initializeDecompressionSession()
         if (m_decompressionSession)
             return;
 
-        m_decompressionSession = WebCoreDecompressionSession::createOpenGL();
+#if HAVE(RECOMMENDED_PIXEL_ATTRIBUTES_API)
+        if (m_renderer) {
+            if ([m_renderer.get() respondsToSelector:@selector(recommendedPixelBufferAttributes)])
+                m_decompressionSession = WebCoreDecompressionSession::create([m_renderer recommendedPixelBufferAttributes]);
+        }
+#endif
+        if (!m_decompressionSession)
+            m_decompressionSession = WebCoreDecompressionSession::createOpenGL();
         m_isUsingDecompressionSession = true;
     }
     if (!m_decodedSampleQueue) {

@@ -54,25 +54,51 @@
 
 namespace WebCore {
 
-static bool s_canCopyFormatDescriptionExtension = false;
-
-WebCoreDecompressionSession::WebCoreDecompressionSession(Mode mode)
-    : m_mode(mode)
-    , m_decompressionQueue(WorkQueue::create("WebCoreDecompressionSession Decompression Queue"_s))
+static bool canCopyFormatDescriptionExtension()
 {
+    static bool canCopyFormatDescriptionExtension = false;
 #if PLATFORM(VISION)
     static std::once_flag onceFlag;
     std::call_once(onceFlag, [] {
-        s_canCopyFormatDescriptionExtension = PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_HasLeftStereoEyeView()
-        && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_HasRightStereoEyeView()
-        && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_HeroEye()
-        && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_HorizontalDisparityAdjustment()
-        && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_StereoCameraBaseline()
-        && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_ProjectionKind()
-        && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_ViewPackingKind()
-        && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_CameraCalibrationDataLensCollection();
+        canCopyFormatDescriptionExtension = PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_HasLeftStereoEyeView()
+            && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_HasRightStereoEyeView()
+            && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_HeroEye()
+            && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_HorizontalDisparityAdjustment()
+            && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_StereoCameraBaseline()
+            && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_ProjectionKind()
+            && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_ViewPackingKind()
+            && PAL::canLoad_CoreMedia_kCMFormatDescriptionExtension_CameraCalibrationDataLensCollection();
     });
 #endif
+    return canCopyFormatDescriptionExtension;
+}
+
+Ref<WebCoreDecompressionSession> WebCoreDecompressionSession::createOpenGL()
+{
+    return adoptRef(*new WebCoreDecompressionSession(nullptr));
+}
+
+Ref<WebCoreDecompressionSession> WebCoreDecompressionSession::createRGB()
+{
+    return adoptRef(*new WebCoreDecompressionSession(@{
+        (__bridge NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+        (__bridge NSString *)kCVPixelBufferIOSurfacePropertiesKey: @{ /* empty dictionary */ }
+    }));
+}
+
+NSDictionary *WebCoreDecompressionSession::defaultPixelBufferAttributes()
+{
+    return @{
+        (__bridge NSString *)kCVPixelBufferIOSurfaceCoreAnimationCompatibilityKey: (id)kCFBooleanTrue,
+        (__bridge NSString *)kCVPixelBufferPreferRealTimeCacheModeIfEveryoneDoesKey: (id)kCFBooleanTrue,
+        (__bridge NSString *)kCVPixelBufferIOSurfacePropertiesKey: @{ /* empty dictionary */ }
+    };
+}
+
+WebCoreDecompressionSession::WebCoreDecompressionSession(NSDictionary *pixelBufferAttributes)
+    : m_decompressionQueue(WorkQueue::create("WebCoreDecompressionSession Decompression Queue"_s))
+    , m_pixelBufferAttributes(pixelBufferAttributes ? pixelBufferAttributes : defaultPixelBufferAttributes())
+{
 }
 
 WebCoreDecompressionSession::~WebCoreDecompressionSession() = default;
@@ -121,22 +147,10 @@ Expected<RetainPtr<VTDecompressionSessionRef>, OSStatus> WebCoreDecompressionSes
 
     if (!m_decompressionSession) {
         auto videoDecoderSpecification = @{ (__bridge NSString *)kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder: @YES };
-
-        NSDictionary *attributes;
-        if (m_mode == OpenGL)
-            attributes = @{
-                (__bridge NSString *)kCVPixelBufferIOSurfaceCoreAnimationCompatibilityKey: (id)kCFBooleanTrue,
-                (__bridge NSString *)kCVPixelBufferIOSurfacePropertiesKey: @{ /* empty dictionary */ }
-            };
-        else {
-            attributes = @{
-                (__bridge NSString *)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
-                (__bridge NSString *)kCVPixelBufferIOSurfacePropertiesKey: @{ /* empty dictionary */ }
-            };
-        }
+        ASSERT(m_pixelBufferAttributes);
 
         VTDecompressionSessionRef decompressionSessionOut = nullptr;
-        auto result = VTDecompressionSessionCreate(kCFAllocatorDefault, videoFormatDescription, (__bridge CFDictionaryRef)videoDecoderSpecification, (__bridge CFDictionaryRef)attributes, nullptr, &decompressionSessionOut);
+        auto result = VTDecompressionSessionCreate(kCFAllocatorDefault, videoFormatDescription, (__bridge CFDictionaryRef)videoDecoderSpecification, (__bridge CFDictionaryRef)m_pixelBufferAttributes.get(), nullptr, &decompressionSessionOut);
         if (noErr == result) {
             m_decompressionSession = adoptCF(decompressionSessionOut);
             CFArrayRef rawSuggestedQualityOfServiceTiers = nullptr;
@@ -154,7 +168,7 @@ static bool isNonRecoverableError(OSStatus status)
 
 static RetainPtr<CMVideoFormatDescriptionRef> copyDescriptionExtensionValuesIfNeeded(CMVideoFormatDescriptionRef imageDescription, const CMVideoFormatDescriptionRef originalDescription)
 {
-    if (!s_canCopyFormatDescriptionExtension)
+    if (!canCopyFormatDescriptionExtension())
         return imageDescription;
 
     static CFStringRef keys[] = {

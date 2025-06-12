@@ -54,8 +54,9 @@ struct PlatformVideoColorSpace;
 
 class WebCoreDecompressionSession : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<WebCoreDecompressionSession> {
 public:
-    static Ref<WebCoreDecompressionSession> createOpenGL() { return adoptRef(*new WebCoreDecompressionSession(OpenGL)); }
-    static Ref<WebCoreDecompressionSession> createRGB() { return adoptRef(*new WebCoreDecompressionSession(RGB)); }
+    WEBCORE_EXPORT static Ref<WebCoreDecompressionSession> createOpenGL();
+    WEBCORE_EXPORT static Ref<WebCoreDecompressionSession> createRGB();
+    static Ref<WebCoreDecompressionSession> create(NSDictionary *pixelBufferAttributes) { return adoptRef(*new WebCoreDecompressionSession(pixelBufferAttributes)); }
 
     WEBCORE_EXPORT ~WebCoreDecompressionSession();
     WEBCORE_EXPORT void invalidate();
@@ -76,11 +77,8 @@ public:
     bool isHardwareAccelerated() const;
 
 private:
-    enum Mode {
-        OpenGL,
-        RGB,
-    };
-    WEBCORE_EXPORT explicit WebCoreDecompressionSession(Mode);
+    WEBCORE_EXPORT WebCoreDecompressionSession(NSDictionary *);
+    static NSDictionary *defaultPixelBufferAttributes();
 
     Expected<RetainPtr<VTDecompressionSessionRef>, OSStatus> ensureDecompressionSessionForSample(CMSampleBufferRef);
 
@@ -90,10 +88,11 @@ private:
     Ref<MediaPromise> initializeVideoDecoder(FourCharCode, std::span<const uint8_t>, const std::optional<PlatformVideoColorSpace>&);
     bool isInvalidated() const { return m_invalidated; }
 
-    Mode m_mode;
+    const Ref<WorkQueue> m_decompressionQueue;
+    const RetainPtr<NSDictionary> m_pixelBufferAttributes;
+
     mutable Lock m_lock;
     RetainPtr<VTDecompressionSessionRef> m_decompressionSession WTF_GUARDED_BY_LOCK(m_lock);
-    const Ref<WorkQueue> m_decompressionQueue;
     mutable std::optional<bool> m_isHardwareAccelerated WTF_GUARDED_BY_LOCK(m_lock);
 
     std::atomic<uint32_t> m_flushId { 0 };
