@@ -425,7 +425,7 @@ LengthSize RenderThemeAdwaita::minimumControlSize(StyleAppearance, const FontCas
     return minSize;
 }
 
-LengthBox RenderThemeAdwaita::controlBorder(StyleAppearance appearance, const FontCascade& font, const LengthBox& zoomedBox, float zoomFactor) const
+LengthBox RenderThemeAdwaita::controlBorder(StyleAppearance appearance, const FontCascade& font, const LengthBox& zoomedBox, float zoomFactor, const Element* element) const
 {
     switch (appearance) {
     case StyleAppearance::PushButton:
@@ -437,7 +437,7 @@ LengthBox RenderThemeAdwaita::controlBorder(StyleAppearance appearance, const Fo
         break;
     }
 
-    return RenderTheme::controlBorder(appearance, font, zoomedBox, zoomFactor);
+    return RenderTheme::controlBorder(appearance, font, zoomedBox, zoomFactor, element);
 }
 
 #if PLATFORM(GTK) || PLATFORM(WPE)

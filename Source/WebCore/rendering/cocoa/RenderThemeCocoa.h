@@ -56,6 +56,8 @@ protected:
 
     void inflateRectForControlRenderer(const RenderObject&, FloatRect&) override;
 
+    LengthBox controlBorder(StyleAppearance, const FontCascade&, const LengthBox& zoomedBox, float zoomFactor, const Element*) const override;
+
     Color platformSpellingMarkerColor(OptionSet<StyleColorOptions>) const override;
     Color platformDictationAlternativesMarkerColor(OptionSet<StyleColorOptions>) const override;
     Color platformGrammarMarkerColor(OptionSet<StyleColorOptions>) const override;

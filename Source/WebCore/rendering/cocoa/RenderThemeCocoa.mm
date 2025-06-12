@@ -447,6 +447,16 @@ void RenderThemeCocoa::inflateRectForControlRenderer(const RenderObject& rendere
     RenderTheme::inflateRectForControlRenderer(renderer, rect);
 }
 
+LengthBox RenderThemeCocoa::controlBorder(StyleAppearance appearance, const FontCascade& font, const LengthBox& zoomedBox, float zoomFactor, const Element* element) const
+{
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (formControlRefreshEnabled(element))
+        return zoomedBox;
+#endif
+
+    return RenderTheme::controlBorder(appearance, font, zoomedBox, zoomFactor, element);
+}
+
 #if ENABLE(FORM_CONTROL_REFRESH)
 
 enum class ControlSize : uint8_t {
@@ -1047,12 +1057,6 @@ bool RenderThemeCocoa::adjustColorWellStyleForVectorBasedControls(RenderStyle& s
         return false;
 
     RenderTheme::adjustColorWellStyle(style, element);
-
-    const auto swatchInset = 3 * style.usedZoom();
-    auto paddingBox = Style::PaddingBox(Style::PaddingEdge { Length { swatchInset, LengthType::Fixed } });
-
-    style.setPaddingBox(WTFMove(paddingBox));
-    style.resetBorder();
 
     return true;
 #endif
@@ -2212,12 +2216,20 @@ bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& styl
         Style::PaddingEdge { Length { 0, LengthType::Fixed } },
         Style::PaddingEdge { Length { pixels, LengthType::Fixed } },
     };
+#else
+    auto paddingBox = Style::PaddingBox {
+        Style::PaddingEdge { Length { 0, LengthType::Fixed } },
+        Style::PaddingEdge { Length { 6, LengthType::Fixed } },
+        Style::PaddingEdge { Length { 1, LengthType::Fixed } },
+        Style::PaddingEdge { Length { 6, LengthType::Fixed } },
+    };
+#endif
     if (!style.writingMode().isHorizontal())
         paddingBox = Style::PaddingBox { paddingBox.left(), paddingBox.top(), paddingBox.right(), paddingBox.bottom() };
 
     style.setPaddingBox(WTFMove(paddingBox));
-    style.resetBorderRadius();
 
+#if PLATFORM(IOS_FAMILY)
     adjustButtonLikeControlStyleForVectorBasedControls(style, element);
 #endif
     return true;
@@ -2255,7 +2267,6 @@ bool RenderThemeCocoa::adjustMenuListButtonStyleForVectorBasedControls(RenderSty
     else if (RefPtr input = dynamicDowncast<HTMLInputElement>(*element))
         adjustInputElementButtonStyleForVectorBasedControls(style, *input);
 
-    style.resetBorderRadius();
     return true;
 #endif
 }

@@ -1341,7 +1341,7 @@ LengthSize RenderTheme::minimumControlSize(StyleAppearance, const FontCascade&, 
     return { { 0, LengthType::Fixed }, { 0, LengthType::Fixed } };
 }
 
-LengthBox RenderTheme::controlBorder(StyleAppearance appearance, const FontCascade&, const LengthBox& zoomedBox, float) const
+LengthBox RenderTheme::controlBorder(StyleAppearance appearance, const FontCascade&, const LengthBox& zoomedBox, float, const Element*) const
 {
     switch (appearance) {
     case StyleAppearance::PushButton:
@@ -1362,7 +1362,7 @@ void RenderTheme::adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle
     auto appearance = style.usedAppearance();
 
     LengthBox borderBox(style.borderTopWidth(), style.borderRightWidth(), style.borderBottomWidth(), style.borderLeftWidth());
-    borderBox = controlBorder(appearance, style.fontCascade(), borderBox, style.usedZoom());
+    borderBox = controlBorder(appearance, style.fontCascade(), borderBox, style.usedZoom(), element);
 
     auto supportsVerticalWritingMode = [](StyleAppearance appearance) {
         return appearance == StyleAppearance::Button

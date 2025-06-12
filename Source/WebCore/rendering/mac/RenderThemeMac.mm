@@ -1687,8 +1687,13 @@ LengthSize RenderThemeMac::minimumControlSize(StyleAppearance appearance, const 
 }
 
 
-LengthBox RenderThemeMac::controlBorder(StyleAppearance appearance, const FontCascade& font, const LengthBox& zoomedBox, float zoomFactor) const
+LengthBox RenderThemeMac::controlBorder(StyleAppearance appearance, const FontCascade& font, const LengthBox& zoomedBox, float zoomFactor, const Element* element) const
 {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled())
+        return RenderThemeCocoa::controlBorder(appearance, font, zoomedBox, zoomFactor, element);
+#endif
+
     switch (appearance) {
     case StyleAppearance::SquareButton:
     case StyleAppearance::ColorWell:
@@ -1696,7 +1701,7 @@ LengthBox RenderThemeMac::controlBorder(StyleAppearance appearance, const FontCa
     case StyleAppearance::Button:
         return LengthBox(0, zoomedBox.right().value(), 0, zoomedBox.left().value());
     default:
-        return RenderTheme::controlBorder(appearance, font, zoomedBox, zoomFactor);
+        return RenderTheme::controlBorder(appearance, font, zoomedBox, zoomFactor, element);
     }
 }
 

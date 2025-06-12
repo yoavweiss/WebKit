@@ -391,7 +391,7 @@ protected:
     LengthSize minimumControlSize(StyleAppearance, const FontCascade&, const LengthSize& zoomedSize, const LengthSize& nonShrinkableZoomedSize, float zoomFactor) const;
 
     // Allows the theme to modify the existing border.
-    virtual LengthBox controlBorder(StyleAppearance, const FontCascade&, const LengthBox& zoomedBox, float zoomFactor) const;
+    virtual LengthBox controlBorder(StyleAppearance, const FontCascade&, const LengthBox& zoomedBox, float zoomFactor, const Element*) const;
 
     // Whether or not whitespace: pre should be forced on always.
     virtual bool controlRequiresPreWhiteSpace(StyleAppearance) const { return false; }
