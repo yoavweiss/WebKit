@@ -81,7 +81,7 @@ static constexpr Seconds indicatorMoveDuration { 0.3_s };
 
     RetainPtr<UIVisualEffect> visualEffect;
     if (shouldUseBlurEffectForBackdrop)
-        visualEffect = adoptNS([UIBlurEffect effectWithStyle:UIBlurEffectStyleLight]);
+        visualEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
     else {
 #if HAVE(UI_GLASS_EFFECT)
         visualEffect = adoptNS([[UIGlassEffect alloc] init]);
