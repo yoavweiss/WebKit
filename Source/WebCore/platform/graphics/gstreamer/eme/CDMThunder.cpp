@@ -119,24 +119,25 @@ RefPtr<CDMProxy> CDMFactoryThunder::createCDMProxy(const String& keySystem)
     return adoptRef(new CDMProxyThunder(keySystem));
 }
 
-const Vector<String>& CDMFactoryThunder::supportedKeySystems() const
+CDMFactoryThunder::CDMFactoryThunder()
 {
     ASSERT(isMainThread());
 
-    static Vector<String> supportedKeySystems;
-    if (supportedKeySystems.isEmpty()) {
-        std::string emptyString;
-        if (opencdm_is_type_supported(GStreamerEMEUtilities::s_WidevineKeySystem, emptyString.c_str()) == ERROR_NONE)
-            supportedKeySystems.append(String::fromLatin1(GStreamerEMEUtilities::s_WidevineKeySystem));
-        if (opencdm_is_type_supported(GStreamerEMEUtilities::s_ClearKeyKeySystem, emptyString.c_str()) == ERROR_NONE)
-            supportedKeySystems.append(String::fromLatin1(GStreamerEMEUtilities::s_ClearKeyKeySystem));
-        if (opencdm_is_type_supported(GStreamerEMEUtilities::s_PlayReadyKeySystems[0], emptyString.c_str()) == ERROR_NONE) {
-            supportedKeySystems.append(String::fromLatin1(GStreamerEMEUtilities::s_PlayReadyKeySystems[0]));
-            supportedKeySystems.append(String::fromLatin1(GStreamerEMEUtilities::s_PlayReadyKeySystems[1]));
-        }
-        GST_DEBUG("%zu supported key systems", supportedKeySystems.size());
+    std::string emptyString;
+    if (opencdm_is_type_supported(GStreamerEMEUtilities::s_WidevineKeySystem, emptyString.c_str()) == ERROR_NONE)
+        m_supportedKeySystems.append(String::fromLatin1(GStreamerEMEUtilities::s_WidevineKeySystem));
+    if (opencdm_is_type_supported(GStreamerEMEUtilities::s_ClearKeyKeySystem, emptyString.c_str()) == ERROR_NONE)
+        m_supportedKeySystems.append(String::fromLatin1(GStreamerEMEUtilities::s_ClearKeyKeySystem));
+    if (opencdm_is_type_supported(GStreamerEMEUtilities::s_PlayReadyKeySystems[0], emptyString.c_str()) == ERROR_NONE) {
+        m_supportedKeySystems.append(String::fromLatin1(GStreamerEMEUtilities::s_PlayReadyKeySystems[0]));
+        m_supportedKeySystems.append(String::fromLatin1(GStreamerEMEUtilities::s_PlayReadyKeySystems[1]));
     }
-    return supportedKeySystems;
+    GST_DEBUG("%zu supported key systems", m_supportedKeySystems.size());
+}
+
+const Vector<String>& CDMFactoryThunder::supportedKeySystems() const
+{
+    return m_supportedKeySystems;
 }
 
 bool CDMFactoryThunder::supportsKeySystem(const String& keySystem)
