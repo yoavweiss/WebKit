@@ -462,7 +462,7 @@ enum class FontStyleAxis : uint8_t {
 
 enum class AllowUserInstalledFonts : bool { No, Yes };
 
-using FeaturesMap = UncheckedKeyHashMap<FontTag, int, FourCharacterTagHash, FourCharacterTagHashTraits>;
+using FeaturesMap = HashMap<FontTag, int, FourCharacterTagHash, FourCharacterTagHashTraits>;
 FeaturesMap computeFeatureSettingsFromVariants(const FontVariantSettings&, RefPtr<FontFeatureValues>);
 
 enum class ResolvedEmojiPolicy : uint8_t {

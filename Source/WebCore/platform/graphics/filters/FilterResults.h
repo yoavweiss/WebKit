@@ -52,11 +52,11 @@ private:
     size_t memoryCost() const;
     bool canCacheResult(const FilterImage&) const;
 
-    UncheckedKeyHashMap<Ref<FilterEffect>, Ref<FilterImage>> m_results;
+    HashMap<Ref<FilterEffect>, Ref<FilterImage>> m_results;
 
     // The value is a list of FilterEffects, whose FilterImages depend on the key FilterImage.
-    using FilterEffectSet = UncheckedKeyHashSet<Ref<FilterEffect>>;
-    UncheckedKeyHashMap<Ref<FilterImage>, FilterEffectSet> m_resultReferences;
+    using FilterEffectSet = HashSet<Ref<FilterEffect>>;
+    HashMap<Ref<FilterImage>, FilterEffectSet> m_resultReferences;
 
     std::unique_ptr<ImageBufferAllocator> m_allocator;
 };

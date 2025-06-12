@@ -677,7 +677,7 @@ private:
     Ref<PlatformMediaResourceLoader> m_loader;
 
     RefPtr<GStreamerQuirksManager> m_quirksManagerForTesting;
-    UncheckedKeyHashMap<const GStreamerQuirk*, std::unique_ptr<GStreamerQuirkBase::GStreamerQuirkState>> m_quirkStates;
+    HashMap<const GStreamerQuirk*, std::unique_ptr<GStreamerQuirkBase::GStreamerQuirkState>> m_quirkStates;
 
     MediaTime m_estimatedVideoFrameDuration { MediaTime::zeroTime() };
 

@@ -90,7 +90,8 @@ private:
         PermissionStateAllowed,
         PermissionStateDenied,
     } m_permissionState;
-    typedef UncheckedKeyHashSet<RefPtr<Geolocation>> GeolocationSet;
+
+    using GeolocationSet = HashSet<RefPtr<Geolocation>>;
     GeolocationSet m_pendingPermission;
 };
 

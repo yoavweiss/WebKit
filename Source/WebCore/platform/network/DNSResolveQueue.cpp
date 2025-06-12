@@ -122,7 +122,7 @@ void DNSResolveQueue::timerFired()
 
     for (; !m_names.isEmpty() && requestsAllowed > 0; --requestsAllowed) {
         ++m_requestsInFlight;
-        UncheckedKeyHashSet<String>::iterator currentName = m_names.begin();
+        HashSet<String>::iterator currentName = m_names.begin();
         platformResolve(*currentName);
         m_names.remove(currentName);
     }

@@ -254,14 +254,14 @@ private:
 #endif
 
 #if PLATFORM(MAC)
-    UncheckedKeyHashSet<AtomString> m_knownFamilies;
+    HashSet<AtomString> m_knownFamilies;
 #endif
 
 #if PLATFORM(COCOA)
     FontDatabase m_databaseAllowingUserInstalledFonts { AllowUserInstalledFonts::Yes };
     FontDatabase m_databaseDisallowingUserInstalledFonts { AllowUserInstalledFonts::No };
 
-    using FallbackFontSet = UncheckedKeyHashSet<RetainPtr<CTFontRef>, WTF::RetainPtrObjectHash<CTFontRef>, WTF::RetainPtrObjectHashTraits<CTFontRef>>;
+    using FallbackFontSet = HashSet<RetainPtr<CTFontRef>, WTF::RetainPtrObjectHash<CTFontRef>, WTF::RetainPtrObjectHashTraits<CTFontRef>>;
     FallbackFontSet m_fallbackFonts;
 
     ListHashSet<String> m_seenFamiliesForPrewarming;

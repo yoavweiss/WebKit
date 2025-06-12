@@ -146,7 +146,7 @@ private:
     };
 
     unsigned m_nextAvailableHandle;
-    UncheckedKeyHashMap<unsigned, Entry> m_map;
+    HashMap<unsigned, Entry> m_map;
 };
 
 inline CalculationValueMap::Entry::Entry(Ref<CalculationValue>&& value)

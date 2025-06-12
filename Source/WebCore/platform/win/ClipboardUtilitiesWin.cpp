@@ -682,7 +682,7 @@ struct ClipboardDataItem {
     ClipboardDataItem(FORMATETC* format, GetStringFunction getString, SetStringFunction setString): format(format), getString(getString), setString(setString) { }
 };
 
-typedef UncheckedKeyHashMap<UINT, ClipboardDataItem*> ClipboardFormatMap;
+using ClipboardFormatMap = HashMap<UINT, ClipboardDataItem*>;
 
 // Getter functions.
 

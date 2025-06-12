@@ -328,10 +328,10 @@ private:
 
     WEBCORE_EXPORT void setTileCoverage(TileCoverage) override;
 
-    typedef String CloneID; // Identifier for a given clone, based on original/replica branching down the tree.
+    using CloneID = String; // Identifier for a given clone, based on original/replica branching down the tree.
     static bool isReplicatedRootClone(const CloneID& cloneID) { return cloneID[0U] & 1; }
 
-    typedef UncheckedKeyHashMap<CloneID, RefPtr<PlatformCALayer>> LayerMap;
+    using LayerMap = HashMap<CloneID, RefPtr<PlatformCALayer>>;
     LayerMap* primaryLayerClones() const;
     LayerMap* animatedLayerClones(AnimatedProperty) const;
     static void clearClones(LayerMap&);
