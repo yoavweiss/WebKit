@@ -632,9 +632,3 @@ workers/WorkerOrWorkletThread.cpp
 workers/WorkerRunLoop.cpp
 workers/service/server/SWServer.cpp
 worklets/Worklet.cpp
-xml/XPathFunctions.cpp
-xml/XPathNodeSet.cpp
-xml/XPathPath.cpp
-xml/XPathStep.cpp
-xml/XSLStyleSheetLibxslt.cpp
-xml/XSLTProcessor.cpp

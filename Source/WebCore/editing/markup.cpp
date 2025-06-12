@@ -861,8 +861,8 @@ RefPtr<Node> StyledMarkupAccumulator::traverseNodesForSerialization(Node& startN
         next = nullptr;
 
         auto advanceToAncestorSibling = [&]() {
-            if (auto* sibling = nextSibling(*n)) {
-                next = sibling;
+            if (RefPtr sibling = nextSibling(*n)) {
+                next = WTFMove(sibling);
                 return;
             }
             for (RefPtr ancestor = parentNode(*n); ancestor; ancestor = parentNode(*ancestor)) {
@@ -1219,10 +1219,10 @@ static void restoreAttachmentElementsInFragment(DocumentFragment& fragment)
     RefPtr ownerDocument = fragment.ownerDocument();
     // When creating a fragment we must strip the webkit-attachment-path attribute after restoring the File object.
     Vector<Ref<HTMLAttachmentElement>> attachments;
-    for (auto& attachment : descendantsOfType<HTMLAttachmentElement>(fragment))
-        attachments.append(attachment);
+    for (Ref attachment : descendantsOfType<HTMLAttachmentElement>(fragment))
+        attachments.append(WTFMove(attachment));
 
-    for (auto& attachment : attachments) {
+    for (Ref attachment : attachments) {
         attachment->setUniqueIdentifier(attachment->attributeWithoutSynchronization(webkitattachmentidAttr));
 
         auto attachmentPath = attachment->attachmentPath();
@@ -1240,20 +1240,20 @@ static void restoreAttachmentElementsInFragment(DocumentFragment& fragment)
 
     Vector<Ref<AttachmentAssociatedElement>> attachmentAssociatedElements;
 
-    for (auto& image : descendantsOfType<HTMLImageElement>(fragment))
-        attachmentAssociatedElements.append(image);
+    for (Ref image : descendantsOfType<HTMLImageElement>(fragment))
+        attachmentAssociatedElements.append(WTFMove(image));
 
-    for (auto& source : descendantsOfType<HTMLSourceElement>(fragment))
-        attachmentAssociatedElements.append(source);
+    for (Ref source : descendantsOfType<HTMLSourceElement>(fragment))
+        attachmentAssociatedElements.append(WTFMove(source));
 
-    for (auto& attachmentAssociatedElement : attachmentAssociatedElements) {
+    for (Ref attachmentAssociatedElement : attachmentAssociatedElements) {
         Ref element = attachmentAssociatedElement->asHTMLElement();
 
         auto attachmentIdentifier = element->attributeWithoutSynchronization(webkitattachmentidAttr);
         if (attachmentIdentifier.isEmpty())
             continue;
 
-        auto attachment = HTMLAttachmentElement::create(HTMLNames::attachmentTag, *ownerDocument);
+        Ref attachment = HTMLAttachmentElement::create(HTMLNames::attachmentTag, *ownerDocument);
         attachment->setUniqueIdentifier(attachmentIdentifier);
         attachmentAssociatedElement->setAttachmentElement(WTFMove(attachment));
         element->removeAttribute(webkitattachmentidAttr);
@@ -1585,7 +1585,7 @@ ExceptionOr<void> replaceChildrenWithFragment(ContainerNode& container, Ref<Docu
 
     // We don't Use RefPtr here because canUseSetDataOptimization() below relies on the
     // containerChild's ref count.
-    auto* containerChild = dynamicDowncast<Text>(containerNode->firstChild());
+    SUPPRESS_UNCOUNTED_LOCAL auto* containerChild = dynamicDowncast<Text>(containerNode->firstChild());
     if (containerChild && !containerChild->nextSibling()) {
         if (RefPtr fragmentChild = singleTextChild(fragment); fragmentChild && canUseSetDataOptimization(*containerChild, mutation)) {
             Ref { *containerChild }->setData(fragmentChild->data());
