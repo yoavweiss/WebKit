@@ -8545,6 +8545,7 @@ header: <WebCore/ShareableBitmap.h>
     std::optional<WebCore::DestinationColorSpace> m_colorSpace;
     WebCore::Headroom m_headroom;
     bool m_isOpaque;
+    unsigned bitsPerComponent();
     unsigned bytesPerPixel();
     unsigned bytesPerRow();
 #if USE(CG)
