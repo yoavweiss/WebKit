@@ -1,5 +1,5 @@
 /*
- * Portions Copyright (c) 2011 Motorola Mobility, Inc.  All rights reserved.
+ * Portions Copyright (c) 2011 Motorola Mobility, Inc. All rights reserved.
  * Copyright (C) 2014 Collabora Ltd.
  * Copyright (C) 2011, 2017, 2020 Igalia S.L.
  *

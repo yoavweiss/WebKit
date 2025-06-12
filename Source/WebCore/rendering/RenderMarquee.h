@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Apple Inc.
+ * Copyright (C) 2003 Apple Inc. All rights reserved.
  *
  * Portions are Copyright (C) 1998 Netscape Communications Corporation.
  *

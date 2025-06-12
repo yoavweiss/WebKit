@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2025 Apple Inc.  All rights reserved.
+ * Copyright (C) 2003-2025 Apple Inc. All rights reserved.
  * Copyright (C) 2007-2009 Torch Mobile, Inc.
  * Copyright (C) 2011 University of Szeged. All rights reserved.
  *

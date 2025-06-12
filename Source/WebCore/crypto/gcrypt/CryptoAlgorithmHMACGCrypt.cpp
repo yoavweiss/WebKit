@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2014 Igalia S.L.
  * Copyright (C) 2016 SoftAtHome
- * Copyright (C) 2016 Apple Inc.
+ * Copyright (C) 2016 Apple Inc. All rights reserved.
  * Copyright (C) 2016 Yusuke Suzuki <utatane.tea@gmail.com>.
  *
  * Redistribution and use in source and binary forms, with or without

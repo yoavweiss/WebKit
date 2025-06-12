@@ -1,7 +1,7 @@
 
 /*
  * Copyright (C) 2010-2025 Apple Inc. All rights reserved.
- * Portions Copyright (c) 2010 Motorola Mobility, Inc.  All rights reserved.
+ * Portions Copyright (c) 2010 Motorola Mobility, Inc. All rights reserved.
  * Copyright (C) 2011 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without

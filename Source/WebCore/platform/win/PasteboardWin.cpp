@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007, 2013-2014 Apple Inc.  All rights reserved.
+ * Copyright (C) 2006, 2007, 2013-2014 Apple Inc. All rights reserved.
  * Copyright (C) 2013 Xueqing Huang <huangxueqing@baidu.com>
  *
  * Redistribution and use in source and binary forms, with or without

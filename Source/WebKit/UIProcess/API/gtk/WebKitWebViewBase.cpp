@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 Apple Inc. All rights reserved.
- * Portions Copyright (c) 2010 Motorola Mobility, Inc.  All rights reserved.
+ * Portions Copyright (c) 2010 Motorola Mobility, Inc. All rights reserved.
  * Copyright (C) 2013 Gustavo Noronha Silva <gns@gnome.org>.
  * Copyright (C) 2011, 2020 Igalia S.L.
  *

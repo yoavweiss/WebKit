@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Apple Inc.  All rights reserved.
+ * Copyright (C) 2008 Apple Inc. All rights reserved.
  * Copyright (C) 2006 Michael Emmel mike.emmel@gmail.com
  * Copyright (C) 2007 Alp Toker <alp.toker@collabora.co.uk>
  * Copyright (C) 2007 Holger Hans Peter Freyther

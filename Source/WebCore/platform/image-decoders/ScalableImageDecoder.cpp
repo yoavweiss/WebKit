@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 Apple Inc.  All rights reserved.
+ * Copyright (C) 2016-2023 Apple Inc. All rights reserved.
  * Copyright (C) 2008-2009 Torch Mobile, Inc.
  * Copyright (C) Research In Motion Limited 2009-2010. All rights reserved.
  *

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2010 Apple Inc. All rights reserved.
- * Portions Copyright (c) 2010 Motorola Mobility, Inc.  All rights reserved.
- * Copyright (C) 2012 Samsung Electronics Ltd. All Rights Reserved.
+ * Portions Copyright (c) 2010 Motorola Mobility, Inc. All rights reserved.
+ * Copyright (C) 2012 Samsung Electronics Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions

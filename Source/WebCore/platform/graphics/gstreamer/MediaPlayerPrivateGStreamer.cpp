@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2007, 2009 Apple Inc.  All rights reserved.
- * Copyright (C) 2007 Collabora Ltd.  All rights reserved.
+ * Copyright (C) 2007, 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2007 Collabora Ltd. All rights reserved.
  * Copyright (C) 2007 Alp Toker <alp@atoker.com>
  * Copyright (C) 2009 Gustavo Noronha Silva <gns@gnome.org>
  * Copyright (C) 2014 Cable Television Laboratories, Inc.
