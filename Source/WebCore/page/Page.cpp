@@ -5204,7 +5204,10 @@ void Page::deleteRemovedNodesAndDetachedRenderers()
         if (!document)
             return;
         document->asyncNodeDeletionQueue().deleteNodesNow();
-        document->view()->layoutContext().deleteDetachedRenderersNow();
+        RefPtr frameView = document->view();
+        if (!frameView)
+            return;
+        frameView->layoutContext().deleteDetachedRenderersNow();
     });
 }
 
