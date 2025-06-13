@@ -42,7 +42,7 @@ public:
     struct GetDirectoryOptions {
         bool create { false };
     };
-    
+
     struct RemoveOptions {
         bool recursive { false };
     };

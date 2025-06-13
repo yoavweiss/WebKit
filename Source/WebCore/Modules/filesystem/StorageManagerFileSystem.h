@@ -29,11 +29,11 @@
 
 namespace WebCore {
 
-class StorageManagerFileSystemAccess {
+class StorageManagerFileSystem {
 public:
     static void getDirectory(StorageManager& storageManager, DOMPromiseDeferred<IDLInterface<FileSystemDirectoryHandle>>&& promise)
     {
-        storageManager.fileSystemAccessGetDirectory(WTFMove(promise));
+        storageManager.fileSystemGetDirectory(WTFMove(promise));
     }
 };
 

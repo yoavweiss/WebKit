@@ -52,7 +52,7 @@ void FileSystemHandle::close()
 {
     if (m_isClosed)
         return;
-    
+
     m_isClosed = true;
     m_connection->closeHandle(m_identifier);
 }

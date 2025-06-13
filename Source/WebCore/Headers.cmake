@@ -378,22 +378,22 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/fetch/FetchRequestMode.h
     Modules/fetch/RequestPriority.h
 
-    Modules/filesystemaccess/FileSystemDirectoryHandle.h
-    Modules/filesystemaccess/FileSystemFileHandle.h
-    Modules/filesystemaccess/FileSystemHandle.h
-    Modules/filesystemaccess/FileSystemHandleCloseScope.h
-    Modules/filesystemaccess/FileSystemHandleIdentifier.h
-    Modules/filesystemaccess/FileSystemStorageConnection.h
-    Modules/filesystemaccess/FileSystemSyncAccessHandle.h
-    Modules/filesystemaccess/FileSystemSyncAccessHandleIdentifier.h
-    Modules/filesystemaccess/FileSystemWritableFileStream.h
-    Modules/filesystemaccess/FileSystemWritableFileStreamIdentifier.h
-    Modules/filesystemaccess/FileSystemWritableFileStreamSink.h
-    Modules/filesystemaccess/FileSystemWriteCloseReason.h
-    Modules/filesystemaccess/FileSystemWriteCommandType.h
-    Modules/filesystemaccess/StorageManagerFileSystemAccess.h
-    Modules/filesystemaccess/WorkerFileSystemStorageConnection.h
-    Modules/filesystemaccess/WorkerFileSystemStorageConnectionCallbackIdentifier.h
+    Modules/filesystem/FileSystemDirectoryHandle.h
+    Modules/filesystem/FileSystemFileHandle.h
+    Modules/filesystem/FileSystemHandle.h
+    Modules/filesystem/FileSystemHandleCloseScope.h
+    Modules/filesystem/FileSystemHandleIdentifier.h
+    Modules/filesystem/FileSystemStorageConnection.h
+    Modules/filesystem/FileSystemSyncAccessHandle.h
+    Modules/filesystem/FileSystemSyncAccessHandleIdentifier.h
+    Modules/filesystem/FileSystemWritableFileStream.h
+    Modules/filesystem/FileSystemWritableFileStreamIdentifier.h
+    Modules/filesystem/FileSystemWritableFileStreamSink.h
+    Modules/filesystem/FileSystemWriteCloseReason.h
+    Modules/filesystem/FileSystemWriteCommandType.h
+    Modules/filesystem/StorageManagerFileSystem.h
+    Modules/filesystem/WorkerFileSystemStorageConnection.h
+    Modules/filesystem/WorkerFileSystemStorageConnectionCallbackIdentifier.h
 
     Modules/gamepad/GamepadEffectParameters.h
     Modules/gamepad/GamepadHapticEffectType.h

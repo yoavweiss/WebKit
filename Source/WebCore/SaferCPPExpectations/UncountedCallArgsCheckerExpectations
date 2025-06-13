@@ -39,8 +39,8 @@ Modules/fetch/FetchBodyConsumer.cpp
 Modules/fetch/FetchBodySource.cpp
 Modules/fetch/FetchLoader.cpp
 Modules/fetch/FetchRequest.cpp
-Modules/filesystemaccess/FileSystemFileHandle.cpp
-Modules/filesystemaccess/WorkerFileSystemStorageConnection.cpp
+Modules/filesystem/FileSystemFileHandle.cpp
+Modules/filesystem/WorkerFileSystemStorageConnection.cpp
 Modules/gamepad/GamepadManager.cpp
 Modules/gamepad/NavigatorGamepad.cpp
 Modules/geolocation/Geolocation.cpp

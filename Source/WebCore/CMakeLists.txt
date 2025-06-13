@@ -36,7 +36,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/Modules/encryptedmedia/legacy"
     "${WEBCORE_DIR}/Modules/entriesapi"
     "${WEBCORE_DIR}/Modules/fetch"
-    "${WEBCORE_DIR}/Modules/filesystemaccess"
+    "${WEBCORE_DIR}/Modules/filesystem"
     "${WEBCORE_DIR}/Modules/geolocation"
     "${WEBCORE_DIR}/Modules/highlight"
     "${WEBCORE_DIR}/Modules/identity"
@@ -256,7 +256,7 @@ set(WebCore_IDL_INCLUDES
     Modules/encryptedmedia/legacy
     Modules/entriesapi
     Modules/fetch
-    Modules/filesystemaccess
+    Modules/filesystem
     Modules/geolocation
     Modules/highlight
     Modules/identity
@@ -388,12 +388,12 @@ set(WebCore_NON_SVG_IDL_FILES
     Modules/fetch/RequestPriority.idl
     Modules/fetch/WindowOrWorkerGlobalScope+Fetch.idl
 
-    Modules/filesystemaccess/FileSystemDirectoryHandle.idl
-    Modules/filesystemaccess/FileSystemFileHandle.idl
-    Modules/filesystemaccess/FileSystemHandle.idl
-    Modules/filesystemaccess/FileSystemSyncAccessHandle.idl
-    Modules/filesystemaccess/FileSystemWritableFileStream.idl
-    Modules/filesystemaccess/StorageManager+FileSystemAccess.idl
+    Modules/filesystem/FileSystemDirectoryHandle.idl
+    Modules/filesystem/FileSystemFileHandle.idl
+    Modules/filesystem/FileSystemHandle.idl
+    Modules/filesystem/FileSystemSyncAccessHandle.idl
+    Modules/filesystem/FileSystemWritableFileStream.idl
+    Modules/filesystem/StorageManager+FileSystem.idl
 
     Modules/geolocation/Geolocation.idl
     Modules/geolocation/GeolocationCoordinates.idl
