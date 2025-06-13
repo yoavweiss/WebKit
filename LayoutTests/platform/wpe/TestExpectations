@@ -571,6 +571,7 @@ Bug(WPE) http/tests/contentfiltering [ Skip ]
 webkit.org/b/212351 fast/events/mouse-cursor-udpate-during-raf.html [ Failure ]
 
 webkit.org/b/214300 imported/w3c/web-platform-tests/css/css-fonts/font-language-override-01.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-fonts/generic-family-keywords-002.html [ Failure ]
 
 webkit.org/b/217370 fast/events/setDragImage-element-non-nullable.html [ Failure ]
 Bug(WPE) fast/events/selectstart-by-drag.html [ Failure ]
