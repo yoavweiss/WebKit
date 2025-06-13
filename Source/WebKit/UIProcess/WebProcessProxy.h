@@ -362,6 +362,9 @@ public:
     bool isPrewarmed() const { return m_isPrewarmed; }
     void markIsNoLongerInPrewarmedPool();
 
+    bool isForeground() const { return !!m_foregroundToken; }
+    bool isBackground() const { return !!m_backgroundToken; }
+
 #if PLATFORM(COCOA)
     Vector<String> mediaMIMETypes() const;
     void cacheMediaMIMETypes(const Vector<String>&);

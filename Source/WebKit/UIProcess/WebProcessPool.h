@@ -496,6 +496,11 @@ public:
     bool hasForegroundWebProcesses() const { return m_foregroundWebProcessCounter.value(); }
     bool hasBackgroundWebProcesses() const { return m_backgroundWebProcessCounter.value(); }
 
+#if ENABLE(MODEL_PROCESS)
+    bool hasForegroundWebProcessesWithModels() const;
+    bool hasBackgroundWebProcessesWithModels() const;
+#endif
+
     void processForNavigation(WebPageProxy&, WebFrameProxy&, const API::Navigation&, const URL& sourceURL, ProcessSwapRequestedByClient, WebProcessProxy::LockdownMode, LoadedWebArchive, const FrameInfoData&, Ref<WebsiteDataStore>&&, CompletionHandler<void(Ref<WebProcessProxy>&&, SuspendedPageProxy*, ASCIILiteral)>&&);
 
     void didReachGoodTimeToPrewarm();
@@ -752,6 +757,7 @@ private:
 
 #if ENABLE(MODEL_PROCESS)
     ModelProcessProxy& ensureModelProcess();
+    void updateModelProcessAssertion();
     void terminateAllWebContentProcessesWithModelPlayers();
 #endif
 
