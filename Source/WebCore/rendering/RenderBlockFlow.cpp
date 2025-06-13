@@ -1565,9 +1565,24 @@ bool RenderBlockFlow::isChildEligibleForMarginTrim(MarginTrimType marginTrimType
     ASSERT(style().marginTrim().contains(marginTrimType));
     if (!child.style().isDisplayBlockLevel())
         return false;
-    if (marginTrimType == MarginTrimType::BlockStart)
+    // https://drafts.csswg.org/css-box-4/#margin-trim-block
+    // 3.3.1. Trimming Block Container Content
+    // For block containers specifically, margin-trim discards:
+    switch (marginTrimType) {
+    case MarginTrimType::BlockStart:
+        // The block-start margin of a block-level first child, when trimming at the block-start edge.
         return firstInFlowChildBox() == &child;
-    return lastInFlowChildBox() == &child;
+    case MarginTrimType::BlockEnd:
+        // The block-end margin of a block-level last child, when trimming at the block-end edge.
+        return lastInFlowChildBox() == &child;
+    case MarginTrimType::InlineStart:
+    case MarginTrimType::InlineEnd:
+        // It has no effect on the inline-axis margins of block-level descendants, nor on any margins of inline-level descendants.
+        return false;
+    default:
+        ASSERT_NOT_REACHED();
+        return false;
+    }
 }
 
 LayoutUnit RenderBlockFlow::clearFloatsIfNeeded(RenderBox& child, MarginInfo& marginInfo, LayoutUnit oldTopPosMargin, LayoutUnit oldTopNegMargin, LayoutUnit yPos)
