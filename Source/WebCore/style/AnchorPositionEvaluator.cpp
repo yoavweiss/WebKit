@@ -939,8 +939,7 @@ AnchorElements AnchorPositionEvaluator::findAnchorsForAnchorPositionedElement(co
 
     for (auto& anchorName : anchorNames) {
         auto anchor = findLastAcceptableAnchorWithName(anchorName, anchorPositionedElement, anchorsForAnchorName);
-        if (anchor)
-            anchorElements.add(anchorName, anchor);
+        anchorElements.add(anchorName, anchor);
     }
 
     return anchorElements;
@@ -970,8 +969,9 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
 
                 Vector<ResolvedAnchor> anchors;
                 for (auto& anchorNameAndElement : state.anchorElements) {
+                    CheckedPtr anchorElement = anchorNameAndElement.value.get();
                     anchors.append(ResolvedAnchor {
-                        .renderer = dynamicDowncast<RenderBoxModelObject>(anchorNameAndElement.value->renderer()),
+                        .renderer = anchorElement ? dynamicDowncast<RenderBoxModelObject>(anchorElement->renderer()) : nullptr,
                         .name = anchorNameAndElement.key
                     });
                 }
@@ -987,7 +987,7 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
 
 void AnchorPositionEvaluator::updateAnchorPositionedStateForLayoutTimePositioned(Element& element, const RenderStyle& style, AnchorPositionedStates& states)
 {
-    if (!style.positionAnchor() && !isLayoutTimeAnchorPositioned(style))
+    if (!isLayoutTimeAnchorPositioned(style))
         return;
 
     auto* state = states.ensure({ &element, style.pseudoElementIdentifier() }, [&] {
@@ -1017,6 +1017,9 @@ void AnchorPositionEvaluator::updateSnapshottedScrollOffsets(Document& document)
                 return false;
 
             if (elementAndAnchors.value.size() != 1)
+                return false;
+
+            if (!elementAndAnchors.value[0].renderer)
                 return false;
 
             return true;

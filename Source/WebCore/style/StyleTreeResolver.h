@@ -166,7 +166,7 @@ private:
     const RenderStyle* parentBoxStyleForPseudoElement(const ElementUpdate&) const;
     const RenderStyle* documentElementStyle() const;
 
-    LayoutInterleavingAction updateAnchorPositioningState(Element&, const RenderStyle*, OptionSet<Change>);
+    LayoutInterleavingAction updateAnchorPositioningState(Element&, const RenderStyle*);
 
     void generatePositionOptionsIfNeeded(const ResolvedStyle&, const Styleable&, const ResolutionContext&);
     std::unique_ptr<RenderStyle> generatePositionOption(const PositionTryFallback&, const ResolvedStyle&, const Styleable&, const ResolutionContext&);
@@ -184,6 +184,8 @@ private:
     bool hasUnresolvedAnchorPosition(const Styleable&) const;
     bool hasResolvedAnchorPosition(const Styleable&) const;
 
+    void collectChangedAnchorNames(const RenderStyle&, const RenderStyle* currentStyle);
+
     const CheckedRef<Document> m_document;
     std::unique_ptr<RenderStyle> m_computedDocumentElementStyle;
 
@@ -199,6 +201,7 @@ private:
     };
     UncheckedKeyHashMap<Ref<Element>, DeferredDescendantResolutionState> m_deferredDescendantResolutionStates;
     bool m_needsInterleavedLayout { false };
+    bool m_didFirstInterleavedLayout { false };
 
     struct QueryContainerState {
         bool invalidated { false };
@@ -217,6 +220,9 @@ private:
         bool chosen { false };
     };
     HashMap<Ref<Element>, PositionOptions> m_positionOptions;
+
+    HashSet<AtomString> m_changedAnchorNames;
+    bool m_allAnchorNamesInvalid { false };
 
     std::unique_ptr<Update> m_update;
 };
