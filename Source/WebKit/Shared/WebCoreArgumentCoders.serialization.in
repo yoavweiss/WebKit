@@ -2732,6 +2732,7 @@ header: <WebCore/TextIndicator.h>
     WebCore::Color estimatedBackgroundColor;
     WebCore::TextIndicatorPresentationTransition presentationTransition;
     OptionSet<WebCore::TextIndicatorOption> options;
+    std::optional<WebCore::PlatformLayerIdentifier> enclosingGraphicsLayerID;
 }
 
 #if ENABLE(MEDIA_STREAM)
