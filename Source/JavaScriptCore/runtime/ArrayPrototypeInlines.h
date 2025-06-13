@@ -345,6 +345,7 @@ inline JSString* fastArrayJoin(JSGlobalObject* globalObject, JSObject* thisObjec
                 bool withoutSideEffect = joiner.append(globalObject, value);
                 RETURN_IF_EXCEPTION(scope, { });
                 if (!withoutSideEffect) {
+                    genericCase = true;
                     if (thisObject->butterfly() == &butterfly && originalLength == butterfly.publicLength()) [[likely]]
                         continue;
                     ++i;
