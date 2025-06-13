@@ -2122,10 +2122,8 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             isProbablyDimmingContainer = box->hasBackground() && !box->firstChild() && box->isTransparent();
         }
 
-        if (side == BoxSide::Left || side == BoxSide::Right) {
-            if (!isNearlyViewportSized(side, renderer))
-                return TooSmall;
-        }
+        if (!isNearlyViewportSized(side, renderer))
+            return TooSmall;
 
         if (!isProbablyDimmingContainer && isNearlyViewportSized(adjacentSideInClockwiseOrder(side), renderer))
             return TooLarge;
