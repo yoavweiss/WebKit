@@ -16393,27 +16393,32 @@ void SpeculativeJIT::compileMakeRope(Node* node)
 
     JumpList outOfMemory;
 
-    for (unsigned i = 1; i < numOpGPRs; ++i) {
-        if (JSString* string = edges[i]->dynamicCastConstant<JSString*>()) {
-            and32(TrustedImm32(string->is8Bit() ? StringImpl::flagIs8Bit() : 0), scratchGPR);
-            outOfMemory.append(branchAdd32(Overflow, TrustedImm32(string->length()), allocatorGPR));
-        } else {
-            bool needsRopeCase = canBeRope(edges[i]);
-            loadPtr(Address(opGPRs[i], JSString::offsetOfValue()), scratch2GPR);
-            Jump isRope;
-            if (needsRopeCase)
-                isRope = branchIfRopeStringImpl(scratch2GPR);
+    // This pattern can be seen when the code is doing `string += string`.
+    if (numOpGPRs == 2 && node->child1().node() == node->child2().node())
+        outOfMemory.append(branchAdd32(Overflow, allocatorGPR, allocatorGPR));
+    else {
+        for (unsigned i = 1; i < numOpGPRs; ++i) {
+            if (JSString* string = edges[i]->dynamicCastConstant<JSString*>()) {
+                and32(TrustedImm32(string->is8Bit() ? StringImpl::flagIs8Bit() : 0), scratchGPR);
+                outOfMemory.append(branchAdd32(Overflow, TrustedImm32(string->length()), allocatorGPR));
+            } else {
+                bool needsRopeCase = canBeRope(edges[i]);
+                loadPtr(Address(opGPRs[i], JSString::offsetOfValue()), scratch2GPR);
+                Jump isRope;
+                if (needsRopeCase)
+                    isRope = branchIfRopeStringImpl(scratch2GPR);
 
-            and32(Address(scratch2GPR, StringImpl::flagsOffset()), scratchGPR);
-            outOfMemory.append(branchAdd32(Overflow, Address(scratch2GPR, StringImpl::lengthMemoryOffset()), allocatorGPR));
-            if (needsRopeCase) {
-                auto done = jump();
+                and32(Address(scratch2GPR, StringImpl::flagsOffset()), scratchGPR);
+                outOfMemory.append(branchAdd32(Overflow, Address(scratch2GPR, StringImpl::lengthMemoryOffset()), allocatorGPR));
+                if (needsRopeCase) {
+                    auto done = jump();
 
-                isRope.link(this);
-                and32(Address(opGPRs[i], JSRopeString::offsetOfFlags()), scratchGPR);
-                load32(Address(opGPRs[i], JSRopeString::offsetOfLength()), scratch2GPR);
-                outOfMemory.append(branchAdd32(Overflow, scratch2GPR, allocatorGPR));
-                done.link(this);
+                    isRope.link(this);
+                    and32(Address(opGPRs[i], JSRopeString::offsetOfFlags()), scratchGPR);
+                    load32(Address(opGPRs[i], JSRopeString::offsetOfLength()), scratch2GPR);
+                    outOfMemory.append(branchAdd32(Overflow, scratch2GPR, allocatorGPR));
+                    done.link(this);
+                }
             }
         }
     }

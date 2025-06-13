@@ -10854,8 +10854,7 @@ IGNORE_CLANG_WARNINGS_END
 
         Allocator allocator = allocatorForConcurrently<JSRopeString>(vm(), sizeof(JSRopeString), AllocatorForMode::AllocatorIfExists);
 
-        LValue result = allocateCell(
-            m_out.constIntPtr(allocator.localAllocator()), vm().stringStructure.get(), slowPath);
+        LValue result = allocateCell(m_out.constIntPtr(allocator.localAllocator()), vm().stringStructure.get(), slowPath);
 
         // This puts nullptr for the first fiber. It makes visitChildren safe even if this JSRopeString is discarded due to the speculation failure in the following path.
         m_out.storePtr(m_out.constIntPtr(JSString::isRopeInPointer), result, m_heaps.JSRopeString_fiber0);
@@ -10893,18 +10892,25 @@ IGNORE_CLANG_WARNINGS_END
         };
 
         FlagsAndLength flagsAndLength = getFlagsAndLength(edges[0], kids[0]);
-        for (unsigned i = 1; i < numKids; ++i) {
-            auto mergeFlagsAndLength = [&] (Edge& edge, LValue child, FlagsAndLength previousFlagsAndLength) {
-                FlagsAndLength flagsAndLength = getFlagsAndLength(edge, child);
-                LValue flags = m_out.bitAnd(previousFlagsAndLength.flags, flagsAndLength.flags);
-                CheckValue* lengthCheck = m_out.speculateAdd(previousFlagsAndLength.length, flagsAndLength.length);
-                blessSpeculationOutOfMemory(lengthCheck, noValue(), nullptr, m_origin);
-                return FlagsAndLength {
-                    flags,
-                    lengthCheck
+        if (numKids == 2 && kids[0] == kids[1]) {
+            // This pattern can be seen when the code is doing `string += string`.
+            CheckValue* lengthCheck = m_out.speculateAdd(flagsAndLength.length, flagsAndLength.length);
+            blessSpeculationOutOfMemory(lengthCheck, noValue(), nullptr, m_origin);
+            flagsAndLength.length = lengthCheck;
+        } else {
+            for (unsigned i = 1; i < numKids; ++i) {
+                auto mergeFlagsAndLength = [&] (Edge& edge, LValue child, FlagsAndLength previousFlagsAndLength) {
+                    FlagsAndLength flagsAndLength = getFlagsAndLength(edge, child);
+                    LValue flags = m_out.bitAnd(previousFlagsAndLength.flags, flagsAndLength.flags);
+                    CheckValue* lengthCheck = m_out.speculateAdd(previousFlagsAndLength.length, flagsAndLength.length);
+                    blessSpeculationOutOfMemory(lengthCheck, noValue(), nullptr, m_origin);
+                    return FlagsAndLength {
+                        flags,
+                        lengthCheck
+                    };
                 };
-            };
-            flagsAndLength = mergeFlagsAndLength(edges[i], kids[i], flagsAndLength);
+                flagsAndLength = mergeFlagsAndLength(edges[i], kids[i], flagsAndLength);
+            }
         }
 
         m_out.storePtr(
