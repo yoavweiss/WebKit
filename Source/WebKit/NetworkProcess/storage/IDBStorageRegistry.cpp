@@ -100,6 +100,8 @@ WebCore::IDBServer::UniqueIDBDatabaseConnection* IDBStorageRegistry::connection(
 
 WebCore::IDBServer::UniqueIDBDatabaseTransaction* IDBStorageRegistry::transaction(WebCore::IDBResourceIdentifier identifier)
 {
+    if (identifier.isEmpty())
+        return nullptr;
     return m_transactions.get(identifier).get();
 }
 
