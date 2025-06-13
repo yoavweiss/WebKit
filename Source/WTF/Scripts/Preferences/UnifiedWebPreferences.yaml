@@ -6652,6 +6652,7 @@ ServiceWorkerInstallEventEnabled:
       default: false
     WebCore:
       default: false
+  disableInLockdownMode: true
 
 ServiceWorkerNavigationPreloadEnabled:
   type: bool
@@ -6667,6 +6668,7 @@ ServiceWorkerNavigationPreloadEnabled:
     WebKit:
       default: true
   sharedPreferenceForWebProcess: true
+  disableInLockdownMode: true
 
 ServiceWorkersEnabled:
   type: bool
@@ -6683,6 +6685,7 @@ ServiceWorkersEnabled:
     WebCore:
       default: false
   sharedPreferenceForWebProcess: true
+  disableInLockdownMode: true
 
 ServiceWorkersUserGestureEnabled:
   type: bool
