@@ -7894,10 +7894,6 @@ webkit.org/b/288518 fast/text/emoji-num-glyphs.html [ Failure ]
 # rdar://148254605 (REGRESSION (iOS 18.4): media/sources-fallback-codecs.html is constantly failing.)
 media/sources-fallback-codecs.html [ Failure ]
 
-# webkit.org/b/293838 ([macOS] 2x tests in imported/w3c/web-platform-tests/url/ are constant failures (flaky in EWS)
-imported/w3c/web-platform-tests/url/IdnaTestV2.window.html [ Failure ]
-imported/w3c/web-platform-tests/url/toascii.window.html [ Failure ]
-
 webkit.org/b/294142 fast/canvas/webgl/gl-teximage.html [ Failure ]
 
 webkit.org/b/294152 http/tests/misc/timer-vs-loading.html [ Timeout ]
