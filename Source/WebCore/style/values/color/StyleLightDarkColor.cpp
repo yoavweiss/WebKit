@@ -40,7 +40,7 @@ Color toStyleColor(const CSS::LightDarkColor& unresolved, ColorResolutionState& 
     ColorResolutionStateNester nester { state };
 
     Ref<const Document> document = state.document;
-    if (document->useDarkAppearance(CheckedRef { state.style }.ptr()))
+    if (document->useDarkAppearance(&state.style))
         return toStyleColor(unresolved.darkColor, state);
     return toStyleColor(unresolved.lightColor, state);
 }

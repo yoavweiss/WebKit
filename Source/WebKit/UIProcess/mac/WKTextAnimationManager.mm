@@ -234,7 +234,7 @@
             return;
         }
 
-        RefPtr snapshot = textIndicator->contentImage();
+        auto snapshot = textIndicator->contentImage();
         if (!snapshot) {
             completionHandler(nil);
             return;

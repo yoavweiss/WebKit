@@ -184,7 +184,7 @@ enum class FeatureToAnimate {
 
     ASSERT_UNUSED(scrollerImp, scrollerImp == _scroller->scrollerImp());
 
-    return CheckedPtr { _scroller }->lastKnownMousePositionInScrollbar();
+    return _scroller->lastKnownMousePositionInScrollbar();
 }
 
 - (NSRect)convertRectToLayer:(NSRect)rect
@@ -237,7 +237,7 @@ enum class FeatureToAnimate {
         return;
 
     ASSERT_UNUSED(scrollerImp, scrollerImp == _scroller->scrollerImp());
-    CheckedPtr { _scroller }->visibilityChanged(newKnobAlpha > 0);
+    _scroller->visibilityChanged(newKnobAlpha > 0);
     [self setUpAlphaAnimation:_knobAlphaAnimation featureToAnimate:FeatureToAnimate::KnobAlpha animateAlphaTo:newKnobAlpha duration:duration];
 }
 

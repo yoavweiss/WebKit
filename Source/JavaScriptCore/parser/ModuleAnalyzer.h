@@ -26,7 +26,6 @@
 #pragma once
 
 #include "ErrorType.h"
-#include "JSModuleRecord.h"
 #include "Nodes.h"
 
 namespace JSC {

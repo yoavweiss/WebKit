@@ -27,7 +27,6 @@ bytecode/DirectEvalCodeCache.h
 bytecode/GetByStatus.cpp
 bytecode/InByStatus.cpp
 bytecode/InlineCacheCompiler.cpp
-bytecode/ObjectPropertyConditionSet.cpp
 bytecode/PolyProtoAccessChain.cpp
 bytecode/PropertyCondition.cpp
 bytecode/PutByStatus.cpp

@@ -2531,7 +2531,7 @@ bool Page::shouldUpdateAccessibilityRegions() const
         if (RefPtr localMainFrame = this->localMainFrame())
             protectedMainDocument = localMainFrame ? localMainFrame->document() : nullptr;
         else if (RefPtr remoteFrame = dynamicDowncast<RemoteFrame>(mainFrame())) {
-            if (RefPtr owner = remoteFrame->ownerElement())
+            if (auto* owner = remoteFrame->ownerElement())
                 protectedMainDocument = owner->document();
         }
 
