@@ -23,7 +23,7 @@
 #include "config.h"
 #include "JSArray.h"
 
-#include "ArrayPrototype.h"
+#include "ArrayPrototypeInlines.h"
 #include "JSArrayInlines.h"
 #include "JSCInlines.h"
 #include "PropertyNameArray.h"
@@ -970,6 +970,57 @@ JSArray* JSArray::fastToSpliced(JSGlobalObject* globalObject, CallFrame* callFra
         return nullptr;
     }
     }
+}
+
+JSString* JSArray::fastToString(JSGlobalObject* globalObject)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    unsigned length = this->length();
+
+    StringRecursionChecker checker(globalObject, this);
+    EXCEPTION_ASSERT(!scope.exception() || checker.earlyReturnValue());
+    if (JSValue earlyReturnValue = checker.earlyReturnValue())
+        return jsEmptyString(vm);
+
+    if (canUseFastArrayJoin(this)) [[likely]] {
+        const LChar comma = ',';
+
+        bool isCoW = isCopyOnWrite(this->indexingMode());
+        JSImmutableButterfly* immutableButterfly = nullptr;
+        if (isCoW) {
+            immutableButterfly = JSImmutableButterfly::fromButterfly(this->butterfly());
+            auto iter = vm.heap.immutableButterflyToStringCache.find(immutableButterfly);
+            if (iter != vm.heap.immutableButterflyToStringCache.end())
+                return iter->value;
+        }
+
+        bool sawHoles = false;
+        bool genericCase = false;
+        JSString* result = fastArrayJoin(globalObject, this, span(comma), length, sawHoles, genericCase);
+        RETURN_IF_EXCEPTION(scope, { });
+
+        if (!sawHoles && !genericCase && result && isCoW) {
+            ASSERT(JSImmutableButterfly::fromButterfly(this->butterfly()) == immutableButterfly);
+            vm.heap.immutableButterflyToStringCache.add(immutableButterfly, jsCast<JSString*>(result));
+        }
+
+        return result;
+    }
+
+    JSStringJoiner joiner(","_s);
+    for (unsigned i = 0; i < length; ++i) {
+        JSValue element = this->tryGetIndexQuickly(i);
+        if (!element) {
+            element = this->get(globalObject, i);
+            RETURN_IF_EXCEPTION(scope, { });
+        }
+        joiner.append(globalObject, element);
+        RETURN_IF_EXCEPTION(scope, { });
+    }
+
+    RELEASE_AND_RETURN(scope, joiner.join(globalObject));
 }
 
 bool JSArray::appendMemcpy(JSGlobalObject* globalObject, VM& vm, unsigned startIndex, IndexingType otherType, std::span<const EncodedJSValue> values)
@@ -1924,6 +1975,22 @@ bool JSArray::isIteratorProtocolFastAndNonObservable()
         return false;
 
     return true;
+}
+
+bool JSArray::isToPrimitiveFastAndNonObservable()
+{
+    JSGlobalObject* globalObject = this->globalObject();
+    if (!globalObject->arrayPrototypeChainIsSane()) [[unlikely]]
+        return false;
+    if (!globalObject->arrayToStringWatchpointSet().isStillValid()) [[unlikely]]
+        return false;
+    if (!globalObject->arraySymbolToPrimitiveWatchpointSet().isStillValid()) [[unlikely]]
+        return false;
+    if (!globalObject->arrayJoinWatchpointSet().isStillValid()) [[unlikely]]
+        return false;
+
+    Structure* structure = this->structure();
+    return globalObject->isOriginalArrayStructure(structure);
 }
 
 template<AllocationFailureMode failureMode>
