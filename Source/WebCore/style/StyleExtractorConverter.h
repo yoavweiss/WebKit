@@ -136,6 +136,10 @@ template<typename T> requires std::is_enum_v<T> struct CSSValueCreation<T> {
 
 class ExtractorConverter {
 public:
+    // MARK: Strong value conversions
+
+    template<typename T> static Ref<CSSValue> convertStyleType(ExtractorState&, const T&);
+
     // MARK: Primitive conversions
 
     template<typename ConvertibleType>
@@ -176,24 +180,6 @@ public:
     static Ref<CSSValue> convertTransformationMatrix(const RenderStyle&, const TransformationMatrix&);
     static RefPtr<CSSValue> convertTransformOperation(ExtractorState&, const TransformOperation&);
     static RefPtr<CSSValue> convertTransformOperation(const RenderStyle&, const TransformOperation&);
-
-    // MARK: Strong value conversions
-
-    static Ref<CSSValue> convertColor(ExtractorState&, const Color&);
-    static Ref<CSSValue> convertInsetEdge(ExtractorState&, const InsetEdge&);
-    static Ref<CSSValue> convertMarginEdge(ExtractorState&, const MarginEdge&);
-    static Ref<CSSValue> convertPaddingEdge(ExtractorState&, const PaddingEdge&);
-    static Ref<CSSValue> convertScrollMarginEdge(ExtractorState&, const ScrollMarginEdge&);
-    static Ref<CSSValue> convertScrollPaddingEdge(ExtractorState&, const ScrollPaddingEdge&);
-    static Ref<CSSValue> convertCornerShapeValue(ExtractorState&, const CornerShapeValue&);
-    static Ref<CSSValue> convertDynamicRangeLimit(ExtractorState&, const DynamicRangeLimit&);
-    static Ref<CSSValue> convertPreferredSize(ExtractorState&, const PreferredSize&);
-    static Ref<CSSValue> convertMaximumSize(ExtractorState&, const MaximumSize&);
-    static Ref<CSSValue> convertMinimumSize(ExtractorState&, const MinimumSize&);
-    static Ref<CSSValue> convertFlexBasis(ExtractorState&, const FlexBasis&);
-#if ENABLE(DARK_MODE_CSS)
-    static Ref<CSSValue> convertColorScheme(ExtractorState&, const ColorScheme&);
-#endif
 
     // MARK: Shared conversions
 
@@ -349,6 +335,13 @@ public:
     static Ref<CSSValue> convertGridTrackSizeList(ExtractorState&, const Vector<GridTrackSize>&);
 };
 
+// MARK: - Strong value conversions
+
+template<typename T> Ref<CSSValue> ExtractorConverter::convertStyleType(ExtractorState& state, const T& value)
+{
+    return createCSSValue(state.pool, state.style, value);
+}
+
 // MARK: - Primitive conversions
 
 template<typename ConvertibleType>
@@ -495,12 +488,12 @@ inline Ref<CSSValue> ExtractorConverter::convertSVGPaint(ExtractorState& state, 
         if (paintType == SVGPaintType::URINone)
             values.append(CSSPrimitiveValue::create(CSSValueNone));
         else if (paintType == SVGPaintType::URICurrentColor || paintType == SVGPaintType::URIRGBColor)
-            values.append(convertColor(state, color));
+            values.append(convertStyleType(state, color));
         return CSSValueList::createSpaceSeparated(WTFMove(values));
     }
     if (paintType == SVGPaintType::None)
         return CSSPrimitiveValue::create(CSSValueNone);
-    return convertColor(state, color);
+    return convertStyleType(state, color);
 }
 
 // MARK: - Transform conversions
@@ -633,75 +626,6 @@ inline RefPtr<CSSValue> ExtractorConverter::convertTransformOperation(const Rend
     ASSERT_NOT_REACHED();
     return nullptr;
 }
-
-// MARK: - Strong value conversions
-
-inline Ref<CSSValue> ExtractorConverter::convertColor(ExtractorState& state, const Color& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertInsetEdge(ExtractorState& state, const InsetEdge& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertMarginEdge(ExtractorState& state, const MarginEdge& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertPaddingEdge(ExtractorState& state, const PaddingEdge& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertScrollMarginEdge(ExtractorState& state, const ScrollMarginEdge& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertScrollPaddingEdge(ExtractorState& state, const ScrollPaddingEdge& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertCornerShapeValue(ExtractorState& state, const CornerShapeValue& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertDynamicRangeLimit(ExtractorState& state, const DynamicRangeLimit& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertPreferredSize(ExtractorState& state, const PreferredSize& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertMaximumSize(ExtractorState& state, const MaximumSize& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertMinimumSize(ExtractorState& state, const MinimumSize& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertFlexBasis(ExtractorState& state, const FlexBasis& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-
-#if ENABLE(DARK_MODE_CSS)
-inline Ref<CSSValue> ExtractorConverter::convertColorScheme(ExtractorState& state, const ColorScheme& value)
-{
-    return createCSSValue(state.pool, state.style, value);
-}
-#endif
 
 // MARK: - Shared conversions
 
@@ -1247,8 +1171,8 @@ inline Ref<CSSValue> ExtractorConverter::convertScrollbarColor(ExtractorState& s
     if (!scrollbarColor)
         return CSSPrimitiveValue::create(CSSValueAuto);
     return CSSValuePair::createNoncoalescing(
-        convertColor(state, scrollbarColor->thumbColor),
-        convertColor(state, scrollbarColor->trackColor)
+        convertStyleType(state, scrollbarColor->thumbColor),
+        convertStyleType(state, scrollbarColor->trackColor)
     );
 }
 

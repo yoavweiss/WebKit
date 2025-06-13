@@ -103,7 +103,7 @@ using ScrollMarginBox = MinimallySerializingSpaceSeparatedRectEdges<ScrollMargin
 
 // MARK: - Conversion
 
-ScrollMarginEdge scrollMarginEdgeFromCSSValue(const CSSValue&, BuilderState&);
+template<> struct CSSValueConversion<ScrollMarginEdge> { auto operator()(BuilderState&, const CSSValue&) -> ScrollMarginEdge; };
 
 // MARK: - Evaluation
 

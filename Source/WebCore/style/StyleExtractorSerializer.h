@@ -46,6 +46,10 @@ template<typename T> requires std::is_enum_v<T> struct Serialize<T> {
 
 class ExtractorSerializer {
 public:
+    // MARK: Strong value conversions
+
+    template<typename T> static void serializeStyleType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const T&);
+
     // MARK: Primitive serializations
 
     template<typename ConvertibleType>
@@ -86,24 +90,6 @@ public:
     static void serializeTransformationMatrix(const RenderStyle&, StringBuilder&, const CSS::SerializationContext&, const TransformationMatrix&);
     static void serializeTransformOperation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TransformOperation&);
     static void serializeTransformOperation(const RenderStyle&, StringBuilder&, const CSS::SerializationContext&, const TransformOperation&);
-
-    // MARK: Strong value conversions
-
-    static void serializeColor(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const Color&);
-    static void serializeInsetEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const InsetEdge&);
-    static void serializeMarginEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const MarginEdge&);
-    static void serializePaddingEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const PaddingEdge&);
-    static void serializeScrollMarginEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollMarginEdge&);
-    static void serializeScrollPaddingEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollPaddingEdge&);
-    static void serializeCornerShapeValue(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const CornerShapeValue&);
-    static void serializeDynamicRangeLimit(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const DynamicRangeLimit&);
-    static void serializePreferredSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const PreferredSize&);
-    static void serializeMaximumSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const MaximumSize&);
-    static void serializeMinimumSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const MinimumSize&);
-    static void serializeFlexBasis(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FlexBasis&);
-#if ENABLE(DARK_MODE_CSS)
-    static void serializeColorScheme(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ColorScheme&);
-#endif
 
     // MARK: Shared serializations
 
@@ -257,6 +243,13 @@ public:
     static void serializeGridTrackSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const GridTrackSize&);
     static void serializeGridTrackSizeList(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const Vector<GridTrackSize>&);
 };
+
+// MARK: - Strong value serializations
+
+template<typename T> void ExtractorSerializer::serializeStyleType(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const T& value)
+{
+    serializationForCSS(builder, context, state.style, value);
+}
 
 // MARK: - Primitive serializations
 
@@ -515,7 +508,7 @@ inline void ExtractorSerializer::serializeSVGPaint(ExtractorState& state, String
         [[fallthrough]];
     case SVGPaintType::RGBColor:
     case SVGPaintType::CurrentColor:
-        serializeColor(state, builder, context, color);
+        serializeStyleType(state, builder, context, color);
         return;
     }
 
@@ -744,75 +737,6 @@ inline void ExtractorSerializer::serializeTransformOperation(const RenderStyle& 
 
     RELEASE_ASSERT_NOT_REACHED();
 }
-
-// MARK: - Strong value serializations
-
-inline void ExtractorSerializer::serializeColor(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const Color& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeInsetEdge(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const InsetEdge& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeMarginEdge(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const MarginEdge& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializePaddingEdge(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const PaddingEdge& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeScrollMarginEdge(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ScrollMarginEdge& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeScrollPaddingEdge(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ScrollPaddingEdge& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeCornerShapeValue(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const CornerShapeValue& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeDynamicRangeLimit(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const DynamicRangeLimit& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializePreferredSize(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const PreferredSize& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeMaximumSize(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const MaximumSize& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeMinimumSize(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const MinimumSize& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-inline void ExtractorSerializer::serializeFlexBasis(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FlexBasis& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-
-#if ENABLE(DARK_MODE_CSS)
-inline void ExtractorSerializer::serializeColorScheme(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ColorScheme& value)
-{
-    serializationForCSS(builder, context, state.style, value);
-}
-#endif
 
 // MARK: - Shared serializations
 
@@ -1527,9 +1451,9 @@ inline void ExtractorSerializer::serializeScrollbarColor(ExtractorState& state, 
         return;
     }
 
-    serializeColor(state, builder, context, scrollbarColor->thumbColor);
+    serializeStyleType(state, builder, context, scrollbarColor->thumbColor);
     builder.append(' ');
-    serializeColor(state, builder, context, scrollbarColor->trackColor);
+    serializeStyleType(state, builder, context, scrollbarColor->trackColor);
 }
 
 inline void ExtractorSerializer::serializeScrollbarGutter(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ScrollbarGutter& gutter)

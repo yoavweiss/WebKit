@@ -107,7 +107,6 @@ struct PreferredSize {
     ALWAYS_INLINE bool isIntrinsicOrLegacyIntrinsicOrAuto() const { return m_value.isIntrinsicOrLegacyIntrinsicOrAuto(); }
     ALWAYS_INLINE bool isSpecifiedOrIntrinsic() const { return m_value.isSpecifiedOrIntrinsic(); }
 
-    // For the following three functions, attempt to match the behaviors of the ones in WebCore::Length.
     ALWAYS_INLINE bool isZero() const { return m_value.isZero(); }
     ALWAYS_INLINE bool isPositive() const { return m_value.isPositive(); }
     ALWAYS_INLINE bool isNegative() const { return m_value.isNegative(); }
@@ -207,7 +206,7 @@ using PreferredSizePair = SpaceSeparatedSize<PreferredSize>;
 
 // MARK: - Conversion
 
-PreferredSize preferredSizeFromCSSValue(const CSSValue&, BuilderState&);
+template<> struct CSSValueConversion<PreferredSize> { auto operator()(BuilderState&, const CSSValue&) -> PreferredSize; };
 
 // MARK: - Evaluation
 

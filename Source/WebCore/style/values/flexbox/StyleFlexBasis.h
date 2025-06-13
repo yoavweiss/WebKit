@@ -91,7 +91,6 @@ struct FlexBasis {
     ALWAYS_INLINE bool isIntrinsicOrLegacyIntrinsicOrAuto() const { return m_value.isIntrinsicOrLegacyIntrinsicOrAuto(); }
     ALWAYS_INLINE bool isSpecifiedOrIntrinsic() const { return m_value.isSpecifiedOrIntrinsic(); }
 
-    // For the following three functions, attempt to match the behaviors of the ones in WebCore::Length.
     ALWAYS_INLINE bool isZero() const { return m_value.isZero(); }
     ALWAYS_INLINE bool isPositive() const { return m_value.isPositive(); }
     ALWAYS_INLINE bool isNegative() const { return m_value.isNegative(); }
@@ -188,7 +187,7 @@ private:
 
 // MARK: - Conversion
 
-FlexBasis flexBasisFromCSSValue(const CSSValue&, BuilderState&);
+template<> struct CSSValueConversion<FlexBasis> { auto operator()(BuilderState&, const CSSValue&) -> FlexBasis; };
 
 // MARK: - Evaluation
 

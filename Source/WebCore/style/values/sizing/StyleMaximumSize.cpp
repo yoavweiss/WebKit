@@ -34,9 +34,11 @@ namespace Style {
 
 // MARK: - Conversion
 
-MaximumSize maximumSizeFromCSSValue(const CSSValue& value, BuilderState& state)
+auto CSSValueConversion<MaximumSize>::operator()(BuilderState& state, const CSSValue& value) -> MaximumSize
 {
-    return MaximumSize { BuilderConverter::convertLengthMaxSizing(state, value) };
+    if (value.valueID() == CSSValueNone)
+        return MaximumSize { CSS::Keyword::None { } };
+    return MaximumSize { BuilderConverter::convertLengthSizing(state, value) };
 }
 
 // MARK: - Blending

@@ -41,7 +41,7 @@ std::optional<PreferredSize> FlexBasis::tryPreferredSize() const
 
 // MARK: - Conversion
 
-FlexBasis flexBasisFromCSSValue(const CSSValue& value, BuilderState& state)
+auto CSSValueConversion<FlexBasis>::operator()(BuilderState& state, const CSSValue& value) -> FlexBasis
 {
     return FlexBasis { BuilderConverter::convertLengthSizing(state, value) };
 }

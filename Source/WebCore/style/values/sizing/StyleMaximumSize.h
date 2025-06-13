@@ -197,7 +197,7 @@ using MaximumSizePair = SpaceSeparatedSize<MaximumSize>;
 
 // MARK: - Conversion
 
-MaximumSize maximumSizeFromCSSValue(const CSSValue&, BuilderState&);
+template<> struct CSSValueConversion<MaximumSize> { auto operator()(BuilderState&, const CSSValue&) -> MaximumSize; };
 
 // MARK: - Evaluation
 

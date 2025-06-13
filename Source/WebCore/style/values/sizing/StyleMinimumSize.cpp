@@ -45,7 +45,7 @@ MinimumSize::MinimumSize(const PreferredSize& other)
 
 // MARK: - Conversion
 
-MinimumSize minimumSizeFromCSSValue(const CSSValue& value, BuilderState& state)
+auto CSSValueConversion<MinimumSize>::operator()(BuilderState& state, const CSSValue& value) -> MinimumSize
 {
     return MinimumSize { BuilderConverter::convertLengthSizing(state, value) };
 }

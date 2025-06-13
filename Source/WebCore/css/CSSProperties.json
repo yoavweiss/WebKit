@@ -3672,7 +3672,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialInset",
-                "style-builder-converter": "InsetEdge",
+                "style-builder-converter": "StyleType<InsetEdge>",
                 "style-extractor-custom": true,
                 "parser-grammar": "auto | <length-percentage anchor=allowed anchor-size=allowed>"
             },
@@ -4035,7 +4035,7 @@
                 "disables-native-appearance": true,
                 "parser-grammar": "<corner-shape-value>",
                 "render-style-initial": "initialCornerShapeValue",
-                "style-converter": "CornerShapeValue",
+                "style-converter": "StyleType<CornerShapeValue>",
                 "settings-flag": "cssCornerShapeEnabled"
             },
             "specification": {
@@ -4055,7 +4055,7 @@
                 "disables-native-appearance": true,
                 "parser-grammar": "<corner-shape-value>",
                 "render-style-initial": "initialCornerShapeValue",
-                "style-converter": "CornerShapeValue",
+                "style-converter": "StyleType<CornerShapeValue>",
                 "settings-flag": "cssCornerShapeEnabled"
             },
             "specification": {
@@ -4075,7 +4075,7 @@
                 "disables-native-appearance": true,
                 "parser-grammar": "<corner-shape-value>",
                 "render-style-initial": "initialCornerShapeValue",
-                "style-converter": "CornerShapeValue",
+                "style-converter": "StyleType<CornerShapeValue>",
                 "settings-flag": "cssCornerShapeEnabled"
             },
             "specification": {
@@ -4095,7 +4095,7 @@
                 "disables-native-appearance": true,
                 "parser-grammar": "<corner-shape-value>",
                 "render-style-initial": "initialCornerShapeValue",
-                "style-converter": "CornerShapeValue",
+                "style-converter": "StyleType<CornerShapeValue>",
                 "settings-flag": "cssCornerShapeEnabled"
             },
             "specification": {
@@ -4408,7 +4408,7 @@
             "codegen-properties": {
                 "animation-wrapper-comment": "FIXME: Use StyleTypeWrapper when dynamic-range-limit-mix() is implemented; see webkit.org/b/293339",
                 "settings-flag": "supportHDRDisplayEnabled",
-                "style-converter": "DynamicRangeLimit",
+                "style-converter": "StyleType<DynamicRangeLimit>",
                 "parser-function": "consumeDynamicRangeLimit",
                 "parser-grammar-unused": "<<values>> | <dynamic-range-limit-mix()>",
                 "parser-grammar-unused-reason": "Needs support for the strong value representation and recursive grammars."
@@ -4657,7 +4657,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialSize",
-                "style-builder-converter": "PreferredSize",
+                "style-builder-converter": "StyleType<PreferredSize>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<width-or-height>"
             },
@@ -4921,7 +4921,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialInset",
-                "style-builder-converter": "InsetEdge",
+                "style-builder-converter": "StyleType<InsetEdge>",
                 "style-extractor-custom": true,
                 "parser-grammar": "auto | <length-percentage anchor=allowed anchor-size=allowed>"
             },
@@ -5281,7 +5281,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialMargin",
-                "style-builder-converter": "MarginEdge",
+                "style-builder-converter": "StyleType<MarginEdge>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<length-percentage anchor-size=allowed> | auto"
             },
@@ -5363,7 +5363,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialMargin",
-                "style-builder-converter": "MarginEdge",
+                "style-builder-converter": "StyleType<MarginEdge>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<length-percentage anchor-size=allowed> | auto"
             },
@@ -5386,7 +5386,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialMargin",
-                "style-builder-converter": "MarginEdge",
+                "style-builder-converter": "StyleType<MarginEdge>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<length-percentage anchor-size=allowed> | auto"
             },
@@ -5409,7 +5409,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialMargin",
-                "style-builder-converter": "MarginEdge",
+                "style-builder-converter": "StyleType<MarginEdge>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<length-percentage anchor-size=allowed> | auto"
             },
@@ -6061,7 +6061,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialMaxSize",
-                "style-builder-converter": "MaximumSize",
+                "style-builder-converter": "StyleType<MaximumSize>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<max-width-or-height>"
             },
@@ -6195,7 +6195,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialMaxSize",
-                "style-builder-converter": "MaximumSize",
+                "style-builder-converter": "StyleType<MaximumSize>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<max-width-or-height>"
             },
@@ -6310,7 +6310,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialMinSize",
-                "style-builder-converter": "MinimumSize",
+                "style-builder-converter": "StyleType<MinimumSize>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<width-or-height>"
             },
@@ -6425,7 +6425,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialMinSize",
-                "style-builder-converter": "MinimumSize",
+                "style-builder-converter": "StyleType<MinimumSize>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<width-or-height>"
             },
@@ -7044,7 +7044,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialPadding",
-                "style-builder-converter": "PaddingEdge",
+                "style-builder-converter": "StyleType<PaddingEdge>",
                 "style-builder-custom": "All",
                 "style-extractor-custom": true,
                 "parser-grammar": "<length-percentage [0,inf]>"
@@ -7118,7 +7118,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialPadding",
-                "style-builder-converter": "PaddingEdge",
+                "style-builder-converter": "StyleType<PaddingEdge>",
                 "style-builder-custom": "All",
                 "style-extractor-custom": true,
                 "parser-grammar": "<length-percentage [0,inf]>"
@@ -7139,7 +7139,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialPadding",
-                "style-builder-converter": "PaddingEdge",
+                "style-builder-converter": "StyleType<PaddingEdge>",
                 "style-builder-custom": "All",
                 "style-extractor-custom": true,
                 "parser-grammar": "<length-percentage [0,inf]>"
@@ -7160,7 +7160,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialPadding",
-                "style-builder-converter": "PaddingEdge",
+                "style-builder-converter": "StyleType<PaddingEdge>",
                 "style-builder-custom": "All",
                 "style-extractor-custom": true,
                 "parser-grammar": "<length-percentage [0,inf]>"
@@ -7381,7 +7381,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialInset",
-                "style-builder-converter": "InsetEdge",
+                "style-builder-converter": "StyleType<InsetEdge>",
                 "style-extractor-custom": true,
                 "parser-grammar": "auto | <length-percentage anchor=allowed anchor-size=allowed>"
             },
@@ -8068,7 +8068,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialInset",
-                "style-builder-converter": "InsetEdge",
+                "style-builder-converter": "StyleType<InsetEdge>",
                 "style-extractor-custom": true,
                 "parser-grammar": "auto | <length-percentage anchor=allowed anchor-size=allowed>"
             },
@@ -8411,7 +8411,7 @@
                 "accepts-quirky-length": true,
                 "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialSize",
-                "style-builder-converter": "PreferredSize",
+                "style-builder-converter": "StyleType<PreferredSize>",
                 "style-extractor-custom": true,
                 "parser-grammar": "<width-or-height>"
             },
@@ -9672,7 +9672,7 @@
                     "-webkit-flex-basis"
                 ],
                 "animation-wrapper": "StyleTypeWrapper",
-                "style-converter": "FlexBasis",
+                "style-converter": "StyleType<FlexBasis>",
                 "parser-grammar": "auto | content | <width-or-height-keyword> | <length-percentage [0,inf]>"
             },
             "specification": {
@@ -10615,7 +10615,7 @@
                 "aliases": [
                     "supported-color-schemes"
                 ],
-                "style-converter": "ColorScheme",
+                "style-converter": "StyleType<ColorScheme>",
                 "style-builder-custom": "Value",
                 "enable-if": "ENABLE_DARK_MODE_CSS",
                 "top-priority": true,
@@ -11463,8 +11463,6 @@
             "animation-type-comment": "Current spec animation type is 'by computed value'",
             "initial": "0px",
             "codegen-properties": {
-                "render-style-initial": "initialScrollMargin",
-                "style-converter": "ScrollMarginEdge",
                 "aliases": [
                     "scroll-snap-margin-bottom"
                 ],
@@ -11472,6 +11470,8 @@
                     "name": "scroll-margin",
                     "resolver": "bottom"
                 },
+                "render-style-initial": "initialScrollMargin",
+                "style-converter": "StyleType<ScrollMarginEdge>",
                 "parser-grammar": "<length>"
             },
             "specification": {
@@ -11484,8 +11484,6 @@
             "animation-type-comment": "Current spec animation type is 'by computed value'",
             "initial": "0px",
             "codegen-properties": {
-                "render-style-initial": "initialScrollMargin",
-                "style-converter": "ScrollMarginEdge",
                 "aliases": [
                     "scroll-snap-margin-left"
                 ],
@@ -11493,6 +11491,8 @@
                     "name": "scroll-margin",
                     "resolver": "left"
                 },
+                "render-style-initial": "initialScrollMargin",
+                "style-converter": "StyleType<ScrollMarginEdge>",
                 "parser-grammar": "<length>"
             },
             "specification": {
@@ -11505,8 +11505,6 @@
             "animation-type-comment": "Current spec animation type is 'by computed value'",
             "initial": "0px",
             "codegen-properties": {
-                "render-style-initial": "initialScrollMargin",
-                "style-converter": "ScrollMarginEdge",
                 "aliases": [
                     "scroll-snap-margin-right"
                 ],
@@ -11514,6 +11512,8 @@
                     "name": "scroll-margin",
                     "resolver": "right"
                 },
+                "render-style-initial": "initialScrollMargin",
+                "style-converter": "StyleType<ScrollMarginEdge>",
                 "parser-grammar": "<length>"
             },
             "specification": {
@@ -11526,8 +11526,6 @@
             "animation-type-comment": "Current spec animation type is 'by computed value'",
             "initial": "0px",
             "codegen-properties": {
-                "render-style-initial": "initialScrollMargin",
-                "style-converter": "ScrollMarginEdge",
                 "aliases": [
                     "scroll-snap-margin-top"
                 ],
@@ -11535,6 +11533,8 @@
                     "name": "scroll-margin",
                     "resolver": "top"
                 },
+                "render-style-initial": "initialScrollMargin",
+                "style-converter": "StyleType<ScrollMarginEdge>",
                 "parser-grammar": "<length>"
             },
             "specification": {
@@ -11665,12 +11665,12 @@
                 "auto"
             ],
             "codegen-properties": {
-                "render-style-initial": "initialScrollPadding",
-                "style-converter": "ScrollPaddingEdge",
                 "logical-property-group": {
                     "name": "scroll-padding",
                     "resolver": "bottom"
                 },
+                "render-style-initial": "initialScrollPadding",
+                "style-converter": "StyleType<ScrollPaddingEdge>",
                 "parser-grammar": "auto | <length-percentage [0,inf]>"
             },
             "specification": {
@@ -11686,12 +11686,12 @@
                 "auto"
             ],
             "codegen-properties": {
-                "render-style-initial": "initialScrollPadding",
-                "style-converter": "ScrollPaddingEdge",
                 "logical-property-group": {
                     "name": "scroll-padding",
                     "resolver": "left"
                 },
+                "render-style-initial": "initialScrollPadding",
+                "style-converter": "StyleType<ScrollPaddingEdge>",
                 "parser-grammar": "auto | <length-percentage [0,inf]>"
             },
             "specification": {
@@ -11707,12 +11707,12 @@
                 "auto"
             ],
             "codegen-properties": {
-                "render-style-initial": "initialScrollPadding",
-                "style-converter": "ScrollPaddingEdge",
                 "logical-property-group": {
                     "name": "scroll-padding",
                     "resolver": "right"
                 },
+                "render-style-initial": "initialScrollPadding",
+                "style-converter": "StyleType<ScrollPaddingEdge>",
                 "parser-grammar": "auto | <length-percentage [0,inf]>"
             },
             "specification": {
@@ -11728,12 +11728,12 @@
                 "auto"
             ],
             "codegen-properties": {
-                "render-style-initial": "initialScrollPadding",
-                "style-converter": "ScrollPaddingEdge",
                 "logical-property-group": {
                     "name": "scroll-padding",
                     "resolver": "top"
                 },
+                "render-style-initial": "initialScrollPadding",
+                "style-converter": "StyleType<ScrollPaddingEdge>",
                 "parser-grammar": "auto | <length-percentage [0,inf]>"
             },
             "specification": {

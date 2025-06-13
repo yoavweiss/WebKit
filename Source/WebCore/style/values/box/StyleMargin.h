@@ -154,7 +154,7 @@ using MarginBox = MinimallySerializingSpaceSeparatedRectEdges<MarginEdge>;
 
 // MARK: - Conversion
 
-MarginEdge marginEdgeFromCSSValue(const CSSValue&, BuilderState&);
+template<> struct CSSValueConversion<MarginEdge> { auto operator()(BuilderState&, const CSSValue&) -> MarginEdge; };
 
 // MARK: - Evaluation
 

@@ -152,7 +152,7 @@ using ScrollPaddingBox = MinimallySerializingSpaceSeparatedRectEdges<ScrollPaddi
 
 // MARK: - Conversion
 
-ScrollPaddingEdge scrollPaddingEdgeFromCSSValue(const CSSValue&, BuilderState&);
+template<> struct CSSValueConversion<ScrollPaddingEdge> { auto operator()(BuilderState&, const CSSValue&) -> ScrollPaddingEdge; };
 
 // MARK: - Evaluation
 

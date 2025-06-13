@@ -152,7 +152,7 @@ using InsetBox = MinimallySerializingSpaceSeparatedRectEdges<InsetEdge>;
 
 // MARK: - Conversion
 
-InsetEdge insetEdgeFromCSSValue(const CSSValue&, BuilderState&);
+template<> struct CSSValueConversion<InsetEdge> { auto operator()(BuilderState&, const CSSValue&) -> InsetEdge; };
 
 // MARK: - Evaluation
 

@@ -148,7 +148,7 @@ using PaddingBox = MinimallySerializingSpaceSeparatedRectEdges<PaddingEdge>;
 
 // MARK: - Conversion
 
-PaddingEdge paddingEdgeFromCSSValue(const CSSValue&, BuilderState&);
+template<> struct CSSValueConversion<PaddingEdge> { auto operator()(BuilderState&, const CSSValue&) -> PaddingEdge; };
 
 // MARK: - Evaluation
 

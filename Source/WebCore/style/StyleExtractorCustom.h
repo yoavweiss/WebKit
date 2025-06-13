@@ -430,7 +430,7 @@ template<CSSPropertyID propertyID, typename InsetEdgeApplier, typename NumberAsP
 template<CSSPropertyID propertyID> Ref<CSSValue> extractZoomAdjustedInsetValue(ExtractorState& state)
 {
     return extractZoomAdjustedInset<propertyID>(state,
-        [&](const auto& edge)   -> Ref<CSSValue> { return ExtractorConverter::convertInsetEdge(state, edge); },
+        [&](const auto& edge)   -> Ref<CSSValue> { return ExtractorConverter::convertStyleType(state, edge); },
         [&](const auto& number) -> Ref<CSSValue> { return ExtractorConverter::convertNumberAsPixels(state, number); },
         [&](const auto& value)  -> Ref<CSSValue> { return CSSPrimitiveValue::create(value); }
     );
@@ -439,7 +439,7 @@ template<CSSPropertyID propertyID> Ref<CSSValue> extractZoomAdjustedInsetValue(E
 template<CSSPropertyID propertyID> void extractZoomAdjustedInsetSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     extractZoomAdjustedInset<propertyID>(state,
-        [&](const auto& edge)   { ExtractorSerializer::serializeInsetEdge(state, builder, context, edge); },
+        [&](const auto& edge)   { ExtractorSerializer::serializeStyleType(state, builder, context, edge); },
         [&](const auto& number) { ExtractorSerializer::serializeNumberAsPixels(state, builder, context, number); },
         [&](const auto& value)  { builder.append(nameLiteralForSerialization(value)); }
     );
@@ -500,7 +500,7 @@ template<auto styleGetter, auto computedCSSValueGetter> Ref<CSSValue> extractZoo
 {
     auto* renderBox = dynamicDowncast<RenderBox>(state.renderer);
     if (!renderBox)
-        return ExtractorConverter::convertMarginEdge(state, (state.style.*styleGetter)());
+        return ExtractorConverter::convertStyleType(state, (state.style.*styleGetter)());
     return ExtractorConverter::convertNumberAsPixels(state, (renderBox->*computedCSSValueGetter)());
 }
 
@@ -508,7 +508,7 @@ template<auto styleGetter, auto computedCSSValueGetter> void extractZoomAdjusted
 {
     auto* renderBox = dynamicDowncast<RenderBox>(state.renderer);
     if (!renderBox) {
-        ExtractorSerializer::serializeMarginEdge(state, builder, context, (state.style.*styleGetter)());
+        ExtractorSerializer::serializeStyleType(state, builder, context, (state.style.*styleGetter)());
         return;
     }
 
@@ -520,7 +520,7 @@ template<auto styleGetter, auto computedCSSValueGetter> Ref<CSSValue> extractZoo
     auto& paddingEdge  = (state.style.*styleGetter)();
     auto* renderBox = dynamicDowncast<RenderBox>(state.renderer);
     if (!renderBox || paddingEdge.isFixed())
-        return ExtractorConverter::convertPaddingEdge(state, paddingEdge);
+        return ExtractorConverter::convertStyleType(state, paddingEdge);
     return ExtractorConverter::convertNumberAsPixels(state, (renderBox->*computedCSSValueGetter)());
 }
 
@@ -529,7 +529,7 @@ template<auto styleGetter, auto computedCSSValueGetter> void extractZoomAdjusted
     auto paddingEdge = (state.style.*styleGetter)();
     auto* renderBox = dynamicDowncast<RenderBox>(state.renderer);
     if (!renderBox || paddingEdge.isFixed()) {
-        ExtractorSerializer::serializePaddingEdge(state, builder, context, paddingEdge);
+        ExtractorSerializer::serializeStyleType(state, builder, context, paddingEdge);
         return;
     }
     ExtractorSerializer::serializeNumberAsPixels(state, builder, context, (renderBox->*computedCSSValueGetter)());
@@ -554,7 +554,7 @@ template<auto styleGetter, auto boxGetter> Ref<CSSValue> extractZoomAdjustedPref
         if (!isNonReplacedInline(*state.renderer))
             return ExtractorConverter::convertNumberAsPixels(state, (sizingBox(*state.renderer).*boxGetter)());
     }
-    return ExtractorConverter::convertPreferredSize(state, (state.style.*styleGetter)());
+    return ExtractorConverter::convertStyleType(state, (state.style.*styleGetter)());
 }
 
 template<auto styleGetter, auto boxGetter> void extractZoomAdjustedPreferredSizeSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
@@ -579,7 +579,7 @@ template<auto styleGetter, auto boxGetter> void extractZoomAdjustedPreferredSize
         }
     }
 
-    ExtractorSerializer::serializePreferredSize(state, builder, context, (state.style.*styleGetter)());
+    ExtractorSerializer::serializeStyleType(state, builder, context, (state.style.*styleGetter)());
 }
 
 template<auto styleGetter> Ref<CSSValue> extractZoomAdjustedMaxSizeValue(ExtractorState& state)
@@ -587,7 +587,7 @@ template<auto styleGetter> Ref<CSSValue> extractZoomAdjustedMaxSizeValue(Extract
     auto unzoomedLength = (state.style.*styleGetter)();
     if (unzoomedLength.isNone())
         return CSSPrimitiveValue::create(CSSValueNone);
-    return ExtractorConverter::convertMaximumSize(state, unzoomedLength);
+    return ExtractorConverter::convertStyleType(state, unzoomedLength);
 }
 
 template<auto styleGetter> void extractZoomAdjustedMaxSizeSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
@@ -598,7 +598,7 @@ template<auto styleGetter> void extractZoomAdjustedMaxSizeSerialization(Extracto
         return;
     }
 
-    ExtractorSerializer::serializeMaximumSize(state, builder, context, unzoomedLength);
+    ExtractorSerializer::serializeStyleType(state, builder, context, unzoomedLength);
 }
 
 template<auto styleGetter> Ref<CSSValue> extractZoomAdjustedMinSizeValue(ExtractorState& state)
@@ -614,7 +614,7 @@ template<auto styleGetter> Ref<CSSValue> extractZoomAdjustedMinSizeValue(Extract
             return CSSPrimitiveValue::create(CSSValueAuto);
         return ExtractorConverter::convertNumberAsPixels(state, 0);
     }
-    return ExtractorConverter::convertMinimumSize(state, unzoomedLength);
+    return ExtractorConverter::convertStyleType(state, unzoomedLength);
 }
 
 template<auto styleGetter> void extractZoomAdjustedMinSizeSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
@@ -635,7 +635,7 @@ template<auto styleGetter> void extractZoomAdjustedMinSizeSerialization(Extracto
         return;
     }
 
-    ExtractorSerializer::serializeMinimumSize(state, builder, context, unzoomedLength);
+    ExtractorSerializer::serializeStyleType(state, builder, context, unzoomedLength);
 }
 
 template<CSSPropertyID propertyID> Ref<CSSValue> extractCounterValue(ExtractorState& state)
@@ -1962,7 +1962,7 @@ inline Ref<CSSValue> ExtractorCustom::extractMarginRight(ExtractorState& state)
 
     auto& marginRight = state.style.marginRight();
     if (marginRight.isFixed() || !box)
-        return ExtractorConverter::convertMarginEdge(state, marginRight);
+        return ExtractorConverter::convertStyleType(state, marginRight);
 
     float value;
     if (marginRight.isPercentOrCalculated()) {
@@ -1985,7 +1985,7 @@ inline void ExtractorCustom::extractMarginRightSerialization(ExtractorState& sta
 
     auto& marginRight = state.style.marginRight();
     if (marginRight.isFixed() || !box) {
-        ExtractorSerializer::serializeMarginEdge(state, builder, context, marginRight);
+        ExtractorSerializer::serializeStyleType(state, builder, context, marginRight);
         return;
     }
 
