@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2005-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -385,10 +386,10 @@ protected:
     virtual Style::PaddingBox controlPadding(StyleAppearance, const Style::PaddingBox&, float zoomFactor) const;
 
     // The size here is in zoomed coordinates already. If a new size is returned, it also needs to be in zoomed coordinates.
-    virtual LengthSize controlSize(StyleAppearance, const FontCascade&, const LengthSize&, float) const;
+    virtual Style::PreferredSizePair controlSize(StyleAppearance, const FontCascade&, const Style::PreferredSizePair&, float zoomFactor) const;
 
     // Returns the minimum size for a control in zoomed coordinates.
-    LengthSize minimumControlSize(StyleAppearance, const FontCascade&, const LengthSize& zoomedSize, const LengthSize& nonShrinkableZoomedSize, float zoomFactor) const;
+    Style::MinimumSizePair minimumControlSize(StyleAppearance, const FontCascade&, const Style::MinimumSizePair&, const Style::PreferredSizePair&, float zoomFactor) const;
 
     // Allows the theme to modify the existing border.
     virtual LengthBox controlBorder(StyleAppearance, const FontCascade&, const LengthBox& zoomedBox, float zoomFactor, const Element*) const;
@@ -452,7 +453,7 @@ protected:
 
     virtual Color autocorrectionReplacementMarkerColor(const RenderText&) const;
 
-    virtual LengthSize minimumControlSize(StyleAppearance, const FontCascade&, const LengthSize& zoomedSize, float zoomFactor) const;
+    virtual Style::MinimumSizePair minimumControlSize(StyleAppearance, const FontCascade&, const Style::MinimumSizePair&, float zoomFactor) const;
 
 private:
     StyleAppearance autoAppearanceForElement(RenderStyle&, const Element*) const;
