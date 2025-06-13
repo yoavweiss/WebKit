@@ -972,6 +972,7 @@ public:
     WebCore::Color sampledPageTopColor() const;
 
     WebCore::Color underPageBackgroundColor() const;
+    WebCore::Color underPageBackgroundColorIgnoringPlatformColor() const;
     WebCore::Color underPageBackgroundColorOverride() const;
     void setUnderPageBackgroundColorOverride(WebCore::Color&&);
 

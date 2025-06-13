@@ -2820,12 +2820,22 @@ void WebPageProxy::setUnderlayColor(const Color& color)
         send(Messages::WebPage::SetUnderlayColor(color));
 }
 
-Color WebPageProxy::underPageBackgroundColor() const
+Color WebPageProxy::underPageBackgroundColorIgnoringPlatformColor() const
 {
     if (internals().underPageBackgroundColorOverride.isValid())
         return internals().underPageBackgroundColorOverride;
+
     if (internals().pageExtendedBackgroundColor.isValid())
         return internals().pageExtendedBackgroundColor;
+
+    return { };
+}
+
+Color WebPageProxy::underPageBackgroundColor() const
+{
+    if (auto color = underPageBackgroundColorIgnoringPlatformColor(); color.isValid())
+        return color;
+
     return platformUnderPageBackgroundColor();
 }
 

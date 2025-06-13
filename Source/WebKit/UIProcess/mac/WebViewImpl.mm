@@ -2422,8 +2422,12 @@ void WebViewImpl::updateTopScrollPocketCaptureColor()
 {
     RetainPtr view = m_view.get();
     RetainPtr captureColor = [view _sampledTopFixedPositionContentColor];
-    if (!captureColor && (m_pageIsScrolledToTop || [view _hasVisibleColorExtensionView:BoxSide::Top]))
-        captureColor = cocoaColor(m_page->underPageBackgroundColor());
+    if (!captureColor && (m_pageIsScrolledToTop || [view _hasVisibleColorExtensionView:BoxSide::Top])) {
+        if (auto backgroundColor = m_page->underPageBackgroundColorIgnoringPlatformColor(); backgroundColor.isValid())
+            captureColor = cocoaColor(backgroundColor);
+        else
+            captureColor = NSColor.controlBackgroundColor;
+    }
     [m_topScrollPocket setCaptureColor:captureColor.get()];
 }
 
