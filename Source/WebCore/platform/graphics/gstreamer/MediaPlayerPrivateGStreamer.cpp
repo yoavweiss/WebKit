@@ -719,10 +719,9 @@ void MediaPlayerPrivateGStreamer::updatePlaybackRate()
         auto& quirksManager = GStreamerQuirksManager::singleton();
         const auto [processed, didInstantRateChange] = quirksManager.applyCustomInstantRateChange(
             m_isPipelinePlaying, isPipelineWaitingPreroll(), m_playbackRate, mute, pipeline());
-        if (processed) {
-            if (didInstantRateChange)
+        if (processed && didInstantRateChange)
                 m_lastPlaybackRate = m_playbackRate;
-        } else if (doSeek(SeekTarget { playbackPosition() }, m_playbackRate)) {
+        else if (doSeek(SeekTarget { playbackPosition() }, m_playbackRate)) {
             g_object_set(m_pipeline.get(), "mute", mute, nullptr);
             m_lastPlaybackRate = m_playbackRate;
         } else {
