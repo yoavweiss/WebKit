@@ -1696,10 +1696,8 @@ void WebPageProxy::setDrawingArea(RefPtr<DrawingAreaProxy>&& drawingArea)
     m_drawingArea->setSize(viewSize());
 
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
-    if (m_drawingArea) {
-        if (RefPtr drawingAreaProxy = dynamicDowncast<RemoteLayerTreeDrawingAreaProxy>(*m_drawingArea))
-            m_scrollingCoordinatorProxy = drawingAreaProxy->createScrollingCoordinatorProxy();
-    }
+    if (RefPtr drawingAreaProxy = dynamicDowncast<RemoteLayerTreeDrawingAreaProxy>(*m_drawingArea))
+        m_scrollingCoordinatorProxy = drawingAreaProxy->createScrollingCoordinatorProxy();
 #endif
 }
 
@@ -2807,14 +2805,8 @@ Color WebPageProxy::underlayColor() const
 
 void WebPageProxy::setShouldSuppressHDR(bool shouldSuppressHDR)
 {
-    m_shouldSuppressHDR = shouldSuppressHDR;
     if (hasRunningProcess())
         send(Messages::WebPage::SetShouldSuppressHDR(shouldSuppressHDR));
-
-#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    if (RefPtr drawingAreaProxy = dynamicDowncast<RemoteLayerTreeDrawingAreaProxy>(*m_drawingArea))
-        drawingAreaProxy->remoteLayerTreeHost().updateLayerHDRState();
-#endif
 }
 
 void WebPageProxy::setUnderlayColor(const Color& color)

@@ -41,7 +41,6 @@
 #import <WebCore/DestinationColorSpace.h>
 #import <WebCore/GraphicsContextCG.h>
 #import <WebCore/IOSurface.h>
-#import <WebCore/PlatformDynamicRangeLimitCocoa.h>
 #import <WebCore/PlatformLayer.h>
 #import <WebCore/ShareableBitmap.h>
 #import <WebCore/WebCoreCALayerExtras.h>
@@ -163,29 +162,6 @@ bool RemoteLayerTreeHost::updateBannerLayers(const RemoteLayerTreeTransaction& t
 }
 #endif
 
-#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-static void setDynamicRangeLimitRecursive(CALayer *layer, PlatformDynamicRangeLimit platformDynamicRangeLimit)
-{
-    if ([layer toneMapMode] == CAToneMapModeIfSupported)
-        setLayerDynamicRangeLimit(layer, platformDynamicRangeLimit);
-
-    for (CALayer *sublayer in [layer sublayers])
-        setDynamicRangeLimitRecursive(sublayer, platformDynamicRangeLimit);
-}
-
-void RemoteLayerTreeHost::updateLayerHDRState() const
-{
-    RefPtr page = m_drawingArea->page();
-    if (!page || !m_rootNode)
-        return;
-
-    PlatformDynamicRangeLimit platformDynamicRangeLimit = page->shouldSuppressHDR() ? PlatformDynamicRangeLimit::defaultWhenSuppressingHDR() : PlatformDynamicRangeLimit::noLimit();
-    [CATransaction begin];
-    setDynamicRangeLimitRecursive(rootLayer(), platformDynamicRangeLimit);
-    [CATransaction commit];
-}
-#endif
-
 bool RemoteLayerTreeHost::updateLayerTree(const IPC::Connection& connection, const RemoteLayerTreeTransaction& transaction, float indicatorScaleFactor)
 {
     if (!m_drawingArea)
@@ -291,10 +267,6 @@ bool RemoteLayerTreeHost::updateLayerTree(const IPC::Connection& connection, con
         rootLayerChanged = true;
 #endif
 
-#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    updateLayerHDRState();
-#endif
-
     return rootLayerChanged;
 }
 
@@ -360,10 +332,6 @@ void RemoteLayerTreeHost::layerWillBeRemoved(WebCore::ProcessIdentifier processI
             modelPresentationManager->invalidateModel(layerID);
         m_modelLayers.remove(layerID);
     }
-#endif
-
-#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    updateLayerHDRState();
 #endif
 }
 
@@ -464,10 +432,6 @@ void RemoteLayerTreeHost::createLayer(const RemoteLayerTreeTransaction::LayerCre
     }
 
     m_nodes.add(*properties.layerID, node.releaseNonNull());
-
-#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    updateLayerHDRState();
-#endif
 }
 
 #if !PLATFORM(IOS_FAMILY)
