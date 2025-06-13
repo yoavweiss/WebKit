@@ -1007,6 +1007,7 @@ class RunAPITests(TestWithFailureCount, CustomFlagsMixin, ShellMixin):
     command = [
         "python3",
         "Tools/Scripts/run-api-tests",
+        "--timestamps",
         "--no-build",
         f"--json-output={jsonFileName}",
         WithProperties("--%(configuration)s"),
