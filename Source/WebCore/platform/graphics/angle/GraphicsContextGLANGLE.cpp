@@ -83,6 +83,14 @@ static inline const Vector<const void*> asPointers(std::span<const GCGLsizei> of
     });
 }
 
+static std::span<uint8_t> glMapBufferRangeSpan(GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access)
+{
+    void* ptr = GL_MapBufferRange(target, offset, length, access);
+    if (!ptr)
+        return { };
+    return unsafeMakeSpan(static_cast<uint8_t*>(ptr), length);
+}
+
 GraphicsContextGLANGLE::GraphicsContextGLANGLE(GraphicsContextGLAttributes attributes)
     : GraphicsContextGL(attributes)
 {
@@ -923,14 +931,15 @@ void GraphicsContextGLANGLE::bufferSubData(GCGLenum target, GCGLintptr offset, s
 
 bool GraphicsContextGLANGLE::getBufferSubDataImpl(GCGLenum target, GCGLintptr offset, std::span<uint8_t> data)
 {
-    void* ptr = GL_MapBufferRange(target, offset, data.size(), GraphicsContextGL::MAP_READ_BIT);
-    if (!ptr)
+    auto span = glMapBufferRangeSpan(target, offset, data.size(), GraphicsContextGL::MAP_READ_BIT);
+    if (!span.data())
         return false;
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-    memcpy(data.data(), ptr, data.size());
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
+
+    memcpySpan(data, span);
+
     if (!GL_UnmapBuffer(target))
         addError(GCGLErrorCode::InvalidOperation);
+
     return true;
 }
 
