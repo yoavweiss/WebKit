@@ -2170,8 +2170,8 @@ bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& styl
 
     if (style.logicalWidth().isIntrinsicOrLegacyIntrinsicOrAuto() || style.logicalHeight().isAuto()) {
         auto minimumHeight = controlBaseHeight / controlBaseFontSize * style.fontDescription().computedSize();
-        if (style.logicalMinHeight().isFixed())
-            minimumHeight = std::max(minimumHeight, style.logicalMinHeight().value());
+        if (auto fixedValue = style.logicalMinHeight().tryFixed())
+            minimumHeight = std::max(minimumHeight, fixedValue->value);
         // FIXME: This may need to be a layout time adjustment to support various
         // values like fit-content etc.
         style.setLogicalMinHeight(Style::MinimumSize::Fixed { minimumHeight });
