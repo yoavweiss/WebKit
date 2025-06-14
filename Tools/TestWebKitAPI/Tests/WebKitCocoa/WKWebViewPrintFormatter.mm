@@ -29,10 +29,10 @@
 
 #import "PlatformUtilities.h"
 #import "Test.h"
+#import "TestCocoaImageAndCocoaColor.h"
 #import "TestNavigationDelegate.h"
 #import "TestPDFDocument.h"
 #import "TestWKWebView.h"
-#import "WebCore/ColorCocoa.h"
 #import <WebKit/WebKit.h>
 #import <WebKit/WebKitPrivate.h>
 #import <WebKit/_WKWebViewPrintFormatter.h>
@@ -132,7 +132,7 @@ TEST(WKWebView, PrintToPDFUsingPrintPageRenderer)
     EXPECT_NE([pdfData length], 0UL);
 }
 
-#if USE(PDFKIT_FOR_TESTING)
+#if HAVE(PDFKIT)
 TEST(WKWebView, PrintToPDFShouldPrintBackgrounds)
 {
     auto config = adoptNS([[WKWebViewConfiguration alloc] init]);
@@ -166,9 +166,9 @@ TEST(WKWebView, PrintToPDFShouldPrintBackgrounds)
         RetainPtr page = [pdf pageAtIndex:0];
 
         if (shouldPrintBackgrounds)
-            EXPECT_EQ([page colorAtPoint:NSMakePoint(99, 99)], [CocoaColor redColor]);
+            EXPECT_TRUE(TestWebKitAPI::Util::compareColors([page colorAtPoint:NSMakePoint(99, 99)], [CocoaColor redColor]));
         else
-            EXPECT_NE([page colorAtPoint:NSMakePoint(99, 99)], [CocoaColor redColor]);
+            EXPECT_FALSE(TestWebKitAPI::Util::compareColors([page colorAtPoint:NSMakePoint(99, 99)], [CocoaColor redColor]));
     };
     
     runTest(NO);
@@ -177,7 +177,7 @@ TEST(WKWebView, PrintToPDFShouldPrintBackgrounds)
     
     runTest(YES);
 }
-#endif // USE(PDFKIT_FOR_TESTING)
+#endif // HAVE(PDFKIT)
 
 TEST(WKWebView, PrintToPDFUsingPrintInteractionController)
 {

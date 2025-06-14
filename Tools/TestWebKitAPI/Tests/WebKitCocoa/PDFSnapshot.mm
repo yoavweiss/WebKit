@@ -25,13 +25,13 @@
 
 #import "config.h"
 
-#if USE(PDFKIT_FOR_TESTING)
+#if HAVE(PDFKIT)
 
 #import "PlatformUtilities.h"
 #import "Test.h"
+#import "TestCocoaImageAndCocoaColor.h"
 #import "TestPDFDocument.h"
 #import "TestWKWebView.h"
-#import <WebCore/ColorCocoa.h>
 #import <WebKit/WKPDFConfiguration.h>
 
 namespace TestWebKitAPI {
@@ -57,7 +57,7 @@ TEST(PDFSnapshot, FullContent)
         EXPECT_EQ([[page text] characterAtIndex:4], 'o');
 
         // The entire page should be green. Pick a point in the middle to check.
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(400, 300)] isEqual:[CocoaColor greenColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(400, 300)], [CocoaColor greenColor]));
 
         didTakeSnapshot = true;
     }];
@@ -88,7 +88,7 @@ TEST(PDFSnapshot, Subregions)
         EXPECT_EQ([page characterCount], 0);
 
         // The entire page should be green. Pick a point in the middle to check.
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(200, 150)] isEqual:[CocoaColor greenColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(200, 150)], [CocoaColor greenColor]));
 
         didTakeSnapshot = true;
     }];
@@ -108,10 +108,10 @@ TEST(PDFSnapshot, Subregions)
         EXPECT_TRUE(CGRectEqualToRect([page bounds], CGRectMake(0, 0, 1200, 1200)));
 
         // A pixel that was in the view should be green. Pick a point in the middle to check.
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(200, 150)] isEqual:[CocoaColor greenColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(200, 150)], [CocoaColor greenColor]));
 
         // A pixel that was outside the view should also be green (we extend background color out). Pick a point in the middle to check.
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(900, 700)] isEqual:[CocoaColor greenColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(900, 700)], [CocoaColor greenColor]));
 
         didTakeSnapshot = true;
     }];
@@ -136,19 +136,19 @@ TEST(PDFSnapshot, Over200Inches)
         RetainPtr page = [document pageAtIndex:0];
         EXPECT_NE(page.get(), nil);
         EXPECT_TRUE(CGRectEqualToRect([page bounds], CGRectMake(0, 0, 800, 14400)));
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(400, 300)] isEqual:[CocoaColor greenColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(400, 300)], [CocoaColor greenColor]));
         EXPECT_EQ([page characterCount], 5);
 
         page = [document pageAtIndex:1];
         EXPECT_NE(page.get(), nil);
         EXPECT_TRUE(CGRectEqualToRect([page bounds], CGRectMake(0, 0, 800, 14400)));
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(400, 300)] isEqual:[CocoaColor greenColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(400, 300)], [CocoaColor greenColor]));
         EXPECT_EQ([page characterCount], 0);
 
         page = [document pageAtIndex:2];
         EXPECT_NE(page.get(), nil);
         EXPECT_TRUE(CGRectEqualToRect([page bounds], CGRectMake(0, 0, 800, 600)));
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(400, 300)] isEqual:[CocoaColor greenColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(400, 300)], [CocoaColor greenColor]));
         EXPECT_EQ([page characterCount], 0);
 
         didTakeSnapshot = true;
@@ -173,7 +173,7 @@ TEST(PDFSnapshot, Links)
         EXPECT_NE(page.get(), nil);
 
         EXPECT_TRUE(CGRectEqualToRect([page bounds], CGRectMake(0, 0, 800, 14400)));
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(400, 300)] isEqual:[CocoaColor whiteColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(400, 300)], [CocoaColor whiteColor]));
 
         EXPECT_EQ([page characterCount], 8);
         EXPECT_EQ([[page text] characterAtIndex:0], 'C');
@@ -242,7 +242,7 @@ TEST(PDFSnapshot, AllowTransparentBackground)
         RetainPtr page = [document pageAtIndex:0];
         EXPECT_NE(page.get(), nil);
 
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(1, 1)] isEqual:[CocoaColor colorWithWhite:0 alpha:0]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(1, 1)], [CocoaColor colorWithWhite:0 alpha:0]));
 
         didTakeSnapshot = true;
     }];
@@ -252,4 +252,4 @@ TEST(PDFSnapshot, AllowTransparentBackground)
 
 }
 
-#endif // USE(PDFKIT_FOR_TESTING)
+#endif // HAVE(PDFKIT)

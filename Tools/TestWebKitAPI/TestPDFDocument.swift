@@ -120,7 +120,7 @@ typealias CocoaColor = NSColor
 
         CGContextDrawPDFPageWithAnnotations(context, cgPage, nil)
 
-        let pixels = UnsafeMutableRawBufferPointer(start: context.data, count: context.width * context.height)
+        let pixels = UnsafeMutableRawBufferPointer(start: context.data, count: context.width * context.height * 4)
 
         let x = Int(point.x)
         let y = Int(point.y)

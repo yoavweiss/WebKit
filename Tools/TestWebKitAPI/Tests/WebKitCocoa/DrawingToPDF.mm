@@ -25,13 +25,13 @@
 
 #import "config.h"
 
-#if USE(PDFKIT_FOR_TESTING)
+#if HAVE(PDFKIT)
 
 #import "PlatformUtilities.h"
 #import "Test.h"
+#import "TestCocoaImageAndCocoaColor.h"
 #import "TestPDFDocument.h"
 #import "TestWKWebView.h"
-#import <WebCore/ColorCocoa.h>
 #import <WebKit/WKPDFConfiguration.h>
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/_WKFeature.h>
@@ -56,7 +56,7 @@ TEST(DrawingToPDF, GradientIntoPDF)
         RetainPtr page = [document pageAtIndex:0];
         EXPECT_NE(page.get(), nil);
 
-        EXPECT_TRUE([[page colorAtPoint:CGPointMake(50, 50)] isEqual:[CocoaColor blueColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(50, 50)], [CocoaColor blueColor]));
 
         didTakeSnapshot = true;
     }];
@@ -85,9 +85,9 @@ TEST(DrawingToPDF, BackgroundClipText)
         RetainPtr page = [document pageAtIndex:0];
         EXPECT_NE(page.get(), nil);
 
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(2, 2)] isEqual:[CocoaColor whiteColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(2, 2)], [CocoaColor whiteColor]));
         // We can't test for blue because the colors are affected by colorspace conversions.
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(25, 25)] isEqual:[CocoaColor whiteColor]]);
+        EXPECT_TRUE(!Util::compareColors([page colorAtPoint:CGPointMake(25, 25)], [CocoaColor whiteColor]));
 
         didTakeSnapshot = true;
     }];
@@ -129,7 +129,7 @@ TEST(DrawingToPDF, SiteIsolationFormControl)
         EXPECT_EQ([[page text] characterAtIndex:7], 'x');
 
         // The entire page should be green. Pick a point in the middle to check.
-        EXPECT_TRUE([[page colorAtPoint:NSMakePoint(400, 300)] isEqual:[CocoaColor greenColor]]);
+        EXPECT_TRUE(Util::compareColors([page colorAtPoint:CGPointMake(400, 300)], [CocoaColor greenColor]));
 
         didTakeSnapshot = true;
     }];
@@ -139,4 +139,4 @@ TEST(DrawingToPDF, SiteIsolationFormControl)
 
 } // namespace TestWebKitAPI
 
-#endif // USE(PDFKIT_FOR_TESTING)
+#endif // HAVE(PDFKIT)
