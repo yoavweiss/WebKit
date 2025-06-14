@@ -331,7 +331,7 @@ TEST(ScreenTime, IdentifierNil)
         return;
 
     __block bool done = false;
-    __block NSString * identifier = @"testing123";
+    __block NSString *identifier = @"testing123";
 
     InstanceMethodSwizzler swizzler {
         PAL::getSTWebpageControllerClass(),
@@ -619,7 +619,7 @@ TEST(ScreenTime, RemoveDataWithTimeInterval)
     InstanceMethodSwizzler swizzler {
         PAL::getSTWebHistoryClass(),
         @selector(deleteHistoryDuringInterval:),
-        imp_implementationWithBlock(^(id object, NSDateInterval * interval) {
+        imp_implementationWithBlock(^(id object, NSDateInterval *interval) {
             removedHistory = true;
         })
     };
