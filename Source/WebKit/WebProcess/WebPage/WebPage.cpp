@@ -4971,7 +4971,9 @@ void WebPage::willCommitLayerTree(RemoteLayerTreeTransaction& layerTransaction, 
     layerTransaction.setThemeColor(page->themeColor());
     layerTransaction.setPageExtendedBackgroundColor(page->pageExtendedBackgroundColor());
     layerTransaction.setSampledPageTopColor(page->sampledPageTopColor());
-    if (std::exchange(m_needsFixedContainerEdgesUpdate, false)) {
+
+    bool isMainFrameProcess = !!page->localMainFrame();
+    if (isMainFrameProcess && std::exchange(m_needsFixedContainerEdgesUpdate, false)) {
         page->updateFixedContainerEdges(sidesRequiringFixedContainerEdges());
         layerTransaction.setFixedContainerEdges(page->fixedContainerEdges());
     }
