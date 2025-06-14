@@ -2159,9 +2159,12 @@ bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& styl
     if (isSubmitButton && !style.hasExplicitlySetColor()) {
 #if PLATFORM(MAC)
         style.setInsideDefaultButton(true);
+        const Color enabledColor = style.color();
+#else
+        const Color enabledColor = Color::white;
 #endif
         if (isDisabledFormControl)
-            style.setColor(style.color().colorWithAlphaMultipliedBy(0.8f));
+            style.setColor(enabledColor.colorWithAlphaMultipliedBy(0.8f));
     }
 
 #if PLATFORM(IOS_FAMILY)
