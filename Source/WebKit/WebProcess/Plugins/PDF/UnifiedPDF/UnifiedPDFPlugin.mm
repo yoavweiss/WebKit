@@ -198,6 +198,11 @@ UnifiedPDFPlugin::UnifiedPDFPlugin(HTMLPlugInElement& element)
 
     if (m_presentationController->wantsWheelEvents())
         wantsWheelEventsChanged();
+
+    if (shouldSizeToFitContent()) {
+        if (RefPtr frameView = m_frame->coreLocalFrame()->view())
+            m_prohibitScrollingDueToContentSizeChanges = frameView->prohibitScrollingWhenChangingContentSizeForScope();
+    }
 }
 
 void UnifiedPDFPlugin::installAnnotationContainer()
