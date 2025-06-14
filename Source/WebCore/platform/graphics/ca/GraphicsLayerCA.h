@@ -68,6 +68,7 @@ public:
     WEBCORE_EXPORT String debugName() const override;
 
     WEBCORE_EXPORT std::optional<PlatformLayerIdentifier> primaryLayerID() const override;
+    WEBCORE_EXPORT std::optional<PlatformLayerIdentifier> layerIDIgnoringStructuralLayer() const final;
 
     WEBCORE_EXPORT PlatformLayer* platformLayer() const override;
     PlatformCALayer* platformCALayer() const { return primaryLayer(); }

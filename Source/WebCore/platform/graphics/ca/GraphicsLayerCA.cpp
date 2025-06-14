@@ -502,6 +502,11 @@ std::optional<PlatformLayerIdentifier> GraphicsLayerCA::primaryLayerID() const
     return primaryLayer()->layerID();
 }
 
+std::optional<PlatformLayerIdentifier> GraphicsLayerCA::layerIDIgnoringStructuralLayer() const
+{
+    return protectedLayer()->layerID();
+}
+
 PlatformLayer* GraphicsLayerCA::platformLayer() const
 {
     return primaryLayer()->platformLayer();
