@@ -146,6 +146,7 @@ private:
     void updateMediaSelectionOptions();
     void updateMediaSelectionIndices();
     void maybeUpdateVideoMetadata();
+    void updateRate();
 
     void videoTrackConfigurationChanged();
 
