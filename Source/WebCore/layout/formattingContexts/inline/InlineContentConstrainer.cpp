@@ -669,7 +669,7 @@ std::optional<Vector<LayoutUnit>> InlineContentConstrainer::prettifyRange(Inline
         // If this invariant fails, we will find ourselves in an infinite loop.
         // In the case we should fall back to auto layout.
         if (breakIndex <= state[breakIndex].previousBreakIndex) {
-            ASSERT_NOT_REACHED();
+            ASSERT_NOT_REACHED_WITH_SECURITY_IMPLICATION();
             return { };
         }
         widths.append(state[breakIndex].lastLineWidth);
