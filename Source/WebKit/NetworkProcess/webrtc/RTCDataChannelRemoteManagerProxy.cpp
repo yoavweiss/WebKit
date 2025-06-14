@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2021-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -49,7 +49,7 @@ void RTCDataChannelRemoteManagerProxy::registerConnectionToWebProcess(NetworkCon
         ASSERT(!m_webProcessConnections.contains(identifier));
         m_webProcessConnections.add(identifier, connectionID);
     });
-    connectionToWebProcess.protectedConnection()->addWorkQueueMessageReceiver(Messages::RTCDataChannelRemoteManagerProxy::messageReceiverName(), m_queue, *this);
+    connectionToWebProcess.connection().addWorkQueueMessageReceiver(Messages::RTCDataChannelRemoteManagerProxy::messageReceiverName(), m_queue, *this);
 }
 
 void RTCDataChannelRemoteManagerProxy::unregisterConnectionToWebProcess(NetworkConnectionToWebProcess& connectionToWebProcess)
@@ -58,7 +58,7 @@ void RTCDataChannelRemoteManagerProxy::unregisterConnectionToWebProcess(NetworkC
         ASSERT(m_webProcessConnections.contains(identifier));
         m_webProcessConnections.remove(identifier);
     });
-    connectionToWebProcess.protectedConnection()->removeWorkQueueMessageReceiver(Messages::RTCDataChannelRemoteManagerProxy::messageReceiverName());
+    connectionToWebProcess.connection().removeWorkQueueMessageReceiver(Messages::RTCDataChannelRemoteManagerProxy::messageReceiverName());
 }
 
 void RTCDataChannelRemoteManagerProxy::sendData(WebCore::RTCDataChannelIdentifier identifier, bool isRaw, std::span<const uint8_t> data)

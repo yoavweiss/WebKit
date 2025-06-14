@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2019 Apple Inc. All rights reserved.
+ * Copyright (C) 2012-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -168,9 +168,7 @@ public:
     NetworkSession* networkSession();
 
     IPC::Connection& connection() { return m_connection.get(); }
-    Ref<IPC::Connection> protectedConnection() { return m_connection; }
     NetworkProcess& networkProcess() { return m_networkProcess.get(); }
-    Ref<NetworkProcess> protectedNetworkProcess();
 
     bool usesSingleWebProcess() const { return m_sharedPreferencesForWebProcess.usesSingleWebProcess; }
     bool blobFileAccessEnforcementEnabled() const { return m_sharedPreferencesForWebProcess.blobFileAccessEnforcementEnabled; }
@@ -493,8 +491,8 @@ private:
     void shouldOffloadIFrameForHost(const String& host, CompletionHandler<void(bool)>&&);
 #endif
 
-    Ref<IPC::Connection> m_connection;
-    Ref<NetworkProcess> m_networkProcess;
+    const Ref<IPC::Connection> m_connection;
+    const Ref<NetworkProcess> m_networkProcess;
     PAL::SessionID m_sessionID;
 
     HashMap<WebCore::WebSocketIdentifier, RefPtr<NetworkSocketChannel>> m_networkSocketChannels;

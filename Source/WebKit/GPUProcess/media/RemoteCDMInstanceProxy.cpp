@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Apple Inc. All rights reserved.
+ * Copyright (C) 2020-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -77,7 +77,7 @@ void RemoteCDMInstanceProxy::unrequestedInitializationDataReceived(const String&
     if (!gpuConnectionToWebProcess)
         return;
 
-    gpuConnectionToWebProcess->protectedConnection()->send(Messages::RemoteCDMInstance::UnrequestedInitializationDataReceived(type, WTFMove(initData)), m_identifier);
+    gpuConnectionToWebProcess->connection().send(Messages::RemoteCDMInstance::UnrequestedInitializationDataReceived(type, WTFMove(initData)), m_identifier);
 }
 
 void RemoteCDMInstanceProxy::initializeWithConfiguration(const WebCore::CDMKeySystemConfiguration& configuration, AllowDistinctiveIdentifiers allowDistinctiveIdentifiers, AllowPersistentState allowPersistentState, CompletionHandler<void(SuccessValue)>&& completion)

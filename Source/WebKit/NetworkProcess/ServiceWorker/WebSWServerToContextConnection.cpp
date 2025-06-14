@@ -257,7 +257,7 @@ void WebSWServerToContextConnection::fireBackgroundFetchClickEvent(ServiceWorker
 void WebSWServerToContextConnection::terminateWorker(ServiceWorkerIdentifier serviceWorkerIdentifier)
 {
     if (!m_processingFunctionalEventCount++)
-        protectedConnection()->protectedNetworkProcess()->protectedParentProcessConnection()->send(Messages::NetworkProcessProxy::StartServiceWorkerBackgroundProcessing { webProcessIdentifier() }, 0);
+        protectedConnection()->networkProcess().protectedParentProcessConnection()->send(Messages::NetworkProcessProxy::StartServiceWorkerBackgroundProcessing { webProcessIdentifier() }, 0);
 
     send(Messages::WebSWContextManagerConnection::TerminateWorker(serviceWorkerIdentifier));
 }
@@ -291,7 +291,7 @@ void WebSWServerToContextConnection::workerTerminated(ServiceWorkerIdentifier se
     SWServerToContextConnection::workerTerminated(serviceWorkerIdentifier);
 
     if (--m_processingFunctionalEventCount)
-        protectedConnection()->protectedNetworkProcess()->protectedParentProcessConnection()->send(Messages::NetworkProcessProxy::EndServiceWorkerBackgroundProcessing { webProcessIdentifier() }, 0);
+        protectedConnection()->networkProcess().protectedParentProcessConnection()->send(Messages::NetworkProcessProxy::EndServiceWorkerBackgroundProcessing { webProcessIdentifier() }, 0);
 }
 
 void WebSWServerToContextConnection::didFinishActivation(WebCore::ServiceWorkerIdentifier serviceWorkerIdentifier)

@@ -403,7 +403,7 @@ void NetworkProcess::createNetworkConnectionToWebProcess(ProcessIdentifier ident
             for (auto& site : iter->value.second)
                 allowedSites.append(site);
         }
-        session->protectedStorageManager()->startReceivingMessageFromConnection(connection->protectedConnection(), allowedSites, connection->sharedPreferencesForWebProcessValue());
+        session->protectedStorageManager()->startReceivingMessageFromConnection(connection->connection(), allowedSites, connection->sharedPreferencesForWebProcessValue());
     }
 }
 
@@ -594,6 +594,11 @@ WebCore::NetworkStorageSession* NetworkProcess::storageSession(PAL::SessionID se
     return m_networkStorageSessions.get(sessionID);
 }
 
+CheckedPtr<WebCore::NetworkStorageSession> NetworkProcess::checkedStorageSession(PAL::SessionID sessionID) const
+{
+    return storageSession(sessionID);
+}
+
 void NetworkProcess::forEachNetworkStorageSession(NOESCAPE const Function<void(WebCore::NetworkStorageSession&)>& functor)
 {
     for (auto& storageSession : m_networkStorageSessions.values())
@@ -604,6 +609,11 @@ NetworkSession* NetworkProcess::networkSession(PAL::SessionID sessionID) const
 {
     ASSERT(RunLoop::isMain());
     return m_networkSessions.get(sessionID);
+}
+
+CheckedPtr<NetworkSession> NetworkProcess::checkedNetworkSession(PAL::SessionID sessionID) const
+{
+    return networkSession(sessionID);
 }
 
 void NetworkProcess::setSession(PAL::SessionID sessionID, std::unique_ptr<NetworkSession>&& session)
