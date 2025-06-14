@@ -2011,13 +2011,13 @@ constexpr CSSValueID toCSSValueID(AppleVisualEffect effect)
     case AppleVisualEffect::BlurChromeMaterial:
         return CSSValueAppleSystemBlurMaterialChrome;
 #if HAVE(MATERIAL_HOSTING)
-    case AppleVisualEffect::HostedBlurMaterial:
+    case AppleVisualEffect::GlassMaterial:
         return CSSValueAppleSystemGlassMaterial;
-    case AppleVisualEffect::HostedThinBlurMaterial:
+    case AppleVisualEffect::GlassSubduedMaterial:
         return CSSValueAppleSystemGlassMaterialSubdued;
-    case AppleVisualEffect::HostedMediaControlsMaterial:
+    case AppleVisualEffect::GlassMediaControlsMaterial:
         return CSSValueAppleSystemGlassMaterialMediaControls;
-    case AppleVisualEffect::HostedThinMediaControlsMaterial:
+    case AppleVisualEffect::GlassSubduedMediaControlsMaterial:
         return CSSValueAppleSystemGlassMaterialMediaControlsSubdued;
 #endif
     case AppleVisualEffect::VibrancyLabel:
@@ -2058,13 +2058,13 @@ template<> constexpr AppleVisualEffect fromCSSValueID(CSSValueID valueID)
         return AppleVisualEffect::BlurChromeMaterial;
 #if HAVE(MATERIAL_HOSTING)
     case CSSValueAppleSystemGlassMaterial:
-        return AppleVisualEffect::HostedBlurMaterial;
+        return AppleVisualEffect::GlassMaterial;
     case CSSValueAppleSystemGlassMaterialSubdued:
-        return AppleVisualEffect::HostedThinBlurMaterial;
+        return AppleVisualEffect::GlassSubduedMaterial;
     case CSSValueAppleSystemGlassMaterialMediaControls:
-        return AppleVisualEffect::HostedMediaControlsMaterial;
+        return AppleVisualEffect::GlassMediaControlsMaterial;
     case CSSValueAppleSystemGlassMaterialMediaControlsSubdued:
-        return AppleVisualEffect::HostedThinMediaControlsMaterial;
+        return AppleVisualEffect::GlassSubduedMediaControlsMaterial;
 #endif
     case CSSValueAppleSystemVibrancyLabel:
         return AppleVisualEffect::VibrancyLabel;

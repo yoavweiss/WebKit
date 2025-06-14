@@ -83,18 +83,18 @@ private struct MaterialHostingView<P: MaterialHostingProvider>: View {
         switch type {
         case .none:
             return nil
-        case .blur:
-            return Material._glass(.regular)
-        case .thinBlur:
-            return Material._glass(.regular.forceSubdued())
-        case .mediaControls:
+        case .glass:
+            return ._glass(.regular)
+        case .subduedGlass:
+            return ._glass(.regular.forceSubdued())
+        case .mediaControlsGlass:
 #if canImport(SwiftUI, _version: 7.0.60)
-            return Material._glass(.regular.adaptive(false))
+            return ._glass(.regular.adaptive(false))
 #else
-            return Material._glass(.regular)
+            return ._glass(.regular)
 #endif
-        case .thinMediaControls:
-            return Material._glass(.avplayer.forceSubdued())
+        case .subduedMediaControlsGlass:
+            return ._glass(.avplayer.forceSubdued())
         @unknown default:
             return nil
         }
