@@ -41,7 +41,6 @@
 #include <WebCore/FrameTreeSyncData.h>
 #include <WebCore/HighlightVisibility.h>
 #include <WebCore/IntDegrees.h>
-#include <WebCore/IntSizeHash.h>
 #include <WebCore/LayerHostingContextIdentifier.h>
 #include <WebCore/MediaControlsContextMenuItem.h>
 #include <WebCore/MediaKeySystemRequest.h>
@@ -95,7 +94,7 @@
 #include "DynamicViewportSizeUpdate.h"
 #include "GestureTypes.h"
 #include <WebCore/InspectorOverlay.h>
-#include <WebCore/IntPointHash.h>
+#include <WebCore/IntPoint.h>
 #include <WebCore/WKContentObservation.h>
 #endif
 
@@ -2901,7 +2900,6 @@ private:
     WebCore::IntDegrees m_deviceOrientation { 0 };
     bool m_keyboardIsAttached { false };
     bool m_inDynamicSizeUpdate { false };
-    HashMap<std::pair<WebCore::IntSize, double>, WebCore::IntPoint> m_dynamicSizeUpdateHistory;
     RefPtr<WebCore::Node> m_pendingSyntheticClickNode;
     WebCore::FloatPoint m_pendingSyntheticClickLocation;
     WebCore::FloatRect m_previousExposedContentRect;

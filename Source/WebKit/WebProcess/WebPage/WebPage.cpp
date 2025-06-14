@@ -2573,7 +2573,7 @@ void WebPage::didScalePage(double scale, const IntPoint& origin)
 #if PLATFORM(IOS_FAMILY)
     if (willChangeScaleFactor) {
         if (!m_inDynamicSizeUpdate)
-            m_dynamicSizeUpdateHistory.clear();
+            m_internals->dynamicSizeUpdateHistory.clear();
         m_scaleWasSetByUIProcess = false;
     }
 #endif
@@ -3255,7 +3255,7 @@ void WebPage::pageDidScroll()
 {
 #if PLATFORM(IOS_FAMILY)
     if (!m_inDynamicSizeUpdate)
-        m_dynamicSizeUpdateHistory.clear();
+        m_internals->dynamicSizeUpdateHistory.clear();
 #endif
     m_uiClient->pageDidScroll(this);
 
