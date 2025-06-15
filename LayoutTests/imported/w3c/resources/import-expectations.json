@@ -56,6 +56,7 @@
     "web-platform-tests/css/CSS2/normal-flow": "import",
     "web-platform-tests/css/CSS2/tables": "import",
     "web-platform-tests/css/CSS2/visufx/animation": "import",
+    "web-platform-tests/css/CSS2/zindex": "import",
     "web-platform-tests/css/WOFF2": "import",
     "web-platform-tests/css/compositing": "import",
     "web-platform-tests/css/css-align": "import",
