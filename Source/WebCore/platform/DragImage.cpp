@@ -317,10 +317,10 @@ DragImageRef createDragImageIconForCachedImageFilename(const String&)
     return nullptr;
 }
 
-DragImageRef createDragImageForLink(Element&, URL&, const String&, TextIndicatorData&, float)
+DragImageData createDragImageForLink(Element&, URL&, const String&, float)
 {
     notImplemented();
-    return nullptr;
+    return  { nullptr, nullptr };
 }
 
 #endif

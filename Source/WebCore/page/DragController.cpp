@@ -1190,14 +1190,14 @@ bool DragController::startDrag(LocalFrame& src, const DragState& state, OptionSe
 
         client().willPerformDragSourceAction(DragSourceAction::Link, dragOrigin, dataTransfer);
         if (!dragImage) {
-            TextIndicatorData textIndicator;
-            dragImage = DragImage { createDragImageForLink(element, linkURL, textContentWithSimplifiedWhiteSpace, textIndicator, m_page->deviceScaleFactor()) };
+            auto [dragImageRef, textIndicator] = createDragImageForLink(element, linkURL, textContentWithSimplifiedWhiteSpace, m_page->deviceScaleFactor());
+            dragImage = DragImage { dragImageRef };
             if (dragImage) {
                 m_dragOffset = dragOffsetForLinkDragImage(dragImage.get());
                 dragLoc = IntPoint(dragOrigin.x() + m_dragOffset.x(), dragOrigin.y() + m_dragOffset.y());
                 dragImage = DragImage { platformAdjustDragImageForDeviceScaleFactor(dragImage.get(), m_page->deviceScaleFactor()) };
-                if (textIndicator.contentImage)
-                    dragImage.setTextIndicator(TextIndicator::create(textIndicator));
+                if (textIndicator && textIndicator->contentImage())
+                    dragImage.setTextIndicator(textIndicator);
             }
         }
 
