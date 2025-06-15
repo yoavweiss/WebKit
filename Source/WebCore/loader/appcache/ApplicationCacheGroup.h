@@ -134,7 +134,7 @@ private:
 
     ResourceRequest createRequest(URL&&, ApplicationCacheResource*);
 
-    Ref<ApplicationCacheStorage> m_storage;
+    const Ref<ApplicationCacheStorage> m_storage;
 
     URL m_manifestURL;
     Ref<SecurityOrigin> m_origin;

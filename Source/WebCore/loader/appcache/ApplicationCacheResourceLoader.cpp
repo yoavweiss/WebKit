@@ -101,7 +101,7 @@ void ApplicationCacheResourceLoader::responseReceived(const CachedResource& reso
 
 void ApplicationCacheResourceLoader::dataReceived(CachedResource&, const SharedBuffer& buffer)
 {
-    m_applicationCacheResource->append(buffer);
+    protectedApplicationCacheResource()->append(buffer);
 }
 
 void ApplicationCacheResourceLoader::redirectReceived(CachedResource&, ResourceRequest&& newRequest, const ResourceResponse&, CompletionHandler<void(ResourceRequest&&)>&& callback)

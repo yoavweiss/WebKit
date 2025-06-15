@@ -60,6 +60,8 @@ private:
     void redirectReceived(CachedResource&, ResourceRequest&&, const ResourceResponse&, CompletionHandler<void(ResourceRequest&&)>&&) final;
     void notifyFinished(CachedResource&, const NetworkLoadMetrics&, LoadWillContinueInAnotherProcess) final;
 
+    RefPtr<ApplicationCacheResource> protectedApplicationCacheResource() { return m_applicationCacheResource; }
+
     unsigned m_type;
     CachedResourceHandle<CachedRawResource> m_resource;
     RefPtr<ApplicationCacheResource> m_applicationCacheResource;

@@ -223,7 +223,7 @@ void PingLoader::startPingLoad(LocalFrame& frame, ResourceRequest& request, HTTP
     // Document in the Frame, but the activeDocumentLoader will be associated
     // with the provisional DocumentLoader if there is a provisional
     // DocumentLoader.
-    bool shouldUseCredentialStorage = frame.protectedLoader()->client().shouldUseCredentialStorage(frame.loader().activeDocumentLoader(), identifier);
+    bool shouldUseCredentialStorage = frame.protectedLoader()->client().shouldUseCredentialStorage(frame.loader().protectedActiveDocumentLoader().get(), identifier);
     ResourceLoaderOptions options;
     options.credentials = shouldUseCredentialStorage ? FetchOptions::Credentials::Include : FetchOptions::Credentials::Omit;
     options.redirect = shouldFollowRedirects == ShouldFollowRedirects::Yes ? FetchOptions::Redirect::Follow : FetchOptions::Redirect::Error;
@@ -258,7 +258,7 @@ void PingLoader::startPingLoad(LocalFrame& frame, ResourceRequest& request, HTTP
     }
 
     CachedResourceRequest cachedResourceRequest { ResourceRequest { request }, options };
-    frame.document()->protectedCachedResourceLoader()->requestPingResource(WTFMove(cachedResourceRequest));
+    frame.protectedDocument()->protectedCachedResourceLoader()->requestPingResource(WTFMove(cachedResourceRequest));
 }
 
 // // https://html.spec.whatwg.org/multipage/origin.html#sanitize-url-report
