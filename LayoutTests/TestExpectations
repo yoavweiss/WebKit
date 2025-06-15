@@ -2198,6 +2198,7 @@ imported/w3c/web-platform-tests/svg/painting/reftests/paint-context-004.svg [ Im
 imported/w3c/web-platform-tests/svg/painting/reftests/paint-context-006.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/paint-context-007.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/pattern-external-reference.svg [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/svg/painting/reftests/marker-context-fill-transform.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/animations/seeking-events-2.html [ Failure Pass ]
 imported/w3c/web-platform-tests/svg/animations/dependent-begin-on-syncbase.html [ Failure Pass ]
 imported/w3c/web-platform-tests/svg/animations/dependent-end-on-syncbase.html [ Failure Pass ]
@@ -7843,6 +7844,8 @@ webkit.org/b/289926 imported/w3c/web-platform-tests/css/css-position/sticky/posi
 imported/w3c/web-platform-tests/svg/styling/use-element-animations.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/styling/use-element-transitions.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/styling/use-element-web-animations.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/svg/styling/nested-svg-sizing.svg [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/svg/styling/nested-svg-sizing-with-use.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/struct/reftests/currentScale.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/struct/reftests/use-encoding.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/struct/reftests/use-external-resource-target-pseudo-002.html [ ImageOnlyFailure ]
@@ -7856,6 +7859,7 @@ imported/w3c/web-platform-tests/svg/struct/reftests/inner-svg-transform.svg [ Im
 imported/w3c/web-platform-tests/svg/struct/reftests/inner-svg-transform-and-viewbox.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/struct/reftests/inner-svg-rotate-transform.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/struct/reftests/inner-svg-css-transform.svg [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/svg/struct/reftests/use-event-handler-no-loss-of-events.html [ ImageOnlyFailure ]
 
 # crashes with `ASSERTION FAILED: !url.protocolIsData()`
 webkit.org/b/290285 imported/w3c/web-platform-tests/svg/struct/reftests/use-data-url-set-attributeName.tentative.svg [ Skip ]
