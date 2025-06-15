@@ -1034,7 +1034,6 @@ css/parser/CSSPropertyParserResult.cpp
 css/parser/CSSPropertyParserConsumer+Align.cpp
 css/parser/CSSPropertyParserConsumer+Anchor.cpp
 css/parser/CSSPropertyParserConsumer+Animations.cpp
-css/parser/CSSPropertyParserConsumer+AppleVisualEffect.cpp
 css/parser/CSSPropertyParserConsumer+Attr.cpp
 css/parser/CSSPropertyParserConsumer+Background.cpp
 css/parser/CSSPropertyParserConsumer+Box.cpp
