@@ -666,8 +666,6 @@ public:
 
     Style::Scope& styleScope() { return m_styleScope; }
     const Style::Scope& styleScope() const { return m_styleScope; }
-    CheckedRef<Style::Scope> checkedStyleScope();
-    CheckedRef<const Style::Scope> checkedStyleScope() const;
 
     ExtensionStyleSheets* extensionStyleSheetsIfExists() { return m_extensionStyleSheets.get(); }
     inline ExtensionStyleSheets& extensionStyleSheets(); // Defined in DocumentInlines.h.
@@ -1925,8 +1923,6 @@ public:
     WEBCORE_EXPORT Ref<const Editor> protectedEditor() const;
     FrameSelection& selection() { return m_selection; }
     const FrameSelection& selection() const { return m_selection; }
-    CheckedRef<FrameSelection> checkedSelection();
-    CheckedRef<const FrameSelection> checkedSelection() const;
 
     void setFragmentDirective(const String& fragmentDirective) { m_fragmentDirective = fragmentDirective; }
     const String& fragmentDirective() const { return m_fragmentDirective; }
@@ -2239,7 +2235,7 @@ private:
     WeakHashSet<NodeIterator> m_nodeIterators;
     UncheckedKeyHashSet<SingleThreadWeakRef<Range>> m_ranges;
 
-    UniqueRef<Style::Scope> m_styleScope;
+    const UniqueRef<Style::Scope> m_styleScope;
     const std::unique_ptr<ExtensionStyleSheets> m_extensionStyleSheets;
     RefPtr<StyleSheetList> m_styleSheetList;
 
@@ -2501,7 +2497,7 @@ private:
 
     const RefPtr<UndoManager> m_undoManager;
     const std::unique_ptr<Editor> m_editor;
-    UniqueRef<FrameSelection> m_selection;
+    const UniqueRef<FrameSelection> m_selection;
 
     String m_fragmentDirective;
 

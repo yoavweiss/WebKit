@@ -8935,16 +8935,6 @@ void Document::processInternalResourceLinks(Element* element)
     }
 }
 
-CheckedRef<FrameSelection> Document::checkedSelection()
-{
-    return m_selection.get();
-}
-
-CheckedRef<const FrameSelection> Document::checkedSelection() const
-{
-    return m_selection.get();
-}
-
 int Document::requestIdleCallback(Ref<IdleRequestCallback>&& callback, Seconds timeout)
 {
     if (!m_idleCallbackController)
@@ -11564,16 +11554,6 @@ String Document::mediaKeysStorageDirectory()
 {
     RefPtr currentPage = page();
     return currentPage ? currentPage->ensureMediaKeysStorageDirectoryForOrigin(securityOrigin().data()) : emptyString();
-}
-
-CheckedRef<Style::Scope> Document::checkedStyleScope()
-{
-    return m_styleScope.get();
-}
-
-CheckedRef<const Style::Scope> Document::checkedStyleScope() const
-{
-    return m_styleScope.get();
 }
 
 CheckedPtr<RenderView> Document::checkedRenderView() const

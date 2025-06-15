@@ -1055,7 +1055,7 @@ void Page::updateStyleAfterChangeInEnvironment()
         if (RefPtr styleResolver = document.styleScope().resolverIfExists())
             styleResolver->invalidateMatchedDeclarationsCache();
         document.scheduleFullStyleRebuild();
-        document.checkedStyleScope()->didChangeStyleSheetEnvironment();
+        document.styleScope().didChangeStyleSheetEnvironment();
         document.updateElementsAffectedByMediaQueries();
         document.scheduleRenderingUpdate(RenderingUpdateStep::MediaQueryEvaluation);
     });
@@ -1071,7 +1071,7 @@ void Page::setNeedsRecalcStyleInAllFrames()
 {
     // FIXME: Figure out what this function is actually trying to add in different call sites.
     forEachDocument([] (Document& document) {
-        document.checkedStyleScope()->didChangeStyleSheetEnvironment();
+        document.styleScope().didChangeStyleSheetEnvironment();
     });
 }
 
@@ -2289,7 +2289,7 @@ void Page::doAfterUpdateRendering()
     });
 
     forEachRenderableDocument([] (Document& document) {
-        document.checkedSelection()->updateAppearanceAfterUpdatingRendering();
+        document.selection().updateAppearanceAfterUpdatingRendering();
     });
 
     forEachRenderableDocument([] (Document& document) {
@@ -4127,7 +4127,7 @@ void Page::setCaptionUserPreferencesStyleSheet(const String& styleSheet)
 void Page::accessibilitySettingsDidChange()
 {
     forEachDocument([] (auto& document) {
-        document.checkedStyleScope()->evaluateMediaQueriesForAccessibilitySettingsChange();
+        document.styleScope().evaluateMediaQueriesForAccessibilitySettingsChange();
         document.updateElementsAffectedByMediaQueries();
         document.scheduleRenderingUpdate(RenderingUpdateStep::MediaQueryEvaluation);
     });
@@ -4138,8 +4138,8 @@ void Page::accessibilitySettingsDidChange()
 void Page::appearanceDidChange()
 {
     forEachDocument([] (auto& document) {
-        document.checkedStyleScope()->didChangeStyleSheetEnvironment();
-        document.checkedStyleScope()->evaluateMediaQueriesForAppearanceChange();
+        document.styleScope().didChangeStyleSheetEnvironment();
+        document.styleScope().evaluateMediaQueriesForAppearanceChange();
         document.updateElementsAffectedByMediaQueries();
         document.scheduleRenderingUpdate(RenderingUpdateStep::MediaQueryEvaluation);
         document.invalidateScrollbars();

@@ -2605,9 +2605,9 @@ bool Element::allowsDoubleTapGesture() const
 Style::Resolver& Element::styleResolver()
 {
     if (RefPtr shadowRoot = containingShadowRoot())
-        return shadowRoot->checkedStyleScope()->resolver();
+        return shadowRoot->styleScope().resolver();
 
-    return document().checkedStyleScope()->resolver();
+    return document().styleScope().resolver();
 }
 
 Style::UnadjustedStyle Element::resolveStyle(const Style::ResolutionContext& resolutionContext)
@@ -4542,7 +4542,7 @@ const RenderStyle* Element::resolveComputedStyle(ResolveComputedStyleMode mode)
     ASSERT(isConnected());
 
     Ref document = this->document();
-    document->checkedStyleScope()->flushPendingUpdate();
+    document->styleScope().flushPendingUpdate();
 
     bool isInDisplayNoneTree = false;
 

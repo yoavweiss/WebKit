@@ -3,7 +3,7 @@
  * (C) 2000 Gunnstein Lye (gunnstein@netcom.no)
  * (C) 2000 Frederik Holljen (frederik.holljen@hig.no)
  * (C) 2001 Peter Kelly (pmk@post.com)
- * Copyright (C) 2004-2020 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
  * Copyright (C) 2011 Motorola Mobility. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
@@ -115,7 +115,7 @@ Node* Range::commonAncestorContainer() const
 void Range::updateAssociatedSelection()
 {
     if (m_isAssociatedWithSelection)
-        protectedOwnerDocument()->checkedSelection()->updateFromAssociatedLiveRange();
+        protectedOwnerDocument()->selection().updateFromAssociatedLiveRange();
 }
 
 void Range::updateAssociatedHighlight()

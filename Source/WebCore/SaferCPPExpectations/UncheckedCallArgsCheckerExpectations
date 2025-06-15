@@ -185,13 +185,11 @@ dom/NodeWithIndex.h
 dom/PendingScript.cpp
 dom/Position.cpp
 dom/PositionIterator.cpp
-dom/ProcessingInstruction.cpp
 dom/Range.cpp
 dom/RangeBoundaryPoint.h
 dom/ScriptElement.cpp
 dom/ScriptExecutionContext.cpp
 dom/ScriptRunner.cpp
-dom/ScriptableDocumentParser.cpp
 dom/SecurityContext.cpp
 dom/SelectorQuery.cpp
 dom/ShadowRoot.cpp
@@ -227,12 +225,10 @@ editing/ModifySelectionListLevel.cpp
 editing/RemoveFormatCommand.cpp
 editing/RenderedPosition.cpp
 editing/ReplaceNodeWithSpanCommand.cpp
-editing/ReplaceRangeWithTextCommand.cpp
 editing/ReplaceSelectionCommand.cpp
 editing/ReplaceSelectionCommand.h
 editing/SimplifyMarkupCommand.cpp
 editing/SpellChecker.cpp
-editing/SpellingCorrectionCommand.cpp
 editing/SplitTextNodeCommand.cpp
 editing/SplitTextNodeContainingElementCommand.cpp
 editing/TextCheckingHelper.cpp

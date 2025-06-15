@@ -150,7 +150,7 @@ private:
 
     using CrossOriginMapKey = std::pair<JSC::JSGlobalObject*, void*>;
 
-    UniqueRef<JSBuiltinInternalFunctions> m_builtinInternalFunctions;
+    const UniqueRef<JSBuiltinInternalFunctions> m_builtinInternalFunctions;
     JSC::WeakGCMap<CrossOriginMapKey, JSC::JSFunction> m_crossOriginFunctionMap;
     JSC::WeakGCMap<CrossOriginMapKey, JSC::GetterSetter> m_crossOriginGetterSetterMap;
 };

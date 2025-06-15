@@ -167,7 +167,6 @@ editing/ModifySelectionListLevel.cpp
 editing/RemoveNodePreservingChildrenCommand.cpp
 editing/RenderedPosition.cpp
 editing/ReplaceSelectionCommand.cpp
-editing/SetSelectionCommand.cpp
 editing/SimplifyMarkupCommand.cpp
 editing/SplitElementCommand.cpp
 editing/TextIterator.cpp

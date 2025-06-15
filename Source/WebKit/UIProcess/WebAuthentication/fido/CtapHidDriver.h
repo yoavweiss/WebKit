@@ -101,8 +101,6 @@ private:
     void returnResponse(Vector<uint8_t>&&);
     void reset();
 
-    Ref<CtapHidDriverWorker> protectedWorker() const { return m_worker.get(); }
-
     const UniqueRef<CtapHidDriverWorker> m_worker;
     State m_state { State::Idle };
     uint32_t m_channelId { fido::kHidBroadcastChannel };

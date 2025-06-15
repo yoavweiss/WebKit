@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2024-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1051,7 +1051,7 @@ void AnchorPositionEvaluator::updateAfterOverflowScroll(Document& document)
 
     // Also check if scrolling has caused any anchor boxes to move.
     Style::Scope::LayoutDependencyUpdateContext context;
-    document.checkedStyleScope()->invalidateForAnchorDependencies(context);
+    document.styleScope().invalidateForAnchorDependencies(context);
 }
 
 auto AnchorPositionEvaluator::makeAnchorPositionedForAnchorMap(AnchorPositionedToAnchorMap& toAnchorMap) -> AnchorToAnchorPositionedMap
