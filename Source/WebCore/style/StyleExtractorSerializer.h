@@ -140,8 +140,6 @@ public:
     static void serializeLineBoxContain(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<Style::LineBoxContain>);
     static void serializeWebkitRubyPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, RubyPosition);
     static void serializePosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LengthPoint&);
-    static void serializePositionOrAuto(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LengthPoint&);
-    static void serializePositionOrAutoOrNormal(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LengthPoint&);
     static void serializeContainIntrinsicSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ContainIntrinsicSizeType&, const std::optional<WebCore::Length>&);
     static void serializeTouchAction(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TouchAction>);
     static void serializeTextTransform(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextTransform>);
@@ -158,7 +156,6 @@ public:
     static void serializeWebkitColumnBreak(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, BreakInside);
     static void serializeSelfOrDefaultAlignmentData(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StyleSelfAlignmentData&);
     static void serializeContentAlignmentData(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StyleContentAlignmentData&);
-    static void serializeOffsetRotate(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const OffsetRotation&);
     static void serializePaintOrder(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, PaintOrder);
     static void serializeScrollTimelineAxes(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<ScrollAxis>&);
     static void serializeScrollTimelineNames(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<AtomString>&);
@@ -1521,31 +1518,6 @@ inline void ExtractorSerializer::serializePosition(ExtractorState& state, String
     serializeLength(state, builder, context, position.y);
 }
 
-inline void ExtractorSerializer::serializePositionOrAuto(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const LengthPoint& position)
-{
-    if (position.x.isAuto() && position.y.isAuto()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        return;
-    }
-
-    serializePosition(state, builder, context, position);
-}
-
-inline void ExtractorSerializer::serializePositionOrAutoOrNormal(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const LengthPoint& position)
-{
-    if (position.x.isAuto() && position.y.isAuto()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        return;
-    }
-
-    if (position.x.isNormal()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Normal { });
-        return;
-    }
-
-    serializePosition(state, builder, context, position);
-}
-
 inline void ExtractorSerializer::serializeContainIntrinsicSize(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ContainIntrinsicSizeType& type, const std::optional<WebCore::Length>& containIntrinsicLength)
 {
     switch (type) {
@@ -1873,16 +1845,6 @@ inline void ExtractorSerializer::serializeContentAlignmentData(ExtractorState& s
     ASSERT(list.size() > 0);
     ASSERT(list.size() <= 3);
     builder.append(CSSValueList::createSpaceSeparated(WTFMove(list))->cssText(context));
-}
-
-inline void ExtractorSerializer::serializeOffsetRotate(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const OffsetRotation& rotation)
-{
-    if (rotation.hasAuto()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        builder.append(' ');
-        CSS::serializationForCSS(builder, context, CSS::AngleRaw<> { CSS::AngleUnit::Deg, rotation.angle() });
-    } else
-        CSS::serializationForCSS(builder, context, CSS::AngleRaw<> { CSS::AngleUnit::Deg, rotation.angle() });
 }
 
 inline void ExtractorSerializer::serializePaintOrder(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, PaintOrder paintOrder)

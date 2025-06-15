@@ -2671,7 +2671,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/ListStyleType.h
     rendering/style/NameScope.h
     rendering/style/NinePieceImage.h
-    rendering/style/OffsetRotation.h
     rendering/style/OutlineValue.h
     rendering/style/PositionArea.h
     rendering/style/PositionTryFallback.h
@@ -2770,6 +2769,10 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/inline/StyleLineBoxContain.h
 
+    style/values/motion/StyleOffsetDistance.h
+    style/values/motion/StyleOffsetAnchor.h
+    style/values/motion/StyleOffsetPosition.h
+    style/values/motion/StyleOffsetRotate.h
     style/values/motion/StyleRayFunction.h
 
     style/values/position/StyleInset.h

@@ -467,10 +467,10 @@ inline NamedGridLinesMap RenderStyle::initialNamedGridColumnLines() { return { }
 inline NamedGridLinesMap RenderStyle::initialNamedGridRowLines() { return { }; }
 constexpr ObjectFit RenderStyle::initialObjectFit() { return ObjectFit::Fill; }
 inline LengthPoint RenderStyle::initialObjectPosition() { return { { 50.0f, LengthType::Percent }, { 50.0f, LengthType::Percent } }; }
-inline LengthPoint RenderStyle::initialOffsetAnchor() { return { }; }
-inline Length RenderStyle::initialOffsetDistance() { return zeroLength(); }
-inline LengthPoint RenderStyle::initialOffsetPosition() { return { { LengthType::Normal }, { LengthType::Normal } }; }
-constexpr OffsetRotation RenderStyle::initialOffsetRotate() { return { true }; }
+inline Style::OffsetAnchor RenderStyle::initialOffsetAnchor() { return CSS::Keyword::Auto { }; }
+inline Style::OffsetDistance RenderStyle::initialOffsetDistance() { return 0_css_px; }
+inline Style::OffsetPosition RenderStyle::initialOffsetPosition() { return CSS::Keyword::Normal { }; }
+constexpr Style::OffsetRotate RenderStyle::initialOffsetRotate() { return CSS::Keyword::Auto { }; }
 inline OrderedNamedGridLinesMap RenderStyle::initialOrderedNamedGridColumnLines() { return { }; }
 inline OrderedNamedGridLinesMap RenderStyle::initialOrderedNamedGridRowLines() { return { }; }
 constexpr OverflowAnchor RenderStyle::initialOverflowAnchor() { return OverflowAnchor::Auto; }
@@ -674,11 +674,11 @@ inline NBSPMode RenderStyle::nbspMode() const { return static_cast<NBSPMode>(m_r
 inline const StyleCustomPropertyData& RenderStyle::nonInheritedCustomProperties() const { return m_nonInheritedData->rareData->customProperties.get(); }
 inline ObjectFit RenderStyle::objectFit() const { return static_cast<ObjectFit>(m_nonInheritedData->miscData->objectFit); }
 inline const LengthPoint& RenderStyle::objectPosition() const { return m_nonInheritedData->miscData->objectPosition; }
-inline const LengthPoint& RenderStyle::offsetAnchor() const { return m_nonInheritedData->rareData->offsetAnchor; }
-inline const Length& RenderStyle::offsetDistance() const { return m_nonInheritedData->rareData->offsetDistance; }
+inline const Style::OffsetAnchor& RenderStyle::offsetAnchor() const { return m_nonInheritedData->rareData->offsetAnchor; }
+inline const Style::OffsetDistance& RenderStyle::offsetDistance() const { return m_nonInheritedData->rareData->offsetDistance; }
 inline PathOperation* RenderStyle::offsetPath() const { return m_nonInheritedData->rareData->offsetPath.get(); }
-inline const LengthPoint& RenderStyle::offsetPosition() const { return m_nonInheritedData->rareData->offsetPosition; }
-inline OffsetRotation RenderStyle::offsetRotate() const { return m_nonInheritedData->rareData->offsetRotate; }
+inline const Style::OffsetPosition& RenderStyle::offsetPosition() const { return m_nonInheritedData->rareData->offsetPosition; }
+inline const Style::OffsetRotate& RenderStyle::offsetRotate() const { return m_nonInheritedData->rareData->offsetRotate; }
 inline Length RenderStyle::oneLength() { return { 1, LengthType::Fixed }; }
 inline float RenderStyle::opacity() const { return m_nonInheritedData->miscData->opacity; }
 inline int RenderStyle::order() const { return m_nonInheritedData->miscData->order; }

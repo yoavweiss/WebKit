@@ -440,6 +440,22 @@ template<VariantLike StyleType> struct CSSValueConversion<StyleType> {
     }
 };
 
+// MARK: - Conversion directly from "Style" to "Platform"
+
+// All leaf types must implement the following:
+//
+//    template<> struct WebCore::Style::ToPlatform<StyleType> {
+//        PlatformType operator()(const StyleType&);
+//    };
+
+template<typename StyleType> struct ToPlatform;
+
+// Conversion Invoker
+template<typename StyleType> decltype(auto) toPlatform(const StyleType& value)
+{
+    return ToPlatform<StyleType>{}(value);
+}
+
 // MARK: - Serialization
 
 // All leaf types must implement the following:

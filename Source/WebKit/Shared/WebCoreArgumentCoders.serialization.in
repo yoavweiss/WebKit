@@ -3124,6 +3124,9 @@ header: <WebCore/StylePrimitiveNumericTypes.h>
 [CustomHeader, Nested] struct WebCore::Style::Angle<WebCore::CSS::All> {
     double value;
 };
+[CustomHeader, Nested] struct WebCore::Style::AngleAllFloat {
+    float value;
+};
 
 [CustomHeader, Nested] struct WebCore::Style::PercentageNonnegativeFloat {
     float value;
@@ -6677,9 +6680,14 @@ header: <WebCore/RenderStyleConstants.h>
     ViewBox
 };
 
-class WebCore::OffsetRotation {
-    bool hasAuto();
-    float angle();
+header: <WebCore/StyleOffsetRotate.h>
+using WebCore::CSS::Keyword::Auto = WebCore::Constant<WebCore::CSSValueAuto>;
+[CustomHeader, Nested] struct WebCore::Constant<WebCore::CSSValueAuto> {
+};
+
+[CustomHeader] struct WebCore::Style::OffsetRotate {
+    std::optional<WebCore::CSS::Keyword::Auto> autoKeyword();
+    WebCore::Style::AngleAllFloat angle();
 }
 
 [OptionSet] enum class WebCore::AcceleratedEffectProperty : uint16_t {
@@ -6738,7 +6746,7 @@ struct WebCore::AcceleratedEffectValues {
     WebCore::Length offsetDistance;
     WebCore::LengthPoint offsetPosition;
     WebCore::LengthPoint offsetAnchor;
-    WebCore::OffsetRotation offsetRotate;
+    WebCore::Style::OffsetRotate offsetRotate;
     WebCore::FilterOperations filter;
     WebCore::FilterOperations backdropFilter;
 }

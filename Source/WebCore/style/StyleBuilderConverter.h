@@ -91,6 +91,10 @@
 #include "StyleMargin.h"
 #include "StyleMaximumSize.h"
 #include "StyleMinimumSize.h"
+#include "StyleOffsetAnchor.h"
+#include "StyleOffsetDistance.h"
+#include "StyleOffsetPosition.h"
+#include "StyleOffsetRotate.h"
 #include "StylePadding.h"
 #include "StylePathData.h"
 #include "StylePreferredSize.h"
@@ -133,8 +137,6 @@ public:
     template<typename T> static T convertLineWidth(BuilderState&, const CSSValue&);
     static LengthSize convertRadius(BuilderState&, const CSSValue&);
     static LengthPoint convertPosition(BuilderState&, const CSSValue&);
-    static LengthPoint convertPositionOrAuto(BuilderState&, const CSSValue&);
-    static LengthPoint convertPositionOrAutoOrNormal(BuilderState&, const CSSValue&);
     static WebCore::Length convertPositionComponentX(BuilderState&, const CSSValue&);
     static WebCore::Length convertPositionComponentY(BuilderState&, const CSSValue&);
     static OptionSet<TextDecorationLine> convertTextDecorationLine(BuilderState&, const CSSValue&);
@@ -228,8 +230,6 @@ public:
     static OptionSet<SpeakAs> convertSpeakAs(BuilderState&, const CSSValue&);
 
     static GapLength convertGapLength(BuilderState&, const CSSValue&);
-
-    static OffsetRotation convertOffsetRotate(BuilderState&, const CSSValue&);
 
     static OptionSet<Containment> convertContain(BuilderState&, const CSSValue&);
     static FixedVector<ScopedName> convertContainerNames(BuilderState&, const CSSValue&);
@@ -568,22 +568,6 @@ inline LengthPoint BuilderConverter::convertPosition(BuilderState& builderState,
     if (!positionValue)
         return RenderStyle::initialObjectPosition();
     return toPlatform(toStyle(positionValue->position(), builderState));
-}
-
-inline LengthPoint BuilderConverter::convertPositionOrAutoOrNormal(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.isPositionValue())
-        return convertPosition(builderState, value);
-    if (value.valueID() == CSSValueNormal)
-        return { { LengthType::Normal }, { LengthType::Normal } };
-    return { };
-}
-
-inline LengthPoint BuilderConverter::convertPositionOrAuto(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.isPositionValue())
-        return convertPosition(builderState, value);
-    return { };
 }
 
 inline WebCore::Length BuilderConverter::convertPositionComponentX(BuilderState& builderState, const CSSValue& value)
@@ -2071,45 +2055,6 @@ inline OptionSet<HangingPunctuation> BuilderConverter::convertHangingPunctuation
 inline GapLength BuilderConverter::convertGapLength(BuilderState& builderState, const CSSValue& value)
 {
     return (value.valueID() == CSSValueNormal) ? GapLength() : GapLength(convertLength(builderState, value));
-}
-
-inline OffsetRotation BuilderConverter::convertOffsetRotate(BuilderState& builderState, const CSSValue& value)
-{
-    RefPtr<const CSSPrimitiveValue> modifierValue;
-    RefPtr<const CSSPrimitiveValue> angleValue;
-
-    if (auto* offsetRotateValue = dynamicDowncast<CSSOffsetRotateValue>(value)) {
-        modifierValue = offsetRotateValue->modifier();
-        angleValue = offsetRotateValue->angle();
-    } else if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        // Values coming from CSSTypedOM didn't go through the parser and may not have been converted to a CSSOffsetRotateValue.
-        if (primitiveValue->valueID() == CSSValueAuto || primitiveValue->valueID() == CSSValueReverse)
-            modifierValue = primitiveValue;
-        else if (primitiveValue->isAngle())
-            angleValue = primitiveValue;
-    }
-
-    bool hasAuto = false;
-    float angleInDegrees = 0;
-
-    if (angleValue)
-        angleInDegrees = angleValue->resolveAsAngle<float>(builderState.cssToLengthConversionData());
-
-    if (modifierValue) {
-        switch (modifierValue->valueID()) {
-        case CSSValueAuto:
-            hasAuto = true;
-            break;
-        case CSSValueReverse:
-            hasAuto = true;
-            angleInDegrees += 180.0;
-            break;
-        default:
-            ASSERT_NOT_REACHED();
-        }
-    }
-
-    return OffsetRotation(hasAuto, angleInDegrees);
 }
 
 inline FixedVector<ScopedName> BuilderConverter::convertContainerNames(BuilderState& builderState, const CSSValue& value)

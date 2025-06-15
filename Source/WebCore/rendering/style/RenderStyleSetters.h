@@ -252,11 +252,11 @@ inline void RenderStyle::setNamedGridAreaColumnCount(size_t columnCount) { SET_D
 inline void RenderStyle::setNamedGridAreaRowCount(size_t rowCount) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, namedGridAreaRowCount, rowCount); }
 inline void RenderStyle::setObjectFit(ObjectFit fit) { SET_NESTED(m_nonInheritedData, miscData, objectFit, static_cast<unsigned>(fit)); }
 inline void RenderStyle::setObjectPosition(LengthPoint position) { SET_NESTED(m_nonInheritedData, miscData, objectPosition, WTFMove(position)); }
-inline void RenderStyle::setOffsetAnchor(LengthPoint position) { SET_NESTED(m_nonInheritedData, rareData, offsetAnchor, WTFMove(position)); }
-inline void RenderStyle::setOffsetDistance(Length&& distance) { SET_NESTED(m_nonInheritedData, rareData, offsetDistance, WTFMove(distance)); }
+inline void RenderStyle::setOffsetAnchor(Style::OffsetAnchor&& anchor) { SET_NESTED(m_nonInheritedData, rareData, offsetAnchor, WTFMove(anchor)); }
+inline void RenderStyle::setOffsetDistance(Style::OffsetDistance&& distance) { SET_NESTED(m_nonInheritedData, rareData, offsetDistance, WTFMove(distance)); }
 inline void RenderStyle::setOffsetPath(RefPtr<PathOperation>&& path) { SET_NESTED(m_nonInheritedData, rareData, offsetPath, WTFMove(path)); }
-inline void RenderStyle::setOffsetPosition(LengthPoint position) { SET_NESTED(m_nonInheritedData, rareData, offsetPosition, WTFMove(position)); }
-inline void RenderStyle::setOffsetRotate(OffsetRotation&& rotation) { SET_NESTED(m_nonInheritedData, rareData, offsetRotate, WTFMove(rotation)); }
+inline void RenderStyle::setOffsetPosition(Style::OffsetPosition&& position) { SET_NESTED(m_nonInheritedData, rareData, offsetPosition, WTFMove(position)); }
+inline void RenderStyle::setOffsetRotate(Style::OffsetRotate&& rotate) { SET_NESTED(m_nonInheritedData, rareData, offsetRotate, WTFMove(rotate)); }
 inline void RenderStyle::setOrder(int o) { SET_NESTED(m_nonInheritedData, miscData, order, o); }
 inline void RenderStyle::setOutlineColor(Style::Color&& color) { SET_NESTED_BORDER_COLOR(m_nonInheritedData, backgroundData, outline, WTFMove(color)); }
 inline void RenderStyle::setOutlineOffset(float offset) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_offset, offset); }

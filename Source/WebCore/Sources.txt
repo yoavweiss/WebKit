@@ -2950,7 +2950,6 @@ rendering/style/GridSpan.cpp
 rendering/style/GridTrackSize.cpp
 rendering/style/ListStyleType.cpp
 rendering/style/NinePieceImage.cpp
-rendering/style/OffsetRotation.cpp
 rendering/style/QuotesData.cpp
 rendering/style/PositionArea.cpp
 rendering/style/PositionTryFallback.cpp
@@ -3183,6 +3182,10 @@ style/values/filter-effects/StyleSaturateFunction.cpp
 style/values/filter-effects/StyleSepiaFunction.cpp
 style/values/flexbox/StyleFlexBasis.cpp
 style/values/images/StyleGradient.cpp
+style/values/motion/StyleOffsetAnchor.cpp
+style/values/motion/StyleOffsetDistance.cpp
+style/values/motion/StyleOffsetPosition.cpp
+style/values/motion/StyleOffsetRotate.cpp
 style/values/position/StyleInset.cpp
 style/values/primitives/StyleLengthResolution.cpp
 style/values/primitives/StylePosition.cpp

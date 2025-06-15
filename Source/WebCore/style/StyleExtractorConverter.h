@@ -230,8 +230,6 @@ public:
     static Ref<CSSValue> convertLineBoxContain(ExtractorState&, OptionSet<Style::LineBoxContain>);
     static Ref<CSSValue> convertWebkitRubyPosition(ExtractorState&, RubyPosition);
     static Ref<CSSValue> convertPosition(ExtractorState&, const LengthPoint&);
-    static Ref<CSSValue> convertPositionOrAuto(ExtractorState&, const LengthPoint&);
-    static Ref<CSSValue> convertPositionOrAutoOrNormal(ExtractorState&, const LengthPoint&);
     static Ref<CSSValue> convertContainIntrinsicSize(ExtractorState&, const ContainIntrinsicSizeType&, const std::optional<WebCore::Length>&);
     static Ref<CSSValue> convertTouchAction(ExtractorState&, OptionSet<TouchAction>);
     static Ref<CSSValue> convertTextTransform(ExtractorState&, OptionSet<TextTransform>);
@@ -248,7 +246,6 @@ public:
     static Ref<CSSValue> convertWebkitColumnBreak(ExtractorState&, BreakInside);
     static Ref<CSSValue> convertSelfOrDefaultAlignmentData(ExtractorState&, const StyleSelfAlignmentData&);
     static Ref<CSSValue> convertContentAlignmentData(ExtractorState&, const StyleContentAlignmentData&);
-    static Ref<CSSValue> convertOffsetRotate(ExtractorState&, const OffsetRotation&);
     static Ref<CSSValue> convertPaintOrder(ExtractorState&, PaintOrder);
     static Ref<CSSValue> convertScrollTimelineAxes(ExtractorState&, const FixedVector<ScrollAxis>&);
     static Ref<CSSValue> convertScrollTimelineNames(ExtractorState&, const FixedVector<AtomString>&);
@@ -1233,22 +1230,6 @@ inline Ref<CSSValue> ExtractorConverter::convertPosition(ExtractorState& state, 
     );
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertPositionOrAuto(ExtractorState& state, const LengthPoint& position)
-{
-    if (position.x.isAuto() && position.y.isAuto())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    return convertPosition(state, position);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertPositionOrAutoOrNormal(ExtractorState& state, const LengthPoint& position)
-{
-    if (position.x.isAuto() && position.y.isAuto())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    if (position.x.isNormal())
-        return CSSPrimitiveValue::create(CSSValueNormal);
-    return convertPosition(state, position);
-}
-
 inline Ref<CSSValue> ExtractorConverter::convertContainIntrinsicSize(ExtractorState& state, const ContainIntrinsicSizeType& type, const std::optional<WebCore::Length>& containIntrinsicLength)
 {
     switch (type) {
@@ -1499,14 +1480,6 @@ inline Ref<CSSValue> ExtractorConverter::convertContentAlignmentData(ExtractorSt
     ASSERT(list.size() > 0);
     ASSERT(list.size() <= 3);
     return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertOffsetRotate(ExtractorState&, const OffsetRotation& rotation)
-{
-    auto angle = CSSPrimitiveValue::create(rotation.angle(), CSSUnitType::CSS_DEG);
-    if (rotation.hasAuto())
-        return CSSValueList::createSpaceSeparated(CSSPrimitiveValue::create(CSSValueAuto), WTFMove(angle));
-    return CSSValueList::createSpaceSeparated(WTFMove(angle));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertPaintOrder(ExtractorState&, PaintOrder paintOrder)

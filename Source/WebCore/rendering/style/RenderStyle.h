@@ -73,7 +73,6 @@ class LayoutUnit;
 class LengthBox;
 class LineClampValue;
 class NinePieceImage;
-class OffsetRotation;
 class PathOperation;
 class PositionArea;
 class PseudoIdSet;
@@ -298,6 +297,10 @@ struct InsetEdge;
 struct MarginEdge;
 struct MaximumSize;
 struct MinimumSize;
+struct OffsetAnchor;
+struct OffsetDistance;
+struct OffsetPosition;
+struct OffsetRotate;
 struct PaddingEdge;
 struct PositionTryFallback;
 struct PreferredSize;
@@ -2323,21 +2326,21 @@ public:
     inline void setOffsetPath(RefPtr<PathOperation>&&);
     static PathOperation* initialOffsetPath() { return nullptr; }
 
-    inline const Length& offsetDistance() const;
-    inline void setOffsetDistance(Length&&);
-    static inline Length initialOffsetDistance();
+    inline const Style::OffsetDistance& offsetDistance() const;
+    inline void setOffsetDistance(Style::OffsetDistance&&);
+    static inline Style::OffsetDistance initialOffsetDistance();
 
-    inline const LengthPoint& offsetPosition() const;
-    inline void setOffsetPosition(LengthPoint);
-    static inline LengthPoint initialOffsetPosition();
+    inline const Style::OffsetPosition& offsetPosition() const;
+    inline void setOffsetPosition(Style::OffsetPosition&&);
+    static inline Style::OffsetPosition initialOffsetPosition();
 
-    inline const LengthPoint& offsetAnchor() const;
-    inline void setOffsetAnchor(LengthPoint);
-    static inline LengthPoint initialOffsetAnchor();
+    inline const Style::OffsetAnchor& offsetAnchor() const;
+    inline void setOffsetAnchor(Style::OffsetAnchor&&);
+    static inline Style::OffsetAnchor initialOffsetAnchor();
 
-    inline OffsetRotation offsetRotate() const;
-    inline void setOffsetRotate(OffsetRotation&&);
-    static constexpr OffsetRotation initialOffsetRotate();
+    inline const Style::OffsetRotate& offsetRotate() const;
+    inline void setOffsetRotate(Style::OffsetRotate&&);
+    static constexpr Style::OffsetRotate initialOffsetRotate();
 
     bool borderAndBackgroundEqual(const RenderStyle&) const;
     

@@ -3165,33 +3165,42 @@ inline RefPtr<CSSValue> ExtractorCustom::extractOffsetShorthand(ExtractorState& 
     // The first four elements are serialized in a space separated CSSValueList.
     // This is then combined with offset-anchor in a slash separated CSSValueList.
 
-    auto isAuto = [](const auto& position) { return position.x.isAuto() && position.y.isAuto(); };
-    auto isNormal = [](const auto& position) { return position.x.isNormal(); };
-
     CSSValueListBuilder innerList;
 
-    if (!isAuto(state.style.offsetPosition()) && !isNormal(state.style.offsetPosition()))
-        innerList.append(ExtractorConverter::convertPosition(state, state.style.offsetPosition()));
+    WTF::switchOn(state.style.offsetPosition(),
+        [&](const CSS::Keyword::Auto&) { },
+        [&](const CSS::Keyword::Normal&) { },
+        [&](const Position& position) {
+            innerList.append(ExtractorConverter::convertStyleType(state, position));
+        }
+    );
 
-    bool nonInitialDistance = !state.style.offsetDistance().isZero();
+    bool nonInitialDistance = state.style.offsetDistance() != state.style.initialOffsetDistance();
     bool nonInitialRotate = state.style.offsetRotate() != state.style.initialOffsetRotate();
 
     if (state.style.offsetPath() || nonInitialDistance || nonInitialRotate)
         innerList.append(ExtractorConverter::convertPathOperation(state, state.style.offsetPath(), PathConversion::ForceAbsolute));
 
     if (nonInitialDistance)
-        innerList.append(CSSPrimitiveValue::create(state.style.offsetDistance(), state.style));
+        innerList.append(ExtractorConverter::convertStyleType(state, state.style.offsetDistance()));
     if (nonInitialRotate)
-        innerList.append(ExtractorConverter::convertOffsetRotate(state, state.style.offsetRotate()));
+        innerList.append(ExtractorConverter::convertStyleType(state, state.style.offsetRotate()));
 
     auto inner = innerList.isEmpty()
         ? Ref<CSSValue> { CSSPrimitiveValue::create(CSSValueAuto) }
         : Ref<CSSValue> { CSSValueList::createSpaceSeparated(WTFMove(innerList)) };
 
-    if (isAuto(state.style.offsetAnchor()))
-        return inner;
-
-    return CSSValueList::createSlashSeparated(WTFMove(inner), ExtractorConverter::convertPosition(state, state.style.offsetAnchor()));
+    return WTF::switchOn(state.style.offsetAnchor(),
+        [&](const CSS::Keyword::Auto&) -> Ref<CSSValue> {
+            return inner;
+        },
+        [&](const Position& position) -> Ref<CSSValue> {
+            return CSSValueList::createSlashSeparated(
+                WTFMove(inner),
+                ExtractorConverter::convertStyleType(state, position)
+            );
+        }
+    );
 }
 
 inline void ExtractorCustom::extractOffsetShorthandSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)

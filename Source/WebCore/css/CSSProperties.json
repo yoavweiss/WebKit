@@ -6489,12 +6489,9 @@
             "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-requires-additional-parameters": ["{ LengthWrapper::Flags::IsLengthPercentage }"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "threaded-only",
-                "style-builder-converter": "Length",
-                "style-extractor-converter": "LengthWithoutApplyingZoom",
-                "style-extractor-converter-comment": "FIXME: Add explanation (or remove) for why extractor does not apply zoom",
+                "style-converter": "StyleType<OffsetDistance>",
                 "parser-grammar": "<length-percentage>"
             },
             "specification": {
@@ -6510,9 +6507,9 @@
                 "auto"
             ],
             "codegen-properties": {
-                "animation-wrapper": "LengthPointOrAutoWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "threaded-only",
-                "style-converter": "PositionOrAutoOrNormal",
+                "style-converter": "StyleType<OffsetPosition>",
                 "parser-grammar": "normal | auto | <position>"
             },
             "specification": {
@@ -6527,9 +6524,9 @@
                 "auto"
             ],
             "codegen-properties": {
-                "animation-wrapper": "LengthPointOrAutoWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "threaded-only",
-                "style-converter": "PositionOrAuto",
+                "style-converter": "StyleType<OffsetAnchor>",
                 "parser-grammar": "auto | <position>"
             },
             "specification": {
@@ -6545,10 +6542,9 @@
                 "reverse"
             ],
             "codegen-properties": {
-                "animation-wrapper": "OffsetRotateWrapper",
-                "animation-wrapper-requires-override-parameters": [],
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "threaded-only",
-                "style-converter": "OffsetRotate",
+                "style-converter": "StyleType<OffsetRotate>",
                 "parser-grammar": "[ [ auto | reverse ] || <angle> ]@(type=CSSOffsetRotateValue)"
             },
             "specification": {

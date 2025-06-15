@@ -135,6 +135,7 @@ style/StyleScope.h
 style/values/box/StyleMargin.h
 style/values/box/StylePadding.h
 style/values/flexbox/StyleFlexBasis.h
+style/values/motion/StyleOffsetDistance.h
 style/values/position/StyleInset.h
 style/values/scroll-snap/StyleScrollPadding.h
 style/values/sizing/StyleMaximumSize.h
