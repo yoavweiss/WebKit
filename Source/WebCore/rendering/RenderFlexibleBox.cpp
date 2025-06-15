@@ -2477,13 +2477,13 @@ static LayoutUnit initialAlignContentOffset(LayoutUnit availableFreeSpace, Conte
         if (availableFreeSpace > 0 && numberOfLines)
             return availableFreeSpace / (2 * numberOfLines);
         if (availableFreeSpace < 0)
-            return availableFreeSpace / 2;
+            return std::max(0_lu, availableFreeSpace / 2);
     }
     if (alignContentDistribution == ContentDistribution::SpaceEvenly) {
         if (availableFreeSpace > 0)
             return availableFreeSpace / (numberOfLines + 1);
-        // Fallback to 'center'
-        return availableFreeSpace / 2;
+        // Fallback to 'safe center'
+        return std::max(0_lu, availableFreeSpace / 2);
     }
     return 0_lu;
 }
