@@ -483,9 +483,10 @@ void Adjuster::adjust(RenderStyle& style) const
         adjustDisplayContentsStyle(style);
 
     if (m_element && (m_element->hasTagName(frameTag) || m_element->hasTagName(framesetTag))) {
-        // Framesets ignore display and position properties.
+        // Framesets ignore display, position and float properties.
         style.setPosition(PositionType::Static);
         style.setEffectiveDisplay(DisplayType::Block);
+        style.setFloating(Float::None);
     }
 
     if (style.display() != DisplayType::None && style.display() != DisplayType::Contents) {
