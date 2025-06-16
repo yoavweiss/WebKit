@@ -114,7 +114,7 @@ private:
     FontFaceSet& readyPromiseResolve();
 
     const Ref<CSSFontFaceSet> m_backing;
-    UncheckedKeyHashMap<RefPtr<FontFace>, Vector<Ref<PendingPromise>>> m_pendingPromises;
+    HashMap<RefPtr<FontFace>, Vector<Ref<PendingPromise>>> m_pendingPromises;
     const UniqueRef<ReadyPromise> m_readyPromise;
 
     bool m_isDocumentLoaded { true };

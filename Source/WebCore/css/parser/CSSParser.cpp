@@ -135,7 +135,7 @@ auto CSSParser::parseCustomPropertyValue(MutableStyleProperties& declaration, co
     return declaration.addParsedProperties(parser.topContext().m_parsedProperties) ? ParseResult::Changed : ParseResult::Unchanged;
 }
 
-static inline void filterProperties(IsImportant important, const ParsedPropertyVector& input, ParsedPropertyVector& output, size_t& unusedEntries, std::bitset<numCSSProperties>& seenProperties, UncheckedKeyHashSet<AtomString>& seenCustomProperties)
+static inline void filterProperties(IsImportant important, const ParsedPropertyVector& input, ParsedPropertyVector& output, size_t& unusedEntries, std::bitset<numCSSProperties>& seenProperties, HashSet<AtomString>& seenCustomProperties)
 {
     // Add properties in reverse order so that highest priority definitions are reached first. Duplicate definitions can then be ignored when found.
     for (size_t i = input.size(); i--;) {
@@ -166,7 +166,7 @@ static Ref<ImmutableStyleProperties> createStyleProperties(ParsedPropertyVector&
     std::bitset<numCSSProperties> seenProperties;
     size_t unusedEntries = parsedProperties.size();
     ParsedPropertyVector results(unusedEntries);
-    UncheckedKeyHashSet<AtomString> seenCustomProperties;
+    HashSet<AtomString> seenCustomProperties;
 
     filterProperties(IsImportant::Yes, parsedProperties, results, unusedEntries, seenProperties, seenCustomProperties);
     filterProperties(IsImportant::No, parsedProperties, results, unusedEntries, seenProperties, seenCustomProperties);
@@ -197,7 +197,7 @@ bool CSSParser::parseDeclarationList(MutableStyleProperties& declaration, const 
     std::bitset<numCSSProperties> seenProperties;
     size_t unusedEntries = parser.topContext().m_parsedProperties.size();
     ParsedPropertyVector results(unusedEntries);
-    UncheckedKeyHashSet<AtomString> seenCustomProperties;
+    HashSet<AtomString> seenCustomProperties;
     filterProperties(IsImportant::Yes, parser.topContext().m_parsedProperties, results, unusedEntries, seenProperties, seenCustomProperties);
     filterProperties(IsImportant::No, parser.topContext().m_parsedProperties, results, unusedEntries, seenProperties, seenCustomProperties);
     if (unusedEntries)
