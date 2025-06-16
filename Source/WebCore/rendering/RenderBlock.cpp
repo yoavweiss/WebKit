@@ -2652,30 +2652,26 @@ static inline RenderBlock* findFirstLetterBlock(RenderBlock* start)
     return nullptr;
 }
 
-void RenderBlock::getFirstLetter(RenderObject*& firstLetter, RenderElement*& firstLetterContainer, RenderObject* skipObject)
+std::pair<RenderObject*, RenderElement*> RenderBlock::firstLetterAndContainer(RenderObject* skipThisAsFirstLetter)
 {
-    firstLetter = nullptr;
-    firstLetterContainer = nullptr;
-
     // Don't recur
     if (style().pseudoElementType() == PseudoId::FirstLetter)
-        return;
+        return { };
     
     // FIXME: We need to destroy the first-letter object if it is no longer the first child. Need to find
     // an efficient way to check for that situation though before implementing anything.
-    firstLetterContainer = findFirstLetterBlock(this);
+    RenderElement* firstLetterContainer = findFirstLetterBlock(this);
     if (!firstLetterContainer)
-        return;
+        return { };
     
     // Drill into inlines looking for our first text descendant.
-    firstLetter = firstLetterContainer->firstChild();
+    auto* firstLetter = firstLetterContainer->firstChild();
     while (firstLetter) {
         if (is<RenderText>(*firstLetter)) {
-            if (firstLetter == skipObject) {
+            if (firstLetter == skipThisAsFirstLetter) {
                 firstLetter = firstLetter->nextSibling();
                 continue;
             }
-            
             break;
         }
 
@@ -2701,7 +2697,9 @@ void RenderBlock::getFirstLetter(RenderObject*& firstLetter, RenderElement*& fir
     }
     
     if (!firstLetter)
-        firstLetterContainer = nullptr;
+        return { };
+
+    return { firstLetter, firstLetterContainer };
 }
 
 RenderFragmentedFlow* RenderBlock::cachedEnclosingFragmentedFlow() const

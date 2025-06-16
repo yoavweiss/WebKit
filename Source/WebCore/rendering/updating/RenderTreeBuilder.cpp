@@ -618,15 +618,12 @@ void RenderTreeBuilder::moveChildren(RenderBoxModelObject& from, RenderBoxModelO
         // When the |child| object will be moved, its firstLetter will be recreated,
         // so saving it now in nextSibling would leave us with a stale object.
         if (is<RenderTextFragment>(*child) && is<RenderText>(nextSibling)) {
-            RenderObject* firstLetterObj = nullptr;
-            if (RenderBlock* block = downcast<RenderTextFragment>(*child).blockForAccompanyingFirstLetter()) {
-                RenderElement* firstLetterContainer = nullptr;
-                block->getFirstLetter(firstLetterObj, firstLetterContainer, child);
+            if (auto* block = downcast<RenderTextFragment>(*child).blockForAccompanyingFirstLetter()) {
+                auto [firstLetter, firstLetterContainer] = block->firstLetterAndContainer(child);
+                // This is the first letter, skip it.
+                if (firstLetter == nextSibling)
+                    nextSibling = nextSibling->nextSibling();
             }
-
-            // This is the first letter, skip it.
-            if (firstLetterObj == nextSibling)
-                nextSibling = nextSibling->nextSibling();
         }
 
         move(from, to, *child, beforeChild, normalizeAfterInsertion);
