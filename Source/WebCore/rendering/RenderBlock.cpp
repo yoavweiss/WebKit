@@ -520,7 +520,7 @@ void RenderBlock::layout()
     invalidateBackgroundObscurationStatus();
 }
 
-RenderBlockRareData* RenderBlock::getBlockRareData() const
+RenderBlockRareData* RenderBlock::blockRareData() const
 {
     if (!renderBlockHasRareData())
         return nullptr;
@@ -2706,7 +2706,7 @@ void RenderBlock::getFirstLetter(RenderObject*& firstLetter, RenderElement*& fir
 
 RenderFragmentedFlow* RenderBlock::cachedEnclosingFragmentedFlow() const
 {
-    RenderBlockRareData* rareData = getBlockRareData();
+    RenderBlockRareData* rareData = blockRareData();
 
     if (!rareData || !rareData->m_enclosingFragmentedFlow)
         return nullptr;
@@ -2716,7 +2716,7 @@ RenderFragmentedFlow* RenderBlock::cachedEnclosingFragmentedFlow() const
 
 bool RenderBlock::cachedEnclosingFragmentedFlowNeedsUpdate() const
 {
-    RenderBlockRareData* rareData = getBlockRareData();
+    RenderBlockRareData* rareData = blockRareData();
 
     if (!rareData || !rareData->m_enclosingFragmentedFlow)
         return true;
@@ -2740,7 +2740,7 @@ RenderFragmentedFlow* RenderBlock::updateCachedEnclosingFragmentedFlow(RenderFra
 
 RenderFragmentedFlow* RenderBlock::locateEnclosingFragmentedFlow() const
 {
-    RenderBlockRareData* rareData = getBlockRareData();
+    RenderBlockRareData* rareData = blockRareData();
     if (!rareData || !rareData->m_enclosingFragmentedFlow)
         return updateCachedEnclosingFragmentedFlow(RenderBox::locateEnclosingFragmentedFlow());
 
@@ -2761,19 +2761,19 @@ void RenderBlock::resetEnclosingFragmentedFlowAndChildInfoIncludingDescendants(R
 
 LayoutUnit RenderBlock::paginationStrut() const
 {
-    RenderBlockRareData* rareData = getBlockRareData();
+    RenderBlockRareData* rareData = blockRareData();
     return rareData ? rareData->m_paginationStrut : 0_lu;
 }
 
 LayoutUnit RenderBlock::pageLogicalOffset() const
 {
-    RenderBlockRareData* rareData = getBlockRareData();
+    RenderBlockRareData* rareData = blockRareData();
     return rareData ? rareData->m_pageLogicalOffset : 0_lu;
 }
 
 void RenderBlock::setPaginationStrut(LayoutUnit strut)
 {
-    RenderBlockRareData* rareData = getBlockRareData();
+    RenderBlockRareData* rareData = blockRareData();
     if (!rareData) {
         if (!strut)
             return;
@@ -2784,7 +2784,7 @@ void RenderBlock::setPaginationStrut(LayoutUnit strut)
 
 void RenderBlock::setPageLogicalOffset(LayoutUnit logicalOffset)
 {
-    RenderBlockRareData* rareData = getBlockRareData();
+    RenderBlockRareData* rareData = blockRareData();
     if (!rareData) {
         if (!logicalOffset)
             return;
@@ -3414,13 +3414,13 @@ LayoutRect RenderBlock::paintRectToClipOutFromBorder(const LayoutRect& paintRect
 
 LayoutUnit RenderBlock::intrinsicBorderForFieldset() const
 {
-    auto* rareData = getBlockRareData();
+    auto* rareData = blockRareData();
     return rareData ? rareData->m_intrinsicBorderForFieldset : 0_lu;
 }
 
 void RenderBlock::setIntrinsicBorderForFieldset(LayoutUnit padding)
 {
-    auto* rareData = getBlockRareData();
+    auto* rareData = blockRareData();
     if (!rareData) {
         if (!padding)
             return;

@@ -342,7 +342,7 @@ protected:
     virtual void computeChildIntrinsicLogicalWidths(RenderBox&, LayoutUnit& minPreferredLogicalWidth, LayoutUnit& maxPreferredLogicalWidth) const;
 
     RenderBlockRareData& ensureBlockRareData();
-    RenderBlockRareData* getBlockRareData() const;
+    RenderBlockRareData* blockRareData() const;
     bool recomputeLogicalWidth();
 
 private:

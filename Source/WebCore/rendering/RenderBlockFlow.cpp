@@ -1427,7 +1427,7 @@ std::optional<LayoutUnit> RenderBlockFlow::selfCollapsingMarginBeforeWithClear(R
     if (RenderStyle::usedClear(*candidateBlockFlow) == UsedClear::None || !containsFloats())
         return { };
 
-    auto clear = getClearDelta(*candidateBlockFlow, candidateBlockFlow->logicalHeight());
+    auto clear = computedClearDeltaForChild(*candidateBlockFlow, candidateBlockFlow->logicalHeight());
     // Just because a block box has the clear property set, it does not mean we always get clearance (e.g. when the box is below the cleared floats)
     if (clear < candidateBlockFlow->logicalBottom())
         return { };
@@ -1587,7 +1587,7 @@ bool RenderBlockFlow::isChildEligibleForMarginTrim(MarginTrimType marginTrimType
 
 LayoutUnit RenderBlockFlow::clearFloatsIfNeeded(RenderBox& child, MarginInfo& marginInfo, LayoutUnit oldTopPosMargin, LayoutUnit oldTopNegMargin, LayoutUnit yPos)
 {
-    LayoutUnit heightIncrease = getClearDelta(child, yPos);
+    LayoutUnit heightIncrease = computedClearDeltaForChild(child, yPos);
     if (!heightIncrease)
         return yPos;
 
@@ -1716,7 +1716,7 @@ LayoutUnit RenderBlockFlow::estimateLogicalTopPosition(RenderBox& child, const M
         && hasNextPage(logicalHeight()))
         logicalTopEstimate = std::min(logicalTopEstimate, nextPageLogicalTop(logicalHeight()));
 
-    logicalTopEstimate += getClearDelta(child, logicalTopEstimate);
+    logicalTopEstimate += computedClearDeltaForChild(child, logicalTopEstimate);
 
     estimateWithoutPagination = logicalTopEstimate;
 
@@ -3131,7 +3131,7 @@ LayoutPoint RenderBlockFlow::flipFloatForWritingModeForChild(const FloatingObjec
     return LayoutPoint(point.x() + width() - child.renderer().width() - 2 * child.locationOffsetOfBorderBox().width(), point.y());
 }
 
-LayoutUnit RenderBlockFlow::getClearDelta(RenderBox& child, LayoutUnit logicalTop)
+LayoutUnit RenderBlockFlow::computedClearDeltaForChild(RenderBox& child, LayoutUnit logicalTop)
 {
     // There is no need to compute clearance if we have no floats.
     if (!containsFloats())
