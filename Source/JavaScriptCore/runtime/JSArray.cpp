@@ -1147,7 +1147,7 @@ bool JSArray::appendMemcpy(JSGlobalObject* globalObject, VM& vm, unsigned startI
         }
     } else if (type == ArrayWithDouble) {
         // Double array storage do not need to be safe against GC since they are not scanned.
-        memcpy(butterfly()->contiguousDouble().data() + startIndex, otherArray->butterfly()->contiguousDouble().data(), sizeof(JSValue) * otherLength);
+        memcpy(butterfly()->contiguousDouble().data() + startIndex, otherArray->butterfly()->contiguousDouble().data(), sizeof(double) * otherLength);
     } else if (type == ArrayWithInt32)
         memcpy(butterfly()->contiguous().data() + startIndex, otherArray->butterfly()->contiguous().data(), sizeof(JSValue) * otherLength);
     else {
@@ -1611,7 +1611,7 @@ bool JSArray::shiftCountWithAnyIndexingType(JSGlobalObject* globalObject, unsign
             } else {
                 gcSafeMemmove(butterfly->contiguousDouble().data() + startIndex,
                     butterfly->contiguousDouble().data() + startIndex + count,
-                    sizeof(JSValue) * moveCount);
+                    sizeof(double) * moveCount);
             }
         }
         for (unsigned i = end; i < oldLength; ++i)
