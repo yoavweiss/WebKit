@@ -3061,6 +3061,7 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     [self _updateFixedColorExtensionViews];
+    [self _updateHiddenScrollPocketEdges];
 #endif
 
 #if PLATFORM(MAC) && ENABLE(CONTENT_INSET_BACKGROUND_FILL)

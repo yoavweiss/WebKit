@@ -2401,7 +2401,6 @@ void WebViewImpl::pageDidScroll(const IntPoint& scrollPosition)
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     updateScrollPocketVisibilityWhenScrolledToTop();
-    updateTopScrollPocketCaptureColor();
 #endif
 
     [m_view didChangeValueForKey:@"hasScrolledContentsUnderTitlebar"];
@@ -2421,8 +2420,11 @@ void WebViewImpl::updateScrollPocketVisibilityWhenScrolledToTop()
 void WebViewImpl::updateTopScrollPocketCaptureColor()
 {
     RetainPtr view = m_view.get();
+    if ([view _usesAutomaticContentInsetBackgroundFill])
+        return;
+
     RetainPtr captureColor = [view _sampledTopFixedPositionContentColor];
-    if (!captureColor && (m_pageIsScrolledToTop || [view _hasVisibleColorExtensionView:BoxSide::Top])) {
+    if (!captureColor) {
         if (auto backgroundColor = m_page->underPageBackgroundColorIgnoringPlatformColor(); backgroundColor.isValid())
             captureColor = cocoaColor(backgroundColor);
         else
