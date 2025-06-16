@@ -29,11 +29,12 @@
 #include "CalculationCategory.h"
 #include "ComputedStyleDependencies.h"
 #include "ContainerQueryEvaluator.h"
-#include "CustomPropertyRegistry.h"
 #include "RenderBoxInlines.h"
 #include "RenderElementInlines.h"
 #include "RenderObjectInlines.h"
 #include "StyleBuilder.h"
+#include "StyleCustomProperty.h"
+#include "StyleCustomPropertyRegistry.h"
 #include <wtf/NeverDestroyed.h>
 
 namespace WebCore::CQ {
@@ -297,9 +298,9 @@ struct StyleFeatureSchema : public FeatureSchema {
 
         auto* customPropertyValue = style.customPropertyValue(feature.name);
         if (!feature.rightComparison)
-            return toEvaluationResult(customPropertyValue && !customPropertyValue->isInvalid());
+            return toEvaluationResult(customPropertyValue && !customPropertyValue->isGuaranteedInvalid());
 
-        auto resolvedFeatureValue = [&]() -> RefPtr<const CSSCustomPropertyValue> {
+        auto resolvedFeatureValue = [&]() -> RefPtr<const Style::CustomProperty> {
             auto featureValue = dynamicDowncast<CSSCustomPropertyValue>(feature.rightComparison->value);
             ASSERT(featureValue);
 
@@ -322,8 +323,8 @@ struct StyleFeatureSchema : public FeatureSchema {
             return EvaluationResult::False;
 
         // Guaranteed-invalid values match guaranteed-invalid values.
-        if (resolvedFeatureValue->isInvalid())
-            return toEvaluationResult(!customPropertyValue || customPropertyValue->isInvalid());
+        if (resolvedFeatureValue->isGuaranteedInvalid())
+            return toEvaluationResult(!customPropertyValue || customPropertyValue->isGuaranteedInvalid());
 
         ASSERT(feature.rightComparison->op == ComparisonOperator::Equal);
         return toEvaluationResult(customPropertyValue && *customPropertyValue == *resolvedFeatureValue);

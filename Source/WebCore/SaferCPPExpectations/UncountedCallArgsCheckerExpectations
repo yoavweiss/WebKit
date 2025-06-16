@@ -985,7 +985,6 @@ rendering/style/StyleCachedImage.cpp
 rendering/style/StyleCanvasImage.cpp
 rendering/style/StyleCrossfadeImage.cpp
 rendering/style/StyleCursorImage.cpp
-rendering/style/StyleCustomPropertyData.cpp
 rendering/style/StyleGeneratedImage.cpp
 rendering/style/StyleMiscNonInheritedData.cpp
 rendering/style/StyleMultiImage.cpp

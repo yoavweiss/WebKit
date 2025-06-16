@@ -780,7 +780,6 @@ style/ChildChangeInvalidation.cpp
 style/ChildChangeInvalidation.h
 style/ClassChangeInvalidation.cpp
 style/ContainerQueryEvaluator.cpp
-style/CustomPropertyRegistry.cpp
 style/ElementRuleCollector.cpp
 style/IdChangeInvalidation.cpp
 style/InlineTextBoxStyle.cpp
@@ -794,6 +793,7 @@ style/StyleBuilderConverter.h
 style/StyleBuilderCustom.h
 style/StyleBuilderState.cpp
 style/StyleBuilderStateInlines.h
+style/StyleCustomPropertyRegistry.cpp
 style/StyleExtractor.cpp
 style/StyleExtractorConverter.h
 style/StyleExtractorCustom.h

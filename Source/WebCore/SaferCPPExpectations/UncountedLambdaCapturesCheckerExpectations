@@ -106,6 +106,7 @@ rendering/svg/legacy/LegacyRenderSVGResourceGradient.cpp
 rendering/svg/legacy/SVGResourcesCycleSolver.cpp
 rendering/updating/RenderTreeUpdater.cpp
 style/Styleable.cpp
+style/StyleCustomProperty.cpp
 style/values/StyleValueTypes.h
 style/values/images/StyleGradient.cpp
 testing/MockMediaSessionCoordinator.cpp

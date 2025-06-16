@@ -1162,67 +1162,28 @@ template<typename T> struct IsEmpty<SpaceSeparatedSize<T>> {
 
 // MARK: - Logging
 
-template<typename StyleType> void logForCSSOnTupleLike(TextStream& ts, const StyleType& value, ASCIILiteral separator)
-{
-    auto swappedSeparator = ""_s;
-    auto caller = WTF::makeVisitor(
-        [&]<typename T>(const std::optional<T>& element) {
-            if (!element)
-                return;
-            ts << std::exchange(swappedSeparator, separator);
-            ts << *element;
-        },
-        [&]<typename T>(const Markable<T>& element) {
-            if (!element)
-                return;
-            ts << std::exchange(swappedSeparator, separator);
-            ts << *element;
-        },
-        [&](const auto& element) {
-            ts << std::exchange(swappedSeparator, separator);
-            ts << element;
-        }
-    );
-
-    WTF::apply([&](const auto& ...x) { (..., caller(x)); }, value);
-}
-
-template<typename StyleType> void logForCSSOnRangeLike(TextStream& ts, const StyleType& value, ASCIILiteral separator)
-{
-    auto swappedSeparator = ""_s;
-    for (const auto& element : value) {
-        ts << std::exchange(swappedSeparator, separator);
-        ts << element;
-    }
-}
-
-template<typename StyleType> void logForCSSOnVariantLike(TextStream& ts, const StyleType& value)
-{
-    WTF::switchOn(value, [&](const auto& value) { ts << value; });
-}
-
 // Constrained for `TreatAsEmptyLike`.
-template<EmptyLike StyleType> TextStream& operator<<(TextStream& ts, const StyleType&)
+template<EmptyLike T> TextStream& operator<<(TextStream& ts, const T&)
 {
     return ts;
 }
 
 // Constrained for `TreatAsTupleLike`.
-template<TupleLike StyleType> TextStream& operator<<(TextStream& ts, const StyleType& value)
+template<TupleLike T> TextStream& operator<<(TextStream& ts, const T& value)
 {
-    logForCSSOnTupleLike(ts, value, SerializationSeparatorString<StyleType>);
+    logForCSSOnTupleLike(ts, value, SerializationSeparatorString<T>);
     return ts;
 }
 
 // Constrained for `TreatAsRangeLike`.
-template<RangeLike StyleType> TextStream& operator<<(TextStream& ts, const StyleType& value)
+template<RangeLike T> TextStream& operator<<(TextStream& ts, const T& value)
 {
-    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<StyleType>);
+    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<T>);
     return ts;
 }
 
 // Constrained for `TreatAsVariantLike`.
-template<VariantLike StyleType> TextStream& operator<<(TextStream& ts, const StyleType& value)
+template<VariantLike T> TextStream& operator<<(TextStream& ts, const T& value)
 {
     logForCSSOnVariantLike(ts, value);
     return ts;

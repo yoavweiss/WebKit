@@ -343,7 +343,7 @@ void BlendingKeyframes::updatePropertiesMetadata(const StyleProperties& properti
                     m_usesAnchorFunctions = true;
             }
         } else if (auto* customPropertyValue = dynamicDowncast<CSSCustomPropertyValue>(cssValue)) {
-            if (customPropertyValue->isInherit())
+            if (customPropertyValue->tryCSSWideKeyword() == CSSWideKeyword::Inherit)
                 m_propertiesSetToInherit.add(customPropertyValue->name());
             else if (customPropertyValue->isCurrentColor())
                 m_propertiesSetToCurrentColor.add(customPropertyValue->name());

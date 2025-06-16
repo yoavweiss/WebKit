@@ -36,10 +36,10 @@
 #include "CSSRegisteredCustomProperty.h"
 #include "CSSVariableData.h"
 #include "ConstantPropertyMap.h"
-#include "CustomPropertyRegistry.h"
 #include "Document.h"
 #include "RenderStyle.h"
 #include "StyleBuilder.h"
+#include "StyleCustomPropertyRegistry.h"
 #include "StyleResolver.h"
 
 namespace WebCore {
@@ -108,7 +108,7 @@ auto CSSVariableReferenceValue::resolveVariableFallback(const AtomString& variab
     return { FallbackResult::Valid, WTFMove(*tokens) };
 }
 
-static const CSSCustomPropertyValue* propertyValueForVariableName(const AtomString& variableName, CSSValueID functionId, Style::BuilderState& builderState)
+static const Style::CustomProperty* propertyValueForVariableName(const AtomString& variableName, CSSValueID functionId, Style::BuilderState& builderState)
 {
     if (functionId == CSSValueEnv)
         return builderState.document().constantProperties().values().get(variableName);
@@ -134,7 +134,7 @@ bool CSSVariableReferenceValue::resolveVariableReference(CSSParserTokenRange ran
 
     auto* property = propertyValueForVariableName(variableName, functionId, builderState);
 
-    if (!property || property->isInvalid()) {
+    if (!property || property->isGuaranteedInvalid()) {
         if (fallbackTokens.size() > maxSubstitutionTokens)
             return false;
 
@@ -145,7 +145,6 @@ bool CSSVariableReferenceValue::resolveVariableReference(CSSParserTokenRange ran
         return false;
     }
 
-    ASSERT(property->isResolved());
     if (property->tokens().size() > maxSubstitutionTokens)
         return false;
 
@@ -205,10 +204,7 @@ RefPtr<CSSVariableData> CSSVariableReferenceValue::tryResolveSimpleReference(Sty
     // Shortcut for the simple common case of property:var(--foo)
 
     auto* property = propertyValueForVariableName(m_simpleReference->name, m_simpleReference->functionId, builderState);
-    if (!property || property->isInvalid())
-        return nullptr;
-
-    if (!std::holds_alternative<Ref<CSSVariableData>>(property->value()))
+    if (!property || !std::holds_alternative<Ref<CSSVariableData>>(property->value()))
         return nullptr;
 
     return std::get<Ref<CSSVariableData>>(property->value()).ptr();

@@ -606,7 +606,6 @@ rendering/updating/RenderTreeUpdaterGeneratedContent.cpp
 storage/Storage.cpp
 style/AttributeChangeInvalidation.cpp
 style/ClassChangeInvalidation.cpp
-style/CustomPropertyRegistry.cpp
 style/ElementRuleCollector.cpp
 style/HasSelectorFilter.cpp
 style/IdChangeInvalidation.cpp
@@ -622,6 +621,7 @@ style/StyleBuilder.cpp
 style/StyleBuilderConverter.h
 style/StyleBuilderCustom.h
 style/StyleBuilderState.cpp
+style/StyleCustomPropertyRegistry.cpp
 style/StyleExtractor.cpp
 style/StyleExtractorCustom.h
 style/StyleInterpolationFunctions.h

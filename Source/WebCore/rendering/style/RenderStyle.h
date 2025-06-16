@@ -45,7 +45,6 @@ class AnimationList;
 class AutosizeStatus;
 class BorderData;
 class BorderValue;
-class CSSCustomPropertyValue;
 struct CSSPropertiesBitSet;
 class Color;
 class ContentData;
@@ -87,7 +86,6 @@ class ScaleTransformOperation;
 class ScrollTimeline;
 class ShapeValue;
 class StyleContentAlignmentData;
-class StyleCustomPropertyData;
 class StyleImage;
 class StyleInheritedData;
 class StyleNonInheritedData;
@@ -285,6 +283,8 @@ using FontVariationSettings = FontTaggedSettings<float>;
 using IntOutsets = RectEdges<int>;
 
 namespace Style {
+class CustomProperty;
+class CustomPropertyData;
 class CustomPropertyRegistry;
 class ViewTransitionName;
 struct BoxShadow;
@@ -400,13 +400,13 @@ public:
     bool hasCachedPseudoStyles() const { return m_cachedPseudoStyles && m_cachedPseudoStyles->styles.size(); }
     const PseudoStyleCache* cachedPseudoStyles() const { return m_cachedPseudoStyles.get(); }
 
-    inline const StyleCustomPropertyData& inheritedCustomProperties() const;
-    inline const StyleCustomPropertyData& nonInheritedCustomProperties() const;
-    const CSSCustomPropertyValue* customPropertyValue(const AtomString&) const;
+    inline const Style::CustomPropertyData& inheritedCustomProperties() const;
+    inline const Style::CustomPropertyData& nonInheritedCustomProperties() const;
+    const Style::CustomProperty* customPropertyValue(const AtomString&) const;
     bool customPropertyValueEqual(const RenderStyle&, const AtomString&) const;
 
     void deduplicateCustomProperties(const RenderStyle&);
-    void setCustomPropertyValue(Ref<const CSSCustomPropertyValue>&&, bool isInherited);
+    void setCustomPropertyValue(Ref<const Style::CustomProperty>&&, bool isInherited);
     bool customPropertiesEqual(const RenderStyle&) const;
 
     void setUsesViewportUnits() { m_nonInheritedFlags.usesViewportUnits = true; }

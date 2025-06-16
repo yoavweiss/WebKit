@@ -2292,10 +2292,8 @@ inline Ref<CSSValue> ExtractorCustom::extractTransform(ExtractorState& state)
         return CSSPrimitiveValue::create(CSSValueNone);
 
     CSSValueListBuilder list;
-    for (auto& operation : state.style.transform()) {
-        if (auto functionValue = ExtractorConverter::convertTransformOperation(state, operation))
-            list.append(functionValue.releaseNonNull());
-    }
+    for (auto& operation : state.style.transform())
+        list.append(ExtractorConverter::convertTransformOperation(state, operation));
     if (!list.isEmpty())
         return CSSTransformListValue::create(WTFMove(list));
 

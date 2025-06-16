@@ -30,7 +30,6 @@
 #include "ColorBlending.h"
 #include "ContentData.h"
 #include "CursorList.h"
-#include "CustomPropertyRegistry.h"
 #include "FloatRoundedRect.h"
 #include "FontCascade.h"
 #include "FontSelector.h"
@@ -50,6 +49,7 @@
 #include "ScrollAxis.h"
 #include "ScrollbarGutter.h"
 #include "StyleBuilderConverter.h"
+#include "StyleCustomPropertyRegistry.h"
 #include "StyleExtractor.h"
 #include "StyleImage.h"
 #include "StyleInheritedData.h"
@@ -1317,27 +1317,19 @@ inline static bool changedCustomPaintWatchedProperty(const RenderStyle& a, const
 
         for (auto& watchPropertiesMap : { propertiesA, propertiesB }) {
             for (auto& name : watchPropertiesMap) {
-                RefPtr<const CSSValue> valueA;
-                RefPtr<const CSSValue> valueB;
                 if (isCustomPropertyName(name)) {
-                    valueA = a.customPropertyValue(name);
-                    valueB = b.customPropertyValue(name);
-                } else {
-                    CSSPropertyID propertyID = cssPropertyID(name);
-                    if (!propertyID)
-                        continue;
-                    valueA = extractor.propertyValueInStyle(a, propertyID, pool);
-                    valueB = extractor.propertyValueInStyle(b, propertyID, pool);
+                    auto valueA = a.customPropertyValue(name);
+                    auto valueB = b.customPropertyValue(name);
+
+                    if (valueA != valueB && (!valueA || !valueB || *valueA != *valueB))
+                        return true;
+                } else if (auto propertyID = cssPropertyID(name)) {
+                    auto valueA = extractor.propertyValueInStyle(a, propertyID, pool);
+                    auto valueB = extractor.propertyValueInStyle(b, propertyID, pool);
+
+                    if (valueA != valueB && (!valueA || !valueB || *valueA != *valueB))
+                        return true;
                 }
-
-                if ((valueA && !valueB) || (!valueA && valueB))
-                    return true;
-
-                if (!valueA)
-                    continue;
-
-                if (!(*valueA == *valueB))
-                    return true;
             }
         }
     }
@@ -3532,7 +3524,7 @@ void RenderStyle::setColumnStylesFromPaginationMode(PaginationMode paginationMod
 void RenderStyle::deduplicateCustomProperties(const RenderStyle& other)
 {
     auto deduplicate = [&] <typename T> (const DataRef<T>& data, const DataRef<T>& otherData) {
-        auto& properties = const_cast<DataRef<StyleCustomPropertyData>&>(data->customProperties);
+        auto& properties = const_cast<DataRef<Style::CustomPropertyData>&>(data->customProperties);
         auto& otherProperties = otherData->customProperties;
         if (properties.ptr() == otherProperties.ptr() || *properties != *otherProperties)
             return;
@@ -3543,19 +3535,19 @@ void RenderStyle::deduplicateCustomProperties(const RenderStyle& other)
     deduplicate(m_nonInheritedData->rareData, other.m_nonInheritedData->rareData);
 }
 
-void RenderStyle::setCustomPropertyValue(Ref<const CSSCustomPropertyValue>&& value, bool isInherited)
+void RenderStyle::setCustomPropertyValue(Ref<const Style::CustomProperty>&& value, bool isInherited)
 {
     auto& name = value->name();
     if (isInherited) {
-        if (auto* existingValue = m_rareInheritedData->customProperties->get(name); !existingValue || !existingValue->equals(value.get()))
+        if (auto* existingValue = m_rareInheritedData->customProperties->get(name); !existingValue || *existingValue != value.get())
             m_rareInheritedData.access().customProperties.access().set(name, WTFMove(value));
     } else {
-        if (auto* existingValue = m_nonInheritedData->rareData->customProperties->get(name); !existingValue || !existingValue->equals(value.get()))
+        if (auto* existingValue = m_nonInheritedData->rareData->customProperties->get(name); !existingValue || *existingValue != value.get())
             m_nonInheritedData.access().rareData.access().customProperties.access().set(name, WTFMove(value));
     }
 }
 
-const CSSCustomPropertyValue* RenderStyle::customPropertyValue(const AtomString& name) const
+const Style::CustomProperty* RenderStyle::customPropertyValue(const AtomString& name) const
 {
     for (auto* map : { &nonInheritedCustomProperties(), &inheritedCustomProperties() }) {
         if (auto* value = map->get(name))

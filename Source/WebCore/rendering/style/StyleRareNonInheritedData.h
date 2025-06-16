@@ -4,6 +4,7 @@
  *           (C) 2000 Dirk Mueller (mueller@kde.org)
  * Copyright (C) 2003-2024 Apple Inc. All rights reserved.
  * Copyright (C) 2006 Graham Dennis (graham.dennis@gmail.com)
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -75,7 +76,6 @@ class ContentData;
 class PathOperation;
 class RotateTransformOperation;
 class ScaleTransformOperation;
-class StyleCustomPropertyData;
 class StyleDeprecatedFlexibleBoxData;
 class StyleFilterData;
 class StyleFlexibleBoxData;
@@ -89,6 +89,10 @@ class WillChangeData;
 
 struct LengthSize;
 struct StyleMarqueeData;
+
+namespace Style {
+class CustomPropertyData;
+}
 
 // Page size type.
 // StyleRareNonInheritedData::pageSize is meaningful only when
@@ -186,7 +190,7 @@ public:
 
     Style::Color textDecorationColor;
 
-    DataRef<StyleCustomPropertyData> customProperties;
+    DataRef<Style::CustomPropertyData> customProperties;
     HashSet<AtomString> customPaintWatchedProperties;
 
     RefPtr<RotateTransformOperation> rotate;

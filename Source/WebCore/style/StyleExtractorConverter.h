@@ -71,7 +71,6 @@
 #include "ContainerNodeInlines.h"
 #include "ContentData.h"
 #include "CursorList.h"
-#include "CustomPropertyRegistry.h"
 #include "DocumentInlines.h"
 #include "FontCascade.h"
 #include "FontSelectionValueInlines.h"
@@ -178,8 +177,8 @@ public:
 
     static Ref<CSSValue> convertTransformationMatrix(ExtractorState&, const TransformationMatrix&);
     static Ref<CSSValue> convertTransformationMatrix(const RenderStyle&, const TransformationMatrix&);
-    static RefPtr<CSSValue> convertTransformOperation(ExtractorState&, const TransformOperation&);
-    static RefPtr<CSSValue> convertTransformOperation(const RenderStyle&, const TransformOperation&);
+    static Ref<CSSValue> convertTransformOperation(ExtractorState&, const TransformOperation&);
+    static Ref<CSSValue> convertTransformOperation(const RenderStyle&, const TransformOperation&);
 
     // MARK: Shared conversions
 
@@ -523,12 +522,12 @@ inline Ref<CSSValue> ExtractorConverter::convertTransformationMatrix(const Rende
     return CSSFunctionValue::create(CSSValueMatrix3d, WTFMove(arguments));
 }
 
-inline RefPtr<CSSValue> ExtractorConverter::convertTransformOperation(ExtractorState& state, const TransformOperation& operation)
+inline Ref<CSSValue> ExtractorConverter::convertTransformOperation(ExtractorState& state, const TransformOperation& operation)
 {
     return convertTransformOperation(state.style, operation);
 }
 
-inline RefPtr<CSSValue> ExtractorConverter::convertTransformOperation(const RenderStyle& style, const TransformOperation& operation)
+inline Ref<CSSValue> ExtractorConverter::convertTransformOperation(const RenderStyle& style, const TransformOperation& operation)
 {
     auto translateLength = [&](const auto& length) -> Ref<CSSPrimitiveValue> {
         if (length.isZero())
@@ -616,12 +615,11 @@ inline RefPtr<CSSValue> ExtractorConverter::convertTransformOperation(const Rend
     }
     case TransformOperation::Type::Identity:
     case TransformOperation::Type::None:
-        ASSERT_NOT_REACHED();
-        return nullptr;
+        break;
     }
 
     ASSERT_NOT_REACHED();
-    return nullptr;
+    return CSSPrimitiveValue::create(CSSValueNone);
 }
 
 // MARK: - Shared conversions

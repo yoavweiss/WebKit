@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 1999 Antti Koivisto (koivisto@kde.org)
  * Copyright (C) 2004-2017 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -71,7 +72,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , perspective(RenderStyle::initialPerspective())
     , clipPath(RenderStyle::initialClipPath())
     , textDecorationColor(RenderStyle::initialTextDecorationColor())
-    , customProperties(StyleCustomPropertyData::create())
+    , customProperties(Style::CustomPropertyData::create())
     // customPaintWatchedProperties
     , rotate(RenderStyle::initialRotate())
     , scale(RenderStyle::initialScale())

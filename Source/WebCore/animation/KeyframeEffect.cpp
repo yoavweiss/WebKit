@@ -1069,7 +1069,7 @@ auto KeyframeEffect::getKeyframes() -> Vector<ComputedKeyframe>
             }
             if (styleString.isEmpty()) {
                 if (auto* cssValue = style.customPropertyValue(customProperty))
-                    styleString = cssValue->cssText(CSS::defaultSerializationContext());
+                    styleString = cssValue->propertyValueSerialization(CSS::defaultSerializationContext(), style);
             }
             computedKeyframe.customStyleStrings.set(customProperty, styleString);
         };

@@ -948,6 +948,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     css/CSSValueList.h
     css/CSSVariableData.h
     css/CSSVariableReferenceValue.h
+    css/CSSWideKeyword.h
     css/ComputedStyleDependencies.h
     css/DeprecatedCSSOMCounter.h
     css/DeprecatedCSSOMPrimitiveValue.h
@@ -2738,6 +2739,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/ResolvedScopedName.h
     style/ScopedName.h
     style/StyleChange.h
+    style/StyleCustomProperty.h
     style/StyleInterpolationClient.h
     style/StyleScope.h
     style/StyleScopeIdentifier.h

@@ -310,7 +310,7 @@ bool PropertyCascade::shouldApplyAfterAnimation(const StyleProperties::PropertyR
     // If we are animating custom properties they may affect other properties so we need to re-resolve them.
     if (m_animationLayer->hasCustomProperties) {
         // We could check if the we are actually animating the referenced variable. Indirect cases would need to be taken into account.
-        if (customProperty && !customProperty->isResolved())
+        if (customProperty && customProperty->isVariableReference())
             return true;
         if (property.value()->hasVariableReferences())
             return true;
