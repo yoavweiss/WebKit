@@ -29,7 +29,6 @@ Modules/webdatabase/SQLStatement.cpp
 Modules/websockets/WebSocket.cpp
 accessibility/AXCoreObject.cpp
 accessibility/AXObjectCache.cpp
-accessibility/AXSearchManager.cpp
 accessibility/AXTextMarker.cpp
 accessibility/AccessibilityListBox.cpp
 accessibility/AccessibilityListBoxOption.cpp

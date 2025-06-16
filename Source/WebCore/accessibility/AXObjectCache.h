@@ -970,7 +970,7 @@ inline Node* AXObjectCache::nodeForID(std::optional<AXID> axID) const
     if (!axID)
         return nullptr;
 
-    auto* object = m_objects.get(*axID);
+    RefPtr object = m_objects.get(*axID);
     return object ? object->node() : nullptr;
 }
 

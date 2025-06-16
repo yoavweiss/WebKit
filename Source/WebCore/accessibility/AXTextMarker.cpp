@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2023-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -111,12 +111,12 @@ AXTextMarker::AXTextMarker(const VisiblePosition& visiblePosition, TextMarkerOri
     if (visiblePosition.isNull())
         return;
 
-    auto* node = visiblePosition.deepEquivalent().anchorNode();
+    RefPtr node = visiblePosition.deepEquivalent().anchorNode();
     ASSERT(node);
     if (!node)
         return;
 
-    auto* cache = node->document().axObjectCache();
+    CheckedPtr cache = node->document().axObjectCache();
     if (!cache)
         return;
 
@@ -678,7 +678,7 @@ int AXTextMarker::lineIndex() const
     RefPtr object = isolatedObject();
     if (object->isTextControl())
         startMarker = { *object, 0 };
-    else if (auto* editableAncestor = object->editableAncestor())
+    else if (RefPtr editableAncestor = object->editableAncestor())
         startMarker = { editableAncestor->treeID(), editableAncestor->objectID(), 0 };
     else if (RefPtr tree = std::get<RefPtr<AXIsolatedTree>>(axTreeForID(treeID())))
         startMarker = tree->firstMarker();
@@ -811,7 +811,7 @@ bool AXTextMarker::atLineBoundaryForDirection(AXDirection direction) const
 
 bool AXTextMarker::atLineBoundaryForDirection(AXDirection direction, const AXTextRuns* runs, size_t runIndex) const
 {
-    auto* nextObjectWithRuns = findObjectWithRuns(*isolatedObject(), direction);
+    RefPtr nextObjectWithRuns = findObjectWithRuns(*isolatedObject(), direction);
     // If the next object is a line break, it will often have the same line index as the previous static text
     // (even though it is a newline). In this case, advance one object to check the next line index.
     if (nextObjectWithRuns && nextObjectWithRuns->isLineBreak())
