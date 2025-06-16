@@ -75,7 +75,7 @@ public:
     XRInteractionMode interactionMode() const;
     XRVisibilityState visibilityState() const;
     const WebXRRenderState& renderState() const;
-    const WebXRInputSourceArray& inputSources() const;
+    const WebXRInputSourceArray& inputSources() const { return m_inputSources; }
     RefPtr<PlatformXR::Device> device() const { return m_device.get(); }
 
     const Vector<String> enabledFeatures() const;
@@ -145,7 +145,7 @@ private:
     XREnvironmentBlendMode m_environmentBlendMode { XREnvironmentBlendMode::Opaque };
     XRInteractionMode m_interactionMode { XRInteractionMode::WorldSpace };
     XRVisibilityState m_visibilityState { XRVisibilityState::Visible };
-    UniqueRef<WebXRInputSourceArray> m_inputSources;
+    const UniqueRef<WebXRInputSourceArray> m_inputSources;
     bool m_ended { false };
     bool m_shouldServiceRequestVideoFrameCallbacks { false };
     std::unique_ptr<EndPromise> m_endPromise;

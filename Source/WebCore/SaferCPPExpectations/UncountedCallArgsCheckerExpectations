@@ -59,7 +59,6 @@ Modules/indexeddb/IDBOpenDBRequest.cpp
 Modules/indexeddb/IDBRequest.cpp
 Modules/indexeddb/IDBTransaction.cpp
 Modules/indexeddb/client/IDBConnectionProxy.cpp
-Modules/indexeddb/client/IDBConnectionToServer.cpp
 Modules/indexeddb/server/MemoryObjectStore.cpp
 Modules/indexeddb/server/UniqueIDBDatabase.cpp
 Modules/indexeddb/server/UniqueIDBDatabaseTransaction.cpp
