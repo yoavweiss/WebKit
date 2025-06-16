@@ -49,6 +49,7 @@ PAS_BEGIN_EXTERN_C;
 
 #define PAS_INTRINSIC_SEGREGATED_HEAP_INITIALIZER(parent_heap_ptr, support, passed_runtime_config) { \
         .runtime_config = (passed_runtime_config), \
+        .parent_heap = parent_heap_ptr, \
         .index_to_small_allocator_index = (support).index_to_allocator_index, \
         .index_to_small_size_directory = (support).index_to_size_directory, \
         .basic_size_directory_and_head = PAS_COMPACT_ATOMIC_PTR_INITIALIZER, \
@@ -179,6 +180,7 @@ pas_try_allocate_intrinsic_impl_casual_case(
     fake_heap_ref.type = heap->type;
     fake_heap_ref.heap = heap;
     fake_heap_ref.allocator_index = 0;
+    fake_heap_ref.is_non_compact_heap = true;
 
     return try_allocate_common_slow(&fake_heap_ref, aligned_size, alignment, allocation_mode);
 }

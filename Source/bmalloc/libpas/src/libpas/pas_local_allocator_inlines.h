@@ -109,15 +109,16 @@ static inline void pas_local_allocator_set_up_bump(pas_local_allocator* allocato
                                                    uintptr_t page_boundary,
                                                    uintptr_t begin,
                                                    uintptr_t end,
+                                                   pas_segregated_heap* segregated_heap,
                                                    pas_segregated_page_config page_config)
 {
     PAS_TESTING_ASSERT(end);
-    allocator->is_small_bumpable = page_config.base.page_config_size_category == pas_page_config_size_category_small;
     allocator->payload_end = end;
     allocator->remaining = (unsigned)(end - begin);
     allocator->current_offset = 0;
     allocator->end_offset = 0;
     allocator->current_word = 0;
+    PAS_PROFILE(SET_UP_LOCAL_ALLOCATOR, page_config, segregated_heap, allocator);
     pas_compiler_fence();
     allocator->page_ish = page_boundary;
 }
@@ -238,6 +239,7 @@ static PAS_ALWAYS_INLINE void pas_local_allocator_scan_bits_to_set_up_free_bits(
         pas_page_base_object_offset_from_page_boundary_at_index(
             PAS_BITVECTOR_BIT_INDEX64(current_offset),
             page_config.base);
+    PAS_PROFILE(SET_UP_LOCAL_ALLOCATOR, page_config, directory->heap, allocator);
 
     pas_compiler_fence();
 
@@ -409,11 +411,12 @@ pas_local_allocator_make_bump(
     pas_local_allocator* allocator,
     uintptr_t page_boundary,
     uintptr_t begin, uintptr_t end,
+    pas_segregated_heap* segregated_heap,
     pas_segregated_page_config page_config)
 {
     PAS_ASSERT(page_config.base.is_enabled);
     
-    pas_local_allocator_set_up_bump(allocator, page_boundary, begin, end, page_config);
+    pas_local_allocator_set_up_bump(allocator, page_boundary, begin, end, segregated_heap, page_config);
 }
 
 static PAS_ALWAYS_INLINE void
@@ -460,7 +463,7 @@ pas_local_allocator_prepare_to_allocate(
         page->emptiness.num_non_empty_words = data->full_num_non_empty_words;
 
         pas_local_allocator_make_bump(
-            allocator, page_boundary, payload_begin, payload_end, page_config);
+            allocator, page_boundary, payload_begin, payload_end, directory->heap, page_config);
 
         pas_compiler_fence();
         
@@ -549,8 +552,6 @@ pas_local_allocator_set_up_primordial_bump(
         allocator->remaining = end_offset - begin_offset;
         break;
     }
-
-    allocator->is_small_bumpable = page_config.base.page_config_size_category == pas_page_config_size_category_small;
 
     pas_compiler_fence();
 
@@ -704,6 +705,7 @@ pas_local_allocator_start_allocating_in_primordial_partial_view(
         pas_compiler_fence();
         
         allocator->page_ish = (uintptr_t)pas_segregated_page_boundary(page, page_config);
+        PAS_PROFILE(SET_UP_LOCAL_ALLOCATOR, page_config, heap, allocator);
 
         pas_zero_memory(allocator->bits, pas_segregated_page_config_num_alloc_bytes(page_config));
 
@@ -1507,7 +1509,7 @@ pas_local_allocator_try_allocate_with_free_bits(
             (void*)result);
     }
 
-    PAS_PROFILE(LOCAL_FREEBITS_ALLOCATION, &page_config, result, allocator->object_size, allocation_mode);
+    PAS_PROFILE(LOCAL_FREEBITS_ALLOCATION, &page_config, result, allocator, allocation_mode);
     
     return pas_allocation_result_create_success(result);
 }
