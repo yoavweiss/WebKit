@@ -3658,6 +3658,13 @@
    },
    {
       "emails" : [
+         "i_gower@apple.com"
+      ],
+      "github" : "igower",
+      "name" : "Ian Gower"
+   },
+   {
+      "emails" : [
          "ian.grunert@gmail.com",
          "ian@andromeda.net"
       ],
