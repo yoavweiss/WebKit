@@ -31,6 +31,7 @@
 #include "WebPageProxyMessages.h"
 #include <WebCore/FrameLoadRequest.h>
 #include <WebCore/FrameTree.h>
+#include <WebCore/HTMLFrameOwnerElement.h>
 #include <WebCore/HitTestResult.h>
 #include <WebCore/PolicyChecker.h>
 #include <WebCore/RemoteFrame.h>
@@ -53,11 +54,16 @@ void WebRemoteFrameClient::frameDetached()
         return;
     }
 
+    RefPtr ownerElement = coreFrame->ownerElement();
+
     if (RefPtr parent = coreFrame->tree().parent()) {
         coreFrame->tree().detachFromParent();
         parent->tree().removeChild(*coreFrame);
     }
     m_frame->invalidate();
+
+    if (ownerElement)
+        ownerElement->protectedDocument()->checkCompleted();
 }
 
 void WebRemoteFrameClient::sizeDidChange(IntSize size)
