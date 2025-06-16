@@ -7828,11 +7828,10 @@ AccessGenerationResult PolymorphicAccess::addCases(const GCSafeConcurrentJSLocke
 
 bool PolymorphicAccess::visitWeak(VM& vm)
 {
-    for (unsigned i = 0; i < size(); ++i) {
-        if (!at(i).visitWeak(vm))
-            return false;
-    }
-    return true;
+    bool isValid = true;
+    for (unsigned i = 0; i < size(); ++i)
+        isValid &= at(i).visitWeak(vm);
+    return isValid;
 }
 
 template<typename Visitor>
@@ -7884,24 +7883,17 @@ CallLinkInfo* InlineCacheHandler::callLinkInfoAt(const ConcurrentJSLocker& locke
 
 bool InlineCacheHandler::visitWeak(VM& vm)
 {
+    bool isValid = true;
     for (auto& callLinkInfo : Base::span())
         callLinkInfo.visitWeak(vm);
 
-    if (m_accessCase) {
-        if (!m_accessCase->visitWeak(vm))
-            return false;
-    }
+    if (m_accessCase)
+        isValid &= m_accessCase->visitWeak(vm);
 
-    if (m_stubRoutine) {
-        m_stubRoutine->visitWeak(vm);
-        for (StructureID weakReference : m_stubRoutine->weakStructures()) {
-            Structure* structure = weakReference.decode();
-            if (!vm.heap.isMarked(structure))
-                return false;
-        }
-    }
+    if (m_stubRoutine)
+        isValid &= m_stubRoutine->visitWeak(vm);
 
-    return true;
+    return isValid;
 }
 
 void InlineCacheHandler::addOwner(CodeBlock* codeBlock)
