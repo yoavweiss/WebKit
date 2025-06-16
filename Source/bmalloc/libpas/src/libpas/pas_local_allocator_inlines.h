@@ -31,7 +31,6 @@
 #include "pas_bitfit_directory.h"
 #include "pas_bitfit_size_class.h"
 #include "pas_config.h"
-#include "pas_debug_heap.h"
 #include "pas_epoch.h"
 #include "pas_full_alloc_bits_inlines.h"
 #include "pas_malloc_stack_logging.h"
@@ -45,6 +44,7 @@
 #include "pas_segregated_shared_view_inlines.h"
 #include "pas_segregated_size_directory_inlines.h"
 #include "pas_segregated_view_allocator_inlines.h"
+#include "pas_system_heap.h"
 #include "pas_thread_local_cache.h"
 #include "pas_thread_local_cache_node.h"
 
@@ -1573,7 +1573,7 @@ pas_local_allocator_try_allocate_small_segregated_slow_impl(
     pas_heap_config config,
     pas_allocator_counts* counts)
 {
-    PAS_ASSERT(!pas_debug_heap_is_enabled(config.kind));
+    PAS_ASSERT(!pas_system_heap_is_enabled(config.kind));
     
     pas_local_allocator_commit_if_necessary(allocator, config);
     
@@ -1705,7 +1705,7 @@ pas_local_allocator_try_allocate_slow_impl(pas_local_allocator* allocator,
                 pas_local_allocator_config_kind_get_string(allocator->config_kind));
     }
     
-    PAS_ASSERT(!pas_debug_heap_is_enabled(config.kind));
+    PAS_ASSERT(!pas_system_heap_is_enabled(config.kind));
     
     pas_local_allocator_commit_if_necessary(allocator, config);
     
@@ -1847,8 +1847,8 @@ pas_local_allocator_try_allocate(pas_local_allocator* allocator,
             pas_allocation_result_create_success_with_zero_mode(result.begin, result.zero_mode));
     }
 
-    if (PAS_UNLIKELY(pas_debug_heap_is_enabled(config.kind)))
-        return pas_debug_heap_allocate(size, alignment, allocation_mode);
+    if (PAS_UNLIKELY(pas_system_heap_is_enabled(config.kind)))
+        return pas_system_heap_allocate(size, alignment, allocation_mode);
     
     if (config.small_segregated_config.base.is_enabled &&
         allocator->config_kind == pas_local_allocator_config_kind_create_normal(
