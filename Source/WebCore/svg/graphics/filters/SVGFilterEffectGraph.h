@@ -85,7 +85,7 @@ private:
         return sourceGraphic();
     }
 
-    UncheckedKeyHashMap<AtomString, Ref<FilterEffect>> m_sourceNodes;
+    HashMap<AtomString, Ref<FilterEffect>> m_sourceNodes;
 };
 
 } // namespace WebCore
