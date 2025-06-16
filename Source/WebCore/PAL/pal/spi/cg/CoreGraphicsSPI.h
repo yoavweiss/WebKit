@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -413,18 +413,12 @@ void CGPathAddUnevenCornersRoundedRect(CGMutablePathRef, const CGAffineTransform
 bool CGFontRenderingGetFontSmoothingDisabled(void);
 CGShadingRef CGShadingCreateConic(CGColorSpaceRef, CGPoint center, CGFloat angle, CGFunctionRef);
 
-#if HAVE(CORE_GRAPHICS_GRADIENT_CREATE_WITH_OPTIONS)
 CGGradientRef CGGradientCreateWithColorComponentsAndOptions(CGColorSpaceRef, const CGFloat*, const CGFloat*, size_t, CFDictionaryRef);
 CGGradientRef CGGradientCreateWithColorsAndOptions(CGColorSpaceRef, CFArrayRef, const CGFloat*, CFDictionaryRef);
-#endif
 
-#if HAVE(CORE_GRAPHICS_PREMULTIPLIED_INTERPOLATION_GRADIENT)
 extern const CFStringRef kCGGradientInterpolatesPremultiplied;
-#endif
 
-#if HAVE(CGSTYLE_CREATE_SHADOW2)
 CGStyleRef CGStyleCreateShadow2(CGSize offset, CGFloat radius, CGColorRef);
-#endif
 #if HAVE(CGSTYLE_COLORMATRIX_BLUR)
 CGStyleRef CGStyleCreateGaussianBlur(const CGGaussianBlurStyle*);
 CGStyleRef CGStyleCreateColorMatrix(const CGColorMatrixStyle*);
