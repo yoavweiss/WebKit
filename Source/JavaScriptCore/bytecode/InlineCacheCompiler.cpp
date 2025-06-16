@@ -4565,63 +4565,55 @@ RefPtr<AccessCase> InlineCacheCompiler::tryFoldToMegamorphic(CodeBlock* codeBloc
         case AccessType::InstanceOf:
             return AccessCase::create(vm(), codeBlock, AccessCase::InstanceOfMegamorphic, nullptr);
 
+#if USE(JSVALUE64)
         case AccessType::GetById:
         case AccessType::GetByIdWithThis: {
             auto identifier = m_stubInfo.m_identifier;
-            bool allAreSimpleLoadOrMiss = true;
+            unsigned numberOfUndesiredMegamorphicAccessVariants = 0;
             for (auto& accessCase : cases) {
-                if (accessCase->type() != AccessCase::Load && accessCase->type() != AccessCase::Miss) {
-                    allAreSimpleLoadOrMiss = false;
-                    break;
-                }
-                if (accessCase->usesPolyProto()) {
-                    allAreSimpleLoadOrMiss = false;
-                    break;
-                }
-                if (accessCase->viaGlobalProxy()) {
-                    allAreSimpleLoadOrMiss = false;
-                    break;
-                }
+                if (accessCase->type() != AccessCase::Load && accessCase->type() != AccessCase::Miss)
+                    return nullptr;
+
+                if (accessCase->viaGlobalProxy())
+                    return nullptr;
+
+                if (accessCase->usesPolyProto())
+                    ++numberOfUndesiredMegamorphicAccessVariants;
             }
 
             // Currently, we do not apply megamorphic cache for "length" property since Array#length and String#length are too common.
             if (!canUseMegamorphicGetById(vm(), identifier.uid()))
-                allAreSimpleLoadOrMiss = false;
+                return nullptr;
 
-#if USE(JSVALUE32_64)
-            allAreSimpleLoadOrMiss = false;
-#endif
+            if (numberOfUndesiredMegamorphicAccessVariants) {
+                if ((numberOfUndesiredMegamorphicAccessVariants / static_cast<double>(cases.size())) >= Options::thresholdForUndesiredMegamorphicAccessVariantListSize())
+                    return nullptr;
+            }
 
-            if (allAreSimpleLoadOrMiss)
-                return AccessCase::create(vm(), codeBlock, AccessCase::LoadMegamorphic, useHandlerIC() ? nullptr : identifier);
-            return nullptr;
+            return AccessCase::create(vm(), codeBlock, AccessCase::LoadMegamorphic, useHandlerIC() ? nullptr : identifier);
         }
         case AccessType::GetByVal:
         case AccessType::GetByValWithThis: {
-            bool allAreSimpleLoadOrMiss = true;
+            unsigned numberOfUndesiredMegamorphicAccessVariants = 0;
             for (auto& accessCase : cases) {
-                if (accessCase->type() != AccessCase::Load && accessCase->type() != AccessCase::Miss) {
-                    allAreSimpleLoadOrMiss = false;
-                    break;
-                }
-                if (accessCase->usesPolyProto()) {
-                    allAreSimpleLoadOrMiss = false;
-                    break;
-                }
-                if (accessCase->viaGlobalProxy()) {
-                    allAreSimpleLoadOrMiss = false;
-                    break;
-                }
+                if (accessCase->type() != AccessCase::Load && accessCase->type() != AccessCase::Miss)
+                    return nullptr;
+
+                if (accessCase->viaGlobalProxy())
+                    return nullptr;
+
+                if (accessCase->usesPolyProto())
+                    ++numberOfUndesiredMegamorphicAccessVariants;
             }
 
-#if USE(JSVALUE32_64)
-            allAreSimpleLoadOrMiss = false;
-#endif
+            if (numberOfUndesiredMegamorphicAccessVariants) {
+                if ((numberOfUndesiredMegamorphicAccessVariants / static_cast<double>(cases.size())) >= Options::thresholdForUndesiredMegamorphicAccessVariantListSize())
+                    return nullptr;
+            }
 
-            if (allAreSimpleLoadOrMiss)
-                return AccessCase::create(vm(), codeBlock, AccessCase::IndexedMegamorphicLoad, nullptr);
-            return nullptr;
+            return AccessCase::create(vm(), codeBlock, AccessCase::IndexedMegamorphicLoad, nullptr);
         }
+#endif
         case AccessType::PutByIdStrict:
         case AccessType::PutByIdSloppy: {
             auto identifier = m_stubInfo.m_identifier;
