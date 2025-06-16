@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2010-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -448,7 +448,6 @@ public:
 
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
     UserMediaCaptureManagerProxy& userMediaCaptureManagerProxy() { return m_userMediaCaptureManagerProxy.get(); }
-    Ref<UserMediaCaptureManagerProxy> protectedUserMediaCaptureManagerProxy();
 #endif
 
 #if ENABLE(GPU_PROCESS)
@@ -826,7 +825,7 @@ private:
     const std::unique_ptr<SpeechRecognitionRemoteRealtimeMediaSourceManager> m_speechRecognitionRemoteRealtimeMediaSourceManager;
 #endif
     const std::unique_ptr<WebLockRegistryProxy> m_webLockRegistry;
-    UniqueRef<WebPermissionControllerProxy> m_webPermissionController;
+    const UniqueRef<WebPermissionControllerProxy> m_webPermissionController;
 #if ENABLE(ROUTING_ARBITRATION)
     const std::unique_ptr<AudioSessionRoutingArbitratorProxy> m_routingArbitrator;
 #endif

@@ -250,8 +250,8 @@ private:
     uint64_t m_rendererCount { 1 };
 
     // Note that currently RenderView::layoutBox(), if it exists, is a child of m_initialContainingBlock.
-    UniqueRef<Layout::InitialContainingBlock> m_initialContainingBlock;
-    UniqueRef<Layout::LayoutState> m_layoutState;
+    const UniqueRef<Layout::InitialContainingBlock> m_initialContainingBlock;
+    const UniqueRef<Layout::LayoutState> m_layoutState;
 
     mutable std::unique_ptr<Region> m_accumulatedRepaintRegion;
     RenderSelection m_selection;

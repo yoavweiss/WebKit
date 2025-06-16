@@ -35,7 +35,6 @@ Shared/RemoteLayerTree/RemoteLayerBackingStoreCollection.mm
 Shared/RemoteLayerTree/RemoteLayerTreeTransaction.mm
 Shared/RemoteLayerTree/RemoteScrollingCoordinatorTransaction.cpp
 Shared/WebWheelEventCoalescer.cpp
-UIProcess/API/Cocoa/WKProcessPool.mm
 UIProcess/API/Cocoa/WKWebView.mm
 UIProcess/API/Cocoa/WKWebViewTesting.mm
 UIProcess/API/Cocoa/_WKInspectorExtension.mm
@@ -54,8 +53,6 @@ UIProcess/RemoteLayerTree/mac/RemoteLayerTreeEventDispatcher.mm
 UIProcess/RemoteLayerTree/mac/RemoteScrollingCoordinatorProxyMac.mm
 UIProcess/WebFullScreenManagerProxy.cpp
 UIProcess/WebPageProxy.cpp
-UIProcess/WebProcessCache.cpp
-UIProcess/WebProcessPool.cpp
 UIProcess/mac/PageClientImplMac.mm
 UIProcess/mac/ViewGestureControllerMac.mm
 UIProcess/mac/WKRevealItemPresenter.mm

@@ -1496,11 +1496,6 @@ WebSharedWorkerServerConnection* NetworkConnectionToWebProcess::sharedWorkerConn
     return m_sharedWorkerConnection.get();
 }
 
-Ref<NetworkSchemeRegistry> NetworkConnectionToWebProcess::protectedSchemeRegistry()
-{
-    return m_schemeRegistry;
-}
-
 void NetworkConnectionToWebProcess::unregisterSWConnection()
 {
     if (RefPtr swServer = m_swConnection ? m_swConnection->server() : nullptr)

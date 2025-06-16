@@ -952,7 +952,6 @@ public:
 
 #if ENABLE(GEOLOCATION)
     GeolocationPermissionRequestManager& geolocationPermissionRequestManager() { return m_geolocationPermissionRequestManager.get(); }
-    Ref<GeolocationPermissionRequestManager> protectedGeolocationPermissionRequestManager();
 #endif
 
 #if PLATFORM(IOS_FAMILY)
@@ -962,7 +961,6 @@ public:
 
 #if ENABLE(MEDIA_STREAM)
     UserMediaPermissionRequestManager& userMediaPermissionRequestManager() { return m_userMediaPermissionRequestManager; }
-    Ref<UserMediaPermissionRequestManager> protectedUserMediaPermissionRequestManager();
     void captureDevicesChanged();
     void updateCaptureState(const WebCore::Document&, bool isActive, WebCore::MediaProducerMediaCaptureKind, CompletionHandler<void(std::optional<WebCore::Exception>&&)>&&);
     void voiceActivityDetected();
@@ -970,7 +968,6 @@ public:
 
 #if ENABLE(ENCRYPTED_MEDIA)
     MediaKeySystemPermissionRequestManager& mediaKeySystemPermissionRequestManager() { return m_mediaKeySystemPermissionRequestManager; }
-    Ref<MediaKeySystemPermissionRequestManager> protectedMediaKeySystemPermissionRequestManager();
 #endif
 
     void copyLinkWithHighlight();
@@ -2562,7 +2559,7 @@ private:
     void frameNameWasChangedInAnotherProcess(WebCore::FrameIdentifier, const String& frameName);
 
     struct Internals;
-    UniqueRef<Internals> m_internals;
+    const UniqueRef<Internals> m_internals;
 
     const WebCore::PageIdentifier m_identifier;
 
@@ -2683,9 +2680,9 @@ private:
     std::unique_ptr<API::InjectedBundle::ResourceLoadClient> m_resourceLoadClient;
     std::unique_ptr<API::InjectedBundle::PageUIClient> m_uiClient;
 
-    UniqueRef<FindController> m_findController;
+    const UniqueRef<FindController> m_findController;
 
-    UniqueRef<WebFoundTextRangeController> m_foundTextRangeController;
+    const UniqueRef<WebFoundTextRangeController> m_foundTextRangeController;
 
     RefPtr<WebInspector> m_inspector;
     RefPtr<WebInspectorUI> m_inspectorUI;
@@ -2728,18 +2725,18 @@ private:
     RefPtr<WebExtensionControllerProxy> m_webExtensionController;
 #endif
 
-    UniqueRef<WebScreenOrientationManager> m_screenOrientationManager;
+    const UniqueRef<WebScreenOrientationManager> m_screenOrientationManager;
 
 #if ENABLE(GEOLOCATION)
-    UniqueRef<GeolocationPermissionRequestManager> m_geolocationPermissionRequestManager;
+    const UniqueRef<GeolocationPermissionRequestManager> m_geolocationPermissionRequestManager;
 #endif
 
 #if ENABLE(MEDIA_STREAM)
-    UniqueRef<UserMediaPermissionRequestManager> m_userMediaPermissionRequestManager;
+    const UniqueRef<UserMediaPermissionRequestManager> m_userMediaPermissionRequestManager;
 #endif
 
 #if ENABLE(ENCRYPTED_MEDIA)
-    UniqueRef<MediaKeySystemPermissionRequestManager> m_mediaKeySystemPermissionRequestManager;
+    const UniqueRef<MediaKeySystemPermissionRequestManager> m_mediaKeySystemPermissionRequestManager;
 #endif
 
     std::unique_ptr<WebCore::PrintContext> m_printContext;
@@ -3082,7 +3079,7 @@ private:
 #endif
 
 #if ENABLE(WRITING_TOOLS)
-    UniqueRef<TextAnimationController> m_textAnimationController;
+    const UniqueRef<TextAnimationController> m_textAnimationController;
 #endif
 
     std::unique_ptr<WebCore::NowPlayingMetadataObserver> m_nowPlayingMetadataObserver;

@@ -2130,7 +2130,7 @@ void WebPage::clearSelectionAfterTappingSelectionHighlightIfNeeded(WebCore::Floa
     if (!localMainFrame)
         return;
 
-    auto result = localMainFrame->checkedEventHandler()->hitTestResultAtPoint(LayoutPoint { location }, {
+    auto result = localMainFrame->eventHandler().hitTestResultAtPoint(LayoutPoint { location }, {
         HitTestRequest::Type::ReadOnly,
         HitTestRequest::Type::AllowVisibleChildFrameContentOnly,
         HitTestRequest::Type::IncludeAllElementsUnderPoint,
@@ -6246,7 +6246,7 @@ void WebPage::didDispatchClickEvent(const PlatformMouseEvent& event, Node& node)
 
     callOnMainRunLoop([bounds, document = WTFMove(document)] mutable {
         if (RefPtr frame = document->frame())
-            frame->checkedEventHandler()->dispatchSimulatedTouchEvent(roundedIntPoint(bounds.center()));
+            frame->eventHandler().dispatchSimulatedTouchEvent(roundedIntPoint(bounds.center()));
     });
 }
 

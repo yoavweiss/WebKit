@@ -240,7 +240,6 @@ public:
     WebSharedWorkerServerConnection* sharedWorkerConnection();
 
     NetworkSchemeRegistry& schemeRegistry() { return m_schemeRegistry.get(); }
-    Ref<NetworkSchemeRegistry> protectedSchemeRegistry();
 
     void cookieAcceptPolicyChanged(WebCore::HTTPCookieAcceptPolicy);
 
@@ -531,8 +530,8 @@ private:
 
     HashSet<WebCore::MessagePortIdentifier> m_processEntangledPorts;
     HashMap<MessageBatchIdentifier, CompletionHandler<void()>> m_messageBatchDeliveryCompletionHandlers;
-    Ref<NetworkSchemeRegistry> m_schemeRegistry;
-    UniqueRef<NetworkOriginAccessPatterns> m_originAccessPatterns;
+    const Ref<NetworkSchemeRegistry> m_schemeRegistry;
+    const UniqueRef<NetworkOriginAccessPatterns> m_originAccessPatterns;
         
     using BlobURLKey = std::pair<URL, std::optional<WebCore::SecurityOriginData>>;
     HashSet<BlobURLKey> m_blobURLs;

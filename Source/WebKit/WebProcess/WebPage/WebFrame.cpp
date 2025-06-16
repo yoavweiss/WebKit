@@ -1445,8 +1445,8 @@ bool WebFrame::handleKeyEvent(const WebKeyboardEvent& keyboardEvent)
         return false;
 
     if (keyboardEvent.type() == WebEventType::Char && keyboardEvent.isSystemKey())
-        return coreFrame->checkedEventHandler()->handleAccessKey(platform(keyboardEvent));
-    return coreFrame->checkedEventHandler()->keyEvent(platform(keyboardEvent));
+        return coreFrame->eventHandler().handleAccessKey(platform(keyboardEvent));
+    return coreFrame->eventHandler().keyEvent(platform(keyboardEvent));
 }
 
 bool WebFrame::isFocused() const
