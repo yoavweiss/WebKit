@@ -23,7 +23,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "SystemHeap.h"
+#include "DebugHeap.h"
 
 #include "Algorithm.h"
 #include "BAssert.h"
@@ -33,20 +33,20 @@
 #include <thread>
 
 #if BENABLE(LIBPAS)
-#include "pas_system_heap.h"
+#include "pas_debug_heap.h"
 #endif
 
 namespace bmalloc {
 
-SystemHeap* systemHeapCache { nullptr };
-
-DEFINE_STATIC_PER_PROCESS_STORAGE(SystemHeap);
+DebugHeap* debugHeapCache { nullptr };
+    
+DEFINE_STATIC_PER_PROCESS_STORAGE(DebugHeap);
 
 #if BOS(DARWIN)
 
 static bool shouldUseDefaultMallocZone()
 {
-    if (getenv("SYSTEM_HEAP_USE_DEFAULT_ZONE"))
+    if (getenv("DEBUG_HEAP_USE_DEFAULT_ZONE"))
         return true;
 
     // The lite logging mode only intercepts allocations from the default zone.
@@ -57,7 +57,7 @@ static bool shouldUseDefaultMallocZone()
     return false;
 }
 
-SystemHeap::SystemHeap(const LockHolder&)
+DebugHeap::DebugHeap(const LockHolder&)
     : m_zone(malloc_default_zone())
     , m_pageSize(vmPageSize())
 {
@@ -67,40 +67,40 @@ SystemHeap::SystemHeap(const LockHolder&)
     }
 }
 
-void* SystemHeap::malloc(size_t size, FailureAction action)
+void* DebugHeap::malloc(size_t size, FailureAction action)
 {
     void* result = malloc_zone_malloc(m_zone, size);
     RELEASE_BASSERT(action == FailureAction::ReturnNull || result);
     return result;
 }
 
-void* SystemHeap::memalign(size_t alignment, size_t size, FailureAction action)
+void* DebugHeap::memalign(size_t alignment, size_t size, FailureAction action)
 {
     void* result = malloc_zone_memalign(m_zone, alignment, size);
     RELEASE_BASSERT(action == FailureAction::ReturnNull || result);
     return result;
 }
 
-void* SystemHeap::realloc(void* object, size_t size, FailureAction action)
+void* DebugHeap::realloc(void* object, size_t size, FailureAction action)
 {
     void* result = malloc_zone_realloc(m_zone, object, size);
     RELEASE_BASSERT(action == FailureAction::ReturnNull || result);
     return result;
 }
 
-void SystemHeap::free(void* object)
+void DebugHeap::free(void* object)
 {
     malloc_zone_free(m_zone, object);
 }
 
-void SystemHeap::scavenge()
+void DebugHeap::scavenge()
 {
     // Currently |goal| does not affect on the behavior of malloc_zone_pressure_relief if (1) we only scavenge one zone and (2) it is not nanomalloc.
     constexpr size_t goal = 0;
     malloc_zone_pressure_relief(m_zone, goal);
 }
 
-void SystemHeap::dump()
+void DebugHeap::dump()
 {
     constexpr bool verbose = true;
     malloc_zone_print(m_zone, verbose);
@@ -108,16 +108,16 @@ void SystemHeap::dump()
 
 #elif BOS(WINDOWS)
 
-// SystemHeap unimplemented on Windows
+// DebugHeap unimplemented on Windows
 // This might be possible with _aligned_malloc, _aligned_realloc and _aligned_free, however there may be an impedence mismatch compared to Linux's APIs.
 // For example, it might attempt to free larger contiguous regions with a single free which might fail.
 
-SystemHeap::SystemHeap(const LockHolder&)
+DebugHeap::DebugHeap(const LockHolder&)
     : m_pageSize(vmPageSize())
 {
 }
 
-void* SystemHeap::malloc(size_t size, FailureAction action)
+void* DebugHeap::malloc(size_t size, FailureAction action)
 {
     BUNUSED_PARAM(size);
     BUNUSED_PARAM(action);
@@ -125,7 +125,7 @@ void* SystemHeap::malloc(size_t size, FailureAction action)
     return nullptr;
 }
 
-void* SystemHeap::memalign(size_t alignment, size_t size, FailureAction action)
+void* DebugHeap::memalign(size_t alignment, size_t size, FailureAction action)
 {
     BUNUSED_PARAM(alignment);
     BUNUSED_PARAM(size);
@@ -134,7 +134,7 @@ void* SystemHeap::memalign(size_t alignment, size_t size, FailureAction action)
     return nullptr;
 }
 
-void* SystemHeap::realloc(void* object, size_t size, FailureAction action)
+void* DebugHeap::realloc(void* object, size_t size, FailureAction action)
 {
     BUNUSED_PARAM(object);
     BUNUSED_PARAM(size);
@@ -143,58 +143,58 @@ void* SystemHeap::realloc(void* object, size_t size, FailureAction action)
     return nullptr;
 }
 
-void SystemHeap::free(void* object)
+void DebugHeap::free(void* object)
 {
     BUNUSED_PARAM(object);
     RELEASE_BASSERT_NOT_REACHED();
 }
 
-void SystemHeap::scavenge()
+void DebugHeap::scavenge()
 {
 }
 
-void SystemHeap::dump()
+void DebugHeap::dump()
 {
 }
 
 #else
 
-SystemHeap::SystemHeap(const LockHolder&)
+DebugHeap::DebugHeap(const LockHolder&)
     : m_pageSize(vmPageSize())
 {
 }
 
-void* SystemHeap::malloc(size_t size, FailureAction action)
+void* DebugHeap::malloc(size_t size, FailureAction action)
 {
     void* result = ::malloc(size);
     RELEASE_BASSERT(action == FailureAction::ReturnNull || result);
     return result;
 }
 
-void* SystemHeap::memalign(size_t alignment, size_t size, FailureAction action)
+void* DebugHeap::memalign(size_t alignment, size_t size, FailureAction action)
 {
     void* result = ::aligned_alloc(alignment, size);
     RELEASE_BASSERT(action == FailureAction::ReturnNull || result);
     return result;
 }
 
-void* SystemHeap::realloc(void* object, size_t size, FailureAction action)
+void* DebugHeap::realloc(void* object, size_t size, FailureAction action)
 {
     void* result = ::realloc(object, size);
     RELEASE_BASSERT(action == FailureAction::ReturnNull || result);
     return result;
 }
 
-void SystemHeap::free(void* object)
+void DebugHeap::free(void* object)
 {
     ::free(object);
 }
 
-void SystemHeap::scavenge()
+void DebugHeap::scavenge()
 {
 }
 
-void SystemHeap::dump()
+void DebugHeap::dump()
 {
 }
 
@@ -203,7 +203,7 @@ void SystemHeap::dump()
 // FIXME: This looks an awful lot like the code in wtf/Gigacage.cpp for large allocation.
 // https://bugs.webkit.org/show_bug.cgi?id=175086
 
-void* SystemHeap::memalignLarge(size_t alignment, size_t size)
+void* DebugHeap::memalignLarge(size_t alignment, size_t size)
 {
     alignment = roundUpToMultipleOf(m_pageSize, alignment);
     size = roundUpToMultipleOf(m_pageSize, size);
@@ -217,11 +217,11 @@ void* SystemHeap::memalignLarge(size_t alignment, size_t size)
     return result;
 }
 
-void SystemHeap::freeLarge(void* base)
+void DebugHeap::freeLarge(void* base)
 {
     if (!base)
         return;
-
+    
     size_t size;
     {
         LockHolder locker(mutex());
@@ -229,21 +229,21 @@ void SystemHeap::freeLarge(void* base)
         size_t numErased = m_sizeMap.erase(base);
         RELEASE_BASSERT(numErased == 1);
     }
-
+    
     vmDeallocate(base, size);
 }
 
-SystemHeap* SystemHeap::tryGetSlow()
+DebugHeap* DebugHeap::tryGetSlow()
 {
-    SystemHeap* result;
-    if (Environment::get()->isSystemHeapEnabled()) {
-        systemHeapCache = SystemHeap::get();
-        result = systemHeapCache;
+    DebugHeap* result;
+    if (Environment::get()->isDebugHeapEnabled()) {
+        debugHeapCache = DebugHeap::get();
+        result = debugHeapCache;
     } else {
-        systemHeapCache = systemHeapDisabled();
+        debugHeapCache = debugHeapDisabled();
         result = nullptr;
     }
-    RELEASE_BASSERT(systemHeapCache);
+    RELEASE_BASSERT(debugHeapCache);
     return result;
 }
 
@@ -255,11 +255,11 @@ SystemHeap* SystemHeap::tryGetSlow()
 
 using namespace bmalloc;
 
-bool pas_system_heap_is_enabled(pas_heap_config_kind kind)
+bool pas_debug_heap_is_enabled(pas_heap_config_kind kind)
 {
     switch (kind) {
     case pas_heap_config_kind_bmalloc:
-        return !!SystemHeap::tryGet();
+        return !!DebugHeap::tryGet();
     case pas_heap_config_kind_jit:
     case pas_heap_config_kind_pas_utility:
         return false;
@@ -269,69 +269,69 @@ bool pas_system_heap_is_enabled(pas_heap_config_kind kind)
     }
 }
 
-void* pas_system_heap_malloc(size_t size)
+void* pas_debug_heap_malloc(size_t size)
 {
-    auto systemHeap = SystemHeap::getExisting();
-    PAS_PROFILE(SYSTEM_HEAP_ALLOCATION, systemHeap, size, 0, pas_non_compact_allocation_mode);
-    return systemHeap->malloc(size, FailureAction::ReturnNull);
+    auto debugHeap = DebugHeap::getExisting();
+    PAS_PROFILE(DEBUG_HEAP_ALLOCATION, debugHeap, size, 0, pas_non_compact_allocation_mode);
+    return debugHeap->malloc(size, FailureAction::ReturnNull);
 }
 
-void* pas_system_heap_memalign(size_t alignment, size_t size)
+void* pas_debug_heap_memalign(size_t alignment, size_t size)
 {
-    auto systemHeap = SystemHeap::getExisting();
-    PAS_PROFILE(SYSTEM_HEAP_ALLOCATION, systemHeap, size, alignment, pas_non_compact_allocation_mode);
-    return systemHeap->memalign(alignment, size, FailureAction::ReturnNull);
+    auto debugHeap = DebugHeap::getExisting();
+    PAS_PROFILE(DEBUG_HEAP_ALLOCATION, debugHeap, size, alignment, pas_non_compact_allocation_mode);
+    return debugHeap->memalign(alignment, size, FailureAction::ReturnNull);
 }
 
-void* pas_system_heap_realloc(void* ptr, size_t size)
+void* pas_debug_heap_realloc(void* ptr, size_t size)
 {
-    auto systemHeap = SystemHeap::getExisting();
-    PAS_PROFILE(SYSTEM_HEAP_REALLOCATION, systemHeap, ptr, size, pas_non_compact_allocation_mode);
-    return systemHeap->realloc(ptr, size, FailureAction::ReturnNull);
+    auto debugHeap = DebugHeap::getExisting();
+    PAS_PROFILE(DEBUG_HEAP_REALLOCATION, debugHeap, ptr, size, pas_non_compact_allocation_mode);
+    return debugHeap->realloc(ptr, size, FailureAction::ReturnNull);
 }
 
-void* pas_system_heap_malloc_compact(size_t size)
+void* pas_debug_heap_malloc_compact(size_t size)
 {
-    auto systemHeap = SystemHeap::getExisting();
-    PAS_PROFILE(SYSTEM_HEAP_ALLOCATION, systemHeap, size, 0, pas_always_compact_allocation_mode);
-    return systemHeap->malloc(size, FailureAction::ReturnNull);
+    auto debugHeap = DebugHeap::getExisting();
+    PAS_PROFILE(DEBUG_HEAP_ALLOCATION, debugHeap, size, 0, pas_always_compact_allocation_mode);
+    return debugHeap->malloc(size, FailureAction::ReturnNull);
 }
 
-void* pas_system_heap_memalign_compact(size_t alignment, size_t size)
+void* pas_debug_heap_memalign_compact(size_t alignment, size_t size)
 {
-    auto systemHeap = SystemHeap::getExisting();
-    PAS_PROFILE(SYSTEM_HEAP_ALLOCATION, systemHeap, size, alignment, pas_always_compact_allocation_mode);
-    return systemHeap->memalign(alignment, size, FailureAction::ReturnNull);
+    auto debugHeap = DebugHeap::getExisting();
+    PAS_PROFILE(DEBUG_HEAP_ALLOCATION, debugHeap, size, alignment, pas_always_compact_allocation_mode);
+    return debugHeap->memalign(alignment, size, FailureAction::ReturnNull);
 }
 
-void* pas_system_heap_realloc_compact(void* ptr, size_t size)
+void* pas_debug_heap_realloc_compact(void* ptr, size_t size)
 {
-    auto systemHeap = SystemHeap::getExisting();
-    PAS_PROFILE(SYSTEM_HEAP_REALLOCATION, systemHeap, ptr, size, pas_always_compact_allocation_mode);
-    return systemHeap->realloc(ptr, size, FailureAction::ReturnNull);
+    auto debugHeap = DebugHeap::getExisting();
+    PAS_PROFILE(DEBUG_HEAP_REALLOCATION, debugHeap, ptr, size, pas_always_compact_allocation_mode);
+    return debugHeap->realloc(ptr, size, FailureAction::ReturnNull);
 }
 
-void pas_system_heap_free(void* ptr)
+void pas_debug_heap_free(void* ptr)
 {
-    SystemHeap::getExisting()->free(ptr);
+    DebugHeap::getExisting()->free(ptr);
 }
 
 #else // BUSE(LIBPAS) -> so !BUSE(LIBPAS)
 
-bool pas_system_heap_is_enabled(pas_heap_config_kind kind)
+bool pas_debug_heap_is_enabled(pas_heap_config_kind kind)
 {
     BUNUSED_PARAM(kind);
     return false;
 }
 
-void* pas_system_heap_malloc(size_t size)
+void* pas_debug_heap_malloc(size_t size)
 {
     BUNUSED_PARAM(size);
     RELEASE_BASSERT_NOT_REACHED();
     return nullptr;
 }
 
-void* pas_system_heap_memalign(size_t alignment, size_t size)
+void* pas_debug_heap_memalign(size_t alignment, size_t size)
 {
     BUNUSED_PARAM(size);
     BUNUSED_PARAM(alignment);
@@ -339,7 +339,7 @@ void* pas_system_heap_memalign(size_t alignment, size_t size)
     return nullptr;
 }
 
-void* pas_system_heap_realloc(void* ptr, size_t size)
+void* pas_debug_heap_realloc(void* ptr, size_t size)
 {
     BUNUSED_PARAM(ptr);
     BUNUSED_PARAM(size);
@@ -347,14 +347,14 @@ void* pas_system_heap_realloc(void* ptr, size_t size)
     return nullptr;
 }
 
-void* pas_system_heap_malloc_compact(size_t size)
+void* pas_debug_heap_malloc_compact(size_t size)
 {
     BUNUSED_PARAM(size);
     RELEASE_BASSERT_NOT_REACHED();
     return nullptr;
 }
 
-void* pas_system_heap_memalign_compact(size_t alignment, size_t size)
+void* pas_debug_heap_memalign_compact(size_t alignment, size_t size)
 {
     BUNUSED_PARAM(size);
     BUNUSED_PARAM(alignment);
@@ -362,7 +362,7 @@ void* pas_system_heap_memalign_compact(size_t alignment, size_t size)
     return nullptr;
 }
 
-void* pas_system_heap_realloc_compact(void* ptr, size_t size)
+void* pas_debug_heap_realloc_compact(void* ptr, size_t size)
 {
     BUNUSED_PARAM(ptr);
     BUNUSED_PARAM(size);
@@ -372,7 +372,7 @@ void* pas_system_heap_realloc_compact(void* ptr, size_t size)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
-void pas_system_heap_free(void* ptr)
+void pas_debug_heap_free(void* ptr)
 {
     BUNUSED_PARAM(ptr);
     RELEASE_BASSERT_NOT_REACHED();

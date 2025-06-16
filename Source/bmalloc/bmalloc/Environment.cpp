@@ -159,7 +159,7 @@ static bool isNanoMallocEnabled()
 DEFINE_STATIC_PER_PROCESS_STORAGE(Environment);
 
 Environment::Environment(const LockHolder&)
-    : m_isSystemHeapEnabled(computeIsSystemHeapEnabled())
+    : m_isDebugHeapEnabled(computeIsDebugHeapEnabled())
 {
 #if BUSE(LIBPAS)
     const char* statusReporter = getenv("WebKitPasStatusReporter");
@@ -171,7 +171,7 @@ Environment::Environment(const LockHolder&)
 #endif
 }
 
-bool Environment::computeIsSystemHeapEnabled()
+bool Environment::computeIsDebugHeapEnabled()
 {
     if (isWebKitMallocForceEnabled())
         return false;

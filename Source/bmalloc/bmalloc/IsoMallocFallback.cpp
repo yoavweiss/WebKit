@@ -28,8 +28,8 @@
 
 #if !BUSE(TZONE)
 
+#include "DebugHeap.h"
 #include "Environment.h"
-#include "SystemHeap.h"
 #include "bmalloc.h"
 
 namespace bmalloc { namespace IsoMallocFallback {
@@ -56,7 +56,7 @@ void determineMallocFallbackState()
             if (mallocFallbackState != MallocFallbackState::Undecided)
                 return;
 
-            if (Environment::get()->isSystemHeapEnabled()) {
+            if (Environment::get()->isDebugHeapEnabled()) {
                 mallocFallbackState = MallocFallbackState::FallBackToMalloc;
                 return;
             }

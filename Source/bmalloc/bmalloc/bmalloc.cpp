@@ -25,10 +25,10 @@
 
 #include "bmalloc.h"
 
+#include "DebugHeap.h"
 #include "Environment.h"
 #include "PerProcess.h"
 #include "ProcessCheck.h"
-#include "SystemHeap.h"
 
 #if BENABLE(LIBPAS)
 #include "bmalloc_heap_config.h"
@@ -71,8 +71,8 @@ void* tryLargeZeroedMemalignVirtual(size_t requiredAlignment, size_t requestedSi
     RELEASE_BASSERT(size >= requestedSize);
 
     void* result;
-    if (auto* systemHeap = SystemHeap::tryGet())
-        result = systemHeap->memalignLarge(alignment, size);
+    if (auto* debugHeap = DebugHeap::tryGet())
+        result = debugHeap->memalignLarge(alignment, size);
     else {
 #if BUSE(LIBPAS)
         result = tryMemalign(alignment, size, mode, kind);
@@ -103,14 +103,14 @@ void freeLargeVirtual(void* object, size_t size, HeapKind kind)
 #if BUSE(LIBPAS)
     BUNUSED(size);
     BUNUSED(kind);
-    if (auto* systemHeap = SystemHeap::tryGet()) {
-        systemHeap->freeLarge(object);
+    if (auto* debugHeap = DebugHeap::tryGet()) {
+        debugHeap->freeLarge(object);
         return;
     }
     bmalloc_deallocate_inline(object);
 #else
-    if (auto* systemHeap = SystemHeap::tryGet()) {
-        systemHeap->freeLarge(object);
+    if (auto* debugHeap = DebugHeap::tryGet()) {
+        debugHeap->freeLarge(object);
         return;
     }
     kind = mapToActiveHeapKind(kind);
@@ -129,7 +129,7 @@ void scavengeThisThread()
                                   pas_lock_is_not_held);
 #endif
 #if !BUSE(LIBPAS)
-    if (!SystemHeap::tryGet()) {
+    if (!DebugHeap::tryGet()) {
         for (unsigned i = numHeaps; i--;)
             Cache::scavenge(static_cast<HeapKind>(i));
         IsoTLS::scavenge();
@@ -143,8 +143,8 @@ void scavenge()
     pas_scavenger_run_synchronously_now();
 #endif
     scavengeThisThread();
-    if (SystemHeap* systemHeap = SystemHeap::tryGet())
-        systemHeap->scavenge();
+    if (DebugHeap* debugHeap = DebugHeap::tryGet())
+        debugHeap->scavenge();
     else {
 #if !BUSE(LIBPAS)
         Scavenger::get()->scavenge();
@@ -154,7 +154,7 @@ void scavenge()
 
 bool isEnabled(HeapKind)
 {
-    return !Environment::get()->isSystemHeapEnabled();
+    return !Environment::get()->isDebugHeapEnabled();
 }
 
 #if BOS(DARWIN)
@@ -164,7 +164,7 @@ void setScavengerThreadQOSClass(qos_class_t overrideClass)
     pas_scavenger_set_requested_qos_class(overrideClass);
 #endif
 #if !BUSE(LIBPAS)
-    if (!SystemHeap::tryGet()) {
+    if (!DebugHeap::tryGet()) {
         UniqueLockHolder lock(Heap::mutex());
         Scavenger::get()->setScavengerThreadQOSClass(overrideClass);
     }
@@ -179,7 +179,7 @@ void commitAlignedPhysical(void* object, size_t size, HeapKind kind)
 #if BUSE(LIBPAS)
     BUNUSED(kind);
 #else
-    if (!SystemHeap::tryGet())
+    if (!DebugHeap::tryGet())
         PerProcess<PerHeapKind<Heap>>::get()->at(kind).externalCommit(object, size);
 #endif
 }
@@ -191,7 +191,7 @@ void decommitAlignedPhysical(void* object, size_t size, HeapKind kind)
 #if BUSE(LIBPAS)
     BUNUSED(kind);
 #else
-    if (!SystemHeap::tryGet())
+    if (!DebugHeap::tryGet())
         PerProcess<PerHeapKind<Heap>>::get()->at(kind).externalDecommit(object, size);
 #endif
 }
@@ -218,7 +218,7 @@ void enableMiniMode(bool forceMiniMode)
 #endif
 #if !BUSE(LIBPAS)
     BUNUSED(forceMiniMode);
-    if (!SystemHeap::tryGet())
+    if (!DebugHeap::tryGet())
         Scavenger::get()->enableMiniMode();
 #endif
 }
@@ -229,7 +229,7 @@ void disableScavenger()
     pas_scavenger_suspend();
 #endif
 #if !BUSE(LIBPAS)
-    if (!SystemHeap::tryGet())
+    if (!DebugHeap::tryGet())
         Scavenger::get()->disable();
 #endif
 }

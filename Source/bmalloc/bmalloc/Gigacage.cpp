@@ -259,8 +259,8 @@ bool shouldBeEnabled()
             RELEASE_BASSERT(!g_gigacageConfig.shouldBeEnabledHasBeenCalled);
             g_gigacageConfig.shouldBeEnabledHasBeenCalled = true;
 
-            bool systemHeapEnabled = Environment::get()->isSystemHeapEnabled();
-            if (systemHeapEnabled)
+            bool debugHeapEnabled = Environment::get()->isDebugHeapEnabled();
+            if (debugHeapEnabled)
                 return;
 
             if (!gigacageEnabledForProcess())

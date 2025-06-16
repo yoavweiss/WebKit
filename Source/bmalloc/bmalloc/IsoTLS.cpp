@@ -56,7 +56,7 @@ void IsoTLS::scavenge()
 
 IsoTLS::IsoTLS()
 {
-    BASSERT(!Environment::get()->isSystemHeapEnabled());
+    BASSERT(!Environment::get()->isDebugHeapEnabled());
 }
 
 IsoTLS* IsoTLS::ensureEntries(unsigned offset)

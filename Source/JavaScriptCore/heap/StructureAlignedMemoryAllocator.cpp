@@ -107,8 +107,8 @@ public:
 
         // Don't use the first page because zero is used as the empty StructureID and the first allocation will conflict.
 #if !USE(SYSTEM_MALLOC)
-        m_useSystemHeap = !bmalloc::api::isEnabled();
-        if (!m_useSystemHeap) [[likely]] {
+        m_useDebugHeap = !bmalloc::api::isEnabled();
+        if (!m_useDebugHeap) [[likely]] {
 #if OS(WINDOWS)
             // libpas isn't calling pas_page_malloc commit, so we've got to commit the region ourselves
             // https://bugs.webkit.org/show_bug.cgi?id=292771
@@ -125,7 +125,7 @@ public:
     {
 #if !USE(SYSTEM_MALLOC)
 #if OS(WINDOWS)
-        if (!m_useSystemHeap) [[likely]] {
+        if (!m_useDebugHeap) [[likely]] {
             void* result = bmalloc_try_allocate_auxiliary_with_alignment_inline(&structureHeap, MarkedBlock::blockSize, MarkedBlock::blockSize, pas_maybe_compact_allocation_mode);
 
             // libpas isn't calling pas_page_malloc commit, so we've got to commit the region ourselves
@@ -134,7 +134,7 @@ public:
             return result;
         }
 #else
-        if (!m_useSystemHeap) [[likely]]
+        if (!m_useDebugHeap) [[likely]]
             return bmalloc_try_allocate_auxiliary_with_alignment_inline(&structureHeap, MarkedBlock::blockSize, MarkedBlock::blockSize, pas_always_compact_allocation_mode);
 #endif
 #endif
@@ -161,7 +161,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     void freeStructureBlock(void* blockPtr)
     {
 #if !USE(SYSTEM_MALLOC)
-        if (!m_useSystemHeap) [[likely]] {
+        if (!m_useDebugHeap) [[likely]] {
             bmalloc_deallocate_inline(blockPtr);
             return;
         }
@@ -203,7 +203,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 private:
     Lock m_lock;
 #if !USE(SYSTEM_MALLOC)
-    bool m_useSystemHeap { true };
+    bool m_useDebugHeap { true };
 #endif
     BitVector m_usedBlocks;
 };

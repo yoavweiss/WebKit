@@ -59,25 +59,25 @@ static std::set<void*> toptrset(const std::vector<void*>& ptrs)
 
 static void assertEmptyPointerSet(const std::set<void*>& pointers)
 {
-    if (Environment::get()->isSystemHeapEnabled()) {
-        SAFE_PRINTF("    skipping checks because SystemHeap.\n");
+    if (Environment::get()->isDebugHeapEnabled()) {
+        printf("    skipping checks because DebugHeap.\n");
         return;
     }
     if (pointers.empty())
         return;
-    SAFE_PRINTF("Pointer set not empty!\n");
-    SAFE_PRINTF("Pointers:");
+    printf("Pointer set not empty!\n");
+    printf("Pointers:");
     for (void* ptr : pointers)
-        SAFE_PRINTF(" %p", ptr);
-    SAFE_PRINTF("\n");
+        printf(" %p", ptr);
+    printf("\n");
     EXPECT_TRUE(pointers.empty());
 }
 
 template<typename heapType>
 static void assertHasObjects(IsoHeap<heapType>& heap, std::set<void*> pointers)
 {
-    if (Environment::get()->isSystemHeapEnabled()) {
-        SAFE_PRINTF("    skipping checks because SystemHeap.\n");
+    if (Environment::get()->isDebugHeapEnabled()) {
+        printf("    skipping checks because DebugHeap.\n");
         return;
     }
     auto& impl = heap.impl();
@@ -93,8 +93,8 @@ static void assertHasObjects(IsoHeap<heapType>& heap, std::set<void*> pointers)
 template<typename heapType>
 static void assertHasOnlyObjects(IsoHeap<heapType>& heap, std::set<void*> pointers)
 {
-    if (Environment::get()->isSystemHeapEnabled()) {
-        SAFE_PRINTF("    skipping checks because SystemHeap.\n");
+    if (Environment::get()->isDebugHeapEnabled()) {
+        printf("    skipping checks because DebugHeap.\n");
         return;
     }
     auto& impl = heap.impl();
@@ -111,12 +111,12 @@ template<typename heapType>
 static void assertClean(IsoHeap<heapType>& heap)
 {
     scavengeThisThread();
-    if (!Environment::get()->isSystemHeapEnabled()) {
+    if (!Environment::get()->isDebugHeapEnabled()) {
         auto& impl = heap.impl();
         EXPECT_FALSE(impl.numLiveObjects());
     }
     heap.scavenge();
-    if (!Environment::get()->isSystemHeapEnabled()) {
+    if (!Environment::get()->isDebugHeapEnabled()) {
         auto& impl = heap.impl();
         EXPECT_FALSE(impl.numCommittedPages());
     }
@@ -283,8 +283,8 @@ TEST(bmalloc, BisoMallocedInline)
 
 TEST(bmalloc, ScavengedMemoryShouldBeReused)
 {
-    if (Environment::get()->isSystemHeapEnabled()) {
-        SAFE_PRINTF("    skipping test because SystemHeap.\n");
+    if (Environment::get()->isDebugHeapEnabled()) {
+        printf("    skipping test because DebugHeap.\n");
         return;
     }
 

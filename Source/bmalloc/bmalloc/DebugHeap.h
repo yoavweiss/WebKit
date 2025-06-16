@@ -37,16 +37,16 @@
 #endif
 
 namespace bmalloc {
-
-class SystemHeap : private StaticPerProcess<SystemHeap> {
+    
+class DebugHeap : private StaticPerProcess<DebugHeap> {
 public:
-    SystemHeap(const LockHolder&);
-
+    DebugHeap(const LockHolder&);
+    
     void* malloc(size_t, FailureAction);
     void* memalign(size_t alignment, size_t, FailureAction);
     void* realloc(void*, size_t, FailureAction);
     void free(void*);
-
+    
     void* memalignLarge(size_t alignment, size_t);
     void freeLarge(void* base);
 
@@ -61,48 +61,48 @@ public:
     void scavenge();
     void dump();
 
-    static SystemHeap* tryGet();
-    static SystemHeap* getExisting();
+    static DebugHeap* tryGet();
+    static DebugHeap* getExisting();
 
 #if BOS(DARWIN)
     malloc_zone_t* zone() const { return m_zone; };
 #endif
 
 private:
-    static SystemHeap* tryGetSlow();
-
+    static DebugHeap* tryGetSlow();
+    
 #if BENABLE(MALLOC_HEAP_BREAKDOWN) || BOS(DARWIN)
     malloc_zone_t* m_zone;
 #endif
-
-    // This is the system heap. We can use whatever data structures we like. It doesn't matter.
+    
+    // This is the debug heap. We can use whatever data structures we like. It doesn't matter.
     size_t m_pageSize { 0 };
     std::unordered_map<void*, size_t> m_sizeMap;
 };
 BALLOW_DEPRECATED_DECLARATIONS_BEGIN
-DECLARE_STATIC_PER_PROCESS_STORAGE(SystemHeap);
+DECLARE_STATIC_PER_PROCESS_STORAGE(DebugHeap);
 BALLOW_DEPRECATED_DECLARATIONS_END
 
-extern BEXPORT SystemHeap* systemHeapCache;
+extern BEXPORT DebugHeap* debugHeapCache;
 
-BINLINE SystemHeap* systemHeapDisabled()
+BINLINE DebugHeap* debugHeapDisabled()
 {
-    return reinterpret_cast<SystemHeap*>(static_cast<uintptr_t>(1));
+    return reinterpret_cast<DebugHeap*>(static_cast<uintptr_t>(1));
 }
 
-BINLINE SystemHeap* SystemHeap::tryGet()
+BINLINE DebugHeap* DebugHeap::tryGet()
 {
-    SystemHeap* result = systemHeapCache;
-    if (result == systemHeapDisabled())
+    DebugHeap* result = debugHeapCache;
+    if (result == debugHeapDisabled())
         return nullptr;
     if (result)
         return result;
     return tryGetSlow();
 }
 
-BINLINE SystemHeap* SystemHeap::getExisting()
+BINLINE DebugHeap* DebugHeap::getExisting()
 {
-    SystemHeap* result = tryGet();
+    DebugHeap* result = tryGet();
     RELEASE_BASSERT(result);
     return result;
 }

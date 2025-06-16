@@ -23,8 +23,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#ifndef PAS_SYSTEM_HEAP_H
-#define PAS_SYSTEM_HEAP_H
+#ifndef PAS_DEBUG_HEAP_H
+#define PAS_DEBUG_HEAP_H
 
 #include "pas_allocation_mode.h"
 #include "pas_allocation_result.h"
@@ -34,7 +34,7 @@
 
 PAS_BEGIN_EXTERN_C;
 
-/* Bmalloc has a SystemHeap singleton that can be used to divert bmalloc calls to system malloc.
+/* Bmalloc has a DebugHeap singleton that can be used to divert bmalloc calls to system malloc.
    When libpas is used in bmalloc, we use this to glue libpas into that mechanism. */
 
 #if PAS_BMALLOC
@@ -44,54 +44,31 @@ PAS_BEGIN_EXTERN_C;
 #include "BExport.h"
 
 /* The implementations are provided by bmalloc. */
-BEXPORT extern bool pas_system_heap_is_enabled(pas_heap_config_kind);
-BEXPORT extern void* pas_system_heap_malloc(size_t);
-BEXPORT extern void* pas_system_heap_memalign(size_t alignment, size_t);
-BEXPORT extern void* pas_system_heap_realloc(void* ptr, size_t);
-BEXPORT extern void* pas_system_heap_malloc_compact(size_t);
-BEXPORT extern void* pas_system_heap_memalign_compact(size_t alignment, size_t);
-BEXPORT extern void* pas_system_heap_realloc_compact(void* ptr, size_t);
-BEXPORT extern void pas_system_heap_free(void* ptr);
+BEXPORT extern bool pas_debug_heap_is_enabled(pas_heap_config_kind);
+BEXPORT extern void* pas_debug_heap_malloc(size_t);
+BEXPORT extern void* pas_debug_heap_memalign(size_t alignment, size_t);
+BEXPORT extern void* pas_debug_heap_realloc(void* ptr, size_t);
+BEXPORT extern void* pas_debug_heap_malloc_compact(size_t);
+BEXPORT extern void* pas_debug_heap_memalign_compact(size_t alignment, size_t);
+BEXPORT extern void* pas_debug_heap_realloc_compact(void* ptr, size_t);
+BEXPORT extern void pas_debug_heap_free(void* ptr);
 
 #else /* PAS_BMALLOC -> so !PAS_BMALLOC */
 
-static inline bool pas_system_heap_is_enabled(pas_heap_config_kind kind)
+static inline bool pas_debug_heap_is_enabled(pas_heap_config_kind kind)
 {
     PAS_UNUSED_PARAM(kind);
     return false;
 }
 
-static inline void* pas_system_heap_malloc(size_t size)
+static inline void* pas_debug_heap_malloc(size_t size)
 {
     PAS_UNUSED_PARAM(size);
     PAS_ASSERT_NOT_REACHED();
     return NULL;
 }
 
-static inline void* pas_system_heap_memalign(size_t alignment, size_t size)
-{
-    PAS_UNUSED_PARAM(alignment);
-    PAS_UNUSED_PARAM(size);
-    PAS_ASSERT_NOT_REACHED();
-    return NULL;
-}
-
-static inline void* pas_system_heap_realloc(void* ptr, size_t size)
-{
-    PAS_UNUSED_PARAM(ptr);
-    PAS_UNUSED_PARAM(size);
-    PAS_ASSERT_NOT_REACHED();
-    return NULL;
-}
-
-static inline void* pas_system_heap_malloc_compact(size_t size)
-{
-    PAS_UNUSED_PARAM(size);
-    PAS_ASSERT_NOT_REACHED();
-    return NULL;
-}
-
-static inline void* pas_system_heap_memalign_compact(size_t alignment, size_t size)
+static inline void* pas_debug_heap_memalign(size_t alignment, size_t size)
 {
     PAS_UNUSED_PARAM(alignment);
     PAS_UNUSED_PARAM(size);
@@ -99,7 +76,7 @@ static inline void* pas_system_heap_memalign_compact(size_t alignment, size_t si
     return NULL;
 }
 
-static inline void* pas_system_heap_realloc_compact(void* ptr, size_t size)
+static inline void* pas_debug_heap_realloc(void* ptr, size_t size)
 {
     PAS_UNUSED_PARAM(ptr);
     PAS_UNUSED_PARAM(size);
@@ -107,7 +84,30 @@ static inline void* pas_system_heap_realloc_compact(void* ptr, size_t size)
     return NULL;
 }
 
-static inline void pas_system_heap_free(void* ptr)
+static inline void* pas_debug_heap_malloc_compact(size_t size)
+{
+    PAS_UNUSED_PARAM(size);
+    PAS_ASSERT_NOT_REACHED();
+    return NULL;
+}
+
+static inline void* pas_debug_heap_memalign_compact(size_t alignment, size_t size)
+{
+    PAS_UNUSED_PARAM(alignment);
+    PAS_UNUSED_PARAM(size);
+    PAS_ASSERT_NOT_REACHED();
+    return NULL;
+}
+
+static inline void* pas_debug_heap_realloc_compact(void* ptr, size_t size)
+{
+    PAS_UNUSED_PARAM(ptr);
+    PAS_UNUSED_PARAM(size);
+    PAS_ASSERT_NOT_REACHED();
+    return NULL;
+}
+
+static inline void pas_debug_heap_free(void* ptr)
 {
     PAS_UNUSED_PARAM(ptr);
     PAS_ASSERT_NOT_REACHED();
@@ -115,25 +115,25 @@ static inline void pas_system_heap_free(void* ptr)
 
 #endif /* PAS_BMALLOC -> so end of !PAS_BMALLOC */
 
-static inline pas_allocation_result pas_system_heap_allocate(size_t size, size_t alignment, pas_allocation_mode allocation_mode)
+static inline pas_allocation_result pas_debug_heap_allocate(size_t size, size_t alignment, pas_allocation_mode allocation_mode)
 {
     static const bool verbose = false;
-
+    
     pas_allocation_result result;
     void* raw_result;
-
+    
     if (alignment > sizeof(void*)) {
         if (verbose)
             pas_log("Going down debug memalign path.\n");
         raw_result = allocation_mode == pas_non_compact_allocation_mode
-            ? pas_system_heap_memalign(alignment, size)
-            : pas_system_heap_memalign_compact(alignment, size);
+            ? pas_debug_heap_memalign(alignment, size)
+            : pas_debug_heap_memalign_compact(alignment, size);
     } else {
         if (verbose)
             pas_log("Going down debug malloc path.\n");
         raw_result = allocation_mode == pas_non_compact_allocation_mode
-            ? pas_system_heap_malloc(size)
-            : pas_system_heap_malloc_compact(size);
+            ? pas_debug_heap_malloc(size)
+            : pas_debug_heap_malloc_compact(size);
     }
 
     if (verbose)
@@ -148,4 +148,4 @@ static inline pas_allocation_result pas_system_heap_allocate(size_t size, size_t
 
 PAS_END_EXTERN_C;
 
-#endif /* PAS_SYSTEM_HEAP_H */
+#endif /* PAS_DEBUG_HEAP_H */

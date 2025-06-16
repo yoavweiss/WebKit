@@ -34,12 +34,12 @@ class Environment : public StaticPerProcess<Environment> {
 public:
     BEXPORT Environment(const LockHolder&);
     
-    bool isSystemHeapEnabled() { return m_isSystemHeapEnabled; }
+    bool isDebugHeapEnabled() { return m_isDebugHeapEnabled; }
 
 private:
-    bool computeIsSystemHeapEnabled();
+    bool computeIsDebugHeapEnabled();
 
-    bool m_isSystemHeapEnabled;
+    bool m_isDebugHeapEnabled;
 };
 BALLOW_DEPRECATED_DECLARATIONS_BEGIN
 DECLARE_STATIC_PER_PROCESS_STORAGE(Environment);
