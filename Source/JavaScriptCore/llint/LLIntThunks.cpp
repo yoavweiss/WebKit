@@ -231,25 +231,45 @@ ALWAYS_INLINE void* untaggedPtr(void* ptr)
     return CodePtr<CFunctionPtrTag>::fromTaggedPtr(ptr).template untaggedPtr<>();
 }
 
-MacroAssemblerCodeRef<JITThunkPtrTag> inPlaceInterpreterEntryThunk()
-{
-    static LazyNeverDestroyed<MacroAssemblerCodeRef<JITThunkPtrTag>> codeRef;
-    static std::once_flag onceKey;
-    std::call_once(onceKey, [&] {
-        codeRef.construct(generateThunkWithJumpToPrologue<JITThunkPtrTag>(ipint_entry, "function for IPInt entry"));
-    });
-    return codeRef;
-}
+#if ENABLE(JIT)
+#define DEFINE_IPINT_THUNK(funcName, target) \
+    MacroAssemblerCodeRef<JITThunkPtrTag> funcName() \
+    { \
+        static LazyNeverDestroyed<MacroAssemblerCodeRef<JITThunkPtrTag>> codeRef; \
+        static std::once_flag onceKey; \
+        std::call_once(onceKey, [&] { \
+            if (Options::useJIT()) \
+                codeRef.construct(generateThunkWithJumpToPrologue<JITThunkPtrTag>(target, #target)); \
+            else \
+                codeRef.construct(getCodeRef<JITThunkPtrTag>(target)); \
+        }); \
+        return codeRef; \
+    }
 
-MacroAssemblerCodeRef<JITThunkPtrTag> inPlaceInterpreterSIMDEntryThunk()
-{
-    static LazyNeverDestroyed<MacroAssemblerCodeRef<JITThunkPtrTag>> codeRef;
-    static std::once_flag onceKey;
-    std::call_once(onceKey, [&] {
-        codeRef.construct(generateThunkWithJumpToPrologue<JITThunkPtrTag>(ipint_function_prologue_simd, "function for IPInt SIMD call"));
-    });
-    return codeRef;
-}
+#else
+
+#define DEFINE_IPINT_THUNK(funcName, target) \
+    MacroAssemblerCodeRef<JITThunkPtrTag> funcName() \
+    { \
+        static LazyNeverDestroyed<MacroAssemblerCodeRef<JITThunkPtrTag>> codeRef; \
+        static std::once_flag onceKey; \
+        std::call_once(onceKey, [&] { \
+            codeRef.construct(getCodeRef<JITThunkPtrTag>(target)); \
+        }); \
+        return codeRef; \
+    }
+
+#endif
+
+DEFINE_IPINT_THUNK(inPlaceInterpreterEntryThunk, ipint_entry)
+DEFINE_IPINT_THUNK(inPlaceInterpreterSIMDEntryThunk, ipint_function_prologue_simd)
+DEFINE_IPINT_THUNK(inPlaceInterpreterCatchEntryThunk, ipint_catch_entry)
+DEFINE_IPINT_THUNK(inPlaceInterpreterCatchAllEntryThunk, ipint_catch_all_entry)
+DEFINE_IPINT_THUNK(inPlaceInterpreterTableCatchEntryThunk, ipint_table_catch_entry)
+DEFINE_IPINT_THUNK(inPlaceInterpreterTableCatchRefEntryThunk, ipint_table_catch_ref_entry)
+DEFINE_IPINT_THUNK(inPlaceInterpreterTableCatchAllEntryThunk, ipint_table_catch_all_entry)
+DEFINE_IPINT_THUNK(inPlaceInterpreterTableCatchAllrefEntryThunk, ipint_table_catch_allref_entry)
+
 #endif // ENABLE(WEBASSEMBLY)
 
 MacroAssemblerCodeRef<JSEntryPtrTag> defaultCallThunk()

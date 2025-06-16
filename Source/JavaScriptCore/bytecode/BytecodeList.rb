@@ -1499,6 +1499,12 @@ op :ipint_trampoline
 op :ipint_entry
 op :ipint_function_prologue_simd_trampoline
 op :ipint_function_prologue_simd
+op :ipint_catch_entry
+op :ipint_catch_all_entry
+op :ipint_table_catch_entry
+op :ipint_table_catch_ref_entry
+op :ipint_table_catch_all_entry
+op :ipint_table_catch_allref_entry
 
 op :js_trampoline_op_call
 op :js_trampoline_op_call_ignore_result
