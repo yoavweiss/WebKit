@@ -604,16 +604,15 @@ int RenderBox::scrollTop() const
     return (hasNonVisibleOverflow() && scrollableArea) ? scrollableArea->scrollPosition().y() : 0;
 }
 
+bool RenderBox::shouldResetLogicalHeightBeforeLayout() const
+{
+    auto* flexBoxParent = dynamicDowncast<RenderFlexibleBox>(parent());
+    return flexBoxParent && flexBoxParent->shouldResetFlexItemLogicalHeightBeforeLayout();
+}
+
 void RenderBox::resetLogicalHeightBeforeLayoutIfNeeded()
 {
-    bool shouldSetLogicalHeight = [&] {
-        if (shouldResetLogicalHeightBeforeLayout())
-            return true;
-        auto* parentBlock = dynamicDowncast<RenderBlock>(parent());
-        return parentBlock && parentBlock->shouldResetChildLogicalHeightBeforeLayout(*this);
-    }();
-
-    if (shouldSetLogicalHeight)
+    if (shouldResetLogicalHeightBeforeLayout())
         setLogicalHeight(0_lu);
 }
 
