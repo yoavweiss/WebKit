@@ -1317,7 +1317,7 @@ void RenderTableSection::paintObject(PaintInfo& paintInfo, const LayoutPoint& pa
         // To make sure we properly repaint the section, we repaint all the overflowing cells that we collected.
         auto cells = copyToVector(m_overflowingCells);
 
-        UncheckedKeyHashSet<CheckedPtr<RenderTableCell>> spanningCells;
+        HashSet<CheckedPtr<RenderTableCell>> spanningCells;
 
         for (unsigned r = dirtiedRows.start; r < dirtiedRows.end; r++) {
             paintRowOutline(r, paintInfo.phase);

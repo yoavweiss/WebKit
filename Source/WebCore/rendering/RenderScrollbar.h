@@ -86,7 +86,7 @@ private:
     RefPtr<Element> m_ownerElement;
 
     WeakPtr<LocalFrame> m_owningFrame;
-    UncheckedKeyHashMap<unsigned, RenderPtr<RenderScrollbarPart>> m_parts;
+    HashMap<unsigned, RenderPtr<RenderScrollbarPart>> m_parts;
 };
 
 } // namespace WebCore

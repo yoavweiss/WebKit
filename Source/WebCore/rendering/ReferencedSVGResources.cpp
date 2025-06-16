@@ -186,7 +186,7 @@ ReferencedSVGResources::SVGElementIdentifierAndTagPairs ReferencedSVGResources::
 
 void ReferencedSVGResources::updateReferencedResources(TreeScope& treeScope, const ReferencedSVGResources::SVGElementIdentifierAndTagPairs& referencedResources)
 {
-    UncheckedKeyHashSet<AtomString> oldKeys;
+    HashSet<AtomString> oldKeys;
     for (auto& key : m_elementClients.keys())
         oldKeys.add(key);
 

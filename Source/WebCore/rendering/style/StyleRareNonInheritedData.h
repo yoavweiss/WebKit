@@ -187,7 +187,7 @@ public:
     Style::Color textDecorationColor;
 
     DataRef<StyleCustomPropertyData> customProperties;
-    UncheckedKeyHashSet<AtomString> customPaintWatchedProperties;
+    HashSet<AtomString> customPaintWatchedProperties;
 
     RefPtr<RotateTransformOperation> rotate;
     RefPtr<ScaleTransformOperation> scale;

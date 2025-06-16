@@ -1945,7 +1945,7 @@ void RenderLayerCompositor::adjustOverflowScrollbarContainerLayers(RenderLayer& 
     if (layersClippedByScrollers.isEmpty())
         return;
 
-    UncheckedKeyHashMap<CheckedPtr<RenderLayer>, CheckedPtr<RenderLayer>> overflowScrollToLastContainedLayerMap;
+    HashMap<CheckedPtr<RenderLayer>, CheckedPtr<RenderLayer>> overflowScrollToLastContainedLayerMap;
 
     for (auto* clippedLayer : layersClippedByScrollers) {
         auto* clippingStack = clippedLayer->backing()->ancestorClippingStack();
@@ -5937,7 +5937,7 @@ void RenderLayerCompositor::updateSynchronousScrollingNodes()
     ASSERT(scrollingCoordinator);
 
     auto rootScrollingNodeID = m_renderView.protectedFrameView()->scrollingNodeID();
-    UncheckedKeyHashSet<ScrollingNodeID> nodesToClear;
+    HashSet<ScrollingNodeID> nodesToClear;
     nodesToClear.reserveInitialCapacity(m_scrollingNodeToLayerMap.size());
     for (auto key : m_scrollingNodeToLayerMap.keys())
         nodesToClear.add(key);

@@ -217,7 +217,7 @@ void RenderBlockFlow::rebuildFloatingObjectSetFromIntrudingFloats()
     if (mayHaveStaleFloatingObjects())
         m_floatingObjects = { };
 
-    UncheckedKeyHashSet<CheckedPtr<RenderBox>> oldIntrudingFloatSet;
+    HashSet<CheckedPtr<RenderBox>> oldIntrudingFloatSet;
 
     if (m_floatingObjects) {
         m_floatingObjects->setHorizontalWritingMode(isHorizontalWritingMode());

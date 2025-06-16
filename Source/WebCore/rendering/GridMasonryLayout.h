@@ -78,7 +78,7 @@ private:
     unsigned m_gridAxisTracksCount;
 
     Vector<LayoutUnit> m_runningPositions;
-    UncheckedKeyHashMap<SingleThreadWeakRef<const RenderBox>, LayoutUnit> m_itemOffsets;
+    HashMap<SingleThreadWeakRef<const RenderBox>, LayoutUnit> m_itemOffsets;
     const CheckedRef<RenderGrid> m_renderGrid;
     LayoutUnit m_masonryAxisGridGap;
     LayoutUnit m_gridContentSize;

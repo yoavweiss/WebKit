@@ -126,7 +126,7 @@ private:
     bool m_forward;
     unsigned m_currentOrdinal;
     unsigned m_largestOrdinal;
-    UncheckedKeyHashSet<unsigned> m_ordinalValues;
+    HashSet<unsigned> m_ordinalValues;
     Vector<unsigned> m_sortedOrdinalValues;
     unsigned m_ordinalIteration;
 };
