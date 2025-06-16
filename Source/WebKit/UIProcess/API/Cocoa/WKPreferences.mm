@@ -1489,12 +1489,12 @@ static WebCore::EditableLinkBehavior toEditableLinkBehavior(_WKEditableLinkBehav
 
 - (BOOL)_fileSystemAccessEnabled
 {
-    return _preferences->fileSystemAccessEnabled();
+    return _preferences->fileSystemEnabled();
 }
 
 - (void)_setFileSystemAccessEnabled:(BOOL)fileSystemAccessEnabled
 {
-    _preferences->setFileSystemAccessEnabled(fileSystemAccessEnabled);
+    _preferences->setFileSystemEnabled(fileSystemAccessEnabled);
 }
 
 - (BOOL)_storageAPIEnabled

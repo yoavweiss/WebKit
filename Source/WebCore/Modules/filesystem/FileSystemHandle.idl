@@ -32,7 +32,7 @@ enum FileSystemHandleKind {
     ActiveDOMObject,
     CustomToJSObject,
     Exposed=(Window,Worker),
-    EnabledBySetting=FileSystemAccessEnabled,
+    EnabledBySetting=FileSystemEnabled,
     SecureContext
 ] interface FileSystemHandle {
     readonly attribute FileSystemHandleKind kind;

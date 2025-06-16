@@ -32,7 +32,7 @@
 };
 
 [
-    EnabledBySetting=FileSystemAccessEnabled,
+    EnabledBySetting=FileSystemEnabled,
     Exposed=(Window,Worker),
     SecureContext
 ] interface FileSystemFileHandle : FileSystemHandle {

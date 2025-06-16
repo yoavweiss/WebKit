@@ -36,7 +36,7 @@ dictionary FileSystemRemoveOptions {
 };
 
 [
-    EnabledBySetting=FileSystemAccessEnabled,
+    EnabledBySetting=FileSystemEnabled,
     Exposed=(Window,Worker),
     SecureContext
 ] interface FileSystemDirectoryHandle : FileSystemHandle {

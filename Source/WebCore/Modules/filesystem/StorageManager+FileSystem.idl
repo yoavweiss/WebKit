@@ -24,7 +24,7 @@
  */
 
 [
-    EnabledBySetting=FileSystemAccessEnabled,
+    EnabledBySetting=FileSystemEnabled,
     SecureContext,
     ImplementedBy=StorageManagerFileSystem,
 ] partial interface StorageManager {
