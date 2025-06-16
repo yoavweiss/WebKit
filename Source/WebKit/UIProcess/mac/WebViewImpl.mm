@@ -2423,7 +2423,10 @@ void WebViewImpl::updateTopScrollPocketCaptureColor()
     if ([view _usesAutomaticContentInsetBackgroundFill])
         return;
 
-    RetainPtr captureColor = [view _sampledTopFixedPositionContentColor];
+    RetainPtr captureColor = [view _overrideTopScrollEdgeEffectColor];
+    if (!captureColor && ![view _shouldSuppressTopColorExtensionView])
+        captureColor = [view _sampledTopFixedPositionContentColor];
+
     if (!captureColor) {
         if (auto backgroundColor = m_page->underPageBackgroundColorIgnoringPlatformColor(); backgroundColor.isValid())
             captureColor = cocoaColor(backgroundColor);

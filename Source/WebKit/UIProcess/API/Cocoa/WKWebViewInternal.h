@@ -281,6 +281,10 @@ struct PerWebProcessState {
     _WKRenderingProgressEvents _observedRenderingProgressEvents;
     BOOL _usePlatformFindUI;
     BOOL _usesAutomaticContentInsetBackgroundFill;
+    BOOL _shouldSuppressTopColorExtensionView;
+#if PLATFORM(MAC)
+    RetainPtr<NSColor> _overrideTopScrollEdgeEffectColor;
+#endif
 
     CocoaEdgeInsets _minimumViewportInset;
     CocoaEdgeInsets _maximumViewportInset;

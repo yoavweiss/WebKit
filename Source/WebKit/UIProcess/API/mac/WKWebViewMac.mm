@@ -1583,6 +1583,23 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     );
 }
 
+- (NSColor *)_overrideTopScrollEdgeEffectColor
+{
+    return _overrideTopScrollEdgeEffectColor.get();
+}
+
+- (void)_setOverrideTopScrollEdgeEffectColor:(NSColor *)color
+{
+    if (_overrideTopScrollEdgeEffectColor == color || [_overrideTopScrollEdgeEffectColor isEqual:color])
+        return;
+
+    _overrideTopScrollEdgeEffectColor = adoptNS(color.copy);
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    [self _updateTopScrollPocketCaptureColor];
+#endif
+}
+
 - (void)_setUsesAutomaticContentInsetBackgroundFill:(BOOL)value
 {
     if (_usesAutomaticContentInsetBackgroundFill == value)
