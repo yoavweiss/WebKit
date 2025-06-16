@@ -682,7 +682,9 @@ Vector<Ref<StyleRuleBase>> CSSParser::consumeNestedGroupRules(CSSParserTokenRang
         return { };
 
     Vector<Ref<StyleRuleBase>> rules;
-    if (hasStyleRuleAncestor()) {
+    // Declarations are allowed if there is either a parent style rule or parent scope rule.
+    // https://drafts.csswg.org/css-cascade-6/#scoped-declarations
+    if (isStyleNestedContext()) {
         runInNewNestingContext([&] {
             consumeStyleBlock(block, StyleRuleType::Style, ParsingStyleDeclarationsInRuleList::Yes);
 
@@ -1389,7 +1391,7 @@ RefPtr<StyleRuleBase> CSSParser::consumeStyleRule(CSSParserTokenRange prelude, C
 void CSSParser::consumeBlockContent(CSSParserTokenRange range, StyleRuleType ruleType, OnlyDeclarations onlyDeclarations, ParsingStyleDeclarationsInRuleList isParsingStyleDeclarationsInRuleList)
 {
     auto nestedRulesAllowed = [&] {
-        return hasStyleRuleAncestor() && onlyDeclarations == OnlyDeclarations::No;
+        return isStyleNestedContext() && onlyDeclarations == OnlyDeclarations::No;
     };
 
     ASSERT(topContext().m_parsedProperties.isEmpty());
@@ -1485,7 +1487,10 @@ void CSSParser::consumeBlockContent(CSSParserTokenRange range, StyleRuleType rul
                 RefPtr rule = consumeAtRule(range, AllowedRules::RegularRules);
                 if (!rule)
                     break;
-                if (!rule->isGroupRule())
+                auto lastAncestor = lastAncestorRuleType();
+                ASSERT(lastAncestor);
+                // Style rule only support nested group rule.
+                if (*lastAncestor == CSSParserEnum::NestedContextType::Style && !rule->isGroupRule())
                     break;
                 storeDeclarations();
                 topContext().m_parsedRules.append(rule.releaseNonNull());
