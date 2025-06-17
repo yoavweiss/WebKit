@@ -83,11 +83,13 @@ bool isValidMarkerStyleProperty(CSSPropertyID id)
     case CSSPropertyTextEmphasisPosition:
     case CSSPropertyTextEmphasisStyle:
     case CSSPropertyTextIndent:
+    case CSSPropertyTextOrientation:
     case CSSPropertyTextShadow:
     case CSSPropertyTextTransform:
     case CSSPropertyTextWrapMode:
     case CSSPropertyTextWrapStyle:
     case CSSPropertyUnicodeBidi:
+    case CSSPropertyWebkitTextOrientation:
     case CSSPropertyWordBreak:
     case CSSPropertyWordSpacing:
     case CSSPropertyWhiteSpace:

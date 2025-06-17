@@ -5144,7 +5144,6 @@ imported/w3c/web-platform-tests/css/css-writing-modes/table-cell-valign-002.html
 imported/w3c/web-platform-tests/css/css-writing-modes/table-cell-valign-003.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-writing-modes/table-cell-valign-004.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-writing-modes/text-combine-upright-rtl-002.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-writing-modes/text-orientation-020.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-writing-modes/test-plan/req-tcu-font.html [ Skip ]
 
 # Untriaged CSSOM-View timeout failures.
