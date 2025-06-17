@@ -1148,7 +1148,6 @@ css/values/color/CSSColorLayers.cpp
 css/values/color/CSSColorLayersResolver.cpp
 css/values/color/CSSColorMix.cpp
 css/values/color/CSSColorMixResolver.cpp
-css/values/color/CSSColorMixSerialization.cpp
 css/values/color/CSSContrastColor.cpp
 css/values/color/CSSContrastColorResolver.cpp
 css/values/color/CSSDynamicRangeLimit.cpp

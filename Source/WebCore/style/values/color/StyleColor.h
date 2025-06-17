@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2013 Google Inc. All rights reserved.
  * Copyright (C) 2016-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -166,9 +167,6 @@ private:
 
 WebCore::Color resolveColor(const Color&, const WebCore::Color& currentColor);
 bool containsCurrentColor(const Color&);
-
-void serializationForCSS(StringBuilder&, const CSS::SerializationContext&, const Color&);
-WEBCORE_EXPORT String serializationForCSS(const CSS::SerializationContext&, const Color&);
 
 template<> struct Serialize<Color> {
     void operator()(StringBuilder&, const CSS::SerializationContext&, const RenderStyle&, const Color&);

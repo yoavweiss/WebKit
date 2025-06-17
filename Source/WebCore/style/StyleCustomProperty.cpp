@@ -145,10 +145,6 @@ void CustomProperty::propertyValueSerialization(StringBuilder& builder, const CS
             [&](const Transform& value) {
                 ExtractorSerializer::serializeTransformOperation(style, builder, context, value.operation);
             },
-            [&](const Color& value) {
-                // FIXME: This uses the version of serializationForCSS() that doesn't take a style to force the incorrect behavior of serializing the computed value instead of the now spec'd used value (see https://bugs.webkit.org/show_bug.cgi?id=294504).
-                Style::serializationForCSS(builder, context, value);
-            },
             [&](const auto& value) {
                 Style::serializationForCSS(builder, context, style, value);
             }

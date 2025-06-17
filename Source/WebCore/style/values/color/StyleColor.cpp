@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Google Inc. All rights reserved.
  * Copyright (C) 2016-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -301,16 +302,6 @@ bool containsCurrentColor(const Color& value)
 }
 
 // MARK: - Serialization
-
-String serializationForCSS(const CSS::SerializationContext& context, const Color& value)
-{
-    return WTF::switchOn(value, [&](const auto& kind) { return WebCore::Style::serializationForCSS(context, kind); });
-}
-
-void serializationForCSS(StringBuilder& builder, const CSS::SerializationContext& context, const Color& value)
-{
-    WTF::switchOn(value, [&](const auto& kind) { WebCore::Style::serializationForCSS(builder, context, kind); });
-}
 
 void Serialize<Color>::operator()(StringBuilder& builder, const CSS::SerializationContext&, const RenderStyle& style, const Color& value)
 {
