@@ -571,6 +571,7 @@ $(PROJECT_DIR)/WebProcess/Extensions/Bindings/Scripts/GenerateImports.pl
 $(PROJECT_DIR)/WebProcess/Extensions/Bindings/Scripts/IDLAttributes.json
 $(PROJECT_DIR)/WebProcess/Extensions/Interfaces/WebExtensionAPIAction.idl
 $(PROJECT_DIR)/WebProcess/Extensions/Interfaces/WebExtensionAPIAlarms.idl
+$(PROJECT_DIR)/WebProcess/Extensions/Interfaces/WebExtensionAPIBookmarks.idl
 $(PROJECT_DIR)/WebProcess/Extensions/Interfaces/WebExtensionAPICommands.idl
 $(PROJECT_DIR)/WebProcess/Extensions/Interfaces/WebExtensionAPICookies.idl
 $(PROJECT_DIR)/WebProcess/Extensions/Interfaces/WebExtensionAPIDOM.idl

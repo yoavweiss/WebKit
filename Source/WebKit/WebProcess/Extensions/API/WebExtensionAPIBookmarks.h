@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Igalia S.L. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,40 +25,18 @@
 
 #pragma once
 
-#if ENABLE(WK_WEB_EXTENSIONS)
+#if ENABLE(WK_WEB_EXTENSIONS_BOOKMARKS)
 
-#include <wtf/text/WTFString.h>
+#include "JSWebExtensionAPIBookmarks.h"
+#include "WebExtensionAPIObject.h"
 
 namespace WebKit {
 
-/* Constants for specifying permission in a WebExtensionContext. */
-class WebExtensionPermission {
-public:
-    static String activeTab();
-    static String alarms();
-#if ENABLE(WK_WEB_EXTENSIONS_BOOKMARKS)
-    static String bookmarks();
-#endif
-    static String clipboardWrite();
-    static String contextMenus();
-    static String cookies();
-    static String declarativeNetRequest();
-    static String declarativeNetRequestFeedback();
-    static String declarativeNetRequestWithHostAccess();
-    static String menus();
-    static String nativeMessaging();
-    static String notifications();
-    static String scripting();
-#if ENABLE(WK_WEB_EXTENSION_SIDEBAR)
-    static String sidePanel();
-#endif // ENABLE(WK_WEB_EXTENSION_SIDEBAR)
-    static String storage();
-    static String tabs();
-    static String unlimitedStorage();
-    static String webNavigation();
-    static String webRequest();
+class WebExtensionAPIBookmarks : public WebExtensionAPIObject, public JSWebExtensionWrappable {
+    WEB_EXTENSION_DECLARE_JS_WRAPPER_CLASS(WebExtensionAPIBookmarks, bookmarks, bookmarks);
+
 };
 
 } // namespace WebKit
 
-#endif // ENABLE(WK_WEB_EXTENSIONS)
+#endif
