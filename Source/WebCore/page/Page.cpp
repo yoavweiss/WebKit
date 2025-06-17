@@ -5267,29 +5267,43 @@ void Page::updateFixedContainerEdges(BoxSideSet sides)
     if (!frameView)
         return;
 
-    auto [edges, elements] = frameView->fixedContainerEdges(sides);
+    auto [edges, elements] = frameView->fixedContainerEdges([frameView, sides] {
+        auto sidesToSample = sides;
+        auto scrollOffset = frameView->scrollOffset();
+        auto minimumOffset = frameView->minimumScrollOffset();
+        auto maximumOffset = frameView->maximumScrollOffset();
+
+        if (scrollOffset.y() < minimumOffset.y())
+            sidesToSample.remove(BoxSideFlag::Top);
+
+        if (scrollOffset.y() > maximumOffset.y())
+            sidesToSample.remove(BoxSideFlag::Bottom);
+
+        if (scrollOffset.x() < minimumOffset.x())
+            sidesToSample.remove(BoxSideFlag::Left);
+
+        if (scrollOffset.x() > maximumOffset.x())
+            sidesToSample.remove(BoxSideFlag::Right);
+
+        return sidesToSample;
+    }());
+
     for (auto sideFlag : sides) {
         auto side = boxSideFromFlag(sideFlag);
-        if (edges.hasFixedEdge(side))
-            continue;
+        if (!edges.hasFixedEdge(side) || (!edges.predominantColor(side).isVisible() && fixedContainerEdges().predominantColor(side).isVisible())) {
+            WeakPtr lastElement = m_fixedContainerEdgesAndElements.second.at(side);
+            if (!lastElement)
+                continue;
 
-        WeakPtr lastElement = m_fixedContainerEdgesAndElements.second.at(side);
-        if (!lastElement)
-            continue;
+            if (!lastElement->renderer())
+                continue;
 
-        if (!lastElement->renderer())
-            continue;
-
-        elements.setAt(side, WTFMove(lastElement));
-        edges.colors.setAt(side, m_fixedContainerEdgesAndElements.first->colors.at(side));
+            elements.setAt(side, WTFMove(lastElement));
+            edges.colors.setAt(side, fixedContainerEdges().colors.at(side));
+        }
     }
 
     m_fixedContainerEdgesAndElements = std::make_pair(makeUniqueRef<FixedContainerEdges>(WTFMove(edges)), WTFMove(elements));
-}
-
-Color Page::lastTopFixedContainerColor() const
-{
-    return m_fixedContainerEdgesAndElements.first->predominantColor(BoxSide::Top);
 }
 
 void Page::setPortsForUpgradingInsecureSchemeForTesting(uint16_t upgradeFromInsecurePort, uint16_t upgradeToSecurePort)

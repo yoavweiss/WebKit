@@ -1939,22 +1939,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
     if (!page)
         return { WTFMove(edges), WTFMove(containers) };
 
-    bool mayUseSampledTopColor = [&] {
-        if (scrollPosition().y() > minimumScrollPosition().y())
-            return false;
-
-        auto lastColor = page->lastTopFixedContainerColor();
-        if (!lastColor.isVisible())
-            return false;
-
-        auto sampledTopColor = page->sampledPageTopColor();
-        if (!sampledTopColor.isVisible())
-            return false;
-
-        return PageColorSampler::colorsAreSimilar(lastColor, sampledTopColor);
-    }();
-
-    if (!hasViewportConstrainedObjects() && !mayUseSampledTopColor)
+    if (!hasViewportConstrainedObjects())
         return { WTFMove(edges), WTFMove(containers) };
 
     RefPtr document = m_frame->document();
@@ -2046,32 +2031,6 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         }
     };
 
-    auto hitTestLocationForSide = [&](BoxSide side) -> HitTestLocation {
-        auto target = midpointOnSide(side, fixedRect);
-        auto unclampedTarget = midpointOnSide(side, unclampedFixedRect);
-        LayoutRect hitTestRect {
-            LayoutPoint { std::min(target.x(), unclampedTarget.x()), std::min(target.y(), unclampedTarget.y()) },
-            LayoutPoint { std::max(target.x(), unclampedTarget.x()), std::max(target.y(), unclampedTarget.y()) },
-        };
-
-        if (hitTestRect.size().maxDimension() <= sampleRectMargin)
-            return { target };
-
-        LayoutUnit hitTestRectThickness = 1;
-        switch (side) {
-        case BoxSide::Top:
-        case BoxSide::Bottom:
-            hitTestRect.inflateX(hitTestRectThickness / 2);
-            break;
-        case BoxSide::Left:
-        case BoxSide::Right:
-            hitTestRect.inflateY(hitTestRectThickness / 2);
-            break;
-        }
-
-        return { hitTestRect };
-    };
-
     auto primaryBackgroundColorForRenderer = [&](BoxSide side, const RenderElement& renderer) -> Color {
         CheckedPtr box = dynamicDowncast<RenderBox>(renderer);
         if (!box)
@@ -2141,25 +2100,14 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             ForFixedContainerSampling,
         };
 
-        HitTestResult result { hitTestLocationForSide(side) };
+        HitTestResult result { midpointOnSide(side, fixedRect) };
         auto hitTestOptions = commonHitTestOptions;
-        if (result.isRectBasedTest())
-            hitTestOptions.add(CollectMultipleElements);
         if (ignoreCSSPointerEvents == IgnoreCSSPointerEvents::Yes)
             hitTestOptions.add(IgnoreCSSPointerEventsProperty);
 
         document->hitTest({ HitTestSource::User, hitTestOptions }, result);
 
-        RefPtr hitNode = [&] -> RefPtr<Node> {
-            if (!result.isRectBasedTest())
-                return result.innerNonSharedNode();
-
-            if (auto& resultsList = result.listBasedTestResult(); !resultsList.isEmpty())
-                return resultsList.first().ptr();
-
-            return { };
-        }();
-
+        RefPtr hitNode = result.innerNonSharedNode();
         if (!hitNode)
             return { };
 
@@ -2285,31 +2233,6 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
 
         edges.colors.setAt(side, PageColorSampler::predominantColor(*page, computeSamplingRect(result.container->renderStyle(), side)));
     }
-
-    auto edgeColorFromSampledTopColor = [&] -> std::optional<Color> {
-        if (scrollPosition().y() > minimumScrollPosition().y())
-            return { };
-
-        auto lastColor = page->lastTopFixedContainerColor();
-        if (!lastColor.isVisible())
-            return { };
-
-        auto sampledTopColor = page->sampledPageTopColor();
-        if (!sampledTopColor.isVisible())
-            return { };
-
-        auto newColor = edges.predominantColor(BoxSide::Top);
-        if (newColor.isVisible() && !PageColorSampler::colorsAreSimilar(newColor, sampledTopColor))
-            return { };
-
-        if (!PageColorSampler::colorsAreSimilar(lastColor, sampledTopColor))
-            return { };
-
-        return sampledTopColor;
-    };
-
-    if (auto color = edgeColorFromSampledTopColor())
-        edges.colors.setAt(BoxSide::Top, WTFMove(*color));
 
     return { WTFMove(edges), WTFMove(containers) };
 }

@@ -913,7 +913,6 @@ public:
     WEBCORE_EXPORT Color sampledPageTopColor() const;
 
     WEBCORE_EXPORT void updateFixedContainerEdges(OptionSet<BoxSideFlag>);
-    Color lastTopFixedContainerColor() const;
     const FixedContainerEdges& fixedContainerEdges() const { return m_fixedContainerEdgesAndElements.first; }
 
 #if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
