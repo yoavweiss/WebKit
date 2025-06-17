@@ -50,6 +50,7 @@
 /* Begin PBXBuildFile section */
 		041A1E34216FFDBC00789E0A /* PublicSuffix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 041A1E33216FFDBC00789E0A /* PublicSuffix.cpp */; };
 		04DB2396235E43EC00328F17 /* BumpPointerAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0451A5A6235E438E009DF945 /* BumpPointerAllocator.cpp */; };
+		0714677A2DFE8DEA00F77867 /* WebPageTransferableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071467792DFE8DEA00F77867 /* WebPageTransferableTests.swift */; };
 		07275CBC2D01398C002315A5 /* _WebKit_SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07275CBB2D01398C002315A5 /* _WebKit_SwiftUI.framework */; };
 		074E87E52CF920A20059E469 /* Bundle+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074E87E42CF920A20059E469 /* Bundle+Extras.swift */; };
 		075663822DF68BAB00E9A4E3 /* TestPDFDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078B0CA82DF656BD00B3E569 /* TestPDFDocument.swift */; };
@@ -2244,6 +2245,7 @@
 		070721142CE2F5F6004D9EC8 /* WKWebViewSwiftOverlayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKWebViewSwiftOverlayTests.swift; sourceTree = "<group>"; };
 		0711DF51226A95FB003DD2F7 /* AVFoundationSoftLinkTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AVFoundationSoftLinkTest.mm; sourceTree = "<group>"; };
 		07137049265320E500CA2C9A /* AudioBufferSize.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioBufferSize.mm; sourceTree = "<group>"; };
+		071467792DFE8DEA00F77867 /* WebPageTransferableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebPageTransferableTests.swift; sourceTree = "<group>"; };
 		0721D4582838295400A95853 /* start-offset.ts */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.typescript; path = "start-offset.ts"; sourceTree = "<group>"; };
 		07275CBB2D01398C002315A5 /* _WebKit_SwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = _WebKit_SwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		07338E042B7433A400F949EB /* WritingSuggestions.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WritingSuggestions.mm; sourceTree = "<group>"; };
@@ -4206,6 +4208,7 @@
 				070721102CE2F4B8004D9EC8 /* TestWebKitAPIBundle-Bridging-Header.h */,
 				078B04472CF118BD00B453A6 /* URLSchemeHandlerTests.swift */,
 				07FAA74C2CE95E3200128360 /* WebPageTests.swift */,
+				071467792DFE8DEA00F77867 /* WebPageTransferableTests.swift */,
 				070721142CE2F5F6004D9EC8 /* WKWebViewSwiftOverlayTests.swift */,
 			);
 			path = "WebKit Swift";
@@ -7800,6 +7803,7 @@
 				078B0CA92DF656BD00B3E569 /* TestPDFDocument.swift in Sources */,
 				078B04482CF118BD00B453A6 /* URLSchemeHandlerTests.swift in Sources */,
 				07FAA74D2CE95E3200128360 /* WebPageTests.swift in Sources */,
+				0714677A2DFE8DEA00F77867 /* WebPageTransferableTests.swift in Sources */,
 				077489CC2CE4061A00133938 /* WKWebViewSwiftOverlayTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

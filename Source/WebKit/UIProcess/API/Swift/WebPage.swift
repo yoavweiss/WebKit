@@ -79,6 +79,9 @@ final public class WebPage {
         /// The page is not currently in a fullscreen state.
         case notInFullscreen
     }
+    
+    // This is based on the XGA standard resolution size.
+    private static let defaultFrame = CGRect(x: 0, y: 0, width: 1024, height: 768)
 
     // MARK: Initializers
 
@@ -292,14 +295,18 @@ final public class WebPage {
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
     @ObservationIgnored
     @_spi(CrossImportOverlay)
-    public var isBoundToWebView = false
+    public var isBoundToWebView = false {
+        didSet {
+            backingWebView.frame = isBoundToWebView ? .zero : Self.defaultFrame
+        }
+    }
 
     // SPI for the cross-import overlay.
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
     @ObservationIgnored
     @_spi(CrossImportOverlay)
     public lazy var backingWebView: WebPageWebView = {
-        let webView = WebPageWebView(frame: .zero, configuration: WKWebViewConfiguration(configuration))
+        let webView = WebPageWebView(frame: Self.defaultFrame, configuration: WKWebViewConfiguration(configuration))
         webView.navigationDelegate = backingNavigationDelegate
         webView.uiDelegate = backingUIDelegate
         #if os(macOS)
@@ -487,24 +494,6 @@ final public class WebPage {
         // Safe force-unwrap because all plist types are Sendable.
         // swift-format-ignore: NeverForceUnwrap
         return result as! any Sendable
-    }
-
-    /// Generates PDF data from the webpage's contents.
-    ///
-    /// - Parameter configuration: The object that specifies the portion of the web view to capture as PDF data.
-    /// - Returns: A data object that contains the PDF data to use for rendering the contents of the webpage.
-    /// - Throws: An error if a problem occurred.
-    public func pdf(configuration: WKPDFConfiguration = .init()) async throws -> Data {
-        try await backingWebView.pdf(configuration: configuration)
-    }
-
-    /// Creates a web archive of the webpage's current contents.
-    public func webArchiveData() async throws -> Data {
-        try await withCheckedThrowingContinuation { continuation in
-            backingWebView.createWebArchiveData {
-                continuation.resume(with: $0)
-            }
-        }
     }
 
     // MARK: Media functions
