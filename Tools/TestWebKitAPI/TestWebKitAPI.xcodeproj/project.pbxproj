@@ -629,6 +629,11 @@
 		946422142BC83114001B42B3 /* SerializedScriptValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9464220C2BC8306D001B42B3 /* SerializedScriptValue.cpp */; };
 		9528E5FD279A0341008ADFEF /* BundleCSSStyleDeclarationHandlePlugIn.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9528E5FC279A0338008ADFEF /* BundleCSSStyleDeclarationHandlePlugIn.mm */; };
 		95C52729275F35E100DA7E40 /* FontShadowTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C52728275F35E100DA7E40 /* FontShadowTests.cpp */; };
+		97A826852DF8B677004EA039 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC90964D1255620C00083756 /* JavaScriptCore.framework */; };
+		97A826862DF8B677004EA039 /* JavaScriptCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BC90964D1255620C00083756 /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		97DAA8C32DF096CE004B3040 /* TypeCheckingTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 97DAA8C22DF096CE004B3040 /* TypeCheckingTests.cpp */; };
+		97DAA8CE2DF1F325004B3040 /* MetalCompilationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97DAA8CD2DF1F325004B3040 /* MetalCompilationTests.mm */; };
+		97DAA8D02DF70B91004B3040 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97DAA8CF2DF70B91004B3040 /* Metal.framework */; };
 		9B0786A51C5885C300D159E3 /* InjectedBundleMakeAllShadowRootsOpen_Bundle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B0786A41C5885C300D159E3 /* InjectedBundleMakeAllShadowRootsOpen_Bundle.cpp */; };
 		9B0C051924FDFB7D00F2FE31 /* CompactUniquePtrTuple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B0C051824FDFB7000F2FE31 /* CompactUniquePtrTuple.cpp */; };
 		9B19CDA01F06DFE3000548DD /* NetworkProcessCrashWithPendingConnection.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9B19CD9E1F06DFE3000548DD /* NetworkProcessCrashWithPendingConnection.mm */; };
@@ -1616,6 +1621,17 @@
 				7B6FF89728C22D9400CA76B0 /* WebKit.framework in Product Dependencies */,
 			);
 			name = "Product Dependencies";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		97A826872DF8B677004EA039 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				97A826862DF8B677004EA039 /* JavaScriptCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A176D23F2D6D079900C63915 /* Embed Extensions */ = {
@@ -3319,6 +3335,9 @@
 		95A524942581A10D00461FE9 /* WKWebViewThemeColor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WKWebViewThemeColor.mm; sourceTree = "<group>"; };
 		95B6B3B6251EBF2F00FC4382 /* MediaDocument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MediaDocument.mm; sourceTree = "<group>"; };
 		95C52728275F35E100DA7E40 /* FontShadowTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontShadowTests.cpp; sourceTree = "<group>"; };
+		97DAA8C22DF096CE004B3040 /* TypeCheckingTests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TypeCheckingTests.cpp; sourceTree = "<group>"; };
+		97DAA8CD2DF1F325004B3040 /* MetalCompilationTests.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = MetalCompilationTests.mm; sourceTree = "<group>"; };
+		97DAA8CF2DF70B91004B3040 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		996EDCCA270E70AB006DF175 /* InspectorExtension-basic-page.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "InspectorExtension-basic-page.html"; sourceTree = "<group>"; };
 		9984FACA1CFFAEEE008D198C /* WKWebViewTextInput.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WKWebViewTextInput.mm; sourceTree = "<group>"; };
 		9984FACD1CFFB038008D198C /* editable-body.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "editable-body.html"; sourceTree = "<group>"; };
@@ -4079,12 +4098,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97A826852DF8B677004EA039 /* JavaScriptCore.framework in Frameworks */,
 				DDB3724628ECE32F00A2F32D /* libbmalloc.a in Frameworks */,
 				DDADB22628FA094400918467 /* libgtest.a in Frameworks */,
 				3A5DDAF528D1638A004DA950 /* libicucore.tbd in Frameworks */,
 				DDAA0E2929E640FA003ECAE2 /* libpas.a in Frameworks */,
 				3A5DDB2D28D55265004DA950 /* libwgsl.a in Frameworks */,
 				3A5DDB2C28D5525E004DA950 /* libWTF.a in Frameworks */,
+				97DAA8D02DF70B91004B3040 /* Metal.framework in Frameworks */,
 				FE9CD7E42D10CE7500266FDD /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4841,10 +4862,12 @@
 				3A9C438028E3E057002F7294 /* ASTStringDumperTests.cpp */,
 				3A7AA55F28E28E99009E09C2 /* ConstLiteralTests.cpp */,
 				3A5DDAD228D15169004DA950 /* LexerTests.cpp */,
+				97DAA8CD2DF1F325004B3040 /* MetalCompilationTests.mm */,
 				3ADD897E299F1400005DCE4E /* MetalGenerationTests.cpp */,
 				3A5DDAED28D156FC004DA950 /* ParserTests.cpp */,
 				3A9C438928E3E240002F7294 /* TestWGSLAPI.cpp */,
 				3A9C438A28E3E240002F7294 /* TestWGSLAPI.h */,
+				97DAA8C22DF096CE004B3040 /* TypeCheckingTests.cpp */,
 			);
 			path = WGSL;
 			sourceTree = "<group>";
@@ -5163,6 +5186,7 @@
 				466CBA072DADC50A00B32457 /* libWTF.a */,
 				7C83E0291D0A5CDF00FEBCF3 /* libWTF.a */,
 				578CBD66204FB2C70083B9F2 /* LocalAuthentication.framework */,
+				97DAA8CF2DF70B91004B3040 /* Metal.framework */,
 				516281282325C45400BB7E42 /* PDFKit.framework */,
 				7A010BCC1D877C0D00EDE72A /* QuartzCore.framework */,
 				574F55D0204D471C002948C6 /* Security.framework */,
@@ -6507,6 +6531,7 @@
 				3A15783D28D1505B00142DB1 /* Product Dependencies */,
 				3A15783F28D1505B00142DB1 /* Sources */,
 				3A15784628D1505B00142DB1 /* Frameworks */,
+				97A826872DF8B677004EA039 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -6996,10 +7021,12 @@
 				3A5DDADA28D15169004DA950 /* LexerTests.cpp in Sources */,
 				3A15784128D1505B00142DB1 /* mainIOS.mm in Sources */,
 				3A15784228D1505B00142DB1 /* mainMac.mm in Sources */,
+				97DAA8CE2DF1F325004B3040 /* MetalCompilationTests.mm in Sources */,
 				3ADD8988299F192F005DCE4E /* MetalGenerationTests.cpp in Sources */,
 				3A5DDAEE28D156FC004DA950 /* ParserTests.cpp in Sources */,
 				3A15784428D1505B00142DB1 /* TestsController.cpp in Sources */,
 				3A9C438B28E3E240002F7294 /* TestWGSLAPI.cpp in Sources */,
+				97DAA8C32DF096CE004B3040 /* TypeCheckingTests.cpp in Sources */,
 				3A15784528D1505B00142DB1 /* UtilitiesCocoa.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
