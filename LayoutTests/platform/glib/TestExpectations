@@ -1085,6 +1085,8 @@ webkit.org/b/215799 imported/w3c/web-platform-tests/css/css-content/quotes-027.h
 
 webkit.org/b/237502 fast/dom/Range/getClientRects.html [ Failure ]
 
+webkit.org/b/294587 imported/w3c/web-platform-tests/css/css-variables/variable-css-wide-keywords.html [ Skip ]
+
 # Tests that fail on other platforms, but pass on Glib ports. These are probably due to
 # things that work in TextureMapper, but not elsewhere.
 imported/w3c/web-platform-tests/css/css-transforms/3d-rendering-context-and-z-ordering-001.html [ Pass ]
