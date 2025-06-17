@@ -1266,11 +1266,6 @@ static NSTrackingAreaOptions flagsChangedEventMonitorTrackingAreaOptions()
 static RetainPtr<_WKWebViewTextInputNotifications> subscribeToTextInputNotifications(WebViewImpl*);
 #endif
 
-static bool isInRecoveryOS()
-{
-    return os_variant_is_basesystem("WebKit");
-}
-
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
 static void setDynamicRangeLimitRecursive(CALayer* layer, LayerDynamicRangeLimitSetter layerDynamicRangeLimitSetter)
 {
@@ -1331,12 +1326,6 @@ WebViewImpl::WebViewImpl(WKWebView *view, WebProcessPool& processPool, Ref<API::
 
         if (m_page->protectedPreferences()->siteIsolationEnabled())
             result = true;
-
-        if (isInRecoveryOS()) {
-            // Temporarily disable UI side compositing in Recovery OS <rdar://107964149>.
-            WTFLogAlways("Disabling UI side compositing in Recovery OS");
-            result = false;
-        }
 
         return result;
     };
