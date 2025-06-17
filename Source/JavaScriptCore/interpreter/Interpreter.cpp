@@ -1438,15 +1438,11 @@ JSValue Interpreter::executeEval(EvalExecutable* eval, JSValue thisValue, JSScop
     ASSERT(&vm == &scope->vm());
     throwScope.assertNoException();
     ASSERT(!vm.isCollectorBusyOnCurrentThread());
-    RELEASE_ASSERT(vm.currentThreadIsHoldingAPILock());
+    ASSERT(vm.currentThreadIsHoldingAPILock());
 
     JSGlobalObject* globalObject = scope->globalObject();
-    VMEntryScope entryScope(vm, globalObject);
     if (!vm.isSafeToRecurseSoft()) [[unlikely]]
         return throwStackOverflowError(globalObject, throwScope);
-
-    if (vm.disallowVMEntryCount) [[unlikely]]
-        return checkVMEntryPermission();
 
     if (vm.traps().needHandling(VMTraps::NonDebuggerAsyncEvents)) [[unlikely]] {
         if (vm.hasExceptionsAfterHandlingTraps())
@@ -1600,7 +1596,7 @@ JSValue Interpreter::executeEval(EvalExecutable* eval, JSValue thisValue, JSScop
     }
     callee->setScope(vm, scope);
     EncodedJSValue result = vmEntryToJavaScriptWith0Arguments(entry, &vm, codeBlock, callee, thisValue);
-    callee->setScope(vm, globalObject->globalScope());
+    callee->setScope(vm, nullptr);
 #else
     RefPtr<JSC::JITCode> jitCode;
     ProtoCallFrame protoCallFrame;
@@ -1630,7 +1626,7 @@ JSValue Interpreter::executeEval(EvalExecutable* eval, JSValue thisValue, JSScop
     // We can replace the current scope for the subsequent run.
     callee->setScope(vm, scope);
     EncodedJSValue result = vmEntryToJavaScript(jitCode->addressForCall(), &vm, &protoCallFrame);
-    callee->setScope(vm, globalObject->globalScope());
+    callee->setScope(vm, nullptr);
 #endif
     ensureStillAliveHere(eval);
     ensureStillAliveHere(codeBlock);
