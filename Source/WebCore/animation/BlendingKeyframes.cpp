@@ -373,12 +373,15 @@ void BlendingKeyframes::analyzeKeyframe(const BlendingKeyframe& keyframe)
         }
 
         if (keyframe.animatesProperty(CSSPropertyTranslate)) {
-            if (auto* translate = style->translate()) {
-                if (translate->x().isPercent())
-                    m_hasWidthDependentTransform = true;
-                if (translate->y().isPercent())
-                    m_hasHeightDependentTransform = true;
-            }
+            WTF::switchOn(style->translate(),
+                [&](const CSS::Keyword::None&) { },
+                [&](const Style::Translate::Operation& operation) {
+                    if (operation->x().isPercent())
+                        m_hasWidthDependentTransform = true;
+                    if (operation->y().isPercent())
+                        m_hasHeightDependentTransform = true;
+                }
+            );
         }
     };
 

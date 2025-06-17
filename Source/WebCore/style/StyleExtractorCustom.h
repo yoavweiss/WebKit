@@ -102,7 +102,6 @@ public:
     static Ref<CSSValue> extractTranslate(ExtractorState&);
     static Ref<CSSValue> extractScale(ExtractorState&);
     static Ref<CSSValue> extractRotate(ExtractorState&);
-    static Ref<CSSValue> extractPerspective(ExtractorState&);
     static Ref<CSSValue> extractGridAutoFlow(ExtractorState&);
     static Ref<CSSValue> extractGridTemplateAreas(ExtractorState&);
     static Ref<CSSValue> extractGridTemplateColumns(ExtractorState&);
@@ -213,7 +212,6 @@ public:
     static void extractTranslateSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractScaleSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractRotateSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractPerspectiveSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractGridAutoFlowSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractGridTemplateAreasSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractGridTemplateColumnsSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -262,6 +260,49 @@ public:
     static void extractWebkitMaskBoxImageShorthandSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractWebkitMaskPositionShorthandSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
 };
+
+template<CSSPropertyID> struct PropertyExtractorAdaptor;
+
+template<> struct PropertyExtractorAdaptor<CSSPropertyRotate> {
+    template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
+    {
+        if (is<RenderInline>(state.renderer))
+            return functor(CSS::Keyword::None { });
+        return functor(state.style.rotate());
+    }
+};
+
+template<> struct PropertyExtractorAdaptor<CSSPropertyScale> {
+    template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
+    {
+        if (is<RenderInline>(state.renderer))
+            return functor(CSS::Keyword::None { });
+        return functor(state.style.scale());
+    }
+};
+
+template<> struct PropertyExtractorAdaptor<CSSPropertyTranslate> {
+    template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
+    {
+        if (is<RenderInline>(state.renderer))
+            return functor(CSS::Keyword::None { });
+        return functor(state.style.translate());
+    }
+};
+
+template<CSSPropertyID propertyID> Ref<CSSValue> extractCSSValue(ExtractorState& state)
+{
+    return PropertyExtractorAdaptor<propertyID> { }.computedValue(state, [&](auto&& value) {
+        return createCSSValue(state.pool, state.style, value);
+    });
+}
+
+template<CSSPropertyID propertyID> void extractSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
+{
+    PropertyExtractorAdaptor<propertyID> { }.computedValue(state, [&](auto&& value) {
+        serializationForCSS(builder, context, state.style, value);
+    });
+}
 
 // MARK: - Utilities
 
@@ -2334,173 +2375,32 @@ inline void ExtractorCustom::extractTransformSerialization(ExtractorState& state
 
 inline Ref<CSSValue> ExtractorCustom::extractTranslate(ExtractorState& state)
 {
-    // https://drafts.csswg.org/css-transforms-2/#propdef-translate
-    // Computed value: the keyword none or a pair of computed <length-percentage> values and an absolute length
-
-    auto* translate = state.style.translate();
-    if (!translate || is<RenderInline>(state.renderer))
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    auto includeAxis = [](const auto& length) {
-        return !length.isZero() || length.isPercent();
-    };
-
-    if (includeAxis(translate->z()))
-        return CSSValueList::createSpaceSeparated(ExtractorConverter::convertLength(state, translate->x()), ExtractorConverter::convertLength(state, translate->y()), ExtractorConverter::convertLength(state, translate->z()));
-    if (includeAxis(translate->y()))
-        return CSSValueList::createSpaceSeparated(ExtractorConverter::convertLength(state, translate->x()), ExtractorConverter::convertLength(state, translate->y()));
-    if (!translate->x().isUndefined() && !translate->x().isEmptyValue())
-        return CSSValueList::createSpaceSeparated(ExtractorConverter::convertLength(state, translate->x()));
-
-    return CSSPrimitiveValue::create(CSSValueNone);
+    return extractCSSValue<CSSPropertyTranslate>(state);
 }
 
 inline void ExtractorCustom::extractTranslateSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    // https://drafts.csswg.org/css-transforms-2/#propdef-translate
-    // Computed value: the keyword none or a pair of computed <length-percentage> values and an absolute length
-
-    auto* translate = state.style.translate();
-    if (!translate || is<RenderInline>(state.renderer)) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    }
-
-    auto includeAxis = [](const auto& length) {
-        return !length.isZero() || length.isPercent();
-    };
-
-    if (includeAxis(translate->z())) {
-        ExtractorSerializer::serializeLength(state, builder, context, translate->x());
-        builder.append(' ');
-        ExtractorSerializer::serializeLength(state, builder, context, translate->y());
-        builder.append(' ');
-        ExtractorSerializer::serializeLength(state, builder, context, translate->z());
-        return;
-    }
-    if (includeAxis(translate->y())) {
-        ExtractorSerializer::serializeLength(state, builder, context, translate->x());
-        builder.append(' ');
-        ExtractorSerializer::serializeLength(state, builder, context, translate->y());
-        return;
-    }
-    if (!translate->x().isUndefined() && !translate->x().isEmptyValue()) {
-        ExtractorSerializer::serializeLength(state, builder, context, translate->x());
-        return;
-    }
-
-    CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
+    extractSerialization<CSSPropertyTranslate>(state, builder, context);
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractScale(ExtractorState& state)
 {
-    auto* scale = state.style.scale();
-    if (!scale || is<RenderInline>(state.renderer))
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    if (scale->z() != 1)
-        return CSSValueList::createSpaceSeparated(ExtractorConverter::convert(state, scale->x()), ExtractorConverter::convert(state, scale->y()), ExtractorConverter::convert(state, scale->z()));
-    if (scale->x() != scale->y())
-        return CSSValueList::createSpaceSeparated(ExtractorConverter::convert(state, scale->x()), ExtractorConverter::convert(state, scale->y()));
-    return CSSValueList::createSpaceSeparated(ExtractorConverter::convert(state, scale->x()));
+    return extractCSSValue<CSSPropertyScale>(state);
 }
 
 inline void ExtractorCustom::extractScaleSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    auto* scale = state.style.scale();
-    if (!scale || is<RenderInline>(state.renderer)) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    }
-
-    if (scale->z() != 1) {
-        ExtractorSerializer::serialize(state, builder, context, scale->x());
-        builder.append(' ');
-        ExtractorSerializer::serialize(state, builder, context, scale->y());
-        builder.append(' ');
-        ExtractorSerializer::serialize(state, builder, context, scale->z());
-        return;
-    }
-    if (scale->x() != scale->y()) {
-        ExtractorSerializer::serialize(state, builder, context, scale->x());
-        builder.append(' ');
-        ExtractorSerializer::serialize(state, builder, context, scale->y());
-        return;
-    }
-
-    ExtractorSerializer::serialize(state, builder, context, scale->x());
+    extractSerialization<CSSPropertyScale>(state, builder, context);
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractRotate(ExtractorState& state)
 {
-    auto* rotate = state.style.rotate();
-    if (!rotate || is<RenderInline>(state.renderer))
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    auto angle = CSSPrimitiveValue::create(rotate->angle(), CSSUnitType::CSS_DEG);
-    if (!rotate->is3DOperation() || (!rotate->x() && !rotate->y() && rotate->z()))
-        return angle;
-    if (rotate->x() && !rotate->y() && !rotate->z())
-        return CSSValueList::createSpaceSeparated(CSSPrimitiveValue::create(CSSValueX), WTFMove(angle));
-    if (!rotate->x() && rotate->y() && !rotate->z())
-        return CSSValueList::createSpaceSeparated(CSSPrimitiveValue::create(CSSValueY), WTFMove(angle));
-    return CSSValueList::createSpaceSeparated(
-        CSSPrimitiveValue::create(rotate->x()),
-        CSSPrimitiveValue::create(rotate->y()),
-        CSSPrimitiveValue::create(rotate->z()),
-        WTFMove(angle)
-    );
+    return extractCSSValue<CSSPropertyRotate>(state);
 }
 
 inline void ExtractorCustom::extractRotateSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    auto* rotate = state.style.rotate();
-    if (!rotate || is<RenderInline>(state.renderer)) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    }
-
-    if (!rotate->is3DOperation() || (!rotate->x() && !rotate->y() && rotate->z())) {
-        CSS::serializationForCSS(builder, context, CSS::AngleRaw<> { CSS::AngleUnit::Deg, rotate->angle() });
-        return;
-    }
-    if (rotate->x() && !rotate->y() && !rotate->z()) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::X { });
-        builder.append(' ');
-        CSS::serializationForCSS(builder, context, CSS::AngleRaw<> { CSS::AngleUnit::Deg, rotate->angle() });
-        return;
-    }
-    if (!rotate->x() && rotate->y() && !rotate->z()) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Y { });
-        builder.append(' ');
-        CSS::serializationForCSS(builder, context, CSS::AngleRaw<> { CSS::AngleUnit::Deg, rotate->angle() });
-        return;
-    }
-
-    CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { rotate->x() });
-    builder.append(' ');
-    CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { rotate->y() });
-    builder.append(' ');
-    CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { rotate->z() });
-    builder.append(' ');
-    CSS::serializationForCSS(builder, context, CSS::AngleRaw<> { CSS::AngleUnit::Deg, rotate->angle() });
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractPerspective(ExtractorState& state)
-{
-    if (!state.style.hasPerspective())
-        return CSSPrimitiveValue::create(CSSValueNone);
-    return ExtractorConverter::convertNumberAsPixels(state, state.style.perspective());
-}
-
-inline void ExtractorCustom::extractPerspectiveSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    if (!state.style.hasPerspective()) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    }
-
-    ExtractorSerializer::serializeNumberAsPixels(state, builder, context, state.style.perspective());
+    extractSerialization<CSSPropertyRotate>(state, builder, context);
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractGridAutoFlow(ExtractorState& state)

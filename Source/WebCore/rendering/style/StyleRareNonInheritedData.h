@@ -46,15 +46,18 @@
 #include "StyleOffsetDistance.h"
 #include "StyleOffsetPosition.h"
 #include "StyleOffsetRotate.h"
+#include "StylePerspective.h"
 #include "StylePrimitiveNumericTypes.h"
+#include "StyleRotate.h"
+#include "StyleScale.h"
 #include "StyleScrollMargin.h"
 #include "StyleScrollPadding.h"
 #include "StyleScrollSnapPoints.h"
 #include "StyleSelfAlignmentData.h"
 #include "StyleTextEdge.h"
+#include "StyleTranslate.h"
 #include "TextDecorationThickness.h"
 #include "TouchAction.h"
-#include "TranslateTransformOperation.h"
 #include "ViewTimeline.h"
 #include "ViewTransitionName.h"
 #include <memory>
@@ -74,8 +77,7 @@ using namespace CSS::Literals;
 class AnimationList;
 class ContentData;
 class PathOperation;
-class RotateTransformOperation;
-class ScaleTransformOperation;
+class StyleCustomPropertyData;
 class StyleDeprecatedFlexibleBoxData;
 class StyleFilterData;
 class StyleFlexibleBoxData;
@@ -184,7 +186,7 @@ public:
     Length shapeMargin;
     float shapeImageThreshold;
 
-    float perspective;
+    Style::Perspective perspective;
 
     RefPtr<PathOperation> clipPath;
 
@@ -193,9 +195,9 @@ public:
     DataRef<Style::CustomPropertyData> customProperties;
     HashSet<AtomString> customPaintWatchedProperties;
 
-    RefPtr<RotateTransformOperation> rotate;
-    RefPtr<ScaleTransformOperation> scale;
-    RefPtr<TranslateTransformOperation> translate;
+    Style::Rotate rotate;
+    Style::Scale scale;
+    Style::Translate translate;
     RefPtr<PathOperation> offsetPath;
 
     FixedVector<Style::ScopedName> containerNames;

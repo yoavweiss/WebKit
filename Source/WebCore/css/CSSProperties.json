@@ -10651,10 +10651,8 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "PerspectiveWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-builder-conditional-converter": "Perspective",
-                "style-extractor-custom": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<Perspective>",
                 "parser-grammar": "none | <length [0,inf]>",
                 "parser-exported": true
             },
@@ -11305,9 +11303,9 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "IndividualTransformWrapper<TranslateTransformOperation>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "always",
-                "style-builder-converter": "Translate",
+                "style-builder-converter": "StyleType<Translate>",
                 "style-extractor-custom": true,
                 "parser-function": "consumeTranslate",
                 "parser-grammar-unused": "none | [ <length-percentage> [ <length-percentage> <length>? ]? ]",
@@ -11325,9 +11323,9 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "IndividualTransformWrapper<ScaleTransformOperation>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "always",
-                "style-builder-converter": "Scale",
+                "style-builder-converter": "StyleType<Scale>",
                 "style-extractor-custom": true,
                 "parser-function": "consumeScale",
                 "parser-grammar-unused": "none | [ <number-or-percentage-resolved-to-number> ]{1,3}",
@@ -11349,9 +11347,9 @@
                 "z"
             ],
             "codegen-properties": {
-                "animation-wrapper": "IndividualTransformWrapper<RotateTransformOperation>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "always",
-                "style-builder-converter": "Rotate",
+                "style-builder-converter": "StyleType<Rotate>",
                 "style-extractor-custom": true,
                 "parser-function": "consumeRotate",
                 "parser-grammar-unused": "none | <angle> | [ [ x | y | z | <number>{3} ] && <angle> ]",

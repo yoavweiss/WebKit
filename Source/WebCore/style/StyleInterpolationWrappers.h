@@ -1039,21 +1039,6 @@ public:
     }
 };
 
-template<typename T>
-class IndividualTransformWrapper final : public RefCountedWrapper<T> {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
-public:
-    IndividualTransformWrapper(CSSPropertyID property, T* (RenderStyle::*getter)() const, void (RenderStyle::*setter)(RefPtr<T>&&))
-        : RefCountedWrapper<T>(property, getter, setter)
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        return arePointingToEqualData(this->value(a), this->value(b));
-    }
-};
-
 class FilterWrapper final : public WrapperWithGetter<const FilterOperations&> {
     WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
@@ -1935,30 +1920,6 @@ public:
         destination.setTextIndentLine(blendingStyle.textIndentLine());
         destination.setTextIndentType(blendingStyle.textIndentType());
         LengthWrapper::interpolate(destination, from, to, context);
-    }
-};
-
-class PerspectiveWrapper final : public FloatWrapper {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
-public:
-    PerspectiveWrapper()
-        : FloatWrapper(CSSPropertyPerspective, &RenderStyle::perspective, &RenderStyle::setPerspective, FloatWrapper::ValueRange::NonNegative)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation compositeOperation) const final
-    {
-        if (!from.hasPerspective() || !to.hasPerspective())
-            return false;
-        return FloatWrapper::canInterpolate(from, to, compositeOperation);
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        if (context.isDiscrete)
-            (destination.*m_setter)(context.progress ? value(to) : value(from));
-        else
-            FloatWrapper::interpolate(destination, from, to, context);
     }
 };
 

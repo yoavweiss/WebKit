@@ -4330,17 +4330,17 @@ bool RenderLayerBacking::startAnimation(double timeOffset, const Animation& anim
 
         if (!keyframeStyle)
             continue;
-            
+
         auto* tf = currentKeyframe.timingFunction();
 
         if (currentKeyframe.animatesProperty(CSSPropertyRotate))
-            rotateVector.insert(makeUnique<TransformAnimationValue>(offset, keyframeStyle->rotate(), tf));
+            rotateVector.insert(makeUnique<TransformAnimationValue>(offset, Style::toPlatform(keyframeStyle->rotate()).get(), tf));
 
         if (currentKeyframe.animatesProperty(CSSPropertyScale))
-            scaleVector.insert(makeUnique<TransformAnimationValue>(offset, keyframeStyle->scale(), tf));
+            scaleVector.insert(makeUnique<TransformAnimationValue>(offset, Style::toPlatform(keyframeStyle->scale()).get(), tf));
 
         if (currentKeyframe.animatesProperty(CSSPropertyTranslate))
-            translateVector.insert(makeUnique<TransformAnimationValue>(offset, keyframeStyle->translate(), tf));
+            translateVector.insert(makeUnique<TransformAnimationValue>(offset, Style::toPlatform(keyframeStyle->translate()).get(), tf));
 
         if (currentKeyframe.animatesProperty(CSSPropertyTransform))
             transformVector.insert(makeUnique<TransformAnimationValue>(offset, keyframeStyle->transform(), tf));
@@ -4660,9 +4660,8 @@ TransformationMatrix RenderLayerBacking::transformMatrixForProperty(AnimatedProp
 {
     TransformationMatrix matrix;
 
-    auto applyTransformOperation = [&](TransformOperation* operation) {
-        if (operation)
-            operation->apply(matrix, snappedIntRect(m_owningLayer.rendererBorderBoxRect()).size());
+    auto applyTransformOperation = [&](const auto& operation) {
+        operation.apply(matrix, snappedIntRect(m_owningLayer.rendererBorderBoxRect()).size());
     };
 
     if (property == AnimatedProperty::Translate)
@@ -4672,7 +4671,7 @@ TransformationMatrix RenderLayerBacking::transformMatrixForProperty(AnimatedProp
     else if (property == AnimatedProperty::Rotate)
         applyTransformOperation(renderer().style().rotate());
     else if (property == AnimatedProperty::Transform)
-        renderer().style().transform().apply(matrix, snappedIntRect(m_owningLayer.rendererBorderBoxRect()).size());
+        applyTransformOperation(renderer().style().transform());
     else
         ASSERT_NOT_REACHED();
 

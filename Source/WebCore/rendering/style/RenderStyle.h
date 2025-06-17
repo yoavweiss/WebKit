@@ -5,6 +5,7 @@
  * Copyright (C) 2003-2023 Apple Inc. All rights reserved.
  * Copyright (C) 2014-2021 Google Inc. All rights reserved.
  * Copyright (C) 2006 Graham Dennis (graham.dennis@gmail.com)
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -302,12 +303,16 @@ struct OffsetDistance;
 struct OffsetPosition;
 struct OffsetRotate;
 struct PaddingEdge;
+struct Perspective;
 struct PositionTryFallback;
 struct PreferredSize;
+struct Rotate;
+struct Scale;
 struct ScopedName;
 struct ScrollMarginEdge;
 struct ScrollPaddingEdge;
 struct TextShadow;
+struct Translate;
 
 enum class Change : uint8_t;
 enum class LineBoxContain : uint8_t;
@@ -979,9 +984,12 @@ public:
 
     inline TransformBox transformBox() const;
 
-    inline RotateTransformOperation* rotate() const;
-    inline ScaleTransformOperation* scale() const;
-    inline TranslateTransformOperation* translate() const;
+    inline const Style::Rotate& rotate() const;
+    inline bool hasRotate() const;
+    inline const Style::Scale& scale() const;
+    inline bool hasScale() const;
+    inline const Style::Translate& translate() const;
+    inline bool hasTranslate() const;
 
     inline bool affectsTransform() const;
 
@@ -1097,7 +1105,7 @@ public:
     inline bool preserves3D() const;
 
     inline BackfaceVisibility backfaceVisibility() const;
-    inline float perspective() const;
+    inline const Style::Perspective& perspective() const;
     inline float usedPerspective() const;
     inline bool hasPerspective() const;
     inline const Length& perspectiveOriginX() const;
@@ -1609,9 +1617,9 @@ public:
     inline void setTransformOriginZ(float);
     inline void setTransformBox(TransformBox);
 
-    void setRotate(RefPtr<RotateTransformOperation>&&);
-    void setScale(RefPtr<ScaleTransformOperation>&&);
-    void setTranslate(RefPtr<TranslateTransformOperation>&&);
+    inline void setRotate(Style::Rotate&&);
+    inline void setScale(Style::Scale&&);
+    inline void setTranslate(Style::Translate&&);
 
     inline void setSpeakAs(OptionSet<SpeakAs>);
     inline void setTextCombine(TextCombine);
@@ -1668,7 +1676,7 @@ public:
     inline void setTransformStyle3D(TransformStyle3D);
     inline void setTransformStyleForcedToFlat(bool);
     inline void setBackfaceVisibility(BackfaceVisibility);
-    inline void setPerspective(float);
+    inline void setPerspective(Style::Perspective&&);
     inline void setPerspectiveOriginX(Length&&);
     inline void setPerspectiveOriginY(Length&&);
     inline void setPageSize(LengthSize);
@@ -2114,14 +2122,14 @@ public:
     static inline Length initialTransformOriginX();
     static inline Length initialTransformOriginY();
     static constexpr TransformBox initialTransformBox();
-    static RotateTransformOperation* initialRotate() { return nullptr; }
-    static ScaleTransformOperation* initialScale() { return nullptr; }
-    static TranslateTransformOperation* initialTranslate() { return nullptr; }
+    static inline Style::Rotate initialRotate();
+    static inline Style::Scale initialScale();
+    static inline Style::Translate initialTranslate();
     static constexpr PointerEvents initialPointerEvents();
     static float initialTransformOriginZ() { return 0; }
     static constexpr TransformStyle3D initialTransformStyle3D();
     static constexpr BackfaceVisibility initialBackfaceVisibility();
-    static float initialPerspective() { return -1; }
+    static inline Style::Perspective initialPerspective();
     static inline Length initialPerspectiveOriginX();
     static inline Length initialPerspectiveOriginY();
     static inline Style::Color initialBackgroundColor();

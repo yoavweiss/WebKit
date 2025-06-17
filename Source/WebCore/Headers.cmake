@@ -2781,6 +2781,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/primitives/StylePosition.h
     style/values/primitives/StylePrimitiveNumeric.h
+    style/values/primitives/StylePrimitiveNumericAdaptors.h
     style/values/primitives/StylePrimitiveNumericConcepts.h
     style/values/primitives/StylePrimitiveNumericOrKeyword.h
     style/values/primitives/StylePrimitiveNumericTypes.h
@@ -2808,6 +2809,12 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/sizing/StylePreferredSize.h
 
     style/values/text-decoration/StyleTextShadow.h
+
+    style/values/transforms/StylePerspective.h
+    style/values/transforms/StyleRotate.h
+    style/values/transforms/StyleScale.h
+    style/values/transforms/StyleTransformOperationWrapper.h
+    style/values/transforms/StyleTranslate.h
 
     style/values/StyleValueTypes.h
 

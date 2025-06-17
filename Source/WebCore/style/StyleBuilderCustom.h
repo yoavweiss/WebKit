@@ -87,6 +87,10 @@ inline ScrollPaddingEdge forwardInheritedValue(const ScrollPaddingEdge& value) {
 inline MarginEdge forwardInheritedValue(const MarginEdge& value) { auto copy = value; return copy; }
 inline PaddingEdge forwardInheritedValue(const PaddingEdge& value) { auto copy = value; return copy; }
 inline InsetEdge forwardInheritedValue(const InsetEdge& value) { auto copy = value; return copy; }
+inline Perspective forwardInheritedValue(const Perspective& value) { auto copy = value; return copy; }
+inline Rotate forwardInheritedValue(const Rotate& value) { auto copy = value; return copy; }
+inline Scale forwardInheritedValue(const Scale& value) { auto copy = value; return copy; }
+inline Translate forwardInheritedValue(const Translate& value) { auto copy = value; return copy; }
 inline PreferredSize forwardInheritedValue(const PreferredSize& value) { auto copy = value; return copy; }
 inline MinimumSize forwardInheritedValue(const MinimumSize& value) { auto copy = value; return copy; }
 inline MaximumSize forwardInheritedValue(const MaximumSize& value) { auto copy = value; return copy; }
