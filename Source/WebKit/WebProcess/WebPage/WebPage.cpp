@@ -6903,10 +6903,8 @@ void WebPage::wheelEventHandlersChanged(bool hasHandlers)
 
 static bool hasEnabledHorizontalScrollbar(ScrollableArea* scrollableArea)
 {
-    if (Scrollbar* scrollbar = scrollableArea->horizontalScrollbar())
-        return scrollbar->enabled();
-
-    return false;
+    RefPtr scrollbar = scrollableArea->horizontalScrollbar();
+    return scrollbar && scrollbar->enabled();
 }
 
 static bool pageContainsAnyHorizontalScrollbars(LocalFrame* mainFrame)

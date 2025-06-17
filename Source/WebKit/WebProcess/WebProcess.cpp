@@ -1362,12 +1362,12 @@ void WebProcess::networkProcessConnectionClosed(NetworkProcessConnection* connec
 
     for (auto& page : m_pageMap.values()) {
         RefPtr corePage = page->corePage();
-        auto idbConnection = corePage->optionalIDBConnection();
+        RefPtr idbConnection = corePage->optionalIDBConnection();
         if (!idbConnection)
             continue;
         
         if (RefPtr existingIDBConnectionToServer = connection->existingIDBConnectionToServer()) {
-            ASSERT_UNUSED(existingIDBConnectionToServer, idbConnection == &existingIDBConnectionToServer->coreConnectionToServer());
+            ASSERT_UNUSED(existingIDBConnectionToServer, idbConnection.get() == &existingIDBConnectionToServer->coreConnectionToServer());
             corePage->clearIDBConnection();
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2020 Apple Inc. All rights reserved.
+ * Copyright (C) 2011-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -150,11 +150,11 @@ void WebDragClient::declareAndWriteDragImage(const String& pasteboardName, Eleme
 
     RetainPtr response = image->response().nsURLResponse();
     
-    auto imageBuffer = image->image()->data();
+    RefPtr imageBuffer = image->image()->data();
 
     std::optional<SharedMemory::Handle> imageHandle;
     {
-        auto sharedMemoryBuffer = SharedMemory::copyBuffer(*imageBuffer);
+        auto sharedMemoryBuffer = SharedMemory::copyBuffer(imageBuffer.releaseNonNull());
         if (!sharedMemoryBuffer)
             return;
         imageHandle = sharedMemoryBuffer->createHandle(SharedMemory::Protection::ReadOnly);

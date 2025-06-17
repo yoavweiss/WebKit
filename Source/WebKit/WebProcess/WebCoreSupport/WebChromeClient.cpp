@@ -943,7 +943,7 @@ void WebChromeClient::print(LocalFrame& frame, const StringWithDirection& title)
 
     WebCore::FloatSize pdfFirstPageSize;
 #if ENABLE(PDF_PLUGIN)
-    if (auto* pluginView = WebPage::pluginViewForFrame(&frame))
+    if (RefPtr pluginView = WebPage::pluginViewForFrame(&frame))
         pdfFirstPageSize = pluginView->pdfDocumentSizeForPrinting();
 #endif
 
@@ -1186,12 +1186,12 @@ RefPtr<WebCore::ShapeDetection::BarcodeDetector> WebChromeClient::createBarcodeD
     if (!page)
         return nullptr;
 
-    auto& remoteRenderingBackendProxy = page->ensureRemoteRenderingBackendProxy();
+    Ref remoteRenderingBackendProxy = page->ensureRemoteRenderingBackendProxy();
     // FIXME(https://bugs.webkit.org/show_bug.cgi?id=275245): Does not work when GPUP crashes.
-    RefPtr connection = remoteRenderingBackendProxy.connection();
+    RefPtr connection = remoteRenderingBackendProxy->connection();
     if (!connection)
         return nullptr;
-    return ShapeDetection::RemoteBarcodeDetectorProxy::create(connection.releaseNonNull(), remoteRenderingBackendProxy.renderingBackendIdentifier(), ShapeDetectionIdentifier::generate(), barcodeDetectorOptions);
+    return ShapeDetection::RemoteBarcodeDetectorProxy::create(connection.releaseNonNull(), remoteRenderingBackendProxy->renderingBackendIdentifier(), ShapeDetectionIdentifier::generate(), barcodeDetectorOptions);
 #elif HAVE(SHAPE_DETECTION_API_IMPLEMENTATION)
     return WebCore::ShapeDetection::BarcodeDetectorImpl::create(barcodeDetectorOptions);
 #else
@@ -1207,14 +1207,14 @@ void WebChromeClient::getBarcodeDetectorSupportedFormats(CompletionHandler<void(
         completionHandler({ });
         return;
     }
-    auto& remoteRenderingBackendProxy = page->ensureRemoteRenderingBackendProxy();
+    Ref remoteRenderingBackendProxy = page->ensureRemoteRenderingBackendProxy();
     // FIXME(https://bugs.webkit.org/show_bug.cgi?id=275245): Does not work when GPUP crashes.
-    RefPtr connection = remoteRenderingBackendProxy.connection();
+    RefPtr connection = remoteRenderingBackendProxy->connection();
     if (!connection) {
         completionHandler({ });
         return;
     }
-    ShapeDetection::RemoteBarcodeDetectorProxy::getSupportedFormats(connection.releaseNonNull(), remoteRenderingBackendProxy.renderingBackendIdentifier(), WTFMove(completionHandler));
+    ShapeDetection::RemoteBarcodeDetectorProxy::getSupportedFormats(connection.releaseNonNull(), remoteRenderingBackendProxy->renderingBackendIdentifier(), WTFMove(completionHandler));
 #elif HAVE(SHAPE_DETECTION_API_IMPLEMENTATION)
     WebCore::ShapeDetection::BarcodeDetectorImpl::getSupportedFormats(WTFMove(completionHandler));
 #else
@@ -1229,12 +1229,12 @@ RefPtr<WebCore::ShapeDetection::FaceDetector> WebChromeClient::createFaceDetecto
     if (!page)
         return nullptr;
 
-    auto& remoteRenderingBackendProxy = page->ensureRemoteRenderingBackendProxy();
+    Ref remoteRenderingBackendProxy = page->ensureRemoteRenderingBackendProxy();
     // FIXME(https://bugs.webkit.org/show_bug.cgi?id=275245): Does not work when GPUP crashes.
-    RefPtr connection = remoteRenderingBackendProxy.connection();
+    RefPtr connection = remoteRenderingBackendProxy->connection();
     if (!connection)
         return nullptr;
-    return ShapeDetection::RemoteFaceDetectorProxy::create(connection.releaseNonNull(), remoteRenderingBackendProxy.renderingBackendIdentifier(), ShapeDetectionIdentifier::generate(), faceDetectorOptions);
+    return ShapeDetection::RemoteFaceDetectorProxy::create(connection.releaseNonNull(), remoteRenderingBackendProxy->renderingBackendIdentifier(), ShapeDetectionIdentifier::generate(), faceDetectorOptions);
 #elif HAVE(SHAPE_DETECTION_API_IMPLEMENTATION)
     return WebCore::ShapeDetection::FaceDetectorImpl::create(faceDetectorOptions);
 #else
@@ -1249,12 +1249,12 @@ RefPtr<WebCore::ShapeDetection::TextDetector> WebChromeClient::createTextDetecto
     if (!page)
         return nullptr;
 
-    auto& remoteRenderingBackendProxy = page->ensureRemoteRenderingBackendProxy();
+    Ref remoteRenderingBackendProxy = page->ensureRemoteRenderingBackendProxy();
     // FIXME(https://bugs.webkit.org/show_bug.cgi?id=275245): Does not work when GPUP crashes.
-    RefPtr connection = remoteRenderingBackendProxy.connection();
+    RefPtr connection = remoteRenderingBackendProxy->connection();
     if (!connection)
         return nullptr;
-    return ShapeDetection::RemoteTextDetectorProxy::create(connection.releaseNonNull(), remoteRenderingBackendProxy.renderingBackendIdentifier(), ShapeDetectionIdentifier::generate());
+    return ShapeDetection::RemoteTextDetectorProxy::create(connection.releaseNonNull(), remoteRenderingBackendProxy->renderingBackendIdentifier(), ShapeDetectionIdentifier::generate());
 #elif HAVE(SHAPE_DETECTION_API_IMPLEMENTATION)
     return WebCore::ShapeDetection::TextDetectorImpl::create();
 #else
@@ -1713,7 +1713,7 @@ void WebChromeClient::didAddHeaderLayer(GraphicsLayer& headerParent)
     if (!page)
         return;
 
-    if (auto* banner = page->headerPageBanner())
+    if (RefPtr banner = page->headerPageBanner())
         banner->didAddParentLayer(&headerParent);
 #else
     UNUSED_PARAM(headerParent);
@@ -1727,7 +1727,7 @@ void WebChromeClient::didAddFooterLayer(GraphicsLayer& footerParent)
     if (!page)
         return;
 
-    if (auto* banner = page->footerPageBanner())
+    if (RefPtr banner = page->footerPageBanner())
         banner->didAddParentLayer(&footerParent);
 #else
     UNUSED_PARAM(footerParent);
