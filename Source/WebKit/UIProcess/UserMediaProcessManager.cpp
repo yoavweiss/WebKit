@@ -26,6 +26,7 @@
 #include "RemotePageProxy.h"
 #include "SpeechRecognitionPermissionManager.h"
 #include "UserMediaPermissionRequestProxy.h"
+#include "WebFrameProxy.h"
 #include "WebPageProxy.h"
 #include "WebProcessMessages.h"
 #include "WebProcessProxy.h"
