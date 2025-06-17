@@ -29,6 +29,7 @@
 #include "WebPageProxyMessages.h"
 #include "WebProcess.h"
 #include "WebProcessProxyMessages.h"
+#include <WebCore/CryptoKeyData.h>
 #include <WebCore/SerializedCryptoKeyWrap.h>
 #include <WebCore/WrappedCryptoKey.h>
 #include <wtf/TZoneMallocInlines.h>
