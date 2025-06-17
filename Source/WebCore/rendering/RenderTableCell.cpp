@@ -417,7 +417,7 @@ void RenderTableCell::setOverridingLogicalHeightFromRowHeight(LayoutUnit rowHeig
     setOverridingBorderBoxLogicalHeight(rowHeight);
 }
 
-LayoutSize RenderTableCell::offsetFromContainer(RenderElement& container, const LayoutPoint& point, bool* offsetDependsOnPoint) const
+LayoutSize RenderTableCell::offsetFromContainer(const RenderElement& container, const LayoutPoint& point, bool* offsetDependsOnPoint) const
 {
     ASSERT(&container == this->container());
 
