@@ -3386,6 +3386,7 @@ private:
 #endif
 
     void setCustomUserAgentInternal();
+    HashSet<Ref<WebProcessProxy>> webContentProcessesWithFrame();
 
     const UniqueRef<Internals> m_internals;
     Identifier m_identifier;

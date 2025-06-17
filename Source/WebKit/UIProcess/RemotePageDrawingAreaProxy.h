@@ -46,6 +46,7 @@ public:
     void deref() const final { RefCounted::deref(); }
 
     WebProcessProxy& process() { return m_process; }
+    DrawingAreaIdentifier identifier() const { return m_identifier; }
 
 private:
     RemotePageDrawingAreaProxy(DrawingAreaProxy&, WebProcessProxy&);

@@ -1506,10 +1506,11 @@ void WebPageProxy::swapToProvisionalPage(Ref<ProvisionalPageProxy>&& provisional
 
     m_hasRunningProcess = true;
 
-    ASSERT(!m_drawingArea);
-    setDrawingArea(provisionalPage->takeDrawingArea());
     ASSERT(!m_mainFrame);
     m_mainFrame = provisionalPage->mainFrame();
+    ASSERT(!m_drawingArea);
+    setDrawingArea(provisionalPage->takeDrawingArea());
+
     if (provisionalPage->needsMainFrameObserver())
         m_mainFrame->frameLoadState().addObserver(internals().protectedPageLoadTimingFrameLoadStateObserver());
 
@@ -1679,6 +1680,7 @@ RefPtr<API::Navigation> WebPageProxy::launchProcessForReload()
 
 void WebPageProxy::setDrawingArea(RefPtr<DrawingAreaProxy>&& drawingArea)
 {
+    RELEASE_ASSERT(m_drawingArea != drawingArea);
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
     // The scrolling coordinator needs to do cleanup before the drawing area goes away.
     m_scrollingCoordinatorProxy = nullptr;
@@ -1689,6 +1691,9 @@ void WebPageProxy::setDrawingArea(RefPtr<DrawingAreaProxy>&& drawingArea)
         m_drawingArea->stopReceivingMessages(legacyMainFrameProcess);
 
     m_drawingArea = WTFMove(drawingArea);
+    protectedBrowsingContextGroup()->forEachRemotePage(*this, [drawingArea = m_drawingArea](auto& remotePageProxy) {
+        remotePageProxy.setDrawingArea(drawingArea.get());
+    });
     if (!m_drawingArea)
         return;
 
@@ -7295,6 +7300,14 @@ void WebPageProxy::didFinishDocumentLoadForFrame(IPC::Connection& connection, Fr
         m_navigationClient->didFinishDocumentLoad(*this, navigation.get(), process->transformHandlesToObjects(userData.protectedObject().get()).get());
         internals().didFinishDocumentLoadForMainFrameTimestamp = MonotonicTime::now();
     }
+}
+
+HashSet<Ref<WebProcessProxy>> WebPageProxy::webContentProcessesWithFrame()
+{
+    HashSet<Ref<WebProcessProxy>> processes;
+    for (RefPtr frame = m_mainFrame; frame; frame = frame->traverseNext().frame)
+        processes.add(frame->process());
+    return processes;
 }
 
 void WebPageProxy::forEachWebContentProcess(NOESCAPE Function<void(WebProcessProxy&, PageIdentifier)>&& function)
@@ -14200,9 +14213,8 @@ void WebPageProxy::callAfterNextPresentationUpdate(CompletionHandler<void()>&& c
 #if PLATFORM(COCOA)
     Ref aggregator = CallbackAggregator::create(WTFMove(callback));
     auto drawingAreaIdentifier = m_drawingArea->identifier();
-    forEachWebContentProcess([&] (auto& process, auto) {
-        process.sendWithAsyncReply(Messages::DrawingArea::DispatchAfterEnsuringDrawing(), [aggregator] { }, drawingAreaIdentifier);
-    });
+    for (Ref process : webContentProcessesWithFrame())
+        process->sendWithAsyncReply(Messages::DrawingArea::DispatchAfterEnsuringDrawing(), [aggregator] { }, drawingAreaIdentifier);
 #elif USE(COORDINATED_GRAPHICS)
     downcast<DrawingAreaProxyCoordinatedGraphics>(*m_drawingArea).dispatchAfterEnsuringDrawing(WTFMove(callback));
 #else
