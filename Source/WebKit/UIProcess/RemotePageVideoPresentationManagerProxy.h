@@ -23,40 +23,36 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "RemotePageFullscreenManagerProxy.h"
+#pragma once
 
-#if ENABLE(FULLSCREEN_API)
+#if ENABLE(VIDEO_PRESENTATION_MODE)
 
-#include "WebFullScreenManagerProxy.h"
-#include "WebFullScreenManagerProxyMessages.h"
-#include "WebProcessProxy.h"
+#include "MessageReceiver.h"
+#include <WebCore/PageIdentifier.h>
 
 namespace WebKit {
 
-Ref<RemotePageFullscreenManagerProxy> RemotePageFullscreenManagerProxy::create(WebCore::PageIdentifier identifier, WebFullScreenManagerProxy* manager, WebProcessProxy& process)
-{
-    return adoptRef(*new RemotePageFullscreenManagerProxy(identifier, manager, process));
-}
+class VideoPresentationManagerProxy;
+class WebProcessProxy;
 
-RemotePageFullscreenManagerProxy::RemotePageFullscreenManagerProxy(WebCore::PageIdentifier identifier, WebFullScreenManagerProxy* manager, WebProcessProxy& process)
-    : m_identifier(identifier)
-    , m_manager(manager)
-    , m_process(process)
-{
-    process.addMessageReceiver(Messages::WebFullScreenManagerProxy::messageReceiverName(), m_identifier, *this);
-}
+class RemotePageVideoPresentationManagerProxy : public IPC::MessageReceiver, public RefCounted<RemotePageVideoPresentationManagerProxy> {
+public:
+    static Ref<RemotePageVideoPresentationManagerProxy> create(WebCore::PageIdentifier, WebProcessProxy&, VideoPresentationManagerProxy*);
 
-RemotePageFullscreenManagerProxy::~RemotePageFullscreenManagerProxy()
-{
-    m_process->removeMessageReceiver(Messages::WebFullScreenManagerProxy::messageReceiverName(), m_identifier);
-}
+    ~RemotePageVideoPresentationManagerProxy();
 
-void RemotePageFullscreenManagerProxy::didReceiveMessage(IPC::Connection& connection, IPC::Decoder& decoder)
-{
-    if (RefPtr manager = m_manager.get())
-        manager->didReceiveMessage(connection, decoder);
-}
+    void ref() const final { RefCounted::ref(); }
+    void deref() const final { RefCounted::deref(); }
+
+private:
+    RemotePageVideoPresentationManagerProxy(WebCore::PageIdentifier, WebProcessProxy&, VideoPresentationManagerProxy*);
+
+    void didReceiveMessage(IPC::Connection&, IPC::Decoder&) final;
+
+    const WebCore::PageIdentifier m_identifier;
+    const WeakPtr<VideoPresentationManagerProxy> m_manager;
+    const Ref<WebProcessProxy> m_process;
+};
 
 }
 #endif

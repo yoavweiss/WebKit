@@ -786,6 +786,7 @@ public:
     PlaybackSessionManagerProxy* playbackSessionManager();
     RefPtr<PlaybackSessionManagerProxy> protectedPlaybackSessionManager();
     VideoPresentationManagerProxy* videoPresentationManager();
+    RefPtr<VideoPresentationManagerProxy> protectedVideoPresentationManager();
     void setMockVideoPresentationModeEnabled(bool);
 #endif
 

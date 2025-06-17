@@ -24,35 +24,36 @@
  */
 
 #include "config.h"
-#include "RemotePageFullscreenManagerProxy.h"
+#include "RemotePageVideoPresentationManagerProxy.h"
 
-#if ENABLE(FULLSCREEN_API)
+#if ENABLE(VIDEO_PRESENTATION_MODE)
 
-#include "WebFullScreenManagerProxy.h"
-#include "WebFullScreenManagerProxyMessages.h"
+#include "VideoPresentationManagerProxy.h"
+#include "VideoPresentationManagerProxyMessages.h"
+#include "WebPageProxy.h"
 #include "WebProcessProxy.h"
 
 namespace WebKit {
 
-Ref<RemotePageFullscreenManagerProxy> RemotePageFullscreenManagerProxy::create(WebCore::PageIdentifier identifier, WebFullScreenManagerProxy* manager, WebProcessProxy& process)
+Ref<RemotePageVideoPresentationManagerProxy> RemotePageVideoPresentationManagerProxy::create(WebCore::PageIdentifier pageID, WebProcessProxy& process, VideoPresentationManagerProxy* manager)
 {
-    return adoptRef(*new RemotePageFullscreenManagerProxy(identifier, manager, process));
+    return adoptRef(*new RemotePageVideoPresentationManagerProxy(pageID, process, manager));
 }
 
-RemotePageFullscreenManagerProxy::RemotePageFullscreenManagerProxy(WebCore::PageIdentifier identifier, WebFullScreenManagerProxy* manager, WebProcessProxy& process)
-    : m_identifier(identifier)
+RemotePageVideoPresentationManagerProxy::RemotePageVideoPresentationManagerProxy(WebCore::PageIdentifier pageID, WebProcessProxy& process, VideoPresentationManagerProxy* manager)
+    : m_identifier(pageID)
     , m_manager(manager)
     , m_process(process)
 {
-    process.addMessageReceiver(Messages::WebFullScreenManagerProxy::messageReceiverName(), m_identifier, *this);
+    process.addMessageReceiver(Messages::VideoPresentationManagerProxy::messageReceiverName(), m_identifier, *this);
 }
 
-RemotePageFullscreenManagerProxy::~RemotePageFullscreenManagerProxy()
+RemotePageVideoPresentationManagerProxy::~RemotePageVideoPresentationManagerProxy()
 {
-    m_process->removeMessageReceiver(Messages::WebFullScreenManagerProxy::messageReceiverName(), m_identifier);
+    m_process->removeMessageReceiver(Messages::VideoPresentationManagerProxy::messageReceiverName(), m_identifier);
 }
 
-void RemotePageFullscreenManagerProxy::didReceiveMessage(IPC::Connection& connection, IPC::Decoder& decoder)
+void RemotePageVideoPresentationManagerProxy::didReceiveMessage(IPC::Connection& connection, IPC::Decoder& decoder)
 {
     if (RefPtr manager = m_manager.get())
         manager->didReceiveMessage(connection, decoder);

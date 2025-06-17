@@ -210,8 +210,8 @@ void UserMediaProcessManager::revokeSandboxExtensionsIfNeeded(WebProcessProxy& p
 
     for (auto& weakRemotePage : process.remotePages()) {
         if (RefPtr remotePage = weakRemotePage.get()) {
-            hasAudioCapture |= remotePage->mediaState().containsAny(MediaProducer::IsCapturingAudioMask);
-            hasVideoCapture |= remotePage->mediaState().containsAny(MediaProducer::IsCapturingVideoMask);
+            hasAudioCapture |= remotePage->mediaState().containsAny(WebCore::MediaProducer::IsCapturingAudioMask);
+            hasVideoCapture |= remotePage->mediaState().containsAny(WebCore::MediaProducer::IsCapturingVideoMask);
         }
     }
 

@@ -199,6 +199,7 @@ public:
     RefPtr<WebCore::PlatformVideoPresentationInterface> bestVideoForElementFullscreen();
 
 private:
+    friend class RemotePageVideoPresentationManagerProxy;
     friend class VideoPresentationModelContext;
 
     explicit VideoPresentationManagerProxy(WebPageProxy&, PlaybackSessionManagerProxy&);

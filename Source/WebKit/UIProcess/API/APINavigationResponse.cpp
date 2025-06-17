@@ -28,6 +28,7 @@
 
 #include "APIFrameInfo.h"
 #include "APINavigation.h"
+#include "FrameInfoData.h"
 #include "WebFrameProxy.h"
 
 namespace API {

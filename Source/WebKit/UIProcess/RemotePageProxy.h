@@ -63,6 +63,7 @@ class DrawingAreaProxy;
 class NativeWebMouseEvent;
 class RemotePageDrawingAreaProxy;
 class RemotePageFullscreenManagerProxy;
+class RemotePageVideoPresentationManagerProxy;
 class RemotePageVisitedLinkStoreRegistration;
 class UserData;
 class WebFrameProxy;
@@ -118,6 +119,9 @@ private:
     RefPtr<RemotePageDrawingAreaProxy> m_drawingArea;
 #if ENABLE(FULLSCREEN_API)
     RefPtr<RemotePageFullscreenManagerProxy> m_fullscreenManager;
+#endif
+#if ENABLE(VIDEO_PRESENTATION_MODE)
+    RefPtr<RemotePageVideoPresentationManagerProxy> m_videoPresentationManager;
 #endif
     std::unique_ptr<RemotePageVisitedLinkStoreRegistration> m_visitedLinkStoreRegistration;
     WebPageProxyMessageReceiverRegistration m_messageReceiverRegistration;

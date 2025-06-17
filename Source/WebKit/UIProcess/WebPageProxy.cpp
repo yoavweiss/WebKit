@@ -9733,6 +9733,11 @@ VideoPresentationManagerProxy* WebPageProxy::videoPresentationManager()
     return m_videoPresentationManager.get();
 }
 
+RefPtr<VideoPresentationManagerProxy> WebPageProxy::protectedVideoPresentationManager()
+{
+    return m_videoPresentationManager.get();
+}
+
 void WebPageProxy::setMockVideoPresentationModeEnabled(bool enabled)
 {
     m_mockVideoPresentationModeEnabled = enabled;

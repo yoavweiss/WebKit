@@ -55,6 +55,10 @@
 #include "WebFullScreenManagerProxy.h"
 #endif
 
+#if ENABLE(VIDEO_PRESENTATION_MODE)
+#include "RemotePageVideoPresentationManagerProxy.h"
+#endif
+
 namespace WebKit {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RemotePageProxy);
@@ -95,6 +99,9 @@ void RemotePageProxy::injectPageIntoNewProcess()
     m_drawingArea = RemotePageDrawingAreaProxy::create(drawingArea.get(), m_process);
 #if ENABLE(FULLSCREEN_API)
     m_fullscreenManager = RemotePageFullscreenManagerProxy::create(pageID(), page->protectedFullScreenManager().get(), m_process);
+#endif
+#if ENABLE(VIDEO_PRESENTATION_MODE)
+    m_videoPresentationManager = RemotePageVideoPresentationManagerProxy::create(pageID(), m_process, page->protectedVideoPresentationManager().get());
 #endif
     m_visitedLinkStoreRegistration = makeUnique<RemotePageVisitedLinkStoreRegistration>(*page, m_process);
 
