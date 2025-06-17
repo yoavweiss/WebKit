@@ -110,11 +110,11 @@ pas_try_allocate_intrinsic_impl_casual_case(
     if (!pas_is_power_of_2(alignment))
         return pas_allocation_result_create_failure();
 
-    if (PAS_UNLIKELY(pas_debug_heap_is_enabled(config.kind)))
-        return pas_debug_heap_allocate(size, alignment, allocation_mode);
+    if (PAS_UNLIKELY(pas_system_heap_is_enabled(config.kind)))
+        return pas_system_heap_allocate(size, alignment, allocation_mode);
 
     if (verbose)
-        pas_log("not doing debug heap in impl_casual_case for %s\n", pas_heap_config_kind_get_string(config.kind));
+        pas_log("not doing system heap in impl_casual_case for %s\n", pas_heap_config_kind_get_string(config.kind));
 
     aligned_size = pas_try_allocate_compute_aligned_size(size, alignment);
     
