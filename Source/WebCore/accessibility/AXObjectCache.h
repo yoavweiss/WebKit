@@ -501,6 +501,11 @@ public:
     static bool shouldCreateAXThreadCompatibleMarkers() { return gAccessibilityThreadTextApisEnabled && isIsolatedTreeEnabled(); }
 #endif
 
+#if PLATFORM(COCOA)
+    static void initializeUserDefaultValues();
+    static bool accessibilityDOMIdentifiersEnabled() { return gAccessibilityDOMIdentifiersEnabled; }
+#endif
+
     static bool forceInitialFrameCaching() { return gForceInitialFrameCaching; }
     WEBCORE_EXPORT static void setForceInitialFrameCaching(bool);
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
@@ -867,6 +872,10 @@ private:
 #if ENABLE(AX_THREAD_TEXT_APIS)
     // Accessed on and off the main thread.
     static std::atomic<bool> gAccessibilityThreadTextApisEnabled;
+#endif
+
+#if PLATFORM(COCOA)
+    static std::atomic<bool> gAccessibilityDOMIdentifiersEnabled;
 #endif
 
     Timer m_notificationPostTimer;

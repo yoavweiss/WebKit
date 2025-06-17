@@ -228,6 +228,9 @@ std::atomic<bool> AXObjectCache::gForceDeferredSpellChecking = false;
 std::atomic<bool> AXObjectCache::gAccessibilityThreadTextApisEnabled = false;
 #endif
 std::atomic<bool> AXObjectCache::gForceInitialFrameCaching = false;
+#if PLATFORM(COCOA)
+std::atomic<bool> AXObjectCache::gAccessibilityDOMIdentifiersEnabled = false;
+#endif
 
 bool AXObjectCache::accessibilityEnhancedUserInterfaceEnabled()
 {
@@ -287,6 +290,10 @@ AXObjectCache::AXObjectCache(Page& page, Document* document)
 
 #if ENABLE(AX_THREAD_TEXT_APIS)
     gAccessibilityThreadTextApisEnabled = DeprecatedGlobalSettings::accessibilityThreadTextApisEnabled();
+#endif
+
+#if PLATFORM(COCOA)
+    initializeUserDefaultValues();
 #endif
 
     // If loading completed before the cache was created, loading progress will have been reset to zero.

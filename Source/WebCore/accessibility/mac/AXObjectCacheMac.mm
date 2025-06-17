@@ -192,6 +192,13 @@ static AXTextSelectionGranularity platformGranularityForWebCoreGranularity(WebCo
 
 namespace WebCore {
 
+void AXObjectCache::initializeUserDefaultValues()
+{
+    // This is only set in the constructor, so the page must be reloaded if this default is changed.
+    RetainPtr userDefaults = adoptNS([[NSUserDefaults alloc] initWithSuiteName:@"com.apple.Accessibility"]);
+    gAccessibilityDOMIdentifiersEnabled = [userDefaults boolForKey:@"AXEnableWebKitDOMIdentifier"];
+}
+
 void AXObjectCache::attachWrapper(AccessibilityObject& object)
 {
     RetainPtr<WebAccessibilityObjectWrapper> wrapper = adoptNS([[WebAccessibilityObjectWrapper alloc] initWithAccessibilityObject:object]);
