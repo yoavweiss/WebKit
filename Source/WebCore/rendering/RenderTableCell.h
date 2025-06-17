@@ -88,7 +88,7 @@ public:
     LayoutUnit cellBaselinePosition() const;
     bool isBaselineAligned() const;
 
-    void computeIntrinsicPadding(LayoutUnit rowHeight);
+    bool computeIntrinsicPadding(LayoutUnit rowHeight);
     void clearIntrinsicPadding() { setIntrinsicPadding(0, 0); }
 
     LayoutUnit intrinsicPaddingBefore() const { return m_intrinsicPaddingBefore; }

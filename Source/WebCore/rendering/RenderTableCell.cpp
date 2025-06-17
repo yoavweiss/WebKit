@@ -248,7 +248,7 @@ LayoutRect RenderTableCell::frameRectForStickyPositioning() const
     return returnValue;
 }
 
-void RenderTableCell::computeIntrinsicPadding(LayoutUnit rowHeight)
+bool RenderTableCell::computeIntrinsicPadding(LayoutUnit rowHeight)
 {
     LayoutUnit oldIntrinsicPaddingBefore = intrinsicPaddingBefore();
     LayoutUnit oldIntrinsicPaddingAfter = intrinsicPaddingAfter();
@@ -296,10 +296,7 @@ void RenderTableCell::computeIntrinsicPadding(LayoutUnit rowHeight)
     setIntrinsicPaddingBefore(intrinsicPaddingBefore);
     setIntrinsicPaddingAfter(intrinsicPaddingAfter);
 
-    // FIXME: Changing an intrinsic padding shouldn't trigger a relayout as it only shifts the cell inside the row but
-    // doesn't change the logical height.
-    if (intrinsicPaddingBefore != oldIntrinsicPaddingBefore || intrinsicPaddingAfter != oldIntrinsicPaddingAfter)
-        setNeedsLayout(MarkOnlyThis);
+    return intrinsicPaddingBefore != oldIntrinsicPaddingBefore || intrinsicPaddingAfter != oldIntrinsicPaddingAfter;
 }
 
 void RenderTableCell::updateLogicalWidth()
