@@ -26,9 +26,11 @@
 #include "config.h"
 #include "RenderTreeUpdaterViewTransition.h"
 
+#include "ContextDestructionObserverInlines.h"
 #include "ElementRuleCollector.h"
 #include "RenderDescendantIterator.h"
 #include "RenderElement.h"
+#include "RenderObjectInlines.h"
 #include "RenderStyleInlines.h"
 #include "RenderStyleSetters.h"
 #include "RenderTreeUpdater.h"
