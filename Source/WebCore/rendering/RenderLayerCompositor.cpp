@@ -682,8 +682,20 @@ void RenderLayerCompositor::cacheAcceleratedCompositingFlagsAfterLayout()
     if (isRootFrameCompositor())
         return;
 
-    RequiresCompositingData queryData;
-    bool forceCompositingMode = m_hasAcceleratedCompositing && m_renderView.settings().forceCompositingMode() && requiresCompositingForScrollableFrame(queryData);
+    auto frameContentRequiresCompositing = [&] {
+        RequiresCompositingData queryData;
+        if (requiresCompositingForScrollableFrame(queryData))
+            return true;
+
+#if HAVE(SUPPORT_HDR_DISPLAY)
+        if (m_renderView.document().hasHDRContent())
+            return true;
+#endif
+
+        return false;
+    };
+
+    bool forceCompositingMode = m_hasAcceleratedCompositing && m_renderView.settings().forceCompositingMode() && frameContentRequiresCompositing();
     if (forceCompositingMode != m_forceCompositingMode) {
         m_forceCompositingMode = forceCompositingMode;
         rootRenderLayer().setDescendantsNeedCompositingRequirementsTraversal();

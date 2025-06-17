@@ -635,7 +635,7 @@ public:
     virtual bool isFrameSet() const { return false; }
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    void setHasHDRContent() { m_hasHDRContent = true; }
+    void setHasHDRContent();
     bool hasHDRContent() const { return m_hasHDRContent; }
     bool drawsHDRContent() const;
 #endif
