@@ -414,7 +414,7 @@ String MediaControlsHost::generateUUID()
     return createVersion4UUIDString();
 }
 
-Vector<String> MediaControlsHost::shadowRootStyleSheets() const
+Vector<String, 2> MediaControlsHost::shadowRootStyleSheets() const
 {
     if (RefPtr mediaElement = m_mediaElement.ptr())
         return RenderTheme::singleton().mediaControlsStyleSheets(*mediaElement);

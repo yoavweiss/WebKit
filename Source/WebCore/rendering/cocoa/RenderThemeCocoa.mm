@@ -39,6 +39,7 @@
 #import "HTMLButtonElement.h"
 #import "HTMLDataListElement.h"
 #import "HTMLInputElement.h"
+#import "HTMLMediaElement.h"
 #import "HTMLMeterElement.h"
 #import "HTMLOptionElement.h"
 #import "HTMLSelectElement.h"
@@ -189,11 +190,6 @@ static bool renderThemePaintSwitchTrack(OptionSet<ControlStyle::State>, const Re
     return true;
 }
 
-static Vector<String> additionalMediaControlsStyleSheets(const HTMLMediaElement&)
-{
-    return { };
-}
-
 } // namespace WebCore
 
 #endif
@@ -309,13 +305,63 @@ void RenderThemeCocoa::adjustApplePayButtonStyle(RenderStyle& style, const Eleme
 
 #if ENABLE(VIDEO)
 
-Vector<String> RenderThemeCocoa::mediaControlsStyleSheets(const HTMLMediaElement& mediaElement)
+#if HAVE(MATERIAL_HOSTING)
+
+static const String& glassMaterialMediaControlsStyleSheet()
+{
+    static NeverDestroyed<String> glassMaterialMediaControlsStyleSheet {
+        "@supports (-apple-visual-effect: -apple-system-glass-material) {"
+        "    .media-controls.mac * {"
+        "        --primary-glyph-color: white;"
+        "        --secondary-glyph-color: white;"
+        "    }"
+        "    .media-controls.inline.mac:not(.audio) {"
+        "        background-color: rgba(0, 0, 0, 0.4);"
+        "    }"
+        "    .media-controls.inline.mac:not(.audio):is(:empty, .faded) {"
+        "        background-color: transparent;"
+        "    }"
+        "    .media-controls.mac:not(.audio) .background-tint > .blur {"
+        "        display: none;"
+        "    }"
+        "    .media-controls.mac.inline.audio .background-tint > .blur {"
+        "        background-color: rgba(0, 0, 0, 0.4);"
+        "        -webkit-backdrop-filter: unset;"
+        "    }"
+        "    .media-controls.mac .background-tint > .tint {"
+        "        background-color: unset;"
+        "        color-scheme: dark;"
+        "        mix-blend-mode: unset;"
+        "    }"
+        "    .media-controls.mac.inline .background-tint > .tint {"
+        "        -apple-visual-effect: -apple-system-glass-material-media-controls-subdued;"
+        "    }"
+        "    .media-controls.mac.fullscreen .background-tint > .tint {"
+        "        -apple-visual-effect: -apple-system-glass-material-media-controls;"
+        "    }"
+        "}"_s
+    };
+
+    return glassMaterialMediaControlsStyleSheet;
+}
+
+#endif // HAVE(MATERIAL_HOSTING)
+
+Vector<String, 2> RenderThemeCocoa::mediaControlsStyleSheets(const HTMLMediaElement& mediaElement)
 {
     if (m_mediaControlsStyleSheet.isEmpty())
         m_mediaControlsStyleSheet = StringImpl::createWithoutCopying(ModernMediaControlsUserAgentStyleSheet);
 
-    auto mediaControlsStyleSheets = Vector<String>::from(m_mediaControlsStyleSheet);
-    mediaControlsStyleSheets.appendVector(additionalMediaControlsStyleSheets(mediaElement));
+    auto mediaControlsStyleSheets = Vector<String, 2>::from(m_mediaControlsStyleSheet);
+
+#if HAVE(MATERIAL_HOSTING)
+    // FIXME (153018199): Glass material styles can be added directly to ModernMediaControlsUserAgentStyleSheet
+    // once `@supports (-apple-visual-effect: -apple-system-glass-material)` behaves correctly in WebKitLegacy.
+    if (mediaElement.document().settings().hostedBlurMaterialInMediaControlsEnabled())
+        mediaControlsStyleSheets.append(glassMaterialMediaControlsStyleSheet());
+#else
+    UNUSED_PARAM(mediaElement);
+#endif
 
     return mediaControlsStyleSheets;
 }

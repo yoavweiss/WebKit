@@ -99,7 +99,7 @@ public:
 
     virtual String extraDefaultStyleSheet() { return String(); }
 #if ENABLE(VIDEO)
-    virtual Vector<String> mediaControlsStyleSheets(const HTMLMediaElement&) { return { }; }
+    virtual Vector<String, 2> mediaControlsStyleSheets(const HTMLMediaElement&) { return { }; }
     virtual Vector<String, 2> mediaControlsScripts() { return { }; }
     virtual String mediaControlsBase64StringForIconNameAndType(const String&, const String&) { return String(); }
     virtual String mediaControlsFormattedStringForDuration(double) { return String(); }
