@@ -595,11 +595,6 @@
 #define HAVE_GCCONTROLLER_HID_DEVICE_CHECK 1
 #endif
 
-// Newer versions no longer square continuous haptics (rdar://110338126).
-#if (PLATFORM(MAC) && __MAC_OS_X_VERSION_MIN_REQUIRED < 140000)
-#define HAVE_GCCONTROLLER_REQUIRING_HAPTICS_SQUARING 1
-#endif
-
 #if PLATFORM(COCOA)
 #define HAVE_INCREMENTAL_PDF_APIS 1
 #endif
@@ -815,10 +810,6 @@
 #if PLATFORM(IOS) || PLATFORM(MACCATALYST) || PLATFORM(MAC) || PLATFORM(VISION) \
     || (PLATFORM(APPLETV) && __TV_OS_VERSION_MIN_REQUIRED >= 170000)
 #define HAVE_AVCAPTUREDEVICE 1
-#endif
-
-#if (PLATFORM(MAC) && __MAC_OS_X_VERSION_MIN_REQUIRED < 140000)
-#define HAVE_REQUIRE_MICROPHONE_CAPTURE_IN_UIPROCESS 1
 #endif
 
 #if PLATFORM(MAC) && defined __has_include && __has_include(<CoreFoundation/CFPriv.h>)
