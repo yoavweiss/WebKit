@@ -598,7 +598,7 @@ void WebChromeClient::rootFrameAdded(const WebCore::LocalFrame& frame)
     if (!m_page)
         return;
 
-    if (auto* drawingArea = m_page->drawingArea())
+    if (RefPtr drawingArea = m_page->drawingArea())
         drawingArea->addRootFrame(frame.frameID());
 }
 
@@ -607,7 +607,7 @@ void WebChromeClient::rootFrameRemoved(const WebCore::LocalFrame& frame)
     if (!m_page)
         return;
 
-    if (auto* drawingArea = m_page->drawingArea())
+    if (RefPtr drawingArea = m_page->drawingArea())
         drawingArea->removeRootFrame(frame.frameID());
 }
 
@@ -1097,7 +1097,7 @@ GraphicsLayerFactory* WebChromeClient::graphicsLayerFactory() const
     RefPtr page = m_page.get();
     if (!page)
         return nullptr;
-    if (auto drawingArea = page->drawingArea())
+    if (RefPtr drawingArea = page->drawingArea())
         return drawingArea->graphicsLayerFactory();
     return nullptr;
 }
@@ -1280,7 +1280,7 @@ void WebChromeClient::attachViewOverlayGraphicsLayer(GraphicsLayer* graphicsLaye
     if (!page)
         return;
 
-    auto* drawingArea = page->drawingArea();
+    RefPtr drawingArea = page->drawingArea();
     if (!drawingArea)
         return;
 
@@ -1306,7 +1306,7 @@ void WebChromeClient::triggerRenderingUpdate()
     if (!page)
         return;
 
-    if (auto* drawingArea = page->drawingArea())
+    if (RefPtr drawingArea = page->drawingArea())
         drawingArea->triggerRenderingUpdate();
 }
 
@@ -1315,7 +1315,7 @@ bool WebChromeClient::scheduleRenderingUpdate()
     RefPtr page = m_page.get();
     if (!page)
         return false;
-    if (auto* drawingArea = page->drawingArea())
+    if (RefPtr drawingArea = page->drawingArea())
         return drawingArea->scheduleRenderingUpdate();
     return false;
 }
@@ -1326,7 +1326,7 @@ void WebChromeClient::renderingUpdateFramesPerSecondChanged()
     if (!page)
         return;
 
-    if (auto* drawingArea = page->drawingArea())
+    if (RefPtr drawingArea = page->drawingArea())
         drawingArea->renderingUpdateFramesPerSecondChanged();
 }
 
@@ -1356,7 +1356,7 @@ bool WebChromeClient::layerTreeStateIsFrozen() const
     if (!page)
         return false;
 
-    if (auto* drawingArea = page->drawingArea())
+    if (RefPtr drawingArea = page->drawingArea())
         return drawingArea->layerTreeStateIsFrozen();
 
     return false;
@@ -2367,7 +2367,7 @@ void WebChromeClient::resetDamageHistoryForTesting()
     if (!m_page)
         return;
 
-    if (auto* drawingArea = m_page->drawingArea())
+    if (RefPtr drawingArea = m_page->drawingArea())
         drawingArea->resetDamageHistoryForTesting();
 }
 
@@ -2376,7 +2376,7 @@ void WebChromeClient::foreachRegionInDamageHistoryForTesting(Function<void(const
     if (!m_page)
         return;
 
-    if (const auto* drawingArea = m_page->drawingArea())
+    if (const RefPtr drawingArea = m_page->drawingArea())
         drawingArea->foreachRegionInDamageHistoryForTesting(WTFMove(callback));
 }
 #endif

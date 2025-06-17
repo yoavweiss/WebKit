@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2018 Apple Inc. All rights reserved.
+ * Copyright (C) 2011-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -340,12 +340,12 @@ void TiledCoreAnimationDrawingArea::addCommitHandlers()
         return;
 
     [CATransaction addCommitHandler:[retainedPage = Ref { m_webPage.get() }] {
-        if (auto* drawingArea = dynamicDowncast<TiledCoreAnimationDrawingArea>(retainedPage->drawingArea()))
+        if (RefPtr drawingArea = dynamicDowncast<TiledCoreAnimationDrawingArea>(retainedPage->drawingArea()))
             drawingArea->willStartRenderingUpdateDisplay();
     } forPhase:kCATransactionPhasePreLayout];
 
     [CATransaction addCommitHandler:[retainedPage = Ref { m_webPage.get() }] {
-        if (auto* drawingArea = dynamicDowncast<TiledCoreAnimationDrawingArea>(retainedPage->drawingArea()))
+        if (RefPtr drawingArea = dynamicDowncast<TiledCoreAnimationDrawingArea>(retainedPage->drawingArea()))
             drawingArea->didCompleteRenderingUpdateDisplay();
     } forPhase:kCATransactionPhasePostCommit];
     

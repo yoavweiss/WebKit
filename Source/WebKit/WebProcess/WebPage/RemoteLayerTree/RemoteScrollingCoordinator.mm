@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -203,7 +203,7 @@ WheelEventHandlingResult RemoteScrollingCoordinator::handleWheelEventForScrollin
 
 void RemoteScrollingCoordinator::scrollingTreeNodeScrollbarVisibilityDidChange(ScrollingNodeID nodeID, ScrollbarOrientation orientation, bool isVisible)
 {
-    auto* frameView = frameViewForScrollingNode(nodeID);
+    RefPtr frameView = frameViewForScrollingNode(nodeID);
     if (!frameView)
         return;
 
@@ -213,7 +213,7 @@ void RemoteScrollingCoordinator::scrollingTreeNodeScrollbarVisibilityDidChange(S
 
 void RemoteScrollingCoordinator::scrollingTreeNodeScrollbarMinimumThumbLengthDidChange(ScrollingNodeID nodeID, ScrollbarOrientation orientation, int minimumThumbLength)
 {
-    auto* frameView = frameViewForScrollingNode(nodeID);
+    RefPtr frameView = frameViewForScrollingNode(nodeID);
     if (!frameView)
         return;
 

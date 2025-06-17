@@ -5085,7 +5085,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     if (!_page || !_perProcessState.committedFindLayerID)
         return nil;
 
-    if (auto* drawingArea = _page->drawingArea())
+    if (RefPtr drawingArea = _page->drawingArea())
         return downcast<WebKit::RemoteLayerTreeDrawingAreaProxy>(*drawingArea).remoteLayerTreeHost().layerForID(*_perProcessState.committedFindLayerID);
 
     return nil;

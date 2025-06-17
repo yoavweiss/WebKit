@@ -7607,7 +7607,7 @@ void WebPageProxy::viewIsBecomingVisible()
 {
     WEBPAGEPROXY_RELEASE_LOG(ViewState, "viewIsBecomingVisible:");
     protectedLegacyMainFrameProcess()->markProcessAsRecentlyUsed();
-    if (auto* drawingAreaProxy = drawingArea())
+    if (RefPtr drawingAreaProxy = drawingArea())
         drawingAreaProxy->viewIsBecomingVisible();
 #if ENABLE(MEDIA_STREAM)
     if (RefPtr userMediaPermissionRequestManager = m_userMediaPermissionRequestManager)
@@ -7622,7 +7622,7 @@ void WebPageProxy::viewIsBecomingInvisible()
 {
     WEBPAGEPROXY_RELEASE_LOG(ViewState, "viewIsBecomingInvisible:");
     protectedLegacyMainFrameProcess()->pageIsBecomingInvisible(m_webPageID);
-    if (auto* drawingAreaProxy = drawingArea())
+    if (RefPtr drawingAreaProxy = drawingArea())
         drawingAreaProxy->viewIsBecomingInvisible();
 
     RefPtr protectedPageClient { pageClient() };

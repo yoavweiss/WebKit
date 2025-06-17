@@ -2369,7 +2369,7 @@ void WebViewImpl::viewDidChangeBackingProperties()
         return;
 
     m_colorSpace = nullptr;
-    if (DrawingAreaProxy *drawingArea = m_page->drawingArea())
+    if (RefPtr drawingArea = m_page->drawingArea())
         drawingArea->colorSpaceDidChange();
 }
 

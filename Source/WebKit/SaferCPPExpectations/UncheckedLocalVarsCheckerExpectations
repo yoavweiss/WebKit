@@ -20,7 +20,6 @@ UIProcess/RemoteLayerTree/mac/RemoteScrollingTreeMac.mm
 UIProcess/ViewGestureController.cpp
 UIProcess/WebPageProxy.cpp
 UIProcess/mac/WKTextAnimationManager.mm
-UIProcess/mac/WebViewImpl.mm
 WebProcess/FullScreen/WebFullScreenManager.cpp
 WebProcess/GPU/media/RemoteMediaPlayerManager.cpp
 WebProcess/InjectedBundle/API/c/WKBundlePage.cpp
