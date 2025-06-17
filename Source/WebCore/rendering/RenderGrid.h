@@ -78,6 +78,9 @@ public:
 
     bool canDropAnonymousBlockChild() const override { return false; }
 
+    bool hasDefiniteLogicalHeight() const;
+    const std::optional<LayoutUnit> availableLogicalHeightForContentBox() const;
+
     void setNeedsItemPlacement(SubgridDidChange descendantSubgridsNeedItemPlacement = SubgridDidChange::No);
     Vector<LayoutUnit> trackSizesForComputedStyle(GridTrackSizingDirection) const;
 
