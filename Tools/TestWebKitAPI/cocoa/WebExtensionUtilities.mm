@@ -244,6 +244,16 @@ static constexpr BOOL shouldEnableSiteIsolation = NO;
     [_context _sendTestMessage:message withArgument:argument];
 }
 
+- (void)sendTestStartedWithArgument:(id)argument
+{
+    [_context _sendTestStartedWithArgument:argument];
+}
+
+- (void)sendTestFinishedWithArgument:(id)argument
+{
+    [_context _sendTestFinishedWithArgument:argument];
+}
+
 - (void)load
 {
     NSError *error;
