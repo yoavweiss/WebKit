@@ -1566,6 +1566,7 @@ AXTextRuns AccessibilityRenderObject::textRuns()
 
     Vector<std::array<uint16_t, 2>> textRunDomOffsets;
     // FIXME: Use InlineIteratorLogicalOrderTraversal instead. Otherwise we'll do the wrong thing for mixed direction content.
+    // Tracked by: https://bugs.webkit.org/show_bug.cgi?id=294632
     auto textBox = InlineIterator::lineLeftmostTextBoxFor(*renderText);
     size_t currentLineIndex = textBox ? textBox->lineIndex() : 0;
 

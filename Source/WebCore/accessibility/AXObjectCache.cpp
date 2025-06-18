@@ -2074,7 +2074,49 @@ void AXObjectCache::onStyleChange(Element& element, OptionSet<Style::Change> cha
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 }
 
+HashMap<AXID, LineRange> AXObjectCache::mostRecentlyPaintedText()
+{
+    HashMap<AXID, LineRange> recentlyPaintedText;
+    for (auto renderTextToLineRange : m_mostRecentlyPaintedText) {
+        if (auto* axObject = getOrCreate(renderTextToLineRange.key))
+            recentlyPaintedText.add(axObject->objectID(), renderTextToLineRange.value);
+    }
+    return recentlyPaintedText;
+}
+
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+void AXObjectCache::onAccessibilityPaintStarted()
+{
+    m_mostRecentlyPaintedText.clear();
+}
+
+void AXObjectCache::onAccessibilityPaintFinished()
+{
+    RefPtr tree = AXIsolatedTree::treeForPageID(m_pageID);
+    if (!tree)
+        return;
+
+    for (auto iterator = m_mostRecentlyPaintedText.begin(); iterator != m_mostRecentlyPaintedText.end(); ++iterator) {
+        const auto& renderText = iterator->key;
+        // FIXME: Use InlineIteratorLogicalOrderTraversal instead. Otherwise we'll do the wrong thing for mixed direction
+        // content. We should do this at the same time AccessibilityRenderObject::textRuns switches to this function.
+        // Tracked by: https://bugs.webkit.org/show_bug.cgi?id=294632
+        if (auto textBox = InlineIterator::lineLeftmostTextBoxFor(renderText)) {
+            // The line index from TextBox::lineIndex is relative to the containing block, which count lines from
+            // other renderers. The LineRange struct we have built expects the start and end line indices to be
+            // relative to just this renderer, so normalize them by getting the first line index for this renderer.
+            size_t firstLineIndexForRenderer = textBox->lineIndex();
+            ASSERT(firstLineIndexForRenderer <= iterator->value.startLineIndex);
+            ASSERT(firstLineIndexForRenderer <= iterator->value.endLineIndex);
+            iterator->value.startLineIndex -= firstLineIndexForRenderer;
+            iterator->value.endLineIndex -= firstLineIndexForRenderer;
+        }
+    }
+
+    tree->markMostRecentlyPaintedTextDirty();
+    startUpdateTreeSnapshotTimer();
+}
+
 bool AXObjectCache::onFontChange(Element& element, const RenderStyle* oldStyle, const RenderStyle* newStyle)
 {
     if (!oldStyle || !newStyle)
@@ -5151,6 +5193,28 @@ void AXObjectCache::onPaint(const Widget& widget, IntRect&& paintRect) const
     if (!m_pageID)
         return;
     m_geometryManager->cacheRect(m_widgetObjectMapping.getOptional(const_cast<Widget&>(widget)), WTFMove(paintRect));
+}
+
+void AXObjectCache::onPaint(const RenderText& renderText, size_t lineIndex)
+{
+    ASSERT(isMainThread());
+
+    if (!m_pageID)
+        return;
+
+    auto ensureResult = m_mostRecentlyPaintedText.ensure(renderText, [&] {
+        return LineRange(lineIndex, lineIndex);
+    });
+    if (!ensureResult.isNewEntry) {
+        auto iterator = ensureResult.iterator;
+        // The goal is for the LineRange we cache to store the first painted line, and last painted line.
+        // So check the |lineIndex| we were given and adjust the cached values if necessary.
+        if (iterator->value.startLineIndex > lineIndex)
+            iterator->value.startLineIndex = lineIndex;
+
+        if (iterator->value.endLineIndex < lineIndex)
+            iterator->value.endLineIndex = lineIndex;
+    }
 }
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 

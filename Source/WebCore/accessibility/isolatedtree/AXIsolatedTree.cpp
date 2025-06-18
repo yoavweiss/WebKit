@@ -1286,6 +1286,7 @@ void AXIsolatedTree::removeSubtreeFromNodeMap(std::optional<AXID> objectID, std:
 std::optional<ListHashSet<AXID>> AXIsolatedTree::relatedObjectIDsFor(const AXIsolatedObject& object, AXRelation relation)
 {
     ASSERT(!isMainThread());
+    // FIXME: Taking the lock any time we want to access relations isn't ideal for performance.
     Locker locker { m_changeLogLock };
 
     auto relationsIterator = m_relations.find(object.objectID());
@@ -1409,6 +1410,9 @@ void AXIsolatedTree::applyPendingChanges()
     if (m_pendingSortedNonRootWebAreaIDs)
         m_sortedNonRootWebAreaIDs = std::exchange(m_pendingSortedNonRootWebAreaIDs, std::nullopt).value();
 
+    if (m_pendingMostRecentlyPaintedText)
+        m_mostRecentlyPaintedText = std::exchange(m_pendingMostRecentlyPaintedText, std::nullopt).value();
+
     // Do this at the end because it requires looking up the root node by ID, so doing it at the end
     // ensures all additions to m_readerThreadNodeMap have been made by now.
     applyPendingRootNodeLocked();
@@ -1427,6 +1431,9 @@ void AXIsolatedTree::sortedNonRootWebAreasDidChange(Vector<AXID> webAreaIDs)
     ASSERT(isMainThread());
 
     Locker locker { m_changeLogLock };
+    // FIXME: m_pendingSortedLiveRegionIDs and m_pendingSortedNonRootWebAreaIDs should be synced in AXIsolatedTree::processQueuedNodeUpdates(),
+    // not ad-hoc whenever the main-thread changes them. Otherwise we could sync IDs to the accessibility thread that don't have isolated objects
+    // until the next actual tree-update cycle.
     m_pendingSortedNonRootWebAreaIDs = WTFMove(webAreaIDs);
 }
 
@@ -1542,6 +1549,12 @@ void AXIsolatedTree::processQueuedNodeUpdates()
 
     if (m_relationsNeedUpdate)
         updateRelations(cache->relations());
+
+    if (m_mostRecentlyPaintedTextIsDirty) {
+        Locker lock { m_changeLogLock };
+        m_pendingMostRecentlyPaintedText = cache->mostRecentlyPaintedText();
+        m_mostRecentlyPaintedTextIsDirty = false;
+    }
 
     queueRemovalsAndUnresolvedChanges();
 }

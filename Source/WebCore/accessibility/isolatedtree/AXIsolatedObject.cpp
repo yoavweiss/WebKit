@@ -955,13 +955,6 @@ void AXIsolatedObject::updateBackingStore()
     // Make sure to protect `this` with a Ref before adding more logic to this function.
 }
 
-std::optional<SimpleRange> AXIsolatedObject::visibleCharacterRange() const
-{
-    ASSERT(isMainThread());
-    RefPtr axObject = associatedAXObject();
-    return axObject ? axObject->visibleCharacterRange() : std::nullopt;
-}
-
 std::optional<SimpleRange> AXIsolatedObject::rangeForCharacterRange(const CharacterRange& axRange) const
 {
     ASSERT(isMainThread());

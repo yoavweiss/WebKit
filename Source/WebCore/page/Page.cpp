@@ -2332,9 +2332,16 @@ void Page::doAfterUpdateRendering()
     m_renderingUpdateRemainingSteps.last().remove(RenderingUpdateStep::AccessibilityRegionUpdate);
     if (shouldUpdateAccessibilityRegions()) {
         m_lastAccessibilityObjectRegionsUpdate = m_lastRenderingUpdateTimestamp;
+
+        if (m_axObjectCache)
+            m_axObjectCache->onAccessibilityPaintStarted();
+
         forEachRenderableDocument([] (Document& document) {
             document.updateAccessibilityObjectRegions();
         });
+
+        if (m_axObjectCache)
+            m_axObjectCache->onAccessibilityPaintFinished();
     }
 #endif
 

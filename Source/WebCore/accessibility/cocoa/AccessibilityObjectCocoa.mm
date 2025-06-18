@@ -68,6 +68,17 @@ AXTextMarkerRange AccessibilityObject::textMarkerRangeForNSRange(const NSRange& 
     return { };
 }
 
+std::optional<NSRange> AccessibilityObject::visibleCharacterRange() const
+{
+    std::optional range = simpleRange();
+    if (!range)
+        return std::nullopt;
+
+    auto contentRect = unobscuredContentRect();
+    auto elementRect = snappedIntRect(this->elementRect());
+    return makeNSRange(visibleCharacterRangeInternal(*range, contentRect, elementRect));
+}
+
 // NSAttributedString support.
 
 #ifndef NSAttachmentCharacter

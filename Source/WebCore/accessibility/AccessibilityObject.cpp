@@ -893,17 +893,6 @@ bool AccessibilityObject::boundaryPointsContainedInRect(const BoundaryPoint& sta
     return rect.contains(textEndPoint(elementRect, isFlippedWritingMode));
 }
 
-std::optional<SimpleRange> AccessibilityObject::visibleCharacterRange() const
-{
-    auto range = simpleRange();
-    if (!range)
-        return std::nullopt;
-
-    auto contentRect = unobscuredContentRect();
-    auto elementRect = snappedIntRect(this->elementRect());
-    return visibleCharacterRangeInternal(*range, contentRect, elementRect);
-}
-
 std::optional<SimpleRange> AccessibilityObject::visibleCharacterRangeInternal(SimpleRange& range, const FloatRect& contentRect, const IntRect& startingElementRect) const
 {
     if (!contentRect.intersects(startingElementRect))
@@ -963,10 +952,11 @@ std::optional<SimpleRange> AccessibilityObject::visibleCharacterRangeInternal(Si
         auto lineStartBoundaryPoint = makeBoundaryPoint(startBoundaryLineStartPosition);
         if (lineStartBoundaryPoint && lineStartBoundaryPoint->container.ptr() == startBoundary.container.ptr()) {
             auto lineStartRect = boundsForRange(SimpleRange(*lineStartBoundaryPoint, range.end));
+            Ref lineStartContainer = lineStartBoundaryPoint->container;
             if (contentRect.contains(textStartPoint(lineStartRect, isFlipped))) {
                 elementRect = lineStartRect;
                 startBoundary = *lineStartBoundaryPoint;
-            } else if (lineStartBoundaryPoint->offset < lineStartBoundaryPoint->container->length()) {
+            } else if (lineStartBoundaryPoint->offset < lineStartContainer->length()) {
                 // Sometimes we're one character off from being in-bounds. Check for this too.
                 lineStartBoundaryPoint->offset = lineStartBoundaryPoint->offset + 1;
                 lineStartRect = boundsForRange(SimpleRange(*lineStartBoundaryPoint, range.end));

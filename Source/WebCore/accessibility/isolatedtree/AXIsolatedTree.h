@@ -504,6 +504,9 @@ public:
     AXCoreObject::AccessibilityChildrenVector sortedLiveRegions();
     AXCoreObject::AccessibilityChildrenVector sortedNonRootWebAreas();
 
+    void markMostRecentlyPaintedTextDirty() { m_mostRecentlyPaintedTextIsDirty = true; }
+    const HashMap<AXID, LineRange>& mostRecentlyPaintedText() const { return m_mostRecentlyPaintedText; }
+
     // Called on AX thread from WebAccessibilityObjectWrapper methods.
     WEBCORE_EXPORT void applyPendingChanges();
 
@@ -637,6 +640,7 @@ private:
     bool m_queuedForDestruction WTF_GUARDED_BY_LOCK(m_changeLogLock) { false };
     std::optional<Vector<AXID>> m_pendingSortedLiveRegionIDs WTF_GUARDED_BY_LOCK(m_changeLogLock);
     std::optional<Vector<AXID>> m_pendingSortedNonRootWebAreaIDs WTF_GUARDED_BY_LOCK(m_changeLogLock);
+    std::optional<HashMap<AXID, LineRange>> m_pendingMostRecentlyPaintedText WTF_GUARDED_BY_LOCK(m_changeLogLock);
     Markable<AXID> m_focusedNodeID;
     std::atomic<double> m_loadingProgress { 0 };
     std::atomic<double> m_processingProgress { 1 };
@@ -644,11 +648,15 @@ private:
     // Only accessed on the accessibility thread.
     Vector<AXID> m_sortedLiveRegionIDs;
     Vector<AXID> m_sortedNonRootWebAreaIDs;
+    HashMap<AXID, LineRange> m_mostRecentlyPaintedText;
 
     // Relationships between objects.
     HashMap<AXID, AXRelations> m_relations WTF_GUARDED_BY_LOCK(m_changeLogLock);
+
     // Set to true by the AXObjectCache and false by AXIsolatedTree.
+    // Both are only to be used on the main-thread.
     bool m_relationsNeedUpdate { true };
+    bool m_mostRecentlyPaintedTextIsDirty { true };
 
     Lock m_changeLogLock;
     AXTextMarkerRange m_selectedTextMarkerRange WTF_GUARDED_BY_LOCK(m_changeLogLock);

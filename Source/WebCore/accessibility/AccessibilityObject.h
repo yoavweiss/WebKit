@@ -578,7 +578,9 @@ public:
     VisiblePositionRange visiblePositionRange() const override { return { }; }
     AXTextMarkerRange textMarkerRange() const final;
 
-    std::optional<SimpleRange> visibleCharacterRange() const final;
+#if PLATFORM(COCOA)
+    std::optional<NSRange> visibleCharacterRange() const final;
+#endif
     VisiblePositionRange visiblePositionRangeForLine(unsigned) const override { return VisiblePositionRange(); }
 
     static bool replacedNodeNeedsCharacter(Node& replacedNode);

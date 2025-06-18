@@ -2396,7 +2396,6 @@ accessibility/video-element-url-attribute.html [ Pass ]
 accessibility/visible-character-range-basic.html [ Pass ]
 accessibility/visible-character-range-height-changes.html [ Pass ]
 accessibility/visible-character-range-vertical-rl.html [ Pass ]
-accessibility/visible-character-range-width-changes.html [ Pass ]
 accessibility/visibility-visible-inside-hidden.html [ Pass ]
 
 # Enable "aria-current" tests for iOS.

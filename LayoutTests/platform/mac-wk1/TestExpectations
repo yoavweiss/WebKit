@@ -1823,6 +1823,7 @@ accessibility/mac/position-fixed-top-bottom-properties-relative-frame.html [ Ski
 accessibility/mac/shadow-dom-relative-frame.html [ Skip ]
 accessibility/mac/svg-relative-frame.html [ Skip ]
 accessibility/mac/table-relative-frame.html [ Skip ]
+accessibility/mac/visible-character-range-width-changes.html [ Skip ]
 
 # Skip due to lack of DumpRenderTree `AccessibilityUIElement::stringDescriptionOfAttributeValue` implementation.
 accessibility/mixed-contenteditable-visible-character-range-hang.html [ Skip ]
@@ -1831,7 +1832,6 @@ accessibility/visible-character-range-basic.html [ Skip ]
 accessibility/visible-character-range-height-changes.html [ Skip ]
 accessibility/visible-character-range-scrolling.html [ Skip ]
 accessibility/visible-character-range-vertical-rl.html [ Skip ]
-accessibility/visible-character-range-width-changes.html [ Skip ]
 accessibility/aria-description.html [ Skip ]
 
 # Missing AccessibilityUIElement::focusableAncestor implementation.

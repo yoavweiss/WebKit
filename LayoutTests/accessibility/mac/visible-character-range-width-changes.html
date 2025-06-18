@@ -1,11 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
-<script src="../resources/accessibility-helper.js"></script>
-<script src="../resources/js-test.js"></script>
-<style>
-* { font-size: 24px; }
-</style>
+<script src="../../resources/accessibility-helper.js"></script>
+<script src="../../resources/js-test.js"></script>
 </head>
 <body>
 
@@ -58,35 +55,21 @@
     <span>23: Line twentythree line twentythree</span><span contenteditable="false"> <br role="presentation"/></span>
     <span>24: Line twentyfour line twentyfour</span><span contenteditable="false"></span>
 </p>
-<p>
-    <span>25: Line twentyfive line twentyfive</span><span contenteditable="false"> <br role="presentation"/></span>
-    <span>26: Line twentysix line twentysix</span><span contenteditable="false"></span>
-</p>
-<p>
-    <span>27: Line twentyseven line twentyseven</span><span contenteditable="false"> <br role="presentation"/></span>
-    <span>28: Line twentyeight line twentyeight</span><span contenteditable="false"></span>
-</p>
 </div>
 
 <script>
-var output = "This tests that visibleCharacterRange returns expected visible ranges with various scrollTop values.\n\n";
+var output = "This tests that visibleCharacterRange returns expected visible ranges with various view width values.\n\n";
 
 if (window.accessibilityController) {
     window.jsTestIsAsync = true;
 
+    const text = accessibilityController.accessibleElementById("text-div");
     setTimeout(async function() {
-        const text = accessibilityController.accessibleElementById("text-div");
-
-        // The expectations for the main-thread implementation are the first string in each array, while the second
-        // string are the off-main-thread implementation expectations. The main-thread implementation expectations are
-        // egregiously wrong based on what I see when passing --show-window to the test runner.
-        output += await verifyVisibleRange(text, {width: 200, height: 500, scrollTop: 0}, ["{0, 181}"]);
-        output += await verifyVisibleRange(text, {width: 200, height: 500, scrollTop: 100}, ["{41, 793}", "{38, 172}"]);
-        output += await verifyVisibleRange(text, {width: 200, height: 500, scrollTop: 400}, ["{135, 699}", "{137, 204}"]);
-        output += await verifyVisibleRange(text, {width: 200, height: 500, scrollTop: 550}, ["{186, 648}", "{188, 227}"]);
-        output += await verifyVisibleRange(text, {width: 200, height: 500, scrollTop: 880}, ["{322, 513}", "{323, 220}"]);
-        output += await verifyVisibleRange(text, {width: 200, height: 500, scrollTop: 1020}, ["{402, 432}", "{386, 217}"]);
-        output += await verifyVisibleRange(text, {width: 200, height: 500, scrollTop: 1240}, ["{482, 352}", "{484, 203}"]);
+        output += await verifyVisibleRange(text, {width: 100, height: 500, scrollTop: 198}, ["{75, 186}", "{68, 203}"]);
+        output += await verifyVisibleRange(text, {width: 150, height: 500, scrollTop: 198}, ["{109, 577}", "{92, 323}"]);
+        output += await verifyVisibleRange(text, {width: 200, height: 500, scrollTop: 198}, ["{186, 500}", "{162, 381}"]);
+        output += await verifyVisibleRange(text, {width: 270, height: 500, scrollTop: 198}, ["{135, 551}", "{137, 550}"]);
+        output += await verifyVisibleRange(text, {width: 320, height: 500, scrollTop: 198}, ["{135, 551}", "{115, 572}"]);
 
         document.getElementById("text-div").style.display = "none";
         debug(output);
