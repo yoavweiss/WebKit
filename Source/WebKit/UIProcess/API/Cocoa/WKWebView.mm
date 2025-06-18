@@ -904,11 +904,13 @@ static void addBrowsingContextControllerMethodStubsIfNeeded()
 {
     if (WebCoreObjCScheduleDeallocateOnMainRunLoop(WKWebView.class, self))
         return;
+
 #if ENABLE(SCREEN_TIME)
     [self _uninstallScreenTimeWebpageController];
 #endif
 
 #if PLATFORM(MAC)
+    [self _resetSecureInputState];
     [_textFinderClient willDestroyView:self];
 #endif
 

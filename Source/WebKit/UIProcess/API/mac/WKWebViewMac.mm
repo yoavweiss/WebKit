@@ -1385,6 +1385,12 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     _impl->insertText(string, replacementRange);
 }
 
+- (void)_resetSecureInputState
+{
+    if (_impl)
+        _impl->resetSecureInputState();
+}
+
 - (void)_setContentOffsetX:(NSNumber *)x y:(NSNumber *)y animated:(BOOL)animated
 {
     std::optional<int> optionalX = std::nullopt;
