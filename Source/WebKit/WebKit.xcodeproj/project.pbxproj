@@ -1974,7 +1974,6 @@
 		A1D4D23A2B7E82D90008C40E /* XPCEndpointMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = A1D4D2382B7E82D90008C40E /* XPCEndpointMessages.h */; };
 		A1D615672B06BBAC002D0E19 /* ExtensionCapability.h in Headers */ = {isa = PBXBuildFile; fileRef = A1D615622B06BBAB002D0E19 /* ExtensionCapability.h */; };
 		A1D6156B2B06BBAC002D0E19 /* AssertionCapability.h in Headers */ = {isa = PBXBuildFile; fileRef = A1D615662B06BBAB002D0E19 /* AssertionCapability.h */; };
-		A1D6156D2B06BCB2002D0E19 /* ExtensionKitSoftLink.h in Headers */ = {isa = PBXBuildFile; fileRef = A1D6156C2B06BCB2002D0E19 /* ExtensionKitSoftLink.h */; };
 		A1D615722B06C7C2002D0E19 /* AssertionCapability.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1D615632B06BBAB002D0E19 /* AssertionCapability.mm */; };
 		A1DF631318E0B7C8003A3E2A /* LegacyDownloadClient.h in Headers */ = {isa = PBXBuildFile; fileRef = A1DF631118E0B7C8003A3E2A /* LegacyDownloadClient.h */; };
 		A1EA02381DABFF7E0096021F /* WKContextMenuListener.h in Headers */ = {isa = PBXBuildFile; fileRef = A1EA02361DABFF7E0096021F /* WKContextMenuListener.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -7376,8 +7375,6 @@
 		A1D615622B06BBAB002D0E19 /* ExtensionCapability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtensionCapability.h; sourceTree = "<group>"; };
 		A1D615632B06BBAB002D0E19 /* AssertionCapability.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AssertionCapability.mm; sourceTree = "<group>"; };
 		A1D615662B06BBAB002D0E19 /* AssertionCapability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssertionCapability.h; sourceTree = "<group>"; };
-		A1D6156C2B06BCB2002D0E19 /* ExtensionKitSoftLink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtensionKitSoftLink.h; sourceTree = "<group>"; };
-		A1D6156E2B06BDFE002D0E19 /* ExtensionKitSoftLink.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ExtensionKitSoftLink.mm; sourceTree = "<group>"; };
 		A1DF631018E0B7C8003A3E2A /* LegacyDownloadClient.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LegacyDownloadClient.mm; sourceTree = "<group>"; };
 		A1DF631118E0B7C8003A3E2A /* LegacyDownloadClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LegacyDownloadClient.h; sourceTree = "<group>"; };
 		A1EA02351DABFF7E0096021F /* WKContextMenuListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WKContextMenuListener.cpp; sourceTree = "<group>"; };
@@ -12586,8 +12583,6 @@
 				86AA5252293674E30065399E /* DataDetectionResult.serialization.in */,
 				49DAA38D24CBA1BD00793D75 /* DefaultWebBrowserChecks.h */,
 				49DAA38B24CBA1A800793D75 /* DefaultWebBrowserChecks.mm */,
-				A1D6156C2B06BCB2002D0E19 /* ExtensionKitSoftLink.h */,
-				A1D6156E2B06BDFE002D0E19 /* ExtensionKitSoftLink.mm */,
 				CE550E12228373C800D28791 /* InsertTextOptions.h */,
 				86E0787C2ACE0AE400B8FADC /* InsertTextOptions.serialization.in */,
 				C1663E5A24AEA74200C6A3B2 /* LaunchServicesDatabaseXPCConstants.h */,
@@ -17252,7 +17247,6 @@
 				A141DF522B07054900E80B2D /* ExtensionCapabilityGrant.h in Headers */,
 				A1AE0EC32B166439008A2563 /* ExtensionCapabilityGranter.h in Headers */,
 				E31586CD2AD610F30062ED2A /* ExtensionEventHandler.h in Headers */,
-				A1D6156D2B06BCB2002D0E19 /* ExtensionKitSoftLink.h in Headers */,
 				E3E84BEE2AE1AA5A0091B3C2 /* ExtensionKitSPI.h in Headers */,
 				E34DAD3A2B753FA700FABEE2 /* ExtensionProcess.h in Headers */,
 				572EBBD72537EBAE000552B3 /* ExtraPrivateSymbolsForTAPI.h in Headers */,
