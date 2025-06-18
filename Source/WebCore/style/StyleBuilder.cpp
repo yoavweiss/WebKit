@@ -97,7 +97,7 @@ static auto positionTryFallbackProperties(const BuilderContext& context)
 
 Builder::Builder(RenderStyle& style, BuilderContext&& context, const MatchResult& matchResult, CascadeLevel cascadeLevel, PropertyCascade::IncludedProperties&& includedProperties, const UncheckedKeyHashSet<AnimatableCSSProperty>* animatedPropertes)
     : m_cascade(matchResult, cascadeLevel, WTFMove(includedProperties), animatedPropertes, positionTryFallbackProperties(context))
-    , m_state(*this, style, WTFMove(context))
+    , m_state(style, WTFMove(context))
 {
 }
 
@@ -536,10 +536,10 @@ Ref<CSSValue> Builder::resolveVariableReferences(CSSPropertyID propertyID, CSSVa
 
     auto variableValue = [&]() -> RefPtr<CSSValue> {
         if (auto* substitution = dynamicDowncast<CSSPendingSubstitutionValue>(value))
-            return substitution->resolveValue(m_state, propertyID);
+            return substitution->resolveValue(*this, propertyID);
 
         auto& variableReferenceValue = downcast<CSSVariableReferenceValue>(value);
-        return variableReferenceValue.resolveSingleValue(m_state, propertyID);
+        return variableReferenceValue.resolveSingleValue(*this, propertyID);
     }();
 
     // https://drafts.csswg.org/css-variables-2/#invalid-variables
@@ -630,7 +630,7 @@ std::optional<Variant<Ref<const Style::CustomProperty>, CSSWideKeyword>> Builder
 
     auto resolvedData = switchOn(value.value(),
         [&](const Ref<CSSVariableReferenceValue>& variableReferenceValue) -> RefPtr<CSSVariableData> {
-            return variableReferenceValue->resolveVariableReferences(m_state);
+            return variableReferenceValue->resolveVariableReferences(*this);
         },
         [&](const Ref<CSSVariableData>& data) -> RefPtr<CSSVariableData> {
             return data.ptr();

@@ -66,7 +66,6 @@ struct FilterProperty;
 
 namespace Style {
 
-class Builder;
 class BuilderState;
 struct Color;
 
@@ -90,9 +89,7 @@ struct BuilderContext {
 
 class BuilderState {
 public:
-    BuilderState(Builder&, RenderStyle&, BuilderContext&&);
-
-    Builder& builder() { return m_builder; }
+    BuilderState(RenderStyle&, BuilderContext&&);
 
     RenderStyle& style() { return m_style; }
     const RenderStyle& style() const { return m_style; }
@@ -220,8 +217,6 @@ private:
     void updateFontForZoomChange();
     void updateFontForGenericFamilyChange();
     void updateFontForOrientationChange();
-
-    Builder& m_builder;
 
     CSSToStyleMap m_styleMap;
 
