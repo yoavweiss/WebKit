@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,45 +24,40 @@
  */
 
 #include "config.h"
-#include "RemotePageDrawingAreaProxy.h"
+#include "RemotePagePlaybackSessionManagerProxy.h"
 
-#include "DrawingAreaProxy.h"
-#include "WebPageProxy.h"
+#if PLATFORM(IOS_FAMILY) || (PLATFORM(MAC) && ENABLE(VIDEO_PRESENTATION_MODE))
+
+#include "PlaybackSessionManagerProxy.h"
+#include "PlaybackSessionManagerProxyMessages.h"
 #include "WebProcessProxy.h"
-#include <wtf/TZoneMallocInlines.h>
 
 namespace WebKit {
 
-WTF_MAKE_TZONE_ALLOCATED_IMPL(RemotePageDrawingAreaProxy);
-
-Ref<RemotePageDrawingAreaProxy> RemotePageDrawingAreaProxy::create(DrawingAreaProxy& drawingArea, WebProcessProxy& process)
+Ref<RemotePagePlaybackSessionManagerProxy> RemotePagePlaybackSessionManagerProxy::create(WebCore::PageIdentifier identifier, PlaybackSessionManagerProxy* manager, WebProcessProxy& process)
 {
-    return adoptRef(*new RemotePageDrawingAreaProxy(drawingArea, process));
+    return adoptRef(*new RemotePagePlaybackSessionManagerProxy(identifier, manager, process));
 }
 
-RemotePageDrawingAreaProxy::RemotePageDrawingAreaProxy(DrawingAreaProxy& drawingArea, WebProcessProxy& process)
-    : m_drawingArea(drawingArea)
-    , m_identifier(drawingArea.identifier())
-    , m_names(drawingArea.messageReceiverNames())
+RemotePagePlaybackSessionManagerProxy::RemotePagePlaybackSessionManagerProxy(WebCore::PageIdentifier identifier, PlaybackSessionManagerProxy* manager, WebProcessProxy& process)
+    : m_identifier(identifier)
+    , m_manager(manager)
     , m_process(process)
 {
-    for (auto& name : m_names)
-        process.addMessageReceiver(name, m_identifier, *this);
-    drawingArea.addRemotePageDrawingAreaProxy(*this);
+    process.addMessageReceiver(Messages::PlaybackSessionManagerProxy::messageReceiverName(), m_identifier, *this);
 }
 
-RemotePageDrawingAreaProxy::~RemotePageDrawingAreaProxy()
+RemotePagePlaybackSessionManagerProxy::~RemotePagePlaybackSessionManagerProxy()
 {
-    for (auto& name : m_names)
-        m_process->removeMessageReceiver(name, m_identifier);
-    if (RefPtr drawingArea = m_drawingArea.get())
-        drawingArea->removeRemotePageDrawingAreaProxy(*this);
+    m_process->removeMessageReceiver(Messages::PlaybackSessionManagerProxy::messageReceiverName(), m_identifier);
 }
 
-void RemotePageDrawingAreaProxy::didReceiveMessage(IPC::Connection& connection, IPC::Decoder& decoder)
+void RemotePagePlaybackSessionManagerProxy::didReceiveMessage(IPC::Connection& connection, IPC::Decoder& decoder)
 {
-    if (RefPtr drawingArea = m_drawingArea.get())
-        drawingArea->didReceiveMessage(connection, decoder);
+    if (RefPtr manager = m_manager.get())
+        manager->didReceiveMessage(connection, decoder);
 }
 
 }
+
+#endif

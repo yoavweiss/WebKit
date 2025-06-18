@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,38 +25,35 @@
 
 #pragma once
 
-#include "DrawingAreaInfo.h"
+#if PLATFORM(IOS_FAMILY) || (PLATFORM(MAC) && ENABLE(VIDEO_PRESENTATION_MODE))
+
 #include "MessageReceiver.h"
-#include "MessageReceiverMap.h"
-#include <wtf/TZoneMalloc.h>
+#include <WebCore/PageIdentifier.h>
 
 namespace WebKit {
 
-class DrawingAreaProxy;
+class PlaybackSessionManagerProxy;
 class WebProcessProxy;
 
-class RemotePageDrawingAreaProxy : public IPC::MessageReceiver, public RefCounted<RemotePageDrawingAreaProxy> {
-    WTF_MAKE_TZONE_ALLOCATED(RemotePageDrawingAreaProxy);
+class RemotePagePlaybackSessionManagerProxy : public IPC::MessageReceiver, public RefCounted<RemotePagePlaybackSessionManagerProxy> {
 public:
-    static Ref<RemotePageDrawingAreaProxy> create(DrawingAreaProxy&, WebProcessProxy&);
+    static Ref<RemotePagePlaybackSessionManagerProxy> create(WebCore::PageIdentifier, PlaybackSessionManagerProxy*, WebProcessProxy&);
 
-    ~RemotePageDrawingAreaProxy();
+    ~RemotePagePlaybackSessionManagerProxy();
 
     void ref() const final { RefCounted::ref(); }
     void deref() const final { RefCounted::deref(); }
 
-    WebProcessProxy& process() { return m_process; }
-    DrawingAreaIdentifier identifier() const { return m_identifier; }
-
 private:
-    RemotePageDrawingAreaProxy(DrawingAreaProxy&, WebProcessProxy&);
+    RemotePagePlaybackSessionManagerProxy(WebCore::PageIdentifier, PlaybackSessionManagerProxy*, WebProcessProxy&);
 
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&) final;
 
-    WeakPtr<DrawingAreaProxy> m_drawingArea;
-    DrawingAreaIdentifier m_identifier;
-    std::span<IPC::ReceiverName> m_names;
+    const WebCore::PageIdentifier m_identifier;
+    const WeakPtr<PlaybackSessionManagerProxy> m_manager;
     const Ref<WebProcessProxy> m_process;
 };
 
 }
+
+#endif

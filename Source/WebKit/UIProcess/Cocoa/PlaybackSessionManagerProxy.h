@@ -49,6 +49,7 @@ namespace WebKit {
 
 class WebPageProxy;
 class PlaybackSessionManagerProxy;
+class RemotePagePlaybackSessionManagerProxy;
 class VideoReceiverEndpointMessage;
 class VideoReceiverSwapEndpointMessage;
 struct SharedPreferencesForWebProcess;
@@ -268,6 +269,7 @@ public:
 
 private:
     friend class PlaybackSessionModelContext;
+    friend class RemotePagePlaybackSessionManagerProxy;
     friend class VideoPresentationManagerProxy;
 
     explicit PlaybackSessionManagerProxy(WebPageProxy&);
