@@ -56,8 +56,7 @@ bool CustomProperty::operator==(const CustomProperty& other) const
             return true;
         },
         [&](const Ref<CSSVariableData>& value) {
-            auto& otherValue = std::get<Ref<CSSVariableData>>(other.m_value);
-            return value.ptr() == otherValue.ptr() || value.get() == otherValue.get();
+            return arePointingToEqualData(value, std::get<Ref<CSSVariableData>>(other.m_value));
         },
         [&](const Value& value) {
             return value == std::get<Value>(other.m_value);

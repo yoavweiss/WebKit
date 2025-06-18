@@ -63,7 +63,7 @@ Ref<CSSVariableReferenceValue> CSSVariableReferenceValue::create(Ref<CSSVariable
 
 bool CSSVariableReferenceValue::equals(const CSSVariableReferenceValue& other) const
 {
-    return m_data.get() == other.m_data.get();
+    return arePointingToEqualData(m_data, other.m_data);
 }
 
 String CSSVariableReferenceValue::customCSSText(const CSS::SerializationContext&) const

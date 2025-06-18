@@ -58,7 +58,7 @@ public:
 
     struct Transform {
         Ref<TransformOperation> operation;
-        bool operator==(const Transform& other) const { return operation.get() == other.operation.get(); }
+        bool operator==(const Transform& other) const { return arePointingToEqualData(operation, other.operation); }
     };
 
     using Value = Variant<

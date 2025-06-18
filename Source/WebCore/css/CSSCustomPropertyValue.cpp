@@ -82,12 +82,10 @@ bool CSSCustomPropertyValue::equals(const CSSCustomPropertyValue& other) const
 
     return WTF::switchOn(m_value,
         [&](const Ref<CSSVariableReferenceValue>& value) {
-            auto& otherValue = std::get<Ref<CSSVariableReferenceValue>>(other.m_value);
-            return value.ptr() == otherValue.ptr() || value.get() == otherValue.get();
+            return arePointingToEqualData(value, std::get<Ref<CSSVariableReferenceValue>>(other.m_value));
         },
         [&](const Ref<CSSVariableData>& value) {
-            auto& otherValue = std::get<Ref<CSSVariableData>>(other.m_value);
-            return value.ptr() == otherValue.ptr() || value.get() == otherValue.get();
+            return arePointingToEqualData(value, std::get<Ref<CSSVariableData>>(other.m_value));
         },
         [&](const CSSWideKeyword& keyword) {
             return keyword == std::get<CSSWideKeyword>(other.m_value);

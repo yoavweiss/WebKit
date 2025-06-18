@@ -198,7 +198,7 @@ template<typename Op> struct IndirectNode {
     operator const Op&() const { return *op; }
     operator Op&() { return *op; }
 
-    bool operator==(const IndirectNode<Op>& other) const { return type == other.type && op.get() == other.op.get(); }
+    bool operator==(const IndirectNode<Op>& other) const { return type == other.type && arePointingToEqualData(op, other.op); }
 };
 
 using Node = Variant<

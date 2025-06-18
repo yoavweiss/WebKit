@@ -175,7 +175,7 @@ template<CSSValueID C, typename T> struct FunctionNotation {
 
 template<CSSValueID C, typename T> bool operator==(const UniqueRef<FunctionNotation<C, T>>& a, const UniqueRef<FunctionNotation<C, T>>& b)
 {
-    return a.get() == b.get();
+    return arePointingToEqualData(a, b);
 }
 
 template<size_t, CSSValueID C, typename T> const auto& get(const FunctionNotation<C, T>& function)
