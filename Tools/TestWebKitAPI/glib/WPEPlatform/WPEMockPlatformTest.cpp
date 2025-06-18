@@ -23,14 +23,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "WPEMockPlatformTest.h"
 
-#include <glib-object.h>
-#include <wpe/wpe-platform.h>
+#include "WPEDisplayMock.h"
 
-G_BEGIN_DECLS
+namespace TestWebKitAPI {
 
-#define WPE_TYPE_DISPLAY_MOCK (wpe_display_mock_get_type())
-G_DECLARE_FINAL_TYPE(WPEDisplayMock, wpe_display_mock, WPE, DISPLAY_MOCK, WPEDisplay)
+WPEMockPlatformTest::WPEMockPlatformTest()
+    : m_display(adoptGRef(wpeDisplayMockNew()))
+{
+    assertObjectIsDeletedWhenTestFinishes(m_display.get());
+}
 
-G_END_DECLS
+WPEMockPlatformTest::~WPEMockPlatformTest() = default;
+
+} // namespace TestWebKitAPI

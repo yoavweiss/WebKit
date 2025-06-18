@@ -25,24 +25,21 @@
 
 #include "config.h"
 
-#include "WPEMockPlatformTest.h"
+#include "WPEPlatformTest.h"
 
 namespace TestWebKitAPI {
 
-static void testDisplayConnect(WPEMockPlatformTest* test, gconstpointer)
+static void testDisplayDefault(WPEPlatformTest*, gconstpointer)
 {
-    GUniqueOutPtr<GError> error;
-    g_assert_true(wpe_display_connect(test->display(), &error.outPtr()));
-    g_assert_no_error(error.get());
-
-    // Can't connect twice.
-    g_assert_false(wpe_display_connect(test->display(), &error.outPtr()));
-    g_assert_error(error.get(), WPE_DISPLAY_ERROR, WPE_DISPLAY_ERROR_CONNECTION_FAILED);
+    WPEDisplay* display = wpe_display_get_default();
+    g_assert_nonnull(display);
+    g_assert_cmpstr(G_OBJECT_TYPE_NAME(display), ==, "WPEDisplayMock");
+    g_assert_true(display == wpe_display_get_primary());
 }
 
 void beforeAll()
 {
-    WPEMockPlatformTest::add("Display", "connect", testDisplayConnect);
+    WPEPlatformTest::add("Display", "default", testDisplayDefault);
 }
 
 void afterAll()

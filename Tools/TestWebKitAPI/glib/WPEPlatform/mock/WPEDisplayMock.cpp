@@ -29,9 +29,12 @@
 #include "WPEViewMock.h"
 #include <gio/gio.h>
 #include <gmodule.h>
+#include <mutex>
 
 struct _WPEDisplayMock {
     WPEDisplay parent;
+
+    gboolean isConnected;
 };
 
 G_DEFINE_DYNAMIC_TYPE(WPEDisplayMock, wpe_display_mock, WPE_TYPE_DISPLAY)
@@ -53,6 +56,12 @@ static void wpeDisplayMockDispose(GObject* object)
 
 static gboolean wpeDisplayMockConnect(WPEDisplay* display, GError** error)
 {
+    auto* mock = WPE_DISPLAY_MOCK(display);
+    if (mock->isConnected) {
+        g_set_error_literal(error, WPE_DISPLAY_ERROR, WPE_DISPLAY_ERROR_CONNECTION_FAILED, "Mock display is already connected");
+        return FALSE;
+    }
+    mock->isConnected = TRUE;
     return TRUE;
 }
 
@@ -135,13 +144,19 @@ static void wpe_display_mock_init(WPEDisplayMock* self)
 {
 }
 
-G_MODULE_EXPORT void g_io_module_load(GIOModule* module)
+WPEDisplay* wpeDisplayMockNew()
 {
-    wpe_display_mock_register_type(G_TYPE_MODULE(module));
-
-    g_io_extension_point_implement(WPE_DISPLAY_EXTENSION_POINT_NAME, WPE_TYPE_DISPLAY_MOCK, "wpe-display-mock", 1);
+    static std::once_flag onceFlag;
+    std::call_once(onceFlag, [] {
+        wpeDisplayMockRegister(nullptr);
+    });
+    return WPE_DISPLAY(g_object_new(WPE_TYPE_DISPLAY_MOCK, nullptr));
 }
 
-G_MODULE_EXPORT void g_io_module_unload(GIOModule*)
+void wpeDisplayMockRegister(GIOModule* ioModule)
 {
+    wpe_display_mock_register_type(G_TYPE_MODULE(ioModule));
+    if (!ioModule)
+        g_io_extension_point_register(WPE_DISPLAY_EXTENSION_POINT_NAME);
+    g_io_extension_point_implement(WPE_DISPLAY_EXTENSION_POINT_NAME, WPE_TYPE_DISPLAY_MOCK, "wpe-display-mock", G_MAXINT32);
 }
