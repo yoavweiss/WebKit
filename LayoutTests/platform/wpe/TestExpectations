@@ -16,11 +16,6 @@
 #       it picks as the valid rule the last one matching.
 #////////////////////////////////////////////////////////////////////////////////////////
 
-# Platform-specific directories.
-scrollingcoordinator/ [ Pass ]
-scrollingcoordinator/mac/ [ Skip ]
-scrollingcoordinator/ios/ [ Skip ]
-
 # Incorrect upstream, but seem to pass on the bots, possibly with a broken baseline.
 # https://github.com/w3c/web-platform-tests/issues/8407
 css2.1/20110323/replaced-intrinsic-002.htm [ Pass ]
@@ -246,14 +241,6 @@ webkit.org/b/226521 [ Debug ] imported/w3c/web-platform-tests/html/semantics/emb
 
 # We don't yet support EXIF-based resolution
 webkit.org/b/217821 imported/w3c/web-platform-tests/density-size-correction/ [ Skip ]
-
-# Scrolling coordinator
-webkit.org/b/215508 [ Release ] scrollingcoordinator/overflow-proxy-reattach.html [ Pass Timeout ]
-webkit.org/b/258543 scrollingcoordinator/scrolling-tree/composited-in-offscreen-fixed.html [ Failure ]
-webkit.org/b/258543 scrollingcoordinator/scrolling-tree/fixed-inside-relative-inside-stacking-overflow-inside-transformed.html [ Failure ]
-webkit.org/b/258543 scrollingcoordinator/scrolling-tree/fixed-position-within-transformed.html [ Failure ]
-webkit.org/b/258543 scrollingcoordinator/scrolling-tree/absolute-in-nested-overflow-scroll.html [ Failure ]
-webkit.org/b/258543 scrollingcoordinator/scrolling-tree/absolute-in-nested-sc-scrollers.html [ Failure ]
 
 # Pending to create bug.
 [ Release ] fast/events/prevent-default-prevents-interaction-with-scrollbars.html [ Failure Pass ]
