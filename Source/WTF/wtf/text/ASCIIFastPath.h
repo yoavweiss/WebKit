@@ -25,6 +25,7 @@
 #include <unicode/utypes.h>
 #include <wtf/BitSet.h>
 #include <wtf/StdLibExtras.h>
+#include <wtf/text/ASCIILiteral.h>
 #include <wtf/text/LChar.h>
 
 #if CPU(X86_SSE2)
@@ -33,17 +34,13 @@
 
 namespace WTF {
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-template<unsigned charactersCount>
-inline constexpr BitSet<256> makeLatin1CharacterBitSet(const char (&characters)[charactersCount])
+inline constexpr BitSet<256> makeLatin1CharacterBitSet(ASCIILiteral characters)
 {
-    static_assert(charactersCount > 0, "Since string literal is null terminated, characterCount is always larger than 0");
     BitSet<256> bitmap;
-    for (unsigned i = 0; i < charactersCount - 1; ++i)
-        bitmap.set(characters[i]);
+    for (char character : characters.span())
+        bitmap.set(character);
     return bitmap;
 }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 inline constexpr BitSet<256> makeLatin1CharacterBitSet(NOESCAPE const Invocable<bool(LChar)> auto& matches)
 {
