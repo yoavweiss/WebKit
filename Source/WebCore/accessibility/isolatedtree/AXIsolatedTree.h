@@ -498,8 +498,8 @@ public:
 
     // Relationships between objects.
     std::optional<ListHashSet<AXID>> relatedObjectIDsFor(const AXIsolatedObject&, AXRelation);
-    void relationsNeedUpdate(bool needUpdate) { m_relationsNeedUpdate = needUpdate; }
-    void updateRelations(const HashMap<AXID, AXRelations>&);
+    void markRelationsDirty() { m_relationsNeedUpdate = true; }
+    void updateRelations(HashMap<AXID, AXRelations>&&);
 
     AXCoreObject::AccessibilityChildrenVector sortedLiveRegions();
     AXCoreObject::AccessibilityChildrenVector sortedNonRootWebAreas();
@@ -517,7 +517,7 @@ public:
     // Use only if the s_storeLock is already held like in findAXTree.
     WEBCORE_EXPORT OptionSet<ActivityState> lockedPageActivityState() const;
 
-    AXTextMarkerRange selectedTextMarkerRange();
+    AXTextMarkerRange selectedTextMarkerRange() { return m_selectedTextMarkerRange; }
     void setSelectedTextMarkerRange(AXTextMarkerRange&&);
 
     void sortedLiveRegionsDidChange(Vector<AXID>);
@@ -641,6 +641,8 @@ private:
     std::optional<Vector<AXID>> m_pendingSortedLiveRegionIDs WTF_GUARDED_BY_LOCK(m_changeLogLock);
     std::optional<Vector<AXID>> m_pendingSortedNonRootWebAreaIDs WTF_GUARDED_BY_LOCK(m_changeLogLock);
     std::optional<HashMap<AXID, LineRange>> m_pendingMostRecentlyPaintedText WTF_GUARDED_BY_LOCK(m_changeLogLock);
+    std::optional<HashMap<AXID, AXRelations>> m_pendingRelations WTF_GUARDED_BY_LOCK(m_changeLogLock);
+    std::optional<AXTextMarkerRange> m_pendingSelectedTextMarkerRange WTF_GUARDED_BY_LOCK(m_changeLogLock);
     Markable<AXID> m_focusedNodeID;
     std::atomic<double> m_loadingProgress { 0 };
     std::atomic<double> m_processingProgress { 1 };
@@ -649,9 +651,7 @@ private:
     Vector<AXID> m_sortedLiveRegionIDs;
     Vector<AXID> m_sortedNonRootWebAreaIDs;
     HashMap<AXID, LineRange> m_mostRecentlyPaintedText;
-
-    // Relationships between objects.
-    HashMap<AXID, AXRelations> m_relations WTF_GUARDED_BY_LOCK(m_changeLogLock);
+    HashMap<AXID, AXRelations> m_relations;
 
     // Set to true by the AXObjectCache and false by AXIsolatedTree.
     // Both are only to be used on the main-thread.
@@ -659,7 +659,7 @@ private:
     bool m_mostRecentlyPaintedTextIsDirty { true };
 
     Lock m_changeLogLock;
-    AXTextMarkerRange m_selectedTextMarkerRange WTF_GUARDED_BY_LOCK(m_changeLogLock);
+    AXTextMarkerRange m_selectedTextMarkerRange;
 
     // Queued node updates used for building a new tree snapshot.
     ListHashSet<AXID> m_needsUpdateChildren;

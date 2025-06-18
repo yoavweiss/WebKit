@@ -168,14 +168,13 @@ RefPtr<AXIsolatedTree> AXIsolatedTree::create(AXObjectCache& axObjectCache)
     tree->setInitialSortedNonRootWebAreas(axIDs(axObjectCache.sortedNonRootWebAreas()));
     tree->updateLoadingProgress(axObjectCache.loadingProgress());
 
-    const auto relations = axObjectCache.relations();
-    tree->updateRelations(relations);
-
+    auto relations = axObjectCache.relations();
     for (auto& relatedObjectID : relations.keys()) {
         RefPtr axObject = axObjectCache.objectForID(relatedObjectID);
         if (axObject && axObject->isIgnored())
             tree->addUnconnectedNode(axObject.releaseNonNull());
     }
+    tree->updateRelations(WTFMove(relations));
 
     // Now that the tree is ready to take client requests, add it to the tree maps so that it can be found.
     storeTree(axObjectCache, tree);
@@ -1172,21 +1171,14 @@ void AXIsolatedTree::setFocusedNodeID(std::optional<AXID> axID)
     m_pendingFocusedNodeID = axID;
 }
 
-void AXIsolatedTree::updateRelations(const HashMap<AXID, AXRelations>& relations)
+void AXIsolatedTree::updateRelations(HashMap<AXID, AXRelations>&& relations)
 {
     AXTRACE("AXIsolatedTree::updateRelations"_s);
     ASSERT(isMainThread());
 
-    Locker locker { m_changeLogLock };
-    m_relations = relations;
     m_relationsNeedUpdate = false;
-}
-
-AXTextMarkerRange AXIsolatedTree::selectedTextMarkerRange()
-{
-    AXTRACE("AXIsolatedTree::selectedTextMarkerRange"_s);
     Locker locker { m_changeLogLock };
-    return m_selectedTextMarkerRange;
+    m_pendingRelations = WTFMove(relations);
 }
 
 void AXIsolatedTree::setSelectedTextMarkerRange(AXTextMarkerRange&& range)
@@ -1195,7 +1187,7 @@ void AXIsolatedTree::setSelectedTextMarkerRange(AXTextMarkerRange&& range)
     ASSERT(isMainThread());
 
     Locker locker { m_changeLogLock };
-    m_selectedTextMarkerRange = range;
+    m_pendingSelectedTextMarkerRange = WTFMove(range);
 }
 
 void AXIsolatedTree::updateLoadingProgress(double newProgressValue)
@@ -1286,8 +1278,6 @@ void AXIsolatedTree::removeSubtreeFromNodeMap(std::optional<AXID> objectID, std:
 std::optional<ListHashSet<AXID>> AXIsolatedTree::relatedObjectIDsFor(const AXIsolatedObject& object, AXRelation relation)
 {
     ASSERT(!isMainThread());
-    // FIXME: Taking the lock any time we want to access relations isn't ideal for performance.
-    Locker locker { m_changeLogLock };
 
     auto relationsIterator = m_relations.find(object.objectID());
     if (relationsIterator == m_relations.end())
@@ -1412,6 +1402,12 @@ void AXIsolatedTree::applyPendingChanges()
 
     if (m_pendingMostRecentlyPaintedText)
         m_mostRecentlyPaintedText = std::exchange(m_pendingMostRecentlyPaintedText, std::nullopt).value();
+
+    if (m_pendingRelations)
+        m_relations = std::exchange(m_pendingRelations, std::nullopt).value();
+
+    if (m_pendingSelectedTextMarkerRange)
+        m_selectedTextMarkerRange = std::exchange(m_pendingSelectedTextMarkerRange, std::nullopt).value();
 
     // Do this at the end because it requires looking up the root node by ID, so doing it at the end
     // ensures all additions to m_readerThreadNodeMap have been made by now.

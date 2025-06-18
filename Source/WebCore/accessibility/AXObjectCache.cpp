@@ -3290,8 +3290,8 @@ void AXObjectCache::dirtyIsolatedTreeRelations()
     AXTRACE("AXObjectCache::dirtyIsolatedTreeRelations"_s);
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    if (auto tree = AXIsolatedTree::treeForPageID(m_pageID))
-        tree->relationsNeedUpdate(true);
+    if (RefPtr tree = AXIsolatedTree::treeForPageID(m_pageID))
+        tree->markRelationsDirty();
     startUpdateTreeSnapshotTimer();
 #endif
 }
