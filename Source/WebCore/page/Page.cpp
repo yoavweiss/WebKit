@@ -5320,6 +5320,11 @@ void Page::updateFixedContainerEdges(BoxSideSet sides)
     m_fixedContainerEdgesAndElements = std::make_pair(makeUniqueRef<FixedContainerEdges>(WTFMove(edges)), WTFMove(elements));
 }
 
+Element* Page::lastFixedContainer(BoxSide side) const
+{
+    return m_fixedContainerEdgesAndElements.second.at(side).get();
+}
+
 void Page::setPortsForUpgradingInsecureSchemeForTesting(uint16_t upgradeFromInsecurePort, uint16_t upgradeToSecurePort)
 {
     m_portsForUpgradingInsecureSchemeForTesting = { upgradeFromInsecurePort, upgradeToSecurePort };

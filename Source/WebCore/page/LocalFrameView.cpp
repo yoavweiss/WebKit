@@ -2231,6 +2231,11 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             continue;
         }
 
+        if (page->lastFixedContainer(side) == result.container && page->fixedContainerEdges().hasFixedEdge(side)) {
+            edges.colors.setAt(side, page->fixedContainerEdges().colors.at(side));
+            continue;
+        }
+
         edges.colors.setAt(side, PageColorSampler::predominantColor(*page, computeSamplingRect(result.container->renderStyle(), side)));
     }
 

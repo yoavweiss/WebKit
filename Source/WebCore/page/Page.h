@@ -915,6 +915,7 @@ public:
 
     WEBCORE_EXPORT void updateFixedContainerEdges(OptionSet<BoxSideFlag>);
     const FixedContainerEdges& fixedContainerEdges() const { return m_fixedContainerEdgesAndElements.first; }
+    Element* lastFixedContainer(BoxSide) const;
 
 #if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
     WEBCORE_EXPORT std::optional<SpatialBackdropSource> spatialBackdropSource() const;
