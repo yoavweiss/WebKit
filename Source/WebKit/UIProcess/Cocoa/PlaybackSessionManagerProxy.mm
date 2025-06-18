@@ -1012,7 +1012,7 @@ void PlaybackSessionManagerProxy::sendRemoteCommand(PlaybackSessionContextIdenti
 void PlaybackSessionManagerProxy::setVideoReceiverEndpoint(PlaybackSessionContextIdentifier contextId, const WebCore::VideoReceiverEndpoint& endpoint, WebCore::VideoReceiverEndpointIdentifier endpointIdentifier)
 {
 #if ENABLE(LINEAR_MEDIA_PLAYER)
-    auto it = m_contextMap.find(contextId.object());
+    auto it = m_contextMap.find(contextId);
     if (it == m_contextMap.end()) {
         ALWAYS_LOG(LOGIDENTIFIER, "no context, ", contextId.loggingString());
         return;
@@ -1033,7 +1033,7 @@ void PlaybackSessionManagerProxy::setVideoReceiverEndpoint(PlaybackSessionContex
         return;
     }
 
-    RefPtr process = WebProcessProxy::processForIdentifier(contextId);
+    RefPtr process = WebProcessProxy::processForIdentifier(contextId.processIdentifier());
     if (!process) {
         ALWAYS_LOG(LOGIDENTIFIER, "no process");
         return;
@@ -1046,7 +1046,7 @@ void PlaybackSessionManagerProxy::setVideoReceiverEndpoint(PlaybackSessionContex
     if (!xpcConnection)
         return;
 
-    VideoReceiverEndpointMessage endpointMessage(WTFMove(processIdentifier), contextId, WTFMove(playerIdentifier), endpoint, endpointIdentifier);
+    VideoReceiverEndpointMessage endpointMessage(WTFMove(processIdentifier), contextId.object(), WTFMove(playerIdentifier), endpoint, endpointIdentifier);
     xpc_connection_send_message_with_reply(xpcConnection.get(), endpointMessage.encode().get(), dispatch_get_main_queue(), ^(xpc_object_t reply) {
         RefPtr videoPresentationManager = page->videoPresentationManager();
         if (!videoPresentationManager)
@@ -1059,7 +1059,7 @@ void PlaybackSessionManagerProxy::setVideoReceiverEndpoint(PlaybackSessionContex
         controlsManagerInterface->didSetVideoReceiverEndpoint();
     });
 #else
-    UNUSED_PARAM(contextId.object());
+    UNUSED_PARAM(contextId);
     UNUSED_PARAM(endpoint);
 #endif
 }
@@ -1073,7 +1073,7 @@ void PlaybackSessionManagerProxy::swapVideoReceiverEndpoints(PlaybackSessionCont
         return;
     }
 
-    RefPtr process = WebProcessProxy::processForIdentifier(contextId);
+    RefPtr process = WebProcessProxy::processForIdentifier(firstContextId.processIdentifier());
     if (!process) {
         ALWAYS_LOG(LOGIDENTIFIER, "no process");
         return;
@@ -1089,7 +1089,7 @@ void PlaybackSessionManagerProxy::swapVideoReceiverEndpoints(PlaybackSessionCont
     auto firstInterface = ensureInterface(firstContextId);
     auto secondInterface = ensureInterface(secondContextId);
 
-    VideoReceiverSwapEndpointsMessage endpointMessage(WTFMove(processIdentifier), firstContextId, firstInterface->playerIdentifier(), secondContextId, secondInterface->playerIdentifier());
+    VideoReceiverSwapEndpointsMessage endpointMessage(WTFMove(processIdentifier), firstContextId.object(), firstInterface->playerIdentifier(), secondContextId.object(), secondInterface->playerIdentifier());
     xpc_connection_send_message(xpcConnection.get(), endpointMessage.encode().get());
 #else
     UNUSED_PARAM(firstContextId);
