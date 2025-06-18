@@ -984,14 +984,35 @@ namespace LLInt {
 
 #if ENABLE(WEBASSEMBLY)
 #if ENABLE(JIT)
-#define DEFINE_IPINT_THUNK(funcName, target) \
+
+MacroAssemblerCodeRef<JITThunkPtrTag> inPlaceInterpreterEntryThunk()
+{
+    static LazyNeverDestroyed<MacroAssemblerCodeRef<JITThunkPtrTag>> codeRef;
+    static std::once_flag onceKey;
+    std::call_once(onceKey, [&] {
+        codeRef.construct(generateThunkWithJumpToPrologue<JITThunkPtrTag>(ipint_entry, "function for IPInt entry"));
+    });
+    return codeRef;
+}
+
+MacroAssemblerCodeRef<JITThunkPtrTag> inPlaceInterpreterSIMDEntryThunk()
+{
+    static LazyNeverDestroyed<MacroAssemblerCodeRef<JITThunkPtrTag>> codeRef;
+    static std::once_flag onceKey;
+    std::call_once(onceKey, [&] {
+        codeRef.construct(generateThunkWithJumpToPrologue<JITThunkPtrTag>(ipint_function_prologue_simd, "function for IPInt SIMD call"));
+    });
+    return codeRef;
+}
+
+#define DEFINE_IPINT_THUNK_FOR_CATCH(funcName, target) \
     MacroAssemblerCodeRef<JITThunkPtrTag> funcName() \
     { \
         static LazyNeverDestroyed<MacroAssemblerCodeRef<JITThunkPtrTag>> codeRef; \
         static std::once_flag onceKey; \
         std::call_once(onceKey, [&] { \
             if (Options::useJIT()) \
-                codeRef.construct(generateThunkWithJumpToPrologue<JITThunkPtrTag>(target, #target)); \
+                codeRef.construct(generateThunkWithJumpTo<JITThunkPtrTag>(target, #target)); \
             else \
                 codeRef.construct(getCodeRef<JITThunkPtrTag>(target)); \
         }); \
@@ -1000,7 +1021,7 @@ namespace LLInt {
 
 #else
 
-#define DEFINE_IPINT_THUNK(funcName, target) \
+#define DEFINE_IPINT_THUNK_FOR_CATCH(funcName, target) \
     MacroAssemblerCodeRef<JITThunkPtrTag> funcName() \
     { \
         static LazyNeverDestroyed<MacroAssemblerCodeRef<JITThunkPtrTag>> codeRef; \
@@ -1013,14 +1034,12 @@ namespace LLInt {
 
 #endif
 
-DEFINE_IPINT_THUNK(inPlaceInterpreterEntryThunk, ipint_entry)
-DEFINE_IPINT_THUNK(inPlaceInterpreterSIMDEntryThunk, ipint_function_prologue_simd)
-DEFINE_IPINT_THUNK(inPlaceInterpreterCatchEntryThunk, ipint_catch_entry)
-DEFINE_IPINT_THUNK(inPlaceInterpreterCatchAllEntryThunk, ipint_catch_all_entry)
-DEFINE_IPINT_THUNK(inPlaceInterpreterTableCatchEntryThunk, ipint_table_catch_entry)
-DEFINE_IPINT_THUNK(inPlaceInterpreterTableCatchRefEntryThunk, ipint_table_catch_ref_entry)
-DEFINE_IPINT_THUNK(inPlaceInterpreterTableCatchAllEntryThunk, ipint_table_catch_all_entry)
-DEFINE_IPINT_THUNK(inPlaceInterpreterTableCatchAllrefEntryThunk, ipint_table_catch_allref_entry)
+DEFINE_IPINT_THUNK_FOR_CATCH(inPlaceInterpreterCatchEntryThunk, ipint_catch_entry)
+DEFINE_IPINT_THUNK_FOR_CATCH(inPlaceInterpreterCatchAllEntryThunk, ipint_catch_all_entry)
+DEFINE_IPINT_THUNK_FOR_CATCH(inPlaceInterpreterTableCatchEntryThunk, ipint_table_catch_entry)
+DEFINE_IPINT_THUNK_FOR_CATCH(inPlaceInterpreterTableCatchRefEntryThunk, ipint_table_catch_ref_entry)
+DEFINE_IPINT_THUNK_FOR_CATCH(inPlaceInterpreterTableCatchAllEntryThunk, ipint_table_catch_all_entry)
+DEFINE_IPINT_THUNK_FOR_CATCH(inPlaceInterpreterTableCatchAllrefEntryThunk, ipint_table_catch_allref_entry)
 
 #endif
 

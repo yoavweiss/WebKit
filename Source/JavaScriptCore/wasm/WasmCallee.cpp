@@ -523,7 +523,7 @@ JSEntrypointCallee::JSEntrypointCallee(TypeIndex typeIndex, bool)
 CodePtr<WasmEntryPtrTag> JSEntrypointCallee::entrypointImpl() const
 {
 #if ENABLE(JIT)
-    if (Options::useWasmJIT())
+    if (Options::useJIT())
         return createJSToWasmJITShared().retaggedCode<WasmEntryPtrTag>();
 #endif
     return LLInt::getCodeFunctionPtr<CFunctionPtrTag>(js_to_wasm_wrapper_entry);
