@@ -179,12 +179,7 @@ static void setCGContextPath(CGContextRef context, const Path& path)
 
 static void drawPathWithCGContext(CGContextRef context, CGPathDrawingMode drawingMode, const Path& path)
 {
-#if HAVE(CG_CONTEXT_DRAW_PATH_DIRECT)
     CGContextDrawPathDirect(context, drawingMode, path.platformPath(), nullptr);
-#else
-    setCGContextPath(context, path);
-    CGContextDrawPath(context, drawingMode);
-#endif
 }
 
 static RenderingMode renderingModeForCGContext(CGContextRef cgContext, GraphicsContextCG::CGContextSource source)
@@ -822,13 +817,11 @@ void GraphicsContextCG::strokePath(const Path& path)
     if (strokePattern())
         applyStrokePattern();
 
-#if USE(CG_CONTEXT_STROKE_LINE_SEGMENTS_WHEN_STROKING_PATH)
     if (auto line = path.singleDataLine()) {
         CGPoint cgPoints[2] { line->start(), line->end() };
         CGContextStrokeLineSegments(context, cgPoints, 2);
         return;
     }
-#endif
 
     drawPathWithCGContext(context, kCGPathStroke, path);
 }

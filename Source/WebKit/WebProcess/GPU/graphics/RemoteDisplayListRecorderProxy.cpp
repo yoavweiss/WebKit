@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2021-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -635,7 +635,7 @@ bool RemoteDisplayListRecorderProxy::recordResourceUse(NativeImage& image)
     auto colorSpace = image.colorSpace();
 
     if (image.headroom() > Headroom::None) {
-#if ENABLE(PIXEL_FORMAT_RGBA16F) && HAVE(CORE_GRAPHICS_EXTENDED_SRGB_COLOR_SPACE)
+#if ENABLE(PIXEL_FORMAT_RGBA16F) && USE(CG)
         // The image will be drawn to a Float16 layer, so use extended range sRGB
         // to preserve the HDR contents.
         if (m_contentsFormat && *m_contentsFormat == ContentsFormat::RGBA16F)
