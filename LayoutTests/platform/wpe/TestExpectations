@@ -1581,3 +1581,5 @@ http/tests/iframe-memory-monitor/media-video-autoplay-in-frames.html [ Skip ]
 # The Digital Credentials API is not supported on WPE port.
 http/wpt/identity/ [ Skip ]
 imported/w3c/web-platform-tests/digital-credentials/ [ Skip ]
+
+http/tests/lockdown-mode [ Skip ]
