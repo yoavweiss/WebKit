@@ -911,7 +911,7 @@ void RenderObject::addAbsoluteRectForLayer(LayoutRect& result)
 // FIXME: change this to use the subtreePaint terminology
 LayoutRect RenderObject::paintingRootRect(LayoutRect& topLevelRect)
 {
-    LayoutRect result = absoluteBoundingBoxRectIgnoringTransforms();
+    LayoutRect result = absoluteBoundingBoxRect();
     topLevelRect = result;
     if (auto* renderElement = dynamicDowncast<RenderElement>(*this)) {
         for (CheckedRef child : childrenOfType<RenderObject>(*renderElement))
