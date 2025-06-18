@@ -800,7 +800,7 @@ void ViewGestureController::endMagnificationGesture()
     if (m_frameHandlesMagnificationGesture)
         page->scalePage(newMagnification, roundedIntPoint(m_magnificationOrigin), [] { });
     else {
-        if (auto drawingArea = page->drawingArea())
+        if (RefPtr drawingArea = page->drawingArea())
             drawingArea->commitTransientZoom(newMagnification, scaledMagnificationOrigin(m_magnificationOrigin, newMagnification));
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2024-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1315,7 +1315,7 @@ void PDFDiscretePresentationController::updateForCurrentScrollability(OptionSet<
         return;
 
     auto& visibleRow = m_rows[m_visibleRowIndex];
-    if (auto* tiledBacking = visibleRow.contentsLayer->tiledBacking())
+    if (CheckedPtr tiledBacking = visibleRow.contentsLayer->tiledBacking())
         tiledBacking->setScrollability(scrollability);
 }
 

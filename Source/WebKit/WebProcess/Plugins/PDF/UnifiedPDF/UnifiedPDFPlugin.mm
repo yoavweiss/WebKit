@@ -840,7 +840,7 @@ void UnifiedPDFPlugin::paintPDFContent(const WebCore::GraphicsLayer* layer, Grap
 
     auto tilingScaleFactor = 1.0f;
     if (layer) {
-        if (auto* tiledBacking = layer->tiledBacking())
+        if (CheckedPtr tiledBacking = layer->tiledBacking())
             tilingScaleFactor = tiledBacking->tilingScaleFactor();
     }
 
@@ -921,7 +921,7 @@ void UnifiedPDFPlugin::paintPDFSelection(const GraphicsLayer* layer, GraphicsCon
     if (RefPtr page = this->page())
         isVisibleAndActive = page->isVisibleAndActive();
 
-    auto selectionColor = [renderer = m_element->renderer(), isVisibleAndActive] {
+    auto selectionColor = [renderer = CheckedPtr { m_element->renderer() }, isVisibleAndActive] {
         auto& renderTheme = renderer ? renderer->theme() : RenderTheme::singleton();
         OptionSet<StyleColorOptions> styleColorOptions;
         if (renderer)
@@ -931,7 +931,7 @@ void UnifiedPDFPlugin::paintPDFSelection(const GraphicsLayer* layer, GraphicsCon
     }();
 
     auto tilingScaleFactor = 1.0f;
-    if (auto* tiledBacking = layer->tiledBacking())
+    if (CheckedPtr tiledBacking = layer->tiledBacking())
         tilingScaleFactor = tiledBacking->tilingScaleFactor();
 
     auto pageCoverage = m_presentationController->pageCoverageAndScalesForContentsRect(clipRect, row, tilingScaleFactor);

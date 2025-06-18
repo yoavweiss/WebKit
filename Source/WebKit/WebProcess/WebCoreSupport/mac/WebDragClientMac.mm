@@ -117,7 +117,7 @@ void WebDragClient::didConcludeEditDrag()
 
 static WebCore::CachedImage* cachedImage(Element& element)
 {
-    auto* renderImage = dynamicDowncast<WebCore::RenderImage>(element.renderer());
+    CheckedPtr renderImage = dynamicDowncast<WebCore::RenderImage>(element.renderer());
     if (!renderImage)
         return nullptr;
     auto* image = renderImage->cachedImage();

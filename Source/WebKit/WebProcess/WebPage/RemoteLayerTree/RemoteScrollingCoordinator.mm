@@ -79,7 +79,7 @@ void RemoteScrollingCoordinator::scheduleTreeStateCommit()
 
 bool RemoteScrollingCoordinator::coordinatesScrollingForFrameView(const LocalFrameView& frameView) const
 {
-    RenderView* renderView = frameView.renderView();
+    CheckedPtr renderView = frameView.renderView();
     return renderView && renderView->usesCompositing();
 }
 
@@ -207,7 +207,7 @@ void RemoteScrollingCoordinator::scrollingTreeNodeScrollbarVisibilityDidChange(S
     if (!frameView)
         return;
 
-    if (auto* scrollableArea = frameView->scrollableAreaForScrollingNodeID(nodeID))
+    if (CheckedPtr scrollableArea = frameView->scrollableAreaForScrollingNodeID(nodeID))
         scrollableArea->scrollbarsController().setScrollbarVisibilityState(orientation, isVisible);
 }
 
@@ -217,7 +217,7 @@ void RemoteScrollingCoordinator::scrollingTreeNodeScrollbarMinimumThumbLengthDid
     if (!frameView)
         return;
 
-    if (auto* scrollableArea = frameView->scrollableAreaForScrollingNodeID(nodeID))
+    if (CheckedPtr scrollableArea = frameView->scrollableAreaForScrollingNodeID(nodeID))
         scrollableArea->scrollbarsController().setScrollbarMinimumThumbLength(orientation, minimumThumbLength);
 }
 

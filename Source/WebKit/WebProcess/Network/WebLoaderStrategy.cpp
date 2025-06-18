@@ -476,7 +476,7 @@ void WebLoaderStrategy::scheduleLoadFromNetworkProcess(ResourceLoader& resourceL
     if (resourceLoader.options().cspResponseHeaders)
         loadParameters.cspResponseHeaders = resourceLoader.options().cspResponseHeaders;
     else if (document && !document->shouldBypassMainWorldContentSecurityPolicy() && resourceLoader.options().contentSecurityPolicyImposition == ContentSecurityPolicyImposition::DoPolicyCheck) {
-        if (auto* contentSecurityPolicy = document->contentSecurityPolicy())
+        if (CheckedPtr contentSecurityPolicy = document->contentSecurityPolicy())
             loadParameters.cspResponseHeaders = contentSecurityPolicy->responseHeaders();
     }
 
@@ -836,7 +836,7 @@ void WebLoaderStrategy::loadResourceSynchronously(FrameLoader& frameLoader, WebC
     loadParameters.sourceOrigin = document->securityOrigin();
     loadParameters.topOrigin = document->topOrigin();
     if (!document->shouldBypassMainWorldContentSecurityPolicy()) {
-        if (auto* contentSecurityPolicy = document->contentSecurityPolicy())
+        if (CheckedPtr contentSecurityPolicy = document->contentSecurityPolicy())
             loadParameters.cspResponseHeaders = contentSecurityPolicy->responseHeaders();
     }
     loadParameters.originalRequestHeaders = originalRequestHeaders;
@@ -914,7 +914,7 @@ void WebLoaderStrategy::startPingLoad(LocalFrame& frame, ResourceRequest& reques
     loadParameters.shouldClearReferrerOnHTTPSToHTTPRedirect = shouldClearReferrerOnHTTPSToHTTPRedirect(&frame);
     loadParameters.shouldRestrictHTTPResponseAccess = shouldPerformSecurityChecks();
     if (policyCheck == ContentSecurityPolicyImposition::DoPolicyCheck && !document->shouldBypassMainWorldContentSecurityPolicy()) {
-        if (auto* contentSecurityPolicy = document->contentSecurityPolicy())
+        if (CheckedPtr contentSecurityPolicy = document->contentSecurityPolicy())
             loadParameters.cspResponseHeaders = contentSecurityPolicy->responseHeaders();
     }
     addParametersShared(&frame, loadParameters);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2015-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -287,7 +287,7 @@ void NetworkSession::setTrackingPreventionEnabled(bool enabled)
 
     RELEASE_LOG(Storage, "%p - NetworkSession::setTrackingPreventionEnabled: sessionID=%" PRIu64 ", enabled=%d", this, m_sessionID.toUInt64(), enabled);
 
-    if (auto* storageSession = networkStorageSession())
+    if (CheckedPtr storageSession = networkStorageSession())
         storageSession->setTrackingPreventionEnabled(enabled);
     if (!enabled) {
         destroyResourceLoadStatistics([] { });
@@ -322,7 +322,7 @@ bool NetworkSession::isTrackingPreventionEnabled() const
 
 void NetworkSession::deleteAndRestrictWebsiteDataForRegistrableDomains(OptionSet<WebsiteDataType> dataTypes, RegistrableDomainsToDeleteOrRestrictWebsiteDataFor&& domains, CompletionHandler<void(HashSet<RegistrableDomain>&&)>&& completionHandler)
 {
-    if (auto* storageSession = networkStorageSession()) {
+    if (CheckedPtr storageSession = networkStorageSession()) {
         for (auto& domain : domains.domainsToEnforceSameSiteStrictFor)
             storageSession->setAllCookiesToSameSiteStrict(domain, [] { });
     }
@@ -605,7 +605,7 @@ RefPtr<NetworkResourceLoader> NetworkSession::CachedNetworkResourceLoader::takeL
 void NetworkSession::CachedNetworkResourceLoader::expirationTimerFired()
 {
     RefPtr loader = m_loader;
-    auto session = loader->protectedConnectionToWebProcess()->networkSession();
+    CheckedPtr session = loader->protectedConnectionToWebProcess()->networkSession();
     ASSERT(session);
     if (!session)
         return;

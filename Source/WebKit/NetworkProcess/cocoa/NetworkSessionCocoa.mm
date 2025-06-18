@@ -623,7 +623,7 @@ static void updateIgnoreStrictTransportSecuritySetting(RetainPtr<NSURLRequest>& 
     if (RefPtr networkDataTask = [self existingTask:task]) {
         bool shouldIgnoreHSTS = false;
         if (CheckedPtr sessionCocoa = networkDataTask->networkSession()) {
-            auto* storageSession = sessionCocoa->protectedNetworkProcess()->storageSession(sessionCocoa->sessionID());
+            CheckedPtr storageSession = sessionCocoa->protectedNetworkProcess()->storageSession(sessionCocoa->sessionID());
             RetainPtr firstPartyForCookies = networkDataTask->isTopLevelNavigation() ? request.URL : request.mainDocumentURL;
             shouldIgnoreHSTS = schemeWasUpgradedDueToDynamicHSTS(request)
                 && storageSession->shouldBlockCookies(firstPartyForCookies.get(), request.URL, networkDataTask->frameID(), networkDataTask->pageID(), networkDataTask->shouldRelaxThirdPartyCookieBlocking());
@@ -676,7 +676,7 @@ static void updateIgnoreStrictTransportSecuritySetting(RetainPtr<NSURLRequest>& 
     if (RefPtr networkDataTask = [self existingTask:task]) {
         bool shouldIgnoreHSTS = false;
         if (CheckedPtr sessionCocoa = networkDataTask->networkSession()) {
-            auto* storageSession = sessionCocoa->protectedNetworkProcess()->storageSession(sessionCocoa->sessionID());
+            CheckedPtr storageSession = sessionCocoa->protectedNetworkProcess()->storageSession(sessionCocoa->sessionID());
             shouldIgnoreHSTS = schemeWasUpgradedDueToDynamicHSTS(request)
                 && storageSession->shouldBlockCookies(request, networkDataTask->frameID(), networkDataTask->pageID(), networkDataTask->shouldRelaxThirdPartyCookieBlocking());
             if (shouldIgnoreHSTS) {
@@ -738,7 +738,7 @@ static inline void processServerTrustEvaluation(NetworkSessionCocoa& session, Se
         return nullptr;
     }
 
-    if (auto webSocketTask = _sessionWrapper->webSocketDataTaskMap.get(task.taskIdentifier).get())
+    if (auto* webSocketTask = _sessionWrapper->webSocketDataTaskMap.get(task.taskIdentifier).get())
         return webSocketTask->networkSession();
 
     return nullptr;
@@ -783,7 +783,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler
 {
-    auto* sessionCocoa = [self sessionFromTask:task];
+    CheckedPtr sessionCocoa = [self sessionFromTask:task];
     if (!sessionCocoa || [task state] == NSURLSessionTaskStateCanceling) {
         completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
         return;
@@ -817,12 +817,12 @@ ALLOW_DEPRECATED_DECLARATIONS_END
                 RetainPtr<NSURLProtectionSpace> protectionSpace = challenge.protectionSpace;
                 networkDataTask->didNegotiateModernTLS(URL { makeString(String(protectionSpace.get().protocol), "://"_s, String(protectionSpace.get().host), ':', protectionSpace.get().port) });
             }
-            auto decisionHandler = makeBlockPtr([weakSelf = WeakObjCPtr<WKNetworkSessionDelegate>(self), sessionCocoa = WeakPtr { sessionCocoa }, completionHandler = makeBlockPtr(completionHandler), taskIdentifier, networkDataTask = RefPtr { networkDataTask }, negotiatedLegacyTLS](NSURLAuthenticationChallenge *challenge, OSStatus trustResult) mutable {
+            auto decisionHandler = makeBlockPtr([weakSelf = WeakObjCPtr<WKNetworkSessionDelegate>(self), sessionCocoa = WeakPtr { sessionCocoa.get() }, completionHandler = makeBlockPtr(completionHandler), taskIdentifier, networkDataTask = RefPtr { networkDataTask }, negotiatedLegacyTLS](NSURLAuthenticationChallenge *challenge, OSStatus trustResult) mutable {
                 auto strongSelf = weakSelf.get();
                 if (!strongSelf || !strongSelf->_sessionWrapper)
                     return completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
                 auto task = WTFMove(networkDataTask);
-                auto* session = sessionCocoa.get();
+                CheckedPtr session = sessionCocoa.get();
                 if (trustResult == noErr || !session) {
                     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
                     return;
@@ -1201,7 +1201,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     auto networkDataTask = [self existingTask:dataTask];
     if (!networkDataTask)
         return;
-    auto* sessionCocoa = networkDataTask->networkSession();
+    CheckedPtr sessionCocoa = networkDataTask->networkSession();
     if (!sessionCocoa)
         return;
 
@@ -1511,7 +1511,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     configuration.get()._companionProxyPreference = NSURLSessionCompanionProxyPreferencePreferDirectToCloud;
 #endif
 
-    auto* storageSession = networkProcess.storageSession(parameters.sessionID);
+    CheckedPtr storageSession = networkProcess.storageSession(parameters.sessionID);
     RELEASE_ASSERT(storageSession);
 
     RetainPtr<NSHTTPCookieStorage> cookieStorage;
@@ -1667,7 +1667,7 @@ SessionWrapper& NetworkSessionCocoa::appBoundSession(std::optional<WebPageProxyI
         sessionSet.appBoundSession->checkedSessionWithCredentialStorage()->initialize(sessionSet.sessionWithCredentialStorage.session.get().configuration, *this, WebCore::StoredCredentialsPolicy::Use, NavigatingToAppBoundDomain::Yes);
     }
 
-    auto& sessionWrapper = [&] (auto storedCredentialsPolicy) -> SessionWrapper& {
+    auto& sessionWrapper = [&](auto storedCredentialsPolicy) -> SessionWrapper& {
         switch (storedCredentialsPolicy) {
         case WebCore::StoredCredentialsPolicy::Use:
         case WebCore::StoredCredentialsPolicy::DoNotUse:
@@ -1870,7 +1870,7 @@ static CompletionHandler<void(WebKit::AuthenticationChallengeDisposition disposi
             URL urlToStore;
             if (authenticationChallenge.failureResponse().httpStatusCode() == httpStatus401Unauthorized)
                 urlToStore = authenticationChallenge.failureResponse().url();
-            if (auto storageSession = networkProcess->storageSession(sessionID))
+            if (CheckedPtr storageSession = networkProcess->storageSession(sessionID))
                 storageSession->credentialStorage().set(partition, nonPersistentCredential, authenticationChallenge.protectionSpace(), urlToStore);
             else
                 ASSERT_NOT_REACHED();
@@ -1885,7 +1885,7 @@ static CompletionHandler<void(WebKit::AuthenticationChallengeDisposition disposi
 void NetworkSessionCocoa::continueDidReceiveChallenge(SessionWrapper& sessionWrapper, const WebCore::AuthenticationChallenge& challenge, NegotiatedLegacyTLS negotiatedLegacyTLS, NetworkDataTaskCocoa::TaskIdentifier taskIdentifier, RefPtr<NetworkDataTaskCocoa> networkDataTask, CompletionHandler<void(WebKit::AuthenticationChallengeDisposition, const WebCore::Credential&)>&& completionHandler)
 {
     if (!networkDataTask) {
-        if (auto webSocketTask = sessionWrapper.webSocketDataTaskMap.get(taskIdentifier).get()) {
+        if (auto* webSocketTask = sessionWrapper.webSocketDataTaskMap.get(taskIdentifier).get()) {
             auto challengeCompletionHandler = createChallengeCompletionHandler(networkProcess(), sessionID(), challenge, webSocketTask->partition(), 0, WTFMove(completionHandler));
             protectedNetworkProcess()->protectedAuthenticationManager()->didReceiveAuthenticationChallenge(sessionID(), webSocketTask->webPageProxyID(), !webSocketTask->topOrigin().isNull() ? &webSocketTask->topOrigin() : nullptr, challenge, negotiatedLegacyTLS, WTFMove(challengeCompletionHandler));
             return;

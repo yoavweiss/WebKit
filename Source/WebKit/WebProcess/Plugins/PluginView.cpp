@@ -702,7 +702,7 @@ void PluginView::handleEvent(Event& event)
     if (!m_isInitialized)
         return;
 
-    const WebEvent* currentEvent = WebPage::currentEvent();
+    const CheckedPtr currentEvent = WebPage::currentEvent();
     if (!currentEvent)
         return;
 

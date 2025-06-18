@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2018 Apple Inc. All rights reserved.
+ * Copyright (C) 2014-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1513,7 +1513,7 @@ void VideoPresentationManagerProxy::setVideoLayerFrame(PlaybackSessionContextIde
     fenceSendRight = MachSendRight::adopt([UIWindow _synchronizeDrawingAcrossProcesses]);
 #endif // USE(EXTENSIONKIT)
 #else
-    if (DrawingAreaProxy* drawingArea = page->drawingArea())
+    if (RefPtr drawingArea = page->drawingArea())
         fenceSendRight = drawingArea->createFence();
 #endif
 

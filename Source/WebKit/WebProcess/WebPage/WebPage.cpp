@@ -9869,8 +9869,8 @@ void WebPage::remotePostMessage(WebCore::FrameIdentifier source, const String& s
     RefPtr sourceFrame = WebProcess::singleton().webFrame(source);
     RefPtr sourceWindow = sourceFrame && sourceFrame->coreFrame() ? &sourceFrame->coreFrame()->windowProxy() : nullptr;
 
-    auto& script = targetCoreFrame->script();
-    auto globalObject = script.globalObject(WebCore::mainThreadNormalWorldSingleton());
+    CheckedRef script = targetCoreFrame->script();
+    auto globalObject = script->globalObject(WebCore::mainThreadNormalWorldSingleton());
     if (!globalObject)
         return;
 
@@ -9891,7 +9891,7 @@ void WebPage::renderTreeAsTextForTesting(WebCore::FrameIdentifier frameID, size_
         return completionHandler("Test Error - WebFrame missing LocalFrame in web process"_s);
     }
 
-    auto* renderer = coreLocalFrame->contentRenderer();
+    CheckedPtr renderer = coreLocalFrame->contentRenderer();
     if (!renderer) {
         ASSERT_NOT_REACHED();
         return completionHandler("Test Error - WebFrame missing RenderView in web process"_s);
@@ -9917,7 +9917,7 @@ void WebPage::layerTreeAsTextForTesting(WebCore::FrameIdentifier frameID, size_t
         return completionHandler("Test Error - WebFrame missing LocalFrame in web process"_s);
     }
 
-    auto* renderer = coreLocalFrame->contentRenderer();
+    CheckedPtr renderer = coreLocalFrame->contentRenderer();
     if (!renderer) {
         ASSERT_NOT_REACHED();
         return completionHandler("Test Error - WebFrame missing RenderView in web process"_s);
