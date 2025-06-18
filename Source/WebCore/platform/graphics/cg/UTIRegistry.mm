@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2025 Apple Inc.  All rights reserved.
+ * Copyright (C) 2017-2023 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -42,7 +42,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #endif
 
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
 #import <pal/cocoa/LockdownModeCocoa.h>
 #endif
 
@@ -108,7 +108,7 @@ static const MemoryCompactLookupOnlyRobinHoodHashSet<String>& defaultSupportedIm
     return defaultSupportedImageTypes;
 }
 
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
 static const MemoryCompactLookupOnlyRobinHoodHashSet<String>& lockdownSupportedImageTypes()
 {
     static NeverDestroyed lockdownSupportedImageTypes = [] {
@@ -129,7 +129,7 @@ static const MemoryCompactLookupOnlyRobinHoodHashSet<String>& lockdownSupportedI
 
 const MemoryCompactLookupOnlyRobinHoodHashSet<String>& supportedImageTypes()
 {
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
     if (PAL::isLockdownModeEnabledForCurrentProcess())
         return lockdownSupportedImageTypes();
 #endif
@@ -144,7 +144,7 @@ MemoryCompactRobinHoodHashSet<String>& additionalSupportedImageTypes()
 
 void setAdditionalSupportedImageTypes(const Vector<String>& imageTypes)
 {
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
     if (PAL::isLockdownModeEnabledForCurrentProcess())
         return;
 #endif
@@ -198,7 +198,7 @@ static Vector<String> allowableDefaultSupportedImageTypes()
     return allowableDefaultSupportedImageTypes;
 }
 
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
 static Vector<String> allowableLockdownSupportedImageTypes()
 {
     return copyToVector(lockdownSupportedImageTypes());
@@ -207,7 +207,7 @@ static Vector<String> allowableLockdownSupportedImageTypes()
 
 static Vector<String> allowableSupportedImageTypes()
 {
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
     if (PAL::isLockdownModeEnabledForCurrentProcess())
         return allowableLockdownSupportedImageTypes();
 #endif

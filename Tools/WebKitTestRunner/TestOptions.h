@@ -50,7 +50,6 @@ public:
     bool useServiceWorkerShortTimeout() const { return boolWebPreferenceFeatureValue("ShouldUseServiceWorkerShortTimeout", false); }
     bool accessibilityIsolatedTreeMode() const { return boolWebPreferenceFeatureValue("IsAccessibilityIsolatedTreeEnabled", false); }
     bool siteIsolationEnabled() const { return boolWebPreferenceFeatureValue("SiteIsolationEnabled", false); }
-    bool lockdownModeEnabled() const { return boolWebPreferenceFeatureValue("LockdownModeEnabled", false); }
 
     bool allowsLinkPreview() const { return boolTestRunnerFeatureValue("allowsLinkPreview"); }
     bool appHighlightsEnabled() const { return boolTestRunnerFeatureValue("appHighlightsEnabled"); }

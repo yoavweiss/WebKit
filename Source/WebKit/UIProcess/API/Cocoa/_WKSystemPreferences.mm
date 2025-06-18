@@ -29,7 +29,7 @@
 #import <wtf/Assertions.h>
 #import <wtf/RetainPtr.h>
 
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
 #import <pal/cocoa/LockdownModeCocoa.h>
 #endif
 

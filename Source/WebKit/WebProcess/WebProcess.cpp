@@ -244,7 +244,7 @@
 #include "LaunchServicesDatabaseManager.h"
 #endif
 
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
 #import <pal/cocoa/LockdownModeCocoa.h>
 #endif
 
@@ -646,7 +646,7 @@ void WebProcess::initializeWebProcess(WebProcessCreationParameters&& parameters,
     ScriptExecutionContext::setCrossOriginMode(parameters.crossOriginMode);
     DeprecatedGlobalSettings::setArePDFImagesEnabled(!isLockdownModeEnabled());
 
-#if ENABLE(LOCKDOWN_MODE_API)
+#if HAVE(LOCKDOWN_MODE_FRAMEWORK)
     PAL::setLockdownModeEnabledForCurrentProcess(isLockdownModeEnabled());
 #endif
 

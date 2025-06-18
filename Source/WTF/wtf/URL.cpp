@@ -140,13 +140,6 @@ bool URL::hasFetchScheme() const
         || protocolIsFile();
 }
 
-bool URL::protocolIsSecure() const
-{
-    // Note: FTPS is not considered secure for WebKit purposes.
-    return protocolIs("https"_s)
-        || protocolIs("wss"_s);
-}
-
 unsigned URL::pathStart() const
 {
     unsigned start = m_hostEnd + m_portLength;
