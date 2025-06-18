@@ -152,7 +152,7 @@ std::optional<NavigationActionData> WebFrameLoaderClient::navigationActionData(c
         hasOpener,
         isPerformingHTTPFallback == IsPerformingHTTPFallback::Yes,
         navigationAction.isInitialFrameSrcLoad(),
-        navigationAction.isContentExtensionRedirect(),
+        navigationAction.isContentRuleListRedirect(),
         { },
         requester.securityOrigin->data(),
         requester.topOrigin->data(),
