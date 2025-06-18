@@ -397,7 +397,7 @@ void serializeMathFunctionArguments(StringBuilder& builder, const IndirectNode<R
         },
         [&](const Random::SharingFixed& fixed) {
             builder.append(nameLiteralForSerialization(CSSValueFixed), ' ');
-            serializationForCSS(builder, state.serializationContext, fixed.value);
+            CSS::serializationForCSS(builder, state.serializationContext, fixed.value);
             builder.append(", "_s);
         }
     );

@@ -48,7 +48,7 @@ class ExtractorSerializer {
 public:
     // MARK: Strong value conversions
 
-    template<typename T> static void serializeStyleType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const T&);
+    template<typename T, typename... Rest> static void serializeStyleType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const T&, Rest&&...);
 
     // MARK: Primitive serializations
 
@@ -243,9 +243,9 @@ public:
 
 // MARK: - Strong value serializations
 
-template<typename T> void ExtractorSerializer::serializeStyleType(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const T& value)
+template<typename T, typename... Rest> void ExtractorSerializer::serializeStyleType(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const T& value, Rest&&... rest)
 {
-    serializationForCSS(builder, context, state.style, value);
+    serializationForCSS(builder, context, state.style, value, std::forward<Rest>(rest)...);
 }
 
 // MARK: - Primitive serializations

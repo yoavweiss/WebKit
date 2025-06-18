@@ -129,7 +129,7 @@ namespace Style {
 
 class BuilderConverter {
 public:
-    template<typename T> static T convertStyleType(BuilderState&, const CSSValue&);
+    template<typename T, typename... Rest> static T convertStyleType(BuilderState&, const CSSValue&, Rest&&...);
 
     static WebCore::Length convertLength(BuilderState&, const CSSValue&);
     static WebCore::Length convertLengthOrAuto(BuilderState&, const CSSValue&);
@@ -375,9 +375,9 @@ inline auto BuilderConverter::requiredFunctionDowncast(BuilderState& builderStat
     return function;
 }
 
-template<typename T> inline T BuilderConverter::convertStyleType(BuilderState& builderState, const CSSValue& value)
+template<typename T, typename... Rest> inline T BuilderConverter::convertStyleType(BuilderState& builderState, const CSSValue& value, Rest&&... rest)
 {
-    return toStyleFromCSSValue<T>(builderState, value);
+    return toStyleFromCSSValue<T>(builderState, value, std::forward<Rest>(rest)...);
 }
 
 inline WebCore::Length BuilderConverter::convertLength(BuilderState& builderState, const CSSValue& value)

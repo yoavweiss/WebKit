@@ -306,7 +306,7 @@ bool containsCurrentColor(const Color& value)
 void Serialize<Color>::operator()(StringBuilder& builder, const CSS::SerializationContext&, const RenderStyle& style, const Color& value)
 {
     // NOTE: The specialization of Style::Serialize is used for computed value serialization, so the resolved "used" value is used.
-    builder.append(serializationForCSS(style.colorResolvingCurrentColor(value)));
+    builder.append(WebCore::serializationForCSS(style.colorResolvingCurrentColor(value)));
 }
 
 // MARK: - TextStream.

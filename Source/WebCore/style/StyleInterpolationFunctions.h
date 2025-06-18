@@ -73,12 +73,12 @@ namespace WebCore::Style::Interpolation {
 
 inline int blendFunc(int from, int to, const Context& context)
 {
-    return blend(from, to, context);
+    return WebCore::blend(from, to, context);
 }
 
 inline double blendFunc(double from, double to, const Context& context)
 {
-    return blend(from, to, context);
+    return WebCore::blend(from, to, context);
 }
 
 inline float blendFunc(float from, float to, const Context& context)
@@ -96,19 +96,19 @@ inline float blendFunc(float from, float to, const Context& context)
 
 inline WebCore::Color blendFunc(const WebCore::Color& from, const WebCore::Color& to, const Context& context)
 {
-    return blend(from, to, context);
+    return WebCore::blend(from, to, context);
 }
 
 inline WebCore::Length blendFunc(const WebCore::Length& from, const WebCore::Length& to, const Context& context, ValueRange valueRange = ValueRange::All)
 {
-    return blend(from, to, context, valueRange);
+    return WebCore::blend(from, to, context, valueRange);
 }
 
 inline GapLength blendFunc(const GapLength& from, const GapLength& to, const Context& context)
 {
     if (from.isNormal() || to.isNormal())
         return context.progress < 0.5 ? from : to;
-    return blend(from.length(), to.length(), context, ValueRange::NonNegative);
+    return WebCore::blend(from.length(), to.length(), context, ValueRange::NonNegative);
 }
 
 inline bool canInterpolateLengthVariants(const GapLength& from, const GapLength& to)
@@ -126,13 +126,13 @@ inline bool lengthVariantRequiresInterpolationForAccumulativeIteration(const Gap
 
 inline TabSize blendFunc(const TabSize& from, const TabSize& to, const Context& context)
 {
-    auto blendedValue = blend(from.value(), to.value(), context);
+    auto blendedValue = WebCore::blend(from.value(), to.value(), context);
     return { blendedValue < 0 ? 0 : blendedValue, from.isSpaces() ? SpaceValueType : LengthValueType };
 }
 
 inline LengthSize blendFunc(const LengthSize& from, const LengthSize& to, const Context& context)
 {
-    return blend(from, to, context, ValueRange::NonNegative);
+    return WebCore::blend(from, to, context, ValueRange::NonNegative);
 }
 
 inline bool canInterpolateLengthVariants(const LengthSize& from, const LengthSize& to)
@@ -150,7 +150,7 @@ inline bool lengthVariantRequiresInterpolationForAccumulativeIteration(const Len
 
 inline LengthPoint blendFunc(const LengthPoint& from, const LengthPoint& to, const Context& context)
 {
-    return blend(from, to, context);
+    return WebCore::blend(from, to, context);
 }
 
 inline TransformOperations blendFunc(const TransformOperations& from, const TransformOperations& to, const Context& context)
@@ -473,7 +473,7 @@ inline GridLength blendFunc(const GridLength& from, const GridLength& to, const 
         return context.progress < 0.5 ? from : to;
 
     if (from.isFlex())
-        return GridLength(blend(from.flex(), to.flex(), context));
+        return GridLength(WebCore::blend(from.flex(), to.flex(), context));
 
     return GridLength(blendFunc(from.length(), to.length(), context));
 }

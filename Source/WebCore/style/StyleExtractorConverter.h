@@ -138,7 +138,7 @@ class ExtractorConverter {
 public:
     // MARK: Strong value conversions
 
-    template<typename T> static Ref<CSSValue> convertStyleType(ExtractorState&, const T&);
+    template<typename T, typename... Rest> static Ref<CSSValue> convertStyleType(ExtractorState&, const T&, Rest&&...);
 
     // MARK: Primitive conversions
 
@@ -334,9 +334,9 @@ public:
 
 // MARK: - Strong value conversions
 
-template<typename T> Ref<CSSValue> ExtractorConverter::convertStyleType(ExtractorState& state, const T& value)
+template<typename T, typename... Rest> Ref<CSSValue> ExtractorConverter::convertStyleType(ExtractorState& state, const T& value, Rest&&... rest)
 {
-    return createCSSValue(state.pool, state.style, value);
+    return createCSSValue(state.pool, state.style, value, std::forward<Rest>(rest)...);
 }
 
 // MARK: - Primitive conversions

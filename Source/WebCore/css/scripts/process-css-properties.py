@@ -4367,7 +4367,7 @@ class GenerateStyleExtractorGenerated:
     def _generate_color_property_value_serialization_getter(self, to, property):
         to.write(f"if (extractorState.allowVisitedStyle) {{")
         with to.indent():
-            to.write(f"builder.append(serializationForCSS(extractorState.style.visitedDependentColor({property.id})));")
+            to.write(f"builder.append(WebCore::serializationForCSS(extractorState.style.visitedDependentColor({property.id})));")
             to.write(f"return;")
         to.write(f"}}")
         self._generate_property_value_serialization_getter(to, property)
@@ -4667,6 +4667,7 @@ class GenerateStyleExtractorGenerated:
                 headers=[
                     "CSSPrimitiveValueMappings.h",
                     "CSSProperty.h",
+                    "ColorSerialization.h",
                     "RenderStyle.h",
                     "StyleExtractorConverter.h",
                     "StyleExtractorCustom.h",
