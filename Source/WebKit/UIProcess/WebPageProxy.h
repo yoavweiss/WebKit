@@ -2333,6 +2333,10 @@ public:
     void didCleanupFullscreen(PlaybackSessionContextIdentifier);
     void didChangePlaybackRate(PlaybackSessionContextIdentifier);
     void didChangeCurrentTime(PlaybackSessionContextIdentifier);
+#if PLATFORM(IOS_FAMILY)
+    void didEnterStandby(PlaybackSessionContextIdentifier);
+    void didExitStandby(PlaybackSessionContextIdentifier);
+#endif
 #else
     void didEnterFullscreen();
     void didExitFullscreen();

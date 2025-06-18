@@ -8806,6 +8806,18 @@ void WebPageProxy::failedToEnterFullscreen(PlaybackSessionContextIdentifier iden
 {
 }
 
+#if PLATFORM(IOS_FAMILY)
+void WebPageProxy::didEnterStandby(PlaybackSessionContextIdentifier)
+{
+    m_uiClient->didEnterStandby(*this);
+}
+
+void WebPageProxy::didExitStandby(PlaybackSessionContextIdentifier)
+{
+    m_uiClient->didExitStandby(*this);
+}
+#endif
+
 #else
 
 void WebPageProxy::didEnterFullscreen()

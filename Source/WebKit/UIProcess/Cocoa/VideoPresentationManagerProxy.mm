@@ -1419,12 +1419,12 @@ void VideoPresentationManagerProxy::didExitFullscreen(PlaybackSessionContextIden
     sendToWebProcess(contextId, Messages::VideoPresentationManager::DidExitFullscreen(contextId.object()));
 
 #if PLATFORM(IOS_FAMILY)
-    if (ensureInterface(contextId)->changingStandbyOnly()) {
-        callCloseCompletionHandlers();
-        return;
-    }
+    if (ensureInterface(contextId)->changingStandbyOnly())
+        page->didExitStandby(contextId);
+    else
 #endif
     page->didExitFullscreen(contextId);
+
     callCloseCompletionHandlers();
 }
 
@@ -1442,7 +1442,8 @@ void VideoPresentationManagerProxy::didEnterFullscreen(PlaybackSessionContextIde
 
 #if PLATFORM(IOS_FAMILY)
     if (ensureInterface(contextId)->changingStandbyOnly())
-        return;
+        page->didEnterStandby(contextId);
+    else
 #endif
     page->didEnterFullscreen(contextId);
 }

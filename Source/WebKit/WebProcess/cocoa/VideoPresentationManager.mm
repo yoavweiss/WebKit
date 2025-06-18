@@ -279,6 +279,7 @@ void VideoPresentationManager::removeClientForContext(WebCore::MediaPlayerClient
 
 bool VideoPresentationManager::canEnterVideoFullscreen(HTMLVideoElement& videoElement, WebCore::HTMLMediaElementEnums::VideoFullscreenMode mode) const
 {
+    ASSERT(mode != HTMLMediaElementEnums::VideoFullscreenModeNone);
 #if PLATFORM(IOS) || PLATFORM(VISION)
     if (m_currentVideoFullscreenMode == mode)
         return videoElement.document().quirks().allowLayeredFullscreenVideos();
@@ -403,7 +404,7 @@ void VideoPresentationManager::enterVideoFullscreenForVideoElement(HTMLVideoElem
     ASSERT(standby || mode != HTMLMediaElementEnums::VideoFullscreenModeNone);
 
 #if PLATFORM(IOS) || PLATFORM(VISION)
-    if (m_currentVideoFullscreenMode == mode && !videoElement.document().quirks().allowLayeredFullscreenVideos()) {
+    if (!canEnterVideoFullscreen(videoElement, mode) && !standby) {
         ERROR_LOG(LOGIDENTIFIER, "already in fullscreen mode %d, aborting", mode);
         ASSERT_NOT_REACHED();
         return;
