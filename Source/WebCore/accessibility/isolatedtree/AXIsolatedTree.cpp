@@ -1289,18 +1289,28 @@ std::optional<ListHashSet<AXID>> AXIsolatedTree::relatedObjectIDsFor(const AXIso
     return targetsIterator->value;
 }
 
-bool AXIsolatedTree::willBeDestroyed()
-{
-    Locker locker { m_changeLogLock };
-    return m_queuedForDestruction;
-}
-
 void AXIsolatedTree::applyPendingChanges()
 {
-    AXTRACE("AXIsolatedTree::applyPendingChanges"_s);
+    Locker locker { m_changeLogLock };
+    applyPendingChangesLocked();
+}
+
+void AXIsolatedTree::applyPendingChangesUnlessQueuedForDestruction()
+{
     ASSERT(!isMainThread());
 
     Locker locker { m_changeLogLock };
+
+    if (m_queuedForDestruction)
+        return;
+    applyPendingChangesLocked();
+}
+
+void AXIsolatedTree::applyPendingChangesLocked()
+{
+    AXTRACE("AXIsolatedTree::applyPendingChanges"_s);
+    ASSERT(!isMainThread());
+    ASSERT(m_changeLogLock.isLocked());
 
     if (m_queuedForDestruction) [[unlikely]] {
         for (const auto& object : m_readerThreadNodeMap.values())

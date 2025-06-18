@@ -401,7 +401,6 @@ public:
     static Ref<AXIsolatedTree> createEmpty(AXObjectCache&);
     constexpr bool isEmptyContentTree() const { return m_isEmptyContentTree; }
     virtual ~AXIsolatedTree();
-    bool willBeDestroyed();
 
     static void removeTreeForPageID(PageIdentifier);
 
@@ -509,6 +508,7 @@ public:
 
     // Called on AX thread from WebAccessibilityObjectWrapper methods.
     WEBCORE_EXPORT void applyPendingChanges();
+    void applyPendingChangesUnlessQueuedForDestruction();
 
     constexpr AXID treeID() const { return m_id; }
     constexpr ProcessID processID() const { return m_processID; }
@@ -544,6 +544,8 @@ private:
     // We can't destroy the tree on the main-thread (by removing all `Ref`s to it)
     // because it could be being used by the secondary thread to service an AX request.
     void queueForDestruction();
+
+    void applyPendingChangesLocked() WTF_REQUIRES_LOCK(m_changeLogLock);
 
     static HashMap<PageIdentifier, Ref<AXIsolatedTree>>& treePageCache() WTF_REQUIRES_LOCK(s_storeLock);
 
