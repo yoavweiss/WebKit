@@ -1438,6 +1438,8 @@ void UnifiedPDFPlugin::releaseMemory()
 {
     if (m_presentationController)
         m_presentationController->releaseMemory();
+
+    m_webFoundTextRangePDFDataSelectionMap.clear();
 }
 
 void UnifiedPDFPlugin::didChangeScrollOffset()
@@ -3252,6 +3254,7 @@ bool UnifiedPDFPlugin::findString(const String& target, WebCore::FindOptions opt
         m_lastFindString = target;
         setCurrentSelection(nullptr);
         m_findMatchRects.clear();
+        m_webFoundTextRangePDFDataSelectionMap.clear();
         return false;
     }
 
@@ -3386,18 +3389,28 @@ Vector<WebCore::FloatRect> UnifiedPDFPlugin::visibleRectsForFindMatchRects(PDFPa
     if (!visibleRow)
         rectsInPluginCoordinates.reserveCapacity(findMatchRects.size());
 
+    auto unobscuredContentRectInPluginSpace = [this] -> std::optional<IntRect> {
+        if (!m_frame || !m_frame->page() || !m_frame->coreLocalFrame())
+            return { };
+        RefPtr view = m_frame->coreLocalFrame()->view();
+        if (!view)
+            return { };
+        return convertFromRootViewToPlugin(view->unobscuredContentRect());
+    }();
+
     for (auto& perPageInfo : findMatchRects) {
         if (visibleRow && !visibleRow->containsPage(perPageInfo.pageIndex))
             continue;
 
         auto pluginRect = convertUp(CoordinateSpace::PDFPage, CoordinateSpace::Plugin, perPageInfo.pageBounds, perPageInfo.pageIndex);
-        rectsInPluginCoordinates.append(pluginRect);
+        if (!unobscuredContentRectInPluginSpace || pluginRect.intersects(unobscuredContentRectInPluginSpace.value()))
+            rectsInPluginCoordinates.append(pluginRect);
     }
 
     return rectsInPluginCoordinates;
 }
 
-PDFSelection *UnifiedPDFPlugin::selectionFromWebFoundTextRangePDFData(const WebFoundTextRange::PDFData& data) const
+PDFSelection *UnifiedPDFPlugin::selectionFromWebFoundTextRangePDFData(const WebFoundTextRange::PDFData& data)
 {
     RetainPtr startPage = [m_pdfDocument pageAtIndex:data.startPage];
     if (!startPage)
@@ -3407,7 +3420,9 @@ PDFSelection *UnifiedPDFPlugin::selectionFromWebFoundTextRangePDFData(const WebF
     if (!endPage)
         return nil;
 
-    return [m_pdfDocument selectionFromPage:startPage.get() atCharacterIndex:data.startOffset toPage:endPage.get() atCharacterIndex:(data.endOffset - 1)];
+    return m_webFoundTextRangePDFDataSelectionMap.ensure(data, [&] {
+        return [m_pdfDocument selectionFromPage:startPage.get() atCharacterIndex:data.startOffset toPage:endPage.get() atCharacterIndex:(data.endOffset - 1)];
+    }).iterator->value.get();
 }
 
 void UnifiedPDFPlugin::scrollToRevealTextMatch(const WebFoundTextRange::PDFData& data)
