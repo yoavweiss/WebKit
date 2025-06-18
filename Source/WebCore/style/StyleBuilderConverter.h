@@ -314,8 +314,6 @@ private:
     static GridPosition createGridPosition(BuilderState&, const CSSValue&);
     static NamedGridLinesMap createImplicitNamedGridLinesFromGridArea(BuilderState&, const NamedGridAreaMap&, GridTrackSizingDirection);
 
-    static BasicShape convertBasicShape(BuilderState&, const CSSBasicShapeValue&, std::optional<float> zoom);
-
     static CSSToLengthConversionData cssToLengthConversionDataWithTextZoomFactor(BuilderState&);
 };
 
@@ -815,7 +813,7 @@ inline RefPtr<PathOperation> BuilderConverter::convertPathOperation(BuilderState
         if (RefPtr ray = dynamicDowncast<CSSRayValue>(singleValue))
             operation = RayPathOperation::create(toStyle(ray->ray(), builderState));
         else if (RefPtr shape = dynamicDowncast<CSSBasicShapeValue>(singleValue))
-            operation = ShapePathOperation::create(convertBasicShape(builderState, *shape, std::nullopt));
+            operation = ShapePathOperation::create(toStyle(shape->shape(), builderState, std::nullopt));
         else
             referenceBox = fromCSSValue<CSSBoxType>(singleValue);
     };
@@ -834,18 +832,6 @@ inline RefPtr<PathOperation> BuilderConverter::convertPathOperation(BuilderState
     }
 
     return operation;
-}
-
-inline BasicShape BuilderConverter::convertBasicShape(BuilderState& builderState, const CSSBasicShapeValue& value, std::optional<float> zoom)
-{
-    return WTF::switchOn(value.shape(),
-        [&](const auto& shape) {
-            return BasicShape { toStyle(shape, builderState) };
-        },
-        [&](const CSS::PathFunction& path) {
-            return BasicShape { overrideToStyle(path, builderState, zoom) };
-        }
-    );
 }
 
 inline Resize BuilderConverter::convertResize(BuilderState& builderState, const CSSValue& value)
@@ -1196,7 +1182,7 @@ inline RefPtr<ShapeValue> BuilderConverter::convertShapeValue(BuilderState& buil
     auto referenceBox = CSSBoxType::BoxMissing;
     auto processSingleValue = [&](const CSSValue& currentValue) {
         if (RefPtr shapeValue = dynamicDowncast<CSSBasicShapeValue>(currentValue))
-            shape = convertBasicShape(builderState, *shapeValue, 1);
+            shape = toStyle(shapeValue->shape(), builderState, 1.0f);
         else
             referenceBox = fromCSSValue<CSSBoxType>(currentValue);
     };

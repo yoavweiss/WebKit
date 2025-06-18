@@ -189,7 +189,6 @@ public:
     static Ref<CSSValue> convertGlyphOrientationOrAuto(ExtractorState&, GlyphOrientation);
     static Ref<CSSValue> convertListStyleType(ExtractorState&, const ListStyleType&);
     static Ref<CSSValue> convertMarginTrim(ExtractorState&, OptionSet<MarginTrimType>);
-    static Ref<CSSValue> convertBasicShape(ExtractorState&, const BasicShape&, PathConversion = PathConversion::None);
     static Ref<CSSValue> convertShapeValue(ExtractorState&, const ShapeValue*);
     static Ref<CSSValue> convertPathOperation(ExtractorState&, const PathOperation*, PathConversion = PathConversion::None);
     static Ref<CSSValue> convertPathOperationForceAbsolute(ExtractorState&, const PathOperation*);
@@ -708,20 +707,6 @@ inline Ref<CSSValue> ExtractorConverter::convertMarginTrim(ExtractorState&, Opti
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertBasicShape(ExtractorState& state, const BasicShape& basicShape, PathConversion pathConversion)
-{
-    return CSSBasicShapeValue::create(
-        WTF::switchOn(basicShape,
-            [&](const auto& shape) {
-                return CSS::BasicShape { toCSS(shape, state.style) };
-            },
-            [&](const PathFunction& path) {
-                return CSS::BasicShape { overrideToCSS(path, state.style, pathConversion) };
-            }
-        )
-    );
-}
-
 inline Ref<CSSValue> ExtractorConverter::convertShapeValue(ExtractorState& state, const ShapeValue* shapeValue)
 {
     if (!shapeValue)
@@ -735,8 +720,8 @@ inline Ref<CSSValue> ExtractorConverter::convertShapeValue(ExtractorState& state
 
     ASSERT(shapeValue->type() == ShapeValue::Type::Shape);
     if (shapeValue->cssBox() == CSSBoxType::BoxMissing)
-        return CSSValueList::createSpaceSeparated(convertBasicShape(state, *shapeValue->shape()));
-    return CSSValueList::createSpaceSeparated(convertBasicShape(state, *shapeValue->shape()), convert(state, shapeValue->cssBox()));
+        return CSSValueList::createSpaceSeparated(convertStyleType(state, *shapeValue->shape()));
+    return CSSValueList::createSpaceSeparated(convertStyleType(state, *shapeValue->shape()), convert(state, shapeValue->cssBox()));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertPathOperation(ExtractorState& state, const PathOperation* operation, PathConversion conversion)
@@ -747,14 +732,14 @@ inline Ref<CSSValue> ExtractorConverter::convertPathOperation(ExtractorState& st
     switch (operation->type()) {
     case PathOperation::Type::Reference: {
         auto& reference = uncheckedDowncast<ReferencePathOperation>(*operation);
-        return CSSURLValue::create(toCSS(reference.url(), state.style));
+        return convertStyleType(state, reference.url());
     }
 
     case PathOperation::Type::Shape: {
         auto& shape = uncheckedDowncast<ShapePathOperation>(*operation);
         if (shape.referenceBox() == CSSBoxType::BoxMissing)
-            return CSSValueList::createSpaceSeparated(convertBasicShape(state, shape.shape(), conversion));
-        return CSSValueList::createSpaceSeparated(convertBasicShape(state, shape.shape(), conversion), convert(state, shape.referenceBox()));
+            return CSSValueList::createSpaceSeparated(convertStyleType(state, shape.shape(), conversion));
+        return CSSValueList::createSpaceSeparated(convertStyleType(state, shape.shape(), conversion), convert(state, shape.referenceBox()));
     }
 
     case PathOperation::Type::Box: {
@@ -781,7 +766,7 @@ inline Ref<CSSValue> ExtractorConverter::convertDPath(ExtractorState& state, con
 {
     if (!path)
         return CSSPrimitiveValue::create(CSSValueNone);
-    return CSSPathValue::create(overrideToCSS(Ref { *path }->path(), state.style, PathConversion::ForceAbsolute));
+    return CSSPathValue::create(toCSS(Ref { *path }->path(), state.style, PathConversion::ForceAbsolute));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertStrokeDashArray(ExtractorState& state, const FixedVector<WebCore::Length>& dashes)
