@@ -606,8 +606,10 @@ void WebProcess::initializeWebProcess(WebProcessCreationParameters&& parameters,
     for (auto& scheme : parameters.urlSchemesRegisteredAsLocal)
         registerURLSchemeAsLocal(scheme);
 
+#if ENABLE(ALL_LEGACY_REGISTERED_SPECIAL_URL_SCHEMES)
     for (auto& scheme : parameters.urlSchemesRegisteredAsNoAccess)
         registerURLSchemeAsNoAccess(scheme);
+#endif
 
     for (auto& scheme : parameters.urlSchemesRegisteredAsDisplayIsolated)
         registerURLSchemeAsDisplayIsolated(scheme);
@@ -838,10 +840,12 @@ void WebProcess::registerURLSchemeAsLocal(const String& urlScheme) const
     LegacySchemeRegistry::registerURLSchemeAsLocal(urlScheme);
 }
 
+#if ENABLE(ALL_LEGACY_REGISTERED_SPECIAL_URL_SCHEMES)
 void WebProcess::registerURLSchemeAsNoAccess(const String& urlScheme) const
 {
     LegacySchemeRegistry::registerURLSchemeAsNoAccess(urlScheme);
 }
+#endif
 
 void WebProcess::registerURLSchemeAsDisplayIsolated(const String& urlScheme) const
 {

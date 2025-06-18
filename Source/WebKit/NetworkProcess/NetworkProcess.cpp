@@ -343,8 +343,10 @@ void NetworkProcess::initializeNetworkProcess(NetworkProcessCreationParameters&&
     for (auto& scheme : parameters.urlSchemesRegisteredAsLocal)
         registerURLSchemeAsLocal(scheme);
 
+#if ENABLE(ALL_LEGACY_REGISTERED_SPECIAL_URL_SCHEMES)
     for (auto& scheme : parameters.urlSchemesRegisteredAsNoAccess)
         registerURLSchemeAsNoAccess(scheme);
+#endif
     
     for (auto&& websiteDataStoreParameters : WTFMove(parameters.websiteDataStoreParameters))
         addWebsiteDataStore(WTFMove(websiteDataStoreParameters));
@@ -2456,10 +2458,12 @@ void NetworkProcess::registerURLSchemeAsLocal(const String& scheme) const
     LegacySchemeRegistry::registerURLSchemeAsLocal(scheme);
 }
 
+#if ENABLE(ALL_LEGACY_REGISTERED_SPECIAL_URL_SCHEMES)
 void NetworkProcess::registerURLSchemeAsNoAccess(const String& scheme) const
 {
     LegacySchemeRegistry::registerURLSchemeAsNoAccess(scheme);
 }
+#endif
 
 void NetworkProcess::syncLocalStorage(CompletionHandler<void()>&& completionHandler)
 {
