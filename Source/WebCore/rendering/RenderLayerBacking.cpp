@@ -2054,8 +2054,11 @@ void RenderLayerBacking::updateDrawsContent(PaintedContentsInfo& contentsInfo)
         m_backgroundLayer->setDrawsContent(m_backgroundLayerPaintsFixedRootBackground ? hasPaintedContent : contentsInfo.paintsBoxDecorations());
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    if (contentsInfo.paintsHDRContent() || contentsInfo.rendererHasHDRContent())
+    if (contentsInfo.paintsHDRContent() || contentsInfo.rendererHasHDRContent()) {
         m_graphicsLayer->setDrawsHDRContent(true);
+        LOG_WITH_STREAM(HDR, stream << "RenderLayerBacking " << *this << " updateDrawContent headroom " << m_owningLayer.page().displayEDRHeadroom());
+        m_graphicsLayer->setNeedsDisplayIfEDRHeadroomExceeds(m_owningLayer.page().displayEDRHeadroom());
+    }
 #endif
 }
 
@@ -4097,6 +4100,13 @@ void RenderLayerBacking::paintContents(const GraphicsLayer* graphicsLayer, Graph
     LocalDefaultSystemAppearance localAppearance(renderer().useDarkAppearance());
 #endif
 
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    if (layerPaintBehavior.contains(GraphicsLayerPaintBehavior::TonemapHDRToDisplayHeadroom))
+        context.setMaxEDRHeadroom(m_owningLayer.page().displayEDRHeadroom());
+    else
+        context.setMaxEDRHeadroom(std::nullopt);
+#endif
+
     // The dirtyRect is in the coords of the painting root.
     FloatRect adjustedClipRect = clip;
     adjustedClipRect.move(m_subpixelOffsetFromRenderer);
@@ -4157,6 +4167,9 @@ void RenderLayerBacking::paintContents(const GraphicsLayer* graphicsLayer, Graph
     }
 #ifndef NDEBUG
     renderer().page().setIsPainting(false);
+#endif
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    context.setMaxEDRHeadroom(std::nullopt);
 #endif
 }
 

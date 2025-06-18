@@ -222,6 +222,10 @@ public:
     void setScrollingNodeID(std::optional<WebCore::ScrollingNodeID>) override;
 #endif
 
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    bool setNeedsDisplayIfEDRHeadroomExceeds(float) override;
+#endif
+
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
     bool isSeparated() const override;
     void setIsSeparated(bool) override;

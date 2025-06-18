@@ -241,6 +241,11 @@ public:
     bool hasPausedImageAnimations() const { return m_hasPausedImageAnimations; }
     void setHasPausedImageAnimations(bool b) { m_hasPausedImageAnimations = b; }
 
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    bool hasHDRImages() const { return m_hasHDRImages; }
+    void setHasHDRImages(bool b) { m_hasHDRImages = b; }
+#endif
+
     bool hasCounterNodeMap() const { return m_hasCounterNodeMap; }
     void setHasCounterNodeMap(bool f) { m_hasCounterNodeMap = f; }
 
@@ -441,6 +446,9 @@ private:
     unsigned m_hasPausedImageAnimations : 1;
     unsigned m_hasCounterNodeMap : 1;
     unsigned m_hasContinuationChainNode : 1;
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    unsigned m_hasHDRImages : 1;
+#endif
 
     unsigned m_isContinuation : 1;
     unsigned m_isFirstLetter : 1;

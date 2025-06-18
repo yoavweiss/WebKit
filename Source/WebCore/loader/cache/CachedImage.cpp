@@ -369,6 +369,13 @@ bool CachedImage::hasHDRContent() const
     return m_image && m_image->hasHDRContent();
 }
 
+Headroom CachedImage::currentFrameHeadroom() const
+{
+    if (!m_image)
+        return Headroom::None;
+    return m_image->currentFrameHeadroom();
+}
+
 void CachedImage::notifyObservers(const IntRect* changeRect)
 {
     CachedResourceClientWalker<CachedImageClient> walker(*this);

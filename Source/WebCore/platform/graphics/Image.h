@@ -125,6 +125,7 @@ public:
 
     virtual DestinationColorSpace colorSpace();
     virtual bool hasHDRContent() const { return false; }
+    virtual Headroom currentFrameHeadroom() const { return Headroom::None; }
 
     // Animation begins whenever someone draws the image, so startAnimation() is not normally called.
     // It will automatically pause once all observers no longer want to render the image anywhere.

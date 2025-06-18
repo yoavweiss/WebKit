@@ -507,6 +507,10 @@ Page::Page(PageConfiguration&& pageConfiguration)
     initializeGamepadAccessForPageLoad();
 #endif
 
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    updateDisplayEDRHeadroom();
+#endif
+
     settingsDidChange();
 
     if (m_lowPowerModeNotifier->isLowPowerModeEnabled())
@@ -1719,6 +1723,9 @@ void Page::screenPropertiesDidChange()
     forEachMediaElement([mode] (auto& element) {
         element.setPreferredDynamicRangeMode(mode);
     });
+#endif
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    updateDisplayEDRHeadroom();
 #endif
 
     setNeedsRecalcStyleInAllFrames();
@@ -5773,5 +5780,25 @@ bool Page::requiresUserGestureForVideoPlayback() const
         return autoplayPolicy == AutoplayPolicy::Deny;
     return m_settings->requiresUserGestureForVideoPlayback();
 }
+
+#if HAVE(SUPPORT_HDR_DISPLAY)
+void Page::updateDisplayEDRHeadroom()
+{
+    float headroom = currentEDRHeadroomForDisplay(m_displayID);
+    if (headroom == m_displayEDRHeadroom.headroom)
+        return;
+
+    LOG_WITH_STREAM(HDR, stream << "Page " << this << " updateDisplayEDRHeadroom " << m_displayEDRHeadroom.headroom << " to " << headroom);
+    m_displayEDRHeadroom = headroom;
+
+    forEachDocument([&] (Document& document) {
+        if (!document.drawsHDRContent())
+            return;
+
+        if (RefPtr view = document.view())
+            view->setDescendantsNeedUpdateBackingAndHierarchyTraversal();
+    });
+}
+#endif
 
 } // namespace WebCore

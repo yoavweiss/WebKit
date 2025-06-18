@@ -134,6 +134,9 @@ inline RenderElement::RenderElement(Type type, ContainerNode& elementOrDocument,
     , m_hasPausedImageAnimations(false)
     , m_hasCounterNodeMap(false)
     , m_hasContinuationChainNode(false)
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    , m_hasHDRImages(false)
+#endif
     , m_isContinuation(false)
     , m_isFirstLetter(false)
     , m_renderBlockHasMarginBeforeQuirk(false)

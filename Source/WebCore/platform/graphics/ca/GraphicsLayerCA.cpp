@@ -743,6 +743,14 @@ void GraphicsLayerCA::setDrawsHDRContent(bool drawsHDRContent)
     GraphicsLayer::setDrawsHDRContent(drawsHDRContent);
     noteLayerPropertyChanged(DrawsHDRContentChanged | DebugIndicatorsChanged);
 }
+
+void GraphicsLayerCA::setNeedsDisplayIfEDRHeadroomExceeds(float headroom)
+{
+    if (protectedLayer()->setNeedsDisplayIfEDRHeadroomExceeds(headroom)) {
+        if (!!m_uncommittedChanges)
+            client().notifyFlushRequired(this);
+    }
+}
 #endif
 
 void GraphicsLayerCA::setContentsVisible(bool contentsVisible)

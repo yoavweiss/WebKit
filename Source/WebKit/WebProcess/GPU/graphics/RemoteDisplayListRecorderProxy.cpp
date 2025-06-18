@@ -296,9 +296,26 @@ void RemoteDisplayListRecorderProxy::drawImageBuffer(ImageBuffer& imageBuffer, c
 
 void RemoteDisplayListRecorderProxy::drawNativeImageInternal(NativeImage& image, const FloatRect& destRect, const FloatRect& srcRect, ImagePaintingOptions options)
 {
+#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
+    auto headroom = options.headroom();
+    if (headroom == Headroom::FromImage)
+        headroom = image.headroom();
+    if (m_maxEDRHeadroom) {
+        if (*m_maxEDRHeadroom < headroom) {
+            headroom = *m_maxEDRHeadroom;
+            m_hasPaintedClampedEDRHeadroom = true;
+        }
+    }
+    m_maxPaintedEDRHeadroom = std::max(m_maxPaintedEDRHeadroom, headroom.headroom);
+    ImagePaintingOptions clampedOptions(options, headroom);
+#endif
     appendStateChangeItemIfNecessary();
     recordResourceUse(image);
+#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
+    send(Messages::RemoteDisplayListRecorder::DrawNativeImage(image.renderingResourceIdentifier(), destRect, srcRect, clampedOptions));
+#else
     send(Messages::RemoteDisplayListRecorder::DrawNativeImage(image.renderingResourceIdentifier(), destRect, srcRect, options));
+#endif
 }
 
 void RemoteDisplayListRecorderProxy::drawSystemImage(SystemImage& systemImage, const FloatRect& destinationRect)

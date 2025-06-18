@@ -402,8 +402,12 @@ void GraphicsContextCG::drawNativeImageInternal(NativeImage& nativeImage, const 
     if (headroom == Headroom::FromImage)
         headroom = nativeImage.headroom();
 
-    if (headroom > Headroom::None)
+    if (headroom > Headroom::None) {
+        if (m_maxEDRHeadroom)
+            headroom = std::min(headroom.headroom, *m_maxEDRHeadroom);
+        LOG_WITH_STREAM(HDR, stream << "GraphicsContextCG::drawNativeImageInternal setEDRTargetHeadroom " << headroom << " max(" << m_maxEDRHeadroom << ")");
         CGContextSetEDRTargetHeadroom(context, headroom);
+    }
 
     if (options.dynamicRangeLimit() == PlatformDynamicRangeLimit::standard())
         setCGDynamicRangeLimitForImage(context, subImage.get(), options.dynamicRangeLimit().value());
@@ -1542,6 +1546,14 @@ bool GraphicsContextCG::consumeHasDrawn()
     m_hasDrawn = false;
     return hasDrawn;
 }
+
+#if HAVE(SUPPORT_HDR_DISPLAY)
+void GraphicsContextCG::setMaxEDRHeadroom(std::optional<float> headroom)
+{
+    m_maxEDRHeadroom = headroom;
+}
+#endif
+
 
 }
 

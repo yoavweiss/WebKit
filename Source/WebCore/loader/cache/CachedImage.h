@@ -97,6 +97,7 @@ public:
     void computeIntrinsicDimensions(Length& intrinsicWidth, Length& intrinsicHeight, FloatSize& intrinsicRatio);
 
     bool hasHDRContent() const;
+    Headroom currentFrameHeadroom() const;
 
     bool isManuallyCached() const { return m_isManuallyCached; }
     RevalidationDecision makeRevalidationDecision(CachePolicy) const override;

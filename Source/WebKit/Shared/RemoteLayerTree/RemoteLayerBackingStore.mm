@@ -175,6 +175,9 @@ void RemoteLayerBackingStore::encode(IPC::Encoder& encoder) const
 {
     encoder << m_parameters.isOpaque;
     encoder << m_parameters.type;
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    encoder << m_edrHeadroom;
+#endif
 
     // FIXME: For simplicity this should be moved to the end of display() once the buffer handles can be created once
     // and stored in m_bufferHandle. http://webkit.org/b/234169
@@ -223,6 +226,9 @@ void RemoteLayerBackingStoreProperties::dump(TextStream& ts) const
 
     ts.dumpProperty("is opaque"_s, isOpaque());
     ts.dumpProperty("has buffer handle"_s, !!bufferHandle());
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    ts.dumpProperty("headroom", m_edrHeadroom);
+#endif
 }
 
 bool RemoteLayerBackingStore::layerWillBeDisplayed()
@@ -255,7 +261,22 @@ void RemoteLayerBackingStore::setNeedsDisplay(const IntRect rect)
 void RemoteLayerBackingStore::setNeedsDisplay()
 {
     m_dirtyRegion.unite(layerBounds());
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    m_edrHeadroom = 1;
+    m_hasPaintedClampedEDRHeadroom = false;
+#endif
 }
+
+#if HAVE(SUPPORT_HDR_DISPLAY)
+bool RemoteLayerBackingStore::setNeedsDisplayIfEDRHeadroomExceeds(float headroom)
+{
+    if (m_edrHeadroom > headroom || (m_edrHeadroom < headroom && m_hasPaintedClampedEDRHeadroom)) {
+        setNeedsDisplay();
+        return true;
+    }
+    return false;
+}
+#endif
 
 WebCore::IntRect RemoteLayerBackingStore::layerBounds() const
 {
@@ -311,7 +332,6 @@ bool RemoteLayerBackingStore::supportsPartialRepaint() const
     if (!checkedArea.hasOverflowed() && checkedArea <= maxSmallLayerBackingArea)
         return false;
     return true;
-
 }
 
 bool RemoteLayerBackingStore::drawingRequiresClearedPixels() const
@@ -421,6 +441,10 @@ void RemoteLayerBackingStore::drawInContext(GraphicsContext& context)
 #endif
 
     OptionSet<WebCore::GraphicsLayerPaintBehavior> paintBehavior;
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    paintBehavior.add(GraphicsLayerPaintBehavior::TonemapHDRToDisplayHeadroom);
+    context.clearMaxPaintedEDRHeadroom();
+#endif
     if (auto* context = m_layer->context(); context && context->nextRenderingUpdateRequiresSynchronousImageDecoding())
         paintBehavior.add(GraphicsLayerPaintBehavior::ForceSynchronousImageDecode);
     
@@ -466,6 +490,10 @@ void RemoteLayerBackingStore::drawInContext(GraphicsContext& context)
 
     m_dirtyRegion = { };
     m_paintingRects.clear();
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    m_edrHeadroom = std::max(m_edrHeadroom, context.maxPaintedEDRHeadroom());
+    m_hasPaintedClampedEDRHeadroom |= context.hasPaintedClampedEDRHeadroom();
+#endif
 
     layer->owner()->platformCALayerLayerDidDisplay(layer.ptr());
 
@@ -603,13 +631,25 @@ void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode&
         return;
 
     cachedBuffers.removeAllMatching([&](const RemoteLayerTreeNode::CachedContentsBuffer& current) {
-        if (m_frontBufferInfo && *m_frontBufferInfo == current.imageBufferInfo)
+        auto matches = [&](std::optional<BufferAndBackendInfo>& backendInfo) {
+            if (!backendInfo || *backendInfo != current.imageBufferInfo)
+                return false;
+
+#if HAVE(SUPPORT_HDR_DISPLAY)
+            // Don't reuse the cached CAIOSurface if the headroom has changed, since we need to force
+            // CA to re-initialize from the IOSurface metadata.
+            if (m_edrHeadroom != *current.ioSurface->contentEDRHeadroom())
+                return false;
+#endif
+            return true;
+        };
+        if (matches(m_frontBufferInfo))
             return false;
 
-        if (m_backBufferInfo && *m_backBufferInfo== current.imageBufferInfo)
+        if (matches(m_backBufferInfo))
             return false;
 
-        if (m_secondaryBackBufferInfo && *m_secondaryBackBufferInfo == current.imageBufferInfo)
+        if (matches(m_secondaryBackBufferInfo))
             return false;
 
         return true;
@@ -623,8 +663,13 @@ void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode&
     }
 
     if (!m_contentsBuffer) {
-        m_contentsBuffer = layerContentsBufferFromBackendHandle(WTFMove(*m_bufferHandle), LayerContentsType::CachedIOSurface);
-        cachedBuffers.append({ *m_frontBufferInfo, m_contentsBuffer });
+        if (auto surface = WebCore::IOSurface::createFromSendRight(std::get<MachSendRight>(*std::exchange(m_bufferHandle, std::nullopt)))) {
+#if HAVE(SUPPORT_HDR_DISPLAY)
+            surface->setContentEDRHeadroom(m_edrHeadroom);
+#endif
+            m_contentsBuffer = surface->asCAIOSurfaceLayerContents();
+            cachedBuffers.append({ *m_frontBufferInfo, m_contentsBuffer, WTFMove(surface) });
+        }
     }
 
     node.setCachedContentsBuffers(WTFMove(cachedBuffers));

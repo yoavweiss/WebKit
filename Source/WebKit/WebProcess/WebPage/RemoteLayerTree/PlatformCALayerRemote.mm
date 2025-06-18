@@ -1079,6 +1079,15 @@ void PlatformCALayerRemote::setScrollingNodeID(std::optional<ScrollingNodeID> no
 }
 #endif
 
+#if HAVE(SUPPORT_HDR_DISPLAY)
+bool PlatformCALayerRemote::setNeedsDisplayIfEDRHeadroomExceeds(float headroom)
+{
+    if (m_properties.backingStoreOrProperties.store)
+        return m_properties.backingStoreOrProperties.store->setNeedsDisplayIfEDRHeadroomExceeds(headroom);
+    return false;
+}
+#endif
+
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
 bool PlatformCALayerRemote::isSeparated() const
 {

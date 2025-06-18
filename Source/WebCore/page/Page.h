@@ -29,6 +29,7 @@
 #include "FindOptions.h"
 #include "FrameLoaderTypes.h"
 #include "HistoryItem.h"
+#include "ImageTypes.h"
 #include "IntRectHash.h"
 #include "LoadSchedulingMode.h"
 #include "MediaSessionGroupIdentifier.h"
@@ -1342,6 +1343,11 @@ public:
     bool requiresUserGestureForAudioPlayback() const;
     bool requiresUserGestureForVideoPlayback() const;
 
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    Headroom displayEDRHeadroom() const { return m_displayEDRHeadroom; }
+    void updateDisplayEDRHeadroom();
+#endif
+
 private:
     explicit Page(PageConfiguration&&);
 
@@ -1769,6 +1775,10 @@ private:
 
 #if ENABLE(WRITING_TOOLS)
     const UniqueRef<WritingToolsController> m_writingToolsController;
+#endif
+
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    Headroom m_displayEDRHeadroom { Headroom::None };
 #endif
 
     UncheckedKeyHashSet<std::pair<URL, ScriptTelemetryCategory>> m_reportedScriptsWithTelemetry;

@@ -43,6 +43,10 @@ struct ScreenData {
     bool screenSupportsExtendedColor { false };
     bool screenHasInvertedColors { false };
     bool screenSupportsHighDynamicRange { false };
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    float currentEDRHeadroom { 1 };
+    float maxEDRHeadroom { 1 };
+#endif
 #if PLATFORM(MAC)
     FloatSize screenSize; // In millimeters.
     bool screenIsMonochrome { false };

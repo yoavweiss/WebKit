@@ -850,6 +850,10 @@ void WebProcessPool::registerNotificationObservers()
         setApplicationIsActive(false);
     }];
 
+    m_didChangeScreenParametersNotificationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidChangeScreenParametersNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
+        screenPropertiesChanged();
+    }];
+
     addCFNotificationObserver(colorPreferencesDidChangeCallback, AppleColorPreferencesChangedNotification, CFNotificationCenterGetDistributedCenter());
 
     const char* messages[] = { kNotifyDSCacheInvalidation, kNotifyDSCacheInvalidationGroup, kNotifyDSCacheInvalidationHost, kNotifyDSCacheInvalidationService, kNotifyDSCacheInvalidationUser };
@@ -979,6 +983,7 @@ void WebProcessPool::unregisterNotificationObservers()
     [[NSWorkspace.sharedWorkspace notificationCenter] removeObserver:m_accessibilityDisplayOptionsNotificationObserver.get()];
     [[NSNotificationCenter defaultCenter] removeObserver:m_scrollerStyleNotificationObserver.get()];
     [[NSNotificationCenter defaultCenter] removeObserver:m_deactivationObserver.get()];
+    [[NSWorkspace.sharedWorkspace notificationCenter] removeObserver:m_didChangeScreenParametersNotificationObserver.get()];
     removeCFNotificationObserver(AppleColorPreferencesChangedNotification, CFNotificationCenterGetDistributedCenter());
     for (auto token : m_openDirectoryNotifyTokens)
         notify_cancel(token);
@@ -1322,6 +1327,19 @@ void WebProcessPool::registerHighDynamicRangeChangeCallback()
     } };
 }
 #endif // PLATFORM(IOS) || PLATFORM(VISION)
+
+#if PLATFORM(IOS_FAMILY)
+void WebProcessPool::didRefreshDisplay()
+{
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    float headroom = currentEDRHeadroomForDisplay(primaryScreenDisplayID());
+    if (m_currentEDRHeadroom != headroom) {
+        m_currentEDRHeadroom = headroom;
+        screenPropertiesChanged();
+    }
+#endif
+}
+#endif
 
 #if ENABLE(EXTENSION_CAPABILITIES)
 ExtensionCapabilityGranter& WebProcessPool::extensionCapabilityGranter()
