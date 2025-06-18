@@ -255,16 +255,6 @@ webkit.org/b/258543 scrollingcoordinator/scrolling-tree/fixed-position-within-tr
 webkit.org/b/258543 scrollingcoordinator/scrolling-tree/absolute-in-nested-overflow-scroll.html [ Failure ]
 webkit.org/b/258543 scrollingcoordinator/scrolling-tree/absolute-in-nested-sc-scrollers.html [ Failure ]
 
-# WebXR tests failing since 249564@main
-http/wpt/webxr/xrFrame_fillJointRadii.html [ Failure ]
-http/wpt/webxr/xrFrame_fillJointRadii_missing_joint_pose.html [ Failure ]
-http/wpt/webxr/xrFrame_fillPoses.html [ Failure ]
-http/wpt/webxr/xrFrame_fillPoses_missing_joint_pose.html [ Failure ]
-http/wpt/webxr/xrFrame_getJointPose.html [ Failure ]
-http/wpt/webxr/xrFrame_getJointPose_missing_joint_pose.html [ Failure ]
-http/wpt/webxr/xrHand.html [ Failure ]
-http/wpt/webxr/xrHandInput_gc.html [ Failure ]
-
 # Pending to create bug.
 [ Release ] fast/events/prevent-default-prevents-interaction-with-scrollbars.html [ Failure Pass ]
 media/no-fullscreen-when-hidden.html [ Failure ]
@@ -303,7 +293,6 @@ imported/w3c/web-platform-tests/service-workers/service-worker/navigation-redire
 imported/w3c/web-platform-tests/storage/storagemanager-estimate.https.any.html [ Failure ]
 imported/w3c/web-platform-tests/storage/storagemanager-estimate.https.any.worker.html [ Failure ]
 imported/w3c/web-platform-tests/streams/readable-byte-streams/construct-byob-request.any.worker.html [ Failure ]
-imported/w3c/web-platform-tests/webxr/webxr_availability.http.sub.html [ Failure ]
 imported/w3c/web-platform-tests/workers/SharedWorker_dataUrl.html [ Failure Pass ]
 imported/w3c/web-platform-tests/xhr/event-error-order.sub.html [ Failure ]
 imported/w3c/web-platform-tests/xhr/event-error.sub.any.worker.html [ Failure ]
@@ -578,33 +567,6 @@ Bug(WPE) fast/events/selectstart-by-drag.html [ Failure ]
 
 # @font-face: missing integration between size-adjust and optical-size
 webkit.org/b/256457 imported/w3c/web-platform-tests/css/css-fonts/variations/variable-opsz-size-adjust.html [ ImageOnlyFailure ]
-
-# WebXR
-imported/w3c/web-platform-tests/webxr/xrRigidTransform_matrix.https.html [ Pass ]
-imported/w3c/web-platform-tests/webxr/xrSession_features_deviceSupport.https.html [ Pass ]
-imported/w3c/web-platform-tests/webxr/xrSession_prevent_multiple_exclusive.https.html [ Pass ]
-imported/w3c/web-platform-tests/webxr/xrSession_viewer_availability.https.html [ Pass ]
-imported/w3c/web-platform-tests/webxr/xrWebGLLayer_viewports.https.html [  Crash Failure Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/ar-module/xrDevice_isSessionSupported_immersive-ar.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/webGLCanvasContext_create_xrcompatible.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/webGLCanvasContext_makecompatible_contextlost.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/webGLCanvasContext_makecompatible_reentrant.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/xrDevice_isSessionSupported_immersive.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/xrDevice_isSessionSupported_immersive_unsupported.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/xrDevice_isSessionSupported_inline.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/xrDevice_requestSession_immersive_no_gesture.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/xrDevice_requestSession_immersive_unsupported.https.html [ Pass ]
-webkit.org/b/209859 imported/w3c/web-platform-tests/webxr/xrDevice_requestSession_no_mode.https.html [ Pass ]
-webkit.org/b/209859 [ Release ] imported/w3c/web-platform-tests/webxr/ar-module/idlharness.https.window.html [ Pass ]
-webkit.org/b/209859 [ Release ] imported/w3c/web-platform-tests/webxr/xrDevice_requestSession_non_immersive_no_gesture.https.html [ Pass ]
-webkit.org/b/212897 [ Release ] imported/w3c/web-platform-tests/webxr/idlharness.https.window.html [ Pass ]
-webkit.org/b/225483 imported/w3c/web-platform-tests/webxr/xrSession_requestReferenceSpace_features.https.html [ Pass Failure ]
-webkit.org/b/225483 imported/w3c/web-platform-tests/webxr/xrSession_requestReferenceSpace.https.html [ Pass Failure ]
-webkit.org/b/225483 imported/w3c/web-platform-tests/webxr/xrSession_sameObject.https.html [ Pass Failure ]
-webkit.org/b/292840 http/tests/webxr/webxr-third-party-iframe-requestsession-denied-by-insufficient-feature-policy.html [ Timeout ]
-
-# WebXR: Sometimes the test reports Syntax Error: Can't create duplicate variable isChromiumBased.
-[ Release ] imported/w3c/web-platform-tests/webxr/ar-module/xrDevice_requestSession_immersive-ar.https.html [ DumpJSConsoleLogInStdErr ]
 
 # Test failing since async overflow scrolling was activated in WPE.
 webkit.org/b/224596 css3/filters/clipping-overflow-scroll-with-pixel-moving-effect-on-parent.html [ ImageOnlyFailure ]
@@ -1285,8 +1247,6 @@ webkit.org/b/261024 http/tests/frame-throttling/raf-throttle-in-cross-origin-sub
 webkit.org/b/261024 http/tests/notifications/notification.html [ Crash Pass ]
 webkit.org/b/261024 imported/w3c/web-platform-tests/encrypted-media/clearkey-mp4-playback-temporary-encrypted-clear-sources.https.html [ Crash Failure Pass ]
 webkit.org/b/261024 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audiocontext-interface/audiocontext-sinkid-state-change.https.html [ Pass Timeout ]
-webkit.org/b/261024 imported/w3c/web-platform-tests/webxr/xrWebGLLayer_framebuffer_draw.https.html [ Crash Failure Pass ]
-webkit.org/b/261024 imported/w3c/web-platform-tests/webxr/xrWebGLLayer_opaque_framebuffer.https.html [ Crash Failure Pass ]
 webkit.org/b/261024 imported/w3c/web-platform-tests/workers/WorkerGlobalScope_ErrorEvent_colno.htm [ Failure Pass ]
 webkit.org/b/261024 js/cached-window-properties.html [ Pass Timeout ]
 webkit.org/b/261024 webgl/1.0.x/conformance/reading/read-pixels-test.html [ Pass Timeout ]
@@ -1581,3 +1541,10 @@ http/tests/iframe-memory-monitor/media-video-autoplay-in-frames.html [ Skip ]
 # The Digital Credentials API is not supported on WPE port.
 http/wpt/identity/ [ Skip ]
 imported/w3c/web-platform-tests/digital-credentials/ [ Skip ]
+
+# WebXR is not yet supported in WPE
+http/tests/webxr [ Skip ]
+http/wpt/webxr [ Skip ]
+imported/w3c/web-platform-tests/webxr [ Skip ]
+webxr [ Skip ]
+

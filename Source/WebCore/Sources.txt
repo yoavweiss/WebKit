@@ -2759,13 +2759,6 @@ platform/text/TextSpacing.cpp
 platform/text/UnicodeBidi.cpp
 platform/text/UnicodeHelpers.cpp
 platform/video-codecs/BitReader.cpp
-platform/xr/openxr/OpenXRInput.cpp
-platform/xr/openxr/OpenXRInputSource.cpp
-platform/xr/openxr/OpenXRInstance.cpp
-platform/xr/openxr/OpenXRExtensions.cpp
-platform/xr/openxr/OpenXRLayer.cpp
-platform/xr/openxr/OpenXRSwapchain.cpp
-platform/xr/openxr/PlatformXROpenXR.cpp
 plugins/DOMMimeType.cpp
 plugins/DOMMimeTypeArray.cpp
 plugins/DOMPlugin.cpp
