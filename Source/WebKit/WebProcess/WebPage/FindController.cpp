@@ -513,7 +513,7 @@ void FindController::didHideFindIndicator()
     
 unsigned FindController::findIndicatorRadius() const
 {
-    return 0;
+    return 3;
 }
     
 bool FindController::shouldHideFindIndicatorOnScroll() const
