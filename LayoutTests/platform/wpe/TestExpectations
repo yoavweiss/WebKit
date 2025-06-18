@@ -1535,3 +1535,4 @@ http/wpt/webxr [ Skip ]
 imported/w3c/web-platform-tests/webxr [ Skip ]
 webxr [ Skip ]
 
+http/tests/lockdown-mode [ Skip ]
