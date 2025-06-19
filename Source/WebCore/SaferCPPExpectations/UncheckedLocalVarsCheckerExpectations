@@ -625,8 +625,6 @@ testing/Internals.mm
 testing/ServiceWorkerInternals.cpp
 testing/js/WebCoreTestSupport.cpp
 workers/WorkerGlobalScope.cpp
-workers/WorkerMessagingProxy.cpp
 workers/WorkerOrWorkletThread.cpp
 workers/WorkerRunLoop.cpp
 workers/service/server/SWServer.cpp
-worklets/Worklet.cpp
