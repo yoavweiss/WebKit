@@ -158,13 +158,44 @@ static void dmaBufBufferDestroy(DMABufBuffer* buffer)
     delete buffer;
 }
 
+struct SharedMemoryBuffer {
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
+
+    SharedMemoryBuffer(WPEView* view, std::unique_ptr<WPE::WaylandSHMPool>&& pool, uint32_t offset, uint32_t width, uint32_t height, uint32_t stride)
+        : view(view)
+        , wlPool(WTFMove(pool))
+        , wlBuffer(wlPool->createBuffer(offset, width, height, stride))
+    {
+    }
+
+    ~SharedMemoryBuffer()
+    {
+        if (wlBuffer)
+            wl_buffer_destroy(wlBuffer);
+    }
+
+    GWeakPtr<WPEView> view;
+    std::unique_ptr<WPE::WaylandSHMPool> wlPool;
+    struct wl_buffer* wlBuffer { nullptr };
+};
+
+static void sharedMemoryBufferDestroy(SharedMemoryBuffer* buffer)
+{
+    delete buffer;
+}
+
 static const struct wl_buffer_listener bufferListener = {
     // release
     [](void* userData, struct wl_buffer*)
     {
         auto* buffer = WPE_BUFFER(userData);
-        if (auto* dmaBufBuffer = static_cast<DMABufBuffer*>(wpe_buffer_get_user_data(buffer)); dmaBufBuffer && dmaBufBuffer->view)
-            wpe_view_buffer_released(dmaBufBuffer->view.get(), buffer);
+        if (WPE_IS_BUFFER_DMA_BUF(buffer)) {
+            if (auto* dmaBufBuffer = static_cast<DMABufBuffer*>(wpe_buffer_get_user_data(buffer)); dmaBufBuffer && dmaBufBuffer->view)
+                wpe_view_buffer_released(dmaBufBuffer->view.get(), buffer);
+        } else if (WPE_IS_BUFFER_SHM(buffer)) {
+            if (auto* sharedMemoryBuffer = static_cast<SharedMemoryBuffer*>(wpe_buffer_get_user_data(buffer)); sharedMemoryBuffer && sharedMemoryBuffer->view)
+                wpe_view_buffer_released(sharedMemoryBuffer->view.get(), buffer);
+        }
     }
 };
 
@@ -239,32 +270,9 @@ static struct wl_buffer* createWaylandBufferFromDMABuf(WPEView* view, WPEBuffer*
     return dmaBufBuffer->wlBuffer;
 }
 
-struct SharedMemoryBuffer {
-    WTF_MAKE_STRUCT_FAST_ALLOCATED;
-
-    SharedMemoryBuffer(std::unique_ptr<WPE::WaylandSHMPool>&& pool, uint32_t offset, uint32_t width, uint32_t height, uint32_t stride)
-        : wlPool(WTFMove(pool))
-        , wlBuffer(wlPool->createBuffer(offset, width, height, stride))
-    {
-    }
-
-    ~SharedMemoryBuffer()
-    {
-        if (wlBuffer)
-            wl_buffer_destroy(wlBuffer);
-    }
-
-    std::unique_ptr<WPE::WaylandSHMPool> wlPool;
-    struct wl_buffer* wlBuffer;
-};
-
-static void sharedMemoryBufferDestroy(SharedMemoryBuffer* buffer)
+static SharedMemoryBuffer* sharedMemoryBufferCreate(WPEView* view, GBytes* bytes, int width, int height, unsigned stride)
 {
-    delete buffer;
-}
-
-static SharedMemoryBuffer* sharedMemoryBufferCreate(WPEDisplayWayland* display, GBytes* bytes, int width, int height, unsigned stride)
-{
+    auto* display = WPE_DISPLAY_WAYLAND(wpe_view_get_display(view));
     auto size = g_bytes_get_size(bytes);
     auto wlPool = WPE::WaylandSHMPool::create(wpe_display_wayland_get_wl_shm(display), size);
     if (!wlPool)
@@ -276,7 +284,7 @@ static SharedMemoryBuffer* sharedMemoryBufferCreate(WPEDisplayWayland* display, 
 
     memcpy(reinterpret_cast<char*>(wlPool->data()) + offset, g_bytes_get_data(bytes, nullptr), size);
 
-    return new SharedMemoryBuffer(WTFMove(wlPool), offset, width, height, stride);
+    return new SharedMemoryBuffer(view, WTFMove(wlPool), offset, width, height, stride);
 }
 
 static struct wl_buffer* createWaylandBufferSHM(WPEView* view, WPEBuffer* buffer, GError** error)
@@ -293,8 +301,7 @@ static struct wl_buffer* createWaylandBufferSHM(WPEView* view, WPEBuffer* buffer
         return nullptr;
     }
 
-    auto* display = WPE_DISPLAY_WAYLAND(wpe_view_get_display(view));
-    auto* sharedMemoryBuffer = sharedMemoryBufferCreate(display, wpe_buffer_shm_get_data(bufferSHM),
+    auto* sharedMemoryBuffer = sharedMemoryBufferCreate(view, wpe_buffer_shm_get_data(bufferSHM),
         wpe_buffer_get_width(buffer), wpe_buffer_get_height(buffer), wpe_buffer_shm_get_stride(bufferSHM));
     if (!sharedMemoryBuffer) {
         g_set_error_literal(error, WPE_VIEW_ERROR, WPE_VIEW_ERROR_RENDER_FAILED, "Failed to render buffer: can't create Wayland buffer because failed to create shared memory");
@@ -486,7 +493,7 @@ static void wpeViewWaylandSetCursorFromBytes(WPEView* view, GBytes* bytes, guint
     if (!cursor)
         return;
 
-    auto* sharedMemoryBuffer = sharedMemoryBufferCreate(display, bytes, width, height, stride);
+    auto* sharedMemoryBuffer = sharedMemoryBufferCreate(view, bytes, width, height, stride);
     if (!sharedMemoryBuffer)
         return;
 
