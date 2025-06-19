@@ -162,13 +162,13 @@ void AccessibilityTableRow::addChildren()
 
 std::optional<unsigned> AccessibilityTableRow::axColumnIndex() const
 {
-    int value = getIntegralAttribute(aria_colindexAttr);
+    int value = integralAttribute(aria_colindexAttr);
     return value >= 1 ? std::optional(value) : std::nullopt;
 }
 
 std::optional<unsigned> AccessibilityTableRow::axRowIndex() const
 {
-    int value = getIntegralAttribute(aria_rowindexAttr);
+    int value = integralAttribute(aria_rowindexAttr);
     return value >= 1 ? std::optional(value) : std::nullopt;
 }
     

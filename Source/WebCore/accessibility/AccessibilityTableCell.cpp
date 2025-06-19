@@ -354,7 +354,7 @@ AccessibilityObject* AccessibilityTableCell::titleUIElement() const
     
 std::optional<unsigned> AccessibilityTableCell::axColumnIndex() const
 {
-    if (int value = getIntegralAttribute(aria_colindexAttr); value >= 1)
+    if (int value = integralAttribute(aria_colindexAttr); value >= 1)
         return value;
 
     // "ARIA 1.1: If the set of columns which is present in the DOM is contiguous, and if there are no cells which span more than one row
@@ -370,7 +370,7 @@ std::optional<unsigned> AccessibilityTableCell::axRowIndex() const
 {
     // ARIA 1.1: Authors should place aria-rowindex on each row. Authors may also place
     // aria-rowindex on all of the children or owned elements of each row.
-    if (int value = getIntegralAttribute(aria_rowindexAttr); value >= 1)
+    if (int value = integralAttribute(aria_rowindexAttr); value >= 1)
         return value;
 
     if (RefPtr parentRow = this->parentRow())
@@ -419,7 +419,7 @@ int AccessibilityTableCell::axColumnSpan() const
         return -1;
 
     // ARIA 1.1: Authors must set the value of aria-colspan to an integer greater than or equal to 1.
-    if (int value = getIntegralAttribute(aria_colspanAttr); value >= 1)
+    if (int value = integralAttribute(aria_colspanAttr); value >= 1)
         return value;
 
     return -1;
@@ -436,7 +436,7 @@ int AccessibilityTableCell::axRowSpan() const
     // Setting the value to 0 indicates that the cell or gridcell is to span all the remaining rows in the row group.
     if (getAttribute(aria_rowspanAttr) == "0"_s)
         return 0;
-    if (int value = getIntegralAttribute(aria_rowspanAttr); value >= 1)
+    if (int value = integralAttribute(aria_rowspanAttr); value >= 1)
         return value;
 
     return -1;

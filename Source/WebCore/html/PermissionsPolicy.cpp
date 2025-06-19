@@ -367,7 +367,7 @@ PermissionsPolicy::PolicyDirective PermissionsPolicy::processPermissionsPolicyAt
     auto allowAttributeValue = iframe.attributeWithoutSynchronization(allowAttr);
     auto policyDirective = parsePolicyDirective(allowAttributeValue, iframe.protectedDocument()->securityOrigin().data(), declaredOrigin(iframe)->data());
 
-    if (iframe.hasAttribute(allowfullscreenAttr) || iframe.hasAttribute(webkitallowfullscreenAttr))
+    if (iframe.hasAttributeWithoutSynchronization(allowfullscreenAttr) || iframe.hasAttributeWithoutSynchronization(webkitallowfullscreenAttr))
         policyDirective.add(Feature::Fullscreen, Allowlist::AllowAllOrigins { });
 
     return policyDirective;

@@ -1457,8 +1457,7 @@ RenderView* AccessibilityObject::topRenderer() const
 
 unsigned AccessibilityObject::ariaLevel() const
 {
-    int level = getIntegralAttribute(aria_levelAttr);
-    return level > 0 ? level : 0;
+    return std::max(0, integralAttribute(aria_levelAttr));
 }
 
 String AccessibilityObject::language() const
@@ -2499,7 +2498,7 @@ String AccessibilityObject::nameAttribute() const
     return getAttribute(nameAttr);
 }
 
-int AccessibilityObject::getIntegralAttribute(const QualifiedName& attributeName) const
+int AccessibilityObject::integralAttribute(const QualifiedName& attributeName) const
 {
     return parseHTMLInteger(getAttribute(attributeName)).value_or(0);
 }
@@ -3226,16 +3225,15 @@ int AccessibilityObject::setSize() const
 {
     // https://github.com/w3c/aria/pull/2341
     // When aria-setsize isn't a positive integer (greater than or equal to 1), its value should be indeterminate, i.e., -1.
-    int setSize = getIntegralAttribute(aria_setsizeAttr);
-    return (setSize >= 1) ? setSize : -1;
+    int setSize = integralAttribute(aria_setsizeAttr);
+    return setSize >= 1 ? setSize : -1;
 }
 
 int AccessibilityObject::posInSet() const
 {
     // https://github.com/w3c/aria/pull/2341
     // When aria-posinset isn't a positive integer (greater than or equal to 1), its value should be 1.
-    int posInSet = getIntegralAttribute(aria_posinsetAttr);
-    return (posInSet >= 1) ? posInSet : 1;
+    return std::max(1, integralAttribute(aria_posinsetAttr));
 }
 
 String AccessibilityObject::identifierAttribute() const

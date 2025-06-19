@@ -2122,10 +2122,10 @@ URL AccessibilityNodeObject::url() const
         return anchor->href();
 
     if (RefPtr image = dynamicDowncast<HTMLImageElement>(node); image && isImage())
-        return image->src();
+        return image->getURLAttribute(srcAttr);
 
     if (RefPtr input = dynamicDowncast<HTMLInputElement>(node); input && isInputImage())
-        return input->src();
+        return input->getURLAttribute(srcAttr);
 
 #if ENABLE(VIDEO)
     if (RefPtr video = dynamicDowncast<HTMLVideoElement>(node); video && isVideo())

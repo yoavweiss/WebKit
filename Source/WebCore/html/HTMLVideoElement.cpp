@@ -436,15 +436,12 @@ void HTMLVideoElement::ancestorWillEnterFullscreen()
 }
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
+
 bool HTMLVideoElement::webkitWirelessVideoPlaybackDisabled() const
 {
     return mediaSession().wirelessVideoPlaybackDisabled();
 }
 
-void HTMLVideoElement::setWebkitWirelessVideoPlaybackDisabled(bool disabled)
-{
-    setBooleanAttribute(webkitwirelessvideoplaybackdisabledAttr, disabled);
-}
 #endif
 
 void HTMLVideoElement::didMoveToNewDocument(Document& oldDocument, Document& newDocument)

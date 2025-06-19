@@ -290,7 +290,7 @@ void ImageLoader::updateFromElement(RelevantMutation relevantMutation)
         // Adaptive image glyphs need to load both the high fidelity HEIC and the
         // fallback PNG resource, as both resources are treated as an atomic unit.
         if (imageElement && imageElement->isMultiRepresentationHEIC()) {
-            auto fallbackURL = imageElement->src();
+            auto fallbackURL = imageElement->getURLAttribute(HTMLNames::srcAttr);
             if (!fallbackURL.isNull()) {
                 ResourceRequest resourceRequest(WTFMove(fallbackURL));
                 resourceRequest.setInspectorInitiatorNodeIdentifier(InspectorInstrumentation::identifierForNode(*imageElement));

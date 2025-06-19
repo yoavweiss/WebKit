@@ -10197,7 +10197,7 @@ const AtomString& Document::dir() const
 void Document::setDir(const AtomString& value)
 {
     if (RefPtr documentElement = dynamicDowncast<HTMLHtmlElement>(this->documentElement()))
-        documentElement->setDir(value);
+        documentElement->setAttributeWithoutSynchronization(dirAttr, value);
 }
 
 DOMSelection* Document::getSelection()

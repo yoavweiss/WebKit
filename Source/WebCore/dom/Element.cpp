@@ -726,7 +726,7 @@ bool Element::removeAttribute(const QualifiedName& name)
 void Element::setBooleanAttribute(const QualifiedName& name, bool value)
 {
     if (value)
-        setAttribute(name, emptyAtom());
+        setAttributeWithoutSynchronization(name, emptyAtom());
     else
         removeAttribute(name);
 }
@@ -4944,24 +4944,24 @@ URL Element::getNonEmptyURLAttribute(const QualifiedName& name) const
     return document().completeURL(value);
 }
 
-int Element::getIntegralAttribute(const QualifiedName& attributeName) const
+int Element::integralAttribute(const QualifiedName& attributeName) const
 {
-    return parseHTMLInteger(getAttribute(attributeName)).value_or(0);
+    return parseHTMLInteger(attributeWithoutSynchronization(attributeName)).value_or(0);
 }
 
 void Element::setIntegralAttribute(const QualifiedName& attributeName, int value)
 {
-    setAttribute(attributeName, AtomString::number(value));
+    setAttributeWithoutSynchronization(attributeName, AtomString::number(value));
 }
 
-unsigned Element::getUnsignedIntegralAttribute(const QualifiedName& attributeName) const
+unsigned Element::unsignedIntegralAttribute(const QualifiedName& attributeName) const
 {
-    return parseHTMLNonNegativeInteger(getAttribute(attributeName)).value_or(0);
+    return parseHTMLNonNegativeInteger(attributeWithoutSynchronization(attributeName)).value_or(0);
 }
 
 void Element::setUnsignedIntegralAttribute(const QualifiedName& attributeName, unsigned value)
 {
-    setAttribute(attributeName, AtomString::number(limitToOnlyHTMLNonNegative(value)));
+    setAttributeWithoutSynchronization(attributeName, AtomString::number(limitToOnlyHTMLNonNegative(value)));
 }
 
 bool Element::childShouldCreateRenderer(const Node& child) const
@@ -6309,6 +6309,11 @@ bool Element::hasRandomCachingKeyMap() const
     if (!hasRareData())
         return false;
     return elementRareData()->hasRandomCachingKeyMap();
+}
+
+void Element::setNumericAttribute(const QualifiedName& attributeName, double value)
+{
+    setAttributeWithoutSynchronization(attributeName, AtomString::number(value));
 }
 
 } // namespace WebCore

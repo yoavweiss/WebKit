@@ -564,7 +564,7 @@ public:
     String getAttributeTrimmed(const QualifiedName&) const;
 
     String nameAttribute() const final;
-    int getIntegralAttribute(const QualifiedName&) const;
+    int integralAttribute(const QualifiedName&) const;
     bool hasElementName(const ElementName) const final;
     bool hasAttachmentTag() const final { return hasElementName(ElementName::HTML_attachment); }
     bool hasBodyTag() const final { return hasElementName(ElementName::HTML_body); }
