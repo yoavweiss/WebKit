@@ -582,11 +582,8 @@ private:
 
     void objectChangedIgnoredState(const AccessibilityObject&);
 
-    const ProcessID m_processID { legacyPresentingApplicationPID() };
     const WeakPtr<AXObjectCache> m_axObjectCache;
-    OptionSet<ActivityState> m_pageActivityState;
     RefPtr<AXGeometryManager> m_geometryManager;
-    bool m_isEmptyContentTree { false };
     // Reference to a temporary, empty content tree that this tree will replace. Used for updating the empty content tree while this is built.
     RefPtr<AXIsolatedTree> m_replacingTree;
     RefPtr<AccessibilityObject> m_rootOfSubtreeBeingUpdated;
@@ -623,8 +620,6 @@ private:
     // Only accessed on the main thread.
     // Objects whose parent has changed, and said change needs to be synced to the secondary thread.
     HashSet<AXID> m_needsParentUpdate;
-    // Only accessed on the main thread.
-    bool m_isCollectingNodeChanges { false };
 
     // Only accessed on AX thread.
     HashMap<AXID, Ref<AXIsolatedObject>> m_readerThreadNodeMap;
@@ -639,8 +634,13 @@ private:
     HashSet<AXID> m_pendingProtectedFromDeletionIDs WTF_GUARDED_BY_LOCK(m_changeLogLock);
     HashMap<AXID, AXID> m_pendingParentUpdates WTF_GUARDED_BY_LOCK(m_changeLogLock);
     Markable<AXID> m_pendingFocusedNodeID WTF_GUARDED_BY_LOCK(m_changeLogLock);
-    bool m_queuedForDestruction WTF_GUARDED_BY_LOCK(m_changeLogLock) { false };
     std::optional<Vector<AXID>> m_pendingSortedLiveRegionIDs WTF_GUARDED_BY_LOCK(m_changeLogLock);
+
+    // These three are placed here to fit in padding that would otherwise be between m_pendingSortedLiveRegionIDs and m_pendingSortedNonRootWebAreaIDs.
+    OptionSet<ActivityState> m_pageActivityState;
+    bool m_isEmptyContentTree { false };
+    bool m_queuedForDestruction WTF_GUARDED_BY_LOCK(m_changeLogLock) { false };
+
     std::optional<Vector<AXID>> m_pendingSortedNonRootWebAreaIDs WTF_GUARDED_BY_LOCK(m_changeLogLock);
     std::optional<HashMap<AXID, LineRange>> m_pendingMostRecentlyPaintedText WTF_GUARDED_BY_LOCK(m_changeLogLock);
     std::optional<HashMap<AXID, AXRelations>> m_pendingRelations WTF_GUARDED_BY_LOCK(m_changeLogLock);
@@ -661,7 +661,12 @@ private:
     bool m_mostRecentlyPaintedTextIsDirty { true };
 
     Lock m_changeLogLock;
+
+    // Only accessed on the main thread.
+    bool m_isCollectingNodeChanges;
+
     AXTextMarkerRange m_selectedTextMarkerRange;
+    const ProcessID m_processID { legacyPresentingApplicationPID() };
 
     // Queued node updates used for building a new tree snapshot.
     ListHashSet<AXID> m_needsUpdateChildren;
