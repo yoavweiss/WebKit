@@ -5309,7 +5309,11 @@ void Page::updateFixedContainerEdges(BoxSideSet sides)
             if (!lastElement)
                 continue;
 
-            if (!lastElement->renderer())
+            CheckedPtr renderer = lastElement->renderer();
+            if (!renderer)
+                continue;
+
+            if (renderer->style().usedVisibility() != Visibility::Visible)
                 continue;
 
             elements.setAt(side, WTFMove(lastElement));
