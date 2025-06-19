@@ -355,6 +355,9 @@ void RemoteLayerBackingStore::setDelegatedContents(const PlatformCALayerRemoteDe
         m_contentsRenderingResourceIdentifier = std::nullopt;
     m_dirtyRegion = { };
     m_paintingRects.clear();
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    m_edrHeadroom = 0;
+#endif
 }
 
 bool RemoteLayerBackingStore::needsDisplay() const
@@ -517,8 +520,11 @@ void RemoteLayerBackingStore::enumerateRectsBeingDrawn(GraphicsContext& context,
     }
 }
 
-RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&& backendHandle, LayerContentsType contentsType)
+RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&& backendHandle, LayerContentsType contentsType, bool isDelegatedDisplay)
 {
+#if !HAVE(SUPPORT_HDR_DISPLAY_APIS)
+    UNUSED_PARAM(isDelegatedDisplay);
+#endif
     RetainPtr<id> contents;
     WTF::switchOn(backendHandle,
         [&] (ShareableBitmap::Handle& handle) {
@@ -536,8 +542,13 @@ RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendH
                 contents = bridge_id_cast(adoptCF(CAMachPortCreate(machSendRight.leakSendRight())));
                 break;
             case LayerContentsType::CachedIOSurface:
-                auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight));
-                contents = surface ? surface->asCAIOSurfaceLayerContents() : nil;
+                if (auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight))) {
+#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
+                    if (isDelegatedDisplay && surface->hasFormat(WebCore::IOSurface::Format::RGBA16F) && !surface->contentEDRHeadroom())
+                        surface->loadContentEDRHeadroom();
+#endif
+                    contents = surface->asCAIOSurfaceLayerContents();
+                }
                 break;
             }
         }
@@ -557,6 +568,9 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
         return;
 
     layer.contentsOpaque = m_isOpaque;
+#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
+    layer.contentsHeadroom = m_edrHeadroom;
+#endif
 
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
     if (hostingView && [hostingView isKindOfClass:[WKSeparatedImageView class]] && contentsType == LayerContentsType::CachedIOSurface) {
@@ -574,8 +588,10 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
     // m_bufferHandle can be unset here if IPC with the GPU process timed out.
     if (m_contentsBuffer)
         contents = m_contentsBuffer;
-    else if (m_bufferHandle)
-        contents = layerContentsBufferFromBackendHandle(WTFMove(*m_bufferHandle), contentsType);
+    else if (m_bufferHandle) {
+        bool isDelegatedDisplay = !m_frontBufferInfo;
+        contents = layerContentsBufferFromBackendHandle(WTFMove(*m_bufferHandle), contentsType, isDelegatedDisplay);
+    }
 
     if (!contents) {
         [layer _web_clearContents];
@@ -634,13 +650,6 @@ void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode&
         auto matches = [&](std::optional<BufferAndBackendInfo>& backendInfo) {
             if (!backendInfo || *backendInfo != current.imageBufferInfo)
                 return false;
-
-#if HAVE(SUPPORT_HDR_DISPLAY)
-            // Don't reuse the cached CAIOSurface if the headroom has changed, since we need to force
-            // CA to re-initialize from the IOSurface metadata.
-            if (m_edrHeadroom != *current.ioSurface->contentEDRHeadroom())
-                return false;
-#endif
             return true;
         };
         if (matches(m_frontBufferInfo))
@@ -664,9 +673,6 @@ void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode&
 
     if (!m_contentsBuffer) {
         if (auto surface = WebCore::IOSurface::createFromSendRight(std::get<MachSendRight>(*std::exchange(m_bufferHandle, std::nullopt)))) {
-#if HAVE(SUPPORT_HDR_DISPLAY)
-            surface->setContentEDRHeadroom(m_edrHeadroom);
-#endif
             m_contentsBuffer = surface->asCAIOSurfaceLayerContents();
             cachedBuffers.append({ *m_frontBufferInfo, m_contentsBuffer, WTFMove(surface) });
         }

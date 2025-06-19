@@ -236,7 +236,7 @@ public:
 
     bool isOpaque() const { return m_isOpaque; }
 
-    static RetainPtr<id> layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&&, LayerContentsType);
+    static RetainPtr<id> layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&&, LayerContentsType, bool isDelegatedDisplay);
 
     void dump(WTF::TextStream&) const;
 

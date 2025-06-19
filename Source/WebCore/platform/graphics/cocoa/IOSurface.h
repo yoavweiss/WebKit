@@ -198,7 +198,7 @@ public:
 #if HAVE(SUPPORT_HDR_DISPLAY)
     WEBCORE_EXPORT void setContentEDRHeadroom(float);
     WEBCORE_EXPORT std::optional<float> contentEDRHeadroom() const;
-    void loadContentEDRHeadroom();
+    WEBCORE_EXPORT void loadContentEDRHeadroom();
 #endif
 
     WEBCORE_EXPORT DestinationColorSpace colorSpace();
