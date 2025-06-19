@@ -141,7 +141,6 @@ css/SelectorChecker.cpp
 css/SelectorCheckerTestFunctions.h
 css/SelectorFilter.cpp
 css/StyleAttributeMutationScope.h
-css/calc/CSSCalcTree+ContainerProgressEvaluator.cpp
 css/parser/SizesAttributeParser.cpp
 css/query/MediaQueryFeatures.cpp
 css/typedom/ComputedStylePropertyMapReadOnly.cpp

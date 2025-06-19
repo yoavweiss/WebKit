@@ -1107,20 +1107,6 @@ CSSConstrainedDynamicRangeLimitEnabled:
     WebCore:
       default: false
 
-CSSContainerProgressFunctionEnabled:
-  type: bool
-  category: css
-  status: testable
-  humanReadableName: "CSS container-progress()"
-  humanReadableDescription: "Enable support for CSS Values and Units Module Level 5 container-progress()"
-  defaultValue:
-    WebKitLegacy:
-      default: false
-    WebKit:
-      default: false
-    WebCore:
-      default: false
-
 CSSContrastColorEnabled:
   type: bool
   category: css
@@ -1253,20 +1239,6 @@ CSSLineFitEdgeEnabled:
   category: css
   humanReadableName: "CSS line-fit-edge"
   humanReadableDescription: "Enable CSS line-fit-edge"
-  defaultValue:
-    WebKitLegacy:
-      default: false
-    WebKit:
-      default: false
-    WebCore:
-      default: false
-
-CSSMediaProgressFunctionEnabled:
-  type: bool
-  category: css
-  status: testable
-  humanReadableName: "CSS media-progress()"
-  humanReadableDescription: "Enable support for CSS Values and Units Module Level 5 media-progress()"
   defaultValue:
     WebKitLegacy:
       default: false

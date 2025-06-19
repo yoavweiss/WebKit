@@ -33,8 +33,6 @@
 #include "CSSPrimitiveNumericTypes+Serialization.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSUnits.h"
-#include "ContainerQueryFeatures.h"
-#include "MediaQueryFeatures.h"
 #include <ranges>
 #include <wtf/text/StringBuilder.h>
 
@@ -93,7 +91,6 @@ template<typename Op> static void serializeMathFunctionPrefix(StringBuilder&, co
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Sum>&, SerializationState&);
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Product>&, SerializationState&);
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Random>&, SerializationState&);
-static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<ContainerProgress>&, SerializationState&);
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Anchor>&, SerializationState&);
 static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<AnchorSize>&, SerializationState&);
 template<typename Op> static void serializeMathFunctionArguments(StringBuilder&, const IndirectNode<Op>&, SerializationState&);
@@ -412,20 +409,6 @@ void serializeMathFunctionArguments(StringBuilder& builder, const IndirectNode<R
     }
 }
 
-void serializeMathFunctionArguments(StringBuilder& builder, const IndirectNode<ContainerProgress>& fn, SerializationState& state)
-{
-    serializeIdentifier(fn->feature->name(), builder);
-    if (!fn->container.isNull()) {
-        builder.append(' ', nameLiteralForSerialization(CSSValueOf), ' ');
-        serializeIdentifier(fn->container, builder);
-    }
-
-    builder.append(", "_s);
-    serializeCalculationTree(builder, fn->start, state);
-    builder.append(", "_s);
-    serializeCalculationTree(builder, fn->end, state);
-}
-
 void serializeMathFunctionArguments(StringBuilder& builder, const IndirectNode<Anchor>& anchor, SerializationState& state)
 {
     if (!anchor->elementName.isNull()) {
@@ -510,14 +493,6 @@ template<typename Op> void serializeMathFunctionArguments(StringBuilder& builder
                 builder.append(std::exchange(separator, ", "_s));
                 serializeIdentifier(root, builder);
             }
-        },
-        [&](const MQ::MediaProgressProviding* root) {
-            builder.append(std::exchange(separator, ", "_s));
-            serializeIdentifier(root->name(), builder);
-        },
-        [&](const CQ::ContainerProgressProviding* root) {
-            builder.append(std::exchange(separator, ", "_s));
-            serializeIdentifier(root->name(), builder);
         },
         [&](const auto& root) {
             builder.append(std::exchange(separator, ", "_s));
