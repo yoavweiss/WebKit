@@ -24,7 +24,7 @@
 import json
 import os
 import sqlite3
-import typing
+from typing import Callable, Iterable, Optional
 from pathlib import Path
 
 from .macho import APIReport, objc_fully_qualified_method
@@ -179,12 +179,15 @@ class SDKDB:
             if m:
                 self._add_objc_selector(m.group('selector'),
                                         m.group('class'), binary)
+            elif symbol.startswith('_OBJC_CLASS_$_'):
+                self._add_objc_class(symbol.removeprefix('_OBJC_CLASS_$_'),
+                                     binary)
             else:
                 self._add_symbol(symbol, binary)
         return True
 
     def add_tbd(self, tbd_file: Path,
-                only_including: typing.Optional[typing.Iterable[str]]) -> bool:
+                only_including: Optional[Iterable[str]]) -> bool:
         fd = open(tbd_file)
         stat_hash = os.fstat(fd.fileno()).st_mtime_ns
 
@@ -233,7 +236,7 @@ class SDKDB:
         return row
 
     def _add_objc_interface(self, ent: dict, class_name: str, file: Path,
-                            pred: typing.Callable[[dict], bool]):
+                            pred: Callable[[dict], bool]):
         for key in 'instanceMethods', 'classMethods':
             for method in ent.get(key, []):
                 if pred(method):
@@ -260,7 +263,7 @@ class SDKDB:
         cur.execute('INSERT INTO symbol VALUES (?, ?)',
                     (f'_OBJC_METACLASS_$_{name}', file.name))
 
-    def _add_objc_selector(self, name: str, class_name: str, file: Path):
+    def _add_objc_selector(self, name: str, class_name: Optional[str], file: Path):
         cur = self.con.cursor()
         cur.execute('INSERT INTO objc_selector VALUES (?, ?, ?)',
                     (name, class_name, file.name))
