@@ -2780,7 +2780,7 @@ bool RenderLayerCompositor::canAccelerateVideoRendering(RenderVideo& video) cons
 }
 #endif
 
-void RenderLayerCompositor::frameViewDidChangeLocation(const IntPoint& contentsOffset)
+void RenderLayerCompositor::frameViewDidChangeLocation(FloatPoint contentsOffset)
 {
     if (m_overflowControlsHostLayer)
         m_overflowControlsHostLayer->setPosition(contentsOffset);

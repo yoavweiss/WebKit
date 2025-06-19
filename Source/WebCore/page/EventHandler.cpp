@@ -1860,10 +1860,15 @@ void EventHandler::autoHideCursorTimerFired()
 
 static LayoutPoint documentPointForWindowPoint(LocalFrame& frame, const IntPoint& windowPoint)
 {
-    auto* view = frame.view();
-    // FIXME: Is it really OK to use the wrong coordinates here when view is 0?
-    // Historically the code would just crash; this is clearly no worse than that.
-    return view ? view->windowToContents(windowPoint) : windowPoint;
+    RefPtr view = frame.view();
+    if (!view) {
+        // FIXME: Is it really OK to use the wrong coordinates here when view is 0?
+        // Historically the code would just crash; this is clearly no worse than that.
+        return windowPoint;
+    }
+
+    auto result = view->windowToContents(FloatPoint { windowPoint });
+    return LayoutPoint { result };
 }
 
 std::optional<RemoteUserInputEventData> EventHandler::userInputEventDataForRemoteFrame(const RemoteFrame* remoteFrame, const IntPoint& pointInFrame)

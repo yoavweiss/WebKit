@@ -7829,9 +7829,10 @@ media/webkit-media-controls-not-visible-after-exiting-fullscreen.html [ Skip ]
 
 webkit.org/b/279297 fast/block/float/float-avoider-with-negative-margin.html [ ImageOnlyFailure ]
 
-# webkit.org/b/280685 imported/w3c/web-platform-tests/css/selectors/featureless-004/5.html are failures.
-imported/w3c/web-platform-tests/css/selectors/featureless-004.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/selectors/featureless-005.html [ ImageOnlyFailure ]
+# imported/w3c/web-platform-tests/css/selectors/featureless-004/5.html are failures.
+webkit.org/b/280685 imported/w3c/web-platform-tests/css/selectors/featureless-004.html [ ImageOnlyFailure ]
+webkit.org/b/280685 imported/w3c/web-platform-tests/css/selectors/featureless-005.html [ ImageOnlyFailure ]
+webkit.org/b/294638 imported/w3c/web-platform-tests/css/selectors/focus-visible-018-2.html [ Skip ]
 
 # Skip large regular expression tests on Debug to avoid timeout.
 [ Debug ] fast/regex/slow.html [ Skip ]

@@ -1105,7 +1105,8 @@ void RenderLayerBacking::updateAfterWidgetResize()
 
     if (auto* innerCompositor = RenderLayerCompositor::frameContentsCompositor(*renderWidget)) {
         innerCompositor->frameViewDidChangeSize();
-        innerCompositor->frameViewDidChangeLocation(flooredIntPoint(contentsBox().location()));
+        auto snappedContentOrigin = roundPointToDevicePixels(contentsBox().location(), deviceScaleFactor());
+        innerCompositor->frameViewDidChangeLocation(snappedContentOrigin);
     }
 
     if (auto* contentsLayer = layerForContents())
