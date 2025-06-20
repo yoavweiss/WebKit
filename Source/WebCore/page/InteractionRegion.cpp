@@ -281,20 +281,20 @@ static bool colorIsChallengingToHighlight(const Color& color)
 
 static bool styleIsChallengingToHighlight(const RenderStyle& style)
 {
-    auto fillPaintType = style.fillPaintType();
+    auto fillPaintType = style.fill().type;
 
-    if (fillPaintType == SVGPaintType::None) {
-        auto strokePaintType = style.strokePaintType();
-        if (strokePaintType != SVGPaintType::RGBColor && strokePaintType != SVGPaintType::CurrentColor)
+    if (fillPaintType == Style::SVGPaintType::None) {
+        auto strokePaintType = style.stroke().type;
+        if (strokePaintType != Style::SVGPaintType::RGBColor && strokePaintType != Style::SVGPaintType::CurrentColor)
             return false;
 
-        return colorIsChallengingToHighlight(style.colorResolvingCurrentColor(style.strokePaintColor()));
+        return colorIsChallengingToHighlight(style.colorResolvingCurrentColor(style.stroke().color));
     }
 
-    if (fillPaintType != SVGPaintType::RGBColor && fillPaintType != SVGPaintType::CurrentColor)
+    if (fillPaintType != Style::SVGPaintType::RGBColor && fillPaintType != Style::SVGPaintType::CurrentColor)
         return false;
 
-    return colorIsChallengingToHighlight(style.colorResolvingCurrentColor(style.fillPaintColor()));
+    return colorIsChallengingToHighlight(style.colorResolvingCurrentColor(style.fill().color));
 }
 
 static bool isGuardContainer(const Element& element)

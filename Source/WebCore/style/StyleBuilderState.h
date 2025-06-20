@@ -124,7 +124,6 @@ public:
     FilterOperations createFilterOperations(const CSSValue&) const;
     FilterOperations createAppleColorFilterOperations(const CSS::AppleColorFilterProperty&) const;
     FilterOperations createAppleColorFilterOperations(const CSSValue&) const;
-    Color createStyleColor(const CSSValue&, ForVisitedLink = ForVisitedLink::No) const;
 
     const Vector<AtomString>& registeredContentAttributes() const { return m_registeredContentAttributes; }
     void registerContentAttribute(const AtomString& attributeLocalName);

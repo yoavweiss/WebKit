@@ -157,16 +157,6 @@ FilterOperations BuilderState::createAppleColorFilterOperations(const CSSValue& 
     return createAppleColorFilterOperations(filterValue->filter());
 }
 
-Color BuilderState::createStyleColor(const CSSValue& value, ForVisitedLink forVisitedLink) const
-{
-    if (!element() || !element()->isLink())
-        forVisitedLink = ForVisitedLink::No;
-
-    if (RefPtr color = dynamicDowncast<CSSColorValue>(value))
-        return toStyle(color->color(), *this, forVisitedLink);
-    return toStyle(CSS::Color { CSS::KeywordColor { value.valueID() } }, *this, forVisitedLink);
-}
-
 void BuilderState::registerContentAttribute(const AtomString& attributeLocalName)
 {
     if (style().pseudoElementType() == PseudoId::Before || style().pseudoElementType() == PseudoId::After)

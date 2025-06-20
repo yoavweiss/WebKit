@@ -200,7 +200,6 @@ enum class Resize : uint8_t;
 enum class RubyPosition : uint8_t;
 enum class RubyAlign : uint8_t;
 enum class RubyOverhang : bool;
-enum class SVGPaintType : uint8_t;
 enum class ScrollAxis : uint8_t;
 enum class ScrollSnapStop : bool;
 enum class ScrollbarWidth : uint8_t;
@@ -307,6 +306,7 @@ struct Perspective;
 struct PositionTryFallback;
 struct PreferredSize;
 struct Rotate;
+struct SVGPaint;
 struct Scale;
 struct ScopedName;
 struct ScrollMarginEdge;
@@ -1794,23 +1794,19 @@ public:
     const SVGRenderStyle& svgStyle() const { return m_svgStyle; }
     inline SVGRenderStyle& accessSVGStyle();
 
-    inline SVGPaintType fillPaintType() const;
-    inline SVGPaintType visitedFillPaintType() const;
-    inline const Style::Color& fillPaintColor() const;
-    inline const Style::Color& visitedFillPaintColor() const;
-    inline void setFillPaintColor(Style::Color&&);
-    inline void setVisitedFillPaintColor(Style::Color&&);
+    inline const Style::SVGPaint& fill() const;
+    inline const Style::SVGPaint& visitedLinkFill() const;
+    inline void setFill(Style::SVGPaint&&);
+    inline void setVisitedLinkFill(Style::SVGPaint&&);
     inline void setHasExplicitlySetColor(bool);
     inline bool hasExplicitlySetColor() const;
     inline float fillOpacity() const;
     inline void setFillOpacity(float);
 
-    inline SVGPaintType strokePaintType() const;
-    inline SVGPaintType visitedStrokePaintType() const;
-    inline const Style::Color& strokePaintColor() const;
-    inline const Style::Color& visitedStrokePaintColor() const;
-    inline void setStrokePaintColor(Style::Color&&);
-    inline void setVisitedStrokePaintColor(Style::Color&&);
+    inline const Style::SVGPaint& stroke() const;
+    inline const Style::SVGPaint& visitedLinkStroke() const;
+    inline void setStroke(Style::SVGPaint&&);
+    inline void setVisitedLinkStroke(Style::SVGPaint&&);
     inline float strokeOpacity() const;
     inline void setStrokeOpacity(float);
     inline const FixedVector<Length>& strokeDashArray() const;

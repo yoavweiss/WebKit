@@ -104,6 +104,7 @@
 #include "StyleReflection.h"
 #include "StyleResolveForFont.h"
 #include "StyleRotate.h"
+#include "StyleSVGPaint.h"
 #include "StyleScale.h"
 #include "StyleScrollMargin.h"
 #include "StyleScrollPadding.h"
@@ -1247,8 +1248,8 @@ inline std::optional<ScrollbarColor> BuilderConverter::convertScrollbarColor(Bui
         return { };
 
     return ScrollbarColor {
-        builderState.createStyleColor(pair->first()),
-        builderState.createStyleColor(pair->second()),
+        convertStyleType<Color>(builderState, pair->first(), ForVisitedLink::No),
+        convertStyleType<Color>(builderState, pair->second(), ForVisitedLink::No),
     };
 }
 
@@ -1666,7 +1667,7 @@ inline bool BuilderConverter::convertTouchCallout(BuilderState& builderState, co
 #if ENABLE(TOUCH_EVENTS)
 inline Color BuilderConverter::convertTapHighlightColor(BuilderState& builderState, const CSSValue& value)
 {
-    return builderState.createStyleColor(value);
+    return convertStyleType<Color>(builderState, value, ForVisitedLink::No);
 }
 #endif
 

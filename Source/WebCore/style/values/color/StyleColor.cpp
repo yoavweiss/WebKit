@@ -33,8 +33,11 @@
 #include "config.h"
 #include "StyleColor.h"
 
+#include "AnimationUtilities.h"
+#include "CSSColorValue.h"
 #include "CSSKeywordColor.h"
 #include "CSSValuePool.h"
+#include "ColorBlending.h"
 #include "Document.h"
 #include "RenderStyle.h"
 #include "RenderTheme.h"
@@ -353,9 +356,44 @@ auto ToStyle<CSS::Color>::operator()(const CSS::Color& value, const BuilderState
     return toStyle(value, builderState, ForVisitedLink::No);
 }
 
+auto CSSValueConversion<Color>::operator()(BuilderState& builderState, const CSSValue& value, ForVisitedLink forVisitedLink) -> Color
+{
+    if (!builderState.element() || !builderState.element()->isLink())
+        forVisitedLink = ForVisitedLink::No;
+
+    if (RefPtr color = dynamicDowncast<CSSColorValue>(value))
+        return toStyle(color->color(), builderState, forVisitedLink);
+    return toStyle(CSS::Color { CSS::KeywordColor { value.valueID() } }, builderState, forVisitedLink);
+}
+
 Ref<CSSValue> CSSValueCreation<Color>::operator()(CSSValuePool& pool, const RenderStyle& style, const Color& value)
 {
     return pool.createColorValue(style.colorResolvingCurrentColor(value));
+}
+
+// MARK: - Blending
+
+auto Blending<Color>::equals(const Color& a, const Color& b, const RenderStyle& aStyle, const RenderStyle& bStyle) -> bool
+{
+    if (a.isCurrentColor() && b.isCurrentColor())
+        return true;
+
+    if (a.isResolvedColor() && b.isResolvedColor())
+        return a.resolvedColor() == b.resolvedColor();
+
+    return aStyle.colorResolvingCurrentColor(a) == bStyle.colorResolvingCurrentColor(b);
+}
+
+auto Blending<Color>::canBlend(const Color& a, const Color& b) -> bool
+{
+    // We don't animate on currentcolor-only transition.
+    // https://github.com/WebKit/WebKit/blob/main/LayoutTests/imported/w3c/web-platform-tests/css/css-transitions/currentcolor-animation-001.html#L27
+    return !(a.isCurrentColor() && b.isCurrentColor());
+}
+
+auto Blending<Color>::blend(const Color& a, const Color& b, const RenderStyle& aStyle, const RenderStyle& bStyle, const BlendingContext& context) -> Color
+{
+    return WebCore::blend(aStyle.colorResolvingCurrentColor(a), bStyle.colorResolvingCurrentColor(b), context);
 }
 
 } // namespace Style

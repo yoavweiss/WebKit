@@ -82,7 +82,6 @@ public:
     // MARK: SVG serializations
 
     static void serializeSVGURIReference(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const URL&);
-    static void serializeSVGPaint(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, SVGPaintType, const URL&, const Color&);
 
     // MARK: Transform serializations
 
@@ -480,35 +479,6 @@ inline void ExtractorSerializer::serializeSVGURIReference(ExtractorState& state,
     }
 
     serializationForCSS(builder, context, state.style, marker);
-}
-
-inline void ExtractorSerializer::serializeSVGPaint(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, SVGPaintType paintType, const URL& url, const Color& color)
-{
-    switch (paintType) {
-    case SVGPaintType::URI:
-        CSS::serializationForCSS(builder, context, toCSS(url, state.style));
-        return;
-
-    case SVGPaintType::URINone:
-        CSS::serializationForCSS(builder, context, toCSS(url, state.style));
-        builder.append(' ');
-        [[fallthrough]];
-    case SVGPaintType::None:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-
-    case SVGPaintType::URICurrentColor:
-    case SVGPaintType::URIRGBColor:
-        CSS::serializationForCSS(builder, context, toCSS(url, state.style));
-        builder.append(' ');
-        [[fallthrough]];
-    case SVGPaintType::RGBColor:
-    case SVGPaintType::CurrentColor:
-        serializeStyleType(state, builder, context, color);
-        return;
-    }
-
-    RELEASE_ASSERT_NOT_REACHED();
 }
 
 // MARK: - Transform serializations

@@ -47,8 +47,6 @@ public:
     static Ref<CSSValue> extractAspectRatio(ExtractorState&);
     static Ref<CSSValue> extractDirection(ExtractorState&);
     static Ref<CSSValue> extractWritingMode(ExtractorState&);
-    static Ref<CSSValue> extractFill(ExtractorState&);
-    static Ref<CSSValue> extractStroke(ExtractorState&);
     static Ref<CSSValue> extractFloat(ExtractorState&);
     static Ref<CSSValue> extractClip(ExtractorState&);
     static Ref<CSSValue> extractContent(ExtractorState&);
@@ -157,8 +155,6 @@ public:
     static void extractAspectRatioSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractDirectionSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractWritingModeSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractFillSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractStrokeSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFloatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractClipSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractContentSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1280,26 +1276,6 @@ inline Ref<CSSValue> ExtractorCustom::extractWritingMode(ExtractorState& state)
 inline void ExtractorCustom::extractWritingModeSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext&)
 {
     builder.append(nameLiteralForSerialization(extractWritingModeValueID(state)));
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractFill(ExtractorState& state)
-{
-    return ExtractorConverter::convertSVGPaint(state, state.style.svgStyle().fillPaintType(), state.style.svgStyle().fillPaintUri(), state.style.svgStyle().fillPaintColor());
-}
-
-inline void ExtractorCustom::extractFillSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeSVGPaint(state, builder, context, state.style.svgStyle().fillPaintType(), state.style.svgStyle().fillPaintUri(), state.style.svgStyle().fillPaintColor());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractStroke(ExtractorState& state)
-{
-    return ExtractorConverter::convertSVGPaint(state, state.style.svgStyle().strokePaintType(), state.style.svgStyle().strokePaintUri(), state.style.svgStyle().strokePaintColor());
-}
-
-inline void ExtractorCustom::extractStrokeSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeSVGPaint(state, builder, context, state.style.svgStyle().strokePaintType(), state.style.svgStyle().strokePaintUri(), state.style.svgStyle().strokePaintColor());
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractFloat(ExtractorState& state)

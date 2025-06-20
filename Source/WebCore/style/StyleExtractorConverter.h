@@ -172,7 +172,6 @@ public:
     // MARK: SVG conversions
 
     static Ref<CSSValue> convertSVGURIReference(ExtractorState&, const URL&);
-    static Ref<CSSValue> convertSVGPaint(ExtractorState&, SVGPaintType, const URL&, const Color&);
 
     // MARK: Transform conversions
 
@@ -474,22 +473,6 @@ inline Ref<CSSValue> ExtractorConverter::convertSVGURIReference(ExtractorState& 
     if (marker.isNone())
         return CSSPrimitiveValue::create(CSSValueNone);
     return CSSURLValue::create(toCSS(marker, state.style));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertSVGPaint(ExtractorState& state, SVGPaintType paintType, const URL& url, const Color& color)
-{
-    if (paintType >= SVGPaintType::URINone) {
-        CSSValueListBuilder values;
-        values.append(CSSURLValue::create(toCSS(url, state.style)));
-        if (paintType == SVGPaintType::URINone)
-            values.append(CSSPrimitiveValue::create(CSSValueNone));
-        else if (paintType == SVGPaintType::URICurrentColor || paintType == SVGPaintType::URIRGBColor)
-            values.append(convertStyleType(state, color));
-        return CSSValueList::createSpaceSeparated(WTFMove(values));
-    }
-    if (paintType == SVGPaintType::None)
-        return CSSPrimitiveValue::create(CSSValueNone);
-    return convertStyleType(state, color);
 }
 
 // MARK: - Transform conversions

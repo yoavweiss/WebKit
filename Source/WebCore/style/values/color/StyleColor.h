@@ -187,9 +187,23 @@ template<> struct ToStyle<CSS::Color> {
     auto operator()(const CSS::Color&, const BuilderState&) -> Color;
 };
 
-template<> struct CSSValueCreation<Color> {
-    Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, const Color&);
+template<> struct CSSValueConversion<Color> {
+    auto operator()(BuilderState&, const CSSValue&, ForVisitedLink) -> Color;
 };
+template<> struct CSSValueCreation<Color> {
+    auto operator()(CSSValuePool&, const RenderStyle&, const Color&) -> Ref<CSSValue>;
+};
+
+// MARK: - Blending
+
+template<> struct Blending<Color> {
+    auto equals(const Color&, const Color&, const RenderStyle&, const RenderStyle&) -> bool;
+    auto canBlend(const Color&, const Color&) -> bool;
+    constexpr auto requiresInterpolationForAccumulativeIteration(const Color&, const Color&) -> bool { return true; }
+    auto blend(const Color&, const Color&, const RenderStyle&, const RenderStyle&, const BlendingContext&) -> Color;
+};
+
+// MARK: - Color Implementation
 
 template<typename... F> decltype(auto) Color::switchOn(F&&... f) const
 {

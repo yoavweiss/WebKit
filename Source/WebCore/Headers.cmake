@@ -2808,6 +2808,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/sizing/StyleMinimumSize.h
     style/values/sizing/StylePreferredSize.h
 
+    style/values/svg/StyleSVGPaint.h
+
     style/values/text-decoration/StyleTextShadow.h
 
     style/values/transforms/StylePerspective.h

@@ -550,10 +550,8 @@ std::optional<Variant<Ref<const Style::CustomProperty>, CSSWideKeyword>> consume
             auto doubleValue = downcast<CSSPrimitiveValue>(value).resolveAsResolution(builderState.cssToLengthConversionData());
             return { Style::CustomProperty::Numeric { doubleValue, CSSUnitType::CSS_DPPX } };
         }
-        case CSSCustomPropertySyntax::Type::Color: {
-            auto color = builderState.createStyleColor(value, Style::ForVisitedLink::No);
-            return { WTFMove(color) };
-        }
+        case CSSCustomPropertySyntax::Type::Color:
+            return { Style::toStyleFromCSSValue<Style::Color>(builderState, value, Style::ForVisitedLink::No) };
         case CSSCustomPropertySyntax::Type::Image: {
             auto styleImage = builderState.createStyleImage(value);
             if (!styleImage)

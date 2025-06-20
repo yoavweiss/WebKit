@@ -2121,7 +2121,7 @@
             "initial": "transparent",
             "codegen-properties": {
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "disables-native-appearance": true,
@@ -2675,7 +2675,7 @@
                     "resolver": "bottom"
                 },
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -3256,7 +3256,7 @@
                     "resolver": "left"
                 },
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -3365,7 +3365,7 @@
                     "resolver": "right"
                 },
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -3529,7 +3529,7 @@
                     "resolver": "top"
                 },
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -4450,10 +4450,10 @@
                 }
             ],
             "codegen-properties": {
-                "animation-wrapper": "VisitedAffectedSVGPaintWrapper",
-                "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyFill", "&RenderStyle::fillPaintType", "&RenderStyle::fillPaintColor", "&RenderStyle::setFillPaintColor", "&RenderStyle::visitedFillPaintType", "&RenderStyle::visitedFillPaintColor", "&RenderStyle::setVisitedFillPaintColor"],
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<SVGPaint>",
+                "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyFill", "&RenderStyle::fill", "&RenderStyle::setFill", "&RenderStyle::visitedLinkFill", "&RenderStyle::setVisitedLinkFill"],
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<SVGPaint>",
                 "svg": true,
                 "color-property": true,
                 "parser-grammar": "none | <color> | [ <url> [ none | <color> ]? ]",
@@ -4529,7 +4529,7 @@
             "animation-type": "by computed value",
             "initial": "black",
             "codegen-properties": {
-                "animation-wrapper": "StyleColorWrapper",
+                "animation-wrapper": "StyleTypeWrapper<Color>",
                 "animation-wrapper-requires-render-style": true,
                 "svg": true,
                 "color-property": true,
@@ -4960,7 +4960,7 @@
             "animation-type": "by computed value",
             "initial": "white",
             "codegen-properties": {
-                "animation-wrapper": "StyleColorWrapper",
+                "animation-wrapper": "StyleTypeWrapper<Color>",
                 "animation-wrapper-requires-render-style": true,
                 "svg": true,
                 "color-property": true,
@@ -6625,7 +6625,7 @@
             "initial": "currentColor",
             "initial-comment": "Current spec initial value is 'auto'",
             "codegen-properties": {
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -7485,7 +7485,7 @@
             "animation-type": "by computed value",
             "initial": "black",
             "codegen-properties": {
-                "animation-wrapper": "StyleColorWrapper",
+                "animation-wrapper": "StyleTypeWrapper<Color>",
                 "animation-wrapper-requires-render-style": true,
                 "svg": true,
                 "color-property": true,
@@ -7527,10 +7527,10 @@
                 }
             ],
             "codegen-properties": {
-                "animation-wrapper": "VisitedAffectedSVGPaintWrapper",
-                "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyStroke", "&RenderStyle::strokePaintType", "&RenderStyle::strokePaintColor", "&RenderStyle::setStrokePaintColor", "&RenderStyle::visitedStrokePaintType", "&RenderStyle::visitedStrokePaintColor", "&RenderStyle::setVisitedStrokePaintColor"],
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<SVGPaint>",
+                "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyStroke", "&RenderStyle::stroke", "&RenderStyle::setStroke", "&RenderStyle::visitedLinkStroke", "&RenderStyle::setVisitedLinkStroke"],
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<SVGPaint>",
                 "svg": true,
                 "color-property": true,
                 "parser-grammar": "none | <color> | [ <url> [ none | <color> ]? ]",
@@ -7666,8 +7666,8 @@
             "inherited": true,
             "initial": "transparent",
             "codegen-properties": {
-                "animation-wrapper": "StyleColorWrapper",
-                "animation-wrapper-comment": "FIXME: Why doesn't this use VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "StyleTypeWrapper<Color>",
+                "animation-wrapper-comment": "FIXME: Why doesn't this use VisitedAffectedStyleTypeWrapper<Color>",
                 "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyStrokeColor", "&RenderStyle::strokeColor", "&RenderStyle::setStrokeColor"],
                 "style-builder-custom": "Value",
                 "visited-link-color-support": true,
@@ -9270,7 +9270,7 @@
                 "aliases": [
                     "-webkit-column-rule-color"
                 ],
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -10879,7 +10879,7 @@
                 "aliases": [
                     "-webkit-text-decoration-color"
                 ],
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -11033,7 +11033,7 @@
                     "-epub-text-emphasis-color",
                     "-webkit-text-emphasis-color"
                 ],
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -11085,7 +11085,7 @@
             "inherited": true,
             "initial": "currentColor",
             "codegen-properties": {
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -11131,7 +11131,7 @@
             "inherited": true,
             "initial": "currentColor",
             "codegen-properties": {
-                "animation-wrapper": "VisitedAffectedStyleColorWrapper",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
