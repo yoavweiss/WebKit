@@ -1,13 +1,11 @@
 EventDispatcherMessages.h
 NetworkProcess/Classifier/ResourceLoadStatisticsStore.cpp
-NetworkProcess/CustomProtocols/LegacyCustomProtocolManager.cpp
 NetworkProcess/DatabaseUtilities.cpp
 NetworkProcess/NetworkConnectionToWebProcess.cpp
 NetworkProcess/NetworkLoad.cpp
 NetworkProcess/NetworkLoadChecker.cpp
 NetworkProcess/NetworkProcess.cpp
 NetworkProcess/NetworkResourceLoader.cpp
-NetworkProcess/NetworkSession.cpp
 NetworkProcess/NetworkSocketChannel.cpp
 NetworkProcess/PrivateClickMeasurement/PrivateClickMeasurementDatabase.cpp
 NetworkProcess/ServiceWorker/ServiceWorkerDownloadTask.cpp
@@ -90,9 +88,7 @@ WebProcess/Network/webrtc/LibWebRTCProvider.cpp
 WebProcess/Network/webrtc/LibWebRTCResolver.cpp
 WebProcess/Plugins/PDF/PDFPluginAnnotation.mm
 WebProcess/Plugins/PDF/PDFPluginBase.mm
-WebProcess/Plugins/PDF/PDFPluginChoiceAnnotation.mm
 WebProcess/Plugins/PDF/PDFPluginPasswordField.mm
-WebProcess/Plugins/PDF/PDFPluginPasswordForm.mm
 WebProcess/Plugins/PDF/PDFPluginTextAnnotation.mm
 WebProcess/Plugins/PDF/UnifiedPDF/PDFDiscretePresentationController.mm
 WebProcess/Plugins/PDF/UnifiedPDF/PDFScrollingPresentationController.mm

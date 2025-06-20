@@ -671,9 +671,9 @@ void NetworkResourceLoader::transferToNewWebProcess(NetworkConnectionToWebProces
         send(Messages::WebResourceLoader::UpdateResultingClientIdentifier { *parameters.options.resultingClientIdentifier, *m_parameters.options.resultingClientIdentifier });
 
     ASSERT(m_responseCompletionHandler || m_cacheEntryWaitingForContinueDidReceiveResponse || m_serviceWorkerFetchTask);
-    if (m_serviceWorkerRegistration) {
+    if (RefPtr serviceWorkerRegistration = m_serviceWorkerRegistration.get()) {
         if (RefPtr swConnection = newConnection.swConnection())
-            swConnection->transferServiceWorkerLoadToNewWebProcess(*this, *m_serviceWorkerRegistration, m_connection->webProcessIdentifier());
+            swConnection->transferServiceWorkerLoadToNewWebProcess(*this, *serviceWorkerRegistration, m_connection->webProcessIdentifier());
     }
     if (m_workerStart)
         send(Messages::WebResourceLoader::SetWorkerStart { m_workerStart }, coreIdentifier());
@@ -2074,8 +2074,8 @@ void NetworkResourceLoader::serviceWorkerDidNotHandle(ServiceWorkerFetchTask* fe
     if (abortIfServiceWorkersOnly())
         return;
 
-    if (m_serviceWorkerFetchTask) {
-        auto newRequest = m_serviceWorkerFetchTask->takeRequest();
+    if (RefPtr serviceWorkerFetchTask = m_serviceWorkerFetchTask) {
+        auto newRequest = serviceWorkerFetchTask->takeRequest();
         m_serviceWorkerFetchTask = nullptr;
 
         if (RefPtr networkLoad = m_networkLoad)
