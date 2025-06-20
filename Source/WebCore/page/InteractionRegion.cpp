@@ -85,7 +85,7 @@ private:
 
     InteractionRegionPathCache() = default;
 
-    WeakHashMap<const Image, UncheckedKeyHashMap<FloatSize, Path>> m_imageCache;
+    WeakHashMap<const Image, HashMap<FloatSize, Path>> m_imageCache;
 };
 
 InteractionRegionPathCache& InteractionRegionPathCache::singleton()
@@ -104,7 +104,7 @@ std::optional<Path> InteractionRegionPathCache::get(const Image& image, const Fl
 void InteractionRegionPathCache::add(const Image& image, const FloatSize& size, Path path)
 {
     m_imageCache.ensure(image, [] {
-        return UncheckedKeyHashMap<FloatSize, Path>();
+        return HashMap<FloatSize, Path>();
     }).iterator->value.add(size, path);
 }
 

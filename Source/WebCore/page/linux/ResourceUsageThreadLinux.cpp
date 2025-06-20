@@ -123,9 +123,9 @@ struct ThreadInfo {
     unsigned long long previousStime { 0 };
 };
 
-static UncheckedKeyHashMap<pid_t, ThreadInfo>& threadInfoMap()
+static HashMap<pid_t, ThreadInfo>& threadInfoMap()
 {
-    static LazyNeverDestroyed<UncheckedKeyHashMap<pid_t, ThreadInfo>> map;
+    static LazyNeverDestroyed<HashMap<pid_t, ThreadInfo>> map;
     static std::once_flag flag;
     std::call_once(flag, [&] {
         map.construct();
@@ -210,7 +210,7 @@ static void collectCPUUsage(float period)
         return;
     }
 
-    UncheckedKeyHashSet<pid_t> previousTasks;
+    HashSet<pid_t> previousTasks;
     for (const auto& key : threadInfoMap().keys())
         previousTasks.add(key);
 
@@ -246,7 +246,7 @@ void ResourceUsageThread::platformCollectCPUData(JSC::VM*, ResourceUsageData& da
 
     pid_t resourceUsageThreadID = Thread::currentID();
 
-    UncheckedKeyHashSet<pid_t> knownWebKitThreads;
+    HashSet<pid_t> knownWebKitThreads;
     {
         Locker locker { Thread::allThreadsLock() };
         for (auto* thread : Thread::allThreads()) {
@@ -255,7 +255,7 @@ void ResourceUsageThread::platformCollectCPUData(JSC::VM*, ResourceUsageData& da
         }
     }
 
-    UncheckedKeyHashMap<pid_t, String> knownWorkerThreads;
+    HashMap<pid_t, String> knownWorkerThreads;
     {
         for (auto& thread : WorkerOrWorkletThread::workerOrWorkletThreads()) {
             // Ignore worker threads that have not been fully started yet.

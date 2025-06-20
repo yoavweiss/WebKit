@@ -66,7 +66,7 @@ static constexpr auto minOpacityToConsiderVisible = 0.05;
 
 using TextNodesAndText = Vector<std::pair<Ref<Text>, String>>;
 using TextAndSelectedRange = std::pair<String, std::optional<CharacterRange>>;
-using TextAndSelectedRangeMap = UncheckedKeyHashMap<RefPtr<Text>, TextAndSelectedRange>;
+using TextAndSelectedRangeMap = HashMap<RefPtr<Text>, TextAndSelectedRange>;
 
 static inline TextNodesAndText collectText(const SimpleRange& range)
 {
