@@ -1956,6 +1956,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         RefPtr<Element> container;
         bool foundBackdropFilter { false };
         bool retryHonoringPointerEvents { false };
+        bool isDimmingLayer { false };
         Color backgroundColor;
     };
 
@@ -2059,6 +2060,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         IsScrollable,
         TooSmall,
         TooLarge,
+        IsDimmingLayer,
         IsCandidate,
     };
     using enum ContainerEdgeCandidateResult;
@@ -2070,6 +2072,8 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         if (!renderer.isFixedPositioned() && !renderer.isStickilyPositioned())
             return NotFixedOrSticky;
 
+        bool isNearlyViewportSizedOnSide = isNearlyViewportSized(side, renderer);
+        bool isNearlyViewportSizedOnAdjacentSide = isNearlyViewportSized(adjacentSideInClockwiseOrder(side), renderer);
         bool isProbablyDimmingContainer = false;
         if (CheckedPtr box = dynamicDowncast<RenderBox>(renderer)) {
             if (isHiddenOrNearlyTransparent(*box))
@@ -2078,16 +2082,31 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             if (box->canBeScrolledAndHasScrollableArea())
                 return IsScrollable;
 
-            isProbablyDimmingContainer = box->hasBackground() && !box->firstChild() && box->isTransparent();
+            isProbablyDimmingContainer = [&] {
+                if (!isNearlyViewportSizedOnAdjacentSide || !isNearlyViewportSizedOnSide)
+                    return false;
+
+                if (!box->hasBackground())
+                    return false;
+
+                if (box->firstChild())
+                    return false;
+
+                if (box->isTransparent())
+                    return true;
+
+                auto backgroundColor = primaryBackgroundColorForRenderer(side, *box);
+                return backgroundColor.isVisible() && backgroundColor.alphaAsFloat() < 1;
+            }();
         }
 
-        if (!isNearlyViewportSized(side, renderer))
+        if (!isNearlyViewportSizedOnSide)
             return TooSmall;
 
-        if (!isProbablyDimmingContainer && isNearlyViewportSized(adjacentSideInClockwiseOrder(side), renderer))
+        if (!isProbablyDimmingContainer && isNearlyViewportSizedOnAdjacentSide)
             return TooLarge;
 
-        return IsCandidate;
+        return isProbablyDimmingContainer ? IsDimmingLayer : IsCandidate;
     };
 
     enum class IgnoreCSSPointerEvents : bool { No, Yes };
@@ -2129,7 +2148,8 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
                     hasMultipleBackgroundColors = true;
             }
 
-            switch (containerEdgeCandidateResult(side, ancestor)) {
+            auto candidateType = containerEdgeCandidateResult(side, ancestor);
+            switch (candidateType) {
             case NoLayer:
             case NotFixedOrSticky:
             case IsScrollable:
@@ -2140,11 +2160,13 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
                 hitInvisiblePointerEventsNoneContainer = ancestor->usedPointerEvents() == PointerEvents::None;
                 break;
             }
+            case IsDimmingLayer:
             case IsCandidate: {
                 return {
                     .container = { ancestor->element() },
                     .foundBackdropFilter = foundBackdropFilter,
                     .retryHonoringPointerEvents = false,
+                    .isDimmingLayer = candidateType == IsDimmingLayer,
                     .backgroundColor = hasMultipleBackgroundColors ? Color { } : WTFMove(primaryBackgroundColor),
                 };
             }
@@ -2155,6 +2177,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             .container = { },
             .foundBackdropFilter = foundBackdropFilter,
             .retryHonoringPointerEvents = hitInvisiblePointerEventsNoneContainer,
+            .isDimmingLayer = false,
             .backgroundColor = { },
         };
     };
@@ -2226,8 +2249,13 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             continue;
         }
 
+        if (result.isDimmingLayer && page->fixedContainerEdges().hasFixedEdge(side)) {
+            edges.colors.setAt(side, page->fixedContainerEdges().colors.at(side));
+            continue;
+        }
+
         if (result.backgroundColor.isVisible()) {
-            edges.colors.setAt(side, result.backgroundColor.colorWithAlpha(1));
+            edges.colors.setAt(side, result.isDimmingLayer ? result.backgroundColor : result.backgroundColor.colorWithAlpha(1));
             continue;
         }
 
@@ -2236,7 +2264,16 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             continue;
         }
 
-        edges.colors.setAt(side, PageColorSampler::predominantColor(*page, computeSamplingRect(result.container->renderStyle(), side)));
+        edges.colors.setAt(side, [&] -> FixedContainerEdge {
+            auto color = PageColorSampler::predominantColor(*page, computeSamplingRect(result.container->renderStyle(), side));
+            if (result.isDimmingLayer)
+                return color;
+
+            if (!std::holds_alternative<Color>(color))
+                return color;
+
+            return std::get<Color>(color).colorWithAlpha(1);
+        }());
     }
 
     return { WTFMove(edges), WTFMove(containers) };
