@@ -135,9 +135,9 @@ final class BrowserViewModel {
     }
 
     func didReceiveNavigationEvent(_ event: WebPage.NavigationEvent) {
-        Self.logger.info("Did receive navigation event \(String(describing: event.kind)) for navigation \(String(describing: event.navigationID))")
+        Self.logger.info("Did receive navigation event \(String(describing: event))")
 
-        if case .committed = event.kind {
+        if event == .committed {
             displayedURL = page.url?.absoluteString ?? ""
         }
     }
