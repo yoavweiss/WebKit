@@ -131,71 +131,89 @@ static void wpeViewWaylandDispose(GObject* object)
     G_OBJECT_CLASS(wpe_view_wayland_parent_class)->dispose(object);
 }
 
-struct DMABufBuffer {
-    WTF_MAKE_STRUCT_FAST_ALLOCATED;
+class WaylandBuffer {
+    WTF_MAKE_FAST_ALLOCATED;
+public:
+    virtual ~WaylandBuffer()
+    {
+        if (m_wlBuffer)
+            wl_buffer_destroy(m_wlBuffer);
+    }
 
+    WPEView* view() const  { return m_view.get(); }
+    struct wl_buffer* wlBuffer() const { return m_wlBuffer; }
+
+protected:
+    WaylandBuffer(WPEView* view, wl_buffer* buffer)
+        : m_view(view)
+        , m_wlBuffer(buffer)
+    {
+    }
+
+    GWeakPtr<WPEView> m_view;
+    struct wl_buffer* m_wlBuffer { nullptr };
+};
+
+static void waylandBufferDestroy(WaylandBuffer* buffer)
+{
+    delete buffer;
+}
+
+class DMABufBuffer final : public WaylandBuffer {
+public:
     DMABufBuffer(WPEView* view, wl_buffer* buffer)
-        : view(view)
-        , wlBuffer(buffer)
+        : WaylandBuffer(view, buffer)
     {
     }
 
-    ~DMABufBuffer()
+    virtual ~DMABufBuffer()
     {
-        if (wlBuffer)
-            wl_buffer_destroy(wlBuffer);
-        if (release)
-            zwp_linux_buffer_release_v1_destroy(release);
+        if (m_release)
+            zwp_linux_buffer_release_v1_destroy(m_release);
     }
 
-    GWeakPtr<WPEView> view;
-    struct wl_buffer* wlBuffer { nullptr };
-    struct zwp_linux_buffer_release_v1* release { nullptr };
+    void setRelease(struct zwp_linux_buffer_release_v1* release)
+    {
+        released();
+        m_release = release;
+    }
+
+    void released()
+    {
+        g_clear_pointer(&m_release, zwp_linux_buffer_release_v1_destroy);
+    }
+
+private:
+    struct zwp_linux_buffer_release_v1* m_release { nullptr };
 };
 
-static void dmaBufBufferDestroy(DMABufBuffer* buffer)
-{
-    delete buffer;
-}
-
-struct SharedMemoryBuffer {
-    WTF_MAKE_STRUCT_FAST_ALLOCATED;
-
+class SharedMemoryBuffer final : public WaylandBuffer {
+public:
     SharedMemoryBuffer(WPEView* view, std::unique_ptr<WPE::WaylandSHMPool>&& pool, uint32_t offset, uint32_t width, uint32_t height, uint32_t stride)
-        : view(view)
-        , wlPool(WTFMove(pool))
-        , wlBuffer(wlPool->createBuffer(offset, width, height, stride))
+        : WaylandBuffer(view, pool->createBuffer(offset, width, height, stride))
+        , m_wlPool(WTFMove(pool))
     {
     }
 
-    ~SharedMemoryBuffer()
-    {
-        if (wlBuffer)
-            wl_buffer_destroy(wlBuffer);
-    }
+    virtual ~SharedMemoryBuffer() = default;
 
-    GWeakPtr<WPEView> view;
-    std::unique_ptr<WPE::WaylandSHMPool> wlPool;
-    struct wl_buffer* wlBuffer { nullptr };
+    WPE::WaylandSHMPool* wlPool() const { return m_wlPool.get(); }
+
+private:
+    std::unique_ptr<WPE::WaylandSHMPool> m_wlPool;
 };
-
-static void sharedMemoryBufferDestroy(SharedMemoryBuffer* buffer)
-{
-    delete buffer;
-}
 
 static const struct wl_buffer_listener bufferListener = {
     // release
     [](void* userData, struct wl_buffer*)
     {
         auto* buffer = WPE_BUFFER(userData);
-        if (WPE_IS_BUFFER_DMA_BUF(buffer)) {
-            if (auto* dmaBufBuffer = static_cast<DMABufBuffer*>(wpe_buffer_get_user_data(buffer)); dmaBufBuffer && dmaBufBuffer->view)
-                wpe_view_buffer_released(dmaBufBuffer->view.get(), buffer);
-        } else if (WPE_IS_BUFFER_SHM(buffer)) {
-            if (auto* sharedMemoryBuffer = static_cast<SharedMemoryBuffer*>(wpe_buffer_get_user_data(buffer)); sharedMemoryBuffer && sharedMemoryBuffer->view)
-                wpe_view_buffer_released(sharedMemoryBuffer->view.get(), buffer);
-        }
+        auto* waylandBuffer = static_cast<WaylandBuffer*>(wpe_buffer_get_user_data(buffer));
+        if (!waylandBuffer)
+            return;
+
+        if (auto* view = waylandBuffer->view())
+            wpe_view_buffer_released(view, buffer);
     }
 };
 
@@ -234,7 +252,7 @@ static DMABufBuffer* createWaylandBufferFromEGLImage(WPEView* view, WPEBuffer* b
 static struct wl_buffer* createWaylandBufferFromDMABuf(WPEView* view, WPEBuffer* buffer, GError** error)
 {
     if (auto* dmaBufBuffer = static_cast<DMABufBuffer*>(wpe_buffer_get_user_data(buffer)))
-        return dmaBufBuffer->wlBuffer;
+        return dmaBufBuffer->wlBuffer();
 
     auto* bufferDMABuf = WPE_BUFFER_DMA_BUF(buffer);
     DMABufBuffer* dmaBufBuffer = nullptr;
@@ -264,10 +282,10 @@ static struct wl_buffer* createWaylandBufferFromDMABuf(WPEView* view, WPEBuffer*
 
     auto* toplevel = wpe_view_get_toplevel(WPE_VIEW(view));
     if (!wpeToplevelWaylandGetSurfaceSync(WPE_TOPLEVEL_WAYLAND(toplevel)) || wpe_buffer_dma_buf_get_rendering_fence(bufferDMABuf) == -1)
-        wl_buffer_add_listener(dmaBufBuffer->wlBuffer, &bufferListener, buffer);
+        wl_buffer_add_listener(dmaBufBuffer->wlBuffer(), &bufferListener, buffer);
 
-    wpe_buffer_set_user_data(buffer, dmaBufBuffer, reinterpret_cast<GDestroyNotify>(dmaBufBufferDestroy));
-    return dmaBufBuffer->wlBuffer;
+    wpe_buffer_set_user_data(buffer, dmaBufBuffer, reinterpret_cast<GDestroyNotify>(waylandBufferDestroy));
+    return dmaBufBuffer->wlBuffer();
 }
 
 static SharedMemoryBuffer* sharedMemoryBufferCreate(WPEView* view, GBytes* bytes, int width, int height, unsigned stride)
@@ -291,8 +309,8 @@ static struct wl_buffer* createWaylandBufferSHM(WPEView* view, WPEBuffer* buffer
 {
     if (auto* sharedMemoryBuffer = static_cast<SharedMemoryBuffer*>(wpe_buffer_get_user_data(buffer))) {
         GBytes* bytes = wpe_buffer_shm_get_data(WPE_BUFFER_SHM(buffer));
-        memcpy(reinterpret_cast<char*>(sharedMemoryBuffer->wlPool->data()), g_bytes_get_data(bytes, nullptr), sharedMemoryBuffer->wlPool->size());
-        return sharedMemoryBuffer->wlBuffer;
+        memcpy(reinterpret_cast<char*>(sharedMemoryBuffer->wlPool()->data()), g_bytes_get_data(bytes, nullptr), sharedMemoryBuffer->wlPool()->size());
+        return sharedMemoryBuffer->wlBuffer();
     }
 
     auto* bufferSHM = WPE_BUFFER_SHM(buffer);
@@ -308,10 +326,10 @@ static struct wl_buffer* createWaylandBufferSHM(WPEView* view, WPEBuffer* buffer
         return nullptr;
     }
 
-    wl_buffer_add_listener(sharedMemoryBuffer->wlBuffer, &bufferListener, buffer);
+    wl_buffer_add_listener(sharedMemoryBuffer->wlBuffer(), &bufferListener, buffer);
 
-    wpe_buffer_set_user_data(buffer, sharedMemoryBuffer, reinterpret_cast<GDestroyNotify>(sharedMemoryBufferDestroy));
-    return sharedMemoryBuffer->wlBuffer;
+    wpe_buffer_set_user_data(buffer, sharedMemoryBuffer, reinterpret_cast<GDestroyNotify>(waylandBufferDestroy));
+    return sharedMemoryBuffer->wlBuffer();
 }
 
 static struct wl_buffer* createWaylandBuffer(WPEView* view, WPEBuffer* buffer, GError** error)
@@ -347,9 +365,9 @@ static void dmaBufBufferReleased(WPEBuffer* buffer)
     if (!dmaBufBuffer)
         return;
 
-    if (dmaBufBuffer->view)
-        wpe_view_buffer_released(dmaBufBuffer->view.get(), buffer);
-    g_clear_pointer(&dmaBufBuffer->release, zwp_linux_buffer_release_v1_destroy);
+    if (auto* view = dmaBufBuffer->view())
+        wpe_view_buffer_released(view, buffer);
+    dmaBufBuffer->released();
 }
 
 const struct zwp_linux_buffer_release_v1_listener bufferReleaseListener = {
@@ -399,9 +417,10 @@ static gboolean wpeViewWaylandRenderBuffer(WPEView* view, WPEBuffer* buffer, con
             auto* surfaceSync = wpeToplevelWaylandGetSurfaceSync(WPE_TOPLEVEL_WAYLAND(wpe_view_get_toplevel(view)));
             zwp_linux_surface_synchronization_v1_set_acquire_fence(surfaceSync, renderingFence.value());
 
+            auto* release = zwp_linux_surface_synchronization_v1_get_release(surfaceSync);
+            zwp_linux_buffer_release_v1_add_listener(release, &bufferReleaseListener, buffer);
             auto* dmaBufBuffer = static_cast<DMABufBuffer*>(wpe_buffer_get_user_data(buffer));
-            dmaBufBuffer->release = zwp_linux_surface_synchronization_v1_get_release(surfaceSync);
-            zwp_linux_buffer_release_v1_add_listener(dmaBufBuffer->release, &bufferReleaseListener, buffer);
+            dmaBufBuffer->setRelease(release);
         }
     }
 
@@ -431,7 +450,7 @@ static const struct wl_buffer_listener cursorBufferListener = {
     // release
     [](void* userData, struct wl_buffer*)
     {
-        sharedMemoryBufferDestroy(static_cast<SharedMemoryBuffer*>(userData));
+        waylandBufferDestroy(static_cast<WaylandBuffer*>(userData));
     }
 };
 
@@ -497,8 +516,8 @@ static void wpeViewWaylandSetCursorFromBytes(WPEView* view, GBytes* bytes, guint
     if (!sharedMemoryBuffer)
         return;
 
-    wl_buffer_add_listener(sharedMemoryBuffer->wlBuffer, &cursorBufferListener, sharedMemoryBuffer);
-    cursor->setFromBuffer(sharedMemoryBuffer->wlBuffer, width, height, hotspotX, hotspotY);
+    wl_buffer_add_listener(sharedMemoryBuffer->wlBuffer(), &cursorBufferListener, sharedMemoryBuffer);
+    cursor->setFromBuffer(sharedMemoryBuffer->wlBuffer(), width, height, hotspotX, hotspotY);
 }
 
 static void wpeViewWaylandSetOpaqueRectangles(WPEView* view, WPERectangle* rects, guint rectsCount)
