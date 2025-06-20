@@ -55,8 +55,10 @@ class AccessibilityObject;
 class Page;
 enum class AXStreamOptions : uint8_t;
 
+static constexpr uint16_t lastPropertyFlagIndex = 21;
 // The most common boolean properties are stored in a bitfield rather than in a HashMap.
-// If you edit these, update AXIsolatedObject::boolAttributeValue and AXIsolatedObject::setProperty.
+// If you edit these, make sure the corresponding AXProperty is ordered correctly in that
+// enum, and update lastPropertyFlagIndex above.
 enum class AXPropertyFlag : uint32_t {
     CanSetFocusAttribute                          = 1 << 0,
     CanSetSelectedAttribute                       = 1 << 1,
@@ -79,10 +81,34 @@ enum class AXPropertyFlag : uint32_t {
     SupportsExpanded                              = 1 << 18,
     SupportsPath                                  = 1 << 19,
     SupportsPosInSet                              = 1 << 20,
-    SupportsSetSize                               = 1 << 21
+    SupportsSetSize                               = 1 << lastPropertyFlagIndex
 };
 
 enum class AXProperty : uint16_t {
+    CanSetFocusAttribute = 0,
+    CanSetSelectedAttribute = 1,
+    CanSetValueAttribute = 2,
+    HasBoldFont = 3,
+    HasClickHandler = 4,
+    HasItalicFont = 5,
+    HasPlainText = 6,
+    IsEnabled = 7,
+    IsExposedTableCell = 8,
+    IsGrabbed = 9,
+    IsIgnored = 10,
+    IsInlineText = 11,
+    IsKeyboardFocusable = 12,
+    IsNonLayerSVGObject = 13,
+    IsTableRow = 14,
+    IsVisited = 15,
+    SupportsCheckedState = 16,
+    SupportsDragging = 17,
+    SupportsExpanded = 18,
+    SupportsPath = 19,
+    SupportsPosInSet = 20,
+    SupportsSetSize = lastPropertyFlagIndex,
+    // End bool attributes that are matched in order by AXPropertyFlag.
+
     ARIALevel,
     ARIARoleDescription,
 #if !ENABLE(AX_THREAD_TEXT_APIS)
@@ -102,9 +128,6 @@ enum class AXProperty : uint16_t {
     BrailleRoleDescription,
     ButtonState,
     CanBeMultilineTextField,
-    CanSetFocusAttribute,
-    CanSetSelectedAttribute,
-    CanSetValueAttribute,
 #if PLATFORM(MAC)
     CaretBrowsingEnabled,
 #endif
@@ -142,11 +165,7 @@ enum class AXProperty : uint16_t {
 #endif
     TextColor,
     HasApplePDFAnnotationAttribute,
-    HasBoldFont,
-    HasClickHandler,
-    HasItalicFont,
     HasLinethrough,
-    HasPlainText,
     HasRemoteFrameChild,
     InputType,
     IsEditableWebArea,
@@ -160,7 +179,6 @@ enum class AXProperty : uint16_t {
     InitialFrameRect,
     InnerHTML,
     InternalLinkElement,
-    IsGrabbed,
     IsARIAGridRow,
     IsARIATreeGridRow,
     IsAnonymousMathOperator,
@@ -168,15 +186,10 @@ enum class AXProperty : uint16_t {
     IsBusy,
     IsChecked,
     IsColumnHeader,
-    IsEnabled,
     IsExpanded,
     IsExposable,
-    IsExposedTableCell,
     IsFieldset,
-    IsIgnored,
     IsIndeterminate,
-    IsInlineText,
-    IsKeyboardFocusable,
     IsMathElement,
     IsMathFraction,
     IsMathFenced,
@@ -191,7 +204,6 @@ enum class AXProperty : uint16_t {
     IsMathMultiscript,
     IsMathToken,
     IsMultiSelectable,
-    IsNonLayerSVGObject,
     IsPlugin,
     IsPressed,
     IsRequired,
@@ -200,12 +212,10 @@ enum class AXProperty : uint16_t {
     IsSelected,
     IsSelectedOptionActive,
     IsTable,
-    IsTableRow,
     IsTree,
     IsTreeItem,
     IsValueAutofillAvailable,
     IsVisible,
-    IsVisited,
     IsWidget,
     KeyShortcuts,
     Language,
@@ -260,18 +270,12 @@ enum class AXProperty : uint16_t {
     SpeakAs,
     StringValue,
     SubrolePlatformString,
-    SupportsDragging,
     SupportsDropping,
     SupportsARIAOwns,
-    SupportsCheckedState,
     SupportsCurrent,
     SupportsDatetimeAttribute,
-    SupportsExpanded,
     SupportsExpandedTextValue,
     SupportsKeyShortcuts,
-    SupportsPath,
-    SupportsPosInSet,
-    SupportsSetSize,
     TextContentPrefixFromListMarker,
 #if !ENABLE(AX_THREAD_TEXT_APIS)
     // Rather than caching text content as property when ENABLE(AX_THREAD_TEXT_APIS), we should
