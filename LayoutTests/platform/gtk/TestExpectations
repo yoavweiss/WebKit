@@ -1051,6 +1051,8 @@ webkit.org/b/114735 svg/filters/filter-hidden-content.svg [ Failure Pass ]
 
 webkit.org/b/116961 perf/show-hide-table-rows.html [ Failure Pass ]
 
+webkit.org/b/129758 js/dom/create-lots-of-workers.html [ Crash Pass ]
+
 webkit.org/b/263872 imported/w3c/web-platform-tests/scroll-animations/scroll-timelines/animation-with-animatable-interface.html [ ImageOnlyFailure ]
 webkit.org/b/263872 imported/w3c/web-platform-tests/scroll-animations/scroll-timelines/animation-with-display-none.html [ ImageOnlyFailure ]
 webkit.org/b/263872 imported/w3c/web-platform-tests/scroll-animations/scroll-timelines/progress-based-effect-delay.tentative.html [ ImageOnlyFailure ]
@@ -2001,8 +2003,8 @@ webkit.org/b/278719 fast/events/touch/touch-event-frames.html [ Timeout ]
 webkit.org/b/278719 fast/events/touch/touch-handler-count.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/touch-inside-iframe.html [ Timeout ]
 webkit.org/b/278719 fast/events/touch/touch-inside-iframe-scrolled.html [ Timeout ]
-webkit.org/b/278719 fast/events/touch/touch-slider.html [ Failure ]
-webkit.org/b/278719 fast/events/touch/touch-slider-no-js-touch-listener.html [ Failure ]
+webkit.org/b/278719 fast/events/touch/touch-slider.html [ Crash Failure ]
+webkit.org/b/278719 fast/events/touch/touch-slider-no-js-touch-listener.html [ Crash Failure ]
 webkit.org/b/278719 fast/events/touch/touch-stale-node-crash.html [ Timeout ]
 webkit.org/b/278719 imported/w3c/web-platform-tests/touch-events/idlharness.window.html [ Failure ]
 webkit.org/b/278719 imported/w3c/web-platform-tests/touch-events/touch-globaleventhandler-interface.html [ Failure ]
@@ -2051,3 +2053,5 @@ imported/w3c/web-platform-tests/css/css-view-transitions/inline-with-offset-from
 imported/w3c/web-platform-tests/svg/geometry/reftests/circle-003.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-001.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-011.svg [ ImageOnlyFailure ]
+
+webkit.org/b/267992 [ Debug ] imported/w3c/web-platform-tests/html/anonymous-iframe/initial-empty-document.tentative.https.window.html [ Crash Pass ]
