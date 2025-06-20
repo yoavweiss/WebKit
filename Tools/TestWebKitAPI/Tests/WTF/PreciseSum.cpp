@@ -26,6 +26,8 @@
 #include "config.h"
 #include <wtf/PreciseSum.h>
 
+#include <array>
+
 namespace TestWebKitAPI {
 
 static constexpr double Infinity = std::numeric_limits<double>::infinity();
