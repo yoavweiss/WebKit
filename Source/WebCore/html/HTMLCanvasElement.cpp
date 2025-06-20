@@ -322,7 +322,7 @@ ExceptionOr<std::optional<RenderingContext>> HTMLCanvasElement::getContext(JSC::
 
     if (isWebGPUType(contextId)) {
         RefPtr<GPU> gpu;
-        if (RefPtr window = document().domWindow()) {
+        if (RefPtr window = document().window()) {
             // FIXME: Should we be instead getting this through jsDynamicCast<JSDOMWindow*>(state)->wrapped().navigator().gpu()?
             gpu = window->protectedNavigator()->gpu();
         }
@@ -445,7 +445,7 @@ WebGLRenderingContextBase* HTMLCanvasElement::createContextWebGL(WebGLVersion ty
 #if ENABLE(WEBXR)
     // https://immersive-web.github.io/webxr/#xr-compatible
     if (attrs.xrCompatible) {
-        if (RefPtr window = document().domWindow()) {
+        if (RefPtr window = document().window()) {
             // FIXME: how to make this sync without blocking the main thread?
             // For reference: https://immersive-web.github.io/webxr/#ref-for-dom-webglcontextattributes-xrcompatible
             NavigatorWebXR::xr(window->navigator()).ensureImmersiveXRDeviceIsSelected([]() { });

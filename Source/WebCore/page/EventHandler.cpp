@@ -4233,7 +4233,7 @@ void EventHandler::defaultKeyboardEventHandler(KeyboardEvent& event)
 
         if (event.key() == "Escape"_s) {
             if (frame->settings().closeWatcherEnabled())
-                frame->document()->domWindow()->closeWatcherManager().escapeKeyHandler(event);
+                frame->document()->window()->closeWatcherManager().escapeKeyHandler(event);
             if (RefPtr activeModalDialog = frame->document()->activeModalDialog())
                 activeModalDialog->queueCancelTask();
             if (RefPtr topmostAutoPopover = frame->document()->topmostAutoPopover())

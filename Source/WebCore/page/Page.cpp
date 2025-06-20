@@ -2250,7 +2250,7 @@ void Page::updateRendering()
     });
 
     for (auto& document : initialDocuments) {
-        if (document && document->domWindow())
+        if (document && document->window())
             document->protectedWindow()->unfreezeNowTimestamp();
     }
 
@@ -2765,7 +2765,7 @@ const String& Page::userStyleSheet() const
 void Page::userAgentChanged()
 {
     forEachDocument([] (Document& document) {
-        if (RefPtr window = document.domWindow()) {
+        if (RefPtr window = document.window()) {
             if (RefPtr navigator = window->optionalNavigator())
                 navigator->userAgentChanged();
         }

@@ -754,10 +754,10 @@ void HTMLVideoElement::serviceRequestVideoFrameCallbacks(ReducedResolutionSecond
         return;
 
     auto videoFrameMetadata = player()->videoFrameMetadata();
-    if (!videoFrameMetadata || !document().domWindow())
+    if (!videoFrameMetadata || !document().window())
         return;
 
-    processVideoFrameMetadataTimestamps(*videoFrameMetadata, document().domWindow()->protectedPerformance());
+    processVideoFrameMetadataTimestamps(*videoFrameMetadata, document().window()->protectedPerformance());
 
     Ref protectedThis { *this };
 

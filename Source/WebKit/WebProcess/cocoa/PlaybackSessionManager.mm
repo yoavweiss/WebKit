@@ -587,7 +587,7 @@ void PlaybackSessionManager::setMediaSessionAndRegisterAsObserver()
         return;
     }
 
-    RefPtr window = mediaElement->document().domWindow();
+    RefPtr window = mediaElement->document().window();
     if (!window) {
         m_mediaSession = nullptr;
         return;

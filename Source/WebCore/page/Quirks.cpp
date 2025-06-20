@@ -820,7 +820,7 @@ bool Quirks::shouldBypassBackForwardCache() const
 
     // Login issue on bankofamerica.com (rdar://104938789).
     if (m_quirksData.isBankOfAmerica) {
-        if (RefPtr window = document->domWindow()) {
+        if (RefPtr window = document->window()) {
             if (window->hasEventListeners(eventNames().unloadEvent)) {
                 static MainThreadNeverDestroyed<const AtomString> signInId("signIn"_s);
                 static MainThreadNeverDestroyed<const AtomString> loadingClass("loading"_s);
@@ -1123,11 +1123,11 @@ Quirks::StorageAccessResult Quirks::triggerOptionalStorageAccessQuirk(Element& e
                 return Quirks::StorageAccessResult::ShouldNotCancelEvent;
             }
 
-            RefPtr domWindow = document->domWindow();
-            if (!domWindow)
+            RefPtr window = document->window();
+            if (!window)
                 return Quirks::StorageAccessResult::ShouldNotCancelEvent;
 
-            ExceptionOr<RefPtr<WindowProxy>> proxyOrException =  domWindow->open(*domWindow, *domWindow, kinjaURL->string(), emptyAtom(), loginPopupWindowFeatureString);
+            ExceptionOr<RefPtr<WindowProxy>> proxyOrException =  window->open(*window, *window, kinjaURL->string(), emptyAtom(), loginPopupWindowFeatureString);
             if (proxyOrException.hasException())
                 return Quirks::StorageAccessResult::ShouldNotCancelEvent;
             auto proxy = proxyOrException.releaseReturnValue();

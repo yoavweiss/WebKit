@@ -1299,7 +1299,7 @@ void Element::scrollTo(const ScrollToOptions& options, ScrollClamping clamping, 
         // If the element is the scrolling element and is not potentially scrollable,
         // invoke scroll() on window with options as the only argument, and terminate these steps.
         // FIXME: Scrolling an independently scrollable body is broken: webkit.org/b/161612.
-        RefPtr window = document->domWindow();
+        RefPtr window = document->window();
         if (!window)
             return;
 
@@ -3286,7 +3286,7 @@ static bool canAttachAuthorShadowRoot(const Element& element)
     }
 
     if (auto localName = element.localName(); Document::validateCustomElementName(localName) == CustomElementNameValidationStatus::Valid) {
-        if (RefPtr window = element.document().domWindow()) {
+        if (RefPtr window = element.document().window()) {
             RefPtr registry = window->customElementRegistry();
             if (registry && registry->isShadowDisabled(localName))
                 return false;
@@ -3508,7 +3508,7 @@ CustomElementReactionQueue* Element::reactionQueue() const
 
 CustomElementRegistry* Element::customElementRegistry() const
 {
-    if (RefPtr window = document().domWindow())
+    if (RefPtr window = document().window())
         window->ensureCustomElementRegistry(); // Create the global registry before querying since registryForElement doesn't ensure it.
     return CustomElementRegistry::registryForElement(*this);
 }

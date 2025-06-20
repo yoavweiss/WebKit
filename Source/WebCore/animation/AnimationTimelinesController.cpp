@@ -292,12 +292,12 @@ void AnimationTimelinesController::resumeAnimations()
 
 ReducedResolutionSeconds AnimationTimelinesController::liveCurrentTime() const
 {
-    return m_document->domWindow()->nowTimestamp();
+    return m_document->window()->nowTimestamp();
 }
 
 std::optional<Seconds> AnimationTimelinesController::currentTime()
 {
-    if (!m_document->domWindow())
+    if (!m_document->window())
         return std::nullopt;
 
     if (!m_cachedCurrentTime)

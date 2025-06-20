@@ -1012,8 +1012,7 @@ public:
     void createDOMWindow();
     void takeDOMWindowFrom(Document&);
 
-    // FIXME: Consider renaming to window().
-    LocalDOMWindow* domWindow() const { return m_domWindow.get(); }
+    LocalDOMWindow* window() const { return m_domWindow.get(); }
     inline RefPtr<LocalDOMWindow> protectedWindow() const; // Defined in DocumentInlines.h.
 
     // In DOM Level 2, the Document's LocalDOMWindow is called the defaultView.

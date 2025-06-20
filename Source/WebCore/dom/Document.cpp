@@ -1804,7 +1804,7 @@ static inline bool operator<(char32_t a, const UnicodeCodePointRange& b)
 
 RefPtr<CustomElementRegistry> Document::customElementRegistryForBindings()
 {
-    if (RefPtr window = document().domWindow())
+    if (RefPtr window = document().window())
         return &window->ensureCustomElementRegistry();
     return customElementRegistry();
 }
@@ -2010,7 +2010,7 @@ ExceptionOr<Ref<Element>> Document::createElementNS(const AtomString& namespaceU
 
 DocumentEventTiming* Document::documentEventTimingFromNavigationTiming()
 {
-    RefPtr window = domWindow();
+    RefPtr window = this->window();
     if (!window)
         return nullptr;
     RefPtr navigationTiming = window->performance().navigationTiming();
@@ -3434,7 +3434,7 @@ void Document::frameDestroyed()
     // detachFromFrame() must be called before destroying the Frame.
     RELEASE_ASSERT(!m_frame);
 
-    if (RefPtr window = domWindow())
+    if (RefPtr window = this->window())
         window->frameDestroyed();
 
     FrameDestructionObserver::frameDestroyed();
@@ -3446,7 +3446,7 @@ void Document::willDetachPage()
 #if ENABLE(CONTENT_CHANGE_OBSERVER)
     contentChangeObserver().willDetachPage();
 #endif
-    if (domWindow() && frame())
+    if (window() && frame())
         InspectorInstrumentation::frameWindowDiscarded(protectedFrame().releaseNonNull(), protectedWindow().get());
 }
 
@@ -4081,7 +4081,7 @@ ExceptionOr<void> Document::setBodyOrFrameset(RefPtr<HTMLElement>&& newBody)
 
 Location* Document::location() const
 {
-    auto* window = domWindow();
+    auto* window = this->window();
     return window ? &window->location() : nullptr;
 }
 
@@ -4291,7 +4291,7 @@ void Document::enqueuePaintTimingEntryIfNeeded()
     if (!supportsPaintTiming())
         return;
 
-    if (!domWindow() || !view())
+    if (!window() || !view())
         return;
 
     // To make sure we don't report paint while the layer tree is still frozen.
@@ -5540,7 +5540,7 @@ void Document::runResizeSteps()
     if (m_needsVisualViewportResizeEvent) {
         LOG_WITH_STREAM(Events, stream << "Document " << this << " sending resize events to visualViewport");
         m_needsVisualViewportResizeEvent = false;
-        if (RefPtr window = domWindow())
+        if (RefPtr window = this->window())
             window->visualViewport().dispatchEvent(Event::create(eventNames().resizeEvent, Event::CanBubble::No, Event::IsCancelable::No));
     }
 }
@@ -5626,7 +5626,7 @@ void Document::runScrollSteps()
     if (m_needsVisualViewportScrollEvent) {
         LOG_WITH_STREAM(Events, stream << "Document " << this << " sending scroll events to visualViewport");
         m_needsVisualViewportScrollEvent = false;
-        if (RefPtr window = domWindow())
+        if (RefPtr window = this->window())
             window->visualViewport().dispatchEvent(Event::create(eventNames().scrollEvent, Event::CanBubble::No, Event::IsCancelable::No));
     }
 }
@@ -5780,7 +5780,7 @@ void Document::processCaptureStateDidChange(Function<bool(const Page&)>&& isPage
     if (!page)
         return;
 
-    RefPtr window = domWindow();
+    RefPtr window = this->window();
     RefPtr mediaSession = window ? NavigatorMediaSession::mediaSessionIfExists(window->protectedNavigator()) : nullptr;
     if (!mediaSession)
         return;
@@ -5854,7 +5854,7 @@ void Document::voiceActivityDetected()
     if (!isFullyActive() || hidden() || !hasMutedAudioCaptureDevice())
         return;
 
-    RefPtr window = domWindow();
+    RefPtr window = this->window();
     RefPtr mediaSession = window ? NavigatorMediaSession::mediaSessionIfExists(window->protectedNavigator()) : nullptr;
     if (!mediaSession)
         return;
@@ -5976,7 +5976,7 @@ void Document::adjustFocusedNodeOnNodeRemoval(Node& node, NodeRemoval nodeRemova
         setFocusNavigationStartingNode(focusedElement.get());
 
         if (settings().navigationAPIEnabled())
-            domWindow()->navigation().setFocusChanged(FocusDidChange::No);
+            window()->navigation().setFocusChanged(FocusDidChange::No);
     }
 }
 
@@ -6319,7 +6319,7 @@ bool Document::setFocusedElement(Element* newFocusedElement, const FocusOptions&
     if (m_focusedElement) {
 
         if (settings().navigationAPIEnabled())
-            domWindow()->navigation().setFocusChanged(FocusDidChange::Yes);
+            window()->navigation().setFocusChanged(FocusDidChange::Yes);
 
 #if PLATFORM(GTK)
         // GTK relies on creating the AXObjectCache when a focus change happens.
@@ -8560,8 +8560,8 @@ void Document::resumeScriptedAnimationControllerCallbacks()
 void Document::serviceRequestAnimationFrameCallbacks()
 {
     RefPtr scriptedAnimationController = m_scriptedAnimationController;
-    if (scriptedAnimationController && domWindow())
-        scriptedAnimationController->serviceRequestAnimationFrameCallbacks(domWindow()->frozenNowTimestamp());
+    if (scriptedAnimationController && window())
+        scriptedAnimationController->serviceRequestAnimationFrameCallbacks(window()->frozenNowTimestamp());
 }
 
 void Document::serviceCaretAnimation()
@@ -8572,11 +8572,11 @@ void Document::serviceCaretAnimation()
 void Document::serviceRequestVideoFrameCallbacks()
 {
 #if ENABLE(VIDEO)
-    if (!domWindow())
+    if (!window())
         return;
 
     bool isServicingRequestVideoFrameCallbacks = false;
-    forEachMediaElement([now = domWindow()->frozenNowTimestamp(), &isServicingRequestVideoFrameCallbacks](auto& element) {
+    forEachMediaElement([now = window()->frozenNowTimestamp(), &isServicingRequestVideoFrameCallbacks](auto& element) {
         RefPtr videoElement = dynamicDowncast<HTMLVideoElement>(element);
         if (videoElement && videoElement->shouldServiceRequestVideoFrameCallbacks()) {
             isServicingRequestVideoFrameCallbacks = true;
@@ -9260,7 +9260,7 @@ bool Document::hasRecentUserInteractionForNavigationFromJS() const
     if (UserGestureIndicator::processingUserGesture(this))
         return true;
 
-    RefPtr window = domWindow();
+    RefPtr window = this->window();
     if (!window || window->lastActivationTimestamp().isInfinity())
         return false;
 
@@ -10514,12 +10514,12 @@ StyleOriginatedTimelinesController& Document::ensureStyleOriginatedTimelinesCont
 
 void Document::updateAnimationsAndSendEvents()
 {
-    RefPtr domWindow = this->domWindow();
-    if (!domWindow)
+    RefPtr window = this->window();
+    if (!window)
         return;
 
     if (CheckedPtr timelinesController = this->timelinesController())
-        timelinesController->updateAnimationsAndSendEvents(domWindow->frozenNowTimestamp());
+        timelinesController->updateAnimationsAndSendEvents(window->frozenNowTimestamp());
 }
 
 void Document::updateStaleScrollTimelines()

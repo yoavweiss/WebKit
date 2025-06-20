@@ -9512,7 +9512,7 @@ void WebPage::setAppHighlightsVisibility(WebCore::HighlightVisibility appHighlig
 void WebPage::createMediaSessionCoordinator(const String& identifier, CompletionHandler<void(bool)>&& completionHandler)
 {
     RefPtr document = m_mainFrame->coreLocalFrame()->document();
-    if (!document || !document->domWindow()) {
+    if (!document || !document->window()) {
         completionHandler(false);
         return;
     }

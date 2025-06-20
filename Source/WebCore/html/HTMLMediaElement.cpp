@@ -3775,7 +3775,7 @@ void HTMLMediaElement::fastSeek(const MediaTime& time)
 #if ENABLE(MEDIA_STREAM)
 void HTMLMediaElement::setAudioOutputDevice(String&& deviceId, DOMPromiseDeferred<void>&& promise)
 {
-    RefPtr window = document().domWindow();
+    RefPtr window = document().window();
     RefPtr mediaDevices = window ? NavigatorMediaDevices::mediaDevices(window->navigator()) : nullptr;
     if (!mediaDevices) {
         promise.reject(Exception { ExceptionCode::NotAllowedError });
@@ -7396,7 +7396,7 @@ void HTMLMediaElement::setPlayerIdentifierForVideoElement()
     if (!page || page->mediaPlaybackIsSuspended())
         return;
 
-    RefPtr window = document().domWindow();
+    RefPtr window = document().window();
     if (!window)
         return;
 
@@ -7415,7 +7415,7 @@ void HTMLMediaElement::enterFullscreen(VideoFullscreenMode mode)
     if (!page || page->mediaPlaybackIsSuspended())
         return;
 
-    RefPtr window = document().domWindow();
+    RefPtr window = document().window();
     if (!window)
         return;
 
@@ -8708,8 +8708,8 @@ void HTMLMediaElement::updateRateChangeRestrictions()
 
 RefPtr<VideoPlaybackQuality> HTMLMediaElement::getVideoPlaybackQuality() const
 {
-    RefPtr domWindow = document().domWindow();
-    double timestamp = domWindow ? domWindow->nowTimestamp().milliseconds() : 0;
+    RefPtr window = document().window();
+    double timestamp = window ? window->nowTimestamp().milliseconds() : 0;
 
     VideoPlaybackQualityMetrics currentVideoPlaybackQuality;
 #if ENABLE(MEDIA_SOURCE)

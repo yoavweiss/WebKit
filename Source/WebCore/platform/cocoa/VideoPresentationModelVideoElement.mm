@@ -295,7 +295,7 @@ void VideoPresentationModelVideoElement::requestFullscreenMode(HTMLMediaElementE
 
     if (finishedWithMedia && mode == MediaPlayer::VideoFullscreenModeNone) {
         if (videoElement->document().isMediaDocument()) {
-            if (auto* window = videoElement->document().domWindow())
+            if (auto* window = videoElement->document().window())
                 window->history().back();
         }
     }

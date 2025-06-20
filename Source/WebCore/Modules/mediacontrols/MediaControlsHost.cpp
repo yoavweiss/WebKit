@@ -909,7 +909,7 @@ RefPtr<MediaSession> MediaControlsHost::mediaSession() const
     if (!mediaElement)
         return { };
 
-    RefPtr window = mediaElement->document().domWindow();
+    RefPtr window = mediaElement->document().window();
     if (!window)
         return { };
 
