@@ -249,10 +249,8 @@ NetworkDataTaskCocoa::NetworkDataTaskCocoa(NetworkSession& session, NetworkDataT
         [mutableRequest _setPrivacyProxyFailClosedForUnreachableHosts:YES];
 #endif
 
-#if HAVE(NETWORK_CONNECTION_PRIVACY_STANCE)
     if ([mutableRequest respondsToSelector:@selector(_setPrivacyProxyFailClosed:)] && advancedPrivacyProtections.contains(WebCore::AdvancedPrivacyProtections::FailClosedForAllHosts))
         [mutableRequest _setPrivacyProxyFailClosed:YES];
-#endif
 
     if ([mutableRequest respondsToSelector:@selector(_setWebSearchContent:)] && advancedPrivacyProtections.contains(WebCore::AdvancedPrivacyProtections::WebSearchContent))
         [mutableRequest _setWebSearchContent:YES];

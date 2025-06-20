@@ -159,7 +159,6 @@ static WebCore::NetworkLoadPriority toNetworkLoadPriority(float priority)
     return WebCore::NetworkLoadPriority::Medium;
 }
 
-#if HAVE(NETWORK_CONNECTION_PRIVACY_STANCE)
 static WebCore::PrivacyStance toPrivacyStance(nw_connection_privacy_stance_t stance)
 {
     switch (stance) {
@@ -201,7 +200,6 @@ static NSString* privacyStanceToString(WebCore::PrivacyStance stance)
     ASSERT_NOT_REACHED();
     return @"Unknown";
 }
-#endif
 
 #if HAVE(CFNETWORK_METRICS_APIS_V4)
 static String stringForTLSProtocolVersion(tls_protocol_version_t protocol)
@@ -919,9 +917,7 @@ static NSDictionary<NSString *, id> *extractResolutionReport(NSError *error)
         RetainPtr newUserInfo = oldUserInfo ? [NSMutableDictionary dictionaryWithDictionary:oldUserInfo.get()] : [NSMutableDictionary dictionary];
         newUserInfo.get()[@"networkTaskDescription"] = [task description];
         if (auto networkDataTask = [self existingTask:task]) {
-#if HAVE(NETWORK_CONNECTION_PRIVACY_STANCE)
             newUserInfo.get()[@"networkTaskMetricsPrivacyStance"] = privacyStanceToString(networkDataTask->networkLoadMetrics().privacyStance);
-#endif
 #if HAVE(NETWORK_RESOLUTION_FAILURE_REPORT) && defined(NW_CONNECTION_HAS_FAILED_RESOLUTION_REPORT)
             if (auto report = extractResolutionReport(updatedError.get()))
                 newUserInfo.get()[@"networkResolutionReport"] = report;
@@ -1008,10 +1004,7 @@ static NSDictionary<NSString *, id> *extractResolutionReport(NSError *error)
         networkLoadMetrics.constrained = m.get().constrained;
         networkLoadMetrics.multipath = m.get().multipath;
         networkLoadMetrics.isReusedConnection = m.get().isReusedConnection;
-
-#if HAVE(NETWORK_CONNECTION_PRIVACY_STANCE)
         networkLoadMetrics.privacyStance = toPrivacyStance(m.get()._privacyStance);
-#endif
 
         if (networkDataTask->shouldCaptureExtraNetworkLoadMetrics()) {
             auto additionalMetrics = WebCore::AdditionalNetworkLoadMetricsForWebInspector::create();
@@ -1112,7 +1105,6 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         RetainPtr<NSURLSessionTaskMetrics> taskMetrics = dataTask._incompleteTaskMetrics;
 
         RetainPtr<NSURLSessionTaskTransactionMetrics> metrics = taskMetrics.get().transactionMetrics.lastObject;
-#if HAVE(NETWORK_CONNECTION_PRIVACY_STANCE)
         auto privateRelayed = metrics.get()._privacyStance == nw_connection_privacy_stance_direct
             || metrics.get()._privacyStance == nw_connection_privacy_stance_not_eligible
             ? PrivateRelayed::No : PrivateRelayed::Yes;
@@ -1124,9 +1116,6 @@ ALLOW_DEPRECATED_DECLARATIONS_END
             }
         }
 
-#else
-        auto privateRelayed = PrivateRelayed::No;
-#endif
         negotiatedLegacyTLS = checkForLegacyTLS(metrics.get());
 
         // Avoid MIME type sniffing if the response comes back as 304 Not Modified.

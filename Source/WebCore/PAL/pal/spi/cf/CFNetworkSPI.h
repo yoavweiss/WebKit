@@ -193,7 +193,6 @@ CF_ENUM(CFHTTPCookieStorageAcceptPolicy)
     CFHTTPCookieStorageAcceptPolicyExclusivelyFromMainDocumentDomain = 3,
 };
 
-#if HAVE(NETWORK_CONNECTION_PRIVACY_STANCE)
 typedef enum {
     nw_connection_privacy_stance_unknown = 0,
     nw_connection_privacy_stance_not_eligible = 1,
@@ -201,7 +200,6 @@ typedef enum {
     nw_connection_privacy_stance_failed = 3,
     nw_connection_privacy_stance_direct = 4,
 } nw_connection_privacy_stance_t;
-#endif
 
 #if defined(__OBJC__)
 
@@ -301,10 +299,8 @@ typedef CF_ENUM(int, CFURLCredentialPersistence)
 - (BOOL)_schemeWasUpgradedDueToDynamicHSTS;
 - (BOOL)_preventHSTSStorage;
 - (BOOL)_ignoreHSTS;
-#if HAVE(NETWORK_CONNECTION_PRIVACY_STANCE)
 @property (setter=_setPrivacyProxyFailClosed:) BOOL _privacyProxyFailClosed;
 @property (readonly) BOOL _useEnhancedPrivacyMode;
-#endif
 #if HAVE(PRIVACY_PROXY_FAIL_CLOSED_FOR_UNREACHABLE_HOSTS)
 @property (readonly) BOOL _privacyProxyFailClosedForUnreachableNonMainHosts;
 #endif
@@ -401,10 +397,8 @@ typedef NS_ENUM(NSInteger, NSURLSessionCompanionProxyPreference) {
 @property (assign, readonly) int64_t _responseBodyBytesReceived;
 @property (assign, readonly) int64_t _responseBodyBytesDecoded;
 @property (nullable, copy, readonly) NSString* _interfaceName;
-#if HAVE(NETWORK_CONNECTION_PRIVACY_STANCE)
 @property (assign, readonly) nw_connection_privacy_stance_t _privacyStance;
 @property (nullable, retain, readonly) nw_establishment_report_t _establishmentReport;
-#endif
 @property (assign) SSLProtocol _negotiatedTLSProtocol;
 @property (assign) SSLCipherSuite _negotiatedTLSCipher;
 #if ENABLE(NETWORK_ISSUE_REPORTING)
