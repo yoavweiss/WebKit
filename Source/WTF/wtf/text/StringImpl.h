@@ -1298,36 +1298,33 @@ inline bool equalLettersIgnoringASCIICase(const StringImpl* string, ASCIILiteral
     return string && equalLettersIgnoringASCIICase(*string, literal);
 }
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 template<typename CharacterType, typename Predicate> ALWAYS_INLINE Ref<StringImpl> StringImpl::removeCharactersImpl(std::span<const CharacterType> characters, const Predicate& findMatch)
 {
-    auto* from = characters.data();
-    auto* fromEnd = from + m_length;
+    auto from = characters;
 
     // Assume the common case will not remove any characters
-    while (from != fromEnd && !findMatch(*from))
-        ++from;
-    if (from == fromEnd)
+    while (!from.empty() && !findMatch(from[0]))
+        skip(from, 1);
+    if (from.empty())
         return *this;
 
     StringBuffer<CharacterType> data(m_length);
     auto to = data.span();
-    unsigned outc = from - characters.data();
+    unsigned outc = from.begin() - characters.begin();
 
     copyCharacters(to, characters.first(outc));
 
     do {
-        while (from != fromEnd && findMatch(*from))
-            ++from;
-        while (from != fromEnd && !findMatch(*from))
-            to[outc++] = *from++;
-    } while (from != fromEnd);
+        while (!from.empty() && findMatch(from[0]))
+            skip(from, 1);
+        while (!from.empty() && !findMatch(from[0]))
+            to[outc++] = consume(from);
+    } while (!from.empty());
 
     data.shrink(outc);
 
     return adopt(WTFMove(data));
 }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 template<typename Predicate>
 inline Ref<StringImpl> StringImpl::removeCharacters(const Predicate& findMatch)
