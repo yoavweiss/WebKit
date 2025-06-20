@@ -62,7 +62,7 @@ public:
 
     // Decoding & animation
     bool isPendingDecodingAtIndex(unsigned index, SubsamplingLevel, const DecodingOptions&) const;
-    void destroyNativeImageAtIndex(unsigned index);
+    void destroyNativeImageAtIndex(unsigned index, std::optional<ShouldDecodeToHDR> = std::nullopt);
     void imageFrameAtIndexAvailable(unsigned index, ImageAnimatingState, DecodingStatus);
     void imageFrameDecodeAtIndexHasFinished(unsigned index, SubsamplingLevel, ImageAnimatingState, const DecodingOptions&, RefPtr<NativeImage>&&);
 
@@ -75,7 +75,7 @@ public:
     // NativeImage
     DecodingStatus requestNativeImageAtIndexIfNeeded(unsigned index, SubsamplingLevel, ImageAnimatingState, const DecodingOptions&);
 
-    RefPtr<NativeImage> primaryNativeImageIfExists() { return frameAtIndex(primaryFrameIndex()).nativeImage(); }
+    RefPtr<NativeImage> primaryNativeImageIfExists() { return frameAtIndex(primaryFrameIndex()).nativeImage(std::nullopt); }
     RefPtr<NativeImage> primaryNativeImage() final { return nativeImageAtIndex(primaryFrameIndex()); }
 
     // Image Metadata

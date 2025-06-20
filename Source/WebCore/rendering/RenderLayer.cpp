@@ -417,6 +417,8 @@ RenderLayer::PaintedContentRequest::PaintedContentRequest(const RenderLayer& own
 #if HAVE(SUPPORT_HDR_DISPLAY)
     if (owningLayer.renderer().document().drawsHDRContent())
         makeHDRContentUnknown();
+    else
+        makeHDRContentFalse();
 #else
     UNUSED_PARAM(owningLayer);
 #endif
@@ -3817,6 +3819,7 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
             PaintBehavior::ExcludeReplacedContentExceptForIFrames,
             PaintBehavior::ExcludeText,
             PaintBehavior::FixedAndStickyLayersOnly,
+            PaintBehavior::DrawsHDRContent,
         };
         OptionSet<PaintBehavior> paintBehavior = paintingInfo.paintBehavior & flagsToCopy;
 
@@ -4311,11 +4314,10 @@ void RenderLayer::paintForegroundForFragments(const LayerFragments& layerFragmen
         PaintBehavior::ExcludeReplacedContentExceptForIFrames,
         PaintBehavior::ExcludeText,
         PaintBehavior::FixedAndStickyLayersOnly,
+        PaintBehavior::DontShowVisitedLinks,
+        PaintBehavior::DrawsHDRContent,
     };
     localPaintBehavior.add(localPaintingInfo.paintBehavior & flagsToCopy);
-
-    if (localPaintingInfo.paintBehavior & PaintBehavior::DontShowVisitedLinks)
-        localPaintBehavior.add(PaintBehavior::DontShowVisitedLinks);
 
     GraphicsContextStateSaver stateSaver(context, false);
     RegionContextStateSaver regionContextStateSaver(localPaintingInfo.regionContext);
@@ -6091,7 +6093,7 @@ void RenderLayer::determineNonLayerDescendantsPaintedContent(PaintedContentReque
 bool RenderLayer::rendererHasHDRContent() const
 {
     if (auto* imageDocument = dynamicDowncast<ImageDocument>(renderer().document()))
-        return imageDocument->hasHDRContent();
+        return imageDocument->drawsHDRContent();
     return WebCore::rendererHasHDRContent(renderer());
 }
 #endif
@@ -6663,6 +6665,7 @@ TextStream& operator<<(TextStream& ts, PaintBehavior behavior)
     case PaintBehavior::ExcludeReplacedContentExceptForIFrames: ts << "ExcludeReplacedContentExceptForIFrames"_s; break;
     case PaintBehavior::ExcludeText: ts << "ExcludeText"_s; break;
     case PaintBehavior::FixedAndStickyLayersOnly: ts << "FixedAndStickyLayersOnly"_s; break;
+    case PaintBehavior::DrawsHDRContent: ts << "DrawsHDRContent"_s; break;
     }
 
     return ts;

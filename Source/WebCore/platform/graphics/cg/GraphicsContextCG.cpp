@@ -404,7 +404,7 @@ void GraphicsContextCG::drawNativeImageInternal(NativeImage& nativeImage, const 
         CGContextSetEDRTargetHeadroom(context, headroom);
     }
 
-    if (options.dynamicRangeLimit() == PlatformDynamicRangeLimit::standard())
+    if (options.dynamicRangeLimit() == PlatformDynamicRangeLimit::standard() && options.drawsHDRContent() == DrawsHDRContent::Yes)
         setCGDynamicRangeLimitForImage(context, subImage.get(), options.dynamicRangeLimit().value());
 #endif
 

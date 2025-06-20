@@ -2055,8 +2055,8 @@ void RenderLayerBacking::updateDrawsContent(PaintedContentsInfo& contentsInfo)
         m_backgroundLayer->setDrawsContent(m_backgroundLayerPaintsFixedRootBackground ? hasPaintedContent : contentsInfo.paintsBoxDecorations());
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
+    m_graphicsLayer->setDrawsHDRContent(contentsInfo.paintsHDRContent() || contentsInfo.rendererHasHDRContent());
     if (contentsInfo.paintsHDRContent() || contentsInfo.rendererHasHDRContent()) {
-        m_graphicsLayer->setDrawsHDRContent(true);
         LOG_WITH_STREAM(HDR, stream << "RenderLayerBacking " << *this << " updateDrawContent headroom " << m_owningLayer.page().displayEDRHeadroom());
         m_graphicsLayer->setNeedsDisplayIfEDRHeadroomExceeds(m_owningLayer.page().displayEDRHeadroom());
     }
@@ -4133,6 +4133,11 @@ void RenderLayerBacking::paintContents(const GraphicsLayer* graphicsLayer, Graph
             behavior.add(PaintBehavior::ForceSynchronousImageDecode);
         else if (layerPaintBehavior.contains(GraphicsLayerPaintBehavior::DefaultAsynchronousImageDecode))
             behavior.add(PaintBehavior::DefaultAsynchronousImageDecode);
+
+#if HAVE(SUPPORT_HDR_DISPLAY)
+        if (graphicsLayer->drawsHDRContent())
+            behavior.add(PaintBehavior::DrawsHDRContent);
+#endif
 
         paintIntoLayer(graphicsLayer, context, dirtyRect, behavior);
 

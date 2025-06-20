@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 Samuel Weinig (sam.weinig@gmail.com)
- * Copyright (C) 2004-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
  * Copyright (C) 2008-2009 Torch Mobile, Inc.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,8 +60,8 @@ public:
     unsigned currentFrameIndex() const { return m_source->currentFrameIndex(); }
     bool currentFrameHasAlpha() const { return m_source->currentImageFrame().hasAlpha(); }
     ImageOrientation currentFrameOrientation() const { return m_source->currentImageFrame().orientation(); }
-    Headroom currentFrameHeadroom() const final { return m_source->currentImageFrame().headroom(); }
-    DecodingOptions currentFrameDecodingOptions() const { return m_source->currentImageFrame().decodingOptions(); }
+    Headroom currentFrameHeadroom(ShouldDecodeToHDR shouldDecodeToHDR) const { return m_source->currentImageFrame().headroom(shouldDecodeToHDR); }
+    DecodingOptions currentFrameDecodingOptions() const { return m_source->currentImageFrame().decodingOptions(std::nullopt); }
 
     // Primary & current NativeImage
     RefPtr<NativeImage> primaryNativeImage() { return m_source->primaryNativeImage(); }

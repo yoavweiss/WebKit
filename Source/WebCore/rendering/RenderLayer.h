@@ -577,6 +577,7 @@ public:
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
         void setHasHDRContent() { hasHDRContent = RequestState::True; }
+        void makeHDRContentFalse() { hasHDRContent = RequestState::False; }
         void makeHDRContentUnknown() { hasHDRContent = RequestState::Unknown; }
         bool isHDRContentSatisfied() const { return hasHDRContent != RequestState::Unknown; }
 #endif

@@ -814,7 +814,7 @@ platform/graphics/GraphicsLayer.h
 platform/graphics/ImageAdapter.cpp
 platform/graphics/ImageBackingStore.h
 platform/graphics/ImageBufferContextSwitcher.cpp
-platform/graphics/ImageFrame.cpp
+platform/graphics/ImageFrame.h
 platform/graphics/ImageFrameWorkQueue.cpp
 platform/graphics/MediaPlayer.cpp
 platform/graphics/Path.cpp
