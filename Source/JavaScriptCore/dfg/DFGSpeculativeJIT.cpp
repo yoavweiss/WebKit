@@ -13408,6 +13408,57 @@ void SpeculativeJIT::compileRegExpMatchFast(Node* node)
     jsValueResult(resultRegs, node);
 }
 
+void SpeculativeJIT::compileRegExpSearch(Node* node)
+{
+    SpeculateCellOperand globalObject(this, node->child1());
+    SpeculateCellOperand base(this, node->child2());
+
+    GPRReg globalObjectGPR = globalObject.gpr();
+    GPRReg baseGPR = base.gpr();
+
+    if (node->child3().useKind() == StringUse) {
+        SpeculateCellOperand argument(this, node->child3());
+        GPRReg argumentGPR = argument.gpr();
+
+        speculateRegExpObject(node->child2(), baseGPR);
+        speculateString(node->child3(), argumentGPR);
+        speculationCheck(
+            ExoticObjectMode, JSValueRegs(), nullptr,
+            branchTestPtr(
+                NonZero,
+                Address(baseGPR, RegExpObject::offsetOfRegExpAndFlags()),
+                TrustedImm32(RegExpObject::lastIndexIsNotWritableFlag)));
+
+        flushRegisters();
+        GPRFlushedCallResult result(this);
+        GPRReg resultGPR = result.gpr();
+        callOperation(
+            operationRegExpSearchString, resultGPR,
+            globalObjectGPR, baseGPR, argumentGPR);
+
+        strictInt32Result(resultGPR, node);
+        return;
+    }
+
+    JSValueOperand argument(this, node->child3());
+    JSValueRegs argumentRegs = argument.jsValueRegs();
+
+    speculateRegExpObject(node->child2(), baseGPR);
+    speculationCheck(
+        ExoticObjectMode, JSValueRegs(), nullptr,
+        branchTestPtr(
+            NonZero,
+            Address(baseGPR, RegExpObject::offsetOfRegExpAndFlags()),
+            TrustedImm32(RegExpObject::lastIndexIsNotWritableFlag)));
+
+    flushRegisters();
+    GPRFlushedCallResult result(this);
+    GPRReg resultGPR = result.gpr();
+    callOperation(operationRegExpSearch, resultGPR, globalObjectGPR, baseGPR, argumentRegs);
+
+    strictInt32Result(result.gpr(), node);
+}
+
 void SpeculativeJIT::compileLazyJSConstant(Node* node)
 {
     JSValueRegsTemporary result(this);

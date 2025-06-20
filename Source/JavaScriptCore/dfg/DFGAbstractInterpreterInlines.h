@@ -3309,6 +3309,11 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         setNonCellTypeForNode(node, SpecBoolean);
         break;
 
+    case RegExpSearch:
+        clobberWorld();
+        setNonCellTypeForNode(node, SpecInt32Only);
+        break;
+
     case RegExpMatchFast:
         ASSERT(node->child2().useKind() == RegExpObjectUse);
         ASSERT(node->child3().useKind() == StringUse || node->child3().useKind() == KnownStringUse);
