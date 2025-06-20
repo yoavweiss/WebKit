@@ -75,6 +75,7 @@ class SDKDB:
                 print(f'Rebuilding {db_file} due to version change')
                 self.con.close()
                 db_file.unlink()
+        self._initialize_temporary_schema()
 
     def _initialize_db(self):
         cur = self.con.cursor()
@@ -97,6 +98,13 @@ class SDKDB:
         cur.execute('CREATE INDEX symbol_names ON symbol (name)')
         cur.execute('CREATE INDEX selector_names ON objc_selector (name)')
         cur.execute(f'PRAGMA user_version = {VERSION}')
+        self.con.commit()
+
+    def _initialize_temporary_schema(self):
+        cur = self.con.cursor()
+        cur.execute('CREATE TEMPORARY TABLE window(input_file '
+                    'REFERENCES input_file(path))')
+        cur.execute('CREATE INDEX selected_files ON window(input_file)')
         self.con.commit()
 
     def __del__(self):
@@ -124,10 +132,13 @@ class SDKDB:
         cur = self.con.cursor()
         cur.execute('SELECT hash from input_file where path = ?', (path,))
         if cur.fetchone() == (hash_,):
-            return True
-        cur.execute('INSERT OR REPLACE INTO input_file VALUES (?, ?)',
-                    (path, hash_))
-        return False
+            cached = True
+        else:
+            cur.execute('INSERT OR REPLACE INTO input_file VALUES (?, ?)',
+                        (path, hash_))
+            cached = False
+        cur.execute('INSERT INTO window VALUES (?)', (path,))
+        return cached
 
     def add_partial_sdkdb(self, sdkdb_file: Path, *, spi=False, abi=False,
                           ) -> bool:
@@ -209,21 +220,24 @@ class SDKDB:
 
     def symbol(self, name: str):
         cur = self.con.cursor()
-        cur.execute('SELECT * FROM symbol WHERE name = ? LIMIT 1', (name,))
+        cur.execute('SELECT * FROM symbol NATURAL JOIN window '
+                    'WHERE name = ? LIMIT 1', (name,))
         row = cur.fetchone()
         if row:
             return dict(name=row[0], input_file=row[1])
 
     def objc_class(self, name: str):
         cur = self.con.cursor()
-        cur.execute('SELECT * FROM objc_class WHERE name = ?', (name,))
+        cur.execute('SELECT * FROM objc_class NATURAL JOIN window '
+                    'WHERE name = ?', (name,))
         row = cur.fetchone()
         if row:
             return dict(name=row[0], input_file=row[1])
 
     def objc_selector(self, selector: str):
         cur = self.con.cursor()
-        cur.execute('SELECT * FROM objc_selector WHERE name = ?', (selector,))
+        cur.execute('SELECT * FROM objc_selector NATURAL JOIN window '
+                    'WHERE name = ?', (selector,))
         row = cur.fetchone()
         if row:
             return dict(name=row[0], class_name=row[1], input_file=row[2])
