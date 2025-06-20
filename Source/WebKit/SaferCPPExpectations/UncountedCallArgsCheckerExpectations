@@ -166,12 +166,6 @@ WebProcess/WebCoreSupport/ShareableBitmapUtilities.cpp
 WebProcess/WebCoreSupport/WebBroadcastChannelRegistry.cpp
 WebProcess/WebCoreSupport/WebCaptionPreferencesDelegate.cpp
 WebProcess/WebCoreSupport/WebChromeClient.cpp
-WebProcess/WebCoreSupport/WebColorChooser.cpp
-WebProcess/WebCoreSupport/WebContextMenuClient.cpp
-WebProcess/WebCoreSupport/WebCryptoClient.cpp
-WebProcess/WebCoreSupport/WebDataListSuggestionPicker.cpp
-WebProcess/WebCoreSupport/WebDateTimeChooser.cpp
-WebProcess/WebCoreSupport/WebDragClient.cpp
 WebProcess/WebCoreSupport/WebEditorClient.cpp
 WebProcess/WebCoreSupport/WebFileSystemStorageConnection.cpp
 WebProcess/WebCoreSupport/WebGeolocationClient.cpp
@@ -179,7 +173,6 @@ WebProcess/WebCoreSupport/WebMessagePortChannelProvider.cpp
 WebProcess/WebCoreSupport/WebNotificationClient.cpp
 WebProcess/WebCoreSupport/WebPlatformStrategies.cpp
 WebProcess/WebCoreSupport/WebValidationMessageClient.cpp
-WebProcess/WebCoreSupport/mac/WebContextMenuClientMac.mm
 WebProcess/WebCoreSupport/mac/WebDragClientMac.mm
 WebProcess/WebCoreSupport/mac/WebEditorClientMac.mm
 WebProcess/WebPage/Cocoa/TextAnimationController.mm
@@ -192,8 +185,6 @@ WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeDrawingArea.mm
 WebProcess/WebPage/RemoteLayerTree/RemoteScrollingCoordinator.mm
 WebProcess/WebPage/ViewGestureGeometryCollector.cpp
 WebProcess/WebPage/VisitedLinkTableController.cpp
-WebProcess/WebPage/WebContextMenu.cpp
-WebProcess/WebPage/WebDisplayRefreshMonitor.cpp
 WebProcess/WebPage/WebPageOverlay.cpp
 WebProcess/WebPage/mac/PageBannerMac.mm
 WebProcess/WebPage/mac/TiledCoreAnimationDrawingArea.mm

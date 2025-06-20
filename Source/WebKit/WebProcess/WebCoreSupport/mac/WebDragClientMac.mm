@@ -68,7 +68,7 @@ using DragImage = CGImageRef;
 
 static RefPtr<ShareableBitmap> convertDragImageToBitmap(DragImage image, const IntSize& size, Frame& frame)
 {
-    auto bitmap = ShareableBitmap::create({ size, screenColorSpace(frame.mainFrame().virtualView()) });
+    auto bitmap = ShareableBitmap::create({ size, screenColorSpace(frame.protectedMainFrame()->virtualView()) });
     if (!bitmap)
         return nullptr;
 
@@ -134,7 +134,7 @@ void WebDragClient::declareAndWriteDragImage(const String& pasteboardName, Eleme
 
     String extension;
     if (image) {
-        extension = image->image()->filenameExtension();
+        extension = image->protectedImage()->filenameExtension();
         if (extension.isEmpty())
             return;
     }
@@ -180,7 +180,7 @@ void WebDragClient::declareAndWriteDragImage(const String& pasteboardName, Eleme
             filename = downloadFilename;
     }
 
-    m_page->send(Messages::WebPageProxy::SetPromisedDataForImage(pasteboardName, WTFMove(*imageHandle), filename, extension, title, String([[response URL] absoluteString]), WTF::userVisibleString(url.createNSURL().get()), WTFMove(*archiveHandle), element.document().originIdentifierForPasteboard()));
+    m_page->send(Messages::WebPageProxy::SetPromisedDataForImage(pasteboardName, WTFMove(*imageHandle), filename, extension, title, String([[response URL] absoluteString]), WTF::userVisibleString(url.createNSURL().get()), WTFMove(*archiveHandle), element.protectedDocument()->originIdentifierForPasteboard()));
 }
 
 #else
