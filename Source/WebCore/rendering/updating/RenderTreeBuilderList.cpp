@@ -80,9 +80,15 @@ static std::pair<RenderBlock*, RenderBlock*> findParentOfEmptyOrFirstLineBox(Ren
     return { { }, fallbackParent };
 }
 
-static RenderBlock* parentCandidateForMarker(RenderBlock& blockContainer, const RenderListMarker& marker)
+static RenderBlock* parentCandidateForMarker(RenderListItem& listItemRenderer, const RenderListMarker& marker)
 {
-    auto [parentCandidate, fallbackParent ] = findParentOfEmptyOrFirstLineBox(blockContainer, marker);
+    if (marker.isInside()) {
+        auto* firstChild = listItemRenderer.firstChild();
+        if (firstChild && !firstChild->isAnonymous() && firstChild->isRenderBlock())
+            return &listItemRenderer;
+        return findParentOfEmptyOrFirstLineBox(listItemRenderer, marker).first;
+    }
+    auto [parentCandidate, fallbackParent] = findParentOfEmptyOrFirstLineBox(listItemRenderer, marker);
     return parentCandidate || marker.isInside() ? parentCandidate : fallbackParent;
 }
 
