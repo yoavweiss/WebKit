@@ -1471,6 +1471,8 @@ static void addUserInstalledFontURLs(NSString *path, HashMap<String, URL>& fontU
         if ([utType isSubtypeOfType:UTTypeFont]) {
             URL fontURL(nsFontURL.get());
             RetainPtr fontDescriptors = adoptCF(CTFontManagerCreateFontDescriptorsFromURL(bridge_cast(nsFontURL.get())));
+            if (!fontDescriptors)
+                continue;
             for (CFIndex i = 0; i < CFArrayGetCount(fontDescriptors.get()); ++i) {
                 RetainPtr fontDescriptor = checked_cf_cast<CTFontDescriptorRef>(CFArrayGetValueAtIndex(fontDescriptors.get(), i));
                 if (!fontDescriptor)
