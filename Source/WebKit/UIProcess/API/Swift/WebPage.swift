@@ -331,7 +331,7 @@ final public class WebPage {
     private var scopedNavigations: [ObjectIdentifier : AsyncThrowingStream<NavigationEvent, any Error>.Continuation] = [:]
 
     @ObservationIgnored
-    private var indefiniteNavigations: Set<AsyncThrowingStream<NavigationEvent, any Error>.Continuation> = []
+    private var indefiniteNavigations: [UUID : AsyncThrowingStream<NavigationEvent, any Error>.Continuation] = [:]
 
     /// Loads the web content that the specified URL request object references and navigates to that content.
     ///
@@ -563,12 +563,14 @@ final public class WebPage {
             scopedNavigations[ObjectIdentifier(cocoaNavigation)]?.finish()
         }
 
-        for continuation in indefiniteNavigations {
+        for continuation in indefiniteNavigations.values {
             continuation.yield(with: event)
         }
     }
 
     private func createIndefiniteNavigationSequence() -> some AsyncSequence<NavigationEvent, any Error> {
+        let id = UUID()
+
         let (stream, continuation) = AsyncThrowingStream.makeStream(of: NavigationEvent.self, throwing: (any Error).self)
         continuation.onTermination = { [weak self] termination in
             guard let self else {
@@ -577,11 +579,11 @@ final public class WebPage {
             Task { @MainActor in
                 // `stopLoading` is intentionally not called here because the semantics of doing
                 // so would not be well-defined in the case of multiple navigation sequences.
-                indefiniteNavigations.remove(continuation)
+                indefiniteNavigations[id] = nil
             }
         }
 
-        indefiniteNavigations.insert(continuation)
+        indefiniteNavigations[id] = continuation
         return stream
     }
 
