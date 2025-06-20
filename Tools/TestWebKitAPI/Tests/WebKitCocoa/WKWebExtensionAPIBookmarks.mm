@@ -115,6 +115,55 @@ TEST_F(WKWebExtensionAPIBookmarks, APIAvailableWhenManifestRequests)
 {
     auto *script = @[
         @"browser.test.assertFalse(browser.bookmarks === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.create === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.getChildren === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.getRecent === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.getSubTree === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.getTree === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.get === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.move === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.remove === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.removeTree === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.search === undefined)",
+        @"browser.test.assertFalse(browser.bookmarks.update === undefined)",
+        @"browser.test.notifyPass()",
+    ];
+
+    Util::loadAndRunExtension(bookmarkOnManifest, @{ @"background.js": Util::constructScript(script) }, bookmarkConfig);
+}
+
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIDisallowsMissingArguments)
+{
+    auto *script = @[
+        @"browser.test.assertThrows(() => browser.bookmarks.create())",
+        @"browser.test.assertThrows(() => browser.bookmarks.getChildren())",
+        @"browser.test.assertThrows(() => browser.bookmarks.getRecent())",
+        @"browser.test.assertThrows(() => browser.bookmarks.getSubTree())",
+        @"browser.test.assertThrows(() => browser.bookmarks.get())",
+        @"browser.test.assertThrows(() => browser.bookmarks.move())",
+        @"browser.test.assertThrows(() => browser.bookmarks.remove())",
+        @"browser.test.assertThrows(() => browser.bookmarks.removeTree())",
+        @"browser.test.assertThrows(() => browser.bookmarks.search())",
+        @"browser.test.assertThrows(() => browser.bookmarks.update())",
+        @"browser.test.notifyPass()",
+    ];
+
+    Util::loadAndRunExtension(bookmarkOnManifest, @{ @"background.js": Util::constructScript(script) }, bookmarkConfig);
+}
+
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIDisallowedIncorrectArguments)
+{
+    auto *script = @[
+        @"browser.test.assertThrows(() => browser.bookmarks.getChildren(123), /The 'id' value is invalid, because a string is expected/i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.getChildren({}), /The 'id' value is invalid, because a string is expected/i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.getRecent('not-a-number'), /The 'numberOfItems' value is invalid, because a number is expected./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.getRecent({}), /The 'numberOfItems' value is invalid, because a number is expected./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.get('test', 'test'), /The 'callback' value is invalid, because a function is expected./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.move(123, {}), /The 'id' value is invalid, because a string is expected./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.move('someId', 'not-an-object'), /The 'destination' value is invalid, because an object is expected./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.remove(123), /The 'id' value is invalid, because a string is expected./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.search(123, 'test'), /The 'callback' value is invalid, because a function is expected./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.update(123, {}), /The 'id' value is invalid, because a string is expected./i)",
         @"browser.test.notifyPass()",
     ];
 

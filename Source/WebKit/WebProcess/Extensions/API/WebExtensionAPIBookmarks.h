@@ -35,6 +35,23 @@ namespace WebKit {
 class WebExtensionAPIBookmarks : public WebExtensionAPIObject, public JSWebExtensionWrappable {
     WEB_EXTENSION_DECLARE_JS_WRAPPER_CLASS(WebExtensionAPIBookmarks, bookmarks, bookmarks);
 
+public:
+#if PLATFORM(COCOA)
+    void createBookmark(NSDictionary *bookmark, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+
+    void getChildren(NSString *bookmarkIdentifier, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+    void getRecent(long long numberOfItems, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+    void getSubTree(NSString *bookmarkIdentifier, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+    void getTree(Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+    void get(NSObject *idOrIdList, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+
+    void remove(NSString *bookmarkIdentifier, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+    void removeTree(NSString *bookmarkIdentifier, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+
+    void search(NSObject *query, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+    void update(NSString *bookmarkIdentifier, NSDictionary *changes, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+    void move(NSString *bookmarkIdentifier, NSDictionary *destination, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
+#endif // PLATFORM(COCOA)
 };
 
 } // namespace WebKit
