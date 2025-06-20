@@ -232,11 +232,11 @@ ExceptionOr<std::optional<OffscreenRenderingContext>> OffscreenCanvas::getContex
             Ref scriptExecutionContext = *this->scriptExecutionContext();
             if (RefPtr globalScope = dynamicDowncast<WorkerGlobalScope>(scriptExecutionContext)) {
                 if (auto* gpu = globalScope->protectedNavigator()->gpu())
-                    m_context = GPUCanvasContext::create(*this, *gpu);
+                    m_context = GPUCanvasContext::create(*this, *gpu, nullptr);
             } else if (RefPtr document = dynamicDowncast<Document>(scriptExecutionContext)) {
                 if (RefPtr window = document->window()) {
                     if (auto* gpu = window->protectedNavigator()->gpu())
-                        m_context = GPUCanvasContext::create(*this, *gpu);
+                        m_context = GPUCanvasContext::create(*this, *gpu, document.get());
                 }
             }
         }

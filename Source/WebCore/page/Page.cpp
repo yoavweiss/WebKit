@@ -1726,9 +1726,14 @@ void Page::screenPropertiesDidChange()
 #endif
 #if HAVE(SUPPORT_HDR_DISPLAY)
     updateDisplayEDRHeadroom();
+    updateDisplayEDRSuppression();
 #endif
 
     setNeedsRecalcStyleInAllFrames();
+
+    forEachRenderableDocument([this] (Document& document) {
+        document.screenPropertiesDidChange(m_displayID);
+    });
 }
 
 void Page::windowScreenDidChange(PlatformDisplayID displayID, std::optional<FramesPerSecond> nominalFramesPerSecond)
@@ -5807,6 +5812,18 @@ void Page::updateDisplayEDRHeadroom()
         if (RefPtr view = document.view())
             view->setDescendantsNeedUpdateBackingAndHierarchyTraversal();
     });
+}
+
+void Page::updateDisplayEDRSuppression()
+{
+    bool suppressEDR = suppressEDRForDisplay(m_displayID);
+    if (suppressEDR == m_suppressEDR)
+        return;
+
+    LOG_WITH_STREAM(HDR, stream << "Page " << this << " updateDisplayEDRSuppression " << m_suppressEDR << " to " << suppressEDR);
+    m_suppressEDR = suppressEDR;
+
+    forceRepaintAllFrames();
 }
 #endif
 

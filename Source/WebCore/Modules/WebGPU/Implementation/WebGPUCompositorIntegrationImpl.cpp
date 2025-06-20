@@ -59,6 +59,16 @@ void CompositorIntegrationImpl::prepareForDisplay(uint32_t frameIndex, Completio
     m_onSubmittedWorkScheduledCallback(WTFMove(completionHandler));
 }
 
+void CompositorIntegrationImpl::updateContentsHeadroom(float headroom)
+{
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    for (auto& ioSurface : m_renderBuffers)
+        ioSurface->setContentEDRHeadroom(headroom);
+#else
+    UNUSED_PARAM(headroom);
+#endif
+}
+
 #if PLATFORM(COCOA)
 Vector<MachSendRight> CompositorIntegrationImpl::recreateRenderBuffers(int width, int height, WebCore::DestinationColorSpace&& colorSpace, WebCore::AlphaPremultiplication alphaMode, TextureFormat textureFormat, Device& device)
 {

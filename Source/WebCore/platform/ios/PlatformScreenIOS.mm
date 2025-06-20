@@ -136,6 +136,14 @@ float maxEDRHeadroomForDisplay(PlatformDisplayID)
 
     return [[PAL::getUIScreenClass() mainScreen] potentialEDRHeadroom];
 }
+
+bool suppressEDRForDisplay(PlatformDisplayID)
+{
+    if (auto data = screenData(primaryScreenDisplayID()))
+        return data->suppressEDR;
+
+    return false;
+}
 #endif
 
 DestinationColorSpace screenColorSpace(Widget* widget)

@@ -343,6 +343,14 @@ float maxEDRHeadroomForDisplay(PlatformDisplayID displayID)
     ASSERT(hasProcessPrivilege(ProcessPrivilege::CanCommunicateWithWindowServer));
     return screen(displayID).maximumPotentialExtendedDynamicRangeColorComponentValue;
 }
+
+bool suppressEDRForDisplay(PlatformDisplayID displayID)
+{
+    if (auto data = screenData(displayID))
+        return data->suppressEDR;
+
+    return false;
+}
 #endif
 
 FloatRect screenRect(Widget* widget)

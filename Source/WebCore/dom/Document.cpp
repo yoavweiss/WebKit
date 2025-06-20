@@ -8600,6 +8600,14 @@ void Document::windowScreenDidChange(PlatformDisplayID displayID)
     }
 }
 
+void Document::screenPropertiesDidChange(PlatformDisplayID displayID)
+{
+    for (auto& observer : copyToVector(m_screenPropertiesChangedObservers)) {
+        if (observer)
+            (*observer)(displayID);
+    }
+}
+
 String Document::displayStringModifiedByEncoding(const String& string) const
 {
     if (!m_decoder)
@@ -8751,6 +8759,12 @@ void Document::addDisplayChangedObserver(const DisplayChangedObserver& observer)
 {
     ASSERT(!m_displayChangedObservers.contains(observer));
     m_displayChangedObservers.add(observer);
+}
+
+void Document::addScreenPropertiesChangedObserver(const ScreenPropertiesChangedObserver& observer)
+{
+    ASSERT(!m_screenPropertiesChangedObservers.contains(observer));
+    m_screenPropertiesChangedObservers.add(observer);
 }
 
 #if HAVE(SPATIAL_TRACKING_LABEL)

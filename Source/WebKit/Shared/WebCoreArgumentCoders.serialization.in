@@ -2493,6 +2493,7 @@ header: <WebCore/ScreenProperties.h>
     bool screenHasInvertedColors;
     bool screenSupportsHighDynamicRange;
 #if HAVE(SUPPORT_HDR_DISPLAY)
+    bool suppressEDR;
     float currentEDRHeadroom;
     float maxEDRHeadroom;
 #endif

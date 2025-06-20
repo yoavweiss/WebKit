@@ -1266,34 +1266,6 @@ static NSTrackingAreaOptions flagsChangedEventMonitorTrackingAreaOptions()
 static RetainPtr<_WKWebViewTextInputNotifications> subscribeToTextInputNotifications(WebViewImpl*);
 #endif
 
-#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-static void setDynamicRangeLimitRecursive(CALayer* layer, LayerDynamicRangeLimitSetter layerDynamicRangeLimitSetter)
-{
-    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    if ([layer wantsExtendedDynamicRangeContent]) {
-    ALLOW_DEPRECATED_DECLARATIONS_END
-        layerDynamicRangeLimitSetter(layer);
-    }
-    for (CALayer* sublayer in [layer sublayers])
-        setDynamicRangeLimitRecursive(sublayer, layerDynamicRangeLimitSetter);
-}
-#endif
-
-static void setDynamicRangeLimit(CALayer* layer, PlatformDynamicRangeLimit platformDynamicRangeLimit, bool animate)
-{
-#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    if (animate)
-        [CATransaction begin];
-    setDynamicRangeLimitRecursive(layer, layerDynamicRangeLimitSetter(platformDynamicRangeLimit));
-    if (animate)
-        [CATransaction commit];
-#else
-    UNUSED_PARAM(layer);
-    UNUSED_PARAM(platformDynamicRangeLimit);
-    UNUSED_PARAM(animate);
-#endif
-}
-
 WTF_MAKE_TZONE_ALLOCATED_IMPL(WebViewImpl);
 
 WebViewImpl::WebViewImpl(WKWebView *view, WebProcessPool& processPool, Ref<API::PageConfiguration>&& configuration)
@@ -2194,8 +2166,6 @@ void WebViewImpl::screenDidChangeColorSpace()
 void WebViewImpl::applicationShouldSuppressHDR(bool suppress)
 {
     m_page->setShouldSuppressHDR(suppress);
-    if (m_page->protectedPreferences()->acceleratedDrawingEnabled())
-        setDynamicRangeLimit(m_rootLayer.get(), suppress ? PlatformDynamicRangeLimit::defaultWhenSuppressingHDR() : PlatformDynamicRangeLimit::noLimit(), true);
 }
 
 bool WebViewImpl::mightBeginDragWhileInactive()

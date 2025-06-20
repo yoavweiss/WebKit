@@ -118,6 +118,7 @@ OptionSet<ContentsFormat> screenContentsFormatsForTesting();
 
 WEBCORE_EXPORT float currentEDRHeadroomForDisplay(PlatformDisplayID);
 WEBCORE_EXPORT float maxEDRHeadroomForDisplay(PlatformDisplayID);
+WEBCORE_EXPORT bool suppressEDRForDisplay(PlatformDisplayID);
 #endif
 
 #if PLATFORM(MAC)

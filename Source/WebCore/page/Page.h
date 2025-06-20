@@ -1347,6 +1347,7 @@ public:
 #if HAVE(SUPPORT_HDR_DISPLAY)
     Headroom displayEDRHeadroom() const { return m_displayEDRHeadroom; }
     void updateDisplayEDRHeadroom();
+    void updateDisplayEDRSuppression();
 #endif
 
 private:
@@ -1780,6 +1781,7 @@ private:
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
     Headroom m_displayEDRHeadroom { Headroom::None };
+    bool m_suppressEDR { false };
 #endif
 
     UncheckedKeyHashSet<std::pair<URL, ScriptTelemetryCategory>> m_reportedScriptsWithTelemetry;

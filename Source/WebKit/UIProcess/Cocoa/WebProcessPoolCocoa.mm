@@ -853,6 +853,16 @@ void WebProcessPool::registerNotificationObservers()
     m_didChangeScreenParametersNotificationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidChangeScreenParametersNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
         screenPropertiesChanged();
     }];
+#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldBeginSuppressingHighDynamicRangeContentNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
+        m_suppressEDR = true;
+        screenPropertiesChanged();
+    }];
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldEndSuppressingHighDynamicRangeContentNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
+        m_suppressEDR = false;
+        screenPropertiesChanged();
+    }];
+#endif
 
     addCFNotificationObserver(colorPreferencesDidChangeCallback, AppleColorPreferencesChangedNotification, CFNotificationCenterGetDistributedCenter());
 
@@ -1240,6 +1250,19 @@ void WebProcessPool::notifyPreferencesChanged(const String& domain, const String
 void WebProcessPool::screenPropertiesChanged()
 {
     auto screenProperties = WebCore::collectScreenProperties();
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    if (m_suppressEDR) {
+        for (auto& properties : screenProperties.screenDataMap.values()) {
+            constexpr auto maxStudioDisplayHeadroom = 2.f;
+            constexpr auto threeQuartersStudioDisplayHeadroom = 1.5f;
+            constexpr auto halfMaxHeadroomMultiplier = 0.5f;
+            auto maxHeadroom = std::clamp(properties.maxEDRHeadroom * halfMaxHeadroomMultiplier, std::min(properties.maxEDRHeadroom, threeQuartersStudioDisplayHeadroom), maxStudioDisplayHeadroom);
+            properties.currentEDRHeadroom = maxHeadroom;
+            properties.maxEDRHeadroom = maxHeadroom;
+            properties.suppressEDR = m_suppressEDR;
+        }
+    }
+#endif
     sendToAllProcesses(Messages::WebProcess::SetScreenProperties(screenProperties));
 
 #if PLATFORM(MAC) && ENABLE(GPU_PROCESS)

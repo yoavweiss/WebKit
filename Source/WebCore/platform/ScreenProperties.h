@@ -44,6 +44,7 @@ struct ScreenData {
     bool screenHasInvertedColors { false };
     bool screenSupportsHighDynamicRange { false };
 #if HAVE(SUPPORT_HDR_DISPLAY)
+    bool suppressEDR { false };
     float currentEDRHeadroom { 1 };
     float maxEDRHeadroom { 1 };
 #endif

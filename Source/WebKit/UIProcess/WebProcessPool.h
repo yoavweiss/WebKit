@@ -1030,6 +1030,7 @@ private:
 #endif
 
     bool m_hasReceivedAXRequestInUIProcess { false };
+    bool m_suppressEDR { false };
 };
 
 template<typename T>
