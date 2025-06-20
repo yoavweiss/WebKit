@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Apple Inc. All rights reserved.
+ * Copyright (C) 2019-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -164,8 +164,7 @@ OptionSet<AnimationImpact> KeyframeEffectStack::applyKeyframeEffects(RenderStyle
     for (const auto& effect : sortedEffects()) {
         auto keyframeRecomputationReason = effect->recomputeKeyframesIfNecessary(previousLastStyleChangeEventStyle, unanimatedStyle, resolutionContext);
 
-        ASSERT(effect->animation());
-        auto* animation = effect->animation();
+        Ref animation = *effect->animation();
         impact.add(animation->resolve(targetStyle, resolutionContext));
 
         if (effect->isRunningAccelerated() || effect->isAboutToRunAccelerated())
@@ -180,7 +179,7 @@ OptionSet<AnimationImpact> KeyframeEffectStack::applyKeyframeEffects(RenderStyle
         // If one of the effect's resolved property changed it could affect whether that effect's animation is removed.
         if (keyframeRecomputationReason && *keyframeRecomputationReason == KeyframeEffect::RecomputationReason::LogicalPropertyChange) {
             if (RefPtr timeline = animation->timeline())
-                timeline->animationTimingDidChange(*animation);
+                timeline->animationTimingDidChange(animation.get());
         }
 
         affectedProperties.formUnion(effect->animatedProperties());
