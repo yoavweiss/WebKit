@@ -245,7 +245,7 @@ void InlineContentConstrainer::initialize()
         return;
     }
 
-    // if we have a single line content, we don't have anything to be balanced.
+    // Do not adjust single line content.
     if (numberOfVisibleLinesAllowed == 1) {
         m_hasSingleLineVisibleContent = true;
         return;
@@ -294,6 +294,10 @@ void InlineContentConstrainer::initialize()
     // Cache inline item widths after laying out all inline content with LineBuilder.
     updateCachedWidths();
     m_numberOfLinesInOriginalLayout = lineIndex;
+
+    // Do not adjust single line content.
+    if (m_numberOfLinesInOriginalLayout == 1)
+        m_hasSingleLineVisibleContent = true;
 }
 
 std::optional<Vector<LayoutUnit>> InlineContentConstrainer::computeParagraphLevelConstraints(TextWrapStyle wrapStyle)
