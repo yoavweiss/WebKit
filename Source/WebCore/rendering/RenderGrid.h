@@ -245,7 +245,6 @@ private:
     LayoutUnit rowAxisOffsetForGridItem(const RenderBox&) const;
     ContentAlignmentData computeContentPositionAndDistributionOffset(GridTrackSizingDirection, const LayoutUnit& availableFreeSpace, unsigned numberOfGridTracks) const;
     void setLogicalPositionForGridItem(RenderBox&) const;
-    void setLogicalOffsetForGridItem(RenderBox&, GridTrackSizingDirection) const;
     LayoutUnit logicalOffsetForGridItem(const RenderBox&, GridTrackSizingDirection) const;
 
     LayoutUnit gridAreaBreadthForGridItemIncludingAlignmentOffsets(const RenderBox&, GridTrackSizingDirection) const;

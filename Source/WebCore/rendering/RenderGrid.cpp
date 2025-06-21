@@ -2553,17 +2553,6 @@ void RenderGrid::setLogicalPositionForGridItem(RenderBox& gridItem) const
     gridItem.setLogicalLocation(GridLayoutFunctions::isOrthogonalGridItem(*this, gridItem) ? gridItemLocation.transposedPoint() : gridItemLocation);
 }
 
-void RenderGrid::setLogicalOffsetForGridItem(RenderBox& gridItem, GridTrackSizingDirection direction) const
-{
-    if (gridItem.parent() != this && hasStaticPositionForGridItem(gridItem, direction))
-        return;
-    // 'setLogicalLeft' and 'setLogicalTop' only take into account the grid item's writing-mode, that's why 'flowAwareDirectionForGridItem' is needed.
-    if (GridLayoutFunctions::flowAwareDirectionForGridItem(*this, gridItem, direction) == GridTrackSizingDirection::ForColumns)
-        gridItem.setLogicalLeft(logicalOffsetForGridItem(gridItem, direction));
-    else
-        gridItem.setLogicalTop(logicalOffsetForGridItem(gridItem, direction));
-}
-
 LayoutUnit RenderGrid::logicalOffsetForGridItem(const RenderBox& gridItem, GridTrackSizingDirection direction) const
 {
     if (direction == GridTrackSizingDirection::ForRows)
