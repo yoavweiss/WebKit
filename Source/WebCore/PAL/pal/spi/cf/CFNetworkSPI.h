@@ -261,9 +261,7 @@ typedef CF_ENUM(int, CFURLCredentialPersistence)
 - (void)_setPreventHSTSStorage:(BOOL)preventHSTSStorage;
 - (void)_setIgnoreHSTS:(BOOL)ignoreHSTS;
 @property (setter=_setProhibitPrivacyProxy:) BOOL _prohibitPrivacyProxy;
-#if HAVE(PRIVACY_PROXY_FAIL_CLOSED_FOR_UNREACHABLE_HOSTS)
 @property (setter=_setPrivacyProxyFailClosedForUnreachableHosts:) BOOL _privacyProxyFailClosedForUnreachableHosts;
-#endif
 #if ENABLE(TRACKER_DISPOSITION)
 @property (setter=_setNeedsNetworkTrackingPrevention:) BOOL _needsNetworkTrackingPrevention;
 #endif
@@ -271,9 +269,7 @@ typedef CF_ENUM(int, CFURLCredentialPersistence)
 @property (setter=_setUseEnhancedPrivacyMode:) BOOL _useEnhancedPrivacyMode;
 @property (setter=_setBlockTrackers:) BOOL _blockTrackers;
 #endif
-#if HAVE(ALLOW_PRIVATE_ACCESS_TOKENS_FOR_THIRD_PARTY)
 @property (setter=_setAllowPrivateAccessTokensForThirdParty:) BOOL _allowPrivateAccessTokensForThirdParty;
-#endif
 #if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
 @property (setter=_setAllowOnlyPartitionedCookies:) BOOL _allowOnlyPartitionedCookies;
 #endif
@@ -301,9 +297,7 @@ typedef CF_ENUM(int, CFURLCredentialPersistence)
 - (BOOL)_ignoreHSTS;
 @property (setter=_setPrivacyProxyFailClosed:) BOOL _privacyProxyFailClosed;
 @property (readonly) BOOL _useEnhancedPrivacyMode;
-#if HAVE(PRIVACY_PROXY_FAIL_CLOSED_FOR_UNREACHABLE_HOSTS)
 @property (readonly) BOOL _privacyProxyFailClosedForUnreachableNonMainHosts;
-#endif
 @end
 
 @interface NSURLResponse ()

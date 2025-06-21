@@ -1944,10 +1944,8 @@ std::unique_ptr<WebSocketTask> NetworkSessionCocoa::createWebSocketTask(WebPageP
     if (!allowPrivacyProxy)
         ensureMutableRequest()._prohibitPrivacyProxy = YES;
 
-    if (hadMainFrameMainResourcePrivateRelayed || request.url().host() == clientOrigin.topOrigin.host()) {
-        if ([NSMutableURLRequest instancesRespondToSelector:@selector(_setPrivacyProxyFailClosedForUnreachableNonMainHosts:)])
-            ensureMutableRequest()._privacyProxyFailClosedForUnreachableNonMainHosts = YES;
-    }
+    if (hadMainFrameMainResourcePrivateRelayed || request.url().host() == clientOrigin.topOrigin.host())
+        ensureMutableRequest()._privacyProxyFailClosedForUnreachableNonMainHosts = YES;
 
 #if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
     if ([mutableRequest respondsToSelector:@selector(_setAllowOnlyPartitionedCookies:)]) {
