@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2021-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -53,7 +53,7 @@ CompositorIntegrationImpl::~CompositorIntegrationImpl() = default;
 
 void CompositorIntegrationImpl::prepareForDisplay(uint32_t frameIndex, CompletionHandler<void()>&& completionHandler)
 {
-    if (auto* presentationContext = m_presentationContext.get())
+    if (RefPtr presentationContext = m_presentationContext)
         presentationContext->present(frameIndex);
 
     m_onSubmittedWorkScheduledCallback(WTFMove(completionHandler));
@@ -75,8 +75,8 @@ Vector<MachSendRight> CompositorIntegrationImpl::recreateRenderBuffers(int width
     m_renderBuffers.clear();
     m_device = device;
 
-    if (auto* presentationContext = m_presentationContext.get()) {
-        static_cast<PresentationContext*>(presentationContext)->unconfigure();
+    if (RefPtr presentationContext = m_presentationContext) {
+        static_cast<PresentationContext*>(presentationContext.get())->unconfigure();
         presentationContext->setSize(width, height);
     }
 
@@ -126,7 +126,7 @@ void CompositorIntegrationImpl::withDisplayBufferAsNativeImage(uint32_t bufferIn
 
     RefPtr<NativeImage> displayImage;
     bool isIOSurfaceSupportedFormat = false;
-    if (auto* presentationContextPtr = m_presentationContext.get())
+    if (RefPtr presentationContextPtr = m_presentationContext)
         displayImage = presentationContextPtr->getMetalTextureAsNativeImage(bufferIndex, isIOSurfaceSupportedFormat);
 
     if (!displayImage) {

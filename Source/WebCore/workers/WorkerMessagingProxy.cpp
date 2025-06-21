@@ -438,7 +438,7 @@ void WorkerMessagingProxy::workerGlobalScopeDestroyedInternal()
 
     m_inspectorProxy->workerTerminated();
 
-    if (auto* workerGlobalScope = dynamicDowncast<WorkerGlobalScope>(m_scriptExecutionContext.get()); workerGlobalScope && m_workerThread)
+    if (RefPtr workerGlobalScope = dynamicDowncast<WorkerGlobalScope>(m_scriptExecutionContext); workerGlobalScope && m_workerThread)
         workerGlobalScope->thread().removeChildThread(*m_workerThread);
 
     if (RefPtr workerThread = std::exchange(m_workerThread, nullptr))

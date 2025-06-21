@@ -1,6 +1,4 @@
 Modules/WebGPU/GPUDevice.cpp
-Modules/WebGPU/Implementation/WebGPUCompositorIntegrationImpl.cpp
-Modules/WebGPU/Implementation/WebGPUImpl.cpp
 Modules/applepay-ams-ui/ApplePayAMSUIPaymentHandler.cpp
 Modules/applepay/ApplePaySession.cpp
 Modules/applepay/ApplePaySetup.cpp
@@ -20,7 +18,6 @@ Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBIndex.cpp
 Modules/indexeddb/IDBObjectStore.cpp
 Modules/indexeddb/IDBTransaction.cpp
-Modules/indexeddb/WindowOrWorkerGlobalScopeIndexedDatabase.cpp
 Modules/indexeddb/client/IDBConnectionProxy.cpp
 Modules/indexeddb/server/IDBServer.cpp
 Modules/indexeddb/server/MemoryBackingStoreTransaction.cpp
@@ -45,7 +42,6 @@ Modules/notifications/Notification.cpp
 Modules/paymentrequest/PaymentRequest.cpp
 Modules/speech/SpeechRecognition.cpp
 Modules/speech/SpeechSynthesis.cpp
-Modules/web-locks/WebLockManager.cpp
 Modules/webaudio/AnalyserNode.cpp
 Modules/webaudio/AudioBasicProcessorNode.cpp
 Modules/webaudio/AudioBuffer.cpp
@@ -73,13 +69,10 @@ Modules/webauthn/AuthenticatorAssertionResponse.cpp
 Modules/webauthn/AuthenticatorAttestationResponse.cpp
 Modules/webauthn/AuthenticatorCoordinator.cpp
 Modules/webauthn/PublicKeyCredential.cpp
-Modules/webcodecs/WebCodecsVideoFrameAlgorithms.cpp
 Modules/webdatabase/Database.cpp
 Modules/webdatabase/DatabaseContext.cpp
 Modules/webdatabase/DatabaseManager.cpp
 Modules/webdatabase/SQLCallbackWrapper.h
-Modules/websockets/WebSocket.cpp
-Modules/webtransport/WebTransport.cpp
 StyleBuilderGenerated.cpp
 accessibility/AXCoreObject.cpp
 accessibility/AXLogger.cpp
@@ -293,7 +286,6 @@ editing/cocoa/DataDetection.mm
 editing/cocoa/DictionaryLookup.mm
 editing/cocoa/EditorCocoa.mm
 editing/cocoa/HTMLConverter.mm
-editing/cocoa/WebContentReaderCocoa.mm
 editing/mac/EditorMac.mm
 editing/mac/FrameSelectionMac.mm
 history/CachedFrame.cpp
@@ -361,8 +353,6 @@ inspector/InspectorOverlay.cpp
 inspector/InspectorShaderProgram.cpp
 inspector/InspectorStyleSheet.cpp
 inspector/PageDebugger.cpp
-inspector/WebInjectedScriptHost.cpp
-inspector/WebInjectedScriptManager.cpp
 inspector/agents/InspectorAnimationAgent.cpp
 inspector/agents/InspectorCSSAgent.cpp
 inspector/agents/InspectorCanvasAgent.cpp
@@ -373,7 +363,6 @@ inspector/agents/InspectorIndexedDBAgent.cpp
 inspector/agents/InspectorLayerTreeAgent.cpp
 inspector/agents/InspectorNetworkAgent.cpp
 inspector/agents/InspectorPageAgent.cpp
-inspector/agents/WebConsoleAgent.cpp
 inspector/agents/page/PageCanvasAgent.cpp
 inspector/agents/page/PageDOMDebuggerAgent.cpp
 inspector/agents/page/PageNetworkAgent.cpp
@@ -448,9 +437,7 @@ page/UserContentProvider.cpp
 page/UserMessageHandlersNamespace.cpp
 page/VisitedLinkStore.cpp
 page/VisualViewport.cpp
-page/WindowOrWorkerGlobalScope.cpp
 page/cocoa/ResourceUsageThreadCocoa.mm
-page/cocoa/WebTextIndicatorLayer.mm
 page/mac/EventHandlerMac.mm
 page/mac/ImageOverlayControllerMac.mm
 page/mac/ServicesOverlayController.mm
@@ -470,7 +457,6 @@ platform/ScrollableArea.cpp
 platform/ScrollbarsController.cpp
 platform/ThreadGlobalData.cpp
 platform/ThreadGlobalData.h
-platform/Widget.cpp
 platform/animation/AcceleratedEffect.cpp
 platform/animation/AcceleratedEffectValues.cpp
 platform/audio/PlatformMediaSessionManager.cpp
@@ -501,7 +487,6 @@ platform/graphics/transforms/RotateTransformOperation.cpp
 platform/mac/PlatformScreenMac.mm
 platform/mac/ScrollAnimatorMac.mm
 platform/mac/ScrollbarsControllerMac.mm
-platform/mac/WidgetMac.mm
 platform/mediastream/mac/RealtimeIncomingVideoSourceCocoa.mm
 platform/mock/MockRealtimeMediaSourceCenter.cpp
 platform/mock/MockRealtimeVideoSource.cpp
@@ -655,8 +640,6 @@ testing/LegacyMockCDM.cpp
 testing/MockCDMFactory.cpp
 testing/MockPageOverlayClient.cpp
 testing/ServiceWorkerInternals.cpp
-testing/js/WebCoreTestSupport.cpp
-workers/WorkerMessagingProxy.cpp
 workers/WorkerScriptLoader.cpp
 workers/service/ExtendableEvent.cpp
 workers/service/ServiceWorker.cpp

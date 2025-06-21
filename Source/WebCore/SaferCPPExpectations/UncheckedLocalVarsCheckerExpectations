@@ -23,7 +23,6 @@ Modules/permissions/Permissions.cpp
 Modules/push-api/PushDatabase.cpp
 Modules/speech/SpeechRecognition.cpp
 Modules/storage/WorkerStorageConnection.cpp
-Modules/web-locks/WebLockManager.cpp
 Modules/webaudio/AudioWorkletGlobalScope.cpp
 Modules/webdatabase/SQLStatement.cpp
 Modules/websockets/WebSocket.cpp
@@ -85,7 +84,6 @@ bindings/js/JSWorkerGlobalScopeCustom.cpp
 bindings/js/JSXMLHttpRequestCustom.cpp
 bindings/js/ScheduledAction.cpp
 bindings/js/ScriptModuleLoader.cpp
-bindings/js/WebCoreJSClientData.cpp
 contentextensions/ContentExtensionsBackend.cpp
 css/CSSFontSelector.cpp
 css/CSSStyleSheet.cpp
@@ -231,7 +229,6 @@ inspector/InspectorNodeFinder.cpp
 inspector/InspectorOverlay.cpp
 inspector/InspectorStyleSheet.cpp
 inspector/PageDebugger.cpp
-inspector/WebInjectedScriptManager.cpp
 inspector/WorkerToPageFrontendChannel.h
 inspector/agents/InspectorAnimationAgent.cpp
 inspector/agents/InspectorCSSAgent.cpp
@@ -244,7 +241,6 @@ inspector/agents/InspectorLayerTreeAgent.cpp
 inspector/agents/InspectorNetworkAgent.cpp
 inspector/agents/InspectorPageAgent.cpp
 inspector/agents/InspectorTimelineAgent.cpp
-inspector/agents/WebConsoleAgent.cpp
 inspector/agents/page/PageCanvasAgent.cpp
 inspector/agents/page/PageDOMDebuggerAgent.cpp
 inspector/agents/page/PageNetworkAgent.cpp
@@ -365,7 +361,6 @@ platform/CaretAnimator.cpp
 platform/DictationCaretAnimator.cpp
 platform/DragImage.cpp
 platform/ScrollView.cpp
-platform/Widget.cpp
 platform/animation/AcceleratedEffect.cpp
 platform/cocoa/VideoPresentationModelVideoElement.mm
 platform/graphics/GraphicsLayer.cpp
