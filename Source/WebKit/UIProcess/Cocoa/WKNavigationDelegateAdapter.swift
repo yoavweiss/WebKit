@@ -41,21 +41,13 @@ final class WKNavigationDelegateAdapter: NSObject, WKNavigationDelegate {
 
     // MARK: Navigation progress reporting
 
-    private func yieldNavigationProgress(kind: WebPage.NavigationEvent, cocoaNavigation: WKNavigation!) {
-        let addEvent = { [weak owner] () -> Void in
-            owner?.addNavigationEvent(.success(kind), for: cocoaNavigation)
-        }
+    private func yieldNavigationProgress(kind: WebPage.NavigationEvent.Kind, cocoaNavigation: WKNavigation!) {
+        let navigation = WebPage.NavigationEvent(kind: kind, navigationID: .init(cocoaNavigation))
 
-        if kind == .finished {
-            // A presentation update is only guaranteed when a navigation has finished.
-            owner?.backingWebView._do(afterNextPresentationUpdate: addEvent)
-        } else {
-            addEvent()
-        }
-    }
-    
-    private func failNavigationProgress(kind: some Error, cocoaNavigation: WKNavigation!) {
-        owner?.addNavigationEvent(.failure(kind), for: cocoaNavigation)
+        owner?.backingWebView
+            ._do(afterNextPresentationUpdate: { [weak owner] in
+                owner?.currentNavigationEvent = navigation
+            })
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
@@ -75,11 +67,11 @@ final class WKNavigationDelegateAdapter: NSObject, WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
-        failNavigationProgress(kind: WebPage.NavigationError.failedProvisionalNavigation(error), cocoaNavigation: navigation)
+        yieldNavigationProgress(kind: .failedProvisionalNavigation(underlyingError: error), cocoaNavigation: navigation)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
-        failNavigationProgress(kind: error, cocoaNavigation: navigation)
+        yieldNavigationProgress(kind: .failed(underlyingError: error), cocoaNavigation: navigation)
     }
 
     // MARK: Back-forward list support
