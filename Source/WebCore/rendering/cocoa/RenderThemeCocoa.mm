@@ -2322,41 +2322,41 @@ bool RenderThemeCocoa::paintMenuListButtonDecorationsForVectorBasedControls(cons
 
         glyphSize = { length * count + padding * (count - 1), length };
     } else {
-        constexpr int glyphWidth = 63;
-        constexpr int glyphHeight = 73;
+        // SF symbols 6: chevron.up.chevron.down / semibold / 20pt.
+        constexpr float glyphWidth = 14.4618f;
+        constexpr float glyphHeight = 20.1723f;
         glyphSize = { glyphWidth, glyphHeight };
-
-        glyphPath.moveTo({ 31.8593f, 1.0f });
-        glyphPath.addBezierCurveTo({ 30.541f, 1.0f }, { 29.418f, 1.586f }, { 28.0507f, 2.66f });
-        glyphPath.addLineTo({ 2.5625f, 23.168f });
-        glyphPath.addBezierCurveTo({ 1.5859f, 23.998f }, { 1.0f, 25.2188f }, { 1.0f, 26.7325f });
-        glyphPath.addBezierCurveTo({ 1.0f, 29.6133f }, { 3.246f, 31.7129f }, { 5.9316f, 31.7129f });
-        glyphPath.addBezierCurveTo({ 7.1523f, 31.7129f }, { 8.3242f, 31.2246f }, { 9.5449f, 30.248f });
-        glyphPath.addLineTo({ 31.8593f, 12.377f });
-        glyphPath.addLineTo({ 54.2226f, 30.248f });
-        glyphPath.addBezierCurveTo({ 55.3945f, 31.2246f }, { 56.6152f, 31.7129f }, { 57.7871f, 31.7129 });
-        glyphPath.addBezierCurveTo({ 60.4726f, 31.7129f }, { 62.7187f, 29.6133f }, { 62.7187f, 26.7325 });
-        glyphPath.addBezierCurveTo({ 62.7187f, 25.2188f }, { 62.1327f, 23.9981f }, { 61.1562f, 23.168 });
-        glyphPath.addLineTo({ 35.6679f, 2.6602f });
-        glyphPath.addBezierCurveTo({ 34.3496f, 1.586f }, { 33.1777f, 1.0f }, { 31.8593f, 1.0f });
-        glyphPath.moveTo({ 31.8593f, 72.3867f });
-        glyphPath.addBezierCurveTo({ 33.1777f, 72.3867f }, { 34.3496f, 71.8007f }, { 35.6679f, 70.7266f });
-        glyphPath.addLineTo({ 61.1562f, 50.2188f });
-        glyphPath.addBezierCurveTo({ 62.1328f, 49.3888f }, { 62.7187f, 48.168f }, { 62.7187f, 46.6543f });
-        glyphPath.addBezierCurveTo({ 62.7187f, 43.7735f }, { 60.4726f, 41.6739f }, { 57.7871f, 41.6739f });
-        glyphPath.addBezierCurveTo({ 56.6151f, 41.6739f }, { 55.3945f, 42.162f }, { 54.2226f, 43.09f });
-        glyphPath.addLineTo({ 31.8593f, 61.01f });
-        glyphPath.addLineTo({ 9.545f, 43.0898f });
-        glyphPath.addBezierCurveTo({ 8.3243f, 42.1619f }, { 7.1524f, 41.6738f }, { 5.9317f, 41.6738f });
-        glyphPath.addBezierCurveTo({ 3.246f, 41.6739f }, { 1.0f, 43.7735f }, { 1.0f, 46.6543f });
-        glyphPath.addBezierCurveTo({ 1.0f, 48.168f }, { 1.5859, 49.3887 }, { 2.5625, 50.2188f });
-        glyphPath.addLineTo({ 28.0507f, 70.7266f });
-        glyphPath.addBezierCurveTo({ 29.4179f, 71.8f }, { 30.541f, 72.3867f }, { 31.8593f, 72.3867 });
+        glyphPath.moveTo({ 7.05356f, 0.0f });
+        glyphPath.addBezierCurveTo({ 6.6506f, 0.0f }, { 6.31419f, 0.159764f }, { 5.98845f, 0.476187f });
+        glyphPath.addLineTo({ 0.449547f, 5.79359f });
+        glyphPath.addBezierCurveTo({ 0.188162f, 6.04876f }, { 0.0f, 6.37185f }, { 0.0f, 6.75753f });
+        glyphPath.addBezierCurveTo({ 0.0f, 7.5262f }, { 0.619975f, 8.0783f }, { 1.31101f, 8.0783f });
+        glyphPath.addBezierCurveTo({ 1.64075f, 8.0783f }, { 1.99003f, 7.97934f }, { 2.27895f, 7.69662f });
+        glyphPath.addLineTo({ 7.05356f, 3.02633f });
+        glyphPath.addLineTo({ 11.8215f, 7.69662f });
+        glyphPath.addBezierCurveTo({ 12.1171f, 7.97268f }, { 12.4597f, 8.0783f }, { 12.7895f, 8.0783f });
+        glyphPath.addBezierCurveTo({ 13.4805f, 8.0783f }, { 14.1005f, 7.5262f }, { 14.1005f, 6.75753f });
+        glyphPath.addBezierCurveTo({ 14.1005f, 6.37185f }, { 13.9159f, 6.04876f }, { 13.6509f, 5.79359f });
+        glyphPath.addLineTo({ 8.11201f, 0.476187f });
+        glyphPath.addBezierCurveTo({ 7.78627f, 0.159764f }, { 7.44987f, 0.0f }, { 7.05356f, 0.0f });
+        glyphPath.moveTo({ 7.05356f, 20.1625f });
+        glyphPath.addBezierCurveTo({ 7.44987f, 20.1625f }, { 7.78627f, 19.9961f }, { 8.11201f, 19.6833f });
+        glyphPath.addLineTo({ 13.6509f, 14.3659f });
+        glyphPath.addBezierCurveTo({ 13.9159f, 14.1071f }, { 14.1005f, 13.7907f }, { 14.1005f, 13.3984f });
+        glyphPath.addBezierCurveTo({ 14.1005f, 12.6297f }, { 13.4805f, 12.0811f }, { 12.7895f, 12.0811f });
+        glyphPath.addBezierCurveTo({ 12.4597f, 12.0811f }, { 12.1171f, 12.1899f }, { 11.8215f, 12.4659f });
+        glyphPath.addLineTo({ 7.05356f, 17.1362f });
+        glyphPath.addLineTo({ 2.27895f, 12.4659f });
+        glyphPath.addBezierCurveTo({ 1.99003f, 12.1801f }, { 1.64075f, 12.0811f }, { 1.31101f, 12.0811f });
+        glyphPath.addBezierCurveTo({ 0.619975f, 12.0811f }, { 0.0f, 12.6297f }, { 0.0f, 13.3984f });
+        glyphPath.addBezierCurveTo({ 0.0f, 13.7907f }, { 0.188162f, 14.1071f }, { 0.449547f, 14.3659f });
+        glyphPath.addLineTo({ 5.98845f, 19.6833f });
+        glyphPath.addBezierCurveTo({ 6.31419f, 19.9961f }, { 6.6506f, 20.1625f }, { 7.05356f, 20.1625f });
     }
 
     Ref emSize = CSSPrimitiveValue::create(1.0, CSSUnitType::CSS_EM);
     const auto emPixels = emSize->resolveAsLength<float>({ style, nullptr, nullptr, nullptr });
-    const auto glyphScale = 0.65f * emPixels / glyphSize.width();
+    const auto glyphScale = 0.55f * emPixels / glyphSize.width();
     glyphSize = glyphScale * glyphSize;
 
     const bool isHorizontalWritingMode = style->writingMode().isHorizontal();
@@ -2365,13 +2365,15 @@ bool RenderThemeCocoa::paintMenuListButtonDecorationsForVectorBasedControls(cons
     FloatPoint glyphOrigin;
     glyphOrigin.setY(logicalRect.center().y() - glyphSize.height() / 2.0f);
 
-#if PLATFORM(MAC)
-    auto glyphPaddingEnd = 5;
-#else
     auto glyphPaddingEnd = logicalRect.width();
     if (auto fixedPaddingEnd = box.style().paddingEnd().tryFixed())
         glyphPaddingEnd = fixedPaddingEnd->value;
-#endif
+
+    // Add RenderMenuList inner start padding for symmetry.
+    if (CheckedPtr menulist = dynamicDowncast<RenderMenuList>(box); menulist && menulist->innerRenderer()) {
+        if (auto innerPaddingStart = menulist->innerRenderer()->style().paddingStart().tryFixed())
+            glyphPaddingEnd += innerPaddingStart->value;
+    }
 
     if (!style->writingMode().isInlineFlipped())
         glyphOrigin.setX(logicalRect.maxX() - glyphSize.width() - box.style().borderEndWidth() - glyphPaddingEnd);
