@@ -648,6 +648,8 @@ private:
 
     bool shouldUseInProcessBackingStore() const;
 
+    bool delegatesScrollingToMainFrame() const final;
+
     RefPtr<PDFPresentationController> m_presentationController;
 
     PDFDocumentLayout m_documentLayout;

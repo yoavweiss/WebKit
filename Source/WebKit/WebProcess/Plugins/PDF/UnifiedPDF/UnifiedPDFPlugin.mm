@@ -4738,6 +4738,11 @@ bool UnifiedPDFPlugin::layerNeedsPlatformContext(const GraphicsLayer* layer) con
     return shouldUseInProcessBackingStore() && (layer == layerForHorizontalScrollbar() || layer == layerForVerticalScrollbar() || layer == layerForScrollCorner());
 }
 
+bool UnifiedPDFPlugin::delegatesScrollingToMainFrame() const
+{
+    return !handlesPageScaleFactor() && isFullFramePlugin() && scrollingMode() == DelegatedScrollingMode::DelegatedToNativeScrollView;
+}
+
 ViewportConfiguration::Parameters UnifiedPDFPlugin::viewportParameters()
 {
     ViewportConfiguration::Parameters parameters;

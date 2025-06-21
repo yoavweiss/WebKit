@@ -1228,6 +1228,14 @@ bool PluginView::pluginHandlesPageScaleFactor() const
     return m_plugin->handlesPageScaleFactor();
 }
 
+bool PluginView::pluginDelegatesScrollingToMainFrame() const
+{
+    if (!m_isInitialized)
+        return false;
+
+    return m_plugin->delegatesScrollingToMainFrame();
+}
+
 } // namespace WebKit
 
 #endif

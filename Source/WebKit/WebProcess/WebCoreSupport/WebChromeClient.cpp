@@ -2386,4 +2386,13 @@ void WebChromeClient::setNeedsFixedContainerEdgesUpdate()
     m_page->setNeedsFixedContainerEdgesUpdate();
 }
 
+bool WebChromeClient::usePluginRendererScrollableArea(LocalFrame& frame) const
+{
+#if ENABLE(PDF_PLUGIN)
+    if (RefPtr pluginView = WebPage::pluginViewForFrame(&frame))
+        return !pluginView->pluginDelegatesScrollingToMainFrame();
+#endif
+    return true;
+}
+
 } // namespace WebKit

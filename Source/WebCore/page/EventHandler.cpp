@@ -2144,8 +2144,12 @@ ScrollableArea* EventHandler::enclosingScrollableArea(Node* node) const
         }
 
         if (RefPtr plugin = dynamicDowncast<RenderEmbeddedObject>(renderer)) {
-            if (auto* scrollableArea = plugin->scrollableArea())
-                return scrollableArea;
+            if (auto* scrollableArea = plugin->scrollableArea()) {
+                Ref frame = m_frame.get();
+                RefPtr page = frame->page();
+                if (!page || page->chrome().client().usePluginRendererScrollableArea(frame))
+                    return scrollableArea;
+            }
         }
 
         auto* layer = renderer->enclosingLayer();
