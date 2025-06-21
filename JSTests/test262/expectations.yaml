@@ -1153,33 +1153,12 @@ test/intl402/Intl/supportedValuesOf/calendars.js:
 test/intl402/Intl/supportedValuesOf/timeZones-include-non-continental.js:
   default: 'Test262Error: non-continental timezone Etc/GMT+1 is not supported'
   strict mode: 'Test262Error: non-continental timezone Etc/GMT+1 is not supported'
-test/intl402/Locale/constructor-getter-order.js:
-  default: 'Test262Error: Actual [tag toString, get language, toString language, get script, toString script, get region, toString region, get calendar, toString calendar, get collation, toString collation, get hourCycle, toString hourCycle, get caseFirst, toString caseFirst, get numeric, get numberingSystem, toString numberingSystem] and expected [tag toString, get language, toString language, get script, toString script, get region, toString region, get variants, toString variants, get calendar, toString calendar, get collation, toString collation, get hourCycle, toString hourCycle, get caseFirst, toString caseFirst, get numeric, get numberingSystem, toString numberingSystem] should have the same contents. '
-  strict mode: 'Test262Error: Actual [tag toString, get language, toString language, get script, toString script, get region, toString region, get calendar, toString calendar, get collation, toString collation, get hourCycle, toString hourCycle, get caseFirst, toString caseFirst, get numeric, get numberingSystem, toString numberingSystem] and expected [tag toString, get language, toString language, get script, toString script, get region, toString region, get variants, toString variants, get calendar, toString calendar, get collation, toString collation, get hourCycle, toString hourCycle, get caseFirst, toString caseFirst, get numeric, get numberingSystem, toString numberingSystem] should have the same contents. '
-test/intl402/Locale/constructor-options-throwing-getters.js:
-  default: 'Test262Error: new Intl.Locale("en", {get variants() {throw new CustomError();}}) throws CustomError Expected a CustomError to be thrown but no exception was thrown at all'
-  strict mode: 'Test262Error: new Intl.Locale("en", {get variants() {throw new CustomError();}}) throws CustomError Expected a CustomError to be thrown but no exception was thrown at all'
-test/intl402/Locale/constructor-options-variants-invalid.js:
-  default: 'Test262Error: new Intl.Locale("en", {variants: ""}) throws RangeError Expected a RangeError to be thrown but no exception was thrown at all'
-  strict mode: 'Test262Error: new Intl.Locale("en", {variants: ""}) throws RangeError Expected a RangeError to be thrown but no exception was thrown at all'
-test/intl402/Locale/constructor-options-variants-valid.js:
-  default: 'Test262Error: new Intl.Locale("en", {variants: "spanglis"}).toString() returns "en-spanglis" Expected SameValue(«"en"», «"en-spanglis"») to be true'
-  strict mode: 'Test262Error: new Intl.Locale("en", {variants: "spanglis"}).toString() returns "en-spanglis" Expected SameValue(«"en"», «"en-spanglis"») to be true'
 test/intl402/Locale/extensions-grandfathered.js:
   default: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
   strict mode: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
-test/intl402/Locale/getters-missing.js:
-  default: 'Test262Error: Expected SameValue(«undefined», «"1901"») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«undefined», «"1901"») to be true'
 test/intl402/Locale/getters.js:
-  default: 'Test262Error: Expected SameValue(«undefined», «"1996-fonipa"») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«undefined», «"1996-fonipa"») to be true'
-test/intl402/Locale/prototype/variants/name.js:
-  default: "TypeError: undefined is not an object (evaluating 'Object.getOwnPropertyDescriptor(Intl.Locale.prototype, \"variants\").get')"
-  strict mode: "TypeError: undefined is not an object (evaluating 'Object.getOwnPropertyDescriptor(Intl.Locale.prototype, \"variants\").get')"
-test/intl402/Locale/prototype/variants/prop-desc.js:
-  default: "TypeError: undefined is not an object (evaluating 'propdesc.set')"
-  strict mode: "TypeError: undefined is not an object (evaluating 'propdesc.set')"
+  default: 'Test262Error: Expected SameValue(«undefined», «"und"») to be true'
+  strict mode: 'Test262Error: Expected SameValue(«undefined», «"und"») to be true'
 test/intl402/NumberFormat/currency-digits-nonstandard-notation.js:
   default: "Test262Error: Didn't get correct maximumFractionDigits for JPY in engineering notation. Expected SameValue(«0», «3») to be true"
   strict mode: "Test262Error: Didn't get correct maximumFractionDigits for JPY in engineering notation. Expected SameValue(«0», «3») to be true"
