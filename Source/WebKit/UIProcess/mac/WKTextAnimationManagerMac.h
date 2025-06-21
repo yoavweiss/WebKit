@@ -23,17 +23,33 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if ENABLE(WRITING_TOOLS)
+#pragma once
 
-#import "WKTextAnimationType.h"
+#import <Foundation/Foundation.h>
 
-@protocol WKSTextAnimationSourceDelegate;
+#if ENABLE(WRITING_TOOLS) && PLATFORM(MAC)
 
-@interface WKSTextAnimationManager : NSObject
+namespace WebCore {
+struct TextAnimationData;
+}
 
-- (instancetype)initWithDelegate:(id <WKSTextAnimationSourceDelegate>)delegate NS_DESIGNATED_INITIALIZER;
-- (void)addTextAnimationForAnimationID:(NSUUID *)uuid withStyleType:(WKTextAnimationType)styleType;
+namespace WebKit {
+class WebViewImpl;
+}
+
+@interface WKTextAnimationManager : NSObject
+
+- (instancetype)initWithWebViewImpl:(WebKit::WebViewImpl&)view;
+- (void)addTextAnimationForAnimationID:(NSUUID *)uuid withData:(const WebCore::TextAnimationData&)data;
 - (void)removeTextAnimationForAnimationID:(NSUUID *)uuid;
+
+- (void)hideTextAnimationView;
+
+- (BOOL)hasActiveTextAnimationType;
+
+- (void)suppressTextAnimationType;
+- (void)restoreTextAnimationType;
+
 @end
 
-#endif // ENABLE(WRITING_TOOLS)
+#endif // ENABLE(WRITING_TOOLS) && PLATFORM(MAC)

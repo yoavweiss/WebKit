@@ -23,10 +23,40 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#import <Foundation/Foundation.h>
+#import <wtf/Platform.h>
+
+#if ENABLE(WRITING_TOOLS) && PLATFORM(IOS_FAMILY)
+
+#import <UIKit/UIKit.h>
+
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
 typedef NS_ENUM(NSInteger, WKTextAnimationType) {
     WKTextAnimationTypeInitial,
     WKTextAnimationTypeSource,
     WKTextAnimationTypeFinal
 };
+
+@protocol WKTextAnimationSourceDelegate;
+
+NS_SWIFT_UI_ACTOR
+@interface WKTextAnimationManager : NSObject
+- (instancetype)initWithDelegate:(id <WKTextAnimationSourceDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+- (void)addTextAnimationForAnimationID:(NSUUID *)uuid withStyleType:(WKTextAnimationType)styleType;
+- (void)removeTextAnimationForAnimationID:(NSUUID *)uuid;
+@end
+
+NS_SWIFT_UI_ACTOR
+@protocol WKTextAnimationSourceDelegate <NSObject>
+- (void)targetedPreviewForID:(NSUUID *)uuid completionHandler:(NS_SWIFT_UI_ACTOR void (^)(UITargetedPreview * _Nullable))completionHandler;
+- (void)updateUnderlyingTextVisibilityForTextAnimationID:(NSUUID *)uuid visible:(BOOL)visible completionHandler:(NS_SWIFT_UI_ACTOR void (^)(void))completionHandler;
+- (UIView *)containingViewForTextAnimationType;
+- (void)callCompletionHandlerForAnimationID:(NSUUID *)uuid completionHandler:(NS_SWIFT_UI_ACTOR void (^)(UITargetedPreview * _Nullable))completionHandler;
+- (void)callCompletionHandlerForAnimationID:(NSUUID *)uuid;
+- (void)replacementEffectDidComplete;
+@end
+
+NS_HEADER_AUDIT_END(nullability, sendability)
+
+#endif // ENABLE(WRITING_TOOLS) && PLATFORM(IOS_FAMILY)

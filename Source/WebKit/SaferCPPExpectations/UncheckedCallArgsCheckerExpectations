@@ -54,7 +54,7 @@ UIProcess/WebPageProxy.cpp
 UIProcess/mac/PageClientImplMac.mm
 UIProcess/mac/ViewGestureControllerMac.mm
 UIProcess/mac/WKRevealItemPresenter.mm
-UIProcess/mac/WKTextAnimationManager.mm
+UIProcess/mac/WKTextAnimationManagerMac.mm
 UIProcess/mac/WKViewLayoutStrategy.mm
 UIProcess/mac/WebViewImpl.mm
 WebPageMessages.h

@@ -67,7 +67,7 @@
 #import "WKPrintingView.h"
 #import "WKQuickLookPreviewController.h"
 #import "WKRevealItemPresenter.h"
-#import "WKTextAnimationManager.h"
+#import "WKTextAnimationManagerMac.h"
 #import "WKTextPlaceholder.h"
 #import "WKViewLayoutStrategy.h"
 #import "WKWebViewMac.h"

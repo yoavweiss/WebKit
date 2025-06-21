@@ -27,10 +27,9 @@
 #if ENABLE(WRITING_TOOLS) && PLATFORM(MAC)
 
 #import "config.h"
-#import "WKTextAnimationManager.h"
+#import "WKTextAnimationManagerMac.h"
 
 #import "ImageOptions.h"
-#import "WKTextAnimationType.h"
 #import "WebPageProxy.h"
 #import "WebViewImpl.h"
 #import <WebCore/TextAnimationTypes.h>

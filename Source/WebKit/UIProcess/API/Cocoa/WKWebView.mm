@@ -95,7 +95,6 @@
 #import "WKSecurityOriginInternal.h"
 #import "WKSharedAPICast.h"
 #import "WKSnapshotConfigurationPrivate.h"
-#import "WKTextAnimationType.h"
 #import "WKTextExtractionItem.h"
 #import "WKTextExtractionUtilities.h"
 #import "WKUIDelegate.h"

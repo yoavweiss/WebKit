@@ -77,7 +77,6 @@
 #import "WKSelectMenuListViewController.h"
 #import "WKSyntheticFlagsChangedWebEvent.h"
 #import "WKTapHighlightView.h"
-#import "WKTextAnimationType.h"
 #import "WKTextInputListViewController.h"
 #import "WKTextInteractionWrapper.h"
 #import "WKTextPlaceholder.h"
@@ -212,7 +211,7 @@
 #endif
 
 #if ENABLE(WRITING_TOOLS)
-#import "WKSTextAnimationManager.h"
+#import "WKTextAnimationManagerIOS.h"
 #endif
 
 #if ENABLE(MODEL_PROCESS) || ENABLE(WRITING_TOOLS)
@@ -13882,7 +13881,7 @@ inline static NSString *extendSelectionCommand(UITextLayoutDirection direction)
     return !!_suppressSelectionAssistantReasons;
 }
 
-#pragma mark - WKSTextAnimationSourceDelegate
+#pragma mark - WKTextAnimationSourceDelegate
 
 #if ENABLE(WRITING_TOOLS)
 - (void)targetedPreviewForID:(NSUUID *)uuid completionHandler:(void (^)(UITargetedPreview *))completionHandler
@@ -14055,7 +14054,7 @@ static inline WKTextAnimationType toWKTextAnimationType(WebCore::TextAnimationTy
         [_sourceAnimationIDtoDestinationAnimationID setObject:uuid forKey:data.sourceAnimationUUID.value_or(WTF::UUID(WTF::UUID::emptyValue)).createNSUUID().get()];
 
     if (!_textAnimationManager)
-        _textAnimationManager = adoptNS([WebKit::allocWKSTextAnimationManagerInstance() initWithDelegate:self]);
+        _textAnimationManager = adoptNS([WebKit::allocWKTextAnimationManagerInstance() initWithDelegate:self]);
 
     [_textAnimationManager addTextAnimationForAnimationID:uuid withStyleType:toWKTextAnimationType(data.style)];
 }
