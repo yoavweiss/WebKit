@@ -65,7 +65,7 @@ static size_t lastLineBreakingPointOffset()
 // In these situations, text-wrap-pretty does very little of note other than take up time.
 static bool validIdealLineWidth(InlineLayoutUnit maxItemWidth, InlineLayoutUnit idealLineWidth, InlineLayoutUnit maxTextIndent)
 {
-    return idealLineWidth >= maxItemWidth * 3 + maxTextIndent;
+    return idealLineWidth >= maxItemWidth + maxTextIndent;
 }
 
 static bool validLineWidthPretty(InlineLayoutUnit candidateLineWidth, InlineLayoutUnit idealLineWidth)
