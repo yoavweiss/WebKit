@@ -5566,7 +5566,7 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
             if (node->child1().useKind() == UntypedUse)
                 didFoldClobberWorld();
             double d = value.asNumber();
-            setConstant(node, jsNumber(trunc(std::isnan(d) ? 0.0 : d + 0.0)));
+            setConstant(node, jsNumber(std::isnan(d) ? 0.0 : trunc(d) + 0.0));
             break;
         }
         if (node->child1().useKind() == UntypedUse)

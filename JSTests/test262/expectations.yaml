@@ -1033,9 +1033,6 @@ test/built-ins/TypedArray/prototype/slice/speciesctor-return-same-buffer-with-of
 test/built-ins/TypedArray/prototype/subarray/byteoffset-with-detached-buffer.js:
   default: 'Test262Error: Expected SameValue(«8», «16») to be true (Testing with Float64Array.)'
   strict mode: 'Test262Error: Expected SameValue(«8», «16») to be true (Testing with Float64Array.)'
-test/built-ins/TypedArray/prototype/with/negative-fractional-index-truncated-to-zero.js:
-  default: 'RangeError: index should not be negative zero (Testing with Float64Array.)'
-  strict mode: 'RangeError: index should not be negative zero (Testing with Float64Array.)'
 test/built-ins/TypedArrayConstructors/ctors/object-arg/iterated-array-changed-by-tonumber.js:
   default: 'Test262Error: Expected SameValue(«NaN», «2») to be true (Testing with Float64Array.)'
   strict mode: 'Test262Error: Expected SameValue(«NaN», «2») to be true (Testing with Float64Array.)'

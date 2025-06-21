@@ -3942,7 +3942,7 @@ JSC_DEFINE_JIT_OPERATION(operationIsNaN, UCPUStrictInt32, (JSGlobalObject* globa
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationToIntegerOrInfinityDouble, EncodedJSValue, (double d))
 {
-    return JSValue::encode(jsNumber(trunc(std::isnan(d) ? 0.0 : d + 0.0)));
+    return JSValue::encode(jsNumber(std::isnan(d) ? 0.0 : trunc(d) + 0.0));
 }
 
 JSC_DEFINE_JIT_OPERATION(operationToIntegerOrInfinityUntyped, EncodedJSValue, (JSGlobalObject* globalObject, EncodedJSValue encodedValue))
