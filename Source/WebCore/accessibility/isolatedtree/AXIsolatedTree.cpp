@@ -1508,7 +1508,7 @@ void AXIsolatedTree::queueNodeRemoval(const AccessibilityObject& axObject)
         }
     }
 
-    auto* parent = axObject.parentInCoreTree();
+    RefPtr parent = axObject.parentInCoreTree();
     std::optional<AXID> parentID = parent ? std::optional { parent->objectID() } : std::nullopt;
 
     m_needsNodeRemoval.add(axObject.objectID(), parentID);
@@ -2089,7 +2089,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
 
     appendPlatformProperties(properties, propertyFlags, axObject);
 
-    auto* axParent = object.parentInCoreTree();
+    RefPtr axParent = object.parentInCoreTree();
     Markable<AXID> parentID = axParent ? std::optional(axParent->objectID()) : std::nullopt;
 
     properties.shrinkToFit();

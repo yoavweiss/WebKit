@@ -2078,7 +2078,7 @@ HashMap<AXID, LineRange> AXObjectCache::mostRecentlyPaintedText()
 {
     HashMap<AXID, LineRange> recentlyPaintedText;
     for (auto renderTextToLineRange : m_mostRecentlyPaintedText) {
-        if (auto* axObject = getOrCreate(renderTextToLineRange.key))
+        if (RefPtr axObject = getOrCreate(renderTextToLineRange.key))
             recentlyPaintedText.add(axObject->objectID(), renderTextToLineRange.value);
     }
     return recentlyPaintedText;
@@ -3169,7 +3169,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     else if (attrName == aria_valueminAttr)
         postNotification(element, AXNotification::MinimumValueChanged);
     else if (attrName == aria_multilineAttr) {
-        if (auto* axObject = get(*element)) {
+        if (RefPtr axObject = get(*element)) {
             // The role of textarea and textfield objects is dependent on whether they can span multiple lines, so recompute it here.
             if (axObject->role() == AccessibilityRole::TextArea || axObject->role() == AccessibilityRole::TextField)
                 axObject->updateRole();

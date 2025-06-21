@@ -107,7 +107,7 @@ void AccessibilityRegionContext::takeBounds(const RenderLineBreak* renderLineBre
 
 void AccessibilityRegionContext::takeBoundsInternal(const RenderBoxModelObject& renderObject, IntRect&& paintRect)
 {
-    if (auto* view = renderObject.document().view())
+    if (RefPtr view = renderObject.document().view())
         paintRect = view->contentsToRootView(paintRect);
 
     if (auto* cache = renderObject.document().axObjectCache())
@@ -120,7 +120,7 @@ void AccessibilityRegionContext::takeBoundsInternal(const RenderBoxModelObject& 
 void AccessibilityRegionContext::takeBounds(const RenderText& renderText, FloatRect paintRect, size_t lineIndex)
 {
     auto mappedPaintRect = enclosingIntRect(mapRect(WTFMove(paintRect)));
-    if (auto* view = renderText.document().view())
+    if (RefPtr view = renderText.document().view())
         mappedPaintRect = view->contentsToRootView(mappedPaintRect);
 
     auto accumulatedRectIterator = m_accumulatedRenderTextRects.find(renderText);
@@ -149,8 +149,8 @@ void AccessibilityRegionContext::onPaint(const ScrollView& scrollView)
 
     auto relativeFrame = frameView->frameRectShrunkByInset();
     // Only normalize the rect to the root view if this scrollview isn't already associated with the root view (i.e. it has a frame owner).
-    if (auto* frameOwnerElement = frameView->frame().ownerElement()) {
-        if (auto* ownerDocumentFrameView = frameOwnerElement->document().view())
+    if (RefPtr frameOwnerElement = frameView->frame().ownerElement()) {
+        if (RefPtr ownerDocumentFrameView = frameOwnerElement->document().view())
             relativeFrame = ownerDocumentFrameView->contentsToRootView(relativeFrame);
     }
 

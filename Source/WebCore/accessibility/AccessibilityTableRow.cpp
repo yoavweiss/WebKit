@@ -74,7 +74,7 @@ AccessibilityRole AccessibilityTableRow::determineAccessibilityRole()
 
 bool AccessibilityTableRow::isTableRow() const
 {
-    auto* table = parentTable();
+    RefPtr table = parentTable();
     return table && table->isExposable();
 }
     
@@ -150,7 +150,7 @@ void AccessibilityTableRow::addChildren()
 
     unsigned index = 0;
     for (const auto& cell : unignoredChildren()) {
-        if (auto* tableCell = dynamicDowncast<AccessibilityTableCell>(cell.get()))
+        if (RefPtr tableCell = dynamicDowncast<AccessibilityTableCell>(cell.get()))
             tableCell->setAXColIndexFromRow(*colIndex + index);
         index++;
     }

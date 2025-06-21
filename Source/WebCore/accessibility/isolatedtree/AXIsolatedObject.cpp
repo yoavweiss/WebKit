@@ -1505,7 +1505,7 @@ bool AXIsolatedObject::hasSameFont(AXCoreObject& otherObject)
 
     return Accessibility::retrieveValueFromMainThread<bool>([&otherObject, this] () -> bool {
         if (RefPtr axObject = associatedAXObject()) {
-            if (auto* axOtherObject = downcast<AXIsolatedObject>(otherObject).associatedAXObject())
+            if (RefPtr axOtherObject = downcast<AXIsolatedObject>(otherObject).associatedAXObject())
                 return axObject->hasSameFont(*axOtherObject);
         }
         return false;
@@ -1530,7 +1530,7 @@ bool AXIsolatedObject::hasSameFontColor(AXCoreObject& otherObject)
 
     return Accessibility::retrieveValueFromMainThread<bool>([&otherObject, this] () -> bool {
         if (RefPtr axObject = associatedAXObject()) {
-            if (auto* axOtherObject = downcast<AXIsolatedObject>(otherObject).associatedAXObject())
+            if (RefPtr axOtherObject = downcast<AXIsolatedObject>(otherObject).associatedAXObject())
                 return axObject->hasSameFontColor(*axOtherObject);
         }
         return false;
@@ -1555,7 +1555,7 @@ bool AXIsolatedObject::hasSameStyle(AXCoreObject& otherObject)
 
     return Accessibility::retrieveValueFromMainThread<bool>([&otherObject, this] () -> bool {
         if (RefPtr axObject = associatedAXObject()) {
-            if (auto* axOtherObject = downcast<AXIsolatedObject>(otherObject).associatedAXObject())
+            if (RefPtr axOtherObject = downcast<AXIsolatedObject>(otherObject).associatedAXObject())
                 return axObject->hasSameStyle(*axOtherObject);
         }
         return false;
@@ -1774,8 +1774,8 @@ AXCoreObject::AccessibilityChildrenVector AXIsolatedObject::rowHeaders()
     if (isTable()) {
         auto rowsCopy = rows();
         for (const auto& row : rowsCopy) {
-            if (auto* header = row->rowHeader())
-                headers.append(*header);
+            if (RefPtr header = row->rowHeader())
+                headers.append(header.releaseNonNull());
         }
     } else if (isExposedTableCell()) {
         RefPtr parent = exposedTableAncestor();

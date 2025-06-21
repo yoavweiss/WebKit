@@ -166,8 +166,8 @@ bool AccessibilityTable::isDataTable() const
             return true;
 
         // If there's a colgroup or col element, it's probably a data table.
-        for (const auto& child : childrenOfType<HTMLElement>(*tableElement)) {
-            auto elementName = child.elementName();
+        for (const Ref child : childrenOfType<HTMLElement>(*tableElement)) {
+            auto elementName = child->elementName();
             if (elementName == ElementName::HTML_col || elementName == ElementName::HTML_colgroup)
                 return true;
         }
@@ -193,7 +193,7 @@ bool AccessibilityTable::isDataTable() const
         didTopSectionCheck = true;
 
         // If the top section has any non-group role, then don't make this a data table. The author probably wants to use the role on the section.
-        if (auto* axTableSection = cache->getOrCreate(*tableSectionElement)) {
+        if (RefPtr axTableSection = cache->getOrCreate(*tableSectionElement)) {
             auto role = axTableSection->role();
             if (!axTableSection->isGroup() && role != AccessibilityRole::Unknown && role != AccessibilityRole::Ignored)
                 return true;
@@ -273,8 +273,8 @@ bool AccessibilityTable::isDataTable() const
                 bool isTHCell = cell->elementName() == ElementName::HTML_th;
                 if (!isTHCell && rowIsAllTableHeaderCells)
                     rowIsAllTableHeaderCells = false;
-                if (auto* parentNode = cell->parentNode()) {
-                    auto cellCountForRowIterator = cellCountForEachRow.ensure(parentNode, [&] {
+                if (RefPtr parentNode = cell->parentNode()) {
+                    auto cellCountForRowIterator = cellCountForEachRow.ensure(parentNode.get(), [&] {
                         // If we don't have an entry for this parent yet, it must be the first column.
                         if (!isTHCell && firstColumnHasAllHeaderCells)
                             firstColumnHasAllHeaderCells = false;
@@ -802,7 +802,7 @@ AccessibilityObject* AccessibilityTable::headerContainer()
     if (!cache)
         return nullptr;
 
-    auto* tableHeader = downcast<AccessibilityMockObject>(cache->create(AccessibilityRole::TableHeaderContainer));
+    RefPtr tableHeader = downcast<AccessibilityMockObject>(cache->create(AccessibilityRole::TableHeaderContainer));
     tableHeader->setParent(this);
 
     m_headerContainer = tableHeader;
@@ -831,8 +831,8 @@ AXCoreObject::AccessibilityChildrenVector AccessibilityTable::rowHeaders()
     // Sometimes m_rows can be reset during the iteration, we cache it here to be safe.
     AccessibilityChildrenVector rowsCopy = m_rows;
     for (const auto& row : rowsCopy) {
-        if (auto* header = downcast<AccessibilityTableRow>(row.get()).rowHeader())
-            headers.append(*header);
+        if (RefPtr header = downcast<AccessibilityTableRow>(row.get()).rowHeader())
+            headers.append(header.releaseNonNull());
     }
     return headers;
 }
@@ -924,7 +924,7 @@ String AccessibilityTable::title() const
     
     String title;
     // Prefer the table caption if present.
-    if (auto* tableElement = dynamicDowncast<HTMLTableElement>(node())) {
+    if (RefPtr tableElement = dynamicDowncast<HTMLTableElement>(node())) {
         if (RefPtr caption = tableElement->caption())
             title = caption->innerText();
     }

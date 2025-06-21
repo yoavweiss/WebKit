@@ -130,7 +130,7 @@ bool AccessibilityTableCell::isExposedTableCell() const
     // If the parent table is an accessibility table, then we are a table cell.
     // This used to check if the unignoredParent was a row, but that exploded performance if
     // this was in nested tables. This check should be just as good.
-    auto* parentTable = this->parentTable();
+    RefPtr parentTable = this->parentTable();
     return parentTable && parentTable->isExposable();
 }
     
@@ -145,7 +145,7 @@ AccessibilityRole AccessibilityTableCell::determineAccessibilityRole()
 
     // This matches the logic of `isExposedTableCell()`, but allows us to keep the pointer to the parentTable
     // for use at the bottom of this method.
-    auto* parentTable = this->parentTable();
+    RefPtr parentTable = this->parentTable();
     if (!parentTable || !parentTable->isExposable())
         return defaultRole;
     return parentTable->hasGridRole() ? AccessibilityRole::GridCell : AccessibilityRole::Cell;
@@ -153,7 +153,7 @@ AccessibilityRole AccessibilityTableCell::determineAccessibilityRole()
     
 bool AccessibilityTableCell::isTableHeaderCell() const
 {
-    auto* node = this->node();
+    RefPtr node = this->node();
     if (!node)
         return false;
 
@@ -162,7 +162,7 @@ bool AccessibilityTableCell::isTableHeaderCell() const
         return true;
 
     if (elementName == ElementName::HTML_td) {
-        auto* current = node->parentNode();
+        RefPtr current = node->parentNode();
         // i < 2 is used here because in a properly structured table, the thead should be 2 levels away from the td.
         for (int i = 0; i < 2 && current; i++) {
             if (WebCore::elementName(*current) == ElementName::HTML_thead)
@@ -345,7 +345,7 @@ AccessibilityObject* AccessibilityTableCell::titleUIElement() const
     if (!headerCell || headerCell == &renderCell)
         return nullptr;
 
-    auto* element = headerCell->element();
+    RefPtr element = headerCell->element();
     if (!element || element->elementName() != ElementName::HTML_th)
         return nullptr;
 

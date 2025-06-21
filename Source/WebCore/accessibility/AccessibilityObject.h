@@ -869,8 +869,8 @@ public:
     private:
         void ensureContentsParentValidity()
         {
-            auto* contentsParent = m_current ? m_current->displayContentsParent() : nullptr;
-            if (contentsParent && m_displayContentsParent && contentsParent != m_displayContentsParent.get())
+            RefPtr contentsParent = m_current ? m_current->displayContentsParent() : nullptr;
+            if (contentsParent && m_displayContentsParent && contentsParent.get() != m_displayContentsParent.get())
                 m_current = nullptr;
         }
 
