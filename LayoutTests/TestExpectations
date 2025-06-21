@@ -8041,3 +8041,18 @@ webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/table-backgr
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/table-backgrounds-bs-colgroup-001.xht [ ImageOnlyFailure ]
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/table-backgrounds-bs-column-001.xht [ ImageOnlyFailure ]
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/table-cell-001.xht [ ImageOnlyFailure ]
+
+# New imported 'focus' timeout failures
+imported/w3c/web-platform-tests/focus/activeelement-after-calling-window-focus.sub.html [ Skip ]
+imported/w3c/web-platform-tests/focus/activeelement-after-focusing-different-site-iframe-then-immediately-focusing-back.html [ Skip ]
+imported/w3c/web-platform-tests/focus/cross-origin-ancestor-activeelement-after-child-lose-focus.sub.html [ Skip ]
+imported/w3c/web-platform-tests/focus/focus-already-focused-iframe-deep-different-site.html [ Skip ]
+imported/w3c/web-platform-tests/focus/focus-already-focused-iframe-different-site.html [ Skip ]
+imported/w3c/web-platform-tests/focus/focus-event-after-focusing-iframes.html [ Skip ]
+imported/w3c/web-platform-tests/focus/focus-event-after-iframe-gets-focus.html [ Skip ]
+imported/w3c/web-platform-tests/focus/focus-event-after-switching-iframes.sub.html [ Skip ]
+imported/w3c/web-platform-tests/focus/focus-restoration-in-different-site-iframes-window.html [ Skip ]
+imported/w3c/web-platform-tests/focus/focus-restoration-in-different-site-iframes.html [ Skip ]
+imported/w3c/web-platform-tests/focus/hasfocus-different-site.html [ Skip ]
+imported/w3c/web-platform-tests/focus/iframe-activeelement-after-focusing-out-iframes.html [ Skip ]
+imported/w3c/web-platform-tests/focus/iframe-focuses-parent-different-site.html [ Skip ]

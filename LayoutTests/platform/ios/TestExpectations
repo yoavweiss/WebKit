@@ -7917,3 +7917,5 @@ webkit.org/b/294274 [ Debug ] platform/ios/mediastream/audio-muted-in-background
  webgl/2.0.y/conformance/textures/misc/gl-teximage.html [ Failure ]
 
 fast/snapshot [ Skip ]
+
+imported/w3c/web-platform-tests/focus/focus-contenteditable-element-in-iframe-scroll-into-view.html [ Skip ]
