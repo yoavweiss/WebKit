@@ -2437,6 +2437,8 @@ webkit.org/b/264936 imported/w3c/web-platform-tests/webrtc-extensions/transfer-d
 http/tests/webrtc/audioSessionInFrames.html [ Failure ]
 http/wpt/webrtc/rtcNetworkInterface.html [ Failure ]
 
+webkit.org/b/276587 webrtc/video-av1.html [ Pass Timeout ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of WebRTC-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
