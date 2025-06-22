@@ -103,6 +103,9 @@ bool isValidMarkerStyleProperty(CSSPropertyID id)
     case CSSPropertyAnimationPlayState:
     case CSSPropertyAnimationComposition:
     case CSSPropertyAnimationName:
+    case CSSPropertyAnimationRangeEnd:
+    case CSSPropertyAnimationRangeStart:
+    case CSSPropertyAnimationTimeline:
     case CSSPropertyTransitionBehavior:
     case CSSPropertyTransitionDuration:
     case CSSPropertyTransitionTimingFunction:
