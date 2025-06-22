@@ -3063,6 +3063,7 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     [self _updateFixedColorExtensionViews];
     [self _updateHiddenScrollPocketEdges];
+    [self _updateTopScrollPocketCaptureColor];
 #endif
 
 #if PLATFORM(MAC) && ENABLE(CONTENT_INSET_BACKGROUND_FILL)
@@ -3126,6 +3127,18 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 {
 #if PLATFORM(MAC)
     _impl->updateTopScrollPocketCaptureColor();
+#else
+    if (!_needsTopScrollPocketDueToVisibleContentInset) {
+        // On iOS, overriding the top scroll pocket capture color is only necessary when:
+        //   1. The top content inset area is visible.
+        //   2. There's an element with a top fixed-position color.
+        // If either condition is false, the scroll pocket is either not visible in the first place,
+        // or it should match the scroll view background color anyways.
+        return;
+    }
+
+    if (RetainPtr color = [self _sampledTopFixedPositionContentColor] ?: [self underPageBackgroundColor])
+        [_scrollView _setPocketColor:color.get() forEdge:UIRectEdgeTop];
 #endif
 }
 
@@ -3244,7 +3257,7 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 #if PLATFORM(IOS_FAMILY)
     [_scrollView _setHiddenPocketEdgesInternal:[&] {
         UIRectEdge edges = UIRectEdgeNone;
-        if (_reasonsToHideTopScrollPocket || [self _hasVisibleColorExtensionView:WebCore::BoxSide::Top])
+        if ([self _shouldHideTopScrollPocket])
             edges |= UIRectEdgeTop;
         if ([self _hasVisibleColorExtensionView:WebCore::BoxSide::Right])
             edges |= UIRectEdgeRight;
@@ -3270,10 +3283,9 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
     if (_reasonsToHideTopScrollPocket.contains(reason))
         return;
 
-    if (!_reasonsToHideTopScrollPocket)
-        [self _setTopScrollPocketHidden:YES];
-
     _reasonsToHideTopScrollPocket.add(reason);
+
+    [self _updateHiddenScrollPocketEdges];
 }
 
 - (void)_removeReasonToHideTopScrollPocket:(WebKit::HideScrollPocketReason)reason
@@ -3283,23 +3295,7 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 
     _reasonsToHideTopScrollPocket.remove(reason);
 
-    if (!_reasonsToHideTopScrollPocket)
-        [self _setTopScrollPocketHidden:NO];
-}
-
-- (void)_setTopScrollPocketHidden:(BOOL)hidden
-{
-#if PLATFORM(IOS_FAMILY)
-    [_scrollView _setHiddenPocketEdgesInternal:[&] {
-        UIRectEdge hiddenEdges = [_scrollView _hiddenPocketEdges];
-        return hidden ? (hiddenEdges | UIRectEdgeTop) : (hiddenEdges & ~UIRectEdgeTop);
-    }()];
-#else
-    RetainPtr scrollPocket = _impl->topScrollPocket();
-    RetainPtr captureView = [scrollPocket captureView];
-    [scrollPocket setHidden:hidden];
-    [captureView setHidden:hidden];
-#endif
+    [self _updateHiddenScrollPocketEdges];
 }
 
 #pragma mark - WKColorExtensionViewDelegate

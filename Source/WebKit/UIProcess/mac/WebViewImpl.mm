@@ -6943,7 +6943,10 @@ void WebViewImpl::updateScrollPocket()
 
     RetainPtr view = m_view.get();
     CGFloat topContentInset = obscuredContentInsets().top();
-    bool needsTopView = m_page->preferences().contentInsetBackgroundFillEnabled() && view && topContentInset > 0;
+    bool needsTopView = m_page->preferences().contentInsetBackgroundFillEnabled()
+        && view
+        && !view->_reasonsToHideTopScrollPocket
+        && topContentInset > 0;
 
     if (!needsTopView) {
         if (RetainPtr scrollPocket = std::exchange(m_topScrollPocket, nil)) {

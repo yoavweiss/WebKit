@@ -572,12 +572,23 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
     _cachedHasCustomTintColor = std::nullopt;
 
-    if (self.window) {
-        [self setUpInteraction];
-        _page->setScreenIsBeingCaptured([self screenIsBeingCaptured]);
-    }
-    else
+    if (!self.window) {
         [self cleanUpInteractionPreviewContainers];
+        return;
+    }
+
+    [self setUpInteraction];
+    _page->setScreenIsBeingCaptured([self screenIsBeingCaptured]);
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    RunLoop::protectedMain()->dispatch([strongSelf = retainPtr(self)] {
+        if (![strongSelf window])
+            return;
+
+        // FIXME: This is only necessary to work around rdar://153991882.
+        [strongSelf->_webView _updateHiddenScrollPocketEdges];
+    });
+#endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 }
 
 - (WKPageRef)_pageRef

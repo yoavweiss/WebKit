@@ -467,6 +467,7 @@ struct PerWebProcessState {
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     WebCore::RectEdges<RetainPtr<WKColorExtensionView>> _fixedColorExtensionViews;
     OptionSet<WebKit::HideScrollPocketReason> _reasonsToHideTopScrollPocket;
+    BOOL _needsTopScrollPocketDueToVisibleContentInset;
 #endif
 }
 
@@ -580,6 +581,10 @@ struct PerWebProcessState {
 - (void)_updatePDFPageNumberIndicatorIfNeeded;
 - (void)_removeAnyPDFPageNumberIndicator;
 
+#endif
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+- (void)_updateHiddenScrollPocketEdges;
 #endif
 
 @property (nonatomic, setter=_setHasActiveNowPlayingSession:) BOOL _hasActiveNowPlayingSession;
