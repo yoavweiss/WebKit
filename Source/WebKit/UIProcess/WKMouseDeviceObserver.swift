@@ -23,7 +23,7 @@
 
 #if HAVE_MOUSE_DEVICE_OBSERVATION
 
-internal import GameController
+@_weakLinked internal import GameController
 internal import WebKit_Internal
 
 @objc @implementation extension WKMouseDeviceObserver {
@@ -60,6 +60,10 @@ internal import WebKit_Internal
     }
 
     func start() {
+        guard #_hasSymbol(GCMouse.self) else {
+            return
+        }
+
         precondition(startCount >= 0)
 
         startCount += 1
