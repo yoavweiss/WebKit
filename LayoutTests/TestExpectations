@@ -887,8 +887,11 @@ imported/w3c/web-platform-tests/workers/modules/dedicated-worker-import-data-url
 # Newly imported WPT ref tests failures.
 imported/w3c/web-platform-tests/compat/webkit-box-fieldset.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/compat/webkit-box-rtl-flex.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/compat/webkit-text-fill-color-property-003.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/compat/webkit-text-fill-color-property-004.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/compat/webkit-text-fill-color-property-005.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/compat/webkit-box-horizontal-rtl-variants.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/compat/webkit-box-horizontal-reverse-variants.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/encoding/eof-utf-8-one.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/encoding/eof-utf-8-three.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/encoding/eof-utf-8-two.html [ ImageOnlyFailure ]
