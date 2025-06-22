@@ -33,7 +33,6 @@ types [
     :EnumeratorMetadata,
     :GetByIdMode,
     :GetByIdModeMetadata,
-    :GetByValHistory,
     :GetPutInfo,
     :IndexingType,
     :IterationModeMetadata,
@@ -580,31 +579,6 @@ op :new_array,
         arrayAllocationProfile: ArrayAllocationProfile,
     }
 
-op :get_by_val_with_this,
-    args: {
-        dst: VirtualRegister,
-        base: VirtualRegister,
-        thisValue: VirtualRegister,
-        property: VirtualRegister,
-        valueProfile: unsigned,
-    },
-    metadata: {
-        arrayProfile: ArrayProfile,
-        seenIdentifiers: GetByValHistory,
-    }
-
-op :get_by_val,
-    args: {
-        dst: VirtualRegister,
-        base: VirtualRegister,
-        property: VirtualRegister,
-        valueProfile: unsigned,
-    },
-    metadata: {
-        arrayProfile: ArrayProfile,
-        seenIdentifiers: GetByValHistory,
-    }
-
 op :put_private_name,
     args: {
         base: VirtualRegister,
@@ -633,6 +607,29 @@ op :get_private_name,
     }
 
 # Alignment: 4
+op :get_by_val_with_this,
+    args: {
+        dst: VirtualRegister,
+        base: VirtualRegister,
+        thisValue: VirtualRegister,
+        property: VirtualRegister,
+        valueProfile: unsigned,
+    },
+    metadata: {
+        arrayProfile: ArrayProfile,
+    }
+
+op :get_by_val,
+    args: {
+        dst: VirtualRegister,
+        base: VirtualRegister,
+        property: VirtualRegister,
+        valueProfile: unsigned,
+    },
+    metadata: {
+        arrayProfile: ArrayProfile,
+    }
+
 op :put_by_val,
     args: {
         base: VirtualRegister,

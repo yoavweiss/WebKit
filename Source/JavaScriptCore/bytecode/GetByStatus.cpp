@@ -675,6 +675,24 @@ CacheableIdentifier GetByStatus::singleIdentifier() const
     return singleIdentifierForICStatus(m_variants);
 }
 
+void GetByStatus::filterById(UniquedStringImpl* uid)
+{
+    if (m_state != Simple)
+        return;
+
+    if (m_variants.isEmpty())
+        return;
+
+    auto filtered = m_variants;
+    filtered.removeAllMatching(
+        [&] (auto& variant) -> bool {
+            return variant.identifier() != uid;
+        });
+    if (filtered.isEmpty())
+        return;
+    m_variants = WTFMove(filtered);
+}
+
 #if ENABLE(JIT)
 
 CacheType GetByStatus::preferredCacheType() const
