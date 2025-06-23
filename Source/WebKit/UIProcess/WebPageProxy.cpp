@@ -2934,6 +2934,15 @@ WebCore::FloatPoint WebPageProxy::viewScrollPosition() const
     return pageClient ? pageClient->viewScrollPosition() : WebCore::FloatPoint { };
 }
 
+void WebPageProxy::setNeedsScrollGeometryUpdates(bool needsScrollGeometryUpdates)
+{
+    if (m_needsScrollGeometryUpdates == needsScrollGeometryUpdates)
+        return;
+
+    m_needsScrollGeometryUpdates = needsScrollGeometryUpdates;
+    send(Messages::WebPage::SetNeedsScrollGeometryUpdates(m_needsScrollGeometryUpdates));
+}
+
 void WebPageProxy::setSuppressVisibilityUpdates(bool flag)
 {
     if (m_suppressVisibilityUpdates == flag)
@@ -11906,6 +11915,7 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
 #endif
 
     parameters.needsFontAttributes = m_needsFontAttributes;
+    parameters.needsScrollGeometryUpdates = m_needsScrollGeometryUpdates;
     parameters.backgroundColor = internals().backgroundColor;
 
     parameters.overriddenMediaType = m_overriddenMediaType;

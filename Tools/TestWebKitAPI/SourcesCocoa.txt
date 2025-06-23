@@ -324,6 +324,7 @@ Tests/WebKitCocoa/WKPreferences.mm
 Tests/WebKitCocoa/WKPrinting.mm
 Tests/WebKitCocoa/WKProcessPoolConfiguration.mm
 Tests/WebKitCocoa/WKRequestActivatedElementInfo.mm
+Tests/WebKitCocoa/WKScrollGeometryTests.mm
 Tests/WebKitCocoa/WKURLSchemeHandler-1.mm
 Tests/WebKitCocoa/WKURLSchemeHandler-leaks.mm
 Tests/WebKitCocoa/WKWebExtension.mm

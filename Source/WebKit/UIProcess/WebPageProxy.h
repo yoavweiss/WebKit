@@ -991,7 +991,9 @@ public:
     void requestScroll(const WebCore::FloatPoint& scrollPosition, const WebCore::IntPoint& scrollOrigin, WebCore::ScrollIsAnimated);
     
     WebCore::FloatPoint viewScrollPosition() const;
-    
+
+    void setNeedsScrollGeometryUpdates(bool);
+
     void setHasActiveAnimatedScrolls(bool isRunning);
 
     void setPrivateClickMeasurement(std::nullopt_t);
@@ -3866,6 +3868,8 @@ private:
     bool m_isRunningModalJavaScriptDialog { false };
     bool m_isSuspended { false };
     bool m_isLockdownModeExplicitlySet { false };
+
+    bool m_needsScrollGeometryUpdates { false };
 
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
     RefPtr<ListDataObserver> m_linkDecorationFilteringDataUpdateObserver;

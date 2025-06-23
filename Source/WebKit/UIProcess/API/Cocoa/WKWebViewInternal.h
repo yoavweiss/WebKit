@@ -625,6 +625,8 @@ RetainPtr<NSError> nsErrorFromExceptionDetails(const std::optional<WebCore::Exce
 
 @property (nonatomic, readonly) NSString *_nameForVisualIdentificationOverlay;
 
+- (void)_setNeedsScrollGeometryUpdates:(BOOL)needsScrollGeometryUpdates;
+
 - (void)_scrollToEdge:(_WKRectEdge)edge animated:(BOOL)animated;
 
 - (void)_requestTextExtraction:(CGRect)rect completionHandler:(void(^)(WKTextExtractionItem *))completionHandler;

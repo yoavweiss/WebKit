@@ -392,7 +392,9 @@ public:
 #endif
 
     IntRect viewRectExpandedByContentInsets() const;
-    
+
+    IntSize scrollGeometryContentSize() const { return m_scrollGeometryContentSize; }
+
     bool fixedElementsLayoutRelativeToFrame() const;
 
     bool speculativeTilingEnabled() const { return m_speculativeTilingEnabled; }
@@ -833,6 +835,8 @@ private:
     void performFixedWidthAutoSize();
     void performSizeToContentAutoSize();
 
+    void updateScrollGeometryContentSize();
+
     void applyRecursivelyWithVisibleRect(NOESCAPE const Function<void(LocalFrameView& frameView, const IntRect& visibleRect)>&);
     void resumeVisibleImageAnimations(const IntRect& visibleRect);
 #if ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
@@ -1038,6 +1042,8 @@ private:
     int m_autoSizeFixedMinimumHeight { 0 };
     // The intrinsic content size decided by autosizing.
     IntSize m_autoSizeContentSize;
+
+    IntSize m_scrollGeometryContentSize;
 
     std::unique_ptr<ScrollableAreaSet> m_scrollableAreas;
     std::unique_ptr<ScrollableAreaSet> m_scrollableAreasForAnimatedScroll;

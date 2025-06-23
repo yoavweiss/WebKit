@@ -176,6 +176,8 @@ enum class WebCore::UserInterfaceLayoutDirection : bool;
 
     bool needsFontAttributes;
 
+    bool needsScrollGeometryUpdates;
+
     bool iceCandidateFilteringEnabled;
     bool enumeratingAllNetworkInterfacesEnabled;
 

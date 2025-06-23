@@ -1283,6 +1283,8 @@ void LocalFrameView::didLayout(SingleThreadWeakPtr<RenderElement> layoutRoot, bo
 
     updateCanBlitOnScrollRecursively();
 
+    updateScrollGeometryContentSize();
+
     handleDeferredScrollUpdateAfterContentSizeChange();
 
     handleDeferredScrollbarsUpdate();
@@ -1293,6 +1295,18 @@ void LocalFrameView::didLayout(SingleThreadWeakPtr<RenderElement> layoutRoot, bo
 
     if (CheckedPtr markers = document->markersIfExists())
         markers->invalidateRectsForAllMarkers();
+}
+
+void LocalFrameView::updateScrollGeometryContentSize()
+{
+    if (!m_frame->isMainFrame())
+        return;
+
+    RefPtr page = m_frame->page();
+    if (!page || !page->chrome().client().needsScrollGeometryUpdates())
+        return;
+
+    m_scrollGeometryContentSize = contentsSize();
 }
 
 bool LocalFrameView::shouldDeferScrollUpdateAfterContentSizeChange()

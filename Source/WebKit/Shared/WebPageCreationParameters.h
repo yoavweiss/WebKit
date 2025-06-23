@@ -254,6 +254,8 @@ struct WebPageCreationParameters {
 
     bool needsFontAttributes { false };
 
+    bool needsScrollGeometryUpdates { false };
+
     // WebRTC members.
     bool iceCandidateFilteringEnabled { true };
     bool enumeratingAllNetworkInterfacesEnabled { false };

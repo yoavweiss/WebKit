@@ -132,6 +132,7 @@ header: "RemoteLayerBackingStore.h"
     Vector<IPC::AsyncReplyID> m_callbackIDs;
 
     WebCore::IntSize m_contentsSize;
+    WebCore::IntSize m_scrollGeometryContentSize;
     WebCore::IntPoint m_scrollOrigin;
     WebCore::LayoutSize m_baseLayoutViewportSize;
     WebCore::LayoutPoint m_minStableLayoutViewportOrigin;

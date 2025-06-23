@@ -480,6 +480,8 @@ private:
 #endif
     }
 
+    bool needsScrollGeometryUpdates() const final;
+
 #if ENABLE(TEXT_AUTOSIZING)
     void textAutosizingUsesIdempotentModeChanged() final;
 #endif

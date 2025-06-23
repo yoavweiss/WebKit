@@ -1098,6 +1098,8 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 
     m_needsFontAttributes = parameters.needsFontAttributes;
 
+    setNeedsScrollGeometryUpdates(parameters.needsScrollGeometryUpdates);
+
 #if ENABLE(WEB_RTC)
     if (!parameters.iceCandidateFilteringEnabled)
         page->disableICECandidateFiltering();
@@ -4965,6 +4967,7 @@ void WebPage::willCommitLayerTree(RemoteLayerTreeTransaction& layerTransaction, 
 #endif
 
     layerTransaction.setContentsSize(frameView->contentsSize());
+    layerTransaction.setScrollGeometryContentSize(frameView->scrollGeometryContentSize());
     layerTransaction.setScrollOrigin(frameView->scrollOrigin());
     layerTransaction.setPageScaleFactor(page->pageScaleFactor());
     layerTransaction.setRenderTreeSize(page->renderTreeSize());

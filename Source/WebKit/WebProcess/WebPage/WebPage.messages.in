@@ -767,6 +767,8 @@ messages -> WebPage WantsAsyncDispatchMessage {
     SetInteractionRegionsEnabled(bool enable)
 #endif
 
+    SetNeedsScrollGeometryUpdates(bool setNeedsScrollGeometryUpdates)
+
     GenerateTestReport(String message, String group);
 
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)

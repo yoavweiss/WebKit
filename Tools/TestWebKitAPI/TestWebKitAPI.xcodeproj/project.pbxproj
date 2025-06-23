@@ -3821,6 +3821,7 @@
 		E532A15E2BDA271F00E79810 /* DataListTextSuggestionTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DataListTextSuggestionTests.mm; sourceTree = "<group>"; };
 		E540058727B3A8320005653A /* contenteditable-user-select-user-drag.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "contenteditable-user-select-user-drag.html"; sourceTree = "<group>"; };
 		E55999F62B476C2F00A3719F /* FullscreenLayoutParameters.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FullscreenLayoutParameters.mm; sourceTree = "<group>"; };
+		E5723F202DFF4FDC00A12F48 /* WKScrollGeometryTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WKScrollGeometryTests.mm; sourceTree = "<group>"; };
 		E57B44C029ABFAA4006069DE /* qr-code.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "qr-code.png"; sourceTree = "<group>"; };
 		E589183B252BC90A0041DED5 /* DateTimeInputsAccessoryViewTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DateTimeInputsAccessoryViewTests.mm; sourceTree = "<group>"; };
 		E59CF8222C2D1E3700891383 /* adaptive-image-glyph.heic */ = {isa = PBXFileReference; lastKnownFileType = file; path = "adaptive-image-glyph.heic"; sourceTree = "<group>"; };
@@ -4774,6 +4775,7 @@
 				1CC4C74A288909F600A3B23D /* WKPrinting.mm */,
 				3781746C2198AE2400062C26 /* WKProcessPoolConfiguration.mm */,
 				44817A2E1F0486BF00003810 /* WKRequestActivatedElementInfo.mm */,
+				E5723F202DFF4FDC00A12F48 /* WKScrollGeometryTests.mm */,
 				5E4B1D2C1D404C6100053621 /* WKScrollViewDelegate.mm */,
 				51C683DD1EA134DB00650183 /* WKURLSchemeHandler-1.mm */,
 				5182C22D1F2BCB410059BA7C /* WKURLSchemeHandler-leaks.mm */,

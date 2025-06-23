@@ -1881,6 +1881,9 @@ public:
     void setInteractionRegionsEnabled(bool);
 #endif
 
+    bool needsScrollGeometryUpdates() { return m_needsScrollGeometryUpdates; }
+    void setNeedsScrollGeometryUpdates(bool needsUpdates) { m_needsScrollGeometryUpdates = needsUpdates; }
+
     void startDeferringResizeEvents();
     void flushDeferredResizeEvents();
 
@@ -2829,6 +2832,8 @@ private:
 #if HAVE(UIKIT_RESIZABLE_WINDOWS)
     bool m_isWindowResizingEnabled { false };
 #endif
+
+    bool m_needsScrollGeometryUpdates { false };
 
     RefPtr<WebCore::Element> m_focusedElement;
     RefPtr<WebCore::Element> m_recentlyBlurredElement;

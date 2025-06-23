@@ -274,6 +274,7 @@ String RemoteLayerTreeTransaction::description() const
 
     ts.dumpProperty("transactionID"_s, m_transactionID);
     ts.dumpProperty("contentsSize"_s, m_contentsSize);
+    ts.dumpProperty("scrollGeometryContentSize"_s, m_scrollGeometryContentSize);
     if (m_scrollOrigin != WebCore::IntPoint::zero())
         ts.dumpProperty("scrollOrigin"_s, m_scrollOrigin);
 

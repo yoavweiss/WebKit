@@ -2367,6 +2367,11 @@ static _WKSelectionAttributes selectionAttributes(const WebKit::EditorState& edi
     _maximumViewportInset = maximumViewportInset;
 }
 
+- (void)_setNeedsScrollGeometryUpdates:(BOOL)needsScrollGeometryUpdates
+{
+    _page->setNeedsScrollGeometryUpdates(needsScrollGeometryUpdates);
+}
+
 #if ENABLE(WRITING_TOOLS)
 
 #pragma mark - Writing Tools API

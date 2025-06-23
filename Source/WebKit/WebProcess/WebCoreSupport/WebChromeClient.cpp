@@ -2145,6 +2145,14 @@ void WebChromeClient::textAutosizingUsesIdempotentModeChanged()
 
 #endif
 
+bool WebChromeClient::needsScrollGeometryUpdates() const
+{
+    if (RefPtr page = m_page.get())
+        return page->needsScrollGeometryUpdates();
+
+    return false;
+}
+
 #if ENABLE(META_VIEWPORT)
 
 double WebChromeClient::baseViewportLayoutSizeScaleFactor() const
