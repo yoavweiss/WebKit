@@ -8453,6 +8453,20 @@ void ByteCodeParser::parseBlock(unsigned limit)
                 data.cases.append(
                     SwitchCase::withBytecodeIndex(LazyJSValue::knownStringImpl(static_cast<AtomStringImpl*>(entry.key.get())), target));
             }
+
+            bool foundCharCase = !data.cases.isEmpty();
+            for (auto& myCase : data.cases) {
+                StringImpl* string = myCase.value.stringImpl();
+                foundCharCase &= string->length() == 1;
+            }
+            if (foundCharCase) {
+                data.kind = SwitchChar;
+                data.clearSwitchTableIndex();
+                for (auto& myCase : data.cases) {
+                    StringImpl* string = myCase.value.stringImpl();
+                    myCase.value = LazyJSValue::singleCharacterString(string->at(0));
+                }
+            }
             addToGraph(Switch, OpInfo(&data), get(bytecode.m_scrutinee));
             flushIfTerminal(data);
             LAST_OPCODE(op_switch_string);

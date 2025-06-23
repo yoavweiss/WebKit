@@ -12393,23 +12393,35 @@ void SpeculativeJIT::speculate(Node*, Edge edge)
     }
 }
 
-void SpeculativeJIT::emitSwitchIntJump(
-    SwitchData* data, GPRReg value, GPRReg scratch)
+void SpeculativeJIT::emitSwitchIntJump(SwitchData* data, GPRReg valueGPR, GPRReg scratchGPR)
 {
+    if (!data->hasSwitchTableIndex()) {
+        Vector<int64_t, 16> cases = WTF::map<16>(data->cases,
+            [&](auto& myCase) -> int64_t {
+                return myCase.value.switchLookupValue(data->kind);
+            });
+
+        BinarySwitch binarySwitch(valueGPR, cases.span(), BinarySwitch::Int32);
+        while (binarySwitch.advance(*this))
+            jump(data->cases[binarySwitch.caseIndex()].target.block, ForceJump);
+        addBranch(binarySwitch.fallThrough(), data->fallThrough.block);
+        return;
+    }
+
     const UnlinkedSimpleJumpTable& unlinkedTable = m_graph.unlinkedSwitchJumpTable(data->switchTableIndex);
     SimpleJumpTable& linkedTable = m_graph.switchJumpTable(data->switchTableIndex);
     linkedTable.ensureCTITable(unlinkedTable);
-    sub32(Imm32(unlinkedTable.m_min), value);
+    sub32(Imm32(unlinkedTable.m_min), valueGPR);
     addBranch(
-        branch32(AboveOrEqual, value, Imm32(linkedTable.m_ctiOffsets.size())),
+        branch32(AboveOrEqual, valueGPR, Imm32(linkedTable.m_ctiOffsets.size())),
         data->fallThrough.block);
-    move(TrustedImmPtr(linkedTable.m_ctiOffsets.mutableSpan().data()), scratch);
+    move(TrustedImmPtr(linkedTable.m_ctiOffsets.mutableSpan().data()), scratchGPR);
 
 #if USE(JSVALUE64)
-    farJump(BaseIndex(scratch, value, ScalePtr), JSSwitchPtrTag);
+    farJump(BaseIndex(scratchGPR, valueGPR, ScalePtr), JSSwitchPtrTag);
 #else
-    loadPtr(BaseIndex(scratch, value, ScalePtr), scratch);
-    farJump(scratch, JSSwitchPtrTag);
+    loadPtr(BaseIndex(scratchGPR, valueGPR, ScalePtr), scratchGPR);
+    farJump(scratchGPR, JSSwitchPtrTag);
 #endif
     data->didUseJumpTable = true;
 }
@@ -12452,7 +12464,6 @@ void SpeculativeJIT::emitSwitchImm(Node* node, SwitchData* data)
         RELEASE_ASSERT_NOT_REACHED();
         break;
     }
-    ASSERT(data->didUseJumpTable);
 }
 
 void SpeculativeJIT::emitSwitchCharStringJump(Node* node, SwitchData* data, GPRReg value, GPRReg scratch)
@@ -12526,7 +12537,6 @@ void SpeculativeJIT::emitSwitchChar(Node* node, SwitchData* data)
         RELEASE_ASSERT_NOT_REACHED();
         break;
     }
-    ASSERT(data->didUseJumpTable);
 }
 
 namespace {
