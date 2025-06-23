@@ -305,7 +305,7 @@ BuilderContext Resolver::builderContext(State& state)
 {
     return {
         document(),
-        *state.parentStyle(),
+        state.parentStyle(),
         state.rootElementStyle(),
         state.element(),
         state.treeResolutionState()

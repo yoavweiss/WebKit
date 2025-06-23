@@ -44,6 +44,7 @@
 #include "RotateTransformOperation.h"
 #include "ScaleTransformOperation.h"
 #include "SkewTransformOperation.h"
+#include "StyleBuilderConverter.h"
 #include "TransformOperations.h"
 #include "TranslateTransformOperation.h"
 
@@ -55,51 +56,58 @@ static WebCore::Length resolveAsFloatPercentOrCalculatedLength(const CSSPrimitiv
     return primitiveValue.convertToLength<FixedFloatConversion | PercentConversion | CalculatedConversion>(conversionData);
 }
 
-static double resolveAsNumberAtIndex(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData, unsigned index)
-{
-    return downcast<CSSPrimitiveValue>(value[index]).resolveAsNumber(conversionData);
-}
-
 // MARK: Matrix
 
-static Ref<TransformOperation> createMatrixTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createMatrixTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-matrix
     // matrix() = matrix( <number>#{6} )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueMatrix, CSSPrimitiveValue, 6>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     auto zoom = conversionData.zoom();
     return MatrixTransformOperation::create(
-        resolveAsNumberAtIndex(value, conversionData, 0),
-        resolveAsNumberAtIndex(value, conversionData, 1),
-        resolveAsNumberAtIndex(value, conversionData, 2),
-        resolveAsNumberAtIndex(value, conversionData, 3),
-        resolveAsNumberAtIndex(value, conversionData, 4) * zoom,
-        resolveAsNumberAtIndex(value, conversionData, 5) * zoom
+        function->item(0).resolveAsNumber(conversionData),
+        function->item(1).resolveAsNumber(conversionData),
+        function->item(2).resolveAsNumber(conversionData),
+        function->item(3).resolveAsNumber(conversionData),
+        function->item(4).resolveAsNumber(conversionData) * zoom,
+        function->item(5).resolveAsNumber(conversionData) * zoom
     );
 }
 
-static Ref<TransformOperation> createMatrix3dTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createMatrix3dTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-matrix3d
     // matrix3d() = matrix3d( <number>#{16} )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueMatrix3d, CSSPrimitiveValue, 16>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     TransformationMatrix matrix(
-        resolveAsNumberAtIndex(value, conversionData, 0),
-        resolveAsNumberAtIndex(value, conversionData, 1),
-        resolveAsNumberAtIndex(value, conversionData, 2),
-        resolveAsNumberAtIndex(value, conversionData, 3),
-        resolveAsNumberAtIndex(value, conversionData, 4),
-        resolveAsNumberAtIndex(value, conversionData, 5),
-        resolveAsNumberAtIndex(value, conversionData, 6),
-        resolveAsNumberAtIndex(value, conversionData, 7),
-        resolveAsNumberAtIndex(value, conversionData, 8),
-        resolveAsNumberAtIndex(value, conversionData, 9),
-        resolveAsNumberAtIndex(value, conversionData, 10),
-        resolveAsNumberAtIndex(value, conversionData, 11),
-        resolveAsNumberAtIndex(value, conversionData, 12),
-        resolveAsNumberAtIndex(value, conversionData, 13),
-        resolveAsNumberAtIndex(value, conversionData, 14),
-        resolveAsNumberAtIndex(value, conversionData, 15)
+        function->item(0).resolveAsNumber(conversionData),
+        function->item(1).resolveAsNumber(conversionData),
+        function->item(2).resolveAsNumber(conversionData),
+        function->item(3).resolveAsNumber(conversionData),
+        function->item(4).resolveAsNumber(conversionData),
+        function->item(5).resolveAsNumber(conversionData),
+        function->item(6).resolveAsNumber(conversionData),
+        function->item(7).resolveAsNumber(conversionData),
+        function->item(8).resolveAsNumber(conversionData),
+        function->item(9).resolveAsNumber(conversionData),
+        function->item(10).resolveAsNumber(conversionData),
+        function->item(11).resolveAsNumber(conversionData),
+        function->item(12).resolveAsNumber(conversionData),
+        function->item(13).resolveAsNumber(conversionData),
+        function->item(14).resolveAsNumber(conversionData),
+        function->item(15).resolveAsNumber(conversionData)
     );
     matrix.zoom(conversionData.zoom());
 
@@ -108,238 +116,352 @@ static Ref<TransformOperation> createMatrix3dTransformOperation(const CSSFunctio
 
 // MARK: Rotate
 
-static Ref<TransformOperation> createRotateTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createRotateTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-rotate
     // rotate() = rotate( [ <angle> | <zero> ] )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotate, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     double x = 0;
     double y = 0;
     double z = 1;
-    double angle = downcast<CSSPrimitiveValue>(value[0]).resolveAsAngle(conversionData);
+    double angle = function->item(0).resolveAsAngle(conversionData);
 
     return RotateTransformOperation::create(x, y, z, angle, TransformOperation::Type::Rotate);
 }
 
-static Ref<TransformOperation> createRotate3dTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createRotate3dTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-rotate3d
     // rotate3d() = rotate3d( <number> , <number> , <number> , [ <angle> | <zero> ] )
 
-    double x = downcast<CSSPrimitiveValue>(value[0]).resolveAsNumber(conversionData);
-    double y = downcast<CSSPrimitiveValue>(value[1]).resolveAsNumber(conversionData);
-    double z = downcast<CSSPrimitiveValue>(value[2]).resolveAsNumber(conversionData);
-    double angle = downcast<CSSPrimitiveValue>(value[3]).resolveAsAngle(conversionData);
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotate3d, CSSPrimitiveValue, 4>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    double x = function->item(0).resolveAsNumber(conversionData);
+    double y = function->item(1).resolveAsNumber(conversionData);
+    double z = function->item(2).resolveAsNumber(conversionData);
+    double angle = function->item(3).resolveAsAngle(conversionData);
 
     return RotateTransformOperation::create(x, y, z, angle, TransformOperation::Type::Rotate3D);
 }
 
-static Ref<TransformOperation> createRotateXTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createRotateXTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-rotatex
     // rotateX() = rotateX( [ <angle> | <zero> ] )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotateX, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     double x = 1;
     double y = 0;
     double z = 0;
-    double angle = downcast<CSSPrimitiveValue>(value[0]).resolveAsAngle(conversionData);
+    double angle = function->item(0).resolveAsAngle(conversionData);
 
     return RotateTransformOperation::create(x, y, z, angle, TransformOperation::Type::RotateX);
 }
 
-static Ref<TransformOperation> createRotateYTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createRotateYTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-rotatey
     // rotateY() = rotateY( [ <angle> | <zero> ] )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotateY, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     double x = 0;
     double y = 1;
     double z = 0;
-    double angle = downcast<CSSPrimitiveValue>(value[0]).resolveAsAngle(conversionData);
+    double angle = function->item(0).resolveAsAngle(conversionData);
 
     return RotateTransformOperation::create(x, y, z, angle, TransformOperation::Type::RotateY);
 }
 
-static Ref<TransformOperation> createRotateZTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createRotateZTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-rotatez
     // rotateZ() = rotateZ( [ <angle> | <zero> ] )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotateZ, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     double x = 0;
     double y = 0;
     double z = 1;
-    double angle = downcast<CSSPrimitiveValue>(value[0]).resolveAsAngle(conversionData);
+    double angle = function->item(0).resolveAsAngle(conversionData);
 
     return RotateTransformOperation::create(x, y, z, angle, TransformOperation::Type::RotateZ);
 }
 
 // MARK: Skew
 
-static Ref<TransformOperation> createSkewTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createSkewTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skew
     // skew() = skew( [ <angle> | <zero> ] , [ <angle> | <zero> ]? )
 
-    double angleX = downcast<CSSPrimitiveValue>(value[0]).resolveAsAngle(conversionData);
-    double angleY = value.length() > 1 ? downcast<CSSPrimitiveValue>(value[1]).resolveAsAngle(conversionData) : 0;
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueSkew, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    double angleX = function->item(0).resolveAsAngle(conversionData);
+    double angleY = function->size() > 1 ? function->item(1).resolveAsAngle(conversionData) : 0;
 
     return SkewTransformOperation::create(angleX, angleY, TransformOperation::Type::Skew);
 }
 
-static Ref<TransformOperation> createSkewXTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createSkewXTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skewx
     // skewX() = skewX( [ <angle> | <zero> ] )
 
-    double angleX = downcast<CSSPrimitiveValue>(value[0]).resolveAsAngle(conversionData);
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueSkewX, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    double angleX = function->item(0).resolveAsAngle(conversionData);
     double angleY = 0;
 
     return SkewTransformOperation::create(angleX, angleY, TransformOperation::Type::SkewX);
 }
 
-static Ref<TransformOperation> createSkewYTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createSkewYTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skewy
     // skewY() = skewY( [ <angle> | <zero> ] )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueSkewY, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     double angleX = 0;
-    double angleY = downcast<CSSPrimitiveValue>(value[0]).resolveAsAngle(conversionData);
+    double angleY = function->item(0).resolveAsAngle(conversionData);
 
     return SkewTransformOperation::create(angleX, angleY, TransformOperation::Type::SkewY);
 }
 
 // MARK: Scale
 
-static Ref<TransformOperation> createScaleTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createScaleTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scale
     // scale() = scale( [ <number> | <percentage> ]#{1,2} )
 
-    double sx = downcast<CSSPrimitiveValue>(value[0]).valueDividingBy100IfPercentage<double>(conversionData);
-    double sy = value.length() > 1 ? downcast<CSSPrimitiveValue>(value[1]).valueDividingBy100IfPercentage<double>(conversionData) : sx;
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScale, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    double sx = function->item(0).valueDividingBy100IfPercentage<double>(conversionData);
+    double sy = function->size() > 1 ? function->item(1).valueDividingBy100IfPercentage<double>(conversionData) : sx;
     double sz = 1;
 
     return ScaleTransformOperation::create(sx, sy, sz, TransformOperation::Type::Scale);
 }
 
-static Ref<TransformOperation> createScale3dTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createScale3dTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scale3d
     // scale3d() = scale3d( [ <number> | <percentage> ]#{3} )
 
-    double sx = downcast<CSSPrimitiveValue>(value[0]).valueDividingBy100IfPercentage<double>(conversionData);
-    double sy = downcast<CSSPrimitiveValue>(value[1]).valueDividingBy100IfPercentage<double>(conversionData);
-    double sz = downcast<CSSPrimitiveValue>(value[2]).valueDividingBy100IfPercentage<double>(conversionData);
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScale3d, CSSPrimitiveValue, 3>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    double sx = function->item(0).valueDividingBy100IfPercentage<double>(conversionData);
+    double sy = function->item(1).valueDividingBy100IfPercentage<double>(conversionData);
+    double sz = function->item(2).valueDividingBy100IfPercentage<double>(conversionData);
 
     return ScaleTransformOperation::create(sx, sy, sz, TransformOperation::Type::Scale3D);
 }
 
-static Ref<TransformOperation> createScaleXTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createScaleXTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scalex
     // scaleX() = scaleX( [ <number> | <percentage> ] )
 
-    double sx = downcast<CSSPrimitiveValue>(value[0]).valueDividingBy100IfPercentage<double>(conversionData);
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScaleX, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    double sx = function->item(0).valueDividingBy100IfPercentage<double>(conversionData);
     double sy = 1;
     double sz = 1;
 
     return ScaleTransformOperation::create(sx, sy, sz, TransformOperation::Type::ScaleX);
 }
 
-static Ref<TransformOperation> createScaleYTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createScaleYTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scaley
     // scaleY() = scaleY( [ <number> | <percentage> ] )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScaleY, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     double sx = 1;
-    double sy = downcast<CSSPrimitiveValue>(value[0]).valueDividingBy100IfPercentage<double>(conversionData);
+    double sy = function->item(0).valueDividingBy100IfPercentage<double>(conversionData);
     double sz = 1;
 
     return ScaleTransformOperation::create(sx, sy, sz, TransformOperation::Type::ScaleY);
 }
 
-static Ref<TransformOperation> createScaleZTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createScaleZTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scalez
     // scaleZ() = scaleZ( [ <number> | <percentage> ] )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScaleZ, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     double sx = 1.0;
     double sy = 1.0;
-    double sz = downcast<CSSPrimitiveValue>(value[0]).valueDividingBy100IfPercentage<double>(conversionData);
+    double sz = function->item(0).valueDividingBy100IfPercentage<double>(conversionData);
 
     return ScaleTransformOperation::create(sx, sy, sz, TransformOperation::Type::ScaleZ);
 }
 
 // MARK: Translate
 
-static Ref<TransformOperation> createTranslateTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createTranslateTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translate
     // translate() = translate( <length-percentage> , <length-percentage>? )
 
-    auto tx = resolveAsFloatPercentOrCalculatedLength(downcast<CSSPrimitiveValue>(value[0]), conversionData);
-    auto ty = value.length() > 1 ? resolveAsFloatPercentOrCalculatedLength(downcast<CSSPrimitiveValue>(value[1]), conversionData) : WebCore::Length(0, LengthType::Fixed);
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslate, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
+    auto ty = function->size() > 1 ? resolveAsFloatPercentOrCalculatedLength(function->item(1), conversionData) : WebCore::Length(0, LengthType::Fixed);
     auto tz = WebCore::Length(0, LengthType::Fixed);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::Translate);
 }
 
-static Ref<TransformOperation> createTranslate3dTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createTranslate3dTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-translate3d
     // translate3d() = translate3d( <length-percentage> , <length-percentage> , <length> )
 
-    auto tx = resolveAsFloatPercentOrCalculatedLength(downcast<CSSPrimitiveValue>(value[0]), conversionData);
-    auto ty = resolveAsFloatPercentOrCalculatedLength(downcast<CSSPrimitiveValue>(value[1]), conversionData);
-    auto tz = resolveAsFloatPercentOrCalculatedLength(downcast<CSSPrimitiveValue>(value[2]), conversionData);
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslate3d, CSSPrimitiveValue, 3>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
+    auto ty = resolveAsFloatPercentOrCalculatedLength(function->item(1), conversionData);
+    auto tz = resolveAsFloatPercentOrCalculatedLength(function->item(2), conversionData);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::Translate3D);
 }
 
-static Ref<TransformOperation> createTranslateXTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createTranslateXTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translatex
     // translateX() = translateX( <length-percentage> )
 
-    auto tx = resolveAsFloatPercentOrCalculatedLength(downcast<CSSPrimitiveValue>(value[0]), conversionData);
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslateX, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
     auto ty = WebCore::Length(0, LengthType::Fixed);
     auto tz = WebCore::Length(0, LengthType::Fixed);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::TranslateX);
 }
 
-static Ref<TransformOperation> createTranslateYTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createTranslateYTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translatey
     // translateY() = translateY( <length-percentage> )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslateY, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     auto tx = WebCore::Length(0, LengthType::Fixed);
-    auto ty = resolveAsFloatPercentOrCalculatedLength(downcast<CSSPrimitiveValue>(value[0]), conversionData);
+    auto ty = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
     auto tz = WebCore::Length(0, LengthType::Fixed);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::TranslateY);
 }
 
-static Ref<TransformOperation> createTranslateZTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createTranslateZTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-translatez
     // translateZ() = translateZ( <length> )
 
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslateZ, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
     auto tx = WebCore::Length(0, LengthType::Fixed);
     auto ty = WebCore::Length(0, LengthType::Fixed);
-    auto tz = resolveAsFloatPercentOrCalculatedLength(downcast<CSSPrimitiveValue>(value[0]), conversionData);
+    auto tz = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::TranslateZ);
 }
 
 // MARK: Perspective
 
-static Ref<TransformOperation> createPerspectiveTransformOperation(const CSSFunctionValue& value, const CSSToLengthConversionData& conversionData)
+static RefPtr<TransformOperation> createPerspectiveTransformOperation(const CSSFunctionValue& value, BuilderState& builderState)
 {
     // https://drafts.csswg.org/css-transforms-2/#funcdef-perspective
     // perspective() = perspective( [ <length [0,∞]> | none ] )
 
-    auto& parameter = downcast<CSSPrimitiveValue>(value[0]);
+    auto function = BuilderConverter::requiredFunctionDowncast<CSSValuePerspective, CSSPrimitiveValue, 1>(builderState, value);
+    if (!function)
+        return { };
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+
+    auto& parameter = function->item(0);
     if (parameter.isValueID()) {
         ASSERT(parameter.valueID() == CSSValueNone);
         return PerspectiveTransformOperation::create(std::nullopt);
@@ -354,53 +476,55 @@ static Ref<TransformOperation> createPerspectiveTransformOperation(const CSSFunc
 
 // MARK: <transform-operation>
 
-Ref<TransformOperation> createTransformOperation(const CSSValue& value, const CSSToLengthConversionData& conversionData)
+RefPtr<TransformOperation> createTransformOperation(const CSSValue& value, BuilderState& builderState)
 {
-    auto& transform = downcast<CSSFunctionValue>(value);
+    auto transform = BuilderConverter::requiredDowncast<CSSFunctionValue>(builderState, value);
+    if (!transform)
+        return { };
 
-    switch (transform.name()) {
+    switch (transform->name()) {
     case CSSValueMatrix:
-        return createMatrixTransformOperation(transform, conversionData);
+        return createMatrixTransformOperation(*transform, builderState);
     case CSSValueMatrix3d:
-        return createMatrix3dTransformOperation(transform, conversionData);
+        return createMatrix3dTransformOperation(*transform, builderState);
     case CSSValueRotate:
-        return createRotateTransformOperation(transform, conversionData);
+        return createRotateTransformOperation(*transform, builderState);
     case CSSValueRotate3d:
-        return createRotate3dTransformOperation(transform, conversionData);
+        return createRotate3dTransformOperation(*transform, builderState);
     case CSSValueRotateX:
-        return createRotateXTransformOperation(transform, conversionData);
+        return createRotateXTransformOperation(*transform, builderState);
     case CSSValueRotateY:
-        return createRotateYTransformOperation(transform, conversionData);
+        return createRotateYTransformOperation(*transform, builderState);
     case CSSValueRotateZ:
-        return createRotateZTransformOperation(transform, conversionData);
+        return createRotateZTransformOperation(*transform, builderState);
     case CSSValueSkew:
-        return createSkewTransformOperation(transform, conversionData);
+        return createSkewTransformOperation(*transform, builderState);
     case CSSValueSkewX:
-        return createSkewXTransformOperation(transform, conversionData);
+        return createSkewXTransformOperation(*transform, builderState);
     case CSSValueSkewY:
-        return createSkewYTransformOperation(transform, conversionData);
+        return createSkewYTransformOperation(*transform, builderState);
     case CSSValueScale:
-        return createScaleTransformOperation(transform, conversionData);
+        return createScaleTransformOperation(*transform, builderState);
     case CSSValueScale3d:
-        return createScale3dTransformOperation(transform, conversionData);
+        return createScale3dTransformOperation(*transform, builderState);
     case CSSValueScaleX:
-        return createScaleXTransformOperation(transform, conversionData);
+        return createScaleXTransformOperation(*transform, builderState);
     case CSSValueScaleY:
-        return createScaleYTransformOperation(transform, conversionData);
+        return createScaleYTransformOperation(*transform, builderState);
     case CSSValueScaleZ:
-        return createScaleZTransformOperation(transform, conversionData);
+        return createScaleZTransformOperation(*transform, builderState);
     case CSSValueTranslate:
-        return createTranslateTransformOperation(transform, conversionData);
+        return createTranslateTransformOperation(*transform, builderState);
     case CSSValueTranslate3d:
-        return createTranslate3dTransformOperation(transform, conversionData);
+        return createTranslate3dTransformOperation(*transform, builderState);
     case CSSValueTranslateX:
-        return createTranslateXTransformOperation(transform, conversionData);
+        return createTranslateXTransformOperation(*transform, builderState);
     case CSSValueTranslateY:
-        return createTranslateYTransformOperation(transform, conversionData);
+        return createTranslateYTransformOperation(*transform, builderState);
     case CSSValueTranslateZ:
-        return createTranslateZTransformOperation(transform, conversionData);
+        return createTranslateZTransformOperation(*transform, builderState);
     case CSSValuePerspective:
-        return createPerspectiveTransformOperation(transform, conversionData);
+        return createPerspectiveTransformOperation(*transform, builderState);
     default:
         break;
     }
@@ -408,16 +532,28 @@ Ref<TransformOperation> createTransformOperation(const CSSValue& value, const CS
     RELEASE_ASSERT_NOT_REACHED();
 }
 
-TransformOperations createTransformOperations(const CSSValue& value, const CSSToLengthConversionData& conversionData)
+TransformOperations createTransformOperations(const CSSValue& value, BuilderState& builderState)
 {
     if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
         ASSERT_UNUSED(primitiveValue, primitiveValue->valueID() == CSSValueNone);
-        return TransformOperations { };
+        return { };
     }
 
-    return TransformOperations { WTF::map(downcast<CSSTransformListValue>(value), [&](const auto& value) {
-        return createTransformOperation(value, conversionData);
-    }) };
+    auto transformList = BuilderConverter::requiredDowncast<CSSTransformListValue>(builderState, value);
+    if (!transformList)
+        return { };
+
+    Vector<Ref<TransformOperation>> operations;
+    operations.reserveInitialCapacity(transformList->size());
+
+    for (auto& transformValue : *transformList) {
+        auto operation = createTransformOperation(transformValue, builderState);
+        if (!operation)
+            return { };
+        operations.append(*operation);
+    }
+
+    return TransformOperations { WTFMove(operations) };
 }
 
 } // namespace Style

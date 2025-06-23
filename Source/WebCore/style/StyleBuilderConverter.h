@@ -642,7 +642,7 @@ inline TransformOperations BuilderConverter::convertTransform(BuilderState& buil
     CSSToLengthConversionData conversionData = builderState.useSVGZoomRulesForLength() ?
         builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
         : builderState.cssToLengthConversionData();
-    return createTransformOperations(value, conversionData);
+    return createTransformOperations(value, builderState);
 }
 
 inline String BuilderConverter::convertString(BuilderState& builderState, const CSSValue& value)

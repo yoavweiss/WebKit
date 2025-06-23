@@ -880,7 +880,7 @@ std::unique_ptr<RenderStyle> TreeResolver::resolveAgainInDifferentContext(const 
 
     auto builderContext = BuilderContext {
         m_document.get(),
-        parentStyle,
+        &parentStyle,
         resolutionContext.documentElementStyle,
         &styleable.element,
         &m_treeResolutionState,
@@ -919,7 +919,7 @@ UncheckedKeyHashSet<AnimatableCSSProperty> TreeResolver::applyCascadeAfterAnimat
 {
     auto builderContext = BuilderContext {
         m_document.get(),
-        *resolutionContext.parentStyle,
+        resolutionContext.parentStyle,
         resolutionContext.documentElementStyle,
         &element,
         &m_treeResolutionState
