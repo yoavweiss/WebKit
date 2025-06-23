@@ -308,7 +308,7 @@ bool hasCapacityToUseLargeGigacage();
     v(Unsigned, maximumFunctionForClosureCallInlineCandidateBytecodeCostForFTL, 100, Normal, nullptr) \
     v(Unsigned, maximumFunctionForConstructInlineCandidateBytecodeCostForFTL, 100, Normal, nullptr) \
     \
-    v(Unsigned, maximumFTLCandidateBytecodeCost, 20000, Normal, nullptr) \
+    v(Unsigned, maximumFTLCandidateBytecodeCost, 60000, Normal, nullptr) \
     \
     v(Double, ratioFTLNodesToBytecodeCost, 1.9, Normal, "Ratio converting FTL # of DFG nodes to approx bytecode cost") \
     \
