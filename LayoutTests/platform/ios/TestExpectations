@@ -7903,11 +7903,6 @@ webkit.org/b/294276 [ Debug ] http/wpt/mediarecorder/MediaRecorder-first-frame.h
 
 webkit.org/b/294277 [ Release ] imported/w3c/web-platform-tests/css/css-position/sticky/position-sticky-fixed-ancestor-iframe.html [ Pass ImageOnlyFailure ]
 
-# webkit.org/b/294285 REGRESSION( 295257@main - 295259@main?): [ wk2 Debug ] 3x imported/w3c/web-platform-tests/html/canvas/offscreen/manual/text/canvas.2d.offscreen.worker.*.html are flaky crashes.
-[ Debug ] imported/w3c/web-platform-tests/html/canvas/offscreen/manual/text/canvas.2d.offscreen.worker.lang.inherit.html [ Pass Crash ]
-[ Debug ] imported/w3c/web-platform-tests/html/canvas/offscreen/manual/text/canvas.2d.offscreen.worker.lang.html [ Pass Crash ]
-[ Debug ] imported/w3c/web-platform-tests/html/canvas/offscreen/manual/text/canvas.2d.offscreen.worker.direction.inherit.html [ Pass Crash ]
-
 webkit.org/b/294291 [ Debug ] ipc/invalid-addSourceBuffer-to-GPU-process-crash.html [ Failure ]
 
 webkit.org/b/294274 [ Debug ] platform/ios/mediastream/audio-muted-in-background-tab.html [ Crash ]
