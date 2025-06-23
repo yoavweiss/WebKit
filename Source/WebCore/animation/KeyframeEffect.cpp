@@ -57,6 +57,7 @@
 #include "Logging.h"
 #include "MutableStyleProperties.h"
 #include "PropertyAllowlist.h"
+#include "Quirks.h"
 #include "RenderBox.h"
 #include "RenderBoxModelObject.h"
 #include "RenderElement.h"
@@ -1983,6 +1984,11 @@ bool KeyframeEffect::canBeAccelerated() const
 
     if (m_blendingKeyframes.hasDiscreteTransformInterval())
         return false;
+
+    if (RefPtr document = this->document()) {
+        if (document->quirks().shouldPreventKeyframeEffectAcceleration(*this))
+            return false;
+    }
 
 #if ENABLE(THREADED_ANIMATION_RESOLUTION)
     if (threadedAnimationResolutionEnabled())
