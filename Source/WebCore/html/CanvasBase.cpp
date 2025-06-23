@@ -40,7 +40,7 @@
 #include "IntRect.h"
 #include "NoiseInjectionPolicy.h"
 #include "RenderElementInlines.h"
-#include "ScriptTelemetryCategory.h"
+#include "ScriptTrackingPrivacyCategory.h"
 #include "StyleCanvasImage.h"
 #include "WebCoreOpaqueRoot.h"
 #include "WorkerClient.h"
@@ -61,7 +61,7 @@ static std::optional<uint64_t> canvasNoiseHashSaltIfNeeded(ScriptExecutionContex
 {
     auto policies = context.noiseInjectionPolicies();
     if (policies.contains(NoiseInjectionPolicy::Minimal)
-        || (policies.contains(NoiseInjectionPolicy::Enhanced) && context.requiresScriptExecutionTelemetry(ScriptTelemetryCategory::Canvas)))
+        || (policies.contains(NoiseInjectionPolicy::Enhanced) && context.requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas)))
         return context.noiseInjectionHashSalt();
     return { };
 }

@@ -61,7 +61,7 @@
 #include "ScriptController.h"
 #include "ScriptDisallowedScope.h"
 #include "ScriptExecutionContextInlines.h"
-#include "ScriptTelemetryCategory.h"
+#include "ScriptTrackingPrivacyCategory.h"
 #include "ServiceWorker.h"
 #include "ServiceWorkerGlobalScope.h"
 #include "ServiceWorkerProvider.h"
@@ -957,7 +957,7 @@ GuaranteedSerialFunctionDispatcher& ScriptExecutionContext::nativePromiseDispatc
     return *m_nativePromiseDispatcher;
 }
 
-bool ScriptExecutionContext::requiresScriptExecutionTelemetry(ScriptTelemetryCategory category)
+bool ScriptExecutionContext::requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory category)
 {
     RefPtr vm = vmIfExists();
     if (!vm)
@@ -966,7 +966,7 @@ bool ScriptExecutionContext::requiresScriptExecutionTelemetry(ScriptTelemetryCat
     if (!vm->topCallFrame)
         return false;
 
-    if (!shouldEnableScriptTelemetry(category, advancedPrivacyProtections()))
+    if (!shouldEnableScriptTrackingPrivacy(category, advancedPrivacyProtections()))
         return false;
 
     auto [taintedness, taintedURL] = JSC::sourceTaintedOriginFromStack(*vm, vm->topCallFrame);
@@ -987,10 +987,10 @@ bool ScriptExecutionContext::requiresScriptExecutionTelemetry(ScriptTelemetryCat
     if (!page)
         return true;
 
-    if (!page->settings().scriptTelemetryLoggingEnabled())
+    if (!page->settings().scriptTrackingPrivacyLoggingEnabled())
         return true;
 
-    if (!page->reportScriptTelemetry(taintedURL, category))
+    if (!page->reportScriptTrackingPrivacy(taintedURL, category))
         return true;
 
     addConsoleMessage(MessageSource::JS, MessageLevel::Info, makeLogMessage(taintedURL, category));

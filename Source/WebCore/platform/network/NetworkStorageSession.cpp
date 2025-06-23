@@ -260,7 +260,7 @@ void NetworkStorageSession::setAgeCapForClientSideCookies(std::optional<Seconds>
 {
     m_ageCapForClientSideCookies = seconds;
     m_ageCapForClientSideCookiesShort = seconds ? Seconds { seconds->seconds() / 7. } : seconds;
-    m_ageCapForClientSideCookiesForScriptTelemetry = seconds;
+    m_ageCapForClientSideCookiesForScriptTrackingPrivacy = seconds;
 #if ENABLE(JS_COOKIE_CHECKING)
     m_ageCapForClientSideCookiesForLinkDecorationTargetPage = seconds;
 #endif
@@ -479,10 +479,10 @@ void NetworkStorageSession::resetManagedDomains()
 }
 #endif
 
-std::optional<Seconds> NetworkStorageSession::clientSideCookieCap(const RegistrableDomain& firstParty, RequiresScriptTelemetry requiresScriptTelemetry, std::optional<PageIdentifier> pageID) const
+std::optional<Seconds> NetworkStorageSession::clientSideCookieCap(const RegistrableDomain& firstParty, RequiresScriptTrackingPrivacy requiresScriptTrackingPrivacy, std::optional<PageIdentifier> pageID) const
 {
-    if (requiresScriptTelemetry == RequiresScriptTelemetry::Yes)
-        return m_ageCapForClientSideCookiesForScriptTelemetry;
+    if (requiresScriptTrackingPrivacy == RequiresScriptTrackingPrivacy::Yes)
+        return m_ageCapForClientSideCookiesForScriptTrackingPrivacy;
 
 #if ENABLE(JS_COOKIE_CHECKING)
     if (!pageID)

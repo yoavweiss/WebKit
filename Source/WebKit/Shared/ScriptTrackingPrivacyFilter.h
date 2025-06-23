@@ -25,42 +25,43 @@
 
 #pragma once
 
-#include <wtf/HashTraits.h>
-#include <wtf/OptionSet.h>
-#include <wtf/text/ASCIILiteral.h>
+#include <wtf/Noncopyable.h>
+#include <wtf/RobinHoodHashSet.h>
+#include <wtf/URL.h>
+#include <wtf/Vector.h>
+#include <wtf/text/WTFString.h>
 
 namespace WebCore {
+class SecurityOrigin;
+}
 
-enum class AdvancedPrivacyProtections : uint16_t;
+namespace WebKit {
 
-enum class ScriptTelemetryCategory : uint8_t {
-    Unspecified = 0,
-    Audio,
-    Canvas,
-    Cookies,
-    HardwareConcurrency,
-    LocalStorage,
-    Payments,
-    QueryParameters,
-    Referrer,
-    ScreenOrViewport,
-    Speech,
-    FormControls,
+struct ScriptTrackingPrivacyRules {
+    Vector<String> thirdPartyHosts;
+    Vector<String> thirdPartyTopDomains;
+    Vector<String> firstPartyHosts;
+    Vector<String> firstPartyTopDomains;
+
+    bool isEmpty() const
+    {
+        return thirdPartyHosts.isEmpty() && thirdPartyTopDomains.isEmpty() && firstPartyHosts.isEmpty() && firstPartyTopDomains.isEmpty();
+    }
 };
 
-String makeLogMessage(const URL&, ScriptTelemetryCategory);
-ASCIILiteral description(ScriptTelemetryCategory);
+class ScriptTrackingPrivacyFilter {
+    WTF_MAKE_FAST_ALLOCATED;
+    WTF_MAKE_NONCOPYABLE(ScriptTrackingPrivacyFilter);
+public:
+    ScriptTrackingPrivacyFilter(ScriptTrackingPrivacyRules&&);
 
-bool shouldEnableScriptTelemetry(ScriptTelemetryCategory, OptionSet<AdvancedPrivacyProtections>);
+    bool matches(const URL&, const WebCore::SecurityOrigin& topOrigin);
 
-} // namespace WebCore
+private:
+    MemoryCompactRobinHoodHashSet<String> m_thirdPartyHosts;
+    MemoryCompactRobinHoodHashSet<String> m_thirdPartyTopDomains;
+    MemoryCompactRobinHoodHashSet<String> m_firstPartyHosts;
+    MemoryCompactRobinHoodHashSet<String> m_firstPartyTopDomains;
+};
 
-namespace WTF {
-
-template<typename T> struct DefaultHash;
-template<> struct DefaultHash<WebCore::ScriptTelemetryCategory> : public IntHash<WebCore::ScriptTelemetryCategory> { };
-
-template<typename T> struct HashTraits;
-template<> struct HashTraits<WebCore::ScriptTelemetryCategory> : public StrongEnumHashTraits<WebCore::ScriptTelemetryCategory> { };
-
-} // namespace WTF
+} // namespace WebKit

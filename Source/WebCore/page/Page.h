@@ -39,7 +39,7 @@
 #include "ProcessSwapDisposition.h"
 #include "RegistrableDomain.h"
 #include "ScriptExecutionContextIdentifier.h"
-#include "ScriptTelemetryCategory.h"
+#include "ScriptTrackingPrivacyCategory.h"
 #include "ScrollTypes.h"
 #include "Supplementable.h"
 #include "Timer.h"
@@ -1320,8 +1320,8 @@ public:
     WEBCORE_EXPORT void startDeferringScrollEvents();
     WEBCORE_EXPORT void flushDeferredScrollEvents();
 
-    bool reportScriptTelemetry(const URL&, ScriptTelemetryCategory);
-    bool requiresScriptTelemetryForURL(const URL&) const;
+    bool reportScriptTrackingPrivacy(const URL&, ScriptTrackingPrivacyCategory);
+    bool requiresScriptTrackingPrivacyProtections(const URL&) const;
 
     WEBCORE_EXPORT bool isAlwaysOnLoggingAllowed() const;
 
@@ -1785,7 +1785,7 @@ private:
     bool m_suppressEDR { false };
 #endif
 
-    HashSet<std::pair<URL, ScriptTelemetryCategory>> m_reportedScriptsWithTelemetry;
+    HashSet<std::pair<URL, ScriptTrackingPrivacyCategory>> m_scriptTrackingPrivacyReports;
 
     bool m_hasActiveNowPlayingSession { false };
     Timer m_activeNowPlayingSessionUpdateTimer;

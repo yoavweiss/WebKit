@@ -120,16 +120,16 @@ static inline ResourceErrorOr<CachedResourceHandle<T>> castCachedResourceTo(Reso
     return makeUnexpected(cachedResource.error());
 }
 
-static ScriptRequiresTelemetry scriptRequiresTelemetry(const Document* document, const ResourceRequest& request)
+static ScriptTrackingPrivacyProtectionsEnabled requiresScriptTrackingPrivacyProtections(const Document* document, const ResourceRequest& request)
 {
     if (!document) [[unlikely]]
-        return ScriptRequiresTelemetry::No;
+        return ScriptTrackingPrivacyProtectionsEnabled::No;
 
     RefPtr page = document->page();
     if (!page) [[unlikely]]
-        return ScriptRequiresTelemetry::No;
+        return ScriptTrackingPrivacyProtectionsEnabled::No;
 
-    return page->requiresScriptTelemetryForURL(request.url()) ? ScriptRequiresTelemetry::Yes : ScriptRequiresTelemetry::No;
+    return page->requiresScriptTrackingPrivacyProtections(request.url()) ? ScriptTrackingPrivacyProtectionsEnabled::Yes : ScriptTrackingPrivacyProtectionsEnabled::No;
 }
 
 static CachedResourceHandle<CachedResource> createResource(CachedResource::Type type, CachedResourceRequest&& request, PAL::SessionID sessionID, const CookieJar* cookieJar, const Settings& settings, const Document* document)
@@ -140,7 +140,7 @@ static CachedResourceHandle<CachedResource> createResource(CachedResource::Type 
     case CachedResource::Type::CSSStyleSheet:
         return new CachedCSSStyleSheet(WTFMove(request), sessionID, cookieJar);
     case CachedResource::Type::Script:
-        return new CachedScript(WTFMove(request), sessionID, cookieJar, scriptRequiresTelemetry(document, request.resourceRequest()));
+        return new CachedScript(WTFMove(request), sessionID, cookieJar, requiresScriptTrackingPrivacyProtections(document, request.resourceRequest()));
     case CachedResource::Type::SVGDocumentResource:
         return new CachedSVGDocument(WTFMove(request), sessionID, cookieJar, settings);
     case CachedResource::Type::SVGFontResource:
@@ -185,7 +185,7 @@ static CachedResourceHandle<CachedResource> createResource(CachedResourceRequest
     case CachedResource::Type::CSSStyleSheet:
         return new CachedCSSStyleSheet(WTFMove(request), resource.sessionID(), resource.cookieJar());
     case CachedResource::Type::Script:
-        return new CachedScript(WTFMove(request), resource.sessionID(), resource.cookieJar(), scriptRequiresTelemetry(document, request.resourceRequest()));
+        return new CachedScript(WTFMove(request), resource.sessionID(), resource.cookieJar(), requiresScriptTrackingPrivacyProtections(document, request.resourceRequest()));
     case CachedResource::Type::SVGDocumentResource:
         return new CachedSVGDocument(WTFMove(request), downcast<CachedSVGDocument>(resource));
     case CachedResource::Type::SVGFontResource:

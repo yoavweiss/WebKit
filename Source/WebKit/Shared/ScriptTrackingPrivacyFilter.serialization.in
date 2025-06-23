@@ -20,8 +20,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-header: "ScriptTelemetry.h"
-[CustomHeader] struct WebKit::ScriptTelemetryRules {
+header: "ScriptTrackingPrivacyFilter.h"
+[CustomHeader] struct WebKit::ScriptTrackingPrivacyRules {
     Vector<String> thirdPartyHosts;
     Vector<String> thirdPartyTopDomains;
     Vector<String> firstPartyHosts;

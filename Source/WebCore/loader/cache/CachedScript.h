@@ -31,18 +31,18 @@ namespace WebCore {
 
 class TextResourceDecoder;
 
-enum class ScriptRequiresTelemetry : bool { No, Yes };
+enum class ScriptTrackingPrivacyProtectionsEnabled : bool { No, Yes };
 
 class CachedScript final : public CachedResource {
 public:
-    CachedScript(CachedResourceRequest&&, PAL::SessionID, const CookieJar*, ScriptRequiresTelemetry);
+    CachedScript(CachedResourceRequest&&, PAL::SessionID, const CookieJar*, ScriptTrackingPrivacyProtectionsEnabled);
     virtual ~CachedScript();
 
     enum class ShouldDecodeAsUTF8Only : bool { No, Yes };
     WEBCORE_EXPORT StringView script(ShouldDecodeAsUTF8Only = ShouldDecodeAsUTF8Only::No);
     WEBCORE_EXPORT unsigned scriptHash(ShouldDecodeAsUTF8Only = ShouldDecodeAsUTF8Only::No);
 
-    bool requiresTelemetry() const { return m_requiresTelemetry; }
+    bool requiresPrivacyProtections() const { return m_requiresPrivacyProtections; }
 
 private:
     bool mayTryReplaceEncodedData() const final { return true; }
@@ -60,7 +60,7 @@ private:
     String m_script;
     unsigned m_scriptHash { 0 };
     bool m_wasForceDecodedAsUTF8 { false };
-    bool m_requiresTelemetry { false };
+    bool m_requiresPrivacyProtections { false };
 
     enum DecodingState { NeverDecoded, DataAndDecodedStringHaveSameBytes, DataAndDecodedStringHaveDifferentBytes };
     DecodingState m_decodingState { NeverDecoded };

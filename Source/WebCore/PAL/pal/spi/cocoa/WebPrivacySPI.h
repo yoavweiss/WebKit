@@ -180,15 +180,13 @@ typedef void (^WKWPResourcesGetSourceCompletionHandler)(NSString *, NSError *);
 - (void)requestResourceMonitorRulesSource:(WPResourceRequestOptions *)options completionHandler:(WKWPResourcesGetSourceCompletionHandler)completion;
 @end
 
+#define WPResourceTypeFingerprintingScripts ((WPResourceType)9)
+
 WTF_EXTERN_C_BEGIN
 
 extern NSString *const WPNotificationUserInfoResourceTypeKey;
 extern NSNotificationName const WPResourceDataChangedNotificationName;
 
 WTF_EXTERN_C_END
-
-#if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/WebPrivacySPIAdditions.h>)
-#import <WebKitAdditions/WebPrivacySPIAdditions.h>
-#endif
 
 #endif // ENABLE(ADVANCED_PRIVACY_PROTECTIONS)

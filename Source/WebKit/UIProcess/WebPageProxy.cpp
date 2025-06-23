@@ -942,8 +942,8 @@ WebPageProxy::WebPageProxy(PageClient& pageClient, WebProcessProxy& process, Ref
             protectedThis->sendCachedLinkDecorationFilteringData();
     });
 
-    if (protectedPreferences()->scriptTelemetryEnabled())
-        process.protectedProcessPool()->observeScriptTelemetryUpdatesIfNeeded();
+    if (protectedPreferences()->scriptTrackingPrivacyProtectionsEnabled())
+        process.protectedProcessPool()->observeScriptTrackingPrivacyUpdatesIfNeeded();
 #endif // ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
 
 #if HAVE(AUDIT_TOKEN)
@@ -8143,10 +8143,10 @@ void WebPageProxy::adjustAdvancedPrivacyProtectionsIfNeeded(API::WebsitePolicies
     if (!protectedWebsiteDataStore()->trackingPreventionEnabled())
         return;
 
-    if (!protectedPreferences()->scriptTelemetryEnabled())
+    if (!protectedPreferences()->scriptTrackingPrivacyProtectionsEnabled())
         return;
 
-    policies.setAdvancedPrivacyProtections(policies.advancedPrivacyProtections() | AdvancedPrivacyProtections::ScriptTelemetry);
+    policies.setAdvancedPrivacyProtections(policies.advancedPrivacyProtections() | AdvancedPrivacyProtections::ScriptTrackingPrivacy);
 }
 
 RefPtr<WebPageProxy> WebPageProxy::nonEphemeralWebPageProxy()

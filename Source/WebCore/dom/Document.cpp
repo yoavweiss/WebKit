@@ -263,7 +263,7 @@
 #include "ScriptModuleLoader.h"
 #include "ScriptRunner.h"
 #include "ScriptSourceCode.h"
-#include "ScriptTelemetryCategory.h"
+#include "ScriptTrackingPrivacyCategory.h"
 #include "ScriptedAnimationController.h"
 #include "ScrollAnimator.h"
 #include "ScrollbarTheme.h"
@@ -4555,10 +4555,10 @@ const URL& Document::urlForBindings()
         };
 
         auto shouldApplyEnhancedProtections = [&] {
-            if (!navigationalProtections.contains(AdvancedPrivacyProtections::ScriptTelemetry))
+            if (!navigationalProtections.contains(AdvancedPrivacyProtections::ScriptTrackingPrivacy))
                 return false;
 
-            if (!requiresScriptExecutionTelemetry(ScriptTelemetryCategory::QueryParameters))
+            if (!requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::QueryParameters))
                 return false;
 
             return true;
@@ -7014,7 +7014,7 @@ String Document::referrerForBindings()
             return false;
 
         auto policies = policySourceLoader->navigationalAdvancedPrivacyProtections();
-        if (policies.contains(AdvancedPrivacyProtections::ScriptTelemetry) && requiresScriptExecutionTelemetry(ScriptTelemetryCategory::Referrer))
+        if (policies.contains(AdvancedPrivacyProtections::ScriptTrackingPrivacy) && requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Referrer))
             return true;
 
         if (policies.contains(AdvancedPrivacyProtections::BaselineProtections)) {
@@ -11403,7 +11403,7 @@ OptionSet<NoiseInjectionPolicy> Document::noiseInjectionPolicies() const
     OptionSet<NoiseInjectionPolicy> policies;
     if (advancedPrivacyProtections().contains(AdvancedPrivacyProtections::FingerprintingProtections))
         policies.add(NoiseInjectionPolicy::Minimal);
-    if (advancedPrivacyProtections().contains(AdvancedPrivacyProtections::ScriptTelemetry))
+    if (advancedPrivacyProtections().contains(AdvancedPrivacyProtections::ScriptTrackingPrivacy))
         policies.add(NoiseInjectionPolicy::Enhanced);
     return policies;
 }

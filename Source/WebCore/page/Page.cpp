@@ -1835,7 +1835,7 @@ void Page::didCommitLoad()
 
     m_elementTargetingController->reset();
 
-    m_reportedScriptsWithTelemetry.clear();
+    m_scriptTrackingPrivacyReports.clear();
 
     m_isWaitingForLoadToFinish = true;
 }
@@ -3429,8 +3429,8 @@ bool Page::shouldApplyScreenFingerprintingProtections(Document& document) const
     if (advancedPrivacyProtections().contains(AdvancedPrivacyProtections::FingerprintingProtections))
         return true;
 
-    if (advancedPrivacyProtections().contains(AdvancedPrivacyProtections::ScriptTelemetry))
-        return document.requiresScriptExecutionTelemetry(ScriptTelemetryCategory::ScreenOrViewport);
+    if (advancedPrivacyProtections().contains(AdvancedPrivacyProtections::ScriptTrackingPrivacy))
+        return document.requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::ScreenOrViewport);
 
     return false;
 }
@@ -5649,17 +5649,17 @@ void Page::flushDeferredScrollEvents()
     });
 }
 
-bool Page::reportScriptTelemetry(const URL& url, ScriptTelemetryCategory category)
+bool Page::reportScriptTrackingPrivacy(const URL& url, ScriptTrackingPrivacyCategory category)
 {
-    return !url.isEmpty() && m_reportedScriptsWithTelemetry.add({ url, category }).isNewEntry;
+    return !url.isEmpty() && m_scriptTrackingPrivacyReports.add({ url, category }).isNewEntry;
 }
 
-bool Page::requiresScriptTelemetryForURL(const URL& scriptURL) const
+bool Page::requiresScriptTrackingPrivacyProtections(const URL& scriptURL) const
 {
-    if (!advancedPrivacyProtections().contains(AdvancedPrivacyProtections::ScriptTelemetry))
+    if (!advancedPrivacyProtections().contains(AdvancedPrivacyProtections::ScriptTrackingPrivacy))
         return false;
 
-    return chrome().client().requiresScriptTelemetryForURL(scriptURL, mainFrameOrigin());
+    return chrome().client().requiresScriptTrackingPrivacyProtections(scriptURL, mainFrameOrigin());
 }
 
 void Page::applyWindowFeatures(const WindowFeatures& features)

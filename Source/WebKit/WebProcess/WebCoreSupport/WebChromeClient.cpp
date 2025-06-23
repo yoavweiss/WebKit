@@ -2344,9 +2344,9 @@ void WebChromeClient::getImageBufferResourceLimitsForTesting(CompletionHandler<v
 }
 #endif
 
-bool WebChromeClient::requiresScriptTelemetryForURL(const URL& url, const SecurityOrigin& topOrigin) const
+bool WebChromeClient::requiresScriptTrackingPrivacyProtections(const URL& url, const SecurityOrigin& topOrigin) const
 {
-    return WebProcess::singleton().requiresScriptTelemetryForURL(url, topOrigin);
+    return WebProcess::singleton().requiresScriptTrackingPrivacyProtections(url, topOrigin);
 }
 
 void WebChromeClient::callAfterPendingSyntheticClick(CompletionHandler<void(SyntheticClickResult)>&& completion)

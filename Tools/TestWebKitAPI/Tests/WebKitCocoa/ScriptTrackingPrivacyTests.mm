@@ -25,7 +25,7 @@
 
 #import "config.h"
 
-#if ENABLE(SCRIPT_TELEMETRY)
+#if ENABLE(SCRIPT_TRACKING_PRIVACY_PROTECTIONS)
 
 #import "InstanceMethodSwizzler.h"
 #import "PlatformUtilities.h"
@@ -46,12 +46,12 @@
 
 #import <pal/cocoa/WebPrivacySoftLink.h>
 
-@interface WKWebsiteDataStore (ScriptTelemetryTests)
+@interface WKWebsiteDataStore (ScriptTrackingPrivacyTests)
 - (void)deleteAllCookies;
 @property (nonatomic, readonly) NSArray<NSHTTPCookie *> *allCookies;
 @end
 
-@implementation WKWebsiteDataStore (ScriptTelemetryTests)
+@implementation WKWebsiteDataStore (ScriptTrackingPrivacyTests)
 
 - (void)deleteAllCookies
 {
@@ -149,7 +149,7 @@ static RetainPtr<TestWKWebView> setUpWebViewForFingerprintingTests(NSString *pag
 {
     RetainPtr configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"WebProcessPlugInWithInternals" configureJSCForTesting:YES];
     for (_WKFeature *feature in WKPreferences._features) {
-        if ([feature.key isEqualToString:@"ScriptTelemetryEnabled"])
+        if ([feature.key isEqualToString:@"ScriptTrackingPrivacyProtectionsEnabled"])
             [[configuration preferences] _setEnabled:YES forFeature:feature];
     }
 
@@ -255,7 +255,7 @@ static constexpr auto formFieldIndexHTML = R"markup(
     </html>
 )markup"_s;
 
-TEST(ScriptTelemetryTests, Referrer)
+TEST(ScriptTrackingPrivacyTests, Referrer)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -272,7 +272,7 @@ TEST(ScriptTelemetryTests, Referrer)
     EXPECT_WK_STREQ("", [webView stringByEvaluatingJavaScript:@"window.referrerForTaintedScript"]);
 }
 
-TEST(ScriptTelemetryTests, QueryParameters)
+TEST(ScriptTrackingPrivacyTests, QueryParameters)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -289,7 +289,7 @@ TEST(ScriptTelemetryTests, QueryParameters)
     EXPECT_WK_STREQ("test://top-domain.org/index.html", [webView stringByEvaluatingJavaScript:@"window.urlForTaintedScript"]);
 }
 
-TEST(ScriptTelemetryTests, Canvas2D)
+TEST(ScriptTrackingPrivacyTests, Canvas2D)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -322,7 +322,7 @@ TEST(ScriptTelemetryTests, Canvas2D)
         NSLog(@"FAIL: Expected hashes to be different: %@", [hashes firstObject]);
 }
 
-TEST(ScriptTelemetryTests, AudioSamples)
+TEST(ScriptTrackingPrivacyTests, AudioSamples)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -355,7 +355,7 @@ TEST(ScriptTelemetryTests, AudioSamples)
         NSLog(@"FAIL: Expected hashes to be different: %@", [hashes firstObject]);
 }
 
-TEST(ScriptTelemetryTests, ScreenMetrics)
+TEST(ScriptTrackingPrivacyTests, ScreenMetrics)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -400,7 +400,7 @@ TEST(ScriptTelemetryTests, ScreenMetrics)
     EXPECT_EQ(innerHeight, [taintedInfo[@"outerHeight"] intValue]);
 }
 
-TEST(ScriptTelemetryTests, ScriptWrittenCookies)
+TEST(ScriptTrackingPrivacyTests, ScriptWrittenCookies)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -454,7 +454,7 @@ TEST(ScriptTelemetryTests, ScriptWrittenCookies)
     EXPECT_TRUE(foundTaintedCookie);
 }
 
-TEST(ScriptTelemetryTests, LocalStorage)
+TEST(ScriptTrackingPrivacyTests, LocalStorage)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -477,7 +477,7 @@ TEST(ScriptTelemetryTests, LocalStorage)
     EXPECT_WK_STREQ("", [webView stringByEvaluatingJavaScript:@"window.taintedItem || ''"]);
 }
 
-TEST(ScriptTelemetryTests, HardwareConcurrency)
+TEST(ScriptTrackingPrivacyTests, HardwareConcurrency)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -507,7 +507,7 @@ TEST(ScriptTelemetryTests, HardwareConcurrency)
     EXPECT_TRUE(observedRandomValue);
 }
 
-TEST(ScriptTelemetryTests, SpeechSynthesisGetVoices)
+TEST(ScriptTrackingPrivacyTests, SpeechSynthesisGetVoices)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -528,7 +528,7 @@ TEST(ScriptTelemetryTests, SpeechSynthesisGetVoices)
     EXPECT_EQ(taintedNumberOfVoices, 0u);
 }
 
-TEST(ScriptTelemetryTests, DirectFormFieldAccess)
+TEST(ScriptTrackingPrivacyTests, DirectFormFieldAccess)
 {
     if (!supportsFingerprintingScriptRequests())
         return;
@@ -629,4 +629,4 @@ TEST(ScriptTelemetryTests, DirectFormFieldAccess)
 
 } // namespace TestWebKitAPI
 
-#endif // ENABLE(SCRIPT_TELEMETRY)
+#endif // ENABLE(SCRIPT_TRACKING_PRIVACY_PROTECTIONS)

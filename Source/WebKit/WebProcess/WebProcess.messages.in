@@ -183,7 +183,7 @@ messages -> WebProcess : AuxiliaryProcess WantsAsyncDispatchMessage {
     SendResourceLoadStatisticsDataImmediately() -> ()
 
     UpdateDomainsWithStorageAccessQuirks(HashSet<WebCore::RegistrableDomain> domainsWithStorageAccessQuirks);
-    UpdateScriptTelemetryFilter(struct WebKit::ScriptTelemetryRules rules)
+    UpdateScriptTrackingPrivacyFilter(struct WebKit::ScriptTrackingPrivacyRules rules)
 
     GrantAccessToAssetServices(Vector<WebKit::SandboxExtensionHandle> assetServicesHandles)
     RevokeAccessToAssetServices()

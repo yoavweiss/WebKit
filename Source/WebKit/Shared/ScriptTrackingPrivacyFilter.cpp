@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#include "ScriptTelemetry.h"
+#include "ScriptTrackingPrivacyFilter.h"
 
 #include <WebCore/RegistrableDomain.h>
 #include <WebCore/SecurityOrigin.h>
@@ -38,7 +38,7 @@ static void initializeFilterRules(Vector<String>&& source, MemoryCompactRobinHoo
         target.add(host);
 }
 
-ScriptTelemetryFilter::ScriptTelemetryFilter(ScriptTelemetryRules&& rules)
+ScriptTrackingPrivacyFilter::ScriptTrackingPrivacyFilter(ScriptTrackingPrivacyRules&& rules)
 {
     initializeFilterRules(WTFMove(rules.thirdPartyHosts), m_thirdPartyHosts);
     initializeFilterRules(WTFMove(rules.thirdPartyTopDomains), m_thirdPartyTopDomains);
@@ -46,7 +46,7 @@ ScriptTelemetryFilter::ScriptTelemetryFilter(ScriptTelemetryRules&& rules)
     initializeFilterRules(WTFMove(rules.firstPartyTopDomains), m_firstPartyTopDomains);
 }
 
-bool ScriptTelemetryFilter::matches(const URL& url, const WebCore::SecurityOrigin& topOrigin)
+bool ScriptTrackingPrivacyFilter::matches(const URL& url, const WebCore::SecurityOrigin& topOrigin)
 {
     WebCore::RegistrableDomain scriptTopDomain { url };
 

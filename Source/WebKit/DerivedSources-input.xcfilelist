@@ -363,7 +363,7 @@ $(PROJECT_DIR)/Shared/ResourceLoadInfo.serialization.in
 $(PROJECT_DIR)/Shared/ResourceLoadStatisticsParameters.serialization.in
 $(PROJECT_DIR)/Shared/SameDocumentNavigationType.serialization.in
 $(PROJECT_DIR)/Shared/SandboxExtension.serialization.in
-$(PROJECT_DIR)/Shared/ScriptTelemetry.serialization.in
+$(PROJECT_DIR)/Shared/ScriptTrackingPrivacyFilter.serialization.in
 $(PROJECT_DIR)/Shared/ScrollingAccelerationCurve.serialization.in
 $(PROJECT_DIR)/Shared/SessionState.serialization.in
 $(PROJECT_DIR)/Shared/Shared/EditorState.serialization.in

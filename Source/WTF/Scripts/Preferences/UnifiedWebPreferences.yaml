@@ -6370,22 +6370,11 @@ ScreenWakeLockAPIEnabled:
     WebCore:
       default: false
 
-ScriptTelemetryEnabled:
+ScriptTrackingPrivacyLoggingEnabled:
   type: bool
   status: internal
-  humanReadableName: "Script Telemetry"
-  humanReadableDescription: "Script telemetry enabled"
-  exposed: [ WebKit ]
-  webcoreBinding: none
-  defaultValue:
-    WebKit:
-      default: true
-
-ScriptTelemetryLoggingEnabled:
-  type: bool
-  status: internal
-  humanReadableName: "Script Telemetry Logging"
-  humanReadableDescription: "Script telemetry logging enabled"
+  humanReadableName: "Script Tracking Privacy Logging"
+  humanReadableDescription: "Script tracking privacy logging enabled"
   exposed: [ WebKit ]
   defaultValue:
     WebKitLegacy:
@@ -6394,6 +6383,17 @@ ScriptTelemetryLoggingEnabled:
       default: false
     WebCore:
       default: false
+
+ScriptTrackingPrivacyProtectionsEnabled:
+  type: bool
+  status: internal
+  humanReadableName: "Script Tracking Privacy Protections"
+  humanReadableDescription: "Script tracking privacy protections enabled"
+  exposed: [ WebKit ]
+  webcoreBinding: none
+  defaultValue:
+    WebKit:
+      default: true
 
 ScrollAnimatorEnabled:
   type: bool

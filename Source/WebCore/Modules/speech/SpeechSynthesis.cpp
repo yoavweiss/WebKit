@@ -37,7 +37,7 @@
 #include "Page.h"
 #include "PlatformSpeechSynthesisVoice.h"
 #include "PlatformSpeechSynthesizer.h"
-#include "ScriptTelemetryCategory.h"
+#include "ScriptTrackingPrivacyCategory.h"
 #include "SpeechSynthesisErrorEvent.h"
 #include "SpeechSynthesisEvent.h"
 #include "SpeechSynthesisUtterance.h"
@@ -109,7 +109,7 @@ PlatformSpeechSynthesizer& SpeechSynthesis::ensurePlatformSpeechSynthesizer()
 const Vector<Ref<SpeechSynthesisVoice>>& SpeechSynthesis::getVoices()
 {
     if (RefPtr context = scriptExecutionContext()) {
-        if (context->requiresScriptExecutionTelemetry(ScriptTelemetryCategory::Speech)) {
+        if (context->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Speech)) {
             static NeverDestroyed<Vector<Ref<SpeechSynthesisVoice>>> emptyVoicesList;
             return emptyVoicesList.get();
         }

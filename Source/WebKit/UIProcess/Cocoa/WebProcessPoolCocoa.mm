@@ -524,7 +524,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
             parameters.storageAccessPromptQuirksDomains.add(domain);
     }
 
-    parameters.scriptTelemetryRules = ScriptTelemetryController::sharedSingleton().cachedListData();
+    parameters.scriptTrackingPrivacyRules = ScriptTrackingPrivacyController::sharedSingleton().cachedListData();
 #endif // ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
 
 #if ENABLE(NOTIFY_BLOCKING)

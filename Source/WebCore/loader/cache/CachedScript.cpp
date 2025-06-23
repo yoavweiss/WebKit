@@ -38,9 +38,9 @@
 
 namespace WebCore {
 
-CachedScript::CachedScript(CachedResourceRequest&& request, PAL::SessionID sessionID, const CookieJar* cookieJar, ScriptRequiresTelemetry requiresTelemetry)
+CachedScript::CachedScript(CachedResourceRequest&& request, PAL::SessionID sessionID, const CookieJar* cookieJar, ScriptTrackingPrivacyProtectionsEnabled requiresPrivacyProtections)
     : CachedResource(WTFMove(request), Type::Script, sessionID, cookieJar)
-    , m_requiresTelemetry(requiresTelemetry == ScriptRequiresTelemetry::Yes)
+    , m_requiresPrivacyProtections(requiresPrivacyProtections == ScriptTrackingPrivacyProtectionsEnabled::Yes)
     , m_decoder(TextResourceDecoder::create("text/javascript"_s, request.charset()))
 {
 }

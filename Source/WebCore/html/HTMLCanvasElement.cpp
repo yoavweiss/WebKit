@@ -69,7 +69,7 @@
 #include "RenderHTMLCanvas.h"
 #include "ResourceLoadObserver.h"
 #include "ScriptController.h"
-#include "ScriptTelemetryCategory.h"
+#include "ScriptTrackingPrivacyCategory.h"
 #include "Settings.h"
 #include "StringAdaptors.h"
 #include "WebCoreOpaqueRoot.h"
@@ -706,7 +706,7 @@ ExceptionOr<UncachedString> HTMLCanvasElement::toDataURL(const String& mimeType,
     auto encodingMIMEType = toEncodingMimeType(mimeType);
     auto quality = qualityFromJSValue(qualityValue);
 
-    if (document->requiresScriptExecutionTelemetry(ScriptTelemetryCategory::Canvas)) {
+    if (document->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas)) {
         if (RefPtr buffer = createImageForNoiseInjection())
             return UncachedString { buffer->toDataURL(encodingMIMEType, quality) };
 
@@ -758,7 +758,7 @@ ExceptionOr<void> HTMLCanvasElement::toBlob(Ref<BlobCallback>&& callback, const 
         callback->scheduleCallback(document, WTFMove(blob));
     };
 
-    if (document->requiresScriptExecutionTelemetry(ScriptTelemetryCategory::Canvas)) {
+    if (document->requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory::Canvas)) {
         RefPtr buffer = createImageForNoiseInjection();
         scheduleCallbackWithBlobData(WTFMove(callback), buffer ? buffer->toData(encodingMIMEType, quality) : Vector<uint8_t> { });
         return { };

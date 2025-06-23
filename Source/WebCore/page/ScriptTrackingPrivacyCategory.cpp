@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#include "ScriptTelemetryCategory.h"
+#include "ScriptTrackingPrivacyCategory.h"
 
 #include "AdvancedPrivacyProtections.h"
 #include <wtf/URL.h>
@@ -32,56 +32,52 @@
 
 namespace WebCore {
 
-ASCIILiteral description(ScriptTelemetryCategory category)
+ASCIILiteral description(ScriptTrackingPrivacyCategory category)
 {
     switch (category) {
-    case ScriptTelemetryCategory::Unspecified:
+    case ScriptTrackingPrivacyCategory::Unspecified:
         ASSERT_NOT_REACHED();
         return "Unspecified"_s;
-    case ScriptTelemetryCategory::Audio:
+    case ScriptTrackingPrivacyCategory::Audio:
         return "Audio"_s;
-    case ScriptTelemetryCategory::Canvas:
+    case ScriptTrackingPrivacyCategory::Canvas:
         return "Canvas"_s;
-    case ScriptTelemetryCategory::Cookies:
+    case ScriptTrackingPrivacyCategory::Cookies:
         return "Cookies"_s;
-    case ScriptTelemetryCategory::HardwareConcurrency:
+    case ScriptTrackingPrivacyCategory::HardwareConcurrency:
         return "HardwareConcurrency"_s;
-    case ScriptTelemetryCategory::LocalStorage:
+    case ScriptTrackingPrivacyCategory::LocalStorage:
         return "LocalStorage"_s;
-    case ScriptTelemetryCategory::Payments:
+    case ScriptTrackingPrivacyCategory::Payments:
         return "Payments"_s;
-    case ScriptTelemetryCategory::QueryParameters:
+    case ScriptTrackingPrivacyCategory::QueryParameters:
         return "QueryParameters"_s;
-    case ScriptTelemetryCategory::Referrer:
+    case ScriptTrackingPrivacyCategory::Referrer:
         return "Referrer"_s;
-    case ScriptTelemetryCategory::ScreenOrViewport:
+    case ScriptTrackingPrivacyCategory::ScreenOrViewport:
         return "ScreenOrViewport"_s;
-    case ScriptTelemetryCategory::Speech:
+    case ScriptTrackingPrivacyCategory::Speech:
         return "Speech"_s;
-    case ScriptTelemetryCategory::FormControls:
+    case ScriptTrackingPrivacyCategory::FormControls:
         return "FormControls"_s;
     }
     ASSERT_NOT_REACHED();
     return { };
 }
 
-bool shouldEnableScriptTelemetry(ScriptTelemetryCategory category, OptionSet<AdvancedPrivacyProtections> protections)
+bool shouldEnableScriptTrackingPrivacy(ScriptTrackingPrivacyCategory category, OptionSet<AdvancedPrivacyProtections> protections)
 {
     if (protections.contains(AdvancedPrivacyProtections::BaselineProtections))
         return true;
 
-    return category != ScriptTelemetryCategory::FormControls;
+    return category != ScriptTrackingPrivacyCategory::FormControls;
 }
 
-String makeLogMessage(const URL& url, ScriptTelemetryCategory category)
+String makeLogMessage(const URL& url, ScriptTrackingPrivacyCategory category)
 {
-#if ENABLE(SCRIPT_TELEMETRY)
-    if (category == ScriptTelemetryCategory::Cookies)
+    if (category == ScriptTrackingPrivacyCategory::Cookies)
         return makeString("Prevented "_s, url.string(), " from setting long-lived cookies"_s);
     return makeString("Prevented "_s, url.string(), " from accessing "_s, description(category));
-#else
-    return makeString(url.string(), " tried to access "_s, description(category));
-#endif
 }
 
 } // namespace WebCore

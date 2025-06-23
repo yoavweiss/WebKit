@@ -105,7 +105,7 @@ enum class CrossOriginMode : bool;
 enum class LoadedFromOpaqueSource : bool;
 enum class NoiseInjectionPolicy : uint8_t;
 enum class ReasonForSuspension : uint8_t;
-enum class ScriptTelemetryCategory : uint8_t;
+enum class ScriptTrackingPrivacyCategory : uint8_t;
 enum class StorageBlockingPolicy : uint8_t;
 enum class TaskSource : uint8_t;
 struct CryptoKeyData;
@@ -234,7 +234,7 @@ public:
     WEBCORE_EXPORT void ref();
     WEBCORE_EXPORT void deref();
 
-    WEBCORE_EXPORT bool requiresScriptExecutionTelemetry(ScriptTelemetryCategory);
+    WEBCORE_EXPORT bool requiresScriptTrackingPrivacyProtection(ScriptTrackingPrivacyCategory);
 
     class Task {
         WTF_MAKE_TZONE_ALLOCATED(Task);

@@ -25,43 +25,42 @@
 
 #pragma once
 
-#include <wtf/Noncopyable.h>
-#include <wtf/RobinHoodHashSet.h>
-#include <wtf/URL.h>
-#include <wtf/Vector.h>
-#include <wtf/text/WTFString.h>
+#include <wtf/HashTraits.h>
+#include <wtf/OptionSet.h>
+#include <wtf/text/ASCIILiteral.h>
 
 namespace WebCore {
-class SecurityOrigin;
-}
 
-namespace WebKit {
+enum class AdvancedPrivacyProtections : uint16_t;
 
-struct ScriptTelemetryRules {
-    Vector<String> thirdPartyHosts;
-    Vector<String> thirdPartyTopDomains;
-    Vector<String> firstPartyHosts;
-    Vector<String> firstPartyTopDomains;
-
-    bool isEmpty() const
-    {
-        return thirdPartyHosts.isEmpty() && thirdPartyTopDomains.isEmpty() && firstPartyHosts.isEmpty() && firstPartyTopDomains.isEmpty();
-    }
+enum class ScriptTrackingPrivacyCategory : uint8_t {
+    Unspecified = 0,
+    Audio,
+    Canvas,
+    Cookies,
+    HardwareConcurrency,
+    LocalStorage,
+    Payments,
+    QueryParameters,
+    Referrer,
+    ScreenOrViewport,
+    Speech,
+    FormControls,
 };
 
-class ScriptTelemetryFilter {
-    WTF_MAKE_FAST_ALLOCATED;
-    WTF_MAKE_NONCOPYABLE(ScriptTelemetryFilter);
-public:
-    ScriptTelemetryFilter(ScriptTelemetryRules&&);
+String makeLogMessage(const URL&, ScriptTrackingPrivacyCategory);
+ASCIILiteral description(ScriptTrackingPrivacyCategory);
 
-    bool matches(const URL&, const WebCore::SecurityOrigin& topOrigin);
+bool shouldEnableScriptTrackingPrivacy(ScriptTrackingPrivacyCategory, OptionSet<AdvancedPrivacyProtections>);
 
-private:
-    MemoryCompactRobinHoodHashSet<String> m_thirdPartyHosts;
-    MemoryCompactRobinHoodHashSet<String> m_thirdPartyTopDomains;
-    MemoryCompactRobinHoodHashSet<String> m_firstPartyHosts;
-    MemoryCompactRobinHoodHashSet<String> m_firstPartyTopDomains;
-};
+} // namespace WebCore
 
-} // namespace WebKit
+namespace WTF {
+
+template<typename T> struct DefaultHash;
+template<> struct DefaultHash<WebCore::ScriptTrackingPrivacyCategory> : public IntHash<WebCore::ScriptTrackingPrivacyCategory> { };
+
+template<typename T> struct HashTraits;
+template<> struct HashTraits<WebCore::ScriptTrackingPrivacyCategory> : public StrongEnumHashTraits<WebCore::ScriptTrackingPrivacyCategory> { };
+
+} // namespace WTF
