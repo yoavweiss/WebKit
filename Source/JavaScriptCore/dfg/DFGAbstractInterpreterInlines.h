@@ -4350,9 +4350,46 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
         if (Options::useAccessInlining()
             && value.m_structure.isFinite()
             && (node->child1().useKind() == CellUse || !(value.m_type & ~SpecCell))) {
-            UniquedStringImpl* uid = node->cacheableIdentifier().uid();
-            GetByStatus status = GetByStatus::computeFor(value.m_structure.toStructureSet(), uid);
+            CacheableIdentifier identifier = node->cacheableIdentifier();
+            GetByStatus status = GetByStatus::computeFor(m_graph.globalObjectFor(node->origin.semantic), value.m_structure.toStructureSet(), identifier);
             if (status.isSimple()) {
+                if (status.numVariants() == 1) {
+                    auto variant = status[0];
+                    if (!variant.conditionSet().isEmpty()) {
+                        ASSERT(variant.structureSet().size() == 1);
+                        auto attempToFold = [&] {
+                            for (auto& condition : variant.conditionSet()) {
+                                switch (condition.kind()) {
+                                case PropertyCondition::Presence: {
+                                    ObjectPropertyCondition equivalenceCondition = condition.attemptToMakeEquivalenceWithoutBarrier();
+                                    if (!m_graph.watchCondition(equivalenceCondition))
+                                        return false;
+                                    didFoldClobberWorld();
+                                    setConstant(node, *m_graph.freeze(equivalenceCondition.requiredValue()));
+                                    return true;
+                                }
+                                default:
+                                    if (!condition)
+                                        return false;
+
+                                    if (!m_graph.watchCondition(condition))
+                                        return false;
+
+                                    continue;
+                                }
+                            }
+                            return false;
+                        };
+
+                        if (attempToFold())
+                            break;
+
+                        clobberWorld();
+                        makeHeapTopForNode(node);
+                        break;
+                    }
+                }
+
                 // Figure out what the result is going to be - is it TOP, a constant, or maybe
                 // something more subtle?
                 AbstractValue result;

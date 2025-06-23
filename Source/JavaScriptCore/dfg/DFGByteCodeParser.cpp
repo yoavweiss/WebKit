@@ -293,8 +293,6 @@ private:
     // condition no longer holds, and therefore no reasonable check can be emitted.
     bool check(const ObjectPropertyCondition&);
     
-    GetByOffsetMethod promoteToConstant(GetByOffsetMethod);
-    
     // Either register a watchpoint or emit a check for this condition. It must be a Presence
     // condition. It will attempt to promote a Presence condition to an Equivalence condition.
     // Emits code for the loaded value that the condition guards, and returns a node containing
@@ -5333,17 +5331,6 @@ bool ByteCodeParser::check(const ObjectPropertyCondition& condition)
     return true;
 }
 
-GetByOffsetMethod ByteCodeParser::promoteToConstant(GetByOffsetMethod method)
-{
-    if (method.kind() == GetByOffsetMethod::LoadFromPrototype
-        && method.prototype()->structure()->dfgShouldWatch()) {
-        if (JSValue constant = m_graph.tryGetConstantProperty(method.prototype()->value(), method.prototype()->structure(), method.offset()))
-            return GetByOffsetMethod::constant(m_graph.freeze(constant));
-    }
-    
-    return method;
-}
-
 bool ByteCodeParser::needsDynamicLookup(ResolveType type, OpcodeID opcode)
 {
     ASSERT(opcode == op_resolve_scope || opcode == op_get_from_scope || opcode == op_put_to_scope);
@@ -5458,12 +5445,12 @@ GetByOffsetMethod ByteCodeParser::planLoad(const ObjectPropertyCondition& condit
     // If the structure is watched by the DFG already, then just use this fact to emit the load.
     // This is case (2) above.
     if (structure->dfgShouldWatch())
-        return promoteToConstant(GetByOffsetMethod::loadFromPrototype(base, condition.offset()));
+        return m_graph.promoteToConstant(GetByOffsetMethod::loadFromPrototype(base, condition.offset()));
     
     // If we can watch the condition right now, then we can emit the load after watching it. This
     // is case (3) above.
     if (m_graph.watchCondition(condition))
-        return promoteToConstant(GetByOffsetMethod::loadFromPrototype(base, condition.offset()));
+        return m_graph.promoteToConstant(GetByOffsetMethod::loadFromPrototype(base, condition.offset()));
     
     // We can't watch anything but we know that the current structure satisfies the condition. So,
     // check for that structure and then emit the load.
@@ -5471,7 +5458,7 @@ GetByOffsetMethod ByteCodeParser::planLoad(const ObjectPropertyCondition& condit
         CheckStructure, 
         OpInfo(m_graph.addStructureSet(structure)),
         addToGraph(JSConstant, OpInfo(base)));
-    return promoteToConstant(GetByOffsetMethod::loadFromPrototype(base, condition.offset()));
+    return m_graph.promoteToConstant(GetByOffsetMethod::loadFromPrototype(base, condition.offset()));
 }
 
 Node* ByteCodeParser::load(
@@ -5517,7 +5504,7 @@ bool ByteCodeParser::check(const ObjectPropertyConditionSet& conditionSet)
 GetByOffsetMethod ByteCodeParser::planLoad(const ObjectPropertyConditionSet& conditionSet)
 {
     VERBOSE_LOG("conditionSet = ", conditionSet, "\n");
-    
+
     GetByOffsetMethod result;
     for (const ObjectPropertyCondition& condition : conditionSet) {
         switch (condition.kind()) {
@@ -9359,11 +9346,12 @@ void ByteCodeParser::parseBlock(unsigned limit)
 
                 SpeculatedType prediction = getPrediction();
 
-                GetByStatus status = GetByStatus::computeFor(structure, uid);
+                CacheableIdentifier identifier = CacheableIdentifier::createFromIdentifierOwnedByCodeBlock(m_inlineStackTop->m_profiledBlock, uid);
+                GetByStatus status = GetByStatus::computeFor(globalObject, structure, identifier);
                 if (status.state() != GetByStatus::Simple
                     || status.numVariants() != 1
                     || status[0].structureSet().size() != 1) {
-                    auto* data = m_graph.m_getByIdData.add(GetByIdData { CacheableIdentifier::createFromIdentifierOwnedByCodeBlock(m_inlineStackTop->m_profiledBlock, uid), CacheType::GetByIdSelf });
+                    auto* data = m_graph.m_getByIdData.add(GetByIdData { identifier, CacheType::GetByIdSelf });
                     set(bytecode.m_dst, addToGraph(GetByIdFlush, OpInfo(data), OpInfo(prediction), get(bytecode.m_scope)));
                     break;
                 }
