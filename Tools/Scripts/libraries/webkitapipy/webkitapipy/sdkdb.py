@@ -110,10 +110,11 @@ class SDKDB:
     def __del__(self):
         if not hasattr(self, 'con'):
             return
-        # May fail if the connection is closed (due to failure to initialize).
+        # May fail if the connection is closed (due to failure to initialize)
+        # or not writable (due to the file being deleted on disk).
         try:
             self.con.execute('PRAGMA optimize')
-        except sqlite3.ProgrammingError:
+        except (sqlite3.ProgrammingError, sqlite3.OperationalError):
             pass
 
     def __enter__(self):
@@ -184,6 +185,10 @@ class SDKDB:
         if self._cache_hit_preparing_to_insert(binary, stat_hash):
             return False
         report = APIReport.from_binary(binary, arch=arch, exports_only=True)
+        self._add_api_report(report, binary)
+        return True
+
+    def _add_api_report(self, report: APIReport, binary: Path):
         for selector in report.methods:
             self._add_objc_selector(selector, None, binary)
         for symbol in report.exports:
@@ -196,7 +201,6 @@ class SDKDB:
                                      binary)
             else:
                 self._add_symbol(symbol, binary)
-        return True
 
     def add_tbd(self, tbd_file: Path,
                 only_including: Optional[Iterable[str]]) -> bool:

@@ -20,42 +20,17 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+from pathlib import Path
+from unittest import TestCase
 
-[project]
-name = "webkitapipy"
-version = "0.1.0"
-authors = [
-  { name="Elliott Williams", email="emw@apple.com" },
-]
-description = "Tools for analyzing API and SPI usage of Mach-O binaries on Apple platforms."
-requires-python = ">=3.9"
-classifiers = [
-    'Development Status :: 1 - Planning',
-    'Intended Audience :: Developers',
-    'Operating System :: MacOS',
-    'Natural Language :: English',
-    'Programming Language :: Python :: 3',
-    'Topic :: Software Development :: Libraries :: Python Modules',
-]
-license = 'BSD-2-Clause'
+import mypy.api
 
-[project.optional-dependencies]
-internal = ['webkitapipy_additions']
 
-[project.scripts]
-audit-spi = "webkitapipy.program:main"
+class TypeAnnotations(TestCase):
+    longMessage = False
 
-[project.urls]
-Homepage = "https://github.com/WebKit/WebKit/tree/main/Tools/Scripts/libraries/webkitapipy"
-Issues = "https://bugs.webkit.org"
-Repository = "https://github.com/WebKit/WebKit"
-
-[mypy]
-strict = true
-disallow_any_generics = false
-disallow_untyped_calls = false
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
+    def test_mypy(self):
+        module_dir = Path(__file__).parent
+        stdout, stderr, status = mypy.api.run(['--pretty', str(module_dir)])
+        output = stdout if stdout and not stdout.isspace() else stderr
+        self.assertEqual(status, 0, output)

@@ -159,7 +159,7 @@ def get_parser() -> argparse.ArgumentParser:
 def main(argv=None):
     webkitapipy_additions: Optional[ModuleType]
     try:
-        import webkitapipy_additions
+        import webkitapipy_additions.program
     except ImportError:
         webkitapipy_additions = None
 
