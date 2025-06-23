@@ -2196,7 +2196,7 @@ void RenderLayerCompositor::layerStyleChanged(StyleDifference diff, RenderLayer&
     const auto& newStyle = layer.renderer().style();
 
     if (hasContentCompositingLayers()) {
-        if (diff >= StyleDifference::LayoutPositionedMovementOnly) {
+        if (diff >= StyleDifference::LayoutOutOfFlowMovementOnly) {
             layer.setNeedsPostLayoutCompositingUpdate();
             layer.setNeedsCompositingGeometryUpdate();
         }

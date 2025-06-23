@@ -698,8 +698,8 @@ public:
     bool needsPreferredLogicalWidthsUpdate() const { return m_stateBitfields.hasFlag(StateFlag::PreferredLogicalWidthsNeedUpdate); }
 
     bool selfNeedsLayout() const { return m_stateBitfields.hasFlag(StateFlag::NeedsLayout); }
-    bool needsPositionedMovementLayout() const { return m_stateBitfields.hasFlag(StateFlag::NeedsPositionedMovementLayout); }
-    bool needsPositionedMovementLayoutOnly() const;
+    bool needsOutOfFlowMovementLayout() const { return m_stateBitfields.hasFlag(StateFlag::NeedsOutOfFlowMovementLayout); }
+    bool needsOutOfFlowMovementLayoutOnly() const;
 
     bool outOfFlowChildNeedsLayout() const { return m_stateBitfields.hasFlag(StateFlag::OutOfFlowChildNeedsLayout); }
     bool needsSimplifiedNormalFlowLayout() const { return m_stateBitfields.hasFlag(StateFlag::NeedsSimplifiedNormalFlowLayout); }
@@ -1134,7 +1134,7 @@ protected:
     void setIsBeingDestroyed() { m_stateBitfields.setFlag(StateFlag::BeingDestroyed); }
 
     void scheduleLayout(RenderElement* layoutRoot);
-    void setNeedsPositionedMovementLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::NeedsPositionedMovementLayout, b); }
+    void setNeedsOutOfFlowMovementLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::NeedsOutOfFlowMovementLayout, b); }
     void setNormalChildNeedsLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::NormalChildNeedsLayout, b); }
     void setOutOfFlowChildNeedsLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::OutOfFlowChildNeedsLayout, b); }
     void setNeedsSimplifiedNormalFlowLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::NeedsSimplifiedNormalFlowLayout, b); }
@@ -1161,7 +1161,7 @@ private:
 
     void addAbsoluteRectForLayer(LayoutRect& result);
     void setLayerNeedsFullRepaint();
-    void setLayerNeedsFullRepaintForPositionedMovementLayout();
+    void setLayerNeedsFullRepaintForOutOfFlowMovementLayout();
 
     void invalidateContainerPreferredLogicalWidths();
 
@@ -1196,7 +1196,7 @@ private:
         IsReplacedOrAtomicInline                            = 1 << 1,
         BeingDestroyed                                      = 1 << 2,
         NeedsLayout                                         = 1 << 3,
-        NeedsPositionedMovementLayout                       = 1 << 4,
+        NeedsOutOfFlowMovementLayout                        = 1 << 4,
         NormalChildNeedsLayout                              = 1 << 5,
         OutOfFlowChildNeedsLayout                           = 1 << 6,
         NeedsSimplifiedNormalFlowLayout                     = 1 << 7,
@@ -1349,7 +1349,7 @@ inline void RenderObject::invalidateBackgroundObscurationStatus()
 inline bool RenderObject::needsSimplifiedNormalFlowLayoutOnly() const
 {
     return needsSimplifiedNormalFlowLayout() && !selfNeedsLayout() && !normalChildNeedsLayout()
-        && !outOfFlowChildNeedsLayout() && !needsPositionedMovementLayout();
+        && !outOfFlowChildNeedsLayout() && !needsOutOfFlowMovementLayout();
 }
 
 inline RenderFragmentedFlow* RenderObject::enclosingFragmentedFlow() const
@@ -1366,12 +1366,12 @@ inline bool RenderObject::needsLayout() const
         || normalChildNeedsLayout()
         || outOfFlowChildNeedsLayout()
         || needsSimplifiedNormalFlowLayout()
-        || needsPositionedMovementLayout();
+        || needsOutOfFlowMovementLayout();
 }
 
-inline bool RenderObject::needsPositionedMovementLayoutOnly() const
+inline bool RenderObject::needsOutOfFlowMovementLayoutOnly() const
 {
-    return needsPositionedMovementLayout()
+    return needsOutOfFlowMovementLayout()
         && !selfNeedsLayout()
         && !normalChildNeedsLayout()
         && !outOfFlowChildNeedsLayout()

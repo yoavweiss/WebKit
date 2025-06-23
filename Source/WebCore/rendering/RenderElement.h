@@ -148,7 +148,7 @@ public:
     void setChildNeedsLayout(MarkingBehavior = MarkContainingBlockChain);
     void setOutOfFlowChildNeedsStaticPositionLayout();
     void clearChildNeedsLayout();
-    void setNeedsPositionedMovementLayout(const RenderStyle* oldStyle);
+    void setNeedsOutOfFlowMovementLayout(const RenderStyle* oldStyle);
     void setNeedsLayoutForStyleDifference(StyleDifference, const RenderStyle* oldStyle);
     void setNeedsLayoutForOverflowChange();
 

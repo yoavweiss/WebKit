@@ -769,7 +769,7 @@ bool RenderBlock::simplifiedLayout()
         return false;
 
     LayoutStateMaintainer statePusher(*this, locationOffset(), isTransformed() || hasReflection() || writingMode().isBlockFlipped());
-    if (needsPositionedMovementLayout() && !tryLayoutDoingPositionedMovementOnly())
+    if (needsOutOfFlowMovementLayout() && !tryLayoutDoingOutOfFlowMovementOnly())
         return false;
 
     // Lay out positioned descendants or objects that just need to recompute overflow.
@@ -887,7 +887,7 @@ void RenderBlock::layoutOutOfFlowBox(RenderBox& outOfFlowBox, RelayoutChildren r
     
     // We don't have to do a full layout.  We just have to update our position. Try that first. If we have shrink-to-fit width
     // and we hit the available width constraint, the layoutIfNeeded() will catch it and do a full layout.
-    if (outOfFlowBox.needsPositionedMovementLayoutOnly() && outOfFlowBox.tryLayoutDoingPositionedMovementOnly())
+    if (outOfFlowBox.needsOutOfFlowMovementLayoutOnly() && outOfFlowBox.tryLayoutDoingOutOfFlowMovementOnly())
         outOfFlowBox.clearNeedsLayout();
 
     // If we are paginated or in a line grid, compute a vertical position for our object now.

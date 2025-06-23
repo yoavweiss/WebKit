@@ -576,7 +576,7 @@ void RenderObject::clearNeedsLayout(HadSkippedLayout hadSkippedLayout)
     setNeedsSimplifiedNormalFlowLayoutBit(false);
     setNormalChildNeedsLayoutBit(false);
     setOutOfFlowChildNeedsStaticPositionLayoutBit(false);
-    setNeedsPositionedMovementLayoutBit(false);
+    setNeedsOutOfFlowMovementLayoutBit(false);
 #if ASSERT_ENABLED
     auto checkIfOutOfFlowDescendantsNeedLayout = [&](auto& renderBlock) {
         if (auto* outOfFlowDescendants = renderBlock.outOfFlowBoxes()) {
@@ -715,10 +715,10 @@ void RenderObject::setLayerNeedsFullRepaint()
     downcast<RenderLayerModelObject>(*this).checkedLayer()->setRepaintStatus(RepaintStatus::NeedsFullRepaint);
 }
 
-void RenderObject::setLayerNeedsFullRepaintForPositionedMovementLayout()
+void RenderObject::setLayerNeedsFullRepaintForOutOfFlowMovementLayout()
 {
     ASSERT(hasLayer());
-    downcast<RenderLayerModelObject>(*this).checkedLayer()->setRepaintStatus(RepaintStatus::NeedsFullRepaintForPositionedMovementLayout);
+    downcast<RenderLayerModelObject>(*this).checkedLayer()->setRepaintStatus(RepaintStatus::NeedsFullRepaintForOutOfFlowMovementLayout);
 }
 
 static inline RenderBlock* nearestNonAnonymousContainingBlockIncludingSelf(RenderElement* renderer)
@@ -1462,8 +1462,8 @@ void RenderObject::outputRenderObject(TextStream& stream, bool mark, int depth) 
             stream << "[out-of-flow child]";
         if (needsSimplifiedNormalFlowLayout())
             stream << "[simplified]";
-        if (needsPositionedMovementLayout())
-            stream << "[positioned movement]";
+        if (needsOutOfFlowMovementLayout())
+            stream << "[out-of-flow movement]";
         if (outOfFlowChildNeedsStaticPositionLayout())
             stream << "[out of flow child needs parent layout]";
     }

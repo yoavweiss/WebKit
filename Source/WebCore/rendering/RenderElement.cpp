@@ -288,11 +288,10 @@ StyleDifference RenderElement::adjustStyleDifference(StyleDifference diff, Optio
             if (!hasLayer())
                 diff = std::max(diff, StyleDifference::Layout);
             else {
-                // We need to set at least Overflow, but if PositionedMovementOnly is already set
-                // then we actually need OverflowAndPositionedMovement.
-                diff = std::max(diff, (diff == StyleDifference::LayoutPositionedMovementOnly) ? StyleDifference::OverflowAndPositionedMovement : StyleDifference::Overflow);
+                // We need to set at least Overflow, but if OutOfFlowMovementOnly is already set
+                // then we actually need OverflowAndOutOfFlowMovement.
+                diff = std::max(diff, (diff == StyleDifference::LayoutOutOfFlowMovementOnly) ? StyleDifference::OverflowAndOutOfFlowMovement : StyleDifference::Overflow);
             }
-        
         } else
             diff = std::max(diff, StyleDifference::RecompositeLayer);
     }
@@ -617,7 +616,7 @@ void RenderElement::setStyle(RenderStyle&& style, StyleDifference minimalStyleDi
     // check whether we should layout now, and decide if we need to repaint.
     StyleDifference updatedDiff = adjustStyleDifference(diff, contextSensitiveProperties);
     
-    if (diff <= StyleDifference::LayoutPositionedMovementOnly)
+    if (diff <= StyleDifference::LayoutOutOfFlowMovementOnly)
         setNeedsLayoutForStyleDifference(updatedDiff, &oldStyle);
 
     if (!didRepaint && (updatedDiff == StyleDifference::RepaintLayer || shouldRepaintForStyleDifference(updatedDiff))) {
@@ -976,7 +975,7 @@ void RenderElement::styleWillChange(StyleDifference diff, const RenderStyle& new
         }
 
         // reset style flags
-        if (diff == StyleDifference::Layout || diff == StyleDifference::LayoutPositionedMovementOnly) {
+        if (diff == StyleDifference::Layout || diff == StyleDifference::LayoutOutOfFlowMovementOnly) {
             setFloating(false);
             clearPositionedState();
         }
@@ -1221,18 +1220,18 @@ void RenderElement::willBeDestroyed()
         ContentVisibilityDocumentState::unobserve(*protectedElement());
 }
 
-void RenderElement::setNeedsPositionedMovementLayout(const RenderStyle* oldStyle)
+void RenderElement::setNeedsOutOfFlowMovementLayout(const RenderStyle* oldStyle)
 {
     ASSERT(!isSetNeedsLayoutForbidden());
-    if (needsPositionedMovementLayout())
+    if (needsOutOfFlowMovementLayout())
         return;
-    setNeedsPositionedMovementLayoutBit(true);
+    setNeedsOutOfFlowMovementLayoutBit(true);
     scheduleLayout(markContainingBlocksForLayout());
     if (hasLayer()) {
         if (oldStyle && style().diffRequiresLayerRepaint(*oldStyle, downcast<RenderLayerModelObject>(*this).layer()->isComposited()))
             setLayerNeedsFullRepaint();
         else
-            setLayerNeedsFullRepaintForPositionedMovementLayout();
+            setLayerNeedsFullRepaintForOutOfFlowMovementLayout();
     }
 }
 
@@ -1241,7 +1240,7 @@ void RenderElement::clearChildNeedsLayout()
     setNormalChildNeedsLayoutBit(false);
     setOutOfFlowChildNeedsLayoutBit(false);
     setNeedsSimplifiedNormalFlowLayoutBit(false);
-    setNeedsPositionedMovementLayoutBit(false);
+    setNeedsOutOfFlowMovementLayoutBit(false);
     setOutOfFlowChildNeedsStaticPositionLayoutBit(false);
 }
 
@@ -1249,10 +1248,10 @@ void RenderElement::setNeedsLayoutForStyleDifference(StyleDifference diff, const
 {
     if (diff == StyleDifference::Layout)
         setNeedsLayoutAndPreferredWidthsUpdate();
-    else if (diff == StyleDifference::LayoutPositionedMovementOnly)
-        setNeedsPositionedMovementLayout(oldStyle);
-    else if (diff == StyleDifference::OverflowAndPositionedMovement) {
-        setNeedsPositionedMovementLayout(oldStyle);
+    else if (diff == StyleDifference::LayoutOutOfFlowMovementOnly)
+        setNeedsOutOfFlowMovementLayout(oldStyle);
+    else if (diff == StyleDifference::OverflowAndOutOfFlowMovement) {
+        setNeedsOutOfFlowMovementLayout(oldStyle);
         setNeedsLayoutForOverflowChange();
     } else if (diff == StyleDifference::Overflow)
         setNeedsLayoutForOverflowChange();

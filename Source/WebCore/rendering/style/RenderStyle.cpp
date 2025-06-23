@@ -1150,18 +1150,13 @@ bool RenderStyle::changeRequiresLayout(const RenderStyle& other, OptionSet<Style
     return false;
 }
 
-bool RenderStyle::changeRequiresPositionedLayoutOnly(const RenderStyle& other, OptionSet<StyleDifferenceContextSensitiveProperty>&) const
+bool RenderStyle::changeRequiresOutOfFlowMovementLayoutOnly(const RenderStyle& other, OptionSet<StyleDifferenceContextSensitiveProperty>&) const
 {
-    if (position() == PositionType::Static)
+    if (position() != PositionType::Absolute)
         return false;
 
-    if (m_nonInheritedData->surroundData->inset != other.m_nonInheritedData->surroundData->inset) {
-        // Optimize for the case where a positioned layer is moving but not changing size.
-        if (position() == PositionType::Absolute && positionChangeIsMovementOnly(m_nonInheritedData->surroundData->inset, other.m_nonInheritedData->surroundData->inset, m_nonInheritedData->boxData->width()))
-            return true;
-    }
-    
-    return false;
+    // Optimize for the case where a out-of-flow box is moving but not changing size.
+    return (m_nonInheritedData->surroundData->inset != other.m_nonInheritedData->surroundData->inset) && positionChangeIsMovementOnly(m_nonInheritedData->surroundData->inset, other.m_nonInheritedData->surroundData->inset, m_nonInheritedData->boxData->width());
 }
 
 static bool miscDataChangeRequiresLayerRepaint(const StyleMiscNonInheritedData& first, const StyleMiscNonInheritedData& second, OptionSet<StyleDifferenceContextSensitiveProperty>& changedContextSensitiveProperties)
@@ -1489,8 +1484,8 @@ StyleDifference RenderStyle::diff(const RenderStyle& other, OptionSet<StyleDiffe
     if (changeRequiresLayout(other, changedContextSensitiveProperties))
         return StyleDifference::Layout;
 
-    if (changeRequiresPositionedLayoutOnly(other, changedContextSensitiveProperties))
-        return StyleDifference::LayoutPositionedMovementOnly;
+    if (changeRequiresOutOfFlowMovementLayoutOnly(other, changedContextSensitiveProperties))
+        return StyleDifference::LayoutOutOfFlowMovementOnly;
 
     if (changeRequiresLayerRepaint(other, changedContextSensitiveProperties))
         return StyleDifference::RepaintLayer;

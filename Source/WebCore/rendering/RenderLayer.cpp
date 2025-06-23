@@ -2407,7 +2407,7 @@ bool RenderLayer::shouldRepaintAfterLayout() const
 
     // Composited layers that were moved during a positioned movement only
     // layout, don't need to be repainted. They just need to be recomposited.
-    ASSERT(m_repaintStatus == RepaintStatus::NeedsFullRepaintForPositionedMovementLayout);
+    ASSERT(m_repaintStatus == RepaintStatus::NeedsFullRepaintForOutOfFlowMovementLayout);
     return !isComposited() || backing()->paintsIntoCompositedAncestor();
 }
 
@@ -6238,7 +6238,7 @@ void RenderLayer::styleChanged(StyleDifference diff, const RenderStyle* oldStyle
         dirtyAncestorChainHasViewportConstrainedDescendantStatus();
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(TOUCH_EVENTS)
-    if (diff == StyleDifference::RecompositeLayer || diff >= StyleDifference::LayoutPositionedMovementOnly)
+    if (diff == StyleDifference::RecompositeLayer || diff >= StyleDifference::LayoutOutOfFlowMovementOnly)
         renderer().document().invalidateRenderingDependentRegions();
 #else
     UNUSED_PARAM(diff);
@@ -6938,7 +6938,7 @@ void outputLayerPositionTreeRecursive(TextStream& stream, const WebCore::RenderL
 
     stream << " "_s;
 
-    if (layer.repaintStatus() == WebCore::RepaintStatus::NeedsFullRepaintForPositionedMovementLayout)
+    if (layer.repaintStatus() == WebCore::RepaintStatus::NeedsFullRepaintForOutOfFlowMovementLayout)
         stream << "P";
     else if (layer.repaintStatus() == WebCore::RepaintStatus::NeedsFullRepaint)
         stream << "F";
