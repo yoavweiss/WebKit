@@ -29,6 +29,7 @@ from buildbot.steps.source import git
 from buildbot.steps.worker import CompositeStepMixin
 from datetime import date
 from shlex import quote
+from unittest import mock
 
 from twisted.internet import defer, reactor, task
 
@@ -39,7 +40,6 @@ from .twisted_additions import TwistedAdditions
 from .utils import load_password, get_custom_suffix
 
 import json
-import mock
 import os
 import re
 import socket
