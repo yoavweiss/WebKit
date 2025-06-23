@@ -396,7 +396,6 @@ private:
     RenderElement(Type, ContainerNode&, RenderStyle&&, OptionSet<TypeFlag>, TypeSpecificFlags);
     void node() const = delete;
     void nonPseudoNode() const = delete;
-    void generatingNode() const = delete;
     void isRenderText() const = delete;
     void isRenderElement() const = delete;
 

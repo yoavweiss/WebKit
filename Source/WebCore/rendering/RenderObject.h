@@ -737,11 +737,6 @@ public:
     inline Node* nonPseudoNode() const; // Defined in RenderObjectInlines.h
     inline RefPtr<Node> protectedNonPseudoNode() const; // Defined in RenderObjectInlines.h
 
-    // Returns the styled node that caused the generation of this renderer.
-    // This is the same as node() except for renderers of :before and :after
-    // pseudo elements for which their parent node is returned.
-    inline Node* generatingNode() const; // Defined in RenderObjectInlines.h
-
     inline Document& document() const; // Defined in RenderObjectInlines.h
     inline Ref<Document> protectedDocument() const; // Defined in RenderObjectInlines.h
     inline TreeScope& treeScopeForSVGReferences() const; // Defined in RenderObjectInlines.h
@@ -1179,8 +1174,6 @@ private:
     };
     WEBCORE_EXPORT static SelectionGeometriesInternal collectSelectionGeometriesInternal(const SimpleRange&);
 #endif
-
-    Node* generatingPseudoHostElement() const;
 
     void propagateRepaintToParentWithOutlineAutoIfNeeded(const RenderLayerModelObject& repaintContainer, const LayoutRect& repaintRect) const;
 

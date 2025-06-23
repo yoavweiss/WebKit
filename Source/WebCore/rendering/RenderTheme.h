@@ -398,7 +398,7 @@ protected:
     virtual bool controlRequiresPreWhiteSpace(StyleAppearance) const { return false; }
 
 private:
-    OptionSet<ControlStyle::State> extractControlStyleStatesForRendererInternal(const RenderObject&) const;
+    OptionSet<ControlStyle::State> extractControlStyleStatesForRendererInternal(const RenderElement&) const;
 
     void adjustButtonOrCheckboxOrColorWellOrInnerSpinButtonOrRadioStyle(RenderStyle&, const Element*) const;
 
@@ -415,8 +415,8 @@ public:
     bool isPresenting(const RenderObject&) const;
     bool isReadOnlyControl(const RenderObject&) const;
     bool isDefault(const RenderObject&) const;
-    bool hasListButton(const RenderObject&) const;
-    bool hasListButtonPressed(const RenderObject&) const;
+    bool hasListButton(const RenderElement&) const;
+    bool hasListButtonPressed(const RenderElement&) const;
 
 protected:
     struct ColorCache {

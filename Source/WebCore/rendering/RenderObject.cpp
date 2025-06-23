@@ -2052,11 +2052,6 @@ bool RenderObject::canHaveGeneratedChildren() const
     return canHaveChildren();
 }
 
-Node* RenderObject::generatingPseudoHostElement() const
-{
-    return downcast<PseudoElement>(*node()).hostElement();
-}
-
 void RenderObject::setNeedsBoundariesUpdate()
 {
 }
