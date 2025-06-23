@@ -439,7 +439,6 @@ loader/ImageLoader.cpp
 loader/MediaResourceLoader.cpp
 loader/MixedContentChecker.cpp
 loader/NavigationScheduler.cpp
-loader/PingLoader.cpp
 loader/PolicyChecker.cpp
 loader/ResourceLoader.cpp
 loader/ResourceMonitor.cpp

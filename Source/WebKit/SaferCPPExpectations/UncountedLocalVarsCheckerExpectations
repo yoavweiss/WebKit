@@ -1,4 +1,3 @@
-UIProcess/mac/WKTextAnimationManagerMac.mm
 WebProcess/Extensions/Bindings/JSWebExtensionWrapper.cpp
 WebProcess/FullScreen/WebFullScreenManager.cpp
 WebProcess/InjectedBundle/API/c/WKBundle.cpp
