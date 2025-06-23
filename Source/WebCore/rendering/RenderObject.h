@@ -722,8 +722,6 @@ public:
     // instead. Returns the capture state with this adjustment applied.
     bool effectiveCapturedInViewTransition() const;
 
-    inline bool preservesNewline() const;
-
     inline RenderView& view() const; // Defined in RenderObjectInlines.h
     CheckedRef<RenderView> checkedView() const;
     inline const LocalFrameViewLayoutContext& layoutContext() const;
