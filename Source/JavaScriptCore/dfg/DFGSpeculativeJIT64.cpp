@@ -5761,7 +5761,8 @@ void SpeculativeJIT::compile(Node* node)
         case StringUse: {
             speculateString(node->child2(), keyGPR);
             loadPtr(Address(keyGPR, JSString::offsetOfValue()), implGPR);
-            slowPath.append(branchIfRopeStringImpl(implGPR));
+            if (canBeRope(node->child2()))
+                slowPath.append(branchIfRopeStringImpl(implGPR));
             slowPath.append(branchTest32(
                 Zero, Address(implGPR, StringImpl::flagsOffset()),
                 TrustedImm32(StringImpl::flagIsAtom())));
@@ -5771,7 +5772,8 @@ void SpeculativeJIT::compile(Node* node)
             slowPath.append(branchIfNotCell(JSValueRegs(keyGPR)));
             auto isNotString = branchIfNotString(keyGPR);
             loadPtr(Address(keyGPR, JSString::offsetOfValue()), implGPR);
-            slowPath.append(branchIfRopeStringImpl(implGPR));
+            if (canBeRope(node->child2()))
+                slowPath.append(branchIfRopeStringImpl(implGPR));
             slowPath.append(branchTest32(
                 Zero, Address(implGPR, StringImpl::flagsOffset()),
                 TrustedImm32(StringImpl::flagIsAtom())));
@@ -8047,7 +8049,8 @@ void SpeculativeJIT::compileGetByValMegamorphic(Node* node)
     JumpList slowCases;
 
     loadPtr(Address(subscriptGPR, JSString::offsetOfValue()), scratch4GPR);
-    slowCases.append(branchIfRopeStringImpl(scratch4GPR));
+    if (canBeRope(m_graph.child(node, 1)))
+        slowCases.append(branchIfRopeStringImpl(scratch4GPR));
     slowCases.append(branchTest32(Zero, Address(scratch4GPR, StringImpl::flagsOffset()), TrustedImm32(StringImpl::flagIsAtom())));
 
     slowCases.append(loadMegamorphicProperty(vm(), baseGPR, scratch4GPR, nullptr, scratch3GPR, scratch1GPR, scratch2GPR, scratch3GPR));
@@ -8078,7 +8081,8 @@ void SpeculativeJIT::compileGetByValWithThisMegamorphic(Node* node)
     slowCases.append(branchIfNotCell(subscriptRegs));
     slowCases.append(branchIfNotString(subscriptRegs.payloadGPR()));
     loadPtr(Address(subscriptRegs.payloadGPR(), JSString::offsetOfValue()), scratch4GPR);
-    slowCases.append(branchIfRopeStringImpl(scratch4GPR));
+    if (canBeRope(m_graph.child(node, 2)))
+        slowCases.append(branchIfRopeStringImpl(scratch4GPR));
     slowCases.append(branchTest32(Zero, Address(scratch4GPR, StringImpl::flagsOffset()), TrustedImm32(StringImpl::flagIsAtom())));
 
     slowCases.append(loadMegamorphicProperty(vm(), baseGPR, scratch4GPR, nullptr, scratch3GPR, scratch1GPR, scratch2GPR, scratch3GPR));
@@ -8125,7 +8129,8 @@ void SpeculativeJIT::compileInByValMegamorphic(Node* node)
     JumpList slowCases;
 
     loadPtr(Address(subscriptGPR, JSString::offsetOfValue()), scratch4GPR);
-    slowCases.append(branchIfRopeStringImpl(scratch4GPR));
+    if (canBeRope(m_graph.child(node, 1)))
+        slowCases.append(branchIfRopeStringImpl(scratch4GPR));
     slowCases.append(branchTest32(Zero, Address(scratch4GPR, StringImpl::flagsOffset()), TrustedImm32(StringImpl::flagIsAtom())));
 
     slowCases.append(hasMegamorphicProperty(vm(), baseGPR, scratch4GPR, nullptr, scratch3GPR, scratch1GPR, scratch2GPR, scratch3GPR));
@@ -8383,7 +8388,8 @@ void SpeculativeJIT::compilePutByValMegamorphic(Node* node)
     JumpList slowCases;
 
     loadPtr(Address(subscriptGPR, JSString::offsetOfValue()), scratch4GPR);
-    slowCases.append(branchIfRopeStringImpl(scratch4GPR));
+    if (canBeRope(m_graph.child(node, 1)))
+        slowCases.append(branchIfRopeStringImpl(scratch4GPR));
     slowCases.append(branchTest32(Zero, Address(scratch4GPR, StringImpl::flagsOffset()), TrustedImm32(StringImpl::flagIsAtom())));
 
     auto [slow, reallocating] = storeMegamorphicProperty(vm(), baseGPR, scratch4GPR, nullptr, valueRegs.payloadGPR(), scratch1GPR, scratch2GPR, scratch3GPR);

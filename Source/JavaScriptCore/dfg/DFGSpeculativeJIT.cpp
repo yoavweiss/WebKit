@@ -1712,7 +1712,9 @@ void SpeculativeJIT::compileStringSlice(Node* node)
     GPRReg startIndexGPR = startIndex.gpr();
 
     loadPtr(Address(stringGPR, JSString::offsetOfValue()), tempGPR);
-    auto isRope = branchIfRopeStringImpl(tempGPR);
+    Jump isRope;
+    if (canBeRope(node->child1()))
+        isRope = branchIfRopeStringImpl(tempGPR);
     {
         load32(Address(tempGPR, StringImpl::lengthMemoryOffset()), temp2GPR);
 
@@ -1763,10 +1765,12 @@ void SpeculativeJIT::compileStringSlice(Node* node)
 
     addSlowPathGenerator(slowPathCall(slowCases, this, operationStringSubstr, tempGPR, LinkableConstant::globalObject(*this, node), stringGPR, startIndexGPR, tempGPR));
 
-    if (endGPR)
-        addSlowPathGenerator(slowPathCall(isRope, this, operationStringSliceWithEnd, tempGPR, LinkableConstant::globalObject(*this, node), stringGPR, startGPR, *endGPR));
-    else
-        addSlowPathGenerator(slowPathCall(isRope, this, operationStringSlice, tempGPR, LinkableConstant::globalObject(*this, node), stringGPR, startGPR));
+    if (isRope.isSet()) {
+        if (endGPR)
+            addSlowPathGenerator(slowPathCall(isRope, this, operationStringSliceWithEnd, tempGPR, LinkableConstant::globalObject(*this, node), stringGPR, startGPR, *endGPR));
+        else
+            addSlowPathGenerator(slowPathCall(isRope, this, operationStringSlice, tempGPR, LinkableConstant::globalObject(*this, node), stringGPR, startGPR));
+    }
 
     doneCases.link(this);
     cellResult(tempGPR, node);
@@ -1828,7 +1832,8 @@ void SpeculativeJIT::compileToLowerCase(Node* node)
     move(TrustedImmPtr(nullptr), indexGPR);
 
     loadPtr(Address(stringGPR, JSString::offsetOfValue()), tempGPR);
-    slowPath.append(branchIfRopeStringImpl(tempGPR));
+    if (canBeRope(node->child1()))
+        slowPath.append(branchIfRopeStringImpl(tempGPR));
     slowPath.append(branchTest32(
         Zero, Address(tempGPR, StringImpl::flagsOffset()),
         TrustedImm32(StringImpl::flagIs8Bit())));
@@ -8046,10 +8051,18 @@ void SpeculativeJIT::compileUnwrapGlobalProxy(Node* node)
     cellResult(resultGPR, node);
 }
 
-bool SpeculativeJIT::canBeRope(Edge& edge)
+bool SpeculativeJIT::canBeRope(Edge edge)
 {
-    if (m_state.forNode(edge).isType(SpecStringResolved))
+    if (!edge)
+        return true;
+
+    if (!((m_state.forNode(edge).m_type & SpecString) & ~SpecStringResolved))
         return false;
+    if (JSValue value = m_state.forNode(edge).m_value) {
+        if (value.isCell() && value.asCell()->type() == StringType && !asString(value)->isRope())
+            return false;
+    }
+
     // If this value is LazyValue, it will be converted to JSString, and the result must be non-rope string.
     String string = edge->tryGetString(m_graph);
     if (!string.isNull())
@@ -8094,19 +8107,15 @@ void SpeculativeJIT::compileGetArrayLength(Node* node)
         GPRReg resultGPR = result.gpr();
         GPRReg tempGPR = temp.gpr();
 
-        bool needsRopeCase = canBeRope(node->child1());
-
         loadPtr(Address(baseGPR, JSString::offsetOfValue()), tempGPR);
         Jump isRope;
-        if (needsRopeCase)
+        if (canBeRope(node->child1()))
             isRope = branchIfRopeStringImpl(tempGPR);
         load32(Address(tempGPR, StringImpl::lengthMemoryOffset()), resultGPR);
-        if (needsRopeCase) {
+        if (isRope.isSet()) {
             auto done = jump();
-
             isRope.link(this);
             load32(Address(baseGPR, JSRopeString::offsetOfLength()), resultGPR);
-
             done.link(this);
         }
         strictInt32Result(resultGPR, node);
@@ -9756,7 +9765,8 @@ void SpeculativeJIT::compileArrayIndexOfOrArrayIncludes(Node* node)
         }
 
         loadPtr(Address(searchElementGPR, JSString::offsetOfValue()), rightStringGPR);
-        slowCase.append(branchIfRopeStringImpl(rightStringGPR));
+        if (canBeRope(searchElementEdge))
+            slowCase.append(branchIfRopeStringImpl(rightStringGPR));
         slowCase.append(branchTest32(
             Zero,
             Address(rightStringGPR, StringImpl::flagsOffset()),
@@ -11908,9 +11918,10 @@ void SpeculativeJIT::speculateStringIdentAndLoadStorage(Edge edge, GPRReg string
     if (!needsTypeCheck(edge, SpecStringIdent | ~SpecString))
         return;
 
-    speculationCheck(BadStringType, JSValueSource::unboxedCell(string), edge, branchIfRopeStringImpl(storage));
+    if (canBeRope(edge))
+        speculationCheck(BadStringType, JSValueSource::unboxedCell(string), edge, branchIfRopeStringImpl(storage));
     speculationCheck(BadStringType, JSValueSource::unboxedCell(string), edge, branchTest32(Zero, Address(storage, StringImpl::flagsOffset()), TrustedImm32(StringImpl::flagIsAtom())));
-    
+
     m_interpreter.filter(edge, SpecStringIdent | ~SpecString);
 }
 
@@ -12466,12 +12477,12 @@ void SpeculativeJIT::emitSwitchImm(Node* node, SwitchData* data)
     }
 }
 
-void SpeculativeJIT::emitSwitchCharStringJump(Node* node, SwitchData* data, GPRReg value, GPRReg scratch)
+void SpeculativeJIT::emitSwitchCharStringJump(Node* node, SwitchData* data, GPRReg value, GPRReg scratch, Edge stringEdge)
 {
     loadPtr(Address(value, JSString::offsetOfValue()), scratch);
-    auto isRope = branchIfRopeStringImpl(scratch);
-    addSlowPathGenerator(slowPathCall(isRope, this, operationResolveRope, scratch, LinkableConstant::globalObject(*this, node), value));
-    
+    if (canBeRope(stringEdge))
+        addSlowPathGenerator(slowPathCall(branchIfRopeStringImpl(scratch), this, operationResolveRope, scratch, LinkableConstant::globalObject(*this, node), value));
+
     addBranch(
         branch32(
             NotEqual,
@@ -12510,7 +12521,7 @@ void SpeculativeJIT::emitSwitchChar(Node* node, SwitchData* data)
         op1.use();
 
         speculateString(node->child1(), op1GPR);
-        emitSwitchCharStringJump(node, data, op1GPR, tempGPR);
+        emitSwitchCharStringJump(node, data, op1GPR, tempGPR, node->child1());
         noResult(node, UseChildrenCalledExplicitly);
         break;
     }
@@ -12528,7 +12539,7 @@ void SpeculativeJIT::emitSwitchChar(Node* node, SwitchData* data)
         
         addBranch(branchIfNotString(op1Regs.payloadGPR()), data->fallThrough.block);
         
-        emitSwitchCharStringJump(node, data, op1Regs.payloadGPR(), tempGPR);
+        emitSwitchCharStringJump(node, data, op1Regs.payloadGPR(), tempGPR, node->child1());
         noResult(node, UseChildrenCalledExplicitly);
         break;
     }
@@ -12683,7 +12694,7 @@ void SpeculativeJIT::emitBinarySwitchStringRecurse(
     addBranch(binarySwitch.fallThrough(), data->fallThrough.block);
 }
 
-void SpeculativeJIT::emitSwitchStringOnString(Node* node, SwitchData* data, GPRReg string)
+void SpeculativeJIT::emitSwitchStringOnString(Node* node, SwitchData* data, GPRReg string, Edge stringEdge)
 {
     data->didUseJumpTable = true;
 
@@ -12723,7 +12734,8 @@ void SpeculativeJIT::emitSwitchStringOnString(Node* node, SwitchData* data, GPRR
     JumpList isRopeCases;
     JumpList slowCases;
     loadPtr(Address(string, JSString::offsetOfValue()), tempGPR);
-    isRopeCases.append(branchIfRopeStringImpl(tempGPR));
+    if (canBeRope(stringEdge))
+        isRopeCases.append(branchIfRopeStringImpl(tempGPR));
     load32(Address(tempGPR, StringImpl::lengthMemoryOffset()), lengthGPR);
     
     slowCases.append(branchTest32(
@@ -12743,10 +12755,12 @@ void SpeculativeJIT::emitSwitchStringOnString(Node* node, SwitchData* data, GPRR
     
     emitBinarySwitchStringRecurse(data, cases, 0, 0, cases.size(), string, lengthGPR, tempGPR, 0, false);
 
-    isRopeCases.link(this);
-    load32(Address(string, JSRopeString::offsetOfLength()), tempGPR);
-    sub32(TrustedImm32(unlinkedTable.minLength()), tempGPR);
-    branch32(Above, tempGPR, TrustedImm32(unlinkedTable.maxLength() - unlinkedTable.minLength()), data->fallThrough.block);
+    if (!isRopeCases.empty()) {
+        isRopeCases.link(this);
+        load32(Address(string, JSRopeString::offsetOfLength()), tempGPR);
+        sub32(TrustedImm32(unlinkedTable.minLength()), tempGPR);
+        branch32(Above, tempGPR, TrustedImm32(unlinkedTable.maxLength() - unlinkedTable.minLength()), data->fallThrough.block);
+    }
     
     slowCases.link(this);
     callOperationWithSilentSpill(operationSwitchString, string, LinkableConstant::globalObject(*this, node), static_cast<size_t>(data->switchTableIndex), TrustedImmPtr(&unlinkedTable), string);
@@ -12791,7 +12805,7 @@ void SpeculativeJIT::emitSwitchString(Node* node, SwitchData* data)
 
         op1.use();
 
-        emitSwitchStringOnString(node, data, op1GPR);
+        emitSwitchStringOnString(node, data, op1GPR, node->child1());
         noResult(node, UseChildrenCalledExplicitly);
         break;
     }
@@ -12807,7 +12821,7 @@ void SpeculativeJIT::emitSwitchString(Node* node, SwitchData* data)
         
         addBranch(branchIfNotString(op1Regs.payloadGPR()), data->fallThrough.block);
         
-        emitSwitchStringOnString(node, data, op1Regs.payloadGPR());
+        emitSwitchStringOnString(node, data, op1Regs.payloadGPR(), node->child1());
         noResult(node, UseChildrenCalledExplicitly);
         break;
     }
