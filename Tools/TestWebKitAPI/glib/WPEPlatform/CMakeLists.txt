@@ -59,6 +59,12 @@ set(WPEPlatformTest_SOURCES
     ${TOOLS_DIR}/TestWebKitAPI/glib/WPEPlatform/WPEPlatformTestMain.cpp
 )
 
+if (ENABLE_WPE_PLATFORM_WAYLAND)
+    list(APPEND WPEPlatformTest_SOURCES
+        ${TOOLS_DIR}/TestWebKitAPI/glib/WPEPlatform/WPEWaylandPlatformTest.cpp
+    )
+endif ()
+
 set(WPEPlatformTest_PRIVATE_INCLUDE_DIRECTORIES
     ${CMAKE_BINARY_DIR}
     ${TOOLS_DIR}/TestWebKitAPI/glib/WPEPlatform
@@ -103,3 +109,7 @@ endmacro()
 ADD_WPE_PLATFORM_TEST(TestDisplay ${TOOLS_DIR}/TestWebKitAPI/Tests/WPEPlatform/TestDisplay.cpp)
 ADD_WPE_PLATFORM_TEST(TestDisplayDefault ${TOOLS_DIR}/TestWebKitAPI/Tests/WPEPlatform/TestDisplayDefault.cpp)
 ADD_WPE_PLATFORM_TEST(TestSettings ${TOOLS_DIR}/TestWebKitAPI/Tests/WPEPlatform/TestSettings.cpp)
+
+if (ENABLE_WPE_PLATFORM_WAYLAND)
+    ADD_WPE_PLATFORM_TEST(TestDisplayWayland ${TOOLS_DIR}/TestWebKitAPI/Tests/WPEPlatform/TestDisplayWayland.cpp)
+endif ()
