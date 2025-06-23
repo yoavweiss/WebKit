@@ -1912,11 +1912,6 @@ bool RenderObject::nodeAtPoint(const HitTestRequest&, HitTestResult&, const HitT
     return false;
 }
 
-int RenderObject::innerLineHeight() const
-{
-    return style().computedLineHeight();
-}
-
 int RenderObject::caretMinOffset() const
 {
     return 0;
