@@ -1135,9 +1135,6 @@ test/intl402/DateTimeFormat/timezone-legacy-non-iana.js:
 test/intl402/DateTimeFormat/timezone-not-canonicalized.js:
   default: 'Test262Error: Expected SameValue(«"Asia/Calcutta"», «"Asia/Kolkata"») to be true'
   strict mode: 'Test262Error: Expected SameValue(«"Asia/Calcutta"», «"Asia/Kolkata"») to be true'
-test/intl402/Intl/getCanonicalLocales/unicode-ext-canonicalize-timezone.js:
-  default: 'Test262Error: Expected SameValue(«"und-u-tz-utcw05"», «"und-u-tz-papty"») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«"und-u-tz-utcw05"», «"und-u-tz-papty"») to be true'
 test/intl402/Intl/supportedValuesOf/calendars-accepted-by-DateTimeFormat.js:
   default: 'RangeError: calendar is not a well-formed calendar value'
   strict mode: 'RangeError: calendar is not a well-formed calendar value'
