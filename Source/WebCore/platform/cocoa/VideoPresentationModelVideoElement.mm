@@ -310,7 +310,7 @@ void VideoPresentationModelVideoElement::setVideoLayerFrame(FloatRect rect)
         videoElement->setVideoFullscreenFrame(rect);
 }
 
-void VideoPresentationModelVideoElement::setVideoSizeFenced(const FloatSize& size, WTF::MachSendRight&& fence)
+void VideoPresentationModelVideoElement::setVideoSizeFenced(const FloatSize& size, WTF::MachSendRightAnnotated&& fence)
 {
     RefPtr videoElement = m_videoElement;
     if (!videoElement)

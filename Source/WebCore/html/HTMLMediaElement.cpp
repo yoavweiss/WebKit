@@ -69,6 +69,7 @@
 #include "HTMLSourceElement.h"
 #include "HTMLTrackElement.h"
 #include "HTMLVideoElement.h"
+#include "HostingContext.h"
 #include "ImageOverlay.h"
 #include "InbandGenericTextTrack.h"
 #include "InbandTextTrackPrivate.h"
@@ -9250,20 +9251,20 @@ bool HTMLMediaElement::shouldOverridePauseDuringRouteChange() const
 #endif
 }
 
-void HTMLMediaElement::requestHostingContextID(Function<void(LayerHostingContextID)>&& completionHandler)
+void HTMLMediaElement::requestHostingContext(Function<void(HostingContext)>&& completionHandler)
 {
     if (RefPtr player = m_player) {
-        player->requestHostingContextID(WTFMove(completionHandler));
+        player->requestHostingContext(WTFMove(completionHandler));
         return;
     }
 
     completionHandler({ });
 }
 
-LayerHostingContextID HTMLMediaElement::layerHostingContextID()
+HostingContext HTMLMediaElement::layerHostingContext()
 {
     if (m_player)
-        return m_player->hostingContextID();
+        return m_player->hostingContext();
     return { };
 }
 
@@ -9279,7 +9280,7 @@ FloatSize HTMLMediaElement::videoLayerSize() const
     return m_videoLayerSize;
 }
 
-void HTMLMediaElement::setVideoLayerSizeFenced(const FloatSize& size, WTF::MachSendRight&& fence)
+void HTMLMediaElement::setVideoLayerSizeFenced(const FloatSize& size, WTF::MachSendRightAnnotated&& fence)
 {
     if (m_videoLayerSize == size)
         return;

@@ -2188,6 +2188,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/graphics/GraphicsStyle.h
     platform/graphics/GraphicsTypes.h
     platform/graphics/GraphicsTypesGL.h
+    platform/graphics/HostingContext.h
     platform/graphics/Icon.h
     platform/graphics/Image.h
     platform/graphics/ImageAdapter.h

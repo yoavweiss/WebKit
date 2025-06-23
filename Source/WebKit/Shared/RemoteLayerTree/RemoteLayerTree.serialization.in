@@ -191,6 +191,9 @@ headers: "LayerProperties.h" "PlatformCALayerRemote.h"
 
 [Nested] struct WebKit::RemoteLayerTreeTransaction::LayerCreationProperties::CustomData {
     uint32_t hostingContextID;
+#if ENABLE(MACH_PORT_LAYER_HOSTING)
+    std::optional<WTF::MachSendRightAnnotated> sendRightAnnotated;
+#endif
     float hostingDeviceScaleFactor;
     bool preservesFlip;
 };

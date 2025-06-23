@@ -28,9 +28,11 @@
 
 #import "DrawingArea.h"
 #import "GraphicsLayerCARemote.h"
+#import "MediaPlayerPrivateRemote.h"
 #import "PlatformCALayerRemote.h"
 #import "RemoteLayerTreeDrawingArea.h"
 #import "RemoteLayerTreeTransaction.h"
+#import "RemoteMediaPlayerManager.h"
 #import "RemoteRenderingBackendProxy.h"
 #import "VideoPresentationManager.h"
 #import "WebFrame.h"
@@ -117,6 +119,10 @@ void RemoteLayerTreeContext::layerDidEnterContext(PlatformCALayerRemote& layer, 
 void RemoteLayerTreeContext::layerDidEnterContext(PlatformCALayerRemote& layer, PlatformCALayer::LayerType type, WebCore::HTMLVideoElement& videoElement)
 {
     PlatformLayerIdentifier layerID = layer.layerID();
+
+#if ENABLE(MACH_PORT_LAYER_HOSTING)
+    layer.setSendRightAnnotated(videoElement.layerHostingContext().sendRightAnnotated);
+#endif
 
     RemoteLayerTreeTransaction::LayerCreationProperties creationProperties;
     layer.populateCreationProperties(creationProperties, *this, type);

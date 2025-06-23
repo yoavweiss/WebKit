@@ -37,6 +37,7 @@
 #include "GraphicsLayerContentsDisplayDelegate.h"
 #include "GraphicsLayerFactory.h"
 #include "HTMLVideoElement.h"
+#include "HostingContext.h"
 #include "Image.h"
 #include "Logging.h"
 #include "Model.h"
@@ -1429,7 +1430,7 @@ void GraphicsLayerCA::setContentsToModelContext(Ref<ModelContext> modelContext, 
 void GraphicsLayerCA::setContentsToVideoElement(HTMLVideoElement& videoElement, ContentsLayerPurpose purpose)
 {
 #if HAVE(AVKIT)
-    if (auto hostingContextID = videoElement.layerHostingContextID()) {
+    if (auto hostingContextID = videoElement.layerHostingContext().contextID) {
         if (m_contentsLayer && !m_contentsDisplayDelegate
             && m_layerHostingContextID == hostingContextID
             && m_contentsLayerPurpose == purpose) {

@@ -495,7 +495,7 @@ RefPtr<RemoteLayerTreeNode> RemoteLayerTreeHost::makeNode(const RemoteLayerTreeT
             RefPtr page = m_drawingArea->page();
             if (RefPtr videoManager = page ? page->videoPresentationManager() : nullptr) {
                 m_videoLayers.add(*properties.layerID, properties.videoElementData->playerIdentifier);
-                return makeWithLayer(videoManager->createLayerWithID(properties.videoElementData->playerIdentifier, properties.hostingContextID(), properties.videoElementData->initialSize, properties.videoElementData->naturalSize, properties.hostingDeviceScaleFactor()));
+                return makeWithLayer(videoManager->createLayerWithID(properties.videoElementData->playerIdentifier, { properties.hostingContextID() }, properties.videoElementData->initialSize, properties.videoElementData->naturalSize, properties.hostingDeviceScaleFactor()));
             }
         }
 #endif

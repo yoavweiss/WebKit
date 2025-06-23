@@ -45,6 +45,7 @@
 #import <WebCore/Event.h>
 #import <WebCore/EventNames.h>
 #import <WebCore/HTMLVideoElement.h>
+#import <WebCore/HostingContext.h>
 #import <WebCore/LocalFrameView.h>
 #import <WebCore/PictureInPictureSupport.h>
 #import <WebCore/PlatformCALayer.h>
@@ -58,7 +59,7 @@
 #import <WebCore/WebActionDisablingCALayerDelegate.h>
 #import <mach/mach_port.h>
 #import <wtf/LoggerHelper.h>
-#import <wtf/MachSendRight.h>
+#import <wtf/MachSendRightAnnotated.h>
 #import <wtf/TZoneMallocInlines.h>
 
 namespace WebKit {
@@ -457,10 +458,10 @@ void VideoPresentationManager::enterVideoFullscreenForVideoElement(HTMLVideoElem
         interface->setRootLayer(videoLayer.get());
     }
 
-    auto setupFullscreen = [protectedThis = Ref { *this }, page = WeakPtr { m_page }, contextId = contextId, initialSize = initialSize, videoRect = videoRect, videoElement = WeakPtr { videoElement }, allowsPictureInPicture = allowsPictureInPicture, standby = standby, fullscreenMode = interface->fullscreenMode()] (LayerHostingContextID contextID, const FloatSize& size) {
+    auto setupFullscreen = [protectedThis = Ref { *this }, page = WeakPtr { m_page }, contextId = contextId, initialSize = initialSize, videoRect = videoRect, videoElement = WeakPtr { videoElement }, allowsPictureInPicture = allowsPictureInPicture, standby = standby, fullscreenMode = interface->fullscreenMode()] (HostingContext hostingContext, const FloatSize& size) {
         if (!page || !videoElement)
             return;
-        page->send(Messages::VideoPresentationManagerProxy::SetupFullscreenWithID(processQualify(contextId), contextID, videoRect, initialSize, size, page->deviceScaleFactor(), fullscreenMode, allowsPictureInPicture, standby, videoElement->document().quirks().blocksReturnToFullscreenFromPictureInPictureQuirk()));
+        page->send(Messages::VideoPresentationManagerProxy::SetupFullscreenWithID(processQualify(contextId), hostingContext, videoRect, initialSize, size, page->deviceScaleFactor(), fullscreenMode, allowsPictureInPicture, standby, videoElement->document().quirks().blocksReturnToFullscreenFromPictureInPictureQuirk()));
 
         if (RefPtr player = videoElement->player()) {
             if (auto identifier = player->identifier())
@@ -468,22 +469,22 @@ void VideoPresentationManager::enterVideoFullscreenForVideoElement(HTMLVideoElem
         }
     };
 
-    LayerHostingContextID contextID = 0;
+    HostingContext hostingContext;
     bool blockMediaLayerRehosting = videoElement.document().settings().blockMediaLayerRehostingInWebContentProcess() && videoElement.document().page() &&  videoElement.document().page()->chrome().client().isUsingUISideCompositing();
     if (blockMediaLayerRehosting) {
-        contextID = videoElement.layerHostingContextID();
-        if (!contextID) {
-            videoElement.requestHostingContextID([protectedThis = Ref { *this }, videoElement = Ref { videoElement }, setupFullscreenHandler = WTFMove(setupFullscreen)] (auto contextID) {
-                if (!contextID)
+        hostingContext = videoElement.layerHostingContext();
+        if (!hostingContext.contextID) {
+            videoElement.requestHostingContext([protectedThis = Ref { *this }, videoElement = Ref { videoElement }, setupFullscreenHandler = WTFMove(setupFullscreen)] (WebCore::HostingContext hostingContext) {
+                if (!hostingContext.contextID)
                     return;
-                setupFullscreenHandler(contextID, FloatSize(videoElement->videoWidth(), videoElement->videoHeight()));
+                setupFullscreenHandler(hostingContext, FloatSize(videoElement->videoWidth(), videoElement->videoHeight()));
             });
             return;
         }
     } else
-        contextID = interface->layerHostingContext()->contextID();
+        hostingContext.contextID = interface->layerHostingContext()->contextID();
 
-    setupFullscreen(contextID, FloatSize(videoElement.videoWidth(), videoElement.videoHeight()));
+    setupFullscreen(hostingContext, FloatSize(videoElement.videoWidth(), videoElement.videoHeight()));
 }
 
 void VideoPresentationManager::exitVideoFullscreenForVideoElement(HTMLVideoElement& videoElement, CompletionHandler<void(bool)>&& completionHandler)
@@ -887,9 +888,9 @@ void VideoPresentationManager::setCurrentVideoFullscreenMode(VideoPresentationIn
     m_currentVideoFullscreenMode = mode;
 }
 
-void VideoPresentationManager::setVideoLayerFrameFenced(WebCore::MediaPlayerClientIdentifier contextId, WebCore::FloatRect bounds, WTF::MachSendRight&& machSendRight)
+void VideoPresentationManager::setVideoLayerFrameFenced(WebCore::MediaPlayerClientIdentifier contextId, WebCore::FloatRect bounds, WTF::MachSendRightAnnotated&& sendRightAnnotated)
 {
-    INFO_LOG(LOGIDENTIFIER, contextId.toUInt64());
+    RELEASE_LOG_FORWARDABLE(Media, VIDEOPRESENTATIONMANAGER_SETVIDEOLAYERFRAMEFENCED, contextId.toUInt64(), sendRightAnnotated.sendRight.sendRight(), sendRightAnnotated.data.size());
 
     auto [model, interface] = ensureModelAndInterface(contextId);
 
@@ -900,10 +901,10 @@ void VideoPresentationManager::setVideoLayerFrameFenced(WebCore::MediaPlayerClie
     }
 
     if (interface->layerHostingContext() && interface->layerHostingContext()->rootLayer()) {
-        interface->layerHostingContext()->setFencePort(machSendRight.sendRight());
+        interface->layerHostingContext()->setFencePort(sendRightAnnotated.sendRight.sendRight());
         model->setVideoLayerFrame(bounds);
     } else
-        model->setVideoSizeFenced(bounds.size(), WTFMove(machSendRight));
+        model->setVideoSizeFenced(bounds.size(), WTFMove(sendRightAnnotated));
 
     model->setTextTrackRepresentationBounds(enclosingIntRect(bounds));
 }

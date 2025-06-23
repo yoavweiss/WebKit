@@ -2413,6 +2413,7 @@
 		E3B8F7F82BA8AC4D006E97B6 /* AccessibilityUtilitiesSPI.h in Headers */ = {isa = PBXBuildFile; fileRef = E3B8F7F72BA8AC4D006E97B6 /* AccessibilityUtilitiesSPI.h */; };
 		E3B9B5D52AB65795008568FE /* NetworkingProcessExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B9B5D42AB65795008568FE /* NetworkingProcessExtension.swift */; };
 		E3B9B5D72AB65822008568FE /* GPUProcessExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B9B5D62AB65822008568FE /* GPUProcessExtension.swift */; };
+		E3C3D1B02E007922004B306A /* AnnotatedMachSendRight.mm in Sources */ = {isa = PBXBuildFile; fileRef = E3C3D1AE2E007922004B306A /* AnnotatedMachSendRight.mm */; };
 		E3C6727329D4A3AD00AD4452 /* TextTrackRepresentationCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = E36A00E129CF4EBA00AC4E8A /* TextTrackRepresentationCocoa.h */; };
 		E3C788F22D035CED00D6C13D /* LogClient.h in Headers */ = {isa = PBXBuildFile; fileRef = E3C788EF2D035CED00D6C13D /* LogClient.h */; };
 		E3CAAA442413279900CED2E2 /* AccessibilitySupportSPI.h in Headers */ = {isa = PBXBuildFile; fileRef = E3CAAA432413278A00CED2E2 /* AccessibilitySupportSPI.h */; };
@@ -8287,6 +8288,7 @@
 		E3B9B5D62AB65822008568FE /* GPUProcessExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPUProcessExtension.swift; sourceTree = "<group>"; };
 		E3BCE878267252120011D8DB /* AccessibilityPreferences.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AccessibilityPreferences.h; sourceTree = "<group>"; };
 		E3C2BC93289CF8FB00ACC3E9 /* common.sb */ = {isa = PBXFileReference; lastKnownFileType = text; path = common.sb; sourceTree = "<group>"; };
+		E3C3D1AE2E007922004B306A /* AnnotatedMachSendRight.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AnnotatedMachSendRight.mm; sourceTree = "<group>"; };
 		E3C788EF2D035CED00D6C13D /* LogClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogClient.h; sourceTree = "<group>"; };
 		E3C788F02D035CED00D6C13D /* LogClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LogClient.cpp; sourceTree = "<group>"; };
 		E3C788FE2D039A4F00D6C13D /* LogMessages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = LogMessages.in; sourceTree = "<group>"; };
@@ -12470,6 +12472,7 @@
 		37C4C0901814B37B003688B9 /* cocoa */ = {
 			isa = PBXGroup;
 			children = (
+				E3C3D1AE2E007922004B306A /* AnnotatedMachSendRight.mm */,
 				1A1EF1971A1D5B420023200A /* APIDataCocoa.mm */,
 				378E1A3B181ED6FF0031007A /* APIObject.mm */,
 				A175C44921AA3170000037D0 /* ArgumentCodersCocoa.h */,
@@ -20632,6 +20635,7 @@
 				07E4BDC82A3A7089000D5509 /* _WKWebViewTextInputNotifications.mm in Sources */,
 				EB517B802D7C09690019E451 /* AboutSchemeHandlerCocoa.mm in Sources */,
 				E37AE22D2D5E7A100010402E /* AdditionalFonts.mm in Sources */,
+				E3C3D1B02E007922004B306A /* AnnotatedMachSendRight.mm in Sources */,
 				EBA8D3B227A5E33F00CB7900 /* ApplePushServiceConnection.mm in Sources */,
 				A1D615722B06C7C2002D0E19 /* AssertionCapability.mm in Sources */,
 				CD4570D424411D0F00A3DCEB /* AudioSessionRoutingArbitrator.cpp in Sources */,

@@ -34,7 +34,7 @@ messages -> VideoPresentationManagerProxy {
     AudioSessionCategoryChanged(WebKit::PlaybackSessionContextIdentifier contextId, enum:uint8_t WebCore::AudioSessionCategory category, enum:uint8_t WebCore::AudioSessionMode mode, enum:uint8_t WebCore::RouteSharingPolicy policy)
     HasBeenInteractedWith(WebKit::PlaybackSessionContextIdentifier contextId)
     SetVideoDimensions(WebKit::PlaybackSessionContextIdentifier contextId, WebCore::FloatSize videoDimensions)
-    SetupFullscreenWithID(WebKit::PlaybackSessionContextIdentifier contextId, WebKit::LayerHostingContextID videoLayerID, WebCore::FloatRect screenRect, WebCore::FloatSize initialSize, WebCore::FloatSize videoDimensions, float hostingScaleFactor, uint32_t videoFullscreenMode, bool allowsPictureInPicture, bool standby, bool blocksReturnToFullscreenFromPictureInPicture)
+    SetupFullscreenWithID(WebKit::PlaybackSessionContextIdentifier contextId, struct WebCore::HostingContext hostingContext, WebCore::FloatRect screenRect, WebCore::FloatSize initialSize, WebCore::FloatSize videoDimensions, float hostingScaleFactor, uint32_t videoFullscreenMode, bool allowsPictureInPicture, bool standby, bool blocksReturnToFullscreenFromPictureInPicture)
     SetPlayerIdentifier(WebKit::PlaybackSessionContextIdentifier contextId, std::optional<WebCore::MediaPlayerIdentifier> playerIdentifier)
 #if !PLATFORM(IOS_FAMILY)
     EnterFullscreen(WebKit::PlaybackSessionContextIdentifier contextId)

@@ -212,7 +212,7 @@ protected:
     void didEnterExternalPlayback(WebCore::MediaPlayerClientIdentifier);
     void didExitExternalPlayback(WebCore::MediaPlayerClientIdentifier);
 #endif
-    void setVideoLayerFrameFenced(WebCore::MediaPlayerClientIdentifier, WebCore::FloatRect bounds, WTF::MachSendRight&&);
+    void setVideoLayerFrameFenced(WebCore::MediaPlayerClientIdentifier, WebCore::FloatRect bounds, WTF::MachSendRightAnnotated&&);
     void setVideoLayerGravityEnum(WebCore::MediaPlayerClientIdentifier, unsigned gravity);
     void setVideoFullscreenFrame(WebCore::MediaPlayerClientIdentifier, WebCore::FloatRect);
     void fullscreenModeChanged(WebCore::MediaPlayerClientIdentifier, WebCore::HTMLMediaElementEnums::VideoFullscreenMode);

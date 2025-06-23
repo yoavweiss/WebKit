@@ -9188,3 +9188,10 @@ struct WebCore::MessageForTesting {
     AtomString type;
     String data;
 };
+
+struct WebCore::HostingContext {
+    uint32_t contextID;
+#if ENABLE(MACH_PORT_LAYER_HOSTING)
+    WTF::MachSendRightAnnotated sendRightAnnotated;
+#endif
+}
