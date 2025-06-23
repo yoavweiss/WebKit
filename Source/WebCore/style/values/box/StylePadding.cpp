@@ -27,7 +27,6 @@
 
 #include "StyleBuilderConverter.h"
 #include "StyleBuilderState.h"
-#include <wtf/text/TextStream.h>
 
 namespace WebCore {
 namespace Style {
@@ -37,30 +36,6 @@ namespace Style {
 auto CSSValueConversion<PaddingEdge>::operator()(BuilderState& state, const CSSValue& value) -> PaddingEdge
 {
     return PaddingEdge { BuilderConverter::convertLength(state, value) };
-}
-
-// MARK: - Blending
-
-auto Blending<PaddingEdge>::canBlend(const PaddingEdge& a, const PaddingEdge& b) -> bool
-{
-    return WebCore::canInterpolateLengths(a.m_value, b.m_value, true);
-}
-
-auto Blending<PaddingEdge>::requiresInterpolationForAccumulativeIteration(const PaddingEdge& a, const PaddingEdge& b) -> bool
-{
-    return WebCore::lengthsRequireInterpolationForAccumulativeIteration(a.m_value, b.m_value);
-}
-
-auto Blending<PaddingEdge>::blend(const PaddingEdge& a, const PaddingEdge& b, const BlendingContext& context) -> PaddingEdge
-{
-    return PaddingEdge { WebCore::blend(a.m_value, b.m_value, context, ValueRange::NonNegative) };
-}
-
-// MARK: - Logging
-
-WTF::TextStream& operator<<(WTF::TextStream& ts, const PaddingEdge& value)
-{
-    return ts << value.m_value;
 }
 
 } // namespace Style

@@ -27,7 +27,6 @@
 
 #include "StyleBuilderConverter.h"
 #include "StyleBuilderState.h"
-#include <wtf/text/TextStream.h>
 
 namespace WebCore {
 namespace Style {
@@ -37,30 +36,6 @@ namespace Style {
 auto CSSValueConversion<InsetEdge>::operator()(BuilderState& state, const CSSValue& value) -> InsetEdge
 {
     return InsetEdge { BuilderConverter::convertLengthOrAuto(state, value) };
-}
-
-// MARK: - Blending
-
-auto Blending<InsetEdge>::canBlend(const InsetEdge& a, const InsetEdge& b) -> bool
-{
-    return WebCore::canInterpolateLengths(a.m_value, b.m_value, true);
-}
-
-auto Blending<InsetEdge>::requiresInterpolationForAccumulativeIteration(const InsetEdge& a, const InsetEdge& b) -> bool
-{
-    return WebCore::lengthsRequireInterpolationForAccumulativeIteration(a.m_value, b.m_value);
-}
-
-auto Blending<InsetEdge>::blend(const InsetEdge& a, const InsetEdge& b, const BlendingContext& context) -> InsetEdge
-{
-    return InsetEdge { WebCore::blend(a.m_value, b.m_value, context, ValueRange::All) };
-}
-
-// MARK: - Logging
-
-WTF::TextStream& operator<<(WTF::TextStream& ts, const InsetEdge& value)
-{
-    return ts << value.m_value;
 }
 
 } // namespace Style

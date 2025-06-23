@@ -28,18 +28,17 @@
 #include "StyleBuilderConverter.h"
 #include "StyleBuilderState.h"
 #include "StylePreferredSize.h"
-#include <wtf/text/TextStream.h>
 
 namespace WebCore {
 namespace Style {
 
 MinimumSize::MinimumSize(PreferredSize&& other)
-    : m_value(WTFMove(other.m_value))
+    : Base(WTFMove(other.m_value))
 {
 }
 
 MinimumSize::MinimumSize(const PreferredSize& other)
-    : m_value(other.m_value)
+    : Base(other.m_value)
 {
 }
 
@@ -48,30 +47,6 @@ MinimumSize::MinimumSize(const PreferredSize& other)
 auto CSSValueConversion<MinimumSize>::operator()(BuilderState& state, const CSSValue& value) -> MinimumSize
 {
     return MinimumSize { BuilderConverter::convertLengthSizing(state, value) };
-}
-
-// MARK: - Blending
-
-auto Blending<MinimumSize>::canBlend(const MinimumSize& a, const MinimumSize& b) -> bool
-{
-    return WebCore::canInterpolateLengths(a.m_value, b.m_value, true);
-}
-
-auto Blending<MinimumSize>::requiresInterpolationForAccumulativeIteration(const MinimumSize& a, const MinimumSize& b) -> bool
-{
-    return WebCore::lengthsRequireInterpolationForAccumulativeIteration(a.m_value, b.m_value);
-}
-
-auto Blending<MinimumSize>::blend(const MinimumSize& a, const MinimumSize& b, const BlendingContext& context) -> MinimumSize
-{
-    return MinimumSize { WebCore::blend(a.m_value, b.m_value, context, ValueRange::NonNegative) };
-}
-
-// MARK: - Logging
-
-WTF::TextStream& operator<<(WTF::TextStream& ts, const MinimumSize& value)
-{
-    return ts << value.m_value;
 }
 
 } // namespace Style

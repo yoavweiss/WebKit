@@ -27,7 +27,6 @@
 
 #include "StyleBuilderConverter.h"
 #include "StyleBuilderState.h"
-#include <wtf/text/TextStream.h>
 
 namespace WebCore {
 namespace Style {
@@ -39,30 +38,6 @@ auto CSSValueConversion<MaximumSize>::operator()(BuilderState& state, const CSSV
     if (value.valueID() == CSSValueNone)
         return MaximumSize { CSS::Keyword::None { } };
     return MaximumSize { BuilderConverter::convertLengthSizing(state, value) };
-}
-
-// MARK: - Blending
-
-auto Blending<MaximumSize>::canBlend(const MaximumSize& a, const MaximumSize& b) -> bool
-{
-    return WebCore::canInterpolateLengths(a.m_value, b.m_value, true);
-}
-
-auto Blending<MaximumSize>::requiresInterpolationForAccumulativeIteration(const MaximumSize& a, const MaximumSize& b) -> bool
-{
-    return WebCore::lengthsRequireInterpolationForAccumulativeIteration(a.m_value, b.m_value);
-}
-
-auto Blending<MaximumSize>::blend(const MaximumSize& a, const MaximumSize& b, const BlendingContext& context) -> MaximumSize
-{
-    return MaximumSize { WebCore::blend(a.m_value, b.m_value, context, ValueRange::NonNegative) };
-}
-
-// MARK: - Logging
-
-WTF::TextStream& operator<<(WTF::TextStream& ts, const MaximumSize& value)
-{
-    return ts << value.m_value;
 }
 
 } // namespace Style

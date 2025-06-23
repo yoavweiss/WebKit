@@ -27,7 +27,6 @@
 
 #include "StyleBuilderConverter.h"
 #include "StyleBuilderState.h"
-#include <wtf/text/TextStream.h>
 
 namespace WebCore {
 namespace Style {
@@ -37,32 +36,6 @@ namespace Style {
 auto CSSValueConversion<OffsetDistance>::operator()(BuilderState& state, const CSSValue& value) -> OffsetDistance
 {
     return OffsetDistance { BuilderConverter::convertLength(state, value) };
-}
-
-// MARK: - Blending
-
-auto Blending<OffsetDistance>::requiresInterpolationForAccumulativeIteration(const OffsetDistance& a, const OffsetDistance& b) -> bool
-{
-    return WebCore::lengthsRequireInterpolationForAccumulativeIteration(a.m_value, b.m_value);
-}
-
-auto Blending<OffsetDistance>::blend(const OffsetDistance& a, const OffsetDistance& b, const BlendingContext& context) -> OffsetDistance
-{
-    return OffsetDistance { WebCore::blend(a.m_value, b.m_value, context, ValueRange::All) };
-}
-
-// MARK: - Logging
-
-WTF::TextStream& operator<<(WTF::TextStream& ts, const OffsetDistance& value)
-{
-    return ts << value.m_value;
-}
-
-// MARK: - Platform
-
-auto ToPlatform<OffsetDistance>::operator()(const OffsetDistance& value) -> WebCore::Length
-{
-    return value.m_value;
 }
 
 } // namespace Style

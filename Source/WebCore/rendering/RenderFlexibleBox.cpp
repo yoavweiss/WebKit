@@ -1647,7 +1647,7 @@ std::pair<LayoutUnit, LayoutUnit> RenderFlexibleBox::computeFlexItemMinMaxSizes(
 {
     auto max = maxMainSizeLengthForFlexItem(flexItem);
     std::optional<LayoutUnit> maxExtent = std::nullopt;
-    if (max.isSpecifiedOrIntrinsic())
+    if (max.isSpecified() || max.isIntrinsic())
         maxExtent = computeMainAxisExtentForFlexItem(flexItem, max);
 
     auto min = minMainSizeLengthForFlexItem(flexItem);
