@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Igalia S.L.
+ * Copyright (C) 2025 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,29 +23,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "DisplayVBlankMonitorTimer.h"
+#pragma once
 
-#include <WebCore/AnimationFrameRate.h>
-#include <chrono>
-#include <thread>
+#if ENABLE(WPE_PLATFORM)
+#include "DisplayVBlankMonitor.h"
+#include <wtf/glib/GRefPtr.h>
+
+typedef struct _WPEScreenSyncObserver WPEScreenSyncObserver;
 
 namespace WebKit {
 
-std::unique_ptr<DisplayVBlankMonitor> DisplayVBlankMonitorTimer::create()
-{
-    return makeUnique<DisplayVBlankMonitorTimer>();
-}
+class DisplayVBlankMonitorWPE final : public DisplayVBlankMonitor {
+public:
+    static std::unique_ptr<DisplayVBlankMonitor> create(PlatformDisplayID);
+    DisplayVBlankMonitorWPE(unsigned, GRefPtr<WPEScreenSyncObserver>&&);
+    virtual ~DisplayVBlankMonitorWPE();
 
-DisplayVBlankMonitorTimer::DisplayVBlankMonitorTimer()
-    : DisplayVBlankMonitorThreaded(WebCore::FullSpeedFramesPerSecond)
-{
-}
+    WPEScreenSyncObserver* observer() const { return m_observer.get(); }
 
-bool DisplayVBlankMonitorTimer::waitForVBlank() const
-{
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / m_refreshRate));
-    return true;
-}
+private:
+    Type type() const override { return Type::Wpe; }
+
+    void start() final;
+    void stop() final;
+    bool isActive() final;
+    void invalidate() final;
+
+    GRefPtr<WPEScreenSyncObserver> m_observer;
+};
 
 } // namespace WebKit
+
+#endif // ENABLE(WPE_PLATFORM)

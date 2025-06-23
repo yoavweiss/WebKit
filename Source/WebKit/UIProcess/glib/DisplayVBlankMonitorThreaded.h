@@ -23,29 +23,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "DisplayVBlankMonitorTimer.h"
+#pragma once
 
-#include <WebCore/AnimationFrameRate.h>
-#include <chrono>
-#include <thread>
+#include "DisplayVBlankMonitor.h"
+#include <wtf/Condition.h>
+#include <wtf/Function.h>
+#include <wtf/Lock.h>
+#include <wtf/RunLoop.h>
+
+namespace WebKit {
+class DisplayVBlankMonitorThreaded;
+}
+
+namespace WTF {
+template<typename T> struct IsDeprecatedTimerSmartPointerException;
+template<> struct IsDeprecatedTimerSmartPointerException<WebKit::DisplayVBlankMonitorThreaded> : std::true_type { };
+}
 
 namespace WebKit {
 
-std::unique_ptr<DisplayVBlankMonitor> DisplayVBlankMonitorTimer::create()
-{
-    return makeUnique<DisplayVBlankMonitorTimer>();
-}
+class DisplayVBlankMonitorThreaded : public DisplayVBlankMonitor {
+public:
+    virtual ~DisplayVBlankMonitorThreaded();
 
-DisplayVBlankMonitorTimer::DisplayVBlankMonitorTimer()
-    : DisplayVBlankMonitorThreaded(WebCore::FullSpeedFramesPerSecond)
-{
-}
+protected:
+    explicit DisplayVBlankMonitorThreaded(unsigned);
 
-bool DisplayVBlankMonitorTimer::waitForVBlank() const
-{
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / m_refreshRate));
-    return true;
-}
+    virtual bool waitForVBlank() const = 0;
+
+private:
+    enum class State { Stop, Active, Failed, Invalid };
+
+    void start() final;
+    void stop() final;
+    bool isActive() final;
+    void invalidate() final;
+
+    void setHandler(Function<void()>&&) final;
+
+    bool startThreadIfNeeded();
+    void destroyThreadTimerFired();
+
+    RefPtr<Thread> m_thread;
+    Lock m_lock;
+    Condition m_condition;
+    State m_state WTF_GUARDED_BY_LOCK(m_lock) { State::Stop };
+    RunLoop::Timer m_destroyThreadTimer;
+};
 
 } // namespace WebKit
