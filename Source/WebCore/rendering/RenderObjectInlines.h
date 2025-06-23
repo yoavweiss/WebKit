@@ -41,7 +41,6 @@ inline bool RenderObject::isBody() const { return node() && node()->hasTagName(H
 inline bool RenderObject::isHR() const { return node() && node()->hasTagName(HTMLNames::hrTag); }
 inline bool RenderObject::isPseudoElement() const { return node() && node()->isPseudoElement(); }
 inline Node* RenderObject::nonPseudoNode() const { return isPseudoElement() ? nullptr : node(); }
-inline RefPtr<Node> RenderObject::protectedNonPseudoNode() const { return nonPseudoNode(); }
 inline TreeScope& RenderObject::treeScopeForSVGReferences() const { return Ref { m_node.get() }->treeScopeForSVGReferences(); }
 inline WritingMode RenderObject::writingMode() const { return style().writingMode(); }
 

@@ -2133,12 +2133,12 @@ bool RenderBlock::hitTestContents(const HitTestRequest& request, HitTestResult& 
     return false;
 }
 
-static inline bool isEditingBoundary(RenderElement* ancestor, RenderObject& child)
+static inline bool isEditingBoundary(RenderElement* ancestor, RenderBox& child)
 {
     ASSERT(!ancestor || ancestor->nonPseudoElement());
-    ASSERT(child.nonPseudoNode());
+    ASSERT(child.nonPseudoElement());
     return !ancestor || !ancestor->parent() || (ancestor->hasLayer() && ancestor->parent()->isRenderView())
-        || ancestor->protectedNonPseudoElement()->hasEditableStyle() == child.protectedNonPseudoNode()->hasEditableStyle();
+        || ancestor->protectedNonPseudoElement()->hasEditableStyle() == child.protectedNonPseudoElement()->hasEditableStyle();
 }
 
 // FIXME: This function should go on RenderObject as an instance method. Then

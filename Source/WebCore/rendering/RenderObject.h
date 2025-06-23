@@ -735,7 +735,6 @@ public:
     inline RefPtr<Node> protectedNode() const; // Defined in RenderObjectInlines.h
 
     inline Node* nonPseudoNode() const; // Defined in RenderObjectInlines.h
-    inline RefPtr<Node> protectedNonPseudoNode() const; // Defined in RenderObjectInlines.h
 
     inline Document& document() const; // Defined in RenderObjectInlines.h
     inline Ref<Document> protectedDocument() const; // Defined in RenderObjectInlines.h
