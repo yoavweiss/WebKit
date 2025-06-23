@@ -27,8 +27,8 @@
 #include "Color.h"
 #include "DocumentEnums.h"
 #include "FindOptions.h"
+#include "FrameIdentifier.h"
 #include "FrameLoaderTypes.h"
-#include "HistoryItem.h"
 #include "ImageTypes.h"
 #include "IntRectHash.h"
 #include "LoadSchedulingMode.h"
@@ -113,6 +113,7 @@ class CompositeEditCommand;
 class ContextMenuController;
 class CookieJar;
 class CryptoClient;
+class Document;
 class DOMRectList;
 class DOMWrapperWorld;
 class DatabaseProvider;
