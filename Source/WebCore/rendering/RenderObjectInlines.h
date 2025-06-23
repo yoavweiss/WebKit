@@ -142,7 +142,7 @@ inline void RenderObject::setNeedsLayout(MarkingBehavior markParents)
         setLayerNeedsFullRepaint();
 }
 
-inline void RenderObject::setNeedsLayoutAndPrefWidthsRecalc()
+inline void RenderObject::setNeedsLayoutAndPreferredWidthsUpdate()
 {
     setNeedsLayout();
     setNeedsPreferredWidthsUpdate();

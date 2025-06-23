@@ -266,7 +266,7 @@ void RenderBox::styleWillChange(StyleDifference diff, const RenderStyle& newStyl
             if (!oldStyle->hasOutOfFlowPosition() && newStyle.hasOutOfFlowPosition()) {
                 // We are about to go out of flow. Before that takes place, we need to mark the
                 // current containing block chain for preferred widths recalculation.
-                setNeedsLayoutAndPrefWidthsRecalc();
+                setNeedsLayoutAndPreferredWidthsUpdate();
                 if (CheckedPtr flexContainer = dynamicDowncast<RenderFlexibleBox>(parent())) {
                     flexContainer->clearCachedFlexItemIntrinsicContentLogicalHeight(*this);
                     flexContainer->clearCachedMainSizeForFlexItem(*this);
@@ -401,7 +401,7 @@ void RenderBox::styleDidChange(StyleDifference diff, const RenderStyle* oldStyle
         clearGridAreaContentSize();
         if (auto* containingBlock = this->containingBlock(); containingBlock && oldStyle->hasOutOfFlowPosition()) {
             // When going from out-of-flow to inflow, the containing block gains new descendant content and its preferred width becomes invalid.
-            containingBlock->setNeedsLayoutAndPrefWidthsRecalc();
+            containingBlock->setNeedsLayoutAndPreferredWidthsUpdate();
         }
     }
 }

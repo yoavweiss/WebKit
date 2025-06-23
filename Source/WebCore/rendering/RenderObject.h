@@ -765,7 +765,7 @@ public:
     void setNeedsPreferredWidthsUpdate(MarkingBehavior = MarkContainingBlockChain);
     void clearNeedsPreferredWidthsUpdate() { m_stateBitfields.setFlag(StateFlag::PreferredLogicalWidthsNeedUpdate, { }); }
     
-    inline void setNeedsLayoutAndPrefWidthsRecalc();
+    inline void setNeedsLayoutAndPreferredWidthsUpdate();
 
     void setPositionState(PositionType);
     void clearPositionedState() { m_stateBitfields.clearPositionedState(); }
