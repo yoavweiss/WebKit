@@ -116,6 +116,7 @@ bool hasCapacityToUseLargeGigacage();
     v(Bool, forceDebuggerBytecodeGeneration, false, Normal, nullptr) \
     v(Bool, debuggerTriggersBreakpointException, false, Normal, "Using the debugger statement will trigger an breakpoint exception (Useful when lldbing)"_s) \
     v(Bool, dumpBytecodesBeforeGeneratorification, false, Normal, nullptr) \
+    v(Unsigned, switchJumpTableAmountThreshold, 15, Normal, nullptr) \
     \
     v(Bool, useFunctionDotArguments, true, Normal, nullptr) \
     v(Bool, useTailCalls, true, Normal, nullptr) \
