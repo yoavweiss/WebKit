@@ -574,12 +574,15 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
 
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
     if (hostingView && [hostingView isKindOfClass:[WKSeparatedImageView class]] && contentsType == LayerContentsType::CachedIOSurface) {
-        auto machSendRight = std::get<MachSendRight>(WTFMove(*m_bufferHandle));
-        auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight));
-        if (surface)
-            [(WKSeparatedImageView *)hostingView setSurface:surface->surface()];
-        else
-            [(WKSeparatedImageView *)hostingView setSurface:nil];
+        if (m_bufferHandle) {
+            auto machSendRight = std::get<MachSendRight>(WTFMove(*m_bufferHandle));
+            auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight));
+            if (surface) {
+                [(WKSeparatedImageView *)hostingView setSurface:surface->surface()];
+                return;
+            }
+        }
+        [(WKSeparatedImageView *)hostingView setSurface:nil];
         return;
     }
 #endif
@@ -637,8 +640,13 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
     }
 }
 
-void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode& node, LayerContentsType contentsType)
+void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode& node, LayerContentsType contentsType, UIView *hostingView)
 {
+#if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
+    if (hostingView && [hostingView isKindOfClass:[WKSeparatedImageView class]])
+        return;
+#endif
+
     ASSERT(!m_contentsBuffer);
 
     Vector<RemoteLayerTreeNode::CachedContentsBuffer> cachedBuffers = node.takeCachedContentsBuffers();

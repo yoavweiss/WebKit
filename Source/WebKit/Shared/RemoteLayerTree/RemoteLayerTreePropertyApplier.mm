@@ -489,11 +489,11 @@ void RemoteLayerTreePropertyApplier::applyPropertiesToLayer(CALayer *layer, Remo
             std::optional<WebCore::RenderingResourceIdentifier> asyncContentsIdentifier;
             UIView* hostingView = nil;
             if (layerTreeNode) {
-                backingStore->updateCachedBuffers(*layerTreeNode, layerContentsType);
-                asyncContentsIdentifier = layerTreeNode->asyncContentsIdentifier();
 #if PLATFORM(IOS_FAMILY)
                 hostingView = layerTreeNode->uiView();
 #endif
+                backingStore->updateCachedBuffers(*layerTreeNode, layerContentsType, hostingView);
+                asyncContentsIdentifier = layerTreeNode->asyncContentsIdentifier();
             }
 
             backingStore->applyBackingStoreToLayer(layer, layerContentsType, asyncContentsIdentifier, layerTreeHost->replayDynamicContentScalingDisplayListsIntoBackingStore(), hostingView);

@@ -230,7 +230,7 @@ public:
 
     void applyBackingStoreToLayer(CALayer *, LayerContentsType, std::optional<WebCore::RenderingResourceIdentifier>, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView * hostingView);
 
-    void updateCachedBuffers(RemoteLayerTreeNode&, LayerContentsType);
+    void updateCachedBuffers(RemoteLayerTreeNode&, LayerContentsType, UIView *);
 
     const std::optional<ImageBufferBackendHandle>& bufferHandle() const { return m_bufferHandle; };
 
