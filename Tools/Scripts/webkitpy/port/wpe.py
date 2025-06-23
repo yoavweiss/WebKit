@@ -124,10 +124,8 @@ class WPEPort(GLibPort):
             return browser
 
         if browser:
-            _log.warning("Unknown browser {}. Defaulting to Cog and MiniBrowser selection".format(browser))
+            _log.warning("Unknown browser {}. Defaulting to MiniBrowser".format(browser))
 
-        if self._filesystem.isfile(self.cog_path_to('launcher', 'cog')):
-            return "cog"
         return "minibrowser"
 
     def setup_environ_for_minibrowser(self):
@@ -152,7 +150,7 @@ class WPEPort(GLibPort):
         if self.browser_name() == "cog":
             miniBrowser = self.get_browser_path("cog")
             if not self._filesystem.isfile(miniBrowser):
-                _log.warning("Cog not found 😢. If you wish to enable it, rebuild with `-DENABLE_COG=ON`. Falling back to good old MiniBrowser")
+                _log.warning("Cog not found 😢. If you wish to enable it, rebuild with `-DENABLE_COG=ON`. Falling back to MiniBrowser")
                 miniBrowser = None
             else:
                 print("Using Cog as MiniBrowser")

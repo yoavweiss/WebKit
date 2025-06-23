@@ -90,7 +90,7 @@ class WPEPortTest(port_testcase.PortTestCase):
         port = self.make_port()
         self._mock_port_cog_is_built(port)
         with patch('os.environ', {}):
-            self.assertEqual(port.browser_name(), "cog")
+            self.assertEqual(port.browser_name(), "minibrowser")
 
     def test_browser_name_override_minibrowser_with_cog_built(self):
         with patch('os.environ', {'WPE_BROWSER': 'MiniBrowser'}):
@@ -112,7 +112,7 @@ class WPEPortTest(port_testcase.PortTestCase):
         with patch('os.environ', {'WPE_BROWSER': 'Mosaic'}):
             port = self.make_port()
             self._mock_port_cog_is_built(port)
-            self.assertEqual(port.browser_name(), "cog")
+            self.assertEqual(port.browser_name(), "minibrowser")
 
     def test_browser_cog_parameters_platform_default(self):
         with patch('os.environ', {'WPE_BROWSER': 'cog'}):
