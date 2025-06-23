@@ -1239,7 +1239,7 @@ void RenderElement::setNeedsPositionedMovementLayout(const RenderStyle* oldStyle
 void RenderElement::clearChildNeedsLayout()
 {
     setNormalChildNeedsLayoutBit(false);
-    setPosChildNeedsLayoutBit(false);
+    setOutOfFlowChildNeedsLayoutBit(false);
     setNeedsSimplifiedNormalFlowLayoutBit(false);
     setNeedsPositionedMovementLayoutBit(false);
     setOutOfFlowChildNeedsStaticPositionLayoutBit(false);
@@ -1282,7 +1282,7 @@ void RenderElement::setOutOfFlowChildNeedsStaticPositionLayout()
     // optimize all kinds of out-of-flow cases.
     // It's also assumed that regular, positioned child related bits are already set.
     ASSERT(!isSetNeedsLayoutForbidden());
-    ASSERT(posChildNeedsLayout() || selfNeedsLayout() || needsSimplifiedNormalFlowLayout() || !parent());
+    ASSERT(outOfFlowChildNeedsLayout() || selfNeedsLayout() || needsSimplifiedNormalFlowLayout() || !parent());
     setOutOfFlowChildNeedsStaticPositionLayoutBit(true);
 }
 

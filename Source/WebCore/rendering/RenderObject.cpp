@@ -572,7 +572,7 @@ void RenderObject::clearNeedsLayout(HadSkippedLayout hadSkippedLayout)
     if (hasLayer())
         downcast<RenderLayerModelObject>(*this).layer()->setSelfAndChildrenNeedPositionUpdate();
     m_stateBitfields.clearFlag(StateFlag::NeedsLayout);
-    setPosChildNeedsLayoutBit(false);
+    setOutOfFlowChildNeedsLayoutBit(false);
     setNeedsSimplifiedNormalFlowLayoutBit(false);
     setNormalChildNeedsLayoutBit(false);
     setOutOfFlowChildNeedsStaticPositionLayoutBit(false);
@@ -629,11 +629,11 @@ RenderElement* RenderObject::markContainingBlocksForLayout(RenderElement* layout
             // Skip relatively positioned inlines and anonymous blocks to get to the enclosing RenderBlock.
             while (ancestor && (!ancestor->isRenderBlock() || ancestor->isAnonymousBlock()))
                 ancestor = ancestor->container();
-            if (!ancestor || ancestor->posChildNeedsLayout())
+            if (!ancestor || ancestor->outOfFlowChildNeedsLayout())
                 return { };
             if (willSkipRelativelyPositionedInlines)
                 container = ancestor->container();
-            ancestor->setPosChildNeedsLayoutBit(true);
+            ancestor->setOutOfFlowChildNeedsLayoutBit(true);
             simplifiedNormalFlowLayout = true;
         } else if (simplifiedNormalFlowLayout) {
             if (ancestor->needsSimplifiedNormalFlowLayout())
@@ -1458,8 +1458,8 @@ void RenderObject::outputRenderObject(TextStream& stream, bool mark, int depth) 
             stream << "[self]";
         if (normalChildNeedsLayout())
             stream << "[normal child]";
-        if (posChildNeedsLayout())
-            stream << "[positioned child]";
+        if (outOfFlowChildNeedsLayout())
+            stream << "[out-of-flow child]";
         if (needsSimplifiedNormalFlowLayout())
             stream << "[simplified]";
         if (needsPositionedMovementLayout())

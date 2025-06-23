@@ -758,9 +758,9 @@ bool RenderBlock::canPerformSimplifiedLayout() const
         return false;
     if (auto wasSkippedDuringLastLayout = wasSkippedDuringLastLayoutDueToContentVisibility(); wasSkippedDuringLastLayout && *wasSkippedDuringLastLayout)
         return false;
-    if (layoutContext().isSkippedContentRootForLayout(*this) && (posChildNeedsLayout() || canContainFixedPositionObjects()))
+    if (layoutContext().isSkippedContentRootForLayout(*this) && (outOfFlowChildNeedsLayout() || canContainFixedPositionObjects()))
         return false;
-    return posChildNeedsLayout() || needsSimplifiedNormalFlowLayout();
+    return outOfFlowChildNeedsLayout() || needsSimplifiedNormalFlowLayout();
 }
 
 bool RenderBlock::simplifiedLayout()
@@ -783,12 +783,12 @@ bool RenderBlock::simplifiedLayout()
 
     // Lay out our positioned objects if our positioned child bit is set.
     // Also, if an absolute position element inside a relative positioned container moves, and the absolute element has a fixed position
-    // child, neither the fixed element nor its container learn of the movement since posChildNeedsLayout() is only marked as far as the 
+    // child, neither the fixed element nor its container learn of the movement since outOfFlowChildNeedsLayout() is only marked as far as the
     // relative positioned container. So if we can have fixed pos objects in our positioned objects list check if any of them
     // are statically positioned and thus need to move with their absolute ancestors.
     bool canContainFixedPosObjects = canContainFixedPositionObjects();
-    if (posChildNeedsLayout() || canContainFixedPosObjects)
-        layoutOutOfFlowBoxes(RelayoutChildren::No, !posChildNeedsLayout() && canContainFixedPosObjects);
+    if (outOfFlowChildNeedsLayout() || canContainFixedPosObjects)
+        layoutOutOfFlowBoxes(RelayoutChildren::No, !outOfFlowChildNeedsLayout() && canContainFixedPosObjects);
 
     // Recompute our overflow information.
     // FIXME: We could do better here by computing a temporary overflow object from layoutOutOfFlowBoxes and only
@@ -1804,8 +1804,8 @@ void RenderBlock::addOutOfFlowBox(RenderBox& outOfFlowBox)
     // FIXME: Find out if we can do this as part of outOfFlowBox.setChildNeedsLayout(MarkOnlyThis)
     if (outOfFlowBox.needsLayout()) {
         // We should turn this bit on only while in layout.
-        ASSERT(posChildNeedsLayout() || view().frameView().layoutContext().isInLayout());
-        setPosChildNeedsLayoutBit(true);
+        ASSERT(outOfFlowChildNeedsLayout() || view().frameView().layoutContext().isInLayout());
+        setOutOfFlowChildNeedsLayoutBit(true);
     }
     outOfFlowDescendantsMap().addDescendant(*this, outOfFlowBox);
 }

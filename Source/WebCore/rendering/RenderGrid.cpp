@@ -262,7 +262,7 @@ bool RenderGrid::canPerformSimplifiedLayout() const
 {
     // We cannot perform a simplified layout if we need to position the items and we have some
     // positioned items to be laid out.
-    if (currentGrid().needsItemsPlacement() && posChildNeedsLayout())
+    if (currentGrid().needsItemsPlacement() && outOfFlowChildNeedsLayout())
         return false;
 
     return RenderBlock::canPerformSimplifiedLayout();

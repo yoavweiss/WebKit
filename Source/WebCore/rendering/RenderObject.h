@@ -701,7 +701,7 @@ public:
     bool needsPositionedMovementLayout() const { return m_stateBitfields.hasFlag(StateFlag::NeedsPositionedMovementLayout); }
     bool needsPositionedMovementLayoutOnly() const;
 
-    bool posChildNeedsLayout() const { return m_stateBitfields.hasFlag(StateFlag::PosChildNeedsLayout); }
+    bool outOfFlowChildNeedsLayout() const { return m_stateBitfields.hasFlag(StateFlag::OutOfFlowChildNeedsLayout); }
     bool needsSimplifiedNormalFlowLayout() const { return m_stateBitfields.hasFlag(StateFlag::NeedsSimplifiedNormalFlowLayout); }
     bool needsSimplifiedNormalFlowLayoutOnly() const;
     bool normalChildNeedsLayout() const { return m_stateBitfields.hasFlag(StateFlag::NormalChildNeedsLayout); }
@@ -1141,7 +1141,7 @@ protected:
     void scheduleLayout(RenderElement* layoutRoot);
     void setNeedsPositionedMovementLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::NeedsPositionedMovementLayout, b); }
     void setNormalChildNeedsLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::NormalChildNeedsLayout, b); }
-    void setPosChildNeedsLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::PosChildNeedsLayout, b); }
+    void setOutOfFlowChildNeedsLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::OutOfFlowChildNeedsLayout, b); }
     void setNeedsSimplifiedNormalFlowLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::NeedsSimplifiedNormalFlowLayout, b); }
     void setOutOfFlowChildNeedsStaticPositionLayoutBit(bool b) { m_stateBitfields.setFlag(StateFlag::OutOfFlowChildNeedsStaticPositionLayout, b); }
 
@@ -1205,7 +1205,7 @@ private:
         NeedsLayout                                         = 1 << 3,
         NeedsPositionedMovementLayout                       = 1 << 4,
         NormalChildNeedsLayout                              = 1 << 5,
-        PosChildNeedsLayout                                 = 1 << 6,
+        OutOfFlowChildNeedsLayout                           = 1 << 6,
         NeedsSimplifiedNormalFlowLayout                     = 1 << 7,
         OutOfFlowChildNeedsStaticPositionLayout             = 1 << 8,
         EverHadLayout                                       = 1 << 9,
@@ -1356,7 +1356,7 @@ inline void RenderObject::invalidateBackgroundObscurationStatus()
 inline bool RenderObject::needsSimplifiedNormalFlowLayoutOnly() const
 {
     return needsSimplifiedNormalFlowLayout() && !selfNeedsLayout() && !normalChildNeedsLayout()
-        && !posChildNeedsLayout() && !needsPositionedMovementLayout();
+        && !outOfFlowChildNeedsLayout() && !needsPositionedMovementLayout();
 }
 
 inline RenderFragmentedFlow* RenderObject::enclosingFragmentedFlow() const
@@ -1371,7 +1371,7 @@ inline bool RenderObject::needsLayout() const
 {
     return selfNeedsLayout()
         || normalChildNeedsLayout()
-        || posChildNeedsLayout()
+        || outOfFlowChildNeedsLayout()
         || needsSimplifiedNormalFlowLayout()
         || needsPositionedMovementLayout();
 }
@@ -1381,7 +1381,7 @@ inline bool RenderObject::needsPositionedMovementLayoutOnly() const
     return needsPositionedMovementLayout()
         && !selfNeedsLayout()
         && !normalChildNeedsLayout()
-        && !posChildNeedsLayout()
+        && !outOfFlowChildNeedsLayout()
         && !needsSimplifiedNormalFlowLayout();
 }
 
