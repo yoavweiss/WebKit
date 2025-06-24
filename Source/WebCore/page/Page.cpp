@@ -4605,6 +4605,11 @@ void Page::dispatchAfterPrintEvent()
 }
 
 #if ENABLE(APPLE_PAY)
+Ref<PaymentCoordinator> Page::protectedPaymentCoordinator() const
+{
+    return paymentCoordinator();
+}
+
 void Page::setPaymentCoordinator(Ref<PaymentCoordinator>&& paymentCoordinator)
 {
     m_paymentCoordinator = WTFMove(paymentCoordinator);

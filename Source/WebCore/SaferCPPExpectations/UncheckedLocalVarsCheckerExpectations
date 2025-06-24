@@ -1,4 +1,3 @@
-Modules/applepay/ApplePaySession.cpp
 Modules/encryptedmedia/MediaKeySystemRequest.cpp
 Modules/gamepad/GamepadHapticActuator.cpp
 Modules/geolocation/GeolocationController.cpp

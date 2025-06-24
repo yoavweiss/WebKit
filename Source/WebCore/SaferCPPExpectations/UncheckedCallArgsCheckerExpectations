@@ -1,5 +1,4 @@
 Modules/airplay/WebMediaSessionManager.cpp
-Modules/applepay-ams-ui/ApplePayAMSUIPaymentHandler.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/cookie-store/CookieStore.cpp

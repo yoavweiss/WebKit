@@ -1,8 +1,5 @@
 Modules/WebGPU/GPUDevice.cpp
 Modules/applepay-ams-ui/ApplePayAMSUIPaymentHandler.cpp
-Modules/applepay/ApplePaySession.cpp
-Modules/applepay/ApplePaySetup.cpp
-Modules/applepay/paymentrequest/ApplePayPaymentHandler.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/cache/DOMCache.cpp
@@ -39,7 +36,6 @@ Modules/mediastream/libwebrtc/LibWebRTCMediaEndpoint.cpp
 Modules/mediastream/libwebrtc/LibWebRTCPeerConnectionBackend.cpp
 Modules/model-element/HTMLModelElement.cpp
 Modules/notifications/Notification.cpp
-Modules/paymentrequest/PaymentRequest.cpp
 Modules/speech/SpeechRecognition.cpp
 Modules/speech/SpeechSynthesis.cpp
 Modules/webaudio/AnalyserNode.cpp
@@ -450,7 +446,6 @@ platform/graphics/avfoundation/objc/WebCoreAVFResourceLoader.mm
 platform/graphics/ca/GraphicsLayerCA.cpp
 platform/graphics/ca/TileGrid.cpp
 platform/graphics/ca/cocoa/PlatformCALayerCocoa.mm
-platform/graphics/cocoa/controls/ApplePayButtonCocoa.mm
 platform/graphics/coretext/ComplexTextControllerCoreText.mm
 platform/graphics/filters/FilterOperations.cpp
 platform/graphics/mac/controls/ImageControlsButtonMac.mm
