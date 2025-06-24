@@ -20,7 +20,6 @@ UIProcess/API/C/WKFramePolicyListener.cpp
 UIProcess/API/C/WKGeolocationManager.cpp
 UIProcess/API/C/WKGeolocationPermissionRequest.cpp
 UIProcess/API/C/WKHTTPCookieStoreRef.cpp
-UIProcess/API/C/WKInspector.cpp
 UIProcess/API/C/WKMediaKeySystemPermissionCallback.cpp
 UIProcess/API/C/WKNotification.cpp
 UIProcess/API/C/WKNotificationManager.cpp
