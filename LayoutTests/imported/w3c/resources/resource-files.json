@@ -11206,6 +11206,8 @@
         "web-platform-tests/html/rendering/the-details-element/details-pseudo-elements-004-ref.html",
         "web-platform-tests/html/rendering/the-details-element/details-pseudo-elements-005-ref.html",
         "web-platform-tests/html/rendering/the-details-element/details-revert-ref.html",
+        "web-platform-tests/html/rendering/the-details-element/details-summary-display-inline-001-ref.html",
+        "web-platform-tests/html/rendering/the-details-element/details-summary-display-inline-002-ref.html",
         "web-platform-tests/html/rendering/the-details-element/details-two-pages-print-ref.html",
         "web-platform-tests/html/rendering/the-details-element/single-summary.html",
         "web-platform-tests/html/rendering/the-details-element/summary-display-flex-ref.html",
