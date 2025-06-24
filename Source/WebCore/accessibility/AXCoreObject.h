@@ -1969,6 +1969,19 @@ String roleToPlatformString(AccessibilityRole);
 std::optional<AXTextMarkerRange> markerRangeFrom(NSRange, const AXCoreObject&);
 #endif
 
+// Intended to work with size-types (like IntSize) or rect-types (like LayoutRect).
+template <typename SizeOrRectType>
+void adjustControlSize(SizeOrRectType& sizeOrRect)
+{
+    // It's very common for web developers to have a "screenreader only" CSS class that makes important
+    // elements like controls unrendered (e.g. via opacity:0 or CSS clipping) with a width and height
+    // of 1px. VoiceOver on macOS won't draw a cursor for 1px-large elements, so enforce a minimum size of 2px.
+    if (sizeOrRect.width() < 2)
+        sizeOrRect.setWidth(2);
+    if (sizeOrRect.height() < 2)
+        sizeOrRect.setHeight(2);
+}
+
 } // namespace Accessibility
 
 inline bool AXCoreObject::isDescendantOfObject(const AXCoreObject& axObject) const

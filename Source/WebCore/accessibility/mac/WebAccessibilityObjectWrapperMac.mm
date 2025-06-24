@@ -1376,8 +1376,12 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     if ([attributeName isEqualToString: NSAccessibilityEnabledAttribute])
         return [NSNumber numberWithBool: backingObject->isEnabled()];
 
-    if ([attributeName isEqualToString:NSAccessibilitySizeAttribute])
-        return [NSValue valueWithSize:(CGSize)backingObject->size()];
+    if ([attributeName isEqualToString:NSAccessibilitySizeAttribute]) {
+        auto size = backingObject->size();
+        if (backingObject->isControl())
+            Accessibility::adjustControlSize(size);
+        return [NSValue valueWithSize:(CGSize)size];
+    }
 
     if ([attributeName isEqualToString:NSAccessibilityPrimaryScreenHeightAttribute])
         return @(backingObject->primaryScreenRect().height());
@@ -1822,8 +1826,12 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     if ([attributeName isEqualToString:NSAccessibilityBrailleRoleDescriptionAttribute])
         return backingObject->brailleRoleDescription().createNSString().autorelease();
 
-    if ([attributeName isEqualToString:NSAccessibilityRelativeFrameAttribute])
-        return [NSValue valueWithRect:(NSRect)backingObject->relativeFrame()];
+    if ([attributeName isEqualToString:NSAccessibilityRelativeFrameAttribute]) {
+        auto frame = backingObject->relativeFrame();
+        if (backingObject->isControl())
+            Accessibility::adjustControlSize(frame);
+        return [NSValue valueWithRect:(NSRect)frame];
+    }
 
     if ([attributeName isEqualToString:NSAccessibilityErrorMessageElementsAttribute]) {
         // Only expose error messages for objects in an invalid state.
