@@ -3052,8 +3052,8 @@ inline RefPtr<CSSValue> ExtractorCustom::extractOffsetShorthand(ExtractorState& 
     bool nonInitialDistance = state.style.offsetDistance() != state.style.initialOffsetDistance();
     bool nonInitialRotate = state.style.offsetRotate() != state.style.initialOffsetRotate();
 
-    if (state.style.offsetPath() || nonInitialDistance || nonInitialRotate)
-        innerList.append(ExtractorConverter::convertPathOperation(state, state.style.offsetPath(), PathConversion::ForceAbsolute));
+    if (state.style.hasOffsetPath() || nonInitialDistance || nonInitialRotate)
+        innerList.append(ExtractorConverter::convertStyleType(state, state.style.offsetPath()));
 
     if (nonInitialDistance)
         innerList.append(ExtractorConverter::convertStyleType(state, state.style.offsetDistance()));

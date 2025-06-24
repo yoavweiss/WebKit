@@ -656,7 +656,7 @@ template<typename T> void logForCSSOnRangeLike(TextStream& ts, const T& value, A
     }
 }
 
-template<typename R> void logForCSSOnVariantLike(TextStream& ts, const R& value)
+template<typename T> void logForCSSOnVariantLike(TextStream& ts, const T& value)
 {
     WTF::switchOn(value, [&](const auto& value) { ts << value; });
 }

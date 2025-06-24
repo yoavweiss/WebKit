@@ -42,6 +42,8 @@ class SkRRect;
 
 namespace WebCore {
 
+class Path;
+
 class FloatRoundedRect {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(FloatRoundedRect, WEBCORE_EXPORT);
 public:
@@ -153,6 +155,8 @@ public:
     bool xInterceptsAtY(float y, float& minXIntercept, float& maxXIntercept) const;
 
     bool intersectionIsRectangular(const FloatRect&) const;
+
+    Path path() const;
 
     friend bool operator==(const FloatRoundedRect&, const FloatRoundedRect&) = default;
 

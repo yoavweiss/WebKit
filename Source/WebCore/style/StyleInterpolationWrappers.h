@@ -927,37 +927,6 @@ public:
     }
 };
 
-class PathOperationWrapper final : public RefCountedWrapper<PathOperation> {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
-public:
-    PathOperationWrapper(CSSPropertyID property, PathOperation* (RenderStyle::*getter)() const, void (RenderStyle::*setter)(RefPtr<PathOperation>&&))
-        : RefCountedWrapper(property, getter, setter)
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        // If the style pointers are the same, don't bother doing the test.
-        if (&a == &b)
-            return true;
-
-        auto* clipPathA = value(a);
-        auto* clipPathB = value(b);
-        if (clipPathA == clipPathB)
-            return true;
-        if (!clipPathA || !clipPathB)
-            return false;
-        return *clipPathA == *clipPathB;
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const override
-    {
-        auto* fromPath = value(from);
-        auto* toPath = value(to);
-        return fromPath && toPath && fromPath->canBlend(*toPath);
-    }
-};
-
 #if ENABLE(VARIATION_FONTS)
 
 class FontVariationSettingsWrapper final : public Wrapper<FontVariationSettings> {

@@ -2772,8 +2772,11 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/inline/StyleLineBoxContain.h
 
+    style/values/masking/StyleClipPath.h
+
     style/values/motion/StyleOffsetDistance.h
     style/values/motion/StyleOffsetAnchor.h
+    style/values/motion/StyleOffsetPath.h
     style/values/motion/StyleOffsetPosition.h
     style/values/motion/StyleOffsetRotate.h
     style/values/motion/StyleRayFunction.h
@@ -2800,6 +2803,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/shapes/StyleInsetFunction.h
     style/values/shapes/StylePathComputation.h
     style/values/shapes/StylePathFunction.h
+    style/values/shapes/StylePathOperationWrappers.h
     style/values/shapes/StylePolygonFunction.h
     style/values/shapes/StyleRectFunction.h
     style/values/shapes/StyleShapeFunction.h

@@ -470,7 +470,6 @@ rendering/HitTestResult.cpp
 rendering/ImageQualityController.cpp
 rendering/InlineBoxPainter.cpp
 rendering/MarkedText.cpp
-rendering/MotionPath.cpp
 rendering/ReferencedSVGResources.cpp
 rendering/RenderAttachment.cpp
 rendering/RenderBox.cpp

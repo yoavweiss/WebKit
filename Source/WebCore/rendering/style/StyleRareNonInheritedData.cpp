@@ -77,12 +77,12 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , rotate(RenderStyle::initialRotate())
     , scale(RenderStyle::initialScale())
     , translate(RenderStyle::initialTranslate())
-    , offsetPath(RenderStyle::initialOffsetPath())
     // containerNames
     , viewTransitionClasses(RenderStyle::initialViewTransitionClasses())
     , viewTransitionName(RenderStyle::initialViewTransitionName())
     , columnGap(RenderStyle::initialColumnGap())
     , rowGap(RenderStyle::initialRowGap())
+    , offsetPath(RenderStyle::initialOffsetPath())
     , offsetDistance(RenderStyle::initialOffsetDistance())
     , offsetPosition(RenderStyle::initialOffsetPosition())
     , offsetAnchor(RenderStyle::initialOffsetAnchor())
@@ -186,12 +186,12 @@ inline StyleRareNonInheritedData::StyleRareNonInheritedData(const StyleRareNonIn
     , rotate(o.rotate)
     , scale(o.scale)
     , translate(o.translate)
-    , offsetPath(o.offsetPath)
     , containerNames(o.containerNames)
     , viewTransitionClasses(o.viewTransitionClasses)
     , viewTransitionName(o.viewTransitionName)
     , columnGap(o.columnGap)
     , rowGap(o.rowGap)
+    , offsetPath(o.offsetPath)
     , offsetDistance(o.offsetDistance)
     , offsetPosition(o.offsetPosition)
     , offsetAnchor(o.offsetAnchor)
@@ -295,17 +295,17 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
         && shapeMargin == o.shapeMargin
         && shapeImageThreshold == o.shapeImageThreshold
         && perspective == o.perspective
-        && arePointingToEqualData(clipPath, o.clipPath)
+        && clipPath == o.clipPath
         && textDecorationColor == o.textDecorationColor
         && customProperties == o.customProperties
         && customPaintWatchedProperties == o.customPaintWatchedProperties
         && rotate == o.rotate
         && scale == o.scale
         && translate == o.translate
-        && arePointingToEqualData(offsetPath, o.offsetPath)
         && containerNames == o.containerNames
         && columnGap == o.columnGap
         && rowGap == o.rowGap
+        && offsetPath == o.offsetPath
         && offsetDistance == o.offsetDistance
         && offsetPosition == o.offsetPosition
         && offsetAnchor == o.offsetAnchor
@@ -451,7 +451,6 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
     LOG_IF_DIFFERENT(rotate);
     LOG_IF_DIFFERENT(scale);
     LOG_IF_DIFFERENT(translate);
-    LOG_IF_DIFFERENT(offsetPath);
 
     LOG_IF_DIFFERENT(containerNames);
 
@@ -461,6 +460,7 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
     LOG_IF_DIFFERENT(columnGap);
     LOG_IF_DIFFERENT(rowGap);
 
+    LOG_IF_DIFFERENT(offsetPath);
     LOG_IF_DIFFERENT(offsetDistance);
     LOG_IF_DIFFERENT(offsetPosition);
     LOG_IF_DIFFERENT(offsetAnchor);

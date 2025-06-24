@@ -439,7 +439,7 @@ static bool shouldTreatAutoZIndexAsZero(const RenderStyle& style)
     return style.hasOpacity()
         || style.hasTransformRelatedProperty()
         || style.hasMask()
-        || style.clipPath()
+        || style.hasClipPath()
         || style.boxReflect()
         || style.hasFilter()
         || style.hasBackdropFilter()
@@ -729,7 +729,7 @@ void Adjuster::adjust(RenderStyle& style) const
             || style.hasOpacity()
             || style.overflowY() != Overflow::Visible
             || style.hasClip()
-            || style.clipPath()
+            || style.hasClipPath()
             || style.hasFilter()
             || style.hasIsolation()
             || style.hasMask()
@@ -898,7 +898,7 @@ void Adjuster::adjustSVGElementStyle(RenderStyle& style, const SVGElement& svgEl
     // Some of the rules above were already enforced in StyleResolver::adjust() - for those cases assertions were added.
     if (svgElement.document().settings().layerBasedSVGEngineEnabled() && style.hasAutoUsedZIndex()) {
         // adjust() has already assigned a z-index of 0 if clip / filter is present or the element is the root element.
-        ASSERT(!style.clipPath());
+        ASSERT(!style.hasClipPath());
         ASSERT(!style.hasFilter());
 
         if (svgElement.isOutermostSVGSVGElement()

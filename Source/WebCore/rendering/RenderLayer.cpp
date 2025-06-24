@@ -426,11 +426,13 @@ RenderLayer::PaintedContentRequest::PaintedContentRequest(const RenderLayer& own
 
 void RenderLayer::removeClipperClientIfNeeded() const
 {
-    auto& style = renderer().style();
-    if (RefPtr referenceClipPathOperation = dynamicDowncast<ReferencePathOperation>(style.clipPath())) {
-        if (auto* clipperRenderer = ReferencedSVGResources::referencedClipperRenderer(renderer().treeScopeForSVGReferences(), *referenceClipPathOperation))
-            clipperRenderer->removeClientFromCache(renderer());
-    }
+    WTF::switchOn(renderer().style().clipPath(),
+        [&](const Style::ReferencePath& clipPath) {
+            if (auto* clipperRenderer = ReferencedSVGResources::referencedClipperRenderer(renderer().treeScopeForSVGReferences(), clipPath))
+                clipperRenderer->removeClientFromCache(renderer());
+        },
+        [](const auto&) { }
+    );
 }
 
 void RenderLayer::addChild(RenderLayer& child, RenderLayer* beforeChild)
@@ -758,14 +760,13 @@ bool RenderLayer::willCompositeClipPath() const
     if (!isComposited())
         return false;
 
-    auto* clipPath = renderer().style().clipPath();
-    if (!clipPath)
+    if (!renderer().style().hasClipPath())
         return false;
 
     if (renderer().hasMask())
         return false;
 
-    return (clipPath->type() != PathOperation::Type::Shape || clipPath->type() == PathOperation::Type::Shape) && GraphicsLayer::supportsLayerType(GraphicsLayer::Type::Shape);
+    return GraphicsLayer::supportsLayerType(GraphicsLayer::Type::Shape);
 }
 
 void RenderLayer::dirtyNormalFlowList()
@@ -3476,24 +3477,27 @@ bool RenderLayer::setupFontSubpixelQuantization(GraphicsContext& context, bool& 
 
 std::pair<Path, WindRule> RenderLayer::computeClipPath(const LayoutSize& offsetFromRoot, const LayoutRect& rootRelativeBoundsForNonBoxes) const
 {
-    const RenderStyle& style = renderer().style();
+    auto& style = renderer().style();
 
-    if (RefPtr clipPath = dynamicDowncast<ShapePathOperation>(*style.clipPath())) {
-        auto referenceBoxRect = referenceBoxRectForClipPath(clipPath->referenceBox(), offsetFromRoot, rootRelativeBoundsForNonBoxes);
-        auto snappedReferenceBoxRect = snapRectToDevicePixelsIfNeeded(referenceBoxRect, renderer());
-        return { clipPath->pathForReferenceRect(snappedReferenceBoxRect), clipPath->windRule() };
-    }
-
-    RefPtr clipPath = dynamicDowncast<BoxPathOperation>(*style.clipPath());
-    CheckedPtr box = dynamicDowncast<RenderBox>(renderer());
-    if (clipPath && box) {
-        auto shapeRect = computeRoundedRectForBoxShape(clipPath->referenceBox(), *box).pixelSnappedRoundedRectForPainting(renderer().document().deviceScaleFactor());
-        shapeRect.move(offsetFromRoot);
-
-        return { clipPath->pathForReferenceRect(shapeRect), WindRule::NonZero };
-    }
-
-    return { Path(), WindRule::NonZero };
+    return WTF::switchOn(style.clipPath(),
+        [&](const Style::BasicShapePath& clipPath) -> std::pair<Path, WindRule> {
+            auto referenceBoxRect = referenceBoxRectForClipPath(clipPath.referenceBox(), offsetFromRoot, rootRelativeBoundsForNonBoxes);
+            auto snappedReferenceBoxRect = snapRectToDevicePixelsIfNeeded(referenceBoxRect, renderer());
+            return { Style::path(clipPath.shape(), snappedReferenceBoxRect), Style::windRule(clipPath.shape()) };
+        },
+        [&](const Style::BoxPath& clipPath) -> std::pair<Path, WindRule> {
+            CheckedPtr box = dynamicDowncast<RenderBox>(renderer());
+            if (box) {
+                auto shapeRect = computeRoundedRectForBoxShape(clipPath.referenceBox(), *box).pixelSnappedRoundedRectForPainting(renderer().document().deviceScaleFactor());
+                shapeRect.move(offsetFromRoot);
+                return { shapeRect.path(), WindRule::NonZero };
+            }
+            return { Path(), WindRule::NonZero };
+        },
+        [&](const auto&) -> std::pair<Path, WindRule> {
+            return { Path(), WindRule::NonZero };
+        }
+    );
 }
 
 void RenderLayer::setupClipPath(GraphicsContext& context, GraphicsContextStateSaver& stateSaver, RegionContextStateSaver& regionContextStateSaver, const LayerPaintingInfo& paintingInfo, OptionSet<PaintLayerFlag>& paintFlags, const LayoutSize& offsetFromRoot)
@@ -3515,8 +3519,8 @@ void RenderLayer::setupClipPath(GraphicsContext& context, GraphicsContextStateSa
 
     auto& style = renderer().style();
     LayoutSize paintingOffsetFromRoot = LayoutSize(snapSizeToDevicePixel(offsetFromRoot + paintingInfo.subpixelOffset, LayoutPoint(), renderer().document().deviceScaleFactor()));
-    ASSERT(style.clipPath());
-    if (is<ShapePathOperation>(*style.clipPath()) || (is<BoxPathOperation>(*style.clipPath()) && is<RenderBox>(renderer()))) {
+    ASSERT(!WTF::holdsAlternative<CSS::Keyword::None>(style.clipPath()));
+    if (WTF::holdsAlternative<Style::BasicShapePath>(style.clipPath()) || (WTF::holdsAlternative<Style::BoxPath>(style.clipPath()) && is<RenderBox>(renderer()))) {
         // clippedContentBounds is used as the reference box for inlines, which is also poorly specified: https://github.com/w3c/csswg-drafts/issues/6383.
         auto [path, windRule] = computeClipPath(paintingOffsetFromRoot, clippedContentBounds);
 

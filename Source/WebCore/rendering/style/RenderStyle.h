@@ -288,6 +288,7 @@ class CustomPropertyData;
 class CustomPropertyRegistry;
 class ViewTransitionName;
 struct BoxShadow;
+struct ClipPath;
 struct Color;
 struct ColorScheme;
 struct CornerShapeValue;
@@ -299,6 +300,7 @@ struct MaximumSize;
 struct MinimumSize;
 struct OffsetAnchor;
 struct OffsetDistance;
+struct OffsetPath;
 struct OffsetPosition;
 struct OffsetRotate;
 struct PaddingEdge;
@@ -1861,9 +1863,10 @@ public:
     void setShapeImageThreshold(float);
     static float initialShapeImageThreshold() { return 0; }
 
-    inline void setClipPath(RefPtr<PathOperation>&&);
-    inline PathOperation* clipPath() const;
-    static PathOperation* initialClipPath() { return nullptr; }
+    inline const Style::ClipPath& clipPath() const;
+    inline bool hasClipPath() const;
+    inline void setClipPath(Style::ClipPath&&);
+    static inline Style::ClipPath initialClipPath();
 
     inline bool hasUsedContentNone() const;
     inline bool hasContent() const;
@@ -2326,9 +2329,10 @@ public:
     inline const Style::Color& accentColor() const;
     inline bool hasAutoAccentColor() const;
 
-    inline PathOperation* offsetPath() const;
-    inline void setOffsetPath(RefPtr<PathOperation>&&);
-    static PathOperation* initialOffsetPath() { return nullptr; }
+    inline const Style::OffsetPath& offsetPath() const;
+    inline bool hasOffsetPath() const;
+    inline void setOffsetPath(Style::OffsetPath&&);
+    static inline Style::OffsetPath initialOffsetPath();
 
     inline const Style::OffsetDistance& offsetDistance() const;
     inline void setOffsetDistance(Style::OffsetDistance&&);

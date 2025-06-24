@@ -254,7 +254,7 @@ inline void RenderStyle::setObjectFit(ObjectFit fit) { SET_NESTED(m_nonInherited
 inline void RenderStyle::setObjectPosition(LengthPoint position) { SET_NESTED(m_nonInheritedData, miscData, objectPosition, WTFMove(position)); }
 inline void RenderStyle::setOffsetAnchor(Style::OffsetAnchor&& anchor) { SET_NESTED(m_nonInheritedData, rareData, offsetAnchor, WTFMove(anchor)); }
 inline void RenderStyle::setOffsetDistance(Style::OffsetDistance&& distance) { SET_NESTED(m_nonInheritedData, rareData, offsetDistance, WTFMove(distance)); }
-inline void RenderStyle::setOffsetPath(RefPtr<PathOperation>&& path) { SET_NESTED(m_nonInheritedData, rareData, offsetPath, WTFMove(path)); }
+inline void RenderStyle::setOffsetPath(Style::OffsetPath&& path) { SET_NESTED(m_nonInheritedData, rareData, offsetPath, WTFMove(path)); }
 inline void RenderStyle::setOffsetPosition(Style::OffsetPosition&& position) { SET_NESTED(m_nonInheritedData, rareData, offsetPosition, WTFMove(position)); }
 inline void RenderStyle::setOffsetRotate(Style::OffsetRotate&& rotate) { SET_NESTED(m_nonInheritedData, rareData, offsetRotate, WTFMove(rotate)); }
 inline void RenderStyle::setOrder(int o) { SET_NESTED(m_nonInheritedData, miscData, order, o); }
@@ -471,7 +471,7 @@ inline void RenderStyle::setBorderRadius(LengthSize&& size)
     setBorderBottomRightRadius(WTFMove(size));
 }
 
-inline void RenderStyle::setClipPath(RefPtr<PathOperation>&& operation)
+inline void RenderStyle::setClipPath(Style::ClipPath&& operation)
 {
     if (m_nonInheritedData->rareData->clipPath != operation)
         m_nonInheritedData.access().rareData.access().clipPath = WTFMove(operation);

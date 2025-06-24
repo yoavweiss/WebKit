@@ -52,7 +52,6 @@
 #include "CSSPrimitiveValue.h"
 #include "CSSPrimitiveValueMappings.h"
 #include "CSSPropertyParserConsumer+Font.h"
-#include "CSSRayValue.h"
 #include "CSSReflectValue.h"
 #include "CSSSubgridValue.h"
 #include "CSSURLValue.h"
@@ -65,7 +64,6 @@
 #include "GridPositionsResolver.h"
 #include "LineClampValue.h"
 #include "LocalFrame.h"
-#include "PathOperation.h"
 #include "Quirks.h"
 #include "QuotesData.h"
 #include "RenderStyleInlines.h"
@@ -73,7 +71,6 @@
 #include "SVGElementTypeHelpers.h"
 #include "SVGPathElement.h"
 #include "SVGRenderStyle.h"
-#include "SVGURIReference.h"
 #include "ScaleTransformOperation.h"
 #include "ScrollAxis.h"
 #include "ScrollbarColor.h"
@@ -81,6 +78,7 @@
 #include "Settings.h"
 #include "StyleBasicShape.h"
 #include "StyleBuilderChecking.h"
+#include "StyleClipPath.h"
 #include "StyleColorScheme.h"
 #include "StyleCornerShapeValue.h"
 #include "StyleDynamicRangeLimit.h"
@@ -93,6 +91,7 @@
 #include "StyleMinimumSize.h"
 #include "StyleOffsetAnchor.h"
 #include "StyleOffsetDistance.h"
+#include "StyleOffsetPath.h"
 #include "StyleOffsetPosition.h"
 #include "StyleOffsetRotate.h"
 #include "StylePadding.h"
@@ -161,7 +160,6 @@ public:
     static TextAlignMode convertTextAlign(BuilderState&, const CSSValue&);
     static TextAlignLast convertTextAlignLast(BuilderState&, const CSSValue&);
     static RefPtr<StylePathData> convertDPath(BuilderState&, const CSSValue&);
-    static RefPtr<PathOperation> convertPathOperation(BuilderState&, const CSSValue&);
     static Resize convertResize(BuilderState&, const CSSValue&);
     static int convertMarqueeRepetition(BuilderState&, const CSSValue&);
     static int convertMarqueeSpeed(BuilderState&, const CSSValue&);
@@ -688,61 +686,6 @@ inline RefPtr<StylePathData> BuilderConverter::convertDPath(BuilderState& builde
     ASSERT(is<CSSPrimitiveValue>(value));
     ASSERT(downcast<CSSPrimitiveValue>(value).valueID() == CSSValueNone);
     return nullptr;
-}
-
-inline RefPtr<PathOperation> BuilderConverter::convertPathOperation(BuilderState& builderState, const CSSValue& value)
-{
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        ASSERT_UNUSED(primitiveValue, primitiveValue->valueID() == CSSValueNone);
-        return nullptr;
-    }
-
-    if (RefPtr url = dynamicDowncast<CSSURLValue>(value)) {
-        auto styleURL = toStyle(url->url(), builderState);
-
-        // FIXME: ReferencePathOperation are not hooked up to support remote URLs yet, so only works with document local references. To see an example of how this should work, see ReferenceFilterOperation which supports both document local and remote URLs.
-
-        auto fragment = SVGURIReference::fragmentIdentifierFromIRIString(styleURL, builderState.document());
-
-        const TreeScope* treeScope = nullptr;
-        if (builderState.element())
-            treeScope = &builderState.element()->treeScopeForSVGReferences();
-        else
-            treeScope = &builderState.document();
-        auto target = SVGURIReference::targetElementFromIRIString(styleURL, *treeScope);
-
-        return ReferencePathOperation::create(WTFMove(styleURL), fragment, dynamicDowncast<SVGElement>(target.element.get()));
-    }
-
-    if (RefPtr ray = dynamicDowncast<CSSRayValue>(value))
-        return RayPathOperation::create(toStyle(ray->ray(), builderState));
-
-    RefPtr<PathOperation> operation;
-    auto referenceBox = CSSBoxType::BoxMissing;
-    auto processSingleValue = [&](const CSSValue& singleValue) {
-        ASSERT(!is<CSSValueList>(singleValue));
-        if (RefPtr ray = dynamicDowncast<CSSRayValue>(singleValue))
-            operation = RayPathOperation::create(toStyle(ray->ray(), builderState));
-        else if (RefPtr shape = dynamicDowncast<CSSBasicShapeValue>(singleValue))
-            operation = ShapePathOperation::create(toStyle(shape->shape(), builderState, std::nullopt));
-        else
-            referenceBox = fromCSSValue<CSSBoxType>(singleValue);
-    };
-
-    if (auto* list = dynamicDowncast<CSSValueList>(value)) {
-        for (auto& currentValue : *list)
-            processSingleValue(currentValue);
-    } else
-        processSingleValue(value);
-
-    if (operation)
-        operation->setReferenceBox(referenceBox);
-    else {
-        ASSERT(referenceBox != CSSBoxType::BoxMissing);
-        operation = BoxPathOperation::create(referenceBox);
-    }
-
-    return operation;
 }
 
 inline Resize BuilderConverter::convertResize(BuilderState& builderState, const CSSValue& value)

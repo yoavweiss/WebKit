@@ -31,6 +31,7 @@
 #include "config.h"
 #include "FloatRoundedRect.h"
 
+#include "Path.h"
 #include <algorithm>
 #include <numbers>
 #include <wtf/TZoneMallocInlines.h>
@@ -224,6 +225,13 @@ void FloatRoundedRect::adjustRadii()
 bool FloatRoundedRect::intersectionIsRectangular(const FloatRect& rect) const
 {
     return !(rect.intersects(topLeftCorner()) || rect.intersects(topRightCorner()) || rect.intersects(bottomLeftCorner()) || rect.intersects(bottomRightCorner()));
+}
+
+Path FloatRoundedRect::path() const
+{
+    Path path;
+    path.addRoundedRect(*this);
+    return path;
 }
 
 Region approximateAsRegion(const FloatRoundedRect& roundedRect, unsigned stepLength)

@@ -76,7 +76,7 @@ namespace WebCore {
 using namespace CSS::Literals;
 
 inline const Style::Color& RenderStyle::accentColor() const { return m_rareInheritedData->accentColor; }
-inline bool RenderStyle::affectsTransform() const { return hasTransform() || offsetPath() || hasRotate() || hasScale() || hasTranslate(); }
+inline bool RenderStyle::affectsTransform() const { return hasTransform() || hasOffsetPath() || hasRotate() || hasScale() || hasTranslate(); }
 inline const StyleContentAlignmentData& RenderStyle::alignContent() const { return m_nonInheritedData->miscData->alignContent; }
 inline const StyleSelfAlignmentData& RenderStyle::alignItems() const { return m_nonInheritedData->miscData->alignItems; }
 inline const StyleSelfAlignmentData& RenderStyle::alignSelf() const { return m_nonInheritedData->miscData->alignSelf; }
@@ -176,7 +176,7 @@ inline const Style::Color& RenderStyle::caretColor() const { return m_rareInheri
 inline const LengthBox& RenderStyle::clip() const { return m_nonInheritedData->rareData->clip; }
 inline const Length& RenderStyle::clipBottom() const { return m_nonInheritedData->rareData->clip.bottom(); }
 inline const Length& RenderStyle::clipLeft() const { return m_nonInheritedData->rareData->clip.left(); }
-inline PathOperation* RenderStyle::clipPath() const { return m_nonInheritedData->rareData->clipPath.get(); }
+inline const Style::ClipPath& RenderStyle::clipPath() const { return m_nonInheritedData->rareData->clipPath; }
 inline const Length& RenderStyle::clipRight() const { return m_nonInheritedData->rareData->clip.right(); }
 inline const Length& RenderStyle::clipTop() const { return m_nonInheritedData->rareData->clip.top(); }
 inline bool RenderStyle::collapseWhiteSpace() const { return collapseWhiteSpace(whiteSpaceCollapse()); }
@@ -309,6 +309,7 @@ inline bool RenderStyle::hasBorderImage() const { return border().hasBorderImage
 inline bool RenderStyle::hasBorderImageOutsets() const { return borderImage().hasImage() && !borderImage().outset().isZero(); }
 inline bool RenderStyle::hasBorderRadius() const { return border().hasBorderRadius(); }
 inline bool RenderStyle::hasClip() const { return m_nonInheritedData->rareData->hasClip; }
+inline bool RenderStyle::hasClipPath() const { return !WTF::holdsAlternative<CSS::Keyword::None>(m_nonInheritedData->rareData->clipPath); }
 inline bool RenderStyle::hasContent() const { return contentData(); }
 inline bool RenderStyle::hasDisplayAffectedByAnimations() const { return m_nonInheritedData->miscData->hasDisplayAffectedByAnimations; }
 // FIXME: Rename this function.
@@ -331,6 +332,7 @@ inline bool RenderStyle::hasIsolation() const { return isolation() != Isolation:
 inline bool RenderStyle::hasMargin() const { return !Style::isZero(marginBox()); }
 inline bool RenderStyle::hasMask() const { return maskLayers().hasImage() || maskBorder().hasImage(); }
 inline bool RenderStyle::hasInset() const { return !Style::isZero(insetBox()); }
+inline bool RenderStyle::hasOffsetPath() const { return !WTF::holdsAlternative<CSS::Keyword::None>(m_nonInheritedData->rareData->offsetPath); }
 inline bool RenderStyle::hasOpacity() const { return m_nonInheritedData->miscData->hasOpacity(); }
 inline bool RenderStyle::hasOutOfFlowPosition() const { return position() == PositionType::Absolute || position() == PositionType::Fixed; }
 inline bool RenderStyle::hasOutline() const { return outlineStyle() > BorderStyle::Hidden && outlineWidth() > 0; }
@@ -344,7 +346,7 @@ inline bool RenderStyle::hasScale() const { return !scale().isNone(); }
 inline bool RenderStyle::hasStaticBlockPosition(bool horizontal) const { return horizontal ? hasAutoTopAndBottom() : hasAutoLeftAndRight(); }
 inline bool RenderStyle::hasStaticInlinePosition(bool horizontal) const { return horizontal ? hasAutoLeftAndRight() : hasAutoTopAndBottom(); }
 inline bool RenderStyle::hasTextCombine() const { return textCombine() != TextCombine::None; }
-inline bool RenderStyle::hasTransform() const { return !transform().isEmpty() || offsetPath(); }
+inline bool RenderStyle::hasTransform() const { return !transform().isEmpty() || hasOffsetPath(); }
 inline bool RenderStyle::hasTransformRelatedProperty() const { return hasTransform() || hasRotate() || hasScale() || hasTranslate() || transformStyle3D() == TransformStyle3D::Preserve3D || hasPerspective(); }
 inline bool RenderStyle::hasTranslate() const { return !translate().isNone(); }
 inline bool RenderStyle::hasTransitions() const { return transitions() && transitions()->size(); }
@@ -395,6 +397,7 @@ constexpr BreakInside RenderStyle::initialBreakInside() { return BreakInside::Au
 constexpr LineCap RenderStyle::initialCapStyle() { return LineCap::Butt; }
 constexpr CaptionSide RenderStyle::initialCaptionSide() { return CaptionSide::Top; }
 constexpr Clear RenderStyle::initialClear() { return Clear::None; }
+inline Style::ClipPath RenderStyle::initialClipPath() { return CSS::Keyword::None { }; }
 inline Color RenderStyle::initialColor() { return Color::black; }
 constexpr ColumnAxis RenderStyle::initialColumnAxis() { return ColumnAxis::Auto; }
 constexpr ColumnFill RenderStyle::initialColumnFill() { return ColumnFill::Balance; }
@@ -473,6 +476,7 @@ constexpr ObjectFit RenderStyle::initialObjectFit() { return ObjectFit::Fill; }
 inline LengthPoint RenderStyle::initialObjectPosition() { return { { 50.0f, LengthType::Percent }, { 50.0f, LengthType::Percent } }; }
 inline Style::OffsetAnchor RenderStyle::initialOffsetAnchor() { return CSS::Keyword::Auto { }; }
 inline Style::OffsetDistance RenderStyle::initialOffsetDistance() { return 0_css_px; }
+inline Style::OffsetPath RenderStyle::initialOffsetPath() { return CSS::Keyword::None { }; }
 inline Style::OffsetPosition RenderStyle::initialOffsetPosition() { return CSS::Keyword::Normal { }; }
 constexpr Style::OffsetRotate RenderStyle::initialOffsetRotate() { return CSS::Keyword::Auto { }; }
 inline OrderedNamedGridLinesMap RenderStyle::initialOrderedNamedGridColumnLines() { return { }; }
@@ -684,7 +688,7 @@ inline ObjectFit RenderStyle::objectFit() const { return static_cast<ObjectFit>(
 inline const LengthPoint& RenderStyle::objectPosition() const { return m_nonInheritedData->miscData->objectPosition; }
 inline const Style::OffsetAnchor& RenderStyle::offsetAnchor() const { return m_nonInheritedData->rareData->offsetAnchor; }
 inline const Style::OffsetDistance& RenderStyle::offsetDistance() const { return m_nonInheritedData->rareData->offsetDistance; }
-inline PathOperation* RenderStyle::offsetPath() const { return m_nonInheritedData->rareData->offsetPath.get(); }
+inline const Style::OffsetPath& RenderStyle::offsetPath() const { return m_nonInheritedData->rareData->offsetPath; }
 inline const Style::OffsetPosition& RenderStyle::offsetPosition() const { return m_nonInheritedData->rareData->offsetPosition; }
 inline const Style::OffsetRotate& RenderStyle::offsetRotate() const { return m_nonInheritedData->rareData->offsetRotate; }
 inline Length RenderStyle::oneLength() { return { 1, LengthType::Fixed }; }

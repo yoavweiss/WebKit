@@ -3917,8 +3917,8 @@
                 "aliases": [
                     "-webkit-clip-path"
                 ],
-                "animation-wrapper": "PathOperationWrapper",
-                "style-converter": "PathOperation",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ClipPath>",
                 "parser-function": "consumeClipPath",
                 "parser-grammar-unused": "<clip-source> | [ <basic-shape> || <geometry-box> ] | none",
                 "parser-grammar-unused-reason": "Needs support for transforming parsed input to minimal form and default values in '||' groups."
@@ -6472,10 +6472,9 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "PathOperationWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "threaded-only",
-                "style-builder-converter": "PathOperation",
-                "style-extractor-converter": "PathOperationForceAbsolute",
+                "style-converter": "StyleType<OffsetPath>",
                 "parser-function": "consumeOffsetPath",
                 "parser-grammar-unused": "none | <ray()> | <path()> | <url> | [ <basic-shape> && <coord-box>? ] | <coord-box>",
                 "parser-grammar-unused-reason": "Needs support for transforming parsed input to minimal form and the strong value representation."

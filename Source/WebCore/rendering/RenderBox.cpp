@@ -1558,9 +1558,6 @@ bool RenderBox::hitTestVisualOverflow(const HitTestLocation& hitTestLocation, co
 
 bool RenderBox::hitTestClipPath(const HitTestLocation& hitTestLocation, const LayoutPoint& accumulatedOffset) const
 {
-    if (!style().clipPath())
-        return true;
-
     auto offsetFromHitTestRoot = toLayoutSize(accumulatedOffset + location());
     auto hitTestLocationInLocalCoordinates = hitTestLocation.point() - offsetFromHitTestRoot;
 
@@ -1571,33 +1568,23 @@ bool RenderBox::hitTestClipPath(const HitTestLocation& hitTestLocation, const La
         return clipper->hitTestClipContent( FloatRect { borderBoxRect() }, FloatPoint { hitTestLocationInLocalCoordinates });
     };
 
-    switch (style().clipPath()->type()) {
-    case PathOperation::Type::Shape: {
-        auto& clipPath = uncheckedDowncast<ShapePathOperation>(*style().clipPath());
-        auto referenceBoxRect = this->referenceBoxRect(clipPath.referenceBox());
-        if (!clipPath.pathForReferenceRect(referenceBoxRect).contains(hitTestLocationInLocalCoordinates, clipPath.windRule()))
-            return false;
-        break;
-    }
-    case PathOperation::Type::Reference: {
-        const auto& referencePathOperation = uncheckedDowncast<ReferencePathOperation>(*style().clipPath());
-        RefPtr element = document().getElementById(referencePathOperation.fragment());
-        if (!element || !element->renderer())
-            break;
-        if (!is<SVGClipPathElement>(*element))
-            break;
-        if (!hitsClipContent(*element))
-            return false;
-        break;
-    }
-    case PathOperation::Type::Box:
-        break;
-    case PathOperation::Type::Ray:
-        ASSERT_NOT_REACHED("clip-path does not support Ray shape");
-        break;
-    }
-
-    return true;
+    return WTF::switchOn(style().clipPath(),
+        [&](const Style::BasicShapePath& clipPath) {
+            auto& shape = clipPath.shape();
+            auto path = Style::path(shape, referenceBoxRect(clipPath.referenceBox()));
+            return path.contains(hitTestLocationInLocalCoordinates, Style::windRule(shape));
+        },
+        [&](const Style::ReferencePath& clipPath) {
+            RefPtr element = document().getElementById(clipPath.fragment());
+            return !is<SVGClipPathElement>(element) || !element->renderer() || hitsClipContent(*element);
+        },
+        [&](const Style::BoxPath&) {
+            return true;
+        },
+        [&](const CSS::Keyword::None&) {
+            return true;
+        }
+    );
 }
 
 bool RenderBox::hitTestBorderRadius(const HitTestLocation& hitTestLocation, const LayoutPoint& accumulatedOffset) const
@@ -1976,7 +1963,7 @@ void RenderBox::paintClippingMask(PaintInfo& paintInfo, const LayoutPoint& paint
 
     LayoutRect paintRect = LayoutRect(paintOffset, size());
 
-    if (document().settings().layerBasedSVGEngineEnabled() && style().clipPath() && style().clipPath()->type() == PathOperation::Type::Reference) {
+    if (document().settings().layerBasedSVGEngineEnabled() && WTF::holdsAlternative<Style::ReferencePath>(style().clipPath())) {
         paintSVGClippingMask(paintInfo, paintRect);
         return;
     }

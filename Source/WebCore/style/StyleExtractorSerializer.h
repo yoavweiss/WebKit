@@ -31,18 +31,12 @@
 #include "CSSValueTypes.h"
 #include "ColorSerialization.h"
 #include "StyleExtractorConverter.h"
+#include "StylePrimitiveKeyword+Serialization.h"
 #include "StylePrimitiveNumericTypes+Serialization.h"
 #include <wtf/text/StringBuilder.h>
 
 namespace WebCore {
 namespace Style {
-
-template<typename T> requires std::is_enum_v<T> struct Serialize<T> {
-    void operator()(StringBuilder& builder, const CSS::SerializationContext&, const RenderStyle&, T value)
-    {
-        builder.append(nameLiteralForSerialization(toCSSValueID(value)));
-    }
-};
 
 class ExtractorSerializer {
 public:
@@ -99,8 +93,6 @@ public:
     static void serializeListStyleType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ListStyleType&);
     static void serializeMarginTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<MarginTrimType>);
     static void serializeShapeValue(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ShapeValue*);
-    static void serializePathOperation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const PathOperation*, PathConversion = PathConversion::None);
-    static void serializePathOperationForceAbsolute(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const PathOperation*);
     static void serializeDPath(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StylePathData*);
     static void serializeStrokeDashArray(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<WebCore::Length>&);
     static void serializeTextStrokeWidth(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, float);
@@ -846,60 +838,6 @@ inline void ExtractorSerializer::serializeShapeValue(ExtractorState& state, Stri
     serializationForCSS(builder, context, state.style, *shapeValue->shape());
     builder.append(' ');
     serializationForCSS(builder, context, state.style, shapeValue->cssBox());
-}
-
-inline void ExtractorSerializer::serializePathOperation(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const PathOperation* operation, PathConversion conversion)
-{
-    if (!operation) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    switch (operation->type()) {
-    case PathOperation::Type::Reference: {
-        auto& reference = uncheckedDowncast<ReferencePathOperation>(*operation);
-        CSS::serializationForCSS(builder, context, toCSS(reference.url(), state.style));
-        return;
-    }
-
-    case PathOperation::Type::Shape: {
-        auto& shape = uncheckedDowncast<ShapePathOperation>(*operation);
-        if (shape.referenceBox() == CSSBoxType::BoxMissing) {
-            serializeStyleType(state, builder, context, shape.shape(), conversion);
-            return;
-        }
-
-        serializeStyleType(state, builder, context, shape.shape(), conversion);
-        builder.append(' ');
-        serializeStyleType(state, builder, context, shape.referenceBox());
-        return;
-    }
-
-    case PathOperation::Type::Box: {
-        auto& box = uncheckedDowncast<BoxPathOperation>(*operation);
-        serialize(state, builder, context, box.referenceBox());
-        return;
-    }
-
-    case PathOperation::Type::Ray: {
-        auto& ray = uncheckedDowncast<RayPathOperation>(*operation);
-        if (ray.referenceBox() == CSSBoxType::BoxMissing) {
-            CSS::serializationForCSS(builder, context, toCSS(ray.ray(), state.style));
-            return;
-        }
-        CSS::serializationForCSS(builder, context, toCSS(ray.ray(), state.style));
-        builder.append(' ');
-        serialize(state, builder, context, ray.referenceBox());
-        return;
-    }
-    }
-
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline void ExtractorSerializer::serializePathOperationForceAbsolute(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const PathOperation* operation)
-{
-    serializePathOperation(state, builder, context, operation, PathConversion::ForceAbsolute);
 }
 
 inline void ExtractorSerializer::serializeDPath(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const StylePathData* path)

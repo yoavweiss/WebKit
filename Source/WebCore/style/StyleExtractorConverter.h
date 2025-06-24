@@ -92,6 +92,7 @@
 #include "SkewTransformOperation.h"
 #include "StyleAppleColorFilterProperty.h"
 #include "StyleBoxShadow.h"
+#include "StyleClipPath.h"
 #include "StyleColor.h"
 #include "StyleColorScheme.h"
 #include "StyleCornerShapeValue.h"
@@ -105,10 +106,12 @@
 #include "StyleMargin.h"
 #include "StyleMaximumSize.h"
 #include "StyleMinimumSize.h"
+#include "StyleOffsetPath.h"
 #include "StylePadding.h"
 #include "StylePathData.h"
 #include "StylePerspective.h"
 #include "StylePreferredSize.h"
+#include "StylePrimitiveKeyword+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StyleReflection.h"
@@ -126,13 +129,6 @@
 
 namespace WebCore {
 namespace Style {
-
-template<typename T> requires std::is_enum_v<T> struct CSSValueCreation<T> {
-    Ref<CSSValue> operator()(CSSValuePool&, const RenderStyle&, T value)
-    {
-        return CSSPrimitiveValue::create(toCSSValueID(value));
-    }
-};
 
 class ExtractorConverter {
 public:
@@ -189,8 +185,6 @@ public:
     static Ref<CSSValue> convertListStyleType(ExtractorState&, const ListStyleType&);
     static Ref<CSSValue> convertMarginTrim(ExtractorState&, OptionSet<MarginTrimType>);
     static Ref<CSSValue> convertShapeValue(ExtractorState&, const ShapeValue*);
-    static Ref<CSSValue> convertPathOperation(ExtractorState&, const PathOperation*, PathConversion = PathConversion::None);
-    static Ref<CSSValue> convertPathOperationForceAbsolute(ExtractorState&, const PathOperation*);
     static Ref<CSSValue> convertDPath(ExtractorState&, const StylePathData*);
     static Ref<CSSValue> convertStrokeDashArray(ExtractorState&, const FixedVector<WebCore::Length>&);
     static Ref<CSSValue> convertTextStrokeWidth(ExtractorState&, float);
@@ -705,44 +699,6 @@ inline Ref<CSSValue> ExtractorConverter::convertShapeValue(ExtractorState& state
     if (shapeValue->cssBox() == CSSBoxType::BoxMissing)
         return CSSValueList::createSpaceSeparated(convertStyleType(state, *shapeValue->shape()));
     return CSSValueList::createSpaceSeparated(convertStyleType(state, *shapeValue->shape()), convert(state, shapeValue->cssBox()));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertPathOperation(ExtractorState& state, const PathOperation* operation, PathConversion conversion)
-{
-    if (!operation)
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    switch (operation->type()) {
-    case PathOperation::Type::Reference: {
-        auto& reference = uncheckedDowncast<ReferencePathOperation>(*operation);
-        return convertStyleType(state, reference.url());
-    }
-
-    case PathOperation::Type::Shape: {
-        auto& shape = uncheckedDowncast<ShapePathOperation>(*operation);
-        if (shape.referenceBox() == CSSBoxType::BoxMissing)
-            return CSSValueList::createSpaceSeparated(convertStyleType(state, shape.shape(), conversion));
-        return CSSValueList::createSpaceSeparated(convertStyleType(state, shape.shape(), conversion), convert(state, shape.referenceBox()));
-    }
-
-    case PathOperation::Type::Box: {
-        auto& box = uncheckedDowncast<BoxPathOperation>(*operation);
-        return convert(state, box.referenceBox());
-    }
-
-    case PathOperation::Type::Ray: {
-        auto& ray = uncheckedDowncast<RayPathOperation>(*operation);
-        return CSSRayValue::create(toCSS(ray.ray(), state.style), ray.referenceBox());
-    }
-    }
-
-    ASSERT_NOT_REACHED();
-    return CSSPrimitiveValue::create(CSSValueNone);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertPathOperationForceAbsolute(ExtractorState& state, const PathOperation* operation)
-{
-    return convertPathOperation(state, operation, PathConversion::ForceAbsolute);
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertDPath(ExtractorState& state, const StylePathData* path)

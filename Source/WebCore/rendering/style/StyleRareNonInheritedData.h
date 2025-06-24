@@ -40,10 +40,12 @@
 #include "ScrollTypes.h"
 #include "ScrollbarGutter.h"
 #include "ShapeValue.h"
+#include "StyleClipPath.h"
 #include "StyleColor.h"
 #include "StyleContentAlignmentData.h"
 #include "StyleOffsetAnchor.h"
 #include "StyleOffsetDistance.h"
+#include "StyleOffsetPath.h"
 #include "StyleOffsetPosition.h"
 #include "StyleOffsetRotate.h"
 #include "StylePerspective.h"
@@ -188,7 +190,7 @@ public:
 
     Style::Perspective perspective;
 
-    RefPtr<PathOperation> clipPath;
+    Style::ClipPath clipPath;
 
     Style::Color textDecorationColor;
 
@@ -198,7 +200,6 @@ public:
     Style::Rotate rotate;
     Style::Scale scale;
     Style::Translate translate;
-    RefPtr<PathOperation> offsetPath;
 
     FixedVector<Style::ScopedName> containerNames;
 
@@ -208,6 +209,7 @@ public:
     GapLength columnGap;
     GapLength rowGap;
 
+    Style::OffsetPath offsetPath;
     Style::OffsetDistance offsetDistance;
     Style::OffsetPosition offsetPosition;
     Style::OffsetAnchor offsetAnchor;
