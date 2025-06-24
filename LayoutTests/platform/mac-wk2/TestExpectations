@@ -2192,3 +2192,5 @@ webkit.org/b/294087 [ Sequoia ] svg/zoom/page/text-with-non-scaling-stroke.html 
 
 # It fails only on debug build with '0.01%' difference
 [ Debug ] imported/w3c/web-platform-tests/css/css-fill-stroke/paint-order-001.html [ ImageOnlyFailure ]
+
+webkit.org/b/294873 compositing/hdr/iframe-with-hdr-image.html [ Skip ]
