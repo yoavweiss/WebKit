@@ -9,4 +9,5 @@ FAIL Verifies that no scrolling occurs when an element selected by the fragment 
 FAIL No scrolling should occur when the beforematch event handler sets the target element's style to display: none. assert_true: beforematch should be called when window.location.hash is set to #displaynone. expected true got false
 FAIL Scrolling should still occur when beforematch sets visiblity:hidden on the target element. assert_true: beforematch should be called when window.location.hash is set to #visibilityhidden. expected true got false
 PASS Verifies that the beforematch event is not fired on elements without hidden=until-found.
+FAIL The hidden attribute should still be set inside the beforematch event handler. assert_true: expected true got false
 

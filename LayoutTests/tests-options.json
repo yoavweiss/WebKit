@@ -3629,6 +3629,9 @@
     "imported/w3c/web-platform-tests/html/dom/reflection-text.html": [
         "slow"
     ],
+    "imported/w3c/web-platform-tests/html/editing/the-hidden-attribute/beforematch-scroll-to-text-fragment.html": [
+        "slow"
+    ],
     "imported/w3c/web-platform-tests/html/infrastructure/urls/resolving-urls/query-encoding/utf-16le.html": [
         "slow"
     ],
