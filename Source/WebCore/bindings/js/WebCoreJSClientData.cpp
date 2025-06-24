@@ -184,10 +184,10 @@ void JSVMClientData::getAllWorlds(Vector<Ref<DOMWrapperWorld>>& worlds)
     }
 
     // Add non-normal worlds.
-    for (auto* world : m_worldSet) {
+    for (RefPtr world : m_worldSet) {
         if (world->type() == DOMWrapperWorld::Type::Normal)
             continue;
-        worlds.append(*world);
+        worlds.append(world.releaseNonNull());
     }
 }
 

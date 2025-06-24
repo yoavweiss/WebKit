@@ -59,8 +59,6 @@ Modules/webaudio/OscillatorNode.cpp
 Modules/webaudio/PannerNode.cpp
 Modules/webaudio/ScriptProcessorNode.cpp
 Modules/webaudio/StereoPannerNode.cpp
-Modules/webaudio/WaveShaperDSPKernel.cpp
-Modules/webaudio/WaveShaperNode.cpp
 Modules/webauthn/AuthenticatorAssertionResponse.cpp
 Modules/webauthn/AuthenticatorAttestationResponse.cpp
 Modules/webauthn/AuthenticatorCoordinator.cpp
@@ -74,10 +72,8 @@ accessibility/AXLogger.cpp
 accessibility/AXObjectCache.cpp
 accessibility/AccessibilityNodeObject.cpp
 accessibility/AccessibilityObject.cpp
-accessibility/mac/WebAccessibilityObjectWrapperBase.mm
 accessibility/mac/WebAccessibilityObjectWrapperMac.mm
 animation/KeyframeEffect.cpp
-animation/WebAnimation.cpp
 bindings/js/CommonVM.cpp
 bindings/js/DOMWrapperWorld.cpp
 bindings/js/JSAbortSignalCustom.cpp
@@ -135,9 +131,6 @@ bindings/js/ScriptCachedFrameData.cpp
 bindings/js/ScriptModuleLoader.cpp
 bindings/js/SerializedScriptValue.cpp
 bindings/js/StructuredClone.cpp
-bindings/js/WebCoreJSClientData.cpp
-bindings/js/WindowProxy.cpp
-bridge/objc/WebScriptObject.mm
 bridge/objc/objc_runtime.mm
 bridge/objc/objc_utility.mm
 contentextensions/ContentExtensionsBackend.cpp
@@ -291,7 +284,6 @@ html/ModelDocument.cpp
 html/OffscreenCanvas.cpp
 html/PluginDocument.cpp
 html/ValidatedFormListedElement.cpp
-html/ValidationMessage.cpp
 html/canvas/CanvasRenderingContext2D.cpp
 html/canvas/CanvasRenderingContext2DBase.cpp
 html/canvas/OffscreenCanvasRenderingContext2D.cpp
@@ -308,7 +300,6 @@ html/track/TextTrackCueGeneric.cpp
 html/track/TextTrackList.cpp
 html/track/TrackBase.cpp
 html/track/VTTCue.cpp
-html/track/VideoTrackList.cpp
 inspector/CommandLineAPIHost.cpp
 inspector/DOMPatchSupport.cpp
 inspector/InspectorAuditAccessibilityObject.cpp
@@ -404,9 +395,6 @@ page/SpatialNavigation.cpp
 page/TextIndicator.cpp
 page/UserContentController.cpp
 page/UserContentProvider.cpp
-page/UserMessageHandlersNamespace.cpp
-page/VisitedLinkStore.cpp
-page/VisualViewport.cpp
 page/cocoa/ResourceUsageThreadCocoa.mm
 page/mac/EventHandlerMac.mm
 page/mac/ImageOverlayControllerMac.mm
@@ -431,7 +419,6 @@ platform/animation/AcceleratedEffect.cpp
 platform/animation/AcceleratedEffectValues.cpp
 platform/audio/PlatformMediaSessionManager.cpp
 platform/cocoa/PlaybackSessionModelMediaElement.mm
-platform/cocoa/VideoPresentationModelVideoElement.mm
 platform/graphics/ComplexTextController.cpp
 platform/graphics/DisplayRefreshMonitorManager.cpp
 platform/graphics/FontCache.cpp
@@ -442,7 +429,6 @@ platform/graphics/SourceBrush.cpp
 platform/graphics/avfoundation/AudioSourceProviderAVFObjC.mm
 platform/graphics/avfoundation/objc/CDMInstanceFairPlayStreamingAVFObjC.mm
 platform/graphics/avfoundation/objc/MediaSourcePrivateAVFObjC.mm
-platform/graphics/avfoundation/objc/WebCoreAVFResourceLoader.mm
 platform/graphics/ca/GraphicsLayerCA.cpp
 platform/graphics/ca/TileGrid.cpp
 platform/graphics/ca/cocoa/PlatformCALayerCocoa.mm

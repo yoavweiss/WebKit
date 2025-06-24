@@ -124,7 +124,6 @@ bindings/js/JSWorkletGlobalScopeBase.cpp
 bindings/js/JSXMLHttpRequestCustom.cpp
 bindings/js/ScheduledAction.cpp
 bindings/js/ScriptModuleLoader.cpp
-bindings/js/WindowProxy.cpp
 bridge/objc/WebScriptObject.mm
 bridge/runtime_method.cpp
 contentextensions/ContentExtensionsBackend.cpp

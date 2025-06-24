@@ -147,7 +147,7 @@ bool WaveShaperNode::propagatesSilence() const
         return false;
 
     Locker locker { AdoptLock, waveShaperProcessor()->processLock() };
-    auto curve = waveShaperProcessor()->curve();
+    RefPtr curve = waveShaperProcessor()->curve();
     return !curve || !curve->length();
 }
 

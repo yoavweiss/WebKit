@@ -219,11 +219,11 @@ void WebAnimation::setEffectInternal(RefPtr<AnimationEffect>&& newEffect, bool d
     if (m_effect == newEffect)
         return;
 
-    auto oldEffect = std::exchange(m_effect, WTFMove(newEffect));
+    RefPtr oldEffect = std::exchange(m_effect, WTFMove(newEffect));
 
-    RefPtr oldKeyframeEffect = dynamicDowncast<KeyframeEffect>(oldEffect.get());
+    RefPtr oldKeyframeEffect = dynamicDowncast<KeyframeEffect>(oldEffect);
     std::optional<const Styleable> previousTarget = oldKeyframeEffect ? oldKeyframeEffect->targetStyleable() : std::nullopt;
-    RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect.get());
+    RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect);
     std::optional<const Styleable> newTarget = keyframeEffect ? keyframeEffect->targetStyleable() : std::nullopt;
 
     // Update the effect-to-animation relationships and the timeline's animation map.
@@ -285,7 +285,7 @@ void WebAnimation::setTimeline(RefPtr<AnimationTimeline>&& timeline)
     auto toFiniteTimeline = timeline && !timeline->isMonotonic();
 
     // 8. Let the timeline of animation be new timeline.
-    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect.get())) {
+    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect)) {
         if (auto target = keyframeEffect->targetStyleable()) {
             // In the case of a dstyle-originated animation, we don't want to remove the animation from the relevant maps because
             // while the timeline was set via the API, the element still has a transition or animation set up and we must
@@ -865,7 +865,7 @@ void WebAnimation::cancel(Silently silently)
 
 void WebAnimation::willChangeRenderer()
 {
-    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect.get()))
+    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect))
         keyframeEffect->willChangeRenderer();
 }
 
@@ -1019,7 +1019,7 @@ void WebAnimation::invalidateEffect()
     if (isEffectInvalidationSuspended())
         return;
 
-    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect.get()))
+    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect))
         keyframeEffect->invalidate();
 }
 
@@ -1139,7 +1139,7 @@ void WebAnimation::finishNotificationSteps()
     }();
     enqueueAnimationPlaybackEvent(eventNames().finishEvent, currentTime(), scheduledTime);
 
-    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect.get())) {
+    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect)) {
         if (RefPtr target = keyframeEffect->target()) {
             if (RefPtr page = target->document().page())
                 page->chrome().client().animationDidFinishForElement(*target);
@@ -1578,7 +1578,7 @@ OptionSet<AnimationImpact> WebAnimation::resolve(RenderStyle& targetStyle, const
         updateFinishedState(DidSeek::No, SynchronouslyNotify::No);
     m_shouldSkipUpdatingFinishedStateWhenResolving = false;
 
-    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect.get()))
+    if (RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect))
         return keyframeEffect->apply(targetStyle, resolutionContext);
     return { };
 }
@@ -1719,7 +1719,7 @@ bool WebAnimation::isReplaceable() const
         return false;
 
     // The target effect has an associated target element.
-    auto* keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect.get());
+    RefPtr keyframeEffect = dynamicDowncast<KeyframeEffect>(m_effect);
     if (!keyframeEffect || !keyframeEffect->target())
         return false;
 
@@ -1745,7 +1745,7 @@ ExceptionOr<void> WebAnimation::commitStyles()
     // https://drafts.csswg.org/web-animations-1/#commit-computed-styles
 
     // 1. Let targets be the set of all effect targets for animation effects associated with animation.
-    RefPtr effect = dynamicDowncast<KeyframeEffect>(m_effect.get());
+    RefPtr effect = dynamicDowncast<KeyframeEffect>(m_effect);
 
     // 2. For each target in targets:
     //

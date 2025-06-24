@@ -172,7 +172,7 @@ void RTCSocketFactory::resume()
 
 void LibWebRTCProvider::startedNetworkThread()
 {
-    WebProcess::singleton().libWebRTCNetwork().setAsActive();
+    WebProcess::singleton().protectedLibWebRTCNetwork()->setAsActive();
 }
 
 std::unique_ptr<LibWebRTCProvider::SuspendableSocketFactory> LibWebRTCProvider::createSocketFactory(String&& userAgent, ScriptExecutionContextIdentifier identifier, bool isFirstParty, RegistrableDomain&& domain)

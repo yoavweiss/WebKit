@@ -45,7 +45,6 @@ accessibility/cocoa/AccessibilityObjectCocoa.mm
 accessibility/isolatedtree/AXIsolatedObject.cpp
 accessibility/isolatedtree/AXIsolatedTree.cpp
 accessibility/mac/AccessibilityObjectMac.mm
-accessibility/mac/WebAccessibilityObjectWrapperBase.mm
 accessibility/mac/WebAccessibilityObjectWrapperMac.mm
 animation/AcceleratedEffectStackUpdater.cpp
 animation/BlendingKeyframes.cpp
@@ -340,7 +339,6 @@ page/ScreenOrientation.cpp
 page/ScrollBehavior.cpp
 page/SpatialNavigation.cpp
 page/TextIndicator.cpp
-page/VisualViewport.cpp
 page/WorkerNavigator.cpp
 page/mac/EventHandlerMac.mm
 page/mac/ImageOverlayControllerMac.mm
@@ -356,7 +354,6 @@ platform/DictationCaretAnimator.cpp
 platform/DragImage.cpp
 platform/ScrollView.cpp
 platform/animation/AcceleratedEffect.cpp
-platform/cocoa/VideoPresentationModelVideoElement.mm
 platform/graphics/GraphicsLayer.cpp
 platform/graphics/ca/GraphicsLayerCA.cpp
 platform/graphics/ca/PlatformCALayer.mm
