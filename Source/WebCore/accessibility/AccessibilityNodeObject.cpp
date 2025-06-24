@@ -1934,7 +1934,7 @@ void AccessibilityNodeObject::helpText(Vector<AccessibilityText>& textOrder) con
         auto matchFunc = [] (const AccessibilityObject& object) {
             return object.isFieldset() && !object.ariaDescribedByAttribute().isEmpty();
         };
-        if (const auto* parent = Accessibility::findAncestor<AccessibilityObject>(*this, false, WTFMove(matchFunc)))
+        if (RefPtr parent = Accessibility::findAncestor<AccessibilityObject>(*this, false, WTFMove(matchFunc)))
             textOrder.append(AccessibilityText(parent->ariaDescribedByAttribute(), AccessibilityTextSource::Summary));
     }
 

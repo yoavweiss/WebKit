@@ -1,7 +1,6 @@
 Modules/encryptedmedia/MediaKeySystemRequest.cpp
 Modules/gamepad/GamepadHapticActuator.cpp
 Modules/geolocation/GeolocationController.cpp
-Modules/highlight/AppHighlightStorage.cpp
 Modules/highlight/Highlight.cpp
 Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBTransaction.cpp

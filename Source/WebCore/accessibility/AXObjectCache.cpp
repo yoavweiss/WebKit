@@ -1739,23 +1739,24 @@ void AXObjectCache::postNotification(RenderObject* renderer, AXNotification noti
 
 void AXObjectCache::postNotification(Node* node, AXNotification notification, PostTarget postTarget)
 {
-    if (!node)
+    RefPtr axNode = node;
+    if (!axNode)
         return;
     
     stopCachingComputedObjectAttributes();
 
     // Get an accessibility object that already exists. One should not be created here
     // because a render update may be in progress and creating an AX object can re-trigger a layout
-    RefPtr<AccessibilityObject> object = get(*node);
-    while (!object && node) {
-        node = node->parentNode();
-        object = get(node);
+    RefPtr object = get(*axNode);
+    while (!object && axNode) {
+        axNode = axNode->parentNode();
+        object = get(axNode.get());
     }
     
-    if (!node)
+    if (!axNode)
         return;
     
-    postNotification(object.get(), node->protectedDocument().ptr(), notification, postTarget);
+    postNotification(object.get(), axNode->protectedDocument().ptr(), notification, postTarget);
 }
 
 void AXObjectCache::postNotification(AccessibilityObject* object, Document* document, AXNotification notification, PostTarget postTarget)
@@ -1766,22 +1767,23 @@ void AXObjectCache::postNotification(AccessibilityObject* object, Document* docu
 
     stopCachingComputedObjectAttributes();
 
-    if (object && postTarget == PostTarget::ObservableParent)
-        object = object->observableObject();
+    RefPtr axObject = object;
+    if (axObject && postTarget == PostTarget::ObservableParent)
+        axObject = axObject->observableObject();
 
-    if (!object && document)
-        object = get(document->renderView());
+    if (!axObject && document)
+        axObject = get(document->renderView());
 
-    if (!object)
+    if (!axObject)
         return;
 
 #if PLATFORM(COCOA)
     if (notification == AXNotification::ValueChanged
-        && enqueuePasswordNotification(*object, { }))
+        && enqueuePasswordNotification(*axObject, { }))
         return;
 #endif
 
-    m_notificationsToPost.append(std::make_pair(Ref { *object }, notification));
+    m_notificationsToPost.append(std::make_pair(axObject.releaseNonNull(), notification));
     if (!m_notificationPostTimer.isActive())
         m_notificationPostTimer.startOneShot(0_s);
 }
@@ -2473,27 +2475,28 @@ void AXObjectCache::postTextStateChangeNotification(AccessibilityObject* object,
     stopCachingComputedObjectAttributes();
 
 #if PLATFORM(COCOA) || USE(ATSPI)
-    if (object) {
-        if (auto* observableObject = object->observableObject())
-            object = observableObject;
+    RefPtr axObject = object;
+    if (axObject) {
+        if (RefPtr observableObject = axObject->observableObject())
+            axObject = observableObject;
     }
 
-    if (!object)
-        object = rootWebArea();
+    if (!axObject)
+        axObject = rootWebArea();
 
-    if (object) {
+    if (axObject) {
         const AXTextStateChangeIntent& newIntent = (intent.type == AXTextStateChangeTypeUnknown || (m_isSynchronizingSelection && m_textSelectionIntent.type != AXTextStateChangeTypeUnknown)) ? m_textSelectionIntent : intent;
 
 #if PLATFORM(COCOA)
-        if (enqueuePasswordNotification(*object, { newIntent, { }, { }, selection }))
+        if (enqueuePasswordNotification(*axObject, { newIntent, { }, { }, selection }))
             return;
 #endif
 
-        postTextSelectionChangePlatformNotification(object, newIntent, selection);
+        postTextSelectionChangePlatformNotification(axObject.get(), newIntent, selection);
     }
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    onSelectedTextChanged(selection, object);
+    onSelectedTextChanged(selection, axObject.get());
 #endif
 #else // PLATFORM(COCOA) || USE(ATSPI)
     UNUSED_PARAM(object);

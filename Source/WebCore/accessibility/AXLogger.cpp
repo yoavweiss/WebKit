@@ -1316,9 +1316,9 @@ void streamAXCoreObject(TextStream& stream, const AXCoreObject& object, const Op
         auto* objectWithInterestingHTML = role == AccessibilityRole::Button ? // Add here other roles of interest.
             &object : nullptr;
 
-        auto* parent = object.parentObjectUnignored();
+        RefPtr parent = object.parentObjectUnignored();
         if (role == AccessibilityRole::StaticText && parent)
-            objectWithInterestingHTML = parent;
+            objectWithInterestingHTML = parent.get();
 
         if (objectWithInterestingHTML)
             stream.dumpProperty("outerHTML"_s, objectWithInterestingHTML->outerHTML().left(150));

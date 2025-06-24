@@ -553,7 +553,7 @@ FloatRect AccessibilityObject::convertFrameToSpace(const FloatRect& frameRect, A
     ASSERT(isMainThread());
 
     // Find the appropriate scroll view to use to convert the contents to the window.
-    const auto parentAccessibilityScrollView = ancestorAccessibilityScrollView(false /* includeSelf */);
+    RefPtr parentAccessibilityScrollView = ancestorAccessibilityScrollView(false /* includeSelf */);
     RefPtr parentScrollView = parentAccessibilityScrollView ? parentAccessibilityScrollView->scrollView() : nullptr;
 
     auto snappedFrameRect = snappedIntRect(IntRect(frameRect));
@@ -592,24 +592,25 @@ AccessibilityObject* AccessibilityObject::firstAccessibleObjectFromNode(const No
 
 AccessibilityObject* firstAccessibleObjectFromNode(const Node* node, NOESCAPE const Function<bool(const AccessibilityObject&)>& isAccessible)
 {
-    if (!node)
+    RefPtr axNode = node;
+    if (!axNode)
         return nullptr;
 
-    AXObjectCache* cache = node->document().axObjectCache();
+    AXObjectCache* cache = axNode->document().axObjectCache();
     if (!cache)
         return nullptr;
 
-    RefPtr accessibleObject = cache->getOrCreate(node->renderer());
+    RefPtr accessibleObject = cache->getOrCreate(axNode->renderer());
     while (accessibleObject && !isAccessible(*accessibleObject)) {
-        node = NodeTraversal::next(*node);
+        axNode = NodeTraversal::next(*axNode);
 
-        while (node && !node->renderer())
-            node = NodeTraversal::nextSkippingChildren(*node);
+        while (axNode && !axNode->renderer())
+            axNode = NodeTraversal::nextSkippingChildren(*axNode);
 
-        if (!node)
+        if (!axNode)
             return nullptr;
 
-        accessibleObject = cache->getOrCreate(node->renderer());
+        accessibleObject = cache->getOrCreate(axNode->renderer());
     }
 
     return accessibleObject.get();
@@ -3350,7 +3351,7 @@ bool AccessibilityObject::isExpanded() const
     
     // Summary element should use its details parent's expanded status.
     if (isSummary()) {
-        if (const AccessibilityObject* parent = Accessibility::findAncestor<AccessibilityObject>(*this, false, [] (const AccessibilityObject& object) {
+        if (RefPtr parent = Accessibility::findAncestor<AccessibilityObject>(*this, false, [] (const AccessibilityObject& object) {
             return is<HTMLDetailsElement>(object.node());
         }))
             return parent->isExpanded();
@@ -3550,8 +3551,8 @@ bool AccessibilityObject::isOnScreen() const
     size_t levels = objects.size() - 1;
     
     for (size_t i = levels; i >= 1; i--) {
-        const AccessibilityObject* outer = objects[i];
-        const AccessibilityObject* inner = objects[i - 1];
+        RefPtr outer = objects[i];
+        RefPtr inner = objects[i - 1];
         // FIXME: unclear if we need LegacyIOSDocumentVisibleRect.
         const IntRect outerRect = i < levels ? snappedIntRect(outer->boundingBoxRect()) : outer->getScrollableAreaIfScrollable()->visibleContentRect(ScrollableArea::LegacyIOSDocumentVisibleRect);
         const IntRect innerRect = snappedIntRect(inner->isScrollView() ? inner->parentObject()->boundingBoxRect() : inner->boundingBoxRect());
@@ -3651,8 +3652,8 @@ void AccessibilityObject::scrollToGlobalPoint(IntPoint&& point) const
     int offsetX = 0, offsetY = 0;
     size_t levels = objects.size() - 1;
     for (size_t i = 0; i < levels; i++) {
-        const AccessibilityObject* outer = objects[i];
-        const AccessibilityObject* inner = objects[i + 1];
+        RefPtr outer = objects[i];
+        RefPtr inner = objects[i + 1];
 
         ScrollableArea* scrollableArea = outer->getScrollableAreaIfScrollable();
 

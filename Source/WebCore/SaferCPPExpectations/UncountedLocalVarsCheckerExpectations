@@ -1,5 +1,4 @@
 Modules/WebGPU/GPUDevice.cpp
-Modules/applepay-ams-ui/ApplePayAMSUIPaymentHandler.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/cache/DOMCache.cpp
@@ -9,7 +8,6 @@ Modules/fetch/FetchBody.cpp
 Modules/fetch/FetchRequest.cpp
 Modules/gamepad/GamepadHapticActuator.cpp
 Modules/geolocation/Geolocation.cpp
-Modules/highlight/AppHighlightStorage.cpp
 Modules/indexeddb/IDBActiveDOMObject.h
 Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBIndex.cpp
@@ -38,7 +36,6 @@ Modules/model-element/HTMLModelElement.cpp
 Modules/notifications/Notification.cpp
 Modules/speech/SpeechRecognition.cpp
 Modules/speech/SpeechSynthesis.cpp
-Modules/webaudio/AnalyserNode.cpp
 Modules/webaudio/AudioBasicProcessorNode.cpp
 Modules/webaudio/AudioBuffer.cpp
 Modules/webaudio/AudioBufferSourceNode.cpp
@@ -68,10 +65,7 @@ Modules/webdatabase/DatabaseContext.cpp
 Modules/webdatabase/DatabaseManager.cpp
 Modules/webdatabase/SQLCallbackWrapper.h
 StyleBuilderGenerated.cpp
-accessibility/AXLogger.cpp
 accessibility/AXObjectCache.cpp
-accessibility/AccessibilityNodeObject.cpp
-accessibility/AccessibilityObject.cpp
 accessibility/mac/WebAccessibilityObjectWrapperMac.mm
 animation/KeyframeEffect.cpp
 bindings/js/CommonVM.cpp
@@ -415,8 +409,6 @@ platform/ScrollableArea.cpp
 platform/ScrollbarsController.cpp
 platform/ThreadGlobalData.cpp
 platform/ThreadGlobalData.h
-platform/animation/AcceleratedEffect.cpp
-platform/animation/AcceleratedEffectValues.cpp
 platform/audio/PlatformMediaSessionManager.cpp
 platform/cocoa/PlaybackSessionModelMediaElement.mm
 platform/graphics/ComplexTextController.cpp

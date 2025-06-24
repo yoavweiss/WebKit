@@ -147,7 +147,7 @@ void ApplePayAMSUIPaymentHandler::hide()
 
 void ApplePayAMSUIPaymentHandler::canMakePayment(Document& document, Function<void(bool)>&& completionHandler)
 {
-    auto* page = document.page();
+    RefPtr page = document.page();
     completionHandler(page && !page->hasActiveApplePayAMSUISession());
 }
 

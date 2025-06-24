@@ -53,19 +53,19 @@ AcceleratedEffectValues AcceleratedEffectValues::clone() const
     auto clonedTransform = transform.clone();
 
     RefPtr<TransformOperation> clonedTranslate;
-    if (auto* srcTranslate = translate.get())
+    if (RefPtr srcTranslate = translate)
         clonedTranslate = srcTranslate->clone();
 
     RefPtr<TransformOperation> clonedScale;
-    if (auto* srcScale = scale.get())
+    if (RefPtr srcScale = scale)
         clonedScale = srcScale->clone();
 
     RefPtr<TransformOperation> clonedRotate;
-    if (auto* srcRotate = rotate.get())
+    if (RefPtr srcRotate = rotate)
         clonedRotate = srcRotate->clone();
 
     RefPtr<PathOperation> clonedOffsetPath;
-    if (auto* srcOffsetPath = offsetPath.get())
+    if (RefPtr srcOffsetPath = offsetPath)
         clonedOffsetPath = srcOffsetPath->clone();
 
     auto clonedOffsetDistance = offsetDistance;

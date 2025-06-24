@@ -78,7 +78,7 @@ static std::pair<RefPtr<Node>, size_t> findNodeStartingAtPathComponentIndex(cons
         if (!nextNode)
             return { nullptr, currentPathIndex };
 
-        auto* chararacterData = dynamicDowncast<CharacterData>(*nextNode);
+        RefPtr chararacterData = dynamicDowncast<CharacterData>(*nextNode);
         if (chararacterData && chararacterData->data() != component.textData)
             return { nullptr, currentPathIndex };
 
@@ -195,8 +195,8 @@ static AppHighlightRangeData::NodePathComponent createNodePathComponent(const No
 static AppHighlightRangeData::NodePath makeNodePath(RefPtr<Node>&& node)
 {
     AppHighlightRangeData::NodePath components;
-    auto body = node->document().body();
-    for (auto ancestor = node; ancestor && ancestor != body; ancestor = ancestor->parentNode())
+    RefPtr body = node->document().body();
+    for (RefPtr ancestor = node; ancestor && ancestor != body; ancestor = ancestor->parentNode())
         components.append(createNodePathComponent(*ancestor));
     components.reverse();
     return { components };
