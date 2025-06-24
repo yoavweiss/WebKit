@@ -22,8 +22,6 @@ UIProcess/API/C/WKGeolocationPermissionRequest.cpp
 UIProcess/API/C/WKHTTPCookieStoreRef.cpp
 UIProcess/API/C/WKInspector.cpp
 UIProcess/API/C/WKMediaKeySystemPermissionCallback.cpp
-UIProcess/API/C/WKMessageListener.cpp
-UIProcess/API/C/WKMockMediaDevice.cpp
 UIProcess/API/C/WKNotification.cpp
 UIProcess/API/C/WKNotificationManager.cpp
 UIProcess/API/C/WKNotificationPermissionRequest.cpp
