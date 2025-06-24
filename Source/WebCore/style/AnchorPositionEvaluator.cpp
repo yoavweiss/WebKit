@@ -47,7 +47,6 @@
 #include "RenderStyleInlines.h"
 #include "RenderStyleSetters.h"
 #include "RenderView.h"
-#include "StyleBuilderConverter.h"
 #include "StyleBuilderState.h"
 #include "StyleScope.h"
 #include "WritingMode.h"

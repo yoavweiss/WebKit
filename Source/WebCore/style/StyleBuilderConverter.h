@@ -80,7 +80,7 @@
 #include "ScrollbarGutter.h"
 #include "Settings.h"
 #include "StyleBasicShape.h"
-#include "StyleBuilderState.h"
+#include "StyleBuilderChecking.h"
 #include "StyleColorScheme.h"
 #include "StyleCornerShapeValue.h"
 #include "StyleDynamicRangeLimit.h"
@@ -269,40 +269,6 @@ public:
 
     static FixedVector<PositionTryFallback> convertPositionTryFallbacks(BuilderState&, const CSSValue&);
 
-    template<class ValueType> static const ValueType* requiredDowncast(BuilderState&, const CSSValue&);
-    template<class ValueType> static std::optional<std::pair<const ValueType&, const ValueType&>> requiredPairDowncast(BuilderState&, const CSSValue&);
-
-    template<class ValueType> struct TypedListIterator {
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = const ValueType&;
-        using difference_type = ptrdiff_t;
-        using pointer = const ValueType*;
-        using reference = const ValueType&;
-
-        TypedListIterator(CSSValueList::iterator iterator)
-            : iterator(iterator)
-        { }
-        TypedListIterator& operator++() { ++iterator; return *this; }
-        const ValueType& operator*() const { return downcast<ValueType>(*iterator); }
-        bool operator!=(const TypedListIterator& other) const { return iterator != other.iterator; }
-
-        CSSValueList::iterator iterator;
-    };
-    template<class ListType, class ValueType> struct TypedList {
-        TypedList(const ListType& list)
-            : list(list)
-        { }
-
-        unsigned size() const { return list->size(); }
-        const ValueType& item(unsigned index) const { return downcast<ValueType>(*list->item(index)); }
-        TypedListIterator<ValueType> begin() const { return list->begin(); }
-        TypedListIterator<ValueType> end() const { return list->end(); }
-
-        Ref<const ListType> list;
-    };
-    template<class ListType, class ValueType, unsigned minimumLength = 1> static std::optional<TypedList<ListType, ValueType>> requiredListDowncast(BuilderState&, const CSSValue&);
-    template<CSSValueID, class ValueType, unsigned minimumLength = 1> static std::optional<TypedList<CSSFunctionValue, ValueType>> requiredFunctionDowncast(BuilderState&, const CSSValue&);
-
 private:
     friend class BuilderCustom;
 
@@ -317,62 +283,6 @@ private:
 
     static CSSToLengthConversionData cssToLengthConversionDataWithTextZoomFactor(BuilderState&);
 };
-
-template<class ValueType>
-inline const ValueType* BuilderConverter::requiredDowncast(BuilderState& builderState, const CSSValue& value)
-{
-    auto* typedValue = dynamicDowncast<ValueType>(value);
-    if (!typedValue) [[unlikely]] {
-        builderState.setCurrentPropertyInvalidAtComputedValueTime();
-        return nullptr;
-    }
-    return typedValue;
-}
-
-template<class ValueType>
-inline std::optional<std::pair<const ValueType&, const ValueType&>> BuilderConverter::requiredPairDowncast(BuilderState& builderState, const CSSValue& value)
-{
-    auto* pairValue = requiredDowncast<CSSValuePair>(builderState, value);
-    if (!pairValue) [[unlikely]]
-        return { };
-    auto* firstValue = requiredDowncast<ValueType>(builderState, pairValue->first());
-    if (!firstValue) [[unlikely]]
-        return { };
-    auto* secondValue = requiredDowncast<ValueType>(builderState, pairValue->second());
-    if (!secondValue) [[unlikely]]
-        return { };
-    return { { *firstValue, *secondValue } };
-}
-
-template<class ListType, class ValueType, unsigned minimumSize>
-inline auto BuilderConverter::requiredListDowncast(BuilderState& builderState, const CSSValue& value) -> std::optional<TypedList<ListType, ValueType>>
-{
-    auto* listValue = requiredDowncast<ListType>(builderState, value);
-    if (!listValue) [[unlikely]]
-        return { };
-    if (listValue->size() < minimumSize) [[unlikely]] {
-        builderState.setCurrentPropertyInvalidAtComputedValueTime();
-        return { };
-    }
-    for (auto& value : *listValue) {
-        if (!requiredDowncast<ValueType>(builderState, value)) [[unlikely]]
-            return { };
-    }
-    return TypedList<ListType, ValueType> { *listValue };
-}
-
-template<CSSValueID functionName, class ValueType, unsigned minimumSize>
-inline auto BuilderConverter::requiredFunctionDowncast(BuilderState& builderState, const CSSValue& value) -> std::optional<TypedList<CSSFunctionValue, ValueType>>
-{
-    auto function = requiredListDowncast<CSSFunctionValue, ValueType, minimumSize>(builderState, value);
-    if (!function) [[unlikely]]
-        return { };
-    if (function->list->name() != functionName) {
-        builderState.setCurrentPropertyInvalidAtComputedValueTime();
-        return { };
-    }
-    return function;
-}
 
 template<typename T, typename... Rest> inline T BuilderConverter::convertStyleType(BuilderState& builderState, const CSSValue& value, Rest&&... rest)
 {

@@ -180,13 +180,13 @@ static inline bool convertToLengthSize(const CSSValue& value, Style::BuilderStat
 {
     auto& conversionData = builderState.cssToLengthConversionData();
     if (value.isPair()) {
-        auto pair = Style::BuilderConverter::requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
+        auto pair = Style::requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
         if (!pair)
             return false;
         size.width = pair->first.convertToLength<AnyConversion>(conversionData);
         size.height = pair->second.convertToLength<AnyConversion>(conversionData);
     } else {
-        auto primitiveValue = Style::BuilderConverter::requiredDowncast<CSSPrimitiveValue>(builderState, value);
+        auto primitiveValue = Style::requiredDowncast<CSSPrimitiveValue>(builderState, value);
         if (!primitiveValue)
             return false;
         size.width = primitiveValue->convertToLength<AnyConversion>(conversionData);
@@ -633,7 +633,7 @@ LengthBox CSSToStyleMap::mapNinePieceImageQuad(const CSSValue& value)
 
 Length CSSToStyleMap::mapNinePieceImageSide(const CSSValue& value)
 {
-    auto primitiveValue = Style::BuilderConverter::requiredDowncast<CSSPrimitiveValue>(m_builderState, value);
+    auto primitiveValue = Style::requiredDowncast<CSSPrimitiveValue>(m_builderState, value);
     if (!primitiveValue)
         return { };
     if (primitiveValue->valueID() == CSSValueAuto)

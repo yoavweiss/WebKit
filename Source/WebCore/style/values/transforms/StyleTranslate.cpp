@@ -26,8 +26,7 @@
 #include "StyleTranslate.h"
 
 #include "CSSPrimitiveValueMappings.h"
-#include "StyleBuilderConverter.h"
-#include "StyleBuilderState.h"
+#include "StyleBuilderChecking.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 
 namespace WebCore {
@@ -55,7 +54,7 @@ auto CSSValueConversion<Translate>::operator()(BuilderState& state, const CSSVal
         return CSS::Keyword::None { };
     }
 
-    auto list = BuilderConverter::requiredListDowncast<CSSValueList, CSSPrimitiveValue>(state, value);
+    auto list = requiredListDowncast<CSSValueList, CSSPrimitiveValue>(state, value);
     if (!list)
         return CSS::Keyword::None { };
 

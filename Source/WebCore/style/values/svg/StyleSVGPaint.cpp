@@ -27,8 +27,7 @@
 
 #include "AnimationUtilities.h"
 #include "ColorBlending.h"
-#include "StyleBuilderConverter.h"
-#include "StyleBuilderState.h"
+#include "StyleBuilderChecking.h"
 #include "StyleColor.h"
 #include "StyleForVisitedLink.h"
 #include <wtf/text/TextStream.h>
@@ -42,7 +41,7 @@ auto CSSValueConversion<SVGPaint>::operator()(BuilderState& state, const CSSValu
 
     if (RefPtr list = dynamicDowncast<CSSValueList>(value)) {
         RefPtr firstValue = list->protectedItem(0);
-        RefPtr urlValue = BuilderConverter::requiredDowncast<CSSURLValue>(state, *firstValue);
+        RefPtr urlValue = requiredDowncast<CSSURLValue>(state, *firstValue);
         if (!urlValue) {
             return {
                 .type = SVGPaintType::None,

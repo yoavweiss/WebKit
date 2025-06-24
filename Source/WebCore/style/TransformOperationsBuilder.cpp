@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012 Apple Inc. All rights reserved.
  * Copyright (C) 2012 Google Inc. All rights reserved.
  * Copyright (C) 2012, 2013 Adobe Systems Incorporated. All rights reserved.
- * Copyright (C) 2024 Samuel Weinig <sam@webkit.org>
+ * Copyright (C) 2024-2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -44,7 +44,7 @@
 #include "RotateTransformOperation.h"
 #include "ScaleTransformOperation.h"
 #include "SkewTransformOperation.h"
-#include "StyleBuilderConverter.h"
+#include "StyleBuilderChecking.h"
 #include "TransformOperations.h"
 #include "TranslateTransformOperation.h"
 
@@ -63,7 +63,7 @@ static RefPtr<TransformOperation> createMatrixTransformOperation(const CSSFuncti
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-matrix
     // matrix() = matrix( <number>#{6} )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueMatrix, CSSPrimitiveValue, 6>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueMatrix, CSSPrimitiveValue, 6>(builderState, value);
     if (!function)
         return { };
 
@@ -85,7 +85,7 @@ static RefPtr<TransformOperation> createMatrix3dTransformOperation(const CSSFunc
     // https://drafts.csswg.org/css-transforms-2/#funcdef-matrix3d
     // matrix3d() = matrix3d( <number>#{16} )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueMatrix3d, CSSPrimitiveValue, 16>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueMatrix3d, CSSPrimitiveValue, 16>(builderState, value);
     if (!function)
         return { };
 
@@ -121,7 +121,7 @@ static RefPtr<TransformOperation> createRotateTransformOperation(const CSSFuncti
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-rotate
     // rotate() = rotate( [ <angle> | <zero> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotate, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueRotate, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -140,7 +140,7 @@ static RefPtr<TransformOperation> createRotate3dTransformOperation(const CSSFunc
     // https://drafts.csswg.org/css-transforms-2/#funcdef-rotate3d
     // rotate3d() = rotate3d( <number> , <number> , <number> , [ <angle> | <zero> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotate3d, CSSPrimitiveValue, 4>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueRotate3d, CSSPrimitiveValue, 4>(builderState, value);
     if (!function)
         return { };
 
@@ -159,7 +159,7 @@ static RefPtr<TransformOperation> createRotateXTransformOperation(const CSSFunct
     // https://drafts.csswg.org/css-transforms-2/#funcdef-rotatex
     // rotateX() = rotateX( [ <angle> | <zero> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotateX, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueRotateX, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -178,7 +178,7 @@ static RefPtr<TransformOperation> createRotateYTransformOperation(const CSSFunct
     // https://drafts.csswg.org/css-transforms-2/#funcdef-rotatey
     // rotateY() = rotateY( [ <angle> | <zero> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotateY, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueRotateY, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -197,7 +197,7 @@ static RefPtr<TransformOperation> createRotateZTransformOperation(const CSSFunct
     // https://drafts.csswg.org/css-transforms-2/#funcdef-rotatez
     // rotateZ() = rotateZ( [ <angle> | <zero> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueRotateZ, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueRotateZ, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -218,7 +218,7 @@ static RefPtr<TransformOperation> createSkewTransformOperation(const CSSFunction
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skew
     // skew() = skew( [ <angle> | <zero> ] , [ <angle> | <zero> ]? )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueSkew, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueSkew, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -235,7 +235,7 @@ static RefPtr<TransformOperation> createSkewXTransformOperation(const CSSFunctio
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skewx
     // skewX() = skewX( [ <angle> | <zero> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueSkewX, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueSkewX, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -252,7 +252,7 @@ static RefPtr<TransformOperation> createSkewYTransformOperation(const CSSFunctio
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-skewy
     // skewY() = skewY( [ <angle> | <zero> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueSkewY, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueSkewY, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -271,7 +271,7 @@ static RefPtr<TransformOperation> createScaleTransformOperation(const CSSFunctio
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scale
     // scale() = scale( [ <number> | <percentage> ]#{1,2} )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScale, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueScale, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -289,7 +289,7 @@ static RefPtr<TransformOperation> createScale3dTransformOperation(const CSSFunct
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scale3d
     // scale3d() = scale3d( [ <number> | <percentage> ]#{3} )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScale3d, CSSPrimitiveValue, 3>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueScale3d, CSSPrimitiveValue, 3>(builderState, value);
     if (!function)
         return { };
 
@@ -307,7 +307,7 @@ static RefPtr<TransformOperation> createScaleXTransformOperation(const CSSFuncti
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scalex
     // scaleX() = scaleX( [ <number> | <percentage> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScaleX, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueScaleX, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -325,7 +325,7 @@ static RefPtr<TransformOperation> createScaleYTransformOperation(const CSSFuncti
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scaley
     // scaleY() = scaleY( [ <number> | <percentage> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScaleY, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueScaleY, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -343,7 +343,7 @@ static RefPtr<TransformOperation> createScaleZTransformOperation(const CSSFuncti
     // https://drafts.csswg.org/css-transforms-2/#funcdef-scalez
     // scaleZ() = scaleZ( [ <number> | <percentage> ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueScaleZ, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueScaleZ, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -363,7 +363,7 @@ static RefPtr<TransformOperation> createTranslateTransformOperation(const CSSFun
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translate
     // translate() = translate( <length-percentage> , <length-percentage>? )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslate, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueTranslate, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -381,7 +381,7 @@ static RefPtr<TransformOperation> createTranslate3dTransformOperation(const CSSF
     // https://drafts.csswg.org/css-transforms-2/#funcdef-translate3d
     // translate3d() = translate3d( <length-percentage> , <length-percentage> , <length> )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslate3d, CSSPrimitiveValue, 3>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueTranslate3d, CSSPrimitiveValue, 3>(builderState, value);
     if (!function)
         return { };
 
@@ -399,7 +399,7 @@ static RefPtr<TransformOperation> createTranslateXTransformOperation(const CSSFu
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translatex
     // translateX() = translateX( <length-percentage> )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslateX, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueTranslateX, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -417,7 +417,7 @@ static RefPtr<TransformOperation> createTranslateYTransformOperation(const CSSFu
     // https://drafts.csswg.org/css-transforms-1/#funcdef-transform-translatey
     // translateY() = translateY( <length-percentage> )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslateY, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueTranslateY, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -435,7 +435,7 @@ static RefPtr<TransformOperation> createTranslateZTransformOperation(const CSSFu
     // https://drafts.csswg.org/css-transforms-2/#funcdef-translatez
     // translateZ() = translateZ( <length> )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValueTranslateZ, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValueTranslateZ, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -455,7 +455,7 @@ static RefPtr<TransformOperation> createPerspectiveTransformOperation(const CSSF
     // https://drafts.csswg.org/css-transforms-2/#funcdef-perspective
     // perspective() = perspective( [ <length [0,∞]> | none ] )
 
-    auto function = BuilderConverter::requiredFunctionDowncast<CSSValuePerspective, CSSPrimitiveValue, 1>(builderState, value);
+    auto function = requiredFunctionDowncast<CSSValuePerspective, CSSPrimitiveValue, 1>(builderState, value);
     if (!function)
         return { };
 
@@ -478,7 +478,7 @@ static RefPtr<TransformOperation> createPerspectiveTransformOperation(const CSSF
 
 RefPtr<TransformOperation> createTransformOperation(const CSSValue& value, BuilderState& builderState)
 {
-    auto transform = BuilderConverter::requiredDowncast<CSSFunctionValue>(builderState, value);
+    auto transform = requiredDowncast<CSSFunctionValue>(builderState, value);
     if (!transform)
         return { };
 
@@ -539,7 +539,7 @@ TransformOperations createTransformOperations(const CSSValue& value, BuilderStat
         return { };
     }
 
-    auto transformList = BuilderConverter::requiredDowncast<CSSTransformListValue>(builderState, value);
+    auto transformList = requiredDowncast<CSSTransformListValue>(builderState, value);
     if (!transformList)
         return { };
 

@@ -39,7 +39,6 @@
 #include "RenderSVGModelObject.h"
 #include "ScrollAnchoringController.h"
 #include "ScrollingConstraints.h"
-#include "StyleBuilderConverter.h"
 #include "StyleScrollPadding.h"
 #include "WebAnimation.h"
 
