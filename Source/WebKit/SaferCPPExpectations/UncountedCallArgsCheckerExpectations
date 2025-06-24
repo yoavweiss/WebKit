@@ -70,9 +70,6 @@ UIProcess/API/Cocoa/_WKWebAuthenticationAssertionResponse.mm
 UIProcess/API/Cocoa/_WKWebAuthenticationPanel.mm
 UIProcess/API/Cocoa/_WKWebsiteDataStoreConfiguration.mm
 UIProcess/Cocoa/VideoPresentationManagerProxy.mm
-UIProcess/ProvisionalPageProxy.cpp
-UIProcess/RemoteLayerTree/RemoteLayerTreeHost.mm
-UIProcess/RemoteLayerTree/mac/RemoteScrollingCoordinatorProxyMac.mm
 UIProcess/WebPageProxy.cpp
 UIProcess/mac/ViewGestureControllerMac.mm
 WebDriverBidiFrontendDispatchers.cpp
@@ -133,7 +130,6 @@ WebProcess/Inspector/WebInspectorInternal.cpp
 WebProcess/Inspector/WebInspectorUI.cpp
 WebProcess/Inspector/WebInspectorUIExtensionController.cpp
 WebProcess/Network/webrtc/LibWebRTCProvider.cpp
-WebProcess/Network/webrtc/RTCDataChannelRemoteManager.cpp
 WebProcess/Plugins/PDF/PDFPluginAnnotation.mm
 WebProcess/Plugins/PDF/PDFPluginBase.mm
 WebProcess/Plugins/PDF/PDFPluginPasswordField.mm

@@ -51,7 +51,7 @@ RTCDataChannelRemoteManager& RTCDataChannelRemoteManager::singleton()
 
 RTCDataChannelRemoteManager::RTCDataChannelRemoteManager()
     : m_queue(WorkQueue::create("RTCDataChannelRemoteManager"_s))
-    , m_connection(&WebProcess::singleton().ensureNetworkProcessConnection().connection())
+    , m_connection(WebProcess::singleton().ensureNetworkProcessConnection().connection())
 {
 }
 
