@@ -258,7 +258,12 @@ TEST(WKWebExtensionAPITabs, Create)
     [manager run];
 }
 
+// FIXME: rdar://152666936
+#if PLATFORM(MAC)
+TEST(WKWebExtensionAPITabs, DISABLED_CreateTabsOverflowIndex)
+#else
 TEST(WKWebExtensionAPITabs, CreateTabsOverflowIndex)
+#endif
 {
     auto *backgroundScript = Util::constructScript(@[
         @"var allWindows = await browser.windows.getAll({ populate: true })",
