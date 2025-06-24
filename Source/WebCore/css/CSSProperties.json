@@ -12190,20 +12190,13 @@
             "initial": "none",
             "values": [
                 "none",
-                {
-                    "value": "auto",
-                    "status": "non-standard"
-                },
-                {
-                    "value": "match-element",
-                    "status": "non-standard"
-                }
+                "auto",
+                "match-element"
             ],
             "codegen-properties": {
                 "settings-flag": "viewTransitionsEnabled",
                 "style-converter": "ViewTransitionName",
-                "parser-grammar": "none | auto | match-element | <custom-ident>",
-                "parser-grammar-comment": "Current spec grammar is 'none | <custom-ident>'"
+                "parser-grammar": "none | auto | match-element | <custom-ident>"
             },
             "specification": {
                 "category": "css-view-transitions",

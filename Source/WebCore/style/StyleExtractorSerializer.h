@@ -1235,6 +1235,11 @@ inline void ExtractorSerializer::serializeViewTransitionName(ExtractorState& sta
         return;
     }
 
+    if (viewTransitionName.isMatchElement()) {
+        serializationForCSS(builder, context, state.style, CSS::Keyword::MatchElement { });
+        return;
+    }
+
     serializationForCSS(builder, context, state.style, CustomIdentifier { viewTransitionName.customIdent() });
 }
 
