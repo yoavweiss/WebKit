@@ -41,9 +41,6 @@
 #import <BrowserEngineKit/BELayerHierarchy.h>
 #import <BrowserEngineKit/BELayerHierarchyHandle.h>
 #import <BrowserEngineKit/BELayerHierarchyHostingTransactionCoordinator.h>
-#if ENABLE(MACH_PORT_LAYER_HOSTING)
-#import <BrowserEngineKit/BrowserEngineKit_Private.h>
-#endif
 #endif
 
 namespace WebKit {
