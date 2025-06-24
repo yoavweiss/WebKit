@@ -131,9 +131,6 @@ template<typename Numeric, CSS::PrimitiveKeyword... Ks> struct LengthWrapperBase
     ALWAYS_INLINE bool isPositive() const { return m_value.isPositive(); }
     ALWAYS_INLINE bool isNegative() const { return m_value.isNegative(); }
 
-    // FIXME: Remove this when RenderBox's adjust*Box functions no longer need it.
-    ALWAYS_INLINE WebCore::LengthType type() const { return m_value.type(); }
-
     std::optional<Fixed> tryFixed() const { return isFixed() ? std::make_optional(Fixed { m_value.value() }) : std::nullopt; }
     std::optional<Percentage> tryPercentage() const { return isPercent() ? std::make_optional(Percentage { m_value.value() }) : std::nullopt; }
     std::optional<Calc> tryCalc() const { return isCalculated() ? std::make_optional(Calc { m_value.calculationValue() }) : std::nullopt; }

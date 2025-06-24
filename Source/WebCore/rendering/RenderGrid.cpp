@@ -40,6 +40,7 @@
 #include "RenderObjectInlines.h"
 #include "RenderTreeBuilder.h"
 #include "RenderView.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/Range.h>
 #include <wtf/Scope.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -855,15 +856,41 @@ unsigned RenderGrid::computeAutoRepeatTracksCount(GridTrackSizingDirection direc
 
     bool needsToFulfillMinimumSize = false;
     if (!availableSize) {
+        // Both min-width/height and max-width/height calculations may need the containing block size, so it is cached if lazily computed.
+        std::optional<LayoutUnit> cachedContainingBlockAvailableSize;
+        auto containingBlockAvailableSize = [&] -> LayoutUnit {
+            if (cachedContainingBlockAvailableSize)
+                return *cachedContainingBlockAvailableSize;
+            cachedContainingBlockAvailableSize = isRowAxis
+                ? containingBlockLogicalWidthForContent()
+                : containingBlockLogicalHeightForContent(AvailableLogicalHeightType::ExcludeMarginBorderPadding);
+            return *cachedContainingBlockAvailableSize;
+        };
+
         auto& maxSize = isRowAxis ? style().logicalMaxWidth() : style().logicalMaxHeight();
-        std::optional<LayoutUnit> containingBlockAvailableSize;
-        std::optional<LayoutUnit> availableMaxSize;
-        if (maxSize.isSpecified()) {
-            if (maxSize.isPercentOrCalculated())
-                containingBlockAvailableSize = isRowAxis ? containingBlockLogicalWidthForContent() : containingBlockLogicalHeightForContent(AvailableLogicalHeightType::ExcludeMarginBorderPadding);
-            auto maxSizeValue = Style::evaluate(maxSize, valueOrDefault(containingBlockAvailableSize));
-            availableMaxSize = isRowAxis ? adjustContentBoxLogicalWidthForBoxSizing(maxSizeValue, maxSize.type()) : adjustContentBoxLogicalHeightForBoxSizing(maxSizeValue);
-        }
+        auto availableMaxSize = WTF::switchOn(maxSize,
+            [&](const Style::MaximumSize::Fixed& fixedMaxSize) -> std::optional<LayoutUnit> {
+                auto maxSizeValue = LayoutUnit { fixedMaxSize.value };
+                return isRowAxis
+                    ? adjustContentBoxLogicalWidthForBoxSizing(maxSizeValue)
+                    : adjustContentBoxLogicalHeightForBoxSizing(maxSizeValue);
+            },
+            [&](const Style::MaximumSize::Percentage& percentageMaxSize) -> std::optional<LayoutUnit> {
+                auto maxSizeValue = Style::evaluate(percentageMaxSize, containingBlockAvailableSize());
+                return isRowAxis
+                    ? adjustContentBoxLogicalWidthForBoxSizing(maxSizeValue)
+                    : adjustContentBoxLogicalHeightForBoxSizing(maxSizeValue);
+            },
+            [&](const Style::MaximumSize::Calc& calcMaxSize) -> std::optional<LayoutUnit> {
+                auto maxSizeValue = Style::evaluate(calcMaxSize, containingBlockAvailableSize());
+                return isRowAxis
+                    ? adjustContentBoxLogicalWidthForBoxSizing(maxSizeValue)
+                    : adjustContentBoxLogicalHeightForBoxSizing(maxSizeValue);
+            },
+            [&](const auto&) -> std::optional<LayoutUnit> {
+                return { };
+            }
+        );
 
         auto& minSize = isRowAxis ? style().logicalMinWidth() : style().logicalMinHeight();
         auto& minSizeForOrthogonalAxis = isRowAxis ? style().logicalMinHeight() : style().logicalMinWidth();
@@ -873,16 +900,33 @@ unsigned RenderGrid::computeAutoRepeatTracksCount(GridTrackSizingDirection direc
         if (!availableMaxSize && !minSize.isSpecified() && !shouldComputeMinSizeFromAspectRatio && !explicitIntrinsicInnerSize)
             return autoRepeatTrackListLength;
 
-        std::optional<LayoutUnit> availableMinSize;
-        if (minSize.isSpecified()) {
-            if (!containingBlockAvailableSize && minSize.isPercentOrCalculated())
-                containingBlockAvailableSize = isRowAxis ? containingBlockLogicalWidthForContent() : containingBlockLogicalHeightForContent(AvailableLogicalHeightType::ExcludeMarginBorderPadding);
-            auto minSizeValue = Style::evaluate(minSize, valueOrDefault(containingBlockAvailableSize));
-            availableMinSize = isRowAxis ? adjustContentBoxLogicalWidthForBoxSizing(minSizeValue, minSize.type()) : adjustContentBoxLogicalHeightForBoxSizing(minSizeValue);
-        } else if (shouldComputeMinSizeFromAspectRatio) {
-            auto [logicalMinWidth, logicalMaxWidth] = computeMinMaxLogicalWidthFromAspectRatio();
-            availableMinSize = logicalMinWidth;
-        }
+        auto availableMinSize = WTF::switchOn(minSize,
+            [&](const Style::MinimumSize::Fixed& fixedMinSize) -> std::optional<LayoutUnit> {
+                auto minSizeValue = LayoutUnit { fixedMinSize.value };
+                return isRowAxis
+                    ? adjustContentBoxLogicalWidthForBoxSizing(minSizeValue)
+                    : adjustContentBoxLogicalHeightForBoxSizing(minSizeValue);
+            },
+            [&](const Style::MinimumSize::Percentage& percentageMinSize) -> std::optional<LayoutUnit> {
+                auto minSizeValue = Style::evaluate(percentageMinSize, containingBlockAvailableSize());
+                return isRowAxis
+                    ? adjustContentBoxLogicalWidthForBoxSizing(minSizeValue)
+                    : adjustContentBoxLogicalHeightForBoxSizing(minSizeValue);
+            },
+            [&](const Style::MinimumSize::Calc& calcMinSize) -> std::optional<LayoutUnit> {
+                auto minSizeValue = Style::evaluate(calcMinSize, containingBlockAvailableSize());
+                return isRowAxis
+                    ? adjustContentBoxLogicalWidthForBoxSizing(minSizeValue)
+                    : adjustContentBoxLogicalHeightForBoxSizing(minSizeValue);
+            },
+            [&](const auto&) -> std::optional<LayoutUnit> {
+                if (!shouldComputeMinSizeFromAspectRatio)
+                    return { };
+                auto [logicalMinWidth, logicalMaxWidth] = computeMinMaxLogicalWidthFromAspectRatio();
+                return logicalMinWidth;
+            }
+        );
+
         if (!maxSize.isSpecified() || explicitIntrinsicInnerSize)
             needsToFulfillMinimumSize = true;
 
