@@ -392,7 +392,6 @@ inline JSString* replaceUsingStringSearch(VM& vm, JSGlobalObject* globalObject, 
     auto scope = DECLARE_THROW_SCOPE(vm);
 
     CallData callData;
-    std::optional<CachedCall> cachedCall;
     String replaceString;
     if (replaceValue.isString()) {
         replaceString = asString(replaceValue)->value(globalObject);
@@ -401,9 +400,6 @@ inline JSString* replaceUsingStringSearch(VM& vm, JSGlobalObject* globalObject, 
         callData = JSC::getCallData(replaceValue);
         if (callData.type == CallData::Type::None) {
             replaceString = replaceValue.toWTFString(globalObject);
-            RETURN_IF_EXCEPTION(scope, nullptr);
-        } else if (callData.type == CallData::Type::JS) {
-            cachedCall.emplace(globalObject, jsCast<JSFunction*>(replaceValue), 3);
             RETURN_IF_EXCEPTION(scope, nullptr);
         }
     }
@@ -418,10 +414,15 @@ inline JSString* replaceUsingStringSearch(VM& vm, JSGlobalObject* globalObject, 
     }
 
     ASSERT(callData.type != CallData::Type::None);
-
     size_t matchStart = StringView(string).find(vm.adaptiveStringSearcherTables(), StringView(searchString));
     if (matchStart == notFound)
         return jsString;
+
+    std::optional<CachedCall> cachedCall;
+    if (callData.type == CallData::Type::JS) {
+        cachedCall.emplace(globalObject, jsCast<JSFunction*>(replaceValue), 3);
+        RETURN_IF_EXCEPTION(scope, nullptr);
+    }
 
     size_t endOfLastMatch = 0;
     size_t searchStringLength = searchString.length();
