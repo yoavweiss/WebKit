@@ -5965,6 +5965,8 @@ void RenderLayerCompositor::updateSynchronousScrollingNodes()
     };
     
     auto setHasSlowRepaintObjectsSynchronousScrollingReasonOnRootNode = [&](bool hasSlowRepaintObjects) {
+        if (!rootScrollingNodeID)
+            return;
         // ScrollingCoordinator manages all bits other than HasSlowRepaintObjects, so maintain their current value.
         auto reasons = scrollingCoordinator->synchronousScrollingReasons(*rootScrollingNodeID);
         reasons.set({ SynchronousScrollingReason::HasSlowRepaintObjects }, hasSlowRepaintObjects);
