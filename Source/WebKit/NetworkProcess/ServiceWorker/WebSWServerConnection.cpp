@@ -866,9 +866,9 @@ void WebSWServerConnection::focusServiceWorkerClient(WebCore::ScriptExecutionCon
     sendWithAsyncReply(Messages::WebSWClientConnection::FocusServiceWorkerClient { clientIdentifier }, WTFMove(callback));
 }
 
-void WebSWServerConnection::transferServiceWorkerLoadToNewWebProcess(NetworkResourceLoader& loader, WebCore::SWServerRegistration& registration, WebCore::ProcessIdentifier webProcessIdentifier)
+void WebSWServerConnection::transferServiceWorkerLoadToNewWebProcess(NetworkResourceLoader& loader, WebCore::SWServerRegistration& registration, const WebCore::ResourceRequest& request)
 {
-    controlClient(loader.parameters(), registration, loader.originalRequest(), webProcessIdentifier);
+    controlClient(loader.parameters(), registration, request, loader.connectionToWebProcess().webProcessIdentifier());
 }
 
 std::optional<SWServer::GatheredClientData> WebSWServerConnection::gatherClientData(ScriptExecutionContextIdentifier clientIdentifier)

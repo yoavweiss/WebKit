@@ -673,7 +673,7 @@ void NetworkResourceLoader::transferToNewWebProcess(NetworkConnectionToWebProces
     ASSERT(m_responseCompletionHandler || m_cacheEntryWaitingForContinueDidReceiveResponse || m_serviceWorkerFetchTask);
     if (RefPtr serviceWorkerRegistration = m_serviceWorkerRegistration.get()) {
         if (RefPtr swConnection = newConnection.swConnection())
-            swConnection->transferServiceWorkerLoadToNewWebProcess(*this, *serviceWorkerRegistration, m_connection->webProcessIdentifier());
+            swConnection->transferServiceWorkerLoadToNewWebProcess(*this, *serviceWorkerRegistration, parameters.request);
     }
     if (m_workerStart)
         send(Messages::WebResourceLoader::SetWorkerStart { m_workerStart }, coreIdentifier());

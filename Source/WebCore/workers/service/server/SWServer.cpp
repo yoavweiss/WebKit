@@ -1187,6 +1187,18 @@ void SWServer::updateAppInitiatedValueForWorkers(const ClientOrigin& clientOrigi
     }
 }
 
+#if ASSERT_ENABLED
+template<typename Clients>
+bool validateClientOrigin(const Clients& clients, ScriptExecutionContextIdentifier clientIdentifier, const ClientOrigin& clientOrigin)
+{
+    auto iterator = clients.find(clientIdentifier);
+    if (iterator == clients.end())
+        return false;
+
+    return iterator->value->url.protocolIsAbout() || clientOrigin.clientOrigin == SecurityOriginData::fromURLWithoutStrictOpaqueness(iterator->value->url);
+}
+#endif
+
 void SWServer::registerServiceWorkerClient(ClientOrigin&& clientOrigin, ServiceWorkerClientData&& data, const std::optional<ServiceWorkerRegistrationIdentifier>& controllingServiceWorkerRegistrationIdentifier, String&& userAgent, IsBeingCreatedClient isBeingCreatedClient)
 {
     auto clientIdentifier = data.identifier;
@@ -1200,6 +1212,7 @@ void SWServer::registerServiceWorkerClient(ClientOrigin&& clientOrigin, ServiceW
     auto addResult = m_visibleClientIdToInternalClientIdMap.add(data.identifier.object().toString(), clientIdentifier);
     if (!addResult.isNewEntry) {
         auto registeredClientIdentifier = addResult.iterator->value;
+        ASSERT(validateClientOrigin(m_clientsById, registeredClientIdentifier, clientOrigin));
         if (registeredClientIdentifier.processIdentifier() == clientIdentifier.processIdentifier()) {
             ASSERT(m_visibleClientIdToInternalClientIdMap.get(data.identifier.object().toString()) == clientIdentifier);
             ASSERT(m_clientsById.contains(clientIdentifier));
