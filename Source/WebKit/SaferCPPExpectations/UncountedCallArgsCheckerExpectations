@@ -49,7 +49,6 @@ UIProcess/API/Cocoa/WKWebpagePreferences.mm
 UIProcess/API/Cocoa/WKWebsiteDataRecord.mm
 UIProcess/API/Cocoa/WKWebsiteDataStore.mm
 UIProcess/API/Cocoa/WKWindowFeatures.mm
-UIProcess/API/Cocoa/_WKActivatedElementInfo.mm
 UIProcess/API/Cocoa/_WKAttachment.mm
 UIProcess/API/Cocoa/_WKAutomationSession.mm
 UIProcess/API/Cocoa/_WKContentRuleListAction.mm
@@ -76,16 +75,13 @@ UIProcess/API/Cocoa/_WKWebAuthenticationAssertionResponse.mm
 UIProcess/API/Cocoa/_WKWebAuthenticationPanel.mm
 UIProcess/API/Cocoa/_WKWebsiteDataStoreConfiguration.mm
 UIProcess/Cocoa/VideoPresentationManagerProxy.mm
-UIProcess/Notifications/WebNotificationManagerProxy.cpp
 UIProcess/ProvisionalPageProxy.cpp
 UIProcess/RemoteLayerTree/RemoteLayerTreeHost.mm
 UIProcess/RemoteLayerTree/mac/RemoteScrollingCoordinatorProxyMac.mm
 UIProcess/WebPageProxy.cpp
 UIProcess/mac/ViewGestureControllerMac.mm
-UIProcess/mac/WebViewImpl.mm
 WebDriverBidiFrontendDispatchers.cpp
 WebDriverBidiProtocolObjects.h
-WebProcess/ApplePay/WebPaymentCoordinator.cpp
 WebProcess/Automation/WebAutomationDOMWindowObserver.cpp
 WebProcess/Cache/WebCacheStorageConnection.cpp
 WebProcess/Cache/WebCacheStorageProvider.cpp
@@ -108,7 +104,6 @@ WebProcess/GPU/graphics/RemoteRenderingBackendProxy.cpp
 WebProcess/GPU/media/MediaPlayerPrivateRemote.cpp
 WebProcess/GPU/media/RemoteLegacyCDMFactory.cpp
 WebProcess/GPU/media/RemoteLegacyCDMSession.cpp
-WebProcess/Geolocation/WebGeolocationManager.cpp
 WebProcess/InjectedBundle/API/Cocoa/WKWebProcessPlugInCSSStyleDeclarationHandle.mm
 WebProcess/InjectedBundle/API/Cocoa/WKWebProcessPlugInFrame.mm
 WebProcess/InjectedBundle/API/Cocoa/WKWebProcessPlugInHitTestResult.mm
@@ -142,8 +137,6 @@ WebProcess/Inspector/WebInspectorClient.cpp
 WebProcess/Inspector/WebInspectorInternal.cpp
 WebProcess/Inspector/WebInspectorUI.cpp
 WebProcess/Inspector/WebInspectorUIExtensionController.cpp
-WebProcess/Network/WebLoaderStrategy.cpp
-WebProcess/Network/WebSocketChannelManager.cpp
 WebProcess/Network/webrtc/LibWebRTCProvider.cpp
 WebProcess/Network/webrtc/RTCDataChannelRemoteManager.cpp
 WebProcess/Plugins/PDF/PDFPluginAnnotation.mm
@@ -157,7 +150,6 @@ WebProcess/Plugins/PDF/WKAccessibilityPDFDocumentObject.mm
 WebProcess/Plugins/PluginView.cpp
 WebProcess/Speech/SpeechRecognitionRealtimeMediaSourceManager.cpp
 WebProcess/Storage/WebSWClientConnection.cpp
-WebProcess/Storage/WebServiceWorkerProvider.cpp
 WebProcess/WebCoreSupport/ShareableBitmapUtilities.cpp
 WebProcess/WebCoreSupport/WebBroadcastChannelRegistry.cpp
 WebProcess/WebCoreSupport/WebCaptionPreferencesDelegate.cpp
@@ -167,12 +159,9 @@ WebProcess/WebCoreSupport/WebFileSystemStorageConnection.cpp
 WebProcess/WebCoreSupport/WebGeolocationClient.cpp
 WebProcess/WebCoreSupport/WebMessagePortChannelProvider.cpp
 WebProcess/WebCoreSupport/WebNotificationClient.cpp
-WebProcess/WebCoreSupport/WebPlatformStrategies.cpp
-WebProcess/WebCoreSupport/WebValidationMessageClient.cpp
 WebProcess/WebCoreSupport/mac/WebDragClientMac.mm
 WebProcess/WebCoreSupport/mac/WebEditorClientMac.mm
 WebProcess/WebPage/Cocoa/TextAnimationController.mm
-WebProcess/WebPage/Cocoa/WebPageCocoa.mm
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemote.mm
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemoteCustom.mm
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemoteModelHosting.mm
@@ -181,13 +170,11 @@ WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeDrawingArea.mm
 WebProcess/WebPage/RemoteLayerTree/RemoteScrollingCoordinator.mm
 WebProcess/WebPage/ViewGestureGeometryCollector.cpp
 WebProcess/WebPage/VisitedLinkTableController.cpp
-WebProcess/WebPage/WebPageOverlay.cpp
 WebProcess/WebPage/mac/PageBannerMac.mm
 WebProcess/WebPage/mac/TiledCoreAnimationDrawingArea.mm
 WebProcess/WebPage/mac/TiledCoreAnimationScrollingCoordinator.mm
 WebProcess/WebPage/mac/WKAccessibilityWebPageObjectBase.mm
 WebProcess/WebPage/mac/WKAccessibilityWebPageObjectMac.mm
-WebProcess/WebSystemSoundDelegate.cpp
 WebProcess/cocoa/PlaybackSessionManager.mm
 WebProcess/cocoa/RemoteCaptureSampleManager.cpp
 WebProcess/cocoa/RemoteRealtimeAudioSource.cpp

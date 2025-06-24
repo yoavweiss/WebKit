@@ -93,7 +93,7 @@ IPC::Connection* WebResourceLoader::messageSenderConnection() const
 uint64_t WebResourceLoader::messageSenderDestinationID() const
 {
     RELEASE_ASSERT(RunLoop::isMain());
-    return protectedCoreLoader()->identifier()->toUInt64();
+    return protectedResourceLoader()->identifier()->toUInt64();
 }
 
 void WebResourceLoader::detachFromCoreLoader()
@@ -151,7 +151,7 @@ void WebResourceLoader::willSendRequest(ResourceRequest&& proposedRequest, IPC::
 
 void WebResourceLoader::didSendData(uint64_t bytesSent, uint64_t totalBytesToBeSent)
 {
-    protectedCoreLoader()->didSendData(bytesSent, totalBytesToBeSent);
+    protectedResourceLoader()->didSendData(bytesSent, totalBytesToBeSent);
 }
 
 void WebResourceLoader::didReceiveResponse(ResourceResponse&& response, PrivateRelayed privateRelayed, bool needsContinueDidReceiveResponseMessage, std::optional<NetworkLoadMetrics>&& metrics)
@@ -411,7 +411,7 @@ size_t WebResourceLoader::calculateBytesTransferredOverNetworkDelta(size_t bytes
     return delta;
 }
 
-RefPtr<WebCore::ResourceLoader> WebResourceLoader::protectedCoreLoader() const
+RefPtr<WebCore::ResourceLoader> WebResourceLoader::protectedResourceLoader() const
 {
     return RefPtr { m_coreLoader };
 }

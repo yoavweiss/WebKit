@@ -1818,10 +1818,11 @@ bool WebViewImpl::isUsingUISideCompositing() const
 
 void WebViewImpl::setDrawingAreaSize(CGSize size)
 {
-    if (!m_page->drawingArea())
+    RefPtr drawingArea = m_page->drawingArea();
+    if (!drawingArea)
         return;
 
-    m_page->drawingArea()->setSize(WebCore::IntSize(size), WebCore::IntSize(m_scrollOffsetAdjustment));
+    drawingArea->setSize(WebCore::IntSize(size), WebCore::IntSize(m_scrollOffsetAdjustment));
     m_scrollOffsetAdjustment = CGSizeZero;
 }
 

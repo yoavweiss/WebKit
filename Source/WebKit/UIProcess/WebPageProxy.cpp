@@ -1076,6 +1076,11 @@ RefPtr<WebFrameProxy> WebPageProxy::protectedMainFrame() const
     return m_mainFrame;
 }
 
+RefPtr<DrawingAreaProxy> WebPageProxy::protectedDrawingArea() const
+{
+    return m_drawingArea;
+}
+
 DrawingAreaProxy* WebPageProxy::provisionalDrawingArea() const
 {
     if (m_provisionalPage && m_provisionalPage->drawingArea())
@@ -1677,30 +1682,31 @@ RefPtr<API::Navigation> WebPageProxy::launchProcessForReload()
     return navigation;
 }
 
-void WebPageProxy::setDrawingArea(RefPtr<DrawingAreaProxy>&& drawingArea)
+void WebPageProxy::setDrawingArea(RefPtr<DrawingAreaProxy>&& newDrawingArea)
 {
-    RELEASE_ASSERT(m_drawingArea != drawingArea);
+    RELEASE_ASSERT(m_drawingArea != newDrawingArea);
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
     // The scrolling coordinator needs to do cleanup before the drawing area goes away.
     m_scrollingCoordinatorProxy = nullptr;
 #endif
 
     Ref legacyMainFrameProcess = m_legacyMainFrameProcess;
-    if (m_drawingArea)
-        m_drawingArea->stopReceivingMessages(legacyMainFrameProcess);
+    if (RefPtr drawingArea = m_drawingArea)
+        drawingArea->stopReceivingMessages(legacyMainFrameProcess);
 
-    m_drawingArea = WTFMove(drawingArea);
+    m_drawingArea = WTFMove(newDrawingArea);
     protectedBrowsingContextGroup()->forEachRemotePage(*this, [drawingArea = m_drawingArea](auto& remotePageProxy) {
         remotePageProxy.setDrawingArea(drawingArea.get());
     });
-    if (!m_drawingArea)
+    RefPtr drawingArea = m_drawingArea;
+    if (!drawingArea)
         return;
 
-    m_drawingArea->startReceivingMessages(legacyMainFrameProcess);
-    m_drawingArea->setSize(viewSize());
+    drawingArea->startReceivingMessages(legacyMainFrameProcess);
+    drawingArea->setSize(viewSize());
 
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
-    if (RefPtr drawingAreaProxy = dynamicDowncast<RemoteLayerTreeDrawingAreaProxy>(*m_drawingArea))
+    if (RefPtr drawingAreaProxy = dynamicDowncast<RemoteLayerTreeDrawingAreaProxy>(*drawingArea))
         m_scrollingCoordinatorProxy = drawingAreaProxy->createScrollingCoordinatorProxy();
 #endif
 }
@@ -1739,10 +1745,10 @@ void WebPageProxy::initializeWebPage(const Site& site, WebCore::SandboxFlags eff
     Ref browsingContextGroup = m_browsingContextGroup;
     Ref preferences = m_preferences;
 
-    m_mainFrame = WebFrameProxy::create(*this, browsingContextGroup->ensureProcessForSite(site, process, preferences), generateFrameIdentifier(), effectiveSandboxFlags, ScrollbarMode::Auto, WebFrameProxy::webFrame(m_openerFrameIdentifier), IsMainFrame::Yes);
+    m_mainFrame = WebFrameProxy::create(*this, browsingContextGroup->ensureProcessForSite(site, process, preferences), generateFrameIdentifier(), effectiveSandboxFlags, ScrollbarMode::Auto, WebFrameProxy::protectedWebFrame(m_openerFrameIdentifier).get(), IsMainFrame::Yes);
     if (preferences->siteIsolationEnabled())
         browsingContextGroup->addPage(*this);
-    process->send(Messages::WebProcess::CreateWebPage(m_webPageID, creationParameters(process, *m_drawingArea, m_mainFrame->frameID(), std::nullopt)), 0);
+    process->send(Messages::WebProcess::CreateWebPage(m_webPageID, creationParameters(process, *protectedDrawingArea(), m_mainFrame->frameID(), std::nullopt)), 0);
 
 #if ENABLE(WINDOW_PROXY_PROPERTY_ACCESS_NOTIFICATION)
     internals().frameLoadStateObserver = WebPageProxyFrameLoadStateObserver::create();
@@ -2791,7 +2797,7 @@ void WebPageProxy::setObscuredContentInsets(const WebCore::FloatBoxExtent& obscu
         return;
 
 #if PLATFORM(COCOA)
-    send(Messages::WebPage::SetObscuredContentInsetsFenced(m_internals->obscuredContentInsets, m_drawingArea->createFence()));
+    send(Messages::WebPage::SetObscuredContentInsetsFenced(m_internals->obscuredContentInsets, protectedDrawingArea()->createFence()));
 #else
     send(Messages::WebPage::SetObscuredContentInsets(m_internals->obscuredContentInsets));
 #endif
@@ -2900,7 +2906,7 @@ void WebPageProxy::viewWillStartLiveResize()
 
     closeOverlayedViews();
     
-    m_drawingArea->viewWillStartLiveResize();
+    protectedDrawingArea()->viewWillStartLiveResize();
     
     send(Messages::WebPage::ViewWillStartLiveResize());
 }
@@ -2910,7 +2916,7 @@ void WebPageProxy::viewWillEndLiveResize()
     if (!hasRunningProcess())
         return;
 
-    m_drawingArea->viewWillEndLiveResize();
+    protectedDrawingArea()->viewWillEndLiveResize();
 
     send(Messages::WebPage::ViewWillEndLiveResize());
 }
@@ -3154,7 +3160,7 @@ void WebPageProxy::dispatchActivityStateChange()
     bool isNowInWindow = (changed & ActivityState::IsInWindow) && isInWindow();
     // We always want to wait for the Web process to reply if we've been in-window before and are coming back in-window.
     if (m_viewWasEverInWindow && isNowInWindow) {
-        if (m_drawingArea->hasVisibleContent() && m_waitsForPaintAfterViewDidMoveToWindow && !m_shouldSkipWaitingForPaintAfterNextViewDidMoveToWindow)
+        if (protectedDrawingArea()->hasVisibleContent() && m_waitsForPaintAfterViewDidMoveToWindow && !m_shouldSkipWaitingForPaintAfterNextViewDidMoveToWindow)
             m_activityStateChangeWantsSynchronousReply = true;
         m_shouldSkipWaitingForPaintAfterNextViewDidMoveToWindow = false;
     }
@@ -3340,7 +3346,7 @@ void WebPageProxy::waitForDidUpdateActivityState(ActivityStateChangeID activityS
 
     m_waitingForDidUpdateActivityState = true;
 
-    m_drawingArea->waitForDidUpdateActivityState(activityStateChangeID);
+    protectedDrawingArea()->waitForDidUpdateActivityState(activityStateChangeID);
 }
 
 IntSize WebPageProxy::viewSize() const
@@ -4130,7 +4136,7 @@ void WebPageProxy::handleWheelEvent(const WebWheelEvent& wheelEvent)
     if (!hasRunningProcess())
         return;
 
-    if (drawingArea()->shouldSendWheelEventsToEventDispatcher()) {
+    if (protectedDrawingArea()->shouldSendWheelEventsToEventDispatcher()) {
         continueWheelEventHandling(wheelEvent, { WheelEventProcessingSteps::SynchronousScrolling, false }, { });
         return;
     }
@@ -4176,7 +4182,7 @@ void WebPageProxy::sendWheelEvent(WebCore::FrameIdentifier frameID, const WebWhe
 #endif
 
     Ref process = processContainingFrame(frameID);
-    if (drawingArea()->shouldSendWheelEventsToEventDispatcher()) {
+    if (protectedDrawingArea()->shouldSendWheelEventsToEventDispatcher()) {
         sendWheelEventScrollingAccelerationCurveIfNecessary(frameID, event);
         process->protectedConnection()->send(Messages::EventDispatcher::WheelEvent(webPageIDInProcess(process), event, rubberBandableEdges), 0, { }, Thread::QOS::UserInteractive);
     } else {
@@ -5634,8 +5640,8 @@ void WebPageProxy::setIntrinsicDeviceScaleFactor(float scaleFactor)
 
     m_intrinsicDeviceScaleFactor = scaleFactor;
 
-    if (m_drawingArea)
-        m_drawingArea->deviceScaleFactorDidChange([]() { });
+    if (RefPtr drawingArea = m_drawingArea)
+        drawingArea->deviceScaleFactorDidChange([]() { });
 }
 
 void WebPageProxy::windowScreenDidChange(PlatformDisplayID displayID)
@@ -5648,15 +5654,16 @@ void WebPageProxy::windowScreenDidChange(PlatformDisplayID displayID)
 #endif
 
     m_displayID = displayID;
-    if (m_drawingArea)
-        m_drawingArea->windowScreenDidChange(displayID);
+    RefPtr drawingArea = m_drawingArea;
+    if (drawingArea)
+        drawingArea->windowScreenDidChange(displayID);
 
     if (!hasRunningProcess())
         return;
 
     std::optional<FramesPerSecond> nominalFramesPerSecond;
-    if (m_drawingArea)
-        nominalFramesPerSecond = m_drawingArea->displayNominalFramesPerSecond();
+    if (drawingArea)
+        nominalFramesPerSecond = drawingArea->displayNominalFramesPerSecond();
 
     send(Messages::EventDispatcher::PageScreenDidChange(m_webPageID, displayID, nominalFramesPerSecond));
     send(Messages::WebPage::WindowScreenDidChange(displayID, nominalFramesPerSecond));
@@ -5822,8 +5829,8 @@ void WebPageProxy::setViewExposedRect(std::optional<WebCore::FloatRect> viewExpo
     internals().viewExposedRect = viewExposedRect;
 
 #if PLATFORM(MAC)
-    if (m_drawingArea)
-        m_drawingArea->didChangeViewExposedRect();
+    if (RefPtr drawingArea = m_drawingArea)
+        drawingArea->didChangeViewExposedRect();
 #endif
 }
 
@@ -6954,7 +6961,7 @@ void WebPageProxy::didFailProvisionalLoadForFrame(IPC::Connection& connection, F
     }
 
     Ref process = WebProcessProxy::fromConnection(connection);
-    if (m_preferences->siteIsolationEnabled() && process != frame->process() && (!frame->provisionalFrame() || frame->provisionalFrame()->process() != process))
+    if (protectedPreferences()->siteIsolationEnabled() && process != frame->process() && (!frame->provisionalFrame() || frame->provisionalFrame()->process() != process))
         return;
 
     didFailProvisionalLoadForFrameShared(WTFMove(process), *frame, WTFMove(frameInfo), WTFMove(request), navigationID, WTFMove(provisionalURL), WTFMove(error), willContinueLoading, userData, willInternallyHandleFailure);
@@ -8653,7 +8660,7 @@ void WebPageProxy::createNewPage(IPC::Connection& connection, WindowFeatures&& w
         }
 
         ASSERT(newPage->m_mainFrame);
-        reply(newPage->webPageIDInProcess(process), newPage->creationParameters(process, *newPage->drawingArea(), newPage->m_mainFrame->frameID(), std::nullopt));
+        reply(newPage->webPageIDInProcess(process), newPage->creationParameters(process, *newPage->protectedDrawingArea().get(), newPage->m_mainFrame->frameID(), std::nullopt));
 
 #if HAVE(APP_SSO)
         newPage->m_shouldSuppressSOAuthorizationInNextNavigationPolicyDecision = true;
@@ -10997,8 +11004,10 @@ bool WebPageProxy::updateEditorState(EditorState&& newEditorState, ShouldMergeVi
     if (RefPtr pageClient = this->pageClient())
         pageClient->reconcileEnclosingScrollViewContentOffset(newEditorState);
 
-    if (shouldMergeVisualEditorState == ShouldMergeVisualEditorState::Default)
-        shouldMergeVisualEditorState = (!m_drawingArea || !m_drawingArea->shouldCoalesceVisualEditorStateUpdates()) ? ShouldMergeVisualEditorState::Yes : ShouldMergeVisualEditorState::No;
+    if (shouldMergeVisualEditorState == ShouldMergeVisualEditorState::Default) {
+        RefPtr drawingArea = m_drawingArea;
+        shouldMergeVisualEditorState = (!drawingArea || !drawingArea->shouldCoalesceVisualEditorStateUpdates()) ? ShouldMergeVisualEditorState::Yes : ShouldMergeVisualEditorState::No;
+    }
 
     bool isStaleEditorState = newEditorState.identifier < internals().editorState.identifier;
     bool shouldKeepExistingVisualEditorState = shouldMergeVisualEditorState == ShouldMergeVisualEditorState::No && internals().editorState.hasVisualData();
@@ -13203,7 +13212,8 @@ void WebPageProxy::updateBackingStoreDiscardableState()
 {
     ASSERT(hasRunningProcess());
 
-    if (!m_drawingArea)
+    RefPtr drawingArea = m_drawingArea;
+    if (!drawingArea)
         return;
 
     bool isDiscardable;
@@ -13213,7 +13223,7 @@ void WebPageProxy::updateBackingStoreDiscardableState()
     else
         isDiscardable = !protectedPageClient()->isViewWindowActive() || !isViewVisible();
 
-    m_drawingArea->setBackingStoreIsDiscardable(isDiscardable);
+    drawingArea->setBackingStoreIsDiscardable(isDiscardable);
 }
 
 void WebPageProxy::saveDataToFileInDownloadsFolder(String&& suggestedFilename, String&& mimeType, URL&& originatingURLString, API::Data& data)
@@ -13241,7 +13251,7 @@ void WebPageProxy::setMinimumSizeForAutoLayout(const IntSize& size)
         return;
 
     send(Messages::WebPage::SetMinimumSizeForAutoLayout(size));
-    m_drawingArea->minimumSizeForAutoLayoutDidChange();
+    protectedDrawingArea()->minimumSizeForAutoLayoutDidChange();
 
 #if USE(APPKIT)
     if (internals().minimumSizeForAutoLayout.width() <= 0)
@@ -13260,7 +13270,7 @@ void WebPageProxy::setSizeToContentAutoSizeMaximumSize(const IntSize& size)
         return;
 
     send(Messages::WebPage::SetSizeToContentAutoSizeMaximumSize(size));
-    m_drawingArea->sizeToContentAutoSizeMaximumSizeDidChange();
+    protectedDrawingArea()->sizeToContentAutoSizeMaximumSizeDidChange();
 
 #if USE(APPKIT)
     if (internals().sizeToContentAutoSizeMaximumSize.width() <= 0)
@@ -15067,8 +15077,8 @@ void WebPageProxy::webViewDidMoveToWindow()
     auto newWindowKind = pageClient->windowKind();
     if (internals().windowKind != newWindowKind) {
         internals().windowKind = newWindowKind;
-        if (m_drawingArea)
-            m_drawingArea->windowKindDidChange();
+        if (RefPtr drawingArea = m_drawingArea)
+            drawingArea->windowKindDidChange();
     }
 }
 
