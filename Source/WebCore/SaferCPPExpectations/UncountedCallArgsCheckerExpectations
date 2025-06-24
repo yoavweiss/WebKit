@@ -458,7 +458,6 @@ dom/QualifiedName.cpp
 dom/Range.cpp
 dom/RangeBoundaryPoint.h
 dom/RejectedPromiseTracker.cpp
-dom/ScriptExecutionContext.cpp
 dom/ScriptExecutionContextInlines.h
 dom/ScriptRunner.cpp
 dom/SelectorQuery.cpp

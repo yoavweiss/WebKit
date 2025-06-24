@@ -123,7 +123,6 @@ dom/Position.cpp
 dom/PositionIterator.cpp
 dom/RadioButtonGroups.cpp
 dom/Range.cpp
-dom/ScriptExecutionContext.cpp
 dom/SelectorQuery.cpp
 dom/ShadowRoot.cpp
 dom/SimpleRange.cpp
