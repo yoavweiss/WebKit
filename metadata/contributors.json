@@ -7544,6 +7544,17 @@
    },
    {
       "emails" : [
+         "syg@apple.com",
+         "shu@rfrn.org"
+      ],
+      "github" : "syg",
+      "name" : "Shu-yu Guo",
+      "nicks" : [
+         "syg"
+      ]
+   },
+   {
+      "emails" : [
          "s.mathur@ieee.org",
          "smathur@blackbuck.mobi",
          "siddharth.mathur@nokia.com"
