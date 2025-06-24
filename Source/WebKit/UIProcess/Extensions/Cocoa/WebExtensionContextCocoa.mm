@@ -3514,6 +3514,9 @@ WKWebViewConfiguration *WebExtensionContext::webViewConfiguration(WebViewPurpose
         configuration.webExtensionController = nil;
     }
 
+    if (purpose == WebViewPurpose::Popup || purpose == WebViewPurpose::Sidebar)
+        configuration._drawsBackground = NO;
+
     auto *preferences = configuration.preferences;
     preferences._javaScriptCanAccessClipboard = hasPermission(WKWebExtensionPermissionClipboardWrite);
 
