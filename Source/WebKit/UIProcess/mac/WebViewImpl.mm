@@ -2364,6 +2364,7 @@ void WebViewImpl::pageDidScroll(const IntPoint& scrollPosition)
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     updateScrollPocketVisibilityWhenScrolledToTop();
+    updatePrefersSolidColorHardPocket();
 #endif
 
     [m_view didChangeValueForKey:@"hasScrolledContentsUnderTitlebar"];
@@ -6935,6 +6936,19 @@ void WebViewImpl::fulfillDeferredImageAnalysisOverlayViewHierarchyTask()
 #endif // ENABLE(IMAGE_ANALYSIS_ENHANCEMENTS)
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+
+void WebViewImpl::updatePrefersSolidColorHardPocket()
+{
+    static bool canSetPrefersSolidColorHardPocket = [NSScrollPocket instancesRespondToSelector:@selector(setPrefersSolidColorHardPocket:)];
+    if (!canSetPrefersSolidColorHardPocket)
+        return;
+
+    RetainPtr view = m_view.get();
+    if (!view)
+        return;
+
+    [m_topScrollPocket setPrefersSolidColorHardPocket:[view _hasVisibleColorExtensionView:BoxSide::Top] || m_pageIsScrolledToTop];
+}
 
 void WebViewImpl::updateScrollPocket()
 {

@@ -793,6 +793,7 @@ public:
     void updateScrollPocketVisibilityWhenScrolledToTop();
     void updateTopScrollPocketCaptureColor();
     void updateTopScrollPocketStyle();
+    void updatePrefersSolidColorHardPocket();
 #endif
 
 private:
