@@ -1510,9 +1510,16 @@ static void addUserInstalledFontURLs(NSString *path, HashMap<String, URL>& fontU
                 String fontName(fontNameAttribute.get());
                 String fontDisplayName(fontDisplayNameAttribute.get());
                 String fontFamilyName(fontFamilyNameAttribute.get());
-                fontURLs.add(fontName.convertToASCIILowercase(), fontURL);
-                fontURLs.add(fontFamilyName.convertToASCIILowercase(), fontURL);
-                didAddFontToMap = true;
+                auto lowerCaseFontName = fontName.convertToASCIILowercase();
+                if (!lowerCaseFontName.isEmpty()) {
+                    fontURLs.add(lowerCaseFontName, fontURL);
+                    didAddFontToMap = true;
+                }
+                auto lowerCaseFontFamilyName = fontFamilyName.convertToASCIILowercase();
+                if (!lowerCaseFontFamilyName.isEmpty()) {
+                    fontURLs.add(lowerCaseFontFamilyName, fontURL);
+                    didAddFontToMap = true;
+                }
                 RELEASE_LOG(Process, "Registering font name %{private}s, display name %{private}s, family name %{private}s,  with URL %{private}s", fontName.utf8().data(), fontDisplayName.utf8().data(), fontFamilyName.utf8().data(), fontURL.string().utf8().data());
             }
         }
