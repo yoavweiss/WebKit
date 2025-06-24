@@ -46,10 +46,6 @@ private:
 // https://drafts.csswg.org/css-scroll-snap-1/#propdef-scroll-padding
 using ScrollPaddingBox = MinimallySerializingSpaceSeparatedRectEdges<ScrollPaddingEdge>;
 
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<ScrollPaddingEdge> { auto operator()(BuilderState&, const CSSValue&) -> ScrollPaddingEdge; };
-
 // MARK: - Evaluation
 
 template<> struct Evaluation<ScrollPaddingEdge> {

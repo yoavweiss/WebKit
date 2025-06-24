@@ -85,6 +85,7 @@
 #include "StyleEasingFunction.h"
 #include "StyleFlexBasis.h"
 #include "StyleInset.h"
+#include "StyleLengthWrapper+CSSValueConversion.h"
 #include "StyleLineBoxContain.h"
 #include "StyleMargin.h"
 #include "StyleMaximumSize.h"
@@ -133,7 +134,6 @@ public:
 
     static WebCore::Length convertLength(BuilderState&, const CSSValue&);
     static WebCore::Length convertLengthOrAuto(BuilderState&, const CSSValue&);
-    static WebCore::Length convertLengthSizing(BuilderState&, const CSSValue&);
     static WebCore::Length convertLengthAllowingNumber(BuilderState&, const CSSValue&); // Assumes unit is 'px' if input is a number.
     static WebCore::Length convertTextLengthOrNormal(BuilderState&, const CSSValue&); // Converts length by text zoom factor, normal to zero
     static TabSize convertTabSize(BuilderState&, const CSSValue&);
@@ -333,40 +333,6 @@ inline WebCore::Length BuilderConverter::convertLengthOrAuto(BuilderState& build
     if (value.valueID() == CSSValueAuto)
         return WebCore::Length(LengthType::Auto);
     return convertLength(builderState, value);
-}
-
-inline WebCore::Length BuilderConverter::convertLengthSizing(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-
-    switch (primitiveValue->valueID()) {
-    case CSSValueInvalid:
-        return convertLength(builderState, value);
-    case CSSValueIntrinsic:
-        return WebCore::Length(LengthType::Intrinsic);
-    case CSSValueMinIntrinsic:
-        return WebCore::Length(LengthType::MinIntrinsic);
-    case CSSValueMinContent:
-    case CSSValueWebkitMinContent:
-        return WebCore::Length(LengthType::MinContent);
-    case CSSValueMaxContent:
-    case CSSValueWebkitMaxContent:
-        return WebCore::Length(LengthType::MaxContent);
-    case CSSValueWebkitFillAvailable:
-        return WebCore::Length(LengthType::FillAvailable);
-    case CSSValueFitContent:
-    case CSSValueWebkitFitContent:
-        return WebCore::Length(LengthType::FitContent);
-    case CSSValueAuto:
-        return WebCore::Length(LengthType::Auto);
-    case CSSValueContent:
-        return WebCore::Length(LengthType::Content);
-    default:
-        ASSERT_NOT_REACHED();
-        return { };
-    }
 }
 
 inline ListStyleType BuilderConverter::convertListStyleType(BuilderState& builderState, const CSSValue& value)

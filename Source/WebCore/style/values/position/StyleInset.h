@@ -39,10 +39,6 @@ struct InsetEdge : LengthWrapperBase<LengthPercentage<>, CSS::Keyword::Auto> {
 // https://drafts.csswg.org/css-position/#propdef-inset
 using InsetBox = MinimallySerializingSpaceSeparatedRectEdges<InsetEdge>;
 
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<InsetEdge> { auto operator()(BuilderState&, const CSSValue&) -> InsetEdge; };
-
 } // namespace Style
 } // namespace WebCore
 

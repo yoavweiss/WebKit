@@ -41,10 +41,6 @@ struct MarginEdge : LengthWrapperBase<LengthPercentage<>, CSS::Keyword::Auto> {
 // https://drafts.csswg.org/css-box/#propdef-margin
 using MarginBox = MinimallySerializingSpaceSeparatedRectEdges<MarginEdge>;
 
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<MarginEdge> { auto operator()(BuilderState&, const CSSValue&) -> MarginEdge; };
-
 } // namespace Style
 } // namespace WebCore
 

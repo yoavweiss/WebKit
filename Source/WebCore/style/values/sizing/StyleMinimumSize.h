@@ -53,19 +53,11 @@ struct PreferredSize;
 struct MinimumSize : LengthWrapperBase<LengthPercentage<CSS::Nonnegative>, CSS::Keyword::Auto, CSS::Keyword::MinContent, CSS::Keyword::MaxContent, CSS::Keyword::FitContent, CSS::Keyword::WebkitFillAvailable, CSS::Keyword::Intrinsic, CSS::Keyword::MinIntrinsic> {
     using Base::Base;
 
-    // `MinimumSize` is a structural twin of `PreferredSize` so `MinimumSize` can always be constructed from one.
-    explicit MinimumSize(PreferredSize&&);
-    explicit MinimumSize(const PreferredSize&);
-
 private:
     friend struct PreferredSize;
 };
 
 using MinimumSizePair = SpaceSeparatedSize<MinimumSize>;
-
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<MinimumSize> { auto operator()(BuilderState&, const CSSValue&) -> MinimumSize; };
 
 } // namespace Style
 } // namespace WebCore

@@ -26,7 +26,9 @@
 #include "StyleSVGPaint.h"
 
 #include "AnimationUtilities.h"
+#include "CSSURLValue.h"
 #include "ColorBlending.h"
+#include "RenderStyle.h"
 #include "StyleBuilderChecking.h"
 #include "StyleColor.h"
 #include "StyleForVisitedLink.h"

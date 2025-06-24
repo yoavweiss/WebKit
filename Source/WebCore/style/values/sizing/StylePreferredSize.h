@@ -54,7 +54,10 @@ struct MinimumSize;
 struct PreferredSize : LengthWrapperBase<LengthPercentage<CSS::Nonnegative>, CSS::Keyword::Auto, CSS::Keyword::MinContent, CSS::Keyword::MaxContent, CSS::Keyword::FitContent, CSS::Keyword::WebkitFillAvailable, CSS::Keyword::Intrinsic, CSS::Keyword::MinIntrinsic> {
     using Base::Base;
 
-    // `PreferredSize` is a subset of `FlexBasis` and therefore can be losslessly converted.
+    // `PreferredSize` is a structural twin to `MinimumSize` and therefore can be losslessly converted.
+    MinimumSize asMinimumSize() const;
+
+    // `PreferredSize` is a structural subset of `FlexBasis` and therefore can be losslessly converted.
     FlexBasis asFlexBasis() const;
 
 private:
@@ -63,10 +66,6 @@ private:
 };
 
 using PreferredSizePair = SpaceSeparatedSize<PreferredSize>;
-
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<PreferredSize> { auto operator()(BuilderState&, const CSSValue&) -> PreferredSize; };
 
 } // namespace Style
 } // namespace WebCore

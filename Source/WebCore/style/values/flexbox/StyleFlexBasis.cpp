@@ -25,8 +25,7 @@
 #include "config.h"
 #include "StyleFlexBasis.h"
 
-#include "StyleBuilderConverter.h"
-#include "StyleBuilderState.h"
+#include "StylePreferredSize.h"
 
 namespace WebCore {
 namespace Style {
@@ -36,13 +35,6 @@ std::optional<PreferredSize> FlexBasis::tryPreferredSize() const
     if (isContent())
         return { };
     return PreferredSize { WebCore::Length { m_value } };
-}
-
-// MARK: - Conversion
-
-auto CSSValueConversion<FlexBasis>::operator()(BuilderState& state, const CSSValue& value) -> FlexBasis
-{
-    return FlexBasis { BuilderConverter::convertLengthSizing(state, value) };
 }
 
 } // namespace Style

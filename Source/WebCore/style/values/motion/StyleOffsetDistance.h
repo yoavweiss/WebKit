@@ -35,10 +35,6 @@ struct OffsetDistance : LengthWrapperBase<LengthPercentage<>> {
     using Base::Base;
 };
 
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<OffsetDistance> { auto operator()(BuilderState&, const CSSValue&) -> OffsetDistance; };
-
 } // namespace Style
 } // namespace WebCore
 

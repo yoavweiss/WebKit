@@ -3137,8 +3137,6 @@ style/UserAgentStyle.cpp
 style/values/borders/StyleBorderRadius.cpp
 style/values/borders/StyleBoxShadow.cpp
 style/values/borders/StyleCornerShapeValue.cpp
-style/values/box/StyleMargin.cpp
-style/values/box/StylePadding.cpp
 style/values/color-adjust/StyleColorScheme.cpp
 style/values/color/StyleColor.cpp
 style/values/color/StyleColorLayers.cpp
@@ -3175,12 +3173,10 @@ style/values/flexbox/StyleFlexBasis.cpp
 style/values/images/StyleGradient.cpp
 style/values/masking/StyleClipPath.cpp
 style/values/motion/StyleOffsetAnchor.cpp
-style/values/motion/StyleOffsetDistance.cpp
 style/values/motion/StyleOffsetPath.cpp
 style/values/motion/StyleOffsetPosition.cpp
 style/values/motion/StyleOffsetRotate.cpp
 style/values/motion/StyleRayFunction.cpp
-style/values/position/StyleInset.cpp
 style/values/primitives/StyleLengthResolution.cpp
 style/values/primitives/StylePosition.cpp
 style/values/primitives/StylePrimitiveNumericTypes+Conversions.cpp
@@ -3198,8 +3194,6 @@ style/values/shapes/StylePolygonFunction.cpp
 style/values/shapes/StyleRectFunction.cpp
 style/values/shapes/StyleShapeFunction.cpp
 style/values/shapes/StyleXywhFunction.cpp
-style/values/sizing/StyleMaximumSize.cpp
-style/values/sizing/StyleMinimumSize.cpp
 style/values/sizing/StylePreferredSize.cpp
 style/values/svg/StyleSVGPaint.cpp
 style/values/text-decoration/StyleTextShadow.cpp

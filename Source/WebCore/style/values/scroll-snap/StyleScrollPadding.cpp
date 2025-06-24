@@ -26,16 +26,9 @@
 #include "StyleScrollPadding.h"
 
 #include "LayoutRect.h"
-#include "StyleBuilderConverter.h"
-#include "StyleBuilderState.h"
 
 namespace WebCore {
 namespace Style {
-
-auto CSSValueConversion<ScrollPaddingEdge>::operator()(BuilderState& state, const CSSValue& value) -> ScrollPaddingEdge
-{
-    return ScrollPaddingEdge { BuilderConverter::convertLengthOrAuto(state, value) };
-}
 
 LayoutUnit Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& edge, LayoutUnit referenceLength)
 {
@@ -98,7 +91,6 @@ float Evaluation<ScrollPaddingEdge>::operator()(const ScrollPaddingEdge& edge, f
     RELEASE_ASSERT_NOT_REACHED();
     return 0;
 }
-
 
 LayoutBoxExtent extentForRect(const ScrollPaddingBox& padding, const LayoutRect& rect)
 {

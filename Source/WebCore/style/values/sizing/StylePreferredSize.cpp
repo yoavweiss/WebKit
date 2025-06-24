@@ -25,23 +25,20 @@
 #include "config.h"
 #include "StylePreferredSize.h"
 
-#include "StyleBuilderConverter.h"
-#include "StyleBuilderState.h"
 #include "StyleFlexBasis.h"
+#include "StyleMinimumSize.h"
 
 namespace WebCore {
 namespace Style {
 
+MinimumSize PreferredSize::asMinimumSize() const
+{
+    return MinimumSize { m_value };
+}
+
 FlexBasis PreferredSize::asFlexBasis() const
 {
     return FlexBasis { m_value };
-}
-
-// MARK: - Conversion
-
-auto CSSValueConversion<PreferredSize>::operator()(BuilderState& state, const CSSValue& value) -> PreferredSize
-{
-    return PreferredSize { BuilderConverter::convertLengthSizing(state, value) };
 }
 
 } // namespace Style

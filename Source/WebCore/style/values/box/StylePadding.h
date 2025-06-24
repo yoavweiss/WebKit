@@ -39,10 +39,6 @@ struct PaddingEdge : LengthWrapperBase<LengthPercentage<CSS::Nonnegative>> {
 // https://drafts.csswg.org/css-box/#propdef-padding
 using PaddingBox = MinimallySerializingSpaceSeparatedRectEdges<PaddingEdge>;
 
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<PaddingEdge> { auto operator()(BuilderState&, const CSSValue&) -> PaddingEdge; };
-
 } // namespace Style
 } // namespace WebCore
 

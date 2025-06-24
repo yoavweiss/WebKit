@@ -54,10 +54,6 @@ struct MaximumSize : LengthWrapperBase<LengthPercentage<CSS::Nonnegative>, CSS::
 
 using MaximumSizePair = SpaceSeparatedSize<MaximumSize>;
 
-// MARK: - Conversion
-
-template<> struct CSSValueConversion<MaximumSize> { auto operator()(BuilderState&, const CSSValue&) -> MaximumSize; };
-
 } // namespace Style
 } // namespace WebCore
 
