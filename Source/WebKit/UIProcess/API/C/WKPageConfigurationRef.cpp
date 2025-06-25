@@ -87,8 +87,7 @@ void WKPageConfigurationSetPreferences(WKPageConfigurationRef configuration, WKP
 
 WKPageRef WKPageConfigurationGetRelatedPage(WKPageConfigurationRef configuration)
 {
-    RefPtr relatedPage = toProtectedImpl(configuration)->relatedPage();
-    return toAPI(relatedPage.get());
+    return toAPI(toProtectedImpl(configuration)->protectedRelatedPage().get());
 }
 
 void WKPageConfigurationSetRelatedPage(WKPageConfigurationRef configuration, WKPageRef relatedPage)
