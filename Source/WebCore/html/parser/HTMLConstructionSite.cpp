@@ -827,16 +827,14 @@ std::tuple<RefPtr<HTMLElement>, RefPtr<JSCustomElementInterface>, RefPtr<CustomE
     Ref ownerDocument = treeScope->documentScope();
     bool insideTemplateElement = m_openElements.containsTemplateElement();
     RefPtr element = HTMLElementFactory::createKnownElement(token.tagName(), ownerDocument, insideTemplateElement ? nullptr : form(), true);
+    RefPtr<CustomElementRegistry> registry = m_openElements.stackDepth() > 1 ? registryForCurrentNode(currentNode(), treeScope) : m_registry;
     if (!element) [[unlikely]] {
-        RefPtr<CustomElementRegistry> registry = m_openElements.stackDepth() > 1 ? registryForCurrentNode(currentNode(), treeScope) : m_registry;
         auto* elementInterface = registry ? registry->findInterface(token.name()) : nullptr;
         if (elementInterface) [[unlikely]] {
             if (!m_isParsingFragment)
                 return { nullptr, elementInterface, WTFMove(registry) };
             ASSERT(qualifiedNameForHTMLTag(token) == elementInterface->name());
             element = elementInterface->createElement(ownerDocument);
-            if (registry->isScoped()) [[unlikely]]
-                CustomElementRegistry::addToScopedCustomElementRegistryMap(*element, *registry);
             element->setIsCustomElementUpgradeCandidate();
             element->enqueueToUpgrade(*elementInterface);
         } else {
@@ -851,6 +849,8 @@ std::tuple<RefPtr<HTMLElement>, RefPtr<JSCustomElementInterface>, RefPtr<CustomE
             element->setUsesNullCustomElementRegistry();
     }
     ASSERT(element);
+    if (registry && registry->isScoped() && registry != treeScope->customElementRegistry()) [[unlikely]]
+        CustomElementRegistry::addToScopedCustomElementRegistryMap(*element, *registry);
 
     // FIXME: This is a hack to connect images to pictures before the image has
     // been inserted into the document. It can be removed once asynchronous image
