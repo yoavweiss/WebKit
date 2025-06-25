@@ -1595,7 +1595,7 @@ AVPlayerViewController *VideoPresentationManagerProxy::playerViewController(Play
 #endif // PLATFORM(IOS_FAMILY)
 
 #if ENABLE(LINEAR_MEDIA_PLAYER)
-LMPlayableViewController *VideoPresentationManagerProxy::playableViewController(PlaybackSessionContextIdentifier identifier) const
+WKSPlayableViewControllerHost *VideoPresentationManagerProxy::playableViewController(PlaybackSessionContextIdentifier identifier) const
 {
     if (RefPtr interface = findInterface(identifier))
         return interface->playableViewController();

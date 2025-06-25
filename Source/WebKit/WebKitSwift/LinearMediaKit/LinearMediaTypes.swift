@@ -26,14 +26,14 @@
 import WebKitSwift
 
 #if canImport(AVKit, _version: 1270)
-@_spi(LinearMediaKit) import AVKit
+@_spi(LinearMediaKit) @_spi(LinearMediaKit_WebKitOnly) import AVKit
 #else
-import LinearMediaKit
+@_spi(WebKitOnly) import LinearMediaKit
 #endif
 
 // MARK: Objective-C Implementations
 
-@_objcImplementation extension WKSLinearMediaContentMetadata {
+@objc @implementation extension WKSLinearMediaContentMetadata {
     let title: String?
     let subtitle: String?
     
@@ -43,7 +43,7 @@ import LinearMediaKit
     }
 }
 
-@_objcImplementation extension WKSLinearMediaTimeRange {
+@objc @implementation extension WKSLinearMediaTimeRange {
     let lowerBound: TimeInterval
     let upperBound: TimeInterval
 
@@ -53,7 +53,7 @@ import LinearMediaKit
     }
 }
 
-@_objcImplementation extension WKSLinearMediaTrack {
+@objc @implementation extension WKSLinearMediaTrack {
     let localizedDisplayName: String
 
     init(localizedDisplayName: String) {
@@ -61,7 +61,7 @@ import LinearMediaKit
     }
 }
 
-@_objcImplementation extension WKSLinearMediaSpatialVideoMetadata {
+@objc @implementation extension WKSLinearMediaSpatialVideoMetadata {
     let width: Int32
     let height: Int32
     let horizontalFOVDegrees: Float
@@ -74,6 +74,38 @@ import LinearMediaKit
         self.horizontalFOVDegrees = horizontalFOVDegrees
         self.baseline = baseline
         self.disparityAdjustment = disparityAdjustment
+    }
+}
+
+@objc @implementation extension WKSPlayableViewControllerHost {
+    @nonobjc private let base = PlayableViewController()
+
+    var viewController: UIViewController {
+        base
+    }
+
+    var automaticallyDockOnFullScreenPresentation: Bool {
+        get { base.automaticallyDockOnFullScreenPresentation }
+        set { base.automaticallyDockOnFullScreenPresentation = newValue }
+    }
+
+    var dismissFullScreenOnExitingDocking: Bool {
+        get { base.dismissFullScreenOnExitingDocking }
+        set { base.dismissFullScreenOnExitingDocking = newValue }
+    }
+
+    var environmentPickerButtonViewController: UIViewController? {
+        base.environmentPickerButtonViewController
+    }
+
+    @nonobjc final var playable: (any Playable)? {
+        get { base.playable }
+        set { base.playable = newValue }
+    }
+
+    @nonobjc final var prefersAutoDimming: Bool {
+        get { base.prefersAutoDimming }
+        set { base.prefersAutoDimming = newValue }
     }
 }
 
@@ -120,7 +152,8 @@ extension WKSLinearMediaContentMode {
     }
 
     static var `default`: WKSLinearMediaContentMode {
-        .init(.default)
+        // `ContentMode.default` is invalid; workaround by using the value of it directly.
+        .init(.scaleAspectFit)
     }
 }
 
@@ -143,7 +176,7 @@ extension WKSLinearMediaContentType {
     }
 }
 
-extension WKSLinearMediaPresentationState: CustomStringConvertible {
+extension WKSLinearMediaPresentationState: @retroactive CustomStringConvertible {
     public var description: String {
         switch self {
         case .inline:
@@ -162,7 +195,7 @@ extension WKSLinearMediaPresentationState: CustomStringConvertible {
     }
 }
 
-extension WKSLinearMediaViewingMode: CustomStringConvertible {
+extension WKSLinearMediaViewingMode: @retroactive CustomStringConvertible {
     init(_ viewingMode: ViewingMode?) {
         switch viewingMode {
         case .mono?:
