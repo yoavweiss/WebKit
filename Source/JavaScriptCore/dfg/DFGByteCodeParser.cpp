@@ -3038,9 +3038,6 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
         }
 
         case StringPrototypeAtIntrinsic: {
-            if (!is64Bit())
-                return CallOptimizationResult::DidNothing;
-
             if (argumentCountIncludingThis < 1)
                 return CallOptimizationResult::DidNothing;
 

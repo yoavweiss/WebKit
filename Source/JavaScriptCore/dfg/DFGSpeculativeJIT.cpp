@@ -2586,6 +2586,11 @@ void SpeculativeJIT::compileGetByValOnString(Node* node, const ScopedLambda<std:
 
     loadPtr(Address(scratchReg, StringImpl::dataOffset()), scratchReg);
     load8(BaseIndex(scratchReg, propertyTempReg, TimesOne, 0), scratchReg);
+#if USE(JSVALUE32_64)
+    if (node->op() == StringAt && node->arrayMode().isOutOfBounds())
+        move(TrustedImm32(JSValue::CellTag), resultRegs.tagGPR());
+#endif
+
     Jump cont8Bit = jump();
 
     if (node->op() == StringCharAt) {
@@ -2609,6 +2614,10 @@ void SpeculativeJIT::compileGetByValOnString(Node* node, const ScopedLambda<std:
 
     loadPtr(Address(scratchReg, StringImpl::dataOffset()), scratchReg);
     load16(BaseIndex(scratchReg, propertyTempReg, TimesTwo, 0), scratchReg);
+#if USE(JSVALUE32_64)
+    if (node->op() == StringAt && node->arrayMode().isOutOfBounds())
+        move(TrustedImm32(JSValue::CellTag), resultRegs.tagGPR());
+#endif
 
     Jump bigCharacter =
         branch32(Above, scratchReg, TrustedImm32(maxSingleCharacterString));
