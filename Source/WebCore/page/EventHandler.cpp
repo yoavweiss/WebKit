@@ -1697,6 +1697,16 @@ std::optional<Cursor> EventHandler::selectCursor(const HitTestResult& result, bo
             if (size.width() > maximumCursorSize || size.height() > maximumCursorSize)
                 continue;
 
+            RefPtr localMainFrame = dynamicDowncast<LocalFrame>(frame->mainFrame());
+            if (!localMainFrame)
+                continue;
+            IntRect visibleContentRect = localMainFrame->view()->visibleContentRect();
+            IntRect cursorRect = { roundedIntPoint(result.pointInMainFrame()), expandedIntSize(size) };
+            cursorRect.moveBy(-hotSpot);
+
+            if (!visibleContentRect.contains(cursorRect))
+                continue;
+
             Image* image = cachedImage->imageForRenderer(renderer);
 #if ENABLE(MOUSE_CURSOR_SCALE)
             // Ensure no overflow possible in calculations above.

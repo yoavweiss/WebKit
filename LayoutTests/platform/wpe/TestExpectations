@@ -659,6 +659,7 @@ webkit.org/b/213717 fast/scrolling/overflow-scrollable-after-back.html [ Timeout
 
 webkit.org/b/216650 fast/events/mouse-cursor-multiframecur.html [ Failure ]
 webkit.org/b/216650 fast/events/mouse-cursor.html [ Failure ]
+webkit.org/b/216650 fast/events/mouse-cursor-hidden-when-out-of-bounds.html [ Failure ]
 webkit.org/b/216650 fast/events/mouse-focus-imagemap.html [ Failure ]
 webkit.org/b/216650 fast/events/mouse-moved-remove-frame-crash.html [ Timeout ]
 
