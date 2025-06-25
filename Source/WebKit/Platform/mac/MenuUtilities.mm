@@ -32,7 +32,7 @@
 #import <WebCore/LocalizedStrings.h>
 #import <WebCore/RevealUtilities.h>
 
-#if ENABLE(CONTEXT_MENU_IMAGES_FOR_INTERNAL_CLIENTS)
+#if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
 #import <pal/spi/mac/NSImageSPI.h>
 #import <pal/spi/mac/NSMenuSPI.h>
 #endif
@@ -158,7 +158,7 @@ RetainPtr<NSMenu> menuForTelephoneNumber(const String& telephoneNumber, NSView *
 
 #endif
 
-#if ENABLE(CONTEXT_MENU_IMAGES_FOR_INTERNAL_CLIENTS)
+#if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
 
 enum class SymbolType : bool { Public, Private };
 

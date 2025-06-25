@@ -431,7 +431,7 @@ void WebContextMenuProxyMac::removeBackgroundFromControlledImage()
 #endif // ENABLE(IMAGE_ANALYSIS_ENHANCEMENTS)
 }
 
-#if ENABLE(CONTEXT_MENU_IMAGES_FOR_INTERNAL_CLIENTS)
+#if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
 static void updateMenuItemImage(NSMenuItem *menuItem, const WebContextMenuItemData& webMenuItem)
 {
     if (![menuItem respondsToSelector:@selector(_setActionImage:)])
@@ -522,7 +522,7 @@ RetainPtr<NSMenuItem> WebContextMenuProxyMac::createShareMenuItem(ShareMenuItemT
     if (usePlaceholder) {
         RetainPtr placeholder = adoptNS([[NSMenuItem alloc] initWithTitle:[shareMenuItem title] action:@selector(performShare:) keyEquivalent:@""]);
         [placeholder setTarget:[WKMenuTarget sharedMenuTarget]];
-#if ENABLE(CONTEXT_MENU_IMAGES_FOR_INTERNAL_CLIENTS)
+#if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
         [placeholder _setActionImage:[shareMenuItem _actionImage]];
 #endif
         shareMenuItem = WTFMove(placeholder);
@@ -929,9 +929,8 @@ void WebContextMenuProxyMac::getContextMenuItem(const WebContextMenuItemData& it
     case WebCore::ContextMenuItemType::Action:
     case WebCore::ContextMenuItemType::CheckableAction: {
         RetainPtr menuItem = createMenuActionItem(item);
-#if ENABLE(CONTEXT_MENU_IMAGES_FOR_INTERNAL_CLIENTS)
-        if (page()->preferences().contextMenuImagesForInternalClientsEnabled())
-            updateMenuItemImage(menuItem.get(), item);
+#if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
+        updateMenuItemImage(menuItem.get(), item);
 #endif
         completionHandler(menuItem.get());
         return;

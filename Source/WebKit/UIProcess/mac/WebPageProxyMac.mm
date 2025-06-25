@@ -615,29 +615,24 @@ void WebPageProxy::showPDFContextMenu(const WebKit::PDFContextMenu& contextMenu,
 
         RetainPtr nsItem = adoptNS([[NSMenuItem alloc] init]);
 
-#if ENABLE(CONTEXT_MENU_IMAGES_FOR_INTERNAL_CLIENTS)
-        auto shouldSetImage = m_preferences->contextMenuImagesForInternalClientsEnabled();
-#endif
         if (isOpenWithDefaultViewerItem) {
             RetainPtr defaultPDFViewerPath = [[[NSWorkspace sharedWorkspace] URLForApplicationToOpenContentType:UTTypePDF] path];
             RetainPtr defaultPDFViewerName = [[NSFileManager defaultManager] displayNameAtPath:defaultPDFViewerPath.get()];
 
             String itemTitle = contextMenuItemPDFOpenWithDefaultViewer(defaultPDFViewerName.get());
             [nsItem setTitle:itemTitle.createNSString().get()];
-#if ENABLE(CONTEXT_MENU_IMAGES_FOR_INTERNAL_CLIENTS)
-            if (shouldSetImage) {
-                RetainPtr icon = [[NSWorkspace sharedWorkspace] iconForFile:defaultPDFViewerPath.get()];
-                [icon setSize:NSMakeSize(16.f, 16.f)];
-                [nsItem _setActionImage:icon.get()];
-            }
+#if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
+            RetainPtr icon = [[NSWorkspace sharedWorkspace] iconForFile:defaultPDFViewerPath.get()];
+            [icon setSize:NSMakeSize(16.f, 16.f)];
+            [nsItem _setActionImage:icon.get()];
 #endif
         } else
             [nsItem setTitle:item.title.createNSString().get()];
 
         [nsItem setEnabled:item.enabled == ContextMenuItemEnablement::Enabled];
         [nsItem setState:item.state];
-#if ENABLE(CONTEXT_MENU_IMAGES_FOR_INTERNAL_CLIENTS)
-        if (shouldSetImage && ![nsItem _hasActionImage])
+#if ENABLE(CONTEXT_MENU_IMAGES_ON_MAC)
+        if (![nsItem _hasActionImage])
             addImageToMenuItem(nsItem.get(), item.action, false);
 #endif
         if (item.hasAction == ContextMenuItemHasAction::Yes) {
