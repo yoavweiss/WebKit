@@ -55,6 +55,7 @@
 #import <wtf/WeakObjCPtr.h>
 
 #if ENABLE(LINEAR_MEDIA_PLAYER)
+#import "FullscreenClient.h"
 #import "WKSLinearMediaPlayer.h"
 #endif
 
@@ -484,7 +485,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     ASSERT(_valid);
 
     RefPtr page = self._webView._page.get();
-    if (!page || !page->preferences().linearMediaPlayerEnabled()) {
+    if (!page || !page->preferences().linearMediaPlayerEnabled() || page->fullscreenClient().preventDocking(page.get())) {
         [self _removeEnvironmentPickerButtonView];
         [self _removeEnvironmentFullscreenVideoButtonView];
         return;
