@@ -830,7 +830,6 @@ platform/graphics/ca/cocoa/PlatformCAAnimationCocoa.mm
 platform/graphics/ca/cocoa/PlatformCALayerCocoa.mm
 platform/graphics/cocoa/ImageAdapterCocoa.mm
 platform/graphics/cocoa/MediaPlayerCocoa.mm
-platform/graphics/cocoa/SourceBufferParser.cpp
 platform/graphics/controls/ApplePayButtonPart.cpp
 platform/graphics/controls/ButtonPart.h
 platform/graphics/controls/ColorWellPart.h

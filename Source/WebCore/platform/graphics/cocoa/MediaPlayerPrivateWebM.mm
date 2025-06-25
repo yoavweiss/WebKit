@@ -309,10 +309,8 @@ void MediaPlayerPrivateWebM::dataReceived(const SharedBuffer& buffer)
         m_contentReceived += size;
     });
 
-    // FIXME: Remove const_cast once https://bugs.webkit.org/show_bug.cgi?id=243370 is fixed.
-    SourceBufferParser::Segment segment(Ref { const_cast<SharedBuffer&>(buffer) });
-    invokeAsync(m_appendQueue, [segment = WTFMove(segment), parser = m_parser]() mutable {
-        return MediaPromise::createAndSettle(parser->appendData(WTFMove(segment)));
+    invokeAsync(m_appendQueue, [buffer = Ref { buffer }, parser = m_parser]() mutable {
+        return MediaPromise::createAndSettle(parser->appendData(WTFMove(buffer)));
     })->whenSettled(RunLoop::protectedMain(), [weakThis = ThreadSafeWeakPtr { *this }](auto&& result) {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->appendCompleted(!!result);
