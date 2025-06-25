@@ -318,7 +318,7 @@ private:
     void enableMockMediaSource();
 #endif
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
-    void updateSampleBufferDisplayLayerBoundsAndPosition(WebKit::SampleBufferDisplayLayerIdentifier, WebCore::FloatRect, std::optional<MachSendRight>&&);
+    void updateSampleBufferDisplayLayerBoundsAndPosition(WebKit::SampleBufferDisplayLayerIdentifier, WebCore::FloatRect, std::optional<WTF::MachSendRightAnnotated>&&);
 #endif
 
 #if HAVE(VISIBILITY_PROPAGATION_VIEW)

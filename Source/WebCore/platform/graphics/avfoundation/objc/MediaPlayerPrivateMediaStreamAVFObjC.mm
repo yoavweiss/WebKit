@@ -1281,7 +1281,7 @@ void MediaPlayerPrivateMediaStreamAVFObjC::setVideoLayerSizeFenced(const FloatSi
 
     m_storedBounds = sampleBufferDisplayLayer->rootLayer().bounds;
     m_storedBounds->size = size;
-    sampleBufferDisplayLayer->updateBoundsAndPosition(*m_storedBounds, WTFMove(fence.sendRight));
+    sampleBufferDisplayLayer->updateBoundsAndPosition(*m_storedBounds, WTFMove(fence));
 }
 
 void MediaPlayerPrivateMediaStreamAVFObjC::requestHostingContext(LayerHostingContextCallback&& callback)
