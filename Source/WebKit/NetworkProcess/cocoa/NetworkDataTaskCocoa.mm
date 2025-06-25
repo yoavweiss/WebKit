@@ -206,7 +206,7 @@ NetworkDataTaskCocoa::NetworkDataTaskCocoa(NetworkSession& session, NetworkDataT
         request.removeCredentials();
         url = request.url();
     
-        if (CheckedPtr storageSession = checkedNetworkSession()->networkStorageSession()) {
+        if (CheckedPtr storageSession = NetworkDataTask::checkedNetworkSession()->networkStorageSession()) {
             if (m_user.isEmpty() && m_password.isEmpty())
                 m_initialCredential = storageSession->credentialStorage().get(m_partition, url);
             else
