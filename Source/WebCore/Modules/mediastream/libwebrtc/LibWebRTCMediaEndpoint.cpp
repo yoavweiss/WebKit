@@ -104,16 +104,16 @@ bool LibWebRTCMediaEndpoint::setConfiguration(LibWebRTCProvider& client, webrtc:
     configuration.crypto_options->srtp.enable_gcm_crypto_suites = true;
 
     if (!m_backend) {
-        Ref peerConnectionBackend = m_peerConnectionBackend.get();
-        auto& document = downcast<Document>(*peerConnectionBackend->connection().scriptExecutionContext());
+        Ref peerConnectionBackend = *m_peerConnectionBackend;
+        Ref document = *downcast<Document>(peerConnectionBackend->protectedConnection()->scriptExecutionContext());
         if (!m_rtcSocketFactory) {
-            RegistrableDomain domain { document.url() };
-            bool isFirstParty = domain == RegistrableDomain(document.firstPartyForCookies());
-            m_rtcSocketFactory = client.createSocketFactory(document.userAgent(document.url()), document.identifier(), isFirstParty, WTFMove(domain));
+            RegistrableDomain domain { document->url() };
+            bool isFirstParty = domain == RegistrableDomain(document->firstPartyForCookies());
+            m_rtcSocketFactory = client.createSocketFactory(document->userAgent(document->url()), document->identifier(), isFirstParty, WTFMove(domain));
             if (!peerConnectionBackend->shouldFilterICECandidates() && m_rtcSocketFactory)
                 m_rtcSocketFactory->disableRelay();
         }
-        m_backend = client.createPeerConnection(document.identifier(), *this, m_rtcSocketFactory.get(), WTFMove(configuration));
+        m_backend = client.createPeerConnection(document->identifier(), *this, m_rtcSocketFactory.get(), WTFMove(configuration));
         return !!m_backend;
     }
     auto oldConfiguration = m_backend->GetConfiguration();
@@ -277,8 +277,7 @@ rtc::scoped_refptr<LibWebRTCStatsCollector> LibWebRTCMediaEndpoint::createStatsC
         if (protectedThis->isStopped())
             return;
 
-        Ref peerConnectionBackend = protectedThis->m_peerConnectionBackend.get();
-        ActiveDOMObject::queueTaskKeepingObjectAlive(peerConnectionBackend->protectedConnection().get(), TaskSource::Networking, [promise = WTFMove(promise), rtcReport](auto&) {
+        ActiveDOMObject::queueTaskKeepingObjectAlive(protectedThis->protectedPeerConnectionBackend()->protectedConnection().get(), TaskSource::Networking, [promise = WTFMove(promise), rtcReport](auto&) {
             promise->resolve<IDLInterface<RTCStatsReport>>(LibWebRTCStatsCollector::createReport(rtcReport));
         });
     });
@@ -345,7 +344,7 @@ void LibWebRTCMediaEndpoint::collectTransceivers()
     if (!m_backend)
         return;
 
-    Ref peerConnectionBackend = m_peerConnectionBackend.get();
+    Ref peerConnectionBackend = *m_peerConnectionBackend.get();
     for (auto& rtcTransceiver : m_backend->GetTransceivers()) {
         auto* existingTransceiver = peerConnectionBackend->existingTransceiver([&](auto& transceiverBackend) {
             return rtcTransceiver.get() == transceiverBackend.rtcTransceiver();
@@ -376,7 +375,7 @@ ExceptionOr<LibWebRTCMediaEndpoint::Backends> LibWebRTCMediaEndpoint::createTran
         return toException(result.error());
 
     auto transceiver = makeUnique<LibWebRTCRtpTransceiverBackend>(result.MoveValue());
-    return LibWebRTCMediaEndpoint::Backends { transceiver->createSenderBackend(protectedPeerConnectionBackend(), WTFMove(source)), transceiver->createReceiverBackend(), WTFMove(transceiver) };
+    return LibWebRTCMediaEndpoint::Backends { transceiver->createSenderBackend(*protectedPeerConnectionBackend(), WTFMove(source)), transceiver->createReceiverBackend(), WTFMove(transceiver) };
 }
 
 ExceptionOr<LibWebRTCMediaEndpoint::Backends> LibWebRTCMediaEndpoint::addTransceiver(const String& trackKind, const RTCRtpTransceiverInit& init, PeerConnectionBackend::IgnoreNegotiationNeededFlag ignoreNegotiationNeededFlag)
@@ -779,7 +778,7 @@ void LibWebRTCMediaEndpoint::setLocalSessionDescriptionFailed(ExceptionCode erro
     });
 }
 
-Ref<LibWebRTCPeerConnectionBackend> LibWebRTCMediaEndpoint::protectedPeerConnectionBackend() const
+RefPtr<LibWebRTCPeerConnectionBackend> LibWebRTCMediaEndpoint::protectedPeerConnectionBackend() const
 {
     return m_peerConnectionBackend.get();
 }
@@ -844,6 +843,9 @@ void LibWebRTCMediaEndpoint::OnStatsDelivered(const rtc::scoped_refptr<const web
         m_statsFirstDeliveredTimestamp = timestamp;
 
     callOnMainThread([protectedThis = Ref { *this }, this, timestamp, report] {
+        if (protectedThis->isStopped())
+            return;
+
         if (m_backend && m_statsLogTimer.repeatInterval() != statsLogInterval(timestamp)) {
             m_statsLogTimer.stop();
             m_statsLogTimer.startRepeating(statsLogInterval(timestamp));
@@ -851,7 +853,7 @@ void LibWebRTCMediaEndpoint::OnStatsDelivered(const rtc::scoped_refptr<const web
 
         for (auto iterator = report->begin(); iterator != report->end(); ++iterator) {
             RTCStatsLogger statsLogger { *iterator };
-            Ref backend = m_peerConnectionBackend.get();
+            Ref backend = *m_peerConnectionBackend.get();
             if (m_isGatheringRTCLogs) {
                 auto event = backend->generateJSONLogEvent(String::fromLatin1(iterator->ToJson().c_str()), true);
                 backend->provideStatLogs(WTFMove(event));

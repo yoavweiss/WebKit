@@ -177,9 +177,9 @@ private:
     Seconds statsLogInterval(int64_t) const;
 #endif
 
-    Ref<LibWebRTCPeerConnectionBackend> protectedPeerConnectionBackend() const;
+    RefPtr<LibWebRTCPeerConnectionBackend> protectedPeerConnectionBackend() const;
 
-    WeakRef<LibWebRTCPeerConnectionBackend> m_peerConnectionBackend;
+    WeakPtr<LibWebRTCPeerConnectionBackend> m_peerConnectionBackend;
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> m_peerConnectionFactory;
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> m_backend;
 
