@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Apple Inc. All rights reserved.
+// Copyright (C) 2025 Apple Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -21,26 +21,4 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if HAVE_MARKETPLACE_KIT
-
-import Foundation
-import OSLog
-
-// FIXME: (rdar://150642154) This cannot be used in WebKit.framework due to a dependency cycle.
-internal import MarketplaceKit
-
-@objc @implementation extension WKMarketplaceKit {
-    @nonobjc private static let logger = Logger(subsystem: "com.apple.WebKit", category: "Loading")
-
-    class func requestAppInstallation(withTopOrigin topOrigin: URL, url: URL) async throws {
-        do {
-            try await AppLibrary.current.requestAppInstallationFromBrowser(for: url, referrer: topOrigin)
-            logger.debug("WKMarketplaceKit.requestAppInstallation with top origin \(topOrigin, privacy: .sensitive) for \(url, privacy: .sensitive) succeeded")
-        } catch {
-            logger.error("WKMarketplaceKit.requestAppInstallation with top origin \(topOrigin, privacy: .sensitive) for \(url, privacy: .sensitive) failed: \(error, privacy: .public)")
-            throw error
-        }
-    }
-}
-
-#endif // HAVE_MARKETPLACE_KIT
+@_exported import WebKitSwift

@@ -25,7 +25,6 @@
 
 import Foundation
 import WebKit
-import WebKitSwift
 @_spi(Private) import WebKit
 
 #if USE_APPLE_INTERNAL_SDK

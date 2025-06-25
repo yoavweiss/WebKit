@@ -23,8 +23,6 @@
 
 #if os(visionOS)
 
-import WebKitSwift
-
 #if canImport(AVKit, _version: 1270)
 @_spi(LinearMediaKit) @_spi(LinearMediaKit_WebKitOnly) import AVKit
 #else
@@ -176,7 +174,7 @@ extension WKSLinearMediaContentType {
     }
 }
 
-extension WKSLinearMediaPresentationState: @retroactive CustomStringConvertible {
+extension WKSLinearMediaPresentationState: CustomStringConvertible {
     public var description: String {
         switch self {
         case .inline:
@@ -195,7 +193,7 @@ extension WKSLinearMediaPresentationState: @retroactive CustomStringConvertible 
     }
 }
 
-extension WKSLinearMediaViewingMode: @retroactive CustomStringConvertible {
+extension WKSLinearMediaViewingMode: CustomStringConvertible {
     init(_ viewingMode: ViewingMode?) {
         switch viewingMode {
         case .mono?:
@@ -268,7 +266,7 @@ extension WKSLinearMediaTimeRange {
     }
 }
 
-@_spi(Internal) extension WKSLinearMediaTrack: @retroactive Track {
+@_spi(Internal) extension WKSLinearMediaTrack: Track {
 }
 
 extension WKSLinearMediaSpatialVideoMetadata {

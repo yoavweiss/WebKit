@@ -26,7 +26,6 @@
 #if ENABLE_WRITING_TOOLS && canImport(UIKit)
 
 import OSLog
-import WebKitSwift
 
 #if USE_APPLE_INTERNAL_SDK
 @_spi(TextEffects) import UIKit
@@ -108,10 +107,8 @@ extension WKTextAnimationManager {
     }
 }
 
-// FIXME: This conformance is unfortunate, and should be refactored into a separate type so `@retroactive` can be removed.
-// swift-format-ignore: AvoidRetroactiveConformances
 @_spi(TextEffects)
-extension WKTextAnimationManager: @retroactive @preconcurrency UITextEffectViewSource {
+extension WKTextAnimationManager: @preconcurrency UITextEffectViewSource {
     // This can be made non-public once the retroactive conformance is removed.
     // It is currently safe due to the fact that WebKitSwift is not itself public.
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
@@ -157,10 +154,8 @@ extension WKTextAnimationManager: @retroactive @preconcurrency UITextEffectViewS
     }
 }
 
-// FIXME: This conformance is unfortunate, and should be refactored into a separate type so `@retroactive` can be removed.
-// swift-format-ignore: AvoidRetroactiveConformances
 @_spi(TextEffects)
-extension WKTextAnimationManager: @retroactive @preconcurrency UITextEffectView.ReplacementTextEffect.Delegate {
+extension WKTextAnimationManager: @preconcurrency UITextEffectView.ReplacementTextEffect.Delegate {
     // This can be made non-public once the retroactive conformance is removed.
     // It is currently safe due to the fact that WebKitSwift is not itself public.
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation

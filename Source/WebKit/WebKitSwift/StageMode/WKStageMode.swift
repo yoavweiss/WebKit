@@ -27,7 +27,6 @@ import Combine
 import Spatial
 import Foundation
 @_spi(Observation) @_spi(RealityKit) import RealityKit
-import WebKitSwift
 import os
 import simd
 

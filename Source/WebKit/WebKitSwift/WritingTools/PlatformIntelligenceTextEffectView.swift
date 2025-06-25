@@ -50,7 +50,6 @@ import UIKit_SPI
 
 #endif // canImport(AppKit) && !targetEnvironment(macCatalyst)
 
-import WebKitSwift
 // Work around rdar://145157171 by manually importing the cross-import module.
 #if canImport(_WebKit_SwiftUI)
 internal import _WebKit_SwiftUI

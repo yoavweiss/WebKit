@@ -26,7 +26,6 @@
 import Combine
 import CoreGraphics
 import Foundation
-import WebKitSwift
 import os
 import simd
 @_spi(Private) @_spi(RealityKit) @_spi(RealityKit_Webkit) import RealityKit

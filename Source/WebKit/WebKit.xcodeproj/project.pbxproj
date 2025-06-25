@@ -1946,6 +1946,7 @@
 		A14F9B672B686E0200AD9C56 /* WebKitSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = A14F9B662B686E0200AD9C56 /* WebKitSwift.h */; };
 		A14F9B762B68CA6C00AD9C56 /* WKSLinearMediaPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = A14F9B742B68CA6B00AD9C56 /* WKSLinearMediaPlayer.h */; };
 		A14F9B772B68CA6C00AD9C56 /* LinearMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14F9B752B68CA6B00AD9C56 /* LinearMediaPlayer.swift */; };
+		A1555C522E0C5B9400EB2341 /* WebKitSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1555C512E0C5B9400EB2341 /* WebKitSwift.swift */; };
 		A15EEDE61E301CEE000069B0 /* WKPasswordView.h in Headers */ = {isa = PBXBuildFile; fileRef = A15EEDE41E301CEE000069B0 /* WKPasswordView.h */; };
 		A175C44A21AA3171000037D0 /* ArgumentCodersCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = A175C44921AA3170000037D0 /* ArgumentCodersCocoa.h */; };
 		A1798B3E222D97A2000764BD /* PaymentAuthorizationPresenter.h in Headers */ = {isa = PBXBuildFile; fileRef = A1798B3D222D97A2000764BD /* PaymentAuthorizationPresenter.h */; };
@@ -7332,6 +7333,7 @@
 		A14F9B662B686E0200AD9C56 /* WebKitSwift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitSwift.h; sourceTree = "<group>"; };
 		A14F9B742B68CA6B00AD9C56 /* WKSLinearMediaPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKSLinearMediaPlayer.h; sourceTree = "<group>"; };
 		A14F9B752B68CA6B00AD9C56 /* LinearMediaPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinearMediaPlayer.swift; sourceTree = "<group>"; };
+		A1555C512E0C5B9400EB2341 /* WebKitSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebKitSwift.swift; sourceTree = "<group>"; };
 		A15EEDE31E301CEE000069B0 /* WKPasswordView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WKPasswordView.mm; path = ios/WKPasswordView.mm; sourceTree = "<group>"; };
 		A15EEDE41E301CEE000069B0 /* WKPasswordView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WKPasswordView.h; path = ios/WKPasswordView.h; sourceTree = "<group>"; };
 		A175C44921AA3170000037D0 /* ArgumentCodersCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArgumentCodersCocoa.h; sourceTree = "<group>"; };
@@ -14295,6 +14297,7 @@
 				AE9552872D756E920039B9F9 /* CredentialUpdaterShim.swift */,
 				A14F9B652B686E0200AD9C56 /* module.modulemap */,
 				A14F9B662B686E0200AD9C56 /* WebKitSwift.h */,
+				A1555C512E0C5B9400EB2341 /* WebKitSwift.swift */,
 			);
 			path = WebKitSwift;
 			sourceTree = "<group>";
@@ -21146,6 +21149,7 @@
 				A14F9B642B686DD300AD9C56 /* LinearMediaTypes.swift in Sources */,
 				0785E8002CBCDFFD00F68126 /* PlatformIntelligenceTextEffectView.swift in Sources */,
 				DD5697CD2DC06F7700050321 /* rdar150228472.swift in Sources */,
+				A1555C522E0C5B9400EB2341 /* WebKitSwift.swift in Sources */,
 				0765D1C52DEBFF840029CDD0 /* WKGroupSession.swift in Sources */,
 				F46C34352DCD369B00B476F8 /* WKIdentityDocumentPresentmentController.swift in Sources */,
 				F4D59C122DCC0292004492FB /* WKIdentityDocumentPresentmentError.mm in Sources */,

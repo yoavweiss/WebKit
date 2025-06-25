@@ -27,7 +27,6 @@ import AVFoundation
 import Combine
 import RealityKit
 import UIKit
-import WebKitSwift
 import os
 
 #if canImport(AVKit, _version: 1270)
@@ -345,12 +344,12 @@ extension WKSLinearMediaPlayer {
 
 #if compiler(>=6.0)
 #if os(visionOS)
-@_spi(Internal) extension WKSLinearMediaPlayer: @retroactive @preconcurrency Playable {
+@_spi(Internal) extension WKSLinearMediaPlayer: @preconcurrency Playable {
 }
 #endif
 #else
 #if os(visionOS)
-@_spi(Internal) extension WKSLinearMediaPlayer: @retroactive Playable {
+@_spi(Internal) extension WKSLinearMediaPlayer: Playable {
 }
 #endif
 #endif
