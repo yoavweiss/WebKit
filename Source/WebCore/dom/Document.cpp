@@ -7004,6 +7004,9 @@ ExceptionOr<void> Document::setCookie(const String& value)
     if (page() && !page()->settings().cookieEnabled())
         return { };
 
+    if (value.startsWithIgnoringASCIICase("__Http-"_s) || value.startsWithIgnoringASCIICase("__HostHttp-"_s))
+        return { };
+
     if (isCookieAverse())
         return { };
 

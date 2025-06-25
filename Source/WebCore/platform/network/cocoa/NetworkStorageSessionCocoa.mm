@@ -65,6 +65,9 @@ void NetworkStorageSession::setCookie(const Cookie& cookie)
 {
     ASSERT(hasProcessPrivilege(ProcessPrivilege::CanAccessRawCookies) || m_isInMemoryCookieStore);
 
+    if (!cookie.httpOnly && (cookie.name.startsWithIgnoringASCIICase("__Http-"_s) || cookie.name.startsWithIgnoringASCIICase("__HostHttp-"_s)))
+        return;
+
     BEGIN_BLOCK_OBJC_EXCEPTIONS
     [nsCookieStorage() setCookie:(NSHTTPCookie *)cookie];
     END_BLOCK_OBJC_EXCEPTIONS

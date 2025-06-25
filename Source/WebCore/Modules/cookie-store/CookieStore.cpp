@@ -429,6 +429,11 @@ void CookieStore::set(CookieInit&& options, Ref<DeferredPromise>&& promise)
         }
     }
 
+    if (cookie.name.startsWithIgnoringASCIICase("__Http-"_s) || cookie.name.startsWithIgnoringASCIICase("__HostHttp-"_s)) {
+        promise->reject(Exception { ExceptionCode::TypeError, "An __Http or __HostHttp cookie cannot be set by the CookieStore API."_s });
+        return;
+    }
+
     if (cookie.name.startsWithIgnoringASCIICase("__Host-"_s)) {
         if (!options.domain.isNull()) {
             promise->reject(Exception { ExceptionCode::TypeError, "If the cookie name begins with \"__Host-\", the domain must not be specified."_s });
