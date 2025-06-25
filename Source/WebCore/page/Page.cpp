@@ -1729,11 +1729,25 @@ void Page::screenPropertiesDidChange()
     updateDisplayEDRSuppression();
 #endif
 
+    updateScreenSupportedContentsFormats();
+
     setNeedsRecalcStyleInAllFrames();
 
     forEachRenderableDocument([this] (Document& document) {
         document.screenPropertiesDidChange(m_displayID);
     });
+}
+
+void Page::updateScreenSupportedContentsFormats()
+{
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    bool supportsHighDynamicRange = screenSupportsHighDynamicRange(m_displayID);
+    if (m_screenSupportsHDR == supportsHighDynamicRange)
+        return;
+    m_screenSupportsHDR = supportsHighDynamicRange;
+    for (auto& rootFrame : m_rootFrames)
+        rootFrame->screenSupportedContentsFormatsChanged();
+#endif
 }
 
 void Page::windowScreenDidChange(PlatformDisplayID displayID, std::optional<FramesPerSecond> nominalFramesPerSecond)
@@ -1747,6 +1761,8 @@ void Page::windowScreenDidChange(PlatformDisplayID displayID, std::optional<Fram
     forEachDocument([&] (Document& document) {
         document.windowScreenDidChange(displayID);
     });
+
+    updateScreenSupportedContentsFormats();
 
 #if ENABLE(VIDEO)
     auto mode = preferredDynamicRangeMode(protectedMainFrame()->protectedVirtualView().get());

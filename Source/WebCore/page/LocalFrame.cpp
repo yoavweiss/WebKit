@@ -1146,6 +1146,17 @@ void LocalFrame::deviceOrPageScaleFactorChanged()
         root->compositor().deviceOrPageScaleFactorChanged();
 }
 
+void LocalFrame::screenSupportedContentsFormatsChanged()
+{
+    for (RefPtr child = tree().firstChild(); child; child = child->tree().nextSibling()) {
+        if (RefPtr localFrame = dynamicDowncast<LocalFrame>(child.get()))
+            localFrame->screenSupportedContentsFormatsChanged();
+    }
+
+    if (CheckedPtr root = contentRenderer())
+        root->compositor().screenSupportedContentsFormatsChanged();
+}
+
 void LocalFrame::dropChildren()
 {
     ASSERT(isMainFrame());

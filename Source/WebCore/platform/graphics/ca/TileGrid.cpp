@@ -824,6 +824,13 @@ bool TileGrid::platformCALayerNeedsPlatformContext(const PlatformCALayer* layer)
     return false;
 }
 
+OptionSet<ContentsFormat> TileGrid::screenContentsFormats() const
+{
+    if (auto* layerOwner = m_controller->rootLayer().owner())
+        return layerOwner->screenContentsFormats();
+    return { };
+}
+
 #if ENABLE(RE_DYNAMIC_CONTENT_SCALING)
 std::optional<DynamicContentScalingDisplayList> TileGrid::platformCALayerDynamicContentScalingDisplayList(const PlatformCALayer* layer) const
 {

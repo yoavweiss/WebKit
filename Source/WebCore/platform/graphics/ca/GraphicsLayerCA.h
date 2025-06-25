@@ -198,6 +198,7 @@ public:
     WEBCORE_EXPORT void setCustomAppearance(CustomAppearance) override;
 
     WEBCORE_EXPORT void deviceOrPageScaleFactorChanged() override;
+    WEBCORE_EXPORT void screenSupportedContentsFormatsChanged() override;
     void setShouldUpdateRootRelativeScaleFactor(bool value) override { m_shouldUpdateRootRelativeScaleFactor = value; }
 
     float rootRelativeScaleFactor() { return m_rootRelativeScaleFactor; }
@@ -276,6 +277,8 @@ private:
 #if ENABLE(RE_DYNAMIC_CONTENT_SCALING)
     bool platformCALayerAllowsDynamicContentScaling(const PlatformCALayer*) const override { return client().layerAllowsDynamicContentScaling(this); }
 #endif
+
+    WEBCORE_EXPORT OptionSet<ContentsFormat> screenContentsFormats() const override;
 
     bool isCommittingChanges() const override { return m_isCommittingChanges; }
     bool isUsingDisplayListDrawing(PlatformCALayer*) const override { return m_usesDisplayListDrawing; }

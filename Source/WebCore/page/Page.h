@@ -1197,6 +1197,8 @@ public:
 
     ModelPlayerProvider& modelPlayerProvider();
 
+    void updateScreenSupportedContentsFormats();
+
 #if ENABLE(ATTACHMENT_ELEMENT)
     AttachmentElementClient* attachmentElementClient() { return m_attachmentElementClient.get(); }
 #endif
@@ -1784,6 +1786,7 @@ private:
 #if HAVE(SUPPORT_HDR_DISPLAY)
     Headroom m_displayEDRHeadroom { Headroom::None };
     bool m_suppressEDR { false };
+    bool m_screenSupportsHDR { false };
 #endif
 
     HashSet<std::pair<URL, ScriptTrackingPrivacyCategory>> m_scriptTrackingPrivacyReports;

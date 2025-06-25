@@ -598,6 +598,20 @@ void GraphicsLayer::noteDeviceOrPageScaleFactorChangedIncludingDescendants()
         layer->noteDeviceOrPageScaleFactorChangedIncludingDescendants();
 }
 
+void GraphicsLayer::noteScreenSupportedContentsFormatsChangedIncludingDescendants()
+{
+    screenSupportedContentsFormatsChanged();
+
+    if (m_maskLayer)
+        m_maskLayer->screenSupportedContentsFormatsChanged();
+
+    if (m_replicaLayer)
+        m_replicaLayer->noteScreenSupportedContentsFormatsChangedIncludingDescendants();
+
+    for (auto& layer : children())
+        layer->noteScreenSupportedContentsFormatsChangedIncludingDescendants();
+}
+
 void GraphicsLayer::setIsInWindow(bool inWindow)
 {
     if (auto* tiledBacking = this->tiledBacking())

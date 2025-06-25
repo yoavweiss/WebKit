@@ -4736,4 +4736,14 @@ void RenderLayerBacking::setNeedsFixedContainerEdgesUpdateIfNeeded()
     renderer().page().chrome().client().setNeedsFixedContainerEdgesUpdate();
 }
 
+OptionSet<ContentsFormat> RenderLayerBacking::screenContentsFormats() const
+{
+#if PLATFORM(MAC) || PLATFORM(IOS_FAMILY)
+    return WebCore::screenContentsFormats(&renderer().view().frameView());
+#else
+    return { };
+#endif
+}
+
+
 } // namespace WebCore

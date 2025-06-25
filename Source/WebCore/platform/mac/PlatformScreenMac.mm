@@ -430,20 +430,23 @@ bool screenSupportsExtendedColor(Widget* widget)
 
 bool screenSupportsHighDynamicRange(Widget* widget)
 {
+    return screenSupportsHighDynamicRange(displayID(widget));
+}
+
+bool screenSupportsHighDynamicRange(PlatformDisplayID displayID)
+{
 #if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
     if (screenContentsFormatsForTesting().contains(ContentsFormat::RGBA16F))
         return true;
 #endif
 
-    if (auto data = screenProperties(widget))
+    if (auto data = screenData(displayID))
         return data->screenSupportsHighDynamicRange;
 
     ASSERT(hasProcessPrivilege(ProcessPrivilege::CanCommunicateWithWindowServer));
 #if USE(MEDIATOOLBOX)
-    if (PAL::isMediaToolboxFrameworkAvailable() && PAL::canLoad_MediaToolbox_MTShouldPlayHDRVideo()) {
-        auto displayID = WebCore::displayID(screen(widget));
+    if (PAL::isMediaToolboxFrameworkAvailable() && PAL::canLoad_MediaToolbox_MTShouldPlayHDRVideo())
         return PAL::softLink_MediaToolbox_MTShouldPlayHDRVideo((__bridge CFArrayRef)@[ @(displayID) ]);
-    }
 #endif
     return false;
 }

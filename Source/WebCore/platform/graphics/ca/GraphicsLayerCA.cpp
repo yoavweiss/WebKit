@@ -338,7 +338,7 @@ Ref<PlatformCALayer> GraphicsLayerCA::createPlatformCALayer(PlatformCALayer::Lay
     auto result = PlatformCALayerCocoa::create(layerType, owner);
 
     if (result->canHaveBackingStore()) {
-        auto contentsFormat = PlatformCALayer::contentsFormatForLayer(nullptr, owner);
+        auto contentsFormat = PlatformCALayer::contentsFormatForLayer(owner);
         result->setContentsFormat(contentsFormat);
     }
 
@@ -3334,10 +3334,15 @@ void GraphicsLayerCA::updateReplicatedLayers()
 #if HAVE(SUPPORT_HDR_DISPLAY)
 void GraphicsLayerCA::updateDrawsHDRContent()
 {
-    auto contentsFormat = PlatformCALayer::contentsFormatForLayer(nullptr, this);
+    auto contentsFormat = PlatformCALayer::contentsFormatForLayer(this);
     protectedLayer()->setContentsFormat(contentsFormat);
 }
 #endif
+
+OptionSet<ContentsFormat> GraphicsLayerCA::screenContentsFormats() const
+{
+    return client().screenContentsFormats();
+}
 
 // For now, this assumes that layers only ever have one replica, so replicaIndices contains only 0 and 1.
 GraphicsLayerCA::CloneID GraphicsLayerCA::ReplicaState::cloneID() const
@@ -5138,6 +5143,13 @@ void GraphicsLayerCA::updateOpacityOnLayer()
 void GraphicsLayerCA::deviceOrPageScaleFactorChanged()
 {
     noteChangesForScaleSensitiveProperties();
+}
+
+void GraphicsLayerCA::screenSupportedContentsFormatsChanged()
+{
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    noteLayerPropertyChanged(DrawsHDRContentChanged | DebugIndicatorsChanged);
+#endif
 }
 
 void GraphicsLayerCA::noteChangesForScaleSensitiveProperties()

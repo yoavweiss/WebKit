@@ -353,7 +353,7 @@ public:
     static void drawRepaintIndicator(GraphicsContext&, PlatformCALayer*, int repaintCount, Color customBackgroundColor = { });
     static CGRect frameForLayer(const PlatformLayer*);
 
-    static ContentsFormat contentsFormatForLayer(Widget* = nullptr, PlatformCALayerClient* = nullptr);
+    static ContentsFormat contentsFormatForLayer(PlatformCALayerClient* = nullptr);
 
     virtual void markFrontBufferVolatileForTesting() { }
     void moveToLayerPool();

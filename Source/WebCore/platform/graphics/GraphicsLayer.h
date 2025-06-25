@@ -661,9 +661,11 @@ public:
     virtual bool allowsTiling() const { return m_allowsTiling; }
 
     virtual void deviceOrPageScaleFactorChanged() { }
+    virtual void screenSupportedContentsFormatsChanged() { }
     virtual void setShouldUpdateRootRelativeScaleFactor(bool) { }
 
     WEBCORE_EXPORT void noteDeviceOrPageScaleFactorChangedIncludingDescendants();
+    void noteScreenSupportedContentsFormatsChangedIncludingDescendants();
 
     WEBCORE_EXPORT void setIsInWindow(bool);
 
