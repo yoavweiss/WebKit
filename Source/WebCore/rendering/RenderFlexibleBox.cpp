@@ -2386,10 +2386,11 @@ void RenderFlexibleBox::layoutAndPlaceFlexItems(LayoutUnit& crossAxisOffset, Fle
             LayoutUnit descent = (crossAxisMarginExtentForFlexItem(flexItem) + crossAxisExtentForFlexItem(flexItem)) - ascent;
             maxDescent = std::max(maxDescent, descent);
 
-            if (baselineAlignmentState)
+            if (!baselineAlignmentState) {
+                auto alignmentContextAxis = style().isRowFlexDirection() ? LogicalBoxAxis::Inline : LogicalBoxAxis::Block;
+                baselineAlignmentState = { flexItem, alignment, ascent, alignmentContextAxis, style().writingMode() };
+            } else
                 baselineAlignmentState->updateSharedGroup(flexItem, alignment, ascent);
-            else
-                baselineAlignmentState = { flexItem, alignment, ascent };
 
             if (alignment == ItemPosition::Baseline) {
                 maxAscent =  std::max(maxAscent, ascent);
@@ -2582,27 +2583,8 @@ void RenderFlexibleBox::performBaselineAlignment(LineState& lineState)
         if (mainAxisIsFlexItemInlineAxis(flexItem))
             return flexItem.style().writingMode();
 
-        // css-align-3: 9.1. Determining the Baselines of a Box
-        // In general, the writing mode of the box, shape, or other object being aligned is used to determine
-        // the line-under and line-over edges for synthesis. However, when that writing mode’s block flow direction
-        // is parallel to the axis of the alignment context, an axis-compatible writing mode must be assumed:
-
-        // If the box establishing the alignment context has a block flow direction that is orthogonal to the
-        // axis of the alignment context, use its writing mode.
-        if (style().isRowFlexDirection())
-            return style().writingMode();
-
-        //   Otherwise:
-        //
-        // If the box’s own writing mode is vertical, assume horizontal-tb.
-        // If the box’s own writing mode is horizontal, assume vertical-lr if
-        // direction is ltr and vertical-rl if direction is rtl.
-        WritingMode hypotheticalWritingMode;
-        if (!flexItem.isHorizontalWritingMode())
-            return hypotheticalWritingMode;
-        else
-            hypotheticalWritingMode.setWritingMode(writingMode().isBidiLTR() ? StyleWritingMode::VerticalLr : StyleWritingMode::VerticalRl);
-        return hypotheticalWritingMode;
+        auto alignmentContextAxis = style().isRowFlexDirection() ? LogicalBoxAxis::Inline : LogicalBoxAxis::Block;
+        return BaselineAlignmentState::usedWritingModeForBaselineAlignment(alignmentContextAxis, writingMode(), flexItem.writingMode());
     };
 
     auto shouldAdjustItemTowardsCrossAxisEnd = [&](const FlowDirection& flexItemBlockFlowDirection, ItemPosition alignment) {

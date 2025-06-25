@@ -85,7 +85,9 @@ bool BaselineGroup::isCompatible(FlowDirection childBlockFlow, ItemPosition chil
     return ((m_blockFlow == childBlockFlow || isOrthogonalBlockFlow(childBlockFlow)) && m_preference == childPreference) || (isOppositeBlockFlow(childBlockFlow) && m_preference != childPreference);
 }
 
-BaselineAlignmentState::BaselineAlignmentState(const RenderBox& child, ItemPosition preference, LayoutUnit ascent)
+BaselineAlignmentState::BaselineAlignmentState(const RenderBox& child, ItemPosition preference, LayoutUnit ascent, LogicalBoxAxis alignmentContextAxis, WritingMode alignmentContainerWritingMode)
+    : m_alignmentContainerWritingMode(alignmentContainerWritingMode)
+    , m_alignmentContextAxis(alignmentContextAxis)
 {
     ASSERT(isBaselinePosition(preference));
     updateSharedGroup(child, preference, ascent);
@@ -109,11 +111,48 @@ void BaselineAlignmentState::updateSharedGroup(const RenderBox& child, ItemPosit
     group.update(child, ascent);
 }
 
+
+WritingMode BaselineAlignmentState::usedWritingModeForBaselineAlignment(LogicalBoxAxis alignmentContextAxis,
+    WritingMode alignmentContainerWritingMode, WritingMode aligmentSubjectWritingMode)
+{
+
+    auto isAlignmentSubjectBlockFlowParallelToAlignmentContextAxis = [&] {
+        if (alignmentContextAxis == LogicalBoxAxis::Block)
+            return !alignmentContainerWritingMode.isOrthogonal(aligmentSubjectWritingMode);
+        return alignmentContainerWritingMode.isOrthogonal(aligmentSubjectWritingMode);
+    };
+
+    // css-align-3: 9.1. Determining the Baselines of a Box
+    // In general, the writing mode of the box, shape, or other object being aligned is used to determine
+    // the line-under and line-over edges for synthesis...
+    if (!isAlignmentSubjectBlockFlowParallelToAlignmentContextAxis())
+        return aligmentSubjectWritingMode;
+
+    // ... However, when that writing mode’s block flow direction
+    // is parallel to the axis of the alignment context, an axis-compatible writing mode must be assumed:
+    //
+
+    // If the box establishing the alignment context has a block flow direction that is orthogonal to the
+    // axis of the alignment context, use its writing mode.
+    if (alignmentContextAxis == LogicalBoxAxis::Inline)
+        return alignmentContainerWritingMode;
+
+    // Otherwise:
+    // If the box’s own writing mode is vertical, assume horizontal-tb.
+    // If the box’s own writing mode is horizontal, assume vertical-lr if
+    // direction is ltr and vertical-rl if direction is rtl.
+    if (!aligmentSubjectWritingMode.isHorizontal())
+        return { };
+    auto styleWritingMode = alignmentContainerWritingMode.isBidiLTR() ? StyleWritingMode::VerticalLr : StyleWritingMode::VerticalRl;
+    return { styleWritingMode, TextDirection::LTR, TextOrientation::Mixed };
+}
+
 // FIXME: Properly implement baseline-group compatibility.
 // See https://github.com/w3c/csswg-drafts/issues/721
 BaselineGroup& BaselineAlignmentState::findCompatibleSharedGroup(const RenderBox& child, ItemPosition preference)
 {
-    auto blockFlowDirection = child.writingMode().blockDirection();
+    auto usedWritingModeForBaselineAlignment = this->usedWritingModeForBaselineAlignment(m_alignmentContextAxis, m_alignmentContainerWritingMode, child.writingMode());
+    auto blockFlowDirection = usedWritingModeForBaselineAlignment.blockDirection();
     for (auto& group : m_sharedGroups) {
         if (group.isCompatible(blockFlowDirection, preference))
             return group;

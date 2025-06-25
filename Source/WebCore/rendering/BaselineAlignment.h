@@ -98,7 +98,7 @@ private:
 class BaselineAlignmentState {
     WTF_MAKE_TZONE_ALLOCATED(BaselineAlignmentState);
 public:
-    BaselineAlignmentState(const RenderBox& child, ItemPosition preference, LayoutUnit ascent);
+    BaselineAlignmentState(const RenderBox& child, ItemPosition preference, LayoutUnit ascent, LogicalBoxAxis alignmentContextAxis, WritingMode alignmentContainerWritingMode);
     const BaselineGroup& sharedGroup(const RenderBox& child, ItemPosition preference) const;
 
     // Updates the baseline-sharing group compatible with the item.
@@ -106,6 +106,8 @@ public:
     // managing the alignment behavior of the Grid Items.
     void updateSharedGroup(const RenderBox& child, ItemPosition preference, LayoutUnit ascent);
     Vector<BaselineGroup>& sharedGroups();
+
+    static WritingMode usedWritingModeForBaselineAlignment(LogicalBoxAxis alignmentContextAxis, WritingMode alignmentContainerWritingMode, WritingMode alignmentSubjectWritingMode);
 
 private:
     // Returns the baseline-sharing group compatible with an item.
@@ -116,6 +118,8 @@ private:
     BaselineGroup& findCompatibleSharedGroup(const RenderBox& child, ItemPosition preference);
 
     Vector<BaselineGroup> m_sharedGroups;
+    WritingMode m_alignmentContainerWritingMode;
+    LogicalBoxAxis m_alignmentContextAxis;
 };
 
 } // namespace WebCore
