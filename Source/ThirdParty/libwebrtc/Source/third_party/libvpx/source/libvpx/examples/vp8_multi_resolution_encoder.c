@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include <math.h>
 #include <assert.h>
 #include <sys/time.h>
@@ -437,7 +438,7 @@ int main(int argc, char **argv) {
 
   /* Other-resolution encoder settings */
   for (i = 1; i < NUM_ENCODERS; i++) {
-    cfg[i] = cfg[0];
+    memcpy(&cfg[i], &cfg[0], sizeof(vpx_codec_enc_cfg_t));
 
     cfg[i].rc_target_bitrate = target_bitrate[i];
 

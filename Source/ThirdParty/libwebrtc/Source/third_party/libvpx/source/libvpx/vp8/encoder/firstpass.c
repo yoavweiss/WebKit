@@ -795,7 +795,7 @@ void vp8_first_pass(VP8_COMP *cpi) {
     fps.duration = (double)(cpi->source->ts_end - cpi->source->ts_start);
 
     /* don't want to do output stats with a stack variable! */
-    cpi->twopass.this_frame_stats = fps;
+    memcpy(&cpi->twopass.this_frame_stats, &fps, sizeof(FIRSTPASS_STATS));
     output_stats(cpi->output_pkt_list, &cpi->twopass.this_frame_stats);
     accumulate_stats(&cpi->twopass.total_stats, &fps);
   }
@@ -1700,7 +1700,7 @@ static void define_gf_group(VP8_COMP *cpi, FIRSTPASS_STATS *this_frame) {
       break;
     }
 
-    *this_frame = next_frame;
+    memcpy(this_frame, &next_frame, sizeof(*this_frame));
 
     old_boost_score = boost_score;
   }
@@ -2236,7 +2236,7 @@ void vp8_second_pass(VP8_COMP *cpi) {
   /* keyframe and section processing ! */
   if (cpi->twopass.frames_to_key == 0) {
     /* Define next KF group and assign bits to it */
-    this_frame_copy = this_frame;
+    memcpy(&this_frame_copy, &this_frame, sizeof(this_frame));
     find_next_key_frame(cpi, &this_frame_copy);
 
     /* Special case: Error error_resilient_mode mode does not make much
@@ -2258,7 +2258,7 @@ void vp8_second_pass(VP8_COMP *cpi) {
   /* Is this a GF / ARF (Note that a KF is always also a GF) */
   if (cpi->frames_till_gf_update_due == 0) {
     /* Define next gf group and assign bits to it */
-    this_frame_copy = this_frame;
+    memcpy(&this_frame_copy, &this_frame, sizeof(this_frame));
     define_gf_group(cpi, &this_frame_copy);
 
     /* If we are going to code an altref frame at the end of the group
@@ -2273,7 +2273,7 @@ void vp8_second_pass(VP8_COMP *cpi) {
        * to the GF group
        */
       int bak = cpi->per_frame_bandwidth;
-      this_frame_copy = this_frame;
+      memcpy(&this_frame_copy, &this_frame, sizeof(this_frame));
       assign_std_frame_bits(cpi, &this_frame_copy);
       cpi->per_frame_bandwidth = bak;
     }
@@ -2293,12 +2293,12 @@ void vp8_second_pass(VP8_COMP *cpi) {
 
       if (cpi->common.frame_type != KEY_FRAME) {
         /* Assign bits from those allocated to the GF group */
-        this_frame_copy = this_frame;
+        memcpy(&this_frame_copy, &this_frame, sizeof(this_frame));
         assign_std_frame_bits(cpi, &this_frame_copy);
       }
     } else {
       /* Assign bits from those allocated to the GF group */
-      this_frame_copy = this_frame;
+      memcpy(&this_frame_copy, &this_frame, sizeof(this_frame));
       assign_std_frame_bits(cpi, &this_frame_copy);
     }
   }
@@ -2430,7 +2430,7 @@ static int test_candidate_kf(VP8_COMP *cpi, FIRSTPASS_STATS *last_frame,
     double decay_accumulator = 1.0;
     double next_iiratio;
 
-    local_next_frame = *next_frame;
+    memcpy(&local_next_frame, next_frame, sizeof(*next_frame));
 
     /* Note the starting file position so we can reset to it */
     start_pos = cpi->twopass.stats_in;
@@ -2523,7 +2523,7 @@ static void find_next_key_frame(VP8_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   cpi->twopass.frames_to_key = 1;
 
   /* Take a copy of the initial frame details */
-  first_frame = *this_frame;
+  memcpy(&first_frame, this_frame, sizeof(*this_frame));
 
   cpi->twopass.kf_group_bits = 0;
   cpi->twopass.kf_group_error_left = 0;
@@ -2545,7 +2545,7 @@ static void find_next_key_frame(VP8_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     kf_group_coded_err += this_frame->coded_error;
 
     /* Load the next frame's stats. */
-    last_frame = *this_frame;
+    memcpy(&last_frame, this_frame, sizeof(*this_frame));
     input_stats(cpi, this_frame);
 
     /* Provided that we are not at the end of the file... */
@@ -2608,7 +2608,7 @@ static void find_next_key_frame(VP8_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     cpi->twopass.frames_to_key /= 2;
 
     /* Copy first frame details */
-    tmp_frame = first_frame;
+    memcpy(&tmp_frame, &first_frame, sizeof(first_frame));
 
     /* Reset to the start of the group */
     reset_fpf_position(cpi, start_position);

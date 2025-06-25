@@ -340,24 +340,11 @@ int main(int argc, char *argv[]) {
   }
 
   if (argc > 3) {
-    if (sscanf(argv[3], "%dx%d", &w, &h) != 2) {
-      fprintf(stderr, "arguments for w/h not assigned!\n");
-      goto clean_up;
-    }
-    // Limit width/height to 4K. The frame_size set in the function
-    // open_input_file() will still be within range of int.
-    if (w < 1 || w > 4096 || h < 1 || h > 4096) {
-      fprintf(stderr,
-              "width or height is too large (above 4096) or below 1!\n");
-      goto clean_up;
-    }
+    sscanf(argv[3], "%dx%d", &w, &h);
   }
 
   if (argc > 6) {
-    if (sscanf(argv[6], "%d", &bit_depth) != 1) {
-      fprintf(stderr, "argument for bit_depth not assigned!\n");
-      goto clean_up;
-    }
+    sscanf(argv[6], "%d", &bit_depth);
   }
 
   if (open_input_file(argv[1], &in[0], w, h, bit_depth) < 0) {
@@ -402,10 +389,7 @@ int main(int argc, char *argv[]) {
   // encoding in mode 10. 7 would be reasonable for comparing TL0 of a 4-layer
   // encoding.
   if (argc > 4) {
-    if (sscanf(argv[4], "%d", &tl_skip) != 1) {
-      fprintf(stderr, "argument for tl_skip not assigned!\n");
-      goto clean_up;
-    }
+    sscanf(argv[4], "%d", &tl_skip);
     if (argc > 5) {
       framestats = fopen(argv[5], "w");
       if (!framestats) {
