@@ -37,6 +37,9 @@ extension WebPage {
     }
 
     /// A particular state that occurs during the progression of a navigation.
+    @available(WK_IOS_TBA, WK_MAC_TBA, WK_XROS_TBA, *)
+    @available(watchOS, unavailable)
+    @available(tvOS, unavailable)
     public enum NavigationEvent: Hashable, Sendable {
         /// This event occurs when the page receives provisional approval to process a navigation request,
         /// but before it receives a response to that request.
@@ -67,6 +70,9 @@ extension WebPage {
 
         /// The process for the web content of this page was terminated for any reason.
         case webContentProcessTerminated
+
+        /// The URL to navigate to is invalid.
+        case invalidURL
     }
 }
 
