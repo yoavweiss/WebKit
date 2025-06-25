@@ -21,6 +21,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
+#if compiler(>=6.0)
+
 #if ENABLE_WRITING_TOOLS && canImport(UIKit)
 
 import OSLog
@@ -106,12 +108,12 @@ extension WKTextAnimationManager {
     }
 }
 
-// FIXME: This conformance is unfortunate, and should be refactored into a seperate type so `@retroactive` can be removed.
+// FIXME: This conformance is unfortunate, and should be refactored into a separate type so `@retroactive` can be removed.
 // swift-format-ignore: AvoidRetroactiveConformances
 @_spi(TextEffects)
-extension WKTextAnimationManager: @retroactive UITextEffectViewSource {
+extension WKTextAnimationManager: @retroactive @preconcurrency UITextEffectViewSource {
     // This can be made non-public once the retroactive conformance is removed.
-    // It is currently safe due to the fact that WebKitSwift is not iteself public.
+    // It is currently safe due to the fact that WebKitSwift is not itself public.
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
     public func targetedPreview(for chunk: UITextEffectTextChunk) async -> UITargetedPreview {
         guard let delegate else {
@@ -140,7 +142,7 @@ extension WKTextAnimationManager: @retroactive UITextEffectViewSource {
     }
 
     // This can be made non-public once the retroactive conformance is removed.
-    // It is currently safe due to the fact that WebKitSwift is not iteself public.
+    // It is currently safe due to the fact that WebKitSwift is not itself public.
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
     public func updateTextChunkVisibilityForAnimation(_ chunk: UITextEffectTextChunk, visible: Bool) async {
         guard let uuidChunk = chunk as? TextEffectChunk else {
@@ -155,12 +157,12 @@ extension WKTextAnimationManager: @retroactive UITextEffectViewSource {
     }
 }
 
-// FIXME: This conformance is unfortunate, and should be refactored into a seperate type so `@retroactive` can be removed.
+// FIXME: This conformance is unfortunate, and should be refactored into a separate type so `@retroactive` can be removed.
 // swift-format-ignore: AvoidRetroactiveConformances
 @_spi(TextEffects)
-extension WKTextAnimationManager: @retroactive UITextEffectView.ReplacementTextEffect.Delegate {
+extension WKTextAnimationManager: @retroactive @preconcurrency UITextEffectView.ReplacementTextEffect.Delegate {
     // This can be made non-public once the retroactive conformance is removed.
-    // It is currently safe due to the fact that WebKitSwift is not iteself public.
+    // It is currently safe due to the fact that WebKitSwift is not itself public.
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
     public func performReplacementAndGeneratePreview(
         for chunk: UITextEffectTextChunk,
@@ -187,7 +189,7 @@ extension WKTextAnimationManager: @retroactive UITextEffectView.ReplacementTextE
     }
 
     // This can be made non-public once the retroactive conformance is removed.
-    // It is currently safe due to the fact that WebKitSwift is not iteself public.
+    // It is currently safe due to the fact that WebKitSwift is not itself public.
     // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
     public func replacementEffectDidComplete(_ effect: UITextEffectView.ReplacementTextEffect) {
         effectView.removeEffect(effect.id)
@@ -209,3 +211,5 @@ extension WKTextAnimationManager: @retroactive UITextEffectView.ReplacementTextE
 }
 
 #endif // ENABLE_WRITING_TOOLS && canImport(UIKit)
+
+#endif // compiler(>=6.0)

@@ -23,6 +23,8 @@
 
 import Foundation
 
+#if compiler(>=6.0)
+
 #if ENABLE_WRITING_TOOLS
 
 #if canImport(AppKit) && !targetEnvironment(macCatalyst)
@@ -130,7 +132,7 @@ protocol PlatformIntelligenceTextEffectViewSource: AnyObject {
 #if canImport(UIKit)
 
 @MainActor
-private final class UITextEffectViewSourceAdapter<Wrapped>: NSObject, UITextEffectViewSource
+private final class UITextEffectViewSourceAdapter<Wrapped>: NSObject, @preconcurrency UITextEffectViewSource
 where Wrapped: PlatformIntelligenceTextEffectViewSource {
     private var wrapped: Wrapped
 
@@ -183,7 +185,7 @@ where Wrapped: PlatformIntelligenceTextEffectViewSource {
 }
 
 @MainActor
-private final class UIReplacementTextEffectDelegateAdapter<Wrapped>: UITextEffectView.ReplacementTextEffect.Delegate
+private final class UIReplacementTextEffectDelegateAdapter<Wrapped>: @preconcurrency UITextEffectView.ReplacementTextEffect.Delegate
 where Wrapped: PlatformIntelligenceTextEffectViewSource {
     private let wrapped: Wrapped
     private weak var view: PlatformIntelligenceTextEffectView<Wrapped>?
@@ -250,7 +252,7 @@ where Wrapped: PlatformIntelligenceTextEffectChunk {
 #else
 
 @MainActor
-private final class WTTextPreviewAsyncSourceAdapter<Wrapped>: NSObject, _WTTextPreviewAsyncSource
+private final class WTTextPreviewAsyncSourceAdapter<Wrapped>: NSObject, @preconcurrency _WTTextPreviewAsyncSource
 where Wrapped: PlatformIntelligenceTextEffectViewSource {
     private let wrapped: Wrapped
 
@@ -694,3 +696,5 @@ class PlatformIntelligencePonderingTextEffect<Chunk>: PlatformIntelligenceTextEf
 }
 
 #endif // ENABLE_WRITING_TOOLS
+
+#endif // compiler(>=6.0)

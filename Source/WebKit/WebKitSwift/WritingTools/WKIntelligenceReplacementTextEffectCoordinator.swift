@@ -465,7 +465,7 @@ extension WKIntelligenceReplacementTextEffectCoordinator: PlatformIntelligenceTe
 // MARK: Misc. helper functions
 
 /// Converts a block with a completion handler into an async block.
-private func async(_ block: @escaping (@escaping () -> Void) -> Void) -> (() async -> Void) {
+private func async(_ block: @MainActor @Sendable @escaping (@MainActor @Sendable @escaping () -> Void) -> Void) -> (() async -> Void) {
     { @MainActor in
         await withCheckedContinuation { continuation in
             block(continuation.resume)
