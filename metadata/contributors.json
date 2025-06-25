@@ -530,7 +530,8 @@
    },
    {
       "emails" : [
-         "alexbdamac@gmail.com"
+         "alexbdamac@gmail.com",
+         "aborges@igalia.com"
       ],
       "github" : "AlexsanderDamaceno",
       "name" : "Alexsander Borges Damaceno",
