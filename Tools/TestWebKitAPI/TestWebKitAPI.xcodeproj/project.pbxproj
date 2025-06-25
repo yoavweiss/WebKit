@@ -1386,6 +1386,7 @@
 		F4E0A28F211E5D5B00AF7C7F /* DragAndDropTestsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4E0A28E211E5D5B00AF7C7F /* DragAndDropTestsMac.mm */; };
 		F4E0A2B82122847400AF7C7F /* TestFilePromiseReceiver.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4E0A2B72122847400AF7C7F /* TestFilePromiseReceiver.mm */; };
 		F4E5CCC92A6C79770051934C /* MouseEventTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4E5CCC12A6C79770051934C /* MouseEventTests.mm */; };
+		F4EBD7702E0B6E23000DB069 /* top-fixed-element.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = F4EBD76F2E0B6E23000DB069 /* top-fixed-element.html */; };
 		F4EC78102ADF8BC300C37592 /* LoadWebViewWithEmptyAppName.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4EC780F2ADF8BC300C37592 /* LoadWebViewWithEmptyAppName.mm */; };
 		F4F5BB5221667BAA002D06B9 /* TestFontOptions.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4F5BB5121667BAA002D06B9 /* TestFontOptions.mm */; };
 		F4FA2A4F24D1F05700618A46 /* AttributedSubstringForProposedRange.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4FA2A4E24D1F05700618A46 /* AttributedSubstringForProposedRange.mm */; };
@@ -2117,6 +2118,7 @@
 				A17C480F2C98E5C20023F3C7 /* text-with-web-font.webarchive in Copy Resources */,
 				A17C48102C98E5C20023F3C7 /* textarea-to-input.html in Copy Resources */,
 				A17C48112C98E5C20023F3C7 /* TextWidth.html in Copy Resources */,
+				F4EBD7702E0B6E23000DB069 /* top-fixed-element.html in Copy Resources */,
 				A17C48122C98E5C20023F3C7 /* try-text-select-with-disabled-text-interaction.html in Copy Resources */,
 				A17C48132C98E5C20023F3C7 /* two-paragraph-contenteditable.html in Copy Resources */,
 				A17C484A2C98E6360023F3C7 /* two-videos.html in Copy Resources */,
@@ -4051,6 +4053,7 @@
 		F4E7A66227222BB100E74D36 /* canvas-image-data.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "canvas-image-data.html"; sourceTree = "<group>"; };
 		F4EB4E8F2328AC3000574DAB /* NSItemProviderAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NSItemProviderAdditions.h; path = cocoa/NSItemProviderAdditions.h; sourceTree = SOURCE_ROOT; };
 		F4EB4E902328AC3000574DAB /* NSItemProviderAdditions.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NSItemProviderAdditions.mm; path = cocoa/NSItemProviderAdditions.mm; sourceTree = SOURCE_ROOT; };
+		F4EBD76F2E0B6E23000DB069 /* top-fixed-element.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "top-fixed-element.html"; sourceTree = "<group>"; };
 		F4EC780F2ADF8BC300C37592 /* LoadWebViewWithEmptyAppName.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadWebViewWithEmptyAppName.mm; sourceTree = "<group>"; };
 		F4EC8093260D2E620010311D /* simple-image-overlay.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "simple-image-overlay.html"; sourceTree = "<group>"; };
 		F4F137911D9B6832002BEC57 /* large-video-test-now-playing.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "large-video-test-now-playing.html"; sourceTree = "<group>"; };
@@ -5568,6 +5571,7 @@
 				F40398892B2D0AC700A7AA85 /* text-with-web-font.webarchive */,
 				F41AB9951EF4692C0083FA08 /* textarea-to-input.html */,
 				C22FA32C228F877A009D7988 /* TextWidth.html */,
+				F4EBD76F2E0B6E23000DB069 /* top-fixed-element.html */,
 				4952BE5C2578113900B0AEF1 /* try-text-select-with-disabled-text-interaction.html */,
 				F4451C751EB8FD7C0020C5DA /* two-paragraph-contenteditable.html */,
 				31727A5229F733D300A7FB0F /* UnitBox.usdz */,

@@ -164,6 +164,7 @@
 #import <WebCore/LegacySchemeRegistry.h>
 #import <WebCore/MIMETypeRegistry.h>
 #import <WebCore/MarkupExclusionRule.h>
+#import <WebCore/PageColorSampler.h>
 #import <WebCore/Pagination.h>
 #import <WebCore/Permissions.h>
 #import <WebCore/PlatformScreen.h>
@@ -3153,8 +3154,25 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
     return _impl->obscuredContentInsets();
 #else
     auto obscuredInsets = [self _obscuredInsets];
+    auto additionalTopInset = [&] -> CGFloat {
+        if (![_scrollView _wk_isScrolledBeyondTopExtent])
+            return 0;
+
+        auto topFixedColor = _fixedContainerEdges.predominantColor(WebCore::BoxSide::Top);
+        if (!topFixedColor.isVisible())
+            return 0;
+
+        if (!WebCore::PageColorSampler::colorsAreSimilar(_page->sampledPageTopColor(), topFixedColor))
+            return 0;
+
+        if (WebCore::PageColorSampler::colorsAreSimilar(_page->underPageBackgroundColor(), topFixedColor))
+            return 0;
+
+        return std::max<CGFloat>(-obscuredInsets.top - [_scrollView contentOffset].y, 0);
+    }();
+
     return WebCore::FloatBoxExtent {
-        static_cast<float>(obscuredInsets.top),
+        static_cast<float>(obscuredInsets.top + additionalTopInset),
         static_cast<float>(obscuredInsets.right),
         static_cast<float>(obscuredInsets.bottom),
         static_cast<float>(obscuredInsets.left)
