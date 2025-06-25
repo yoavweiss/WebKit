@@ -152,7 +152,7 @@
 #include <WebCore/GraphicsContextGL.h>
 #endif
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
 #include "PlatformXRSystemProxy.h"
 #endif
 
@@ -2175,7 +2175,7 @@ void WebChromeClient::showMediaControlsContextMenu(FloatRect&& targetFrame, Vect
 
 #endif // ENABLE(MEDIA_CONTROLS_CONTEXT_MENUS) && USE(UICONTEXTMENU)
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
 void WebChromeClient::enumerateImmersiveXRDevices(CompletionHandler<void(const PlatformXR::Instance::DeviceList&)>&& completionHandler)
 {
     if (RefPtr page = m_page.get())

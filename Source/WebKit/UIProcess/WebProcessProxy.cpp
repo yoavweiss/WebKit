@@ -785,7 +785,7 @@ RefPtr<WebPageProxy> WebProcessProxy::audioCapturingWebPage()
     return nullptr;
 }
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
 RefPtr<WebPageProxy> WebProcessProxy::webPageWithActiveXRSession()
 {
     for (Ref page : globalPages()) {

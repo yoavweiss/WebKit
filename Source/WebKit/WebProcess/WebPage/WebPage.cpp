@@ -476,7 +476,7 @@
 #include "WebExtensionControllerProxy.h"
 #endif
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
 #include "PlatformXRSystemProxy.h"
 #endif
 
@@ -9096,7 +9096,7 @@ void WebPage::textAutosizingUsesIdempotentModeChanged()
 }
 #endif // ENABLE(TEXT_AUTOSIZING)
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
 PlatformXRSystemProxy& WebPage::xrSystemProxy()
 {
     if (!m_xrSystemProxy)

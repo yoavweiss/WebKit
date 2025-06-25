@@ -1493,10 +1493,4 @@ webkit.org/b/267992 imported/w3c/web-platform-tests/html/anonymous-iframe/initia
 http/wpt/identity/ [ Skip ]
 imported/w3c/web-platform-tests/digital-credentials/ [ Skip ]
 
-# WebXR is not yet supported in WPE
-http/tests/webxr [ Skip ]
-http/wpt/webxr [ Skip ]
-imported/w3c/web-platform-tests/webxr [ Skip ]
-webxr [ Skip ]
-
 http/tests/lockdown-mode [ Skip ]

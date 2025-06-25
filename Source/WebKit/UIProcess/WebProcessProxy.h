@@ -231,7 +231,7 @@ public:
     static RefPtr<WebPageProxy> webPage(WebPageProxyIdentifier);
     static RefPtr<WebPageProxy> webPage(WebCore::PageIdentifier);
     static RefPtr<WebPageProxy> audioCapturingWebPage();
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
     static RefPtr<WebPageProxy> webPageWithActiveXRSession();
 #endif
     Ref<WebPageProxy> createWebPage(PageClient&, Ref<API::PageConfiguration>&&);

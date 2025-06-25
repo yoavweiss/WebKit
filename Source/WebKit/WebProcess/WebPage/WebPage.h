@@ -382,7 +382,7 @@ class ModelProcessConnection;
 class NotificationPermissionRequestManager;
 class PDFPluginBase;
 class PageBanner;
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
 class PlatformXRSystemProxy;
 #endif
 class PluginView;
@@ -1846,7 +1846,7 @@ public:
     double baseViewportLayoutSizeScaleFactor() const { return m_baseViewportLayoutSizeScaleFactor; }
 #endif
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
     PlatformXRSystemProxy& xrSystemProxy();
 #endif
 
@@ -3065,7 +3065,7 @@ private:
     Vector<std::pair<WeakPtr<WebCore::HTMLElement, WebCore::WeakPtrImplWithEventTargetData>, Vector<CompletionHandler<void(RefPtr<WebCore::Element>&&)>>>> m_elementsPendingTextRecognition;
 #endif
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
     const std::unique_ptr<PlatformXRSystemProxy> m_xrSystemProxy;
 #endif
 

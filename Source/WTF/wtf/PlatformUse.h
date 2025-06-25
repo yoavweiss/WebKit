@@ -287,6 +287,12 @@
 #define USE_EMPTYXR 1
 #endif
 #endif
+#else
+#if !defined(HAVE_WEBXR_INTERNALS) && !HAVE(WEBXR_INTERNALS)
+#if !USE(OPENXR)
+#define USE_EMPTYXR 1
+#endif
+#endif
 #endif
 
 #if PLATFORM(IOS_FAMILY)

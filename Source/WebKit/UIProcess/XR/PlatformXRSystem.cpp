@@ -339,14 +339,14 @@ bool PlatformXRSystem::webXREnabled() const
     return page && page->protectedPreferences()->webXREnabled();
 }
 
-#if !USE(APPLE_INTERNAL_SDK)
+#if !USE(APPLE_INTERNAL_SDK) && !USE(OPENXR)
 
 PlatformXRCoordinator* PlatformXRSystem::xrCoordinator()
 {
     return nullptr;
 }
 
-#endif // !USE(APPLE_INTERNAL_SDK)
+#endif // !USE(APPLE_INTERNAL_SDK) && !USE(OPENXR)
 
 } // namespace WebKit
 

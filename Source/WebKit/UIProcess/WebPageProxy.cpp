@@ -1630,7 +1630,7 @@ void WebPageProxy::didAttachToRunningProcess()
 #endif
     m_screenOrientationManager = WebScreenOrientationManagerProxy::create(*this, currentOrientation);
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
     ASSERT(!internals().xrSystem);
     internals().xrSystem = PlatformXRSystem::create(*this);
 #endif
@@ -9483,7 +9483,7 @@ void WebPageProxy::didChangeIntrinsicContentSize(const IntSize& intrinsicContent
 #endif
 }
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
 PlatformXRSystem* WebPageProxy::xrSystem() const
 {
     return internals().xrSystem.get();
@@ -11522,7 +11522,7 @@ void WebPageProxy::resetState(ResetStateReason resetStateReason)
 
     m_speechRecognitionPermissionManager = nullptr;
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
     if (RefPtr xrSystem = internals().xrSystem) {
         xrSystem->invalidate();
         internals().xrSystem = nullptr;

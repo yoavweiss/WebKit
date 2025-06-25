@@ -258,12 +258,6 @@ webkit.org/b/254733 inspector/canvas/recording-offscreen-webgl-snapshots.html [ 
 webkit.org/b/254733 inspector/canvas/shaderProgram-add-remove-webgl2.html [ Failure ]
 webkit.org/b/254733 inspector/canvas/shaderProgram-add-remove-webgl.html [ Failure ]
 
-# WebXR is not yet supported in GTK
-webkit.org/b/208988 http/tests/webxr [ Skip ]
-webkit.org/b/208988 http/wpt/webxr [ Skip ]
-webkit.org/b/208988 imported/w3c/web-platform-tests/webxr [ Skip ]
-webkit.org/b/208988 webxr [ Skip ]
-
 # Crash on EWS bot.
 webrtc/vp8-then-h264-gpu-process-crash.html [ Skip ]
 

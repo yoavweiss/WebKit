@@ -2549,7 +2549,7 @@ public:
 #endif
     String scrollbarStateForScrollingNodeID(std::optional<WebCore::ScrollingNodeID>, bool isVertical);
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
     PlatformXRSystem* xrSystem() const;
     void restartXRSessionActivityOnProcessResumeIfNeeded();
 #endif

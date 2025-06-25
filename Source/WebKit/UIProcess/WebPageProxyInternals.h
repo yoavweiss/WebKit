@@ -443,7 +443,7 @@ public:
     std::optional<PlaybackSessionContextIdentifier> currentFullscreenVideoSessionIdentifier;
 #endif
 
-#if ENABLE(WEBXR) && !USE(OPENXR)
+#if ENABLE(WEBXR)
     RefPtr<PlatformXRSystem> xrSystem;
 #endif
 
