@@ -33,7 +33,7 @@ from fnmatch import fnmatch
 
 # Increment this number to force clients to rebuild from scratch, to
 # accomodate schema changes or fix caching bugs.
-VERSION = 2
+VERSION = 3
 
 
 class SDKDB:
@@ -129,7 +129,12 @@ class SDKDB:
             self.con.commit()
 
     def _cache_hit_preparing_to_insert(self, file: Path, hash_: int) -> bool:
-        path = str(file.absolute())
+        # Normalize the path so that different projects can refer to the main
+        # SDKDB directory through relative paths. resolve() normalizes
+        # symlinks, which can confuse XCBuild's dependency tracking, but the
+        # input paths in the depfile are written, unresolved, from
+        # program.main(). So this path is purely an internal representation.
+        path = str(file.resolve())
         cur = self.con.cursor()
         cur.execute('SELECT hash from input_file where path = ?', (path,))
         if cur.fetchone() == (hash_,):

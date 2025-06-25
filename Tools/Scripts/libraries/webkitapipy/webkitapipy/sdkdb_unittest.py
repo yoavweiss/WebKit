@@ -30,6 +30,7 @@ from .macho import APIReport
 # Fixtures:
 F = Path('/libdoesntexist.dylib')
 F_Hash = 1234567890
+F_NonNormalized = Path('/foo/../libdoesntexist.dylib')
 R = APIReport(
     file=F, arch='arm64e',
     exports={'_WKDoesntExistLibraryVersion', '_OBJC_CLASS_$_WKDoesntExist'},
@@ -69,3 +70,13 @@ class TestSDKDB(TestCase):
         # ...until the file is again added as in input.
         self.assertTrue(self.sdkdb._cache_hit_preparing_to_insert(F, F_Hash))
         self.assertTrue(self.sdkdb.symbol('_WKDoesntExistLibraryVersion'))
+
+    def test_path_normalized_when_cache_hit(self):
+        with self.sdkdb:
+            self.assertFalse(self.sdkdb._cache_hit_preparing_to_insert(F, F_Hash))
+            self.assertTrue(self.sdkdb._cache_hit_preparing_to_insert(F_NonNormalized, F_Hash))
+
+    def test_path_normalized_when_cache_miss(self):
+        with self.sdkdb:
+            self.assertFalse(self.sdkdb._cache_hit_preparing_to_insert(F_NonNormalized, F_Hash))
+            self.assertTrue(self.sdkdb._cache_hit_preparing_to_insert(F, F_Hash))
