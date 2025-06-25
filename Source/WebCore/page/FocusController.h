@@ -50,6 +50,12 @@ class TreeScope;
 
 struct FocusCandidate;
 
+enum class ContinuedSearchInRemoteFrame : bool { No, Yes };
+struct FocusableElementSearchResult {
+    RefPtr<Element> element;
+    ContinuedSearchInRemoteFrame continuedSearchInRemoteFrame { ContinuedSearchInRemoteFrame::No };
+};
+
 class FocusController final : public CanMakeCheckedPtr<FocusController> {
     WTF_MAKE_TZONE_ALLOCATED(FocusController);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(FocusController);
@@ -78,9 +84,8 @@ public:
 
     bool contentIsVisible() const { return m_activityState.contains(ActivityState::IsVisible); }
 
-    // These methods are used in WebCore/bindings/objc/DOM.mm.
-    WEBCORE_EXPORT Element* nextFocusableElement(Node&);
-    WEBCORE_EXPORT Element* previousFocusableElement(Node&);
+    WEBCORE_EXPORT FocusableElementSearchResult nextFocusableElement(Node&);
+    WEBCORE_EXPORT FocusableElementSearchResult previousFocusableElement(Node&);
 
     void setFocusedElementNeedsRepaint();
     Seconds timeSinceFocusWasSet() const;
@@ -95,13 +100,13 @@ private:
     bool advanceFocusDirectionally(FocusDirection, KeyboardEvent*);
     bool advanceFocusInDocumentOrder(FocusDirection, KeyboardEvent*, bool initialFocus);
 
-    Element* findFocusableElementAcrossFocusScope(FocusDirection, const FocusNavigationScope& startScope, Node* start, KeyboardEvent*);
+    FocusableElementSearchResult findFocusableElementAcrossFocusScope(FocusDirection, const FocusNavigationScope& startScope, Node* start, KeyboardEvent*);
 
-    Element* findFocusableElementWithinScope(FocusDirection, const FocusNavigationScope&, Node* start, KeyboardEvent*);
-    Element* nextFocusableElementWithinScope(const FocusNavigationScope&, Node* start, KeyboardEvent*);
-    Element* previousFocusableElementWithinScope(const FocusNavigationScope&, Node* start, KeyboardEvent*);
+    FocusableElementSearchResult findFocusableElementWithinScope(FocusDirection, const FocusNavigationScope&, Node* start, KeyboardEvent*);
+    FocusableElementSearchResult nextFocusableElementWithinScope(const FocusNavigationScope&, Node* start, KeyboardEvent*);
+    FocusableElementSearchResult previousFocusableElementWithinScope(const FocusNavigationScope&, Node* start, KeyboardEvent*);
 
-    Element* findFocusableElementDescendingIntoSubframes(FocusDirection, Element*, KeyboardEvent*);
+    FocusableElementSearchResult findFocusableElementDescendingIntoSubframes(FocusDirection, Element*, KeyboardEvent*);
 
     // Searches through the given tree scope, starting from start node, for the next/previous selectable element that comes after/before start node.
     // The order followed is as specified in section 17.11.1 of the HTML4 spec, which is elements with tab indexes

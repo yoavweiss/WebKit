@@ -4109,7 +4109,11 @@ static inline RefPtr<Element> nextAssistableElement(Node* startNode, Page& page,
 
     CheckedRef focusController { page.focusController() };
     do {
-        nextElement = isForward ? focusController->nextFocusableElement(*nextElement) : focusController->previousFocusableElement(*nextElement);
+        auto result = isForward ? focusController->nextFocusableElement(*nextElement) : focusController->previousFocusableElement(*nextElement);
+        if (!result.element && result.continuedSearchInRemoteFrame == ContinuedSearchInRemoteFrame::Yes)
+            RELEASE_LOG(SiteIsolation, "Crossing site isolation process barrier searching for `nextAssistableElement` is not yet supported");
+
+        nextElement = result.element;
     } while (nextElement && (!isAssistableElement(*nextElement) || isObscuredElement(*nextElement)));
 
     return nextElement;
