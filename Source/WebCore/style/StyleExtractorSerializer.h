@@ -121,7 +121,6 @@ public:
     static void serializeWillChange(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const WillChangeData*);
     static void serializeBlockEllipsis(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const BlockEllipsis&);
     static void serializeBlockStepSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, std::optional<WebCore::Length>);
-    static void serializeGapLength(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const GapLength&);
     static void serializeTabSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TabSize&);
     static void serializeScrollSnapType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapType&);
     static void serializeScrollSnapAlign(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapAlign&);
@@ -134,7 +133,6 @@ public:
     static void serializeTouchAction(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TouchAction>);
     static void serializeTextTransform(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextTransform>);
     static void serializeTextDecorationLine(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextDecorationLine>);
-    static void serializeTextUnderlineOffset(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextUnderlineOffset&);
     static void serializeTextUnderlinePosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextUnderlinePosition>);
     static void serializeTextDecorationThickness(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextDecorationThickness&);
     static void serializeTextEmphasisPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextEmphasisPosition>);
@@ -1293,16 +1291,6 @@ inline void ExtractorSerializer::serializeBlockStepSize(ExtractorState& state, S
     serializeLength(state, builder, context, *blockStepSize);
 }
 
-inline void ExtractorSerializer::serializeGapLength(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const GapLength& gapLength)
-{
-    if (gapLength.isNormal()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Normal { });
-        return;
-    }
-
-    serializeLength(state, builder, context, gapLength.length());
-}
-
 inline void ExtractorSerializer::serializeTabSize(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext& context, const TabSize& tabSize)
 {
     auto value = tabSize.widthInPixels(1.0);
@@ -1522,23 +1510,6 @@ inline void ExtractorSerializer::serializeTextDecorationLine(ExtractorState& sta
 
     if (listEmpty)
         serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-}
-
-inline void ExtractorSerializer::serializeTextUnderlineOffset(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const TextUnderlineOffset& textUnderlineOffset)
-{
-    if (textUnderlineOffset.isAuto()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        return;
-    }
-
-    ASSERT(textUnderlineOffset.isLength());
-    auto& length = textUnderlineOffset.length();
-    if (length.isPercent()) {
-        CSS::serializationForCSS(builder, context, CSS::PercentageRaw<> { length.percent() });
-        return;
-    }
-
-    serializeLength(state, builder, context, length);
 }
 
 inline void ExtractorSerializer::serializeTextUnderlinePosition(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<TextUnderlinePosition> textUnderlinePosition)

@@ -61,7 +61,6 @@ class FontCascade;
 class FontCascadeDescription;
 class FontMetrics;
 class FontSelectionValue;
-class GapLength;
 class GridPosition;
 class GridTrackSize;
 class HitTestRequest;
@@ -97,7 +96,6 @@ class StyleScrollSnapArea;
 class StyleSelfAlignmentData;
 class TextDecorationThickness;
 class TextSizeAdjustment;
-class TextUnderlineOffset;
 class TransformOperations;
 class TransformationMatrix;
 class TranslateTransformOperation;
@@ -294,6 +292,7 @@ struct ColorScheme;
 struct CornerShapeValue;
 struct DynamicRangeLimit;
 struct FlexBasis;
+struct GapGutter;
 struct InsetEdge;
 struct MarginEdge;
 struct MaximumSize;
@@ -314,6 +313,7 @@ struct ScopedName;
 struct ScrollMarginEdge;
 struct ScrollPaddingEdge;
 struct TextShadow;
+struct TextUnderlineOffset;
 struct Translate;
 
 enum class Change : uint8_t;
@@ -654,7 +654,7 @@ public:
     inline TextDecorationStyle textDecorationStyle() const;
     inline TextDecorationSkipInk textDecorationSkipInk() const;
     inline OptionSet<TextUnderlinePosition> textUnderlinePosition() const;
-    inline TextUnderlineOffset textUnderlineOffset() const;
+    inline const Style::TextUnderlineOffset& textUnderlineOffset() const;
     inline TextDecorationThickness textDecorationThickness() const;
 
     inline TextIndentLine textIndentLine() const;
@@ -969,8 +969,8 @@ public:
     inline bool hasAutoColumnCount() const;
     inline bool specifiesColumns() const;
     inline ColumnFill columnFill() const;
-    inline const GapLength& columnGap() const;
-    inline const GapLength& rowGap() const;
+    inline const Style::GapGutter& columnGap() const;
+    inline const Style::GapGutter& rowGap() const;
     inline BorderStyle columnRuleStyle() const;
     inline unsigned short columnRuleWidth() const;
     inline bool columnRuleIsTransparent() const;
@@ -1377,7 +1377,7 @@ public:
     inline void setTextDecorationStyle(TextDecorationStyle);
     inline void setTextDecorationSkipInk(TextDecorationSkipInk);
     inline void setTextUnderlinePosition(OptionSet<TextUnderlinePosition>);
-    inline void setTextUnderlineOffset(TextUnderlineOffset);
+    inline void setTextUnderlineOffset(Style::TextUnderlineOffset&&);
     inline void setTextDecorationThickness(TextDecorationThickness);
     void setLineHeight(Length&&);
     bool setZoom(float);
@@ -1604,8 +1604,8 @@ public:
     inline void setColumnCount(unsigned short);
     inline void setHasAutoColumnCount();
     inline void setColumnFill(ColumnFill);
-    inline void setColumnGap(GapLength&&);
-    inline void setRowGap(GapLength&&);
+    inline void setColumnGap(Style::GapGutter&&);
+    inline void setRowGap(Style::GapGutter&&);
     inline void setColumnRuleColor(Style::Color&&);
     inline void setColumnRuleStyle(BorderStyle);
     inline void setColumnRuleWidth(unsigned short);
@@ -2045,7 +2045,7 @@ public:
     static constexpr TextDecorationStyle initialTextDecorationStyle();
     static constexpr TextDecorationSkipInk initialTextDecorationSkipInk();
     static constexpr OptionSet<TextUnderlinePosition> initialTextUnderlinePosition();
-    static inline TextUnderlineOffset initialTextUnderlineOffset();
+    static inline Style::TextUnderlineOffset initialTextUnderlineOffset();
     static inline TextDecorationThickness initialTextDecorationThickness();
     static float initialZoom() { return 1.0f; }
     static constexpr TextZoom initialTextZoom();
@@ -2115,8 +2115,8 @@ public:
     static unsigned short initialColumnCount() { return 1; }
     static constexpr ColumnFill initialColumnFill();
     static constexpr ColumnSpan initialColumnSpan();
-    static inline GapLength initialColumnGap();
-    static inline GapLength initialRowGap();
+    static inline Style::GapGutter initialColumnGap();
+    static inline Style::GapGutter initialRowGap();
     static inline TransformOperations initialTransform();
     static inline Length initialTransformOriginX();
     static inline Length initialTransformOriginY();
