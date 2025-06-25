@@ -317,12 +317,12 @@ DoesBreakScope RuleFeatureSet::recursivelyCollectFeaturesFromSelector(SelectorFe
             if (selector->match() == CSSSelector::Match::PseudoClass && selector->pseudoClass() == CSSSelector::PseudoClass::Not)
                 subSelectorIsNegation = isNegation == IsNegation::No ? IsNegation::Yes : IsNegation::No;
 
-            for (const CSSSelector* subSelector = selectorList->first(); subSelector; subSelector = CSSSelectorList::next(subSelector)) {
-                auto subSelectorMatchElement = computeSubSelectorMatchElement(matchElement, *selector, *subSelector);
-                auto pseudoClassDoesBreakScope = recursivelyCollectFeaturesFromSelector(selectorFeatures, *subSelector, subSelectorMatchElement, subSelectorIsNegation, canBreakScope);
+            for (auto& subSelector : *selectorList) {
+                auto subSelectorMatchElement = computeSubSelectorMatchElement(matchElement, *selector, subSelector);
+                auto pseudoClassDoesBreakScope = recursivelyCollectFeaturesFromSelector(selectorFeatures, subSelector, subSelectorMatchElement, subSelectorIsNegation, canBreakScope);
 
                 if (selector->match() == CSSSelector::Match::PseudoClass && selector->pseudoClass() == CSSSelector::PseudoClass::Has)
-                    selectorFeatures.hasPseudoClasses.append({ subSelector, subSelectorMatchElement, isNegation, pseudoClassDoesBreakScope });
+                    selectorFeatures.hasPseudoClasses.append({ &subSelector, subSelectorMatchElement, isNegation, pseudoClassDoesBreakScope });
 
                 if (pseudoClassDoesBreakScope == DoesBreakScope::Yes)
                     doesBreakScope = DoesBreakScope::Yes;
@@ -391,9 +391,9 @@ void RuleFeatureSet::collectFeatures(const RuleData& ruleData, const Vector<Ref<
     for (auto& scopeRule : scopeRules) {
         auto collectSelectorList = [&] (const auto& selectorList) {
             if (!selectorList.isEmpty()) {
-                for (const auto* subSelector = selectorList.first() ; subSelector; subSelector = CSSSelectorList::next(subSelector)) {
-                    recursivelyCollectFeaturesFromSelector(selectorFeatures, *subSelector, MatchElement::Ancestor);
-                    recursivelyCollectFeaturesFromSelector(selectorFeatures, *subSelector, MatchElement::Subject);
+                for (auto& subSelector : selectorList) {
+                    recursivelyCollectFeaturesFromSelector(selectorFeatures, subSelector, MatchElement::Ancestor);
+                    recursivelyCollectFeaturesFromSelector(selectorFeatures, subSelector, MatchElement::Subject);
                 }
             }
         };

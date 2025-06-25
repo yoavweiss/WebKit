@@ -1358,8 +1358,8 @@ Ref<JSON::ArrayOf<Inspector::Protocol::CSS::RuleMatch>> InspectorCSSAgent::build
         auto matchingSelectors = JSON::ArrayOf<int>::create();
         const CSSSelectorList& selectorList = matchedRule->selectorList();
         int index = 0;
-        for (const CSSSelector* selector = selectorList.first(); selector; selector = CSSSelectorList::next(selector)) {
-            bool matched = selectorChecker.match(*selector, element, context);
+        for (auto& selector : selectorList) {
+            bool matched = selectorChecker.match(selector, element, context);
             if (matched)
                 matchingSelectors->addItem(index);
             ++index;

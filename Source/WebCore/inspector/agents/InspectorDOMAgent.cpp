@@ -1537,14 +1537,14 @@ Inspector::Protocol::ErrorStringOr<void> InspectorDOMAgent::highlightSelector(co
         auto isInUserAgentShadowTree = descendantElement->isInUserAgentShadowTree();
         auto pseudoId = descendantElement->pseudoId();
 
-        for (const auto* selector = selectorList->first(); selector; selector = CSSSelectorList::next(selector)) {
-            if (isInUserAgentShadowTree && (selector->match() != CSSSelector::Match::PseudoElement || selector->value() != descendantElement->userAgentPart()))
+        for (auto& selector : *selectorList) {
+            if (isInUserAgentShadowTree && (selector.match() != CSSSelector::Match::PseudoElement || selector.value() != descendantElement->userAgentPart()))
                 continue;
 
             SelectorChecker::CheckingContext context(SelectorChecker::Mode::ResolvingStyle);
             context.pseudoId = pseudoId;
 
-            if (selectorChecker.match(*selector, *descendantElement, context)) {
+            if (selectorChecker.match(selector, *descendantElement, context)) {
                 if (seenNodes.add(*descendantElement))
                     nodeList.append(*descendantElement);
             }
