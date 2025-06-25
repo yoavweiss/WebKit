@@ -66,9 +66,9 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(WebAnimation);
 
-UncheckedKeyHashSet<WebAnimation*>& WebAnimation::instances()
+HashSet<WebAnimation*>& WebAnimation::instances()
 {
-    static NeverDestroyed<UncheckedKeyHashSet<WebAnimation*>> instances;
+    static NeverDestroyed<HashSet<WebAnimation*>> instances;
     return instances;
 }
 
@@ -1827,7 +1827,7 @@ ExceptionOr<void> WebAnimation::commitStyles()
 
     // 2.4 Let targeted properties be the set of physical longhand properties that are a target property for at least one
     // animation effect associated with animation whose effect target is target.
-    UncheckedKeyHashSet<AnimatableCSSProperty> targetedProperties;
+    HashSet<AnimatableCSSProperty> targetedProperties;
     for (auto property : effect->animatedProperties()) {
         if (std::holds_alternative<CSSPropertyID>(property)) {
             for (auto longhand : shorthandForProperty(std::get<CSSPropertyID>(property)))

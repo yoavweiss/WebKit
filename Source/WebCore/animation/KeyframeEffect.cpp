@@ -1279,7 +1279,7 @@ void KeyframeEffect::updateBlendingKeyframes(RenderStyle& elementStyle, const St
     setBlendingKeyframes(WTFMove(blendingKeyframes));
 }
 
-const UncheckedKeyHashSet<AnimatableCSSProperty>& KeyframeEffect::animatedProperties()
+const HashSet<AnimatableCSSProperty>& KeyframeEffect::animatedProperties()
 {
     if (!m_blendingKeyframes.isEmpty())
         return m_blendingKeyframes.properties();
@@ -1712,7 +1712,7 @@ bool KeyframeEffect::isRunningAcceleratedAnimationForProperty(CSSPropertyID prop
     return Style::Interpolation::isAccelerated(property, document()->settings()) && m_blendingKeyframes.properties().contains(property);
 }
 
-static bool propertiesContainTransformRelatedProperty(const UncheckedKeyHashSet<AnimatableCSSProperty>& properties)
+static bool propertiesContainTransformRelatedProperty(const HashSet<AnimatableCSSProperty>& properties)
 {
     return properties.contains(CSSPropertyTranslate)
         || properties.contains(CSSPropertyScale)
@@ -2796,9 +2796,9 @@ void KeyframeEffect::computeHasImplicitKeyframeForAcceleratedProperty()
             // We keep three property lists, one which contains all properties seen across keyframes
             // which will be filtered eventually to only contain implicit properties, one containing
             // properties seen on the 0% keyframe and one containing properties seen on the 100% keyframe.
-            UncheckedKeyHashSet<CSSPropertyID> implicitProperties;
-            UncheckedKeyHashSet<CSSPropertyID> explicitZeroProperties;
-            UncheckedKeyHashSet<CSSPropertyID> explicitOneProperties;
+            HashSet<CSSPropertyID> implicitProperties;
+            HashSet<CSSPropertyID> explicitZeroProperties;
+            HashSet<CSSPropertyID> explicitOneProperties;
             auto styleProperties = keyframe.style;
             for (auto propertyReference : styleProperties.get()) {
                 auto computedOffset = keyframe.computedOffset;

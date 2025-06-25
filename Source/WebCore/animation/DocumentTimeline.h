@@ -103,7 +103,7 @@ private:
     bool shouldRunUpdateAnimationsAndSendEventsIgnoringSuspensionState() const;
 
     Timer m_tickScheduleTimer;
-    UncheckedKeyHashSet<RefPtr<WebAnimation>> m_acceleratedAnimationsPendingRunningStateChange;
+    HashSet<RefPtr<WebAnimation>> m_acceleratedAnimationsPendingRunningStateChange;
     AnimationEvents m_pendingAnimationEvents;
     WeakPtr<Document, WeakPtrImplWithEventTargetData> m_document;
     Seconds m_originTime;

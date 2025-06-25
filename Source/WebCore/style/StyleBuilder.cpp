@@ -95,7 +95,7 @@ static auto positionTryFallbackProperties(const BuilderContext& context)
     return context.positionTryFallback ? context.positionTryFallback->properties.get() : nullptr;
 }
 
-Builder::Builder(RenderStyle& style, BuilderContext&& context, const MatchResult& matchResult, CascadeLevel cascadeLevel, PropertyCascade::IncludedProperties&& includedProperties, const UncheckedKeyHashSet<AnimatableCSSProperty>* animatedPropertes)
+Builder::Builder(RenderStyle& style, BuilderContext&& context, const MatchResult& matchResult, CascadeLevel cascadeLevel, PropertyCascade::IncludedProperties&& includedProperties, const HashSet<AnimatableCSSProperty>* animatedPropertes)
     : m_cascade(matchResult, cascadeLevel, WTFMove(includedProperties), animatedPropertes, positionTryFallbackProperties(context))
     , m_state(style, WTFMove(context))
 {

@@ -87,7 +87,7 @@ private:
 
     Vector<Ref<CSSAnimation>> m_cssAnimationsPendingAttachment;
     Vector<std::pair<NameScope, WeakStyleable>> m_timelineScopeEntries;
-    UncheckedKeyHashMap<AtomString, Vector<Ref<ScrollTimeline>>> m_nameToTimelineMap;
+    HashMap<AtomString, Vector<Ref<ScrollTimeline>>> m_nameToTimelineMap;
     HashSet<Ref<ScrollTimeline>> m_removedTimelines;
 };
 

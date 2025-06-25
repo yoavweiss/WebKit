@@ -478,7 +478,7 @@ void StyleOriginatedTimelinesController::unregisterNamedTimelinesAssociatedWithE
 {
     LOG_WITH_STREAM(Animations, stream << "StyleOriginatedTimelinesController::unregisterNamedTimelinesAssociatedWithElement element: " << styleable);
 
-    UncheckedKeyHashSet<AtomString> namesToClear;
+    HashSet<AtomString> namesToClear;
 
     for (auto& entry : m_nameToTimelineMap) {
         auto& timelines = entry.value;

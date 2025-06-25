@@ -88,7 +88,7 @@ private:
 #endif
 
     Vector<Ref<ScrollTimeline>> m_updatedScrollTimelines;
-    UncheckedKeyHashMap<FramesPerSecond, ReducedResolutionSeconds> m_animationFrameRateToLastTickTimeMap;
+    HashMap<FramesPerSecond, ReducedResolutionSeconds> m_animationFrameRateToLastTickTimeMap;
     WeakHashSet<AnimationTimeline> m_timelines;
     WeakHashSet<WebAnimation, WeakPtrImplWithEventTargetData> m_pendingAnimations;
     TaskCancellationGroup m_pendingAnimationsProcessingTaskCancellationGroup;

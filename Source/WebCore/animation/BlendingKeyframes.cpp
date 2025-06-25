@@ -166,8 +166,8 @@ void BlendingKeyframes::fillImplicitKeyframes(const KeyframeEffect& effect, cons
     // We need to establish which properties are implicit for 0% and 100%.
     // We start each list off with the full list of properties, and see if
     // any 0% and 100% keyframes specify them.
-    UncheckedKeyHashSet<AnimatableCSSProperty> expectedExplicitProperties;
-    UncheckedKeyHashSet<AnimatableCSSProperty> zeroKeyframeExplicitProperties;
+    HashSet<AnimatableCSSProperty> expectedExplicitProperties;
+    HashSet<AnimatableCSSProperty> zeroKeyframeExplicitProperties;
 
     BlendingKeyframe* implicitZeroKeyframe = nullptr;
 
@@ -207,7 +207,7 @@ void BlendingKeyframes::fillImplicitKeyframes(const KeyframeEffect& effect, cons
             expectedExplicitProperties.formUnion(keyframe.properties());
     }
 
-    auto addImplicitKeyframe = [&](double key, const UncheckedKeyHashSet<AnimatableCSSProperty>& implicitProperties, const StyleRuleKeyframe& keyframeRule, BlendingKeyframe* existingImplicitBlendingKeyframe) {
+    auto addImplicitKeyframe = [&](double key, const HashSet<AnimatableCSSProperty>& implicitProperties, const StyleRuleKeyframe& keyframeRule, BlendingKeyframe* existingImplicitBlendingKeyframe) {
         // If we're provided an existing implicit keyframe, we need to add all the styles for the implicit properties.
         if (existingImplicitBlendingKeyframe) {
             ASSERT(existingImplicitBlendingKeyframe->style());
@@ -236,7 +236,7 @@ void BlendingKeyframes::fillImplicitKeyframes(const KeyframeEffect& effect, cons
     if (!zeroKeyframeImplicitProperties.isEmpty())
         addImplicitKeyframe(0, zeroKeyframeImplicitProperties, zeroPercentKeyframe(), implicitZeroKeyframe);
 
-    UncheckedKeyHashSet<AnimatableCSSProperty> oneKeyframeExplicitProperties;
+    HashSet<AnimatableCSSProperty> oneKeyframeExplicitProperties;
     BlendingKeyframe* implicitOneKeyframe = nullptr;
 
     for (auto& keyframe : m_keyframes) {
@@ -311,7 +311,7 @@ bool BlendingKeyframes::hasPropertySetToCurrentColor() const
     return !m_propertiesSetToCurrentColor.isEmpty();
 }
 
-const UncheckedKeyHashSet<AnimatableCSSProperty>& BlendingKeyframes::propertiesSetToInherit() const
+const HashSet<AnimatableCSSProperty>& BlendingKeyframes::propertiesSetToInherit() const
 {
     return m_propertiesSetToInherit;
 }

@@ -97,7 +97,7 @@ private:
     std::unique_ptr<RenderStyle> resolveAgainInDifferentContext(const ResolvedStyle&, const Styleable&, const RenderStyle& parentStyle,  OptionSet<PropertyCascade::PropertyType>, std::optional<BuilderPositionTryFallback>&&, const ResolutionContext&);
     const RenderStyle& parentAfterChangeStyle(const Styleable&, const ResolutionContext&) const;
 
-    UncheckedKeyHashSet<AnimatableCSSProperty> applyCascadeAfterAnimation(RenderStyle&, const UncheckedKeyHashSet<AnimatableCSSProperty>&, bool isTransition, const MatchResult&, const Element&, const ResolutionContext&);
+    HashSet<AnimatableCSSProperty> applyCascadeAfterAnimation(RenderStyle&, const HashSet<AnimatableCSSProperty>&, bool isTransition, const MatchResult&, const Element&, const ResolutionContext&);
 
     std::optional<ElementUpdate> resolvePseudoElement(Element&, const PseudoElementIdentifier&, const ElementUpdate&, IsInDisplayNoneTree);
     std::optional<ElementUpdate> resolveAncestorPseudoElement(Element&, const PseudoElementIdentifier&, const ElementUpdate&);

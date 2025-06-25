@@ -144,7 +144,7 @@ struct SecurityPolicyViolationEventInit;
 struct ShadowRootInit;
 
 using AnimatableCSSProperty = Variant<CSSPropertyID, AtomString>;
-using AnimatableCSSPropertyToTransitionMap = UncheckedKeyHashMap<AnimatableCSSProperty, Ref<CSSTransition>>;
+using AnimatableCSSPropertyToTransitionMap = HashMap<AnimatableCSSProperty, Ref<CSSTransition>>;
 using AnimationCollection = ListHashSet<Ref<WebAnimation>>;
 using CSSAnimationCollection = ListHashSet<Ref<CSSAnimation>>;
 using ElementName = NodeName;
