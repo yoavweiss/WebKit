@@ -155,7 +155,7 @@ inline Structure* getBoundFunctionStructure(VM& vm, JSGlobalObject* globalObject
     if (targetJSFunction && targetJSFunction->getPrototypeDirect() == globalObject->functionPrototype()) [[likely]]
         return globalObject->boundFunctionStructure();
 
-    JSValue prototype = targetFunction->getPrototype(vm, globalObject);
+    JSValue prototype = targetFunction->getPrototype(globalObject);
     RETURN_IF_EXCEPTION(scope, nullptr);
 
     // We only cache the structure of the bound function if the bindee is a JSFunction since there

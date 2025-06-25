@@ -5010,7 +5010,7 @@ JSC_DEFINE_JIT_OPERATION(operationGetPrototypeOfObject, EncodedJSValue, (JSGloba
     CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
     JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
     auto scope = DECLARE_THROW_SCOPE(vm);
-    OPERATION_RETURN(scope, JSValue::encode(thisObject->getPrototype(vm, globalObject)));
+    OPERATION_RETURN(scope, JSValue::encode(thisObject->getPrototype(globalObject)));
 }
 
 JSC_DEFINE_JIT_OPERATION(operationGetPrototypeOf, EncodedJSValue, (JSGlobalObject* globalObject, EncodedJSValue encodedValue))
