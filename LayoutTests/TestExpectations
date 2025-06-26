@@ -6407,6 +6407,7 @@ imported/w3c/web-platform-tests/fetch/corb/script-html-correctly-labeled.tentati
 imported/w3c/web-platform-tests/fetch/corb/script-html-js-polyglot.sub.html [ Skip ]
 imported/w3c/web-platform-tests/fetch/corb/script-html-via-cross-origin-blob-url.sub.html [ Skip ]
 imported/w3c/web-platform-tests/fetch/corb/script-resource-with-json-parser-breaker.tentative.sub.html [ Skip ]
+imported/w3c/web-platform-tests/fetch/local-network-access/fetch.tentative.https.html [ Skip ]
 imported/w3c/web-platform-tests/fetch/metadata/generated/appcache-manifest.https.sub.html [ Skip ]
 imported/w3c/web-platform-tests/fetch/metadata/generated/css-images.sub.tentative.html [ Skip ]
 imported/w3c/web-platform-tests/fetch/metadata/generated/element-a.https.sub.html [ Skip ]
