@@ -1212,8 +1212,8 @@ bool GridTrackSizingAlgorithm::canParticipateInBaselineAlignment(const RenderBox
     // Baseline cyclic dependencies only happen with synthesized
     // baselines. These cases include orthogonal or empty grid items
     // and replaced elements.
-    bool isParallelToAlignmentAxis = alignmentContextType == GridTrackSizingDirection::ForRows ? !GridLayoutFunctions::isOrthogonalGridItem(*m_renderGrid, gridItem) : GridLayoutFunctions::isOrthogonalGridItem(*m_renderGrid, gridItem);
-    if (isParallelToAlignmentAxis && gridItem.firstLineBaseline())
+    bool isGridItemBlockDirectionParallelToAlignmentAxis = alignmentContextType == GridTrackSizingDirection::ForRows ? !GridLayoutFunctions::isOrthogonalGridItem(*m_renderGrid, gridItem) : GridLayoutFunctions::isOrthogonalGridItem(*m_renderGrid, gridItem);
+    if (isGridItemBlockDirectionParallelToAlignmentAxis && gridItem.firstLineBaseline())
         return true;
 
     // FIXME: We don't currently allow items within subgrids that need to
@@ -1228,7 +1228,7 @@ bool GridTrackSizingAlgorithm::canParticipateInBaselineAlignment(const RenderBox
     if (!isIntrinsicSizedGridArea(gridItem, alignmentContextType))
         return true;
 
-    return isParallelToAlignmentAxis ? !gridItem.hasRelativeLogicalHeight() : !gridItem.hasRelativeLogicalWidth() && !gridItem.style().logicalWidth().isAuto();
+    return isGridItemBlockDirectionParallelToAlignmentAxis ? !gridItem.hasRelativeLogicalHeight() : !gridItem.hasRelativeLogicalWidth();
 }
 
 bool GridTrackSizingAlgorithm::participateInBaselineAlignment(const RenderBox& gridItem, GridTrackSizingDirection alignmentContextType) const
