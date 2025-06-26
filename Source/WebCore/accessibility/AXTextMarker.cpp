@@ -575,7 +575,7 @@ String AXTextMarkerRange::toString() const
                 return;
 
             // Like TextIterator, don't emit a newline if the most recently emitted character was already a newline.
-            if (result.length() && result[result.length() - 1] != '\n') {
+            if (!result.length() || result[result.length() - 1] != '\n') {
                 result.append('\n');
                 if (behavior == TextEmissionBehavior::DoubleNewline)
                     result.append('\n');
