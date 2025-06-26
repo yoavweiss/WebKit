@@ -214,9 +214,6 @@ dom/SpaceSplitString.cpp
 dom/StaticRange.cpp
 dom/StyledElement.cpp
 dom/Subscriber.cpp
-dom/Text.cpp
-dom/TextNodeTraversal.cpp
-dom/TextNodeTraversal.h
 dom/TreeScope.cpp
 dom/TrustedType.cpp
 dom/TypedElementDescendantIteratorInlines.h

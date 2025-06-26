@@ -125,9 +125,6 @@ dom/ShadowRoot.cpp
 dom/SimpleRange.cpp
 dom/SlotAssignment.cpp
 dom/StaticRange.cpp
-dom/Text.cpp
-dom/TextNodeTraversal.cpp
-dom/TextNodeTraversal.h
 dom/TreeScope.cpp
 dom/TypedElementDescendantIteratorInlines.h
 dom/ViewTransition.cpp
