@@ -722,6 +722,19 @@ static WebEvent *unwrap(BEKeyEntry *event)
     return CGPointMake(CGRectGetMidX(rect), CGRectGetMidY(rect));
 }
 
+static void forEachCALayer(CALayer *layer, void(^visitor)(CALayer *))
+{
+    visitor(layer);
+
+    for (CALayer *sublayer in layer.sublayers)
+        forEachCALayer(sublayer, visitor);
+}
+
+- (void)forEachCALayer:(void(^)(CALayer *))visitor
+{
+    forEachCALayer(self.layer, visitor);
+}
+
 - (CGImageRef)snapshotAfterScreenUpdates
 {
     __block RetainPtr<CGImage> result;

@@ -841,13 +841,22 @@ GraphicsLayer* LocalFrameView::layerForOverhangAreas() const
     return renderView->compositor().layerForOverhangAreas();
 }
 
-GraphicsLayer* LocalFrameView::setWantsLayerForTopOverHangArea(bool wantsLayer) const
+GraphicsLayer* LocalFrameView::setWantsLayerForTopOverhangColorExtension(bool wantsLayer) const
 {
-    RenderView* renderView = this->renderView();
+    CheckedPtr renderView = this->renderView();
     if (!renderView)
         return nullptr;
 
-    return renderView->compositor().updateLayerForTopOverhangArea(wantsLayer);
+    return renderView->compositor().updateLayerForTopOverhangColorExtension(wantsLayer);
+}
+
+GraphicsLayer* LocalFrameView::setWantsLayerForTopOverhangImage(bool wantsLayer) const
+{
+    CheckedPtr renderView = this->renderView();
+    if (!renderView)
+        return nullptr;
+
+    return renderView->compositor().updateLayerForTopOverhangImage(wantsLayer);
 }
 
 GraphicsLayer* LocalFrameView::setWantsLayerForBottomOverHangArea(bool wantsLayer) const

@@ -106,6 +106,8 @@ class Color;
 #endif
 #endif // PLATFORM(IOS_FAMILY)
 
+- (void)forEachCALayer:(void(^)(CALayer *))visitor;
+
 @property (nonatomic, readonly) CGImageRef snapshotAfterScreenUpdates;
 @property (nonatomic, readonly) NSUInteger gpuToWebProcessConnectionCount;
 @property (nonatomic, readonly) NSUInteger modelProcessModelPlayerCount;

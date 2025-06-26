@@ -5348,6 +5348,15 @@ void Page::updateFixedContainerEdges(BoxSideSet sides)
     }
 
     m_fixedContainerEdgesAndElements = std::make_pair(makeUniqueRef<FixedContainerEdges>(WTFMove(edges)), WTFMove(elements));
+
+#if HAVE(RUBBER_BANDING)
+    auto topOverhangColor = fixedContainerEdges().predominantColor(BoxSide::Top);
+    if (RefPtr layer = frameView->setWantsLayerForTopOverhangColorExtension(topOverhangColor.isVisible())) {
+        layer->setBackgroundColor(WTFMove(topOverhangColor));
+        if (CheckedPtr renderView = frameView->renderView())
+            renderView->compositor().updateSizeAndPositionForTopOverhangColorExtensionLayer();
+    }
+#endif
 }
 
 Element* Page::lastFixedContainer(BoxSide side) const

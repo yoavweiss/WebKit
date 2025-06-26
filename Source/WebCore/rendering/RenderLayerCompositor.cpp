@@ -600,7 +600,8 @@ RenderLayerCompositor::~RenderLayerCompositor()
 #if HAVE(RUBBER_BANDING)
     GraphicsLayer::unparentAndClear(m_layerForOverhangAreas);
     GraphicsLayer::unparentAndClear(m_contentShadowLayer);
-    GraphicsLayer::unparentAndClear(m_layerForTopOverhangArea);
+    GraphicsLayer::unparentAndClear(m_layerForTopOverhangColorExtension);
+    GraphicsLayer::unparentAndClear(m_layerForTopOverhangImage);
     GraphicsLayer::unparentAndClear(m_layerForBottomOverhangArea);
     GraphicsLayer::unparentAndClear(m_layerForHeader);
     GraphicsLayer::unparentAndClear(m_layerForFooter);
@@ -2798,6 +2799,7 @@ void RenderLayerCompositor::frameViewDidChangeSize()
 
 #if HAVE(RUBBER_BANDING)
         updateSizeAndPositionForOverhangAreaLayer();
+        updateSizeAndPositionForTopOverhangColorExtensionLayer();
 #endif
     }
 }
@@ -3214,11 +3216,12 @@ void RenderLayerCompositor::updateRootLayerPosition()
         RefPtr { m_contentShadowLayer }->setSize(m_rootContentsLayer->size());
     }
 
-    updateLayerForTopOverhangArea(m_layerForTopOverhangArea != nullptr);
-    updateLayerForBottomOverhangArea(m_layerForBottomOverhangArea != nullptr);
-    updateLayerForHeader(m_layerForHeader != nullptr);
-    updateLayerForFooter(m_layerForFooter != nullptr);
-#endif
+    updateLayerForTopOverhangColorExtension(m_layerForTopOverhangColorExtension);
+    updateLayerForTopOverhangImage(m_layerForTopOverhangImage);
+    updateLayerForBottomOverhangArea(m_layerForBottomOverhangArea);
+    updateLayerForHeader(m_layerForHeader);
+    updateLayerForFooter(m_layerForFooter);
+#endif // HAVE(RUBBER_BANDING)
 }
 
 bool RenderLayerCompositor::has3DContent() const
@@ -4678,23 +4681,43 @@ bool RenderLayerCompositor::requiresContentShadowLayer() const
     return false;
 }
 
-GraphicsLayer* RenderLayerCompositor::updateLayerForTopOverhangArea(bool wantsLayer)
+GraphicsLayer* RenderLayerCompositor::updateLayerForTopOverhangImage(bool wantsLayer)
 {
     if (!isMainFrameCompositor())
         return nullptr;
 
     if (!wantsLayer) {
-        GraphicsLayer::unparentAndClear(m_layerForTopOverhangArea);
+        GraphicsLayer::unparentAndClear(m_layerForTopOverhangImage);
         return nullptr;
     }
 
-    if (!m_layerForTopOverhangArea) {
-        m_layerForTopOverhangArea = GraphicsLayer::create(graphicsLayerFactory(), *this);
-        m_layerForTopOverhangArea->setName(MAKE_STATIC_STRING_IMPL("top overhang"));
-        RefPtr { m_scrolledContentsLayer }->addChildBelow(*m_layerForTopOverhangArea, m_rootContentsLayer.get());
+    if (!m_layerForTopOverhangImage) {
+        m_layerForTopOverhangImage = GraphicsLayer::create(graphicsLayerFactory(), *this);
+        m_layerForTopOverhangImage->setName(MAKE_STATIC_STRING_IMPL("top overhang (image)"));
+        RefPtr { m_scrolledContentsLayer }->addChildBelow(*m_layerForTopOverhangImage, m_rootContentsLayer.get());
     }
 
-    return m_layerForTopOverhangArea.get();
+    return m_layerForTopOverhangImage.get();
+}
+
+GraphicsLayer* RenderLayerCompositor::updateLayerForTopOverhangColorExtension(bool wantsLayer)
+{
+    if (!isMainFrameCompositor())
+        return nullptr;
+
+    if (!wantsLayer) {
+        GraphicsLayer::unparentAndClear(m_layerForTopOverhangColorExtension);
+        return nullptr;
+    }
+
+    if (!m_layerForTopOverhangColorExtension) {
+        m_layerForTopOverhangColorExtension = GraphicsLayer::create(graphicsLayerFactory(), *this);
+        m_layerForTopOverhangColorExtension->setName(MAKE_STATIC_STRING_IMPL("top overhang (color extension)"));
+        m_layerForTopOverhangColorExtension->setDrawsContent(false);
+        RefPtr { m_scrolledContentsLayer }->addChildBelow(*m_layerForTopOverhangColorExtension, m_layerForTopOverhangImage.get() ?: m_rootContentsLayer.get());
+    }
+
+    return m_layerForTopOverhangColorExtension.get();
 }
 
 GraphicsLayer* RenderLayerCompositor::updateLayerForBottomOverhangArea(bool wantsLayer)
@@ -4926,7 +4949,8 @@ void RenderLayerCompositor::rootBackgroundColorOrTransparencyChanged()
 #if HAVE(RUBBER_BANDING)
 void RenderLayerCompositor::updateSizeAndPositionForOverhangAreaLayer()
 {
-    if (!m_layerForOverhangAreas)
+    RefPtr layer = m_layerForOverhangAreas;
+    if (!layer)
         return;
 
     Ref frameView = m_renderView.frameView();
@@ -4934,10 +4958,22 @@ void RenderLayerCompositor::updateSizeAndPositionForOverhangAreaLayer()
     IntSize overhangAreaSize = frameView->frameRect().size();
     overhangAreaSize.contract(obscuredContentInsets.left(), obscuredContentInsets.top());
     overhangAreaSize.clampNegativeToZero();
-    RefPtr { m_layerForOverhangAreas }->setSize(overhangAreaSize);
-    m_layerForOverhangAreas->setPosition({ obscuredContentInsets.left(), obscuredContentInsets.top() });
+    layer->setSize(overhangAreaSize);
+    layer->setPosition({ obscuredContentInsets.left(), obscuredContentInsets.top() });
 }
-#endif
+
+void RenderLayerCompositor::updateSizeAndPositionForTopOverhangColorExtensionLayer()
+{
+    RefPtr layer = m_layerForTopOverhangColorExtension;
+    if (!layer)
+        return;
+
+    Ref frameView = m_renderView.frameView();
+    auto insets = m_renderView.protectedFrameView()->obscuredContentInsets();
+    layer->setSize(frameView->frameRect().size());
+    layer->setPosition({ 0, insets.top() - layer->size().height() });
+}
+#endif // HAVE(RUBBER_BANDING)
 
 void RenderLayerCompositor::updateOverflowControlsLayers()
 {

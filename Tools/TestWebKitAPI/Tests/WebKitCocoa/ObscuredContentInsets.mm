@@ -31,6 +31,7 @@
 #import "DeprecatedGlobalValues.h"
 #import "PlatformUtilities.h"
 #import "TestCocoa.h"
+#import "TestCocoaImageAndCocoaColor.h"
 #import "TestNavigationDelegate.h"
 #import "TestWKWebView.h"
 #import <WebCore/ColorCocoa.h>
@@ -210,8 +211,35 @@ TEST(ObscuredContentInsets, ScrollPocketCaptureColor)
     EXPECT_EQ(WebCore::serializationForCSS(colorAfterChangingBackground), "rgb(34, 34, 34)"_s);
 }
 
+TEST(ObscuredContentInsets, TopOverhangColorExtensionLayer)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 600, 400)]);
+
+    [webView _setAutomaticallyAdjustsContentInsets:NO];
+    [webView _setObscuredContentInsets:NSEdgeInsetsMake(100, 0, 0, 0) immediate:NO];
+    [webView waitForNextPresentationUpdate];
+
+    [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+    [webView waitForNextPresentationUpdate];
+
+    __block RetainPtr<CALayer> colorExtensionLayer;
+    [webView forEachCALayer:^(CALayer *layer) {
+        if ([layer.name containsString:@"top overhang"])
+            colorExtensionLayer = layer;
+    }];
+
+    auto expectedColor = [webView _sampledTopFixedPositionContentColor];
+    auto actualColor = [NSColor colorWithCGColor:[colorExtensionLayer backgroundColor]];
+
+    auto colorExtensionLayerFrame = [colorExtensionLayer frame];
+    EXPECT_FALSE(NSIsEmptyRect(colorExtensionLayerFrame));
+    EXPECT_TRUE(WTF::areEssentiallyEqual<float>(NSWidth(colorExtensionLayerFrame), 600.));
+    EXPECT_TRUE(WTF::areEssentiallyEqual<float>(NSMaxY(colorExtensionLayerFrame), 100.));
+    EXPECT_TRUE(Util::compareColors(actualColor, expectedColor, 0.01));
+}
+
 #endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 
 } // namespace TestWebKitAPI
 
-#endif
+#endif // PLATFORM(MAC)
