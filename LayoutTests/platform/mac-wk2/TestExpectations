@@ -851,7 +851,6 @@ http/tests/storageAccess/has-storage-access-true-if-third-party-has-cookies-ephe
 http/tests/resourceLoadStatistics/user-interaction-only-reported-once-within-short-period-of-time.html [ Skip ]
 
 webkit.org/b/173861 [ Release ] http/tests/webrtc/filtering-ice-candidate-same-origin-frame.html [ Pass Timeout ]
-webkit.org/b/173861 [ Release ] http/tests/webrtc/filtering-ice-candidate-cross-origin-frame.html [ Pass Timeout ]
 
 webkit.org/b/172148 tiled-drawing/scrolling/scroll-snap/scroll-snap-mandatory-mainframe-vertical.html [ Pass Failure ]
 
@@ -2196,3 +2195,5 @@ webkit.org/b/293804 [ Debug ] pdf/annotations/checkbox-set-active.html [ Pass Ti
 [ Debug ] imported/w3c/web-platform-tests/css/css-fill-stroke/paint-order-001.html [ ImageOnlyFailure ]
 
 webkit.org/b/294873 compositing/hdr/iframe-with-hdr-image.html [ Skip ]
+
+webkit.org/b/295054 http/tests/webrtc/filtering-ice-candidate-cross-origin-frame.html [ Pass Failure ]
