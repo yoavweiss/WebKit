@@ -552,9 +552,6 @@ webkit.org/b/162999 [ Debug ] accessibility/mac/native-text-control-set-selected
 # testRunner.setUseDeferredFrameLoading is not implemented.
 webkit.org/b/172544 [ Debug ] tiled-drawing/scrolling/fast-scroll-iframe-latched-mainframe-with-handler.html [ Pass Failure ]
 
-webkit.org/b/139820 fast/frames/lots-of-objects.html [ Pass Timeout ]
-webkit.org/b/139820 fast/frames/lots-of-iframes.html [ Pass Timeout ]
-
 webkit.org/b/145432 media/video-transformed-by-javascript.html [ Failure ]
 
 # A lot of the disk-cache tests are flaky on mac-wk2

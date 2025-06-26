@@ -2898,10 +2898,6 @@ webkit.org/b/270310 [ Sonoma+ ] imported/w3c/web-platform-tests/html/semantics/i
 
 webkit.org/b/270385 [ Sonoma+ ] fast/images/jpegxl-with-color-profile.html [ ImageOnlyFailure ]
 
-# webkit.org/b/270199 [ MacOS WK1 Debug ] fast/frames/lots-of-iframes.html and fast/frames/lots-of-objects.html are consistent/flaky timeouts
-[ Debug ] fast/frames/lots-of-iframes.html [ Pass Timeout ]
-[ Debug ] fast/frames/lots-of-objects.html [ Pass Timeout ]
-
 webkit.org/b/271423 [ Sonoma+ arm64 ] imported/w3c/web-platform-tests/html/canvas/element/manual/imagebitmap/createImageBitmap-exif-orientation.html [ Failure ]
 webkit.org/b/271423 [ Sonoma+ arm64 ] imported/w3c/web-platform-tests/html/canvas/element/manual/imagebitmap/createImageBitmap-exif-orientation_none.html [ Failure ]
 webkit.org/b/271423 [ Sonoma+ arm64 ] imported/w3c/web-platform-tests/html/canvas/element/manual/imagebitmap/imagebitmap-replication-exif-orientation.html [ Failure ]
