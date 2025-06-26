@@ -855,12 +855,10 @@ void WebProcessPool::registerNotificationObservers()
     }];
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
     m_didBeginSuppressingHighDynamicRange = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldBeginSuppressingHighDynamicRangeContentNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
-        m_suppressEDR = true;
-        screenPropertiesChanged();
+        suppressEDR(true);
     }];
     m_didEndSuppressingHighDynamicRange = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldEndSuppressingHighDynamicRangeContentNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
-        m_suppressEDR = false;
-        screenPropertiesChanged();
+        suppressEDR(false);
     }];
 #endif
 
@@ -1364,6 +1362,19 @@ void WebProcessPool::didRefreshDisplay()
         m_currentEDRHeadroom = headroom;
         screenPropertiesChanged();
     }
+#endif
+}
+
+void WebProcessPool::suppressEDR(bool suppressEDR)
+{
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    if (m_suppressEDR == suppressEDR)
+        return;
+
+    m_suppressEDR = suppressEDR;
+    screenPropertiesChanged();
+#else
+    UNUSED_PARAM(m_suppressEDR);
 #endif
 }
 #endif

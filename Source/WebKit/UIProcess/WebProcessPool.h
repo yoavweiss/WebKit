@@ -639,6 +639,7 @@ public:
 
 #if PLATFORM(IOS_FAMILY)
     void didRefreshDisplay();
+    void suppressEDR(bool);
 #endif
 
 private:
