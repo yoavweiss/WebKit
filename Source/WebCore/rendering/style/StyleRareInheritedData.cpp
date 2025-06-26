@@ -45,7 +45,7 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     void* refPtrs[3];
     Length lengths[2];
     float secondFloat;
-    Style::TextUnderlineOffset offset;
+    TextUnderlineOffset offset;
     TextEdge lineFitEdge;
     BlockEllipsis blockEllipsis;
     void* customPropertyDataRefs[1];

@@ -25,6 +25,7 @@
 #pragma once
 
 #include "BorderValue.h"
+#include "GapLength.h"
 #include "RenderStyleConstants.h"
 #include <wtf/RefCounted.h>
 

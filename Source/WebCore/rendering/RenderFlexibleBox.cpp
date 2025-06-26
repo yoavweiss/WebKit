@@ -2752,12 +2752,12 @@ LayoutUnit RenderFlexibleBox::computeGap(RenderFlexibleBox::GapType gapType) con
 {
     // row-gap is used for gaps between flex items in column flows or for gaps between lines in row flows.
     bool usesRowGap = (gapType == GapType::BetweenItems) == isColumnFlow();
-    auto& gap = usesRowGap ? style().rowGap() : style().columnGap();
-    if (gap.isNormal()) [[likely]]
+    auto& gapLength = usesRowGap ? style().rowGap() : style().columnGap();
+    if (gapLength.isNormal()) [[likely]]
         return { };
 
     auto availableSize = usesRowGap ? availableLogicalHeightForPercentageComputation().value_or(0_lu) : contentBoxLogicalWidth();
-    return Style::evaluateMinimum(gap, availableSize);
+    return minimumValueForLength(gapLength.length(), availableSize);
 }
 
 bool RenderFlexibleBox::layoutUsingFlexFormattingContext()

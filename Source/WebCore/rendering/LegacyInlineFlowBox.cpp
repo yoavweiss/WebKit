@@ -40,6 +40,7 @@
 #include "Text.h"
 #include "TextBoxPainter.h"
 #include "TextDecorationThickness.h"
+#include "TextUnderlineOffset.h"
 #include <math.h>
 #include <wtf/TZoneMallocInlines.h>
 

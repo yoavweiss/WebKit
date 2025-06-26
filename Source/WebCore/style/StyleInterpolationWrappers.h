@@ -1578,6 +1578,46 @@ public:
     }
 };
 
+class TextUnderlineOffsetWrapper final : public WrapperWithGetter<TextUnderlineOffset> {
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
+public:
+    TextUnderlineOffsetWrapper()
+        : WrapperWithGetter(CSSPropertyTextUnderlineOffset, &RenderStyle::textUnderlineOffset)
+    {
+    }
+
+    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
+    {
+        auto fromTextUnderlineOffset = from.textUnderlineOffset();
+        auto toTextUnderlineOffset = to.textUnderlineOffset();
+        if (fromTextUnderlineOffset.isAuto() || toTextUnderlineOffset.isAuto())
+            return false;
+
+        auto fromValue = fromTextUnderlineOffset.resolve(from.computedFontSize());
+        auto toValue = toTextUnderlineOffset.resolve(to.computedFontSize());
+        return fromValue != toValue;
+    }
+
+    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
+    {
+        auto blendedTextUnderlineOffset = [&]() -> TextUnderlineOffset {
+            if (context.isDiscrete)
+                return (!context.progress ? from : to).textUnderlineOffset();
+
+            auto fromTextUnderlineOffset = from.textUnderlineOffset();
+            auto toTextUnderlineOffset = to.textUnderlineOffset();
+
+            auto fromValue = fromTextUnderlineOffset.resolve(from.computedFontSize());
+            auto toValue = toTextUnderlineOffset.resolve(to.computedFontSize());
+
+            auto blendedValue = blendFunc(fromValue, toValue, context);
+            return TextUnderlineOffset::createWithLength(WebCore::Length(clampTo<float>(blendedValue, minValueForCssLength, maxValueForCssLength), LengthType::Fixed));
+        };
+
+        destination.setTextUnderlineOffset(blendedTextUnderlineOffset());
+    }
+};
+
 class TextDecorationThicknessWrapper final : public WrapperWithGetter<TextDecorationThickness> {
     WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:

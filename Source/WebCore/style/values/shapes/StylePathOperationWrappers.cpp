@@ -31,7 +31,7 @@
 #include "CSSRayValue.h"
 #include "CSSURLValue.h"
 #include "SVGURIReference.h"
-#include "CSSValueList.h"
+#include "StyleBuilderConverter.h"
 #include "StyleBuilderState.h"
 #include "StylePrimitiveKeyword+CSSValueCreation.h"
 #include "StylePrimitiveKeyword+Serialization.h"

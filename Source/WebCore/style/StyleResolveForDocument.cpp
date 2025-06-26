@@ -73,10 +73,10 @@ RenderStyle resolveForDocument(const Document& document)
 
     Adjuster::adjustEventListenerRegionTypesForRootStyle(documentStyle, document);
     
-    auto& pagination = renderView.frameView().pagination();
+    const Pagination& pagination = renderView.frameView().pagination();
     if (pagination.mode != Pagination::Mode::Unpaginated) {
         documentStyle.setColumnStylesFromPaginationMode(pagination.mode);
-        documentStyle.setColumnGap(GapGutter::Fixed { static_cast<float>(pagination.gap) });
+        documentStyle.setColumnGap(GapLength(WebCore::Length(static_cast<int>(pagination.gap), LengthType::Fixed)));
         if (renderView.multiColumnFlow())
             renderView.updateColumnProgressionFromStyle(documentStyle);
     }

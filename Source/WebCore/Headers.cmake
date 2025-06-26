@@ -2662,6 +2662,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/BorderValue.h
     rendering/style/CounterDirectives.h
     rendering/style/FillLayer.h
+    rendering/style/GapLength.h
     rendering/style/GridArea.h
     rendering/style/GridLength.h
     rendering/style/GridPosition.h
@@ -2712,6 +2713,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/StyleVisitedLinkColorData.h
     rendering/style/TextDecorationThickness.h
     rendering/style/TextSizeAdjustment.h
+    rendering/style/TextUnderlineOffset.h
     rendering/style/ViewTransitionName.h
     rendering/style/WillChangeData.h
 
@@ -2746,8 +2748,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/StyleUpdate.h
     style/StyleValidity.h
     style/Styleable.h
-
-    style/values/align/StyleGapGutter.h
 
     style/values/borders/StyleBorderRadius.h
     style/values/borders/StyleBoxShadow.h
@@ -2817,7 +2817,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/svg/StyleSVGPaint.h
 
     style/values/text-decoration/StyleTextShadow.h
-    style/values/text-decoration/StyleTextUnderlineOffset.h
 
     style/values/transforms/StylePerspective.h
     style/values/transforms/StyleRotate.h
