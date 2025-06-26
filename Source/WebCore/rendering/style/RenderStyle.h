@@ -624,6 +624,7 @@ public:
     inline FieldSizing fieldSizing() const;
 
     inline const FontCascade& fontCascade() const;
+    CheckedRef<const FontCascade> checkedFontCascade() const;
     WEBCORE_EXPORT const FontMetrics& metricsOfPrimaryFont() const;
     WEBCORE_EXPORT const FontCascadeDescription& fontDescription() const;
 

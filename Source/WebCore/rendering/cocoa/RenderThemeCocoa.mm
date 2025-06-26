@@ -261,7 +261,7 @@ void RenderThemeCocoa::paintFileUploadIconDecorations(const RenderObject&, const
         thumbnailRect.contract(kMultipleThumbnailShrinkSize, kMultipleThumbnailShrinkSize);
 
         // Background picture frame and simple background icon with a gradient matching the button.
-        auto backgroundImageColor = buttonRenderer.style().visitedDependentColor(CSSPropertyBackgroundColor);
+        auto backgroundImageColor = buttonRenderer.checkedStyle()->visitedDependentColor(CSSPropertyBackgroundColor);
         paintInfo.context().fillRoundedRect(FloatRoundedRect(thumbnailPictureFrameRect, cornerSize, cornerSize, cornerSize, cornerSize), pictureFrameColor);
         paintInfo.context().fillRect(thumbnailRect, backgroundImageColor);
 
@@ -278,7 +278,7 @@ void RenderThemeCocoa::paintFileUploadIconDecorations(const RenderObject&, const
 
 Seconds RenderThemeCocoa::animationRepeatIntervalForProgressBar(const RenderProgress& renderer) const
 {
-    return renderer.page().preferredRenderingUpdateInterval();
+    return renderer.protectedPage()->preferredRenderingUpdateInterval();
 }
 
 #if ENABLE(APPLE_PAY)

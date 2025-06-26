@@ -450,7 +450,6 @@ rendering/RenderTextControl.cpp
 rendering/RenderTextControlMultiLine.cpp
 rendering/RenderTextControlSingleLine.cpp
 rendering/RenderTextFragment.cpp
-rendering/RenderTheme.cpp
 rendering/RenderTreeAsText.cpp
 rendering/RenderVTTCue.cpp
 rendering/RenderView.cpp
@@ -465,7 +464,6 @@ rendering/line/BreakingContext.h
 rendering/line/LineInlineHeaders.h
 rendering/line/LineWidth.cpp
 rendering/line/WordTrailingSpace.h
-rendering/mac/RenderThemeMac.mm
 rendering/mathml/MathMLStyle.cpp
 rendering/mathml/RenderMathMLBlock.cpp
 rendering/mathml/RenderMathMLFenced.cpp

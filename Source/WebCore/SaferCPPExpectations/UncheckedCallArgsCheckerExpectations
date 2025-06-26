@@ -655,7 +655,6 @@ rendering/RenderTextControlSingleLine.cpp
 rendering/RenderTextControlSingleLine.h
 rendering/RenderTextFragment.cpp
 rendering/RenderTextLineBoxes.cpp
-rendering/RenderTheme.cpp
 rendering/RenderTreeAsText.cpp
 rendering/RenderVTTCue.cpp
 rendering/RenderView.cpp
@@ -669,13 +668,11 @@ rendering/TextBoxTrimmer.cpp
 rendering/TextDecorationPainter.cpp
 rendering/TextPainter.cpp
 rendering/TextPainter.h
-rendering/cocoa/RenderThemeCocoa.mm
 rendering/line/BreakingContext.h
 rendering/line/LineInlineHeaders.h
 rendering/line/LineWidth.cpp
 rendering/line/TrailingObjects.cpp
 rendering/line/WordTrailingSpace.h
-rendering/mac/RenderThemeMac.mm
 rendering/mathml/MathOperator.cpp
 rendering/mathml/RenderMathMLBlock.cpp
 rendering/mathml/RenderMathMLFenced.cpp

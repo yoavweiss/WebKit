@@ -941,8 +941,6 @@ rendering/RenderTreeAsText.cpp
 rendering/RenderView.cpp
 rendering/RenderWidget.cpp
 rendering/TextBoxPainter.cpp
-rendering/cocoa/RenderThemeCocoa.mm
-rendering/mac/RenderThemeMac.mm
 rendering/mathml/MathOperator.cpp
 rendering/mathml/RenderMathMLFraction.cpp
 rendering/mathml/RenderMathMLMenclose.h

@@ -3770,6 +3770,11 @@ float RenderStyle::outlineOffset() const
     return outline.offset();
 }
 
+CheckedRef<const FontCascade> RenderStyle::checkedFontCascade() const
+{
+    return fontCascade();
+}
+
 bool RenderStyle::shouldPlaceVerticalScrollbarOnLeft() const
 {
     return !writingMode().isAnyLeftToRight();
