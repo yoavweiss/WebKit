@@ -30,14 +30,52 @@
 
 #include "config.h"
 #import "WebExtensionAPIBookmarks.h"
+#import "CocoaHelpers.h"
 
 #if ENABLE(WK_WEB_EXTENSIONS_BOOKMARKS)
 
 namespace WebKit {
 
+static NSString * const idKey = @"id";
+static NSString * const urlKey = @"url";
+static NSString * const titleKey = @"title";
+static NSString * const dateAddedKey = @"dateAdded";
+static NSString * const typeKey = @"type";
+static NSString * const bookmarkKey = @"bookmark";
+
+NSDictionary *WebExtensionAPIBookmarks::createDictionaryFromNode(const MockBookmarkNode& node)
+{
+    return @{
+        idKey: node.id.createNSString().get(),
+        titleKey: node.title.createNSString().get(),
+        urlKey: node.url.createNSString().get(),
+        dateAddedKey: @(node.dateAdded.secondsSinceEpoch().milliseconds()),
+        typeKey: bookmarkKey
+    };
+}
+
 void WebExtensionAPIBookmarks::createBookmark(NSDictionary *bookmark, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
 {
-    callback->reportError(@"unimplemented");
+    NSArray *requiredKeys = @[ @"id", @"url", @"dateAdded" ];
+    static NSDictionary<NSString *, id> *types= @{
+        idKey: NSString.class,
+        urlKey: NSString.class,
+        dateAddedKey: NSNumber.class,
+        titleKey: NSString.class
+    };
+
+    if (!validateDictionary(bookmark, @"bookmark", requiredKeys, types, outExceptionString))
+        return;
+
+    MockBookmarkNode newNode;
+    newNode.id = bookmark[idKey];
+    newNode.url = bookmark[urlKey];
+    newNode.title = bookmark[titleKey];
+
+    newNode.dateAdded = WallTime::fromRawSeconds(objectForKey<NSDate>(bookmark, dateAddedKey).timeIntervalSince1970);
+
+    m_mockBookmarks.append(WTFMove(newNode));
+    callback->call(createDictionaryFromNode(newNode));
 }
 
 void WebExtensionAPIBookmarks::getChildren(NSString *bookmarkIdentifier, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
@@ -47,7 +85,21 @@ void WebExtensionAPIBookmarks::getChildren(NSString *bookmarkIdentifier, Ref<Web
 
 void WebExtensionAPIBookmarks::getRecent(long long numberOfItems, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
 {
-    callback->reportError(@"unimplemented");
+    if (numberOfItems < 1) {
+        *outExceptionString = toErrorString(nullString(), @"numberOfItems", @"it must be at least 1").createNSString().autorelease();
+        return;
+    }
+
+    auto sortedBookmarks = m_mockBookmarks;
+    std::sort(sortedBookmarks.begin(), sortedBookmarks.end(), [](const MockBookmarkNode& a, const MockBookmarkNode& b) {
+        return a.dateAdded > b.dateAdded;
+    });
+
+    size_t countToReturn = std::min(static_cast<size_t>(numberOfItems), sortedBookmarks.size());
+    auto *resultArray = [NSMutableArray arrayWithCapacity:countToReturn];
+    for (size_t i = 0; i < countToReturn; ++i)
+        [resultArray addObject:createDictionaryFromNode(sortedBookmarks[i])];
+    callback->call(resultArray);
 }
 
 void WebExtensionAPIBookmarks::getSubTree(NSString *bookmarkIdentifier, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)

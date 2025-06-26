@@ -170,6 +170,44 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIDisallowedIncorrectArguments)
     Util::loadAndRunExtension(bookmarkOnManifest, @{ @"background.js": Util::constructScript(script) }, bookmarkConfig);
 }
 
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPICheckgetRecent)
+{
+    auto *script = @[
+        @"browser.test.assertThrows(() => browser.bookmarks.getChildren(123), /The 'id' value is invalid, because a string is expected/i)",
+        @"browser.test.log('workingtest line1')",
+        @"browser.test.assertThrows(() => browser.bookmarks.getChildren({}), /The 'id' value is invalid, because a string is expected/i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.getRecent('not-a-number'), /The 'numberOfItems' value is invalid, because a number is expected./i)",
+        @"browser.test.log('workingtest line2')",
+        @"browser.test.assertThrows(() => browser.bookmarks.getRecent({}), /The 'numberOfItems' value is invalid, because a number is expected./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.getRecent(-1), /The 'numberOfItems' value is invalid, because it must be at least 1./i)",
+        @"browser.test.assertThrows(() => browser.bookmarks.getRecent(0), /The 'numberOfItems' value is invalid, because it must be at least 1./i)",
+        @"browser.test.notifyPass()",
+    ];
+
+    Util::loadAndRunExtension(bookmarkOnManifest, @{ @"background.js": Util::constructScript(script) }, bookmarkConfig);
+}
+
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIMockNodeWithgetRecent)
+{
+    auto *script = @[
+        @"browser.bookmarks.create({id: 'id_old', title: 'Oldest Bookmark', url: 'http://example.com/1', dateAdded: 1000})",
+        @"browser.bookmarks.create({id: 'id_new', title: 'Newest Bookmark', url: 'http://example.com/3', dateAdded: 3000})",
+        @"browser.bookmarks.create({id: 'id_mid', title: 'Middle Bookmark', url: 'http://example.com/2', dateAdded: 2000})",
+        @"let recent = await browser.bookmarks.getRecent(2)",
+        @"browser.test.assertEq(2, recent.length, 'Should return exactly 2 bookmarks')",
+        @"browser.test.assertEq('id_new', recent[0].id, 'First result should be the newest bookmark')",
+        @"browser.test.assertEq('id_mid', recent[1].id, 'Second result should be the middle bookmark')",
+        @"let recent2 = await browser.bookmarks.getRecent(5)",
+        @"browser.test.assertEq(3, recent2.length, 'Should adapt and return the max available which is 3')",
+        @"browser.test.assertEq('id_new', recent2[0].id, 'First result should be the newest bookmark')",
+        @"browser.test.assertEq('id_mid', recent2[1].id, 'Second result should be the middle bookmark')",
+        @"browser.test.assertEq('id_old', recent2[2].id, 'Second result should be the middle bookmark')",
+        @"browser.test.notifyPass()",
+    ];
+
+    Util::loadAndRunExtension(bookmarkOnManifest, @{ @"background.js": Util::constructScript(script) }, bookmarkConfig);
+}
+
 }
 
 #endif

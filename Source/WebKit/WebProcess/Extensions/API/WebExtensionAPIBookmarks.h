@@ -34,6 +34,18 @@ namespace WebKit {
 
 class WebExtensionAPIBookmarks : public WebExtensionAPIObject, public JSWebExtensionWrappable {
     WEB_EXTENSION_DECLARE_JS_WRAPPER_CLASS(WebExtensionAPIBookmarks, bookmarks, bookmarks);
+private:
+
+    struct MockBookmarkNode {
+        String id;
+        String title;
+        String url;
+        WallTime dateAdded;
+    };
+
+    Vector<MockBookmarkNode> m_mockBookmarks;
+
+    NSDictionary *createDictionaryFromNode(const MockBookmarkNode& node);
 
 public:
 #if PLATFORM(COCOA)
