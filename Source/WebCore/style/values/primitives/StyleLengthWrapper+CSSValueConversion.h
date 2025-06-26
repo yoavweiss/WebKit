@@ -48,7 +48,7 @@ template<LengthWrapperBaseDerived T> struct CSSValueConversion<T> {
 
             if (primitiveValue->isLength()) {
                 return T { WebCore::Length {
-                    clampTo<float>(primitiveValue->resolveAsLength(conversionData), minValueForCssLength, maxValueForCssLength),
+                    CSS::clampToRange<T::Fixed::range, float>(primitiveValue->resolveAsLength(conversionData), minValueForCssLength, maxValueForCssLength),
                     LengthType::Fixed,
                     primitiveValue->primitiveType() == CSSUnitType::CSS_QUIRKY_EM
                 } };
@@ -56,7 +56,7 @@ template<LengthWrapperBaseDerived T> struct CSSValueConversion<T> {
 
             if (primitiveValue->isPercentage()) {
                 return T { WebCore::Length {
-                    primitiveValue->resolveAsPercentage(conversionData),
+                    CSS::clampToRange<T::Percentage::range, float>(primitiveValue->resolveAsPercentage(conversionData)),
                     LengthType::Percent
                 } };
             }

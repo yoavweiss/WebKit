@@ -74,8 +74,8 @@ template<typename Numeric, CSS::PrimitiveKeyword... Ks> struct LengthWrapperBase
     LengthWrapperBase(CSS::ValueLiteral<CSS::LengthUnit::Px> literal) : m_value(static_cast<float>(literal.value), WebCore::LengthType::Fixed) { }
     LengthWrapperBase(CSS::ValueLiteral<CSS::PercentageUnit::Percentage> literal) : m_value(static_cast<float>(literal.value), WebCore::LengthType::Percent) { }
 
-    explicit LengthWrapperBase(WebCore::Length&& other) : m_value(WTFMove(other)) { RELEASE_ASSERT(isValid(m_value)); }
-    explicit LengthWrapperBase(const WebCore::Length& other) : m_value(other) { RELEASE_ASSERT(isValid(m_value)); }
+    explicit LengthWrapperBase(WebCore::Length&& other) : m_value(WTFMove(other)) { validate(m_value); }
+    explicit LengthWrapperBase(const WebCore::Length& other) : m_value(other) { validate(m_value); }
 
     explicit LengthWrapperBase(WTF::HashTableEmptyValueType token) : m_value(token) { }
 
@@ -183,26 +183,26 @@ template<typename Numeric, CSS::PrimitiveKeyword... Ks> struct LengthWrapperBase
 protected:
     template<typename> friend struct ToPlatform;
 
-    static bool isValid(const WebCore::Length& length)
+    static void validate(const WebCore::Length& length)
     {
         switch (length.type()) {
-        case WebCore::LengthType::Fixed:            return CSS::isWithinRange<Fixed::range>(length.value());
-        case WebCore::LengthType::Percent:          return CSS::isWithinRange<Percentage::range>(length.value());
-        case WebCore::LengthType::Calculated:       return true;
-        case WebCore::LengthType::Auto:             return SupportsAuto;
-        case WebCore::LengthType::Intrinsic:        return SupportsIntrinsic;
-        case WebCore::LengthType::MinIntrinsic:     return SupportsMinIntrinsic;
-        case WebCore::LengthType::MinContent:       return SupportsMinContent;
-        case WebCore::LengthType::MaxContent:       return SupportsMaxContent;
-        case WebCore::LengthType::FillAvailable:    return SupportsWebkitFillAvailable;
-        case WebCore::LengthType::FitContent:       return SupportsFitContent;
-        case WebCore::LengthType::Content:          return SupportsContent;
-        case WebCore::LengthType::Normal:           return SupportsNormal;
-        case WebCore::LengthType::Undefined:        return SupportsNone;
+        case WebCore::LengthType::Fixed:            RELEASE_ASSERT(CSS::isWithinRange<Fixed::range>(length.value())); return;
+        case WebCore::LengthType::Percent:          RELEASE_ASSERT(CSS::isWithinRange<Percentage::range>(length.value())); return;
+        case WebCore::LengthType::Calculated:       return;
+        case WebCore::LengthType::Auto:             if constexpr (SupportsAuto) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::Intrinsic:        if constexpr (SupportsIntrinsic) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::MinIntrinsic:     if constexpr (SupportsMinIntrinsic) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::MinContent:       if constexpr (SupportsMinContent) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::MaxContent:       if constexpr (SupportsMaxContent) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::FillAvailable:    if constexpr (SupportsWebkitFillAvailable) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::FitContent:       if constexpr (SupportsFitContent) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::Content:          if constexpr (SupportsContent) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::Normal:           if constexpr (SupportsNormal) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
+        case WebCore::LengthType::Undefined:        if constexpr (SupportsNone) { return; } else { RELEASE_ASSERT_NOT_REACHED(); }
         case WebCore::LengthType::Relative:
             break;
         }
-        return false;
+        RELEASE_ASSERT_NOT_REACHED();
     }
 
     WebCore::Length m_value;

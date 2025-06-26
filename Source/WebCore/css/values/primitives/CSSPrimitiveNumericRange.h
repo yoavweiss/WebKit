@@ -103,6 +103,13 @@ template<Range range, std::floating_point T> constexpr T clampToRange(T value)
         return std::clamp<T>(value, range.min, range.max);
 }
 
+// Clamps a floating point value to within `range` and within additional provided range.
+template<Range range, std::floating_point T> constexpr T clampToRange(T value, T additionalMinimum, T additionalMaximum)
+{
+    return std::clamp<T>(value, std::max<T>(range.min, additionalMinimum), std::min<T>(range.max, additionalMaximum));
+}
+
+
 // Checks if a floating point value is within `range`.
 template<Range range, std::floating_point T> constexpr bool isWithinRange(T value)
 {
