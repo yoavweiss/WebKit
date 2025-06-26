@@ -85,6 +85,8 @@ public:
 
     AtomString target() const override;
 
+    void setShouldBePrefetched(bool conservative, Vector<String>&& tags, String&& referrerPolicy);
+
 protected:
     HTMLAnchorElement(const QualifiedName&, Document&);
 
@@ -128,6 +130,13 @@ private:
 
     URL fullURL() const final { return href(); }
     void setFullURL(const URL&) final;
+
+    void checkForSpeculationRules();
+
+    bool m_shouldBeImmediatelyPrefetched { false };
+    bool m_shouldBeConservativelyPrefetched { false };
+    Vector<String> m_speculationRulesTags;
+    String m_prefetchReferrerPolicy;
 
     bool m_hasRootEditableElementForSelectionOnMouseDown { false };
     bool m_wasShiftKeyDownOnMouseDown { false };

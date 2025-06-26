@@ -1516,6 +1516,17 @@ imported/w3c/web-platform-tests/content-security-policy/wasm-unsafe-eval/script-
 imported/w3c/web-platform-tests/content-security-policy/wasm-unsafe-eval/script-src-spv-asynch.any.serviceworker.html [ Skip ]
 imported/w3c/web-platform-tests/content-security-policy/wasm-unsafe-eval/script-src-unsafe-eval-allows-wasm.any.serviceworker.html [ Skip ]
 imported/w3c/web-platform-tests/content-security-policy/wasm-unsafe-eval/script-src-wasm-unsafe-eval-allows-wasm.any.serviceworker.html [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/different-initiators.sub.https.html?cross-site-1 [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/different-initiators.sub.https.html?cross-site-2 [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/different-initiators.sub.https.html?same-site [ Skip ]
+
+imported/w3c/web-platform-tests/speculation-rules/prefetch/cross-origin-cookies.https.html [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-window-open.sub.https.html?cross-site [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-window-open.sub.https.html?same-site [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/navigation-timing-sizes.https.html?prefetch=true [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/navigation-timing-sizes.https.html?prefetch=true&bypass_cache=true [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/same-origin-cookies.https.html?1-1 [ Skip ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/same-origin-cookies.https.html?2-last [ Skip ]
 
 imported/w3c/web-platform-tests/content-security-policy/connect-src/connect-src-syncxmlhttprequest-redirect-to-blocked.sub.html [ Skip ]
 imported/w3c/web-platform-tests/content-security-policy/connect-src/connect-src-websocket-allowed.sub.html [ Skip ]

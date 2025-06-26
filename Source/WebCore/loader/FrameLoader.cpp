@@ -42,6 +42,7 @@
 #include "BeforeUnloadEvent.h"
 #include "CachePolicy.h"
 #include "CachedPage.h"
+#include "CachedRawResource.h"
 #include "CachedResourceLoader.h"
 #include "Chrome.h"
 #include "ChromeClient.h"
@@ -59,6 +60,7 @@
 #include "DiagnosticLoggingResultType.h"
 #include "DocumentInlines.h"
 #include "DocumentLoader.h"
+#include "DocumentPrefetcher.h"
 #include "Editor.h"
 #include "EditorClient.h"
 #include "ElementInlines.h"
@@ -377,6 +379,7 @@ FrameLoader::FrameLoader(LocalFrame& frame, CompletionHandler<UniqueRef<LocalFra
     , m_state(FrameState::Provisional)
     , m_loadType(FrameLoadType::Standard)
     , m_checkTimer(*this, &FrameLoader::checkTimerFired)
+    , m_documentPrefetcher(DocumentPrefetcher::create(*this))
 {
 }
 
@@ -1767,7 +1770,9 @@ void FrameLoader::loadWithNavigationAction(ResourceRequest&& request, Navigation
     }
 
     auto&& substituteData = defaultSubstituteDataForURL(request.url());
-    Ref loader = m_client->createDocumentLoader(WTFMove(request), WTFMove(substituteData));
+
+    Ref<DocumentLoader> loader = m_client->createDocumentLoader(WTFMove(request), WTFMove(substituteData));
+
     applyShouldOpenExternalURLsPolicyToNewDocumentLoader(protectedFrame(), loader, action.initiatedByMainFrame(), action.shouldOpenExternalURLsPolicy());
     loader->setIsContinuingLoadAfterProvisionalLoadStarted(shouldTreatAsContinuingLoad == ShouldTreatAsContinuingLoad::YesAfterProvisionalLoadStarted);
     loader->setIsRequestFromClientOrUserInput(action.isRequestFromClientOrUserInput());
@@ -1916,7 +1921,7 @@ void FrameLoader::loadWithDocumentLoader(DocumentLoader* loader, FrameLoadType t
 
     auto policyDecisionMode = loader->triggeringAction().isFromNavigationAPI() ? PolicyDecisionMode::Synchronous : PolicyDecisionMode::Asynchronous;
     RELEASE_ASSERT(!isBackForwardLoadType(policyChecker().loadType()) || history().provisionalItem());
-    policyChecker().checkNavigationPolicy(ResourceRequest(loader->request()), ResourceResponse { } /* redirectResponse */, loader, WTFMove(formState), [this, protectedThis = Ref { *this }, allowNavigationToInvalidURL, completionHandler = completionHandlerCaller.release()] (const ResourceRequest& request, WeakPtr<FormState>&& weakFormState, NavigationPolicyDecision navigationPolicyDecision) mutable {
+    policyChecker().checkNavigationPolicy(ResourceRequest(loader->request()), ResourceResponse { } /* redirectResponse */, loader, WTFMove(formState), [this, protectedThis = Ref { *this }, allowNavigationToInvalidURL, completionHandler = completionHandlerCaller.release()] (ResourceRequest&& request, WeakPtr<FormState>&& weakFormState, NavigationPolicyDecision navigationPolicyDecision) mutable {
         continueLoadAfterNavigationPolicy(request, RefPtr { weakFormState.get() }.get(), navigationPolicyDecision, allowNavigationToInvalidURL);
         completionHandler();
     }, policyDecisionMode);
@@ -2367,7 +2372,6 @@ void FrameLoader::commitProvisionalLoad()
         // Check to see if we need to cache the page we are navigating away from into the back/forward cache.
         // We are doing this here because we know for sure that a new page is about to be loaded.
         BackForwardCache::singleton().addIfCacheable(*history().protectedCurrentItem(), frame->protectedPage().get());
-        
         WebCore::jettisonExpensiveObjectsOnTopLevelNavigation();
     }
 
@@ -4123,12 +4127,11 @@ void FrameLoader::continueLoadAfterNavigationPolicy(const ResourceRequest& reque
         diagnosticLoggingClient.logDiagnosticMessageWithResult(DiagnosticLoggingKeys::backForwardCacheKey(), DiagnosticLoggingKeys::retrievalKey(), DiagnosticLoggingResultFail, ShouldSample::Yes);
     }
 
-    CompletionHandler<void()> completionHandler = [this, protectedThis = Ref { *this }] () mutable {
+    CompletionHandler<void()> completionHandler = [this, request, protectedThis = Ref { *this }] () mutable {
         if (!m_provisionalDocumentLoader) {
             FRAMELOADER_RELEASE_LOG(ResourceLoading, "continueLoadAfterNavigationPolicy (completionHandler): Frame load canceled - no provisional document loader before prepareForLoadStart");
             return;
         }
-        
         prepareForLoadStart();
 
         // The load might be cancelled inside of prepareForLoadStart(), nulling out the m_provisionalDocumentLoader,
@@ -4911,6 +4914,12 @@ void FrameLoader::prefetchDNSIfNeeded(const URL& url)
 
     if (url.isValid() && !url.isEmpty() && url.protocolIsInHTTPFamily())
         client().prefetchDNS(url.host().toString());
+}
+
+void FrameLoader::prefetch(const URL& url, const Vector<String>& tags, const String& referrerPolicyString, bool lowPriority)
+{
+    RefPtr<DocumentPrefetcher> documentPrefetcher = m_documentPrefetcher;
+    documentPrefetcher->prefetch(url, tags, referrerPolicyString, lowPriority);
 }
 
 } // namespace WebCore

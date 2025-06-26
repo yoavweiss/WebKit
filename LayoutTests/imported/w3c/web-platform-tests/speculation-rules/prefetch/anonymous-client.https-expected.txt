@@ -1,4 +1,5 @@
+CONSOLE MESSAGE: Prefetch request denied: not same origin as document
+CONSOLE MESSAGE: Prefetch request denied: not same origin as document
 
-Harness Error (FAIL), message = Error: assert_implements: <script type="speculationrules"> must be supported undefined
-
+FAIL test anonymous-client url prefetch for cross origin pages assert_equals: expected (string) "prefetch;anonymous-client-ip" but got (undefined) undefined
 

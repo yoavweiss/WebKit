@@ -1,4 +1,14 @@
 
-Harness Error (FAIL), message = Error: assert_implements: <script type="speculationrules"> must be supported undefined
+Harness Error (TIMEOUT), message = null
 
+FAIL Sec-Speculation-Tags [ruleset-based]: integer tag assert_false: expected false got true
+FAIL Sec-Speculation-Tags [ruleset-based]: object tag assert_false: expected false got true
+FAIL Sec-Speculation-Tags [ruleset-based]: null value tag assert_false: expected false got true
+FAIL Sec-Speculation-Tags [ruleset-based]: non-printable character tag assert_false: expected false got true
+FAIL Sec-Speculation-Tags [ruleset-based]: string with non-printable character tag assert_false: expected false got true
+TIMEOUT Sec-Speculation-Tags [ruleset-based]: non-ascii string tag Test timed out
+NOTRUN Sec-Speculation-Tags [ruleset-based]: 0x19 tag
+NOTRUN Sec-Speculation-Tags [ruleset-based]: 0x20 tag
+NOTRUN Sec-Speculation-Tags [ruleset-based]: 0x7E tag
+NOTRUN Sec-Speculation-Tags [ruleset-based]: 0x7F tag
 

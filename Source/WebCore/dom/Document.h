@@ -241,6 +241,7 @@ class SerializedScriptValue;
 class Settings;
 class SleepDisabler;
 class SpaceSplitString;
+class SpeculationRules;
 class SpeechRecognition;
 class StorageConnection;
 class StringCallback;
@@ -848,6 +849,11 @@ public:
     const AtomString& baseTarget() const { return m_baseTarget; }
     HTMLBaseElement* firstBaseElement() const;
     void processBaseElement();
+
+    // https://wicg.github.io/nav-speculation/speculation-rules.html#consider-speculation
+    void considerSpeculationRules();
+    const Ref<SpeculationRules> speculationRules() const;
+    Ref<SpeculationRules> speculationRules();
 
     URL baseURLForComplete(const URL& baseURLOverride) const;
     WEBCORE_EXPORT URL completeURL(const String&, ForceUTF8 = ForceUTF8::No) const final;
@@ -2008,6 +2014,7 @@ public:
     void attributeAddedToElement(const QualifiedName& attribute);
     void elementDisconnectedFromDocument(const Element&);
 
+    WEBCORE_EXPORT void prefetch(const URL&, const Vector<String>&, const String&, bool lowPriority = false);
 
 protected:
     enum class ConstructionFlag : uint8_t {
@@ -2191,6 +2198,8 @@ private:
     const Ref<const Settings> m_settings;
 
     const std::unique_ptr<Quirks> m_quirks;
+
+    const Ref<SpeculationRules> m_speculationRules;
 
     RefPtr<LocalDOMWindow> m_domWindow;
     WeakPtr<Document, WeakPtrImplWithEventTargetData> m_contextDocument;

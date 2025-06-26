@@ -565,7 +565,15 @@ void WebFrameLoaderClient::dispatchDidDispatchOnloadEvents()
 
 void WebFrameLoaderClient::dispatchDidReceiveServerRedirectForProvisionalLoad()
 {
-    m_webFrame->_private->provisionalURL = core(m_webFrame.get())->loader().provisionalDocumentLoader()->url().string().createNSString();
+    auto* frame = core(m_webFrame.get());
+    if (!frame)
+        return;
+
+    auto* provisionalDocumentLoader = frame->loader().provisionalDocumentLoader();
+    if (!provisionalDocumentLoader)
+        return;
+
+    m_webFrame->_private->provisionalURL = provisionalDocumentLoader->url().string().createNSString().autorelease();
 
     WebView *webView = getWebView(m_webFrame.get());
     WebFrameLoadDelegateImplementationCache* implementations = WebViewGetFrameLoadDelegateImplementations(webView);

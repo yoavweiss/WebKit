@@ -916,6 +916,17 @@ imported/w3c/web-platform-tests/html/syntax/speculative-parsing/generated/docume
 imported/w3c/web-platform-tests/workers/modules/dedicated-worker-import-data-url.any.html [ Skip ]
 imported/w3c/web-platform-tests/workers/modules/dedicated-worker-import-data-url-cross-origin.html [ Skip ]
 
+# This is failing because the navigationTiming timestamps are not correct.
+imported/w3c/web-platform-tests/speculation-rules/prefetch/navigation-timing-requestStart-responseStart.https.html?include=afterResponse [ Pass Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/navigation-timing-requestStart-responseStart.https.html?include=waitingForRedirect [ Pass Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/navigation-timing-requestStart-responseStart.https.html?include=waitingForResponse [ Pass Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/referrer-policy-from-rules.https.html?3-3 [ Pass Failure ]
+imported/w3c/web-platform-tests/speculation-rules/prefetch/prefetch-traverse-reload.sub.html [ DumpJSConsoleLogInStdErr ]
+# This is passing, but timing out as `Clear-Site-Data: *` is making the test framework fail to get its own messages.
+imported/w3c/web-platform-tests/speculation-rules/prefetch/clear-prefetch-cache-after-clear-site-data-cache.https.html [ Skip ]
+# This is timing out because we do not support singleton prefetch matching, and the different initiators have different FrameLoaders.
+imported/w3c/web-platform-tests/speculation-rules/prefetch/different-initiators-2.https.html [ Skip ]
+
 # Newly imported WPT ref tests failures.
 imported/w3c/web-platform-tests/compat/webkit-box-fieldset.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/compat/webkit-box-rtl-flex.html [ ImageOnlyFailure ]

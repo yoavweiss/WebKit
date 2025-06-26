@@ -7321,6 +7321,23 @@ SpeakerSelectionRequiresUserGesture:
     WebCore:
       default: true
 
+SpeculationRulesPrefetchEnabled:
+  type: bool
+  status: testable 
+  category: html
+  humanReadableName: "SpeculationRules prefetch"
+  humanReadableDescription: "SpeculationRules prefetch"
+  defaultValue:
+    WebKitLegacy:
+      default: false 
+    WebKit:
+      default: false 
+    WebCore:
+      default: false 
+  disableInLockdownMode: true
+  sharedPreferenceForWebProcess: true
+  richJavaScript: true
+
 SpeechRecognitionEnabled:
   type: bool
   status: mature

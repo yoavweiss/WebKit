@@ -45,6 +45,7 @@
 #include "DeprecatedGlobalSettings.h"
 #include "DocumentInlines.h"
 #include "DocumentParser.h"
+#include "DocumentPrefetcher.h"
 #include "DocumentWriter.h"
 #include "ElementChildIteratorInlines.h"
 #include "Event.h"
@@ -945,7 +946,6 @@ void DocumentLoader::responseReceived(const CachedResource& resource, const Reso
 
     if (frame && frame->settings().clearSiteDataHTTPHeaderEnabled())
         m_responseClearSiteDataValues = parseClearSiteDataHeader(response);
-
     // FIXME(218779): Remove this quirk once microsoft.com completes their login flow redesign.
     if (frame && frame->document()) {
         Ref document = *frame->document();
@@ -1392,7 +1392,8 @@ void DocumentLoader::commitData(const SharedBuffer& data)
             window->prewarmLocalStorageIfNecessary();
 
             if (m_mainResource) {
-                auto* metrics = m_response.deprecatedNetworkLoadMetricsOrNull();
+                const NetworkLoadMetrics* metrics = nullptr;
+                metrics = m_response.deprecatedNetworkLoadMetricsOrNull();
                 window->protectedPerformance()->addNavigationTiming(*this, document, *m_mainResource, timing(), metrics ? *metrics : NetworkLoadMetrics::emptyMetrics());
             }
         }
@@ -2384,17 +2385,19 @@ void DocumentLoader::loadMainResource(ResourceRequest&& request)
 
     if (!mainResourceLoader()) {
         m_identifierForLoadWithoutResourceLoader = ResourceLoaderIdentifier::generate();
-        protectedFrameLoader()->notifier().assignIdentifierToInitialRequest(*m_identifierForLoadWithoutResourceLoader, IsMainResourceLoad::Yes, this, mainResourceRequest.resourceRequest());
-        protectedFrameLoader()->notifier().dispatchWillSendRequest(this, *m_identifierForLoadWithoutResourceLoader, mainResourceRequest.resourceRequest(), ResourceResponse(), nullptr);
+        ResourceRequest requestCopy = m_mainResource->resourceRequest();
+        protectedFrameLoader()->notifier().assignIdentifierToInitialRequest(*m_identifierForLoadWithoutResourceLoader, IsMainResourceLoad::Yes, this, requestCopy);
+        protectedFrameLoader()->notifier().dispatchWillSendRequest(this, *m_identifierForLoadWithoutResourceLoader, requestCopy, ResourceResponse(), nullptr);
     }
 
     becomeMainResourceClient();
 
     // A bunch of headers are set when the underlying ResourceLoader is created, and m_request needs to include those.
-    ResourceRequest updatedRequest = mainResourceLoader() ? mainResourceLoader()->originalRequest() : mainResourceRequest.resourceRequest();
+    ResourceRequest updatedRequest = mainResourceLoader() ? mainResourceLoader()->originalRequest() : m_mainResource->resourceRequest();
     // If there was a fragment identifier on m_request, the cache will have stripped it. m_request should include
     // the fragment identifier, so add that back in.
-    if (equalIgnoringFragmentIdentifier(m_request.url(), updatedRequest.url()))
+    // Otherwise, if the main resource was loaded from a prefetch, we need to conserve the redirect URL here
+    if (equalIgnoringFragmentIdentifier(m_request.url(), updatedRequest.url()) || (m_mainResource && m_mainResource->options().cachingPolicy == CachingPolicy::AllowCachingPrefetch))
         updatedRequest.setURL(URL { m_request.url() });
     setRequest(WTFMove(updatedRequest));
 }
@@ -2595,6 +2598,7 @@ void DocumentLoader::becomeMainResourceClient()
     if (m_contentFilter)
         m_contentFilter->startFilteringMainResource(*m_mainResource);
 #endif
+
     m_mainResource->addClient(*this);
 }
 
