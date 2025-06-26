@@ -45,6 +45,8 @@ bool isInputMethodComposingForEditingAction(EditAction);
 
 using NodeSet = UncheckedKeyHashSet<Ref<Node>>;
 
+enum class AllowPasswordEcho : bool { No, Yes };
+
 class EditCommand : public RefCounted<EditCommand> {
 public:
     virtual ~EditCommand();
