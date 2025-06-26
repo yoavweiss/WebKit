@@ -2703,6 +2703,8 @@ imported/w3c/web-platform-tests/fetch/metadata/window-open.https.sub.html [ Skip
 # This test times out only in mac-wk1, WPE and GTK.
 imported/w3c/web-platform-tests/html/interaction/focus/sequential-focus-navigation-and-the-tabindex-attribute/focus-tabindex-order.html [ Skip ]
 
+webkit.org/b/260972 imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-2.html [ ImageOnlyFailure ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of WPT-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
