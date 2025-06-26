@@ -7,15 +7,8 @@ Platform/IPC/Connection.cpp
 Platform/IPC/Connection.h
 Platform/IPC/StreamClientConnection.cpp
 Shared/RemoteLayerTree/RemoteLayerWithRemoteRenderingBackingStore.mm
-UIProcess/API/C/WKAuthenticationChallenge.cpp
-UIProcess/API/C/WKBackForwardListRef.cpp
 UIProcess/API/C/WKContext.cpp
-UIProcess/API/C/WKContextConfigurationRef.cpp
-UIProcess/API/C/WKFormSubmissionListener.cpp
 UIProcess/API/C/WKPage.cpp
-UIProcess/API/C/WKQueryPermissionResultCallback.cpp
-UIProcess/API/C/WKSpeechRecognitionPermissionCallback.cpp
-UIProcess/API/C/WKWebsiteDataStoreConfigurationRef.cpp
 UIProcess/API/C/WKWebsiteDataStoreRef.cpp
 UIProcess/API/C/mac/WKPagePrivateMac.mm
 UIProcess/API/Cocoa/WKContentWorld.mm
