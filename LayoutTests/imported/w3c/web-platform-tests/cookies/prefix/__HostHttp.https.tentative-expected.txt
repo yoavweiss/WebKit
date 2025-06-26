@@ -1,0 +1,9 @@
+
+FAIL __HostHttp: Does not set via DOM 'Secure; Path=/' assert_equals: `__HostHttp-prefixtestcookie=0.872991641925721` in `document.cookie` expected false but got true
+FAIL __HostHttp: Does not set via DOM with Domain attribute 'Secure; Path=/; Domain=localhost' assert_equals: `__HostHttp-prefixtestcookie=0.02795001130962438` in `document.cookie` expected false but got true
+FAIL __HostHttp: Does not set via HTTP with 'Secure; Path=/' assert_equals: expected (undefined) undefined but got (string) "0.5424186853392733"
+PASS __HostHttp: Set via HTTP with 'Secure; Path=/; httponly'
+FAIL __HostHttp: Does not set via HTTP with 'Secure; Path=/cookies/; httponly' assert_equals: expected (undefined) undefined but got (string) "0.3099468868108253"
+FAIL __HostHttp: Does not set via HTTP with 'Path=/;' (without Secure) assert_equals: expected (undefined) undefined but got (string) "0.77172508171626"
+FAIL __HostHttp: Does not set via HTTP with Domain attribute 'Secure; Path=/; Domain=localhost' assert_equals: expected (undefined) undefined but got (string) "0.5200848082898931"
+
