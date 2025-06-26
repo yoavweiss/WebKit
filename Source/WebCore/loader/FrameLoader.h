@@ -86,6 +86,7 @@ class ResourceRequest;
 class ResourceResponse;
 class SerializedScriptValue;
 class SubstituteData;
+class DocumentPrefetcher;
 
 enum class CachePolicy : uint8_t;
 enum class NewLoadInProgress : bool;
@@ -362,6 +363,8 @@ public:
 
     WEBCORE_EXPORT void prefetchDNSIfNeeded(const URL&);
 
+    void prefetch(const URL&, const Vector<String>&, const String&, bool lowPriority = false);
+
 private:
     enum FormSubmissionCacheLoadPolicy {
         MayAttemptCacheOnlyLoadForFormSubmissionItem,
@@ -548,6 +551,8 @@ private:
     bool m_errorOccurredInLoading { false };
     bool m_doNotAbortNavigationAPI { false };
     uint64_t m_requiredCookiesVersion { 0 };
+
+    RefPtr<DocumentPrefetcher> m_documentPrefetcher;
 };
 
 // This function is called by createWindow() in JSDOMWindowBase.cpp, for example, for

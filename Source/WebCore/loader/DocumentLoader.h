@@ -547,6 +547,8 @@ public:
 
     WEBCORE_EXPORT void setNewResultingClientId(ScriptExecutionContextIdentifier);
 
+    void setPrefetchedMainResource(CachedRawResource&);
+
 protected:
     WEBCORE_EXPORT DocumentLoader(ResourceRequest&&, SubstituteData&&);
 
@@ -584,6 +586,7 @@ private:
     WEBCORE_EXPORT void responseReceived(const CachedResource&, const ResourceResponse&, CompletionHandler<void()>&&) override;
     WEBCORE_EXPORT void dataReceived(CachedResource&, const SharedBuffer&) override;
     WEBCORE_EXPORT void notifyFinished(CachedResource&, const NetworkLoadMetrics&, LoadWillContinueInAnotherProcess) override;
+
 #if USE(QUICK_LOOK)
     WEBCORE_EXPORT void previewResponseReceived(const CachedResource&, const ResourceResponse&) override;
 #endif

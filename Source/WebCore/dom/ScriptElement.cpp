@@ -37,6 +37,8 @@
 #include "EventLoop.h"
 #include "EventNames.h"
 #include "FrameLoader.h"
+#include "HTMLAnchorElement.h"
+#include "HTMLCollection.h"
 #include "HTMLNames.h"
 #include "HTMLScriptElement.h"
 #include "IgnoreDestructiveWriteCountIncrementer.h"
@@ -161,6 +163,10 @@ std::optional<ScriptType> ScriptElement::determineScriptType(const String& type,
     if (equalLettersIgnoringASCIICase(type, "importmap"_s))
         return ScriptType::ImportMap;
 
+    // Step 12. Otherwise, if the script block's type string is an ASCII case-insensitive match for the string "speculationrules", then set el's type to "speculationrules".
+    if (equalLettersIgnoringASCIICase(type, "speculationrules"_s))
+        return ScriptType::SpeculationRules;
+
     return std::nullopt;
 }
 
@@ -259,7 +265,17 @@ bool ScriptElement::prepareScript(const TextPosition& scriptStartPosition)
         break;
     }
     case ScriptType::ImportMap: {
-        // If the element’s node document's acquiring import maps is false, then queue a task to fire an event named error at the element, and return.
+        // If the element's node document's acquiring import maps is false, then queue a task to fire an event named error at the element, and return.
+        if (hasSourceAttribute()) {
+            element->protectedDocument()->checkedEventLoop()->queueTask(TaskSource::DOMManipulation, [protectedThis = Ref { *this }] {
+                protectedThis->dispatchErrorEvent();
+            });
+            return false;
+        }
+        break;
+    }
+    case ScriptType::SpeculationRules: {
+        // If the element has a source attribute, queue a task to fire an event named error at the element, and return.
         if (hasSourceAttribute()) {
             element->protectedDocument()->checkedEventLoop()->queueTask(TaskSource::DOMManipulation, [protectedThis = Ref { *this }] {
                 protectedThis->dispatchErrorEvent();
@@ -293,16 +309,18 @@ bool ScriptElement::prepareScript(const TextPosition& scriptStartPosition)
         ASSERT(hasAsyncAttribute() || m_forceAsync);
         document->protectedScriptRunner()->queueScriptForExecution(*this, *protectedLoadableScript(), ScriptRunner::ASYNC_EXECUTION);
     } else if (!hasSourceAttribute() && m_parserInserted == ParserInserted::Yes && !document->haveStylesheetsLoaded()) {
-        ASSERT(scriptType == ScriptType::Classic || scriptType == ScriptType::ImportMap);
+        ASSERT(scriptType == ScriptType::Classic || scriptType == ScriptType::ImportMap || scriptType == ScriptType::SpeculationRules);
         m_willBeParserExecuted = true;
         m_readyToBeParserExecuted = true;
     } else {
-        ASSERT(scriptType == ScriptType::Classic || scriptType == ScriptType::ImportMap);
+        ASSERT(scriptType == ScriptType::Classic || scriptType == ScriptType::ImportMap || scriptType == ScriptType::SpeculationRules);
         TextPosition position = document->isInDocumentWrite() ? TextPosition() : scriptStartPosition;
         if (scriptType == ScriptType::Classic)
             executeClassicScript(ScriptSourceCode(sourceText, m_taintedOrigin, URL(document->url()), position, JSC::SourceProviderSourceType::Program, InlineClassicScript::create(*this)));
-        else
+        else if (scriptType == ScriptType::ImportMap)
             registerImportMap(ScriptSourceCode(sourceText, m_taintedOrigin, URL(document->url()), position, JSC::SourceProviderSourceType::ImportMap));
+        else
+            registerSpeculationRules(ScriptSourceCode(sourceText, m_taintedOrigin, URL(document->url()), position, JSC::SourceProviderSourceType::Program));
     }
 
     return true;
@@ -616,6 +634,39 @@ ScriptElement* dynamicDowncastScriptElement(Element& element)
     if (auto* htmlElement = dynamicDowncast<HTMLScriptElement>(element))
         return htmlElement;
     return dynamicDowncast<SVGScriptElement>(element);
+}
+
+// https://wicg.github.io/nav-speculation/speculation-rules.html#register-speculation-rules
+void ScriptElement::registerSpeculationRules(const ScriptSourceCode& sourceCode)
+{
+    ASSERT(m_alreadyStarted);
+    ASSERT(scriptType() == ScriptType::SpeculationRules);
+
+    Ref element = this->element();
+    Ref document = element->document();
+    RefPtr frame = document->frame();
+
+    if (sourceCode.isEmpty()) {
+        dispatchErrorEvent();
+        return;
+    }
+
+    if (!m_isExternalScript) {
+        ASSERT(document->contentSecurityPolicy());
+        CheckedRef contentSecurityPolicy = *document->contentSecurityPolicy();
+        if (!contentSecurityPolicy->allowNonParserInsertedScripts(URL(), document->url(), m_startLineNumber, element->nonce(), emptyString(), sourceCode.source(), m_parserInserted))
+            return;
+
+        if (!contentSecurityPolicy->allowInlineScript(document->url().string(), m_startLineNumber, sourceCode.source(), element, element->nonce(), element->isInUserAgentShadowTree()))
+            return;
+    }
+
+    if (!frame)
+        return;
+
+    frame->checkedScript()->registerSpeculationRules(sourceCode, document->baseURL());
+    // TODO(yoav): Also handle removal/modification of speculation rules scripts
+    document->considerSpeculationRules();
 }
 
 }

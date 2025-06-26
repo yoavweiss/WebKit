@@ -1,0 +1,4 @@
+CONSOLE MESSAGE: Prefetch request denied: not same origin as document
+
+PASS test single http url prefetch from a https url
+

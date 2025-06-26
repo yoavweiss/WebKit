@@ -610,6 +610,7 @@ bool CachedResourceLoader::allowedByContentSecurityPolicy(CachedResource::Type t
     case CachedResource::Type::Beacon:
     case CachedResource::Type::Ping:
     case CachedResource::Type::RawResource:
+    case CachedResource::Type::MainResource:
 #if ENABLE(MODEL_ELEMENT)
     case CachedResource::Type::EnvironmentMapResource:
     case CachedResource::Type::ModelResource:

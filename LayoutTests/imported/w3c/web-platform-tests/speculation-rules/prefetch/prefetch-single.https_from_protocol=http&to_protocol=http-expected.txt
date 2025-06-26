@@ -1,0 +1,4 @@
+CONSOLE MESSAGE: Prefetch request denied: URL must be secure (HTTPS)
+
+PASS test single http url prefetch from a http url
+

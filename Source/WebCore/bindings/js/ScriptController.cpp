@@ -73,6 +73,7 @@
 #include <JavaScriptCore/JSScriptFetchParameters.h>
 #include <JavaScriptCore/JSScriptFetcher.h>
 #include <JavaScriptCore/ScriptCallStack.h>
+#include <JavaScriptCore/SpeculationRules.h>
 #include <JavaScriptCore/StrongInlines.h>
 #include <JavaScriptCore/SyntheticModuleRecord.h>
 #include <JavaScriptCore/WeakGCMapInlines.h>
@@ -969,6 +970,15 @@ void ScriptController::registerImportMap(const ScriptSourceCode& sourceCode, con
 
     if (newImportMap)
         globalObject->importMap().mergeExistingAndNewImportMaps(WTFMove(newImportMap.value()), reporter);
+}
+
+void ScriptController::registerSpeculationRules(const ScriptSourceCode& sourceCode, const URL& baseURL)
+{
+    auto& world = mainThreadNormalWorldSingleton();
+    JSC::VM& vm = world.vm();
+    JSLockHolder lock(vm);
+    JSGlobalObject* globalObject = jsWindowProxy(world).window();
+    globalObject->speculationRules().parseSpeculationRules(sourceCode.source(), baseURL, baseURL);
 }
 
 } // namespace WebCore

@@ -1040,6 +1040,7 @@ runtime/SideDataRepository.cpp
 runtime/SimpleTypedArrayController.cpp
 runtime/SmallStrings.cpp
 runtime/SparseArrayValueMap.cpp
+runtime/SpeculationRules.cpp
 runtime/StackFrame.cpp
 runtime/StrictEvalActivation.cpp
 runtime/StringConstructor.cpp

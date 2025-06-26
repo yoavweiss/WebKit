@@ -1218,6 +1218,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/SmallStrings.h
     runtime/SourceOrigin.h
     runtime/SparseArrayValueMap.h
+    runtime/SpeculationRules.h
     runtime/StableSort.h
     runtime/StackAlignment.h
     runtime/StackFrame.h

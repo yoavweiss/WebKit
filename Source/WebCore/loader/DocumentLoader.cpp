@@ -2589,6 +2589,15 @@ void DocumentLoader::becomeMainResourceClient()
     if (m_contentFilter)
         m_contentFilter->startFilteringMainResource(*m_mainResource);
 #endif
+
+    // If this is a prefetched resource that's already loaded, we need to defer
+    // completion notifications to prevent race conditions with UI process transactions
+    bool isPrefetchedAndLoaded = m_mainResource->isLoaded() && m_loadingMainResource;
+    if (isPrefetchedAndLoaded) {
+        m_mainResource->setLoading(true);
+        m_mainResource->setStatus(CachedResource::Status::Pending);
+    }
+
     m_mainResource->addClient(*this);
 }
 
@@ -2775,6 +2784,24 @@ void DocumentLoader::setNewResultingClientId(ScriptExecutionContextIdentifier id
         m_resultingClientId = identifier;
         scriptExecutionContextIdentifierToLoaderMap().add(identifier, this);
     }
+}
+
+void DocumentLoader::setPrefetchedMainResource(CachedRawResource& prefetchedMainResource)
+{
+    ASSERT(!m_mainResource);
+    ASSERT(!m_loadingMainResource);
+
+    m_mainResource = prefetchedMainResource;
+    m_loadingMainResource = true;
+    m_canUseServiceWorkers = false;
+
+    prefetchedMainResource.setLoading(true);
+    prefetchedMainResource.setStatus(CachedResource::Status::Pending);
+
+    m_loadingMainResource = true;
+    // Adding DocumentLoader as a client to the prefetched resource will trigger the
+    // responseReceived, dataReceived, and notifyFinished events.
+    prefetchedMainResource.addClient(*this);
 }
 
 std::unique_ptr<IntegrityPolicy> DocumentLoader::integrityPolicy()

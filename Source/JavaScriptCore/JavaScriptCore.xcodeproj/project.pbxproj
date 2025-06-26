@@ -1743,6 +1743,7 @@
 		ADE802991E08F1DE0058DE78 /* JSWebAssemblyLinkError.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE802941E08F1C90058DE78 /* JSWebAssemblyLinkError.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		ADE8029A1E08F1DE0058DE78 /* WebAssemblyLinkErrorConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE802951E08F1C90058DE78 /* WebAssemblyLinkErrorConstructor.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		ADE8029C1E08F1DE0058DE78 /* WebAssemblyLinkErrorPrototype.h in Headers */ = {isa = PBXBuildFile; fileRef = ADE802971E08F1C90058DE78 /* WebAssemblyLinkErrorPrototype.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		BAED5D642E0CFFB8004787C9 /* SpeculationRules.h in Headers */ = {isa = PBXBuildFile; fileRef = BAED5D612E0CFA67004787C9 /* SpeculationRules.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		BC02E90D0E1839DB000F9297 /* ErrorConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = BC02E9050E1839DB000F9297 /* ErrorConstructor.h */; };
 		BC02E90F0E1839DB000F9297 /* ErrorPrototype.h in Headers */ = {isa = PBXBuildFile; fileRef = BC02E9070E1839DB000F9297 /* ErrorPrototype.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		BC02E9110E1839DB000F9297 /* NativeErrorConstructor.h in Headers */ = {isa = PBXBuildFile; fileRef = BC02E9090E1839DB000F9297 /* NativeErrorConstructor.h */; };
@@ -5386,6 +5387,8 @@
 		ADE802961E08F1C90058DE78 /* WebAssemblyLinkErrorPrototype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebAssemblyLinkErrorPrototype.cpp; path = js/WebAssemblyLinkErrorPrototype.cpp; sourceTree = "<group>"; };
 		ADE802971E08F1C90058DE78 /* WebAssemblyLinkErrorPrototype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebAssemblyLinkErrorPrototype.h; path = js/WebAssemblyLinkErrorPrototype.h; sourceTree = "<group>"; };
 		ADE8029D1E08F2260058DE78 /* WebAssemblyLinkErrorConstructor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebAssemblyLinkErrorConstructor.cpp; path = js/WebAssemblyLinkErrorConstructor.cpp; sourceTree = "<group>"; };
+		BAED5D612E0CFA67004787C9 /* SpeculationRules.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeculationRules.h; sourceTree = "<group>"; };
+		BAED5D622E0CFA67004787C9 /* SpeculationRules.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpeculationRules.cpp; sourceTree = "<group>"; };
 		BC021BF2136900C300FC5467 /* ToolExecutable.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ToolExecutable.xcconfig; sourceTree = "<group>"; };
 		BC02E9040E1839DB000F9297 /* ErrorConstructor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ErrorConstructor.cpp; sourceTree = "<group>"; };
 		BC02E9050E1839DB000F9297 /* ErrorConstructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorConstructor.h; sourceTree = "<group>"; };
@@ -8848,6 +8851,8 @@
 				425BA1337E4344E1B269A671 /* SourceOrigin.h */,
 				0F0CD4C315F6B6B50032F1C0 /* SparseArrayValueMap.cpp */,
 				0FB7F39215ED8E3800F167B2 /* SparseArrayValueMap.h */,
+				BAED5D622E0CFA67004787C9 /* SpeculationRules.cpp */,
+				BAED5D612E0CFA67004787C9 /* SpeculationRules.h */,
 				E32EF01D2BD72AEF001675BA /* StableSort.h */,
 				0F3AC751183EA1040032029F /* StackAlignment.h */,
 				0F6DB7E71D6124B200CDBF8E /* StackFrame.cpp */,
@@ -11812,6 +11817,7 @@
 				0FB7F39E15ED8E4600F167B2 /* SparseArrayValueMap.h in Headers */,
 				A7386554118697B400540279 /* SpecializedThunkJIT.h in Headers */,
 				0FD82E54141DAEEE00179C94 /* SpeculatedType.h in Headers */,
+				BAED5D642E0CFFB8004787C9 /* SpeculationRules.h in Headers */,
 				A785F6BC18C553FE00F10626 /* SpillRegistersMode.h in Headers */,
 				E32EF01E2BD72AEF001675BA /* StableSort.h in Headers */,
 				0F3AC752183EA1040032029F /* StackAlignment.h in Headers */,

@@ -175,6 +175,7 @@ public:
     void reportExceptionFromScriptError(LoadableScript::Error, bool);
 
     void registerImportMap(const ScriptSourceCode&, const URL& baseURL);
+    void registerSpeculationRules(const ScriptSourceCode&, const URL& baseURL);
 
 private:
     ValueOrException executeScriptInWorld(DOMWrapperWorld&, RunJavaScriptParameters&&);

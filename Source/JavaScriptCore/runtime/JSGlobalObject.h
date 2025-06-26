@@ -29,6 +29,7 @@
 #include "RegExpGlobalData.h"
 #include "RuntimeFlags.h"
 #include "SourceTaintedOrigin.h"
+#include "SpeculationRules.h"
 #include "StructureCache.h"
 #include "Watchpoint.h"
 #include "WeakGCSet.h"
@@ -623,6 +624,8 @@ public:
 
     const Ref<ImportMap> m_importMap;
 
+    const Ref<SpeculationRules> m_speculationRules;
+
     HashMap<String, JSCJSGlobalObjectSignpostIdentifier> m_signposts;
 
 #if ASSERT_ENABLED
@@ -1183,6 +1186,8 @@ public:
 
     const ImportMap& importMap() const { return m_importMap.get(); }
     ImportMap& importMap() { return m_importMap.get(); }
+    const SpeculationRules& speculationRules() const { return m_speculationRules.get(); }
+    SpeculationRules& speculationRules() { return m_speculationRules.get(); }
 
 protected:
     enum class HasSpeciesProperty : bool { No, Yes };

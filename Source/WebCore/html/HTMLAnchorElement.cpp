@@ -55,6 +55,7 @@
 #include "SecurityOrigin.h"
 #include "SecurityPolicy.h"
 #include "Settings.h"
+#include "SpeculationRulesMatcher.h"
 #include "SystemPreviewInfo.h"
 #include "URLKeepingBlobAlive.h"
 #include "UserGestureIndicator.h"
@@ -157,6 +158,9 @@ static void appendServerMapMousePosition(StringBuilder& url, Event& event)
 
 void HTMLAnchorElement::defaultEventHandler(Event& event)
 {
+    if (m_shouldBeConservativelyPrefetched && (event.type() == eventNames().keydownEvent || event.type() == eventNames().mousedownEvent || event.type() == eventNames().pointerdownEvent))
+        document().prefetch(href(), m_speculationRulesTags, m_prefetchReferrerPolicy);
+
     if (isLink()) {
         if (focused() && isEnterKeyKeydownEvent(event) && treatLinkAsLiveForEventType(NonMouseEvent)) {
             event.setDefaultHandled();
@@ -234,6 +238,10 @@ void HTMLAnchorElement::attributeChanged(const QualifiedName& name, const AtomSt
             m_relList->associatedAttributeValueChanged();
     } else if (name == nameAttr)
         protectedDocument()->processInternalResourceLinks(this);
+
+    // Check speculation rules for any attribute change to catch either an href attribute change
+    // or anything that can impact CSS selectors.
+    checkForSpeculationRules();
 }
 
 bool HTMLAnchorElement::isURLAttribute(const Attribute& attribute) const
@@ -705,12 +713,30 @@ Node::InsertedIntoAncestorResult HTMLAnchorElement::insertedIntoAncestor(Inserti
 {
     auto result = HTMLElement::insertedIntoAncestor(insertionType, parentOfInsertedTree);
     document().processInternalResourceLinks(this);
+    checkForSpeculationRules();
     return result;
 }
 
 void HTMLAnchorElement::setFullURL(const URL& fullURL)
 {
     setAttributeWithoutSynchronization(hrefAttr, AtomString { fullURL.string() });
+    checkForSpeculationRules();
+}
+
+void HTMLAnchorElement::setShouldBePrefetched(bool conservative, Vector<String>&& tags, String&& referrerPolicy)
+{
+    m_shouldBeImmediatelyPrefetched = !conservative;
+    m_shouldBeConservativelyPrefetched = conservative;
+    m_speculationRulesTags = WTFMove(tags);
+    m_prefetchReferrerPolicy = WTFMove(referrerPolicy);
+    if (m_shouldBeImmediatelyPrefetched)
+        document().prefetch(href(), m_speculationRulesTags, m_prefetchReferrerPolicy, true);
+}
+
+void HTMLAnchorElement::checkForSpeculationRules()
+{
+    if (auto prefetchRule = SpeculationRulesMatcher::hasMatchingRule(document(), *this))
+        setShouldBePrefetched(prefetchRule->conservative, WTFMove(prefetchRule->tags), WTFMove(prefetchRule->referrerPolicy));
 }
 
 }

@@ -1350,6 +1350,7 @@ dom/SimulatedClick.cpp
 dom/SlotAssignment.cpp
 dom/SpaceSplitString.cpp
 dom/SpatialBackdropSource.cpp
+dom/SpeculationRulesMatcher.cpp
 dom/StaticNodeList.cpp
 dom/StaticRange.cpp
 dom/StringCallback.cpp
@@ -1981,6 +1982,7 @@ loader/DefaultResourceLoadPriority.cpp
 loader/DocumentLoader.cpp
 loader/DocumentThreadableLoader.cpp
 loader/DocumentWriter.cpp
+loader/DocumentPrefetcher.cpp
 loader/EmptyClients.cpp
 loader/FTPDirectoryParser.cpp
 loader/FetchIdioms.cpp
