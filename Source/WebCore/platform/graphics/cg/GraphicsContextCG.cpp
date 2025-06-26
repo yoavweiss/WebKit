@@ -397,7 +397,7 @@ void GraphicsContextCG::drawNativeImageInternal(NativeImage& nativeImage, const 
     if (headroom == Headroom::FromImage)
         headroom = nativeImage.headroom();
     if (m_maxEDRHeadroom)
-        headroom = std::min(headroom.headroom, *m_maxEDRHeadroom);
+        headroom = Headroom(std::min<float>(headroom, *m_maxEDRHeadroom));
 
     if (nativeImage.headroom() > headroom) {
         LOG_WITH_STREAM(HDR, stream << "GraphicsContextCG::drawNativeImageInternal setEDRTargetHeadroom " << headroom << " max(" << m_maxEDRHeadroom << ")");

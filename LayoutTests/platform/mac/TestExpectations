@@ -87,6 +87,9 @@ fast/images/heic-as-background-image.html [ Pass ]
 [ Sonoma+ ] fast/images/jpegxl-as-image.html [ Pass ]
 [ Sonoma+ ] fast/images/jpegxl-with-color-profile.html [ Pass ]
 
+# Video as an image source is only supported on macOS and iOS.
+fast/images/video-as-image.html [ Pass ]
+
 # Enabled in rdar://102830993
 fast/images/mac/play-all-pause-all-animations-context-menu-items.html [ Skip ]
 

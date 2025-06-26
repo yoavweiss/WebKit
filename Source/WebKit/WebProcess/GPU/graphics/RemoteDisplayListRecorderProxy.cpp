@@ -302,7 +302,7 @@ void RemoteDisplayListRecorderProxy::drawNativeImageInternal(NativeImage& image,
         headroom = image.headroom();
     if (m_maxEDRHeadroom) {
         if (*m_maxEDRHeadroom < headroom)
-            headroom = *m_maxEDRHeadroom;
+            headroom = Headroom(*m_maxEDRHeadroom);
     }
     m_maxPaintedEDRHeadroom = std::max(m_maxPaintedEDRHeadroom, headroom.headroom);
     m_maxRequestedEDRHeadroom = std::max(m_maxRequestedEDRHeadroom, image.headroom().headroom);

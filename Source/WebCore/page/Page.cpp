@@ -5829,11 +5829,11 @@ bool Page::requiresUserGestureForVideoPlayback() const
 void Page::updateDisplayEDRHeadroom()
 {
     float headroom = currentEDRHeadroomForDisplay(m_displayID);
-    if (headroom == m_displayEDRHeadroom.headroom)
+    if (headroom == m_displayEDRHeadroom)
         return;
 
     LOG_WITH_STREAM(HDR, stream << "Page " << this << " updateDisplayEDRHeadroom " << m_displayEDRHeadroom.headroom << " to " << headroom);
-    m_displayEDRHeadroom = headroom;
+    m_displayEDRHeadroom = Headroom(headroom);
 
     forEachDocument([&] (Document& document) {
         if (!document.drawsHDRContent())
