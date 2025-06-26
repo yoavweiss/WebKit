@@ -3412,7 +3412,7 @@ void JSGlobalObject::clearWeakTickets()
     vm().deferredWorkTimer->cancelPendingWorkSafe(this);
 }
 
-FunctionExecutable* JSGlobalObject::tryGetCachedFunctionExecutableForFunctionConstructor(const Identifier& name, const SourceCode& source, LexicallyScopedFeatures lexicallyScopedFeatures, FunctionConstructionMode functionConstructionMode)
+FunctionExecutable* JSGlobalObject::tryGetCachedFunctionExecutableForFunctionConstructor(const Identifier& name, StringView program, const SourceOrigin& sourceOrigin, SourceTaintedOrigin sourceTaintedOrigin, const String& sourceURL, const TextPosition& startPosition, LexicallyScopedFeatures lexicallyScopedFeatures, FunctionConstructionMode functionConstructionMode)
 {
     if (!defaultCodeGenerationMode().isEmpty())
         return nullptr;
@@ -3429,25 +3429,27 @@ FunctionExecutable* JSGlobalObject::tryGetCachedFunctionExecutableForFunctionCon
         return nullptr;
 
     auto storedSource = executable->source();
-    if (source.firstLine() != storedSource.firstLine())
+    if (OrdinalNumber { } != storedSource.firstLine())
         return nullptr;
 
     int offset = functionConstructorPrefix(functionConstructionMode).length() + name.length();
-    if ((source.startColumn().zeroBasedInt() + offset) != storedSource.startColumn().zeroBasedInt())
+    if (offset != storedSource.startColumn().zeroBasedInt())
         return nullptr;
 
-    if (source.view().substring(offset) != storedSource.view())
+    if (program.substring(offset) != storedSource.view())
         return nullptr;
 
     RefPtr storedProvider = executable->source().provider();
-    RefPtr provider = source.provider();
-    if (storedProvider->startPosition() != provider->startPosition())
+    if (storedProvider->startPosition() != startPosition)
         return nullptr;
 
-    if (storedProvider->sourceOrigin() != provider->sourceOrigin())
+    if (storedProvider->sourceOrigin() != sourceOrigin)
         return nullptr;
 
-    if (storedProvider->sourceURL() != provider->sourceURL())
+    if (storedProvider->sourceURL() != sourceURL)
+        return nullptr;
+
+    if (storedProvider->sourceTaintedOrigin() != sourceTaintedOrigin)
         return nullptr;
 
     return executable;

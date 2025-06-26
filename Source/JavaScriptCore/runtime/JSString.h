@@ -134,6 +134,9 @@ public:
 
     static constexpr unsigned maxLengthForOnStackResolve = 2048;
 
+    template<typename CharacterType>
+    inline void resolveToBuffer(std::span<CharacterType>);
+
 private:
     String& uninitializedValueInternal() const
     {
@@ -1189,3 +1192,26 @@ inline bool JSString::isSubstring() const
 }
 
 } // namespace JSC
+namespace WTF {
+
+template<>
+class StringTypeAdapter<JSC::JSString*> {
+public:
+    StringTypeAdapter(JSC::JSString* string)
+        : m_string(string)
+    {
+    }
+
+    unsigned length() const { return m_string->length(); }
+    bool is8Bit() const { return m_string->is8Bit(); }
+    template<typename CharacterType>
+    void writeTo(std::span<CharacterType> destination) const
+    {
+        m_string->resolveToBuffer(destination.first(m_string->length()));
+    }
+
+private:
+    JSC::JSString* m_string { nullptr };
+};
+
+} // namespace WTF

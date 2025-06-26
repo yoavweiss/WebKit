@@ -660,4 +660,22 @@ inline JSString* jsSubstringOfResolved(VM& vm, GCDeferralContext* deferralContex
     return JSRopeString::createSubstringOfResolved(vm, deferralContext, s, offset, length, base.is8Bit());
 }
 
+template<typename CharacterType>
+void JSString::resolveToBuffer(std::span<CharacterType> destination)
+{
+    if (isRope()) {
+        auto* rope = jsCast<JSRopeString*>(this);
+        if (rope->isSubstring()) {
+            StringView view = *rope->substringBase()->valueInternal().impl();
+            unsigned offset = rope->substringOffset();
+            view.substring(offset, rope->length()).getCharacters(destination);
+            return;
+        }
+
+        uint8_t* stackLimit = std::bit_cast<uint8_t*>(vm().softStackLimit());
+        return JSRopeString::resolveToBuffer(rope->fiber0(), rope->fiber1(), rope->fiber2(), destination, stackLimit);
+    }
+    StringView(valueInternal().impl()).getCharacters(destination);
+}
+
 } // namespace JSC

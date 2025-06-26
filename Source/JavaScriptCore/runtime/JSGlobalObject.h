@@ -28,6 +28,7 @@
 #include "LazyClassStructure.h"
 #include "RegExpGlobalData.h"
 #include "RuntimeFlags.h"
+#include "SourceTaintedOrigin.h"
 #include "StructureCache.h"
 #include "Watchpoint.h"
 #include "WeakGCSet.h"
@@ -1126,7 +1127,7 @@ public:
     WriteBarrier<JSObject>* addressOfGlobalThis() { return &m_globalThis; }
     OptionSet<CodeGenerationMode> defaultCodeGenerationMode() const;
 
-    FunctionExecutable* tryGetCachedFunctionExecutableForFunctionConstructor(const Identifier& name, const SourceCode&, LexicallyScopedFeatures, FunctionConstructionMode);
+    FunctionExecutable* tryGetCachedFunctionExecutableForFunctionConstructor(const Identifier& name, StringView program, const SourceOrigin&, SourceTaintedOrigin, const String& sourceURL, const TextPosition& startPosition, LexicallyScopedFeatures, FunctionConstructionMode);
     void cachedFunctionExecutableForFunctionConstructor(FunctionExecutable*);
 
     static inline Structure* createStructure(VM&, JSValue prototype);
