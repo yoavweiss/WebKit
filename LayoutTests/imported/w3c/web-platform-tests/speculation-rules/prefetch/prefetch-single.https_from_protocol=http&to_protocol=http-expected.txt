@@ -1,4 +1,5 @@
+CONSOLE MESSAGE: Prefetch request denied: URL must be secure (HTTPS)
+CONSOLE MESSAGE: Prefetch request denied: URL must be secure (HTTPS)
 
-Harness Error (FAIL), message = Error: assert_implements: <script type="speculationrules"> must be supported undefined
-
+PASS test single http url prefetch from a http url
 

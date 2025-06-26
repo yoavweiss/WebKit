@@ -26,6 +26,7 @@
 #include "config.h"
 #include "TrustedTypePolicy.h"
 
+#include "ExceptionCode.h"
 #include "ExceptionOr.h"
 #include "ScriptWrappableInlines.h"
 #include "TrustedHTML.h"
