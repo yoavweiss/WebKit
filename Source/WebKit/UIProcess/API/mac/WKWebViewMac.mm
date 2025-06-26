@@ -1605,6 +1605,15 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
 }
 
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+
+- (NSScrollPocket *)_topScrollPocket
+{
+    return _impl->topScrollPocket();
+}
+
+#endif
+
 - (void)_setUsesAutomaticContentInsetBackgroundFill:(BOOL)value
 {
     if (_usesAutomaticContentInsetBackgroundFill == value)

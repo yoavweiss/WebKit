@@ -42,9 +42,51 @@
 #import <WebKit/WKWebViewPrivateForTesting.h>
 #import <wtf/RetainPtr.h>
 
-@interface NSView (ContentInsetFillSPI)
-@property (nonatomic, readonly) NSColor *captureColor;
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+
+@interface TopScrollPocketObserver : NSObject
+@property (nonatomic, readonly) NSUInteger changeCount;
+- (instancetype)initWithWebView:(WKWebView *)webView;
 @end
+
+@implementation TopScrollPocketObserver {
+    RetainPtr<WKWebView> _webView;
+    NSUInteger _changeCount;
+}
+
+- (instancetype)initWithWebView:(WKWebView *)webView
+{
+    if (self = [super init]) {
+        _webView = webView;
+        [_webView addObserver:self forKeyPath:@"_topScrollPocket" options:NSKeyValueObservingOptionNew context:nil];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    if (_webView) {
+        [_webView removeObserver:self forKeyPath:@"_topScrollPocket"];
+        _webView = nil;
+    }
+
+    [super dealloc];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
+{
+    if ([keyPath isEqualToString:@"_topScrollPocket"])
+        _changeCount++;
+}
+
+- (NSUInteger)changeCount
+{
+    return _changeCount;
+}
+
+@end
+
+#endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 
 @interface WKWebView (ObscuredContentInsets) <NSScrollViewSeparatorTrackingAdapter>
 @end
@@ -177,12 +219,12 @@ TEST(ObscuredContentInsets, ResizeScrollPocket)
     [webView _setObscuredContentInsets:NSEdgeInsetsMake(100, 100, 0, 0) immediate:NO];
     [webView synchronouslyLoadTestPageNamed:@"simple"];
     [webView waitForNextPresentationUpdate];
-    EXPECT_EQ(NSMakeRect(0, 0, 400, 100), [webView _scrollPocketForTesting].frame);
+    EXPECT_EQ(NSMakeRect(0, 0, 400, 100), [webView _topScrollPocket].frame);
 
     [webView setFrame:NSMakeRect(0, 0, 800, 600)];
     [webView waitForNextVisibleContentRectUpdate];
     [webView waitForNextPresentationUpdate];
-    EXPECT_EQ(NSMakeRect(0, 0, 800, 100), [webView _scrollPocketForTesting].frame);
+    EXPECT_EQ(NSMakeRect(0, 0, 800, 100), [webView _topScrollPocket].frame);
 }
 
 TEST(ObscuredContentInsets, ScrollPocketCaptureColor)
@@ -194,17 +236,17 @@ TEST(ObscuredContentInsets, ScrollPocketCaptureColor)
     [webView setFrame:NSMakeRect(0, 0, 600, 400)];
     [webView waitForNextPresentationUpdate];
 
-    RetainPtr initialColor = [[webView _scrollPocketForTesting] captureColor];
+    RetainPtr initialColor = [[webView _topScrollPocket] captureColor];
 
     [webView synchronouslyLoadTestPageNamed:@"simple"];
     [webView waitForNextPresentationUpdate];
 
-    auto colorBeforeChangingBackground = WebCore::colorFromCocoaColor([[webView _scrollPocketForTesting] captureColor]);
+    auto colorBeforeChangingBackground = WebCore::colorFromCocoaColor([[webView _topScrollPocket] captureColor]);
 
     [webView stringByEvaluatingJavaScript:@"document.body.style.backgroundColor = '#222'"];
     [webView waitForNextPresentationUpdate];
 
-    auto colorAfterChangingBackground = WebCore::colorFromCocoaColor([[webView _scrollPocketForTesting] captureColor]);
+    auto colorAfterChangingBackground = WebCore::colorFromCocoaColor([[webView _topScrollPocket] captureColor]);
 
     EXPECT_TRUE([initialColor isEqual:NSColor.controlBackgroundColor]);
     EXPECT_EQ(WebCore::serializationForCSS(colorBeforeChangingBackground), "rgb(255, 255, 255)"_s);
@@ -236,6 +278,27 @@ TEST(ObscuredContentInsets, TopOverhangColorExtensionLayer)
     EXPECT_TRUE(WTF::areEssentiallyEqual<float>(NSWidth(colorExtensionLayerFrame), 600.));
     EXPECT_TRUE(WTF::areEssentiallyEqual<float>(NSMaxY(colorExtensionLayerFrame), 100.));
     EXPECT_TRUE(Util::compareColors(actualColor, expectedColor, 0.01));
+}
+
+TEST(ObscuredContentInsets, TopScrollPocketKVO)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 600, 400)]);
+    RetainPtr observer = adoptNS([[TopScrollPocketObserver alloc] initWithWebView:webView.get()]);
+
+    EXPECT_NULL([webView _topScrollPocket]);
+    EXPECT_EQ([observer changeCount], 0u);
+
+    [webView _setAutomaticallyAdjustsContentInsets:NO];
+    [webView _setObscuredContentInsets:NSEdgeInsetsMake(100, 0, 0, 0) immediate:YES];
+    [webView waitForNextPresentationUpdate];
+
+    [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+    EXPECT_NOT_NULL([webView _topScrollPocket]);
+    EXPECT_EQ([observer changeCount], 1u);
+
+    [webView _setObscuredContentInsets:NSEdgeInsetsMake(0, 0, 0, 0) immediate:YES];
+    EXPECT_NULL([webView _topScrollPocket]);
+    EXPECT_EQ([observer changeCount], 2u);
 }
 
 #endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)

@@ -6963,8 +6963,12 @@ void WebViewImpl::updateScrollPocket()
         && !view->_reasonsToHideTopScrollPocket
         && topContentInset > 0;
 
+    RetainPtr topScrollPocketSelector = NSStringFromSelector(@selector(_topScrollPocket));
     if (!needsTopView) {
-        if (RetainPtr scrollPocket = std::exchange(m_topScrollPocket, nil)) {
+        if (m_topScrollPocket) {
+            [view willChangeValueForKey:topScrollPocketSelector.get()];
+            RetainPtr scrollPocket = std::exchange(m_topScrollPocket, { });
+            [view didChangeValueForKey:topScrollPocketSelector.get()];
             [[scrollPocket captureView] removeFromSuperview];
             [scrollPocket removeFromSuperview];
         }
@@ -6973,7 +6977,9 @@ void WebViewImpl::updateScrollPocket()
 
     RetainPtr<NSView> captureView;
     if (!m_topScrollPocket) {
+        [view willChangeValueForKey:topScrollPocketSelector.get()];
         m_topScrollPocket = adoptNS([NSScrollPocket new]);
+        [view didChangeValueForKey:topScrollPocketSelector.get()];
         updateTopScrollPocketStyle();
         [m_topScrollPocket setEdge:NSScrollPocketEdgeTop];
         [m_topScrollPocket layout];

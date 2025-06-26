@@ -35,9 +35,10 @@ DECLARE_SYSTEM_HEADER
 #import <AppKit/NSInspectorBarItemController.h>
 #import <AppKit/NSInspectorBar_Private.h>
 #import <AppKit/NSMenu_Private.h>
+#import <AppKit/NSScrollPocket_Private.h>
+#import <AppKit/NSScrollViewSeparatorTrackingAdapter_Private.h>
 #import <AppKit/NSTextInputClient_Private.h>
 #import <AppKit/NSWindow_Private.h>
-#import <AppKit/NSScrollViewSeparatorTrackingAdapter_Private.h>
 
 #else
 
