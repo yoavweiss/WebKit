@@ -1300,6 +1300,11 @@ _NSHSTSStorage *NetworkSessionCocoa::hstsStorage() const
     return m_defaultSessionSet->sessionWithCredentialStorage.session.get().configuration._hstsStorage;
 }
 
+RetainPtr<_NSHSTSStorage> NetworkSessionCocoa::protectedHSTSStorage() const
+{
+    return hstsStorage();
+}
+
 NSURLCredentialStorage *NetworkSessionCocoa::nsCredentialStorage() const
 {
     return m_defaultSessionSet->sessionWithCredentialStorage.session.get().configuration.URLCredentialStorage;
