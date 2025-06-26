@@ -4171,7 +4171,7 @@ JSC_DEFINE_JIT_OPERATION(operationCopyOnWriteArrayIndexOfString, UCPUStrictInt32
 
     if (JSImmutableButterfly::isOnlyAtomStringsStructure(vm, butterfly)) {
         auto search = searchElement->toAtomString(globalObject);
-        RETURN_IF_EXCEPTION(scope, { });
+        OPERATION_RETURN_IF_EXCEPTION(scope, 0);
 
         UCPUStrictInt32 result = toUCPUStrictInt32(-1);
         if (vm.atomStringToJSStringMap.contains(search.data)) {
