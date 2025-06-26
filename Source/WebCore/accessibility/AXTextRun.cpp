@@ -45,7 +45,21 @@ namespace WebCore {
 
 String AXTextRuns::debugDescription() const
 {
-    return makeString('[', interleave(runs, [&](auto& run) { return run.debugDescription(containingBlock); }, ", "_s), ']');
+    StringBuilder builder;
+    builder.append('[');
+    for (size_t i = 0; i < runs.size(); i++) {
+        AXTextRunLineID lineID = { containingBlock, runs[i].lineIndex };
+        builder.append(makeString(
+            lineID.debugDescription(),
+            ": |"_s, makeStringByReplacingAll(runString(i), '\n', "{newline}"_s),
+            "|(len "_s, runs[i].length(), ")"_s
+        ));
+        if (i != runs.size() - 1)
+            builder.append(", "_s);
+    }
+    builder.append(']');
+
+    return builder.toString();
 }
 
 size_t AXTextRuns::indexForOffset(unsigned textOffset, Affinity affinity) const
@@ -74,36 +88,6 @@ unsigned AXTextRuns::runLengthSumTo(size_t index) const
     for (size_t i = 0; i <= index && i < runs.size(); i++)
         length += runLength(i);
     return length;
-}
-
-String AXTextRuns::substring(unsigned start, unsigned length) const
-{
-    if (!length)
-        return emptyString();
-
-    StringBuilder result;
-    size_t charactersSeen = 0;
-    auto remaining = [&] () {
-        return result.length() >= length ? 0 : length - result.length();
-    };
-    for (unsigned i = 0; i < runs.size() && result.length() < length; i++) {
-        size_t runLength = this->runLength(i);
-        if (charactersSeen >= start) {
-            // The start points entirely within bounds of this run.
-            result.append(runs[i].text.left(remaining()));
-        } else if (charactersSeen + runLength > start) {
-            // start points somewhere in the middle of the current run, collect part of the text.
-            unsigned startInRun = start - charactersSeen;
-            TEXT_RUN_ASSERT_AND_LOG(startInRun < runLength, "substring");
-            if (startInRun >= runLength)
-                startInRun = runLength - 1;
-            result.append(runs[i].text.substring(startInRun, remaining()));
-        }
-        // If charactersSeen + runLength == start, the start points to the end of the run, and there is no text to gather.
-
-        charactersSeen += runLength;
-    }
-    return result.toString();
 }
 
 unsigned AXTextRuns::domOffset(unsigned renderedTextOffset) const
@@ -194,7 +178,7 @@ FloatRect AXTextRuns::localRect(unsigned start, unsigned end, FontOrientation or
                 // If the larger offset goes beyond this line, use the end of the current line to for computing this run's bounds.
                 unsigned endOffsetInLine = runIndexOfSmallerOffset == runIndexOfLargerOffset
                     ? largerOffset
-                    : !i ? run.text.length() : runLengthSumTo(i - 1) + run.text.length();
+                    : !i ? run.length() : runLengthSumTo(i - 1) + run.length();
 
                 if (endOffsetInLine - smallerOffset > 0)
                     measuredWidthInDirection = computeAdvance(run, offsetOfFirstCharacterInRun, smallerOffset, endOffsetInLine);
@@ -240,7 +224,7 @@ FloatRect AXTextRuns::localRect(unsigned start, unsigned end, FontOrientation or
                 // bbb
                 // cc|c
                 unsigned offsetOfFirstCharacterInRun = !i ? 0 : runLengthSumTo(i - 1);
-                measuredWidthInDirection = computeAdvance(run, offsetOfFirstCharacterInRun, offsetOfFirstCharacterInRun, offsetOfFirstCharacterInRun + run.text.length());
+                measuredWidthInDirection = computeAdvance(run, offsetOfFirstCharacterInRun, offsetOfFirstCharacterInRun, offsetOfFirstCharacterInRun + run.length());
                 if (measuredWidthInDirection) {
                     // Since we are measuring from the beginning of a run, x should be 0.
                     offsetFromOriginInDirection = 0;

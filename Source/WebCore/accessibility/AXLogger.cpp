@@ -1280,9 +1280,7 @@ TextStream& operator<<(TextStream& stream, AXObjectCache& axObjectCache)
 #if ENABLE(AX_THREAD_TEXT_APIS)
 static void streamTextRuns(TextStream& stream, const AXTextRuns& runs)
 {
-    stream.dumpProperty("textRuns"_s, makeString(interleave(runs.runs, [](auto& builder, auto& run) {
-        builder.append(run.lineIndex, ":|"_s, run.text, "|(len: "_s, run.text.length(), ')');
-    }, ", "_s)));
+    stream.dumpProperty("textRuns"_s, runs.debugDescription());
 }
 #endif // ENABLE(AX_THREAD_TEXT_APIS)
 
