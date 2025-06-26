@@ -39,8 +39,7 @@ CodeBlockHash::CodeBlockHash(std::span<const char, stringLength> string)
 {
 }
 
-CodeBlockHash::CodeBlockHash(const SourceCode& sourceCode, CodeSpecializationKind kind)
-    : m_hash(0)
+CodeBlockHash::CodeBlockHash(StringView codeBlockSourceCode, StringView entireSourceCode, CodeSpecializationKind kind)
 {
     SHA1 sha1;
 
@@ -52,21 +51,19 @@ CodeBlockHash::CodeBlockHash(const SourceCode& sourceCode, CodeSpecializationKin
     //    their length. But if they do collide, it's OK.
     // The only invariant here is that we should always produce the same hash
     // for the same source string. The algorithm below achieves that.
-    ASSERT(sourceCode.length() >= 0);
     constexpr unsigned maxSourceCodeLengthToHash = 500 * MB;
-    if (static_cast<unsigned>(sourceCode.length()) < maxSourceCodeLengthToHash)
-        sha1.addUTF8Bytes(sourceCode.view());
+    if (static_cast<unsigned>(codeBlockSourceCode.length()) < maxSourceCodeLengthToHash)
+        sha1.addUTF8Bytes(codeBlockSourceCode);
     else {
         // Just hash with the length and samples of the source string instead.
-        StringView str = sourceCode.provider()->source();
         unsigned index = 0;
         unsigned oldIndex = 0;
-        unsigned length = str.length();
+        unsigned length = entireSourceCode.length();
         unsigned step = (length >> 10) + 1;
 
         sha1.addBytes(std::span { std::bit_cast<uint8_t*>(&length), sizeof(length) });
         do {
-            UChar character = str[index];
+            UChar character = entireSourceCode[index];
             sha1.addBytes(std::span { std::bit_cast<uint8_t*>(&character), sizeof(character) });
             oldIndex = index;
             index += step;
@@ -83,6 +80,11 @@ CodeBlockHash::CodeBlockHash(const SourceCode& sourceCode, CodeSpecializationKin
     static_assert(static_cast<unsigned>(CodeForConstruct) == 1);
     m_hash ^= static_cast<unsigned>(kind);
     ASSERT(m_hash);
+}
+
+CodeBlockHash::CodeBlockHash(const SourceCode& sourceCode, CodeSpecializationKind kind)
+    : CodeBlockHash(sourceCode.view(), sourceCode.provider()->source(), kind)
+{
 }
 
 void CodeBlockHash::dump(PrintStream& out) const

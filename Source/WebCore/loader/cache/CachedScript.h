@@ -26,6 +26,7 @@
 #pragma once
 
 #include "CachedResource.h"
+#include <JavaScriptCore/CodeBlockHash.h>
 
 namespace WebCore {
 
@@ -41,6 +42,7 @@ public:
     enum class ShouldDecodeAsUTF8Only : bool { No, Yes };
     WEBCORE_EXPORT StringView script(ShouldDecodeAsUTF8Only = ShouldDecodeAsUTF8Only::No);
     WEBCORE_EXPORT unsigned scriptHash(ShouldDecodeAsUTF8Only = ShouldDecodeAsUTF8Only::No);
+    WEBCORE_EXPORT JSC::CodeBlockHash codeBlockHashConcurrently(int startOffset, int endOffset, JSC::CodeSpecializationKind, ShouldDecodeAsUTF8Only);
 
     bool requiresPrivacyProtections() const { return m_requiresPrivacyProtections; }
 
@@ -62,8 +64,10 @@ private:
     bool m_wasForceDecodedAsUTF8 { false };
     bool m_requiresPrivacyProtections { false };
 
-    enum DecodingState { NeverDecoded, DataAndDecodedStringHaveSameBytes, DataAndDecodedStringHaveDifferentBytes };
+    enum DecodingState : uint8_t { NeverDecoded, DataAndDecodedStringHaveSameBytes, DataAndDecodedStringHaveDifferentBytes };
     DecodingState m_decodingState { NeverDecoded };
+
+    mutable Lock m_lock;
 
     RefPtr<TextResourceDecoder> m_decoder;
 };

@@ -143,14 +143,20 @@ CodeBlockHash CodeBlock::hash() const
     // If we are reading source from the main thread, we cannot have conflict. But if we are reading the source from the compiler thread,
     // it is possible that the main thread is now replacing it with the cached new content. SourceProviderBufferGuard allows us to keep
     // the old one until this scope gets destroyed.
-    std::optional<SourceProviderBufferGuard> guard;
-    if (isCompilationThread() || Thread::mayBeGCThread())
-        guard.emplace(source.provider());
+    if (isCompilationThread() || Thread::mayBeGCThread()) {
+        if (!source.provider())
+            return { };
+        SourceProviderBufferGuard guard(source.provider());
+        auto startOffset = source.startOffset();
+        auto endOffset = source.endOffset();
+        auto hash = guard.provider()->codeBlockHashConcurrently(startOffset, endOffset, specializationKind());
+        WTF::storeStoreFence();
+        m_hash = hash;
+        return hash;
+    }
 
-    auto hash = CodeBlockHash(source, specializationKind());
-    WTF::storeStoreFence();
-    m_hash = hash;
-    return hash;
+    m_hash = CodeBlockHash(source, specializationKind());
+    return m_hash;
 }
 
 CString CodeBlock::sourceCodeForTools() const
