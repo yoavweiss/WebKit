@@ -8400,8 +8400,9 @@ void WebPageProxy::decidePolicyForResponseShared(Ref<WebProcessProxy>&& process,
         completionHandlerWrapper(policyAction);
     }, expectSafeBrowsing , ShouldExpectAppBoundDomainResult::No, ShouldWaitForInitialLinkDecorationFilteringData::No);
     if (expectSafeBrowsing == ShouldExpectSafeBrowsingResult::Yes && navigation) {
-        RunLoop::protectedMain()->dispatchAfter(MonotonicTime::now() - requestStart, [listener] () mutable {
+        RunLoop::protectedMain()->dispatchAfter(MonotonicTime::now() - requestStart, [listener, navigation] () mutable {
             listener->didReceiveSafeBrowsingResults({ });
+            navigation->setSafeBrowsingCheckTimedOut();
         });
     }
 
@@ -8409,6 +8410,28 @@ void WebPageProxy::decidePolicyForResponseShared(Ref<WebProcessProxy>&& process,
         m_policyClient->decidePolicyForResponse(*this, *frame, response, request, canShowMIMEType, WTFMove(listener));
     else
         m_navigationClient->decidePolicyForNavigationResponse(*this, WTFMove(navigationResponse), WTFMove(listener));
+}
+
+void WebPageProxy::showBrowsingWarning(RefPtr<WebKit::BrowsingWarning>&& safeBrowsingWarning)
+{
+    Ref protectedPageLoadState = pageLoadState();
+    auto transaction = protectedPageLoadState->transaction();
+    protectedPageLoadState->setTitleFromBrowsingWarning(transaction, safeBrowsingWarning->title());
+    protectedPageClient()->showBrowsingWarning(*safeBrowsingWarning, [protectedThis = Ref { *this }] (auto&& result) mutable {
+        Ref protectedPageLoadState = protectedThis->pageLoadState();
+        auto transaction = protectedPageLoadState->transaction();
+        protectedPageLoadState->setTitleFromBrowsingWarning(transaction, { });
+
+        switchOn(result, [protectedThis] (const URL& url) {
+            protectedThis->loadRequest(URL { url });
+        }, [protectedThis] (ContinueUnsafeLoad continueUnsafeLoad) {
+            if (continueUnsafeLoad == ContinueUnsafeLoad::No)
+                protectedThis->goBack();
+            else
+                protectedThis->protectedPageClient()->clearBrowsingWarning();
+        });
+    });
+    m_uiClient->didShowSafeBrowsingWarning();
 }
 
 void WebPageProxy::triggerBrowsingContextGroupSwitchForNavigation(WebCore::NavigationIdentifier navigationID, BrowsingContextGroupSwitchDecision browsingContextGroupSwitchDecision, const Site& responseSite, NetworkResourceLoadIdentifier existingNetworkResourceLoadIdentifierToResume, CompletionHandler<void(bool success)>&& completionHandler)

@@ -255,9 +255,11 @@ void WebPageProxy::beginSafeBrowsingCheck(const URL& url, RefPtr<API::Navigation
             for (SSBServiceLookupResult *lookupResult in [result serviceLookupResults]) {
                 if (lookupResult.isPhishing || lookupResult.isMalware || lookupResult.isUnwantedSoftware) {
                     navigation->setSafeBrowsingWarning(BrowsingWarning::create(url, forMainFrameNavigation, BrowsingWarning::SafeBrowsingWarningData { lookupResult }));
-                    return;
+                    break;
                 }
             }
+            if (!navigation->safeBrowsingCheckOngoing() && navigation->safeBrowsingWarning() && navigation->safeBrowsingCheckTimedOut())
+                frame->protectedPage()->showBrowsingWarning(navigation->safeBrowsingWarning());
         });
     });
 
