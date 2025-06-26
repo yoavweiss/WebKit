@@ -640,6 +640,7 @@ public:
 #if PLATFORM(IOS_FAMILY)
     void didRefreshDisplay();
 #endif
+    void suppressEDR(bool);
 
 private:
     enum class NeedsGlobalStaticInitialization : bool { No, Yes };
