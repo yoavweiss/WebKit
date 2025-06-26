@@ -294,7 +294,10 @@ void CtapAuthenticator::getAssertion()
         if (!m_batches.size())
             return continueGetAssertionAfterCheckAllowCredentials();
         m_currentBatch = 0;
-        Vector<uint8_t> cborCmd = encodeSilentGetAssertion(options.rpId, requestData().hash, m_batches[m_currentBatch], std::nullopt);
+        std::optional<PinParameters> pinParameters;
+        if (!m_pinAuth.isEmpty())
+            pinParameters = PinParameters { pin::kProtocolVersion, m_pinAuth };
+        Vector<uint8_t> cborCmd = encodeSilentGetAssertion(options.rpId, requestData().hash, m_batches[m_currentBatch], pinParameters);
         protectedDriver()->transact(WTFMove(cborCmd), [weakThis = WeakPtr { *this }](Vector<uint8_t>&& data) {
             ASSERT(RunLoop::isMain());
             if (!weakThis)
