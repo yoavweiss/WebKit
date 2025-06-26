@@ -54,6 +54,9 @@ imported/w3c/web-platform-tests/webcodecs [ Skip ]
 # Features not supported in WebKit1
 #//////////////////////////////////////////////////////////////////////////////////////////
 
+# Below test not suppored because it uses navigator.locks.query()
+fast/css/vertical-align-rem-on-root.html [ Skip ]
+
 fast/css-custom-paint [ Skip ]
 imported/w3c/web-platform-tests/css/css-properties-values-api/ [ Skip ]
 css-custom-properties-api [ Skip ]

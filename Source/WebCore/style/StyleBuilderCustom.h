@@ -265,14 +265,10 @@ inline void BuilderCustom::applyInheritVerticalAlign(BuilderState& builderState)
 
 inline void BuilderCustom::applyValueVerticalAlign(BuilderState& builderState, CSSValue& value)
 {
-    auto primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return;
-
-    if (primitiveValue->valueID() != CSSValueInvalid)
-        builderState.style().setVerticalAlign(fromCSSValueID<VerticalAlign>(primitiveValue->valueID()));
+    if (auto valueID = value.valueID(); valueID != CSSValueInvalid)
+        builderState.style().setVerticalAlign(fromCSSValueID<VerticalAlign>(valueID));
     else
-        builderState.style().setVerticalAlignLength(primitiveValue->convertToLength<FixedIntegerConversion | PercentConversion | CalculatedConversion>(builderState.cssToLengthConversionData()));
+        builderState.style().setVerticalAlignLength(BuilderConverter::convertLength(builderState, value));
 }
 
 inline void BuilderCustom::applyInheritTextIndent(BuilderState& builderState)
