@@ -214,8 +214,8 @@ protected:
     MonotonicTime m_lastDisplayTime;
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    float m_edrHeadroom { 1.0f };
-    bool m_hasPaintedClampedEDRHeadroom { false };
+    float m_maxPaintedEDRHeadroom { 1 };
+    float m_maxRequestedEDRHeadroom { 1 };
 #endif
 };
 
@@ -264,7 +264,7 @@ private:
     bool m_isOpaque;
     RemoteLayerBackingStore::Type m_type;
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    float m_edrHeadroom;
+    float m_maxRequestedEDRHeadroom;
 #endif
 };
 

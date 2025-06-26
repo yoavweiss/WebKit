@@ -103,7 +103,7 @@ header: "RemoteLayerBackingStore.h"
     bool m_isOpaque;
     WebKit::RemoteLayerBackingStore::Type m_type;
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    float m_edrHeadroom;
+    float m_maxRequestedEDRHeadroom;
 #endif
     std::optional<WebKit::ImageBufferBackendHandle> m_bufferHandle;
     std::optional<WebKit::RemoteImageBufferSetIdentifier> m_bufferSet;

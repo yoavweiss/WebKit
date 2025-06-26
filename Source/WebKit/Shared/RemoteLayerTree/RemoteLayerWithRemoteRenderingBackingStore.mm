@@ -171,7 +171,8 @@ void RemoteLayerWithRemoteRenderingBackingStore::dump(WTF::TextStream& ts) const
     ts.dumpProperty("cache identifiers"_s, m_bufferCacheIdentifiers);
     ts.dumpProperty("is opaque"_s, isOpaque());
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    ts.dumpProperty("headroom", m_edrHeadroom);
+    ts.dumpProperty("requested-headroom", m_maxRequestedEDRHeadroom);
+    ts.dumpProperty("painted-headroom", m_maxPaintedEDRHeadroom);
 #endif
 }
 

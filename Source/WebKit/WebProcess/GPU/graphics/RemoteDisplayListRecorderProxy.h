@@ -162,8 +162,8 @@ private:
 #if HAVE(SUPPORT_HDR_DISPLAY)
     void setMaxEDRHeadroom(std::optional<float> headroom) final { m_maxEDRHeadroom = headroom; }
     float maxPaintedEDRHeadroom() const final { return m_maxPaintedEDRHeadroom; }
-    bool hasPaintedClampedEDRHeadroom() const final { return m_hasPaintedClampedEDRHeadroom; }
-    void clearMaxPaintedEDRHeadroom() final { m_maxPaintedEDRHeadroom = 1; m_hasPaintedClampedEDRHeadroom = false; }
+    float maxRequestedEDRHeadroom() const final { return m_maxRequestedEDRHeadroom; }
+    void clearMaxEDRHeadrooms() final { m_maxPaintedEDRHeadroom = 1; m_maxRequestedEDRHeadroom = 1; }
 #endif
 
     const WebCore::RenderingMode m_renderingMode;
@@ -179,7 +179,7 @@ private:
 #if HAVE(SUPPORT_HDR_DISPLAY)
     std::optional<float> m_maxEDRHeadroom;
     float m_maxPaintedEDRHeadroom { 1 };
-    bool m_hasPaintedClampedEDRHeadroom { false };
+    float m_maxRequestedEDRHeadroom { 1 };
 #endif
     // Flag for pending draws. Start with true because we do not know what commands have been scheduled to the context.
     bool m_hasDrawn { true };

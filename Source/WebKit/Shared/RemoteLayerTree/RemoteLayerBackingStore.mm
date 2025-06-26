@@ -176,7 +176,7 @@ void RemoteLayerBackingStore::encode(IPC::Encoder& encoder) const
     encoder << m_parameters.isOpaque;
     encoder << m_parameters.type;
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    encoder << m_edrHeadroom;
+    encoder << m_maxRequestedEDRHeadroom;
 #endif
 
     // FIXME: For simplicity this should be moved to the end of display() once the buffer handles can be created once
@@ -227,7 +227,7 @@ void RemoteLayerBackingStoreProperties::dump(TextStream& ts) const
     ts.dumpProperty("is opaque"_s, isOpaque());
     ts.dumpProperty("has buffer handle"_s, !!bufferHandle());
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    ts.dumpProperty("headroom", m_edrHeadroom);
+    ts.dumpProperty("requested-headroom", m_maxRequestedEDRHeadroom);
 #endif
 }
 
@@ -262,15 +262,21 @@ void RemoteLayerBackingStore::setNeedsDisplay()
 {
     m_dirtyRegion.unite(layerBounds());
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    m_edrHeadroom = 1;
-    m_hasPaintedClampedEDRHeadroom = false;
+    m_maxPaintedEDRHeadroom = 1;
+    m_maxRequestedEDRHeadroom = 1;
 #endif
 }
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
 bool RemoteLayerBackingStore::setNeedsDisplayIfEDRHeadroomExceeds(float headroom)
 {
-    if (m_edrHeadroom > headroom || (m_edrHeadroom < headroom && m_hasPaintedClampedEDRHeadroom)) {
+    if (m_maxPaintedEDRHeadroom > headroom) {
+        setNeedsDisplay();
+        return true;
+    }
+
+    bool wasTonemapped = m_maxRequestedEDRHeadroom > m_maxPaintedEDRHeadroom;
+    if (m_maxPaintedEDRHeadroom < headroom && wasTonemapped) {
         setNeedsDisplay();
         return true;
     }
@@ -356,7 +362,8 @@ void RemoteLayerBackingStore::setDelegatedContents(const PlatformCALayerRemoteDe
     m_dirtyRegion = { };
     m_paintingRects.clear();
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    m_edrHeadroom = 0;
+    m_maxRequestedEDRHeadroom = 1;
+    m_maxPaintedEDRHeadroom = 1;
 #endif
 }
 
@@ -446,7 +453,7 @@ void RemoteLayerBackingStore::drawInContext(GraphicsContext& context)
     OptionSet<WebCore::GraphicsLayerPaintBehavior> paintBehavior;
 #if HAVE(SUPPORT_HDR_DISPLAY)
     paintBehavior.add(GraphicsLayerPaintBehavior::TonemapHDRToDisplayHeadroom);
-    context.clearMaxPaintedEDRHeadroom();
+    context.clearMaxEDRHeadrooms();
 #endif
     if (auto* context = m_layer->context(); context && context->nextRenderingUpdateRequiresSynchronousImageDecoding())
         paintBehavior.add(GraphicsLayerPaintBehavior::ForceSynchronousImageDecode);
@@ -494,8 +501,8 @@ void RemoteLayerBackingStore::drawInContext(GraphicsContext& context)
     m_dirtyRegion = { };
     m_paintingRects.clear();
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    m_edrHeadroom = std::max(m_edrHeadroom, context.maxPaintedEDRHeadroom());
-    m_hasPaintedClampedEDRHeadroom |= context.hasPaintedClampedEDRHeadroom();
+    m_maxPaintedEDRHeadroom = std::max(m_maxPaintedEDRHeadroom, context.maxPaintedEDRHeadroom());
+    m_maxRequestedEDRHeadroom = std::max(m_maxRequestedEDRHeadroom, context.maxRequestedEDRHeadroom());
 #endif
 
     layer->owner()->platformCALayerLayerDidDisplay(layer.ptr());
@@ -567,9 +574,21 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
     if (asyncContentsIdentifier && m_contentsRenderingResourceIdentifier && *asyncContentsIdentifier >= m_contentsRenderingResourceIdentifier)
         return;
 
+    bool isDelegatedDisplay = !m_frontBufferInfo;
+
     layer.contentsOpaque = m_isOpaque;
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    layer.contentsHeadroom = m_edrHeadroom;
+    layer.contentsHeadroom = m_maxRequestedEDRHeadroom;
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
+    if (layer.wantsExtendedDynamicRangeContent) {
+        // Painted contents have already been tonemapped, so disable it on the layer.
+        if (isDelegatedDisplay)
+            layer.toneMapMode = CAToneMapModeIfSupported;
+        else
+            layer.toneMapMode = CAToneMapModeNever;
+    } else
+        layer.toneMapMode = CAToneMapModeAutomatic;
+    ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
 
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
@@ -591,10 +610,8 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
     // m_bufferHandle can be unset here if IPC with the GPU process timed out.
     if (m_contentsBuffer)
         contents = m_contentsBuffer;
-    else if (m_bufferHandle) {
-        bool isDelegatedDisplay = !m_frontBufferInfo;
+    else if (m_bufferHandle)
         contents = layerContentsBufferFromBackendHandle(WTFMove(*m_bufferHandle), contentsType, isDelegatedDisplay);
-    }
 
     if (!contents) {
         [layer _web_clearContents];

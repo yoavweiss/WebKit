@@ -301,12 +301,11 @@ void RemoteDisplayListRecorderProxy::drawNativeImageInternal(NativeImage& image,
     if (headroom == Headroom::FromImage)
         headroom = image.headroom();
     if (m_maxEDRHeadroom) {
-        if (*m_maxEDRHeadroom < headroom) {
+        if (*m_maxEDRHeadroom < headroom)
             headroom = *m_maxEDRHeadroom;
-            m_hasPaintedClampedEDRHeadroom = true;
-        }
     }
     m_maxPaintedEDRHeadroom = std::max(m_maxPaintedEDRHeadroom, headroom.headroom);
+    m_maxRequestedEDRHeadroom = std::max(m_maxRequestedEDRHeadroom, image.headroom().headroom);
     ImagePaintingOptions clampedOptions(options, headroom);
 #endif
     appendStateChangeItemIfNecessary();

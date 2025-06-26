@@ -558,7 +558,6 @@ void RemoteLayerTreePropertyApplier::applyPropertiesToLayer(CALayer *layer, Remo
             ALLOW_DEPRECATED_DECLARATIONS_BEGIN
             [layer setWantsExtendedDynamicRangeContent:true];
             ALLOW_DEPRECATED_DECLARATIONS_END
-            [layer setToneMapMode:CAToneMapModeIfSupported];
         }
 #endif
     }

@@ -242,8 +242,8 @@ public:
 #if HAVE(SUPPORT_HDR_DISPLAY)
     virtual void setMaxEDRHeadroom(std::optional<float>) { }
     virtual float maxPaintedEDRHeadroom() const { return 1; }
-    virtual bool hasPaintedClampedEDRHeadroom() const { return false; }
-    virtual void clearMaxPaintedEDRHeadroom() { }
+    virtual float maxRequestedEDRHeadroom() const { return 1; }
+    virtual void clearMaxEDRHeadrooms() { }
 #endif
 
     // Images, Patterns, ControlParts, and Media
