@@ -17,6 +17,7 @@ List of files:
 /LayoutTests/imported/w3c/web-platform-tests/cookie-store/resources/always_changing_sw.sub.js
 /LayoutTests/imported/w3c/web-platform-tests/cookie-store/resources/cookie-test-helpers.js
 /LayoutTests/imported/w3c/web-platform-tests/cookie-store/resources/cookie_helper.py
+/LayoutTests/imported/w3c/web-platform-tests/cookie-store/resources/domain_parsing-child.sub.https.html
 /LayoutTests/imported/w3c/web-platform-tests/cookie-store/resources/empty_sw.js
 /LayoutTests/imported/w3c/web-platform-tests/cookie-store/resources/helper_iframe.sub.html
 /LayoutTests/imported/w3c/web-platform-tests/cookie-store/resources/helpers.js

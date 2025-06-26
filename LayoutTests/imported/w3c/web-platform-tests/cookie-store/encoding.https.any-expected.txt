@@ -1,4 +1,5 @@
-
-FAIL BOM not stripped from name promise_test: Unhandled rejection with value: object "TypeError: null is not an object (evaluating 'cookie.name')"
-FAIL BOM not stripped from value assert_equals: expected "﻿value" but got "ï»¿value"
-
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584

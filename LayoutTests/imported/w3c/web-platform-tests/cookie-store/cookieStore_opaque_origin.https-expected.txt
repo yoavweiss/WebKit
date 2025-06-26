@@ -1,4 +1,5 @@
-
-PASS cookieStore in non-sandboxed iframe should not throw
-PASS cookieStore in sandboxed iframe should throw SecurityError
-
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584

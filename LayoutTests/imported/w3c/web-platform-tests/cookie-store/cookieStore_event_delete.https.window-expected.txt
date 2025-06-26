@@ -1,4 +1,5 @@
-
-PASS cookieStore fires change event for cookie deleted by cookieStore.delete()
-FAIL cookieStore does not fire change events for non-existing expired cookies assert_equals: expected 2 but got 4
-
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
