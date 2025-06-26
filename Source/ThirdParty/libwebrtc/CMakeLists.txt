@@ -5,6 +5,7 @@ file(MAKE_DIRECTORY ${libwebrtc_DERIVED_SOURCES_DIR})
 
 enable_language(ASM)
 
+add_definitions(-DLIBYUV_DISABLE_SME)
 add_definitions(-DLIBYUV_DISABLE_SVE)
 
 if (NOT APPLE)
@@ -158,55 +159,6 @@ set(webrtc_SOURCES
     Source/third_party/crc32c/src/src/crc32c.cc
     Source/third_party/crc32c/src/src/crc32c_portable.cc
     Source/third_party/crc32c/src/src/crc32c_sse42.cc
-    Source/third_party/libyuv/source/compare.cc
-    Source/third_party/libyuv/source/compare_common.cc
-    Source/third_party/libyuv/source/compare_gcc.cc
-    Source/third_party/libyuv/source/compare_msa.cc
-    Source/third_party/libyuv/source/convert_argb.cc
-    Source/third_party/libyuv/source/convert.cc
-    Source/third_party/libyuv/source/convert_from_argb.cc
-    Source/third_party/libyuv/source/convert_from.cc
-    Source/third_party/libyuv/source/convert_jpeg.cc
-    Source/third_party/libyuv/source/convert_to_argb.cc
-    Source/third_party/libyuv/source/convert_to_i420.cc
-    Source/third_party/libyuv/source/cpu_id.cc
-    Source/third_party/libyuv/source/mjpeg_decoder.cc
-    Source/third_party/libyuv/source/mjpeg_validate.cc
-    Source/third_party/libyuv/source/planar_functions.cc
-    Source/third_party/libyuv/source/rotate_any.cc
-    Source/third_party/libyuv/source/rotate_argb.cc
-    Source/third_party/libyuv/source/rotate.cc
-    Source/third_party/libyuv/source/rotate_common.cc
-    Source/third_party/libyuv/source/rotate_gcc.cc
-    Source/third_party/libyuv/source/rotate_lsx.cc
-    Source/third_party/libyuv/source/rotate_msa.cc
-    Source/third_party/libyuv/source/rotate_win.cc
-    Source/third_party/libyuv/source/row_any.cc
-    Source/third_party/libyuv/source/row_common.cc
-    Source/third_party/libyuv/source/row_gcc.cc
-    Source/third_party/libyuv/source/row_lasx.cc
-    Source/third_party/libyuv/source/row_lsx.cc
-    Source/third_party/libyuv/source/row_msa.cc
-    Source/third_party/libyuv/source/row_win.cc
-    Source/third_party/libyuv/source/scale_any.cc
-    Source/third_party/libyuv/source/scale_argb.cc
-    Source/third_party/libyuv/source/scale.cc
-    Source/third_party/libyuv/source/scale_common.cc
-    Source/third_party/libyuv/source/scale_gcc.cc
-    Source/third_party/libyuv/source/scale_lsx.cc
-    Source/third_party/libyuv/source/scale_msa.cc
-    Source/third_party/libyuv/source/scale_rgb.cc
-    Source/third_party/libyuv/source/scale_rvv.cc
-    Source/third_party/libyuv/source/scale_uv.cc
-    Source/third_party/libyuv/source/scale_win.cc
-    Source/third_party/libyuv/source/video_common.cc
-    Source/third_party/libyuv/util/color.cc
-    Source/third_party/libyuv/util/compare.cc
-    Source/third_party/libyuv/util/i444tonv12_eg.cc
-    Source/third_party/libyuv/util/psnr.cc
-    Source/third_party/libyuv/util/psnr_main.cc
-    Source/third_party/libyuv/util/ssim.cc
-    Source/third_party/libyuv/util/yuvconvert.cc
     Source/third_party/pffft/src/pffft.c
     Source/third_party/rnnoise/src/rnn_vad_weights.cc
     Source/webrtc/api/adaptation/resource.cc
@@ -1395,6 +1347,73 @@ set(webrtc_SOURCES
     Source/webrtc/video/video_stream_encoder.cc
 
     $<TARGET_OBJECTS:libsrtp>
+)
+
+# Libyuv.
+list(APPEND webrtc_SOURCES
+    Source/third_party/libyuv/source/compare.cc
+    Source/third_party/libyuv/source/compare_common.cc
+    Source/third_party/libyuv/source/compare_gcc.cc
+    Source/third_party/libyuv/source/compare_msa.cc
+    Source/third_party/libyuv/source/compare_neon.cc
+    Source/third_party/libyuv/source/compare_neon64.cc
+    Source/third_party/libyuv/source/compare_win.cc
+    Source/third_party/libyuv/source/convert.cc
+    Source/third_party/libyuv/source/convert_argb.cc
+    Source/third_party/libyuv/source/convert_from.cc
+    Source/third_party/libyuv/source/convert_from_argb.cc
+    Source/third_party/libyuv/source/convert_jpeg.cc
+    Source/third_party/libyuv/source/convert_to_argb.cc
+    Source/third_party/libyuv/source/convert_to_i420.cc
+    Source/third_party/libyuv/source/cpu_id.cc
+    Source/third_party/libyuv/source/mjpeg_decoder.cc
+    Source/third_party/libyuv/source/mjpeg_validate.cc
+    Source/third_party/libyuv/source/planar_functions.cc
+    Source/third_party/libyuv/source/rotate.cc
+    Source/third_party/libyuv/source/rotate_any.cc
+    Source/third_party/libyuv/source/rotate_argb.cc
+    Source/third_party/libyuv/source/rotate_common.cc
+    Source/third_party/libyuv/source/rotate_gcc.cc
+    Source/third_party/libyuv/source/rotate_lsx.cc
+    Source/third_party/libyuv/source/rotate_msa.cc
+    Source/third_party/libyuv/source/rotate_neon.cc
+    Source/third_party/libyuv/source/rotate_neon64.cc
+    Source/third_party/libyuv/source/rotate_sme.cc
+    Source/third_party/libyuv/source/rotate_win.cc
+    Source/third_party/libyuv/source/row_any.cc
+    Source/third_party/libyuv/source/row_common.cc
+    Source/third_party/libyuv/source/row_gcc.cc
+    Source/third_party/libyuv/source/row_lasx.cc
+    Source/third_party/libyuv/source/row_lsx.cc
+    Source/third_party/libyuv/source/row_msa.cc
+    Source/third_party/libyuv/source/row_neon.cc
+    Source/third_party/libyuv/source/row_neon64.cc
+    Source/third_party/libyuv/source/row_rvv.cc
+    Source/third_party/libyuv/source/row_sme.cc
+    Source/third_party/libyuv/source/row_sve.cc
+    Source/third_party/libyuv/source/row_win.cc
+    Source/third_party/libyuv/source/scale.cc
+    Source/third_party/libyuv/source/scale_any.cc
+    Source/third_party/libyuv/source/scale_argb.cc
+    Source/third_party/libyuv/source/scale_common.cc
+    Source/third_party/libyuv/source/scale_gcc.cc
+    Source/third_party/libyuv/source/scale_lsx.cc
+    Source/third_party/libyuv/source/scale_msa.cc
+    Source/third_party/libyuv/source/scale_neon.cc
+    Source/third_party/libyuv/source/scale_neon64.cc
+    Source/third_party/libyuv/source/scale_rgb.cc
+    Source/third_party/libyuv/source/scale_rvv.cc
+    Source/third_party/libyuv/source/scale_sme.cc
+    Source/third_party/libyuv/source/scale_uv.cc
+    Source/third_party/libyuv/source/scale_win.cc
+    Source/third_party/libyuv/source/video_common.cc
+    Source/third_party/libyuv/util/color.cc
+    Source/third_party/libyuv/util/compare.cc
+    Source/third_party/libyuv/util/i444tonv12_eg.cc
+    Source/third_party/libyuv/util/psnr.cc
+    Source/third_party/libyuv/util/psnr_main.cc
+    Source/third_party/libyuv/util/ssim.cc
+    Source/third_party/libyuv/util/yuvconvert.cc
 )
 
 # Boringssl.
