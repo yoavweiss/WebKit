@@ -3254,8 +3254,13 @@ std::optional<LayoutUnit> RenderBlockFlow::firstLineBaseline() const
     if (!childrenInline())
         return RenderBlock::firstLineBaseline();
 
-    if (!hasLines())
+    if (!hasLines()) {
+        if (hasLineIfEmpty()) {
+            auto& fontMetrics = firstLineStyle().metricsOfPrimaryFont();
+            return { LayoutUnit(borderAndPaddingBefore() + fontMetrics.intAscent() + (firstLineStyle().computedLineHeight() - fontMetrics.intHeight()) / 2) };
+        }
         return { };
+    }
 
     if (auto* lineLayout = this->inlineLayout())
         return LayoutUnit { floorToInt(lineLayout->firstLinePhysicalBaseline()) };
@@ -3275,8 +3280,13 @@ std::optional<LayoutUnit> RenderBlockFlow::lastLineBaseline() const
     if (!childrenInline())
         return RenderBlock::lastLineBaseline();
 
-    if (!hasLines())
+    if (!hasLines()) {
+        if (hasLineIfEmpty()) {
+            auto& fontMetrics = style().metricsOfPrimaryFont();
+            return { LayoutUnit(borderAndPaddingBefore() + fontMetrics.intAscent() + (style().computedLineHeight() - fontMetrics.intHeight()) / 2) };
+        }
         return { };
+    }
 
     if (auto* lineLayout = inlineLayout())
         return LayoutUnit { floorToInt(lineLayout->lastLinePhysicalBaseline()) };
