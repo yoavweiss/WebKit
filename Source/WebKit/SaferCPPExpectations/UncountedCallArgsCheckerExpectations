@@ -7,9 +7,7 @@ Platform/IPC/Connection.cpp
 Platform/IPC/Connection.h
 Platform/IPC/StreamClientConnection.cpp
 Shared/RemoteLayerTree/RemoteLayerWithRemoteRenderingBackingStore.mm
-UIProcess/API/C/WKContext.cpp
 UIProcess/API/C/WKPage.cpp
-UIProcess/API/C/WKWebsiteDataStoreRef.cpp
 UIProcess/API/C/mac/WKPagePrivateMac.mm
 UIProcess/API/Cocoa/WKContentWorld.mm
 UIProcess/API/Cocoa/WKDownload.mm
