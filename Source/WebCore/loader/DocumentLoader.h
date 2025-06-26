@@ -547,6 +547,9 @@ public:
 
     WEBCORE_EXPORT void setNewResultingClientId(ScriptExecutionContextIdentifier);
 
+    void setPrefetchedMainResource(CachedRawResource&);
+    void setPrefetchedNetworkLoadMetrics(Box<NetworkLoadMetrics>&&);
+
 protected:
     WEBCORE_EXPORT DocumentLoader(ResourceRequest&&, SubstituteData&&);
 
@@ -584,6 +587,7 @@ private:
     WEBCORE_EXPORT void responseReceived(const CachedResource&, const ResourceResponse&, CompletionHandler<void()>&&) override;
     WEBCORE_EXPORT void dataReceived(CachedResource&, const SharedBuffer&) override;
     WEBCORE_EXPORT void notifyFinished(CachedResource&, const NetworkLoadMetrics&, LoadWillContinueInAnotherProcess) override;
+
 #if USE(QUICK_LOOK)
     WEBCORE_EXPORT void previewResponseReceived(const CachedResource&, const ResourceResponse&) override;
 #endif
@@ -650,6 +654,7 @@ private:
     const Ref<CachedResourceLoader> m_cachedResourceLoader;
 
     CachedResourceHandle<CachedRawResource> m_mainResource;
+    Box<NetworkLoadMetrics> m_prefetchedNetworkLoadMetrics;
     ResourceLoaderMap m_subresourceLoaders;
     ResourceLoaderMap m_multipartSubresourceLoaders;
     ResourceLoaderMap m_plugInStreamLoaders;

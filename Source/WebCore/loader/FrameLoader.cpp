@@ -42,6 +42,7 @@
 #include "BeforeUnloadEvent.h"
 #include "CachePolicy.h"
 #include "CachedPage.h"
+#include "CachedRawResource.h"
 #include "CachedResourceLoader.h"
 #include "Chrome.h"
 #include "ChromeClient.h"
@@ -59,6 +60,7 @@
 #include "DiagnosticLoggingResultType.h"
 #include "DocumentInlines.h"
 #include "DocumentLoader.h"
+#include "DocumentPrefetcher.h"
 #include "Editor.h"
 #include "EditorClient.h"
 #include "ElementInlines.h"
@@ -377,6 +379,7 @@ FrameLoader::FrameLoader(LocalFrame& frame, CompletionHandler<UniqueRef<LocalFra
     , m_state(FrameState::Provisional)
     , m_loadType(FrameLoadType::Standard)
     , m_checkTimer(*this, &FrameLoader::checkTimerFired)
+    , m_documentPrefetcher(DocumentPrefetcher::create(*this))
 {
 }
 
@@ -2367,7 +2370,7 @@ void FrameLoader::commitProvisionalLoad()
         // Check to see if we need to cache the page we are navigating away from into the back/forward cache.
         // We are doing this here because we know for sure that a new page is about to be loaded.
         BackForwardCache::singleton().addIfCacheable(*history().protectedCurrentItem(), frame->protectedPage().get());
-        
+
         WebCore::jettisonExpensiveObjectsOnTopLevelNavigation();
     }
 
@@ -4098,7 +4101,26 @@ void FrameLoader::continueLoadAfterNavigationPolicy(const ResourceRequest& reque
         diagnosticLoggingClient.logDiagnosticMessageWithResult(DiagnosticLoggingKeys::backForwardCacheKey(), DiagnosticLoggingKeys::retrievalKey(), DiagnosticLoggingResultFail, ShouldSample::Yes);
     }
 
-    CompletionHandler<void()> completionHandler = [this, protectedThis = Ref { *this }] () mutable {
+    RefPtr<DocumentPrefetcher> documentPrefetcher = m_documentPrefetcher;
+    CachedRawResource* prefetchedMainResource = documentPrefetcher->matchPrefetchedDocument(request.url());
+    if (prefetchedMainResource) {
+        RefPtr provisionalLoader = provisionalDocumentLoader();
+
+        prepareForLoadStart();
+
+        m_loadingFromCachedPage = false;
+        provisionalLoader->resetTiming();
+        provisionalLoader->timing().markStartTime();
+        provisionalLoader->setCommitted(true);
+        commitProvisionalLoad();
+        provisionalLoader->setPrefetchedMainResource(*prefetchedMainResource);
+
+        if (auto prefetchedMetrics = documentPrefetcher->takePrefetchedNetworkLoadMetrics(request.url()))
+            provisionalLoader->setPrefetchedNetworkLoadMetrics(WTFMove(prefetchedMetrics));
+        return;
+    }
+
+    CompletionHandler<void()> completionHandler = [this, request, protectedThis = Ref { *this }] () mutable {
         if (!m_provisionalDocumentLoader) {
             FRAMELOADER_RELEASE_LOG(ResourceLoading, "continueLoadAfterNavigationPolicy (completionHandler): Frame load canceled - no provisional document loader before prepareForLoadStart");
             return;
@@ -4653,7 +4675,6 @@ void FrameLoader::dispatchDidCommitLoad(std::optional<HasInsecureContent> initia
 {
     if (m_stateMachine.creatingInitialEmptyDocument())
         return;
-
     m_client->dispatchDidCommitLoad(initialHasInsecureContent, initialUsedLegacyTLS, initialWasPrivateRelayed);
 
     if (RefPtr page = m_frame->page(); page && m_frame->isMainFrame())
@@ -4868,6 +4889,57 @@ void FrameLoader::prefetchDNSIfNeeded(const URL& url)
 
     if (url.isValid() && !url.isEmpty() && url.protocolIsInHTTPFamily())
         client().prefetchDNS(url.host().toString());
+}
+
+void FrameLoader::prefetch(const URL& url, const Vector<String>& tags, const String& referrerPolicyString, bool lowPriority)
+{
+    RefPtr<Document> document = m_frame->document();
+    if (!document)
+        return;
+
+    Ref documentOrigin = document->securityOrigin();
+    Ref urlOrigin = SecurityOrigin::create(url);
+    if (!documentOrigin->isSameOriginAs(urlOrigin)) {
+        document->addConsoleMessage(MessageSource::Security, MessageLevel::Error,
+            makeString("Prefetch request denied: not same origin as document"_s));
+        return;
+    }
+
+    if (!SecurityOrigin::isSecure(url)) {
+        document->addConsoleMessage(MessageSource::Security, MessageLevel::Error,
+            makeString("Prefetch request denied: URL must be secure (HTTPS)"_s));
+        return;
+    }
+
+    // This is not specified! Implemented to match WPTs.
+    if (url.hasFragmentIdentifier() && equalIgnoringFragmentIdentifier(url, document->url()))
+        return;
+
+    String urlString = url.string();
+    ResourceRequest request { WTFMove(urlString) };
+    request.setPriority(ResourceLoadPriority::VeryLow);
+
+    if (!tags.isEmpty()) {
+        StringBuilder builder;
+        for (size_t i = 0; i < tags.size(); ++i) {
+            builder.append(tags[i]);
+            if (i < tags.size() - 1)
+                builder.append(", "_s);
+        }
+        request.setHTTPHeaderField(HTTPHeaderName::SecSpeculationTags, builder.toString());
+    }
+    request.setHTTPHeaderField(HTTPHeaderName::SecPurpose, "prefetch"_s);
+
+    ReferrerPolicy policy = ReferrerPolicy::Default;
+    if (!referrerPolicyString.isEmpty())
+        policy = parseReferrerPolicy(referrerPolicyString, ReferrerPolicySource::SpeculationRules).value_or(ReferrerPolicy::Default);
+
+    String referrer = SecurityPolicy::generateReferrerHeader(policy, url, document->url(), OriginAccessPatternsForWebProcess::singleton());
+    if (!referrer.isEmpty())
+        request.setHTTPReferrer(WTFMove(referrer));
+
+    RefPtr<DocumentPrefetcher> documentPrefetcher = m_documentPrefetcher;
+    documentPrefetcher->prefetch(WTFMove(request), lowPriority);
 }
 
 } // namespace WebCore

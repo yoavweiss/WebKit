@@ -282,6 +282,7 @@
 #include "ShadowRoot.h"
 #include "SleepDisabler.h"
 #include "SocketProvider.h"
+#include "SpeculationRulesMatcher.h"
 #include "SpeechRecognition.h"
 #include "StartViewTransitionOptions.h"
 #include "StaticNodeList.h"
@@ -342,6 +343,7 @@
 #include <JavaScriptCore/JSGlobalObject.h>
 #include <JavaScriptCore/RegularExpression.h>
 #include <JavaScriptCore/ScriptCallStack.h>
+#include <JavaScriptCore/SpeculationRules.h>
 #include <JavaScriptCore/VM.h>
 #include <algorithm>
 #include <ctime>
@@ -2915,6 +2917,10 @@ void Document::resolveStyle(ResolveStyleType type)
 
     if (CheckedPtr styleOriginatedTimelinesController = this->styleOriginatedTimelinesController())
         styleOriginatedTimelinesController->documentDidResolveStyle();
+
+    // Re-evaluate speculation rules after style changes to ensure CSS selector
+    // matching works with updated styles.
+    considerSpeculationRules();
 }
 
 void Document::updateTextRenderer(Text& text, unsigned offsetOfReplacedText, unsigned lengthOfReplacedText)
@@ -4655,6 +4661,26 @@ void Document::updateBaseURL()
         m_baseURL = URL();
 
     invalidateCachedCSSParserContext();
+    considerSpeculationRules();
+}
+
+void Document::considerSpeculationRules()
+{
+    if (!frame() || frame()->documentIsBeingReplaced() || !frame()->window() || !isHTMLDocument())
+        return;
+    auto anchors = links();
+    auto iterator = anchors->createIterator(this);
+    for (RefPtr<Node> element = iterator.next(); element; element = iterator.next()) {
+        if (RefPtr<HTMLAnchorElement> anchorElement = dynamicDowncast<HTMLAnchorElement>(element.get())) {
+            if (auto prefetchRule = SpeculationRulesMatcher::hasMatchingRule(*this, *anchorElement))
+                anchorElement->setShouldBePrefetched(prefetchRule->conservative, Vector<String>(prefetchRule->tags), String(prefetchRule->referrerPolicy));
+        }
+    }
+    // Prefetch all the URL lists that need to be prefetched immediately
+    for (const auto& rule : globalObject()->speculationRules().prefetchRules()) {
+        for (const auto& url : rule.urls)
+            frame()->loader().prefetch(url, Vector<String>(rule.tags), String(rule.referrerPolicy), true);
+    }
 }
 
 void Document::setBaseURLOverride(const URL& url)
@@ -11737,6 +11763,17 @@ double Document::lookupCSSRandomBaseValue(const CSSCalc::RandomCachingKey& key) 
     if (!m_randomCachingKeyMap)
         m_randomCachingKeyMap = CSSCalc::RandomCachingKeyMap::create();
     return m_randomCachingKeyMap->lookupCSSRandomBaseValue(key);
+}
+
+void Document::prefetch(const URL& url, const Vector<String>& tags, const String& referrerPolicy, bool lowPriority)
+{
+    if (!m_cachedResourceLoader)
+        return;
+
+    if (!frame())
+        return;
+
+    frame()->loader().prefetch(url, tags, referrerPolicy, lowPriority);
 }
 
 } // namespace WebCore
