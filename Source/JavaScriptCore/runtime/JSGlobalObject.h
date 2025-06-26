@@ -357,7 +357,9 @@ public:
     struct FunctionStructures {
         WriteBarrierStructureID arrowFunctionStructure;
         WriteBarrierStructureID sloppyFunctionStructure;
+        WriteBarrierStructureID sloppyMethodStructure;
         WriteBarrierStructureID strictFunctionStructure;
+        WriteBarrierStructureID strictMethodStructure;
     };
     FunctionStructures m_builtinFunctions;
     FunctionStructures m_ordinaryFunctions;
@@ -866,6 +868,18 @@ public:
         if (isBuiltin)
             return m_builtinFunctions.strictFunctionStructure.get();
         return m_ordinaryFunctions.strictFunctionStructure.get();
+    }
+    Structure* sloppyMethodStructure(bool isBuiltin) const
+    {
+        if (isBuiltin)
+            return m_builtinFunctions.sloppyMethodStructure.get();
+        return m_ordinaryFunctions.sloppyMethodStructure.get();
+    }
+    Structure* strictMethodStructure(bool isBuiltin) const
+    {
+        if (isBuiltin)
+            return m_builtinFunctions.strictMethodStructure.get();
+        return m_ordinaryFunctions.strictMethodStructure.get();
     }
 
     Structure* boundFunctionStructure() const { return m_boundFunctionStructure.get(); }
