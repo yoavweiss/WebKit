@@ -200,6 +200,7 @@ class Color;
 - (_WKActivatedElementInfo *)activatedElementAtPosition:(CGPoint)position;
 - (void)evaluateJavaScriptAndWaitForInputSessionToChange:(NSString *)script;
 - (WKContentView *)wkContentView;
+- (void)setZoomScaleSimulatingUserTriggeredZoom:(CGFloat)zoomScale;
 @end
 #endif
 

@@ -82,6 +82,13 @@ static NSString *overrideBundleIdentifier(id, SEL)
 - (void)_lookup:(id)sender;
 @end
 
+#if PLATFORM(IOS_FAMILY)
+@interface WKWebView (UIScrollViewDelegate)
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view;
+@end
+#endif
+
 @implementation WKWebView (TestWebKitAPI)
 
 - (void)loadTestPageNamed:(NSString *)pageName
@@ -1362,6 +1369,21 @@ static WKContentView *recursiveFindWKContentView(UIView *view)
 - (WKContentView *)wkContentView
 {
     return recursiveFindWKContentView(self);
+}
+
+- (void)setZoomScaleSimulatingUserTriggeredZoom:(CGFloat)zoomScale
+{
+    InstanceMethodSwizzler gestureSwizzler {
+        [UIPinchGestureRecognizer class],
+        @selector(state),
+        imp_implementationWithBlock(^UIGestureRecognizerState {
+            return UIGestureRecognizerStateBegan;
+        })
+    };
+
+    RetainPtr scrollView = [self scrollView];
+    [self scrollViewWillBeginZooming:scrollView.get() withView:[self viewForZoomingInScrollView:scrollView.get()]];
+    [scrollView setZoomScale:zoomScale];
 }
 
 @end
