@@ -7920,5 +7920,3 @@ fast/snapshot [ Skip ]
 imported/w3c/web-platform-tests/focus/focus-contenteditable-element-in-iframe-scroll-into-view.html [ Skip ]
 
 webkit.org/b/294873 compositing/hdr/iframe-with-hdr-image.html [ Skip ]
-
-webkit.org/b/294882 http/tests/security/cached-svg-image-with-css-cross-domain.html [ Failure ]
