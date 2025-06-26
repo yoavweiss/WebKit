@@ -5058,13 +5058,19 @@ LayoutRect RenderBox::layoutOverflowRectForPropagation(const WritingMode parentW
         // to it, and then convert it back.
         // It ensures that the overflow rect tracks the paint geometry and not the inflow layout position.
         flipForWritingMode(rect);
-        
-        if (isTransformed && hasLayer())
-            rect = layer()->currentTransform().mapRect(rect);
 
+        LayoutSize containerOffset;
         if (isInFlowPositioned())
+            containerOffset = offsetForInFlowPosition();
+
+        auto container = this->container();
+        if (shouldUseTransformFromContainer(container)) {
+            TransformationMatrix transform;
+            getTransformFromContainer(containerOffset, transform);
+            rect = transform.mapRect(rect);
+        } else
             rect.move(offsetForInFlowPosition());
-        
+
         // Now we need to flip back.
         flipForWritingMode(rect);
     }
