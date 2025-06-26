@@ -2815,10 +2815,6 @@ Color WebPageProxy::underlayColor() const
 
 void WebPageProxy::setShouldSuppressHDR(bool shouldSuppressHDR)
 {
-#if PLATFORM(IOS_FAMILY)
-    Ref processPool = m_configuration->processPool();
-    processPool->suppressEDR(shouldSuppressHDR);
-#endif
     if (hasRunningProcess())
         send(Messages::WebPage::SetShouldSuppressHDR(shouldSuppressHDR));
 }
