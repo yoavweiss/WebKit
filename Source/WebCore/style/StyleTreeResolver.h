@@ -199,14 +199,14 @@ private:
         OptionSet<Change> changes;
         DescendantsToResolve descendantsToResolve { DescendantsToResolve::None };
     };
-    UncheckedKeyHashMap<Ref<Element>, DeferredDescendantResolutionState> m_deferredDescendantResolutionStates;
+    HashMap<Ref<Element>, DeferredDescendantResolutionState> m_deferredDescendantResolutionStates;
     bool m_needsInterleavedLayout { false };
     bool m_didFirstInterleavedLayout { false };
 
     struct QueryContainerState {
         bool invalidated { false };
     };
-    UncheckedKeyHashMap<Ref<Element>, QueryContainerState> m_queryContainerStates;
+    HashMap<Ref<Element>, QueryContainerState> m_queryContainerStates;
 
     // This state gets passes to the style builder and holds state for a single tree resolution, including over any interleaving.
     TreeResolutionState m_treeResolutionState;

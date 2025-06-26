@@ -93,7 +93,7 @@ public:
     const Property& customProperty(const AtomString&) const;
 
     std::span<const CSSPropertyID> logicalGroupPropertyIDs() const;
-    const UncheckedKeyHashMap<AtomString, Property>& customProperties() const { return m_customProperties; }
+    const HashMap<AtomString, Property>& customProperties() const { return m_customProperties; }
 
     const HashSet<AnimatableCSSProperty> overriddenAnimatedProperties() const;
 
@@ -159,7 +159,7 @@ private:
     CSSPropertyID m_lowestSeenLogicalGroupProperty { lastLogicalGroupProperty };
     CSSPropertyID m_highestSeenLogicalGroupProperty { firstLogicalGroupProperty };
 
-    UncheckedKeyHashMap<AtomString, Property> m_customProperties;
+    HashMap<AtomString, Property> m_customProperties;
 };
 
 inline bool PropertyCascade::hasNormalProperty(CSSPropertyID id) const

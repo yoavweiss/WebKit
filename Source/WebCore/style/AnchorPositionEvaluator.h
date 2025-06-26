@@ -66,7 +66,7 @@ using AnchorElements = HashMap<ResolvedScopedName, WeakPtr<Element, WeakPtrImplW
 
 struct AnchorPositionedState {
     AnchorElements anchorElements;
-    UncheckedKeyHashSet<ResolvedScopedName> anchorNames;
+    HashSet<ResolvedScopedName> anchorNames;
     AnchorPositionResolutionStage stage;
 
     WTF_MAKE_STRUCT_TZONE_ALLOCATED(AnchorPositionedState);
@@ -130,7 +130,7 @@ public:
     static CheckedPtr<RenderBoxModelObject> defaultAnchorForBox(const RenderBox&);
 
 private:
-    static AnchorElements findAnchorsForAnchorPositionedElement(const Element&, const UncheckedKeyHashSet<ResolvedScopedName>& anchorNames, const AnchorsForAnchorName&);
+    static AnchorElements findAnchorsForAnchorPositionedElement(const Element&, const HashSet<ResolvedScopedName>& anchorNames, const AnchorsForAnchorName&);
     static RefPtr<const Element> anchorPositionedElementOrPseudoElement(BuilderState&);
     static AnchorPositionedKey keyForElementOrPseudoElement(const Element&);
 };
