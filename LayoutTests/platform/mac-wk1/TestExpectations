@@ -3137,3 +3137,5 @@ http/tests/websocket/tests/hybi/websocket-allowed-setting-cookie-as-third-party-
 webkit.org/b/294301 http/tests/media/hls/hls-audio-tracks-language.html [ Pass Failure ]
 
 http/tests/lockdown-mode [ Skip ]
+
+imported/w3c/web-platform-tests/css/css-transforms/individual-transform/individual-transform-3.html [ ImageOnlyFailure ]

@@ -1072,6 +1072,8 @@ webkit.org/b/234819 imported/w3c/web-platform-tests/css/css-transforms/animation
 
 webkit.org/b/233478 imported/w3c/web-platform-tests/css/css-transforms/backface-visibility-hidden-child-will-change-transform.html [ ImageOnlyFailure ]
 
+imported/w3c/web-platform-tests/css/css-transforms/css-scale-of-clip-path.html [ ImageOnlyFailure ]
+
 webkit.org/b/230277 imported/w3c/web-platform-tests/css/css-transforms/composited-under-rotateY-180deg-clip.html
 webkit.org/b/230277 imported/w3c/web-platform-tests/css/css-transforms/composited-under-rotateY-180deg.html
 webkit.org/b/230277 imported/w3c/web-platform-tests/css/css-transforms/perspective-split-by-zero-w.html [ Pass ImageOnlyFailure ]
