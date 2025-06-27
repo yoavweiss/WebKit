@@ -90,12 +90,6 @@
 - (void)_handleWebPushAction:(_WKWebPushAction *)webPushAction;
 @end
 
-#if ENABLE(SCREEN_TIME)
-@interface STWebHistory (Staging_140439004)
-- (void)fetchAllHistoryWithCompletionHandler:(void (^)(NSSet<NSURL *> *urls, NSError *error))completionHandler;
-@end
-#endif
-
 class WebsiteDataStoreClient final : public WebKit::WebsiteDataStoreClient {
     WTF_MAKE_TZONE_ALLOCATED_INLINE(WebsiteDataStoreClient);
 public:

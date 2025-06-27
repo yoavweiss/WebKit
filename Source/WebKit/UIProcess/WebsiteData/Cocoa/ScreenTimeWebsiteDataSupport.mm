@@ -38,17 +38,10 @@
 
 #import <pal/cocoa/ScreenTimeSoftLink.h>
 
-@interface STWebHistory (Staging_140439004)
-- (void)fetchAllHistoryWithCompletionHandler:(void (^)(NSSet<NSURL *> *urls, NSError *error))completionHandler;
-@end
-
 namespace WebKit::ScreenTimeWebsiteDataSupport {
 
 void getScreenTimeURLs(std::optional<WTF::UUID> identifier, CompletionHandler<void(HashSet<URL>&&)>&& completionHandler)
 {
-    if (![PAL::getSTWebHistoryClass() instancesRespondToSelector:@selector(fetchAllHistoryWithCompletionHandler:)])
-        return completionHandler({ });
-
     RetainPtr<NSString> profileIdentifier;
     if (identifier)
         profileIdentifier = identifier->toString().createNSString();

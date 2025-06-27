@@ -100,10 +100,6 @@ static void testSuppressUsageRecordingWithDataStore(RetainPtr<WKWebsiteDataStore
 @property (nonatomic, copy) NSString *profileIdentifier;
 @end
 
-@interface STWebHistory (Staging_140439004)
-- (void)fetchAllHistoryWithCompletionHandler:(void (^)(NSSet<NSURL *> *urls, NSError *error))completionHandler;
-@end
-
 @interface WKWebView (Internal)
 - (STWebpageController *)_screenTimeWebpageController;
 #if PLATFORM(MAC)
@@ -578,9 +574,6 @@ TEST(ScreenTime, WebContentIsNotClickableBehindBlurredBlockingView)
 
 TEST(ScreenTime, FetchData)
 {
-    if (![PAL::getSTWebHistoryClass() instancesRespondToSelector:@selector(fetchAllHistoryWithCompletionHandler:)])
-        return;
-
     __block RetainPtr<NSSet<NSURL *>> urls;
     InstanceMethodSwizzler swizzler {
         PAL::getSTWebHistoryClass(),
@@ -612,9 +605,6 @@ TEST(ScreenTime, FetchData)
 
 TEST(ScreenTime, RemoveDataWithTimeInterval)
 {
-    if (![PAL::getSTWebHistoryClass() instancesRespondToSelector:@selector(deleteHistoryDuringInterval:)])
-        return;
-
     __block bool removedHistory = false;
     InstanceMethodSwizzler swizzler {
         PAL::getSTWebHistoryClass(),
@@ -648,9 +638,6 @@ TEST(ScreenTime, RemoveDataWithTimeInterval)
 
 TEST(ScreenTime, RemoveData)
 {
-    if (![PAL::getSTWebHistoryClass() instancesRespondToSelector:@selector(fetchAllHistoryWithCompletionHandler:)])
-        return;
-
     __block RetainPtr<NSSet<NSURL *>> fetchedURLs = adoptNS([[NSSet alloc] initWithArray:@[
         adoptNS([[NSURL alloc] initWithString:@"https://www.github.com/WebKit/WebKit"]).get(),
         adoptNS([[NSURL alloc] initWithString:@"https://www.github.com/APPLE"]).get(),
