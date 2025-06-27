@@ -115,7 +115,7 @@ typedef NSString * AVVideoRange NS_TYPED_ENUM;
 - (void)requestNotificationOfMediaDataChangeAsSoonAsPossible;
 @end
 
-#if ENABLE(WIRELESS_PLAYBACK_TARGET) || PLATFORM(IOS_FAMILY)
+#if ENABLE(WIRELESS_PLAYBACK_TARGET)
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -166,7 +166,7 @@ typedef NS_ENUM(NSInteger, AVPlayerExternalPlaybackType) {
 
 NS_ASSUME_NONNULL_END
 
-#endif // ENABLE(WIRELESS_PLAYBACK_TARGET) || PLATFORM(IOS_FAMILY)
+#endif // ENABLE(WIRELESS_PLAYBACK_TARGET)
 
 #import <AVFoundation/AVAssetCache.h>
 NS_ASSUME_NONNULL_BEGIN
