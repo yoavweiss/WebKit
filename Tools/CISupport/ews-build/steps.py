@@ -2925,7 +2925,7 @@ class Trigger(trigger.Trigger):
             property_names += [
                 'github.base.ref', 'github.head.ref', 'github.head.sha',
                 'github.head.repo.full_name', 'github.number', 'github.title',
-                'repository', 'project', 'owners', 'classification',
+                'repository', 'project', 'owners', 'classification', 'identifier',
             ]
         if self.triggers:
             property_names.append('triggers')
