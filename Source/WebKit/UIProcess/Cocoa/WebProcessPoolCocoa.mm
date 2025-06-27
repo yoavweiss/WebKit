@@ -92,6 +92,7 @@
 #import <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
 #import <wtf/spi/cocoa/NSObjCRuntimeSPI.h>
+#import <wtf/spi/cocoa/XTSPI.h>
 #import <wtf/spi/darwin/SandboxSPI.h>
 #import <wtf/spi/darwin/dyldSPI.h>
 #import <wtf/text/TextStream.h>
@@ -187,6 +188,11 @@ SOFT_LINK(BackBoardServices, BKSDisplayBrightnessGetCurrent, float, (), ());
 SOFT_LINK_LIBRARY_OPTIONAL(libAccessibility)
 SOFT_LINK_OPTIONAL(libAccessibility, _AXSReduceMotionAutoplayAnimatedImagesEnabled, Boolean, (), ());
 SOFT_LINK_CONSTANT_MAY_FAIL(libAccessibility, kAXSReduceMotionAutoplayAnimatedImagesChangedNotification, CFStringRef)
+#endif
+
+#if PLATFORM(MAC)
+SOFT_LINK_LIBRARY_WITH_PATH(libFontRegistry, "/System/Library/Frameworks/ApplicationServices.framework/Frameworks/ATS.framework/Versions/A/Resources/")
+SOFT_LINK(libFontRegistry, XTCopyPropertiesForAllFonts, CFArrayRef, (CFSetRef propertyKeys, XTScope scope), (propertyKeys, scope));
 #endif
 
 #define WEBPROCESSPOOL_RELEASE_LOG(channel, fmt, ...) RELEASE_LOG(channel, "%p - WebProcessPool::" fmt, this, ##__VA_ARGS__)
@@ -1482,6 +1488,7 @@ String WebProcessPool::platformResourceMonitorRuleListSourceForTesting()
 }
 #endif
 
+#if PLATFORM(MAC)
 static Vector<SandboxExtension::Handle> sandboxExtensionsForUserInstalledFonts(const Vector<URL>& fontPathURLs, std::optional<audit_token_t> auditToken)
 {
     Vector<SandboxExtension::Handle> handles;
@@ -1497,72 +1504,62 @@ static Vector<SandboxExtension::Handle> sandboxExtensionsForUserInstalledFonts(c
     return handles;
 }
 
-static void addUserInstalledFontURLs(NSString *path, HashMap<String, URL>& fontURLs, Vector<URL>& sandboxExtensionURLs)
-{
-    bool didAddFontToMap = false;
-
-    RetainPtr enumerator = [NSFileManager.defaultManager enumeratorAtPath:path];
-
-    for (NSString *font in enumerator.get()) {
-        RetainPtr nsFontURL = [NSURL fileURLWithPath:[path stringByAppendingPathComponent:font]];
-        RetainPtr utType = [UTType typeWithFilenameExtension:nsFontURL.get().pathExtension];
-        if ([utType isSubtypeOfType:UTTypeFont]) {
-            URL fontURL(nsFontURL.get());
-            RetainPtr fontDescriptors = adoptCF(CTFontManagerCreateFontDescriptorsFromURL(bridge_cast(nsFontURL.get())));
-            if (!fontDescriptors)
-                continue;
-            for (CFIndex i = 0; i < CFArrayGetCount(fontDescriptors.get()); ++i) {
-                RetainPtr fontDescriptor = checked_cf_cast<CTFontDescriptorRef>(CFArrayGetValueAtIndex(fontDescriptors.get(), i));
-                if (!fontDescriptor)
-                    continue;
-                RetainPtr fontNameAttribute = adoptCF(checked_cf_cast<CFStringRef>(CTFontDescriptorCopyAttribute(fontDescriptor.get(), kCTFontNameAttribute)));
-                RetainPtr fontDisplayNameAttribute = adoptCF(checked_cf_cast<CFStringRef>(CTFontDescriptorCopyAttribute(fontDescriptor.get(), kCTFontDisplayNameAttribute)));
-                RetainPtr fontFamilyNameAttribute = adoptCF(checked_cf_cast<CFStringRef>(CTFontDescriptorCopyAttribute(fontDescriptor.get(), kCTFontFamilyNameAttribute)));
-                String fontName(fontNameAttribute.get());
-                String fontDisplayName(fontDisplayNameAttribute.get());
-                String fontFamilyName(fontFamilyNameAttribute.get());
-                auto lowerCaseFontName = fontName.convertToASCIILowercase();
-                if (!lowerCaseFontName.isEmpty()) {
-                    fontURLs.add(lowerCaseFontName, fontURL);
-                    didAddFontToMap = true;
-                }
-                auto lowerCaseFontFamilyName = fontFamilyName.convertToASCIILowercase();
-                if (!lowerCaseFontFamilyName.isEmpty()) {
-                    fontURLs.add(lowerCaseFontFamilyName, fontURL);
-                    didAddFontToMap = true;
-                }
-                RELEASE_LOG(Process, "Registering font name %{private}s, display name %{private}s, family name %{private}s,  with URL %{private}s", fontName.utf8().data(), fontDisplayName.utf8().data(), fontFamilyName.utf8().data(), fontURL.string().utf8().data());
-            }
-        }
-    }
-
-    if (didAddFontToMap) {
-        RetainPtr pathURL = adoptNS([[NSURL alloc] initFileURLWithPath:path isDirectory:YES]);
-        sandboxExtensionURLs.append(URL(pathURL.get()));
-    }
-}
-
 void WebProcessPool::registerUserInstalledFonts(WebProcessProxy& process)
 {
     if (m_userInstalledFontURLs) {
-        process.send(Messages::WebProcess::RegisterFontMap(*m_userInstalledFontURLs, sandboxExtensionsForUserInstalledFonts(*m_sandboxExtensionURLs, process.auditToken())), 0);
+        process.send(Messages::WebProcess::RegisterFontMap(*m_userInstalledFontURLs, *m_userInstalledFontFamilyMap,  sandboxExtensionsForUserInstalledFonts(*m_sandboxExtensionURLs, process.auditToken())), 0);
         return;
     }
 
-    RetainPtr userInstalledFontsPath = [NSHomeDirectory() stringByAppendingPathComponent:@"Library/Fonts"];
-
     HashMap<String, URL> fontURLs;
+    HashMap<String, Vector<String>> fontFamilyMap;
     Vector<URL> sandboxExtensionURLs;
-    addUserInstalledFontURLs(userInstalledFontsPath.get(), fontURLs, sandboxExtensionURLs);
-    addUserInstalledFontURLs(@"/Library/Fonts", fontURLs, sandboxExtensionURLs);
-    addUserInstalledFontURLs(@"/System/Library/AssetsV2/com_apple_MobileAsset_Font7", fontURLs, sandboxExtensionURLs);
 
-    process.send(Messages::WebProcess::RegisterFontMap(fontURLs, sandboxExtensionsForUserInstalledFonts(sandboxExtensionURLs, process.auditToken())), 0);
+    RELEASE_LOG(Process, "WebProcessPool::registerUserInstalledFonts: start registering fonts");
+    RetainPtr requestedProperties = [NSSet setWithArray:@[@"NSFontNameAttribute", @"NSFontFamilyAttribute", @"NSCTFontFileURLAttribute", @"NSCTFontUserInstalledAttribute"]];
+    RetainPtr fontProperties = XTCopyPropertiesForAllFonts(bridge_cast(requestedProperties.get()), kXTScopeAll);
+    if (!fontProperties)
+        return;
+    for (CFIndex i = 0; i < CFArrayGetCount(fontProperties.get()); ++i) {
+        RetainPtr fontDictionary = checked_cf_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(fontProperties.get(), i));
+        if (!fontDictionary)
+            continue;
+        RetainPtr cfFontURL = checked_cf_cast<CFURLRef>(CFDictionaryGetValue(fontDictionary.get(), CFSTR("NSCTFontFileURLAttribute")));
+        URL fontURL(cfFontURL.get());
+        if (fontURL.string().startsWith("file:///System/Library/Fonts/"_s))
+            continue;
+        if (fontURL.string().startsWith("file:///System/Library/PrivateFrameworks/"_s))
+            continue;
+        RetainPtr fontNameAttribute = checked_cf_cast<CFStringRef>(CFDictionaryGetValue(fontDictionary.get(), CFSTR("NSFontNameAttribute")));
+        RetainPtr fontFamilyNameAttribute = checked_cf_cast<CFStringRef>(CFDictionaryGetValue(fontDictionary.get(), CFSTR("NSFontFamilyAttribute")));
+        String fontName(fontNameAttribute.get());
+        String fontFamilyName(fontFamilyNameAttribute.get());
+        auto fontNameLowerCase = fontName.convertToASCIILowercase();
+        if (fontNameLowerCase.isEmpty())
+            continue;
+        fontURLs.add(fontNameLowerCase, fontURL);
+        auto fontFamilyNameLowerCase = fontFamilyName.convertToASCIILowercase();
+        if (fontFamilyNameLowerCase.isEmpty())
+            continue;
+        auto fontNames = fontFamilyMap.find(fontFamilyNameLowerCase);
+        if (fontNames != fontFamilyMap.end())
+            fontNames->value.append(fontNameLowerCase);
+        else {
+            Vector<String> fontNames { fontNameLowerCase };
+            fontFamilyMap.add(fontFamilyNameLowerCase, WTFMove(fontNames));
+        }
+    }
+    RELEASE_LOG(Process, "WebProcessPool::registerUserInstalledFonts: done registering fonts");
+
+    RetainPtr assetFontURL = adoptNS([[NSURL alloc] initFileURLWithPath:@"/System/Library/AssetsV2/com_apple_MobileAsset_Font7" isDirectory:YES]);
+    sandboxExtensionURLs.append(URL(assetFontURL.get()));
+
+    process.send(Messages::WebProcess::RegisterFontMap(fontURLs, fontFamilyMap, sandboxExtensionsForUserInstalledFonts(sandboxExtensionURLs, process.auditToken())), 0);
     m_userInstalledFontURLs = WTFMove(fontURLs);
+    m_userInstalledFontFamilyMap = WTFMove(fontFamilyMap);
     m_sandboxExtensionURLs = WTFMove(sandboxExtensionURLs);
 }
 
-#if PLATFORM(MAC)
 void WebProcessPool::registerAdditionalFonts(NSArray *fontNames)
 {
     if (!fontNames)
@@ -1570,6 +1567,7 @@ void WebProcessPool::registerAdditionalFonts(NSArray *fontNames)
 
     if (!m_userInstalledFontURLs) {
         m_userInstalledFontURLs = HashMap<String, URL>();
+        m_userInstalledFontFamilyMap = HashMap<String, Vector<String>>();
         m_sandboxExtensionURLs = Vector<URL>();
     }
 
@@ -1588,11 +1586,11 @@ void WebProcessPool::registerAdditionalFonts(NSArray *fontNames)
     for (Ref process : m_processes) {
         if (!process->canSendMessage())
             continue;
-        process->send(Messages::WebProcess::RegisterFontMap(*m_userInstalledFontURLs, sandboxExtensionsForUserInstalledFonts(*m_sandboxExtensionURLs, process->auditToken())), 0);
+        process->send(Messages::WebProcess::RegisterFontMap(*m_userInstalledFontURLs, *m_userInstalledFontFamilyMap, sandboxExtensionsForUserInstalledFonts(*m_sandboxExtensionURLs, process->auditToken())), 0);
     }
 
 }
-#endif
+#endif // PLATFORM(MAC)
 
 static URL fontURLFromName(ASCIILiteral fontName)
 {

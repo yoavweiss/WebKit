@@ -1027,6 +1027,7 @@ private:
 #if PLATFORM(COCOA)
     std::optional<Vector<URL>> m_assetFontURLs;
     std::optional<HashMap<String, URL>> m_userInstalledFontURLs;
+    std::optional<HashMap<String, Vector<String>>> m_userInstalledFontFamilyMap;
     std::optional<Vector<URL>> m_sandboxExtensionURLs;
 #endif
 

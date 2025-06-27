@@ -501,7 +501,7 @@ public:
 
 #if PLATFORM(COCOA)
     void registerAdditionalFonts(AdditionalFonts&&);
-    void registerFontMap(HashMap<String, URL>&&, Vector<SandboxExtension::Handle>&& sandboxExtensions);
+    void registerFontMap(HashMap<String, URL>&&, HashMap<String, Vector<String>>&&, Vector<SandboxExtension::Handle>&& sandboxExtensions);
 #endif
 
 private:

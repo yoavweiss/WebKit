@@ -1640,12 +1640,13 @@ void WebProcess::registerAdditionalFonts(AdditionalFonts&& fonts)
     CTFontManagerRegisterFontURLs((__bridge CFArrayRef)fontURLs.get(), kCTFontManagerScopeProcess, true, blockPtr.get());
 }
 
-void WebProcess::registerFontMap(HashMap<String, URL>&& fontMap, Vector<SandboxExtension::Handle>&& sandboxExtensions)
+void WebProcess::registerFontMap(HashMap<String, URL>&& fontMap, HashMap<String, Vector<String>>&& fontFamilyMap, Vector<SandboxExtension::Handle>&& sandboxExtensions)
 {
     RELEASE_LOG(Process, "WebProcess::registerFontMap");
     SandboxExtension::consumePermanently(sandboxExtensions);
     Locker locker(userInstalledFontMapLock());
     userInstalledFontMap() = WTFMove(fontMap);
+    userInstalledFontFamilyMap() = WTFMove(fontFamilyMap);
 }
 
 } // namespace WebKit
