@@ -4356,6 +4356,20 @@ LocalFileContentSniffingEnabled:
       default: false
     WebCore:
       default: false
+      
+LocalNetworkAccessEnabled:
+  type: bool
+  status: unstable
+  humanReadableName: "Local Network Access"
+  humanReadableDescription: "Enable Local Network Access"
+  webKitLegacyPreferenceKey: WebKitLocalNetworkAccessEnabledPreferenceKey
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
 
 LocalStorageEnabled:
   type: bool
