@@ -72,10 +72,11 @@ void PlaceholderRenderingContextSource::setPlaceholderBuffer(ImageBuffer& imageB
     });
 }
 
-void PlaceholderRenderingContextSource::setContentsToLayer(GraphicsLayer& layer)
+void PlaceholderRenderingContextSource::setContentsToLayer(GraphicsLayer& layer, ContentsFormat contentsFormat)
 {
     Locker locker { m_lock };
-    m_delegate = layer.createAsyncContentsDisplayDelegate(m_delegate.get());
+    if ((m_delegate = layer.createAsyncContentsDisplayDelegate(m_delegate.get())))
+        m_delegate->setContentsFormat(contentsFormat);
 }
 
 WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(PlaceholderRenderingContext);
@@ -101,14 +102,44 @@ IntSize PlaceholderRenderingContext::size() const
     return canvas().size();
 }
 
+constexpr ContentsFormat pixelFormatToContentsFormat(ImageBufferPixelFormat format)
+{
+    switch (format) {
+    case ImageBufferPixelFormat::BGRX8:
+    case ImageBufferPixelFormat::BGRA8:
+        return ContentsFormat::RGBA8;
+#if ENABLE(PIXEL_FORMAT_RGB10)
+    case ImageBufferPixelFormat::RGB10:
+        return ContentsFormat::RGBA10;
+#endif
+#if ENABLE(PIXEL_FORMAT_RGB10A8)
+    case ImageBufferPixelFormat::RGB10A8:
+        return ContentsFormat::RGBA10;
+#endif
+#if ENABLE(PIXEL_FORMAT_RGBA16F)
+    case ImageBufferPixelFormat::RGBA16F:
+        return ContentsFormat::RGBA16F;
+#endif
+    default:
+        RELEASE_ASSERT_NOT_REACHED();
+        return ContentsFormat::RGBA8;
+    }
+}
+
 void PlaceholderRenderingContext::setContentsToLayer(GraphicsLayer& layer)
 {
-    m_source->setContentsToLayer(layer);
+    m_source->setContentsToLayer(layer, pixelFormatToContentsFormat(m_pixelFormat));
 }
 
 void PlaceholderRenderingContext::setPlaceholderBuffer(Ref<ImageBuffer>&& buffer)
 {
+    m_pixelFormat = buffer->pixelFormat();
     canvasBase().setImageBufferAndMarkDirty(WTFMove(buffer));
+}
+
+ImageBufferPixelFormat PlaceholderRenderingContext::pixelFormat() const
+{
+    return m_pixelFormat;
 }
 
 }

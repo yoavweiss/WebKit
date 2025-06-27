@@ -172,6 +172,7 @@ public:
     void display(PlatformCALayer& layer) final
     {
         Locker locker { m_surfaceLock };
+        layer.setContentsFormat(m_contentsFormat);
         if (m_surfaceBackendHandle)
             downcast<PlatformCALayerRemote>(layer).setRemoteDelegatedContents({ ImageBufferBackendHandle { *m_surfaceBackendHandle }, { }, std::optional<RenderingResourceIdentifier>(m_surfaceIdentifier) });
     }
@@ -184,12 +185,18 @@ public:
     bool isGraphicsLayerCARemoteAsyncContentsDisplayDelegate() const final { return true; }
 
 private:
+    void setContentsFormat(ContentsFormat contentsFormat) final
+    {
+        m_contentsFormat = contentsFormat;
+    }
+
     const Ref<IPC::Connection> m_connection;
     DrawingAreaIdentifier m_drawingArea;
     Markable<WebCore::PlatformLayerIdentifier> m_layerID;
     Lock m_surfaceLock;
     std::optional<ImageBufferBackendHandle> m_surfaceBackendHandle WTF_GUARDED_BY_LOCK(m_surfaceLock);
     Markable<WebCore::RenderingResourceIdentifier> m_surfaceIdentifier WTF_GUARDED_BY_LOCK(m_surfaceLock);
+    ContentsFormat m_contentsFormat { ContentsFormat::RGBA8 };
 };
 
 } // namespace WebKit

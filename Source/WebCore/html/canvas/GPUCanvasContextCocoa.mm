@@ -421,7 +421,11 @@ ExceptionOr<RefPtr<GPUTexture>> GPUCanvasContextCocoa::getCurrentTexture()
 
 ImageBufferPixelFormat GPUCanvasContextCocoa::pixelFormat() const
 {
-    return m_configuration ? ImageBufferPixelFormat::BGRA8 : ImageBufferPixelFormat::BGRX8;
+#if ENABLE(PIXEL_FORMAT_RGBA16F)
+    if (m_configuration)
+        return m_configuration->toneMapping.mode == GPUCanvasToneMappingMode::Extended ? ImageBufferPixelFormat::RGBA16F : ImageBufferPixelFormat::BGRA8;
+#endif
+    return ImageBufferPixelFormat::BGRX8;
 }
 
 DestinationColorSpace GPUCanvasContextCocoa::colorSpace() const
