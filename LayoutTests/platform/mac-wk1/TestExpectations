@@ -3143,3 +3143,5 @@ http/tests/lockdown-mode [ Skip ]
 
 imported/w3c/web-platform-tests/css/css-transforms/individual-transform/individual-transform-3.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-images/gradient/conic-gradient-001.html [ ImageOnlyFailure ]
+
+webkit.org/b/295119  imported/w3c/web-platform-tests/css/css-fonts/font-size-adjust-text-orientation.html [ Pass ImageOnlyFailure ]
