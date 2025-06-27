@@ -1905,6 +1905,11 @@ bool Quirks::shouldPreventKeyframeEffectAcceleration(const KeyframeEffect& effec
     return target && Ref { target->element }->localName() == "ea-network-nav"_s;
 }
 
+bool Quirks::shouldEnterNativeFullscreenWhenCallingElementRequestFullscreenQuirk() const
+{
+    return needsQuirks() && m_quirksData.shouldEnterNativeFullscreenWhenCallingElementRequestFullscreen;
+}
+
 URL Quirks::topDocumentURL() const
 {
     if (!m_topDocumentURLForTesting.isEmpty()) [[unlikely]]
@@ -2562,6 +2567,19 @@ static void handleMenloSecurityQuirks(QuirksData& quirksData, const URL& quirksU
     quirksData.shouldDisableWritingSuggestionsByDefaultQuirk = true;
 }
 
+static void handleNBAQuirks(QuirksData& quirksData, const URL&, const String& quirksDomainString, const URL&)
+{
+#if PLATFORM(IOS)
+    if (quirksDomainString != "nba.com"_s)
+        return;
+
+    quirksData.shouldEnterNativeFullscreenWhenCallingElementRequestFullscreen = PAL::currentUserInterfaceIdiomIsSmallScreen();
+#else
+    UNUSED_PARAM(quirksData);
+    UNUSED_PARAM(quirksDomainString);
+#endif
+}
+
 static void handleNHLQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
 {
     if (quirksDomainString != "nhl.com"_s)
@@ -2929,6 +2947,7 @@ void Quirks::determineRelevantQuirks()
         { "medium"_s, &handleMediumQuirks },
         { "menlosecurity"_s, &handleMenloSecurityQuirks },
         { "netflix"_s, &handleNetflixQuirks },
+        { "nba"_s, &handleNBAQuirks },
         { "nhl"_s, &handleNHLQuirks },
 #if PLATFORM(IOS) || PLATFORM(VISION)
         { "nytimes"_s, &handleNYTimesQuirks },

@@ -265,6 +265,8 @@ public:
 
     bool shouldPreventKeyframeEffectAcceleration(const KeyframeEffect&) const;
 
+    bool shouldEnterNativeFullscreenWhenCallingElementRequestFullscreenQuirk() const;
+
 private:
     bool needsQuirks() const;
     bool isDomain(const String&) const;
