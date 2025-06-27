@@ -1227,6 +1227,8 @@ webkit.org/b/206881 imported/w3c/web-platform-tests/css/css-fonts/font-variant-c
 
 webkit.org/b/177294 fast/text/fitzpatrick-combination.html [ ImageOnlyFailure ]
 
+webkit.org/b/260972 fast/text/unknown-font.html [ ImageOnlyFailure ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Fonts-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
