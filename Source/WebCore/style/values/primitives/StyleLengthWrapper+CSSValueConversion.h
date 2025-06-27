@@ -121,6 +121,11 @@ template<LengthWrapperBaseDerived T> struct CSSValueConversion<T> {
                     return T { WebCore::Length(LengthType::Content) };
                 else
                     break;
+            case CSSValueNormal:
+                if constexpr (T::SupportsNormal)
+                    return T { WebCore::Length(LengthType::Normal) };
+                else
+                    break;
             case CSSValueNone:
                 if constexpr (T::SupportsNone)
                     return T { WebCore::Length(LengthType::Undefined) };

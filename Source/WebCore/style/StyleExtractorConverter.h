@@ -213,7 +213,6 @@ public:
     static Ref<CSSValue> convertWillChange(ExtractorState&, const WillChangeData*);
     static Ref<CSSValue> convertBlockEllipsis(ExtractorState&, const BlockEllipsis&);
     static Ref<CSSValue> convertBlockStepSize(ExtractorState&, std::optional<WebCore::Length>);
-    static Ref<CSSValue> convertGapLength(ExtractorState&, const GapLength&);
     static Ref<CSSValue> convertTabSize(ExtractorState&, const TabSize&);
     static Ref<CSSValue> convertScrollSnapType(ExtractorState&, const ScrollSnapType&);
     static Ref<CSSValue> convertScrollSnapAlign(ExtractorState&, const ScrollSnapAlign&);
@@ -226,7 +225,6 @@ public:
     static Ref<CSSValue> convertTouchAction(ExtractorState&, OptionSet<TouchAction>);
     static Ref<CSSValue> convertTextTransform(ExtractorState&, OptionSet<TextTransform>);
     static Ref<CSSValue> convertTextDecorationLine(ExtractorState&, OptionSet<TextDecorationLine>);
-    static Ref<CSSValue> convertTextUnderlineOffset(ExtractorState&, const TextUnderlineOffset&);
     static Ref<CSSValue> convertTextUnderlinePosition(ExtractorState&, OptionSet<TextUnderlinePosition>);
     static Ref<CSSValue> convertTextDecorationThickness(ExtractorState&, const TextDecorationThickness&);
     static Ref<CSSValue> convertTextEmphasisPosition(ExtractorState&, OptionSet<TextEmphasisPosition>);
@@ -1057,13 +1055,6 @@ inline Ref<CSSValue> ExtractorConverter::convertBlockStepSize(ExtractorState& st
     return CSSPrimitiveValue::create(CSSValueNone);
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertGapLength(ExtractorState& state, const GapLength& gapLength)
-{
-    if (gapLength.isNormal())
-        return CSSPrimitiveValue::create(CSSValueNormal);
-    return convertLength(state, gapLength.length());
-}
-
 inline Ref<CSSValue> ExtractorConverter::convertTabSize(ExtractorState&, const TabSize& tabSize)
 {
     return CSSPrimitiveValue::create(tabSize.widthInPixels(1.0), tabSize.isSpaces() ? CSSUnitType::CSS_NUMBER : CSSUnitType::CSS_PX);
@@ -1224,17 +1215,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTextDecorationLine(ExtractorStat
     if (list.isEmpty())
         return CSSPrimitiveValue::create(CSSValueNone);
     return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTextUnderlineOffset(ExtractorState& state, const TextUnderlineOffset& textUnderlineOffset)
-{
-    if (textUnderlineOffset.isAuto())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    ASSERT(textUnderlineOffset.isLength());
-    auto& length = textUnderlineOffset.length();
-    if (length.isPercent())
-        return CSSPrimitiveValue::create(length.percent(), CSSUnitType::CSS_PERCENTAGE);
-    return CSSPrimitiveValue::create(length, state.style);
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertTextUnderlinePosition(ExtractorState&, OptionSet<TextUnderlinePosition> textUnderlinePosition)

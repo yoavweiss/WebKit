@@ -9182,8 +9182,8 @@
                     "grid-column-gap",
                     "-webkit-column-gap"
                 ],
-                "animation-wrapper": "LengthVariantWrapper<GapLength>",
-                "style-converter": "GapLength",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<GapGutter>",
                 "parser-grammar": "<gap-gutter>",
                 "parser-exported": true
             },
@@ -9199,8 +9199,8 @@
                 "aliases": [
                     "grid-row-gap"
                 ],
-                "animation-wrapper": "LengthVariantWrapper<GapLength>",
-                "style-converter": "GapLength",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<GapGutter>",
                 "parser-grammar": "<gap-gutter>",
                 "parser-exported": true
             },
@@ -10952,9 +10952,8 @@
             "inherited": true,
             "initial": "auto",
             "codegen-properties": {
-                "animation-wrapper": "TextUnderlineOffsetWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-converter": "TextUnderlineOffset",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<TextUnderlineOffset>",
                 "parser-grammar": "auto | <length-percentage>"
             },
             "specification": {

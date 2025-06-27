@@ -218,8 +218,8 @@ bool RenderGrid::implicitGridLinesDefinitionDidChange(const RenderStyle& oldStyl
 std::optional<LayoutUnit> RenderGrid::availableSpaceForGutters(GridTrackSizingDirection direction) const
 {
     bool isRowAxis = direction == GridTrackSizingDirection::ForColumns;
-    const GapLength& gapLength = isRowAxis ? style().columnGap() : style().rowGap();
-    if (gapLength.isNormal() || !gapLength.length().isPercentOrCalculated())
+    auto& gap = isRowAxis ? style().columnGap() : style().rowGap();
+    if (!gap.isPercentOrCalculated())
         return std::nullopt;
 
     return isRowAxis ? contentBoxLogicalWidth() : contentBoxLogicalHeight();
@@ -667,8 +667,8 @@ void RenderGrid::layoutMasonry(RelayoutChildren relayoutChildren)
 LayoutUnit RenderGrid::gridGap(GridTrackSizingDirection direction, std::optional<LayoutUnit> availableSize) const
 {
     ASSERT(!availableSize || *availableSize >= 0);
-    const GapLength& gapLength = direction == GridTrackSizingDirection::ForColumns? style().columnGap() : style().rowGap();
-    if (gapLength.isNormal()) {
+    auto& gap = direction == GridTrackSizingDirection::ForColumns? style().columnGap() : style().rowGap();
+    if (gap.isNormal()) {
         if (!isSubgrid(direction))
             return 0_lu;
 
@@ -678,7 +678,7 @@ LayoutUnit RenderGrid::gridGap(GridTrackSizingDirection direction, std::optional
         return downcast<RenderGrid>(parent())->gridGap(parentDirection);
     }
 
-    return valueForLength(gapLength.length(), availableSize.value_or(0));
+    return Style::evaluate(gap, availableSize.value_or(0_lu));
 }
 
 LayoutUnit RenderGrid::gridGap(GridTrackSizingDirection direction) const
