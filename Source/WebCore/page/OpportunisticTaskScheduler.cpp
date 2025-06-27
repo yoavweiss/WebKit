@@ -41,7 +41,7 @@ namespace WebCore {
 
 OpportunisticTaskScheduler::OpportunisticTaskScheduler(Page& page)
     : m_page(&page)
-    , m_runLoopObserver(makeUnique<RunLoopObserver>(RunLoopObserver::WellKnownOrder::PostRenderingUpdate, [weakThis = WeakPtr { this }] {
+    , m_runLoopObserver(makeUnique<RunLoopObserver>(RunLoopObserver::WellKnownOrder::OpportunisticTask, [weakThis = WeakPtr { this }] {
         if (auto protectedThis = weakThis.get())
             protectedThis->runLoopObserverFired();
     }, RunLoopObserver::Type::OneShot))
