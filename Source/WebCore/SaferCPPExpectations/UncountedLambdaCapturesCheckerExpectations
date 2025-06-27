@@ -114,7 +114,6 @@ workers/Worker.cpp
 workers/WorkerMessagingProxy.cpp
 workers/WorkerOrWorkletThread.cpp
 workers/WorkerScriptLoader.cpp
-workers/service/ExtendableEvent.cpp
 workers/service/ServiceWorkerContainer.cpp
 workers/service/ServiceWorkerGlobalScope.cpp
 workers/shared/SharedWorkerObjectConnection.cpp

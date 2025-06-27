@@ -67,7 +67,7 @@ void SharedWorkerScriptLoader::didReceiveResponse(ScriptExecutionContextIdentifi
 
 void SharedWorkerScriptLoader::notifyFinished(std::optional<ScriptExecutionContextIdentifier> mainContextIdentifier)
 {
-    auto* scriptExecutionContext = m_worker->scriptExecutionContext();
+    RefPtr scriptExecutionContext = m_worker->scriptExecutionContext();
 
     if (InspectorInstrumentation::hasFrontends()) [[unlikely]] {
         if (scriptExecutionContext && !m_loader->failed()) {

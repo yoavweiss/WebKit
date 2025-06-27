@@ -381,7 +381,7 @@ WorkerScriptLoader::ServiceWorkerDataManager::~ServiceWorkerDataManager()
 {
     if (!m_activeServiceWorkerData)
         return;
-    if (auto* serviceWorkerConnection = ServiceWorkerProvider::singleton().existingServiceWorkerConnection())
+    if (RefPtr serviceWorkerConnection = ServiceWorkerProvider::singleton().existingServiceWorkerConnection())
         serviceWorkerConnection->unregisterServiceWorkerClient(m_clientIdentifier);
 }
 

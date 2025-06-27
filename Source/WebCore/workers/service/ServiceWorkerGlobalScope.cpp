@@ -118,14 +118,14 @@ void ServiceWorkerGlobalScope::clearDeclarativePushEvent()
 
 void ServiceWorkerGlobalScope::notifyServiceWorkerPageOfCreationIfNecessary()
 {
-    auto serviceWorkerPage = this->serviceWorkerPage();
+    RefPtr serviceWorkerPage = this->serviceWorkerPage();
     if (!serviceWorkerPage)
         return;
 
     ASSERT(isMainThread());
     serviceWorkerPage->setServiceWorkerGlobalScope(*this);
 
-    if (auto* localMainFrame = dynamicDowncast<LocalFrame>(serviceWorkerPage->mainFrame())) {
+    if (RefPtr localMainFrame = dynamicDowncast<LocalFrame>(serviceWorkerPage->mainFrame())) {
         // FIXME: We currently do not support non-normal worlds in service workers.
         Ref normalWorld = downcast<JSVMClientData>(vm().clientData)->normalWorldSingleton();
         localMainFrame->loader().client().dispatchServiceWorkerGlobalObjectAvailable(normalWorld);
@@ -149,7 +149,7 @@ void ServiceWorkerGlobalScope::skipWaiting(Ref<DeferredPromise>&& promise)
     m_pendingSkipWaitingPromises.add(requestIdentifier, WTFMove(promise));
 
     callOnMainThread([workerThread = Ref { thread() }, requestIdentifier]() mutable {
-        if (auto* connection = SWContextManager::singleton().connection()) {
+        if (RefPtr connection = SWContextManager::singleton().connection()) {
             auto identifier = workerThread->identifier();
             connection->skipWaiting(identifier, [workerThread = WTFMove(workerThread), requestIdentifier] {
                 workerThread->runLoop().postTask([requestIdentifier](auto& context) {
@@ -212,7 +212,7 @@ void ServiceWorkerGlobalScope::updateExtendedEventsSet(ExtendableEvent* newEvent
         return;
 
     callOnMainThread([threadIdentifier = thread().identifier(), hasPendingEvents] {
-        if (auto* connection = SWContextManager::singleton().connection())
+        if (RefPtr connection = SWContextManager::singleton().connection())
             connection->setServiceWorkerHasPendingEvents(threadIdentifier, hasPendingEvents);
     });
 }
@@ -226,7 +226,7 @@ const ServiceWorkerContextData::ImportedScript* ServiceWorkerGlobalScope::script
 void ServiceWorkerGlobalScope::setScriptResource(const URL& url, ServiceWorkerContextData::ImportedScript&& script)
 {
     callOnMainThread([threadIdentifier = thread().identifier(), url = url.isolatedCopy(), script = script.isolatedCopy()] {
-        if (auto* connection = SWContextManager::singleton().connection())
+        if (RefPtr connection = SWContextManager::singleton().connection())
             connection->setScriptResource(threadIdentifier, url, script);
     });
 
@@ -266,7 +266,7 @@ void ServiceWorkerGlobalScope::addConsoleMessage(MessageSource source, MessageLe
 {
     if (m_consoleMessageReportingEnabled) {
         callOnMainThread([threadIdentifier = thread().identifier(), source, level, message = message.isolatedCopy(), requestIdentifier] {
-            if (auto* connection = SWContextManager::singleton().connection())
+            if (RefPtr connection = SWContextManager::singleton().connection())
                 connection->reportConsoleMessage(threadIdentifier, source, level, message, requestIdentifier);
         });
     }

@@ -279,8 +279,8 @@ Vector<ServiceWorkerRegistrationData> SWServer::getRegistrations(const SecurityO
     Vector<Ref<SWServerRegistration>> matchingRegistrations;
     for (auto& item : m_scopeToRegistrationMap) {
         if (item.key.originIsMatching(topOrigin, clientURL)) {
-            auto& registration = item.value.get();
-            matchingRegistrations.append(registration);
+            Ref registration = item.value.get();
+            matchingRegistrations.append(WTFMove(registration));
         }
     }
     // The specification mandates that registrations are returned in the insertion order.
