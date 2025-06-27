@@ -417,7 +417,9 @@ TEST(ScreenTime, WKWebViewFillsStackView)
 
     RetainPtr webView = webViewForScreenTimeTests(nil, NO);
     [webView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    [webView synchronouslyLoadHTMLString:@"<style> body { background-color: red; } </style>"];
+
+    RetainPtr request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://webkit.org"]];
+    [webView synchronouslyLoadSimulatedRequest:request.get() responseHTMLString:@""];
 
 #if PLATFORM(MAC)
     RetainPtr stackView = adoptNS([[NSStackView alloc] init]);
@@ -592,7 +594,8 @@ TEST(ScreenTime, FetchData)
     [configuration setWebsiteDataStore:websiteDataStore.get()];
 
     RetainPtr webView = webViewForScreenTimeTests(configuration.get());
-    [webView synchronouslyLoadHTMLString:@"https://www.webkit.org/"];
+    RetainPtr request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://webkit.org"]];
+    [webView synchronouslyLoadSimulatedRequest:request.get() responseHTMLString:@""];
 
     __block bool done = false;
     [websiteDataStore fetchDataRecordsOfTypes:dataTypeScreenTime.get() completionHandler:^(NSArray<WKWebsiteDataRecord *> *dataRecords) {
@@ -670,7 +673,8 @@ TEST(ScreenTime, RemoveData)
     [configuration setWebsiteDataStore:websiteDataStore.get()];
 
     RetainPtr webView = webViewForScreenTimeTests(configuration.get());
-    [webView synchronouslyLoadHTMLString:@"https://www.github.com/WebKit/WebKit"];
+    RetainPtr request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.github.com/WebKit/WebKit"]];
+    [webView synchronouslyLoadSimulatedRequest:request.get() responseHTMLString:@""];
 
     __block bool done = false;
     [websiteDataStore fetchDataRecordsOfTypes:dataTypeScreenTime.get() completionHandler:^(NSArray<WKWebsiteDataRecord *> *dataRecords) {
