@@ -552,6 +552,10 @@ void LocalFrameView::setContentsSize(const IntSize& size)
 
     if (m_frame->isMainFrame()) {
         page->pageOverlayController().didChangeDocumentSize();
+#if HAVE(RUBBER_BANDING)
+        if (CheckedPtr renderView = this->renderView())
+            renderView->compositor().updateSizeAndPositionForTopOverhangColorExtensionLayer();
+#endif
         BackForwardCache::singleton().markPagesForContentsSizeChanged(*page);
     }
     layoutContext().enableSetNeedsLayout();

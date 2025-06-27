@@ -2799,7 +2799,6 @@ void RenderLayerCompositor::frameViewDidChangeSize()
 
 #if HAVE(RUBBER_BANDING)
         updateSizeAndPositionForOverhangAreaLayer();
-        updateSizeAndPositionForTopOverhangColorExtensionLayer();
 #endif
     }
 }
@@ -3217,6 +3216,7 @@ void RenderLayerCompositor::updateRootLayerPosition()
     }
 
     updateLayerForTopOverhangColorExtension(m_layerForTopOverhangColorExtension);
+    updateSizeAndPositionForTopOverhangColorExtensionLayer();
     updateLayerForTopOverhangImage(m_layerForTopOverhangImage);
     updateLayerForBottomOverhangArea(m_layerForBottomOverhangArea);
     updateLayerForHeader(m_layerForHeader);
@@ -4969,9 +4969,11 @@ void RenderLayerCompositor::updateSizeAndPositionForTopOverhangColorExtensionLay
         return;
 
     Ref frameView = m_renderView.frameView();
-    auto insets = m_renderView.protectedFrameView()->obscuredContentInsets();
-    layer->setSize(frameView->frameRect().size());
-    layer->setPosition({ 0, insets.top() - layer->size().height() });
+    IntSize layerSize { frameView->contentsSize().width(), frameView->visibleSize().height() };
+    layer->setSize(layerSize);
+
+    auto rootLayerPosition = frameView->positionForRootContentLayer();
+    layer->setPosition({ rootLayerPosition.x(), rootLayerPosition.y() - layerSize.height() });
 }
 #endif // HAVE(RUBBER_BANDING)
 

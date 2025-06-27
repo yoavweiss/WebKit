@@ -257,6 +257,7 @@ TEST(ObscuredContentInsets, TopOverhangColorExtensionLayer)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 600, 400)]);
 
+    [webView setAllowsMagnification:YES];
     [webView _setAutomaticallyAdjustsContentInsets:NO];
     [webView _setObscuredContentInsets:NSEdgeInsetsMake(100, 0, 0, 0) immediate:NO];
     [webView waitForNextPresentationUpdate];
@@ -265,19 +266,32 @@ TEST(ObscuredContentInsets, TopOverhangColorExtensionLayer)
     [webView waitForNextPresentationUpdate];
 
     __block RetainPtr<CALayer> colorExtensionLayer;
+    __block RetainPtr<CALayer> rootContentLayer;
     [webView forEachCALayer:^(CALayer *layer) {
         if ([layer.name containsString:@"top overhang"])
             colorExtensionLayer = layer;
+        else if ([layer.name containsString:@"content root"])
+            rootContentLayer = layer;
     }];
 
-    auto expectedColor = [webView _sampledTopFixedPositionContentColor];
-    auto actualColor = [NSColor colorWithCGColor:[colorExtensionLayer backgroundColor]];
+    auto sanityCheckColorExtensionLayer = ^{
+        auto colorExtensionLayerFrame = [colorExtensionLayer frame];
+        auto rootContentLayerFrame = [rootContentLayer frame];
+        EXPECT_FALSE(NSIsEmptyRect(colorExtensionLayerFrame));
+        EXPECT_TRUE(WTF::areEssentiallyEqual<float>(NSWidth(colorExtensionLayerFrame), NSWidth(rootContentLayerFrame)));
+        EXPECT_TRUE(WTF::areEssentiallyEqual<float>(NSMaxY(colorExtensionLayerFrame), NSMinY(rootContentLayerFrame)));
 
-    auto colorExtensionLayerFrame = [colorExtensionLayer frame];
-    EXPECT_FALSE(NSIsEmptyRect(colorExtensionLayerFrame));
-    EXPECT_TRUE(WTF::areEssentiallyEqual<float>(NSWidth(colorExtensionLayerFrame), 600.));
-    EXPECT_TRUE(WTF::areEssentiallyEqual<float>(NSMaxY(colorExtensionLayerFrame), 100.));
-    EXPECT_TRUE(Util::compareColors(actualColor, expectedColor, 0.01));
+        auto expectedColor = [webView _sampledTopFixedPositionContentColor];
+        auto actualColor = [NSColor colorWithCGColor:[colorExtensionLayer backgroundColor]];
+        EXPECT_TRUE(Util::compareColors(actualColor, expectedColor));
+    };
+
+    sanityCheckColorExtensionLayer();
+
+    [webView setMagnification:2 centeredAtPoint:NSMakePoint(300, 0)];
+    [webView waitForNextPresentationUpdate];
+
+    sanityCheckColorExtensionLayer();
 }
 
 TEST(ObscuredContentInsets, TopScrollPocketKVO)
