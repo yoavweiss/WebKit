@@ -43,6 +43,7 @@
 #include "SWServerToContextConnection.h"
 #include "SWServerWorker.h"
 #include "SecurityOrigin.h"
+#include "SecurityPolicy.h"
 #include "ServiceWorkerClientType.h"
 #include "ServiceWorkerContextData.h"
 #include "ServiceWorkerJobData.h"
@@ -568,15 +569,6 @@ void SWServer::resolveUnregistrationJob(const ServiceWorkerJobData& jobData, con
     connection->resolveUnregistrationJobInClient(jobData.identifier().jobIdentifier, registrationKey, unregistrationResult);
 }
 
-URL static inline originURL(const SecurityOrigin& origin)
-{
-    URL url;
-    url.setProtocol(origin.protocol());
-    url.setHost(origin.host());
-    url.setPort(origin.port());
-    return url;
-}
-
 ResourceRequest SWServer::createScriptRequest(const URL& url, const ServiceWorkerJobData& jobData, SWServerRegistration& registration)
 {
     ResourceRequest request { URL { url } };
@@ -589,7 +581,7 @@ ResourceRequest SWServer::createScriptRequest(const URL& url, const ServiceWorke
     request.setFirstPartyForCookies(topOrigin->toURL());
 
     request.setHTTPHeaderField(HTTPHeaderName::Origin, origin->toString());
-    request.setHTTPReferrer(originURL(origin).string());
+    request.setHTTPReferrer(SecurityPolicy::referrerToOriginString(jobData.scriptURL));
     request.setHTTPUserAgent(serviceWorkerClientUserAgent(ClientOrigin { jobData.topOrigin, SecurityOrigin::create(jobData.scriptURL)->data() }));
     request.setPriority(ResourceLoadPriority::Low);
     request.setIsAppInitiated(registration.isAppInitiated());
