@@ -2521,6 +2521,7 @@ platform/graphics/IntSize.cpp
 platform/graphics/TransparencyLayerContextSwitcher.cpp
 platform/graphics/LayoutPoint.cpp
 platform/graphics/LayoutRect.cpp
+platform/graphics/LayoutRoundedRect.cpp
 platform/graphics/LayoutSize.cpp
 platform/graphics/MIMESniffer.cpp
 platform/graphics/MIMETypeCache.cpp
@@ -2551,7 +2552,6 @@ platform/graphics/PlatformTimeRanges.cpp
 platform/graphics/Region.cpp
 platform/graphics/RenderingMode.cpp
 platform/graphics/RotationDirection.cpp
-platform/graphics/RoundedRect.cpp
 platform/graphics/ShadowBlur.cpp
 platform/graphics/ShareableBitmap.cpp
 platform/graphics/ShareableBitmapHandle.cpp

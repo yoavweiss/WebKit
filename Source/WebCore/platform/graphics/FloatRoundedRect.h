@@ -32,8 +32,8 @@
 
 #include "FloatRect.h"
 #include "FloatSize.h"
+#include "LayoutRoundedRect.h"
 #include "Region.h"
-#include "RoundedRect.h"
 #include <wtf/TZoneMalloc.h>
 
 #if USE(SKIA)
@@ -59,7 +59,7 @@ public:
         {
         }
 
-        Radii(const RoundedRect::Radii& intRadii)
+        Radii(const LayoutRoundedRect::Radii& intRadii)
             : m_topLeft(intRadii.topLeft())
             , m_topRight(intRadii.topRight())
             , m_bottomLeft(intRadii.bottomLeft())
@@ -115,7 +115,7 @@ public:
 
     WEBCORE_EXPORT explicit FloatRoundedRect(const FloatRect& = FloatRect(), const Radii& = Radii());
     WEBCORE_EXPORT FloatRoundedRect(const FloatRect&, const FloatSize& topLeft, const FloatSize& topRight, const FloatSize& bottomLeft, const FloatSize& bottomRight);
-    explicit FloatRoundedRect(const RoundedRect&);
+    explicit FloatRoundedRect(const LayoutRoundedRect&);
     FloatRoundedRect(float x, float y, float width, float height);
 
     const FloatRect& rect() const { return m_rect; }

@@ -802,7 +802,7 @@ LayoutUnit RenderBox::constrainContentBoxLogicalHeightByMinMax(LayoutUnit logica
 }
 
 // FIXME: Despite the name, this returns rounded borders based on the padding box, which seems wrong.
-RoundedRect::Radii RenderBox::borderRadii() const
+LayoutRoundedRect::Radii RenderBox::borderRadii() const
 {
     auto borderShape = BorderShape::shapeForBorderRect(style(), paddingBoxRectIncludingScrollbar());
     return borderShape.deprecatedRoundedRect().radii();
@@ -1623,14 +1623,14 @@ BleedAvoidance RenderBox::determineBleedAvoidance(GraphicsContext& context) cons
     AffineTransform ctm = context.getCTM();
     FloatSize contextScaling(static_cast<float>(ctm.xScale()), static_cast<float>(ctm.yScale()));
 
-    // Because RoundedRect uses IntRect internally the inset applied by the 
+    // Because LayoutRoundedRect uses IntRect internally the inset applied by the
     // BleedAvoidance::ShrinkBackground strategy cannot be less than one integer
     // layout coordinate, even with subpixel layout enabled. To take that into
     // account, we clamp the contextScaling to 1.0 for the following test so
     // that borderObscuresBackgroundEdge can only return true if the border
     // widths are greater than 2 in both layout coordinates and screen
     // coordinates.
-    // This precaution will become obsolete if RoundedRect is ever promoted to
+    // This precaution will become obsolete if LayoutRoundedRect is ever promoted to
     // a sub-pixel representation.
     if (contextScaling.width() > 1) 
         contextScaling.setWidth(1);

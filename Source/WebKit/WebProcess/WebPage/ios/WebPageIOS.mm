@@ -1322,7 +1322,7 @@ void WebPage::sendTapHighlightForNodeIfNecessary(WebKit::TapIdentifier requestID
                 quad = view->contentsToRootView(quad);
         }
 
-        RoundedRect::Radii borderRadii;
+        LayoutRoundedRect::Radii borderRadii;
         if (CheckedPtr renderBox = dynamicDowncast<RenderBox>(*renderer))
             borderRadii = renderBox->borderRadii();
 

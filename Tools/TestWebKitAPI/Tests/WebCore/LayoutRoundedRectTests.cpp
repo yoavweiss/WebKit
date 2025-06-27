@@ -25,7 +25,7 @@
 
 #include "config.h"
 
-#include <WebCore/RoundedRect.h>
+#include <WebCore/LayoutRoundedRect.h>
 
 using namespace WebCore;
 
@@ -36,10 +36,10 @@ static LayoutRect layoutRect(float x, float y, float width, float height)
     return { LayoutPoint(x, y), LayoutSize(width, height) };
 }
 
-TEST(WebCore, RoundedRectContainsRect)
+TEST(WebCore, LayoutRoundedRectContainsRect)
 {
     auto roundedRectBounds = layoutRect(-10, -40, 40, 80);
-    RoundedRect roundedRect(roundedRectBounds, { 10, 10 }, { 10, 20 }, { 0, 0 }, { 20, 40 });
+    LayoutRoundedRect roundedRect(roundedRectBounds, { 10, 10 }, { 10, 20 }, { 0, 0 }, { 20, 40 });
 
     // Cases where the other rect is outside of the rounded rect's bounds.
     EXPECT_FALSE(roundedRect.contains(layoutRect(-40, -10, 10, 10)));
@@ -66,7 +66,7 @@ TEST(WebCore, RoundedRectContainsRect)
 
     // The other rect is equal to the rounded rect's bounds.
     EXPECT_FALSE(roundedRect.contains(roundedRectBounds));
-    RoundedRect nonRoundedRect(roundedRectBounds, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 });
+    LayoutRoundedRect nonRoundedRect(roundedRectBounds, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 });
     EXPECT_TRUE(nonRoundedRect.contains(roundedRectBounds));
 }
 

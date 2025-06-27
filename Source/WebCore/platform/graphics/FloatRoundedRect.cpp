@@ -42,7 +42,7 @@ namespace WebCore {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(FloatRoundedRect);
 WTF_MAKE_TZONE_ALLOCATED_IMPL(FloatRoundedRect::Radii);
 
-FloatRoundedRect::FloatRoundedRect(const RoundedRect& rect)
+FloatRoundedRect::FloatRoundedRect(const LayoutRoundedRect& rect)
     : m_rect(rect.rect())
     , m_radii(rect.radii())
 {

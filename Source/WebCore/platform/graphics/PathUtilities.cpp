@@ -514,8 +514,8 @@ Path PathUtilities::pathWithShrinkWrappedRectsForOutline(const Vector<FloatRect>
     {
         auto radii = adjustedRadiiForHuggingCurve(topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius, outlineOffset);
         radii.scale(calcBorderRadiiConstraintScaleFor(rect, radii));
-        RoundedRect roundedRect(LayoutRect(rect),
-            RoundedRect::Radii(LayoutSize(radii.topLeft()), LayoutSize(radii.topRight()), LayoutSize(radii.bottomLeft()), LayoutSize(radii.bottomRight())));
+        LayoutRoundedRect roundedRect(LayoutRect(rect),
+            LayoutRoundedRect::Radii(LayoutSize(radii.topLeft()), LayoutSize(radii.topRight()), LayoutSize(radii.bottomLeft()), LayoutSize(radii.bottomRight())));
         Path path;
         path.addRoundedRect(roundedRect.pixelSnappedRoundedRectForPainting(deviceScaleFactor));
         return path;

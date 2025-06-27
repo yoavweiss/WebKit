@@ -33,10 +33,10 @@ namespace WebCore {
 class FloatQuad;
 class FloatRoundedRect;
 
-class RoundedRectRadii {
+class LayoutRoundedRectRadii {
 public:
-    RoundedRectRadii() = default;
-    RoundedRectRadii(const LayoutSize& topLeft, const LayoutSize& topRight, const LayoutSize& bottomLeft, const LayoutSize& bottomRight)
+    LayoutRoundedRectRadii() = default;
+    LayoutRoundedRectRadii(const LayoutSize& topLeft, const LayoutSize& topRight, const LayoutSize& bottomLeft, const LayoutSize& bottomRight)
         : m_topLeft(topLeft)
         , m_topRight(topRight)
         , m_bottomLeft(bottomLeft)
@@ -52,7 +52,7 @@ public:
     const LayoutSize& topRight() const { return m_topRight; }
     const LayoutSize& bottomLeft() const { return m_bottomLeft; }
     const LayoutSize& bottomRight() const { return m_bottomRight; }
-    void setRadiiForEdges(const RoundedRectRadii&, RectEdges<bool> includeEdges);
+    void setRadiiForEdges(const LayoutRoundedRectRadii&, RectEdges<bool> includeEdges);
 
     bool isZero() const;
 
@@ -65,12 +65,12 @@ public:
     void shrink(LayoutUnit topWidth, LayoutUnit bottomWidth, LayoutUnit leftWidth, LayoutUnit rightWidth) { expand(-topWidth, -bottomWidth, -leftWidth, -rightWidth); }
     void shrink(LayoutUnit size) { shrink(size, size, size, size); }
 
-    RoundedRectRadii transposedRadii() const { return { m_topLeft.transposedSize(), m_topRight.transposedSize(), m_bottomLeft.transposedSize(), m_bottomRight.transposedSize() }; }
+    LayoutRoundedRectRadii transposedRadii() const { return { m_topLeft.transposedSize(), m_topRight.transposedSize(), m_bottomLeft.transposedSize(), m_bottomRight.transposedSize() }; }
 
     LayoutUnit minimumRadius() const { return std::min({ m_topLeft.minDimension(), m_topRight.minDimension(), m_bottomLeft.minDimension(), m_bottomRight.minDimension() }); }
     LayoutUnit maximumRadius() const { return std::max({ m_topLeft.minDimension(), m_topRight.minDimension(), m_bottomLeft.minDimension(), m_bottomRight.minDimension() }); }
 
-    friend bool operator==(const RoundedRectRadii&, const RoundedRectRadii&) = default;
+    bool operator==(const LayoutRoundedRectRadii&) const = default;
 
 private:
     LayoutSize m_topLeft;
@@ -79,13 +79,13 @@ private:
     LayoutSize m_bottomRight;
 };
 
-class RoundedRect {
+class LayoutRoundedRect {
 public:
-    using Radii = RoundedRectRadii;
+    using Radii = LayoutRoundedRectRadii;
 
-    WEBCORE_EXPORT explicit RoundedRect(const LayoutRect&, const Radii& = Radii());
-    RoundedRect(LayoutUnit, LayoutUnit, LayoutUnit width, LayoutUnit height);
-    WEBCORE_EXPORT RoundedRect(const LayoutRect&, const LayoutSize& topLeft, const LayoutSize& topRight, const LayoutSize& bottomLeft, const LayoutSize& bottomRight);
+    WEBCORE_EXPORT explicit LayoutRoundedRect(const LayoutRect&, const Radii& = Radii());
+    LayoutRoundedRect(LayoutUnit, LayoutUnit, LayoutUnit width, LayoutUnit height);
+    WEBCORE_EXPORT LayoutRoundedRect(const LayoutRect&, const LayoutSize& topLeft, const LayoutSize& topRight, const LayoutSize& bottomLeft, const LayoutSize& bottomRight);
 
     const LayoutRect& rect() const { return m_rect; }
     const Radii& radii() const { return m_radii; }
@@ -113,15 +113,15 @@ public:
 
     FloatRoundedRect pixelSnappedRoundedRectForPainting(float deviceScaleFactor) const;
 
-    RoundedRect transposedRect() const { return RoundedRect(m_rect.transposedRect(), m_radii.transposedRadii()); }
+    LayoutRoundedRect transposedRect() const { return LayoutRoundedRect(m_rect.transposedRect(), m_radii.transposedRadii()); }
 
-    friend bool operator==(const RoundedRect&, const RoundedRect&) = default;
+    bool operator==(const LayoutRoundedRect&) const = default;
 
 private:
     LayoutRect m_rect;
     Radii m_radii;
 };
 
-WTF::TextStream& operator<<(WTF::TextStream&, const RoundedRect&);
+WTF::TextStream& operator<<(WTF::TextStream&, const LayoutRoundedRect&);
 
 } // namespace WebCore

@@ -2226,6 +2226,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/graphics/LayoutPoint.h
     platform/graphics/LayoutRange.h
     platform/graphics/LayoutRect.h
+    platform/graphics/LayoutRoundedRect.h
     platform/graphics/LayoutSize.h
     platform/graphics/LegacyCDMSession.h
     platform/graphics/MIMESniffer.h
@@ -2283,7 +2284,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/graphics/RenderingResourceIdentifier.h
     platform/graphics/RenderingMode.h
     platform/graphics/RotationDirection.h
-    platform/graphics/RoundedRect.h
     platform/graphics/ScreenDataOverrides.h
     platform/graphics/ShareableBitmap.h
     platform/graphics/ShareableBitmapHandle.h

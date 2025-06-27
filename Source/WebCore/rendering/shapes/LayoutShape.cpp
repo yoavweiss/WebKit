@@ -232,7 +232,7 @@ Ref<const LayoutShape> LayoutShape::createRasterShape(Image* image, float thresh
     return createShape();
 }
 
-Ref<const LayoutShape> LayoutShape::createBoxShape(const RoundedRect& roundedRect, WritingMode writingMode, float margin)
+Ref<const LayoutShape> LayoutShape::createBoxShape(const LayoutRoundedRect& roundedRect, WritingMode writingMode, float margin)
 {
     ASSERT(roundedRect.rect().width() >= 0 && roundedRect.rect().height() >= 0);
 

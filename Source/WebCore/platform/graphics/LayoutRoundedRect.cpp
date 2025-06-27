@@ -26,7 +26,7 @@
  */
 
 #include "config.h"
-#include "RoundedRect.h"
+#include "LayoutRoundedRect.h"
 
 #include "FloatQuad.h"
 #include "FloatRoundedRect.h"
@@ -39,12 +39,12 @@
 
 namespace WebCore {
 
-bool RoundedRect::Radii::isZero() const
+bool LayoutRoundedRect::Radii::isZero() const
 {
     return m_topLeft.isZero() && m_topRight.isZero() && m_bottomLeft.isZero() && m_bottomRight.isZero();
 }
 
-void RoundedRect::Radii::scale(float factor)
+void LayoutRoundedRect::Radii::scale(float factor)
 {
     if (factor == 1)
         return;
@@ -64,7 +64,7 @@ void RoundedRect::Radii::scale(float factor)
         m_bottomRight = LayoutSize();
 }
 
-void RoundedRect::Radii::expand(LayoutUnit topWidth, LayoutUnit bottomWidth, LayoutUnit leftWidth, LayoutUnit rightWidth)
+void LayoutRoundedRect::Radii::expand(LayoutUnit topWidth, LayoutUnit bottomWidth, LayoutUnit leftWidth, LayoutUnit rightWidth)
 {
     if (m_topLeft.width() > 0 && m_topLeft.height() > 0) {
         m_topLeft.setWidth(std::max<LayoutUnit>(0, m_topLeft.width() + leftWidth));
@@ -84,7 +84,7 @@ void RoundedRect::Radii::expand(LayoutUnit topWidth, LayoutUnit bottomWidth, Lay
     }
 }
 
-void RoundedRect::inflateWithRadii(LayoutUnit amount)
+void LayoutRoundedRect::inflateWithRadii(LayoutUnit amount)
 {
     LayoutRect old = m_rect;
 
@@ -104,7 +104,7 @@ void RoundedRect::inflateWithRadii(LayoutUnit amount)
     m_radii.scale(factor);
 }
 
-void RoundedRect::Radii::setRadiiForEdges(const RoundedRect::Radii& radii, RectEdges<bool> includeEdges)
+void LayoutRoundedRect::Radii::setRadiiForEdges(const LayoutRoundedRect::Radii& radii, RectEdges<bool> includeEdges)
 {
     if (includeEdges.top()) {
         if (includeEdges.left())
@@ -120,7 +120,7 @@ void RoundedRect::Radii::setRadiiForEdges(const RoundedRect::Radii& radii, RectE
     }
 }
 
-bool RoundedRect::Radii::areRenderableInRect(const LayoutRect& rect) const
+bool LayoutRoundedRect::Radii::areRenderableInRect(const LayoutRect& rect) const
 {
     return topLeft().width() >= 0 && topLeft().height() >= 0
         && bottomLeft().width() >= 0 && bottomLeft().height() >= 0
@@ -132,7 +132,7 @@ bool RoundedRect::Radii::areRenderableInRect(const LayoutRect& rect) const
         && topRight().height() + bottomRight().height() <= rect.height();
 }
 
-void RoundedRect::Radii::makeRenderableInRect(const LayoutRect& rect)
+void LayoutRoundedRect::Radii::makeRenderableInRect(const LayoutRect& rect)
 {
     auto maxRadiusWidth = std::max(topLeft().width() + topRight().width(), bottomLeft().width() + bottomRight().width());
     auto maxRadiusHeight = std::max(topLeft().height() + bottomLeft().height(), topRight().height() + bottomRight().height());
@@ -148,34 +148,34 @@ void RoundedRect::Radii::makeRenderableInRect(const LayoutRect& rect)
 
 }
 
-RoundedRect::RoundedRect(LayoutUnit x, LayoutUnit y, LayoutUnit width, LayoutUnit height)
+LayoutRoundedRect::LayoutRoundedRect(LayoutUnit x, LayoutUnit y, LayoutUnit width, LayoutUnit height)
     : m_rect(x, y, width, height)
 {
 }
 
-RoundedRect::RoundedRect(const LayoutRect& rect, const Radii& radii)
+LayoutRoundedRect::LayoutRoundedRect(const LayoutRect& rect, const Radii& radii)
     : m_rect(rect)
     , m_radii(radii)
 {
 }
 
-RoundedRect::RoundedRect(const LayoutRect& rect, const LayoutSize& topLeft, const LayoutSize& topRight, const LayoutSize& bottomLeft, const LayoutSize& bottomRight)
+LayoutRoundedRect::LayoutRoundedRect(const LayoutRect& rect, const LayoutSize& topLeft, const LayoutSize& topRight, const LayoutSize& bottomLeft, const LayoutSize& bottomRight)
     : m_rect(rect)
     , m_radii(topLeft, topRight, bottomLeft, bottomRight)
 {
 }
 
-bool RoundedRect::isRenderable() const
+bool LayoutRoundedRect::isRenderable() const
 {
     return m_radii.areRenderableInRect(m_rect);
 }
 
-void RoundedRect::adjustRadii()
+void LayoutRoundedRect::adjustRadii()
 {
     m_radii.makeRenderableInRect(m_rect);
 }
 
-bool RoundedRect::intersectsQuad(const FloatQuad& quad) const
+bool LayoutRoundedRect::intersectsQuad(const FloatQuad& quad) const
 {
     FloatRect rect(m_rect);
     if (!quad.intersectsRect(rect))
@@ -228,7 +228,7 @@ bool RoundedRect::intersectsQuad(const FloatQuad& quad) const
     return true;
 }
 
-bool RoundedRect::contains(const LayoutRect& otherRect) const
+bool LayoutRoundedRect::contains(const LayoutRect& otherRect) const
 {
     if (!rect().contains(otherRect) || !isRenderable())
         return false;
@@ -272,7 +272,7 @@ bool RoundedRect::contains(const LayoutRect& otherRect) const
     return true;
 }
 
-FloatRoundedRect RoundedRect::pixelSnappedRoundedRectForPainting(float deviceScaleFactor) const
+FloatRoundedRect LayoutRoundedRect::pixelSnappedRoundedRectForPainting(float deviceScaleFactor) const
 {
     LayoutRect originalRect = rect();
     if (originalRect.isEmpty())
@@ -296,7 +296,7 @@ FloatRoundedRect RoundedRect::pixelSnappedRoundedRectForPainting(float deviceSca
     return snappedRoundedRect;
 }
 
-TextStream& operator<<(TextStream& ts, const RoundedRect& roundedRect)
+TextStream& operator<<(TextStream& ts, const LayoutRoundedRect& roundedRect)
 {
     ts << roundedRect.rect();
     ts.dumpProperty("top-left"_s, roundedRect.radii().topLeft());

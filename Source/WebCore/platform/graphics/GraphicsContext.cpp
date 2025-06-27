@@ -36,7 +36,7 @@
 #include "ImageBuffer.h"
 #include "ImageOrientation.h"
 #include "IntRect.h"
-#include "RoundedRect.h"
+#include "LayoutRoundedRect.h"
 #include "SystemImage.h"
 #include "TextBoxIterator.h"
 #include "VideoFrame.h"
