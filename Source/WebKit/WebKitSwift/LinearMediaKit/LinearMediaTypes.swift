@@ -97,12 +97,24 @@
     }
 
     @nonobjc final var playable: (any Playable)? {
-        get { base.playable }
+        get {
+            #if USE_APPLE_INTERNAL_SDK
+            base.playable
+            #else
+            nil
+            #endif
+        }
         set { base.playable = newValue }
     }
 
     @nonobjc final var prefersAutoDimming: Bool {
-        get { base.prefersAutoDimming }
+        get {
+            #if USE_APPLE_INTERNAL_SDK
+            base.prefersAutoDimming
+            #else
+            false
+            #endif
+        }
         set { base.prefersAutoDimming = newValue }
     }
 }
