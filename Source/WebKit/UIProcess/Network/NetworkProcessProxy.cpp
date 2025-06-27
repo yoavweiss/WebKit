@@ -190,6 +190,7 @@ void NetworkProcessProxy::sendCreationParametersToNewProcess()
             if (RefPtr protectedThis = weakThis.get())
                 protectedThis->sendCreationParametersToNewProcess();
         });
+        return;
     }
 
     NetworkProcessCreationParameters parameters;
