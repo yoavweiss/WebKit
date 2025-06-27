@@ -35,6 +35,7 @@
 #import "CocoaHelpers.h"
 #import "Logging.h"
 #import "MessageSenderInlines.h"
+#import <JavaScriptCore/MathCommon.h>
 #import "WebExtensionAPINamespace.h"
 #import "WebExtensionAPIPort.h"
 #import "WebExtensionContext.h"
@@ -195,7 +196,7 @@ NSDictionary *toWebAPI(const WebExtensionTabParameters& parameters)
 
 static inline size_t clampIndex(double index)
 {
-    return static_cast<size_t>(std::max(0.0, std::min(index, static_cast<double>(std::numeric_limits<size_t>::max()))));
+    return static_cast<size_t>(std::max(0.0, std::min(index, static_cast<double>(JSC::maxSafeInteger()))));
 }
 
 bool WebExtensionAPITabs::parseTabCreateOptions(NSDictionary *options, WebExtensionTabParameters& parameters, NSString *sourceKey, NSString **outExceptionString)

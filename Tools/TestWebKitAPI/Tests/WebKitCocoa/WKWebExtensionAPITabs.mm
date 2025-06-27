@@ -30,6 +30,7 @@
 #import "HTTPServer.h"
 #import "TestWKWebView.h"
 #import "WebExtensionUtilities.h"
+#import <JavaScriptCore/MathCommon.h>
 
 namespace TestWebKitAPI {
 
@@ -258,12 +259,7 @@ TEST(WKWebExtensionAPITabs, Create)
     [manager run];
 }
 
-// FIXME: rdar://152666936
-#if PLATFORM(MAC)
-TEST(WKWebExtensionAPITabs, DISABLED_CreateTabsOverflowIndex)
-#else
 TEST(WKWebExtensionAPITabs, CreateTabsOverflowIndex)
-#endif
 {
     auto *backgroundScript = Util::constructScript(@[
         @"var allWindows = await browser.windows.getAll({ populate: true })",
@@ -286,7 +282,7 @@ TEST(WKWebExtensionAPITabs, CreateTabsOverflowIndex)
 
     manager.get().internalDelegate.openNewTab = ^(WKWebExtensionTabConfiguration *configuration, WKWebExtensionContext *context, void (^completionHandler)(id<WKWebExtensionTab>, NSError *)) {
         EXPECT_NS_EQUAL(configuration.window, window);
-        EXPECT_EQ(configuration.index, NSUIntegerMax);
+        EXPECT_EQ(configuration.index, JSC::maxSafeIntegerAsUInt64());
 
         originalOpenNewTab(configuration, context, completionHandler);
     };
