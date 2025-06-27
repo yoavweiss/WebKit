@@ -156,10 +156,8 @@ protected:
 
     Color checkboxRadioBackgroundColorForVectorBasedControls(const RenderStyle&, OptionSet<ControlStyle::State>, OptionSet<StyleColorOptions>) const;
 
-    bool adjustCheckboxStyleForVectorBasedControls(RenderStyle&, const Element*) const;
     bool paintCheckboxForVectorBasedControls(const RenderObject&, const PaintInfo&, const FloatRect&);
 
-    bool adjustRadioStyleForVectorBasedControls(RenderStyle&, const Element*) const;
     bool paintRadioForVectorBasedControls(const RenderObject&, const PaintInfo&, const FloatRect&);
 
     bool adjustButtonStyleForVectorBasedControls(RenderStyle&, const Element*) const;
