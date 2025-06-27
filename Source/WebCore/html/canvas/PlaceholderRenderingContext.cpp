@@ -49,10 +49,13 @@ PlaceholderRenderingContextSource::PlaceholderRenderingContextSource(Placeholder
 
 void PlaceholderRenderingContextSource::setPlaceholderBuffer(ImageBuffer& imageBuffer)
 {
+    auto bufferVersion = ++m_bufferVersion;
     {
         Locker locker { m_lock };
-        if (m_delegate)
+        if (m_delegate) {
             m_delegate->tryCopyToLayer(imageBuffer);
+            m_delegateBufferVersion = bufferVersion;
+        }
     }
 
     RefPtr clone = imageBuffer.clone();
@@ -61,22 +64,42 @@ void PlaceholderRenderingContextSource::setPlaceholderBuffer(ImageBuffer& imageB
     std::unique_ptr serializedClone = ImageBuffer::sinkIntoSerializedImageBuffer(WTFMove(clone));
     if (!serializedClone)
         return;
-    callOnMainThread([weakPlaceholder = m_placeholder, buffer = WTFMove(serializedClone)] () mutable {
+    callOnMainThread([weakPlaceholder = m_placeholder, buffer = WTFMove(serializedClone), bufferVersion] () mutable {
+        assertIsMainThread();
         RefPtr placeholder = weakPlaceholder.get();
         if (!placeholder)
             return;
         RefPtr imageBuffer = SerializedImageBuffer::sinkIntoImageBuffer(WTFMove(buffer), placeholder->protectedCanvas()->scriptExecutionContext()->graphicsClient());
         if (!imageBuffer)
             return;
+        Ref source = placeholder->source();
+        {
+            Locker locker { source->m_lock };
+            if (source->m_delegate && source->m_delegateBufferVersion < bufferVersion) {
+                // Compare the versions, so that possibly already historical buffer in this
+                // main thread task does not override the newest buffer that the worker thread
+                // already set.
+                source->m_delegate->tryCopyToLayer(*imageBuffer);
+                source->m_delegateBufferVersion = bufferVersion;
+            }
+        }
+
         placeholder->setPlaceholderBuffer(imageBuffer.releaseNonNull());
+        source->m_placeholderBufferVersion = bufferVersion;
     });
 }
 
-void PlaceholderRenderingContextSource::setContentsToLayer(GraphicsLayer& layer, ContentsFormat contentsFormat)
+void PlaceholderRenderingContextSource::setContentsToLayer(GraphicsLayer& layer, ContentsFormat contentsFormat, ImageBuffer* buffer)
 {
+    assertIsMainThread();
     Locker locker { m_lock };
-    if ((m_delegate = layer.createAsyncContentsDisplayDelegate(m_delegate.get())))
+    if ((m_delegate = layer.createAsyncContentsDisplayDelegate(m_delegate.get()))) {
         m_delegate->setContentsFormat(contentsFormat);
+        if (buffer) {
+            m_delegate->tryCopyToLayer(*buffer);
+            m_delegateBufferVersion = m_placeholderBufferVersion;
+        }
+    }
 }
 
 WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(PlaceholderRenderingContext);
@@ -128,7 +151,11 @@ constexpr ContentsFormat pixelFormatToContentsFormat(ImageBufferPixelFormat form
 
 void PlaceholderRenderingContext::setContentsToLayer(GraphicsLayer& layer)
 {
-    m_source->setContentsToLayer(layer, pixelFormatToContentsFormat(m_pixelFormat));
+    RefPtr<ImageBuffer> buffer;
+    Ref canvas = this->canvas();
+    if (canvas->hasCreatedImageBuffer())
+        buffer = canvas->buffer();
+    m_source->setContentsToLayer(layer, pixelFormatToContentsFormat(m_pixelFormat), buffer.get());
 }
 
 void PlaceholderRenderingContext::setPlaceholderBuffer(Ref<ImageBuffer>&& buffer)
