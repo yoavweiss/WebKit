@@ -3585,7 +3585,7 @@ bool RenderThemeCocoa::adjustTextControlInnerTextStyleForVectorBasedControls(Ren
 void RenderThemeCocoa::adjustCheckboxStyle(RenderStyle& style, const Element* element) const
 {
 #if ENABLE(FORM_CONTROL_REFRESH)
-    if (formControlRefreshEnabled(box))
+    if (formControlRefreshEnabled(element))
         style.resetBorder();
 #endif
 
@@ -3605,7 +3605,7 @@ bool RenderThemeCocoa::paintCheckbox(const RenderObject& box, const PaintInfo& p
 void RenderThemeCocoa::adjustRadioStyle(RenderStyle& style, const Element* element) const
 {
 #if ENABLE(FORM_CONTROL_REFRESH)
-    if (formControlRefreshEnabled(box))
+    if (formControlRefreshEnabled(element))
         style.resetBorder();
 #endif
 
