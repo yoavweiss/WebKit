@@ -347,6 +347,7 @@ std::error_code compileRuleList(ContentExtensionCompilationClient& client, Strin
                 break;
             case ActionCondition::IfFrameURL:
             case ActionCondition::UnlessFrameURL:
+            case ActionCondition::IfFrameOrAncestorsURL:
                 status = frameURLFilterParser.addPattern(condition, trigger.frameURLFilterIsCaseSensitive, actionLocationAndFlags);
                 if (status == URLFilterParser::MatchesEverything) {
                     frameURLUniversalActions.add(actionLocationAndFlags);
