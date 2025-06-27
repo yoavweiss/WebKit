@@ -102,7 +102,7 @@ struct AXTextRun {
     {
         // Runs should have a non-zero length (i.e. endIndex should strictly be greater than startIndex).
         // This is important because several parts of AXTextMarker rely on this assumption.
-        RELEASE_ASSERT(endIndex > startIndex);
+        ASSERT(endIndex > startIndex);
     }
 
     const FixedVector<std::array<uint16_t, 2>>& domOffsets() const { return textRunDomOffsets; }

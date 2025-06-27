@@ -145,7 +145,7 @@ FloatRect AXTextRuns::localRect(unsigned start, unsigned end, FontOrientation or
         float totalAdvance = 0;
         unsigned startIndexInRun = startIndex - offsetOfFirstCharacterInRun;
         unsigned endIndexInRun = endIndex - offsetOfFirstCharacterInRun;
-        RELEASE_ASSERT(startIndexInRun <= endIndexInRun);
+        ASSERT(startIndexInRun <= endIndexInRun);
         for (size_t i = startIndexInRun; i < endIndexInRun; i++)
             totalAdvance += (float)characterAdvances[i];
         return totalAdvance;

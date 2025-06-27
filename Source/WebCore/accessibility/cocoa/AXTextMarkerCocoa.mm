@@ -75,7 +75,7 @@ RetainPtr<PlatformTextMarkerData> AXTextMarker::platformData() const
 // FIXME: There's a lot of duplicated code between this function and AXTextMarkerRange::toString().
 RetainPtr<NSAttributedString> AXTextMarkerRange::toAttributedString(AXCoreObject::SpellCheck spellCheck) const
 {
-    RELEASE_ASSERT(!isMainThread());
+    ASSERT(!isMainThread());
 
     auto start = m_start.toTextRunMarker();
     if (!start.isValid())
