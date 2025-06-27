@@ -593,10 +593,7 @@ html/parser/HTMLConstructionSite.h
 html/parser/HTMLParserScheduler.cpp
 html/parser/HTMLScriptRunner.cpp
 html/parser/HTMLTreeBuilder.cpp
-html/shadow/DateTimeEditElement.cpp
-html/shadow/DateTimeFieldElement.cpp
 html/shadow/MediaControlTextTrackContainerElement.cpp
-html/shadow/TextControlInnerElements.cpp
 html/track/AudioTrack.cpp
 html/track/DataCue.cpp
 html/track/InbandDataTextTrack.cpp

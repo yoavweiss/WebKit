@@ -314,14 +314,9 @@ html/parser/HTMLParserOptions.cpp
 html/parser/HTMLParserScheduler.cpp
 html/parser/HTMLScriptRunner.cpp
 html/parser/HTMLTreeBuilder.cpp
-html/shadow/DateTimeEditElement.cpp
-html/shadow/DateTimeFieldElement.cpp
 html/shadow/DateTimeNumericFieldElement.cpp
 html/shadow/DateTimeSymbolicFieldElement.cpp
-html/shadow/MediaControlTextTrackContainerElement.cpp
 html/shadow/SliderThumbElement.cpp
-html/shadow/SpinButtonElement.cpp
-html/shadow/TextControlInnerElements.cpp
 html/track/InbandGenericTextTrack.cpp
 html/track/InbandWebVTTTextTrack.cpp
 html/track/LoadableTextTrack.cpp

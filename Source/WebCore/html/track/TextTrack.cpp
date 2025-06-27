@@ -457,6 +457,11 @@ VTTRegionList* TextTrack::regions()
     return &ensureVTTRegionList();
 }
 
+RefPtr<VTTRegionList> TextTrack::protectedRegions()
+{
+    return regions();
+}
+
 void TextTrack::cueWillChange(TextTrackCue& cue)
 {
     m_clients.forEach([&] (auto& client) {

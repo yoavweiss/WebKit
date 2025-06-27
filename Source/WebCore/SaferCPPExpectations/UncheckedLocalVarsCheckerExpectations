@@ -199,13 +199,6 @@ html/ValidationMessage.cpp
 html/canvas/CanvasRenderingContext2D.cpp
 html/canvas/CanvasRenderingContext2DBase.cpp
 html/parser/HTMLConstructionSite.cpp
-html/shadow/DateTimeEditElement.cpp
-html/shadow/DateTimeNumericFieldElement.cpp
-html/shadow/DateTimeSymbolicFieldElement.cpp
-html/shadow/MediaControlTextTrackContainerElement.cpp
-html/shadow/ProgressShadowElement.cpp
-html/shadow/SpinButtonElement.cpp
-html/shadow/TextControlInnerElements.cpp
 inspector/DOMPatchSupport.cpp
 inspector/InspectorAuditAccessibilityObject.cpp
 inspector/InspectorCanvas.cpp
