@@ -226,14 +226,14 @@ void revealClosedDetailsAncestors(Node& node)
         return;
 
     Ref currentNode = node;
-    while (currentNode->parentInComposedTree()) {
+    while (RefPtr parent = currentNode->parentInComposedTree()) {
         if (RefPtr slot = currentNode->assignedSlot(); slot && slot->userAgentPart() == UserAgentParts::detailsContent() && slot->shadowHost()) {
             currentNode = *slot->shadowHost();
             Ref details = downcast<HTMLDetailsElement>(currentNode);
             if (!details->hasAttributeWithoutSynchronization(HTMLNames::openAttr))
                 details->toggleOpen();
         } else
-            currentNode = *currentNode->parentInComposedTree();
+            currentNode = *parent;
     }
 }
 
