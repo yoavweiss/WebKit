@@ -52,6 +52,7 @@ platform/graphics/ca/TileCoverageMap.h
 platform/mac/VideoPresentationInterfaceMac.mm
 platform/mock/DeviceOrientationClientMock.h
 rendering/BackgroundPainter.h
+rendering/BidiRun.h
 rendering/GlyphDisplayListCache.cpp
 rendering/GridTrackSizingAlgorithm.h
 rendering/ImageQualityController.h
