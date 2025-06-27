@@ -2545,18 +2545,6 @@ LayoutUnit RenderBlock::baselinePosition(FontBaseline baselineType, bool firstLi
     return LayoutUnit { fontMetrics.intAscent(baselineType) + (lineHeight(firstLine, direction, linePositionMode) - fontMetrics.intHeight()) / 2 }.toInt();
 }
 
-LayoutUnit RenderBlock::minLineHeightForReplacedRenderer(bool isFirstLine, LayoutUnit replacedHeight) const
-{
-    if (!document().inNoQuirksMode() && replacedHeight)
-        return replacedHeight;
-
-    const RenderStyle& style = isFirstLine ? firstLineStyle() : this->style();
-    if (!(style.lineBoxContain().contains(Style::LineBoxContain::Block)))
-        return 0;
-
-    return std::max<LayoutUnit>(replacedHeight, lineHeight(isFirstLine, isHorizontalWritingMode() ? HorizontalLine : VerticalLine, PositionOfInteriorLineBoxes));
-}
-
 std::optional<LayoutUnit> RenderBlock::firstLineBaseline() const
 {
     if (shouldApplyLayoutContainment())

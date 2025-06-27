@@ -406,7 +406,7 @@ inline bool BreakingContext::handleText()
             canBreakMidWord = breakAll;
         }
 
-        if (canHangPunctuationAtStart && m_width.isFirstLine() && !m_width.committedWidth() && !wrapW && !inlineLogicalWidth(renderer, true, false)) {
+        if (canHangPunctuationAtStart && !m_width.committedWidth() && !wrapW && !inlineLogicalWidth(renderer, true, false)) {
             m_width.addUncommittedWidth(-renderer.hangablePunctuationStartWidth(m_current.offset()));
             canHangPunctuationAtStart = false;
         }
