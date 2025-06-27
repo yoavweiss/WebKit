@@ -3033,6 +3033,21 @@ void printLayerTreeForLiveDocuments()
     }
 }
 
+void printAccessibilityTreeForLiveDocuments()
+{
+    for (auto& document : Document::allDocuments()) {
+        if (!document->renderView())
+            continue;
+        if (document->frame()) {
+            if (document->frame()->isRootFrame())
+                WTFLogAlways("Accessibility tree for root document %p %s", document.ptr(), document->url().string().utf8().data());
+            else
+                WTFLogAlways("Accessibility tree for non-root document %p %s", document.ptr(), document->url().string().utf8().data());
+            dumpAccessibilityTreeToStderr(document.get());
+        }
+    }
+}
+
 void printGraphicsLayerTreeForLiveDocuments()
 {
     for (auto& document : Document::allDocuments()) {

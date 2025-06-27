@@ -1143,6 +1143,16 @@ public:
 #endif
     virtual AXCoreObject* parentObject() const = 0;
     virtual AXCoreObject* parentObjectUnignored() const;
+    AXCoreObject* parentInCoreTree() const
+    {
+        // Returns the parent in the "core", platform-agnostic accessibility tree, which is not necessarily
+        // the same parent that is actually exposed to assistive technologies (i.e. one that is unignored).
+#if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+        return parentObject();
+#else
+        return parentObjectUnignored();
+#endif // ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+    }
 
     virtual AccessibilityChildrenVector findMatchingObjects(AccessibilitySearchCriteria&&) = 0;
     virtual bool isDescendantOfRole(AccessibilityRole) const = 0;

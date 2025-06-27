@@ -325,16 +325,6 @@ public:
     AccessibilityObject* parentObject() const override { return nullptr; }
     AccessibilityObject* displayContentsParent() const;
     AccessibilityObject* parentObjectUnignored() const final { return downcast<AccessibilityObject>(AXCoreObject::parentObjectUnignored()); }
-    // Returns the parent in the "core", platform-agnostic accessibility tree, which is not necessarily
-    // the same parent that is actually exposed to assistive technologies (i.e. one that is unignored).
-    AccessibilityObject* parentInCoreTree() const
-    {
-#if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
-        return parentObject();
-#else
-        return parentObjectUnignored();
-#endif // ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
-    }
     static AccessibilityObject* firstAccessibleObjectFromNode(const Node*);
     AccessibilityChildrenVector findMatchingObjects(AccessibilitySearchCriteria&&) final;
     virtual bool isDescendantOfBarrenParent() const { return false; }

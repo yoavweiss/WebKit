@@ -1351,7 +1351,7 @@ void streamSubtree(TextStream& stream, const Ref<AXCoreObject>& object, const Op
 
     TextStream::GroupScope groupScope(stream);
     streamAXCoreObject(stream, object, options);
-    for (auto& child : object->unignoredChildren(/* updateChildrenIfNeeded */ false))
+    for (auto& child : object->children())
         streamSubtree(stream, child, options);
 
     stream.decreaseIndent();

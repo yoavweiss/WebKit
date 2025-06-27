@@ -532,7 +532,7 @@ void AXIsolatedTree::updateNode(AccessibilityObject& axObject)
     if (!axParent)
         return;
 
-    if (auto change = nodeChangeForObject(*axParent)) {
+    if (auto change = nodeChangeForObject(downcast<AccessibilityObject>(*axParent))) {
         Locker locker { m_changeLogLock };
         queueChange(WTFMove(*change));
     }

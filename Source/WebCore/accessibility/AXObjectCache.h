@@ -1053,4 +1053,6 @@ bool isVisibilityHidden(const RenderStyle&);
 
 WTF::TextStream& operator<<(WTF::TextStream&, AXNotification);
 
+void dumpAccessibilityTreeToStderr(Document&);
+
 } // namespace WebCore
