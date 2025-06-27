@@ -287,10 +287,8 @@ private:
     bool m_mockVideoPresentationModeEnabled { false };
     WebCore::FloatSize m_mockPictureInPictureWindowSize { DefaultMockPictureInPictureWindowWidth, DefaultMockPictureInPictureWindowHeight };
 
-    Ref<PlaybackSessionManagerProxy> protectedPlaybackSessionManagerProxy() const;
-
     WeakPtr<WebPageProxy> m_page;
-    Ref<PlaybackSessionManagerProxy> m_playbackSessionManagerProxy;
+    const Ref<PlaybackSessionManagerProxy> m_playbackSessionManagerProxy;
     HashMap<PlaybackSessionContextIdentifier, ModelInterfacePair> m_contextMap;
     HashMap<PlaybackSessionContextIdentifier, int> m_clientCounts;
     Vector<CompletionHandler<void()>> m_closeCompletionHandlers;

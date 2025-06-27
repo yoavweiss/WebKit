@@ -48,7 +48,6 @@ UIProcess/RemoteLayerTree/mac/RemoteLayerTreeEventDispatcher.mm
 UIProcess/WebFullScreenManagerProxy.cpp
 UIProcess/WebPageProxy.cpp
 UIProcess/mac/PageClientImplMac.mm
-UIProcess/mac/ViewGestureControllerMac.mm
 UIProcess/mac/WKRevealItemPresenter.mm
 UIProcess/mac/WKTextAnimationManagerMac.mm
 UIProcess/mac/WKViewLayoutStrategy.mm
@@ -82,10 +81,7 @@ WebProcess/Network/webrtc/LibWebRTCDnsResolverFactory.cpp
 WebProcess/Network/webrtc/LibWebRTCNetwork.h
 WebProcess/Network/webrtc/LibWebRTCProvider.cpp
 WebProcess/Network/webrtc/LibWebRTCResolver.cpp
-WebProcess/Plugins/PDF/PDFPluginAnnotation.mm
 WebProcess/Plugins/PDF/PDFPluginBase.mm
-WebProcess/Plugins/PDF/PDFPluginPasswordField.mm
-WebProcess/Plugins/PDF/PDFPluginTextAnnotation.mm
 WebProcess/Plugins/PDF/UnifiedPDF/PDFDiscretePresentationController.mm
 WebProcess/Plugins/PDF/UnifiedPDF/PDFScrollingPresentationController.mm
 WebProcess/Plugins/PDF/UnifiedPDF/UnifiedPDFPlugin.mm

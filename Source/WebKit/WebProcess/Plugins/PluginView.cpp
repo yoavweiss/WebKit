@@ -138,7 +138,7 @@ void PluginView::Stream::start()
     RefPtr frame = m_pluginView->frame();
     ASSERT(frame);
 
-    WebProcess::singleton().webLoaderStrategy().schedulePluginStreamLoad(*frame, *this, ResourceRequest {m_request}, [this, protectedThis = Ref { *this }](RefPtr<NetscapePlugInStreamLoader>&& loader) {
+    WebProcess::singleton().protectedWebLoaderStrategy()->schedulePluginStreamLoad(*frame, *this, ResourceRequest { m_request }, [this, protectedThis = Ref { *this }](RefPtr<NetscapePlugInStreamLoader>&& loader) {
         m_loader = WTFMove(loader);
     });
 }
@@ -242,7 +242,7 @@ PluginView::PluginView(HTMLPlugInElement& element, const URL& mainResourceURL, c
     , m_pendingResourceRequestTimer(RunLoop::main(), this, &PluginView::pendingResourceRequestTimerFired)
 {
     m_plugin->startLoading();
-    m_webPage->addPluginView(*this);
+    page.addPluginView(*this);
     updateDocumentForPluginSizingBehavior();
 }
 
@@ -543,9 +543,9 @@ void PluginView::paint(GraphicsContext& context, const IntRect& dirtyRect, Widge
     if (frameRect().isEmpty())
         return;
 
-    if (m_transientPaintingSnapshot) {
+    if (RefPtr transientPaintingSnapshot = m_transientPaintingSnapshot) {
         if (!context.hasPlatformContext()) {
-            RefPtr image = m_transientPaintingSnapshot->createImage();
+            RefPtr image = transientPaintingSnapshot->createImage();
             if (!image)
                 return;
             context.drawImage(*image, frameRect());
@@ -553,7 +553,7 @@ void PluginView::paint(GraphicsContext& context, const IntRect& dirtyRect, Widge
             auto deviceScaleFactor = 1;
             if (RefPtr page = m_pluginElement->document().page())
                 deviceScaleFactor = page->deviceScaleFactor();
-            m_transientPaintingSnapshot->paint(context, deviceScaleFactor, frameRect().location(), m_transientPaintingSnapshot->bounds());
+            transientPaintingSnapshot->paint(context, deviceScaleFactor, frameRect().location(), transientPaintingSnapshot->bounds());
         }
         return;
     }

@@ -71,7 +71,7 @@ RefPtr<UnifiedPDFPlugin> PDFDataDetectorOverlayController::protectedPlugin() con
     return m_plugin.get();
 }
 
-PageOverlay& PDFDataDetectorOverlayController::installOverlayIfNeeded()
+Ref<PageOverlay> PDFDataDetectorOverlayController::installProtectedOverlayIfNeeded()
 {
     if (m_overlay)
         return *m_overlay;
@@ -175,7 +175,7 @@ bool PDFDataDetectorOverlayController::handleMouseEvent(const WebMouseEvent& eve
             previousActiveHighlight->fadeOut();
 
         if (activeHighlight) {
-            installOverlayIfNeeded().protectedLayer()->addChild(activeHighlight->layer());
+            installProtectedOverlayIfNeeded()->protectedLayer()->addChild(activeHighlight->layer());
             activeHighlight->fadeIn();
         }
 
