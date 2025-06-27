@@ -42,6 +42,7 @@
 #include <WebCore/FrameSelection.h>
 #include <WebCore/GeometryUtilities.h>
 #include <WebCore/GraphicsContext.h>
+#include <WebCore/HTMLDetailsElement.h>
 #include <WebCore/ImageAnalysisQueue.h>
 #include <WebCore/ImageOverlay.h>
 #include <WebCore/LocalFrame.h>
@@ -504,7 +505,9 @@ void FindController::didFindString()
     if (!selectedFrame)
         return;
 
-    selectedFrame->checkedSelection()->revealSelection();
+    CheckedRef selection = selectedFrame->selection();
+    selection->revealSelection();
+    revealClosedDetailsAncestors(*selection->selection().start().protectedAnchorNode());
 }
 
 void FindController::didHideFindIndicator()

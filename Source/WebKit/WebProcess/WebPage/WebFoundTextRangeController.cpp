@@ -39,6 +39,7 @@
 #include <WebCore/GeometryUtilities.h>
 #include <WebCore/GraphicsContext.h>
 #include <WebCore/GraphicsLayer.h>
+#include <WebCore/HTMLDetailsElement.h>
 #include <WebCore/ImageOverlay.h>
 #include <WebCore/LocalFrame.h>
 #include <WebCore/LocalFrameView.h>
@@ -159,6 +160,8 @@ void WebFoundTextRangeController::decorateTextRangeWithStyle(const WebFoundTextR
             break;
         case FindDecorationStyle::Highlighted: {
             m_highlightedRange = range;
+
+            revealClosedDetailsAncestors(simpleRange->protectedStartContainer());
 
             if (m_findPageOverlay)
                 setTextIndicatorWithRange(*simpleRange);

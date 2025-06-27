@@ -59,6 +59,7 @@
 #include "FrameTree.h"
 #include "GraphicsContext.h"
 #include "HTMLBodyElement.h"
+#include "HTMLDetailsElement.h"
 #include "HTMLEmbedElement.h"
 #include "HTMLFrameElement.h"
 #include "HTMLFrameSetElement.h"
@@ -2747,8 +2748,9 @@ bool LocalFrameView::scrollToFragmentInternal(StringView fragmentIdentifier)
         scrollPositionAnchor = m_frame->document();
     maintainScrollPositionAtAnchor(scrollPositionAnchor.get());
     
-    // If the anchor accepts keyboard focus, move focus there to aid users relying on keyboard navigation.
     if (anchorElement) {
+        revealClosedDetailsAncestors(*anchorElement);
+        // If the anchor accepts keyboard focus, move focus there to aid users relying on keyboard navigation.
         if (anchorElement->isFocusable())
             document.setFocusedElement(anchorElement.get(), { { }, { }, { }, { }, FocusVisibility::Visible });
         else {

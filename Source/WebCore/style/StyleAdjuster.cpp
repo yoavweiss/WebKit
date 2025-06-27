@@ -40,6 +40,7 @@
 #include "EventNames.h"
 #include "EventTargetInlines.h"
 #include "HTMLBodyElement.h"
+#include "HTMLDetailsElement.h"
 #include "HTMLDialogElement.h"
 #include "HTMLDivElement.h"
 #include "HTMLInputElement.h"
@@ -649,6 +650,9 @@ void Adjuster::adjust(RenderStyle& style) const
 
         if (m_element->invokedPopover())
             style.setIsPopoverInvoker();
+
+        if (m_document->settings().detailsAutoExpandEnabled() && is<HTMLDetailsElement>(element))
+            style.setAutoRevealsWhenFound();
     }
 
     if (shouldInheritTextDecorationsInEffect(style, m_element.get()))

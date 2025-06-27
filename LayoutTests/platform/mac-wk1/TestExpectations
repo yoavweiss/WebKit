@@ -1799,6 +1799,10 @@ http/tests/download/convert-cached-load-to-download.html [ Skip ]
 # Can't load application/octet-stream in WK1
 http/tests/mime/html-with-nosniff-html.html [ Skip ]
 
+# testRunner.findString function is WK2-only, not implemented for WK1.
+editing/text-iterator/find-in-page-in-closed-details.html [ Skip ]
+editing/text-iterator/find-in-page-in-summary-of-closed-details.html [ Skip ]
+
 # dumpPolicyDelegateCallbacks is not supported in DumpRenderTree
 fast/loader/iframe-src-invalid-url.html [ Skip ]
 

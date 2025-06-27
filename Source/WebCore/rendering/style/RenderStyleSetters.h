@@ -685,6 +685,8 @@ inline void RenderStyle::setBlendMode(BlendMode mode)
 inline void RenderStyle::setIsForceHidden() { SET(m_rareInheritedData, isForceHidden, true); }
 inline void RenderStyle::setIsolation(Isolation isolation) { SET_NESTED(m_nonInheritedData, rareData, isolation, static_cast<unsigned>(isolation)); }
 
+inline void RenderStyle::setAutoRevealsWhenFound() { SET(m_rareInheritedData, autoRevealsWhenFound, true); }
+
 #undef SET
 #undef SET_BORDER_COLOR
 #undef SET_DOUBLY_NESTED

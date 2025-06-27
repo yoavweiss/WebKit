@@ -882,6 +882,8 @@ inline Visibility RenderStyle::usedVisibility() const
     return static_cast<Visibility>(m_inheritedFlags.visibility);
 }
 
+inline bool RenderStyle::autoRevealsWhenFound() const { return m_rareInheritedData->autoRevealsWhenFound; }
+
 #if ENABLE(CURSOR_VISIBILITY)
 constexpr CursorVisibility RenderStyle::initialCursorVisibility() { return CursorVisibility::Auto; }
 #endif

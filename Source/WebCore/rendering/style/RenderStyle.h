@@ -1215,6 +1215,9 @@ public:
     inline Isolation isolation() const;
     inline bool hasIsolation() const;
 
+    inline void setAutoRevealsWhenFound();
+    inline bool autoRevealsWhenFound() const;
+
     bool shouldPlaceVerticalScrollbarOnLeft() const;
 
     inline bool usesStandardScrollbarStyle() const;

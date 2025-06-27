@@ -2366,6 +2366,20 @@ DetachableMediaSourceEnabled:
     WebCore:
       default: false
 
+DetailsAutoExpandEnabled:
+  type: bool
+  status: testable
+  category: html
+  humanReadableName: "HTML auto-expanding <details>"
+  humanReadableDescription: "Enable HTML auto-expanding <details>"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 DeveloperExtrasEnabled:
   type: bool
   status: embedder

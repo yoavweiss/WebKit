@@ -1369,6 +1369,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     html/HTMLCollectionInlines.h
     html/HTMLDListElement.h
     html/HTMLDataListElement.h
+    html/HTMLDetailsElement.h
     html/HTMLDirectoryElement.h
     html/HTMLDivElement.h
     html/HTMLDocument.h

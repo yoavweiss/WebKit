@@ -145,6 +145,7 @@ StyleRareInheritedData::StyleRareInheritedData()
     , isInSubtreeWithBlendMode(false)
     , isForceHidden(false)
     , usedContentVisibility(static_cast<unsigned>(ContentVisibility::Visible))
+    , autoRevealsWhenFound(false)
     , insideDefaultButton(false)
 #if HAVE(CORE_MATERIAL)
     , usedAppleVisualEffectForSubtree(static_cast<unsigned>(AppleVisualEffect::None))
@@ -246,6 +247,7 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , isInSubtreeWithBlendMode(o.isInSubtreeWithBlendMode)
     , isForceHidden(o.isForceHidden)
     , usedContentVisibility(o.usedContentVisibility)
+    , autoRevealsWhenFound(o.autoRevealsWhenFound)
     , insideDefaultButton(o.insideDefaultButton)
 #if HAVE(CORE_MATERIAL)
     , usedAppleVisualEffectForSubtree(o.usedAppleVisualEffectForSubtree)
@@ -377,6 +379,7 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && hasAutoAccentColor == o.hasAutoAccentColor
         && isInSubtreeWithBlendMode == o.isInSubtreeWithBlendMode
         && isForceHidden == o.isForceHidden
+        && autoRevealsWhenFound == o.autoRevealsWhenFound
         && usedTouchActions == o.usedTouchActions
         && eventListenerRegionTypes == o.eventListenerRegionTypes
         && effectiveInert == o.effectiveInert
@@ -504,6 +507,7 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
     LOG_IF_DIFFERENT_WITH_CAST(bool, effectiveInert);
     LOG_IF_DIFFERENT_WITH_CAST(bool, isInSubtreeWithBlendMode);
     LOG_IF_DIFFERENT_WITH_CAST(bool, isForceHidden);
+    LOG_IF_DIFFERENT_WITH_CAST(bool, autoRevealsWhenFound);
 
     LOG_IF_DIFFERENT_WITH_CAST(ContentVisibility, usedContentVisibility);
 

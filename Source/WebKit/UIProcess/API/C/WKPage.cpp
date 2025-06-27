@@ -972,6 +972,12 @@ void WKPageSelectFindMatch(WKPageRef pageRef, int32_t matchIndex)
     toImpl(pageRef)->selectFindMatch(matchIndex);
 }
 
+void WKPageIndicateFindMatch(WKPageRef pageRef, uint32_t matchIndex)
+{
+    CRASH_IF_SUSPENDED;
+    toImpl(pageRef)->indicateFindMatch(matchIndex);
+}
+
 void WKPageFindString(WKPageRef pageRef, WKStringRef string, WKFindOptions options, unsigned maxMatchCount)
 {
     CRASH_IF_SUSPENDED;

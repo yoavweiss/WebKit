@@ -182,6 +182,8 @@ public:
 
     unsigned usedContentVisibility : 2; // ContentVisibility
 
+    unsigned autoRevealsWhenFound : 1;
+
     unsigned insideDefaultButton : 1;
 
 #if HAVE(CORE_MATERIAL)
