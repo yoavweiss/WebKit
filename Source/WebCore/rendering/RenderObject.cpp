@@ -1303,7 +1303,7 @@ void RenderObject::outputRegionsInformation(TextStream& stream) const
 
 void RenderObject::outputRenderObject(TextStream& stream, bool mark, int depth) const
 {
-    if (isNonReplacedAtomicInline())
+    if (isNonReplacedAtomicInlineLevelBox())
         stream << "A";
     else if (isInline())
         stream << "I";

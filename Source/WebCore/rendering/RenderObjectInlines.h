@@ -24,7 +24,9 @@
 #include "FrameDestructionObserverInlines.h"
 #include "LocalFrameInlines.h"
 #include "RenderElement.h"
+#include "RenderIFrame.h"
 #include "RenderObject.h"
+#include "RenderReplaced.h"
 #include "RenderStyleInlines.h"
 #include "RenderView.h"
 
@@ -144,6 +146,12 @@ inline void RenderObject::setNeedsLayoutAndPreferredWidthsUpdate()
 {
     setNeedsLayout();
     setNeedsPreferredWidthsUpdate();
+}
+
+inline bool RenderObject::isNonReplacedAtomicInlineLevelBox() const
+{
+    // FIXME: Check if iframe should really behave like non-replaced here.
+    return (is<RenderIFrame>(*this) && isInline()) || (!is<RenderReplaced>(*this) && isAtomicInlineLevelBox());
 }
 
 } // namespace WebCore

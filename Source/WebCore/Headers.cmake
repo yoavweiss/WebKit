@@ -2621,6 +2621,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/RenderFrame.h
     rendering/RenderFrameBase.h
     rendering/RenderHighlight.h
+    rendering/RenderIFrame.h
     rendering/RenderImage.h
     rendering/RenderImageResource.h
     rendering/RenderInline.h

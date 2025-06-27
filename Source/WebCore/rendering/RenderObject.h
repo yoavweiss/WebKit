@@ -441,6 +441,7 @@ public:
     bool isRenderLayerModelObject() const { return m_typeFlags.contains(TypeFlag::IsLayerModelObject); }
 
     inline bool isAtomicInlineLevelBox() const;
+    inline bool isNonReplacedAtomicInlineLevelBox() const;
 
     bool isRenderCounter() const { return type() == Type::Counter; }
     bool isRenderQuote() const { return type() == Type::Quote; }
@@ -452,7 +453,6 @@ public:
     bool isRenderFrame() const { return type() == Type::Frame; }
     bool isRenderFrameSet() const { return type() == Type::FrameSet; }
     virtual bool isImage() const { return false; }
-    virtual bool isNonReplacedAtomicInline() const { return false; }
     bool isRenderListBox() const { return type() == Type::ListBox; }
     bool isRenderListItem() const { return type() == Type::ListItem; }
     bool isRenderListMarker() const { return type() == Type::ListMarker; }

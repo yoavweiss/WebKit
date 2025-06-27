@@ -1386,7 +1386,7 @@ bool RenderBlock::createsNewFormattingContext() const
     auto& style = this->style();
     if (isBlockContainer() && !style.alignContent().isNormal())
         return true;
-    return isNonReplacedAtomicInline()
+    return isNonReplacedAtomicInlineLevelBox()
         || style.isDisplayFlexibleBoxIncludingDeprecatedOrGridBox()
         || isFlexItemIncludingDeprecated()
         || isRenderTable()
@@ -1447,7 +1447,7 @@ bool RenderBlock::isSelectionRoot() const
 
     if (isBody() || isDocumentElementRenderer() || hasNonVisibleOverflow()
         || isPositioned() || isFloating()
-        || isRenderTableCell() || isNonReplacedAtomicInline()
+        || isRenderTableCell() || isNonReplacedAtomicInlineLevelBox()
         || isTransformed() || hasReflection() || hasMask() || isWritingModeRoot()
         || isRenderFragmentedFlow() || style().columnSpan() == ColumnSpan::All
         || isFlexItemIncludingDeprecated() || isGridItem())

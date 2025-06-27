@@ -945,7 +945,7 @@ LayoutRect Node::absoluteBoundingRect(bool* isReplaced)
     }
     RenderObject* renderer = hitRenderer;
     while (renderer && !renderer->isBody() && !renderer->isDocumentElementRenderer()) {
-        if (renderer->isRenderBlock() || renderer->isNonReplacedAtomicInline() || renderer->isBlockLevelReplacedOrAtomicInline()) {
+        if (renderer->isRenderBlock() || renderer->isNonReplacedAtomicInlineLevelBox() || renderer->isBlockLevelReplacedOrAtomicInline()) {
             // FIXME: Is this really what callers want for the "isReplaced" flag?
             *isReplaced = renderer->isBlockLevelReplacedOrAtomicInline();
             return renderer->absoluteBoundingBoxRect();
