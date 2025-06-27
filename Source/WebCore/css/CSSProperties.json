@@ -10442,7 +10442,7 @@
             "initial": "6px",
             "codegen-properties": {
                 "accepts-quirky-length": true,
-                "style-builder-conditional-converter": "MarqueeIncrement",
+                "style-builder-converter": "Length",
                 "internal-only": true,
                 "parser-grammar": "<length-percentage>"
             },

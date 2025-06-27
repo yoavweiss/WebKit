@@ -51,9 +51,19 @@
 namespace WebCore {
 namespace Style {
 
-static WebCore::Length resolveAsFloatPercentOrCalculatedLength(const CSSPrimitiveValue& primitiveValue, const CSSToLengthConversionData& conversionData)
+static WebCore::Length resolveAsFloatPercentOrCalculatedLength(const CSSPrimitiveValue& primitiveValue, BuilderState& builderState)
 {
-    return primitiveValue.convertToLength<FixedFloatConversion | PercentConversion | CalculatedConversion>(conversionData);
+    // FIXME: This should use `BuilderConverter::convertLength`, but doing so breaks transforms/hittest-translated-content-off-to-infinity-and-back.html, due to it using `resolveAsLength<WebCore::Length>` rather than `resolveAsLength<double>`, the difference being the former clamps between minValueForCssLength/maxValueForCssLength.
+
+    auto& conversionData = builderState.cssToLengthConversionData();
+    if (primitiveValue.isLength())
+        return WebCore::Length(primitiveValue.resolveAsLength<double>(conversionData), LengthType::Fixed);
+    if (primitiveValue.isPercentage())
+        return WebCore::Length(primitiveValue.resolveAsPercentage<double>(conversionData), LengthType::Percent);
+    if (primitiveValue.isCalculated())
+        return WebCore::Length(primitiveValue.protectedCssCalcValue()->createCalculationValue(conversionData, CSSCalcSymbolTable { }));
+    builderState.setCurrentPropertyInvalidAtComputedValueTime();
+    return WebCore::Length(0, LengthType::Fixed);
 }
 
 // MARK: Matrix
@@ -367,10 +377,8 @@ static RefPtr<TransformOperation> createTranslateTransformOperation(const CSSFun
     if (!function)
         return { };
 
-    auto& conversionData = builderState.cssToLengthConversionData();
-
-    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
-    auto ty = function->size() > 1 ? resolveAsFloatPercentOrCalculatedLength(function->item(1), conversionData) : WebCore::Length(0, LengthType::Fixed);
+    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), builderState);
+    auto ty = function->size() > 1 ? resolveAsFloatPercentOrCalculatedLength(function->item(1), builderState) : WebCore::Length(0, LengthType::Fixed);
     auto tz = WebCore::Length(0, LengthType::Fixed);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::Translate);
@@ -385,11 +393,9 @@ static RefPtr<TransformOperation> createTranslate3dTransformOperation(const CSSF
     if (!function)
         return { };
 
-    auto& conversionData = builderState.cssToLengthConversionData();
-
-    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
-    auto ty = resolveAsFloatPercentOrCalculatedLength(function->item(1), conversionData);
-    auto tz = resolveAsFloatPercentOrCalculatedLength(function->item(2), conversionData);
+    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), builderState);
+    auto ty = resolveAsFloatPercentOrCalculatedLength(function->item(1), builderState);
+    auto tz = resolveAsFloatPercentOrCalculatedLength(function->item(2), builderState);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::Translate3D);
 }
@@ -403,9 +409,7 @@ static RefPtr<TransformOperation> createTranslateXTransformOperation(const CSSFu
     if (!function)
         return { };
 
-    auto& conversionData = builderState.cssToLengthConversionData();
-
-    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
+    auto tx = resolveAsFloatPercentOrCalculatedLength(function->item(0), builderState);
     auto ty = WebCore::Length(0, LengthType::Fixed);
     auto tz = WebCore::Length(0, LengthType::Fixed);
 
@@ -421,10 +425,8 @@ static RefPtr<TransformOperation> createTranslateYTransformOperation(const CSSFu
     if (!function)
         return { };
 
-    auto& conversionData = builderState.cssToLengthConversionData();
-
     auto tx = WebCore::Length(0, LengthType::Fixed);
-    auto ty = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
+    auto ty = resolveAsFloatPercentOrCalculatedLength(function->item(0), builderState);
     auto tz = WebCore::Length(0, LengthType::Fixed);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::TranslateY);
@@ -439,11 +441,9 @@ static RefPtr<TransformOperation> createTranslateZTransformOperation(const CSSFu
     if (!function)
         return { };
 
-    auto& conversionData = builderState.cssToLengthConversionData();
-
     auto tx = WebCore::Length(0, LengthType::Fixed);
     auto ty = WebCore::Length(0, LengthType::Fixed);
-    auto tz = resolveAsFloatPercentOrCalculatedLength(function->item(0), conversionData);
+    auto tz = resolveAsFloatPercentOrCalculatedLength(function->item(0), builderState);
 
     return TranslateTransformOperation::create(WTFMove(tx), WTFMove(ty), WTFMove(tz), TransformOperation::Type::TranslateZ);
 }
@@ -459,8 +459,6 @@ static RefPtr<TransformOperation> createPerspectiveTransformOperation(const CSSF
     if (!function)
         return { };
 
-    auto& conversionData = builderState.cssToLengthConversionData();
-
     auto& parameter = function->item(0);
     if (parameter.isValueID()) {
         ASSERT(parameter.valueID() == CSSValueNone);
@@ -468,10 +466,10 @@ static RefPtr<TransformOperation> createPerspectiveTransformOperation(const CSSF
     }
 
     if (parameter.isLength())
-        return PerspectiveTransformOperation::create(resolveAsFloatPercentOrCalculatedLength(parameter, conversionData));
+        return PerspectiveTransformOperation::create(resolveAsFloatPercentOrCalculatedLength(parameter, builderState));
 
     // FIXME: Support for <number> parameters for `perspective` is a quirk that should go away when 3d transforms are finalized.
-    return PerspectiveTransformOperation::create(WebCore::Length(clampToPositiveInteger(parameter.resolveAsNumber<double>(conversionData)), LengthType::Fixed));
+    return PerspectiveTransformOperation::create(WebCore::Length(clampToPositiveInteger(parameter.resolveAsNumber<double>(builderState.cssToLengthConversionData())), LengthType::Fixed));
 }
 
 // MARK: <transform-operation>

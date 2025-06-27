@@ -294,7 +294,7 @@ inline void BuilderCustom::applyValueTextIndent(BuilderState& builderState, CSSV
 
     if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
         // Values coming from CSSTypedOM didn't go through the parser and may not have been converted to a CSSValueList.
-        lengthPercentageValue = primitiveValue->convertToLength<FixedIntegerConversion | PercentConversion | CalculatedConversion>(builderState.cssToLengthConversionData());
+        lengthPercentageValue = BuilderConverter::convertLength(builderState, *primitiveValue);
     } else {
         auto list = requiredListDowncast<CSSValueList, CSSPrimitiveValue>(builderState, value);
         if (!list)
@@ -302,7 +302,7 @@ inline void BuilderCustom::applyValueTextIndent(BuilderState& builderState, CSSV
 
         for (auto& primitiveValue : *list) {
             if (!primitiveValue.valueID())
-                lengthPercentageValue = primitiveValue.convertToLength<FixedIntegerConversion | PercentConversion | CalculatedConversion>(builderState.cssToLengthConversionData());
+                lengthPercentageValue = BuilderConverter::convertLength(builderState, primitiveValue);
             else if (primitiveValue.valueID() == CSSValueEachLine)
                 textIndentLineValue = TextIndentLine::EachLine;
             else if (primitiveValue.valueID() == CSSValueHanging)
@@ -644,7 +644,6 @@ inline void BuilderCustom::applyInheritClip(BuilderState& builderState)
 inline void BuilderCustom::applyValueClip(BuilderState& builderState, CSSValue& value)
 {
     if (value.isRect()) {
-        auto& conversionData = builderState.cssToLengthConversionData();
         auto primitiveValueTop = requiredDowncast<CSSPrimitiveValue>(builderState, value.rect().top());
         if (!primitiveValueTop)
             return;
@@ -658,10 +657,10 @@ inline void BuilderCustom::applyValueClip(BuilderState& builderState, CSSValue& 
         if (!primitiveValueLeft)
             return;
 
-        auto top = primitiveValueTop->convertToLength<FixedIntegerConversion | PercentConversion | AutoConversion>(conversionData);
-        auto right = primitiveValueRight->convertToLength<FixedIntegerConversion | PercentConversion | AutoConversion>(conversionData);
-        auto bottom = primitiveValueBottom->convertToLength<FixedIntegerConversion | PercentConversion | AutoConversion>(conversionData);
-        auto left = primitiveValueLeft->convertToLength<FixedIntegerConversion | PercentConversion | AutoConversion>(conversionData);
+        auto top = BuilderConverter::convertLengthOrAuto(builderState, *primitiveValueTop);
+        auto right = BuilderConverter::convertLengthOrAuto(builderState, *primitiveValueRight);
+        auto bottom = BuilderConverter::convertLengthOrAuto(builderState, *primitiveValueBottom);
+        auto left = BuilderConverter::convertLengthOrAuto(builderState, *primitiveValueLeft);
 
         builderState.style().setClip(WTFMove(top), WTFMove(right), WTFMove(bottom), WTFMove(left));
         builderState.style().setHasClip(true);

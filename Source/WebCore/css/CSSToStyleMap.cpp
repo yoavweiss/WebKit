@@ -178,20 +178,19 @@ void CSSToStyleMap::mapFillRepeat(CSSPropertyID propertyID, FillLayer& layer, co
 
 static inline bool convertToLengthSize(const CSSValue& value, Style::BuilderState& builderState, LengthSize& size)
 {
-    auto& conversionData = builderState.cssToLengthConversionData();
     if (value.isPair()) {
         auto pair = Style::requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
         if (!pair)
             return false;
-        size.width = pair->first.convertToLength<AnyConversion>(conversionData);
-        size.height = pair->second.convertToLength<AnyConversion>(conversionData);
+        size.width = Style::BuilderConverter::convertLengthOrAuto(builderState, pair->first);
+        size.height = Style::BuilderConverter::convertLengthOrAuto(builderState, pair->second);
     } else {
         auto primitiveValue = Style::requiredDowncast<CSSPrimitiveValue>(builderState, value);
         if (!primitiveValue)
             return false;
-        size.width = primitiveValue->convertToLength<AnyConversion>(conversionData);
+        size.width = Style::BuilderConverter::convertLengthOrAuto(builderState, *primitiveValue);
     }
-    return !size.width.isUndefined() && !size.height.isUndefined();
+    return true;
 }
 
 void CSSToStyleMap::mapFillSize(CSSPropertyID propertyID, FillLayer& layer, const CSSValue& value)
