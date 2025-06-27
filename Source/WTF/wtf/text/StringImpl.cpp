@@ -44,8 +44,6 @@
 #include <wtf/DataLog.h>
 #endif
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-
 namespace WTF {
 
 using namespace Unicode;
@@ -333,6 +331,7 @@ Ref<StringImpl> StringImpl::substring(unsigned start, unsigned length)
     return create(span16().subspan(start, length));
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 char32_t StringImpl::characterStartingAt(unsigned i)
 {
     if (is8Bit())
@@ -513,6 +512,7 @@ Ref<StringImpl> StringImpl::convertToUppercaseWithoutLocaleStartingAtFailingInde
 
     return newImpl;
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 Ref<StringImpl> StringImpl::convertToUppercaseWithoutLocaleUpconvert()
 {
@@ -640,6 +640,7 @@ Ref<StringImpl> StringImpl::convertToUppercaseWithLocale(const AtomString& local
     return newString;
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 Ref<StringImpl> StringImpl::foldCase()
 {
     if (is8Bit()) {
@@ -722,6 +723,7 @@ SlowPath:
         return *this;
     return folded;
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 template<StringImpl::CaseConvertType type, typename CharacterType>
 ALWAYS_INLINE Ref<StringImpl> StringImpl::convertASCIICase(StringImpl& impl, std::span<const CharacterType> data)
@@ -766,6 +768,7 @@ Ref<StringImpl> StringImpl::convertToASCIIUppercase()
     return convertASCIICase<CaseConvertType::Upper>(*this, span16());
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 template<typename CodeUnitPredicate> inline Ref<StringImpl> StringImpl::trimMatchedCharacters(CodeUnitPredicate predicate)
 {
     if (!m_length)
@@ -792,12 +795,14 @@ template<typename CodeUnitPredicate> inline Ref<StringImpl> StringImpl::trimMatc
         return create(std::span { m_data8 + start, end + 1 - start });
     return create(std::span { m_data16 + start, end + 1 - start });
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 Ref<StringImpl> StringImpl::trim(CodeUnitMatchFunction predicate)
 {
     return trimMatchedCharacters(predicate);
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 template<typename CharacterType, class UCharPredicate> inline Ref<StringImpl> StringImpl::simplifyMatchedCharactersToSpace(UCharPredicate predicate)
 {
     StringBuffer<CharacterType> data(m_length);
@@ -831,6 +836,7 @@ template<typename CharacterType, class UCharPredicate> inline Ref<StringImpl> St
 
     return adopt(WTFMove(data));
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 Ref<StringImpl> StringImpl::simplifyWhiteSpace(CodeUnitMatchFunction isWhiteSpace)
 {
@@ -853,6 +859,7 @@ float StringImpl::toFloat(bool* ok)
     return charactersToFloat(span16(), ok);
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 size_t StringImpl::find(std::span<const LChar> matchString, size_t start)
 {
     ASSERT(!matchString.empty());
@@ -910,6 +917,7 @@ size_t StringImpl::find(std::span<const LChar> matchString, size_t start)
     }
     return start + i;
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 size_t StringImpl::reverseFind(std::span<const LChar> matchString, size_t start)
 {
@@ -1023,6 +1031,7 @@ size_t StringImpl::reverseFind(StringView matchString, size_t start)
     return reverseFindInner(span16(), matchString.span16(), start);
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 ALWAYS_INLINE static bool equalInner(const StringImpl& string, unsigned start, std::span<const char> matchString)
 {
     ASSERT(matchString.size() <= string.length());
@@ -1051,6 +1060,7 @@ ALWAYS_INLINE static bool equalInner(const StringImpl& string, unsigned start, S
         return equal(string.span16().data() + start, matchString.span8());
     return equal(string.span16().data() + start, matchString.span16());
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 bool StringImpl::startsWith(StringView string) const
 {
@@ -1102,6 +1112,7 @@ bool StringImpl::hasInfixEndingAt(StringView matchString, size_t end) const
     return end >= matchString.length() && equalInner(*this, end - matchString.length(), matchString);
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 Ref<StringImpl> StringImpl::replace(char16_t target, char16_t replacement)
 {
     if (target == replacement)
@@ -1170,6 +1181,7 @@ Ref<StringImpl> StringImpl::replace(size_t position, size_t lengthToReplace, Str
         copyCharacters(data.subspan(position + lengthToInsert), { m_data16 + position + lengthToReplace, length() - position - lengthToReplace });
     return newImpl;
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 Ref<StringImpl> StringImpl::replace(char16_t pattern, StringView replacement)
 {
@@ -1180,6 +1192,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, StringView replacement)
     return replace(pattern, replacement.span16());
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const LChar> replacement)
 {
     ASSERT(replacement.data());
@@ -1437,12 +1450,14 @@ Ref<StringImpl> StringImpl::replace(StringView pattern, StringView replacement)
 
     return newImpl;
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 bool equal(const StringImpl* a, const StringImpl* b)
 {
     return equalCommon(a, b);
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 template<typename CharacterType> inline bool equalInternal(const StringImpl* a, std::span<const CharacterType> b)
 {
     if (!a)
@@ -1458,6 +1473,7 @@ template<typename CharacterType> inline bool equalInternal(const StringImpl* a, 
         return a->span8().front() == b.front() && equal(a->span8().data() + 1, b.subspan(1));
     return a->span16().front() == b.front() && equal(a->span16().data() + 1, b.subspan(1));
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 bool equal(const StringImpl* a, std::span<const LChar> b)
 {
@@ -1469,6 +1485,7 @@ bool equal(const StringImpl* a, std::span<const char16_t> b)
     return equalInternal(a, b);
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 bool equal(const StringImpl* a, const LChar* b)
 {
     if (!a)
@@ -1503,6 +1520,7 @@ bool equal(const StringImpl* a, const LChar* b)
 
     return !b[length];
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 bool equal(const StringImpl& a, const StringImpl& b)
 {
@@ -1637,6 +1655,7 @@ unsigned StringImpl::concurrentHash() const
     return hash;
 }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 bool equalIgnoringNullity(std::span<const char16_t> a, StringImpl* b)
 {
     if (!b)
@@ -1653,7 +1672,6 @@ bool equalIgnoringNullity(std::span<const char16_t> a, StringImpl* b)
     }
     return equal(a, b->span16());
 }
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 } // namespace WTF
-
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
