@@ -61,7 +61,9 @@ uint8_t OutputDevice::deviceFeatures() const
 
 bool OutputDevice::supportsSpatialAudio() const
 {
+    ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     return [m_device supportsHeadTrackedSpatialAudio] && [m_device allowsHeadTrackedSpatialAudio];
+    ALLOW_DEPRECATED_DECLARATIONS_END
 }
 
 }
