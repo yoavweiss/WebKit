@@ -360,7 +360,7 @@ static RetainPtr<NSArray<NSArray<WKIdentityDocumentPresentmentRequestAuthenticat
         }
 
         LOG(DigitalCredentials, "The document provider returned response data: %s.", responseData.utf8().data());
-        RetainPtr protocol = response.protocolString;
+        RetainPtr<NSString> protocol = response.protocolString;
 
         if ([protocol isEqualToString:@"org.iso.mdoc"]) {
             Ref object = JSON::Object::create();
