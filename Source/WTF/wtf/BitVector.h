@@ -37,8 +37,6 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-
 namespace JSC {
 class CachedBitVector;
 }
@@ -140,13 +138,17 @@ public:
     bool quickGet(size_t bit) const
     {
         ASSERT_WITH_SECURITY_IMPLICATION(bit < size());
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
         return !!(bits()[bit / bitsInPointer()] & (static_cast<uintptr_t>(1) << (bit & (bitsInPointer() - 1))));
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     }
     
     bool quickSet(size_t bit)
     {
         ASSERT_WITH_SECURITY_IMPLICATION(bit < size());
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
         uintptr_t& word = bits()[bit / bitsInPointer()];
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
         uintptr_t mask = static_cast<uintptr_t>(1) << (bit & (bitsInPointer() - 1));
         bool result = !!(word & mask);
         word |= mask;
@@ -156,7 +158,9 @@ public:
     bool quickClear(size_t bit)
     {
         ASSERT_WITH_SECURITY_IMPLICATION(bit < size());
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
         uintptr_t& word = bits()[bit / bitsInPointer()];
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
         uintptr_t mask = static_cast<uintptr_t>(1) << (bit & (bitsInPointer() - 1));
         bool result = !!(word & mask);
         word &= ~mask;
@@ -329,11 +333,7 @@ public:
     class iterator {
         WTF_MAKE_FAST_ALLOCATED;
     public:
-        iterator()
-            : m_bitVector(nullptr)
-            , m_index(0)
-        {
-        }
+        iterator() = default;
         
         iterator(const BitVector& bitVector, size_t index)
             : m_bitVector(&bitVector)
@@ -367,8 +367,8 @@ public:
         }
         
     private:
-        const BitVector* m_bitVector;
-        size_t m_index;
+        const BitVector* m_bitVector { nullptr };
+        size_t m_index { 0 };
     };
 
     // Use this to iterate over set bits.
@@ -485,9 +485,11 @@ private:
         {
         }
 
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
         uintptr_t* bits() { return std::bit_cast<uintptr_t*>(this + 1); }
         const uintptr_t* bits() const { return std::bit_cast<const uintptr_t*>(this + 1); }
-        
+WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
+
         size_t m_numBits;
     };
     
@@ -561,5 +563,3 @@ template<> struct HashTraits<BitVector> : public CustomHashTraits<BitVector> { }
 } // namespace WTF
 
 using WTF::BitVector;
-
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
