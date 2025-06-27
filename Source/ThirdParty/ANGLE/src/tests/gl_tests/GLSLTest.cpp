@@ -593,6 +593,29 @@ TEST_P(GLSLTest, SwizzledChainedAssignIncrement)
     EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor(75, 75, 38, 38));
 }
 
+// This shader uses chained assign-equals ops with swizzle, often reusing the same variable
+// as part of a swizzle, ivec variant
+TEST_P(GLSLTest, SwizzledChainedAssignIncrementIvec)
+{
+    constexpr char kFS[] = R"(
+precision mediump float;
+void main() {
+    ivec2 v = ivec2(1,5);
+    // at the end of next statement, values in
+    // v.x = 12, v.y = 12
+    v.xy += v.yx += v.xy;
+    // v1 and v2, both are initialized with (12,12)
+    ivec2 v1 = v, v2 = v;
+    v1.xy += v2.yx += ++(v.xy);  // v1 = 37, v2 = 25 each
+    v1.xy += v2.yx += (v.xy)++;  // v1 = 75, v2 = 38 each
+    gl_FragColor = vec4(vec2(v1),vec2(v2))/255.;  // 75, 75, 38, 38
+})";
+    ANGLE_GL_PROGRAM(program, essl1_shaders::vs::Simple(), kFS);
+    drawQuad(program, essl1_shaders::PositionAttrib(), 0.5f);
+    ASSERT_GL_NO_ERROR();
+    EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor(75, 75, 38, 38));
+}
+
 TEST_P(GLSLTest, NamelessScopedStructs)
 {
     constexpr char kFS[] = R"(precision mediump float;
@@ -10765,6 +10788,43 @@ void main()
     ASSERT_NE(uloc, -1);
     glUniform2f(uloc, 0, 1);
     drawQuad(program, essl3_shaders::PositionAttrib(), 0.5f);
+    EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::white);
+}
+
+// Test that modf(u, v.x) works correctly.
+TEST_P(GLSLTest_ES3, ModFIntegerToSwizzle)
+{
+    constexpr char kFS[] = R"(#version 300 es
+precision highp float;
+out vec4 o;
+uniform vec2 u;
+bool isEq(vec2 a, vec2 b) { return all(lessThan(abs(a-b), vec2(0.001))); }
+void main()
+{
+    vec4 i1;
+    vec2 r1 = modf(u, i1.xy);
+    vec2 r2;
+    r2.x = modf(u.x, i1.z);
+    r2.y = modf(u.y, i1.w);
+    vec2 i2;
+    vec2 r4 = modf(u, i2.yx);
+
+    o = vec4(0.0, 0.0, 0.0, 1.0);
+    if (isEq(r1, vec2(0.14, 0.15)) && isEq(i1.xy, vec2(3.0, 4.0)))
+        o.r = 1.0;
+    if (isEq(r2, vec2(0.14, 0.15)) && isEq(i1.zw, vec2(3.0, 4.0)))
+        o.g = 1.0;
+    if (isEq(r4, vec2(0.14, 0.15)) && isEq(i2, vec2(4.0, 3.0)))
+        o.b = 1.0;
+})";
+    ANGLE_GL_PROGRAM(program, essl3_shaders::vs::Simple(), kFS);
+    glUseProgram(program);
+    ASSERT_GL_NO_ERROR();
+    GLint uloc = glGetUniformLocation(program, "u");
+    ASSERT_NE(uloc, -1);
+    glUniform2f(uloc, 3.14f, 4.15f);
+    drawQuad(program, essl3_shaders::PositionAttrib(), 0.5f);
+    ASSERT_GL_NO_ERROR();
     EXPECT_PIXEL_COLOR_EQ(0, 0, GLColor::white);
 }
 
