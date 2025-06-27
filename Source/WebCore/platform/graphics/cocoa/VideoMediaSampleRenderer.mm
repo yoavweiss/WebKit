@@ -44,6 +44,12 @@
 #import <wtf/NativePromise.h>
 #import <wtf/cf/TypeCastsCF.h>
 
+#if PLATFORM(VISION)
+#import "FormatDescriptionUtilities.h"
+#import "SpatialVideoMetadata.h"
+#import "VideoProjectionMetadata.h"
+#endif
+
 #pragma mark - Soft Linking
 
 #import "CoreVideoSoftLink.h"
@@ -427,8 +433,14 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
         m_currentCodec = fourCC;
     }
 #endif
+#if PLATFORM(VISION)
+    if (!m_decompressionSessionBlocked) {
+        CMVideoFormatDescriptionRef videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(cmSampleBuffer);
+        m_decompressionSessionBlocked = spatialVideoMetadataFromFormatDescription(videoFormatDescription) || videoProjectionMetadataFromFormatDescription(videoFormatDescription);
+    }
+#endif
 
-    if (!decompressionSession() && (!renderer() || ((prefersDecompressionSession() || needsDecompressionSession || isUsingDecompressionSession()) && (!sample.isProtected() || useDecompressionSessionForProtectedContent()))))
+    if (!m_decompressionSessionBlocked && !decompressionSession() && (!renderer() || ((prefersDecompressionSession() || needsDecompressionSession || isUsingDecompressionSession()) && (!sample.isProtected() || useDecompressionSessionForProtectedContent()))))
         initializeDecompressionSession();
 
     if (!isUsingDecompressionSession()) {
@@ -436,8 +448,8 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
         return;
     }
 
-    if (!useDecompressionSessionForProtectedFallback() && !m_protectedContentEncountered && sample.isProtected()) {
-        m_protectedContentEncountered = true;
+    if (!useDecompressionSessionForProtectedFallback() && !m_decompressionSessionBlocked && sample.isProtected()) {
+        m_decompressionSessionBlocked = true;
 #if !PLATFORM(WATCHOS)
         auto numberOfDroppedVideoFrames = [renderer() videoPerformanceMetrics].numberOfDroppedVideoFrames;
         if (m_droppedVideoFrames >= numberOfDroppedVideoFrames)
@@ -445,7 +457,7 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
 #endif
     }
     ++m_compressedSamplesCount;
-    dispatcher()->dispatch([weakThis = ThreadSafeWeakPtr { *this }, sample = Ref { sample }, minimumUpcomingTime, flushId = m_flushId.load()]() mutable {
+    dispatcher()->dispatch([weakThis = ThreadSafeWeakPtr { *this }, sample = Ref { sample }, minimumUpcomingTime, flushId = m_flushId.load(), decompressionSessionBlocked = m_decompressionSessionBlocked]() mutable {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
@@ -457,7 +469,7 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
             protectedThis->maybeBecomeReadyForMoreMediaData();
             return;
         }
-        protectedThis->m_compressedSampleQueue.append({ WTFMove(sample), minimumUpcomingTime, flushId });
+        protectedThis->m_compressedSampleQueue.append({ WTFMove(sample), minimumUpcomingTime, flushId, decompressionSessionBlocked });
         protectedThis->decodeNextSampleIfNeeded();
     });
 }
@@ -480,12 +492,12 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
 
     WebCoreDecompressionSession::DecodingFlags decodingFlags;
 
-    if (currentTime.isValid() && !m_wasProtected) {
+    if (currentTime.isValid() && !m_wasProtected && !m_decompressionSessionWasBlocked) {
         auto lowWaterMarkTime = currentTime + DecodeLowWaterMark;
         auto highWaterMarkTime = currentTime + DecodeHighWaterMark;
         auto endTime = lastDecodedSampleTime();
         if (endTime.isValid() && endTime > highWaterMarkTime) {
-            auto [sample, upcomingMinimum, flushId] = m_compressedSampleQueue.first();
+            auto [sample, upcomingMinimum, flushId, blocked] = m_compressedSampleQueue.first();
             upcomingMinimum = std::min(sample->presentationTime(), upcomingMinimum.isValid() ? upcomingMinimum : MediaTime::positiveInfiniteTime());
 
             if (endTime < upcomingMinimum) {
@@ -505,7 +517,7 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
         }
     }
 
-    auto [sample, upcomingMinimum, flushId] = m_compressedSampleQueue.takeFirst();
+    auto [sample, upcomingMinimum, flushId, blocked] = m_compressedSampleQueue.takeFirst();
     m_compressedSamplesCount = m_compressedSampleQueue.size();
     maybeBecomeReadyForMoreMediaData();
 
@@ -532,7 +544,9 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
         RELEASE_LOG(Media, "Changing protection type (was:%d) content at:%0.2f", m_wasProtected, sample->presentationTime().toFloat());
         m_wasProtected = sample->isProtected();
     }
-    if (!useDecompressionSessionForProtectedFallback() && m_wasProtected) {
+
+    m_decompressionSessionWasBlocked = blocked;
+    if (blocked) {
         decodedFrameAvailable(cmSample, flushId);
         decodeNextSampleIfNeeded();
         return;
@@ -1011,7 +1025,9 @@ unsigned VideoMediaSampleRenderer::totalDisplayedFrames() const
 
 unsigned VideoMediaSampleRenderer::totalVideoFrames() const
 {
-    if (isUsingDecompressionSession() && !m_protectedContentEncountered)
+    assertIsMainThread();
+
+    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked)
         return m_totalVideoFrames;
 #if PLATFORM(WATCHOS)
     return 0;
@@ -1024,7 +1040,7 @@ unsigned VideoMediaSampleRenderer::droppedVideoFrames() const
 {
     assertIsMainThread();
 
-    if (isUsingDecompressionSession() && !m_protectedContentEncountered)
+    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked)
         return m_droppedVideoFrames;
 #if PLATFORM(WATCHOS)
     return 0;
@@ -1035,7 +1051,9 @@ unsigned VideoMediaSampleRenderer::droppedVideoFrames() const
 
 unsigned VideoMediaSampleRenderer::corruptedVideoFrames() const
 {
-    if (isUsingDecompressionSession() && !m_protectedContentEncountered)
+    assertIsMainThread();
+
+    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked)
         return m_corruptedVideoFrames;
 #if PLATFORM(WATCHOS)
     return 0;
@@ -1046,7 +1064,9 @@ unsigned VideoMediaSampleRenderer::corruptedVideoFrames() const
 
 MediaTime VideoMediaSampleRenderer::totalFrameDelay() const
 {
-    if (isUsingDecompressionSession() && !m_protectedContentEncountered)
+    assertIsMainThread();
+
+    if (isUsingDecompressionSession() && !m_decompressionSessionBlocked)
         return m_totalFrameDelay;
 #if PLATFORM(WATCHOS)
     return MediaTime::invalidTime();
