@@ -120,7 +120,7 @@ static NSString * const sessionStorageAllowedInContentScriptsKey = @"SessionStor
 static constexpr NSInteger currentBackgroundContentListenerStateVersion = 4;
 
 // Update this value when any changes are made to the rule translation logic in _WKWebExtensionDeclarativeNetRequestRule.
-static constexpr NSInteger currentDeclarativeNetRequestRuleTranslatorVersion = 5;
+static constexpr NSInteger currentDeclarativeNetRequestRuleTranslatorVersion = 6;
 
 @interface _WKWebExtensionContextDelegate : NSObject <WKNavigationDelegate, WKUIDelegate> {
     WeakPtr<WebKit::WebExtensionContext> _webExtensionContext;
