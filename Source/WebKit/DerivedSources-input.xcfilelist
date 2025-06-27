@@ -2,14 +2,6 @@
 $(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/AdditionalFeatureDefines.h
 $(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/AdditionalPlatform.h
 $(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/AdditionalPlatformHave.h
-$(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/ISO18013MobileDocumentRequest+Extras.swift.in
-$(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WKIdentityDocumentPresentmentController.swift.in
-$(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WKIdentityDocumentPresentmentMobileDocumentRequest+Extras.swift.in
-$(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WKIdentityDocumentPresentmentMobileDocumentRequest.swift.in
-$(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WKIdentityDocumentPresentmentRawRequest.swift.in
-$(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WKIdentityDocumentPresentmentRequest.swift.in
-$(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WKIdentityDocumentPresentmentResponse.swift.in
-$(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WKIdentityDocumentRawRequestValidator.swift.in
 $(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WKSeparatedImageView.swift.in
 $(BUILT_PRODUCTS_DIR)/usr/local/include/WebKitAdditions/WebPageWebViewAdditions.swift.in
 $(BUILT_PRODUCTS_DIR)/usr/local/include/wtf/Compiler.h

@@ -203,11 +203,7 @@
 #endif
 
 #if HAVE(DIGITAL_CREDENTIALS_UI)
-#if USE(APPLE_INTERNAL_SDK)  && __has_include(<WebKitAdditions/WKDigitalCredentialsPickerAdditions.h>)
-#import <WebKitAdditions/WKDigitalCredentialsPickerAdditions.h>
-#else
 #import "WKDigitalCredentialsPicker.h"
-#endif
 #endif
 
 #if ENABLE(WRITING_TOOLS)
