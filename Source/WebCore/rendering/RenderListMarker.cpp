@@ -508,8 +508,8 @@ std::pair<int, int> RenderListMarker::layoutBoundForTextContent(String text) con
     if (style.lineHeight().isNormal()) {
         auto maxAscentAndDescent = ascentAndDescent(metricsOfPrimaryFont);
 
-        for (auto& fallbackFont : Layout::TextUtil::fallbackFontsForText(text, style, Layout::TextUtil::IncludeHyphen::No)) {
-            auto& fontMetrics = fallbackFont.fontMetrics();
+        for (Ref fallbackFont : Layout::TextUtil::fallbackFontsForText(text, style, Layout::TextUtil::IncludeHyphen::No)) {
+            auto& fontMetrics = fallbackFont->fontMetrics();
             if (primaryFontHeight >= floorf(fontMetrics.height())) {
                 // FIXME: Figure out why certain symbols (e.g. disclosure-open) would initiate fallback fonts with just slightly different (subpixel) metrics.
                 // This is mainly about preserving legacy behavior.
