@@ -168,7 +168,7 @@ static bool hasNonInlineOrReplacedElements(const SimpleRange& range)
 {
     for (auto& node : intersectingNodes(range)) {
         auto renderer = node.renderer();
-        if (renderer && (!renderer->isInline() || renderer->isReplacedOrAtomicInline()))
+        if (renderer && (!renderer->isInline() || renderer->isBlockLevelReplacedOrAtomicInline()))
             return true;
     }
     return false;

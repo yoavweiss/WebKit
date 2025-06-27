@@ -671,7 +671,7 @@ public:
     bool isRenderTableRow() const { return type() == Type::TableRow; }
     bool isRenderView() const  { return type() == Type::View; }
     bool isInline() const { return !m_stateBitfields.hasFlag(StateFlag::IsBlock); } // inline object
-    bool isReplacedOrAtomicInline() const { return m_stateBitfields.hasFlag(StateFlag::IsReplacedOrAtomicInline); }
+    bool isBlockLevelReplacedOrAtomicInline() const { return m_stateBitfields.hasFlag(StateFlag::IsBlockLevelReplacedOrAtomicInline); }
     bool isHorizontalWritingMode() const { return !m_stateBitfields.hasFlag(StateFlag::VerticalWritingMode); }
 
     bool hasReflection() const { return hasRareData() && rareData().hasReflection; }
@@ -770,7 +770,7 @@ public:
     void setHasVisibleBoxDecorations(bool = true);
     void invalidateBackgroundObscurationStatus();
 
-    void setReplacedOrAtomicInline(bool b = true) { m_stateBitfields.setFlag(StateFlag::IsReplacedOrAtomicInline, b); }
+    void setBlockLevelReplacedOrAtomicInline(bool b = true) { m_stateBitfields.setFlag(StateFlag::IsBlockLevelReplacedOrAtomicInline, b); }
     void setHorizontalWritingMode(bool b = true) { m_stateBitfields.setFlag(StateFlag::VerticalWritingMode, !b); }
     void setHasNonVisibleOverflow(bool b = true) { m_stateBitfields.setFlag(StateFlag::HasNonVisibleOverflow, b); }
     void setHasLayer(bool b = true) { m_stateBitfields.setFlag(StateFlag::HasLayer, b); }
@@ -1188,7 +1188,7 @@ private:
 
     enum class StateFlag : uint32_t {
         IsBlock                                             = 1 << 0,
-        IsReplacedOrAtomicInline                            = 1 << 1,
+        IsBlockLevelReplacedOrAtomicInline                  = 1 << 1,
         BeingDestroyed                                      = 1 << 2,
         NeedsLayout                                         = 1 << 3,
         NeedsOutOfFlowMovementLayout                        = 1 << 4,

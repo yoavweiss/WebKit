@@ -490,7 +490,7 @@ std::optional<InteractionRegion> interactionRegionForRenderedRegion(RenderObject
         return std::nullopt;
     }
 
-    bool isInlineNonBlock = renderer.isInline() && !renderer.isReplacedOrAtomicInline();
+    bool isInlineNonBlock = renderer.isInline() && !renderer.isBlockLevelReplacedOrAtomicInline();
     bool isPhoto = false;
 
     float minimumContentHintArea = 200 * 200;

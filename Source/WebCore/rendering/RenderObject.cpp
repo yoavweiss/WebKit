@@ -733,7 +733,7 @@ RenderBlock* RenderObject::containingBlockForPositionType(PositionType positionT
     if (positionType == PositionType::Static || positionType == PositionType::Relative || positionType == PositionType::Sticky) {
         auto containingBlockForObjectInFlow = [&] {
             auto* ancestor = renderer.parent();
-            while (ancestor && ((ancestor->isInline() && !ancestor->isReplacedOrAtomicInline()) || !ancestor->isRenderBlock()))
+            while (ancestor && ((ancestor->isInline() && !ancestor->isBlockLevelReplacedOrAtomicInline()) || !ancestor->isRenderBlock()))
                 ancestor = ancestor->parent();
             return downcast<RenderBlock>(ancestor);
         };
@@ -1919,7 +1919,7 @@ int RenderObject::caretMinOffset() const
 
 int RenderObject::caretMaxOffset() const
 {
-    if (isReplacedOrAtomicInline())
+    if (isBlockLevelReplacedOrAtomicInline())
         return node() ? std::max(1U, node()->countChildNodes()) : 1;
     if (isHR())
         return 1;

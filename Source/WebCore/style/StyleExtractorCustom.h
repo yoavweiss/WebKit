@@ -582,7 +582,7 @@ template<auto styleGetter, auto boxGetter> Ref<CSSValue> extractZoomAdjustedPref
     };
 
     auto isNonReplacedInline = [](auto& renderer) {
-        return renderer.isInline() && !renderer.isReplacedOrAtomicInline();
+        return renderer.isInline() && !renderer.isBlockLevelReplacedOrAtomicInline();
     };
 
     if (state.renderer && !state.renderer->isRenderOrLegacyRenderSVGModelObject()) {
@@ -604,7 +604,7 @@ template<auto styleGetter, auto boxGetter> void extractZoomAdjustedPreferredSize
     };
 
     auto isNonReplacedInline = [](auto& renderer) {
-        return renderer.isInline() && !renderer.isReplacedOrAtomicInline();
+        return renderer.isInline() && !renderer.isBlockLevelReplacedOrAtomicInline();
     };
 
     if (state.renderer && !state.renderer->isRenderOrLegacyRenderSVGModelObject()) {

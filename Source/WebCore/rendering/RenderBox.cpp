@@ -2423,7 +2423,7 @@ LayoutSize RenderBox::offsetFromContainer(const RenderElement& container, const 
     if (isInFlowPositioned())
         offset += offsetForInFlowPosition();
 
-    if (!isInline() || isReplacedOrAtomicInline())
+    if (!isInline() || isBlockLevelReplacedOrAtomicInline())
         offset += topLeftLocationOffset();
 
     if (auto* boxContainer = dynamicDowncast<RenderBox>(container))
@@ -3254,7 +3254,7 @@ RenderBox::LogicalExtentComputedValues RenderBox::computeLogicalHeight(LayoutUni
     computedValues.m_position = logicalTop;
 
     // Cell height is managed by the table and inline non-replaced elements do not support a height property.
-    if (isRenderTableCell() || (isInline() && !isReplacedOrAtomicInline()))
+    if (isRenderTableCell() || (isInline() && !isBlockLevelReplacedOrAtomicInline()))
         return computedValues;
 
     if (isOutOfFlowPositioned()) {
@@ -3644,7 +3644,7 @@ static bool tableCellShouldHaveZeroInitialSize(const RenderTableCell& tableCell,
         return false;
     if (tableCell.style().logicalHeight().isAuto() && tableCell.table()->style().logicalHeight().isAuto())
         return false;
-    if (child.isReplacedOrAtomicInline())
+    if (child.isBlockLevelReplacedOrAtomicInline())
         return false;
     if (is<HTMLFormControlElement>(child.element()) && !is<HTMLFieldSetElement>(child.element()))
         return false;
@@ -4290,7 +4290,7 @@ LayoutUnit RenderBox::containingBlockLogicalHeightForPositioned(const RenderBoxM
 
 void RenderBox::computePositionedLogicalWidth(LogicalExtentComputedValues& computedValues) const
 {
-    if (isReplacedOrAtomicInline()) {
+    if (isBlockLevelReplacedOrAtomicInline()) {
         computePositionedLogicalWidthReplaced(computedValues);
         return;
     }
@@ -4464,7 +4464,7 @@ LayoutUnit RenderBox::computePositionedLogicalWidthUsing(const Style::MaximumSiz
 
 void RenderBox::computePositionedLogicalHeight(LogicalExtentComputedValues& computedValues) const
 {
-    if (isReplacedOrAtomicInline()) {
+    if (isBlockLevelReplacedOrAtomicInline()) {
         computePositionedLogicalHeightReplaced(computedValues);
         return;
     }
@@ -4952,7 +4952,7 @@ bool RenderBox::hasUnsplittableScrollingOverflow() const
 
 bool RenderBox::isUnsplittableForPagination() const
 {
-    return isReplacedOrAtomicInline()
+    return isBlockLevelReplacedOrAtomicInline()
         || (is<HTMLFormControlElement>(element()) && !is<HTMLFieldSetElement>(element()))
         || hasUnsplittableScrollingOverflow()
         || (parent() && isWritingModeRoot())
@@ -4962,14 +4962,14 @@ bool RenderBox::isUnsplittableForPagination() const
 
 LayoutUnit RenderBox::lineHeight(bool /*firstLine*/, LineDirectionMode direction, LinePositionMode /*linePositionMode*/) const
 {
-    if (isReplacedOrAtomicInline())
+    if (isBlockLevelReplacedOrAtomicInline())
         return direction == HorizontalLine ? m_marginBox.top() + height() + m_marginBox.bottom() : m_marginBox.right() + width() + m_marginBox.left();
     return 0;
 }
 
 LayoutUnit RenderBox::baselinePosition(FontBaseline baselineType, bool /*firstLine*/, LineDirectionMode direction, LinePositionMode /*linePositionMode*/) const
 {
-    if (isReplacedOrAtomicInline()) {
+    if (isBlockLevelReplacedOrAtomicInline()) {
         auto result = roundToInt(direction == HorizontalLine ? m_marginBox.top() + height() + m_marginBox.bottom() : m_marginBox.right() + width() + m_marginBox.left());
         if (baselineType == AlphabeticBaseline)
             return result;

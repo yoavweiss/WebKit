@@ -230,7 +230,7 @@ void RenderBlockFlow::rebuildFloatingObjectSetFromIntrudingFloats()
         m_floatingObjects->clear();
     }
 
-    // Inline blocks are covered by the isReplacedOrAtomicInline() check in the avoidFloats method.
+    // Inline blocks are covered by the isBlockLevelReplacedOrAtomicInline() check in the avoidFloats method.
     if (avoidsFloats() || isDocumentElementRenderer() || isRenderView() || isFloatingOrOutOfFlowPositioned() || isRenderTableCell()) {
         if (!oldIntrudingFloatSet.isEmpty())
             markAllDescendantsWithFloatsForLayout();
@@ -976,7 +976,7 @@ void RenderBlockFlow::simplifiedNormalFlowLayout()
     bool shouldUpdateOverflow = false;
     for (InlineWalker walker(*this); !walker.atEnd(); walker.advance()) {
         RenderObject& renderer = *walker.current();
-        if (!renderer.isOutOfFlowPositioned() && (renderer.isReplacedOrAtomicInline() || renderer.isFloating())) {
+        if (!renderer.isOutOfFlowPositioned() && (renderer.isBlockLevelReplacedOrAtomicInline() || renderer.isFloating())) {
             RenderBox& box = downcast<RenderBox>(renderer);
             box.layoutIfNeeded();
             shouldUpdateOverflow = true;
@@ -3759,7 +3759,7 @@ VisiblePosition RenderBlockFlow::positionForPointWithInlineChildren(const Layout
         auto point = LayoutPoint { pointInLogicalContents.x(), contentStartInBlockDirection(*closestBox->lineBox()) };
         if (!isHorizontalWritingMode())
             point = point.transposedPoint();
-        if (closestBox->renderer().isReplacedOrAtomicInline())
+        if (closestBox->renderer().isBlockLevelReplacedOrAtomicInline())
             return positionForPointRespectingEditingBoundaries(*this, const_cast<RenderBox&>(downcast<RenderBox>(closestBox->renderer())), point, source);
         return const_cast<RenderObject&>(closestBox->renderer()).positionForPoint(point, source, nullptr);
     }
@@ -4484,7 +4484,7 @@ RenderObject* InlineMinMaxIterator::next()
     bool oldEndOfInline = endOfInline;
     endOfInline = false;
     do {
-        if (!oldEndOfInline && (current && !current->isFloating() && !current->isReplacedOrAtomicInline() && !current->isOutOfFlowPositioned()))
+        if (!oldEndOfInline && (current && !current->isFloating() && !current->isBlockLevelReplacedOrAtomicInline() && !current->isOutOfFlowPositioned()))
             result = current->firstChildSlow();
         else if (initial) {
             result = parent.firstChild();
@@ -4515,7 +4515,7 @@ RenderObject* InlineMinMaxIterator::next()
         if (!result)
             break;
 
-        if (!result->isOutOfFlowPositioned() && (result->isRenderTextOrLineBreak() || result->isFloating() || result->isReplacedOrAtomicInline() || result->isRenderInline()))
+        if (!result->isOutOfFlowPositioned() && (result->isRenderTextOrLineBreak() || result->isFloating() || result->isBlockLevelReplacedOrAtomicInline() || result->isRenderInline()))
             break;
 
         current = result;
@@ -4693,7 +4693,7 @@ void RenderBlockFlow::computeInlinePreferredLogicalWidths(LayoutUnit& minLogical
     bool addedStartPunctuationHang = false;
     
     while (RenderObject* child = childIterator.next()) {
-        bool autoWrap = child->isReplacedOrAtomicInline() || is<RenderText>(*child) ? child->parent()->style().autoWrap() : child->style().autoWrap();
+        bool autoWrap = child->isBlockLevelReplacedOrAtomicInline() || is<RenderText>(*child) ? child->parent()->style().autoWrap() : child->style().autoWrap();
 
         // Interlinear annotations don't participate in inline layout, but they put a minimum width requirement on the associated ruby base.
         auto isInterlinearTypeAnnotation = [&] {

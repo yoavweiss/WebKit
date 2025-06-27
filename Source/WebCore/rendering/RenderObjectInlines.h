@@ -32,7 +32,7 @@ namespace WebCore {
 
 inline Node& RenderObject::nodeForNonAnonymous() const { ASSERT(!isAnonymous()); return m_node.get(); }
 inline bool RenderObject::hasTransformOrPerspective() const { return hasTransformRelatedProperty() && (isTransformed() || style().hasPerspective()); }
-inline bool RenderObject::isAtomicInlineLevelBox() const { return style().isDisplayInlineType() && !(style().display() == DisplayType::Inline && !isReplacedOrAtomicInline()); }
+inline bool RenderObject::isAtomicInlineLevelBox() const { return style().isDisplayInlineType() && !(style().display() == DisplayType::Inline && !isBlockLevelReplacedOrAtomicInline()); }
 inline bool RenderObject::isTransformed() const { return hasTransformRelatedProperty() && (style().affectsTransform() || hasSVGTransform()); }
 inline Document& RenderObject::document() const { return m_node.get().document(); }
 inline Ref<Document> RenderObject::protectedDocument() const { return document(); }
