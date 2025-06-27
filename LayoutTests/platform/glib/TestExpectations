@@ -138,7 +138,6 @@ http/tests/resourceLoadStatistics/only-partitioned-cookies-after-redirect.https.
 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/unset/video-tag.https.html [ Failure ]
 imported/w3c/web-platform-tests/mixed-content/tentative/autoupgrades/mixed-content-cors.https.sub.html [ Failure ]
 imported/w3c/web-platform-tests/mixed-content/tentative/autoupgrades/video-upgrade.https.sub.html [ Failure ]
-imported/w3c/web-platform-tests/service-workers/service-worker/navigation-redirect.https.html [ Failure ]
 
 webkit.org/b/172056 fast/text/multiglyph-characters.html [ Pass ]
 
@@ -4309,8 +4308,8 @@ fast/text/user-installed-fonts/system-ui.html [ Skip ]
 contentfiltering/ [ Skip ]
 http/tests/contentfiltering/ [ Skip ]
 
-css-dark-mode/older-systems/color-scheme-css.html [ Failure ]
-css-dark-mode/older-systems/color-scheme-meta.html [ Failure ]
+css-dark-mode [ Pass ]
+css-dark-mode/older-systems [ Skip ]
 
 # Features that we want eventually:
 # DeviceMotion and DeviceOrientation are not enabled by default.
@@ -4325,7 +4324,8 @@ imported/w3c/web-platform-tests/digital-credentials/ [ Skip ]
 # We don't yet support EXIF-based resolution.
 webkit.org/b/217821 imported/w3c/web-platform-tests/density-size-correction/ [ Skip ]
 
-fast/harness/platform-layer-tree-as-text.html [ Failure ]
+# platformLayerTreeAsText is only implemented for Cocoa ports.
+fast/harness/platform-layer-tree-as-text.html [ Skip ]
 
 webkit.org/b/286580 http/tests/media/clearkey/clear-key-session-id.html [ Failure ]
 
@@ -4336,8 +4336,6 @@ media/media-source/media-source-rendering-update-count.html [ Skip ] # Timeout.
 
 http/tests/lockdown-mode/heic-shown-in-lockdown-mode.http.html [ Failure ]
 http/tests/lockdown-mode/no-heic-in-lockdown-mode.https.html [ Failure ]
-
-fast/events/drag-and-drop-autoscroll.html [ Failure ]
 
 webkit.org/b/98940 fast/events/drag-dataTransferItemList-file-handling.html [ Skip ] # Timeout.
 
@@ -4442,6 +4440,45 @@ webkit.org/b/263473 imported/w3c/web-platform-tests/pointerevents/pointerevent_c
 webkit.org/b/263473 imported/w3c/web-platform-tests/pointerevents/pointerevent_click_during_parent_capture.html?pointerType=touch&preventDefault=touchstart [ Skip ]
 
 webkit.org/b/290133 svg/dom/SVGGeometry-isPointInFill-with-null-path.html [ Skip ]
+
+fast/images/embed-image.html [ Failure ]
+fast/images/object-image.html [ Failure ]
+
+webkit.org/b/42194 fast/events/5056619.html [ Failure ]
+webkit.org/b/42194 fast/events/drag-and-drop-link.html [ Failure ]
+
+webkit.org/b/144864 fast/events/clear-drag-state.html [ Failure ]
+
+webkit.org/b/157179 fast/events/before-input-events-prevent-drag-and-drop.html [ Failure ]
+webkit.org/b/157179 fast/events/bogus-dropEffect-effectAllowed.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-and-drop-autoscroll.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-and-drop-dataTransfer-types-nocrash.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-and-drop-fire-drag-dragover.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-and-drop.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-and-drop-link-into-focused-contenteditable.html [ Failure ]
+webkit.org/b/157179 fast/events/draggable-div-customdata.html [ Failure ]
+webkit.org/b/157179 fast/events/draggable-div-nodata.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-image-with-border-image.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-in-frames.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-parent-node.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-select-when-zoomed.html [ Failure ]
+webkit.org/b/157179 fast/events/drag-select-when-zoomed-with-header.html [ Failure ]
+webkit.org/b/157179 fast/events/dropzone-001.html [ Failure ]
+webkit.org/b/157179 fast/events/dropzone-002.html [ Failure ]
+webkit.org/b/157179 fast/events/dropzone-003.html [ Failure ]
+webkit.org/b/157179 fast/events/dropzone-005.html [ Failure ]
+webkit.org/b/157179 fast/events/ondragenter.html [ Failure ]
+webkit.org/b/157179 fast/events/remove-target-with-shadow-in-drag.html [ Failure ]
+
+webkit.org/b/163779 http/tests/xmlhttprequest/on-network-timeout-error-during-preflight.html [ Skip ] # Timeout.
+
+imported/w3c/web-platform-tests/css/css-view-transitions/transition-in-hidden-page.html [ Skip ]
+
+webkit.org/b/204001 imported/w3c/web-platform-tests/pointerevents/pointerlock/pointerevent_coordinates_when_locked.html [ Skip ]
+
+webkit.org/b/291636 svg/text/timeout-long-text-content.html [ Timeout Pass ]
+
+imported/w3c/web-platform-tests/uievents/interface/keyboard-accesskey-click-event.html [ Failure Pass ]
 
 # End: Common failures between GTK and WPE.
 

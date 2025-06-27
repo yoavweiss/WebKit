@@ -198,7 +198,6 @@ imported/w3c/web-platform-tests/mimesniff/media/media-sniff.window.html [ Failur
 imported/w3c/web-platform-tests/navigation-timing/test_timing_xserver_redirect.html [ Failure ]
 imported/w3c/web-platform-tests/screen-orientation/hidden_document.html [ Failure ]
 imported/w3c/web-platform-tests/service-workers/service-worker/navigation-redirect.https.html?client [ Pass Failure ]
-imported/w3c/web-platform-tests/service-workers/service-worker/navigation-redirect.https.html [ Skip ]
 imported/w3c/web-platform-tests/storage/storagemanager-estimate.https.any.html [ Failure ]
 imported/w3c/web-platform-tests/storage/storagemanager-estimate.https.any.worker.html [ Failure ]
 imported/w3c/web-platform-tests/streams/readable-byte-streams/construct-byob-request.any.worker.html [ Failure ]
@@ -274,42 +273,19 @@ fast/url/user-visible [ Skip ]
 # platformLayerTreeAsText is only implemented for Cocoa ports.
 
 # ENABLE_DRAG_SUPPORT is OFF in WPE.
-fast/events/5056619.html [ Skip ]
-fast/events/before-input-events-prevent-drag-and-drop.html [ Skip ]
-fast/events/bogus-dropEffect-effectAllowed.html [ Skip ]
-fast/events/clear-drag-state.html [ Skip ]
 fast/events/do-not-drag-and-drop-data-detectors-link.html [ Skip ]
 fast/events/drag-and-drop-autoscroll-inner-frame.html [ Skip ]
-fast/events/drag-and-drop-dataTransfer-types-nocrash.html [ Skip ]
-fast/events/drag-and-drop-fire-drag-dragover.html [ Skip ]
 fast/events/drag-and-drop-link-containing-block.html [ Skip ]
 fast/events/drag-and-drop-link-fast-multiple-times-does-not-crash.html [ Skip ]
-fast/events/drag-and-drop-link-into-focused-contenteditable.html [ Skip ]
-fast/events/drag-and-drop-link.html [ Skip ]
 fast/events/drag-and-drop-set-drag-data-arguments.html [ Skip ]
 fast/events/drag-and-drop-subframe-dataTransfer.html [ Skip ]
-fast/events/drag-and-drop.html [ Skip ]
 fast/events/drag-customData.html [ Skip ]
 fast/events/drag-display-none-element.html [ Skip ]
 fast/events/drag-image-filename.html [ Skip ]
-fast/events/drag-image-with-border-image.html [ Skip ]
-fast/events/drag-in-frames.html [ Skip ]
 fast/events/drag-outside-window.html [ Skip ]
-fast/events/drag-parent-node.html [ Skip ]
-fast/events/drag-select-when-zoomed-with-header.html [ Skip ]
-fast/events/drag-select-when-zoomed.html [ Skip ]
 fast/events/drag-selects-image.html [ Skip ]
 fast/events/drag-text-with-clear.html [ Skip ]
-fast/events/draggable-div-customdata.html [ Skip ]
-fast/events/draggable-div-nodata.html [ Skip ]
-fast/events/dropzone-001.html [ Skip ]
-fast/events/dropzone-002.html [ Skip ]
-fast/events/dropzone-003.html [ Skip ]
-fast/events/dropzone-005.html [ Skip ]
-fast/events/event-attribute.html [ Skip ]
 fast/events/mousedown-inside-dragstart-should-not-cause-crash.html [ Skip ]
-fast/events/ondragenter.html [ Skip ]
-fast/events/remove-target-with-shadow-in-drag.html [ Skip ]
 fast/events/resources/drag-in-frames-left.html [ Skip ]
 fast/events/resources/drag-in-frames-right.html [ Skip ]
 fast/events/shift-drag-selection-on-image-triggers-drag-n-drop.html [ Skip ]
@@ -383,10 +359,7 @@ webkit.org/b/204001 fast/shadow-dom/pointerlockelement-in-shadow-tree.html [ Ski
 webkit.org/b/204001 fast/shadow-dom/pointerlockelement-in-slot.html [ Skip ]
 webkit.org/b/204001 imported/w3c/web-platform-tests/pointerlock/ [ Skip ]
 
-Bug(WPE) fast/images/embed-image.html [ Skip ]
-Bug(WPE) fast/images/object-image.html [ Skip ]
 
-Bug(WPE) fast/replaced/pdf-as-object-and-embed.html [ Skip ]
 
 Bug(WPE) fast/fixed-layout [ Skip ]
 
@@ -475,8 +448,6 @@ webkit.org/b/264660 imported/w3c/web-platform-tests/html/semantics/disabled-elem
 
 webkit.org/b/213131 editing/ [ Skip ]
 webkit.org/b/213131 inspector/ [ Skip ]
-# This one below programatically opens the inspector.
-webkit.org/b/213131 http/tests/xmlhttprequest/access-control-repeated-failed-preflight-crash.html [ Skip ]
 
 Bug(WPE) fast/autoresize [ Skip ]
 webkit.org/b/213131 fast/files [ Skip ]
@@ -509,7 +480,6 @@ imported/w3c/web-platform-tests/pointerevents/pointerevent_click_on_chorded_mous
 imported/w3c/web-platform-tests/pointerevents/pointerevent_constructor.html [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_contextmenu_is_a_pointerevent.html?mouse [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_movementxy.html?mouse [ Skip ]
-imported/w3c/web-platform-tests/pointerevents/pointerlock/pointerevent_coordinates_when_locked.html [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerlock/pointerevent_getCoalescedEvents_when_pointerlocked.https.html [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerlock/pointerevent_pointerrawupdate_in_pointerlock.https.html [ Skip ]
 
@@ -675,7 +645,6 @@ webkit.org/b/208000 [ Release ] http/tests/inspector/network/contentextensions/b
 
 webkit.org/b/208932 scrollbars/scroll-rtl-or-bt-layer.html [ Timeout Pass ]
 
-webkit.org/b/212144 http/tests/xmlhttprequest/on-network-timeout-error-during-preflight.html [ Skip ] # Timeout.
 
 # webkit.org/b/188506 fast/dom/timer-throttling-hidden-page.html [ Failure ]
 webkit.org/b/212350 fast/dom/timer-throttling-hidden-page.html [ Timeout ]
@@ -1197,7 +1166,6 @@ compositing/blend-mode [ Skip ]
 imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-blended-element-overflow-scroll.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-parent-element-overflow-scroll.html [ ImageOnlyFailure ]
 
-imported/w3c/web-platform-tests/css/css-view-transitions/transition-in-hidden-page.html [ Skip ]
 
 webkit.org/b/272224 imported/w3c/web-platform-tests/selection/textcontrols/selectionchange.html [ Failure ]
 
@@ -1206,7 +1174,6 @@ webkit.org/b/272225 media/media-source/media-managedmse-resume-after-stall.html 
 media/media-source/media-detachablemse-append.html [ Timeout Crash Pass ]
 
 imported/w3c/web-platform-tests/uievents/mouse/mousemove_prevent_default_action.html [ Pass Failure ]
-imported/w3c/web-platform-tests/uievents/interface/keyboard-accesskey-click-event.html [ Pass Failure ]
 
 http/tests/login-status/login-status-api-getter-setter-functions.html [ Failure ]
 
