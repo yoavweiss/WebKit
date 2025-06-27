@@ -2446,3 +2446,5 @@ webkit.org/b/294295 fullscreen/full-screen-request-removed-with-raf.html [ Pass 
 
 webkit.org/b/294316 [ Debug ] imported/w3c/web-platform-tests/pointerevents/coalesced_events_attributes.https.html?mouse [ Skip ]
 webkit.org/b/294316 [ Debug ] imported/w3c/web-platform-tests/pointerevents/coalesced_events_attributes.https.html?pen [ Skip ]
+
+webkit.org/b/295127  transitions/svg-text-shadow-transition.html [ Pass Failure ]
