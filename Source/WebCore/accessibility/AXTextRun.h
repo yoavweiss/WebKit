@@ -179,7 +179,7 @@ struct AXTextRuns {
 
     // Convenience methods for TextUnit movement.
     bool runStartsWithLineBreak(size_t runIndex) const { return text[runs[runIndex].startIndex] == '\n'; }
-    bool runEndsWithLineBreak(size_t runIndex) const { return text[runs[runIndex].endIndex] == '\n'; }
+    bool runEndsWithLineBreak(size_t runIndex) const { return text[runs[runIndex].endIndex - 1] == '\n'; }
 };
 
 } // namespace WebCore

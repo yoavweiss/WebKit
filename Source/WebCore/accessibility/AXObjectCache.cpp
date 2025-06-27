@@ -3945,17 +3945,18 @@ std::optional<TextMarkerData> AXObjectCache::textMarkerDataForVisiblePosition(co
         if (isRendererReplacedElement(node->renderer()) || is<RenderLineBreak>(node->renderer()))
             return createFromRendererAndOffset(*node->renderer(), domOffset);
 
-        CheckedPtr<const RenderText> renderText = dynamicDowncast<RenderText>(node ? node->renderer() : nullptr);
+        CheckedPtr<const RenderText> renderText = nullptr;
+
+        auto boxAndOffset = visiblePosition.inlineBoxAndOffset();
+        if (boxAndOffset.box) {
+            renderText = dynamicDowncast<RenderText>(boxAndOffset.box->renderer());
+            domOffset = boxAndOffset.offset;
+        }
 
         if (!renderText) {
-            auto boxAndOffset = visiblePosition.inlineBoxAndOffset();
-            if (!boxAndOffset.box)
-                return std::nullopt;
-
-            renderText = dynamicDowncast<RenderText>(boxAndOffset.box->renderer());
+            renderText = dynamicDowncast<RenderText>(node ? node->renderer() : nullptr);
             if (!renderText)
                 return std::nullopt;
-            domOffset = boxAndOffset.offset;
         }
 
         auto [textBox, orderCache] = InlineIterator::firstTextBoxInLogicalOrderFor(*renderText);
