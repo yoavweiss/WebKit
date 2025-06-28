@@ -1224,10 +1224,16 @@ static RefPtr<Element> nodeActionElement(Node& node)
 {
     auto elementName = WebCore::elementName(node);
     if (RefPtr input = dynamicDowncast<HTMLInputElement>(node)) {
-        if (!input->isDisabledFormControl() && (input->isRadioButton() || input->isCheckbox() || input->isTextButton() || input->isFileUpload() || input->isImageButton()))
+        if (!input->isDisabledFormControl() && (input->isRadioButton() || input->isCheckbox() || input->isTextButton() || input->isFileUpload() || input->isImageButton() || input->isTextField()))
             return input;
     } else if (elementName == ElementName::HTML_button || elementName == ElementName::HTML_select)
         return &downcast<Element>(node);
+
+    // Content editable nodes should also be considered action elements, so they can accept presses.
+    if (RefPtr element = dynamicDowncast<Element>(node)) {
+        if (AccessibilityObject::contentEditableAttributeIsEnabled(*element))
+            return element;
+    }
 
     return nullptr;
 }
