@@ -195,7 +195,7 @@ protected:
 
     virtual void effectiveSpellcheckAttributeChanged(bool);
 
-    using EventHandlerNameMap = UncheckedKeyHashMap<AtomString, AtomString>;
+    using EventHandlerNameMap = HashMap<AtomString, AtomString>;
     static const AtomString& eventNameForEventHandlerAttribute(const QualifiedName& attributeName, const EventHandlerNameMap&);
 
 private:

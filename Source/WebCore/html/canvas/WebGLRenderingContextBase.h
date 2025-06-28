@@ -780,9 +780,9 @@ protected:
     bool m_areOESTextureHalfFloatFormatsAndTypesAdded { false };
     bool m_areEXTsRGBFormatsAndTypesAdded { false };
 
-    UncheckedKeyHashSet<GCGLenum> m_supportedTexImageSourceInternalFormats;
-    UncheckedKeyHashSet<GCGLenum> m_supportedTexImageSourceFormats;
-    UncheckedKeyHashSet<GCGLenum> m_supportedTexImageSourceTypes;
+    HashSet<GCGLenum> m_supportedTexImageSourceInternalFormats;
+    HashSet<GCGLenum> m_supportedTexImageSourceFormats;
+    HashSet<GCGLenum> m_supportedTexImageSourceTypes;
 
     // Helpers for getParameter and other similar functions.
     bool getBooleanParameter(GCGLenum);

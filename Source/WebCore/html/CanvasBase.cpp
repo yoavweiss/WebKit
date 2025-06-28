@@ -211,9 +211,9 @@ void CanvasBase::notifyObserversCanvasDisplayBufferPrepared()
         observer.canvasDisplayBufferPrepared(*this);
 }
 
-UncheckedKeyHashSet<Element*> CanvasBase::cssCanvasClients() const
+HashSet<Element*> CanvasBase::cssCanvasClients() const
 {
-    UncheckedKeyHashSet<Element*> cssCanvasClients;
+    HashSet<Element*> cssCanvasClients;
     for (auto& observer : m_observers) {
         auto* image = dynamicDowncast<StyleCanvasImage>(observer);
         if (!image)
