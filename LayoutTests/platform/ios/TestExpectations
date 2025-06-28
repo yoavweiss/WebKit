@@ -2429,6 +2429,11 @@ accessibility/attachment-element.html [ Pass ]
 
 # Enable Text marker tests for iOS
 webkit.org/b/153292 accessibility/text-marker [ Pass ]
+
+# textMarkerRangeForElement not implemented on iOS
+accessibility/text-marker/text-marker-bidi-element-arabic.html [ Skip ]
+accessibility/text-marker/text-marker-bidi-element-hebrew.html [ Skip ]
+
 # TextMarkerDebugDescription not implemented on iOS:
 accessibility/text-marker/text-marker-debug-description.html [ Skip ]
 
