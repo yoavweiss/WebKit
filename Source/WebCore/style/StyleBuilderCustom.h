@@ -74,6 +74,7 @@ namespace Style {
     static void applyValue##property(BuilderState&, CSSValue&)
 
 template<typename T> inline T forwardInheritedValue(T&& value) { return std::forward<T>(value); }
+inline BorderRadiusValue forwardInheritedValue(const BorderRadiusValue& value) { auto copy = value; return copy; }
 inline WebCore::Color forwardInheritedValue(const WebCore::Color& value) { auto copy = value; return copy; }
 inline Color forwardInheritedValue(const Color& value) { auto copy = value; return copy; }
 inline WebCore::Length forwardInheritedValue(const WebCore::Length& value) { auto copy = value; return copy; }
@@ -896,7 +897,7 @@ inline void BuilderCustom::applyInheritBorderBottomLeftRadius(BuilderState& buil
 
 inline void BuilderCustom::applyValueBorderBottomLeftRadius(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setBorderBottomLeftRadius(BuilderConverter::convertRadius(builderState, value));
+    builderState.style().setBorderBottomLeftRadius(BuilderConverter::convertStyleType<BorderRadiusValue>(builderState, value));
     builderState.style().setHasExplicitlySetBorderBottomLeftRadius(true);
 }
 
@@ -914,7 +915,7 @@ inline void BuilderCustom::applyInheritBorderBottomRightRadius(BuilderState& bui
 
 inline void BuilderCustom::applyValueBorderBottomRightRadius(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setBorderBottomRightRadius(BuilderConverter::convertRadius(builderState, value));
+    builderState.style().setBorderBottomRightRadius(BuilderConverter::convertStyleType<BorderRadiusValue>(builderState, value));
     builderState.style().setHasExplicitlySetBorderBottomRightRadius(true);
 }
 
@@ -932,7 +933,7 @@ inline void BuilderCustom::applyInheritBorderTopLeftRadius(BuilderState& builder
 
 inline void BuilderCustom::applyValueBorderTopLeftRadius(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setBorderTopLeftRadius(BuilderConverter::convertRadius(builderState, value));
+    builderState.style().setBorderTopLeftRadius(BuilderConverter::convertStyleType<BorderRadiusValue>(builderState, value));
     builderState.style().setHasExplicitlySetBorderTopLeftRadius(true);
 }
 
@@ -950,7 +951,7 @@ inline void BuilderCustom::applyInheritBorderTopRightRadius(BuilderState& builde
 
 inline void BuilderCustom::applyValueBorderTopRightRadius(BuilderState& builderState, CSSValue& value)
 {
-    builderState.style().setBorderTopRightRadius(BuilderConverter::convertRadius(builderState, value));
+    builderState.style().setBorderTopRightRadius(BuilderConverter::convertStyleType<BorderRadiusValue>(builderState, value));
     builderState.style().setHasExplicitlySetBorderTopRightRadius(true);
 }
 
@@ -1130,8 +1131,8 @@ inline void BuilderCustom::applyValueCounter(BuilderState& builderState, CSSValu
         auto pair = requiredPairDowncast<CSSPrimitiveValue>(builderState, pairValue);
         if (!pair)
             return;
-        AtomString identifier { pair->first.stringValue() };
-        int value =  pair->second.resolveAsNumber<int>(conversionData);
+        AtomString identifier { pair->first->stringValue() };
+        int value =  pair->second->resolveAsNumber<int>(conversionData);
         auto& directives = map.add(identifier, CounterDirectives { }).iterator->value;
         if (counterBehavior == Reset)
             directives.resetValue = value;
@@ -1802,13 +1803,13 @@ inline void BuilderCustom::applyValueContainIntrinsicWidth(BuilderState& builder
     if (!pair)
         return;
 
-    ASSERT(pair->first.valueID() == CSSValueAuto);
-    if (pair->second.valueID() == CSSValueNone)
+    ASSERT(pair->first->valueID() == CSSValueAuto);
+    if (pair->second->valueID() == CSSValueNone)
         style.setContainIntrinsicWidthType(ContainIntrinsicSizeType::AutoAndNone);
     else {
-        ASSERT(pair->second.isLength());
+        ASSERT(pair->second->isLength());
         style.setContainIntrinsicWidthType(ContainIntrinsicSizeType::AutoAndLength);
-        auto lengthValue = pair->second.resolveAsLength<WebCore::Length>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f));
+        auto lengthValue = pair->second->resolveAsLength<WebCore::Length>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f));
         style.setContainIntrinsicWidth(lengthValue);
     }
 }
@@ -1847,13 +1848,13 @@ inline void BuilderCustom::applyValueContainIntrinsicHeight(BuilderState& builde
     if (!pair)
         return;
 
-    ASSERT(pair->first.valueID() == CSSValueAuto);
-    if (pair->second.valueID() == CSSValueNone)
+    ASSERT(pair->first->valueID() == CSSValueAuto);
+    if (pair->second->valueID() == CSSValueNone)
         style.setContainIntrinsicHeightType(ContainIntrinsicSizeType::AutoAndNone);
     else {
-        ASSERT(pair->second.isLength());
+        ASSERT(pair->second->isLength());
         style.setContainIntrinsicHeightType(ContainIntrinsicSizeType::AutoAndLength);
-        auto lengthValue = pair->second.resolveAsLength<WebCore::Length>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f));
+        auto lengthValue = pair->second->resolveAsLength<WebCore::Length>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f));
         style.setContainIntrinsicHeight(lengthValue);
     }
 }

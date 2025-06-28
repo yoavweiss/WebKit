@@ -430,13 +430,18 @@ template<typename CSSType> struct CSSValueCreation<MinimallySerializingSpaceSepa
 // All leaf types must implement the following:
 //
 //    template<> struct WebCore::Style::CSSValueConversion<StyleType> {
-//        StyleType operator()(BuilderState&, const CSSValue&);
+//                   StyleType operator()(BuilderState&, const CSSValue&);
+//        [optional] StyleType operator()(BuilderState&, const CSSPrimitiveValue&);
 //    };
 
 template<typename StyleType> struct CSSValueConversion;
 
 template<typename StyleType> struct CSSValueConversionInvoker {
     template<typename... Rest> StyleType operator()(BuilderState& builderState, const CSSValue& value, Rest&&... rest) const
+    {
+        return CSSValueConversion<StyleType>{}(builderState, value, std::forward<Rest>(rest)...);
+    }
+    template<typename... Rest> StyleType operator()(BuilderState& builderState, const CSSPrimitiveValue& value, Rest&&... rest) const
     {
         return CSSValueConversion<StyleType>{}(builderState, value, std::forward<Rest>(rest)...);
     }
@@ -1305,6 +1310,14 @@ inline constexpr IsEmptyInvoker isEmpty{};
 
 // Specialization for `SpaceSeparatedSize`.
 template<typename T> struct IsEmpty<SpaceSeparatedSize<T>> {
+    bool operator()(const auto& value)
+    {
+        return isZero(value.width()) || isZero(value.height());
+    }
+};
+
+// Specialization for `MinimallySerializingSpaceSeparatedSize`.
+template<typename T> struct IsEmpty<MinimallySerializingSpaceSeparatedSize<T>> {
     bool operator()(const auto& value)
     {
         return isZero(value.width()) || isZero(value.height());

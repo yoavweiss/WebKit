@@ -26,6 +26,7 @@
 
 #include "CSSValueConcepts.h"
 #include "CSSValueKeywords.h"
+#include "RectCorners.h"
 #include "RectEdges.h"
 #include <optional>
 #include <tuple>
@@ -620,6 +621,42 @@ template<size_t I, typename T> decltype(auto) get(const MinimallySerializingSpac
 template<typename T> inline constexpr auto TreatAsTupleLike<MinimallySerializingSpaceSeparatedRectEdges<T>> = true;
 template<typename T> inline constexpr auto SerializationSeparator<MinimallySerializingSpaceSeparatedRectEdges<T>> = SerializationSeparatorType::Space;
 
+template<typename T> struct MinimallySerializingSpaceSeparatedRectCorners : RectCorners<T> {
+    using value_type = T;
+
+    constexpr MinimallySerializingSpaceSeparatedRectCorners(T value)
+        : RectCorners<T> { value, value, value, value }
+    {
+    }
+
+    constexpr MinimallySerializingSpaceSeparatedRectCorners(T topLeft, T topRight, T bottomLeft, T bottomRight)
+        : RectCorners<T> { WTFMove(topLeft), WTFMove(topRight), WTFMove(bottomLeft), WTFMove(bottomRight) }
+    {
+    }
+
+    constexpr MinimallySerializingSpaceSeparatedRectCorners(RectCorners<T>&& rectCorners)
+        : RectCorners<T> { WTFMove(rectCorners) }
+    {
+    }
+
+    constexpr bool operator==(const MinimallySerializingSpaceSeparatedRectCorners<T>&) const = default;
+};
+
+template<size_t I, typename T> decltype(auto) get(const MinimallySerializingSpaceSeparatedRectCorners<T>& value)
+{
+    if constexpr (!I)
+        return value.topLeft();
+    else if constexpr (I == 1)
+        return value.topRight();
+    else if constexpr (I == 2)
+        return value.bottomLeft();
+    else if constexpr (I == 3)
+        return value.bottomRight();
+}
+
+template<typename T> inline constexpr auto TreatAsTupleLike<MinimallySerializingSpaceSeparatedRectCorners<T>> = true;
+template<typename T> inline constexpr auto SerializationSeparator<MinimallySerializingSpaceSeparatedRectCorners<T>> = SerializationSeparatorType::Space;
+
 // MARK: - Logging
 
 template<typename T> void logForCSSOnTupleLike(TextStream& ts, const T& value, ASCIILiteral separator)
@@ -721,6 +758,12 @@ public:
 
 template<typename T> class tuple_size<WebCore::MinimallySerializingSpaceSeparatedRectEdges<T>> : public std::integral_constant<size_t, 4> { };
 template<size_t I, typename T> class tuple_element<I, WebCore::MinimallySerializingSpaceSeparatedRectEdges<T>> {
+public:
+    using type = T;
+};
+
+template<typename T> class tuple_size<WebCore::MinimallySerializingSpaceSeparatedRectCorners<T>> : public std::integral_constant<size_t, 4> { };
+template<size_t I, typename T> class tuple_element<I, WebCore::MinimallySerializingSpaceSeparatedRectCorners<T>> {
 public:
     using type = T;
 };

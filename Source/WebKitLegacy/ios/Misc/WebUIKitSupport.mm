@@ -34,6 +34,7 @@
 #import "WebViewPrivate.h"
 #import <JavaScriptCore/InitializeThreading.h>
 #import <WebCore/BreakLines.h>
+#import <WebCore/Path.h>
 #import <WebCore/PathUtilities.h>
 #import <WebCore/ResourceRequest.h>
 #import <WebCore/Settings.h>

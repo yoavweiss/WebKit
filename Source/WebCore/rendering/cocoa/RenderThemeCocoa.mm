@@ -296,8 +296,8 @@ void RenderThemeCocoa::adjustApplePayButtonStyle(RenderStyle& style, const Eleme
     style.setMinHeight(Style::MinimumSize::Fixed { applePayButtonMinimumHeight });
 
     if (!style.hasExplicitlySetBorderRadius()) {
-        auto cornerRadius = PKApplePayButtonDefaultCornerRadius;
-        style.setBorderRadius({ { cornerRadius, LengthType::Fixed }, { cornerRadius, LengthType::Fixed } });
+        auto radius = Style::LengthPercentage<CSS::Nonnegative>::Dimension { static_cast<float>(PKApplePayButtonDefaultCornerRadius) };
+        style.setBorderRadius({ radius, radius });
     }
 }
 

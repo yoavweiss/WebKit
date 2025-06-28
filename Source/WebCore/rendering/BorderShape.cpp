@@ -41,16 +41,6 @@
 
 namespace WebCore {
 
-static LayoutRoundedRect::Radii calcRadiiFor(const BorderData::Radii& radii, const LayoutSize& size)
-{
-    return {
-        sizeForLengthSize(radii.topLeft(), size),
-        sizeForLengthSize(radii.topRight(), size),
-        sizeForLengthSize(radii.bottomLeft(), size),
-        sizeForLengthSize(radii.bottomRight(), size)
-    };
-}
-
 BorderShape BorderShape::shapeForBorderRect(const RenderStyle& style, const LayoutRect& borderRect, RectEdges<bool> closedEdges)
 {
     auto borderWidths = RectEdges<LayoutUnit> {
@@ -73,7 +63,7 @@ BorderShape BorderShape::shapeForBorderRect(const RenderStyle& style, const Layo
     };
 
     if (style.hasBorderRadius()) {
-        auto radii = calcRadiiFor(style.borderRadii(), borderRect.size());
+        auto radii = Style::evaluate(style.borderRadii(), borderRect.size());
         radii.scale(calcBorderRadiiConstraintScaleFor(borderRect, radii));
 
         if (!closedEdges.top()) {
@@ -113,7 +103,7 @@ BorderShape BorderShape::shapeForOutsetRect(const RenderStyle& style, const Layo
     };
 
     if (style.hasBorderRadius()) {
-        auto radii = calcRadiiFor(style.borderRadii(), borderRect.size());
+        auto radii = Style::evaluate(style.borderRadii(), borderRect.size());
 
         auto leftOutset = std::max(borderRect.x() - outlineBoxRect.x(), 0_lu);
         auto topOutset = std::max(borderRect.y() - outlineBoxRect.y(), 0_lu);
@@ -152,7 +142,7 @@ BorderShape BorderShape::shapeForOutsetRect(const RenderStyle& style, const Layo
 BorderShape BorderShape::shapeForInsetRect(const RenderStyle& style, const LayoutRect& borderRect, const LayoutRect& insetRect)
 {
     if (style.hasBorderRadius()) {
-        auto radii = calcRadiiFor(style.borderRadii(), borderRect.size());
+        auto radii = Style::evaluate(style.borderRadii(), borderRect.size());
 
         auto leftInset = std::max(insetRect.x() - borderRect.x(), 0_lu);
         auto topInset = std::max(insetRect.y()- borderRect.y(), 0_lu);

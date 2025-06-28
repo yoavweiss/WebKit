@@ -202,7 +202,6 @@ public:
     static Ref<CSSValue> convertLineFitEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertTextBoxEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertQuotes(ExtractorState&, const QuotesData*);
-    static Ref<CSSValue> convertBorderRadiusCorner(ExtractorState&, const LengthSize&);
     static Ref<CSSValue> convertContainerNames(ExtractorState&, const FixedVector<ScopedName>&);
     static Ref<CSSValue> convertViewTransitionClasses(ExtractorState&, const FixedVector<ScopedName>&);
     static Ref<CSSValue> convertViewTransitionName(ExtractorState&, const ViewTransitionName&);
@@ -908,13 +907,6 @@ inline Ref<CSSValue> ExtractorConverter::convertQuotes(ExtractorState&, const Qu
         list.append(CSSPrimitiveValue::create(quotes->closeQuote(i)));
     }
     return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertBorderRadiusCorner(ExtractorState& state, const LengthSize& radius)
-{
-    auto x = convertLength(state, radius.width);
-    auto y = radius.width == radius.height ? x.copyRef() : convertLength(state, radius.height);
-    return CSSValuePair::create(WTFMove(x), WTFMove(y));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertContainerNames(ExtractorState& state, const FixedVector<ScopedName>& containerNames)

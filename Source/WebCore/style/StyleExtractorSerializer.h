@@ -110,7 +110,6 @@ public:
     static void serializeLineFitEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextEdge&);
     static void serializeTextBoxEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextEdge&);
     static void serializeQuotes(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const QuotesData*);
-    static void serializeBorderRadiusCorner(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LengthSize&);
     static void serializeContainerNames(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<ScopedName>&);
     static void serializeViewTransitionClasses(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<ScopedName>&);
     static void serializeViewTransitionName(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ViewTransitionName&);
@@ -1074,18 +1073,6 @@ inline void ExtractorSerializer::serializeQuotes(ExtractorState& state, StringBu
         list.append(CSSPrimitiveValue::create(quotes->closeQuote(i)));
     }
     builder.append(CSSValueList::createSpaceSeparated(WTFMove(list))->cssText(context));
-}
-
-inline void ExtractorSerializer::serializeBorderRadiusCorner(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const LengthSize& radius)
-{
-    if (radius.width == radius.height) {
-        serializeLength(state, builder, context, radius.width);
-        return;
-    }
-
-    serializeLength(state, builder, context, radius.width);
-    builder.append(' ');
-    serializeLength(state, builder, context, radius.height);
 }
 
 inline void ExtractorSerializer::serializeContainerNames(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FixedVector<ScopedName>& containerNames)

@@ -1078,18 +1078,18 @@ inline Ref<CSSValue> extractBorderRadiusShorthand(ExtractorState& state, CSSProp
     };
 
     auto extractBorderRadiusCornerValues = [&](auto& state, const auto& radius) {
-        auto x = ExtractorConverter::convertLength(state, radius.width);
-        auto y = radius.width == radius.height ? x.copyRef() : ExtractorConverter::convertLength(state, radius.height);
-        return std::pair<Ref<CSSPrimitiveValue>, Ref<CSSPrimitiveValue>> { WTFMove(x), WTFMove(y) };
+        auto x = ExtractorConverter::convertStyleType(state, radius.width());
+        auto y = radius.width() == radius.height() ? x.copyRef() : ExtractorConverter::convertStyleType(state, radius.height());
+        return std::pair<Ref<CSSValue>, Ref<CSSValue>> { WTFMove(x), WTFMove(y) };
     };
 
-    bool showHorizontalBottomLeft = state.style.borderTopRightRadius().width != state.style.borderBottomLeftRadius().width;
-    bool showHorizontalBottomRight = showHorizontalBottomLeft || (state.style.borderBottomRightRadius().width != state.style.borderTopLeftRadius().width);
-    bool showHorizontalTopRight = showHorizontalBottomRight || (state.style.borderTopRightRadius().width != state.style.borderTopLeftRadius().width);
+    bool showHorizontalBottomLeft = state.style.borderTopRightRadius().width() != state.style.borderBottomLeftRadius().width();
+    bool showHorizontalBottomRight = showHorizontalBottomLeft || (state.style.borderBottomRightRadius().width() != state.style.borderTopLeftRadius().width());
+    bool showHorizontalTopRight = showHorizontalBottomRight || (state.style.borderTopRightRadius().width() != state.style.borderTopLeftRadius().width());
 
-    bool showVerticalBottomLeft = state.style.borderTopRightRadius().height != state.style.borderBottomLeftRadius().height;
-    bool showVerticalBottomRight = showVerticalBottomLeft || (state.style.borderBottomRightRadius().height != state.style.borderTopLeftRadius().height);
-    bool showVerticalTopRight = showVerticalBottomRight || (state.style.borderTopRightRadius().height != state.style.borderTopLeftRadius().height);
+    bool showVerticalBottomLeft = state.style.borderTopRightRadius().height() != state.style.borderBottomLeftRadius().height();
+    bool showVerticalBottomRight = showVerticalBottomLeft || (state.style.borderBottomRightRadius().height() != state.style.borderTopLeftRadius().height());
+    bool showVerticalTopRight = showVerticalBottomRight || (state.style.borderTopRightRadius().height() != state.style.borderTopLeftRadius().height());
 
     auto [topLeftRadiusX, topLeftRadiusY] = extractBorderRadiusCornerValues(state, state.style.borderTopLeftRadius());
     auto [topRightRadiusX, topRightRadiusY] = extractBorderRadiusCornerValues(state, state.style.borderTopRightRadius());

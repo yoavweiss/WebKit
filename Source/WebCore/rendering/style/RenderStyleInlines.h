@@ -122,8 +122,8 @@ inline const BorderData& RenderStyle::border() const { return m_nonInheritedData
 inline const BorderValue& RenderStyle::borderBottom() const { return border().bottom(); }
 inline const Style::Color& RenderStyle::borderBottomColor() const { return border().bottom().color(); }
 inline bool RenderStyle::borderBottomIsTransparent() const { return border().bottom().isTransparent(); }
-inline const LengthSize& RenderStyle::borderBottomLeftRadius() const { return border().bottomLeftRadius(); }
-inline const LengthSize& RenderStyle::borderBottomRightRadius() const { return border().bottomRightRadius(); }
+inline const Style::BorderRadiusValue& RenderStyle::borderBottomLeftRadius() const { return border().bottomLeftRadius(); }
+inline const Style::BorderRadiusValue& RenderStyle::borderBottomRightRadius() const { return border().bottomRightRadius(); }
 inline BorderStyle RenderStyle::borderBottomStyle() const { return border().bottom().style(); }
 inline float RenderStyle::borderBottomWidth() const { return border().borderBottomWidth(); }
 inline const NinePieceImage& RenderStyle::borderImage() const { return border().image(); }
@@ -139,7 +139,7 @@ inline const Style::Color& RenderStyle::borderLeftColor() const { return border(
 inline bool RenderStyle::borderLeftIsTransparent() const { return border().left().isTransparent(); }
 inline BorderStyle RenderStyle::borderLeftStyle() const { return border().left().style(); }
 inline float RenderStyle::borderLeftWidth() const { return border().borderLeftWidth(); }
-inline const RectCorners<LengthSize>& RenderStyle::borderRadii() const { return border().m_radii; }
+inline const Style::BorderRadius& RenderStyle::borderRadii() const { return border().radii(); }
 inline const BorderValue& RenderStyle::borderRight() const { return border().right(); }
 inline const Style::Color& RenderStyle::borderRightColor() const { return border().right().color(); }
 inline bool RenderStyle::borderRightIsTransparent() const { return border().right().isTransparent(); }
@@ -148,8 +148,8 @@ inline float RenderStyle::borderRightWidth() const { return border().borderRight
 inline const BorderValue& RenderStyle::borderTop() const { return border().top(); }
 inline const Style::Color& RenderStyle::borderTopColor() const { return border().top().color(); }
 inline bool RenderStyle::borderTopIsTransparent() const { return border().top().isTransparent(); }
-inline const LengthSize& RenderStyle::borderTopLeftRadius() const { return border().topLeftRadius(); }
-inline const LengthSize& RenderStyle::borderTopRightRadius() const { return border().topRightRadius(); }
+inline const Style::BorderRadiusValue& RenderStyle::borderTopLeftRadius() const { return border().topLeftRadius(); }
+inline const Style::BorderRadiusValue& RenderStyle::borderTopRightRadius() const { return border().topRightRadius(); }
 inline BorderStyle RenderStyle::borderTopStyle() const { return border().top().style(); }
 inline float RenderStyle::borderTopWidth() const { return border().borderTopWidth(); }
 inline FloatBoxExtent RenderStyle::borderWidth() const { return border().borderWidth(); }
@@ -383,7 +383,7 @@ constexpr BlockStepInsert RenderStyle::initialBlockStepInsert() { return BlockSt
 constexpr BlockStepRound RenderStyle::initialBlockStepRound() { return BlockStepRound::Up; }
 inline std::optional<Length> RenderStyle::initialBlockStepSize() { return std::nullopt; }
 constexpr BorderCollapse RenderStyle::initialBorderCollapse() { return BorderCollapse::Separate; }
-inline LengthSize RenderStyle::initialBorderRadius() { return { zeroLength(), zeroLength() }; }
+inline Style::BorderRadiusValue RenderStyle::initialBorderRadius() { return { 0_css_px, 0_css_px }; }
 constexpr BorderStyle RenderStyle::initialBorderStyle() { return BorderStyle::None; }
 constexpr BoxAlignment RenderStyle::initialBoxAlign() { return BoxAlignment::Stretch; }
 constexpr BoxDecorationBreak RenderStyle::initialBoxDecorationBreak() { return BoxDecorationBreak::Slice; }

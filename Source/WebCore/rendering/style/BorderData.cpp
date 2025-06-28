@@ -93,13 +93,13 @@ void BorderData::dump(TextStream& ts, DumpStyleValues behavior) const
 
     ts.dumpProperty("image"_s, image());
 
-    if (behavior == DumpStyleValues::All || !topLeftRadius().isZero())
+    if (behavior == DumpStyleValues::All || !Style::isZero(topLeftRadius()))
         ts.dumpProperty("top-left"_s, topLeftRadius());
-    if (behavior == DumpStyleValues::All || !topRightRadius().isZero())
+    if (behavior == DumpStyleValues::All || !Style::isZero(topRightRadius()))
         ts.dumpProperty("top-right"_s, topRightRadius());
-    if (behavior == DumpStyleValues::All || !bottomLeftRadius().isZero())
+    if (behavior == DumpStyleValues::All || !Style::isZero(bottomLeftRadius()))
         ts.dumpProperty("bottom-left"_s, bottomLeftRadius());
-    if (behavior == DumpStyleValues::All || !bottomRightRadius().isZero())
+    if (behavior == DumpStyleValues::All || !Style::isZero(bottomRightRadius()))
         ts.dumpProperty("bottom-right"_s, bottomRightRadius());
 }
 

@@ -38,7 +38,7 @@ template<typename ValueType>
 const ValueType* requiredDowncast(BuilderState&, const CSSValue&);
 
 template<typename ValueType>
-std::optional<std::pair<const ValueType&, const ValueType&>> requiredPairDowncast(BuilderState&, const CSSValue&);
+std::optional<std::pair<Ref<const ValueType>, Ref<const ValueType>>> requiredPairDowncast(BuilderState&, const CSSValue&);
 
 template<typename ValueType> struct TypedRequiredListIterator {
     using iterator_category = std::forward_iterator_tag;
@@ -91,7 +91,7 @@ inline const ValueType* requiredDowncast(BuilderState& builderState, const CSSVa
 }
 
 template<typename ValueType>
-inline std::optional<std::pair<const ValueType&, const ValueType&>> requiredPairDowncast(BuilderState& builderState, const CSSValue& value)
+inline std::optional<std::pair<Ref<const ValueType>, Ref<const ValueType>>> requiredPairDowncast(BuilderState& builderState, const CSSValue& value)
 {
     RefPtr pairValue = requiredDowncast<CSSValuePair>(builderState, value);
     if (!pairValue) [[unlikely]]
@@ -102,7 +102,7 @@ inline std::optional<std::pair<const ValueType&, const ValueType&>> requiredPair
     RefPtr secondValue = requiredDowncast<ValueType>(builderState, pairValue->second());
     if (!secondValue) [[unlikely]]
         return { };
-    return { { *firstValue, *secondValue } };
+    return { { firstValue.releaseNonNull(), secondValue.releaseNonNull() } };
 }
 
 template<typename ListType, typename ValueType, unsigned minimumSize>

@@ -483,11 +483,11 @@ FontSizeAdjust fontSizeAdjustFromCSSValue(BuilderState& builderState, const CSSV
     if (!pair)
         return { };
 
-    auto metric = fromCSSValueID<FontSizeAdjust::Metric>(pair->first.valueID());
-    if (pair->second.isNumber())
-        return { metric, FontSizeAdjust::ValueType::Number, pair->second.resolveAsNumber(builderState.cssToLengthConversionData()) };
+    auto metric = fromCSSValueID<FontSizeAdjust::Metric>(pair->first->valueID());
+    if (pair->second->isNumber())
+        return { metric, FontSizeAdjust::ValueType::Number, pair->second->resolveAsNumber(builderState.cssToLengthConversionData()) };
 
-    ASSERT(pair->second.valueID() == CSSValueFromFont);
+    ASSERT(pair->second->valueID() == CSSValueFromFont);
     return { metric, FontSizeAdjust::ValueType::FromFont, std::nullopt };
 }
 

@@ -101,21 +101,20 @@ inline void RenderStyle::setBlockStepInsert(BlockStepInsert value) { SET_NESTED(
 inline void RenderStyle::setBlockStepRound(BlockStepRound value) { SET_NESTED(m_nonInheritedData, rareData, blockStepRound, static_cast<unsigned>(value)); }
 inline void RenderStyle::setBlockStepSize(std::optional<Length> length) { SET_NESTED(m_nonInheritedData, rareData, blockStepSize, WTFMove(length)); }
 inline void RenderStyle::setBorderBottomColor(Style::Color&& value) { SET_NESTED_BORDER_COLOR(m_nonInheritedData, surroundData, border.m_edges.bottom(), WTFMove(value)); }
-inline void RenderStyle::setBorderBottomLeftRadius(LengthSize&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomLeft(), WTFMove(size)); }
-inline void RenderStyle::setBorderBottomRightRadius(LengthSize&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomRight(), WTFMove(size)); }
+inline void RenderStyle::setBorderBottomLeftRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomLeft(), WTFMove(size)); }
+inline void RenderStyle::setBorderBottomRightRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomRight(), WTFMove(size)); }
 inline void RenderStyle::setBorderBottomStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.bottom().m_style, static_cast<unsigned>(value)); }
 inline void RenderStyle::setBorderBottomWidth(float value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.bottom().m_width, value); }
 inline void RenderStyle::setBorderImage(const NinePieceImage& image) { SET_NESTED(m_nonInheritedData, surroundData, border.m_image, image); }
 inline void RenderStyle::setBorderLeftColor(Style::Color&& value) { SET_NESTED_BORDER_COLOR(m_nonInheritedData, surroundData, border.m_edges.left(), WTFMove(value)); }
 inline void RenderStyle::setBorderLeftStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_style, static_cast<unsigned>(value)); }
 inline void RenderStyle::setBorderLeftWidth(float value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_width, value); }
-inline void RenderStyle::setBorderRadius(const IntSize& size) { setBorderRadius({ { size.width(), LengthType::Fixed }, { size.height(), LengthType::Fixed } }); }
 inline void RenderStyle::setBorderRightColor(Style::Color&& value) { SET_NESTED_BORDER_COLOR(m_nonInheritedData, surroundData, border.m_edges.right(), WTFMove(value)); }
 inline void RenderStyle::setBorderRightStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.right().m_style, static_cast<unsigned>(value)); }
 inline void RenderStyle::setBorderRightWidth(float value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.right().m_width, value); }
 inline void RenderStyle::setBorderTopColor(Style::Color&& value) { SET_NESTED_BORDER_COLOR(m_nonInheritedData, surroundData, border.m_edges.top(), WTFMove(value)); }
-inline void RenderStyle::setBorderTopLeftRadius(LengthSize&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.topLeft(), WTFMove(size)); }
-inline void RenderStyle::setBorderTopRightRadius(LengthSize&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.topRight(), WTFMove(size)); }
+inline void RenderStyle::setBorderTopLeftRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.topLeft(), WTFMove(size)); }
+inline void RenderStyle::setBorderTopRightRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.topRight(), WTFMove(size)); }
 inline void RenderStyle::setBorderTopStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.top().m_style, static_cast<unsigned>(value)); }
 inline void RenderStyle::setBorderTopWidth(float value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.top().m_width, value); }
 inline void RenderStyle::setBottom(Style::InsetEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, inset.bottom(), WTFMove(edge)); }
@@ -463,11 +462,11 @@ inline void RenderStyle::resetBorderRadius()
     resetBorderBottomRightRadius();
 }
 
-inline void RenderStyle::setBorderRadius(LengthSize&& size)
+inline void RenderStyle::setBorderRadius(Style::BorderRadiusValue&& size)
 {
-    setBorderTopLeftRadius(LengthSize { size });
-    setBorderTopRightRadius(LengthSize { size });
-    setBorderBottomLeftRadius(LengthSize { size });
+    setBorderTopLeftRadius(Style::BorderRadiusValue { size });
+    setBorderTopRightRadius(Style::BorderRadiusValue { size });
+    setBorderBottomLeftRadius(Style::BorderRadiusValue { size });
     setBorderBottomRightRadius(WTFMove(size));
 }
 

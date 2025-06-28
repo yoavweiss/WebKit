@@ -99,6 +99,7 @@
 #include "Settings.h"
 #include "ShadowRoot.h"
 #include "StylePendingResources.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleResolver.h"
 #include "StyleScope.h"
 #include "Styleable.h"
@@ -1490,7 +1491,11 @@ bool RenderElement::repaintAfterLayoutIfNeeded(SingleThreadWeakPtr<const RenderL
                 if (!renderBox)
                     return { };
                 auto borderBoxWidth = renderBox->width();
-                return std::max(renderBox->borderRight(), std::max(valueForLength(style.borderTopRightRadius().width, borderBoxWidth), valueForLength(style.borderBottomRightRadius().width, borderBoxWidth)));
+                return std::max({
+                    renderBox->borderRight(),
+                    Style::evaluate(style.borderTopRightRadius().width(), borderBoxWidth),
+                    Style::evaluate(style.borderBottomRightRadius().width(), borderBoxWidth),
+                });
             };
             auto outlineRightInsetExtent = [&]() -> LayoutUnit {
                 auto offset = LayoutUnit { outlineStyle.outlineOffset() };
@@ -1532,7 +1537,11 @@ bool RenderElement::repaintAfterLayoutIfNeeded(SingleThreadWeakPtr<const RenderL
                 if (!renderBox)
                     return { };
                 auto borderBoxHeight = renderBox->height();
-                return std::max(renderBox->borderBottom(), std::max(valueForLength(style.borderBottomLeftRadius().height, borderBoxHeight), valueForLength(style.borderBottomRightRadius().height, borderBoxHeight)));
+                return std::max({
+                    renderBox->borderBottom(),
+                    Style::evaluate(style.borderBottomLeftRadius().height(), borderBoxHeight),
+                    Style::evaluate(style.borderBottomRightRadius().height(), borderBoxHeight),
+                });
             };
             auto outlineBottomInsetExtent = [&]() -> LayoutUnit {
                 auto offset = LayoutUnit { outlineStyle.outlineOffset() };
@@ -2116,7 +2125,7 @@ void RenderElement::paintFocusRing(const PaintInfo& paintInfo, const RenderStyle
     styleOptions.add(StyleColorOptions::UseSystemAppearance);
     auto focusRingColor = usePlatformFocusRingColorForOutlineStyleAuto() ? RenderTheme::singleton().focusRingColor(styleOptions) : style.visitedDependentColorWithColorFilter(CSSPropertyOutlineColor);
     if (useShrinkWrappedFocusRingForOutlineStyleAuto() && style.hasBorderRadius()) {
-        Path path = PathUtilities::pathWithShrinkWrappedRectsForOutline(pixelSnappedFocusRingRects, style.border(), outlineOffset, style.writingMode(), document().deviceScaleFactor());
+        Path path = PathUtilities::pathWithShrinkWrappedRectsForOutline(pixelSnappedFocusRingRects, style.border().radii(), outlineOffset, style.writingMode(), document().deviceScaleFactor());
         if (path.isEmpty()) {
             for (auto rect : pixelSnappedFocusRingRects)
                 path.addRect(rect);

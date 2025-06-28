@@ -2698,9 +2698,9 @@
                     "name": "border-radius",
                     "resolver": "bottom-left"
                 },
-                "animation-wrapper": "LengthVariantWrapper<LengthSize>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-converter": "BorderRadiusCorner",
+                "style-extractor-converter": "StyleType<BorderRadiusValue>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<length-percentage [0,inf]>{1,2}@(type=CSSValuePair default=previous)"
             },
@@ -2720,9 +2720,9 @@
                     "name": "border-radius",
                     "resolver": "bottom-right"
                 },
-                "animation-wrapper": "LengthVariantWrapper<LengthSize>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-converter": "BorderRadiusCorner",
+                "style-extractor-converter": "StyleType<BorderRadiusValue>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<length-percentage [0,inf]>{1,2}@(type=CSSValuePair default=previous)"
             },
@@ -3552,9 +3552,9 @@
                     "name": "border-radius",
                     "resolver": "top-left"
                 },
-                "animation-wrapper": "LengthVariantWrapper<LengthSize>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-converter": "BorderRadiusCorner",
+                "style-extractor-converter": "StyleType<BorderRadiusValue>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<length-percentage [0,inf]>{1,2}@(type=CSSValuePair default=previous)"
             },
@@ -3574,9 +3574,9 @@
                     "name": "border-radius",
                     "resolver": "top-right"
                 },
-                "animation-wrapper": "LengthVariantWrapper<LengthSize>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-converter": "BorderRadiusCorner",
+                "style-extractor-converter": "StyleType<BorderRadiusValue>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<length-percentage [0,inf]>{1,2}@(type=CSSValuePair default=previous)"
             },

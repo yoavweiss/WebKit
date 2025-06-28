@@ -28,6 +28,7 @@
 
 #include "BoxExtents.h"
 #include "PseudoElementIdentifier.h"
+#include "StylePrimitiveNumeric+Forward.h"
 #include "WritingMode.h"
 #include <unicode/utypes.h>
 #include <wtf/CheckedRef.h>
@@ -276,6 +277,7 @@ template<typename> class FontTaggedSettings;
 template<typename> class RectEdges;
 template<typename> class RectCorners;
 template<typename> struct MinimallySerializingSpaceSeparatedRectEdges;
+template<typename> struct MinimallySerializingSpaceSeparatedSize;
 
 using FontVariationSettings = FontTaggedSettings<float>;
 using IntOutsets = RectEdges<int>;
@@ -286,6 +288,7 @@ class CustomPropertyData;
 class CustomPropertyRegistry;
 class ViewTransitionName;
 struct BoxShadow;
+struct BorderRadius;
 struct ClipPath;
 struct Color;
 struct ColorScheme;
@@ -320,6 +323,7 @@ enum class Change : uint8_t;
 enum class LineBoxContain : uint8_t;
 enum class PositionTryOrder : uint8_t;
 
+using BorderRadiusValue = MinimallySerializingSpaceSeparatedSize<LengthPercentage<CSS::Nonnegative>>;
 using InsetBox = MinimallySerializingSpaceSeparatedRectEdges<InsetEdge>;
 using MarginBox = MinimallySerializingSpaceSeparatedRectEdges<MarginEdge>;
 using PaddingBox = MinimallySerializingSpaceSeparatedRectEdges<PaddingEdge>;
@@ -545,11 +549,11 @@ public:
     inline NinePieceImageRule borderImageHorizontalRule() const;
     inline NinePieceImageRule borderImageVerticalRule() const;
 
-    inline const LengthSize& borderTopLeftRadius() const;
-    inline const LengthSize& borderTopRightRadius() const;
-    inline const LengthSize& borderBottomLeftRadius() const;
-    inline const LengthSize& borderBottomRightRadius() const;
-    inline const RectCorners<LengthSize>& borderRadii() const;
+    inline const Style::BorderRadiusValue& borderTopLeftRadius() const;
+    inline const Style::BorderRadiusValue& borderTopRightRadius() const;
+    inline const Style::BorderRadiusValue& borderBottomLeftRadius() const;
+    inline const Style::BorderRadiusValue& borderBottomRightRadius() const;
+    inline const Style::BorderRadius& borderRadii() const;
     inline bool hasBorderRadius() const;
     inline bool hasExplicitlySetBorderBottomLeftRadius() const;
     inline bool hasExplicitlySetBorderBottomRightRadius() const;
@@ -1302,13 +1306,11 @@ public:
     void setBorderImageHorizontalRule(NinePieceImageRule);
     void setBorderImageVerticalRule(NinePieceImageRule);
 
-    inline void setBorderTopLeftRadius(LengthSize&&);
-    inline void setBorderTopRightRadius(LengthSize&&);
-    inline void setBorderBottomLeftRadius(LengthSize&&);
-    inline void setBorderBottomRightRadius(LengthSize&&);
-
-    inline void setBorderRadius(LengthSize&&);
-    inline void setBorderRadius(const IntSize&);
+    inline void setBorderTopLeftRadius(Style::BorderRadiusValue&&);
+    inline void setBorderTopRightRadius(Style::BorderRadiusValue&&);
+    inline void setBorderBottomLeftRadius(Style::BorderRadiusValue&&);
+    inline void setBorderBottomRightRadius(Style::BorderRadiusValue&&);
+    inline void setBorderRadius(Style::BorderRadiusValue&&);
     inline void setHasExplicitlySetBorderBottomLeftRadius(bool);
     inline void setHasExplicitlySetBorderBottomRightRadius(bool);
     inline void setHasExplicitlySetBorderTopLeftRadius(bool);
@@ -1993,7 +1995,7 @@ public:
     static constexpr TableLayoutType initialTableLayout();
     static constexpr BorderCollapse initialBorderCollapse();
     static constexpr BorderStyle initialBorderStyle();
-    static inline LengthSize initialBorderRadius();
+    static inline Style::BorderRadiusValue initialBorderRadius();
     static constexpr Style::CornerShapeValue initialCornerShapeValue();
     static constexpr CaptionSide initialCaptionSide();
     static constexpr ColumnAxis initialColumnAxis();

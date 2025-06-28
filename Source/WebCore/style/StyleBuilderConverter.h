@@ -139,7 +139,6 @@ public:
     static TabSize convertTabSize(BuilderState&, const CSSValue&);
     template<typename T> static T convertComputedLength(BuilderState&, const CSSValue&);
     template<typename T> static T convertLineWidth(BuilderState&, const CSSValue&);
-    static LengthSize convertRadius(BuilderState&, const CSSValue&);
     static LengthPoint convertPosition(BuilderState&, const CSSValue&);
     static WebCore::Length convertPositionComponentX(BuilderState&, const CSSValue&);
     static WebCore::Length convertPositionComponentY(BuilderState&, const CSSValue&);
@@ -266,7 +265,6 @@ public:
 private:
     friend class BuilderCustom;
 
-    static WebCore::Length convertToRadiusLength(BuilderState&, const CSSPrimitiveValue&);
     static WebCore::Length parseSnapCoordinate(BuilderState&, const CSSValue&);
 
     static GridLength createGridTrackBreadth(BuilderState&, const CSSPrimitiveValue&);
@@ -397,38 +395,6 @@ inline T BuilderConverter::convertLineWidth(BuilderState& builderState, const CS
         ASSERT_NOT_REACHED();
         return 0;
     }
-}
-
-inline WebCore::Length BuilderConverter::convertToRadiusLength(BuilderState& builderState, const CSSPrimitiveValue& value)
-{
-    auto& conversionData = builderState.cssToLengthConversionData();
-    if (value.isPercentage())
-        return WebCore::Length(value.resolveAsPercentage(conversionData), LengthType::Percent);
-    if (value.isCalculatedPercentageWithLength())
-        return WebCore::Length(value.cssCalcValue()->createCalculationValue(conversionData, CSSCalcSymbolTable { }));
-    auto length = value.resolveAsLength<WebCore::Length>(conversionData);
-    if (length.isNegative())
-        return { 0, LengthType::Fixed };
-    return length;
-}
-
-inline LengthSize BuilderConverter::convertRadius(BuilderState& builderState, const CSSValue& value)
-{
-    if (!value.isPair())
-        return { { 0, LengthType::Fixed }, { 0, LengthType::Fixed } };
-
-    auto pair = requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!pair)
-        return { };
-
-    LengthSize radius {
-        convertToRadiusLength(builderState, pair->first),
-        convertToRadiusLength(builderState, pair->second)
-    };
-
-    ASSERT(!radius.width.isNegative());
-    ASSERT(!radius.height.isNegative());
-    return radius;
 }
 
 inline LengthPoint BuilderConverter::convertPosition(BuilderState& builderState, const CSSValue& value)
@@ -863,8 +829,8 @@ inline TextEdge BuilderConverter::convertTextEdge(BuilderState& builderState, co
         return { };
 
     return {
-        overValue(pair->first.valueID()),
-        underValue(pair->second.valueID())
+        overValue(pair->first->valueID()),
+        underValue(pair->second->valueID())
     };
 }
 
@@ -880,8 +846,8 @@ inline IntSize BuilderConverter::convertInitialLetter(BuilderState& builderState
         return { };
 
     return {
-        pair->second.resolveAsNumber<int>(conversionData),
-        pair->first.resolveAsNumber<int>(conversionData)
+        pair->second->resolveAsNumber<int>(conversionData),
+        pair->first->resolveAsNumber<int>(conversionData)
     };
 }
 

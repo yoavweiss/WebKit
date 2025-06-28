@@ -1405,7 +1405,9 @@ void RenderThemeMac::adjustMenuListButtonStyle(RenderStyle& style, const Element
     float fontScale = style.computedFontSize() / baseFontSize;
 
     style.resetPadding();
-    style.setBorderRadius(IntSize(int(baseBorderRadius + fontScale - 1), int(baseBorderRadius + fontScale - 1))); // FIXME: Round up?
+
+    auto radius = Style::LengthPercentage<CSS::Nonnegative>::Dimension { std::trunc(baseBorderRadius + fontScale - 1) }; // FIXME: Round up?
+    style.setBorderRadius({ radius, radius });
 
     style.setMinHeight(18_css_px);
 
