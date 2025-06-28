@@ -1445,7 +1445,7 @@ inline Ref<CSSValue> ExtractorCustom::extractVerticalAlign(ExtractorState& state
     case VerticalAlign::BaselineMiddle:
         return CSSPrimitiveValue::create(CSSValueWebkitBaselineMiddle);
     case VerticalAlign::Length:
-        return ExtractorConverter::convertLengthWithoutApplyingZoom(state, state.style.verticalAlignLength());
+        return ExtractorConverter::convertLength(state, state.style.verticalAlignLength());
     }
     RELEASE_ASSERT_NOT_REACHED();
 }
@@ -1481,7 +1481,7 @@ inline void ExtractorCustom::extractVerticalAlignSerialization(ExtractorState& s
         CSS::serializationForCSS(builder, context, CSS::Keyword::WebkitBaselineMiddle { });
         return;
     case VerticalAlign::Length:
-        ExtractorSerializer::serializeLengthWithoutApplyingZoom(state, builder, context, state.style.verticalAlignLength());
+        ExtractorSerializer::serializeLength(state, builder, context, state.style.verticalAlignLength());
         return;
     }
     RELEASE_ASSERT_NOT_REACHED();

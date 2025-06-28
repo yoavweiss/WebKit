@@ -152,7 +152,6 @@ public:
     static Ref<CSSPrimitiveValue> convertLength(const RenderStyle&, const WebCore::Length&);
     static Ref<CSSPrimitiveValue> convertLengthAllowingNumber(ExtractorState&, const WebCore::Length&);
     static Ref<CSSPrimitiveValue> convertLengthOrAuto(ExtractorState&, const WebCore::Length&);
-    static Ref<CSSPrimitiveValue> convertLengthWithoutApplyingZoom(ExtractorState&, const WebCore::Length&);
 
     template<typename T> static Ref<CSSPrimitiveValue> convertNumber(ExtractorState&, T);
     template<typename T> static Ref<CSSPrimitiveValue> convertNumberAsPixels(ExtractorState&, T);
@@ -396,11 +395,6 @@ inline Ref<CSSPrimitiveValue> ExtractorConverter::convertLengthOrAuto(ExtractorS
     if (length.isAuto())
         return CSSPrimitiveValue::create(CSSValueAuto);
     return convertLength(state, length);
-}
-
-inline Ref<CSSPrimitiveValue> ExtractorConverter::convertLengthWithoutApplyingZoom(ExtractorState& state, const WebCore::Length& length)
-{
-    return CSSPrimitiveValue::create(length, state.style);
 }
 
 template<typename T> Ref<CSSPrimitiveValue> ExtractorConverter::convertNumber(ExtractorState& state, T number)

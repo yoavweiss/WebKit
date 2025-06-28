@@ -12048,9 +12048,7 @@
                 ],
                 "animation-wrapper": "LengthWrapper",
                 "animation-wrapper-requires-additional-parameters": ["{ LengthWrapper::Flags::IsLengthPercentage, LengthWrapper::Flags::NegativeLengthsAreInvalid }"],
-                "style-builder-converter": "Length",
-                "style-extractor-converter": "LengthWithoutApplyingZoom",
-                "style-extractor-converter-comment": "FIXME: Add explanation (or remove) for why extractor does not apply zoom",
+                "style-converter": "Length",
                 "parser-grammar": "<length-percentage [0,inf]>"
             },
             "specification": {
