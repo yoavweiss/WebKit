@@ -671,8 +671,6 @@ ColorGlyphType Font::colorGlyphType(Glyph glyph) const
 
     return WTF::switchOn(m_emojiType, [](NoEmojiGlyphs) {
         return ColorGlyphType::Outline;
-    }, [](AllEmojiGlyphs) {
-        return ColorGlyphType::Color;
     }, [glyph](const SomeEmojiGlyphs& someEmojiGlyphs) {
         return someEmojiGlyphs.colorGlyphs.get(glyph) ? ColorGlyphType::Color : ColorGlyphType::Outline;
     });

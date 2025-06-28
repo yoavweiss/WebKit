@@ -433,7 +433,7 @@ void WebProcess::platformInitializeWebProcess(WebProcessCreationParameters& para
         videoDecoderBehavior.add(VideoDecoderBehavior::EnableAVIF);
     }
 
-#if HAVE(CGIMAGESOURCE_ENABLE_RESTRICTED_DECODING)
+#if USE(CG)
     if (parameters.enableDecodingHEIC || parameters.enableDecodingAVIF) {
         static bool restricted { false };
         if (!std::exchange(restricted, true)) {

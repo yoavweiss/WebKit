@@ -357,11 +357,10 @@ private:
     mutable std::unique_ptr<DerivedFonts> m_derivedFontData;
 
     struct NoEmojiGlyphs { };
-    struct AllEmojiGlyphs { };
     struct SomeEmojiGlyphs {
         BitVector colorGlyphs;
     };
-    using EmojiType = Variant<NoEmojiGlyphs, AllEmojiGlyphs, SomeEmojiGlyphs>;
+    using EmojiType = Variant<NoEmojiGlyphs, SomeEmojiGlyphs>;
     EmojiType m_emojiType { NoEmojiGlyphs { } };
 
 #if PLATFORM(COCOA)

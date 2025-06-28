@@ -45,12 +45,7 @@ CFStringRef CGImageSourceGetTypeWithData(CFDataRef, CFStringRef, bool*);
 OSStatus CGImageSourceSetAllowableTypes(CFArrayRef allowableTypes);
 #endif
 
-#if HAVE(CGIMAGESOURCE_DISABLE_HARDWARE_DECODING)
 IMAGEIO_EXTERN OSStatus CGImageSourceDisableHardwareDecoding();
-#endif
-
-#if HAVE(CGIMAGESOURCE_ENABLE_RESTRICTED_DECODING)
 IMAGEIO_EXTERN OSStatus CGImageSourceEnableRestrictedDecoding();
-#endif
 
 WTF_EXTERN_C_END
