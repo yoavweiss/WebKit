@@ -460,6 +460,7 @@ RefPtr<NativeImage> MediaControlTextTrackContainerElement::createTextTrackRepres
 
     auto paintFlags = RenderLayer::paintLayerPaintingCompositingAllPhasesFlags();
     paintFlags.add(RenderLayer::PaintLayerFlag::TemporaryClipRects);
+    paintFlags.add(RenderLayer::PaintLayerFlag::AppliedTransform);
     layer->paint(buffer->context(), paintingRect, LayoutSize(), { PaintBehavior::FlattenCompositingLayers, PaintBehavior::Snapshotting }, nullptr, paintFlags);
 
     return ImageBuffer::sinkIntoNativeImage(WTFMove(buffer));
