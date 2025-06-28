@@ -470,10 +470,10 @@ private:
         size_t numBits() const { return m_numBits; }
         size_t numWords() const { return (m_numBits + bitsInPointer() - 1) / bitsInPointer(); }
 
-        std::span<const uint8_t> byteSpan() const LIFETIME_BOUND { return unsafeMakeSpan(reinterpret_cast<const uint8_t*>(bits()), byteCount(numBits())); }
-        std::span<uint8_t> byteSpan() LIFETIME_BOUND { return unsafeMakeSpan(reinterpret_cast<uint8_t*>(bits()), byteCount(numBits())); }
-        std::span<const uintptr_t> wordsSpan() const LIFETIME_BOUND { return unsafeMakeSpan(bits(), numWords()); }
-        std::span<uintptr_t> wordsSpan() LIFETIME_BOUND { return unsafeMakeSpan(bits(), numWords()); }
+        std::span<const uint8_t> byteSpan() const LIFETIME_BOUND { return unsafeMakeSpan(reinterpret_cast<const uint8_t*>(m_words), byteCount(numBits())); }
+        std::span<uint8_t> byteSpan() LIFETIME_BOUND { return unsafeMakeSpan(reinterpret_cast<uint8_t*>(m_words), byteCount(numBits())); }
+        std::span<const uintptr_t> wordsSpan() const LIFETIME_BOUND { return unsafeMakeSpan(m_words, numWords()); }
+        std::span<uintptr_t> wordsSpan() LIFETIME_BOUND { return unsafeMakeSpan(m_words, numWords()); }
 
         static WTF_EXPORT_PRIVATE OutOfLineBits* create(size_t numBits);
         
@@ -485,12 +485,8 @@ private:
         {
         }
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-        uintptr_t* bits() { return std::bit_cast<uintptr_t*>(this + 1); }
-        const uintptr_t* bits() const { return std::bit_cast<const uintptr_t*>(this + 1); }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
-
         size_t m_numBits;
+        uintptr_t m_words[0];
     };
     
     bool isInline() const { return m_bitsOrPointer >> maxInlineBits(); }
