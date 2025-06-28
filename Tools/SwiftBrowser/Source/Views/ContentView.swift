@@ -235,7 +235,13 @@ struct ContentView: View {
                 .webViewElementFullscreenBehavior(.enabled)
                 .findNavigator(isPresented: $findNavigatorIsPresented)
                 .task {
-                    // FIXME: Observe navigation changes.
+                    do {
+                        for try await event in viewModel.page.navigations {
+                            print(event)
+                        }
+                    } catch {
+                        print(error)
+                    }
                 }
                 .onAppear {
                     viewModel.displayedURL = initialRequest.url!.absoluteString

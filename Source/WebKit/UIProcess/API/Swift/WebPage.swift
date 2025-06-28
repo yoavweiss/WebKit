@@ -331,6 +331,9 @@ final public class WebPage {
     private var scopedNavigations: [ObjectIdentifier : AsyncThrowingStream<NavigationEvent, any Error>.Continuation] = [:]
 
     @ObservationIgnored
+    private var scopedStreams: [ObjectIdentifier : AsyncThrowingStream<NavigationEvent, any Error>] = [:]
+
+    @ObservationIgnored
     private var indefiniteNavigations: [UUID : AsyncThrowingStream<NavigationEvent, any Error>.Continuation] = [:]
 
     /// Loads the web content that the specified URL references and navigates to that content.
@@ -630,10 +633,12 @@ final public class WebPage {
                     stopLoading()
                 }
                 scopedNavigations[ObjectIdentifier(id)] = nil
+                scopedStreams[ObjectIdentifier(id)] = nil
             }
         }
 
         scopedNavigations[ObjectIdentifier(id)] = continuation
+        scopedStreams[ObjectIdentifier(id)] = stream
         return stream
     }
 

@@ -143,6 +143,19 @@ struct WebPageNavigationTests {
 
         #expect(actualEvents == expectedEvents)
     }
+
+    @Test
+    func navigationProceedsAfterDiscardingNavigationStream() async throws {
+        let page = WebPage()
+
+        let html = "<title>A title</title>"
+        page.load(html: html, baseURL: .aboutBlank)
+
+        // A timeout is used since observing the navigation sequence itself alters the outcome of this test.
+        try await Task.sleep(for: .seconds(10))
+
+        #expect(page.title == "A title")
+    }
 }
 
 #endif // ENABLE_SWIFTUI && canImport(Testing) && compiler(>=6.0)
