@@ -162,7 +162,7 @@ private:
 
     Deque<WebWheelEvent, 2> m_wheelEventsBeingProcessed; // FIXME: Remove
 
-    WeakPtr<RemoteScrollingCoordinatorProxyMac> m_scrollingCoordinator;
+    const WeakPtr<RemoteScrollingCoordinatorProxyMac> m_scrollingCoordinator;
     WebCore::PageIdentifier m_pageIdentifier;
 
     std::unique_ptr<WebCore::WheelEventDeltaFilter> m_wheelEventDeltaFilter;

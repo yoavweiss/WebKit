@@ -8751,6 +8751,13 @@ void WebPageProxy::addOpenedPage(WebPageProxy& page)
     internals().m_openedPages.add(page);
 }
 
+#if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
+CheckedPtr<RemoteScrollingCoordinatorProxy> WebPageProxy::checkedScrollingCoordinatorProxy() const
+{
+    return m_scrollingCoordinatorProxy.get();
+}
+#endif
+
 void WebPageProxy::exitFullscreenImmediately()
 {
 #if ENABLE(FULLSCREEN_API)
@@ -9550,6 +9557,11 @@ void WebPageProxy::endColorPicker()
 }
 
 WebColorPickerClient& WebPageProxy::colorPickerClient()
+{
+    return internals();
+}
+
+CheckedRef<WebColorPickerClient> WebPageProxy::checkedColorPickerClient()
 {
     return internals();
 }
@@ -15930,6 +15942,11 @@ WebCore::PageIdentifier WebPageProxy::webPageIDInProcess(const WebProcessProxy& 
 }
 
 WebPopupMenuProxyClient& WebPageProxy::popupMenuClient()
+{
+    return internals();
+}
+
+CheckedRef<WebPopupMenuProxyClient> WebPageProxy::checkedPopupMenuClient()
 {
     return internals();
 }

@@ -323,6 +323,8 @@ private:
     void didCleanupFullscreen() final { }
 #endif
 
+    CheckedPtr<WebViewImpl> checkedImpl() const { return m_impl.get(); }
+
     WeakObjCPtr<NSView> m_view;
     WeakPtr<WebViewImpl> m_impl;
 #if USE(AUTOCORRECTION_PANEL)

@@ -708,6 +708,7 @@ public:
         
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
     RemoteScrollingCoordinatorProxy* scrollingCoordinatorProxy() const { return m_scrollingCoordinatorProxy.get(); }
+    CheckedPtr<RemoteScrollingCoordinatorProxy> checkedScrollingCoordinatorProxy() const;
 #endif
 
     WebBackForwardList& backForwardList() { return m_backForwardList; }
@@ -2556,8 +2557,10 @@ public:
 #endif
 
     WebColorPickerClient& colorPickerClient();
+    CheckedRef<WebColorPickerClient> checkedColorPickerClient();
 
     WebPopupMenuProxyClient& popupMenuClient();
+    CheckedRef<WebPopupMenuProxyClient> checkedPopupMenuClient();
 
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
     OptionSet<WebCore::AdvancedPrivacyProtections> advancedPrivacyProtectionsPolicies() const { return m_advancedPrivacyProtectionsPolicies; }

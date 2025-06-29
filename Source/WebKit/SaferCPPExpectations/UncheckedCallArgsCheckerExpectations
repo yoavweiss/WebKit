@@ -39,15 +39,10 @@ UIProcess/Cocoa/VideoPresentationManagerProxy.mm
 UIProcess/DisplayLink.cpp
 UIProcess/Inspector/WebPageInspectorController.cpp
 UIProcess/Inspector/mac/RemoteWebInspectorUIProxyMac.mm
-UIProcess/RemoteLayerTree/RemoteLayerTreeDrawingAreaProxy.mm
-UIProcess/RemoteLayerTree/mac/RemoteLayerTreeDrawingAreaProxyMac.mm
 UIProcess/RemoteLayerTree/mac/RemoteLayerTreeEventDispatcher.mm
 UIProcess/WebFullScreenManagerProxy.cpp
 UIProcess/WebPageProxy.cpp
-UIProcess/mac/PageClientImplMac.mm
-UIProcess/mac/WKRevealItemPresenter.mm
 UIProcess/mac/WKTextAnimationManagerMac.mm
-UIProcess/mac/WKViewLayoutStrategy.mm
 UIProcess/mac/WebViewImpl.mm
 WebPageMessages.h
 WebProcess/Automation/WebAutomationSessionProxy.cpp
