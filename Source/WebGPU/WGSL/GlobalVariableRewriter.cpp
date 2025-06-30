@@ -460,7 +460,7 @@ Packing RewriteGlobalVariables::pack(Packing expectedPacking, AST::Expression& e
             SourceSpan::empty(),
             AST::Identifier::make(operation)
         );
-        callee.m_inferredType = m_shaderModule.types().bottomType();
+        callee.m_inferredType = m_shaderModule.types().u32Type();
         auto& argument = m_shaderModule.astBuilder().construct<std::remove_cvref_t<decltype(expression)>>(expression);
         auto& call = m_shaderModule.astBuilder().construct<AST::CallExpression>(
             SourceSpan::empty(),
@@ -1284,8 +1284,6 @@ static BindGroupLayoutEntry::BindingMember bindingMemberForGlobal(auto& global)
         RELEASE_ASSERT_NOT_REACHED();
     }, [&](const TypeConstructor&) -> BindGroupLayoutEntry::BindingMember {
         RELEASE_ASSERT_NOT_REACHED();
-    }, [&](const Bottom&) -> BindGroupLayoutEntry::BindingMember {
-        RELEASE_ASSERT_NOT_REACHED();
     });
 }
 
@@ -1487,9 +1485,6 @@ static BindingType bindingTypeForType(const Type* type)
             return BindingType::Buffer;
         },
         [&](const Types::TypeConstructor&) -> BindingType {
-            RELEASE_ASSERT_NOT_REACHED();
-        },
-        [&](const Types::Bottom&) -> BindingType {
             RELEASE_ASSERT_NOT_REACHED();
         });
 }
@@ -2371,7 +2366,7 @@ void RewriteGlobalVariables::initializeVariables(AST::Function& function, const 
 void RewriteGlobalVariables::insertWorkgroupBarrier(AST::Function& function, size_t offset)
 {
     auto& callee = m_shaderModule.astBuilder().construct<AST::IdentifierExpression>(SourceSpan::empty(), AST::Identifier::make("workgroupBarrier"_s));
-    callee.m_inferredType = m_shaderModule.types().bottomType();
+    callee.m_inferredType = m_shaderModule.types().voidType();
 
     auto& call = m_shaderModule.astBuilder().construct<AST::CallExpression>(
         SourceSpan::empty(),
@@ -2580,14 +2575,14 @@ void RewriteGlobalVariables::storeInitialValue(AST::Expression& target, AST::Sta
 
     if (type && std::holds_alternative<Types::Atomic>(*type)) {
         auto& callee = m_shaderModule.astBuilder().construct<AST::IdentifierExpression>(SourceSpan::empty(), AST::Identifier::make("atomicStore"_s));
-        callee.m_inferredType = m_shaderModule.types().bottomType();
+        callee.m_inferredType = m_shaderModule.types().voidType();
 
         auto& pointer = m_shaderModule.astBuilder().construct<AST::UnaryExpression>(
             SourceSpan::empty(),
             target,
             AST::UnaryOperation::AddressOf
         );
-        pointer.m_inferredType = m_shaderModule.types().bottomType();
+        pointer.m_inferredType = m_shaderModule.types().voidType();
 
         auto& value = m_shaderModule.astBuilder().construct<AST::AbstractIntegerLiteral>(SourceSpan::empty(), 0);
         value.m_inferredType = m_shaderModule.types().abstractIntType();

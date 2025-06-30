@@ -146,7 +146,7 @@ static int runWGSL(const CommandLine& options)
     if (readResult.has_value())
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunsafe-buffer-usage"
-        source = String::fromUTF8WithLatin1Fallback(std::span(readResult->data(), readResult->size()));
+        source = String::fromUTF8WithLatin1Fallback(readResult->span());
 #pragma clang diagnostic pop
 
     auto checkResult = WGSL::staticCheck(source, std::nullopt, configuration);

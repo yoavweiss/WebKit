@@ -26,6 +26,7 @@
 #pragma once
 
 #include "ASTForward.h"
+#include "CompilationMessage.h"
 #include "WGSLEnums.h"
 #include <array>
 #include <functional>
@@ -241,10 +242,7 @@ struct Atomic {
 
 struct TypeConstructor {
     ASCIILiteral name;
-    std::function<const Type*(AST::ElaboratedTypeExpression&)> construct;
-};
-
-struct Bottom {
+    std::function<Result<const Type*>(AST::ElaboratedTypeExpression&)> construct;
 };
 
 } // namespace Types
@@ -263,8 +261,7 @@ struct Type : public Variant<
     Types::Reference,
     Types::Pointer,
     Types::Atomic,
-    Types::TypeConstructor,
-    Types::Bottom
+    Types::TypeConstructor
 > {
     using Variant<
         Types::Primitive,
@@ -280,8 +277,7 @@ struct Type : public Variant<
         Types::Reference,
         Types::Pointer,
         Types::Atomic,
-        Types::TypeConstructor,
-        Types::Bottom
+        Types::TypeConstructor
         >::variant;
     void dump(PrintStream&) const;
     String toString() const;

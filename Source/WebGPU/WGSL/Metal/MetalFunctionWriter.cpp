@@ -1325,9 +1325,6 @@ void FunctionDefinitionWriter::visit(const Type* type, bool shouldPack)
         },
         [&](const TypeConstructor&) {
             RELEASE_ASSERT_NOT_REACHED();
-        },
-        [&](const Bottom&) {
-            RELEASE_ASSERT_NOT_REACHED();
         });
 }
 
@@ -2905,9 +2902,6 @@ void FunctionDefinitionWriter::serializeConstant(const Type* type, ConstantValue
             RELEASE_ASSERT_NOT_REACHED();
         },
         [&](const TypeConstructor&) {
-            RELEASE_ASSERT_NOT_REACHED();
-        },
-        [&](const Bottom&) {
             RELEASE_ASSERT_NOT_REACHED();
         });
 }
