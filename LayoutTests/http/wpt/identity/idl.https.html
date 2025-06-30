@@ -21,6 +21,7 @@ dictionary DigitalCredentialRequest {
 interface DigitalCredential : Credential {
     readonly attribute DOMString protocol;
     readonly attribute Uint8Array data;
+    static boolean userAgentAllowsProtocol(DOMString protocol);
 };
 </script>
 <script>
