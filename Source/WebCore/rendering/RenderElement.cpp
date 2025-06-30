@@ -1727,9 +1727,15 @@ void RenderElement::imageContentChanged(CachedImage& cachedImage)
     }
 
     if (document().hasHDRContent()) {
-        if (CheckedPtr rendererLayer = enclosingLayer()) {
-            if (CheckedPtr layer = rendererLayer->enclosingCompositingLayer())
-                layer->contentChanged(ContentChangeType::Image);
+        if (cachedImage.hasHDRContent()) {
+            RefPtr element = this->element();
+            if (element)
+                element->invalidateStyleAndLayerComposition();
+        }
+
+        if (CheckedPtr layer = enclosingLayer()) {
+            auto changeType = cachedImage.hasHDRContent() ? ContentChangeType::HDRImage : ContentChangeType::Image;
+            layer->contentChanged(changeType);
         }
     }
 #else

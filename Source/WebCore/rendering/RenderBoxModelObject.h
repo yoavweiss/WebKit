@@ -43,6 +43,7 @@ enum class BleedAvoidance : uint8_t {
 
 enum class ContentChangeType : uint8_t {
     Image,
+    HDRImage,
     MaskImage,
     BackgroundIImage,
     Canvas,

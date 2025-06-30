@@ -20,15 +20,11 @@
             testRunner.waitUntilDone();
         }
         
-        const iframe = document.getElementsByTagName('iframe')[0];
-        const frameLoadPromise = new Promise((resolve) => {
-            iframe.onload = resolve;
-        });
-
         const imageLoadPromise = new Promise((resolve) => {
             window.imageLoadResolve = resolve;
         });
         
+        const iframe = document.getElementsByTagName('iframe')[0];
         iframe.srcdoc = `
             <style>
             img {
@@ -36,22 +32,32 @@
                 height: 200px;
             }
             </style>
+            <script src="../../resources/ui-helper.js"></` + `script>
             <script>
-            function imageLoaded(image)
-            {
-                if (window.internals)
-                    internals.setHasHDRContentForTesting(image);
+                window.addEventListener('load', async () => {
+                    await UIHelper.renderingUpdate();
+
+                    const image = document.getElementsByTagName('img')[0];
+                    image.onload = (() => {
+                        if (window.internals)
+                            internals.setHasHDRContentForTesting(image);
             
-                parent.imageLoadResolve();
-            }
+                        parent.imageLoadResolve();
+                    });
+
+                    image.src = "../../fast/images/resources/green-400x400.png";
+                }, false);
             </` + `script>
             <body>
-            <img onload="imageLoaded(this)" src="../../fast/images/resources/green-400x400.png">
+            <img>
             </body>
             `;
 
         (async () => {
-            await Promise.all([frameLoadPromise, imageLoadPromise]);
+            await imageLoadPromise;
+            await UIHelper.renderingUpdate();
+            await UIHelper.renderingUpdate();
+            await UIHelper.renderingUpdate();
 
             if (window.testRunner) {
                 document.getElementById("layers").textContent = internals.layerTreeAsText(document);

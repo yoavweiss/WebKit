@@ -36,6 +36,7 @@ fast/events/ios/ipad [ Skip ]
 fast/forms/ios [ Pass ]
 fast/forms/ios/ipad [ Skip ]
 fast/forms/switch [ Pass ]
+fast/snapshot [ Skip ]
 
 # Missing public painting code
 fast/forms/switch/click-animation-redundant-checked.html [ ImageOnlyFailure ]
@@ -7923,8 +7924,4 @@ webkit.org/b/294274 [ Debug ] platform/ios/mediastream/audio-muted-in-background
  webgl/1.0.x/conformance/textures/misc/gl-teximage.html [ Failure ]
  webgl/2.0.y/conformance/textures/misc/gl-teximage.html [ Failure ]
 
-fast/snapshot [ Skip ]
-
 imported/w3c/web-platform-tests/focus/focus-contenteditable-element-in-iframe-scroll-into-view.html [ Skip ]
-
-webkit.org/b/294873 compositing/hdr/iframe-with-hdr-image.html [ Skip ]
