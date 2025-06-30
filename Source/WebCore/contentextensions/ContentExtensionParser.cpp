@@ -210,7 +210,7 @@ static Expected<Trigger, std::error_code> loadTrigger(const JSON::Object& ruleOb
     if (auto error = checkCondition("unless-frame-url"_s, getStringList, ActionCondition::UnlessFrameURL))
         return makeUnexpected(error);
 
-    if (auto error = checkCondition("if-ancestor-frame-url"_s, getStringList, ActionCondition::IfFrameOrAncestorsURL))
+    if (auto error = checkCondition("if-ancestor-subframe-url"_s, getStringList, ActionCondition::IfAncestorSubframeURL))
         return makeUnexpected(error);
 
     trigger.checkValidity();

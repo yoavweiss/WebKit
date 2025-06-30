@@ -128,11 +128,11 @@ auto ContentExtensionsBackend::actionsFromContentRuleList(const ContentExtension
             return !frameURLActions.contains(actionAndFlags);
         case ActionCondition::UnlessFrameURL:
             return frameURLActions.contains(actionAndFlags);
-        case ActionCondition::IfFrameOrAncestorsURL:
+        case ActionCondition::IfAncestorSubframeURL:
             if (frameURLActions.contains(actionAndFlags))
                 return false;
 
-            for (const auto& ancestorURL : resourceLoadInfo.ancestorFrameURLs) {
+            for (const auto& ancestorURL : resourceLoadInfo.ancestorSubframeURLs) {
                 auto& ancestorURLActions = contentExtension.frameURLActions(ancestorURL);
                 if (ancestorURLActions.contains(actionAndFlags))
                     return false;
@@ -256,18 +256,18 @@ ContentRuleListResults ContentExtensionsBackend::processContentRuleListsForLoad(
     URL frameURL;
     bool mainFrameContext = false;
     RequestMethod requestMethod = readRequestMethod(initiatingDocumentLoader.request().httpMethod()).value_or(RequestMethod::None);
-    Vector<URL> ancestorFrameURLs;
+    Vector<URL> ancestorSubframeURLs;
 
     if (RefPtr frame = initiatingDocumentLoader.frame()) {
         mainFrameContext = frame->isMainFrame();
         currentDocument = frame->document();
 
         RefPtr currentFrame = dynamicDowncast<LocalFrame>(frame->tree().parent());
-        while (currentFrame) {
+        while (currentFrame && !currentFrame->isMainFrame()) {
             if (RefPtr currentDocument = currentFrame->document()) {
                 URL ancestorURL = currentDocument->url();
                 if (ancestorURL.isValid())
-                    ancestorFrameURLs.append(ancestorURL);
+                    ancestorSubframeURLs.append(ancestorURL);
             }
 
             currentFrame = dynamicDowncast<LocalFrame>(currentFrame->tree().parent());
@@ -286,7 +286,7 @@ ContentRuleListResults ContentExtensionsBackend::processContentRuleListsForLoad(
     else
         frameURL = url;
 
-    ResourceLoadInfo resourceLoadInfo { url, mainDocumentURL, frameURL, resourceType, mainFrameContext, requestMethod, ancestorFrameURLs };
+    ResourceLoadInfo resourceLoadInfo { url, mainDocumentURL, frameURL, resourceType, mainFrameContext, requestMethod, ancestorSubframeURLs };
     auto actions = actionsForResourceLoad(resourceLoadInfo, ruleListFilter);
 
     ContentRuleListResults results;

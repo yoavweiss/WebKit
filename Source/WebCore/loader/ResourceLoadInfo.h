@@ -40,7 +40,7 @@ enum class ActionCondition : uint32_t {
     UnlessTopURL = 0x80000,
     IfFrameURL = 0x140000,
     UnlessFrameURL = 0x180000,
-    IfFrameOrAncestorsURL = 0x1C0000
+    IfAncestorSubframeURL = 0x1C0000
 };
 static constexpr uint32_t ActionConditionMask = 0x1C0000;
 
@@ -112,7 +112,7 @@ struct ResourceLoadInfo {
     OptionSet<ResourceType> type;
     bool mainFrameContext { false };
     RequestMethod requestMethod { RequestMethod::None };
-    Vector<URL> ancestorFrameURLs { };
+    Vector<URL> ancestorSubframeURLs { };
 
     bool isThirdParty() const;
     ResourceFlags getResourceFlags() const;
