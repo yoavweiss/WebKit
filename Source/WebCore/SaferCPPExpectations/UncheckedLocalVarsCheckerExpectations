@@ -450,7 +450,6 @@ rendering/TextDecorationPainter.cpp
 rendering/TextPainter.cpp
 rendering/line/BreakingContext.h
 rendering/line/LineInlineHeaders.h
-rendering/line/LineWidth.cpp
 rendering/line/WordTrailingSpace.h
 rendering/mathml/MathMLStyle.cpp
 rendering/mathml/RenderMathMLBlock.cpp
