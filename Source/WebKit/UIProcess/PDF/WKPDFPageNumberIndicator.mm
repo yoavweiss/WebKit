@@ -167,9 +167,15 @@ static constexpr Seconds indicatorMoveDuration { 0.3_s };
 
 - (void)hide:(NSTimer *)timer
 {
-    [UIView animateWithDuration:indicatorFadeOutDuration.seconds() animations:[view = retainPtr(self)] {
+    auto animations = [view = retainPtr(self)] {
         [view setAlpha:0];
-    }];
+    };
+#if HAVE(UI_VIEW_ANIMATION_OPTION_FLUSH_UPDATES)
+    static constexpr auto animationOptions = UIViewAnimationOptionFlushUpdates;
+#else
+    static constexpr auto animationOptions = 0;
+#endif
+    [UIView animateWithDuration:indicatorFadeOutDuration.seconds() delay:0 options:animationOptions animations:animations completion:nil];
 
     [std::exchange(_timer, nil) invalidate];
 }
