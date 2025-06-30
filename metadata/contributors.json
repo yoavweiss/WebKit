@@ -4859,6 +4859,17 @@
    },
    {
       "emails" : [
+         "klee@igalia.com",
+         "lee.kate.work@gmail.com"
+      ],
+      "github" : "kate-k-lee",
+      "name" : "Kate Lee",
+      "nicks" : [
+         "klee"
+      ]
+   },
+   {
+      "emails" : [
          "madonnk@gmail.com"
       ],
       "expertise" : "Web Inspector",
