@@ -96,10 +96,6 @@ static void testSuppressUsageRecordingWithDataStore(RetainPtr<WKWebsiteDataStore
 @property (setter=setURLIsBlocked:) BOOL URLIsBlocked;
 @end
 
-@interface STWebpageController (Staging_138865295)
-@property (nonatomic, copy) NSString *profileIdentifier;
-@end
-
 @interface WKWebView (Internal)
 - (STWebpageController *)_screenTimeWebpageController;
 #if PLATFORM(MAC)
@@ -323,9 +319,6 @@ TEST(ScreenTime, IsBlockedByScreenTimeKVO)
 
 TEST(ScreenTime, IdentifierNil)
 {
-    if (![PAL::getSTWebpageControllerClass() instancesRespondToSelector:@selector(setProfileIdentifier:)])
-        return;
-
     __block bool done = false;
     __block NSString *identifier = @"testing123";
 
@@ -349,9 +342,6 @@ TEST(ScreenTime, IdentifierNil)
 
 TEST(ScreenTime, IdentifierString)
 {
-    if (![PAL::getSTWebpageControllerClass() instancesRespondToSelector:@selector(setProfileIdentifier:)])
-        return;
-
     __block bool done = false;
     __block RetainPtr identifier = @"";
 
