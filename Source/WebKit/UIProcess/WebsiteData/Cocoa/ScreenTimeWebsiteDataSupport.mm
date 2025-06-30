@@ -48,13 +48,7 @@ void getScreenTimeURLs(std::optional<WTF::UUID> identifier, CompletionHandler<vo
 
     RetainPtr webHistory = adoptNS([PAL::allocSTWebHistoryInstance() initWithProfileIdentifier:profileIdentifier.get()]);
 
-    // STWebHistory.fetchAllHistoryWithCompletionHandler sometimes deallocates its block instead of calling it.
-    // FIXME: Remove this once rdar://145889845 is widely available.
-    auto completionHandlerWithFinalizer = CompletionHandlerWithFinalizer<void(HashSet<URL>&&)>(WTFMove(completionHandler), [](auto& completionHandler) {
-        completionHandler({ });
-    });
-
-    [webHistory fetchAllHistoryWithCompletionHandler:makeBlockPtr([completionHandler = WTFMove(completionHandlerWithFinalizer)](NSSet<NSURL *> *urls, NSError *error) mutable {
+    [webHistory fetchAllHistoryWithCompletionHandler:makeBlockPtr([completionHandler = WTFMove(completionHandler)](NSSet<NSURL *> *urls, NSError *error) mutable {
         ensureOnMainRunLoop([completionHandler = WTFMove(completionHandler), urls = retainPtr(urls), error = retainPtr(error)] mutable {
             if (error) {
                 completionHandler({ });

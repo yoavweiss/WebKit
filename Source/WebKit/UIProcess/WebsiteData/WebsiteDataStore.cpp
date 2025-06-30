@@ -796,9 +796,7 @@ private:
                 return WebsiteData::Entry { SecurityOriginData::fromURL(url), WebsiteDataType::ScreenTime, 0 };
             });
             callbackAggregator->addWebsiteData(WTFMove(websiteData));
-        }, CompletionHandlerCallThread::AnyThread });
-        // FIXME: Remove CompletionHandlerCallThread::AnyThread above once rdar://145889845 is widely available.
-        // Screen Time might not call the completion handler, so allow the completion handler to be called from any thread.
+        } });
     }
 #endif
 
