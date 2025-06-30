@@ -12298,6 +12298,7 @@
         "web-platform-tests/svg/text/reftests/text-clipped-offscreen-move-onscreen-ref.html",
         "web-platform-tests/svg/text/reftests/text-complex-001-ref.svg",
         "web-platform-tests/svg/text/reftests/text-complex-002-ref.svg",
+        "web-platform-tests/svg/text/reftests/text-context-fill-ref.svg",
         "web-platform-tests/svg/text/reftests/text-font-face-load-image-ref.html",
         "web-platform-tests/svg/text/reftests/text-font-face-load-image-svg.svg",
         "web-platform-tests/svg/text/reftests/text-inline-size-001-ref.svg",

@@ -2171,6 +2171,7 @@ imported/w3c/web-platform-tests/svg/layout/svg-foreign-relayout-002.html [ Image
 imported/w3c/web-platform-tests/svg/text/reftests/text-clipped-offscreen-move-onscreen.html [ Skip ]
 imported/w3c/web-platform-tests/svg/text/reftests/first-letter.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/text/reftests/opacity.svg [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/svg/text/reftests/text-context-fill.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/animations/repeat-iteration-event-002.svg [ Skip ]
 imported/w3c/web-platform-tests/svg/animations/repeat-iteration-event-003.svg [ Skip ]
 imported/w3c/web-platform-tests/svg/animations/repeat-iteration-event-004.svg [ Skip ]
