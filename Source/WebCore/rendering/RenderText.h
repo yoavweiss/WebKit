@@ -353,6 +353,11 @@ inline RenderText* Text::renderer() const
     return downcast<RenderText>(Node::renderer());
 }
 
+inline CheckedPtr<RenderText> Text::checkedRenderer() const
+{
+    return renderer();
+}
+
 inline void RenderText::resetMinMaxWidth()
 {
     m_minWidth = { };

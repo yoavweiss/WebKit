@@ -88,7 +88,6 @@ rendering/RenderText.cpp
 rendering/TableLayout.h
 rendering/TextBoxPainter.h
 rendering/TextDecorationPainter.h
-rendering/TextPainter.h
 rendering/line/BreakingContext.h
 rendering/line/LineBreaker.h
 rendering/line/LineWidth.h

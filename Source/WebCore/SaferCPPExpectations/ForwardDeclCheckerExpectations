@@ -124,7 +124,6 @@ rendering/RenderTableCellInlines.h
 rendering/RenderText.cpp
 rendering/RenderTextLineBoxes.h
 rendering/TableLayout.h
-rendering/TextPainter.h
 rendering/line/LineWidth.h
 rendering/style/StyleCachedImage.cpp
 rendering/svg/SVGRenderingContext.h

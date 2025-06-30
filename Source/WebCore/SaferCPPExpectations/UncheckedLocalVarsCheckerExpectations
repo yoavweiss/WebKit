@@ -442,7 +442,6 @@ rendering/TextAutoSizing.cpp
 rendering/TextBoxPainter.cpp
 rendering/TextBoxTrimmer.cpp
 rendering/TextDecorationPainter.cpp
-rendering/TextPainter.cpp
 rendering/line/BreakingContext.h
 rendering/line/LineInlineHeaders.h
 rendering/line/WordTrailingSpace.h

@@ -18,7 +18,6 @@
  * along with this library; see the file COPYING.LIB.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
- *
  */
 
 #pragma once
@@ -87,13 +86,13 @@ private:
         const TextPaintStyle&, const FixedVector<Style::TextShadow>&, const FilterOperations*);
 
     GraphicsContext& m_context;
-    const FontCascade& m_font;
-    const RenderStyle& m_renderStyle;
+    const CheckedRef<const FontCascade> m_font;
+    const CheckedRef<const RenderStyle> m_renderStyle;
     TextPaintStyle m_style;
     AtomString m_emphasisMark;
     const FixedVector<Style::TextShadow>& m_shadow;
     const FilterOperations* m_shadowColorFilter { nullptr };
-    const RenderCombineText* m_combinedText { nullptr };
+    const CheckedPtr<const RenderCombineText> m_combinedText;
     RefPtr<const DisplayList::DisplayList> m_glyphDisplayList { nullptr };
     float m_emphasisMarkOffset { 0 };
     WritingMode m_writingMode;

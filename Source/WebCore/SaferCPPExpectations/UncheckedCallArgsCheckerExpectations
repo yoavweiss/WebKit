@@ -659,8 +659,6 @@ rendering/TextAutoSizing.h
 rendering/TextBoxPainter.cpp
 rendering/TextBoxTrimmer.cpp
 rendering/TextDecorationPainter.cpp
-rendering/TextPainter.cpp
-rendering/TextPainter.h
 rendering/line/BreakingContext.h
 rendering/line/LineInlineHeaders.h
 rendering/line/LineWidth.cpp

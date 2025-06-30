@@ -18,7 +18,6 @@
  * along with this library; see the file COPYING.LIB.  If not, write to
  * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
- *
  */
 
 #include "config.h"
@@ -148,7 +147,7 @@ void TextPainter::paintTextWithShadows(const FixedVector<Style::TextShadow>* sha
     if (!opaque)
         m_context.setFillColor(Color::black);
     for (const auto& shadow : *shadows) {
-        ShadowApplier shadowApplier(m_renderStyle, m_context, &shadow, colorFilter, boxRect, &shadow == &shadows->last(), lastShadowIterationShouldDrawText, opaque, m_combinedText);
+        ShadowApplier shadowApplier(m_renderStyle, m_context, &shadow, colorFilter, boxRect, &shadow == &shadows->last(), lastShadowIterationShouldDrawText, opaque, m_combinedText.get());
         if (!shadowApplier.nothingToDraw())
             paintTextOrEmphasisMarks(font, textRun, emphasisMark, emphasisMarkOffset, textOrigin + shadowApplier.extraOffset(), startOffset, endOffset);
     }
@@ -203,13 +202,14 @@ void TextPainter::paintTextAndEmphasisMarksIfNeeded(const TextRun& textRun, cons
     FloatPoint boxOrigin = boxRect.location();
     updateGraphicsContext(m_context, paintStyle, UseEmphasisMarkColor);
     static NeverDestroyed<TextRun> objectReplacementCharacterTextRun(StringView { span(objectReplacementCharacter) });
-    const TextRun& emphasisMarkTextRun = m_combinedText ? objectReplacementCharacterTextRun.get() : textRun;
-    FloatPoint emphasisMarkTextOrigin = m_combinedText ? FloatPoint(boxOrigin.x() + boxRect.width() / 2, boxOrigin.y() + m_font.metricsOfPrimaryFont().intAscent()) : textOrigin;
+    CheckedRef emphasisMarkTextRun = m_combinedText ? objectReplacementCharacterTextRun.get() : textRun;
+    FloatPoint emphasisMarkTextOrigin = m_combinedText ? FloatPoint(boxOrigin.x() + boxRect.width() / 2, boxOrigin.y() + m_font->metricsOfPrimaryFont().intAscent()) : textOrigin;
+
     if (m_combinedText)
         m_context.concatCTM(rotation(boxRect, RotationDirection::Clockwise));
 
     // FIXME: Truncate right-to-left text correctly.
-    paintTextWithShadows(&shadow, shadowColorFilter, m_combinedText ? m_combinedText->originalFont() : m_font, emphasisMarkTextRun, boxRect, emphasisMarkTextOrigin, startOffset, endOffset,
+    paintTextWithShadows(&shadow, shadowColorFilter, CheckedRef { m_combinedText ? m_combinedText->originalFont() : m_font.get() }, emphasisMarkTextRun, boxRect, emphasisMarkTextOrigin, startOffset, endOffset,
         m_emphasisMark, m_emphasisMarkOffset, paintStyle.strokeWidth > 0);
 
     if (m_combinedText)
@@ -244,7 +244,7 @@ String TextPainter::cachedGlyphDisplayListsForTextNodeAsText(Text& textNode, Opt
 
     StringBuilder builder;
 
-    for (auto textBox : InlineIterator::textBoxesFor(*textNode.renderer())) {
+    for (auto textBox : InlineIterator::textBoxesFor(*textNode.checkedRenderer())) {
         RefPtr<const DisplayList::DisplayList> displayList;
         if (auto* legacyInlineBox = textBox.legacyInlineBox())
             displayList = TextPainter::glyphDisplayListIfExists(*legacyInlineBox);
