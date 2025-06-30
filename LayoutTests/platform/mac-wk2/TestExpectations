@@ -2195,3 +2195,5 @@ webkit.org/b/294873 compositing/hdr/iframe-with-hdr-image.html [ Skip ]
 webkit.org/b/295054 http/tests/webrtc/filtering-ice-candidate-cross-origin-frame.html [ Pass Failure ]
 
 webkit.org/b/295076 imported/w3c/web-platform-tests/css/css-pseudo/highlight-custom-properties-dynamic-001.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/295217 [ Sequoia+ x86_64 ] svg/gradients/spreadMethodAlpha.svg [ ImageOnlyFailure ]
