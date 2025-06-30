@@ -1224,7 +1224,7 @@ static CGRect snapRectToScrollViewEdges(CGRect rect, CGRect viewport)
     return CGRectIntersection(rect, viewport);
 }
 
-static void configureScrollViewWithOverlayRegionsIDs(RetainPtr<WKBaseScrollView>& scrollView, const WebKit::RemoteLayerTreeHost& host, const HashSet<WebCore::PlatformLayerIdentifier>& overlayRegionsIDs, const WebKit::RemoteScrollingCoordinatorProxyIOS::OverlayRegionCandidatesMap& candidatesMap)
+static void configureScrollViewWithOverlayRegionsIDs(RetainPtr<WKBaseScrollView>& scrollView, const WebKit::RemoteLayerTreeHost& host, const HashSet<WebCore::PlatformLayerIdentifier>& overlayRegionsIDs, const WebKit::RemoteScrollingCoordinatorProxyIOS::OverlayRegionCandidatesMap& candidatesMap, BOOL stable)
 {
     HashSet<WebCore::IntRect> overlayRegionRects;
     Vector<WebCore::IntRect> fullWidthRects;
@@ -1363,7 +1363,7 @@ static void configureScrollViewWithOverlayRegionsIDs(RetainPtr<WKBaseScrollView>
     });
 
     [scrollView _updateOverlayRegionsBehavior:YES];
-    [scrollView _updateOverlayRegionRects:overlayRegionRects];
+    [scrollView _updateOverlayRegionRects:overlayRegionRects whileStable:stable];
 
     auto relatedIterator = candidatesMap.find(scrollView);
     if (relatedIterator != candidatesMap.end())
@@ -1453,7 +1453,7 @@ static void configureScrollViewWithOverlayRegionsIDs(RetainPtr<WKBaseScrollView>
     for (auto layerID : fixedIDs)
         addOverlayEventRegions(layerID, overlayRegionsIDs, layerTreeHost);
 
-    configureScrollViewWithOverlayRegionsIDs(overlayRegionScrollView, layerTreeHost, overlayRegionsIDs, candidatesMap);
+    configureScrollViewWithOverlayRegionsIDs(overlayRegionScrollView, layerTreeHost, overlayRegionsIDs, candidatesMap, [self _isInStableState:overlayRegionScrollView.get()]);
 }
 
 - (void)_updateOverlayRegionsForCustomContentView
@@ -1467,7 +1467,7 @@ static void configureScrollViewWithOverlayRegionsIDs(RetainPtr<WKBaseScrollView>
     }
 
     [_scrollView _updateOverlayRegionsBehavior:YES];
-    [_scrollView _updateOverlayRegionRects: { }];
+    [_scrollView _updateOverlayRegionRects: { } whileStable:YES];
 }
 #endif // ENABLE(OVERLAY_REGIONS_IN_EVENT_REGION)
 
