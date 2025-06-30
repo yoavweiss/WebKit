@@ -1,5 +1,4 @@
 NetworkProcess/NetworkSession.cpp
-NetworkProcess/cocoa/NetworkSessionCocoa.mm
 Platform/IPC/ArgumentCoders.h
 UIProcess/WebPageProxy.cpp
 WebProcess/FullScreen/WebFullScreenManager.cpp

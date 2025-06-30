@@ -14,7 +14,6 @@ NetworkProcess/SharedWorker/WebSharedWorker.cpp
 NetworkProcess/SharedWorker/WebSharedWorkerServerConnection.cpp
 NetworkProcess/cache/AsyncRevalidation.cpp
 NetworkProcess/cocoa/NetworkDataTaskCocoa.mm
-NetworkProcess/cocoa/NetworkSessionCocoa.mm
 NetworkProcess/cocoa/WKURLSessionTaskDelegate.mm
 NetworkProcess/cocoa/WebSocketTaskCocoa.mm
 NetworkProcess/storage/LocalStorageManager.cpp

@@ -11,7 +11,6 @@ NetworkProcess/cache/NetworkCacheIOChannelCocoa.mm
 NetworkProcess/cocoa/LaunchServicesDatabaseObserver.mm
 NetworkProcess/cocoa/NetworkDataTaskCocoa.mm
 NetworkProcess/cocoa/NetworkProcessCocoa.mm
-NetworkProcess/cocoa/NetworkSessionCocoa.mm
 NetworkProcess/cocoa/WKURLSessionTaskDelegate.mm
 NetworkProcess/mac/NetworkProcessMac.mm
 NetworkProcess/webrtc/NetworkRTCTCPSocketCocoa.mm
