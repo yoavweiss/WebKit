@@ -585,11 +585,17 @@ final public class WebPage {
 
     // MARK: Helper functions
 
-    func addNavigationEvent(_ event: Result<NavigationEvent, any Error>, for cocoaNavigation: WKNavigation) {
-        scopedNavigations[ObjectIdentifier(cocoaNavigation)]?.yield(with: event)
+    func addNavigationEvent(_ event: Result<NavigationEvent, any Error>, for cocoaNavigation: WKNavigation?) {
+        if let cocoaNavigation {
+            scopedNavigations[ObjectIdentifier(cocoaNavigation)]?.yield(with: event)
 
-        if case .success(.finished) = event {
-            scopedNavigations[ObjectIdentifier(cocoaNavigation)]?.finish()
+            if case .success(.finished) = event {
+                scopedNavigations[ObjectIdentifier(cocoaNavigation)]?.finish()
+            }
+        } else {
+            for continuation in scopedNavigations.values {
+                continuation.yield(with: event)
+            }
         }
 
         for continuation in indefiniteNavigations.values {
@@ -709,6 +715,15 @@ extension WebPage {
                 observation.invalidate()
             }
         }
+    }
+}
+
+extension WebPage {
+    // SPI for testing.
+    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
+    @_spi(Testing)
+    public func terminateWebContentProcess() {
+        backingWebView._killWebContentProcess()
     }
 }
 
