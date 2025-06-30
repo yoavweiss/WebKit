@@ -5552,6 +5552,63 @@
     "imported/w3c/web-platform-tests/shadow-dom/declarative/gethtml.html": [
         "slow"
     ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/cookie-indices.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/cross-origin-cookies-anonymous-client-ip-duplicate.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/cross-origin-cookies.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/different-initiators-2.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/different-initiators.sub.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-a-element.sub.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-iframe-location-href.sub.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/initiators-window-open.sub.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/no-prefetch-for-post.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/prefetch-traverse-reload.sub.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/prefetch-uses-cache.sub.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/redirect-middle-of-prefetch.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/redirect-to-prefetch-url.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/redirect-url.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/same-origin-cookies.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/sec-fetch-headers.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/tentative/service-worker/basic.sub.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/tentative/service-worker/redirect.sub.https.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/speculation-rules/prefetch/user-pass.https.html": [
+        "slow"
+    ],
     "imported/w3c/web-platform-tests/subresource-integrity/integrity-policy/parsing.html": [
         "slow"
     ],
