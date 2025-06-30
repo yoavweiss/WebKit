@@ -9,7 +9,6 @@ NetworkProcess/PrivateClickMeasurement/cocoa/PrivateClickMeasurementNetworkLoade
 NetworkProcess/cache/NetworkCacheDataCocoa.mm
 NetworkProcess/cache/NetworkCacheIOChannelCocoa.mm
 NetworkProcess/cocoa/LaunchServicesDatabaseObserver.mm
-NetworkProcess/cocoa/NetworkDataTaskCocoa.mm
 NetworkProcess/cocoa/NetworkProcessCocoa.mm
 NetworkProcess/cocoa/WKURLSessionTaskDelegate.mm
 NetworkProcess/mac/NetworkProcessMac.mm
