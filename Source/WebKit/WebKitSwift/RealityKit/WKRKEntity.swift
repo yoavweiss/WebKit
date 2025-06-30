@@ -56,13 +56,17 @@ extension WKRKEntity {
 #endif
     }
 
-    @objc(loadFromData:withAttributionTaskID:completionHandler:)
-    class func load(from data: Data, withAttributionTaskID attributionTaskId: String?) async -> WKRKEntity? {
+    @objc(loadFromData:withAttributionTaskID:entityMemoryLimit:completionHandler:)
+    class func load(from data: Data, withAttributionTaskID attributionTaskId: String?, entityMemoryLimit: Int) async -> WKRKEntity? {
 #if canImport(RealityKit, _version: "403.0.3")
         do {
             var loadOptions = Entity.__LoadOptions()
             if let attributionTaskId {
                 loadOptions.memoryAttributionID = attributionTaskId
+            }
+            if entityMemoryLimit > 0 {
+                loadOptions.enforceMemoryConstraints = true
+                loadOptions.memoryLimit = entityMemoryLimit * 1024 * 1024
             }
 #if canImport(RealityKit, _version: "403.0.9")
             loadOptions.featuresToSkip = [.audio]
