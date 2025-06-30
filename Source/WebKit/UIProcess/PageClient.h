@@ -706,6 +706,8 @@ public:
 
     virtual WebCore::UserInterfaceLayoutDirection userInterfaceLayoutDirection() = 0;
 
+    virtual void didChangeLocalInspectorAttachment() { }
+
 #if USE(QUICK_LOOK)
     virtual void requestPasswordForQuickLookDocument(const String& fileName, WTF::Function<void(const String&)>&&) = 0;
 #endif

@@ -3123,6 +3123,30 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 
 #endif // ENABLE(PDF_PAGE_NUMBER_INDICATOR)
 
+- (RetainPtr<WKWebView>)_horizontallyAttachedInspectorWebView
+{
+    RefPtr inspector = _page->inspector();
+    if (!inspector)
+        return nil;
+
+    if (!inspector->isAttached())
+        return nil;
+
+    switch (inspector->attachmentSide()) {
+    case WebKit::AttachmentSide::Bottom:
+        return nil;
+    case WebKit::AttachmentSide::Right:
+    case WebKit::AttachmentSide::Left:
+        break;
+    }
+
+    RefPtr inspectorPage = inspector->inspectorPage();
+    if (!inspectorPage)
+        return nil;
+
+    return inspectorPage->cocoaView();
+}
+
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 
 - (void)_updateTopScrollPocketCaptureColor
@@ -3290,6 +3314,24 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
     _impl->updateScrollPocket();
 #endif
 }
+
+#if PLATFORM(MAC)
+
+- (BOOL)_alwaysPrefersSolidColorHardPocket
+{
+    return _alwaysPrefersSolidColorHardPocket;
+}
+
+- (void)_setAlwaysPrefersSolidColorHardPocket:(BOOL)value
+{
+    if (_alwaysPrefersSolidColorHardPocket == value)
+        return;
+
+    _alwaysPrefersSolidColorHardPocket = value;
+    _impl->updatePrefersSolidColorHardPocket();
+}
+
+#endif // PLATFORM(MAC)
 
 - (BOOL)_hasVisibleColorExtensionView:(WebCore::BoxSide)side
 {

@@ -84,7 +84,7 @@ class WebPreferences;
 class WebInspectorUIExtensionControllerProxy;
 #endif
 
-enum class AttachmentSide {
+enum class AttachmentSide : uint8_t {
     Bottom,
     Right,
     Left,
@@ -224,6 +224,8 @@ private:
     void createFrontendPage();
     void closeFrontendPageAndWindow();
 
+    void dispatchDidChangeLocalInspectorAttachment();
+
     // IPC::MessageReceiver
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&) override;
 
@@ -340,7 +342,7 @@ private:
     bool m_isOpening { false };
     bool m_closing { false };
 
-    AttachmentSide m_attachmentSide {AttachmentSide::Bottom};
+    AttachmentSide m_attachmentSide { AttachmentSide::Bottom };
 
 #if PLATFORM(MAC)
     RetainPtr<WKInspectorViewController> m_inspectorViewController;

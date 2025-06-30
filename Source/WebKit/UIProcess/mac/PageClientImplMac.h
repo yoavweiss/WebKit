@@ -119,6 +119,8 @@ private:
     void clearBrowsingWarningIfForMainFrameNavigation() override;
     bool hasBrowsingWarning() const override;
 
+    void didChangeLocalInspectorAttachment() final;
+
     bool showShareSheet(WebCore::ShareDataWithParsedURL&&, WTF::CompletionHandler<void(bool)>&&) override;
 
 #if HAVE(DIGITAL_CREDENTIALS_UI)

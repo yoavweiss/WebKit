@@ -1145,6 +1145,13 @@ void PageClientImpl::cancelTextRecognitionForVideoInElementFullscreen()
     checkedImpl()->cancelTextRecognitionForVideoInElementFullscreen();
 }
 
+void PageClientImpl::didChangeLocalInspectorAttachment()
+{
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    m_impl->updateScrollPocket();
+#endif
+}
+
 } // namespace WebKit
 
 #endif // PLATFORM(MAC)

@@ -2395,6 +2395,9 @@ void WebViewImpl::updateTopScrollPocketCaptureColor()
             captureColor = NSColor.controlBackgroundColor;
     }
     [m_topScrollPocket setCaptureColor:captureColor.get()];
+
+    if (RetainPtr attachedInspectorWebView = [view _horizontallyAttachedInspectorWebView])
+        [attachedInspectorWebView _setOverrideTopScrollEdgeEffectColor:captureColor.get()];
 }
 
 #endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
@@ -6944,7 +6947,18 @@ void WebViewImpl::updatePrefersSolidColorHardPocket()
     if (!view)
         return;
 
-    [m_topScrollPocket setPrefersSolidColorHardPocket:[view _hasVisibleColorExtensionView:BoxSide::Top] || m_pageIsScrolledToTop];
+    [m_topScrollPocket setPrefersSolidColorHardPocket:^{
+        if ([view _hasVisibleColorExtensionView:BoxSide::Top])
+            return YES;
+
+        if (m_pageIsScrolledToTop)
+            return YES;
+
+        if ([view _alwaysPrefersSolidColorHardPocket])
+            return YES;
+
+        return NO;
+    }()];
 }
 
 void WebViewImpl::updateScrollPocket()
@@ -6986,10 +7000,14 @@ void WebViewImpl::updateScrollPocket()
         for (NSView *pocketContainer in m_viewsAboveScrollPocket.get())
             [m_topScrollPocket addElementContainer:pocketContainer];
         updateScrollPocketVisibilityWhenScrolledToTop();
+        updatePrefersSolidColorHardPocket();
     } else
         captureView = [m_topScrollPocket captureView];
 
     auto bounds = [view bounds];
+    if (RetainPtr attachedInspectorView = [view _horizontallyAttachedInspectorWebView])
+        bounds = NSUnionRect(bounds, [attachedInspectorView convertRect:[attachedInspectorView bounds] toView:view.get()]);
+
     auto topInsetFrame = NSMakeRect(NSMinX(bounds), NSMinY(bounds), NSWidth(bounds), std::min<CGFloat>(topContentInset, NSHeight(bounds)));
 
     if ([m_view _usesAutomaticContentInsetBackgroundFill]) {
