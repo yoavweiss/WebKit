@@ -488,8 +488,8 @@ JSFunction* JSDOMGlobalObject::createCrossOriginFunction(JSGlobalObject* lexical
     auto& vm = lexicalGlobalObject->vm();
     CrossOriginMapKey key = std::make_pair(lexicalGlobalObject, nativeFunction.taggedPtr());
 
-    // WeakGCMap::ensureValue's functor must not invoke GC since GC can modify WeakGCMap in the middle of UncheckedKeyHashMap::ensure.
-    // We use DeferGC here (1) not to invoke GC when executing WeakGCMap::ensureValue and (2) to avoid looking up UncheckedKeyHashMap twice.
+    // WeakGCMap::ensureValue's functor must not invoke GC since GC can modify WeakGCMap in the middle of HashMap::ensure.
+    // We use DeferGC here (1) not to invoke GC when executing WeakGCMap::ensureValue and (2) to avoid looking up HashMap twice.
     DeferGC deferGC(vm);
     return m_crossOriginFunctionMap.ensureValue(key, [&] {
         return JSFunction::create(vm, lexicalGlobalObject, length, propertyName.publicName(), nativeFunction, ImplementationVisibility::Public);
@@ -502,8 +502,8 @@ GetterSetter* JSDOMGlobalObject::createCrossOriginGetterSetter(JSGlobalObject* l
     auto& vm = lexicalGlobalObject->vm();
     CrossOriginMapKey key = std::make_pair(lexicalGlobalObject, getter ? getter.taggedPtr() : setter.taggedPtr());
 
-    // WeakGCMap::ensureValue's functor must not invoke GC since GC can modify WeakGCMap in the middle of UncheckedKeyHashMap::ensure.
-    // We use DeferGC here (1) not to invoke GC when executing WeakGCMap::ensureValue and (2) to avoid looking up UncheckedKeyHashMap twice.
+    // WeakGCMap::ensureValue's functor must not invoke GC since GC can modify WeakGCMap in the middle of HashMap::ensure.
+    // We use DeferGC here (1) not to invoke GC when executing WeakGCMap::ensureValue and (2) to avoid looking up HashMap twice.
     DeferGC deferGC(vm);
     return m_crossOriginGetterSetterMap.ensureValue(key, [&] {
         return GetterSetter::create(vm, lexicalGlobalObject,

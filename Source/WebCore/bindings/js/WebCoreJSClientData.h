@@ -176,7 +176,7 @@ public:
 private:
     bool isWebCoreJSClientData() const final { return true; }
 
-    UncheckedKeyHashSet<DOMWrapperWorld*> m_worldSet;
+    HashSet<DOMWrapperWorld*> m_worldSet;
     RefPtr<DOMWrapperWorld> m_normalWorld;
 
     JSBuiltinFunctions m_builtinFunctions;
