@@ -27,7 +27,9 @@ if [[ "${WK_AUDIT_SPI}" == YES && -f "${program}" ]]; then
          --sdkdb-cache "${OBJROOT}/WebKitSDKDBs/${SDK_NAME}.sqlite3" \
          --sdk-dir "${SDKROOT}" --arch-name "${arch}" \
          --depfile "${depfile}" \
-         --primary-file "${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}" $@)
+         -F "${BUILT_PRODUCTS_DIR}" \
+         -L "${BUILT_PRODUCTS_DIR}" \
+         $@)
      done
 else
     [ -f "${program}" ] || echo "audit-spi not available, skipping" >&2

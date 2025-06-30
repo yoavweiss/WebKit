@@ -21,10 +21,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import annotations
+
 import argparse
 import os
 import pkgutil
 import shlex
+import sys
 import time
 from fnmatch import fnmatch
 from pathlib import Path
@@ -85,15 +88,24 @@ SDK_ALLOWLIST = {
     'usr/lib/libicucore.A.tbd': (),
 }
 
+# In addition to the main directory of partial SDKDBs passed via `--sdkdb-dir`,
+# this path will be appended to framework search paths to find partial SDKDBs
+# that correspond to frameworks added via `-framework`.
+FRAMEWORK_SDKDB_DIR = 'SDKDB'
+
 
 class TSVReporter:
-    def __init__(self, args: argparse.Namespace):
+    def __init__(self, args: Options):
         self.n_issues = 0
         self.print_details = args.details
+        self.print_names = args.details and len(args.input_files) > 1
 
     def process_report(self, report: APIReport, db: SDKDB):
+        name_prefix = f'{report.file}({report.arch}):'
         for selref in sorted(report.selrefs):
             if not db.objc_selector(selref) and selref not in report.methods:
+                if self.print_names:
+                    print(name_prefix, end='\t')
                 self.missing_selector(selref)
 
         for symbol in sorted(report.imports):
@@ -104,8 +116,12 @@ class TSVReporter:
             if symbol.startswith('_OBJC_CLASS_$_'):
                 class_name = symbol.removeprefix('_OBJC_CLASS_$_')
                 if not db.objc_class(class_name):
+                    if self.print_names and not ignored:
+                        print(name_prefix, end='\t')
                     self.missing_class(class_name, ignored=ignored)
             elif not db.symbol(symbol):
+                if self.print_names and not ignored:
+                    print(name_prefix, end='\t')
                 self.missing_symbol(symbol, ignored=ignored)
 
     def missing_selector(self, name: str, *, ignored=False):
@@ -135,14 +151,32 @@ class TSVReporter:
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='''\
     Using API availability information from a directory of SDKDB records,
-    scan a Mach-O binary for use of unknown symbols or Objective-C selectors.
+    scans Mach-O binaries for use of unknown symbols or Objective-C selectors.
     ''')
-    parser.add_argument('input_files', nargs='*', type=Path,
-                        help='binaries and SDKDBs to allow arbitrary use of')
+    parser.add_argument('input_files', nargs='+', type=Path,
+                        help='files to analyze')
     parser.add_argument('-a', '--arch-name', required=True,
                         help='which architecture to analyze binary with')
-    parser.add_argument('--primary-file', type=Path, required=True,
-                        help='file to analyze')
+
+    binaries = parser.add_argument_group('framework and library dependencies',
+                                         description='''ld-style arguments to
+                                         support finding and using declarations
+                                         from arbitrary binaries, on top of the
+                                         SDKDB_DIR.''')
+
+    binaries.add_argument('-framework', metavar='FRAMEWORK', type=str,
+                          action='append', dest='frameworks',
+                          help='allow arbitrary use of this framework')
+    binaries.add_argument('-l', metavar='LIBRARY', type=Path, action='append',
+                          dest='libraries',
+                          help='allow arbitrary use of this dynamic library')
+    binaries.add_argument('-F', metavar='PATH', type=Path, action='append',
+                          dest='framework_search_paths',
+                          help='add to the frameworks search path')
+    binaries.add_argument('-L', metavar='PATH', type=Path, action='append',
+                          dest='library_search_paths',
+                          help='add to the libraries search path')
+
     parser.add_argument('--sdkdb-dir', type=Path, required=True,
                         help='directory of partial SDKDB records for an SDK')
     parser.add_argument('--sdkdb-cache', type=Path, required=True,
@@ -156,18 +190,40 @@ def get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv=None):
+class Options(argparse.Namespace):
+    input_files: list[Path]
+    arch_name: str
+    allowlists: Optional[list[Path]]
+
+    frameworks: list[str]
+    libraries: list[str]
+    framework_search_paths: list[Path]
+    library_search_paths: list[Path]
+
+    sdkdb_dir: Path
+    sdkdb_cache: Path
+    sdk_dir: Path
+    depfile: Optional[Path]
+    details: bool
+    errors: bool
+
+
+def main(argv: Optional[list[str]] = None):
     webkitapipy_additions: Optional[ModuleType]
+    program_additions: Optional[ModuleType]
     try:
-        import webkitapipy_additions.program
+        import webkitapipy_additions
+        from webkitapipy_additions import program as program_additions
     except ImportError:
         webkitapipy_additions = None
+        program_additions = None
 
-    if webkitapipy_additions:
-        parser = webkitapipy_additions.program.get_parser()
+    if program_additions:
+        parser = program_additions.get_parser()
+        args = parser.parse_args(argv, namespace=program_additions.Options)
     else:
         parser = get_parser()
-    args = parser.parse_args(argv)
+        args = parser.parse_args(argv, namespace=Options)
 
     inputs = []
     # For the depfile, start with the paths of all the modules in webkitapipy
@@ -213,27 +269,62 @@ def main(argv=None):
                 if db.add_tbd(use_input(tbd_path),
                               only_including=library_patterns):
                     increment_changes()
+
     if n_changes:
         symbols, classes, selectors = db.stats()
         db_initialization_duration = time.monotonic() - db_initialization_start
         print(f'Done. Took {db_initialization_duration:.2f} sec.',
               f'{symbols=} {classes=} {selectors=}')
 
-    for path in args.input_files:
+    def add_corresponding_sdkdb(binary: Path) -> None:
+        # There is no platform convention for where to put partial
+        # SDKDBs in build products, so match what WebKit.xcconfig
+        # does and look for a "SDKDB" directory.
+        for search_path in args.framework_search_paths or ():
+            sdkdb_path = (search_path / FRAMEWORK_SDKDB_DIR /
+                          f'{binary.name}.partial.sdkdb')
+            if sdkdb_path.exists():
+                db.add_partial_sdkdb(use_input(sdkdb_path), spi=True,
+                                     abi=True)
+                # Work around rdar://153937150 by emitting a dependency on the
+                # framework's .tbd if it exists.
+                tbd_path = binary.with_suffix('.tbd')
+                if tbd_path.exists():
+                    use_input(tbd_path)
+                break
+
+    for name in args.frameworks or ():
         with db:
-            if path.suffix == '.sdkdb':
-                db.add_partial_sdkdb(use_input(path), spi=True, abi=True)
+            for search_path in args.framework_search_paths or ():
+                binary_path = search_path / f'{name}.framework/{name}'
+                if binary_path.exists():
+                    db.add_binary(use_input(binary_path), arch=args.arch_name)
+                    add_corresponding_sdkdb(binary_path)
+                    break
             else:
-                db.add_binary(use_input(path), arch=args.arch_name)
+                sys.exit(f'Could not find "{name}.framework/{name}" in '
+                         'search paths')
 
-    report = APIReport.from_binary(args.primary_file, arch=args.arch_name)
+    for name in args.libraries or ():
+        with db:
+            for search_path in args.library_search_paths or ():
+                path = search_path / f'lib{name}.dylib'
+                if path.exists():
+                    db.add_binary(use_input(path), arch=args.arch_name)
+                    break
+            else:
+                sys.exit(f'Could not find "lib{name}.dylib" in search paths')
 
-    if webkitapipy_additions:
-        reporter = webkitapipy_additions.program.configure_reporter(args, db)
+    if program_additions:
+        reporter = program_additions.configure_reporter(args, db)
     else:
         reporter = TSVReporter(args)
 
-    reporter.process_report(report, db)
+    for binary_path in args.input_files:
+        add_corresponding_sdkdb(binary_path)
+        report = APIReport.from_binary(binary_path, arch=args.arch_name)
+        reporter.process_report(report, db)
+
     reporter.finished()
 
     if args.depfile:
