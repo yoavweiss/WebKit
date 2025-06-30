@@ -34,20 +34,33 @@ namespace WebKit {
 
 class WebExtensionAPIBookmarks : public WebExtensionAPIObject, public JSWebExtensionWrappable {
     WEB_EXTENSION_DECLARE_JS_WRAPPER_CLASS(WebExtensionAPIBookmarks, bookmarks, bookmarks);
-private:
+
+public:
+    enum class BookmarkTreeNodeType : uint8_t {
+        Bookmark,
+        Folder
+    };
+
+    struct CreateDetails {
+        std::optional<size_t> index;
+        String parentId;
+        String title;
+        std::optional<BookmarkTreeNodeType> type;
+        String url;
+    };
 
     struct MockBookmarkNode {
         String id;
+        String parentId;
         String title;
         String url;
+        size_t index;
         WallTime dateAdded;
+        BookmarkTreeNodeType type;
     };
 
     Vector<MockBookmarkNode> m_mockBookmarks;
 
-    NSDictionary *createDictionaryFromNode(const MockBookmarkNode& node);
-
-public:
 #if PLATFORM(COCOA)
     void createBookmark(NSDictionary *bookmark, Ref<WebExtensionCallbackHandler>&&, NSString **outExceptionString);
 

@@ -208,6 +208,23 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIMockNodeWithgetRecent)
     Util::loadAndRunExtension(bookmarkOnManifest, @{ @"background.js": Util::constructScript(script) }, bookmarkConfig);
 }
 
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPICreateParse)
+{
+    auto *script = @[
+        @"let createdNode = await browser.bookmarks.create({title: 'My Test Bookmark', url: 'https://example.com/test1'})",
+        @"  browser.test.assertEq('My Test Bookmark', createdNode.title, 'Title should match');",
+        @"  browser.test.assertEq('https://example.com/test1', createdNode.url, 'URL should match');",
+        @"  browser.test.assertEq('bookmark', createdNode.type, 'Type should be bookmark');",
+        @"let createdNode2 = await browser.bookmarks.create({title: 'My Test Folder', parentId: '534'})",
+        @"  browser.test.assertEq('My Test Folder', createdNode2.title, 'Title should match');",
+        @"  browser.test.assertEq('folder', createdNode2.type, 'type should be folder because url is not specified');",
+        @"  browser.test.assertEq('534', createdNode2.parentId, 'parentId should match');",
+        @"  browser.test.notifyPass()",
+    ];
+
+    Util::loadAndRunExtension(bookmarkOnManifest, @{ @"background.js": Util::constructScript(script) }, bookmarkConfig);
+}
+
 }
 
 #endif

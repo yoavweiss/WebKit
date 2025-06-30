@@ -39,43 +39,101 @@ namespace WebKit {
 static NSString * const idKey = @"id";
 static NSString * const urlKey = @"url";
 static NSString * const titleKey = @"title";
+static NSString * const indexKey = @"index";
+static NSString * const parentIdKey = @"parentId";
 static NSString * const dateAddedKey = @"dateAdded";
 static NSString * const typeKey = @"type";
 static NSString * const bookmarkKey = @"bookmark";
+static NSString * const folderKey = @"folder";
 
-NSDictionary *WebExtensionAPIBookmarks::createDictionaryFromNode(const MockBookmarkNode& node)
+static NSString *toWebAPI(WebExtensionAPIBookmarks::BookmarkTreeNodeType type, NSString *inputURL)
 {
-    return @{
+    if (inputURL.length)
+        return bookmarkKey;
+
+    switch (type) {
+    case WebExtensionAPIBookmarks::BookmarkTreeNodeType::Bookmark:
+        return bookmarkKey;
+    case WebExtensionAPIBookmarks::BookmarkTreeNodeType::Folder:
+        return folderKey;
+    }
+
+    return folderKey;
+}
+
+static NSDictionary *toWebAPI(const WebExtensionAPIBookmarks::MockBookmarkNode& node)
+{
+    auto tempNode = @{
         idKey: node.id.createNSString().get(),
+        parentIdKey: node.parentId.createNSString().get(),
         titleKey: node.title.createNSString().get(),
         urlKey: node.url.createNSString().get(),
+        indexKey: @(node.index),
         dateAddedKey: @(node.dateAdded.secondsSinceEpoch().milliseconds()),
-        typeKey: bookmarkKey
+        typeKey: toWebAPI(node.type, node.url.createNSString().get())
     };
+
+    return tempNode;
+}
+
+static std::optional<WebExtensionAPIBookmarks::BookmarkTreeNodeType> toTypeImpl(NSString *typeString)
+{
+    if (!typeString)
+        return std::nullopt;
+
+    if ([typeString isEqualToString:bookmarkKey])
+        return WebExtensionAPIBookmarks::BookmarkTreeNodeType::Bookmark;
+    if ([typeString isEqualToString:folderKey])
+        return WebExtensionAPIBookmarks::BookmarkTreeNodeType::Folder;
+
+    return std::nullopt;
 }
 
 void WebExtensionAPIBookmarks::createBookmark(NSDictionary *bookmark, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
 {
-    NSArray *requiredKeys = @[ @"id", @"url", @"dateAdded" ];
-    static NSDictionary<NSString *, id> *types= @{
+    WebExtensionAPIBookmarks::CreateDetails parsedDetails;
+
+    static NSDictionary<NSString *, id> *types = @{
         idKey: NSString.class,
+        indexKey: NSNumber.class,
+        parentIdKey: NSString.class,
+        typeKey: NSString.class,
         urlKey: NSString.class,
         dateAddedKey: NSNumber.class,
         titleKey: NSString.class
     };
 
-    if (!validateDictionary(bookmark, @"bookmark", requiredKeys, types, outExceptionString))
+    if (!validateDictionary(bookmark, @"bookmark", nil, types, outExceptionString))
         return;
+
+    parsedDetails.index = objectForKey<NSNumber>(bookmark, indexKey).unsignedLongValue;
+    parsedDetails.parentId = objectForKey<NSString>(bookmark, parentIdKey);
+    parsedDetails.title = objectForKey<NSString>(bookmark, titleKey);
+    parsedDetails.url = objectForKey<NSString>(bookmark, urlKey);
+
+    if (bookmark[typeKey]) {
+        auto parsedType = toTypeImpl(dynamic_objc_cast<NSString>(bookmark[typeKey]));
+        if (!parsedType) {
+            *outExceptionString = toErrorString(nullString(), typeKey, @"it must specify either 'bookmark' or 'folder'").createNSString().autorelease();
+            return;
+        }
+
+        parsedDetails.type = parsedType;
+    }
 
     MockBookmarkNode newNode;
     newNode.id = bookmark[idKey];
     newNode.url = bookmark[urlKey];
     newNode.title = bookmark[titleKey];
+    newNode.parentId = bookmark[parentIdKey];
+    newNode.index = parsedDetails.index.value();
+    newNode.type = parsedDetails.type.value_or(WebExtensionAPIBookmarks::BookmarkTreeNodeType::Folder);
 
-    newNode.dateAdded = WallTime::fromRawSeconds(objectForKey<NSDate>(bookmark, dateAddedKey).timeIntervalSince1970);
+    double msSinceEpoch = dynamic_objc_cast<NSNumber>(bookmark[dateAddedKey]).doubleValue;
+    newNode.dateAdded = WTF::WallTime::fromRawSeconds(msSinceEpoch / 1000.0);
 
     m_mockBookmarks.append(WTFMove(newNode));
-    callback->call(createDictionaryFromNode(newNode));
+    callback->call(toWebAPI(m_mockBookmarks.last()));
 }
 
 void WebExtensionAPIBookmarks::getChildren(NSString *bookmarkIdentifier, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
@@ -98,7 +156,7 @@ void WebExtensionAPIBookmarks::getRecent(long long numberOfItems, Ref<WebExtensi
     size_t countToReturn = std::min(static_cast<size_t>(numberOfItems), sortedBookmarks.size());
     auto *resultArray = [NSMutableArray arrayWithCapacity:countToReturn];
     for (size_t i = 0; i < countToReturn; ++i)
-        [resultArray addObject:createDictionaryFromNode(sortedBookmarks[i])];
+        [resultArray addObject:toWebAPI(sortedBookmarks[i])];
     callback->call(resultArray);
 }
 
@@ -144,3 +202,4 @@ void WebExtensionAPIBookmarks::update(NSString *bookmarkIdentifier, NSDictionary
 } // namespace WebKit
 
 #endif
+
