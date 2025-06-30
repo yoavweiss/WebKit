@@ -366,8 +366,6 @@ void RenderLayerScrollableArea::scrollTo(const ScrollPosition& position)
     // Update the positions of our child layers (if needed as only fixed layers should be impacted by a scroll).
     // We don't update compositing layers, because we need to do a deep update from the compositing ancestor.
     if (!view.frameView().layoutContext().isInRenderTreeLayout()) {
-        Style::AnchorPositionEvaluator::updateAfterOverflowScroll(m_layer.renderer().protectedDocument());
-
         // If we're in the middle of layout, we'll just update layers once layout has finished.
         view.protectedFrameView()->updateLayerPositionsAfterOverflowScroll(m_layer);
 
@@ -2032,6 +2030,11 @@ void RenderLayerScrollableArea::invalidateScrollAnchoringElement()
 {
     if (m_scrollAnchoringController)
         m_scrollAnchoringController->invalidateAnchorElement();
+}
+
+void RenderLayerScrollableArea::updateAnchorPositionedAfterScroll()
+{
+    Style::AnchorPositionEvaluator::updatePositionsAfterScroll(m_layer.renderer().document());
 }
 
 std::optional<FrameIdentifier> RenderLayerScrollableArea::rootFrameID() const

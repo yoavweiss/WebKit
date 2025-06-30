@@ -285,15 +285,24 @@ static LayoutSize offsetFromAncestorContainer(const RenderElement& descendantCon
     return offset;
 }
 
-static LayoutSize scrollOffsetFromAncestorContainer(const RenderElement& descendant, const RenderElement& ancestorContainer)
+static LayoutSize scrollOffsetFromAnchor(const RenderElement& anchor, const RenderBox& anchored)
 {
-    ASSERT(descendant.isDescendantOf(&ancestorContainer));
+    CheckedPtr containingBlock = anchored.containingBlock();
+    ASSERT(anchor.isDescendantOf(containingBlock.get()));
 
     auto offset = LayoutSize { };
-    for (auto* ancestor = descendant.container(); ancestor && ancestor != &ancestorContainer; ancestor = ancestor->container()) {
+    bool isFixedAnchor = anchor.isFixedPositioned();
+
+    for (auto* ancestor = anchor.container(); ancestor && ancestor != containingBlock; ancestor = ancestor->container()) {
         if (auto* box = dynamicDowncast<RenderBox>(ancestor))
             offset -= toLayoutSize(box->scrollPosition());
+        if (ancestor->isFixedPositioned())
+            isFixedAnchor = true;
     }
+
+    if (anchored.isFixedPositioned() && !isFixedAnchor)
+        offset -= toLayoutSize(anchored.view().protectedFrameView()->scrollPositionRespectingCustomFixedPosition());
+
     return offset;
 }
 
@@ -1010,32 +1019,20 @@ void AnchorPositionEvaluator::updateSnapshottedScrollOffsets(Document& document)
         if (!anchorPositionedRenderer || !anchorPositionedRenderer->layer())
             continue;
 
-        auto needsScrollAdjustment = [&] {
-            // FIXME: This is incomplete.
-            if (!anchorPositionedRenderer->style().positionAnchor())
-                return false;
+        // https://drafts.csswg.org/css-anchor-position-1/#scroll
+        // "An absolutely positioned box abspos compensates for scroll in the horizontal or vertical axis if both of the following conditions are true:
+        //  - abspos has a default anchor box.
+        //  - abspos has an anchor reference to its default anchor box or at least to something in the same scrolling context"
+        // FIXME: per-axis compensation
+        // FIXME: "something in the same scrolling context" part
 
-            if (elementAndAnchors.value.size() != 1)
-                return false;
-
-            if (!elementAndAnchors.value[0].renderer)
-                return false;
-
-            return true;
-        }();
-
-        if (!needsScrollAdjustment) {
+        auto defaultAnchor = defaultAnchorForBox(*anchorPositionedRenderer);
+        if (!defaultAnchor) {
             anchorPositionedRenderer->layer()->clearSnapshottedScrollOffsetForAnchorPositioning();
             continue;
         }
 
-        auto anchor = elementAndAnchors.value.first();
-        if (!anchor.renderer)
-            continue;
-
-        CheckedPtr containingBlock = anchorPositionedRenderer->containingBlock();
-
-        auto scrollOffset = scrollOffsetFromAncestorContainer(*anchor.renderer, *containingBlock);
+        auto scrollOffset = scrollOffsetFromAnchor(*defaultAnchor, *anchorPositionedRenderer);
 
         if (scrollOffset.isZero() && !anchorPositionedRenderer->layer()->snapshottedScrollOffsetForAnchorPositioning())
             continue;
@@ -1044,7 +1041,7 @@ void AnchorPositionEvaluator::updateSnapshottedScrollOffsets(Document& document)
     }
 }
 
-void AnchorPositionEvaluator::updateAfterOverflowScroll(Document& document)
+void AnchorPositionEvaluator::updatePositionsAfterScroll(Document& document)
 {
     updateSnapshottedScrollOffsets(document);
 
@@ -1068,6 +1065,14 @@ auto AnchorPositionEvaluator::makeAnchorPositionedForAnchorMap(AnchorPositionedT
         }
     }
     return map;
+}
+
+bool AnchorPositionEvaluator::isAnchorPositioned(const RenderStyle& style)
+{
+    if (!style.hasOutOfFlowPosition())
+        return false;
+
+    return isLayoutTimeAnchorPositioned(style) || style.usesAnchorFunctions();
 }
 
 bool AnchorPositionEvaluator::isLayoutTimeAnchorPositioned(const RenderStyle& style)

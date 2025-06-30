@@ -28,6 +28,7 @@
 #include "LocalFrameView.h"
 
 #include "AXObjectCache.h"
+#include "AnchorPositionEvaluator.h"
 #include "BackForwardCache.h"
 #include "BackForwardController.h"
 #include "BorderValue.h"
@@ -1596,6 +1597,8 @@ void LocalFrameView::addViewportConstrainedObject(RenderLayerModelObject& object
 
         if (RefPtr page = m_frame->page())
             page->chrome().client().didAddOrRemoveViewportConstrainedObjects();
+
+        clearCachedHasAnchorPositionedViewportConstrainedObjects();
     }
 }
 
@@ -1611,7 +1614,32 @@ void LocalFrameView::removeViewportConstrainedObject(RenderLayerModelObject& obj
 
         if (RefPtr<Page> page = m_frame->page())
             page->chrome().client().didAddOrRemoveViewportConstrainedObjects();
+
+        clearCachedHasAnchorPositionedViewportConstrainedObjects();
     }
+}
+
+bool LocalFrameView::hasAnchorPositionedViewportConstrainedObjects() const
+{
+    auto compute = [&] {
+        if (!m_viewportConstrainedObjects)
+            return false;
+        for (auto& renderer : *m_viewportConstrainedObjects) {
+            if (Style::AnchorPositionEvaluator::isAnchorPositioned(renderer.style()))
+                return true;
+        }
+        return false;
+    };
+
+    if (!m_hasAnchorPositionedViewportConstrainedObjects)
+        m_hasAnchorPositionedViewportConstrainedObjects = compute();
+
+    return *m_hasAnchorPositionedViewportConstrainedObjects;
+}
+
+void LocalFrameView::clearCachedHasAnchorPositionedViewportConstrainedObjects()
+{
+    m_hasAnchorPositionedViewportConstrainedObjects = { };
 }
 
 LayoutSize LocalFrameView::expandedLayoutViewportSize(const LayoutSize& baseLayoutViewportSize, const LayoutSize& documentSize, double heightExpansionFactor)
@@ -3371,6 +3399,10 @@ bool LocalFrameView::shouldUpdateCompositingLayersAfterScrolling() const
     if (currentScrollType() == ScrollType::Programmatic)
         return true;
 
+    // FIXME: Implement anchor positioning in the scrolling tree.
+    if (hasAnchorPositionedViewportConstrainedObjects())
+        return true;
+
     return false;
 #endif
     return true;
@@ -4305,6 +4337,11 @@ void LocalFrameView::updateScrollAnchoringPositionForScrollableAreas()
     auto scrollableAreasNeedingUpdate = std::exchange(m_scrollableAreasWithScrollAnchoringControllersNeedingUpdate, { });
     for (auto& scrollableArea : scrollableAreasNeedingUpdate)
         scrollableArea.updateScrollPositionForScrollAnchoringController();
+}
+
+void LocalFrameView::updateAnchorPositionedAfterScroll()
+{
+    Style::AnchorPositionEvaluator::updatePositionsAfterScroll(*m_frame->protectedDocument());
 }
 
 IntSize LocalFrameView::sizeForResizeEvent() const
