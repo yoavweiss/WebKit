@@ -26,6 +26,7 @@
 
 #include "FloatRect.h"
 #include "LayoutRect.h"
+#include "WritingMode.h"
 #include <wtf/FixedVector.h>
 
 namespace WebCore {
@@ -53,7 +54,7 @@ LayoutUnit paintingExtentAndSpread(Shadow auto const& shadow)
     return paintingExtent(shadow) + paintingSpread(shadow);
 }
 
-template<Shadow ShadowType> LayoutBoxExtent shadowOutsetExtent(const FixedVector<ShadowType>& shadows)
+template<Shadow ShadowType> auto shadowOutsetExtent(const FixedVector<ShadowType>& shadows) -> LayoutBoxExtent
 {
     LayoutUnit top;
     LayoutUnit right;
@@ -66,16 +67,16 @@ template<Shadow ShadowType> LayoutBoxExtent shadowOutsetExtent(const FixedVector
 
         auto extentAndSpread = paintingExtentAndSpread(shadow);
 
-        left = std::min(LayoutUnit(shadow.location.x().value) - extentAndSpread, left);
-        right = std::max(LayoutUnit(shadow.location.x().value) + extentAndSpread, right);
-        top = std::min(LayoutUnit(shadow.location.y().value) - extentAndSpread, top);
-        bottom = std::max(LayoutUnit(shadow.location.y().value) + extentAndSpread, bottom);
+        left = std::min<LayoutUnit>(left, LayoutUnit(shadow.location.x().value) - extentAndSpread);
+        right = std::max<LayoutUnit>(right, LayoutUnit(shadow.location.x().value) + extentAndSpread);
+        top = std::min<LayoutUnit>(top, LayoutUnit(shadow.location.y().value) - extentAndSpread);
+        bottom = std::max<LayoutUnit>(bottom, LayoutUnit(shadow.location.y().value) + extentAndSpread);
     }
 
     return { top, right, bottom, left };
 }
 
-template<Shadow ShadowType> LayoutBoxExtent shadowInsetExtent(const FixedVector<ShadowType>& shadows)
+template<Shadow ShadowType> auto shadowInsetExtent(const FixedVector<ShadowType>& shadows) -> LayoutBoxExtent
 {
     LayoutUnit top;
     LayoutUnit right;
@@ -97,10 +98,10 @@ template<Shadow ShadowType> LayoutBoxExtent shadowInsetExtent(const FixedVector<
     return { top, right, bottom, left };
 }
 
-template<Shadow ShadowType> void getShadowHorizontalExtent(const FixedVector<ShadowType>& shadows, LayoutUnit& left, LayoutUnit& right)
+template<Shadow ShadowType> auto shadowHorizontalExtent(const FixedVector<ShadowType>& shadows) -> std::pair<LayoutUnit, LayoutUnit>
 {
-    left = 0;
-    right = 0;
+    LayoutUnit left = 0;
+    LayoutUnit right = 0;
 
     for (const auto& shadow : shadows) {
         if (isInset(shadow))
@@ -111,12 +112,14 @@ template<Shadow ShadowType> void getShadowHorizontalExtent(const FixedVector<Sha
         left = std::min<LayoutUnit>(left, LayoutUnit(shadow.location.x().value) - extentAndSpread);
         right = std::max<LayoutUnit>(right, LayoutUnit(shadow.location.x().value) + extentAndSpread);
     }
+
+    return { left, right };
 }
 
-template<Shadow ShadowType> void getShadowVerticalExtent(const FixedVector<ShadowType>& shadows, LayoutUnit& top, LayoutUnit& bottom)
+template<Shadow ShadowType> auto shadowVerticalExtent(const FixedVector<ShadowType>& shadows) -> std::pair<LayoutUnit, LayoutUnit>
 {
-    top = 0;
-    bottom = 0;
+    LayoutUnit top = 0;
+    LayoutUnit bottom = 0;
 
     for (const auto& shadow : shadows) {
         if (isInset(shadow))
@@ -124,9 +127,22 @@ template<Shadow ShadowType> void getShadowVerticalExtent(const FixedVector<Shado
 
         auto extentAndSpread = paintingExtentAndSpread(shadow);
 
+        // FIXME: Why does this do a static cast to `int` but all of the other "extent" functions in this file do not?
         top = std::min<LayoutUnit>(top, LayoutUnit(static_cast<int>(shadow.location.y().value)) - extentAndSpread);
         bottom = std::max<LayoutUnit>(bottom, LayoutUnit(static_cast<int>(shadow.location.y().value)) + extentAndSpread);
     }
+
+    return { top, bottom };
+}
+
+template<Shadow ShadowType> auto shadowBlockDirectionExtent(const FixedVector<ShadowType>& shadows, WritingMode writingMode) -> std::pair<LayoutUnit, LayoutUnit>
+{
+    return writingMode.isHorizontal() ? shadowVerticalExtent(shadows) : shadowHorizontalExtent(shadows);
+}
+
+template<Shadow ShadowType> auto shadowInlineDirectionExtent(const FixedVector<ShadowType>& shadows, WritingMode writingMode) -> std::pair<LayoutUnit, LayoutUnit>
+{
+    return writingMode.isHorizontal() ? shadowHorizontalExtent(shadows) : shadowVerticalExtent(shadows);
 }
 
 template<Shadow ShadowType> void adjustRectForShadow(LayoutRect& rect, const FixedVector<ShadowType>& shadows)

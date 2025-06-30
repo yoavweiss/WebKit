@@ -923,20 +923,9 @@ public:
 
     inline const FixedVector<Style::TextShadow>& textShadow() const;
     inline bool hasTextShadow() const;
-    inline LayoutBoxExtent textShadowExtent() const;
-    inline void getTextShadowHorizontalExtent(LayoutUnit& left, LayoutUnit& right) const;
-    inline void getTextShadowVerticalExtent(LayoutUnit& top, LayoutUnit& bottom) const;
-    inline void getTextShadowInlineDirectionExtent(LayoutUnit& logicalLeft, LayoutUnit& logicalRight) const;
-    inline void getTextShadowBlockDirectionExtent(LayoutUnit& logicalTop, LayoutUnit& logicalBottom) const;
 
     inline const FixedVector<Style::BoxShadow>& boxShadow() const;
     inline bool hasBoxShadow() const;
-    inline LayoutBoxExtent boxShadowExtent() const;
-    inline LayoutBoxExtent boxShadowInsetExtent() const;
-    inline void getBoxShadowHorizontalExtent(LayoutUnit& left, LayoutUnit& right) const;
-    inline void getBoxShadowVerticalExtent(LayoutUnit& top, LayoutUnit& bottom) const;
-    inline void getBoxShadowInlineDirectionExtent(LayoutUnit& logicalLeft, LayoutUnit& logicalRight) const;
-    inline void getBoxShadowBlockDirectionExtent(LayoutUnit& logicalTop, LayoutUnit& logicalBottom) const;
 
     inline BoxDecorationBreak boxDecorationBreak() const;
 
@@ -2291,11 +2280,6 @@ public:
     inline void setHasVisitedLinkAutoCaretColor();
 
     void inheritUnicodeBidiFrom(const RenderStyle* parent) { m_nonInheritedFlags.unicodeBidi = parent->m_nonInheritedFlags.unicodeBidi; }
-
-    template<typename ShadowType> static void getShadowHorizontalExtent(const FixedVector<ShadowType>&, LayoutUnit& left, LayoutUnit& right);
-    template<typename ShadowType> static void getShadowVerticalExtent(const FixedVector<ShadowType>&, LayoutUnit& top, LayoutUnit& bottom);
-    template<typename ShadowType> void getShadowInlineDirectionExtent(const FixedVector<ShadowType>&, LayoutUnit& logicalLeft, LayoutUnit& logicalRight) const;
-    template<typename ShadowType> void getShadowBlockDirectionExtent(const FixedVector<ShadowType>&, LayoutUnit& logicalTop, LayoutUnit& logicalBottom) const;
 
     inline const Style::Color& borderLeftColor() const;
     inline const Style::Color& borderRightColor() const;
