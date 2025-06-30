@@ -411,9 +411,6 @@ platform/graphics/mac/controls/MeterMac.mm
 platform/graphics/mac/controls/ProgressBarMac.mm
 platform/graphics/mac/controls/SliderTrackMac.mm
 platform/graphics/transforms/RotateTransformOperation.cpp
-platform/mac/PlatformScreenMac.mm
-platform/mac/ScrollAnimatorMac.mm
-platform/mac/ScrollbarsControllerMac.mm
 platform/mediastream/mac/RealtimeIncomingVideoSourceCocoa.mm
 platform/mock/MockRealtimeMediaSourceCenter.cpp
 platform/mock/MockRealtimeVideoSource.cpp

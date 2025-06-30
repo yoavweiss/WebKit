@@ -63,7 +63,7 @@ static PlatformDisplayID displayID(Widget* widget)
     if (!widget)
         return 0;
 
-    auto* view = widget->root();
+    RefPtr view = widget->root();
     if (!view)
         return 0;
 

@@ -847,7 +847,6 @@ platform/graphics/mac/PDFDocumentImageMac.mm
 platform/graphics/opentype/OpenTypeMathData.cpp
 platform/graphics/transforms/TransformOperations.cpp
 platform/libwebrtc/LibWebRTCVPXVideoEncoder.cpp
-platform/mac/PasteboardMac.mm
 platform/mac/PasteboardWriter.mm
 platform/mac/ScrollbarsControllerMac.mm
 platform/mac/VideoPresentationInterfaceMac.mm

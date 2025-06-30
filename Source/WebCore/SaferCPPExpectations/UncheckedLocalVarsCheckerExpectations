@@ -346,7 +346,6 @@ platform/graphics/cg/CGSubimageCacheWithTimer.cpp
 platform/graphics/mac/controls/ImageControlsButtonMac.mm
 platform/ios/PlaybackSessionInterfaceIOS.mm
 platform/ios/WebAVPlayerController.mm
-platform/mac/PlatformScreenMac.mm
 platform/mac/PlaybackSessionInterfaceMac.mm
 platform/mac/VideoPresentationInterfaceMac.mm
 platform/mac/WebPlaybackControlsManager.mm
