@@ -75,8 +75,8 @@ void CustomPaintCanvas::replayDisplayList(GraphicsContext& target)
         return;
     auto& imageTarget = image->context();
     imageTarget.translate(-clipBounds.location());
-    if (m_context)
-        m_context->replayDisplayList(imageTarget);
+    if (RefPtr context = m_context.get())
+        context->replayDisplayList(imageTarget);
     target.drawImageBuffer(*image, clipBounds);
 }
 
@@ -87,8 +87,8 @@ Image* CustomPaintCanvas::copiedImage() const
     m_copiedImage = nullptr;
     auto buffer = ImageBuffer::create(size(), RenderingMode::Unaccelerated, RenderingPurpose::Unspecified, 1, DestinationColorSpace::SRGB(), ImageBufferPixelFormat::BGRA8);
     if (buffer) {
-        if (m_context)
-            m_context->replayDisplayList(buffer->context());
+        if (RefPtr context = m_context.get())
+            context->replayDisplayList(buffer->context());
         m_copiedImage = BitmapImage::create(ImageBuffer::sinkIntoNativeImage(buffer));
     }
     return m_copiedImage.get();

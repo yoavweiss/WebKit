@@ -231,11 +231,11 @@ ExceptionOr<std::optional<OffscreenRenderingContext>> OffscreenCanvas::getContex
             RETURN_IF_EXCEPTION(scope, Exception { ExceptionCode::ExistingExceptionError });
             Ref scriptExecutionContext = *this->scriptExecutionContext();
             if (RefPtr globalScope = dynamicDowncast<WorkerGlobalScope>(scriptExecutionContext)) {
-                if (auto* gpu = globalScope->protectedNavigator()->gpu())
+                if (RefPtr gpu = globalScope->protectedNavigator()->gpu())
                     m_context = GPUCanvasContext::create(*this, *gpu, nullptr);
             } else if (RefPtr document = dynamicDowncast<Document>(scriptExecutionContext)) {
                 if (RefPtr window = document->window()) {
-                    if (auto* gpu = window->protectedNavigator()->gpu())
+                    if (RefPtr gpu = window->protectedNavigator()->gpu())
                         m_context = GPUCanvasContext::create(*this, *gpu, document.get());
                 }
             }
@@ -255,7 +255,7 @@ ExceptionOr<std::optional<OffscreenRenderingContext>> OffscreenCanvas::getContex
             if (attributes.hasException(scope)) [[unlikely]]
                 return Exception { ExceptionCode::ExistingExceptionError };
 
-            auto* scriptExecutionContext = this->scriptExecutionContext();
+            RefPtr scriptExecutionContext = this->scriptExecutionContext();
             if (shouldEnableWebGL(scriptExecutionContext->settingsValues(), is<WorkerGlobalScope>(scriptExecutionContext)))
                 m_context = WebGLRenderingContextBase::create(*this, attributes.releaseReturnValue(), webGLVersion);
         }
@@ -373,11 +373,11 @@ void OffscreenCanvas::clearCopiedImage() const
 
 SecurityOrigin* OffscreenCanvas::securityOrigin() const
 {
-    auto& scriptExecutionContext = *canvasBaseScriptExecutionContext();
-    if (auto* globalScope = dynamicDowncast<WorkerGlobalScope>(scriptExecutionContext))
+    Ref scriptExecutionContext = *canvasBaseScriptExecutionContext();
+    if (RefPtr globalScope = dynamicDowncast<WorkerGlobalScope>(scriptExecutionContext))
         return &globalScope->topOrigin();
 
-    return &downcast<Document>(scriptExecutionContext).securityOrigin();
+    return &downcast<Document>(scriptExecutionContext)->securityOrigin();
 }
 
 bool OffscreenCanvas::canDetach() const
@@ -416,9 +416,9 @@ void OffscreenCanvas::commitToPlaceholderCanvas()
 void OffscreenCanvas::scheduleCommitToPlaceholderCanvas()
 {
     if (!m_hasScheduledCommit && m_placeholderSource) {
-        auto& scriptContext = *scriptExecutionContext();
+        Ref scriptContext = *scriptExecutionContext();
         m_hasScheduledCommit = true;
-        scriptContext.postTask([protectedThis = Ref { *this }, this] (ScriptExecutionContext&) {
+        scriptContext->postTask([protectedThis = Ref { *this }, this](ScriptExecutionContext&) {
             m_hasScheduledCommit = false;
             commitToPlaceholderCanvas();
         });

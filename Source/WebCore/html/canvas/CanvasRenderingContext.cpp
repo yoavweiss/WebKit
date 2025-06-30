@@ -95,7 +95,7 @@ void CanvasRenderingContext::deref() const
 RefPtr<ImageBuffer> CanvasRenderingContext::surfaceBufferToImageBuffer(SurfaceBuffer)
 {
     // This will be removed once all contexts store their own buffers.
-    return canvasBase().buffer();
+    return protectedCanvasBase()->buffer();
 }
 
 bool CanvasRenderingContext::isSurfaceBufferTransparentBlack(SurfaceBuffer) const
@@ -190,7 +190,7 @@ bool CanvasRenderingContext::taintsOrigin(const SVGImageElement* element)
 bool CanvasRenderingContext::taintsOrigin(const HTMLVideoElement* video)
 {
 #if ENABLE(VIDEO)
-    return video && video->taintsOrigin(*m_canvas->securityOrigin());
+    return video && video->taintsOrigin(*protectedCanvasBase()->protectedSecurityOrigin().get());
 #else
     UNUSED_PARAM(video);
     return false;
@@ -204,7 +204,7 @@ bool CanvasRenderingContext::taintsOrigin(const ImageBitmap* imageBitmap)
 
 bool CanvasRenderingContext::taintsOrigin(const URL& url)
 {
-    return !url.protocolIsData() && !m_canvas->securityOrigin()->canRequest(url, OriginAccessPatternsForWebProcess::singleton());
+    return !url.protocolIsData() && !protectedCanvasBase()->protectedSecurityOrigin()->canRequest(url, OriginAccessPatternsForWebProcess::singleton());
 }
 
 void CanvasRenderingContext::checkOrigin(const URL& url)

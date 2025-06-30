@@ -70,7 +70,7 @@ CanvasFilterContextSwitcher::~CanvasFilterContextSwitcher()
 
 FloatRect CanvasFilterContextSwitcher::expandedBounds() const
 {
-    return m_context->state().targetSwitcher->expandedBounds();
+    return Ref { *m_context->state().targetSwitcher }->expandedBounds();
 }
 
 } // namespace WebCore
