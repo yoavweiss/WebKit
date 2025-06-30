@@ -25,7 +25,6 @@
 
 internal import IdentityDocumentServices
 internal import IdentityDocumentServicesUI
-import WebKitSwift
 
 extension WKIdentityDocumentPresentmentMobileDocumentElementInfo {
     convenience init(_ source: ISO18013MobileDocumentRequest.ElementInfo) {

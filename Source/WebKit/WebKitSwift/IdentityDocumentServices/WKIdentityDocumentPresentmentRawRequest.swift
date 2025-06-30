@@ -24,7 +24,6 @@
 #if HAVE_DIGITAL_CREDENTIALS_UI
 
 import Foundation
-import WebKitSwift
 
 @objc @implementation extension WKIdentityDocumentPresentmentRawRequest {
     let requestProtocol: String

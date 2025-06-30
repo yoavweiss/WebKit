@@ -26,7 +26,6 @@
 internal import IdentityDocumentServices
 internal import IdentityDocumentServicesUI
 import os
-import WebKitSwift
 
 #if canImport(UIKit)
 import UIKit

@@ -24,7 +24,6 @@
 #if HAVE_DIGITAL_CREDENTIALS_UI
 
 import Foundation
-import WebKitSwift
 
 @objc @implementation extension WKIdentityDocumentPresentmentRequest {
     // Used to workaround the fact that `@objc @implementation does not support stored properties whose size can change

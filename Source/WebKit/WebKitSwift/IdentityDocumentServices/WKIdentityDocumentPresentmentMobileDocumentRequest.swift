@@ -25,7 +25,6 @@
 
 import Foundation
 import Security
-import WebKitSwift
 
 @objc @implementation extension WKIdentityDocumentPresentmentMobileDocumentRequest {
     var presentmentRequests: [WKIdentityDocumentPresentmentMobileDocumentPresentmentRequest]
