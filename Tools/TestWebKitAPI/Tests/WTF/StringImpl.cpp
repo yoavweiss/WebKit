@@ -841,12 +841,11 @@ TEST(WTF, ExternalStringAtom)
 
 TEST(WTF, ExternalStringToSymbol)
 {
-    constexpr LChar buffer[] = "hello";
-    constexpr size_t bufferStringLength = sizeof(buffer) - 1;
+    static constexpr ASCIILiteral buffer = "hello"_s;
     bool freeFunctionCalled = false;
 
     {
-        auto external = ExternalStringImpl::create({ buffer, bufferStringLength }, [&freeFunctionCalled](ExternalStringImpl* externalStringImpl, void* buffer, unsigned bufferSize) mutable {
+        auto external = ExternalStringImpl::create(buffer.span8(), [&freeFunctionCalled](ExternalStringImpl* externalStringImpl, void* buffer, unsigned bufferSize) mutable {
             freeFunctionCalled = true;
         });
 
@@ -861,7 +860,7 @@ TEST(WTF, ExternalStringToSymbol)
         ASSERT_FALSE(symbol->isPrivate());
         ASSERT_FALSE(symbol->isNullSymbol());
         ASSERT_EQ(external->length(), symbol->length());
-        ASSERT_TRUE(equal(symbol.ptr(), std::span { buffer }));
+        ASSERT_TRUE(equal(symbol.ptr(), buffer.span8()));
     }
 
     ASSERT_TRUE(freeFunctionCalled);
