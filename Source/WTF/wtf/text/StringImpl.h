@@ -611,14 +611,12 @@ template<> struct ValueCheck<StringImpl*> {
 #endif // ASSERT_ENABLED
 
 WTF_EXPORT_PRIVATE bool equal(const StringImpl*, const StringImpl*);
-WTF_EXPORT_PRIVATE bool equal(const StringImpl*, const LChar*);
-inline bool equal(const StringImpl* a, const char* b) { return equal(a, byteCast<LChar>(b)); }
 WTF_EXPORT_PRIVATE bool equal(const StringImpl*, std::span<const LChar>);
+inline bool equal(const StringImpl* a, const char* b) { return equal(a, unsafeSpan8(b)); }
 WTF_EXPORT_PRIVATE bool equal(const StringImpl*, std::span<const char16_t>);
 ALWAYS_INLINE bool equal(const StringImpl* a, ASCIILiteral b) { return equal(a, b.span8()); }
 inline bool equal(const StringImpl* a, std::span<const char> b) { return equal(a, byteCast<LChar>(b)); }
-inline bool equal(const LChar* a, StringImpl* b) { return equal(b, a); }
-inline bool equal(const char* a, StringImpl* b) { return equal(b, byteCast<LChar>(a)); }
+inline bool equal(const char* a, StringImpl* b) { return equal(b, unsafeSpan8(a)); }
 WTF_EXPORT_PRIVATE bool equal(const StringImpl& a, const StringImpl& b);
 
 WTF_EXPORT_PRIVATE bool equalIgnoringNullity(StringImpl*, StringImpl*);

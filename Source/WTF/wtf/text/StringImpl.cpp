@@ -28,6 +28,7 @@
 #include <atomic>
 #include <wtf/NeverDestroyed.h>
 #include <wtf/StdLibExtras.h>
+#include <wtf/ZippedRange.h>
 #include <wtf/text/AtomString.h>
 #include <wtf/text/CString.h>
 #include <wtf/text/ExternalStringImpl.h>
@@ -1031,15 +1032,14 @@ size_t StringImpl::reverseFind(StringView matchString, size_t start)
     return reverseFindInner(span16(), matchString.span16(), start);
 }
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 ALWAYS_INLINE static bool equalInner(const StringImpl& string, unsigned start, std::span<const char> matchString)
 {
     ASSERT(matchString.size() <= string.length());
     ASSERT(start + matchString.size() <= string.length());
 
     if (string.is8Bit())
-        return equal(string.span8().data() + start, byteCast<LChar>(matchString));
-    return equal(string.span16().data() + start, byteCast<LChar>(matchString));
+        return equal(string.span8().subspan(start).data(), byteCast<LChar>(matchString));
+    return equal(string.span16().subspan(start).data(), byteCast<LChar>(matchString));
 }
 
 ALWAYS_INLINE static bool equalInner(const StringImpl& string, unsigned start, StringView matchString)
@@ -1053,14 +1053,13 @@ ALWAYS_INLINE static bool equalInner(const StringImpl& string, unsigned start, S
 
     if (string.is8Bit()) {
         if (matchString.is8Bit())
-            return equal(string.span8().data() + start, matchString.span8());
-        return equal(string.span8().data() + start, matchString.span16());
+            return equal(string.span8().subspan(start).data(), matchString.span8());
+        return equal(string.span8().subspan(start).data(), matchString.span16());
     }
     if (matchString.is8Bit())
-        return equal(string.span16().data() + start, matchString.span8());
-    return equal(string.span16().data() + start, matchString.span16());
+        return equal(string.span16().subspan(start).data(), matchString.span8());
+    return equal(string.span16().subspan(start).data(), matchString.span16());
 }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 bool StringImpl::startsWith(StringView string) const
 {
@@ -1112,7 +1111,6 @@ bool StringImpl::hasInfixEndingAt(StringView matchString, size_t end) const
     return end >= matchString.length() && equalInner(*this, end - matchString.length(), matchString);
 }
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 Ref<StringImpl> StringImpl::replace(char16_t target, char16_t replacement)
 {
     if (target == replacement)
@@ -1123,24 +1121,26 @@ Ref<StringImpl> StringImpl::replace(char16_t target, char16_t replacement)
             // Looking for a 16-bit character in an 8-bit string, so we're done.
             return *this;
         }
+        auto span8 = this->span8();
         unsigned i;
-        for (i = 0; i != m_length; ++i) {
-            if (static_cast<char16_t>(m_data8[i]) == target)
+        for (i = 0; i < span8.size(); ++i) {
+            if (static_cast<char16_t>(span8[i]) == target)
                 break;
         }
-        if (i == m_length)
+        if (i == span8.size())
             return *this;
-        return createByReplacingInCharacters(span8(), target, replacement, i);
+        return createByReplacingInCharacters(span8, target, replacement, i);
     }
 
+    auto span16 = this->span16();
     unsigned i;
-    for (i = 0; i != m_length; ++i) {
-        if (m_data16[i] == target)
+    for (i = 0; i < span16.size(); ++i) {
+        if (span16[i] == target)
             break;
     }
-    if (i == m_length)
+    if (i == span16.size())
         return *this;
-    return createByReplacingInCharacters(span16(), target, replacement, i);
+    return createByReplacingInCharacters(span16, target, replacement, i);
 }
 
 Ref<StringImpl> StringImpl::replace(size_t position, size_t lengthToReplace, StringView string)
@@ -1157,18 +1157,18 @@ Ref<StringImpl> StringImpl::replace(size_t position, size_t lengthToReplace, Str
     if (is8Bit() && (!string || string.is8Bit())) {
         std::span<LChar> data;
         auto newImpl = createUninitialized(length() - lengthToReplace + lengthToInsert, data);
-        copyCharacters(data, { m_data8, position });
+        copyCharacters(data, span8().first(position));
         if (string)
             copyCharacters(data.subspan(position), string.span8().first(lengthToInsert));
-        copyCharacters(data.subspan(position + lengthToInsert), { m_data8 + position + lengthToReplace, length() - position - lengthToReplace });
+        copyCharacters(data.subspan(position + lengthToInsert), span8().subspan(position + lengthToReplace));
         return newImpl;
     }
     std::span<char16_t> data;
     auto newImpl = createUninitialized(length() - lengthToReplace + lengthToInsert, data);
     if (is8Bit())
-        copyCharacters(data, { m_data8, position });
+        copyCharacters(data, span8().first(position));
     else
-        copyCharacters(data, { m_data16, position });
+        copyCharacters(data, span16().first(position));
     if (string) {
         if (string.is8Bit())
             copyCharacters(data.subspan(position), string.span8().first(lengthToInsert));
@@ -1176,12 +1176,11 @@ Ref<StringImpl> StringImpl::replace(size_t position, size_t lengthToReplace, Str
             copyCharacters(data.subspan(position), string.span16().first(lengthToInsert));
     }
     if (is8Bit())
-        copyCharacters(data.subspan(position + lengthToInsert), { m_data8 + position + lengthToReplace, length() - position - lengthToReplace });
+        copyCharacters(data.subspan(position + lengthToInsert), span8().subspan(position + lengthToReplace));
     else
-        copyCharacters(data.subspan(position + lengthToInsert), { m_data16 + position + lengthToReplace, length() - position - lengthToReplace });
+        copyCharacters(data.subspan(position + lengthToInsert), span16().subspan(position + lengthToReplace));
     return newImpl;
 }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 Ref<StringImpl> StringImpl::replace(char16_t pattern, StringView replacement)
 {
@@ -1192,7 +1191,6 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, StringView replacement)
     return replace(pattern, replacement.span16());
 }
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const LChar> replacement)
 {
     ASSERT(replacement.data());
@@ -1232,7 +1230,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const LChar> rep
 
         while ((srcSegmentEnd = find(pattern, srcSegmentStart)) != notFound) {
             srcSegmentLength = srcSegmentEnd - srcSegmentStart;
-            copyCharacters(data.subspan(dstOffset), { m_data8 + srcSegmentStart, srcSegmentLength });
+            copyCharacters(data.subspan(dstOffset), span8().subspan(srcSegmentStart, srcSegmentLength));
             dstOffset += srcSegmentLength;
             copyCharacters(data.subspan(dstOffset), replacement);
             dstOffset += replacement.size();
@@ -1240,7 +1238,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const LChar> rep
         }
 
         srcSegmentLength = m_length - srcSegmentStart;
-        copyCharacters(data.subspan(dstOffset), { m_data8 + srcSegmentStart, srcSegmentLength });
+        copyCharacters(data.subspan(dstOffset), span8().subspan(srcSegmentStart));
 
         ASSERT(dstOffset + srcSegmentLength == newImpl.get().length());
 
@@ -1252,7 +1250,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const LChar> rep
 
     while ((srcSegmentEnd = find(pattern, srcSegmentStart)) != notFound) {
         srcSegmentLength = srcSegmentEnd - srcSegmentStart;
-        copyCharacters(data.subspan(dstOffset), { m_data16 + srcSegmentStart, srcSegmentLength });
+        copyCharacters(data.subspan(dstOffset), span16().subspan(srcSegmentStart, srcSegmentLength));
 
         dstOffset += srcSegmentLength;
         copyCharacters(data.subspan(dstOffset), replacement);
@@ -1262,7 +1260,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const LChar> rep
     }
 
     srcSegmentLength = m_length - srcSegmentStart;
-    copyCharacters(data.subspan(dstOffset), { m_data16 + srcSegmentStart, srcSegmentLength });
+    copyCharacters(data.subspan(dstOffset), span16().subspan(srcSegmentStart));
 
     ASSERT(dstOffset + srcSegmentLength == newImpl.get().length());
 
@@ -1308,7 +1306,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const char16_t> 
 
         while ((srcSegmentEnd = find(pattern, srcSegmentStart)) != notFound) {
             srcSegmentLength = srcSegmentEnd - srcSegmentStart;
-            copyCharacters(data.subspan(dstOffset), { m_data8 + srcSegmentStart, srcSegmentLength });
+            copyCharacters(data.subspan(dstOffset), span8().subspan(srcSegmentStart, srcSegmentLength));
 
             dstOffset += srcSegmentLength;
             copyCharacters(data.subspan(dstOffset), replacement);
@@ -1318,7 +1316,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const char16_t> 
         }
 
         srcSegmentLength = m_length - srcSegmentStart;
-        copyCharacters(data.subspan(dstOffset), { m_data8 + srcSegmentStart, srcSegmentLength });
+        copyCharacters(data.subspan(dstOffset), span8().subspan(srcSegmentStart));
 
         ASSERT(dstOffset + srcSegmentLength == newImpl.get().length());
 
@@ -1330,7 +1328,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const char16_t> 
 
     while ((srcSegmentEnd = find(pattern, srcSegmentStart)) != notFound) {
         srcSegmentLength = srcSegmentEnd - srcSegmentStart;
-        copyCharacters(data.subspan(dstOffset), { m_data16 + srcSegmentStart, srcSegmentLength });
+        copyCharacters(data.subspan(dstOffset), span16().subspan(srcSegmentStart, srcSegmentLength));
 
         dstOffset += srcSegmentLength;
         copyCharacters(data.subspan(dstOffset), replacement);
@@ -1340,7 +1338,7 @@ Ref<StringImpl> StringImpl::replace(char16_t pattern, std::span<const char16_t> 
     }
 
     srcSegmentLength = m_length - srcSegmentStart;
-    copyCharacters(data.subspan(dstOffset), { m_data16 + srcSegmentStart, srcSegmentLength });
+    copyCharacters(data.subspan(dstOffset), span16().subspan(srcSegmentStart));
 
     ASSERT(dstOffset + srcSegmentLength == newImpl.get().length());
 
@@ -1399,7 +1397,7 @@ Ref<StringImpl> StringImpl::replace(StringView pattern, StringView replacement)
         auto newImpl = createUninitialized(newSize, data);
         while ((srcSegmentEnd = find(pattern, srcSegmentStart)) != notFound) {
             srcSegmentLength = srcSegmentEnd - srcSegmentStart;
-            copyCharacters(data.subspan(dstOffset), { m_data8 + srcSegmentStart, srcSegmentLength });
+            copyCharacters(data.subspan(dstOffset), span8().subspan(srcSegmentStart, srcSegmentLength));
             dstOffset += srcSegmentLength;
             copyCharacters(data.subspan(dstOffset), replacement.span8().first(repStrLength));
             dstOffset += repStrLength;
@@ -1407,7 +1405,7 @@ Ref<StringImpl> StringImpl::replace(StringView pattern, StringView replacement)
         }
 
         srcSegmentLength = m_length - srcSegmentStart;
-        copyCharacters(data.subspan(dstOffset), { m_data8 + srcSegmentStart, srcSegmentLength });
+        copyCharacters(data.subspan(dstOffset), span8().subspan(srcSegmentStart));
 
         ASSERT(dstOffset + srcSegmentLength == newImpl.get().length());
 
@@ -1420,10 +1418,10 @@ Ref<StringImpl> StringImpl::replace(StringView pattern, StringView replacement)
         srcSegmentLength = srcSegmentEnd - srcSegmentStart;
         if (srcIs8Bit) {
             // Case 3.
-            copyCharacters(data.subspan(dstOffset), { m_data8 + srcSegmentStart, srcSegmentLength });
+            copyCharacters(data.subspan(dstOffset), span8().subspan(srcSegmentStart, srcSegmentLength));
         } else {
             // Case 2 & 4.
-            copyCharacters(data.subspan(dstOffset), { m_data16 + srcSegmentStart, srcSegmentLength });
+            copyCharacters(data.subspan(dstOffset), span16().subspan(srcSegmentStart, srcSegmentLength));
         }
         dstOffset += srcSegmentLength;
         if (replacementIs8Bit) {
@@ -1440,24 +1438,22 @@ Ref<StringImpl> StringImpl::replace(StringView pattern, StringView replacement)
     srcSegmentLength = m_length - srcSegmentStart;
     if (srcIs8Bit) {
         // Case 3.
-        copyCharacters(data.subspan(dstOffset), { m_data8 + srcSegmentStart, srcSegmentLength });
+        copyCharacters(data.subspan(dstOffset), span8().subspan(srcSegmentStart));
     } else {
         // Cases 2 & 4.
-        copyCharacters(data.subspan(dstOffset), { m_data16 + srcSegmentStart, srcSegmentLength });
+        copyCharacters(data.subspan(dstOffset), span16().subspan(srcSegmentStart));
     }
 
     ASSERT(dstOffset + srcSegmentLength == newImpl.get().length());
 
     return newImpl;
 }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 bool equal(const StringImpl* a, const StringImpl* b)
 {
     return equalCommon(a, b);
 }
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 template<typename CharacterType> inline bool equalInternal(const StringImpl* a, std::span<const CharacterType> b)
 {
     if (!a)
@@ -1470,10 +1466,9 @@ template<typename CharacterType> inline bool equalInternal(const StringImpl* a, 
     if (b.empty())
         return true;
     if (a->is8Bit())
-        return a->span8().front() == b.front() && equal(a->span8().data() + 1, b.subspan(1));
-    return a->span16().front() == b.front() && equal(a->span16().data() + 1, b.subspan(1));
+        return a->span8().front() == b.front() && equal(a->span8().subspan(1).data(), b.subspan(1));
+    return a->span16().front() == b.front() && equal(a->span16().subspan(1).data(), b.subspan(1));
 }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 bool equal(const StringImpl* a, std::span<const LChar> b)
 {
@@ -1484,43 +1479,6 @@ bool equal(const StringImpl* a, std::span<const char16_t> b)
 {
     return equalInternal(a, b);
 }
-
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-bool equal(const StringImpl* a, const LChar* b)
-{
-    if (!a)
-        return !b;
-    if (!b)
-        return false;
-
-    unsigned length = a->length();
-
-    if (a->is8Bit()) {
-        auto aSpan = a->span8();
-        for (unsigned i = 0; i != length; ++i) {
-            LChar bc = b[i];
-            LChar ac = aSpan[i];
-            if (!bc)
-                return false;
-            if (ac != bc)
-                return false;
-        }
-
-        return !b[length];
-    }
-
-    auto aSpan = a->span16();
-    for (unsigned i = 0; i != length; ++i) {
-        LChar bc = b[i];
-        if (!bc)
-            return false;
-        if (aSpan[i] != bc)
-            return false;
-    }
-
-    return !b[length];
-}
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 bool equal(const StringImpl& a, const StringImpl& b)
 {
@@ -1655,7 +1613,6 @@ unsigned StringImpl::concurrentHash() const
     return hash;
 }
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 bool equalIgnoringNullity(std::span<const char16_t> a, StringImpl* b)
 {
     if (!b)
@@ -1663,15 +1620,13 @@ bool equalIgnoringNullity(std::span<const char16_t> a, StringImpl* b)
     if (a.size() != b->length())
         return false;
     if (b->is8Bit()) {
-        auto* bCharacters = b->span8().data();
-        for (auto aCharacter : a) {
-            if (aCharacter != *bCharacters++)
+        for (auto [aCharacter, bCharacter] : zippedRange(a, b->span8())) {
+            if (aCharacter != bCharacter)
                 return false;
         }
         return true;
     }
     return equal(a, b->span16());
 }
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
 } // namespace WTF

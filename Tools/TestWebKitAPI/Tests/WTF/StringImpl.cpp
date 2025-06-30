@@ -861,7 +861,7 @@ TEST(WTF, ExternalStringToSymbol)
         ASSERT_FALSE(symbol->isPrivate());
         ASSERT_FALSE(symbol->isNullSymbol());
         ASSERT_EQ(external->length(), symbol->length());
-        ASSERT_TRUE(equal(symbol.ptr(), buffer));
+        ASSERT_TRUE(equal(symbol.ptr(), std::span { buffer }));
     }
 
     ASSERT_TRUE(freeFunctionCalled);
