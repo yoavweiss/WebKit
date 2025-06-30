@@ -469,12 +469,12 @@ ExceptionOr<void> WebAnimation::setBindingsCurrentTime(const std::optional<WebAn
     return setCurrentTime(currentTime);
 }
 
-std::optional<WebAnimationTime> WebAnimation::currentTime() const
+std::optional<WebAnimationTime> WebAnimation::currentTime(UseCachedCurrentTime useCachedCurrentTime) const
 {
-    return currentTime(RespectHoldTime::Yes);
+    return currentTime(RespectHoldTime::Yes, useCachedCurrentTime);
 }
 
-std::optional<WebAnimationTime> WebAnimation::currentTime(RespectHoldTime respectHoldTime) const
+std::optional<WebAnimationTime> WebAnimation::currentTime(RespectHoldTime respectHoldTime, UseCachedCurrentTime useCachedCurrentTime) const
 {
     // 3.4.4. The current time of an animation
     // https://drafts.csswg.org/web-animations-1/#the-current-time-of-an-animation
@@ -490,11 +490,11 @@ std::optional<WebAnimationTime> WebAnimation::currentTime(RespectHoldTime respec
     //     2. the associated timeline is inactive, or
     //     3. the animation's start time is unresolved.
     // The current time is an unresolved time value.
-    if (!m_timeline || !m_timeline->currentTime() || !m_startTime)
+    if (!m_timeline || !m_timeline->currentTime(useCachedCurrentTime) || !m_startTime)
         return std::nullopt;
 
     // Otherwise, current time = (timeline time - start time) * playback rate
-    return (*m_timeline->currentTime() - *m_startTime) * m_playbackRate;
+    return (*m_timeline->currentTime(useCachedCurrentTime) - *m_startTime) * m_playbackRate;
 }
 
 ExceptionOr<void> WebAnimation::silentlySetCurrentTime(std::optional<WebAnimationTime> seekTime)

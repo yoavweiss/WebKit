@@ -127,10 +127,10 @@ unsigned DocumentTimeline::numberOfActiveAnimationsForTesting() const
     return count;
 }
 
-std::optional<WebAnimationTime> DocumentTimeline::currentTime()
+std::optional<WebAnimationTime> DocumentTimeline::currentTime(UseCachedCurrentTime useCachedCurrentTime)
 {
     if (auto* controller = this->controller()) {
-        if (auto currentTime = controller->currentTime())
+        if (auto currentTime = controller->currentTime(useCachedCurrentTime))
             return *currentTime - m_originTime;
         return std::nullopt;
     }

@@ -42,7 +42,6 @@
 #include "StyleOriginatedTimelinesController.h"
 #include "ViewTimeline.h"
 #include "WebAnimation.h"
-#include "WebAnimationTypes.h"
 #include <ranges>
 #include <wtf/HashSet.h>
 #include <wtf/Ref.h>
@@ -295,10 +294,13 @@ ReducedResolutionSeconds AnimationTimelinesController::liveCurrentTime() const
     return m_document->window()->nowTimestamp();
 }
 
-std::optional<Seconds> AnimationTimelinesController::currentTime()
+std::optional<Seconds> AnimationTimelinesController::currentTime(UseCachedCurrentTime useCachedCurrentTime)
 {
     if (!m_document->window())
         return std::nullopt;
+
+    if (useCachedCurrentTime == UseCachedCurrentTime::No && !m_isSuspended)
+        return liveCurrentTime();
 
     if (!m_cachedCurrentTime)
         cacheCurrentTime(liveCurrentTime());

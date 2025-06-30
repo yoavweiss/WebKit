@@ -90,7 +90,7 @@ public:
     AnimationTimeline* timeline() const { return m_timeline.get(); }
     virtual void setTimeline(RefPtr<AnimationTimeline>&&);
 
-    std::optional<WebAnimationTime> currentTime() const;
+    std::optional<WebAnimationTime> currentTime(UseCachedCurrentTime = UseCachedCurrentTime::Yes) const;
     ExceptionOr<void> setCurrentTime(std::optional<WebAnimationTime>);
 
     double playbackRate() const { return m_playbackRate + 0; }
@@ -205,7 +205,7 @@ private:
     WebAnimationTime effectEndTime() const;
     WebAnimation& readyPromiseResolve();
     WebAnimation& finishedPromiseResolve();
-    std::optional<WebAnimationTime> currentTime(RespectHoldTime) const;
+    std::optional<WebAnimationTime> currentTime(RespectHoldTime, UseCachedCurrentTime = UseCachedCurrentTime::Yes) const;
     ExceptionOr<void> silentlySetCurrentTime(std::optional<WebAnimationTime>);
     void finishNotificationSteps();
     bool hasPendingPauseTask() const { return m_timeToRunPendingPauseTask != TimeToRunPendingTask::NotScheduled; }

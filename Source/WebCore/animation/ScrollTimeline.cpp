@@ -360,7 +360,7 @@ std::pair<WebAnimationTime, WebAnimationTime> ScrollTimeline::intervalForAttachm
     };
 }
 
-std::optional<WebAnimationTime> ScrollTimeline::currentTime()
+std::optional<WebAnimationTime> ScrollTimeline::currentTime(UseCachedCurrentTime)
 {
     // https://drafts.csswg.org/scroll-animations-1/#scroll-timeline-progress
     // Progress (the current time) for a scroll progress timeline is calculated as:

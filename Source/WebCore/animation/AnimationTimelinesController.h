@@ -27,7 +27,7 @@
 
 #include "FrameRateAligner.h"
 #include "ReducedResolutionSeconds.h"
-#include "Timer.h"
+#include "WebAnimationTypes.h"
 #include <wtf/CancellableTask.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/Markable.h>
@@ -61,7 +61,7 @@ public:
     void updateStaleScrollTimelines();
     void addPendingAnimation(WebAnimation&);
 
-    std::optional<Seconds> currentTime();
+    std::optional<Seconds> currentTime(UseCachedCurrentTime = UseCachedCurrentTime::Yes);
     std::optional<FramesPerSecond> maximumAnimationFrameRate() const { return m_frameRateAligner.maximumFrameRate(); }
     std::optional<Seconds> timeUntilNextTickForAnimationsWithFrameRate(FramesPerSecond) const;
 

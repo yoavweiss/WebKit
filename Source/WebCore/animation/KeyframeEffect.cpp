@@ -1824,7 +1824,12 @@ void KeyframeEffect::getAnimatedStyle(std::unique_ptr<RenderStyle>& animatedStyl
     if (!renderer() || !animation())
         return;
 
-    auto computedTiming = getComputedTiming();
+    // In case we are running accelerated, we want to use a live, non-cached current time so that any geometry
+    // computation that may rely on this computed style has the most current information. Indeed, when using
+    // accelerated effects, we may not update animations in WebCore and thus will fail to have a meaningful
+    // cached current time.
+    auto useCachedCurrentTime = isRunningAccelerated() ? UseCachedCurrentTime::No : UseCachedCurrentTime::Yes;
+    auto computedTiming = getComputedTiming(useCachedCurrentTime);
     LOG_WITH_STREAM(Animations, stream << "KeyframeEffect " << this << " getAnimatedStyle - progress " << computedTiming.progress);
     if (!computedTiming.progress)
         return;

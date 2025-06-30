@@ -72,7 +72,7 @@ public:
 
     AnimationTimelinesController* controller() const override;
 
-    std::optional<WebAnimationTime> currentTime() override;
+    std::optional<WebAnimationTime> currentTime(UseCachedCurrentTime = UseCachedCurrentTime::Yes) override;
     TimelineRange defaultRange() const override;
     WeakPtr<Element, WeakPtrImplWithEventTargetData> timelineScopeDeclaredElement() const { return m_timelineScopeElement; }
     void setTimelineScopeElement(const Element&);
