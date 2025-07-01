@@ -6708,55 +6708,6 @@ void SpeculativeJIT::compileArithRandom(Node* node)
     doubleResult(result.fpr(), node);
 }
 
-void SpeculativeJIT::compileStringCodePointAt(Node* node)
-{
-    // We emit CheckArray on this node as we do in StringCharCodeAt node so that we do not need to check SpecString here.
-    // And CheckArray also ensures that this String is not a rope.
-    SpeculateCellOperand string(this, node->child1());
-    SpeculateStrictInt32Operand index(this, node->child2());
-    GPRTemporary scratch1(this);
-    GPRTemporary scratch2(this);
-    GPRTemporary scratch3(this);
-    GPRTemporary scratch4(this);
-
-    GPRReg stringGPR = string.gpr();
-    GPRReg indexGPR = index.gpr();
-    GPRReg scratch1GPR = scratch1.gpr();
-    GPRReg scratch2GPR = scratch2.gpr();
-    GPRReg scratch3GPR = scratch3.gpr();
-    GPRReg scratch4GPR = scratch4.gpr();
-
-    loadPtr(Address(stringGPR, JSString::offsetOfValue()), scratch1GPR);
-    load32(Address(scratch1GPR, StringImpl::lengthMemoryOffset()), scratch2GPR);
-
-    // unsigned comparison so we can filter out negative indices and indices that are too large
-    speculationCheck(Uncountable, JSValueRegs(), nullptr, branch32(AboveOrEqual, indexGPR, scratch2GPR));
-
-    // Load the character into scratch1GPR
-    loadPtr(Address(scratch1GPR, StringImpl::dataOffset()), scratch4GPR);
-    auto is16Bit = branchTest32(Zero, Address(scratch1GPR, StringImpl::flagsOffset()), TrustedImm32(StringImpl::flagIs8Bit()));
-
-    JumpList done;
-
-    load8(BaseIndex(scratch4GPR, indexGPR, TimesOne, 0), scratch1GPR);
-    done.append(jump());
-
-    is16Bit.link(this);
-    load16(BaseIndex(scratch4GPR, indexGPR, TimesTwo, 0), scratch1GPR);
-    // This is ok. indexGPR must be positive int32_t here and adding 1 never causes overflow if we treat indexGPR as uint32_t.
-    add32(TrustedImm32(1), indexGPR, scratch3GPR);
-    done.append(branch32(AboveOrEqual, scratch3GPR, scratch2GPR));
-    and32(TrustedImm32(0xfffffc00), scratch1GPR, scratch2GPR);
-    done.append(branch32(NotEqual, scratch2GPR, TrustedImm32(0xd800)));
-    load16(BaseIndex(scratch4GPR, scratch3GPR, TimesTwo, 0), scratch3GPR);
-    and32(TrustedImm32(0xfffffc00), scratch3GPR, scratch2GPR);
-    done.append(branch32(NotEqual, scratch2GPR, TrustedImm32(0xdc00)));
-    lshift32(TrustedImm32(10), scratch1GPR);
-    getEffectiveAddress(BaseIndex(scratch1GPR, scratch3GPR, TimesOne, -U16_SURROGATE_OFFSET), scratch1GPR);
-    done.link(this);
-
-    strictInt32Result(scratch1GPR, m_currentNode);
-}
 
 void SpeculativeJIT::compileDateGet(Node* node)
 {
