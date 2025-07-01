@@ -63,7 +63,7 @@ CodeBlockHash::CodeBlockHash(StringView codeBlockSourceCode, StringView entireSo
 
         sha1.addBytes(std::span { std::bit_cast<uint8_t*>(&length), sizeof(length) });
         do {
-            UChar character = entireSourceCode[index];
+            char16_t character = entireSourceCode[index];
             sha1.addBytes(std::span { std::bit_cast<uint8_t*>(&character), sizeof(character) });
             oldIndex = index;
             index += step;

@@ -177,7 +177,7 @@ ALWAYS_INLINE JSString* jsSpliceSubstringsWithSeparators(JSGlobalObject* globalO
         RELEASE_AND_RETURN(scope, jsString(vm, impl.releaseNonNull()));
     }
 
-    std::span<UChar> buffer;
+    std::span<char16_t> buffer;
     auto impl = StringImpl::tryCreateUninitialized(totalLength, buffer);
     if (!impl) {
         throwOutOfMemoryError(globalObject, scope);
@@ -261,7 +261,7 @@ ALWAYS_INLINE JSString* jsSpliceSubstringsWithSeparator(JSGlobalObject* globalOb
         RELEASE_AND_RETURN(scope, jsString(vm, impl.releaseNonNull()));
     }
 
-    std::span<UChar> buffer;
+    std::span<char16_t> buffer;
     auto impl = StringImpl::tryCreateUninitialized(totalLength, buffer);
     if (!impl) {
         throwOutOfMemoryError(globalObject, scope);
@@ -542,7 +542,7 @@ static ALWAYS_INLINE JSString* jsSpliceSubstrings(JSGlobalObject* globalObject, 
         RELEASE_AND_RETURN(scope, jsString(vm, impl.releaseNonNull()));
     }
 
-    std::span<UChar> buffer;
+    std::span<char16_t> buffer;
     auto sourceData = source.span16();
 
     auto impl = StringImpl::tryCreateUninitialized(totalLength, buffer);
@@ -854,7 +854,7 @@ static ALWAYS_INLINE JSString* replaceAllWithCacheUsingRegExpSearchThreeArgument
         RELEASE_AND_RETURN(scope, jsString(vm, impl.releaseNonNull()));
     }
 
-    std::span<UChar> buffer;
+    std::span<char16_t> buffer;
     auto impl = StringImpl::tryCreateUninitialized(totalLength, buffer);
     if (!impl) [[unlikely]] {
         throwOutOfMemoryError(globalObject, scope);
@@ -998,7 +998,7 @@ static ALWAYS_INLINE JSString* replaceAllWithCacheUsingRegExpSearch(VM& vm, JSGl
             RELEASE_AND_RETURN(scope, jsString(vm, impl.releaseNonNull()));
         }
 
-        std::span<UChar> buffer;
+        std::span<char16_t> buffer;
         auto impl = StringImpl::tryCreateUninitialized(totalLength, buffer);
         if (!impl) [[unlikely]] {
             throwOutOfMemoryError(globalObject, scope);
