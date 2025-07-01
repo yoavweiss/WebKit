@@ -1591,6 +1591,11 @@ DiagnosticLoggingClient& Page::diagnosticLoggingClient() const
     return *m_diagnosticLoggingClient;
 }
 
+CheckedRef<DiagnosticLoggingClient> Page::checkedDiagnosticLoggingClient() const
+{
+    return diagnosticLoggingClient();
+}
+
 void Page::logMediaDiagnosticMessage(const RefPtr<FormData>& formData) const
 {
     unsigned imageOrMediaFilesCount = formData ? formData->imageOrMediaFilesCount() : 0;
