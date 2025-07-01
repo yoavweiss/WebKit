@@ -3635,9 +3635,8 @@ ResourceLoaderIdentifier FrameLoader::loadResourceSynchronously(const ResourceRe
         if (RefPtr page = m_frame->page()) {
             if (RefPtr documentLoader = m_documentLoader) {
                 auto results = page->protectedUserContentProvider()->processContentRuleListsForLoad(*page, newRequest.url(), ContentExtensions::ResourceType::Fetch, *documentLoader);
-                bool blockedLoad = results.summary.blockedLoad;
                 ContentExtensions::applyResultsToRequest(WTFMove(results), page.get(), newRequest);
-                if (blockedLoad && !results.summary.redirectedPriorToBlock) {
+                if (results.shouldBlock()) {
                     newRequest = { };
                     error = ResourceError(errorDomainWebKitInternal, 0, WTFMove(initialRequestURL), emptyString());
                     response = { };
@@ -4860,7 +4859,7 @@ void FrameLoader::prefetchDNSIfNeeded(const URL& url)
         return;
 
     auto results = page->protectedUserContentProvider()->processContentRuleListsForLoad(*page, url, ContentExtensions::ResourceType::Ping, *documentLoader);
-    if (results.summary.blockedLoad)
+    if (results.shouldBlock())
         return;
 #endif
 
