@@ -4218,7 +4218,7 @@ static bool isNonBlocksOrNonFixedHeightListItems(const RenderObject& renderer)
     if (!renderer.isRenderBlock())
         return true;
     if (CheckedPtr renderListItem = dynamicDowncast<RenderListItem>(renderer))
-        return !renderListItem->style().height().isFixed();
+        return renderListItem->style().height().type() != LengthType::Fixed;
     return false;
 }
 

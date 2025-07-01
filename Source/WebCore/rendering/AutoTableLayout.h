@@ -45,7 +45,7 @@ private:
     void recalcColumn(unsigned effCol);
 
     float calcEffectiveLogicalWidth();
-    template<typename> float shrinkCellWidthForType(float available);
+    float shrinkCellWidth(const LengthType&, float available);
 
     void insertSpanCell(RenderTableCell*);
 
