@@ -146,6 +146,14 @@ void LayoutRoundedRect::Radii::makeRenderableInRect(const LayoutRect& rect)
     float heightRatio = static_cast<float>(rect.height()) / maxRadiusHeight;
     scale(widthRatio < heightRatio ? widthRatio : heightRatio);
 
+    if (!areRenderableInRect(rect)) {
+        maxRadiusWidth = std::max(topLeft().width() + topRight().width(), bottomLeft().width() + bottomRight().width());
+        maxRadiusHeight = std::max(topLeft().height() + bottomLeft().height(), topRight().height() + bottomRight().height());
+
+        widthRatio = static_cast<float>(rect.width()) / maxRadiusWidth;
+        heightRatio = static_cast<float>(rect.height()) / maxRadiusHeight;
+        scale(widthRatio < heightRatio ? widthRatio : heightRatio);
+    }
 }
 
 LayoutRoundedRect::LayoutRoundedRect(LayoutUnit x, LayoutUnit y, LayoutUnit width, LayoutUnit height)
