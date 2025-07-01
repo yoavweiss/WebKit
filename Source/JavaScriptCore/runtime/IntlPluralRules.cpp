@@ -124,23 +124,7 @@ void IntlPluralRules::initializePluralRules(JSGlobalObject* globalObject, JSValu
     StringBuilder skeletonBuilder;
 
     appendNumberFormatDigitOptionsToSkeleton(this, skeletonBuilder);
-
-    // https://github.com/unicode-org/icu/blob/master/docs/userguide/format_parse/numbers/skeletons.md#notation
-    switch (m_notation) {
-    case IntlNotation::Standard:
-        break;
-    case IntlNotation::Scientific:
-        skeletonBuilder.append(" scientific"_s);
-        break;
-    case IntlNotation::Engineering:
-        skeletonBuilder.append(" engineering"_s);
-        break;
-    case IntlNotation::Compact:
-        // Intl.PluralRules does not support `compactDisplay` option
-        // https://github.com/tc39/ecma402/pull/989#issuecomment-2906752480
-        skeletonBuilder.append(" compact-short"_s);
-        break;
-    }
+    appendNumberFormatNotationOptionsToSkeleton(this, skeletonBuilder);
 
     StringView skeletonView { skeletonBuilder.toString() };
     auto upconverted = skeletonView.upconvertedCharacters();

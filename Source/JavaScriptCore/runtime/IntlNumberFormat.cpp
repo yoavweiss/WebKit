@@ -468,28 +468,7 @@ void IntlNumberFormat::initializeNumberFormat(JSGlobalObject* globalObject, JSVa
     }
 
     appendNumberFormatDigitOptionsToSkeleton(this, skeletonBuilder);
-
-    // https://github.com/unicode-org/icu/blob/master/docs/userguide/format_parse/numbers/skeletons.md#notation
-    switch (m_notation) {
-    case IntlNotation::Standard:
-        break;
-    case IntlNotation::Scientific:
-        skeletonBuilder.append(" scientific"_s);
-        break;
-    case IntlNotation::Engineering:
-        skeletonBuilder.append(" engineering"_s);
-        break;
-    case IntlNotation::Compact:
-        switch (m_compactDisplay) {
-        case CompactDisplay::Short:
-            skeletonBuilder.append(" compact-short"_s);
-            break;
-        case CompactDisplay::Long:
-            skeletonBuilder.append(" compact-long"_s);
-            break;
-        }
-        break;
-    }
+    appendNumberFormatNotationOptionsToSkeleton(this, skeletonBuilder);
 
     // https://github.com/unicode-org/icu/blob/master/docs/userguide/format_parse/numbers/skeletons.md#sign-display
     // CurrencySign's accounting is a part of SignDisplay in ICU.
