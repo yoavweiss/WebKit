@@ -1,4 +1,3 @@
-Modules/WebGPU/GPUDevice.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/cache/DOMCache.cpp

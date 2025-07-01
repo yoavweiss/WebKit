@@ -2,14 +2,6 @@ EventNames.h
 Modules/ShapeDetection/BarcodeDetector.cpp
 Modules/ShapeDetection/FaceDetector.cpp
 Modules/ShapeDetection/TextDetector.cpp
-Modules/WebGPU/GPUBuffer.cpp
-Modules/WebGPU/GPUCommandBuffer.cpp
-Modules/WebGPU/GPUCommandEncoder.cpp
-Modules/WebGPU/GPUComputePassEncoder.cpp
-Modules/WebGPU/GPUDevice.cpp
-Modules/WebGPU/GPUPresentationContext.cpp
-Modules/WebGPU/GPUQuerySet.cpp
-Modules/WebGPU/GPURenderPassEncoder.cpp
 Modules/airplay/WebMediaSessionManager.cpp
 Modules/applepay/ApplePaySession.cpp
 Modules/applepay/paymentrequest/ApplePayPaymentHandler.cpp
