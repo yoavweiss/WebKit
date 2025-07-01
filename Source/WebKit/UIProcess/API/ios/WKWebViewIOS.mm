@@ -983,12 +983,14 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
     CGFloat minimumScaleFactor = layerTreeTransaction.minimumScaleFactor();
     CGFloat maximumScaleFactor = layerTreeTransaction.maximumScaleFactor();
+    CGFloat pageScaleFactor = layerTreeTransaction.pageScaleFactor();
     BOOL allowsUserScaling = layerTreeTransaction.allowsUserScaling();
 
-    if (_overriddenZoomScaleParameters) {
-        minimumScaleFactor = _overriddenZoomScaleParameters->minimumZoomScale;
-        maximumScaleFactor = _overriddenZoomScaleParameters->maximumZoomScale;
-        allowsUserScaling = _overriddenZoomScaleParameters->allowUserScaling;
+    if (_forcesInitialScaleFactor) {
+        minimumScaleFactor = layerTreeTransaction.initialScaleFactor();
+        maximumScaleFactor = layerTreeTransaction.initialScaleFactor();
+        pageScaleFactor = layerTreeTransaction.initialScaleFactor();
+        allowsUserScaling = NO;
     }
 
     [_scrollView setMinimumZoomScale:minimumScaleFactor];
@@ -1005,7 +1007,7 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
     WebKit::ScrollingTreeScrollingNodeDelegateIOS::updateScrollViewForOverscrollBehavior(_scrollView.get(), horizontalOverscrollBehavior, verticalOverscrollBehavior, WebKit::ScrollingTreeScrollingNodeDelegateIOS::AllowOverscrollToPreventScrollPropagation::No);
 
     bool hasDockedInputView = !CGRectIsEmpty(_inputViewBoundsInWindow);
-    bool isZoomed = !WebKit::scalesAreEssentiallyEqual(layerTreeTransaction.pageScaleFactor(), layerTreeTransaction.initialScaleFactor()) && (layerTreeTransaction.pageScaleFactor() > layerTreeTransaction.initialScaleFactor());
+    bool isZoomed = !WebKit::scalesAreEssentiallyEqual(pageScaleFactor, layerTreeTransaction.initialScaleFactor()) && (pageScaleFactor > layerTreeTransaction.initialScaleFactor());
 
     bool scrollingNeededToRevealUI = false;
     if (_overriddenLayoutParameters) {
@@ -1021,13 +1023,13 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
     [_scrollView panGestureRecognizer].allowedTouchTypes = scrollingEnabled ? _scrollViewDefaultAllowedTouchTypes.get() : @[ ];
     [_scrollView _setScrollEnabledInternal:YES];
 
-    BOOL shouldUpdateZoomScale = !layerTreeTransaction.scaleWasSetByUIProcess() && ![_scrollView isZooming] && ![_scrollView isZoomBouncing] && ![_scrollView _wk_isZoomAnimating] && !WebKit::scalesAreEssentiallyEqual([_scrollView zoomScale], layerTreeTransaction.pageScaleFactor());
+    BOOL shouldUpdateZoomScale = !layerTreeTransaction.scaleWasSetByUIProcess() && ![_scrollView isZooming] && ![_scrollView isZoomBouncing] && ![_scrollView _wk_isZoomAnimating] && !WebKit::scalesAreEssentiallyEqual([_scrollView zoomScale], pageScaleFactor);
     BOOL shouldUpdateContentOffsetForFittingScale = !shouldUpdateZoomScale && !CGSizeEqualToSize(oldContentSize, newContentSize) && (oldContentSize.height > 0) && self._isDisplayingPDF;
 
     if (shouldUpdateZoomScale || shouldUpdateContentOffsetForFittingScale) {
         if (shouldUpdateZoomScale) {
-            LOG_WITH_STREAM(VisibleRects, stream << " updating scroll view with pageScaleFactor " << layerTreeTransaction.pageScaleFactor());
-            [_scrollView setZoomScale:layerTreeTransaction.pageScaleFactor()];
+            LOG_WITH_STREAM(VisibleRects, stream << " updating scroll view with pageScaleFactor " << pageScaleFactor);
+            [_scrollView setZoomScale:pageScaleFactor];
         }
 
         UIEdgeInsets contentInsets = [_scrollView adjustedContentInset];
@@ -1037,7 +1039,7 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
         // When web-process-originated scale changes occur, pin the
         // scroll position to the top edge of the content,
         // instead of the center (which UIScrollView does by default).
-        CGFloat scaleRatio = layerTreeTransaction.pageScaleFactor() / [_scrollView zoomScale];
+        CGFloat scaleRatio = pageScaleFactor / [_scrollView zoomScale];
         if (shouldUpdateContentOffsetForFittingScale)
             scaleRatio = newContentSize.height / oldContentSize.height;
 
@@ -4066,17 +4068,15 @@ static bool isLockdownModeWarningNeeded()
     return axesToPrevent;
 }
 
-- (void)_overrideZoomScaleParametersWithMinimumZoomScale:(CGFloat)minimumZoomScale maximumZoomScale:(CGFloat)maximumZoomScale allowUserScaling:(BOOL)allowUserScaling
+- (BOOL)_forcesInitialScaleFactor
 {
-    _overriddenZoomScaleParameters = { minimumZoomScale, maximumZoomScale, allowUserScaling };
-    [_scrollView setMinimumZoomScale:minimumZoomScale];
-    [_scrollView setMaximumZoomScale:maximumZoomScale];
-    [_scrollView _setZoomEnabledInternal:allowUserScaling && self._allowsMagnification];
+    return _forcesInitialScaleFactor;
 }
 
-- (void)_clearOverrideZoomScaleParameters
+- (void)_setForcesInitialScaleFactor:(BOOL)forcesInitialScaleFactor
 {
-    _overriddenZoomScaleParameters = std::nullopt;
+    _forcesInitialScaleFactor = forcesInitialScaleFactor;
+    [self _doAfterNextPresentationUpdate:^{ }];
 }
 
 - (BOOL)_allowsMagnification

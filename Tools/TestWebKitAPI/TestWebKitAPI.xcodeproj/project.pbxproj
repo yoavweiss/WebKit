@@ -655,9 +655,9 @@
 		A14FC58B1B89927100D107EB /* ContentFilteringPlugIn.mm in Sources */ = {isa = PBXBuildFile; fileRef = A14FC5891B89927100D107EB /* ContentFilteringPlugIn.mm */; };
 		A170E3AA2ABA7857009EA799 /* VectorCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = A170E3A22ABA7857009EA799 /* VectorCocoa.mm */; };
 		A17191AD2CD2DB090088944E /* WKWebViewLogging.mm in Sources */ = {isa = PBXBuildFile; fileRef = A17191AC2CD2DB090088944E /* WKWebViewLogging.mm */; };
-		A176D24B2D6D2A4E00C63915 /* GPUExtension.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = A176D2472D6D295400C63915 /* GPUExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		A176D24C2D6D2A4E00C63915 /* NetworkingExtension.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = A176D2482D6D295400C63915 /* NetworkingExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		A176D24D2D6D2A4E00C63915 /* WebContentExtension.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = A176D2492D6D295400C63915 /* WebContentExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A176D24B2D6D2A4E00C63915 /* GPUExtension.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = A176D2472D6D295400C63915 /* GPUExtension.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A176D24C2D6D2A4E00C63915 /* NetworkingExtension.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = A176D2482D6D295400C63915 /* NetworkingExtension.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A176D24D2D6D2A4E00C63915 /* WebContentExtension.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = A176D2492D6D295400C63915 /* WebContentExtension.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A1798B7F22431D2B000764BD /* libWebCoreTestSupport.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1798B7E22431D2B000764BD /* libWebCoreTestSupport.dylib */; };
 		A1798B8522433647000764BD /* WebProcessPlugInWithInternals.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1798B8422433647000764BD /* WebProcessPlugInWithInternals.mm */; };
 		A17991881E1C994E00A505ED /* SharedBuffer.mm in Sources */ = {isa = PBXBuildFile; fileRef = A17991861E1C994E00A505ED /* SharedBuffer.mm */; };
@@ -3469,6 +3469,7 @@
 		A1AD38272C3D9FAF003499BE /* FullscreenLifecycle.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FullscreenLifecycle.mm; sourceTree = "<group>"; };
 		A1AE4A092D5DBFCC00320629 /* HostWindowManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HostWindowManager.h; path = cocoa/HostWindowManager.h; sourceTree = "<group>"; };
 		A1AE4A0A2D5DBFCC00320629 /* HostWindowManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = HostWindowManager.mm; path = cocoa/HostWindowManager.mm; sourceTree = "<group>"; };
+		A1C0982F2E12FB5800FAC83A /* ElementFullscreen.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ElementFullscreen.mm; sourceTree = "<group>"; };
 		A1C142C124AA7B2E00444207 /* ContextMenuMouseEvents.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ContextMenuMouseEvents.mm; sourceTree = "<group>"; };
 		A1C1F5E72C9C96C00042E924 /* TestWebKitAPI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestWebKitAPI.xctestplan; sourceTree = "<group>"; };
 		A1C4FB6C1BACCE50003742D0 /* QuickLook.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuickLook.mm; sourceTree = "<group>"; };
@@ -5688,6 +5689,7 @@
 		A1D8C7952DBFFFB500A6878F /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A1C0982F2E12FB5800FAC83A /* ElementFullscreen.mm */,
 				A1D8C7942DBFFFB500A6878F /* VideoPresentationMode.mm */,
 			);
 			path = UI;
