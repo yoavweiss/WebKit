@@ -22,8 +22,16 @@
 
 #if ENABLE(WEBXR) && USE(OPENXR)
 
+#include "OpenXRExtensions.h"
 #include "OpenXRUtils.h"
 #include <wtf/RunLoop.h>
+
+#if USE(LIBEPOXY)
+#include <epoxy/egl.h>
+#else
+#include <EGL/egl.h>
+#endif
+#include <openxr/openxr_platform.h>
 
 namespace WebKit {
 

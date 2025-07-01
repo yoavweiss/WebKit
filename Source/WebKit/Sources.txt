@@ -406,6 +406,7 @@ UIProcess/MediaKeySystemPermissionRequestManagerProxy.cpp
 UIProcess/MediaKeySystemPermissionRequestProxy.cpp
 UIProcess/ModelElementController.cpp
 UIProcess/OverrideLanguages.cpp
+UIProcess/PageClient.cpp
 UIProcess/PageLoadState.cpp
 UIProcess/ProcessAssertion.cpp
 UIProcess/ProcessThrottler.cpp

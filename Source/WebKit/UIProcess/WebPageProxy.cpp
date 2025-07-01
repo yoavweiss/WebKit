@@ -1585,7 +1585,7 @@ void WebPageProxy::didAttachToRunningProcess()
 
 #if ENABLE(FULLSCREEN_API)
     ASSERT(!m_fullScreenManager);
-    m_fullScreenManager = WebFullScreenManagerProxy::create(*this, protectedPageClient()->fullScreenManagerProxyClient());
+    m_fullScreenManager = WebFullScreenManagerProxy::create(*this, protectedPageClient()->checkedFullScreenManagerProxyClient().get());
 #endif
 #if ENABLE(VIDEO_PRESENTATION_MODE)
     ASSERT(!m_playbackSessionManager);
@@ -1841,7 +1841,7 @@ void WebPageProxy::close()
     processPool->backForwardCache().removeEntriesForPage(*this);
 
     struct ProcessToClose {
-        Ref<WebProcessProxy> process;
+        const Ref<WebProcessProxy> process;
         WebCore::PageIdentifier pageID;
         WebProcessProxy::ShutdownPreventingScopeCounter::Token shutdownPreventingScope;
     };
@@ -1856,7 +1856,7 @@ void WebPageProxy::close()
     // Delay sending close message to next runloop cycle to avoid white flash.
     RunLoop::currentSingleton().dispatch([processesToClose = WTFMove(processesToClose)] {
         for (auto [process, pageID, scope] : processesToClose)
-            process->send(Messages::WebPage::Close(), pageID);
+            Ref { process }->send(Messages::WebPage::Close(), pageID);
     });
 
     process->removeWebPage(*this, WebProcessProxy::EndsUsingDataStore::Yes);
@@ -3981,7 +3981,7 @@ void WebPageProxy::handleMouseEvent(const NativeWebMouseEvent& event)
     // event in the queue.
     auto removedEvent = removeOldRedundantEvent(internals().mouseEventQueue, event.type());
     if (removedEvent && removedEvent->type() == WebEventType::MouseMove)
-        internals().coalescedMouseEvents.append(*removedEvent);
+        internals().coalescedMouseEvents.append(CheckedRef { *removedEvent }.get());
 
     internals().mouseEventQueue.append(event);
 
@@ -4146,11 +4146,11 @@ void WebPageProxy::handleWheelEvent(const WebWheelEvent& wheelEvent)
     }
 
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(MAC)
-    if (m_scrollingCoordinatorProxy) {
+    if (CheckedPtr scrollingCoordinatorProxy = m_scrollingCoordinatorProxy.get()) {
         auto rubberBandableEdges = rubberBandableEdgesRespectingHistorySwipe();
         auto rubberBandingBehavior = resolvedRubberBandingBehaviorEdges(rubberBandableEdges, alwaysBounceVertical(), alwaysBounceHorizontal());
 
-        m_scrollingCoordinatorProxy->handleWheelEvent(wheelEvent, rubberBandingBehavior);
+        scrollingCoordinatorProxy->handleWheelEvent(wheelEvent, rubberBandingBehavior);
         // continueWheelEventHandling() will get called after the event has been handled by the scrolling thread.
     }
 #endif
@@ -4242,13 +4242,14 @@ void WebPageProxy::wheelEventHandlingCompleted(bool wasHandled)
         LOG_WITH_STREAM(WheelEvents, stream << "WebPageProxy::wheelEventHandlingCompleted - no event, handled " << wasHandled);
 
     if (oldestProcessedEvent && !wasHandled) {
-        m_uiClient->didNotHandleWheelEvent(this, *oldestProcessedEvent);
+        CheckedRef event = *oldestProcessedEvent;
+        m_uiClient->didNotHandleWheelEvent(this, event.get());
         if (RefPtr pageClient = m_pageClient.get())
-            pageClient->wheelEventWasNotHandledByWebCore(*oldestProcessedEvent);
+            pageClient->wheelEventWasNotHandledByWebCore(event.get());
     }
 
     if (auto eventToSend = wheelEventCoalescer().nextEventToDispatch()) {
-        handleWheelEvent(*eventToSend);
+        handleWheelEvent(CheckedRef { *eventToSend }.get());
         return;
     }
     
@@ -4259,8 +4260,8 @@ void WebPageProxy::wheelEventHandlingCompleted(bool wasHandled)
 void WebPageProxy::cacheWheelEventScrollingAccelerationCurve(const NativeWebWheelEvent& nativeWheelEvent)
 {
 #if ENABLE(MOMENTUM_EVENT_DISPATCHER)
-    if (m_scrollingCoordinatorProxy) {
-        m_scrollingCoordinatorProxy->cacheWheelEventScrollingAccelerationCurve(nativeWheelEvent);
+    if (CheckedPtr scrollingCoordinatorProxy = m_scrollingCoordinatorProxy.get()) {
+        scrollingCoordinatorProxy->cacheWheelEventScrollingAccelerationCurve(nativeWheelEvent);
         return;
     }
 
@@ -5702,7 +5703,7 @@ void WebPageProxy::setCustomDeviceScaleFactor(float customScaleFactor, Completio
     }
 
     if (deviceScaleFactor() != oldScaleFactor)
-        m_drawingArea->deviceScaleFactorDidChange(WTFMove(completionHandler));
+        protectedDrawingArea()->deviceScaleFactorDidChange(WTFMove(completionHandler));
     else
         completionHandler();
 }
@@ -9778,7 +9779,7 @@ void WebPageProxy::setFullScreenClientForTesting(std::unique_ptr<WebFullScreenMa
     pageClient->setFullScreenClientForTesting(WTFMove(client));
 
     if (RefPtr fullScreenManager = m_fullScreenManager)
-        fullScreenManager->attachToNewClient(pageClient->fullScreenManagerProxyClient());
+        fullScreenManager->attachToNewClient(pageClient->checkedFullScreenManagerProxyClient().get());
 }
 #endif
 
@@ -11510,7 +11511,7 @@ void WebPageProxy::resetState(ResetStateReason resetStateReason)
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET) && !PLATFORM(IOS_FAMILY)
     if (RefPtr pageClient = this->pageClient())
-        pageClient->mediaSessionManager().removeAllPlaybackTargetPickerClients(internals());
+        pageClient->checkedMediaSessionManager()->removeAllPlaybackTargetPickerClients(internals());
 #endif
 
 #if ENABLE(APPLE_PAY)
@@ -11668,8 +11669,8 @@ void WebPageProxy::resetStateAfterProcessExited(ProcessTerminationReason termina
 #endif
 
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
-    if (m_scrollingCoordinatorProxy)
-        m_scrollingCoordinatorProxy->resetStateAfterProcessExited();
+    if (CheckedPtr scrollingCoordinatorProxy = m_scrollingCoordinatorProxy.get())
+        scrollingCoordinatorProxy->resetStateAfterProcessExited();
 #endif
 
     if (terminationReason != ProcessTerminationReason::NavigationSwap) {
@@ -14189,43 +14190,43 @@ void WebPageProxy::performSwitchHapticFeedback()
 void WebPageProxy::addPlaybackTargetPickerClient(PlaybackTargetClientContextIdentifier contextId)
 {
     if (RefPtr pageClient = this->pageClient())
-        pageClient->mediaSessionManager().addPlaybackTargetPickerClient(internals(), contextId);
+        pageClient->checkedMediaSessionManager()->addPlaybackTargetPickerClient(internals(), contextId);
 }
 
 void WebPageProxy::removePlaybackTargetPickerClient(PlaybackTargetClientContextIdentifier contextId)
 {
     if (RefPtr pageClient = this->pageClient())
-        pageClient->mediaSessionManager().removePlaybackTargetPickerClient(internals(), contextId);
+        pageClient->checkedMediaSessionManager()->removePlaybackTargetPickerClient(internals(), contextId);
 }
 
 void WebPageProxy::showPlaybackTargetPicker(PlaybackTargetClientContextIdentifier contextId, const WebCore::FloatRect& rect, bool hasVideo)
 {
     if (RefPtr pageClient = this->pageClient())
-        pageClient->mediaSessionManager().showPlaybackTargetPicker(internals(), contextId, protectedPageClient()->rootViewToScreen(IntRect(rect)), hasVideo, useDarkAppearance());
+        pageClient->checkedMediaSessionManager()->showPlaybackTargetPicker(internals(), contextId, protectedPageClient()->rootViewToScreen(IntRect(rect)), hasVideo, useDarkAppearance());
 }
 
 void WebPageProxy::playbackTargetPickerClientStateDidChange(PlaybackTargetClientContextIdentifier contextId, WebCore::MediaProducerMediaStateFlags state)
 {
     if (RefPtr pageClient = this->pageClient())
-        pageClient->mediaSessionManager().clientStateDidChange(internals(), contextId, state);
+        pageClient->checkedMediaSessionManager()->clientStateDidChange(internals(), contextId, state);
 }
 
 void WebPageProxy::setMockMediaPlaybackTargetPickerEnabled(bool enabled)
 {
     if (RefPtr pageClient = this->pageClient())
-        pageClient->mediaSessionManager().setMockMediaPlaybackTargetPickerEnabled(enabled);
+        pageClient->checkedMediaSessionManager()->setMockMediaPlaybackTargetPickerEnabled(enabled);
 }
 
 void WebPageProxy::setMockMediaPlaybackTargetPickerState(const String& name, WebCore::MediaPlaybackTargetContextMockState state)
 {
     if (RefPtr pageClient = this->pageClient())
-        pageClient->mediaSessionManager().setMockMediaPlaybackTargetPickerState(name, state);
+        pageClient->checkedMediaSessionManager()->setMockMediaPlaybackTargetPickerState(name, state);
 }
 
 void WebPageProxy::mockMediaPlaybackTargetPickerDismissPopup()
 {
     if (RefPtr pageClient = this->pageClient())
-        pageClient->mediaSessionManager().mockMediaPlaybackTargetPickerDismissPopup();
+        pageClient->checkedMediaSessionManager()->mockMediaPlaybackTargetPickerDismissPopup();
 }
 
 void WebPageProxy::Internals::setPlaybackTarget(PlaybackTargetClientContextIdentifier contextId, Ref<MediaPlaybackTarget>&& target)
@@ -15916,22 +15917,18 @@ void WebPageProxy::playAllAnimations(CompletionHandler<void()>&& completionHandl
 void WebPageProxy::adjustLayersForLayoutViewport(const FloatPoint& scrollPosition, const WebCore::FloatRect& layoutViewport, double scale)
 {
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
-    if (!m_scrollingCoordinatorProxy)
-        return;
-
-    m_scrollingCoordinatorProxy->viewportChangedViaDelegatedScrolling(scrollPosition, layoutViewport, scale);
+    if (CheckedPtr scrollingCoordinatorProxy = m_scrollingCoordinatorProxy.get())
+        scrollingCoordinatorProxy->viewportChangedViaDelegatedScrolling(scrollPosition, layoutViewport, scale);
 #endif
 }
 
 String WebPageProxy::scrollbarStateForScrollingNodeID(std::optional<ScrollingNodeID> nodeID, bool isVertical)
 {
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
-    if (!m_scrollingCoordinatorProxy)
-        return ""_s;
-    return m_scrollingCoordinatorProxy->scrollbarStateForScrollingNodeID(nodeID, isVertical);
-#else
-    return ""_s;
+    if (CheckedPtr scrollingCoordinatorProxy = m_scrollingCoordinatorProxy.get())
+        return scrollingCoordinatorProxy->scrollbarStateForScrollingNodeID(nodeID, isVertical);
 #endif
+    return ""_s;
 }
 
 WebCore::PageIdentifier WebPageProxy::webPageIDInProcess(const WebProcessProxy& process) const
@@ -16562,8 +16559,8 @@ bool WebPageProxy::isAlwaysOnLoggingAllowed() const
 
 FloatPoint WebPageProxy::mainFrameScrollPosition() const
 {
-    if (m_scrollingCoordinatorProxy)
-        return m_scrollingCoordinatorProxy->currentMainFrameScrollPosition();
+    if (CheckedPtr scrollingCoordinatorProxy = m_scrollingCoordinatorProxy.get())
+        return scrollingCoordinatorProxy->currentMainFrameScrollPosition();
 
     return { };
 }

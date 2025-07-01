@@ -213,7 +213,7 @@ private:
     void removeAllPDFHUDs() override;
 
 #if ENABLE(FULLSCREEN_API)
-    WebFullScreenManagerProxyClient& fullScreenManagerProxyClient() override;
+    WebFullScreenManagerProxyClient& fullScreenManagerProxyClient() final;
 #endif
 
 #if ENABLE(FULLSCREEN_API)
@@ -280,7 +280,7 @@ private:
     _WKRemoteObjectRegistry *remoteObjectRegistry() override;
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
-    WebCore::WebMediaSessionManager& mediaSessionManager() override;
+    WebCore::WebMediaSessionManager& mediaSessionManager() final;
 #endif
 
     void refView() override;

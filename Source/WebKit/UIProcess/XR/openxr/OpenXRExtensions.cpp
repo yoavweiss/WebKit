@@ -73,6 +73,11 @@ OpenXRExtensions::OpenXRExtensions(Vector<XrExtensionProperties>&& extensions)
 {
 }
 
+// Destructor must be explicitly defined here because at this point OpenXRExtensionMethods is already defined.
+// If we don't do this, the compiler will try to generate the default destructor for this class the first time
+// it finds it which might be too early, in the sense that the struct is not defined yet and thus it will fail.
+OpenXRExtensions::~OpenXRExtensions() = default;
+
 void OpenXRExtensions::loadMethods(XrInstance instance)
 {
 #if defined(XR_USE_PLATFORM_EGL)

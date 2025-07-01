@@ -35,6 +35,7 @@ class OpenXRExtensions final {
 public:
     static std::unique_ptr<OpenXRExtensions> create();
     OpenXRExtensions(Vector<XrExtensionProperties>&&);
+    ~OpenXRExtensions();
 
     void loadMethods(XrInstance);
     bool isExtensionSupported(std::span<const char>) const;
