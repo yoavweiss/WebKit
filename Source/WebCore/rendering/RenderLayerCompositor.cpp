@@ -2687,7 +2687,7 @@ LayoutRect RenderLayerCompositor::computeClippedOverlapBounds(LayerOverlapMap& o
         // Compute a clip up to the composited scrolling ancestor, then convert it to absolute coordinates.
         auto& scrollingScope = extent.clippingScopes.last();
         auto& scopeLayer = scrollingScope.layer;
-        clipRect = layer.backgroundClipRect(RenderLayer::ClipRectsContext(&scopeLayer, TemporaryClipRects, { })).rect();
+        clipRect = layer.backgroundClipRect(RenderLayer::ClipRectsContext(&scopeLayer, PaintingClipRects, { RenderLayer::ClipRectsOption::Temporary })).rect();
         if (!clipRect.isInfinite())
             clipRect.setLocation(scopeLayer.convertToLayerCoords(&rootRenderLayer(), clipRect.location()));
     } else
@@ -3587,7 +3587,7 @@ bool RenderLayerCompositor::clippedByAncestor(RenderLayer& layer, const RenderLa
             return false;
     }
 
-    auto backgroundClipRect = layer.backgroundClipRect(RenderLayer::ClipRectsContext(computeClipRoot, TemporaryClipRects));
+    auto backgroundClipRect = layer.backgroundClipRect(RenderLayer::ClipRectsContext(computeClipRoot, PaintingClipRects, RenderLayer::clipRectTemporaryOptions));
     return !backgroundClipRect.isInfinite(); // FIXME: Incorrect for CSS regions.
 }
 
@@ -3616,11 +3616,11 @@ Vector<CompositedClipData> RenderLayerCompositor::computeAncestorClippingStack(c
     
     auto pushNonScrollableClip = [&](const RenderLayer& clippedLayer, const RenderLayer& clippingRoot, ShouldRespectOverflowClip respectClip = IgnoreOverflowClip) {
         // Use IgnoreOverflowClip to ignore overflow contributed by clippingRoot (which may be a scroller).
-        OptionSet<RenderLayer::ClipRectsOption> options;
+        OptionSet<RenderLayer::ClipRectsOption> options = RenderLayer::ClipRectsOption::Temporary;
         if (respectClip == RespectOverflowClip)
             options.add(RenderLayer::ClipRectsOption::RespectOverflowClip);
 
-        auto backgroundClip = clippedLayer.backgroundClipRect(RenderLayer::ClipRectsContext(&clippingRoot, TemporaryClipRects, options));
+        auto backgroundClip = clippedLayer.backgroundClipRect(RenderLayer::ClipRectsContext(&clippingRoot, PaintingClipRects, options));
         ASSERT(!backgroundClip.affectedByRadius());
         auto clipRect = backgroundClip.rect();
         if (clipRect.isInfinite())

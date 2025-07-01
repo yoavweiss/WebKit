@@ -1985,6 +1985,10 @@ imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-backdrop-root
 imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-backdrop-root-clip-path.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-backdrop-root-mix-blend-mode.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/filter-effects/drop-shadow-currentcolor-dynamic-003.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-boundary.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-edge-clipping-2.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-edge-mirror.html [ ImageOnlyFailure ]
+
 
 # The following tests need LBSE enabled builds, which is off by default for this port.
 svg/z-index [ Skip ]
