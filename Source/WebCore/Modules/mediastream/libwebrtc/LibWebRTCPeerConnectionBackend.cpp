@@ -172,7 +172,7 @@ static webrtc::PeerConnectionInterface::RTCConfiguration configurationFromMediaE
     // rtcConfiguration.ice_candidate_pool_size = configuration.iceCandidatePoolSize;
 
     for (auto& pem : configuration.certificates) {
-        rtcConfiguration.certificates.push_back(rtc::RTCCertificate::FromPEM(rtc::RTCCertificatePEM {
+        rtcConfiguration.certificates.push_back(webrtc::RTCCertificate::FromPEM(webrtc::RTCCertificatePEM {
             pem.privateKey.utf8().data(), pem.certificate.utf8().data()
         }));
     }

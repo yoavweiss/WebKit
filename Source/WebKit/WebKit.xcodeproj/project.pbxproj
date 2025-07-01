@@ -5441,6 +5441,8 @@
 		41B7ED70206965900087D853 /* NetworkMDNSRegister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkMDNSRegister.h; sourceTree = "<group>"; };
 		41B7ED71206965900087D853 /* NetworkMDNSRegister.messages.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NetworkMDNSRegister.messages.in; sourceTree = "<group>"; };
 		41B8D85628C9B8D100E5FA37 /* RTCWebKitEncodedFrameInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RTCWebKitEncodedFrameInfo.h; sourceTree = "<group>"; };
+		41BDE4772E01707700142A13 /* LibWebRTCDnsResolverFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LibWebRTCDnsResolverFactory.h; path = Network/webrtc/LibWebRTCDnsResolverFactory.h; sourceTree = "<group>"; };
+		41BDE4782E01707700142A13 /* LibWebRTCDnsResolverFactory.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LibWebRTCDnsResolverFactory.cpp; path = Network/webrtc/LibWebRTCDnsResolverFactory.cpp; sourceTree = "<group>"; };
 		41C14BC226DE6A2F00685BF5 /* LibWebRTCNetworkManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LibWebRTCNetworkManager.cpp; path = Network/webrtc/LibWebRTCNetworkManager.cpp; sourceTree = "<group>"; };
 		41C14BC326DE6A2F00685BF5 /* LibWebRTCNetworkManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LibWebRTCNetworkManager.h; path = Network/webrtc/LibWebRTCNetworkManager.h; sourceTree = "<group>"; };
 		41C3B88526444AAB004ED4DE /* AudioMediaStreamTrackRendererInternalUnitManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioMediaStreamTrackRendererInternalUnitManager.h; sourceTree = "<group>"; };
@@ -12739,6 +12741,8 @@
 		4130759E1DE85E650039EC69 /* webrtc */ = {
 			isa = PBXGroup;
 			children = (
+				41BDE4782E01707700142A13 /* LibWebRTCDnsResolverFactory.cpp */,
+				41BDE4772E01707700142A13 /* LibWebRTCDnsResolverFactory.h */,
 				416F8089245C7FF500B68F02 /* LibWebRTCNetwork.cpp */,
 				411B22621E371244004F7363 /* LibWebRTCNetwork.h */,
 				416F8086245B397400B68F02 /* LibWebRTCNetwork.messages.in */,
