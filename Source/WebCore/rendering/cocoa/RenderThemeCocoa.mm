@@ -2082,6 +2082,11 @@ bool RenderThemeCocoa::adjustMenuListStyleForVectorBasedControls(RenderStyle& st
 
     RenderTheme::adjustMenuListStyle(style, element);
 
+    if (!style.hasExplicitlySetColor()) {
+        const auto styleColorOptions = element->document().styleColorOptions(&style);
+        style.setColor(buttonTextColor(styleColorOptions, !element->isDisabledFormControl()));
+    }
+
     style.setWhiteSpaceCollapse(WhiteSpaceCollapse::Preserve);
     style.setTextWrapMode(TextWrapMode::NoWrap);
     style.setBoxShadow({ });
@@ -2138,43 +2143,11 @@ bool RenderThemeCocoa::paintMenuListButtonForVectorBasedControls(const RenderObj
 #endif
 }
 
-#if !PLATFORM(MAC)
-
-static void adjustButtonLikeControlStyleForVectorBasedControls(RenderStyle& style, const Element* element)
+Color RenderThemeCocoa::buttonTextColor(OptionSet<StyleColorOptions> options, bool enabled) const
 {
-    // FIXME: This is a modified version of adjustButtonLikeControlStyle(...) from RenderThemeIOS. Refactor to remove duplicate code.
-
-    if (PAL::currentUserInterfaceIdiomIsVision())
-        return;
-
-    if (!element || element->isDisabledFormControl())
-        return;
-
-    const auto styleColorOptions = element->document().styleColorOptions(&style);
-
-    if (!style.hasAutoAccentColor()) {
-        auto isSubmitStyleButton = false;
-
-        if (RefPtr input = dynamicDowncast<HTMLInputElement>(element))
-            isSubmitStyleButton = input->isSubmitButton();
-
-        if (RefPtr button = dynamicDowncast<HTMLButtonElement>(element))
-            isSubmitStyleButton = isSubmitStyleButton || button->isExplicitlySetSubmitButton();
-
-        auto tintColor = style.usedAccentColor(styleColorOptions);
-        if (!isSubmitStyleButton)
-            style.setColor(WTFMove(tintColor));
-    }
-
-    if (!element->active())
-        return;
-
-    auto textColor = style.color();
-    if (textColor.isValid())
-        style.setColor(platformAdjustedColorForPressedState(textColor, styleColorOptions));
+    const auto cssValue = enabled ? CSSValueAppleSystemLabel : CSSValueAppleSystemTertiaryLabel;
+    return systemColor(cssValue, options);
 }
-
-#endif
 
 bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& style, const Element* element) const
 {
@@ -2186,21 +2159,32 @@ bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& styl
 #endif
 
     auto isSubmitButton = false;
-    auto isDisabledFormControl = false;
-    if (RefPtr input = dynamicDowncast<HTMLInputElement>(element)) {
+    if (RefPtr input = dynamicDowncast<HTMLInputElement>(element))
         isSubmitButton = input->isSubmitButton();
-        isDisabledFormControl = input->isDisabledFormControl();
-    }
 
-    if (isSubmitButton && !style.hasExplicitlySetColor()) {
+    auto isEnabled = true;
+    if (RefPtr input = dynamicDowncast<HTMLFormControlElement>(element))
+        isEnabled = !input->isDisabledFormControl();
+
+    const auto styleColorOptions = element->document().styleColorOptions(&style);
+
+    auto adjustStyleForSubmitButton = [&] {
 #if PLATFORM(MAC)
-        style.setInsideDefaultButton(true);
-        const Color enabledColor = style.color();
+        style.setColor(buttonTextColor(styleColorOptions, isEnabled));
+        if (isEnabled)
+            style.setInsideDefaultButton(true);
+        else
+            style.setInsideDisabledSubmitButton(true);
 #else
-        const Color enabledColor = Color::white;
+        style.setColor(isEnabled ? Color::white : disabledSubmitButtonTextColor());
 #endif
-        if (isDisabledFormControl)
-            style.setColor(enabledColor.colorWithAlphaMultipliedBy(0.8f));
+    };
+
+    if (!style.hasExplicitlySetColor()) {
+        if (isSubmitButton)
+            adjustStyleForSubmitButton();
+        else
+            style.setColor(buttonTextColor(styleColorOptions, isEnabled));
     }
 
 #if PLATFORM(IOS_FAMILY)
@@ -2231,9 +2215,6 @@ bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& styl
 
     style.setPaddingBox(WTFMove(paddingBox));
 
-#if PLATFORM(IOS_FAMILY)
-    adjustButtonLikeControlStyleForVectorBasedControls(style, element);
-#endif
     return true;
 }
 
@@ -2259,7 +2240,10 @@ bool RenderThemeCocoa::adjustMenuListButtonStyleForVectorBasedControls(RenderSty
     if (!element)
         return true;
 
-    adjustButtonLikeControlStyleForVectorBasedControls(style, element);
+    if (!style.hasExplicitlySetColor()) {
+        const auto styleColorOptions = element->document().styleColorOptions(&style);
+        style.setColor(buttonTextColor(styleColorOptions, !element->isDisabledFormControl()));
+    }
 
     // Enforce some default styles in the case that this is a non-multiple <select> element,
     // or a date input. We don't force these if this is just an element with
@@ -2288,12 +2272,6 @@ bool RenderThemeCocoa::paintMenuListButtonDecorationsForVectorBasedControls(cons
 
     CheckedRef style = box.style();
     auto styleColorOptions = box.styleColorOptions();
-
-    auto states = extractControlStyleStatesForRenderer(box);
-    bool isPressed = states.contains(ControlStyle::State::Pressed);
-#if PLATFORM(MAC)
-    bool isWindowActive = states.contains(ControlStyle::State::WindowActive);
-#endif
 
     Path glyphPath;
     FloatSize glyphSize;
@@ -2378,20 +2356,9 @@ bool RenderThemeCocoa::paintMenuListButtonDecorationsForVectorBasedControls(cons
     transform.scale(glyphScale);
     glyphPath.transform(transform);
 
-#if PLATFORM(MAC)
-    auto decorationColor = isWindowActive ? controlTintColor(style, styleColorOptions) : systemColor(CSSValueAppleSystemLabel, styleColorOptions);
-#else
-    auto decorationColor = style->color();
-#endif
+    const auto decorationColor = buttonTextColor(styleColorOptions, isEnabled(box));
 
-    if (isPressed)
-        decorationColor = platformAdjustedColorForPressedState(decorationColor, styleColorOptions);
-
-    if (isEnabled(box))
-        context.setFillColor(decorationColor);
-    else
-        context.setFillColor(systemColor(CSSValueAppleSystemTertiaryLabel, styleColorOptions));
-
+    context.setFillColor(decorationColor);
     context.fillPath(glyphPath);
     return true;
 }
@@ -3578,6 +3545,12 @@ bool RenderThemeCocoa::adjustTextControlInnerTextStyleForVectorBasedControls(Ren
         applyEmPadding(style, shadowHost, 0.4f, 0.15f);
 
     return true;
+}
+
+Color RenderThemeCocoa::disabledSubmitButtonTextColor() const
+{
+    static constexpr auto textColor = SRGBA<uint8_t> { 255, 255, 255, 204 }; // opacity 0.8f
+    return textColor;
 }
 
 #endif

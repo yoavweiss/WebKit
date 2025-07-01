@@ -233,6 +233,9 @@ protected:
     bool adjustTextControlInnerContainerStyleForVectorBasedControls(RenderStyle&, const RenderStyle&, const Element*) const;
     bool adjustTextControlInnerPlaceholderStyleForVectorBasedControls(RenderStyle&, const RenderStyle&, const Element*) const;
     bool adjustTextControlInnerTextStyleForVectorBasedControls(RenderStyle&, const RenderStyle&, const Element*) const;
+
+    Color buttonTextColor(OptionSet<StyleColorOptions>, bool) const;
+    Color disabledSubmitButtonTextColor() const final;
 #endif
 
 private:

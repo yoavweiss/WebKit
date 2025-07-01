@@ -261,6 +261,8 @@ public:
     virtual void adjustTextControlInnerPlaceholderStyle(RenderStyle&, const RenderStyle&, const Element*) const { }
     virtual void adjustTextControlInnerTextStyle(RenderStyle&, const RenderStyle&, const Element*) const { }
 
+    virtual Color disabledSubmitButtonTextColor() const { return Color::black; }
+
 protected:
     ControlStyle extractControlStyleForRenderer(const RenderObject&) const;
 
@@ -442,6 +444,7 @@ protected:
         Color annotationHighlightColor;
 
         Color defaultButtonTextColor;
+        Color defaultSubmitButtonTextColor;
 
         Color spellingMarkerColor;
         Color dictationAlternativesMarkerColor;

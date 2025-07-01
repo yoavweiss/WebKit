@@ -101,6 +101,14 @@ TextPaintStyle computeTextPaintStyle(const RenderText& renderer, const RenderSty
         }
     }
 
+    if (lineStyle.insideDisabledSubmitButton()) {
+        RefPtr page = renderer.frame().page();
+        if (page && page->focusController().isActive()) {
+            paintStyle.fillColor = RenderTheme::singleton().disabledSubmitButtonTextColor();
+            return paintStyle;
+        }
+    }
+
     paintStyle.fillColor = lineStyle.visitedDependentColorWithColorFilter(CSSPropertyWebkitTextFillColor, paintInfo.paintBehavior);
 
     bool forceBackgroundToWhite = false;

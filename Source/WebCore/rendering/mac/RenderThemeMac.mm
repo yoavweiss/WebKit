@@ -403,6 +403,8 @@ Color RenderThemeMac::platformAutocorrectionReplacementMarkerColor(OptionSet<Sty
     return RenderThemeCocoa::platformAutocorrectionReplacementMarkerColor(options);
 }
 
+#if !ENABLE(FORM_CONTROL_REFRESH)
+
 static Color activeButtonTextColor()
 {
     // FIXME: <rdar://problem/77572622> There is no single corresponding NSColor for ActiveButtonText.
@@ -421,6 +423,8 @@ static Color activeButtonTextColor()
 
     return semanticColorFromNSColor(activeButtonTextColor);
 }
+
+#endif
 
 static SRGBA<uint8_t> menuBackgroundColor()
 {
@@ -654,9 +658,17 @@ Color RenderThemeMac::systemColor(CSSValueID cssValueID, OptionSet<StyleColorOpt
                 return semanticColorFromNSColor(color);
         }
 
+        auto textColorForActiveButton = [&] {
+#if ENABLE(FORM_CONTROL_REFRESH)
+            return buttonTextColor(options, true);
+#else
+            return activeButtonTextColor();
+#endif
+        };
+
         switch (cssValueID) {
         case CSSValueActivebuttontext:
-            return activeButtonTextColor();
+            return textColorForActiveButton();
 
         case CSSValueButtonface:
         case CSSValueThreedface:

@@ -2396,6 +2396,9 @@ public:
     inline bool insideDefaultButton() const;
     inline void setInsideDefaultButton(bool);
 
+    inline bool insideDisabledSubmitButton() const;
+    inline void setInsideDisabledSubmitButton(bool);
+
 private:
     struct NonInheritedFlags {
         friend bool operator==(const NonInheritedFlags&, const NonInheritedFlags&) = default;

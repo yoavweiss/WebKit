@@ -1284,6 +1284,7 @@ static bool rareInheritedDataChangeRequiresRepaint(const StyleRareInheritedData&
         || first.imageRendering != second.imageRendering
         || first.accentColor != second.accentColor
         || first.insideDefaultButton != second.insideDefaultButton
+        || first.insideDisabledSubmitButton != second.insideDisabledSubmitButton
 #if ENABLE(DARK_MODE_CSS)
         || first.colorScheme != second.colorScheme
 #endif
@@ -2213,6 +2214,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
         // cursorData
         // textEmphasisCustomMark
         // insideDefaultButton
+        // insideDisabledSubmitButton
     };
 
     if (m_inheritedFlags != other.m_inheritedFlags)
