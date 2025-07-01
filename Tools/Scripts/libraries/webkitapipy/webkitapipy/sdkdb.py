@@ -33,7 +33,7 @@ from fnmatch import fnmatch
 
 # Increment this number to force clients to rebuild from scratch, to
 # accomodate schema changes or fix caching bugs.
-VERSION = 3
+VERSION = 4
 
 
 class SDKDB:
@@ -61,6 +61,7 @@ class SDKDB:
         while user_version != VERSION:
             self.con = sqlite3.connect(db_file, isolation_level='IMMEDIATE')
             self.con.execute('PRAGMA busy_timeout = 30000')
+            self.con.execute('PRAGMA foreign_keys = ON')
             user_version, = self.con.execute('PRAGMA user_version').fetchone()
             if user_version == 0:
                 try:
@@ -102,8 +103,7 @@ class SDKDB:
 
     def _initialize_temporary_schema(self):
         cur = self.con.cursor()
-        cur.execute('CREATE TEMPORARY TABLE window(input_file '
-                    'REFERENCES input_file(path))')
+        cur.execute('CREATE TEMPORARY TABLE window(input_file)')
         cur.execute('CREATE INDEX selected_files ON window(input_file)')
         self.con.commit()
 
@@ -140,8 +140,12 @@ class SDKDB:
         if cur.fetchone() == (hash_,):
             cached = True
         else:
-            cur.execute('INSERT OR REPLACE INTO input_file VALUES (?, ?)',
-                        (path, hash_))
+            # To support files *removing* declarations from the sdkdb cache,
+            # it's important to execute DELETE and INSERT separately, instead
+            # of using an an upsert. The deletion cascades to any declarations
+            # tracked from the file.
+            cur.execute('DELETE FROM input_file WHERE path = ?', (path,))
+            cur.execute('INSERT INTO input_file VALUES (?, ?)', (path, hash_))
             cached = False
         cur.execute('INSERT INTO window VALUES (?)', (path,))
         return cached
@@ -278,18 +282,18 @@ class SDKDB:
     def _add_symbol(self, name: str, file: Path):
         cur = self.con.cursor()
         cur.execute('INSERT INTO symbol VALUES (?, ?)',
-                    (name, str(file.absolute())))
+                    (name, str(file.resolve())))
 
     def _add_objc_class(self, name: str, file: Path):
         cur = self.con.cursor()
         cur.execute('INSERT INTO objc_class VALUES (?, ?)',
-                    (name, str(file.absolute())))
+                    (name, str(file.resolve())))
         cur.execute('INSERT INTO symbol VALUES (?, ?)',
-                    (f'_OBJC_CLASS_$_{name}', str(file.absolute())))
+                    (f'_OBJC_CLASS_$_{name}', str(file.resolve())))
         cur.execute('INSERT INTO symbol VALUES (?, ?)',
-                    (f'_OBJC_METACLASS_$_{name}', str(file.absolute())))
+                    (f'_OBJC_METACLASS_$_{name}', str(file.resolve())))
 
     def _add_objc_selector(self, name: str, class_name: Optional[str], file: Path):
         cur = self.con.cursor()
         cur.execute('INSERT INTO objc_selector VALUES (?, ?, ?)',
-                    (name, class_name, str(file.absolute())))
+                    (name, class_name, str(file.resolve())))

@@ -55,6 +55,20 @@ class TestSDKDB(TestCase):
         self.assertTrue(self.sdkdb.objc_class('WKDoesntExist'))
         self.assertTrue(self.sdkdb.objc_selector('initWithData:'))
 
+    def test_ingests_api_report_nonnormalized(self):
+        # Given a file added to the cache:
+        with self.sdkdb:
+            self.assertFalse(self.sdkdb._cache_hit_preparing_to_insert(F_NonNormalized,
+                                                                       F_Hash))
+            # Insertions should not cause a foreign key constraint violation:
+            self.sdkdb._add_api_report(R, F_NonNormalized)
+
+        # Its symbols, classes, and implemented selectors should be added:
+        self.assertTrue(self.sdkdb.symbol('_WKDoesntExistLibraryVersion'))
+        self.assertTrue(self.sdkdb.symbol('_OBJC_CLASS_$_WKDoesntExist'))
+        self.assertTrue(self.sdkdb.objc_class('WKDoesntExist'))
+        self.assertTrue(self.sdkdb.objc_selector('initWithData:'))
+
     def test_only_finds_declarations_from_used_inputs(self):
         # Given a file added to the cache:
         with self.sdkdb:
@@ -80,3 +94,21 @@ class TestSDKDB(TestCase):
         with self.sdkdb:
             self.assertFalse(self.sdkdb._cache_hit_preparing_to_insert(F_NonNormalized, F_Hash))
             self.assertTrue(self.sdkdb._cache_hit_preparing_to_insert(F, F_Hash))
+
+    def test_entries_removed_when_binary_updated(self):
+        # Given a file added to the cache:
+        with self.sdkdb:
+            self.assertFalse(self.sdkdb._cache_hit_preparing_to_insert(F, F_Hash))
+            self.sdkdb._add_api_report(R, F)
+
+        # When it is replaced with a new version that contains different exports...
+        new_report = APIReport(file=F, arch='arm64e', exports=set(), methods=set())
+        new_hash = F_Hash + 1
+        with self.sdkdb:
+            self.assertFalse(self.sdkdb._cache_hit_preparing_to_insert(F, new_hash))
+            self.sdkdb._add_api_report(new_report, new_hash)
+
+        # ...the old exports should be removed:
+        self.assertFalse(self.sdkdb.symbol('_WKDoesntExistLibraryVersion'))
+        self.assertFalse(self.sdkdb.objc_class('WKDoesntExist'))
+        self.assertFalse(self.sdkdb.objc_selector('initWithData:'))
