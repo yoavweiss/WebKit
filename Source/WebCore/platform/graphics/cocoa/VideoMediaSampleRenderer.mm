@@ -221,6 +221,11 @@ bool VideoMediaSampleRenderer::useDecompressionSessionForProtectedContent() cons
     return m_preferences.contains(VideoMediaSampleRendererPreference::UseDecompressionSessionForProtectedContent);
 }
 
+bool VideoMediaSampleRenderer::useStereoDecoding() const
+{
+    return m_preferences.contains(VideoMediaSampleRendererPreference::UseStereoDecoding);
+}
+
 size_t VideoMediaSampleRenderer::decodedSamplesCount() const
 {
     return m_decodedSampleQueue ? PAL::CMBufferQueueGetBufferCount(m_decodedSampleQueue.get()) : 0;
@@ -433,12 +438,6 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
         m_currentCodec = fourCC;
     }
 #endif
-#if PLATFORM(VISION)
-    if (!m_decompressionSessionBlocked) {
-        CMVideoFormatDescriptionRef videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(cmSampleBuffer);
-        m_decompressionSessionBlocked = spatialVideoMetadataFromFormatDescription(videoFormatDescription) || videoProjectionMetadataFromFormatDescription(videoFormatDescription);
-    }
-#endif
 
     if (!m_decompressionSessionBlocked && !decompressionSession() && (!renderer() || ((prefersDecompressionSession() || needsDecompressionSession || isUsingDecompressionSession()) && (!sample.isProtected() || useDecompressionSessionForProtectedContent()))))
         initializeDecompressionSession();
@@ -534,9 +533,6 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
 
     ASSERT(m_lastMinimumUpcomingPresentationTime.isInvalid() || sample->isNonDisplaying() || sample->presentationTime() >= std::min(sample->presentationTime(), m_lastMinimumUpcomingPresentationTime));
 
-    if (sample->isNonDisplaying())
-        decodingFlags.add(WebCoreDecompressionSession::DecodingFlag::NonDisplaying);
-
     auto cmSample = sample->platformSample().sample.cmSampleBuffer;
 
     if (!useDecompressionSessionForProtectedFallback() && m_wasProtected != sample->isProtected()) {
@@ -551,6 +547,11 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
         decodeNextSampleIfNeeded();
         return;
     }
+
+    if (sample->isNonDisplaying())
+        decodingFlags.add(WebCoreDecompressionSession::DecodingFlag::NonDisplaying);
+    if (useStereoDecoding())
+        decodingFlags.add(WebCoreDecompressionSession::DecodingFlag::EnableStereo);
 
     auto decodePromise = decompressionSession->decodeSample(cmSample, decodingFlags);
     m_isDecodingSample = true;
@@ -611,7 +612,7 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
             OSType format = '----';
             MediaTime presentationTime = MediaTime::invalidTime();
             if (RetainPtr firstFrame = result->isEmpty() ? nullptr : (*result)[0]) {
-                RetainPtr imageBuffer = (CVPixelBufferRef)PAL::CMSampleBufferGetImageBuffer(static_cast<CMSampleBufferRef>(firstFrame.get()));
+                RetainPtr imageBuffer = imageForSample(static_cast<CMSampleBufferRef>(firstFrame.get()));
                 format = CVPixelBufferGetPixelFormatType(imageBuffer.get());
                 presentationTime = PAL::toMediaTime(PAL::CMSampleBufferGetOutputPresentationTimeStamp(firstFrame.get()));
             }
@@ -972,6 +973,36 @@ WebSampleBufferVideoRendering *VideoMediaSampleRenderer::rendererOrDisplayLayer(
 #endif
 }
 
+RetainPtr<CVPixelBufferRef> VideoMediaSampleRenderer::imageForSample(CMSampleBufferRef sample) const
+{
+    RetainPtr videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(sample);
+    auto type = PAL::CMFormatDescriptionGetMediaType(videoFormatDescription.get());
+    if (type == kCMMediaType_TaggedBufferGroup) {
+        RetainPtr group = PAL::CMSampleBufferGetTaggedBufferGroup(sample);
+        if (RetainPtr heroEye = dynamic_cf_cast<CFStringRef>(PAL::CMFormatDescriptionGetExtension(videoFormatDescription.get(), PAL::kCMFormatDescriptionExtension_HeroEye))) {
+            for (CFIndex index = 0; index < PAL::CMTaggedBufferGroupGetCount(group.get()); ++index) {
+                RetainPtr tagCollection = PAL::CMTaggedBufferGroupGetTagCollectionAtIndex(group.get(), index);
+                if (PAL::CMTagCollectionContainsTag(tagCollection.get(), heroEye.get() == PAL::kCMFormatDescriptionHeroEye_Left ? PAL::kCMTagStereoLeftEye : PAL::kCMTagStereoRightEye))
+                    return PAL::CMTaggedBufferGroupGetCVPixelBufferAtIndex(group.get(), index);
+            }
+        }
+
+        // Hero eye not defined or not found, use the one with LayerID=0
+        for (CFIndex index = 0; index < PAL::CMTaggedBufferGroupGetCount(group.get()); ++index) {
+            RetainPtr tagCollection = PAL::CMTaggedBufferGroupGetTagCollectionAtIndex(group.get(), index);
+            CMTag videoLayerIDTag = PAL::kCMTagInvalid;
+            CMItemCount numberOfTagsCopied = 0;
+            if (!PAL::CMTagCollectionGetTagsWithCategory(tagCollection.get(), kCMTagCategory_VideoLayerID, &videoLayerIDTag, 1, &numberOfTagsCopied) && numberOfTagsCopied == 1 && !PAL::CMTagGetSInt64Value(videoLayerIDTag))
+                return PAL::CMTaggedBufferGroupGetCVPixelBufferAtIndex(group.get(), index);
+        }
+
+        // None found.
+        return nullptr;
+    }
+
+    return PAL::CMSampleBufferGetImageBuffer(sample);
+}
+
 auto VideoMediaSampleRenderer::copyDisplayedPixelBuffer() -> DisplayedPixelBufferEntry
 {
     assertIsMainThread();
@@ -1005,7 +1036,7 @@ auto VideoMediaSampleRenderer::copyDisplayedPixelBuffer() -> DisplayedPixelBuffe
         if (PAL::CMTimeCompare(presentationTime, currentTime) > 0 && (!m_lastDisplayedSample || PAL::CMTimeCompare(presentationTime, *m_lastDisplayedSample) > 0))
             return;
 
-        imageBuffer = (CVPixelBufferRef)PAL::CMSampleBufferGetImageBuffer(nextSample.get());
+        imageBuffer = imageForSample(nextSample.get());
         presentationTimeStamp = PAL::toMediaTime(presentationTime);
     });
 
@@ -1080,18 +1111,28 @@ void VideoMediaSampleRenderer::setResourceOwner(const ProcessIdentity& resourceO
     m_resourceOwner = resourceOwner;
 }
 
-void VideoMediaSampleRenderer::assignResourceOwner(CMSampleBufferRef sampleBuffer)
+void VideoMediaSampleRenderer::assignResourceOwner(CMSampleBufferRef sample)
 {
-    assertIsCurrent(dispatcher());
-    if (!m_resourceOwner || !sampleBuffer)
+    if (!m_resourceOwner || !sample)
         return;
 
-    RetainPtr<CVPixelBufferRef> imageBuffer = (CVPixelBufferRef)PAL::CMSampleBufferGetImageBuffer(sampleBuffer);
-    if (!imageBuffer || CFGetTypeID(imageBuffer.get()) != CVPixelBufferGetTypeID())
-        return;
+    auto assignImageBuffer = [&](CVPixelBufferRef imageBuffer) {
+        if (!imageBuffer || CFGetTypeID(imageBuffer) != CVPixelBufferGetTypeID())
+            return;
 
-    if (auto surface = CVPixelBufferGetIOSurface(imageBuffer.get()))
-        IOSurface::setOwnershipIdentity(surface, m_resourceOwner);
+        if (auto surface = CVPixelBufferGetIOSurface(imageBuffer))
+            IOSurface::setOwnershipIdentity(surface, m_resourceOwner);
+    };
+
+    RetainPtr videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(sample);
+    if (PAL::CMFormatDescriptionGetMediaType(videoFormatDescription.get()) == kCMMediaType_TaggedBufferGroup) {
+        RetainPtr group = PAL::CMSampleBufferGetTaggedBufferGroup(sample);
+
+        for (CFIndex index = 0; index < PAL::CMTaggedBufferGroupGetCount(group.get()); ++index)
+            assignImageBuffer(PAL::CMTaggedBufferGroupGetCVPixelBufferAtIndex(group.get(), index));
+        return;
+    }
+    assignImageBuffer(PAL::CMSampleBufferGetImageBuffer(sample));
 }
 
 void VideoMediaSampleRenderer::notifyWhenHasAvailableVideoFrame(Function<void(const MediaTime&, double)>&& callback)

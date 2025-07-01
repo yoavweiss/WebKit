@@ -137,6 +137,7 @@ private:
     RetainPtr<CMSampleBufferRef> nextDecodedSample() const;
     CMTime nextDecodedSampleEndTime() const;
     MediaTime lastDecodedSampleTime() const;
+    RetainPtr<CVPixelBufferRef> imageForSample(CMSampleBufferRef) const;
 
     void assignResourceOwner(CMSampleBufferRef);
     bool areSamplesQueuesReadyForMoreMediaData(size_t waterMark) const;
@@ -154,6 +155,7 @@ private:
     RefPtr<WebCoreDecompressionSession> decompressionSession() const;
     bool useDecompressionSessionForProtectedFallback() const;
     bool useDecompressionSessionForProtectedContent() const;
+    bool useStereoDecoding() const;
 
     const RefPtr<WTF::WorkQueue> m_workQueue;
     RetainPtr<AVSampleBufferDisplayLayer> m_displayLayer;

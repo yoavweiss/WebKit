@@ -5148,6 +5148,11 @@ bool Internals::isPlayerPaused(const HTMLMediaElement& element) const
     return player && player->paused();
 }
 
+void Internals::forceStereoDecoding(HTMLMediaElement& element)
+{
+    element.forceStereoDecoding();
+}
+
 void Internals::beginAudioSessionInterruption()
 {
 #if USE(AUDIO_SESSION)

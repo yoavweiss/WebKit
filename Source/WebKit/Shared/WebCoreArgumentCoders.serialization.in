@@ -4759,7 +4759,8 @@ header: <WebCore/MediaPlayer.h>
 [OptionSet] enum class WebCore::VideoMediaSampleRendererPreference : uint8_t {
     PrefersDecompressionSession,
     ProtectedFallbackDisabled,
-    UseDecompressionSessionForProtectedContent
+    UseDecompressionSessionForProtectedContent,
+    UseStereoDecoding
 };
 
 header: <WebCore/MediaPlayer.h>

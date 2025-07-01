@@ -69,6 +69,8 @@ http/tests/media/fairplay/fps-mse-attach-cdm-after-key-exchange.html [ Skip ] # 
 media/track/track-description-cue.html [ Pass ]
 media/track/track-extended-descriptions.html [ Pass ]
 media/media-source/remoteplayback-from-source-element.html [ Pass ]
+# Prior Tahoe, attempting to paint stereo MV-HEVC either errors or crashes.
+[ Sonoma Sequoia ] media/media-source/media-source-paint-stereo-to-canvas.html [ Skip ]
 
 # macOS 14 and above support word-break: auto-phrase.
 # Individually failing tests should be marked in separate expectations.

@@ -869,6 +869,7 @@ public:
     bool isPlayerVisibleInViewport(const HTMLMediaElement&) const;
     bool isPlayerMuted(const HTMLMediaElement&) const;
     bool isPlayerPaused(const HTMLMediaElement&) const;
+    void forceStereoDecoding(HTMLMediaElement&);
     void beginAudioSessionInterruption();
     void endAudioSessionInterruption();
     void clearAudioSessionInterruptionFlag();

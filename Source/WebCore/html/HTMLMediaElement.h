@@ -743,6 +743,7 @@ public:
     void incrementCheckedPtrCount() const { CanMakeCheckedPtr<Node>::incrementCheckedPtrCount(); }
     void decrementCheckedPtrCount() const { CanMakeCheckedPtr<Node>::decrementCheckedPtrCount(); }
 
+    void forceStereoDecoding() { m_forceStereoDecoding = true; }
 protected:
     HTMLMediaElement(const QualifiedName&, Document&, bool createdByParser);
     virtual ~HTMLMediaElement();
@@ -1496,6 +1497,8 @@ private:
     bool m_hasEverPreparedToPlay { false };
 
     RefPtr<AggregateMessageClientForTesting> m_internalMessageClient;
+
+    bool m_forceStereoDecoding { false };
 };
 
 String convertEnumerationToString(HTMLMediaElement::AutoplayEventPlaybackState);
