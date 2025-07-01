@@ -196,7 +196,7 @@ bool NumberInputType::sizeShouldIncludeDecoration(int defaultSize, int& preferre
     return true;
 }
 
-float NumberInputType::decorationWidth() const
+float NumberInputType::decorationWidth(float inputWidth) const
 {
     ASSERT(element());
 
@@ -211,8 +211,11 @@ float NumberInputType::decorationWidth() const
         // FIXME <https://webkit.org/b/294858>: This is incorrect for anything other than fixed widths.
         if (auto fixedLogicalWidth = spinButton->computedStyle()->logicalWidth().tryFixed())
             width += fixedLogicalWidth->value;
-        else if (auto percentageLogicalWidth = spinButton->computedStyle()->logicalWidth().tryPercentage())
-            width += percentageLogicalWidth->value;
+        else if (auto percentageLogicalWidth = spinButton->computedStyle()->logicalWidth().tryPercentage()) {
+            auto percentageLogicalWidthValue = percentageLogicalWidth->value;
+            if (percentageLogicalWidthValue != 100.f)
+                width += inputWidth * percentageLogicalWidthValue / (100 - percentageLogicalWidthValue);
+        }
     }
     return width;
 }

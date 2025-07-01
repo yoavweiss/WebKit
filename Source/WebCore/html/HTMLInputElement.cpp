@@ -1128,9 +1128,9 @@ bool HTMLInputElement::sizeShouldIncludeDecoration(int& preferredSize) const
     return m_inputType->sizeShouldIncludeDecoration(defaultSize, preferredSize);
 }
 
-float HTMLInputElement::decorationWidth() const
+float HTMLInputElement::decorationWidth(float inputWidth) const
 {
-    return m_inputType->decorationWidth();
+    return m_inputType->decorationWidth(inputWidth);
 }
 
 void HTMLInputElement::copyNonAttributePropertiesFromElement(const Element& source)

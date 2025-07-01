@@ -437,7 +437,7 @@ bool InputType::sizeShouldIncludeDecoration(int, int& preferredSize) const
     return false;
 }
 
-float InputType::decorationWidth() const
+float InputType::decorationWidth(float) const
 {
     return 0;
 }

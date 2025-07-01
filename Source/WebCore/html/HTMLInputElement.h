@@ -196,7 +196,7 @@ public:
     void setDefaultCheckedState(bool);
 
     bool sizeShouldIncludeDecoration(int& preferredSize) const;
-    float decorationWidth() const;
+    float decorationWidth(float inputWidth) const;
 
     // Checks if the specified string would be a valid value.
     // We should not call this for types with no string value such as CHECKBOX and RADIO.
