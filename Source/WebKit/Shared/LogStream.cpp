@@ -73,17 +73,12 @@ void LogStream::logOnBehalfOfWebContent(std::span<const uint8_t> logSubsystem, s
     };
 
     bool isValidLogType = logType == OS_LOG_TYPE_DEFAULT || logType == OS_LOG_TYPE_INFO || logType == OS_LOG_TYPE_DEBUG || logType == OS_LOG_TYPE_ERROR || logType == OS_LOG_TYPE_FAULT;
-
 #if ENABLE(STREAMING_IPC_IN_LOG_FORWARDING)
-    RefPtr logConnection = &m_logStreamConnection->connection();
+    MESSAGE_CHECK(isNullTerminated(nullTerminatedLogString) && isValidLogType, m_logStreamConnection->connection());
 #else
     RefPtr logConnection = m_logConnection.get();
-#endif
-
     MESSAGE_CHECK(isNullTerminated(nullTerminatedLogString) && isValidLogType, logConnection);
-    MESSAGE_CHECK(logSubsystem.size() <= logSubsystemMaxSize, logConnection);
-    MESSAGE_CHECK(logCategory.size() <= logCategoryMaxSize, logConnection);
-    MESSAGE_CHECK(nullTerminatedLogString.size() <= logStringMaxSize, logConnection);
+#endif
 
     // os_log_hook on sender side sends a null category and subsystem when logging to OS_LOG_DEFAULT.
     auto osLog = OSObjectPtr<os_log_t>();
