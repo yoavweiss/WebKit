@@ -2194,7 +2194,7 @@ webkit.org/b/295054 http/tests/webrtc/filtering-ice-candidate-cross-origin-frame
 
 webkit.org/b/295076 imported/w3c/web-platform-tests/css/css-pseudo/highlight-custom-properties-dynamic-001.html [ Pass ImageOnlyFailure ]
 
-webkit.org/b/295217 [ Sequoia+ x86_64 ] svg/gradients/spreadMethodAlpha.svg [ ImageOnlyFailure ]
+webkit.org/b/295217 [ Sequoia x86_64 ] svg/gradients/spreadMethodAlpha.svg [ ImageOnlyFailure ]
 
 webkit.org/b/295226 http/wpt/mediarecorder/MediaRecorder-audio-samplingrate-change.html [ Pass Failure ]
 
