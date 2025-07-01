@@ -806,6 +806,9 @@ accessibility/textarea-line-for-index.html [ Skip ]
 # AX support for datetime input elements needs to be completed in glib platforms.
 accessibility/datetime [ Skip ]
 
+# Requires AccessibilityUIElement::dismiss to return whether or not it was handled.
+accessibility/dismiss-action-returns-whether-keyevent-handled.html [ Skip ]
+
 # Added in r263823. Both tests are timing out.
 webkit.org/b/213874 accessibility/keyevents-for-increment-actions-with-node-removal.html [ Skip ]
 webkit.org/b/213874 accessibility/keyevents-posted-for-increment-actions.html [ Skip ]

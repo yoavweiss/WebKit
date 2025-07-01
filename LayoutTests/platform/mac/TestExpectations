@@ -134,6 +134,9 @@ fast/screen-orientation/orientation-in-resize-event.html [ Skip ]
 accessibility/aria-listbox-clear-selection-crash.html
 accessibility/listbox-clear-selection.html
 
+# The dismiss action doesn't return a result on macOS
+accessibility/dismiss-action-returns-whether-keyevent-handled.html
+
 # These tests require touch support
 fast/events/touch [ Skip ]
 imported/w3c/web-platform-tests/touch-events [ Skip ]
