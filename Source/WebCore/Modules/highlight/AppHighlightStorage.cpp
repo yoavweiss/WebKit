@@ -89,10 +89,14 @@ static std::pair<RefPtr<Node>, size_t> findNodeStartingAtPathComponentIndex(cons
 
 static RefPtr<Node> findNode(const AppHighlightRangeData::NodePath& path, Document& document)
 {
-    if (path.isEmpty() || !document.body())
+    if (path.isEmpty())
         return nullptr;
 
-    auto [foundNode, nextIndex] = findNodeStartingAtPathComponentIndex(path, *document.body(), 0);
+    RefPtr body = document.body();
+    if (!body)
+        return nullptr;
+
+    auto [foundNode, nextIndex] = findNodeStartingAtPathComponentIndex(path, *body, 0);
     if (foundNode)
         return foundNode;
 
@@ -195,7 +199,7 @@ static AppHighlightRangeData::NodePathComponent createNodePathComponent(const No
 static AppHighlightRangeData::NodePath makeNodePath(RefPtr<Node>&& node)
 {
     AppHighlightRangeData::NodePath components;
-    RefPtr body = node->document().body();
+    RefPtr body = node->protectedDocument()->body();
     for (RefPtr ancestor = node; ancestor && ancestor != body; ancestor = ancestor->parentNode())
         components.append(createNodePathComponent(*ancestor));
     components.reverse();
@@ -266,24 +270,22 @@ void AppHighlightStorage::restoreAndScrollToAppHighlight(Ref<FragmentedSharedBuf
 
 bool AppHighlightStorage::attemptToRestoreHighlightAndScroll(AppHighlightRangeData& highlight, ScrollToHighlight scroll)
 {
-    if (!m_document)
+    RefPtr document = m_document.get();
+    if (!document)
         return false;
     
-    RefPtr strongDocument = m_document.get();
-    
-    auto range = findRange(highlight, *strongDocument);
-    
+    auto range = findRange(highlight, *document);
     if (!range)
         return false;
-    
-    strongDocument->appHighlightRegistry().addAnnotationHighlightWithRange(StaticRange::create(*range));
-    
+
+    document->protectedAppHighlightRegistry()->addAnnotationHighlightWithRange(StaticRange::create(*range));
+
     if (scroll == ScrollToHighlight::Yes) {
         auto textIndicator = TextIndicator::createWithRange(range.value(), { TextIndicatorOption::DoNotClipToVisibleRect }, WebCore::TextIndicatorPresentationTransition::Bounce);
         if (textIndicator)
             m_document->page()->chrome().client().setTextIndicator(textIndicator->data());
 
-        TemporarySelectionChange selectionChange(*strongDocument, { *range }, { TemporarySelectionOption::DelegateMainFrameScroll, TemporarySelectionOption::SmoothScroll, TemporarySelectionOption::RevealSelectionBounds, TemporarySelectionOption::UserTriggered });
+        TemporarySelectionChange selectionChange(*document, { *range }, { TemporarySelectionOption::DelegateMainFrameScroll, TemporarySelectionOption::SmoothScroll, TemporarySelectionOption::RevealSelectionBounds, TemporarySelectionOption::UserTriggered });
     }
 
     return true;

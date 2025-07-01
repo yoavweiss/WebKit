@@ -3794,7 +3794,7 @@ HighlightRegistry& Document::appHighlightRegistry()
 
 Ref<HighlightRegistry> Document::protectedAppHighlightRegistry()
 {
-    return highlightRegistry();
+    return appHighlightRegistry();
 }
 
 AppHighlightStorage& Document::appHighlightStorage()
