@@ -150,6 +150,16 @@ DECLARE_SYSTEM_HEADER
 #import <UIKit/UIView+SpatialComputing.h>
 #endif
 
+#if PLATFORM(IOS)
+@interface UIWebClip(Staging_134304426)
++ (NSString *)pathForWebClipWithIdentifier:(NSString *)identifier;
+@end
+
+@interface UIWebClip(Staging_131961097)
+@property (nonatomic, readonly) NSSet<NSString *> *trustedClientBundleIdentifiers;
+@end
+#endif
+
 #else // USE(APPLE_INTERNAL_SDK)
 
 @interface UIWebClip : NSObject
