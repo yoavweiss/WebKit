@@ -127,8 +127,8 @@ DECLARE_SYSTEM_HEADER
 #endif
 
 #if HAVE(UIFINDINTERACTION)
+#import <UIKit/UIFindInteraction.h>
 #import <UIKit/UIFindSession_Private.h>
-#import <UIKit/_UIFindInteraction.h>
 #import <UIKit/_UITextSearching.h>
 #endif
 
@@ -313,10 +313,6 @@ typedef id<NSCoding, NSCopying> _UITextSearchDocumentIdentifier;
 
 - (BOOL)supportsTextReplacement;
 
-@end
-
-@interface _UIFindInteraction : NSObject <UIInteraction>
-@property (nonatomic, strong) id<_UITextSearching> searchableObject;
 @end
 
 @interface UIFindInteraction ()
@@ -1213,19 +1209,6 @@ typedef NS_ENUM(NSUInteger, _UIScrollDeviceCategory) {
 @interface UIColorPickerViewController ()
 @property (nonatomic, copy, setter=_setSuggestedColors:) NSArray<UIColor *> *_suggestedColors;
 @end
-
-#if HAVE(UIFINDINTERACTION)
-
-@interface _UIFindInteraction (Staging_84486967)
-
-- (void)presentFindNavigatorShowingReplace:(BOOL)replaceVisible;
-
-- (void)findNext;
-- (void)findPrevious;
-
-@end
-
-#endif // HAVE(UIFINDINTERACTION)
 
 #if HAVE(AUTOCORRECTION_ENHANCEMENTS)
 @interface UIWKDocumentContext (Staging_112795757)
