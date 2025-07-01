@@ -6754,7 +6754,7 @@ static void outputPaintOrderTreeLegend(TextStream& stream)
     stream.nextLine();
 }
 
-static void outputIdent(TextStream& stream, unsigned depth)
+static void outputIndent(TextStream& stream, unsigned depth)
 {
     unsigned i = 0;
     while (++i <= depth * 2)
@@ -6828,7 +6828,7 @@ static void outputPaintOrderTreeRecursive(TextStream& stream, const WebCore::Ren
 
     stream << " "_s;
 
-    outputIdent(stream, depth);
+    outputIndent(stream, depth);
 
     stream << prefix;
 
@@ -6972,7 +6972,7 @@ void outputLayerPositionTreeRecursive(TextStream& stream, const WebCore::RenderL
 
     stream << " "_s;
 
-    outputIdent(stream, depth);
+    outputIndent(stream, depth);
 
     auto layerRect = layer.rect();
 

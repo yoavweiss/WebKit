@@ -3628,6 +3628,13 @@ static void appendAttributes(StringBuilder& builder, const Element& element)
     }
 }
 
+String Element::attributesForDescription() const
+{
+    StringBuilder builder;
+    appendAttributes(builder, *this);
+    return builder.toString();
+}
+
 String Element::description() const
 {
     StringBuilder builder;

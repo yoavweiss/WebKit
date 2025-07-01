@@ -1467,6 +1467,10 @@ void RenderObject::outputRenderObject(TextStream& stream, bool mark, int depth) 
         if (outOfFlowChildNeedsStaticPositionLayout())
             stream << "[out of flow child needs parent layout]";
     }
+
+    if (RefPtr element = dynamicDowncast<Element>(node()))
+        stream << element->attributesForDescription();
+
     stream.nextLine();
 }
 

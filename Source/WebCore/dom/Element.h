@@ -842,6 +842,7 @@ public:
 
     String description() const override;
     String debugDescription() const override;
+    String attributesForDescription() const;
 
     bool hasDuplicateAttribute() const;
     void setHasDuplicateAttribute(bool);
