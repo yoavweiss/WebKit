@@ -827,8 +827,25 @@ double AVVideoCaptureSource::facingModeFitnessScoreAdjustment() const
 void AVVideoCaptureSource::applyFrameRateAndZoomWithPreset(double requestedFrameRate, double requestedZoom, std::optional<VideoPreset>&& preset)
 {
     requestedZoom *= m_zoomScaleFactor;
-    if (m_currentFrameRate == requestedFrameRate && m_currentZoom == requestedZoom && preset && m_currentPreset && preset->format() == m_currentPreset->format())
+    bool isSamePresetAndFrameRate = m_currentFrameRate == requestedFrameRate && preset && m_currentPreset && preset->format() == m_currentPreset->format();
+    if (isSamePresetAndFrameRate && m_currentZoom == requestedZoom)
         return;
+
+    if (isSamePresetAndFrameRate) {
+        ALWAYS_LOG_IF_POSSIBLE(LOGIDENTIFIER, ", applying zoom only");
+        if (!lockForConfiguration())
+            return;
+
+        @try {
+            [device() setVideoZoomFactor:requestedZoom];
+            m_currentZoom = requestedZoom;
+        } @catch(NSException *exception) {
+            ERROR_LOG_IF_POSSIBLE(LOGIDENTIFIER, "error applying zoom ", exception.name, ", reason : ", exception.reason);
+        }
+
+        [device() unlockForConfiguration];
+        return;
+    }
 
     beginConfigurationForConstraintsIfNeeded();
 
