@@ -1583,6 +1583,23 @@ int Element::clientHeight()
     return 0;
 }
 
+double Element::currentCSSZoom()
+{
+    Ref document = this->document();
+
+    document->updateStyleIfNeeded();
+
+    float initialZoom = 1.0f;
+    if (RefPtr frame = document->frame()) {
+        if (!document->printing())
+            initialZoom = frame->pageZoomFactor();
+    }
+
+    if (CheckedPtr renderer = this->renderer())
+        return renderer->style().usedZoom() / initialZoom;
+    return 1.0;
+}
+
 ALWAYS_INLINE LocalFrame* Element::documentFrameWithNonNullView() const
 {
     auto* frame = document().frame();

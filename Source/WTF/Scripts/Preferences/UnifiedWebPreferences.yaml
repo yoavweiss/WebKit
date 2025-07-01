@@ -2610,6 +2610,20 @@ EnableDebuggingFeaturesInSandbox:
     WebKit:
       default: false
 
+EnableElementCurrentCSSZoom:
+  type: bool
+  status: preview
+  category: dom
+  humanReadableName: "Enable Element.currentCSSZoom"
+  humanReadableDescription: "Enable Element.currentCSSZoom"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 EnableInheritURIQueryComponent:
   type: bool
   status: embedder
