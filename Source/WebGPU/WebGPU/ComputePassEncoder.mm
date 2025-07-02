@@ -208,7 +208,7 @@ void ComputePassEncoder::executePreDispatchCommands(const Buffer* indirectBuffer
             protectedParentEncoder()->rebindSamplersPreCommit(group.get());
 
         if (!group->previouslyValidatedBindGroup(bindGroupIndex, pipelineIdentifier, m_maxDynamicOffsetAtIndex[bindGroupIndex])) {
-            if (group->makeSubmitInvalid(ShaderStage::Compute, pipelineLayout->optionalBindGroupLayout(bindGroupIndex))) {
+            if (group->makeSubmitInvalid(ShaderStage::Compute, pipelineLayout->protectedOptionalBindGroupLayout(bindGroupIndex).get())) {
                 protectedParentEncoder()->makeSubmitInvalid();
                 return;
             }
@@ -453,7 +453,7 @@ void ComputePassEncoder::setBindGroup(uint32_t groupIndex, const BindGroup* grou
 {
     RETURN_IF_FINISHED();
 
-    auto dynamicOffsetCount = (groupPtr && groupPtr->bindGroupLayout()) ? groupPtr->bindGroupLayout()->dynamicBufferCount() : 0;
+    auto dynamicOffsetCount = (groupPtr && groupPtr->bindGroupLayout()) ? groupPtr->protectedBindGroupLayout()->dynamicBufferCount() : 0;
     if (groupIndex >= m_device->limits().maxBindGroups || (dynamicOffsets && dynamicOffsetCount != dynamicOffsets->size())) {
         makeInvalid(@"GPUComputePassEncoder.setBindGroup: groupIndex >= limits.maxBindGroups");
         return;
