@@ -2451,3 +2451,5 @@ webkit.org/b/294316 [ Debug ] imported/w3c/web-platform-tests/pointerevents/coal
 webkit.org/b/294316 [ Debug ] imported/w3c/web-platform-tests/pointerevents/coalesced_events_attributes.https.html?pen [ Skip ]
 
 webkit.org/b/295127  transitions/svg-text-shadow-transition.html [ Pass Failure ]
+
+webkit.org/b/295308 fullscreen/full-screen-enter-while-exiting-multiple-elements.html [ Pass Timeout ]
