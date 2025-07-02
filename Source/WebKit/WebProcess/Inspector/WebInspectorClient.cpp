@@ -77,10 +77,10 @@ WebInspectorClient::~WebInspectorClient()
     
     m_paintRectLayers.clear();
 
-    if (m_paintRectOverlay) {
+    if (RefPtr paintRectOverlay = m_paintRectOverlay) {
         RefPtr page = m_page.get();
         if (page && page->corePage())
-            page->corePage()->pageOverlayController().uninstallPageOverlay(*m_paintRectOverlay, PageOverlay::FadeMode::Fade);
+            page->corePage()->pageOverlayController().uninstallPageOverlay(*paintRectOverlay, PageOverlay::FadeMode::Fade);
     }
 }
 
@@ -103,22 +103,28 @@ void WebInspectorClient::frontendCountChanged(unsigned count)
 Inspector::FrontendChannel* WebInspectorClient::openLocalFrontend(InspectorController* controller)
 {
     if (RefPtr page = m_page.get())
-        page->inspector()->openLocalInspectorFrontend();
+        page->protectedInspector()->openLocalInspectorFrontend();
     return nullptr;
 }
 
 void WebInspectorClient::bringFrontendToFront()
 {
     RefPtr page = m_page.get();
-    if (page && page->inspector())
-        page->inspector()->bringToFront();
+    if (!page)
+        return;
+
+    if (RefPtr inspector = page->inspector())
+        inspector->bringToFront();
 }
 
 void WebInspectorClient::didResizeMainFrame(LocalFrame*)
 {
     RefPtr page = m_page.get();
-    if (page && page->inspector())
-        page->inspector()->updateDockingAvailability();
+    if (!page)
+        return;
+
+    if (RefPtr inspector = page->inspector())
+        inspector->updateDockingAvailability();
 }
 
 void WebInspectorClient::highlight()
@@ -187,15 +193,17 @@ void WebInspectorClient::showPaintRect(const FloatRect& rect)
     if (!page->corePage()->settings().acceleratedCompositingEnabled())
         return;
 
-    if (!m_paintRectOverlay) {
+    RefPtr paintRectOverlay = m_paintRectOverlay;
+    if (!paintRectOverlay) {
         m_paintRectOverlay = PageOverlay::create(*this, PageOverlay::OverlayType::Document);
-        page->corePage()->pageOverlayController().installPageOverlay(*m_paintRectOverlay, PageOverlay::FadeMode::DoNotFade);
+        paintRectOverlay = m_paintRectOverlay.copyRef();
+        page->corePage()->pageOverlayController().installPageOverlay(*paintRectOverlay, PageOverlay::FadeMode::DoNotFade);
     }
 
     if (!m_paintIndicatorLayerClient)
         m_paintIndicatorLayerClient = makeUnique<RepaintIndicatorLayerClient>(*this);
 
-    Ref paintLayer = GraphicsLayer::create(page->drawingArea()->graphicsLayerFactory(), *m_paintIndicatorLayerClient);
+    Ref paintLayer = GraphicsLayer::create(page->protectedDrawingArea()->graphicsLayerFactory(), *m_paintIndicatorLayerClient);
     
     paintLayer->setName(MAKE_STATIC_STRING_IMPL("paint rect"));
     paintLayer->setAnchorPoint(FloatPoint3D());
@@ -216,7 +224,7 @@ void WebInspectorClient::showPaintRect(const FloatRect& rect)
     Ref rawLayer = paintLayer.get();
     m_paintRectLayers.add(WTFMove(paintLayer));
 
-    Ref overlayRootLayer = m_paintRectOverlay->layer();
+    Ref overlayRootLayer = paintRectOverlay->layer();
     overlayRootLayer->addChild(rawLayer.get());
 }
 
@@ -256,22 +264,31 @@ void WebInspectorClient::didSetSearchingForNode(bool enabled)
 void WebInspectorClient::elementSelectionChanged(bool active)
 {
     RefPtr page = m_page.get();
-    if (page && page->inspector())
-        page->inspector()->elementSelectionChanged(active);
+    if (!page)
+        return;
+
+    if (RefPtr inspector = page->inspector())
+        inspector->elementSelectionChanged(active);
 }
 
 void WebInspectorClient::timelineRecordingChanged(bool active)
 {
     RefPtr page = m_page.get();
-    if (page && page->inspector())
-        page->inspector()->timelineRecordingChanged(active);
+    if (!page)
+        return;
+
+    if (RefPtr inspector = page->inspector())
+        inspector->timelineRecordingChanged(active);
 }
 
 void WebInspectorClient::setDeveloperPreferenceOverride(WebCore::InspectorClient::DeveloperPreference developerPreference, std::optional<bool> overrideValue)
 {
     RefPtr page = m_page.get();
-    if (page && page->inspector())
-        page->inspector()->setDeveloperPreferenceOverride(developerPreference, overrideValue);
+    if (!page)
+        return;
+
+    if (RefPtr inspector = page->inspector())
+        inspector->setDeveloperPreferenceOverride(developerPreference, overrideValue);
 }
 
 #if ENABLE(INSPECTOR_NETWORK_THROTTLING)

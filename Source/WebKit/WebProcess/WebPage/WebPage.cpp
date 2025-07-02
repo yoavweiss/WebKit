@@ -5197,6 +5197,11 @@ WebInspector* WebPage::inspector(LazyCreationPolicy behavior)
     return m_inspector.get();
 }
 
+RefPtr<WebInspector> WebPage::protectedInspector()
+{
+    return inspector();
+}
+
 WebInspectorUI* WebPage::inspectorUI()
 {
     if (m_isClosed)
