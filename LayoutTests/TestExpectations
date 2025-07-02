@@ -6380,7 +6380,6 @@ imported/w3c/web-platform-tests/css/css-text-decor/text-shadow/standards-decor-n
 # New failures after import of css/css-variables
 imported/w3c/web-platform-tests/css/css-variables/variable-reference-visited.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-variables/wide-keyword-fallback-002.html [ ImageOnlyFailure ]
-webkit.org/b/294587 [ Debug ] imported/w3c/web-platform-tests/css/css-variables/variable-css-wide-keywords.html [ Skip ]
 
 # WPT tests that are timing out.
 imported/w3c/web-platform-tests/FileAPI/url/unicode-origin.sub.html [ Skip ]
