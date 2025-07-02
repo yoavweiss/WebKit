@@ -36,6 +36,7 @@
 #include "CSSMediaRule.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSRule.h"
+#include "CSSStartingStyleRule.h"
 #include "CSSStyleRule.h"
 #include "CSSStyleSheet.h"
 #include "CSSSupportsRule.h"
@@ -80,6 +81,9 @@ void InspectorCSSOMWrappers::collect(ListType* listType)
             break;
         case StyleRuleType::Supports:
             collect(uncheckedDowncast<CSSSupportsRule>(cssRule));
+            break;
+        case StyleRuleType::StartingStyle:
+            collect(uncheckedDowncast<CSSStartingStyleRule>(cssRule));
             break;
         case StyleRuleType::Style:
             m_styleRuleToCSSOMWrapperMap.add(&uncheckedDowncast<CSSStyleRule>(*cssRule).styleRule(), uncheckedDowncast<CSSStyleRule>(cssRule));
