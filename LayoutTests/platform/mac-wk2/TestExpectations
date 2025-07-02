@@ -2190,8 +2190,6 @@ webkit.org/b/293804 [ Debug ] pdf/annotations/checkbox-set-active.html [ Pass Ti
 # It fails only on debug build with '0.01%' difference
 [ Debug ] imported/w3c/web-platform-tests/css/css-fill-stroke/paint-order-001.html [ ImageOnlyFailure ]
 
-webkit.org/b/295054 http/tests/webrtc/filtering-ice-candidate-cross-origin-frame.html [ Pass Failure ]
-
 webkit.org/b/295076 imported/w3c/web-platform-tests/css/css-pseudo/highlight-custom-properties-dynamic-001.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/295217 [ Sequoia x86_64 ] svg/gradients/spreadMethodAlpha.svg [ ImageOnlyFailure ]
