@@ -3315,7 +3315,7 @@ static bool canAttachAuthorShadowRoot(const Element& element)
     return false;
 }
 
-ExceptionOr<ShadowRoot&> Element::attachShadow(const ShadowRootInit& init, CustomElementRegistryKind registryKind)
+ExceptionOr<ShadowRoot&> Element::attachShadow(const ShadowRootInit& init, std::optional<CustomElementRegistryKind> registryKind)
 {
     if (init.mode == ShadowRootMode::UserAgent)
         return Exception { ExceptionCode::TypeError };
@@ -3334,6 +3334,8 @@ ExceptionOr<ShadowRoot&> Element::attachShadow(const ShadowRootInit& init, Custo
     }
     RefPtr registry = init.customElementRegistry;
     auto scopedRegistry = ShadowRoot::ScopedCustomElementRegistry::No;
+    if (!registryKind)
+        registryKind = !registry && usesNullCustomElementRegistry() ? CustomElementRegistryKind::Null : CustomElementRegistryKind::Window;
     if (registryKind == CustomElementRegistryKind::Null) {
         ASSERT(!registry);
         scopedRegistry = ShadowRoot::ScopedCustomElementRegistry::Yes;
@@ -3341,7 +3343,7 @@ ExceptionOr<ShadowRoot&> Element::attachShadow(const ShadowRootInit& init, Custo
         ASSERT(registryKind == CustomElementRegistryKind::Window);
         scopedRegistry = ShadowRoot::ScopedCustomElementRegistry::Yes;
     } else
-        registry = document().customElementRegistry();
+        registry = CustomElementRegistry::registryForElement(*this);
     Ref shadow = ShadowRoot::create(document(), init.mode, init.slotAssignment,
         init.delegatesFocus ? ShadowRoot::DelegatesFocus::Yes : ShadowRoot::DelegatesFocus::No,
         init.clonable ? ShadowRoot::Clonable::Yes : ShadowRoot::Clonable::No,
