@@ -562,6 +562,13 @@ bool Quirks::needsPrimeVideoUserSelectNoneQuirk() const
 #endif
 }
 
+// facebook.com https://webkit.org/b/295071
+// FIXME: https://webkit.org/b/295318
+bool Quirks::needsFacebookRemoveNotSupportedQuirk() const
+{
+    return needsQuirks() && m_quirksData.needsFacebookRemoveNotSupportedQuirk;
+}
+
 // youtube.com rdar://135886305
 // NOTE: Also remove `BuilderConverter::convertScrollbarWidth` and related code when removing this quirk.
 bool Quirks::needsScrollbarWidthThinDisabledQuirk() const
@@ -2285,7 +2292,6 @@ static void handleSoylentQuirks(QuirksData& quirksData, const URL& quirksURL, co
 }
 #endif
 
-#if ENABLE(VIDEO_PRESENTATION_MODE)
 static void handleFacebookQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
 {
     if (quirksDomainString != "facebook.com"_s)
@@ -2294,10 +2300,15 @@ static void handleFacebookQuirks(QuirksData& quirksData, const URL& quirksURL, c
     UNUSED_PARAM(quirksURL);
     UNUSED_PARAM(documentURL);
     quirksData.isFacebook = true;
+    // facebook.com rdar://100871402
+    quirksData.needsFacebookRemoveNotSupportedQuirk = true;
+#if ENABLE(VIDEO_PRESENTATION_MODE)
     // facebook.com rdar://67273166
     quirksData.requiresUserGestureToPauseInPictureInPictureQuirk = true;
+#endif
 }
 
+#if ENABLE(VIDEO_PRESENTATION_MODE)
 static void handleForbesQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
 {
     if (quirksDomainString != "forbes.com"_s)
@@ -2918,8 +2929,8 @@ void Quirks::determineRelevantQuirks()
 #endif
         { "ea"_s, &handleEAQuirks },
         { "espn"_s, &handleESPNQuirks },
-#if ENABLE(VIDEO_PRESENTATION_MODE)
         { "facebook"_s, &handleFacebookQuirks },
+#if ENABLE(VIDEO_PRESENTATION_MODE)
         { "forbes"_s, &handleForbesQuirks },
 #endif
 #if PLATFORM(IOS_FAMILY)
