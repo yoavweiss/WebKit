@@ -31,7 +31,6 @@
 #import "APINumber.h"
 #import "APISerializedScriptValue.h"
 #import "APIString.h"
-#import "CoreIPCNumber.h"
 #import "WKSharedAPICast.h"
 #import <JavaScriptCore/JSCJSValue.h>
 #import <JavaScriptCore/JSContext.h>
@@ -60,8 +59,8 @@ RetainPtr<id> JavaScriptEvaluationResult::toID(Variant&& root)
         return nullptr;
     }, [] (bool value) -> RetainPtr<id> {
         return value ? @YES : @NO;
-    }, [] (CoreIPCNumber&& value) -> RetainPtr<id> {
-        return value.toID();
+    }, [] (double value) -> RetainPtr<id> {
+        return adoptNS([[NSNumber alloc] initWithDouble:value]);
     }, [] (String&& value) -> RetainPtr<id> {
         return value.createNSString();
     }, [] (Seconds value) -> RetainPtr<id> {
@@ -83,8 +82,8 @@ RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Variant&& root)
         return nullptr;
     }, [] (bool value) -> RefPtr<API::Object> {
         return API::Boolean::create(value);
-    }, [] (CoreIPCNumber&& value) -> RefPtr<API::Object> {
-        return API::Double::create([value.toID() doubleValue]);
+    }, [] (double value) -> RefPtr<API::Object> {
+        return API::Double::create(value);
     }, [] (String&& value) -> RefPtr<API::Object> {
         return API::String::create(value);
     }, [] (Seconds value) -> RefPtr<API::Object> {
@@ -166,7 +165,7 @@ auto JavaScriptEvaluationResult::toVariant(id object) -> Variant
             if ([object isEqual:@NO])
                 return false;
         }
-        return CoreIPCNumber((NSNumber *)object);
+        return [(NSNumber *)object doubleValue];
     }
 
     if (auto* nsString = dynamic_objc_cast<NSString>(object))
@@ -295,7 +294,7 @@ auto JavaScriptEvaluationResult::jsValueToVariant(JSValue *value) -> Variant
         if (value.isBoolean)
             return static_cast<bool>([value toBool]);
         if (value.isNumber)
-            return CoreIPCNumber([value toNumber]);
+            return [[value toNumber] doubleValue];
         if (value.isString)
             return String([value toString]);
         if (value.isNull)

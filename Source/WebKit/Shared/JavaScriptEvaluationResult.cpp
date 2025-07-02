@@ -32,10 +32,6 @@
 #include <WebCore/ExceptionDetails.h>
 #include <WebCore/SerializedScriptValue.h>
 
-#if PLATFORM(COCOA)
-#include "CoreIPCNumber.h"
-#endif
-
 namespace WebKit {
 
 #if !PLATFORM(COCOA)
