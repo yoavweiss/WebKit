@@ -1183,25 +1183,25 @@ class CheckOutPullRequest(steps.ShellSequence, ShellMixin):
             stdioLogName=stdioLogName, **overrides
         )
 
-    def run(self):
-        self.commands = []
-
+    def getCommandList(self):
         remote, repo_name = self.getProperty('github.head.repo.full_name', DEFAULT_REMOTE).split('/', 1)
         if '-' in repo_name:
             remote = f"{remote}-{repo_name.split('-', 1)[-1]}"
         project = self.getProperty('github.head.repo.full_name', self.getProperty('project'))
         pr_branch = self.getProperty('github.head.ref', DEFAULT_BRANCH)
-        rebase_target_hash = self.getProperty('ews_revision') or self.getProperty('got_revision')
 
-        commands = [
+        return [
             ['git', 'config', 'credential.helper', '!echo_credentials() { sleep 1; echo "username=${GIT_USER}"; echo "password=${GIT_PASSWORD}"; }; echo_credentials'],
-            self.shell_command('git remote add {} {}{}.git || {}'.format(remote, GITHUB_URL, project, self.shell_exit_0())),
-            ['git', 'remote', 'set-url', remote, '{}{}.git'.format(GITHUB_URL, project)],
+            self.shell_command(f'git remote add {remote} {GITHUB_URL}{project}.git || {self.shell_exit_0()}'),
+            ['git', 'remote', 'set-url', remote, f'{GITHUB_URL}{project}.git'],
             ['git', 'fetch', remote, pr_branch],
             ['git', 'checkout', '-b', pr_branch],
-            ['git', 'cherry-pick', '--allow-empty', 'HEAD..remotes/{}/{}'.format(remote, pr_branch)],
+            ['git', 'cherry-pick', '--allow-empty', f'HEAD..remotes/{remote}/{pr_branch}'],
         ]
-        for command in commands:
+
+    def run(self):
+        self.commands = []
+        for command in self.getCommandList():
             self.commands.append(util.ShellArg(command=command, logname='stdio', haltOnFailure=True))
 
         username, access_token = GitHub.credentials(user=GitHub.user_for_queue(self.getProperty('buildername', '')))
