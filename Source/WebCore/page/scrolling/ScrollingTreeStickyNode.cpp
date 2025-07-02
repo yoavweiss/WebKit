@@ -61,7 +61,21 @@ bool ScrollingTreeStickyNode::commitStateBeforeChildren(const ScrollingStateNode
     if (stickyStateNode->hasChangedProperty(ScrollingStateNode::Property::ViewportConstraints))
         m_constraints = stickyStateNode->viewportConstraints();
 
+    updateIsSticking();
+
     return true;
+}
+
+void ScrollingTreeStickyNode::updateIsSticking()
+{
+    bool isSticking = isCurrentlySticking();
+    if (m_isSticking == isSticking)
+        return;
+
+    if (!std::exchange(m_isSticking, isSticking)) {
+        if (RefPtr scrollingTree = this->scrollingTree())
+            scrollingTree->stickyScrollingTreeNodeBeganSticking(scrollingNodeID());
+    }
 }
 
 void ScrollingTreeStickyNode::dumpProperties(TextStream& ts, OptionSet<ScrollingStateTreeAsTextBehavior> behavior) const
@@ -133,6 +147,20 @@ FloatPoint ScrollingTreeStickyNode::computeAnchorLayerPosition() const
 FloatSize ScrollingTreeStickyNode::scrollDeltaSinceLastCommit() const
 {
     return computeAnchorLayerPosition() - m_constraints.anchorLayerPositionAtLastLayout();
+}
+
+bool ScrollingTreeStickyNode::isCurrentlySticking() const
+{
+    auto constrainingRect = findConstrainingRect();
+    if (!constrainingRect)
+        return false;
+
+    auto stickyOffset = m_constraints.computeStickyOffset(*constrainingRect);
+    auto stickyRect = m_constraints.stickyBoxRect();
+    auto containingRect = m_constraints.containingBlockRect();
+
+    // FIXME: This should also account for horizontal scrolling.
+    return stickyOffset.height() > 0 && stickyOffset.height() < containingRect.height() - stickyRect.height();
 }
 
 } // namespace WebCore

@@ -39,7 +39,6 @@ class ScrollingTreeStickyNodeCocoa : public ScrollingTreeStickyNode {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(ScrollingTreeStickyNodeCocoa, WEBCORE_EXPORT);
 public:
     WEBCORE_EXPORT static Ref<ScrollingTreeStickyNodeCocoa> create(ScrollingTree&, ScrollingNodeID);
-    WEBCORE_EXPORT bool isCurrentlySticking() const;
 
     virtual ~ScrollingTreeStickyNodeCocoa() = default;
 

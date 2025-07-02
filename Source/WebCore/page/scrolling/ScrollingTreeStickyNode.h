@@ -45,6 +45,7 @@ public:
     virtual ~ScrollingTreeStickyNode();
 
     FloatSize scrollDeltaSinceLastCommit() const;
+    WEBCORE_EXPORT bool isCurrentlySticking() const;
 
 protected:
     ScrollingTreeStickyNode(ScrollingTree&, ScrollingNodeID);
@@ -60,6 +61,12 @@ protected:
     virtual bool hasViewportClippingLayer() const { return false; }
     const ViewportConstraints& constraints() const final { return m_constraints; }
 
+private:
+    void updateIsSticking();
+
+    bool m_isSticking { false };
+
+protected:
     StickyPositionViewportConstraints m_constraints;
 };
 

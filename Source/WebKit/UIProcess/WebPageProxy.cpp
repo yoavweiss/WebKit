@@ -15914,6 +15914,14 @@ void WebPageProxy::playAllAnimations(CompletionHandler<void()>&& completionHandl
 }
 #endif // ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
 
+void WebPageProxy::stickyScrollingTreeNodeBeganSticking()
+{
+    if (!protectedPreferences()->contentInsetBackgroundFillEnabled())
+        return;
+
+    send(Messages::WebPage::SetNeedsFixedContainerEdgesUpdate());
+}
+
 void WebPageProxy::adjustLayersForLayoutViewport(const FloatPoint& scrollPosition, const WebCore::FloatRect& layoutViewport, double scale)
 {
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)

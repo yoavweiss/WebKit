@@ -90,6 +90,7 @@ const RemoteLayerTreeHost* RemoteScrollingCoordinatorProxy::layerTreeHost() cons
 
 std::optional<RequestedScrollData> RemoteScrollingCoordinatorProxy::commitScrollingTreeState(IPC::Connection& connection, const RemoteScrollingCoordinatorTransaction& transaction, std::optional<LayerHostingContextIdentifier> identifier)
 {
+    m_stickyScrollingTreeNodesBeganSticking = false;
     m_requestedScroll = { };
 
     auto stateTree = WTFMove(const_cast<RemoteScrollingCoordinatorTransaction&>(transaction).scrollingStateTree());
@@ -113,7 +114,15 @@ std::optional<RequestedScrollData> RemoteScrollingCoordinatorProxy::commitScroll
     if (transaction.clearScrollLatching())
         m_scrollingTree->clearLatchedNode();
 
+    if (std::exchange(m_stickyScrollingTreeNodesBeganSticking, false))
+        protectedWebPageProxy()->stickyScrollingTreeNodeBeganSticking();
+
     return std::exchange(m_requestedScroll, { });
+}
+
+void RemoteScrollingCoordinatorProxy::stickyScrollingTreeNodeBeganSticking(ScrollingNodeID)
+{
+    m_stickyScrollingTreeNodesBeganSticking = true;
 }
 
 void RemoteScrollingCoordinatorProxy::handleWheelEvent(const WebWheelEvent& wheelEvent, RectEdges<WebCore::RubberBandingBehavior> rubberBandableEdges)

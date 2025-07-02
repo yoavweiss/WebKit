@@ -50,6 +50,8 @@ messages -> WebPage WantsAsyncDispatchMessage {
     SetUnderlayColor(WebCore::Color color)
     SetUnderPageBackgroundColorOverride(WebCore::Color underPageBackgroundColorOverride)
 
+    SetNeedsFixedContainerEdgesUpdate()
+
     ViewWillStartLiveResize()
     ViewWillEndLiveResize()
 

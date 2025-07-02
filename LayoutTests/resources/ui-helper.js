@@ -165,6 +165,20 @@ window.UIHelper = class UIHelper {
         });
     }
 
+    static async scrollDown()
+    {
+        const midX = innerWidth / 2;
+        const midY = innerHeight / 2;
+        if (!this.isIOSFamily())
+            return await this.mouseWheelScrollAt(midX, midY, 0, -1, 0, -100);
+
+        await this.sendEventStream(new this.EventStreamBuilder()
+            .begin(midX, midY + 180)
+            .move(midX, midY - 180, 0.3)
+            .end()
+            .takeResult());
+    }
+
     static async animationFrame()
     {
         return new Promise(requestAnimationFrame);
