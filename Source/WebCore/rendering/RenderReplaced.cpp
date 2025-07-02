@@ -464,7 +464,7 @@ void RenderReplaced::computeAspectRatioInformationForRenderBox(RenderBox* conten
         // Handle zoom & vertical writing modes here, as the embedded document doesn't know about them.
         intrinsicSize.scale(style().usedZoom());
 
-        if (auto* image = dynamicDowncast<RenderImage>(*this))
+        if (auto* image = dynamicDowncast<RenderImage>(*this); image && style().objectFit() != ObjectFit::ScaleDown)
             intrinsicSize.scale(image->imageDevicePixelRatio());
 
         // Update our intrinsic size to match what the content renderer has computed, so that when we
@@ -522,17 +522,24 @@ LayoutRect RenderReplaced::replacedContentRect(const LayoutSize& intrinsicSize) 
 
     ObjectFit objectFit = style().objectFit();
 
+    LayoutSize scaledIntrinsicSize = intrinsicSize;
     LayoutRect finalRect = contentRect;
     switch (objectFit) {
-    case ObjectFit::Contain:
     case ObjectFit::ScaleDown:
+        // Srcset images have an intrinsic size depending on their destination,
+        // but with object-fit: scale-down they need to use the underlying image
+        // src's size. So revert back to the original size in that case.
+        if (auto* image = dynamicDowncast<RenderImage>(*this))
+            scaledIntrinsicSize.scale(1.0 / image->imageDevicePixelRatio());
+        [[fallthrough]];
+    case ObjectFit::Contain:
     case ObjectFit::Cover:
-        finalRect.setSize(finalRect.size().fitToAspectRatio(intrinsicSize, objectFit == ObjectFit::Cover ? AspectRatioFitGrow : AspectRatioFitShrink));
-        if (objectFit != ObjectFit::ScaleDown || finalRect.width() <= intrinsicSize.width())
+        finalRect.setSize(finalRect.size().fitToAspectRatio(scaledIntrinsicSize, objectFit == ObjectFit::Cover ? AspectRatioFitGrow : AspectRatioFitShrink));
+        if (objectFit != ObjectFit::ScaleDown || finalRect.width() <= scaledIntrinsicSize.width())
             break;
         [[fallthrough]];
     case ObjectFit::None:
-        finalRect.setSize(intrinsicSize);
+        finalRect.setSize(scaledIntrinsicSize);
         break;
     case ObjectFit::Fill:
         break;
