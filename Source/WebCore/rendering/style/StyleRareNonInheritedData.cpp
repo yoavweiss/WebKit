@@ -145,6 +145,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
 #endif
     , scrollbarWidth(static_cast<unsigned>(RenderStyle::initialScrollbarWidth()))
     , usesAnchorFunctions(false)
+    , anchorFunctionScrollCompensatedAxes(0)
     , isPopoverInvoker(false)
 {
 }
@@ -254,6 +255,7 @@ inline StyleRareNonInheritedData::StyleRareNonInheritedData(const StyleRareNonIn
 #endif
     , scrollbarWidth(o.scrollbarWidth)
     , usesAnchorFunctions(o.usesAnchorFunctions)
+    , anchorFunctionScrollCompensatedAxes(o.anchorFunctionScrollCompensatedAxes)
     , isPopoverInvoker(o.isPopoverInvoker)
 {
 }
@@ -370,6 +372,7 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
 #endif
         && scrollbarWidth == o.scrollbarWidth
         && usesAnchorFunctions == o.usesAnchorFunctions
+        && anchorFunctionScrollCompensatedAxes == o.anchorFunctionScrollCompensatedAxes
         && isPopoverInvoker == o.isPopoverInvoker;
 }
 
@@ -548,6 +551,7 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
     LOG_IF_DIFFERENT(scrollbarWidth);
 
     LOG_IF_DIFFERENT_WITH_CAST(bool, usesAnchorFunctions);
+    LOG_IF_DIFFERENT_WITH_CAST(bool, anchorFunctionScrollCompensatedAxes);
     LOG_IF_DIFFERENT_WITH_CAST(bool, isPopoverInvoker);
 }
 #endif // !LOG_DISABLED

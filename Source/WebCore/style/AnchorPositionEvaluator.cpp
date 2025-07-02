@@ -186,10 +186,8 @@ static std::pair<BoxSide, bool> swapSideForTryTactics(BoxSide side, const Vector
 // Physical sides (left/right/top/bottom) can only be used in certain inset properties. "For example,
 // left is usable in left, right, or the logical inset properties that refer to the horizontal axis."
 // See: https://drafts.csswg.org/css-anchor-position-1/#typedef-anchor-side
-static bool anchorSideMatchesInsetProperty(CSSValueID anchorSideID, CSSPropertyID insetPropertyID, const WritingMode writingMode)
+static bool anchorSideMatchesInsetProperty(CSSValueID anchorSideID, BoxAxis physicalAxis)
 {
-    auto physicalAxis = mapInsetPropertyToPhysicalAxis(insetPropertyID, writingMode);
-
     switch (anchorSideID) {
     case CSSValueID::CSSValueInside:
     case CSSValueID::CSSValueOutside:
@@ -285,7 +283,26 @@ static LayoutSize offsetFromAncestorContainer(const RenderElement& descendantCon
     return offset;
 }
 
-static LayoutSize scrollOffsetFromAnchor(const RenderElement& anchor, const RenderBox& anchored)
+void AnchorPositionEvaluator::addAnchorFunctionScrollCompensatedAxis(RenderStyle& style, const RenderBox& anchored, const RenderBoxModelObject& anchor, BoxAxis axis)
+{
+    // https://drafts.csswg.org/css-anchor-position-1/#scroll
+    // An absolutely positioned box abspos compensates for scroll in the horizontal or vertical axis if both of the following conditions are true:
+    // - abspos has a default anchor box.
+    auto defaultAnchor = defaultAnchorForBox(anchored);
+    if (!defaultAnchor)
+        return;
+
+    // - at least one anchor() function on abspos’s used inset properties in the axis refers to a target anchor element
+    //   with the same nearest scroll container ancestor as abspos’s default anchor box.
+    if (defaultAnchor != &anchor && defaultAnchor->enclosingScrollableContainer() != anchor.enclosingScrollableContainer())
+        return;
+
+    auto axes = style.anchorFunctionScrollCompensatedAxes();
+    axes.add(boxAxisToFlag(axis));
+    style.setAnchorFunctionScrollCompensatedAxes(axes);
+}
+
+LayoutSize AnchorPositionEvaluator::scrollOffsetFromAnchor(const RenderBoxModelObject& anchor, const RenderBox& anchored)
 {
     CheckedPtr containingBlock = anchored.containingBlock();
     ASSERT(anchor.isDescendantOf(containingBlock.get()));
@@ -302,6 +319,17 @@ static LayoutSize scrollOffsetFromAnchor(const RenderElement& anchor, const Rend
 
     if (anchored.isFixedPositioned() && !isFixedAnchor)
         offset -= toLayoutSize(anchored.view().protectedFrameView()->scrollPositionRespectingCustomFixedPosition());
+
+    auto compensatedAxes = [&] {
+        if (isLayoutTimeAnchorPositioned(anchored.style()))
+            return OptionSet<BoxAxisFlag> { BoxAxisFlag::Horizontal, BoxAxisFlag::Vertical };
+        return anchored.style().anchorFunctionScrollCompensatedAxes();
+    }();
+
+    if (!compensatedAxes.contains(BoxAxisFlag::Horizontal))
+        offset.setWidth(0);
+    if (!compensatedAxes.contains(BoxAxisFlag::Vertical))
+        offset.setHeight(0);
 
     return offset;
 }
@@ -474,7 +502,7 @@ static LayoutUnit computeInsetValue(CSSPropertyID insetPropertyID, CheckedRef<co
     return removeBorderForInsetValue(insetValue, insetPropertySide, *containingBlock);
 }
 
-RefPtr<Element> AnchorPositionEvaluator::findAnchorForAnchorFunctionAndAttemptResolution(BuilderState& builderState, std::optional<ScopedName> anchorNameArgument)
+CheckedPtr<RenderBoxModelObject> AnchorPositionEvaluator::findAnchorForAnchorFunctionAndAttemptResolution(BuilderState& builderState, std::optional<ScopedName> anchorNameArgument)
 {
     auto& style = builderState.style();
     style.setUsesAnchorFunctions();
@@ -556,7 +584,7 @@ RefPtr<Element> AnchorPositionEvaluator::findAnchorForAnchorFunctionAndAttemptRe
 
     anchorPositionedState.stage = AnchorPositionResolutionStage::Resolved;
 
-    return anchorElement;
+    return dynamicDowncast<RenderBoxModelObject>(anchorElement->renderer());
 }
 
 bool AnchorPositionEvaluator::propertyAllowsAnchorFunction(CSSPropertyID propertyID)
@@ -566,8 +594,10 @@ bool AnchorPositionEvaluator::propertyAllowsAnchorFunction(CSSPropertyID propert
 
 std::optional<double> AnchorPositionEvaluator::evaluate(BuilderState& builderState, std::optional<ScopedName> elementName, Side side)
 {
+    auto& style = builderState.style();
+
     auto propertyID = builderState.cssPropertyID();
-    const auto& style = builderState.style();
+    auto physicalAxis = mapInsetPropertyToPhysicalAxis(propertyID, style.writingMode());
 
     // https://drafts.csswg.org/css-anchor-position-1/#anchor-valid
     auto isValidAnchor = [&] {
@@ -581,7 +611,7 @@ std::optional<double> AnchorPositionEvaluator::evaluate(BuilderState& builderSta
 
         // If its <anchor-side> specifies a physical keyword, it’s being used in an inset property in that axis.
         // (For example, left can only be used in left, right, or a logical inset property in the horizontal axis.)
-        if (auto* sideID = std::get_if<CSSValueID>(&side); sideID && !anchorSideMatchesInsetProperty(*sideID, propertyID, style.writingMode()))
+        if (auto* sideID = std::get_if<CSSValueID>(&side); sideID && !anchorSideMatchesInsetProperty(*sideID, physicalAxis))
             return false;
 
         return true;
@@ -590,24 +620,22 @@ std::optional<double> AnchorPositionEvaluator::evaluate(BuilderState& builderSta
     if (!isValidAnchor())
         return { };
 
-    auto anchorElement = findAnchorForAnchorFunctionAndAttemptResolution(builderState, elementName);
-    if (!anchorElement)
+    auto anchorRenderer = findAnchorForAnchorFunctionAndAttemptResolution(builderState, elementName);
+    if (!anchorRenderer)
         return { };
-
-    CheckedPtr anchorRenderer = anchorElement->renderer();
-    ASSERT(anchorRenderer);
 
     RefPtr anchorPositionedElement = anchorPositionedElementOrPseudoElement(builderState);
     if (!anchorPositionedElement)
         return { };
 
-    CheckedPtr anchorPositionedRenderer = anchorPositionedElement->renderer();
+    CheckedPtr anchorPositionedRenderer = dynamicDowncast<RenderBox>(anchorPositionedElement->renderer());
     if (!anchorPositionedRenderer)
         return { };
 
+    addAnchorFunctionScrollCompensatedAxis(style, *anchorPositionedRenderer, *anchorRenderer, physicalAxis);
+
     // Proceed with computing the inset value for the specified inset property.
-    CheckedRef anchorBox = downcast<RenderBoxModelObject>(*anchorRenderer);
-    double insetValue = computeInsetValue(propertyID, anchorBox, *anchorPositionedRenderer, side, builderState.positionTryFallback());
+    double insetValue = computeInsetValue(propertyID, *anchorRenderer, *anchorPositionedRenderer, side, builderState.positionTryFallback());
 
     // Adjust for CSS `zoom` property and page zoom.
     return insetValue / style.usedZoom();
@@ -707,8 +735,8 @@ std::optional<double> AnchorPositionEvaluator::evaluateSize(BuilderState& builde
     if (!isValidAnchorSize())
         return { };
 
-    auto anchorElement = findAnchorForAnchorFunctionAndAttemptResolution(builderState, elementName);
-    if (!anchorElement)
+    auto anchorRenderer = findAnchorForAnchorFunctionAndAttemptResolution(builderState, elementName);
+    if (!anchorRenderer)
         return { };
 
     // Resolve the dimension (width or height) to return from the anchor positioned element.
@@ -734,12 +762,7 @@ std::optional<double> AnchorPositionEvaluator::evaluateSize(BuilderState& builde
         }
     }
 
-    // Return the dimension information from the anchor element.
-    CheckedPtr anchorRenderer = anchorElement->renderer();
-    ASSERT(anchorRenderer);
-
-    CheckedRef anchorBox = downcast<RenderBoxModelObject>(*anchorRenderer);
-    auto anchorBorderBoundingBox = anchorBox->borderBoundingBox();
+    auto anchorBorderBoundingBox = anchorRenderer->borderBoundingBox();
 
     // Adjust for CSS `zoom` property and page zoom.
 
@@ -993,15 +1016,16 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
     }
 }
 
-void AnchorPositionEvaluator::updateAnchorPositionedStateForLayoutTimePositioned(Element& element, const RenderStyle& style, AnchorPositionedStates& states)
+void AnchorPositionEvaluator::updateAnchorPositionedStateForDefaultAnchor(Element& element, const RenderStyle& style, AnchorPositionedStates& states)
 {
-    if (!isLayoutTimeAnchorPositioned(style))
+    if (!isAnchorPositioned(style))
         return;
 
     auto* state = states.ensure({ &element, style.pseudoElementIdentifier() }, [&] {
         return makeUnique<AnchorPositionedState>();
     }).iterator->value.get();
 
+    // Always resolve the default anchor. Even if nothing is anchored to it we need it to compute the scroll compensation.
     auto resolvedDefaultAnchor = ResolvedScopedName::createFromScopedName(element, defaultAnchorName(style));
     state->anchorNames.add(resolvedDefaultAnchor);
 }
@@ -1023,9 +1047,6 @@ void AnchorPositionEvaluator::updateSnapshottedScrollOffsets(Document& document)
         // "An absolutely positioned box abspos compensates for scroll in the horizontal or vertical axis if both of the following conditions are true:
         //  - abspos has a default anchor box.
         //  - abspos has an anchor reference to its default anchor box or at least to something in the same scrolling context"
-        // FIXME: per-axis compensation
-        // FIXME: "something in the same scrolling context" part
-
         auto defaultAnchor = defaultAnchorForBox(*anchorPositionedRenderer);
         if (!defaultAnchor) {
             anchorPositionedRenderer->layer()->clearSnapshottedScrollOffsetForAnchorPositioning();

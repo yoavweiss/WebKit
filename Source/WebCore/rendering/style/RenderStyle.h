@@ -122,6 +122,7 @@ enum class BlockStepRound : uint8_t;
 enum class BorderCollapse : bool;
 enum class BorderStyle : uint8_t;
 enum class BoxAlignment : uint8_t;
+enum class BoxAxisFlag : uint8_t;
 enum class BoxDecorationBreak : bool;
 enum class BoxDirection : bool;
 enum class BoxLines : bool;
@@ -428,6 +429,8 @@ public:
     bool useTreeCountingFunctions() const { return m_nonInheritedFlags.useTreeCountingFunctions; }
     void setUsesAnchorFunctions();
     bool usesAnchorFunctions() const;
+    void setAnchorFunctionScrollCompensatedAxes(OptionSet<BoxAxisFlag>);
+    OptionSet<BoxAxisFlag> anchorFunctionScrollCompensatedAxes() const;
 
     void setIsPopoverInvoker();
     bool isPopoverInvoker() const;

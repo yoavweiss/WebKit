@@ -302,6 +302,8 @@ public:
     unsigned scrollbarWidth : 2; // ScrollbarWidth
 
     unsigned usesAnchorFunctions : 1;
+    unsigned anchorFunctionScrollCompensatedAxes : 2;
+
     unsigned usesTreeCountingFunctions : 1;
 
     unsigned isPopoverInvoker : 1;
