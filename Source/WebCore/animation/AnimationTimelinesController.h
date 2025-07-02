@@ -78,6 +78,7 @@ private:
 
     ReducedResolutionSeconds liveCurrentTime() const;
     void cacheCurrentTime(ReducedResolutionSeconds);
+    void clearCachedCurrentTime();
     void processPendingAnimations();
     bool isPendingTimelineAttachment(const WebAnimation&) const;
 
@@ -87,6 +88,7 @@ private:
     std::unique_ptr<AcceleratedEffectStackUpdater> m_acceleratedEffectStackUpdater;
 #endif
 
+    Timer m_cachedCurrentTimeClearanceTimer;
     Vector<Ref<ScrollTimeline>> m_updatedScrollTimelines;
     HashMap<FramesPerSecond, ReducedResolutionSeconds> m_animationFrameRateToLastTickTimeMap;
     WeakHashSet<AnimationTimeline> m_timelines;
