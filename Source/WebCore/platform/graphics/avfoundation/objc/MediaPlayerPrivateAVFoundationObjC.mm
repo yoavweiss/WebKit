@@ -1106,10 +1106,8 @@ void MediaPlayerPrivateAVFoundationObjC::createAVPlayer()
     if (m_muted) {
         [m_avPlayer setMuted:m_muted];
 
-#if HAVE(AVPLAYER_SUPPRESSES_AUDIO_RENDERING)
         if (player->isVideoPlayer())
             m_avPlayer.get().suppressesAudioRendering = YES;
-#endif
     }
 
 #if HAVE(SPATIAL_TRACKING_LABEL)
@@ -1657,10 +1655,8 @@ void MediaPlayerPrivateAVFoundationObjC::setMuted(bool muted)
         return;
 
     [m_avPlayer setMuted:m_muted];
-#if HAVE(AVPLAYER_SUPPRESSES_AUDIO_RENDERING)
     if (!m_muted)
         m_avPlayer.get().suppressesAudioRendering = NO;
-#endif
 }
 
 void MediaPlayerPrivateAVFoundationObjC::setRateDouble(double rate)
