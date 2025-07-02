@@ -666,9 +666,22 @@ def _create_log_handlers(stream):
       stream: See the configure_logging() docstring.
 
     """
-    # Handles logging.WARNING and above.
+    logging.addLevelName(41, "STYLE")
+
+    # Handles logging.STYLE.
+    style_handler = logging.StreamHandler(stream)
+    style_handler.setLevel(logging.getLevelName("STYLE"))
+    formatter = logging.Formatter("%(message)s")
+    style_handler.setFormatter(formatter)
+
+    error_filter = logging.Filter()
+    # The filter method accepts a logging.LogRecord instance.
+    error_filter.filter = lambda record: record.levelno < logging.getLevelName("STYLE")
+
+    # Handles logging.ERROR and logging.WARNING.
     error_handler = logging.StreamHandler(stream)
     error_handler.setLevel(logging.WARNING)
+    error_handler.addFilter(error_filter)
     formatter = logging.Formatter("%(levelname)s: %(message)s")
     error_handler.setFormatter(formatter)
 
@@ -683,7 +696,7 @@ def _create_log_handlers(stream):
     formatter = logging.Formatter("%(message)s")
     non_error_handler.setFormatter(formatter)
 
-    return [error_handler, non_error_handler]
+    return [style_handler, error_handler, non_error_handler]
 
 
 def _create_debug_log_handlers(stream):
@@ -763,6 +776,14 @@ class FileType:
     FEATUREDEFINES = 12
     BASE_XCCONFIG = 13
     XCSCHEME = 14
+
+
+class ANSIColor:
+
+    RESET = "\x1b[0m"
+    WHITE = "\x1b[1m"
+    RED = "\x1b[31;1m"
+    YELLOW = "\x1b[33;1m"
 
 
 class CheckerDispatcher(object):
@@ -1041,15 +1062,14 @@ class StyleProcessorConfiguration(object):
                           message):
         """Write a style error to the configured stderr."""
         if self._output_format == 'vs7':
-            format_string = "%s(%s):  %s  [%s] [%d]"
+            format_string = "%s(%s): error: [%s]  %s"
         else:
-            format_string = "%s:%s:  %s  [%s] [%d]"
+            format_string = f"{ANSIColor.WHITE}%s:%s:{ANSIColor.RESET} {ANSIColor.RED}error:{ANSIColor.RESET} {ANSIColor.YELLOW}[%s]{ANSIColor.RESET} {ANSIColor.WHITE}%s{ANSIColor.RESET}"
 
-        _log.error(format_string % (file_path,
-                                           line_number,
-                                           message,
-                                           category,
-                                           confidence_in_error))
+        _log.log(41, format_string % (file_path,
+                                      line_number,
+                                      category,
+                                      message))
 
 
 class ProcessorBase(object):
