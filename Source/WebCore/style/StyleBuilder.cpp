@@ -658,8 +658,13 @@ std::optional<Variant<Ref<const Style::CustomProperty>, CSSWideKeyword>> Builder
     if (!resolvedData)
         return { };
 
-    if (!registered)
+    if (!registered) {
+        // CSS-wide keywords are allowed in var() fallbacks of unregistered properties.
+        if (auto keyword = CSSPropertyParser::parseCSSWideKeyword(resolvedData->tokens()))
+            return { { *keyword } };
+
         return { { CustomProperty::createForVariableData(name, *resolvedData) } };
+    }
 
     auto dependencies = CSSPropertyParser::collectParsedCustomPropertyValueDependencies(registered->syntax, resolvedData->tokens(), resolvedData->context());
 
