@@ -52,10 +52,6 @@ namespace JSC { namespace DFG {
 
 namespace {
 
-namespace DFGObjectAllocationSinkingPhaseInternal {
-static constexpr bool verbose = false;
-}
-
 // In order to sink object cycles, we use a points-to analysis coupled
 // with an escape analysis. This analysis is actually similar to an
 // abstract interpreter focused on local allocations and ignoring
@@ -821,7 +817,7 @@ public:
         if (!performSinking())
             return false;
 
-        dataLogIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "Graph after elimination:\n", m_graph);
+        dataLogIf(Options::verboseObjectAllocationSinking(), "Graph after elimination:\n", m_graph);
 
         return true;
     }
@@ -843,7 +839,7 @@ private:
             graphBeforeSinking = out.toCString();
         }
 
-        dataLogIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "Graph before elimination:\n", m_graph);
+        dataLogIf(Options::verboseObjectAllocationSinking(), "Graph before elimination:\n", m_graph);
 
         performAnalysis();
         ASSERT(m_rootInsertionSet.isEmpty());
@@ -851,7 +847,7 @@ private:
         if (!determineSinkCandidates())
             return false;
 
-        if constexpr (DFGObjectAllocationSinkingPhaseInternal::verbose) {
+        if (Options::verboseObjectAllocationSinking()) {
             WTF::dataFile().atomically([&](auto&) {
                 for (BasicBlock* block : m_graph.blocksInNaturalOrder()) {
                     dataLog("Heap at head of ", *block, ": \n", m_heapAtHead[block]);
@@ -876,7 +872,7 @@ private:
 
         bool changed;
         do {
-            dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "Doing iteration of escape analysis.");
+            dataLogLnIf(Options::verboseObjectAllocationSinking(), "Doing iteration of escape analysis.");
             changed = false;
 
             for (BasicBlock* block : m_graph.blocksInPreOrder()) {
@@ -1599,7 +1595,7 @@ escapeChildren:
         if (m_sinkCandidates.isEmpty())
             return hasUnescapedReads;
 
-        dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "Candidates: ", listDump(m_sinkCandidates));
+        dataLogLnIf(Options::verboseObjectAllocationSinking(), "Candidates: ", listDump(m_sinkCandidates));
 
         // Create the materialization nodes.
         forEachEscapee([&] (UncheckedKeyHashMap<Node*, Allocation>& escapees, Node* where) {
@@ -2153,7 +2149,7 @@ escapeChildren:
                 }
             }
 
-            dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose,
+            dataLogLnIf(Options::verboseObjectAllocationSinking(),
                 "Local mapping at ", pointerDump(block), ": ", mapDump(m_localMapping),
                 "Local materializations at ", pointerDump(block), ": ", mapDump(m_escapeeToMaterialization));
 
@@ -2168,7 +2164,7 @@ escapeChildren:
                     m_localMapping.set(location, m_bottom);
 
                     if (m_sinkCandidates.contains(node)) {
-                        dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "For sink candidate ", node, " found location ", location);
+                        dataLogLnIf(Options::verboseObjectAllocationSinking(), "For sink candidate ", node, " found location ", location);
                         m_insertionSet.insert(
                             nodeIndex + 1,
                             location.createHint(
@@ -2182,7 +2178,7 @@ escapeChildren:
                     populateMaterialization(block, materialization, escapee);
                     m_escapeeToMaterialization.set(escapee, materialization);
                     m_insertionSet.insert(nodeIndex, materialization);
-                    dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "Materializing ", escapee, " => ", materialization, " at ", node);
+                    dataLogLnIf(Options::verboseObjectAllocationSinking(), "Materializing ", escapee, " => ", materialization, " at ", node);
                 }
 
                 for (PromotedHeapLocation location : m_materializationSiteToRecoveries.get(node))
@@ -2244,7 +2240,7 @@ escapeChildren:
                             m_insertionSet.insertNode(nodeIndex + 1, SpecNone, Check, node->origin, Edge(value.node(), value.useKind()));
                         }
 
-                        dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "Creating hint with value ", nodeValue, " before ", node);
+                        dataLogLnIf(Options::verboseObjectAllocationSinking(), "Creating hint with value ", nodeValue, " before ", node);
                         m_insertionSet.insert(
                             nodeIndex + 1,
                             location.createHint(
@@ -2404,7 +2400,7 @@ escapeChildren:
 
     void insertOSRHintsForUpdate(unsigned nodeIndex, NodeOrigin origin, bool& canExit, AvailabilityMap& availability, Node* escapee, Node* materialization)
     {
-        dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose,
+        dataLogLnIf(Options::verboseObjectAllocationSinking(),
             "Inserting OSR hints at ", origin, ":\n",
             "    Escapee: ", escapee, "\n",
             "    Materialization: ", materialization, "\n",
@@ -2675,14 +2671,14 @@ escapeChildren:
 
     Node* createRecovery(BasicBlock* block, PromotedHeapLocation location, Node* where, bool& canExit)
     {
-        dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "Recovering ", location, " at ", where);
+        dataLogLnIf(Options::verboseObjectAllocationSinking(), "Recovering ", location, " at ", where);
         ASSERT(location.base()->isPhantomAllocation());
         Node* base = getMaterialization(block, location.base());
         Node* value = resolve(block, location);
 
         NodeOrigin origin = where->origin.withSemantic(base->origin.semantic);
 
-        dataLogLnIf(DFGObjectAllocationSinkingPhaseInternal::verbose, "Base is ", base, " and value is ", value);
+        dataLogLnIf(Options::verboseObjectAllocationSinking(), "Base is ", base, " and value is ", value);
 
         if (base->isPhantomAllocation()) {
             return PromotedHeapLocation(base, location.descriptor()).createHint(
