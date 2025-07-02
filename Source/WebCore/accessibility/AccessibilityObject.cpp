@@ -2452,6 +2452,19 @@ bool AccessibilityObject::ignoredFromModalPresence() const
     if (modalNode->document().frame() != this->frame())
         return false;
     
+    // Some objects might be outside of a modal, but are linked to elements inside of it. Don't ignore those.
+    for (RefPtr ancestor = this; ancestor; ancestor = ancestor->parentObject()) {
+        for (auto& controller : ancestor->controllers()) {
+            if (downcast<AccessibilityObject>(controller)->isModalDescendant(*modalNode))
+                return false;
+        }
+
+        for (auto& activeDescendant : ancestor->activeDescendantOfObjects()) {
+            if (downcast<AccessibilityObject>(activeDescendant)->isModalDescendant(*modalNode))
+                return false;
+        }
+    }
+
     return !isModalDescendant(*modalNode);
 }
 
