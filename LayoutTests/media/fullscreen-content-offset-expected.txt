@@ -1,0 +1,29 @@
+
+* Testing element 'first'
+EVENT(fullscreenchange)
+EVENT(fullscreenchange)
+
+* Testing element 'second'
+EVENT(fullscreenchange)
+EVENT(fullscreenchange)
+
+* Testing element 'third'
+EVENT(fullscreenchange)
+EVENT(fullscreenchange)
+
+* Testing element 'fourth'
+EVENT(fullscreenchange)
+EVENT(fullscreenchange)
+
+END OF TEST
+
+
+
+
+
+
+
+
+
+
+
