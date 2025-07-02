@@ -2198,8 +2198,6 @@ imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-023.svg [ Imag
 imported/w3c/web-platform-tests/svg/path/distance/pathlength-circle-mutating.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/svg-percent-stroke-width-viewbox-update.html [ ImageOnlyFailure ]
 
-webkit.org/b/269852 imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-edge-behavior.html [ ImageOnlyFailure ]
-
 webkit.org/b/269873 imported/w3c/web-platform-tests/webrtc-extensions/transfer-datachannel-service-worker.https.html [ Pass Failure ]
 
 # webkit.org/b/267869 Multiple queues experiencing sporadic 0.01% ImageOnlyFailures.
