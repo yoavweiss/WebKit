@@ -578,14 +578,16 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
 
     layer.contentsOpaque = m_isOpaque;
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    layer.contentsHeadroom = m_maxRequestedEDRHeadroom;
     ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (layer.wantsExtendedDynamicRangeContent) {
         // Painted contents have already been tonemapped, so disable it on the layer.
-        if (isDelegatedDisplay)
+        if (isDelegatedDisplay) {
             layer.toneMapMode = CAToneMapModeIfSupported;
-        else
+            layer.contentsHeadroom = 0.f;
+        } else {
             layer.toneMapMode = CAToneMapModeNever;
+            layer.contentsHeadroom = m_maxRequestedEDRHeadroom;
+        }
     } else
         layer.toneMapMode = CAToneMapModeAutomatic;
     ALLOW_DEPRECATED_DECLARATIONS_END
