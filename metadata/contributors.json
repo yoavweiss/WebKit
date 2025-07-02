@@ -8300,6 +8300,13 @@
    },
    {
       "emails" : [
+         "v_rao@apple.com"
+      ],
+      "github" : "vigneshrao-apple",
+      "name" : "Vignesh Rao"
+   },
+   {
+      "emails" : [
          "scheib@chromium.org"
       ],
       "name" : "Vincent Scheib",
