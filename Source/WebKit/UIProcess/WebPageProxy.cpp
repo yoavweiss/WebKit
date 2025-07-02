@@ -842,7 +842,7 @@ WebPageProxy::WebPageProxy(PageClient& pageClient, WebProcessProxy& process, Ref
 #if PLATFORM(COCOA)
     , m_isSmartInsertDeleteEnabled(TextChecker::isSmartInsertDeleteEnabled())
 #endif
-    , m_inspectorController(makeUnique<WebPageInspectorController>(*this))
+    , m_inspectorController(makeUniqueRef<WebPageInspectorController>(*this))
 #if ENABLE(REMOTE_INSPECTOR)
     , m_inspectorDebuggable(WebPageDebuggable::create(*this))
 #endif

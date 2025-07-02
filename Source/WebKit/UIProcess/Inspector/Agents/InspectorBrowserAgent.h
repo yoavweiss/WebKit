@@ -58,8 +58,8 @@ public:
     void extensionsDisabled(HashSet<String>&&);
 
 private:
-    std::unique_ptr<Inspector::BrowserFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<Inspector::BrowserBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<Inspector::BrowserFrontendDispatcher> m_frontendDispatcher;
+    const RefPtr<Inspector::BrowserBackendDispatcher> m_backendDispatcher;
     WeakRef<WebPageProxy> m_inspectedPage;
 };
 

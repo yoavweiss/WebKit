@@ -79,7 +79,6 @@ WebProcess/WebPage/Cocoa/TextAnimationController.mm
 WebProcess/WebPage/Cocoa/WebPageCocoa.mm
 WebProcess/WebPage/MomentumEventDispatcher.cpp
 WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemote.mm
-WebProcess/WebPage/RemoteLayerTree/PlatformCALayerRemoteTiledBacking.cpp
 WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeContext.mm
 WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeDrawingArea.mm
 WebProcess/WebPage/RemoteLayerTree/RemoteScrollbarsController.mm

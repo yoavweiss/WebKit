@@ -743,7 +743,7 @@ public:
     bool isControlledByAutomation() const { return m_controlledByAutomation; }
     void setControlledByAutomation(bool);
 
-    WebPageInspectorController& inspectorController() { return *m_inspectorController; }
+    WebPageInspectorController& inspectorController() { return m_inspectorController.get(); }
 
 #if PLATFORM(IOS_FAMILY)
     void showInspectorIndication();
@@ -3796,7 +3796,7 @@ private:
     IdentifierToAttachmentMap m_attachmentIdentifierToAttachmentMap;
 #endif
 
-    const std::unique_ptr<WebPageInspectorController> m_inspectorController;
+    const UniqueRef<WebPageInspectorController> m_inspectorController;
 #if ENABLE(REMOTE_INSPECTOR)
     RefPtr<WebPageDebuggable> m_inspectorDebuggable;
 #endif

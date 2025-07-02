@@ -951,7 +951,7 @@ private:
 
     id m_flagsChangedEventMonitor { nullptr };
 
-    std::unique_ptr<PAL::HysteresisActivity> m_contentRelativeViewsHysteresis;
+    const UniqueRef<PAL::HysteresisActivity> m_contentRelativeViewsHysteresis;
 
     RetainPtr<NSColorSpace> m_colorSpace;
 

@@ -285,7 +285,7 @@ Ref<PDFIncrementalLoader> PDFIncrementalLoader::create(PDFPluginBase& plugin)
 PDFIncrementalLoader::PDFIncrementalLoader(PDFPluginBase& plugin)
     : m_plugin(plugin)
     , m_streamLoaderClient(adoptRef(*new PDFPluginStreamLoaderClient(*this)))
-    , m_requestData(makeUnique<RequestData>())
+    , m_requestData(makeUniqueRef<RequestData>())
 {
     m_pdfThread = Thread::create("PDF document thread"_s, [protectedThis = Ref { *this }, this] () mutable {
         threadEntry(WTFMove(protectedThis));
