@@ -2630,7 +2630,7 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
 
             insertChecks();
 
-            std::optional<IterationKind> kind = interationKindForIntrinsic(intrinsic);
+            std::optional<IterationKind> kind = iterationKindForIntrinsic(intrinsic);
             RELEASE_ASSERT(!!kind);
 
             // Add the constant before exit becomes invalid because we may want to insert (redundant) checks on it in Fixup.
