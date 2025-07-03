@@ -18,7 +18,6 @@ Modules/mediastream/libwebrtc/LibWebRTCMediaEndpoint.cpp
 Modules/notifications/Notification.cpp
 Modules/paymentrequest/PaymentRequest.cpp
 Modules/push-api/PushDatabase.cpp
-Modules/speech/SpeechRecognitionCaptureSourceImpl.cpp
 Modules/webaudio/AudioWorkletThread.cpp
 Modules/webaudio/OfflineAudioContext.cpp
 Modules/webaudio/OfflineAudioDestinationNode.cpp

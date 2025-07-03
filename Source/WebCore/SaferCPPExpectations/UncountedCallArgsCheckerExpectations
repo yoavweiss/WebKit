@@ -92,12 +92,7 @@ Modules/reporting/ReportingObserver.cpp
 Modules/reporting/ReportingScope.cpp
 Modules/screen-wake-lock/WakeLock.cpp
 Modules/screen-wake-lock/WakeLockManager.cpp
-Modules/speech/LocalDOMWindowSpeechSynthesis.cpp
-Modules/speech/SpeechRecognition.cpp
-Modules/speech/SpeechRecognitionCaptureSourceImpl.cpp
 Modules/speech/SpeechSynthesis.cpp
-Modules/speech/SpeechSynthesisUtterance.cpp
-Modules/speech/SpeechSynthesisUtterance.h
 Modules/storage/StorageManager.cpp
 Modules/storage/WorkerStorageConnection.cpp
 Modules/web-locks/WebLockManager.cpp

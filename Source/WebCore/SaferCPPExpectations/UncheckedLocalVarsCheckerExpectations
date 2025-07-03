@@ -18,7 +18,6 @@ Modules/mediastream/libwebrtc/LibWebRTCPeerConnectionBackend.cpp
 Modules/model-element/HTMLModelElement.cpp
 Modules/permissions/Permissions.cpp
 Modules/push-api/PushDatabase.cpp
-Modules/speech/SpeechRecognition.cpp
 Modules/storage/WorkerStorageConnection.cpp
 Modules/webaudio/AudioWorkletGlobalScope.cpp
 Modules/webdatabase/SQLStatement.cpp
