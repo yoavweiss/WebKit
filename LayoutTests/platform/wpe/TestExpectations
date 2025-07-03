@@ -414,8 +414,6 @@ webkit.org/b/214290 imported/w3c/web-platform-tests/css/css-text/hyphens/hyphens
 
 webkit.org/b/212351 fast/events/mouse-cursor-udpate-during-raf.html [ Failure ]
 
-imported/w3c/web-platform-tests/css/css-fonts/generic-family-keywords-002.html [ Failure ]
-
 webkit.org/b/217370 fast/events/setDragImage-element-non-nullable.html [ Failure ]
 Bug(WPE) fast/events/selectstart-by-drag.html [ Failure ]
 

@@ -7927,6 +7927,4 @@ imported/w3c/web-platform-tests/focus/focus-contenteditable-element-in-iframe-sc
 fast/snapshot/nested-stacking-context.html [ Skip ]
 fast/snapshot/positioned-abs-relative-body.html [ Skip ]
 
-webkit.org/b/295422 imported/w3c/web-platform-tests/css/css-fonts/generic-family-keywords-002.html [ Failure ]
-
 webkit.org/b/295432 imported/w3c/web-platform-tests/css/filter-effects/backdrop-filter-clip-rect-zoom.html [ Pass ImageOnlyFailure ]
