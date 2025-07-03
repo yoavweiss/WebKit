@@ -8324,6 +8324,9 @@ void WebPageProxy::decidePolicyForResponseShared(Ref<WebProcessProxy>&& process,
         RELEASE_ASSERT(processSwapRequestedByClient == ProcessSwapRequestedByClient::No);
 
         bool shouldForceDownload = [&] {
+            // Disallows loading model files as the main resource for child frames. If desired in the future, we can remove this line and add required support to enable this behavior.
+            if (!frame->isMainFrame() && MIMETypeRegistry::isSupportedModelMIMEType(navigationResponse->response().mimeType()))
+                return true;
             if (policyAction != PolicyAction::Use || process->lockdownMode() != WebProcessProxy::LockdownMode::Enabled)
                 return false;
             if (MIMETypeRegistry::isPDFMIMEType(navigationResponse->response().mimeType()))
