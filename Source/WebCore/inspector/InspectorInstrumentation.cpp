@@ -528,10 +528,10 @@ void InspectorInstrumentation::willLayoutImpl(InstrumentingAgents& instrumenting
         pageTimelineAgent->willLayout();
 }
 
-void InspectorInstrumentation::didLayoutImpl(InstrumentingAgents& instrumentingAgents, const Vector<FloatQuad>& layoutAreas)
+void InspectorInstrumentation::didLayoutImpl(InstrumentingAgents& instrumentingAgents, RenderObject& root)
 {
     if (auto* pageTimelineAgent = instrumentingAgents.trackingPageTimelineAgent())
-        pageTimelineAgent->didLayout(layoutAreas);
+        pageTimelineAgent->didLayout(root);
     if (auto* pageAgent = instrumentingAgents.enabledPageAgent())
         pageAgent->didLayout();
 }

@@ -47,7 +47,7 @@ public:
     // InspectorInstrumentation
     void didInvalidateLayout();
     void willLayout();
-    void didLayout(const Vector<FloatQuad>&);
+    void didLayout(RenderObject&);
     void willComposite();
     void didComposite();
     void willPaint();
