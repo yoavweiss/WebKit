@@ -346,7 +346,7 @@ public:
     void didExceedCPULimit();
     void didExceedActiveMemoryLimit();
     void didExceedInactiveMemoryLimit();
-    void didExceedMemoryFootprintThreshold(size_t);
+    void didExceedMemoryFootprintThreshold(uint64_t);
 
     void didCommitProvisionalLoad() { m_hasCommittedAnyProvisionalLoads = true; }
     bool hasCommittedAnyProvisionalLoads() const { return m_hasCommittedAnyProvisionalLoads; }

@@ -80,7 +80,7 @@ messages -> WebExtensionContext {
 
     // Event APIs
     [Validator=isLoaded] AddListener(WebCore::FrameIdentifier frameIdentifier, WebKit::WebExtensionEventListenerType listenerType, WebKit::WebExtensionContentWorldType contentWorldType)
-    [Validator=isLoaded] RemoveListener(WebCore::FrameIdentifier frameIdentifier, WebKit::WebExtensionEventListenerType listenerType, WebKit::WebExtensionContentWorldType contentWorldType, size_t removedCount)
+    [Validator=isLoaded] RemoveListener(WebCore::FrameIdentifier frameIdentifier, WebKit::WebExtensionEventListenerType listenerType, WebKit::WebExtensionContentWorldType contentWorldType, uint64_t removedCount)
 
     // Extensions APIs
     [Validator=isLoaded] ExtensionIsAllowedIncognitoAccess() -> (bool result)
@@ -139,7 +139,7 @@ messages -> WebExtensionContext {
     // Storage APIs
     [Validator=isStorageMessageAllowed] StorageGet(WebKit::WebPageProxyIdentifier webPageProxyIdentifier, WebKit::WebExtensionDataType dataType, Vector<String> keys) -> (Expected<String, WebKit::WebExtensionError> result)
     [Validator=isStorageMessageAllowed] StorageGetKeys(WebKit::WebPageProxyIdentifier webPageProxyIdentifier, WebKit::WebExtensionDataType dataType) -> (Expected<Vector<String>, WebKit::WebExtensionError> result)
-    [Validator=isStorageMessageAllowed] StorageGetBytesInUse(WebKit::WebPageProxyIdentifier webPageProxyIdentifier, WebKit::WebExtensionDataType dataType, Vector<String> keys) -> (Expected<size_t, WebKit::WebExtensionError> result)
+    [Validator=isStorageMessageAllowed] StorageGetBytesInUse(WebKit::WebPageProxyIdentifier webPageProxyIdentifier, WebKit::WebExtensionDataType dataType, Vector<String> keys) -> (Expected<uint64_t, WebKit::WebExtensionError> result)
     [Validator=isStorageMessageAllowed] StorageSet(WebKit::WebPageProxyIdentifier webPageProxyIdentifier, WebKit::WebExtensionDataType dataType, String dataJSON) -> (Expected<void, WebKit::WebExtensionError> result)
     [Validator=isStorageMessageAllowed] StorageRemove(WebKit::WebPageProxyIdentifier webPageProxyIdentifier, WebKit::WebExtensionDataType dataType, Vector<String> keys) -> (Expected<void, WebKit::WebExtensionError> result)
     [Validator=isStorageMessageAllowed] StorageClear(WebKit::WebPageProxyIdentifier webPageProxyIdentifier, WebKit::WebExtensionDataType dataType) -> (Expected<void, WebKit::WebExtensionError> result)

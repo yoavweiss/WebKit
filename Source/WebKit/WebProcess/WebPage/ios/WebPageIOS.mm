@@ -5363,7 +5363,7 @@ void WebPage::cancelAsynchronousTouchEvents(UniqueRef<EventDispatcher::TouchEven
 }
 #endif
 
-void WebPage::computePagesForPrintingiOS(WebCore::FrameIdentifier frameID, const PrintInfo& printInfo, CompletionHandler<void(size_t)>&& reply)
+void WebPage::computePagesForPrintingiOS(WebCore::FrameIdentifier frameID, const PrintInfo& printInfo, CompletionHandler<void(uint64_t)>&& reply)
 {
     ASSERT_WITH_MESSAGE(!printInfo.snapshotFirstPage, "If we are just snapshotting the first page, we don't need a synchronous message to determine the page count, which is 1.");
 
@@ -5446,7 +5446,7 @@ void WebPage::drawToImage(WebCore::FrameIdentifier frameID, const PrintInfo& pri
     endPrinting();
 }
 
-void WebPage::drawToPDFiOS(FrameIdentifier frameID, const PrintInfo& printInfo, size_t pageCount, CompletionHandler<void(RefPtr<SharedBuffer>&&)>&& reply)
+void WebPage::drawToPDFiOS(FrameIdentifier frameID, const PrintInfo& printInfo, uint64_t pageCount, CompletionHandler<void(RefPtr<SharedBuffer>&&)>&& reply)
 {
     if (printInfo.snapshotFirstPage) {
         RefPtr localMainFrame = m_page->localMainFrame();

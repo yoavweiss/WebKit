@@ -190,8 +190,8 @@ struct ParagraphStyle {
 
 struct WEBCORE_EXPORT AttributedString {
     struct Range {
-        size_t location { 0 };
-        size_t length { 0 };
+        uint64_t location { 0 };
+        uint64_t length { 0 };
     };
 
     using TextTableID = AttributedStringTextTableID;

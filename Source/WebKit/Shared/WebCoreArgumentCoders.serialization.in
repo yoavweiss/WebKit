@@ -2712,7 +2712,7 @@ header: <wtf/MachSendRight.h>
 #if OS(WINDOWS)
     [Validator='!!m_handle && *m_handle'] Win32Handle m_handle;
 #endif
-    size_t m_size;
+    uint64_t m_size;
 };
 
 class WebCore::DatabaseDetails {
@@ -4537,7 +4537,7 @@ enum class WebCore::ScrollSnapStop : bool;
     bool hasSnapAreaLargerThanViewport;
     Markable<WebCore::ElementIdentifier> snapTargetID;
     bool isFocused;
-    Vector<size_t> snapAreaIndices;
+    Vector<uint64_t> snapAreaIndices;
 };
 
 #if ENABLE(ENCRYPTED_MEDIA)
@@ -6474,7 +6474,7 @@ struct WebCore::InteractionRegion {
 
 [Nested, AdditionalEncoder=StreamConnectionEncoder] struct WebCore::Region::Span {
     int y;
-    size_t segmentIndex;
+    uint64_t segmentIndex;
 };
 
 [Nested, AdditionalEncoder=StreamConnectionEncoder] class WebCore::Region::Shape {
@@ -8082,7 +8082,7 @@ headers: <JavaScriptCore/WasmModule.h> <WebCore/ImageBitmap.h> <WebCore/MessageP
     [NotSerialized] std::unique_ptr<Vector<RefPtr<JSC::SharedArrayBufferContents>>> wasmMemoryHandlesArray;
 #endif
     [NotSerialized] Vector<WebCore::URLKeepingBlobAlive> blobHandles;
-    [NotSerialized] size_t memoryCost;
+    [NotSerialized] uint64_t memoryCost;
 };
 
 [RefCounted] class WebCore::SerializedScriptValue {
@@ -8219,7 +8219,7 @@ header: <WebCore/SourceBufferPrivateClient.h>
     uint64_t contentSize;
     int64_t evictableSize;
     uint64_t maximumBufferSize;
-    size_t numMediaSamples;
+    uint64_t numMediaSamples;
 };
 
 using WebCore::SourceBufferPrivate::SamplesPromise::Result = Expected<Vector<String>, WebCore::PlatformMediaError>
@@ -8977,14 +8977,14 @@ header: <WebCore/ImageUtilities.h>
 
 header: <WebCore/ImageBufferResourceLimits.h>
 struct WebCore::ImageBufferResourceLimits {
-    size_t acceleratedImageBufferForCanvasCount;
-    size_t acceleratedImageBufferForCanvasLimit;
-    size_t globalAcceleratedImageBufferCount;
-    size_t globalAcceleratedImageBufferLimit;
-    size_t globalImageBufferForCanvasCount;
-    size_t globalImageBufferForCanvasLimit;
-    size_t imageBufferForCanvasCount;
-    size_t imageBufferForCanvasLimit;
+    uint64_t acceleratedImageBufferForCanvasCount;
+    uint64_t acceleratedImageBufferForCanvasLimit;
+    uint64_t globalAcceleratedImageBufferCount;
+    uint64_t globalAcceleratedImageBufferLimit;
+    uint64_t globalImageBufferForCanvasCount;
+    uint64_t globalImageBufferForCanvasLimit;
+    uint64_t imageBufferForCanvasCount;
+    uint64_t imageBufferForCanvasLimit;
 };
 
 header: <WebCore/FileSystemWriteCommandType.h>
@@ -9084,7 +9084,7 @@ struct WebCore::CryptoKeyData {
     std::optional<WebCore::JsonWebKey> jwk;
     std::optional<WebCore::CryptoAlgorithmIdentifier> hashAlgorithmIdentifier;
     std::optional<String> namedCurveString;
-    std::optional<size_t> lengthBits;
+    std::optional<uint64_t> lengthBits;
     std::optional<WebCore::CryptoKeyType> type;
 };
 

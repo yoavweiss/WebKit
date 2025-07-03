@@ -242,7 +242,7 @@ struct WebProcessCreationParameters {
 
 #if HAVE(IOSURFACE)
     WebCore::IntSize maximumIOSurfaceSize;
-    size_t bytesPerRowIOSurfaceAlignment;
+    uint64_t bytesPerRowIOSurfaceAlignment;
 #endif
     
     AccessibilityPreferences accessibilityPreferences;
@@ -270,7 +270,7 @@ struct WebProcessCreationParameters {
     ScriptTrackingPrivacyRules scriptTrackingPrivacyRules;
 
     Seconds memoryFootprintPollIntervalForTesting;
-    Vector<size_t> memoryFootprintNotificationThresholds;
+    Vector<uint64_t> memoryFootprintNotificationThresholds;
 
 #if ENABLE(NOTIFY_BLOCKING)
     Vector<std::pair<String, uint64_t>> notifyState;

@@ -500,7 +500,7 @@ void WebSWServerToContextConnection::setInspectable(ServiceWorkerIsInspectable i
 }
 
 #if ENABLE(CONTENT_EXTENSIONS)
-void WebSWServerToContextConnection::reportNetworkUsageToWorkerClient(const WebCore::ScriptExecutionContextIdentifier identifier, size_t bytesTransferredOverNetworkDelta)
+void WebSWServerToContextConnection::reportNetworkUsageToWorkerClient(const WebCore::ScriptExecutionContextIdentifier identifier, uint64_t bytesTransferredOverNetworkDelta)
 {
     if (RefPtr server = this->server()) {
         if (RefPtr connection = dynamicDowncast<WebSWServerConnection>(server->connection(identifier.processIdentifier())))

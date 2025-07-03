@@ -121,7 +121,7 @@ HTMLMEDIAELEMENT_MEDIAENGINEWASUPDATED, "HTMLMediaElement::mediaEngineWasUpdated
 HTMLVIDEOELEMENT_MEDIAPLAYERRENDERINGMODECHANGED, "HTMLVideoElement::mediaPlayerRenderingModeChanged(%" PRIX64 ")", (uint64_t), DEFAULT, Media
 
 PERFORMANCELOGGING_MEMORY_USAGE_INFO, "Memory usage info dump at %s:", (CString), DEFAULT, PerformanceLogging
-PERFORMANCELOGGING_MEMORY_USAGE_FOR_KEY, "  %s: %zu", (CString, size_t), DEFAULT, PerformanceLogging
+PERFORMANCELOGGING_MEMORY_USAGE_FOR_KEY, "  %s: %llu", (CString, uint64_t), DEFAULT, PerformanceLogging
 
 PERFORMANCEMONITOR_MEASURE_POSTLOAD_CPUUSAGE, "PerformanceMonitor::measurePostLoadCPUUsage: Process was using %.1f%% CPU after the page load.", (double), DEFAULT, PerformanceLogging
 PERFORMANCEMONITOR_MEASURE_POSTLOAD_MEMORYUSAGE, "PerformanceMonitor::measurePostLoadMemoryUsage: Process was using %" PRIu64 " bytes of memory after the page load.", (uint64_t), DEFAULT, PerformanceLogging

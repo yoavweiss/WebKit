@@ -2153,9 +2153,9 @@ void WebProcessProxy::didExceedInactiveMemoryLimit()
     requestTermination(ProcessTerminationReason::ExceededMemoryLimit);
 }
 
-void WebProcessProxy::didExceedMemoryFootprintThreshold(size_t footprint)
+void WebProcessProxy::didExceedMemoryFootprintThreshold(uint64_t footprint)
 {
-    WEBPROCESSPROXY_RELEASE_LOG(PerformanceLogging, "didExceedMemoryFootprintThreshold: WebProcess exceeded notification threshold (current footprint: %zu MB)", footprint >> 20);
+    WEBPROCESSPROXY_RELEASE_LOG(PerformanceLogging, "didExceedMemoryFootprintThreshold: WebProcess exceeded notification threshold (current footprint: %llu MB)", footprint >> 20);
 
     RefPtr dataStore = websiteDataStore();
     if (!dataStore)

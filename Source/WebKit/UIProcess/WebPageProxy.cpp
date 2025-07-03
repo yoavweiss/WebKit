@@ -16268,7 +16268,7 @@ void WebPageProxy::postMessageToRemote(WebCore::FrameIdentifier source, const St
     sendToProcessContainingFrame(target, Messages::WebPage::RemotePostMessage(source, sourceOrigin, target, targetOrigin, message));
 }
 
-void WebPageProxy::renderTreeAsTextForTesting(WebCore::FrameIdentifier frameID, size_t baseIndent, OptionSet<WebCore::RenderAsTextFlag> behavior, CompletionHandler<void(String&&)>&& completionHandler)
+void WebPageProxy::renderTreeAsTextForTesting(WebCore::FrameIdentifier frameID, uint64_t baseIndent, OptionSet<WebCore::RenderAsTextFlag> behavior, CompletionHandler<void(String&&)>&& completionHandler)
 {
     auto sendResult = sendSyncToProcessContainingFrame(frameID, Messages::WebPage::RenderTreeAsTextForTesting(frameID, baseIndent, behavior));
     if (!sendResult.succeeded())
@@ -16278,7 +16278,7 @@ void WebPageProxy::renderTreeAsTextForTesting(WebCore::FrameIdentifier frameID, 
     completionHandler(WTFMove(result));
 }
 
-void WebPageProxy::layerTreeAsTextForTesting(FrameIdentifier frameID, size_t baseIndent, OptionSet<LayerTreeAsTextOptions> options, CompletionHandler<void(String&&)>&& completionHandler)
+void WebPageProxy::layerTreeAsTextForTesting(FrameIdentifier frameID, uint64_t baseIndent, OptionSet<LayerTreeAsTextOptions> options, CompletionHandler<void(String&&)>&& completionHandler)
 {
     auto sendResult = sendSyncToProcessContainingFrame(frameID, Messages::WebPage::LayerTreeAsTextForTesting(frameID, baseIndent, options));
     if (!sendResult.succeeded())

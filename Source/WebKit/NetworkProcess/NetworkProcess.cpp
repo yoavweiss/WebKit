@@ -3147,7 +3147,7 @@ void NetworkProcess::removeWebPageNetworkParameters(PAL::SessionID sessionID, We
     m_pagesWithRelaxedThirdPartyCookieBlocking.remove(pageID);
 }
 
-void NetworkProcess::countNonDefaultSessionSets(PAL::SessionID sessionID, CompletionHandler<void(size_t)>&& completionHandler)
+void NetworkProcess::countNonDefaultSessionSets(PAL::SessionID sessionID, CompletionHandler<void(uint64_t)>&& completionHandler)
 {
     CheckedPtr session = networkSession(sessionID);
     completionHandler(session ? session->countNonDefaultSessionSets() : 0);

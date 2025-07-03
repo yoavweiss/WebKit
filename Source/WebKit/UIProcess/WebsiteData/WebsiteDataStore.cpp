@@ -2583,7 +2583,7 @@ void WebsiteDataStore::clearBundleIdentifierInNetworkProcess(CompletionHandler<v
     protectedNetworkProcess()->clearBundleIdentifier(WTFMove(completionHandler));
 }
 
-void WebsiteDataStore::countNonDefaultSessionSets(CompletionHandler<void(size_t)>&& completionHandler)
+void WebsiteDataStore::countNonDefaultSessionSets(CompletionHandler<void(uint64_t)>&& completionHandler)
 {
     protectedNetworkProcess()->sendWithAsyncReply(Messages::NetworkProcess::CountNonDefaultSessionSets(m_sessionID), WTFMove(completionHandler));
 }

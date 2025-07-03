@@ -460,7 +460,7 @@ private:
 
     void hasUploadStateChanged(bool);
 
-    void loadImageForDecoding(WebCore::ResourceRequest&&, WebPageProxyIdentifier, size_t, CompletionHandler<void(Expected<Ref<WebCore::FragmentedSharedBuffer>, WebCore::ResourceError>&&)>&&);
+    void loadImageForDecoding(WebCore::ResourceRequest&&, WebPageProxyIdentifier, uint64_t, CompletionHandler<void(Expected<Ref<WebCore::FragmentedSharedBuffer>, WebCore::ResourceError>&&)>&&);
 
     void setResourceLoadSchedulingMode(WebCore::PageIdentifier, WebCore::LoadSchedulingMode);
     void prioritizeResourceLoads(const Vector<WebCore::ResourceLoaderIdentifier>&);

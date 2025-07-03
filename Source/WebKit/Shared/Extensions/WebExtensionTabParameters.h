@@ -40,7 +40,7 @@ struct WebExtensionTabParameters {
     std::optional<String> title;
 
     std::optional<WebExtensionWindowIdentifier> windowIdentifier;
-    std::optional<size_t> index;
+    std::optional<uint64_t> index;
 #if PLATFORM(COCOA)
     std::optional<CGSize> size;
 #endif

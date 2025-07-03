@@ -2368,9 +2368,9 @@ public:
 #endif
 
 #if ENABLE(PDF_PAGE_NUMBER_INDICATOR)
-    void createPDFPageNumberIndicator(PDFPluginIdentifier, const WebCore::IntRect&, size_t pageCount);
+    void createPDFPageNumberIndicator(PDFPluginIdentifier, const WebCore::IntRect&, uint64_t pageCount);
     void updatePDFPageNumberIndicatorLocation(PDFPluginIdentifier, const WebCore::IntRect&);
-    void updatePDFPageNumberIndicatorCurrentPage(PDFPluginIdentifier, size_t pageIndex);
+    void updatePDFPageNumberIndicatorCurrentPage(PDFPluginIdentifier, uint64_t pageIndex);
     void removePDFPageNumberIndicator(PDFPluginIdentifier);
 #endif
 
@@ -3347,8 +3347,8 @@ private:
 
     void focusRemoteFrame(IPC::Connection&, WebCore::FrameIdentifier);
     void postMessageToRemote(WebCore::FrameIdentifier source, const String& sourceOrigin, WebCore::FrameIdentifier target, std::optional<WebCore::SecurityOriginData> targetOrigin, const WebCore::MessageWithMessagePorts&);
-    void renderTreeAsTextForTesting(WebCore::FrameIdentifier, size_t baseIndent, OptionSet<WebCore::RenderAsTextFlag>, CompletionHandler<void(String&&)>&&);
-    void layerTreeAsTextForTesting(WebCore::FrameIdentifier, size_t baseIndent, OptionSet<WebCore::LayerTreeAsTextOptions>, CompletionHandler<void(String&&)>&&);
+    void renderTreeAsTextForTesting(WebCore::FrameIdentifier, uint64_t baseIndent, OptionSet<WebCore::RenderAsTextFlag>, CompletionHandler<void(String&&)>&&);
+    void layerTreeAsTextForTesting(WebCore::FrameIdentifier, uint64_t baseIndent, OptionSet<WebCore::LayerTreeAsTextOptions>, CompletionHandler<void(String&&)>&&);
     void addMessageToConsoleForTesting(String&&);
     void frameTextForTesting(WebCore::FrameIdentifier, CompletionHandler<void(String&&)>&&);
     void bindRemoteAccessibilityFrames(int processIdentifier, WebCore::FrameIdentifier, Vector<uint8_t>&& dataToken, CompletionHandler<void(Vector<uint8_t>, int)>&&);

@@ -100,7 +100,7 @@ public:
     void terminateIdleServiceWorkers();
 
 #if ENABLE(CONTENT_EXTENSIONS)
-    void reportNetworkUsageToWorkerClient(const WebCore::ScriptExecutionContextIdentifier, size_t bytesTransferredOverNetworkDelta) final;
+    void reportNetworkUsageToWorkerClient(const WebCore::ScriptExecutionContextIdentifier, uint64_t bytesTransferredOverNetworkDelta) final;
 #endif
 
 private:
