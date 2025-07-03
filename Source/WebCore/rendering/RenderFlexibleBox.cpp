@@ -53,6 +53,7 @@
 #include "RenderStyleConstants.h"
 #include "RenderTable.h"
 #include "RenderView.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "WritingMode.h"
 #include <limits>
 #include <wtf/MathExtras.h>
@@ -1088,33 +1089,35 @@ template<typename SizeType> LayoutUnit RenderFlexibleBox::computeMainSizeFromAsp
 {
     ASSERT(flexItemHasAspectRatio(flexItem));
 
-    LayoutUnit crossSize;
-    // crossSize is border-box size if box-sizing is border-box, and content-box otherwise.
-    if constexpr (std::same_as<SizeType, Style::MaximumSize>) {
-        if (auto fixedCrossSizeLength = crossSizeLength.tryFixed())
-            crossSize = LayoutUnit(fixedCrossSizeLength->value);
-        else {
-            ASSERT(crossSizeLength.isPercentOrCalculated());
-            auto flexItemSize = mainAxisIsFlexItemInlineAxis(flexItem) ? flexItem.computePercentageLogicalHeight(crossSizeLength) : adjustBorderBoxLogicalWidthForBoxSizing(Style::evaluate(crossSizeLength, contentBoxWidth()), crossSizeLength.type());
-            if (!flexItemSize)
-                return 0_lu;
-            crossSize = flexItemSize.value();
-        }
-    } else {
-        if (auto fixedCrossSizeLength = crossSizeLength.tryFixed())
-            crossSize = LayoutUnit(fixedCrossSizeLength->value);
-        else if (crossSizeLength.isAuto()) {
-            ASSERT(flexItemCrossSizeShouldUseContainerCrossSize(flexItem));
-            crossSize = computeCrossSizeForFlexItemUsingContainerCrossSize(flexItem);
-        } else {
-            ASSERT(crossSizeLength.isPercentOrCalculated());
-            auto flexItemSize = mainAxisIsFlexItemInlineAxis(flexItem) ? flexItem.computePercentageLogicalHeight(crossSizeLength) : adjustBorderBoxLogicalWidthForBoxSizing(Style::evaluate(crossSizeLength, contentBoxWidth()), crossSizeLength.type());
-            if (!flexItemSize)
-                return 0_lu;
-            crossSize = flexItemSize.value();
-        }
-    }
+    // `crossSize` is border-box size if box-sizing is border-box, and content-box otherwise.
 
+    auto crossSizeOptional = WTF::switchOn(crossSizeLength,
+        [&](const SizeType::Fixed& fixedCrossSizeLength) -> std::optional<LayoutUnit> {
+            return LayoutUnit(fixedCrossSizeLength.value);
+        },
+        [&](const SizeType::Percentage& percentageCrossSizeLength) -> std::optional<LayoutUnit> {
+            return mainAxisIsFlexItemInlineAxis(flexItem)
+                ? flexItem.computePercentageLogicalHeight(percentageCrossSizeLength)
+                : adjustBorderBoxLogicalWidthForBoxSizing(Style::evaluate(percentageCrossSizeLength, contentBoxWidth()));
+        },
+        [&](const SizeType::Calc& calcCrossSizeLength) -> std::optional<LayoutUnit> {
+            return mainAxisIsFlexItemInlineAxis(flexItem)
+                ? flexItem.computePercentageLogicalHeight(calcCrossSizeLength)
+                : adjustBorderBoxLogicalWidthForBoxSizing(Style::evaluate(calcCrossSizeLength, contentBoxWidth()));
+        },
+        [&](const CSS::Keyword::Auto&) -> std::optional<LayoutUnit> {
+            ASSERT(flexItemCrossSizeShouldUseContainerCrossSize(flexItem));
+            return computeCrossSizeForFlexItemUsingContainerCrossSize(flexItem);
+        },
+        [&](const auto&) -> std::optional<LayoutUnit> {
+            ASSERT_NOT_REACHED();
+            return { };
+        }
+    );
+    if (!crossSizeOptional)
+        return 0_lu;
+
+    auto crossSize = *crossSizeOptional;
     auto flexItemIntrinsicSize = flexItem.intrinsicSize();
     LayoutUnit borderAndPadding;
     if (flexItem.style().aspectRatioType() == AspectRatioType::Ratio || (flexItem.style().aspectRatioType() == AspectRatioType::AutoAndRatio && flexItemIntrinsicSize.isEmpty())) {
