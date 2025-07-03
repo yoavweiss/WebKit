@@ -2202,3 +2202,5 @@ webkit.org/b/295366 [ Sonoma Debug x86_64 ] webgl/2.0.y/conformance/offscreencan
 webkit.org/b/295412 [ Debug ] media/media-vp8-webm-error.html [ Pass Failure ]
 
 webkit.org/b/295419 loader/navigation-policy/should-open-external-urls/subframe-navigated-programatically-by-main-frame.html [ Pass Failure ]
+
+webkit.org/b/295439 media/video-unmuted-after-play-holds-sleep-assertion.html [ Pass Failure ]
