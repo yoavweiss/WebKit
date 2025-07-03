@@ -2124,8 +2124,9 @@ ExceptionOr<RefPtr<ImageData>> Internals::snapshotNode(Node& node)
     if (!imageBuffer)
         return Exception { ExceptionCode::InvalidStateError, "Failed to create snapshot"_s };
 
-    auto logicalSize = imageBuffer->logicalSize();
-    IntRect sourceRect((IntPoint()), IntSize(logicalSize));
+    auto size = imageBuffer->logicalSize();
+    IntRect sourceRect(IntPoint(), imageBuffer->calculateBackendSize(size,
+        document->frame()->page()->deviceScaleFactor()));
 
     PixelBufferFormat destinationFormat {
         AlphaPremultiplication::Unpremultiplied,
