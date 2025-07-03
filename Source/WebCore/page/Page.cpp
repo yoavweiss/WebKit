@@ -1001,16 +1001,16 @@ void Page::goToItem(LocalFrame& frame, HistoryItem& item, FrameLoadType type, Sh
     // being deref()-ed. Make sure we can still use it with HistoryController::goToItem later.
     Ref protectedItem { item };
 
-    if (frame.loader().protectedHistory()->shouldStopLoadingForHistoryItem(item))
+    if (frame.loader().history().shouldStopLoadingForHistoryItem(item))
         frame.loader().stopAllLoadersAndCheckCompleteness();
-    frame.loader().protectedHistory()->goToItem(item, type, shouldTreatAsContinuingLoad, processSwapDisposition);
+    frame.loader().history().goToItem(item, type, shouldTreatAsContinuingLoad, processSwapDisposition);
 }
 
 void Page::goToItemForNavigationAPI(LocalFrame& frame, HistoryItem& item, FrameLoadType type, LocalFrame& triggeringFrame, NavigationAPIMethodTracker* tracker)
 {
-    if (frame.loader().protectedHistory()->shouldStopLoadingForHistoryItem(item))
+    if (frame.loader().history().shouldStopLoadingForHistoryItem(item))
         frame.loader().stopAllLoadersAndCheckCompleteness();
-    frame.loader().protectedHistory()->goToItemForNavigationAPI(item, type, triggeringFrame, tracker);
+    frame.loader().history().goToItemForNavigationAPI(item, type, triggeringFrame, tracker);
 }
 
 void Page::setGroupName(const String& name)
