@@ -34,12 +34,12 @@
 #include <WebCore/DocumentInlines.h>
 #include <WebCore/DocumentMarkerController.h>
 #include <WebCore/Editor.h>
+#include <WebCore/FindRevealAlgorithms.h>
 #include <WebCore/FocusController.h>
 #include <WebCore/FrameSelection.h>
 #include <WebCore/GeometryUtilities.h>
 #include <WebCore/GraphicsContext.h>
 #include <WebCore/GraphicsLayer.h>
-#include <WebCore/HTMLDetailsElement.h>
 #include <WebCore/ImageOverlay.h>
 #include <WebCore/LocalFrame.h>
 #include <WebCore/LocalFrameView.h>

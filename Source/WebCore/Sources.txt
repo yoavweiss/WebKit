@@ -1256,6 +1256,7 @@ dom/EventPath.cpp
 dom/EventTarget.cpp
 dom/EventTargetConcrete.cpp
 dom/ExtensionStyleSheets.cpp
+dom/FindRevealAlgorithms.cpp
 dom/FocusEvent.cpp
 dom/FormDataEvent.cpp
 dom/FragmentDirectiveGenerator.cpp

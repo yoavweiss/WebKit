@@ -37,12 +37,12 @@
 #include <WebCore/BoundaryPointInlines.h>
 #include <WebCore/DocumentInlines.h>
 #include <WebCore/DocumentMarkerController.h>
+#include <WebCore/FindRevealAlgorithms.h>
 #include <WebCore/FloatQuad.h>
 #include <WebCore/FocusController.h>
 #include <WebCore/FrameSelection.h>
 #include <WebCore/GeometryUtilities.h>
 #include <WebCore/GraphicsContext.h>
-#include <WebCore/HTMLDetailsElement.h>
 #include <WebCore/ImageAnalysisQueue.h>
 #include <WebCore/ImageOverlay.h>
 #include <WebCore/LocalFrame.h>

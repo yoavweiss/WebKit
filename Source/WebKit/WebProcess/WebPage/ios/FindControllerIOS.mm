@@ -34,9 +34,9 @@
 #import "WebPage.h"
 #import "WebPageProxyMessages.h"
 #import <WebCore/Editor.h>
+#import <WebCore/FindRevealAlgorithms.h>
 #import <WebCore/FocusController.h>
 #import <WebCore/GraphicsContext.h>
-#import <WebCore/HTMLDetailsElement.h>
 #import <WebCore/ImageOverlay.h>
 #import <WebCore/LocalFrame.h>
 #import <WebCore/LocalFrameView.h>
