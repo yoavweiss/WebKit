@@ -21,40 +21,77 @@
 
 #if ENABLE(WEBXR) && USE(OPENXR)
 
+#include "OpenXRExtensions.h"
 #include "PlatformXRCoordinator.h"
+
+#include <WebCore/PageIdentifier.h>
 #include <openxr/openxr.h>
+#include <wtf/Box.h>
+#include <wtf/TZoneMalloc.h>
+#include <wtf/Threading.h>
+
+namespace WebCore {
+class GLContext;
+class PlatformDisplaySurfaceless;
+}
 
 namespace WebKit {
 
-class OpenXRExtensions;
-
 class OpenXRCoordinator final : public PlatformXRCoordinator {
     WTF_MAKE_TZONE_ALLOCATED(OpenXRCoordinator);
+    struct RenderState;
 public:
     OpenXRCoordinator();
     virtual ~OpenXRCoordinator();
 
     void getPrimaryDeviceInfo(WebPageProxy&, DeviceInfoCallback&&) override;
+    void requestPermissionOnSessionFeatures(WebPageProxy&, const WebCore::SecurityOriginData&, PlatformXR::SessionMode, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, FeatureListCallback&&) override;
 
-    void startSession(WebPageProxy&, WeakPtr<PlatformXRCoordinatorSessionEventClient>&&, const WebCore::SecurityOriginData&, PlatformXR::SessionMode, const PlatformXR::Device::FeatureList&) override { }
-    void endSessionIfExists(WebPageProxy&) override { }
+    void startSession(WebPageProxy&, WeakPtr<PlatformXRCoordinatorSessionEventClient>&&, const WebCore::SecurityOriginData&, PlatformXR::SessionMode, const PlatformXR::Device::FeatureList&) override;
+    void endSessionIfExists(WebPageProxy&) override;
 
     void scheduleAnimationFrame(WebPageProxy&, std::optional<PlatformXR::RequestData>&&, PlatformXR::Device::RequestFrameCallback&& onFrameUpdateCallback) override { onFrameUpdateCallback({ }); }
 
 private:
     void createInstance();
+    void createSessionIfNeeded();
     void initializeDevice();
     void initializeSystem();
+    void initializeGraphicsBinding();
     void collectViewConfigurations();
     WebCore::IntSize recommendedResolution() const;
+
+    void handleSessionStateChange();
+    void endSessionIfExists(std::optional<WebCore::PageIdentifier>);
+    void pollEvents(std::atomic<bool>& terminateRequested);
+    void renderLoop(Box<RenderState>);
 
     XRDeviceIdentifier m_deviceIdentifier { XRDeviceIdentifier::generate() };
     XrInstance m_instance { XR_NULL_HANDLE };
     XrSystemId m_systemId { XR_NULL_SYSTEM_ID };
+    XrSession m_session { XR_NULL_HANDLE };
     Vector<XrViewConfigurationType> m_viewConfigurations;
     XrViewConfigurationType m_currentViewConfiguration;
+    XrSessionState m_sessionState { XR_SESSION_STATE_UNKNOWN };
 
     std::unique_ptr<OpenXRExtensions> m_extensions;
+
+    std::unique_ptr<WebCore::PlatformDisplaySurfaceless> m_platformDisplay;
+    std::unique_ptr<WebCore::GLContext> m_glContext;
+    XrGraphicsBindingEGLMNDX m_graphicsBinding;
+
+    struct Idle {
+    };
+    struct Active {
+        WeakPtr<PlatformXRCoordinatorSessionEventClient> sessionEventClient;
+        WebCore::PageIdentifier pageIdentifier;
+        Box<RenderState> renderState;
+        RefPtr<Thread> renderThread;
+    };
+
+    using State = Variant<Idle, Active>;
+    State m_state;
+    PlatformXR::SessionMode m_sessionMode;
 };
 
 } // namespace WebKit

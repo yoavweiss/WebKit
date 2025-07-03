@@ -22,18 +22,29 @@
 
 #if ENABLE(WEBXR) && USE(OPENXR)
 
+#include "APIUIClient.h"
+#if PLATFORM(GTK)
+#include "Display.h"
+#endif
 #include "OpenXRExtensions.h"
 #include "OpenXRUtils.h"
-#include <wtf/RunLoop.h>
-
+#include "WebPageProxy.h"
 #if USE(LIBEPOXY)
+#define __GBM__ 1
 #include <epoxy/egl.h>
 #else
 #include <EGL/egl.h>
 #endif
+#include <WebCore/GLContext.h>
+#include <WebCore/PlatformDisplaySurfaceless.h>
 #include <openxr/openxr_platform.h>
+#include <wtf/RunLoop.h>
 
 namespace WebKit {
+
+struct OpenXRCoordinator::RenderState {
+    std::atomic<bool> terminateRequested;
+};
 
 OpenXRCoordinator::OpenXRCoordinator()
 {
@@ -42,6 +53,9 @@ OpenXRCoordinator::OpenXRCoordinator()
 
 OpenXRCoordinator::~OpenXRCoordinator()
 {
+    if (m_session != XR_NULL_HANDLE)
+        xrDestroySession(m_session);
+
     if (m_instance != XR_NULL_HANDLE)
         xrDestroyInstance(m_instance);
 }
@@ -89,6 +103,85 @@ void OpenXRCoordinator::getPrimaryDeviceInfo(WebPageProxy&, DeviceInfoCallback&&
     callback(WTFMove(deviceInfo));
 }
 
+void OpenXRCoordinator::requestPermissionOnSessionFeatures(WebPageProxy& page, const WebCore::SecurityOriginData& securityOriginData, PlatformXR::SessionMode mode, const PlatformXR::Device::FeatureList& granted, const PlatformXR::Device::FeatureList& consentRequired, const PlatformXR::Device::FeatureList& consentOptional, const PlatformXR::Device::FeatureList& requiredFeaturesRequested, const PlatformXR::Device::FeatureList& optionalFeaturesRequested, FeatureListCallback&& callback)
+{
+    LOG(XR, "OpenXRCoordinator::requestPermissionOnSessionFeatures");
+    if (mode == PlatformXR::SessionMode::Inline) {
+        callback(granted);
+        return;
+    }
+
+    page.uiClient().requestPermissionOnXRSessionFeatures(page, securityOriginData, mode, granted, consentRequired, consentOptional, requiredFeaturesRequested, optionalFeaturesRequested, [callback = WTFMove(callback)](std::optional<Vector<PlatformXR::SessionFeature>> userGranted) mutable {
+        callback(WTFMove(userGranted));
+    });
+}
+
+void OpenXRCoordinator::startSession(WebPageProxy& page, WeakPtr<PlatformXRCoordinatorSessionEventClient>&& sessionEventClient, const WebCore::SecurityOriginData&, PlatformXR::SessionMode sessionMode, const PlatformXR::Device::FeatureList&)
+{
+    ASSERT(RunLoop::isMain());
+    LOG(XR, "OpenXRCoordinator::startSession");
+
+    WTF::switchOn(m_state,
+        [&](Idle&) {
+            m_sessionMode = sessionMode;
+            createSessionIfNeeded();
+            if (m_session == XR_NULL_HANDLE) {
+                LOG(XR, "OpenXRCoordinator: failed to create the session");
+                return;
+            }
+
+            auto renderState = Box<RenderState>::create();
+            renderState->terminateRequested = false;
+
+            m_state = Active {
+                .sessionEventClient = WTFMove(sessionEventClient),
+                .pageIdentifier = page.webPageIDInMainFrameProcess(),
+                .renderState = renderState,
+                .renderThread = Thread::create("OpenXR render thread"_s, [this, renderState] { renderLoop(renderState); }),
+            };
+        },
+        [&](Active&) {
+            RELEASE_LOG_ERROR(XR, "OpenXRCoordinator: an existing immersive session is active");
+            if (RefPtr protectedSessionEventClient = sessionEventClient.get())
+                protectedSessionEventClient->sessionDidEnd(m_deviceIdentifier);
+        });
+}
+
+void OpenXRCoordinator::endSessionIfExists(WebPageProxy& page)
+{
+    LOG(XR, "OpenXRCoordinator: endSessionIfExists");
+    endSessionIfExists(page.webPageIDInMainFrameProcess());
+}
+
+void OpenXRCoordinator::endSessionIfExists(std::optional<WebCore::PageIdentifier> pageIdentifier)
+{
+    ASSERT(RunLoop::isMain());
+
+    WTF::switchOn(m_state,
+        [&](Idle&) { },
+        [&](Active& active) {
+            if (pageIdentifier && active.pageIdentifier != *pageIdentifier) {
+                LOG(XR, "OpenXRCoordinator: trying to end an immersive session owned by another page");
+                return;
+            }
+            if (active.renderState->terminateRequested)
+                return;
+
+            // OpenXR will transition the session to EXITING state, which will set terminateRequested to true.
+            xrRequestExitSession(m_session);
+
+            active.renderThread->waitForCompletion();
+
+            auto& sessionEventClient = active.sessionEventClient;
+            if (sessionEventClient) {
+                LOG(XR, "... immersive session end sent");
+                sessionEventClient->sessionDidEnd(m_deviceIdentifier);
+            }
+
+            m_state = Idle { };
+        });
+}
+
 void OpenXRCoordinator::createInstance()
 {
     ASSERT(RunLoop::isMain());
@@ -96,10 +189,11 @@ void OpenXRCoordinator::createInstance()
 
     Vector<char *, 2> extensions;
 #if defined(XR_USE_PLATFORM_EGL)
-    extensions.append(const_cast<char*>(XR_MNDX_EGL_ENABLE_EXTENSION_NAME));
+    if (m_extensions->isExtensionSupported(XR_MNDX_EGL_ENABLE_EXTENSION_NAME ""_span))
+        extensions.append(const_cast<char*>(XR_MNDX_EGL_ENABLE_EXTENSION_NAME));
+#endif
 #if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     extensions.append(const_cast<char*>(XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME));
-#endif
 #endif
 
     XrInstanceCreateInfo createInfo = createOpenXRStruct<XrInstanceCreateInfo, XR_TYPE_INSTANCE_CREATE_INFO >();
@@ -179,6 +273,11 @@ void OpenXRCoordinator::initializeDevice()
         return;
     }
 
+    if (!m_extensions->loadMethods(m_instance)) {
+        LOG(XR, "Failed to load extension methods.");
+        return;
+    }
+
     initializeSystem();
     if (m_systemId == XR_NULL_SYSTEM_ID) {
         LOG(XR, "Failed to get OpenXR system ID.");
@@ -187,6 +286,114 @@ void OpenXRCoordinator::initializeDevice()
 
     collectViewConfigurations();
 }
+
+void OpenXRCoordinator::initializeGraphicsBinding()
+{
+    if (!m_extensions->isExtensionSupported(XR_MNDX_EGL_ENABLE_EXTENSION_NAME ""_span)) {
+        LOG(XR, "OpenXR MNDX_EGL_ENABLE extension is not supported.");
+        return;
+    }
+
+    if (!m_platformDisplay)
+        m_platformDisplay = WebCore::PlatformDisplaySurfaceless::create();
+    if (!m_glContext)
+        m_glContext = WebCore::GLContext::createOffscreen(*m_platformDisplay);
+
+    m_graphicsBinding = createOpenXRStruct<XrGraphicsBindingEGLMNDX, XR_TYPE_GRAPHICS_BINDING_EGL_MNDX>();
+    m_graphicsBinding.display = m_platformDisplay->eglDisplay();
+    m_graphicsBinding.context = m_glContext->platformContext();
+    m_graphicsBinding.config = m_glContext->config();
+    m_graphicsBinding.getProcAddress = m_extensions->methods().getProcAddressFunc;
+}
+
+void OpenXRCoordinator::createSessionIfNeeded()
+{
+    ASSERT(RunLoop::isMain());
+    ASSERT(m_instance != XR_NULL_HANDLE);
+
+    if (m_session != XR_NULL_HANDLE)
+        return;
+
+#if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
+    auto requirements = createOpenXRStruct<XrGraphicsRequirementsOpenGLESKHR, XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR>();
+    CHECK_XRCMD(m_extensions->methods().xrGetOpenGLESGraphicsRequirementsKHR(m_instance, m_systemId, &requirements));
+#endif
+
+    initializeGraphicsBinding();
+
+    // Create the session.
+    auto sessionCreateInfo = createOpenXRStruct<XrSessionCreateInfo, XR_TYPE_SESSION_CREATE_INFO>();
+    sessionCreateInfo.systemId = m_systemId;
+    sessionCreateInfo.next = &m_graphicsBinding;
+    CHECK_XRCMD(xrCreateSession(m_instance, &sessionCreateInfo, &m_session));
+}
+
+void OpenXRCoordinator::handleSessionStateChange()
+{
+    ASSERT(!RunLoop::isMain());
+
+    switch (m_sessionState) {
+    case XR_SESSION_STATE_READY: {
+        auto sessionBeginInfo = createOpenXRStruct<XrSessionBeginInfo, XR_TYPE_SESSION_BEGIN_INFO>();
+        sessionBeginInfo.primaryViewConfigurationType = m_currentViewConfiguration;
+        CHECK_XRCMD(xrBeginSession(m_session, &sessionBeginInfo));
+        break;
+    }
+    case XR_SESSION_STATE_STOPPING:
+        xrEndSession(m_session);
+        break;
+    case XR_SESSION_STATE_LOSS_PENDING:
+    case XR_SESSION_STATE_EXITING: {
+        xrDestroySession(m_session);
+        m_session = XR_NULL_HANDLE;
+        break;
+    }
+    default:
+        LOG(XR, "OpenXR session state changed to %s", toString(m_sessionState));
+        break;
+    }
+}
+
+void OpenXRCoordinator::pollEvents(std::atomic<bool>& terminateRequested)
+{
+    ASSERT(!RunLoop::isMain());
+    auto runtimeEvent = createOpenXRStruct<XrEventDataBuffer, XR_TYPE_EVENT_DATA_BUFFER>();
+    while (xrPollEvent(m_instance, &runtimeEvent) == XR_SUCCESS) {
+        switch (runtimeEvent.type) {
+        case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+            LOG(XR, "OpenXR instance loss");
+            terminateRequested = true;
+            break;
+        case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED: {
+            auto* event = reinterpret_cast<XrEventDataSessionStateChanged*>(&runtimeEvent);
+            LOG(XR, "OpenXR session state changed: %s", toString(event->state));
+            m_sessionState = event->state;
+            handleSessionStateChange();
+            terminateRequested = m_session == XR_NULL_HANDLE;
+            break;
+        }
+        default:
+            LOG(XR, "Unhandled OpenXR event type %d\n", runtimeEvent.type);
+        }
+    }
+}
+
+void OpenXRCoordinator::renderLoop(Box<RenderState> active)
+{
+    for (;;) {
+        if (active->terminateRequested)
+            break;
+
+        pollEvents(active->terminateRequested);
+
+        // Throttle the loop if the session is not running as xrWaitFrame won't be called.
+        if (m_sessionState != XR_SESSION_STATE_READY)
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    }
+
+    LOG(XR, "OpenXRCoordinator::renderLoop exiting...");
+}
+
 
 } // namespace WebKit
 
