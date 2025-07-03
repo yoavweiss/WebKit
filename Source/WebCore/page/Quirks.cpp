@@ -1917,6 +1917,11 @@ bool Quirks::shouldEnterNativeFullscreenWhenCallingElementRequestFullscreenQuirk
     return needsQuirks() && m_quirksData.shouldEnterNativeFullscreenWhenCallingElementRequestFullscreen;
 }
 
+bool Quirks::shouldDelayReloadWhenRegisteringServiceWorker() const
+{
+    return needsQuirks() && m_quirksData.shouldDelayReloadWhenRegisteringServiceWorker;
+}
+
 URL Quirks::topDocumentURL() const
 {
     if (!m_topDocumentURLForTesting.isEmpty()) [[unlikely]]
@@ -2873,6 +2878,13 @@ static void handleZoomQuirks(QuirksData& quirksData, const URL& quirksURL, const
 #endif
 }
 
+static void handleCapitalGroupQuirks(QuirksData& quirksData, const URL&, const String& quirksDomainString, const URL&)
+{
+    if (quirksDomainString != "capitalgroup.com"_s)
+        return;
+    quirksData.shouldDelayReloadWhenRegisteringServiceWorker = true;
+}
+
 void Quirks::determineRelevantQuirks()
 {
     RELEASE_ASSERT(m_document);
@@ -2918,6 +2930,7 @@ void Quirks::determineRelevantQuirks()
         { "bankofamerica"_s, &handleBankOfAmericaQuirks },
         { "bing"_s, &handleBingQuirks },
         { "bungalow"_s, &handleBungalowQuirks },
+        { "capitalgroup"_s, &handleCapitalGroupQuirks },
 #if PLATFORM(IOS_FAMILY)
         { "cbssports"_s, &handleCBSSportsQuirks },
         { "cnn"_s, &handleCNNQuirks },

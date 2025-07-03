@@ -119,6 +119,8 @@ public:
     void removeCookieChangeSubscriptions(ServiceWorkerRegistrationIdentifier, Vector<CookieChangeSubscription>&&, Ref<DeferredPromise>&&);
     void cookieChangeSubscriptions(ServiceWorkerRegistrationIdentifier, Ref<DeferredPromise>&&);
 
+    void whenRegisterJobsAreFinished(CompletionHandler<void()>&&);
+
 private:
     ServiceWorkerContainer(ScriptExecutionContext*, NavigatorBase&);
 
@@ -176,6 +178,7 @@ private:
     HashMap<uint64_t, ServiceWorkerRegistrationKey> m_ongoingSettledRegistrations;
     bool m_shouldDeferMessageEvents { false };
     Vector<MessageEvent::MessageEventWithStrongData> m_deferredMessageEvents;
+    CompletionHandler<void()> m_whenRegisterJobsAreFinished;
 };
 
 } // namespace WebCore

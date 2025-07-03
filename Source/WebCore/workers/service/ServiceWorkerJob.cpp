@@ -198,4 +198,9 @@ bool ServiceWorkerJob::cancelPendingLoad()
     return false;
 }
 
+bool ServiceWorkerJob::isRegistering() const
+{
+    return !m_completed && m_jobData.type == ServiceWorkerJobType::Register;
+}
+
 } // namespace WebCore

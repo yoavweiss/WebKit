@@ -588,7 +588,16 @@ void ServiceWorkerContainer::destroyJob(ServiceWorkerJob& job)
 {
     ASSERT(m_creationThread.ptr() == &Thread::currentSingleton());
     ASSERT(m_jobMap.contains(job.identifier()));
+
+    bool isRegisterJob = job.data().type == ServiceWorkerJobType::Register;
+
     m_jobMap.remove(job.identifier());
+
+    if (!isRegisterJob)
+        return;
+
+    if (auto callback = std::exchange(m_whenRegisterJobsAreFinished, { }))
+        whenRegisterJobsAreFinished(WTFMove(callback));
 }
 
 SWClientConnection& ServiceWorkerContainer::ensureSWClientConnection()
@@ -801,6 +810,28 @@ void ServiceWorkerContainer::cookieChangeSubscriptions(ServiceWorkerRegistration
             }));
         }
     });
+}
+
+void ServiceWorkerContainer::whenRegisterJobsAreFinished(CompletionHandler<void()>&& completionHandler)
+{
+    bool isRegistering = std::ranges::any_of(m_jobMap.values(), [](auto& ongoing) {
+        return ongoing.job->isRegistering();
+    });
+
+    if (!isRegistering) {
+        completionHandler();
+        return;
+    }
+
+    if (m_whenRegisterJobsAreFinished) {
+        m_whenRegisterJobsAreFinished = [oldCompletionHandler = std::exchange(m_whenRegisterJobsAreFinished, { }), newCompletionHandler = WTFMove(completionHandler)]() mutable {
+            oldCompletionHandler();
+            newCompletionHandler();
+        };
+        return;
+    }
+
+    m_whenRegisterJobsAreFinished = WTFMove(completionHandler);
 }
 
 } // namespace WebCore

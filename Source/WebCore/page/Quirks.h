@@ -264,6 +264,7 @@ public:
     bool shouldSupportHoverMediaQueries() const;
 
     bool shouldRewriteMediaRangeRequestForURL(const URL&) const;
+    bool shouldDelayReloadWhenRegisteringServiceWorker() const;
 
     bool shouldPreventKeyframeEffectAcceleration(const KeyframeEffect&) const;
 
