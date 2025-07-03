@@ -6148,7 +6148,7 @@ void WebPage::computeEnclosingLayerID(EditorState& state, const VisibleSelection
     if (!selectionRange)
         return;
 
-    auto [startLayer, endLayer, enclosingLayer, enclosingGraphicsLayerID] = computeEnclosingLayer(*selectionRange);
+    auto [startLayer, endLayer, enclosingLayer, graphicsLayer, enclosingGraphicsLayerID] = computeEnclosingLayer(*selectionRange);
 
     state.visualData->enclosingLayerID = WTFMove(enclosingGraphicsLayerID);
 
@@ -6187,6 +6187,9 @@ void WebPage::computeEnclosingLayerID(EditorState& state, const VisibleSelection
             break;
         }
     }
+
+    ASSERT_IMPLIES(state.visualData->enclosingLayerID, graphicsLayer);
+    state.visualData->enclosingLayerUsesContentsLayer = graphicsLayer && graphicsLayer->usesContentsLayer();
 
     if (selection.isCaret()) {
         state.visualData->scrollingNodeIDAtStart = state.visualData->enclosingScrollingNodeID;

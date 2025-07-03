@@ -133,5 +133,6 @@ using WebCore::ScrollOffset = WebCore::IntPoint;
     std::optional<WebCore::ScrollingNodeID> scrollingNodeIDAtStart;
     std::optional<WebCore::ScrollingNodeID> scrollingNodeIDAtEnd;
     WebCore::ScrollOffset enclosingScrollOffset;
+    bool enclosingLayerUsesContentsLayer;
 #endif
 };
