@@ -5,10 +5,6 @@ Modules/cookie-store/CookieStore.cpp
 Modules/credentialmanagement/CredentialsContainer.cpp
 Modules/encryptedmedia/legacy/LegacyCDM.cpp
 Modules/encryptedmedia/legacy/WebKitMediaKeySession.cpp
-Modules/fetch/FetchBody.cpp
-Modules/fetch/FetchBodyOwner.cpp
-Modules/fetch/FetchLoader.cpp
-Modules/fetch/FetchResponse.cpp
 Modules/gamepad/GamepadManager.cpp
 Modules/geolocation/Geolocation.cpp
 Modules/geolocation/GeolocationController.cpp

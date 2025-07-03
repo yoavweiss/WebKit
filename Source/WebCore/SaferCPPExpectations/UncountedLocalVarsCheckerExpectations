@@ -3,8 +3,6 @@ Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/cache/DOMCache.cpp
 Modules/cache/DOMCacheStorage.cpp
 Modules/encryptedmedia/MediaKeySystemRequest.cpp
-Modules/fetch/FetchBody.cpp
-Modules/fetch/FetchRequest.cpp
 Modules/gamepad/GamepadHapticActuator.cpp
 Modules/geolocation/Geolocation.cpp
 Modules/indexeddb/IDBActiveDOMObject.h

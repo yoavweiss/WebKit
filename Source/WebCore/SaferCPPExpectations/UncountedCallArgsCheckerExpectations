@@ -23,11 +23,6 @@ Modules/encryptedmedia/legacy/WebKitMediaKeys.cpp
 Modules/entriesapi/FileSystemDirectoryEntry.cpp
 Modules/entriesapi/FileSystemEntry.cpp
 Modules/entriesapi/FileSystemFileEntry.cpp
-Modules/fetch/FetchBody.cpp
-Modules/fetch/FetchBodyConsumer.cpp
-Modules/fetch/FetchBodySource.cpp
-Modules/fetch/FetchLoader.cpp
-Modules/fetch/FetchRequest.cpp
 Modules/filesystem/FileSystemFileHandle.cpp
 Modules/filesystem/WorkerFileSystemStorageConnection.cpp
 Modules/gamepad/GamepadManager.cpp
