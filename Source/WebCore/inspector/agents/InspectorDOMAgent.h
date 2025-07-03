@@ -278,8 +278,8 @@ private:
     Ref<InspectorOverlay> protectedOverlay() const;
 
     Inspector::InjectedScriptManager& m_injectedScriptManager;
-    std::unique_ptr<Inspector::DOMFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<Inspector::DOMBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<Inspector::DOMFrontendDispatcher> m_frontendDispatcher;
+    const RefPtr<Inspector::DOMBackendDispatcher> m_backendDispatcher;
     WeakRef<Page> m_inspectedPage;
     WeakRef<InspectorOverlay> m_overlay;
     WeakHashMap<Node, Inspector::Protocol::DOM::NodeId, WeakPtrImplWithEventTargetData> m_nodeToId;

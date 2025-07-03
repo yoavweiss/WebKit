@@ -105,7 +105,7 @@ void SendGarbageCollectionEventsTask::timerFired()
 WebHeapAgent::WebHeapAgent(WebAgentContext& context)
     : InspectorHeapAgent(context)
     , m_instrumentingAgents(context.instrumentingAgents)
-    , m_sendGarbageCollectionEventsTask(makeUnique<SendGarbageCollectionEventsTask>(*this))
+    , m_sendGarbageCollectionEventsTask(makeUniqueRef<SendGarbageCollectionEventsTask>(*this))
 {
 }
 

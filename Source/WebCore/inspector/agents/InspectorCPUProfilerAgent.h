@@ -53,8 +53,8 @@ public:
 private:
     void collectSample(const ResourceUsageData&);
 
-    std::unique_ptr<Inspector::CPUProfilerFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<Inspector::CPUProfilerBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<Inspector::CPUProfilerFrontendDispatcher> m_frontendDispatcher;
+    const RefPtr<Inspector::CPUProfilerBackendDispatcher> m_backendDispatcher;
     bool m_tracking { false };
 };
 

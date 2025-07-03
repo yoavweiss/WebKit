@@ -57,7 +57,7 @@ protected:
 
     InstrumentingAgents& m_instrumentingAgents;
 
-    std::unique_ptr<SendGarbageCollectionEventsTask> m_sendGarbageCollectionEventsTask;
+    const UniqueRef<SendGarbageCollectionEventsTask> m_sendGarbageCollectionEventsTask;
 };
 
 } // namespace WebCore

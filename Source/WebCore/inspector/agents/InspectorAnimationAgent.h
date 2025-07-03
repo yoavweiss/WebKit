@@ -93,8 +93,8 @@ private:
 
     void stopTrackingStyleOriginatedAnimation(StyleOriginatedAnimation&);
 
-    std::unique_ptr<Inspector::AnimationFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<Inspector::AnimationBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<Inspector::AnimationFrontendDispatcher> m_frontendDispatcher;
+    const RefPtr<Inspector::AnimationBackendDispatcher> m_backendDispatcher;
 
     Inspector::InjectedScriptManager& m_injectedScriptManager;
     WeakRef<Page> m_inspectedPage;

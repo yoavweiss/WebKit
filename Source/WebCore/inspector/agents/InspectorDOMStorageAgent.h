@@ -75,8 +75,8 @@ public:
 private:
     RefPtr<StorageArea> findStorageArea(Inspector::Protocol::ErrorString&, Ref<JSON::Object>&& storageId, LocalFrame*&);
 
-    std::unique_ptr<Inspector::DOMStorageFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<Inspector::DOMStorageBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<Inspector::DOMStorageFrontendDispatcher> m_frontendDispatcher;
+    const RefPtr<Inspector::DOMStorageBackendDispatcher> m_backendDispatcher;
 
     WeakRef<Page> m_inspectedPage;
 };

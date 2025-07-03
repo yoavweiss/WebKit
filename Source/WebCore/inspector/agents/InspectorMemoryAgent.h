@@ -59,8 +59,8 @@ public:
 private:
     void collectSample(const ResourceUsageData&);
 
-    std::unique_ptr<Inspector::MemoryFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<Inspector::MemoryBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<Inspector::MemoryFrontendDispatcher> m_frontendDispatcher;
+    const RefPtr<Inspector::MemoryBackendDispatcher> m_backendDispatcher;
     bool m_tracking { false };
 };
 

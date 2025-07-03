@@ -42,7 +42,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(InspectorCPUProfilerAgent);
 
 InspectorCPUProfilerAgent::InspectorCPUProfilerAgent(PageAgentContext& context)
     : InspectorAgentBase("CPUProfiler"_s, context)
-    , m_frontendDispatcher(makeUnique<Inspector::CPUProfilerFrontendDispatcher>(context.frontendRouter))
+    , m_frontendDispatcher(makeUniqueRef<Inspector::CPUProfilerFrontendDispatcher>(context.frontendRouter))
     , m_backendDispatcher(Inspector::CPUProfilerBackendDispatcher::create(context.backendDispatcher, this))
 {
 }

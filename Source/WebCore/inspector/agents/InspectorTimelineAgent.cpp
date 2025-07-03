@@ -61,7 +61,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(InspectorTimelineAgent);
 
 InspectorTimelineAgent::InspectorTimelineAgent(WebAgentContext& context)
     : InspectorAgentBase("Timeline"_s, context)
-    , m_frontendDispatcher(makeUnique<Inspector::TimelineFrontendDispatcher>(context.frontendRouter))
+    , m_frontendDispatcher(makeUniqueRef<Inspector::TimelineFrontendDispatcher>(context.frontendRouter))
     , m_backendDispatcher(Inspector::TimelineBackendDispatcher::create(context.backendDispatcher, this))
 {
 }

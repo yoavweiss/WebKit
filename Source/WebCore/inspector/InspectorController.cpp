@@ -96,7 +96,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(InspectorController);
 InspectorController::InspectorController(Page& page, std::unique_ptr<InspectorClient>&& inspectorClient)
     : m_page(page)
     , m_instrumentingAgents(InstrumentingAgents::create(*this))
-    , m_injectedScriptManager(makeUnique<WebInjectedScriptManager>(*this, WebInjectedScriptHost::create()))
+    , m_injectedScriptManager(makeUniqueRef<WebInjectedScriptManager>(*this, WebInjectedScriptHost::create()))
     , m_frontendRouter(FrontendRouter::create())
     , m_backendDispatcher(BackendDispatcher::create(m_frontendRouter.copyRef()))
     , m_overlay(makeUniqueRefWithoutRefCountedCheck<InspectorOverlay>(*this, inspectorClient.get()))
@@ -132,7 +132,7 @@ PageAgentContext InspectorController::pageAgentContext()
 {
     AgentContext baseContext = {
         *this,
-        *m_injectedScriptManager,
+        m_injectedScriptManager,
         m_frontendRouter.get(),
         m_backendDispatcher.get()
     };

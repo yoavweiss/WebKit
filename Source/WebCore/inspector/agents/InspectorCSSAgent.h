@@ -187,8 +187,8 @@ private:
 
     void resetPseudoStates();
 
-    std::unique_ptr<Inspector::CSSFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<Inspector::CSSBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<Inspector::CSSFrontendDispatcher> m_frontendDispatcher;
+    const RefPtr<Inspector::CSSBackendDispatcher> m_backendDispatcher;
 
     WeakRef<Page> m_inspectedPage;
     IdToInspectorStyleSheet m_idToInspectorStyleSheet;

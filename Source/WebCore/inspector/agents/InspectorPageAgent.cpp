@@ -345,7 +345,7 @@ DocumentLoader* InspectorPageAgent::assertDocumentLoader(Inspector::Protocol::Er
 
 InspectorPageAgent::InspectorPageAgent(PageAgentContext& context, InspectorClient* client, InspectorOverlay& overlay)
     : InspectorAgentBase("Page"_s, context)
-    , m_frontendDispatcher(makeUnique<Inspector::PageFrontendDispatcher>(context.frontendRouter))
+    , m_frontendDispatcher(makeUniqueRef<Inspector::PageFrontendDispatcher>(context.frontendRouter))
     , m_backendDispatcher(Inspector::PageBackendDispatcher::create(context.backendDispatcher, this))
     , m_inspectedPage(context.inspectedPage)
     , m_client(client)

@@ -169,8 +169,8 @@ private:
     Ref<Inspector::Protocol::Page::Frame> buildObjectForFrame(LocalFrame*);
     Ref<Inspector::Protocol::Page::FrameResourceTree> buildObjectForFrameTree(LocalFrame*);
 
-    std::unique_ptr<Inspector::PageFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<Inspector::PageBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<Inspector::PageFrontendDispatcher> m_frontendDispatcher;
+    const RefPtr<Inspector::PageBackendDispatcher> m_backendDispatcher;
 
     WeakRef<Page> m_inspectedPage;
     InspectorClient* m_client { nullptr };
