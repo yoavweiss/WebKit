@@ -538,7 +538,9 @@ void VideoFrame::copyTo(std::span<uint8_t> destination, VideoPixelFormat pixelFo
         return;
     }
 
-    GST_TRACE("Copying frame data to pixel format %d", static_cast<int>(pixelFormat));
+#ifndef GST_DISABLE_GST_DEBUG
+    GST_TRACE("Copying frame data to %s pixel format", convertVideoPixelFormatToString(pixelFormat).ascii().data());
+#endif
     if (pixelFormat == VideoPixelFormat::NV12) {
         auto spanPlaneLayoutY = computedPlaneLayout[GST_VIDEO_COMP_Y];
         auto widthY = inputFrame.componentWidth(GST_VIDEO_COMP_Y);
