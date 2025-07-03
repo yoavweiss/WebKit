@@ -1,3 +1,0 @@
-CONSOLE MESSAGE: promises created
-CONSOLE MESSAGE: Pass
-
