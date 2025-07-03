@@ -34,6 +34,7 @@
 #include <WebCore/PlatformPasteboard.h>
 #include <WebCore/SelectionData.h>
 #include <wtf/StdLibExtras.h>
+#include <wtf/glib/GUniquePtr.h>
 
 #if ENABLE(WPE_PLATFORM)
 #include "GRefPtrWPE.h"
