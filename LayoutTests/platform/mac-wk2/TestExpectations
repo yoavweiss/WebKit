@@ -2198,3 +2198,5 @@ webkit.org/b/295226 http/wpt/mediarecorder/MediaRecorder-audio-samplingrate-chan
 webkit.org/b/295304 [ Sonoma Debug x86_64 ] webgl/1.0.x/conformance/rendering/many-draw-calls.html [ Slow ]
 
 webkit.org/b/295366 [ Sonoma Debug x86_64 ] webgl/2.0.y/conformance/offscreencanvas/offscreencanvas-transfer-image-bitmap.html [ Slow ]
+
+webkit.org/b/295412 [ Debug ] media/media-vp8-webm-error.html [ Pass Failure ]
