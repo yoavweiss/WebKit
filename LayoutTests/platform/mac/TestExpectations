@@ -1064,6 +1064,7 @@ webkit.org/b/181594 media/encrypted-media/clearKey/clearKey-cenc-video-playback-
 webkit.org/b/189200 media/encrypted-media/clearKey/clearKey-webm-video-playback-mse.html [ Skip ]
 media/encrypted-media/clearKey/clearKey-cenc-video-playback-mse-multikey.html [ Skip ]
 webkit.org/b/258070 media/encrypted-media/clearKey/clearKey-cenc-stop-playback-before-key.html [ Skip ]
+media/encrypted-media/encrypted-media-append-clear-encrypted.html [ Skip ]
 
 webkit.org/b/162507 http/tests/media/hls/hls-video-resize.html [ Pass Failure ]
 
