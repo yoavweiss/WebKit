@@ -3553,6 +3553,53 @@ Color RenderThemeCocoa::disabledSubmitButtonTextColor() const
     return textColor;
 }
 
+bool RenderThemeCocoa::mayNeedBleedAvoidance(const RenderStyle& style) const
+{
+    if (style.nativeAppearanceDisabled())
+        return true;
+
+    switch (style.usedAppearance()) {
+    case StyleAppearance::BorderlessAttachment:
+    case StyleAppearance::Button:
+    case StyleAppearance::Checkbox:
+#if PLATFORM(MAC)
+    case StyleAppearance::ColorWell:
+    case StyleAppearance::ColorWellSwatch:
+#endif
+    case StyleAppearance::DefaultButton:
+    case StyleAppearance::InnerSpinButton:
+    case StyleAppearance::ListButton:
+#if PLATFORM(MAC)
+    case StyleAppearance::Menulist:
+#else
+    case StyleAppearance::MenulistButton:
+#endif
+    case StyleAppearance::Meter:
+    case StyleAppearance::ProgressBar:
+    case StyleAppearance::PushButton:
+    case StyleAppearance::Radio:
+    case StyleAppearance::SearchField:
+#if PLATFORM(MAC)
+    case StyleAppearance::SearchFieldCancelButton:
+#endif
+    case StyleAppearance::SearchFieldDecoration:
+    case StyleAppearance::SearchFieldResultsButton:
+    case StyleAppearance::SearchFieldResultsDecoration:
+    case StyleAppearance::SquareButton:
+    case StyleAppearance::SliderHorizontal:
+    case StyleAppearance::SliderThumbHorizontal:
+    case StyleAppearance::SliderThumbVertical:
+    case StyleAppearance::SliderVertical:
+    case StyleAppearance::TextArea:
+    case StyleAppearance::TextField:
+    case StyleAppearance::SwitchThumb:
+    case StyleAppearance::SwitchTrack:
+        return false;
+    default:
+        return true;
+    }
+}
+
 #endif
 
 void RenderThemeCocoa::adjustCheckboxStyle(RenderStyle& style, const Element* element) const
