@@ -107,7 +107,7 @@ const ClassInfo JSDOMGlobalObject::s_info = { "DOMGlobalObject"_s, &JSGlobalObje
 
 JSDOMGlobalObject::JSDOMGlobalObject(VM& vm, Structure* structure, Ref<DOMWrapperWorld>&& world, const GlobalObjectMethodTable* globalObjectMethodTable)
     : JSGlobalObject(vm, structure, globalObjectMethodTable)
-    , m_constructors(makeUnique<DOMConstructors>())
+    , m_constructors(makeUniqueRef<DOMConstructors>())
     , m_world(WTFMove(world))
     , m_worldIsNormal(m_world->isNormal())
     , m_builtinInternalFunctions(makeUniqueRefWithoutFastMallocCheck<JSBuiltinInternalFunctions>(vm))

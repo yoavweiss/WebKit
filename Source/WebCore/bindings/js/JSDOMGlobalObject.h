@@ -137,7 +137,7 @@ protected:
 
     JSDOMStructureMap m_structures WTF_GUARDED_BY_LOCK(m_gcLock);
     DOMGuardedObjectSet m_guardedObjects WTF_GUARDED_BY_LOCK(m_gcLock);
-    std::unique_ptr<DOMConstructors> m_constructors;
+    const UniqueRef<DOMConstructors> m_constructors;
 
     const Ref<DOMWrapperWorld> m_world;
     uint8_t m_worldIsNormal;
