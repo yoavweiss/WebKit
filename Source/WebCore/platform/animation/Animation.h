@@ -57,17 +57,9 @@ public:
     bool isRangeStartSet() const { return m_rangeStartSet; }
     bool isRangeEndSet() const { return m_rangeEndSet; }
 
-    // Flags this to be the special "none" animation (animation-name: none)
-    bool isNoneAnimation() const { return m_isNone; }
-
-    // We can make placeholder Animation objects to keep the comma-separated lists
-    // of properties in sync. isValidAnimation means this is not a placeholder.
-    bool isValidAnimation() const { return !m_isNone && !m_name.name.isEmpty(); }
-
     bool isEmpty() const
     {
         return !m_nameSet
-            && !m_isNone
             && (!m_directionSet || m_directionFilled)
             && (!m_durationSet || m_durationFilled)
             && (!m_fillModeSet || m_fillModeFilled)
@@ -201,8 +193,6 @@ public:
     void setRangeEnd(SingleTimelineRange range) { m_range.end = range; m_rangeEndSet = true; }
     void setRange(TimelineRange range) { setRangeStart(range.start); setRangeEnd(range.end); }
 
-    void setIsNoneAnimation(bool n) { m_isNone = n; }
-
     void fillDelay(double delay) { setDelay(delay); m_delayFilled = true; }
     void fillDirection(Direction direction) { setDirection(direction); m_directionFilled = true; }
     void fillDuration(MarkableDouble duration) { setDuration(duration); m_durationFilled = true; }
@@ -285,8 +275,6 @@ private:
     bool m_allowsDiscreteTransitionsSet : 1;
     bool m_rangeStartSet : 1;
     bool m_rangeEndSet : 1;
-
-    bool m_isNone : 1;
 
     bool m_delayFilled : 1;
     bool m_directionFilled : 1;

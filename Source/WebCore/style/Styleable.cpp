@@ -402,9 +402,6 @@ void Styleable::updateCSSAnimations(const RenderStyle* currentStyle, const Rende
     // first item in the list.
     if (currentAnimationList) {
         for (auto& currentAnimation : makeReversedRange(*currentAnimationList)) {
-            if (!currentAnimation->isValidAnimation())
-                continue;
-
             auto& animationName = currentAnimation->name().name;
             if (animationName == noneAtom() || animationName.isEmpty())
                 continue;
