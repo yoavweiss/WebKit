@@ -4625,25 +4625,30 @@ bool EventHandler::handleTextInputEvent(const String& text, Event* underlyingEve
     return event->defaultHandled();
 }
     
-bool EventHandler::isKeyboardOptionTab(KeyboardEvent& event)
+bool EventHandler::isKeyboardOptionTab(const FocusEventData& focusEventData)
 {
     auto& eventNames = WebCore::eventNames();
-    return (event.type() == eventNames.keydownEvent || event.type() == eventNames.keypressEvent)
-        && event.altKey()
-        && event.keyIdentifier() == "U+0009"_s;
+    return (focusEventData.type == eventNames.keydownEvent || focusEventData.type == eventNames.keypressEvent)
+        && focusEventData.altKey
+        && focusEventData.keyIdentifier == "U+0009"_s;
 }
 
-bool EventHandler::eventInvertsTabsToLinksClientCallResult(KeyboardEvent& event)
+bool EventHandler::eventInvertsTabsToLinksClientCallResult(const FocusEventData& focusEventData)
 {
 #if PLATFORM(COCOA)
-    return isKeyboardOptionTab(event);
+    return isKeyboardOptionTab(focusEventData);
 #else
-    UNUSED_PARAM(event);
+    UNUSED_PARAM(focusEventData);
     return false;
 #endif
 }
 
 bool EventHandler::tabsToLinks(KeyboardEvent* event) const
+{
+    return event ? tabsToLinks(event->focusEventData()) : false;
+}
+
+bool EventHandler::tabsToLinks(const FocusEventData& focusEventData) const
 {
     // FIXME: This function needs a better name. It can be called for keypresses other than Tab when spatial navigation is enabled.
 
@@ -4652,10 +4657,15 @@ bool EventHandler::tabsToLinks(KeyboardEvent* event) const
         return false;
 
     bool tabsToLinksClientCallResult = page->chrome().client().keyboardUIMode() & KeyboardAccessTabsToLinks;
-    return (event && eventInvertsTabsToLinksClientCallResult(*event)) ? !tabsToLinksClientCallResult : tabsToLinksClientCallResult;
+    return eventInvertsTabsToLinksClientCallResult(focusEventData) ? !tabsToLinksClientCallResult : tabsToLinksClientCallResult;
 }
 
 bool EventHandler::tabsToAllFormControls(KeyboardEvent* event) const
+{
+    return event ? tabsToAllFormControls(event->focusEventData()) : false;
+}
+
+bool EventHandler::tabsToAllFormControls(const FocusEventData& focusEventData) const
 {
 #if PLATFORM(COCOA)
     RefPtr page = m_frame->page();
@@ -4663,7 +4673,7 @@ bool EventHandler::tabsToAllFormControls(KeyboardEvent* event) const
         return false;
 
     KeyboardUIMode keyboardUIMode = page->chrome().client().keyboardUIMode();
-    bool handlingOptionTab = event && isKeyboardOptionTab(*event);
+    bool handlingOptionTab = isKeyboardOptionTab(focusEventData);
 
     // If tab-to-links is off, option-tab always highlights all controls
     if (!(keyboardUIMode & KeyboardAccessTabsToLinks) && handlingOptionTab)
@@ -4679,7 +4689,7 @@ bool EventHandler::tabsToAllFormControls(KeyboardEvent* event) const
 
     return handlingOptionTab;
 #else
-    UNUSED_PARAM(event);
+    UNUSED_PARAM(focusEventData);
     // We always allow tabs to all controls
     return true;
 #endif

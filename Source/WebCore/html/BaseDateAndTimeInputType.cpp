@@ -283,7 +283,7 @@ bool BaseDateAndTimeInputType::valueMissing(const String& value) const
     return protectedElement()->isMutable() && element()->isRequired() && value.isEmpty();
 }
 
-bool BaseDateAndTimeInputType::isKeyboardFocusable(KeyboardEvent*) const
+bool BaseDateAndTimeInputType::isKeyboardFocusable(const FocusEventData&) const
 {
     ASSERT(element());
     Ref input = *element();

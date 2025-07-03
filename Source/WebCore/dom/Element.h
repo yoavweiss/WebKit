@@ -131,6 +131,7 @@ enum class CommandType: uint8_t {
 };
 
 struct CheckVisibilityOptions;
+struct FocusEventData;
 struct FullscreenOptions;
 struct GetAnimationsOptions;
 struct GetHTMLOptions;
@@ -470,7 +471,7 @@ public:
     bool hasFocusableStyle() const;
     virtual bool supportsFocus() const;
     virtual bool isFocusable() const;
-    virtual bool isKeyboardFocusable(KeyboardEvent*) const;
+    virtual bool isKeyboardFocusable(const FocusEventData&) const;
     virtual bool isMouseFocusable() const;
 
     virtual bool shouldUseInputMethod();
