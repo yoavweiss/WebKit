@@ -21,7 +21,22 @@
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       originating.style.setProperty("--background-color", "green");
-      requestAnimationFrame(() => takeScreenshot());
+      let attempts = 0;
+      const maxAttempts = 30;
+      function waitForStyleUpdate() {
+        const computedStyle = getComputedStyle(originating, "::selection");
+        const backgroundColor = computedStyle.backgroundColor;
+        // Check if the background color has been updated to green
+        if (backgroundColor === "rgb(0, 128, 0)" || backgroundColor === "green") {
+          takeScreenshot();
+        } else if (attempts < maxAttempts) {
+          attempts++;
+          requestAnimationFrame(waitForStyleUpdate);
+        } else {
+          takeScreenshot();
+        }
+      }
+      waitForStyleUpdate();
     });
   });
 </script>
