@@ -2685,7 +2685,7 @@ static bool hasVisibleSliderThumbDescendant(const RenderObject& box)
     if (!renderBox)
         return false;
 
-    while (CheckedPtr childBox = renderBox->lastChildBox())
+    while (CheckedPtr childBox = dynamicDowncast<RenderBox>(renderBox->lastChild()))
         renderBox = childBox;
 
     CheckedRef style = renderBox->style();
