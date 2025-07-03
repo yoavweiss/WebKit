@@ -102,6 +102,7 @@ struct ErrorInformation {
     unsigned column { 0 };
     String sourceURL;
     String stack;
+    String cause;
 };
 
 std::optional<ErrorInformation> extractErrorInformationFromErrorInstance(JSC::JSGlobalObject*, JSC::ErrorInstance&);
