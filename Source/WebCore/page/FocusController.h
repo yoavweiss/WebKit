@@ -52,6 +52,8 @@ struct FocusCandidate;
 struct FocusEventData;
 
 enum class ContinuedSearchInRemoteFrame : bool { No, Yes };
+enum class FoundElementInRemoteFrame : bool { No, Yes };
+
 struct FocusableElementSearchResult {
     RefPtr<Element> element;
     ContinuedSearchInRemoteFrame continuedSearchInRemoteFrame { ContinuedSearchInRemoteFrame::No };

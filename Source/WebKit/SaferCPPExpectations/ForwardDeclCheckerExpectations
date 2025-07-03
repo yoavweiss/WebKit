@@ -29,6 +29,8 @@ UIProcess/WebProcessPool.h
 WebAuthenticatorCoordinatorProxyMessages.h
 WebExtensionContextMessages.h
 WebExtensionContextProxyMessages.h
+WebFrameMessages.h
+WebFrameProxyMessages.h
 WebPageMessages.h
 WebPageProxyMessages.h
 WebPaymentCoordinatorProxyMessages.h

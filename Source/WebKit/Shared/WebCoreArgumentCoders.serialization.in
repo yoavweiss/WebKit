@@ -9196,3 +9196,13 @@ struct WebCore::HostingContext {
     WTF::MachSendRightAnnotated sendRightAnnotated;
 #endif
 }
+
+header: <WebCore/FocusController.h>
+enum class WebCore::FoundElementInRemoteFrame : bool;
+
+struct WebCore::FocusEventData {
+    AtomString type;
+    AtomString keyIdentifier;
+    bool altKey;
+}
+

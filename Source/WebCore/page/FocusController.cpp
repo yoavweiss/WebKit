@@ -527,8 +527,13 @@ FocusableElementSearchResult FocusController::findFocusableElementDescendingInto
     // 2) the deepest-nested HTMLFrameOwnerElement.
     RefPtr element = startingElement;
     while (RefPtr owner = dynamicDowncast<HTMLFrameOwnerElement>(element)) {
-        if (dynamicDowncast<RemoteFrame>(owner->contentFrame())) {
-            LOG(SiteIsolation, "FocusController::findFocusableElementDescendingIntoSubframes - Encountered a remote frame advancing focus which is not yet supported.");
+        if (RefPtr remoteFrame = dynamicDowncast<RemoteFrame>(owner->contentFrame())) {
+            remoteFrame->client().findFocusableElementDescendingIntoRemoteFrame(direction, focusEventData, [](FoundElementInRemoteFrame found) {
+                // FIXME: Refactor focus folowup work that is still relevant for this asynchronous remote frame result
+                LOG(SiteIsolation, "FocusController::findFocusableElementDescendingIntoSubframes - Remote frame advanced focus which is not yet fully supported. Result was '%s'", found == FoundElementInRemoteFrame::Yes ? "found" : "not found");
+                UNUSED_PARAM(found);
+            });
+
             return { nullptr, ContinuedSearchInRemoteFrame::Yes };
         }
 
