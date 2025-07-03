@@ -532,7 +532,7 @@ class GnomeSDK(SDKBase):
     flatpak_repo_url = "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
     repo_url = "https://nightly.gnome.org/repo/"
 
-    fdo_branch = "24.08"
+    fdo_branch = "25.08"
 
     def __init__(self, user_repo=None):
         url = self.repo_url
@@ -550,11 +550,11 @@ class GnomeSDK(SDKBase):
         self.repos = FlatpakRepos([self.sdk_repo, self.flathub_repo])
         self.packages = [self.runtime, self.sdk]
         self.packages.append(FlatpakPackage('org.gnome.Sdk.Debug', self.branch, self.sdk_repo, arch))
-        self.packages.append(FlatpakPackage("org.freedesktop.Sdk.Extension.llvm19", self.fdo_branch,
+        self.packages.append(FlatpakPackage("org.freedesktop.Sdk.Extension.llvm20", "beta",
                                             self.flathub_repo, arch))
 
     def programs_lookup_paths(self):
-        return "/usr/lib/sdk/llvm19/bin:/usr/bin"
+        return "/usr/lib/sdk/llvm20/bin:/usr/bin"
 
 SUPPORTED_SDKS = {'webkit': WebKitSDK, 'gnome': GnomeSDK}
 
