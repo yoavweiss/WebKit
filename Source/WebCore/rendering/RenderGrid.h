@@ -250,6 +250,7 @@ private:
     LayoutUnit gridAreaBreadthForGridItemIncludingAlignmentOffsets(const RenderBox&, GridTrackSizingDirection) const;
 
     void paintChildren(PaintInfo& forSelf, const LayoutPoint& paintOffset, PaintInfo& forChild, bool usePrintRect) override;
+    bool hitTestChildren(const HitTestRequest&, HitTestResult&, const HitTestLocation&, const LayoutPoint& adjustedLocation, HitTestAction) override;
     LayoutOptionalOutsets allowedLayoutOverflow() const override;
     void computeOverflow(LayoutUnit oldClientAfterEdge, bool recomputeFloats = false) final;
 

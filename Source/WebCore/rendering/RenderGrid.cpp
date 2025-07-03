@@ -2640,6 +2640,34 @@ void RenderGrid::paintChildren(PaintInfo& paintInfo, const LayoutPoint& paintOff
         paintChild(*gridItem, paintInfo, paintOffset, forChild, usePrintRect, PaintAsInlineBlock);
 }
 
+bool RenderGrid::hitTestChildren(const HitTestRequest& request, HitTestResult& result, const HitTestLocation& locationInContainer, const LayoutPoint& adjustedLocation, HitTestAction hitTestAction)
+{
+    if (hitTestAction != HitTestForeground)
+        return false;
+
+    LayoutPoint scrolledOffset = hasNonVisibleOverflow() ? adjustedLocation - toLayoutSize(scrollPosition()) : adjustedLocation;
+
+    Vector<RenderBox*> reversedOrderIteratorForHitTesting;
+    for (auto* gridItem = currentGrid().orderIterator().first(); gridItem; gridItem = currentGrid().orderIterator().next()) {
+        if (gridItem->isOutOfFlowPositioned())
+            continue;
+        reversedOrderIteratorForHitTesting.append(gridItem);
+    }
+    reversedOrderIteratorForHitTesting.reverse();
+
+    for (auto* gridItem : reversedOrderIteratorForHitTesting) {
+        if (gridItem->hasSelfPaintingLayer())
+            continue;
+        auto location = flipForWritingModeForChild(*gridItem, scrolledOffset);
+        if (gridItem->hitTest(request, result, locationInContainer, location)) {
+            updateHitTestResult(result, flipForWritingMode(toLayoutPoint(locationInContainer.point() - adjustedLocation)));
+            return true;
+        }
+    }
+
+    return false;
+}
+
 ASCIILiteral RenderGrid::renderName() const
 {
     if (isFloating())
