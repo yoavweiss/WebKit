@@ -168,7 +168,7 @@ void FindController::didFindString()
     // updateAppearance, so the selection won't have been pushed to the render tree.
     // Therefore, we need to force an update no matter what.
 
-    RefPtr frame = m_webPage->corePage()->checkedFocusController()->focusedOrMainFrame();
+    RefPtr frame = m_webPage->corePage()->focusController().focusedOrMainFrame();
     if (!frame)
         return;
     frame->selection().setUpdateAppearanceEnabled(true);

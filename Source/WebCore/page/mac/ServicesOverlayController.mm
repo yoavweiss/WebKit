@@ -299,7 +299,7 @@ Seconds ServicesOverlayController::remainingTimeUntilHighlightShouldBeShown(Data
         return 0_s;
 
     Seconds minimumTimeUntilHighlightShouldBeShown = 200_ms;
-    RefPtr focusedOrMainFrame = page->checkedFocusController()->focusedOrMainFrame();
+    RefPtr focusedOrMainFrame = page->focusController().focusedOrMainFrame();
     if (focusedOrMainFrame && focusedOrMainFrame->selection().selection().isContentEditable())
         minimumTimeUntilHighlightShouldBeShown = 1_s;
 
@@ -491,7 +491,7 @@ void ServicesOverlayController::createOverlayIfNeeded()
 
 Vector<SimpleRange> ServicesOverlayController::telephoneNumberRangesForFocusedFrame()
 {
-    RefPtr focusedOrMainFrame = m_page->checkedFocusController()->focusedOrMainFrame();
+    RefPtr focusedOrMainFrame = m_page->focusController().focusedOrMainFrame();
     if (!focusedOrMainFrame)
         return { };
     return focusedOrMainFrame->editor().detectedTelephoneNumberRanges();
@@ -659,7 +659,7 @@ void ServicesOverlayController::handleClick(const IntPoint& clickPoint, DataDete
 
     IntPoint windowPoint = frameView->contentsToWindow(clickPoint);
 
-    RefPtr focusedOrMainFrame = page->checkedFocusController()->focusedOrMainFrame();
+    RefPtr focusedOrMainFrame = page->focusController().focusedOrMainFrame();
     if (!focusedOrMainFrame)
         return;
 

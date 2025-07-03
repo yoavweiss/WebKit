@@ -3143,7 +3143,7 @@ void AccessibilityObject::setFocused(bool focus)
         // first focused element. Making the page focused is a requirement for making the page selection focused.
         // This is iOS only until there's a demonstrated need for this preemptive focus on other platforms.
         if (!page->focusController().isFocused())
-            page->checkedFocusController()->setFocused(true);
+            page->focusController().setFocused(true);
 
         // Reset the page pointer in case FocusController::setFocused(true) caused a side effect that invalidated our old one.
         page = document() ? document()->page() : nullptr;

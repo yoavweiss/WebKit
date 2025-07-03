@@ -400,7 +400,7 @@ RefPtr<WebCore::TextIndicator> WebFoundTextRangeController::createTextIndicatorF
         options.add({ WebCore::TextIndicatorOption::PaintAllContent, WebCore::TextIndicatorOption::PaintBackgrounds });
 
 #if PLATFORM(IOS_FAMILY)
-    if (RefPtr frame = m_webPage->protectedCorePage()->checkedFocusController()->focusedOrMainFrame()) {
+    if (RefPtr frame = m_webPage->corePage()->focusController().focusedOrMainFrame()) {
         frame->selection().setUpdateAppearanceEnabled(true);
         frame->selection().updateAppearance();
         frame->selection().setUpdateAppearanceEnabled(false);

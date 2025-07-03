@@ -68,7 +68,7 @@ void WebEditorClient::setInsertionPasteboard(const String&)
 
 static void changeWordCase(WebPage* page, NSString *(*changeCase)(NSString *))
 {
-    RefPtr frame = page->corePage()->checkedFocusController()->focusedOrMainFrame();
+    RefPtr frame = page->corePage()->focusController().focusedOrMainFrame();
     if (!frame)
         return;
     if (!frame->editor().canEdit())

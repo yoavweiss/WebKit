@@ -639,7 +639,7 @@ private:
 #if ENABLE(IMAGE_ANALYSIS)
     DeferrableOneShotTimer m_textRecognitionHoverTimer;
 #endif
-    std::unique_ptr<AutoscrollController> m_autoscrollController;
+    const UniqueRef<AutoscrollController> m_autoscrollController;
     SingleThreadWeakPtr<RenderLayer> m_resizeLayer;
 
     double m_maxMouseMovedDuration { 0 };

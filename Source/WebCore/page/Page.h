@@ -489,8 +489,7 @@ public:
     DragController& dragController() { return m_dragController.get(); }
     const DragController& dragController() const { return m_dragController.get(); }
 #endif
-    FocusController& focusController() const { return *m_focusController; }
-    WEBCORE_EXPORT CheckedRef<FocusController> checkedFocusController() const;
+    FocusController& focusController() const { return m_focusController; }
 #if ENABLE(CONTEXT_MENUS)
     ContextMenuController& contextMenuController() { return m_contextMenuController.get(); }
     const ContextMenuController& contextMenuController() const { return m_contextMenuController.get(); }
@@ -724,7 +723,7 @@ public:
     PerformanceLoggingClient* performanceLoggingClient() const { return m_performanceLoggingClient.get(); }
 
     WheelEventDeltaFilter* wheelEventDeltaFilter() { return m_recentWheelEventDeltaFilter.get(); }
-    PageOverlayController& pageOverlayController() { return *m_pageOverlayController; }
+    PageOverlayController& pageOverlayController() { return m_pageOverlayController; }
 
 #if PLATFORM(MAC) && (ENABLE(SERVICE_CONTROLS) || ENABLE(TELEPHONE_NUMBER_DETECTION))
     ServicesOverlayController& servicesOverlayController() { return m_servicesOverlayController.get(); }
@@ -1132,7 +1131,7 @@ public:
     WEBCORE_EXPORT void applicationWillEnterForeground();
     WEBCORE_EXPORT void applicationDidBecomeActive();
 
-    PerformanceLogging& performanceLogging() const { return *m_performanceLogging; }
+    PerformanceLogging& performanceLogging() const { return m_performanceLogging; }
 
     void configureLoggingChannel(const String&, WTFLogChannelState, WTFLogLevel);
 
@@ -1439,7 +1438,7 @@ private:
 #if ENABLE(DRAG_SUPPORT)
     const UniqueRef<DragController> m_dragController;
 #endif
-    std::unique_ptr<FocusController> m_focusController;
+    const UniqueRef<FocusController> m_focusController;
 #if ENABLE(CONTEXT_MENUS)
     const UniqueRef<ContextMenuController> m_contextMenuController;
 #endif
@@ -1652,14 +1651,14 @@ private:
     std::optional<CompositingPolicy> m_compositingPolicyOverride;
 
     const std::unique_ptr<PerformanceMonitor> m_performanceMonitor;
-    std::unique_ptr<LowPowerModeNotifier> m_lowPowerModeNotifier;
-    std::unique_ptr<ThermalMitigationNotifier> m_thermalMitigationNotifier;
+    const UniqueRef<LowPowerModeNotifier> m_lowPowerModeNotifier;
+    const UniqueRef<ThermalMitigationNotifier> m_thermalMitigationNotifier;
     OptionSet<ThrottlingReason> m_throttlingReasons;
     OptionSet<ThrottlingReason> m_throttlingReasonsOverridenForTesting;
 
     std::optional<Navigation> m_navigationToLogWhenVisible;
 
-    std::unique_ptr<PerformanceLogging> m_performanceLogging;
+    const UniqueRef<PerformanceLogging> m_performanceLogging;
 #if ENABLE(WHEEL_EVENT_LATCHING)
     const std::unique_ptr<ScrollLatchingController> m_scrollLatchingController;
 #endif
@@ -1673,7 +1672,7 @@ private:
 #endif
 
     std::unique_ptr<WheelEventDeltaFilter> m_recentWheelEventDeltaFilter;
-    std::unique_ptr<PageOverlayController> m_pageOverlayController;
+    const UniqueRef<PageOverlayController> m_pageOverlayController;
 
 #if ENABLE(APPLE_PAY)
     RefPtr<PaymentCoordinator> m_paymentCoordinator;

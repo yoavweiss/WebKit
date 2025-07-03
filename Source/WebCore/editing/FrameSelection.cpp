@@ -2177,7 +2177,7 @@ void FrameSelection::selectFrameElementInParentIfFullySelected()
     // Focus on the parent frame, and then select from before this element to after.
     VisibleSelection newSelection(beforeOwnerElement, afterOwnerElement);
     if (parent->selection().shouldChangeSelection(newSelection)) {
-        page->checkedFocusController()->setFocusedFrame(parent.get());
+        page->focusController().setFocusedFrame(parent.get());
         // Previous focus can trigger DOM events, ensure the selection did not become orphan.
         if (newSelection.isOrphan())
             parent->selection().clear();
@@ -2499,7 +2499,7 @@ void FrameSelection::setFocusedElementIfNeeded(OptionSet<SetSelectionOption> opt
                 FocusOptions focusOptions;
                 if (options & SetSelectionOption::ForBindings)
                     focusOptions.trigger = FocusTrigger::Bindings;
-                document->protectedPage()->checkedFocusController()->setFocusedElement(target.get(), *document->protectedFrame(), focusOptions);
+                document->protectedPage()->focusController().setFocusedElement(target.get(), *document->protectedFrame(), focusOptions);
                 return;
             }
             target = target->parentOrShadowHostElement();
@@ -2508,7 +2508,7 @@ void FrameSelection::setFocusedElementIfNeeded(OptionSet<SetSelectionOption> opt
     }
 
     if (caretBrowsing)
-        document->protectedPage()->checkedFocusController()->setFocusedElement(nullptr, *document->protectedFrame());
+        document->protectedPage()->focusController().setFocusedElement(nullptr, *document->protectedFrame());
 }
 
 void DragCaretController::paintDragCaret(LocalFrame* frame, GraphicsContext& p, const LayoutPoint& paintOffset) const

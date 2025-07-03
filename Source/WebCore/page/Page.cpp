@@ -359,7 +359,7 @@ Page::Page(PageConfiguration&& pageConfiguration)
 #if ENABLE(DRAG_SUPPORT)
     , m_dragController(makeUniqueRef<DragController>(*this, WTFMove(pageConfiguration.dragClient)))
 #endif
-    , m_focusController(makeUnique<FocusController>(*this, pageInitialActivityState()))
+    , m_focusController(makeUniqueRef<FocusController>(*this, pageInitialActivityState()))
 #if ENABLE(CONTEXT_MENUS)
     , m_contextMenuController(makeUniqueRef<ContextMenuController>(*this, WTFMove(pageConfiguration.contextMenuClient)))
 #endif
@@ -413,14 +413,14 @@ Page::Page(PageConfiguration&& pageConfiguration)
 #endif
     , m_isUtilityPage(isUtilityPageChromeClient(chrome().client()))
     , m_performanceMonitor(isUtilityPage() ? nullptr : makeUniqueWithoutRefCountedCheck<PerformanceMonitor>(*this))
-    , m_lowPowerModeNotifier(makeUnique<LowPowerModeNotifier>([this](bool isLowPowerModeEnabled) { handleLowPowerModeChange(isLowPowerModeEnabled); }))
-    , m_thermalMitigationNotifier(makeUnique<ThermalMitigationNotifier>([this](bool thermalMitigationEnabled) { handleThermalMitigationChange(thermalMitigationEnabled); }))
-    , m_performanceLogging(makeUnique<PerformanceLogging>(*this))
+    , m_lowPowerModeNotifier(makeUniqueRef<LowPowerModeNotifier>([this](bool isLowPowerModeEnabled) { handleLowPowerModeChange(isLowPowerModeEnabled); }))
+    , m_thermalMitigationNotifier(makeUniqueRef<ThermalMitigationNotifier>([this](bool thermalMitigationEnabled) { handleThermalMitigationChange(thermalMitigationEnabled); }))
+    , m_performanceLogging(makeUniqueRef<PerformanceLogging>(*this))
 #if PLATFORM(MAC) && (ENABLE(SERVICE_CONTROLS) || ENABLE(TELEPHONE_NUMBER_DETECTION))
     , m_servicesOverlayController(makeUniqueRefWithoutRefCountedCheck<ServicesOverlayController>(*this))
 #endif
     , m_recentWheelEventDeltaFilter(WheelEventDeltaFilter::create())
-    , m_pageOverlayController(makeUnique<PageOverlayController>(*this))
+    , m_pageOverlayController(makeUniqueRef<PageOverlayController>(*this))
 #if ENABLE(APPLE_PAY)
     , m_paymentCoordinator(PaymentCoordinator::create(WTFMove(pageConfiguration.paymentCoordinatorClient)))
 #endif
@@ -1163,8 +1163,7 @@ std::optional<FrameIdentifier> Page::findString(const String& target, FindOption
         return std::nullopt;
 
     CanWrap canWrap = options.contains(FindOption::WrapAround) ? CanWrap::Yes : CanWrap::No;
-    CheckedRef focusController { *m_focusController };
-    RefPtr frame = focusController->focusedFrame() ? focusController->focusedFrame() : m_mainFrame.ptr();
+    RefPtr frame = m_focusController->focusedFrame() ? m_focusController->focusedFrame() : m_mainFrame.ptr();
     RefPtr startFrame = frame;
     RefPtr focusedLocalFrame = dynamicDowncast<LocalFrame>(frame);
     do {
@@ -1177,7 +1176,7 @@ std::optional<FrameIdentifier> Page::findString(const String& target, FindOption
             if (!options.contains(FindOption::DoNotSetSelection)) {
                 if (focusedLocalFrame && localFrame != focusedLocalFrame)
                     focusedLocalFrame->checkedSelection()->clear();
-                focusController->setFocusedFrame(localFrame.get());
+                m_focusController->setFocusedFrame(localFrame.get());
             }
             return localFrame->frameID();
         }
@@ -1191,7 +1190,7 @@ std::optional<FrameIdentifier> Page::findString(const String& target, FindOption
             *didWrap = DidWrap::Yes;
         bool found = focusedLocalFrame->protectedEditor()->findString(target, options | FindOption::WrapAround | FindOption::StartInSelection);
         if (!options.contains(FindOption::DoNotSetSelection))
-            focusController->setFocusedFrame(frame.get());
+            m_focusController->setFocusedFrame(frame.get());
         return found ? std::make_optional(focusedLocalFrame->frameID()) : std::nullopt;
     }
 
@@ -1418,7 +1417,7 @@ uint32_t Page::replaceRangesWithText(const Vector<SimpleRange>& rangesToReplace,
 
 uint32_t Page::replaceSelectionWithText(const String& replacementText)
 {
-    RefPtr frame = checkedFocusController()->focusedOrMainFrame();
+    RefPtr frame = focusController().focusedOrMainFrame();
     if (!frame)
         return 0;
 
@@ -1505,7 +1504,7 @@ Vector<Ref<Element>> Page::editableElementsInRect(const FloatRect& searchRectInR
     // tries to avoid creating line boxes, which are things it hit tests, for them to reduce memory. If the
     // focused element is inside the search rect it's the most likely target for future editing operations,
     // even if it's empty. So, we special case it here.
-    RefPtr focusedOrMainFrame = checkedFocusController()->focusedOrMainFrame();
+    RefPtr focusedOrMainFrame = focusController().focusedOrMainFrame();
     if (RefPtr focusedElement = focusedOrMainFrame ? focusedOrMainFrame->document()->focusedElement() : nullptr) {
         if (searchRectInRootViewCoordinates.inclusivelyIntersects(focusedElement->boundingBoxInRootViewCoordinates())) {
             if (RefPtr editableElement = rootEditableElement(*focusedElement))
@@ -1513,11 +1512,6 @@ Vector<Ref<Element>> Page::editableElementsInRect(const FloatRect& searchRectInR
         }
     }
     return WTF::map(rootEditableElements, [](const auto& element) { return element.copyRef(); });
-}
-
-CheckedRef<FocusController> Page::checkedFocusController() const
-{
-    return *m_focusController;
 }
 
 #if ENABLE(INTERACTION_REGIONS_IN_EVENT_REGION)
@@ -1539,7 +1533,7 @@ void Page::setInteractionRegionsEnabled(bool enable)
 
 const VisibleSelection& Page::selection() const
 {
-    RefPtr focusedOrMainFrame = checkedFocusController()->focusedOrMainFrame();
+    RefPtr focusedOrMainFrame = focusController().focusedOrMainFrame();
     if (!focusedOrMainFrame)
         return VisibleSelection::emptySelection();
     return focusedOrMainFrame->selection().selection();
@@ -3229,7 +3223,7 @@ void Page::setActivityState(OptionSet<ActivityState> activityState)
     bool wasVisibleAndActive = isVisibleAndActive();
     m_activityState = activityState;
 
-    checkedFocusController()->setActivityState(activityState);
+    focusController().setActivityState(activityState);
 
     if (changed & ActivityState::IsVisible)
         setIsVisibleInternal(activityState.contains(ActivityState::IsVisible));
@@ -4806,7 +4800,7 @@ bool Page::shouldDisableCorsForRequestTo(const URL& url) const
 
 const URL Page::fragmentDirectiveURLForSelectedText()
 {
-    RefPtr focusedOrMainFrame = checkedFocusController()->focusedOrMainFrame();
+    RefPtr focusedOrMainFrame = focusController().focusedOrMainFrame();
     if (!focusedOrMainFrame)
         return { };
 
@@ -4819,7 +4813,7 @@ const URL Page::fragmentDirectiveURLForSelectedText()
 
 void Page::revealCurrentSelection()
 {
-    RefPtr focusedOrMainFrame = checkedFocusController()->focusedOrMainFrame();
+    RefPtr focusedOrMainFrame = focusController().focusedOrMainFrame();
     if (!focusedOrMainFrame)
         return;
     focusedOrMainFrame->checkedSelection()->revealSelection(SelectionRevealMode::Reveal, ScrollAlignment::alignCenterIfNeeded);

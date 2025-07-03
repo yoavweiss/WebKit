@@ -485,7 +485,6 @@ editing/VisiblePosition.h
 editing/VisibleSelection.cpp
 editing/VisibleUnits.cpp
 editing/cocoa/AutofillElements.cpp
-editing/cocoa/DictionaryLookup.mm
 editing/cocoa/EditorCocoa.mm
 editing/cocoa/HTMLConverter.mm
 editing/cocoa/WebContentReaderCocoa.mm
