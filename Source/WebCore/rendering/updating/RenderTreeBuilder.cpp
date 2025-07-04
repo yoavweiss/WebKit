@@ -152,20 +152,20 @@ static void getInlineRun(RenderObject* start, RenderObject* boundary, RenderObje
 
 RenderTreeBuilder::RenderTreeBuilder(RenderView& view)
     : m_view(view)
-    , m_firstLetterBuilder(makeUnique<FirstLetter>(*this))
-    , m_listBuilder(makeUnique<List>(*this))
-    , m_multiColumnBuilder(makeUnique<MultiColumn>(*this))
-    , m_tableBuilder(makeUnique<Table>(*this))
-    , m_rubyBuilder(makeUnique<Ruby>(*this))
-    , m_formControlsBuilder(makeUnique<FormControls>(*this))
-    , m_blockBuilder(makeUnique<Block>(*this))
-    , m_blockFlowBuilder(makeUnique<BlockFlow>(*this))
-    , m_inlineBuilder(makeUnique<Inline>(*this))
-    , m_svgBuilder(makeUnique<SVG>(*this))
+    , m_firstLetterBuilder(makeUniqueRef<FirstLetter>(*this))
+    , m_listBuilder(makeUniqueRef<List>(*this))
+    , m_multiColumnBuilder(makeUniqueRef<MultiColumn>(*this))
+    , m_tableBuilder(makeUniqueRef<Table>(*this))
+    , m_rubyBuilder(makeUniqueRef<Ruby>(*this))
+    , m_formControlsBuilder(makeUniqueRef<FormControls>(*this))
+    , m_blockBuilder(makeUniqueRef<Block>(*this))
+    , m_blockFlowBuilder(makeUniqueRef<BlockFlow>(*this))
+    , m_inlineBuilder(makeUniqueRef<Inline>(*this))
+    , m_svgBuilder(makeUniqueRef<SVG>(*this))
 #if ENABLE(MATHML)
-    , m_mathMLBuilder(makeUnique<MathML>(*this))
+    , m_mathMLBuilder(makeUniqueRef<MathML>(*this))
 #endif
-    , m_continuationBuilder(makeUnique<Continuation>(*this))
+    , m_continuationBuilder(makeUniqueRef<Continuation>(*this))
 {
     RELEASE_ASSERT(!s_current || &m_view != &s_current->m_view);
     m_previous = s_current;

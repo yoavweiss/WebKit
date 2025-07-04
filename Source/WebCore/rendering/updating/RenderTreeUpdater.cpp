@@ -85,8 +85,8 @@ RenderTreeUpdater::Parent::Parent(Element& element, const Style::ElementUpdate* 
 
 RenderTreeUpdater::RenderTreeUpdater(Document& document, Style::PostResolutionCallbackDisabler&)
     : m_document(document)
-    , m_generatedContent(makeUnique<GeneratedContent>(*this))
-    , m_viewTransition(makeUnique<ViewTransition>(*this))
+    , m_generatedContent(makeUniqueRef<GeneratedContent>(*this))
+    , m_viewTransition(makeUniqueRef<ViewTransition>(*this))
     , m_builder(renderView())
 {
 }
