@@ -4015,12 +4015,12 @@ void WebPageProxy::processNextQueuedMouseEvent()
     ASSERT(!internals().mouseEventQueue.isEmpty());
     m_deferredMouseEvents = 0;
 
-    const NativeWebMouseEvent& event = internals().mouseEventQueue.first();
+    const CheckedRef event = internals().mouseEventQueue.first();
 
 #if ENABLE(CONTEXT_MENUS)
     if (m_waitingForContextMenuToShow) {
         WEBPAGEPROXY_RELEASE_LOG(MouseHandling, "processNextQueuedMouseEvent: Waiting for context menu to show.");
-        mouseEventHandlingCompleted(event.type(), false, std::nullopt);
+        mouseEventHandlingCompleted(event->type(), false, std::nullopt);
         return;
     }
 #endif
@@ -4030,7 +4030,7 @@ void WebPageProxy::processNextQueuedMouseEvent()
         setToolTip(String());
 
     Ref process = m_legacyMainFrameProcess;
-    auto eventType = event.type();
+    auto eventType = event->type();
     if (eventType == WebEventType::MouseDown || eventType == WebEventType::MouseForceChanged || eventType == WebEventType::MouseForceDown)
         process->startResponsivenessTimer(WebProcessProxy::UseLazyStop::Yes);
     else if (eventType != WebEventType::MouseMove) {
@@ -4041,16 +4041,16 @@ void WebPageProxy::processNextQueuedMouseEvent()
     std::optional<Vector<SandboxExtension::Handle>> sandboxExtensions;
 
 #if PLATFORM(MAC)
-    bool eventMayStartDrag = !m_currentDragOperation && eventType == WebEventType::MouseMove && event.button() != WebMouseEventButton::None;
+    bool eventMayStartDrag = !m_currentDragOperation && eventType == WebEventType::MouseMove && event->button() != WebMouseEventButton::None;
     if (eventMayStartDrag)
         sandboxExtensions = SandboxExtension::createHandlesForMachLookup({ "com.apple.iconservices"_s, "com.apple.iconservices.store"_s }, process->auditToken(), SandboxExtension::MachBootstrapOptions::EnableMachBootstrap);
 #endif
 
     auto eventWithCoalescedEvents = event;
 
-    if (event.type() == WebEventType::MouseMove) {
+    if (event->type() == WebEventType::MouseMove) {
         internals().coalescedMouseEvents.append(event);
-        eventWithCoalescedEvents.setCoalescedEvents(internals().coalescedMouseEvents);
+        eventWithCoalescedEvents->setCoalescedEvents(internals().coalescedMouseEvents);
     }
 
     LOG_WITH_STREAM(MouseHandling, stream << "UIProcess: sent mouse event " << eventType << " (queue size " << internals().mouseEventQueue.size() << ", coalesced events size " << internals().coalescedMouseEvents.size() << ")");
@@ -10863,8 +10863,8 @@ void WebPageProxy::setCursorHiddenUntilMouseMoves(bool hiddenUntilMouseMoves)
 void WebPageProxy::mouseEventHandlingCompleted(std::optional<WebEventType> eventType, bool handled, std::optional<RemoteUserInputEventData> remoteUserInputEventData)
 {
     if (remoteUserInputEventData) {
-        auto& event = internals().mouseEventQueue.first();
-        event.setPosition(remoteUserInputEventData->transformedPoint);
+        CheckedRef event = internals().mouseEventQueue.first();
+        event->setPosition(remoteUserInputEventData->transformedPoint);
         // FIXME: If these sandbox extensions are important, find a way to get them to the iframe process.
         sendMouseEvent(remoteUserInputEventData->targetFrameID, event, { });
         return;

@@ -34,7 +34,6 @@ UIProcess/API/mac/WKWebViewMac.mm
 UIProcess/API/mac/WKWebViewTestingMac.mm
 UIProcess/Cocoa/VideoPresentationManagerProxy.mm
 UIProcess/DisplayLink.cpp
-UIProcess/Inspector/WebPageInspectorController.cpp
 UIProcess/Inspector/mac/RemoteWebInspectorUIProxyMac.mm
 UIProcess/mac/WKTextAnimationManagerMac.mm
 UIProcess/mac/WebViewImpl.mm
@@ -57,7 +56,6 @@ WebProcess/InjectedBundle/API/mac/WKWebProcessPlugInBrowserContextController.mm
 WebProcess/InjectedBundle/DOM/InjectedBundleNodeHandle.cpp
 WebProcess/InjectedBundle/DOM/InjectedBundleRangeHandle.cpp
 WebProcess/InjectedBundle/InjectedBundleHitTestResult.cpp
-WebProcess/Inspector/WebInspectorUI.cpp
 WebProcess/Network/WebLoaderStrategy.cpp
 WebProcess/Network/WebResourceLoader.cpp
 WebProcess/Network/webrtc/LibWebRTCDnsResolverFactory.cpp

@@ -175,13 +175,13 @@ void WebPageInspectorController::destroyInspectorTarget(const String& targetId)
     auto it = m_targets.find(targetId);
     if (it == m_targets.end())
         return;
-    m_targetAgent->targetDestroyed(*it->value);
+    checkedTargetAgent()->targetDestroyed(*it->value);
     m_targets.remove(it);
 }
 
 void WebPageInspectorController::sendMessageToInspectorFrontend(const String& targetId, const String& message)
 {
-    m_targetAgent->sendMessageFromTargetToFrontend(targetId, message);
+    checkedTargetAgent()->sendMessageFromTargetToFrontend(targetId, message);
 }
 
 bool WebPageInspectorController::shouldPauseLoading(const ProvisionalPageProxy& provisionalPage) const
@@ -216,15 +216,16 @@ void WebPageInspectorController::didCommitProvisionalPage(WebCore::PageIdentifie
     String oldID = WebPageInspectorTarget::toTargetID(oldWebPageID);
     String newID = WebPageInspectorTarget::toTargetID(newWebPageID);
     auto newTarget = m_targets.take(newID);
+    CheckedPtr targetAgent = m_targetAgent;
     ASSERT(newTarget);
     newTarget->didCommitProvisionalTarget();
-    m_targetAgent->didCommitProvisionalTarget(oldID, newID);
+    targetAgent->didCommitProvisionalTarget(oldID, newID);
 
     // We've disconnected from the old page and will not receive any message from it, so
     // we destroy everything but the new target here.
     // FIXME: <https://webkit.org/b/202937> do not destroy targets that belong to the committed page.
     for (auto& target : m_targets.values())
-        m_targetAgent->targetDestroyed(*target);
+        targetAgent->targetDestroyed(*target);
     m_targets.clear();
     m_targets.set(newTarget->identifier(), WTFMove(newTarget));
 }
@@ -257,7 +258,7 @@ void WebPageInspectorController::createLazyAgents()
 
 void WebPageInspectorController::addTarget(std::unique_ptr<InspectorTargetProxy>&& target)
 {
-    m_targetAgent->targetCreated(*target);
+    checkedTargetAgent()->targetCreated(*target);
     m_targets.set(target->identifier(), WTFMove(target));
 }
 
@@ -277,14 +278,14 @@ void WebPageInspectorController::setEnabledBrowserAgent(InspectorBrowserAgent* a
 
 void WebPageInspectorController::browserExtensionsEnabled(HashMap<String, String>&& extensionIDToName)
 {
-    if (m_enabledBrowserAgent)
-        m_enabledBrowserAgent->extensionsEnabled(WTFMove(extensionIDToName));
+    if (CheckedPtr enabledBrowserAgent = m_enabledBrowserAgent)
+        enabledBrowserAgent->extensionsEnabled(WTFMove(extensionIDToName));
 }
 
 void WebPageInspectorController::browserExtensionsDisabled(HashSet<String>&& extensionIDs)
 {
-    if (m_enabledBrowserAgent)
-        m_enabledBrowserAgent->extensionsDisabled(WTFMove(extensionIDs));
+    if (CheckedPtr enabledBrowserAgent = m_enabledBrowserAgent)
+        enabledBrowserAgent->extensionsDisabled(WTFMove(extensionIDs));
 }
 
 } // namespace WebKit
