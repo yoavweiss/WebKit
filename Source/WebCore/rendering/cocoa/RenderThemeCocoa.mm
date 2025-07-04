@@ -1211,6 +1211,18 @@ bool RenderThemeCocoa::adjustColorWellSwatchStyleForVectorBasedControls(RenderSt
     return false;
 }
 
+static void applyPaddingIfNotExplicitlySet(RenderStyle& style, Style::PaddingBox paddingBox)
+{
+    if (!style.hasExplicitlySetPaddingLeft())
+        style.setPaddingLeft(WTFMove(paddingBox.left()));
+    if (!style.hasExplicitlySetPaddingTop())
+        style.setPaddingTop(WTFMove(paddingBox.top()));
+    if (!style.hasExplicitlySetPaddingRight())
+        style.setPaddingRight(WTFMove(paddingBox.right()));
+    if (!style.hasExplicitlySetPaddingBottom())
+        style.setPaddingBottom(WTFMove(paddingBox.bottom()));
+}
+
 bool RenderThemeCocoa::adjustColorWellSwatchWrapperStyleForVectorBasedControls(RenderStyle& style, const Element* element) const
 {
 #if PLATFORM(IOS_FAMILY)
@@ -1221,7 +1233,8 @@ bool RenderThemeCocoa::adjustColorWellSwatchWrapperStyleForVectorBasedControls(R
     if (!formControlRefreshEnabled(element))
         return false;
 
-    style.setPaddingBox(Style::PaddingBox { 0_css_px });
+    applyPaddingIfNotExplicitlySet(style, Style::PaddingBox { 0_css_px });
+
     return true;
 #endif
 }
@@ -1642,9 +1655,6 @@ static void applyEmPadding(RenderStyle& style, const Element* element, float pad
     if (!element)
         return;
 
-    if (style.hasExplicitlySetPadding())
-        return;
-
     Ref paddingInline = CSSPrimitiveValue::create(paddingInlineEm, CSSUnitType::CSS_EM);
     Ref paddingBlock = CSSPrimitiveValue::create(paddingBlockEm, CSSUnitType::CSS_EM);
 
@@ -1666,9 +1676,6 @@ static void applyEmPaddingForNumberField(RenderStyle& style, const Element* elem
     if (!element)
         return;
 
-    if (style.hasExplicitlySetPadding())
-        return;
-
     Ref paddingInlineStart = CSSPrimitiveValue::create(inlineStartPadding, CSSUnitType::CSS_EM);
     Ref paddingInlineEndAndBlock = CSSPrimitiveValue::create(inlineEndAndBlockPadding, CSSUnitType::CSS_EM);
     Ref document = element->document();
@@ -1679,7 +1686,7 @@ static void applyEmPaddingForNumberField(RenderStyle& style, const Element* elem
     Style::PaddingBox paddingBox { paddingInlineEndAndBlockPixels };
     paddingBox.setStart(paddingInlineStartPixels, style.writingMode());
 
-    style.setPaddingBox(WTFMove(paddingBox));
+    applyPaddingIfNotExplicitlySet(style, paddingBox);
 }
 #endif
 
@@ -1694,8 +1701,8 @@ bool RenderThemeCocoa::adjustTextFieldStyleForVectorBasedControls(RenderStyle& s
         return false;
 
 #if PLATFORM(IOS_FAMILY)
-    if (RefPtr input = dynamicDowncast<HTMLInputElement>(*element); input && input->hasDataList() && !style.hasExplicitlySetPadding())
-        style.setPaddingBox(Style::PaddingBox { 1_css_px });
+    if (RefPtr input = dynamicDowncast<HTMLInputElement>(*element); input && input->hasDataList())
+        applyPaddingIfNotExplicitlySet(style, { 1_css_px });
     else
         applyEmPadding(style, element, standardTextControlInlinePaddingEm, standardTextControlBlockPaddingEm);
 #else
@@ -1996,8 +2003,6 @@ bool RenderThemeCocoa::paintTextAreaDecorationsForVectorBasedControls(const Rend
 
 static void applyCommonButtonPaddingToStyleForVectorBasedControls(RenderStyle& style, const Element& element)
 {
-    // FIXME: This is a copy of applyCommonButtonPaddingToStyle(...) from RenderThemeIOS. Refactor to remove duplicate code.
-
     Document& document = element.document();
     Ref emSize = CSSPrimitiveValue::create(0.5, CSSUnitType::CSS_EM);
     // We don't need this element's parent style to calculate `em` units, so it's okay to pass nullptr for it here.
@@ -2007,14 +2012,13 @@ static void applyCommonButtonPaddingToStyleForVectorBasedControls(RenderStyle& s
     if (!style.writingMode().isHorizontal())
         paddingBox = { paddingBox.left(), paddingBox.top(), paddingBox.right(), paddingBox.bottom() };
 
-    style.setPaddingBox(WTFMove(paddingBox));
+    applyPaddingIfNotExplicitlySet(style, paddingBox);
 }
 
 static void adjustSelectListButtonStyleForVectorBasedControls(RenderStyle& style, const Element& element)
 {
     // FIXME: This is a copy of adjustSelectListButtonStyle(...) from RenderThemeIOS. Refactor to remove duplicate code.
 
-    // Enforce "padding: 0 0.5em".
     applyCommonButtonPaddingToStyleForVectorBasedControls(style, element);
 
     // Enforce "line-height: normal".
@@ -2043,7 +2047,6 @@ static void adjustInputElementButtonStyleForVectorBasedControls(RenderStyle& sty
 {
     // FIXME: This is a copy of adjustInputElementButtonStyle(...) from RenderThemeIOS. Refactor to remove duplicate code.
 
-    // Always Enforce "padding: 0 0.5em".
     applyCommonButtonPaddingToStyleForVectorBasedControls(style, inputElement);
 
     // Don't adjust the style if the width is specified.
@@ -2213,7 +2216,7 @@ bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& styl
     if (!style.writingMode().isHorizontal())
         paddingBox = { paddingBox.left(), paddingBox.top(), paddingBox.right(), paddingBox.bottom() };
 
-    style.setPaddingBox(WTFMove(paddingBox));
+    applyPaddingIfNotExplicitlySet(style, paddingBox);
 
     return true;
 }

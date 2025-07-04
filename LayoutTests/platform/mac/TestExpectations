@@ -2456,3 +2456,6 @@ webkit.org/b/295308 fullscreen/full-screen-enter-while-exiting-multiple-elements
 webkit.org/b/295408 imported/w3c/web-platform-tests/xhr/send-redirect.htm [ Pass Failure ]
 
 webkit.org/b/295435 compositing/layer-creation/overlap-animation-container.html [ Pass Failure ]
+
+# The padding for native select controls is overridden on macOS Sequoia and earlier.
+imported/w3c/web-platform-tests/css/css-ui/select-author-level-padding-applies.html [ Skip ]
