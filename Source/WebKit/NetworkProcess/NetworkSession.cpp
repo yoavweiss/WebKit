@@ -96,18 +96,12 @@ std::unique_ptr<NetworkSession> NetworkSession::create(NetworkProcess& networkPr
 #endif
 }
 
-Ref<NetworkProcess> NetworkSession::protectedNetworkProcess()
-{
-    return networkProcess();
-}
-
 NetworkStorageSession* NetworkSession::networkStorageSession() const
 {
     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=194926 NetworkSession should own NetworkStorageSession
     // instead of having separate maps with the same key and different management.
-    auto* storageSession = m_networkProcess->storageSession(m_sessionID);
-    ASSERT(storageSession);
-    return storageSession;
+    ASSERT(m_networkProcess->storageSession(m_sessionID));
+    return m_networkProcess->storageSession(m_sessionID);
 }
 
 CheckedPtr<NetworkStorageSession> NetworkSession::checkedNetworkStorageSession() const

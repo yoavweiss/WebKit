@@ -190,7 +190,7 @@ private:
     bool isWebSWServerConnection() const final { return true; }
 
     WeakPtr<NetworkConnectionToWebProcess> m_networkConnectionToWebProcess;
-    Ref<IPC::Connection> m_contentConnection;
+    const Ref<IPC::Connection> m_contentConnection;
     HashMap<WebCore::ScriptExecutionContextIdentifier, WebCore::ClientOrigin> m_clientOrigins;
     HashMap<WebCore::ServiceWorkerJobIdentifier, CompletionHandler<void(UnregisterJobResult&&)>> m_unregisterJobs;
     bool m_isThrottleable { true };

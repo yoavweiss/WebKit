@@ -1524,7 +1524,7 @@ void NetworkConnectionToWebProcess::establishSWContextConnection(WebPageProxyIde
 
     if (session) {
         Ref swServer = session->ensureSWServer();
-        auto allowCookieAccess = session->protectedNetworkProcess()->allowsFirstPartyForCookies(webProcessIdentifier(), site.domain());
+        auto allowCookieAccess = session->networkProcess().allowsFirstPartyForCookies(webProcessIdentifier(), site.domain());
         MESSAGE_CHECK_COMPLETION(allowCookieAccess != NetworkProcess::AllowCookieAccess::Terminate, completionHandler());
         m_swContextConnection = WebSWServerToContextConnection::create(*this, webPageProxyID, WTFMove(site), serviceWorkerPageIdentifier, swServer);
     }
