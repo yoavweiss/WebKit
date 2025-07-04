@@ -56,6 +56,7 @@ from webkitpy.style.checkers.jstest import JSTestChecker
 from webkitpy.style.checkers.messagesin import MessagesInChecker
 from webkitpy.style.checkers.png import PNGChecker
 from webkitpy.style.checkers.python import PythonChecker, Python3Checker
+from webkitpy.style.checkers.swift import SwiftChecker
 from webkitpy.style.checkers.test_expectations import TestExpectationsChecker
 from webkitpy.style.checkers.text import TextChecker
 from webkitpy.style.checkers.watchlist import WatchListChecker
@@ -450,6 +451,8 @@ _JSON_FILE_EXTENSION = 'json'
 
 _PYTHON_FILE_EXTENSION = 'py'
 
+_SWIFT_FILE_EXTENSION = 'swift'
+
 _TEXT_FILE_EXTENSIONS = [
     'ac',
     'cc',
@@ -778,6 +781,7 @@ class FileType:
     FEATUREDEFINES = 12
     BASE_XCCONFIG = 13
     XCSCHEME = 14
+    SWIFT = 15
 
 
 class ANSIColor:
@@ -866,6 +870,8 @@ class CheckerDispatcher(object):
             return FileType.JSON
         elif file_extension == _PYTHON_FILE_EXTENSION:
             return FileType.PYTHON
+        elif file_extension == _SWIFT_FILE_EXTENSION:
+            return FileType.SWIFT
         elif file_extension in _XML_FILE_EXTENSIONS:
             return FileType.XML
         elif os.path.basename(file_path).startswith('ChangeLog'):
@@ -939,6 +945,8 @@ class CheckerDispatcher(object):
                 checker = apple_additions().python_checker(file_path, handle_style_error)
             else:
                 checker = PythonChecker(file_path, handle_style_error)
+        elif file_type == FileType.SWIFT:
+            checker = SwiftChecker(file_path, handle_style_error)
         elif file_type == FileType.XML:
             checker = XMLChecker(file_path, handle_style_error)
         elif file_type == FileType.XCSCHEME:
