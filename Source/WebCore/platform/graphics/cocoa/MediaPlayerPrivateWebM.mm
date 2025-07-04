@@ -97,7 +97,7 @@ MediaPlayerPrivateWebM::MediaPlayerPrivateWebM(MediaPlayer* player)
     , m_appendQueue(WorkQueue::create("MediaPlayerPrivateWebM data parser queue"_s))
     , m_logger(player->mediaPlayerLogger())
     , m_logIdentifier(player->mediaPlayerLogIdentifier())
-    , m_videoLayerManager(makeUnique<VideoLayerManagerObjC>(m_logger, m_logIdentifier))
+    , m_videoLayerManager(makeUniqueRef<VideoLayerManagerObjC>(m_logger, m_logIdentifier))
     , m_listener(WebAVSampleBufferListener::create(*this))
     , m_seekTimer(*this, &MediaPlayerPrivateWebM::seekInternal)
 {
