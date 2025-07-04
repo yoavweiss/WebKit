@@ -79,12 +79,11 @@ void MediaStrategy::addMockMediaSourceEngine()
 }
 #endif
 
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
+#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
 std::unique_ptr<MediaRecorderPrivateWriter> MediaStrategy::createMediaRecorderPrivateWriter(MediaRecorderContainerType, MediaRecorderPrivateWriterListener&) const
 {
     return nullptr;
 }
-
 #endif
 
 }

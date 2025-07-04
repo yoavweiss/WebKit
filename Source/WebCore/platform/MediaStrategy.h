@@ -56,7 +56,7 @@ public:
     bool mockMediaSourceEnabled() const;
     static void addMockMediaSourceEngine();
 #endif
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
+#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
     virtual std::unique_ptr<MediaRecorderPrivateWriter> createMediaRecorderPrivateWriter(MediaRecorderContainerType, MediaRecorderPrivateWriterListener&) const;
 #endif
 

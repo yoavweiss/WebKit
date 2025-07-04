@@ -26,7 +26,7 @@
 #include "config.h"
 #include "RemoteMediaRecorderPrivateWriterManager.h"
 
-#if ENABLE(GPU_PROCESS) && PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
+#if ENABLE(GPU_PROCESS) && PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
 
 #include "Connection.h"
 #include "GPUConnectionToWebProcess.h"

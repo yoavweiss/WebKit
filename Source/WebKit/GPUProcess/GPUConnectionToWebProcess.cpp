@@ -558,7 +558,7 @@ bool GPUConnectionToWebProcess::allowsExitUnderMemoryPressure() const
     if (!protectedLibWebRTCCodecsProxy()->allowsExitUnderMemoryPressure())
         return false;
 #endif
-#if PLATFORM(COCOA) && USE(MEDIA_RECORDER)
+#if PLATFORM(COCOA) && USE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
     if (RefPtr mediaRecorderPrivateWriterManager = m_remoteMediaRecorderPrivateWriterManager; mediaRecorderPrivateWriterManager && mediaRecorderPrivateWriterManager->->allowsExitUnderMemoryPressure())
         return false;
 #endif
@@ -634,7 +634,7 @@ Ref<RemoteMediaResourceManager> GPUConnectionToWebProcess::protectedRemoteMediaR
 }
 #endif
 
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
+#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
 RemoteMediaRecorderPrivateWriterManager& GPUConnectionToWebProcess::remoteMediaRecorderPrivateWriterManager()
 {
     if (!m_remoteMediaRecorderPrivateWriterManager)
@@ -647,7 +647,7 @@ Ref<RemoteMediaRecorderPrivateWriterManager> GPUConnectionToWebProcess::protecte
 {
     return remoteMediaRecorderPrivateWriterManager();
 }
-#endif // PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
+#endif
 
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
 UserMediaCaptureManagerProxy& GPUConnectionToWebProcess::userMediaCaptureManagerProxy()
@@ -1003,7 +1003,7 @@ bool GPUConnectionToWebProcess::dispatchMessage(IPC::Connection& connection, IPC
         return true;
     }
 #endif
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
+#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
     if (decoder.messageReceiverName() == Messages::RemoteMediaRecorderPrivateWriterManager::messageReceiverName()) {
         protectedRemoteMediaRecorderPrivateWriterManager()->didReceiveMessage(connection, decoder);
         return true;
@@ -1114,7 +1114,7 @@ bool GPUConnectionToWebProcess::dispatchSyncMessage(IPC::Connection& connection,
         return protectedRemoteMediaPlayerManagerProxy()->didReceiveSyncPlayerMessage(connection, decoder, replyEncoder);
     }
 #endif
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
+#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
     if (decoder.messageReceiverName() == Messages::RemoteMediaRecorderPrivateWriterManager::messageReceiverName()) {
         protectedRemoteMediaRecorderPrivateWriterManager()->didReceiveSyncMessage(connection, decoder, replyEncoder);
         return true;
