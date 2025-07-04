@@ -2204,3 +2204,5 @@ webkit.org/b/295412 [ Debug ] media/media-vp8-webm-error.html [ Pass Failure ]
 webkit.org/b/295419 loader/navigation-policy/should-open-external-urls/subframe-navigated-programatically-by-main-frame.html [ Pass Failure ]
 
 webkit.org/b/295439 media/video-unmuted-after-play-holds-sleep-assertion.html [ Pass Failure ]
+
+webkit.org/b/295441 [ Release ] fast/scrolling/mac/scrollbars/scrollbar-width-dynamic-none-to-auto.html [ Pass ImageOnlyFailure ]
