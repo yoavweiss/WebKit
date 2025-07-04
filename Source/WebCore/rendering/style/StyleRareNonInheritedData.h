@@ -243,70 +243,50 @@ public:
     FixedVector<Style::PositionTryFallback> positionTryFallbacks;
 
     std::optional<Length> blockStepSize;
-    unsigned blockStepAlign : 2; // BlockStepAlign
-    unsigned blockStepInsert : 2; // BlockStepInsert
-    unsigned blockStepRound : 2; // BlockStepRound
+    PREFERRED_TYPE(BlockStepAlign) unsigned blockStepAlign : 2;
+    PREFERRED_TYPE(BlockStepInsert) unsigned blockStepInsert : 2;
+    PREFERRED_TYPE(BlockStepRound) unsigned blockStepRound : 2;
 
-    unsigned overscrollBehaviorX : 2; // OverscrollBehavior
-    unsigned overscrollBehaviorY : 2; // OverscrollBehavior
+    PREFERRED_TYPE(OverscrollBehavior) unsigned overscrollBehaviorX : 2;
+    PREFERRED_TYPE(OverscrollBehavior) unsigned overscrollBehaviorY : 2;
 
-    unsigned pageSizeType : 2; // PageSizeType
-    unsigned transformStyle3D : 2; // TransformStyle3D
-    unsigned transformStyleForcedToFlat : 1; // The used value for transform-style is forced to flat by a grouping property.
-    unsigned backfaceVisibility : 1; // BackfaceVisibility
+    PREFERRED_TYPE(PageSizeType) unsigned pageSizeType : 2;
+    PREFERRED_TYPE(TransformStyle3D) unsigned transformStyle3D : 2;
+    PREFERRED_TYPE(bool) unsigned transformStyleForcedToFlat : 1; // The used value for transform-style is forced to flat by a grouping property.
+    PREFERRED_TYPE(BackfaceVisibility) unsigned backfaceVisibility : 1;
 
-    unsigned useSmoothScrolling : 1; // ScrollBehavior
-
-    unsigned textDecorationStyle : 3; // TextDecorationStyle
-
-    unsigned textGroupAlign : 3; // TextGroupAlign
-
-    unsigned contentVisibility : 2; // ContentVisibility
-
-    unsigned effectiveBlendMode: 5; // BlendMode
-    unsigned isolation : 1; // Isolation
-
-    unsigned inputSecurity : 1; // InputSecurity
-
+    PREFERRED_TYPE(ScrollBehavior) unsigned useSmoothScrolling : 1;
+    PREFERRED_TYPE(TextDecorationStyle) unsigned textDecorationStyle : 3;
+    PREFERRED_TYPE(TextGroupAlign) unsigned textGroupAlign : 3;
+    PREFERRED_TYPE(ContentVisibility) unsigned contentVisibility : 2;
+    PREFERRED_TYPE(BlendMode) unsigned effectiveBlendMode: 5;
+    PREFERRED_TYPE(Isolation) unsigned isolation : 1;
+    PREFERRED_TYPE(InputSecurity) unsigned inputSecurity : 1;
 #if ENABLE(APPLE_PAY)
-    unsigned applePayButtonStyle : 2; // ApplePayButtonStyle
-    unsigned applePayButtonType : 4; // ApplePayButtonType
+    PREFERRED_TYPE(ApplePayButtonStyle) unsigned applePayButtonStyle : 2;
+    PREFERRED_TYPE(ApplePayButtonType) unsigned applePayButtonType : 4;
 #endif
-
-    unsigned breakBefore : 4; // BreakBetween
-    unsigned breakAfter : 4; // BreakBetween
-    unsigned breakInside : 3; // BreakInside
-
-    unsigned containIntrinsicWidthType : 2; // ContainIntrinsicSizeType
-    unsigned containIntrinsicHeightType : 2; // ContainIntrinsicSizeType
-
-    unsigned containerType : 2; // ContainerType
-
-    unsigned textBoxTrim : 2; // TextBoxTrim
-
-    unsigned overflowAnchor : 1; // Scroll Anchoring - OverflowAnchor
-
-    bool hasClip : 1;
-
-    unsigned positionTryOrder : 3; // Style::PositionTryOrder; 5 values so 3 bits.
-    unsigned positionVisibility : 3; // OptionSet<PositionVisibilty>
-
-    unsigned fieldSizing : 1; // FieldSizing
-
-    unsigned nativeAppearanceDisabled : 1;
-
+    PREFERRED_TYPE(BreakBetween) unsigned breakBefore : 4;
+    PREFERRED_TYPE(BreakBetween) unsigned breakAfter : 4;
+    PREFERRED_TYPE(BreakInside) unsigned breakInside : 3;
+    PREFERRED_TYPE(ContainIntrinsicSizeType) unsigned containIntrinsicWidthType : 2;
+    PREFERRED_TYPE(ContainIntrinsicSizeType) unsigned containIntrinsicHeightType : 2;
+    PREFERRED_TYPE(ContainerType) unsigned containerType : 2;
+    PREFERRED_TYPE(TextBoxTrim) unsigned textBoxTrim : 2;
+    PREFERRED_TYPE(OverflowAnchor) unsigned overflowAnchor : 1;
+    PREFERRED_TYPE(bool) unsigned hasClip : 1;
+    PREFERRED_TYPE(Style::PositionTryOrder) unsigned positionTryOrder : 3;
+    PREFERRED_TYPE(OptionSet<PositionVisibility>) unsigned positionVisibility : 3;
+    PREFERRED_TYPE(FieldSizing) unsigned fieldSizing : 1;
+    PREFERRED_TYPE(bool) unsigned nativeAppearanceDisabled : 1;
 #if HAVE(CORE_MATERIAL)
-    unsigned appleVisualEffect : 5; // AppleVisualEffect
+    PREFERRED_TYPE(AppleVisualEffect) unsigned appleVisualEffect : 5;
 #endif
-
-    unsigned scrollbarWidth : 2; // ScrollbarWidth
-
-    unsigned usesAnchorFunctions : 1;
-    unsigned anchorFunctionScrollCompensatedAxes : 2;
-
-    unsigned usesTreeCountingFunctions : 1;
-
-    unsigned isPopoverInvoker : 1;
+    PREFERRED_TYPE(ScrollbarWidth) unsigned scrollbarWidth : 2;
+    PREFERRED_TYPE(bool) unsigned usesAnchorFunctions : 1;
+    PREFERRED_TYPE(OptionSet<BoxAxisFlag>) unsigned anchorFunctionScrollCompensatedAxes : 2;
+    PREFERRED_TYPE(bool) unsigned usesTreeCountingFunctions : 1;
+    PREFERRED_TYPE(bool) unsigned isPopoverInvoker : 1;
 
 private:
     StyleRareNonInheritedData();
