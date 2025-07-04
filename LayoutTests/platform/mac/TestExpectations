@@ -2451,6 +2451,8 @@ webkit.org/b/294316 [ Debug ] imported/w3c/web-platform-tests/pointerevents/coal
 
 webkit.org/b/295127  transitions/svg-text-shadow-transition.html [ Pass Failure ]
 
+webkit.org/b/295457 [ X86_64 Sequoia ] webanimations/document-timeline-current-time-updates-without-running-animations.html [ Failure ]
+
 webkit.org/b/295308 fullscreen/full-screen-enter-while-exiting-multiple-elements.html [ Pass Timeout ]
 
 webkit.org/b/295408 imported/w3c/web-platform-tests/xhr/send-redirect.htm [ Pass Failure ]
