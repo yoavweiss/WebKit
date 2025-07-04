@@ -862,7 +862,7 @@ private:
     // clean it up from this map, since existingAXObjectCache fails due to the nullptr m_frame.
     // This scenario seems extremely rare, and may only happen when the webpage is about to be destroyed anyways,
     // so, go with WeakHashMap now until we find a completely safe solution based on document / frame lifecycles.
-    WeakHashMap<Node, Markable<AXID>, WeakPtrImplWithEventTargetData> m_nodeObjectMapping;
+    WeakHashMap<Node, AXID, WeakPtrImplWithEventTargetData> m_nodeObjectMapping;
 
     WeakHashMap<RenderText, LineRange, SingleThreadWeakPtrImpl> m_mostRecentlyPaintedText;
 
