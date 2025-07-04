@@ -2369,6 +2369,7 @@ if (USE_XDGMIME)
 endif ()
 
 if (USE_LIBWEBRTC)
+    add_definitions(-DWEBRTC_ALLOW_DEPRECATED_NAMESPACES)
     list(APPEND WebCore_SYSTEM_INCLUDE_DIRECTORIES
         "${THIRDPARTY_DIR}/libwebrtc/Source"
         "${THIRDPARTY_DIR}/libwebrtc/Source/webrtc"
