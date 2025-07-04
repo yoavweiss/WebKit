@@ -76,8 +76,6 @@ Modules/model-element/HTMLModelElement.cpp
 Modules/model-element/scenekit/SceneKitModelPlayer.mm
 Modules/notifications/Notification.cpp
 Modules/notifications/NotificationResourcesLoader.cpp
-Modules/permissions/MainThreadPermissionObserver.cpp
-Modules/permissions/Permissions.cpp
 Modules/pictureinpicture/HTMLVideoElementPictureInPicture.cpp
 Modules/push-api/PushManager.cpp
 Modules/push-api/PushSubscription.cpp
@@ -655,7 +653,6 @@ loader/cache/CachedImage.h
 loader/cache/CachedResourceRequest.cpp
 loader/cache/CachedResourceRequestInitiatorTypes.h
 loader/cache/CachedSVGFont.cpp
-loader/cache/MemoryCache.cpp
 loader/cocoa/BundleResourceLoader.mm
 loader/icon/IconLoader.cpp
 mathml/MathMLElement.cpp
@@ -722,7 +719,6 @@ page/VisualViewport.cpp
 page/WheelEventTestMonitor.cpp
 page/WheelEventTestMonitor.h
 page/WindowOrWorkerGlobalScope.cpp
-page/WorkerNavigator.cpp
 page/cocoa/EventHandlerCocoa.mm
 page/cocoa/PageCocoa.mm
 page/cocoa/ResourceUsageOverlayCocoa.mm
@@ -1138,7 +1134,6 @@ workers/WorkerFontLoadRequest.cpp
 workers/WorkerGlobalScope.cpp
 workers/WorkerInspectorProxy.cpp
 workers/WorkerMessagingProxy.cpp
-workers/WorkerNotificationClient.cpp
 workers/WorkerOrWorkletGlobalScope.cpp
 workers/WorkerOrWorkletThread.cpp
 workers/WorkerRunLoop.cpp
