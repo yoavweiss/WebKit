@@ -2385,7 +2385,7 @@ void WebViewImpl::updateTopScrollPocketCaptureColor()
         return;
 
     RetainPtr captureColor = [view _overrideTopScrollEdgeEffectColor];
-    if (!captureColor && ![view _shouldSuppressTopColorExtensionView])
+    if (!captureColor)
         captureColor = [view _sampledTopFixedPositionContentColor];
 
     if (!captureColor) {
@@ -2394,6 +2394,8 @@ void WebViewImpl::updateTopScrollPocketCaptureColor()
         else
             captureColor = NSColor.controlBackgroundColor;
     }
+
+    captureColor = [view _adjustedColorForTopContentInsetColorFromUIDelegate:captureColor.get()];
     [m_topScrollPocket setCaptureColor:captureColor.get()];
 
     if (RetainPtr attachedInspectorWebView = [view _horizontallyAttachedInspectorWebView])
@@ -6109,6 +6111,10 @@ bool WebViewImpl::completeBackSwipeForTesting()
 void WebViewImpl::effectiveAppearanceDidChange()
 {
     m_page->effectiveAppearanceDidChange();
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    updateTopScrollPocketCaptureColor();
+#endif
 }
 
 bool WebViewImpl::effectiveAppearanceIsDark()

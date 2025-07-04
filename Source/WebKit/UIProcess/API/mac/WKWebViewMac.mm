@@ -1601,7 +1601,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     _overrideTopScrollEdgeEffectColor = adoptNS(color.copy);
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-    [self _updateTopScrollPocketCaptureColor];
+    [self _doAfterAdjustingColorForTopContentInsetFromUIDelegate:[strongSelf = RetainPtr { self }] {
+        [strongSelf _updateTopScrollPocketCaptureColor];
+    }];
 #endif
 }
 

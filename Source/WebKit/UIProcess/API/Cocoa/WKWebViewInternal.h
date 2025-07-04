@@ -278,6 +278,7 @@ struct PerWebProcessState {
     BOOL _shouldSuppressTopColorExtensionView;
 #if PLATFORM(MAC)
     BOOL _alwaysPrefersSolidColorHardPocket;
+    BOOL _isGettingAdjustedColorForTopContentInsetColorFromDelegate;
     RetainPtr<NSColor> _overrideTopScrollEdgeEffectColor;
 #endif
 
@@ -541,6 +542,13 @@ struct PerWebProcessState {
 - (void)_addReasonToHideTopScrollPocket:(WebKit::HideScrollPocketReason)reason;
 - (void)_removeReasonToHideTopScrollPocket:(WebKit::HideScrollPocketReason)reason;
 - (void)_updateTopScrollPocketCaptureColor;
+- (void)_updateHiddenScrollPocketEdges;
+- (void)_doAfterAdjustingColorForTopContentInsetFromUIDelegate:(Function<void()>&&)callback;
+#endif
+
+#if PLATFORM(MAC) && ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+- (NSColor *)_adjustedColorForTopContentInsetColorFromUIDelegate:(NSColor *)proposedColor;
+@property (nonatomic, setter=_setAlwaysPrefersSolidColorHardPocket:) BOOL _alwaysPrefersSolidColorHardPocket;
 #endif
 
 #if ENABLE(GAMEPAD)
@@ -578,14 +586,6 @@ struct PerWebProcessState {
 - (void)_updatePDFPageNumberIndicatorIfNeeded;
 - (void)_removeAnyPDFPageNumberIndicator;
 
-#endif
-
-#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-- (void)_updateHiddenScrollPocketEdges;
-#endif
-
-#if PLATFORM(MAC) && ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-@property (nonatomic, setter=_setAlwaysPrefersSolidColorHardPocket:) BOOL _alwaysPrefersSolidColorHardPocket;
 #endif
 
 @property (nonatomic, setter=_setHasActiveNowPlayingSession:) BOOL _hasActiveNowPlayingSession;

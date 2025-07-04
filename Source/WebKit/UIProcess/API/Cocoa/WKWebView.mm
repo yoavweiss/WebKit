@@ -187,6 +187,7 @@
 #import <wtf/NeverDestroyed.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/RuntimeApplicationChecks.h>
+#import <wtf/Scope.h>
 #import <wtf/StdLibExtras.h>
 #import <wtf/SystemTracing.h>
 #import <wtf/TZoneMallocInlines.h>
@@ -3224,15 +3225,22 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 
     auto insets = [self _obscuredInsetsForFixedColorExtension];
     auto updateExtensionView = [&](WebCore::BoxSide side) {
-        BOOL needsView = insets.at(side) > 0
-            && _fixedContainerEdges.hasFixedEdge(side)
-            && (side != WebCore::BoxSide::Top || !_shouldSuppressTopColorExtensionView);
-
         RetainPtr extensionView = _fixedColorExtensionViews.at(side);
-        if (!needsView) {
+        if (insets.at(side) <= 0 || !_fixedContainerEdges.hasFixedEdge(side)) {
             [extensionView fadeOut];
             return;
         }
+
+        RetainPtr edgeColor = cocoaColorOrNil(_fixedContainerEdges.predominantColor(side)) ?: self.underPageBackgroundColor;
+#if PLATFORM(MAC)
+        if (side == WebCore::BoxSide::Top) {
+            edgeColor = [self _adjustedColorForTopContentInsetColorFromUIDelegate:edgeColor.get()];
+            if (_shouldSuppressTopColorExtensionView) {
+                [extensionView fadeOut];
+                return;
+            }
+        }
+#endif // PLATFORM(MAC)
 
         if (!extensionView) {
             extensionView = adoptNS([[WKColorExtensionView alloc] initWithFrame:CGRectZero delegate:self]);
@@ -3258,8 +3266,7 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
             _fixedColorExtensionViews.setAt(side, extensionView);
         }
 
-        RetainPtr predominantColor = cocoaColorOrNil(_fixedContainerEdges.predominantColor(side));
-        [extensionView updateColor:predominantColor.get() ?: self.underPageBackgroundColor];
+        [extensionView updateColor:edgeColor.get()];
         return;
     };
 
@@ -3311,7 +3318,34 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 #endif
 }
 
+- (void)_doAfterAdjustingColorForTopContentInsetFromUIDelegate:(Function<void()>&&)callback
+{
 #if PLATFORM(MAC)
+    if (_isGettingAdjustedColorForTopContentInsetColorFromDelegate) {
+        RunLoop::protectedMain()->dispatch(WTFMove(callback));
+        return;
+    }
+#endif
+
+    callback();
+}
+
+#if PLATFORM(MAC)
+
+- (NSColor *)_adjustedColorForTopContentInsetColorFromUIDelegate:(NSColor *)color
+{
+    if (_overrideTopScrollEdgeEffectColor)
+        return _overrideTopScrollEdgeEffectColor.get();
+
+    RetainPtr delegate = static_cast<id<WKUIDelegatePrivate>>([self UIDelegate]);
+    if (![delegate respondsToSelector:@selector(_webView:adjustedColorForTopContentInsetColor:)])
+        return color;
+
+    SetForScope delegateCallScope { _isGettingAdjustedColorForTopContentInsetColorFromDelegate, YES };
+
+    RetainPtr adjustedColor = [delegate _webView:self adjustedColorForTopContentInsetColor:color];
+    return adjustedColor.get() ?: color;
+}
 
 - (BOOL)_alwaysPrefersSolidColorHardPocket
 {
@@ -6219,8 +6253,10 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
     _shouldSuppressTopColorExtensionView = value;
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-    [self _updateFixedColorExtensionViews];
-    [self _updateTopScrollPocketCaptureColor];
+    [self _doAfterAdjustingColorForTopContentInsetFromUIDelegate:[strongSelf = RetainPtr { self }] {
+        [strongSelf _updateFixedColorExtensionViews];
+        [strongSelf _updateTopScrollPocketCaptureColor];
+    }];
 #endif
 }
 

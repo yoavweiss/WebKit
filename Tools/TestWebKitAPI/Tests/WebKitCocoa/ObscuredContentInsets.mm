@@ -33,6 +33,7 @@
 #import "TestCocoa.h"
 #import "TestCocoaImageAndCocoaColor.h"
 #import "TestNavigationDelegate.h"
+#import "TestUIDelegate.h"
 #import "TestWKWebView.h"
 #import <WebCore/ColorCocoa.h>
 #import <WebCore/ColorSerialization.h>
@@ -313,6 +314,38 @@ TEST(ObscuredContentInsets, TopScrollPocketKVO)
     [webView _setObscuredContentInsets:NSEdgeInsetsMake(0, 0, 0, 0) immediate:YES];
     EXPECT_NULL([webView _topScrollPocket]);
     EXPECT_EQ([observer changeCount], 2u);
+}
+
+TEST(ObscuredContentInsets, AdjustedColorForTopContentInsetColor)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 600, 400)]);
+    RetainPtr delegate = adoptNS([TestUIDelegate new]);
+    RetainPtr actualTopFixedColor = [NSColor colorWithRed:1 green:0.388235 blue:0.278431 alpha:1];
+
+    RetainPtr blueColor = [NSColor systemBlueColor];
+    enum class ColorToUse : bool { Proposed, SystemBlue };
+    __block auto colorToUse = ColorToUse::Proposed;
+    __block BOOL suppressTopColorExtension = NO;
+    [delegate setAdjustedColorForTopContentInsetColor:^(WKWebView *, NSColor *proposedColor) {
+        [webView _setShouldSuppressTopColorExtensionView:suppressTopColorExtension];
+        return colorToUse == ColorToUse::Proposed ? proposedColor : blueColor.get();
+    }];
+
+    [webView setUIDelegate:delegate.get()];
+    [webView setAppearance:[NSAppearance appearanceNamed:NSAppearanceNameAqua]];
+    [webView _setAutomaticallyAdjustsContentInsets:NO];
+    [webView _setObscuredContentInsets:NSEdgeInsetsMake(100, 0, 0, 0) immediate:YES];
+    [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_TRUE(Util::compareColors([[webView _topScrollPocket] captureColor], actualTopFixedColor.get()));
+
+    colorToUse = ColorToUse::SystemBlue;
+    suppressTopColorExtension = YES;
+    [webView setAppearance:[NSAppearance appearanceNamed:NSAppearanceNameDarkAqua]];
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_TRUE(Util::compareColors([[webView _topScrollPocket] captureColor], blueColor.get()));
 }
 
 #endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)

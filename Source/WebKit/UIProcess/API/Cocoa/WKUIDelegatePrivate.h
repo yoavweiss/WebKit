@@ -353,6 +353,8 @@ struct UIEdgeInsets;
  */
 - (void)_webView:(WKWebView *)webView willCloseLocalInspector:(_WKInspector *)inspector WK_API_AVAILABLE(macos(12.0));
 
+- (NSColor *)_webView:(WKWebView *)webView adjustedColorForTopContentInsetColor:(NSColor *)proposedColor WK_API_AVAILABLE(macos(26.0));
+
 #endif // !TARGET_OS_IPHONE
 
 @end
