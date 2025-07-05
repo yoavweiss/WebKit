@@ -2092,7 +2092,7 @@ bool RenderThemeCocoa::adjustMenuListStyleForVectorBasedControls(RenderStyle& st
 
     style.setWhiteSpaceCollapse(WhiteSpaceCollapse::Preserve);
     style.setTextWrapMode(TextWrapMode::NoWrap);
-    style.setBoxShadow({ });
+    style.setBoxShadow(CSS::Keyword::None  { });
 
     return true;
 }
@@ -2978,7 +2978,7 @@ bool RenderThemeCocoa::adjustSliderThumbStyleForVectorBasedControls(RenderStyle&
         return false;
 
     RenderTheme::adjustSliderThumbStyle(style, element);
-    style.setBoxShadow({ });
+    style.setBoxShadow(CSS::Keyword::None { });
 
     return true;
 }

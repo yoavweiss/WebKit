@@ -35,7 +35,6 @@
 #include "CSSBasicShapeValue.h"
 #include "CSSBorderImage.h"
 #include "CSSBorderImageSliceValue.h"
-#include "CSSBoxShadowPropertyValue.h"
 #include "CSSCounterValue.h"
 #include "CSSEasingFunctionValue.h"
 #include "CSSFilterPropertyValue.h"
@@ -61,7 +60,6 @@
 #include "CSSRegisteredCustomProperty.h"
 #include "CSSScrollValue.h"
 #include "CSSSerializationContext.h"
-#include "CSSTextShadowPropertyValue.h"
 #include "CSSTransformListValue.h"
 #include "CSSURLValue.h"
 #include "CSSValueList.h"
@@ -91,7 +89,6 @@
 #include "ScrollTimeline.h"
 #include "SkewTransformOperation.h"
 #include "StyleAppleColorFilterProperty.h"
-#include "StyleBoxShadow.h"
 #include "StyleClipPath.h"
 #include "StyleColor.h"
 #include "StyleColorScheme.h"
@@ -119,7 +116,6 @@
 #include "StyleScale.h"
 #include "StyleScrollMargin.h"
 #include "StyleScrollPadding.h"
-#include "StyleTextShadow.h"
 #include "StyleTranslate.h"
 #include "TimelineRange.h"
 #include "TransformOperationData.h"
@@ -202,11 +198,7 @@ public:
     static Ref<CSSValue> convertLineFitEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertTextBoxEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertQuotes(ExtractorState&, const QuotesData*);
-    static Ref<CSSValue> convertContainerNames(ExtractorState&, const FixedVector<ScopedName>&);
-    static Ref<CSSValue> convertViewTransitionClasses(ExtractorState&, const FixedVector<ScopedName>&);
     static Ref<CSSValue> convertViewTransitionName(ExtractorState&, const ViewTransitionName&);
-    static Ref<CSSValue> convertBoxShadow(ExtractorState&, const FixedVector<BoxShadow>&);
-    static Ref<CSSValue> convertTextShadow(ExtractorState&, const FixedVector<TextShadow>&);
     static Ref<CSSValue> convertPositionTryFallbacks(ExtractorState&, const FixedVector<PositionTryFallback>&);
     static Ref<CSSValue> convertWillChange(ExtractorState&, const WillChangeData*);
     static Ref<CSSValue> convertBlockEllipsis(ExtractorState&, const BlockEllipsis&);
@@ -235,15 +227,10 @@ public:
     static Ref<CSSValue> convertSelfOrDefaultAlignmentData(ExtractorState&, const StyleSelfAlignmentData&);
     static Ref<CSSValue> convertContentAlignmentData(ExtractorState&, const StyleContentAlignmentData&);
     static Ref<CSSValue> convertPaintOrder(ExtractorState&, PaintOrder);
-    static Ref<CSSValue> convertScrollTimelineAxes(ExtractorState&, const FixedVector<ScrollAxis>&);
-    static Ref<CSSValue> convertScrollTimelineNames(ExtractorState&, const FixedVector<AtomString>&);
-    static Ref<CSSValue> convertAnchorNames(ExtractorState&, const FixedVector<ScopedName>&);
     static Ref<CSSValue> convertPositionAnchor(ExtractorState&, const std::optional<ScopedName>&);
     static Ref<CSSValue> convertPositionArea(ExtractorState&, const PositionArea&);
     static Ref<CSSValue> convertPositionArea(ExtractorState&, const std::optional<PositionArea>&);
     static Ref<CSSValue> convertNameScope(ExtractorState&, const NameScope&);
-    static Ref<CSSValue> convertSingleViewTimelineInsets(ExtractorState&, const ViewTimelineInsets&);
-    static Ref<CSSValue> convertViewTimelineInsets(ExtractorState&, const FixedVector<ViewTimelineInsets>&);
     static Ref<CSSValue> convertPositionVisibility(ExtractorState&, OptionSet<PositionVisibility>);
 #if ENABLE(TEXT_AUTOSIZING)
     static Ref<CSSValue> convertWebkitTextSizeAdjust(ExtractorState&, const TextSizeAdjustment&);
@@ -909,28 +896,6 @@ inline Ref<CSSValue> ExtractorConverter::convertQuotes(ExtractorState&, const Qu
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertContainerNames(ExtractorState& state, const FixedVector<ScopedName>& containerNames)
-{
-    if (containerNames.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    CSSValueListBuilder list;
-    for (auto& name : containerNames)
-        list.append(convert(state, name));
-    return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertViewTransitionClasses(ExtractorState& state, const FixedVector<ScopedName>& classList)
-{
-    if (classList.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    CSSValueListBuilder list;
-    for (auto& name : classList)
-        list.append(convert(state, name));
-    return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
 inline Ref<CSSValue> ExtractorConverter::convertViewTransitionName(ExtractorState&, const ViewTransitionName& viewTransitionName)
 {
     if (viewTransitionName.isNone())
@@ -940,33 +905,6 @@ inline Ref<CSSValue> ExtractorConverter::convertViewTransitionName(ExtractorStat
     return CSSPrimitiveValue::createCustomIdent(viewTransitionName.customIdent());
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertBoxShadow(ExtractorState& state, const FixedVector<BoxShadow>& shadows)
-{
-    if (shadows.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    CSS::BoxShadowProperty::List list;
-
-    for (const auto& shadow : makeReversedRange(shadows))
-        list.value.append(toCSS(shadow, state.style));
-
-    return CSSBoxShadowPropertyValue::create(CSS::BoxShadowProperty { WTFMove(list) });
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTextShadow(ExtractorState& state, const FixedVector<TextShadow>& shadows)
-{
-    if (shadows.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    CSS::TextShadowProperty::List list;
-
-    for (const auto& shadow : makeReversedRange(shadows))
-        list.value.append(toCSS(shadow, state.style));
-
-    list.value.reverse();
-
-    return CSSTextShadowPropertyValue::create(CSS::TextShadowProperty { WTFMove(list) });
-}
 
 inline Ref<CSSValue> ExtractorConverter::convertPositionTryFallbacks(ExtractorState& state, const FixedVector<PositionTryFallback>& fallbacks)
 {
@@ -1406,43 +1344,6 @@ inline Ref<CSSValue> ExtractorConverter::convertPaintOrder(ExtractorState&, Pain
     return CSSValueList::createSpaceSeparated(WTFMove(paintOrderList));
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertScrollTimelineAxes(ExtractorState& state, const FixedVector<ScrollAxis>& axes)
-{
-    if (axes.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueBlock);
-
-    CSSValueListBuilder list;
-    for (auto axis : axes)
-        list.append(convert(state, axis));
-    return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertScrollTimelineNames(ExtractorState&, const FixedVector<AtomString>& names)
-{
-    if (names.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    CSSValueListBuilder list;
-    for (auto& name : names) {
-        if (name.isNull())
-            list.append(CSSPrimitiveValue::create(CSSValueNone));
-        else
-            list.append(CSSPrimitiveValue::createCustomIdent(name));
-    }
-    return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertAnchorNames(ExtractorState& state, const FixedVector<ScopedName>& anchorNames)
-{
-    if (anchorNames.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    CSSValueListBuilder list;
-    for (auto& anchorName : anchorNames)
-        list.append(convert(state, anchorName));
-    return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
 inline Ref<CSSValue> ExtractorConverter::convertPositionAnchor(ExtractorState& state, const std::optional<ScopedName>& positionAnchor)
 {
     if (!positionAnchor)
@@ -1616,25 +1517,6 @@ inline Ref<CSSValue> ExtractorConverter::convertNameScope(ExtractorState&, const
 
     ASSERT_NOT_REACHED();
     return CSSPrimitiveValue::create(CSSValueNone);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertSingleViewTimelineInsets(ExtractorState& state, const ViewTimelineInsets& insets)
-{
-    ASSERT(insets.start);
-    if (insets.end && insets.start != insets.end)
-        return CSSValuePair::createNoncoalescing(CSSPrimitiveValue::create(*insets.start, state.style), CSSPrimitiveValue::create(*insets.end, state.style));
-    return CSSPrimitiveValue::create(*insets.start, state.style);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertViewTimelineInsets(ExtractorState& state, const FixedVector<ViewTimelineInsets>& insets)
-{
-    if (insets.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-
-    CSSValueListBuilder list;
-    for (auto& singleInsets : insets)
-        list.append(convertSingleViewTimelineInsets(state, singleInsets));
-    return CSSValueList::createCommaSeparated(WTFMove(list));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertPositionVisibility(ExtractorState&, OptionSet<PositionVisibility> positionVisibility)

@@ -626,6 +626,7 @@ animation/TimelineRange.cpp
 animation/ViewTimeline.cpp
 animation/WebAnimation.cpp
 animation/WebAnimationTime.cpp
+animation/WebAnimationTypes.cpp
 animation/WebAnimationUtilities.cpp
 automation/AutomationInstrumentation.cpp
 bindings/js/BindingsJSTZoneImpls.cpp
@@ -3111,6 +3112,7 @@ style/RuleData.cpp
 style/RuleFeature.cpp
 style/RuleSet.cpp
 style/RuleSetBuilder.cpp
+style/ScopedName.cpp
 style/StyleAdjuster.cpp
 style/StyleBuilder.cpp
 style/StyleBuilderState.cpp
@@ -3182,6 +3184,8 @@ style/values/primitives/StylePosition.cpp
 style/values/primitives/StylePrimitiveNumericTypes+Conversions.cpp
 style/values/primitives/StyleURL.cpp
 style/values/primitives/StyleUnevaluatedCalculation.cpp
+style/values/scroll-animations/StyleProgressTimelineName.cpp
+style/values/scroll-animations/StyleViewTimelineInsets.cpp
 style/values/scroll-snap/StyleScrollMargin.cpp
 style/values/scroll-snap/StyleScrollPadding.cpp
 style/values/shapes/StyleBasicShape.cpp
