@@ -2666,7 +2666,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/CounterDirectives.h
     rendering/style/FillLayer.h
     rendering/style/GridArea.h
-    rendering/style/GridLength.h
     rendering/style/GridPosition.h
     rendering/style/GridPositionsResolver.h
     rendering/style/GridSpan.h
@@ -2774,6 +2773,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/color-adjust/StyleColorScheme.h
 
     style/values/flexbox/StyleFlexBasis.h
+
+    style/values/grid/StyleGridTrackBreadth.h
 
     style/values/images/StyleGradient.h
 

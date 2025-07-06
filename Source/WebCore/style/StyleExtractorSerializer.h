@@ -213,7 +213,7 @@ public:
 
     static void serializeGridAutoFlow(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GridAutoFlow);
     static void serializeGridPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const GridPosition&);
-    static void serializeGridTrackBreadth(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const GridLength&);
+    static void serializeGridTrackBreadth(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const GridTrackBreadth&);
     static void serializeGridTrackSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const GridTrackSize&);
     static void serializeGridTrackSizeList(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const Vector<GridTrackSize>&);
 };
@@ -2600,36 +2600,28 @@ inline void ExtractorSerializer::serializeGridPosition(ExtractorState& state, St
     }
 }
 
-inline void ExtractorSerializer::serializeGridTrackBreadth(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const GridLength& trackBreadth)
+inline void ExtractorSerializer::serializeGridTrackBreadth(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const GridTrackBreadth& trackBreadth)
 {
-    if (!trackBreadth.isLength()) {
-        CSS::serializationForCSS(builder, context, CSS::FlexRaw<> { CSS::FlexUnit::Fr, trackBreadth.flex() });
-        return;
-    }
-
-    auto& trackBreadthLength = trackBreadth.length();
-    if (trackBreadthLength.isAuto()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        return;
-    }
-
-    serializeLength(state, builder, context, trackBreadthLength);
+    if (!trackBreadth.isLength())
+        serializationForCSS(builder, context, state.style, trackBreadth.flex());
+    else
+        serializationForCSS(builder, context, state.style, trackBreadth.length());
 }
 
 inline void ExtractorSerializer::serializeGridTrackSize(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const GridTrackSize& trackSize)
 {
     switch (trackSize.type()) {
-    case LengthTrackSizing:
+    case GridTrackSizeType::Length:
         serializeGridTrackBreadth(state, builder, context, trackSize.minTrackBreadth());
         return;
-    case FitContentTrackSizing:
+    case GridTrackSizeType::FitContent:
         builder.append(nameLiteral(CSSValueFitContent), '(');
-        serializeLength(state, builder, context, trackSize.fitContentTrackBreadth().length());
+        serializationForCSS(builder, context, state.style, trackSize.fitContentTrackBreadth().length());
         builder.append(')');
         return;
-    case MinMaxTrackSizing:
+    case GridTrackSizeType::MinMax:
         if (trackSize.minTrackBreadth().isAuto() && trackSize.maxTrackBreadth().isFlex()) {
-            CSS::serializationForCSS(builder, context, CSS::FlexRaw<> { CSS::FlexUnit::Fr, trackSize.maxTrackBreadth().flex() });
+            serializationForCSS(builder, context, state.style, trackSize.maxTrackBreadth().flex());
             return;
         }
 

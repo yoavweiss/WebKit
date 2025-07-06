@@ -947,8 +947,8 @@ unsigned RenderGrid::computeAutoRepeatTracksCount(GridTrackSizingDirection direc
 
         auto contributingTrackSize = [&] {
             if (hasDefiniteMaxTrackSizingFunction && hasDefiniteMinTrackSizingFunction)
-                return std::max(valueForLength(minTrackSizingFunction.length(), *availableSize), valueForLength(maxTrackSizingFunction.length(), *availableSize));
-            return hasDefiniteMaxTrackSizingFunction ? valueForLength(maxTrackSizingFunction.length(), *availableSize) : valueForLength(minTrackSizingFunction.length(), *availableSize);
+                return std::max(Style::evaluate(minTrackSizingFunction.length(), *availableSize), Style::evaluate(maxTrackSizingFunction.length(), *availableSize));
+            return hasDefiniteMaxTrackSizingFunction ? Style::evaluate(maxTrackSizingFunction.length(), *availableSize) : Style::evaluate(minTrackSizingFunction.length(), *availableSize);
         };
         autoRepeatTracksSize += contributingTrackSize();
     }
@@ -963,7 +963,7 @@ unsigned RenderGrid::computeAutoRepeatTracksCount(GridTrackSizingDirection direc
     for (const auto& track : trackSizes) {
         bool hasDefiniteMaxTrackBreadth = track.maxTrackBreadth().isLength() && !track.maxTrackBreadth().isContentSized();
         ASSERT(hasDefiniteMaxTrackBreadth || (track.minTrackBreadth().isLength() && !track.minTrackBreadth().isContentSized()));
-        tracksSize += valueForLength(hasDefiniteMaxTrackBreadth ? track.maxTrackBreadth().length() : track.minTrackBreadth().length(), availableSize.value());
+        tracksSize += Style::evaluate(hasDefiniteMaxTrackBreadth ? track.maxTrackBreadth().length() : track.minTrackBreadth().length(), availableSize.value());
     }
 
     // Add gutters as if auto repeat tracks were only repeated once. Gaps between different repetitions will be added later when

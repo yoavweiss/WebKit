@@ -166,8 +166,6 @@ public:
     bool isRelative() const;
 
     bool isAuto() const;
-    bool isMaxContent() const;
-    bool isMinContent() const;
     bool isNormal() const;
     bool isUndefined() const;
 
@@ -475,16 +473,6 @@ inline bool Length::isNormal() const
 inline bool Length::isAuto() const
 {
     return type() == LengthType::Auto;
-}
-
-inline bool Length::isMaxContent() const
-{
-    return type() == LengthType::MaxContent;
-}
-
-inline bool Length::isMinContent() const
-{
-    return type() == LengthType::MinContent;
 }
 
 inline bool Length::isUndefined() const

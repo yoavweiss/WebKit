@@ -416,11 +416,11 @@ inline Style::FlexBasis RenderStyle::initialFlexBasis() { return CSS::Keyword::A
 constexpr FlexDirection RenderStyle::initialFlexDirection() { return FlexDirection::Row; }
 constexpr FlexWrap RenderStyle::initialFlexWrap() { return FlexWrap::NoWrap; }
 constexpr Float RenderStyle::initialFloating() { return Float::None; }
-inline Vector<GridTrackSize> RenderStyle::initialGridAutoColumns() { return { GridTrackSize { Length { } } }; }
+inline Vector<GridTrackSize> RenderStyle::initialGridAutoColumns() { return { GridTrackSize { CSS::Keyword::Auto { } } }; }
 constexpr GridAutoFlow RenderStyle::initialGridAutoFlow() { return AutoFlowRow; }
 inline Vector<GridTrackSize> RenderStyle::initialGridAutoRepeatTracks() { return { }; }
 constexpr AutoRepeatType RenderStyle::initialGridAutoRepeatType() { return AutoRepeatType::None; }
-inline Vector<GridTrackSize> RenderStyle::initialGridAutoRows() { return { GridTrackSize { Length { } } }; }
+inline Vector<GridTrackSize> RenderStyle::initialGridAutoRows() { return { GridTrackSize { CSS::Keyword::Auto { } } }; }
 inline Vector<GridTrackSize> RenderStyle::initialGridColumnTrackSizes() { return { }; }
 inline GridPosition RenderStyle::initialGridItemColumnEnd() { return { }; }
 inline GridPosition RenderStyle::initialGridItemColumnStart() { return { }; }

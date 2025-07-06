@@ -262,7 +262,7 @@ private:
 
     static WebCore::Length parseSnapCoordinate(BuilderState&, const CSSValue&);
 
-    static GridLength createGridTrackBreadth(BuilderState&, const CSSPrimitiveValue&);
+    static GridTrackBreadth createGridTrackBreadth(BuilderState&, const CSSPrimitiveValue&);
     static GridTrackSize createGridTrackSize(BuilderState&, const CSSValue&);
     static std::optional<GridTrackList> createGridTrackList(BuilderState&, const CSSValue&);
     static GridPosition createGridPosition(BuilderState&, const CSSValue&);
@@ -1050,21 +1050,11 @@ inline ScrollbarWidth BuilderConverter::convertScrollbarWidth(BuilderState& buil
     return scrollbarWidth;
 }
 
-inline GridLength BuilderConverter::createGridTrackBreadth(BuilderState& builderState, const CSSPrimitiveValue& primitiveValue)
+inline GridTrackBreadth BuilderConverter::createGridTrackBreadth(BuilderState& builderState, const CSSPrimitiveValue& primitiveValue)
 {
-    if (primitiveValue.valueID() == CSSValueMinContent || primitiveValue.valueID() == CSSValueWebkitMinContent)
-        return WebCore::Length(LengthType::MinContent);
-
-    if (primitiveValue.valueID() == CSSValueMaxContent || primitiveValue.valueID() == CSSValueWebkitMaxContent)
-        return WebCore::Length(LengthType::MaxContent);
-
-    auto& conversionData = builderState.cssToLengthConversionData();
-
-    // Fractional unit.
     if (primitiveValue.isFlex())
-        return GridLength(primitiveValue.resolveAsFlex<double>(conversionData));
-
-    return convertLengthOrAuto(builderState, primitiveValue);
+        return Flex<CSS::Nonnegative> { primitiveValue.resolveAsFlex<double>(builderState.cssToLengthConversionData()) };
+    return toStyleFromCSSValue<GridTrackBreadthLength>(builderState, primitiveValue);
 }
 
 inline GridTrackSize BuilderConverter::createGridTrackSize(BuilderState& builderState, const CSSValue& value)
@@ -1076,12 +1066,17 @@ inline GridTrackSize BuilderConverter::createGridTrackSize(BuilderState& builder
     if (!function)
         return { };
 
-    if (function->size() == 1)
-        return GridTrackSize(createGridTrackBreadth(builderState, function->item(0)), FitContentTrackSizing);
+    if (function->size() == 1) {
+        return GridTrackSize(
+            createGridTrackBreadth(builderState, function->item(0)),
+            GridTrackSizeType::FitContent
+        );
+    }
 
-    GridLength minTrackBreadth(createGridTrackBreadth(builderState, function->item(0)));
-    GridLength maxTrackBreadth(createGridTrackBreadth(builderState, function->item(1)));
-    return GridTrackSize(minTrackBreadth, maxTrackBreadth);
+    return GridTrackSize(
+        createGridTrackBreadth(builderState, function->item(0)),
+        createGridTrackBreadth(builderState, function->item(1))
+    );
 }
 
 inline std::optional<GridTrackList> BuilderConverter::createGridTrackList(BuilderState& builderState, const CSSValue& value)
