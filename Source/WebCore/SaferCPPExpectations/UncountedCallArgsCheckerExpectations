@@ -27,7 +27,6 @@ Modules/filesystem/FileSystemFileHandle.cpp
 Modules/filesystem/WorkerFileSystemStorageConnection.cpp
 Modules/gamepad/GamepadManager.cpp
 Modules/gamepad/NavigatorGamepad.cpp
-Modules/geolocation/Geolocation.cpp
 Modules/identity/CredentialRequestCoordinator.cpp
 Modules/indexeddb/IDBActiveDOMObject.h
 Modules/indexeddb/IDBCursor.cpp

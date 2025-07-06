@@ -965,10 +965,10 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     didSetPageZoomFactor(parameters.pageZoomFactor);
     didSetTextZoomFactor(parameters.textZoomFactor);
 
-    // FIXME: These should use makeUnique and makeUniqueRef instead of new.
 #if ENABLE(GEOLOCATION)
-    WebCore::provideGeolocationTo(page.ptr(), *new WebGeolocationClient(*this));
+    WebCore::provideGeolocationTo(page.ptr(), WebGeolocationClient::create(*this));
 #endif
+    // FIXME: These should use makeUnique and makeUniqueRef instead of new.
 #if ENABLE(NOTIFICATIONS)
     WebCore::provideNotification(page.ptr(), new WebNotificationClient(this));
 #endif

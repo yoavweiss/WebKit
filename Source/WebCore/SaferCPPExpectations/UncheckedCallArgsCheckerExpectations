@@ -6,8 +6,6 @@ Modules/credentialmanagement/CredentialsContainer.cpp
 Modules/encryptedmedia/legacy/LegacyCDM.cpp
 Modules/encryptedmedia/legacy/WebKitMediaKeySession.cpp
 Modules/gamepad/GamepadManager.cpp
-Modules/geolocation/Geolocation.cpp
-Modules/geolocation/GeolocationController.cpp
 Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBIndex.cpp
 Modules/indexeddb/IDBTransaction.cpp

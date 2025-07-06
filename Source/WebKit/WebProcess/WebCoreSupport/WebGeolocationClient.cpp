@@ -51,7 +51,6 @@ void WebGeolocationClient::geolocationDestroyed()
 {
     if (RefPtr page = m_page.get())
         WebProcess::singleton().supplement<WebGeolocationManager>()->unregisterWebPage(*page);
-    delete this;
 }
 
 void WebGeolocationClient::startUpdating(const String& authorizationToken, bool needsHighAccuracy)

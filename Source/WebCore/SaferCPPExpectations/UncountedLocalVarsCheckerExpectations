@@ -4,7 +4,6 @@ Modules/cache/DOMCache.cpp
 Modules/cache/DOMCacheStorage.cpp
 Modules/encryptedmedia/MediaKeySystemRequest.cpp
 Modules/gamepad/GamepadHapticActuator.cpp
-Modules/geolocation/Geolocation.cpp
 Modules/indexeddb/IDBActiveDOMObject.h
 Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBIndex.cpp
