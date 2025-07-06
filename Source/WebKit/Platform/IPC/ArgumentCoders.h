@@ -617,49 +617,6 @@ template<typename KeyArg, typename MappedArg, typename HashArg, typename KeyTrai
     }
 };
 
-template<typename KeyArg, typename MappedArg, typename HashArg, typename KeyTraitsArg, typename MappedTraitsArg, typename HashTableTraits> struct ArgumentCoder<UncheckedKeyHashMap<KeyArg, MappedArg, HashArg, KeyTraitsArg, MappedTraitsArg, HashTableTraits>> {
-    typedef UncheckedKeyHashMap<KeyArg, MappedArg, HashArg, KeyTraitsArg, MappedTraitsArg, HashTableTraits> HashMapType;
-
-    template<typename Encoder, typename T>
-    static void encode(Encoder& encoder, T&& hashMap)
-    {
-        static_assert(std::is_same_v<std::remove_cvref_t<T>, HashMapType>);
-
-        encoder << static_cast<unsigned>(hashMap.size());
-        for (auto&& entry : hashMap)
-            encoder << WTF::forward_like<T>(entry);
-    }
-
-    template<typename Decoder>
-    static std::optional<HashMapType> decode(Decoder& decoder)
-    {
-        auto hashMapSize = decoder.template decode<unsigned>();
-        if (!hashMapSize)
-            return std::nullopt;
-
-        HashMapType hashMap;
-        for (unsigned i = 0; i < *hashMapSize; ++i) {
-            auto key = decoder.template decode<KeyArg>();
-            if (!key) [[unlikely]]
-                return std::nullopt;
-
-            auto value = decoder.template decode<MappedArg>();
-            if (!value) [[unlikely]]
-                return std::nullopt;
-
-            if (!HashMapType::isValidKey(*key)) [[unlikely]]
-                return std::nullopt;
-
-            if (!hashMap.add(WTFMove(*key), WTFMove(*value)).isNewEntry) [[unlikely]] {
-                // The hash map already has the specified key, bail.
-                return std::nullopt;
-            }
-        }
-
-        return hashMap;
-    }
-};
-
 template<typename KeyArg, typename HashArg, typename KeyTraitsArg, typename HashTableTraits, WTF::ShouldValidateKey shouldValidateKey> struct ArgumentCoder<HashSet<KeyArg, HashArg, KeyTraitsArg, HashTableTraits, shouldValidateKey>> {
     typedef HashSet<KeyArg, HashArg, KeyTraitsArg, HashTableTraits, shouldValidateKey> HashSetType;
 
