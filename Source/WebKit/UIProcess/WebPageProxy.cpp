@@ -1076,6 +1076,11 @@ RefPtr<WebFrameProxy> WebPageProxy::protectedMainFrame() const
     return m_mainFrame;
 }
 
+RefPtr<WebFrameProxy> WebPageProxy::protectedFocusedFrame() const
+{
+    return m_focusedFrame;
+}
+
 RefPtr<DrawingAreaProxy> WebPageProxy::protectedDrawingArea() const
 {
     return m_drawingArea;
