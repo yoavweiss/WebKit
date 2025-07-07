@@ -93,7 +93,7 @@ public:
     static DocumentLoader* assertDocumentLoader(Inspector::Protocol::ErrorString&, LocalFrame*);
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*);
+    void didCreateFrontendAndBackend();
     void willDestroyFrontendAndBackend(Inspector::DisconnectReason);
 
     // PageBackendDispatcherHandler

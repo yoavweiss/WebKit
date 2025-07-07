@@ -96,7 +96,7 @@ void WebPageInspectorController::connectFrontend(Inspector::FrontendChannel& fro
     m_frontendRouter->connectFrontend(frontendChannel);
 
     if (connectingFirstFrontend)
-        m_agents.didCreateFrontendAndBackend(m_frontendRouter.ptr(), m_backendDispatcher.ptr());
+        m_agents.didCreateFrontendAndBackend();
 
     Ref inspectedPage = m_inspectedPage.get();
     inspectedPage->didChangeInspectorFrontendCount(m_frontendRouter->frontendCount());

@@ -46,7 +46,7 @@ public:
     ~InspectorScriptProfilerAgent() final;
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*) final;
+    void didCreateFrontendAndBackend() final;
     void willDestroyFrontendAndBackend(DisconnectReason) final;
 
     // ScriptProfilerBackendDispatcherHandler

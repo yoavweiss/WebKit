@@ -108,7 +108,7 @@ public:
     static JSC::JSValue nodeAsScriptValue(JSC::JSGlobalObject&, Node*);
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*);
+    void didCreateFrontendAndBackend();
     void willDestroyFrontendAndBackend(Inspector::DisconnectReason);
 
     // DOMBackendDispatcherHandler

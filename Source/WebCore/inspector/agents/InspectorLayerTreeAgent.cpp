@@ -59,7 +59,7 @@ InspectorLayerTreeAgent::InspectorLayerTreeAgent(WebAgentContext& context)
 
 InspectorLayerTreeAgent::~InspectorLayerTreeAgent() = default;
 
-void InspectorLayerTreeAgent::didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*)
+void InspectorLayerTreeAgent::didCreateFrontendAndBackend()
 {
 }
 

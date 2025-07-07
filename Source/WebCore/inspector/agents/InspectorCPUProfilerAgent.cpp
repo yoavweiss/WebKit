@@ -49,7 +49,7 @@ InspectorCPUProfilerAgent::InspectorCPUProfilerAgent(PageAgentContext& context)
 
 InspectorCPUProfilerAgent::~InspectorCPUProfilerAgent() = default;
 
-void InspectorCPUProfilerAgent::didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*)
+void InspectorCPUProfilerAgent::didCreateFrontendAndBackend()
 {
     m_instrumentingAgents.setPersistentCPUProfilerAgent(this);
 }

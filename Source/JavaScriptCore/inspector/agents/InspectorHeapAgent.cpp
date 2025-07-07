@@ -53,7 +53,7 @@ InspectorHeapAgent::InspectorHeapAgent(AgentContext& context)
 
 InspectorHeapAgent::~InspectorHeapAgent() = default;
 
-void InspectorHeapAgent::didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*)
+void InspectorHeapAgent::didCreateFrontendAndBackend()
 {
 }
 

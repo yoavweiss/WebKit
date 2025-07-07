@@ -61,7 +61,7 @@ public:
     ~InspectorDOMDebuggerAgent() override;
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*) override;
+    void didCreateFrontendAndBackend() override;
     void willDestroyFrontendAndBackend(Inspector::DisconnectReason) override;
     void discardAgent() override;
     virtual bool enabled() const;

@@ -44,7 +44,7 @@ public:
     ~WebHeapAgent() override;
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*) override;
+    void didCreateFrontendAndBackend() override;
     void willDestroyFrontendAndBackend(Inspector::DisconnectReason) override;
 
     // HeapBackendDispatcherHandler

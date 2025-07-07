@@ -251,7 +251,7 @@ InspectorDebuggerAgent::InspectorDebuggerAgent(AgentContext& context)
 
 InspectorDebuggerAgent::~InspectorDebuggerAgent() = default;
 
-void InspectorDebuggerAgent::didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*)
+void InspectorDebuggerAgent::didCreateFrontendAndBackend()
 {
 }
 

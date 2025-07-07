@@ -111,9 +111,9 @@ WebHeapAgent::WebHeapAgent(WebAgentContext& context)
 
 WebHeapAgent::~WebHeapAgent() = default;
 
-void WebHeapAgent::didCreateFrontendAndBackend(FrontendRouter* frontendRouter, BackendDispatcher* backendDispatcher)
+void WebHeapAgent::didCreateFrontendAndBackend()
 {
-    InspectorHeapAgent::didCreateFrontendAndBackend(frontendRouter, backendDispatcher);
+    InspectorHeapAgent::didCreateFrontendAndBackend();
 
     ASSERT(m_instrumentingAgents.persistentWebHeapAgent() != this);
     m_instrumentingAgents.setPersistentWebHeapAgent(this);

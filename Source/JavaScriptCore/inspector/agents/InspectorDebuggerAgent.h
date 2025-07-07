@@ -67,7 +67,7 @@ public:
     static const ASCIILiteral backtraceObjectGroup;
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*) final;
+    void didCreateFrontendAndBackend() final;
     void willDestroyFrontendAndBackend(DisconnectReason) final;
     virtual bool enabled() const { return m_enabled; }
 

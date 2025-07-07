@@ -56,7 +56,7 @@ public:
     ~InspectorConsoleAgent() override;
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*) final;
+    void didCreateFrontendAndBackend() final;
     void willDestroyFrontendAndBackend(DisconnectReason) final;
     void discardValues() final;
 

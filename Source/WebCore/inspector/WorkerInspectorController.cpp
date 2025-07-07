@@ -139,7 +139,7 @@ void WorkerInspectorController::connectFrontend(bool isAutomaticInspection, bool
 
     m_forwardingChannel = makeUnique<WorkerToPageFrontendChannel>(m_globalScope);
     m_frontendRouter->connectFrontend(*m_forwardingChannel.get());
-    m_agents.didCreateFrontendAndBackend(m_frontendRouter.ptr(), m_backendDispatcher.ptr());
+    m_agents.didCreateFrontendAndBackend();
 
     updateServiceWorkerPageFrontendCount();
 }

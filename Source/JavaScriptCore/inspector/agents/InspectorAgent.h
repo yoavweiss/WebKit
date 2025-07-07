@@ -49,7 +49,7 @@ public:
     ~InspectorAgent() final;
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*) final;
+    void didCreateFrontendAndBackend() final;
     void willDestroyFrontendAndBackend(DisconnectReason) final;
 
     // InspectorBackendDispatcherHandler

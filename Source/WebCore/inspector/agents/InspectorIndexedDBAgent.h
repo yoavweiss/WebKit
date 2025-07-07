@@ -52,7 +52,7 @@ public:
     ~InspectorIndexedDBAgent();
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*);
+    void didCreateFrontendAndBackend();
     void willDestroyFrontendAndBackend(Inspector::DisconnectReason);
 
     // IndexedDBBackendDispatcherHandler

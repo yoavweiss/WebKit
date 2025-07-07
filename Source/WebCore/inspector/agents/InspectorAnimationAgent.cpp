@@ -259,7 +259,7 @@ InspectorAnimationAgent::InspectorAnimationAgent(PageAgentContext& context)
 
 InspectorAnimationAgent::~InspectorAnimationAgent() = default;
 
-void InspectorAnimationAgent::didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*)
+void InspectorAnimationAgent::didCreateFrontendAndBackend()
 {
     ASSERT(m_instrumentingAgents.persistentAnimationAgent() != this);
     m_instrumentingAgents.setPersistentAnimationAgent(this);

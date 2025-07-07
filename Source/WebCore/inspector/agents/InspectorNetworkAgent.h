@@ -81,7 +81,7 @@ public:
     static bool cachedResourceContent(CachedResource&, String* result, bool* base64Encoded);
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*) final;
+    void didCreateFrontendAndBackend() final;
     void willDestroyFrontendAndBackend(Inspector::DisconnectReason) final;
 
     // NetworkBackendDispatcherHandler

@@ -104,7 +104,7 @@ InspectorCanvasAgent::InspectorCanvasAgent(WebAgentContext& context)
 
 InspectorCanvasAgent::~InspectorCanvasAgent() = default;
 
-void InspectorCanvasAgent::didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*)
+void InspectorCanvasAgent::didCreateFrontendAndBackend()
 {
 }
 

@@ -51,7 +51,7 @@ public:
     ~InspectorHeapAgent() override;
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*) override;
+    void didCreateFrontendAndBackend() override;
     void willDestroyFrontendAndBackend(DisconnectReason) override;
 
     // HeapBackendDispatcherHandler

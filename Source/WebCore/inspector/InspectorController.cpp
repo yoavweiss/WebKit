@@ -266,7 +266,7 @@ void InspectorController::connectFrontend(Inspector::FrontendChannel& frontendCh
 
     if (connectedFirstFrontend) {
         InspectorInstrumentation::registerInstrumentingAgents(m_instrumentingAgents.get());
-        m_agents.didCreateFrontendAndBackend(m_frontendRouter.ptr(), m_backendDispatcher.ptr());
+        m_agents.didCreateFrontendAndBackend();
     }
 
     m_inspectorClient->frontendCountChanged(m_frontendRouter->frontendCount());

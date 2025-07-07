@@ -67,7 +67,7 @@ InspectorDOMStorageAgent::InspectorDOMStorageAgent(PageAgentContext& context)
 
 InspectorDOMStorageAgent::~InspectorDOMStorageAgent() = default;
 
-void InspectorDOMStorageAgent::didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*)
+void InspectorDOMStorageAgent::didCreateFrontendAndBackend()
 {
 }
 

@@ -119,7 +119,7 @@ void JSGlobalObjectInspectorController::connectFrontend(FrontendChannel& fronten
     m_strongGlobalObject.set(m_globalObject.vm(), &m_globalObject);
 
     // FIXME: change this to notify agents which frontend has connected (by id).
-    m_agents.didCreateFrontendAndBackend(nullptr, nullptr);
+    m_agents.didCreateFrontendAndBackend();
 
 #if ENABLE(INSPECTOR_ALTERNATE_DISPATCHERS)
     if (m_augmentingClient)
@@ -268,7 +268,7 @@ VM& JSGlobalObjectInspectorController::vm()
 void JSGlobalObjectInspectorController::registerAlternateAgent(std::unique_ptr<InspectorAgentBase> agent)
 {
     // FIXME: change this to notify agents which frontend has connected (by id).
-    agent->didCreateFrontendAndBackend(nullptr, nullptr);
+    agent->didCreateFrontendAndBackend();
 
     m_agents.append(WTFMove(agent));
 }

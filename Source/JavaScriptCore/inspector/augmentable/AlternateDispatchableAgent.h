@@ -52,7 +52,7 @@ public:
         m_alternateDispatcher->setBackendDispatcher(nullptr);
     }
 
-    void didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*) final
+    void didCreateFrontendAndBackend() final
     {
     }
 

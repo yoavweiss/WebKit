@@ -200,7 +200,7 @@ InspectorNetworkAgent::InspectorNetworkAgent(WebAgentContext& context, const Net
 
 InspectorNetworkAgent::~InspectorNetworkAgent() = default;
 
-void InspectorNetworkAgent::didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*)
+void InspectorNetworkAgent::didCreateFrontendAndBackend()
 {
 }
 

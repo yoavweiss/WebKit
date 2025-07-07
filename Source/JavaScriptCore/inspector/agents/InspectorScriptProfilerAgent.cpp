@@ -50,7 +50,7 @@ InspectorScriptProfilerAgent::InspectorScriptProfilerAgent(AgentContext& context
 
 InspectorScriptProfilerAgent::~InspectorScriptProfilerAgent() = default;
 
-void InspectorScriptProfilerAgent::didCreateFrontendAndBackend(FrontendRouter*, BackendDispatcher*)
+void InspectorScriptProfilerAgent::didCreateFrontendAndBackend()
 {
 }
 

@@ -65,7 +65,7 @@ public:
     ~InspectorCanvasAgent();
 
     // InspectorAgentBase
-    void didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*);
+    void didCreateFrontendAndBackend();
     void willDestroyFrontendAndBackend(Inspector::DisconnectReason);
     void discardAgent();
     virtual bool enabled() const;

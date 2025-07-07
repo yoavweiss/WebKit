@@ -293,7 +293,7 @@ InspectorCSSAgent::InspectorCSSAgent(PageAgentContext& context)
 
 InspectorCSSAgent::~InspectorCSSAgent() = default;
 
-void InspectorCSSAgent::didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*)
+void InspectorCSSAgent::didCreateFrontendAndBackend()
 {
 }
 

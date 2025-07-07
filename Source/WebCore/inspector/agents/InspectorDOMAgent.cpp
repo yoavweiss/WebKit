@@ -322,7 +322,7 @@ Ref<InspectorOverlay> InspectorDOMAgent::protectedOverlay() const
     return m_overlay.get();
 }
 
-void InspectorDOMAgent::didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*)
+void InspectorDOMAgent::didCreateFrontendAndBackend()
 {
     m_history = makeUnique<InspectorHistory>();
     m_domEditor = makeUnique<DOMEditor>(*m_history);
