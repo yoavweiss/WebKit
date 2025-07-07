@@ -182,10 +182,6 @@ bool defaultContentInsetBackgroundFillEnabled();
 bool defaultScreenTimeEnabled();
 #endif
 
-#if ENABLE(FORM_CONTROL_REFRESH)
-bool defaultFormControlRefreshEnabled();
-#endif
-
 #if ENABLE(CONTENT_EXTENSIONS)
 bool defaultIFrameResourceMonitoringEnabled();
 #endif

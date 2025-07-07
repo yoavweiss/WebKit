@@ -3005,9 +3005,9 @@ FormControlRefreshEnabled:
   condition: ENABLE(FORM_CONTROL_REFRESH)
   defaultValue:
     WebKit:
-      default: defaultFormControlRefreshEnabled()
+      default: true
     WebKitLegacy:
-      default: WebKit::defaultFormControlRefreshEnabled()
+      default: true
     WebCore:
       default: false
 
