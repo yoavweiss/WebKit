@@ -92,7 +92,5 @@ workers/WorkerNotificationClient.h
 workers/WorkerOrWorkletGlobalScope.h
 workers/service/ServiceWorkerContainer.h
 workers/service/background-fetch/ServiceWorkerRegistrationBackgroundFetchAPI.h
-xml/XMLHttpRequestProgressEventThrottle.h
-xml/XMLHttpRequestUpload.h
 xml/XPathGrammar.cpp
 xml/XPathGrammar.h

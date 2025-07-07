@@ -1153,13 +1153,8 @@ worklets/PaintWorkletGlobalScope.cpp
 worklets/WorkletGlobalScope.cpp
 worklets/WorkletPendingTasks.cpp
 xml/XMLHttpRequest.cpp
-xml/XMLHttpRequestProgressEventThrottle.cpp
-xml/XMLHttpRequestUpload.cpp
 xml/XPathEvaluator.cpp
-xml/XPathExpression.cpp
 xml/XPathFunctions.cpp
-xml/XPathParser.cpp
-xml/XPathValue.cpp
 xml/XSLImportRule.cpp
 xml/XSLStyleSheetLibxslt.cpp
 xml/XSLTProcessorLibxslt.cpp

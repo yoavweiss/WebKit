@@ -118,5 +118,3 @@ style/values/color/StyleColorResolutionState.h
 svg/properties/SVGPropertyOwnerRegistry.h
 workers/DedicatedWorkerThread.h
 workers/service/ServiceWorkerContainer.h
-xml/XMLHttpRequestProgressEventThrottle.h
-xml/XMLHttpRequestUpload.h
