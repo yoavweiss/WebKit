@@ -37,6 +37,11 @@ namespace WebKit {
 
 class CoreIPCNSCFObject;
 
+struct IPCRange {
+    uint64_t location;
+    uint64_t length;
+};
+
 class CoreIPCNSValue {
 public:
     CoreIPCNSValue(NSValue *);
@@ -49,7 +54,7 @@ public:
 
     static bool shouldWrapValue(NSValue *);
 
-    using Value = Variant<NSRange, CGRect, UniqueRef<CoreIPCNSCFObject>>;
+    using Value = Variant<IPCRange, CGRect, UniqueRef<CoreIPCNSCFObject>>;
 
 private:
     friend struct IPC::ArgumentCoder<CoreIPCNSValue, void>;
