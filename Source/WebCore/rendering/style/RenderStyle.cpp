@@ -3756,9 +3756,9 @@ bool RenderStyle::hasReferenceFilterOnly() const
 float RenderStyle::outlineWidth() const
 {
     auto& outline = m_nonInheritedData->backgroundData->outline;
-    if (outline.style() == BorderStyle::None)
+    if (outline.style() == OutlineStyle::None)
         return 0;
-    if (hasAutoOutlineStyle())
+    if (outlineStyle() == OutlineStyle::Auto)
         return std::max(outline.width(), RenderTheme::platformFocusRingWidth());
     return outline.width();
 }
@@ -3766,7 +3766,7 @@ float RenderStyle::outlineWidth() const
 float RenderStyle::outlineOffset() const
 {
     auto& outline = m_nonInheritedData->backgroundData->outline;
-    if (hasAutoOutlineStyle())
+    if (outlineStyle() == OutlineStyle::Auto)
         return (outline.offset() + RenderTheme::platformFocusRingOffset(outlineWidth()));
     return outline.offset();
 }

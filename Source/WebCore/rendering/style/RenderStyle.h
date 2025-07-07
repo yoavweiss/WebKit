@@ -74,6 +74,7 @@ class LayoutUnit;
 class LengthBox;
 class LineClampValue;
 class NinePieceImage;
+class OutlineValue;
 class PathOperation;
 class PositionArea;
 class PseudoIdSet;
@@ -182,6 +183,7 @@ enum class NinePieceImageRule : uint8_t;
 enum class NonCJKGlyphOrientation : bool;
 enum class ObjectFit : uint8_t;
 enum class Order : bool;
+enum class OutlineStyle : uint8_t;
 enum class Overflow : uint8_t;
 enum class OverflowAnchor : bool;
 enum class OverflowContinue : bool;
@@ -609,11 +611,12 @@ public:
     void setCornerTopLeftShape(Style::CornerShapeValue&&);
     void setCornerTopRightShape(Style::CornerShapeValue&&);
 
+    inline const OutlineValue& outline() const;
     float outlineSize() const { return std::max<float>(0, outlineWidth() + outlineOffset()); }
     float outlineWidth() const;
+    float outlineOffset() const;
     inline bool hasOutline() const;
-    inline BorderStyle outlineStyle() const;
-    inline bool hasAutoOutlineStyle() const;
+    inline OutlineStyle outlineStyle() const;
     inline bool hasOutlineInVisualOverflow() const;
     
     Overflow overflowX() const { return static_cast<Overflow>(m_nonInheritedFlags.overflowX); }
@@ -812,8 +815,6 @@ public:
     inline BreakBetween breakAfter() const;
 
     OptionSet<HangingPunctuation> hangingPunctuation() const;
-
-    float outlineOffset() const;
 
     inline float textStrokeWidth() const;
     inline float opacity() const;
@@ -1330,8 +1331,7 @@ public:
     inline void setBorderBottomColor(Style::Color&&);
 
     inline void setOutlineWidth(float);
-    inline void setOutlineStyle(BorderStyle);
-    inline void setHasAutoOutlineStyle();
+    inline void setOutlineStyle(OutlineStyle);
     inline void setOutlineColor(Style::Color&&);
 
     void setOverflowX(Overflow v) { m_nonInheritedFlags.overflowX =  static_cast<unsigned>(v); }
@@ -2091,6 +2091,7 @@ public:
     static constexpr TextWrapMode initialTextWrapMode();
     static constexpr TextWrapStyle initialTextWrapStyle();
     static constexpr WordBreak initialWordBreak();
+    static constexpr OutlineStyle initialOutlineStyle();
     static constexpr OverflowWrap initialOverflowWrap();
     static constexpr NBSPMode initialNBSPMode();
     static constexpr LineBreak initialLineBreak();

@@ -617,7 +617,7 @@ constexpr auto checkboxRadioBorderWidthForVectorBasedControls = 1.5f;
 
 static bool controlIsFocusedWithOutlineStyleAutoForVectorBasedControls(const RenderObject& renderer)
 {
-    return RenderTheme::singleton().isFocused(renderer) && renderer.style().hasAutoOutlineStyle();
+    return RenderTheme::singleton().isFocused(renderer) && renderer.style().outlineStyle() == OutlineStyle::Auto;
 }
 
 static constexpr auto checkboxRadioBorderDisabledOpacityForVectorBasedControls = 0.5f;
@@ -4115,8 +4115,8 @@ void RenderThemeCocoa::adjustSwitchStyle(RenderStyle& style, const Element* elem
 
     adjustSwitchStyleDisplay(style);
 
-    if (style.hasAutoOutlineStyle())
-        style.setOutlineStyle(BorderStyle::None);
+    if (style.outlineStyle() == OutlineStyle::Auto)
+        style.setOutlineStyle(OutlineStyle::None);
 #endif
 }
 
