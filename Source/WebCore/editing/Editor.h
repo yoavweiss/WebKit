@@ -140,6 +140,8 @@ enum class TemporarySelectionOption : uint16_t {
     UserTriggered = 1 << 7,
     
     ForceCenterScroll = 1 << 8,
+
+    OnlyAllowForwardScrolling = 1 << 9
 };
 
 class TemporarySelectionChange {

@@ -147,6 +147,7 @@ struct ScrollRectToVisibleOptions {
     const ScrollAlignment& alignY { ScrollAlignment::alignCenterIfNeeded };
     ShouldAllowCrossOriginScrolling shouldAllowCrossOriginScrolling { ShouldAllowCrossOriginScrolling::No };
     ScrollBehavior behavior { ScrollBehavior::Auto };
+    OnlyAllowForwardScrolling onlyAllowForwardScrolling { OnlyAllowForwardScrolling::No };
     std::optional<LayoutRect> visibilityCheckRect { std::nullopt };
 };
 

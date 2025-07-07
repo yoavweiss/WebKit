@@ -2818,6 +2818,7 @@ void LocalFrameView::maintainScrollPositionAtAnchor(ContainerNode* anchorNode)
 
 void LocalFrameView::maintainScrollPositionAtScrollToTextFragmentRange(SimpleRange& range)
 {
+
     m_pendingTextFragmentIndicatorRange = range;
     m_pendingTextFragmentIndicatorText = plainText(range);
     if (!m_pendingTextFragmentIndicatorRange)
@@ -3000,7 +3001,7 @@ void LocalFrameView::scrollToFocusedElementInternal()
     auto absoluteBounds = renderer->absoluteAnchorRectWithScrollMargin(&insideFixed);
     auto anchorRectWithScrollMargin = absoluteBounds.marginRect;
     auto anchorRect = absoluteBounds.anchorRect;
-    LocalFrameView::scrollRectToVisible(anchorRectWithScrollMargin, *renderer, insideFixed, { m_selectionRevealModeForFocusedElement, ScrollAlignment::alignCenterIfNeeded, ScrollAlignment::alignCenterIfNeeded, ShouldAllowCrossOriginScrolling::No, ScrollBehavior::Auto, anchorRect });
+    LocalFrameView::scrollRectToVisible(anchorRectWithScrollMargin, *renderer, insideFixed, { m_selectionRevealModeForFocusedElement, ScrollAlignment::alignCenterIfNeeded, ScrollAlignment::alignCenterIfNeeded, ShouldAllowCrossOriginScrolling::No, ScrollBehavior::Auto, OnlyAllowForwardScrolling::No, anchorRect });
 }
 
 void LocalFrameView::textFragmentIndicatorTimerFired()
@@ -3163,10 +3164,13 @@ void LocalFrameView::scrollRectToVisibleInTopLevelView(const LayoutRect& absolut
 
     // Avoid scrolling to the rounded value of revealRect.location() if we don't actually need to scroll
     if (revealRect != viewRect) {
-        // FIXME: Should we use document()->scrollingElement()?
-        // See https://bugs.webkit.org/show_bug.cgi?id=205059
-        ScrollOffset clampedScrollPosition = roundedIntPoint(revealRect.location()).constrainedBetween(minScrollPosition, maxScrollPosition);
-        setScrollPosition(clampedScrollPosition, scrollPositionChangeOptionsForElement(*this, element, options));
+        if (options.onlyAllowForwardScrolling == OnlyAllowForwardScrolling::No || (revealRect.y() > viewRect.y())) {
+
+            // FIXME: Should we use document()->scrollingElement()?
+            // See https://bugs.webkit.org/show_bug.cgi?id=205059
+            ScrollOffset clampedScrollPosition = roundedIntPoint(revealRect.location()).constrainedBetween(minScrollPosition, maxScrollPosition);
+            setScrollPosition(clampedScrollPosition, scrollPositionChangeOptionsForElement(*this, element, options));
+        }
     }
 
     // This is the outermost view of a web page, so after scrolling this view we
@@ -4141,7 +4145,9 @@ void LocalFrameView::scrollToTextFragmentRange()
     SetForScope skipScrollResetOfScrollToTextFragmentRange(m_skipScrollResetOfScrollToTextFragmentRange, true);
 
     // FIXME: <http://webkit.org/b/245262> (Scroll To Text Fragment should use DelegateMainFrameScroll)
-    TemporarySelectionChange selectionChange(document, { range }, { TemporarySelectionOption::RevealSelection, TemporarySelectionOption::RevealSelectionBounds, TemporarySelectionOption::UserTriggered, TemporarySelectionOption::ForceCenterScroll });
+    TemporarySelectionChange selectionChange(document, { range }, { TemporarySelectionOption::RevealSelection, TemporarySelectionOption::RevealSelectionBounds, TemporarySelectionOption::UserTriggered, TemporarySelectionOption::ForceCenterScroll,
+        TemporarySelectionOption::OnlyAllowForwardScrolling
+    });
 
     if (m_delayedTextFragmentIndicatorTimer.isActive())
         return;

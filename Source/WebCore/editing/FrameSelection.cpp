@@ -505,7 +505,8 @@ void FrameSelection::setSelection(const VisibleSelection& selection, OptionSet<S
 
     updateAndRevealSelection(intent, options.contains(SetSelectionOption::SmoothScroll) ? ScrollBehavior::Smooth : ScrollBehavior::Instant,
         options.contains(SetSelectionOption::RevealSelectionBounds) ? RevealExtentOption::DoNotRevealExtent : RevealExtentOption::RevealExtent,
-        options.contains(SetSelectionOption::ForceCenterScroll) ? ForceCenterScroll::Yes : ForceCenterScroll::No);
+        options.contains(SetSelectionOption::ForceCenterScroll) ? ForceCenterScroll::Yes : ForceCenterScroll::No,
+        options.contains(SetSelectionOption::OnlyAllowForwardScrolling) ? OnlyAllowForwardScrolling::Yes : OnlyAllowForwardScrolling::No);
 
     if (options & SetSelectionOption::IsUserTriggered) {
         if (auto* client = document->editor().client())
@@ -538,7 +539,7 @@ void FrameSelection::setNeedsSelectionUpdate(RevealSelectionAfterUpdate revealMo
         view->selection().clear();
 }
 
-void FrameSelection::updateAndRevealSelection(const AXTextStateChangeIntent& intent, ScrollBehavior scrollBehavior, RevealExtentOption revealExtent, ForceCenterScroll forceCenterScroll)
+void FrameSelection::updateAndRevealSelection(const AXTextStateChangeIntent& intent, ScrollBehavior scrollBehavior, RevealExtentOption revealExtent, ForceCenterScroll forceCenterScroll, OnlyAllowForwardScrolling onlyAllowForwardScrolling)
 {
     if (!m_pendingSelectionUpdate)
         return;
@@ -558,7 +559,7 @@ void FrameSelection::updateAndRevealSelection(const AXTextStateChangeIntent& int
         if (forceCenterScroll == ForceCenterScroll::Yes)
             alignment = ScrollAlignment::alignCenterAlways;
 
-        revealSelection(m_selectionRevealMode, alignment, revealExtent, scrollBehavior);
+        revealSelection(m_selectionRevealMode, alignment, revealExtent, scrollBehavior, onlyAllowForwardScrolling);
     }
     if (!m_document->editor().ignoreSelectionChanges())
         notifyAccessibilityForSelectionChange(intent);
@@ -2651,7 +2652,7 @@ RefPtr<HTMLFormElement> FrameSelection::currentForm() const
     return scanForForm(start.get());
 }
 
-void FrameSelection::revealSelection(SelectionRevealMode revealMode, const ScrollAlignment& alignment, RevealExtentOption revealExtentOption, ScrollBehavior scrollBehavior)
+void FrameSelection::revealSelection(SelectionRevealMode revealMode, const ScrollAlignment& alignment, RevealExtentOption revealExtentOption, ScrollBehavior scrollBehavior, OnlyAllowForwardScrolling onlyAllowForwardScrolling)
 {
     if (revealMode == SelectionRevealMode::DoNotReveal)
         return;
@@ -2682,7 +2683,7 @@ void FrameSelection::revealSelection(SelectionRevealMode revealMode, const Scrol
     // the selection rect could intersect more than just that.
     // See <rdar://problem/4799899>.
     m_document->frame()->view()->setLastUserScrollType(LocalFrameView::UserScrollType::Implicit);
-    LocalFrameView::scrollRectToVisible(rect, *start.deprecatedNode()->renderer(), insideFixed, { revealMode, alignment, alignment, ShouldAllowCrossOriginScrolling::Yes, scrollBehavior });
+    LocalFrameView::scrollRectToVisible(rect, *start.deprecatedNode()->renderer(), insideFixed, { revealMode, alignment, alignment, ShouldAllowCrossOriginScrolling::Yes, scrollBehavior, onlyAllowForwardScrolling });
     updateAppearance();
 
 #if PLATFORM(IOS_FAMILY)
