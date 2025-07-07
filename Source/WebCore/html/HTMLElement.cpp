@@ -237,7 +237,10 @@ void HTMLElement::collectPresentationalHintsForAttribute(const QualifiedName& na
         break;
     }
     case AttributeNames::hiddenAttr:
-        addPropertyToPresentationalHintStyle(style, CSSPropertyDisplay, CSSValueNone);
+        if (document().settings().hiddenUntilFoundEnabled() && equalIgnoringASCIICase(value, "until-found"_s))
+            addPropertyToPresentationalHintStyle(style, CSSPropertyContentVisibility, CSSValueHidden);
+        else
+            addPropertyToPresentationalHintStyle(style, CSSPropertyDisplay, CSSValueNone);
         break;
     case AttributeNames::draggableAttr:
         if (equalLettersIgnoringASCIICase(value, "true"_s))
@@ -979,6 +982,13 @@ EnterKeyHint HTMLElement::canonicalEnterKeyHint() const
 String HTMLElement::enterKeyHint() const
 {
     return attributeValueForEnterKeyHint(canonicalEnterKeyHint());
+}
+
+bool HTMLElement::isHiddenUntilFound() const
+{
+    if (!document().settings().hiddenUntilFoundEnabled())
+        return false;
+    return equalIgnoringASCIICase(attributeWithoutSynchronization(HTMLNames::hiddenAttr), "until-found"_s);
 }
 
 // https://html.spec.whatwg.org/#dom-hidden

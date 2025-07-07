@@ -2771,13 +2771,15 @@ bool LocalFrameView::scrollToFragmentInternal(StringView fragmentIdentifier)
         return false;
     }
 
+    if (anchorElement)
+        revealClosedDetailsAndHiddenUntilFoundAncestors(*anchorElement);
+
     RefPtr<ContainerNode> scrollPositionAnchor = anchorElement;
     if (!scrollPositionAnchor)
         scrollPositionAnchor = m_frame->document();
     maintainScrollPositionAtAnchor(scrollPositionAnchor.get());
-    
+
     if (anchorElement) {
-        revealClosedDetailsAncestors(*anchorElement);
         // If the anchor accepts keyboard focus, move focus there to aid users relying on keyboard navigation.
         if (anchorElement->isFocusable())
             document.setFocusedElement(anchorElement.get(), { { }, { }, { }, { }, FocusVisibility::Visible });

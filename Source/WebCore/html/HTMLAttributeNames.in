@@ -219,6 +219,7 @@ onbeforecopy
 onbeforecut
 onbeforeinput
 onbeforeload
+onbeforematch
 onbeforepaste
 onbeforeprint
 onbeforetoggle

@@ -28,6 +28,7 @@
 
 #include "Document.h"
 #include "ElementInlines.h"
+#include "EventNames.h"
 #include "HTMLDetailsElement.h"
 #include "HTMLSlotElement.h"
 #include "Settings.h"
@@ -51,6 +52,33 @@ void revealClosedDetailsAncestors(Node& node)
         } else
             currentNode = *parent;
     }
+}
+
+// https://html.spec.whatwg.org/#ancestor-hidden-until-found-revealing-algorithm
+void revealHiddenUntilFoundAncestors(Node& node)
+{
+    if (!node.document().settings().hiddenUntilFoundEnabled())
+        return;
+
+    for (RefPtr currentNode = &node; currentNode; currentNode = currentNode->parentElementInComposedTree()) {
+        RefPtr element = dynamicDowncast<HTMLElement>(currentNode);
+        if (element && element->isHiddenUntilFound()) {
+            element->dispatchEvent(Event::create(eventNames().beforematchEvent, Event::CanBubble::Yes, Event::IsCancelable::No));
+            element->setHidden({ });
+        }
+    }
+}
+
+void revealClosedDetailsAndHiddenUntilFoundAncestors(Node& node)
+{
+    node.protectedDocument()->updateStyleIfNeeded();
+
+    // Bail out if there is neither a hidden=until-found or details ancestor.
+    if (node.renderStyle() && !node.renderStyle()->autoRevealsWhenFound())
+        return;
+
+    revealClosedDetailsAncestors(node);
+    revealHiddenUntilFoundAncestors(node);
 }
 
 } // namespace WebCore

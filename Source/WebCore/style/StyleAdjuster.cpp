@@ -653,6 +653,9 @@ void Adjuster::adjust(RenderStyle& style) const
 
         if (m_document->settings().detailsAutoExpandEnabled() && is<HTMLDetailsElement>(element))
             style.setAutoRevealsWhenFound();
+
+        if (RefPtr htmlElement = dynamicDowncast<HTMLElement>(element); htmlElement && htmlElement->isHiddenUntilFound())
+            style.setAutoRevealsWhenFound();
     }
 
     if (shouldInheritTextDecorationsInEffect(style, m_element.get()))
