@@ -77,6 +77,11 @@ static const float swipeSnapshotRemovalRenderTreeSizeTargetFraction = 0.5;
         _forwardTransitionController = adoptNS([_UINavigationInteractiveTransitionBase alloc]);
         _forwardTransitionController = [_forwardTransitionController initWithGestureRecognizerView:gestureRecognizerView animator:nil delegate:self];
         [_forwardTransitionController setShouldReverseTranslation:YES];
+
+#if HAVE(CONTENT_SWIPE_GESTURE_RECOGNIZER)
+        [[_backTransitionController contentSwipeGestureRecognizer] setEnabled:NO];
+        [[_forwardTransitionController contentSwipeGestureRecognizer] setEnabled:NO];
+#endif
     }
     return self;
 }
