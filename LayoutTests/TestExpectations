@@ -7694,8 +7694,6 @@ imported/w3c/web-platform-tests/svg/pservers/scripted/pattern-transform-clear.sv
 imported/w3c/web-platform-tests/svg/pservers/reftests/fill-fallback-none-1.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/fill-fallback-currentcolor-1.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/gradient-color-interpolation.svg [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/svg/pservers/reftests/gradient-transform-01.svg [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/svg/pservers/reftests/gradient-transform-02.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/gradient-transform-03.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/meshgradient-basic-001.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/pservers/reftests/meshgradient-basic-002.svg [ ImageOnlyFailure ]
