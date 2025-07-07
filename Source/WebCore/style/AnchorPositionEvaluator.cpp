@@ -854,6 +854,44 @@ static CheckedPtr<const Element> anchorScopeForAnchorName(const RenderBoxModelOb
     return nullptr;
 }
 
+enum class TopLayerStatus : uint8_t { Same, Lower, Higher };
+static TopLayerStatus computeTopLayerStatus(const RenderBox& anchored, const RenderBoxModelObject& anchor)
+{
+    // Two elements are in the same top layer if they have the same top layer root (including if both are none).
+    // An element A is in a higher top layer than an element B if A has a top layer root, and either B has a top
+    // layer root earlier in the top layer than A’s, or B doesn’t have a top layer root at all.
+    // https://drafts.csswg.org/css-position-4/#top-layer
+
+    if (!anchored.document().hasTopLayerElement())
+        return TopLayerStatus::Same;
+
+    auto topLayerRoot = [&](auto& renderer) -> const RenderLayerModelObject* {
+        for (auto* layer = renderer.enclosingLayer(); layer; layer = layer->parent()) {
+            if (layer->establishesTopLayer())
+                return &layer->renderer();
+        }
+        return nullptr;
+    };
+
+    auto* anchoredRoot = topLayerRoot(anchored);
+    auto* anchorRoot = topLayerRoot(anchor);
+    if (anchoredRoot == anchorRoot)
+        return TopLayerStatus::Same;
+    if (!anchoredRoot)
+        return TopLayerStatus::Lower;
+    if (!anchorRoot)
+        return TopLayerStatus::Higher;
+
+    auto& topLayerElements = anchored.document().topLayerElements();
+    for (auto& topLayerElement : topLayerElements) {
+        if (topLayerElement.ptr() == anchoredRoot->element())
+            return TopLayerStatus::Lower;
+        if (topLayerElement.ptr() == anchorRoot->element())
+            return TopLayerStatus::Higher;
+    }
+    return TopLayerStatus::Lower;
+}
+
 // See: https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element
 static bool isAcceptableAnchorElement(const RenderBoxModelObject& anchorRenderer, Ref<const Element> anchorPositionedElement, const std::optional<AtomString> anchorName = { })
 {
@@ -869,23 +907,33 @@ static bool isAcceptableAnchorElement(const RenderBoxModelObject& anchorRenderer
             return false;
     }
 
-    CheckedPtr anchorPositionedRenderer = anchorPositionedElement->renderer();
+    CheckedPtr anchorPositionedRenderer = dynamicDowncast<RenderBox>(anchorPositionedElement->renderer());
     ASSERT(anchorPositionedRenderer);
     CheckedPtr containingBlock = anchorPositionedRenderer->containingBlock();
     ASSERT(containingBlock);
 
-    auto* penultimateElement = penultimateContainingBlockChainElement(anchorRenderer, containingBlock.get());
-    if (!penultimateElement)
-        return false;
-
-    if (!penultimateElement->isOutOfFlowPositioned())
+    // "possible anchor is laid out strictly before positioned el, aka one of the following is true:"
+    auto topLayerStatus = computeTopLayerStatus(*anchorPositionedRenderer, anchorRenderer);
+    switch (topLayerStatus) {
+    case TopLayerStatus::Higher:
+        // "- positioned el is in a higher top layer than possible anchor"
         return true;
+    case TopLayerStatus::Same: {
+        // "- Both elements are in the same top layer..."
+        auto* penultimateElement = penultimateContainingBlockChainElement(anchorRenderer, containingBlock.get());
+        if (!penultimateElement)
+            return false;
 
-    if (!firstChildPrecedesSecondChild(penultimateElement, anchorPositionedRenderer.get(), containingBlock.get()))
+        if (!penultimateElement->isOutOfFlowPositioned())
+            return true;
+
+        return firstChildPrecedesSecondChild(penultimateElement, anchorPositionedRenderer.get(), containingBlock.get());
+    }
+    case TopLayerStatus::Lower:
         return false;
-
-    // FIXME: Implement the rest of https://drafts.csswg.org/css-anchor-position-1/#acceptable-anchor-element.
-    return true;
+    }
+    ASSERT_NOT_REACHED();
+    return false;
 }
 
 static RefPtr<Element> findImplicitAnchor(const Element& anchorPositionedElement)
