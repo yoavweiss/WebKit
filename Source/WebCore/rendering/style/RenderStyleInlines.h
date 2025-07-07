@@ -531,9 +531,7 @@ constexpr OptionSet<TextEmphasisPosition> RenderStyle::initialTextEmphasisPositi
 inline Style::Color RenderStyle::initialTextFillColor() { return Style::Color::currentColor(); }
 inline bool RenderStyle::hasExplicitlySetColor() const { return m_inheritedFlags.hasExplicitlySetColor; }
 constexpr TextGroupAlign RenderStyle::initialTextGroupAlign() { return TextGroupAlign::None; }
-inline Length RenderStyle::initialTextIndent() { return zeroLength(); }
-constexpr TextIndentLine RenderStyle::initialTextIndentLine() { return TextIndentLine::FirstLine; }
-constexpr TextIndentType RenderStyle::initialTextIndentType() { return TextIndentType::Normal; }
+inline Style::TextIndent RenderStyle::initialTextIndent() { return 0_css_px; }
 constexpr TextJustify RenderStyle::initialTextJustify() { return TextJustify::Auto; }
 constexpr TextOrientation RenderStyle::initialTextOrientation() { return TextOrientation::Mixed; }
 constexpr TextOverflow RenderStyle::initialTextOverflow() { return TextOverflow::Clip; }
@@ -781,9 +779,7 @@ inline TextEmphasisFill RenderStyle::textEmphasisFill() const { return static_ca
 inline OptionSet<TextEmphasisPosition> RenderStyle::textEmphasisPosition() const { return OptionSet<TextEmphasisPosition>::fromRaw(m_rareInheritedData->textEmphasisPosition); }
 inline const Style::Color& RenderStyle::textFillColor() const { return m_rareInheritedData->textFillColor; }
 inline TextGroupAlign RenderStyle::textGroupAlign() const { return static_cast<TextGroupAlign>(m_nonInheritedData->rareData->textGroupAlign); }
-inline const Length& RenderStyle::textIndent() const { return m_rareInheritedData->indent; }
-inline TextIndentLine RenderStyle::textIndentLine() const { return static_cast<TextIndentLine>(m_rareInheritedData->textIndentLine); }
-inline TextIndentType RenderStyle::textIndentType() const { return static_cast<TextIndentType>(m_rareInheritedData->textIndentType); }
+inline const Style::TextIndent& RenderStyle::textIndent() const { return m_rareInheritedData->textIndent; }
 inline TextJustify RenderStyle::textJustify() const { return static_cast<TextJustify>(m_rareInheritedData->textJustify); }
 inline TextOverflow RenderStyle::textOverflow() const { return static_cast<TextOverflow>(m_nonInheritedData->miscData->textOverflow); }
 inline TextSecurity RenderStyle::textSecurity() const { return static_cast<TextSecurity>(m_rareInheritedData->textSecurity); }

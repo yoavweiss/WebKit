@@ -43,11 +43,11 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     void* ownPtrs[1];
     AtomString atomStrings[5];
     void* refPtrs[3];
-    Length lengths[2];
     float secondFloat;
+    Style::TextIndent textIndent;
     Style::TextUnderlineOffset offset;
-    TextEdge lineFitEdge;
-    BlockEllipsis blockEllipsis;
+    TextEdge textEdges[2];
+    Length length;
     void* customPropertyDataRefs[1];
     unsigned bitfields[7];
     short pagedMediaShorts[2];
@@ -68,6 +68,8 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     ListStyleType listStyleType;
 
     Markable<ScrollbarColor> scrollbarColor;
+
+    BlockEllipsis blockEllipsis;
 };
 
 static_assert(sizeof(StyleRareInheritedData) <= sizeof(GreaterThanOrSameSizeAsStyleRareInheritedData), "StyleRareInheritedData should bit pack");
@@ -88,8 +90,8 @@ StyleRareInheritedData::StyleRareInheritedData()
     , accentColor(Style::Color::currentColor())
     , dynamicRangeLimit(RenderStyle::initialDynamicRangeLimit())
     , textShadow(RenderStyle::initialTextShadow())
-    , indent(RenderStyle::initialTextIndent())
     , usedZoom(RenderStyle::initialZoom())
+    , textIndent(RenderStyle::initialTextIndent())
     , textUnderlineOffset(RenderStyle::initialTextUnderlineOffset())
     , textBoxEdge(RenderStyle::initialTextBoxEdge())
     , lineFitEdge(RenderStyle::initialLineFitEdge())
@@ -111,8 +113,6 @@ StyleRareInheritedData::StyleRareInheritedData()
     , textEmphasisFill(static_cast<unsigned>(TextEmphasisFill::Filled))
     , textEmphasisMark(static_cast<unsigned>(TextEmphasisMark::None))
     , textEmphasisPosition(static_cast<unsigned>(RenderStyle::initialTextEmphasisPosition().toRaw()))
-    , textIndentLine(static_cast<unsigned>(RenderStyle::initialTextIndentLine()))
-    , textIndentType(static_cast<unsigned>(RenderStyle::initialTextIndentType()))
     , textUnderlinePosition(static_cast<unsigned>(RenderStyle::initialTextUnderlinePosition().toRaw()))
     , lineBoxContain(static_cast<unsigned>(RenderStyle::initialLineBoxContain().toRaw()))
     , imageOrientation(RenderStyle::initialImageOrientation())
@@ -190,8 +190,8 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , dynamicRangeLimit(o.dynamicRangeLimit)
     , textShadow(o.textShadow)
     , cursorData(o.cursorData)
-    , indent(o.indent)
     , usedZoom(o.usedZoom)
+    , textIndent(o.textIndent)
     , textUnderlineOffset(o.textUnderlineOffset)
     , textBoxEdge(o.textBoxEdge)
     , lineFitEdge(o.lineFitEdge)
@@ -214,8 +214,6 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , textEmphasisFill(o.textEmphasisFill)
     , textEmphasisMark(o.textEmphasisMark)
     , textEmphasisPosition(o.textEmphasisPosition)
-    , textIndentLine(o.textIndentLine)
-    , textIndentType(o.textIndentType)
     , textUnderlinePosition(o.textUnderlinePosition)
     , lineBoxContain(o.lineBoxContain)
     , imageOrientation(o.imageOrientation)
@@ -310,8 +308,8 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
 #endif
         && textShadow == o.textShadow
         && arePointingToEqualData(cursorData, o.cursorData)
-        && indent == o.indent
         && usedZoom == o.usedZoom
+        && textIndent == o.textIndent
         && textUnderlineOffset == o.textUnderlineOffset
         && textBoxEdge == o.textBoxEdge
         && lineFitEdge == o.lineFitEdge
@@ -346,8 +344,6 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && textEmphasisFill == o.textEmphasisFill
         && textEmphasisMark == o.textEmphasisMark
         && textEmphasisPosition == o.textEmphasisPosition
-        && textIndentLine == o.textIndentLine
-        && textIndentType == o.textIndentType
         && lineBoxContain == o.lineBoxContain
 #if PLATFORM(IOS_FAMILY)
         && touchCalloutEnabled == o.touchCalloutEnabled
@@ -432,9 +428,9 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT(cursorData);
 
-    LOG_IF_DIFFERENT(indent);
     LOG_IF_DIFFERENT(usedZoom);
 
+    LOG_IF_DIFFERENT(textIndent);
     LOG_IF_DIFFERENT(textUnderlineOffset);
 
     LOG_IF_DIFFERENT(textBoxEdge);
@@ -465,8 +461,6 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
     LOG_IF_DIFFERENT_WITH_CAST(TextEmphasisFill, textEmphasisFill);
     LOG_IF_DIFFERENT_WITH_CAST(TextEmphasisMark, textEmphasisMark);
     LOG_IF_DIFFERENT_WITH_CAST(TextEmphasisPosition, textEmphasisPosition);
-    LOG_IF_DIFFERENT_WITH_CAST(TextIndentLine, textIndentLine);
-    LOG_IF_DIFFERENT_WITH_CAST(TextIndentType, textIndentType);
     LOG_IF_DIFFERENT_WITH_CAST(TextUnderlinePosition, textUnderlinePosition);
 
     LOG_RAW_OPTIONSET_IF_DIFFERENT(Style::LineBoxContain, lineBoxContain);

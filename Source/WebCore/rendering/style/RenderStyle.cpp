@@ -933,10 +933,9 @@ static bool rareInheritedDataChangeRequiresLayout(const StyleRareInheritedData& 
 {
     ASSERT(&first != &second);
 
-    if (first.indent != second.indent
+    if (first.textIndent != second.textIndent
         || first.textAlignLast != second.textAlignLast
         || first.textJustify != second.textJustify
-        || first.textIndentLine != second.textIndentLine
         || first.textBoxEdge != second.textBoxEdge
         || first.lineFitEdge != second.lineFitEdge
         || first.usedZoom != second.usedZoom
@@ -2099,7 +2098,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyAccentColor);
         if (first.textShadow != second.textShadow)
             changingProperties.m_properties.set(CSSPropertyTextShadow);
-        if (first.indent != second.indent || first.textIndentLine != second.textIndentLine || first.textIndentType != second.textIndentType)
+        if (first.textIndent != second.textIndent)
             changingProperties.m_properties.set(CSSPropertyTextIndent);
         if (first.textUnderlineOffset != second.textUnderlineOffset)
             changingProperties.m_properties.set(CSSPropertyTextUnderlineOffset);

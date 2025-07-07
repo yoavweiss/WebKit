@@ -1668,41 +1668,6 @@ public:
     }
 };
 
-class TextIndentWrapper final : public LengthWrapper {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
-public:
-    TextIndentWrapper()
-        : LengthWrapper(CSSPropertyTextIndent, &RenderStyle::textIndent, &RenderStyle::setTextIndent, LengthWrapper::Flags::IsLengthPercentage)
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        if (a.textIndentLine() != b.textIndentLine())
-            return false;
-        if (a.textIndentType() != b.textIndentType())
-            return false;
-        return LengthWrapper::equals(a, b);
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation compositeOperation) const final
-    {
-        if (from.textIndentLine() != to.textIndentLine())
-            return false;
-        if (from.textIndentType() != to.textIndentType())
-            return false;
-        return LengthWrapper::canInterpolate(from, to, compositeOperation);
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto& blendingStyle = context.isDiscrete && context.progress ? to : from;
-        destination.setTextIndentLine(blendingStyle.textIndentLine());
-        destination.setTextIndentType(blendingStyle.textIndentType());
-        LengthWrapper::interpolate(destination, from, to, context);
-    }
-};
-
 class TabSizeWrapper final : public Wrapper<const TabSize&> {
     WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:

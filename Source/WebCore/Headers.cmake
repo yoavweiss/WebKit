@@ -2831,6 +2831,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/svg/StyleSVGPaint.h
 
+    style/values/text/StyleTextIndent.h
+
     style/values/text-decoration/StyleTextShadow.h
     style/values/text-decoration/StyleTextUnderlineOffset.h
 

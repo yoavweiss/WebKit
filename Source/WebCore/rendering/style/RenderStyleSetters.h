@@ -326,9 +326,7 @@ inline void RenderStyle::setTextFillColor(Style::Color&& color) { SET(m_rareInhe
 inline void RenderStyle::setHasExplicitlySetColor(bool value) { m_inheritedFlags.hasExplicitlySetColor = value; }
 inline void RenderStyle::setTableLayout(TableLayoutType value) { SET_NESTED(m_nonInheritedData, miscData, tableLayout, static_cast<unsigned>(value)); }
 inline void RenderStyle::setTextGroupAlign(TextGroupAlign value) { SET_NESTED(m_nonInheritedData, rareData, textGroupAlign, static_cast<unsigned>(value)); }
-inline void RenderStyle::setTextIndent(Length&& length) { SET(m_rareInheritedData, indent, WTFMove(length)); }
-inline void RenderStyle::setTextIndentLine(TextIndentLine value) { SET(m_rareInheritedData, textIndentLine, static_cast<unsigned>(value)); }
-inline void RenderStyle::setTextIndentType(TextIndentType value) { SET(m_rareInheritedData, textIndentType, static_cast<unsigned>(value)); }
+inline void RenderStyle::setTextIndent(Style::TextIndent&& textIndent) { SET(m_rareInheritedData, textIndent, WTFMove(textIndent)); }
 inline void RenderStyle::setTextJustify(TextJustify value) { SET(m_rareInheritedData, textJustify, static_cast<unsigned>(value)); }
 inline void RenderStyle::setTextOverflow(TextOverflow overflow) { SET_NESTED(m_nonInheritedData, miscData, textOverflow, static_cast<unsigned>(overflow)); }
 inline void RenderStyle::setTextSecurity(TextSecurity security) { SET(m_rareInheritedData, textSecurity, static_cast<unsigned>(security)); }

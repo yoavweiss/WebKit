@@ -220,8 +220,6 @@ enum class TextEmphasisFill : bool;
 enum class TextEmphasisMark : uint8_t;
 enum class TextEmphasisPosition : uint8_t;
 enum class TextGroupAlign : uint8_t;
-enum class TextIndentLine : bool;
-enum class TextIndentType : bool;
 enum class TextJustify : uint8_t;
 enum class TextOverflow : bool;
 enum class TextSecurity : uint8_t;
@@ -320,6 +318,7 @@ struct ScopedName;
 struct ScrollMarginEdge;
 struct ScrollPaddingEdge;
 struct ScrollTimelines;
+struct TextIndent;
 struct TextShadow;
 struct TextUnderlineOffset;
 struct Translate;
@@ -663,7 +662,7 @@ public:
     inline const FontPalette& fontPalette() const;
     inline FontSizeAdjust fontSizeAdjust() const;
 
-    inline const Length& textIndent() const;
+    inline const Style::TextIndent& textIndent() const;
     inline TextAlignMode textAlign() const { return static_cast<TextAlignMode>(m_inheritedFlags.textAlign); }
     inline TextAlignLast textAlignLast() const;
     inline TextGroupAlign textGroupAlign() const;
@@ -676,8 +675,6 @@ public:
     inline const Style::TextUnderlineOffset& textUnderlineOffset() const;
     inline TextDecorationThickness textDecorationThickness() const;
 
-    inline TextIndentLine textIndentLine() const;
-    inline TextIndentType textIndentType() const;
     inline TextJustify textJustify() const;
 
     inline TextBoxTrim textBoxTrim() const;
@@ -1375,26 +1372,25 @@ public:
     void setFontPalette(const FontPalette&);
 
     void setColor(Color&&);
-    inline void setTextIndent(Length&&);
+
     void setTextAlign(TextAlignMode v) { m_inheritedFlags.textAlign = static_cast<unsigned>(v); }
     inline void setTextAlignLast(TextAlignLast);
     inline void setTextGroupAlign(TextGroupAlign);
-    inline void setTextTransform(OptionSet<TextTransform>);
     inline void addToTextDecorationLineInEffect(OptionSet<TextDecorationLine>);
     inline void setTextDecorationLineInEffect(OptionSet<TextDecorationLine>);
     inline void setTextDecorationLine(OptionSet<TextDecorationLine>);
     inline void setTextDecorationStyle(TextDecorationStyle);
     inline void setTextDecorationSkipInk(TextDecorationSkipInk);
+    inline void setTextDecorationThickness(TextDecorationThickness);
+    inline void setTextIndent(Style::TextIndent&&);
     inline void setTextUnderlinePosition(OptionSet<TextUnderlinePosition>);
     inline void setTextUnderlineOffset(Style::TextUnderlineOffset&&);
-    inline void setTextDecorationThickness(TextDecorationThickness);
+    inline void setTextTransform(OptionSet<TextTransform>);
     void setLineHeight(Length&&);
     bool setZoom(float);
     inline bool setUsedZoom(float);
     inline void setTextZoom(TextZoom);
 
-    void setTextIndentLine(TextIndentLine);
-    void setTextIndentType(TextIndentType);
     inline void setTextJustify(TextJustify);
 
     inline void setTextBoxTrim(TextBoxTrim);
@@ -2037,7 +2033,7 @@ public:
     static inline Style::MarginEdge initialMargin();
     static constexpr OptionSet<MarginTrimType> initialMarginTrim();
     static inline Style::PaddingEdge initialPadding();
-    static inline Length initialTextIndent();
+    static inline Style::TextIndent initialTextIndent();
     static constexpr TextBoxTrim initialTextBoxTrim();
     static TextEdge initialTextBoxEdge();
     static TextEdge initialLineFitEdge();
@@ -2165,8 +2161,6 @@ public:
 
     static inline Style::DynamicRangeLimit initialDynamicRangeLimit();
 
-    static constexpr TextIndentLine initialTextIndentLine();
-    static constexpr TextIndentType initialTextIndentType();
     static constexpr TextJustify initialTextJustify();
 
 #if ENABLE(CURSOR_VISIBILITY)

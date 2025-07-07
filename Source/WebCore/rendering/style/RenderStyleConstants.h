@@ -1065,16 +1065,6 @@ constexpr float maximumAllowedFontSize = std::numeric_limits<short>::max();
 constexpr float maximumAllowedFontSize = 1000000.0f;
 #endif
 
-enum class TextIndentLine : bool {
-    FirstLine,
-    EachLine
-};
-
-enum class TextIndentType : bool {
-    Normal,
-    Hanging
-};
-
 enum class Isolation : bool {
     Auto,
     Isolate

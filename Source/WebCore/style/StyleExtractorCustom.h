@@ -54,7 +54,6 @@ public:
     static Ref<CSSValue> extractBaselineShift(ExtractorState&);
     static Ref<CSSValue> extractVerticalAlign(ExtractorState&);
     static Ref<CSSValue> extractTextEmphasisStyle(ExtractorState&);
-    static Ref<CSSValue> extractTextIndent(ExtractorState&);
     static Ref<CSSValue> extractLetterSpacing(ExtractorState&);
     static Ref<CSSValue> extractWordSpacing(ExtractorState&);
     static Ref<CSSValue> extractLineHeight(ExtractorState&);
@@ -162,7 +161,6 @@ public:
     static void extractBaselineShiftSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractVerticalAlignSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractTextEmphasisStyleSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractTextIndentSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractLetterSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractWordSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractLineHeightSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1544,38 +1542,6 @@ inline void ExtractorCustom::extractTextEmphasisStyleSerialization(ExtractorStat
         return;
     }
     RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractTextIndent(ExtractorState& state)
-{
-    auto textIndent = ExtractorConverter::convertLength(state, state.style.textIndent());
-    auto textIndentLine = state.style.textIndentLine();
-    auto textIndentType = state.style.textIndentType();
-    if (textIndentLine == TextIndentLine::EachLine || textIndentType == TextIndentType::Hanging) {
-        CSSValueListBuilder list;
-        list.append(WTFMove(textIndent));
-        if (textIndentType == TextIndentType::Hanging)
-            list.append(CSSPrimitiveValue::create(CSSValueHanging));
-        if (textIndentLine == TextIndentLine::EachLine)
-            list.append(CSSPrimitiveValue::create(CSSValueEachLine));
-        return CSSValueList::createSpaceSeparated(WTFMove(list));
-    }
-    return textIndent;
-}
-
-inline void ExtractorCustom::extractTextIndentSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeLength(state, builder, context, state.style.textIndent());
-
-    if (state.style.textIndentType() == TextIndentType::Hanging) {
-        builder.append(' ');
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Hanging { });
-    }
-
-    if (state.style.textIndentLine() == TextIndentLine::EachLine) {
-        builder.append(' ');
-        CSS::serializationForCSS(builder, context, CSS::Keyword::EachLine { });
-    }
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractLetterSpacing(ExtractorState& state)

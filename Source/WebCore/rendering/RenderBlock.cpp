@@ -1913,9 +1913,9 @@ bool RenderBlock::isContainingBlockAncestorFor(RenderObject& renderer) const
 LayoutUnit RenderBlock::textIndentOffset() const
 {
     LayoutUnit cw;
-    if (style().textIndent().isPercentOrCalculated())
+    if (style().textIndent().length.isPercentOrCalculated())
         cw = contentBoxLogicalWidth();
-    return minimumValueForLength(style().textIndent(), cw);
+    return Style::evaluate(style().textIndent().length, cw);
 }
 
 LayoutUnit RenderBlock::logicalLeftOffsetForContent() const

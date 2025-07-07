@@ -127,6 +127,14 @@ template<typename T> inline constexpr ASCIILiteral SerializationSeparatorString 
 #define DEFINE_TUPLE_LIKE_CONFORMANCE_FOR_TYPE_WRAPPER(t) \
     DEFINE_TUPLE_LIKE_CONFORMANCE(t, 1)
 
+// Helper to define a variant-like conformance.
+#define DEFINE_VARIANT_LIKE_CONFORMANCE(t) \
+    template<> inline constexpr auto WebCore::TreatAsVariantLike<t> = true;
+
+// Helper to define a range-like conformance.
+#define DEFINE_RANGE_LIKE_CONFORMANCE(t) \
+    template<> inline constexpr auto WebCore::TreatAsRangeLike<t> = true;
+
 // MARK: - Conforming Existing Types
 
 // - Optional-like

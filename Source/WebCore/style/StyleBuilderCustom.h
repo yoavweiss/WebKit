@@ -108,6 +108,7 @@ inline OffsetPath forwardInheritedValue(const OffsetPath& value) { auto copy = v
 inline OffsetPosition forwardInheritedValue(const OffsetPosition& value) { auto copy = value; return copy; }
 inline OffsetRotate forwardInheritedValue(const OffsetRotate& value) { auto copy = value; return copy; }
 inline SVGPaint forwardInheritedValue(const SVGPaint& value) { auto copy = value; return copy; }
+inline TextIndent forwardInheritedValue(const TextIndent& value) { auto copy = value; return copy; }
 inline TextShadows forwardInheritedValue(const TextShadows& value) { auto copy = value; return copy; }
 inline TextUnderlineOffset forwardInheritedValue(const TextUnderlineOffset& value) { auto copy = value; return copy; }
 inline URL forwardInheritedValue(const URL& value) { auto copy = value; return copy; }
@@ -171,9 +172,6 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(OutlineStyle);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Stroke);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(TextEmphasisStyle);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(TextIndent);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(TextShadow);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(WebkitBoxShadow);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Zoom);
 
     // Custom handling of inherit + value setting only.
@@ -273,52 +271,6 @@ inline void BuilderCustom::applyValueVerticalAlign(BuilderState& builderState, C
         builderState.style().setVerticalAlign(fromCSSValueID<VerticalAlign>(valueID));
     else
         builderState.style().setVerticalAlignLength(BuilderConverter::convertLength(builderState, value));
-}
-
-inline void BuilderCustom::applyInheritTextIndent(BuilderState& builderState)
-{
-    builderState.style().setTextIndent(forwardInheritedValue(builderState.parentStyle().textIndent()));
-    builderState.style().setTextIndentLine(forwardInheritedValue(builderState.parentStyle().textIndentLine()));
-    builderState.style().setTextIndentType(forwardInheritedValue(builderState.parentStyle().textIndentType()));
-}
-
-inline void BuilderCustom::applyInitialTextIndent(BuilderState& builderState)
-{
-    builderState.style().setTextIndent(RenderStyle::initialTextIndent());
-    builderState.style().setTextIndentLine(RenderStyle::initialTextIndentLine());
-    builderState.style().setTextIndentType(RenderStyle::initialTextIndentType());
-}
-
-inline void BuilderCustom::applyValueTextIndent(BuilderState& builderState, CSSValue& value)
-{
-    WebCore::Length lengthPercentageValue;
-    TextIndentLine textIndentLineValue = RenderStyle::initialTextIndentLine();
-    TextIndentType textIndentTypeValue = RenderStyle::initialTextIndentType();
-
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        // Values coming from CSSTypedOM didn't go through the parser and may not have been converted to a CSSValueList.
-        lengthPercentageValue = BuilderConverter::convertLength(builderState, *primitiveValue);
-    } else {
-        auto list = requiredListDowncast<CSSValueList, CSSPrimitiveValue>(builderState, value);
-        if (!list)
-            return;
-
-        for (auto& primitiveValue : *list) {
-            if (!primitiveValue.valueID())
-                lengthPercentageValue = BuilderConverter::convertLength(builderState, primitiveValue);
-            else if (primitiveValue.valueID() == CSSValueEachLine)
-                textIndentLineValue = TextIndentLine::EachLine;
-            else if (primitiveValue.valueID() == CSSValueHanging)
-                textIndentTypeValue = TextIndentType::Hanging;
-        }
-    }
-
-    if (lengthPercentageValue.isUndefined())
-        return;
-
-    builderState.style().setTextIndent(WTFMove(lengthPercentageValue));
-    builderState.style().setTextIndentLine(textIndentLineValue);
-    builderState.style().setTextIndentType(textIndentTypeValue);
 }
 
 enum BorderImageType { BorderImage, MaskBorder };
