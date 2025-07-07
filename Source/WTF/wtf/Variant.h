@@ -25,7 +25,7 @@
 
 #pragma once
 
-#if PLATFORM(COCOA)
+#if PLATFORM(COCOA) || PLATFORM(GTK) || PLATFORM(WPE)
 
 // MPark.Variant
 //
@@ -420,11 +420,10 @@ namespace mpark {
       template <typename T, std::size_t N>
       struct array {
         constexpr const T &operator[](std::size_t index) const {
-          RELEASE_ASSERT(index < N == 0 ? 1 : N);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunsafe-buffer-usage"
+          RELEASE_ASSERT(index < ((N == 0) ? 1 : N));
+          WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
           return data[index];
-#pragma clang diagnostic pop
+          WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
         }
 
         T data[N == 0 ? 1 : N];

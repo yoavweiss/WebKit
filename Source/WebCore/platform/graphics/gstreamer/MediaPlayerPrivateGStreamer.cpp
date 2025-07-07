@@ -1175,7 +1175,7 @@ void MediaPlayerPrivateGStreamer::notifyPlayerOfTrack()
     ASSERT(m_isLegacyPlaybin);
 
     using TrackType = TrackPrivateBaseGStreamer::TrackType;
-    std::variant<TrackIDHashMap<Ref<AudioTrackPrivateGStreamer>>*, TrackIDHashMap<Ref<VideoTrackPrivateGStreamer>>*, TrackIDHashMap<Ref<InbandTextTrackPrivateGStreamer>>*> variantTracks = static_cast<TrackIDHashMap<Ref<TrackPrivateType>>*>(0);
+    Variant<TrackIDHashMap<Ref<AudioTrackPrivateGStreamer>>*, TrackIDHashMap<Ref<VideoTrackPrivateGStreamer>>*, TrackIDHashMap<Ref<InbandTextTrackPrivateGStreamer>>*> variantTracks = static_cast<TrackIDHashMap<Ref<TrackPrivateType>>*>(0);
     auto type(static_cast<TrackType>(variantTracks.index()));
     const char* typeName;
     bool* hasType;
@@ -1255,7 +1255,7 @@ void MediaPlayerPrivateGStreamer::notifyPlayerOfTrack()
         if (!track->trackIndex() && (type == TrackType::Audio || type == TrackType::Video))
             track->setActive(true);
 
-        std::variant<AudioTrackPrivate*, VideoTrackPrivate*, InbandTextTrackPrivate*> variantTrack(&track.get());
+        Variant<AudioTrackPrivate*, VideoTrackPrivate*, InbandTextTrackPrivate*> variantTrack(&track.get());
         switch (variantTrack.index()) {
         case TrackType::Audio:
             player->addAudioTrack(*std::get<AudioTrackPrivate*>(variantTrack));
