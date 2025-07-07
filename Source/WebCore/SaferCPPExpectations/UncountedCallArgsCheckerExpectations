@@ -14,12 +14,6 @@ Modules/cache/DOMCacheStorage.cpp
 Modules/cache/RetrieveRecordsOptions.h
 Modules/cache/WindowOrWorkerGlobalScopeCaches.cpp
 Modules/credentialmanagement/CredentialsContainer.cpp
-Modules/encryptedmedia/CDM.cpp
-Modules/encryptedmedia/MediaKeyStatusMap.cpp
-Modules/encryptedmedia/MediaKeySystemRequest.cpp
-Modules/encryptedmedia/legacy/LegacyCDMSessionClearKey.cpp
-Modules/encryptedmedia/legacy/WebKitMediaKeySession.cpp
-Modules/encryptedmedia/legacy/WebKitMediaKeys.cpp
 Modules/entriesapi/FileSystemDirectoryEntry.cpp
 Modules/entriesapi/FileSystemEntry.cpp
 Modules/entriesapi/FileSystemFileEntry.cpp

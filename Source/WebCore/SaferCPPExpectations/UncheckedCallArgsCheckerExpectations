@@ -3,8 +3,6 @@ Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/cookie-store/CookieStore.cpp
 Modules/credentialmanagement/CredentialsContainer.cpp
-Modules/encryptedmedia/legacy/LegacyCDM.cpp
-Modules/encryptedmedia/legacy/WebKitMediaKeySession.cpp
 Modules/gamepad/GamepadManager.cpp
 Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBIndex.cpp

@@ -1,6 +1,4 @@
 Modules/WebGPU/GPUPresentationContextDescriptor.h
-Modules/encryptedmedia/MediaKeyStatusMap.h
-Modules/encryptedmedia/legacy/WebKitMediaKeySession.h
 Modules/mediastream/RTCPeerConnection.h
 Modules/mediastream/libwebrtc/LibWebRTCObservers.h
 Modules/notifications/NotificationResourcesLoader.h

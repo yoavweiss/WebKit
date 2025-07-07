@@ -1,4 +1,3 @@
-Modules/encryptedmedia/legacy/WebKitMediaKeySession.h
 Modules/websockets/WorkerThreadableWebSocketChannel.h
 accessibility/AXObjectCache.h
 bindings/js/JSLazyEventListener.cpp

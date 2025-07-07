@@ -2,7 +2,6 @@ Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/cache/DOMCache.cpp
 Modules/cache/DOMCacheStorage.cpp
-Modules/encryptedmedia/MediaKeySystemRequest.cpp
 Modules/gamepad/GamepadHapticActuator.cpp
 Modules/indexeddb/IDBActiveDOMObject.h
 Modules/indexeddb/IDBCursor.cpp
