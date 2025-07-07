@@ -116,6 +116,7 @@ public:
 
     virtual ImageBufferPixelFormat pixelFormat() const;
     virtual DestinationColorSpace colorSpace() const;
+    virtual bool isOpaque() const;
     virtual bool willReadFrequently() const;
     virtual std::optional<RenderingMode> renderingModeForTesting() const { return std::nullopt; }
 

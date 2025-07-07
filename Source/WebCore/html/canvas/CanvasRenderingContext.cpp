@@ -133,6 +133,11 @@ ImageBufferPixelFormat CanvasRenderingContext::pixelFormat() const
     return ImageBufferPixelFormat::BGRA8;
 }
 
+bool CanvasRenderingContext::isOpaque() const
+{
+    return imageBufferPixelFormatIsOpaque(pixelFormat());
+}
+
 DestinationColorSpace CanvasRenderingContext::colorSpace() const
 {
     return DestinationColorSpace::SRGB();

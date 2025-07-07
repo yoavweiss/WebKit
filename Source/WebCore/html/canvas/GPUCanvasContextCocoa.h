@@ -63,6 +63,7 @@ public:
     bool needsPreparationForDisplay() const override { return true; }
     void prepareForDisplay() override;
     ImageBufferPixelFormat pixelFormat() const override;
+    bool isOpaque() const override;
     void reshape() override;
 
 

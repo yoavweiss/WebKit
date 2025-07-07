@@ -5649,6 +5649,11 @@ void WebGLRenderingContextBase::updateActiveOrdinal()
     m_activeOrdinal = s_lastActiveOrdinal++;
 }
 
+bool WebGLRenderingContextBase::isOpaque() const
+{
+    return !m_attributes.alpha;
+}
+
 WebCoreOpaqueRoot root(WebGLRenderingContextBase* context)
 {
     return WebCoreOpaqueRoot { context };

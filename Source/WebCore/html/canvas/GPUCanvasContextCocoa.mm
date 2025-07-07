@@ -429,6 +429,13 @@ ImageBufferPixelFormat GPUCanvasContextCocoa::pixelFormat() const
     return ImageBufferPixelFormat::BGRX8;
 }
 
+bool GPUCanvasContextCocoa::isOpaque() const
+{
+    if (m_configuration)
+        return m_configuration->compositingAlphaMode == GPUCanvasAlphaMode::Opaque;
+    return true;
+}
+
 DestinationColorSpace GPUCanvasContextCocoa::colorSpace() const
 {
     if (!m_configuration)

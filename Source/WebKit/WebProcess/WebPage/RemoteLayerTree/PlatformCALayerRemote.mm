@@ -585,7 +585,6 @@ bool PlatformCALayerRemote::isOpaque() const
 void PlatformCALayerRemote::setOpaque(bool value)
 {
     m_properties.opaque = value;
-    m_properties.notePropertiesChanged(LayerChange::OpaqueChanged);
 
     updateBackingStore();
 }
@@ -803,7 +802,7 @@ void PlatformCALayerRemote::setContentsFormat(ContentsFormat contentsFormat)
         return;
 
     m_properties.contentsFormat = contentsFormat;
-    m_properties.notePropertiesChanged(LayerChange::ContentsFormatChanged);
+    updateBackingStore();
 }
 
 bool PlatformCALayerRemote::hasContents() const

@@ -227,14 +227,16 @@ class RemoteLayerBackingStoreProperties {
 public:
     RemoteLayerBackingStoreProperties() = default;
     RemoteLayerBackingStoreProperties(RemoteLayerBackingStoreProperties&&) = default;
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    RemoteLayerBackingStoreProperties(ImageBufferBackendHandle&&, WebCore::RenderingResourceIdentifier, bool opaque, bool hasExtendedDynamicRangeContent);
+#else
+    RemoteLayerBackingStoreProperties(ImageBufferBackendHandle&&, WebCore::RenderingResourceIdentifier, bool opaque);
+#endif
 
-    void applyBackingStoreToLayer(CALayer *, LayerContentsType, std::optional<WebCore::RenderingResourceIdentifier>, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView * hostingView);
-
+    void applyBackingStoreToLayer(CALayer *, LayerContentsType, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView * hostingView);
     void updateCachedBuffers(RemoteLayerTreeNode&, LayerContentsType, UIView *);
 
     const std::optional<ImageBufferBackendHandle>& bufferHandle() const { return m_bufferHandle; };
-
-    bool isOpaque() const { return m_isOpaque; }
 
     static RetainPtr<id> layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&&, LayerContentsType, bool isDelegatedDisplay);
 
@@ -242,6 +244,8 @@ public:
 
     std::optional<RemoteImageBufferSetIdentifier> bufferSetIdentifier() { return m_bufferSet; }
     void setBackendHandle(BufferSetBackendHandle&);
+
+    std::optional<WebCore::RenderingResourceIdentifier> contentsRenderingResourceIdentifier() const { return m_contentsRenderingResourceIdentifier; };
 
 private:
     friend struct IPC::ArgumentCoder<RemoteLayerBackingStoreProperties, void>;
@@ -261,10 +265,11 @@ private:
     std::optional<WebCore::DynamicContentScalingDisplayList> m_displayListBufferHandle;
 #endif
 
-    bool m_isOpaque;
+    bool m_isOpaque { false };
     RemoteLayerBackingStore::Type m_type;
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    float m_maxRequestedEDRHeadroom;
+    bool m_hasExtendedDynamicRange { false };
+    float m_maxRequestedEDRHeadroom { 1 };
 #endif
 };
 

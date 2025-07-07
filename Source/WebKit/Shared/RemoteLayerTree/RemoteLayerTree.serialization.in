@@ -57,7 +57,6 @@ header: "RemoteLayerTreeTransaction.h"
     GeometryFlippedChanged
     DoubleSidedChanged
     MasksToBoundsChanged
-    OpaqueChanged
     ContentsHiddenChanged
     UserInteractionEnabledChanged
     BackdropRootChanged
@@ -76,7 +75,6 @@ header: "RemoteLayerTreeTransaction.h"
 #if ENABLE(INTERACTION_REGIONS_IN_EVENT_REGION)
     VisibleRectChanged
 #endif
-    ContentsFormatChanged
 #if HAVE(CORE_MATERIAL)
     AppleVisualEffectChanged
 #endif
@@ -99,13 +97,9 @@ enum class WebKit::LayerContentsType : uint8_t {
 header: "RemoteLayerBackingStore.h"
 [Nested] enum class WebKit::RemoteLayerBackingStore::Type : bool;
 
-[CustomEncoder, CustomHeader, LegacyPopulateFromEmptyConstructor, Nested] class WebKit::RemoteLayerBackingStoreProperties {
-    bool m_isOpaque;
-    WebKit::RemoteLayerBackingStore::Type m_type;
-#if HAVE(SUPPORT_HDR_DISPLAY)
-    float m_maxRequestedEDRHeadroom;
-#endif
+[RValue, CustomHeader, LegacyPopulateFromEmptyConstructor] class WebKit::RemoteLayerBackingStoreProperties {
     std::optional<WebKit::ImageBufferBackendHandle> m_bufferHandle;
+    [NotSerialized] RetainPtr<id> m_contentsBuffer;
     std::optional<WebKit::RemoteImageBufferSetIdentifier> m_bufferSet;
     std::optional<WebKit::BufferAndBackendInfo> m_frontBufferInfo;
     std::optional<WebKit::BufferAndBackendInfo> m_backBufferInfo;
@@ -114,6 +108,12 @@ header: "RemoteLayerBackingStore.h"
     std::optional<WebCore::IntRect> m_paintedRect;
 #if ENABLE(RE_DYNAMIC_CONTENT_SCALING)
     std::optional<WebCore::DynamicContentScalingDisplayList> m_displayListBufferHandle;
+#endif
+    bool m_isOpaque;
+    WebKit::RemoteLayerBackingStore::Type m_type;
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    bool m_hasExtendedDynamicRange;
+    float m_maxRequestedEDRHeadroom;
 #endif
 };
 
@@ -270,7 +270,7 @@ headers: "LayerProperties.h" "PlatformCALayerRemote.h"
     [OptionalTupleBit=WebKit::LayerChange::GeometryFlippedChanged] bool geometryFlipped;
     [OptionalTupleBit=WebKit::LayerChange::DoubleSidedChanged] bool doubleSided;
     [OptionalTupleBit=WebKit::LayerChange::MasksToBoundsChanged] bool masksToBounds;
-    [OptionalTupleBit=WebKit::LayerChange::OpaqueChanged] bool opaque;
+    [NotSerialized] bool opaque;
     [OptionalTupleBit=WebKit::LayerChange::ContentsHiddenChanged] bool contentsHidden;
     [OptionalTupleBit=WebKit::LayerChange::UserInteractionEnabledChanged] bool userInteractionEnabled;
     [OptionalTupleBit=WebKit::LayerChange::BackdropRootChanged] bool backdropRoot;
@@ -289,7 +289,7 @@ headers: "LayerProperties.h" "PlatformCALayerRemote.h"
 #if ENABLE(INTERACTION_REGIONS_IN_EVENT_REGION)
     [OptionalTupleBit=WebKit::LayerChange::VisibleRectChanged] WebCore::FloatRect visibleRect;
 #endif
-    [OptionalTupleBit=WebKit::LayerChange::ContentsFormatChanged] WebCore::ContentsFormat contentsFormat;
+    [NotSerialized] WebCore::ContentsFormat contentsFormat;
 #if HAVE(CORE_MATERIAL)
     [OptionalTupleBit=WebKit::LayerChange::AppleVisualEffectChanged] WebCore::AppleVisualEffectData appleVisualEffectData;
 #endif

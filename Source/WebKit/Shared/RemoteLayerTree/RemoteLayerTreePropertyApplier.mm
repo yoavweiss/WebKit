@@ -431,9 +431,6 @@ void RemoteLayerTreePropertyApplier::applyPropertiesToLayer(CALayer *layer, Remo
     if (properties.changedProperties & LayerChange::DoubleSidedChanged)
         layer.doubleSided = properties.doubleSided;
 
-    if (properties.changedProperties & LayerChange::OpaqueChanged)
-        layer.opaque = properties.opaque;
-
     if (properties.changedProperties & LayerChange::ContentsRectChanged)
         layer.contentsRect = properties.contentsRect;
 
@@ -486,17 +483,8 @@ void RemoteLayerTreePropertyApplier::applyPropertiesToLayer(CALayer *layer, Remo
     {
         auto* backingStore = properties.backingStoreOrProperties.properties.get();
         if (backingStore && properties.backingStoreAttached) {
-            std::optional<WebCore::RenderingResourceIdentifier> asyncContentsIdentifier;
-            UIView* hostingView = nil;
-            if (layerTreeNode) {
-#if PLATFORM(IOS_FAMILY)
-                hostingView = layerTreeNode->uiView();
-#endif
-                backingStore->updateCachedBuffers(*layerTreeNode, layerContentsType, hostingView);
-                asyncContentsIdentifier = layerTreeNode->asyncContentsIdentifier();
-            }
-
-            backingStore->applyBackingStoreToLayer(layer, layerContentsType, asyncContentsIdentifier, layerTreeHost->replayDynamicContentScalingDisplayListsIntoBackingStore(), hostingView);
+            RELEASE_ASSERT(layerTreeNode);
+            layerTreeNode->applyBackingStore(layerTreeHost, layerContentsType, *backingStore);
         } else
             [layer _web_clearContents];
     }
@@ -548,19 +536,6 @@ void RemoteLayerTreePropertyApplier::applyPropertiesToLayer(CALayer *layer, Remo
             [webAVPlayerLayer setVideoGravity:convertMediaPlayerToAVLayerVideoGravity(properties.videoGravity)];
     }
 #endif
-
-    if (properties.changedProperties & LayerChange::ContentsFormatChanged) {
-        auto contentsFormat = properties.contentsFormat;
-        if (RetainPtr formatString = contentsFormatString(contentsFormat))
-            [layer setContentsFormat:formatString.get()];
-#if ENABLE(PIXEL_FORMAT_RGBA16F)
-        if (contentsFormat == ContentsFormat::RGBA16F) {
-            ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-            [layer setWantsExtendedDynamicRangeContent:true];
-            ALLOW_DEPRECATED_DECLARATIONS_END
-        }
-#endif
-    }
 
 #if HAVE(CORE_MATERIAL)
     if (properties.changedProperties & LayerChange::AppleVisualEffectChanged)

@@ -173,12 +173,6 @@ static bool hasValue(const ImageBufferBackendHandle& backendHandle)
 
 void RemoteLayerBackingStore::encode(IPC::Encoder& encoder) const
 {
-    encoder << m_parameters.isOpaque;
-    encoder << m_parameters.type;
-#if HAVE(SUPPORT_HDR_DISPLAY)
-    encoder << m_maxRequestedEDRHeadroom;
-#endif
-
     // FIXME: For simplicity this should be moved to the end of display() once the buffer handles can be created once
     // and stored in m_bufferHandle. http://webkit.org/b/234169
     std::optional<ImageBufferBackendHandle> handle;
@@ -205,6 +199,18 @@ void RemoteLayerBackingStore::encode(IPC::Encoder& encoder) const
 #if ENABLE(RE_DYNAMIC_CONTENT_SCALING)
     encoder << displayListHandle();
 #endif
+
+    encoder << m_parameters.isOpaque;
+    encoder << m_parameters.type;
+#if HAVE(SUPPORT_HDR_DISPLAY)
+#if ENABLE(PIXEL_FORMAT_RGBA16F)
+    encoder << (m_parameters.contentsFormat == WebCore::ContentsFormat::RGBA16F);
+#else
+    encoder << false;
+#endif
+    encoder << m_maxRequestedEDRHeadroom;
+#endif
+
 }
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RemoteLayerBackingStoreProperties);
@@ -224,9 +230,9 @@ void RemoteLayerBackingStoreProperties::dump(TextStream& ts) const
     dumpBuffer("back buffer"_s, m_backBufferInfo);
     dumpBuffer("secondaryBack buffer"_s, m_secondaryBackBufferInfo);
 
-    ts.dumpProperty("is opaque"_s, isOpaque());
     ts.dumpProperty("has buffer handle"_s, !!bufferHandle());
 #if HAVE(SUPPORT_HDR_DISPLAY)
+    ts.dumpProperty("extended-dynamic-range", m_hasExtendedDynamicRange);
     ts.dumpProperty("requested-headroom", m_maxRequestedEDRHeadroom);
 #endif
 }
@@ -527,6 +533,21 @@ void RemoteLayerBackingStore::enumerateRectsBeingDrawn(GraphicsContext& context,
     }
 }
 
+#if HAVE(SUPPORT_HDR_DISPLAY)
+RemoteLayerBackingStoreProperties::RemoteLayerBackingStoreProperties(ImageBufferBackendHandle&& handle, WebCore::RenderingResourceIdentifier identifier, bool opaque, bool hasExtendedDynamicRange)
+#else
+RemoteLayerBackingStoreProperties::RemoteLayerBackingStoreProperties(ImageBufferBackendHandle&& handle, WebCore::RenderingResourceIdentifier identifier, bool opaque)
+#endif
+    : m_bufferHandle(WTFMove(handle))
+    , m_contentsRenderingResourceIdentifier(identifier)
+    , m_isOpaque(opaque)
+    , m_type(RemoteLayerBackingStore::Type::IOSurface)
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    , m_hasExtendedDynamicRange(hasExtendedDynamicRange)
+#endif
+{
+}
+
 RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&& backendHandle, LayerContentsType contentsType, bool isDelegatedDisplay)
 {
 #if !HAVE(SUPPORT_HDR_DISPLAY_APIS)
@@ -569,17 +590,17 @@ RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendH
     return contents;
 }
 
-void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer, LayerContentsType contentsType, std::optional<WebCore::RenderingResourceIdentifier> asyncContentsIdentifier, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView *hostingView)
+void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer, LayerContentsType contentsType, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView *hostingView)
 {
-    if (asyncContentsIdentifier && m_contentsRenderingResourceIdentifier && *asyncContentsIdentifier >= m_contentsRenderingResourceIdentifier)
-        return;
-
     bool isDelegatedDisplay = !m_frontBufferInfo;
 
+    // FIXME: Ideally we'd just infer contentsOpaque and wantsExtendedDynamicRangeContent
+    // from the format of the buffer itself, but that isn't possible for LayerContentsType::CAMachPort.
     layer.contentsOpaque = m_isOpaque;
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
     ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    if (layer.wantsExtendedDynamicRangeContent) {
+    if (m_hasExtendedDynamicRange) {
+        layer.wantsExtendedDynamicRangeContent = true;
         // Painted contents have already been tonemapped, so disable it on the layer.
         if (isDelegatedDisplay) {
             layer.toneMapMode = CAToneMapModeIfSupported;
@@ -588,8 +609,11 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
             layer.toneMapMode = CAToneMapModeNever;
             layer.contentsHeadroom = m_maxRequestedEDRHeadroom;
         }
-    } else
+    } else {
+        layer.wantsExtendedDynamicRangeContent = false;
+        layer.contentsHeadroom = 0.f;
         layer.toneMapMode = CAToneMapModeAutomatic;
+    }
     ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
 
@@ -632,8 +656,7 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
             [layer setValue:@1 forKeyPath:WKDynamicContentScalingEnabledKey];
             [layer setValue:@1 forKeyPath:WKDynamicContentScalingBifurcationEnabledKey];
             [layer setValue:@(layer.contentsScale) forKeyPath:WKDynamicContentScalingBifurcationScaleKey];
-        } else
-            layer.opaque = m_isOpaque;
+        }
         [(WKCompositingLayer *)layer _setWKContents:contents.get() withDisplayList:WTFMove(*m_displayListBufferHandle) replayForTesting:replayDynamicContentScalingDisplayListsIntoBackingStore];
         return;
     } else
