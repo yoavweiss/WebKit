@@ -871,12 +871,23 @@ void WebProcess::registerLogHook()
         auto logChannel = unsafeSpan8IncludingNullTerminator(msg->subsystem);
         auto logCategory = unsafeSpan8IncludingNullTerminator(msg->category);
 
+        if (logCategory.size() > logCategoryMaxSize)
+            return;
+        if (logChannel.size() > logSubsystemMaxSize)
+            return;
+
         if (type == OS_LOG_TYPE_FAULT)
             type = OS_LOG_TYPE_ERROR;
 
         if (char* messageString = os_log_copy_message_string(msg)) {
             auto logString = unsafeSpan8IncludingNullTerminator(messageString);
-            WebProcess::singleton().sendLogOnStream(logChannel, logCategory, logString, type);
+            if (logString.size() > logStringMaxSize) {
+                auto mutableLogString = spanConstCast<LChar>(logString);
+                mutableLogString = mutableLogString.subspan(0, logStringMaxSize);
+                mutableLogString.back() = 0;
+                WebProcess::singleton().sendLogOnStream(logChannel, logCategory, mutableLogString, type);
+            } else
+                WebProcess::singleton().sendLogOnStream(logChannel, logCategory, logString, type);
             free(messageString);
         }
     }).get());
