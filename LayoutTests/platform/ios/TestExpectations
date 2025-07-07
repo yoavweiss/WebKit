@@ -7932,3 +7932,5 @@ webkit.org/b/295432 imported/w3c/web-platform-tests/css/filter-effects/backdrop-
 # The padding for native buttons and select controls is overridden on iOS 18 and earlier.
 imported/w3c/web-platform-tests/css/css-ui/button-author-level-padding-applies.html [ Skip ]
 imported/w3c/web-platform-tests/css/css-ui/select-author-level-padding-applies.html [ Skip ]
+
+webkit.org/b/295527 fast/animation/css-animation-resuming-when-visible-with-style-change2.html [ Pass Failure ]
