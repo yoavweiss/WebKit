@@ -9121,15 +9121,6 @@ header: <WebCore/MediaSample.h>
     uint32_t flags;
 };
 
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER)
-header: <WebCore/MediaRecorderPrivateWriter.h>
-[Nested] enum class WebCore::MediaRecorderPrivateWriter::Result : uint8_t {
-    Success,
-    Failure,
-    NotReady
-};
-#endif
-
 header: <WebCore/DocumentClasses.h>
 [OptionSet, CustomHeader] enum class WebCore::DocumentClass : uint16_t {
     HTML,

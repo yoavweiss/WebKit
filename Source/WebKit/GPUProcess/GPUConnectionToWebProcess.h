@@ -120,9 +120,6 @@ class RemoteMediaPlayerManagerProxy;
 class RemoteMediaResourceManager;
 class RemoteVideoFrameObjectHeap;
 #endif
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
-class RemoteMediaRecorderPrivateWriterManager;
-#endif
 
 #if ENABLE(WEBGL)
 class RemoteGraphicsContextGL;
@@ -166,10 +163,6 @@ public:
 #if ENABLE(VIDEO)
     RemoteMediaResourceManager& remoteMediaResourceManager();
     Ref<RemoteMediaResourceManager> protectedRemoteMediaResourceManager();
-#endif
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
-    RemoteMediaRecorderPrivateWriterManager& remoteMediaRecorderPrivateWriterManager();
-        Ref<RemoteMediaRecorderPrivateWriterManager> protectedRemoteMediaRecorderPrivateWriterManager();
 #endif
 
     PAL::SessionID sessionID() const { return m_sessionID; }
@@ -382,9 +375,6 @@ private:
 #if ENABLE(VIDEO)
     RefPtr<RemoteMediaResourceManager> m_remoteMediaResourceManager WTF_GUARDED_BY_CAPABILITY(mainThread);
     Ref<RemoteMediaPlayerManagerProxy> m_remoteMediaPlayerManagerProxy;
-#endif
-#if PLATFORM(COCOA) && ENABLE(MEDIA_RECORDER) && !HAVE(AVASSETWRITER_PASSTHROUGH_IN_PROCESS)
-    const std::unique_ptr<RemoteMediaRecorderPrivateWriterManager> m_remoteMediaRecorderPrivateWriterManager;
 #endif
     PAL::SessionID m_sessionID;
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
