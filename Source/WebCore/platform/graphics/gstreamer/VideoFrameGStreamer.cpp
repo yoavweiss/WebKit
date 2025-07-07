@@ -457,11 +457,7 @@ VideoFrameGStreamer::VideoFrameGStreamer(GRefPtr<GstSample>&& sample, std::optio
 
     setMemoryTypeFromCaps();
 
-    GRefPtr buffer = gst_sample_get_buffer(m_sample.get());
-    RELEASE_ASSERT(buffer);
-    auto modifiedBuffer = webkitGstBufferSetVideoFrameMetadata(WTFMove(buffer), WTFMove(metadata), videoRotation, videoMirrored);
-    m_sample = adoptGRef(gst_sample_make_writable(m_sample.leakRef()));
-    gst_sample_set_buffer(m_sample.get(), modifiedBuffer.get());
+    setMetadata(WTFMove(metadata));
 }
 
 VideoFrameGStreamer::VideoFrameGStreamer(const GRefPtr<GstSample>& sample, Info&& info, const IntSize& presentationSize, const MediaTime& presentationTime, Rotation videoRotation, PlatformVideoColorSpace&& colorSpace)
@@ -507,6 +503,15 @@ void VideoFrameGStreamer::setPresentationTime(const MediaTime& presentationTime)
     updateTimestamp(presentationTime, VideoFrame::ShouldCloneWithDifferentTimestamp::No);
     auto buffer = gst_sample_get_buffer(m_sample.get());
     GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = toGstClockTime(1_s / presentationTime.toDouble());
+}
+
+void VideoFrameGStreamer::setMetadata(std::optional<VideoFrameTimeMetadata>&& metadata)
+{
+    GRefPtr buffer = gst_sample_get_buffer(m_sample.get());
+    RELEASE_ASSERT(buffer);
+    auto modifiedBuffer = webkitGstBufferSetVideoFrameMetadata(WTFMove(buffer), WTFMove(metadata), rotation(), isMirrored());
+    m_sample = adoptGRef(gst_sample_make_writable(m_sample.leakRef()));
+    gst_sample_set_buffer(m_sample.get(), modifiedBuffer.get());
 }
 
 static void copyPlane(uint8_t* destination, const uint8_t* source, uint64_t sourceStride, const ComputedPlaneLayout& spanPlaneLayout)
