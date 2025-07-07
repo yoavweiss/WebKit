@@ -49,7 +49,7 @@ public:
 
 private:
     WeakRef<ServiceWorkerGlobalScope, WeakPtrImplWithEventTargetData> m_serviceWorkerGlobalScope;
-    const RefPtr<Inspector::ServiceWorkerBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::ServiceWorkerBackendDispatcher> m_backendDispatcher;
 };
 
 } // namespace WebCore

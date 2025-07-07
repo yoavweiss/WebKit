@@ -69,7 +69,7 @@ private:
     void disconnectFromTargets();
 
     Inspector::FrontendRouter& m_router;
-    std::unique_ptr<TargetFrontendDispatcher> m_frontendDispatcher;
+    const UniqueRef<TargetFrontendDispatcher> m_frontendDispatcher;
     const Ref<TargetBackendDispatcher> m_backendDispatcher;
     UncheckedKeyHashMap<String, InspectorTarget*> m_targets;
     bool m_isConnected { false };

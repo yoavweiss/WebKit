@@ -85,7 +85,7 @@ private:
     void unbindPseudoElement(PseudoElement*);
 
     const UniqueRef<Inspector::LayerTreeFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::LayerTreeBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::LayerTreeBackendDispatcher> m_backendDispatcher;
 
     HashMap<const RenderLayer*, Inspector::Protocol::LayerTree::LayerId> m_documentLayerToIdMap;
     HashMap<Inspector::Protocol::LayerTree::LayerId, const RenderLayer*> m_idToLayer;

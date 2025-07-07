@@ -139,7 +139,7 @@ void WorkerInspectorController::connectFrontend(bool isAutomaticInspection, bool
 
     m_forwardingChannel = makeUnique<WorkerToPageFrontendChannel>(m_globalScope);
     m_frontendRouter->connectFrontend(*m_forwardingChannel.get());
-    m_agents.didCreateFrontendAndBackend(&m_frontendRouter.get(), &m_backendDispatcher.get());
+    m_agents.didCreateFrontendAndBackend(m_frontendRouter.ptr(), m_backendDispatcher.ptr());
 
     updateServiceWorkerPageFrontendCount();
 }
@@ -196,8 +196,8 @@ WorkerAgentContext WorkerInspectorController::workerAgentContext()
     AgentContext baseContext = {
         *this,
         m_injectedScriptManager,
-        m_frontendRouter.get(),
-        m_backendDispatcher.get(),
+        m_frontendRouter,
+        m_backendDispatcher,
     };
 
     WebAgentContext webContext = {

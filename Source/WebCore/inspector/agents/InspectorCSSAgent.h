@@ -188,7 +188,7 @@ private:
     void resetPseudoStates();
 
     const UniqueRef<Inspector::CSSFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::CSSBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::CSSBackendDispatcher> m_backendDispatcher;
 
     WeakRef<Page> m_inspectedPage;
     IdToInspectorStyleSheet m_idToInspectorStyleSheet;

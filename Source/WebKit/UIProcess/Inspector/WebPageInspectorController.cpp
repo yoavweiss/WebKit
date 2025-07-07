@@ -57,7 +57,7 @@ WebPageInspectorController::WebPageInspectorController(WebPageProxy& inspectedPa
     , m_backendDispatcher(BackendDispatcher::create(m_frontendRouter.copyRef()))
     , m_inspectedPage(inspectedPage)
 {
-    auto targetAgent = makeUnique<InspectorTargetAgent>(m_frontendRouter.get(), m_backendDispatcher.get());
+    auto targetAgent = makeUnique<InspectorTargetAgent>(m_frontendRouter, m_backendDispatcher);
     m_targetAgent = targetAgent.get();
     m_agents.append(WTFMove(targetAgent));
 }
@@ -96,7 +96,7 @@ void WebPageInspectorController::connectFrontend(Inspector::FrontendChannel& fro
     m_frontendRouter->connectFrontend(frontendChannel);
 
     if (connectingFirstFrontend)
-        m_agents.didCreateFrontendAndBackend(&m_frontendRouter.get(), &m_backendDispatcher.get());
+        m_agents.didCreateFrontendAndBackend(m_frontendRouter.ptr(), m_backendDispatcher.ptr());
 
     Ref inspectedPage = m_inspectedPage.get();
     inspectedPage->didChangeInspectorFrontendCount(m_frontendRouter->frontendCount());

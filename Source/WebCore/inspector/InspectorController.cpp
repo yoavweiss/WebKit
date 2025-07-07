@@ -133,8 +133,8 @@ PageAgentContext InspectorController::pageAgentContext()
     AgentContext baseContext = {
         *this,
         m_injectedScriptManager,
-        m_frontendRouter.get(),
-        m_backendDispatcher.get()
+        m_frontendRouter,
+        m_backendDispatcher
     };
 
     WebAgentContext webContext = {
@@ -266,7 +266,7 @@ void InspectorController::connectFrontend(Inspector::FrontendChannel& frontendCh
 
     if (connectedFirstFrontend) {
         InspectorInstrumentation::registerInstrumentingAgents(m_instrumentingAgents.get());
-        m_agents.didCreateFrontendAndBackend(&m_frontendRouter.get(), &m_backendDispatcher.get());
+        m_agents.didCreateFrontendAndBackend(m_frontendRouter.ptr(), m_backendDispatcher.ptr());
     }
 
     m_inspectorClient->frontendCountChanged(m_frontendRouter->frontendCount());

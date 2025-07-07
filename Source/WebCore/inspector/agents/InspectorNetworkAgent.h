@@ -234,7 +234,7 @@ private:
     };
 
     const UniqueRef<Inspector::NetworkFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::NetworkBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::NetworkBackendDispatcher> m_backendDispatcher;
     Inspector::InjectedScriptManager& m_injectedScriptManager;
 
     const UniqueRef<NetworkResourcesData> m_resourcesData;

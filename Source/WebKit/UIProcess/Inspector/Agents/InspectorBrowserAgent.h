@@ -59,7 +59,7 @@ public:
 
 private:
     const UniqueRef<Inspector::BrowserFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::BrowserBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::BrowserBackendDispatcher> m_backendDispatcher;
     WeakRef<WebPageProxy> m_inspectedPage;
 };
 

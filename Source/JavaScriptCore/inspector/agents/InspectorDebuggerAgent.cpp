@@ -240,7 +240,7 @@ RefPtr<JSC::Breakpoint> InspectorDebuggerAgent::debuggerBreakpointFromPayload(Pr
 
 InspectorDebuggerAgent::InspectorDebuggerAgent(AgentContext& context)
     : InspectorAgentBase("Debugger"_s)
-    , m_frontendDispatcher(makeUnique<DebuggerFrontendDispatcher>(context.frontendRouter))
+    , m_frontendDispatcher(makeUniqueRef<DebuggerFrontendDispatcher>(context.frontendRouter))
     , m_backendDispatcher(DebuggerBackendDispatcher::create(context.backendDispatcher, this))
     , m_debugger(*context.environment.debugger())
     , m_injectedScriptManager(context.injectedScriptManager)

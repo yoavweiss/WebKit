@@ -60,7 +60,7 @@ private:
     void collectSample(const ResourceUsageData&);
 
     const UniqueRef<Inspector::MemoryFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::MemoryBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::MemoryBackendDispatcher> m_backendDispatcher;
     bool m_tracking { false };
 };
 

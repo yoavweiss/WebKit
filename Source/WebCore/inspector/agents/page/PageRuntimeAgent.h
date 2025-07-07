@@ -72,7 +72,7 @@ private:
     void notifyContextCreated(const Inspector::Protocol::Network::FrameId&, JSC::JSGlobalObject*, const DOMWrapperWorld&, SecurityOrigin* = nullptr);
 
     const UniqueRef<Inspector::RuntimeFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::RuntimeBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::RuntimeBackendDispatcher> m_backendDispatcher;
 
     InstrumentingAgents& m_instrumentingAgents;
 

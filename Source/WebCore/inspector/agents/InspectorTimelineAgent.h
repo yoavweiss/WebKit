@@ -193,7 +193,7 @@ private:
     void addRecordToTimeline(Ref<JSON::Object>&&, TimelineRecordType);
 
     const UniqueRef<Inspector::TimelineFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::TimelineBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::TimelineBackendDispatcher> m_backendDispatcher;
 
     Vector<TimelineRecordEntry> m_recordStack;
     Vector<TimelineRecordEntry> m_pendingConsoleProfileRecords;

@@ -54,7 +54,7 @@ private:
     void collectSample(const ResourceUsageData&);
 
     const UniqueRef<Inspector::CPUProfilerFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::CPUProfilerBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::CPUProfilerBackendDispatcher> m_backendDispatcher;
     bool m_tracking { false };
 };
 

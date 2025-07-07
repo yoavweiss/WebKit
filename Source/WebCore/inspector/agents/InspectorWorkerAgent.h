@@ -49,7 +49,7 @@ class InspectorWorkerAgent : public InspectorAgentBase, public Inspector::Worker
 public:
     ~InspectorWorkerAgent();
 
-    Inspector::WorkerFrontendDispatcher& frontendDispatcher() { return *m_frontendDispatcher; }
+    Inspector::WorkerFrontendDispatcher& frontendDispatcher() { return m_frontendDispatcher; }
 
     // InspectorAgentBase
     void didCreateFrontendAndBackend(Inspector::FrontendRouter*, Inspector::BackendDispatcher*);
@@ -100,7 +100,7 @@ private:
     const Ref<PageChannel> m_pageChannel;
 
     const UniqueRef<Inspector::WorkerFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::WorkerBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::WorkerBackendDispatcher> m_backendDispatcher;
 
     MemoryCompactRobinHoodHashMap<String, WeakPtr<WorkerInspectorProxy>> m_connectedProxies;
     bool m_enabled { false };

@@ -170,7 +170,7 @@ private:
     Ref<Inspector::Protocol::Page::FrameResourceTree> buildObjectForFrameTree(LocalFrame*);
 
     const UniqueRef<Inspector::PageFrontendDispatcher> m_frontendDispatcher;
-    const RefPtr<Inspector::PageBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::PageBackendDispatcher> m_backendDispatcher;
 
     WeakRef<Page> m_inspectedPage;
     InspectorClient* m_client { nullptr };

@@ -90,8 +90,8 @@ protected:
     void clearMessages(Protocol::Console::ClearReason);
 
     InjectedScriptManager& m_injectedScriptManager;
-    std::unique_ptr<ConsoleFrontendDispatcher> m_frontendDispatcher;
-    RefPtr<ConsoleBackendDispatcher> m_backendDispatcher;
+    const UniqueRef<ConsoleFrontendDispatcher> m_frontendDispatcher;
+    const Ref<ConsoleBackendDispatcher> m_backendDispatcher;
     InspectorHeapAgent* m_heapAgent { nullptr };
 
     Vector<std::unique_ptr<ConsoleMessage>> m_consoleMessages;

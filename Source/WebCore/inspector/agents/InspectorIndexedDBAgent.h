@@ -65,7 +65,7 @@ public:
 
 private:
     Inspector::InjectedScriptManager& m_injectedScriptManager;
-    RefPtr<Inspector::IndexedDBBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::IndexedDBBackendDispatcher> m_backendDispatcher;
 
     WeakRef<Page> m_inspectedPage;
 };

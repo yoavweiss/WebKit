@@ -152,7 +152,7 @@ private:
     RefPtr<InspectorShaderProgram> findInspectorProgram(WebGLProgram&);
 #endif // ENABLE(WEBGL)
 
-    const RefPtr<Inspector::CanvasBackendDispatcher> m_backendDispatcher;
+    const Ref<Inspector::CanvasBackendDispatcher> m_backendDispatcher;
 
     Inspector::InjectedScriptManager& m_injectedScriptManager;
 
