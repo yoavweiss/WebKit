@@ -3487,7 +3487,9 @@ JSC_DEFINE_JIT_OPERATION(operationFunctionBind, JSBoundFunction*, (JSGlobalObjec
             name = jsEmptyString(vm);
     }
 
-    OPERATION_RETURN(scope, JSBoundFunction::create(vm, globalObject, target, boundThis, boundArgs, length, name));
+    auto [taintedness, url] = sourceTaintedOriginFromStack(vm, callFrame);
+    SourceCode source = makeSource("[bound function]"_s, SourceOrigin(url), taintedness);
+    OPERATION_RETURN(scope, JSBoundFunction::create(vm, globalObject, target, boundThis, boundArgs, length, name, source));
 }
 
 JSC_DEFINE_JIT_OPERATION(operationNewBoundFunction, JSBoundFunction*, (JSGlobalObject* globalObject, JSFunction* function, EncodedJSValue boundThisValue, EncodedJSValue arg0Value, EncodedJSValue arg1Value, EncodedJSValue arg2Value))
@@ -3504,7 +3506,9 @@ JSC_DEFINE_JIT_OPERATION(operationNewBoundFunction, JSBoundFunction*, (JSGlobalO
     boundArgsLength += !!(arg0);
     boundArgsLength += !!(arg1);
     boundArgsLength += !!(arg2);
-    OPERATION_RETURN(scope, JSBoundFunction::createRaw(vm, globalObject, function, boundArgsLength, boundThis, arg0, arg1, arg2));
+    auto [taintedness, url] = sourceTaintedOriginFromStack(vm, callFrame);
+    SourceCode source = makeSource("[bound function]"_s, SourceOrigin(url), taintedness);
+    OPERATION_RETURN(scope, JSBoundFunction::createRaw(vm, globalObject, function, boundArgsLength, boundThis, arg0, arg1, arg2, source));
 }
 
 JSC_DEFINE_JIT_OPERATION(operationSingleCharacterString, JSString*, (VM* vmPointer, int32_t character))

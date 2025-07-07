@@ -79,6 +79,10 @@ JSC_DEFINE_JIT_OPERATION(operationJSToWasmEntryWrapperBuildFrame, JSEntrypointCa
 
     auto* globalObject = function->globalObject();
     VM& vm = globalObject->vm();
+
+    if (function->taintedness() >= SourceTaintedOrigin::IndirectlyTainted)
+        vm.setMightBeExecutingTaintedCode();
+
     NativeCallFrameTracer tracer(vm, callFrame);
     auto* callee = function->jsToWasmCallee();
     ASSERT(function);

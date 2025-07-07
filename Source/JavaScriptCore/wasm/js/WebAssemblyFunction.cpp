@@ -66,6 +66,9 @@ JSC_DEFINE_HOST_FUNCTION(callWebAssemblyFunction, (JSGlobalObject* globalObject,
     VM& vm = globalObject->vm();
     WebAssemblyFunction* wasmFunction = jsCast<WebAssemblyFunction*>(callFrame->jsCallee());
 
+    if (wasmFunction->instance()->taintedness() >= SourceTaintedOrigin::IndirectlyTainted)
+        vm.setMightBeExecutingTaintedCode();
+
     // Note: we specifically use the WebAssemblyFunction as the callee to begin with in the ProtoCallFrame.
     // The reason for this is that calling into the llint may stack overflow, and the stack overflow
     // handler might read the global object from the callee.
@@ -99,7 +102,9 @@ WebAssemblyFunction::WebAssemblyFunction(VM& vm, NativeExecutable* executable, J
     , m_boxedWasmCallee(wasmCallee)
     , m_boxedJSToWasmCallee(jsEntrypoint)
     , m_frameSize(jsEntrypoint.frameSize())
-{ }
+    , m_taintedness(instance->taintedness())
+{
+}
 
 template<typename Visitor>
 void WebAssemblyFunction::visitChildrenImpl(JSCell* cell, Visitor& visitor)

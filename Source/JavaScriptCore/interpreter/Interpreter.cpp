@@ -1267,6 +1267,8 @@ JSValue Interpreter::executeCall(JSObject* function, const CallData& callData, J
 
     // Only one-level unwrap is enough! We already made JSBoundFunction's nest smaller.
     auto* boundFunction = jsCast<JSBoundFunction*>(function);
+    if (boundFunction->m_isTainted)
+        vm.setMightBeExecutingTaintedCode();
     if (!boundFunction->boundArgsLength()) {
         // This is the simplest path, just replacing |this|. We do not need to go to executeBoundCall.
         // Let's just replace and get unwrapped functions again.

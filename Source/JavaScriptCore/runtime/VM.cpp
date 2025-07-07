@@ -432,7 +432,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
         ftlThunks = makeUnique<FTL::Thunks>();
 #endif // ENABLE(FTL_JIT)
         m_sharedJITStubs = makeUnique<SharedJITStubSet>();
-        getBoundFunction(/* isJSFunction */ true);
+        getBoundFunction(/* isJSFunction */ true, SourceTaintedOrigin::Untainted);
     }
 #endif // ENABLE(JIT)
 
@@ -773,13 +773,15 @@ NativeExecutable* VM::getHostFunction(NativeFunction function, ImplementationVis
     return NativeExecutable::create(*this, jitCodeForCallTrampoline(intrinsic), toTagged(function), jitCodeForConstructTrampoline(), toTagged(constructor), implementationVisibility, name);
 }
 
-NativeExecutable* VM::getBoundFunction(bool isJSFunction)
+NativeExecutable* VM::getBoundFunction(bool isJSFunction, SourceTaintedOrigin taintedness)
 {
     bool slowCase = !isJSFunction;
 
     auto getOrCreate = [&](WriteBarrier<NativeExecutable>& slot) -> NativeExecutable* {
-        if (auto* cached = slot.get())
-            return cached;
+        if (taintedness < SourceTaintedOrigin::IndirectlyTainted) {
+            if (auto* cached = slot.get())
+                return cached;
+        }
         NativeExecutable* result = getHostFunction(
             slowCase ? boundFunctionCall : boundThisNoArgsFunctionCall,
             ImplementationVisibility::Private, // Bound function's visibility is private on the stack.
