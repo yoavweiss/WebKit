@@ -33,7 +33,6 @@ WebFrameMessages.h
 WebFrameProxyMessages.h
 WebPageMessages.h
 WebPageProxyMessages.h
-WebPaymentCoordinatorProxyMessages.h
 WebProcess/Extensions/Bindings/JSWebExtensionWrapper.h
 WebProcess/WebCoreSupport/WebLocalFrameLoaderClient.cpp
 WebProcess/WebPage/WebPage.cpp
