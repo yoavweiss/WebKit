@@ -2368,7 +2368,7 @@ DetachableMediaSourceEnabled:
 
 DetailsAutoExpandEnabled:
   type: bool
-  status: testable
+  status: preview
   category: html
   humanReadableName: "HTML auto-expanding <details>"
   humanReadableDescription: "Enable HTML auto-expanding <details>"
