@@ -40,7 +40,6 @@
 #include "EventNames.h"
 #include "EventTargetInlines.h"
 #include "HTMLBodyElement.h"
-#include "HTMLDetailsElement.h"
 #include "HTMLDialogElement.h"
 #include "HTMLDivElement.h"
 #include "HTMLInputElement.h"
@@ -651,7 +650,7 @@ void Adjuster::adjust(RenderStyle& style) const
         if (m_element->invokedPopover())
             style.setIsPopoverInvoker();
 
-        if (m_document->settings().detailsAutoExpandEnabled() && is<HTMLDetailsElement>(element))
+        if (m_document->settings().detailsAutoExpandEnabled() && m_element->isInUserAgentShadowTree() && m_element->userAgentPart() == UserAgentParts::detailsContent())
             style.setAutoRevealsWhenFound();
 
         if (RefPtr htmlElement = dynamicDowncast<HTMLElement>(element); htmlElement && htmlElement->isHiddenUntilFound())
