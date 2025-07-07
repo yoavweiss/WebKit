@@ -5145,13 +5145,6 @@ void GraphicsLayerCA::deviceOrPageScaleFactorChanged()
     noteChangesForScaleSensitiveProperties();
 }
 
-void GraphicsLayerCA::screenSupportedContentsFormatsChanged()
-{
-#if HAVE(SUPPORT_HDR_DISPLAY)
-    noteLayerPropertyChanged(DrawsHDRContentChanged | DebugIndicatorsChanged);
-#endif
-}
-
 void GraphicsLayerCA::noteChangesForScaleSensitiveProperties()
 {
     noteLayerPropertyChanged(GeometryChanged | ContentsScaleChanged | ContentsOpaqueChanged);

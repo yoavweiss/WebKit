@@ -1744,8 +1744,14 @@ void Page::updateScreenSupportedContentsFormats()
     if (m_screenSupportsHDR == supportsHighDynamicRange)
         return;
     m_screenSupportsHDR = supportsHighDynamicRange;
-    for (auto& rootFrame : m_rootFrames)
-        rootFrame->screenSupportedContentsFormatsChanged();
+
+    forEachDocument([&] (Document& document) {
+        if (!document.hasHDRContent())
+            return;
+
+        if (RefPtr view = document.view())
+            view->setDescendantsNeedUpdateBackingAndHierarchyTraversal();
+    });
 #endif
 }
 

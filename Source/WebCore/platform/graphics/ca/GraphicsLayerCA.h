@@ -198,7 +198,6 @@ public:
     WEBCORE_EXPORT void setCustomAppearance(CustomAppearance) override;
 
     WEBCORE_EXPORT void deviceOrPageScaleFactorChanged() override;
-    WEBCORE_EXPORT void screenSupportedContentsFormatsChanged() override;
     void setShouldUpdateRootRelativeScaleFactor(bool value) override { m_shouldUpdateRootRelativeScaleFactor = value; }
 
     float rootRelativeScaleFactor() { return m_rootRelativeScaleFactor; }

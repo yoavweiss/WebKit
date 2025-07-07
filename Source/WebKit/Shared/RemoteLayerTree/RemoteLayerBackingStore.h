@@ -171,7 +171,7 @@ public:
 
     MonotonicTime lastDisplayTime() const { return m_lastDisplayTime; }
 
-    virtual void clearBackingStore() = 0;
+    virtual void clearBackingStore();
 
     virtual std::optional<ImageBufferBackendHandle> frontBufferHandle() const = 0;
 #if ENABLE(RE_DYNAMIC_CONTENT_SCALING)

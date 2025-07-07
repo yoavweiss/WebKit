@@ -5353,12 +5353,6 @@ void RenderLayerCompositor::deviceOrPageScaleFactorChanged()
         rootLayer->noteDeviceOrPageScaleFactorChangedIncludingDescendants();
 }
 
-void RenderLayerCompositor::screenSupportedContentsFormatsChanged()
-{
-    if (RefPtr rootLayer = rootGraphicsLayer())
-        rootLayer->noteScreenSupportedContentsFormatsChangedIncludingDescendants();
-}
-
 void RenderLayerCompositor::removeFromScrollCoordinatedLayers(RenderLayer& layer)
 {
 #if PLATFORM(IOS_FAMILY)

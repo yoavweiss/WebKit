@@ -83,7 +83,6 @@ void RemoteLayerWithRemoteRenderingBackingStore::prepareToDisplay()
 
 void RemoteLayerWithRemoteRenderingBackingStore::clearBackingStore()
 {
-    m_contentsBufferHandle = std::nullopt;
     m_cleared = true;
 }
 
@@ -115,7 +114,7 @@ void RemoteLayerWithRemoteRenderingBackingStore::ensureBackingStore(const Parame
         return;
 
     m_parameters = parameters;
-    m_cleared = true;
+    clearBackingStore();
     if (m_bufferSet) {
         RemoteImageBufferSetConfiguration configuration {
             .logicalSize = size(),

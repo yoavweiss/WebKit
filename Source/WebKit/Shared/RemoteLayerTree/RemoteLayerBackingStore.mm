@@ -136,6 +136,12 @@ RemoteLayerBackingStoreCollection* RemoteLayerBackingStore::backingStoreCollecti
     return nullptr;
 }
 
+void RemoteLayerBackingStore::clearBackingStore()
+{
+    m_contentsBufferHandle = std::nullopt;
+    setNeedsDisplay();
+}
+
 void RemoteLayerBackingStore::ensureBackingStore(const Parameters& parameters)
 {
     if (m_parameters == parameters)
