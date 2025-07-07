@@ -3331,7 +3331,7 @@ HiddenPageDOMTimerThrottlingEnabled:
 
 HiddenUntilFoundEnabled:
    type: bool
-   status: testable
+   status: preview
    category: html
    humanReadableName: "hidden=until-found"
    humanReadableDescription: "Enable support for hidden=until-found"
