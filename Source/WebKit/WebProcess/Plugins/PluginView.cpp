@@ -265,6 +265,11 @@ LocalFrame* PluginView::frame() const
     return m_pluginElement->document().frame();
 }
 
+RefPtr<LocalFrame> PluginView::protectedFrame() const
+{
+    return frame();
+}
+
 void PluginView::manualLoadDidReceiveResponse(const ResourceResponse& response)
 {
     if (!m_isInitialized) {

@@ -137,6 +137,7 @@ public:
     virtual WebCore::PluginLayerHostingStrategy layerHostingStrategy() const = 0;
     virtual PlatformLayer* platformLayer() const { return nullptr; }
     virtual WebCore::GraphicsLayer* graphicsLayer() const { return nullptr; }
+    RefPtr<WebCore::GraphicsLayer> protectedGraphicsLayer() const;
 
     virtual void setView(PluginView&);
 

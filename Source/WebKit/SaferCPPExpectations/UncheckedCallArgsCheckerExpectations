@@ -62,11 +62,7 @@ WebProcess/Network/webrtc/LibWebRTCDnsResolverFactory.cpp
 WebProcess/Network/webrtc/LibWebRTCNetwork.h
 WebProcess/Network/webrtc/LibWebRTCProvider.cpp
 WebProcess/Network/webrtc/LibWebRTCResolver.cpp
-WebProcess/Plugins/PDF/PDFPluginBase.mm
-WebProcess/Plugins/PDF/UnifiedPDF/PDFDiscretePresentationController.mm
 WebProcess/Plugins/PDF/UnifiedPDF/PDFScrollingPresentationController.mm
-WebProcess/Plugins/PDF/UnifiedPDF/UnifiedPDFPlugin.mm
-WebProcess/Plugins/PDF/WKAccessibilityPDFDocumentObject.mm
 WebProcess/Speech/SpeechRecognitionRealtimeMediaSourceManager.cpp
 WebProcess/Storage/WebServiceWorkerFetchTaskClient.cpp
 WebProcess/WebCoreSupport/WebChromeClient.cpp

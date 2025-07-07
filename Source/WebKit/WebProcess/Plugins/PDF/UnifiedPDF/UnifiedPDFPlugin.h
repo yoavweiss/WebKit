@@ -240,7 +240,7 @@ private:
     bool isUnifiedPDFPlugin() const override { return true; }
 
     WebCore::PluginLayerHostingStrategy layerHostingStrategy() const override { return WebCore::PluginLayerHostingStrategy::GraphicsLayer; }
-    WebCore::GraphicsLayer* graphicsLayer() const override;
+    WebCore::GraphicsLayer* graphicsLayer() const override { return m_rootLayer.get(); }
 
     void teardown() override;
 
@@ -649,6 +649,11 @@ private:
     bool shouldUseInProcessBackingStore() const;
 
     bool delegatesScrollingToMainFrame() const final;
+
+    RefPtr<PDFPresentationController> protectedPresentationController() const;
+
+    RefPtr<WebCore::GraphicsLayer> protectedScrollContainerLayer() const { return m_scrollContainerLayer; }
+    RefPtr<WebCore::GraphicsLayer> protectedOverflowControlsContainer() const { return m_overflowControlsContainer; }
 
     RefPtr<PDFPresentationController> m_presentationController;
 

@@ -218,14 +218,10 @@ WebProcess/InjectedBundle/API/mac/WKWebProcessPlugIn.mm
 WebProcess/InjectedBundle/API/mac/WKWebProcessPlugInBrowserContextController.mm
 WebProcess/InjectedBundle/mac/InjectedBundleMac.mm
 WebProcess/Model/mac/ARKitInlinePreviewModelPlayerMac.mm
-WebProcess/Plugins/PDF/PDFAnnotationTypeHelpers.mm
 WebProcess/Plugins/PDF/PDFIncrementalLoader.mm
 WebProcess/Plugins/PDF/PDFPluginBase.mm
 WebProcess/Plugins/PDF/PDFPluginChoiceAnnotation.mm
 WebProcess/Plugins/PDF/PDFPluginTextAnnotation.mm
-WebProcess/Plugins/PDF/UnifiedPDF/AsyncPDFRenderer.mm
-WebProcess/Plugins/PDF/UnifiedPDF/PDFDataDetectorItem.mm
-WebProcess/Plugins/PDF/UnifiedPDF/PDFDataDetectorOverlayController.mm
 WebProcess/Plugins/PDF/UnifiedPDF/UnifiedPDFPlugin.mm
 WebProcess/Plugins/PDF/WKAccessibilityPDFDocumentObject.mm
 WebProcess/WebPage/Cocoa/WebCookieJarCocoa.mm
