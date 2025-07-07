@@ -83,6 +83,7 @@
 #include "Page.h"
 #include "PathUtilities.h"
 #include "PluginViewBase.h"
+#include "PositionInlines.h"
 #include "ProgressTracker.h"
 #include "Range.h"
 #include "RenderButton.h"
