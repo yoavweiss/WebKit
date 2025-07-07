@@ -2191,8 +2191,6 @@ fast/mediastream/microphone-interruption-and-audio-session.html [ Skip ]
 
 webrtc/clone-audio-track.html [ Pass Failure ]
 
-webkit.org/b/256758 fast/mediastream/captureStream/canvas3d.html [ Failure ]
-
 webkit.org/b/194611 http/wpt/webrtc/getUserMedia-processSwapping.html [ Failure ]
 
 # These tests are macOS-specific. In Linux changing the PipeWire capture source on the fly is not supported.

@@ -40,6 +40,7 @@
 #if ENABLE(MEDIA_STREAM) || ENABLE(WEB_CODECS)
 #include "VideoFrame.h"
 #if USE(GSTREAMER)
+#include "VideoFrameContentHint.h"
 #include "VideoFrameGStreamer.h"
 #endif
 #endif
@@ -126,7 +127,7 @@ void GraphicsContextGLANGLE::platformReleaseThreadResources()
 
 RefPtr<PixelBuffer> GraphicsContextGLTextureMapperANGLE::readCompositedResults()
 {
-    return readRenderingResults();
+    return readRenderingResultsForPainting();
 }
 
 RefPtr<GraphicsContextGL> createWebProcessGraphicsContextGL(const GraphicsContextGLAttributes& attributes)

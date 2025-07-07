@@ -244,7 +244,7 @@ void CanvasCaptureMediaStreamTrack::Source::captureCanvas()
         static const double s_frameRate = 60;
         gstVideoFrame->setMaxFrameRate(s_frameRate);
         gstVideoFrame->setPresentationTime(m_presentationTimeStamp);
-        gstVideoFrame->setMetadata({ metadata });
+        gstVideoFrame->setMetadataAndContentHint({ metadata }, VideoFrameContentHint::Canvas);
         m_presentationTimeStamp = m_presentationTimeStamp + MediaTime::createWithDouble(1.0 / s_frameRate);
     }
 #endif

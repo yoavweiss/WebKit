@@ -22,6 +22,7 @@
 #if ENABLE(VIDEO) && USE(GSTREAMER)
 
 #include "VideoFrame.h"
+#include "VideoFrameContentHint.h"
 #include "VideoFrameMetadataGStreamer.h"
 #include <gst/video/video-format.h>
 #include <gst/video/video-info.h>
@@ -45,18 +46,17 @@ public:
     };
     static Info infoFromCaps(const GRefPtr<GstCaps>&);
 
-    static Ref<VideoFrameGStreamer> create(GRefPtr<GstSample>&&, std::optional<Info>&&, const IntSize& presentationSize, const MediaTime& presentationTime = MediaTime::invalidTime(), Rotation videoRotation = Rotation::None, bool videoMirrored = false, std::optional<VideoFrameTimeMetadata>&& = std::nullopt, std::optional<PlatformVideoColorSpace>&& = std::nullopt);
+    static Ref<VideoFrameGStreamer> create(GRefPtr<GstSample>&&, std::optional<Info>&&, const IntSize& presentationSize, const MediaTime& presentationTime = MediaTime::invalidTime(), Rotation videoRotation = Rotation::None, bool videoMirrored = false, std::optional<VideoFrameTimeMetadata>&& = std::nullopt, std::optional<PlatformVideoColorSpace>&& = std::nullopt, VideoFrameContentHint = VideoFrameContentHint::None);
 
     static Ref<VideoFrameGStreamer> createWrappedSample(const GRefPtr<GstSample>&, const MediaTime& presentationTime = MediaTime::invalidTime(), Rotation videoRotation = Rotation::None);
 
-    static RefPtr<VideoFrameGStreamer> createFromPixelBuffer(Ref<PixelBuffer>&&, Rotation videoRotation = VideoFrame::Rotation::None, const MediaTime& presentationTime = MediaTime::invalidTime(), const IntSize& destinationSize = { }, double frameRate = 1, bool videoMirrored = false, std::optional<VideoFrameTimeMetadata>&& metadata = std::nullopt, PlatformVideoColorSpace&& = { });
+    static RefPtr<VideoFrameGStreamer> createFromPixelBuffer(Ref<PixelBuffer>&&, Rotation videoRotation = VideoFrame::Rotation::None, const MediaTime& presentationTime = MediaTime::invalidTime(), const IntSize& destinationSize = { }, double frameRate = 1, bool videoMirrored = false, std::optional<VideoFrameTimeMetadata>&& metadata = std::nullopt, PlatformVideoColorSpace&& = { }, VideoFrameContentHint = VideoFrameContentHint::None);
 
     void setFrameRate(double);
     void setMaxFrameRate(double);
 
     void setPresentationTime(const MediaTime&);
-
-    void setMetadata(std::optional<VideoFrameTimeMetadata>&&);
+    void setMetadataAndContentHint(std::optional<VideoFrameTimeMetadata>&&, VideoFrameContentHint);
 
     RefPtr<VideoFrameGStreamer> resizeTo(const IntSize&);
 
@@ -86,8 +86,10 @@ public:
     const GstVideoInfo& info() const { return m_info.info; }
     std::optional<DMABufFormat> dmaBufFormat() const { return m_info.dmaBufFormat; }
 
+    VideoFrameContentHint contentHint() const;
+
 private:
-    VideoFrameGStreamer(GRefPtr<GstSample>&&, std::optional<Info>&&, const IntSize& presentationSize, const MediaTime& presentationTime = MediaTime::invalidTime(), Rotation = Rotation::None, bool videoMirrored = false, std::optional<VideoFrameTimeMetadata>&& = std::nullopt, PlatformVideoColorSpace&& = { });
+    VideoFrameGStreamer(GRefPtr<GstSample>&&, std::optional<Info>&&, const IntSize& presentationSize, const MediaTime& presentationTime = MediaTime::invalidTime(), Rotation = Rotation::None, bool videoMirrored = false, std::optional<VideoFrameTimeMetadata>&& = std::nullopt, PlatformVideoColorSpace&& = { }, VideoFrameContentHint = VideoFrameContentHint::None);
     VideoFrameGStreamer(const GRefPtr<GstSample>&, Info&&, const IntSize& presentationSize, const MediaTime& presentationTime = MediaTime::invalidTime(), Rotation = Rotation::None, PlatformVideoColorSpace&& = { });
 
     bool isGStreamer() const final { return true; }
