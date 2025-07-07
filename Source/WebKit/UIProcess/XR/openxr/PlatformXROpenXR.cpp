@@ -44,6 +44,8 @@ namespace WebKit {
 
 struct OpenXRCoordinator::RenderState {
     std::atomic<bool> terminateRequested;
+    PlatformXR::Device::RequestFrameCallback onFrameUpdate;
+    XrFrameState frameState;
 };
 
 OpenXRCoordinator::OpenXRCoordinator()
@@ -167,10 +169,13 @@ void OpenXRCoordinator::endSessionIfExists(std::optional<WebCore::PageIdentifier
             if (active.renderState->terminateRequested)
                 return;
 
-            // OpenXR will transition the session to EXITING state, which will set terminateRequested to true.
-            xrRequestExitSession(m_session);
+            // OpenXR will transition the session to STOPPING state and then we will call xrEndSession().
+            CHECK_XRCMD(xrRequestExitSession(m_session));
 
             active.renderThread->waitForCompletion();
+
+            if (active.renderState->onFrameUpdate)
+                active.renderState->onFrameUpdate({ });
 
             auto& sessionEventClient = active.sessionEventClient;
             if (sessionEventClient) {
@@ -179,6 +184,63 @@ void OpenXRCoordinator::endSessionIfExists(std::optional<WebCore::PageIdentifier
             }
 
             m_state = Idle { };
+        });
+}
+
+void OpenXRCoordinator::scheduleAnimationFrame(WebPageProxy& page, std::optional<PlatformXR::RequestData>&&, PlatformXR::Device::RequestFrameCallback&& onFrameUpdateCallback)
+{
+    RELEASE_LOG(XR, "OpenXRCoordinator::scheduleAnimationFrame");
+    WTF::switchOn(m_state,
+        [&](Idle&) {
+            RELEASE_LOG(XR, "OpenXRCoordinator: trying to schedule frame update for an inactive session");
+            onFrameUpdateCallback({ });
+        },
+        [&](Active& active) {
+            if (active.pageIdentifier != page.webPageIDInMainFrameProcess()) {
+                RELEASE_LOG(XR, "OpenXRCoordinator: trying to schedule frame update for session owned by another page");
+                return;
+            }
+
+            if (active.renderState->terminateRequested) {
+                RELEASE_LOG(XR, "OpenXRCoordinator: trying to schedule frame for terminating session");
+                onFrameUpdateCallback({ });
+            }
+
+            active.renderState->onFrameUpdate = WTFMove(onFrameUpdateCallback);
+        });
+}
+
+void OpenXRCoordinator::submitFrameInternal(Box<RenderState> renderState)
+{
+    Vector<XrCompositionLayerBaseHeader*> layers;
+
+    XrFrameEndInfo frameEndInfo = createOpenXRStruct<XrFrameEndInfo, XR_TYPE_FRAME_END_INFO>();
+    frameEndInfo.displayTime = renderState->frameState.predictedDisplayTime;
+    frameEndInfo.environmentBlendMode = m_sessionMode == PlatformXR::SessionMode::ImmersiveAr ? m_arBlendMode : m_vrBlendMode;
+    frameEndInfo.layerCount = static_cast<uint32_t>(layers.size());
+    frameEndInfo.layers = layers.mutableSpan().data();
+    CHECK_XRCMD(xrEndFrame(m_session, &frameEndInfo));
+}
+
+void OpenXRCoordinator::submitFrame(WebPageProxy& page)
+{
+    ASSERT(RunLoop::isMain());
+    WTF::switchOn(m_state,
+        [&](Idle&) {
+            RELEASE_LOG(XR, "OpenXRCoordinator: trying to submit frame update for an inactive session");
+        },
+        [&](Active& active) {
+            if (active.pageIdentifier != page.webPageIDInMainFrameProcess()) {
+                RELEASE_LOG(XR, "OpenXRCoordinator: trying to submit frame update for session owned by another page");
+                return;
+            }
+
+            if (active.renderState->terminateRequested.load()) {
+                RELEASE_LOG(XR, "OpenXRCoordinator: trying to submit frame update for a terminating session");
+                return;
+            }
+
+            submitFrameInternal(active.renderState);
         });
 }
 
@@ -285,6 +347,35 @@ void OpenXRCoordinator::initializeDevice()
     }
 
     collectViewConfigurations();
+    initializeBlendModes();
+}
+
+void OpenXRCoordinator::initializeBlendModes()
+{
+    ASSERT(RunLoop::isMain());
+    ASSERT(m_instance != XR_NULL_HANDLE);
+    ASSERT(m_viewConfigurations.size());
+
+    uint32_t count;
+    CHECK_XRCMD(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_currentViewConfiguration, 0, &count, nullptr));
+    ASSERT(count);
+
+    Vector<XrEnvironmentBlendMode> blendModes(count);
+    CHECK_XRCMD(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_currentViewConfiguration, count, &count, blendModes.mutableSpan().data()));
+
+#if !LOG_DISABLED
+    LOG(XR, "OpenXR: %d supported blend mode%c", count, count > 1 ? 's' : ' ');
+    for (const auto& blendMode : blendModes)
+        LOG(XR, "\t%s", toString(blendMode));
+#endif
+
+    const bool supportsOpaqueBlendMode = blendModes.contains(XR_ENVIRONMENT_BLEND_MODE_OPAQUE);
+    const bool supportsAdditiveBlendMode = blendModes.contains(XR_ENVIRONMENT_BLEND_MODE_ADDITIVE);
+    const bool supportsAlphaBlendMode = blendModes.contains(XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND);
+    ASSERT(supportsOpaqueBlendMode || supportsAdditiveBlendMode || supportsAlphaBlendMode);
+
+    m_arBlendMode = supportsAdditiveBlendMode ? XR_ENVIRONMENT_BLEND_MODE_ADDITIVE : (supportsAlphaBlendMode ? XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND : XR_ENVIRONMENT_BLEND_MODE_OPAQUE);
+    m_vrBlendMode = supportsOpaqueBlendMode ? XR_ENVIRONMENT_BLEND_MODE_OPAQUE : m_arBlendMode;
 }
 
 void OpenXRCoordinator::initializeGraphicsBinding()
@@ -328,7 +419,7 @@ void OpenXRCoordinator::createSessionIfNeeded()
     CHECK_XRCMD(xrCreateSession(m_instance, &sessionCreateInfo, &m_session));
 }
 
-void OpenXRCoordinator::handleSessionStateChange()
+void OpenXRCoordinator::handleSessionStateChange(Box<RenderState> active)
 {
     ASSERT(!RunLoop::isMain());
 
@@ -340,7 +431,10 @@ void OpenXRCoordinator::handleSessionStateChange()
         break;
     }
     case XR_SESSION_STATE_STOPPING:
-        xrEndSession(m_session);
+        // Once xrEndSession() is called we cannot longer call xrWaitFrame()->xrBeginFrame()->xrEndFrame() from any thread.
+        // However we cannot terminate the thread just now as we need to call xrPollEvent() to handle the session state change.
+        active->terminateRequested = true;
+        CHECK_XRCMD(xrEndSession(m_session));
         break;
     case XR_SESSION_STATE_LOSS_PENDING:
     case XR_SESSION_STATE_EXITING: {
@@ -354,7 +448,9 @@ void OpenXRCoordinator::handleSessionStateChange()
     }
 }
 
-void OpenXRCoordinator::pollEvents(std::atomic<bool>& terminateRequested)
+enum class OpenXRCoordinator::PollResult : bool { Stop, Continue };
+
+OpenXRCoordinator::PollResult OpenXRCoordinator::pollEvents(Box<RenderState> active)
 {
     ASSERT(!RunLoop::isMain());
     auto runtimeEvent = createOpenXRStruct<XrEventDataBuffer, XR_TYPE_EVENT_DATA_BUFFER>();
@@ -362,33 +458,64 @@ void OpenXRCoordinator::pollEvents(std::atomic<bool>& terminateRequested)
         switch (runtimeEvent.type) {
         case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
             LOG(XR, "OpenXR instance loss");
-            terminateRequested = true;
-            break;
+            return PollResult::Stop;
         case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED: {
             auto* event = reinterpret_cast<XrEventDataSessionStateChanged*>(&runtimeEvent);
             LOG(XR, "OpenXR session state changed: %s", toString(event->state));
             m_sessionState = event->state;
-            handleSessionStateChange();
-            terminateRequested = m_session == XR_NULL_HANDLE;
-            break;
+            handleSessionStateChange(active);
+            return m_session == XR_NULL_HANDLE ? PollResult::Stop : PollResult::Continue;
         }
         default:
             LOG(XR, "Unhandled OpenXR event type %d\n", runtimeEvent.type);
         }
     }
+    return PollResult::Continue;
 }
 
 void OpenXRCoordinator::renderLoop(Box<RenderState> active)
 {
     for (;;) {
-        if (active->terminateRequested)
+        if (pollEvents(active) == PollResult::Stop)
             break;
 
-        pollEvents(active->terminateRequested);
+        auto throttleThreadIfNeeded = [sessionState = m_sessionState]() {
+            // Throttle the loop if the session is not running as xrWaitFrame() won't be called.
+            if (sessionState < XR_SESSION_STATE_READY || sessionState >= XR_SESSION_STATE_STOPPING)
+                std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        };
 
-        // Throttle the loop if the session is not running as xrWaitFrame won't be called.
-        if (m_sessionState != XR_SESSION_STATE_READY)
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        if (!active->onFrameUpdate || active->terminateRequested) {
+            throttleThreadIfNeeded();
+            continue;
+        }
+
+        XrFrameWaitInfo frameWaitInfo = createOpenXRStruct<XrFrameWaitInfo, XR_TYPE_FRAME_WAIT_INFO>();
+        XrFrameState frameState = createOpenXRStruct<XrFrameState, XR_TYPE_FRAME_STATE>();
+        CHECK_XRCMD(xrWaitFrame(m_session, &frameWaitInfo, &frameState));
+
+        XrFrameBeginInfo frameBeginInfo = createOpenXRStruct<XrFrameBeginInfo, XR_TYPE_FRAME_BEGIN_INFO>();
+        CHECK_XRCMD(xrBeginFrame(m_session, &frameBeginInfo));
+
+        // We should not directly use active->frameState in the xrWaitFrame() in order not to override the previous (ongoing) value.
+        active->frameState = frameState;
+
+        PlatformXR::FrameData frameData;
+        frameData.predictedDisplayTime = active->frameState.predictedDisplayTime;
+        frameData.shouldRender = active->frameState.shouldRender;
+
+        callOnMainRunLoop([callback = WTFMove(active->onFrameUpdate), frameData = WTFMove(frameData)]() mutable {
+            callback(WTFMove(frameData));
+        });
+
+        if (!active->frameState.shouldRender) {
+            // We must always call xrEndFrame() if we had previously called xrBeginFrame(), even if we don't render anything. Don't wait
+            // for submitFrame() as in the normal flow because it won't ever be called (see WebXRSession::onFrame()).
+            submitFrameInternal(active);
+            continue;
+        }
+
+        throttleThreadIfNeeded();
     }
 
     LOG(XR, "OpenXRCoordinator::renderLoop exiting...");

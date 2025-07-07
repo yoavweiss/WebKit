@@ -50,35 +50,18 @@ public:
     void startSession(WebPageProxy&, WeakPtr<PlatformXRCoordinatorSessionEventClient>&&, const WebCore::SecurityOriginData&, PlatformXR::SessionMode, const PlatformXR::Device::FeatureList&) override;
     void endSessionIfExists(WebPageProxy&) override;
 
-    void scheduleAnimationFrame(WebPageProxy&, std::optional<PlatformXR::RequestData>&&, PlatformXR::Device::RequestFrameCallback&& onFrameUpdateCallback) override { onFrameUpdateCallback({ }); }
+    void scheduleAnimationFrame(WebPageProxy&, std::optional<PlatformXR::RequestData>&&, PlatformXR::Device::RequestFrameCallback&& onFrameUpdateCallback) override;
+    void submitFrame(WebPageProxy&) override;
 
 private:
     void createInstance();
     void createSessionIfNeeded();
     void initializeDevice();
     void initializeSystem();
+    void initializeBlendModes();
     void initializeGraphicsBinding();
     void collectViewConfigurations();
     WebCore::IntSize recommendedResolution() const;
-
-    void handleSessionStateChange();
-    void endSessionIfExists(std::optional<WebCore::PageIdentifier>);
-    void pollEvents(std::atomic<bool>& terminateRequested);
-    void renderLoop(Box<RenderState>);
-
-    XRDeviceIdentifier m_deviceIdentifier { XRDeviceIdentifier::generate() };
-    XrInstance m_instance { XR_NULL_HANDLE };
-    XrSystemId m_systemId { XR_NULL_SYSTEM_ID };
-    XrSession m_session { XR_NULL_HANDLE };
-    Vector<XrViewConfigurationType> m_viewConfigurations;
-    XrViewConfigurationType m_currentViewConfiguration;
-    XrSessionState m_sessionState { XR_SESSION_STATE_UNKNOWN };
-
-    std::unique_ptr<OpenXRExtensions> m_extensions;
-
-    std::unique_ptr<WebCore::PlatformDisplaySurfaceless> m_platformDisplay;
-    std::unique_ptr<WebCore::GLContext> m_glContext;
-    XrGraphicsBindingEGLMNDX m_graphicsBinding;
 
     struct Idle {
     };
@@ -88,8 +71,31 @@ private:
         Box<RenderState> renderState;
         RefPtr<Thread> renderThread;
     };
-
     using State = Variant<Idle, Active>;
+
+    void handleSessionStateChange(Box<RenderState>);
+    void endSessionIfExists(std::optional<WebCore::PageIdentifier>);
+    enum class PollResult : bool;
+    PollResult pollEvents(Box<RenderState>);
+    void renderLoop(Box<RenderState>);
+    void submitFrameInternal(Box<RenderState>);
+
+    XRDeviceIdentifier m_deviceIdentifier { XRDeviceIdentifier::generate() };
+    XrInstance m_instance { XR_NULL_HANDLE };
+    XrSystemId m_systemId { XR_NULL_SYSTEM_ID };
+    XrSession m_session { XR_NULL_HANDLE };
+    Vector<XrViewConfigurationType> m_viewConfigurations;
+    XrViewConfigurationType m_currentViewConfiguration;
+    XrSessionState m_sessionState { XR_SESSION_STATE_UNKNOWN };
+    XrEnvironmentBlendMode m_vrBlendMode;
+    XrEnvironmentBlendMode m_arBlendMode;
+
+    std::unique_ptr<OpenXRExtensions> m_extensions;
+
+    std::unique_ptr<WebCore::PlatformDisplaySurfaceless> m_platformDisplay;
+    std::unique_ptr<WebCore::GLContext> m_glContext;
+    XrGraphicsBindingEGLMNDX m_graphicsBinding;
+
     State m_state;
     PlatformXR::SessionMode m_sessionMode;
 };
