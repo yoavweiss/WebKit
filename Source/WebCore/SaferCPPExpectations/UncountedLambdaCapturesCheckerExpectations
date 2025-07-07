@@ -15,7 +15,6 @@ Modules/mediastream/RTCDataChannel.cpp
 Modules/mediastream/RTCPeerConnection.cpp
 Modules/mediastream/RTCRtpSender.cpp
 Modules/mediastream/libwebrtc/LibWebRTCMediaEndpoint.cpp
-Modules/notifications/Notification.cpp
 Modules/paymentrequest/PaymentRequest.cpp
 Modules/push-api/PushDatabase.cpp
 Modules/webaudio/AudioWorkletThread.cpp

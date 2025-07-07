@@ -73,8 +73,6 @@ Modules/mediastream/libwebrtc/LibWebRTCObservers.h
 Modules/mediastream/libwebrtc/LibWebRTCSctpTransportBackend.cpp
 Modules/model-element/HTMLModelElement.cpp
 Modules/model-element/scenekit/SceneKitModelPlayer.mm
-Modules/notifications/Notification.cpp
-Modules/notifications/NotificationResourcesLoader.cpp
 Modules/pictureinpicture/HTMLVideoElementPictureInPicture.cpp
 Modules/push-api/PushManager.cpp
 Modules/push-api/PushSubscription.cpp
