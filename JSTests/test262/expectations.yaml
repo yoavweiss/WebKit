@@ -17,14 +17,17 @@ test/built-ins/Function/prototype/caller/prop-desc.js:
   default: 'Test262Error: Caller property getter/setter are the same function Expected SameValue(«function get caller() {'
   strict mode: 'Test262Error: Caller property getter/setter are the same function Expected SameValue(«function get caller() {'
 test/built-ins/Function/prototype/toString/built-in-function-object.js:
-  default: 'Test262Error: Conforms to NativeFunction Syntax: "function get $*() {\n    [native code]\n}" (%RegExp%.$*)'
-  strict mode: 'Test262Error: Conforms to NativeFunction Syntax: "function get $*() {\n    [native code]\n}" (%RegExp%.$*)'
+  default: 'Test262Error: Conforms to NativeFunction Syntax: "function $*() {\n    [native code]\n}" (%RegExp%.$*)'
+  strict mode: 'Test262Error: Conforms to NativeFunction Syntax: "function $*() {\n    [native code]\n}" (%RegExp%.$*)'
 test/built-ins/Iterator/concat/fresh-iterator-result.js:
   default: 'Test262Error: Expected SameValue(«[object Object]», «[object Object]») to be true'
   strict mode: 'Test262Error: Expected SameValue(«[object Object]», «[object Object]») to be true'
 test/built-ins/Iterator/concat/next-method-returns-throwing-value.js:
   default: 'Test262Error: '
   strict mode: 'Test262Error: '
+test/built-ins/Object/entries/order-after-define-property-with-function.js:
+  default: 'Test262Error: Actual [a, name] and expected [name, a] should have the same contents. '
+  strict mode: 'Test262Error: Actual [a, name] and expected [name, a] should have the same contents. '
 test/built-ins/Object/keys/order-after-define-property-with-function.js:
   default: 'Test262Error: Actual [a, length] and expected [length, a] should have the same contents. '
   strict mode: 'Test262Error: Actual [a, length] and expected [length, a] should have the same contents. '
