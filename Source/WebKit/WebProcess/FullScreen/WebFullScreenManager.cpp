@@ -312,16 +312,15 @@ void WebFullScreenManager::enterFullScreenForElement(Element& element, HTMLMedia
 
     m_page->prepareToEnterElementFullScreen();
 
+    if (RefPtr page = m_page->corePage()) {
+        if (RefPtr view = page->mainFrame().virtualView())
+            m_scrollPosition = view->scrollPosition();
+    }
+
     if (mode == HTMLMediaElementEnums::VideoFullscreenModeInWindow) {
         willEnterFullScreen(element, WTFMove(willEnterFullScreenCallback), WTFMove(didEnterFullScreenCallback), mode);
         m_inWindowFullScreenMode = true;
     } else {
-
-        if (RefPtr page = m_page->corePage()) {
-            if (RefPtr view = page->mainFrame().virtualView())
-                m_scrollPosition = view->scrollPosition();
-        }
-
         m_page->sendWithAsyncReply(Messages::WebFullScreenManagerProxy::EnterFullScreen(frameID, m_element->document().quirks().blocksReturnToFullscreenFromPictureInPictureQuirk(), WTFMove(mediaDetails)), [
             this,
             protectedThis = Ref { *this },
