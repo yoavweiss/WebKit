@@ -76,11 +76,6 @@ public:
     ExceptionOr<RefPtr<GPUTexture>> getCurrentTexture() override;
     RefPtr<ImageBuffer> transferToImageBuffer() override;
 
-#if HAVE(SUPPORT_HDR_DISPLAY) && ENABLE(PIXEL_FORMAT_RGBA16F)
-    void setDynamicRangeLimit(PlatformDynamicRangeLimit) override;
-    std::optional<double> getEffectiveDynamicRangeLimitValue() const override;
-#endif
-
 private:
     explicit GPUCanvasContextCocoa(CanvasBase&, Ref<GPUCompositorIntegration>&&, Ref<GPUPresentationContext>&&, Document*);
 
@@ -94,12 +89,7 @@ private:
     CanvasType htmlOrOffscreenCanvas() const;
     ExceptionOr<void> configure(GPUCanvasConfiguration&&, bool);
     void present(uint32_t frameIndex);
-#if HAVE(SUPPORT_HDR_DISPLAY)
-    float computeContentsHeadroom();
-    void updateContentsHeadroom();
-    void updateScreenHeadroom(float, bool suppressEDR);
-    void updateScreenHeadroomFromScreenProperties();
-#endif // HAVE(SUPPORT_HDR_DISPLAY)
+    void updateContentsHeadroom(float);
 
     struct Configuration {
         Ref<GPUDevice> device;
@@ -121,13 +111,9 @@ private:
 
     GPUIntegerCoordinate m_width { 0 };
     GPUIntegerCoordinate m_height { 0 };
-#if HAVE(SUPPORT_HDR_DISPLAY)
+    float m_contentsHeadroom { 0.f };
     using ScreenPropertiesChangedObserver = Observer<void(PlatformDisplayID)>;
     std::optional<ScreenPropertiesChangedObserver> m_screenPropertiesChangedObserver;
-    PlatformDynamicRangeLimit m_dynamicRangeLimit { PlatformDynamicRangeLimit::initialValue() };
-    float m_currentEDRHeadroom { 1 };
-    bool m_suppressEDR { false };
-#endif // HAVE(SUPPORT_HDR_DISPLAY)
     bool m_compositingResultsNeedsUpdating { false };
 };
 

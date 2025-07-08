@@ -170,12 +170,15 @@ GPUCanvasContextCocoa::GPUCanvasContextCocoa(CanvasBase& canvas, Ref<GPUComposit
     , m_presentationContext(WTFMove(presentationContext))
     , m_width(getCanvasWidth(htmlOrOffscreenCanvas()))
     , m_height(getCanvasHeight(htmlOrOffscreenCanvas()))
+    , m_screenPropertiesChangedObserver([this](auto displayID) {
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    , m_screenPropertiesChangedObserver([this](PlatformDisplayID displayID) {
         if (auto* screenData = WebCore::screenData(displayID))
-            updateScreenHeadroom(screenData->currentEDRHeadroom, screenData->suppressEDR);
+            updateContentsHeadroom(screenData->currentEDRHeadroom);
+#else
+        UNUSED_PARAM(displayID);
+        UNUSED_PARAM(this);
+#endif
     })
-#endif // HAVE(SUPPORT_HDR_DISPLAY)
 {
 #if HAVE(SUPPORT_HDR_DISPLAY)
     if (document)
@@ -187,92 +190,14 @@ GPUCanvasContextCocoa::GPUCanvasContextCocoa(CanvasBase& canvas, Ref<GPUComposit
 #endif
 }
 
-#if HAVE(SUPPORT_HDR_DISPLAY)
-template <float limitLow, float limitHigh>
-static float interpolateHeadroom(float headroomForLow, float headroomForHigh, float limit)
+void GPUCanvasContextCocoa::updateContentsHeadroom(float headroom)
 {
-    static_assert(limitLow < limitHigh);
-    if (headroomForHigh <= headroomForLow)
-        return headroomForHigh;
-    return std::lerp(headroomForLow, headroomForHigh, (limit - limitLow) / (limitHigh - limitLow));
-}
-
-float GPUCanvasContextCocoa::computeContentsHeadroom()
-{
-    if (m_currentEDRHeadroom <= 1.f)
-        return m_currentEDRHeadroom;
-
-    if (m_dynamicRangeLimit == PlatformDynamicRangeLimit::noLimit())
-        return m_currentEDRHeadroom;
-
-    constexpr auto forcedStandardHeadroom = 1.0000001f;
-
-    if (m_dynamicRangeLimit == PlatformDynamicRangeLimit::standard())
-        return forcedStandardHeadroom;
-
-    auto limitValue = m_dynamicRangeLimit.value();
-
-    if (m_suppressEDR) {
-        if (limitValue >= PlatformDynamicRangeLimit::constrained().value())
-            return m_currentEDRHeadroom;
-        return interpolateHeadroom<PlatformDynamicRangeLimit::standard().value(), PlatformDynamicRangeLimit::constrained().value()>(forcedStandardHeadroom, m_currentEDRHeadroom, limitValue);
-    }
-
-    constexpr auto maxConstrainedHeadroom = 1.6f;
-    auto suppressedHeadroom = std::min(maxConstrainedHeadroom, m_currentEDRHeadroom);
-    if (limitValue <= PlatformDynamicRangeLimit::constrained().value())
-        return interpolateHeadroom<PlatformDynamicRangeLimit::standard().value(), PlatformDynamicRangeLimit::constrained().value()>(forcedStandardHeadroom, suppressedHeadroom, limitValue);
-    return interpolateHeadroom<PlatformDynamicRangeLimit::constrained().value(), PlatformDynamicRangeLimit::noLimit().value()>(suppressedHeadroom, m_currentEDRHeadroom, limitValue);
-}
-
-void GPUCanvasContextCocoa::updateContentsHeadroom()
-{
-    m_compositorIntegration->updateContentsHeadroom(computeContentsHeadroom());
-}
-
-void GPUCanvasContextCocoa::updateScreenHeadroom(float currentEDRHeadroom, bool suppressEDR)
-{
-    if (m_suppressEDR == suppressEDR && m_currentEDRHeadroom == currentEDRHeadroom)
+    if (m_contentsHeadroom == headroom)
         return;
 
-    m_currentEDRHeadroom = currentEDRHeadroom;
-    m_suppressEDR = suppressEDR;
-    updateContentsHeadroom();
+    m_contentsHeadroom = headroom;
+    m_compositorIntegration->updateContentsHeadroom(headroom);
 }
-
-void GPUCanvasContextCocoa::updateScreenHeadroomFromScreenProperties()
-{
-    m_currentEDRHeadroom = 1.f;
-    m_suppressEDR = false;
-    for (const auto& screenData : WebCore::getScreenProperties().screenDataMap.values()) {
-        m_currentEDRHeadroom = std::max(m_currentEDRHeadroom, screenData.currentEDRHeadroom);
-        m_suppressEDR |= screenData.suppressEDR;
-    }
-    updateContentsHeadroom();
-}
-
-#if ENABLE(PIXEL_FORMAT_RGBA16F)
-void GPUCanvasContextCocoa::setDynamicRangeLimit(PlatformDynamicRangeLimit dynamicRangeLimit)
-{
-    if (m_dynamicRangeLimit == dynamicRangeLimit)
-        return;
-
-    m_dynamicRangeLimit = dynamicRangeLimit;
-
-    if (!m_screenPropertiesChangedObserver || m_currentEDRHeadroom < 1.f)
-        return updateScreenHeadroomFromScreenProperties();
-
-    updateContentsHeadroom();
-}
-
-std::optional<double> GPUCanvasContextCocoa::getEffectiveDynamicRangeLimitValue() const
-{
-    auto limitValue = m_dynamicRangeLimit.value();
-    auto suppressValue = m_suppressEDR ? PlatformDynamicRangeLimit::constrained().value() : PlatformDynamicRangeLimit::noLimit().value();
-    return std::min(limitValue, suppressValue);
-}
-#endif // ENABLE(PIXEL_FORMAT_RGBA16F)
-#endif // HAVE(SUPPORT_HDR_DISPLAY)
 
 void GPUCanvasContextCocoa::reshape()
 {
@@ -309,8 +234,12 @@ RefPtr<ImageBuffer> GPUCanvasContextCocoa::surfaceBufferToImageBuffer(SurfaceBuf
 
     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=294654 - OffscreenCanvas may not reflect the display the OffscreenCanvas is displayed on during background / resume
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    if (!m_screenPropertiesChangedObserver)
-        updateScreenHeadroomFromScreenProperties();
+    if (!m_screenPropertiesChangedObserver) {
+        float maxHeadroom = 1.f;
+        for (auto& screenData : WebCore::getScreenProperties().screenDataMap.values())
+            maxHeadroom = std::max(maxHeadroom, screenData.maxEDRHeadroom);
+        updateContentsHeadroom(maxHeadroom);
+    }
 #endif
 
     auto frameCount = m_configuration->frameCount;
@@ -421,10 +350,7 @@ ExceptionOr<void> GPUCanvasContextCocoa::configure(GPUCanvasConfiguration&& conf
     m_layerContentsDisplayDelegate->setContentsFormat(textureFormat != WebGPU::TextureFormat::Rgba16float ? ContentsFormat::RGBA8 : ContentsFormat::RGBA16F);
 #endif
 
-#if HAVE(SUPPORT_HDR_DISPLAY)
-    m_currentEDRHeadroom = 0.f;
-    m_suppressEDR = false;
-#endif // HAVE(SUPPORT_HDR_DISPLAY)
+    m_contentsHeadroom = 0.f;
     auto renderBuffers = m_compositorIntegration->recreateRenderBuffers(m_width, m_height, toWebCoreColorSpace(configuration.colorSpace, configuration.toneMapping), configuration.alphaMode == GPUCanvasAlphaMode::Premultiplied ? WebCore::AlphaPremultiplication::Premultiplied : WebCore::AlphaPremultiplication::Unpremultiplied, textureFormat, configuration.device->backing());
     // FIXME: This ASSERT() is wrong. It's totally possible for the IPC to the GPU process to timeout if the GPUP is busy, and return nothing here.
     ASSERT(!renderBuffers.isEmpty());

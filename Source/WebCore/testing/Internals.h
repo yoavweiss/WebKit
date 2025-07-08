@@ -818,7 +818,6 @@ public:
 
     double effectiveDynamicRangeLimitValue(const HTMLMediaElement&);
 #endif
-    ExceptionOr<double> getContextEffectiveDynamicRangeLimitValue(const HTMLCanvasElement&);
 
     ExceptionOr<void> setPageShouldSuppressHDR(bool);
 

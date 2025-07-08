@@ -4685,14 +4685,6 @@ double Internals::effectiveDynamicRangeLimitValue(const HTMLMediaElement& media)
 
 #endif
 
-ExceptionOr<double> Internals::getContextEffectiveDynamicRangeLimitValue(const HTMLCanvasElement& canvas)
-{
-    auto value = canvas.getContextEffectiveDynamicRangeLimitValue();
-    if (value.has_value())
-        return *value;
-    return Exception { ExceptionCode::InvalidStateError };
-}
-
 ExceptionOr<void> Internals::setPageShouldSuppressHDR(bool shouldSuppressHDR)
 {
     Document* document = contextDocument();
