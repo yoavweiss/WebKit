@@ -7936,3 +7936,5 @@ imported/w3c/web-platform-tests/css/css-ui/select-author-level-padding-applies.h
 webkit.org/b/295527 fast/animation/css-animation-resuming-when-visible-with-style-change2.html [ Pass Failure ]
 
 webkit.org/b/295557 fast/dom/Range/scale-page-bounding-client-rect.html [ Pass Failure ]
+
+webkit.org/b/295559 [ Release ] media/video-unmuted-after-play-holds-sleep-assertion.html [ Pass Failure ]
