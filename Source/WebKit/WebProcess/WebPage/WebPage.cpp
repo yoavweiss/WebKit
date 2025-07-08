@@ -3044,9 +3044,9 @@ void WebPage::setFooterBannerHeight(int height)
 }
 #endif
 
-void WebPage::takeSnapshot(IntRect snapshotRect, IntSize bitmapSize, SnapshotOptions snapshotOptions, bool sharedBitmapOnly, CompletionHandler<void(std::optional<ImageBufferBackendHandle>&&)>&& completionHandler)
+void WebPage::takeSnapshot(IntRect snapshotRect, IntSize bitmapSize, SnapshotOptions snapshotOptions, CompletionHandler<void(std::optional<WebCore::ShareableBitmap::Handle>&&)>&& completionHandler)
 {
-    std::optional<ImageBufferBackendHandle> handle;
+    std::optional<ShareableBitmap::Handle> handle;
     RefPtr coreFrame = m_mainFrame->coreLocalFrame();
     if (!coreFrame) {
         completionHandler(WTFMove(handle));
@@ -3080,12 +3080,8 @@ void WebPage::takeSnapshot(IntRect snapshotRect, IntSize bitmapSize, SnapshotOpt
             bitmapSize.scale(corePage()->deviceScaleFactor());
     }
 
-    ImageOptions imageOptions = { };
-    if (!sharedBitmapOnly)
-        imageOptions.add(ImageOption::SupportsBackendHandleVariant);
-
-    if (auto image = snapshotAtSize(snapshotRect, bitmapSize, snapshotOptions, *coreFrame, *frameView, imageOptions))
-        handle = image->createImageBufferBackendHandle(SharedMemory::Protection::ReadOnly);
+    if (auto image = snapshotAtSize(snapshotRect, bitmapSize, snapshotOptions, *coreFrame, *frameView))
+        handle = image->createHandle(SharedMemory::Protection::ReadOnly);
 
     if (isPaintBehaviorChanged) {
         frameView->setLayoutViewportOverrideRect(originalLayoutViewportOverrideRect);
@@ -3184,16 +3180,13 @@ static DestinationColorSpace snapshotColorSpace(SnapshotOptions options, WebPage
     return DestinationColorSpace::SRGB();
 }
 
-RefPtr<WebImage> WebPage::snapshotAtSize(const IntRect& rect, const IntSize& bitmapSize, SnapshotOptions options, LocalFrame& frame, LocalFrameView& frameView, ImageOptions imageOptions)
+RefPtr<WebImage> WebPage::snapshotAtSize(const IntRect& rect, const IntSize& bitmapSize, SnapshotOptions options, LocalFrame& frame, LocalFrameView& frameView)
 {
 #if ENABLE(PDF_PLUGIN)
-    imageOptions.add(m_pluginViews.computeSize() ? ImageOption::Local : ImageOption::Shareable);
+    auto imageOptions = m_pluginViews.computeSize() ? ImageOption::Local : ImageOption::Shareable;
 #else
-    imageOptions.add(ImageOption::Shareable);
+    auto imageOptions = ImageOption::Shareable;
 #endif
-
-    if (options.contains(SnapshotOption::Accelerated))
-        imageOptions.add(ImageOption::Accelerated);
 
     auto snapshot = WebImage::create(bitmapSize, imageOptions, snapshotColorSpace(options, *this), &m_page->chrome().client());
     if (!snapshot->context())
