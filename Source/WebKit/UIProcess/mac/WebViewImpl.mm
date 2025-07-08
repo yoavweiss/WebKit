@@ -2793,7 +2793,10 @@ void WebViewImpl::clearAllEditCommands()
 bool WebViewImpl::writeSelectionToPasteboard(NSPasteboard *pasteboard, NSArray *types)
 {
     size_t numTypes = types.count;
-    [pasteboard declareTypes:types owner:nil];
+    [pasteboard clearContents];
+    if (m_page->sessionID().isEphemeral())
+        [pasteboard _setExpirationDate:[NSDate dateWithTimeIntervalSinceNow:pasteboardExpirationDelay.seconds()]];
+    [pasteboard addTypes:types owner:nil];
     for (size_t i = 0; i < numTypes; ++i) {
         BOOL wantsPlainText = [[types objectAtIndex:i] isEqualTo:WebCore::legacyStringPasteboardType()];
         RELEASE_LOG(Pasteboard, "Synchronously requesting %{public}s for selected range", wantsPlainText ? "plain text" : "data");
@@ -4483,7 +4486,11 @@ void WebViewImpl::setPromisedDataForImage(WebCore::Image& image, NSString *filen
     }
 
     [types addObjectsFromArray:archiveBuffer ? PasteboardTypes::forImagesWithArchive() : PasteboardTypes::forImages()];
-    [pasteboard declareTypes:types.get() owner:m_view.getAutoreleased()];
+
+    [pasteboard clearContents];
+    if (m_page->sessionID().isEphemeral())
+        [pasteboard _setExpirationDate:[NSDate dateWithTimeIntervalSinceNow:pasteboardExpirationDelay.seconds()]];
+    [pasteboard addTypes:types.get() owner:m_view.getAutoreleased()];
     setFileAndURLTypes(filename, extension, uti.createNSString().get(), title, url, visibleURL, pasteboard.get());
 
     if (archiveBuffer) {
