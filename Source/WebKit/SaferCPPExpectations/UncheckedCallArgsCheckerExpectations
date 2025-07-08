@@ -16,7 +16,6 @@ NetworkProcess/storage/SQLiteStorageArea.cpp
 NetworkProcess/storage/SessionStorageManager.cpp
 Platform/IPC/ArgumentCoders.h
 Platform/IPC/Connection.cpp
-Platform/IPC/StreamClientConnection.cpp
 Platform/cocoa/_WKWebViewTextInputNotifications.mm
 Shared/RemoteLayerTree/RemoteLayerBackingStoreCollection.mm
 Shared/RemoteLayerTree/RemoteLayerTreeTransaction.mm

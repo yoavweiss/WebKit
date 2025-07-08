@@ -242,7 +242,7 @@ WTF_DECLARE_CF_TYPE_TRAIT(CGImage);
 @end
 
 @interface WKAccessibilitySettingsObserver : NSObject {
-    WebKit::WebViewImpl *_impl;
+    WeakPtr<WebKit::WebViewImpl> _impl;
 }
 
 - (instancetype)initWithImpl:(WebKit::WebViewImpl&)impl;
@@ -778,7 +778,7 @@ static void* keyValueObservingContext = &keyValueObservingContext;
 
 @interface WKTextListTouchBarViewController : NSViewController {
 @private
-    WebKit::WebViewImpl* _webViewImpl;
+    WeakPtr<WebKit::WebViewImpl> _webViewImpl;
     WebKit::ListType _currentListType;
 }
 
