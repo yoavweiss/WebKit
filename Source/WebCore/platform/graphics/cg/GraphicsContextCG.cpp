@@ -221,18 +221,6 @@ bool GraphicsContextCG::hasPlatformContext() const
     return true;
 }
 
-CGContextRef GraphicsContextCG::platformContext() const
-{
-    return const_cast<GraphicsContextCG*>(this)->contextForDraw(); // Conservative estimate.
-}
-
-CGContextRef GraphicsContextCG::contextForDraw()
-{
-    ASSERT(m_cgContext);
-    m_hasDrawn = true;
-    return m_cgContext.get();
-}
-
 CGContextRef GraphicsContextCG::contextForState() const
 {
     ASSERT(m_cgContext);

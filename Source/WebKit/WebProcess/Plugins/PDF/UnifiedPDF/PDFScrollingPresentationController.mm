@@ -420,7 +420,7 @@ bool PDFScrollingPresentationController::layerAllowsDynamicContentScaling(const 
 void PDFScrollingPresentationController::tiledBackingUsageChanged(const GraphicsLayer* layer, bool usingTiledBacking)
 {
     if (usingTiledBacking)
-        layer->tiledBacking()->setIsInWindow(m_plugin->isInWindow());
+        layer->checkedTiledBacking()->setIsInWindow(m_plugin->isInWindow());
 }
 
 void PDFScrollingPresentationController::paintContents(const GraphicsLayer* layer, GraphicsContext& context, const FloatRect& clipRect, OptionSet<GraphicsLayerPaintBehavior>)

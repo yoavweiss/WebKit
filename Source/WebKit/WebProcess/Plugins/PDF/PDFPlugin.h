@@ -102,7 +102,7 @@ public:
 
     void showDefinitionForAttributedString(NSAttributedString *, CGPoint);
 
-    CGRect pluginBoundsForAnnotation(RetainPtr<PDFAnnotation>&) const final;
+    CGRect pluginBoundsForAnnotation(PDFAnnotation*) const final;
     void focusNextAnnotation() final;
     void focusPreviousAnnotation() final;
 

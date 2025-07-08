@@ -165,7 +165,6 @@ UIProcess/Inspector/mac/WKInspectorWKWebView.mm
 UIProcess/Inspector/mac/WebInspectorUIProxyMac.mm
 UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm
 UIProcess/Media/cocoa/MediaUsageManagerCocoa.mm
-UIProcess/PDF/WKPDFHUDView.mm
 UIProcess/RemoteLayerTree/RemoteLayerTreeDrawingAreaProxy.mm
 UIProcess/RemoteLayerTree/RemoteLayerTreeHost.mm
 UIProcess/RemoteLayerTree/RemoteLayerTreeNode.mm

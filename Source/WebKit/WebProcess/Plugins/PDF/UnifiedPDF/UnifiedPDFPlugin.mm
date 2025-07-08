@@ -1811,7 +1811,7 @@ PDFDocumentLayout::PageIndex UnifiedPDFPlugin::indexForCurrentPageInView() const
 RetainPtr<PDFAnnotation> UnifiedPDFPlugin::annotationForRootViewPoint(const IntPoint& point) const
 {
     auto pointInDocumentSpace = convertDown(CoordinateSpace::Plugin, CoordinateSpace::PDFDocumentLayout, FloatPoint { convertFromRootViewToPlugin(point) });
-    auto pageIndex = m_presentationController->pageIndexForDocumentPoint(pointInDocumentSpace);
+    auto pageIndex = protectedPresentationController()->pageIndexForDocumentPoint(pointInDocumentSpace);
     if (!pageIndex)
         return nullptr;
 
@@ -2221,7 +2221,7 @@ void UnifiedPDFPlugin::repaintAnnotationsForFormField(NSString *fieldName)
 void UnifiedPDFPlugin::startTrackingAnnotation(RetainPtr<PDFAnnotation>&& annotation, WebEventType mouseEventType, WebMouseEventButton mouseEventButton)
 {
     auto repaintRequirements = m_annotationTrackingState.startAnnotationTracking(WTFMove(annotation), mouseEventType, mouseEventButton);
-    setNeedsRepaintForAnnotation(m_annotationTrackingState.trackedAnnotation(), repaintRequirements);
+    setNeedsRepaintForAnnotation(m_annotationTrackingState.protectedTrackedAnnotation().get(), repaintRequirements);
 }
 
 void UnifiedPDFPlugin::updateTrackedAnnotation(PDFAnnotation *annotationUnderMouse)
@@ -2243,9 +2243,8 @@ void UnifiedPDFPlugin::updateTrackedAnnotation(PDFAnnotation *annotationUnderMou
 
 void UnifiedPDFPlugin::finishTrackingAnnotation(PDFAnnotation* annotationUnderMouse, WebEventType mouseEventType, WebMouseEventButton mouseEventButton, RepaintRequirements repaintRequirements)
 {
-    RetainPtr trackedAnnotation = m_annotationTrackingState.trackedAnnotation();
     repaintRequirements.add(m_annotationTrackingState.finishAnnotationTracking(annotationUnderMouse, mouseEventType, mouseEventButton));
-    setNeedsRepaintForAnnotation(trackedAnnotation.get(), repaintRequirements);
+    setNeedsRepaintForAnnotation(m_annotationTrackingState.protectedTrackedAnnotation().get(), repaintRequirements);
 }
 
 // FIXME: <https://webkit.org/b/276981>  Assumes scrolling.
@@ -3246,7 +3245,7 @@ void UnifiedPDFPlugin::continueAutoscroll()
     scrollWithDelta(scrollDelta);
 
     auto lastKnownMousePositionInDocumentSpace = convertDown<FloatPoint>(CoordinateSpace::Plugin, CoordinateSpace::PDFDocumentLayout, lastKnownMousePositionInPluginSpace);
-    auto pageIndex = m_presentationController->nearestPageIndexForDocumentPoint(lastKnownMousePositionInDocumentSpace);
+    auto pageIndex = protectedPresentationController()->nearestPageIndexForDocumentPoint(lastKnownMousePositionInDocumentSpace);
     auto lastKnownMousePositionInPageSpace = convertDown(CoordinateSpace::PDFDocumentLayout, CoordinateSpace::PDFPage, lastKnownMousePositionInDocumentSpace, pageIndex);
 
     continueTrackingSelection(pageIndex, lastKnownMousePositionInPageSpace, IsDraggingSelection::Yes);
@@ -3310,7 +3309,7 @@ bool UnifiedPDFPlugin::findString(const String& target, WebCore::FindOptions opt
         RetainPtr nsTarget = target.createNSString();
         RetainPtr foundSelection = [m_pdfDocument findString:nsTarget.get() fromSelection:m_currentSelection.get() withOptions:compareOptions];
         if (!foundSelection && wrapSearch) {
-            auto emptySelection = adoptNS([allocPDFSelectionInstance() initWithDocument:m_pdfDocument.get()]);
+            RetainPtr emptySelection = adoptNS([allocPDFSelectionInstance() initWithDocument:m_pdfDocument.get()]);
             foundSelection = [m_pdfDocument findString:nsTarget.get() fromSelection:emptySelection.get() withOptions:compareOptions];
         }
         return foundSelection;
@@ -3553,7 +3552,7 @@ std::optional<TextIndicatorData> UnifiedPDFPlugin::textIndicatorDataForPageRect(
 Color UnifiedPDFPlugin::selectionTextIndicatorHighlightColor()
 {
 #if PLATFORM(MAC)
-    static NeverDestroyed color = roundAndClampToSRGBALossy([NSColor findHighlightColor].CGColor);
+    static NeverDestroyed color = roundAndClampToSRGBALossy(RetainPtr { [NSColor findHighlightColor].CGColor }.get());
 #else
     static NeverDestroyed color = SRGBA<float> { .99, .89, .22, 1.0 };
 #endif
@@ -3716,7 +3715,7 @@ id UnifiedPDFPlugin::accessibilityHitTestIntPoint(const WebCore::IntPoint& point
 {
     Ref protectedThis { *this };
     return WebCore::Accessibility::retrieveValueFromMainThread<id>([&protectedThis, point] () -> id {
-        IntPoint pluginPoint = point + (-protectedThis->m_view->location());
+        IntPoint pluginPoint = point + (-protectedThis->protectedView()->location());
         auto pointInScreenSpaceCoordinate = protectedThis->convertFromPluginToScreenForAccessibility(pluginPoint);
         return [protectedThis->m_accessibilityDocumentObject accessibilityHitTest:pointInScreenSpaceCoordinate];
     });
@@ -3901,7 +3900,7 @@ void UnifiedPDFPlugin::frameViewLayoutOrVisualViewportChanged(const IntRect& uno
 #endif
 }
 
-CGRect UnifiedPDFPlugin::pluginBoundsForAnnotation(RetainPtr<PDFAnnotation>& annotation) const
+CGRect UnifiedPDFPlugin::pluginBoundsForAnnotation(PDFAnnotation *annotation) const
 {
     auto pageSpaceBounds = FloatRect { [annotation bounds] };
     if (auto pageIndex = m_documentLayout.indexForPage([annotation page]))
@@ -4180,7 +4179,7 @@ void AnnotationTrackingState::resetAnnotationTrackingState()
 
 bool UnifiedPDFPlugin::isTaggedPDF() const
 {
-    return CGPDFDocumentIsTaggedPDF([m_pdfDocument documentRef]);
+    return CGPDFDocumentIsTaggedPDF(RetainPtr { [m_pdfDocument documentRef] }.get());
 }
 
 #if ENABLE(UNIFIED_PDF_DATA_DETECTION)

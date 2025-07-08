@@ -241,7 +241,7 @@ void PDFPluginBase::destroy()
 
 void PDFPluginBase::createPDFDocument()
 {
-    m_pdfDocument = adoptNS([allocPDFDocumentInstance() initWithData:originalData()]);
+    m_pdfDocument = adoptNS([allocPDFDocumentInstance() initWithData:RetainPtr { originalData() }.get()]);
 }
 
 bool PDFPluginBase::isFullFramePlugin() const
@@ -683,7 +683,7 @@ void PDFPluginBase::tryRunScriptsInPDFDocument()
     if (!m_pdfDocument || !m_documentFinishedLoading || m_didRunScripts)
         return;
 
-    PDFScriptEvaluation::runScripts([m_pdfDocument documentRef], [this, protectedThis = Ref { *this }] {
+    PDFScriptEvaluation::runScripts(RetainPtr { [m_pdfDocument documentRef] }.get(), [this, protectedThis = Ref { *this }] {
         print();
     });
     m_didRunScripts = true;
@@ -1212,13 +1212,13 @@ void PDFPluginBase::writeItemsToGeneralPasteboard(Vector<PasteboardItem>&& paste
             continue;
         }
 
-        if ([type isEqualToString:htmlPasteboardType()])
+        if ([type isEqualToString:RetainPtr { htmlPasteboardType() }.get()])
             ensureContent(pasteboardContent)->dataInHTMLFormat = String { adoptNS([[NSString alloc] initWithData:data.get() encoding:NSUTF8StringEncoding]).autorelease() };
-        else if ([type isEqualToString:rtfPasteboardType()])
+        else if ([type isEqualToString:RetainPtr { rtfPasteboardType() }.get()])
             ensureContent(pasteboardContent)->dataInRTFFormat = SharedBuffer::create(data.get());
-        else if ([type isEqualToString:stringPasteboardType()])
+        else if ([type isEqualToString:RetainPtr { stringPasteboardType() }.get()])
             ensureContent(pasteboardContent)->dataInStringFormat = String { adoptNS([[NSString alloc] initWithData:data.get() encoding:NSUTF8StringEncoding]).autorelease() };
-        else if ([type isEqualToString:urlPasteboardType()]) {
+        else if ([type isEqualToString:RetainPtr { urlPasteboardType() }.get()]) {
             URL url { [NSURL URLWithDataRepresentation:data.get() relativeToURL:nil] };
             URL sanitizedURL { applyLinkDecorationFiltering(url) };
             pasteboardURL = PasteboardURL {
@@ -1407,7 +1407,8 @@ id PDFPluginBase::accessibilityAssociatedPluginParentForElement(Element* element
     if (m_activeAnnotation->element() != element)
         return nil;
 
-    return [m_activeAnnotation->annotation() accessibilityNode];
+    RetainPtr annotation = m_activeAnnotation->annotation();
+    return [annotation accessibilityNode];
 #endif
 
     return nil;
@@ -1617,7 +1618,7 @@ String PDFPluginBase::annotationStyle() const
 
 Color PDFPluginBase::pluginBackgroundColor()
 {
-    static NeverDestroyed color = roundAndClampToSRGBALossy([CocoaColor grayColor].CGColor);
+    static NeverDestroyed color = roundAndClampToSRGBALossy(RetainPtr { [CocoaColor grayColor].CGColor }.get());
     return color.get();
 }
 

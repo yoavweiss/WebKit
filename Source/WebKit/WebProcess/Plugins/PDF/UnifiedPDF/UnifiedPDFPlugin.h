@@ -97,6 +97,7 @@ public:
     RepaintRequirements finishAnnotationTracking(PDFAnnotation* annotationUnderMouse, WebEventType, WebMouseEventButton);
 
     PDFAnnotation *trackedAnnotation() const { return m_trackedAnnotation.get(); }
+    RetainPtr<PDFAnnotation> protectedTrackedAnnotation() const { return m_trackedAnnotation; }
     bool isBeingHovered() const;
 
 private:
@@ -144,7 +145,7 @@ public:
     WebCore::LocalFrameView* frameView() const;
     WebCore::FrameView* mainFrameView() const;
 
-    CGRect pluginBoundsForAnnotation(RetainPtr<PDFAnnotation>&) const final;
+    CGRect pluginBoundsForAnnotation(PDFAnnotation*) const final;
     void setActiveAnnotation(SetActiveAnnotationParams&&) final;
     void focusNextAnnotation() final;
     void focusPreviousAnnotation() final;
