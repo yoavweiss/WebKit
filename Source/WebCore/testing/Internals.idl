@@ -979,6 +979,7 @@ enum ContentsFormat {
     [Conditional=VIDEO] undefined enableGStreamerHolePunching(HTMLVideoElement element);
 
     [Conditional=VIDEO] double effectiveDynamicRangeLimitValue(HTMLMediaElement media);
+    double getContextEffectiveDynamicRangeLimitValue(HTMLCanvasElement canvas);
     undefined setPageShouldSuppressHDR(boolean shouldSuppressHDR);
 
     undefined setIsPlayingToBluetoothOverride(optional boolean? isPlaying = null);

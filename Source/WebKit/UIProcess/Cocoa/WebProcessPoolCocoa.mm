@@ -1261,13 +1261,10 @@ void WebProcessPool::screenPropertiesChanged()
 #if HAVE(SUPPORT_HDR_DISPLAY)
     if (m_suppressEDR) {
         for (auto& properties : screenProperties.screenDataMap.values()) {
-            constexpr auto maxStudioDisplayHeadroom = 2.f;
-            constexpr auto threeQuartersStudioDisplayHeadroom = 1.5f;
-            constexpr auto halfMaxHeadroomMultiplier = 0.5f;
-            auto maxHeadroom = std::clamp(properties.maxEDRHeadroom * halfMaxHeadroomMultiplier, std::min(properties.maxEDRHeadroom, threeQuartersStudioDisplayHeadroom), maxStudioDisplayHeadroom);
-            properties.currentEDRHeadroom = maxHeadroom;
-            properties.maxEDRHeadroom = maxHeadroom;
-            properties.suppressEDR = m_suppressEDR;
+            constexpr auto maxSuppressedHeadroom = 1.6f;
+            auto suppressedHeadroom = std::min(maxSuppressedHeadroom, properties.currentEDRHeadroom);
+            properties.currentEDRHeadroom = suppressedHeadroom;
+            properties.suppressEDR = true;
         }
     }
 #endif
