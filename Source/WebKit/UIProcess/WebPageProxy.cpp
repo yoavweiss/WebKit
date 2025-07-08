@@ -13711,9 +13711,17 @@ void WebPageProxy::setScrollPerformanceDataCollectionEnabled(bool enabled)
 }
 #endif
 
-void WebPageProxy::takeSnapshot(IntRect rect, IntSize bitmapSize, SnapshotOptions options, CompletionHandler<void(std::optional<ShareableBitmap::Handle>&&)>&& callback)
+void WebPageProxy::takeSnapshotLegacy(IntRect rect, IntSize bitmapSize, SnapshotOptions options, CompletionHandler<void(std::optional<ShareableBitmap::Handle>&&)>&& callback)
 {
-    sendWithAsyncReply(Messages::WebPage::TakeSnapshot(rect, bitmapSize, options), WTFMove(callback));
+    sendWithAsyncReply(Messages::WebPage::TakeSnapshot(rect, bitmapSize, options, true), [callback = WTFMove(callback)] (std::optional<ImageBufferBackendHandle>&& imageHandle) mutable {
+        RELEASE_ASSERT(!imageHandle || std::holds_alternative<ShareableBitmap::Handle>(*imageHandle));
+        callback(imageHandle ? std::make_optional(std::get<ShareableBitmap::Handle>(*imageHandle)) : std::nullopt);
+    });
+}
+
+void WebPageProxy::takeSnapshot(IntRect rect, IntSize bitmapSize, SnapshotOptions options, CompletionHandler<void(std::optional<ImageBufferBackendHandle>&&)>&& callback)
+{
+    sendWithAsyncReply(Messages::WebPage::TakeSnapshot(rect, bitmapSize, options, false), WTFMove(callback));
 }
 
 void WebPageProxy::navigationGestureDidBegin()
