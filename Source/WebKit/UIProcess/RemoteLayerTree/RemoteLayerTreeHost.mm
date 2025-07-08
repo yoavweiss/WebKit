@@ -196,9 +196,7 @@ bool RemoteLayerTreeHost::updateLayerTree(const IPC::Connection& connection, con
     Vector<LayerAndClone> clonesToUpdate;
 
     auto layerContentsType = this->layerContentsType();
-    for (auto& [layerID, propertiesPointer] : transaction.changedLayerProperties()) {
-        const auto& properties = *propertiesPointer;
-
+    for (auto& [layerID, properties] : transaction.changedLayerProperties()) {
         RefPtr node = nodeForID(layerID);
         ASSERT(node);
 
@@ -208,7 +206,7 @@ bool RemoteLayerTreeHost::updateLayerTree(const IPC::Connection& connection, con
             continue;
         }
 
-        RemoteLayerTreePropertyApplier::applyHierarchyUpdates(*node, properties, m_nodes);
+        RemoteLayerTreePropertyApplier::applyHierarchyUpdates(*node, properties.get(), m_nodes);
     }
 
     if (auto contextHostedID = transaction.remoteContextHostedIdentifier()) {
@@ -223,7 +221,7 @@ bool RemoteLayerTreeHost::updateLayerTree(const IPC::Connection& connection, con
 
     for (auto& changedLayer : transaction.changedLayerProperties()) {
         auto layerID = changedLayer.key;
-        const auto& properties = *changedLayer.value;
+        const auto& properties = changedLayer.value.get();
 
         RefPtr node = nodeForID(layerID);
         ASSERT(node);

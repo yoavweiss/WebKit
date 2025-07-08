@@ -301,9 +301,9 @@ JSAgentContext JSGlobalObjectInspectorController::jsAgentContext()
 {
     AgentContext baseContext = {
         *this,
-        *m_injectedScriptManager,
-        m_frontendRouter.get(),
-        m_backendDispatcher.get()
+        m_injectedScriptManager,
+        m_frontendRouter,
+        m_backendDispatcher
     };
 
     JSAgentContext context = {

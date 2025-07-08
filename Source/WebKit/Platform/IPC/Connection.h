@@ -842,7 +842,7 @@ template<typename T> Connection::SendSyncResult<T> Connection::sendSync(T&& mess
     if (decoder->messageName() == MessageName::CancelSyncMessageReply)
         return { Error::SyncMessageCancelled };
     std::optional<typename T::ReplyArguments> replyArguments;
-    *decoder >> replyArguments;
+    decoder.get() >> replyArguments;
     if (!replyArguments)
         return { Error::FailedToDecodeReplyArguments };
     return SendSyncResult<T> { WTFMove(decoder), WTFMove(*replyArguments) };

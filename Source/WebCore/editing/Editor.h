@@ -454,8 +454,8 @@ public:
 
     VisibleSelection selectionForCommand(Event*);
 
-    PAL::KillRing& killRing() const { return *m_killRing; }
-    SpellChecker& spellChecker() const { return *m_spellChecker; }
+    PAL::KillRing& killRing() const { return m_killRing; }
+    SpellChecker& spellChecker() const { return m_spellChecker; }
 
     EditingBehavior behavior() const;
 

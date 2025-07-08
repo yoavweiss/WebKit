@@ -470,14 +470,14 @@ void Connection::dispatchMessageReceiverMessage(MessageReceiverType& messageRece
 
     if (decoder->isSyncMessage()) {
         auto replyEncoder = makeUniqueRef<Encoder>(MessageName::SyncMessageReply, decoder->syncRequestID().toUInt64());
-        messageReceiver.didReceiveSyncMessage(*this, *decoder, replyEncoder);
+        messageReceiver.didReceiveSyncMessage(*this, decoder.get(), replyEncoder);
         // If the message was not handled or handler tried to decode and marked it invalid, reply with
         // cancel message. For more info, see Connection:dispatchSyncMessage.
         std::unique_ptr remainingReplyEncoder = replyEncoder.moveToUniquePtr();
         if (remainingReplyEncoder)
             sendMessageImpl(makeUniqueRef<Encoder>(MessageName::CancelSyncMessageReply, decoder->syncRequestID().toUInt64()), { });
     } else
-        messageReceiver.didReceiveMessage(*this, *decoder);
+        messageReceiver.didReceiveMessage(*this, decoder.get());
 
 #if ASSERT_ENABLED
     --m_inDispatchMessageCount;
@@ -1046,7 +1046,7 @@ void Connection::processIncomingMessage(UniqueRef<Decoder> message)
         return;
     }
 
-    if (!MessageReceiveQueueMap::isValidMessage(*message)) {
+    if (!MessageReceiveQueueMap::isValidMessage(message.get())) {
         dispatchDidReceiveInvalidMessage(message->messageName(), message->indexOfObjectFailingDecoding());
         return;
     }
@@ -1408,7 +1408,7 @@ void Connection::dispatchMessage(UniqueRef<Decoder> message)
         // go to Connection::m_incomingMessages. Should be fixed by adding all
         // messages to one list.
         Locker incomingMessagesLocker { m_incomingMessagesLock };
-        if (auto* receiveQueue = m_receiveQueues.get(*message)) {
+        if (auto* receiveQueue = m_receiveQueues.get(message.get())) {
             receiveQueue->enqueueMessage(*this, WTFMove(message));
             return;
         }
@@ -1440,9 +1440,9 @@ void Connection::dispatchMessage(UniqueRef<Decoder> message)
     m_didReceiveInvalidMessage = false;
 
     if (message->isSyncMessage())
-        dispatchSyncMessage(*message);
+        dispatchSyncMessage(message.get());
     else
-        dispatchMessage(*message);
+        dispatchMessage(message.get());
 
     m_didReceiveInvalidMessage |= !message->isValid();
 

@@ -338,7 +338,7 @@ std::optional<StreamClientConnection::SendSyncResult<T>> StreamClientConnection:
     if (decoder->messageName() == MessageName::CancelSyncMessageReply)
         return { Error::SyncMessageCancelled };
     std::optional<typename T::ReplyArguments> replyArguments;
-    *decoder >> replyArguments;
+    decoder.get() >> replyArguments;
     if (!replyArguments)
         return { Error::FailedToDecodeReplyArguments };
     return { { WTFMove(decoder), WTFMove(*replyArguments) } };

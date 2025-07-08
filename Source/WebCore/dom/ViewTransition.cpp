@@ -979,7 +979,7 @@ void ViewTransition::updatePseudoElementStylesWrite()
 
     bool changed = false;
     for (auto& [name, capturedElement] : m_namedElements.map())
-        changed |= updatePropertiesForGroupPseudo(*capturedElement, name);
+        changed |= updatePropertiesForGroupPseudo(capturedElement, name);
 
     if (changed) {
         if (RefPtr documentElement = document->documentElement())
