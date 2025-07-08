@@ -2418,6 +2418,7 @@ platform/calc/CalculationTree+Copy.cpp
 platform/calc/CalculationTree+Evaluation.cpp
 platform/calc/CalculationTree.cpp
 platform/calc/CalculationValue.cpp
+platform/calc/CalculationValueMap.cpp
 platform/encryptedmedia/CDMFactory.cpp
 platform/encryptedmedia/CDMLogging.cpp
 platform/encryptedmedia/CDMPrivate.cpp
