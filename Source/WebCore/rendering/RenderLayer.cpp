@@ -3752,21 +3752,21 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
         return isPaintingCompositedBackground;
     }();
 
-    if (shouldPaintContent && paintingInfo.subtreePaintRoot) {
-        RenderLayer* subtreeRootLayer = paintingInfo.subtreePaintRoot->enclosingLayer();
+    auto shouldExcludeBasedOnContainingBlock = [&]() {
+        if (CheckedPtr rootAsBlock = dynamicDowncast<RenderBlock>(paintingInfo.subtreePaintRoot))
+            return !rootAsBlock->isContainingBlockAncestorFor(renderer());
+        return false;
+    };
 
-        if (subtreeRootLayer) {
+    if (paintingInfo.paintBehavior.contains(PaintBehavior::DraggableSnapshot) && paintingInfo.subtreePaintRoot) {
+        if (paintingInfo.subtreePaintRoot->hasLayer()) {
+            CheckedPtr subtreeRootLayer = paintingInfo.subtreePaintRoot->enclosingLayer();
             bool isLayerInSubtree = (this == subtreeRootLayer) || isDescendantOf(*subtreeRootLayer);
 
-            if (isLayerInSubtree) {
-                if (paintingInfo.subtreePaintRoot != &renderer()) {
-                    if (CheckedPtr rootAsBlock = dynamicDowncast<RenderBlock>(paintingInfo.subtreePaintRoot)) {
-                        if (!rootAsBlock->isContainingBlockAncestorFor(renderer()))
-                            shouldPaintContent = false;
-                    }
-                }
-            } else
+            if (isLayerInSubtree && (paintingInfo.subtreePaintRoot != &renderer() && shouldExcludeBasedOnContainingBlock()))
                 shouldPaintContent = false;
+        } else if (renderer().isAbsolutelyPositioned() && paintingInfo.subtreePaintRoot != &renderer() && shouldExcludeBasedOnContainingBlock()) {
+            shouldPaintContent = false;
         }
     }
 
@@ -3932,7 +3932,7 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
         if (isPaintingCompositedForeground) {
             // Paint any child layers that have overflow.
             paintList(normalFlowLayers(), currentContext, paintingInfo, localPaintFlags);
-        
+
             // Now walk the sorted list of children with positive z-indices.
             paintList(positiveZOrderLayers(), currentContext, localPaintingInfo, localPaintFlags);
         }
@@ -6676,6 +6676,7 @@ TextStream& operator<<(TextStream& ts, PaintBehavior behavior)
     case PaintBehavior::ExcludeText: ts << "ExcludeText"_s; break;
     case PaintBehavior::FixedAndStickyLayersOnly: ts << "FixedAndStickyLayersOnly"_s; break;
     case PaintBehavior::DrawsHDRContent: ts << "DrawsHDRContent"_s; break;
+    case PaintBehavior::DraggableSnapshot: ts << "DraggableSnapshot"_s; break;
     }
 
     return ts;

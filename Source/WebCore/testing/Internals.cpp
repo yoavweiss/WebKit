@@ -2118,7 +2118,9 @@ ExceptionOr<RefPtr<ImageData>> Internals::snapshotNode(Node& node)
     if (!document || !document->frame())
         return Exception { ExceptionCode::InvalidAccessError };
 
-    SnapshotOptions options { { }, ImageBufferPixelFormat::BGRA8, DestinationColorSpace::SRGB() };
+    document->updateLayoutIgnorePendingStylesheets();
+
+    SnapshotOptions options { { SnapshotFlags::DraggableElement }, ImageBufferPixelFormat::BGRA8, DestinationColorSpace::SRGB() };
 
     RefPtr imageBuffer = WebCore::snapshotNode(*document->frame(), node, WTFMove(options));
     if (!imageBuffer)
