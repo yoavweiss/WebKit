@@ -215,12 +215,12 @@ ExceptionOr<bool> DOMTokenList::supports(StringView token)
 // https://dom.spec.whatwg.org/#dom-domtokenlist-value
 const AtomString& DOMTokenList::value() const
 {
-    return protectedElement()->getAttribute(m_attributeName);
+    return m_element->getAttribute(m_attributeName);
 }
 
 void DOMTokenList::setValue(const AtomString& value)
 {
-    protectedElement()->setAttribute(m_attributeName, value);
+    m_element->setAttribute(m_attributeName, value);
 }
 
 void DOMTokenList::updateTokensFromAttributeValue(const AtomString& value)
@@ -295,7 +295,7 @@ void DOMTokenList::updateAssociatedAttributeFromTokens()
 Vector<AtomString, 1>& DOMTokenList::tokens()
 {
     if (m_tokensNeedUpdating)
-        updateTokensFromAttributeValue(protectedElement()->getAttribute(m_attributeName));
+        updateTokensFromAttributeValue(m_element->getAttribute(m_attributeName));
     ASSERT(!m_tokensNeedUpdating);
     return m_tokens;
 }

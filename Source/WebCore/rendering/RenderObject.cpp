@@ -592,10 +592,10 @@ void RenderObject::clearNeedsLayout(HadSkippedLayout hadSkippedLayout)
 void RenderObject::scheduleLayout(RenderElement* layoutRoot)
 {
     if (auto* renderView = dynamicDowncast<RenderView>(layoutRoot))
-        return renderView->protectedFrameView()->checkedLayoutContext()->scheduleLayout();
+        return renderView->frameView().checkedLayoutContext()->scheduleLayout();
 
     if (layoutRoot && layoutRoot->isRooted())
-        layoutRoot->view().protectedFrameView()->checkedLayoutContext()->scheduleSubtreeLayout(*layoutRoot);
+        layoutRoot->view().frameView().checkedLayoutContext()->scheduleSubtreeLayout(*layoutRoot);
 }
 
 RenderElement* RenderObject::markContainingBlocksForLayout(RenderElement* layoutRoot)

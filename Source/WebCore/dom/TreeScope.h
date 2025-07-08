@@ -135,7 +135,6 @@ public:
     bool isMatchingAnchor(HTMLAnchorElement&, StringView name);
 
     inline ContainerNode& rootNode() const; // Defined in TreeScopeInlines.h
-    inline Ref<ContainerNode> protectedRootNode() const; // Defined in TreeScopeInlines.h
 
     inline IdTargetObserverRegistry& idTargetObserverRegistry();
     IdTargetObserverRegistry* idTargetObserverRegistryIfExists() { return m_idTargetObserverRegistry.get(); }

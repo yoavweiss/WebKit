@@ -45,7 +45,7 @@ private:
     static NavigatorPermissions& from(Navigator&);
     static ASCIILiteral supplementName();
 
-    RefPtr<Permissions> m_permissions;
+    const RefPtr<Permissions> m_permissions;
     const CheckedRef<Navigator> m_navigator;
 };
 

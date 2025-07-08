@@ -6114,7 +6114,7 @@ void Document::updateAccessibilityObjectRegions()
         cache->willUpdateObjectRegions();
 
     if (CheckedPtr view = renderView())
-        view->protectedFrameView()->updateAccessibilityObjectRegions();
+        view->frameView().updateAccessibilityObjectRegions();
 #endif
 }
 

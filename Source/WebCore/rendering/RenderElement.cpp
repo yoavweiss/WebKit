@@ -1009,12 +1009,12 @@ void RenderElement::styleWillChange(StyleDifference diff, const RenderStyle& new
 
     if (view().frameView().hasSlowRepaintObject(*this)) {
         if (!newStyleSlowScroll)
-            view().protectedFrameView()->removeSlowRepaintObject(*this);
+            view().frameView().removeSlowRepaintObject(*this);
     } else if (newStyleSlowScroll)
-        view().protectedFrameView()->addSlowRepaintObject(*this);
+        view().frameView().addSlowRepaintObject(*this);
 
     if (isDocumentElementRenderer() || isBody())
-        view().protectedFrameView()->updateExtendBackgroundIfNecessary();
+        view().frameView().updateExtendBackgroundIfNecessary();
 }
 
 inline void RenderCounter::rendererStyleChanged(RenderElement& renderer, const RenderStyle* oldStyle, const RenderStyle& newStyle)
@@ -1167,7 +1167,7 @@ inline void RenderElement::clearSubtreeLayoutRootIfNeeded() const
     // This indicates a failure to layout the child, which is why
     // the layout root is still set to |this|. Make sure to clear it
     // since we are getting destroyed.
-    view().protectedFrameView()->layoutContext().clearSubtreeLayoutRoot();
+    view().frameView().layoutContext().clearSubtreeLayoutRoot();
 }
 
 void RenderElement::willBeDestroyed()
@@ -1177,7 +1177,7 @@ void RenderElement::willBeDestroyed()
         document().contentChangeObserver().rendererWillBeDestroyed(*element());
 #endif
     if (m_style.hasAnyFixedBackground() && !settings().fixedBackgroundsPaintRelativeToDocument())
-        view().protectedFrameView()->removeSlowRepaintObject(*this);
+        view().frameView().removeSlowRepaintObject(*this);
 
     unregisterForVisibleInViewportCallback();
 

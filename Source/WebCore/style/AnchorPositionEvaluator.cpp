@@ -318,7 +318,7 @@ LayoutSize AnchorPositionEvaluator::scrollOffsetFromAnchor(const RenderBoxModelO
     }
 
     if (anchored.isFixedPositioned() && !isFixedAnchor)
-        offset -= toLayoutSize(anchored.view().protectedFrameView()->scrollPositionRespectingCustomFixedPosition());
+        offset -= toLayoutSize(anchored.view().frameView().scrollPositionRespectingCustomFixedPosition());
 
     auto compensatedAxes = [&] {
         if (isLayoutTimeAnchorPositioned(anchored.style()))

@@ -750,7 +750,7 @@ void FrameSelection::respondToNodeModification(Node& node, bool anchorRemoved, b
             // Trigger a selection update so the selection will be set again.
             m_selectionRevealIntent = AXTextStateChangeIntent();
             m_pendingSelectionUpdate = true;
-            renderView->protectedFrameView()->scheduleSelectionUpdate();
+            renderView->frameView().scheduleSelectionUpdate();
         }
     }
 
