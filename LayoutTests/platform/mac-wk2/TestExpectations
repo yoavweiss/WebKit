@@ -2208,3 +2208,5 @@ webkit.org/b/295439 media/video-unmuted-after-play-holds-sleep-assertion.html [ 
 webkit.org/b/295441 [ Release ] fast/scrolling/mac/scrollbars/scrollbar-width-dynamic-none-to-auto.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/295527 fast/animation/css-animation-resuming-when-visible-with-style-change2.html [ Pass Failure ]
+
+webkit.org/b/295563 [ Release x86_64 ] fast/webgpu/accelerated-image-conversion-failure.html [ Pass Failure ]
