@@ -764,7 +764,7 @@ class CheckOutSource(git.Git):
 
     def getResultSummary(self):
         if self.results == FAILURE:
-            self.build.addStepsAfterCurrentStep([CleanUpGitIndexLock()])
+            self.build.addStepsAfterCurrentStep([CleanUpGitIndexLock(workdir=self.workdir)])
 
         if self.results != SUCCESS:
             return {'step': 'Failed to updated working directory'}
