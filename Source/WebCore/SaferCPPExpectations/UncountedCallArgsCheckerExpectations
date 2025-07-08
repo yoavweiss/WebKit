@@ -62,7 +62,6 @@ Modules/mediastream/RTCRtpSender.cpp
 Modules/mediastream/RTCRtpTransform.cpp
 Modules/mediastream/UserMediaRequest.cpp
 Modules/mediastream/libwebrtc/LibWebRTCDtlsTransportBackend.cpp
-Modules/mediastream/libwebrtc/LibWebRTCMediaEndpoint.cpp
 Modules/mediastream/libwebrtc/LibWebRTCObservers.h
 Modules/mediastream/libwebrtc/LibWebRTCSctpTransportBackend.cpp
 Modules/model-element/HTMLModelElement.cpp

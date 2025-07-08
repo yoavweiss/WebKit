@@ -22,7 +22,6 @@ Modules/mediasession/NavigatorMediaSession.cpp
 Modules/mediastream/NavigatorMediaDevices.cpp
 Modules/mediastream/PeerConnectionBackend.cpp
 Modules/mediastream/UserMediaController.h
-Modules/mediastream/libwebrtc/LibWebRTCMediaEndpoint.cpp
 Modules/mediastream/libwebrtc/LibWebRTCPeerConnectionBackend.cpp
 Modules/mediastream/libwebrtc/LibWebRTCRtpReceiverBackend.cpp
 Modules/mediastream/libwebrtc/LibWebRTCRtpTransformBackend.cpp
