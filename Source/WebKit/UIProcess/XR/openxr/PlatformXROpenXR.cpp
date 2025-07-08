@@ -428,6 +428,7 @@ void OpenXRCoordinator::handleSessionStateChange(Box<RenderState> active)
         auto sessionBeginInfo = createOpenXRStruct<XrSessionBeginInfo, XR_TYPE_SESSION_BEGIN_INFO>();
         sessionBeginInfo.primaryViewConfigurationType = m_currentViewConfiguration;
         CHECK_XRCMD(xrBeginSession(m_session, &sessionBeginInfo));
+        m_isSessionRunning = true;
         break;
     }
     case XR_SESSION_STATE_STOPPING:
@@ -435,6 +436,7 @@ void OpenXRCoordinator::handleSessionStateChange(Box<RenderState> active)
         // However we cannot terminate the thread just now as we need to call xrPollEvent() to handle the session state change.
         active->terminateRequested = true;
         CHECK_XRCMD(xrEndSession(m_session));
+        m_isSessionRunning = false;
         break;
     case XR_SESSION_STATE_LOSS_PENDING:
     case XR_SESSION_STATE_EXITING: {
@@ -485,7 +487,7 @@ void OpenXRCoordinator::renderLoop(Box<RenderState> active)
                 std::this_thread::sleep_for(std::chrono::milliseconds(250));
         };
 
-        if (!active->onFrameUpdate || active->terminateRequested) {
+        if (!active->onFrameUpdate || active->terminateRequested || !m_isSessionRunning) {
             throttleThreadIfNeeded();
             continue;
         }

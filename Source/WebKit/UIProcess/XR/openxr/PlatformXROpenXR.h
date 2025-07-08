@@ -91,6 +91,7 @@ private:
     XrEnvironmentBlendMode m_arBlendMode;
 
     std::unique_ptr<OpenXRExtensions> m_extensions;
+    bool m_isSessionRunning { false };
 
     std::unique_ptr<WebCore::PlatformDisplaySurfaceless> m_platformDisplay;
     std::unique_ptr<WebCore::GLContext> m_glContext;
