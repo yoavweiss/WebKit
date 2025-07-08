@@ -23,9 +23,6 @@
 #if ENABLE(WEBXR) && USE(OPENXR)
 
 #include "APIUIClient.h"
-#if PLATFORM(GTK)
-#include "Display.h"
-#endif
 #include "OpenXRExtensions.h"
 #include "OpenXRUtils.h"
 #include "WebPageProxy.h"
@@ -378,17 +375,27 @@ void OpenXRCoordinator::initializeBlendModes()
     m_vrBlendMode = supportsOpaqueBlendMode ? XR_ENVIRONMENT_BLEND_MODE_OPAQUE : m_arBlendMode;
 }
 
-void OpenXRCoordinator::initializeGraphicsBinding()
+void OpenXRCoordinator::tryInitializeGraphicsBinding()
 {
     if (!m_extensions->isExtensionSupported(XR_MNDX_EGL_ENABLE_EXTENSION_NAME ""_span)) {
         LOG(XR, "OpenXR MNDX_EGL_ENABLE extension is not supported.");
         return;
     }
 
-    if (!m_platformDisplay)
+    if (!m_platformDisplay) {
         m_platformDisplay = WebCore::PlatformDisplaySurfaceless::create();
-    if (!m_glContext)
+        if (!m_platformDisplay) {
+            LOG(XR, "Failed to create a platform display for OpenXR.");
+            return;
+        }
+    }
+    if (!m_glContext) {
         m_glContext = WebCore::GLContext::createOffscreen(*m_platformDisplay);
+        if (!m_glContext) {
+            LOG(XR, "Failed to create the GL context for OpenXR.");
+            return;
+        }
+    }
 
     m_graphicsBinding = createOpenXRStruct<XrGraphicsBindingEGLMNDX, XR_TYPE_GRAPHICS_BINDING_EGL_MNDX>();
     m_graphicsBinding.display = m_platformDisplay->eglDisplay();
@@ -410,7 +417,7 @@ void OpenXRCoordinator::createSessionIfNeeded()
     CHECK_XRCMD(m_extensions->methods().xrGetOpenGLESGraphicsRequirementsKHR(m_instance, m_systemId, &requirements));
 #endif
 
-    initializeGraphicsBinding();
+    tryInitializeGraphicsBinding();
 
     // Create the session.
     auto sessionCreateInfo = createOpenXRStruct<XrSessionCreateInfo, XR_TYPE_SESSION_CREATE_INFO>();
