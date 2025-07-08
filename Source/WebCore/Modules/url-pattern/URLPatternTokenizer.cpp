@@ -26,7 +26,6 @@
 #include "config.h"
 #include "URLPatternTokenizer.h"
 
-#include "ExceptionOr.h"
 #include "URLPatternParser.h"
 #include <unicode/utf16.h>
 #include <wtf/text/MakeString.h>

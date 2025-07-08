@@ -34,7 +34,6 @@
 
 #include <JavaScriptCore/TypedArrays.h>
 #include "BaseAudioContext.h"
-#include "ExceptionOr.h"
 #include "FFTFrame.h"
 #include "VectorMath.h"
 #include <algorithm>

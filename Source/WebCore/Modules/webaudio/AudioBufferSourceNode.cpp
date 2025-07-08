@@ -34,7 +34,6 @@
 #include "AudioNodeOutput.h"
 #include "AudioParam.h"
 #include "AudioUtilities.h"
-#include "ExceptionOr.h"
 #include "FloatConversion.h"
 #include "ScriptExecutionContext.h"
 #include <JavaScriptCore/JSGenericTypedArrayViewInlines.h>

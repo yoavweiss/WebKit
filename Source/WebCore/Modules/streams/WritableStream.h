@@ -32,7 +32,6 @@
 
 namespace WebCore {
 
-class Exception;
 class InternalWritableStream;
 class JSDOMGlobalObject;
 class WritableStreamSink;

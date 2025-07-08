@@ -27,7 +27,6 @@
 
 #include "FrameRateAligner.h"
 #include "ReducedResolutionSeconds.h"
-#include "Timer.h"
 #include "WebAnimationTypes.h"
 #include <wtf/CancellableTask.h>
 #include <wtf/CheckedRef.h>

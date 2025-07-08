@@ -45,7 +45,6 @@
 #include "CSSValuePool.h"
 #include "DocumentInlines.h"
 #include "Element.h"
-#include "EventTargetInlines.h"
 #include "FontCascade.h"
 #include "GeometryUtilities.h"
 #include "InspectorInstrumentation.h"

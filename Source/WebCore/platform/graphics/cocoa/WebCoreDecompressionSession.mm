@@ -36,7 +36,6 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreMedia/CMBufferQueue.h>
 #import <CoreMedia/CMFormatDescription.h>
-#import <map>
 #import <pal/avfoundation/MediaTimeAVFoundation.h>
 #import <wtf/BlockPtr.h>
 #import <wtf/MainThread.h>
