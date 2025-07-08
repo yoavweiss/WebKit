@@ -405,6 +405,7 @@ public:
     WEBCORE_EXPORT void updateControlTints();
 
     WEBCORE_EXPORT bool wasScrolledByUser() const;
+    bool wasEverScrolledExplicitlyByUser() const { return m_wasEverScrolledExplicitlyByUser; }
 
     enum class UserScrollType : uint8_t { Explicit, Implicit };
     WEBCORE_EXPORT void setLastUserScrollType(std::optional<UserScrollType>);
@@ -1071,6 +1072,7 @@ private:
     std::unique_ptr<ScrollAnchoringController> m_scrollAnchoringController;
 
     std::optional<UserScrollType> m_lastUserScrollType;
+    bool m_wasEverScrolledExplicitlyByUser { false };
 
     bool m_shouldUpdateWhileOffscreen { true };
     bool m_overflowStatusDirty { true };

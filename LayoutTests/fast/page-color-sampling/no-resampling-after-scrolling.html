@@ -1,0 +1,59 @@
+<!DOCTYPE html> <!-- webkit-test-runner [ ContentInsetBackgroundFillEnabled=true TopContentInsetBackgroundCanChangeAfterScrolling=false pageTopColorSamplingEnabled=false useFlexibleViewport=true ] -->
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+<style>
+body, html {
+    font-family: system-ui;
+    font-size: 16px;
+    margin: 0;
+}
+
+.sticky {
+    position: sticky;
+    z-index: 100;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: rgb(255, 59, 48);
+}
+
+.short-vertical-space {
+    width: 100%;
+    height: 100px;
+}
+
+.tall-vertical-space {
+    width: 100%;
+    height: 2000px;
+}
+</style>
+<script src="../../resources/js-test.js"></script>
+<script src="../../resources/ui-helper.js"></script>
+<script>
+jsTestIsAsync = true;
+
+addEventListener("load", async () => {
+    await UIHelper.setObscuredInsets(50, 0, 0, 0);
+    await UIHelper.ensurePresentationUpdate();
+    await UIHelper.scrollDown();
+    await UIHelper.waitForZoomingOrScrollingToEnd();
+
+    colors = await UIHelper.fixedContainerEdgeColors();
+    shouldBeNull("colors.top");
+    shouldBeNull("colors.left");
+    shouldBeNull("colors.right");
+    shouldBeNull("colors.bottom");
+
+    finishJSTest();
+});
+</script>
+</head>
+<body>
+    <div class="short-vertical-space"></div>
+    <div class="sticky"></div>
+    <div class="tall-vertical-space"></div>
+</body>
+</html>

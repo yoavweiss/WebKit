@@ -7612,6 +7612,19 @@ TiledScrollingIndicatorVisible:
     WebCore:
       default: false
 
+TopContentInsetBackgroundCanChangeAfterScrolling:
+  type: bool
+  status: internal
+  humanReadableName: "Top Content Inset Background Can Change After Scrolling"
+  humanReadableDescription: "Top content inset background can change after scrolling"
+  defaultValue:
+    WebKit:
+      default: WebKit::defaultTopContentInsetBackgroundCanChangeAfterScrolling()
+    WebKitLegacy:
+      default: false
+    WebCore:
+      default: false
+
 TouchEventDOMAttributesEnabled:
   type: bool
   status: embedder

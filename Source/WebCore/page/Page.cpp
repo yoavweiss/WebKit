@@ -105,7 +105,7 @@
 #include "LegacySchemeRegistry.h"
 #include "LoaderStrategy.h"
 #include "LocalFrameLoaderClient.h"
-#include "LocalFrameView.h"
+#include "LocalFrameViewInlines.h"
 #include "LogInitialization.h"
 #include "Logging.h"
 #include "LoginStatus.h"
@@ -5309,17 +5309,25 @@ void Page::updateFixedContainerEdges(BoxSideSet sides)
     if (!mainFrame)
         return;
 
+    RefPtr document = mainFrame->document();
+    if (!document)
+        return;
+
     RefPtr frameView = mainFrame->view();
     if (!frameView)
         return;
 
-    auto [edges, elements] = frameView->fixedContainerEdges([frameView, sides] {
+    auto [edges, elements] = frameView->fixedContainerEdges([&] {
         auto sidesToSample = sides;
         auto scrollOffset = frameView->scrollOffset();
         auto minimumOffset = frameView->minimumScrollOffset();
         auto maximumOffset = frameView->maximumScrollOffset();
 
-        if (scrollOffset.y() < minimumOffset.y())
+        bool canSampleTopEdge = settings().topContentInsetBackgroundCanChangeAfterScrolling()
+            || !frameView->wasEverScrolledExplicitlyByUser()
+            || document->parsing();
+
+        if (scrollOffset.y() < minimumOffset.y() || !canSampleTopEdge)
             sidesToSample.remove(BoxSideFlag::Top);
 
         if (scrollOffset.y() > maximumOffset.y())

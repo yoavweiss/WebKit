@@ -262,6 +262,7 @@ void LocalFrameView::reset()
     m_contentIsOpaque = false;
     m_updateEmbeddedObjectsTimer.stop();
     m_lastUserScrollType = std::nullopt;
+    m_wasEverScrolledExplicitlyByUser = false;
     m_delayedScrollEventTimer.stop();
     m_shouldScrollToFocusedElement = false;
     m_delayedScrollToFocusedElementTimer.stop();
@@ -3750,6 +3751,7 @@ void LocalFrameView::show()
         // Note that adjustTiledBackingCoverage() kicks the (500ms) timer to re-enable it.
         m_speculativeTilingEnabled = false;
         m_lastUserScrollType = std::nullopt;
+        m_wasEverScrolledExplicitlyByUser = false;
         adjustTiledBackingCoverage();
     }
 }
@@ -5187,6 +5189,9 @@ void LocalFrameView::setLastUserScrollType(std::optional<UserScrollType> userScr
         return;
     m_lastUserScrollType = userScrollType;
     adjustTiledBackingCoverage();
+
+    if (userScrollType == UserScrollType::Explicit)
+        m_wasEverScrolledExplicitlyByUser = true;
 }
 
 void LocalFrameView::willPaintContents(GraphicsContext& context, const IntRect&, PaintingState& paintingState, RegionContext* regionContext)

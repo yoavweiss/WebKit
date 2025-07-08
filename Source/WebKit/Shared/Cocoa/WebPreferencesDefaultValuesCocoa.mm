@@ -31,6 +31,7 @@
 #import "ImageAnalysisUtilities.h"
 #import <Foundation/NSBundle.h>
 #import <pal/spi/cocoa/FeatureFlagsSPI.h>
+#import <pal/system/ios/UserInterfaceIdiom.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
 #import <wtf/text/WTFString.h>
@@ -83,6 +84,15 @@ bool defaultRemoveBackgroundEnabled()
 }
 
 #endif // ENABLE(IMAGE_ANALYSIS)
+
+bool defaultTopContentInsetBackgroundCanChangeAfterScrolling()
+{
+#if PLATFORM(IOS_FAMILY)
+    return PAL::currentUserInterfaceIdiomIsSmallScreen();
+#else
+    return false;
+#endif
+}
 
 } // namespace WebKit
 

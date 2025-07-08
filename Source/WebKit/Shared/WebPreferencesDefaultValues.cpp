@@ -415,4 +415,11 @@ bool defaultContentInsetBackgroundFillEnabled()
 }
 #endif
 
+#if !PLATFORM(COCOA)
+bool defaultTopContentInsetBackgroundCanChangeAfterScrolling()
+{
+    return false;
+}
+#endif
+
 } // namespace WebKit

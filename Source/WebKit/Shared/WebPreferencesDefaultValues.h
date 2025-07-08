@@ -177,6 +177,7 @@ bool defaultRequiresPageVisibilityForVideoToBeNowPlaying();
 bool defaultCookieStoreAPIEnabled();
 
 bool defaultContentInsetBackgroundFillEnabled();
+bool defaultTopContentInsetBackgroundCanChangeAfterScrolling();
 
 #if ENABLE(SCREEN_TIME)
 bool defaultScreenTimeEnabled();

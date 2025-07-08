@@ -807,7 +807,7 @@ window.UIHelper = class UIHelper {
     {
         do {
             await this.ensureStablePresentationUpdate();
-        } while (await this.isZoomingOrScrolling());
+        } while (this.isIOSFamily() && await this.isZoomingOrScrolling());
     }
 
     static deactivateFormControl(element)
