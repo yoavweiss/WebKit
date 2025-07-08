@@ -204,7 +204,6 @@ protected:
     std::optional<unsigned> m_currentHorizontalSnapPointIndex;
     std::optional<unsigned> m_currentVerticalSnapPointIndex;
     bool m_waitingForDidScrollReply { false };
-    bool m_stickyScrollingTreeNodesBeganSticking { false };
     HashSet<WebCore::PlatformLayerIdentifier> m_layersWithScrollingRelations;
 };
 

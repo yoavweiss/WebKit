@@ -174,6 +174,9 @@ void WebPageProxy::didCommitLayerTree(const RemoteLayerTreeTransaction& layerTre
             stopMakingViewBlankDueToLackOfRenderingUpdateIfNecessary();
             internals().lastVisibleContentRectUpdate = { };
         }
+
+        if (std::exchange(internals().needsFixedContainerEdgesUpdateAfterNextCommit, false))
+            protectedLegacyMainFrameProcess()->send(Messages::WebPage::SetNeedsFixedContainerEdgesUpdate(), webPageIDInMainFrameProcess());
     }
 
     if (RefPtr pageClient = this->pageClient())

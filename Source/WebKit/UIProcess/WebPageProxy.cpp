@@ -11496,6 +11496,8 @@ void WebPageProxy::resetState(ResetStateReason resetStateReason)
 
     internals().visibleScrollerThumbRect = IntRect();
 
+    internals().needsFixedContainerEdgesUpdateAfterNextCommit = false;
+
 #if ENABLE(VIDEO_PRESENTATION_MODE)
     if (RefPtr playbackSessionManager = std::exchange(m_playbackSessionManager, nullptr))
         playbackSessionManager->invalidate();
@@ -15935,7 +15937,7 @@ void WebPageProxy::stickyScrollingTreeNodeBeganSticking()
     if (!protectedPreferences()->contentInsetBackgroundFillEnabled())
         return;
 
-    send(Messages::WebPage::SetNeedsFixedContainerEdgesUpdate());
+    internals().needsFixedContainerEdgesUpdateAfterNextCommit = true;
 }
 
 void WebPageProxy::adjustLayersForLayoutViewport(const FloatPoint& scrollPosition, const WebCore::FloatRect& layoutViewport, double scale)

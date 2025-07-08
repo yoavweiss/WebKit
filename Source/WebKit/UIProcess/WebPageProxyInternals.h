@@ -438,6 +438,8 @@ public:
     std::optional<VisibleContentRectUpdateInfo> lastVisibleContentRectUpdate;
 #endif
 
+    bool needsFixedContainerEdgesUpdateAfterNextCommit { false };
+
 #if ENABLE(VIDEO_PRESENTATION_MODE)
     RunLoop::Timer fullscreenVideoTextRecognitionTimer;
     std::optional<PlaybackSessionContextIdentifier> currentFullscreenVideoSessionIdentifier;
