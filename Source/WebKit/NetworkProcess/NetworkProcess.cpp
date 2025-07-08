@@ -355,6 +355,9 @@ void NetworkProcess::initializeNetworkProcess(NetworkProcessCreationParameters&&
 
     updateStorageAccessPromptQuirks(WTFMove(parameters.storageAccessPromptQuirksData));
 
+    if (parameters.defaultRequestTimeoutInterval)
+        setDefaultRequestTimeoutInterval(*parameters.defaultRequestTimeoutInterval);
+
     RELEASE_LOG(Process, "%p - NetworkProcess::initializeNetworkProcess: Presenting processPID=%d", this, legacyPresentingApplicationPID());
 }
 
@@ -3277,5 +3280,10 @@ void NetworkProcess::resetResourceMonitorThrottlerForTesting(PAL::SessionID sess
         completionHandler();
 }
 #endif
+
+void NetworkProcess::setDefaultRequestTimeoutInterval(double timeoutInterval)
+{
+    ResourceRequestBase::setDefaultTimeoutInterval(timeoutInterval);
+}
 
 } // namespace WebKit
