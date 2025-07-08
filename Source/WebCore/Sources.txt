@@ -4427,7 +4427,6 @@ JSRTCDTMFToneChangeEvent.cpp
 JSRTCDataChannel.cpp
 JSRTCDataChannelEvent.cpp
 JSRTCDegradationPreference.cpp
-JSRTCDtxStatus.cpp
 JSRTCDtlsTransport.cpp
 JSRTCDtlsTransportState.cpp
 JSRTCEncodedAudioFrame.cpp
@@ -4462,11 +4461,9 @@ JSRTCRtpCodecCapability.cpp
 JSRTCRtpCodecParameters.cpp
 JSRTCRtpContributingSource.cpp
 JSRTCRtpEncodingParameters.cpp
-JSRTCRtpFecParameters.cpp
 JSRTCRtpHeaderExtensionParameters.cpp
 JSRTCRtpParameters.cpp
 JSRTCRtpReceiver.cpp
-JSRTCRtpRtxParameters.cpp
 JSRTCRtpSFrameTransform.cpp
 JSRTCRtpSFrameTransformErrorEvent.cpp
 JSRTCRtpScriptTransform.cpp

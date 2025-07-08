@@ -528,7 +528,6 @@ set(WebCore_NON_SVG_IDL_FILES
     Modules/mediastream/RTCDegradationPreference.idl
     Modules/mediastream/RTCDtlsTransport.idl
     Modules/mediastream/RTCDtlsTransportState.idl
-    Modules/mediastream/RTCDtxStatus.idl
     Modules/mediastream/RTCEncodedAudioFrame.idl
     Modules/mediastream/RTCEncodedVideoFrame.idl
     Modules/mediastream/RTCError.idl
@@ -562,12 +561,10 @@ set(WebCore_NON_SVG_IDL_FILES
     Modules/mediastream/RTCRtpCodingParameters.idl
     Modules/mediastream/RTCRtpContributingSource.idl
     Modules/mediastream/RTCRtpEncodingParameters.idl
-    Modules/mediastream/RTCRtpFecParameters.idl
     Modules/mediastream/RTCRtpHeaderExtensionParameters.idl
     Modules/mediastream/RTCRtpParameters.idl
     Modules/mediastream/RTCRtpReceiver+Transform.idl
     Modules/mediastream/RTCRtpReceiver.idl
-    Modules/mediastream/RTCRtpRtxParameters.idl
     Modules/mediastream/RTCRtpSFrameTransform.idl
     Modules/mediastream/RTCRtpSFrameTransformErrorEvent.idl
     Modules/mediastream/RTCRtpScriptTransform.idl
