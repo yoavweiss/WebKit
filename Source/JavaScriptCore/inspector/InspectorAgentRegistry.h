@@ -31,8 +31,6 @@
 
 namespace Inspector {
 
-class BackendDispatcher;
-class FrontendRouter;
 class InspectorAgentBase;
 
 enum class DisconnectReason;
