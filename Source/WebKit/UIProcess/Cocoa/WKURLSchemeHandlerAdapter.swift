@@ -52,6 +52,8 @@ final class WKURLSchemeHandlerAdapter: NSObject, WKURLSchemeHandler {
             } catch {
                 urlSchemeTask.didFailWithError(error)
             }
+
+            tasks[ObjectIdentifier(urlSchemeTask)] = nil
         }
 
         tasks[ObjectIdentifier(urlSchemeTask)] = task
