@@ -656,6 +656,7 @@ namespace WebCore {
     macro(onpush) \
     macro(onpushsubscriptionchange) \
     macro(onrtctransform) \
+    macro(onscrollend) \
     macro(ontouchcancel) \
     macro(ontouchend) \
     macro(ontouchmove) \

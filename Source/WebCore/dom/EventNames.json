@@ -222,6 +222,7 @@
     "resume": { },
     "rtctransform": { },
     "scroll": { },
+    "scrollend": { },
     "securitypolicyviolation": { },
     "seeked": { },
     "seeking": { },

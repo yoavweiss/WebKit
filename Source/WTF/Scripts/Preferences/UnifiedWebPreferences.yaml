@@ -6536,6 +6536,20 @@ ScrollToTextFragmentMarkingEnabled:
       default: true
     WebCore:
       default: true
+      
+ScrollendEventEnabled:
+  type: bool
+  status: testable
+  category: dom
+  humanReadableName: "scrollend event"
+  humanReadableDescription: "Enable scrollend event"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
 
 ScrollingPerformanceTestingEnabled:
   type: bool

@@ -311,6 +311,7 @@ onrejectionhandled
 onreset
 onresize
 onscroll
+onscrollend
 onsecuritypolicyviolation
 onseeked
 onseeking
