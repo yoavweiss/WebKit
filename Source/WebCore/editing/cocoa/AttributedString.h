@@ -115,7 +115,7 @@ enum class ParagraphStyleWritingDirection: uint8_t {
 struct ParagraphStyleTextList {
     AttributedStringTextListID thisID;
     String markerFormat;
-    long startingItemNumber { 0 };
+    int64_t startingItemNumber { 0 };
 };
 
 struct ParagraphStyleCommonTableAttributes {
@@ -149,7 +149,7 @@ struct ParagraphStyleCommonTableAttributes {
 
 struct TextTable : ParagraphStyleCommonTableAttributes {
     AttributedStringTextTableID thisID;
-    unsigned long numberOfColumns { 0 };
+    uint64_t numberOfColumns { 0 };
     TextTableLayoutAlgorithm layout { TextTableLayoutAlgorithm::Automatic };
     bool collapsesBorders { false };
     bool hidesEmptyCells { false };
@@ -158,10 +158,10 @@ struct TextTable : ParagraphStyleCommonTableAttributes {
 struct TextTableBlock : ParagraphStyleCommonTableAttributes {
     AttributedStringTextTableBlockID thisID;
     AttributedStringTextTableID tableID;
-    long startingRow { 0 };
-    long rowSpan { 1 };
-    long startingColumn { 0 };
-    long columnSpan { 1 };
+    int64_t startingRow { 0 };
+    int64_t rowSpan { 1 };
+    int64_t startingColumn { 0 };
+    int64_t columnSpan { 1 };
     TextTableBlockVerticalAlignment verticalAlignment { TextTableBlockVerticalAlignment::Top };
 };
 
@@ -177,7 +177,7 @@ struct ParagraphStyle {
     float hyphenationFactor { 0 };
     CGFloat firstLineHeadIndent { 0 };
     CGFloat headIndent { 0 };
-    long headerLevel { 0 };
+    int64_t headerLevel { 0 };
     CGFloat tailIndent { 0 };
     CGFloat paragraphSpacing { 0 };
     Vector<AttributedStringTextTableBlockID> textTableBlockIDs;

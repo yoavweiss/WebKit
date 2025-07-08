@@ -5700,8 +5700,8 @@ header: <WebCore/SecurityPolicyViolationEvent.h>
     String sample();
     WebCore::SecurityPolicyViolationEventDisposition disposition();
     unsigned short statusCode();
-    unsigned long lineNumber();
-    unsigned long columnNumber();
+    uint64_t lineNumber();
+    uint64_t columnNumber();
 };
 
 class WebCore::SecurityOriginData {
@@ -6542,8 +6542,8 @@ header: <WebCore/ISOVTTCue.h>
     bool expectCancel;
     bool supportClientPin;
     bool supportInternalUV;
-    long maxCredentialCountInList;
-    long maxCredentialIdLength;
+    int64_t maxCredentialCountInList;
+    int64_t maxCredentialIdLength;
 };
 
 [Nested] enum class WebCore::MockWebAuthenticationConfiguration::NfcError : uint8_t {
