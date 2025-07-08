@@ -128,13 +128,42 @@ RefPtr<const Font> FontCascade::fontForCombiningCharacterSequence(StringView str
     ++codePointsIterator;
     bool isOnlySingleCodePoint = codePointsIterator == codePoints.end();
 
+    auto [emojiPolicy, shouldForceEmojiFont] = [&]() -> std::pair<ResolvedEmojiPolicy, bool> {
+        if (!isOnlySingleCodePoint) {
+            if (*codePointsIterator == emojiVariationSelector)
+                return { ResolvedEmojiPolicy::RequireEmoji, true };
+
+            if (*codePointsIterator == textVariationSelector)
+                return { ResolvedEmojiPolicy::RequireText, false };
+        }
+
+        switch (m_fontDescription.variantEmoji()) {
+        case FontVariantEmoji::Normal:
+            if (isEmojiWithPresentationByDefault(baseCharacter)
+                || isEmojiModifierBase(baseCharacter)
+                || isEmojiFitzpatrickModifier(baseCharacter))
+                return { ResolvedEmojiPolicy::RequireEmoji, false };
+            break;
+        case FontVariantEmoji::Unicode:
+            if (u_hasBinaryProperty(baseCharacter, UCHAR_EMOJI))
+                return { ResolvedEmojiPolicy::RequireEmoji, false };
+            break;
+        case FontVariantEmoji::Text:
+            return { ResolvedEmojiPolicy::RequireText, false };
+        case FontVariantEmoji::Emoji:
+            return { ResolvedEmojiPolicy::RequireEmoji, u_hasBinaryProperty(baseCharacter, UCHAR_EMOJI) };
+        }
+
+        return { ResolvedEmojiPolicy::NoPreference, false };
+    }();
+
     char32_t baseCharacterForBaseFont = baseCharacter;
-    if (!isOnlySingleCodePoint && *codePointsIterator == emojiVariationSelector) {
+    if (shouldForceEmojiFont) {
         // System fallback doesn't support character sequences, so here we override
         // the base character with the cat emoji to try to force an emoji font.
         baseCharacterForBaseFont = emojiCat;
     }
-    GlyphData baseCharacterGlyphData = glyphDataForCharacter(baseCharacterForBaseFont, false, NormalVariant);
+    GlyphData baseCharacterGlyphData = glyphDataForCharacter(baseCharacterForBaseFont, false, NormalVariant, emojiPolicy);
     if (!baseCharacterGlyphData.glyph)
         return nullptr;
 

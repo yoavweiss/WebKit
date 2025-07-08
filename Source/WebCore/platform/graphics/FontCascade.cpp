@@ -417,7 +417,7 @@ float FontCascade::zeroWidth() const
     return glyphData.font->fontMetrics().zeroWidth().value_or(defaultZeroWidthValue);
 }
 
-GlyphData FontCascade::glyphDataForCharacter(char32_t c, bool mirror, FontVariant variant) const
+GlyphData FontCascade::glyphDataForCharacter(char32_t c, bool mirror, FontVariant variant, std::optional<ResolvedEmojiPolicy> resolvedEmojiPolicy) const
 {
     if (variant == AutoVariant) {
         if (m_fontDescription.variantCaps() == FontVariantCaps::Small) {
@@ -434,7 +434,7 @@ GlyphData FontCascade::glyphDataForCharacter(char32_t c, bool mirror, FontVarian
     if (mirror)
         c = u_charMirror(c);
 
-    auto emojiPolicy = resolveEmojiPolicy(m_fontDescription.variantEmoji(), c);
+    auto emojiPolicy = resolvedEmojiPolicy.value_or(resolveEmojiPolicy(m_fontDescription.variantEmoji(), c));
 
     return protectedFonts()->glyphDataForCharacter(c, m_fontDescription, protectedFontSelector().get(), variant, emojiPolicy);
 }

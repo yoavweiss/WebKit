@@ -207,7 +207,7 @@ public:
 
     Ref<const Font> primaryFont() const;
     const FontRanges& fallbackRangesAt(unsigned) const;
-    WEBCORE_EXPORT GlyphData glyphDataForCharacter(char32_t, bool mirror, FontVariant = AutoVariant) const;
+    WEBCORE_EXPORT GlyphData glyphDataForCharacter(char32_t, bool mirror, FontVariant = AutoVariant, std::optional<ResolvedEmojiPolicy> = std::nullopt) const;
     bool canUseSimplifiedTextMeasuring(char32_t, FontVariant, bool whitespaceIsCollapsed, const Font&) const;
 
     RefPtr<const Font> fontForCombiningCharacterSequence(StringView) const;
