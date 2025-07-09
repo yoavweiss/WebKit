@@ -446,10 +446,6 @@ public:
     void endServiceWorkerBackgroundProcessing();
     void setThrottleStateForTesting(ProcessThrottleState);
 
-#if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
-    UserMediaCaptureManagerProxy& userMediaCaptureManagerProxy() { return m_userMediaCaptureManagerProxy.get(); }
-#endif
-
 #if ENABLE(GPU_PROCESS)
     void gpuProcessDidFinishLaunching();
     void gpuProcessExited(ProcessTerminationReason);
@@ -768,10 +764,6 @@ private:
     RefPtr<WebsiteDataStore> m_websiteDataStore;
 
     SystemMemoryPressureStatus m_memoryPressureStatus { SystemMemoryPressureStatus::Normal };
-
-#if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
-    const Ref<UserMediaCaptureManagerProxy> m_userMediaCaptureManagerProxy;
-#endif
 
     bool m_hasCommittedAnyProvisionalLoads { false };
     bool m_hasCommittedAnyMeaningfulProvisionalLoads { false }; // True if the process has committed a provisional load to a URL that was not about:*.

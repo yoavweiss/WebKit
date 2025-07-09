@@ -11763,8 +11763,8 @@ static std::span<const ASCIILiteral> gpuMachServices()
 static bool shouldBlockIOKit(const WebPreferences& preferences, DrawingAreaType drawingAreaType)
 {
     if (!preferences.useGPUProcessForMediaEnabled()
-        || (!preferences.captureVideoInGPUProcessEnabled() && !preferences.captureVideoInUIProcessEnabled())
-        || (!preferences.captureAudioInGPUProcessEnabled() && !preferences.captureAudioInUIProcessEnabled())
+        || !preferences.captureVideoInGPUProcessEnabled()
+        || !preferences.captureAudioInGPUProcessEnabled()
         || !preferences.webRTCPlatformCodecsInGPUProcessEnabled()
         || !preferences.useGPUProcessForCanvasRenderingEnabled()
         || !preferences.useGPUProcessForDOMRenderingEnabled()
@@ -11994,11 +11994,7 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
 #endif
 
     // FIXME: This is also being passed over the to WebProcess via the PreferencesStore.
-    parameters.shouldCaptureAudioInUIProcess = preferences->captureAudioInUIProcessEnabled();
-    // FIXME: This is also being passed over the to WebProcess via the PreferencesStore.
     parameters.shouldCaptureAudioInGPUProcess = preferences->captureAudioInGPUProcessEnabled();
-    // FIXME: This is also being passed over the to WebProcess via the PreferencesStore.
-    parameters.shouldCaptureVideoInUIProcess = preferences->captureVideoInUIProcessEnabled();
     // FIXME: This is also being passed over the to WebProcess via the PreferencesStore.
     parameters.shouldCaptureVideoInGPUProcess = preferences->captureVideoInGPUProcessEnabled();
     // FIXME: This is also being passed over the to WebProcess via the PreferencesStore.
@@ -12686,8 +12682,6 @@ void WebPageProxy::rotationAngleForCaptureDeviceChanged(const String& persistent
         return;
     }
 #endif // ENABLE(GPU_PROCESS)
-
-    protectedLegacyMainFrameProcess()->userMediaCaptureManagerProxy().rotationAngleForCaptureDeviceChanged(persistentId, rotation);
 #endif // HAVE(AVCAPTUREDEVICEROTATIONCOORDINATOR)
 }
 #endif // ENABLE(MEDIA_STREAM)
@@ -15352,10 +15346,6 @@ void WebPageProxy::setOrientationForMediaCapture(WebCore::IntDegrees orientation
 
 #if ENABLE(MEDIA_STREAM)
 #if PLATFORM(COCOA)
-    forEachWebContentProcess([&](auto& webProcess, auto&&) {
-        webProcess.userMediaCaptureManagerProxy().setOrientation(orientation);
-    });
-
     RefPtr gpuProcess = m_configuration->processPool().gpuProcess();
     if (gpuProcess && protectedPreferences()->captureVideoInGPUProcessEnabled())
         gpuProcess->setOrientationForMediaCapture(orientation);

@@ -299,48 +299,6 @@ Ref<WebProcessProxy> WebProcessProxy::createForRemoteWorkers(RemoteWorkerType wo
     return proxy;
 }
 
-#if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
-class UIProxyForCapture final : public UserMediaCaptureManagerProxy::ConnectionProxy {
-    WTF_MAKE_TZONE_ALLOCATED_INLINE(UIProxyForCapture);
-public:
-    explicit UIProxyForCapture(WebProcessProxy& process)
-        : m_process(process)
-    { }
-
-private:
-    void addMessageReceiver(IPC::ReceiverName messageReceiverName, IPC::MessageReceiver& receiver) final { protectedProcess()->addMessageReceiver(messageReceiverName, receiver); }
-    void removeMessageReceiver(IPC::ReceiverName messageReceiverName) final { protectedProcess()->removeMessageReceiver(messageReceiverName); }
-    IPC::Connection& connection() final { return m_process->connection(); }
-
-    Logger& logger() final
-    {
-        return protectedProcess()->logger();
-    }
-
-    bool willStartCapture(CaptureDevice::DeviceType, PageIdentifier) const final
-    {
-        // FIXME: We should validate this is granted.
-        return true;
-    }
-
-    const WebCore::ProcessIdentity& resourceOwner() const final
-    {
-        // FIXME: should obtain WebContent process identity from WebContent.
-        static NeverDestroyed<WebCore::ProcessIdentity> dummy;
-        return dummy.get();
-    }
-
-    std::optional<SharedPreferencesForWebProcess> sharedPreferencesForWebProcess() const
-    {
-        return m_process->sharedPreferencesForWebProcess();
-    }
-
-    Ref<WebProcessProxy> protectedProcess() const { return m_process.get(); }
-
-    WeakRef<WebProcessProxy> m_process;
-};
-#endif
-
 WebProcessProxy::WebProcessProxy(WebProcessPool& processPool, WebsiteDataStore* websiteDataStore, IsPrewarmed isPrewarmed, CrossOriginMode crossOriginMode, LockdownMode lockdownMode)
     : AuxiliaryProcessProxy(processPool.shouldTakeUIBackgroundAssertion() ? ShouldTakeUIBackgroundAssertion::Yes : ShouldTakeUIBackgroundAssertion::No
     , processPool.alwaysRunsAtBackgroundPriority() ? AlwaysRunsAtBackgroundPriority::Yes : AlwaysRunsAtBackgroundPriority::No)
@@ -351,9 +309,6 @@ WebProcessProxy::WebProcessProxy(WebProcessPool& processPool, WebsiteDataStore* 
     , m_isResponsive(NoOrMaybe::Maybe)
     , m_visiblePageCounter([this](RefCounterEvent) { updateBackgroundResponsivenessTimer(); })
     , m_websiteDataStore(websiteDataStore)
-#if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
-    , m_userMediaCaptureManagerProxy(UserMediaCaptureManagerProxy::create(makeUniqueRef<UIProxyForCapture>(*this)))
-#endif
     , m_isPrewarmed(isPrewarmed == IsPrewarmed::Yes)
     , m_lockdownMode(lockdownMode)
     , m_crossOriginMode(crossOriginMode)
@@ -1332,10 +1287,6 @@ void WebProcessProxy::processDidTerminateOrFailedToLaunch(ProcessTerminationReas
     Ref protectedThis { *this };
 
     liveProcessesLRU().remove(*this);
-
-#if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
-    m_userMediaCaptureManagerProxy->clear();
-#endif
 
     auto pages = mainPages();
 
