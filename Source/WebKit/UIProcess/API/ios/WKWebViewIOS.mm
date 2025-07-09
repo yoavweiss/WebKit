@@ -2408,7 +2408,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         if ([_scrollView _wk_isScrolledBeyondTopExtent])
             return NO;
 
-        if ([[_scrollView topEdgeEffect].style isEqual:UIScrollEdgeEffectStyle.hardStyle])
+        if ([_scrollView _wk_usesHardTopScrollEdgeEffect])
             return NO;
 
         return [_scrollView contentOffset].y < 0;

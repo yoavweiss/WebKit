@@ -139,8 +139,9 @@ class WebViewImpl;
 class ViewGestureController;
 #endif
 enum class HideScrollPocketReason : uint8_t {
-    FullScreen      = 1 << 0,
-    ScrolledToTop   = 1 << 1,
+    FullScreen          = 1 << 0,
+    ScrolledToTop       = 1 << 1,
+    SiteSpecificQuirk   = 1 << 2,
 };
 }
 

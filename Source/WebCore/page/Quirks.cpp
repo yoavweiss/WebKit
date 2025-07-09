@@ -1647,6 +1647,14 @@ bool Quirks::needsChromeMediaControlsPseudoElement() const
 
 #if PLATFORM(IOS_FAMILY)
 
+bool Quirks::shouldHideSoftTopScrollEdgeEffectDuringFocus(const Element& focusedElement) const
+{
+    if (!needsQuirks() || !m_quirksData.shouldHideSoftTopScrollEdgeEffectDuringFocusQuirk)
+        return false;
+
+    return focusedElement.getIdAttribute().contains("crossword"_s);
+}
+
 // store.steampowered.com: rdar://142573562
 bool Quirks::shouldTreatAddingMouseOutEventListenerAsContentChange() const
 {
@@ -2206,6 +2214,14 @@ static void handleDisneyPlusQuirks(QuirksData& quirksData, const URL& quirksURL,
     // disneyplus rdar://151715964
     quirksData.needsZeroMaxTouchPointsQuirk = true;
 #endif
+}
+
+static void handleGuardianQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
+{
+    UNUSED_PARAM(quirksURL);
+    UNUSED_PARAM(quirksDomainString);
+    UNUSED_PARAM(documentURL);
+    quirksData.shouldHideSoftTopScrollEdgeEffectDuringFocusQuirk = true;
 }
 #endif // PLATFORM(IOS_FAMILY)
 
@@ -3001,6 +3017,7 @@ void Quirks::determineRelevantQuirks()
         { "state"_s, &handleCEACStateGovQuirks },
 #endif
 #if PLATFORM(IOS_FAMILY)
+        { "theguardian"_s, &handleGuardianQuirks },
         { "thesaurus"_s, &handleScriptToEvaluateBeforeRunningScriptFromURLQuirk },
 #endif
 #if PLATFORM(MAC)

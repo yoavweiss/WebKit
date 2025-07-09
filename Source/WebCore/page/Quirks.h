@@ -243,6 +243,7 @@ public:
     WEBCORE_EXPORT bool shouldSynthesizeTouchEventsAfterNonSyntheticClick(const Element&) const;
     WEBCORE_EXPORT bool needsPointerTouchCompatibility(const Element&) const;
     bool shouldTreatAddingMouseOutEventListenerAsContentChange() const;
+    WEBCORE_EXPORT bool shouldHideSoftTopScrollEdgeEffectDuringFocus(const Element&) const;
 #endif
 
     bool needsMozillaFileTypeForDataTransfer() const;

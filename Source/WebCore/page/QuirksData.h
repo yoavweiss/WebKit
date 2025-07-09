@@ -140,6 +140,7 @@ struct WEBCORE_EXPORT QuirksData {
 
 #if PLATFORM(IOS_FAMILY)
     bool shouldHideCoarsePointerCharacteristicsQuirk : 1 { false };
+    bool shouldHideSoftTopScrollEdgeEffectDuringFocusQuirk : 1 { false };
 #endif
 
 #if ENABLE(FLIP_SCREEN_DIMENSIONS_QUIRKS)

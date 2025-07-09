@@ -8453,6 +8453,13 @@ static RetainPtr<NSObject <WKFormPeripheral>> createInputPeripheralWithView(WebK
     if (![self isFirstResponder])
         [self becomeFirstResponder];
 
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    if (_focusedElementInformation.shouldHideSoftTopScrollEdgeEffect && ![[_webView scrollView] _wk_usesHardTopScrollEdgeEffect])
+        [_webView _addReasonToHideTopScrollPocket:WebKit::HideScrollPocketReason::SiteSpecificQuirk];
+    else
+        [_webView _removeReasonToHideTopScrollPocket:WebKit::HideScrollPocketReason::SiteSpecificQuirk];
+#endif
+
     if (!_suppressSelectionAssistantReasons && requiresKeyboard && activityStateChanges.contains(WebCore::ActivityState::IsFocused)) {
         _treatAsContentEditableUntilNextEditorStateUpdate = YES;
         [_textInteractionWrapper activateSelection];
@@ -8542,6 +8549,11 @@ static RetainPtr<NSObject <WKFormPeripheral>> createInputPeripheralWithView(WebK
 
     [self _endEditing];
 
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    if (!_isChangingFocus)
+        [_webView _removeReasonToHideTopScrollPocket:WebKit::HideScrollPocketReason::SiteSpecificQuirk];
+#endif
+
     [_formInputSession invalidate];
     _formInputSession = nil;
 
@@ -8556,6 +8568,7 @@ static RetainPtr<NSObject <WKFormPeripheral>> createInputPeripheralWithView(WebK
     _focusedElementInformation.shouldSynthesizeKeyEventsForEditing = false;
     _focusedElementInformation.shouldAvoidResizingWhenInputViewBoundsChange = false;
     _focusedElementInformation.shouldAvoidScrollingWhenFocusedContentIsVisible = false;
+    _focusedElementInformation.shouldHideSoftTopScrollEdgeEffect = false;
     _focusedElementInformation.shouldUseLegacySelectPopoverDismissalBehaviorInDataActivation = false;
     _focusedElementInformation.isFocusingWithValidationMessage = false;
     _focusedElementInformation.preventScroll = false;

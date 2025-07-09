@@ -224,6 +224,15 @@ static UIAxis axesForDelta(WebCore::FloatSize delta)
     [self _flashScrollIndicatorsForAxes:axes persistingPreviousFlashes:YES];
 }
 
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+
+- (BOOL)_wk_usesHardTopScrollEdgeEffect
+{
+    return [self.topEdgeEffect.style isEqual:UIScrollEdgeEffectStyle.hardStyle];
+}
+
+#endif
+
 @end
 
 @implementation UIView (WebKitInternal)
