@@ -2274,6 +2274,17 @@ static void handleWarbyParkerQuirks(QuirksData& quirksData, const URL& quirksURL
     // warbyparker.com rdar://72839707
     quirksData.shouldEnableLegacyGetUserMediaQuirk = true;
 }
+
+static void handleACTestingQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
+{
+    if (quirksDomainString != "actesting.org"_s)
+        return;
+
+    UNUSED_PARAM(quirksURL);
+    UNUSED_PARAM(documentURL);
+    // actesting.org rdar://124017544
+    quirksData.shouldEnableLegacyGetUserMediaQuirk = true;
+}
 #endif
 
 static void handleDailyMailCoUkQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
@@ -2932,6 +2943,9 @@ void Quirks::determineRelevantQuirks()
     static NeverDestroyed<DispatchMap> dispatchMap = DispatchMap({
 #if PLATFORM(IOS) || PLATFORM(VISION)
         { "365scores"_s, &handle365ScoresQuirks },
+#endif
+#if ENABLE(MEDIA_STREAM)
+        { "actesting"_s, &handleACTestingQuirks },
 #endif
         { "amazon"_s, &handleAmazonQuirks },
 #if PLATFORM(IOS_FAMILY)
