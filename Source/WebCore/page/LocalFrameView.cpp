@@ -3751,7 +3751,6 @@ void LocalFrameView::show()
         // Note that adjustTiledBackingCoverage() kicks the (500ms) timer to re-enable it.
         m_speculativeTilingEnabled = false;
         m_lastUserScrollType = std::nullopt;
-        m_wasEverScrolledExplicitlyByUser = false;
         adjustTiledBackingCoverage();
     }
 }

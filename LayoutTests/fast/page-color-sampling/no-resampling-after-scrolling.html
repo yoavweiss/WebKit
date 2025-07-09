@@ -41,11 +41,25 @@ addEventListener("load", async () => {
     await UIHelper.scrollDown();
     await UIHelper.waitForZoomingOrScrollingToEnd();
 
-    colors = await UIHelper.fixedContainerEdgeColors();
-    shouldBeNull("colors.top");
-    shouldBeNull("colors.left");
-    shouldBeNull("colors.right");
-    shouldBeNull("colors.bottom");
+    colorsBeforeReparenting = await UIHelper.fixedContainerEdgeColors();
+    shouldBeNull("colorsBeforeReparenting.top");
+    shouldBeNull("colorsBeforeReparenting.left");
+    shouldBeNull("colorsBeforeReparenting.right");
+    shouldBeNull("colorsBeforeReparenting.bottom");
+
+    await UIHelper.removeViewFromWindow();
+    await UIHelper.addViewToWindow();
+    await UIHelper.ensurePresentationUpdate();
+
+    document.querySelector(".short-vertical-space").remove();
+    await UIHelper.scrollDown();
+    await UIHelper.ensurePresentationUpdate();
+
+    colorsAfterReparenting = await UIHelper.fixedContainerEdgeColors();
+    shouldBeNull("colorsAfterReparenting.top");
+    shouldBeNull("colorsAfterReparenting.left");
+    shouldBeNull("colorsAfterReparenting.right");
+    shouldBeNull("colorsAfterReparenting.bottom");
 
     finishJSTest();
 });

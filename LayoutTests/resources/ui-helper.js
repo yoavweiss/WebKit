@@ -1536,7 +1536,11 @@ window.UIHelper = class UIHelper {
         if (!this.isWebKit2())
             return Promise.resolve();
 
-        return new Promise(resolve => testRunner.runUIScript(`uiController.removeViewFromWindow()`, resolve));
+        const scriptToRun = `(function() {
+            uiController.removeViewFromWindow();
+            uiController.uiScriptComplete();
+        })()`;
+        return new Promise(resolve => testRunner.runUIScript(scriptToRun, resolve));
     }
 
     static addViewToWindow()
@@ -1544,7 +1548,11 @@ window.UIHelper = class UIHelper {
         if (!this.isWebKit2())
             return Promise.resolve();
 
-        return new Promise(resolve => testRunner.runUIScript(`uiController.addViewToWindow()`, resolve));
+        const scriptToRun = `(function() {
+            uiController.addViewToWindow();
+            uiController.uiScriptComplete();
+        })()`;
+        return new Promise(resolve => testRunner.runUIScript(scriptToRun, resolve));
     }
 
     static minimumZoomScale()

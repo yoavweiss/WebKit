@@ -1,7 +1,11 @@
-PASS colors.top is null
-PASS colors.left is null
-PASS colors.right is null
-PASS colors.bottom is null
+PASS colorsBeforeReparenting.top is null
+PASS colorsBeforeReparenting.left is null
+PASS colorsBeforeReparenting.right is null
+PASS colorsBeforeReparenting.bottom is null
+PASS colorsAfterReparenting.top is null
+PASS colorsAfterReparenting.left is null
+PASS colorsAfterReparenting.right is null
+PASS colorsAfterReparenting.bottom is null
 PASS successfullyParsed is true
 
 TEST COMPLETE
