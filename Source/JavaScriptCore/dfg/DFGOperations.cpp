@@ -2857,27 +2857,6 @@ JSC_DEFINE_JIT_OPERATION(operationNewRegExpString, JSObject*, (JSGlobalObject* g
     OPERATION_RETURN(scope, constructRegExp(globalObject, ArgList { args, 2 }, globalObject->regExpConstructor()));
 }
 
-JSC_DEFINE_JIT_OPERATION(operationResolveRope, StringImpl*, (JSGlobalObject* globalObject, JSString* string))
-{
-    VM& vm = globalObject->vm();
-    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
-    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
-    auto scope = DECLARE_THROW_SCOPE(vm);
-
-    OPERATION_RETURN(scope, string->value(globalObject)->impl());
-}
-
-JSC_DEFINE_JIT_OPERATION(operationResolveRopeString, JSString*, (JSGlobalObject* globalObject, JSRopeString* string))
-{
-    VM& vm = globalObject->vm();
-    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
-    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
-    auto scope = DECLARE_THROW_SCOPE(vm);
-
-    string->resolveRope(globalObject);
-    OPERATION_RETURN(scope, string);
-}
-
 JSC_DEFINE_JIT_OPERATION(operationStringValueOf, JSString*, (JSGlobalObject* globalObject, EncodedJSValue encodedArgument))
 {
     VM& vm = globalObject->vm();
@@ -3730,23 +3709,6 @@ JSC_DEFINE_JIT_OPERATION(operationMakeAtomString3WithCache, JSString*, (JSGlobal
         OPERATION_RETURN(scope, result);
 
     OPERATION_RETURN(scope, jsAtomString(globalObject, vm, a, b, c));
-}
-
-JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationFindSwitchImmTargetForDouble, char*, (VM* vmPointer, EncodedJSValue encodedValue, size_t tableIndex, int32_t min))
-{
-    VM& vm = *vmPointer;
-    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
-    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
-    auto scope = DECLARE_THROW_SCOPE(vm);
-    CodeBlock* codeBlock = callFrame->codeBlock();
-    const SimpleJumpTable& linkedTable = codeBlock->dfgSwitchJumpTable(tableIndex);
-    JSValue value = JSValue::decode(encodedValue);
-    ASSERT(value.isDouble());
-    double asDouble = value.asDouble();
-    int32_t asInt32 = static_cast<int32_t>(asDouble);
-    if (asDouble == asInt32)
-        OPERATION_RETURN(scope, linkedTable.ctiForValue(min, asInt32).taggedPtr<char*>());
-    OPERATION_RETURN(scope, linkedTable.m_ctiDefault.taggedPtr<char*>());
 }
 
 JSC_DEFINE_JIT_OPERATION(operationSwitchString, char*, (JSGlobalObject* globalObject, size_t tableIndex, const UnlinkedStringJumpTable* unlinkedTable, JSString* string))

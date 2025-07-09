@@ -8398,13 +8398,25 @@ void ByteCodeParser::parseBlock(unsigned limit)
             data.switchTableIndex = m_inlineStackTop->m_switchRemap[bytecode.m_tableIndex];
             const UnlinkedSimpleJumpTable& unlinkedTable = m_graph.unlinkedSwitchJumpTable(data.switchTableIndex);
             data.fallThrough.setBytecodeIndex(m_currentIndex.offset() + unlinkedTable.defaultOffset());
-            for (unsigned i = 0; i < unlinkedTable.m_branchOffsets.size(); ++i) {
-                if (!unlinkedTable.m_branchOffsets[i])
-                    continue;
-                unsigned target = m_currentIndex.offset() + unlinkedTable.m_branchOffsets[i];
-                if (target == data.fallThrough.bytecodeIndex())
-                    continue;
-                data.cases.append(SwitchCase::withBytecodeIndex(m_graph.freeze(jsNumber(static_cast<int32_t>(unlinkedTable.m_min + i))), target));
+
+            if (unlinkedTable.isList()) {
+                data.clearSwitchTableIndex();
+                for (unsigned i = 0; i < unlinkedTable.m_branchOffsets.size(); i += 2) {
+                    int32_t value = unlinkedTable.m_branchOffsets[i];
+                    unsigned target = m_currentIndex.offset() + unlinkedTable.m_branchOffsets[i + 1];
+                    if (target == data.fallThrough.bytecodeIndex())
+                        continue;
+                    data.cases.append(SwitchCase::withBytecodeIndex(m_graph.freeze(jsNumber(value)), target));
+                }
+            } else {
+                for (unsigned i = 0; i < unlinkedTable.m_branchOffsets.size(); ++i) {
+                    if (!unlinkedTable.m_branchOffsets[i])
+                        continue;
+                    unsigned target = m_currentIndex.offset() + unlinkedTable.m_branchOffsets[i];
+                    if (target == data.fallThrough.bytecodeIndex())
+                        continue;
+                    data.cases.append(SwitchCase::withBytecodeIndex(m_graph.freeze(jsNumber(static_cast<int32_t>(unlinkedTable.m_min + i))), target));
+                }
             }
             addToGraph(Switch, OpInfo(&data), get(bytecode.m_scrutinee));
             flushIfTerminal(data);
@@ -8418,14 +8430,25 @@ void ByteCodeParser::parseBlock(unsigned limit)
             data.switchTableIndex = m_inlineStackTop->m_switchRemap[bytecode.m_tableIndex];
             const UnlinkedSimpleJumpTable& unlinkedTable = m_graph.unlinkedSwitchJumpTable(data.switchTableIndex);
             data.fallThrough.setBytecodeIndex(m_currentIndex.offset() + unlinkedTable.defaultOffset());
-            for (unsigned i = 0; i < unlinkedTable.m_branchOffsets.size(); ++i) {
-                if (!unlinkedTable.m_branchOffsets[i])
-                    continue;
-                unsigned target = m_currentIndex.offset() + unlinkedTable.m_branchOffsets[i];
-                if (target == data.fallThrough.bytecodeIndex())
-                    continue;
-                data.cases.append(
-                    SwitchCase::withBytecodeIndex(LazyJSValue::singleCharacterString(unlinkedTable.m_min + i), target));
+
+            if (unlinkedTable.isList()) {
+                data.clearSwitchTableIndex();
+                for (unsigned i = 0; i < unlinkedTable.m_branchOffsets.size(); i += 2) {
+                    int32_t value = unlinkedTable.m_branchOffsets[i];
+                    unsigned target = m_currentIndex.offset() + unlinkedTable.m_branchOffsets[i + 1];
+                    if (target == data.fallThrough.bytecodeIndex())
+                        continue;
+                    data.cases.append(SwitchCase::withBytecodeIndex(LazyJSValue::singleCharacterString(value), target));
+                }
+            } else {
+                for (unsigned i = 0; i < unlinkedTable.m_branchOffsets.size(); ++i) {
+                    if (!unlinkedTable.m_branchOffsets[i])
+                        continue;
+                    unsigned target = m_currentIndex.offset() + unlinkedTable.m_branchOffsets[i];
+                    if (target == data.fallThrough.bytecodeIndex())
+                        continue;
+                    data.cases.append(SwitchCase::withBytecodeIndex(LazyJSValue::singleCharacterString(unlinkedTable.m_min + i), target));
+                }
             }
             addToGraph(Switch, OpInfo(&data), get(bytecode.m_scrutinee));
             flushIfTerminal(data);
