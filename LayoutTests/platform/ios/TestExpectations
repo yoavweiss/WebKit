@@ -8047,3 +8047,5 @@ imported/w3c/web-platform-tests/css/css-ui/compute-kind-widget-generated/kind-of
 
 # FIXME: Needs bug.
 imported/w3c/web-platform-tests/html/semantics/popovers/light-dismiss-event-ordering.html [ Failure ]
+
+webkit.org/b/295653 css3/filters/backdrop-filter-page-scale.html [ Pass Failure ]
