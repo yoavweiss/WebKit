@@ -582,7 +582,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
 
     GetSamplingProfilerOutput() -> (String string)
     
-    TakeSnapshot(WebCore::IntRect snapshotRect, WebCore::IntSize bitmapSize, OptionSet<WebKit::SnapshotOption> options) -> (std::optional<WebCore::ShareableBitmapHandle> image)
+    TakeSnapshot(WebCore::IntRect snapshotRect, WebCore::IntSize bitmapSize, OptionSet<WebKit::SnapshotOption> options, bool sharedBitmapOnly) -> (std::optional<WebKit::ImageBufferBackendHandle> image)
 #if PLATFORM(MAC)
     PerformImmediateActionHitTestAtLocation(WebCore::FrameIdentifier frameID, WebCore::FloatPoint location)
     ImmediateActionDidUpdate()
