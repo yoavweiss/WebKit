@@ -4028,7 +4028,7 @@ void MediaPlayerPrivateGStreamer::paint(GraphicsContext& context, const FloatRec
     if (!presentationSize)
         return;
 
-    auto frame = VideoFrameGStreamer::create(WTFMove(sample), { *m_videoInfo }, IntSize(*presentationSize));
+    auto frame = VideoFrameGStreamer::create(WTFMove(sample), { IntSize(*presentationSize), { *m_videoInfo } });
     frame->draw(context, rect, m_videoSourceOrientation, false);
 }
 
@@ -4053,7 +4053,7 @@ RefPtr<VideoFrame> MediaPlayerPrivateGStreamer::videoFrameForCurrentTime()
         return nullptr;
 
     auto size = getVideoResolutionFromCaps(gst_sample_get_caps(m_sample.get())).value_or(FloatSize { 0, 0 });
-    return VideoFrameGStreamer::create(WTFMove(convertedSample), { }, IntSize(size));
+    return VideoFrameGStreamer::create(WTFMove(convertedSample), { IntSize(size) });
 }
 
 bool MediaPlayerPrivateGStreamer::setVideoSourceOrientation(ImageOrientation orientation)

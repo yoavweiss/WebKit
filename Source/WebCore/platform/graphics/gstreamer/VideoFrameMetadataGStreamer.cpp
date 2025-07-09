@@ -113,7 +113,7 @@ const GstMetaInfo* videoFrameMetadataGetInfo()
 
 // NOTE: The buffer here cannot be a const GRefPtr<>&, that would mean its refcount would be greater
 // than 1, hence it wouldn't be writable.
-void webkitGstBufferAddVideoFrameMetadata(GstBuffer* buffer, std::optional<WebCore::VideoFrameTimeMetadata>&& metadata, VideoFrame::Rotation rotation, bool isMirrored, VideoFrameContentHint hint)
+void webkitGstBufferAddVideoFrameMetadata(GstBuffer* buffer, std::optional<WebCore::VideoFrameTimeMetadata> metadata, VideoFrame::Rotation rotation, bool isMirrored, VideoFrameContentHint hint)
 {
     if (!gst_buffer_is_writable(buffer)) {
         GST_ERROR("Unable to add video frame metadata on read-only buffer");
@@ -132,18 +132,18 @@ void webkitGstBufferAddVideoFrameMetadata(GstBuffer* buffer, std::optional<WebCo
     }
 
     meta = VIDEO_FRAME_METADATA_CAST(gst_buffer_add_meta(buffer, videoFrameMetadataGetInfo(), nullptr));
-    meta->priv->videoSampleMetadata = WTFMove(metadata);
+    meta->priv->videoSampleMetadata = metadata;
     meta->priv->rotation = rotation;
     meta->priv->isMirrored = isMirrored;
     meta->priv->contentHint = hint;
 }
 
-GRefPtr<GstBuffer> webkitGstBufferSetVideoFrameMetadata(GRefPtr<GstBuffer>&& buffer, std::optional<WebCore::VideoFrameTimeMetadata>&& metadata, VideoFrame::Rotation rotation, bool isMirrored, VideoFrameContentHint hint)
+GRefPtr<GstBuffer> webkitGstBufferSetVideoFrameMetadata(GRefPtr<GstBuffer>&& buffer, std::optional<WebCore::VideoFrameTimeMetadata> metadata, VideoFrame::Rotation rotation, bool isMirrored, VideoFrameContentHint hint)
 {
     IGNORE_WARNINGS_BEGIN("cast-align");
     auto modifiedBuffer = adoptGRef(gst_buffer_make_writable(buffer.leakRef()));
     IGNORE_WARNINGS_END;
-    webkitGstBufferAddVideoFrameMetadata(modifiedBuffer.get(), WTFMove(metadata), rotation, isMirrored, hint);
+    webkitGstBufferAddVideoFrameMetadata(modifiedBuffer.get(), metadata, rotation, isMirrored, hint);
     return modifiedBuffer;
 }
 
