@@ -191,24 +191,24 @@ def types_that_must_be_moved():
     ]
 
 
+builtin_types = frozenset([
+    'bool',
+    'float',
+    'double',
+    'uint8_t',
+    'uint16_t',
+    'uint32_t',
+    'uint64_t',
+    'int8_t',
+    'int16_t',
+    'int32_t',
+    'int64_t',
+    'size_t',
+    'WebCore::TrackID',
+])
+
 def function_parameter_type(type, kind, for_reply=False):
     # Don't use references for built-in types.
-    builtin_types = frozenset([
-        'bool',
-        'float',
-        'double',
-        'uint8_t',
-        'uint16_t',
-        'uint32_t',
-        'uint64_t',
-        'int8_t',
-        'int16_t',
-        'int32_t',
-        'int64_t',
-        'size_t',
-        'WebCore::TrackID',
-    ])
-
     if type in builtin_types:
         return type
 
@@ -221,6 +221,14 @@ def function_parameter_type(type, kind, for_reply=False):
     return 'const %s&' % type
 
 
+def function_parameter_requires_suppress_forward_decl(type, kind, for_reply=False):
+    return not (
+        type in builtin_types or
+        kind.startswith('enum:') or
+        type in types_that_cannot_be_forward_declared()
+    )
+
+
 def arguments_constructor_name(type, name):
     if type in types_that_must_be_moved():
         return 'WTFMove(%s)' % name
@@ -230,6 +238,7 @@ def arguments_constructor_name(type, name):
 def message_to_struct_declaration(receiver, message):
     result = []
     function_parameters = [(function_parameter_type(x.type, x.kind), x.name) for x in message.parameters]
+    requires_suppress_forward_decl = [function_parameter_requires_suppress_forward_decl(x.type, x.kind) for x in message.parameters]
 
     result.append('class %s {\n' % message.name)
     result.append('public:\n')
@@ -280,7 +289,10 @@ def message_to_struct_declaration(receiver, message):
             result.append('    void encodeCoalescingKey(IPC::Encoder& encoder) const\n')
             result.append('    {\n')
             for i in message.coalescing_key_indices:
-                result.append('        encoder << m_%s;\n' % message.parameters[i].name)
+                result.append('        ')
+                if requires_suppress_forward_decl[i]:
+                    result.append('SUPPRESS_FORWARD_DECL_ARG ')
+                result.append('encoder << m_%s;\n' % message.parameters[i].name)
         else:
             result.append('    void encodeCoalescingKey(IPC::Encoder&) const\n')
             result.append('    {\n')
@@ -290,16 +302,24 @@ def message_to_struct_declaration(receiver, message):
     result.append('    template<typename Encoder>\n')
     result.append('    void encode(Encoder& encoder)\n')
     result.append('    {\n')
-    for parameter in message.parameters:
+    for i in range(len(message.parameters)):
+        parameter = message.parameters[i]
+        result.append('        ')
+        if requires_suppress_forward_decl[i]:
+            result.append('SUPPRESS_FORWARD_DECL_ARG ')
         if parameter.type in types_that_must_be_moved():
-            result.append('        encoder << WTFMove(m_%s);\n' % parameter.name)
+            result.append('encoder << WTFMove(m_%s);\n' % parameter.name)
         else:
-            result.append('        encoder << m_%s;\n' % parameter.name)
+            result.append('encoder << m_%s;\n' % parameter.name)
     result.append('    }\n')
     result.append('\n')
     result.append('private:\n')
-    for parameter in function_parameters:
-        result.append('    %s m_%s;\n' % parameter)
+    for i in range(len(function_parameters)):
+        parameter = function_parameters[i]
+        result.append('    ')
+        if requires_suppress_forward_decl[i]:
+            result.append('SUPPRESS_FORWARD_DECL_MEMBER ')
+        result.append('%s m_%s;\n' % parameter)
     result.append('};\n')
     return surround_in_condition(''.join(result), message.condition)
 

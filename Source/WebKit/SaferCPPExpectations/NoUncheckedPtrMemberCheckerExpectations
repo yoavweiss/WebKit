@@ -1,3 +1,2 @@
-EventDispatcherMessages.h
 UIProcess/mac/WebViewImpl.mm
 WebPageMessages.h

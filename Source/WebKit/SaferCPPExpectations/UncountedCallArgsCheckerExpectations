@@ -1,7 +1,6 @@
 AutomationFrontendDispatchers.cpp
 AutomationProtocolObjects.h
 GeneratedSerializers.mm
-NetworkConnectionToWebProcessMessages.h
 Platform/IPC/ArgumentCoders.h
 Platform/IPC/Connection.cpp
 Platform/IPC/Connection.h
