@@ -56,6 +56,7 @@ from webkitpy.style.checkers.jstest import JSTestChecker
 from webkitpy.style.checkers.messagesin import MessagesInChecker
 from webkitpy.style.checkers.png import PNGChecker
 from webkitpy.style.checkers.python import PythonChecker, Python3Checker
+from webkitpy.style.checkers.spi_allowlist import SPIAllowlistChecker
 from webkitpy.style.checkers.swift import SwiftChecker
 from webkitpy.style.checkers.test_expectations import TestExpectationsChecker
 from webkitpy.style.checkers.text import TextChecker
@@ -782,6 +783,7 @@ class FileType:
     BASE_XCCONFIG = 13
     XCSCHEME = 14
     SWIFT = 15
+    SPI_ALLOWLIST = 16
 
 
 class ANSIColor:
@@ -895,6 +897,8 @@ class CheckerDispatcher(object):
             return FileType.BASE_XCCONFIG
         elif os.path.basename(file_path) == "General.xcconfig":  # gtest is different.
             return FileType.BASE_XCCONFIG
+        elif os.path.basename(file_path).startswith('AllowedSPI') and file_extension == 'toml':
+            return FileType.SPI_ALLOWLIST
         else:
             return FileType.NONE
 
@@ -974,6 +978,8 @@ class CheckerDispatcher(object):
             checker = FeatureDefinesChecker(file_path, handle_style_error)
         elif file_type == FileType.BASE_XCCONFIG:
             checker = BaseXcconfigChecker(file_path, handle_style_error)
+        elif file_type == FileType.SPI_ALLOWLIST:
+            checker = SPIAllowlistChecker(file_path, handle_style_error)
         else:
             raise ValueError('Invalid file type "%(file_type)s": the only valid file types '
                              "are %(NONE)s, %(CPP)s, and %(TEXT)s."

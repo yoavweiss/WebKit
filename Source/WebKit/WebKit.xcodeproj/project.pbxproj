@@ -20023,7 +20023,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f \"${SCRIPT_INPUT_FILE_0}\" ]\nthen \"${SCRIPT_INPUT_FILE_0}\" \"${BUILT_PRODUCTS_DIR}/WebKit.framework/WebKit\" \"${BUILT_PRODUCTS_DIR}/libWebKitSwift.dylib\" \"${BUILT_PRODUCTS_DIR}/_WebKit_SwiftUI.framework/_WebKit_SwiftUI\" -framework WebKit -framework WebCore -framework WebGPU -framework JavaScriptCore -lwebrtc -lWebKitSwift\nfi && touch \"${DERIVED_FILES_DIR}/audit-spi.d\"\n";
+			shellScript = "if [ -f \"${SCRIPT_INPUT_FILE_0}\" ]\nthen \"${SCRIPT_INPUT_FILE_0}\" \"${BUILT_PRODUCTS_DIR}/WebKit.framework/WebKit\" \"${BUILT_PRODUCTS_DIR}/libWebKitSwift.dylib\" \"${BUILT_PRODUCTS_DIR}/_WebKit_SwiftUI.framework/_WebKit_SwiftUI\" -framework WebKit -framework WebCore -framework WebGPU -framework JavaScriptCore -lwebrtc -lWebKitSwift --allowlist \"${SRCROOT}/Configurations/AllowedSPI-legacy.toml\" \"${SRCROOT}/Configurations/AllowedSPI.toml\"\nfi && touch \"${DERIVED_FILES_DIR}/audit-spi.d\"\n";
 		};
 		DD4BDE9F2CAB1275001A3339 /* Create legacy Swift overlay symlink */ = {
 			isa = PBXShellScriptBuildPhase;

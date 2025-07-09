@@ -35,9 +35,9 @@ from typing import Optional
 from types import ModuleType
 
 import webkitapipy
-from webkitapipy.sdkdb import SDKDB
+from webkitapipy.sdkdb import Diagnostic, MissingName, UnnecessaryAllowedName, UnusedAllowedName
+from webkitapipy.sdkdb import SDKDB, SYMBOL, OBJC_CLS, OBJC_SEL
 from webkitapipy.macho import APIReport
-
 
 # Some symbols, namely ones that are low-level parts of system libraries and
 # runtimes, are implicitly available.
@@ -86,6 +86,8 @@ SDK_ALLOWLIST = {
                                 '/usr/lib/system/libcompiler_rt*',
                                 '/usr/lib/system/libunwind*'),
     'usr/lib/libicucore.A.tbd': (),
+    # rdar://149428625
+    'usr/lib/libxslt.1.tbd': (),
 }
 
 # In addition to the main directory of partial SDKDBs passed via `--sdkdb-dir`,
@@ -99,30 +101,35 @@ class TSVReporter:
         self.n_issues = 0
         self.print_details = args.details
         self.print_names = args.details and len(args.input_files) > 1
+        self.emit_errors = args.errors
+        self.suggested_allowlists = [path for path in (args.allowlists or ())
+                                     if 'legacy' not in path.name]
 
-    def process_report(self, report: APIReport, db: SDKDB):
-        name_prefix = f'{report.file}({report.arch}):'
-        for selref in sorted(report.selrefs):
-            if not db.objc_selector(selref) and selref not in report.methods:
-                if self.print_names:
-                    print(name_prefix, end='\t')
-                self.missing_selector(selref)
-
-        for symbol in sorted(report.imports):
-            ignored = symbol in ALLOWED_SYMBOLS
-            if not ignored:
-                ignored = any(fnmatch(symbol, pattern)
-                              for pattern in ALLOWED_SYMBOL_GLOBS)
-            if symbol.startswith('_OBJC_CLASS_$_'):
-                class_name = symbol.removeprefix('_OBJC_CLASS_$_')
-                if not db.objc_class(class_name):
-                    if self.print_names and not ignored:
-                        print(name_prefix, end='\t')
-                    self.missing_class(class_name, ignored=ignored)
-            elif not db.symbol(symbol):
+    def emit_diagnostic(self, diag: Diagnostic):
+        if isinstance(diag, MissingName):
+            name_prefix = f'{diag.file}({diag.arch}):'
+            if diag.kind is SYMBOL:
+                ignored = diag.name in ALLOWED_SYMBOLS
+                if not ignored:
+                    ignored = any(fnmatch(diag.name, pattern)
+                                  for pattern in ALLOWED_SYMBOL_GLOBS)
                 if self.print_names and not ignored:
                     print(name_prefix, end='\t')
-                self.missing_symbol(symbol, ignored=ignored)
+                self.missing_symbol(diag.name, ignored=ignored)
+            elif diag.kind is OBJC_CLS:
+                ignored = f'_OBJC_CLASS_$_{diag.name}' in ALLOWED_SYMBOLS
+                if self.print_names and not ignored:
+                    print(name_prefix, end='\t')
+                self.missing_class(diag.name, ignored=ignored)
+            elif diag.kind is OBJC_SEL:
+                if self.print_names:
+                    print(name_prefix, end='\t')
+                self.missing_selector(diag.name)
+        elif isinstance(diag, (UnusedAllowedName, UnnecessaryAllowedName)):
+            name_prefix = f'{diag.file}:'
+            if self.print_names:
+                print(name_prefix, end='\t')
+            self.unused_allowed_name(diag.name)
 
     def missing_selector(self, name: str, *, ignored=False):
         if not ignored:
@@ -142,10 +149,23 @@ class TSVReporter:
                 print('symbol:', name, sep='\t')
             self.n_issues += 1
 
+    def unused_allowed_name(self, name: str, *, ignored=False):
+        if not ignored:
+            if self.print_details:
+                print('allowlist entry:', name, sep='\t')
+            self.n_issues += 1
+
     def finished(self):
+        if self.n_issues:
+            print('error: ' if self.emit_errors else 'warning: ', end='')
         print(f'{self.n_issues} potential use{"s"[:self.n_issues^1]} of SPI.')
-        if self.n_issues and not self.print_details:
-            print('Rerun with --details to see each validation issue.')
+        if self.n_issues:
+            if self.suggested_allowlists:
+                print("If this usage is intentional, please add it to one of "
+                      "this configuration's allowlists:")
+                print('\t', '\n\t'.join(map(str, self.suggested_allowlists)), sep='')
+            if not self.print_details:
+                print('Rerun with --details to see each validation issue.')
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -157,6 +177,8 @@ def get_parser() -> argparse.ArgumentParser:
                         help='files to analyze')
     parser.add_argument('-a', '--arch-name', required=True,
                         help='which architecture to analyze binary with')
+    parser.add_argument('--allowlists', '--allowlist', nargs='*', type=Path,
+                        help='config files listing additional allowed SPI')
 
     binaries = parser.add_argument_group('framework and library dependencies',
                                          description='''ld-style arguments to
@@ -187,6 +209,9 @@ def get_parser() -> argparse.ArgumentParser:
                         help='write inputs used for incremental rebuilds')
     parser.add_argument('--details', action='store_true',
                         help='print a line for each unknown symbol')
+    parser.add_argument('--errors',
+                        action=argparse.BooleanOptionalAction, default=True,
+                        help='whether to report SPI use as an error')
     return parser
 
 
@@ -315,6 +340,10 @@ def main(argv: Optional[list[str]] = None):
             else:
                 sys.exit(f'Could not find "lib{name}.dylib" in search paths')
 
+    for path in args.allowlists or ():
+        with db:
+            db.add_allowlist(use_input(path))
+
     if program_additions:
         reporter = program_additions.configure_reporter(args, db)
     else:
@@ -323,7 +352,9 @@ def main(argv: Optional[list[str]] = None):
     for binary_path in args.input_files:
         add_corresponding_sdkdb(binary_path)
         report = APIReport.from_binary(binary_path, arch=args.arch_name)
-        reporter.process_report(report, db)
+        db.add_for_auditing(report)
+    for diagnostic in db.audit():
+        reporter.emit_diagnostic(diagnostic)
 
     reporter.finished()
 
@@ -333,3 +364,6 @@ def main(argv: Optional[list[str]] = None):
             fd.write(' \\\n  '.join(shlex.quote(os.path.abspath(path))
                                     for path in inputs))
             fd.write('\n')
+
+    if args.errors and reporter.n_issues:
+        sys.exit(1)
