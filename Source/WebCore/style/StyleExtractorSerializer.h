@@ -191,7 +191,7 @@ public:
     static void serializeAnimationName(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScopedName&, const Animation*, const AnimationList*);
     static void serializeAnimationProperty(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const Animation::TransitionProperty&, const Animation*, const AnimationList*);
     static void serializeAnimationAllowsDiscreteTransitions(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, bool, const Animation*, const AnimationList*);
-    static void serializeAnimationDuration(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, MarkableDouble, const Animation*, const AnimationList*);
+    static void serializeAnimationDuration(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, Markable<double>, const Animation*, const AnimationList*);
     static void serializeAnimationDelay(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, double, const Animation*, const AnimationList*);
     static void serializeAnimationIterationCount(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, double, const Animation*, const AnimationList*);
     static void serializeAnimationDirection(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, Animation::Direction, const Animation*, const AnimationList*);
@@ -2124,7 +2124,7 @@ inline void ExtractorSerializer::serializeAnimationAllowsDiscreteTransitions(Ext
     builder.append(nameLiteralForSerialization(allowsDiscreteTransitions ? CSSValueAllowDiscrete : CSSValueNormal));
 }
 
-inline void ExtractorSerializer::serializeAnimationDuration(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, MarkableDouble duration, const Animation* animation, const AnimationList* animationList)
+inline void ExtractorSerializer::serializeAnimationDuration(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, Markable<double> duration, const Animation* animation, const AnimationList* animationList)
 {
     auto animationListHasMultipleExplicitTimelines = [&] {
         if (!animationList || animationList->size() <= 1)

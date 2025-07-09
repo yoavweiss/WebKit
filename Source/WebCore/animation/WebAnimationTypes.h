@@ -60,8 +60,6 @@ enum class UseCachedCurrentTime : bool { No, Yes };
 
 enum class WebAnimationType : uint8_t { CSSAnimation, CSSTransition, WebAnimation };
 
-using MarkableDouble = Markable<double, WTF::DoubleMarkableTraits>;
-
 using WeakStyleOriginatedAnimations = Vector<WeakPtr<StyleOriginatedAnimation, WeakPtrImplWithEventTargetData>>;
 using AnimationCollection = ListHashSet<Ref<WebAnimation>>;
 using AnimationEvents = Vector<Ref<AnimationEventBase>>;

@@ -97,7 +97,7 @@ private:
     TaskCancellationGroup m_pendingAnimationsProcessingTaskCancellationGroup;
     WeakRef<Document, WeakPtrImplWithEventTargetData> m_document;
     FrameRateAligner m_frameRateAligner;
-    Markable<Seconds, Seconds::MarkableTraits> m_cachedCurrentTime;
+    Markable<Seconds> m_cachedCurrentTime;
     bool m_isSuspended { false };
 };
 

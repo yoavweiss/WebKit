@@ -58,7 +58,7 @@
 
     WebKit::CacheModel cacheModel;
 
-    Markable<double, WTF::DoubleMarkableTraits> defaultRequestTimeoutInterval;
+    Markable<double> defaultRequestTimeoutInterval;
     unsigned backForwardCacheCapacity;
 
     bool shouldAlwaysUseComplexTextCodePath;

@@ -41,6 +41,8 @@
 
 namespace WTF {
 
+template<typename> struct MarkableTraits { };
+
 // Example:
 //     enum class Type { Value1, Value2, Value3 };
 //     Markable<Type, EnumMarkableTraits<Type, 42>> optional;
@@ -62,7 +64,11 @@ struct EnumMarkableTraits {
     }
 };
 
-template<typename IntegralType, IntegralType constant = 0>
+template<typename T>
+requires(std::is_enum_v<T>)
+struct MarkableTraits<T> : EnumMarkableTraits<T> { };
+
+template<typename IntegralType, IntegralType constant>
 struct IntegralMarkableTraits {
     static_assert(std::is_integral<IntegralType>::value);
     constexpr static bool isEmptyValue(IntegralType value)
@@ -76,27 +82,21 @@ struct IntegralMarkableTraits {
     }
 };
 
-struct FloatMarkableTraits {
-    constexpr static bool isEmptyValue(float value)
-    {
-        return value != value;
-    }
+template<typename T>
+requires(std::is_integral_v<T>)
+struct MarkableTraits<T> : IntegralMarkableTraits<T, static_cast<T>(-1)> { };
 
-    constexpr static float emptyValue()
-    {
-        return std::numeric_limits<float>::quiet_NaN();
-    }
-};
-
-struct DoubleMarkableTraits {
-    constexpr static bool isEmptyValue(double value)
+template<typename T>
+requires(std::is_floating_point_v<T>)
+struct MarkableTraits<T> {
+    constexpr static bool isEmptyValue(T value)
     {
         return std::isnan(value);
     }
 
-    constexpr static double emptyValue()
+    constexpr static T emptyValue()
     {
-        return std::numeric_limits<double>::quiet_NaN();
+        return std::numeric_limits<T>::quiet_NaN();
     }
 };
 

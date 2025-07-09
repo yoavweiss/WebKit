@@ -184,12 +184,9 @@ public:
 
     WEBCORE_EXPORT float nonNanCalculatedValue(float maxValue) const;
 
-    struct MarkableTraits {
-        static bool isEmptyValue(const Length& length) { return length.isEmptyValue(); }
-        static Length emptyValue() { return Length::createEmptyValue(); }
-    };
-
 private:
+    friend struct MarkableTraits<WebCore::Length>;
+
     static Length createEmptyValue()
     {
         auto result = Length(LengthType::Undefined);
@@ -542,3 +539,13 @@ inline bool lengthsRequireInterpolationForAccumulativeIteration(const Length& fr
 WTF::TextStream& operator<<(WTF::TextStream&, Length);
 
 } // namespace WebCore
+
+namespace WTF {
+
+template<>
+struct MarkableTraits<WebCore::Length> {
+    static bool isEmptyValue(const WebCore::Length& length) { return length.isEmptyValue(); }
+    static WebCore::Length emptyValue() { return WebCore::Length::createEmptyValue(); }
+};
+
+}

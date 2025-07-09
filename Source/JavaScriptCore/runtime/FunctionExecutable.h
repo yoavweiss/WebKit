@@ -299,7 +299,7 @@ public:
         RefPtr<TypeSet> m_returnStatementTypeSet;
         unsigned m_lineCount;
         unsigned m_endColumn;
-        Markable<int, IntegralMarkableTraits<int, -1>> m_overrideLineNumber;
+        Markable<int> m_overrideLineNumber;
         unsigned m_parametersStartOffset { 0 };
         WriteBarrierStructureID m_cachedPolyProtoStructureID;
         std::unique_ptr<TemplateObjectMap> m_templateObjectMap;

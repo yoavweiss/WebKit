@@ -133,7 +133,7 @@ private:
     OptionSet<Relation> m_linkRelations;
 
     // This is computed only once and must not be affected by subsequent URL changes.
-    mutable Markable<SharedStringHash, SharedStringHashMarkableTraits> m_storedVisitedLinkHash;
+    mutable Markable<SharedStringHash> m_storedVisitedLinkHash;
 
     const std::unique_ptr<DOMTokenList> m_relList;
 };

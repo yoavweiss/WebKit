@@ -280,7 +280,7 @@ public:
     static Ref<CSSValue> convertAnimationName(ExtractorState&, const ScopedName&, const Animation*, const AnimationList*);
     static Ref<CSSValue> convertAnimationProperty(ExtractorState&, const Animation::TransitionProperty&, const Animation*, const AnimationList*);
     static Ref<CSSValue> convertAnimationAllowsDiscreteTransitions(ExtractorState&, bool, const Animation*, const AnimationList*);
-    static Ref<CSSValue> convertAnimationDuration(ExtractorState&, MarkableDouble, const Animation*, const AnimationList*);
+    static Ref<CSSValue> convertAnimationDuration(ExtractorState&, Markable<double>, const Animation*, const AnimationList*);
     static Ref<CSSValue> convertAnimationDelay(ExtractorState&, double, const Animation*, const AnimationList*);
     static Ref<CSSValue> convertAnimationIterationCount(ExtractorState&, double, const Animation*, const AnimationList*);
     static Ref<CSSValue> convertAnimationDirection(ExtractorState&, Animation::Direction, const Animation*, const AnimationList*);
@@ -1914,7 +1914,7 @@ inline Ref<CSSValue> ExtractorConverter::convertAnimationAllowsDiscreteTransitio
     return CSSPrimitiveValue::create(allowsDiscreteTransitions ? CSSValueAllowDiscrete : CSSValueNormal);
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertAnimationDuration(ExtractorState&, MarkableDouble duration, const Animation* animation, const AnimationList* animationList)
+inline Ref<CSSValue> ExtractorConverter::convertAnimationDuration(ExtractorState&, Markable<double> duration, const Animation* animation, const AnimationList* animationList)
 {
     auto animationListHasMultipleExplicitTimelines = [&] {
         if (!animationList || animationList->size() <= 1)

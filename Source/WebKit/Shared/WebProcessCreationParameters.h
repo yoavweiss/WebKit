@@ -110,7 +110,7 @@ struct WebProcessCreationParameters {
 
     CacheModel cacheModel;
 
-    Markable<double, WTF::DoubleMarkableTraits> defaultRequestTimeoutInterval;
+    Markable<double> defaultRequestTimeoutInterval;
     unsigned backForwardCacheCapacity { 0 };
 
     bool shouldAlwaysUseComplexTextCodePath { false };
