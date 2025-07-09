@@ -2349,6 +2349,7 @@ public:
     void enterFullscreen();
 
     void failedToEnterFullscreen(PlaybackSessionContextIdentifier);
+    void willEnterFullscreen(PlaybackSessionContextIdentifier);
     void didEnterFullscreen(PlaybackSessionContextIdentifier);
     void didExitFullscreen(PlaybackSessionContextIdentifier);
     void didCleanupFullscreen(PlaybackSessionContextIdentifier);

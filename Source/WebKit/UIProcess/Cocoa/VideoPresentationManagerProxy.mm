@@ -1418,6 +1418,10 @@ void VideoPresentationManagerProxy::returnVideoView(PlaybackSessionContextIdenti
 void VideoPresentationManagerProxy::didSetupFullscreen(PlaybackSessionContextIdentifier contextId)
 {
 #if PLATFORM(IOS_FAMILY)
+    RefPtr page = m_page.get();
+    if (page)
+        page->willEnterFullscreen(contextId);
+
     enterFullscreen(contextId);
 #else
     sendToWebProcess(contextId, Messages::VideoPresentationManager::DidSetupFullscreen(contextId.object()));

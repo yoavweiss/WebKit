@@ -8828,6 +8828,11 @@ void WebPageProxy::setPlayerIdentifierForVideoElement()
     playbackSessionModel->setPlayerIdentifierForVideoElement();
 }
 
+void WebPageProxy::willEnterFullscreen(PlaybackSessionContextIdentifier identifier)
+{
+    m_uiClient->willEnterFullscreen(this);
+}
+
 void WebPageProxy::didEnterFullscreen(PlaybackSessionContextIdentifier identifier)
 {
     if (RefPtr pageClient = this->pageClient())

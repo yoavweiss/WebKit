@@ -101,6 +101,7 @@ public:
     virtual void createNewPage(WebKit::WebPageProxy&, Ref<API::PageConfiguration>&&, Ref<NavigationAction>&&, CompletionHandler<void(RefPtr<WebKit::WebPageProxy>&&)>&&);
     virtual void showPage(WebKit::WebPageProxy*) { }
     virtual void fullscreenMayReturnToInline(WebKit::WebPageProxy*) { }
+    virtual void willEnterFullscreen(WebKit::WebPageProxy*) { }
     virtual void didEnterFullscreen(WebKit::WebPageProxy*) { }
     virtual void didExitFullscreen(WebKit::WebPageProxy*) { }
     virtual void hasVideoInPictureInPictureDidChange(WebKit::WebPageProxy*, bool) { }
