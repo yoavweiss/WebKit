@@ -1040,6 +1040,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     css/values/primitives/CSSPrimitiveNumericTypes+SymbolReplacement.h
     css/values/primitives/CSSPrimitiveNumericTypes.h
     css/values/primitives/CSSPrimitiveNumericUnits.h
+    css/values/primitives/CSSRatio.h
     css/values/primitives/CSSSymbol.h
     css/values/primitives/CSSURL.h
     css/values/primitives/CSSURLModifiers.h
@@ -2799,6 +2800,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/primitives/StylePrimitiveNumericConcepts.h
     style/values/primitives/StylePrimitiveNumericOrKeyword.h
     style/values/primitives/StylePrimitiveNumericTypes.h
+    style/values/primitives/StyleRatio.h
     style/values/primitives/StyleURL.h
     style/values/primitives/StyleUnevaluatedCalculation.h
 
@@ -2825,6 +2827,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/shapes/StyleWindRuleComputation.h
     style/values/shapes/StyleXywhFunction.h
 
+    style/values/sizing/StyleAspectRatio.h
     style/values/sizing/StyleContainIntrinsicSize.h
     style/values/sizing/StyleMaximumSize.h
     style/values/sizing/StyleMinimumSize.h

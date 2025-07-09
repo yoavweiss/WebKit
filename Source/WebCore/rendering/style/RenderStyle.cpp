@@ -816,11 +816,8 @@ static bool miscDataChangeRequiresLayout(const StyleMiscNonInheritedData& first,
     if (first.hasFilters() != second.hasFilters())
         return true;
 
-    if (first.aspectRatioType != second.aspectRatioType
-        || first.aspectRatioWidth != second.aspectRatioWidth
-        || first.aspectRatioHeight != second.aspectRatioHeight) {
+    if (first.aspectRatio != second.aspectRatio)
         return true;
-    }
 
     return false;
 }
@@ -1825,9 +1822,8 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyWebkitBoxShadow);
         }
 
-        if (first.aspectRatioWidth != second.aspectRatioWidth || first.aspectRatioHeight != second.aspectRatioHeight || first.aspectRatioType != second.aspectRatioType)
+        if (first.aspectRatio != second.aspectRatio)
             changingProperties.m_properties.set(CSSPropertyAspectRatio);
-
         if (first.alignContent != second.alignContent)
             changingProperties.m_properties.set(CSSPropertyAlignContent);
         if (first.justifyContent != second.justifyContent)

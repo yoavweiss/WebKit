@@ -112,7 +112,6 @@ enum class PaginationMode : uint8_t;
 enum class ApplePayButtonStyle : uint8_t;
 enum class ApplePayButtonType : uint8_t;
 enum class AppleVisualEffect : uint8_t;
-enum class AspectRatioType : uint8_t;
 enum class AutoRepeatType : uint8_t;
 enum class BackfaceVisibility : uint8_t;
 enum class BlendMode : uint8_t;
@@ -287,6 +286,7 @@ class CustomPropertyData;
 class CustomPropertyRegistry;
 class ViewTransitionName;
 struct AnchorNames;
+struct AspectRatio;
 struct BorderRadius;
 struct BoxShadow;
 struct ClipPath;
@@ -822,14 +822,15 @@ public:
     inline bool hasZeroOpacity() const;
     inline StyleAppearance appearance() const;
     inline StyleAppearance usedAppearance() const;
-    inline AspectRatioType aspectRatioType() const;
-    inline double aspectRatioWidth() const;
-    inline double aspectRatioHeight() const;
-    inline double aspectRatioLogicalWidth() const;
-    inline double aspectRatioLogicalHeight() const;
+
+    inline const Style::AspectRatio& aspectRatio() const;
+    inline Style::Number<CSS::Nonnegative> aspectRatioWidth() const;
+    inline Style::Number<CSS::Nonnegative> aspectRatioHeight() const;
+    inline Style::Number<CSS::Nonnegative> aspectRatioLogicalWidth() const;
+    inline Style::Number<CSS::Nonnegative> aspectRatioLogicalHeight() const;
     inline double logicalAspectRatio() const;
-    inline BoxSizing boxSizingForAspectRatio() const;
     inline bool hasAspectRatio() const;
+
     inline OptionSet<Containment> contain() const;
     inline OptionSet<Containment> usedContain() const;
     inline bool containsLayout() const;
@@ -933,6 +934,7 @@ public:
 
     inline StyleReflection* boxReflect() const;
     inline BoxSizing boxSizing() const;
+    inline BoxSizing boxSizingForAspectRatio() const;
     inline const Length& marqueeIncrement() const;
     inline int marqueeSpeed() const;
     inline int marqueeLoopCount() const;
@@ -1438,8 +1440,7 @@ public:
     void setEmptyCells(EmptyCell v) { m_inheritedFlags.emptyCells = static_cast<unsigned>(v); }
     void setCaptionSide(CaptionSide v) { m_inheritedFlags.captionSide = static_cast<unsigned>(v); }
 
-    inline void setAspectRatioType(AspectRatioType);
-    inline void setAspectRatio(double width, double height);
+    inline void setAspectRatio(Style::AspectRatio&&);
 
     inline void setContain(OptionSet<Containment>);
     inline void setContainerType(ContainerType);
@@ -2093,15 +2094,13 @@ public:
     static const AtomString& initialHyphenationString();
     static constexpr Resize initialResize();
     static constexpr StyleAppearance initialAppearance();
-    static constexpr AspectRatioType initialAspectRatioType();
+    static inline Style::AspectRatio initialAspectRatio();
     static constexpr OptionSet<Containment> initialContainment();
     static constexpr OptionSet<Containment> strictContainment();
     static constexpr OptionSet<Containment> contentContainment();
     static constexpr ContainerType initialContainerType();
     static constexpr ContentVisibility initialContentVisibility();
     static Style::ContainerNames initialContainerNames();
-    static double initialAspectRatioWidth() { return 1.0; }
-    static double initialAspectRatioHeight() { return 1.0; }
 
     static inline Style::ContainIntrinsicSize initialContainIntrinsicWidth();
     static inline Style::ContainIntrinsicSize initialContainIntrinsicHeight();

@@ -83,8 +83,7 @@ inline void RenderStyle::setAppleColorFilter(FilterOperations&& ops) { SET_NESTE
 inline void RenderStyle::setAppleVisualEffect(AppleVisualEffect effect) { SET_NESTED(m_nonInheritedData, rareData, appleVisualEffect, static_cast<unsigned>(effect)); }
 inline void RenderStyle::setUsedAppleVisualEffectForSubtree(AppleVisualEffect effect) { SET(m_rareInheritedData, usedAppleVisualEffectForSubtree, static_cast<unsigned>(effect)); }
 #endif
-inline void RenderStyle::setAspectRatio(double width, double height) { SET_NESTED_PAIR(m_nonInheritedData, miscData, aspectRatioWidth, width, aspectRatioHeight, height); }
-inline void RenderStyle::setAspectRatioType(AspectRatioType aspectRatioType) { SET_NESTED(m_nonInheritedData, miscData, aspectRatioType, static_cast<unsigned>(aspectRatioType)); }
+inline void RenderStyle::setAspectRatio(Style::AspectRatio&& ratio) { SET_NESTED(m_nonInheritedData, miscData, aspectRatio, WTFMove(ratio)); }
 inline void RenderStyle::setBackfaceVisibility(BackfaceVisibility b) { SET_NESTED(m_nonInheritedData, rareData, backfaceVisibility, static_cast<unsigned>(b)); }
 inline void RenderStyle::setBackgroundAttachment(FillAttachment attachment) { SET_DOUBLY_NESTED_PAIR(m_nonInheritedData, backgroundData, background, m_attachment, static_cast<unsigned>(attachment), m_attachmentSet, true); }
 inline void RenderStyle::setBackgroundBlendMode(BlendMode blendMode) { SET_DOUBLY_NESTED_PAIR(m_nonInheritedData, backgroundData, background, m_blendMode, static_cast<unsigned>(blendMode), m_blendModeSet, true); }

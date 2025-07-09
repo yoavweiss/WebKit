@@ -90,11 +90,11 @@ inline const FilterOperations& RenderStyle::appleColorFilter() const { return m_
 #if HAVE(CORE_MATERIAL)
 inline AppleVisualEffect RenderStyle::appleVisualEffect() const { return static_cast<AppleVisualEffect>(m_nonInheritedData->rareData->appleVisualEffect); }
 #endif
-inline double RenderStyle::aspectRatioHeight() const { return m_nonInheritedData->miscData->aspectRatioHeight; }
-inline double RenderStyle::aspectRatioLogicalHeight() const { return writingMode().isHorizontal() ? aspectRatioHeight() : aspectRatioWidth(); }
-inline double RenderStyle::aspectRatioLogicalWidth() const { return writingMode().isHorizontal() ? aspectRatioWidth() : aspectRatioHeight(); }
-inline AspectRatioType RenderStyle::aspectRatioType() const { return static_cast<AspectRatioType>(m_nonInheritedData->miscData->aspectRatioType); }
-inline double RenderStyle::aspectRatioWidth() const { return m_nonInheritedData->miscData->aspectRatioWidth; }
+inline const Style::AspectRatio& RenderStyle::aspectRatio() const { return m_nonInheritedData->miscData->aspectRatio; }
+inline Style::Number<CSS::Nonnegative> RenderStyle::aspectRatioHeight() const { return aspectRatio().height(); }
+inline Style::Number<CSS::Nonnegative> RenderStyle::aspectRatioLogicalHeight() const { return writingMode().isHorizontal() ? aspectRatioHeight() : aspectRatioWidth(); }
+inline Style::Number<CSS::Nonnegative> RenderStyle::aspectRatioLogicalWidth() const { return writingMode().isHorizontal() ? aspectRatioWidth() : aspectRatioHeight(); }
+inline Style::Number<CSS::Nonnegative> RenderStyle::aspectRatioWidth() const { return aspectRatio().width(); }
 inline const NamedGridLinesMap& RenderStyle::autoRepeatNamedGridColumnLines() const { return m_nonInheritedData->rareData->grid->autoRepeatNamedGridColumnLines(); }
 inline const NamedGridLinesMap& RenderStyle::autoRepeatNamedGridRowLines() const { return m_nonInheritedData->rareData->grid->autoRepeatNamedGridRowLines(); }
 inline const OrderedNamedGridLinesMap& RenderStyle::autoRepeatOrderedNamedGridColumnLines() const { return m_nonInheritedData->rareData->grid->autoRepeatOrderedNamedGridColumnLines(); }
@@ -165,7 +165,7 @@ inline StyleReflection* RenderStyle::boxReflect() const { return m_nonInheritedD
 inline const Style::BoxShadows& RenderStyle::boxShadow() const { return m_nonInheritedData->miscData->boxShadow; }
 inline bool RenderStyle::hasBoxShadow() const { return !boxShadow().isNone(); }
 inline BoxSizing RenderStyle::boxSizing() const { return m_nonInheritedData->boxData->boxSizing(); }
-inline BoxSizing RenderStyle::boxSizingForAspectRatio() const { return aspectRatioType() == AspectRatioType::AutoAndRatio ? BoxSizing::ContentBox : boxSizing(); }
+inline BoxSizing RenderStyle::boxSizingForAspectRatio() const { return aspectRatio().isAutoAndRatio() ? BoxSizing::ContentBox : boxSizing(); }
 inline BreakBetween RenderStyle::breakAfter() const { return static_cast<BreakBetween>(m_nonInheritedData->rareData->breakAfter); }
 inline BreakBetween RenderStyle::breakBefore() const { return static_cast<BreakBetween>(m_nonInheritedData->rareData->breakBefore); }
 inline BreakInside RenderStyle::breakInside() const { return static_cast<BreakInside>(m_nonInheritedData->rareData->breakInside); }
@@ -270,7 +270,7 @@ inline bool RenderStyle::hasAppleColorFilter() const { return !appleColorFilter(
 inline bool RenderStyle::hasAppleVisualEffect() const { return appleVisualEffect() != AppleVisualEffect::None; }
 inline bool RenderStyle::hasAppleVisualEffectRequiringBackdropFilter() const { return appleVisualEffectNeedsBackdrop(appleVisualEffect()); }
 #endif
-inline bool RenderStyle::hasAspectRatio() const { return aspectRatioType() == AspectRatioType::Ratio || aspectRatioType() == AspectRatioType::AutoAndRatio; }
+inline bool RenderStyle::hasAspectRatio() const { return aspectRatio().hasRatio(); }
 inline bool RenderStyle::hasAttrContent() const { return m_nonInheritedData->miscData->hasAttrContent; }
 inline bool RenderStyle::hasAutoAccentColor() const { return m_rareInheritedData->hasAutoAccentColor; }
 inline bool RenderStyle::hasAutoCaretColor() const { return m_rareInheritedData->hasAutoCaretColor; }
@@ -356,7 +356,7 @@ constexpr StyleAppearance RenderStyle::initialAppearance() { return StyleAppeara
 constexpr AppleVisualEffect RenderStyle::initialAppleVisualEffect() { return AppleVisualEffect::None; }
 #endif
 inline FilterOperations RenderStyle::initialAppleColorFilter() { return { }; }
-constexpr AspectRatioType RenderStyle::initialAspectRatioType() { return AspectRatioType::Auto; }
+inline Style::AspectRatio RenderStyle::initialAspectRatio() { return CSS::Keyword::Auto { }; }
 constexpr BackfaceVisibility RenderStyle::initialBackfaceVisibility() { return BackfaceVisibility::Visible; }
 inline Style::Color RenderStyle::initialBackgroundColor() { return Color::transparentBlack; }
 inline BlockEllipsis RenderStyle::initialBlockEllipsis() { return { }; }
@@ -1040,10 +1040,12 @@ constexpr bool RenderStyle::doesDisplayGenerateBlockContainer() const
 
 inline double RenderStyle::logicalAspectRatio() const
 {
-    ASSERT(aspectRatioType() != AspectRatioType::Auto);
+    auto ratio = this->aspectRatio().tryRatio();
+    ASSERT(ratio);
+
     if (writingMode().isHorizontal())
-        return aspectRatioWidth() / aspectRatioHeight();
-    return aspectRatioHeight() / aspectRatioWidth();
+        return ratio->numerator.value / ratio->denominator.value;
+    return ratio->denominator.value / ratio->numerator.value;
 }
 
 constexpr bool RenderStyle::preserveNewline(WhiteSpaceCollapse mode)

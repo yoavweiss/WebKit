@@ -44,7 +44,6 @@ namespace Style {
 // Custom handling of computed value extraction.
 class ExtractorCustom {
 public:
-    static Ref<CSSValue> extractAspectRatio(ExtractorState&);
     static Ref<CSSValue> extractDirection(ExtractorState&);
     static Ref<CSSValue> extractWritingMode(ExtractorState&);
     static Ref<CSSValue> extractFloat(ExtractorState&);
@@ -149,7 +148,6 @@ public:
 
     // MARK: Custom Serialization
 
-    static void extractAspectRatioSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractDirectionSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractWritingModeSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFloatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1200,43 +1198,6 @@ inline void extractFillLayerPropertyShorthandSerialization(ExtractorState& state
 }
 
 // MARK: - Custom Extractors
-
-inline Ref<CSSValue> ExtractorCustom::extractAspectRatio(ExtractorState& state)
-{
-    switch (state.style.aspectRatioType()) {
-    case AspectRatioType::Auto:
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    case AspectRatioType::AutoZero:
-    case AspectRatioType::Ratio:
-        return CSSRatioValue::create(CSS::Ratio { state.style.aspectRatioWidth(), state.style.aspectRatioHeight() });
-    case AspectRatioType::AutoAndRatio:
-        return CSSValueList::createSpaceSeparated(
-            CSSPrimitiveValue::create(CSSValueAuto),
-            CSSRatioValue::create(CSS::Ratio { state.style.aspectRatioWidth(), state.style.aspectRatioHeight() })
-        );
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-    return CSSPrimitiveValue::create(CSSValueAuto);
-}
-
-inline void ExtractorCustom::extractAspectRatioSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    switch (state.style.aspectRatioType()) {
-    case AspectRatioType::Auto:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Auto { });
-        return;
-    case AspectRatioType::AutoZero:
-    case AspectRatioType::Ratio:
-        CSS::serializationForCSS(builder, context, CSS::Ratio { state.style.aspectRatioWidth(), state.style.aspectRatioHeight() });
-        return;
-    case AspectRatioType::AutoAndRatio:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Auto { });
-        builder.append(' ');
-        CSS::serializationForCSS(builder, context, CSS::Ratio { state.style.aspectRatioWidth(), state.style.aspectRatioHeight() });
-        return;
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
 
 inline CSSValueID extractDirectionValueID(ExtractorState& state)
 {

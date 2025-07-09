@@ -75,6 +75,7 @@ namespace Style {
 
 template<typename T> inline T forwardInheritedValue(T&& value) { return std::forward<T>(value); }
 inline AnchorNames forwardInheritedValue(const AnchorNames& value) { auto copy = value; return copy; }
+inline AspectRatio forwardInheritedValue(const AspectRatio& value) { auto copy = value; return copy; }
 inline BorderRadiusValue forwardInheritedValue(const BorderRadiusValue& value) { auto copy = value; return copy; }
 inline BoxShadows forwardInheritedValue(const BoxShadows& value) { auto copy = value; return copy; }
 inline ContainIntrinsicSize forwardInheritedValue(const ContainIntrinsicSize& value) { auto copy = value; return copy; }
@@ -128,7 +129,6 @@ inline Vector<GridTrackSize> forwardInheritedValue(const Vector<GridTrackSize>& 
 class BuilderCustom {
 public:
     // Custom handling of inherit, initial and value setting.
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(AspectRatio);
     // FIXME: <https://webkit.org/b/212506> Teach makeprop.pl to generate setters for hasExplicitlySet* flags
     DECLARE_PROPERTY_CUSTOM_HANDLERS(BorderBottomLeftRadius);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(BorderBottomRightRadius);
@@ -862,49 +862,6 @@ inline void BuilderCustom::applyInheritTextEmphasisStyle(BuilderState& builderSt
     builderState.style().setTextEmphasisFill(forwardInheritedValue(builderState.parentStyle().textEmphasisFill()));
     builderState.style().setTextEmphasisMark(forwardInheritedValue(builderState.parentStyle().textEmphasisMark()));
     builderState.style().setTextEmphasisCustomMark(forwardInheritedValue(builderState.parentStyle().textEmphasisCustomMark()));
-}
-
-inline void BuilderCustom::applyInitialAspectRatio(BuilderState& builderState)
-{
-    builderState.style().setAspectRatioType(RenderStyle::initialAspectRatioType());
-    builderState.style().setAspectRatio(RenderStyle::initialAspectRatioWidth(), RenderStyle::initialAspectRatioHeight());
-}
-
-inline void BuilderCustom::applyInheritAspectRatio(BuilderState&)
-{
-}
-
-inline void BuilderCustom::applyValueAspectRatio(BuilderState& builderState, CSSValue& value)
-{
-    auto resolveRatio = [&](const CSSRatioValue& ratioValue) -> std::pair<double, double> {
-        auto styleRatio = Style::toStyle(ratioValue.ratio(), builderState);
-        return { styleRatio.numerator.value, styleRatio.denominator.value };
-    };
-
-    if (value.valueID() == CSSValueAuto) {
-        builderState.style().setAspectRatioType(AspectRatioType::Auto);
-        return;
-    }
-    if (RefPtr ratio = dynamicDowncast<CSSRatioValue>(value)) {
-        auto [width, height] = resolveRatio(*ratio);
-        if (!width || !height)
-            builderState.style().setAspectRatioType(AspectRatioType::AutoZero);
-        else
-            builderState.style().setAspectRatioType(AspectRatioType::Ratio);
-        builderState.style().setAspectRatio(width, height);
-        return;
-    }
-
-    auto list = requiredListDowncast<CSSValueList, CSSValue, 2>(builderState, value);
-    if (!list)
-        return;
-
-    auto ratio = requiredDowncast<CSSRatioValue>(builderState, list->item(1));
-    if (!ratio)
-        return;
-    auto [width, height] = resolveRatio(*ratio);
-    builderState.style().setAspectRatioType(AspectRatioType::AutoAndRatio);
-    builderState.style().setAspectRatio(width, height);
 }
 
 inline void BuilderCustom::applyValueTextEmphasisStyle(BuilderState& builderState, CSSValue& value)

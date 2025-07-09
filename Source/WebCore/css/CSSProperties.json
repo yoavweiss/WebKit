@@ -8592,10 +8592,8 @@
                 "auto"
             ],
             "codegen-properties": {
-                "animation-wrapper": "AspectRatioWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<AspectRatio>",
                 "parser-grammar": "auto || <ratio>"
             },
             "specification": {
