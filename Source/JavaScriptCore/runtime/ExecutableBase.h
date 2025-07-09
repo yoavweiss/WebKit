@@ -149,7 +149,7 @@ public:
         // Check if we have a cached result. We only have it for arity check because we use the
         // no-arity entrypoint in non-virtual calls, which will "cache" this value directly in
         // machine code.
-        if (arity == MustCheckArity) {
+        if (arity == ArityCheckMode::MustCheckArity) {
             switch (kind) {
             case CodeForCall:
                 if (CodePtr<JSEntryPtrTag> result = m_jitCodeForCallWithArityCheck)
@@ -162,7 +162,7 @@ public:
             }
         }
         CodePtr<JSEntryPtrTag> result = generatedJITCodeFor(kind)->addressForCall(arity);
-        if (arity == MustCheckArity) {
+        if (arity == ArityCheckMode::MustCheckArity) {
             // Cache the result; this is necessary for the JIT's virtual call optimizations.
             switch (kind) {
             case CodeForCall:

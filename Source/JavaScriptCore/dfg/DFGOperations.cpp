@@ -5285,7 +5285,7 @@ JSC_DEFINE_JIT_OPERATION(operationLinkDirectCall, void, (DirectCallLinkInfo* cal
     DeferTraps deferTraps(vm); // We can't jettison this code if we're about to link to it.
 
     if (executable->isHostFunction())
-        codePtr = executable->entrypointFor(kind, MustCheckArity);
+        codePtr = executable->entrypointFor(kind, ArityCheckMode::MustCheckArity);
     else {
         FunctionExecutable* functionExecutable = static_cast<FunctionExecutable*>(executable);
         RELEASE_ASSERT(isCall(kind) || functionExecutable->constructAbility() != ConstructAbility::CannotConstruct);
@@ -5295,9 +5295,9 @@ JSC_DEFINE_JIT_OPERATION(operationLinkDirectCall, void, (DirectCallLinkInfo* cal
 
         unsigned argumentStackSlots = callLinkInfo->maxArgumentCountIncludingThis();
         if (argumentStackSlots < static_cast<size_t>(codeBlock->numParameters()))
-            codePtr = functionExecutable->entrypointFor(kind, MustCheckArity);
+            codePtr = functionExecutable->entrypointFor(kind, ArityCheckMode::MustCheckArity);
         else
-            codePtr = functionExecutable->entrypointFor(kind, ArityCheckNotRequired);
+            codePtr = functionExecutable->entrypointFor(kind, ArityCheckMode::ArityCheckNotRequired);
     }
 
     linkDirectCall(*callLinkInfo, codeBlock, codePtr);

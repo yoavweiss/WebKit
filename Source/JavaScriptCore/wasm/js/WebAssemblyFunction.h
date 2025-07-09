@@ -62,7 +62,7 @@ public:
     Wasm::JSEntrypointCallee* jsToWasmCallee() const { return m_boxedJSToWasmCallee.ptr(); }
     CodePtr<WasmEntryPtrTag> jsEntrypoint(ArityCheckMode arity)
     {
-        ASSERT_UNUSED(arity, arity == ArityCheckNotRequired || arity == MustCheckArity);
+        ASSERT_UNUSED(arity, arity == ArityCheckMode::ArityCheckNotRequired || arity == ArityCheckMode::MustCheckArity);
         return m_boxedJSToWasmCallee->entrypoint();
     }
 
@@ -73,7 +73,7 @@ public:
             return nullptr;
 
         // Prep the entrypoint for the slow path.
-        executable()->entrypointFor(CodeForCall, MustCheckArity);
+        executable()->entrypointFor(CodeForCall, ArityCheckMode::MustCheckArity);
         if (!m_jsToWasmICJITCode)
             m_jsToWasmICJITCode = signature().jsToWasmICEntrypoint();
         return m_jsToWasmICJITCode;

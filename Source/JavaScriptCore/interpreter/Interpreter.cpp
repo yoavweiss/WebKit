@@ -1253,7 +1253,7 @@ ALWAYS_INLINE JSValue Interpreter::executeCallImpl(VM& vm, JSObject* function, c
 
 #if ENABLE(WEBASSEMBLY)
     if (callData.native.isWasm)
-        return JSValue::decode(vmEntryToWasm(jsCast<WebAssemblyFunction*>(function)->jsEntrypoint(MustCheckArity).taggedPtr(), &vm, &protoCallFrame));
+        return JSValue::decode(vmEntryToWasm(jsCast<WebAssemblyFunction*>(function)->jsEntrypoint(ArityCheckMode::MustCheckArity).taggedPtr(), &vm, &protoCallFrame));
 #endif
 
     return JSValue::decode(vmEntryToNative(nativeFunction.taggedPtr(), &vm, &protoCallFrame));

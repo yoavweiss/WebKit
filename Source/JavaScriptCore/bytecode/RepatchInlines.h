@@ -175,7 +175,7 @@ ALWAYS_INLINE void* linkFor(VM& vm, JSCell* owner, CallFrame* calleeFrame, CallL
     if (executable->isHostFunction()) {
         codePtr = jsToWasmICCodePtr(kind, callee);
         if (!codePtr)
-            codePtr = executable->entrypointFor(kind, MustCheckArity);
+            codePtr = executable->entrypointFor(kind, ArityCheckMode::MustCheckArity);
     } else {
         FunctionExecutable* functionExecutable = static_cast<FunctionExecutable*>(executable);
 
@@ -194,9 +194,9 @@ ALWAYS_INLINE void* linkFor(VM& vm, JSCell* owner, CallFrame* calleeFrame, CallL
 
         ArityCheckMode arity;
         if (calleeFrame->argumentCountIncludingThis() < static_cast<size_t>(codeBlock->numParameters()) || callLinkInfo->isVarargs())
-            arity = MustCheckArity;
+            arity = ArityCheckMode::MustCheckArity;
         else
-            arity = ArityCheckNotRequired;
+            arity = ArityCheckMode::ArityCheckNotRequired;
         codePtr = functionExecutable->entrypointFor(kind, arity);
     }
 
@@ -263,7 +263,7 @@ ALWAYS_INLINE void* virtualForWithFunction(VM& vm, JSCell* owner, CallFrame* cal
 
     // FIXME: Support wasm IC.
     // https://bugs.webkit.org/show_bug.cgi?id=220339
-    return executable->entrypointFor(kind, MustCheckArity).taggedPtr();
+    return executable->entrypointFor(kind, ArityCheckMode::MustCheckArity).taggedPtr();
 }
 
 } // namespace JSC

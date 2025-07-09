@@ -220,11 +220,11 @@ void linkPolymorphicCall(VM& vm, JSCell* owner, CallFrame* callFrame, CallLinkIn
 
             codePtr = jsToWasmICCodePtr(callLinkInfo.specializationKind(), variant.function());
             if (!codePtr) {
-                ArityCheckMode arityCheck = ArityCheckNotRequired;
+                ArityCheckMode arityCheck = ArityCheckMode::ArityCheckNotRequired;
                 if (codeBlock) {
                     ASSERT(!variant.executable()->isHostFunction());
                     if ((callFrame->argumentCountIncludingThis() < static_cast<size_t>(codeBlock->numParameters()) || callLinkInfo.isVarargs()))
-                        arityCheck = MustCheckArity;
+                        arityCheck = ArityCheckMode::MustCheckArity;
 
                 }
                 codePtr = variant.executable()->generatedJITCodeForCall()->addressForCall(arityCheck);

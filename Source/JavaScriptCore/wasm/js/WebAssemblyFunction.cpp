@@ -78,7 +78,7 @@ JSC_DEFINE_HOST_FUNCTION(callWebAssemblyFunction, (JSGlobalObject* globalObject,
     protoCallFrame.init(nullptr, globalObject, wasmFunction, JSValue(), callFrame->argumentCountIncludingThis(), std::bit_cast<EncodedJSValue*>(callFrame->addressOfArgumentsStart()));
     protoCallFrame.setWasmInstance(wasmFunction->instance());
 
-    return vmEntryToWasm(wasmFunction->jsEntrypoint(MustCheckArity).taggedPtr(), &vm, &protoCallFrame);
+    return vmEntryToWasm(wasmFunction->jsEntrypoint(ArityCheckMode::MustCheckArity).taggedPtr(), &vm, &protoCallFrame);
 }
 
 WebAssemblyFunction* WebAssemblyFunction::create(VM& vm, JSGlobalObject* globalObject, Structure* structure, unsigned length, const String& name, JSWebAssemblyInstance* instance, Wasm::JSEntrypointCallee& jsEntrypoint, Wasm::Callee& wasmCallee, Wasm::WasmToWasmImportableFunction::LoadLocation wasmToWasmEntrypointLoadLocation, Wasm::TypeIndex typeIndex, RefPtr<const Wasm::RTT>&& rtt)

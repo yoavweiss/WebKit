@@ -212,7 +212,7 @@ static inline UGPRPair materializeTargetCode(VM& vm, JSFunction* targetFunction)
             functionExecutable->prepareForExecution<FunctionExecutable>(vm, targetFunction, scope, CodeForCall, codeBlockSlot);
             RETURN_IF_EXCEPTION(throwScope, encodeResult(nullptr, nullptr));
         }
-        return encodeResult(executable->entrypointFor(CodeForCall, MustCheckArity).taggedPtr(), codeBlockSlot);
+        return encodeResult(executable->entrypointFor(CodeForCall, ArityCheckMode::MustCheckArity).taggedPtr(), codeBlockSlot);
     }
 }
 

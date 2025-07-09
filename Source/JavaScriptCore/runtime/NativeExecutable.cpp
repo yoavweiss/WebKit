@@ -63,12 +63,12 @@ void NativeExecutable::finishCreation(VM& vm, Ref<JSC::JITCode>&& callThunk, Ref
     Base::finishCreation(vm);
     m_jitCodeForCall = WTFMove(callThunk);
     m_jitCodeForConstruct = WTFMove(constructThunk);
-    m_jitCodeForCallWithArityCheck = m_jitCodeForCall->addressForCall(MustCheckArity);
-    m_jitCodeForConstructWithArityCheck = m_jitCodeForConstruct->addressForCall(MustCheckArity);
+    m_jitCodeForCallWithArityCheck = m_jitCodeForCall->addressForCall(ArityCheckMode::MustCheckArity);
+    m_jitCodeForConstructWithArityCheck = m_jitCodeForConstruct->addressForCall(ArityCheckMode::MustCheckArity);
     m_name = name;
 
-    assertIsTaggedWith<JSEntryPtrTag>(m_jitCodeForCall->addressForCall(ArityCheckNotRequired).taggedPtr());
-    assertIsTaggedWith<JSEntryPtrTag>(m_jitCodeForConstruct->addressForCall(ArityCheckNotRequired).taggedPtr());
+    assertIsTaggedWith<JSEntryPtrTag>(m_jitCodeForCall->addressForCall(ArityCheckMode::ArityCheckNotRequired).taggedPtr());
+    assertIsTaggedWith<JSEntryPtrTag>(m_jitCodeForConstruct->addressForCall(ArityCheckMode::ArityCheckNotRequired).taggedPtr());
     assertIsTaggedWith<JSEntryPtrTag>(m_jitCodeForCallWithArityCheck.taggedPtr());
     assertIsTaggedWith<JSEntryPtrTag>(m_jitCodeForConstructWithArityCheck.taggedPtr());
 }
