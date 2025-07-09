@@ -115,5 +115,3 @@ webkit.org/b/271712 fast/forms/datalist/datalist-textinput-dynamically-add-optio
 fast/forms/datalist/datalist-option-labels.html [ Pass Timeout ]
 
 webkit.org/b/294218 media/video-suppress-hdr-fullscreen.html [ Failure ]
-
-webkit.org/b/295608 imported/w3c/web-platform-tests/html/browsers/the-window-object/open-close/open_initial_size.html [ Failure ]
