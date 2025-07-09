@@ -8049,3 +8049,5 @@ imported/w3c/web-platform-tests/css/css-ui/compute-kind-widget-generated/kind-of
 imported/w3c/web-platform-tests/html/semantics/popovers/light-dismiss-event-ordering.html [ Failure ]
 
 webkit.org/b/295653 css3/filters/backdrop-filter-page-scale.html [ Pass Failure ]
+
+webkit.org/b/295665 fast/dom/Range/scale-page-client-rects.html [ Pass Failure ]
