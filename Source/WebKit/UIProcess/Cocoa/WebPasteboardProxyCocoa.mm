@@ -52,6 +52,17 @@
 namespace WebKit {
 using namespace WebCore;
 
+static PasteboardDataLifetime determineDataLifetime(std::optional<WebPageProxyIdentifier> pageID)
+{
+    if (!pageID)
+        return PasteboardDataLifetime::Persistent;
+
+    if (RefPtr page = WebProcessProxy::webPage(*pageID))
+        return page->sessionID().isEphemeral() ? PasteboardDataLifetime::Ephemeral : PasteboardDataLifetime::Persistent;
+
+    return PasteboardDataLifetime::Persistent;
+}
+
 void WebPasteboardProxy::grantAccessToCurrentTypes(WebProcessProxy& process, const String& pasteboardName)
 {
     grantAccess(process, pasteboardName, PasteboardAccessType::Types);
@@ -326,9 +337,11 @@ void WebPasteboardProxy::setPasteboardTypes(IPC::Connection& connection, const S
     auto dataOwner = determineDataOwner(connection, pasteboardName, pageID, PasteboardAccessIntent::Write);
     MESSAGE_CHECK_COMPLETION(dataOwner, connection, completionHandler(0));
 
+    auto dataLifeTime = determineDataLifetime(pageID);
+
     PlatformPasteboard::performAsDataOwner(*dataOwner, [&] {
         auto previousChangeCount = PlatformPasteboard(pasteboardName).changeCount();
-        auto newChangeCount = PlatformPasteboard(pasteboardName).setTypes(pasteboardTypes);
+        auto newChangeCount = PlatformPasteboard(pasteboardName).setTypes(pasteboardTypes, dataLifeTime);
         didModifyContentsOfPasteboard(connection, pasteboardName, previousChangeCount, newChangeCount);
         completionHandler(newChangeCount);
     });
@@ -473,9 +486,11 @@ void WebPasteboardProxy::writeCustomData(IPC::Connection& connection, const Vect
     auto dataOwner = determineDataOwner(connection, pasteboardName, pageID, PasteboardAccessIntent::Write);
     MESSAGE_CHECK_COMPLETION(dataOwner, connection, completionHandler(0));
 
+    auto dataLifeTime = determineDataLifetime(pageID);
+
     PlatformPasteboard::performAsDataOwner(*dataOwner, [&] {
         auto previousChangeCount = PlatformPasteboard(pasteboardName).changeCount();
-        auto newChangeCount = PlatformPasteboard(pasteboardName).write(data);
+        auto newChangeCount = PlatformPasteboard(pasteboardName).write(data, dataLifeTime);
         didModifyContentsOfPasteboard(connection, pasteboardName, previousChangeCount, newChangeCount);
         completionHandler(newChangeCount);
     });

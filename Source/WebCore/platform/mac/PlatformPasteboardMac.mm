@@ -585,7 +585,7 @@ static RetainPtr<NSPasteboardItem> createPasteboardItem(const PasteboardCustomDa
 int64_t PlatformPasteboard::write(const Vector<PasteboardCustomData>& itemData, PasteboardDataLifetime pasteboardDataLifetime)
 {
     if (itemData.size() == 1)
-        return write(itemData.first());
+        return write(itemData.first(), pasteboardDataLifetime);
 
     [m_pasteboard clearContents];
     if (pasteboardDataLifetime == PasteboardDataLifetime::Ephemeral)
