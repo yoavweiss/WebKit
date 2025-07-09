@@ -353,7 +353,7 @@ constexpr FloatRect FloatRect::nanRect()
 
 constexpr bool FloatRect::isNaN() const
 {
-    return isNaNConstExpr(x());
+    return isNaNConstExpr(x()) || isNaNConstExpr(y());
 }
 
 inline void FloatRect::inflate(float deltaX, float deltaY, float deltaMaxX, float deltaMaxY)
