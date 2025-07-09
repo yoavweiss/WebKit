@@ -1478,6 +1478,14 @@
    },
    {
       "emails" : [
+         "bmedina2@apple.com"
+      ],
+      "github" : "iambryyy",
+      "name" : "Bryan Medina",
+      "status" : "committer"
+   },
+   {
+      "emails" : [
          "bug-bridge@webkit.org"
       ],
       "github" : "webkit-bug-bridge",
