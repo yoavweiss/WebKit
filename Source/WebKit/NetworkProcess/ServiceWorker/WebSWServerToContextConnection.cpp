@@ -273,12 +273,12 @@ void WebSWServerToContextConnection::setAsInspected(ServiceWorkerIdentifier serv
 
         if (session && worker) {
             auto scopeURL = worker->registrationKey().scope();
-            session->protectedNotificationManager()->setServiceWorkerIsBeingInspected(scopeURL, true);
+            session->notificationManager().setServiceWorkerIsBeingInspected(scopeURL, true);
 
             worker->whenTerminated([connection = WeakPtr { m_connection }, scopeURL]() {
                 if (RefPtr protectedConnection = connection.get()) {
                     if (CheckedPtr session = protectedConnection->networkSession())
-                        session->protectedNotificationManager()->setServiceWorkerIsBeingInspected(scopeURL, false);
+                        session->notificationManager().setServiceWorkerIsBeingInspected(scopeURL, false);
                 }
             });
         }
