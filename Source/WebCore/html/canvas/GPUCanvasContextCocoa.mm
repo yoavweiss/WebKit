@@ -303,7 +303,7 @@ RefPtr<ImageBuffer> GPUCanvasContextCocoa::surfaceBufferToImageBuffer(SurfaceBuf
 {
     // FIXME(https://bugs.webkit.org/show_bug.cgi?id=263957): WebGPU should support obtaining drawing buffer for Web Inspector.
     if (!m_configuration)
-        return protectedCanvasBase()->buffer();
+        return canvasBase().buffer();
 
     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=294654 - OffscreenCanvas may not reflect the display the OffscreenCanvas is displayed on during background / resume
 #if HAVE(SUPPORT_HDR_DISPLAY)
@@ -325,12 +325,12 @@ RefPtr<ImageBuffer> GPUCanvasContextCocoa::surfaceBufferToImageBuffer(SurfaceBuf
             protectedThis->present(frameCount);
         }
     });
-    return protectedCanvasBase()->buffer();
+    return canvasBase().buffer();
 }
 
 RefPtr<ImageBuffer> GPUCanvasContextCocoa::transferToImageBuffer()
 {
-    auto buffer = protectedCanvasBase()->allocateImageBuffer();
+    auto buffer = canvasBase().allocateImageBuffer();
     if (!buffer)
         return nullptr;
     Ref<ImageBuffer> bufferRef = buffer.releaseNonNull();
@@ -390,22 +390,21 @@ ExceptionOr<void> GPUCanvasContextCocoa::configure(GPUCanvasConfiguration&& conf
         unconfigure();
     }
 
-    RefPtr device = configuration.device.get();
-    ASSERT(device);
-    if (!device)
+    ASSERT(configuration.device);
+    if (!configuration.device)
         return Exception { ExceptionCode::TypeError, "GPUCanvasContextCocoa::configure: Device is required but missing"_s };
 
-    if (!device->isSupportedFormat(configuration.format))
+    if (!configuration.device->isSupportedFormat(configuration.format))
         return Exception { ExceptionCode::TypeError, "GPUCanvasContext.configure: Unsupported texture format."_s };
 
     for (auto viewFormat : configuration.viewFormats) {
-        if (!device->isSupportedFormat(viewFormat))
+        if (!configuration.device->isSupportedFormat(viewFormat))
             return Exception { ExceptionCode::TypeError, "Unsupported texture view format."_s };
     }
 
     if (configuration.toneMapping.mode != GPUCanvasToneMappingMode::Standard) {
 #if ENABLE(HDR_FOR_WEBGPU)
-        RefPtr scriptExecutionContext = protectedCanvasBase()->scriptExecutionContext();
+        RefPtr scriptExecutionContext = canvasBase().scriptExecutionContext();
         if (!scriptExecutionContext || !scriptExecutionContext->settingsValues().webGPUHDREnabled)
             configuration.toneMapping.mode = GPUCanvasToneMappingMode::Standard;
 #else

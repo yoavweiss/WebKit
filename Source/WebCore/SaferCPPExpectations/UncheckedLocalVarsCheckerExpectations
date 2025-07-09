@@ -158,6 +158,7 @@ editing/markup.cpp
 history/CachedFrame.cpp
 html/Autofill.cpp
 html/CachedHTMLCollectionInlines.h
+html/CanvasBase.cpp
 html/CollectionTraversalInlines.h
 html/FormAssociatedCustomElement.cpp
 html/FormListedElement.cpp
@@ -189,6 +190,8 @@ html/ModelDocument.cpp
 html/PluginDocument.cpp
 html/ValidatedFormListedElement.cpp
 html/ValidationMessage.cpp
+html/canvas/CanvasRenderingContext2D.cpp
+html/canvas/CanvasRenderingContext2DBase.cpp
 html/parser/HTMLConstructionSite.cpp
 inspector/DOMPatchSupport.cpp
 inspector/InspectorAuditAccessibilityObject.cpp

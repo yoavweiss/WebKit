@@ -61,15 +61,11 @@ public:
 
 Color CanvasStyleColorResolutionDelegate::currentColor() const
 {
-    if (!m_canvasElement->isConnected())
+    if (!m_canvasElement->isConnected() || !m_canvasElement->inlineStyle())
         return Color::black;
 
-    RefPtr inlineStyle = m_canvasElement->inlineStyle();
-    if (!inlineStyle)
-        return Color::black;
-
-    auto colorString = inlineStyle->getPropertyValue(CSSPropertyColor);
-    auto color = CSSPropertyParserHelpers::parseColorRaw(colorString, m_canvasElement->cssParserContext(), m_canvasElement->protectedDocument().get());
+    auto colorString = m_canvasElement->inlineStyle()->getPropertyValue(CSSPropertyColor);
+    auto color = CSSPropertyParserHelpers::parseColorRaw(colorString, m_canvasElement->cssParserContext(), m_canvasElement->document());
     if (color.isValid())
         return color;
     return Color::black;
