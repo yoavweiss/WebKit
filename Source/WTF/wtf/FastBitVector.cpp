@@ -40,7 +40,7 @@ void FastBitVectorWordOwner::setEqualsSlow(const FastBitVectorWordOwner& other)
         FastBitVectorMalloc::free(m_words);
     m_words = static_cast<uint32_t*>(FastBitVectorMalloc::malloc(other.arrayLength() * sizeof(uint32_t)));
     m_numBits = other.m_numBits;
-    memcpySpan(wordsSpan(), other.wordsSpan());
+    memcpySpan(words(), other.words());
 }
 
 void FastBitVectorWordOwner::resizeSlow(size_t numBits)
@@ -53,7 +53,7 @@ void FastBitVectorWordOwner::resizeSlow(size_t numBits)
     // use case for this method to be initializing the size of the bitvector.
     
     auto newArray = unsafeMakeSpan(static_cast<uint32_t*>(FastBitVectorMalloc::malloc(newLength * sizeof(uint32_t))), newLength);
-    memcpySpan(newArray, wordsSpan());
+    memcpySpan(newArray, words());
     zeroSpan(newArray.subspan(oldLength));
     if (m_words)
         FastBitVectorMalloc::free(m_words);
