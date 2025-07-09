@@ -797,36 +797,6 @@ public:
     DiscreteWrapper<NinePieceImageRule> m_verticalWrapper;
 };
 
-class ContainIntrinsicLengthWrapper final : public OptionalLengthWrapper {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
-public:
-    ContainIntrinsicLengthWrapper(CSSPropertyID property, std::optional<WebCore::Length> (RenderStyle::*getter)() const, void (RenderStyle::*setter)(std::optional<WebCore::Length>), ContainIntrinsicSizeType (RenderStyle::*typeGetter)() const, void (RenderStyle::*typeSetter)(ContainIntrinsicSizeType))
-        : OptionalLengthWrapper(property, getter, setter, { Flags::NegativeLengthsAreInvalid })
-        , m_containIntrinsicSizeTypeGetter(typeGetter)
-        , m_containIntrinsicSizeTypeSetter(typeSetter)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation operation) const final
-    {
-        if ((from.*m_containIntrinsicSizeTypeGetter)() != (to.*m_containIntrinsicSizeTypeGetter)())
-            return false;
-        return OptionalLengthWrapper::canInterpolate(from, to, operation);
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto type = context.progress < 0.5 ? (from.*m_containIntrinsicSizeTypeGetter)() : (to.*m_containIntrinsicSizeTypeGetter)();
-        (destination.*m_containIntrinsicSizeTypeSetter)(type);
-
-        OptionalLengthWrapper::interpolate(destination, from, to, context);
-    }
-
-private:
-    ContainIntrinsicSizeType (RenderStyle::*m_containIntrinsicSizeTypeGetter)() const;
-    void (RenderStyle::*m_containIntrinsicSizeTypeSetter)(ContainIntrinsicSizeType);
-};
-
 class LengthBoxWrapper : public WrapperWithGetter<const LengthBox&> {
     WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:

@@ -139,7 +139,6 @@ enum class ColumnFill : bool;
 enum class ColumnProgression : bool;
 enum class ColumnSpan : bool;
 enum class CompositeOperator : uint8_t;
-enum class ContainIntrinsicSizeType : uint8_t;
 enum class ContainerType : uint8_t;
 enum class Containment : uint8_t;
 enum class ContentDistribution : uint8_t;
@@ -293,6 +292,7 @@ struct BoxShadow;
 struct ClipPath;
 struct Color;
 struct ColorScheme;
+struct ContainIntrinsicSize;
 struct ContainerNames;
 struct CornerShapeValue;
 struct DynamicRangeLimit;
@@ -851,20 +851,10 @@ public:
     inline ContentVisibility usedContentVisibility() const;
     inline bool isSkippedRootOrSkippedContent() const;
 
-    inline ContainIntrinsicSizeType containIntrinsicWidthType() const;
-    inline ContainIntrinsicSizeType containIntrinsicHeightType() const;
-    inline ContainIntrinsicSizeType containIntrinsicLogicalWidthType() const;
-    inline ContainIntrinsicSizeType containIntrinsicLogicalHeightType() const;
-    inline bool containIntrinsicWidthHasAuto() const;
-    inline bool containIntrinsicHeightHasAuto() const;
-    inline bool containIntrinsicWidthHasLength() const;
-    inline bool containIntrinsicHeightHasLength() const;
-    inline bool containIntrinsicLogicalWidthHasAuto() const;
-    inline bool containIntrinsicLogicalHeightHasAuto() const;
-    inline void containIntrinsicWidthAddAuto();
-    inline void containIntrinsicHeightAddAuto();
-    inline std::optional<Length> containIntrinsicWidth() const;
-    inline std::optional<Length> containIntrinsicHeight() const;
+    inline const Style::ContainIntrinsicSize& containIntrinsicWidth() const;
+    inline const Style::ContainIntrinsicSize& containIntrinsicHeight() const;
+    inline const Style::ContainIntrinsicSize& containIntrinsicLogicalWidth() const;
+    inline const Style::ContainIntrinsicSize& containIntrinsicLogicalHeight() const;
     inline bool hasAutoLengthContainIntrinsicSize() const;
 
     inline BoxAlignment boxAlign() const;
@@ -1455,10 +1445,10 @@ public:
     inline void setContainerType(ContainerType);
     inline void setContainerNames(Style::ContainerNames&&);
 
-    inline void setContainIntrinsicWidthType(ContainIntrinsicSizeType);
-    inline void setContainIntrinsicHeightType(ContainIntrinsicSizeType);
-    inline void setContainIntrinsicWidth(std::optional<Length>);
-    inline void setContainIntrinsicHeight(std::optional<Length>);
+    inline void containIntrinsicWidthAddAuto();
+    inline void containIntrinsicHeightAddAuto();
+    inline void setContainIntrinsicWidth(Style::ContainIntrinsicSize&&);
+    inline void setContainIntrinsicHeight(Style::ContainIntrinsicSize&&);
 
     inline void setContentVisibility(ContentVisibility);
 
@@ -2113,10 +2103,8 @@ public:
     static double initialAspectRatioWidth() { return 1.0; }
     static double initialAspectRatioHeight() { return 1.0; }
 
-    static constexpr ContainIntrinsicSizeType initialContainIntrinsicWidthType();
-    static constexpr ContainIntrinsicSizeType initialContainIntrinsicHeightType();
-    static inline std::optional<Length> initialContainIntrinsicWidth();
-    static inline std::optional<Length> initialContainIntrinsicHeight();
+    static inline Style::ContainIntrinsicSize initialContainIntrinsicWidth();
+    static inline Style::ContainIntrinsicSize initialContainIntrinsicHeight();
 
     static constexpr Order initialRTLOrdering();
     static float initialTextStrokeWidth() { return 0; }

@@ -8632,10 +8632,8 @@
                     "name": "contain-intrinsic-size",
                     "resolver": "vertical"
                 },
-                "animation-wrapper": "ContainIntrinsicLengthWrapper",
-                "animation-wrapper-requires-override-parameters": ["CSSPropertyContainIntrinsicHeight", "&RenderStyle::containIntrinsicHeight", "&RenderStyle::setContainIntrinsicHeight", "&RenderStyle::containIntrinsicHeightType", "&RenderStyle::setContainIntrinsicHeightType"],
-                "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ContainIntrinsicSize>",
                 "parser-grammar": "[ auto? [ none | <length [0,inf]> ] ]@(type=CSSValuePair)",
                 "parser-exported": true
             },
@@ -8656,10 +8654,8 @@
                     "name": "contain-intrinsic-size",
                     "resolver": "horizontal"
                 },
-                "animation-wrapper": "ContainIntrinsicLengthWrapper",
-                "animation-wrapper-requires-override-parameters": ["CSSPropertyContainIntrinsicWidth", "&RenderStyle::containIntrinsicWidth", "&RenderStyle::setContainIntrinsicWidth", "&RenderStyle::containIntrinsicWidthType", "&RenderStyle::setContainIntrinsicWidthType"],
-                "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ContainIntrinsicSize>",
                 "parser-grammar": "[ auto? [ none | <length [0,inf]> ] ]@(type=CSSValuePair)",
                 "parser-exported": true
              },

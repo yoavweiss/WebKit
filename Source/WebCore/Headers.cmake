@@ -2825,6 +2825,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/shapes/StyleWindRuleComputation.h
     style/values/shapes/StyleXywhFunction.h
 
+    style/values/sizing/StyleContainIntrinsicSize.h
     style/values/sizing/StyleMaximumSize.h
     style/values/sizing/StyleMinimumSize.h
     style/values/sizing/StylePreferredSize.h

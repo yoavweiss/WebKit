@@ -77,6 +77,7 @@ template<typename T> inline T forwardInheritedValue(T&& value) { return std::for
 inline AnchorNames forwardInheritedValue(const AnchorNames& value) { auto copy = value; return copy; }
 inline BorderRadiusValue forwardInheritedValue(const BorderRadiusValue& value) { auto copy = value; return copy; }
 inline BoxShadows forwardInheritedValue(const BoxShadows& value) { auto copy = value; return copy; }
+inline ContainIntrinsicSize forwardInheritedValue(const ContainIntrinsicSize& value) { auto copy = value; return copy; }
 inline ContainerNames forwardInheritedValue(const ContainerNames& value) { auto copy = value; return copy; }
 inline WebCore::Color forwardInheritedValue(const WebCore::Color& value) { auto copy = value; return copy; }
 inline Color forwardInheritedValue(const Color& value) { auto copy = value; return copy; }
@@ -141,8 +142,6 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CaretColor);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Clip);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Color);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(ContainIntrinsicWidth);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(ContainIntrinsicHeight);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Content);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterIncrement);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterReset);
@@ -1629,95 +1628,6 @@ inline void BuilderCustom::applyInheritColor(BuilderState& builderState)
 
     builderState.style().setDisallowsFastPathInheritance();
     builderState.style().setHasExplicitlySetColor(builderState.isAuthorOrigin());
-}
-
-inline void BuilderCustom::applyInitialContainIntrinsicWidth(BuilderState& builderState)
-{
-    builderState.style().setContainIntrinsicWidthType(RenderStyle::initialContainIntrinsicWidthType());
-    builderState.style().setContainIntrinsicWidth(RenderStyle::initialContainIntrinsicWidth());
-}
-
-inline void BuilderCustom::applyInheritContainIntrinsicWidth(BuilderState& builderState)
-{
-    builderState.style().setContainIntrinsicWidthType(forwardInheritedValue(builderState.parentStyle().containIntrinsicWidthType()));
-    builderState.style().setContainIntrinsicWidth(forwardInheritedValue(builderState.parentStyle().containIntrinsicWidth()));
-}
-
-inline void BuilderCustom::applyValueContainIntrinsicWidth(BuilderState& builderState, CSSValue& value)
-{
-    auto& style = builderState.style();
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (primitiveValue->valueID() == CSSValueNone) {
-            style.setContainIntrinsicWidth(RenderStyle::initialContainIntrinsicWidth());
-            return style.setContainIntrinsicWidthType(ContainIntrinsicSizeType::None);
-        }
-
-        if (primitiveValue->isLength()) {
-            style.setContainIntrinsicWidthType(ContainIntrinsicSizeType::Length);
-            auto width = primitiveValue->resolveAsLength<WebCore::Length>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f));
-            style.setContainIntrinsicWidth(width);
-        }
-        return;
-    }
-
-    auto pair = requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!pair)
-        return;
-
-    ASSERT(pair->first->valueID() == CSSValueAuto);
-    if (pair->second->valueID() == CSSValueNone)
-        style.setContainIntrinsicWidthType(ContainIntrinsicSizeType::AutoAndNone);
-    else {
-        ASSERT(pair->second->isLength());
-        style.setContainIntrinsicWidthType(ContainIntrinsicSizeType::AutoAndLength);
-        auto lengthValue = pair->second->resolveAsLength<WebCore::Length>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f));
-        style.setContainIntrinsicWidth(lengthValue);
-    }
-}
-
-inline void BuilderCustom::applyInitialContainIntrinsicHeight(BuilderState& builderState)
-{
-    builderState.style().setContainIntrinsicHeightType(RenderStyle::initialContainIntrinsicHeightType());
-    builderState.style().setContainIntrinsicHeight(RenderStyle::initialContainIntrinsicHeight());
-}
-
-inline void BuilderCustom::applyInheritContainIntrinsicHeight(BuilderState& builderState)
-{
-    builderState.style().setContainIntrinsicHeightType(forwardInheritedValue(builderState.parentStyle().containIntrinsicHeightType()));
-    builderState.style().setContainIntrinsicHeight(forwardInheritedValue(builderState.parentStyle().containIntrinsicHeight()));
-}
-
-inline void BuilderCustom::applyValueContainIntrinsicHeight(BuilderState& builderState, CSSValue& value)
-{
-    auto& style = builderState.style();
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (primitiveValue->valueID() == CSSValueNone) {
-            style.setContainIntrinsicHeight(RenderStyle::initialContainIntrinsicHeight());
-            return style.setContainIntrinsicHeightType(ContainIntrinsicSizeType::None);
-        }
-
-        if (primitiveValue->isLength()) {
-            style.setContainIntrinsicHeightType(ContainIntrinsicSizeType::Length);
-            auto height = primitiveValue->resolveAsLength<WebCore::Length>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f));
-            style.setContainIntrinsicHeight(height);
-        }
-        return;
-    }
-
-
-    auto pair = requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!pair)
-        return;
-
-    ASSERT(pair->first->valueID() == CSSValueAuto);
-    if (pair->second->valueID() == CSSValueNone)
-        style.setContainIntrinsicHeightType(ContainIntrinsicSizeType::AutoAndNone);
-    else {
-        ASSERT(pair->second->isLength());
-        style.setContainIntrinsicHeightType(ContainIntrinsicSizeType::AutoAndLength);
-        auto lengthValue = pair->second->resolveAsLength<WebCore::Length>(builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f));
-        style.setContainIntrinsicHeight(lengthValue);
-    }
 }
 
 inline void BuilderCustom::applyInitialPaddingBottom(BuilderState& builderState)

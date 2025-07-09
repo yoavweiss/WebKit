@@ -85,8 +85,6 @@ public:
     static Ref<CSSValue> extractCounterIncrement(ExtractorState&);
     static Ref<CSSValue> extractCounterReset(ExtractorState&);
     static Ref<CSSValue> extractCounterSet(ExtractorState&);
-    static Ref<CSSValue> extractContainIntrinsicHeight(ExtractorState&);
-    static Ref<CSSValue> extractContainIntrinsicWidth(ExtractorState&);
     static Ref<CSSValue> extractBorderImageOutset(ExtractorState&);
     static Ref<CSSValue> extractBorderImageRepeat(ExtractorState&);
     static Ref<CSSValue> extractBorderImageSlice(ExtractorState&);
@@ -192,8 +190,6 @@ public:
     static void extractCounterIncrementSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractCounterResetSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractCounterSetSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractContainIntrinsicHeightSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractContainIntrinsicWidthSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractBorderImageOutsetSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractBorderImageRepeatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractBorderImageSliceSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -2149,26 +2145,6 @@ inline Ref<CSSValue> ExtractorCustom::extractCounterSet(ExtractorState& state)
 inline void ExtractorCustom::extractCounterSetSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     extractCounterSerialization<CSSPropertyCounterSet>(state, builder, context);
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractContainIntrinsicHeight(ExtractorState& state)
-{
-    return ExtractorConverter::convertContainIntrinsicSize(state, state.style.containIntrinsicHeightType(), state.style.containIntrinsicHeight());
-}
-
-inline void ExtractorCustom::extractContainIntrinsicHeightSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeContainIntrinsicSize(state, builder, context, state.style.containIntrinsicHeightType(), state.style.containIntrinsicHeight());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractContainIntrinsicWidth(ExtractorState& state)
-{
-    return ExtractorConverter::convertContainIntrinsicSize(state, state.style.containIntrinsicWidthType(), state.style.containIntrinsicWidth());
-}
-
-inline void ExtractorCustom::extractContainIntrinsicWidthSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeContainIntrinsicSize(state, builder, context, state.style.containIntrinsicWidthType(), state.style.containIntrinsicWidth());
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractBorderImageOutset(ExtractorState& state)

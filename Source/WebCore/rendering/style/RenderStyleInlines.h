@@ -191,18 +191,10 @@ inline ColumnSpan RenderStyle::columnSpan() const { return static_cast<ColumnSpa
 inline float RenderStyle::columnWidth() const { return m_nonInheritedData->miscData->multiCol->width; }
 inline const AtomString& RenderStyle::computedLocale() const { return fontDescription().computedLocale(); }
 inline OptionSet<Containment> RenderStyle::contain() const { return m_nonInheritedData->rareData->contain; }
-inline std::optional<Length> RenderStyle::containIntrinsicHeight() const { return m_nonInheritedData->rareData->containIntrinsicHeight; }
-inline ContainIntrinsicSizeType RenderStyle::containIntrinsicHeightType() const { return static_cast<ContainIntrinsicSizeType>(m_nonInheritedData->rareData->containIntrinsicHeightType); }
-inline bool RenderStyle::containIntrinsicHeightHasAuto() const { return containIntrinsicHeightType() == ContainIntrinsicSizeType::AutoAndLength || containIntrinsicHeightType() == ContainIntrinsicSizeType::AutoAndNone; }
-inline bool RenderStyle::containIntrinsicHeightHasLength() const { return containIntrinsicHeightType() == ContainIntrinsicSizeType::Length || containIntrinsicHeightType() == ContainIntrinsicSizeType::AutoAndLength; }
-inline bool RenderStyle::containIntrinsicLogicalHeightHasAuto() const { return writingMode().isHorizontal() ? containIntrinsicHeightHasAuto() : containIntrinsicWidthHasAuto(); }
-inline ContainIntrinsicSizeType RenderStyle::containIntrinsicLogicalHeightType() const { return writingMode().isHorizontal() ? containIntrinsicHeightType() : containIntrinsicWidthType(); }
-inline ContainIntrinsicSizeType RenderStyle::containIntrinsicLogicalWidthType() const { return writingMode().isHorizontal() ? containIntrinsicWidthType() : containIntrinsicHeightType(); }
-inline bool RenderStyle::containIntrinsicWidthHasAuto() const { return containIntrinsicWidthType() == ContainIntrinsicSizeType::AutoAndLength || containIntrinsicWidthType() == ContainIntrinsicSizeType::AutoAndNone; }
-inline bool RenderStyle::containIntrinsicWidthHasLength() const { return containIntrinsicWidthType() == ContainIntrinsicSizeType::Length || containIntrinsicWidthType() == ContainIntrinsicSizeType::AutoAndLength; }
-inline bool RenderStyle::containIntrinsicLogicalWidthHasAuto() const { return writingMode().isHorizontal() ? containIntrinsicWidthHasAuto() : containIntrinsicHeightHasAuto(); }
-inline std::optional<Length> RenderStyle::containIntrinsicWidth() const { return m_nonInheritedData->rareData->containIntrinsicWidth; }
-inline ContainIntrinsicSizeType RenderStyle::containIntrinsicWidthType() const { return static_cast<ContainIntrinsicSizeType>(m_nonInheritedData->rareData->containIntrinsicWidthType); }
+inline const Style::ContainIntrinsicSize& RenderStyle::containIntrinsicLogicalHeight() const { return writingMode().isHorizontal() ? containIntrinsicHeight() : containIntrinsicWidth(); }
+inline const Style::ContainIntrinsicSize& RenderStyle::containIntrinsicLogicalWidth() const { return writingMode().isHorizontal() ? containIntrinsicWidth() : containIntrinsicHeight(); }
+inline const Style::ContainIntrinsicSize& RenderStyle::containIntrinsicHeight() const { return m_nonInheritedData->rareData->containIntrinsicHeight; }
+inline const Style::ContainIntrinsicSize& RenderStyle::containIntrinsicWidth() const { return m_nonInheritedData->rareData->containIntrinsicWidth; }
 inline const Style::ContainerNames& RenderStyle::containerNames() const { return m_nonInheritedData->rareData->containerNames; }
 inline ContainerType RenderStyle::containerType() const { return static_cast<ContainerType>(m_nonInheritedData->rareData->containerType); }
 inline bool RenderStyle::containsInlineSize() const { return usedContain().contains(Containment::InlineSize); }
@@ -285,7 +277,7 @@ inline bool RenderStyle::hasAutoCaretColor() const { return m_rareInheritedData-
 inline bool RenderStyle::hasAutoColumnCount() const { return m_nonInheritedData->miscData->multiCol->autoCount; }
 inline bool RenderStyle::hasAutoColumnWidth() const { return m_nonInheritedData->miscData->multiCol->autoWidth; }
 inline bool RenderStyle::hasAutoLeftAndRight() const { return left().isAuto() && right().isAuto(); }
-inline bool RenderStyle::hasAutoLengthContainIntrinsicSize() const { return containIntrinsicWidthHasAuto() || containIntrinsicHeightHasAuto(); }
+inline bool RenderStyle::hasAutoLengthContainIntrinsicSize() const { return containIntrinsicWidth().hasAuto() || containIntrinsicHeight().hasAuto(); }
 inline bool RenderStyle::hasAutoOrphans() const { return m_rareInheritedData->hasAutoOrphans; }
 inline bool RenderStyle::hasAutoSpecifiedZIndex() const { return m_nonInheritedData->boxData->hasAutoSpecifiedZIndex(); }
 inline bool RenderStyle::hasAutoTopAndBottom() const { return top().isAuto() && bottom().isAuto(); }
@@ -395,10 +387,8 @@ constexpr ColumnFill RenderStyle::initialColumnFill() { return ColumnFill::Balan
 inline Style::GapGutter RenderStyle::initialColumnGap() { return CSS::Keyword::Normal { }; }
 constexpr ColumnProgression RenderStyle::initialColumnProgression() { return ColumnProgression::Normal; }
 constexpr ColumnSpan RenderStyle::initialColumnSpan() { return ColumnSpan::None; }
-inline std::optional<Length> RenderStyle::initialContainIntrinsicHeight() { return std::nullopt; }
-constexpr ContainIntrinsicSizeType RenderStyle::initialContainIntrinsicHeightType() { return ContainIntrinsicSizeType::None; }
-inline std::optional<Length> RenderStyle::initialContainIntrinsicWidth() { return std::nullopt; }
-constexpr ContainIntrinsicSizeType RenderStyle::initialContainIntrinsicWidthType() { return ContainIntrinsicSizeType::None; }
+inline Style::ContainIntrinsicSize RenderStyle::initialContainIntrinsicHeight() { return CSS::Keyword::None { }; }
+inline Style::ContainIntrinsicSize RenderStyle::initialContainIntrinsicWidth() { return CSS::Keyword::None { }; }
 inline Style::ContainerNames RenderStyle::initialContainerNames() { return CSS::Keyword::None { }; }
 constexpr ContainerType RenderStyle::initialContainerType() { return ContainerType::Normal; }
 constexpr OptionSet<Containment> RenderStyle::initialContainment() { return { }; }

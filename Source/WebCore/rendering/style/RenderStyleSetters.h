@@ -145,10 +145,8 @@ inline void RenderStyle::setColumnRuleWidth(unsigned short w) { SET_DOUBLY_NESTE
 inline void RenderStyle::setColumnSpan(ColumnSpan span) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, columnSpan, static_cast<unsigned>(span)); }
 inline void RenderStyle::setColumnWidth(float width) { SET_DOUBLY_NESTED_PAIR(m_nonInheritedData, miscData, multiCol, width, width, autoWidth, false); }
 inline void RenderStyle::setContain(OptionSet<Containment> containment) { SET_NESTED(m_nonInheritedData, rareData, contain, containment); }
-inline void RenderStyle::setContainIntrinsicHeight(std::optional<Length> height) { SET_NESTED(m_nonInheritedData, rareData, containIntrinsicHeight, height); }
-inline void RenderStyle::setContainIntrinsicHeightType(ContainIntrinsicSizeType containIntrinsicHeightType) { SET_NESTED(m_nonInheritedData, rareData, containIntrinsicHeightType, static_cast<unsigned>(containIntrinsicHeightType)); }
-inline void RenderStyle::setContainIntrinsicWidth(std::optional<Length> width) { SET_NESTED(m_nonInheritedData, rareData, containIntrinsicWidth, width); }
-inline void RenderStyle::setContainIntrinsicWidthType(ContainIntrinsicSizeType containIntrinsicWidthType) { SET_NESTED(m_nonInheritedData, rareData, containIntrinsicWidthType, static_cast<unsigned>(containIntrinsicWidthType)); }
+inline void RenderStyle::setContainIntrinsicHeight(Style::ContainIntrinsicSize&& height) { SET_NESTED(m_nonInheritedData, rareData, containIntrinsicHeight, WTFMove(height)); }
+inline void RenderStyle::setContainIntrinsicWidth(Style::ContainIntrinsicSize&& width) { SET_NESTED(m_nonInheritedData, rareData, containIntrinsicWidth, WTFMove(width)); }
 inline void RenderStyle::setContainerNames(Style::ContainerNames&& names) { SET_NESTED(m_nonInheritedData, rareData, containerNames, WTFMove(names)); }
 inline void RenderStyle::setContainerType(ContainerType type) { SET_NESTED(m_nonInheritedData, rareData, containerType, static_cast<unsigned>(type)); }
 inline void RenderStyle::setContentVisibility(ContentVisibility value) { SET_NESTED(m_nonInheritedData, rareData, contentVisibility, static_cast<unsigned>(value)); }
@@ -658,18 +656,12 @@ inline bool RenderStyle::setZoom(float zoomLevel)
 
 inline void RenderStyle::containIntrinsicWidthAddAuto()
 {
-    if (containIntrinsicWidthType() == ContainIntrinsicSizeType::None)
-        setContainIntrinsicWidthType(ContainIntrinsicSizeType::AutoAndNone);
-    else if (containIntrinsicWidthType() == ContainIntrinsicSizeType::Length)
-        setContainIntrinsicWidthType(ContainIntrinsicSizeType::AutoAndLength);
+    setContainIntrinsicWidth(containIntrinsicWidth().addingAuto());
 }
 
 inline void RenderStyle::containIntrinsicHeightAddAuto()
 {
-    if (containIntrinsicHeightType() == ContainIntrinsicSizeType::None)
-        setContainIntrinsicHeightType(ContainIntrinsicSizeType::AutoAndNone);
-    else if (containIntrinsicHeightType() == ContainIntrinsicSizeType::Length)
-        setContainIntrinsicHeightType(ContainIntrinsicSizeType::AutoAndLength);
+    setContainIntrinsicHeight(containIntrinsicHeight().addingAuto());
 }
 
 inline void RenderStyle::setBlendMode(BlendMode mode)

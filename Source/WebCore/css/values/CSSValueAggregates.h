@@ -928,25 +928,37 @@ template<typename T> void logForCSSOnVariantLike(TextStream& ts, const T& value)
 
 template<typename T, size_t inlineCapacity> TextStream& operator<<(TextStream& ts, const SpaceSeparatedVector<T, inlineCapacity>& value)
 {
-    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<T>);
+    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<SpaceSeparatedVector<T, inlineCapacity>>);
     return ts;
 }
 
 template<typename T, size_t inlineCapacity> TextStream& operator<<(TextStream& ts, const CommaSeparatedVector<T, inlineCapacity>& value)
 {
-    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<T>);
+    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<CommaSeparatedVector<T, inlineCapacity>>);
     return ts;
 }
 
 template<typename T> TextStream& operator<<(TextStream& ts, const SpaceSeparatedFixedVector<T>& value)
 {
-    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<T>);
+    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<SpaceSeparatedFixedVector<T>>);
     return ts;
 }
 
 template<typename T> TextStream& operator<<(TextStream& ts, const CommaSeparatedFixedVector<T>& value)
 {
-    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<T>);
+    logForCSSOnRangeLike(ts, value, SerializationSeparatorString<CommaSeparatedFixedVector<T>>);
+    return ts;
+}
+
+template<typename... Ts> TextStream& operator<<(TextStream& ts, const SpaceSeparatedTuple<Ts...>& value)
+{
+    logForCSSOnTupleLike(ts, value, SerializationSeparatorString<SpaceSeparatedTuple<Ts...>>);
+    return ts;
+}
+
+template<typename... Ts> TextStream& operator<<(TextStream& ts, const CommaSeparatedTuple<Ts...>& value)
+{
+    logForCSSOnTupleLike(ts, value, SerializationSeparatorString<CommaSeparatedTuple<Ts...>>);
     return ts;
 }
 
