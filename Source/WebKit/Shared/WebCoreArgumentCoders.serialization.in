@@ -722,33 +722,6 @@ enum class WebCore::IndexedDB::RequestType : uint8_t {
     Other,
 };
 
-#if USE(CG)
-headers: <CoreGraphics/CGGeometry.h> <CoreGraphics/CGAffineTransform.h>
-[WebKitPlatform, AdditionalEncoder=StreamConnectionEncoder] struct CGSize {
-    CGFloat width
-    CGFloat height
-};
-
-[WebKitPlatform] struct CGPoint {
-    CGFloat x
-    CGFloat y
-};
-
-[WebKitPlatform] struct CGRect {
-    CGPoint origin
-    CGSize size
-};
-
-struct CGAffineTransform {
-  CGFloat a
-  CGFloat b
-  CGFloat c
-  CGFloat d
-  CGFloat tx
-  CGFloat ty
-};
-#endif
-
 [AdditionalEncoder=StreamConnectionEncoder] class WebCore::FloatRect {
     WebCore::FloatPoint location()
     WebCore::FloatSize size()
@@ -8753,10 +8726,8 @@ using WebCore::GraphicsStyle = Variant<WebCore::GraphicsDropShadow, WebCore::Gra
 enum class WebCore::ScrollBehaviorForFixedElements : bool
 #if USE(CG)
 using WebCore::GlyphBufferGlyph = CGGlyph
-using WebCore::GlyphBufferAdvance = CGSize
 #else
 using WebCore::GlyphBufferGlyph = WebCore::Glyph
-using WebCore::GlyphBufferAdvance = WebCore::FloatSize
 #endif
 using WebCore::Glyph = unsigned short
 
@@ -8839,16 +8810,6 @@ enum class WebCore::PlatformMediaError : uint8_t {
     NotSupportedError,
     NetworkError,
 };
-#endif
-
-#if USE(CG)
-using WebCore::DashArray = FixedVector<CGFloat>;
-#endif
-#if USE(CAIRO)
-using WebCore::DashArray = FixedVector<double>;
-#endif
-#if !USE(CG) && !USE(CAIRO)
-using WebCore::DashArray = FixedVector<float>;
 #endif
 
 [WebKitPlatform] enum class WebCore::NotificationDirection : uint8_t {

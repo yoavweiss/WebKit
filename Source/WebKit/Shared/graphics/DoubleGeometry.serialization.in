@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Apple Inc. All rights reserved.
+# Copyright (C) 2025 Apple Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -20,17 +20,19 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#if PLATFORM(COCOA)
+webkit_platform_headers: "DoubleGeometry.h"
 
-webkit_platform_headers: "CoreIPCNSValue.h"
-
-[WebKitPlatform, CustomHeader] struct WebKit::IPCRange {
-    uint64_t location;
-    uint64_t length;
+[WebKitPlatform, CustomHeader] struct WebKit::DoublePoint {
+    double x;
+    double y;
 }
 
-[WebKitPlatform] class WebKit::CoreIPCNSValue {
-    Variant<WebKit::IPCRange, WebKit::DoubleRect, UniqueRef<WebKit::CoreIPCNSCFObject>> m_value
+[WebKitPlatform, CustomHeader] struct WebKit::DoubleSize {
+    double width;
+    double height;
 }
 
-#endif // PLATFORM(COCOA)
+[WebKitPlatform, CustomHeader] struct WebKit::DoubleRect {
+    WebKit::DoublePoint origin;
+    WebKit::DoubleSize size;
+}

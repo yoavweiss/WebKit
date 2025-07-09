@@ -158,26 +158,26 @@ header: <WebCore/AttributedString.h>
 
 header: <WebCore/AttributedString.h>
 [CustomHeader] struct WebCore::ParagraphStyleCommonTableAttributes {
-    CGFloat width;
-    CGFloat minimumWidth;
-    CGFloat maximumWidth;
-    CGFloat minimumHeight;
-    CGFloat maximumHeight;
+    double width;
+    double minimumWidth;
+    double maximumWidth;
+    double minimumHeight;
+    double maximumHeight;
 
-    CGFloat paddingMinXEdge;
-    CGFloat paddingMinYEdge;
-    CGFloat paddingMaxXEdge;
-    CGFloat paddingMaxYEdge;
+    double paddingMinXEdge;
+    double paddingMinYEdge;
+    double paddingMaxXEdge;
+    double paddingMaxYEdge;
 
-    CGFloat borderMinXEdge;
-    CGFloat borderMinYEdge;
-    CGFloat borderMaxXEdge;
-    CGFloat borderMaxYEdge;
+    double borderMinXEdge;
+    double borderMinYEdge;
+    double borderMaxXEdge;
+    double borderMaxYEdge;
 
-    CGFloat marginMinXEdge;
-    CGFloat marginMinYEdge;
-    CGFloat marginMaxXEdge;
-    CGFloat marginMaxYEdge;
+    double marginMinXEdge;
+    double marginMinYEdge;
+    double marginMaxXEdge;
+    double marginMaxYEdge;
 
     RetainPtr<WebCore::CocoaColor> backgroundColor;
     RetainPtr<WebCore::CocoaColor> borderMinXEdgeColor;
@@ -208,7 +208,7 @@ header: <WebCore/AttributedString.h>
 
 header: <WebCore/AttributedString.h>
 [CustomHeader] struct WebCore::TextTab {
-    CGFloat location;
+    double location;
     WebCore::ParagraphStyleAlignment alignment;
 }
 
@@ -218,11 +218,11 @@ header: <WebCore/AttributedString.h>
     WebCore::ParagraphStyleAlignment alignment;
     WebCore::ParagraphStyleWritingDirection writingDirection;
     float hyphenationFactor;
-    CGFloat firstLineHeadIndent;
-    CGFloat headIndent;
+    double firstLineHeadIndent;
+    double headIndent;
     [Validator='headerLevel >= 0'] int64_t headerLevel;
-    CGFloat tailIndent;
-    CGFloat paragraphSpacing;
+    double tailIndent;
+    double paragraphSpacing;
     Vector<WebCore::AttributedStringTextTableBlockID> textTableBlockIDs;
     Vector<WebCore::AttributedStringTextListID> textListIDs;
     Vector<WebCore::TextTableBlock> textTableBlocks;
@@ -518,7 +518,6 @@ UIColor wrapped by CoreIPCColor
 
 using CFTimeInterval = double
 using CGGlyph = uint16_t
-using NSRect = CGRect
 
 #if ENABLE(WRITING_TOOLS)
 using WebCore::WritingTools::TextSuggestion::ID = WTF::UUID

@@ -527,7 +527,6 @@ def types_that_cannot_be_forward_declared():
         'WebCore::DOMCacheIdentifier',
         'WebCore::DOMCacheEngine::CacheIdentifierOrError',
         'WebCore::DOMCacheEngine::RemoveCacheIdentifierOrError',
-        'WebCore::DashArray',
         'WebCore::DestinationColorSpace',
         'WebCore::DiagnosticLoggingDomain',
         'WebCore::DictationContext',
@@ -890,6 +889,7 @@ def class_template_headers(template_string):
         'RetainPtr': {'headers': ['<wtf/RetainPtr.h>'], 'argument_coder_headers': []},
         'WebCore::ProcessQualified': {'headers': ['<WebCore/ProcessQualified.h>'], 'argument_coder_headers': ['"ArgumentCoders.h"']},
         'std::unique_ptr': {'headers': ['<memory>'], 'argument_coder_headers': ['"ArgumentCoders.h"']},
+        'FixedVector': {'headers': ['<wtf/FixedVector.h>'], 'argument_coder_headers': ['"ArgumentCoders.h"']},
     }
 
     match = re.match('(?P<template_name>.+?)<(?P<parameter_string>.+)>', template_string)

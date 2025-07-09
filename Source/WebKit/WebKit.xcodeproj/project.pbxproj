@@ -140,6 +140,7 @@
 		029D6BAC2C40609D0068CF99 /* WebExtensionAPISidebarAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 029D6BAB2C4060920068CF99 /* WebExtensionAPISidebarAction.h */; };
 		029D6BB32C407AA30068CF99 /* JSWebExtensionAPISidebarAction.h in Headers */ = {isa = PBXBuildFile; fileRef = 029D6BAD2C407AA30068CF99 /* JSWebExtensionAPISidebarAction.h */; };
 		029D6BB42C407AA30068CF99 /* JSWebExtensionAPISidePanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 029D6BAF2C407AA30068CF99 /* JSWebExtensionAPISidePanel.h */; };
+		02DCA0BD2E1DB2EC00157740 /* DoubleGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 02DCA0BB2E1DB2DC00157740 /* DoubleGeometry.h */; };
 		0701789E23BE9CFC005F0FAA /* RemoteMediaPlayerMIMETypeCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0701789B23BAE261005F0FAA /* RemoteMediaPlayerMIMETypeCache.cpp */; };
 		0712654928EE06F800AE69D7 /* WebChromeClientCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0712654728EE06F800AE69D7 /* WebChromeClientCocoa.mm */; };
 		071467782DFE84E500F77867 /* WebPage+Transferable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071467772DFE84E500F77867 /* WebPage+Transferable.swift */; };
@@ -3231,6 +3232,8 @@
 		029D6BAE2C407AA30068CF99 /* JSWebExtensionAPISidebarAction.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSWebExtensionAPISidebarAction.mm; sourceTree = "<group>"; };
 		029D6BAF2C407AA30068CF99 /* JSWebExtensionAPISidePanel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSWebExtensionAPISidePanel.h; sourceTree = "<group>"; };
 		029D6BB02C407AA30068CF99 /* JSWebExtensionAPISidePanel.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSWebExtensionAPISidePanel.mm; sourceTree = "<group>"; };
+		02DCA0BB2E1DB2DC00157740 /* DoubleGeometry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DoubleGeometry.h; sourceTree = "<group>"; };
+		02DCA0BC2E1DB2E000157740 /* DoubleGeometry.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = DoubleGeometry.serialization.in; sourceTree = "<group>"; };
 		02EFD6012C404E8700D7277F /* WebExtensionAPISidebarAction.idl */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebExtensionAPISidebarAction.idl; sourceTree = "<group>"; };
 		02EFD6022C404E8700D7277F /* WebExtensionAPISidePanel.idl */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebExtensionAPISidePanel.idl; sourceTree = "<group>"; };
 		02F705E328D1B4AD008C89EF /* WebGPUObjectDescriptorBase.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebGPUObjectDescriptorBase.serialization.in; sourceTree = "<group>"; };
@@ -14348,6 +14351,8 @@
 		A71DC05D2B266DA3001C3075 /* graphics */ = {
 			isa = PBXGroup;
 			children = (
+				02DCA0BB2E1DB2DC00157740 /* DoubleGeometry.h */,
+				02DCA0BC2E1DB2E000157740 /* DoubleGeometry.serialization.in */,
 				A7D5005A2B266DF200D3497E /* ImageBufferSet.cpp */,
 				A7D5005C2B266E0600D3497E /* ImageBufferSet.h */,
 				2D0440922D58810D00E98A2E /* RemoteImageBufferSetConfiguration.h */,
@@ -17206,6 +17211,7 @@
 				7AFA6F6D2A9F58440055322A /* DisplayLink.h in Headers */,
 				0F189CAC24749F2F00E58D81 /* DisplayLinkObserverID.h in Headers */,
 				7AFA6F6E2A9F584A0055322A /* DisplayLinkProcessProxyClient.h in Headers */,
+				02DCA0BD2E1DB2EC00157740 /* DoubleGeometry.h in Headers */,
 				5C1427021C23F84C00D41183 /* Download.h in Headers */,
 				5C1427051C23F84C00D41183 /* DownloadID.h in Headers */,
 				5C1427071C23F84C00D41183 /* DownloadManager.h in Headers */,

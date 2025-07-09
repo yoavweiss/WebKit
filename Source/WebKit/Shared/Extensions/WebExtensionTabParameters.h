@@ -27,6 +27,7 @@
 
 #if ENABLE(WK_WEB_EXTENSIONS)
 
+#include "DoubleGeometry.h"
 #include "WebExtensionTabIdentifier.h"
 #include "WebExtensionWindowIdentifier.h"
 #include <wtf/Forward.h>
@@ -42,7 +43,7 @@ struct WebExtensionTabParameters {
     std::optional<WebExtensionWindowIdentifier> windowIdentifier;
     std::optional<uint64_t> index;
 #if PLATFORM(COCOA)
-    std::optional<CGSize> size;
+    std::optional<DoubleSize> size;
 #endif
 
     std::optional<WebExtensionTabIdentifier> parentTabIdentifier;

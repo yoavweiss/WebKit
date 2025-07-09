@@ -70,8 +70,8 @@ RetainPtr<id> CoreIPCNSValue::toID() const
 
         WTF::switchOn(wrappedValue, [&](const IPCRange& range) {
             result = [NSValue valueWithRange:NSMakeRange(range.location, range.length)];
-        }, [&](const CGRect& rect) {
-            result = [NSValue valueWithRect:rect];
+        }, [&](const DoubleRect& rect) {
+            result = [NSValue valueWithRect:rect.toCG()];
         }, [&](const UniqueRef<CoreIPCNSCFObject>& object) {
             result = object->toID();
         });

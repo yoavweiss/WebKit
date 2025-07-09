@@ -119,26 +119,26 @@ struct ParagraphStyleTextList {
 };
 
 struct ParagraphStyleCommonTableAttributes {
-    CGFloat width { 0 };
-    CGFloat minimumWidth { 0 };
-    CGFloat maximumWidth { 0 };
-    CGFloat minimumHeight { 0 };
-    CGFloat maximumHeight { 0 };
+    double width { 0 };
+    double minimumWidth { 0 };
+    double maximumWidth { 0 };
+    double minimumHeight { 0 };
+    double maximumHeight { 0 };
 
-    CGFloat paddingMinXEdge { 0 };
-    CGFloat paddingMinYEdge { 0 };
-    CGFloat paddingMaxXEdge { 0 };
-    CGFloat paddingMaxYEdge { 0 };
+    double paddingMinXEdge { 0 };
+    double paddingMinYEdge { 0 };
+    double paddingMaxXEdge { 0 };
+    double paddingMaxYEdge { 0 };
 
-    CGFloat borderMinXEdge { 0 };
-    CGFloat borderMinYEdge { 0 };
-    CGFloat borderMaxXEdge { 0 };
-    CGFloat borderMaxYEdge { 0 };
+    double borderMinXEdge { 0 };
+    double borderMinYEdge { 0 };
+    double borderMaxXEdge { 0 };
+    double borderMaxYEdge { 0 };
 
-    CGFloat marginMinXEdge { 0 };
-    CGFloat marginMinYEdge { 0 };
-    CGFloat marginMaxXEdge { 0 };
-    CGFloat marginMaxYEdge { 0 };
+    double marginMinXEdge { 0 };
+    double marginMinYEdge { 0 };
+    double marginMaxXEdge { 0 };
+    double marginMaxYEdge { 0 };
 
     RetainPtr<PlatformColor> backgroundColor;
     RetainPtr<PlatformColor> borderMinXEdgeColor;
@@ -166,7 +166,7 @@ struct TextTableBlock : ParagraphStyleCommonTableAttributes {
 };
 
 struct TextTab {
-    CGFloat location { 0 };
+    double location { 0 };
     ParagraphStyleAlignment alignment { ParagraphStyleAlignment::Natural };
 };
 
@@ -175,11 +175,11 @@ struct ParagraphStyle {
     ParagraphStyleAlignment alignment { ParagraphStyleAlignment::Natural };
     ParagraphStyleWritingDirection writingDirection { ParagraphStyleWritingDirection::Natural };
     float hyphenationFactor { 0 };
-    CGFloat firstLineHeadIndent { 0 };
-    CGFloat headIndent { 0 };
+    double firstLineHeadIndent { 0 };
+    double headIndent { 0 };
     int64_t headerLevel { 0 };
-    CGFloat tailIndent { 0 };
-    CGFloat paragraphSpacing { 0 };
+    double tailIndent { 0 };
+    double paragraphSpacing { 0 };
     Vector<AttributedStringTextTableBlockID> textTableBlockIDs;
     Vector<AttributedStringTextListID> textListIDs;
     Vector<TextTableBlock> textTableBlocks;

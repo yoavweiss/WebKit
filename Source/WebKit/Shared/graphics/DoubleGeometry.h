@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,42 +25,79 @@
 
 #pragma once
 
-#if PLATFORM(COCOA)
-
-#include "ArgumentCodersCocoa.h"
-#include "DoubleGeometry.h"
-#include <WebCore/ColorCocoa.h>
-#include <wtf/RetainPtr.h>
-
-OBJC_CLASS NSShadow;
+#if USE(CG)
+#import <CoreGraphics/CGGeometry.h>
+#endif
 
 namespace WebKit {
 
-class CoreIPCNSShadow {
-public:
-    CoreIPCNSShadow(NSShadow *);
-    CoreIPCNSShadow(const RetainPtr<NSShadow>& shadow)
-        : CoreIPCNSShadow(shadow.get())
+struct DoublePoint {
+#if USE(CG)
+    DoublePoint(const CGPoint& point)
+        : DoublePoint(point.x, point.y)
     {
     }
 
-    CoreIPCNSShadow(DoubleSize shadowOffset, double shadowBlurRadius, RetainPtr<WebCore::CocoaColor>&& shadowColor)
-        : m_shadowOffset(shadowOffset)
-        , m_shadowBlurRadius(shadowBlurRadius)
-        , m_shadowColor(WTFMove(shadowColor))
+    CGPoint toCG() const
+    {
+        return { static_cast<CGFloat>(x), static_cast<CGFloat>(y) };
+    }
+#endif
+
+    DoublePoint(double x, double y)
+        : x(x)
+        , y(y)
     {
     }
 
-    RetainPtr<id> toID() const;
+    double x { 0 };
+    double y { 0 };
+};
 
-private:
-    friend struct IPC::ArgumentCoder<CoreIPCNSShadow, void>;
+struct DoubleSize {
+#if USE(CG)
+    DoubleSize(const CGSize& size)
+        : DoubleSize(size.width, size.height)
+    {
+    }
 
-    DoubleSize m_shadowOffset;
-    double m_shadowBlurRadius;
-    RetainPtr<WebCore::CocoaColor> m_shadowColor;
+    CGSize toCG() const
+    {
+        return { static_cast<CGFloat>(width), static_cast<CGFloat>(height) };
+    }
+#endif
+
+    DoubleSize(double width, double height)
+        : width(width)
+        , height(height)
+    {
+    }
+
+    double width { 0 };
+    double height { 0 };
+};
+
+struct DoubleRect {
+#if USE(CG)
+    DoubleRect(const CGRect& rect)
+        : DoubleRect(rect.origin, rect.size)
+    {
+    }
+
+    CGRect toCG() const
+    {
+        return { origin.toCG(), size.toCG() };
+    }
+#endif
+
+    DoubleRect(DoublePoint origin, DoubleSize size)
+        : origin(origin)
+        , size(size)
+    {
+    }
+
+    DoublePoint origin;
+    DoubleSize size;
 };
 
 } // namespace WebKit
-
-#endif // PLATFORM(COCOA)

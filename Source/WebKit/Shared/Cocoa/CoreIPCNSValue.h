@@ -28,6 +28,7 @@
 #if PLATFORM(COCOA)
 
 #include "ArgumentCodersCocoa.h"
+#include "DoubleGeometry.h"
 #include <CoreGraphics/CGGeometry.h>
 #include <wtf/RetainPtr.h>
 
@@ -54,7 +55,7 @@ public:
 
     static bool shouldWrapValue(NSValue *);
 
-    using Value = Variant<IPCRange, CGRect, UniqueRef<CoreIPCNSCFObject>>;
+    using Value = Variant<IPCRange, DoubleRect, UniqueRef<CoreIPCNSCFObject>>;
 
 private:
     friend struct IPC::ArgumentCoder<CoreIPCNSValue, void>;
