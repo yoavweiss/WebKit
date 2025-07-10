@@ -1052,7 +1052,7 @@ namespace JSC {
         LabelScope* continueTarget(const Identifier&);
 
         void beginSwitch(RegisterID*, SwitchInfo::SwitchType);
-        void endSwitch(const Vector<Ref<Label>, 8>&, ExpressionNode**, Label& defaultLabel, int32_t min, int32_t range);
+        void endSwitch(uint32_t clauseCount, const Vector<Ref<Label>, 8>&, ExpressionNode**, Label& defaultLabel, int32_t min, int32_t range);
 
         void emitYieldPoint(RegisterID*, JSAsyncGenerator::AsyncGeneratorSuspendReason);
 

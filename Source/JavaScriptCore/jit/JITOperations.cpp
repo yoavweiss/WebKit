@@ -4390,25 +4390,53 @@ JSC_DEFINE_JIT_OPERATION(operationSetupVarargsFrame, CallFrame*, (JSGlobalObject
     OPERATION_RETURN(scope, newCallFrame);
 }
 
-JSC_DEFINE_JIT_OPERATION(operationResolveRope, StringImpl*, (JSGlobalObject* globalObject, JSString* string))
+JSC_DEFINE_JIT_OPERATION(operationSwitchCharWithUnknownKeyType, char*, (JSGlobalObject* globalObject, EncodedJSValue encodedKey, size_t tableIndex, int32_t min))
 {
     VM& vm = globalObject->vm();
     CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
     JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
     auto scope = DECLARE_THROW_SCOPE(vm);
 
-    OPERATION_RETURN(scope, string->value(globalObject)->impl());
+    JSValue key = JSValue::decode(encodedKey);
+    CodeBlock* codeBlock = callFrame->codeBlock();
+
+    const SimpleJumpTable& linkedTable = codeBlock->baselineSwitchJumpTable(tableIndex);
+    ASSERT(codeBlock->unlinkedSwitchJumpTable(tableIndex).m_min == min);
+    void* result = linkedTable.m_ctiDefault.taggedPtr();
+
+    if (key.isString()) {
+        JSString* string = asString(key);
+        if (string->length() == 1) {
+            auto value = string->value(globalObject);
+            OPERATION_RETURN_IF_EXCEPTION(scope, nullptr);
+            result = linkedTable.ctiForValue(min, value[0]).taggedPtr();
+        }
+    }
+
+    assertIsTaggedWith<JSSwitchPtrTag>(result);
+    OPERATION_RETURN(scope, reinterpret_cast<char*>(result));
 }
 
-JSC_DEFINE_JIT_OPERATION(operationResolveRopeString, JSString*, (JSGlobalObject* globalObject, JSRopeString* string))
+JSC_DEFINE_JIT_OPERATION(operationSwitchImmWithUnknownKeyType, char*, (VM* vmPointer, EncodedJSValue encodedKey, size_t tableIndex, int32_t min))
 {
-    VM& vm = globalObject->vm();
+    VM& vm = *vmPointer;
     CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
     JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
     auto scope = DECLARE_THROW_SCOPE(vm);
+    JSValue key = JSValue::decode(encodedKey);
+    CodeBlock* codeBlock = callFrame->codeBlock();
 
-    string->resolveRope(globalObject);
-    OPERATION_RETURN(scope, string);
+    const SimpleJumpTable& linkedTable = codeBlock->baselineSwitchJumpTable(tableIndex);
+    ASSERT(codeBlock->unlinkedSwitchJumpTable(tableIndex).m_min == min);
+    void* result;
+    if (key.isInt32())
+        result = linkedTable.ctiForValue(min, key.asInt32()).taggedPtr();
+    else if (key.isDouble() && key.asDouble() == static_cast<int32_t>(key.asDouble()))
+        result = linkedTable.ctiForValue(min, static_cast<int32_t>(key.asDouble())).taggedPtr();
+    else
+        result = linkedTable.m_ctiDefault.taggedPtr();
+    assertIsTaggedWith<JSSwitchPtrTag>(result);
+    OPERATION_RETURN(scope, reinterpret_cast<char*>(result));
 }
 
 JSC_DEFINE_JIT_OPERATION(operationSwitchStringWithUnknownKeyType, char*, (JSGlobalObject* globalObject, EncodedJSValue encodedKey, size_t tableIndex))

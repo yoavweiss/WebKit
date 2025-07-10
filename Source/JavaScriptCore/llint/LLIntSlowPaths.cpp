@@ -1860,23 +1860,14 @@ LLINT_SLOW_PATH_DECL(slow_path_switch_imm)
     LLINT_BEGIN();
     auto bytecode = pc->as<OpSwitchImm>();
     JSValue scrutinee = getOperand(callFrame, bytecode.m_scrutinee);
-    double value = scrutinee.asNumber();
+    ASSERT(scrutinee.isDouble());
+    double value = scrutinee.asDouble();
     int32_t intValue = static_cast<int32_t>(value);
     auto& unlinkedTable = codeBlock->unlinkedSwitchJumpTable(bytecode.m_tableIndex);
-    if (value == intValue) [[likely]] {
-        if (!unlinkedTable.isList()) {
-            JUMP_TO(unlinkedTable.offsetForValue(intValue));
-            LLINT_END();
-        }
-
-        for (unsigned i = 0; i < unlinkedTable.m_branchOffsets.size(); i += 2) {
-            if (unlinkedTable.m_branchOffsets[i] == intValue) {
-                JUMP_TO(unlinkedTable.m_branchOffsets[i + 1]);
-                LLINT_END();
-            }
-        }
-    }
-    JUMP_TO(unlinkedTable.defaultOffset());
+    if (value == intValue)
+        JUMP_TO(unlinkedTable.offsetForValue(intValue));
+    else
+        JUMP_TO(unlinkedTable.defaultOffset());
     LLINT_END();
 }
 
@@ -1890,19 +1881,7 @@ LLINT_SLOW_PATH_DECL(slow_path_switch_char)
     ASSERT(string->length() == 1);
     auto& unlinkedTable = codeBlock->unlinkedSwitchJumpTable(bytecode.m_tableIndex);
     auto str = string->value(globalObject);
-    int32_t intValue = str.data[0];
-    if (!unlinkedTable.isList()) {
-        JUMP_TO(unlinkedTable.offsetForValue(intValue));
-        LLINT_END();
-    }
-
-    for (unsigned i = 0; i < unlinkedTable.m_branchOffsets.size(); i += 2) {
-        if (unlinkedTable.m_branchOffsets[i] == intValue) {
-            JUMP_TO(unlinkedTable.m_branchOffsets[i + 1]);
-            LLINT_END();
-        }
-    }
-    JUMP_TO(unlinkedTable.defaultOffset());
+    JUMP_TO(unlinkedTable.offsetForValue(str.data[0]));
     LLINT_END();
 }
 
