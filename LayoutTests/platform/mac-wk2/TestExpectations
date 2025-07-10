@@ -835,7 +835,7 @@ imported/w3c/web-platform-tests/storage-access-api/storage-access-beyond-cookies
 #http/tests/storageAccess/request-and-grant-access-then-navigate-cross-site-should-not-have-access.html [ Pass Timeout ]
 http/tests/storageAccess/deny-with-prompt-does-not-preserve-gesture.html [ Skip ]
 
-# Enable on appropriate platforms: rdar://140222322
+# rdar://140222322 (Supposed to pass on 2025 OSes (Sequoia-aligned) xx.4+, but failing on debug)
 http/tests/storageAccess/grant-with-prompt-under-general-third-party-cookie-blocking-with-partitioned-cookies.https.html [ Skip ]
 http/tests/resourceLoadStatistics/only-partitioned-third-party-cookies.https.html [ Skip ]
 http/tests/resourceLoadStatistics/only-partitioned-cookies-after-redirect.https.html [ Skip ]
@@ -2178,10 +2178,6 @@ webkit.org/b/293761 http/tests/navigation/keyboard-events-during-provisional-nav
 
 webkit.org/b/293804 [ Debug ] pdf/annotations/checkbox-set-active.html [ Pass Timeout ]
 
-# webkit.org/b/293827 [macOS] 2x tests in webgl are constant failures (flaky in EWS)
-[ Sequoia ] webgl/1.0.x/conformance/textures/misc/gl-teximage.html [ Failure ]
-[ Sequoia ] webgl/2.0.y/conformance/textures/misc/gl-teximage.html [ Failure ]
-
 # webkit.org/b/294272 REGRESSION(295925@main?) [macOS Debug]: 2x tests in fast/scrolling/Mac/scrollbars are flaky crash
 [ Debug ] fast/scrolling/mac/scrollbars/overflow-overlay-scrollbar-reveal.html [ Pass Crash ]
 [ Debug ] fast/scrolling/mac/scrollbars/overlay-scrollbar-reveal.html [ Pass Crash ]
@@ -2228,3 +2224,16 @@ http/tests/webrtc/audioSessionInFrames.html [ Pass Failure ]
 webkit.org/b/295738 [ arm64 ] http/tests/images/gif-progressive-load.html [ Pass Failure ]
 
 webkit.org/b/295743 [ Debug ] media/video-display-aspect-ratio.html [ Pass Failure ]
+
+# webkit.org/b/293827 (REGRESSION (iOS 18.4 / macOS 15.4): 2x webgl tests are constantly failing.)
+[ Sequoia+ ] webgl/1.0.x/conformance/textures/misc/gl-teximage.html [ Failure ]
+[ Sequoia+ ] webgl/2.0.y/conformance/textures/misc/gl-teximage.html [ Failure ]
+
+# # rdar://155272309 (New Test (294762@main): [ Tahoe wk2 ] 3 digital-credentials are a consistent failure)
+imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-get.https.html [ Failure ]
+imported/w3c/web-platform-tests/digital-credentials/get.tentative.https.html [ Failure ]
+imported/w3c/web-platform-tests/digital-credentials/user-activation.https.html [ Failure ]
+
+# FIXME: Needs bug.
+pdf/pdf-plugin-hang-during-destruction.html [ Pass Failure ]
+http/tests/resourceLoadStatistics/website-data-removal-for-site-navigated-to-with-unfiltered-link-decoration-before-short-deletion.html [ Failure ]

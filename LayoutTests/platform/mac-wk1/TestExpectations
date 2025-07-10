@@ -3027,10 +3027,11 @@ webkit.org/b/281594 imported/w3c/web-platform-tests/html/semantics/document-meta
 [ Sequoia+ ] http/tests/cookies/same-site/fetch-after-navigating-iframe-in-cross-origin-page.html [ Failure ]
 [ Sequoia+ ] http/tests/cookies/same-site/popup-cross-site-post.html [ Failure ]
 
-webkit.org/b/283013 [ Sequoia+ ] imported/w3c/web-platform-tests/css/css-color/predefined-011.html [ ImageOnlyFailure ]
-webkit.org/b/283013 [ Sequoia+ ] imported/w3c/web-platform-tests/css/css-color/predefined-012.html [ ImageOnlyFailure ]
-webkit.org/b/283013 [ Sequoia+ ] imported/w3c/web-platform-tests/css/css-color/rec2020-001.html [ ImageOnlyFailure ]
-webkit.org/b/283013 [ Sequoia+ ] imported/w3c/web-platform-tests/css/css-color/relative-currentcolor-rec2020-01.html [ ImageOnlyFailure ]
+# webkit.org/b/283013 (REGRESSION (Sequoia): [ Sequoia wk1 ] 4 WPT tests in css/css-color/*. html are a consistent image failure)
+[ Sequoia+ ] imported/w3c/web-platform-tests/css/css-color/predefined-011.html [ Skip ]
+[ Sequoia+ ] imported/w3c/web-platform-tests/css/css-color/predefined-012.html [ Skip ]
+[ Sequoia+ ] imported/w3c/web-platform-tests/css/css-color/rec2020-001.html [ Skip ]
+[ Sequoia+ ] imported/w3c/web-platform-tests/css/css-color/relative-currentcolor-rec2020-01.html [ Skip ]
 
 # Skipping as this test was added for a fix only intended for WK2.
 webkit.org/b/284068 [ Sequoia+ ] http/tests/download/anchor-download-redirect-cross-origin.html [ Skip ]
@@ -3146,3 +3147,14 @@ imported/w3c/web-platform-tests/css/css-transforms/individual-transform/individu
 imported/w3c/web-platform-tests/css/css-images/gradient/conic-gradient-001.html [ ImageOnlyFailure ]
 
 webkit.org/b/295119  imported/w3c/web-platform-tests/css/css-fonts/font-size-adjust-text-orientation.html [ Pass ImageOnlyFailure ]
+
+# # FIXME: Needs bug.
+# fast/forms/indeterminate-progress-inline-height.html [ Failure ]
+# fast/forms/range/slider-mouse-events.html [ Failure ]
+# fast/forms/search/search-zoom-computed-style-height.html [ Failure ]
+# fast/forms/text-control-intrinsic-widths.html [ Failure ]
+# fast/repaint/checkbox-overflow-vertical-rl.html [ Failure ]
+# imported/w3c/web-platform-tests/css/css-color/system-color-consistency.html [ Failure ]
+# imported/w3c/web-platform-tests/html/rendering/widgets/field-sizing-input-number.html [ Failure ]
+# platform/mac/fast/text/line-break-locale.html [ Failure ]
+# fast/forms/appearance-default-button.html [ ImageOnlyFailure ]

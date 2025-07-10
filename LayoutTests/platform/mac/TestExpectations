@@ -2461,3 +2461,36 @@ webkit.org/b/295435 compositing/layer-creation/overlap-animation-container.html 
 
 # The padding for native select controls is overridden on macOS Sequoia and earlier.
 imported/w3c/web-platform-tests/css/css-ui/select-author-level-padding-applies.html [ Skip ]
+
+# rdar://155468206 ([Tahoe] 4 WebKit layout tests need support for new attributed string attributes.)
+accessibility/mac/attributed-string/attributed-string-for-range-with-options.html [ Failure ]
+accessibility/mac/attributed-string/attributed-string-for-range.html [ Failure ]
+accessibility/mac/attributed-string/attributed-string-text-styling.html [ Failure ]
+accessibility/mac/dynamic-style.html [ Timeout ]
+
+# rdar://154886047 (REGRESSION(Liquid Glass): Rebaseline? [ OS 26 ] 5X imported/w3c/web-platform-tests/css/css-view-transitions/ (Layout-Tests) are constant ImageOnlyFailures)
+imported/w3c/web-platform-tests/css/css-view-transitions/massive-element-below-and-on-top-of-viewport-partially-onscreen-new.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-view-transitions/massive-element-left-of-viewport-offscreen-new.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-view-transitions/massive-element-on-top-of-viewport-offscreen-new.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-view-transitions/massive-element-right-and-left-of-viewport-partially-onscreen-new.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-view-transitions/new-content-transform-position-fixed.html [ ImageOnlyFailure ]
+
+# rdar://154889639 (REGRESSION(Liquid Glass): [ OS 26 ] fast/forms/datalist/datalist-fallback-content.html is a constant ImageOnlyFailure)
+fast/forms/datalist/datalist-fallback-content.html [ ImageOnlyFailure ]
+
+# rdar://154988383 (New Test (294909@main): [ Tahoe ] accessibility/mac/text-color-explicit-changing.html is a consistent timeout)
+accessibility/mac/text-color-explicit-changing.html [ Timeout ]
+
+# rdar://154990654 (REGRESSION(Liquid Glass): [ Tahoe ] 4X fast/forms/switch/zoom-approximates-transform (layout-tests) are constant ImageOnlyFailures)
+fast/forms/switch/zoom-approximates-transform-rtl.html [ ImageOnlyFailure ]
+fast/forms/switch/zoom-approximates-transform-vertical-lr.html [ ImageOnlyFailure ] 
+fast/forms/switch/zoom-approximates-transform-vertical-rl.html [ ImageOnlyFailure ] 
+fast/forms/switch/zoom-approximates-transform.html [ ImageOnlyFailure ] 
+
+# rdar://154997421 (REGRESSION(Liquid Glass): [ Tahoe ] 5X fast/forms/range (layout-tests) are constant failures
+fast/forms/range/input-appearance-range-rtl.html [ ImageOnlyFailure ]
+fast/forms/range/slider-in-multi-column.html [ Failure ]
+
+# Tests which pass only with form control refresh enabled
+fast/forms/form-control-refresh [ Pass ]
+imported/w3c/web-platform-tests/css/css-ui/button-author-level-padding-applies.html [ Pass ]
