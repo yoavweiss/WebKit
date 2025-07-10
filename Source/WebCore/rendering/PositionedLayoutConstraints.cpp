@@ -325,23 +325,30 @@ void PositionedLayoutConstraints::resolvePosition(RenderBox::LogicalExtentComput
 LayoutUnit PositionedLayoutConstraints::resolveAlignmentShift(LayoutUnit unusedSpace, LayoutUnit itemSize) const
 {
     bool startIsBefore = this->startIsBefore();
-    if (unusedSpace < 0_lu && OverflowAlignment::Safe == m_alignment.overflow())
+    bool isOverflowing = unusedSpace < 0_lu;
+    if (isOverflowing && OverflowAlignment::Safe == m_alignment.overflow())
         return startIsBefore ? 0_lu : unusedSpace;
 
     ItemPosition resolvedAlignment = resolveAlignmentValue();
-    if (ItemPosition::Auto == resolvedAlignment)
-        resolvedAlignment = ItemPosition::Normal;
+    ASSERT(ItemPosition::Auto != resolvedAlignment);
 
     LayoutUnit shift;
     if (ItemPosition::AnchorCenter == resolvedAlignment) {
         auto anchorCenterPosition = m_anchorArea.min() + (m_anchorArea.size() - itemSize) / 2;
         shift = anchorCenterPosition - m_insetModifiedContainingRange.min();
+        if (!isOverflowing && OverflowAlignment::Default == m_alignment.overflow()) {
+            // Avoid introducing overflow of the IMCB.
+            if (shift < 0)
+                shift = 0;
+            else if (shift > unusedSpace)
+                shift = unusedSpace;
+        }
     } else {
         auto alignmentSpace = StyleSelfAlignmentData::adjustmentFromStartEdge(unusedSpace, resolvedAlignment, m_containingAxis, m_containingWritingMode, m_writingMode);
         shift = startIsBefore ? alignmentSpace : unusedSpace - alignmentSpace;
     }
 
-    if (unusedSpace < 0 && ItemPosition::Normal != resolvedAlignment
+    if (isOverflowing && ItemPosition::Normal != resolvedAlignment
         && OverflowAlignment::Default == m_alignment.overflow()) {
         // Allow overflow, but try to stay within the containing block.
         // See https://www.w3.org/TR/css-align-3/#auto-safety-position
