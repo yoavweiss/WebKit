@@ -24,7 +24,6 @@ UIProcess/DisplayLink.cpp
 UIProcess/Inspector/mac/RemoteWebInspectorUIProxyMac.mm
 UIProcess/mac/WKTextAnimationManagerMac.mm
 UIProcess/mac/WebViewImpl.mm
-WebPageMessages.h
 WebProcess/Automation/WebAutomationSessionProxy.cpp
 WebProcess/FullScreen/WebFullScreenManager.cpp
 WebProcess/GPU/graphics/RemoteRenderingBackendProxy.cpp
