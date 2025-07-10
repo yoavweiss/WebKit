@@ -90,7 +90,7 @@ static ALWAYS_INLINE void extendSetWithClosure(const NFANodeClosures& nfaNodeClo
     ASSERT(set.contains(nodeId));
     const UniqueNodeList& nodeClosure = nfaNodeClosures[nodeId];
     if (!nodeClosure.isEmpty())
-        set.add(nodeClosure.begin(), nodeClosure.end());
+        set.addAll(nodeClosure);
 }
 
 struct UniqueNodeIdSetImpl {
@@ -275,7 +275,7 @@ struct DataConverterWithEpsilonClosure {
         for (unsigned nodeId : iterable) {
             result.add(nodeId);
             const UniqueNodeList& nodeClosure = nfaNodeclosures[nodeId];
-            result.add(nodeClosure.begin(), nodeClosure.end());
+            result.addAll(nodeClosure);
         }
         return result;
     }
@@ -287,7 +287,7 @@ struct DataConverterWithEpsilonClosure {
             auto addResult = destination.add(nodeId);
             if (addResult.isNewEntry) {
                 const UniqueNodeList& nodeClosure = nfaNodeclosures[nodeId];
-                destination.add(nodeClosure.begin(), nodeClosure.end());
+                destination.addAll(nodeClosure);
             }
         }
     }

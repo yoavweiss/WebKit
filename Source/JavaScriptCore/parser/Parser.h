@@ -730,11 +730,8 @@ public:
         }
         // Propagate closed variable candidates downwards within the same function.
         // Cross function captures will be realized via m_usedVariables propagation.
-        if (shouldTrackClosedVariables && !nestedScope->m_isFunctionBoundary && nestedScope->m_closedVariableCandidates.size()) {
-            auto end = nestedScope->m_closedVariableCandidates.end();
-            auto begin = nestedScope->m_closedVariableCandidates.begin();
-            m_closedVariableCandidates.add(begin, end);
-        }
+        if (shouldTrackClosedVariables && !nestedScope->m_isFunctionBoundary && nestedScope->m_closedVariableCandidates.size())
+            m_closedVariableCandidates.addAll(nestedScope->m_closedVariableCandidates);
     }
     
     void mergeInnerArrowFunctionFeatures(InnerArrowFunctionCodeFeatures arrowFunctionCodeFeatures)

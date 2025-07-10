@@ -305,7 +305,7 @@ static constexpr std::array supportedTypesOESTextureHalfFloat {
 };
 
 #define ADD_VALUES_TO_SET(set, array) \
-    set.add(std::begin(array), std::end(array))
+    set.addAll(array)
 
 // Counter for determining which context has the earliest active ordinal number.
 static std::atomic<uint64_t> s_lastActiveOrdinal;

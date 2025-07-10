@@ -1428,12 +1428,12 @@ void NetworkStorageManager::registerTemporaryBlobFilePaths(IPC::Connection& conn
     ASSERT(RunLoop::isMain());
     ASSERT(!m_closed);
 
-    workQueue().dispatch([this, protectedThis = Ref { *this }, connectionID = connection.uniqueID(), filePaths = crossThreadCopy(filePaths)] {
+    workQueue().dispatch([this, protectedThis = Ref { *this }, connectionID = connection.uniqueID(), filePaths = crossThreadCopy(filePaths)]() mutable {
         assertIsCurrent(workQueue());
         auto& temporaryBlobPaths = m_temporaryBlobPathsByConnection.ensure(connectionID, [] {
             return HashSet<String> { };
         }).iterator->value;
-        temporaryBlobPaths.add(filePaths.begin(), filePaths.end());
+        temporaryBlobPaths.addAll(WTFMove(filePaths));
     });
 }
 

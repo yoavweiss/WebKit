@@ -371,7 +371,7 @@ void AXIsolatedTree::queueRemovalsLocked(Vector<AXID>&& subtreeRemovals)
     ASSERT(m_changeLogLock.isLocked());
 
     m_pendingSubtreeRemovals.appendVector(WTFMove(subtreeRemovals));
-    m_pendingProtectedFromDeletionIDs.formUnion(std::exchange(m_protectedFromDeletionIDs, { }));
+    m_pendingProtectedFromDeletionIDs.addAll(std::exchange(m_protectedFromDeletionIDs, { }));
 }
 
 void AXIsolatedTree::queueRemovalsAndUnresolvedChanges()
@@ -1482,7 +1482,7 @@ void AXIsolatedTree::queueNodeUpdate(AXID objectID, const NodeUpdateOptions& opt
 
         auto addResult = m_needsPropertyUpdates.add(objectID, options.properties);
         if (!addResult.isNewEntry)
-            addResult.iterator->value.formUnion(options.properties);
+            addResult.iterator->value.addAll(options.properties);
     }
 
     if (options.shouldUpdateChildren)

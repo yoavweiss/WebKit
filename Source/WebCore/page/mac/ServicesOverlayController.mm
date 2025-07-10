@@ -399,7 +399,7 @@ void ServicesOverlayController::buildPhoneNumberHighlights()
         newPotentialHighlights.add(WTFMove(highlight));
     }
 
-    replaceHighlightsOfTypePreservingEquivalentHighlights(newPotentialHighlights, DataDetectorHighlight::Type::TelephoneNumber);
+    replaceHighlightsOfTypePreservingEquivalentHighlights(WTFMove(newPotentialHighlights), DataDetectorHighlight::Type::TelephoneNumber);
 }
 
 void ServicesOverlayController::buildSelectionHighlight()
@@ -439,10 +439,10 @@ void ServicesOverlayController::buildSelectionHighlight()
         }
     }
 
-    replaceHighlightsOfTypePreservingEquivalentHighlights(newPotentialHighlights, DataDetectorHighlight::Type::Selection);
+    replaceHighlightsOfTypePreservingEquivalentHighlights(WTFMove(newPotentialHighlights), DataDetectorHighlight::Type::Selection);
 }
 
-void ServicesOverlayController::replaceHighlightsOfTypePreservingEquivalentHighlights(HashSet<RefPtr<DataDetectorHighlight>>& newPotentialHighlights, DataDetectorHighlight::Type type)
+void ServicesOverlayController::replaceHighlightsOfTypePreservingEquivalentHighlights(HashSet<RefPtr<DataDetectorHighlight>>&& newPotentialHighlights, DataDetectorHighlight::Type type)
 {
     // If any old Highlights are equivalent (by Range) to a new Highlight, reuse the old
     // one so that any metadata is retained.
@@ -466,8 +466,8 @@ void ServicesOverlayController::replaceHighlightsOfTypePreservingEquivalentHighl
 
     removeAllPotentialHighlightsOfType(type);
 
-    m_potentialHighlights.add(newPotentialHighlights.begin(), newPotentialHighlights.end());
-    m_potentialHighlights.add(reusedPotentialHighlights.begin(), reusedPotentialHighlights.end());
+    m_potentialHighlights.addAll(WTFMove(newPotentialHighlights));
+    m_potentialHighlights.addAll(WTFMove(reusedPotentialHighlights));
 }
 
 bool ServicesOverlayController::hasRelevantSelectionServices()

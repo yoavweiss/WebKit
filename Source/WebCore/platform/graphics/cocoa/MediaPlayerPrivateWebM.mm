@@ -168,10 +168,8 @@ MediaPlayerPrivateWebM::~MediaPlayerPrivateWebM()
 static HashSet<String>& mimeTypeCache()
 {
     static NeverDestroyed cache = HashSet<String>();
-    if (cache->isEmpty()) {
-        auto types = SourceBufferParserWebM::supportedMIMETypes();
-        cache->add(types.begin(), types.end());
-    }
+    if (cache->isEmpty())
+        cache->addAll(SourceBufferParserWebM::supportedMIMETypes());
     return cache;
 }
 

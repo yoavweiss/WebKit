@@ -906,7 +906,7 @@ Vector<ElementIdentifier> ElementTargetingController::topologicallySortElements(
     HashSet<ElementIdentifier> unprocessedIDs;
 
     const auto elementIDs = elementIDToOccludedElementIDs.keys();
-    unprocessedIDs.add(elementIDs.begin(), elementIDs.end());
+    unprocessedIDs.addAll(elementIDs);
 
     while (!unprocessedIDs.isEmpty() || !processingIDs.isEmpty()) {
         if (unprocessedIDs.isEmpty()) {

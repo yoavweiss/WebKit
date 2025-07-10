@@ -252,7 +252,7 @@ static void generateSuffixWithReverseSuffixTree(NFA& nfa, Vector<ActiveSubtree>&
     auto rootAddResult = reverseSuffixTreeRoots.add(hashableActionList, ReverseSuffixTreeVertex());
     if (rootAddResult.isNewEntry) {
         ImmutableCharNFANodeBuilder newNode(nfa);
-        newNode.setActions(actionList.begin(), actionList.end());
+        newNode.setActions(actionList);
         rootAddResult.iterator->value.nodeId = newNode.nodeId();
     }
 

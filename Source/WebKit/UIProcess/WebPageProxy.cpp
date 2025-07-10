@@ -16443,7 +16443,7 @@ void WebPageProxy::adjustVisibilityForTargetedElements(const Vector<Ref<API::Tar
             info->selectors().map([](auto& selectors) {
                 HashSet<String> result;
                 result.reserveInitialCapacity(selectors.size());
-                result.add(selectors.begin(), selectors.end());
+                result.addAll(selectors);
                 return result;
             })
         };

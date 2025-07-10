@@ -384,7 +384,7 @@ inline ImmutableCharNFANodeBuilder Term::generateGraph(NFA& nfa, ImmutableCharNF
 {
     ImmutableCharNFANodeBuilder newEnd(nfa);
     generateGraph(nfa, source, newEnd.nodeId());
-    newEnd.setActions(finalActions.begin(), finalActions.end());
+    newEnd.setActions(finalActions);
     return newEnd;
 }
 

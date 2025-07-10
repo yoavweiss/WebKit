@@ -152,7 +152,7 @@ void setAdditionalSupportedImageTypes(const Vector<String>& imageTypes)
     for (const auto& imageType : imageTypes) {
         additionalSupportedImageTypes().add(imageType);
         auto mimeTypes = RequiredMIMETypesFromUTI(imageType);
-        MIMETypeRegistry::additionalSupportedImageMIMETypes().add(mimeTypes.begin(), mimeTypes.end());
+        MIMETypeRegistry::additionalSupportedImageMIMETypes().addAll(WTFMove(mimeTypes));
     }
 }
 
