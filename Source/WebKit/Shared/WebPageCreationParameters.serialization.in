@@ -272,7 +272,6 @@ enum class WebCore::UserInterfaceLayoutDirection : bool;
     String presentingApplicationBundleIdentifier;
 #endif
 
-    bool hasReceivedAXRequestInUIProcess;
     bool shouldSendConsoleLogsToUIProcessForTesting;
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)

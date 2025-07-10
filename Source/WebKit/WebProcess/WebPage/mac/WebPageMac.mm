@@ -1067,24 +1067,6 @@ void WebPage::removePDFHUD(PDFPluginBase& plugin)
 
 #endif // ENABLE(PDF_PLUGIN)
 
-#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
-void WebPage::initializeAccessibility(Vector<SandboxExtension::Handle>&& handles)
-{
-    RELEASE_LOG(Process, "WebPage::initializeAccessibility, pid = %d", getpid());
-    auto extensions = WTF::compactMap(WTFMove(handles), [](SandboxExtension::Handle&& handle) -> RefPtr<SandboxExtension> {
-        auto extension = SandboxExtension::create(WTFMove(handle));
-        if (extension)
-            extension->consume();
-        return extension;
-    });
-
-    [NSApplication _accessibilityInitialize];
-
-    for (auto& extension : extensions)
-        extension->revoke();
-}
-#endif
-
 } // namespace WebKit
 
 #endif // PLATFORM(MAC)

@@ -1660,6 +1660,31 @@ void WebProcess::registerFontMap(HashMap<String, URL>&& fontMap, HashMap<String,
     userInstalledFontFamilyMap() = WTFMove(fontFamilyMap);
 }
 
+#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
+void WebProcess::initializeAccessibility(Vector<SandboxExtension::Handle>&& handles)
+{
+#if ASSERT_ENABLED
+    static bool hasInitializedAccessibility = false;
+    ASSERT_UNUSED(hasInitializedAccessibility, !hasInitializedAccessibility);
+    hasInitializedAccessibility = true;
+#endif
+
+    RELEASE_LOG(Process, "WebProcess::initializeAccessibility, pid = %d", getpid());
+    auto extensions = WTF::compactMap(WTFMove(handles), [](SandboxExtension::Handle&& handle) -> RefPtr<SandboxExtension> {
+        auto extension = SandboxExtension::create(WTFMove(handle));
+        if (extension)
+            extension->consume();
+        return extension;
+    });
+
+    [NSApplication _accessibilityInitialize];
+
+    for (auto& extension : extensions)
+        extension->revoke();
+}
+#endif
+
+
 } // namespace WebKit
 
 #undef RELEASE_LOG_SESSION_ID

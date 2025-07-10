@@ -823,10 +823,6 @@ public:
     void enableAccessibilityForAllProcesses();
     void enableAccessibility();
 
-#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
-    void initializeAccessibility(Vector<SandboxExtension::Handle>&&);
-#endif
-
     void screenPropertiesDidChange();
 
     // FIXME(site-isolation): Calls to these should be removed in favour of setting via WebPageProxy.

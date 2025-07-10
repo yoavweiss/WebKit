@@ -538,6 +538,10 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         return std::make_pair(item.key, item.value);
     });
 #endif
+
+#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
+    parameters.shouldInitializeAccessibility = m_hasReceivedAXRequestInUIProcess;
+#endif
 }
 
 void WebProcessPool::platformInitializeNetworkProcess(NetworkProcessCreationParameters& parameters)

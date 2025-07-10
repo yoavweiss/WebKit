@@ -350,7 +350,6 @@ struct WebPageCreationParameters {
 #if PLATFORM(COCOA)
     String presentingApplicationBundleIdentifier;
 #endif
-    bool hasReceivedAXRequestInUIProcess { false };
     bool shouldSendConsoleLogsToUIProcessForTesting { false };
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)

@@ -276,6 +276,10 @@ struct WebProcessCreationParameters {
 #if ENABLE(NOTIFY_BLOCKING)
     Vector<std::pair<String, uint64_t>> notifyState;
 #endif
+
+#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
+    bool shouldInitializeAccessibility { false };
+#endif
 };
 
 } // namespace WebKit

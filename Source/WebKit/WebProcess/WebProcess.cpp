@@ -697,6 +697,10 @@ void WebProcess::initializeWebProcess(WebProcessCreationParameters&& parameters,
     WebCore::NavigatorGamepad::setGamepadsRecentlyAccessedThreshold(WebPageProxy::gamepadsRecentlyAccessedThreshold / 3);
 #endif
 
+#if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
+    m_shouldInitializeAccessibility = parameters.shouldInitializeAccessibility;
+#endif
+
     WEBPROCESS_RELEASE_LOG(Process, "initializeWebProcess: Presenting processPID=%d", legacyPresentingApplicationPID());
 }
 
