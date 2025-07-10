@@ -8051,3 +8051,5 @@ imported/w3c/web-platform-tests/html/semantics/popovers/light-dismiss-event-orde
 webkit.org/b/295653 css3/filters/backdrop-filter-page-scale.html [ Pass Failure ]
 
 webkit.org/b/295665 fast/dom/Range/scale-page-client-rects.html [ Pass Failure ]
+
+webkit.org/b/295674 [ Debug ] svg/as-image/image-respects-pageScaleFactor.html [ Pass Failure ]
