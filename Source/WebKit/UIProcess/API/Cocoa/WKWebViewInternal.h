@@ -467,6 +467,7 @@ struct PerWebProcessState {
     WebCore::RectEdges<RetainPtr<WKColorExtensionView>> _fixedColorExtensionViews;
     OptionSet<WebKit::HideScrollPocketReason> _reasonsToHideTopScrollPocket;
     BOOL _needsTopScrollPocketDueToVisibleContentInset;
+    BOOL _shouldUpdateNeedsTopScrollPocketDueToVisibleContentInset;
 #endif
 }
 

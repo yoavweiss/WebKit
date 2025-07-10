@@ -1128,6 +1128,10 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
         [self _updateScrollViewForTransaction:layerTreeTransaction];
 
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+        [self _updateNeedsTopScrollPocketDueToVisibleContentInset];
+#endif
+
         _perProcessState.viewportMetaTagWidth = layerTreeTransaction.viewportMetaTagWidth();
         _perProcessState.viewportMetaTagWidthWasExplicit = layerTreeTransaction.viewportMetaTagWidthWasExplicit();
         _perProcessState.viewportMetaTagCameFromImageDocument = layerTreeTransaction.viewportMetaTagCameFromImageDocument();
@@ -2405,6 +2409,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)_updateNeedsTopScrollPocketDueToVisibleContentInset
 {
+    if (!std::exchange(_shouldUpdateNeedsTopScrollPocketDueToVisibleContentInset, NO))
+        return;
+
     BOOL value = [&] -> BOOL {
         if ([_scrollView adjustedContentInset].top <= self._computedObscuredInset.top + CGFLOAT_EPSILON)
             return NO;
@@ -2443,7 +2450,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 - (void)scrollViewDidChangeAdjustedContentInset:(UIScrollView *)scrollView
 {
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-    [self _updateNeedsTopScrollPocketDueToVisibleContentInset];
+    _shouldUpdateNeedsTopScrollPocketDueToVisibleContentInset = YES;
 #endif
 }
 
@@ -2454,7 +2461,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
         [self _updateFixedColorExtensionViewFrames];
         [self _reinsertTopFixedColorExtensionViewIfNeeded];
-        [self _updateNeedsTopScrollPocketDueToVisibleContentInset];
+        _shouldUpdateNeedsTopScrollPocketDueToVisibleContentInset = YES;
 #endif
     }
 
