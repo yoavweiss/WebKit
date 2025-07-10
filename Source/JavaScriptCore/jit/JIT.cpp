@@ -1012,7 +1012,7 @@ CompilationResult JIT::finalizeOnMainThread(CodeBlock* codeBlock, BaselineJITPla
     RELEASE_ASSERT(!isCompilationThread());
 
     if (!jitCode)
-        return CompilationFailed;
+        return CompilationResult::CompilationFailed;
 
     plan.runMainThreadFinalizationTasks();
 
@@ -1022,7 +1022,7 @@ CompilationResult JIT::finalizeOnMainThread(CodeBlock* codeBlock, BaselineJITPla
 
     codeBlock->setupWithUnlinkedBaselineCode(jitCode.releaseNonNull());
 
-    return CompilationSuccessful;
+    return CompilationResult::CompilationSuccessful;
 }
 
 CompilationResult JIT::compileSync(VM&, CodeBlock* codeBlock, JITCompilationEffort effort)

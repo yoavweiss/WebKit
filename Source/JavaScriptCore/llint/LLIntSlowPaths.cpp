@@ -299,25 +299,25 @@ static void traceFunctionPrologue(CallFrame* callFrame, const char* comment, Cod
 
 LLINT_SLOW_PATH_DECL(trace_prologue_function_for_call)
 {
-    traceFunctionPrologue(callFrame, "call prologue", CodeForCall);
+    traceFunctionPrologue(callFrame, "call prologue", CodeSpecializationKind::CodeForCall);
     LLINT_END_IMPL();
 }
 
 LLINT_SLOW_PATH_DECL(trace_prologue_function_for_construct)
 {
-    traceFunctionPrologue(callFrame, "construct prologue", CodeForConstruct);
+    traceFunctionPrologue(callFrame, "construct prologue", CodeSpecializationKind::CodeForConstruct);
     LLINT_END_IMPL();
 }
 
 LLINT_SLOW_PATH_DECL(trace_arityCheck_for_call)
 {
-    traceFunctionPrologue(callFrame, "call arity check", CodeForCall);
+    traceFunctionPrologue(callFrame, "call arity check", CodeSpecializationKind::CodeForCall);
     LLINT_END_IMPL();
 }
 
 LLINT_SLOW_PATH_DECL(trace_arityCheck_for_construct)
 {
-    traceFunctionPrologue(callFrame, "construct arity check", CodeForConstruct);
+    traceFunctionPrologue(callFrame, "construct arity check", CodeSpecializationKind::CodeForConstruct);
     LLINT_END_IMPL();
 }
 
@@ -2034,7 +2034,7 @@ static UGPRPair handleHostCall(CallFrame* calleeFrame, JSValue callee, CodeSpeci
     calleeFrame->setCodeBlock(nullptr);
     calleeFrame->clearReturnPC();
 
-    if (kind == CodeForCall) {
+    if (kind == CodeSpecializationKind::CodeForCall) {
         auto callData = JSC::getCallData(callee);
         ASSERT(callData.type != CallData::Type::JS);
 
@@ -2053,7 +2053,7 @@ static UGPRPair handleHostCall(CallFrame* calleeFrame, JSValue callee, CodeSpeci
         LLINT_CALL_THROW(globalObject, createNotAFunctionError(globalObject, callee));
     }
 
-    ASSERT(kind == CodeForConstruct);
+    ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
 
     auto constructData = JSC::getConstructData(callee);
     ASSERT(constructData.type != CallData::Type::JS);
@@ -2240,27 +2240,27 @@ static inline UGPRPair varargsSetup(CallFrame* callFrame, const JSInstruction* p
 
 LLINT_SLOW_PATH_DECL(slow_path_call_varargs)
 {
-    return varargsSetup<OpCallVarargs, SetArgumentsWith::Object>(callFrame, pc, CodeForCall);
+    return varargsSetup<OpCallVarargs, SetArgumentsWith::Object>(callFrame, pc, CodeSpecializationKind::CodeForCall);
 }
 
 LLINT_SLOW_PATH_DECL(slow_path_tail_call_varargs)
 {
-    return varargsSetup<OpTailCallVarargs, SetArgumentsWith::Object>(callFrame, pc, CodeForCall);
+    return varargsSetup<OpTailCallVarargs, SetArgumentsWith::Object>(callFrame, pc, CodeSpecializationKind::CodeForCall);
 }
 
 LLINT_SLOW_PATH_DECL(slow_path_tail_call_forward_arguments)
 {
-    return varargsSetup<OpTailCallForwardArguments, SetArgumentsWith::CurrentArguments>(callFrame, pc, CodeForCall);
+    return varargsSetup<OpTailCallForwardArguments, SetArgumentsWith::CurrentArguments>(callFrame, pc, CodeSpecializationKind::CodeForCall);
 }
 
 LLINT_SLOW_PATH_DECL(slow_path_construct_varargs)
 {
-    return varargsSetup<OpConstructVarargs, SetArgumentsWith::Object>(callFrame, pc, CodeForConstruct);
+    return varargsSetup<OpConstructVarargs, SetArgumentsWith::Object>(callFrame, pc, CodeSpecializationKind::CodeForConstruct);
 }
 
 LLINT_SLOW_PATH_DECL(slow_path_super_construct_varargs)
 {
-    return varargsSetup<OpSuperConstructVarargs, SetArgumentsWith::Object>(callFrame, pc, CodeForConstruct);
+    return varargsSetup<OpSuperConstructVarargs, SetArgumentsWith::Object>(callFrame, pc, CodeSpecializationKind::CodeForConstruct);
 }
 
 static inline UGPRPair commonCallDirectEval(CallFrame* callFrame, const JSInstruction* pc, MacroAssemblerCodeRef<JSEntryPtrTag> returnPoint)
@@ -2283,7 +2283,7 @@ static inline UGPRPair commonCallDirectEval(CallFrame* callFrame, const JSInstru
     JSValue result = eval(calleeFrame, thisValue, callerScopeChain, codeBlock, BytecodeIndex(codeBlock->bytecodeOffset(pc)), bytecode.m_lexicallyScopedFeatures);
     LLINT_CALL_CHECK_EXCEPTION(globalObject);
     if (!result)
-        RELEASE_AND_RETURN(throwScope, setUpCall(calleeFrame, CodeForCall, calleeAsValue));
+        RELEASE_AND_RETURN(throwScope, setUpCall(calleeFrame, CodeSpecializationKind::CodeForCall, calleeAsValue));
 
     vm.encodedHostCallReturnValue = JSValue::encode(result);
     AssertNoGC assertNoGC;

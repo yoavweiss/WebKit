@@ -570,7 +570,7 @@ private:
                 phantomLocalDirect(reg);
         }
         
-        if (!argument && m_codeBlock->specializationKind() == CodeForConstruct)
+        if (!argument && m_codeBlock->specializationKind() == CodeSpecializationKind::CodeForConstruct)
             variableAccessData->mergeShouldNeverUnbox(true);
         
         variableAccessData->mergeStructureCheckHoistingFailed(
@@ -2242,7 +2242,7 @@ bool ByteCodeParser::handleVarargsInlining(Node* callTargetNode, Operand result,
 unsigned ByteCodeParser::getInliningBalance(const CallLinkStatus& callLinkStatus, CodeSpecializationKind specializationKind)
 {
     unsigned inliningBalance = m_graph.m_plan.isFTL() ? Options::maximumFunctionForCallInlineCandidateBytecodeCostForFTL() : Options::maximumFunctionForCallInlineCandidateBytecodeCostForDFG();
-    if (specializationKind == CodeForConstruct)
+    if (specializationKind == CodeSpecializationKind::CodeForConstruct)
         inliningBalance = std::min(inliningBalance, m_graph.m_plan.isFTL() ? Options::maximumFunctionForConstructInlineCandidateBytecodeCostForFTL() : Options::maximumFunctionForConstructInlineCandidateBytecodeCostForDFG());
     if (callLinkStatus.isClosureCall())
         inliningBalance = std::min(inliningBalance, m_graph.m_plan.isFTL() ? Options::maximumFunctionForClosureCallInlineCandidateBytecodeCostForFTL() : Options::maximumFunctionForClosureCallInlineCandidateBytecodeCostForDFG());
@@ -4979,7 +4979,7 @@ bool ByteCodeParser::handleTypedArrayConstructor(
     if (function->classInfo() != constructorClassInfoForType(type))
         return false;
     
-    if (kind == CodeForCall)
+    if (kind == CodeSpecializationKind::CodeForCall)
         return false;
 
     if (function->globalObject() != m_inlineStackTop->m_codeBlock->globalObject())
@@ -5051,7 +5051,7 @@ bool ByteCodeParser::handleConstantFunction(
         return false;
 
     if (function->classInfo() == ArrayConstructor::info()) {
-        if (kind == CodeForConstruct) {
+        if (kind == CodeSpecializationKind::CodeForConstruct) {
             Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
             // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
             // don't know what the prototype of the constructed object will be.
@@ -5076,7 +5076,7 @@ bool ByteCodeParser::handleConstantFunction(
     }
 
     if (function->classInfo() == NumberConstructor::info()) {
-        if (kind == CodeForConstruct)
+        if (kind == CodeSpecializationKind::CodeForConstruct)
             return false;
 
         insertChecks();
@@ -5089,7 +5089,7 @@ bool ByteCodeParser::handleConstantFunction(
     }
 
     if (function->classInfo() == BooleanConstructor::info()) {
-        if (kind == CodeForConstruct)
+        if (kind == CodeSpecializationKind::CodeForConstruct)
             return false;
 
         insertChecks();
@@ -5105,7 +5105,7 @@ bool ByteCodeParser::handleConstantFunction(
     }
     
     if (function->classInfo() == StringConstructor::info()) {
-        if (kind == CodeForConstruct) {
+        if (kind == CodeSpecializationKind::CodeForConstruct) {
             Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
             // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
             // don't know what the prototype of the constructed object will be.
@@ -5123,7 +5123,7 @@ bool ByteCodeParser::handleConstantFunction(
             argumentNode = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
         
         Node* resultNode;
-        if (kind == CodeForConstruct)
+        if (kind == CodeSpecializationKind::CodeForConstruct)
             resultNode = addToGraph(NewStringObject, OpInfo(m_graph.registerStructure(function->globalObject()->stringObjectStructure())), addToGraph(ToString, argumentNode));
         else
             resultNode = addToGraph(CallStringConstructor, argumentNode);
@@ -5153,7 +5153,7 @@ bool ByteCodeParser::handleConstantFunction(
         }
     }
 
-    if (function->classInfo() == MapConstructor::info() && kind == CodeForConstruct) {
+    if (function->classInfo() == MapConstructor::info() && kind == CodeSpecializationKind::CodeForConstruct) {
         Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
         // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
         // don't know what the prototype of the constructed object will be.
@@ -5170,7 +5170,7 @@ bool ByteCodeParser::handleConstantFunction(
         }
     }
 
-    if (function->classInfo() == SetConstructor::info() && kind == CodeForConstruct) {
+    if (function->classInfo() == SetConstructor::info() && kind == CodeSpecializationKind::CodeForConstruct) {
         Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
         // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
         // don't know what the prototype of the constructed object will be.
@@ -5187,7 +5187,7 @@ bool ByteCodeParser::handleConstantFunction(
         }
     }
 
-    if ((function->classInfo() == JSArrayBufferConstructor::info() || function->classInfo() == JSSharedArrayBufferConstructor::info()) && kind == CodeForConstruct) {
+    if ((function->classInfo() == JSArrayBufferConstructor::info() || function->classInfo() == JSSharedArrayBufferConstructor::info()) && kind == CodeSpecializationKind::CodeForConstruct) {
         Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
         // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
         // don't know what the prototype of the constructed object will be.
@@ -5204,7 +5204,7 @@ bool ByteCodeParser::handleConstantFunction(
         }
     }
 
-    if (function->classInfo() == SymbolConstructor::info() && kind == CodeForCall) {
+    if (function->classInfo() == SymbolConstructor::info() && kind == CodeSpecializationKind::CodeForCall) {
         Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
         // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
         // don't know what the prototype of the constructed object will be.
@@ -5226,7 +5226,7 @@ bool ByteCodeParser::handleConstantFunction(
     }
 
     if (function->classInfo() == ObjectConstructor::info()) {
-        if (kind == CodeForConstruct) {
+        if (kind == CodeSpecializationKind::CodeForConstruct) {
             Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
             // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
             // don't know what the prototype of the constructed object will be.
@@ -5246,7 +5246,7 @@ bool ByteCodeParser::handleConstantFunction(
         return true;
     }
 
-    if (kind == CodeForConstruct) {
+    if (kind == CodeSpecializationKind::CodeForConstruct) {
         Node* newTargetNode = get(virtualRegisterForArgumentIncludingThis(0, registerOffset));
         // We cannot handle the case where new.target != callee (i.e. a construct from a super call) because we
         // don't know what the prototype of the constructed object will be.

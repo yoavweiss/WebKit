@@ -73,7 +73,7 @@ public:
             return nullptr;
 
         // Prep the entrypoint for the slow path.
-        executable()->entrypointFor(CodeForCall, ArityCheckMode::MustCheckArity);
+        executable()->entrypointFor(CodeSpecializationKind::CodeForCall, ArityCheckMode::MustCheckArity);
         if (!m_jsToWasmICJITCode)
             m_jsToWasmICJITCode = signature().jsToWasmICEntrypoint();
         return m_jsToWasmICJITCode;

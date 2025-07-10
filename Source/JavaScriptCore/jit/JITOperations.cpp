@@ -209,10 +209,10 @@ static inline UGPRPair materializeTargetCode(VM& vm, JSFunction* targetFunction)
         if (!executable->isHostFunction()) {
             JSScope* scope = targetFunction->scopeUnchecked();
             FunctionExecutable* functionExecutable = static_cast<FunctionExecutable*>(executable);
-            functionExecutable->prepareForExecution<FunctionExecutable>(vm, targetFunction, scope, CodeForCall, codeBlockSlot);
+            functionExecutable->prepareForExecution<FunctionExecutable>(vm, targetFunction, scope, CodeSpecializationKind::CodeForCall, codeBlockSlot);
             RETURN_IF_EXCEPTION(throwScope, encodeResult(nullptr, nullptr));
         }
-        return encodeResult(executable->entrypointFor(CodeForCall, ArityCheckMode::MustCheckArity).taggedPtr(), codeBlockSlot);
+        return encodeResult(executable->entrypointFor(CodeSpecializationKind::CodeForCall, ArityCheckMode::MustCheckArity).taggedPtr(), codeBlockSlot);
     }
 }
 
@@ -3075,7 +3075,7 @@ JSC_DEFINE_JIT_OPERATION(operationOptimize, UGPRPair, (VM* vmPointer, uint32_t b
         // We cannot be in the process of asynchronous compilation and also have an optimized
         // replacement.
         RELEASE_ASSERT(!codeBlock->hasOptimizedReplacement());
-        codeBlock->setOptimizationThresholdBasedOnCompilationResult(CompilationDeferred);
+        codeBlock->setOptimizationThresholdBasedOnCompilationResult(CompilationResult::CompilationDeferred);
         OPERATION_RETURN(scope, encodeResult(nullptr, nullptr));
     }
 
@@ -3144,7 +3144,7 @@ JSC_DEFINE_JIT_OPERATION(operationOptimize, UGPRPair, (VM* vmPointer, uint32_t b
             vm, replacementCodeBlock, nullptr, Options::forceUnlinkedDFG() ? JITCompilationMode::UnlinkedDFG : JITCompilationMode::DFG, bytecodeIndex,
             WTFMove(mustHandleValues), JITToDFGDeferredCompilationCallback::create());
         
-        if (result != CompilationSuccessful) {
+        if (result != CompilationResult::CompilationSuccessful) {
             CODEBLOCK_LOG_EVENT(codeBlock, "delayOptimizeToDFG", ("compilation failed"));
             OPERATION_RETURN(scope, encodeResult(nullptr, nullptr));
         }

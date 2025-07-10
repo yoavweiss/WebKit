@@ -83,7 +83,7 @@ inline void* handleHostCall(VM& vm, JSCell* owner, CallFrame* calleeFrame, JSVal
 
     calleeFrame->setCodeBlock(nullptr);
 
-    if (callLinkInfo->specializationKind() == CodeForCall) {
+    if (callLinkInfo->specializationKind() == CodeSpecializationKind::CodeForCall) {
         auto callData = JSC::getCallData(callee);
         ASSERT(callData.type != CallData::Type::JS);
 
@@ -103,7 +103,7 @@ inline void* handleHostCall(VM& vm, JSCell* owner, CallFrame* calleeFrame, JSVal
         RELEASE_AND_RETURN(scope, throwNotAFunctionErrorFromCallIC(globalObject, owner, callee, callLinkInfo));
     }
 
-    ASSERT(callLinkInfo->specializationKind() == CodeForConstruct);
+    ASSERT(callLinkInfo->specializationKind() == CodeSpecializationKind::CodeForConstruct);
 
     auto constructData = JSC::getConstructData(callee);
     ASSERT(constructData.type != CallData::Type::JS);
@@ -147,7 +147,7 @@ ALWAYS_INLINE void* linkFor(VM& vm, JSCell* owner, CallFrame* calleeFrame, CallL
             }
             case CallLinkInfo::Mode::Monomorphic:
             case CallLinkInfo::Mode::Polymorphic: {
-                if (kind == CodeForCall) {
+                if (kind == CodeSpecializationKind::CodeForCall) {
                     linkPolymorphicCall(vm, owner, calleeFrame, *callLinkInfo, CallVariant(internalFunction));
                     break;
                 }
@@ -210,7 +210,7 @@ ALWAYS_INLINE void* linkFor(VM& vm, JSCell* owner, CallFrame* calleeFrame, CallL
     }
     case CallLinkInfo::Mode::Monomorphic:
     case CallLinkInfo::Mode::Polymorphic: {
-        if (kind == CodeForCall) {
+        if (kind == CodeSpecializationKind::CodeForCall) {
             linkPolymorphicCall(vm, owner, calleeFrame, *callLinkInfo, CallVariant(callee));
             break;
         }

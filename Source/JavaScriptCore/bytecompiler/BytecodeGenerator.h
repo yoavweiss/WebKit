@@ -391,7 +391,7 @@ namespace JSC {
 
             if (Options::reportBytecodeCompileTimes()) [[unlikely]] {
                 MonotonicTime after = MonotonicTime::now();
-                dataLogLn(result.isValid() ? "Failed to compile #" : "Compiled #", CodeBlockHash(sourceCode, unlinkedCodeBlock->isConstructor() ? CodeForConstruct : CodeForCall), " into bytecode ", size, " instructions in ", (after - before).milliseconds(), " ms.");
+                dataLogLn(result.isValid() ? "Failed to compile #" : "Compiled #", CodeBlockHash(sourceCode, unlinkedCodeBlock->isConstructor() ? CodeSpecializationKind::CodeForConstruct : CodeSpecializationKind::CodeForCall), " into bytecode ", size, " instructions in ", (after - before).milliseconds(), " ms.");
             }
             return result;
         }

@@ -710,12 +710,12 @@ struct ReplacedThunk {
             JSC::JITCode::CodeRef<JSC::JSEntryPtrTag> oldJITCodeRef;
             CodePtr<JSC::JSEntryPtrTag> oldArityJITCodeRef;
             switch (kind) {
-            case JSC::CodeForCall:
+            case JSC::CodeSpecializationKind::CodeForCall:
                 oldJITCodeRef = WTFMove(callThunk);
                 oldArityJITCodeRef = WTFMove(callArityThunk);
                 break;
 
-            case JSC::CodeForConstruct:
+            case JSC::CodeSpecializationKind::CodeForConstruct:
                 oldJITCodeRef = WTFMove(constructThunk);
                 oldArityJITCodeRef = WTFMove(constructArityThunk);
                 break;
@@ -725,8 +725,8 @@ struct ReplacedThunk {
             nativeExecutable->swapGeneratedJITCodeWithArityCheckForDebugger(kind, oldArityJITCodeRef);
         };
 
-        restoreThunks(JSC::CodeForCall);
-        restoreThunks(JSC::CodeForConstruct);
+        restoreThunks(JSC::CodeSpecializationKind::CodeForCall);
+        restoreThunks(JSC::CodeSpecializationKind::CodeForConstruct);
     }
 
     JSC::Weak<JSC::NativeExecutable> nativeExecutable;
@@ -1503,11 +1503,11 @@ void InspectorDebuggerAgent::didCreateNativeExecutable(JSC::NativeExecutable& na
 
         CodePtr<JSC::JITThunkPtrTag> thunk;
         switch (kind) {
-        case JSC::CodeForCall:
+        case JSC::CodeSpecializationKind::CodeForCall:
             thunk = vm.jitStubs->ctiNativeCallWithDebuggerHook(vm);
             break;
 
-        case JSC::CodeForConstruct:
+        case JSC::CodeSpecializationKind::CodeForConstruct:
             thunk = vm.jitStubs->ctiNativeConstructWithDebuggerHook(vm);
             break;
         }
@@ -1518,7 +1518,7 @@ void InspectorDebuggerAgent::didCreateNativeExecutable(JSC::NativeExecutable& na
         auto oldArityJITCodeRef = nativeExecutable.swapGeneratedJITCodeWithArityCheckForDebugger(kind, jitCode->addressForCall(JSC::ArityCheckMode::MustCheckArity));
 
         switch (kind) {
-        case JSC::CodeForCall:
+        case JSC::CodeSpecializationKind::CodeForCall:
             ASSERT(!replacedThunk->callThunk);
             replacedThunk->callThunk = WTFMove(oldJITCodeRef);
 
@@ -1528,7 +1528,7 @@ void InspectorDebuggerAgent::didCreateNativeExecutable(JSC::NativeExecutable& na
             RELEASE_ASSERT(replacedThunk->callThunk.code() == createJITCodeRef(vm.jitStubs->ctiNativeCall(vm)).code());
             break;
 
-        case JSC::CodeForConstruct:
+        case JSC::CodeSpecializationKind::CodeForConstruct:
             ASSERT(!replacedThunk->constructThunk);
             replacedThunk->constructThunk = WTFMove(oldJITCodeRef);
 
@@ -1542,8 +1542,8 @@ void InspectorDebuggerAgent::didCreateNativeExecutable(JSC::NativeExecutable& na
         return true;
     };
 
-    bool didReplaceCallThunks = replaceThunks(JSC::CodeForCall);
-    bool didReplaceConstructThunks = replaceThunks(JSC::CodeForConstruct);
+    bool didReplaceCallThunks = replaceThunks(JSC::CodeSpecializationKind::CodeForCall);
+    bool didReplaceConstructThunks = replaceThunks(JSC::CodeSpecializationKind::CodeForConstruct);
     if (!didReplaceCallThunks && !didReplaceConstructThunks)
         return;
 

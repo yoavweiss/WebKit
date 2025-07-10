@@ -95,17 +95,17 @@ public:
         
     bool isGeneratedFor(CodeSpecializationKind kind)
     {
-        if (kind == CodeForCall)
+        if (kind == CodeSpecializationKind::CodeForCall)
             return isGeneratedForCall();
-        ASSERT(kind == CodeForConstruct);
+        ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
         return isGeneratedForConstruct();
     }
         
     FunctionCodeBlock* codeBlockFor(CodeSpecializationKind kind)
     {
-        if (kind == CodeForCall)
+        if (kind == CodeSpecializationKind::CodeForCall)
             return codeBlockForCall();
-        ASSERT(kind == CodeForConstruct);
+        ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
         return codeBlockForConstruct();
     }
 
@@ -282,9 +282,9 @@ public:
     static constexpr ptrdiff_t offsetOfCodeBlockFor(CodeSpecializationKind kind)
     {
         switch (kind) {
-        case CodeForCall:
+        case CodeSpecializationKind::CodeForCall:
             return OBJECT_OFFSETOF(FunctionExecutable, m_codeBlockForCall);
-        case CodeForConstruct:
+        case CodeSpecializationKind::CodeForConstruct:
             return OBJECT_OFFSETOF(FunctionExecutable, m_codeBlockForConstruct);
         }
         RELEASE_ASSERT_NOT_REACHED();

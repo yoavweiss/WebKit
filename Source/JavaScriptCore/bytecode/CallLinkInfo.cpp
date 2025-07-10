@@ -577,7 +577,7 @@ void DirectCallLinkInfo::repatchSpeculatively()
     if (m_executable->isHostFunction()) {
         CodeSpecializationKind kind = specializationKind();
         CodePtr<JSEntryPtrTag> codePtr;
-        if (kind == CodeForCall)
+        if (kind == CodeSpecializationKind::CodeForCall)
             codePtr = m_executable->generatedJITCodeWithArityCheckForCall();
         else
             codePtr = m_executable->generatedJITCodeWithArityCheckForConstruct();

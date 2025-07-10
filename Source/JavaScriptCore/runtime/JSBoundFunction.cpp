@@ -62,7 +62,7 @@ JSC_DEFINE_HOST_FUNCTION(boundThisNoArgsFunctionCall, (JSGlobalObject* globalObj
     ExecutableBase* executable = targetFunction->executable();
     if (executable->hasJITCodeForCall()) {
         // Force the executable to cache its arity entrypoint.
-        executable->entrypointFor(CodeForCall, ArityCheckMode::MustCheckArity);
+        executable->entrypointFor(CodeSpecializationKind::CodeForCall, ArityCheckMode::MustCheckArity);
     }
     auto callData = JSC::getCallData(targetFunction);
     ASSERT(callData.type != CallData::Type::None);

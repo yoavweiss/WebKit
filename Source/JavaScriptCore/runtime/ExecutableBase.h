@@ -48,9 +48,9 @@ enum CompilationKind { FirstCompilation, OptimizingCompilation };
 
 inline bool isCall(CodeSpecializationKind kind)
 {
-    if (kind == CodeForCall)
+    if (kind == CodeSpecializationKind::CodeForCall)
         return true;
-    ASSERT(kind == CodeForConstruct);
+    ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
     return false;
 }
 
@@ -120,9 +120,9 @@ public:
         
     Ref<JSC::JITCode> generatedJITCodeFor(CodeSpecializationKind kind) const
     {
-        if (kind == CodeForCall)
+        if (kind == CodeSpecializationKind::CodeForCall)
             return generatedJITCodeForCall();
-        ASSERT(kind == CodeForConstruct);
+        ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
         return generatedJITCodeForConstruct();
     }
 
@@ -138,9 +138,9 @@ public:
 
     CodePtr<JSEntryPtrTag> generatedJITCodeWithArityCheckFor(CodeSpecializationKind kind) const
     {
-        if (kind == CodeForCall)
+        if (kind == CodeSpecializationKind::CodeForCall)
             return generatedJITCodeWithArityCheckForCall();
-        ASSERT(kind == CodeForConstruct);
+        ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
         return generatedJITCodeWithArityCheckForConstruct();
     }
 
@@ -151,11 +151,11 @@ public:
         // machine code.
         if (arity == ArityCheckMode::MustCheckArity) {
             switch (kind) {
-            case CodeForCall:
+            case CodeSpecializationKind::CodeForCall:
                 if (CodePtr<JSEntryPtrTag> result = m_jitCodeForCallWithArityCheck)
                     return result;
                 break;
-            case CodeForConstruct:
+            case CodeSpecializationKind::CodeForConstruct:
                 if (CodePtr<JSEntryPtrTag> result = m_jitCodeForConstructWithArityCheck)
                     return result;
                 break;
@@ -165,10 +165,10 @@ public:
         if (arity == ArityCheckMode::MustCheckArity) {
             // Cache the result; this is necessary for the JIT's virtual call optimizations.
             switch (kind) {
-            case CodeForCall:
+            case CodeSpecializationKind::CodeForCall:
                 m_jitCodeForCallWithArityCheck = result;
                 break;
-            case CodeForConstruct:
+            case CodeSpecializationKind::CodeForConstruct:
                 m_jitCodeForConstructWithArityCheck = result;
                 break;
             }
@@ -180,9 +180,9 @@ public:
         CodeSpecializationKind kind)
     {
         switch (kind) {
-        case CodeForCall:
+        case CodeSpecializationKind::CodeForCall:
             return OBJECT_OFFSETOF(ExecutableBase, m_jitCodeForCallWithArityCheck);
-        case CodeForConstruct:
+        case CodeSpecializationKind::CodeForConstruct:
             return OBJECT_OFFSETOF(ExecutableBase, m_jitCodeForConstructWithArityCheck);
         }
         RELEASE_ASSERT_NOT_REACHED();
@@ -194,9 +194,9 @@ public:
 
     bool hasJITCodeFor(CodeSpecializationKind kind) const
     {
-        if (kind == CodeForCall)
+        if (kind == CodeSpecializationKind::CodeForCall)
             return hasJITCodeForCall();
-        ASSERT(kind == CodeForConstruct);
+        ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
         return hasJITCodeForConstruct();
     }
 
@@ -210,9 +210,9 @@ public:
 
     CodePtr<JSEntryPtrTag> swapGeneratedJITCodeWithArityCheckForDebugger(CodeSpecializationKind kind, CodePtr<JSEntryPtrTag> jitCodeWithArityCheck)
     {
-        if (kind == CodeForCall)
+        if (kind == CodeSpecializationKind::CodeForCall)
             return swapGeneratedJITCodeForCallWithArityCheckForDebugger(jitCodeWithArityCheck);
-        ASSERT(kind == CodeForConstruct);
+        ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
         return swapGeneratedJITCodeForConstructWithArityCheckForDebugger(jitCodeWithArityCheck);
     }
 

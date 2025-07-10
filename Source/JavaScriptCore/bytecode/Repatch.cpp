@@ -100,7 +100,7 @@ void linkMonomorphicCall(VM& vm, JSCell* owner, CallLinkInfo& callLinkInfo, Code
     if (calleeCodeBlock)
         calleeCodeBlock->linkIncomingCall(owner, &callLinkInfo);
 
-    if (callLinkInfo.specializationKind() == CodeForCall)
+    if (callLinkInfo.specializationKind() == CodeSpecializationKind::CodeForCall)
         return;
     linkSlowFor(vm, callLinkInfo);
 }
@@ -110,7 +110,7 @@ CodePtr<JSEntryPtrTag> jsToWasmICCodePtr(CodeSpecializationKind kind, JSObject* 
 #if ENABLE(WEBASSEMBLY)
     if (!callee)
         return nullptr;
-    if (kind != CodeForCall)
+    if (kind != CodeSpecializationKind::CodeForCall)
         return nullptr;
     if (auto* wasmFunction = jsDynamicCast<WebAssemblyFunction*>(callee))
         return wasmFunction->jsCallICEntrypoint();
@@ -232,7 +232,7 @@ void linkPolymorphicCall(VM& vm, JSCell* owner, CallFrame* callFrame, CallLinkIn
             }
         } else {
             ASSERT(variant.internalFunction());
-            codePtr = vm.getCTIInternalFunctionTrampolineFor(CodeForCall);
+            codePtr = vm.getCTIInternalFunctionTrampolineFor(CodeSpecializationKind::CodeForCall);
         }
 
         slot.m_index = callSlots.size();

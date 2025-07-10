@@ -89,15 +89,15 @@ const DOMJIT::Signature* NativeExecutable::signatureFor(CodeSpecializationKind k
 
 Intrinsic NativeExecutable::intrinsic() const
 {
-    return generatedJITCodeFor(CodeForCall)->intrinsic();
+    return generatedJITCodeFor(CodeSpecializationKind::CodeForCall)->intrinsic();
 }
 
 CodeBlockHash NativeExecutable::hashFor(CodeSpecializationKind kind) const
 {
-    if (kind == CodeForCall)
+    if (kind == CodeSpecializationKind::CodeForCall)
         return CodeBlockHash(std::bit_cast<uintptr_t>(m_function));
 
-    RELEASE_ASSERT(kind == CodeForConstruct);
+    RELEASE_ASSERT(kind == CodeSpecializationKind::CodeForConstruct);
     return CodeBlockHash(std::bit_cast<uintptr_t>(m_constructor));
 }
 

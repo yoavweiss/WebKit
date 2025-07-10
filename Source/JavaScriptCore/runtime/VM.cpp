@@ -824,12 +824,12 @@ CodePtr<JSEntryPtrTag> VM::getCTIInternalFunctionTrampolineFor(CodeSpecializatio
 {
 #if ENABLE(JIT)
     if (Options::useJIT()) {
-        if (kind == CodeForCall)
+        if (kind == CodeSpecializationKind::CodeForCall)
             return jitStubs->ctiInternalFunctionCall(*this).retagged<JSEntryPtrTag>();
         return jitStubs->ctiInternalFunctionConstruct(*this).retagged<JSEntryPtrTag>();
     }
 #endif
-    if (kind == CodeForCall)
+    if (kind == CodeSpecializationKind::CodeForCall)
         return LLInt::getCodePtr<JSEntryPtrTag>(llint_internal_function_call_trampoline);
     return LLInt::getCodePtr<JSEntryPtrTag>(llint_internal_function_construct_trampoline);
 }

@@ -5353,7 +5353,7 @@ static void triggerFTLReplacementCompile(VM& vm, CodeBlock* codeBlock, JITCode* 
     if (worklistState == JITWorklist::Compiling) {
         CODEBLOCK_LOG_EVENT(codeBlock, "delayFTLCompile", ("still compiling"));
         jitCode->setOptimizationThresholdBasedOnCompilationResult(
-            codeBlock, CompilationDeferred);
+            codeBlock, CompilationResult::CompilationDeferred);
         return;
     }
     
@@ -5381,7 +5381,7 @@ static void triggerFTLReplacementCompile(VM& vm, CodeBlock* codeBlock, JITCode* 
 
     // If we reached here, the counter has not be reset. Do that now.
     jitCode->setOptimizationThresholdBasedOnCompilationResult(
-        codeBlock, CompilationDeferred);
+        codeBlock, CompilationResult::CompilationDeferred);
 }
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationTriggerTierUpNow, void, (VM* vmPointer))
@@ -5462,7 +5462,7 @@ static char* tierUpCommon(VM& vm, CallFrame* callFrame, BytecodeIndex originByte
 
     if (worklistState == JITWorklist::Compiling) {
         CODEBLOCK_LOG_EVENT(codeBlock, "delayFTLCompile", ("still compiling"));
-        jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationDeferred);
+        jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationResult::CompilationDeferred);
         return nullptr;
     }
 
@@ -5482,7 +5482,7 @@ static char* tierUpCommon(VM& vm, CallFrame* callFrame, BytecodeIndex originByte
             Options::ftlOSREntryFailureCountForReoptimization()) {
             CODEBLOCK_LOG_EVENT(codeBlock, "delayFTLCompile", ("OSR entry failed"));
             jitCode->setOptimizationThresholdBasedOnCompilationResult(
-                codeBlock, CompilationDeferred);
+                codeBlock, CompilationResult::CompilationDeferred);
             return nullptr;
         }
 
@@ -5544,7 +5544,7 @@ static char* tierUpCommon(VM& vm, CallFrame* callFrame, BytecodeIndex originByte
             CODEBLOCK_LOG_EVENT(codeBlock, "delayFTLCompile", ("OSR entry failed, OSR entry threshold not met"));
             jitCode->osrEntryRetry++;
             jitCode->setOptimizationThresholdBasedOnCompilationResult(
-                codeBlock, CompilationDeferred);
+                codeBlock, CompilationResult::CompilationDeferred);
             return nullptr;
         }
 
@@ -5594,13 +5594,13 @@ static char* tierUpCommon(VM& vm, CallFrame* callFrame, BytecodeIndex originByte
         };
 
         if (tryTriggerOuterLoopToCompile()) {
-            jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationDeferred);
+            jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationResult::CompilationDeferred);
             return nullptr;
         }
     }
 
     if (!canOSREnterHere) {
-        jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationDeferred);
+        jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationResult::CompilationDeferred);
         return nullptr;
     }
 
@@ -5609,7 +5609,7 @@ static char* tierUpCommon(VM& vm, CallFrame* callFrame, BytecodeIndex originByte
 
     auto triggerIterator = jitCode->tierUpEntryTriggers.find(originBytecodeIndex);
     if (triggerIterator == jitCode->tierUpEntryTriggers.end()) {
-        jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationDeferred);
+        jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationResult::CompilationDeferred);
         return nullptr;
     }
 
@@ -5628,10 +5628,10 @@ static char* tierUpCommon(VM& vm, CallFrame* callFrame, BytecodeIndex originByte
     if (codeBlock->dfgJITData()->neverExecutedEntry())
         triggerFTLReplacementCompile(vm, codeBlock, jitCode);
 
-    if (forEntryResult != CompilationSuccessful) {
+    if (forEntryResult != CompilationResult::CompilationSuccessful) {
         CODEBLOCK_LOG_EVENT(codeBlock, "delayFTLCompile", ("OSR ecompilation not successful"));
         jitCode->setOptimizationThresholdBasedOnCompilationResult(
-            codeBlock, CompilationDeferred);
+            codeBlock, CompilationResult::CompilationDeferred);
         return nullptr;
     }
     
@@ -5677,7 +5677,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationTriggerTierUpNowInLoop, void, (VM* vm
     // Since we cannot OSR Enter here, the default "optimizeSoon()" is not useful.
     if (codeBlock->hasOptimizedReplacement()) {
         CODEBLOCK_LOG_EVENT(codeBlock, "delayFTLCompile", ("OSR in loop failed, deferring"));
-        jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationDeferred);
+        jitCode->setOptimizationThresholdBasedOnCompilationResult(codeBlock, CompilationResult::CompilationDeferred);
     }
 }
 
