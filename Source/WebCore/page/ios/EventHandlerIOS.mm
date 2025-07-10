@@ -98,9 +98,9 @@ public:
     ~CurrentEventScope();
 
 private:
-    RetainPtr<WebEvent> m_savedCurrentEvent;
+    const RetainPtr<WebEvent> m_savedCurrentEvent;
 #if ASSERT_ENABLED
-    RetainPtr<WebEvent> m_event;
+    const RetainPtr<WebEvent> m_event;
 #endif
 };
 
