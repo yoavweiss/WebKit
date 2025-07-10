@@ -890,7 +890,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     RetainPtr<WKTextListTouchBarViewController> _textListTouchBarViewController;
 
 @private
-    WebKit::WebViewImpl* _webViewImpl;
+    WeakPtr<WebKit::WebViewImpl> _webViewImpl;
 }
 
 @property (nonatomic) BOOL textIsBold;
@@ -1124,7 +1124,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 - (NSViewController *)textListViewController
 {
     if (!_textListTouchBarViewController)
-        _textListTouchBarViewController = adoptNS([[WKTextListTouchBarViewController alloc] initWithWebViewImpl:_webViewImpl]);
+        _textListTouchBarViewController = adoptNS([[WKTextListTouchBarViewController alloc] initWithWebViewImpl:_webViewImpl.get()]);
     return _textListTouchBarViewController.get();
 }
 
