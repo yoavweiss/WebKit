@@ -16438,10 +16438,7 @@ void WebPageProxy::adjustVisibilityForTargetedElements(const Vector<Ref<API::Tar
         return {
             { info->elementIdentifier(), info->documentIdentifier() },
             info->selectors().map([](auto& selectors) {
-                HashSet<String> result;
-                result.reserveInitialCapacity(selectors.size());
-                result.addAll(selectors);
-                return result;
+                return HashSet<String>(selectors);
             })
         };
     })), WTFMove(completion));

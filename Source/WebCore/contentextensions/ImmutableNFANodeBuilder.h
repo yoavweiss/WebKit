@@ -140,12 +140,12 @@ public:
     }
 
     template<typename ActionContainer>
-    void setActions(const ActionContainer& actions)
+    void setActions(ActionContainer&& actions)
     {
         ASSERT(!m_finalized);
         ASSERT(m_immutableNFA);
 
-        m_actions.addAll(actions);
+        m_actions.addAll(WTFMove(actions));
     }
 
     ImmutableNFANodeBuilder& operator=(ImmutableNFANodeBuilder&& other)

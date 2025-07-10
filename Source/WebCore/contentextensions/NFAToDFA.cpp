@@ -274,8 +274,7 @@ struct DataConverterWithEpsilonClosure {
         NFANodeIndexSet result;
         for (unsigned nodeId : iterable) {
             result.add(nodeId);
-            const UniqueNodeList& nodeClosure = nfaNodeclosures[nodeId];
-            result.addAll(nodeClosure);
+            result.addAll(nfaNodeclosures[nodeId]);
         }
         return result;
     }
@@ -285,10 +284,8 @@ struct DataConverterWithEpsilonClosure {
     {
         for (unsigned nodeId : iterable) {
             auto addResult = destination.add(nodeId);
-            if (addResult.isNewEntry) {
-                const UniqueNodeList& nodeClosure = nfaNodeclosures[nodeId];
-                destination.addAll(nodeClosure);
-            }
+            if (addResult.isNewEntry)
+                destination.addAll(nfaNodeclosures[nodeId]);
         }
     }
 };

@@ -57,10 +57,26 @@ public:
     using AddResult = typename HashTableType::AddResult;
 
     HashSet() = default;
+
     HashSet(std::initializer_list<ValueArg> initializerList)
     {
-        for (const auto& value : initializerList)
-            add(value);
+        if (!initializerList.size())
+            return;
+
+        reserveInitialCapacity(initializerList.size());
+        for (auto&& value : initializerList)
+            add(std::forward<decltype(value)>(value));
+    }
+
+    template<typename ContainerType>
+    explicit HashSet(ContainerType&& container)
+    {
+        if (!container.size())
+            return;
+
+        reserveInitialCapacity(container.size());
+        for (auto&& value : std::forward<ContainerType>(container))
+            add(std::forward<decltype(value)>(value));
     }
 
     void swap(HashSet&);
