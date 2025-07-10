@@ -1612,6 +1612,10 @@ AXTextRuns AccessibilityRenderObject::textRuns()
                 lineString.append(' ');
                 ++endIndex;
                 characterWidths.append(0);
+                // We also need to account for this in the DOM offset itself, as otherwise we'll
+                // compute the wrong value when going from rendered-text offset to DOM offset
+                // (e.g. via AXTextRuns::domOffset()).
+                textRunDomOffsets.last()[1] += 1;
             }
             runs.append({ currentLineIndex, startIndex, endIndex, { std::exchange(textRunDomOffsets, { }) }, std::exchange(characterWidths, { }), lineHeight, distanceFromBoundsInDirection });
 
