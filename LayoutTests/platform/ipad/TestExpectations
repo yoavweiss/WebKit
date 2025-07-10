@@ -115,3 +115,22 @@ webkit.org/b/271712 fast/forms/datalist/datalist-textinput-dynamically-add-optio
 fast/forms/datalist/datalist-option-labels.html [ Pass Timeout ]
 
 webkit.org/b/294218 media/video-suppress-hdr-fullscreen.html [ Failure ]
+
+# webkit.org/b/295720 17x fast/page-color-sampling (layout-tests) are constant text failures
+fast/page-color-sampling/color-sampling-fixed-ancestor-with-relative-container.html [ Failure ]
+fast/page-color-sampling/color-sampling-fixed-container-under-subscroller.html [ Failure ]
+fast/page-color-sampling/color-sampling-fixed-descendant-in-relative-container.html [ Failure ]
+fast/page-color-sampling/color-sampling-fixed-popup.html [ Failure ]
+fast/page-color-sampling/color-sampling-ignores-backdrop-filters.html [ Failure ]
+fast/page-color-sampling/color-sampling-ignores-images.html [ Failure ]
+fast/page-color-sampling/color-sampling-ignores-non-fixed-content.html [ Failure ]
+fast/page-color-sampling/color-sampling-ignores-text.html [ Failure ]
+fast/page-color-sampling/color-sampling-ignores-transparent-pointer-events-none-container.html [ Failure ]
+fast/page-color-sampling/color-sampling-in-position-sticky.html [ Failure ]
+fast/page-color-sampling/color-sampling-includes-sides-that-had-insets.html [ Failure ]
+fast/page-color-sampling/color-sampling-includes-subframes.html [ Failure ]
+fast/page-color-sampling/color-sampling-modal-popup.html [ Failure ]
+fast/page-color-sampling/color-sampling-stability-for-same-element.html [ Failure ]
+fast/page-color-sampling/color-sampling-while-rubber-banding.html [ Failure ]
+fast/page-color-sampling/maintain-sampled-color-when-scrolled-to-top.html [ Failure ]
+fast/page-color-sampling/page-color-sampling-skips-border-top.html [ Failure ]
