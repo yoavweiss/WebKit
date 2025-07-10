@@ -40,8 +40,6 @@ loader/DocumentThreadableLoader.h
 loader/WorkerThreadableLoader.h
 page/FrameSnapshotting.cpp
 page/UndoManager.h
-page/csp/ContentSecurityPolicyDirectiveList.h
-page/csp/ContentSecurityPolicySource.h
 platform/OrientationNotifier.h
 platform/ScrollAnimator.h
 platform/Scrollbar.h

@@ -482,10 +482,6 @@ page/SpatialNavigation.cpp
 page/TextIndicator.cpp
 page/VisualViewport.cpp
 page/cocoa/PageCocoa.mm
-page/csp/ContentSecurityPolicyDirectiveList.cpp
-page/csp/ContentSecurityPolicyMediaListDirective.cpp
-page/csp/ContentSecurityPolicySourceList.cpp
-page/csp/ContentSecurityPolicyTrustedTypesDirective.cpp
 page/mac/EventHandlerMac.mm
 page/mac/ServicesOverlayController.mm
 page/scrolling/AsyncScrollingCoordinator.cpp
