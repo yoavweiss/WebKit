@@ -44,6 +44,7 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     AtomString atomStrings[5];
     void* refPtrs[3];
     float secondFloat;
+    Style::TextEmphasisStyle textEmphasisStyle;
     Style::TextIndent textIndent;
     Style::TextUnderlineOffset offset;
     TextEdge textEdges[2];
@@ -91,6 +92,7 @@ StyleRareInheritedData::StyleRareInheritedData()
     , dynamicRangeLimit(RenderStyle::initialDynamicRangeLimit())
     , textShadow(RenderStyle::initialTextShadow())
     , usedZoom(RenderStyle::initialZoom())
+    , textEmphasisStyle(RenderStyle::initialTextEmphasisStyle())
     , textIndent(RenderStyle::initialTextIndent())
     , textUnderlineOffset(RenderStyle::initialTextUnderlineOffset())
     , textBoxEdge(RenderStyle::initialTextBoxEdge())
@@ -110,8 +112,6 @@ StyleRareInheritedData::StyleRareInheritedData()
     , userSelect(static_cast<unsigned>(RenderStyle::initialUserSelect()))
     , hyphens(static_cast<unsigned>(Hyphens::Manual))
     , textCombine(static_cast<unsigned>(RenderStyle::initialTextCombine()))
-    , textEmphasisFill(static_cast<unsigned>(TextEmphasisFill::Filled))
-    , textEmphasisMark(static_cast<unsigned>(TextEmphasisMark::None))
     , textEmphasisPosition(static_cast<unsigned>(RenderStyle::initialTextEmphasisPosition().toRaw()))
     , textUnderlinePosition(static_cast<unsigned>(RenderStyle::initialTextUnderlinePosition().toRaw()))
     , lineBoxContain(static_cast<unsigned>(RenderStyle::initialLineBoxContain().toRaw()))
@@ -191,6 +191,7 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , textShadow(o.textShadow)
     , cursorData(o.cursorData)
     , usedZoom(o.usedZoom)
+    , textEmphasisStyle(o.textEmphasisStyle)
     , textIndent(o.textIndent)
     , textUnderlineOffset(o.textUnderlineOffset)
     , textBoxEdge(o.textBoxEdge)
@@ -211,8 +212,6 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , speakAs(o.speakAs)
     , hyphens(o.hyphens)
     , textCombine(o.textCombine)
-    , textEmphasisFill(o.textEmphasisFill)
-    , textEmphasisMark(o.textEmphasisMark)
     , textEmphasisPosition(o.textEmphasisPosition)
     , textUnderlinePosition(o.textUnderlinePosition)
     , lineBoxContain(o.lineBoxContain)
@@ -265,7 +264,6 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
 #if ENABLE(DARK_MODE_CSS)
     , colorScheme(o.colorScheme)
 #endif
-    , textEmphasisCustomMark(o.textEmphasisCustomMark)
     , quotes(o.quotes)
     , appleColorFilter(o.appleColorFilter)
     , lineGrid(o.lineGrid)
@@ -309,6 +307,7 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && textShadow == o.textShadow
         && arePointingToEqualData(cursorData, o.cursorData)
         && usedZoom == o.usedZoom
+        && textEmphasisStyle == o.textEmphasisStyle
         && textIndent == o.textIndent
         && textUnderlineOffset == o.textUnderlineOffset
         && textBoxEdge == o.textBoxEdge
@@ -341,15 +340,12 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && colorScheme == o.colorScheme
 #endif
         && textCombine == o.textCombine
-        && textEmphasisFill == o.textEmphasisFill
-        && textEmphasisMark == o.textEmphasisMark
         && textEmphasisPosition == o.textEmphasisPosition
         && lineBoxContain == o.lineBoxContain
 #if PLATFORM(IOS_FAMILY)
         && touchCalloutEnabled == o.touchCalloutEnabled
 #endif
         && hyphenationString == o.hyphenationString
-        && textEmphasisCustomMark == o.textEmphasisCustomMark
         && arePointingToEqualData(quotes, o.quotes)
         && appleColorFilter == o.appleColorFilter
         && tabSize == o.tabSize
@@ -430,6 +426,7 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT(usedZoom);
 
+    LOG_IF_DIFFERENT(textEmphasisStyle);
     LOG_IF_DIFFERENT(textIndent);
     LOG_IF_DIFFERENT(textUnderlineOffset);
 
@@ -458,8 +455,6 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT_WITH_CAST(Hyphens, hyphens);
     LOG_IF_DIFFERENT_WITH_CAST(TextCombine, textCombine);
-    LOG_IF_DIFFERENT_WITH_CAST(TextEmphasisFill, textEmphasisFill);
-    LOG_IF_DIFFERENT_WITH_CAST(TextEmphasisMark, textEmphasisMark);
     LOG_IF_DIFFERENT_WITH_CAST(TextEmphasisPosition, textEmphasisPosition);
     LOG_IF_DIFFERENT_WITH_CAST(TextUnderlinePosition, textUnderlinePosition);
 
@@ -532,7 +527,6 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
     LOG_IF_DIFFERENT(colorScheme);
 #endif
 
-    LOG_IF_DIFFERENT(textEmphasisCustomMark);
     LOG_IF_DIFFERENT(quotes);
 
     appleColorFilter->dumpDifferences(ts, other.appleColorFilter);

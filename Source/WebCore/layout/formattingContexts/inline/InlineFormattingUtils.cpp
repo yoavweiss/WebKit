@@ -558,7 +558,7 @@ std::pair<InlineLayoutUnit, InlineLayoutUnit> InlineFormattingUtils::textEmphasi
     ASSERT(layoutBox.isInlineBox() || &layoutBox == &rootBox);
 
     auto& style = layoutBox.style();
-    auto hasTextEmphasis =  style.textEmphasisMark() != TextEmphasisMark::None;
+    auto hasTextEmphasis =  !style.textEmphasisStyle().isNone();
     if (!hasTextEmphasis)
         return { };
     auto emphasisPosition = style.textEmphasisPosition();
@@ -592,7 +592,7 @@ std::pair<InlineLayoutUnit, InlineLayoutUnit> InlineFormattingUtils::textEmphasi
             return { };
         }
     }
-    auto annotationSize = style.fontCascade().floatEmphasisMarkHeight(style.textEmphasisMarkString());
+    auto annotationSize = style.fontCascade().floatEmphasisMarkHeight(style.textEmphasisStyle().markString());
     return { hasAboveTextEmphasis ? annotationSize : 0.f, hasAboveTextEmphasis ? 0.f : annotationSize };
 }
 

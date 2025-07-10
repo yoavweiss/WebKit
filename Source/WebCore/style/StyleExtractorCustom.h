@@ -52,7 +52,6 @@ public:
     static Ref<CSSValue> extractCursor(ExtractorState&);
     static Ref<CSSValue> extractBaselineShift(ExtractorState&);
     static Ref<CSSValue> extractVerticalAlign(ExtractorState&);
-    static Ref<CSSValue> extractTextEmphasisStyle(ExtractorState&);
     static Ref<CSSValue> extractLetterSpacing(ExtractorState&);
     static Ref<CSSValue> extractWordSpacing(ExtractorState&);
     static Ref<CSSValue> extractLineHeight(ExtractorState&);
@@ -156,7 +155,6 @@ public:
     static void extractCursorSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractBaselineShiftSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractVerticalAlignSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractTextEmphasisStyleSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractLetterSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractWordSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractLineHeightSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1437,65 +1435,6 @@ inline void ExtractorCustom::extractVerticalAlignSerialization(ExtractorState& s
         return;
     case VerticalAlign::Length:
         ExtractorSerializer::serializeLength(state, builder, context, state.style.verticalAlignLength());
-        return;
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractTextEmphasisStyle(ExtractorState& state)
-{
-    switch (state.style.textEmphasisMark()) {
-    case TextEmphasisMark::None:
-        return CSSPrimitiveValue::create(CSSValueNone);
-    case TextEmphasisMark::Custom:
-        return CSSPrimitiveValue::create(state.style.textEmphasisCustomMark());
-    case TextEmphasisMark::Auto:
-        ASSERT_NOT_REACHED();
-#if !ASSERT_ENABLED
-        [[fallthrough]];
-#endif
-    case TextEmphasisMark::Dot:
-    case TextEmphasisMark::Circle:
-    case TextEmphasisMark::DoubleCircle:
-    case TextEmphasisMark::Triangle:
-    case TextEmphasisMark::Sesame:
-        if (state.style.textEmphasisFill() == TextEmphasisFill::Filled)
-            return CSSValueList::createSpaceSeparated(ExtractorConverter::convert(state, state.style.textEmphasisMark()));
-        return CSSValueList::createSpaceSeparated(
-            ExtractorConverter::convert(state, state.style.textEmphasisFill()),
-            ExtractorConverter::convert(state, state.style.textEmphasisMark())
-        );
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline void ExtractorCustom::extractTextEmphasisStyleSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    switch (state.style.textEmphasisMark()) {
-    case TextEmphasisMark::None:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    case TextEmphasisMark::Custom:
-        serializeString(state.style.textEmphasisCustomMark(), builder);
-        return;
-    case TextEmphasisMark::Auto:
-        ASSERT_NOT_REACHED();
-#if !ASSERT_ENABLED
-        [[fallthrough]];
-#endif
-    case TextEmphasisMark::Dot:
-    case TextEmphasisMark::Circle:
-    case TextEmphasisMark::DoubleCircle:
-    case TextEmphasisMark::Triangle:
-    case TextEmphasisMark::Sesame:
-        if (state.style.textEmphasisFill() == TextEmphasisFill::Filled) {
-            ExtractorSerializer::serialize(state, builder, context, state.style.textEmphasisMark());
-            return;
-        }
-
-        ExtractorSerializer::serialize(state, builder, context, state.style.textEmphasisFill());
-        builder.append(' ');
-        ExtractorSerializer::serialize(state, builder, context, state.style.textEmphasisMark());
         return;
     }
     RELEASE_ASSERT_NOT_REACHED();

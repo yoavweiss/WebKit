@@ -216,8 +216,6 @@ enum class TextCombine : bool;
 enum class TextDecorationLine : uint8_t;
 enum class TextDecorationSkipInk : uint8_t;
 enum class TextDecorationStyle : uint8_t;
-enum class TextEmphasisFill : bool;
-enum class TextEmphasisMark : uint8_t;
 enum class TextEmphasisPosition : uint8_t;
 enum class TextGroupAlign : uint8_t;
 enum class TextJustify : uint8_t;
@@ -320,6 +318,7 @@ struct ScopedName;
 struct ScrollMarginEdge;
 struct ScrollPaddingEdge;
 struct ScrollTimelines;
+struct TextEmphasisStyle;
 struct TextIndent;
 struct TextShadow;
 struct TextUnderlineOffset;
@@ -993,11 +992,8 @@ public:
 
     inline bool affectsTransform() const;
 
-    inline TextEmphasisFill textEmphasisFill() const;
-    TextEmphasisMark textEmphasisMark() const;
-    inline const AtomString& textEmphasisCustomMark() const;
+    inline const Style::TextEmphasisStyle& textEmphasisStyle() const;
     inline OptionSet<TextEmphasisPosition> textEmphasisPosition() const;
-    const AtomString& textEmphasisMarkString() const;
 
     inline RubyPosition rubyPosition() const;
     inline bool isInterCharacterRubyPosition() const;
@@ -1623,9 +1619,7 @@ public:
     inline void setTextCombine(TextCombine);
     inline void setTextDecorationColor(Style::Color&&);
     inline void setTextEmphasisColor(Style::Color&&);
-    inline void setTextEmphasisFill(TextEmphasisFill);
-    inline void setTextEmphasisMark(TextEmphasisMark);
-    inline void setTextEmphasisCustomMark(const AtomString&);
+    inline void setTextEmphasisStyle(Style::TextEmphasisStyle&&);
     inline void setTextEmphasisPosition(OptionSet<TextEmphasisPosition>);
 
     inline void setObjectFit(ObjectFit);
@@ -2128,9 +2122,7 @@ public:
     static inline Length initialPerspectiveOriginY();
     static inline Style::Color initialBackgroundColor();
     static inline Style::Color initialTextEmphasisColor();
-    static constexpr TextEmphasisFill initialTextEmphasisFill();
-    static constexpr TextEmphasisMark initialTextEmphasisMark();
-    static inline const AtomString& initialTextEmphasisCustomMark();
+    static inline Style::TextEmphasisStyle initialTextEmphasisStyle();
     static constexpr OptionSet<TextEmphasisPosition> initialTextEmphasisPosition();
     static constexpr RubyPosition initialRubyPosition();
     static constexpr RubyAlign initialRubyAlign();

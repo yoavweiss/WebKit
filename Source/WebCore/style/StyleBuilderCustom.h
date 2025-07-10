@@ -110,6 +110,7 @@ inline OffsetPath forwardInheritedValue(const OffsetPath& value) { auto copy = v
 inline OffsetPosition forwardInheritedValue(const OffsetPosition& value) { auto copy = value; return copy; }
 inline OffsetRotate forwardInheritedValue(const OffsetRotate& value) { auto copy = value; return copy; }
 inline SVGPaint forwardInheritedValue(const SVGPaint& value) { auto copy = value; return copy; }
+inline TextEmphasisStyle forwardInheritedValue(const TextEmphasisStyle& value) { auto copy = value; return copy; }
 inline TextIndent forwardInheritedValue(const TextIndent& value) { auto copy = value; return copy; }
 inline TextShadows forwardInheritedValue(const TextShadows& value) { auto copy = value; return copy; }
 inline TextUnderlineOffset forwardInheritedValue(const TextUnderlineOffset& value) { auto copy = value; return copy; }
@@ -170,7 +171,6 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(PaddingTop);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(OutlineStyle);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Stroke);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(TextEmphasisStyle);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Zoom);
 
     // Custom handling of inherit + value setting only.
@@ -850,59 +850,7 @@ inline void BuilderCustom::applyValueBaselineShift(BuilderState& builderState, C
     }
 }
 
-inline void BuilderCustom::applyInitialTextEmphasisStyle(BuilderState& builderState)
-{
-    builderState.style().setTextEmphasisFill(RenderStyle::initialTextEmphasisFill());
-    builderState.style().setTextEmphasisMark(RenderStyle::initialTextEmphasisMark());
-    builderState.style().setTextEmphasisCustomMark(RenderStyle::initialTextEmphasisCustomMark());
-}
-
-inline void BuilderCustom::applyInheritTextEmphasisStyle(BuilderState& builderState)
-{
-    builderState.style().setTextEmphasisFill(forwardInheritedValue(builderState.parentStyle().textEmphasisFill()));
-    builderState.style().setTextEmphasisMark(forwardInheritedValue(builderState.parentStyle().textEmphasisMark()));
-    builderState.style().setTextEmphasisCustomMark(forwardInheritedValue(builderState.parentStyle().textEmphasisCustomMark()));
-}
-
-inline void BuilderCustom::applyValueTextEmphasisStyle(BuilderState& builderState, CSSValue& value)
-{
-    if (auto* list = dynamicDowncast<CSSValueList>(value)) {
-        ASSERT(list->length() == 2);
-
-        for (auto& item : *list) {
-            auto valueID = item.valueID();
-            if (valueID == CSSValueFilled || valueID == CSSValueOpen)
-                builderState.style().setTextEmphasisFill(fromCSSValueID<TextEmphasisFill>(valueID));
-            else
-                builderState.style().setTextEmphasisMark(fromCSSValueID<TextEmphasisMark>(valueID));
-        }
-        builderState.style().setTextEmphasisCustomMark(nullAtom());
-        return;
-    }
-
-    auto primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return;
-
-    if (primitiveValue->isString()) {
-        builderState.style().setTextEmphasisFill(TextEmphasisFill::Filled);
-        builderState.style().setTextEmphasisMark(TextEmphasisMark::Custom);
-        builderState.style().setTextEmphasisCustomMark(AtomString { primitiveValue->stringValue() });
-        return;
-    }
-
-    builderState.style().setTextEmphasisCustomMark(nullAtom());
-
-    if (primitiveValue->valueID() == CSSValueFilled || primitiveValue->valueID() == CSSValueOpen) {
-        builderState.style().setTextEmphasisFill(fromCSSValue<TextEmphasisFill>(value));
-        builderState.style().setTextEmphasisMark(TextEmphasisMark::Auto);
-    } else {
-        builderState.style().setTextEmphasisFill(TextEmphasisFill::Filled);
-        builderState.style().setTextEmphasisMark(fromCSSValue<TextEmphasisMark>(value));
-    }
-}
-
-template <BuilderCustom::CounterBehavior counterBehavior>
+template<BuilderCustom::CounterBehavior counterBehavior>
 inline void BuilderCustom::applyInheritCounter(BuilderState& builderState)
 {
     auto& map = builderState.style().accessCounterDirectives().map;
@@ -917,7 +865,7 @@ inline void BuilderCustom::applyInheritCounter(BuilderState& builderState)
     }
 }
 
-template <BuilderCustom::CounterBehavior counterBehavior>
+template<BuilderCustom::CounterBehavior counterBehavior>
 inline void BuilderCustom::applyValueCounter(BuilderState& builderState, CSSValue& value)
 {
     bool setCounterIncrementToNone = counterBehavior == Increment && value.valueID() == CSSValueNone;

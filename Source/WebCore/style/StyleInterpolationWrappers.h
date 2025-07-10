@@ -723,21 +723,6 @@ private:
     }
 };
 
-class TextEmphasisStyleWrapper final : public DiscreteWrapper<TextEmphasisMark> {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
-public:
-    TextEmphasisStyleWrapper()
-        : DiscreteWrapper(CSSPropertyTextEmphasisStyle, &RenderStyle::textEmphasisMark, &RenderStyle::setTextEmphasisMark)
-    {
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        destination.setTextEmphasisFill((context.progress > 0.5 ? to : from).textEmphasisFill());
-        DiscreteWrapper::interpolate(destination, from, to, context);
-    }
-};
-
 // MARK: - Customized Wrappers
 
 class GridTemplateWrapper final : public Wrapper<const GridTrackList&> {

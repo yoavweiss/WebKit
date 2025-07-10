@@ -34,6 +34,7 @@
 #include "StyleLineBoxContain.h"
 #include "StyleDynamicRangeLimit.h"
 #include "StyleTextEdge.h"
+#include "StyleTextEmphasisStyle.h"
 #include "StyleTextIndent.h"
 #include "StyleTextShadow.h"
 #include "StyleTextUnderlineOffset.h"
@@ -111,6 +112,7 @@ public:
     RefPtr<CursorList> cursorData;
     float usedZoom;
 
+    Style::TextEmphasisStyle textEmphasisStyle;
     Style::TextIndent textIndent;
     Style::TextUnderlineOffset textUnderlineOffset;
 
@@ -138,8 +140,6 @@ public:
     PREFERRED_TYPE(OptionSet<SpeakAs>) unsigned speakAs : 4 { 0 };
     PREFERRED_TYPE(Hyphens) unsigned hyphens : 2;
     PREFERRED_TYPE(TextCombine) unsigned textCombine : 1;
-    PREFERRED_TYPE(TextEmphasisFill) unsigned textEmphasisFill : 1;
-    PREFERRED_TYPE(TextEmphasisMark) unsigned textEmphasisMark : 3;
     PREFERRED_TYPE(TextEmphasisPosition) unsigned textEmphasisPosition : 4;
     PREFERRED_TYPE(TextUnderlinePosition) unsigned textUnderlinePosition : 4;
     PREFERRED_TYPE(OptionSet<Style::LineBoxContain>) unsigned lineBoxContain: 7;
@@ -197,7 +197,6 @@ public:
     Style::ColorScheme colorScheme;
 #endif
 
-    AtomString textEmphasisCustomMark;
     RefPtr<QuotesData> quotes;
     DataRef<StyleFilterData> appleColorFilter;
 

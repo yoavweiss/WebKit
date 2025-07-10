@@ -11054,10 +11054,7 @@
                     "-epub-text-emphasis-style",
                     "-webkit-text-emphasis-style"
                 ],
-                "animation-wrapper": "TextEmphasisStyleWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-converter": "StyleType<TextEmphasisStyle>",
                 "parser-grammar": "none | [ [ filled | open ] || [ dot | circle | double-circle | triangle | sesame ] ] | <string>"
             },
             "specification": {
