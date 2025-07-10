@@ -2224,3 +2224,5 @@ fast/mediastream/getUserMedia-default.html [ Pass Failure ]
 imported/w3c/web-platform-tests/mediacapture-streams/MediaStreamTrack-applyConstraints.https.html [ Pass Failure ]
 fast/mediastream/MediaDevices-getUserMedia.html [ Pass Failure ]
 http/tests/webrtc/audioSessionInFrames.html [ Pass Failure ]
+
+webkit.org/b/295738 [ arm64 ] http/tests/images/gif-progressive-load.html [ Pass Failure ]
