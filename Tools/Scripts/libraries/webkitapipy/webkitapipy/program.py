@@ -29,7 +29,6 @@ import pkgutil
 import shlex
 import sys
 import time
-from fnmatch import fnmatch
 from pathlib import Path
 from typing import Optional
 from types import ModuleType
@@ -38,6 +37,7 @@ import webkitapipy
 from webkitapipy.sdkdb import Diagnostic, MissingName, UnnecessaryAllowedName, UnusedAllowedName
 from webkitapipy.sdkdb import SDKDB, SYMBOL, OBJC_CLS, OBJC_SEL
 from webkitapipy.macho import APIReport
+from webkitapipy.reporter import configure_reporter
 
 # Some symbols, namely ones that are low-level parts of system libraries and
 # runtimes, are implicitly available.
@@ -95,79 +95,6 @@ SDK_ALLOWLIST = {
 # that correspond to frameworks added via `-framework`.
 FRAMEWORK_SDKDB_DIR = 'SDKDB'
 
-
-class TSVReporter:
-    def __init__(self, args: Options):
-        self.n_issues = 0
-        self.print_details = args.details
-        self.print_names = args.details and len(args.input_files) > 1
-        self.emit_errors = args.errors
-        self.suggested_allowlists = [path for path in (args.allowlists or ())
-                                     if 'legacy' not in path.name]
-
-    def emit_diagnostic(self, diag: Diagnostic):
-        if isinstance(diag, MissingName):
-            name_prefix = f'{diag.file}({diag.arch}):'
-            if diag.kind is SYMBOL:
-                ignored = diag.name in ALLOWED_SYMBOLS
-                if not ignored:
-                    ignored = any(fnmatch(diag.name, pattern)
-                                  for pattern in ALLOWED_SYMBOL_GLOBS)
-                if self.print_names and not ignored:
-                    print(name_prefix, end='\t')
-                self.missing_symbol(diag.name, ignored=ignored)
-            elif diag.kind is OBJC_CLS:
-                ignored = f'_OBJC_CLASS_$_{diag.name}' in ALLOWED_SYMBOLS
-                if self.print_names and not ignored:
-                    print(name_prefix, end='\t')
-                self.missing_class(diag.name, ignored=ignored)
-            elif diag.kind is OBJC_SEL:
-                if self.print_names:
-                    print(name_prefix, end='\t')
-                self.missing_selector(diag.name)
-        elif isinstance(diag, (UnusedAllowedName, UnnecessaryAllowedName)):
-            name_prefix = f'{diag.file}:'
-            if self.print_names:
-                print(name_prefix, end='\t')
-            self.unused_allowed_name(diag.name)
-
-    def missing_selector(self, name: str, *, ignored=False):
-        if not ignored:
-            if self.print_details:
-                print('selector:', name, sep='\t')
-            self.n_issues += 1
-
-    def missing_class(self, name: str, *, ignored=False):
-        if not ignored:
-            if self.print_details:
-                print('class:', name, sep='\t')
-            self.n_issues += 1
-
-    def missing_symbol(self, name: str, *, ignored=False):
-        if not ignored:
-            if self.print_details:
-                print('symbol:', name, sep='\t')
-            self.n_issues += 1
-
-    def unused_allowed_name(self, name: str, *, ignored=False):
-        if not ignored:
-            if self.print_details:
-                print('allowlist entry:', name, sep='\t')
-            self.n_issues += 1
-
-    def finished(self):
-        if self.n_issues:
-            print('error: ' if self.emit_errors else 'warning: ', end='')
-        print(f'{self.n_issues} potential use{"s"[:self.n_issues^1]} of SPI.')
-        if self.n_issues:
-            if self.suggested_allowlists:
-                print("If this usage is intentional, please add it to one of "
-                      "this configuration's allowlists:")
-                print('\t', '\n\t'.join(map(str, self.suggested_allowlists)), sep='')
-            if not self.print_details:
-                print('Rerun with --details to see each validation issue.')
-
-
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='''\
     Using API availability information from a directory of SDKDB records,
@@ -207,9 +134,13 @@ def get_parser() -> argparse.ArgumentParser:
                         help='Xcode SDK the binary is built against')
     parser.add_argument('--depfile', type=Path,
                         help='write inputs used for incremental rebuilds')
-    parser.add_argument('--details', action='store_true',
-                        help='print a line for each unknown symbol')
-    parser.add_argument('--errors',
+
+    output = parser.add_argument_group('output formatting')
+    output.add_argument('--format', choices=('tsv', 'build-tool'), default='build-tool',
+                        help='how to style output messages (default: build-tool)')
+    output.add_argument('--details', action='store_true',
+                        help=argparse.SUPPRESS)
+    output.add_argument('--errors',
                         action=argparse.BooleanOptionalAction, default=True,
                         help='whether to report SPI use as an error')
     return parser
@@ -229,6 +160,8 @@ class Options(argparse.Namespace):
     sdkdb_cache: Path
     sdk_dir: Path
     depfile: Optional[Path]
+
+    format: str
     details: bool
     errors: bool
 
@@ -347,7 +280,7 @@ def main(argv: Optional[list[str]] = None):
     if program_additions:
         reporter = program_additions.configure_reporter(args, db)
     else:
-        reporter = TSVReporter(args)
+        reporter = configure_reporter(args, db)
 
     for binary_path in args.input_files:
         add_corresponding_sdkdb(binary_path)
