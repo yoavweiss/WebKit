@@ -2226,3 +2226,5 @@ fast/mediastream/MediaDevices-getUserMedia.html [ Pass Failure ]
 http/tests/webrtc/audioSessionInFrames.html [ Pass Failure ]
 
 webkit.org/b/295738 [ arm64 ] http/tests/images/gif-progressive-load.html [ Pass Failure ]
+
+webkit.org/b/295743 [ Debug ] media/video-display-aspect-ratio.html [ Pass Failure ]
