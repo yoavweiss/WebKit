@@ -533,7 +533,7 @@ public:
     using MediaPlayerEnums::VideoFullscreenMode;
     VideoFullscreenMode fullscreenMode() const { return m_videoFullscreenMode; }
 
-    void enterFullscreen(VideoFullscreenMode);
+    WEBCORE_EXPORT void enterFullscreen(VideoFullscreenMode);
     WEBCORE_EXPORT void setPlayerIdentifierForVideoElement();
     WEBCORE_EXPORT void enterFullscreen() override;
     WEBCORE_EXPORT void exitFullscreen();

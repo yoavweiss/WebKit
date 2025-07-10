@@ -4589,6 +4589,12 @@ ExceptionOr<bool> Internals::mediaElementHasCharacteristic(HTMLMediaElement& ele
     return Exception { ExceptionCode::SyntaxError };
 }
 
+void Internals::enterViewerMode(HTMLVideoElement& element)
+{
+    element.enterFullscreen(HTMLMediaElementEnums::VideoFullscreenModeInWindow);
+}
+
+
 void Internals::beginSimulatedHDCPError(HTMLMediaElement& element)
 {
     if (RefPtr player = element.player())
