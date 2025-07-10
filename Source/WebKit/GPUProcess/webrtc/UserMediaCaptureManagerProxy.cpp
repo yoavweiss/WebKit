@@ -29,13 +29,11 @@
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
 
 #include "Connection.h"
-#include "GPUProcessProxy.h"
 #include "RemoteCaptureSampleManagerMessages.h"
 #include "RemoteVideoFrameObjectHeap.h"
 #include "SharedCARingBuffer.h"
 #include "UserMediaCaptureManagerMessages.h"
 #include "UserMediaCaptureManagerProxyMessages.h"
-#include "WebProcessProxy.h"
 #include <WebCore/AudioSession.h>
 #include <WebCore/AudioUtilities.h>
 #include <WebCore/CARingBuffer.h>
@@ -381,7 +379,8 @@ private:
     }
 
     // May get called on a background thread.
-    void audioSamplesAvailable(const MediaTime& time, const PlatformAudioData& audioData, const AudioStreamDescription& description, size_t numberOfFrames) final {
+    void audioSamplesAvailable(const MediaTime& time, const PlatformAudioData& audioData, const AudioStreamDescription& description, size_t numberOfFrames) final
+    {
         bool descriptionChanged = m_description != description;
         if (descriptionChanged || m_shouldReset) {
             m_shouldReset = false;
@@ -487,7 +486,9 @@ CaptureSourceOrError UserMediaCaptureManagerProxy::createMicrophoneSource(const 
     if (!sourceOrError)
         return sourceOrError;
 
-    auto& perPageSources = m_pageSources.ensure(pageIdentifier, [] { return PageSources { }; }).iterator->value;
+    auto& perPageSources = m_pageSources.ensure(pageIdentifier, [] {
+        return PageSources { };
+    }).iterator->value;
 
     // FIXME: Support multiple microphones simultaneously.
     if (auto microphoneSource = perPageSources.microphoneSource.get()) {
@@ -514,7 +515,9 @@ static bool canCaptureFromMultipleCameras()
 
 CaptureSourceOrError UserMediaCaptureManagerProxy::createCameraSource(const CaptureDevice& device, MediaDeviceHashSalts&& hashSalts, PageIdentifier pageIdentifier)
 {
-    auto& perPageSources = m_pageSources.ensure(pageIdentifier, [] { return PageSources { }; }).iterator->value;
+    auto& perPageSources = m_pageSources.ensure(pageIdentifier, [] {
+        return PageSources { };
+    }).iterator->value;
     for (Ref cameraSource : perPageSources.cameraSources) {
         // FIXME: Optimize multiple concurrent cameras.
         if (cameraSource->persistentID() == device.persistentId() && !cameraSource->isEnded()) {
@@ -720,8 +723,11 @@ void UserMediaCaptureManagerProxy::clone(RealtimeMediaSourceIdentifier clonedID,
     MESSAGE_CHECK(!m_proxies.contains(newSourceID));
     if (RefPtr proxy = m_proxies.get(clonedID)) {
         auto sourceClone = proxy->source().clone();
-        if (sourceClone->deviceType() == WebCore::CaptureDevice::DeviceType::Camera)
-            m_pageSources.ensure(pageIdentifier, [] { return PageSources { }; }).iterator->value.cameraSources.add(sourceClone.get());
+        if (sourceClone->deviceType() == WebCore::CaptureDevice::DeviceType::Camera) {
+            m_pageSources.ensure(pageIdentifier, [] {
+                return PageSources { };
+            }).iterator->value.cameraSources.add(sourceClone.get());
+        }
 
         Ref connection = m_connectionProxy->connection();
         RefPtr remoteVideoFrameObjectHeap = m_connectionProxy->remoteVideoFrameObjectHeap();
