@@ -113,5 +113,3 @@ style/StyleTreeResolver.h
 style/Styleable.h
 style/values/color/StyleColorResolutionState.h
 svg/properties/SVGPropertyOwnerRegistry.h
-workers/DedicatedWorkerThread.h
-workers/service/ServiceWorkerContainer.h

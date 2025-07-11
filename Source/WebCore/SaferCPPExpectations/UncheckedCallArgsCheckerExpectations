@@ -804,7 +804,6 @@ svg/properties/SVGAnimatedString.cpp
 svg/properties/SVGAnimationAdditiveValueFunctionImpl.cpp
 testing/Internals.cpp
 testing/Internals.mm
-workers/DedicatedWorkerGlobalScope.cpp
 workers/Worker.cpp
 workers/WorkerGlobalScope.cpp
 workers/WorkerMessagingProxy.cpp

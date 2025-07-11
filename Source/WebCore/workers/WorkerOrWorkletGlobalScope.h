@@ -113,8 +113,8 @@ private:
     std::unique_ptr<WorkerOrWorkletScriptController> m_script;
     const UniqueRef<ScriptModuleLoader> m_moduleLoader;
     WorkerOrWorkletThread* m_thread;
-    RefPtr<WorkerEventLoop> m_eventLoop;
-    std::unique_ptr<EventLoopTaskGroup> m_defaultTaskGroup;
+    const RefPtr<WorkerEventLoop> m_eventLoop;
+    const std::unique_ptr<EventLoopTaskGroup> m_defaultTaskGroup;
     const UniqueRef<WorkerInspectorController> m_inspectorController;
     PAL::SessionID m_sessionID;
     ReferrerPolicy m_referrerPolicy;

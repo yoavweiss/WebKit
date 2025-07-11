@@ -1123,13 +1123,11 @@ testing/js/WebCoreTestSupport.cpp
 workers/DedicatedWorkerGlobalScope.cpp
 workers/Worker.cpp
 workers/WorkerAnimationController.cpp
-workers/WorkerConsoleClient.cpp
 workers/WorkerEventLoop.cpp
 workers/WorkerFontLoadRequest.cpp
 workers/WorkerGlobalScope.cpp
 workers/WorkerInspectorProxy.cpp
 workers/WorkerMessagingProxy.cpp
-workers/WorkerOrWorkletGlobalScope.cpp
 workers/WorkerOrWorkletThread.cpp
 workers/WorkerRunLoop.cpp
 workers/WorkerScriptLoader.cpp

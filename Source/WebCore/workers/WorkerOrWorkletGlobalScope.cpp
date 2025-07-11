@@ -117,8 +117,8 @@ EventLoopTaskGroup& WorkerOrWorkletGlobalScope::eventLoop()
 {
     ASSERT(isContextThread());
     if (!m_defaultTaskGroup) [[unlikely]] {
-        m_eventLoop = WorkerEventLoop::create(*this);
-        m_defaultTaskGroup = makeUnique<EventLoopTaskGroup>(*m_eventLoop);
+        lazyInitialize(m_eventLoop, WorkerEventLoop::create(*this));
+        lazyInitialize(m_defaultTaskGroup, makeUnique<EventLoopTaskGroup>(*m_eventLoop));
         if (activeDOMObjectsAreStopped())
             m_defaultTaskGroup->stopAndDiscardAllTasks();
     }

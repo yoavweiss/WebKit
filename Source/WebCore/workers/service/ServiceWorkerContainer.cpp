@@ -105,22 +105,22 @@ ServiceWorkerContainer::~ServiceWorkerContainer()
 
 void ServiceWorkerContainer::refEventTarget()
 {
-    m_navigator.ref();
+    m_navigator->ref();
 }
 
 void ServiceWorkerContainer::derefEventTarget()
 {
-    m_navigator.deref();
+    m_navigator->deref();
 }
 
 void ServiceWorkerContainer::ref() const
 {
-    m_navigator.ref();
+    m_navigator->ref();
 }
 
 void ServiceWorkerContainer::deref() const
 {
-    m_navigator.deref();
+    m_navigator->deref();
 }
 
 auto ServiceWorkerContainer::ready() -> ReadyPromise&
