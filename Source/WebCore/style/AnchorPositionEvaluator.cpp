@@ -320,6 +320,12 @@ LayoutSize AnchorPositionEvaluator::scrollOffsetFromAnchor(const RenderBoxModelO
     if (anchored.isFixedPositioned() && !isFixedAnchor)
         offset -= toLayoutSize(anchored.view().frameView().scrollPositionRespectingCustomFixedPosition());
 
+    if (auto anchorBox = dynamicDowncast<RenderBox>(anchor)) {
+        // The anchor may itself be scroll-compensated. Propagate this if needed.
+        if (auto chainedAnchor = defaultAnchorForBox(*anchorBox))
+            offset += scrollOffsetFromAnchor(*chainedAnchor, *anchorBox);
+    }
+
     auto compensatedAxes = [&] {
         if (isLayoutTimeAnchorPositioned(anchored.style()))
             return OptionSet<BoxAxisFlag> { BoxAxisFlag::Horizontal, BoxAxisFlag::Vertical };
