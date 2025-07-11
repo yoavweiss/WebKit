@@ -8049,3 +8049,5 @@ webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-p
 webkit.org/b/295798 fast/visual-viewport/ios/get-bounding-client-rect-unstable.html [ Pass Failure ]
 
 webkit.org/b/295800 [ Release ] http/wpt/resource-timing/rt-resource-errors.html [ Pass Failure ]
+
+webkit.org/b/295820 [ Debug ] webrtc/audio-peer-connection-webaudio.html [ Pass Failure ]
