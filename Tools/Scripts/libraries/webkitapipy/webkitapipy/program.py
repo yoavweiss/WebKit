@@ -298,5 +298,5 @@ def main(argv: Optional[list[str]] = None):
                                     for path in inputs))
             fd.write('\n')
 
-    if args.errors and reporter.n_issues:
+    if args.errors and reporter.issues:
         sys.exit(1)
