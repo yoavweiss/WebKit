@@ -236,7 +236,7 @@ void HTMLConstructionSite::attachLater(Ref<ContainerNode>&& parent, Ref<Node>&& 
     task.selfClosing = selfClosing;
 
     // Add as a sibling of the parent if we have reached the maximum depth allowed.
-    if (m_openElements.stackDepth() > m_maximumDOMTreeDepth && task.parent->parentNode())
+    if (m_openElements.stackDepth() >= m_maximumDOMTreeDepth && task.parent->parentNode())
         task.parent = task.parent->parentNode();
 
     ASSERT(task.parent);
