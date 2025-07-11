@@ -1411,7 +1411,6 @@
 		ECA680CE1E68CC0900731D20 /* StringUtilities.mm in Sources */ = {isa = PBXBuildFile; fileRef = ECA680CD1E68CC0900731D20 /* StringUtilities.mm */; };
 		EE7232C72DCC0A7B00103693 /* simple-nested-model-page.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = EE7232BF2DCC0A6F00103693 /* simple-nested-model-page.html */; };
 		EEA52EAB2D69203B00D578B5 /* stagemode-model-page.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = EEA52EA32D69202E00D578B5 /* stagemode-model-page.html */; };
-		F4010B8024DA24AC00A876E2 /* NavigationSwipeTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4010B7F24DA24AC00A876E2 /* NavigationSwipeTests.mm */; };
 		F4010B8324DA267F00A876E2 /* PoseAsClass.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4010B8124DA267F00A876E2 /* PoseAsClass.mm */; };
 		F402F56C23ECC2FB00865549 /* UIWKInteractionViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = F402F56B23ECC2FB00865549 /* UIWKInteractionViewProtocol.mm */; };
 		F4034FA1275D5402003A81F8 /* CookieConsent.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4034FA0275D5402003A81F8 /* CookieConsent.mm */; };
@@ -4124,12 +4123,12 @@
 		EEA52EA32D69202E00D578B5 /* stagemode-model-page.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "stagemode-model-page.html"; sourceTree = "<group>"; };
 		F3CEF6B82808F2D3001E23A5 /* TimeZoneOverride.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TimeZoneOverride.mm; sourceTree = "<group>"; };
 		F3FC3EE213678B7300126A65 /* libgtest.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libgtest.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		F4010B7F24DA24AC00A876E2 /* NavigationSwipeTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NavigationSwipeTests.mm; sourceTree = "<group>"; };
 		F4010B8124DA267F00A876E2 /* PoseAsClass.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PoseAsClass.mm; path = ../TestRunnerShared/cocoa/PoseAsClass.mm; sourceTree = "<group>"; };
 		F4010B8224DA267F00A876E2 /* PoseAsClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PoseAsClass.h; path = ../TestRunnerShared/cocoa/PoseAsClass.h; sourceTree = "<group>"; };
 		F402F56B23ECC2FB00865549 /* UIWKInteractionViewProtocol.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = UIWKInteractionViewProtocol.mm; sourceTree = "<group>"; };
 		F4034FA0275D5402003A81F8 /* CookieConsent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CookieConsent.mm; sourceTree = "<group>"; };
 		F4034FA2275D5449003A81F8 /* cookie-consent-basic.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "cookie-consent-basic.html"; sourceTree = "<group>"; };
+		F4037D2C2E2077FD00C138B0 /* NavigationSwipeTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NavigationSwipeTests.mm; sourceTree = "<group>"; };
 		F40398892B2D0AC700A7AA85 /* text-with-web-font.webarchive */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = "text-with-web-font.webarchive"; sourceTree = "<group>"; };
 		F405F8A42BD1D1B90020E6AB /* element-targeting-7.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "element-targeting-7.html"; sourceTree = "<group>"; };
 		F407FE381F1D0DE60017CF25 /* enormous.svg */ = {isa = PBXFileReference; lastKnownFileType = text; path = enormous.svg; sourceTree = "<group>"; };
@@ -4312,7 +4311,6 @@
 		F4D5E4E71F0C5D27008C1A49 /* dragstart-clear-selection.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "dragstart-clear-selection.html"; sourceTree = "<group>"; };
 		F4D65DA71F5E46C0009D8C27 /* selected-text-image-link-and-editable.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "selected-text-image-link-and-editable.html"; sourceTree = "<group>"; };
 		F4D9818E2196B911008230FC /* editable-nested-lists.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "editable-nested-lists.html"; sourceTree = "<group>"; };
-		F4DA1FF02D9A165D0069AF6D /* CustomSwipeViewTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CustomSwipeViewTests.mm; sourceTree = "<group>"; };
 		F4DADCF62BABA65B008B398F /* ElementTargetingTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ElementTargetingTests.mm; sourceTree = "<group>"; };
 		F4DADCFF2BABA80C008B398F /* element-targeting-1.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "element-targeting-1.html"; sourceTree = "<group>"; };
 		F4DD79E12AD4BDCB000C6821 /* InitializeWebViewWhenChangingUserDefaults.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = InitializeWebViewWhenChangingUserDefaults.mm; sourceTree = "<group>"; };
@@ -4887,6 +4885,7 @@
 				331987782CEF457300BC283C /* MouseSupportUIDelegate.mm */,
 				1ABC3DED1899BE6D004F0626 /* Navigation.mm */,
 				6351992722275C6A00890AD3 /* NavigationAction.mm */,
+				F4037D2C2E2077FD00C138B0 /* NavigationSwipeTests.mm */,
 				5C8BC798218CF3E900813886 /* NetworkProcess.mm */,
 				5CAE4637201937CD0051610F /* NetworkProcessCrashNonPersistentDataStore.mm */,
 				CDCFFEC022E268D500DF4223 /* NoPauseWhenSwitchingTabs.mm */,
@@ -5389,7 +5388,6 @@
 				CDA93DAC22F4EC2200490A69 /* FullscreenTouchSecheuristicTests.cpp */,
 				F4636A992A0DA61800C88CC0 /* GestureRecognizerTests.mm */,
 				F45E15722112CE2900307E82 /* KeyboardInputTestsIOS.mm */,
-				F4010B7F24DA24AC00A876E2 /* NavigationSwipeTests.mm */,
 				0F34077523037FDC0060A1A0 /* OverflowScrollViewTests.mm */,
 				F464AF9120BB66EA007F9B18 /* RenderingProgressTests.mm */,
 				1AD7343C28D2A78400797100 /* ScrollViewBouncesTests.mm */,
@@ -6615,7 +6613,6 @@
 				37FB72951DB2E82F00E41BE4 /* ContextMenuDefaultItemsHaveTags.mm */,
 				F4613F1C27DC2EDD007CCDE6 /* ContextMenuTests.mm */,
 				7AEAD47C1E20113800416EFE /* CrossPartitionFileSchemeAccess.mm */,
-				F4DA1FF02D9A165D0069AF6D /* CustomSwipeViewTests.mm */,
 				E5AA8D1C25151CC60051CC45 /* DateInputTests.mm */,
 				939BA91614103412001A01BD /* DeviceScaleFactorOnBack.mm */,
 				F4D5D69425AF8BE400205280 /* DisableAutomaticSpellingCorrection.mm */,
@@ -7843,7 +7840,6 @@
 				F4E5CCC92A6C79770051934C /* MouseEventTests.mm in Sources */,
 				7CCE7F011A411AE600447C4C /* MouseMoveAfterCrash.cpp in Sources */,
 				A17C57EC2C9A5392009DD0B5 /* NavigationClientDefaultCrypto.cpp in Sources */,
-				F4010B8024DA24AC00A876E2 /* NavigationSwipeTests.mm in Sources */,
 				9B19CDA01F06DFE3000548DD /* NetworkProcessCrashWithPendingConnection.mm in Sources */,
 				7CCE7F021A411AE600447C4C /* NewFirstVisuallyNonEmptyLayout.cpp in Sources */,
 				7CCE7F031A411AE600447C4C /* NewFirstVisuallyNonEmptyLayoutFails.cpp in Sources */,

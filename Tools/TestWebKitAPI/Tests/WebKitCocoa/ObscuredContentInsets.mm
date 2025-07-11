@@ -273,6 +273,11 @@ TEST(ObscuredContentInsets, TopOverhangColorExtensionLayer)
             colorExtensionLayer = layer;
         else if ([layer.name containsString:@"content root"])
             rootContentLayer = layer;
+
+        if (colorExtensionLayer && rootContentLayer)
+            return IterationStatus::Done;
+
+        return IterationStatus::Continue;
     }];
 
     auto sanityCheckColorExtensionLayer = ^{

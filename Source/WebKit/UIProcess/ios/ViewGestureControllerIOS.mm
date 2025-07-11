@@ -203,7 +203,7 @@ void ViewGestureController::beginSwipeGesture(_UINavigationInteractiveTransition
     m_webPageProxyForBackForwardListForCurrentSwipe = alternateBackForwardListSourcePage ? alternateBackForwardListSourcePage.get() : page.get();
 
     auto& backForwardList = m_webPageProxyForBackForwardListForCurrentSwipe->backForwardList();
-    RefPtr targetItem = direction == SwipeDirection::Back ? backForwardList.goBackItemSkippingItemsWithoutUserGesture() : backForwardList.goForwardItemSkippingItemsWithoutUserGesture();
+    RefPtr targetItem = itemForSwipeDirection(direction);
     if (!targetItem) {
         RELEASE_LOG_ERROR(ViewGestures, "Failed to find %s item when beginning swipe.", direction == SwipeDirection::Back ? "back" : "forward");
         didEndGesture();

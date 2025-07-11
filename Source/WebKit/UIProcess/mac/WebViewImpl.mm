@@ -6101,8 +6101,10 @@ void WebViewImpl::setUserInterfaceLayoutDirection(NSUserInterfaceLayoutDirection
 
 bool WebViewImpl::beginBackSwipeForTesting()
 {
-    RefPtr gestureController = m_gestureController;
-    return gestureController && gestureController->beginSimulatedSwipeInDirectionForTesting(ViewGestureController::SwipeDirection::Back);
+    if (!m_allowsBackForwardNavigationGestures)
+        return false;
+
+    return ensureProtectedGestureController()->beginSimulatedSwipeInDirectionForTesting(ViewGestureController::SwipeDirection::Back);
 }
 
 bool WebViewImpl::completeBackSwipeForTesting()
@@ -7004,7 +7006,7 @@ void WebViewImpl::updateScrollPocket()
         [m_topScrollPocket layout];
         captureView = [m_topScrollPocket captureView];
         [m_layerHostingView addSubview:captureView.get() positioned:NSWindowBelow relativeTo:nil];
-        [captureView layer].zPosition = -CGFLOAT_MAX;
+        [captureView layer].zPosition = std::numeric_limits<float>::lowest();
         [view addSubview:m_topScrollPocket.get()];
         for (NSView *pocketContainer in m_viewsAboveScrollPocket.get())
             [m_topScrollPocket addElementContainer:pocketContainer];

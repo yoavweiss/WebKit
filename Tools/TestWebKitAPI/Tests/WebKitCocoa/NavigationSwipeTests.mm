@@ -25,26 +25,32 @@
 
 #import "config.h"
 
-#if PLATFORM(IOS_FAMILY)
-
 #import "PoseAsClass.h"
+#import "TestCocoa.h"
 #import "TestWKWebView.h"
-#import "UIKitSPIForTesting.h"
 #import <WebKit/WKWebViewPrivate.h>
 #import <WebKit/WKWebViewPrivateForTesting.h>
+
+#if PLATFORM(IOS_FAMILY)
+#import "UIKitSPIForTesting.h"
 
 @interface TestNavigationInteractiveTransition : UIPercentDrivenInteractiveTransition
 @end
 
 @implementation TestNavigationInteractiveTransition
 
-- (void)startInteractiveTransition:(id <UIViewControllerContextTransitioning>)transitionContext
+- (void)startInteractiveTransition:(id<UIViewControllerContextTransitioning>)transitionContext
 {
     [super startInteractiveTransition:transitionContext];
     EXPECT_TRUE([transitionContext.containerView.window.firstResponder resignFirstResponder]);
 }
 
 @end
+#endif // PLATFORM(IOS_FAMILY)
+
+namespace TestWebKitAPI {
+
+#if PLATFORM(IOS_FAMILY)
 
 TEST(NavigationSwipeTests, RestoreFirstResponderAfterNavigationSwipe)
 {
@@ -95,3 +101,44 @@ TEST(NavigationSwipeTests, DoNotAssertWhenSnapshottingZeroSizeView)
 }
 
 #endif // PLATFORM(IOS_FAMILY)
+
+#if PLATFORM(MAC)
+
+TEST(NavigationSwipeTests, WindowRelativeBoundsForCustomSwipeViews)
+{
+    RetainPtr customSwipeView = adoptNS([[NSView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600)]);
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600)]);
+    [webView setAllowsBackForwardNavigationGestures:YES];
+    [webView addSubview:customSwipeView.get()];
+    [webView _setCustomSwipeViews:@[ customSwipeView.get() ]];
+    [webView _setCustomSwipeViewsObscuredContentInsets:NSEdgeInsetsMake(100, 200, 50, 50)];
+
+    auto boundsForCustomSwipeView = [webView _windowRelativeBoundsForCustomSwipeViewsForTesting];
+    EXPECT_EQ(boundsForCustomSwipeView.origin.x, 200.0);
+    EXPECT_EQ(boundsForCustomSwipeView.origin.y, 50.0);
+    EXPECT_EQ(boundsForCustomSwipeView.size.width, 550.0);
+    EXPECT_EQ(boundsForCustomSwipeView.size.height, 450.0);
+}
+
+TEST(NavigationSwipeTests, SwipeSnapshotLayerBounds)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600)]);
+    [webView setAllowsBackForwardNavigationGestures:YES];
+    [webView _setAutomaticallyAdjustsContentInsets:NO];
+    [webView _setObscuredContentInsets:NSEdgeInsetsMake(100, 200, 0, 0) immediate:NO];
+
+    [webView synchronouslyLoadTestPageNamed:@"simple"];
+    [webView waitForNextPresentationUpdate];
+
+    [webView synchronouslyLoadTestPageNamed:@"simple2"];
+    [webView waitForNextPresentationUpdate];
+
+    [webView _beginBackSwipeForTesting];
+
+    RetainPtr swipeSnapshotLayer = [webView firstLayerWithName:@"Gesture Swipe Snapshot Layer"];
+    EXPECT_EQ([swipeSnapshotLayer frame], NSMakeRect(200, 0, 600, 500));
+}
+
+#endif // PLATFORM(MAC)
+
+} // namespace TestWebKitAPI
