@@ -1322,7 +1322,168 @@ void LocalFrameView::updateScrollGeometryContentSize()
     if (!page || !page->chrome().client().needsScrollGeometryUpdates())
         return;
 
-    m_scrollGeometryContentSize = contentsSize();
+    RefPtr document = m_frame->document();
+    if (!document)
+        return;
+
+    IntSize scrollGeometryContentSize;
+    bool heightDeterminingBoxIsPositioned = false;
+    bool hasViewportConstrainedHeight = false;
+
+    auto updateScrollGeometryContentSizeWithBoxAndPosition = [&scrollGeometryContentSize, &heightDeterminingBoxIsPositioned](const RenderBox& box, IntPoint position) {
+        scrollGeometryContentSize.setWidth(std::max(scrollGeometryContentSize.width(), position.x()));
+
+        auto oldHeight = scrollGeometryContentSize.height();
+        scrollGeometryContentSize.setHeight(std::max(scrollGeometryContentSize.height(), position.y()));
+
+        if (oldHeight != scrollGeometryContentSize.height())
+            heightDeterminingBoxIsPositioned = box.isPositioned();
+    };
+
+    auto maxPositionForBox = [](const RenderBox& box) {
+        auto rect = snappedIntRect(box.borderBoxRect());
+
+        auto borderBoxRectMaxCorner = rect.maxXMaxYCorner();
+
+        auto layoutOverflowRect = snappedIntRect(box.layoutOverflowRect());
+        auto layoutOverflowRectMaxCorner = layoutOverflowRect.maxXMaxYCorner();
+
+        if (box.effectiveOverflowX() == Overflow::Visible && layoutOverflowRectMaxCorner.x() > borderBoxRectMaxCorner.x())
+            rect.setWidth(rect.width() + layoutOverflowRectMaxCorner.x() - borderBoxRectMaxCorner.x());
+
+        if (box.effectiveOverflowY() == Overflow::Visible && layoutOverflowRectMaxCorner.y() > borderBoxRectMaxCorner.y())
+            rect.setHeight(rect.height() + layoutOverflowRectMaxCorner.y() - borderBoxRectMaxCorner.y());
+
+        auto point = roundedIntPoint(box.localToAbsolute(rect.location()));
+        rect.setLocation(point);
+
+        return rect.maxXMaxYCorner();
+    };
+
+    IntSize documentSize = layoutSize();
+    CheckedPtr<RenderBox> documentRenderer;
+
+    IntSize bodySize;
+    CheckedPtr<RenderBox> bodyRenderer;
+
+    auto adjustMaxPositionForBodyOrDocument = [&](RenderBox& box, IntPoint& maxPosition) {
+        if (box.isBody()) {
+            bodySize = { maxPosition.x(), maxPosition.y() };
+            bodyRenderer = &box;
+        } else
+            documentRenderer = &box;
+
+        CheckedRef style = box.style();
+
+        if (style->width().isAuto())
+            maxPosition.setX(0);
+
+        if (style->height().isAuto())
+            maxPosition.setY(0);
+    };
+
+    auto determineScrollGeometryForRendererWithNonVisibleOverflow = [&](const RenderBox& renderer) {
+        CheckedPtr descendant = renderer.firstChild();
+        CheckedPtr stop = renderer.nextInPreOrderAfterChildren();
+
+        while (descendant && descendant != stop) {
+            CheckedPtr descendantBox = dynamicDowncast<RenderBox>(*descendant);
+            if (!descendantBox) {
+                descendant = descendant->nextInPreOrder();
+                continue;
+            }
+
+            if (!descendantBox->isOutOfFlowPositioned()) {
+                descendant = descendant->nextInPreOrder();
+                continue;
+            }
+
+            auto position = maxPositionForBox(*descendantBox);
+            updateScrollGeometryContentSizeWithBoxAndPosition(*descendantBox, position);
+            descendant = descendant->nextInPreOrderAfterChildren();
+        }
+    };
+
+    auto constrainScrollGeometryContentSizeToViewportSizeIfNeeded = [&] {
+        auto viewportContrainedSize = scrollGeometryContentSize;
+
+        if (documentRenderer->effectiveOverflowX() != Overflow::Visible) {
+            if (bodyRenderer->effectiveOverflowX() != Overflow::Visible)
+                viewportContrainedSize.setWidth(bodySize.width());
+            else if (documentRenderer->effectiveOverflowX() == Overflow::Clip || documentRenderer->effectiveOverflowX() == Overflow::Hidden)
+                viewportContrainedSize.setWidth(documentSize.width());
+        }
+
+        if (documentRenderer->effectiveOverflowY() != Overflow::Visible) {
+            if (bodyRenderer->effectiveOverflowY() != Overflow::Visible)
+                viewportContrainedSize.setHeight(bodySize.height());
+            else if (documentRenderer->effectiveOverflowY() == Overflow::Clip || documentRenderer->effectiveOverflowY() == Overflow::Hidden)
+                viewportContrainedSize.setHeight(documentSize.height());
+        }
+
+        hasViewportConstrainedHeight = scrollGeometryContentSize.height() != viewportContrainedSize.height();
+
+        scrollGeometryContentSize.setWidth(std::min(scrollGeometryContentSize.width(), viewportContrainedSize.width()));
+        scrollGeometryContentSize.setHeight(std::min(scrollGeometryContentSize.height(), viewportContrainedSize.height()));
+    };
+
+    auto applyBodyMarginToScrollGeometryContentSizeIfNeeded = [&] {
+        if (!hasViewportConstrainedHeight && !scrollGeometryContentSize.isZero() && scrollGeometryContentSize.height() <= bodySize.height() && !heightDeterminingBoxIsPositioned)
+            scrollGeometryContentSize.setHeight(scrollGeometryContentSize.height() + bodyRenderer->collapsedMarginAfter());
+    };
+
+    // Determine the minimum view size needed such that no scrolling is necessary to reach
+    // any content.
+    //
+    // This is achieved by traversing the render tree and determining the bottom right corner
+    // of each renderer, after accounting for overflow.
+
+    CheckedPtr renderer = renderView()->firstChild();
+    while (renderer) {
+        CheckedPtr box = dynamicDowncast<RenderBox>(*renderer);
+        if (!box) {
+            renderer = renderer->nextInPreOrder();
+            continue;
+        }
+
+        auto maxPosition = maxPositionForBox(*box);
+
+        // The body and document renderers are special since their height is sized to fit
+        // the view in quirks mode. In this case, their size should not determine the
+        // scroll geometry content size, which could be smaller.
+        bool isBodyOrDocumentRenderer = box->isBody() || box->isDocumentElementRenderer();
+        if (isBodyOrDocumentRenderer)
+            adjustMaxPositionForBodyOrDocument(*box, maxPosition);
+
+        updateScrollGeometryContentSizeWithBoxAndPosition(*box, maxPosition);
+
+        if (!isBodyOrDocumentRenderer) {
+            // The children of positioned elements may be skipped, since the renderer itself
+            // already has the necessary geometry information.
+            if (box->isPositioned()) {
+                renderer = renderer->nextInPreOrderAfterChildren();
+                continue;
+            }
+
+            // Only out-of-flow positioned children need to be consulted if the current
+            // renderer has non-visible overflow. In-flow children would contribute to
+            // the current renderer's geometry information and may be ignored.
+            bool hasNonVisibleOverflow = isNonVisibleOverflow(box->effectiveOverflowX()) || isNonVisibleOverflow(box->effectiveOverflowY());
+            if (hasNonVisibleOverflow) {
+                determineScrollGeometryForRendererWithNonVisibleOverflow(*box);
+                renderer = renderer->nextInPreOrderAfterChildren();
+                continue;
+            }
+        }
+
+        renderer = renderer->nextInPreOrder();
+    }
+
+    constrainScrollGeometryContentSizeToViewportSizeIfNeeded();
+
+    applyBodyMarginToScrollGeometryContentSizeIfNeeded();
+
+    m_scrollGeometryContentSize = scrollGeometryContentSize;
 }
 
 bool LocalFrameView::shouldDeferScrollUpdateAfterContentSizeChange()
