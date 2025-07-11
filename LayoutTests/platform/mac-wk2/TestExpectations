@@ -2235,5 +2235,4 @@ imported/w3c/web-platform-tests/digital-credentials/get.tentative.https.html [ F
 imported/w3c/web-platform-tests/digital-credentials/user-activation.https.html [ Failure ]
 
 # FIXME: Needs bug.
-pdf/pdf-plugin-hang-during-destruction.html [ Pass Failure ]
 http/tests/resourceLoadStatistics/website-data-removal-for-site-navigated-to-with-unfiltered-link-decoration-before-short-deletion.html [ Failure ]
