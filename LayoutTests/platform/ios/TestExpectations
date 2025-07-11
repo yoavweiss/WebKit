@@ -8057,3 +8057,5 @@ webkit.org/b/295674 [ Debug ] svg/as-image/image-respects-pageScaleFactor.html [
 webkit.org/b/295728 [ Debug ] imported/w3c/web-platform-tests/workers/WorkerGlobalScope_ErrorEvent_filename.htm [ Pass Failure ]
 
 webkit.org/b/295743 [ Release ] media/video-display-aspect-ratio.html [ Pass Failure ]
+
+webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-position-does-not-leak.https.html [ Pass Failure ]
