@@ -430,6 +430,9 @@ public:
     bool drawsHDRContent() const { return m_drawsHDRContent; }
     WEBCORE_EXPORT virtual void setDrawsHDRContent(bool);
 
+    bool tonemappingEnabled() const { return m_tonemappingEnabled; }
+    WEBCORE_EXPORT virtual void setTonemappingEnabled(bool);
+
     WEBCORE_EXPORT virtual void setNeedsDisplayIfEDRHeadroomExceeds(float);
 #endif
 
@@ -832,6 +835,7 @@ protected:
     bool m_drawsContent : 1;
 #if HAVE(SUPPORT_HDR_DISPLAY)
     bool m_drawsHDRContent : 1 { false };
+    bool m_tonemappingEnabled : 1 { false };
 #endif
     bool m_contentsVisible : 1;
     bool m_contentsRectClipsDescendants : 1;

@@ -1350,6 +1350,7 @@ public:
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
     Headroom displayEDRHeadroom() const { return m_displayEDRHeadroom; }
+    bool hdrLayersRequireTonemapping() const { return m_hdrLayersRequireTonemapping; }
     void updateDisplayEDRHeadroom();
     void updateDisplayEDRSuppression();
 #endif
@@ -1786,6 +1787,7 @@ private:
 #if HAVE(SUPPORT_HDR_DISPLAY)
     Headroom m_displayEDRHeadroom { Headroom::None };
     bool m_screenSupportsHDR { false };
+    bool m_hdrLayersRequireTonemapping { false };
 #endif
 
     HashSet<std::pair<URL, ScriptTrackingPrivacyCategory>> m_scriptTrackingPrivacyReports;

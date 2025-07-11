@@ -256,6 +256,9 @@ void GraphicsLayerCARemote::setLayerContentsToImageBuffer(PlatformCALayer* layer
     ASSERT(backendHandle);
 
     layer->setAcceleratesDrawing(true);
+#if HAVE(SUPPORT_HDR_DISPLAY)
+    layer->setTonemappingEnabled(true);
+#endif
     downcast<PlatformCALayerRemote>(layer)->setRemoteDelegatedContents({ ImageBufferBackendHandle { *backendHandle }, { }, std::nullopt  });
 }
 

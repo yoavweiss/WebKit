@@ -1085,6 +1085,20 @@ bool PlatformCALayerRemote::setNeedsDisplayIfEDRHeadroomExceeds(float headroom)
         return m_properties.backingStoreOrProperties.store->setNeedsDisplayIfEDRHeadroomExceeds(headroom);
     return false;
 }
+
+void PlatformCALayerRemote::setTonemappingEnabled(bool value)
+{
+    if (m_properties.tonemappingEnabled == value)
+        return;
+
+    m_properties.tonemappingEnabled = value;
+    m_properties.notePropertiesChanged(LayerChange::TonemappingEnabledChanged);
+}
+
+bool PlatformCALayerRemote::tonemappingEnabled() const
+{
+    return m_properties.tonemappingEnabled;
+}
 #endif
 
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)

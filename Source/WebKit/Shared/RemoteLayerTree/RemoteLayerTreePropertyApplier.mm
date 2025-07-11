@@ -514,6 +514,12 @@ void RemoteLayerTreePropertyApplier::applyPropertiesToLayer(CALayer *layer, Remo
     if (properties.changedProperties & LayerChange::BackdropRootChanged)
         layer.shouldRasterize = properties.backdropRoot;
 
+    if (properties.changedProperties & LayerChange::TonemappingEnabledChanged) {
+#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
+        layer.toneMapMode = properties.tonemappingEnabled ? CAToneMapModeIfSupported : CAToneMapModeNever;
+#endif
+    }
+
 #if HAVE(CORE_ANIMATION_SEPARATED_PORTALS)
     if (properties.changedProperties & LayerChange::SeparatedPortalChanged) {
         // FIXME: Implement SeparatedPortalChanged.

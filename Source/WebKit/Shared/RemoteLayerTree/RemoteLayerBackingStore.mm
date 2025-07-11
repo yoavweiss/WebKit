@@ -607,18 +607,14 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
     ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (m_hasExtendedDynamicRange) {
         layer.wantsExtendedDynamicRangeContent = true;
-        // Painted contents have already been tonemapped, so disable it on the layer.
-        if (isDelegatedDisplay) {
-            layer.toneMapMode = CAToneMapModeIfSupported;
+        // Delegated contents set headroom via surface properties, not RemoteLayerBackingStore state.
+        if (isDelegatedDisplay)
             layer.contentsHeadroom = 0.f;
-        } else {
-            layer.toneMapMode = CAToneMapModeNever;
+        else
             layer.contentsHeadroom = m_maxRequestedEDRHeadroom;
-        }
     } else {
         layer.wantsExtendedDynamicRangeContent = false;
         layer.contentsHeadroom = 0.f;
-        layer.toneMapMode = CAToneMapModeAutomatic;
     }
     ALLOW_DEPRECATED_DECLARATIONS_END
 #endif

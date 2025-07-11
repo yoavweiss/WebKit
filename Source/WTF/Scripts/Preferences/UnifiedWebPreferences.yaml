@@ -7293,6 +7293,21 @@ StorageBlockingPolicy:
     WebCore:
       default: StorageBlockingPolicy::AllowAll
 
+SupportHDRCompositorTonemappingEnabled:
+  type: bool
+  status: testable
+  category: media
+  webcoreOnChange: updateDisplayEDRHeadroom
+  humanReadableName: "Support HDR Compositor tonemapping"
+  humanReadableDescription: "Support HDR tonemapping during compositing"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 SupportHDRDisplayEnabled:
   type: bool
   status: Supporthdrdisplay_feature_status

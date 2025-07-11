@@ -5841,12 +5841,19 @@ bool Page::requiresUserGestureForVideoPlayback() const
 #if HAVE(SUPPORT_HDR_DISPLAY)
 void Page::updateDisplayEDRHeadroom()
 {
+    static constexpr float kMinimumRequiredHeadroomForTonemapping = 2.7;
+    bool layersRequireTonemapping = false;
     float headroom = currentEDRHeadroomForDisplay(m_displayID);
-    if (headroom == m_displayEDRHeadroom)
+    if (m_settings->supportHDRCompositorTonemappingEnabled() && headroom >= kMinimumRequiredHeadroomForTonemapping) {
+        headroom = maxEDRHeadroomForDisplay(m_displayID);
+        layersRequireTonemapping = true;
+    }
+    if (headroom == m_displayEDRHeadroom && m_hdrLayersRequireTonemapping == layersRequireTonemapping)
         return;
 
     LOG_WITH_STREAM(HDR, stream << "Page " << this << " updateDisplayEDRHeadroom " << m_displayEDRHeadroom.headroom << " to " << headroom);
     m_displayEDRHeadroom = Headroom(headroom);
+    m_hdrLayersRequireTonemapping = layersRequireTonemapping;
 
     forEachDocument([&] (Document& document) {
         if (!document.drawsHDRContent())
