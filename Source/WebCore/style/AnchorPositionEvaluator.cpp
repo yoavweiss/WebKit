@@ -811,21 +811,16 @@ static bool firstChildPrecedesSecondChild(const RenderObject* firstChild, const 
     return false;
 }
 
-// Given an anchor element and its anchor names, locate the closest ancestor (*) element
-// that establishes an anchor scope affecting this anchor element, and return the pointer
-// to such element. If no ancestor establishes an anchor scope affecting this anchor,
+// Given an element and its anchor name, locate the closest ancestor (*) element
+// that establishes an anchor scope affecting this anchor name, and return the pointer
+// to such element. If no ancestor establishes an anchor scope affecting this name,
 // returns nullptr.
 // (*): an anchor element can also establish an anchor scope containing itself. In this
 // case, the return value is itself.
-static CheckedPtr<const Element> anchorScopeForAnchorName(const RenderBoxModelObject& anchorRenderer, const AtomString anchorName)
+static CheckedPtr<const Element> anchorScopeForAnchorName(const RenderBoxModelObject& renderer, const AtomString anchorName)
 {
-    // Precondition: anchorElement is an anchor, which has the specified name.
-    ASSERT(anchorRenderer.style().anchorNames().containsIf(
-        [anchorName](auto& scopedName) { return scopedName.name == anchorName; }
-    ));
-
     // Traverse up the composed tree through itself and each ancestor.
-    CheckedPtr<const Element> anchorElement = anchorRenderer.element();
+    CheckedPtr<const Element> anchorElement = renderer.element();
     ASSERT(anchorElement);
     for (CheckedPtr<const Element> currentAncestor = anchorElement; currentAncestor; currentAncestor = currentAncestor->parentElementInComposedTree()) {
         CheckedPtr currentAncestorStyle = currentAncestor->renderStyle();
@@ -900,15 +895,22 @@ static bool isAcceptableAnchorElement(const RenderBoxModelObject& anchorRenderer
     if (!anchorRenderer.element())
         return false;
 
+    CheckedPtr anchorPositionedRenderer = dynamicDowncast<RenderBox>(anchorPositionedElement->renderer());
+    ASSERT(anchorPositionedRenderer);
+
     if (anchorName) {
+        // Check that anchorRenderer has the specified name.
+        ASSERT(anchorRenderer.style().anchorNames().containsIf(
+            [anchorName](auto& scopedName) { return scopedName.name == anchorName; }
+        ));
+
+        // The anchor and anchor-positioned element must be in the same scope.
         auto anchorScopeElement = anchorScopeForAnchorName(anchorRenderer, *anchorName);
-        // If the anchor is scoped, the anchor-positioned element must also be in the same scope.
-        if (anchorScopeElement && !anchorPositionedElement->isComposedTreeDescendantOf(*anchorScopeElement))
+        auto anchorPositionedScopeElement = anchorScopeForAnchorName(*anchorPositionedRenderer, *anchorName);
+        if (anchorScopeElement != anchorPositionedScopeElement)
             return false;
     }
 
-    CheckedPtr anchorPositionedRenderer = dynamicDowncast<RenderBox>(anchorPositionedElement->renderer());
-    ASSERT(anchorPositionedRenderer);
     CheckedPtr containingBlock = anchorPositionedRenderer->containingBlock();
     ASSERT(containingBlock);
 
