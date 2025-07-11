@@ -100,7 +100,7 @@ public:
 
     WorkerBadgeProxy* workerBadgeProxy() const { return m_workerBadgeProxy.get(); }
     WorkerDebuggerProxy* workerDebuggerProxy() const final { return m_workerDebuggerProxy.get(); }
-    WorkerLoaderProxy* workerLoaderProxy() final { return m_workerLoaderProxy.get(); }
+    WorkerLoaderProxy* workerLoaderProxy() const final { return m_workerLoaderProxy.get(); }
     WorkerReportingProxy* workerReportingProxy() const { return m_workerReportingProxy.get(); }
 
     // Number of active worker threads.

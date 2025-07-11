@@ -28,6 +28,7 @@
 
 #include "ThreadGlobalData.h"
 #include "WorkerEventLoop.h"
+#include "WorkerLoaderProxy.h"
 #include "WorkerOrWorkletGlobalScope.h"
 #include "WorkerOrWorkletScriptController.h"
 
@@ -361,6 +362,11 @@ void WorkerOrWorkletThread::removeChildThread(WorkerOrWorkletThread& childThread
     m_childThreads.remove(childThread);
     if (m_childThreads.isEmptyIgnoringNullReferences() && m_runWhenLastChildThreadIsGone)
         std::exchange(m_runWhenLastChildThreadIsGone, nullptr)();
+}
+
+CheckedPtr<WorkerLoaderProxy> WorkerOrWorkletThread::checkedWorkerLoaderProxy() const
+{
+    return workerLoaderProxy();
 }
 
 } // namespace WebCore
