@@ -1158,7 +1158,25 @@ static ASCIILiteral webrtcStatsTypeName(int value)
     ASSERT_NOT_REACHED();
     return nullptr;
 }
-#endif
+
+#if GST_CHECK_VERSION(1, 27, 0)
+static ASCIILiteral webrtcIceTcpCandidateTypeName(int value)
+{
+    switch (value) {
+    case GST_WEBRTC_ICE_TCP_CANDIDATE_TYPE_NONE:
+        return "none"_s;
+    case GST_WEBRTC_ICE_TCP_CANDIDATE_TYPE_ACTIVE:
+        return "active"_s;
+    case GST_WEBRTC_ICE_TCP_CANDIDATE_TYPE_PASSIVE:
+        return "passive"_s;
+    case GST_WEBRTC_ICE_TCP_CANDIDATE_TYPE_SO:
+        return "so"_s;
+    }
+    ASSERT_NOT_REACHED();
+    return nullptr;
+}
+#endif // GST_CHECK_VERSION
+#endif // USE(GSTREAMER_WEBRTC)
 
 template<typename T>
 std::optional<T> gstStructureGet(const GstStructure* structure, ASCIILiteral key)
@@ -1396,7 +1414,14 @@ static std::optional<RefPtr<JSON::Value>> gstStructureValueToJSON(const GValue* 
         if (!name.isEmpty()) [[likely]]
             return JSON::Value::create(makeString(name))->asValue();
     }
-#endif
+#if GST_CHECK_VERSION(1, 27, 0)
+    if (valueType == GST_TYPE_WEBRTC_ICE_TCP_CANDIDATE_TYPE) {
+        auto name = webrtcIceTcpCandidateTypeName(g_value_get_enum(value));
+        if (!name.isEmpty()) [[likely]]
+            return JSON::Value::create(makeString(name))->asValue();
+    }
+#endif // GST_CHECK_VERSION
+#endif // USE(GSTREAMER_WEBRTC)
 
     GST_WARNING("Unhandled GValue type: %s", G_VALUE_TYPE_NAME(value));
     return { };
