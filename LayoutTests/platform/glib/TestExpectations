@@ -660,6 +660,7 @@ imported/w3c/web-platform-tests/quirks/line-height-in-list-item.tentative.html [
 # Test passes after 278960@main
 imported/w3c/web-platform-tests/navigation-api/navigation-history-entry/key-id-back-same-document.html [ Pass ]
 
+imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-003.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-004.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-005.html [ Pass ]
 

@@ -104,16 +104,20 @@ ResolvedEmojiPolicy FontCascade::resolveEmojiPolicy(FontVariantEmoji fontVariant
 {
     switch (fontVariantEmoji) {
     case FontVariantEmoji::Normal:
-    case FontVariantEmoji::Unicode:
         if (isEmojiWithPresentationByDefault(character)
             || isEmojiModifierBase(character)
             || isEmojiFitzpatrickModifier(character))
             return ResolvedEmojiPolicy::RequireEmoji;
         break;
+    case FontVariantEmoji::Unicode:
+        if (u_hasBinaryProperty(character, UCHAR_EMOJI))
+            return isEmojiWithPresentationByDefault(character) ? ResolvedEmojiPolicy::RequireEmoji : ResolvedEmojiPolicy::RequireText;
+        break;
     case FontVariantEmoji::Text:
         return ResolvedEmojiPolicy::RequireText;
     case FontVariantEmoji::Emoji:
-        return ResolvedEmojiPolicy::RequireEmoji;
+        if (u_hasBinaryProperty(character, UCHAR_EMOJI))
+            return ResolvedEmojiPolicy::RequireEmoji;
     }
 
     return ResolvedEmojiPolicy::NoPreference;
@@ -137,24 +141,8 @@ RefPtr<const Font> FontCascade::fontForCombiningCharacterSequence(StringView str
                 return { ResolvedEmojiPolicy::RequireText, false };
         }
 
-        switch (m_fontDescription.variantEmoji()) {
-        case FontVariantEmoji::Normal:
-            if (isEmojiWithPresentationByDefault(baseCharacter)
-                || isEmojiModifierBase(baseCharacter)
-                || isEmojiFitzpatrickModifier(baseCharacter))
-                return { ResolvedEmojiPolicy::RequireEmoji, false };
-            break;
-        case FontVariantEmoji::Unicode:
-            if (u_hasBinaryProperty(baseCharacter, UCHAR_EMOJI))
-                return { ResolvedEmojiPolicy::RequireEmoji, false };
-            break;
-        case FontVariantEmoji::Text:
-            return { ResolvedEmojiPolicy::RequireText, false };
-        case FontVariantEmoji::Emoji:
-            return { ResolvedEmojiPolicy::RequireEmoji, u_hasBinaryProperty(baseCharacter, UCHAR_EMOJI) };
-        }
-
-        return { ResolvedEmojiPolicy::NoPreference, false };
+        auto emojiPolicy = resolveEmojiPolicy(m_fontDescription.variantEmoji(), baseCharacter);
+        return { emojiPolicy, emojiPolicy == ResolvedEmojiPolicy::RequireEmoji && m_fontDescription.variantEmoji() == FontVariantEmoji::Emoji };
     }();
 
     char32_t baseCharacterForBaseFont = baseCharacter;
@@ -167,7 +155,22 @@ RefPtr<const Font> FontCascade::fontForCombiningCharacterSequence(StringView str
     if (!baseCharacterGlyphData.glyph)
         return nullptr;
 
-    if (isOnlySingleCodePoint)
+    auto fontMatchesEmojiPolicy = [](const Font* font, ResolvedEmojiPolicy emojiPolicy) -> bool {
+        if (!font)
+            return false;
+
+        switch (emojiPolicy) {
+        case ResolvedEmojiPolicy::RequireEmoji:
+            return font->platformData().isColorBitmapFont();
+        case ResolvedEmojiPolicy::RequireText:
+            return !font->platformData().isColorBitmapFont();
+        case ResolvedEmojiPolicy::NoPreference:
+            break;
+        }
+        return true;
+    };
+
+    if (isOnlySingleCodePoint && !shouldForceEmojiFont && fontMatchesEmojiPolicy(baseCharacterGlyphData.font.get(), emojiPolicy))
         return baseCharacterGlyphData.font.get();
 
     bool triedBaseCharacterFont = false;
@@ -178,6 +181,9 @@ RefPtr<const Font> FontCascade::fontForCombiningCharacterSequence(StringView str
 
         const Font* font = fontRanges.fontForCharacter(baseCharacter);
         if (!font)
+            continue;
+
+        if (!fontMatchesEmojiPolicy(font, emojiPolicy))
             continue;
 
         if (font == baseCharacterGlyphData.font)
