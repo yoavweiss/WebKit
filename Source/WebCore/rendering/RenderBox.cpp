@@ -2289,7 +2289,12 @@ LayoutUnit RenderBox::shrinkLogicalWidthToAvoidFloats(LayoutUnit childMarginStar
 
 LayoutUnit RenderBox::containingBlockLogicalWidthForContent() const
 {
-    if (isGridItem() || isOutOfFlowPositioned()) {
+    if (isOutOfFlowPositioned()) {
+        PositionedLayoutConstraints constraints(*this, LogicalBoxAxis::Inline);
+        return constraints.containingInlineSize();
+    }
+
+    if (isGridItem()) {
         if (auto gridAreaContentLogicalWidth = this->gridAreaContentLogicalWidth()) {
             ASSERT(is<RenderGrid>(containingBlock()));
             return gridAreaContentLogicalWidth->value_or(0_lu);
@@ -2297,7 +2302,7 @@ LayoutUnit RenderBox::containingBlockLogicalWidthForContent() const
     }
 
     if (auto* containingBlock = this->containingBlock())
-        return isOutOfFlowPositioned() ? containingBlock->clientLogicalWidth() : containingBlock->contentBoxLogicalWidth();
+        return containingBlock->contentBoxLogicalWidth();
 
     ASSERT_NOT_REACHED();
     return 0_lu;
@@ -2305,6 +2310,11 @@ LayoutUnit RenderBox::containingBlockLogicalWidthForContent() const
 
 LayoutUnit RenderBox::containingBlockLogicalHeightForContent(AvailableLogicalHeightType heightType) const
 {
+    if (isOutOfFlowPositioned()) {
+        PositionedLayoutConstraints constraints(*this, LogicalBoxAxis::Block);
+        return constraints.containingSize();
+    }
+
     if (isGridItem()) {
         if (auto gridAreaContentLogicalHeight = this->gridAreaContentLogicalHeight(); gridAreaContentLogicalHeight && *gridAreaContentLogicalHeight) {
             // FIXME: Containing block for a grid item is the grid area it's located in. We need to return whatever
@@ -4316,6 +4326,7 @@ void RenderBox::computePositionedLogicalWidth(LogicalExtentComputedValues& compu
     // correspond to text from the spec)
 
     PositionedLayoutConstraints inlineConstraints(*this, LogicalBoxAxis::Inline);
+    inlineConstraints.computeInsets();
 
     // Calculate the used width. See CSS2 § 10.3.7.
     auto& styleToUse = style();
@@ -4454,6 +4465,7 @@ void RenderBox::computePositionedLogicalHeight(LogicalExtentComputedValues& comp
     }
 
     PositionedLayoutConstraints blockConstraints(*this, LogicalBoxAxis::Block);
+    blockConstraints.computeInsets();
 
     // Calculate the used height. See CSS2 § 10.6.4.
     auto& styleToUse = style();
@@ -4479,7 +4491,7 @@ void RenderBox::computePositionedLogicalHeight(LogicalExtentComputedValues& comp
 
     // Calculate the position.
     blockConstraints.resolvePosition(computedValues);
-    blockConstraints.fixupLogicalTopPosition(computedValues, *this);
+    blockConstraints.fixupLogicalTopPosition(computedValues);
 
     // Adjust logicalTop if we need to for perpendicular writing modes in fragments.
     // FIXME: Add support for other types of objects as containerBlock, not only RenderBlock.
@@ -4568,6 +4580,7 @@ LayoutUnit RenderBox::computePositionedLogicalHeightUsing(const Style::MaximumSi
 void RenderBox::computePositionedLogicalWidthReplaced(LogicalExtentComputedValues& computedValues) const
 {
     PositionedLayoutConstraints inlineConstraints(*this, LogicalBoxAxis::Inline);
+    inlineConstraints.computeInsets();
 
     // NOTE: This value of width is final in that the min/max width calculations
     // are dealt with in computeReplacedWidth(). This means that the steps to produce
@@ -4581,6 +4594,7 @@ void RenderBox::computePositionedLogicalWidthReplaced(LogicalExtentComputedValue
 void RenderBox::computePositionedLogicalHeightReplaced(LogicalExtentComputedValues& computedValues) const
 {
     PositionedLayoutConstraints blockConstraints(*this, LogicalBoxAxis::Block);
+    blockConstraints.computeInsets();
 
     // NOTE: This value of height is final in that the min/max height calculations
     // are dealt with in computeReplacedHeight(). This means that the steps to produce
@@ -4588,7 +4602,7 @@ void RenderBox::computePositionedLogicalHeightReplaced(LogicalExtentComputedValu
     computedValues.m_extent = computeReplacedLogicalHeight() + borderAndPaddingLogicalHeight();
 
     blockConstraints.resolvePosition(computedValues);
-    blockConstraints.fixupLogicalTopPosition(computedValues, *this);
+    blockConstraints.fixupLogicalTopPosition(computedValues);
 }
 
 VisiblePosition RenderBox::positionForPoint(const LayoutPoint& point, HitTestSource source, const RenderFragmentContainer* fragment)
