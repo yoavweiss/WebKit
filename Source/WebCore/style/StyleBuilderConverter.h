@@ -2323,9 +2323,9 @@ inline NameScope BuilderConverter::convertNameScope(BuilderState& builderState, 
         case CSSValueNone:
             return { };
         case CSSValueAll:
-            return { NameScope::Type::All, { } };
+            return { NameScope::Type::All, { }, builderState.styleScopeOrdinal() };
         default:
-            return { NameScope::Type::Ident, { AtomString { primitiveValue->stringValue() } } };
+            return { NameScope::Type::Ident, { AtomString { primitiveValue->stringValue() } }, builderState.styleScopeOrdinal() };
         }
     }
 
@@ -2337,7 +2337,7 @@ inline NameScope BuilderConverter::convertNameScope(BuilderState& builderState, 
     for (auto& name : *list)
         nameHashSet.add(AtomString { name.stringValue() });
 
-    return { NameScope::Type::Ident, WTFMove(nameHashSet) };
+    return { NameScope::Type::Ident, WTFMove(nameHashSet), builderState.styleScopeOrdinal() };
 }
 
 inline FixedVector<PositionTryFallback> BuilderConverter::convertPositionTryFallbacks(BuilderState& builderState, const CSSValue& value)
