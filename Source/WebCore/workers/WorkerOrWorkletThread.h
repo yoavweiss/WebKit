@@ -31,6 +31,7 @@
 #include <wtf/Function.h>
 #include <wtf/FunctionDispatcher.h>
 #include <wtf/Lock.h>
+#include <wtf/RefPtr.h>
 #include <wtf/ThreadSafeRefCounted.h>
 #include <wtf/ThreadSafeWeakHashSet.h>
 #include <wtf/ThreadSafeWeakPtr.h>
@@ -62,6 +63,7 @@ public:
     virtual CheckedPtr<WorkerLoaderProxy> checkedWorkerLoaderProxy() const;
 
     WorkerOrWorkletGlobalScope* globalScope() const { return m_globalScope.get(); }
+    RefPtr<WorkerOrWorkletGlobalScope> protectedGlobalScope() const;
     WorkerRunLoop& runLoop() { return m_runLoop; }
 
     void start(Function<void(const String&)>&& evaluateCallback = { });

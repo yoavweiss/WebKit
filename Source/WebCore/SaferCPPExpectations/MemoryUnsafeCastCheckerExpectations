@@ -134,6 +134,5 @@ testing/InternalSettings.cpp
 testing/Internals.cpp
 testing/cocoa/WebArchiveDumpSupport.mm
 workers/WorkerGlobalScope.cpp
-workers/WorkerMessagingProxy.cpp
 workers/WorkerThread.cpp
 workers/service/background-fetch/ServiceWorkerRegistrationBackgroundFetchAPI.cpp

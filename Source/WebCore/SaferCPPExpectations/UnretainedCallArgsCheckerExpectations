@@ -240,4 +240,3 @@ rendering/mac/RenderThemeMac.mm
 testing/Internals.mm
 testing/ServiceWorkerInternals.mm
 testing/cocoa/WebArchiveDumpSupport.mm
-workers/WorkerRunLoop.cpp

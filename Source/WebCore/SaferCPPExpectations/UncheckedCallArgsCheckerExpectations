@@ -804,7 +804,6 @@ svg/properties/SVGAnimatedString.cpp
 svg/properties/SVGAnimationAdditiveValueFunctionImpl.cpp
 testing/Internals.cpp
 testing/Internals.mm
-workers/Worker.cpp
 workers/WorkerGlobalScope.cpp
 workers/WorkerMessagingProxy.cpp
 workers/WorkerNotificationClient.cpp
@@ -813,8 +812,6 @@ workers/WorkerOrWorkletScriptController.cpp
 workers/WorkerRunLoop.cpp
 workers/WorkerThread.cpp
 workers/service/ExtendableEvent.cpp
-workers/service/ServiceWorkerGlobalScope.cpp
-workers/service/ServiceWorkerJob.cpp
 workers/service/context/ServiceWorkerThread.cpp
 workers/service/context/ServiceWorkerThreadProxy.cpp
 workers/service/server/SWRegistrationDatabase.cpp

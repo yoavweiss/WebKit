@@ -1123,18 +1123,13 @@ testing/js/WebCoreTestSupport.cpp
 workers/DedicatedWorkerGlobalScope.cpp
 workers/Worker.cpp
 workers/WorkerAnimationController.cpp
-workers/WorkerEventLoop.cpp
-workers/WorkerFontLoadRequest.cpp
 workers/WorkerGlobalScope.cpp
 workers/WorkerInspectorProxy.cpp
 workers/WorkerMessagingProxy.cpp
 workers/WorkerOrWorkletThread.cpp
-workers/WorkerRunLoop.cpp
-workers/WorkerScriptLoader.cpp
 workers/service/ServiceWorker.cpp
 workers/service/ServiceWorkerContainer.cpp
 workers/service/ServiceWorkerGlobalScope.cpp
-workers/service/ServiceWorkerJob.cpp
 workers/service/ServiceWorkerRegistration.cpp
 workers/service/ServiceWorkerWindowClient.cpp
 workers/service/background-fetch/BackgroundFetch.cpp
@@ -1144,7 +1139,6 @@ workers/service/background-fetch/ServiceWorkerRegistrationBackgroundFetchAPI.cpp
 workers/service/server/SWServer.cpp
 workers/service/server/SWServerWorker.cpp
 workers/shared/SharedWorker.cpp
-workers/shared/SharedWorkerScriptLoader.cpp
 worklets/PaintWorkletGlobalScope.cpp
 worklets/WorkletGlobalScope.cpp
 worklets/WorkletPendingTasks.cpp
