@@ -2933,7 +2933,15 @@ template<typename Visitor, typename... Variants> constexpr auto visit(Visitor&& 
 
 }
 
-#else // PLATFORM(COCOA)
+// The version of libstdc++ shipped with GCC 12 and older define std::monostate in
+// the <variant> header, while newer versions define it in <utility>. The latter is
+// included above, but the former should be included with older libstdc++ versions
+// to ensure including this header also brings std::monostate into scope.
+#if defined(_GLIBCXX_RELEASE) && (_GLIBCXX_RELEASE < 13)
+#include <variant>
+#endif
+
+#else // PLATFORM(COCOA) || PLATFORM(GTK) || PLATFORM(WPE)
 
 #include <utility>
 #include <variant>
