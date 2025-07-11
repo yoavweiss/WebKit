@@ -239,8 +239,9 @@ bool RenderTextControl::canScroll() const
 
 int RenderTextControl::innerLineHeight() const
 {
-    if (auto innerTextElement = this->innerTextElement(); innerTextElement && innerTextElement->renderer())
-        return innerTextElement->renderer()->style().computedLineHeight();
+    auto innerText = innerTextElement();
+    if (innerText && innerText->renderer())
+        return innerText->renderer()->style().computedLineHeight();
     return style().computedLineHeight();
 }
 #endif

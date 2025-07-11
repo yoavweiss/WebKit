@@ -40,7 +40,9 @@ public:
 
 #if PLATFORM(IOS_FAMILY)
     bool canScroll() const;
-    WEBCORE_EXPORT int innerLineHeight() const;
+
+    // Returns the line height of the inner renderer.
+    int innerLineHeight() const override;
 #endif
 
 protected:

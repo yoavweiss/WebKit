@@ -110,7 +110,6 @@
 #import <WebCore/RenderLayerCompositor.h>
 #import <WebCore/RenderLayerScrollableArea.h>
 #import <WebCore/RenderStyleInlines.h>
-#import <WebCore/RenderTextControl.h>
 #import <WebCore/RenderView.h>
 #import <WebCore/RenderWidget.h>
 #import <WebCore/RenderedDocumentMarker.h>
@@ -1355,9 +1354,7 @@ static WebFrameLoadType toWebFrameLoadType(WebCore::FrameLoadType frameLoadType)
     if (!renderer)
         return 0;
 
-    if (auto* textControlRenderer = dynamicDowncast<WebCore::RenderTextControl>(*renderer))
-        return textControlRenderer->innerLineHeight();
-    return renderer->style().computedLineHeight();
+    return renderer->innerLineHeight();
 }
 
 - (void)updateLayout
