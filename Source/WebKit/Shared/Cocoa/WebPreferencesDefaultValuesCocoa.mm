@@ -36,7 +36,39 @@
 #import <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
 #import <wtf/text/WTFString.h>
 
+#if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/WebPreferencesDefaultValuesCocoaAdditions.mm>)
+#import <WebKitAdditions/WebPreferencesDefaultValuesCocoaAdditions.mm>
+#else
+#if HAVE(LIQUID_GLASS)
+static bool platformIsLiquidGlassEnabled()
+{
+    return true;
+}
+#endif
+#endif
+
 namespace WebKit {
+
+#if HAVE(LIQUID_GLASS)
+static std::optional<bool>& cachedIsLiqudGlassEnabled()
+{
+    static std::optional<bool> isLiquidGlassEnabled;
+    return isLiquidGlassEnabled;
+}
+
+bool isLiquidGlassEnabled()
+{
+    if (auto isLiquidGlassEnabled = cachedIsLiqudGlassEnabled())
+        return *isLiquidGlassEnabled;
+    ASSERT_WITH_MESSAGE(!isInAuxiliaryProcess(), "isLiquidGlassEnabled() must not be called before setLiquidGlassEnabled() in auxiliary processes");
+    return platformIsLiquidGlassEnabled();
+}
+
+void setLiquidGlassEnabled(bool isLiquidGlassEnabled)
+{
+    cachedIsLiqudGlassEnabled() = isLiquidGlassEnabled;
+}
+#endif // HAVE(LIQUID_GLASS)
 
 #if PLATFORM(MAC)
 bool defaultScrollAnimatorEnabled()
@@ -94,10 +126,22 @@ bool defaultTopContentInsetBackgroundCanChangeAfterScrolling()
 #endif
 }
 
-} // namespace WebKit
-
-#if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/WebPreferencesDefaultValuesCocoaAdditions.mm>)
-#import <WebKitAdditions/WebPreferencesDefaultValuesCocoaAdditions.mm>
+bool defaultContentInsetBackgroundFillEnabled()
+{
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    return isLiquidGlassEnabled();
+#else
+    return false;
 #endif
+}
+
+#if HAVE(MATERIAL_HOSTING)
+bool defaultHostedBlurMaterialInMediaControlsEnabled()
+{
+    return isLiquidGlassEnabled();
+}
+#endif
+
+} // namespace WebKit
 
 #endif // PLATFORM(COCOA)

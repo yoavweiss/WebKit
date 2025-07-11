@@ -48,6 +48,7 @@
 #import "WebInspectorInternal.h"
 #import "WebPage.h"
 #import "WebPageGroupProxy.h"
+#import "WebPreferencesDefaultValues.h"
 #import "WebProcessCreationParameters.h"
 #import "WebProcessDataStoreParameters.h"
 #import "WebProcessMessages.h"
@@ -596,6 +597,10 @@ void WebProcess::platformInitializeWebProcess(WebProcessCreationParameters& para
             WEBPROCESS_RELEASE_LOG(Sandbox, "Enabling ParentProcessCanEnableQuickLookStateFlag state flag, status = %d", status);
         }
     }
+#endif
+
+#if HAVE(LIQUID_GLASS)
+    setLiquidGlassEnabled(parameters.isLiquidGlassEnabled);
 #endif
 
 #if HAVE(VIDEO_RESTRICTED_DECODING) && (PLATFORM(MAC) || PLATFORM(MACCATALYST)) && !ENABLE(TRUSTD_BLOCKING_IN_WEBCONTENT)

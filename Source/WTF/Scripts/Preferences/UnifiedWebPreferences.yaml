@@ -3325,7 +3325,7 @@ HostedBlurMaterialInMediaControlsEnabled:
   condition: HAVE(MATERIAL_HOSTING)
   defaultValue:
     WebKit:
-      default: true
+      default: defaultHostedBlurMaterialInMediaControlsEnabled()
     WebKitLegacy:
       default: false
     WebCore:
