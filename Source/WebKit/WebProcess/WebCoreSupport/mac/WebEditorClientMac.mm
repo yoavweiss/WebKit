@@ -47,7 +47,7 @@
 
 namespace WebKit {
 using namespace WebCore;
-    
+
 void WebEditorClient::handleKeyboardEvent(KeyboardEvent& event)
 {
     if (m_page->handleEditingKeyboardEvent(event))
@@ -58,6 +58,11 @@ void WebEditorClient::handleInputMethodKeydown(KeyboardEvent& event)
 {
     if (event.handledByInputMethod())
         event.setDefaultHandled();
+}
+
+void WebEditorClient::didDispatchInputMethodKeydown(KeyboardEvent& event)
+{
+    m_page->handleEditingKeyboardEvent(event);
 }
 
 void WebEditorClient::setInsertionPasteboard(const String&)

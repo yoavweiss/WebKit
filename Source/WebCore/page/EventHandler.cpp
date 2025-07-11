@@ -4093,6 +4093,10 @@ bool EventHandler::internalKeyEvent(const PlatformKeyboardEvent& initialKeyEvent
         return keydownResult;
     auto keypress = KeyboardEvent::create(keyPressEvent, &frame->windowProxy());
     keypress->setTarget(element.copyRef());
+    if (keypress->isComposing()) {
+        frame->editor().handleKeyboardEvent(keypress);
+        return keydownResult;
+    }
     if (keydownResult)
         keypress->preventDefault();
 #if PLATFORM(COCOA)

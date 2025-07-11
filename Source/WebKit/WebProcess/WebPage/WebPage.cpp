@@ -7126,13 +7126,14 @@ void WebPage::getMarkedRangeAsync(CompletionHandler<void(const EditingRange&)>&&
     completionHandler(EditingRange::fromRange(*frame, frame->protectedEditor()->compositionRange()));
 }
 
-void WebPage::getSelectedRangeAsync(CompletionHandler<void(const EditingRange&)>&& completionHandler)
+void WebPage::getSelectedRangeAsync(CompletionHandler<void(const EditingRange& selectedRange, const EditingRange& compositionRange)>&& completionHandler)
 {
     RefPtr frame = corePage()->focusController().focusedOrMainFrame();
     if (!frame)
-        return completionHandler({ });
+        return completionHandler({ }, { });
 
-    completionHandler(EditingRange::fromRange(*frame, frame->selection().selection().toNormalizedRange()));
+    completionHandler(EditingRange::fromRange(*frame, frame->selection().selection().toNormalizedRange()),
+        EditingRange::fromRange(*frame, frame->protectedEditor()->compositionRange()));
 }
 
 void WebPage::characterIndexForPointAsync(const WebCore::IntPoint& point, CompletionHandler<void(uint64_t)>&& completionHandler)

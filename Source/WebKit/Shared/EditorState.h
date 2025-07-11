@@ -88,6 +88,7 @@ struct EditorState {
     bool isInPlugin { false };
 #if PLATFORM(MAC)
     bool canEnableAutomaticSpellingCorrection { true };
+    bool inputMethodUsesCorrectKeyEventOrder { false };
 #endif
 
     struct PostLayoutData {

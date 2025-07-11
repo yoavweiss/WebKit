@@ -3597,6 +3597,21 @@ InlineMediaPlaybackRequiresPlaysInlineAttribute:
     WebCore:
       default: false
 
+InputMethodUsesCorrectKeyEventOrder:
+  type: bool
+  status: testable
+  category: dom
+  humanReadableName: "Correct key event ordering with composition events"
+  condition: PLATFORM(MAC)
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+  sharedPreferenceForWebProcess: true
+
 InputTypeColorEnabled:
   type: bool
   status: mature

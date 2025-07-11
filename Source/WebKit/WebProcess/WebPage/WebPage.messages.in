@@ -534,7 +534,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
 
     HasMarkedText() -> (bool hasMarkedText)
     GetMarkedRangeAsync() -> (struct WebKit::EditingRange range)
-    GetSelectedRangeAsync() -> (struct WebKit::EditingRange range)
+    GetSelectedRangeAsync() -> (struct WebKit::EditingRange selectedRange, struct WebKit::EditingRange compositionRange)
     CharacterIndexForPointAsync(WebCore::IntPoint point) -> (uint64_t location)
     FirstRectForCharacterRangeAsync(struct WebKit::EditingRange range) -> (WebCore::IntRect rect, struct WebKit::EditingRange actualRange)
     SetCompositionAsync(String text, Vector<WebCore::CompositionUnderline> underlines, Vector<WebCore::CompositionHighlight> highlights, HashMap<String, Vector<WebCore::CharacterRange>> annotations, struct WebKit::EditingRange selectionRange, struct WebKit::EditingRange replacementRange)

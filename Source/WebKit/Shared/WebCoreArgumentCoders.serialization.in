@@ -7708,6 +7708,10 @@ struct WebCore::DragItem {
 struct WebCore::KeypressCommand {
     String commandName;
     String text;
+    Vector<WebCore::CompositionUnderline> underlines;
+    Vector<WebCore::CompositionHighlight> highlights;
+    WebCore::CharacterRange selectedRange;
+    WebCore::CharacterRange replacementRange;
 }
 #endif
 

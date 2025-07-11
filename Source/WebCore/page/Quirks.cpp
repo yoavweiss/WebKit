@@ -520,6 +520,12 @@ bool Quirks::needsDeferKeyDownAndKeyPressTimersUntilNextEditingCommand() const
 #endif
 }
 
+// docs.google.com https://bugs.webkit.org/show_bug.cgi?id=199587
+bool Quirks::inputMethodUsesCorrectKeyEventOrder() const
+{
+    return needsQuirks() && m_quirksData.inputMethodUsesCorrectKeyEventOrder;
+}
+
 // FIXME: Remove after the site is fixed, <rdar://problem/50374200>
 // mail.google.com rdar://49403416
 bool Quirks::needsGMailOverflowScrollQuirk() const
@@ -2473,6 +2479,7 @@ static void handleGoogleQuirks(QuirksData& quirksData, const URL& quirksURL, con
         quirksData.shouldAvoidResizingWhenInputViewBoundsChangeQuirk = true;
     }
     quirksData.isGoogleDocs = topDocumentHost == "docs.google.com"_s;
+    quirksData.inputMethodUsesCorrectKeyEventOrder = quirksData.isGoogleDocs;
 #if PLATFORM(IOS_FAMILY)
     if (quirksData.isGoogleDocs) {
         // docs.google.com rdar://49864669

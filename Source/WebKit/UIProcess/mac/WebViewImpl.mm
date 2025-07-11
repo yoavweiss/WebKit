@@ -5097,26 +5097,25 @@ Vector<WebCore::KeypressCommand> WebViewImpl::collectKeyboardLayoutCommandsForEv
     if ([event type] != NSEventTypeKeyDown)
         return { };
 
-    CheckedCommands commands;
-
     ASSERT(!m_collectedKeypressCommands);
-    m_collectedKeypressCommands = &commands;
+    m_collectedKeypressCommands = Vector<WebCore::KeypressCommand> { };
 
     if (RetainPtr context = inputContext())
         [context handleEventByKeyboardLayout:event];
     else
         [m_view interpretKeyEvents:@[event]];
 
-    m_collectedKeypressCommands = nullptr;
+    auto commands = WTFMove(*m_collectedKeypressCommands);
+    m_collectedKeypressCommands = std::nullopt;
 
     if (RetainPtr<NSMenu> menu = NSApp.mainMenu; event.modifierFlags & NSEventModifierFlagFunction
         && [menu respondsToSelector:@selector(_containsItemMatchingEvent:includingDisabledItems:)] && [menu _containsItemMatchingEvent:event includingDisabledItems:YES]) {
-        commands.commands.removeAllMatching([](auto& command) {
+        commands.removeAllMatching([](auto& command) {
             return command.commandName == "insertText:"_s;
         });
     }
 
-    return WTFMove(commands.commands);
+    return commands;
 }
 
 void WebViewImpl::interpretKeyEvent(NSEvent *event, void(^completionHandler)(BOOL handled, const Vector<WebCore::KeypressCommand>& commands))
@@ -5127,21 +5126,67 @@ void WebViewImpl::interpretKeyEvent(NSEvent *event, void(^completionHandler)(BOO
         return;
     }
 
+#if PLATFORM(MAC)
+    if (m_page->editorState().inputMethodUsesCorrectKeyEventOrder) {
+        if (m_collectedKeypressCommands) {
+            m_interpretKeyEventHoldingTank.append([weakThis = WeakPtr { *this }, capturedEvent = retainPtr(event), capturedBlock = makeBlockPtr(completionHandler)] {
+                CheckedPtr checkedThis = weakThis.get();
+                if (!checkedThis)
+                    capturedBlock(NO, { });
+                else
+                    checkedThis->interpretKeyEvent(capturedEvent.get(), capturedBlock.get());
+            });
+            return;
+        }
+
+        m_collectedKeypressCommands = Vector<WebCore::KeypressCommand> { };
+    }
+#endif
+
     LOG(TextInput, "-> handleEventByInputMethod:%p %@", event, event);
-    [inputContext() handleEventByInputMethod:event completionHandler:[weakThis = WeakPtr { *this }, capturedEvent = retainPtr(event), capturedBlock = makeBlockPtr(completionHandler)](BOOL handled) {
-        if (!weakThis) {
+    [inputContext() handleEventByInputMethod:event completionHandler:[weakThis = WeakPtr { *this }, capturedEvent = retainPtr(event), capturedBlock = makeBlockPtr(completionHandler)](BOOL handled) mutable {
+        CheckedPtr checkedThis = weakThis.get();
+        if (!checkedThis) {
             capturedBlock(NO, { });
             return;
         }
 
+        Vector<WebCore::KeypressCommand> commands;
+#if PLATFORM(MAC)
+        if (checkedThis->m_page->editorState().inputMethodUsesCorrectKeyEventOrder) {
+            commands = WTFMove(*checkedThis->m_collectedKeypressCommands);
+            checkedThis->m_collectedKeypressCommands = std::nullopt;
+            checkedThis->m_stagedMarkedRange = std::nullopt;
+        }
+#endif
+
+        bool hasInsertText = false;
+        for (auto& command : commands) {
+            if (command.commandName == "insertText:"_s)
+                hasInsertText = true;
+        }
+
+        if (hasInsertText)
+            handled = NO;
+
         LOG(TextInput, "... handleEventByInputMethod%s handled", handled ? "" : " not");
         if (handled) {
-            capturedBlock(YES, { });
+            capturedBlock(YES, WTFMove(commands));
+            auto holdingTank = WTFMove(checkedThis->m_interpretKeyEventHoldingTank);
+            for (auto& function : holdingTank)
+                function();
             return;
         }
 
-        auto commands = weakThis->collectKeyboardLayoutCommandsForEvent(capturedEvent.get());
+        auto additionalCommands = checkedThis->collectKeyboardLayoutCommandsForEvent(capturedEvent.get());
+        commands.appendVector(additionalCommands);
         capturedBlock(NO, commands);
+#if PLATFORM(MAC)
+        ASSERT(checkedThis->m_page->editorState().inputMethodUsesCorrectKeyEventOrder || checkedThis->m_interpretKeyEventHoldingTank.isEmpty());
+#endif
+        auto holdingTank = WTFMove(checkedThis->m_interpretKeyEventHoldingTank);
+        for (auto& function : holdingTank)
+            function();
     }];
 }
 
@@ -5151,7 +5196,7 @@ void WebViewImpl::doCommandBySelector(SEL selector)
 
     if (m_collectedKeypressCommands) {
         WebCore::KeypressCommand command(NSStringFromSelector(selector));
-        m_collectedKeypressCommands->commands.append(command);
+        m_collectedKeypressCommands->append(command);
         LOG(TextInput, "...stored");
         m_page->registerKeypressCommandName(command.commandName);
     } else {
@@ -5206,7 +5251,7 @@ void WebViewImpl::insertText(id string, NSRange replacementRange)
     if (m_collectedKeypressCommands && !m_isTextInsertionReplacingSoftSpace) {
         ASSERT(replacementRange.location == NSNotFound);
         WebCore::KeypressCommand command("insertText:"_s, text.get());
-        m_collectedKeypressCommands->commands.append(command);
+        m_collectedKeypressCommands->append(command);
         LOG(TextInput, "...stored");
         m_page->registerKeypressCommandName(command.commandName);
         return;
@@ -5232,8 +5277,14 @@ void WebViewImpl::selectedRangeWithCompletionHandler(void(^completionHandlerPtr)
     auto completionHandler = adoptNS([completionHandlerPtr copy]);
 
     LOG(TextInput, "selectedRange");
-    m_page->getSelectedRangeAsync([completionHandler](const EditingRange& editingRangeResult) {
+    m_page->getSelectedRangeAsync([completionHandler, stagedSelectedRange = m_stagedMarkedRange](const EditingRange& editingRangeResult, const EditingRange& compositionRange) {
         void (^completionHandlerBlock)(NSRange) = (void (^)(NSRange))completionHandler.get();
+
+        if (stagedSelectedRange) {
+            completionHandlerBlock(NSRange { compositionRange.location + stagedSelectedRange->location, stagedSelectedRange->length });
+            return;
+        }
+
         NSRange result = editingRangeResult;
         if (result.location == NSNotFound)
             LOG(TextInput, "    -> selectedRange returned (NSNotFound, %llu)", result.length);
@@ -5535,6 +5586,18 @@ void WebViewImpl::setMarkedText(id string, NSRange selectedRange, NSRange replac
         return;
     }
 
+#if PLATFORM(MAC)
+    if (m_page->editorState().inputMethodUsesCorrectKeyEventOrder && m_collectedKeypressCommands) {
+        WebCore::KeypressCommand command("setMarkedText:"_s, text.get(), WTFMove(underlines), WTFMove(highlights),
+            EditingRange { selectedRange }.toCharacterRange(), EditingRange { replacementRange }.toCharacterRange());
+        m_collectedKeypressCommands->append(command);
+        m_stagedMarkedRange = selectedRange;
+        LOG(TextInput, "...stored");
+        m_page->registerKeypressCommandName(command.commandName);
+        return;
+    }
+#endif
+
     m_page->setCompositionAsync(text.get(), WTFMove(underlines), WTFMove(highlights), { }, selectedRange, replacementRange);
 }
 
@@ -5731,7 +5794,6 @@ void WebViewImpl::keyUp(NSEvent *event)
 
     m_isTextInsertionReplacingSoftSpace = false;
     interpretKeyEvent(event, [weakThis = WeakPtr { *this }, capturedEvent = retainPtr(event)](BOOL handledByInputMethod, const Vector<WebCore::KeypressCommand>& commands) {
-        ASSERT(!handledByInputMethod || commands.isEmpty());
         if (weakThis)
             weakThis->m_page->handleKeyboardEvent(NativeWebKeyboardEvent(capturedEvent.get(), handledByInputMethod, weakThis->m_isTextInsertionReplacingSoftSpace, commands));
     });
@@ -5755,7 +5817,6 @@ void WebViewImpl::keyDown(NSEvent *event)
 
     m_isTextInsertionReplacingSoftSpace = false;
     interpretKeyEvent(event, [weakThis = WeakPtr { *this }, capturedEvent = retainPtr(event)](BOOL handledByInputMethod, const Vector<WebCore::KeypressCommand>& commands) {
-        ASSERT(!handledByInputMethod || commands.isEmpty());
         if (weakThis)
             weakThis->m_page->handleKeyboardEvent(NativeWebKeyboardEvent(capturedEvent.get(), handledByInputMethod, weakThis->m_isTextInsertionReplacingSoftSpace, commands));
     });
