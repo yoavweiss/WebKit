@@ -2492,5 +2492,6 @@ fast/forms/range/input-appearance-range-rtl.html [ ImageOnlyFailure ]
 fast/forms/range/slider-in-multi-column.html [ Failure ]
 
 # Tests which pass only with form control refresh enabled
+fast/forms/appearance-default-button.html  [ Pass ]
 fast/forms/form-control-refresh [ Pass ]
 imported/w3c/web-platform-tests/css/css-ui/button-author-level-padding-applies.html [ Pass ]

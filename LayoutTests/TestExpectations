@@ -186,6 +186,9 @@ fast/forms/search/search-recent-searches.html [ Skip ]
 fast/forms/fixed-size-checkbox-vertically-centered.html [ Skip ]
 fast/forms/fixed-size-radio-vertically-centered.html [ Skip ]
 
+# Only applicable on macOS, and only testable with the Liquid Glass-aligned redesign.
+fast/forms/appearance-default-button.html  [ Skip ]
+
 # Only applicable on platforms with dark mode support
 css-dark-mode [ Skip ]
 fast/css/apple-system-control-colors.html [ Skip ]

@@ -37,6 +37,7 @@ fast/forms/range/input-appearance-range-rtl.html [ Pass ]
 fast/forms/range/slider-in-multi-column.html [ Pass ]
 
 # Tests which pass only with form control refresh enabled (support added in Tahoe)
+fast/forms/appearance-default-button.html  [ Skip ]
 fast/forms/form-control-refresh [ Skip ]
 imported/w3c/web-platform-tests/css/css-ui/button-author-level-padding-applies.html [ Skip ]
 
