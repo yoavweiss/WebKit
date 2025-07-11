@@ -487,7 +487,7 @@ protected:
 
     RetainPtr<PDFDocument> m_pdfDocument;
 
-    RetainPtr<WKAccessibilityPDFDocumentObject> m_accessibilityDocumentObject;
+    const RetainPtr<WKAccessibilityPDFDocumentObject> m_accessibilityDocumentObject;
 
     String m_suggestedFilename;
 

@@ -547,7 +547,7 @@ PDFPlugin::PDFPlugin(HTMLPlugInElement& element)
     }
 
     RefPtr frame = m_frame.get();
-    m_accessibilityObject = adoptNS([[WKPDFPluginAccessibilityObject alloc] initWithPDFPlugin:this andElement:&element]);
+    lazyInitialize(m_accessibilityObject, adoptNS([[WKPDFPluginAccessibilityObject alloc] initWithPDFPlugin:this andElement:&element]));
     [m_accessibilityObject setPdfLayerController:m_pdfLayerController.get()];
     if (isFullFramePlugin() && frame->isMainFrame())
         [m_accessibilityObject setParent:frame->page()->accessibilityRemoteObject()];
