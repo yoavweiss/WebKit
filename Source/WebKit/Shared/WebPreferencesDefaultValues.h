@@ -86,6 +86,11 @@
 
 namespace WebKit {
 
+#if HAVE(LIQUID_GLASS)
+bool isLiquidGlassEnabled();
+void setLiquidGlassEnabled(bool);
+#endif
+
 #if PLATFORM(IOS_FAMILY)
 bool defaultPassiveTouchListenersAsDefaultOnDocument();
 bool defaultShouldPrintBackgrounds();
@@ -193,5 +198,9 @@ bool defaultPreferSpatialAudioExperience();
 bool defaultMutationEventsEnabled();
 
 bool defaultTrustedTypesEnabled();
+
+#if HAVE(MATERIAL_HOSTING)
+bool defaultHostedBlurMaterialInMediaControlsEnabled();
+#endif
 
 } // namespace WebKit
