@@ -2720,8 +2720,6 @@ private:
 
     bool m_requiresTrustedTypes { false };
 
-    bool m_intersectionObserverUpdateTaskQueued { false };
-
     static bool hasEverCreatedAnAXObjectCache;
 
     const RefPtr<ResizeObserver> m_resizeObserverForContainIntrinsicSize;

@@ -10036,48 +10036,23 @@ void Document::updateIntersectionObservations(const Vector<WeakPtr<IntersectionO
         return;
     }
 
-    Vector<WeakPtr<IntersectionObserver>> intersectionObserversToNotifyAsynchronously;
-    Vector<RefPtr<IntersectionObserver>> intersectionObserversToNotifySynchronously;
+    Vector<WeakPtr<IntersectionObserver>> intersectionObserversWithPendingNotifications;
 
     for (auto& weakObserver : intersectionObservers) {
         RefPtr observer = weakObserver.get();
         if (!observer)
             continue;
 
-        if (observer->updateObservations(*this)) {
-            switch (observer->notificationDelivery()) {
-            case IntersectionObserver::NotificationDelivery::Asynchronous:
-                intersectionObserversToNotifyAsynchronously.append(observer);
-                break;
-            case IntersectionObserver::NotificationDelivery::Synchronous:
-                intersectionObserversToNotifySynchronously.append(observer);
-                break;
-            }
-        }
+        auto needNotify = observer->updateObservations(*this);
+        if (needNotify == IntersectionObserver::NeedNotify::Yes)
+            intersectionObserversWithPendingNotifications.append(observer);
     }
 
-    if (!m_intersectionObserverUpdateTaskQueued && intersectionObserversToNotifyAsynchronously.size()) {
-        LOG_WITH_STREAM(IntersectionObserver, stream << "Document " << this << " updateIntersectionObservations - queueing task to notify JavaScript observers");
-        m_intersectionObserverUpdateTaskQueued = true;
+    if (intersectionObserversWithPendingNotifications.size())
+        LOG_WITH_STREAM(IntersectionObserver, stream << "Document " << this << " updateIntersectionObservations - notifying observers");
 
-        eventLoop().queueTask(TaskSource::IntersectionObserver, [weakThis = WeakPtr<Document, WeakPtrImplWithEventTargetData> { *this }, weakObservers = WTFMove(intersectionObserversToNotifyAsynchronously)]() mutable {
-            RefPtr protectedDocument = weakThis.get();
-
-            if (!protectedDocument)
-                return;
-
-            for (auto& weakObserver : weakObservers) {
-                if (RefPtr observer = weakObserver.get())
-                    observer->notify();
-            }
-            protectedDocument->m_intersectionObserverUpdateTaskQueued = false;
-        });
-    }
-
-    if (intersectionObserversToNotifySynchronously.size()) {
-        LOG_WITH_STREAM(IntersectionObserver, stream << "Document " << this << " updateIntersectionObservations - notifying internal observers.");
-
-        for (const auto& observer : intersectionObserversToNotifySynchronously)
+    for (auto& weakObserver : intersectionObserversWithPendingNotifications) {
+        if (RefPtr observer = weakObserver.get())
             observer->notify();
     }
 }
