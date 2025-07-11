@@ -138,7 +138,7 @@ class HistoryItemClient;
 class OpportunisticTaskScheduler;
 class ImageAnalysisQueue;
 class ImageOverlayController;
-class InspectorClient;
+class InspectorBackendClient;
 class InspectorController;
 class IntSize;
 class KeyboardScrollingAnimator;

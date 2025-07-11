@@ -97,7 +97,7 @@
 #include "ImageAnalysisQueue.h"
 #include "ImageOverlay.h"
 #include "ImageOverlayController.h"
-#include "InspectorClient.h"
+#include "InspectorBackendClient.h"
 #include "InspectorController.h"
 #include "InspectorInstrumentation.h"
 #include "IntelligenceTextEffectsSupport.h"
@@ -363,7 +363,7 @@ Page::Page(PageConfiguration&& pageConfiguration)
 #if ENABLE(CONTEXT_MENUS)
     , m_contextMenuController(makeUniqueRef<ContextMenuController>(*this, WTFMove(pageConfiguration.contextMenuClient)))
 #endif
-    , m_inspectorController(makeUniqueRefWithoutRefCountedCheck<InspectorController>(*this, WTFMove(pageConfiguration.inspectorClient)))
+    , m_inspectorController(makeUniqueRefWithoutRefCountedCheck<InspectorController>(*this, WTFMove(pageConfiguration.inspectorBackendClient)))
     , m_pointerCaptureController(makeUniqueRef<PointerCaptureController>(*this))
 #if ENABLE(POINTER_LOCK)
     , m_pointerLockController(makeUniqueRef<PointerLockController>(*this))
@@ -495,7 +495,7 @@ Page::Page(PageConfiguration&& pageConfiguration)
     protectedStorageNamespaceProvider()->setSessionStorageQuota(m_settings->sessionStorageQuota());
 
 #if ENABLE(REMOTE_INSPECTOR)
-    if (m_inspectorController->inspectorClient() && m_inspectorController->inspectorClient()->allowRemoteInspectionToPageDirectly())
+    if (m_inspectorController->inspectorBackendClient() && m_inspectorController->inspectorBackendClient()->allowRemoteInspectionToPageDirectly())
         m_inspectorDebuggable->init();
 #endif
 

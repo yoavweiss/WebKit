@@ -51,7 +51,7 @@ namespace WebCore {
 
 class DOMWrapperWorld;
 class GraphicsContext;
-class InspectorClient;
+class InspectorBackendClient;
 class InspectorDOMAgent;
 class InspectorFrontendClient;
 class InspectorInstrumentation;
@@ -68,7 +68,7 @@ class InspectorController final : public Inspector::InspectorEnvironment, public
     WTF_MAKE_NONCOPYABLE(InspectorController);
     WTF_MAKE_TZONE_ALLOCATED(InspectorController);
 public:
-    InspectorController(Page&, std::unique_ptr<InspectorClient>&&);
+    InspectorController(Page&, std::unique_ptr<InspectorBackendClient>&&);
     ~InspectorController() override;
 
     WEBCORE_EXPORT void ref() const;
@@ -114,7 +114,7 @@ public:
     WEBCORE_EXPORT unsigned flexOverlayCount() const;
     WEBCORE_EXPORT unsigned paintRectCount() const;
 
-    InspectorClient* inspectorClient() const { return m_inspectorClient.get(); }
+    InspectorBackendClient* inspectorBackendClient() const { return m_inspectorBackendClient.get(); }
     InspectorFrontendClient* inspectorFrontendClient() const { return m_inspectorFrontendClient; }
 
     Inspector::InspectorAgent& ensureInspectorAgent();
@@ -147,7 +147,7 @@ private:
     std::unique_ptr<PageDebugger> m_debugger;
     Inspector::AgentRegistry m_agents;
 
-    std::unique_ptr<InspectorClient> m_inspectorClient;
+    std::unique_ptr<InspectorBackendClient> m_inspectorBackendClient;
     InspectorFrontendClient* m_inspectorFrontendClient { nullptr };
 
     // Lazy, but also on-demand agents.

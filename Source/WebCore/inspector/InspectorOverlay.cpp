@@ -50,7 +50,7 @@
 #include "GraphicsContext.h"
 #include "GridArea.h"
 #include "GridPositionsResolver.h"
-#include "InspectorClient.h"
+#include "InspectorBackendClient.h"
 #include "InspectorController.h"
 #include "InspectorDOMAgent.h"
 #include "IntPoint.h"
@@ -392,7 +392,7 @@ static void drawShapeHighlight(GraphicsContext& context, Node& node, InspectorOv
     context.fillPath(shapePath);
 }
 
-InspectorOverlay::InspectorOverlay(InspectorController& controller, InspectorClient* client)
+InspectorOverlay::InspectorOverlay(InspectorController& controller, InspectorBackendClient* client)
     : m_controller(controller)
     , m_client(client)
     , m_paintRectUpdateTimer(*this, &InspectorOverlay::updatePaintRectsTimerFired)

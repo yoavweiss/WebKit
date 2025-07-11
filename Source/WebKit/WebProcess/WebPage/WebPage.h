@@ -426,7 +426,7 @@ class WebFullScreenManager;
 class WebGestureEvent;
 class WebImage;
 class WebInspector;
-class WebInspectorClient;
+class WebInspectorBackendClient;
 class WebInspectorUI;
 class WebKeyboardEvent;
 class WebMouseEvent;

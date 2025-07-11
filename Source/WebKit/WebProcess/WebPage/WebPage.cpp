@@ -120,7 +120,7 @@
 #include "WebHistoryItemClient.h"
 #include "WebHitTestResultData.h"
 #include "WebImage.h"
-#include "WebInspectorClient.h"
+#include "WebInspectorBackendClient.h"
 #include "WebInspectorInternal.h"
 #include "WebInspectorMessages.h"
 #include "WebInspectorUI.h"
@@ -796,7 +796,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 #if ENABLE(DRAG_SUPPORT)
     pageConfiguration.dragClient = makeUnique<WebDragClient>(this);
 #endif
-    pageConfiguration.inspectorClient = makeUnique<WebInspectorClient>(this);
+    pageConfiguration.inspectorBackendClient = makeUnique<WebInspectorBackendClient>(this);
 #if USE(AUTOCORRECTION_PANEL)
     pageConfiguration.alternativeTextClient = makeUnique<WebAlternativeTextClient>(this);
 #endif

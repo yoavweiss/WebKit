@@ -131,7 +131,7 @@ void WebPageInspectorController::disconnectAllFrontends()
     if (!m_frontendRouter->hasFrontends())
         return;
 
-    // Notify agents first, since they may need to use InspectorClient.
+    // Notify agents first, since they may need to use InspectorBackendClient.
     m_agents.willDestroyFrontendAndBackend(DisconnectReason::InspectedTargetDestroyed);
 
     // Disconnect any remaining remote frontends.

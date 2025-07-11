@@ -1074,7 +1074,7 @@ def headers_for_type(type, for_implementation_file=False):
         'WebCore::IndexIDToIndexKeyMap': ['<WebCore/IndexKey.h>'],
         'WebCore::IndexedDB::ObjectStoreOverwriteMode': ['<WebCore/IndexedDB.h>'],
         'WebCore::InputMode': ['<WebCore/InputMode.h>'],
-        'WebCore::InspectorClientDeveloperPreference': ['<WebCore/InspectorClient.h>'],
+        'WebCore::InspectorBackendClientDeveloperPreference': ['<WebCore/InspectorBackendClient.h>'],
         'WebCore::InspectorFrontendClientAppearance': ['<WebCore/InspectorFrontendClient.h>'],
         'WebCore::InspectorFrontendClientSaveData': ['<WebCore/InspectorFrontendClient.h>'],
         'WebCore::InspectorOverlayHighlight': ['<WebCore/InspectorOverlay.h>'],

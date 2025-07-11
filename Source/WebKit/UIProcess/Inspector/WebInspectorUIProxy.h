@@ -36,7 +36,7 @@
 #include <JavaScriptCore/InspectorFrontendChannel.h>
 #include <WebCore/Color.h>
 #include <WebCore/FloatRect.h>
-#include <WebCore/InspectorClient.h>
+#include <WebCore/InspectorBackendClient.h>
 #include <WebCore/InspectorFrontendClient.h>
 #include <wtf/CheckedPtr.h>
 #include <wtf/Forward.h>
@@ -287,7 +287,7 @@ private:
     void elementSelectionChanged(bool);
     void timelineRecordingChanged(bool);
 
-    void setDeveloperPreferenceOverride(WebCore::InspectorClient::DeveloperPreference, std::optional<bool>);
+    void setDeveloperPreferenceOverride(WebCore::InspectorBackendClient::DeveloperPreference, std::optional<bool>);
 #if ENABLE(INSPECTOR_NETWORK_THROTTLING)
     void setEmulatedConditions(std::optional<int64_t>&& bytesPerSecondLimit);
 #endif

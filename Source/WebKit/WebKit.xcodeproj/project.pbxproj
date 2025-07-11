@@ -2079,7 +2079,7 @@
 		BC032D7B10F4378D0058C15A /* WebDragClient.h in Headers */ = {isa = PBXBuildFile; fileRef = BC032D6610F4378D0058C15A /* WebDragClient.h */; };
 		BC032D7D10F4378D0058C15A /* WebEditorClient.h in Headers */ = {isa = PBXBuildFile; fileRef = BC032D6810F4378D0058C15A /* WebEditorClient.h */; };
 		BC032D7F10F4378D0058C15A /* WebLocalFrameLoaderClient.h in Headers */ = {isa = PBXBuildFile; fileRef = BC032D6A10F4378D0058C15A /* WebLocalFrameLoaderClient.h */; };
-		BC032D8210F4378D0058C15A /* WebInspectorClient.h in Headers */ = {isa = PBXBuildFile; fileRef = BC032D6D10F4378D0058C15A /* WebInspectorClient.h */; };
+		BC032D8210F4378D0058C15A /* WebInspectorBackendClient.h in Headers */ = {isa = PBXBuildFile; fileRef = BC032D6D10F4378D0058C15A /* WebInspectorBackendClient.h */; };
 		BC032D8F10F437A00058C15A /* WebPage.h in Headers */ = {isa = PBXBuildFile; fileRef = BC032D8B10F437A00058C15A /* WebPage.h */; };
 		BC032D9710F437AF0058C15A /* WebProcess.h in Headers */ = {isa = PBXBuildFile; fileRef = BC032D9110F437AF0058C15A /* WebProcess.h */; };
 		BC032DA610F437D10058C15A /* Decoder.h in Headers */ = {isa = PBXBuildFile; fileRef = BC032D9E10F437D10058C15A /* Decoder.h */; };
@@ -7553,7 +7553,7 @@
 		BC032D6610F4378D0058C15A /* WebDragClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebDragClient.h; sourceTree = "<group>"; };
 		BC032D6810F4378D0058C15A /* WebEditorClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebEditorClient.h; sourceTree = "<group>"; };
 		BC032D6A10F4378D0058C15A /* WebLocalFrameLoaderClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebLocalFrameLoaderClient.h; sourceTree = "<group>"; };
-		BC032D6D10F4378D0058C15A /* WebInspectorClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebInspectorClient.h; sourceTree = "<group>"; };
+		BC032D6D10F4378D0058C15A /* WebInspectorBackendClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebInspectorBackendClient.h; sourceTree = "<group>"; };
 		BC032D8910F437A00058C15A /* WebFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebFrame.h; sourceTree = "<group>"; };
 		BC032D8B10F437A00058C15A /* WebPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebPage.h; sourceTree = "<group>"; };
 		BC032D9110F437AF0058C15A /* WebProcess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebProcess.h; sourceTree = "<group>"; };
@@ -7594,7 +7594,7 @@
 		BC111A56112F4FBB00337BAB /* WebDragClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebDragClient.cpp; sourceTree = "<group>"; };
 		BC111A57112F4FBB00337BAB /* WebEditorClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebEditorClient.cpp; sourceTree = "<group>"; };
 		BC111A58112F4FBB00337BAB /* WebLocalFrameLoaderClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebLocalFrameLoaderClient.cpp; sourceTree = "<group>"; wrapsLines = 0; };
-		BC111A59112F4FBB00337BAB /* WebInspectorClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebInspectorClient.cpp; sourceTree = "<group>"; };
+		BC111A59112F4FBB00337BAB /* WebInspectorBackendClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebInspectorBackendClient.cpp; sourceTree = "<group>"; };
 		BC111ADC112F5B9300337BAB /* WebFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebFrame.cpp; sourceTree = "<group>"; };
 		BC111AE3112F5C2600337BAB /* WebProcess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebProcess.cpp; sourceTree = "<group>"; };
 		BC111B08112F5E3C00337BAB /* ResponsivenessTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResponsivenessTimer.cpp; sourceTree = "<group>"; };
@@ -14048,8 +14048,8 @@
 				E3E6297D2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.cpp */,
 				E3E6297C2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.h */,
 				1C8E2A1C1277833F00BC7BD0 /* WebInspector.messages.in */,
-				BC111A59112F4FBB00337BAB /* WebInspectorClient.cpp */,
-				BC032D6D10F4378D0058C15A /* WebInspectorClient.h */,
+				BC111A59112F4FBB00337BAB /* WebInspectorBackendClient.cpp */,
+				BC032D6D10F4378D0058C15A /* WebInspectorBackendClient.h */,
 				1C8E281F1275D15400BC7BD0 /* WebInspectorInternal.cpp */,
 				1C8E281E1275D15400BC7BD0 /* WebInspectorInternal.h */,
 				FEE43FD01E67AFC60077D6D1 /* WebInspectorInterruptDispatcher.cpp */,
@@ -17942,7 +17942,7 @@
 				514129941C6428BB0059E714 /* WebIDBConnectionToServer.h in Headers */,
 				510523741C73D38B007993CB /* WebIDBConnectionToServerMessages.h in Headers */,
 				BCCF6ABD12C91EF9008F9C35 /* WebImage.h in Headers */,
-				BC032D8210F4378D0058C15A /* WebInspectorClient.h in Headers */,
+				BC032D8210F4378D0058C15A /* WebInspectorBackendClient.h in Headers */,
 				1C8E28201275D15400BC7BD0 /* WebInspectorInternal.h in Headers */,
 				FEE43FD31E67B0180077D6D1 /* WebInspectorInterruptDispatcher.h in Headers */,
 				FEDBDCD71E68D20500A59F8F /* WebInspectorInterruptDispatcherMessages.h in Headers */,

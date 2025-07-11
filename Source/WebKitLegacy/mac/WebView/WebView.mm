@@ -1528,7 +1528,7 @@ static WebCore::ApplicationCacheStorage& webApplicationCacheStorage()
 #if !PLATFORM(IOS_FAMILY)
     pageConfiguration.validationMessageClient = makeUnique<WebValidationMessageClient>(self);
 #endif
-    pageConfiguration.inspectorClient = makeUnique<WebInspectorClient>(self);
+    pageConfiguration.inspectorBackendClient = makeUnique<WebInspectorClient>(self);
 
 #if ENABLE(DRAG_SUPPORT)
     pageConfiguration.dragClient = makeUnique<WebDragClient>(self);
@@ -1786,7 +1786,7 @@ static WebCore::ApplicationCacheStorage& webApplicationCacheStorage()
     pageConfiguration.dragClient = makeUnique<WebDragClient>(self);
 #endif
 
-    pageConfiguration.inspectorClient = makeUnique<WebInspectorClient>(self);
+    pageConfiguration.inspectorBackendClient = makeUnique<WebInspectorClient>(self);
     pageConfiguration.applicationCacheStorage = webApplicationCacheStorage();
     pageConfiguration.databaseProvider = WebDatabaseProvider::singleton();
     pageConfiguration.storageNamespaceProvider = _private->group->storageNamespaceProvider();

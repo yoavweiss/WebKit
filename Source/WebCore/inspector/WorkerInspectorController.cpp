@@ -27,7 +27,7 @@
 #include "WorkerInspectorController.h"
 
 #include "CommandLineAPIHost.h"
-#include "InspectorClient.h"
+#include "InspectorBackendClient.h"
 #include "InspectorController.h"
 #include "InstrumentingAgents.h"
 #include "JSExecState.h"
@@ -179,11 +179,11 @@ void WorkerInspectorController::updateServiceWorkerPageFrontendCount()
 
     // When a service worker is loaded in a Page, we need to report its inspector frontend count
     // up to the page's inspectorController so the client knows about it.
-    auto inspectorClient = serviceWorkerPage->inspectorController().inspectorClient();
-    if (!inspectorClient)
+    auto inspectorBackendClient = serviceWorkerPage->inspectorController().inspectorBackendClient();
+    if (!inspectorBackendClient)
         return;
 
-    inspectorClient->frontendCountChanged(m_frontendRouter->frontendCount());
+    inspectorBackendClient->frontendCountChanged(m_frontendRouter->frontendCount());
 }
 
 void WorkerInspectorController::dispatchMessageFromFrontend(const String& message)

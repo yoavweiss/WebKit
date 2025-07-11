@@ -76,8 +76,8 @@
 #include "HTMLTemplateElement.h"
 #include "HTMLVideoElement.h"
 #include "HitTestResult.h"
+#include "InspectorBackendClient.h"
 #include "InspectorCSSAgent.h"
-#include "InspectorClient.h"
 #include "InspectorController.h"
 #include "InspectorHistory.h"
 #include "InspectorNodeFinder.h"
@@ -1363,7 +1363,7 @@ void InspectorDOMAgent::setSearchingForNode(Inspector::Protocol::ErrorString& er
 
     protectedOverlay()->didSetSearchingForNode(m_searchingForNode);
 
-    if (InspectorClient* client = m_inspectedPage->inspectorController().inspectorClient())
+    if (InspectorBackendClient* client = m_inspectedPage->inspectorController().inspectorBackendClient())
         client->elementSelectionChanged(m_searchingForNode);
 }
 

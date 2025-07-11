@@ -127,7 +127,7 @@
 #include "ImageOverlay.h"
 #include "ImageOverlayController.h"
 #include "InlineIteratorLineBox.h"
-#include "InspectorClient.h"
+#include "InspectorBackendClient.h"
 #include "InspectorController.h"
 #include "InspectorDebuggableType.h"
 #include "InspectorFrontendClientLocal.h"

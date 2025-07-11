@@ -768,27 +768,27 @@ void WebInspectorUIProxy::timelineRecordingChanged(bool active)
     m_isProfilingPage = active;
 }
 
-void WebInspectorUIProxy::setDeveloperPreferenceOverride(WebCore::InspectorClient::DeveloperPreference developerPreference, std::optional<bool> overrideValue)
+void WebInspectorUIProxy::setDeveloperPreferenceOverride(WebCore::InspectorBackendClient::DeveloperPreference developerPreference, std::optional<bool> overrideValue)
 {
     switch (developerPreference) {
-    case InspectorClient::DeveloperPreference::PrivateClickMeasurementDebugModeEnabled:
+    case InspectorBackendClient::DeveloperPreference::PrivateClickMeasurementDebugModeEnabled:
         if (RefPtr inspectedPage = m_inspectedPage.get())
             inspectedPage->protectedWebsiteDataStore()->setPrivateClickMeasurementDebugMode(overrideValue && overrideValue.value());
         return;
 
-    case InspectorClient::DeveloperPreference::ITPDebugModeEnabled:
+    case InspectorBackendClient::DeveloperPreference::ITPDebugModeEnabled:
         if (RefPtr inspectedPage = m_inspectedPage.get())
             inspectedPage->protectedWebsiteDataStore()->setResourceLoadStatisticsDebugMode(overrideValue && overrideValue.value());
         return;
 
-    case InspectorClient::DeveloperPreference::MockCaptureDevicesEnabled:
+    case InspectorBackendClient::DeveloperPreference::MockCaptureDevicesEnabled:
 #if ENABLE(MEDIA_STREAM)
         if (RefPtr inspectedPage = m_inspectedPage.get())
             inspectedPage->setMockCaptureDevicesEnabledOverride(overrideValue);
 #endif // ENABLE(MEDIA_STREAM)
         return;
 
-    case InspectorClient::DeveloperPreference::NeedsSiteSpecificQuirks:
+    case InspectorBackendClient::DeveloperPreference::NeedsSiteSpecificQuirks:
         if (RefPtr inspectedPage = m_inspectedPage.get())
             inspectedPage->protectedPreferences()->setNeedsSiteSpecificQuirksInspectorOverride(overrideValue);
         return;

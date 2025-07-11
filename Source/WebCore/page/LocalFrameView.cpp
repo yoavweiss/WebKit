@@ -71,7 +71,7 @@
 #include "HTMLPlugInImageElement.h"
 #include "HighlightRegistry.h"
 #include "ImageDocument.h"
-#include "InspectorClient.h"
+#include "InspectorBackendClient.h"
 #include "InspectorController.h"
 #include "InspectorInstrumentation.h"
 #include "LegacyRenderSVGRoot.h"
@@ -4415,8 +4415,8 @@ void LocalFrameView::scheduleResizeEventIfNeeded()
 
     bool isMainFrame = m_frame->isMainFrame();
     if (InspectorInstrumentation::hasFrontends() && isMainFrame) {
-        if (InspectorClient* inspectorClient = page ? page->inspectorController().inspectorClient() : nullptr)
-            inspectorClient->didResizeMainFrame(m_frame.ptr());
+        if (InspectorBackendClient* inspectorBackendClient = page ? page->inspectorController().inspectorBackendClient() : nullptr)
+            inspectorBackendClient->didResizeMainFrame(m_frame.ptr());
     }
 }
 
