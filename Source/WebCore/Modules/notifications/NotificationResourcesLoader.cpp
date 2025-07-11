@@ -30,6 +30,7 @@
 #if ENABLE(NOTIFICATIONS)
 
 #include "BitmapImage.h"
+#include "EventTargetInlines.h"
 #include "GraphicsContext.h"
 #include "NotificationResources.h"
 #include "ResourceRequest.h"

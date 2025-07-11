@@ -174,7 +174,7 @@ class MockMediaSessionCoordinator;
 #endif
 #endif
 
-#if ENABLE(ARKIT_INLINE_PREVIEW_MAC)
+#if ENABLE(ARKIT_INLINE_PREVIEW_MAC) || ENABLE(MODEL_ELEMENT)
 class HTMLModelElement;
 #endif
 
@@ -1580,6 +1580,8 @@ public:
 
 #if ENABLE(MODEL_ELEMENT)
     void disableModelLoadDelaysForTesting();
+    String modelElementState(HTMLModelElement&);
+    bool isModelElementIntersectingViewport(HTMLModelElement&);
 #endif
 
 private:

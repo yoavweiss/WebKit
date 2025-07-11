@@ -293,6 +293,7 @@ Modules/mediastream/UserMediaController.cpp
 Modules/mediastream/UserMediaRequest.cpp
 Modules/mediastream/VideoTrackGenerator.cpp
 Modules/model-element/HTMLModelElement.cpp
+Modules/model-element/LazyLoadModelObserver.cpp
 Modules/model-element/ModelPlayer.cpp
 Modules/model-element/ModelPlayerAnimationState.cpp
 Modules/model-element/ModelPlayerClient.cpp

@@ -397,6 +397,10 @@
 #include "MediaStreamTrack.h"
 #endif
 
+#if ENABLE(MODEL_ELEMENT)
+#include "LazyLoadModelObserver.h"
+#endif
+
 #if USE(QUICK_LOOK)
 #include "QuickLook.h"
 #endif
@@ -11143,6 +11147,15 @@ LazyLoadImageObserver& Document::lazyLoadImageObserver()
         m_lazyLoadImageObserver = makeUnique<LazyLoadImageObserver>();
     return *m_lazyLoadImageObserver;
 }
+
+#if ENABLE(MODEL_ELEMENT)
+LazyLoadModelObserver& Document::lazyLoadModelObserver()
+{
+    if (!m_lazyLoadModelObserver)
+        m_lazyLoadModelObserver = makeUnique<LazyLoadModelObserver>();
+    return *m_lazyLoadModelObserver;
+}
+#endif
 
 const CrossOriginOpenerPolicy& Document::crossOriginOpenerPolicy() const
 {
