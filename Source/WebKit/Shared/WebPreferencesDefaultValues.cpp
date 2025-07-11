@@ -399,7 +399,7 @@ bool defaultTrustedTypesEnabled()
 #endif
 }
 
-#if !PLATFORM(COCOA)
+#if !ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 bool defaultContentInsetBackgroundFillEnabled()
 {
     return false;

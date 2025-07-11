@@ -351,6 +351,10 @@ struct WebPageCreationParameters {
     String presentingApplicationBundleIdentifier;
 #endif
     bool shouldSendConsoleLogsToUIProcessForTesting { false };
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    bool defaultContentInsetBackgroundFillEnabled { false };
+#endif
 };
 
 } // namespace WebKit

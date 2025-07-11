@@ -702,6 +702,10 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 {
     WEBPAGE_RELEASE_LOG(Loading, "constructor:");
 
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    cachedValueDefaultContentInsetBackgroundFillEnabled() = parameters.defaultContentInsetBackgroundFillEnabled;
+#endif
+
 #if PLATFORM(COCOA)
 #if HAVE(SANDBOX_STATE_FLAGS)
     auto auditToken = WebProcess::singleton().auditTokenForSelf();

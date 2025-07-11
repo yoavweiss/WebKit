@@ -12069,6 +12069,9 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     parameters.presentingApplicationBundleIdentifier = presentingApplicationBundleIdentifier();
 #endif
 
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    parameters.defaultContentInsetBackgroundFillEnabled = defaultContentInsetBackgroundFillEnabled();
+#endif
     return parameters;
 }
 

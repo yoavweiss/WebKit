@@ -280,10 +280,6 @@ struct WebProcessCreationParameters {
 #if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
     bool shouldInitializeAccessibility { false };
 #endif
-
-#if HAVE(LIQUID_GLASS)
-    bool isLiquidGlassEnabled { false };
-#endif
 };
 
 } // namespace WebKit

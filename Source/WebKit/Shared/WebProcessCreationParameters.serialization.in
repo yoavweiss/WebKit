@@ -227,8 +227,4 @@
 #if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
     bool shouldInitializeAccessibility;
 #endif
-
-#if HAVE(LIQUID_GLASS)
-    bool isLiquidGlassEnabled;
-#endif
 };
