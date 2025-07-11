@@ -973,7 +973,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     WebCore::provideNotification(page.ptr(), new WebNotificationClient(this));
 #endif
 #if ENABLE(MEDIA_STREAM)
-    WebCore::provideUserMediaTo(page.ptr(), new WebUserMediaClient(*this));
+    WebCore::provideUserMediaTo(page.ptr(), WebUserMediaClient::create(*this));
 #endif
 #if ENABLE(ENCRYPTED_MEDIA)
     WebCore::provideMediaKeySystemTo(page, *new WebMediaKeySystemClient(*this));

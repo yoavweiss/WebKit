@@ -23,7 +23,6 @@ Modules/mediastream/PeerConnectionBackend.cpp
 Modules/mediastream/RTCController.cpp
 Modules/mediastream/RTCPeerConnection.cpp
 Modules/mediastream/RTCRtpScriptTransformer.cpp
-Modules/mediastream/UserMediaController.cpp
 Modules/mediastream/UserMediaRequest.cpp
 Modules/mediastream/libwebrtc/LibWebRTCPeerConnectionBackend.cpp
 Modules/model-element/HTMLModelElement.cpp
