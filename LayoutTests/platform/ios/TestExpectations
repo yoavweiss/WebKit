@@ -7937,20 +7937,6 @@ webkit.org/b/295557 fast/dom/Range/scale-page-bounding-client-rect.html [ Pass F
 
 webkit.org/b/295559 [ Release ] media/video-unmuted-after-play-holds-sleep-assertion.html [ Pass Failure ]
 
-# webkit.org/b/295597 REGRESSION (296274@main): 14X media layout tests are encountering CONSOLE MESSAGE: A capture MediaStreamTrack was destroyed without having been stopped explicitly
-[ Debug ] fast/mediastream/getUserMedia-deny-persistency3.html [ Pass Failure ]
-[ Debug ] fast/mediastream/overconstrainederror-constraint.html [ Pass Failure ]
-fast/mediastream/play-newly-added-audio-track.html [ Pass Failure ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-timing.https.sub.html [ Pass Failure ]
-[ Release ] fast/mediastream/get-user-media-device-id.html [ Pass Failure ]
-[ Release ] fast/mediastream/stream-switch.html [ Pass Failure ]
-fast/mediastream/captureInGPUProcess.html [ Pass Failure ]
-fast/mediastream/getUserMedia-default.html [ Pass Failure ]
-[ Release ] fast/mediastream/mediastreamtrack-clone-muted.html [ Pass Failure ]
-imported/w3c/web-platform-tests/mediacapture-streams/MediaStreamTrack-applyConstraints.https.html [ Pass Failure ]
-fast/mediastream/MediaDevices-getUserMedia.html [ Pass Failure ]
-http/tests/webrtc/audioSessionInFrames.html [ Pass Failure ]
-
 webkit.org/b/295604 http/tests/blink/sendbeacon/beacon-cookie.html [ Pass Failure ]
 
 # rdar://148125924 (REGRESSION(291405@Main?): [ OS 26 ] apple-visual-effects/apple-visual-effect-parsing.html is a constant text failure)

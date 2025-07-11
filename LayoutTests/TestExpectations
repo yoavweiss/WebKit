@@ -537,6 +537,7 @@ imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allow
 imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-self.https.sub.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-some.https.sub.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-disallowed-for-all.https.sub.html [ DumpJSConsoleLogInStdErr ]
+imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-timing.https.sub.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/html/anonymous-iframe/embedding.tentative.https.window.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/navigating-across-documents/failure-check-sequence.https.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/html/browsers/browsing-the-web/navigating-across-documents/redirect-to-data.html [ DumpJSConsoleLogInStdErr ]
@@ -1344,6 +1345,7 @@ imported/w3c/web-platform-tests/event-timing/interactionid-keyboard-event-simula
 imported/w3c/web-platform-tests/event-timing/interactionid-keyboard-event-simulated-click-button-space.html [ Skip ]
 
 imported/w3c/web-platform-tests/mediacapture-streams/MediaStream-default-feature-policy.https.html [ DumpJSConsoleLogInStdErr ]
+imported/w3c/web-platform-tests/mediacapture-streams/MediaStreamTrack-applyConstraints.https.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/mediacapture-streams/MediaStreamTrack-MediaElement-disabled-video-is-black.https.html [ Pass Failure ]
 imported/w3c/web-platform-tests/mediacapture-streams/MediaDevices-enumerateDevices-per-origin-ids.sub.https.html [ Skip ]
 

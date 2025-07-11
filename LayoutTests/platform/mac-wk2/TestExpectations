@@ -2205,22 +2205,6 @@ webkit.org/b/295441 [ Release ] fast/scrolling/mac/scrollbars/scrollbar-width-dy
 
 webkit.org/b/295527 fast/animation/css-animation-resuming-when-visible-with-style-change2.html [ Pass Failure ]
 
-webkit.org/b/295563 [ Release x86_64 ] fast/webgpu/accelerated-image-conversion-failure.html [ Pass Failure ]
-
-# webkit.org/b/295597 REGRESSION (296274@main): 14X media layout tests are encountering CONSOLE MESSAGE: A capture MediaStreamTrack was destroyed without having been stopped explicitly
-[ Release ] fast/mediastream/getUserMedia-deny-persistency.html [ Pass Failure ]
-[ Release ] fast/mediastream/getUserMedia-deny-persistency3.html [ Pass Failure ]
-[ Release ] fast/mediastream/getUserMedia-grant-persistency.html [ Pass Failure ]
-[ Release ] fast/mediastream/overconstrainederror-constraint.html [ Pass Failure ]
-fast/mediastream/play-newly-added-audio-track.html [ Pass Failure ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-timing.https.sub.html [ Pass Failure ]
-fast/mediastream/get-user-media-device-id.html [ Pass Failure ]
-[ Release ] fast/mediastream/captureInGPUProcess.html [ Pass Failure ]
-fast/mediastream/getUserMedia-default.html [ Pass Failure ]
-imported/w3c/web-platform-tests/mediacapture-streams/MediaStreamTrack-applyConstraints.https.html [ Pass Failure ]
-fast/mediastream/MediaDevices-getUserMedia.html [ Pass Failure ]
-http/tests/webrtc/audioSessionInFrames.html [ Pass Failure ]
-
 webkit.org/b/295738 [ arm64 ] http/tests/images/gif-progressive-load.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/295743 [ Debug ] media/video-display-aspect-ratio.html [ Pass Failure ]
