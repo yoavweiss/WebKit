@@ -218,7 +218,7 @@
                   },
                   { "name": "Apple-Sequoia-Release-WK2-Site-Isolation-Tree-Tests", "factory": "TestLayoutFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
-                  "additionalArguments": ["--no-retry-failures", "--site-isolation" ],
+                  "additionalArguments": ["--no-retry-failures", "--site-isolation", "--load-in-cross-origin-iframe"],
                   "workernames": ["bot303"]
                   },
                   { "name": "Apple-Sequoia-Debug-Build", "factory": "BuildFactory",
