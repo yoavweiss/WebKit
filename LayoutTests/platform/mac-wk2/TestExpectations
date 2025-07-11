@@ -2222,3 +2222,5 @@ imported/w3c/web-platform-tests/digital-credentials/user-activation.https.html [
 http/tests/resourceLoadStatistics/website-data-removal-for-site-navigated-to-with-unfiltered-link-decoration-before-short-deletion.html [ Failure ]
 
 webkit.org/b/295756 [ arm64 ] webgl/2.0.y/conformance2/rendering/texture-switch-performance.html  [ Pass Failure ]
+
+webkit.org/b/295814 [ arm64 ] scrollingcoordinator/mac/latching/horizontal-overflow-back-swipe.html [ Pass Timeout ]
