@@ -37,7 +37,7 @@ extension WebPage {
     }
 
     /// A particular state that occurs during the progression of a navigation.
-    @available(WK_IOS_TBA, WK_MAC_TBA, WK_XROS_TBA, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(watchOS, unavailable)
     @available(tvOS, unavailable)
     public enum NavigationEvent: Hashable, Sendable {
@@ -58,7 +58,7 @@ extension WebPage {
     }
 
     /// A specific error that caused a navigation to fail.
-    @available(WK_IOS_TBA, WK_MAC_TBA, WK_XROS_TBA, *)
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(watchOS, unavailable)
     @available(tvOS, unavailable)
     public enum NavigationError: Error {
