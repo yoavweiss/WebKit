@@ -266,7 +266,6 @@ void PositionedLayoutConstraints::resolvePosition(RenderBox::LogicalExtentComput
     // Static position should have resolved one of our insets by now.
     ASSERT(!(m_insetBefore.isAuto() && m_insetAfter.isAuto()));
 
-    auto position = m_insetModifiedContainingRange.min();
     auto usedMarginBefore = marginBeforeValue();
     auto usedMarginAfter = marginAfterValue();
 
@@ -275,10 +274,16 @@ void PositionedLayoutConstraints::resolvePosition(RenderBox::LogicalExtentComput
         - computedValues.m_extent
         - usedMarginAfter;
 
-    // See CSS2 § 10.3.7-8 and 10.6.4-5.
-    if (!m_insetBefore.isAuto() && !m_insetAfter.isAuto()) {
+    bool hasAutoBeforeInset = m_insetBefore.isAuto();
+    bool hasAutoAfterInset = m_insetAfter.isAuto();
+    bool hasAutoBeforeMargin = m_marginBefore.isAuto();
+    bool hasAutoAfterMargin = m_marginAfter.isAuto();
+
+    auto distributeSpaceToAutoMargins = [&] {
+        ASSERT(!hasAutoBeforeInset && !hasAutoAfterInset && (hasAutoBeforeMargin || hasAutoAfterMargin));
+
         // Calculate auto margins.
-        if (m_marginBefore.isAuto() && m_marginAfter.isAuto()) {
+        if (hasAutoBeforeMargin && hasAutoAfterMargin) {
             // Distribute usable space to both margins equally.
             auto usableRemainingSpace = (LogicalBoxAxis::Inline == m_containingAxis)
                 ? std::max(0_lu, remainingSpace) : remainingSpace;
@@ -290,18 +295,28 @@ void PositionedLayoutConstraints::resolvePosition(RenderBox::LogicalExtentComput
                 usedMarginAfter += unusedSpace;
             else
                 usedMarginBefore += unusedSpace;
-        } else if (m_marginBefore.isAuto())
+        } else if (hasAutoBeforeMargin)
             usedMarginBefore = remainingSpace;
-        else if (m_marginAfter.isAuto())
+        else if (hasAutoAfterMargin)
             usedMarginAfter = remainingSpace;
-        else if (remainingSpace) {
-            // Align into remaining space.
-            position += resolveAlignmentShift(remainingSpace,
-                computedValues.m_extent + usedMarginBefore + usedMarginAfter);
-        }
-    } else if (m_insetBefore.isAuto())
-        position += remainingSpace;
-    position += usedMarginBefore;
+    };
+
+    if (!hasAutoBeforeInset && !hasAutoAfterInset && (hasAutoBeforeMargin || hasAutoAfterMargin))
+        distributeSpaceToAutoMargins();
+
+    auto alignmentShift = [&] -> LayoutUnit {
+        // Align into remaining space.
+        if (!hasAutoBeforeInset && !hasAutoAfterInset && !hasAutoBeforeMargin && !hasAutoAfterMargin && remainingSpace)
+            return resolveAlignmentShift(remainingSpace, computedValues.m_extent + usedMarginBefore + usedMarginAfter);
+
+        if (hasAutoBeforeInset)
+            return remainingSpace;
+
+        return { };
+    };
+
+    // See CSS2 § 10.3.7-8 and 10.6.4-5.
+    auto position = m_insetModifiedContainingRange.min() + usedMarginBefore + alignmentShift();
 
     computedValues.m_position = position;
     LogicalBoxAxis selfAxis = isOrthogonal() ? oppositeAxis(m_containingAxis) : m_containingAxis;
