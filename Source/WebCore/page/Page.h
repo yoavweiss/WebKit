@@ -1785,7 +1785,6 @@ private:
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
     Headroom m_displayEDRHeadroom { Headroom::None };
-    bool m_suppressEDR { false };
     bool m_screenSupportsHDR { false };
 #endif
 
