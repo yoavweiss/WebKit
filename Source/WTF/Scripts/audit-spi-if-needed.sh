@@ -30,6 +30,7 @@ if [[ "${WK_AUDIT_SPI}" == YES && -f "${program}" ]]; then
          --depfile "${depfile}" \
          -F "${BUILT_PRODUCTS_DIR}" \
          -L "${BUILT_PRODUCTS_DIR}" \
+         @"${BUILT_PRODUCTS_DIR}/DerivedSources/${PROJECT_NAME}/platform-enabled-swift-args.${arch}.resp" \
          --no-errors \
          $@)
      done

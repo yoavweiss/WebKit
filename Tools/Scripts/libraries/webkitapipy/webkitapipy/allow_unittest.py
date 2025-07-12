@@ -35,6 +35,7 @@ classes = ["NSTemporarilyAllowed"]
 
 [key2.not-web-essential]
 symbols = ["_Permanent1", "_Permanent2"]
+requires = ["ENABLE_FOO", "!ENABLE_BAR"]
 '''
 
 A1 = AllowedSPI(key='key1', bug='rdar://123456789',
@@ -43,7 +44,7 @@ A1 = AllowedSPI(key='key1', bug='rdar://123456789',
                 classes=['NSTemporarilyAllowed'])
 A2 = AllowedSPI(key='key2', bug=PermanentlyAllowedReason.NOT_WEB_ESSENTIAL,
                 symbols=['_Permanent1', '_Permanent2'],
-                selectors=[], classes=[])
+                selectors=[], classes=[], requires=['ENABLE_FOO', '!ENABLE_BAR'])
 
 
 class TestAllowList(TestCase):
@@ -90,6 +91,25 @@ class TestAllowList(TestCase):
                 {'key1': {'rdar://1': {'classes': ['Foo']}},
                  'key2': {'rdar://2': {'classes': ['Foo']}}}
             )
+
+    def test_repetition_allowed_with_requires(self):
+        AllowList.from_dict(
+            {'key1': {'rdar://1': {'classes': ['Foo'], 'requires': ['A']}},
+             'key2': {'rdar://2': {'classes': ['Foo'], 'requires': ['B']}}}
+        )
+
+    def test_repeated_requirements(self):
+        AllowList.from_dict(
+            {'key1': {'rdar://1': {'classes': ['Foo'], 'requires': ['A', 'B']}},
+             'key2': {'rdar://2': {'classes': ['Bar'], 'requires': ['A', 'B']}}}
+        )
+        with self.assertRaisesRegex(ValueError, 'already mentioned in '
+                                    'allowlist at "key1"."rdar://1"'):
+            AllowList.from_dict(
+                {'key1': {'rdar://1': {'classes': ['Foo'],
+                                       'requires': ['A', 'B', 'A']}}}
+            )
+
 
     def test_no_string(self):
         with self.assertRaisesRegex(ValueError, '"Foo" in allowlist is a '

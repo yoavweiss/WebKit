@@ -99,6 +99,9 @@ def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='''\
     Using API availability information from a directory of SDKDB records,
     scans Mach-O binaries for use of unknown symbols or Objective-C selectors.
+    ''', fromfile_prefix_chars='@', epilog='''\
+    Additional arguments can be loaded from a file by prefixing it with the @
+    sign.
     ''')
     parser.add_argument('input_files', nargs='+', type=Path,
                         help='files to analyze')
@@ -106,6 +109,9 @@ def get_parser() -> argparse.ArgumentParser:
                         help='which architecture to analyze binary with')
     parser.add_argument('--allowlists', '--allowlist', nargs='*', type=Path,
                         help='config files listing additional allowed SPI')
+    parser.add_argument('-D', action='append', dest='defines',
+                        help='use this compiler flag for purposes of '
+                        'evaluating `requires` blocks in allowlists')
 
     binaries = parser.add_argument_group('framework and library dependencies',
                                          description='''ld-style arguments to
@@ -150,6 +156,7 @@ class Options(argparse.Namespace):
     input_files: list[Path]
     arch_name: str
     allowlists: Optional[list[Path]]
+    defines: Optional[list[str]]
 
     frameworks: list[str]
     libraries: list[str]
@@ -184,6 +191,13 @@ def main(argv: Optional[list[str]] = None):
         args = parser.parse_args(argv, namespace=Options)
 
     inputs = []
+
+    # Response files loaded via ArgumentParser are transparently available in
+    # options, but should be tracked as input dependencies.
+    for arg in (argv if argv is not None else sys.argv):
+        if arg.startswith('@'):
+            inputs.append(arg.removeprefix('@'))
+
     # For the depfile, start with the paths of all the modules in webkitapipy
     # since this library is part of WebKit source code.
     for package in (webkitapipy, webkitapipy_additions):
@@ -276,6 +290,8 @@ def main(argv: Optional[list[str]] = None):
     for path in args.allowlists or ():
         with db:
             db.add_allowlist(use_input(path))
+    if args.defines:
+        db.add_defines(args.defines)
 
     if program_additions:
         reporter = program_additions.configure_reporter(args, db)

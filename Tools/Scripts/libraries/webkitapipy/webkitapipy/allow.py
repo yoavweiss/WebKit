@@ -24,7 +24,7 @@
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from enum import Enum
 from typing import Any
@@ -50,6 +50,7 @@ class AllowedSPI:
     symbols: list[str]
     selectors: list[str]
     classes: list[str]
+    requires: list[str] = field(default_factory=list)
 
 
 class PermanentlyAllowedReason(StrEnum):
@@ -85,8 +86,9 @@ class AllowList:
                 syms = entry.get('symbols', [])
                 sels = entry.get('selectors', [])
                 clss = entry.get('classes', [])
+                reqs = entry.get('requires', [])
                 allow = AllowedSPI(key=key, bug=bug, symbols=syms,
-                                   selectors=sels, classes=clss)
+                                   selectors=sels, classes=clss, requires=reqs)
 
                 # Validate that each section is a list (not a string, to avoid
                 # treating each character as a separate declaration), and that
@@ -95,12 +97,15 @@ class AllowList:
                     (syms, seen_syms),
                     (sels, seen_sels),
                     (clss, seen_clss),
+                    # Repeats in different `requires` lists are allowed, though
+                    # repeats in the same list should be detected.
+                    (reqs, {}),
                 ):
                     if isinstance(items, str):
                         raise ValueError(f'"{items}" in allowlist is a '
                                          'string, expected a list')
                     for item in items:
-                        if prev := prevs.get(item):
+                        if (prev := prevs.get(item)) and prev.requires == reqs:
                             raise ValueError(f'"{item}" already mentioned in '
                                              f'allowlist at "{prev.key}".'
                                              f'"{prev.bug}"')

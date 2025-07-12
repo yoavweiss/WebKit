@@ -37,7 +37,7 @@ from .allow import AllowList
 
 # Increment this number to force clients to rebuild from scratch, to
 # accomodate schema changes or fix caching bugs.
-VERSION = 5
+VERSION = 6
 
 
 class DeclarationKind(Enum):
@@ -153,10 +153,14 @@ class SDKDB:
                     '   input_file REFERENCES input_file(path) '
                     '              ON DELETE CASCADE)')
         cur.execute('CREATE INDEX export_names ON exports (name, kind)')
-        cur.execute('CREATE TABLE allow(name, kind DeclarationKind, '
+        cur.execute('CREATE TABLE allow('
+                    '   name, kind DeclarationKind, cond_id,'
                     '   input_file REFERENCES input_file(path) '
                     '              ON DELETE CASCADE)')
         cur.execute('CREATE INDEX allow_names ON allow (name, kind)')
+        cur.execute('CREATE TABLE condition_chain(name, invert, nextid, '
+                    '   input_file REFERENCES input_file(path) '
+                    '              ON DELETE CASCADE)')
         cur.execute(f'PRAGMA user_version = {VERSION}')
         self.con.commit()
 
@@ -167,6 +171,7 @@ class SDKDB:
         cur.execute('CREATE TEMPORARY TABLE imports(name, '
                     '   kind DeclarationKind, input_file, arch)')
         cur.execute('CREATE INDEX import_names ON imports(name, kind)')
+        cur.execute('CREATE TEMPORARY TABLE condition(name UNIQUE)')
         self.con.commit()
 
     def __del__(self):
@@ -264,12 +269,11 @@ class SDKDB:
         ALLOW = 2
 
         @property
-        def table_name(self) -> str:
-            return self.name.lower()
-
-        @property
         def statement(self) -> str:
-            return f'INSERT INTO {self.table_name} VALUES (?, ?, ?)'
+            if self == self.EXPORTS:
+                return f'INSERT INTO exports VALUES (:name, :kind, :file)'
+            else:  # self.ALLOW
+                return f'INSERT INTO allow VALUES (:name, :kind, :cond, :file)'
 
     def _add_api_report(self, report: APIReport, binary: Path,
                         dest=InsertionKind.EXPORTS):
@@ -316,15 +320,40 @@ class SDKDB:
 
     def _add_allowlist(self, config: AllowList, allowlist: Path):
         for entry in config.allowed_spi:
+            cond_id = None
+            if entry.requires:
+                # Convert a requirements list like ["A", "B", "!C"] into a
+                # graph data structure e.g. (A) -> (B) -> (!C). The head node
+                # is associated with each allowed declaration. The audit() query
+                # cross-references condition chains with active conditions
+                # added by add_defines().
+                #
+                # FIXME: No effort is made to reuse nodes in the graph between
+                # allowlist entries, so we store more than we have to.
+                # (https://bugs.webkit.org/show_bug.cgi?id=295819)
+                cur = self.con.cursor()
+                for req in reversed(entry.requires):
+                    cur.execute('INSERT INTO condition_chain VALUES (?,?,?,?)',
+                                (req.removeprefix('!'), req.startswith('!'),
+                                 cond_id, str(allowlist.resolve())))
+                    cond_id = cur.lastrowid
             for symbol in entry.symbols:
                 self._add_symbol(symbol, allowlist,
-                                 dest=self.InsertionKind.ALLOW)
+                                 dest=self.InsertionKind.ALLOW,
+                                 cond_id=cond_id)
             for class_ in entry.classes:
                 self._add_objc_class(class_, allowlist,
-                                     dest=self.InsertionKind.ALLOW)
+                                     dest=self.InsertionKind.ALLOW,
+                                     cond_id=cond_id)
             for selector in entry.selectors:
                 self._add_objc_selector(selector, None, allowlist,
-                                        dest=self.InsertionKind.ALLOW)
+                                        dest=self.InsertionKind.ALLOW,
+                                        cond_id=cond_id)
+
+    def add_defines(self, defines: list[str]):
+        cur = self.con.cursor()
+        cur.executemany('INSERT INTO condition VALUES (?)',
+                        ((d,) for d in defines))
 
     def add_for_auditing(self, report: APIReport):
         cur = self.con.cursor()
@@ -353,12 +382,34 @@ class SDKDB:
 
     def audit(self) -> Iterable[Diagnostic]:
         cur = self.con.cursor()
-        cur.execute('SELECT i.arch, i.kind, i.input_file, i.name, '
+        # First compute the "-D" defines that are active by traversing the
+        # `condition_chain` graph structure. Start with rows that have no
+        # `nextid` edge, and keep only the ones whose names are active (or
+        # inactive, if the condition is inverted). Repeat the process with rows
+        # whose nextid is in the table, until no rows are added.
+        cur.execute('WITH RECURSIVE active_cond AS ('
+                    '   SELECT cc.rowid AS nextid, name '
+                    '   FROM condition_chain AS cc NATURAL LEFT JOIN condition '
+                    '   WHERE nextid IS NULL AND iif(cc.invert, '
+                    '                                condition.name IS NULL, '
+                    '                                condition.name IS NOT NULL) '
+                    '   UNION ALL '
+                    '   SELECT cc.rowid AS nextid, cc.name '
+                    '   FROM condition_chain AS cc JOIN active_cond USING (nextid) '
+                    '   NATURAL LEFT JOIN condition '
+                    '   WHERE iif(cc.invert, '
+                    '             condition.name IS NULL, '
+                    '             condition.name IS NOT NULL)'
+                    ') '
+                    # Then cross-check imports and allowed declarations against
+                    # exports.
+                    'SELECT i.arch, i.kind, i.input_file, i.name, '
                     '       a.kind, group_concat(aw.input_file), a.name, '
                     '       ew.input_file, '
                     '       sum(e.name IS NOT NULL AND '
                     '           ew.input_file IS NOT NULL) as export_found, '
                     '       sum(a.name IS NOT NULL AND '
+                    '           a.cond_id IS c.nextid AND '
                     '           aw.input_file IS NOT NULL) as allow_found '
                     'FROM imports AS i '
                     'LEFT JOIN exports AS e USING (name, kind) '
@@ -369,6 +420,7 @@ class SDKDB:
                     # invocation).
                     'FULL JOIN window AS ew ON ew.input_file = e.input_file '
                     'FULL JOIN window AS aw ON aw.input_file = a.input_file '
+                    'LEFT JOIN active_cond AS c ON a.cond_id = c.nextid '
                     # There may be multiple entries for the same name in the
                     # cache (multiple binaries that implement the same
                     # selector, or different allowlists that allow the same
@@ -417,7 +469,8 @@ class SDKDB:
 
     def _add_objc_interface(self, ent: dict, class_name: str, file: Path,
                             pred: Callable[[dict], bool],
-                            dest=InsertionKind.EXPORTS):
+                            dest=InsertionKind.EXPORTS,
+                            cond_id: Optional[int] = None):
         for key in 'instanceMethods', 'classMethods':
             for method in ent.get(key, []):
                 if pred(method):
@@ -436,16 +489,25 @@ class SDKDB:
                                  file, dest=dest)
 
     def _add_symbol(self, name: str, file: Path,
-                    dest=InsertionKind.EXPORTS):
+                    dest=InsertionKind.EXPORTS,
+                    cond_id: Optional[int] = None):
         cur = self.con.cursor()
-        cur.execute(dest.statement, (name, SYMBOL, str(file.resolve())))
+        params = dict(name=name, kind=SYMBOL, file=str(file.resolve()),
+                      cond=cond_id)
+        cur.execute(dest.statement, params)
 
     def _add_objc_class(self, name: str, file: Path,
-                        dest=InsertionKind.EXPORTS):
+                        dest=InsertionKind.EXPORTS,
+                        cond_id: Optional[int] = None):
         cur = self.con.cursor()
-        cur.execute(dest.statement, (name, OBJC_CLS, str(file.resolve())))
+        params = dict(name=name, kind=OBJC_CLS, file=str(file.resolve()),
+                      cond=cond_id)
+        cur.execute(dest.statement, params)
 
     def _add_objc_selector(self, name: str, class_name: Optional[str],
-                           file: Path, dest=InsertionKind.EXPORTS):
+                           file: Path, dest=InsertionKind.EXPORTS,
+                           cond_id: Optional[int] = None):
         cur = self.con.cursor()
-        cur.execute(dest.statement, (name, OBJC_SEL, str(file.resolve())))
+        params = dict(name=name, kind=OBJC_SEL, file=str(file.resolve()),
+                      cond=cond_id)
+        cur.execute(dest.statement, params)

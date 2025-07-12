@@ -67,6 +67,32 @@ R_Uses_Own_Selector = APIReport(
     selrefs={'someInternalMethodWithObject:'}
 )
 
+A_Conditional = AllowList.from_dict(
+    {'sdkdb-unittest': {'rdar://12345': {
+        'classes': ['WKDoesntExist'],
+        'selectors': ['initWithData:'],
+        'symbols': ['_WKDoesntExistLibraryVersion'],
+        'requires': ['ENABLE_FEATURE']}
+    }}
+)
+
+A_NegatedConditional = AllowList.from_dict(
+    {'sdkdb-unittest': {'rdar://12345': {
+        'classes': ['WKDoesntExist'],
+        'selectors': ['initWithData:'],
+        'symbols': ['_WKDoesntExistLibraryVersion'],
+        'requires': ['!ENABLE_FEATURE']}
+    }}
+)
+
+A_MultipleConditions = AllowList.from_dict(
+    {'sdkdb-unittest': {'rdar://12345': {
+        'classes': ['WKDoesntExist'],
+        'selectors': ['initWithData:'],
+        'symbols': ['_WKDoesntExistLibraryVersion'],
+        'requires': ['ENABLE_A', 'ENABLE_B', '!ENABLE_C']}
+    }}
+)
 
 class TestSDKDB(TestCase):
     def setUp(self):
@@ -136,6 +162,55 @@ class TestSDKDB(TestCase):
     def test_audit_allowed_name_from_spi(self):
         self.add_allowlist()
         self.assertEmpty(self.audit_with(R_Client))
+
+    def test_audit_allowed_conditional(self):
+        with self.sdkdb:
+            self.sdkdb._cache_hit_preparing_to_insert(A_File, A_Hash)
+            self.sdkdb._add_allowlist(A_Conditional, A_File)
+        self.sdkdb.add_defines(['ENABLE_FEATURE'])
+        self.assertEmpty(self.audit_with(R_Client))
+
+    def test_audit_missing_name_conditional(self):
+        with self.sdkdb:
+            self.sdkdb._cache_hit_preparing_to_insert(A_File, A_Hash)
+            self.sdkdb._add_allowlist(A_Conditional, A_File)
+        self.sdkdb.add_defines(['OTHER_FEATURE'])
+        self.assertIn(R_MissingSymbol, self.audit_with(R_Client))
+
+    def test_audit_missing_name_negated_conditional(self):
+        with self.sdkdb:
+            self.sdkdb._cache_hit_preparing_to_insert(A_File, A_Hash)
+            self.sdkdb._add_allowlist(A_NegatedConditional, A_File)
+        self.sdkdb.add_defines(['ENABLE_FEATURE'])
+        self.assertIn(R_MissingSymbol, self.audit_with(R_Client))
+
+    def test_audit_allowed_negated_conditional(self):
+        with self.sdkdb:
+            self.sdkdb._cache_hit_preparing_to_insert(A_File, A_Hash)
+            self.sdkdb._add_allowlist(A_NegatedConditional, A_File)
+        self.sdkdb.add_defines(['OTHER_FEATURE'])
+        self.assertEmpty(self.audit_with(R_Client))
+
+    def test_audit_allowed_multiple_conditions(self):
+        with self.sdkdb:
+            self.sdkdb._cache_hit_preparing_to_insert(A_File, A_Hash)
+            self.sdkdb._add_allowlist(A_MultipleConditions, A_File)
+        self.sdkdb.add_defines(['ENABLE_A', 'ENABLE_B'])
+        self.assertEmpty(self.audit_with(R_Client))
+
+    def test_audit_missing_name_multiple_conditions(self):
+        with self.sdkdb:
+            self.sdkdb._cache_hit_preparing_to_insert(A_File, A_Hash)
+            self.sdkdb._add_allowlist(A_MultipleConditions, A_File)
+        self.sdkdb.add_defines(['ENABLE_A'])
+        self.assertIn(R_MissingSymbol, self.audit_with(R_Client))
+
+    def test_audit_missing_name_multiple_conditions_negation(self):
+        with self.sdkdb:
+            self.sdkdb._cache_hit_preparing_to_insert(A_File, A_Hash)
+            self.sdkdb._add_allowlist(A_MultipleConditions, A_File)
+        self.sdkdb.add_defines(['ENABLE_A', 'ENABLE_B', 'ENABLE_C'])
+        self.assertIn(R_MissingSymbol, self.audit_with(R_Client))
 
     def test_audit_api_from_loaded_file(self):
         self.add_library()

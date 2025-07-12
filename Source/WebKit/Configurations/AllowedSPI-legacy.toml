@@ -133,12 +133,6 @@ classes = [
     "NSURLError",
     "OSLaunchdJob",
     "PDFHostViewController",
-
-    # FIXME: Public SDK builds bind to the former class instead of the
-    # latter. Needs to be cleaned up in rdar://102246762.
-    "PUActivityProgressController",
-    "PXActivityProgressController",
-
     "RBSAssertion",
     "RBSDomainAttribute",
     "RBSProcessHandle",
@@ -1034,4 +1028,14 @@ symbols = [
     "__kCFURLConnectionPropertyShouldSniff",
     "_kAXSEnhanceTextLegibilityChangedNotification",
     "_kGSEventHardwareKeyboardAvailabilityChangedNotification",
-    ]
+]
+
+# FIXME: Public SDK builds bind to the former class instead of the
+# latter. Needs to be cleaned up in rdar://102246762.
+[photos-public-sdk.legacy]
+class = "PUActivityProgressController"
+requires = ["!USE_APPLE_INTERNAL_SDK"]
+
+[photos-internal-sdk.legacy]
+class = "PXActivityProgressController"
+requires = ["USE_APPLE_INTERNAL_SDK"]
