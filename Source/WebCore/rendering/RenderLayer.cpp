@@ -1712,7 +1712,7 @@ void RenderLayer::updateTransformFromStyle(TransformationMatrix& transform, cons
 
 void RenderLayer::updateTransform()
 {
-    bool hasTransform = renderer().isTransformed() || m_snapshottedScrollOffsetForAnchorPositioning;
+    bool hasTransform = isTransformed();
     bool had3DTransform = has3DTransform();
 
     std::unique_ptr<TransformationMatrix> oldTransform;

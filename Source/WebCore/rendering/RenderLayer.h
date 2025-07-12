@@ -1443,6 +1443,9 @@ private:
 
     std::unique_ptr<TransformationMatrix> m_transform;
 
+    // If the RenderLayer contains an anchor-positioned box, this is the "default scroll shift"
+    // for scroll compensation purpose. This offset aligns the anchor-positioned box with the anchor
+    // after scroll, and is applied as a transform.
     std::optional<LayoutSize> m_snapshottedScrollOffsetForAnchorPositioning;
 
     // May ultimately be extended to many replicas (with their own paint order).
