@@ -35,14 +35,21 @@ struct TestURLSchemeHandler: URLSchemeHandler, Sendable {
         let beforeFinish: Duration
     }
 
+    enum Execution: String, CaseIterable, Hashable, RawRepresentable, Sendable {
+        case sync
+        case async
+    }
+
     init(
         data: Data,
         mimeType: String,
         delays: Delays = .init(beforeYield: .zero, beforeFinish: .zero),
+        execution: Execution = .sync
     ) {
         self.data = data
         self.mimeType = mimeType
         self.delays = delays
+        self.execution = execution
 
         (self.replyStream, self.replyContinuation) = AsyncStream.makeStream(of: URL.self)
     }
@@ -53,6 +60,7 @@ struct TestURLSchemeHandler: URLSchemeHandler, Sendable {
     private let mimeType: String
     private let replyContinuation: AsyncStream<URL>.Continuation
     private let delays: Delays
+    private let execution: Execution
 
     func reply(for request: URLRequest) -> AsyncThrowingStream<URLSchemeTaskResult, any Error> {
         AsyncThrowingStream { continuation in
@@ -66,18 +74,34 @@ struct TestURLSchemeHandler: URLSchemeHandler, Sendable {
                 return
             }
 
-            Task {
-                try await Task.sleep(for: delays.beforeYield)
-
+            let yieldResponse = {
                 let response = URLResponse(url: url, mimeType: mimeType, expectedContentLength: 2, textEncodingName: nil)
                 continuation.yield(.response(response))
+            }
 
-                try await Task.sleep(for: delays.beforeFinish)
-
+            let yieldDataAndFinish = {
                 continuation.yield(.data(data))
 
                 continuation.finish()
                 replyContinuation.yield(url)
+            }
+
+            switch execution {
+            case .sync:
+                sleep(UInt32(delays.beforeYield.components.seconds))
+                yieldResponse()
+
+                sleep(UInt32(delays.beforeYield.components.seconds))
+                yieldDataAndFinish()
+
+            case .async:
+                Task {
+                    try await Task.sleep(for: delays.beforeYield)
+                    yieldResponse()
+
+                    try await Task.sleep(for: delays.beforeFinish)
+                    yieldDataAndFinish()
+                }
             }
         }
     }
@@ -104,14 +128,16 @@ struct URLSchemeHandlerTests {
         arguments: [
             TestURLSchemeHandler.Delays(beforeYield: .seconds(2), beforeFinish: .zero),
             TestURLSchemeHandler.Delays(beforeYield: .zero, beforeFinish: .seconds(2)),
-        ]
+        ],
+        TestURLSchemeHandler.Execution.allCases
     )
     func navigatingToNewResourceWhileSchemeHandlerIsStillProcessingDoesNotFail(
         delays: TestURLSchemeHandler.Delays,
+        execution: TestURLSchemeHandler.Execution
     ) async throws {
         let html = try #require("<html></html>".data(using: .utf8))
 
-        let handler = TestURLSchemeHandler(data: html, mimeType: "text/html", delays: delays)
+        let handler = TestURLSchemeHandler(data: html, mimeType: "text/html", delays: delays, execution: execution)
 
         var configuration = WebPage.Configuration()
         configuration.urlSchemeHandlers[URLScheme("testing")!] = handler

@@ -39,6 +39,8 @@ final class WKURLSchemeHandlerAdapter: NSObject, WKURLSchemeHandler {
         let task = Task {
             do {
                 for try await result in wrapped.reply(for: urlSchemeTask.request) {
+                    try Task.checkCancellation()
+
                     switch result {
                     case .response(let response):
                         urlSchemeTask.didReceive(response)
