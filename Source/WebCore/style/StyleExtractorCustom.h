@@ -96,7 +96,6 @@ public:
     static Ref<CSSValue> extractScale(ExtractorState&);
     static Ref<CSSValue> extractRotate(ExtractorState&);
     static Ref<CSSValue> extractGridAutoFlow(ExtractorState&);
-    static Ref<CSSValue> extractGridTemplateAreas(ExtractorState&);
     static Ref<CSSValue> extractGridTemplateColumns(ExtractorState&);
     static Ref<CSSValue> extractGridTemplateRows(ExtractorState&);
 
@@ -199,7 +198,6 @@ public:
     static void extractScaleSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractRotateSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractGridAutoFlowSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractGridTemplateAreasSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractGridTemplateColumnsSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractGridTemplateRowsSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
 
@@ -2254,35 +2252,6 @@ inline void ExtractorCustom::extractGridAutoFlowSerialization(ExtractorState& st
             builder.append(' ');
         CSS::serializationForCSS(builder, context, CSS::Keyword::Dense { });
     }
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractGridTemplateAreas(ExtractorState& state)
-{
-    if (!state.style.namedGridAreaRowCount()) {
-        ASSERT(!state.style.namedGridAreaColumnCount());
-        return CSSPrimitiveValue::create(CSSValueNone);
-    }
-    return CSSGridTemplateAreasValue::create(
-        state.style.namedGridArea(),
-        state.style.namedGridAreaRowCount(),
-        state.style.namedGridAreaColumnCount()
-    );
-}
-
-inline void ExtractorCustom::extractGridTemplateAreasSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    if (!state.style.namedGridAreaRowCount()) {
-        ASSERT(!state.style.namedGridAreaColumnCount());
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    }
-
-    // FIXME: Do this more efficiently without creating and destroying a CSSValue object.
-    builder.append(CSSGridTemplateAreasValue::create(
-        state.style.namedGridArea(),
-        state.style.namedGridAreaRowCount(),
-        state.style.namedGridAreaColumnCount()
-    )->cssText(context));
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractGridTemplateColumns(ExtractorState& state)

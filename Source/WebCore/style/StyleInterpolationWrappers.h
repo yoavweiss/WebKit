@@ -1720,49 +1720,6 @@ public:
 #endif
 };
 
-class GridTemplateAreasWrapper final : public WrapperBase {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
-public:
-    GridTemplateAreasWrapper()
-        : WrapperBase(CSSPropertyGridTemplateAreas)
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        return a.implicitNamedGridColumnLines().map == b.implicitNamedGridColumnLines().map
-            && a.implicitNamedGridRowLines().map == b.implicitNamedGridRowLines().map
-            && a.namedGridArea().map == b.namedGridArea().map
-            && a.namedGridAreaRowCount() == b.namedGridAreaRowCount()
-            && a.namedGridAreaColumnCount() == b.namedGridAreaColumnCount();
-    }
-
-    bool canInterpolate(const RenderStyle&, const RenderStyle&, CompositeOperation) const final
-    {
-        return false;
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        ASSERT(context.isDiscrete);
-        ASSERT(!context.progress || context.progress == 1);
-
-        auto& source = context.progress ? to : from;
-        destination.setImplicitNamedGridColumnLines(source.implicitNamedGridColumnLines());
-        destination.setImplicitNamedGridRowLines(source.implicitNamedGridRowLines());
-        destination.setNamedGridArea(source.namedGridArea());
-        destination.setNamedGridAreaRowCount(source.namedGridAreaRowCount());
-        destination.setNamedGridAreaColumnCount(source.namedGridAreaColumnCount());
-    }
-
-#if !LOG_DISABLED
-    void log(const RenderStyle&, const RenderStyle&, const RenderStyle&, double progress) const final
-    {
-        LOG_WITH_STREAM(Animations, stream << " blending " << property() << " at " << TextStream::FormatNumberRespectingIntegers(progress) << ".");
-    }
-#endif
-};
-
 class QuotesWrapper final : public WrapperBase {
     WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:

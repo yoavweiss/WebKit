@@ -1156,6 +1156,7 @@ css/values/color/CSSKeywordColor.cpp
 css/values/color/CSSLightDarkColor.cpp
 css/values/color/CSSPlatformColorResolutionState.cpp
 css/values/color/CSSResolvedColor.cpp
+css/values/grid/CSSGridNamedAreaMap.cpp
 css/values/images/CSSGradient.cpp
 css/values/motion/CSSRayFunction.cpp
 css/values/primitives/CSSPosition.cpp
@@ -3176,6 +3177,8 @@ style/values/filter-effects/StyleOpacityFunction.cpp
 style/values/filter-effects/StyleSaturateFunction.cpp
 style/values/filter-effects/StyleSepiaFunction.cpp
 style/values/flexbox/StyleFlexBasis.cpp
+style/values/grid/StyleGridNamedLinesMap.cpp
+style/values/grid/StyleGridTemplateAreas.cpp
 style/values/images/StyleGradient.cpp
 style/values/masking/StyleClipPath.cpp
 style/values/motion/StyleOffsetAnchor.cpp

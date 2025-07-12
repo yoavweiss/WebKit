@@ -266,7 +266,6 @@ private:
     static GridTrackSize createGridTrackSize(BuilderState&, const CSSValue&);
     static std::optional<GridTrackList> createGridTrackList(BuilderState&, const CSSValue&);
     static GridPosition createGridPosition(BuilderState&, const CSSValue&);
-    static NamedGridLinesMap createImplicitNamedGridLinesFromGridArea(BuilderState&, const NamedGridAreaMap&, GridTrackSizingDirection);
 
     static CSSToLengthConversionData cssToLengthConversionDataWithTextZoomFactor(BuilderState&);
 };
@@ -1205,27 +1204,6 @@ inline GridPosition BuilderConverter::createGridPosition(BuilderState& builderSt
     return position;
 }
 
-inline NamedGridLinesMap BuilderConverter::createImplicitNamedGridLinesFromGridArea(BuilderState&, const NamedGridAreaMap& namedGridAreas, GridTrackSizingDirection direction)
-{
-    NamedGridLinesMap namedGridLines;
-
-    for (auto& area : namedGridAreas.map) {
-        GridSpan areaSpan = direction == GridTrackSizingDirection::ForRows ? area.value.rows : area.value.columns;
-        {
-            auto& startVector = namedGridLines.map.add(makeString(area.key, "-start"_s), Vector<unsigned>()).iterator->value;
-            startVector.append(areaSpan.startLine());
-            std::ranges::sort(startVector);
-        }
-        {
-            auto& endVector = namedGridLines.map.add(makeString(area.key, "-end"_s), Vector<unsigned>()).iterator->value;
-            endVector.append(areaSpan.endLine());
-            std::ranges::sort(endVector);
-        }
-    }
-    // FIXME: For acceptable performance, should sort once at the end, not as we add each item, or at least insert in sorted order instead of using std::sort each time.
-
-    return namedGridLines;
-}
 
 inline Vector<GridTrackSize> BuilderConverter::convertGridTrackSizeList(BuilderState& builderState, const CSSValue& value)
 {

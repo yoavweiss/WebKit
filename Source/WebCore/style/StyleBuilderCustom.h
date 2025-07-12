@@ -36,7 +36,6 @@
 #include "CSSCursorImageValue.h"
 #include "CSSFontValue.h"
 #include "CSSGradientValue.h"
-#include "CSSGridTemplateAreasValue.h"
 #include "CSSPropertyParserConsumer+Font.h"
 #include "CSSRatioValue.h"
 #include "CSSRectValue.h"
@@ -104,6 +103,7 @@ inline FlexBasis forwardInheritedValue(const FlexBasis& value) { auto copy = val
 inline DynamicRangeLimit forwardInheritedValue(const DynamicRangeLimit& value) { auto copy = value; return copy; }
 inline ClipPath forwardInheritedValue(const ClipPath& value) { auto copy = value; return copy; }
 inline CornerShapeValue forwardInheritedValue(const CornerShapeValue& value) { auto copy = value; return copy; }
+inline GridTemplateAreas forwardInheritedValue(const GridTemplateAreas& value) { auto copy = value; return copy; }
 inline OffsetAnchor forwardInheritedValue(const OffsetAnchor& value) { auto copy = value; return copy; }
 inline OffsetDistance forwardInheritedValue(const OffsetDistance& value) { auto copy = value; return copy; }
 inline OffsetPath forwardInheritedValue(const OffsetPath& value) { auto copy = value; return copy; }
@@ -156,7 +156,6 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(FontVariantLigatures);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(FontVariantNumeric);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(FontVariantEastAsian);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(GridTemplateAreas);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(LetterSpacing);
 #if ENABLE(TEXT_AUTOSIZING)
     DECLARE_PROPERTY_CUSTOM_HANDLERS(LineHeight);
@@ -1439,47 +1438,6 @@ inline void BuilderCustom::applyValueFontSize(BuilderState& builderState, CSSVal
 inline void BuilderCustom::applyValueFontSizeAdjust(BuilderState& builderState, CSSValue& value)
 {
     builderState.setFontDescriptionFontSizeAdjust(BuilderConverter::convertFontSizeAdjust(builderState, value));
-}
-
-inline void BuilderCustom::applyInitialGridTemplateAreas(BuilderState& builderState)
-{
-    builderState.style().setImplicitNamedGridColumnLines(RenderStyle::initialNamedGridColumnLines());
-    builderState.style().setImplicitNamedGridRowLines(RenderStyle::initialNamedGridRowLines());
-
-    builderState.style().setNamedGridArea(RenderStyle::initialNamedGridArea());
-    builderState.style().setNamedGridAreaRowCount(RenderStyle::initialNamedGridAreaCount());
-    builderState.style().setNamedGridAreaColumnCount(RenderStyle::initialNamedGridAreaCount());
-}
-
-inline void BuilderCustom::applyInheritGridTemplateAreas(BuilderState& builderState)
-{
-    builderState.style().setImplicitNamedGridColumnLines(builderState.parentStyle().implicitNamedGridColumnLines());
-    builderState.style().setImplicitNamedGridRowLines(builderState.parentStyle().implicitNamedGridRowLines());
-
-    builderState.style().setNamedGridArea(builderState.parentStyle().namedGridArea());
-    builderState.style().setNamedGridAreaRowCount(builderState.parentStyle().namedGridAreaRowCount());
-    builderState.style().setNamedGridAreaColumnCount(builderState.parentStyle().namedGridAreaColumnCount());
-}
-
-inline void BuilderCustom::applyValueGridTemplateAreas(BuilderState& builderState, CSSValue& value)
-{
-    if (value.valueID() == CSSValueNone) {
-        applyInitialGridTemplateAreas(builderState);
-        return;
-    }
-
-    auto gridTemplateAreasValue = requiredDowncast<CSSGridTemplateAreasValue>(builderState, value);
-    if (!gridTemplateAreasValue)
-        return;
-
-    const NamedGridAreaMap& newNamedGridAreas = gridTemplateAreasValue->gridAreaMap();
-
-    builderState.style().setImplicitNamedGridColumnLines(BuilderConverter::createImplicitNamedGridLinesFromGridArea(builderState, newNamedGridAreas, GridTrackSizingDirection::ForColumns));
-    builderState.style().setImplicitNamedGridRowLines(BuilderConverter::createImplicitNamedGridLinesFromGridArea(builderState, newNamedGridAreas, GridTrackSizingDirection::ForRows));
-
-    builderState.style().setNamedGridArea(gridTemplateAreasValue->gridAreaMap());
-    builderState.style().setNamedGridAreaRowCount(gridTemplateAreasValue->rowCount());
-    builderState.style().setNamedGridAreaColumnCount(gridTemplateAreasValue->columnCount());
 }
 
 inline void BuilderCustom::applyValueStrokeWidth(BuilderState& builderState, CSSValue& value)

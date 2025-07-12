@@ -165,6 +165,7 @@ inline void RenderStyle::setGridItemColumnEnd(const GridPosition& columnEndPosit
 inline void RenderStyle::setGridItemColumnStart(const GridPosition& columnStartPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridColumnStart, columnStartPosition); }
 inline void RenderStyle::setGridItemRowEnd(const GridPosition& rowEndPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridRowEnd, rowEndPosition); }
 inline void RenderStyle::setGridItemRowStart(const GridPosition& rowStartPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridRowStart, rowStartPosition); }
+inline void RenderStyle::setGridTemplateAreas(Style::GridTemplateAreas&& areas) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, gridTemplateAreas, WTFMove(areas)); }
 inline void RenderStyle::setHangingPunctuation(OptionSet<HangingPunctuation> punctuation) { SET(m_rareInheritedData, hangingPunctuation, punctuation.toRaw()); }
 inline void RenderStyle::setHasAutoAccentColor() { SET_PAIR(m_rareInheritedData, hasAutoAccentColor, true, accentColor, Style::Color::currentColor()); }
 inline void RenderStyle::setHasAutoCaretColor() { SET_PAIR(m_rareInheritedData, hasAutoCaretColor, true, caretColor, Style::Color::currentColor()); }
@@ -197,8 +198,6 @@ inline void RenderStyle::setHyphenationString(const AtomString& h) { SET(m_rareI
 inline void RenderStyle::setHyphens(Hyphens hyphens) { SET(m_rareInheritedData, hyphens, static_cast<unsigned>(hyphens)); }
 inline void RenderStyle::setImageOrientation(ImageOrientation value) { SET(m_rareInheritedData, imageOrientation, static_cast<unsigned>(value)); }
 inline void RenderStyle::setImageRendering(ImageRendering value) { SET(m_rareInheritedData, imageRendering, static_cast<unsigned>(value)); }
-inline void RenderStyle::setImplicitNamedGridColumnLines(const NamedGridLinesMap& namedGridColumnLines) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, implicitNamedGridColumnLines, namedGridColumnLines); }
-inline void RenderStyle::setImplicitNamedGridRowLines(const NamedGridLinesMap& namedGridRowLines) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, implicitNamedGridRowLines, namedGridRowLines); }
 inline void RenderStyle::setInsetBox(Style::InsetBox&& box) { SET_NESTED(m_nonInheritedData, surroundData, inset, WTFMove(box)); }
 inline void RenderStyle::setInitialLetter(const IntSize& size) { SET_NESTED(m_nonInheritedData, rareData, initialLetter, size); }
 inline void RenderStyle::setInputSecurity(InputSecurity security) { SET_NESTED(m_nonInheritedData, rareData, inputSecurity, static_cast<unsigned>(security)); }
@@ -240,9 +239,6 @@ inline void RenderStyle::setMaxWidth(Style::MaximumSize&& length) { SET_NESTED(m
 inline void RenderStyle::setMinHeight(Style::MinimumSize&& length) { SET_NESTED(m_nonInheritedData, boxData, m_minHeight, WTFMove(length)); }
 inline void RenderStyle::setMinWidth(Style::MinimumSize&& length) { SET_NESTED(m_nonInheritedData, boxData, m_minWidth, WTFMove(length)); }
 inline void RenderStyle::setNBSPMode(NBSPMode mode) { SET(m_rareInheritedData, nbspMode, static_cast<unsigned>(mode)); }
-inline void RenderStyle::setNamedGridArea(const NamedGridAreaMap& map) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, namedGridArea, map); }
-inline void RenderStyle::setNamedGridAreaColumnCount(size_t columnCount) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, namedGridAreaColumnCount, columnCount); }
-inline void RenderStyle::setNamedGridAreaRowCount(size_t rowCount) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, namedGridAreaRowCount, rowCount); }
 inline void RenderStyle::setObjectFit(ObjectFit fit) { SET_NESTED(m_nonInheritedData, miscData, objectFit, static_cast<unsigned>(fit)); }
 inline void RenderStyle::setObjectPosition(LengthPoint position) { SET_NESTED(m_nonInheritedData, miscData, objectPosition, WTFMove(position)); }
 inline void RenderStyle::setOffsetAnchor(Style::OffsetAnchor&& anchor) { SET_NESTED(m_nonInheritedData, rareData, offsetAnchor, WTFMove(anchor)); }

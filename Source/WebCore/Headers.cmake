@@ -1024,6 +1024,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     css/values/color-adjust/CSSColorScheme.h
 
+    css/values/grid/CSSGridNamedAreaMap.h
+    css/values/grid/CSSGridTemplateAreas.h
+
     css/values/images/CSSGradient.h
 
     css/values/motion/CSSRayFunction.h
@@ -2775,6 +2778,10 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/flexbox/StyleFlexBasis.h
 
+    style/values/grid/StyleGridNamedAreaMap.h
+    style/values/grid/StyleGridNamedLinesMap.h
+    style/values/grid/StyleGridOrderedNamedLinesMap.h
+    style/values/grid/StyleGridTemplateAreas.h
     style/values/grid/StyleGridTrackBreadth.h
 
     style/values/images/StyleGradient.h

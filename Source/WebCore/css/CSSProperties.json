@@ -10132,10 +10132,7 @@
             "animation-type": "discrete",
             "initial": "none",
             "codegen-properties": {
-                "animation-wrapper": "GridTemplateAreasWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-converter": "StyleType<GridTemplateAreas>",
                 "parser-function": "consumeGridTemplateAreas",
                 "parser-grammar-unused": "none | <string>+",
                 "parser-grammar-unused-reason": "Needs support for nested grammars in <string> values."

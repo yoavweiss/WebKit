@@ -252,9 +252,6 @@ struct Length;
 struct LengthPoint;
 struct LengthSize;
 struct ListStyleType;
-struct NamedGridAreaMap;
-struct NamedGridLinesMap;
-struct OrderedNamedGridLinesMap;
 struct SingleTimelineRange;
 
 struct ScrollSnapAlign;
@@ -296,6 +293,9 @@ struct CornerShapeValue;
 struct DynamicRangeLimit;
 struct FlexBasis;
 struct GapGutter;
+struct GridNamedLinesMap;
+struct GridOrderedNamedLinesMap;
+struct GridTemplateAreas;
 struct InsetEdge;
 struct MarginEdge;
 struct MaximumSize;
@@ -893,19 +893,15 @@ public:
     inline unsigned gridAutoRepeatRowsInsertionPoint() const;
     inline AutoRepeatType gridAutoRepeatColumnsType() const;
     inline AutoRepeatType gridAutoRepeatRowsType() const;
-    inline const NamedGridLinesMap& namedGridColumnLines() const;
-    inline const NamedGridLinesMap& namedGridRowLines() const;
-    inline const OrderedNamedGridLinesMap& orderedNamedGridColumnLines() const;
-    inline const OrderedNamedGridLinesMap& orderedNamedGridRowLines() const;
-    inline const NamedGridLinesMap& autoRepeatNamedGridColumnLines() const;
-    inline const NamedGridLinesMap& autoRepeatNamedGridRowLines() const;
-    inline const OrderedNamedGridLinesMap& autoRepeatOrderedNamedGridColumnLines() const;
-    inline const OrderedNamedGridLinesMap& autoRepeatOrderedNamedGridRowLines() const;
-    inline const NamedGridLinesMap& implicitNamedGridColumnLines() const;
-    inline const NamedGridLinesMap& implicitNamedGridRowLines() const;
-    inline const NamedGridAreaMap& namedGridArea() const;
-    inline size_t namedGridAreaRowCount() const;
-    inline size_t namedGridAreaColumnCount() const;
+    inline const Style::GridNamedLinesMap& namedGridColumnLines() const;
+    inline const Style::GridNamedLinesMap& namedGridRowLines() const;
+    inline const Style::GridOrderedNamedLinesMap& orderedNamedGridColumnLines() const;
+    inline const Style::GridOrderedNamedLinesMap& orderedNamedGridRowLines() const;
+    inline const Style::GridNamedLinesMap& autoRepeatNamedGridColumnLines() const;
+    inline const Style::GridNamedLinesMap& autoRepeatNamedGridRowLines() const;
+    inline const Style::GridOrderedNamedLinesMap& autoRepeatOrderedNamedGridColumnLines() const;
+    inline const Style::GridOrderedNamedLinesMap& autoRepeatOrderedNamedGridRowLines() const;
+    inline const Style::GridTemplateAreas& gridTemplateAreas() const;
     inline GridAutoFlow gridAutoFlow() const;
     inline bool gridSubgridRows() const;
     inline bool gridSubgridColumns() const;
@@ -1559,11 +1555,7 @@ public:
     inline void setGridRowList(const GridTrackList&);
     inline void setGridAutoColumns(Vector<GridTrackSize>&&);
     inline void setGridAutoRows(Vector<GridTrackSize>&&);
-    inline void setImplicitNamedGridColumnLines(const NamedGridLinesMap&);
-    inline void setImplicitNamedGridRowLines(const NamedGridLinesMap&);
-    inline void setNamedGridArea(const NamedGridAreaMap&);
-    inline void setNamedGridAreaRowCount(size_t);
-    inline void setNamedGridAreaColumnCount(size_t);
+    inline void setGridTemplateAreas(Style::GridTemplateAreas&&);
     inline void setGridAutoFlow(GridAutoFlow);
     inline void setGridItemColumnStart(const GridPosition&);
     inline void setGridItemColumnEnd(const GridPosition&);
@@ -2197,14 +2189,12 @@ public:
     static inline Vector<GridTrackSize> initialGridAutoColumns();
     static inline Vector<GridTrackSize> initialGridAutoRows();
 
-    static NamedGridAreaMap initialNamedGridArea();
-    static size_t initialNamedGridAreaCount() { return 0; }
+    static Style::GridTemplateAreas initialGridTemplateAreas();
 
-    static NamedGridLinesMap initialNamedGridColumnLines();
-    static NamedGridLinesMap initialNamedGridRowLines();
-
-    static OrderedNamedGridLinesMap initialOrderedNamedGridColumnLines();
-    static OrderedNamedGridLinesMap initialOrderedNamedGridRowLines();
+    static Style::GridNamedLinesMap initialNamedGridColumnLines();
+    static Style::GridNamedLinesMap initialNamedGridRowLines();
+    static Style::GridOrderedNamedLinesMap initialOrderedNamedGridColumnLines();
+    static Style::GridOrderedNamedLinesMap initialOrderedNamedGridRowLines();
 
     static inline GridPosition initialGridItemColumnStart();
     static inline GridPosition initialGridItemColumnEnd();

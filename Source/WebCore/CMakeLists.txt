@@ -109,6 +109,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/css/values/color-adjust"
     "${WEBCORE_DIR}/css/values/easing"
     "${WEBCORE_DIR}/css/values/filter-effects"
+    "${WEBCORE_DIR}/css/values/grid"
     "${WEBCORE_DIR}/css/values/images"
     "${WEBCORE_DIR}/css/values/motion"
     "${WEBCORE_DIR}/css/values/primitives"
