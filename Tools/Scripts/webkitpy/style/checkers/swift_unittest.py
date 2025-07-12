@@ -23,42 +23,44 @@
 """Unit tests for swift.py."""
 
 import os
+import platform
 import unittest
 
 from webkitpy.style.checkers.swift import SwiftChecker
 
 
-class SwiftCheckerTest(unittest.TestCase):
+if platform.system() == 'Darwin' and [int(i) for i in platform.mac_ver()[0].split('.')] >= [15,]:
+    class SwiftCheckerTest(unittest.TestCase):
 
-    """Tests the SwiftChecker class."""
+        """Tests the SwiftChecker class."""
 
-    def test_init(self):
-        """Test __init__() method."""
-        def _mock_handle_style_error(self):
-            pass
+        def test_init(self):
+            """Test __init__() method."""
+            def _mock_handle_style_error(self):
+                pass
 
-        checker = SwiftChecker("foo.txt", _mock_handle_style_error)
-        self.assertEqual(checker.file_path, "foo.txt")
-        self.assertEqual(checker.handle_style_error, _mock_handle_style_error)
+            checker = SwiftChecker("foo.txt", _mock_handle_style_error)
+            self.assertEqual(checker.file_path, "foo.txt")
+            self.assertEqual(checker.handle_style_error, _mock_handle_style_error)
 
-    def test_check(self):
-        """Test check() method."""
-        errors = []
+        def test_check(self):
+            """Test check() method."""
+            errors = []
 
-        def _mock_handle_style_error(line_number, category, confidence, message):
-            error = (line_number, category, confidence, message)
-            errors.append(error)
+            def _mock_handle_style_error(line_number, category, confidence, message):
+                error = (line_number, category, confidence, message)
+                errors.append(error)
 
-        current_dir = os.path.dirname(__file__)
-        file_path = os.path.join(current_dir, "swift_unittest_input.swift")
+            current_dir = os.path.dirname(__file__)
+            file_path = os.path.join(current_dir, "swift_unittest_input.swift")
 
-        checker = SwiftChecker(file_path, _mock_handle_style_error)
-        checker.check(lines=[])
+            checker = SwiftChecker(file_path, _mock_handle_style_error)
+            checker.check(lines=[])
 
-        expected_errors = [
-            (3, "NeverForceUnwrap", 5, "do not force unwrap \'URL(string: \"https://www.apple.com\")\'"),
-            (2, "Spacing", 5, "remove 1 space"),
-            (3, "Indentation", 5, "replace leading whitespace with 4 spaces"),
-        ]
+            expected_errors = [
+                (3, "NeverForceUnwrap", 5, "do not force unwrap \'URL(string: \"https://www.apple.com\")\'"),
+                (2, "Spacing", 5, "remove 1 space"),
+                (3, "Indentation", 5, "replace leading whitespace with 4 spaces"),
+            ]
 
-        self.assertEqual(errors, expected_errors)
+            self.assertEqual(errors, expected_errors)
