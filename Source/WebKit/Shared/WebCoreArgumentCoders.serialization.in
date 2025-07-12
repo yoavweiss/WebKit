@@ -9162,3 +9162,10 @@ struct WebCore::FocusEventData {
     bool altKey;
 }
 
+header: <WebCore/AXObjectCache.h>
+[CustomHeader] struct WebCore::AXDebugInfo {
+    bool isAccessibilityEnabled;
+    bool isAccessibilityThreadInitialized;
+    String liveTree;
+    String isolatedTree;
+}

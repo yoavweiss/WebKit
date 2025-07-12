@@ -240,6 +240,7 @@ enum class WritingDirection : uint8_t;
 enum class AttachmentAssociatedElementType : uint8_t;
 #endif
 
+struct AXDebugInfo;
 struct AppHighlight;
 struct ApplePayAMSUIRequest;
 struct ApplicationManifest;
@@ -1445,6 +1446,10 @@ public:
 
     void accessibilitySettingsDidChange();
     void enableAccessibilityForAllProcesses();
+
+#if PLATFORM(COCOA)
+    NSDictionary *getAccessibilityWebProcessDebugInfo();
+#endif
 
     void windowScreenDidChange(WebCore::PlatformDisplayID);
     std::optional<WebCore::PlatformDisplayID> displayID() const { return m_displayID; }

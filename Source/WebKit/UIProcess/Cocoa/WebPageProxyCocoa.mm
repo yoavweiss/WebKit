@@ -66,6 +66,7 @@
 #import "WebScreenOrientationManagerProxy.h"
 #import "WebsiteDataStore.h"
 #import <Foundation/NSURLRequest.h>
+#import <WebCore/AXObjectCache.h>
 #import <WebCore/AppHighlight.h>
 #import <WebCore/ApplePayAMSUIRequest.h>
 #import <WebCore/DictationAlternative.h>
@@ -1756,6 +1757,24 @@ String WebPageProxy::presentingApplicationBundleIdentifier() const
 
     return { };
 }
+
+NSDictionary *WebPageProxy::getAccessibilityWebProcessDebugInfo()
+    {
+        const Seconds messageTimeout(2);
+        auto sendResult = protectedLegacyMainFrameProcess()->sendSync(Messages::WebPage::GetAccessibilityWebProcessDebugInfo(), webPageIDInMainFrameProcess(), messageTimeout);
+
+        if (!sendResult.succeeded())
+            return @{ };
+
+        auto [result] = sendResult.takeReplyOr(WebCore::AXDebugInfo({ 0, 0 }));
+
+        return @{
+            @"axIsEnabled": [NSNumber numberWithBool:result.isAccessibilityEnabled],
+            @"axIsThreadInitialized": [NSNumber numberWithBool:result.isAccessibilityThreadInitialized],
+            @"axLiveTree": result.liveTree.createNSString().get(),
+            @"axIsolatedTree": result.isolatedTree.createNSString().get()
+        };
+    }
 
 } // namespace WebKit
 

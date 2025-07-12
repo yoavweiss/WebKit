@@ -325,6 +325,9 @@ enum class LinkDecorationFilteringTrigger : uint8_t {
     Paste,
 };
 
+// For accessibility tree debugging.
+enum class IncludeDOMInfo : bool { No, Yes };
+
 constexpr OptionSet<RenderingUpdateStep> updateRenderingSteps = {
     RenderingUpdateStep::Reveal,
     RenderingUpdateStep::FlushAutofocusCandidates,
@@ -1206,7 +1209,7 @@ public:
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
     bool shouldUpdateAccessibilityRegions() const;
 #endif
-    WEBCORE_EXPORT std::optional<AXTreeData> accessibilityTreeData() const;
+    WEBCORE_EXPORT std::optional<AXTreeData> accessibilityTreeData(IncludeDOMInfo) const;
 #if USE(ATSPI)
     AccessibilityRootAtspi* accessibilityRootObject() const;
     void setAccessibilityRootObject(AccessibilityRootAtspi*);

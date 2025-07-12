@@ -273,6 +273,7 @@ enum class WheelScrollGestureState : uint8_t;
 enum class WritingDirection : uint8_t;
 enum class PaginationMode : uint8_t;
 
+struct AXDebugInfo;
 struct AppHighlight;
 struct AttributedString;
 struct BackForwardItemIdentifierType;
@@ -822,6 +823,8 @@ public:
 #endif
     void enableAccessibilityForAllProcesses();
     void enableAccessibility();
+
+    void getAccessibilityWebProcessDebugInfo(CompletionHandler<void(WebCore::AXDebugInfo)>&&);
 
     void screenPropertiesDidChange();
 
