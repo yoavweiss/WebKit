@@ -23,9 +23,6 @@ imported/w3c/web-platform-tests/css/css-view-transitions/new-content-transform-p
 # rdar://154889639 (REGRESSION(Liquid Glass): [ OS 26 ] fast/forms/datalist/datalist-fallback-content.html is a constant ImageOnlyFailure)
 fast/forms/datalist/datalist-fallback-content.html [ Pass ]
 
-# rdar://154988383 (New Test (294909@main): [ Tahoe ] accessibility/mac/text-color-explicit-changing.html is a consistent timeout)
-accessibility/mac/text-color-explicit-changing.html [ Pass ]
-
 # rdar://154990654 (REGRESSION(Liquid Glass): [ Tahoe ] 4X fast/forms/switch/zoom-approximates-transform (layout-tests) are constant ImageOnlyFailures)
 fast/forms/switch/zoom-approximates-transform-rtl.html [ Pass ]
 fast/forms/switch/zoom-approximates-transform-vertical-lr.html [ Pass ] 

@@ -10,8 +10,8 @@ AXFont: {
     AXFontName = Helvetica;
     AXFontSize = 11;
 }
-AXForegroundColor: (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1) headroom = 1.000000 ( 0 0 0 1 )
-AXBackgroundColor: (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1) headroom = 1.000000 ( 0 0 0 0 )
+AXForegroundColor: (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1) ( 0 0 0 1 )
+AXBackgroundColor: (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1) ( 0 0 0 0 )
 Hello
 
 Inserting 'world'
@@ -25,8 +25,8 @@ AXFont: {
     AXFontName = Helvetica;
     AXFontSize = 11;
 }
-AXForegroundColor: (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1) headroom = 1.000000 ( 0 0 0 1 )
-AXBackgroundColor: (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1) headroom = 1.000000 ( 0 0 0 0 )
+AXForegroundColor: (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1) ( 0 0 0 1 )
+AXBackgroundColor: (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1) ( 0 0 0 0 )
 Hello world
 
 
