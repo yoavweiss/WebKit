@@ -2197,7 +2197,6 @@
                 "animation-wrapper": "FillLayersWrapper",
                 "fill-layer-name-for-methods": "XPosition",
                 "fill-layer-property": true,
-                "style-extractor-converter": "StyleType<FillPositionX>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<single-background-position-x>#"
             },
@@ -2213,7 +2212,6 @@
                 "animation-wrapper": "FillLayersWrapper",
                 "fill-layer-name-for-methods": "YPosition",
                 "fill-layer-property": true,
-                "style-extractor-converter": "StyleType<FillPositionY>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<single-background-position-y>#"
             },
@@ -5845,7 +5843,6 @@
                 "animation-wrapper": "FillLayersWrapper",
                 "fill-layer-name-for-methods": "XPosition",
                 "fill-layer-property": true,
-                "style-extractor-converter": "StyleType<FillPositionX>",
                 "parser-grammar": "<single-webkit-mask-position-x>#"
             },
             "status": {
@@ -5864,7 +5861,6 @@
                 "animation-wrapper": "FillLayersWrapper",
                 "fill-layer-name-for-methods": "YPosition",
                 "fill-layer-property": true,
-                "style-extractor-converter": "StyleType<FillPositionY>",
                 "parser-grammar": "<single-webkit-mask-position-y>#"
             },
             "status": {
@@ -6456,8 +6452,8 @@
             "animation-type": "by computed value",
             "initial": "50% 50%",
             "codegen-properties": {
-                "animation-wrapper": "StyleTypeWrapper",
-                "style-converter": "StyleType<ObjectPosition>",
+                "animation-wrapper": "LengthPointWrapper",
+                "style-converter": "Position",
                 "parser-grammar": "<position>"
             },
             "specification": {
@@ -10689,14 +10685,15 @@
                 "aliases": [
                     "-webkit-perspective-origin-x"
                 ],
-                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper": "LengthWrapper",
+                "animation-wrapper-requires-additional-parameters": ["{ LengthWrapper::Flags::IsLengthPercentage }"],
                 "skip-style-extractor": true,
-                "style-builder-converter": "StyleType<PerspectiveOriginX>",
+                "style-builder-converter": "PositionComponentX",
                 "parser-grammar": "<position-x>"
             },
             "specification": {
                 "category": "css-transforms",
-                "url": "https://www.w3.org/TR/css-transforms-2/#propdef-perspective-origin"
+                "url": "https://www.w3.org/TR/css-transforms-1/#propdef-perspective-origin"
             }
         },
         "perspective-origin-y": {
@@ -10706,9 +10703,10 @@
                 "aliases": [
                     "-webkit-perspective-origin-y"
                 ],
-                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper": "LengthWrapper",
+                "animation-wrapper-requires-additional-parameters": ["{ LengthWrapper::Flags::IsLengthPercentage }"],
                 "skip-style-extractor": true,
-                "style-builder-converter": "StyleType<PerspectiveOriginY>",
+                "style-builder-converter": "PositionComponentY",
                 "parser-grammar": "<position-y>"
             },
             "specification": {
@@ -11204,9 +11202,10 @@
                 "aliases": [
                     "-webkit-transform-origin-x"
                 ],
-                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper": "LengthWrapper",
+                "animation-wrapper-requires-additional-parameters": ["{ LengthWrapper::Flags::IsLengthPercentage }"],
                 "skip-style-extractor": true,
-                "style-builder-converter": "StyleType<TransformOriginX>",
+                "style-builder-converter": "PositionComponentX",
                 "parser-grammar": "<position-x>"
             },
             "specification": {
@@ -11221,9 +11220,10 @@
                 "aliases": [
                     "-webkit-transform-origin-y"
                 ],
-                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper": "LengthWrapper",
+                "animation-wrapper-requires-additional-parameters": ["{ LengthWrapper::Flags::IsLengthPercentage }"],
                 "skip-style-extractor": true,
-                "style-builder-converter": "StyleType<TransformOriginY>",
+                "style-builder-converter": "PositionComponentY",
                 "parser-grammar": "<position-y>"
             },
             "specification": {
@@ -11238,9 +11238,9 @@
                 "aliases": [
                     "-webkit-transform-origin-z"
                 ],
-                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper": "Wrapper",
                 "skip-style-extractor": true,
-                "style-builder-converter": "StyleType<TransformOriginZ>",
+                "style-converter": "ComputedLength<float>",
                 "parser-grammar": "<length>"
             },
             "specification": {
