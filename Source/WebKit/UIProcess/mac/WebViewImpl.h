@@ -134,6 +134,9 @@ namespace WritingTools {
 enum class ReplacementBehavior : uint8_t;
 }
 
+struct FrameIdentifierType;
+using FrameIdentifier = ObjectIdentifier<FrameIdentifierType>;
+
 } // namespace WebCore
 
 @protocol WebViewImplDelegate

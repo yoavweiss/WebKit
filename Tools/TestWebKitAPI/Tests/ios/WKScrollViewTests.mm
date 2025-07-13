@@ -30,6 +30,7 @@
 #import "PlatformUtilities.h"
 #import "TestWKWebView.h"
 #import "UIKitSPIForTesting.h"
+#import "UserInterfaceSwizzler.h"
 #import "WKBrowserEngineDefinitions.h"
 #import <WebCore/WebEvent.h>
 #import <WebKit/WKWebViewPrivate.h>
@@ -198,6 +199,8 @@ inline static RetainPtr<WKBEScrollViewScrollUpdate> createScrollUpdate(WKBEScrol
 
 #endif // HAVE(UISCROLLVIEW_ASYNCHRONOUS_SCROLL_EVENT_HANDLING)
 
+namespace TestWebKitAPI {
+
 static void traverseLayerTree(CALayer *layer, void(^block)(CALayer *))
 {
     for (CALayer *child in layer.sublayers)
@@ -223,7 +226,7 @@ TEST(WKScrollViewTests, PositionFixedLayerAfterScrolling)
     // opportunity to arrive in the UI process before dispatching the next visible content rect update.
     usleep(USEC_PER_SEC * 0.25);
 
-    TestWebKitAPI::Util::run(&done);
+    Util::run(&done);
 
     bool foundLayerForFixedNavigationBar = false;
     traverseLayerTree([webView layer], [&] (CALayer *layer) {
@@ -508,7 +511,7 @@ TEST(WKScrollViewTests, AllowsKeyboardScrolling)
         doneWaiting = true;
     });
 
-    TestWebKitAPI::Util::run(&doneWaiting);
+    Util::run(&doneWaiting);
 
     doneWaiting = false;
 
@@ -520,8 +523,54 @@ TEST(WKScrollViewTests, AllowsKeyboardScrolling)
         doneWaiting = true;
     });
 
-    TestWebKitAPI::Util::run(&doneWaiting);
+    Util::run(&doneWaiting);
 }
 #endif
+
+#if HAVE(LIQUID_GLASS)
+
+TEST(WKScrollViewTests, ClientCanHideScrollEdgeEffects)
+{
+    IPhoneUserInterfaceSwizzler swizzleUserInterface;
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 800)]);
+
+    auto insets = UIEdgeInsetsMake(25, 0, 125, 0);
+    auto insetSize = UIEdgeInsetsInsetRect([webView bounds], insets).size;
+    [webView _setObscuredInsets:insets];
+    [webView _overrideLayoutParametersWithMinimumLayoutSize:insetSize minimumUnobscuredSizeOverride:insetSize maximumUnobscuredSizeOverride:insetSize];
+
+    RetainPtr scrollView = [webView scrollView];
+    [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    [scrollView setContentInset:insets];
+
+    [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_TRUE([scrollView topEdgeEffect].hidden);
+    EXPECT_FALSE([scrollView bottomEdgeEffect].hidden);
+
+    [scrollView topEdgeEffect].hidden = YES;
+    [scrollView bottomEdgeEffect].hidden = YES;
+
+    EXPECT_TRUE([scrollView topEdgeEffect].hidden);
+    EXPECT_TRUE([scrollView bottomEdgeEffect].hidden);
+
+    [scrollView topEdgeEffect].hidden = NO;
+    [scrollView bottomEdgeEffect].hidden = NO;
+
+    EXPECT_TRUE([scrollView topEdgeEffect].hidden); // Remains hidden, due to the top fixed color extension.
+    EXPECT_FALSE([scrollView bottomEdgeEffect].hidden);
+
+    [webView stringByEvaluatingJavaScript:@"document.querySelector('header').remove()"];
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_FALSE([scrollView topEdgeEffect].hidden);
+    EXPECT_FALSE([scrollView bottomEdgeEffect].hidden);
+}
+
+#endif // HAVE(LIQUID_GLASS)
+
+} // namespace TestWebKitAPI
 
 #endif // PLATFORM(IOS_FAMILY)

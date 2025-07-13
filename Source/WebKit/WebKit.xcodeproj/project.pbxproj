@@ -2605,6 +2605,7 @@
 		F4F12CB02C48B2C800BC1254 /* CoreIPCPlistDictionary.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4F12CAF2C48AEA400BC1254 /* CoreIPCPlistDictionary.mm */; };
 		F4F12CB32C48B8C100BC1254 /* CoreIPCPlistArray.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4F12CB22C48B8BB00BC1254 /* CoreIPCPlistArray.mm */; };
 		F4F475822A4F55A80004197B /* WKTouchEventsGestureRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = F4F4757F2A4F3D6D0004197B /* WKTouchEventsGestureRecognizer.h */; };
+		F4F7A4042E22F99C0029BCF2 /* WKUIScrollEdgeEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = F4F7A4022E22F99C0029BCF2 /* WKUIScrollEdgeEffect.h */; };
 		F4F94AD92D8E05DB0087FE6F /* DigitalCredentialsRequestValidatorBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = F4F94AD82D8E05DB0087FE6F /* DigitalCredentialsRequestValidatorBridge.h */; };
 		F4F94AE02D91B2A80087FE6F /* WKIdentityDocumentRawRequestValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = F4F94ADE2D91B2A80087FE6F /* WKIdentityDocumentRawRequestValidator.h */; };
 		F6113E25126CE1820057D0A7 /* APIUserContentURLPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = F6113E24126CE1820057D0A7 /* APIUserContentURLPattern.h */; };
@@ -8590,6 +8591,8 @@
 		F4F475812A4F3D860004197B /* WKTouchEventsGestureRecognizer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = WKTouchEventsGestureRecognizer.mm; path = ios/WKTouchEventsGestureRecognizer.mm; sourceTree = "<group>"; };
 		F4F59AD32065A5C9006CAA46 /* WKSelectMenuListViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WKSelectMenuListViewController.mm; path = ios/forms/WKSelectMenuListViewController.mm; sourceTree = "<group>"; };
 		F4F59AD42065A5CA006CAA46 /* WKSelectMenuListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WKSelectMenuListViewController.h; path = ios/forms/WKSelectMenuListViewController.h; sourceTree = "<group>"; };
+		F4F7A4022E22F99C0029BCF2 /* WKUIScrollEdgeEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WKUIScrollEdgeEffect.h; path = ios/WKUIScrollEdgeEffect.h; sourceTree = "<group>"; };
+		F4F7A4032E22F99C0029BCF2 /* WKUIScrollEdgeEffect.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = WKUIScrollEdgeEffect.mm; path = ios/WKUIScrollEdgeEffect.mm; sourceTree = "<group>"; };
 		F4F94AD82D8E05DB0087FE6F /* DigitalCredentialsRequestValidatorBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DigitalCredentialsRequestValidatorBridge.h; sourceTree = "<group>"; };
 		F4F94ADD2D8E066A0087FE6F /* DigitalCredentialsRequestValidatorBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DigitalCredentialsRequestValidatorBridge.mm; sourceTree = "<group>"; };
 		F4F94ADE2D91B2A80087FE6F /* WKIdentityDocumentRawRequestValidator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKIdentityDocumentRawRequestValidator.h; sourceTree = "<group>"; };
@@ -11852,6 +11855,8 @@
 				F4F4757F2A4F3D6D0004197B /* WKTouchEventsGestureRecognizer.h */,
 				F4F475812A4F3D860004197B /* WKTouchEventsGestureRecognizer.mm */,
 				F4E727222A547E2100CE34FD /* WKTouchEventsGestureRecognizerTypes.h */,
+				F4F7A4022E22F99C0029BCF2 /* WKUIScrollEdgeEffect.h */,
+				F4F7A4032E22F99C0029BCF2 /* WKUIScrollEdgeEffect.mm */,
 				316B8B622054B55800BD4A62 /* WKUSDPreviewView.h */,
 				316B8B612054B55800BD4A62 /* WKUSDPreviewView.mm */,
 				CDB96AD32AB379C9007A90D3 /* WKVideoView.h */,
@@ -18488,6 +18493,7 @@
 				1AD8790A18B6C38A006CAFD7 /* WKUIDelegate.h in Headers */,
 				07AF79E92D695195004E8D3A /* WKUIDelegateInternal.h in Headers */,
 				3743925818BC4C60001C8675 /* WKUIDelegatePrivate.h in Headers */,
+				F4F7A4042E22F99C0029BCF2 /* WKUIScrollEdgeEffect.h in Headers */,
 				BC40760A124FF0270068F20A /* WKURL.h in Headers */,
 				BC40761C124FF0370068F20A /* WKURLCF.h in Headers */,
 				BC40760C124FF0270068F20A /* WKURLRequest.h in Headers */,

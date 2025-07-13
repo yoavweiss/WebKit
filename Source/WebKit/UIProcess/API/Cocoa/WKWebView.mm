@@ -99,6 +99,7 @@
 #import "WKTextExtractionUtilities.h"
 #import "WKUIDelegate.h"
 #import "WKUIDelegateInternal.h"
+#import "WKUIScrollEdgeEffect.h"
 #import "WKUserContentControllerInternal.h"
 #import "WKWebViewConfigurationInternal.h"
 #import "WKWebViewContentProvider.h"
@@ -3301,18 +3302,11 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 - (void)_updateHiddenScrollPocketEdges
 {
 #if PLATFORM(IOS_FAMILY)
-    [_scrollView _setHiddenPocketEdgesInternal:[&] {
-        UIRectEdge edges = UIRectEdgeNone;
-        if ([self _shouldHideTopScrollPocket])
-            edges |= UIRectEdgeTop;
-        if ([self _hasVisibleColorExtensionView:WebCore::BoxSide::Right])
-            edges |= UIRectEdgeRight;
-        if ([self _hasVisibleColorExtensionView:WebCore::BoxSide::Bottom])
-            edges |= UIRectEdgeBottom;
-        if ([self _hasVisibleColorExtensionView:WebCore::BoxSide::Left])
-            edges |= UIRectEdgeLeft;
-        return edges;
-    }()];
+    RetainPtr scrollView = _scrollView;
+    [scrollView _wk_topEdgeEffect].internallyHidden = [self _shouldHideTopScrollPocket];
+    [scrollView _wk_rightEdgeEffect].internallyHidden = [self _hasVisibleColorExtensionView:WebCore::BoxSide::Right];
+    [scrollView _wk_leftEdgeEffect].internallyHidden = [self _hasVisibleColorExtensionView:WebCore::BoxSide::Left];
+    [scrollView _wk_bottomEdgeEffect].internallyHidden = [self _hasVisibleColorExtensionView:WebCore::BoxSide::Bottom];
 #else
     _impl->updateScrollPocket();
 #endif
