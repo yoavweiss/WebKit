@@ -44,8 +44,6 @@ DEFINE_ALLOCATOR_WITH_HEAP_IDENTIFIER(StyleRareNonInheritedData);
 StyleRareNonInheritedData::StyleRareNonInheritedData()
     : containIntrinsicWidth(RenderStyle::initialContainIntrinsicWidth())
     , containIntrinsicHeight(RenderStyle::initialContainIntrinsicHeight())
-    , perspectiveOriginX(RenderStyle::initialPerspectiveOriginX())
-    , perspectiveOriginY(RenderStyle::initialPerspectiveOriginY())
     , lineClamp(RenderStyle::initialLineClamp())
     , zoom(RenderStyle::initialZoom())
     , maxLines(RenderStyle::initialMaxLines())
@@ -70,6 +68,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , shapeMargin(RenderStyle::initialShapeMargin())
     , shapeImageThreshold(RenderStyle::initialShapeImageThreshold())
     , perspective(RenderStyle::initialPerspective())
+    , perspectiveOrigin(RenderStyle::initialPerspectiveOrigin())
     , clipPath(RenderStyle::initialClipPath())
     , textDecorationColor(RenderStyle::initialTextDecorationColor())
     , customProperties(Style::CustomPropertyData::create())
@@ -152,8 +151,6 @@ inline StyleRareNonInheritedData::StyleRareNonInheritedData(const StyleRareNonIn
     : RefCounted<StyleRareNonInheritedData>()
     , containIntrinsicWidth(o.containIntrinsicWidth)
     , containIntrinsicHeight(o.containIntrinsicHeight)
-    , perspectiveOriginX(o.perspectiveOriginX)
-    , perspectiveOriginY(o.perspectiveOriginY)
     , lineClamp(o.lineClamp)
     , zoom(o.zoom)
     , maxLines(o.maxLines)
@@ -178,6 +175,7 @@ inline StyleRareNonInheritedData::StyleRareNonInheritedData(const StyleRareNonIn
     , shapeMargin(o.shapeMargin)
     , shapeImageThreshold(o.shapeImageThreshold)
     , perspective(o.perspective)
+    , perspectiveOrigin(o.perspectiveOrigin)
     , clipPath(o.clipPath)
     , textDecorationColor(o.textDecorationColor)
     , customProperties(o.customProperties)
@@ -267,8 +265,6 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
 {
     return containIntrinsicWidth == o.containIntrinsicWidth
         && containIntrinsicHeight == o.containIntrinsicHeight
-        && perspectiveOriginX == o.perspectiveOriginX
-        && perspectiveOriginY == o.perspectiveOriginY
         && lineClamp == o.lineClamp
         && zoom == o.zoom
         && maxLines == o.maxLines
@@ -293,6 +289,7 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
         && shapeMargin == o.shapeMargin
         && shapeImageThreshold == o.shapeImageThreshold
         && perspective == o.perspective
+        && perspectiveOrigin == o.perspectiveOrigin
         && clipPath == o.clipPath
         && textDecorationColor == o.textDecorationColor
         && customProperties == o.customProperties
@@ -404,9 +401,6 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
     LOG_IF_DIFFERENT(containIntrinsicWidth);
     LOG_IF_DIFFERENT(containIntrinsicHeight);
 
-    LOG_IF_DIFFERENT(perspectiveOriginX);
-    LOG_IF_DIFFERENT(perspectiveOriginY);
-
     LOG_IF_DIFFERENT(lineClamp);
 
     LOG_IF_DIFFERENT(zoom);
@@ -436,7 +430,9 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
 
     LOG_IF_DIFFERENT(shapeMargin);
     LOG_IF_DIFFERENT(shapeImageThreshold);
+
     LOG_IF_DIFFERENT(perspective);
+    LOG_IF_DIFFERENT(perspectiveOrigin);
 
     LOG_IF_DIFFERENT(clipPath);
 

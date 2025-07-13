@@ -2377,10 +2377,7 @@ inline void ExtractorCustom::extractBackgroundShorthandSerialization(ExtractorSt
 inline RefPtr<CSSValue> ExtractorCustom::extractBackgroundPositionShorthand(ExtractorState& state)
 {
     auto mapper = [](auto& state, auto& layer) -> Ref<CSSValue> {
-        return CSSValueList::createSpaceSeparated(
-            ExtractorConverter::convertLength(state, layer.xPosition()),
-            ExtractorConverter::convertLength(state, layer.yPosition())
-        );
+        return ExtractorConverter::convertStyleType(state, layer.position());
     };
     return extractFillLayerValue(state, state.style.backgroundLayers(), mapper);
 }
@@ -2390,9 +2387,7 @@ inline void ExtractorCustom::extractBackgroundPositionShorthandSerialization(Ext
     auto mapper = [](auto& state, auto& builder, const auto& context, bool includeComma, auto& layer) {
         if (includeComma)
             builder.append(", "_s);
-        ExtractorSerializer::serializeLength(state, builder, context, layer.xPosition());
-        builder.append(' ');
-        ExtractorSerializer::serializeLength(state, builder, context, layer.yPosition());
+        ExtractorSerializer::serializeStyleType(state, builder, context, layer.position());
     };
     extractFillLayerValueSerialization(state, builder, context, state.style.backgroundLayers(), mapper);
 }
@@ -2823,10 +2818,7 @@ inline void ExtractorCustom::extractMaskBorderShorthandSerialization(ExtractorSt
 inline RefPtr<CSSValue> ExtractorCustom::extractMaskPositionShorthand(ExtractorState& state)
 {
     auto mapper = [](auto& state, auto& layer) -> Ref<CSSValue> {
-        return CSSValueList::createSpaceSeparated(
-            ExtractorConverter::convertLength(state, layer.xPosition()),
-            ExtractorConverter::convertLength(state, layer.yPosition())
-        );
+        return ExtractorConverter::convertStyleType(state, layer.position());
     };
     return extractFillLayerValue(state, state.style.maskLayers(), mapper);
 }
@@ -2836,9 +2828,7 @@ inline void ExtractorCustom::extractMaskPositionShorthandSerialization(Extractor
     auto mapper = [](auto& state, auto& builder, const auto& context, bool includeComma, auto& layer) {
         if (includeComma)
             builder.append(", "_s);
-        ExtractorSerializer::serializeLength(state, builder, context, layer.xPosition());
-        builder.append(' ');
-        ExtractorSerializer::serializeLength(state, builder, context, layer.yPosition());
+        ExtractorSerializer::serializeStyleType(state, builder, context, layer.position());
     };
     extractFillLayerValueSerialization(state, builder, context, state.style.maskLayers(), mapper);
 }
@@ -2939,11 +2929,11 @@ inline RefPtr<CSSValue> ExtractorCustom::extractPerspectiveOriginShorthand(Extra
     CSSValueListBuilder list;
     if (state.renderer) {
         auto box = state.renderer->transformReferenceBoxRect(state.style);
-        list.append(ExtractorConverter::convertNumberAsPixels(state, minimumValueForLength(state.style.perspectiveOriginX(), box.width())));
-        list.append(ExtractorConverter::convertNumberAsPixels(state, minimumValueForLength(state.style.perspectiveOriginY(), box.height())));
+        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.perspectiveOriginX(), box.width())));
+        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.perspectiveOriginY(), box.height())));
     } else {
-        list.append(ExtractorConverter::convertLength(state, state.style.perspectiveOriginX()));
-        list.append(ExtractorConverter::convertLength(state, state.style.perspectiveOriginY()));
+        list.append(ExtractorConverter::convertStyleType(state, state.style.perspectiveOriginX()));
+        list.append(ExtractorConverter::convertStyleType(state, state.style.perspectiveOriginY()));
     }
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
@@ -2952,13 +2942,13 @@ inline void ExtractorCustom::extractPerspectiveOriginShorthandSerialization(Extr
 {
     if (state.renderer) {
         auto box = state.renderer->transformReferenceBoxRect(state.style);
-        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, minimumValueForLength(state.style.perspectiveOriginX(), box.width()));
+        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.perspectiveOriginX(), box.width()));
         builder.append(' ');
-        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, minimumValueForLength(state.style.perspectiveOriginY(), box.height()));
+        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.perspectiveOriginY(), box.height()));
     } else {
-        ExtractorSerializer::serializeLength(state, builder, context, state.style.perspectiveOriginX());
+        ExtractorSerializer::serializeStyleType(state, builder, context, state.style.perspectiveOriginX());
         builder.append(' ');
-        ExtractorSerializer::serializeLength(state, builder, context, state.style.perspectiveOriginY());
+        ExtractorSerializer::serializeStyleType(state, builder, context, state.style.perspectiveOriginY());
     }
 }
 
@@ -3130,15 +3120,15 @@ inline RefPtr<CSSValue> ExtractorCustom::extractTransformOriginShorthand(Extract
     CSSValueListBuilder list;
     if (state.renderer) {
         auto box = state.renderer->transformReferenceBoxRect(state.style);
-        list.append(ExtractorConverter::convertNumberAsPixels(state, minimumValueForLength(state.style.transformOriginX(), box.width())));
-        list.append(ExtractorConverter::convertNumberAsPixels(state, minimumValueForLength(state.style.transformOriginY(), box.height())));
-        if (auto transformOriginZ = state.style.transformOriginZ())
-            list.append(ExtractorConverter::convertNumberAsPixels(state, transformOriginZ));
+        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.transformOriginX(), box.width())));
+        list.append(ExtractorConverter::convertNumberAsPixels(state, Style::evaluate(state.style.transformOriginY(), box.height())));
+        if (auto transformOriginZ = state.style.transformOriginZ(); transformOriginZ.value)
+            list.append(ExtractorConverter::convertStyleType(state, transformOriginZ));
     } else {
-        list.append(ExtractorConverter::convertLength(state, state.style.transformOriginX()));
-        list.append(ExtractorConverter::convertLength(state, state.style.transformOriginY()));
-        if (auto transformOriginZ = state.style.transformOriginZ())
-            list.append(ExtractorConverter::convertNumberAsPixels(state, transformOriginZ));
+        list.append(ExtractorConverter::convertStyleType(state, state.style.transformOriginX()));
+        list.append(ExtractorConverter::convertStyleType(state, state.style.transformOriginY()));
+        if (auto transformOriginZ = state.style.transformOriginZ(); transformOriginZ.value)
+            list.append(ExtractorConverter::convertStyleType(state, transformOriginZ));
     }
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
@@ -3147,20 +3137,20 @@ inline void ExtractorCustom::extractTransformOriginShorthandSerialization(Extrac
 {
     if (state.renderer) {
         auto box = state.renderer->transformReferenceBoxRect(state.style);
-        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, minimumValueForLength(state.style.transformOriginX(), box.width()));
+        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.transformOriginX(), box.width()));
         builder.append(' ');
-        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, minimumValueForLength(state.style.transformOriginY(), box.height()));
-        if (auto transformOriginZ = state.style.transformOriginZ()) {
+        ExtractorSerializer::serializeNumberAsPixels(state, builder, context, Style::evaluate(state.style.transformOriginY(), box.height()));
+        if (auto transformOriginZ = state.style.transformOriginZ(); transformOriginZ.value) {
             builder.append(' ');
-            ExtractorSerializer::serializeNumberAsPixels(state, builder, context, transformOriginZ);
+            ExtractorSerializer::serializeStyleType(state, builder, context, transformOriginZ);
         }
     } else {
-        ExtractorSerializer::serializeLength(state, builder, context, state.style.transformOriginX());
+        ExtractorSerializer::serializeStyleType(state, builder, context, state.style.transformOriginX());
         builder.append(' ');
-        ExtractorSerializer::serializeLength(state, builder, context, state.style.transformOriginY());
-        if (auto transformOriginZ = state.style.transformOriginZ()) {
+        ExtractorSerializer::serializeStyleType(state, builder, context, state.style.transformOriginY());
+        if (auto transformOriginZ = state.style.transformOriginZ(); transformOriginZ.value) {
             builder.append(' ');
-            ExtractorSerializer::serializeNumberAsPixels(state, builder, context, transformOriginZ);
+            ExtractorSerializer::serializeStyleType(state, builder, context, transformOriginZ);
         }
     }
 }

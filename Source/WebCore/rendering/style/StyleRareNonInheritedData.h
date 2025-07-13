@@ -50,6 +50,7 @@
 #include "StyleOffsetPosition.h"
 #include "StyleOffsetRotate.h"
 #include "StylePerspective.h"
+#include "StylePerspectiveOrigin.h"
 #include "StylePrimitiveNumericTypes.h"
 #include "StyleProgressTimelineAxes.h"
 #include "StyleProgressTimelineName.h"
@@ -130,8 +131,6 @@ public:
     void dumpDifferences(TextStream&, const StyleRareNonInheritedData&) const;
 #endif
 
-    LengthPoint perspectiveOrigin() const { return { perspectiveOriginX, perspectiveOriginY }; }
-
     bool hasBackdropFilters() const;
     bool hasScrollTimelines() const { return !scrollTimelines.isEmpty() || !scrollTimelineNames.isNone(); }
     bool hasViewTimelines() const { return !viewTimelines.isEmpty() || !viewTimelineNames.isNone(); }
@@ -140,9 +139,6 @@ public:
 
     Style::ContainIntrinsicSize containIntrinsicWidth;
     Style::ContainIntrinsicSize containIntrinsicHeight;
-
-    Length perspectiveOriginX;
-    Length perspectiveOriginY;
 
     LineClampValue lineClamp; // An Apple extension.
 
@@ -186,6 +182,7 @@ public:
     float shapeImageThreshold;
 
     Style::Perspective perspective;
+    Style::PerspectiveOrigin perspectiveOrigin;
 
     Style::ClipPath clipPath;
 

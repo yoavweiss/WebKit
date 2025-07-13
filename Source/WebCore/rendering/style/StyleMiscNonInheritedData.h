@@ -29,6 +29,7 @@
 #include "StyleAspectRatio.h"
 #include "StyleBoxShadow.h"
 #include "StyleContentAlignmentData.h"
+#include "StyleObjectPosition.h"
 #include "StyleSelfAlignmentData.h"
 #include <memory>
 #include <wtf/DataRef.h>
@@ -97,7 +98,7 @@ public:
     StyleSelfAlignmentData alignSelf;
     StyleSelfAlignmentData justifyItems;
     StyleSelfAlignmentData justifySelf;
-    LengthPoint objectPosition;
+    Style::ObjectPosition objectPosition;
     int order;
 
     PREFERRED_TYPE(bool) unsigned hasAttrContent : 1 { false };
