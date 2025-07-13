@@ -3888,10 +3888,8 @@
             ],
             "codegen-properties": {
                 "accepts-quirky-length": true,
-                "animation-wrapper": "ClipWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<Clip>",
                 "parser-grammar": "<rect()> | auto"
             },
             "specification": {

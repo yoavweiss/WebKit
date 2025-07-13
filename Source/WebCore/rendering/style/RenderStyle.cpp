@@ -1202,7 +1202,7 @@ bool RenderStyle::changeRequiresLayerRepaint(const RenderStyle& other, OptionSet
 
         if (position() != PositionType::Static) {
             if (m_nonInheritedData->rareData.ptr() != other.m_nonInheritedData->rareData.ptr()) {
-                if (m_nonInheritedData->rareData->clip != other.m_nonInheritedData->rareData->clip || m_nonInheritedData->rareData->hasClip != other.m_nonInheritedData->rareData->hasClip) {
+                if (m_nonInheritedData->rareData->clip != other.m_nonInheritedData->rareData->clip) {
                     changedContextSensitiveProperties.add(StyleDifferenceContextSensitiveProperty::ClipRect);
                     return true;
                 }
@@ -1920,6 +1920,8 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyShapeImageThreshold);
         if (first.perspective != second.perspective)
             changingProperties.m_properties.set(CSSPropertyPerspective);
+        if (first.clip != second.clip)
+            changingProperties.m_properties.set(CSSPropertyClip);
         if (first.clipPath != second.clipPath)
             changingProperties.m_properties.set(CSSPropertyClipPath);
         if (first.textDecorationColor != second.textDecorationColor)
@@ -1978,8 +1980,6 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyTextBoxTrim);
         if (first.overflowAnchor != second.overflowAnchor)
             changingProperties.m_properties.set(CSSPropertyOverflowAnchor);
-        if (first.hasClip != second.hasClip)
-            changingProperties.m_properties.set(CSSPropertyClip);
         if (first.viewTransitionClasses != second.viewTransitionClasses)
             changingProperties.m_properties.set(CSSPropertyViewTransitionClass);
         if (first.viewTransitionName != second.viewTransitionName)
@@ -2245,15 +2245,6 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
 
     if (m_svgStyle.ptr() != other.m_svgStyle.ptr())
         m_svgStyle->conservativelyCollectChangedAnimatableProperties(*other.m_svgStyle, changingProperties);
-}
-
-void RenderStyle::setClip(Length&& top, Length&& right, Length&& bottom, Length&& left)
-{
-    auto& data = m_nonInheritedData.access().rareData.access();
-    data.clip.top() = WTFMove(top);
-    data.clip.right() = WTFMove(right);
-    data.clip.bottom() = WTFMove(bottom);
-    data.clip.left() = WTFMove(left);
 }
 
 void RenderStyle::addCursor(RefPtr<StyleImage>&& image, const std::optional<IntPoint>& hotSpot)

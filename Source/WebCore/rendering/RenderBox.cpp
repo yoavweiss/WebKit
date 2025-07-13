@@ -2226,31 +2226,38 @@ LayoutRect RenderBox::overflowClipRect(const LayoutPoint& location, OverlayScrol
 
 LayoutRect RenderBox::clipRect(const LayoutPoint& location) const
 {
-    LayoutRect borderBoxRect = this->borderBoxRect();
-    LayoutRect clipRect = LayoutRect(borderBoxRect.location() + location, borderBoxRect.size());
+    auto borderBoxRect = this->borderBoxRect();
+    auto clipRect = LayoutRect(borderBoxRect.location() + location, borderBoxRect.size());
 
-    if (!style().clipLeft().isAuto()) {
-        LayoutUnit c = valueForLength(style().clipLeft(), borderBoxRect.width());
-        clipRect.move(c, 0_lu);
-        clipRect.contract(c, 0_lu);
-    }
+    return WTF::switchOn(style().clip(),
+        [&](const CSS::Keyword::Auto&) {
+            return clipRect;
+        },
+        [&](const Style::ClipRect& rect) {
+            if (auto clipLeft = rect.value->left().tryLength()) {
+                auto c = LayoutUnit { clipLeft->value };
+                clipRect.move(c, 0_lu);
+                clipRect.contract(c, 0_lu);
+            }
 
-    // We don't use the fragment-specific border box's width and height since clip offsets are (stupidly) specified
-    // from the left and top edges. Therefore it's better to avoid constraining to smaller widths and heights.
+            // We don't use the fragment-specific border box's width and height since clip offsets are (stupidly) specified
+            // from the left and top edges. Therefore it's better to avoid constraining to smaller widths and heights.
 
-    if (!style().clipRight().isAuto())
-        clipRect.contract(width() - valueForLength(style().clipRight(), width()), 0_lu);
+            if (auto clipRight = rect.value->right().tryLength())
+                clipRect.contract(width() - LayoutUnit { clipRight->value }, 0_lu);
 
-    if (!style().clipTop().isAuto()) {
-        LayoutUnit c = valueForLength(style().clipTop(), borderBoxRect.height());
-        clipRect.move(0_lu, c);
-        clipRect.contract(0_lu, c);
-    }
+            if (auto clipTop = rect.value->top().tryLength()) {
+                auto c = LayoutUnit { clipTop->value };
+                clipRect.move(0_lu, c);
+                clipRect.contract(0_lu, c);
+            }
 
-    if (!style().clipBottom().isAuto())
-        clipRect.contract(0_lu, height() - valueForLength(style().clipBottom(), height()));
+            if (auto clipBottom = rect.value->bottom().tryLength())
+                clipRect.contract(0_lu, height() - LayoutUnit { clipBottom->value });
 
-    return clipRect;
+            return clipRect;
+        }
+    );
 }
 
 LayoutUnit RenderBox::shrinkLogicalWidthToAvoidFloats(LayoutUnit childMarginStart, LayoutUnit childMarginEnd, const RenderBlock& containingBlock) const

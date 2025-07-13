@@ -47,7 +47,6 @@ public:
     static Ref<CSSValue> extractDirection(ExtractorState&);
     static Ref<CSSValue> extractWritingMode(ExtractorState&);
     static Ref<CSSValue> extractFloat(ExtractorState&);
-    static Ref<CSSValue> extractClip(ExtractorState&);
     static Ref<CSSValue> extractContent(ExtractorState&);
     static Ref<CSSValue> extractCursor(ExtractorState&);
     static Ref<CSSValue> extractBaselineShift(ExtractorState&);
@@ -149,7 +148,6 @@ public:
     static void extractDirectionSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractWritingModeSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFloatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractClipSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractContentSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractCursorSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractBaselineShiftSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1244,49 +1242,6 @@ inline void ExtractorCustom::extractFloatSerialization(ExtractorState& state, St
     }
 
     ExtractorSerializer::serialize(state, builder, context, state.style.floating());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractClip(ExtractorState& state)
-{
-    if (!state.style.hasClip())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-
-    auto& clip = state.style.clip();
-
-    if (clip.allOf([](auto& side) { return side.isAuto(); }))
-        return CSSPrimitiveValue::create(CSSValueAuto);
-
-    return CSSRectValue::create({
-        ExtractorConverter::convertLengthOrAuto(state, clip.top()),
-        ExtractorConverter::convertLengthOrAuto(state, clip.right()),
-        ExtractorConverter::convertLengthOrAuto(state, clip.bottom()),
-        ExtractorConverter::convertLengthOrAuto(state, clip.left())
-    });
-}
-
-inline void ExtractorCustom::extractClipSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    if (!state.style.hasClip()) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Auto { });
-        return;
-    }
-
-    auto& clip = state.style.clip();
-
-    if (clip.allOf([](auto& side) { return side.isAuto(); })) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Auto { });
-        return;
-    }
-
-    builder.append(nameLiteral(CSSValueRect), '(');
-    ExtractorSerializer::serializeLengthOrAuto(state, builder, context, clip.top());
-    builder.append(", "_s);
-    ExtractorSerializer::serializeLengthOrAuto(state, builder, context, clip.right());
-    builder.append(", "_s);
-    ExtractorSerializer::serializeLengthOrAuto(state, builder, context, clip.bottom());
-    builder.append(", "_s);
-    ExtractorSerializer::serializeLengthOrAuto(state, builder, context, clip.left());
-    builder.append(')');
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractContent(ExtractorState& state)

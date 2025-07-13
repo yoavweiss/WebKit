@@ -836,26 +836,6 @@ private:
     OptionSet<Flags> m_flags;
 };
 
-class ClipWrapper final : public LengthBoxWrapper {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
-public:
-    ClipWrapper()
-        : LengthBoxWrapper(CSSPropertyClip, &RenderStyle::clip, &RenderStyle::setClip, { LengthBoxWrapper::Flags::AllowsNegativeValues })
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation compositeOperation) const final
-    {
-        return from.hasClip() && to.hasClip() && LengthBoxWrapper::canInterpolate(from, to, compositeOperation);
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        LengthBoxWrapper::interpolate(destination, from, to, context);
-        destination.setHasClip(true);
-    }
-};
-
 #if ENABLE(VARIATION_FONTS)
 
 class FontVariationSettingsWrapper final : public Wrapper<FontVariationSettings> {

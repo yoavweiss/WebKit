@@ -169,12 +169,8 @@ inline BreakBetween RenderStyle::breakBefore() const { return static_cast<BreakB
 inline BreakInside RenderStyle::breakInside() const { return static_cast<BreakInside>(m_nonInheritedData->rareData->breakInside); }
 inline LineCap RenderStyle::capStyle() const { return static_cast<LineCap>(m_rareInheritedData->capStyle); }
 inline const Style::Color& RenderStyle::caretColor() const { return m_rareInheritedData->caretColor; }
-inline const LengthBox& RenderStyle::clip() const { return m_nonInheritedData->rareData->clip; }
-inline const Length& RenderStyle::clipBottom() const { return m_nonInheritedData->rareData->clip.bottom(); }
-inline const Length& RenderStyle::clipLeft() const { return m_nonInheritedData->rareData->clip.left(); }
+inline const Style::Clip& RenderStyle::clip() const { return m_nonInheritedData->rareData->clip; }
 inline const Style::ClipPath& RenderStyle::clipPath() const { return m_nonInheritedData->rareData->clipPath; }
-inline const Length& RenderStyle::clipRight() const { return m_nonInheritedData->rareData->clip.right(); }
-inline const Length& RenderStyle::clipTop() const { return m_nonInheritedData->rareData->clip.top(); }
 inline bool RenderStyle::collapseWhiteSpace() const { return collapseWhiteSpace(whiteSpaceCollapse()); }
 inline ColumnAxis RenderStyle::columnAxis() const { return static_cast<ColumnAxis>(m_nonInheritedData->miscData->multiCol->axis); }
 inline unsigned short RenderStyle::columnCount() const { return m_nonInheritedData->miscData->multiCol->count; }
@@ -289,7 +285,7 @@ inline bool RenderStyle::hasBorder() const { return border().hasBorder(); }
 inline bool RenderStyle::hasBorderImage() const { return border().hasBorderImage(); }
 inline bool RenderStyle::hasBorderImageOutsets() const { return borderImage().hasImage() && !borderImage().outset().isZero(); }
 inline bool RenderStyle::hasBorderRadius() const { return border().hasBorderRadius(); }
-inline bool RenderStyle::hasClip() const { return m_nonInheritedData->rareData->hasClip; }
+inline bool RenderStyle::hasClip() const { return !clip().isAuto(); }
 inline bool RenderStyle::hasClipPath() const { return !WTF::holdsAlternative<CSS::Keyword::None>(m_nonInheritedData->rareData->clipPath); }
 inline bool RenderStyle::hasContent() const { return contentData(); }
 inline bool RenderStyle::hasDisplayAffectedByAnimations() const { return m_nonInheritedData->miscData->hasDisplayAffectedByAnimations; }
@@ -377,6 +373,7 @@ constexpr BreakInside RenderStyle::initialBreakInside() { return BreakInside::Au
 constexpr LineCap RenderStyle::initialCapStyle() { return LineCap::Butt; }
 constexpr CaptionSide RenderStyle::initialCaptionSide() { return CaptionSide::Top; }
 constexpr Clear RenderStyle::initialClear() { return Clear::None; }
+inline Style::Clip RenderStyle::initialClip() { return CSS::Keyword::Auto { }; }
 inline Style::ClipPath RenderStyle::initialClipPath() { return CSS::Keyword::None { }; }
 inline Color RenderStyle::initialColor() { return Color::black; }
 constexpr ColumnAxis RenderStyle::initialColumnAxis() { return ColumnAxis::Auto; }

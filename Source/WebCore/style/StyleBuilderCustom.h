@@ -102,6 +102,7 @@ inline MinimumSize forwardInheritedValue(const MinimumSize& value) { auto copy =
 inline MaximumSize forwardInheritedValue(const MaximumSize& value) { auto copy = value; return copy; }
 inline FlexBasis forwardInheritedValue(const FlexBasis& value) { auto copy = value; return copy; }
 inline DynamicRangeLimit forwardInheritedValue(const DynamicRangeLimit& value) { auto copy = value; return copy; }
+inline Clip forwardInheritedValue(const Clip& value) { auto copy = value; return copy; }
 inline ClipPath forwardInheritedValue(const ClipPath& value) { auto copy = value; return copy; }
 inline CornerShapeValue forwardInheritedValue(const CornerShapeValue& value) { auto copy = value; return copy; }
 inline GridTemplateAreas forwardInheritedValue(const GridTemplateAreas& value) { auto copy = value; return copy; }
@@ -145,7 +146,6 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(BorderImageWidth);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(BoxShadow);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CaretColor);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(Clip);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Color);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Content);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterIncrement);
@@ -558,51 +558,6 @@ inline void BuilderCustom::applyValueCaretColor(BuilderState& builderState, CSSV
             builderState.style().setHasVisitedLinkAutoCaretColor();
         else
             builderState.style().setVisitedLinkCaretColor(toStyleFromCSSValue<Color>(builderState, value, ForVisitedLink::Yes));
-    }
-}
-
-inline void BuilderCustom::applyInitialClip(BuilderState& builderState)
-{
-    builderState.style().setClip(WebCore::Length(), WebCore::Length(), WebCore::Length(), WebCore::Length());
-    builderState.style().setHasClip(false);
-}
-
-inline void BuilderCustom::applyInheritClip(BuilderState& builderState)
-{
-    auto& parentStyle = builderState.parentStyle();
-    if (!parentStyle.hasClip())
-        return applyInitialClip(builderState);
-    builderState.style().setClip(WebCore::Length { parentStyle.clipTop() }, WebCore::Length { parentStyle.clipRight() },
-        WebCore::Length { parentStyle.clipBottom() }, WebCore::Length { parentStyle.clipLeft() });
-    builderState.style().setHasClip(true);
-}
-
-inline void BuilderCustom::applyValueClip(BuilderState& builderState, CSSValue& value)
-{
-    if (value.isRect()) {
-        auto primitiveValueTop = requiredDowncast<CSSPrimitiveValue>(builderState, value.rect().top());
-        if (!primitiveValueTop)
-            return;
-        auto primitiveValueRight = requiredDowncast<CSSPrimitiveValue>(builderState, value.rect().right());
-        if (!primitiveValueRight)
-            return;
-        auto primitiveValueBottom = requiredDowncast<CSSPrimitiveValue>(builderState, value.rect().bottom());
-        if (!primitiveValueBottom)
-            return;
-        auto primitiveValueLeft = requiredDowncast<CSSPrimitiveValue>(builderState, value.rect().left());
-        if (!primitiveValueLeft)
-            return;
-
-        auto top = BuilderConverter::convertLengthOrAuto(builderState, *primitiveValueTop);
-        auto right = BuilderConverter::convertLengthOrAuto(builderState, *primitiveValueRight);
-        auto bottom = BuilderConverter::convertLengthOrAuto(builderState, *primitiveValueBottom);
-        auto left = BuilderConverter::convertLengthOrAuto(builderState, *primitiveValueLeft);
-
-        builderState.style().setClip(WTFMove(top), WTFMove(right), WTFMove(bottom), WTFMove(left));
-        builderState.style().setHasClip(true);
-    } else {
-        ASSERT(value.valueID() == CSSValueAuto);
-        applyInitialClip(builderState);
     }
 }
 

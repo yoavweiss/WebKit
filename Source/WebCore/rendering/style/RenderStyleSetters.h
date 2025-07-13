@@ -129,11 +129,7 @@ inline void RenderStyle::setBreakBefore(BreakBetween behavior) { SET_NESTED(m_no
 inline void RenderStyle::setBreakInside(BreakInside behavior) { SET_NESTED(m_nonInheritedData, rareData, breakInside, static_cast<unsigned>(behavior)); }
 inline void RenderStyle::setCapStyle(LineCap style) { SET(m_rareInheritedData, capStyle, static_cast<unsigned>(style)); }
 inline void RenderStyle::setCaretColor(Style::Color&& color) { SET_PAIR(m_rareInheritedData, caretColor, WTFMove(color), hasAutoCaretColor, false); }
-inline void RenderStyle::setClip(LengthBox&& box) { SET_NESTED(m_nonInheritedData, rareData, clip, WTFMove(box)); }
-inline void RenderStyle::setClipBottom(Length&& length) { SET_NESTED(m_nonInheritedData, rareData, clip.bottom(), WTFMove(length)); }
-inline void RenderStyle::setClipLeft(Length&& length) { SET_NESTED(m_nonInheritedData, rareData, clip.left(), WTFMove(length)); }
-inline void RenderStyle::setClipRight(Length&& length) { SET_NESTED(m_nonInheritedData, rareData, clip.right(), WTFMove(length)); }
-inline void RenderStyle::setClipTop(Length&& length) { SET_NESTED(m_nonInheritedData, rareData, clip.top(), WTFMove(length)); }
+inline void RenderStyle::setClip(Style::Clip&& clip) { SET_NESTED(m_nonInheritedData, rareData, clip, WTFMove(clip)); }
 inline void RenderStyle::setColumnAxis(ColumnAxis axis) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, axis, static_cast<unsigned>(axis)); }
 inline void RenderStyle::setColumnFill(ColumnFill fill) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, fill, static_cast<unsigned>(fill)); }
 inline void RenderStyle::setColumnGap(Style::GapGutter&& gap) { SET_NESTED(m_nonInheritedData, rareData, columnGap, WTFMove(gap)); }
@@ -175,7 +171,6 @@ inline void RenderStyle::setHasAutoOrphans() { SET_PAIR(m_rareInheritedData, has
 inline void RenderStyle::setHasAutoSpecifiedZIndex() { SET_NESTED_PAIR(m_nonInheritedData, boxData, m_hasAutoSpecifiedZIndex, true, m_specifiedZIndex, 0); }
 inline void RenderStyle::setHasAutoUsedZIndex() { SET_NESTED_PAIR(m_nonInheritedData, boxData, m_hasAutoUsedZIndex, true, m_usedZIndex, 0); }
 inline void RenderStyle::setHasAutoWidows() { SET_PAIR(m_rareInheritedData, hasAutoWidows, true, widows, initialWidows()); }
-inline void RenderStyle::setHasClip(bool hasClip) { SET_NESTED(m_nonInheritedData, rareData, hasClip, hasClip); }
 inline void RenderStyle::setHasContentNone(bool value) { m_nonInheritedFlags.hasContentNone = value; }
 inline void RenderStyle::setHasDisplayAffectedByAnimations() { SET_NESTED(m_nonInheritedData, miscData, hasDisplayAffectedByAnimations, true); }
 inline void RenderStyle::setHasExplicitlySetBorderBottomLeftRadius(bool value) { SET_NESTED(m_nonInheritedData, surroundData, hasExplicitlySetBorderBottomLeftRadius, value); }

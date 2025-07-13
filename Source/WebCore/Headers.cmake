@@ -2789,6 +2789,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/inline/StyleLineBoxContain.h
 
+    style/values/masking/StyleClip.h
     style/values/masking/StyleClipPath.h
 
     style/values/motion/StyleOffsetDistance.h

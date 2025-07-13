@@ -2123,8 +2123,9 @@ void RenderLayerCompositor::logLayerInfo(const RenderLayer& layer, ASCIILiteral 
 
 static bool clippingChanged(const RenderStyle& oldStyle, const RenderStyle& newStyle)
 {
-    return oldStyle.overflowX() != newStyle.overflowX() || oldStyle.overflowY() != newStyle.overflowY()
-        || oldStyle.hasClip() != newStyle.hasClip() || oldStyle.clip() != newStyle.clip();
+    return oldStyle.overflowX() != newStyle.overflowX()
+        || oldStyle.overflowY() != newStyle.overflowY()
+        || oldStyle.clip() != newStyle.clip();
 }
 
 static bool styleAffectsLayerGeometry(const RenderStyle& style)

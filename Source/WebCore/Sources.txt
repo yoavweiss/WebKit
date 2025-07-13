@@ -3180,6 +3180,7 @@ style/values/flexbox/StyleFlexBasis.cpp
 style/values/grid/StyleGridNamedLinesMap.cpp
 style/values/grid/StyleGridTemplateAreas.cpp
 style/values/images/StyleGradient.cpp
+style/values/masking/StyleClip.cpp
 style/values/masking/StyleClipPath.cpp
 style/values/motion/StyleOffsetAnchor.cpp
 style/values/motion/StyleOffsetPath.cpp
