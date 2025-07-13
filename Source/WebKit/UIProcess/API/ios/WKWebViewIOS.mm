@@ -226,6 +226,46 @@ static WebCore::IntDegrees deviceOrientationForUIInterfaceOrientation(UIInterfac
     [_scrollView addSubview:[_contentView unscaledView]];
 }
 
+- (void)_setObscuredInsetsInternal:(UIEdgeInsets)obscuredInsets
+{
+    ASSERT(obscuredInsets.top >= 0);
+    ASSERT(obscuredInsets.left >= 0);
+    ASSERT(obscuredInsets.bottom >= 0);
+    ASSERT(obscuredInsets.right >= 0);
+
+    _haveSetObscuredInsets = YES;
+
+    if (UIEdgeInsetsEqualToEdgeInsets(_obscuredInsets, obscuredInsets))
+        return;
+
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    auto sidesWithInsets = [](UIEdgeInsets insets) {
+        WebCore::BoxSideSet sides;
+        if (insets.top > 0)
+            sides.add(WebCore::BoxSideFlag::Top);
+        if (insets.left > 0)
+            sides.add(WebCore::BoxSideFlag::Left);
+        if (insets.bottom > 0)
+            sides.add(WebCore::BoxSideFlag::Bottom);
+        if (insets.right > 0)
+            sides.add(WebCore::BoxSideFlag::Right);
+        return sides;
+    };
+    BOOL updateFixedColorExtensionViews = sidesWithInsets(_obscuredInsets) != sidesWithInsets(obscuredInsets);
+#endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+
+    _obscuredInsets = obscuredInsets;
+
+    [self _scheduleVisibleContentRectUpdate];
+#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
+    if (updateFixedColorExtensionViews)
+        [self _updateFixedColorExtensionViews];
+    else
+        [self _updateFixedColorExtensionViewFrames];
+#endif
+    [_warningView setContentInset:[self _computedObscuredInsetForWarningView]];
+}
+
 - (void)_registerForNotifications
 {
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
@@ -2596,7 +2636,11 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     if (_overriddenLayoutParameters)
         return WebCore::FloatSize(_overriddenLayoutParameters->viewLayoutSize);
 
-    return WebCore::FloatSize(UIEdgeInsetsInsetRect(CGRectMake(0, 0, bounds.size.width, bounds.size.height), self._scrollViewSystemContentInset).size);
+    auto layoutInsets = self._scrollViewSystemContentInset;
+    if (_automaticallyAdjustsViewLayoutSizesWithObscuredInset)
+        layoutInsets = WebKit::maxEdgeInsets(layoutInsets, self._obscuredInsets);
+
+    return WebCore::FloatSize { UIEdgeInsetsInsetRect(bounds, layoutInsets).size };
 }
 
 - (void)_dispatchSetViewLayoutSize:(WebCore::FloatSize)viewLayoutSize
@@ -4241,42 +4285,9 @@ static bool isLockdownModeWarningNeeded()
 
 - (void)_setObscuredInsets:(UIEdgeInsets)obscuredInsets
 {
-    ASSERT(obscuredInsets.top >= 0);
-    ASSERT(obscuredInsets.left >= 0);
-    ASSERT(obscuredInsets.bottom >= 0);
-    ASSERT(obscuredInsets.right >= 0);
+    [self _setObscuredInsetsInternal:obscuredInsets];
 
-    _haveSetObscuredInsets = YES;
-
-    if (UIEdgeInsetsEqualToEdgeInsets(_obscuredInsets, obscuredInsets))
-        return;
-
-#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-    auto sidesWithInsets = [](UIEdgeInsets insets) {
-        WebCore::BoxSideSet sides;
-        if (insets.top > 0)
-            sides.add(WebCore::BoxSideFlag::Top);
-        if (insets.left > 0)
-            sides.add(WebCore::BoxSideFlag::Left);
-        if (insets.bottom > 0)
-            sides.add(WebCore::BoxSideFlag::Bottom);
-        if (insets.right > 0)
-            sides.add(WebCore::BoxSideFlag::Right);
-        return sides;
-    };
-    BOOL updateFixedColorExtensionViews = sidesWithInsets(_obscuredInsets) != sidesWithInsets(obscuredInsets);
-#endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-
-    _obscuredInsets = obscuredInsets;
-
-    [self _scheduleVisibleContentRectUpdate];
-#if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
-    if (updateFixedColorExtensionViews)
-        [self _updateFixedColorExtensionViews];
-    else
-        [self _updateFixedColorExtensionViewFrames];
-#endif
-    [_warningView setContentInset:[self _computedObscuredInsetForWarningView]];
+    _automaticallyAdjustsViewLayoutSizesWithObscuredInset = NO;
 }
 
 - (UIRectEdge)_obscuredInsetEdgesAffectedBySafeArea

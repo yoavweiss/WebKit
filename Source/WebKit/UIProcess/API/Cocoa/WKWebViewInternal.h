@@ -346,6 +346,7 @@ struct PerWebProcessState {
     std::optional<OverriddenLayoutParameters> _overriddenLayoutParameters;
 #if PLATFORM(IOS_FAMILY)
     BOOL _forcesInitialScaleFactor;
+    BOOL _automaticallyAdjustsViewLayoutSizesWithObscuredInset;
 #endif
     CGRect _inputViewBoundsInWindow;
 

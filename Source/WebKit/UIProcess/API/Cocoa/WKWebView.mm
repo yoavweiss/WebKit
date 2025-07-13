@@ -3411,6 +3411,43 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 
 #endif // ENABLE(CONTENT_INSET_BACKGROUND_FILL)
 
+- (CocoaEdgeInsets)obscuredContentInsets
+{
+#if PLATFORM(IOS_FAMILY)
+    return self._obscuredInsets;
+#else
+    return self._obscuredContentInsets;
+#endif
+}
+
+- (void)setObscuredContentInsets:(CocoaEdgeInsets)insets
+{
+    if (insets.top < 0 || insets.left < 0 || insets.right < 0 || insets.bottom < 0) {
+#if PLATFORM(IOS_FAMILY)
+        [NSException raise:NSInvalidArgumentException format:@"-obscuredContentInsets cannot be negative: %@", NSStringFromUIEdgeInsets(insets)];
+#else
+        [NSException raise:NSInvalidArgumentException format:@"-obscuredContentInsets cannot be negative: { top=%f, left=%f, bottom=%f, right=%f }"
+            , insets.top, insets.left, insets.bottom, insets.right];
+#endif
+    }
+
+#if PLATFORM(IOS_FAMILY)
+    if (UIEdgeInsetsEqualToEdgeInsets(_obscuredInsets, insets))
+        return;
+
+    [self _setObscuredInsetsInternal:insets];
+    _automaticallyAdjustsViewLayoutSizesWithObscuredInset = !UIEdgeInsetsEqualToEdgeInsets(insets, UIEdgeInsetsZero);
+
+    [self _frameOrBoundsMayHaveChanged];
+#else
+    if (NSEdgeInsetsEqual(self._obscuredContentInsets, insets))
+        return;
+
+    self._automaticallyAdjustsContentInsets = NO;
+    [self _setObscuredContentInsets:insets immediate:NO];
+#endif
+}
+
 namespace WebKit {
 enum class WebViewDataType : uint32_t {
     SessionStorage
