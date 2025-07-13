@@ -80,6 +80,7 @@ public:
     // a TypeCastTraits specialization. The isBar() function needed for this
     // specialization can be implemented here and overridden in the base class.
 
+    virtual bool isNavigatorClipboard() const { return false; }
     virtual bool isNavigatorCookieConsent() const { return false; }
 };
 

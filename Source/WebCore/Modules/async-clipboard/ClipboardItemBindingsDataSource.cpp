@@ -49,16 +49,13 @@
 
 namespace WebCore {
 
-static RefPtr<Document> documentFromClipboard(const Clipboard* clipboard)
+static Document* documentFromClipboard(const Clipboard* clipboard)
 {
     if (!clipboard)
         return nullptr;
 
-    auto* frame = clipboard->frame();
-    if (!frame)
-        return nullptr;
-
-    return frame->document();
+    RefPtr frame = clipboard->frame();
+    return frame ? frame->document() : nullptr;
 }
 
 static FileReaderLoader::ReadType readTypeForMIMEType(const String& type)
@@ -112,7 +109,7 @@ void ClipboardItemBindingsDataSource::getType(const String& type, Ref<DeferredPr
         String string;
         result.getString(itemPromise->globalObject(), string);
         if (!string.isNull()) {
-            promise->resolve<IDLInterface<Blob>>(ClipboardItem::blobFromString(promise->scriptExecutionContext(), string, type));
+            promise->resolve<IDLInterface<Blob>>(ClipboardItem::blobFromString(promise->protectedScriptExecutionContext().get(), string, type));
             return;
         }
 
@@ -121,7 +118,7 @@ void ClipboardItemBindingsDataSource::getType(const String& type, Ref<DeferredPr
             return;
         }
 
-        if (auto blob = JSBlob::toWrapped(result.getObject()->vm(), result.getObject()))
+        if (RefPtr blob = JSBlob::toWrapped(result.getObject()->vm(), result.getObject()))
             promise->resolve<IDLInterface<Blob>>(*blob);
         else
             promise->reject(ExceptionCode::TypeError);
@@ -215,7 +212,7 @@ void ClipboardItemBindingsDataSource::invokeCompletionHandler()
     RefPtr clipboard = m_writingDestination.get();
     m_writingDestination = nullptr;
 
-    auto document = documentFromClipboard(clipboard.get());
+    RefPtr document = documentFromClipboard(clipboard.get());
     if (!document) {
         completionHandler(std::nullopt);
         return;
@@ -248,8 +245,8 @@ ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::ClipboardItemTypeLoade
 
 ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::~ClipboardItemTypeLoader()
 {
-    if (m_blobLoader)
-        m_blobLoader->cancel();
+    if (CheckedPtr blobLoader = m_blobLoader.get())
+        blobLoader->cancel();
     
     ASSERT(!m_completionHandler);
 }
@@ -257,10 +254,11 @@ ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::~ClipboardItemTypeLoad
 void ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::didFinishLoading()
 {
     ASSERT(m_blobLoader);
-    auto stringResult = readTypeForMIMEType(m_type) == FileReaderLoader::ReadAsText ? m_blobLoader->stringResult() : nullString();
+    CheckedRef blobLoader = *m_blobLoader;
+    auto stringResult = readTypeForMIMEType(m_type) == FileReaderLoader::ReadAsText ? blobLoader->stringResult() : nullString();
     if (!stringResult.isNull())
         m_data = { stringResult };
-    else if (auto arrayBuffer = m_blobLoader->arrayBufferResult())
+    else if (auto arrayBuffer = blobLoader->arrayBufferResult())
         m_data = { SharedBuffer::create(arrayBuffer->span()) };
     m_blobLoader = nullptr;
     invokeCompletionHandler();
@@ -289,11 +287,11 @@ String ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::dataAsString() 
 void ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::sanitizeDataIfNeeded()
 {
     if (m_type == textPlainContentTypeAtom() || m_type == "text/uri-list"_s) {
-        RefPtr document = documentFromClipboard(m_writingDestination.get());
+        RefPtr document = documentFromClipboard(RefPtr { m_writingDestination.get() }.get());
         if (!document)
             return;
 
-        auto* page = document->page();
+        RefPtr page = document->page();
         if (!page)
             return;
 
@@ -347,7 +345,7 @@ void ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::didResolveToBlob(
 {
     ASSERT(!m_blobLoader);
     m_blobLoader = makeUnique<FileReaderLoader>(readTypeForMIMEType(m_type), this);
-    m_blobLoader->start(&context, WTFMove(blob));
+    CheckedRef { *m_blobLoader }->start(&context, WTFMove(blob));
 }
 
 void ClipboardItemBindingsDataSource::ClipboardItemTypeLoader::didFailToResolve()

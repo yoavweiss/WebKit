@@ -4,7 +4,6 @@ MathMLNames.cpp
 Modules/WebGPU/Implementation/WebGPUBindGroupImpl.cpp
 Modules/WebGPU/Implementation/WebGPUDowncastConvertToBackingContext.cpp
 Modules/WebGPU/Implementation/WebGPUXRBindingImpl.cpp
-Modules/async-clipboard/NavigatorClipboard.cpp
 Modules/audiosession/NavigatorAudioSession.cpp
 Modules/beacon/NavigatorBeacon.cpp
 Modules/cache/WindowOrWorkerGlobalScopeCaches.cpp

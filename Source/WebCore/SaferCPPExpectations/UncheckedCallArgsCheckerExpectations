@@ -1,6 +1,5 @@
 Modules/airplay/WebMediaSessionManager.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp
-Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/credentialmanagement/CredentialsContainer.cpp
 Modules/gamepad/GamepadManager.cpp
 Modules/indexeddb/IDBCursor.cpp

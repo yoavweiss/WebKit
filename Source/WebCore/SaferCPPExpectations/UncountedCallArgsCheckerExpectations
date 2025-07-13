@@ -6,8 +6,6 @@ Modules/airplay/WebMediaSessionManager.cpp
 Modules/applepay/ApplePaySession.cpp
 Modules/applepay/paymentrequest/ApplePayPaymentHandler.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp
-Modules/async-clipboard/Clipboard.cpp
-Modules/async-clipboard/ClipboardItemBindingsDataSource.cpp
 Modules/audiosession/DOMAudioSession.cpp
 Modules/cache/DOMCache.cpp
 Modules/cache/DOMCacheStorage.cpp

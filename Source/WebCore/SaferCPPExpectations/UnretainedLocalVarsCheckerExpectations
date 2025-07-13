@@ -1,5 +1,4 @@
 Modules/ShapeDetection/Implementation/Cocoa/BarcodeDetectorImplementation.mm
-Modules/async-clipboard/mac/ClipboardImageReaderMac.mm
 accessibility/cocoa/AXCoreObjectCocoa.mm
 accessibility/cocoa/AccessibilityObjectCocoa.mm
 accessibility/mac/AXObjectCacheMac.mm
