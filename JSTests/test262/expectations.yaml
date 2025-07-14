@@ -1075,15 +1075,6 @@ test/built-ins/TypedArrayConstructors/internals/Set/key-is-valid-index-prototype
 test/built-ins/TypedArrayConstructors/internals/Set/key-is-valid-index-reflect-set.js:
   default: 'Test262Error: target[0] should remain unchanged (receiver: empty object) Expected SameValue(«2.3», «0») to be true (Testing with Float64Array.)'
   strict mode: 'Test262Error: target[0] should remain unchanged (receiver: empty object) Expected SameValue(«2.3», «0») to be true (Testing with Float64Array.)'
-test/built-ins/Uint8Array/fromBase64/last-chunk-invalid.js:
-  default: 'Test262Error: Expected a SyntaxError to be thrown but no exception was thrown at all'
-  strict mode: 'Test262Error: Expected a SyntaxError to be thrown but no exception was thrown at all'
-test/built-ins/Uint8Array/prototype/setFromBase64/last-chunk-handling.js:
-  default: 'Test262Error: Expected SameValue(«6», «4») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«6», «4») to be true'
-test/built-ins/Uint8Array/prototype/setFromBase64/target-size.js:
-  default: 'Test262Error: Expected SameValue(«7», «4») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«7», «4») to be true'
 test/intl402/DateTimeFormat/canonicalize-timezone.js:
   default: 'Test262Error: Time zone name Australia/Canberra should be preserved and not canonicalized to Australia/Sydney Expected SameValue(«"Australia/Sydney"», «"Australia/Canberra"») to be true'
   strict mode: 'Test262Error: Time zone name Australia/Canberra should be preserved and not canonicalized to Australia/Sydney Expected SameValue(«"Australia/Sydney"», «"Australia/Canberra"») to be true'
