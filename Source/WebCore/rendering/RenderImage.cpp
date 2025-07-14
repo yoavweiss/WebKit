@@ -306,7 +306,7 @@ LayoutUnit RenderImage::computeReplacedLogicalHeight(std::optional<LayoutUnit> e
     return RenderReplaced::computeReplacedLogicalHeight(estimatedUsedWidth);
 }
 
-LayoutUnit RenderImage::baselinePosition(bool firstLine, LineDirectionMode direction, LinePositionMode linePositionMode) const
+LayoutUnit RenderImage::baselinePosition(LineDirectionMode direction, LinePositionMode linePositionMode) const
 {
     LayoutUnit offset;
 #if ENABLE(MULTI_REPRESENTATION_HEIC)
@@ -315,7 +315,7 @@ LayoutUnit RenderImage::baselinePosition(bool firstLine, LineDirectionMode direc
         offset = LayoutUnit::fromFloatRound(metrics.descent);
     }
 #endif
-    return RenderBox::baselinePosition(firstLine, direction, linePositionMode) - offset;
+    return RenderBox::baselinePosition(direction, linePositionMode) - offset;
 }
 
 void RenderImage::imageChanged(WrappedImagePtr newImage, const IntRect* rect)

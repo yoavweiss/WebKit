@@ -95,12 +95,12 @@ LayoutUnit RenderMathMLBlock::mirrorIfNeeded(LayoutUnit horizontalOffset, Layout
     return horizontalOffset;
 }
 
-LayoutUnit RenderMathMLBlock::baselinePosition(bool firstLine, LineDirectionMode direction, LinePositionMode linePositionMode) const
+LayoutUnit RenderMathMLBlock::baselinePosition(LineDirectionMode direction, LinePositionMode linePositionMode) const
 {
     if (linePositionMode == PositionOfInteriorLineBoxes)
         return 0;
 
-    return firstLineBaseline().value_or(RenderBlock::baselinePosition(firstLine, direction, linePositionMode));
+    return firstLineBaseline().value_or(RenderBlock::baselinePosition(direction, linePositionMode));
 }
 
 LayoutUnit toUserUnits(const MathMLElement::Length& length, const RenderStyle& style, const LayoutUnit& referenceValue)

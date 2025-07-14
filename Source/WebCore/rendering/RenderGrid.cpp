@@ -2012,7 +2012,7 @@ bool RenderGrid::isBaselineAlignmentForGridItem(const RenderBox& gridItem, GridT
 }
 
 // FIXME: This logic is shared by RenderFlexibleBox, so it might be refactored somehow.
-LayoutUnit RenderGrid::baselinePosition(bool, LineDirectionMode direction, LinePositionMode mode) const
+LayoutUnit RenderGrid::baselinePosition(LineDirectionMode direction, LinePositionMode mode) const
 {
     ASSERT_UNUSED(mode, mode == PositionOnContainingLine);
     auto baseline = firstLineBaseline();

@@ -129,9 +129,9 @@ private:
 
     // Flexbox defines baselines differently than regular blocks.
     // For backwards compatibility, menulists need to do the regular block behavior.
-    LayoutUnit baselinePosition(bool firstLine, LineDirectionMode direction, LinePositionMode position) const override
+    LayoutUnit baselinePosition(LineDirectionMode direction, LinePositionMode position) const override
     {
-        return RenderBlock::baselinePosition(firstLine, direction, position);
+        return RenderBlock::baselinePosition(direction, position);
     }
     std::optional<LayoutUnit> firstLineBaseline() const override { return RenderBlock::firstLineBaseline(); }
     std::optional<LayoutUnit> inlineBlockBaseline(LineDirectionMode direction) const override { return RenderBlock::inlineBlockBaseline(direction); }

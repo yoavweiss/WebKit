@@ -2487,7 +2487,7 @@ LayoutUnit RenderBlock::lineHeight(bool firstLine, LineDirectionMode direction, 
     return LayoutUnit::fromFloatCeil(lineStyle.computedLineHeight());
 }
 
-LayoutUnit RenderBlock::baselinePosition(bool firstLine, LineDirectionMode direction, LinePositionMode linePositionMode) const
+LayoutUnit RenderBlock::baselinePosition(LineDirectionMode direction, LinePositionMode linePositionMode) const
 {
     // Inline blocks are replaced elements. Otherwise, just pass off to
     // the base class.  If we're being queried as though we're the root line
@@ -2537,12 +2537,11 @@ LayoutUnit RenderBlock::baselinePosition(bool firstLine, LineDirectionMode direc
         if (baselinePos)
             return direction == HorizontalLine ? marginTop() + baselinePos.value() : marginRight() + baselinePos.value();
 
-        return RenderBox::baselinePosition(firstLine, direction, linePositionMode);
+        return RenderBox::baselinePosition(direction, linePositionMode);
     }
 
-    const RenderStyle& style = firstLine ? firstLineStyle() : this->style();
-    const FontMetrics& fontMetrics = style.metricsOfPrimaryFont();
-    return LayoutUnit { fontMetrics.intAscent() + (lineHeight(firstLine, direction, linePositionMode) - fontMetrics.intHeight()) / 2 }.toInt();
+    const FontMetrics& fontMetrics = style().metricsOfPrimaryFont();
+    return LayoutUnit { fontMetrics.intAscent() + (lineHeight(true, direction, linePositionMode) - fontMetrics.intHeight()) / 2 }.toInt();
 }
 
 std::optional<LayoutUnit> RenderBlock::firstLineBaseline() const
