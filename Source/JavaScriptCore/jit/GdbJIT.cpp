@@ -142,12 +142,12 @@ public:
         {
         }
 
-        T* operator->() { return m_writer->rawSlotAt<T>(m_offset); }
-        T operator*() { return *m_writer->rawSlotAt<T>(m_offset); }
+        T* operator->() { return m_writer->template rawSlotAt<T>(m_offset); }
+        T operator*() { return *m_writer->template rawSlotAt<T>(m_offset); }
 
         void set(const T& value)
         {
-            writeUnalignedValue(m_writer->addressAt<T>(m_offset), value);
+            writeUnalignedValue(m_writer->template addressAt<T>(m_offset), value);
         }
 
         Slot<T> at(int i) { return Slot<T>(m_writer, m_offset + sizeof(T) * i); }
