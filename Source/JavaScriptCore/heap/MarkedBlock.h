@@ -220,7 +220,7 @@ public:
     private:
         Handle(Heap&, AlignedMemoryAllocator*, void*);
         
-        enum SweepDestructionMode { BlockHasNoDestructors, BlockHasDestructors };
+        enum SweepDestructionMode { BlockHasNoDestructors, BlockHasDestructors, BlockHasDestructorsAndCollectorIsRunning };
         enum ScribbleMode { DontScribble, Scribble };
         enum EmptyMode { IsEmpty, NotEmpty };
         enum NewlyAllocatedMode { HasNewlyAllocated, DoesNotHaveNewlyAllocated };
