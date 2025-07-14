@@ -420,7 +420,7 @@ RetainPtr<id> IOSurface::asCAIOSurfaceLayerContents() const
 #endif
         return bridge_id_cast(result);
     }
-    return nil;
+    return asLayerContents();
 }
 
 RetainPtr<CGImageRef> IOSurface::createImage(CGContextRef context)

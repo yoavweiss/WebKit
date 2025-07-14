@@ -69,12 +69,6 @@ enum class BackingStoreNeedsDisplayReason : uint8_t {
     HasDirtyRegion,
 };
 
-enum class LayerContentsType : uint8_t {
-    IOSurface,
-    CAMachPort,
-    CachedIOSurface,
-};
-
 class RemoteLayerBackingStore : public CanMakeWeakPtr<RemoteLayerBackingStore>, public CanMakeCheckedPtr<RemoteLayerBackingStore> {
     WTF_MAKE_TZONE_ALLOCATED(RemoteLayerBackingStore);
     WTF_MAKE_NONCOPYABLE(RemoteLayerBackingStore);
@@ -233,12 +227,12 @@ public:
     RemoteLayerBackingStoreProperties(ImageBufferBackendHandle&&, WebCore::RenderingResourceIdentifier, bool opaque);
 #endif
 
-    void applyBackingStoreToLayer(CALayer *, LayerContentsType, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView * hostingView);
-    void updateCachedBuffers(RemoteLayerTreeNode&, LayerContentsType, UIView *);
+    void applyBackingStoreToLayer(CALayer *, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView * hostingView);
+    void updateCachedBuffers(RemoteLayerTreeNode&, UIView *);
 
     const std::optional<ImageBufferBackendHandle>& bufferHandle() const { return m_bufferHandle; };
 
-    static RetainPtr<id> layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&&, LayerContentsType, bool isDelegatedDisplay);
+    static RetainPtr<id> layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&&, bool isDelegatedDisplay);
 
     void dump(WTF::TextStream&) const;
 

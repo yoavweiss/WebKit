@@ -629,10 +629,8 @@ void WebPageProxy::applicationDidEnterBackground()
 
 void WebPageProxy::applicationDidFinishSnapshottingAfterEnteringBackground()
 {
-    if (m_drawingArea) {
-        m_drawingArea->prepareForAppSuspension();
+    if (m_drawingArea)
         m_drawingArea->hideContentUntilPendingUpdate();
-    }
     m_legacyMainFrameProcess->send(Messages::WebPage::ApplicationDidFinishSnapshottingAfterEnteringBackground(), webPageIDInMainFrameProcess());
 }
 

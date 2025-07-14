@@ -683,11 +683,6 @@ void RemoteLayerTreeDrawingAreaProxy::hideContentUntilAnyUpdate()
     m_remoteLayerTreeHost->detachRootLayer();
 }
 
-void RemoteLayerTreeDrawingAreaProxy::prepareForAppSuspension()
-{
-    m_remoteLayerTreeHost->mapAllIOSurfaceBackingStore();
-}
-
 bool RemoteLayerTreeDrawingAreaProxy::hasVisibleContent() const
 {
     return m_remoteLayerTreeHost->rootLayer();
@@ -696,13 +691,6 @@ bool RemoteLayerTreeDrawingAreaProxy::hasVisibleContent() const
 CALayer *RemoteLayerTreeDrawingAreaProxy::layerWithIDForTesting(WebCore::PlatformLayerIdentifier layerID) const
 {
     return m_remoteLayerTreeHost->layerWithIDForTesting(layerID);
-}
-
-void RemoteLayerTreeDrawingAreaProxy::windowKindDidChange()
-{
-    RefPtr page = this->page();
-    if (page && page->windowKind() == WindowKind::InProcessSnapshotting)
-        m_remoteLayerTreeHost->mapAllIOSurfaceBackingStore();
 }
 
 void RemoteLayerTreeDrawingAreaProxy::minimumSizeForAutoLayoutDidChange()

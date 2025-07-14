@@ -554,7 +554,7 @@ RemoteLayerBackingStoreProperties::RemoteLayerBackingStoreProperties(ImageBuffer
 {
 }
 
-RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&& backendHandle, LayerContentsType contentsType, bool isDelegatedDisplay)
+RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendHandle(ImageBufferBackendHandle&& backendHandle, bool isDelegatedDisplay)
 {
 #if !HAVE(SUPPORT_HDR_DISPLAY_APIS)
     UNUSED_PARAM(isDelegatedDisplay);
@@ -566,24 +566,12 @@ RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendH
                 contents = bridge_id_cast(bitmap->makeCGImageCopy());
         },
         [&] (MachSendRight& machSendRight) {
-            switch (contentsType) {
-            case LayerContentsType::IOSurface: {
-                auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight));
-                contents = surface ? surface->asLayerContents() : nil;
-                break;
-            }
-            case LayerContentsType::CAMachPort:
-                contents = bridge_id_cast(adoptCF(CAMachPortCreate(machSendRight.leakSendRight())));
-                break;
-            case LayerContentsType::CachedIOSurface:
-                if (auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight))) {
+            if (auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight))) {
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-                    if (isDelegatedDisplay && surface->hasFormat(WebCore::IOSurface::Format::RGBA16F) && !surface->contentEDRHeadroom())
-                        surface->loadContentEDRHeadroom();
+                if (isDelegatedDisplay && surface->hasFormat(WebCore::IOSurface::Format::RGBA16F) && !surface->contentEDRHeadroom())
+                    surface->loadContentEDRHeadroom();
 #endif
-                    contents = surface->asCAIOSurfaceLayerContents();
-                }
-                break;
+                contents = surface->asCAIOSurfaceLayerContents();
             }
         }
 #if ENABLE(RE_DYNAMIC_CONTENT_SCALING)
@@ -596,12 +584,12 @@ RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendH
     return contents;
 }
 
-void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer, LayerContentsType contentsType, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView *hostingView)
+void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView *hostingView)
 {
     bool isDelegatedDisplay = !m_frontBufferInfo;
 
-    // FIXME: Ideally we'd just infer contentsOpaque and wantsExtendedDynamicRangeContent
-    // from the format of the buffer itself, but that isn't possible for LayerContentsType::CAMachPort.
+    // FIXME: Ideally we'd just infer wantsExtendedDynamicRangeContent
+    // from the format of the buffer itself.
     layer.contentsOpaque = m_isOpaque;
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
     ALLOW_DEPRECATED_DECLARATIONS_BEGIN
@@ -620,7 +608,7 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
 #endif
 
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
-    if (hostingView && [hostingView isKindOfClass:[WKSeparatedImageView class]] && contentsType == LayerContentsType::CachedIOSurface) {
+    if (hostingView && [hostingView isKindOfClass:[WKSeparatedImageView class]]) {
         if (m_bufferHandle) {
             auto machSendRight = std::get<MachSendRight>(WTFMove(*m_bufferHandle));
             auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight));
@@ -639,7 +627,7 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
     if (m_contentsBuffer)
         contents = m_contentsBuffer;
     else if (m_bufferHandle)
-        contents = layerContentsBufferFromBackendHandle(WTFMove(*m_bufferHandle), contentsType, isDelegatedDisplay);
+        contents = layerContentsBufferFromBackendHandle(WTFMove(*m_bufferHandle), isDelegatedDisplay);
 
     if (!contents) {
         [layer _web_clearContents];
@@ -684,18 +672,19 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer,
     }
 }
 
-void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode& node, LayerContentsType contentsType, UIView *hostingView)
+void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode& node, UIView *hostingView)
 {
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
     if (hostingView && [hostingView isKindOfClass:[WKSeparatedImageView class]])
         return;
 #endif
 
-    ASSERT(!m_contentsBuffer);
+    if (m_contentsBuffer)
+        return;
 
     Vector<RemoteLayerTreeNode::CachedContentsBuffer> cachedBuffers = node.takeCachedContentsBuffers();
 
-    if (contentsType != LayerContentsType::CachedIOSurface || !m_frontBufferInfo || !m_bufferHandle || !std::holds_alternative<MachSendRight>(*m_bufferHandle))
+    if (!m_frontBufferInfo || !m_bufferHandle || !std::holds_alternative<MachSendRight>(*m_bufferHandle))
         return;
 
     cachedBuffers.removeAllMatching([&](const RemoteLayerTreeNode::CachedContentsBuffer& current) {

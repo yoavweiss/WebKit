@@ -88,13 +88,6 @@ enum class WebKit::SwapBuffersDisplayRequirement : uint8_t {
     NeedsNoDisplay
 };
 
-headers: "RemoteLayerBackingStore.h"
-enum class WebKit::LayerContentsType : uint8_t {
-  IOSurface
-  CAMachPort
-  CachedIOSurface
-};
-
 header: "RemoteLayerBackingStore.h"
 [Nested] enum class WebKit::RemoteLayerBackingStore::Type : bool;
 

@@ -97,7 +97,6 @@ public:
 
     virtual void minimumSizeForAutoLayoutDidChange() { }
     virtual void sizeToContentAutoSizeMaximumSizeDidChange() { }
-    virtual void windowKindDidChange() { }
 
     virtual void adjustTransientZoom(double, WebCore::FloatPoint /* originInLayerForPageScale */, WebCore::FloatPoint /* originInVisibleRect */) { }
     virtual void commitTransientZoom(double, WebCore::FloatPoint /* originInLayerForPageScale */) { }
@@ -121,8 +120,6 @@ public:
     virtual void hideContentUntilAnyUpdate() { ASSERT_NOT_REACHED(); }
 
     virtual bool hasVisibleContent() const { return true; }
-
-    virtual void prepareForAppSuspension() { }
 
 #if PLATFORM(COCOA)
     virtual WTF::MachSendRight createFence();
