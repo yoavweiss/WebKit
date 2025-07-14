@@ -2399,7 +2399,6 @@ accessibility/tree-update-with-dynamically-ignored-inline-child-div.html [ Pass 
 accessibility/tree-update-with-dynamically-ignored-tabindex-div.html [ Pass ]
 accessibility/url-test.html [ Pass ]
 accessibility/video-element-url-attribute.html [ Pass ]
-accessibility/visible-character-range-basic.html [ Pass ]
 accessibility/visible-character-range-height-changes.html [ Pass ]
 accessibility/visible-character-range-vertical-rl.html [ Pass ]
 accessibility/visibility-visible-inside-hidden.html [ Pass ]
@@ -8056,3 +8055,5 @@ webkit.org/b/295907 contact-picker/contacts-select.html [ Pass Timeout ]
 webkit.org/b/295911 scrollingcoordinator/scrolling-tree/fixed-inside-frame.html [ Pass Failure ]
 
 webkit.org/b/295913 [ Release ] media/video-seek-pause.html [ Pass Failure ]
+
+webkit.org/b/295915 [ Debug ] accessibility/visible-character-range-basic.html [ Pass Timeout ]
