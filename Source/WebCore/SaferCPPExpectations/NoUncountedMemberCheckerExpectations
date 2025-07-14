@@ -10,7 +10,6 @@ Modules/webdatabase/SQLTransactionBackend.h
 accessibility/AXSearchManager.h
 bindings/js/JSEventTargetCustom.h
 bindings/js/JSLazyEventListener.cpp
-css/CSSFontSelector.h
 css/CSSPrimitiveValue.h
 css/CSSRule.h
 css/CSSRuleList.h

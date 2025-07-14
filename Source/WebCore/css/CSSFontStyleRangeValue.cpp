@@ -32,6 +32,8 @@ namespace WebCore {
 
 String CSSFontStyleRangeValue::customCSSText(const CSS::SerializationContext& context) const
 {
+    RefPtr obliqueValues = this->obliqueValues;
+    Ref fontStyleValue = this->fontStyleValue;
     if (!obliqueValues)
         return fontStyleValue->cssText(context);
 

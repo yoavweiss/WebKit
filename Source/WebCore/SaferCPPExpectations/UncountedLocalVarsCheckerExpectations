@@ -123,7 +123,6 @@ css/CSSCounterStyleDescriptors.cpp
 css/CSSFontFace.cpp
 css/CSSFontFaceSet.cpp
 css/CSSFontFaceSource.cpp
-css/CSSFontSelector.cpp
 css/CSSGroupingRule.cpp
 css/CSSImageSetValue.cpp
 css/CSSImageValue.cpp

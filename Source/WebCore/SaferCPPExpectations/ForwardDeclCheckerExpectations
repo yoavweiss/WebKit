@@ -42,7 +42,6 @@ bindings/js/WindowProxy.h
 bridge/objc/objc_runtime.h
 crypto/cocoa/CryptoAlgorithmEd25519Cocoa.cpp
 crypto/cocoa/CryptoKeyOKPCocoa.cpp
-css/CSSFontSelector.h
 css/CSSImageValue.cpp
 css/CSSStyleProperties.h
 css/CSSToLengthConversionData.h

@@ -70,7 +70,6 @@ bindings/js/JSXMLHttpRequestCustom.cpp
 bindings/js/ScheduledAction.cpp
 bindings/js/ScriptModuleLoader.cpp
 contentextensions/ContentExtensionsBackend.cpp
-css/CSSFontSelector.cpp
 css/CSSStyleSheet.cpp
 css/FontFaceSet.cpp
 css/MediaQueryMatcher.cpp
