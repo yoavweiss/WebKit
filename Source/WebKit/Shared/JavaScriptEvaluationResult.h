@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "NodeInfo.h"
 #include "Protected.h"
 #include "WKRetainPtr.h"
 #include <JavaScriptCore/APICast.h>
@@ -48,10 +49,6 @@ class Object;
 class SerializedScriptValue;
 }
 
-namespace WebCore {
-struct ExceptionDetails;
-}
-
 namespace WebKit {
 
 class CoreIPCNumber;
@@ -64,7 +61,7 @@ class JavaScriptEvaluationResult {
 public:
 #if PLATFORM(COCOA)
     enum class NullType : bool { NullPointer, NSNull };
-    using Variant = Variant<NullType, bool, double, String, Seconds, Vector<JSObjectID>, HashMap<JSObjectID, JSObjectID>>;
+    using Variant = Variant<NullType, bool, double, String, Seconds, Vector<JSObjectID>, HashMap<JSObjectID, JSObjectID>, NodeInfo>;
 
     JavaScriptEvaluationResult(JSObjectID, HashMap<JSObjectID, Variant>&&);
     static std::optional<JavaScriptEvaluationResult> extract(id);

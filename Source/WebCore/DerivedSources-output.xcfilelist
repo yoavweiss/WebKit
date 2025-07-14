@@ -3342,6 +3342,8 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebKitNamespace.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebKitNamespace.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebKitPlaybackTargetAvailabilityEvent.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebKitPlaybackTargetAvailabilityEvent.h
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebKitNodeInfo.cpp
+$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebKitNodeInfo.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebKitPoint.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebKitPoint.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSWebLock.cpp

@@ -1926,6 +1926,7 @@ $(PROJECT_DIR)/page/UserMessageHandler.idl
 $(PROJECT_DIR)/page/UserMessageHandlersNamespace.idl
 $(PROJECT_DIR)/page/VisualViewport.idl
 $(PROJECT_DIR)/page/WebKitNamespace.idl
+$(PROJECT_DIR)/page/WebKitNodeInfo.idl
 $(PROJECT_DIR)/page/WebKitPoint.idl
 $(PROJECT_DIR)/page/WindowEventHandlers.idl
 $(PROJECT_DIR)/page/WindowLocalStorage.idl

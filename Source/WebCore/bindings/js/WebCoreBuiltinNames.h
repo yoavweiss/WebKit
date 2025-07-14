@@ -500,6 +500,7 @@ namespace WebCore {
     macro(WebKitMediaKeyNeededEvent) \
     macro(WebKitMediaKeySession) \
     macro(WebKitMediaKeys) \
+    macro(WebKitNodeInfo) \
     macro(WebSocket) \
     macro(WebTransport) \
     macro(WebTransportBidirectionalStream) \

@@ -26,10 +26,12 @@
 #include "config.h"
 #include "WebKitNamespace.h"
 
+#include "Element.h"
 #include "FrameLoader.h"
 #include "LocalFrame.h"
 #include "LocalFrameLoaderClient.h"
 #include "Logging.h"
+#include "WebKitNodeInfo.h"
 
 #define WEBKIT_NAMESPACE_RELEASE_LOG_ERROR(channel, fmt, ...) RELEASE_LOG_ERROR(channel, "%p - WebKitNamespace::" fmt, this, ##__VA_ARGS__)
 
@@ -62,6 +64,15 @@ UserMessageHandlersNamespace* WebKitNamespace::messageHandlers()
 #endif
 
     return &m_messageHandlerNamespace.get();
+}
+
+RefPtr<WebKitNodeInfo> WebKitNamespace::createNodeInfo(Node& node)
+{
+    // FIXME: Move ElementIdentifier to Node and make this work with non-element nodes.
+    RefPtr element = dynamicDowncast<Element>(node);
+    if (!element)
+        return nullptr;
+    return WebKitNodeInfo::create(*element);
 }
 
 } // namespace WebCore

@@ -2210,6 +2210,7 @@ page/UserScript.cpp
 page/UserStyleSheet.cpp
 page/VisitedLinkStore.cpp
 page/VisualViewport.cpp
+page/WebKitNodeInfo.cpp
 page/WheelEventDeltaFilter.cpp
 page/WheelEventTestMonitor.cpp
 page/WindowFeatures.cpp
@@ -4926,6 +4927,7 @@ JSWebKitMediaKeyNeededEvent.cpp
 JSWebKitMediaKeySession.cpp
 JSWebKitMediaKeys.cpp
 JSWebKitNamespace.cpp
+JSWebKitNodeInfo.cpp
 JSWebKitPlaybackTargetAvailabilityEvent.cpp
 JSWebKitPoint.cpp
 JSWebLock.cpp

@@ -190,6 +190,8 @@ struct DragItem;
 struct DigitalCredentialsRequestData;
 #endif
 
+struct FrameIdentifierType;
+using FrameIdentifier = ObjectIdentifier<FrameIdentifierType>;
 }
 
 namespace WebKit {

@@ -1819,6 +1819,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     page/VisitedLinkStore.h
     page/WebCoreKeyboardUIMode.h
     page/WebKitNamespace.h
+    page/WebKitNodeInfo.h
     page/WheelEventDeltaFilter.h
     page/WheelEventTestMonitor.h
     page/WindowFeatures.h
@@ -3034,6 +3035,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     ${WebCore_DERIVED_SOURCES_DIR}/JSStyleSheet.h
     ${WebCore_DERIVED_SOURCES_DIR}/JSStyleSheetList.h
     ${WebCore_DERIVED_SOURCES_DIR}/JSTreeWalker.h
+    ${WebCore_DERIVED_SOURCES_DIR}/JSWebKitNodeInfo.h
     ${WebCore_DERIVED_SOURCES_DIR}/JSXPathExpression.h
     ${WebCore_DERIVED_SOURCES_DIR}/JSXPathResult.h
     ${WebCore_DERIVED_SOURCES_DIR}/Namespace.h

@@ -26,6 +26,9 @@
 #import "config.h"
 #import "JavaScriptEvaluationResult.h"
 
+#import "APINodeInfo.h"
+#import "_WKNodeInfoInternal.h"
+
 namespace WebKit {
 
 RetainPtr<id> JavaScriptEvaluationResult::toID(Variant&& root)
@@ -54,6 +57,8 @@ RetainPtr<id> JavaScriptEvaluationResult::toID(Variant&& root)
         RetainPtr dictionary = adoptNS([[NSMutableDictionary alloc] initWithCapacity:map.size()]);
         m_nsDictionaries.append({ WTFMove(map), dictionary });
         return dictionary;
+    }, [] (NodeInfo&& nodeInfo) -> RetainPtr<id> {
+        return wrapper(API::NodeInfo::create(WTFMove(nodeInfo)).get());
     });
 }
 
