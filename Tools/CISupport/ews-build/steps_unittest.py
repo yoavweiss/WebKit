@@ -2260,6 +2260,7 @@ class TestRunWebKitTestsInStressMode(BuildStepMixinAdditions, unittest.TestCase)
                                  '--no-build', '--no-show-results', '--no-new-test-results', '--clobber-old-results',
                                  '--release', '--results-directory', 'layout-test-results', '--debug-rwt-logging',
                                  '--exit-after-n-failures', '10',
+                                 '--skipped', 'always',
                                  '--iterations', 100, 'test1', 'test2'],
                         )
             + 0,
@@ -2279,7 +2280,7 @@ class TestRunWebKitTestsInStressMode(BuildStepMixinAdditions, unittest.TestCase)
                         logfiles={'json': self.jsonFileName},
                         logEnviron=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --dump-render-tree --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --iterations 100 test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --dump-render-tree --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --iterations 100 test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             + 0,
         )
@@ -2296,7 +2297,7 @@ class TestRunWebKitTestsInStressMode(BuildStepMixinAdditions, unittest.TestCase)
                         logfiles={'json': self.jsonFileName},
                         logEnviron=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --iterations 100 test 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --iterations 100 test 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             + ExpectShell.log('stdio', stdout='9 failures found.')
             + 2,
@@ -2316,7 +2317,7 @@ class TestRunWebKitTestsInStressMode(BuildStepMixinAdditions, unittest.TestCase)
                         logfiles={'json': self.jsonFileName},
                         logEnviron=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --iterations 100 test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --iterations 100 test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             + 0,
         )
@@ -2334,7 +2335,7 @@ class TestRunWebKitTestsInStressMode(BuildStepMixinAdditions, unittest.TestCase)
                         logfiles={'json': self.jsonFileName},
                         logEnviron=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --iterations 100 test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --iterations 100 test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             + 0,
         )
@@ -2366,7 +2367,7 @@ class TestRunWebKitTestsInStressGuardmallocMode(BuildStepMixinAdditions, unittes
                         logfiles={'json': self.jsonFileName},
                         logEnviron=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --guard-malloc --iterations 100 test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --guard-malloc --iterations 100 test1 test2 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             + 0,
         )
@@ -2383,7 +2384,7 @@ class TestRunWebKitTestsInStressGuardmallocMode(BuildStepMixinAdditions, unittes
                         logfiles={'json': self.jsonFileName},
                         logEnviron=False,
                         timeout=19800,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --guard-malloc --iterations 100 test 2>&1 | Tools/Scripts/filter-test-logs layout'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'python3 Tools/Scripts/run-webkit-tests --no-build --no-show-results --no-new-test-results --clobber-old-results --release --results-directory layout-test-results --debug-rwt-logging --exit-after-n-failures 10 --skipped always --guard-malloc --iterations 100 test 2>&1 | Tools/Scripts/filter-test-logs layout'],
                         )
             + ExpectShell.log('stdio', stdout='9 failures found.')
             + 2,
