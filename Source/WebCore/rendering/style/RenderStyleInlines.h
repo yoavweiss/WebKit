@@ -231,7 +231,7 @@ inline FontSelectionValue RenderStyle::fontWidth() const { return fontDescriptio
 inline FontOpticalSizing RenderStyle::fontOpticalSizing() const { return fontDescription().opticalSizing(); }
 inline FontVariationSettings RenderStyle::fontVariationSettings() const { return fontDescription().variationSettings(); }
 inline FontSelectionValue RenderStyle::fontWeight() const { return fontDescription().weight(); }
-inline const Vector<Style::GridTrackSize>& RenderStyle::gridAutoColumns() const { return m_nonInheritedData->rareData->grid->m_gridAutoColumns; }
+inline const Style::GridTrackSizes& RenderStyle::gridAutoColumns() const { return m_nonInheritedData->rareData->grid->m_gridAutoColumns; }
 inline GridAutoFlow RenderStyle::gridAutoFlow() const { return static_cast<GridAutoFlow>(m_nonInheritedData->rareData->grid->m_gridAutoFlow); }
 inline const Vector<Style::GridTrackSize>& RenderStyle::gridAutoRepeatColumns() const { return m_nonInheritedData->rareData->grid->gridAutoRepeatColumns(); }
 inline unsigned RenderStyle::gridAutoRepeatColumnsInsertionPoint() const { return m_nonInheritedData->rareData->grid->autoRepeatColumnsInsertionPoint(); }
@@ -239,8 +239,8 @@ inline AutoRepeatType RenderStyle::gridAutoRepeatColumnsType() const  { return m
 inline const Vector<Style::GridTrackSize>& RenderStyle::gridAutoRepeatRows() const { return m_nonInheritedData->rareData->grid->gridAutoRepeatRows(); }
 inline unsigned RenderStyle::gridAutoRepeatRowsInsertionPoint() const { return m_nonInheritedData->rareData->grid->autoRepeatRowsInsertionPoint(); }
 inline AutoRepeatType RenderStyle::gridAutoRepeatRowsType() const  { return m_nonInheritedData->rareData->grid->autoRepeatRowsType(); }
-inline const Vector<Style::GridTrackSize>& RenderStyle::gridAutoRows() const { return m_nonInheritedData->rareData->grid->m_gridAutoRows; }
-inline const Vector<Style::GridTrackSize>& RenderStyle::gridAutoList(GridTrackSizingDirection direction) const { return direction == GridTrackSizingDirection::ForColumns ? gridAutoColumns() : gridAutoRows(); }
+inline const Style::GridTrackSizes& RenderStyle::gridAutoRows() const { return m_nonInheritedData->rareData->grid->m_gridAutoRows; }
+inline const Style::GridTrackSizes& RenderStyle::gridAutoList(GridTrackSizingDirection direction) const { return direction == GridTrackSizingDirection::ForColumns ? gridAutoColumns() : gridAutoRows(); }
 inline const Style::GridTemplateList& RenderStyle::gridTemplateColumns() const { return m_nonInheritedData->rareData->grid->m_gridTemplateColumns; }
 inline const Vector<Style::GridTrackSize>& RenderStyle::gridColumnTrackSizes() const { return m_nonInheritedData->rareData->grid->gridColumnTrackSizes(); }
 inline const GridPosition& RenderStyle::gridItemColumnEnd() const { return m_nonInheritedData->rareData->gridItem->gridColumnEnd; }
@@ -404,9 +404,9 @@ inline Style::FlexBasis RenderStyle::initialFlexBasis() { return CSS::Keyword::A
 constexpr FlexDirection RenderStyle::initialFlexDirection() { return FlexDirection::Row; }
 constexpr FlexWrap RenderStyle::initialFlexWrap() { return FlexWrap::NoWrap; }
 constexpr Float RenderStyle::initialFloating() { return Float::None; }
-inline Vector<Style::GridTrackSize> RenderStyle::initialGridAutoColumns() { return { Style::GridTrackSize { CSS::Keyword::Auto { } } }; }
+inline Style::GridTrackSizes RenderStyle::initialGridAutoColumns() { return CSS::Keyword::Auto { }; }
 constexpr GridAutoFlow RenderStyle::initialGridAutoFlow() { return AutoFlowRow; }
-inline Vector<Style::GridTrackSize> RenderStyle::initialGridAutoRows() { return { Style::GridTrackSize { CSS::Keyword::Auto { } } }; }
+inline Style::GridTrackSizes RenderStyle::initialGridAutoRows() { return CSS::Keyword::Auto { }; }
 inline GridPosition RenderStyle::initialGridItemColumnEnd() { return { }; }
 inline GridPosition RenderStyle::initialGridItemColumnStart() { return { }; }
 inline GridPosition RenderStyle::initialGridItemRowEnd() { return { }; }

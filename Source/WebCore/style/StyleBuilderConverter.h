@@ -180,7 +180,6 @@ public:
     static ScrollbarGutter convertScrollbarGutter(BuilderState&, const CSSValue&);
     // scrollbar-width converter is only needed for quirking.
     static ScrollbarWidth convertScrollbarWidth(BuilderState&, const CSSValue&);
-    static Vector<GridTrackSize> convertGridTrackSizeList(BuilderState&, const CSSValue&);
     static GridPosition convertGridPosition(BuilderState&, const CSSValue&);
     static GridAutoFlow convertGridAutoFlow(BuilderState&, const CSSValue&);
     static FilterOperations convertFilterOperations(BuilderState&, const CSSValue&);
@@ -1040,34 +1039,6 @@ inline ScrollbarWidth BuilderConverter::convertScrollbarWidth(BuilderState& buil
         return ScrollbarWidth::Auto;
 
     return scrollbarWidth;
-}
-
-inline Vector<GridTrackSize> BuilderConverter::convertGridTrackSizeList(BuilderState& builderState, const CSSValue& value)
-{
-    auto validateValue = [](const CSSValue& value) {
-        ASSERT_UNUSED(value, !value.isGridLineNamesValue());
-        ASSERT_UNUSED(value, !value.isGridAutoRepeatValue());
-        ASSERT_UNUSED(value, !value.isGridIntegerRepeatValue());
-    };
-
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (primitiveValue->isValueID()) {
-            ASSERT(primitiveValue->valueID() == CSSValueAuto);
-            return RenderStyle::initialGridAutoRows();
-        }
-        // Values coming from CSS Typed OM may not have been converted to a CSSValueList yet.
-        validateValue(*primitiveValue);
-        return Vector<GridTrackSize>({ toStyleFromCSSValue<GridTrackSize>(builderState, *primitiveValue) });
-    }
-
-    if (auto* valueList = dynamicDowncast<CSSValueList>(value))  {
-        return WTF::map(*valueList, [&](auto& currentValue) {
-            validateValue(currentValue);
-            return toStyleFromCSSValue<GridTrackSize>(builderState, currentValue);
-        });
-    }
-    validateValue(value);
-    return Vector<GridTrackSize>({ toStyleFromCSSValue<GridTrackSize>(builderState, value) });
 }
 
 inline GridPosition BuilderConverter::convertGridPosition(BuilderState& builderState, const CSSValue& value)

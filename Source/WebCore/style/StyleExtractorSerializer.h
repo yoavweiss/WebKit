@@ -212,7 +212,6 @@ public:
 
     static void serializeGridAutoFlow(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GridAutoFlow);
     static void serializeGridPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const GridPosition&);
-    static void serializeGridTrackSizeList(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const Vector<GridTrackSize>&);
 };
 
 // MARK: - Strong value serializations
@@ -2571,13 +2570,6 @@ inline void ExtractorSerializer::serializeGridPosition(ExtractorState& state, St
         builder.append(' ');
         serializationForCSS(builder, context, state.style, CustomIdentifier { AtomString { position.namedGridLine() } });
     }
-}
-
-inline void ExtractorSerializer::serializeGridTrackSizeList(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const Vector<GridTrackSize>& gridTrackSizeList)
-{
-    builder.append(interleave(gridTrackSizeList, [&](auto& builder, auto& gridTrackSize) {
-        serializeStyleType(state, builder, context, gridTrackSize);
-    }, ' '));
 }
 
 } // namespace Style

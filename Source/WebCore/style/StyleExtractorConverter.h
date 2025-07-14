@@ -301,7 +301,6 @@ public:
 
     static Ref<CSSValue> convertGridAutoFlow(ExtractorState&, GridAutoFlow);
     static Ref<CSSValue> convertGridPosition(ExtractorState&, const GridPosition&);
-    static Ref<CSSValue> convertGridTrackSizeList(ExtractorState&, const Vector<GridTrackSize>&);
 };
 
 // MARK: - Strong value conversions
@@ -2263,14 +2262,6 @@ inline Ref<CSSValue> ExtractorConverter::convertGridPosition(ExtractorState&, co
 
     if (hasNamedGridLine)
         list.append(CSSPrimitiveValue::createCustomIdent(position.namedGridLine()));
-    return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertGridTrackSizeList(ExtractorState& state, const Vector<GridTrackSize>& gridTrackSizeList)
-{
-    CSSValueListBuilder list;
-    for (auto& gridTrackSize : gridTrackSizeList)
-        list.append(convertStyleType(state, gridTrackSize));
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
 

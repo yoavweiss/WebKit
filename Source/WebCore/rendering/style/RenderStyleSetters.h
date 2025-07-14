@@ -154,9 +154,9 @@ inline void RenderStyle::setFilter(FilterOperations&& ops) { SET_DOUBLY_NESTED(m
 inline void RenderStyle::setFlexBasis(Style::FlexBasis&& basis) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, flexibleBox, flexBasis, WTFMove(basis)); }
 inline void RenderStyle::setFlexDirection(FlexDirection direction) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, flexibleBox, flexDirection, static_cast<unsigned>(direction)); }
 inline void RenderStyle::setFlexWrap(FlexWrap wrap) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, flexibleBox, flexWrap, static_cast<unsigned>(wrap)); }
-inline void RenderStyle::setGridAutoColumns(Vector<Style::GridTrackSize>&& trackSizeList) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridAutoColumns, WTFMove(trackSizeList)); }
+inline void RenderStyle::setGridAutoColumns(Style::GridTrackSizes&& trackSizeList) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridAutoColumns, WTFMove(trackSizeList)); }
 inline void RenderStyle::setGridAutoFlow(GridAutoFlow flow) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridAutoFlow, flow); }
-inline void RenderStyle::setGridAutoRows(Vector<Style::GridTrackSize>&& trackSizeList) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridAutoRows, WTFMove(trackSizeList)); }
+inline void RenderStyle::setGridAutoRows(Style::GridTrackSizes&& trackSizeList) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridAutoRows, WTFMove(trackSizeList)); }
 inline void RenderStyle::setGridItemColumnEnd(const GridPosition& columnEndPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridColumnEnd, columnEndPosition); }
 inline void RenderStyle::setGridItemColumnStart(const GridPosition& columnStartPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridColumnStart, columnStartPosition); }
 inline void RenderStyle::setGridItemRowEnd(const GridPosition& rowEndPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridRowEnd, rowEndPosition); }

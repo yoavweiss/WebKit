@@ -2785,6 +2785,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/grid/StyleGridTemplateList.h
     style/values/grid/StyleGridTrackBreadth.h
     style/values/grid/StyleGridTrackSize.h
+    style/values/grid/StyleGridTrackSizes.h
 
     style/values/images/StyleGradient.h
 

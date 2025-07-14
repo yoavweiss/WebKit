@@ -3183,6 +3183,7 @@ style/values/grid/StyleGridTemplateAreas.cpp
 style/values/grid/StyleGridTemplateList.cpp
 style/values/grid/StyleGridTrackBreadth.cpp
 style/values/grid/StyleGridTrackSize.cpp
+style/values/grid/StyleGridTrackSizes.cpp
 style/values/images/StyleGradient.cpp
 style/values/masking/StyleClip.cpp
 style/values/masking/StyleClipPath.cpp

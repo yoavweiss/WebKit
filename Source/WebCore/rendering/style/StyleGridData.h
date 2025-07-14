@@ -28,6 +28,7 @@
 #include "RenderStyleConstants.h"
 #include "StyleGridTemplateAreas.h"
 #include "StyleGridTemplateList.h"
+#include "StyleGridTrackSizes.h"
 #include <wtf/Ref.h>
 #include <wtf/RefCounted.h>
 #include <wtf/Vector.h>
@@ -50,8 +51,8 @@ public:
 #endif
 
     unsigned gridAutoFlow() const { return m_gridAutoFlow; }
-    const Vector<Style::GridTrackSize>& gridAutoColumns() const { return m_gridAutoColumns; }
-    const Vector<Style::GridTrackSize>& gridAutoRows() const { return m_gridAutoRows; }
+    const Style::GridTrackSizes& gridAutoColumns() const { return m_gridAutoColumns; }
+    const Style::GridTrackSizes& gridAutoRows() const { return m_gridAutoRows; }
     const Style::GridTemplateAreas& gridTemplateAreas() { return m_gridTemplateAreas; }
     const Style::GridTemplateList& gridTemplateColumns() const { return m_gridTemplateColumns; }
     const Style::GridTemplateList& gridTemplateRows() const { return m_gridTemplateRows; }
@@ -85,8 +86,8 @@ private:
     friend class RenderStyle;
 
     unsigned m_gridAutoFlow : GridAutoFlowBits;
-    Vector<Style::GridTrackSize> m_gridAutoColumns;
-    Vector<Style::GridTrackSize> m_gridAutoRows;
+    Style::GridTrackSizes m_gridAutoColumns;
+    Style::GridTrackSizes m_gridAutoRows;
     Style::GridTemplateAreas m_gridTemplateAreas;
     Style::GridTemplateList m_gridTemplateColumns;
     Style::GridTemplateList m_gridTemplateRows;

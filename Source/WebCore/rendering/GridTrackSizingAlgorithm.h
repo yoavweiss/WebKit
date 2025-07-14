@@ -184,6 +184,7 @@ private:
     };
 
     std::optional<LayoutUnit> availableSpace() const;
+    bool isRelativeGridTrackBreadthAsAuto(const Style::GridTrackFitContentLength&, GridTrackSizingDirection) const;
     bool isRelativeGridTrackBreadthAsAuto(const Style::GridTrackBreadth&, GridTrackSizingDirection) const;
     Style::GridTrackSize calculateGridTrackSize(GridTrackSizingDirection, unsigned translatedIndex) const;
     const Style::GridTrackSize& rawGridTrackSize(GridTrackSizingDirection, unsigned translatedIndex) const;

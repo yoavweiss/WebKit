@@ -298,6 +298,7 @@ struct GridOrderedNamedLinesMap;
 struct GridTemplateAreas;
 struct GridTemplateList;
 struct GridTrackSize;
+struct GridTrackSizes;
 struct InsetEdge;
 struct MarginEdge;
 struct MaximumSize;
@@ -885,9 +886,9 @@ public:
     inline bool isGridAutoFlowDirectionColumn() const;
     inline bool isGridAutoFlowAlgorithmSparse() const;
     inline bool isGridAutoFlowAlgorithmDense() const;
-    inline const Vector<Style::GridTrackSize>& gridAutoColumns() const;
-    inline const Vector<Style::GridTrackSize>& gridAutoRows() const;
-    inline const Vector<Style::GridTrackSize>& gridAutoList(GridTrackSizingDirection) const;
+    inline const Style::GridTrackSizes& gridAutoColumns() const;
+    inline const Style::GridTrackSizes& gridAutoRows() const;
+    inline const Style::GridTrackSizes& gridAutoList(GridTrackSizingDirection) const;
     inline const Style::GridTemplateAreas& gridTemplateAreas() const;
     inline const Style::GridTemplateList& gridTemplateColumns() const;
     inline const Style::GridTemplateList& gridTemplateRows() const;
@@ -1547,8 +1548,8 @@ public:
     inline void setBoxDecorationBreak(BoxDecorationBreak);
 
     inline void setGridAutoFlow(GridAutoFlow);
-    inline void setGridAutoColumns(Vector<Style::GridTrackSize>&&);
-    inline void setGridAutoRows(Vector<Style::GridTrackSize>&&);
+    inline void setGridAutoColumns(Style::GridTrackSizes&&);
+    inline void setGridAutoRows(Style::GridTrackSizes&&);
     inline void setGridTemplateAreas(Style::GridTemplateAreas&&);
     inline void setGridTemplateColumns(Style::GridTemplateList&&);
     inline void setGridTemplateRows(Style::GridTemplateList&&);
@@ -2175,8 +2176,8 @@ public:
 #endif
 
     static constexpr GridAutoFlow initialGridAutoFlow();
-    static inline Vector<Style::GridTrackSize> initialGridAutoColumns();
-    static inline Vector<Style::GridTrackSize> initialGridAutoRows();
+    static inline Style::GridTrackSizes initialGridAutoColumns();
+    static inline Style::GridTrackSizes initialGridAutoRows();
     static inline Style::GridTemplateAreas initialGridTemplateAreas();
     static inline Style::GridTemplateList initialGridTemplateColumns();
     static inline Style::GridTemplateList initialGridTemplateRows();

@@ -63,7 +63,6 @@ using GridTrackEntry = Variant<
     GridTrackEntryMasonry
 >;
 using GridTrackList = Vector<GridTrackEntry>;
-using GridTrackSizeList = Vector<GridTrackSize>;
 
 // <'grid-template-columns'/'grid-template-rows'> = none | <track-list> | <auto-track-list>
 struct GridTemplateList {
@@ -74,11 +73,11 @@ struct GridTemplateList {
 
     // Calculated from list.
 
-    GridTrackSizeList sizes { };
+    Vector<GridTrackSize> sizes { };
     GridNamedLinesMap namedLines { };
     GridOrderedNamedLinesMap orderedNamedLines { };
 
-    GridTrackSizeList autoRepeatSizes { };
+    Vector<GridTrackSize> autoRepeatSizes { };
     GridNamedLinesMap autoRepeatNamedLines { };
     GridOrderedNamedLinesMap autoRepeatOrderedNamedLines { };
 

@@ -9956,8 +9956,8 @@
             "animation-type-comment": "Current spec animation type is 'by computed value'",
             "initial": "auto",
             "codegen-properties": {
-                "style-converter": "GridTrackSizeList",
                 "separator": " ",
+                "style-converter": "StyleType<GridTrackSizes>",
                 "parser-function": "consumeGridTrackList",
                 "parser-grammar-unused": "<track-size>+",
                 "parser-grammar-unused-reason": "Needs investigation."
@@ -9972,8 +9972,8 @@
             "animation-type-comment": "Current spec animation type is 'by computed value'",
             "initial": "auto",
             "codegen-properties": {
-                "style-converter": "GridTrackSizeList",
                 "separator": " ",
+                "style-converter": "StyleType<GridTrackSizes>",
                 "parser-function": "consumeGridTrackList",
                 "parser-grammar-unused": "<track-size>+",
                 "parser-grammar-unused-reason": "Needs investigation."

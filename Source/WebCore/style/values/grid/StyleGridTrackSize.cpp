@@ -30,94 +30,40 @@
 #include "CSSFunctionValue.h"
 #include "CSSPrimitiveValue.h"
 #include "StyleBuilderChecking.h"
-#include <wtf/text/TextStream.h>
 
 namespace WebCore {
 namespace Style {
+
+using namespace CSS::Literals;
 
 // MARK: - Conversion
 
 auto CSSValueConversion<GridTrackSize>::operator()(BuilderState& state, const CSSValue& value) -> GridTrackSize
 {
     if (RefPtr primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value))
-        return GridTrackSize { toStyleFromCSSValue<GridTrackBreadth>(state, *primitiveValue) };
+        return toStyleFromCSSValue<GridTrackSize::Breadth>(state, *primitiveValue);
 
     auto function = requiredListDowncast<CSSFunctionValue, CSSPrimitiveValue>(state, value);
     if (!function)
-        return { };
+        return GridTrackSize::Breadth { 0_css_px };
 
     if (function->size() == 1) {
-        RefPtr breadth = function->item(0);
-        return GridTrackSize {
-            toStyleFromCSSValue<GridTrackBreadth>(state, *breadth),
-            GridTrackSizeType::FitContent
+        RefPtr length = function->item(0);
+
+        return GridTrackSize::FitContent {
+            .parameters = toStyleFromCSSValue<GridTrackFitContentLength>(state, *length),
         };
     }
 
-    RefPtr minBreadth = function->item(0);
-    RefPtr maxBreadth = function->item(1);
-    return GridTrackSize {
-        toStyleFromCSSValue<GridTrackBreadth>(state, *minBreadth),
-        toStyleFromCSSValue<GridTrackBreadth>(state, *maxBreadth),
-    };
-}
+    RefPtr min = function->item(0);
+    RefPtr max = function->item(1);
 
-auto CSSValueCreation<GridTrackSize>::operator()(CSSValuePool& pool, const RenderStyle& style, const GridTrackSize& value) -> Ref<CSSValue>
-{
-    switch (value.type()) {
-    case GridTrackSizeType::Length:
-        return createCSSValue(pool, style, value.minTrackBreadth());
-
-    case GridTrackSizeType::FitContent:
-        return CSSFunctionValue::create(
-            CSSValueFitContent,
-            createCSSValue(pool, style, value.fitContentTrackBreadth().length())
-        );
-
-    case GridTrackSizeType::MinMax:
-        if (value.minTrackBreadth().isAuto() && value.maxTrackBreadth().isFlex())
-            return createCSSValue(pool, style, value.maxTrackBreadth().flex());
-
-        return CSSFunctionValue::create(
-            CSSValueMinmax,
-            createCSSValue(pool, style, value.minTrackBreadth()),
-            createCSSValue(pool, style, value.maxTrackBreadth())
-        );
-    }
-
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-// MARK: - Serialization
-
-void Serialize<GridTrackSize>::operator()(StringBuilder& builder, const CSS::SerializationContext& context, const RenderStyle& style, const GridTrackSize& value)
-{
-    switch (value.type()) {
-    case GridTrackSizeType::Length:
-        serializationForCSS(builder, context, style, value.minTrackBreadth());
-        return;
-
-    case GridTrackSizeType::FitContent:
-        builder.append(nameLiteral(CSSValueFitContent), '(');
-        serializationForCSS(builder, context, style, value.fitContentTrackBreadth().length());
-        builder.append(')');
-        return;
-
-    case GridTrackSizeType::MinMax:
-        if (value.minTrackBreadth().isAuto() && value.maxTrackBreadth().isFlex()) {
-            serializationForCSS(builder, context, style, value.maxTrackBreadth().flex());
-            return;
+    return GridTrackSize::MinMax {
+        .parameters = {
+            .min = toStyleFromCSSValue<GridTrackBreadth>(state, *min),
+            .max = toStyleFromCSSValue<GridTrackBreadth>(state, *max),
         }
-
-        builder.append(nameLiteral(CSSValueMinmax), '(');
-        serializationForCSS(builder, context, style, value.minTrackBreadth());
-        builder.append(", "_s);
-        serializationForCSS(builder, context, style, value.maxTrackBreadth());
-        builder.append(')');
-        return;
-    }
-
-    RELEASE_ASSERT_NOT_REACHED();
+    };
 }
 
 // MARK: - Blending
@@ -128,41 +74,24 @@ auto Blending<GridTrackSize>::blend(const GridTrackSize& from, const GridTrackSi
         return context.progress < 0.5 ? from : to;
 
     switch (from.type()) {
-    case GridTrackSizeType::Length:
-        return GridTrackSize {
-            Style::blend(from.minTrackBreadth(), to.minTrackBreadth(), context),
-            GridTrackSizeType::Length,
+    case GridTrackSize::Type::Breadth:
+        return Style::blend(from.minTrackBreadth(), to.minTrackBreadth(), context);
+
+    case GridTrackSize::Type::FitContent:
+        return GridTrackSize::FitContent {
+            .parameters = Style::blend(from.fitContentTrackLength(), to.fitContentTrackLength(), context),
         };
 
-    case GridTrackSizeType::FitContent:
-        return GridTrackSize {
-            Style::blend(from.fitContentTrackBreadth(), to.fitContentTrackBreadth(), context),
-            GridTrackSizeType::FitContent,
-        };
-
-    case GridTrackSizeType::MinMax:
-        return GridTrackSize {
-            Style::blend(from.minTrackBreadth(), to.minTrackBreadth(), context),
-            Style::blend(from.maxTrackBreadth(), to.maxTrackBreadth(), context),
+    case GridTrackSize::Type::MinMax:
+        return GridTrackSize::MinMax {
+            .parameters = {
+                .min = Style::blend(from.minTrackBreadth(), to.minTrackBreadth(), context),
+                .max = Style::blend(from.maxTrackBreadth(), to.maxTrackBreadth(), context),
+            }
         };
     }
 
     RELEASE_ASSERT_NOT_REACHED();
-}
-// MARK: - Logging
-
-TextStream& operator<<(TextStream& ts, const GridTrackSize& value)
-{
-    // FIXME: this should be expanded to use the other class members.
-    switch (value.type()) {
-    case GridTrackSizeType::Length:
-        return ts << "size"_s;
-    case GridTrackSizeType::MinMax:
-        return ts << "minmax()"_s;
-    case GridTrackSizeType::FitContent:
-        return ts << "fit-content()"_s;
-    }
-    return ts;
 }
 
 } // namespace Style
