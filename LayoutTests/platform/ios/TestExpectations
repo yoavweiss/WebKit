@@ -8057,3 +8057,5 @@ webkit.org/b/295911 scrollingcoordinator/scrolling-tree/fixed-inside-frame.html 
 webkit.org/b/295913 [ Release ] media/video-seek-pause.html [ Pass Failure ]
 
 webkit.org/b/295915 [ Debug ] accessibility/visible-character-range-basic.html [ Pass Timeout ]
+
+webkit.org/b/295918 [ Release ] fast/visual-viewport/ios/resize-event-for-keyboard.html [ Pass Failure ]
