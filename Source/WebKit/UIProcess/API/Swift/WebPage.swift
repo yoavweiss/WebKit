@@ -481,14 +481,6 @@ final public class WebPage {
         }
     }
 
-    @available(*, deprecated, message: "Navigations are now observed using async sequences directly.")
-    @_spi(_)
-    @_disfavoredOverload
-    @discardableResult
-    public func load(html: String, baseURL: URL) -> NavigationID? {
-        backingWebView.loadHTMLString(html, baseURL: baseURL).map(NavigationID.init(_:))
-    }
-
     /// Loads the web content from the data you provide as if the data were the response to the request.
     ///
     /// - Parameters:
