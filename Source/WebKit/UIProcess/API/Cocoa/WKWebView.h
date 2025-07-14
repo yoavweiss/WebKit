@@ -711,9 +711,9 @@ typedef NS_OPTIONS(NSUInteger, WKWebViewDataType) {
  * All edge insets must be non-negative. Defaults to 0 on all sides.
  */
 #if TARGET_OS_OSX
-@property (nonatomic) NSEdgeInsets obscuredContentInsets API_AVAILABLE(macos(26.0));
+@property (nonatomic) NSEdgeInsets obscuredContentInsets WK_API_AVAILABLE(macos(26.0));
 #else
-@property (nonatomic) UIEdgeInsets obscuredContentInsets API_AVAILABLE(ios(26.0), visionos(26.0));
+@property (nonatomic) UIEdgeInsets obscuredContentInsets WK_API_AVAILABLE(ios(26.0), visionos(26.0));
 #endif
 
 @end
