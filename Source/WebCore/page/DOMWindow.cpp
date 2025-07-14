@@ -30,6 +30,7 @@
 #include "CSSRuleList.h"
 #include "CSSStyleProperties.h"
 #include "Document.h"
+#include "ExceptionOr.h"
 #include "Frame.h"
 #include "FrameLoader.h"
 #include "HTTPParsers.h"

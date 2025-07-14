@@ -29,6 +29,7 @@
 #include "ContextDestructionObserverInlines.h"
 #include "DatagramSink.h"
 #include "DatagramSource.h"
+#include "ExceptionOr.h"
 #include "JSDOMPromise.h"
 #include "JSDOMPromiseDeferred.h"
 #include "JSWebTransportBidirectionalStream.h"

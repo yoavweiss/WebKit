@@ -26,6 +26,8 @@
 #include "config.h"
 #include "RemoteDOMWindow.h"
 
+#include "Document.h"
+#include "ExceptionOr.h"
 #include "FrameDestructionObserverInlines.h"
 #include "FrameLoader.h"
 #include "LocalDOMWindow.h"

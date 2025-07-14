@@ -30,6 +30,7 @@
 #include "DataTransferItem.h"
 #include "DeprecatedGlobalSettings.h"
 #include "Document.h"
+#include "ExceptionOr.h"
 #include "FileList.h"
 #include "Pasteboard.h"
 #include "Settings.h"

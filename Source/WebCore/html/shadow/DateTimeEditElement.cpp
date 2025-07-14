@@ -34,6 +34,7 @@
 #include "DateTimeSymbolicFieldElement.h"
 #include "Document.h"
 #include "Event.h"
+#include "ExceptionOr.h"
 #include "HTMLNames.h"
 #include "PlatformLocale.h"
 #include "RenderElement.h"

@@ -26,6 +26,8 @@
 #include "config.h"
 #include "FileSystemWritableFileStreamSink.h"
 
+#include "Exception.h"
+#include "ExceptionOr.h"
 #include "FileSystemFileHandle.h"
 #include "FileSystemWritableFileStream.h"
 #include "FileSystemWriteCloseReason.h"

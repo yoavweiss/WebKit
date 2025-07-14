@@ -37,6 +37,7 @@
 #include "ContentSecurityPolicy.h"
 #include "EventLoop.h"
 #include "EventNames.h"
+#include "ExceptionOr.h"
 #include "HTTPStatusCodes.h"
 #include "MessageEvent.h"
 #include "ResourceError.h"
