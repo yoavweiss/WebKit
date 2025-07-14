@@ -8052,3 +8052,5 @@ webkit.org/b/295800 [ Release ] http/wpt/resource-timing/rt-resource-errors.html
 webkit.org/b/295820 [ Debug ] webrtc/audio-peer-connection-webaudio.html [ Pass Failure ]
 
 webkit.org/b/295907 contact-picker/contacts-select.html [ Pass Timeout ] 
+
+webkit.org/b/295911 scrollingcoordinator/scrolling-tree/fixed-inside-frame.html [ Pass Failure ]
