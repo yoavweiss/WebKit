@@ -30,6 +30,7 @@
 #include "BackgroundPainter.h"
 #include "BorderPainter.h"
 #include "BorderShape.h"
+#include "ContainerNodeInlines.h"
 #include "CSSFontSelector.h"
 #include "Document.h"
 #include "DocumentInlines.h"

@@ -21,6 +21,7 @@
 #include "config.h"
 #include "SVGFEDropShadowElement.h"
 
+#include "ContainerNodeInlines.h"
 #include "NodeName.h"
 #include "RenderElement.h"
 #include "RenderStyle.h"

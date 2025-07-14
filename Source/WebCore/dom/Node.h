@@ -493,7 +493,7 @@ public:
     inline RenderBoxModelObject* renderBoxModelObject() const; // Defined in NodeInlines.h
 
     // Wrapper for nodes that don't have a renderer, but still cache the style (like HTMLOptionElement).
-    inline const RenderStyle* renderStyle() const;
+    inline const RenderStyle* renderStyle() const; // Defined in NodeRenderStyle.h
 
     WEBCORE_EXPORT const RenderStyle* computedStyle();
     virtual const RenderStyle* computedStyle(const std::optional<Style::PseudoElementIdentifier>&);

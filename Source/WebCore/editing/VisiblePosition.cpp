@@ -41,6 +41,7 @@
 #include "InlineRunAndOffset.h"
 #include "LineSelection.h"
 #include "Logging.h"
+#include "PositionInlines.h"
 #include "Range.h"
 #include "RenderBlockFlow.h"
 #include "RenderObjectInlines.h"

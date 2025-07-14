@@ -24,6 +24,7 @@
 #include "config.h"
 #include "RenderSearchField.h"
 
+#include "ContainerNodeInlines.h"
 #include "CSSFontSelector.h"
 #include "CSSValueKeywords.h"
 #include "Chrome.h"

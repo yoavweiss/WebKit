@@ -27,6 +27,7 @@
 #include "DataTransferItemList.h"
 
 #include "ContextDestructionObserver.h"
+#include "ContextDestructionObserverInlines.h"
 #include "DataTransferItem.h"
 #include "DeprecatedGlobalSettings.h"
 #include "Document.h"

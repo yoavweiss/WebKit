@@ -21,6 +21,7 @@
 #include "config.h"
 #include "RenderFileUploadControl.h"
 
+#include "ContainerNodeInlines.h"
 #include "ElementRareData.h"
 #include "FileList.h"
 #include "FontCascade.h"

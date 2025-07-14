@@ -27,6 +27,7 @@
 #include "config.h"
 #include "TextControlInnerElements.h"
 
+#include "ContainerNodeInlines.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSToLengthConversionData.h"
 #include "CommonAtomStrings.h"

@@ -34,6 +34,7 @@
 #include "CanvasRenderingContext2DBase.h"
 
 #include "BitmapImage.h"
+#include "ContainerNodeInlines.h"
 #include "CSSFontSelector.h"
 #include "CSSMarkup.h"
 #include "CSSPrimitiveNumericTypes+Serialization.h"

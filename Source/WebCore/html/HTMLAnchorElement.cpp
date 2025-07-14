@@ -27,6 +27,7 @@
 
 #include "Chrome.h"
 #include "ChromeClient.h"
+#include "ContainerNodeInlines.h"
 #include "DOMTokenList.h"
 #include "ElementAncestorIteratorInlines.h"
 #include "EventHandler.h"

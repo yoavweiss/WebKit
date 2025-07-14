@@ -37,6 +37,7 @@
 #include "CloseWatcherManager.h"
 #include "ComposedTreeAncestorIterator.h"
 #include "ComposedTreeIterator.h"
+#include "ContainerNodeInlines.h"
 #include "CursorList.h"
 #include "DocumentFullscreen.h"
 #include "DocumentInlines.h"

@@ -70,6 +70,7 @@
 #include "MediaQueryParser.h"
 #include "MediaQueryParserContext.h"
 #include "MutableCSSSelector.h"
+#include "NodeInlines.h"
 #include "NestingLevelIncrementer.h"
 #include "StylePropertiesInlines.h"
 #include "StyleRule.h"

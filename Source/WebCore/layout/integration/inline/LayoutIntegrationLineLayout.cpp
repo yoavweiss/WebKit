@@ -47,6 +47,8 @@
 #include "PaintInfo.h"
 #include "PlacedFloats.h"
 #include "RenderBlockFlow.h"
+#include "RenderBoxInlines.h"
+#include "RenderBoxModelObjectInlines.h"
 #include "RenderDescendantIterator.h"
 #include "RenderInline.h"
 #include "RenderLayer.h"

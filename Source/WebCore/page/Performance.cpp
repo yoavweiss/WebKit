@@ -33,6 +33,7 @@
 #include "config.h"
 #include "Performance.h"
 
+#include "ContextDestructionObserverInlines.h"
 #include "Document.h"
 #include "DocumentLoader.h"
 #include "Event.h"

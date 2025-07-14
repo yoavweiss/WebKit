@@ -22,6 +22,7 @@
 #include "config.h"
 #include "SVGFEFloodElement.h"
 
+#include "ContainerNodeInlines.h"
 #include "FEFlood.h"
 #include "RenderElement.h"
 #include "RenderStyle.h"

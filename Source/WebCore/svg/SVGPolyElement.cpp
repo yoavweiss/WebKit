@@ -22,6 +22,7 @@
 #include "config.h"
 #include "SVGPolyElement.h"
 
+#include "ContainerNodeInlines.h"
 #include "DocumentInlines.h"
 #include "LegacyRenderSVGPath.h"
 #include "LegacyRenderSVGResource.h"

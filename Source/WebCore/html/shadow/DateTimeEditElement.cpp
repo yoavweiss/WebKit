@@ -27,6 +27,7 @@
 #include "config.h"
 #include "DateTimeEditElement.h"
 
+#include "ContainerNodeInlines.h"
 #include "DateComponents.h"
 #include "DateTimeFieldElements.h"
 #include "DateTimeFieldsState.h"
@@ -34,8 +35,10 @@
 #include "DateTimeSymbolicFieldElement.h"
 #include "Document.h"
 #include "Event.h"
+#include "EventTargetInlines.h"
 #include "ExceptionOr.h"
 #include "HTMLNames.h"
+#include "NodeInlines.h"
 #include "PlatformLocale.h"
 #include "RenderElement.h"
 #include "ScriptDisallowedScope.h"

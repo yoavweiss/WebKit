@@ -29,6 +29,7 @@
 #include "BitmapImage.h"
 #include "ColorBlending.h"
 #include "ColorHash.h"
+#include "ContainerNodeInlines.h"
 #include "Document.h"
 #include "Editing.h"
 #include "Editor.h"

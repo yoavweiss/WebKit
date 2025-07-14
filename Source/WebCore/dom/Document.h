@@ -700,8 +700,8 @@ public:
     const Settings& settings() const { return m_settings.get(); }
     EditingBehavior editingBehavior() const;
 
-    inline Quirks& quirks();
-    inline const Quirks& quirks() const;
+    inline Quirks& quirks(); // Defined in DocumentInlines.h
+    inline const Quirks& quirks() const; // Defined in DocumentInlines.h
 
     float deviceScaleFactor() const;
 
@@ -767,7 +767,7 @@ public:
     void stopActiveDOMObjects() final;
     GraphicsClient* graphicsClient() final;
 
-    inline const SettingsValues& settingsValues() const final;
+    inline const SettingsValues& settingsValues() const final; // Defined in DocumentInlines.h.
 
     void suspendDeviceMotionAndOrientationUpdates();
     void resumeDeviceMotionAndOrientationUpdates();

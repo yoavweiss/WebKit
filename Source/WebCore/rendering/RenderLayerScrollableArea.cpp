@@ -49,6 +49,7 @@
 
 #include "AnchorPositionEvaluator.h"
 #include "Chrome.h"
+#include "ContainerNodeInlines.h"
 #include "DebugPageOverlays.h"
 #include "DocumentInlines.h"
 #include "Editor.h"
@@ -70,6 +71,7 @@
 #include "RenderGeometryMap.h"
 #include "RenderLayerBacking.h"
 #include "RenderLayerCompositor.h"
+#include "RenderLayerInlines.h"
 #include "RenderMarquee.h"
 #include "RenderObjectInlines.h"
 #include "RenderScrollbar.h"

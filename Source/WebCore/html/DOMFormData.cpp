@@ -31,6 +31,7 @@
 #include "config.h"
 #include "DOMFormData.h"
 
+#include "ContextDestructionObserverInlines.h"
 #include "Document.h"
 #include "ExceptionOr.h"
 #include "HTMLFormControlElement.h"

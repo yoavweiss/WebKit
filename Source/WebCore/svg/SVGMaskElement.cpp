@@ -26,6 +26,7 @@
 #include "config.h"
 #include "SVGMaskElement.h"
 
+#include "ContainerNodeInlines.h"
 #include "LegacyRenderSVGResourceMaskerInlines.h"
 #include "NodeName.h"
 #include "RenderElementInlines.h"

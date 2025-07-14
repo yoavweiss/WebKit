@@ -31,6 +31,7 @@
 #include "JSElement.h"
 
 #include "Document.h"
+#include "DocumentInlines.h"
 #include "HTMLFrameElementBase.h"
 #include "HTMLNames.h"
 #include "JSAttr.h"

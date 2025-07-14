@@ -33,6 +33,8 @@
 #include "Logging.h"
 #include "RenderBox.h"
 #include "RenderStyleInlines.h"
+#include "RenderElementInlines.h"
+#include "RenderObjectInlines.h"
 #include "RenderView.h"
 #include "ScrollableArea.h"
 #include "StyleScrollSnapPoints.h"

@@ -32,6 +32,7 @@
 #include "Document.h"
 #include "ExceptionOr.h"
 #include "Frame.h"
+#include "FrameInlines.h"
 #include "FrameLoader.h"
 #include "HTTPParsers.h"
 #include "LocalDOMWindow.h"

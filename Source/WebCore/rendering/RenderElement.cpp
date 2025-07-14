@@ -29,6 +29,7 @@
 #include "BorderPainter.h"
 #include "BorderShape.h"
 #include "CachedResourceLoader.h"
+#include "ContainerNodeInlines.h"
 #include "ContentData.h"
 #include "ContentVisibilityDocumentState.h"
 #include "CursorList.h"

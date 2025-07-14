@@ -39,6 +39,7 @@
 #include "CachedImage.h"
 #include "ComplexTextController.h"
 #include "ComposedTreeIterator.h"
+#include "ContainerNodeInlines.h"
 #include "DocumentSVG.h"
 #include "Editing.h"
 #include "Editor.h"

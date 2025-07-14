@@ -28,9 +28,11 @@
 #include "FrameSelection.h"
 
 #include "AXObjectCache.h"
+#include "BoundaryPointInlines.h"
 #include "CaretAnimator.h"
 #include "CharacterData.h"
 #include "ColorBlending.h"
+#include "ContainerNodeInlines.h"
 #include "DeleteSelectionCommand.h"
 #include "DictationCaretAnimator.h"
 #include "DocumentInlines.h"

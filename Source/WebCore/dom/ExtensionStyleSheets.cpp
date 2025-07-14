@@ -29,6 +29,7 @@
 #include "ExtensionStyleSheets.h"
 
 #include "CSSStyleSheet.h"
+#include "DocumentInlines.h"
 #include "Element.h"
 #include "HTMLLinkElement.h"
 #include "HTMLStyleElement.h"

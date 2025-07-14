@@ -29,6 +29,7 @@
 
 #include "Document.h"
 #include "ExceptionOr.h"
+#include "NodeInlines.h"
 #include "XPathNSResolver.h"
 #include "XPathParser.h"
 #include "XPathResult.h"

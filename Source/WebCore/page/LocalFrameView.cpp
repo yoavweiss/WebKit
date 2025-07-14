@@ -48,6 +48,7 @@
 #include "Editor.h"
 #include "EventHandler.h"
 #include "EventLoop.h"
+#include "EventTargetInlines.h"
 #include "EventNames.h"
 #include "FindRevealAlgorithms.h"
 #include "FixedContainerEdges.h"
