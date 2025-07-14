@@ -1520,16 +1520,30 @@ void MediaPlayerPrivateWebM::clearTracks()
     m_audioTracks.clear();
 }
 
+void MediaPlayerPrivateWebM::setVideoFrameMetadataGatheringCallbackIfNeeded(VideoMediaSampleRenderer& videoRenderer)
+{
+    if (!m_isGatheringVideoFrameMetadata)
+        return;
+    videoRenderer.notifyWhenHasAvailableVideoFrame([weakThis = WeakPtr { *this }](const MediaTime& presentationTime, double displayTime) {
+        if (RefPtr protectedThis = weakThis.get())
+            protectedThis->checkNewVideoFrameMetadata(presentationTime, displayTime);
+    });
+}
+
 void MediaPlayerPrivateWebM::startVideoFrameMetadataGathering()
 {
     ASSERT(m_synchronizer);
     m_isGatheringVideoFrameMetadata = true;
+    if (RefPtr videoRenderer = m_videoRenderer)
+        setVideoFrameMetadataGatheringCallbackIfNeeded(*videoRenderer);
 }
 
 void MediaPlayerPrivateWebM::stopVideoFrameMetadataGathering()
 {
     m_isGatheringVideoFrameMetadata = false;
     m_videoFrameMetadata = { };
+    if (RefPtr videoRenderer = m_videoRenderer)
+        videoRenderer->notifyWhenHasAvailableVideoFrame(nullptr);
 }
 
 void MediaPlayerPrivateWebM::checkNewVideoFrameMetadata(const MediaTime& presentationTime, double displayTime)
@@ -1892,14 +1906,11 @@ void MediaPlayerPrivateWebM::setVideoRenderer(WebSampleBufferVideoRendering *ren
         protectedThis->setReadyState(MediaPlayer::ReadyState::HaveNothing);
         protectedThis->m_errored = true;
     });
-    videoRenderer->notifyWhenHasAvailableVideoFrame([weakThis = WeakPtr { *this }](const MediaTime& presentationTime, double displayTime) {
-        RefPtr protectedThis = weakThis.get();
-        if (!protectedThis)
-            return;
-        protectedThis->setHasAvailableVideoFrame(true);
-        if (protectedThis->m_isGatheringVideoFrameMetadata)
-            protectedThis->checkNewVideoFrameMetadata(presentationTime, displayTime);
+    videoRenderer->notifyFirstFrameAvailable([weakThis = WeakPtr { *this }](const MediaTime&, double) {
+        if (RefPtr protectedThis = weakThis.get())
+            protectedThis->setHasAvailableVideoFrame(true);
     });
+    setVideoFrameMetadataGatheringCallbackIfNeeded(*videoRenderer);
     videoRenderer->notifyWhenVideoRendererRequiresFlushToResumeDecoding([weakThis = ThreadSafeWeakPtr { *this }] {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->setLayerRequiresFlush();

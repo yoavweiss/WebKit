@@ -890,7 +890,9 @@ void VideoMediaSampleRenderer::flush()
         decompressionSession->flush();
     dispatcher()->dispatch([weakThis = ThreadSafeWeakPtr { *this }]() mutable {
         if (RefPtr protectedThis = weakThis.get()) {
+            assertIsCurrent(protectedThis->dispatcher().get());
             protectedThis->flushDecodedSampleQueue();
+            protectedThis->m_notifiedFirstFrameAvailable = false;
             protectedThis->maybeBecomeReadyForMoreMediaData();
         }
     });
@@ -1135,17 +1137,39 @@ void VideoMediaSampleRenderer::assignResourceOwner(CMSampleBufferRef sample)
     assignImageBuffer(PAL::CMSampleBufferGetImageBuffer(sample));
 }
 
+void VideoMediaSampleRenderer::notifyFirstFrameAvailable(Function<void(const MediaTime&, double)>&& callback)
+{
+    assertIsMainThread();
+
+    m_hasFirstFrameAvailableCallback = WTFMove(callback);
+}
+
 void VideoMediaSampleRenderer::notifyWhenHasAvailableVideoFrame(Function<void(const MediaTime&, double)>&& callback)
 {
     assertIsMainThread();
 
     m_hasAvailableFrameCallback = WTFMove(callback);
+    m_notifyWhenHasAvailableVideoFrame = !!m_hasAvailableFrameCallback;
 }
 
 void VideoMediaSampleRenderer::notifyHasAvailableVideoFrame(const MediaTime& presentationTime, double displayTime, FlushId flushId)
 {
-    assertIsCurrent(dispatcher());
+    assertIsCurrent(dispatcher().get());
 
+    if (!m_notifiedFirstFrameAvailable) {
+        LOG(Media, "VideoMediaSampleRenderer::notifyHasAvailableVideoFrame hasFirstFrameAvailable");
+        callOnMainThread([weakThis = ThreadSafeWeakPtr { *this }, flushId, presentationTime, displayTime] {
+            if (RefPtr protectedThis = weakThis.get(); protectedThis && flushId == protectedThis->m_flushId) {
+                assertIsMainThread();
+                if (protectedThis->m_hasFirstFrameAvailableCallback)
+                    protectedThis->m_hasFirstFrameAvailableCallback(presentationTime, displayTime);
+            }
+        });
+        m_notifiedFirstFrameAvailable = true;
+    }
+    if (!m_notifyWhenHasAvailableVideoFrame)
+        return;
+    LOG(Media, "VideoMediaSampleRenderer::notifyHasAvailableVideoFrame hasAvailableFrame");
     callOnMainThread([weakThis = ThreadSafeWeakPtr { *this }, flushId, presentationTime, displayTime] {
         if (RefPtr protectedThis = weakThis.get(); protectedThis && flushId == protectedThis->m_flushId) {
             assertIsMainThread();

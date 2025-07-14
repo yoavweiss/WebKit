@@ -75,6 +75,7 @@ public:
     void enqueueSample(const MediaSample&, const MediaTime&);
     void stopRequestingMediaData();
 
+    void notifyFirstFrameAvailable(Function<void(const MediaTime&, double)>&&);
     void notifyWhenHasAvailableVideoFrame(Function<void(const MediaTime&, double)>&&);
     void notifyWhenDecodingErrorOccurred(Function<void(OSStatus)>&&);
     void notifyWhenVideoRendererRequiresFlushToResumeDecoding(Function<void()>&&);
@@ -180,6 +181,7 @@ private:
     std::optional<CMTime> m_lastDisplayedSample WTF_GUARDED_BY_CAPABILITY(dispatcher().get());
     std::optional<CMTime> m_nextScheduledPurge WTF_GUARDED_BY_CAPABILITY(dispatcher().get());
 
+    bool m_notifiedFirstFrameAvailable WTF_GUARDED_BY_CAPABILITY(dispatcher().get()) { false };
     bool m_waitingForMoreMediaData WTF_GUARDED_BY_CAPABILITY(dispatcher().get()) { false };
     Function<void()> m_readyForMoreMediaDataFunction WTF_GUARDED_BY_CAPABILITY(mainThread);
     Preferences m_preferences;
@@ -200,7 +202,9 @@ private:
     // Protected samples
     bool m_wasProtected { false };
 
+    Function<void(const MediaTime&, double)> m_hasFirstFrameAvailableCallback WTF_GUARDED_BY_CAPABILITY(mainThread);
     Function<void(const MediaTime&, double)> m_hasAvailableFrameCallback WTF_GUARDED_BY_CAPABILITY(mainThread);
+    std::atomic<bool> m_notifyWhenHasAvailableVideoFrame { false };
     Function<void(OSStatus)> m_errorOccurredFunction WTF_GUARDED_BY_CAPABILITY(mainThread);
     Function<void()> m_rendererNeedsFlushFunction WTF_GUARDED_BY_CAPABILITY(mainThread);
     ProcessIdentity m_resourceOwner;
