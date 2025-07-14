@@ -104,7 +104,6 @@ compositing/shared-backing/overflow-scroll [ Pass ]
 compositing/scrolling/async-overflow-scrolling [ Pass ]
 compositing/scrolling/async-overflow-scrolling/mac [ Skip ]
 compositing/layer-creation/clipping-scope [ Pass ]
-contact-picker/contacts-select.html [ Pass ]
 css3/scroll-snap/ios [ Pass ]
 fast/attachment/cocoa [ Pass ]
 fast/device-orientation [ Pass ]
@@ -8051,3 +8050,5 @@ webkit.org/b/295798 fast/visual-viewport/ios/get-bounding-client-rect-unstable.h
 webkit.org/b/295800 [ Release ] http/wpt/resource-timing/rt-resource-errors.html [ Pass Failure ]
 
 webkit.org/b/295820 [ Debug ] webrtc/audio-peer-connection-webaudio.html [ Pass Failure ]
+
+webkit.org/b/295907 contact-picker/contacts-select.html [ Pass Timeout ] 
