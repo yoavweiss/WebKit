@@ -122,6 +122,9 @@ protected:
     void forEachProcessState(NOESCAPE Function<void(ProcessState&, WebProcessProxy&)>&&);
 
 private:
+#if ENABLE(TILED_CA_DRAWING_AREA)
+    DrawingAreaType type() const final { return DrawingAreaType::RemoteLayerTree; }
+#endif
 
     void remotePageProcessDidTerminate(WebCore::ProcessIdentifier) final;
     void sizeDidChange() final;

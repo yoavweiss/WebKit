@@ -1287,6 +1287,7 @@ WebViewImpl::WebViewImpl(WKWebView *view, WebProcessPool& processPool, Ref<API::
     ASSERT(hasProcessPrivilege(ProcessPrivilege::CanCommunicateWithWindowServer));
     [NSApp registerServicesMenuSendTypes:PasteboardTypes::forSelection() returnTypes:PasteboardTypes::forEditing()];
 
+#if ENABLE(TILED_CA_DRAWING_AREA)
     auto useRemoteLayerTree = [&]() {
         bool result = false;
 #if ENABLE(REMOTE_LAYER_TREE_ON_MAC_BY_DEFAULT)
@@ -1303,6 +1304,7 @@ WebViewImpl::WebViewImpl(WKWebView *view, WebProcessPool& processPool, Ref<API::
 
     if (useRemoteLayerTree())
         m_drawingAreaType = DrawingAreaType::RemoteLayerTree;
+#endif
 
     [view addTrackingArea:m_primaryTrackingArea.get()];
     [view addTrackingArea:m_flagsChangedEventMonitorTrackingArea.get()];
@@ -1799,20 +1801,25 @@ CGSize WebViewImpl::fixedLayoutSize() const
 
 Ref<WebKit::DrawingAreaProxy> WebViewImpl::createDrawingAreaProxy(WebProcessProxy& webProcessProxy)
 {
+#if ENABLE(TILED_CA_DRAWING_AREA)
     switch (m_drawingAreaType) {
     case DrawingAreaType::TiledCoreAnimation:
         return TiledCoreAnimationDrawingAreaProxy::create(m_page, webProcessProxy);
     case DrawingAreaType::RemoteLayerTree:
         return RemoteLayerTreeDrawingAreaProxyMac::create(m_page, webProcessProxy);
     }
-
     ASSERT_NOT_REACHED();
+#endif
     return RemoteLayerTreeDrawingAreaProxyMac::create(m_page, webProcessProxy);
 }
 
 bool WebViewImpl::isUsingUISideCompositing() const
 {
+#if ENABLE(TILED_CA_DRAWING_AREA)
     return m_drawingAreaType == DrawingAreaType::RemoteLayerTree;
+#else
+    return true;
+#endif
 }
 
 void WebViewImpl::setDrawingAreaSize(CGSize size)

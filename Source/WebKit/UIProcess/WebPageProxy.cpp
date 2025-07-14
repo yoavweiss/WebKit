@@ -5163,10 +5163,10 @@ void WebPageProxy::commitProvisionalPage(IPC::Connection& connection, FrameIdent
     ASSERT(m_legacyMainFrameProcess.ptr() != &provisionalPage->process() || preferences->siteIsolationEnabled());
 
     auto shouldDelayClosingUntilFirstLayerFlush = ShouldDelayClosingUntilFirstLayerFlush::No;
-#if PLATFORM(MAC)
+#if ENABLE(TILED_CA_DRAWING_AREA)
     // On macOS, when not using UI-side compositing, we need to make sure we do not close the page in the previous process until we've
     // entered accelerated compositing for the new page or we will flash on navigation.
-    if (drawingArea()->type() == DrawingAreaType::TiledCoreAnimation)
+    if (protectedDrawingArea()->type() == DrawingAreaType::TiledCoreAnimation)
         shouldDelayClosingUntilFirstLayerFlush = ShouldDelayClosingUntilFirstLayerFlush::Yes;
 #endif
 
@@ -11764,7 +11764,7 @@ static std::span<const ASCIILiteral> gpuMachServices()
 #endif // PLATFORM(COCOA)
 
 #if PLATFORM(COCOA) && !ENABLE(WEBCONTENT_GPU_SANDBOX_EXTENSIONS_BLOCKING) || HAVE(MACH_BOOTSTRAP_EXTENSION)
-static bool shouldBlockIOKit(const WebPreferences& preferences, DrawingAreaType drawingAreaType)
+static bool shouldBlockIOKit(const WebPreferences& preferences)
 {
     if (!preferences.useGPUProcessForMediaEnabled()
         || !preferences.captureVideoInGPUProcessEnabled()
@@ -11772,8 +11772,7 @@ static bool shouldBlockIOKit(const WebPreferences& preferences, DrawingAreaType 
         || !preferences.webRTCPlatformCodecsInGPUProcessEnabled()
         || !preferences.useGPUProcessForCanvasRenderingEnabled()
         || !preferences.useGPUProcessForDOMRenderingEnabled()
-        || !preferences.useGPUProcessForWebGLEnabled()
-        || drawingAreaType != DrawingAreaType::RemoteLayerTree)
+        || !preferences.useGPUProcessForWebGLEnabled())
         return false;
     return true;
 }
@@ -11817,7 +11816,9 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     parameters.windowFeatures = m_configuration->windowFeatures();
     parameters.viewSize = pageClient ? pageClient->viewSize() : WebCore::IntSize { };
     parameters.activityState = internals().activityState;
+#if ENABLE(TILED_CA_DRAWING_AREA)
     parameters.drawingAreaType = drawingArea.type();
+#endif
     parameters.store = preferencesStore();
     parameters.isEditable = m_isEditable;
     parameters.underlayColor = internals().underlayColor;
@@ -11908,20 +11909,27 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     parameters.additionalSupportedImageTypes = m_configuration->additionalSupportedImageTypes().value_or(Vector<String>());
 
 #if !ENABLE(WEBCONTENT_GPU_SANDBOX_EXTENSIONS_BLOCKING)
-    if (!shouldBlockIOKit(preferences, drawingArea.type())) {
+#if ENABLE(TILED_CA_DRAWING_AREA)
+    if (!shouldBlockIOKit(preferences) || drawingArea.type() == DrawingAreaType::TiledCoreAnimation)
+#else
+    if (!shouldBlockIOKit(preferences))
+#endif
+    {
         parameters.gpuIOKitExtensionHandles = SandboxExtension::createHandlesForIOKitClassExtensions(gpuIOKitClasses(), std::nullopt);
         parameters.gpuMachExtensionHandles = SandboxExtension::createHandlesForMachLookup(gpuMachServices(), std::nullopt);
     }
 #endif // !ENABLE(WEBCONTENT_GPU_SANDBOX_EXTENSIONS_BLOCKING)
 #endif // PLATFORM(COCOA)
 
-#if PLATFORM(MAC)
-    if (!shouldBlockIOKit(preferences, drawingArea.type()) || !preferences->unifiedPDFEnabled()) {
+#if ENABLE(TILED_CA_DRAWING_AREA)
+    if (!shouldBlockIOKit(preferences)
+        || drawingArea.type() == DrawingAreaType::TiledCoreAnimation
+        || !preferences->unifiedPDFEnabled()) {
         auto handle = SandboxExtension::createHandleForMachLookup("com.apple.CARenderServer"_s, std::nullopt);
         if (handle)
             parameters.renderServerMachExtensionHandle = WTFMove(*handle);
     }
-#endif // PLATFORM(MAC)
+#endif // ENABLE(TILED_CA_DRAWING_AREA)
 
 #if HAVE(STATIC_FONT_REGISTRY)
     if (preferences->shouldAllowUserInstalledFonts()) {
@@ -12048,7 +12056,11 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
 #else
     bool createBootstrapExtension = !parameters.store.getBoolValueForKey(WebPreferencesKey::experimentalSandboxEnabledKey());
 #endif
-    if (!shouldBlockIOKit(preferences, drawingArea.type()) || createBootstrapExtension)
+    if (!shouldBlockIOKit(preferences)
+#if ENABLE(TILED_CA_DRAWING_AREA)
+        || drawingArea.type() == DrawingAreaType::TiledCoreAnimation
+#endif
+        || createBootstrapExtension)
         parameters.machBootstrapHandle = SandboxExtension::createHandleForMachBootstrapExtension();
 #endif
 
@@ -12092,7 +12104,7 @@ void WebPageProxy::isJITEnabled(CompletionHandler<void(bool)>&& completionHandle
 
 void WebPageProxy::enterAcceleratedCompositingMode(const LayerTreeContext& layerTreeContext)
 {
-#if PLATFORM(MAC)
+#if ENABLE(TILED_CA_DRAWING_AREA)
     ASSERT(m_drawingArea->type() == DrawingAreaType::TiledCoreAnimation);
 #endif
     if (RefPtr pageClient = this->pageClient())
@@ -12101,7 +12113,7 @@ void WebPageProxy::enterAcceleratedCompositingMode(const LayerTreeContext& layer
 
 void WebPageProxy::didFirstLayerFlush(const LayerTreeContext& layerTreeContext)
 {
-#if PLATFORM(MAC)
+#if ENABLE(TILED_CA_DRAWING_AREA)
     ASSERT(m_drawingArea->type() == DrawingAreaType::TiledCoreAnimation);
 #endif
     if (RefPtr pageClient = this->pageClient())

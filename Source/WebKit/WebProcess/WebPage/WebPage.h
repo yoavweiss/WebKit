@@ -450,7 +450,9 @@ class WebWheelEvent;
 
 enum class ContentAsStringIncludesChildFrames : bool;
 enum class DragControllerAction : uint8_t;
-enum class DrawingAreaType : uint8_t;
+#if ENABLE(TILED_CA_DRAWING_AREA)
+enum class DrawingAreaType : bool;
+#endif
 enum class FindOptions : uint16_t;
 enum class FindDecorationStyle : uint8_t;
 enum class ImageOption : uint8_t;
@@ -2594,7 +2596,9 @@ private:
     String m_userAgent;
     bool m_hasCustomUserAgent { false };
 
+#if ENABLE(TILED_CA_DRAWING_AREA)
     DrawingAreaType m_drawingAreaType;
+#endif
 
     HashMap<TextCheckerRequestID, RefPtr<WebCore::TextCheckingRequest>> m_pendingTextCheckingRequestMap;
 
