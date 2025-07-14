@@ -55,7 +55,10 @@
 
 static const size_t kLowPowerVideoBufferSize = 4096;
 
-#define MEDIASESSIONMANAGER_RELEASE_LOG(fmt, ...) RELEASE_LOG_FORWARDABLE(Media, fmt, ##__VA_ARGS__)
+#define MEDIASESSIONMANAGER_RELEASE_LOG(formatString, ...) \
+if (willLog(WTFLogLevel::Always)) { \
+    RELEASE_LOG_FORWARDABLE(Media, MEDIASESSIONMANAGERCOCOA_##formatString, ##__VA_ARGS__); \
+} \
 
 namespace WebCore {
 
@@ -138,7 +141,7 @@ void MediaSessionManagerCocoa::updateSessionState()
         }
     });
 
-    MEDIASESSIONMANAGER_RELEASE_LOG(MEDIASESSIONMANAGERCOCOA_UPDATESESSIONSTATE, captureCount, audioMediaStreamTrackCount, videoCount, audioCount, videoAudioCount, webAudioCount);
+    MEDIASESSIONMANAGER_RELEASE_LOG(UPDATESESSIONSTATE, captureCount, audioMediaStreamTrackCount, videoCount, audioCount, videoAudioCount, webAudioCount);
 
     Ref sharedSession = AudioSession::sharedSession();
     size_t bufferSize = m_defaultBufferSize;
@@ -340,13 +343,13 @@ void MediaSessionManagerCocoa::sessionWillEndPlayback(PlatformMediaSessionInterf
 
 void MediaSessionManagerCocoa::clientCharacteristicsChanged(PlatformMediaSessionInterface& session, bool)
 {
-    MEDIASESSIONMANAGER_RELEASE_LOG(MEDIASESSIONMANAGERCOCOA_CLIENTCHARACTERISTICSCHANGED, session.logIdentifier());
+    MEDIASESSIONMANAGER_RELEASE_LOG(CLIENTCHARACTERISTICSCHANGED, session.logIdentifier());
     scheduleSessionStatusUpdate();
 }
 
 void MediaSessionManagerCocoa::sessionCanProduceAudioChanged()
 {
-    MEDIASESSIONMANAGER_RELEASE_LOG(MEDIASESSIONMANAGERCOCOA_SESSIONCANPRODUCEAUDIOCHANGED);
+    MEDIASESSIONMANAGER_RELEASE_LOG(SESSIONCANPRODUCEAUDIOCHANGED);
     PlatformMediaSessionManager::sessionCanProduceAudioChanged();
     scheduleSessionStatusUpdate();
 }
