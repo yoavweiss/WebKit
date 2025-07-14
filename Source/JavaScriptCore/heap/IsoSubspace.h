@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2017-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -100,7 +100,10 @@ ALWAYS_INLINE Allocator IsoSubspace::allocatorFor(size_t size, AllocatorForMode)
 
 } // namespace GCClient
 
-#define ISO_SUBSPACE_INIT(heap, heapCellType, type) ("IsoSpace " #type ""_s, (heap), (heapCellType), sizeof(type), type::numberOfLowerTierPreciseCells)
+#define ISO_SUBSPACE_INIT(heap, heapCellType, type) \
+    ISO_SUBSPACE_INIT_WITH_NAME(heap, heapCellType, type, #type ""_s)
+
+#define ISO_SUBSPACE_INIT_WITH_NAME(heap, heapCellType, type, name) (name, (heap), (heapCellType), sizeof(type), type::numberOfLowerTierPreciseCells)
 
 } // namespace JSC
 
