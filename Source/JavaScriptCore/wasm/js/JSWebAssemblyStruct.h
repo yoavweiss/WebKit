@@ -47,7 +47,7 @@ public:
     template<typename CellType, SubspaceAccess mode>
     static CompleteSubspace* subspaceFor(VM& vm)
     {
-        return &vm.heap.cellSpace;
+        return &vm.heap.variableSizedCellSpace;
     }
 
     DECLARE_INFO;
