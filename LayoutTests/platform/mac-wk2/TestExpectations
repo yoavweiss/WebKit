@@ -2230,3 +2230,5 @@ webkit.org/b/295820 [ arm64 Debug ] webrtc/audio-peer-connection-webaudio.html [
 webkit.org/b/295913 [ Sequoia Release arm64 ] media/video-seek-pause.html [ Pass Failure ]
 
 webkit.org/b/295910 [ Debug ] http/tests/site-isolation/edge-sampling-viewport-constrained-object.html [ Pass Crash ]
+
+webkit.org/b/295923 [ Release ] tiled-drawing/scrolling/scroll-with-top-left-content-inset.html [ Pass ImageOnlyFailure ]
