@@ -2781,17 +2781,17 @@ bool RenderFlexibleBox::layoutUsingFlexFormattingContext()
     return true;
 }
 
-const RenderBox* RenderFlexibleBox::firstBaselineCandidateOnLine(OrderIterator flexItemIterator, ItemPosition baselinePosition, size_t numberOfItemsOnLine) const
+const RenderBox* RenderFlexibleBox::firstBaselineCandidateOnLine(OrderIterator flexItemIterator, size_t numberOfItemsOnLine) const
 {
     // Note that "first" here means in iterator order and not logical flex order (caller can pass in reversed order).
-    ASSERT(baselinePosition == ItemPosition::Baseline || baselinePosition == ItemPosition::LastBaseline);
-
     size_t index = 0;
     const RenderBox* baselineFlexItem = nullptr;
     for (auto* flexItem = flexItemIterator.first(); flexItem; flexItem = flexItemIterator.next()) {
         if (flexItemIterator.shouldSkipChild(*flexItem))
             continue;
-        if (alignmentForFlexItem(*flexItem) == baselinePosition && mainAxisIsFlexItemInlineAxis(*flexItem) && !hasAutoMarginsInCrossAxis(*flexItem))
+        auto flexItemPosition = alignmentForFlexItem(*flexItem);
+        if ((flexItemPosition == ItemPosition::Baseline || flexItemPosition == ItemPosition::LastBaseline)
+            && mainAxisIsFlexItemInlineAxis(*flexItem) && !hasAutoMarginsInCrossAxis(*flexItem))
             return flexItem;
         if (!baselineFlexItem)
             baselineFlexItem = flexItem;
@@ -2801,17 +2801,17 @@ const RenderBox* RenderFlexibleBox::firstBaselineCandidateOnLine(OrderIterator f
     return nullptr;
 }
 
-const RenderBox* RenderFlexibleBox::lastBaselineCandidateOnLine(OrderIterator flexItemIterator, ItemPosition baselinePosition, size_t numberOfItemsOnLine) const
+const RenderBox* RenderFlexibleBox::lastBaselineCandidateOnLine(OrderIterator flexItemIterator, size_t numberOfItemsOnLine) const
 {
     // Note that "last" here means in iterator order and not logical flex order (caller can pass in reversed order).
-    ASSERT(baselinePosition == ItemPosition::Baseline || baselinePosition == ItemPosition::LastBaseline);
-
     size_t index = 0;
     RenderBox* baselineFlexItem = nullptr;
     for (auto* flexItem = flexItemIterator.first(); flexItem; flexItem = flexItemIterator.next()) {
         if (flexItemIterator.shouldSkipChild(*flexItem))
             continue;
-        if (alignmentForFlexItem(*flexItem) == baselinePosition && mainAxisIsFlexItemInlineAxis(*flexItem) && !hasAutoMarginsInCrossAxis(*flexItem))
+        auto flexItemPosition = alignmentForFlexItem(*flexItem);
+        if ((flexItemPosition == ItemPosition::Baseline || flexItemPosition == ItemPosition::LastBaseline)
+            && mainAxisIsFlexItemInlineAxis(*flexItem) && !hasAutoMarginsInCrossAxis(*flexItem))
             baselineFlexItem = flexItem;
         if (++index == numberOfItemsOnLine)
             return baselineFlexItem ? baselineFlexItem : flexItem;
@@ -2828,18 +2828,18 @@ const RenderBox* RenderFlexibleBox::flexItemForFirstBaseline() const
     if (!useLastLine) {
         if (!useLastItem) {
             // Logically (and visually) first item on logically (and visually) first line.
-            return firstBaselineCandidateOnLine(m_orderIterator, ItemPosition::Baseline, m_numberOfFlexItemsOnFirstLine);
+            return firstBaselineCandidateOnLine(m_orderIterator, m_numberOfFlexItemsOnFirstLine);
         }
         // Logically last (but visually first) item on logically (and visually) first line.
-        return lastBaselineCandidateOnLine(m_orderIterator, ItemPosition::Baseline, m_numberOfFlexItemsOnFirstLine);
+        return lastBaselineCandidateOnLine(m_orderIterator, m_numberOfFlexItemsOnFirstLine);
     }
 
     if (!useLastItem) {
         // Logically (and visually) first item on logically last (but visually first) line.
-        return lastBaselineCandidateOnLine(m_orderIterator.reverse(), ItemPosition::Baseline, m_numberOfFlexItemsOnLastLine);
+        return lastBaselineCandidateOnLine(m_orderIterator.reverse(), m_numberOfFlexItemsOnLastLine);
     }
     // Logically last (but visually first) item on logically last (but visually first) line.
-    return firstBaselineCandidateOnLine(m_orderIterator.reverse(), ItemPosition::Baseline, m_numberOfFlexItemsOnLastLine);
+    return firstBaselineCandidateOnLine(m_orderIterator.reverse(), m_numberOfFlexItemsOnLastLine);
 }
 
 const RenderBox* RenderFlexibleBox::flexItemForLastBaseline() const
@@ -2851,18 +2851,18 @@ const RenderBox* RenderFlexibleBox::flexItemForLastBaseline() const
     if (!useLastLine) {
         if (!useLastItem) {
             // Logically (and visually) last item on logically (and visually) last line.
-            return firstBaselineCandidateOnLine(m_orderIterator.reverse(), ItemPosition::LastBaseline, m_numberOfFlexItemsOnLastLine);
+            return firstBaselineCandidateOnLine(m_orderIterator.reverse(), m_numberOfFlexItemsOnLastLine);
         }
         // Logically first (but visually last) item  on logically (and visually) last line.
-        return lastBaselineCandidateOnLine(m_orderIterator.reverse(), ItemPosition::LastBaseline, m_numberOfFlexItemsOnLastLine);
+        return lastBaselineCandidateOnLine(m_orderIterator.reverse(), m_numberOfFlexItemsOnLastLine);
     }
 
     if (!useLastItem) {
         // Logically (and visually) last item on logically first (but visually last) line.
-        return lastBaselineCandidateOnLine(m_orderIterator, ItemPosition::LastBaseline, m_numberOfFlexItemsOnFirstLine);
+        return lastBaselineCandidateOnLine(m_orderIterator, m_numberOfFlexItemsOnFirstLine);
     }
     // Logically first (but visually last) item on logically last (but visually first) line.
-    return firstBaselineCandidateOnLine(m_orderIterator, ItemPosition::LastBaseline, m_numberOfFlexItemsOnFirstLine);
+    return firstBaselineCandidateOnLine(m_orderIterator, m_numberOfFlexItemsOnFirstLine);
 }
 
 }

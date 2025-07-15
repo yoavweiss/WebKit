@@ -333,8 +333,8 @@ private:
     void resetHasDefiniteHeight() { m_hasDefiniteHeight = SizeDefiniteness::Unknown; }
     const RenderBox* flexItemForFirstBaseline() const;
     const RenderBox* flexItemForLastBaseline() const;
-    const RenderBox* firstBaselineCandidateOnLine(OrderIterator, ItemPosition baselinePosition, size_t numberOfItemsOnLine) const;
-    const RenderBox* lastBaselineCandidateOnLine(OrderIterator, ItemPosition baselinePosition, size_t numberOfItemsOnLine) const;
+    const RenderBox* firstBaselineCandidateOnLine(OrderIterator, size_t numberOfItemsOnLine) const;
+    const RenderBox* lastBaselineCandidateOnLine(OrderIterator, size_t numberOfItemsOnLine) const;
 
     bool layoutUsingFlexFormattingContext();
 
