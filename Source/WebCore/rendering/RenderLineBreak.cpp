@@ -59,7 +59,7 @@ RenderLineBreak::~RenderLineBreak()
 {
 }
 
-LayoutUnit RenderLineBreak::lineHeight(bool firstLine, LineDirectionMode /*direction*/, LinePositionMode /*linePositionMode*/) const
+LayoutUnit RenderLineBreak::lineHeight(bool firstLine, LineDirectionMode /*direction*/) const
 {
     if (firstLine) {
         auto& firstLineStyle = this->firstLineStyle();
@@ -75,7 +75,7 @@ LayoutUnit RenderLineBreak::lineHeight(bool firstLine, LineDirectionMode /*direc
 LayoutUnit RenderLineBreak::baselinePosition() const
 {
     auto& fontMetrics = style().metricsOfPrimaryFont();
-    return LayoutUnit { (fontMetrics.ascent() + (lineHeight(false, parent()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine, PositionOnContainingLine) - fontMetrics.height()) / 2) };
+    return LayoutUnit { (fontMetrics.ascent() + (lineHeight(false, parent()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine) - fontMetrics.height()) / 2) };
 }
 
 int RenderLineBreak::caretMinOffset() const

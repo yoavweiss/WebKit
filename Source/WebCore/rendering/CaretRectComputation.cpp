@@ -118,7 +118,7 @@ static LayoutRect computeCaretRectForEmptyElement(const RenderBoxModelObject& re
     }
     x = std::min(x, std::max<LayoutUnit>(maxX - caretWidth(), 0));
 
-    auto lineHeight = renderer.lineHeight(true, writingMode.isHorizontal() ? HorizontalLine : VerticalLine, PositionOfInteriorLineBoxes);
+    auto lineHeight = renderer.lineHeight(true, writingMode.isHorizontal() ? HorizontalLine : VerticalLine);
     auto height = std::min(lineHeight, LayoutUnit { currentStyle.metricsOfPrimaryFont().height() });
     auto y = renderer.borderAndPaddingBefore() + (lineHeight > height ? (lineHeight - height) / 2 : LayoutUnit { });
 

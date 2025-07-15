@@ -4966,7 +4966,7 @@ bool RenderBox::isUnsplittableForPagination() const
         || shouldApplySizeContainment();
 }
 
-LayoutUnit RenderBox::lineHeight(bool /*firstLine*/, LineDirectionMode direction, LinePositionMode /*linePositionMode*/) const
+LayoutUnit RenderBox::lineHeight(bool /*firstLine*/, LineDirectionMode direction) const
 {
     if (isBlockLevelReplacedOrAtomicInline())
         return direction == HorizontalLine ? m_marginBox.top() + height() + m_marginBox.bottom() : m_marginBox.right() + width() + m_marginBox.left();

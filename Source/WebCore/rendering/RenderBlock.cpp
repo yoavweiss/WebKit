@@ -2474,15 +2474,8 @@ bool RenderBlock::hasLineIfEmpty() const
     return element && element->isRootEditableElement();
 }
 
-LayoutUnit RenderBlock::lineHeight(bool firstLine, LineDirectionMode direction, LinePositionMode linePositionMode) const
+LayoutUnit RenderBlock::lineHeight(bool firstLine, LineDirectionMode) const
 {
-    // Inline blocks are replaced elements. Otherwise, just pass off to
-    // the base class.  If we're being queried as though we're the root line
-    // box, then the fact that we're an inline-block is irrelevant, and we behave
-    // just like a block.
-    if (isBlockLevelReplacedOrAtomicInline() && linePositionMode == PositionOnContainingLine)
-        return RenderBox::lineHeight(firstLine, direction, linePositionMode);
-
     auto& lineStyle = firstLine ? firstLineStyle() : style();
     return LayoutUnit::fromFloatCeil(lineStyle.computedLineHeight());
 }
@@ -2542,7 +2535,7 @@ LayoutUnit RenderBlock::baselinePosition() const
     }
 
     const FontMetrics& fontMetrics = style().metricsOfPrimaryFont();
-    return LayoutUnit { fontMetrics.intAscent() + (lineHeight(true, direction, PositionOnContainingLine) - fontMetrics.intHeight()) / 2 }.toInt();
+    return LayoutUnit { fontMetrics.intAscent() + (lineHeight(true, direction) - fontMetrics.intHeight()) / 2 }.toInt();
 }
 
 std::optional<LayoutUnit> RenderBlock::firstLineBaseline() const
@@ -2602,7 +2595,7 @@ std::optional<LayoutUnit> RenderBlock::inlineBlockBaseline(LineDirectionMode lin
     if (!haveNormalFlowChild && hasLineIfEmpty()) {
         auto& fontMetrics = firstLineStyle().metricsOfPrimaryFont();
         return LayoutUnit { LayoutUnit(fontMetrics.intAscent()
-            + (lineHeight(true, lineDirection, PositionOfInteriorLineBoxes) - fontMetrics.intHeight()) / 2
+            + (lineHeight(true, lineDirection) - fontMetrics.intHeight()) / 2
             + (lineDirection == HorizontalLine ? borderTop() + paddingTop() : borderRight() + paddingRight())).toInt() };
     }
 
