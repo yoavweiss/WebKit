@@ -1667,7 +1667,8 @@ static void applyEmPadding(RenderStyle& style, const Element* element, float pad
     const auto horizontalPadding = isVertical ? paddingBlockPixels : paddingInlinePixels;
     const auto verticalPadding = isVertical ? paddingInlinePixels : paddingBlockPixels;
 
-    style.setPaddingBox({ verticalPadding, horizontalPadding, verticalPadding, horizontalPadding });
+    Style::PaddingBox paddingBox { verticalPadding, horizontalPadding, verticalPadding, horizontalPadding };
+    applyPaddingIfNotExplicitlySet(style, paddingBox);
 }
 
 #if PLATFORM(MAC)
