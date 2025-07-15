@@ -7954,6 +7954,10 @@ fast/forms/datalist/datalist-fallback-content.html [ ImageOnlyFailure ]
 fast/forms/form-control-refresh [ Pass ]
 imported/w3c/web-platform-tests/css/css-ui/button-author-level-padding-applies.html [ Pass ]
 
+# Window inactive appearance is only used on macOS.
+fast/forms/form-control-refresh/checkbox-radio-inactive-appearance-dark-bg-light-color-scheme.html [ Skip ]
+fast/forms/form-control-refresh/checkbox-radio-inactive-appearance-light-bg-dark-color-scheme.html [ Skip ]
+
 # rdar://155348715 (REGRESSION (Liquid Glass): [ iOS 26 ] 72 WPT/css/css-ui/compute-kind-widget-generated/kind-of-widget-fallback-select-*.html tests are constantly failing (IMAGE).)
 # Explicit pass expectations for many of these tests are set above. Uncomment that block once this is resolved.
 imported/w3c/web-platform-tests/css/css-ui/compute-kind-widget-generated/kind-of-widget-fallback-select-dropdown-box-background-attachment-001.html [ ImageOnlyFailure ]
