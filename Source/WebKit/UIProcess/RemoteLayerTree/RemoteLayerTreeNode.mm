@@ -140,8 +140,7 @@ void RemoteLayerTreeNode::applyBackingStore(RemoteLayerTreeHost* host, RemoteLay
     hostingView = uiView();
 #endif
 
-    properties.updateCachedBuffers(*this, hostingView);
-    properties.applyBackingStoreToLayer(layer(), host->replayDynamicContentScalingDisplayListsIntoBackingStore(), hostingView);
+    properties.applyBackingStoreToNode(*this, host->replayDynamicContentScalingDisplayListsIntoBackingStore(), hostingView);
 
     if (auto identifier = properties.contentsRenderingResourceIdentifier())
         setAsyncContentsIdentifier(*identifier);
