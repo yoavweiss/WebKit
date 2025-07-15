@@ -2232,3 +2232,12 @@ webkit.org/b/295913 [ Sequoia Release arm64 ] media/video-seek-pause.html [ Pass
 webkit.org/b/295923 [ Release ] tiled-drawing/scrolling/scroll-with-top-left-content-inset.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/295938 scrollingcoordinator/mac/latching/horizontal-overflow-back-swipe-overscroll-behavior.html [ Pass Timeout ]
+
+# webkit.org/b/296008 [macOS Debug] http/tests/media/hls and platform/mac/media/encrypted-media tests are timing out on some EWS bots
+[ Sequoia Debug arm64 ] http/tests/media/hls/hls-audio-tracks-language.html [ Timeout ]
+[ Sequoia Debug arm64 ] http/tests/media/hls/hls-webvtt-default.html [ Timeout ]
+[ Sequoia Debug arm64 ] http/tests/media/hls/hls-webvtt-style.html [ Timeout ]
+[ Sequoia Debug arm64 ] http/tests/media/hls/range-request-cross-origin.html [ Timeout ]
+[ Sequoia Debug arm64 ] http/tests/media/hls/track-in-band-multiple-cues.html [ Timeout ]
+[ Sequoia Debug arm64 ] http/tests/media/hls/track-webvtt-multitracks.html [ Timeout ]
+[ Sequoia Debug arm64 ] platform/mac/media/encrypted-media/fps-generateRequest.html [ Timeout ]
