@@ -745,7 +745,7 @@ std::optional<NodeIdentifier> EventHandler::requestInteractiveModelElementAtPoin
             transform.translate(clientPosition.x(), clientPosition.y());
 
             modelElement->beginStageModeTransform(transform);
-            return modelElement->identifier();
+            return modelElement->nodeIdentifier();
         }
     }
 
