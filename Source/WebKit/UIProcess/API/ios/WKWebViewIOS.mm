@@ -1148,6 +1148,10 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
         _perProcessState.lastTransactionID = layerTreeTransaction.transactionID();
 
+#if HAVE(LIQUID_GLASS)
+        bool isEnteringStableState = !std::exchange(_perProcessState.lastTransactionWasInStableState, layerTreeTransaction.isInStableState());
+#endif
+
         if (![self usesStandardContentView])
             return;
 
@@ -1210,6 +1214,11 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
         if (needUpdateVisibleContentRects)
             [self _scheduleVisibleContentRectUpdate];
+
+#if HAVE(LIQUID_GLASS)
+        if (isEnteringStableState)
+            [self _reinsertTopFixedColorExtensionViewIfNeeded];
+#endif
 
         if (WebKit::RemoteLayerTreeScrollingPerformanceData* scrollPerfData =   _page->scrollingPerformanceData())
             scrollPerfData->didCommitLayerTree([self visibleRectInViewCoordinates]);
@@ -2417,6 +2426,8 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
     auto refreshControlIndex = NSNotFound;
     auto topColorExtensionViewIndex = NSNotFound;
+    auto contentViewIndex = NSNotFound;
+    BOOL foundAllViews = NO;
 
     NSInteger index = 0;
     RetainPtr refreshControl = [_scrollView refreshControl];
@@ -2425,26 +2436,25 @@ ALLOW_DEPRECATED_DECLARATIONS_END
             refreshControlIndex = index;
         else if (subview == topColorExtensionView)
             topColorExtensionViewIndex = index;
+        else if (subview == _contentView)
+            contentViewIndex = index;
 
-        if (refreshControlIndex != NSNotFound && topColorExtensionViewIndex != NSNotFound)
+        if (refreshControlIndex != NSNotFound && topColorExtensionViewIndex != NSNotFound && contentViewIndex != NSNotFound) {
+            foundAllViews = YES;
             break;
+        }
 
         index++;
     }
 
-    if (refreshControlIndex == NSNotFound || topColorExtensionViewIndex == NSNotFound)
+    if (!foundAllViews)
         return;
 
     BOOL scrolledBeyondTopExtent = [_scrollView _wk_isScrolledBeyondTopExtent];
-    if (scrolledBeyondTopExtent == (refreshControlIndex > topColorExtensionViewIndex))
-        return;
-
-    if (scrolledBeyondTopExtent) {
+    if (scrolledBeyondTopExtent && refreshControlIndex < topColorExtensionViewIndex)
         [_scrollView insertSubview:topColorExtensionView.get() belowSubview:refreshControl.get()];
-        return;
-    }
-
-    [_scrollView insertSubview:topColorExtensionView.get() aboveSubview:_contentView.get()];
+    else if (!scrolledBeyondTopExtent && topColorExtensionViewIndex < contentViewIndex)
+        [_scrollView insertSubview:topColorExtensionView.get() aboveSubview:_contentView.get()];
 }
 
 - (void)_updateNeedsTopScrollPocketDueToVisibleContentInset

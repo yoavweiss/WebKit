@@ -34,6 +34,7 @@
 #import "WKBrowserEngineDefinitions.h"
 #import <WebCore/WebEvent.h>
 #import <WebKit/WKWebViewPrivate.h>
+#import <WebKit/WKWebViewPrivateForTesting.h>
 
 constexpr CGFloat blackColorComponents[4] = { 0, 0, 0, 1 };
 constexpr CGFloat whiteColorComponents[4] = { 1, 1, 1, 1 };
@@ -536,9 +537,7 @@ TEST(WKScrollViewTests, ClientCanHideScrollEdgeEffects)
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 800)]);
 
     auto insets = UIEdgeInsetsMake(25, 0, 125, 0);
-    auto insetSize = UIEdgeInsetsInsetRect([webView bounds], insets).size;
-    [webView _setObscuredInsets:insets];
-    [webView _overrideLayoutParametersWithMinimumLayoutSize:insetSize minimumUnobscuredSizeOverride:insetSize maximumUnobscuredSizeOverride:insetSize];
+    [webView setObscuredContentInsets:insets];
 
     RetainPtr scrollView = [webView scrollView];
     [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
@@ -567,6 +566,34 @@ TEST(WKScrollViewTests, ClientCanHideScrollEdgeEffects)
 
     EXPECT_FALSE([scrollView topEdgeEffect].hidden);
     EXPECT_FALSE([scrollView bottomEdgeEffect].hidden);
+}
+
+TEST(WKScrollViewTests, ColorExtensionViewsWhenZoomedIn)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 800)]);
+
+    auto insets = UIEdgeInsetsMake(50, 0, 50, 0);
+    [webView setObscuredContentInsets:insets];
+
+    RetainPtr scrollView = [webView scrollView];
+    [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    [scrollView setContentInset:insets];
+
+    [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+    [webView waitForNextPresentationUpdate];
+
+    RetainPtr topColorExtension = [webView _colorExtensionViewForTesting:UIRectEdgeTop];
+    EXPECT_EQ([topColorExtension frame], CGRectMake(0, -50, 400, 50));
+
+    [scrollView setZoomScale:1.5];
+    [webView waitForNextVisibleContentRectUpdate];
+    [webView waitForNextPresentationUpdate];
+    EXPECT_EQ([topColorExtension frame], CGRectMake(0, 125, 600, 50));
+
+    [scrollView setContentOffset:CGPointMake(0, 0)];
+    [webView waitForNextVisibleContentRectUpdate];
+    [webView waitForNextPresentationUpdate];
+    EXPECT_EQ([topColorExtension frame], CGRectMake(0, 0, 600, 50));
 }
 
 #endif // HAVE(LIQUID_GLASS)
