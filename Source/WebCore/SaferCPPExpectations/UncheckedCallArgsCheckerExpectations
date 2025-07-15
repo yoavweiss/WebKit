@@ -25,8 +25,6 @@ Modules/push-api/PushDatabase.cpp
 Modules/push-api/PushManager.cpp
 Modules/push-api/PushSubscription.cpp
 Modules/remoteplayback/RemotePlayback.cpp
-Modules/screen-wake-lock/WakeLock.cpp
-Modules/screen-wake-lock/WakeLockManager.cpp
 Modules/storage/StorageManager.cpp
 Modules/webaudio/BiquadFilterNode.cpp
 Modules/webaudio/DefaultAudioDestinationNode.cpp

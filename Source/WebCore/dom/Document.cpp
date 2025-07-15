@@ -2675,6 +2675,11 @@ WakeLockManager& Document::wakeLockManager()
     return *m_wakeLockManager;
 }
 
+Ref<WakeLockManager> Document::protectedWakeLockManager()
+{
+    return wakeLockManager();
+}
+
 FormController& Document::formController()
 {
     if (!m_formController)
