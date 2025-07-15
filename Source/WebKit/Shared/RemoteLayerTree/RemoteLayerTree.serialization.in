@@ -93,6 +93,7 @@ header: "RemoteLayerBackingStore.h"
 
 [RValue, CustomHeader, LegacyPopulateFromEmptyConstructor] class WebKit::RemoteLayerBackingStoreProperties {
     std::optional<WebKit::ImageBufferBackendHandle> m_bufferHandle;
+    [NotSerialized] RetainPtr<id> m_contentsBuffer;
     std::optional<WebKit::RemoteImageBufferSetIdentifier> m_bufferSet;
     std::optional<WebKit::BufferAndBackendInfo> m_frontBufferInfo;
     std::optional<WebKit::BufferAndBackendInfo> m_backBufferInfo;

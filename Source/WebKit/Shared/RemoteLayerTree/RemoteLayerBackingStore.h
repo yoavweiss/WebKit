@@ -227,7 +227,8 @@ public:
     RemoteLayerBackingStoreProperties(ImageBufferBackendHandle&&, WebCore::RenderingResourceIdentifier, bool opaque);
 #endif
 
-    void applyBackingStoreToNode(RemoteLayerTreeNode&, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView* hostingView);
+    void applyBackingStoreToLayer(CALayer *, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView * hostingView);
+    void updateCachedBuffers(RemoteLayerTreeNode&, UIView *);
 
     const std::optional<ImageBufferBackendHandle>& bufferHandle() const { return m_bufferHandle; };
 
@@ -242,10 +243,8 @@ public:
 
 private:
     friend struct IPC::ArgumentCoder<RemoteLayerBackingStoreProperties, void>;
-
-    RetainPtr<id> lookupCachedBuffer(RemoteLayerTreeNode&);
-
     std::optional<ImageBufferBackendHandle> m_bufferHandle;
+    RetainPtr<id> m_contentsBuffer;
 
     std::optional<RemoteImageBufferSetIdentifier> m_bufferSet;
 

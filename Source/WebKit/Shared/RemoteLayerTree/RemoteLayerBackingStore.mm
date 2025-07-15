@@ -584,27 +584,25 @@ RetainPtr<id> RemoteLayerBackingStoreProperties::layerContentsBufferFromBackendH
     return contents;
 }
 
-void RemoteLayerBackingStoreProperties::applyBackingStoreToNode(RemoteLayerTreeNode& node, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView* hostingView)
+void RemoteLayerBackingStoreProperties::applyBackingStoreToLayer(CALayer *layer, bool replayDynamicContentScalingDisplayListsIntoBackingStore, UIView *hostingView)
 {
-    RetainPtr layer = node.layer();
     bool isDelegatedDisplay = !m_frontBufferInfo;
 
     // FIXME: Ideally we'd just infer wantsExtendedDynamicRangeContent
     // from the format of the buffer itself.
-    [layer setContentsOpaque:m_isOpaque];
-
+    layer.contentsOpaque = m_isOpaque;
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
     ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (m_hasExtendedDynamicRange) {
-        [layer setWantsExtendedDynamicRangeContent:true];
+        layer.wantsExtendedDynamicRangeContent = true;
         // Delegated contents set headroom via surface properties, not RemoteLayerBackingStore state.
         if (isDelegatedDisplay)
-            [layer setContentsHeadroom:0.f];
+            layer.contentsHeadroom = 0.f;
         else
-            [layer setContentsHeadroom:m_maxRequestedEDRHeadroom];
+            layer.contentsHeadroom = m_maxRequestedEDRHeadroom;
     } else {
-        [layer setWantsExtendedDynamicRangeContent:false];
-        [layer setContentsHeadroom:0.f];
+        layer.wantsExtendedDynamicRangeContent = false;
+        layer.contentsHeadroom = 0.f;
     }
     ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
@@ -624,9 +622,11 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToNode(RemoteLayerTreeN
     }
 #endif
 
-    RetainPtr<id> contents = lookupCachedBuffer(node);
+    RetainPtr<id> contents;
     // m_bufferHandle can be unset here if IPC with the GPU process timed out.
-    if (!contents && m_bufferHandle)
+    if (m_contentsBuffer)
+        contents = m_contentsBuffer;
+    else if (m_bufferHandle)
         contents = layerContentsBufferFromBackendHandle(WTFMove(*m_bufferHandle), isDelegatedDisplay);
 
     if (!contents) {
@@ -640,14 +640,14 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToNode(RemoteLayerTreeN
         if (![layer isKindOfClass:[WKCompositingLayer class]])
             return;
 
-        [layer setDrawsAsynchronously:(m_type == RemoteLayerBackingStore::Type::IOSurface)];
+        layer.drawsAsynchronously = (m_type == RemoteLayerBackingStore::Type::IOSurface);
 
         if (!replayDynamicContentScalingDisplayListsIntoBackingStore) {
             [layer setValue:@1 forKeyPath:WKDynamicContentScalingEnabledKey];
             [layer setValue:@1 forKeyPath:WKDynamicContentScalingBifurcationEnabledKey];
             [layer setValue:@(layer.contentsScale) forKeyPath:WKDynamicContentScalingBifurcationScaleKey];
         }
-        [(WKCompositingLayer *)layer.get() _setWKContents:contents.get() withDisplayList:WTFMove(*m_displayListBufferHandle) replayForTesting:replayDynamicContentScalingDisplayListsIntoBackingStore];
+        [(WKCompositingLayer *)layer _setWKContents:contents.get() withDisplayList:WTFMove(*m_displayListBufferHandle) replayForTesting:replayDynamicContentScalingDisplayListsIntoBackingStore];
         return;
     } else
         [layer _web_clearDynamicContentScalingDisplayListIfNeeded];
@@ -655,29 +655,37 @@ void RemoteLayerBackingStoreProperties::applyBackingStoreToNode(RemoteLayerTreeN
     UNUSED_PARAM(replayDynamicContentScalingDisplayListsIntoBackingStore);
 #endif
 
-    [layer setContents:contents.get()];
+    layer.contents = contents.get();
     if ([CALayer instancesRespondToSelector:@selector(contentsDirtyRect)]) {
         if (m_paintedRect) {
             FloatRect painted = *m_paintedRect;
-            painted.scale([layer contentsScale]);
+            painted.scale(layer.contentsScale);
 
             // Most of the time layer.contentsDirtyRect should be the null rect, since CA clears this on every commit,
             // but in some scenarios we don't get a CA commit for every remote layer tree transaction.
-            auto existingDirtyRect = [layer contentsDirtyRect];
+            auto existingDirtyRect = layer.contentsDirtyRect;
             if (CGRectIsNull(existingDirtyRect))
-                [layer setContentsDirtyRect:painted];
+                layer.contentsDirtyRect = painted;
             else
-                [layer setContentsDirtyRect:CGRectUnion(existingDirtyRect, painted)];
+                layer.contentsDirtyRect = CGRectUnion(existingDirtyRect, painted);
         }
     }
 }
 
-RetainPtr<id> RemoteLayerBackingStoreProperties::lookupCachedBuffer(RemoteLayerTreeNode& node)
+void RemoteLayerBackingStoreProperties::updateCachedBuffers(RemoteLayerTreeNode& node, UIView *hostingView)
 {
+#if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
+    if (hostingView && [hostingView isKindOfClass:[WKSeparatedImageView class]])
+        return;
+#endif
+
+    if (m_contentsBuffer)
+        return;
+
     Vector<RemoteLayerTreeNode::CachedContentsBuffer> cachedBuffers = node.takeCachedContentsBuffers();
 
-    if (!m_frontBufferInfo)
-        return { };
+    if (!m_frontBufferInfo || !m_bufferHandle || !std::holds_alternative<MachSendRight>(*m_bufferHandle))
+        return;
 
     cachedBuffers.removeAllMatching([&](const RemoteLayerTreeNode::CachedContentsBuffer& current) {
         auto matches = [&](std::optional<BufferAndBackendInfo>& backendInfo) {
@@ -697,23 +705,21 @@ RetainPtr<id> RemoteLayerBackingStoreProperties::lookupCachedBuffer(RemoteLayerT
         return true;
     });
 
-    RetainPtr<id> result;
     for (auto& current : cachedBuffers) {
         if (m_frontBufferInfo->resourceIdentifier == current.imageBufferInfo.resourceIdentifier) {
-            result = current.buffer;
+            m_contentsBuffer = current.buffer;
             break;
         }
     }
 
-    if (!result && m_bufferHandle && std::holds_alternative<MachSendRight>(*m_bufferHandle)) {
+    if (!m_contentsBuffer) {
         if (auto surface = WebCore::IOSurface::createFromSendRight(std::get<MachSendRight>(*std::exchange(m_bufferHandle, std::nullopt)))) {
-            result = surface->asCAIOSurfaceLayerContents();
-            cachedBuffers.append({ *m_frontBufferInfo, result, WTFMove(surface) });
+            m_contentsBuffer = surface->asCAIOSurfaceLayerContents();
+            cachedBuffers.append({ *m_frontBufferInfo, m_contentsBuffer, WTFMove(surface) });
         }
     }
 
     node.setCachedContentsBuffers(WTFMove(cachedBuffers));
-    return result;
 }
 
 void RemoteLayerBackingStoreProperties::setBackendHandle(BufferSetBackendHandle& bufferSetHandle)
