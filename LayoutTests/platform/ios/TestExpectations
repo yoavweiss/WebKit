@@ -8065,3 +8065,5 @@ webkit.org/b/295915 [ Debug ] accessibility/visible-character-range-basic.html [
 webkit.org/b/295918 [ Release ] fast/visual-viewport/ios/resize-event-for-keyboard.html [ Pass Failure ]
 
 webkit.org/b/295999 media/media-garbage-collection.html [ Pass Failure Timeout ]
+
+webkit.org/b/296010 [ Debug ] fast/frames/frame-append-body-child-crash.html [ Pass Failure ]

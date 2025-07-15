@@ -2488,3 +2488,5 @@ fast/forms/form-control-refresh [ Pass ]
 imported/w3c/web-platform-tests/css/css-ui/button-author-level-padding-applies.html [ Pass ]
 
 webkit.org/b/295810 [ Debug ] fast/dynamic/disappearing-content-on-size-change-crash.html [ Timeout ]
+
+webkit.org/b/296010 fast/frames/frame-append-body-child-crash.html [ Pass Failure ]
