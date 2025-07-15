@@ -1210,6 +1210,9 @@ public:
     bool shouldUpdateAccessibilityRegions() const;
 #endif
     WEBCORE_EXPORT std::optional<AXTreeData> accessibilityTreeData(IncludeDOMInfo) const;
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    WEBCORE_EXPORT void clearAccessibilityIsolatedTree();
+#endif
 #if USE(ATSPI)
     AccessibilityRootAtspi* accessibilityRootObject() const;
     void setAccessibilityRootObject(AccessibilityRootAtspi*);

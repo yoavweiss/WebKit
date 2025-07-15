@@ -827,6 +827,9 @@ public:
     void enableAccessibility();
 
     void getAccessibilityWebProcessDebugInfo(CompletionHandler<void(WebCore::AXDebugInfo)>&&);
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    void clearAccessibilityIsolatedTree();
+#endif
 
     void screenPropertiesDidChange();
 

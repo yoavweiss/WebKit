@@ -805,6 +805,16 @@ std::optional<AXTreeData> Page::accessibilityTreeData(IncludeDOMInfo includeDOMI
     return std::nullopt;
 }
 
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+void Page::clearAccessibilityIsolatedTree()
+{
+    if (CheckedPtr cache = axObjectCache()) {
+        if (std::optional identifier = this->identifier())
+            AXIsolatedTree::removeTreeForPageID(*identifier);
+    }
+}
+#endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+
 void Page::progressEstimateChanged(LocalFrame& frameWithProgressUpdate) const
 {
     if (RefPtr document = frameWithProgressUpdate.document()) {

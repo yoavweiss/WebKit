@@ -510,6 +510,9 @@ messages -> WebPage WantsAsyncDispatchMessage {
     EnableAccessibility()
 
     GetAccessibilityWebProcessDebugInfo() -> (struct WebCore::AXDebugInfo result) Synchronous
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    ClearAccessibilityIsolatedTree()
+#endif
 
 #if PLATFORM(COCOA)
     WindowAndViewFramesChanged(struct WebKit::ViewWindowCoordinates coordinates)

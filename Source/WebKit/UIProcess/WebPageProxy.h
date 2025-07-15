@@ -1449,6 +1449,9 @@ public:
 
 #if PLATFORM(COCOA)
     NSDictionary *getAccessibilityWebProcessDebugInfo();
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    void clearAccessibilityIsolatedTree();
+#endif
 #endif
 
     void windowScreenDidChange(WebCore::PlatformDisplayID);

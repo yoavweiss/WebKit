@@ -1759,22 +1759,31 @@ String WebPageProxy::presentingApplicationBundleIdentifier() const
 }
 
 NSDictionary *WebPageProxy::getAccessibilityWebProcessDebugInfo()
-    {
-        const Seconds messageTimeout(2);
-        auto sendResult = protectedLegacyMainFrameProcess()->sendSync(Messages::WebPage::GetAccessibilityWebProcessDebugInfo(), webPageIDInMainFrameProcess(), messageTimeout);
+{
+    const Seconds messageTimeout(2);
+    auto sendResult = protectedLegacyMainFrameProcess()->sendSync(Messages::WebPage::GetAccessibilityWebProcessDebugInfo(), webPageIDInMainFrameProcess(), messageTimeout);
 
-        if (!sendResult.succeeded())
-            return @{ };
+    if (!sendResult.succeeded())
+        return @{ };
 
-        auto [result] = sendResult.takeReplyOr(WebCore::AXDebugInfo({ 0, 0 }));
+    auto [result] = sendResult.takeReplyOr(WebCore::AXDebugInfo({ 0, 0 }));
 
-        return @{
-            @"axIsEnabled": [NSNumber numberWithBool:result.isAccessibilityEnabled],
-            @"axIsThreadInitialized": [NSNumber numberWithBool:result.isAccessibilityThreadInitialized],
-            @"axLiveTree": result.liveTree.createNSString().get(),
-            @"axIsolatedTree": result.isolatedTree.createNSString().get()
-        };
-    }
+    return @{
+        @"axIsEnabled": [NSNumber numberWithBool:result.isAccessibilityEnabled],
+        @"axIsThreadInitialized": [NSNumber numberWithBool:result.isAccessibilityThreadInitialized],
+        @"axLiveTree": result.liveTree.createNSString().get(),
+        @"axIsolatedTree": result.isolatedTree.createNSString().get()
+    };
+}
+
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+void WebPageProxy::clearAccessibilityIsolatedTree()
+{
+    forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        webProcess.send(Messages::WebPage::ClearAccessibilityIsolatedTree(), pageID);
+    });
+}
+#endif
 
 } // namespace WebKit
 

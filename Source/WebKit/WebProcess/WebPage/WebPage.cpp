@@ -2753,6 +2753,14 @@ void WebPage::getAccessibilityWebProcessDebugInfo(CompletionHandler<void(WebCore
 #endif
 }
 
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+void WebPage::clearAccessibilityIsolatedTree()
+{
+    if (RefPtr page = m_page)
+        page->clearAccessibilityIsolatedTree();
+}
+#endif
+
 void WebPage::screenPropertiesDidChange()
 {
     protectedCorePage()->screenPropertiesDidChange();
