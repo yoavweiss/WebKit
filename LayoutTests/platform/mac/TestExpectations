@@ -2288,8 +2288,6 @@ imported/w3c/web-platform-tests/fetch/metadata/generated/window-location.sub.htm
 
 webkit.org/b/275713 fast/text/international/system-language/declarative-language.html [ Failure ]
 
-webkit.org/b/275962 imported/w3c/web-platform-tests/navigation-api/navigation-history-entry/no-referrer-dynamic-url-censored.html [ Timeout ]
-
 # rdar://124307254 ([ Sequoia+ ]: Bad rendering of EmojiImage)
 [ Sequoia+ ] fast/css/font-fallback-private-use-area-apple-logo-exception.html [ ImageOnlyFailure ]
 

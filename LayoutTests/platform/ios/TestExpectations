@@ -7372,8 +7372,6 @@ webkit.org/b/276013 [ x86_64 ] webgl/2.0.y/conformance/glsl/bugs/sampler-array-u
 webkit.org/b/275963 [ x86_64 ] svg/W3C-SVG-1.1/metadata-example-01-b.svg [ Failure ]
 webkit.org/b/275963 [ x86_64 ] svg/custom/use-on-symbol-inside-pattern.svg [ Failure ]
 
-webkit.org/b/275962 imported/w3c/web-platform-tests/navigation-api/navigation-history-entry/no-referrer-dynamic-url-censored.html [ Timeout ]
-
 # rdar://130594018 (REGRESSION (278344@main?): [ iOS 18 Release ] 2 http/tests/xmlhttprequest/* layout tests are constantly failing.)
 [ Release ] http/tests/xmlhttprequest/resetting-timeout-to-zero.html [ Failure ]
 [ Release ] http/tests/xmlhttprequest/timeout-greater-than-default-network-timeout.html [ Failure ]
@@ -7677,11 +7675,6 @@ imported/w3c/web-platform-tests/html/interaction/focus/sequential-focus-navigati
 # webkit.org/b/284886 [iOS] 2 tests in fast/writing-mode are constantly failing (flaky in EWS)
 fast/writing-mode/vertical-subst-font-vert-no-dflt.html [ ImageOnlyFailure ]
 
-# webkit.org/b/288409 [ MacOS iOS ] 3x imported/w3c/web-platform-tests/navigation-api/navigation are consistent failures 
-imported/w3c/web-platform-tests/navigation-api/navigation-activation/activation-traverse-not-in-entries.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigation-methods/disambigaute-forward.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigation-methods/disambigaute-traverseTo-forward-multiple.html [ Failure ]
-
 webkit.org/b/286507 compositing/geometry/fixed-position-composited-page-scale-smaller-than-viewport.html [ Pass Failure ]
 
 webkit.org/b/286515 fast/forms/datalist/datalist-show-hide.html [ Timeout ]
@@ -7882,11 +7875,6 @@ fast/forms/ios/file-upload-panel-dismiss-when-view-removed-from-window.html [ Pa
 webkit.org/b/292294 webgl/2.0.y/conformance2/extensions/webgl-stencil-texturing.html [ Failure ]
 
 webkit.org/b/292402 http/tests/site-isolation/draw-after-cross-origin-navigation-between-two-remote-frames.html [ ImageOnlyFailure ]
-
-# webkit.org/b/292582 REGRESSION (294079@main): [ MacOS iOS WK2 ] 3X imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-form are consistent failures 
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-form-userInitiated.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-form-with-target.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-form.html [ Failure ]
 
 webkit.org/b/292650 http/tests/iframe-monitor/throttler.html [ Timeout ]
 

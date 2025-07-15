@@ -1975,11 +1975,6 @@ webkit.org/b/284492 [ Sequoia+ ] imported/w3c/web-platform-tests/fetch/api/cors/
 
 webkit.org/b/232282 fast/scrolling/mac/scrollbars/overlay-scrollbar-hovered.html [ Pass Failure ]
 
-# webkit.org/b/288409 [ MacOS iOS ] 3x imported/w3c/web-platform-tests/navigation-api/navigation are consistent failures
-imported/w3c/web-platform-tests/navigation-api/navigation-activation/activation-traverse-not-in-entries.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigation-methods/disambigaute-forward.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigation-methods/disambigaute-traverseTo-forward-multiple.html [ Failure ]
-
 # webkit.org/b/280415 [ Sequoia wk2 release arm64 ] 2x fast/selectors/* are flaky image only failures.
 [ arm64 ] fast/selectors/selection-window-inactive-stroke-color.html [ Pass ImageOnlyFailure ]
 [ arm64 ] fast/selectors/text-field-selection-stroke-color.html [ Pass ImageOnlyFailure ]
@@ -2160,11 +2155,6 @@ webkit.org/b/291966 [ Sequoia+ ] http/tests/webgpu/webgpu/api/validation/render_
 [ Sonoma+ Debug ] imported/w3c/web-platform-tests/webcodecs/video-encoder-rescaling.https.any.worker.html?vp9_p0 [ Skip ]
 
 webkit.org/b/292203 [ Debug ] imported/w3c/web-platform-tests/css/css-view-transitions/transition-in-hidden-page.html [ Pass Crash ]
-
-# webkit.org/b/292582 REGRESSION (294079@main): [ MacOS iOS WK2 ] 3X imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-form are consistent failures 
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-form-userInitiated.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-form-with-target.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-form.html [ Failure ]
 
 webkit.org/b/292650 http/tests/iframe-monitor/throttler.html [ Timeout ]
 
