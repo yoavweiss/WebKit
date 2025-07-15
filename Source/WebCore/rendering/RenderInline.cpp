@@ -817,10 +817,9 @@ LegacyInlineFlowBox* RenderInline::createAndAppendInlineFlowBox()
     return flowBox;
 }
 
-LayoutUnit RenderInline::lineHeight(bool firstLine) const
+LayoutUnit RenderInline::lineHeight() const
 {
-    auto& lineStyle = firstLine ? firstLineStyle() : style();
-    return LayoutUnit::fromFloatCeil(lineStyle.computedLineHeight());
+    return LayoutUnit::fromFloatCeil(firstLineStyle().computedLineHeight());
 }
 
 LayoutSize RenderInline::offsetForInFlowPositionedInline(const RenderBox* child) const

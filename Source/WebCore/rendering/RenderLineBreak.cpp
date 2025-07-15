@@ -59,17 +59,9 @@ RenderLineBreak::~RenderLineBreak()
 {
 }
 
-LayoutUnit RenderLineBreak::lineHeight(bool firstLine) const
+LayoutUnit RenderLineBreak::lineHeight() const
 {
-    if (firstLine) {
-        auto& firstLineStyle = this->firstLineStyle();
-        if (&firstLineStyle != &style())
-            return LayoutUnit::fromFloatCeil(firstLineStyle.computedLineHeight());
-    }
-
-    if (!m_cachedLineHeight)
-        m_cachedLineHeight = LayoutUnit::fromFloatCeil(style().computedLineHeight());
-    return *m_cachedLineHeight;
+    return LayoutUnit::fromFloatCeil(firstLineStyle().computedLineHeight());
 }
 
 int RenderLineBreak::caretMinOffset() const
@@ -124,7 +116,6 @@ void RenderLineBreak::absoluteQuads(Vector<FloatQuad>& quads, bool* wasFixed) co
 
 void RenderLineBreak::updateFromStyle()
 {
-    m_cachedLineHeight = { };
     RELEASE_ASSERT_WITH_SECURITY_IMPLICATION(isInline());
 }
 

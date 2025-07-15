@@ -4966,11 +4966,11 @@ bool RenderBox::isUnsplittableForPagination() const
         || shouldApplySizeContainment();
 }
 
-LayoutUnit RenderBox::lineHeight(bool /*firstLine*/) const
+LayoutUnit RenderBox::lineHeight() const
 {
     if (isBlockLevelReplacedOrAtomicInline())
         return marginBefore() + logicalHeight() + marginAfter();
-    return 0;
+    return { };
 }
 
 LayoutUnit RenderBox::baselinePosition() const
