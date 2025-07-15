@@ -3226,17 +3226,6 @@ class InstallWpeDependencies(shell.ShellCommandNewStyle):
         super().__init__(logEnviron=False, **kwargs)
 
 
-class InstallWinDependencies(shell.ShellCommandNewStyle):
-    name = 'win-deps'
-    description = ['Updating Win dependencies']
-    descriptionDone = ['Updated Win dependencies']
-    command = ['python3', 'Tools/Scripts/update-webkit-win-libs.py']
-    haltOnFailure = True
-
-    def __init__(self, **kwargs):
-        super().__init__(logEnviron=False, **kwargs)
-
-
 def customBuildFlag(platform, fullPlatform):
     # FIXME: Make a common 'supported platforms' list.
     if platform not in ('gtk', 'ios', 'visionos', 'jsc-only', 'wpe', 'playstation', 'tvos', 'watchos'):

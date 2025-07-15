@@ -524,7 +524,6 @@ class TestExpectedBuildSteps(unittest.TestCase):
             'show-identifier',
             'apply-patch',
             'checkout-pull-request',
-            'win-deps',
             'kill-old-processes',
             'download-built-product',
             'extract-built-product',
