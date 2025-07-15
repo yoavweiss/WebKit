@@ -28,6 +28,7 @@
 #include "ScrollSnapOffsetsInfo.h"
 
 #include "ElementChildIteratorInlines.h"
+#include "FloatQuad.h"
 #include "LayoutRect.h"
 #include "Length.h"
 #include "Logging.h"

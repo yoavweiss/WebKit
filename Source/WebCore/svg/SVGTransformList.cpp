@@ -28,6 +28,8 @@
 
 #include "ExceptionOr.h"
 #include "SVGParserUtilities.h"
+#include "SVGTransform.h"
+#include "SVGTransformable.h"
 #include <wtf/text/StringBuilder.h>
 #include <wtf/text/StringParsingBuffer.h>
 

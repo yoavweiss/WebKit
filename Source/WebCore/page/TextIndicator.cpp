@@ -46,6 +46,7 @@
 #include "NodeTraversal.h"
 #include "Range.h"
 #include "RenderElement.h"
+#include "RenderLayer.h"
 #include "RenderObject.h"
 #include "RenderText.h"
 #include "TextIterator.h"

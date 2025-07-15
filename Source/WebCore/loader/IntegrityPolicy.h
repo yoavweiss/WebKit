@@ -33,6 +33,7 @@
 namespace WebCore {
 
 class ResourceResponse;
+class ScriptExecutionContext;
 class SecurityContext;
 struct ResourceLoaderOptions;
 

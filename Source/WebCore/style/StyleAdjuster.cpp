@@ -75,6 +75,7 @@
 #include "TouchAction.h"
 #include "TypedElementDescendantIterator.h"
 #include "TypedElementDescendantIteratorInlines.h"
+#include "UserAgentParts.h"
 #include "VisibilityAdjustment.h"
 #include "WebAnimationTypes.h"
 #include <wtf/RobinHoodHashSet.h>

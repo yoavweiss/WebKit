@@ -38,6 +38,7 @@
 #include "RemoteFrameClient.h"
 #include "SecurityOrigin.h"
 #include "SerializedScriptValue.h"
+#include "UserGestureIndicator.h"
 #include <JavaScriptCore/JSCJSValue.h>
 #include <JavaScriptCore/JSCJSValueInlines.h>
 #include <wtf/TZoneMallocInlines.h>

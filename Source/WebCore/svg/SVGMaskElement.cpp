@@ -35,6 +35,7 @@
 #include "SVGLayerTransformComputation.h"
 #include "SVGNames.h"
 #include "SVGParsingError.h"
+#include "SVGPropertyOwnerRegistry.h"
 #include "SVGRenderSupport.h"
 #include "SVGStringList.h"
 #include "SVGUnitTypes.h"

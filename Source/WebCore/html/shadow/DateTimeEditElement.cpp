@@ -28,6 +28,7 @@
 #include "DateTimeEditElement.h"
 
 #include "ContainerNodeInlines.h"
+#include "CSSPropertyNames.h"
 #include "DateComponents.h"
 #include "DateTimeFieldElements.h"
 #include "DateTimeFieldsState.h"

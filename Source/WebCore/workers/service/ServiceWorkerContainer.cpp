@@ -45,6 +45,7 @@
 #include "JSPushSubscription.h"
 #include "JSServiceWorkerRegistration.h"
 #include "LegacySchemeRegistry.h"
+#include "LocalFrame.h"
 #include "LocalFrameLoaderClient.h"
 #include "Logging.h"
 #include "NavigatorBase.h"

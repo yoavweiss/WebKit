@@ -36,6 +36,7 @@
 #include "FrameLoader.h"
 #include "HTTPParsers.h"
 #include "LocalDOMWindow.h"
+#include "LocalFrame.h"
 #include "Location.h"
 #include "MediaQueryList.h"
 #include "NodeList.h"
@@ -48,6 +49,7 @@
 #include "SecurityOrigin.h"
 #include "WebCoreOpaqueRoot.h"
 #include "WebKitPoint.h"
+#include "WindowProxy.h"
 #include <wtf/NeverDestroyed.h>
 #include <wtf/TZoneMallocInlines.h>
 

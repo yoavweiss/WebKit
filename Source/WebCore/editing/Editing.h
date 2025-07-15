@@ -40,6 +40,7 @@ class HTMLElement;
 class HTMLImageElement;
 class HTMLSpanElement;
 class HTMLTextFormControlElement;
+class IntPoint;
 class RenderBlock;
 class RenderLayer;
 class VisiblePosition;

@@ -26,6 +26,7 @@
 #include "config.h"
 #include "RemoteFrame.h"
 
+#include "AutoplayPolicy.h"
 #include "Document.h"
 #include "FrameDestructionObserverInlines.h"
 #include "HTMLFrameOwnerElement.h"

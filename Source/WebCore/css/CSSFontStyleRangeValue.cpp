@@ -26,6 +26,7 @@
 #include "config.h"
 #include "CSSFontStyleRangeValue.h"
 
+#include <wtf/PointerComparison.h>
 #include <wtf/text/StringBuilder.h>
 
 namespace WebCore {

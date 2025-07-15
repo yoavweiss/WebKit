@@ -25,6 +25,7 @@
 #pragma once
 
 #include "CSSBoxShadow.h"
+#include "CSSPrimitiveNumeric.h"
 #include "StyleColor.h"
 #include "StylePrimitiveNumericTypes.h"
 #include "StyleShadow.h"

@@ -33,6 +33,7 @@
 
 #include "CSSAtRuleID.h"
 #include "CSSCounterStyleRule.h"
+#include "CSSCustomPropertySyntax.h"
 #include "CSSCustomPropertyValue.h"
 #include "CSSFontFeatureValuesRule.h"
 #include "CSSKeyframeRule.h"

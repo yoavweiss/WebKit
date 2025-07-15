@@ -47,6 +47,7 @@
 #include "NodeList.h"
 #include "Quirks.h"
 #include "SVGElement.h"
+#include "Settings.h"
 #include "WebCoreJSClientData.h"
 
 

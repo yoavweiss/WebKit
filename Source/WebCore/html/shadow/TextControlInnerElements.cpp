@@ -43,6 +43,7 @@
 #include "RenderSearchField.h"
 #include "RenderStyleSetters.h"
 #include "RenderTextControl.h"
+#include "RenderTheme.h"
 #include "RenderView.h"
 #include "ResolvedStyle.h"
 #include "ScriptController.h"

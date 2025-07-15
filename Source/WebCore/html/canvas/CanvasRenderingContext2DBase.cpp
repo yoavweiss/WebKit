@@ -82,6 +82,7 @@
 #include "TextMetrics.h"
 #include "TextRun.h"
 #include "WebCodecsVideoFrame.h"
+#include <JavaScriptCore/ConsoleTypes.h>
 #include <wtf/CheckedArithmetic.h>
 #include <wtf/NeverDestroyed.h>
 #include <wtf/TZoneMallocInlines.h>

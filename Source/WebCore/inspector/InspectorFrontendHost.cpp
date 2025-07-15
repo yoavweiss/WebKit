@@ -59,6 +59,7 @@
 #include "JSInspectorFrontendHost.h"
 #include "LocalFrame.h"
 #include "LocalFrameInlines.h"
+#include "LocalFrameView.h"
 #include "MouseEvent.h"
 #include "Node.h"
 #include "NodeInlines.h"

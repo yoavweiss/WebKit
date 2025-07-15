@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "CSSPrimitiveNumericUnits.h"
 #include "CSSPrimitiveValue.h"
 #include "StyleBuilderChecking.h"
 #include "StylePrimitiveNumericTypes.h"

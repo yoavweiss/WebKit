@@ -55,6 +55,7 @@
 #include "RenderLayoutState.h"
 #include "RenderLineBreak.h"
 #include "RenderView.h"
+#include "SVGTextFragment.h"
 #include "ShapeOutsideInfo.h"
 #include <wtf/Assertions.h>
 #include <wtf/Range.h>

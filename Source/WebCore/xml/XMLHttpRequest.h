@@ -51,6 +51,7 @@ class TextResourceDecoder;
 class ThreadableLoader;
 class URLSearchParams;
 class XMLHttpRequestUpload;
+enum class ExceptionCode : uint8_t;
 struct OwnedString;
 template<typename> class ExceptionOr;
 

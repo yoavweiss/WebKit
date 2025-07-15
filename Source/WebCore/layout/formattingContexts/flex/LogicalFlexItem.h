@@ -26,6 +26,7 @@
 #pragma once
 
 #include "LayoutElementBox.h"
+#include "StyleFlexBasis.h"
 
 namespace WebCore {
 namespace Layout {

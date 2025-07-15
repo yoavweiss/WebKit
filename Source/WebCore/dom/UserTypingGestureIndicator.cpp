@@ -26,6 +26,7 @@
 #include "config.h"
 #include "UserTypingGestureIndicator.h"
 
+#include "Document.h"
 #include "Element.h"
 #include "LocalFrame.h"
 #include "LocalFrameInlines.h"

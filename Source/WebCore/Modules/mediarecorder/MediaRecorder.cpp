@@ -30,6 +30,7 @@
 
 #include "Blob.h"
 #include "BlobEvent.h"
+#include "ContentType.h"
 #include "ContextDestructionObserverInlines.h"
 #include "Document.h"
 #include "DocumentInlines.h"

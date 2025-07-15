@@ -36,6 +36,7 @@
 #include <JavaScriptCore/JSArrayBuffer.h>
 #include <JavaScriptCore/JSArrayBufferView.h>
 #include <JavaScriptCore/JSString.h>
+#include <wtf/CompletionHandler.h>
 
 namespace WebCore {
 

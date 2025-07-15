@@ -56,6 +56,7 @@
 #include "Logging.h"
 #include "Page.h"
 #include "PopoverData.h"
+#include "RemoteFrame.h"
 #include "RemoteFrameClient.h"
 #include "ScrollAnimator.h"
 #include "SelectionRestorationMode.h"

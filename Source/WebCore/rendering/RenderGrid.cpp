@@ -32,6 +32,7 @@
 #include "GridMasonryLayout.h"
 #include "GridPositionsResolver.h"
 #include "GridTrackSizingAlgorithm.h"
+#include "HitTestLocation.h"
 #include "LayoutRepainter.h"
 #include "RenderChildIterator.h"
 #include "RenderElementInlines.h"

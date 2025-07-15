@@ -31,6 +31,7 @@
 #include "CSSValueList.h"
 #include "RenderStyleInlines.h"
 #include "StyleBuilderChecking.h"
+#include "StylePrimitiveNumericTypes+Conversions.h"
 
 namespace WebCore {
 namespace Style {

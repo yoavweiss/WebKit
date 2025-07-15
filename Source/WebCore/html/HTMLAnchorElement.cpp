@@ -59,6 +59,7 @@
 #include "SystemPreviewInfo.h"
 #include "URLKeepingBlobAlive.h"
 #include "UserGestureIndicator.h"
+#include <JavaScriptCore/ConsoleTypes.h>
 #include <wtf/RuntimeApplicationChecks.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/WeakHashMap.h>

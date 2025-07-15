@@ -27,6 +27,7 @@
 #include "RenderElement.h"
 #include "RenderStyle.h"
 #include "SVGNames.h"
+#include "SVGPropertyOwnerRegistry.h"
 #include "SVGRenderStyle.h"
 #include <wtf/TZoneMallocInlines.h>
 
