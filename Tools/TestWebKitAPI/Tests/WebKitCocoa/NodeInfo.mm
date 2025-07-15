@@ -87,6 +87,17 @@ TEST(NodeInfo, Basic)
     Util::run(&done);
 
     done = false;
+    [webView evaluateJavaScript:@"window.webkit.createNodeInfo(document.createTextNode('hi'))" inFrame:nil inContentWorld:world.get() completionHandler:^(id result, NSError *error) {
+        EXPECT_TRUE([result isKindOfClass:_WKNodeInfo.class]);
+        EXPECT_NULL(error);
+        [result contentFrameInfo:^(WKFrameInfo *info) {
+            EXPECT_NULL(info);
+            done = true;
+        }];
+    }];
+    Util::run(&done);
+
+    done = false;
     [webView evaluateJavaScript:@"window.WebKitNodeInfo" completionHandler:^(id result, NSError *error) {
         EXPECT_NULL(result);
         EXPECT_NULL(error);

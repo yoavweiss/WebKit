@@ -165,7 +165,7 @@ auto JavaScriptEvaluationResult::toVariant(JSGlobalContextRef context, JSValueRe
 
     if (auto* info = jsDynamicCast<WebCore::JSWebKitNodeInfo*>(::toJS(::toJS(context), object))) {
         Ref nodeInfo { info->wrapped() };
-        return NodeInfo { nodeInfo->elementIdentifier(), nodeInfo->contentFrameIdentifier() };
+        return NodeInfo { nodeInfo->nodeIdentifier(), nodeInfo->contentFrameIdentifier() };
     }
 
     if (JSValueIsDate(context, object))

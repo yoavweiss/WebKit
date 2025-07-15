@@ -28,9 +28,9 @@
 
 namespace WebCore {
 
-static Markable<FrameIdentifier> contentFrameIdentifier(const Element& element)
+static Markable<FrameIdentifier> contentFrameIdentifier(const Node& node)
 {
-    RefPtr frameOwnerElement = dynamicDowncast<const HTMLFrameOwnerElement>(element);
+    RefPtr frameOwnerElement = dynamicDowncast<const HTMLFrameOwnerElement>(node);
     if (!frameOwnerElement)
         return std::nullopt;
     RefPtr contentFrame = frameOwnerElement->contentFrame();
@@ -39,9 +39,9 @@ static Markable<FrameIdentifier> contentFrameIdentifier(const Element& element)
     return contentFrame->frameID();
 }
 
-WebKitNodeInfo::WebKitNodeInfo(const Element& element)
-    : m_elementIdentifier(element.identifier())
-    , m_contentFrameIdentifier(WebCore::contentFrameIdentifier(element))
+WebKitNodeInfo::WebKitNodeInfo(const Node& node)
+    : m_nodeIdentifier(node.nodeIdentifier())
+    , m_contentFrameIdentifier(WebCore::contentFrameIdentifier(node))
 {
 }
 

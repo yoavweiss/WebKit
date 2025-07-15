@@ -3903,9 +3903,9 @@ void WebPageProxy::setDragCaretRect(const IntRect& dragCaretRect)
 }
 
 #if ENABLE(MODEL_PROCESS)
-void WebPageProxy::modelDragEnded(const WebCore::ElementIdentifier elementIdentifier)
+void WebPageProxy::modelDragEnded(const WebCore::NodeIdentifier nodeIdentifier)
 {
-    send(Messages::WebPage::ModelDragEnded(elementIdentifier));
+    send(Messages::WebPage::ModelDragEnded(nodeIdentifier));
 }
 #endif
 #endif
@@ -3916,14 +3916,14 @@ void WebPageProxy::requestInteractiveModelElementAtPoint(const IntPoint clientPo
     send(Messages::WebPage::RequestInteractiveModelElementAtPoint(clientPosition));
 }
 
-void WebPageProxy::stageModeSessionDidUpdate(std::optional<ElementIdentifier> elementID, const TransformationMatrix& transform)
+void WebPageProxy::stageModeSessionDidUpdate(std::optional<NodeIdentifier> nodeID, const TransformationMatrix& transform)
 {
-    send(Messages::WebPage::StageModeSessionDidUpdate(elementID, transform));
+    send(Messages::WebPage::StageModeSessionDidUpdate(nodeID, transform));
 }
 
-void WebPageProxy::stageModeSessionDidEnd(std::optional<ElementIdentifier> elementID)
+void WebPageProxy::stageModeSessionDidEnd(std::optional<NodeIdentifier> nodeID)
 {
-    send(Messages::WebPage::StageModeSessionDidEnd(elementID));
+    send(Messages::WebPage::StageModeSessionDidEnd(nodeID));
 }
 #endif
 
@@ -16408,7 +16408,7 @@ void WebPageProxy::takeSnapshotForTargetedElement(const API::TargetedElementInfo
     if (!hasRunningProcess())
         return completion({ });
 
-    sendWithAsyncReply(Messages::WebPage::TakeSnapshotForTargetedElement(info.elementIdentifier(), info.documentIdentifier()), WTFMove(completion));
+    sendWithAsyncReply(Messages::WebPage::TakeSnapshotForTargetedElement(info.nodeIdentifier(), info.documentIdentifier()), WTFMove(completion));
 }
 
 void WebPageProxy::requestTextExtraction(std::optional<FloatRect>&& collectionRectInRootView, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&& completion)
@@ -16465,7 +16465,7 @@ void WebPageProxy::resetVisibilityAdjustmentsForTargetedElements(const Vector<Re
         return completion(false);
 
     sendWithAsyncReply(Messages::WebPage::ResetVisibilityAdjustmentsForTargetedElements(elements.map([](auto& info) -> TargetedElementIdentifiers {
-        return { info->elementIdentifier(), info->documentIdentifier() };
+        return { info->nodeIdentifier(), info->documentIdentifier() };
     })), WTFMove(completion));
 }
 
@@ -16476,7 +16476,7 @@ void WebPageProxy::adjustVisibilityForTargetedElements(const Vector<Ref<API::Tar
 
     sendWithAsyncReply(Messages::WebPage::AdjustVisibilityForTargetedElements(elements.map([](auto& info) -> TargetedElementAdjustment {
         return {
-            { info->elementIdentifier(), info->documentIdentifier() },
+            { info->nodeIdentifier(), info->documentIdentifier() },
             info->selectors().map([](auto& selectors) {
                 return HashSet<String>(selectors);
             })

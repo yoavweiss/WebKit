@@ -3241,12 +3241,12 @@ uint64_t Internals::storageAreaMapCount() const
 
 uint64_t Internals::elementIdentifier(Element& element) const
 {
-    return element.identifier().toUInt64();
+    return element.nodeIdentifier().toUInt64();
 }
 
 bool Internals::isElementAlive(uint64_t elementIdentifier) const
 {
-    return Element::fromIdentifier(ObjectIdentifier<ElementIdentifierType>(elementIdentifier));
+    return Node::fromIdentifier(ObjectIdentifier<NodeIdentifierType>(elementIdentifier));
 }
 
 uint64_t Internals::pageIdentifier(const Document& document) const

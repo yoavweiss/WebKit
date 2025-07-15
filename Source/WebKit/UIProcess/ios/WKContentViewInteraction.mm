@@ -117,7 +117,6 @@
 #import <WebCore/CompositionHighlight.h>
 #import <WebCore/DOMPasteAccess.h>
 #import <WebCore/DataDetection.h>
-#import <WebCore/ElementIdentifier.h>
 #import <WebCore/FloatQuad.h>
 #import <WebCore/FloatRect.h>
 #import <WebCore/FontAttributeChanges.h>
@@ -126,6 +125,7 @@
 #import <WebCore/KeyboardScroll.h>
 #import <WebCore/LocalizedStrings.h>
 #import <WebCore/MIMETypeRegistry.h>
+#import <WebCore/NodeIdentifier.h>
 #import <WebCore/NotImplemented.h>
 #import <WebCore/Pasteboard.h>
 #import <WebCore/Path.h>
@@ -10504,12 +10504,12 @@ static BOOL shouldEnableDragInteractionForPolicy(_WKDragInteractionPolicy policy
     [self cleanUpDragSourceSessionState];
 }
 
-- (void)_startDrag:(RetainPtr<CGImageRef>)image item:(const WebCore::DragItem&)item elementID:(std::optional<WebCore::ElementIdentifier>)elementID
+- (void)_startDrag:(RetainPtr<CGImageRef>)image item:(const WebCore::DragItem&)item nodeID:(std::optional<WebCore::NodeIdentifier>)nodeID
 {
     ASSERT(item.sourceAction);
 
 #if ENABLE(MODEL_PROCESS)
-    _dragDropInteractionState.setElementIdentifier(elementID);
+    _dragDropInteractionState.setElementIdentifier(nodeID);
     if (item.modelLayerID && _page) {
         if (RefPtr modelPresentationManager = _page->modelPresentationManagerProxy()) {
             if (RetainPtr viewForDragPreview = modelPresentationManager->startDragForModel(*item.modelLayerID)) {
@@ -10655,8 +10655,8 @@ static std::optional<WebCore::DragOperation> coreDragOperationForUIDropOperation
         if (RefPtr modelPresentationManager = _page->modelPresentationManagerProxy())
             modelPresentationManager->doneWithCurrentDragSession();
 
-        if (_dragDropInteractionState.elementIdentifier())
-            _page->modelDragEnded(_dragDropInteractionState.elementIdentifier().value());
+        if (_dragDropInteractionState.nodeIdentifier())
+            _page->modelDragEnded(_dragDropInteractionState.nodeIdentifier().value());
     }
 #endif
 
@@ -11440,25 +11440,25 @@ static Vector<WebCore::IntSize> sizesOfPlaceholderElementsToInsertWhenDroppingIt
         WebCore::TransformationMatrix transform;
         transform.translate3d(inputPoint.x, inputPoint.y, 0);
         _stageModeSession->transform = transform;
-        _page->stageModeSessionDidUpdate(_stageModeSession->elementID, _stageModeSession->transform);
+        _page->stageModeSessionDidUpdate(_stageModeSession->nodeID, _stageModeSession->transform);
     }
 }
 
 - (void)modelInteractionPanGestureDidEnd
 {
     if (_stageModeSession && !_stageModeSession->isPreparingForInteraction)
-        _page->stageModeSessionDidEnd(_stageModeSession->elementID);
+        _page->stageModeSessionDidEnd(_stageModeSession->nodeID);
 
     [self cleanUpStageModeSessionState];
 }
 
-- (void)didReceiveInteractiveModelElement:(std::optional<WebCore::ElementIdentifier>)elementID
+- (void)didReceiveInteractiveModelElement:(std::optional<WebCore::NodeIdentifier>)nodeID
 {
     if (!_stageModeSession || !_stageModeSession->isPreparingForInteraction)
         return;
 
-    _stageModeSession->isPreparingForInteraction = !elementID;
-    _stageModeSession->elementID = elementID;
+    _stageModeSession->isPreparingForInteraction = !nodeID;
+    _stageModeSession->nodeID = nodeID;
 }
 
 - (void)cleanUpStageModeSessionState
@@ -14499,7 +14499,7 @@ static inline WKTextAnimationType toWKTextAnimationType(WebCore::TextAnimationTy
 
     return @{
         @"awaitingResult" : @(_stageModeSession->isPreparingForInteraction),
-        @"hitTestSuccessful" : @(_stageModeSession->elementID.has_value()),
+        @"hitTestSuccessful" : @(_stageModeSession->nodeID.has_value()),
     };
 }
 #endif

@@ -369,12 +369,12 @@ messages -> WebPage WantsAsyncDispatchMessage {
 
 #if ENABLE(MODEL_PROCESS)
     RequestInteractiveModelElementAtPoint(WebCore::IntPoint clientPosition)
-    StageModeSessionDidUpdate(std::optional<WebCore::ElementIdentifier> elementID, WebCore::TransformationMatrix transform)
-    StageModeSessionDidEnd(std::optional<WebCore::ElementIdentifier> elementID)
+    StageModeSessionDidUpdate(std::optional<WebCore::NodeIdentifier> nodeID, WebCore::TransformationMatrix transform)
+    StageModeSessionDidEnd(std::optional<WebCore::NodeIdentifier> nodeID)
 #endif
 
 #if ENABLE(MODEL_PROCESS) && ENABLE(DRAG_SUPPORT)
-    ModelDragEnded(WebCore::ElementIdentifier elementID)
+    ModelDragEnded(WebCore::NodeIdentifier nodeID)
 #endif
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(DRAG_SUPPORT)
@@ -850,8 +850,8 @@ messages -> WebPage WantsAsyncDispatchMessage {
     CreateTextIndicatorForElementWithID(String elementID) -> (struct std::optional<WebCore::TextIndicatorData> textIndicator)
 #endif
 
-    TakeSnapshotForTargetedElement(WebCore::ElementIdentifier elementID, WebCore::ScriptExecutionContextIdentifier documentID) -> (std::optional<WebCore::ShareableBitmapHandle> image)
-    ResetVisibilityAdjustmentsForTargetedElements(Vector<std::pair<WebCore::ElementIdentifier, WebCore::ScriptExecutionContextIdentifier>> identifiers) -> (bool success)
+    TakeSnapshotForTargetedElement(WebCore::NodeIdentifier nodeID, WebCore::ScriptExecutionContextIdentifier documentID) -> (std::optional<WebCore::ShareableBitmapHandle> image)
+    ResetVisibilityAdjustmentsForTargetedElements(Vector<std::pair<WebCore::NodeIdentifier, WebCore::ScriptExecutionContextIdentifier>> identifiers) -> (bool success)
     AdjustVisibilityForTargetedElements(Vector<WebCore::TargetedElementAdjustment> adjustments) -> (bool success)
     NumberOfVisibilityAdjustmentRects() -> (uint64_t count)
 

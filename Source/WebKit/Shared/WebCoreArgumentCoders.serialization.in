@@ -882,7 +882,7 @@ struct WebCore::SpatialBackdropSource {
 };
 #endif
 
-using WebCore::TargetedElementIdentifiers = std::pair<WebCore::ElementIdentifier, WebCore::ScriptExecutionContextIdentifier>;
+using WebCore::TargetedElementIdentifiers = std::pair<WebCore::NodeIdentifier, WebCore::ScriptExecutionContextIdentifier>;
 using WebCore::TargetedElementSelectors = Vector<HashSet<String>>;
 
 header: <WebCore/ElementTargetingTypes.h>
@@ -900,7 +900,7 @@ header: <WebCore/ElementTargetingTypes.h>
 
 header: <WebCore/ElementTargetingTypes.h>
 [CustomHeader] struct WebCore::TargetedElementInfo {
-    WebCore::ElementIdentifier elementIdentifier
+    WebCore::NodeIdentifier nodeIdentifier
     WebCore::ScriptExecutionContextIdentifier documentIdentifier
     WebCore::RectEdges<bool> offsetEdges
     String renderedText
@@ -2052,7 +2052,7 @@ struct WebCore::ElementContext {
     WebCore::FloatRect boundingRect;
     Markable<WebCore::PageIdentifier> webPageIdentifier;
     Markable<WebCore::ScriptExecutionContextIdentifier> documentIdentifier;
-    Markable<WebCore::ElementIdentifier> elementIdentifier;
+    Markable<WebCore::NodeIdentifier> nodeIdentifier;
 };
 
 struct WebCore::ElementAnimationContext {
@@ -4499,7 +4499,7 @@ enum class WebCore::ScrollType : bool;
     Vector<WebCore::FloatSnapOffset> horizontalSnapOffsets;
     Vector<WebCore::FloatSnapOffset> verticalSnapOffsets;
     Vector<WebCore::FloatRect> snapAreas;
-    Vector<WebCore::ElementIdentifier> snapAreasIDs;
+    Vector<WebCore::NodeIdentifier> snapAreasIDs;
 }
 
 enum class WebCore::ScrollSnapStop : bool;
@@ -4508,7 +4508,7 @@ enum class WebCore::ScrollSnapStop : bool;
     float offset;
     WebCore::ScrollSnapStop stop;
     bool hasSnapAreaLargerThanViewport;
-    Markable<WebCore::ElementIdentifier> snapTargetID;
+    Markable<WebCore::NodeIdentifier> snapTargetID;
     bool isFocused;
     Vector<uint64_t> snapAreaIndices;
 };
@@ -6434,7 +6434,7 @@ struct WebCore::GlobalWindowIdentifier {
 
 struct WebCore::InteractionRegion {
     WebCore::InteractionRegion::Type type;
-    WebCore::ElementIdentifier elementIdentifier;
+    WebCore::NodeIdentifier nodeIdentifier;
     WebCore::FloatRect rectInLayerCoordinates;
     float cornerRadius;
     OptionSet<WebCore::InteractionRegion::CornerMask> maskedCorners;

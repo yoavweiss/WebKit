@@ -25,25 +25,25 @@
 
 #pragma once
 
-#include "ElementIdentifier.h"
 #include "FrameIdentifier.h"
+#include "NodeIdentifier.h"
 #include <wtf/Markable.h>
 
 namespace WebCore {
 
-class Element;
+class Node;
 
 class WebKitNodeInfo : public RefCounted<WebKitNodeInfo> {
 public:
-    static Ref<WebKitNodeInfo> create(const Element& element) { return adoptRef(*new WebKitNodeInfo(element)); }
+    static Ref<WebKitNodeInfo> create(const Node& node) { return adoptRef(*new WebKitNodeInfo(node)); }
 
-    ElementIdentifier elementIdentifier() const { return m_elementIdentifier; }
+    NodeIdentifier nodeIdentifier() const { return m_nodeIdentifier; }
     Markable<FrameIdentifier> contentFrameIdentifier() const { return m_contentFrameIdentifier; }
 
 private:
-    WebKitNodeInfo(const Element&);
+    WebKitNodeInfo(const Node&);
 
-    const ElementIdentifier m_elementIdentifier;
+    const NodeIdentifier m_nodeIdentifier;
     const Markable<FrameIdentifier> m_contentFrameIdentifier;
 };
 

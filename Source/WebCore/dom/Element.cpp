@@ -282,12 +282,6 @@ static bool shouldAutofocus(const Element& element)
     return allAncestorsAreSameOrigin;
 }
 
-static HashMap<WeakRef<Element, WeakPtrImplWithEventTargetData>, ElementIdentifier>& elementIdentifiersMap()
-{
-    static MainThreadNeverDestroyed<HashMap<WeakRef<Element, WeakPtrImplWithEventTargetData>, ElementIdentifier>> map;
-    return map;
-}
-
 Ref<Element> Element::create(const QualifiedName& tagName, Document& document)
 {
     return adoptRef(*new Element(tagName, document, { }));
@@ -303,11 +297,6 @@ Element::~Element()
 {
     ASSERT(!beforePseudoElement());
     ASSERT(!afterPseudoElement());
-
-    if (hasStateFlag(StateFlag::HasElementIdentifier)) [[unlikely]]
-        elementIdentifiersMap().remove(*this);
-    else
-        ASSERT(!elementIdentifiersMap().contains(*this));
 
     ASSERT(!is<HTMLImageElement>(*this) || !intersectionObserverDataIfExists());
     disconnectFromIntersectionObservers();
@@ -6050,23 +6039,6 @@ Vector<RefPtr<WebAnimation>> Element::getAnimations(std::optional<GetAnimationsO
         }
     }
     return animations;
-}
-
-ElementIdentifier Element::identifier() const
-{
-    return elementIdentifiersMap().ensure(const_cast<Element&>(*this), [&] {
-        setStateFlag(StateFlag::HasElementIdentifier);
-        return ElementIdentifier::generate();
-    }).iterator->value;
-}
-
-Element* Element::fromIdentifier(ElementIdentifier identifier)
-{
-    for (auto& [element, elementIdentifier] : elementIdentifiersMap()) {
-        if (elementIdentifier == identifier)
-            return element.ptr();
-    }
-    return nullptr;
 }
 
 StylePropertyMap* Element::attributeStyleMap()

@@ -1127,7 +1127,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/ElementChildIteratorInlines.h
     dom/ElementContext.h
     dom/ElementData.h
-    dom/ElementIdentifier.h
     dom/ElementInlines.h
     dom/ElementIterator.h
     dom/ElementIteratorAssertions.h
@@ -1177,6 +1176,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/NamedNodeMap.h
     dom/NativeNodeFilter.h
     dom/Node.h
+    dom/NodeIdentifier.h
     dom/NodeInlines.h
     dom/NodeConstants.h
     dom/NodeFilter.h

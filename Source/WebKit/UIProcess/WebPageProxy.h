@@ -427,10 +427,10 @@ class Site;
 class TransformationMatrix;
 struct TextAnimationData;
 enum class ImageDecodingError : uint8_t;
-struct ElementIdentifierType;
+struct NodeIdentifierType;
 enum class ExceptionCode : uint8_t;
 
-using ElementIdentifier = ObjectIdentifier<ElementIdentifierType>;
+using NodeIdentifier = ObjectIdentifier<NodeIdentifierType>;
 }
 
 namespace WebKit {
@@ -1216,9 +1216,9 @@ public:
 
 #if ENABLE(MODEL_PROCESS)
     void requestInteractiveModelElementAtPoint(WebCore::IntPoint);
-    void didReceiveInteractiveModelElement(std::optional<WebCore::ElementIdentifier>);
-    void stageModeSessionDidUpdate(std::optional<WebCore::ElementIdentifier>, const WebCore::TransformationMatrix&);
-    void stageModeSessionDidEnd(std::optional<WebCore::ElementIdentifier>);
+    void didReceiveInteractiveModelElement(std::optional<WebCore::NodeIdentifier>);
+    void stageModeSessionDidUpdate(std::optional<WebCore::NodeIdentifier>, const WebCore::TransformationMatrix&);
+    void stageModeSessionDidEnd(std::optional<WebCore::NodeIdentifier>);
 #endif
 
 #if PLATFORM(COCOA)
@@ -1652,7 +1652,7 @@ public:
     void dragCancelled();
     void setDragCaretRect(const WebCore::IntRect&);
 #if PLATFORM(COCOA)
-    void startDrag(const WebCore::DragItem&, WebCore::ShareableBitmapHandle&& dragImageHandle, const std::optional<WebCore::ElementIdentifier>&);
+    void startDrag(const WebCore::DragItem&, WebCore::ShareableBitmapHandle&& dragImageHandle, const std::optional<WebCore::NodeIdentifier>&);
     void setPromisedDataForImage(IPC::Connection&, const String& pasteboardName, WebCore::SharedMemoryHandle&& imageHandle, const String& filename, const String& extension,
         const String& title, const String& url, const String& visibleURL, WebCore::SharedMemoryHandle&& archiveHandle, const String& originIdentifier);
 #endif
@@ -1660,7 +1660,7 @@ public:
     void startDrag(WebCore::SelectionData&&, OptionSet<WebCore::DragOperation>, std::optional<WebCore::ShareableBitmapHandle>&& dragImage, WebCore::IntPoint&& dragImageHotspot);
 #endif
 #if ENABLE(MODEL_PROCESS)
-    void modelDragEnded(const WebCore::ElementIdentifier);
+    void modelDragEnded(const WebCore::NodeIdentifier);
 #endif
 #endif
 

@@ -21,7 +21,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct WebKit::NodeInfo {
-    WebCore::ElementIdentifier elementIdentifier;
+    WebCore::NodeIdentifier nodeIdentifier;
     Markable<WebCore::FrameIdentifier> contentFrameIdentifier;
 };
 

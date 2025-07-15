@@ -25,6 +25,7 @@
 #pragma once
 
 #include "EventTarget.h"
+#include "NodeIdentifier.h"
 #include "RenderStyleConstants.h"
 #include "StyleValidity.h"
 #include <compare>
@@ -611,6 +612,9 @@ public:
     bool containsSelectionEndPoint() const { return hasStateFlag(StateFlag::ContainsSelectionEndPoint); }
     void setContainsSelectionEndPoint(bool value) { setStateFlag(StateFlag::ContainsSelectionEndPoint, value); }
 
+    WEBCORE_EXPORT NodeIdentifier nodeIdentifier() const;
+    WEBCORE_EXPORT static Node* fromIdentifier(NodeIdentifier);
+
 protected:
     enum class TypeFlag : uint16_t {
         IsCharacterData = 1 << 0,
@@ -645,7 +649,7 @@ protected:
         ContainsOnlyASCIIWhitespaceIsValid = 1 << 8, // Only used on CharacterData.
         HasHeldBackChildrenChanged = 1 << 9,
         ContainsSelectionEndPoint = 1 << 10,
-        HasElementIdentifier = 1 << 11,
+        HasNodeIdentifier = 1 << 11,
         IsUserActionElement = 1 << 12,
         IsInCustomElementReactionQueue = 1 << 13,
         UsesNullCustomElementRegistry = 1 << 14,

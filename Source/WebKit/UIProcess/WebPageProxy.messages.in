@@ -330,7 +330,7 @@ messages -> WebPageProxy {
 
     # Drag and drop messages
 #if PLATFORM(COCOA) && ENABLE(DRAG_SUPPORT)
-    StartDrag(struct WebCore::DragItem dragItem, WebCore::ShareableBitmapHandle dragImage, std::optional<WebCore::ElementIdentifier> elementID)
+    StartDrag(struct WebCore::DragItem dragItem, WebCore::ShareableBitmapHandle dragImage, std::optional<WebCore::NodeIdentifier> nodeID)
     SetPromisedDataForImage(String pasteboardName, WebCore::SharedMemory::Handle imageHandle, String filename, String extension, String title, String url, String visibleURL, WebCore::SharedMemory::Handle archiveHandle, String originIdentifier)
 #endif
 #if PLATFORM(GTK) && ENABLE(DRAG_SUPPORT)
@@ -343,7 +343,7 @@ messages -> WebPageProxy {
 #endif
 
 #if ENABLE(MODEL_PROCESS)
-    DidReceiveInteractiveModelElement(std::optional<WebCore::ElementIdentifier> elementID)
+    DidReceiveInteractiveModelElement(std::optional<WebCore::NodeIdentifier> nodeID)
 #endif
 
 #if PLATFORM(COCOA)

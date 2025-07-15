@@ -35,7 +35,7 @@
 #include <wtf/TZoneMalloc.h>
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(MODEL_PROCESS)
-#include <WebCore/ElementIdentifier.h>
+#include <WebCore/NodeIdentifier.h>
 #endif
 
 OBJC_CLASS CAAnimation;

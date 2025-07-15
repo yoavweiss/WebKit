@@ -68,11 +68,7 @@ UserMessageHandlersNamespace* WebKitNamespace::messageHandlers()
 
 RefPtr<WebKitNodeInfo> WebKitNamespace::createNodeInfo(Node& node)
 {
-    // FIXME: Move ElementIdentifier to Node and make this work with non-element nodes.
-    RefPtr element = dynamicDowncast<Element>(node);
-    if (!element)
-        return nullptr;
-    return WebKitNodeInfo::create(*element);
+    return WebKitNodeInfo::create(node);
 }
 
 } // namespace WebCore

@@ -29,7 +29,7 @@
 
 namespace WebCore {
 
-struct ElementIdentifierType;
-using ElementIdentifier = ObjectIdentifier<ElementIdentifierType>;
+struct NodeIdentifierType;
+using NodeIdentifier = ObjectIdentifier<NodeIdentifierType>;
 
 }

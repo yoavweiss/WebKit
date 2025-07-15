@@ -26,12 +26,12 @@
 #pragma once
 
 #include "FrameInfoData.h"
-#include <WebCore/ElementIdentifier.h>
+#include <WebCore/NodeIdentifier.h>
 
 namespace WebKit {
 
 struct NodeInfo {
-    WebCore::ElementIdentifier elementIdentifier;
+    WebCore::NodeIdentifier nodeIdentifier;
     Markable<WebCore::FrameIdentifier> contentFrameIdentifier;
 };
 

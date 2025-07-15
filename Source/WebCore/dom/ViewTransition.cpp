@@ -370,7 +370,7 @@ static AtomString effectiveViewTransitionName(RenderLayerModelObject& renderer, 
     if (isCrossDocument)
         return nullAtom();
 
-    return makeAtomString("-ua-auto-"_s, String::number(element->identifier().toRawValue()));
+    return makeAtomString("-ua-auto-"_s, String::number(element->nodeIdentifier().toRawValue()));
 }
 
 static ExceptionOr<void> checkDuplicateViewTransitionName(const AtomString& name, ListHashSet<AtomString>& usedTransitionNames)

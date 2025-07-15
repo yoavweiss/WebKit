@@ -31,9 +31,9 @@
 #include "PDFPageCoverage.h"
 #include "PDFPluginBase.h"
 #include <WebCore/ContextMenuItem.h>
-#include <WebCore/ElementIdentifier.h>
 #include <WebCore/GraphicsLayer.h>
 #include <WebCore/GraphicsLayerClient.h>
+#include <WebCore/NodeIdentifier.h>
 #include <WebCore/Page.h>
 #include <WebCore/ScrollView.h>
 #include <WebCore/Timer.h>
