@@ -417,6 +417,23 @@ bool PositionedLayoutConstraints::alignmentAppliesStretch(ItemPosition normalAli
     return ItemPosition::Stretch == alignmentPosition;
 }
 
+bool PositionedLayoutConstraints::needsGridAreaAdjustmentBeforeStaticPositioning() const
+{
+    if (m_containingAxis == LogicalBoxAxis::Block)
+        return true;
+
+    auto* parent = m_renderer->parent();
+    // When the grid container is a parent we do not take the normal static positioning path.
+    if (!m_container->isRenderGrid() || parent == m_container)
+        return false;
+
+    auto parentWritingMode = parent->writingMode();
+    if (parentWritingMode.isLogicalLeftInlineStart() && !parentWritingMode.isOrthogonal(m_writingMode))
+        return false;
+
+    return true;
+}
+
 // MARK: - Static Position Computation
 
 void PositionedLayoutConstraints::computeStaticPosition()
@@ -452,7 +469,8 @@ void PositionedLayoutConstraints::computeStaticPosition()
             return;
         }
         // Rewind grid-area adjustments and fall through to the existing static position code.
-        m_containingRange.moveTo(m_originalContainingRange.min());
+        if (needsGridAreaAdjustmentBeforeStaticPositioning())
+            m_containingRange.moveTo(m_originalContainingRange.min());
     }
 
     if (m_selfAxis == LogicalBoxAxis::Inline)
@@ -470,8 +488,8 @@ void PositionedLayoutConstraints::computeInlineStaticDistance()
     bool haveOrthogonalWritingModes = parentWritingMode.isOrthogonal(m_writingMode);
     if (parentWritingMode.isLogicalLeftInlineStart() || haveOrthogonalWritingModes) {
         LayoutUnit staticPosition = haveOrthogonalWritingModes
-            ? m_renderer->layer()->staticBlockPosition() - m_container->borderBefore()
-            : m_renderer->layer()->staticInlinePosition() - m_container->borderLogicalLeft();
+            ? m_renderer->layer()->staticBlockPosition()
+            : m_renderer->layer()->staticInlinePosition();
         for (auto* current = parent; current && current != m_container.get(); current = current->container()) {
             CheckedPtr renderBox = dynamicDowncast<RenderBox>(*current);
             if (!renderBox)
@@ -480,6 +498,10 @@ void PositionedLayoutConstraints::computeInlineStaticDistance()
             if (renderBox->isInFlowPositioned())
                 staticPosition += renderBox->isHorizontalWritingMode() ? renderBox->offsetForInFlowPosition().width() : renderBox->offsetForInFlowPosition().height();
         }
+        if (needsGridAreaAdjustmentBeforeStaticPositioning())
+            staticPosition -= haveOrthogonalWritingModes ? m_container->borderBefore() : m_container->borderLogicalLeft();
+        else
+            staticPosition = staticPosition - m_containingRange.min();
         m_insetBefore = Style::InsetEdge::Fixed { staticPosition };
     } else {
         ASSERT(!haveOrthogonalWritingModes);
