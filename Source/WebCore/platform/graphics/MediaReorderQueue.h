@@ -26,6 +26,7 @@
 #pragma once
 
 #include "MediaSample.h"
+#include <wtf/Compiler.h>
 #include <wtf/Deque.h>
 
 namespace WebCore {
@@ -106,7 +107,7 @@ public:
 private:
     ContainerType m_queue;
     uint8_t m_reorderSize { 0 };
-    [[no_unique_address]] Compare m_compare;
+    NO_UNIQUE_ADDRESS Compare m_compare;
 };
 
 struct MediaSampleReorderQueueComparator {
