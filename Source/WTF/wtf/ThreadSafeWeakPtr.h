@@ -29,6 +29,7 @@
 #include <wtf/Lock.h>
 #include <wtf/MainThread.h>
 #include <wtf/RefPtr.h>
+#include <wtf/SwiftBridging.h>
 #include <wtf/TaggedPtr.h>
 
 namespace WTF {
@@ -443,7 +444,7 @@ private:
     // from ThreadSafeWeakPtrControlBlock::m_object and don't support structs larger than 65535.
     // https://bugs.webkit.org/show_bug.cgi?id=283929
     ControlBlockRefPtr m_controlBlock;
-};
+} SWIFT_ESCAPABLE;
 
 template<class T> ThreadSafeWeakPtr(const T&) -> ThreadSafeWeakPtr<T>;
 template<class T> ThreadSafeWeakPtr(const T*) -> ThreadSafeWeakPtr<T>;

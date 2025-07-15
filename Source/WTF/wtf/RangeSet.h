@@ -28,6 +28,7 @@
 #include <wtf/ListDump.h>
 #include <wtf/MathExtras.h>
 #include <wtf/StdLibExtras.h>
+#include <wtf/SwiftBridging.h>
 #include <wtf/Vector.h>
 
 namespace WTF {
@@ -207,7 +208,7 @@ private:
     
     VectorType m_ranges;
     bool m_isCompact { true };
-};
+} SWIFT_ESCAPABLE;
 
 } // namespace WTF
 
