@@ -1355,6 +1355,7 @@ public:
     bool requiresUserGestureForVideoPlayback() const;
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
+    WEBCORE_EXPORT bool drawsHDRContent() const;
     Headroom displayEDRHeadroom() const { return m_displayEDRHeadroom; }
     bool hdrLayersRequireTonemapping() const { return m_hdrLayersRequireTonemapping; }
     void updateDisplayEDRHeadroom();

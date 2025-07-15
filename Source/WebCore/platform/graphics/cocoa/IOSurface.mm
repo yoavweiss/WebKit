@@ -431,6 +431,8 @@ RetainPtr<CGImageRef> IOSurface::createImage(CGContextRef context)
 
 RetainPtr<CGImageRef> IOSurface::sinkIntoImage(std::unique_ptr<IOSurface> surface, RetainPtr<CGContextRef> context)
 {
+    if (!context)
+        context = surface->createPlatformContext();
     ASSERT(CGIOSurfaceContextGetSurface(context.get()) == surface->m_surface);
     UNUSED_PARAM(surface);
     return adoptCF(CGIOSurfaceContextCreateImageReference(context.get()));

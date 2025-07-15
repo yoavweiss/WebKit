@@ -13718,18 +13718,52 @@ void WebPageProxy::setScrollPerformanceDataCollectionEnabled(bool enabled)
 }
 #endif
 
-void WebPageProxy::takeSnapshotLegacy(IntRect rect, IntSize bitmapSize, SnapshotOptions options, CompletionHandler<void(std::optional<ShareableBitmap::Handle>&&)>&& callback)
+void WebPageProxy::takeSnapshotLegacy(const IntRect& rect, const IntSize& bitmapSize, SnapshotOptions options, CompletionHandler<void(std::optional<ShareableBitmap::Handle>&&)>&& callback)
 {
-    sendWithAsyncReply(Messages::WebPage::TakeSnapshot(rect, bitmapSize, options, true), [callback = WTFMove(callback)] (std::optional<ImageBufferBackendHandle>&& imageHandle) mutable {
+    options.remove(SnapshotOption::Accelerated);
+    options.remove(SnapshotOption::AllowHDR);
+    sendWithAsyncReply(Messages::WebPage::TakeSnapshot(rect, bitmapSize, options), [callback = WTFMove(callback)] (std::optional<ImageBufferBackendHandle>&& imageHandle, Headroom) mutable {
         RELEASE_ASSERT(!imageHandle || std::holds_alternative<ShareableBitmap::Handle>(*imageHandle));
         callback(imageHandle ? std::make_optional(std::get<ShareableBitmap::Handle>(*imageHandle)) : std::nullopt);
     });
 }
 
-void WebPageProxy::takeSnapshot(IntRect rect, IntSize bitmapSize, SnapshotOptions options, CompletionHandler<void(std::optional<ImageBufferBackendHandle>&&)>&& callback)
+#if PLATFORM(COCOA)
+void WebPageProxy::takeSnapshot(const IntRect& rect, const IntSize& bitmapSize, SnapshotOptions options, CompletionHandler<void(CGImageRef)>&& callback)
 {
-    sendWithAsyncReply(Messages::WebPage::TakeSnapshot(rect, bitmapSize, options, false), WTFMove(callback));
+    sendWithAsyncReply(Messages::WebPage::TakeSnapshot(rect, bitmapSize, options), [callback = WTFMove(callback)] (std::optional<ImageBufferBackendHandle>&& imageHandle, Headroom headroom) mutable {
+        if (!imageHandle) {
+            callback(nullptr);
+            return;
+        }
+
+        RetainPtr<CGImageRef> image;
+        WTF::switchOn(*imageHandle,
+            [&image] (WebCore::ShareableBitmap::Handle& handle) {
+                if (RefPtr bitmap = WebCore::ShareableBitmap::create(WTFMove(handle), WebCore::SharedMemory::Protection::ReadOnly))
+                    image = bitmap->makeCGImage();
+            }
+            , [&image] (MachSendRight& machSendRight) {
+                if (auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight)))
+                    image = WebCore::IOSurface::sinkIntoImage(WTFMove(surface));
+            }
+#if ENABLE(RE_DYNAMIC_CONTENT_SCALING)
+            , [] (WebCore::DynamicContentScalingDisplayList&) {
+                ASSERT_NOT_REACHED();
+                return;
+            }
+#endif
+        );
+
+#if HAVE(SUPPORT_HDR_DISPLAY_APIS)
+        if (image && headroom > Headroom::None)
+            image = CGImageCreateCopyWithContentHeadroom(headroom.headroom, image.get());
+#endif
+
+        callback(image.get());
+    });
 }
+#endif
 
 void WebPageProxy::navigationGestureDidBegin()
 {

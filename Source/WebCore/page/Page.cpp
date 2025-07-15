@@ -5850,6 +5850,16 @@ bool Page::requiresUserGestureForVideoPlayback() const
 }
 
 #if HAVE(SUPPORT_HDR_DISPLAY)
+bool Page::drawsHDRContent() const
+{
+    bool drawsHDRContent = false;
+    forEachRenderableDocument([&] (Document& document) {
+        if (document.drawsHDRContent())
+            drawsHDRContent = true;
+    });
+    return drawsHDRContent;
+}
+
 void Page::updateDisplayEDRHeadroom()
 {
     static constexpr float kMinimumRequiredHeadroomForTonemapping = 2.7;
