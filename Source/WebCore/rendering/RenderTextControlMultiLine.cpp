@@ -98,9 +98,9 @@ LayoutUnit RenderTextControlMultiLine::computeControlLogicalHeight(LayoutUnit li
     return lineHeight * textAreaElement().rows() + nonContentHeight;
 }
 
-LayoutUnit RenderTextControlMultiLine::baselinePosition(LineDirectionMode direction, LinePositionMode linePositionMode) const
+LayoutUnit RenderTextControlMultiLine::baselinePosition(LinePositionMode linePositionMode) const
 {
-    return RenderBox::baselinePosition(direction, linePositionMode);
+    return RenderBox::baselinePosition(linePositionMode);
 }
 
 void RenderTextControlMultiLine::layoutExcludedChildren(RelayoutChildren relayoutChildren)

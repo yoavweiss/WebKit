@@ -284,7 +284,7 @@ static inline LayoutSize scrollbarLogicalSize(const RenderBox& renderer)
     return { horizontalSpaceReservedForScrollbar, verticalSpaceReservedForScrollbar };
 }
 
-static inline void setIntegrationBaseline(const RenderBox& renderBox, WritingMode writingMode)
+static inline void setIntegrationBaseline(const RenderBox& renderBox)
 {
     auto hasNonSyntheticBaseline = [&] {
         if (auto* renderListMarker = dynamicDowncast<RenderListMarker>(renderBox))
@@ -318,7 +318,7 @@ static inline void setIntegrationBaseline(const RenderBox& renderBox, WritingMod
     if (!hasNonSyntheticBaseline())
         return;
 
-    auto baseline = renderBox.baselinePosition(writingMode.isHorizontal() ? HorizontalLine : VerticalLine, PositionOnContainingLine);
+    auto baseline = renderBox.baselinePosition(PositionOnContainingLine);
     const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(baseline);
 }
 
@@ -487,7 +487,7 @@ void BoxGeometryUpdater::updateBoxGeometryAfterIntegrationLayout(const Layout::E
 
     auto integrationAdjustments = [&] {
         // FIXME: These should eventually be all absorbed by LFC layout.
-        setIntegrationBaseline(*renderBox, writingMode());
+        setIntegrationBaseline(*renderBox);
 
         if (auto* renderListMarker = dynamicDowncast<RenderListMarker>(*renderBox)) {
             auto& style = layoutBox.parent().style();

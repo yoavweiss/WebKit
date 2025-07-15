@@ -264,13 +264,13 @@ void RenderFlexibleBox::computeChildIntrinsicLogicalWidths(RenderBox& flexBoxChi
     RenderBlock::computeChildIntrinsicLogicalWidths(flexBoxChild, minPreferredLogicalWidth, maxPreferredLogicalWidth);
 }
 
-LayoutUnit RenderFlexibleBox::baselinePosition(LineDirectionMode direction, LinePositionMode) const
+LayoutUnit RenderFlexibleBox::baselinePosition(LinePositionMode) const
 {
     auto baseline = firstLineBaseline();
     if (!baseline)
-        return synthesizedBaseline(*this, *parentStyle(), direction, BorderBox) + marginLogicalHeight();
+        return synthesizedBaseline(*this, *parentStyle(), containingBlock()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine, BorderBox) + marginLogicalHeight();
 
-    return baseline.value() + (direction == HorizontalLine ? marginTop() : marginRight()).toInt();
+    return baseline.value() + (containingBlock()->writingMode().isHorizontal() ? marginTop() : marginRight()).toInt();
 }
 
 std::optional<LayoutUnit> RenderFlexibleBox::firstLineBaseline() const

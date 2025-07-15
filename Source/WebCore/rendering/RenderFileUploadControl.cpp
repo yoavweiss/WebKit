@@ -209,7 +209,7 @@ void RenderFileUploadControl::paintControl(PaintInfo& paintInfo, const LayoutPoi
                 }
             }
             // File upload button is display: none (see ::file-selector-button).
-            return roundToInt(baselinePosition(isHorizontalWritingMode ? HorizontalLine : VerticalLine, PositionOnContainingLine));
+            return roundToInt(baselinePosition(PositionOnContainingLine));
         }();
 
         paintInfo.context().setFillColor(style().visitedDependentColorWithColorFilter(CSSPropertyColor));

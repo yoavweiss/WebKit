@@ -2487,8 +2487,9 @@ LayoutUnit RenderBlock::lineHeight(bool firstLine, LineDirectionMode direction, 
     return LayoutUnit::fromFloatCeil(lineStyle.computedLineHeight());
 }
 
-LayoutUnit RenderBlock::baselinePosition(LineDirectionMode direction, LinePositionMode linePositionMode) const
+LayoutUnit RenderBlock::baselinePosition(LinePositionMode linePositionMode) const
 {
+    auto direction = containingBlock()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine;
     // Inline blocks are replaced elements. Otherwise, just pass off to
     // the base class.  If we're being queried as though we're the root line
     // box, then the fact that we're an inline-block is irrelevant, and we behave
@@ -2537,7 +2538,7 @@ LayoutUnit RenderBlock::baselinePosition(LineDirectionMode direction, LinePositi
         if (baselinePos)
             return direction == HorizontalLine ? marginTop() + baselinePos.value() : marginRight() + baselinePos.value();
 
-        return RenderBox::baselinePosition(direction, linePositionMode);
+        return RenderBox::baselinePosition(linePositionMode);
     }
 
     const FontMetrics& fontMetrics = style().metricsOfPrimaryFont();

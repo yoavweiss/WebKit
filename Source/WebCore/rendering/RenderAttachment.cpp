@@ -103,7 +103,7 @@ void RenderAttachment::layout()
         layoutShadowContent(newIntrinsicSize);
 }
 
-LayoutUnit RenderAttachment::baselinePosition(LineDirectionMode, LinePositionMode) const
+LayoutUnit RenderAttachment::baselinePosition(LinePositionMode) const
 {
     if (auto* baselineElement = attachmentElement().wideLayoutImageElement()) {
         if (auto* baselineElementRenderBox = baselineElement->renderBox()) {

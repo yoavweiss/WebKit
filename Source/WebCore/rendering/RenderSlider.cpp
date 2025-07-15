@@ -72,7 +72,7 @@ Ref<HTMLInputElement> RenderSlider::protectedElement() const
     return downcast<HTMLInputElement>(nodeForNonAnonymous());
 }
 
-LayoutUnit RenderSlider::baselinePosition(LineDirectionMode, LinePositionMode) const
+LayoutUnit RenderSlider::baselinePosition(LinePositionMode) const
 {
     // FIXME: Patch this function for writing-mode.
     return height() + marginTop();

@@ -429,11 +429,11 @@ LayoutUnit RenderListMarker::lineHeight(bool firstLine, LineDirectionMode direct
     return RenderBox::lineHeight(firstLine, direction, linePositionMode);
 }
 
-LayoutUnit RenderListMarker::baselinePosition(LineDirectionMode direction, LinePositionMode linePositionMode) const
+LayoutUnit RenderListMarker::baselinePosition(LinePositionMode linePositionMode) const
 {
     if (!isImage())
-        return m_listItem->baselinePosition(direction, PositionOfInteriorLineBoxes);
-    return RenderBox::baselinePosition(direction, linePositionMode);
+        return m_listItem->baselinePosition(PositionOfInteriorLineBoxes);
+    return RenderBox::baselinePosition(linePositionMode);
 }
 
 bool RenderListMarker::isInside() const

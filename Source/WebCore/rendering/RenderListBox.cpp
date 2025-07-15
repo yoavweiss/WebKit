@@ -308,9 +308,9 @@ RenderBox::LogicalExtentComputedValues RenderListBox::computeLogicalHeight(Layou
     return RenderBox::computeLogicalHeight(logicalHeight, logicalTop);
 }
 
-LayoutUnit RenderListBox::baselinePosition(LineDirectionMode lineDirection, LinePositionMode linePositionMode) const
+LayoutUnit RenderListBox::baselinePosition(LinePositionMode linePositionMode) const
 {
-    auto baseline = RenderBox::baselinePosition(lineDirection, linePositionMode);
+    auto baseline = RenderBox::baselinePosition(linePositionMode);
     if (!shouldApplyLayoutContainment())
         baseline -= baselineAdjustment;
     return baseline;
