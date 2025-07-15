@@ -318,7 +318,7 @@ static inline void setIntegrationBaseline(const RenderBox& renderBox)
     if (!hasNonSyntheticBaseline())
         return;
 
-    auto baseline = renderBox.baselinePosition(PositionOnContainingLine);
+    auto baseline = renderBox.baselinePosition();
     const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(baseline);
 }
 

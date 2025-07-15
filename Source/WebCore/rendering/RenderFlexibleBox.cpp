@@ -264,7 +264,7 @@ void RenderFlexibleBox::computeChildIntrinsicLogicalWidths(RenderBox& flexBoxChi
     RenderBlock::computeChildIntrinsicLogicalWidths(flexBoxChild, minPreferredLogicalWidth, maxPreferredLogicalWidth);
 }
 
-LayoutUnit RenderFlexibleBox::baselinePosition(LinePositionMode) const
+LayoutUnit RenderFlexibleBox::baselinePosition() const
 {
     auto baseline = firstLineBaseline();
     if (!baseline)

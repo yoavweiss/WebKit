@@ -196,7 +196,7 @@ public:
 
     // Overridden by subclasses to determine line height and baseline position.
     virtual LayoutUnit lineHeight(bool firstLine, LineDirectionMode, LinePositionMode = PositionOnContainingLine) const = 0;
-    virtual LayoutUnit baselinePosition(LinePositionMode = PositionOnContainingLine) const = 0;
+    virtual LayoutUnit baselinePosition() const = 0;
 
     void mapAbsoluteToLocalPoint(OptionSet<MapCoordinatesMode>, TransformState&) const override;
 

@@ -72,10 +72,10 @@ LayoutUnit RenderLineBreak::lineHeight(bool firstLine, LineDirectionMode /*direc
     return *m_cachedLineHeight;
 }
 
-LayoutUnit RenderLineBreak::baselinePosition(LinePositionMode linePositionMode) const
+LayoutUnit RenderLineBreak::baselinePosition() const
 {
     auto& fontMetrics = style().metricsOfPrimaryFont();
-    return LayoutUnit { (fontMetrics.ascent() + (lineHeight(false, parent()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine, linePositionMode) - fontMetrics.height()) / 2) };
+    return LayoutUnit { (fontMetrics.ascent() + (lineHeight(false, parent()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine, PositionOnContainingLine) - fontMetrics.height()) / 2) };
 }
 
 int RenderLineBreak::caretMinOffset() const

@@ -4973,7 +4973,7 @@ LayoutUnit RenderBox::lineHeight(bool /*firstLine*/, LineDirectionMode direction
     return 0;
 }
 
-LayoutUnit RenderBox::baselinePosition(LinePositionMode /*linePositionMode*/) const
+LayoutUnit RenderBox::baselinePosition() const
 {
     if (isBlockLevelReplacedOrAtomicInline())
         return roundToInt(containingBlock()->writingMode().isHorizontal() ? m_marginBox.top() + height() + m_marginBox.bottom() : m_marginBox.right() + width() + m_marginBox.left());

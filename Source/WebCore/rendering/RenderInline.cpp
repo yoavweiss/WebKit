@@ -823,10 +823,10 @@ LayoutUnit RenderInline::lineHeight(bool firstLine, LineDirectionMode /*directio
     return LayoutUnit::fromFloatCeil(lineStyle.computedLineHeight());
 }
 
-LayoutUnit RenderInline::baselinePosition(LinePositionMode linePositionMode) const
+LayoutUnit RenderInline::baselinePosition() const
 {
     auto& fontMetrics = style().metricsOfPrimaryFont();
-    return LayoutUnit { fontMetrics.ascent() + (lineHeight(false, parent()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine, linePositionMode) - fontMetrics.height()) / 2 };
+    return LayoutUnit { fontMetrics.ascent() + (lineHeight(false, parent()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine, PositionOnContainingLine) - fontMetrics.height()) / 2 };
 }
 
 LayoutSize RenderInline::offsetForInFlowPositionedInline(const RenderBox* child) const

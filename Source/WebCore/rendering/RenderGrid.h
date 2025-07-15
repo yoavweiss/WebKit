@@ -270,7 +270,7 @@ private:
     void updateAutoMarginsInRowAxisIfNeeded(RenderBox&);
     bool isChildEligibleForMarginTrim(MarginTrimType, const RenderBox&) const final;
 
-    LayoutUnit baselinePosition(LinePositionMode = PositionOnContainingLine) const final;
+    LayoutUnit baselinePosition() const final;
     std::optional<LayoutUnit> firstLineBaseline() const final;
     std::optional<LayoutUnit> lastLineBaseline() const final;
     SingleThreadWeakPtr<RenderBox> getBaselineGridItem(ItemPosition alignment) const;

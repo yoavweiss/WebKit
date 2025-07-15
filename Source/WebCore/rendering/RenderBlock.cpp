@@ -2487,14 +2487,14 @@ LayoutUnit RenderBlock::lineHeight(bool firstLine, LineDirectionMode direction, 
     return LayoutUnit::fromFloatCeil(lineStyle.computedLineHeight());
 }
 
-LayoutUnit RenderBlock::baselinePosition(LinePositionMode linePositionMode) const
+LayoutUnit RenderBlock::baselinePosition() const
 {
     auto direction = containingBlock()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine;
     // Inline blocks are replaced elements. Otherwise, just pass off to
     // the base class.  If we're being queried as though we're the root line
     // box, then the fact that we're an inline-block is irrelevant, and we behave
     // just like a block.
-    if (isBlockLevelReplacedOrAtomicInline() && linePositionMode == PositionOnContainingLine) {
+    if (isBlockLevelReplacedOrAtomicInline()) {
         // For "leaf" theme objects, let the theme decide what the baseline position is.
         // FIXME: Might be better to have a custom CSS property instead, so that if the theme
         // is turned off, checkboxes/radios will still have decent baselines.
@@ -2538,11 +2538,11 @@ LayoutUnit RenderBlock::baselinePosition(LinePositionMode linePositionMode) cons
         if (baselinePos)
             return direction == HorizontalLine ? marginTop() + baselinePos.value() : marginRight() + baselinePos.value();
 
-        return RenderBox::baselinePosition(linePositionMode);
+        return RenderBox::baselinePosition();
     }
 
     const FontMetrics& fontMetrics = style().metricsOfPrimaryFont();
-    return LayoutUnit { fontMetrics.intAscent() + (lineHeight(true, direction, linePositionMode) - fontMetrics.intHeight()) / 2 }.toInt();
+    return LayoutUnit { fontMetrics.intAscent() + (lineHeight(true, direction, PositionOnContainingLine) - fontMetrics.intHeight()) / 2 }.toInt();
 }
 
 std::optional<LayoutUnit> RenderBlock::firstLineBaseline() const

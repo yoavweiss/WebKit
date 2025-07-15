@@ -2013,9 +2013,8 @@ bool RenderGrid::isBaselineAlignmentForGridItem(const RenderBox& gridItem, GridT
 }
 
 // FIXME: This logic is shared by RenderFlexibleBox, so it might be refactored somehow.
-LayoutUnit RenderGrid::baselinePosition(LinePositionMode mode) const
+LayoutUnit RenderGrid::baselinePosition() const
 {
-    ASSERT_UNUSED(mode, mode == PositionOnContainingLine);
     auto baseline = firstLineBaseline();
     if (!baseline)
         return synthesizedBaseline(*this, *parentStyle(), containingBlock()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine, BorderBox) + marginLogicalHeight();
