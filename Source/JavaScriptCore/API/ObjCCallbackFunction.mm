@@ -131,7 +131,7 @@ private:
         *exception = toRef(JSC::createTypeError(toJS(contextRef), "Argument does not match Objective-C Class"_s));
     }
 
-    RetainPtr<Class> m_class;
+    const RetainPtr<Class> m_class;
 };
 
 class CallbackArgumentNSNumber final : public CallbackArgument {
@@ -206,7 +206,7 @@ private:
         [invocation setArgument:m_buffer atIndex:argumentNumber];
     }
 
-    RetainPtr<NSInvocation> m_conversionInvocation;
+    const RetainPtr<NSInvocation> m_conversionInvocation;
     StructBuffer m_buffer;
 };
 
@@ -346,7 +346,7 @@ private:
         return valueInternalValue(value);
     }
 
-    RetainPtr<NSInvocation> m_conversionInvocation;
+    const RetainPtr<NSInvocation> m_conversionInvocation;
     StructBuffer m_buffer;
 };
 
@@ -462,7 +462,7 @@ public:
 private:
     CallbackType m_type;
     RetainPtr<Class> m_instanceClass;
-    RetainPtr<NSInvocation> m_invocation;
+    const RetainPtr<NSInvocation> m_invocation;
     std::unique_ptr<CallbackArgument> m_arguments;
     std::unique_ptr<CallbackResult> m_result;
 };
