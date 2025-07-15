@@ -64,15 +64,26 @@ static RefPtr<CSSPrimitiveValue> consumeCustomIdentForGridLine(CSSParserTokenRan
     return consumeCustomIdent(range);
 }
 
-static Vector<String> parseGridTemplateAreasColumnNames(StringView gridRowNames)
+std::optional<CSS::GridNamedAreaMapRow> consumeUnresolvedGridTemplateAreasRow(CSSParserTokenRange& range, CSS::PropertyParserState&)
 {
-    ASSERT(!gridRowNames.isEmpty());
-    Vector<String> columnNames;
+    // Utilize the NRVO by having all paths return this one `row` instance to avoid unnecessary copies.
+    std::optional<CSS::GridNamedAreaMapRow> row;
+
+    if (range.peek().type() != StringToken)
+        return row;
+
+    auto rowString = range.consumeIncludingWhitespace().value();
+    if (rowString.containsOnly<isCSSSpace>())
+        return row;
+
+    // Once initial checks are completed, the value can be `emplaced` into the `std::optional` to initialize it in-place.
+    row.emplace();
+
     StringBuilder areaName;
-    for (auto character : gridRowNames.codeUnits()) {
+    for (auto character : rowString.codeUnits()) {
         if (isCSSSpace(character)) {
             if (!areaName.isEmpty()) {
-                columnNames.append(areaName.toString());
+                row->append(areaName.toString());
                 areaName.clear();
             }
             continue;
@@ -81,79 +92,26 @@ static Vector<String> parseGridTemplateAreasColumnNames(StringView gridRowNames)
             if (areaName == "."_s)
                 continue;
             if (!areaName.isEmpty()) {
-                columnNames.append(areaName.toString());
+                row->append(areaName.toString());
                 areaName.clear();
             }
         } else {
-            if (!isNameCodePoint(character))
-                return Vector<String>();
+            if (!isNameCodePoint(character)) {
+                // In this error case, we simply destroy the row in-place, and return it its now `std::nullopt` state.
+                row = { };
+                return row;
+            }
             if (areaName == "."_s) {
-                columnNames.append(areaName.toString());
+                row->append("."_s);
                 areaName.clear();
             }
         }
         areaName.append(character);
     }
     if (!areaName.isEmpty())
-        columnNames.append(areaName.toString());
-    return columnNames;
-}
+        row->append(areaName.toString());
 
-bool parseGridTemplateAreasRow(StringView gridRowNames, CSS::GridNamedAreaMap& gridAreaMap)
-{
-    if (gridRowNames.containsOnly<isCSSSpace>())
-        return false;
-
-    auto columnNames = parseGridTemplateAreasColumnNames(gridRowNames);
-    if (!gridAreaMap.rowCount) {
-        gridAreaMap.columnCount = columnNames.size();
-        if (!gridAreaMap.columnCount)
-            return false;
-    } else if (gridAreaMap.columnCount != columnNames.size()) {
-        // The declaration is invalid if all the rows don't have the number of columns.
-        return false;
-    }
-
-    for (size_t currentColumn = 0; currentColumn < gridAreaMap.columnCount; ++currentColumn) {
-        auto& gridAreaName = columnNames[currentColumn];
-
-        // Unnamed areas are always valid (we consider them to be 1x1).
-        if (gridAreaName == "."_s)
-            continue;
-
-        auto lookAheadColumn = currentColumn + 1;
-        while (lookAheadColumn < gridAreaMap.columnCount && columnNames[lookAheadColumn] == gridAreaName)
-            lookAheadColumn++;
-
-        auto result = gridAreaMap.map.ensure(gridAreaName, [&] {
-            return GridArea {
-                GridSpan::translatedDefiniteGridSpan(gridAreaMap.rowCount, gridAreaMap.rowCount + 1),
-                GridSpan::translatedDefiniteGridSpan(currentColumn, lookAheadColumn)
-            };
-        });
-        if (!result.isNewEntry) {
-            auto& gridArea = result.iterator->value;
-
-            // The following checks test that the grid area is a single filled-in rectangle.
-            // 1. The new row is adjacent to the previously parsed row.
-            if (gridAreaMap.rowCount != gridArea.rows.endLine())
-                return false;
-
-            // 2. The new area starts at the same position as the previously parsed area.
-            if (currentColumn != gridArea.columns.startLine())
-                return false;
-
-            // 3. The new area ends at the same position as the previously parsed area.
-            if (lookAheadColumn != gridArea.columns.endLine())
-                return false;
-
-            gridArea.rows = GridSpan::translatedDefiniteGridSpan(gridArea.rows.startLine(), gridArea.rows.endLine() + 1);
-        }
-        currentColumn = lookAheadColumn - 1;
-    }
-
-    ++gridAreaMap.rowCount;
-    return true;
+    return row;
 }
 
 RefPtr<CSSValue> consumeGridLine(CSSParserTokenRange& range, CSS::PropertyParserState& state)
@@ -452,16 +410,18 @@ RefPtr<CSSValue> consumeGridTemplatesRowsOrColumns(CSSParserTokenRange& range, C
     return consumeGridTrackList(range, state, GridTemplate);
 }
 
-RefPtr<CSSValue> consumeGridTemplateAreas(CSSParserTokenRange& range, CSS::PropertyParserState&)
+RefPtr<CSSValue> consumeGridTemplateAreas(CSSParserTokenRange& range, CSS::PropertyParserState& state)
 {
     if (range.peek().id() == CSSValueNone)
         return consumeIdent(range);
 
     CSS::GridNamedAreaMap map;
-    while (range.peek().type() == StringToken) {
-        if (!parseGridTemplateAreasRow(range.consumeIncludingWhitespace().value(), map))
+    do {
+        auto row = consumeUnresolvedGridTemplateAreasRow(range, state);
+        if (!row || !CSS::addRow(map, *row))
             return nullptr;
-    }
+    } while (range.peek().type() == StringToken);
+
     if (!map.rowCount)
         return nullptr;
     return CSSGridTemplateAreasValue::create({ WTFMove(map) });
