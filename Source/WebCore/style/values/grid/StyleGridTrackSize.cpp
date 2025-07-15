@@ -94,5 +94,18 @@ auto Blending<GridTrackSize>::blend(const GridTrackSize& from, const GridTrackSi
     RELEASE_ASSERT_NOT_REACHED();
 }
 
+// MARK: - Logging
+
+TextStream& operator<<(TextStream& ts, const GridTrackSize& value)
+{
+    if (value.isBreadth())
+        return ts << "size"_s;
+    if (value.isMinMax())
+        return ts << "minmax()"_s;
+    if (value.isFitContent())
+        return ts << "fit-content()"_s;
+    return ts;
+}
+
 } // namespace Style
 } // namespace WebCore

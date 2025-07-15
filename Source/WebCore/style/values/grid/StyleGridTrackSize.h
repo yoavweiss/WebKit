@@ -279,6 +279,10 @@ template<> struct Blending<GridTrackSize> {
     auto blend(const GridTrackSize&, const GridTrackSize&, const BlendingContext&) -> GridTrackSize;
 };
 
+// MARK: - Logging
+
+WTF::TextStream& operator<<(WTF::TextStream&, const GridTrackSize&);
+
 } // namespace Style
 } // namespace WebCore
 
