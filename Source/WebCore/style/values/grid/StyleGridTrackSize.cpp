@@ -30,6 +30,7 @@
 #include "CSSFunctionValue.h"
 #include "CSSPrimitiveValue.h"
 #include "StyleBuilderChecking.h"
+#include "StyleLengthWrapper+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+Serialization.h"
 #include <wtf/text/TextStream.h>

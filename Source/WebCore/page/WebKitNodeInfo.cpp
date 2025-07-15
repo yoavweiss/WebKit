@@ -26,6 +26,8 @@
 #include "config.h"
 #include "WebKitNodeInfo.h"
 
+#include "HTMLFrameOwnerElement.h"
+
 namespace WebCore {
 
 static Markable<FrameIdentifier> contentFrameIdentifier(const Node& node)
