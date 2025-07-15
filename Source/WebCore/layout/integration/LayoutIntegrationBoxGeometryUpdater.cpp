@@ -318,8 +318,7 @@ static inline void setIntegrationBaseline(const RenderBox& renderBox)
     if (!hasNonSyntheticBaseline())
         return;
 
-    auto baseline = renderBox.baselinePosition();
-    const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(baseline);
+    const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(renderBox.baselinePosition());
 }
 
 void BoxGeometryUpdater::updateLayoutBoxDimensions(const RenderBox& renderBox, std::optional<LayoutUnit> availableWidth, std::optional<Layout::IntrinsicWidthMode> intrinsicWidthMode)
