@@ -1346,7 +1346,7 @@ void RenderFlexibleBox::performFlexLayout(RelayoutChildren relayoutChildren)
 
     if (allItems.isEmpty()) {
         if (hasLineIfEmpty()) {
-            auto minHeight = borderAndPaddingLogicalHeight() + lineHeight(true, isHorizontalWritingMode() ? HorizontalLine : VerticalLine) + scrollbarLogicalHeight();
+            auto minHeight = borderAndPaddingLogicalHeight() + lineHeight(true) + scrollbarLogicalHeight();
             if (height() < minHeight)
                 setLogicalHeight(minHeight);
         }
@@ -1423,7 +1423,7 @@ void RenderFlexibleBox::performFlexLayout(RelayoutChildren relayoutChildren)
         // a line because all our children might be out of flow positioned.
         // Instead of just checking if we have a line, make sure the flexbox
         // has at least a line's worth of height to cover this case.
-        LayoutUnit minHeight = borderAndPaddingLogicalHeight() + lineHeight(true, isHorizontalWritingMode() ? HorizontalLine : VerticalLine) + scrollbarLogicalHeight();
+        LayoutUnit minHeight = borderAndPaddingLogicalHeight() + lineHeight(true) + scrollbarLogicalHeight();
         if (size().height() < minHeight)
             setLogicalHeight(minHeight);
     }

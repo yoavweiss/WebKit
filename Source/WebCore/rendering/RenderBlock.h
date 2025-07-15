@@ -66,7 +66,7 @@ protected:
 
 public:
     // These two functions are overridden for inline-block.
-    LayoutUnit lineHeight(bool firstLine, LineDirectionMode) const final;
+    LayoutUnit lineHeight(bool firstLine) const final;
     LayoutUnit baselinePosition() const override;
 
     // FIXME-BLOCKFLOW: Remove virtualizaion when all callers have moved to RenderBlockFlow

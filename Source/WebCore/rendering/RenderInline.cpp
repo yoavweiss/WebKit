@@ -817,7 +817,7 @@ LegacyInlineFlowBox* RenderInline::createAndAppendInlineFlowBox()
     return flowBox;
 }
 
-LayoutUnit RenderInline::lineHeight(bool firstLine, LineDirectionMode /*direction*/) const
+LayoutUnit RenderInline::lineHeight(bool firstLine) const
 {
     auto& lineStyle = firstLine ? firstLineStyle() : style();
     return LayoutUnit::fromFloatCeil(lineStyle.computedLineHeight());

@@ -468,7 +468,7 @@ void RenderBlockFlow::layoutBlockWithNoChildren()
             setHasMarginBeforeQuirk(style.marginBefore().hasQuirk());
             setHasMarginAfterQuirk(style.marginAfter().hasQuirk());
         }
-        setLogicalHeight(borderAndPaddingLogicalHeight() + scrollbarLogicalHeight() + (hasLineIfEmpty() ? lineHeight(true, isHorizontalWritingMode() ? HorizontalLine : VerticalLine) : 0_lu));
+        setLogicalHeight(borderAndPaddingLogicalHeight() + scrollbarLogicalHeight() + (hasLineIfEmpty() ? lineHeight(true) : 0_lu));
         updateLogicalHeight();
     };
     computeBlockAxisSize();
@@ -780,7 +780,7 @@ void RenderBlockFlow::layoutInFlowChildren(RelayoutChildren relayoutChildren, La
 
         auto logicalHeight = borderAndPaddingLogicalHeight() + scrollbarLogicalHeight();
         if (hasLineIfEmpty())
-            logicalHeight += lineHeight(true, isHorizontalWritingMode() ? HorizontalLine : VerticalLine);
+            logicalHeight += lineHeight(true);
         setLogicalHeight(logicalHeight);
 
         repaintLogicalTop = { };
@@ -2749,7 +2749,7 @@ void RenderBlockFlow::adjustInitialLetterPosition(RenderBox& childBox, LayoutUni
     if (!fontMetrics.capHeight())
         return;
 
-    LayoutUnit heightOfLine = lineHeight(true, isHorizontalWritingMode() ? HorizontalLine : VerticalLine);
+    LayoutUnit heightOfLine = lineHeight(true);
     LayoutUnit beforeMarginBorderPadding = childBox.borderAndPaddingBefore() + childBox.marginBefore();
     
     // Make an adjustment to align with the cap height of a theoretical block line.
@@ -3326,7 +3326,7 @@ std::optional<LayoutUnit> RenderBlockFlow::inlineBlockBaseline(LineDirectionMode
                 return std::nullopt;
             const auto& fontMetrics = firstLineStyle().metricsOfPrimaryFont();
             return LayoutUnit { LayoutUnit(fontMetrics.intAscent()
-                + (lineHeight(true, lineDirection) - fontMetrics.intHeight()) / 2
+                + (lineHeight(true) - fontMetrics.intHeight()) / 2
                 + (lineDirection == HorizontalLine ? borderTop() + paddingTop() : borderRight() + paddingRight())).toInt() };
         }
 
@@ -4045,7 +4045,7 @@ void RenderBlockFlow::layoutInlineContent(RelayoutChildren relayoutChildren, Lay
     auto partialRepaintRect = layoutFormattingContextLineLayout.layout(relayoutChildren == RelayoutChildren::Yes ? LayoutIntegration::LineLayout::ForceFullLayout::Yes : LayoutIntegration::LineLayout::ForceFullLayout::No);
 
     auto borderBoxBottom = [&] {
-        auto contentHeight = !hasLines() && hasLineIfEmpty() ? lineHeight(true, isHorizontalWritingMode() ? HorizontalLine : VerticalLine) : layoutFormattingContextLineLayout.contentLogicalHeight();
+        auto contentHeight = !hasLines() && hasLineIfEmpty() ? lineHeight(true) : layoutFormattingContextLineLayout.contentLogicalHeight();
         return borderAndPaddingBefore() + contentHeight + borderAndPaddingAfter() + scrollbarLogicalHeight();
     };
     auto newBorderBoxBottom = borderBoxBottom();

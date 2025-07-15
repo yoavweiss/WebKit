@@ -490,7 +490,7 @@ void RenderGrid::layoutGrid(RelayoutChildren relayoutChildren)
         // Grid container should have the minimum height of a line if it's editable. That does not affect track sizing though.
         if (hasLineIfEmpty()) {
             LayoutUnit minHeightForEmptyLine = borderAndPaddingLogicalHeight()
-                + lineHeight(true, isHorizontalWritingMode() ? HorizontalLine : VerticalLine)
+                + lineHeight(true)
                 + scrollbarLogicalHeight();
             setLogicalHeight(std::max(logicalHeight(), minHeightForEmptyLine));
         }
@@ -627,7 +627,7 @@ void RenderGrid::layoutMasonry(RelayoutChildren relayoutChildren)
         // Grid container should have the minimum height of a line if it's editable. That does not affect track sizing though.
         if (hasLineIfEmpty()) {
             LayoutUnit minHeightForEmptyLine = borderAndPaddingLogicalHeight()
-                + lineHeight(true, isHorizontalWritingMode() ? HorizontalLine : VerticalLine)
+                + lineHeight(true)
                 + scrollbarLogicalHeight();
             setLogicalHeight(std::max(logicalHeight(), minHeightForEmptyLine));
         }

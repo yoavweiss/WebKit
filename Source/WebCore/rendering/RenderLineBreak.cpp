@@ -59,7 +59,7 @@ RenderLineBreak::~RenderLineBreak()
 {
 }
 
-LayoutUnit RenderLineBreak::lineHeight(bool firstLine, LineDirectionMode /*direction*/) const
+LayoutUnit RenderLineBreak::lineHeight(bool firstLine) const
 {
     if (firstLine) {
         auto& firstLineStyle = this->firstLineStyle();
