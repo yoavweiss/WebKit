@@ -2023,12 +2023,26 @@ inline OptionSet<WebKit::FindOptions> toFindOptions(WKFindConfiguration *configu
 }
 
 #if PLATFORM(MAC) && HAVE(NSWINDOW_SNAPSHOT_READINESS_HANDLER)
+
 - (void)_invalidateWindowSnapshotReadinessHandler
 {
-    if (auto handler = std::exchange(_windowSnapshotReadinessHandler, nil))
-        handler();
+    auto handler = std::exchange(_windowSnapshotReadinessHandler, nil);
+    if (!handler)
+        return;
+
+    handler();
+
+    RefPtr page = _page;
+    if (!page) {
+        RELEASE_LOG(ViewState, "%p - Stopped holding window resize snapshot for window full screen (null page)", self);
+        return;
+    }
+
+    RELEASE_LOG(ViewState, "%p - [pageProxyID=%" PRIu64 ", webPageID=%" PRIu64 ", PID=%i] Stopped holding window resize snapshot for window full screen",
+        self, page->identifier().toUInt64(), page->webPageIDInMainFrameProcess().toUInt64(), page->legacyMainFrameProcessID());
 }
-#endif
+
+#endif // PLATFORM(MAC) && HAVE(NSWINDOW_SNAPSHOT_READINESS_HANDLER)
 
 #if ENABLE(WEB_PAGE_SPATIAL_BACKDROP)
 - (void)_spatialBackdropSourceDidChange
