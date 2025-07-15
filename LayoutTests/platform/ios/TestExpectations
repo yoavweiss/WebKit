@@ -8055,3 +8055,5 @@ webkit.org/b/295918 [ Release ] fast/visual-viewport/ios/resize-event-for-keyboa
 webkit.org/b/295999 media/media-garbage-collection.html [ Pass Failure Timeout ]
 
 webkit.org/b/296010 [ Debug ] fast/frames/frame-append-body-child-crash.html [ Pass Failure ]
+
+webkit.org/b/295992 [ Release ] http/tests/geolocation/geolocation-watch-position-does-not-leak.https.html [ Pass Failure ]
