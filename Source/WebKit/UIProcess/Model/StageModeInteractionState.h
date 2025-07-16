@@ -37,7 +37,7 @@ using NodeIdentifier = ObjectIdentifier<NodeIdentifierType>;
 namespace WebKit {
 
 struct StageModeSession {
-    WTF_MAKE_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(StageModeSession);
 
 public:
     bool isPreparingForInteraction { true };

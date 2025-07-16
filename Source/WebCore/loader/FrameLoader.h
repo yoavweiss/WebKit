@@ -105,7 +105,7 @@ using ContentPolicyDecisionFunction = CompletionHandler<void(PolicyAction)>;
 
 class FrameLoader final : public CanMakeWeakPtr<FrameLoader> {
     WTF_MAKE_NONCOPYABLE(FrameLoader);
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Loader);
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FrameLoader, Loader);
     friend class PolicyChecker;
 public:
     FrameLoader(LocalFrame&, CompletionHandler<UniqueRef<LocalFrameLoaderClient>(LocalFrame&, FrameLoader&)>&& clientCreator);

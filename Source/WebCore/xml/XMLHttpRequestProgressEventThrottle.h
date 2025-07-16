@@ -54,7 +54,7 @@ enum ProgressEventAction {
 // This implements the XHR2 progress event dispatching: "dispatch a progress event called progress
 // about every 50ms or for every byte received, whichever is least frequent".
 class XMLHttpRequestProgressEventThrottle : public CanMakeWeakPtr<XMLHttpRequestProgressEventThrottle> {
-    WTF_MAKE_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(XMLHttpsRequestProgressEventThrottle);
 public:
     explicit XMLHttpRequestProgressEventThrottle(XMLHttpRequest&);
     virtual ~XMLHttpRequestProgressEventThrottle();

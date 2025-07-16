@@ -267,7 +267,7 @@ void PDFPluginStreamLoaderClient::didFinishLoading(NetscapePlugInStreamLoader* s
 #pragma mark -
 
 struct PDFIncrementalLoader::RequestData {
-    WTF_MAKE_STRUCT_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(RequestData);
 
     HashMap<ByteRangeRequestIdentifier, ByteRangeRequest> outstandingByteRangeRequests;
     HashMap<RefPtr<WebCore::NetscapePlugInStreamLoader>, ByteRangeRequestIdentifier> streamLoaderMap;

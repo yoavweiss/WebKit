@@ -50,7 +50,7 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(JSHeapData);
 
 class JSHeapData {
     WTF_MAKE_NONCOPYABLE(JSHeapData);
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(JSHeapData);
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(JSHeapData, JSHeapData);
     friend class JSVMClientData;
 public:
     JSHeapData(JSC::Heap&);
@@ -122,7 +122,7 @@ public:
 
 class JSVMClientData : public JSC::VM::ClientData {
     WTF_MAKE_NONCOPYABLE(JSVMClientData);
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(JSVMClientData);
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(JSVMClientData, JSVMClientData);
     friend class VMWorldIterator;
 
 public:

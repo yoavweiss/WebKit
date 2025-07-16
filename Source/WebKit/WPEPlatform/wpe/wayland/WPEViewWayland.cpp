@@ -133,7 +133,7 @@ static void wpeViewWaylandDispose(GObject* object)
 }
 
 class WaylandBuffer {
-    WTF_MAKE_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WaylandBuffer);
 public:
     virtual ~WaylandBuffer()
     {

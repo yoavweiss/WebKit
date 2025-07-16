@@ -60,7 +60,7 @@ template<typename T> inline constexpr ASCIILiteral SerializationSeparatorString 
 // Helper to define a type by extending another type via inheritance.
 #define DEFINE_TYPE_EXTENDER(wrapper, wrapped)                                \
     struct wrapper : wrapped {                                                \
-        WTF_MAKE_STRUCT_FAST_ALLOCATED;                                       \
+        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(wrapper);                                       \
         using Wrapped = wrapped;                                              \
         using Wrapped::Wrapped;                                               \
         template<size_t I> friend const auto& get(const wrapper& self)        \
@@ -73,7 +73,7 @@ template<typename T> inline constexpr ASCIILiteral SerializationSeparatorString 
 // Helper to define a type via direct wrapping of another type.
 #define DEFINE_TYPE_WRAPPER(wrapper, wrapped)                                 \
     struct wrapper {                                                          \
-        WTF_MAKE_STRUCT_FAST_ALLOCATED;                                       \
+        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(wrapper);                                       \
         using Wrapped = wrapped;                                              \
         wrapped value;                                                        \
         template<typename... Args>                                            \
@@ -167,7 +167,7 @@ template<CSSValueID C> TextStream& operator<<(TextStream& ts, const Constant<C>&
 
 // Helper type used to represent a CSS function.
 template<CSSValueID C, typename T> struct FunctionNotation {
-    WTF_MAKE_STRUCT_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(CustomIdentifier);
 
     static constexpr auto name = C;
     T parameters;

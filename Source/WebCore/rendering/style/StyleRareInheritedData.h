@@ -74,7 +74,7 @@ class StyleImage;
 // actually uses one of these properties.
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(StyleRareInheritedData);
 class StyleRareInheritedData : public RefCounted<StyleRareInheritedData> {
-    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleRareInheritedData);
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleRareInheritedData, StyleRareInheritedData);
 public:
     static Ref<StyleRareInheritedData> create() { return adoptRef(*new StyleRareInheritedData); }
     Ref<StyleRareInheritedData> copy() const;

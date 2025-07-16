@@ -250,7 +250,7 @@ public:
     void removeOutOfFlowBoxesIfNeededOnStyleChange(RenderBlock& delegateBlock, const RenderStyle& oldStyle, const RenderStyle& newStyle);
 
     struct ContinuationChainNode {
-        WTF_MAKE_STRUCT_FAST_ALLOCATED;
+        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ContinuationChainNode);
 
         SingleThreadWeakPtr<RenderBoxModelObject> renderer;
         ContinuationChainNode* previous { nullptr };

@@ -1231,7 +1231,7 @@ void Document::invalidateAccessKeyCacheSlowCase()
 }
 
 struct QuerySelectorAllResults {
-    WTF_MAKE_STRUCT_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(QuerySelectorAllResults);
 public:
     static constexpr unsigned maxSize = 8;
 

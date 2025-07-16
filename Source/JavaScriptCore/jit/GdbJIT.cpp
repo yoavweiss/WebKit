@@ -341,7 +341,7 @@ static void unregisterCodeEntry(JITCodeEntry* entry)
 
 template <typename THeader>
 class DebugSectionBase {
-    WTF_MAKE_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(DebugSectionBase);
 
 public:
     virtual ~DebugSectionBase() = default;
@@ -645,7 +645,7 @@ void ELFSection::populateHeader(Writer::Slot<ELFSection::Header> header, ELFStri
 
 #if OS(DARWIN)
 class MachO {
-    WTF_MAKE_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(MachO);
 
 public:
     size_t addSection(std::unique_ptr<MachOSection> section)
