@@ -1093,6 +1093,8 @@ static void webkit_media_stream_src_class_init(WebKitMediaStreamSrcClass* klass)
     gst_element_class_add_pad_template(gstElementClass, gst_static_pad_template_get(&audioSrcTemplate));
 }
 
+static GRefPtr<GstStreamCollection> webkitMediaStreamSrcCreateStreamCollection(WebKitMediaStreamSrc* self);
+
 struct PadChainData {
     GRefPtr<GstStream> stream;
     WebKitMediaStreamSrc* element;
@@ -1116,10 +1118,11 @@ static GstFlowReturn webkitMediaStreamSrcChain(GstPad* pad, GstObject*, GstBuffe
         }
 
         // Make sure that the video.videoWidth is reset to 0.
-        webkitMediaStreamSrcEnsureStreamCollectionPosted(self);
+        auto streamCollection = webkitMediaStreamSrcCreateStreamCollection(self);
+        gst_pad_send_event(pad, gst_event_new_stream_collection(streamCollection.leakRef()));
 
         auto tags = mediaStreamTrackPrivateGetTags(source->track());
-        gst_pad_push_event(pad, gst_event_new_tag(tags.leakRef()));
+        gst_pad_send_event(pad, gst_event_new_tag(tags.leakRef()));
 
         {
             Locker locker { *source->eosLocker() };
