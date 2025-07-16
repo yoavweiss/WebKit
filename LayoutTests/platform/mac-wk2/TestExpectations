@@ -2231,3 +2231,5 @@ webkit.org/b/295938 scrollingcoordinator/mac/latching/horizontal-overflow-back-s
 [ Sequoia Debug arm64 ] http/tests/media/hls/track-in-band-multiple-cues.html [ Timeout ]
 [ Sequoia Debug arm64 ] http/tests/media/hls/track-webvtt-multitracks.html [ Timeout ]
 [ Sequoia Debug arm64 ] platform/mac/media/encrypted-media/fps-generateRequest.html [ Timeout ]
+
+webkit.org/b/296017 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-021.html [ Pass ImageOnlyFailure ]
