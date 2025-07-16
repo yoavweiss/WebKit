@@ -45,7 +45,7 @@
 #include "CSSValueList.h"
 #include "CSSValuePool.h"
 #include "GridArea.h"
-#include "GridPosition.h"
+#include "StyleGridPosition.h"
 #include <wtf/Vector.h>
 #include <wtf/text/StringView.h>
 
@@ -300,7 +300,7 @@ static bool consumeGridTrackRepeatFunction(CSSParserTokenRange& range, CSS::Prop
     if (isAutoRepeat)
         list.append(CSSGridAutoRepeatValue::create(*autoRepeatType, WTFMove(repeatedValues)));
     else {
-        auto maxRepetitions = GridPosition::max() / numberOfTracks;
+        auto maxRepetitions = Style::GridPosition::max() / numberOfTracks;
         if (auto repetitionsInteger = repetitions->resolveAsIntegerIfNotCalculated(); repetitionsInteger && repetitionsInteger > maxRepetitions)
             repetitions = CSSPrimitiveValue::createInteger(maxRepetitions);
         list.append(CSSGridIntegerRepeatValue::create(repetitions.releaseNonNull(), WTFMove(repeatedValues)));
@@ -317,8 +317,8 @@ static bool consumeSubgridNameRepeatFunction(CSSParserTokenRange& range, CSS::Pr
         repetitions = CSSPrimitiveValueResolver<CSS::Integer<CSS::Range{1, CSS::Range::infinity}, unsigned>>::consumeAndResolve(args, state);
         if (!repetitions)
             return false;
-        if (auto repetitionsInteger = repetitions->resolveAsIntegerIfNotCalculated(); repetitionsInteger && repetitionsInteger > GridPosition::max())
-            repetitions = CSSPrimitiveValue::createInteger(GridPosition::max());
+        if (auto repetitionsInteger = repetitions->resolveAsIntegerIfNotCalculated(); repetitionsInteger && repetitionsInteger > Style::GridPosition::max())
+            repetitions = CSSPrimitiveValue::createInteger(Style::GridPosition::max());
     }
     if (!consumeCommaIncludingWhitespace(args))
         return false;

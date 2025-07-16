@@ -30,7 +30,6 @@
 #include "Element.h"
 #include "FontCascadeDescription.h"
 #include "GraphicsTypes.h"
-#include "GridPositionsResolver.h"
 #include "HitTestRequest.h"
 #include "ImageOrientation.h"
 #include "PositionArea.h"
@@ -47,6 +46,7 @@
 #include "StyleFontData.h"
 #include "StyleGridData.h"
 #include "StyleGridItemData.h"
+#include "StyleGridTrackSizingDirection.h"
 #include "StyleInheritedData.h"
 #include "StyleLineBoxContain.h"
 #include "StyleMarqueeData.h"
@@ -240,19 +240,21 @@ inline const Vector<Style::GridTrackSize>& RenderStyle::gridAutoRepeatRows() con
 inline unsigned RenderStyle::gridAutoRepeatRowsInsertionPoint() const { return m_nonInheritedData->rareData->grid->autoRepeatRowsInsertionPoint(); }
 inline AutoRepeatType RenderStyle::gridAutoRepeatRowsType() const  { return m_nonInheritedData->rareData->grid->autoRepeatRowsType(); }
 inline const Style::GridTrackSizes& RenderStyle::gridAutoRows() const { return m_nonInheritedData->rareData->grid->m_gridAutoRows; }
-inline const Style::GridTrackSizes& RenderStyle::gridAutoList(GridTrackSizingDirection direction) const { return direction == GridTrackSizingDirection::ForColumns ? gridAutoColumns() : gridAutoRows(); }
+inline const Style::GridTrackSizes& RenderStyle::gridAutoList(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? gridAutoColumns() : gridAutoRows(); }
 inline const Style::GridTemplateList& RenderStyle::gridTemplateColumns() const { return m_nonInheritedData->rareData->grid->m_gridTemplateColumns; }
 inline const Vector<Style::GridTrackSize>& RenderStyle::gridColumnTrackSizes() const { return m_nonInheritedData->rareData->grid->gridColumnTrackSizes(); }
-inline const GridPosition& RenderStyle::gridItemColumnEnd() const { return m_nonInheritedData->rareData->gridItem->gridColumnEnd; }
-inline const GridPosition& RenderStyle::gridItemColumnStart() const { return m_nonInheritedData->rareData->gridItem->gridColumnStart; }
-inline const GridPosition& RenderStyle::gridItemRowEnd() const { return m_nonInheritedData->rareData->gridItem->gridRowEnd; }
-inline const GridPosition& RenderStyle::gridItemRowStart() const { return m_nonInheritedData->rareData->gridItem->gridRowStart; }
+inline const Style::GridPosition& RenderStyle::gridItemColumnEnd() const { return m_nonInheritedData->rareData->gridItem->gridColumnEnd; }
+inline const Style::GridPosition& RenderStyle::gridItemColumnStart() const { return m_nonInheritedData->rareData->gridItem->gridColumnStart; }
+inline const Style::GridPosition& RenderStyle::gridItemEnd(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? gridItemColumnEnd() : gridItemRowEnd(); }
+inline const Style::GridPosition& RenderStyle::gridItemRowEnd() const { return m_nonInheritedData->rareData->gridItem->gridRowEnd; }
+inline const Style::GridPosition& RenderStyle::gridItemRowStart() const { return m_nonInheritedData->rareData->gridItem->gridRowStart; }
+inline const Style::GridPosition& RenderStyle::gridItemStart(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? gridItemColumnStart() : gridItemRowStart(); }
 inline bool RenderStyle::gridMasonryColumns() const { return m_nonInheritedData->rareData->grid->masonryColumns(); }
 inline bool RenderStyle::gridMasonryRows() const { return m_nonInheritedData->rareData->grid->masonryRows(); }
 inline const Style::GridTemplateList& RenderStyle::gridTemplateRows() const { return m_nonInheritedData->rareData->grid->m_gridTemplateRows; }
-inline const Style::GridTemplateList& RenderStyle::gridTemplateList(GridTrackSizingDirection direction) const { return direction == GridTrackSizingDirection::ForColumns ? gridTemplateColumns() : gridTemplateRows(); }
+inline const Style::GridTemplateList& RenderStyle::gridTemplateList(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? gridTemplateColumns() : gridTemplateRows(); }
 inline const Vector<Style::GridTrackSize>& RenderStyle::gridRowTrackSizes() const { return m_nonInheritedData->rareData->grid->gridRowTrackSizes(); }
-inline const Vector<Style::GridTrackSize>& RenderStyle::gridTrackSizes(GridTrackSizingDirection direction) const { return direction == GridTrackSizingDirection::ForRows ? m_nonInheritedData->rareData->grid->gridRowTrackSizes() : m_nonInheritedData->rareData->grid->gridColumnTrackSizes(); }
+inline const Vector<Style::GridTrackSize>& RenderStyle::gridTrackSizes(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Rows ? m_nonInheritedData->rareData->grid->gridRowTrackSizes() : m_nonInheritedData->rareData->grid->gridColumnTrackSizes(); }
 inline bool RenderStyle::gridSubgridColumns() const { return m_nonInheritedData->rareData->grid->subgridColumns(); }
 inline bool RenderStyle::gridSubgridRows() const { return m_nonInheritedData->rareData->grid->subgridRows(); }
 inline const Style::GridTemplateAreas& RenderStyle::gridTemplateAreas() const { return m_nonInheritedData->rareData->grid->m_gridTemplateAreas; }
@@ -407,10 +409,10 @@ constexpr Float RenderStyle::initialFloating() { return Float::None; }
 inline Style::GridTrackSizes RenderStyle::initialGridAutoColumns() { return CSS::Keyword::Auto { }; }
 constexpr GridAutoFlow RenderStyle::initialGridAutoFlow() { return AutoFlowRow; }
 inline Style::GridTrackSizes RenderStyle::initialGridAutoRows() { return CSS::Keyword::Auto { }; }
-inline GridPosition RenderStyle::initialGridItemColumnEnd() { return { }; }
-inline GridPosition RenderStyle::initialGridItemColumnStart() { return { }; }
-inline GridPosition RenderStyle::initialGridItemRowEnd() { return { }; }
-inline GridPosition RenderStyle::initialGridItemRowStart() { return { }; }
+inline Style::GridPosition RenderStyle::initialGridItemColumnEnd() { return CSS::Keyword::Auto { }; }
+inline Style::GridPosition RenderStyle::initialGridItemColumnStart() { return CSS::Keyword::Auto { }; }
+inline Style::GridPosition RenderStyle::initialGridItemRowEnd() { return CSS::Keyword::Auto { }; }
+inline Style::GridPosition RenderStyle::initialGridItemRowStart() { return CSS::Keyword::Auto { }; }
 inline Style::GridTemplateList RenderStyle::initialGridTemplateColumns() { return CSS::Keyword::None { }; }
 inline Style::GridTemplateList RenderStyle::initialGridTemplateRows() { return CSS::Keyword::None { }; }
 inline Style::GridTemplateAreas RenderStyle::initialGridTemplateAreas() { return CSS::Keyword::None { }; }

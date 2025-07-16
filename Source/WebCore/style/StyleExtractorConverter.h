@@ -43,10 +43,6 @@
 #include "CSSFontValue.h"
 #include "CSSFontVariationValue.h"
 #include "CSSFunctionValue.h"
-#include "CSSGridAutoRepeatValue.h"
-#include "CSSGridIntegerRepeatValue.h"
-#include "CSSGridLineNamesValue.h"
-#include "CSSGridTemplateAreasValue.h"
 #include "CSSPathValue.h"
 #include "CSSPrimitiveValue.h"
 #include "CSSPrimitiveValueMappings.h"
@@ -72,7 +68,6 @@
 #include "DocumentInlines.h"
 #include "FontCascade.h"
 #include "FontSelectionValueInlines.h"
-#include "GridPositionsResolver.h"
 #include "HTMLFrameOwnerElement.h"
 #include "Length.h"
 #include "PathOperation.h"
@@ -300,7 +295,6 @@ public:
     // MARK: Grid conversions
 
     static Ref<CSSValue> convertGridAutoFlow(ExtractorState&, GridAutoFlow);
-    static Ref<CSSValue> convertGridPosition(ExtractorState&, const GridPosition&);
 };
 
 // MARK: - Strong value conversions
@@ -2240,28 +2234,6 @@ inline Ref<CSSValue> ExtractorConverter::convertGridAutoFlow(ExtractorState&, Gr
     if (gridAutoFlow & static_cast<GridAutoFlow>(InternalAutoFlowAlgorithmDense))
         list.append(CSSPrimitiveValue::create(CSSValueDense));
 
-    return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertGridPosition(ExtractorState&, const GridPosition& position)
-{
-    if (position.isAuto())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-
-    if (position.isNamedGridArea())
-        return CSSPrimitiveValue::createCustomIdent(position.namedGridLine());
-
-    bool hasNamedGridLine = !position.namedGridLine().isNull();
-    CSSValueListBuilder list;
-    if (position.isSpan()) {
-        list.append(CSSPrimitiveValue::create(CSSValueSpan));
-        if (!hasNamedGridLine || position.spanPosition() != 1)
-            list.append(CSSPrimitiveValue::createInteger(position.spanPosition()));
-    } else
-        list.append(CSSPrimitiveValue::createInteger(position.integerPosition()));
-
-    if (hasNamedGridLine)
-        list.append(CSSPrimitiveValue::createCustomIdent(position.namedGridLine()));
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
 

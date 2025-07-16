@@ -104,6 +104,7 @@ inline DynamicRangeLimit forwardInheritedValue(const DynamicRangeLimit& value) {
 inline Clip forwardInheritedValue(const Clip& value) { auto copy = value; return copy; }
 inline ClipPath forwardInheritedValue(const ClipPath& value) { auto copy = value; return copy; }
 inline CornerShapeValue forwardInheritedValue(const CornerShapeValue& value) { auto copy = value; return copy; }
+inline GridPosition forwardInheritedValue(const GridPosition& value) { auto copy = value; return copy; }
 inline GridTemplateAreas forwardInheritedValue(const GridTemplateAreas& value) { auto copy = value; return copy; }
 inline GridTemplateList forwardInheritedValue(const GridTemplateList& value) { auto copy = value; return copy; }
 inline GridTrackSizes forwardInheritedValue(const GridTrackSizes& value) { auto copy = value; return copy; }

@@ -9988,7 +9988,7 @@
             "initial": "auto",
             "codegen-properties": {
                 "render-style-name-for-methods": "GridItemColumnEnd",
-                "style-converter": "GridPosition",
+                "style-converter": "StyleType<GridPosition>",
                 "parser-function": "consumeGridLine",
                 "parser-grammar-unused": "<grid-line>",
                 "parser-grammar-unused-reason": "Needs support for ordered groups with a keyword/literal first term differentiator."
@@ -10003,7 +10003,7 @@
             "initial": "auto",
             "codegen-properties": {
                 "render-style-name-for-methods": "GridItemColumnStart",
-                "style-converter": "GridPosition",
+                "style-converter": "StyleType<GridPosition>",
                 "parser-function": "consumeGridLine",
                 "parser-grammar-unused": "<grid-line>",
                 "parser-grammar-unused-reason": "Needs support for ordered groups with a keyword/literal first term differentiator."
@@ -10067,7 +10067,7 @@
             "initial": "auto",
             "codegen-properties": {
                 "render-style-name-for-methods": "GridItemRowEnd",
-                "style-converter": "GridPosition",
+                "style-converter": "StyleType<GridPosition>",
                 "parser-function": "consumeGridLine",
                 "parser-grammar-unused": "<grid-line>",
                 "parser-grammar-unused-reason": "Needs support for ordered groups with a keyword/literal first term differentiator."
@@ -10082,7 +10082,7 @@
             "initial": "auto",
             "codegen-properties": {
                 "render-style-name-for-methods": "GridItemRowStart",
-                "style-converter": "GridPosition",
+                "style-converter": "StyleType<GridPosition>",
                 "parser-function": "consumeGridLine",
                 "parser-grammar-unused": "<grid-line>",
                 "parser-grammar-unused-reason": "Needs support for ordered groups with a keyword/literal first term differentiator."

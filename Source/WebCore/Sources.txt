@@ -2941,8 +2941,6 @@ rendering/style/BorderValue.cpp
 rendering/style/ContentData.cpp
 rendering/style/DropShadowFilterOperationWithStyleColor.cpp
 rendering/style/FillLayer.cpp
-rendering/style/GridPosition.cpp
-rendering/style/GridPositionsResolver.cpp
 rendering/style/GridSpan.cpp
 rendering/style/ListStyleType.cpp
 rendering/style/NinePieceImage.cpp
@@ -3179,6 +3177,8 @@ style/values/filter-effects/StyleSaturateFunction.cpp
 style/values/filter-effects/StyleSepiaFunction.cpp
 style/values/flexbox/StyleFlexBasis.cpp
 style/values/grid/StyleGridNamedLinesMap.cpp
+style/values/grid/StyleGridPosition.cpp
+style/values/grid/StyleGridPositionsResolver.cpp
 style/values/grid/StyleGridTemplateAreas.cpp
 style/values/grid/StyleGridTemplateList.cpp
 style/values/grid/StyleGridTrackBreadth.cpp

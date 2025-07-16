@@ -26,6 +26,7 @@
 #pragma once
 
 #include "LengthPoint.h"
+#include "StyleAppearance.h"
 #include "StyleAspectRatio.h"
 #include "StyleBoxShadow.h"
 #include "StyleContentAlignmentData.h"

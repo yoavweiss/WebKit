@@ -100,7 +100,6 @@
 #include "FrameMemoryMonitor.h"
 #include "FrameSnapshotting.h"
 #include "GCObservation.h"
-#include "GridPosition.h"
 #include "HEVCUtilities.h"
 #include "HTMLAnchorElement.h"
 #include "HTMLAttachmentElement.h"
@@ -236,6 +235,7 @@
 #include "StorageNamespace.h"
 #include "StorageNamespaceProvider.h"
 #include "StringCallback.h"
+#include "StyleGridPosition.h"
 #include "StyleResolver.h"
 #include "StyleRule.h"
 #include "StyleScope.h"
@@ -1286,7 +1286,7 @@ bool Internals::hasPendingActivity(const WebCodecsVideoDecoder& decoder) const
 
 void Internals::setGridMaxTracksLimit(unsigned maxTrackLimit)
 {
-    GridPosition::setMaxPositionForTesting(maxTrackLimit);
+    Style::GridPosition::setMaxPositionForTesting(maxTrackLimit);
 }
 
 void Internals::clearBackForwardCache()

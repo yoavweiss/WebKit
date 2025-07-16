@@ -1731,11 +1731,8 @@ void RenderTheme::adjustSwitchStyle(RenderStyle& style, const Element*) const
 
 void RenderTheme::adjustSwitchThumbOrSwitchTrackStyle(RenderStyle& style) const
 {
-    GridPosition position;
-    position.setExplicitPosition(1, nullString());
-
-    style.setGridItemRowStart(position);
-    style.setGridItemColumnStart(position);
+    style.setGridItemRowStart(Style::GridPosition::Explicit { { 1 } });
+    style.setGridItemColumnStart(Style::GridPosition::Explicit { { 1 } });
 }
 
 Style::PaddingBox RenderTheme::popupInternalPaddingBox(const RenderStyle&) const

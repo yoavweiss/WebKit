@@ -211,7 +211,6 @@ public:
     // MARK: Grid serializations
 
     static void serializeGridAutoFlow(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GridAutoFlow);
-    static void serializeGridPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const GridPosition&);
 };
 
 // MARK: - Strong value serializations
@@ -2539,36 +2538,6 @@ inline void ExtractorSerializer::serializeGridAutoFlow(ExtractorState& state, St
         if (needsSpace)
             builder.append(' ');
         serializationForCSS(builder, context, state.style, CSS::Keyword::Dense { });
-    }
-}
-
-inline void ExtractorSerializer::serializeGridPosition(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const GridPosition& position)
-{
-    if (position.isAuto()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        return;
-    }
-
-    if (position.isNamedGridArea()) {
-        serializationForCSS(builder, context, state.style, CustomIdentifier { AtomString { position.namedGridLine() } });
-        return;
-    }
-
-    bool hasNamedGridLine = !position.namedGridLine().isNull();
-
-    if (position.isSpan()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Span { });
-
-        if (!hasNamedGridLine || position.spanPosition() != 1) {
-            builder.append(' ');
-            serialize(state, builder, context, position.spanPosition());
-        }
-    } else
-        serialize(state, builder, context, position.integerPosition());
-
-    if (hasNamedGridLine) {
-        builder.append(' ');
-        serializationForCSS(builder, context, state.style, CustomIdentifier { AtomString { position.namedGridLine() } });
     }
 }
 

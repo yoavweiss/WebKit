@@ -1077,14 +1077,24 @@ public:
 
 } // namespace std
 
-template<typename T, size_t inlineCapacity>
-struct WTF::supports_text_stream_insertion<WebCore::SpaceSeparatedVector<T, inlineCapacity>> : supports_text_stream_insertion<T> { };
+namespace WTF {
 
 template<typename T, size_t inlineCapacity>
-struct WTF::supports_text_stream_insertion<WebCore::CommaSeparatedVector<T, inlineCapacity>> : supports_text_stream_insertion<T> { };
+struct supports_text_stream_insertion<WebCore::SpaceSeparatedVector<T, inlineCapacity>> : supports_text_stream_insertion<T> { };
+
+template<typename T, size_t inlineCapacity>
+struct supports_text_stream_insertion<WebCore::CommaSeparatedVector<T, inlineCapacity>> : supports_text_stream_insertion<T> { };
 
 template<typename T>
-struct WTF::supports_text_stream_insertion<WebCore::SpaceSeparatedFixedVector<T>> : supports_text_stream_insertion<T> { };
+struct supports_text_stream_insertion<WebCore::SpaceSeparatedFixedVector<T>> : supports_text_stream_insertion<T> { };
 
 template<typename T>
-struct WTF::supports_text_stream_insertion<WebCore::CommaSeparatedFixedVector<T>> : supports_text_stream_insertion<T> { };
+struct supports_text_stream_insertion<WebCore::CommaSeparatedFixedVector<T>> : supports_text_stream_insertion<T> { };
+
+template<>
+struct MarkableTraits<WebCore::CustomIdentifier> {
+    static bool isEmptyValue(const WebCore::CustomIdentifier& value) { return value.value.isNull(); }
+    static WebCore::CustomIdentifier emptyValue() { return WebCore::CustomIdentifier { nullAtom() }; }
+};
+
+} // namespace WTF

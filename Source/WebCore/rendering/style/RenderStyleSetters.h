@@ -157,10 +157,10 @@ inline void RenderStyle::setFlexWrap(FlexWrap wrap) { SET_DOUBLY_NESTED(m_nonInh
 inline void RenderStyle::setGridAutoColumns(Style::GridTrackSizes&& trackSizeList) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridAutoColumns, WTFMove(trackSizeList)); }
 inline void RenderStyle::setGridAutoFlow(GridAutoFlow flow) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridAutoFlow, flow); }
 inline void RenderStyle::setGridAutoRows(Style::GridTrackSizes&& trackSizeList) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridAutoRows, WTFMove(trackSizeList)); }
-inline void RenderStyle::setGridItemColumnEnd(const GridPosition& columnEndPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridColumnEnd, columnEndPosition); }
-inline void RenderStyle::setGridItemColumnStart(const GridPosition& columnStartPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridColumnStart, columnStartPosition); }
-inline void RenderStyle::setGridItemRowEnd(const GridPosition& rowEndPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridRowEnd, rowEndPosition); }
-inline void RenderStyle::setGridItemRowStart(const GridPosition& rowStartPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridRowStart, rowStartPosition); }
+inline void RenderStyle::setGridItemColumnEnd(Style::GridPosition&& columnEndPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridColumnEnd, WTFMove(columnEndPosition)); }
+inline void RenderStyle::setGridItemColumnStart(Style::GridPosition&& columnStartPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridColumnStart, WTFMove(columnStartPosition)); }
+inline void RenderStyle::setGridItemRowEnd(Style::GridPosition&& rowEndPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridRowEnd, WTFMove(rowEndPosition)); }
+inline void RenderStyle::setGridItemRowStart(Style::GridPosition&& rowStartPosition) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, gridItem, gridRowStart, WTFMove(rowStartPosition)); }
 inline void RenderStyle::setGridTemplateAreas(Style::GridTemplateAreas&& areas) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, grid, m_gridTemplateAreas, WTFMove(areas)); }
 inline void RenderStyle::setHangingPunctuation(OptionSet<HangingPunctuation> punctuation) { SET(m_rareInheritedData, hangingPunctuation, punctuation.toRaw()); }
 inline void RenderStyle::setHasAutoAccentColor() { SET_PAIR(m_rareInheritedData, hasAutoAccentColor, true, accentColor, Style::Color::currentColor()); }

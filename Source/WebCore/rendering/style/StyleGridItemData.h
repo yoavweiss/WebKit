@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "GridPosition.h"
+#include "StyleGridPosition.h"
 #include <wtf/Ref.h>
 #include <wtf/RefCounted.h>
 
@@ -45,18 +45,20 @@ public:
 
     bool operator==(const StyleGridItemData& o) const
     {
-        return gridColumnStart == o.gridColumnStart && gridColumnEnd == o.gridColumnEnd
-            && gridRowStart == o.gridRowStart && gridRowEnd == o.gridRowEnd;
+        return gridColumnStart == o.gridColumnStart
+            && gridColumnEnd == o.gridColumnEnd
+            && gridRowStart == o.gridRowStart
+            && gridRowEnd == o.gridRowEnd;
     }
 
 #if !LOG_DISABLED
     void dumpDifferences(TextStream&, const StyleGridItemData&) const;
 #endif
 
-    GridPosition gridColumnStart;
-    GridPosition gridColumnEnd;
-    GridPosition gridRowStart;
-    GridPosition gridRowEnd;
+    Style::GridPosition gridColumnStart;
+    Style::GridPosition gridColumnEnd;
+    Style::GridPosition gridRowStart;
+    Style::GridPosition gridRowEnd;
 
 private:
     StyleGridItemData();

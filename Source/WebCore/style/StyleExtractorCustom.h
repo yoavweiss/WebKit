@@ -31,6 +31,9 @@
 
 #pragma once
 
+#include "CSSGridAutoRepeatValue.h"
+#include "CSSGridIntegerRepeatValue.h"
+#include "CSSGridLineNamesValue.h"
 #include "StyleExtractorConverter.h"
 #include "StyleExtractorSerializer.h"
 #include "StyleInterpolation.h"
@@ -724,7 +727,7 @@ template<CSSPropertyID propertyID> void extractCounterSerialization(ExtractorSta
 
 template<GridTrackSizingDirection direction> Ref<CSSValue> extractGridTemplateValue(ExtractorState& state)
 {
-    constexpr bool isRowAxis = direction == GridTrackSizingDirection::ForColumns;
+    constexpr bool isRowAxis = direction == GridTrackSizingDirection::Columns;
 
     auto addValuesForNamedGridLinesAtIndex = [](auto& list, auto& collector, auto i, auto renderEmpty) {
         if (collector.isEmpty() && !renderEmpty)
@@ -741,8 +744,8 @@ template<GridTrackSizingDirection direction> Ref<CSSValue> extractGridTemplateVa
     auto& trackSizes = isRowAxis ? state.style.gridColumnTrackSizes() : state.style.gridRowTrackSizes();
     auto& autoRepeatTrackSizes = isRowAxis ? state.style.gridAutoRepeatColumns() : state.style.gridAutoRepeatRows();
 
-    if ((direction == GridTrackSizingDirection::ForRows && state.style.gridMasonryRows())
-        || (direction == GridTrackSizingDirection::ForColumns && state.style.gridMasonryColumns()))
+    if ((direction == GridTrackSizingDirection::Rows && state.style.gridMasonryRows())
+        || (direction == GridTrackSizingDirection::Columns && state.style.gridMasonryColumns()))
         return CSSPrimitiveValue::create(CSSValueMasonry);
 
     // Handle the 'none' case.
@@ -2211,22 +2214,22 @@ inline void ExtractorCustom::extractGridAutoFlowSerialization(ExtractorState& st
 
 inline Ref<CSSValue> ExtractorCustom::extractGridTemplateColumns(ExtractorState& state)
 {
-    return WebCore::Style::extractGridTemplateValue<GridTrackSizingDirection::ForColumns>(state);
+    return WebCore::Style::extractGridTemplateValue<GridTrackSizingDirection::Columns>(state);
 }
 
 inline void ExtractorCustom::extractGridTemplateColumnsSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    WebCore::Style::extractGridTemplateSerialization<GridTrackSizingDirection::ForColumns>(state, builder, context);
+    WebCore::Style::extractGridTemplateSerialization<GridTrackSizingDirection::Columns>(state, builder, context);
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractGridTemplateRows(ExtractorState& state)
 {
-    return WebCore::Style::extractGridTemplateValue<GridTrackSizingDirection::ForRows>(state);
+    return WebCore::Style::extractGridTemplateValue<GridTrackSizingDirection::Rows>(state);
 }
 
 inline void ExtractorCustom::extractGridTemplateRowsSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    WebCore::Style::extractGridTemplateSerialization<GridTrackSizingDirection::ForRows>(state, builder, context);
+    WebCore::Style::extractGridTemplateSerialization<GridTrackSizingDirection::Rows>(state, builder, context);
 }
 
 // MARK: - Shorthands

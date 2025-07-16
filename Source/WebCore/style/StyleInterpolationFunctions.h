@@ -42,7 +42,6 @@
 #include "FontSelectionAlgorithm.h"
 #include "FontSelectionValueInlines.h"
 #include "FontTaggedSettings.h"
-#include "GridPositionsResolver.h"
 #include "IdentityTransformOperation.h"
 #include "LengthPoint.h"
 #include "Logging.h"

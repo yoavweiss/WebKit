@@ -663,7 +663,6 @@ rendering/mathml/RenderMathMLToken.cpp
 rendering/mathml/RenderMathMLUnderOver.cpp
 rendering/shapes/ShapeOutsideInfo.cpp
 rendering/style/ContentData.cpp
-rendering/style/GridPositionsResolver.cpp
 rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleInlines.h
 rendering/style/StyleCachedImage.cpp
@@ -775,6 +774,7 @@ style/Styleable.cpp
 style/Styleable.h
 style/values/color/StyleColor.cpp
 style/values/color/StyleKeywordColor.cpp
+style/values/grid/StyleGridPositionsResolver.cpp
 style/values/primitives/StyleLengthResolution.cpp
 svg/SVGAElement.cpp
 svg/SVGClipPathElement.cpp

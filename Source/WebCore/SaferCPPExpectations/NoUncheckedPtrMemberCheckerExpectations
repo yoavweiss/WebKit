@@ -93,7 +93,6 @@ rendering/mathml/RenderMathMLScripts.h
 rendering/shapes/ShapeOutsideInfo.h
 rendering/svg/SVGRenderingContext.h
 rendering/svg/SVGTextBoxPainter.h
-rendering/svg/SVGTextLayoutEngineBaseline.h
 rendering/svg/legacy/SVGResourcesCache.h
 rendering/updating/RenderTreeBuilder.h
 rendering/updating/RenderTreeBuilderBlock.cpp

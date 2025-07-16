@@ -40,10 +40,6 @@
 #include "CSSFontStyleWithAngleValue.h"
 #include "CSSFontVariationValue.h"
 #include "CSSFunctionValue.h"
-#include "CSSGridAutoRepeatValue.h"
-#include "CSSGridIntegerRepeatValue.h"
-#include "CSSGridLineNamesValue.h"
-#include "CSSGridLineValue.h"
 #include "CSSImageSetValue.h"
 #include "CSSImageValue.h"
 #include "CSSOffsetRotateValue.h"
@@ -61,7 +57,6 @@
 #include "FontSelectionValueInlines.h"
 #include "FontSizeAdjust.h"
 #include "FrameDestructionObserverInlines.h"
-#include "GridPositionsResolver.h"
 #include "LineClampValue.h"
 #include "LocalFrame.h"
 #include "Quirks.h"
@@ -180,7 +175,6 @@ public:
     static ScrollbarGutter convertScrollbarGutter(BuilderState&, const CSSValue&);
     // scrollbar-width converter is only needed for quirking.
     static ScrollbarWidth convertScrollbarWidth(BuilderState&, const CSSValue&);
-    static GridPosition convertGridPosition(BuilderState&, const CSSValue&);
     static GridAutoFlow convertGridAutoFlow(BuilderState&, const CSSValue&);
     static FilterOperations convertFilterOperations(BuilderState&, const CSSValue&);
     static FilterOperations convertAppleColorFilterOperations(BuilderState&, const CSSValue&);
@@ -1039,41 +1033,6 @@ inline ScrollbarWidth BuilderConverter::convertScrollbarWidth(BuilderState& buil
         return ScrollbarWidth::Auto;
 
     return scrollbarWidth;
-}
-
-inline GridPosition BuilderConverter::convertGridPosition(BuilderState& builderState, const CSSValue& value)
-{
-    GridPosition position;
-
-    // We accept the specification's grammar:
-    // auto | <custom-ident> | [ <integer> && <custom-ident>? ] | [ span && [ <integer> || <custom-ident> ] ]
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (primitiveValue->isCustomIdent()) {
-            position.setNamedGridArea(primitiveValue->stringValue());
-            return position;
-        }
-
-        ASSERT(primitiveValue->valueID() == CSSValueAuto);
-        return position;
-    }
-
-    auto* gridLineValue = requiredDowncast<CSSGridLineValue>(builderState, value);
-    if (!gridLineValue)
-        return { };
-
-    RefPtr uncheckedSpanValue = gridLineValue->spanValue();
-    RefPtr uncheckedNumericValue = gridLineValue->numericValue();
-    RefPtr uncheckedGridLineName = gridLineValue->gridLineName();
-
-    auto gridLineNumber = uncheckedNumericValue && uncheckedNumericValue->isInteger() ? uncheckedNumericValue->resolveAsInteger(builderState.cssToLengthConversionData()) : 0;
-    auto gridLineName = uncheckedGridLineName && uncheckedGridLineName->isCustomIdent() ? uncheckedGridLineName->stringValue() : String();
-
-    if (uncheckedSpanValue && uncheckedSpanValue->valueID() == CSSValueSpan)
-        position.setSpanPosition(gridLineNumber > 0 ? gridLineNumber : 1, gridLineName);
-    else
-        position.setExplicitPosition(gridLineNumber, gridLineName);
-
-    return position;
 }
 
 inline GridAutoFlow BuilderConverter::convertGridAutoFlow(BuilderState& builderState, const CSSValue& value)

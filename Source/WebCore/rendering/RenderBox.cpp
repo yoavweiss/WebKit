@@ -2982,11 +2982,11 @@ bool RenderBox::hasStretchedLogicalHeight() const
         return false;
     }
     if (containingBlock->isHorizontalWritingMode() != isHorizontalWritingMode()) {
-        if (auto* grid = dynamicDowncast<RenderGrid>(*this); grid && grid->isSubgridInParentDirection(GridTrackSizingDirection::ForColumns))
+        if (auto* grid = dynamicDowncast<RenderGrid>(*this); grid && grid->isSubgridInParentDirection(Style::GridTrackSizingDirection::Columns))
             return true;
         return style.resolvedJustifySelf(&containingBlock->style(), containingBlock->selfAlignmentNormalBehavior(this)).position() == ItemPosition::Stretch;
     }
-    if (auto* grid = dynamicDowncast<RenderGrid>(*this); grid && grid->isSubgridInParentDirection(GridTrackSizingDirection::ForRows))
+    if (auto* grid = dynamicDowncast<RenderGrid>(*this); grid && grid->isSubgridInParentDirection(Style::GridTrackSizingDirection::Rows))
         return true;
     return style.resolvedAlignSelf(&containingBlock->style(), containingBlock->selfAlignmentNormalBehavior(this)).position() == ItemPosition::Stretch;
 }
@@ -3005,11 +3005,11 @@ bool RenderBox::hasStretchedLogicalWidth(StretchingMode stretchingMode) const
     }
     auto normalItemPosition = stretchingMode == StretchingMode::Any ? containingBlock->selfAlignmentNormalBehavior(this) : ItemPosition::Normal;
     if (containingBlock->isHorizontalWritingMode() != isHorizontalWritingMode()) {
-        if (auto* grid = dynamicDowncast<RenderGrid>(*this); grid && grid->isSubgridInParentDirection(GridTrackSizingDirection::ForRows))
+        if (auto* grid = dynamicDowncast<RenderGrid>(*this); grid && grid->isSubgridInParentDirection(Style::GridTrackSizingDirection::Rows))
             return true;
         return style.resolvedAlignSelf(&containingBlock->style(), normalItemPosition).position() == ItemPosition::Stretch;
     }
-    if (auto* grid = dynamicDowncast<RenderGrid>(*this); grid && grid->isSubgridInParentDirection(GridTrackSizingDirection::ForColumns))
+    if (auto* grid = dynamicDowncast<RenderGrid>(*this); grid && grid->isSubgridInParentDirection(Style::GridTrackSizingDirection::Columns))
         return true;
     return style.resolvedJustifySelf(&containingBlock->style(), normalItemPosition).position() == ItemPosition::Stretch;
 }
