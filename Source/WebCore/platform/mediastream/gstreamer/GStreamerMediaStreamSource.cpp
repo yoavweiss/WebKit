@@ -222,6 +222,12 @@ public:
             }
             return GST_PAD_PROBE_OK;
         }), this, nullptr);
+
+        auto& trackSource = m_track->source();
+        if (!trackSource.isIncomingAudioSource() && !trackSource.isIncomingVideoSource())
+            return;
+
+        connectIncomingTrack();
     }
 
     void replaceTrack(RefPtr<MediaStreamTrackPrivate>&& newTrack)
@@ -243,8 +249,10 @@ public:
     void connectIncomingTrack()
     {
 #if USE(GSTREAMER_WEBRTC)
-        if (!m_track)
+        if (!m_track) {
+            GST_WARNING_OBJECT(m_src.get(), "No track found!");
             return;
+        }
         auto& trackSource = m_track->source();
         int clientId;
         auto client = GRefPtr<GstElement>(m_src);
@@ -254,6 +262,7 @@ public:
                 GST_DEBUG_OBJECT(m_src.get(), "Incoming audio track already registered.");
                 return;
             }
+            GST_DEBUG_OBJECT(m_src.get(), "Registering incoming audio track");
             clientId = source.registerClient(WTFMove(client));
         } else {
             RELEASE_ASSERT(trackSource.isIncomingVideoSource());
@@ -262,6 +271,7 @@ public:
                 GST_DEBUG_OBJECT(m_src.get(), "Incoming video track already registered.");
                 return;
             }
+            GST_DEBUG_OBJECT(m_src.get(), "Registering incoming video track");
             clientId = source.registerClient(WTFMove(client));
         }
 
