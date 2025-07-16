@@ -1545,16 +1545,20 @@ void AXObjectCache::onTextRunsChanged(const RenderObject& renderer)
 
 void AXObjectCache::handleMenuOpened(Element& element)
 {
-    if (!element.renderer() || !hasRole(element, "menu"_s))
+    if (!element.renderer() || !hasRole(element, "menu"_s)) {
+        // FIXME: Doesn't this early-return mean we are going to handle display:contents menus incorrectly?
         return;
+    }
 
     postNotification(getOrCreate(element), protectedDocument().get(), AXNotification::MenuOpened);
 }
 
 void AXObjectCache::handleLiveRegionCreated(Element& element)
 {
-    if (!element.renderer())
+    if (!element.renderer()) {
+        // FIXME: Doesn't this early-return mean we are going to handle display:contents live regions incorrectly?
         return;
+    }
 
     auto liveRegionStatus = element.attributeWithoutSynchronization(aria_liveAttr);
     if (liveRegionStatus.isEmpty()) {
@@ -1567,7 +1571,7 @@ void AXObjectCache::handleLiveRegionCreated(Element& element)
         RefPtr axObject = getOrCreate(element);
 #if PLATFORM(MAC)
         if (axObject)
-            addSortedObject(*axObject, PreSortedObjectType::LiveRegion);
+            deferSortForNewLiveRegion(*axObject);
 #endif // PLATFORM(MAC)
 
         postNotification(axObject.get(), protectedDocument().get(), AXNotification::LiveRegionCreated);
@@ -2898,7 +2902,7 @@ void AXObjectCache::handleRoleChanged(AccessibilityObject& axObject, Accessibili
 
 #if PLATFORM(MAC)
     if (axObject.supportsLiveRegion())
-        addSortedObject(axObject, PreSortedObjectType::LiveRegion);
+        deferSortForNewLiveRegion(axObject);
     else if (AXCoreObject::liveRegionStatusIsEnabled(AtomString { AXCoreObject::defaultLiveRegionStatusForRole(oldRole) }))
         removeLiveRegion(axObject);
 #else
@@ -3155,7 +3159,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
 #if PLATFORM(MAC)
         if (RefPtr object = getOrCreate(element)) {
             if (object->supportsLiveRegion())
-                addSortedObject(*object, PreSortedObjectType::LiveRegion);
+                deferSortForNewLiveRegion(object.releaseNonNull());
             else
                 removeLiveRegion(*object);
         }
@@ -4731,13 +4735,13 @@ void AXObjectCache::performDeferredCacheUpdate(ForceLayout forceLayout)
     handleAllDeferredChildrenChanged();
 
     AXLOGDeferredCollection("ElementAddedOrRemovedList"_s, m_deferredElementAddedOrRemovedList);
-    auto nodeAddedOrRemovedList = copyToVector(m_deferredElementAddedOrRemovedList);
-    for (auto& weakNode : nodeAddedOrRemovedList) {
-        if (RefPtr node = weakNode.get()) {
-            handleMenuOpened(*node);
-            handleLiveRegionCreated(*node);
+    auto elementAddedOrRemovedList = copyToVector(m_deferredElementAddedOrRemovedList);
+    for (auto& weakElement : elementAddedOrRemovedList) {
+        if (RefPtr element = weakElement.get()) {
+            handleMenuOpened(*element);
+            handleLiveRegionCreated(*element);
 
-            if (RefPtr label = dynamicDowncast<HTMLLabelElement>(node.get())) {
+            if (RefPtr label = dynamicDowncast<HTMLLabelElement>(*element)) {
                 // A label was added or removed. Update its LabelFor relationships.
                 handleLabelChanged(getOrCreate(*label));
             }

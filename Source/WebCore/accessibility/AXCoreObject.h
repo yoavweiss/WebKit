@@ -109,7 +109,7 @@ enum class ClickHandlerFilter : bool {
     IncludeBody,
 };
 
-enum class PreSortedObjectType : bool { LiveRegion, WebArea };
+enum class PreSortedObjectType : uint8_t { LiveRegion, WebArea };
 
 enum class DateComponentsType : uint8_t;
 

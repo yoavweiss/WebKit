@@ -673,7 +673,9 @@ public:
 #if PLATFORM(MAC)
     AXCoreObject::AccessibilityChildrenVector sortedLiveRegions();
     AXCoreObject::AccessibilityChildrenVector sortedNonRootWebAreas();
-    void addSortedObject(AccessibilityObject&, PreSortedObjectType);
+    void deferSortForNewLiveRegion(Ref<AccessibilityObject>&&);
+    void queueUnsortedObject(Ref<AccessibilityObject>&&, PreSortedObjectType);
+    void addSortedObjects(Vector<Ref<AccessibilityObject>>&&, PreSortedObjectType);
     void removeLiveRegion(AccessibilityObject&);
     void initializeSortedIDLists();
 
@@ -943,7 +945,7 @@ private:
     std::optional<std::pair<WeakPtr<Element, WeakPtrImplWithEventTargetData>, WeakPtr<Element, WeakPtrImplWithEventTargetData>>> m_deferredFocusedNodeChange;
     WeakHashSet<AccessibilityObject> m_deferredUnconnectedObjects;
 #if PLATFORM(MAC)
-    WeakHashSet<Document, WeakPtrImplWithEventTargetData> m_deferredDocumentAddedList;
+    HashMap<PreSortedObjectType, Vector<Ref<AccessibilityObject>>, IntHash<PreSortedObjectType>, WTF::StrongEnumHashTraits<PreSortedObjectType>> m_deferredUnsortedObjects;
 #endif
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
