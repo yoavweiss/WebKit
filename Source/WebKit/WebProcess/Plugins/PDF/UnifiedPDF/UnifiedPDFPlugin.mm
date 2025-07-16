@@ -3368,9 +3368,9 @@ void UnifiedPDFPlugin::updateFindOverlay(HideFindIndicator hideFindIndicator)
         frame->protectedPage()->findController().hideFindIndicator();
 }
 
-Vector<FloatRect> UnifiedPDFPlugin::rectsForTextMatchesInRect(const IntRect&) const
+Vector<FloatRect> UnifiedPDFPlugin::rectsForTextMatchesInRect(const IntRect& clipRect) const
 {
-    return visibleRectsForFindMatchRects(m_findMatchRects);
+    return visibleRectsForFindMatchRects(m_findMatchRects, clipRect);
 }
 
 Vector<WebFoundTextRange::PDFData> UnifiedPDFPlugin::findTextMatches(const String& target, WebCore::FindOptions options)
@@ -3398,26 +3398,50 @@ Vector<WebFoundTextRange::PDFData> UnifiedPDFPlugin::findTextMatches(const Strin
     return matches;
 }
 
-Vector<FloatRect> UnifiedPDFPlugin::rectsForTextMatch(const WebFoundTextRange::PDFData& data)
+Vector<WebCore::FloatRect> UnifiedPDFPlugin::rectsForTextMatchesInRect(const Vector<WebFoundTextRange::PDFData>& matches, const WebCore::IntRect& clipRect)
 {
-    RetainPtr selection = selectionFromWebFoundTextRangePDFData(data);
-    if (!selection)
+
+    RefPtr frame = m_frame.get();
+    if (!frame || !frame->coreLocalFrame())
+        return { };
+    RefPtr view = frame->coreLocalFrame()->view();
+    if (!view)
         return { };
 
+    Ref presentationController = *m_presentationController;
+    auto pageCoverage = presentationController->pageCoverageAndScalesForContentsRect(clipRect, presentationController->visibleRow(), 1.0);
+    auto coveredPages = pageCoverage.pages.map([] (const auto& pageInfo) {
+        return pageInfo.pageIndex;
+    });
+    if (coveredPages.isEmpty())
+        return { };
+
+    auto firstCoveredPage = std::ranges::min(coveredPages);
+    auto lastCoveredPage = std::ranges::max(coveredPages);
+
     PDFPageCoverage findMatchRects;
-    for (PDFPage *page in [selection pages]) {
-        auto pageIndex = m_documentLayout.indexForPage(page);
-        if (!pageIndex)
+    for (auto& match : matches) {
+        if (match.startPage > lastCoveredPage || firstCoveredPage > match.endPage)
             continue;
 
-        auto selectionBounds = FloatRect { [selection boundsForPage:page] };
-        findMatchRects.append(PerPageInfo { *pageIndex, selectionBounds, selectionBounds });
+        RetainPtr selection = selectionFromWebFoundTextRangePDFData(match);
+        if (!selection)
+            continue;
+
+        for (PDFPage *page in [selection pages]) {
+            auto pageIndex = m_documentLayout.indexForPage(page);
+            if (!pageIndex)
+                continue;
+
+            auto selectionBounds = FloatRect { [selection boundsForPage:page] };
+            findMatchRects.append(PerPageInfo { *pageIndex, selectionBounds, selectionBounds });
+        }
     }
 
-    return visibleRectsForFindMatchRects(findMatchRects);
+    return visibleRectsForFindMatchRects(findMatchRects, clipRect);
 }
 
-Vector<WebCore::FloatRect> UnifiedPDFPlugin::visibleRectsForFindMatchRects(PDFPageCoverage findMatchRects) const
+Vector<WebCore::FloatRect> UnifiedPDFPlugin::visibleRectsForFindMatchRects(const PDFPageCoverage& findMatchRects, const WebCore::IntRect& clipRect) const
 {
     auto visibleRow = protectedPresentationController()->visibleRow();
 
@@ -3425,14 +3449,14 @@ Vector<WebCore::FloatRect> UnifiedPDFPlugin::visibleRectsForFindMatchRects(PDFPa
     if (!visibleRow)
         rectsInPluginCoordinates.reserveCapacity(findMatchRects.size());
 
-    auto unobscuredContentRectInPluginSpace = [this] -> std::optional<IntRect> {
+    auto clipRectInPluginSpace = [this, clipRect] -> std::optional<IntRect> {
         RefPtr frame = m_frame.get();
-        if (!frame || !frame->page() || !frame->coreLocalFrame())
+        if (!frame || !frame->coreLocalFrame())
             return { };
         RefPtr view = frame->coreLocalFrame()->view();
         if (!view)
             return { };
-        return convertFromRootViewToPlugin(view->unobscuredContentRect());
+        return convertFromRootViewToPlugin(clipRect);
     }();
 
     for (auto& perPageInfo : findMatchRects) {
@@ -3440,7 +3464,7 @@ Vector<WebCore::FloatRect> UnifiedPDFPlugin::visibleRectsForFindMatchRects(PDFPa
             continue;
 
         auto pluginRect = convertUp(CoordinateSpace::PDFPage, CoordinateSpace::Plugin, perPageInfo.pageBounds, perPageInfo.pageIndex);
-        if (!unobscuredContentRectInPluginSpace || pluginRect.intersects(unobscuredContentRectInPluginSpace.value()))
+        if (!clipRectInPluginSpace || pluginRect.intersects(clipRectInPluginSpace.value()))
             rectsInPluginCoordinates.append(pluginRect);
     }
 

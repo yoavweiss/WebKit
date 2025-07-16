@@ -197,7 +197,7 @@ public:
     virtual WebCore::DictionaryPopupInfo dictionaryPopupInfoForSelection(PDFSelection *, WebCore::TextIndicatorPresentationTransition) = 0;
 
     virtual Vector<WebFoundTextRange::PDFData> findTextMatches(const String& target, WebCore::FindOptions) = 0;
-    virtual Vector<WebCore::FloatRect> rectsForTextMatch(const WebFoundTextRange::PDFData&) = 0;
+    virtual Vector<WebCore::FloatRect> rectsForTextMatchesInRect(const Vector<WebFoundTextRange::PDFData>&, const WebCore::IntRect&) = 0;
     virtual RefPtr<WebCore::TextIndicator> textIndicatorForTextMatch(const WebFoundTextRange::PDFData&, WebCore::TextIndicatorPresentationTransition) { return { }; }
     virtual void scrollToRevealTextMatch(const WebFoundTextRange::PDFData&) { }
 

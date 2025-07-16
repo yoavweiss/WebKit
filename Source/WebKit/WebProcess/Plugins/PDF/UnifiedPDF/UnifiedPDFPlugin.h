@@ -438,11 +438,11 @@ private:
     void updateFindOverlay(HideFindIndicator = HideFindIndicator::No);
 
     Vector<WebFoundTextRange::PDFData> findTextMatches(const String&, WebCore::FindOptions) final;
-    Vector<WebCore::FloatRect> rectsForTextMatch(const WebFoundTextRange::PDFData&) final;
+    Vector<WebCore::FloatRect> rectsForTextMatchesInRect(const Vector<WebFoundTextRange::PDFData>&, const WebCore::IntRect&) final;
     RefPtr<WebCore::TextIndicator> textIndicatorForTextMatch(const WebFoundTextRange::PDFData&, WebCore::TextIndicatorPresentationTransition) final;
     void scrollToRevealTextMatch(const WebFoundTextRange::PDFData&) final;
 
-    Vector<WebCore::FloatRect> visibleRectsForFindMatchRects(PDFPageCoverage) const;
+    Vector<WebCore::FloatRect> visibleRectsForFindMatchRects(const PDFPageCoverage&, const WebCore::IntRect&) const;
     PDFSelection *selectionFromWebFoundTextRangePDFData(const WebFoundTextRange::PDFData&);
 
     static WebCore::Color selectionTextIndicatorHighlightColor();
