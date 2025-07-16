@@ -2237,3 +2237,5 @@ webkit.org/b/296017 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/s
 webkit.org/b/296066 [ Sequoia Debug arm64 ] accessibility/mac/scrolling-in-pdf-crash.html [ Pass Timeout ]
 
 webkit.org/b/296070 [ Debug arm64 ] pdf/pdf-in-styled-embed.html [ Pass Timeout Failure ]
+
+webkit.org/b/295929 [ Release ] imported/w3c/web-platform-tests/css/css-conditional/container-queries/canvas-as-container-002.html [ Pass ImageOnlyFailure ]
