@@ -603,6 +603,7 @@ UIProcess/Model/ModelProcessProxy.cpp
 
 UIProcess/Inspector/InspectorTargetProxy.cpp
 UIProcess/Inspector/RemoteWebInspectorUIProxy.cpp
+UIProcess/Inspector/WebInspectorBackendProxy.cpp
 UIProcess/Inspector/WebInspectorUIProxy.cpp
 UIProcess/Inspector/WebInspectorUIExtensionControllerProxy.cpp
 UIProcess/Inspector/WebInspectorUtilities.cpp
