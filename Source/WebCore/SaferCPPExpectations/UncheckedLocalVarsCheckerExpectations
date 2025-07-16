@@ -56,7 +56,6 @@ bindings/js/JSDOMWindowBase.cpp
 bindings/js/JSDOMWindowCustom.cpp
 bindings/js/JSDOMWindowProperties.cpp
 bindings/js/JSDocumentCustom.cpp
-bindings/js/JSEventListener.cpp
 bindings/js/JSHTMLElementCustom.cpp
 bindings/js/JSHTMLTemplateElementCustom.cpp
 bindings/js/JSLazyEventListener.cpp
