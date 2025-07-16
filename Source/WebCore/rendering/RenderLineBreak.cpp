@@ -61,7 +61,8 @@ RenderLineBreak::~RenderLineBreak()
 
 LayoutUnit RenderLineBreak::lineHeight() const
 {
-    return LayoutUnit::fromFloatCeil(firstLineStyle().computedLineHeight());
+    ASSERT_NOT_REACHED();
+    return { };
 }
 
 int RenderLineBreak::caretMinOffset() const
