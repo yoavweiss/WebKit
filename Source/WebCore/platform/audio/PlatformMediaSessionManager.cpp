@@ -732,7 +732,7 @@ void PlatformMediaSessionManager::maybeDeactivateAudioSession()
         return;
 
     ALWAYS_LOG(LOGIDENTIFIER, "tried to set inactive AudioSession");
-    AudioSession::protectedSharedSession()->tryToSetActive(false);
+    AudioSession::singleton().tryToSetActive(false);
     m_becameActive = false;
 #endif
 }
@@ -745,7 +745,7 @@ bool PlatformMediaSessionManager::maybeActivateAudioSession()
         return true;
     }
 
-    m_becameActive = AudioSession::protectedSharedSession()->tryToSetActive(true);
+    m_becameActive = AudioSession::singleton().tryToSetActive(true);
     ALWAYS_LOG(LOGIDENTIFIER, m_becameActive ? "successfully activated" : "failed to activate", " AudioSession");
     return m_becameActive;
 #else

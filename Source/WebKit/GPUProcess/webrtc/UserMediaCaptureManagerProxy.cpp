@@ -125,7 +125,7 @@ public:
 
     void audioUnitWillStart() final
     {
-        Ref session = AudioSession::sharedSession();
+        Ref session = AudioSession::singleton();
         session->setCategory(AudioSession::CategoryType::PlayAndRecord, AudioSession::Mode::VideoChat, RouteSharingPolicy::Default);
         session->tryToSetActive(true);
     }
@@ -387,7 +387,7 @@ private:
             m_writeOffset = 0;
             m_remainingFrameCount = 0;
             m_startTime = time;
-            m_frameChunkSize = std::max(WebCore::AudioUtilities::renderQuantumSize, AudioSession::protectedSharedSession()->preferredBufferSize());
+            m_frameChunkSize = std::max(WebCore::AudioUtilities::renderQuantumSize, AudioSession::singleton().preferredBufferSize());
 
             ASSERT(descriptionChanged || m_audioHandle);
 

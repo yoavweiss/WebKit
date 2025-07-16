@@ -5399,7 +5399,7 @@ void WebPage::startPlayingPredominantVideo(CompletionHandler<void(bool)>&& compl
 #if PLATFORM(IOS_FAMILY)
 void WebPage::setSceneIdentifier(String&& sceneIdentifier)
 {
-    AudioSession::sharedSession().setSceneIdentifier(sceneIdentifier);
+    AudioSession::singleton().setSceneIdentifier(sceneIdentifier);
     m_page->setSceneIdentifier(WTFMove(sceneIdentifier));
 }
 

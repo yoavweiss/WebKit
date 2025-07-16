@@ -73,7 +73,7 @@ const std::unique_ptr<PlatformMediaSessionManager> PlatformMediaSessionManager::
 
 MediaSessionManagerCocoa::MediaSessionManagerCocoa()
     : m_nowPlayingManager(hasPlatformStrategies() ? platformStrategies()->mediaStrategy().createNowPlayingManager() : nullptr)
-    , m_defaultBufferSize(AudioSession::protectedSharedSession()->preferredBufferSize())
+    , m_defaultBufferSize(AudioSession::singleton().preferredBufferSize())
     , m_delayCategoryChangeTimer(RunLoop::main(), this, &MediaSessionManagerCocoa::possiblyChangeAudioCategory)
 {
 }
@@ -143,27 +143,26 @@ void MediaSessionManagerCocoa::updateSessionState()
 
     MEDIASESSIONMANAGER_RELEASE_LOG(UPDATESESSIONSTATE, captureCount, audioMediaStreamTrackCount, videoCount, audioCount, videoAudioCount, webAudioCount);
 
-    Ref sharedSession = AudioSession::sharedSession();
     size_t bufferSize = m_defaultBufferSize;
     if (webAudioCount)
         bufferSize = AudioUtilities::renderQuantumSize;
     else if (captureCount || audioMediaStreamTrackCount) {
         // In case of audio capture or audio MediaStreamTrack playing, we want to grab 20 ms chunks to limit the latency so that it is not noticeable by users
         // while having a large enough buffer so that the audio rendering remains stable, hence a computation based on sample rate.
-        bufferSize = roundUpToPowerOfTwo<size_t>(sharedSession->sampleRate() / 50);
+        bufferSize = roundUpToPowerOfTwo<size_t>(AudioSession::singleton().sampleRate() / 50);
     } else if (m_supportedAudioHardwareBufferSizes && DeprecatedGlobalSettings::lowPowerVideoAudioBufferSizeEnabled())
         bufferSize = m_supportedAudioHardwareBufferSizes.nearest(kLowPowerVideoBufferSize);
 
-    sharedSession->setPreferredBufferSize(bufferSize);
+    AudioSession::singleton().setPreferredBufferSize(bufferSize);
 
     if (!DeprecatedGlobalSettings::shouldManageAudioSessionCategory())
         return;
 
     auto category = AudioSession::CategoryType::None;
     auto mode = AudioSession::Mode::Default;
-    if (sharedSession->categoryOverride() != AudioSession::CategoryType::None)
-        category = sharedSession->categoryOverride();
-    else if (captureCount || (isPlayingAudio && sharedSession->category() == AudioSession::CategoryType::PlayAndRecord)) {
+    if (AudioSession::singleton().categoryOverride() != AudioSession::CategoryType::None)
+        category = AudioSession::singleton().categoryOverride();
+    else if (captureCount || (isPlayingAudio && AudioSession::singleton().category() == AudioSession::CategoryType::PlayAndRecord)) {
         category = AudioSession::CategoryType::PlayAndRecord;
         mode = AudioSession::Mode::VideoChat;
     } else if (hasAudibleVideoMediaType) {
@@ -194,7 +193,7 @@ void MediaSessionManagerCocoa::updateSessionState()
     ALWAYS_LOG(LOGIDENTIFIER, "setting category = ", category, ", mode = ", mode, ", policy = ", policy, ", previous category = ", m_previousCategory);
 
     m_previousCategory = category;
-    sharedSession->setCategory(category, mode, policy);
+    AudioSession::singleton().setCategory(category, mode, policy);
 
     forEachSession([&] (auto& session) {
         session.audioSessionCategoryChanged(category, mode, policy);
@@ -551,8 +550,8 @@ void MediaSessionManagerCocoa::audioOutputDeviceChanged()
 {
     ASSERT(m_audioHardwareListener);
     m_supportedAudioHardwareBufferSizes = m_audioHardwareListener->supportedBufferSizes();
-    m_defaultBufferSize = AudioSession::protectedSharedSession()->preferredBufferSize();
-    AudioSession::protectedSharedSession()->audioOutputDeviceChanged();
+    m_defaultBufferSize = AudioSession::singleton().preferredBufferSize();
+    AudioSession::singleton().audioOutputDeviceChanged();
     updateSessionState();
 }
 

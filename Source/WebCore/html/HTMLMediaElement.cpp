@@ -707,7 +707,7 @@ void HTMLMediaElement::initializeMediaSession()
     registerWithDocument(document);
 
 #if USE(AUDIO_SESSION) && PLATFORM(MAC)
-    AudioSession::sharedSession().addConfigurationChangeObserver(*this);
+    AudioSession::singleton().addConfigurationChangeObserver(*this);
 #endif
 
     m_mediaSession->clientWillBeginAutoplaying();
@@ -749,7 +749,7 @@ HTMLMediaElement::~HTMLMediaElement()
     unregisterWithDocument(Ref<Document> { document() });
 
 #if USE(AUDIO_SESSION) && PLATFORM(MAC)
-    AudioSession::sharedSession().removeConfigurationChangeObserver(*this);
+    AudioSession::singleton().removeConfigurationChangeObserver(*this);
 #endif
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
@@ -6522,8 +6522,8 @@ void HTMLMediaElement::playPlayer()
         return;
 
 #if USE(AUDIO_SESSION)
-    m_categoryAtMostRecentPlayback = AudioSession::sharedSession().category();
-    m_modeAtMostRecentPlayback = AudioSession::sharedSession().mode();
+    m_categoryAtMostRecentPlayback = AudioSession::singleton().category();
+    m_modeAtMostRecentPlayback = AudioSession::singleton().mode();
 #endif
 
 #if ENABLE(MEDIA_SESSION) && ENABLE(MEDIA_SESSION_COORDINATOR)

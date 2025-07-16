@@ -709,9 +709,9 @@ void Internals::resetToConsistentState(Page& page)
     TextPainter::setForceUseGlyphDisplayListForTesting(false);
 
 #if USE(AUDIO_SESSION)
-    AudioSession::sharedSession().setCategoryOverride(AudioSessionCategory::None);
-    AudioSession::sharedSession().tryToSetActive(false);
-    AudioSession::sharedSession().endInterruptionForTesting();
+    AudioSession::singleton().setCategoryOverride(AudioSessionCategory::None);
+    AudioSession::singleton().tryToSetActive(false);
+    AudioSession::singleton().endInterruptionForTesting();
 #endif
 
 #if ENABLE(DAMAGE_TRACKING)
@@ -5173,7 +5173,7 @@ void Internals::forceStereoDecoding(HTMLMediaElement& element)
 void Internals::beginAudioSessionInterruption()
 {
 #if USE(AUDIO_SESSION)
-    AudioSession::sharedSession().beginInterruptionForTesting();
+    AudioSession::singleton().beginInterruptionForTesting();
 #endif
 }
 
@@ -5181,14 +5181,14 @@ void Internals::beginAudioSessionInterruption()
 void Internals::endAudioSessionInterruption()
 {
 #if USE(AUDIO_SESSION)
-    AudioSession::sharedSession().endInterruptionForTesting();
+    AudioSession::singleton().endInterruptionForTesting();
 #endif
 }
 
 void Internals::clearAudioSessionInterruptionFlag()
 {
 #if USE(AUDIO_SESSION)
-    AudioSession::sharedSession().clearInterruptionFlagForTesting();
+    AudioSession::singleton().clearInterruptionFlagForTesting();
 #endif
 }
 
@@ -6022,7 +6022,7 @@ double Internals::elementEffectivePlaybackRate(const HTMLMediaElement& media)
 ExceptionOr<void> Internals::setIsPlayingToBluetoothOverride(std::optional<bool> isPlaying)
 {
 #if ENABLE(ROUTING_ARBITRATION)
-    AudioSession::sharedSession().setIsPlayingToBluetoothOverride(isPlaying);
+    AudioSession::singleton().setIsPlayingToBluetoothOverride(isPlaying);
     return { };
 #else
     UNUSED_PARAM(isPlaying);
@@ -6454,7 +6454,7 @@ bool Internals::supportsAudioSession() const
 auto Internals::audioSessionCategory() const -> AudioSessionCategory
 {
 #if USE(AUDIO_SESSION)
-    return AudioSession::sharedSession().category();
+    return AudioSession::singleton().category();
 #else
     return AudioSessionCategory::None;
 #endif
@@ -6463,7 +6463,7 @@ auto Internals::audioSessionCategory() const -> AudioSessionCategory
 auto Internals::audioSessionMode() const -> AudioSessionMode
 {
 #if USE(AUDIO_SESSION)
-    return AudioSession::sharedSession().mode();
+    return AudioSession::singleton().mode();
 #else
     return AudioSessionMode::Default;
 #endif
@@ -6472,7 +6472,7 @@ auto Internals::audioSessionMode() const -> AudioSessionMode
 auto Internals::routeSharingPolicy() const -> RouteSharingPolicy
 {
 #if USE(AUDIO_SESSION)
-    return AudioSession::sharedSession().routeSharingPolicy();
+    return AudioSession::singleton().routeSharingPolicy();
 #else
     return RouteSharingPolicy::Default;
 #endif
@@ -6504,7 +6504,7 @@ auto Internals::modeAtMostRecentPlayback(HTMLMediaElement& element) const -> Aud
 double Internals::preferredAudioBufferSize() const
 {
 #if USE(AUDIO_SESSION)
-    return AudioSession::sharedSession().preferredBufferSize();
+    return AudioSession::singleton().preferredBufferSize();
 #endif
     return 0;
 }
@@ -6512,7 +6512,7 @@ double Internals::preferredAudioBufferSize() const
 double Internals::currentAudioBufferSize() const
 {
 #if USE(AUDIO_SESSION)
-    return AudioSession::sharedSession().bufferSize();
+    return AudioSession::singleton().bufferSize();
 #endif
     return 0;
 }
@@ -6521,7 +6521,7 @@ double Internals::currentAudioBufferSize() const
 bool Internals::audioSessionActive() const
 {
 #if USE(AUDIO_SESSION)
-    return AudioSession::sharedSession().isActive();
+    return AudioSession::singleton().isActive();
 #endif
     return false;
 }

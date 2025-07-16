@@ -6,7 +6,6 @@ Modules/airplay/WebMediaSessionManager.cpp
 Modules/applepay/ApplePaySession.cpp
 Modules/applepay/paymentrequest/ApplePayPaymentHandler.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp
-Modules/audiosession/DOMAudioSession.cpp
 Modules/cache/DOMCache.cpp
 Modules/cache/DOMCacheStorage.cpp
 Modules/cache/RetrieveRecordsOptions.h
@@ -822,7 +821,6 @@ platform/mediastream/cocoa/AudioMediaStreamTrackRendererCocoa.cpp
 platform/mediastream/cocoa/AudioMediaStreamTrackRendererUnit.cpp
 platform/mediastream/cocoa/IncomingAudioMediaStreamTrackRendererUnit.cpp
 platform/mediastream/mac/MediaStreamTrackAudioSourceProviderCocoa.cpp
-platform/mediastream/mac/MockAudioSharedUnit.mm
 platform/mediastream/mac/RealtimeOutgoingAudioSourceCocoa.cpp
 platform/mediastream/mac/WebAudioSourceProviderCocoa.mm
 platform/mock/GeolocationClientMock.cpp
