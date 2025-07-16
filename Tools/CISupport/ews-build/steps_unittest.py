@@ -7310,7 +7310,7 @@ class TestCheckOutSource(BuildStepMixinAdditions, unittest.TestCase):
 
     def test_success_security(self):
         self.setupStep(CheckOutSource())
-        self.setProperty('project', 'apple/WebKit')
+        self.setProperty('project', 'WebKit/WebKit-security')
         self.expectRemoteCommands(
             ExpectShell(
                 workdir='wkdir',
@@ -7581,8 +7581,8 @@ class TestInstallHooks(BuildStepMixinAdditions, unittest.TestCase):
 
     def test_apple_remote(self):
         self.setupStep(InstallHooks())
-        self.setProperty('github.head.repo.full_name', 'JonWBedard/WebKit-apple')
-        self.setProperty('project', 'apple/WebKit')
+        self.setProperty('github.head.repo.full_name', 'JonWBedard/WebKit-security')
+        self.setProperty('project', 'WebKit/WebKit-security')
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
                         timeout=30,
@@ -7595,7 +7595,7 @@ class TestInstallHooks(BuildStepMixinAdditions, unittest.TestCase):
                         command=[
                             'python3', 'Tools/Scripts/git-webkit',
                             'install-hooks', 'pre-push', '--mode', 'no-radar',
-                            '--level', 'github.com:JonWBedard/WebKit-apple=2',
+                            '--level', 'github.com:JonWBedard/WebKit-security=1',
                         ]) + ExpectShell.log('stdio', stdout='Unexpected failure') + 0,
         )
         self.expectOutcome(result=SUCCESS, state_string='Installed hooks to checkout')

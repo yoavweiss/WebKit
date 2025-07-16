@@ -893,7 +893,6 @@ class TestExpectedBuildSteps(unittest.TestCase):
         ],
         'Safe-Merge-Queue': [
             'retrieve-pr-data-from-label',
-            'retrieve-pr-data-from-label',
             'retrieve-pr-data-from-label'
         ],
     }

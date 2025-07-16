@@ -68,7 +68,7 @@ WithProperties = properties.WithProperties
 Interpolate = properties.Interpolate
 GITHUB_URL = 'https://github.com/'
 # First project is treated as the default
-GITHUB_PROJECTS = ['WebKit/WebKit', 'WebKit/WebKit-security', 'apple/WebKit']
+GITHUB_PROJECTS = ['WebKit/WebKit', 'WebKit/WebKit-security']
 HASH_LENGTH_TO_DISPLAY = 8
 DEFAULT_BRANCH = 'main'
 DEFAULT_REMOTE = 'origin'
