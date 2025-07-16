@@ -526,7 +526,7 @@ public:
 
     virtual void markForPaginationRelayoutIfNeeded() { }
     
-    LayoutUnit lineHeight() const override;
+    virtual LayoutUnit lineHeight() const;
     virtual LayoutUnit baselinePosition() const;
 
     LayoutUnit offsetLeft() const override;

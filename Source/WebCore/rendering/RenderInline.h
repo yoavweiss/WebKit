@@ -139,8 +139,6 @@ private:
 
     void dirtyLineFromChangedChild() final { m_legacyLineBoxes.dirtyLineFromChangedChild(*this); }
 
-    LayoutUnit lineHeight() const final;
-    
     void updateHitTestResult(HitTestResult&, const LayoutPoint&) const final;
 
     void imageChanged(WrappedImagePtr, const IntRect* = 0) final;

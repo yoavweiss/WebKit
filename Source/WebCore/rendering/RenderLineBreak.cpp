@@ -59,12 +59,6 @@ RenderLineBreak::~RenderLineBreak()
 {
 }
 
-LayoutUnit RenderLineBreak::lineHeight() const
-{
-    ASSERT_NOT_REACHED();
-    return { };
-}
-
 int RenderLineBreak::caretMinOffset() const
 {
     return 0;

@@ -61,8 +61,6 @@ private:
     int caretMaxOffset() const final;
     bool canBeSelectionLeaf() const final;
 
-    LayoutUnit lineHeight() const final;
-
     LayoutUnit marginTop() const final { return 0; }
     LayoutUnit marginBottom() const final { return 0; }
     LayoutUnit marginLeft() const final { return 0; }
