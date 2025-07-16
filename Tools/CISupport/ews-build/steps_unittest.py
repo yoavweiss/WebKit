@@ -8182,7 +8182,7 @@ class TestValidateCommitMessage(BuildStepMixinAdditions, unittest.TestCase):
                              logEnviron=False,
                              timeout=60,
                              command=['/bin/bash', '--posix', '-o', 'pipefail', '-c',
-                                      "grep -q '\\(Reviewed by\\|Rubber-stamped by\\|Rubber stamped by\\|Unreviewed\\|Versioning.\\)' < <(git log eng/pull-request-branch ^main) || echo 'No reviewer information in commit message"])
+                                      "git log eng/pull-request-branch ^main | grep -q '\\(Reviewed by\\|Rubber-stamped by\\|Rubber stamped by\\|Unreviewed\\|Versioning.\\)' || echo 'No reviewer information in commit message'"])
             + 0, ExpectShell(workdir='wkdir',
                              logEnviron=False,
                              timeout=60,
@@ -8217,7 +8217,7 @@ class TestValidateCommitMessage(BuildStepMixinAdditions, unittest.TestCase):
             + 0, ExpectShell(workdir='wkdir',
                         logEnviron=False,
                         timeout=60,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "grep -q '\\(Reviewed by\\|Rubber-stamped by\\|Rubber stamped by\\|Unreviewed\\|Versioning.\\)' < <(git log HEAD ^origin/main) || echo 'No reviewer information in commit message"])
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log HEAD ^origin/main | grep -q '\\(Reviewed by\\|Rubber-stamped by\\|Rubber stamped by\\|Unreviewed\\|Versioning.\\)' || echo 'No reviewer information in commit message'"])
             + 0, ExpectShell(workdir='wkdir',
                         logEnviron=False,
                         timeout=60,
@@ -8277,7 +8277,7 @@ class TestValidateCommitMessage(BuildStepMixinAdditions, unittest.TestCase):
             + 0, ExpectShell(workdir='wkdir',
                         logEnviron=False,
                         timeout=60,
-                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "grep -q '\\(Reviewed by\\|Rubber-stamped by\\|Rubber stamped by\\|Unreviewed\\|Versioning.\\)' < <(git log eng/pull-request-branch ^main) || echo 'No reviewer information in commit message"])
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', "git log eng/pull-request-branch ^main | grep -q '\\(Reviewed by\\|Rubber-stamped by\\|Rubber stamped by\\|Unreviewed\\|Versioning.\\)' || echo 'No reviewer information in commit message'"])
             + 0, ExpectShell(workdir='wkdir',
                         logEnviron=False,
                         timeout=60,
