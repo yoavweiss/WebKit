@@ -2886,6 +2886,31 @@ header: <WebCore/ScrollingCoordinatorTypes.h>
 };
 
 header: <WebCore/ScrollingCoordinatorTypes.h>
+[CustomHeader] enum class WebCore::ScrollUpdateType : uint8_t {
+    PositionUpdate,
+    AnimatedScrollWillStart,
+    AnimatedScrollDidEnd,
+    WheelEventScrollWillStart,
+    WheelEventScrollDidEnd,
+};
+
+header: <WebCore/ScrollingCoordinatorTypes.h>
+[CustomHeader] enum class WebCore::ScrollingLayerPositionAction : uint8_t {
+    Set,
+    SetApproximate,
+    Sync
+};
+
+header: <WebCore/ScrollingCoordinatorTypes.h>
+[CustomHeader] struct WebCore::ScrollUpdate {
+    WebCore::ScrollingNodeID nodeID;
+    WebCore::FloatPoint scrollPosition;
+    std::optional<WebCore::FloatPoint> layoutViewportOrigin;
+    WebCore::ScrollUpdateType updateType;
+    WebCore::ScrollingLayerPositionAction updateLayerPositionAction;
+};
+
+header: <WebCore/ScrollingCoordinatorTypes.h>
 [OptionSet] enum class WebCore::WheelEventProcessingSteps : uint8_t {
     AsyncScrolling,
     SynchronousScrolling,

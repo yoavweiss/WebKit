@@ -299,6 +299,7 @@ struct PromisedAttachmentInfo;
 struct RecentSearch;
 struct ResourceLoaderIdentifierType;
 struct RemoteUserInputEventData;
+struct ScrollUpdate;
 struct ScrollingNodeIDType;
 struct SerializedAttachmentData;
 struct ShareDataWithParsedURL;
@@ -2682,7 +2683,7 @@ public:
     WebsitePoliciesData* mainFrameWebsitePoliciesData() const { return m_mainFrameWebsitePoliciesData.get(); }
 
 #if ENABLE(ASYNC_SCROLLING) && PLATFORM(COCOA)
-    void sendScrollPositionChangedForNode(std::optional<WebCore::FrameIdentifier>, WebCore::ScrollingNodeID, const WebCore::FloatPoint& scrollPosition, std::optional<WebCore::FloatPoint> layoutViewportOrigin, bool syncLayerPosition, bool isLastUpdate);
+    void sendScrollUpdateForNode(std::optional<WebCore::FrameIdentifier>, WebCore::ScrollUpdate, bool isLastUpdate);
 #endif
 
     bool hasAllowedToRunInTheBackgroundActivity() const;

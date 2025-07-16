@@ -604,7 +604,7 @@ void RemoteLayerTreeDrawingAreaProxy::didRefreshDisplay(ProcessState& state, IPC
 
     if (&state == &m_webPageProxyProcessState) {
         if (RefPtr page = this->page())
-            page->checkedScrollingCoordinatorProxy()->sendScrollingTreeNodeDidScroll();
+            page->checkedScrollingCoordinatorProxy()->sendScrollingTreeNodeUpdate();
     }
 
     // Waiting for CA to commit is insufficient, because the render server can still be

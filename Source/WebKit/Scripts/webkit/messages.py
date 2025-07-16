@@ -1163,6 +1163,7 @@ def headers_for_type(type, for_implementation_file=False):
         'WebCore::SameSiteStrictEnforcementEnabled': ['<WebCore/NetworkStorageSession.h>'],
         'WebCore::ScriptExecutionContextIdentifier': ['<WebCore/ProcessQualified.h>', '<WebCore/ScriptExecutionContextIdentifier.h>', '<wtf/ObjectIdentifier.h>'],
         'WebCore::ScheduleLocationChangeResult': ['<WebCore/NavigationScheduler.h>'],
+        'WebCore::ScrollUpdate': ['<WebCore/ScrollingCoordinatorTypes.h>'],
         'WebCore::ScrollbarMode': ['<WebCore/ScrollTypes.h>'],
         'WebCore::ScrollbarOverlayStyle': ['<WebCore/ScrollTypes.h>'],
         'WebCore::ScrollDirection': ['<WebCore/ScrollTypes.h>'],
