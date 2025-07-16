@@ -230,7 +230,6 @@ editing/mac/EditorMac.mm
 editing/mac/FrameSelectionMac.mm
 history/CachedFrame.cpp
 history/CachedPage.cpp
-history/HistoryItem.cpp
 html/Autofill.cpp
 html/CachedHTMLCollectionInlines.h
 html/CanvasBase.cpp
@@ -324,7 +323,6 @@ page/Frame.cpp
 page/FrameSnapshotting.cpp
 page/FrameTree.cpp
 page/FrameView.cpp
-page/History.cpp
 page/ImageAnalysisQueue.cpp
 page/InteractionRegion.cpp
 page/IntersectionObserver.cpp

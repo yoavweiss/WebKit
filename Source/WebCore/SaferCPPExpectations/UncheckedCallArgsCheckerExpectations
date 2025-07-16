@@ -444,7 +444,6 @@ page/EventHandler.cpp
 page/FocusController.cpp
 page/Frame.cpp
 page/FrameSnapshotting.cpp
-page/History.cpp
 page/ImageOverlayController.cpp
 page/IntelligenceTextEffectsSupport.cpp
 page/InteractionRegion.cpp

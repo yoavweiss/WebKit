@@ -472,7 +472,6 @@ editing/markup.cpp
 history/BackForwardCache.cpp
 history/CachedFrame.cpp
 history/CachedPage.cpp
-history/HistoryItem.cpp
 html/AttachmentAssociatedElement.cpp
 html/CachedHTMLCollection.h
 html/CachedHTMLCollectionInlines.h
@@ -659,7 +658,6 @@ page/Frame.cpp
 page/FrameDestructionObserver.cpp
 page/FrameSnapshotting.cpp
 page/FrameTree.cpp
-page/History.cpp
 page/ImageAnalysisQueue.cpp
 page/ImageOverlayController.cpp
 page/InteractionRegion.cpp

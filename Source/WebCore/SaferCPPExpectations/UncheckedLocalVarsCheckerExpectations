@@ -273,7 +273,6 @@ layout/integration/inline/LineSelection.h
 layout/layouttree/LayoutBox.cpp
 layout/layouttree/LayoutElementBox.cpp
 layout/layouttree/LayoutTreeBuilder.cpp
-loader/ContentFilter.cpp
 loader/DocumentLoader.cpp
 loader/EmptyClients.cpp
 loader/FrameLoader.cpp
