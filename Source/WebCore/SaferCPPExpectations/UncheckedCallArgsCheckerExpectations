@@ -339,14 +339,12 @@ inspector/agents/worker/WorkerDebuggerAgent.cpp
 inspector/agents/worker/WorkerRuntimeAgent.cpp
 layout/floats/FloatingContext.cpp
 layout/floats/PlacedFloats.cpp
-layout/formattingContexts/FormattingContext.h
 layout/formattingContexts/FormattingGeometry.cpp
 layout/formattingContexts/block/BlockFormattingContext.cpp
 layout/formattingContexts/block/BlockFormattingQuirks.cpp
 layout/formattingContexts/block/BlockMarginCollapse.cpp
 layout/formattingContexts/block/PrecomputedBlockMarginCollapse.cpp
 layout/formattingContexts/block/tablewrapper/TableWrapperBlockFormattingContext.cpp
-layout/formattingContexts/flex/FlexFormattingContext.cpp
 layout/formattingContexts/flex/FlexLayout.cpp
 layout/formattingContexts/inline/AbstractLineBuilder.cpp
 layout/formattingContexts/inline/InlineContentAligner.cpp
@@ -378,7 +376,6 @@ layout/formattingContexts/inline/ruby/RubyFormattingContext.cpp
 layout/formattingContexts/inline/text/TextUtil.cpp
 layout/formattingContexts/table/TableFormattingContext.cpp
 layout/formattingContexts/table/TableFormattingGeometry.cpp
-layout/formattingContexts/table/TableFormattingQuirks.cpp
 layout/formattingContexts/table/TableGrid.cpp
 layout/formattingContexts/table/TableLayout.cpp
 layout/integration/LayoutIntegrationBoxGeometryUpdater.cpp
