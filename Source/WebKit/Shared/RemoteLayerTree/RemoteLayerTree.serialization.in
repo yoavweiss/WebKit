@@ -105,7 +105,6 @@ header: "RemoteLayerBackingStore.h"
     bool m_isOpaque;
     WebKit::RemoteLayerBackingStore::Type m_type;
 #if HAVE(SUPPORT_HDR_DISPLAY)
-    bool m_hasExtendedDynamicRange;
     float m_maxRequestedEDRHeadroom;
 #endif
 };
