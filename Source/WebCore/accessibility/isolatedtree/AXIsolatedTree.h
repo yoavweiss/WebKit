@@ -273,7 +273,6 @@ enum class AXProperty : uint16_t {
     SupportsDropping,
     SupportsARIAOwns,
     SupportsCurrent,
-    SupportsDatetimeAttribute,
     SupportsExpandedTextValue,
     SupportsKeyShortcuts,
     TextContentPrefixFromListMarker,

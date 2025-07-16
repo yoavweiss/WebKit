@@ -1146,9 +1146,6 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::SupportsCurrent:
         stream << "SupportsCurrent";
         break;
-    case AXProperty::SupportsDatetimeAttribute:
-        stream << "SupportsDatetimeAttribute";
-        break;
     case AXProperty::SupportsExpanded:
         stream << "SupportsExpanded";
         break;

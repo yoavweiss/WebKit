@@ -233,7 +233,6 @@ public:
 
     WallTime dateTimeValue() const override { return { }; }
     DateComponentsType dateTimeComponentsType() const final;
-    bool supportsDatetimeAttribute() const final;
     String datetimeAttributeValue() const final;
 
     bool canSetFocusAttribute() const override { return false; }

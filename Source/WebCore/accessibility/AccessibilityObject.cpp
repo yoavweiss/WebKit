@@ -2888,12 +2888,6 @@ String AccessibilityObject::embeddedImageDescription() const
     return renderImage->accessibilityDescription();
 }
 
-bool AccessibilityObject::supportsDatetimeAttribute() const
-{
-    auto elementName = this->elementName();
-    return elementName == ElementName::HTML_ins || elementName == ElementName::HTML_del || elementName == ElementName::HTML_time;
-}
-
 String AccessibilityObject::datetimeAttributeValue() const
 {
     return getAttribute(datetimeAttr);
