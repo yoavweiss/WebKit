@@ -255,7 +255,7 @@ static std::optional<SymbolNameWithType> symbolNameWithTypeForAction(const WebCo
         return { { SymbolType::Public, "minus.magnifyingglass"_s } };
     case WebCore::ContextMenuItemTagAddHighlightToCurrentQuickNote:
     case WebCore::ContextMenuItemTagAddHighlightToNewQuickNote:
-        return { { SymbolType::Public, "quicknote"_s } };
+        return { { SymbolType::Private, "quicknote"_s } };
     case WebCore::ContextMenuItemTagBold:
         return { { SymbolType::Public, "bold"_s } };
     case WebCore::ContextMenuItemTagCapitalize:
