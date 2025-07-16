@@ -2636,22 +2636,15 @@ void AccessibilityRenderObject::addNodeOnlyChildren()
 }
 #endif // USE(ATSPI)
 
-#if PLATFORM(COCOA)
+#if PLATFORM(MAC)
 void AccessibilityRenderObject::updateAttachmentViewParents()
 {
-    // Only the unignored parent should set the attachment parent, because that's
-    // what is reflected in the AX hierarchy to the client.
-    if (isIgnored())
-        return;
-
-    for (const auto& child : unignoredChildren(/* updateChildrenIfNeeded */ false)) {
-        if (child->isAttachment()) {
-            if (RefPtr liveChild = dynamicDowncast<AccessibilityObject>(child.get()))
-                liveChild->overrideAttachmentParent(this);
-        }
-    }
+    // updateChildrenIfNeeded == false because this is called right after we've added children, so we know
+    // they're clean and don't need updating.
+    for (const auto& child : children(/* updateChildrenIfNeeded */ false))
+        downcast<AccessibilityObject>(child)->overrideAttachmentParent(this);
 }
-#endif // PLATFORM(COCOA)
+#endif // PLATFORM(MAC)
 
 RenderObject* AccessibilityRenderObject::markerRenderer() const
 {
@@ -2788,7 +2781,7 @@ void AccessibilityRenderObject::addChildren()
     addImageMapChildren();
     addTextFieldChildren();
     addRemoteSVGChildren();
-#if PLATFORM(COCOA)
+#if PLATFORM(MAC)
     updateAttachmentViewParents();
 #endif
     updateOwnedChildren();

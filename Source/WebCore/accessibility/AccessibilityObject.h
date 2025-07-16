@@ -713,7 +713,7 @@ public:
     bool isHidden() const { return isAXHidden() || isRenderHidden(); }
     bool isOnScreen() const final;
 
-#if PLATFORM(COCOA)
+#if PLATFORM(MAC)
     void overrideAttachmentParent(AccessibilityObject* parent);
 #else
     void overrideAttachmentParent(AccessibilityObject*) { }

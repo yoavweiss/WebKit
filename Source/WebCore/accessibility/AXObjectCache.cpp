@@ -3040,9 +3040,17 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
         postNotification(element, AXNotification::RequiredStatusChanged);
     else if (attrName == tabindexAttr) {
         if (oldValue.isEmpty() || newValue.isEmpty()) {
+#if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+            // When ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE), we don't need to do issue any children-changed events,
+            // which is quite expensive — just re-compute is-ignored on this single object.
+            if (RefPtr object = get(*element))
+                object->recomputeIsIgnored();
+#else
             RefPtr parent = element->parentNode();
             if (auto* renderer = parent ? parent->renderer() : nullptr)
                 childrenChanged(*renderer);
+#endif // ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
             postNotification(element, AXNotification::FocusableStateChanged);
 #endif
