@@ -72,6 +72,10 @@ if (ENABLE_JOURNALD_LOG)
     list(APPEND WTF_LIBRARIES Journald::Journald)
 endif ()
 
+if (ANDROID)
+    list(APPEND WTF_LIBRARIES Android::Log)
+endif ()
+
 list(APPEND WTF_SYSTEM_INCLUDE_DIRECTORIES
     ${GIO_UNIX_INCLUDE_DIRS}
     ${GLIB_INCLUDE_DIRS}
