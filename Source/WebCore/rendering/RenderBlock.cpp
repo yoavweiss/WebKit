@@ -2474,11 +2474,6 @@ bool RenderBlock::hasLineIfEmpty() const
     return element && element->isRootEditableElement();
 }
 
-LayoutUnit RenderBlock::lineHeight() const
-{
-    return LayoutUnit::fromFloatCeil(firstLineStyle().computedLineHeight());
-}
-
 LayoutUnit RenderBlock::baselinePosition() const
 {
     // Inline blocks are replaced elements. Otherwise, just pass off to

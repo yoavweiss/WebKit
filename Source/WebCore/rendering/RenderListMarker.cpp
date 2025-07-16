@@ -422,13 +422,6 @@ void RenderListMarker::updateInlineMargins()
     mutableStyle().setMarginEnd(Style::MarginEdge::Fixed { marginEnd });
 }
 
-LayoutUnit RenderListMarker::lineHeight() const
-{
-    if (!isImage())
-        return m_listItem->lineHeight();
-    return RenderBox::lineHeight();
-}
-
 LayoutUnit RenderListMarker::baselinePosition() const
 {
     if (!isImage())
