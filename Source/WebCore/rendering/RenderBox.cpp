@@ -2318,11 +2318,6 @@ LayoutUnit RenderBox::containingBlockLogicalWidthForContent() const
 
 LayoutUnit RenderBox::containingBlockLogicalHeightForContent(AvailableLogicalHeightType heightType) const
 {
-    if (isOutOfFlowPositioned()) {
-        PositionedLayoutConstraints constraints(*this, LogicalBoxAxis::Block);
-        return constraints.containingSize();
-    }
-
     if (isGridItem()) {
         if (auto gridAreaContentLogicalHeight = this->gridAreaContentLogicalHeight(); gridAreaContentLogicalHeight && *gridAreaContentLogicalHeight) {
             // FIXME: Containing block for a grid item is the grid area it's located in. We need to return whatever
