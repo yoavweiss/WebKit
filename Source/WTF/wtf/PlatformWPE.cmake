@@ -1,4 +1,6 @@
 list(APPEND WTF_SOURCES
+    android/LoggingAndroid.cpp
+
     generic/MainThreadGeneric.cpp
     generic/MemoryFootprintGeneric.cpp
     generic/WorkQueueGeneric.cpp
