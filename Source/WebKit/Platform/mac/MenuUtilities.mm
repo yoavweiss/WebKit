@@ -288,7 +288,7 @@ static std::optional<SymbolNameWithType> symbolNameWithTypeForAction(const WebCo
     case WebCore::ContextMenuItemTagIgnoreSpelling:
         return { { SymbolType::Public, "checkmark.circle"_s } };
     case WebCore::ContextMenuItemTagInspectElement:
-        return { { SymbolType::Public, "gear"_s } };
+        return { { SymbolType::Public, "wrench.and.screwdriver"_s } };
     case WebCore::ContextMenuItemTagItalic:
         return { { SymbolType::Public, "italic"_s } };
     case WebCore::ContextMenuItemTagLearnSpelling:
