@@ -210,7 +210,7 @@ TEST(ClipboardTests, ConvertTIFFToPNGWhenPasting)
     EXPECT_TRUE([[webView stringByEvaluatingJavaScript:@"clipboardData[0]['image/png'].src"] containsString:@"blob:"]);
 }
 
-TEST(ClipboardTests, EphemeralSessionClipboardHasExpiration)
+TEST(ClipboardTests, EphemeralSessionClipboardHasExpirationJavaScript)
 {
     RetainPtr webView = createEphemeralWebViewForClipboardTests();
 
@@ -225,6 +225,26 @@ TEST(ClipboardTests, EphemeralSessionClipboardHasExpiration)
     };
 
     EXPECT_TRUE([webView stringByEvaluatingJavaScript:@"document.execCommand(\"selectAll\", true); document.execCommand(\"copy\");"]);
+
+    EXPECT_TRUE(pasteboardHaveExpirationDate);
+}
+
+TEST(ClipboardTests, EphemeralSessionClipboardHasExpirationWebView)
+{
+    RetainPtr webView = createEphemeralWebViewForClipboardTests();
+
+    __block bool pasteboardHaveExpirationDate = false;
+    auto setExpirationDateSwizzler = InstanceMethodSwizzler {
+        NSPasteboard.class,
+        @selector(_setExpirationDate:),
+        imp_implementationWithBlock(^{
+            pasteboardHaveExpirationDate = true;
+            return YES;
+        })
+    };
+
+    [webView selectAll:nil];
+    [webView _synchronouslyExecuteEditCommand:@"Copy" argument:nil];
 
     EXPECT_TRUE(pasteboardHaveExpirationDate);
 }
