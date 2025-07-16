@@ -36,10 +36,9 @@ class DedicatedCommandBlockAllocator
     DedicatedCommandMemoryAllocator *getAllocator() { return &mAllocator; }
 
   private:
-    static constexpr size_t kDefaultPoolAllocatorPageSize = 16 * 1024;
     // Using a pool allocator per CBH to avoid threading issues that occur w/ shared allocator
     // between multiple CBHs.
-    DedicatedCommandMemoryAllocator mAllocator{kDefaultPoolAllocatorPageSize, 1};
+    DedicatedCommandMemoryAllocator mAllocator{1};
 };
 
 // Used in SecondaryCommandBuffer

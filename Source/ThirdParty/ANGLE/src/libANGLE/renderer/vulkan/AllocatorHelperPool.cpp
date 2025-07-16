@@ -49,7 +49,7 @@ bool DedicatedCommandBlockPool::empty() const
 void DedicatedCommandBlockPool::allocateNewBlock(size_t blockSize)
 {
     ASSERT(mAllocator);
-    mCurrentWritePointer   = mAllocator->fastAllocate(blockSize);
+    mCurrentWritePointer   = reinterpret_cast<uint8_t *>(mAllocator->allocate(blockSize));
     mCurrentBytesRemaining = blockSize;
     mCommandBuffer->pushToCommands(mCurrentWritePointer);
 }
