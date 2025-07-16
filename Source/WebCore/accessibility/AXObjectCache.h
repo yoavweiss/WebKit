@@ -1032,7 +1032,7 @@ public:
     ~AXAttributeCacheEnabler();
 
 private:
-    AXObjectCache* m_cache;
+    const WeakPtr<AXObjectCache> m_cache;
     bool m_wasAlreadyCaching { false };
 };
 

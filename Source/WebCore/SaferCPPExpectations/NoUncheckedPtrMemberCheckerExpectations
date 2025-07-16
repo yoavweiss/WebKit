@@ -1,5 +1,4 @@
 Modules/websockets/WorkerThreadableWebSocketChannel.h
-accessibility/AXObjectCache.h
 bindings/js/JSLazyEventListener.cpp
 css/CSSToLengthConversionData.h
 css/SelectorChecker.h
