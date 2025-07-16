@@ -49,7 +49,6 @@ WebDriverBidiFrontendDispatchers.cpp
 WebDriverBidiProtocolObjects.h
 WebProcess/Automation/WebAutomationDOMWindowObserver.cpp
 WebProcess/Cache/WebCacheStorageConnection.cpp
-WebProcess/Cache/WebCacheStorageProvider.cpp
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIAlarmsCocoa.mm
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIDeclarativeNetRequestCocoa.mm
 WebProcess/Extensions/API/Cocoa/WebExtensionAPIDevToolsInspectedWindowCocoa.mm
@@ -107,7 +106,6 @@ WebProcess/WebCoreSupport/WebCaptionPreferencesDelegate.cpp
 WebProcess/WebCoreSupport/WebChromeClient.cpp
 WebProcess/WebCoreSupport/WebEditorClient.cpp
 WebProcess/WebCoreSupport/WebFileSystemStorageConnection.cpp
-WebProcess/WebCoreSupport/WebGeolocationClient.cpp
 WebProcess/WebCoreSupport/WebMessagePortChannelProvider.cpp
 WebProcess/WebCoreSupport/WebNotificationClient.cpp
 WebProcess/WebCoreSupport/mac/WebDragClientMac.mm
@@ -120,7 +118,6 @@ WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeContext.mm
 WebProcess/WebPage/RemoteLayerTree/RemoteLayerTreeDrawingArea.mm
 WebProcess/WebPage/RemoteLayerTree/RemoteScrollingCoordinator.mm
 WebProcess/WebPage/ViewGestureGeometryCollector.cpp
-WebProcess/WebPage/VisitedLinkTableController.cpp
 WebProcess/WebPage/mac/TiledCoreAnimationDrawingArea.mm
 WebProcess/WebPage/mac/TiledCoreAnimationScrollingCoordinator.mm
 WebProcess/WebPage/mac/WKAccessibilityWebPageObjectBase.mm

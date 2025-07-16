@@ -490,7 +490,7 @@ Vector<WebCore::FloatRect> WebFoundTextRangeController::rectsForTextMatchesInRec
         if (!document)
             continue;
 
-        for (auto rect : document->markers().renderedRectsForMarkers(WebCore::DocumentMarkerType::TextMatch)) {
+        for (auto rect : document->checkedMarkers()->renderedRectsForMarkers(WebCore::DocumentMarkerType::TextMatch)) {
             if (!localFrame->isMainFrame())
                 rect = mainFrameView->windowToContents(localFrame->protectedView()->contentsToWindow(enclosingIntRect(rect)));
 

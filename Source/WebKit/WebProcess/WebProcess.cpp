@@ -1350,7 +1350,7 @@ void WebProcess::logDiagnosticMessageForNetworkProcessCrash()
     }
 
     if (page)
-        page->diagnosticLoggingClient().logDiagnosticMessage(WebCore::DiagnosticLoggingKeys::internalErrorKey(), WebCore::DiagnosticLoggingKeys::networkProcessCrashedKey(), WebCore::ShouldSample::No);
+        page->checkedDiagnosticLoggingClient()->logDiagnosticMessage(WebCore::DiagnosticLoggingKeys::internalErrorKey(), WebCore::DiagnosticLoggingKeys::networkProcessCrashedKey(), WebCore::ShouldSample::No);
 }
 
 void WebProcess::networkProcessConnectionClosed(NetworkProcessConnection* connection)

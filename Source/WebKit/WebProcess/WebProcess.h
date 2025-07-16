@@ -199,6 +199,12 @@ public:
     }
 
     template <typename T>
+    RefPtr<T> protectedSupplement()
+    {
+        return supplement<T>();
+    }
+
+    template <typename T>
     void addSupplement()
     {
         m_supplements.add(T::supplementName(), makeUnique<T>(*this));
