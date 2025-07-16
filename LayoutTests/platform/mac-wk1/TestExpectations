@@ -909,6 +909,8 @@ accessibility/mac/clipped-radio-input-frame.html [ WontFix ]
 
 accessibility/range-input-increment-decrement-fires-input-event.html [ WontFix ]
 
+accessibility/mac/stale-input-value-from-subfield-change.html [ WontFix ]
+
 # Default ARIA for custom elements are not yet enabled
 accessibility/custom-elements/ [ Skip ]
 
