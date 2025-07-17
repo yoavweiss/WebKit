@@ -29,6 +29,7 @@
 #include "FormattingConstraints.h"
 #include "InlineWalker.h"
 #include "LayoutIntegrationLineLayout.h"
+#include "LegacyRenderSVGRoot.h"
 #if ENABLE(MULTI_REPRESENTATION_HEIC)
 #include "MultiRepresentationHEICMetrics.h"
 #endif
@@ -38,9 +39,12 @@
 #include "RenderButton.h"
 #include "RenderDeprecatedFlexibleBox.h"
 #include "RenderElementInlines.h"
+#include "RenderEmbeddedObject.h"
 #include "RenderFlexibleBox.h"
 #include "RenderFrameSet.h"
 #include "RenderGrid.h"
+#include "RenderHTMLCanvas.h"
+#include "RenderIFrame.h"
 #include "RenderImage.h"
 #include "RenderInline.h"
 #include "RenderLayer.h"
@@ -59,6 +63,7 @@
 #include "RenderTextControlMultiLine.h"
 #include "RenderTextControlSingleLine.h"
 #include "RenderTheme.h"
+#include "RenderViewTransitionCapture.h"
 
 namespace WebCore {
 namespace LayoutIntegration {
@@ -394,6 +399,13 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
     auto writingMode = renderBox.containingBlock()->writingMode();
     auto marginBefore = writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight();
 
+    if (is<RenderIFrame>(renderBox)
+        || is<RenderEmbeddedObject>(renderBox)
+        || is<LegacyRenderSVGRoot>(renderBox)
+        || is<RenderHTMLCanvas>(renderBox)
+        || is<RenderViewTransitionCapture>(renderBox))
+        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+
 #if ENABLE(ATTACHMENT_ELEMENT)
     if (CheckedPtr renderer = dynamicDowncast<RenderAttachment>(renderBox)) {
         if (auto* baselineElement = renderer->attachmentElement().wideLayoutImageElement()) {
@@ -407,6 +419,7 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         return renderer->theme().attachmentBaseline(*renderer);
     }
 #endif
+
     if (CheckedPtr renderer = dynamicDowncast<RenderButton>(renderBox)) {
         // We cannot rely on RenderFlexibleBox::baselinePosition() because of flexboxes have some special behavior
         // regarding baselines that shouldn't apply to buttons.
