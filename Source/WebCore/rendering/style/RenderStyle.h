@@ -237,7 +237,6 @@ enum class WhiteSpace : uint8_t;
 enum class WhiteSpaceCollapse : uint8_t;
 enum class WordBreak : uint8_t;
 
-struct BlockEllipsis;
 struct CounterDirectiveMap;
 struct FillRepeatXY;
 struct FontPalette;
@@ -278,6 +277,7 @@ class CustomPropertyRegistry;
 class ViewTransitionName;
 struct AnchorNames;
 struct AspectRatio;
+struct BlockEllipsis;
 struct BorderRadius;
 struct BoxShadow;
 struct Clip;
@@ -1087,7 +1087,7 @@ public:
 
     inline OptionSet<Style::LineBoxContain> lineBoxContain() const;
     inline const LineClampValue& lineClamp() const;
-    inline const BlockEllipsis& blockEllipsis() const;
+    inline const Style::BlockEllipsis& blockEllipsis() const;
     inline size_t maxLines() const;
     inline OverflowContinue overflowContinue() const;
     inline const IntSize& initialLetter() const;
@@ -1645,7 +1645,7 @@ public:
     
     inline void setMaxLines(size_t);
     inline void setOverflowContinue(OverflowContinue);
-    inline void setBlockEllipsis(const BlockEllipsis&);
+    inline void setBlockEllipsis(Style::BlockEllipsis&&);
 
     inline void setInitialLetter(const IntSize&);
     
@@ -2171,7 +2171,7 @@ public:
 
     static constexpr IntSize initialInitialLetter();
     static constexpr LineClampValue initialLineClamp();
-    static inline BlockEllipsis initialBlockEllipsis();
+    static inline Style::BlockEllipsis initialBlockEllipsis();
     static OverflowContinue initialOverflowContinue();
     static constexpr size_t initialMaxLines() { return 0; }
     static constexpr TextSecurity initialTextSecurity();

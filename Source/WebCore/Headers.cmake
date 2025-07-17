@@ -2666,7 +2666,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/shapes/LayoutShape.h
     rendering/shapes/ShapeOutsideInfo.h
 
-    rendering/style/BlockEllipsis.h
     rendering/style/BorderData.h
     rendering/style/BorderValue.h
     rendering/style/CounterDirectives.h
@@ -2803,6 +2802,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/motion/StyleOffsetPosition.h
     style/values/motion/StyleOffsetRotate.h
     style/values/motion/StyleRayFunction.h
+
+    style/values/overflow/StyleBlockEllipsis.h
 
     style/values/position/StyleInset.h
 

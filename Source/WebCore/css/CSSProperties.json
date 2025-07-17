@@ -2294,8 +2294,7 @@
             ],
             "codegen-properties": {
                 "settings-flag": "cssLineClampEnabled",
-                "render-style-name-for-methods": "BlockEllipsis",
-                "style-converter": "BlockEllipsis",
+                "style-converter": "StyleType<BlockEllipsis>",
                 "parser-grammar": "none | auto | <string>",
                 "parser-exported": true
             },

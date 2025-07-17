@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "BlockEllipsis.h"
 #include "CSSPropertyNames.h"
 #include "CachedImage.h"
 #include "CalculationValue.h"

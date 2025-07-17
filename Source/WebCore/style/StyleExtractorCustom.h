@@ -2686,18 +2686,10 @@ inline RefPtr<CSSValue> ExtractorCustom::extractLineClampShorthand(ExtractorStat
     if (!maxLines)
         return CSSPrimitiveValue::create(CSSValueNone);
 
-    Ref maxLinesValue = CSSPrimitiveValue::create(maxLines, CSSUnitType::CSS_INTEGER);
-
-    switch (state.style.blockEllipsis().type) {
-    case BlockEllipsis::Type::None:
-        return CSSValuePair::create(WTFMove(maxLinesValue), CSSPrimitiveValue::create(CSSValueNone));
-    case BlockEllipsis::Type::Auto:
-        return CSSValuePair::create(WTFMove(maxLinesValue), CSSPrimitiveValue::create(CSSValueAuto));
-    case BlockEllipsis::Type::String:
-        return CSSValuePair::create(WTFMove(maxLinesValue), CSSPrimitiveValue::createCustomIdent(state.style.blockEllipsis().string));
-    }
-
-    RELEASE_ASSERT_NOT_REACHED();
+    return CSSValuePair::create(
+        createCSSValue(state.pool, state.style, Integer<> { maxLines }),
+        createCSSValue(state.pool, state.style, state.style.blockEllipsis())
+    );
 }
 
 inline void ExtractorCustom::extractLineClampShorthandSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
@@ -2708,22 +2700,9 @@ inline void ExtractorCustom::extractLineClampShorthandSerialization(ExtractorSta
         return;
     }
 
-    CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { maxLines });
+    serializationForCSS(builder, context, state.style, Integer<> { maxLines });
     builder.append(' ');
-
-    switch (state.style.blockEllipsis().type) {
-    case BlockEllipsis::Type::None:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    case BlockEllipsis::Type::Auto:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Auto { });
-        return;
-    case BlockEllipsis::Type::String:
-        CSS::serializationForCSS(builder, context, CustomIdentifier { state.style.blockEllipsis().string });
-        return;
-    }
-
-    RELEASE_ASSERT_NOT_REACHED();
+    serializationForCSS(builder, context, state.style, state.style.blockEllipsis());
 }
 
 inline RefPtr<CSSValue> ExtractorCustom::extractMaskShorthand(ExtractorState& state)

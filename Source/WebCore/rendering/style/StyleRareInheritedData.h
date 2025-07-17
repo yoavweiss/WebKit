@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include "BlockEllipsis.h"
 #include "Length.h"
 #include "ListStyleType.h"
 #include "RenderStyleConstants.h"
 #include "ScrollbarColor.h"
+#include "StyleBlockEllipsis.h"
 #include "StyleColor.h"
 #include "StyleCustomPropertyData.h"
 #include "StyleLineBoxContain.h"
@@ -215,7 +215,7 @@ public:
 
     Markable<ScrollbarColor> scrollbarColor;
 
-    BlockEllipsis blockEllipsis;
+    Style::BlockEllipsis blockEllipsis;
 
 private:
     StyleRareInheritedData();
