@@ -26,14 +26,9 @@ struct WebKit::NodeInfo {
 };
 
 class WebKit::JavaScriptEvaluationResult {
-#if PLATFORM(COCOA)
     WebKit::JSObjectID root()
-    HashMap<WebKit::JSObjectID, Variant<WebKit::JavaScriptEvaluationResult::NullType, bool, double, String, Seconds, Vector<WebKit::JSObjectID>, HashMap<WebKit::JSObjectID, WebKit::JSObjectID>, WebKit::NodeInfo>> map()
-#else
-    std::span<const uint8_t> wireBytes()
-#endif
+    HashMap<WebKit::JSObjectID, Variant<WebKit::JavaScriptEvaluationResult::EmptyType, bool, double, String, Seconds, Vector<WebKit::JSObjectID>, HashMap<WebKit::JSObjectID, WebKit::JSObjectID>, WebKit::NodeInfo>> map()
 }
 
-#if PLATFORM(COCOA)
-[Nested] enum class WebKit::JavaScriptEvaluationResult::NullType : bool
-#endif
+[Nested] enum class WebKit::JavaScriptEvaluationResult::EmptyType : bool
+

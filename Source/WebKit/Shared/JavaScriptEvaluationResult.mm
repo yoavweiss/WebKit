@@ -31,13 +31,13 @@
 
 namespace WebKit {
 
-RetainPtr<id> JavaScriptEvaluationResult::toID(Variant&& root)
+RetainPtr<id> JavaScriptEvaluationResult::toID(Value&& root)
 {
-    return WTF::switchOn(WTFMove(root), [] (NullType nullType) -> RetainPtr<id> {
-        switch (nullType) {
-        case NullType::NSNull:
+    return WTF::switchOn(WTFMove(root), [] (EmptyType type) -> RetainPtr<id> {
+        switch (type) {
+        case EmptyType::Null:
             return NSNull.null;
-        case NullType::NullPointer:
+        case EmptyType::Undefined:
             break;
         }
         return nullptr;
@@ -86,13 +86,13 @@ RetainPtr<id> JavaScriptEvaluationResult::toID()
     return std::exchange(m_instantiatedNSObjects, { }).take(m_root);
 }
 
-auto JavaScriptEvaluationResult::toVariant(id object) -> Variant
+auto JavaScriptEvaluationResult::toValue(id object) -> Value
 {
     if (!object)
-        return NullType::NullPointer;
+        return EmptyType::Undefined;
 
     if ([object isKindOfClass:NSNull.class])
-        return NullType::NSNull;
+        return EmptyType::Null;
 
     if ([object isKindOfClass:NSNumber.class]) {
         if (CFNumberGetType((CFNumberRef)object) == kCFNumberCharType) {
@@ -127,7 +127,7 @@ auto JavaScriptEvaluationResult::toVariant(id object) -> Variant
 
     // This object has been null checked and went through isSerializable which only supports these types.
     ASSERT_NOT_REACHED();
-    return NullType::NullPointer;
+    return EmptyType::Undefined;
 }
 
 JSObjectID JavaScriptEvaluationResult::addObjectToMap(id object)
@@ -135,7 +135,7 @@ JSObjectID JavaScriptEvaluationResult::addObjectToMap(id object)
     if (!object) {
         if (!m_nullObjectID) {
             m_nullObjectID = JSObjectID::generate();
-            m_map.add(*m_nullObjectID, Variant { NullType::NullPointer });
+            m_map.add(*m_nullObjectID, Value { EmptyType::Undefined });
         }
         return *m_nullObjectID;
     }
@@ -146,7 +146,7 @@ JSObjectID JavaScriptEvaluationResult::addObjectToMap(id object)
 
     auto identifier = JSObjectID::generate();
     m_objectsInMap.set(object, identifier);
-    m_map.add(identifier, toVariant(object));
+    m_map.add(identifier, toValue(object));
     return identifier;
 }
 

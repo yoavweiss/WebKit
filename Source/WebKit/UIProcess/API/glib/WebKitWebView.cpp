@@ -4230,15 +4230,15 @@ static void webkitWebViewRunJavaScriptWithParams(WebKitWebView* webView, WebKit:
         if (result) {
 #if ENABLE(2022_GLIB_API)
             ASSERT_UNUSED(returnType, returnType == RunJavascriptReturnType::JSCValue);
-            g_task_return_pointer(task.get(), API::SerializedScriptValue::deserialize(result->legacySerializedScriptValue()->internalRepresentation()).leakRef(),
+            g_task_return_pointer(task.get(), result->toJSC().leakRef(),
                 reinterpret_cast<GDestroyNotify>(g_object_unref));
 #else
             if (returnType == RunJavascriptReturnType::JSCValue) {
-                g_task_return_pointer(task.get(), API::SerializedScriptValue::deserialize(result->legacySerializedScriptValue()->internalRepresentation()).leakRef(),
+                g_task_return_pointer(task.get(), result->toJSC().leakRef(),
                     reinterpret_cast<GDestroyNotify>(g_object_unref));
             } else {
                 ASSERT(returnType == RunJavascriptReturnType::WebKitJavascriptResult);
-                g_task_return_pointer(task.get(), webkitJavascriptResultCreate(result->legacySerializedScriptValue()->internalRepresentation()),
+                g_task_return_pointer(task.get(), webkitJavascriptResultCreate(WTFMove(*result)),
                     reinterpret_cast<GDestroyNotify>(webkit_javascript_result_unref));
             }
 #endif
@@ -4395,13 +4395,12 @@ JSCValue* webkit_web_view_evaluate_javascript_finish(WebKitWebView* webView, GAs
     return static_cast<JSCValue*>(g_task_propagate_pointer(G_TASK(result), error));
 }
 
-static std::pair<Vector<Vector<uint8_t>>, Vector<std::pair<String, JavaScriptEvaluationResult>>> parseAsyncFunctionArguments(GVariant* arguments, GError** error)
+static Vector<std::pair<String, JavaScriptEvaluationResult>> parseAsyncFunctionArguments(GVariant* arguments, GError** error)
 {
-    Vector<std::pair<String, JavaScriptEvaluationResult>> argumentsVector;
-    Vector<Vector<uint8_t>> wireBytes;
-
     if (!arguments)
-        return { WTFMove(wireBytes), WTFMove(argumentsVector) };
+        return { };
+
+    Vector<std::pair<String, JavaScriptEvaluationResult>> argumentsVector;
 
     GVariantIter iter;
     g_variant_iter_init(&iter, arguments);
@@ -4411,16 +4410,15 @@ static std::pair<Vector<Vector<uint8_t>>, Vector<std::pair<String, JavaScriptEva
         if (!key)
             continue;
 
-        auto serializedValue = API::SerializedScriptValue::createFromGVariant(value);
-        if (!serializedValue) {
+        auto parameter = JavaScriptEvaluationResult::extract(value);
+        if (!parameter) {
             *error = g_error_new(WEBKIT_JAVASCRIPT_ERROR, WEBKIT_JAVASCRIPT_ERROR_INVALID_PARAMETER, "Invalid parameter %s passed as argument of async function call", key);
-            return { WTFMove(wireBytes), WTFMove(argumentsVector) };
+            return argumentsVector;
         }
-        wireBytes.append(serializedValue->internalRepresentation().wireBytes());
-        argumentsVector.append({ String::fromUTF8(key), JavaScriptEvaluationResult { wireBytes.last().span() } });
+        argumentsVector.append({ String::fromUTF8(key), WTFMove(*parameter) });
     }
 
-    return { WTFMove(wireBytes), WTFMove(argumentsVector) };
+    return argumentsVector;
 }
 
 static void webkitWebViewCallAsyncJavascriptFunctionInternal(WebKitWebView* webView, const char* body, gssize length, GVariant* arguments, const char* worldName, const char* sourceURI, RunJavascriptReturnType returnType, GCancellable* cancellable, GAsyncReadyCallback callback, gpointer userData)
@@ -4430,7 +4428,7 @@ static void webkitWebViewCallAsyncJavascriptFunctionInternal(WebKitWebView* webV
     g_return_if_fail(!arguments || g_variant_is_of_type(arguments, G_VARIANT_TYPE("a{sv}")));
 
     GError* error = nullptr;
-    auto [wireBytes, argumentsVector] = parseAsyncFunctionArguments(arguments, &error);
+    auto argumentsVector = parseAsyncFunctionArguments(arguments, &error);
     if (error) {
         g_task_report_error(webView, callback, userData, nullptr, error);
         return;

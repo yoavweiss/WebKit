@@ -40,15 +40,13 @@
 
 namespace WebKit {
 
-#if PLATFORM(COCOA)
-
-JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSObjectID root, HashMap<JSObjectID, Variant>&& map)
+JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSObjectID root, HashMap<JSObjectID, Value>&& map)
     : m_map(WTFMove(map))
     , m_root(root) { }
 
-RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Variant&& root)
+RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Value&& root)
 {
-    return WTF::switchOn(WTFMove(root), [] (NullType) -> RefPtr<API::Object> {
+    return WTF::switchOn(WTFMove(root), [] (EmptyType) -> RefPtr<API::Object> {
         return nullptr;
     }, [] (bool value) -> RefPtr<API::Object> {
         return API::Boolean::create(value);
@@ -71,7 +69,7 @@ RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Variant&& root)
     });
 }
 
-WKRetainPtr<WKTypeRef> JavaScriptEvaluationResult::toWK()
+RefPtr<API::Object> JavaScriptEvaluationResult::toAPI()
 {
     for (auto [identifier, variant] : std::exchange(m_map, { }))
         m_instantiatedObjects.add(identifier, toAPI(WTFMove(variant)));
@@ -92,7 +90,12 @@ WKRetainPtr<WKTypeRef> JavaScriptEvaluationResult::toWK()
             Ref { dictionary }->add(key->string(), WTFMove(value));
         }
     }
-    return WebKit::toAPI(std::exchange(m_instantiatedObjects, { }).take(m_root).get());
+    return std::exchange(m_instantiatedObjects, { }).take(m_root);
+}
+
+WKRetainPtr<WKTypeRef> JavaScriptEvaluationResult::toWK()
+{
+    return WebKit::toAPI(toAPI().get());
 }
 
 JSObjectID JavaScriptEvaluationResult::addObjectToMap(JSGlobalContextRef context, JSValueRef object)
@@ -100,7 +103,7 @@ JSObjectID JavaScriptEvaluationResult::addObjectToMap(JSGlobalContextRef context
     if (!object) {
         if (!m_nullObjectID) {
             m_nullObjectID = JSObjectID::generate();
-            m_map.add(*m_nullObjectID, Variant { NullType::NullPointer });
+            m_map.add(*m_nullObjectID, Value { EmptyType::Undefined });
         }
         return *m_nullObjectID;
     }
@@ -112,7 +115,7 @@ JSObjectID JavaScriptEvaluationResult::addObjectToMap(JSGlobalContextRef context
 
     auto identifier = JSObjectID::generate();
     m_jsObjectsInMap.set(WTFMove(value), identifier);
-    m_map.add(identifier, toVariant(context, object));
+    m_map.add(identifier, toValue(context, object));
     return identifier;
 }
 
@@ -142,7 +145,7 @@ std::optional<JavaScriptEvaluationResult> JavaScriptEvaluationResult::extract(JS
 }
 
 // Similar to JSValue's valueToObjectWithoutCopy.
-auto JavaScriptEvaluationResult::toVariant(JSGlobalContextRef context, JSValueRef value) -> Variant
+auto JavaScriptEvaluationResult::toValue(JSGlobalContextRef context, JSValueRef value) -> Value
 {
     if (!JSValueIsObject(context, value)) {
         if (JSValueIsBoolean(context, value))
@@ -157,8 +160,8 @@ auto JavaScriptEvaluationResult::toVariant(JSGlobalContextRef context, JSValueRe
             return jsValue.toWTFString(globalObject);
         }
         if (JSValueIsNull(context, value))
-            return NullType::NSNull;
-        return NullType::NullPointer;
+            return EmptyType::Null;
+        return EmptyType::Undefined;
     }
 
     JSObjectRef object = JSValueToObject(context, value, 0);
@@ -176,16 +179,16 @@ auto JavaScriptEvaluationResult::toVariant(JSGlobalContextRef context, JSValueRe
         JSValueRef lengthValue = JSObjectGetPropertyForKey(context, object, lengthPropertyName, nullptr);
         double lengthDouble = JSValueToNumber(context, lengthValue, nullptr);
         if (lengthDouble < 0 || lengthDouble > static_cast<double>(std::numeric_limits<size_t>::max()))
-            return NullType::NullPointer;
+            return EmptyType::Undefined;
 
         size_t length = lengthDouble;
         Vector<JSObjectID> vector;
         if (!vector.tryReserveInitialCapacity(length))
-            return NullType::NullPointer;
+            return EmptyType::Undefined;
 
         for (size_t i = 0; i < length; ++i)
             vector.append(addObjectToMap(context, JSObjectGetPropertyAtIndex(context, object, i, nullptr)));
-        return WTFMove(vector);
+        return { WTFMove(vector) };
     }
 
     JSPropertyNameArrayRef names = JSObjectCopyPropertyNames(context, object);
@@ -196,7 +199,7 @@ auto JavaScriptEvaluationResult::toVariant(JSGlobalContextRef context, JSValueRe
         SUPPRESS_UNCOUNTED_ARG map.add(addObjectToMap(context, JSValueMakeString(context, key.get())), addObjectToMap(context, JSObjectGetPropertyForKey(context, object, JSValueMakeString(context, key.get()), nullptr)));
     }
     JSPropertyNameArrayRelease(names);
-    return WTFMove(map);
+    return { WTFMove(map) };
 }
 
 JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSGlobalContextRef context, JSValueRef value)
@@ -206,10 +209,15 @@ JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSGlobalContextRef contex
     m_nullObjectID = std::nullopt;
 }
 
-JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Variant&& root)
+JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Value&& root)
 {
-    return WTF::switchOn(WTFMove(root), [&] (NullType) -> JSValueRef {
-        return JSValueMakeNull(context);
+    return WTF::switchOn(WTFMove(root), [&] (EmptyType emptyType) -> JSValueRef {
+        switch (emptyType) {
+        case EmptyType::Undefined:
+            return JSValueMakeUndefined(context);
+        case EmptyType::Null:
+            return JSValueMakeNull(context);
+        }
     }, [&] (bool value) -> JSValueRef {
         return JSValueMakeBoolean(context, value);
     }, [&] (double value) -> JSValueRef {
@@ -264,41 +272,21 @@ Protected<JSValueRef> JavaScriptEvaluationResult::toJS(JSGlobalContextRef contex
     return std::exchange(m_instantiatedJSObjects, { }).take(m_root);
 }
 
-#else // PLATFORM(COCOA)
-
-Ref<API::SerializedScriptValue> JavaScriptEvaluationResult::legacySerializedScriptValue() const
-{
-    return API::SerializedScriptValue::createFromWireBytes(Vector(wireBytes()));
-}
-
-WKRetainPtr<WKTypeRef> JavaScriptEvaluationResult::toWK()
-{
-    return API::SerializedScriptValue::deserializeWK(legacySerializedScriptValue()->internalRepresentation());
-}
-
-Protected<JSValueRef> JavaScriptEvaluationResult::toJS(JSGlobalContextRef context)
-{
-    Ref serializedScriptValue = API::SerializedScriptValue::createFromWireBytes(wireBytes());
-    return Protected<JSValueRef>(context, serializedScriptValue->internalRepresentation().deserialize(context, nullptr));
-}
-
-JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSGlobalContextRef context, JSValueRef value)
-    : m_valueFromJS(WebCore::SerializedScriptValue::create(context, value, nullptr))
-    , m_wireBytes(m_valueFromJS ? m_valueFromJS->wireBytes().span() : std::span<const uint8_t>())
-{
-}
-
-std::optional<JavaScriptEvaluationResult> JavaScriptEvaluationResult::extract(JSGlobalContextRef context, JSValueRef value)
-{
-    return JavaScriptEvaluationResult { context, value };
-}
-
-#endif // PLATFORM(COCOA)
-
 JavaScriptEvaluationResult::JavaScriptEvaluationResult(JavaScriptEvaluationResult&&) = default;
 
 JavaScriptEvaluationResult& JavaScriptEvaluationResult::operator=(JavaScriptEvaluationResult&&) = default;
 
 JavaScriptEvaluationResult::~JavaScriptEvaluationResult() = default;
+
+String JavaScriptEvaluationResult::toString() const
+{
+    auto it = m_map.find(m_root);
+    if (it == m_map.end())
+        return { };
+    auto* string = std::get_if<String>(&it->value);
+    if (!string)
+        return { };
+    return *string;
+}
 
 } // namespace WebKit
