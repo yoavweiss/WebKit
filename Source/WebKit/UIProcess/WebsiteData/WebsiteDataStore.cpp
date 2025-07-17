@@ -594,7 +594,7 @@ static WebsiteDataStore::ProcessAccessType computeWebProcessAccessTypeForDataFet
 
 void WebsiteDataStore::fetchData(OptionSet<WebsiteDataType> dataTypes, OptionSet<WebsiteDataFetchOption> fetchOptions, Function<void(Vector<WebsiteDataRecord>)>&& completionHandler)
 {
-    fetchDataAndApply(dataTypes, fetchOptions, WorkQueue::main(), WTFMove(completionHandler));
+    fetchDataAndApply(dataTypes, fetchOptions, WorkQueue::mainSingleton(), WTFMove(completionHandler));
 }
 
 void WebsiteDataStore::fetchDataAndApply(OptionSet<WebsiteDataType> dataTypes, OptionSet<WebsiteDataFetchOption> fetchOptions, Ref<WorkQueue>&& queue, Function<void(Vector<WebsiteDataRecord>)>&& apply)
@@ -622,7 +622,7 @@ void WebsiteDataStore::fetchDataAndApply(OptionSet<WebsiteDataType> dataTypes, O
             ASSERT(RunLoop::isMain());
 
             auto records = WTF::map(WTFMove(m_websiteDataRecords), [this](auto&& entry) {
-                return m_queue.ptr() != &WorkQueue::main() ? crossThreadCopy(WTFMove(entry.value)) : WTFMove(entry.value);
+                return m_queue.ptr() != &WorkQueue::mainSingleton() ? crossThreadCopy(WTFMove(entry.value)) : WTFMove(entry.value);
             });
             m_queue->dispatch([apply = WTFMove(m_apply), records = WTFMove(records), sessionID = m_protectedDataStore->sessionID()] () mutable {
                 OptionSet<WebsiteDataType> allTypes;

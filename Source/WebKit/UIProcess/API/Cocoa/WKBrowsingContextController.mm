@@ -41,7 +41,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
         WebKit::WebProcessPool::registerGlobalURLSchemeAsHavingCustomProtocolHandlers(scheme);
     else {
         // This cannot be RunLoop::protectedMain()->dispatch because it is called before the main runloop is initialized. See rdar://problem/73615999
-        WorkQueue::protectedMain()->dispatch([scheme = retainPtr(scheme)] {
+        WorkQueue::mainSingleton().dispatch([scheme = retainPtr(scheme)] {
             WebKit::WebProcessPool::registerGlobalURLSchemeAsHavingCustomProtocolHandlers(scheme.get());
         });
     }
@@ -53,7 +53,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
         WebKit::WebProcessPool::unregisterGlobalURLSchemeAsHavingCustomProtocolHandlers(scheme);
     else {
         // This cannot be RunLoop::protectedMain()->dispatch because it is called before the main runloop is initialized. See rdar://problem/73615999
-        WorkQueue::protectedMain()->dispatch([scheme = retainPtr(scheme)] {
+        WorkQueue::mainSingleton().dispatch([scheme = retainPtr(scheme)] {
             WebKit::WebProcessPool::unregisterGlobalURLSchemeAsHavingCustomProtocolHandlers(scheme.get());
         });
     }

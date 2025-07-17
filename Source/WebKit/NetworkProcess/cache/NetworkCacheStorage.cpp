@@ -1134,7 +1134,7 @@ void Storage::traverseWithinRootPath(const String& rootPath, const String& type,
 
             traverseOperation->waitAndIncrementActivityCount();
             auto channel = IOChannel::open(WTFMove(recordPath), IOChannel::Type::Read);
-            channel->read(0, std::numeric_limits<size_t>::max(), WorkQueue::main(), [this, protectedThis, traverseOperation, worth, bodyShareCount](auto fileData, int) {
+            channel->read(0, std::numeric_limits<size_t>::max(), WorkQueue::mainSingleton(), [this, protectedThis, traverseOperation, worth, bodyShareCount](auto fileData, int) {
                 RecordMetaData metaData;
                 Data headerData;
                 if (decodeRecordHeader(fileData, metaData, headerData, m_salt)) {

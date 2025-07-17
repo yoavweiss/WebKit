@@ -38,7 +38,7 @@ void getDefaultWebCryptoMasterKey(CompletionHandler<void(std::optional<Vector<ui
     static NeverDestroyed<Ref<WorkQueue>> queue { WorkQueue::create("org.WebKit.WebCryptoMasterKey"_s) };
     queue.get().get().dispatch([handler = WTFMove(handler)] mutable {
         auto key = defaultWebCryptoMasterKey();
-        WorkQueue::protectedMain()->dispatch([handler = WTFMove(handler), key = WTFMove(key)] mutable {
+        WorkQueue::mainSingleton().dispatch([handler = WTFMove(handler), key = WTFMove(key)] mutable {
             handler(WTFMove(key));
         });
     });

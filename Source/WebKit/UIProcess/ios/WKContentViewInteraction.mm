@@ -5544,7 +5544,7 @@ static void selectionChangedWithTouch(WKTextInteractionWrapper *interaction, con
 
         // Give the page some time to present custom editing UI before attempting to detect and evade it.
         auto delayBeforeShowingEditMenu = std::max(0_s, 0.25_s - (ApproximateTime::now() - startTime));
-        WorkQueue::protectedMain()->dispatchAfter(delayBeforeShowingEditMenu, [completion = WTFMove(completion), weakSelf]() mutable {
+        WorkQueue::mainSingleton().dispatchAfter(delayBeforeShowingEditMenu, [completion = WTFMove(completion), weakSelf]() mutable {
             auto strongSelf = weakSelf.get();
             if (!strongSelf) {
                 completion(UIEditMenuArrowDirectionAutomatic);

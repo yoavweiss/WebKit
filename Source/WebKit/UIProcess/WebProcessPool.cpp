@@ -2745,7 +2745,7 @@ void WebProcessPool::updateWebProcessSuspensionDelayWithPacing(WeakHashSet<WebPr
     // triggers other operations (like full GC and cache clearing) that can be expensive. We pace
     // these state changes to reduce the likelihood of CPU or swap storms.
     static constexpr Seconds intervalBetweenUpdates { 500_ms };
-    WorkQueue::protectedMain()->dispatchAfter(intervalBetweenUpdates, [weakThis = WeakPtr { *this }, processes = WTFMove(processes)]() mutable {
+    WorkQueue::mainSingleton().dispatchAfter(intervalBetweenUpdates, [weakThis = WeakPtr { *this }, processes = WTFMove(processes)]() mutable {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->updateWebProcessSuspensionDelayWithPacing(WTFMove(processes));
     });

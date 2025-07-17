@@ -1141,7 +1141,7 @@ Ref<GuaranteedSerialFunctionDispatcher> VideoMediaSampleRenderer::dispatcher() c
 
 dispatch_queue_t VideoMediaSampleRenderer::dispatchQueue() const
 {
-    return m_workQueue ? m_workQueue->dispatchQueue() : WorkQueue::protectedMain()->dispatchQueue();
+    return m_workQueue ? m_workQueue->dispatchQueue() : WorkQueue::mainSingleton().dispatchQueue();
 }
 
 void VideoMediaSampleRenderer::ensureOnDispatcher(Function<void()>&& function) const

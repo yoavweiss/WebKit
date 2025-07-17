@@ -795,7 +795,7 @@ void WebPageProxy::scheduleActivityStateUpdate()
             // We can't call dispatchActivityStateChange directly underneath this commit handler, because it has side-effects
             // that may result in other frameworks trying to install commit handlers for the same phase, which is not allowed.
             // So, dispatch_async here; we only care that the activity state change doesn't apply until after the active commit is complete.
-            WorkQueue::protectedMain()->dispatch([weakThis] {
+            WorkQueue::mainSingleton().dispatch([weakThis] {
                 RefPtr protectedThis { weakThis.get() };
                 if (!protectedThis)
                     return;
