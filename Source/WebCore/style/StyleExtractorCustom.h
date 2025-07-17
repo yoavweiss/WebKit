@@ -1253,7 +1253,7 @@ inline Ref<CSSValue> ExtractorCustom::extractContent(ExtractorState& state)
     CSSValueListBuilder list;
     for (auto* contentData = state.style.contentData(); contentData; contentData = contentData->next()) {
         if (auto* counterContentData = dynamicDowncast<CounterContentData>(*contentData))
-            list.append(CSSCounterValue::create(counterContentData->counter().identifier(), counterContentData->counter().separator(), CSSPrimitiveValue::createCustomIdent(counterContentData->counter().listStyleType().identifier)));
+            list.append(CSSCounterValue::create(counterContentData->counter().identifier(), counterContentData->counter().separator(), CSSPrimitiveValue::createCustomIdent(counterContentData->counter().style().identifier.value)));
         else if (auto* imageContentData = dynamicDowncast<ImageContentData>(*contentData))
             list.append(imageContentData->image().computedStyleValue(state.style));
         else if (auto* quoteContentData = dynamicDowncast<QuoteContentData>(*contentData))

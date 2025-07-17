@@ -282,10 +282,8 @@ crypto/SubtleCrypto.cpp
 crypto/parameters/CryptoAlgorithmRsaKeyGenParams.h
 css/CSSCounterStyle.cpp
 css/CSSCounterStyleDescriptors.cpp
-css/CSSCounterStyleRegistry.cpp
 css/CSSCounterStyleRule.h
 css/CSSCounterValue.cpp
-css/CSSCounterValue.h
 css/CSSCursorImageValue.cpp
 css/CSSFontFace.cpp
 css/CSSFontFaceRule.cpp

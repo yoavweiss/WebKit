@@ -2942,7 +2942,6 @@ rendering/style/ContentData.cpp
 rendering/style/DropShadowFilterOperationWithStyleColor.cpp
 rendering/style/FillLayer.cpp
 rendering/style/GridSpan.cpp
-rendering/style/ListStyleType.cpp
 rendering/style/NinePieceImage.cpp
 rendering/style/OutlineValue.cpp
 rendering/style/PositionArea.cpp
@@ -3156,6 +3155,7 @@ style/values/color/StyleHexColor.cpp
 style/values/color/StyleKeywordColor.cpp
 style/values/color/StyleLightDarkColor.cpp
 style/values/color/StyleResolvedColor.cpp
+style/values/counter-styles/StyleCounterStyle.cpp
 style/values/easing/StyleCubicBezierEasingFunction.cpp
 style/values/easing/StyleEasingFunction.cpp
 style/values/easing/StyleLinearEasingFunction.cpp
@@ -3185,6 +3185,7 @@ style/values/grid/StyleGridTrackBreadth.cpp
 style/values/grid/StyleGridTrackSize.cpp
 style/values/grid/StyleGridTrackSizes.cpp
 style/values/images/StyleGradient.cpp
+style/values/lists/StyleListStyleType.cpp
 style/values/masking/StyleClip.cpp
 style/values/masking/StyleClipPath.cpp
 style/values/motion/StyleOffsetAnchor.cpp

@@ -172,7 +172,6 @@ public:
     static Ref<CSSValue> convertImageOrNone(ExtractorState&, const StyleImage*);
     static Ref<CSSValue> convertGlyphOrientation(ExtractorState&, GlyphOrientation);
     static Ref<CSSValue> convertGlyphOrientationOrAuto(ExtractorState&, GlyphOrientation);
-    static Ref<CSSValue> convertListStyleType(ExtractorState&, const ListStyleType&);
     static Ref<CSSValue> convertMarginTrim(ExtractorState&, OptionSet<MarginTrimType>);
     static Ref<CSSValue> convertShapeValue(ExtractorState&, const ShapeValue*);
     static Ref<CSSValue> convertDPath(ExtractorState&, const StylePathData*);
@@ -615,15 +614,6 @@ inline Ref<CSSValue> ExtractorConverter::convertGlyphOrientationOrAuto(Extractor
     }
 
     RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertListStyleType(ExtractorState& state, const ListStyleType& listStyleType)
-{
-    if (listStyleType.type == ListStyleType::Type::String)
-        return CSSPrimitiveValue::create(listStyleType.identifier);
-    if (listStyleType.type == ListStyleType::Type::CounterStyle)
-        return CSSPrimitiveValue::createCustomIdent(listStyleType.identifier);
-    return convert(state, listStyleType.type);
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertMarginTrim(ExtractorState&, OptionSet<MarginTrimType> marginTrim)

@@ -66,7 +66,7 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
 #if ENABLE(DARK_MODE_CSS)
     Style::ColorScheme colorScheme;
 #endif
-    ListStyleType listStyleType;
+    Style::ListStyleType listStyleType;
 
     Markable<ScrollbarColor> scrollbarColor;
 

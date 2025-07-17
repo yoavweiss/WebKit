@@ -427,12 +427,18 @@ header: <WebCore/ScrollbarTrackCornerSystemImageMac.h>
 }
 #endif // USE(APPKIT)
 
-header: <WebCore/ListStyleType.h>
-[Nested] enum class WebCore::ListStyleType::Type : uint8_t {
-    CounterStyle,
-    String,
-    None
-}
+header: <WebCore/StyleListStyleType.h>
+[CustomHeader, Nested] struct WebCore::Style::ListStyleType {
+    Variant<WebCore::Style::ListStyleType::NoneData, WebCore::Style::ListStyleType::StringData, WebCore::Style::ListStyleType::CounterStyleData> ipcData()
+};
+[CustomHeader, Nested] struct WebCore::Style::ListStyleType::NoneData {
+};
+[CustomHeader, Nested] struct WebCore::Style::ListStyleType::StringData {
+    AtomString identifier;
+};
+[CustomHeader, Nested] struct WebCore::Style::ListStyleType::CounterStyleData {
+    AtomString identifier;
+};
 
 header: <WebCore/ScrollTypes.h>
 enum class WebCore::ScrollIsAnimated : bool;
@@ -4303,11 +4309,6 @@ enum class WebCore::TextGranularity : uint8_t {
     DocumentBoundary
 };
 
-struct WebCore::ListStyleType {
-    WebCore::ListStyleType::Type type;
-    AtomString identifier;
-};
-
 header: <pal/SessionID.h>
 [CustomHeader] class PAL::SessionID {
     [Validator='PAL::SessionID::isValidSessionIDValue(*toUInt64)'] uint64_t toUInt64();
@@ -4329,7 +4330,7 @@ struct WebKit::RunJavaScriptParameters {
 
 header: <WebCore/FontAttributes.h>
 [CustomHeader] struct WebCore::TextList {
-    WebCore::ListStyleType styleType;
+    WebCore::Style::ListStyleType styleType;
     int startingItemNumber
     bool ordered
 };

@@ -109,6 +109,7 @@ inline GridPosition forwardInheritedValue(const GridPosition& value) { auto copy
 inline GridTemplateAreas forwardInheritedValue(const GridTemplateAreas& value) { auto copy = value; return copy; }
 inline GridTemplateList forwardInheritedValue(const GridTemplateList& value) { auto copy = value; return copy; }
 inline GridTrackSizes forwardInheritedValue(const GridTrackSizes& value) { auto copy = value; return copy; }
+inline ListStyleType forwardInheritedValue(const ListStyleType& value) { auto copy = value; return copy; }
 inline OffsetAnchor forwardInheritedValue(const OffsetAnchor& value) { auto copy = value; return copy; }
 inline OffsetDistance forwardInheritedValue(const OffsetDistance& value) { auto copy = value; return copy; }
 inline OffsetPath forwardInheritedValue(const OffsetPath& value) { auto copy = value; return copy; }
@@ -1070,10 +1071,7 @@ inline void BuilderCustom::applyValueContent(BuilderState& builderState, CSSValu
             builderState.style().setContent(processAttrContent(*primitive), didSet);
             didSet = true;
         } else if (auto* counter = dynamicDowncast<CSSCounterValue>(item)) {
-            ListStyleType listStyleType;
-            if (counter->counterStyle())
-                listStyleType = BuilderConverter::convertListStyleType(builderState, *counter->counterStyle());
-            builderState.style().setContent(makeUnique<CounterContent>(counter->identifier(), listStyleType, counter->separator()), didSet);
+            builderState.style().setContent(makeUnique<CounterContent>(counter->identifier(), counter->separator(), toStyleFromCSSValue<CounterStyle>(builderState, counter->counterStyle())), didSet);
             didSet = true;
         } else {
             switch (item.valueID()) {

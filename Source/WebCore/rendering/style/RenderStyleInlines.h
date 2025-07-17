@@ -421,7 +421,7 @@ constexpr LineClampValue RenderStyle::initialLineClamp() { return { }; }
 inline const AtomString& RenderStyle::initialLineGrid() { return nullAtom(); }
 constexpr LineSnap RenderStyle::initialLineSnap() { return LineSnap::None; }
 constexpr ListStylePosition RenderStyle::initialListStylePosition() { return ListStylePosition::Outside; }
-inline ListStyleType RenderStyle::initialListStyleType() { return { ListStyleType::Type::CounterStyle, nameString(CSSValueDisc) }; }
+inline Style::ListStyleType RenderStyle::initialListStyleType() { return CSS::Keyword::Disc { }; }
 inline Style::MarginEdge RenderStyle::initialMargin() { return 0_css_px; }
 constexpr OptionSet<MarginTrimType> RenderStyle::initialMarginTrim() { return { }; }
 constexpr MarqueeBehavior RenderStyle::initialMarqueeBehavior() { return MarqueeBehavior::Scroll; }
@@ -575,7 +575,7 @@ inline LineBreak RenderStyle::lineBreak() const { return static_cast<LineBreak>(
 inline const LineClampValue& RenderStyle::lineClamp() const { return m_nonInheritedData->rareData->lineClamp; }
 inline const AtomString& RenderStyle::lineGrid() const { return m_rareInheritedData->lineGrid; }
 inline LineSnap RenderStyle::lineSnap() const { return static_cast<LineSnap>(m_rareInheritedData->lineSnap); }
-inline ListStyleType RenderStyle::listStyleType() const { return m_rareInheritedData->listStyleType; }
+inline const Style::ListStyleType& RenderStyle::listStyleType() const { return m_rareInheritedData->listStyleType; }
 inline const Style::InsetEdge& RenderStyle::logicalBottom() const { return m_nonInheritedData->surroundData->inset.after(writingMode()); }
 inline const Style::PreferredSize& RenderStyle::logicalHeight() const { return logicalHeight(writingMode()); }
 inline const Style::PreferredSize& RenderStyle::logicalHeight(const WritingMode writingMode) const { return writingMode.isHorizontal() ? height() : width(); }

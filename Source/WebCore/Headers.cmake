@@ -2673,7 +2673,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/GridArea.h
     rendering/style/GridSpan.h
     rendering/style/LineClampValue.h
-    rendering/style/ListStyleType.h
     rendering/style/NameScope.h
     rendering/style/NinePieceImage.h
     rendering/style/OutlineValue.h
@@ -2765,6 +2764,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/contain/StyleContainerName.h
 
+    style/values/counter-styles/StyleCounterStyle.h
+
     style/values/color/StyleColor.h
     style/values/color/StyleColorOptions.h
     style/values/color/StyleCurrentColor.h
@@ -2792,6 +2793,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/images/StyleGradient.h
 
     style/values/inline/StyleLineBoxContain.h
+
+    style/values/lists/StyleListStyleType.h
 
     style/values/masking/StyleClip.h
     style/values/masking/StyleClipPath.h

@@ -246,7 +246,6 @@ struct ImageOrientation;
 struct Length;
 struct LengthPoint;
 struct LengthSize;
-struct ListStyleType;
 struct SingleTimelineRange;
 
 struct ScrollSnapAlign;
@@ -295,6 +294,7 @@ struct GridTemplateAreas;
 struct GridTemplateList;
 struct GridTrackSizes;
 struct InsetEdge;
+struct ListStyleType;
 struct MarginEdge;
 struct MaximumSize;
 struct MinimumSize;
@@ -749,7 +749,7 @@ public:
     EmptyCell emptyCells() const { return static_cast<EmptyCell>(m_inheritedFlags.emptyCells); }
     CaptionSide captionSide() const { return static_cast<CaptionSide>(m_inheritedFlags.captionSide); }
 
-    inline ListStyleType listStyleType() const;
+    inline const Style::ListStyleType& listStyleType() const;
     StyleImage* listStyleImage() const;
     ListStylePosition listStylePosition() const { return static_cast<ListStylePosition>(m_inheritedFlags.listStylePosition); }
     inline bool isFixedTableLayout() const;
@@ -1421,7 +1421,7 @@ public:
 
     inline void setUsedContentVisibility(ContentVisibility);
 
-    inline void setListStyleType(ListStyleType);
+    inline void setListStyleType(Style::ListStyleType&&);
     void setListStyleImage(RefPtr<StyleImage>&&);
     void setListStylePosition(ListStylePosition v) { m_inheritedFlags.listStylePosition = static_cast<unsigned>(v); }
 
@@ -1960,7 +1960,7 @@ public:
     static inline LengthPoint initialObjectPosition();
     static constexpr EmptyCell initialEmptyCells();
     static constexpr ListStylePosition initialListStylePosition();
-    static inline ListStyleType initialListStyleType();
+    static inline Style::ListStyleType initialListStyleType();
     static constexpr OptionSet<TextTransform> initialTextTransform();
     static inline Style::ViewTransitionClasses initialViewTransitionClasses();
     static inline Style::ViewTransitionName initialViewTransitionName();

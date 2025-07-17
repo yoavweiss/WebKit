@@ -19,15 +19,14 @@
 
 #pragma once
 
+#include "FontCascade.h"
 #include "SVGRenderStyleDefs.h"
 #include <wtf/Noncopyable.h>
 
 namespace WebCore {
 
-class FontCascade;
 class RenderElement;
 class RenderSVGInlineText;
-class SVGElement;
 class SVGRenderStyle;
 class SVGTextMetrics;
 
@@ -45,7 +44,7 @@ public:
 private:
     AlignmentBaseline dominantBaselineToAlignmentBaseline(bool isVerticalText, const RenderElement& textRenderer) const;
 
-    const FontCascade& m_font;
+    CheckedRef<const FontCascade> m_font;
 };
 
 } // namespace WebCore

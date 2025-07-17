@@ -177,7 +177,6 @@ public:
     static GridAutoFlow convertGridAutoFlow(BuilderState&, const CSSValue&);
     static FilterOperations convertFilterOperations(BuilderState&, const CSSValue&);
     static FilterOperations convertAppleColorFilterOperations(BuilderState&, const CSSValue&);
-    static ListStyleType convertListStyleType(BuilderState&, const CSSValue&);
 #if PLATFORM(IOS_FAMILY)
     static bool convertTouchCallout(BuilderState&, const CSSValue&);
 #endif
@@ -305,22 +304,6 @@ inline WebCore::Length BuilderConverter::convertLengthOrAuto(BuilderState& build
     if (value.valueID() == CSSValueAuto)
         return WebCore::Length(LengthType::Auto);
     return convertLength(builderState, value);
-}
-
-inline ListStyleType BuilderConverter::convertListStyleType(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-
-    if (primitiveValue->isValueID()) {
-        if (primitiveValue->valueID() == CSSValueNone)
-            return { ListStyleType::Type::None, nullAtom() };
-        return { ListStyleType::Type::CounterStyle, makeAtomString(primitiveValue->stringValue()) };
-    }
-    if (primitiveValue->isCustomIdent())
-        return { ListStyleType::Type::CounterStyle, makeAtomString(primitiveValue->stringValue()) };
-    return { ListStyleType::Type::String, makeAtomString(primitiveValue->stringValue()) };
 }
 
 inline TabSize BuilderConverter::convertTabSize(BuilderState& builderState, const CSSValue& value)

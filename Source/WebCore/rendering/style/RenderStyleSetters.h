@@ -209,7 +209,7 @@ inline void RenderStyle::setLineBreak(LineBreak rule) { SET(m_rareInheritedData,
 inline void RenderStyle::setLineClamp(LineClampValue value) { SET_NESTED(m_nonInheritedData, rareData, lineClamp, value); }
 inline void RenderStyle::setLineGrid(const AtomString& name) { SET(m_rareInheritedData, lineGrid, name); }
 inline void RenderStyle::setLineSnap(LineSnap snap) { SET(m_rareInheritedData, lineSnap, static_cast<unsigned>(snap)); }
-inline void RenderStyle::setListStyleType(ListStyleType value) { SET(m_rareInheritedData, listStyleType, value); }
+inline void RenderStyle::setListStyleType(Style::ListStyleType&& value) { SET(m_rareInheritedData, listStyleType, WTFMove(value)); }
 inline void RenderStyle::setMarginBottom(Style::MarginEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, margin.bottom(), WTFMove(edge)); }
 inline void RenderStyle::setMarginBox(Style::MarginBox&& box) { SET_NESTED(m_nonInheritedData, surroundData, margin, WTFMove(box)); }
 inline void RenderStyle::setMarginLeft(Style::MarginEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, margin.left(), WTFMove(edge)); }

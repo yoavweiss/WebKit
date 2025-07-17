@@ -490,7 +490,7 @@ Ref<CSSCounterStyle> CSSCounterStyle::create(const CSSCounterStyleDescriptors& d
     return adoptRef(*new CSSCounterStyle(descriptors, isPredefinedCounterStyle));
 }
 
-void CSSCounterStyle::setFallbackReference(RefPtr<CSSCounterStyle>&& fallback)
+void CSSCounterStyle::setFallbackReference(Ref<CSSCounterStyle>&& fallback)
 {
     m_fallbackReference = WeakPtr { fallback };
 }

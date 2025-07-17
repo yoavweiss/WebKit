@@ -89,7 +89,6 @@ public:
     static void serializeImageOrNone(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StyleImage*);
     static void serializeGlyphOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeGlyphOrientationOrAuto(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
-    static void serializeListStyleType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ListStyleType&);
     static void serializeMarginTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<MarginTrimType>);
     static void serializeShapeValue(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ShapeValue*);
     static void serializeDPath(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StylePathData*);
@@ -693,20 +692,6 @@ inline void ExtractorSerializer::serializeGlyphOrientationOrAuto(ExtractorState&
     }
 
     RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline void ExtractorSerializer::serializeListStyleType(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ListStyleType& listStyleType)
-{
-    if (listStyleType.type == ListStyleType::Type::String) {
-        serializationForCSS(builder, context, state.style, listStyleType.identifier);
-        return;
-    }
-    if (listStyleType.type == ListStyleType::Type::CounterStyle) {
-        serializationForCSS(builder, context, state.style, CustomIdentifier { listStyleType.identifier });
-        return;
-    }
-
-    serialize(state, builder, context, listStyleType.type);
 }
 
 inline void ExtractorSerializer::serializeMarginTrim(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<MarginTrimType> marginTrim)
