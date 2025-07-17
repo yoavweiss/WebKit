@@ -29,6 +29,7 @@ constexpr size_t kPoolAllocatorPageSize = 16 * 1024;
 PoolAllocator::PoolAllocator(size_t alignment) : mAlignment(alignment)
 {
     ASSERT(gl::isPow2(mAlignment) && mAlignment < kPoolAllocatorPageSize);
+    ANGLE_ALLOC_PROFILE(ALIGNMENT, mAlignment);
 }
 
 void PoolAllocator::lock()
@@ -50,6 +51,7 @@ namespace
 
 inline Span<uint8_t> AllocatePageMemory(size_t size, size_t alignment)
 {
+    ANGLE_ALLOC_PROFILE(PAGE_ALLOCATION, size);
     uint8_t *result = reinterpret_cast<uint8_t *>(AlignedAlloc(size, alignment));
     if (ANGLE_UNLIKELY(result == nullptr))
     {
@@ -58,8 +60,9 @@ inline Span<uint8_t> AllocatePageMemory(size_t size, size_t alignment)
     return {result, size};
 }
 
-inline void DeallocatePageMemory(uint8_t *memory)
+inline void DeallocatePageMemory(uint8_t *memory, size_t size)
 {
+    ANGLE_ALLOC_PROFILE(PAGE_DEALLOCATION, memory, size);
     AlignedFree(memory);
 }
 
@@ -122,7 +125,7 @@ PoolAllocator::~PoolAllocator()
     while (page)
     {
         PageHeader *next = page->next;
-        DeallocatePageMemory(reinterpret_cast<uint8_t *>(page));
+        DeallocatePageMemory(reinterpret_cast<uint8_t *>(page), page->size);
         page = next;
     }
 }
@@ -149,7 +152,7 @@ void PoolAllocator::reset()
         PageHeader *next = page->next;
         if (page->size > kPoolAllocatorPageSize)
         {
-            DeallocatePageMemory(reinterpret_cast<uint8_t *>(page));
+            DeallocatePageMemory(reinterpret_cast<uint8_t *>(page), page->size);
         }
         else
         {
