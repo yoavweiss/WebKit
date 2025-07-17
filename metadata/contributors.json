@@ -1927,6 +1927,14 @@
    },
    {
       "emails" : [
+         "ccarley2@apple.com",
+         "cole.carley@gmail.com"
+      ],
+      "github" : "colelao",
+      "name" : "Cole Carley"
+   },
+   {
+      "emails" : [
          "collinj@webkit.org"
       ],
       "name" : "Collin Jackson",
