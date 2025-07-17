@@ -535,8 +535,14 @@ int SQLiteDatabase::runIncrementalVacuumCommand()
     Locker locker { m_authorizerLock };
     enableAuthorizer(false);
 
-    if (!executeCommand("PRAGMA incremental_vacuum"_s))
-        LOG(SQLDatabase, "Unable to run incremental vacuum - %s", lastErrorMsg());
+    if (auto statement = prepareStatement("PRAGMA incremental_vacuum"_s)) {
+        auto ret = statement->step();
+        while (ret == SQLITE_ROW)
+            ret = statement->step();
+
+        if (ret != SQLITE_DONE)
+            LOG(SQLDatabase, "Unable to run incremental vacuum - %s", lastErrorMsg());
+    }
 
     enableAuthorizer(true);
     return lastError();
