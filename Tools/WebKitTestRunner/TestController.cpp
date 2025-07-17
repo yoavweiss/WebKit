@@ -3456,7 +3456,7 @@ void TestController::decidePolicyForNavigationAction(WKPageRef page, WKNavigatio
     }
 
     if (m_shouldDecideNavigationPolicyAfterDelay)
-        RunLoop::protectedMain()->dispatch(WTFMove(decisionFunction));
+        RunLoop::mainSingleton().dispatch(WTFMove(decisionFunction));
     else
         decisionFunction();
 }
@@ -3499,7 +3499,7 @@ void TestController::decidePolicyForNavigationResponse(WKNavigationResponseRef n
     }
 
     if (m_shouldDecideResponsePolicyAfterDelay)
-        RunLoop::protectedMain()->dispatch(WTFMove(decisionFunction));
+        RunLoop::mainSingleton().dispatch(WTFMove(decisionFunction));
     else
         decisionFunction();
 }

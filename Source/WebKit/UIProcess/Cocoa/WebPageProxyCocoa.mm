@@ -249,7 +249,7 @@ void WebPageProxy::beginSafeBrowsingCheck(const URL& url, RefPtr<API::Navigation
         navigation->setSafeBrowsingCheckOngoing(redirectChainIndex, true);
 
     auto completionHandler = makeBlockPtr([navigation = WTFMove(navigation), forMainFrameNavigation = frame.isMainFrame(), url, weakThis = WeakPtr { *this }, frame = Ref { frame }, redirectChainIndex] (SSBLookupResult *result, NSError *error) mutable {
-        RunLoop::protectedMain()->dispatch([frame = WTFMove(frame), navigation = WTFMove(navigation), result = retainPtr(result), error = retainPtr(error), forMainFrameNavigation, url = WTFMove(url), weakThis, redirectChainIndex] {
+        RunLoop::mainSingleton().dispatch([frame = WTFMove(frame), navigation = WTFMove(navigation), result = retainPtr(result), error = retainPtr(error), forMainFrameNavigation, url = WTFMove(url), weakThis, redirectChainIndex] {
             if (!navigation)
                 return;
             navigation->setSafeBrowsingCheckOngoing(redirectChainIndex, false);

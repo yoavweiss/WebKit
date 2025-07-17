@@ -1488,7 +1488,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     if (superview)
         return;
 
-    RunLoop::protectedMain()->dispatch([self, strongSelf = retainPtr(self)] {
+    RunLoop::mainSingleton().dispatch([self, strongSelf = retainPtr(self)] {
         if ([_webViewPlaceholder superview] == nil && [_webViewPlaceholder parent] == self)
             [self close];
     });

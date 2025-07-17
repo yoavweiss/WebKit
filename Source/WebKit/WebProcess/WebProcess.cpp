@@ -431,7 +431,7 @@ void WebProcess::initializeConnection(IPC::Connection* connection)
 static void scheduleLogMemoryStatistics(LogMemoryStatisticsReason reason)
 {
     // Log stats in the next turn of the run loop so that it runs after the low memory handler.
-    RunLoop::protectedMain()->dispatch([reason] {
+    RunLoop::mainSingleton().dispatch([reason] {
         WebCore::logMemoryStatistics(reason);
     });
 }
@@ -1314,7 +1314,7 @@ NetworkProcessConnection& WebProcess::ensureNetworkProcessConnection()
         }
 #endif
         // This can be called during a WebPage's constructor, so wait until after the constructor returns to touch the WebPage.
-        RunLoop::protectedMain()->dispatch([this, protectedThis = Ref { *this }] {
+        RunLoop::mainSingleton().dispatch([this, protectedThis = Ref { *this }] {
             for (auto& webPage : m_pageMap.values())
                 webPage->synchronizeCORSDisablingPatternsWithNetworkProcess();
         });

@@ -226,7 +226,7 @@ void RemoteScrollingCoordinatorProxy::receivedLastScrollingTreeNodeUpdateReply()
     if (!m_scrollingTree->hasPendingScrollUpdates())
         return;
 
-    RunLoop::protectedMain()->dispatch([weakThis = WeakPtr { *this }]() {
+    RunLoop::mainSingleton().dispatch([weakThis = WeakPtr { *this }]() {
         if (!weakThis)
             return;
         weakThis->sendScrollingTreeNodeUpdate();

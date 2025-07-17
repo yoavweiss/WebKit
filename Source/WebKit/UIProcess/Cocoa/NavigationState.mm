@@ -526,7 +526,7 @@ static void tryInterceptNavigation(Ref<API::NavigationAction>&& navigationAction
         configuration.get().referrerURL = referrerURL.get();
 
         [LSAppLink openWithURL:url.createNSURL().get() configuration:configuration.get() completionHandler:[localCompletionHandler](BOOL success, NSError *) {
-            RunLoop::protectedMain()->dispatch([localCompletionHandler, success] {
+            RunLoop::mainSingleton().dispatch([localCompletionHandler, success] {
                 (*localCompletionHandler)(success);
                 delete localCompletionHandler;
             });

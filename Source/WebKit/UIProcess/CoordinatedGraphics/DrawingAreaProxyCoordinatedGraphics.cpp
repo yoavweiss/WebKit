@@ -338,7 +338,7 @@ void DrawingAreaProxyCoordinatedGraphics::discardBackingStore()
 WTF_MAKE_TZONE_ALLOCATED_IMPL(DrawingAreaProxyCoordinatedGraphics::DrawingMonitor);
 
 DrawingAreaProxyCoordinatedGraphics::DrawingMonitor::DrawingMonitor(WebPageProxy& webPage)
-    : m_timer(RunLoop::main(), this, &DrawingMonitor::stop)
+    : m_timer(RunLoop::mainSingleton(), this, &DrawingMonitor::stop)
 {
 #if USE(GLIB_EVENT_LOOP)
     m_timer.setPriority(RunLoopSourcePriority::RunLoopDispatcher);

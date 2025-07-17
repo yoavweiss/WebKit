@@ -205,7 +205,7 @@ public:
         ASSERT(isMainRunLoop());
 
         Ref pendingAction = WTFMove(m_pendingAction);
-        m_pendingAction = pendingAction->isResolved() ? action() : pendingAction->whenSettled(RunLoop::protectedMain(), WTFMove(action));
+        m_pendingAction = pendingAction->isResolved() ? action() : pendingAction->whenSettled(RunLoop::mainSingleton(), WTFMove(action));
     }
 
     void applyConstraints(WebCore::MediaConstraints&& constraints, CompletionHandler<void(std::optional<RealtimeMediaSource::ApplyConstraintsError>&&)> callback)
@@ -295,7 +295,7 @@ public:
                 return GenericPromise::createAndResolve();
             }
 
-            return protectedThis->source().takePhoto(WTFMove(photoSettings))->whenSettled(RunLoop::protectedMain(), [takePhotoProducer = WTFMove(takePhotoProducer)] (auto&& result) mutable {
+            return protectedThis->source().takePhoto(WTFMove(photoSettings))->whenSettled(RunLoop::mainSingleton(), [takePhotoProducer = WTFMove(takePhotoProducer)] (auto&& result) mutable {
                 ASSERT(isMainRunLoop());
 
                 takePhotoProducer.settle(WTFMove(result));
@@ -747,7 +747,7 @@ void UserMediaCaptureManagerProxy::takePhoto(RealtimeMediaSourceIdentifier sourc
         return;
     }
 
-    proxy->takePhoto(WTFMove(settings))->whenSettled(RunLoop::protectedMain(), WTFMove(handler));
+    proxy->takePhoto(WTFMove(settings))->whenSettled(RunLoop::mainSingleton(), WTFMove(handler));
 }
 
 
@@ -760,7 +760,7 @@ void UserMediaCaptureManagerProxy::getPhotoCapabilities(RealtimeMediaSourceIdent
         return;
     }
 
-    proxy->getPhotoCapabilities()->whenSettled(RunLoop::protectedMain(), WTFMove(handler));
+    proxy->getPhotoCapabilities()->whenSettled(RunLoop::mainSingleton(), WTFMove(handler));
 }
 
 void UserMediaCaptureManagerProxy::getPhotoSettings(RealtimeMediaSourceIdentifier sourceID, GetPhotoSettingsCallback&& handler)
@@ -771,7 +771,7 @@ void UserMediaCaptureManagerProxy::getPhotoSettings(RealtimeMediaSourceIdentifie
         return;
     }
 
-    proxy->getPhotoSettings()->whenSettled(RunLoop::protectedMain(), [handler = WTFMove(handler)] (auto&& result) mutable {
+    proxy->getPhotoSettings()->whenSettled(RunLoop::mainSingleton(), [handler = WTFMove(handler)] (auto&& result) mutable {
         handler(WTFMove(result));
     });
 }

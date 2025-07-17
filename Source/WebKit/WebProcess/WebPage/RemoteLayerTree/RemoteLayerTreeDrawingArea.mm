@@ -423,7 +423,7 @@ void RemoteLayerTreeDrawingArea::updateRendering()
     m_commitQueue->dispatch([backingStoreFlusher = m_backingStoreFlusher, commitEncoder = WTFMove(commitEncoder), flushers = WTFMove(flushers), pageID] () mutable {
         bool flushSucceeded = backingStoreFlusher->flush(WTFMove(commitEncoder), WTFMove(flushers));
 
-        RunLoop::protectedMain()->dispatch([pageID, flushSucceeded] () mutable {
+        RunLoop::mainSingleton().dispatch([pageID, flushSucceeded] () mutable {
             if (RefPtr webPage = WebProcess::singleton().webPage(pageID)) {
                 if (RefPtr drawingArea = dynamicDowncast<RemoteLayerTreeDrawingArea>(webPage->drawingArea())) {
                     drawingArea->didCompleteRenderingUpdateDisplayFlush(flushSucceeded);

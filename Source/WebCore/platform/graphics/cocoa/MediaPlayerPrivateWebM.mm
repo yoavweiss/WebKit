@@ -311,7 +311,7 @@ void MediaPlayerPrivateWebM::dataReceived(const SharedBuffer& buffer)
 
     invokeAsync(m_appendQueue, [buffer = Ref { buffer }, parser = m_parser]() mutable {
         return MediaPromise::createAndSettle(parser->appendData(WTFMove(buffer)));
-    })->whenSettled(RunLoop::protectedMain(), [weakThis = ThreadSafeWeakPtr { *this }](auto&& result) {
+    })->whenSettled(RunLoop::mainSingleton(), [weakThis = ThreadSafeWeakPtr { *this }](auto&& result) {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->appendCompleted(!!result);
     });
@@ -434,7 +434,7 @@ void MediaPlayerPrivateWebM::seekInternal()
 
     m_seekState = Seeking;
 
-    seekTo(m_lastSeekTime)->whenSettled(RunLoop::protectedMain(), [weakThis = ThreadSafeWeakPtr { *this }](auto&& result) {
+    seekTo(m_lastSeekTime)->whenSettled(RunLoop::mainSingleton(), [weakThis = ThreadSafeWeakPtr { *this }](auto&& result) {
         if (!result)
             return; // seek cancelled.
 

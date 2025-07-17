@@ -112,7 +112,7 @@ namespace TestWebKitAPI {
 static IMP makeFingerprintingScriptsRequestHandler(NSArray<NSString *> *hostNames, Vector<WPScriptAccessCategories>&& allowedCategories)
 {
     return imp_implementationWithBlock([hostNames = RetainPtr { hostNames }, allowedCategories = WTFMove(allowedCategories)](WPResources *, WPResourceRequestOptions *, void(^completion)(NSArray<WPFingerprintingScript *> *, NSError *)) mutable {
-        RunLoop::main().dispatch([hostNames = WTFMove(hostNames), allowedCategories = WTFMove(allowedCategories), completion = makeBlockPtr(completion)] mutable {
+        RunLoop::mainSingleton().dispatch([hostNames = WTFMove(hostNames), allowedCategories = WTFMove(allowedCategories), completion = makeBlockPtr(completion)] mutable {
             RetainPtr scripts = [NSMutableArray arrayWithCapacity:[hostNames count]];
             size_t index = 0;
             for (NSString *host in hostNames.get()) {

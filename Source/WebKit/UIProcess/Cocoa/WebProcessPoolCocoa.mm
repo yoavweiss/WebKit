@@ -1301,7 +1301,7 @@ void WebProcessPool::displayPropertiesChanged(const WebCore::ScreenProperties& s
 
 static void displayReconfigurationCallBack(CGDirectDisplayID displayID, CGDisplayChangeSummaryFlags flags, void *userInfo)
 {
-    RunLoop::protectedMain()->dispatch([displayID, flags]() {
+    RunLoop::mainSingleton().dispatch([displayID, flags]() {
         auto screenProperties = WebCore::collectScreenProperties();
         for (auto& processPool : WebProcessPool::allProcessPools())
             processPool->displayPropertiesChanged(screenProperties, displayID, flags);
@@ -1320,7 +1320,7 @@ void WebProcessPool::registerDisplayConfigurationCallback()
 
 static void webProcessPoolHighDynamicRangeDidChangeCallback(CFNotificationCenterRef, void*, CFNotificationName, const void*, CFDictionaryRef)
 {
-    RunLoop::protectedMain()->dispatch([] {
+    RunLoop::mainSingleton().dispatch([] {
         auto properties = WebCore::collectScreenProperties();
         for (auto& pool : WebProcessPool::allProcessPools())
             pool->sendToAllProcesses(Messages::WebProcess::SetScreenProperties(properties));
@@ -1629,7 +1629,7 @@ void WebProcessPool::registerAssetFonts(WebProcessProxy& process)
         if (state != kCTFontDescriptorMatchingDidFinish)
             return true;
         RELEASE_LOG(Process, "Font matching finished, progress parameter = %@", (__bridge id)progressParameter);
-        RunLoop::protectedMain()->dispatch([assetFonts = WTFMove(assetFonts), weakProcess = WTFMove(weakProcess), weakThis = WTFMove(weakThis)] {
+        RunLoop::mainSingleton().dispatch([assetFonts = WTFMove(assetFonts), weakProcess = WTFMove(weakProcess), weakThis = WTFMove(weakThis)] {
             RefPtr protectedThis = weakThis.get();
             if (!protectedThis)
                 return;

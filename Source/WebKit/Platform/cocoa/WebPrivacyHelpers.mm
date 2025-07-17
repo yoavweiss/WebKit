@@ -262,7 +262,7 @@ void StorageAccessPromptQuirkController::updateList(CompletionHandler<void()>&& 
 {
     ASSERT(RunLoop::isMain());
     if (!PAL::isWebPrivacyFrameworkAvailable() || ![PAL::getWPResourcesClass() instancesRespondToSelector:@selector(requestStorageAccessPromptQuirksData:completionHandler:)]) {
-        RunLoop::protectedMain()->dispatch(WTFMove(completionHandler));
+        RunLoop::mainSingleton().dispatch(WTFMove(completionHandler));
         return;
     }
 
@@ -304,7 +304,7 @@ void StorageAccessUserAgentStringQuirkController::updateList(CompletionHandler<v
 {
     ASSERT(RunLoop::isMain());
     if (!PAL::isWebPrivacyFrameworkAvailable() || ![PAL::getWPResourcesClass() instancesRespondToSelector:@selector(requestStorageAccessUserAgentStringQuirksData:completionHandler:)]) {
-        RunLoop::protectedMain()->dispatch(WTFMove(completionHandler));
+        RunLoop::mainSingleton().dispatch(WTFMove(completionHandler));
         return;
     }
 
@@ -788,7 +788,7 @@ void ScriptTrackingPrivacyController::updateList(CompletionHandler<void()>&& com
     ASSERT(RunLoop::isMain());
 #if ENABLE(SCRIPT_TRACKING_PRIVACY_PROTECTIONS)
     if (!PAL::isWebPrivacyFrameworkAvailable() || ![PAL::getWPResourcesClass() instancesRespondToSelector:@selector(requestFingerprintingScripts:completionHandler:)]) {
-        RunLoop::protectedMain()->dispatch(WTFMove(completion));
+        RunLoop::mainSingleton().dispatch(WTFMove(completion));
         return;
     }
 
@@ -830,7 +830,7 @@ void ScriptTrackingPrivacyController::updateList(CompletionHandler<void()>&& com
         setCachedListData(WTFMove(result));
     }];
 #else
-    RunLoop::protectedMain()->dispatch(WTFMove(completion));
+    RunLoop::mainSingleton().dispatch(WTFMove(completion));
 #endif
 }
 

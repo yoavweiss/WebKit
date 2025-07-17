@@ -79,7 +79,7 @@ RunLoop& RunLoop::currentSingleton()
     return runLoopHolder()->runLoop();
 }
 
-RunLoop& RunLoop::main()
+RunLoop& RunLoop::mainSingleton()
 {
     ASSERT(s_mainRunLoop);
     return *s_mainRunLoop;
@@ -92,7 +92,7 @@ void RunLoop::initializeWeb()
     s_webRunLoop = &RunLoop::currentSingleton();
 }
 
-RunLoop& RunLoop::web()
+RunLoop& RunLoop::webSingleton()
 {
     ASSERT(s_webRunLoop);
     return *s_webRunLoop;

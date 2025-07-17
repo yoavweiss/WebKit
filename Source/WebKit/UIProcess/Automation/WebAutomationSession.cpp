@@ -151,7 +151,7 @@ WebAutomationSession::WebAutomationSession()
 #if ENABLE(WEBDRIVER_BIDI)
     , m_bidiProcessor(makeUniqueRef<WebDriverBidiProcessor>(*this))
 #endif
-    , m_loadTimer(RunLoop::main(), this, &WebAutomationSession::loadTimerFired)
+    , m_loadTimer(RunLoop::mainSingleton(), this, &WebAutomationSession::loadTimerFired)
 #if ENABLE(REMOTE_INSPECTOR)
     , m_debuggable(Debuggable::create(*this))
 #endif
@@ -450,7 +450,7 @@ void WebAutomationSession::closeBrowsingContext(const Inspector::Protocol::Autom
 
     page->closePage();
 
-    RunLoop::protectedMain()->dispatch([callback = WTFMove(callback)] {
+    RunLoop::mainSingleton().dispatch([callback = WTFMove(callback)] {
         callback({ });
     });
 }
@@ -752,7 +752,7 @@ void WebAutomationSession::willShowJavaScriptDialog(WebPageProxy& page, const St
     // the load in case of normal strategy, so we want to dispatch all pending navigation callbacks.
     // If the dialog was shown during a script execution, we want to finish the evaluateJavaScriptFunction
     // operation with an unexpected alert open error.
-    RunLoop::protectedMain()->dispatch([this, protectedThis = Ref { *this }, page = Ref { page }, message, defaultText] {
+    RunLoop::mainSingleton().dispatch([this, protectedThis = Ref { *this }, page = Ref { page }, message, defaultText] {
         if (!page->hasRunningProcess() || !m_client || !m_client->isShowingJavaScriptDialogOnPage(*this, page))
             return;
 

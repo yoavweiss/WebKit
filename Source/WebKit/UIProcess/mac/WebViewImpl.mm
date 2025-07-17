@@ -722,7 +722,7 @@ static void* keyValueObservingContext = &keyValueObservingContext;
 
 - (void)menuDidClose:(NSMenu *)menu
 {
-    RunLoop::protectedMain()->dispatch([impl = _impl] {
+    RunLoop::mainSingleton().dispatch([impl = _impl] {
         if (impl)
             impl->hideDOMPasteMenuWithResult(WebCore::DOMPasteAccessResponse::DeniedForGesture);
     });
@@ -1765,7 +1765,7 @@ void WebViewImpl::updateWindowAndViewFrames()
 
     m_didScheduleWindowAndViewFrameUpdate = true;
 
-    RunLoop::protectedMain()->dispatch([weakThis = WeakPtr { *this }] {
+    RunLoop::mainSingleton().dispatch([weakThis = WeakPtr { *this }] {
         if (!weakThis)
             return;
 
@@ -2935,7 +2935,7 @@ void WebViewImpl::didBecomeEditable()
 {
     [m_windowVisibilityObserver enableObservingFontPanel];
 
-    RunLoop::protectedMain()->dispatch([] {
+    RunLoop::mainSingleton().dispatch([] {
         [[NSSpellChecker sharedSpellChecker] _preflightChosenSpellServer];
     });
 }
@@ -3380,7 +3380,7 @@ void WebViewImpl::requestCandidatesForSelectionIfNeeded()
 
     WeakPtr weakThis { *this };
     m_lastCandidateRequestSequenceNumber = [[NSSpellChecker sharedSpellChecker] requestCandidatesForSelectedRange:selectedRange inString:postLayoutData->paragraphContextForCandidateRequest.createNSString().get() types:checkingTypes options:nil inSpellDocumentWithTag:spellCheckerDocumentTag() completionHandler:[weakThis](NSInteger sequenceNumber, NSArray<NSTextCheckingResult *> *candidates) {
-        RunLoop::protectedMain()->dispatch([weakThis, sequenceNumber, candidates = retainPtr(candidates)] {
+        RunLoop::mainSingleton().dispatch([weakThis, sequenceNumber, candidates = retainPtr(candidates)] {
             if (!weakThis)
                 return;
             weakThis->handleRequestedCandidates(sequenceNumber, candidates.get());
@@ -4233,7 +4233,7 @@ static bool handleLegacyFilesPromisePasteboard(id<NSDraggingInfo> draggingInfo, 
             if (errorOrNil)
                 return;
 
-            RunLoop::protectedMain()->dispatch([protectedPage = WTFMove(protectedPage), path = RetainPtr { fileURL.path }, fileNames, fileCount, dragData, pasteboardName] () mutable {
+            RunLoop::mainSingleton().dispatch([protectedPage = WTFMove(protectedPage), path = RetainPtr { fileURL.path }, fileNames, fileCount, dragData, pasteboardName] () mutable {
                 fileNames->append(path.get());
                 if (fileNames->size() != fileCount)
                     return;
@@ -4275,7 +4275,7 @@ static bool handleLegacyFilesPasteboard(id<NSDraggingInfo> draggingInfo, Box<Web
                 RELEASE_LOG_ERROR_IF(error, DragAndDrop, "Failed to coordinate reading file: %@.", error.localizedDescription);
             }
 
-            RunLoop::protectedMain()->dispatch([protectedPage = WTFMove(protectedPage), fileNames, dragData, pasteboardName, completionHandler = makeBlockPtr(completionHandler)] mutable {
+            RunLoop::mainSingleton().dispatch([protectedPage = WTFMove(protectedPage), fileNames, dragData, pasteboardName, completionHandler = makeBlockPtr(completionHandler)] mutable {
                 performDragWithLegacyFiles(protectedPage, WTFMove(fileNames), WTFMove(dragData), pasteboardName);
                 completionHandler();
             });

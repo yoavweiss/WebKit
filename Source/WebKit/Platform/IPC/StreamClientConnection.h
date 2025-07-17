@@ -226,7 +226,7 @@ std::optional<StreamClientConnection::AsyncReplyID> StreamClientConnection::send
         // FIXME(https://bugs.webkit.org/show_bug.cgi?id=248947): Current contract is that completionHandler
         // is called on the connection run loop.
         // This does not make sense. However, this needs a change that is done later.
-        RunLoop::protectedMain()->dispatch([completionHandler = WTFMove(replyHandlerToCancel)]() mutable {
+        RunLoop::mainSingleton().dispatch([completionHandler = WTFMove(replyHandlerToCancel)]() mutable {
             completionHandler(nullptr, nullptr);
         });
     }

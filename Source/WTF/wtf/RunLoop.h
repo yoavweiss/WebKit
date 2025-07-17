@@ -87,15 +87,14 @@ public:
 #endif
 
     WTF_EXPORT_PRIVATE static RunLoop& currentSingleton();
-    WTF_EXPORT_PRIVATE static RunLoop& main();
-    static Ref<RunLoop> protectedMain() { return main(); }
+    WTF_EXPORT_PRIVATE static RunLoop& mainSingleton();
 #if USE(WEB_THREAD)
-    WTF_EXPORT_PRIVATE static RunLoop& web();
+    WTF_EXPORT_PRIVATE static RunLoop& webSingleton();
     WTF_EXPORT_PRIVATE static RunLoop* webIfExists();
 #endif
     WTF_EXPORT_PRIVATE static Ref<RunLoop> create(ASCIILiteral threadName, ThreadType = ThreadType::Unknown, Thread::QOS = Thread::QOS::UserInitiated);
 
-    static bool isMain() { SUPPRESS_UNCOUNTED_ARG return main().isCurrent(); }
+    static bool isMain() { return mainSingleton().isCurrent(); }
     WTF_EXPORT_PRIVATE bool isCurrent() const final;
     WTF_EXPORT_PRIVATE ~RunLoop() final;
 
