@@ -2085,11 +2085,6 @@ SingleThreadWeakPtr<RenderBox> RenderGrid::getBaselineGridItem(ItemPosition alig
     return baselineGridItem;
 }
 
-std::optional<LayoutUnit> RenderGrid::inlineBlockBaseline() const
-{
-    return firstLineBaseline();
-}
-
 LayoutUnit RenderGrid::columnAxisBaselineOffsetForGridItem(const RenderBox& gridItem) const
 {
     // FIXME : CSS Masonry does not properly handle baseline calculations currently.

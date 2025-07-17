@@ -2508,37 +2508,6 @@ std::optional<LayoutUnit> RenderBlock::lastLineBaseline() const
     return { };
 }
 
-std::optional<LayoutUnit> RenderBlock::inlineBlockBaseline() const
-{
-    auto lineDirection = containingBlock()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine;
-    if (shouldApplyLayoutContainment()) {
-        if (isInline())
-            return synthesizedBaseline(*this, *parentStyle(), lineDirection, BorderBox) + (lineDirection == HorizontalLine ? marginBottom() : marginLeft());
-        return { };
-    }
-
-    if (isWritingModeRoot())
-        return { };
-
-    bool haveNormalFlowChild = false;
-    for (auto* box = lastChildBox(); box; box = box->previousSiblingBox()) {
-        if (box->isFloatingOrOutOfFlowPositioned())
-            continue;
-        haveNormalFlowChild = true;
-        if (auto result = box->inlineBlockBaseline())
-            return LayoutUnit { (box->logicalTop() + result.value()).toInt() }; // Translate to our coordinate space.
-    }
-
-    if (!haveNormalFlowChild && hasLineIfEmpty()) {
-        auto& fontMetrics = firstLineStyle().metricsOfPrimaryFont();
-        return LayoutUnit { LayoutUnit(fontMetrics.intAscent()
-            + (lineHeight() - fontMetrics.intHeight()) / 2
-            + (lineDirection == HorizontalLine ? borderTop() + paddingTop() : borderRight() + paddingRight())).toInt() };
-    }
-
-    return { };
-}
-
 static inline bool isRenderBlockFlowOrRenderButton(RenderElement& renderElement)
 {
     // We include isRenderButton in this check because buttons are implemented

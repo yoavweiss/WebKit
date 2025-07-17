@@ -1582,12 +1582,6 @@ RenderTableCell* RenderTable::cellAfter(const RenderTableCell* cell) const
     return cell->section()->primaryCellAt(cell->rowIndex(), effCol);
 }
 
-std::optional<LayoutUnit> RenderTable::inlineBlockBaseline() const
-{
-    // Tables are skipped when computing an inline-block's baseline.
-    return std::optional<LayoutUnit>();
-}
-
 std::optional<LayoutUnit> RenderTable::firstLineBaseline() const
 {
     // The baseline of a 'table' is the same as the 'inline-table' baseline per CSS 3 Flexbox (CSS 2.1

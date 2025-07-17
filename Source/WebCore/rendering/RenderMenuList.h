@@ -128,7 +128,6 @@ private:
     bool hasLineIfEmpty() const override { return true; }
 
     std::optional<LayoutUnit> firstLineBaseline() const override { return RenderBlock::firstLineBaseline(); }
-    std::optional<LayoutUnit> inlineBlockBaseline() const override { return RenderBlock::inlineBlockBaseline(); }
 
     void getItemBackgroundColor(unsigned listIndex, Color&, bool& itemHasCustomBackgroundColor) const;
 

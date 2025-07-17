@@ -314,11 +314,6 @@ std::optional <LayoutUnit> RenderFlexibleBox::lastLineBaseline() const
     return LayoutUnit { (baseline.value() + baselineFlexItem->logicalTop()).toInt() };
 }
 
-std::optional<LayoutUnit> RenderFlexibleBox::inlineBlockBaseline() const
-{
-    return firstLineBaseline();
-}
-
 static const StyleContentAlignmentData& contentAlignmentNormalBehavior()
 {
     // The justify-content property applies along the main axis, but since

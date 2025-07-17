@@ -89,7 +89,6 @@ public:
     virtual ~RenderTextControlInnerContainer();
 
     std::optional<LayoutUnit> firstLineBaseline() const override { return RenderBlock::firstLineBaseline(); }
-    std::optional<LayoutUnit> inlineBlockBaseline() const override { return RenderBlock::inlineBlockBaseline(); }
 
 private:
     bool isFlexibleBoxImpl() const override { return true; }
