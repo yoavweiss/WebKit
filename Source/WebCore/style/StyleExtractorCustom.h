@@ -740,12 +740,12 @@ template<GridTrackSizingDirection direction> Ref<CSSValue> extractGridTemplateVa
     };
 
     auto* renderGrid = dynamicDowncast<RenderGrid>(state.renderer);
-    bool isSubgrid = isRowAxis ? state.style.gridSubgridColumns() : state.style.gridSubgridRows();
-    auto& trackSizes = isRowAxis ? state.style.gridColumnTrackSizes() : state.style.gridRowTrackSizes();
-    auto& autoRepeatTrackSizes = isRowAxis ? state.style.gridAutoRepeatColumns() : state.style.gridAutoRepeatRows();
+    bool isSubgrid = isRowAxis ? state.style.gridTemplateColumns().subgrid : state.style.gridTemplateRows().subgrid;
+    auto& trackSizes = isRowAxis ? state.style.gridTemplateColumns().sizes : state.style.gridTemplateRows().sizes;
+    auto& autoRepeatTrackSizes = isRowAxis ? state.style.gridTemplateColumns().autoRepeatSizes : state.style.gridTemplateRows().autoRepeatSizes;
 
-    if ((direction == GridTrackSizingDirection::Rows && state.style.gridMasonryRows())
-        || (direction == GridTrackSizingDirection::Columns && state.style.gridMasonryColumns()))
+    if ((direction == GridTrackSizingDirection::Rows && state.style.gridTemplateRows().masonry)
+        || (direction == GridTrackSizingDirection::Columns && state.style.gridTemplateColumns().masonry))
         return CSSPrimitiveValue::create(CSSValueMasonry);
 
     // Handle the 'none' case.
