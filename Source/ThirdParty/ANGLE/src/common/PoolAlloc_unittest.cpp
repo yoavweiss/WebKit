@@ -92,15 +92,11 @@ TEST_P(PoolAllocatorTest, ResetRecyclesMemory)
     void *allocation2 = poolAllocator.allocate(2);
     memset(allocation1, 11, 1);
     memset(allocation2, 12, 2);
-    ANGLE_ALLOC_PROFILE(POINTER, allocation1);
-    ANGLE_ALLOC_PROFILE(POINTER, allocation2);
     poolAllocator.reset();
     void *allocation3 = poolAllocator.allocate(1);
     void *allocation4 = poolAllocator.allocate(2);
     memset(allocation3, 21, 1);
     memset(allocation4, 22, 2);
-    ANGLE_ALLOC_PROFILE(POINTER, allocation3);
-    ANGLE_ALLOC_PROFILE(POINTER, allocation4);
     EXPECT_NE(allocation1, nullptr);
     EXPECT_NE(allocation2, nullptr);
     EXPECT_NE(allocation1, allocation2);
