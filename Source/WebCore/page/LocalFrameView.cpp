@@ -2889,8 +2889,10 @@ bool LocalFrameView::scrollToFragment(const URL& url)
                 RefPtr commonAncestor = commonInclusiveAncestor<ComposedTree>(range);
                 if (commonAncestor && !is<Element>(commonAncestor))
                     commonAncestor = commonAncestor->parentElement();
-                if (commonAncestor)
+                if (commonAncestor) {
                     document->setCSSTarget(downcast<Element>(commonAncestor.get()));
+                    revealClosedDetailsAndHiddenUntilFoundAncestors(*commonAncestor);
+                }
                 // FIXME: <http://webkit.org/b/245262> (Scroll To Text Fragment should use DelegateMainFrameScroll)
                 TemporarySelectionChange selectionChange(document, { range }, { TemporarySelectionOption::RevealSelection, TemporarySelectionOption::RevealSelectionBounds, TemporarySelectionOption::UserTriggered, TemporarySelectionOption::ForceCenterScroll });
                 if (m_frame->settings().scrollToTextFragmentIndicatorEnabled() && !m_frame->page()->isControlledByAutomation())

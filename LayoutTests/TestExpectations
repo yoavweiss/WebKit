@@ -7988,9 +7988,6 @@ webkit.org/b/290285 imported/w3c/web-platform-tests/svg/struct/reftests/use-data
 webkit.org/b/290285 imported/w3c/web-platform-tests/svg/struct/reftests/use-data-url.tentative.svg [ Skip ]
 webkit.org/b/290285 imported/w3c/web-platform-tests/svg/struct/scripted/use-load-error-events.tentative.html [ Skip ]
 
-# Investigate timeout on this test.
-imported/w3c/web-platform-tests/html/editing/the-hidden-attribute/beforematch-scroll-to-text-fragment.html [ Skip ]
-
 # This test hits an assert in debug
 webkit.org/b/290133 [ Debug ] svg/dom/SVGGeometry-isPointInFill-with-null-path.html [ Skip ]
 
