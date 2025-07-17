@@ -8064,3 +8064,5 @@ webkit.org/b/296017 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/s
 webkit.org/b/295993 http/tests/IndexedDB/storage-limit-1.https.html [ Pass Failure ]
 
 webkit.org/b/295989 [ Release ] http/tests/misc/embed-image-load-outlives-gc-without-crashing.html [ Pass Timeout ]
+
+webkit.org/b/296095 fast/forms/switch/click-animation-disabled.html [ Pass Timeout ]
