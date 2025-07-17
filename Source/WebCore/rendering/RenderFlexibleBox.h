@@ -59,7 +59,7 @@ public:
     LayoutUnit baselinePosition() const override;
     std::optional<LayoutUnit> firstLineBaseline() const override;
     std::optional<LayoutUnit> lastLineBaseline() const override;
-    std::optional<LayoutUnit> inlineBlockBaseline(LineDirectionMode) const override;
+    std::optional<LayoutUnit> inlineBlockBaseline() const override;
 
     void styleDidChange(StyleDifference, const RenderStyle*) override;
     bool hitTestChildren(const HitTestRequest&, HitTestResult&, const HitTestLocation&, const LayoutPoint& adjustedLocation, HitTestAction) override;

@@ -2095,7 +2095,7 @@ SingleThreadWeakPtr<RenderBox> RenderGrid::getBaselineGridItem(ItemPosition alig
     return baselineGridItem;
 }
 
-std::optional<LayoutUnit> RenderGrid::inlineBlockBaseline(LineDirectionMode) const
+std::optional<LayoutUnit> RenderGrid::inlineBlockBaseline() const
 {
     return firstLineBaseline();
 }

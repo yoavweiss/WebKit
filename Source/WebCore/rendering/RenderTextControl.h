@@ -93,7 +93,7 @@ public:
         return RenderBlock::baselinePosition();
     }
     std::optional<LayoutUnit> firstLineBaseline() const override { return RenderBlock::firstLineBaseline(); }
-    std::optional<LayoutUnit> inlineBlockBaseline(LineDirectionMode direction) const override { return RenderBlock::inlineBlockBaseline(direction); }
+    std::optional<LayoutUnit> inlineBlockBaseline() const override { return RenderBlock::inlineBlockBaseline(); }
 
 private:
     bool isFlexibleBoxImpl() const override { return true; }

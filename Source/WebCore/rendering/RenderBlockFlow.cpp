@@ -3295,13 +3295,14 @@ std::optional<LayoutUnit> RenderBlockFlow::lastLineBaseline() const
     return { };
 }
 
-std::optional<LayoutUnit> RenderBlockFlow::inlineBlockBaseline(LineDirectionMode lineDirection) const
+std::optional<LayoutUnit> RenderBlockFlow::inlineBlockBaseline() const
 {
+    auto lineDirection = containingBlock()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine;
     if (isWritingModeRoot())
         return { };
 
     if (shouldApplyLayoutContainment())
-        return RenderBlock::inlineBlockBaseline(lineDirection);
+        return RenderBlock::inlineBlockBaseline();
 
     RefPtr element = this->element();
     bool isHTMLFormControlElement = element && element->isFormControlElement();
@@ -3316,7 +3317,7 @@ std::optional<LayoutUnit> RenderBlockFlow::inlineBlockBaseline(LineDirectionMode
     auto boxHeight = synthesizedBaseline(*this, *parentStyle(), lineDirection, BorderBox) + (lineDirection == HorizontalLine ? m_marginBox.bottom() : m_marginBox.left());
     LayoutUnit lastBaseline;
     if (!childrenInline()) {
-        auto inlineBlockBaseline = RenderBlock::inlineBlockBaseline(lineDirection);
+        auto inlineBlockBaseline = RenderBlock::inlineBlockBaseline();
         if (!inlineBlockBaseline)
             return inlineBlockBaseline;
         lastBaseline = inlineBlockBaseline.value();

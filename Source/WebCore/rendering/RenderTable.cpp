@@ -1589,7 +1589,7 @@ LayoutUnit RenderTable::baselinePosition() const
     return RenderBox::baselinePosition();
 }
 
-std::optional<LayoutUnit> RenderTable::inlineBlockBaseline(LineDirectionMode) const
+std::optional<LayoutUnit> RenderTable::inlineBlockBaseline() const
 {
     // Tables are skipped when computing an inline-block's baseline.
     return std::optional<LayoutUnit>();

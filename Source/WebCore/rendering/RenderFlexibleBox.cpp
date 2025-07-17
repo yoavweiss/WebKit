@@ -323,7 +323,7 @@ std::optional <LayoutUnit> RenderFlexibleBox::lastLineBaseline() const
     return LayoutUnit { (baseline.value() + baselineFlexItem->logicalTop()).toInt() };
 }
 
-std::optional<LayoutUnit> RenderFlexibleBox::inlineBlockBaseline(LineDirectionMode) const
+std::optional<LayoutUnit> RenderFlexibleBox::inlineBlockBaseline() const
 {
     return firstLineBaseline();
 }

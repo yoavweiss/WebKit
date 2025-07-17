@@ -269,7 +269,7 @@ private:
     std::optional<LayoutUnit> firstLineBaseline() const final;
     std::optional<LayoutUnit> lastLineBaseline() const final;
     SingleThreadWeakPtr<RenderBox> getBaselineGridItem(ItemPosition alignment) const;
-    std::optional<LayoutUnit> inlineBlockBaseline(LineDirectionMode) const final;
+    std::optional<LayoutUnit> inlineBlockBaseline() const final;
     bool isInlineBaselineAlignedChild(const RenderBox&) const;
 
     LayoutUnit columnAxisBaselineOffsetForGridItem(const RenderBox&) const;
