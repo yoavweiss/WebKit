@@ -1740,6 +1740,7 @@ imported/w3c/web-platform-tests/css/css-grid/alignment/self-baseline/grid-self-b
 imported/w3c/web-platform-tests/css/css-grid/alignment/self-baseline/grid-self-baseline-horiz-007.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-grid/alignment/self-baseline/grid-self-baseline-vertical-lr-007.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-grid/alignment/self-baseline/grid-self-baseline-vertical-rl-007.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-grid/anonymous-grid-items-002.html [ ImageOnlyFailure ]
 
 webkit.org/b/231021 imported/w3c/web-platform-tests/css/css-grid/grid-items/grid-size-with-orthogonal-child-dynamic.html [ ImageOnlyFailure ]
 webkit.org/b/231021 imported/w3c/web-platform-tests/css/css-grid/grid-items/replaced-element-015.html [ ImageOnlyFailure ]
@@ -1777,6 +1778,11 @@ imported/w3c/web-platform-tests/css/css-grid/masonry/tentative/subgrid/track-siz
 imported/w3c/web-platform-tests/css/css-grid/masonry/tentative/subgrid/track-sizing/masonry-subgrid-intrinsic-sizing.html [ ImageOnlyFailure ]
 
 imported/w3c/web-platform-tests/css/css-grid/parsing/grid-template-columns-crash.html [ Skip ]
+
+imported/w3c/web-platform-tests/css/css-grid/masonry/tentative/item-placement/masonry-item-placement-004.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-grid/masonry/tentative/item-placement/masonry-item-placement-005.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-grid/masonry/tentative/item-placement/masonry-item-placement-006.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-grid/masonry/tentative/item-placement/masonry-item-placement-007.html [ ImageOnlyFailure ]
 
 # Flaky tests at import time
 imported/w3c/web-platform-tests/css/css-scoping/css-scoping-shadow-host-namespace.html [ ImageOnlyFailure ]
