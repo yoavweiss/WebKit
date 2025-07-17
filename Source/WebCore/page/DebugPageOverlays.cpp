@@ -568,7 +568,12 @@ void InteractionRegionOverlay::drawRect(PageOverlay&, GraphicsContext& context, 
                 if (RefPtr page = m_page.get())
                     scaleFactor = page->pageScaleFactor();
 
-                clipPaths = pathsForRect(rectInLayerCoordinates, region->cornerRadius * scaleFactor);
+                if (region->useContinuousCorners) {
+                    Path path;
+                    path.addContinuousRoundedRect(rectInLayerCoordinates, region->cornerRadius * scaleFactor);
+                    clipPaths.append(path);
+                } else
+                    clipPaths = pathsForRect(rectInLayerCoordinates, region->cornerRadius * scaleFactor);
             }
         }
 

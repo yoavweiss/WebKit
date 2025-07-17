@@ -328,6 +328,13 @@ void EventRegionContext::shrinkWrapInteractionRegions()
                     foundPath.transform(transform);
 
                     discoveredClipPaths.append(foundPath);
+                } else if (discoveredRegion.useContinuousCorners) {
+                    // If this region has continuous corners, we won't be able to
+                    // shrink wrap it. Instead, find it's path so that it can be
+                    // included in the final clip.
+                    Path path;
+                    path.addContinuousRoundedRect(discoveredRegion.rectInLayerCoordinates, discoveredRegion.cornerRadius);
+                    discoveredClipPaths.append(path);
                 } else
                     discoveredRects.append(rect);
             }

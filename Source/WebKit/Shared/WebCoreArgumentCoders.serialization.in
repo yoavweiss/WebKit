@@ -6466,6 +6466,7 @@ struct WebCore::InteractionRegion {
     OptionSet<WebCore::InteractionRegion::CornerMask> maskedCorners;
     WebCore::InteractionRegion::ContentHint contentHint;
     std::optional<WebCore::Path> clipPath;
+    bool useContinuousCorners;
 #if ENABLE(INTERACTION_REGION_TEXT_CONTENT)
     String text;
 #endif

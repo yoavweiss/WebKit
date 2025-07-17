@@ -298,8 +298,12 @@ void updateLayersForInteractionRegions(RemoteLayerTreeNode& node)
 
         if (region.type == InteractionRegion::Type::Interaction) {
             [regionLayer setCornerRadius:region.cornerRadius];
-            if (region.cornerRadius)
-                [regionLayer setCornerCurve:kCACornerCurveCircular];
+            if (region.cornerRadius) {
+                if (region.useContinuousCorners)
+                    [regionLayer setCornerCurve:kCACornerCurveContinuous];
+                else
+                    [regionLayer setCornerCurve:kCACornerCurveCircular];
+            }
             reconfigureLayerContentHint(regionLayer.get(), region.contentHint);
             constexpr CACornerMask allCorners = kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner | kCALayerMinXMaxYCorner | kCALayerMaxXMaxYCorner;
             if (region.maskedCorners.isEmpty())
