@@ -7152,9 +7152,6 @@ imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-e
 # This needs to be investigated but doesn't seem to reproduce easily locally.
 imported/w3c/web-platform-tests/navigation-api/ [ Timeout Pass ]
 
-# This is not part of the spec yet and hasn't been implemented.
-imported/w3c/web-platform-tests/navigation-api/commit-behavior/ [ Skip ]
-
 # These cross-window tests won't work on ports that don't run on the web-platform.test domains (not glib).
 imported/w3c/web-platform-tests/navigation-api/navigate-event/cross-window/click-crossdocument-crossorigin-sameorigindomain.sub.html [ Skip ]
 imported/w3c/web-platform-tests/navigation-api/navigate-event/cross-window/click-samedocument-crossorigin-sameorigindomain.sub.html [ Skip ]
