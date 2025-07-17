@@ -673,17 +673,9 @@ WebVideoPresentationInterfaceMacObjC *VideoPresentationInterfaceMac::videoPresen
 
         auto model = m_playbackSessionInterface->playbackSessionModel();
 
-        AVPlayerTimeControlStatus timeControlStatus = AVPlayerTimeControlStatusPaused;
-        if (model->isStalled() && model->isPlaying())
-            timeControlStatus = AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate;
-        else if (model->isPlaying())
-            timeControlStatus = AVPlayerTimeControlStatusPlaying;
-
-        [videoPresentationInterfaceObjC() updateRate:model->playbackRate() andTimeControlStatus:timeControlStatus];
-
         durationChanged(model->duration());
         currentTimeChanged(model->currentTime(), [[NSProcessInfo processInfo] systemUptime]);
-        rateChanged({ }, model->playbackRate(), model->defaultPlaybackRate());
+        rateChanged(model->playbackState(), model->playbackRate(), model->defaultPlaybackRate());
     }
 
     return m_webVideoPresentationInterfaceObjC.get();

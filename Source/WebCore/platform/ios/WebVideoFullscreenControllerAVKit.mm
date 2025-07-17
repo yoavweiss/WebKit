@@ -155,6 +155,7 @@ private:
     double playbackStartedTime() const override { return 0; }
     double currentTime() const override;
     double bufferedTime() const override;
+    OptionSet<PlaybackState> playbackState() const override;
     bool isPlaying() const override;
     bool isStalled() const override;
     bool isScrubbing() const override { return false; }
@@ -905,6 +906,14 @@ double VideoFullscreenControllerContext::bufferedTime() const
 {
     ASSERT(isUIThread());
     return m_playbackModel ? m_playbackModel->bufferedTime() : 0;
+}
+
+auto VideoFullscreenControllerContext::playbackState() const -> OptionSet<PlaybackState>
+{
+    ASSERT(isUIThread());
+    if (m_playbackModel)
+        return m_playbackModel->playbackState();
+    return { };
 }
 
 bool VideoFullscreenControllerContext::isPlaying() const
