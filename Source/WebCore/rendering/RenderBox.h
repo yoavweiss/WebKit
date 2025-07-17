@@ -242,6 +242,8 @@ public:
     LayoutUnit marginStart() const { return marginStart(writingMode()); }
     LayoutUnit marginEnd() const { return marginEnd(writingMode()); }
 
+    inline LayoutUnit marginBoxLogicalHeight(WritingMode) const;
+
     void setMarginBefore(LayoutUnit value, const WritingMode writingMode) { m_marginBox.setBefore(value, writingMode); }
     void setMarginAfter(LayoutUnit value, const WritingMode writingMode) { m_marginBox.setAfter(value, writingMode); }
     void setMarginStart(LayoutUnit value, const WritingMode writingMode) { m_marginBox.setStart(value, writingMode); }

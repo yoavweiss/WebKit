@@ -26,6 +26,7 @@
 
 namespace WebCore {
 
+inline LayoutUnit RenderBox::marginBoxLogicalHeight(WritingMode writingMode) const { return writingMode.isHorizontal() ? m_marginBox.top() + height() + m_marginBox.bottom() : m_marginBox.right() + width() + m_marginBox.left(); }
 inline LayoutSize RenderBox::borderBoxLogicalSize() const { return logicalSize(); }
 inline LayoutRect RenderBox::clientBoxRect() const { return LayoutRect(clientLeft(), clientTop(), clientWidth(), clientHeight()); }
 inline LayoutUnit RenderBox::clientLeft() const { return borderLeft(); }
