@@ -5305,9 +5305,17 @@ void Page::setSceneIdentifier(String&& sceneIdentifier)
 
 void Page::setObscuredInsets(const FloatBoxExtent& insets)
 {
-    if (m_obscuredInsets == insets)
-        return;
+    RefPtr localMainFrame = this->localMainFrame();
+    RefPtr view = localMainFrame ? localMainFrame->view() : nullptr;
 
+    if (m_obscuredInsets == insets) {
+        if (view)
+            view->clearObscuredInsetsAdjustmentsIfNeeded();
+        return;
+    }
+
+    if (view)
+        view->obscuredInsetsWillChange(insets - m_obscuredInsets);
     m_obscuredInsets = insets;
     m_chrome->client().setNeedsFixedContainerEdgesUpdate();
 }

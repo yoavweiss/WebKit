@@ -1763,7 +1763,10 @@ GraphicsLayerCA::VisibleAndCoverageRects GraphicsLayerCA::computeVisibleAndCover
     bool mapWasClamped;
     auto clipRectFromParent = state.mappedQuad(&mapWasClamped).boundingBox();
 
-    auto clipRectForSelf = FloatRect { { }, m_size };
+    FloatRect clipRectForSelf { { }, m_size };
+    if (CheckedPtr backing = this->tiledBacking())
+        clipRectForSelf = backing->adjustedTileClipRectForObscuredInsets(clipRectForSelf);
+
     if (!applyWasClamped && !mapWasClamped)
         clipRectForSelf.intersect(clipRectFromParent);
 

@@ -238,6 +238,8 @@ static WebCore::IntDegrees deviceOrientationForUIInterfaceOrientation(UIInterfac
     if (UIEdgeInsetsEqualToEdgeInsets(_obscuredInsets, obscuredInsets))
         return;
 
+    _perProcessState.firstTransactionIDAfterObscuredInsetChange = downcast<WebKit::RemoteLayerTreeDrawingAreaProxy>(*_page->drawingArea()).nextMainFrameLayerTreeTransactionID();
+
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     auto sidesWithInsets = [](UIEdgeInsets insets) {
         WebCore::BoxSideSet sides;
@@ -1158,6 +1160,16 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
         LOG_WITH_STREAM(VisibleRects, stream << "-[WKWebView " << _page->identifier() << " _didCommitLayerTree:] transactionID " << layerTreeTransaction.transactionID() << " dynamicViewportUpdateMode " << enumToUnderlyingType(_perProcessState.dynamicViewportUpdateMode));
 
         bool needUpdateVisibleContentRects = _page->updateLayoutViewportParameters(layerTreeTransaction);
+
+        bool isFirstTransactionAfterObscuredInsetChange = _perProcessState.firstTransactionIDAfterObscuredInsetChange.transform([&layerTreeTransaction](auto transactionID) {
+            return layerTreeTransaction.transactionID().greaterThanOrEqualSameProcess(transactionID);
+        }).value_or(false);
+
+        if (isFirstTransactionAfterObscuredInsetChange) {
+            _perProcessState.firstTransactionIDAfterObscuredInsetChange = std::nullopt;
+            [self _didStopDeferringGeometryUpdates];
+            needUpdateVisibleContentRects = true;
+        }
 
         if (_perProcessState.dynamicViewportUpdateMode != WebKit::DynamicViewportUpdateMode::NotResizing) {
             [self _didCommitLayerTreeDuringAnimatedResize:layerTreeTransaction];
@@ -4861,12 +4873,17 @@ static bool isLockdownModeWarningNeeded()
 
     _overriddenLayoutParameters = overriddenLayoutParameters;
 
-    if (!self._shouldDeferGeometryUpdates) {
+    if (self._shouldDispatchOverridenLayoutParametersImmediately) {
         [self _dispatchSetViewLayoutSize:WebCore::FloatSize(overriddenLayoutParameters.viewLayoutSize)];
         _page->setMinimumUnobscuredSize(WebCore::FloatSize(overriddenLayoutParameters.minimumUnobscuredSize));
         _page->setDefaultUnobscuredSize(WebCore::FloatSize(overriddenLayoutParameters.maximumUnobscuredSize));
         _page->setMaximumUnobscuredSize(WebCore::FloatSize(overriddenLayoutParameters.maximumUnobscuredSize));
     }
+}
+
+- (BOOL)_shouldDispatchOverridenLayoutParametersImmediately
+{
+    return !self._shouldDeferGeometryUpdates && !_perProcessState.firstTransactionIDAfterObscuredInsetChange;
 }
 
 - (void)_clearOverrideLayoutParameters

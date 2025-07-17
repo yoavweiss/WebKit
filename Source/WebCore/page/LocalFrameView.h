@@ -636,6 +636,8 @@ public:
 
     LayoutPoint scrollPositionRespectingCustomFixedPosition() const;
 
+    WEBCORE_EXPORT void clearObscuredInsetsAdjustmentsIfNeeded();
+    void obscuredInsetsWillChange(FloatBoxExtent&& delta);
     void obscuredContentInsetsDidChange(const FloatBoxExtent&);
 
     void topContentDirectionDidChange();

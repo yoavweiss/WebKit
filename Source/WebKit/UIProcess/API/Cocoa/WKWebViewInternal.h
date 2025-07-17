@@ -250,6 +250,8 @@ struct PerWebProcessState {
     Markable<WebCore::PlatformLayerIdentifier> committedFindLayerID;
 
     std::optional<LiveResizeParameters> liveResizeParameters;
+
+    std::optional<WebKit::TransactionID> firstTransactionIDAfterObscuredInsetChange;
 };
 
 #endif // PLATFORM(IOS_FAMILY)

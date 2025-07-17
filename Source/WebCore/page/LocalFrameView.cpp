@@ -1074,6 +1074,18 @@ LayoutPoint LocalFrameView::scrollPositionRespectingCustomFixedPosition() const
     return scrollPositionForFixedPosition();
 }
 
+void LocalFrameView::clearObscuredInsetsAdjustmentsIfNeeded()
+{
+    if (CheckedPtr tiledBacking = this->tiledBacking())
+        tiledBacking->clearObscuredInsetsAdjustments();
+}
+
+void LocalFrameView::obscuredInsetsWillChange(FloatBoxExtent&& obscuredInsetsDelta)
+{
+    if (CheckedPtr tiledBacking = this->tiledBacking())
+        tiledBacking->obscuredInsetsWillChange(WTFMove(obscuredInsetsDelta));
+}
+
 void LocalFrameView::obscuredContentInsetsDidChange(const FloatBoxExtent& newObscuredContentInsets)
 {
     RenderView* renderView = this->renderView();
