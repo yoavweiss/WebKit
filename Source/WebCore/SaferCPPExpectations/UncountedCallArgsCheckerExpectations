@@ -134,7 +134,6 @@ accessibility/AXLogger.cpp
 accessibility/AXObjectCache.cpp
 accessibility/AXObjectCache.h
 accessibility/AXSearchManager.cpp
-accessibility/AXTextMarker.cpp
 accessibility/AccessibilityList.cpp
 accessibility/AccessibilityListBox.cpp
 accessibility/AccessibilityListBoxOption.cpp
