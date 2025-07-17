@@ -2239,3 +2239,5 @@ webkit.org/b/296066 [ Sequoia Debug arm64 ] accessibility/mac/scrolling-in-pdf-c
 webkit.org/b/296070 [ Debug arm64 ] pdf/pdf-in-styled-embed.html [ Pass Timeout Failure ]
 
 webkit.org/b/295929 [ Release ] imported/w3c/web-platform-tests/css/css-conditional/container-queries/canvas-as-container-002.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/296096 [ Debug arm64 ] pdf/annotations/radio-buttons-select-second.html [ Pass Timeout ]
