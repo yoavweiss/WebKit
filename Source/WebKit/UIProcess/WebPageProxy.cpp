@@ -8408,7 +8408,8 @@ void WebPageProxy::decidePolicyForResponseShared(Ref<WebProcessProxy>&& process,
         completionHandlerWrapper(policyAction);
     }, expectSafeBrowsing , ShouldExpectAppBoundDomainResult::No, ShouldWaitForInitialLinkDecorationFilteringData::No);
     if (expectSafeBrowsing == ShouldExpectSafeBrowsingResult::Yes && navigation) {
-        RunLoop::protectedMain()->dispatchAfter(MonotonicTime::now() - requestStart, [listener, navigation] () mutable {
+        Seconds timeout = (MonotonicTime::now() - requestStart) * 1.5 + 0.25_s;
+        RunLoop::protectedMain()->dispatchAfter(timeout, [listener, navigation] mutable {
             listener->didReceiveSafeBrowsingResults({ });
             navigation->setSafeBrowsingCheckTimedOut();
         });
