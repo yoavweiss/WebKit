@@ -9194,3 +9194,18 @@ header: <WebCore/AXObjectCache.h>
     String liveTree;
     String isolatedTree;
 }
+
+header: <WebCore/ScriptTrackingPrivacyCategory.h>
+[OptionSet] enum class WebCore::ScriptTrackingPrivacyFlag : uint16_t {
+    Audio,
+    Canvas,
+    Cookies,
+    HardwareConcurrency,
+    LocalStorage,
+    Payments,
+    QueryParameters,
+    Referrer,
+    ScreenOrViewport,
+    Speech,
+    FormControls,
+};

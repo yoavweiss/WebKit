@@ -2359,6 +2359,11 @@ bool WebChromeClient::requiresScriptTrackingPrivacyProtections(const URL& url, c
     return WebProcess::singleton().requiresScriptTrackingPrivacyProtections(url, topOrigin);
 }
 
+bool WebChromeClient::shouldAllowScriptAccess(const URL& url, const SecurityOrigin& topOrigin, ScriptTrackingPrivacyCategory category) const
+{
+    return WebProcess::singleton().shouldAllowScriptAccess(url, topOrigin, category);
+}
+
 void WebChromeClient::callAfterPendingSyntheticClick(CompletionHandler<void(SyntheticClickResult)>&& completion)
 {
     if (RefPtr page = m_page.get())

@@ -5716,6 +5716,11 @@ bool Page::reportScriptTrackingPrivacy(const URL& url, ScriptTrackingPrivacyCate
     return !url.isEmpty() && m_scriptTrackingPrivacyReports.add({ url, category }).isNewEntry;
 }
 
+bool Page::shouldAllowScriptAccess(const URL& url, const SecurityOrigin& topOrigin, ScriptTrackingPrivacyCategory category) const
+{
+    return chrome().client().shouldAllowScriptAccess(url, topOrigin, category);
+}
+
 bool Page::requiresScriptTrackingPrivacyProtections(const URL& scriptURL) const
 {
     if (!advancedPrivacyProtections().contains(AdvancedPrivacyProtections::ScriptTrackingPrivacy))

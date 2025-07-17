@@ -111,6 +111,7 @@ class UserGestureToken;
 enum class EventMakesGamepadsVisible : bool;
 enum class RenderAsTextFlag : uint16_t;
 enum class RenderingPurpose : uint8_t;
+enum class ScriptTrackingPrivacyCategory : uint8_t;
 
 struct ClientOrigin;
 struct DisplayUpdate;
@@ -464,6 +465,7 @@ public:
 #endif
 
     bool requiresScriptTrackingPrivacyProtections(const URL&, const WebCore::SecurityOrigin& topOrigin) const;
+    bool shouldAllowScriptAccess(const URL&, const WebCore::SecurityOrigin& topOrigin, WebCore::ScriptTrackingPrivacyCategory) const;
 
     bool isLockdownModeEnabled() const { return m_isLockdownModeEnabled.value(); }
     bool imageAnimationEnabled() const { return m_imageAnimationEnabled; }

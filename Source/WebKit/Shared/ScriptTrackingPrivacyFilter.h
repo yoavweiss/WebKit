@@ -25,8 +25,10 @@
 
 #pragma once
 
+#include <WebCore/ScriptTrackingPrivacyCategory.h>
 #include <wtf/Noncopyable.h>
-#include <wtf/RobinHoodHashSet.h>
+#include <wtf/OptionSet.h>
+#include <wtf/RobinHoodHashMap.h>
 #include <wtf/URL.h>
 #include <wtf/Vector.h>
 #include <wtf/text/WTFString.h>
@@ -37,17 +39,24 @@ class SecurityOrigin;
 
 namespace WebKit {
 
+struct ScriptTrackingPrivacyHost {
+    String hostName;
+    WebCore::ScriptTrackingPrivacyFlags allowedCategories;
+};
+
 struct ScriptTrackingPrivacyRules {
-    Vector<String> thirdPartyHosts;
-    Vector<String> thirdPartyTopDomains;
-    Vector<String> firstPartyHosts;
-    Vector<String> firstPartyTopDomains;
+    Vector<ScriptTrackingPrivacyHost> thirdPartyHosts;
+    Vector<ScriptTrackingPrivacyHost> thirdPartyTopDomains;
+    Vector<ScriptTrackingPrivacyHost> firstPartyHosts;
+    Vector<ScriptTrackingPrivacyHost> firstPartyTopDomains;
 
     bool isEmpty() const
     {
         return thirdPartyHosts.isEmpty() && thirdPartyTopDomains.isEmpty() && firstPartyHosts.isEmpty() && firstPartyTopDomains.isEmpty();
     }
 };
+
+using HostToAllowedCategoriesMap = MemoryCompactRobinHoodHashMap<String, WebCore::ScriptTrackingPrivacyFlags>;
 
 class ScriptTrackingPrivacyFilter {
     WTF_MAKE_FAST_ALLOCATED;
@@ -56,12 +65,20 @@ public:
     ScriptTrackingPrivacyFilter(ScriptTrackingPrivacyRules&&);
 
     bool matches(const URL&, const WebCore::SecurityOrigin& topOrigin);
+    bool shouldAllowAccess(const URL&, const WebCore::SecurityOrigin& topOrigin, WebCore::ScriptTrackingPrivacyCategory);
 
 private:
-    MemoryCompactRobinHoodHashSet<String> m_thirdPartyHosts;
-    MemoryCompactRobinHoodHashSet<String> m_thirdPartyTopDomains;
-    MemoryCompactRobinHoodHashSet<String> m_firstPartyHosts;
-    MemoryCompactRobinHoodHashSet<String> m_firstPartyTopDomains;
+    struct LookupResult {
+        bool foundMatch { false };
+        WebCore::ScriptTrackingPrivacyFlags allowedCategories;
+    };
+    LookupResult lookup(const URL&, const WebCore::SecurityOrigin& topOrigin);
+
+    HostToAllowedCategoriesMap m_thirdPartyHosts;
+    HostToAllowedCategoriesMap m_thirdPartyTopDomains;
+    HostToAllowedCategoriesMap m_firstPartyHosts;
+    HostToAllowedCategoriesMap m_firstPartyTopDomains;
+    WebCore::ScriptTrackingPrivacyFlags m_categoriesWithAllowedHosts;
 };
 
 } // namespace WebKit

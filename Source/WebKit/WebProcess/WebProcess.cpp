@@ -2557,9 +2557,14 @@ void WebProcess::updateCachedCookiesEnabled()
         document->updateCachedCookiesEnabled();
 }
 
-bool WebProcess::requiresScriptTrackingPrivacyProtections(const URL& url, const WebCore::SecurityOrigin& topOrigin) const
+bool WebProcess::requiresScriptTrackingPrivacyProtections(const URL& url, const SecurityOrigin& topOrigin) const
 {
     return m_scriptTrackingPrivacyFilter && m_scriptTrackingPrivacyFilter->matches(url, topOrigin);
+}
+
+bool WebProcess::shouldAllowScriptAccess(const URL& url, const SecurityOrigin& topOrigin, ScriptTrackingPrivacyCategory category) const
+{
+    return m_scriptTrackingPrivacyFilter && m_scriptTrackingPrivacyFilter->shouldAllowAccess(url, topOrigin, category);
 }
 
 void WebProcess::enableMediaPlayback()

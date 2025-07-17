@@ -999,6 +999,9 @@ bool ScriptExecutionContext::requiresScriptTrackingPrivacyProtection(ScriptTrack
     if (!page)
         return true;
 
+    if (page->shouldAllowScriptAccess(taintedURL, protectedTopOrigin(), category))
+        return false;
+
     if (!page->settings().scriptTrackingPrivacyLoggingEnabled())
         return true;
 
