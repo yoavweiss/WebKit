@@ -31,6 +31,7 @@
 #import "AVAssetMIMETypeCache.h"
 #import "AVAssetTrackUtilities.h"
 #import "AVStreamDataParserMIMETypeCache.h"
+#import "AudioMediaStreamTrackRenderer.h"
 #import "CDMSessionAVContentKeySession.h"
 #import "ContentTypeUtilities.h"
 #import "EffectiveRateChangedListener.h"
@@ -61,6 +62,7 @@
 #import <pal/spi/cf/CFNotificationCenterSPI.h>
 #import <pal/spi/cocoa/AVFoundationSPI.h>
 #import <pal/spi/cocoa/QuartzCoreSPI.h>
+#import <wtf/BlockObjCExceptions.h>
 #import <wtf/Deque.h>
 #import <wtf/FileSystem.h>
 #import <wtf/MachSendRightAnnotated.h>
@@ -1503,9 +1505,14 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
 #if HAVE(AUDIO_OUTPUT_DEVICE_UNIQUE_ID)
     auto deviceId = player->audioOutputDeviceIdOverride();
     if (!deviceId.isNull()) {
-        if (deviceId.isEmpty())
-            audioRenderer.audioOutputDeviceUniqueID = nil;
-        else
+        if (deviceId.isEmpty() || deviceId == AudioMediaStreamTrackRenderer::defaultDeviceID()) {
+            // FIXME(rdar://155986053): Remove the @try/@catch when this exception is resolved.
+            @try {
+                audioRenderer.audioOutputDeviceUniqueID = nil;
+            } @catch(NSException *exception) {
+                ERROR_LOG(LOGIDENTIFIER, "-[AVSampleBufferRenderSynchronizer setAudioOutputDeviceUniqueID:] threw an exception: ", exception.name, ", reason : ", exception.reason);
+            }
+        } else
             audioRenderer.audioOutputDeviceUniqueID = deviceId.createNSString().get();
     }
 #endif
@@ -1643,9 +1650,14 @@ void MediaPlayerPrivateMediaSourceAVFObjC::audioOutputDeviceChanged()
     auto deviceId = player->audioOutputDeviceId();
     for (auto& key : m_sampleBufferAudioRendererMap.keys()) {
         auto renderer = ((__bridge AVSampleBufferAudioRenderer *)key.get());
-        if (deviceId.isEmpty())
-            renderer.audioOutputDeviceUniqueID = nil;
-        else
+        if (deviceId.isEmpty() || deviceId == AudioMediaStreamTrackRenderer::defaultDeviceID()) {
+            // FIXME(rdar://155986053): Remove the @try/catch when this exception is resolved.
+            @try {
+                renderer.audioOutputDeviceUniqueID = nil;
+            } @catch(NSException *exception) {
+                ERROR_LOG(LOGIDENTIFIER, "-[AVSampleBufferRenderSynchronizer setAudioOutputDeviceUniqueID:] threw an exception: ", exception.name, ", reason : ", exception.reason);
+            }
+        } else
             renderer.audioOutputDeviceUniqueID = deviceId.createNSString().get();
     }
 #endif
