@@ -111,7 +111,7 @@ private:
 };
 
 struct MediaSampleReorderQueueComparator {
-    static bool operator()(const Ref<const MediaSample>& a, const Ref<const MediaSample>& b) { return a->presentationTime() <= b->presentationTime(); }
+    bool operator()(const Ref<const MediaSample>& a, const Ref<const MediaSample>& b) const { return a->presentationTime() <= b->presentationTime(); }
 };
 
 using MediaSampleReorderQueue = MediaReorderQueue<Ref<const MediaSample>, MediaSampleReorderQueueComparator>;
