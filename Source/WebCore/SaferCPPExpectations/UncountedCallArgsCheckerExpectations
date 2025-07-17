@@ -799,7 +799,11 @@ platform/graphics/controls/TextAreaPart.h
 platform/graphics/controls/TextFieldPart.h
 platform/graphics/controls/ToggleButtonPart.h
 platform/graphics/filters/FEDisplacementMap.cpp
+platform/graphics/filters/software/FEConvolveMatrixSoftwareApplier.cpp
 platform/graphics/filters/software/FELightingSoftwareApplier.cpp
+platform/graphics/filters/software/FELightingSoftwareApplierInlines.h
+platform/graphics/filters/software/FELightingSoftwareParallelApplier.cpp
+platform/graphics/filters/software/FETurbulenceSoftwareApplier.cpp
 platform/graphics/mac/PDFDocumentImageMac.mm
 platform/graphics/opentype/OpenTypeMathData.cpp
 platform/graphics/transforms/TransformOperations.cpp
