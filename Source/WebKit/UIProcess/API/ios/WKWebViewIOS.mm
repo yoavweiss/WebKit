@@ -1093,6 +1093,11 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
         changeContentOffsetBoundedInValidRange(_scrollView.get(), CGPointMake(contentOffsetX, contentOffsetY));
     }
+
+#if HAVE(LIQUID_GLASS)
+    if (!WTF::areEssentiallyEqual<CGFloat>(oldContentSize.width, newContentSize.width))
+        [self _updateFixedColorExtensionViewFrames];
+#endif
 }
 
 - (BOOL)_restoreScrollAndZoomStateForTransaction:(const WebKit::RemoteLayerTreeTransaction&)layerTreeTransaction
@@ -2099,10 +2104,16 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
 
 - (void)_updateLastKnownWindowSizeAndOrientation
 {
-    UIWindowScene *scene = self.window.windowScene;
-ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    _lastKnownWindowSizeAndOrientation = { scene.coordinateSpace.bounds.size, scene.interfaceOrientation };
-ALLOW_DEPRECATED_DECLARATIONS_END
+    RetainPtr scene = [self.window windowScene];
+    RetainPtr geometry = [scene effectiveGeometry];
+    _lastKnownWindowSizeAndOrientation = {
+#if HAVE(UI_WINDOW_SCENE_GEOMETRY_COORDINATE_SPACE)
+        [geometry coordinateSpace].bounds.size,
+#else
+        [scene coordinateSpace].bounds.size,
+#endif
+        [geometry interfaceOrientation]
+    };
 }
 
 - (void)didMoveToWindow
@@ -2769,6 +2780,10 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     transform.ty = currentContentOffset.y - newContentOffset.y;
 
     [_resizeAnimationView setTransform:transform];
+
+#if HAVE(LIQUID_GLASS)
+    [self _updateFixedColorExtensionViewFrames];
+#endif
 }
 
 #endif // HAVE(UI_WINDOW_SCENE_LIVE_RESIZE)
@@ -3336,6 +3351,10 @@ static WebCore::IntDegrees activeOrientation(WKWebView *webView)
     _perProcessState.animatedResizeOldBounds = { };
 
     [self _didStopDeferringGeometryUpdates];
+
+#if HAVE(LIQUID_GLASS)
+    [self _updateFixedColorExtensionViewFrames];
+#endif
 }
 
 - (void)_didStopDeferringGeometryUpdates
@@ -4742,6 +4761,10 @@ static bool isLockdownModeWarningNeeded()
 
     _perProcessState.waitingForCommitAfterAnimatedResize = YES;
     _perProcessState.waitingForEndAnimatedResize = YES;
+
+#if HAVE(LIQUID_GLASS)
+    [self _updateFixedColorExtensionViewFrames];
+#endif
 }
 
 - (void)_endAnimatedResize

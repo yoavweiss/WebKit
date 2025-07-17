@@ -3299,12 +3299,14 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
     WebCore::FloatRect bounds = self.bounds;
 #if PLATFORM(IOS_FAMILY)
     auto contentOffset = [_scrollView contentOffset];
-    auto contentSize = [_scrollView contentSize];
+    auto contentWidth = [_scrollView contentSize].width;
+    if (_perProcessState.liveResizeParameters)
+        contentWidth *= self.bounds.size.width / _perProcessState.liveResizeParameters->viewWidth;
 #endif
 
     if (RetainPtr view = _fixedColorExtensionViews.top(); view && ![view isHidden]) {
 #if PLATFORM(IOS_FAMILY)
-        auto targetRect = CGRectMake(-contentOffset.x, 0, contentSize.width, insets.top());
+        auto targetRect = CGRectMake(-contentOffset.x, 0, contentWidth, insets.top());
 #else
         auto targetRect = NSMakeRect(insets.left(), 0, bounds.width() - insets.left() - insets.right(), insets.top());
 #endif
@@ -3319,7 +3321,7 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
 
     if (RetainPtr view = _fixedColorExtensionViews.bottom(); view && ![view isHidden]) {
 #if PLATFORM(IOS_FAMILY)
-        auto targetRect = CGRectMake(-contentOffset.x, bounds.height() - insets.bottom(), contentSize.width, insets.bottom());
+        auto targetRect = CGRectMake(-contentOffset.x, bounds.height() - insets.bottom(), contentWidth, insets.bottom());
 #else
         auto targetRect = NSMakeRect(insets.left(), bounds.height() - insets.bottom(), bounds.width() - insets.left() - insets.right(), insets.bottom());
 #endif
