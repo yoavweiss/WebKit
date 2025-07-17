@@ -2629,6 +2629,7 @@ static void testJSScriptURL()
         context.moduleLoaderDelegate = context;
         NSURL *basic = [NSURL URLWithString:@"./basic.js" relativeToURL:resolvePathToScripts()];
         JSScript *script1 = [JSScript scriptOfType:kJSScriptTypeModule memoryMappedFromASCIIFile:basic withSourceURL:basic andBytecodeCache:nil inVirtualMachine:context.virtualMachine error:nil];
+        RELEASE_ASSERT(script1);
 
         JSValue *result1 = [context evaluateJSScript:script1];
         JSValue *null = [JSValue valueWithNullInContext:context];
