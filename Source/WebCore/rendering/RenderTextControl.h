@@ -88,10 +88,6 @@ public:
     RenderTextControlInnerContainer(Element&, RenderStyle&&);
     virtual ~RenderTextControlInnerContainer();
 
-    LayoutUnit baselinePosition() const override
-    {
-        return RenderBlock::baselinePosition();
-    }
     std::optional<LayoutUnit> firstLineBaseline() const override { return RenderBlock::firstLineBaseline(); }
     std::optional<LayoutUnit> inlineBlockBaseline() const override { return RenderBlock::inlineBlockBaseline(); }
 

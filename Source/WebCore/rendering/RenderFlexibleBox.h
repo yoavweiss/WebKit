@@ -56,7 +56,6 @@ public:
     bool canDropAnonymousBlockChild() const final { return false; }
     void layoutBlock(RelayoutChildren, LayoutUnit pageLogicalHeight = 0_lu) final;
 
-    LayoutUnit baselinePosition() const override;
     std::optional<LayoutUnit> firstLineBaseline() const override;
     std::optional<LayoutUnit> lastLineBaseline() const override;
     std::optional<LayoutUnit> inlineBlockBaseline() const override;

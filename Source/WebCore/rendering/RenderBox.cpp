@@ -4980,13 +4980,6 @@ LayoutUnit RenderBox::lineHeight() const
     return { };
 }
 
-LayoutUnit RenderBox::baselinePosition() const
-{
-    if (isBlockLevelReplacedOrAtomicInline())
-        return roundToInt(marginBoxLogicalHeight(containingBlock()->writingMode()));
-    return 0;
-}
-
 RenderLayer* RenderBox::enclosingFloatPaintingLayer() const
 {
     for (auto& box : lineageOfType<RenderBox>(*this)) {

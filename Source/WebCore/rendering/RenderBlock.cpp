@@ -2474,64 +2474,6 @@ bool RenderBlock::hasLineIfEmpty() const
     return element && element->isRootEditableElement();
 }
 
-LayoutUnit RenderBlock::baselinePosition() const
-{
-    // Inline blocks are replaced elements. Otherwise, just pass off to
-    // the base class.  If we're being queried as though we're the root line
-    // box, then the fact that we're an inline-block is irrelevant, and we behave
-    // just like a block.
-    if (isBlockLevelReplacedOrAtomicInline()) {
-        auto direction = containingBlock()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine;
-        // For "leaf" theme objects, let the theme decide what the baseline position is.
-        // FIXME: Might be better to have a custom CSS property instead, so that if the theme
-        // is turned off, checkboxes/radios will still have decent baselines.
-        // FIXME: Need to patch form controls to deal with vertical lines.
-        if (style().hasUsedAppearance() && !theme().isControlContainer(style().usedAppearance()))
-            return theme().baselinePosition(*this);
-            
-        // CSS2.1 states that the baseline of an inline block is the baseline of the last line box in
-        // the normal flow.  We make an exception for marquees, since their baselines are meaningless
-        // (the content inside them moves).  This matches WinIE as well, which just bottom-aligns them.
-        // We also give up on finding a baseline if we have a vertical scrollbar, or if we are scrolled
-        // vertically (e.g., an overflow:hidden block that has had scrollTop moved).
-        auto ignoreBaseline = [this, direction]() -> bool {
-            if (isWritingModeRoot())
-                return true;
-
-            CheckedPtr scrollableArea = layer() ? layer()->scrollableArea() : nullptr;
-            if (!scrollableArea)
-                return false;
-
-            if (scrollableArea->marquee())
-                return true;
-
-            if (direction == HorizontalLine)
-                return scrollableArea->verticalScrollbar() || scrollableArea->scrollOffset().y();
-            return scrollableArea->horizontalScrollbar() || scrollableArea->scrollOffset().x();
-        };
-
-        auto baselinePos = ignoreBaseline() ? std::optional<LayoutUnit>() : inlineBlockBaseline();
-        
-        if (isRenderDeprecatedFlexibleBox()) {
-            // Historically, we did this check for all baselines. But we can't
-            // remove this code from deprecated flexbox, because it effectively
-            // breaks -webkit-line-clamp, which is used in the wild -- we would
-            // calculate the baseline as if -webkit-line-clamp wasn't used.
-            // For simplicity, we use this for all uses of deprecated flexbox.
-            LayoutUnit bottomOfContent = direction == HorizontalLine ? borderTop() + paddingTop() + contentBoxHeight() : borderRight() + paddingRight() + contentBoxWidth();
-            if (baselinePos && baselinePos.value() > bottomOfContent)
-                baselinePos = std::optional<LayoutUnit>();
-        }
-        if (baselinePos)
-            return direction == HorizontalLine ? marginTop() + baselinePos.value() : marginRight() + baselinePos.value();
-
-        return RenderBox::baselinePosition();
-    }
-
-    const FontMetrics& fontMetrics = style().metricsOfPrimaryFont();
-    return LayoutUnit { fontMetrics.intAscent() + (lineHeight() - fontMetrics.intHeight()) / 2 }.toInt();
-}
-
 std::optional<LayoutUnit> RenderBlock::firstLineBaseline() const
 {
     if (shouldApplyLayoutContainment())

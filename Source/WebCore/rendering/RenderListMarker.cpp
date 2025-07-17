@@ -422,13 +422,6 @@ void RenderListMarker::updateInlineMargins()
     mutableStyle().setMarginEnd(Style::MarginEdge::Fixed { marginEnd });
 }
 
-LayoutUnit RenderListMarker::baselinePosition() const
-{
-    if (!isImage())
-        return m_listItem->baselinePosition();
-    return RenderBox::baselinePosition();
-}
-
 bool RenderListMarker::isInside() const
 {
     return style().listStylePosition() == ListStylePosition::Inside;

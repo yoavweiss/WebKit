@@ -2017,16 +2017,6 @@ bool RenderGrid::isBaselineAlignmentForGridItem(const RenderBox& gridItem, Style
     return isBaselinePosition(align) && !hasAutoMargins;
 }
 
-// FIXME: This logic is shared by RenderFlexibleBox, so it might be refactored somehow.
-LayoutUnit RenderGrid::baselinePosition() const
-{
-    auto baseline = firstLineBaseline();
-    if (!baseline)
-        return synthesizedBaseline(*this, *parentStyle(), containingBlock()->writingMode().isHorizontal() ? HorizontalLine : VerticalLine, BorderBox) + marginLogicalHeight();
-
-    return baseline.value() + (containingBlock()->writingMode().isHorizontal() ? marginTop() : marginRight()).toInt();
-}
-
 std::optional<LayoutUnit> RenderGrid::firstLineBaseline() const
 {
     if ((isWritingModeRoot() && !isFlexItem()) || !currentGrid().hasGridItems() || shouldApplyLayoutContainment())

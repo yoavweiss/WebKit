@@ -95,11 +95,6 @@ LayoutUnit RenderMathMLBlock::mirrorIfNeeded(LayoutUnit horizontalOffset, Layout
     return horizontalOffset;
 }
 
-LayoutUnit RenderMathMLBlock::baselinePosition() const
-{
-    return firstLineBaseline().value_or(RenderBlock::baselinePosition());
-}
-
 LayoutUnit toUserUnits(const MathMLElement::Length& length, const RenderStyle& style, const LayoutUnit& referenceValue)
 {
     switch (length.type) {

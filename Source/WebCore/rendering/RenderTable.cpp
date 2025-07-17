@@ -1582,13 +1582,6 @@ RenderTableCell* RenderTable::cellAfter(const RenderTableCell* cell) const
     return cell->section()->primaryCellAt(cell->rowIndex(), effCol);
 }
 
-LayoutUnit RenderTable::baselinePosition() const
-{
-    if (auto baselinePos = firstLineBaseline())
-        return (writingMode().isHorizontal() ? marginTop() : marginRight()) + baselinePos.value();
-    return RenderBox::baselinePosition();
-}
-
 std::optional<LayoutUnit> RenderTable::inlineBlockBaseline() const
 {
     // Tables are skipped when computing an inline-block's baseline.

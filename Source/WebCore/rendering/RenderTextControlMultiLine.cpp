@@ -98,11 +98,6 @@ LayoutUnit RenderTextControlMultiLine::computeControlLogicalHeight(LayoutUnit li
     return lineHeight * textAreaElement().rows() + nonContentHeight;
 }
 
-LayoutUnit RenderTextControlMultiLine::baselinePosition() const
-{
-    return RenderBox::baselinePosition();
-}
-
 void RenderTextControlMultiLine::layoutExcludedChildren(RelayoutChildren relayoutChildren)
 {
     RenderTextControl::layoutExcludedChildren(relayoutChildren);

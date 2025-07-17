@@ -28,6 +28,9 @@
 
 #include "FormattingConstraints.h"
 #include "InlineWalker.h"
+#if ENABLE(MULTI_REPRESENTATION_HEIC)
+#include "MultiRepresentationHEICMetrics.h"
+#endif
 #include "RenderAttachment.h"
 #include "RenderBlockFlow.h"
 #include "RenderBoxInlines.h"
@@ -40,12 +43,14 @@
 #include "RenderImage.h"
 #include "RenderInline.h"
 #include "RenderLayer.h"
+#include "RenderLayerScrollableArea.h"
 #include "RenderLayoutState.h"
 #include "RenderLineBreak.h"
 #include "RenderListBox.h"
 #include "RenderListItem.h"
 #include "RenderListMarker.h"
 #include "RenderMathMLBlock.h"
+#include "RenderMenuList.h"
 #include "RenderSlider.h"
 #include "RenderTable.h"
 #include "RenderTableCell.h"
@@ -284,6 +289,136 @@ static inline LayoutSize scrollbarLogicalSize(const RenderBox& renderer)
     return { horizontalSpaceReservedForScrollbar, verticalSpaceReservedForScrollbar };
 }
 
+LayoutUnit static baselinePosition(const RenderBox& renderBox)
+{
+    auto writingMode = renderBox.containingBlock()->writingMode();
+    auto marginBefore = writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight();
+
+#if ENABLE(ATTACHMENT_ELEMENT)
+    if (CheckedPtr renderer = dynamicDowncast<RenderAttachment>(renderBox)) {
+        if (auto* baselineElement = renderer->attachmentElement().wideLayoutImageElement()) {
+            if (auto* baselineElementRenderBox = baselineElement->renderBox()) {
+                // This is the bottom of the image assuming it is vertically centered.
+                return (renderer->height() + baselineElementRenderBox->height()) / 2;
+            }
+            // Fallback to the bottom of the attachment if there is no image.
+            return renderer->height();
+        }
+        return renderer->theme().attachmentBaseline(*renderer);
+    }
+#endif
+    if (CheckedPtr renderer = dynamicDowncast<RenderButton>(renderBox)) {
+        // We cannot rely on RenderFlexibleBox::baselinePosition() because of flexboxes have some special behavior
+        // regarding baselines that shouldn't apply to buttons.
+        if (auto baseline = renderBox.firstLineBaseline())
+            return marginBefore + *baseline;
+        auto contentBoxBottom = writingMode.isHorizontal() ? renderer->borderTop() + renderer->paddingTop() + renderer->contentBoxHeight() : renderer->borderRight() + renderer->paddingRight() + renderer->contentBoxWidth();
+        return marginBefore + contentBoxBottom;
+    }
+
+    if (CheckedPtr renderer = dynamicDowncast<RenderImage>(renderBox)) {
+        auto offset = LayoutUnit { };
+#if ENABLE(MULTI_REPRESENTATION_HEIC)
+        if (renderer->isMultiRepresentationHEIC()) {
+            auto metrics = renderer->style().fontCascade().primaryFont()->metricsForMultiRepresentationHEIC();
+            offset = LayoutUnit::fromFloatRound(metrics.descent);
+        }
+#endif
+        return roundToInt(renderer->marginBoxLogicalHeight(writingMode)) - offset;
+    }
+
+    if (CheckedPtr renderer = dynamicDowncast<RenderListBox>(renderBox)) {
+        // FIXME: This hardcoded baselineAdjustment is what we used to do for the old
+        // widget, but I'm not sure this is right for the new control.
+        const int baselineAdjustment = 7;
+        auto baseline = roundToInt(renderer->marginBoxLogicalHeight(writingMode));
+        if (renderer->shouldApplyLayoutContainment())
+            return baseline;
+        return baseline - baselineAdjustment;
+    }
+
+    if (CheckedPtr renderer = dynamicDowncast<RenderTextControlMultiLine>(renderBox))
+        return roundToInt(renderer->marginBoxLogicalHeight(writingMode));
+
+    if (CheckedPtr renderer = dynamicDowncast<RenderSlider>(renderBox)) {
+        // FIXME: Patch this function for writing-mode.
+        return renderer->height() + renderer->marginTop();
+    }
+
+    if (CheckedPtr renderer = dynamicDowncast<RenderTable>(renderBox)) {
+        if (auto baselinePos = renderBox.firstLineBaseline())
+            return marginBefore + *baselinePos;
+        return roundToInt(renderer->marginBoxLogicalHeight(writingMode));
+    }
+
+    if ((is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox)) && !is<RenderMenuList>(renderBox)) {
+        if (auto baseline = renderBox.firstLineBaseline())
+            return marginBefore.toInt() + *baseline;
+        return synthesizedBaseline(renderBox, *renderBox.parentStyle(), writingMode.isHorizontal() ? HorizontalLine : VerticalLine, BorderBox) + renderBox.marginLogicalHeight();
+    }
+
+    if (renderBox.style().hasUsedAppearance() && !renderBox.theme().isControlContainer(renderBox.style().usedAppearance())) {
+        // For "leaf" theme objects, let the theme decide what the baseline position is.
+        return renderBox.theme().baselinePosition(renderBox);
+    }
+
+    if (CheckedPtr renderer = dynamicDowncast<RenderListMarker>(renderBox)) {
+        if (CheckedPtr listItem = renderer->listItem(); listItem && !renderer->isImage()) {
+            auto& fontMetrics = renderer->style().metricsOfPrimaryFont();
+            return LayoutUnit { fontMetrics.intAscent() + (renderer->lineHeight() - fontMetrics.intHeight()) / 2 }.toInt();
+        }
+        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+    }
+
+#if ENABLE(MATHML)
+    if (is<RenderMathMLBlock>(renderBox)) {
+        if (auto baseline = renderBox.firstLineBaseline())
+            return *baseline;
+        // Fallback to regular block level baseline.
+    }
+#endif
+
+    if (CheckedPtr renderer = dynamicDowncast<RenderBlock>(renderBox)) {
+        // CSS2.1 states that the baseline of an inline block is the baseline of the last line box in
+        // the normal flow. We make an exception for marquees, since their baselines are meaningless
+        // (the content inside them moves). This matches WinIE as well, which just bottom-aligns them.
+        // We also give up on finding a baseline if we have a vertical scrollbar, or if we are scrolled
+        // vertically (e.g., an overflow:hidden block that has had scrollTop moved).
+        auto ignoreBaseline = [&] {
+            if (renderer->isWritingModeRoot())
+                return true;
+
+            CheckedPtr scrollableArea = renderer->layer() ? renderer->layer()->scrollableArea() : nullptr;
+            if (!scrollableArea)
+                return false;
+
+            if (scrollableArea->marquee())
+                return true;
+
+            if (writingMode.isHorizontal())
+                return scrollableArea->verticalScrollbar() || scrollableArea->scrollOffset().y();
+            return scrollableArea->horizontalScrollbar() || scrollableArea->scrollOffset().x();
+        };
+
+        if (!ignoreBaseline()) {
+            auto inlineBlockBaseline = renderBox.inlineBlockBaseline();
+            if (is<RenderDeprecatedFlexibleBox>(renderBox) && inlineBlockBaseline) {
+                // Historically, we did this check for all baselines. But we can't
+                // remove this code from deprecated flexbox, because it effectively
+                // breaks -webkit-line-clamp, which is used in the wild -- we would
+                // calculate the baseline as if -webkit-line-clamp wasn't used.
+                // For simplicity, we use this for all uses of deprecated flexbox.
+                auto bottomOfContent = renderBox.borderBefore() + renderBox.paddingBefore() + renderBox.contentBoxLogicalHeight();
+                if (*inlineBlockBaseline > bottomOfContent)
+                    return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+            }
+            if (inlineBlockBaseline)
+                return marginBefore + *inlineBlockBaseline;
+        }
+    }
+    return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+}
+
 static inline void setIntegrationBaseline(const RenderBox& renderBox)
 {
     auto hasNonSyntheticBaseline = [&] {
@@ -315,10 +450,8 @@ static inline void setIntegrationBaseline(const RenderBox& renderBox)
         return hasAppareance || !blockFlow->childrenInline() || blockFlow->hasLines() || blockFlow->hasLineIfEmpty();
     };
 
-    if (!hasNonSyntheticBaseline())
-        return;
-
-    const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(renderBox.baselinePosition());
+    if (hasNonSyntheticBaseline())
+        const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(baselinePosition(renderBox));
 }
 
 void BoxGeometryUpdater::updateLayoutBoxDimensions(const RenderBox& renderBox, std::optional<LayoutUnit> availableWidth, std::optional<Layout::IntrinsicWidthMode> intrinsicWidthMode)
