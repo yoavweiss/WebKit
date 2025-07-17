@@ -23,25 +23,42 @@
 #           The layout test runner evaluates the rules from top to bottom
 #           and it picks as the valid rule the last one matching.
 # * Accessibility
+# * Cairo
+# * Clipboard API
+# * Compositing
 # * CSS
+# * Events
 # * Fonts
 # * GStreamer
+# * Media-controls-related
 # * HiDPI
+# * HTTP
 # * IndexedDB
+# * JavaScriptCore
+# * MathML
 # * OffscreenCanvas
 # * PageOverlay
 # * Perf
+# * ResourceTiming API
 # * Scrolling
+# * Security
 # * Skia
+# * SOUP
+# * Media
+# * Streams
 # * SVG
+# * Text
+# * Transitions
 # * WebAnimations
 # * WebAudio
 # * WebGL
 # * WebRTC
-# * WebSQL
 # * WebSocket
+# * WebXR
 # * WPT
+# * XML
 # * XHR
+# * EME feature
 # * UNSUPPORTED tests
 #   * Things we do not test. (i.e. Skipped)
 # * NEEDS TRIAGING
@@ -1501,6 +1518,8 @@ http/tests/push-api [ Skip ]
 #webkit.org/b/251344 imported/w3c/web-platform-tests/html/cross-origin-opener-policy/tentative/restrict-properties/iframe-popup-to-un.https.html?7-8 [ Failure ]
 #webkit.org/b/251344 imported/w3c/web-platform-tests/html/cross-origin-opener-policy/tentative/restrict-properties/iframe-popup.https.html?5-6 [ Failure ]
 #webkit.org/b/251344 imported/w3c/web-platform-tests/html/cross-origin-opener-policy/tentative/restrict-properties/iframe-popup.https.html?7-8 [ Failure ]
+
+webkit.org/b/202750 http/tests/download/anchor-download-attribute-content-disposition-no-extension-text-plain.html [ Failure ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of HTTP-related bugs
