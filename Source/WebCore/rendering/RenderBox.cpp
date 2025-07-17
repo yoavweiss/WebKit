@@ -413,12 +413,12 @@ void RenderBox::styleDidChange(StyleDifference diff, const RenderStyle* oldStyle
 
 static bool hasEquivalentGridPositioningStyle(const RenderStyle& style, const RenderStyle& oldStyle)
 {
-    return (oldStyle.gridItemColumnStart() == style.gridItemColumnStart()
+    return oldStyle.gridItemColumnStart() == style.gridItemColumnStart()
         && oldStyle.gridItemColumnEnd() == style.gridItemColumnEnd()
         && oldStyle.gridItemRowStart() == style.gridItemRowStart()
         && oldStyle.gridItemRowEnd() == style.gridItemRowEnd()
         && oldStyle.order() == style.order()
-        && oldStyle.hasOutOfFlowPosition() == style.hasOutOfFlowPosition())
+        && oldStyle.hasOutOfFlowPosition() == style.hasOutOfFlowPosition()
         && (oldStyle.gridTemplateColumns().subgrid == style.gridTemplateColumns().subgrid || style.gridTemplateColumns().orderedNamedLines.map.isEmpty())
         && (oldStyle.gridTemplateRows().subgrid == style.gridTemplateRows().subgrid || style.gridTemplateRows().orderedNamedLines.map.isEmpty());
 }

@@ -192,12 +192,12 @@ void GridTrackSizingAlgorithm::setAvailableSpace(Style::GridTrackSizingDirection
 
 const Style::GridTrackSize& GridTrackSizingAlgorithm::rawGridTrackSize(Style::GridTrackSizingDirection direction, unsigned translatedIndex) const
 {
-    bool isRowAxis = direction == Style::GridTrackSizingDirection::Columns;
     auto& renderStyle = m_renderGrid->style();
-    auto& trackStyles = isRowAxis ? renderStyle.gridTemplateColumns().sizes : renderStyle.gridTemplateRows().sizes;
-    auto& autoRepeatTrackStyles = isRowAxis ? renderStyle.gridTemplateColumns().autoRepeatSizes : renderStyle.gridTemplateRows().autoRepeatSizes;
-    auto& autoTrackStyles = isRowAxis ? renderStyle.gridAutoColumns() : renderStyle.gridAutoRows();
-    unsigned insertionPoint = isRowAxis ? renderStyle.gridTemplateColumns().autoRepeatInsertionPoint : renderStyle.gridTemplateRows().autoRepeatInsertionPoint;
+    auto& autoTrackStyles = renderStyle.gridAutoList(direction);
+    auto& tracks = renderStyle.gridTemplateList(direction);
+    auto& trackStyles = tracks.sizes;
+    auto& autoRepeatTrackStyles = tracks.autoRepeatSizes;
+    unsigned insertionPoint = tracks.autoRepeatInsertionPoint;
     unsigned autoRepeatTracksCount = m_grid.autoRepeatTracks(direction);
 
     // We should not use Style::GridPositionsResolver::explicitGridXXXCount() for this because the

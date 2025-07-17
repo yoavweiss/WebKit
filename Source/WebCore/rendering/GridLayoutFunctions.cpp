@@ -181,12 +181,12 @@ bool isGridItemInlineSizeDependentOnBlockConstraints(const RenderBox& gridItem, 
 
 Style::GridTrackSizingDirection flowAwareDirectionForGridItem(const RenderGrid& grid, const RenderBox& gridItem, Style::GridTrackSizingDirection direction)
 {
-    return !isOrthogonalGridItem(grid, gridItem) ? direction : (direction == Style::GridTrackSizingDirection::Columns ? Style::GridTrackSizingDirection::Rows : Style::GridTrackSizingDirection::Columns);
+    return !isOrthogonalGridItem(grid, gridItem) ? direction : orthogonalDirection(direction);
 }
 
 Style::GridTrackSizingDirection flowAwareDirectionForParent(const RenderGrid& grid, const RenderElement& parent, Style::GridTrackSizingDirection direction)
 {
-    return isOrthogonalParent(grid, parent) ? (direction == Style::GridTrackSizingDirection::Columns ? Style::GridTrackSizingDirection::Rows : Style::GridTrackSizingDirection::Columns) : direction;
+    return isOrthogonalParent(grid, parent) ? orthogonalDirection(direction) : direction;
 }
 
 std::optional<RenderBox::GridAreaSize> overridingContainingBlockContentSizeForGridItem(const RenderBox& gridItem, Style::GridTrackSizingDirection direction)

@@ -1484,12 +1484,13 @@ static Style::GridOrderedNamedLinesMap gridLineNames(const RenderStyle* renderSt
             result.iterator->value.appendVector(newNames);
     };
 
-    auto orderedGridLineNames = direction == Style::GridTrackSizingDirection::Columns ? renderStyle->gridTemplateColumns().orderedNamedLines : renderStyle->gridTemplateRows().orderedNamedLines;
-    for (auto& [i, names] : orderedGridLineNames.map)
+    auto& tracks = renderStyle->gridTemplateList(direction);
+
+    for (auto& [i, names] : tracks.orderedNamedLines.map)
         appendLineNames(i, names);
 
-    auto& autoRepeatOrderedGridLineNames = (direction == Style::GridTrackSizingDirection::Columns ? renderStyle->gridTemplateColumns().autoRepeatOrderedNamedLines : renderStyle->gridTemplateRows().autoRepeatOrderedNamedLines).map;
-    auto autoRepeatInsertionPoint = direction == Style::GridTrackSizingDirection::Columns ? renderStyle->gridTemplateColumns().autoRepeatInsertionPoint : renderStyle->gridTemplateRows().autoRepeatInsertionPoint;
+    auto& autoRepeatOrderedGridLineNames = tracks.autoRepeatOrderedNamedLines.map;
+    auto autoRepeatInsertionPoint = tracks.autoRepeatInsertionPoint;
     unsigned autoRepeatIndex = 0;
     while (autoRepeatOrderedGridLineNames.size() && autoRepeatIndex < expectedLineCount - autoRepeatInsertionPoint) {
         auto names = autoRepeatOrderedGridLineNames.get(autoRepeatIndex % autoRepeatOrderedGridLineNames.size());
@@ -1498,8 +1499,7 @@ static Style::GridOrderedNamedLinesMap gridLineNames(const RenderStyle* renderSt
         ++autoRepeatIndex;
     }
 
-    auto& implicitGridLineNames = direction == Style::GridTrackSizingDirection::Columns ? renderStyle->gridTemplateAreas().implicitNamedGridColumnLines : renderStyle->gridTemplateAreas().implicitNamedGridRowLines;
-    for (auto& [name, indexes] : implicitGridLineNames.map) {
+    for (auto& [name, indexes] : renderStyle->gridTemplateAreas().implicitNamedGridLines(direction).map) {
         for (auto i : indexes)
             appendLineNames(i, {name});
     }

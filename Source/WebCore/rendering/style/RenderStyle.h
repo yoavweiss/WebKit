@@ -940,13 +940,15 @@ public:
     inline bool hasAutoColumnCount() const;
     inline bool specifiesColumns() const;
     inline ColumnFill columnFill() const;
-    inline const Style::GapGutter& columnGap() const;
-    inline const Style::GapGutter& rowGap() const;
     inline BorderStyle columnRuleStyle() const;
     inline unsigned short columnRuleWidth() const;
     inline bool columnRuleIsTransparent() const;
     inline ColumnSpan columnSpan() const;
     inline bool columnSpanEqual(const RenderStyle&) const;
+
+    inline const Style::GapGutter& columnGap() const;
+    inline const Style::GapGutter& rowGap() const;
+    inline const Style::GapGutter& gap(Style::GridTrackSizingDirection) const;
 
     inline const TransformOperations& transform() const;
     inline bool hasTransform() const;

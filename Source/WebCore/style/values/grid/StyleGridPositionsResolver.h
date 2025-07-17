@@ -49,8 +49,7 @@ public:
     static GridPositionSide finalPositionSide(GridTrackSizingDirection);
     static unsigned spanSizeForAutoPlacedItem(const RenderBox&, GridTrackSizingDirection);
     static GridSpan resolveGridPositionsFromStyle(const RenderGrid&, const RenderBox&, GridTrackSizingDirection);
-    static unsigned explicitGridColumnCount(const RenderGrid&);
-    static unsigned explicitGridRowCount(const RenderGrid&);
+    static unsigned explicitGridCount(const RenderGrid&, GridTrackSizingDirection);
 };
 
 } // namespace Style

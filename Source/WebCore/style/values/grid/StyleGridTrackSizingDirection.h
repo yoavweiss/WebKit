@@ -29,5 +29,12 @@ namespace Style {
 
 enum class GridTrackSizingDirection : bool { Columns, Rows };
 
+constexpr GridTrackSizingDirection orthogonalDirection(GridTrackSizingDirection direction)
+{
+    return direction == GridTrackSizingDirection::Columns
+        ? GridTrackSizingDirection::Rows
+        : GridTrackSizingDirection::Columns;
+}
+
 } // namespace Style
 } // namespace WebCore

@@ -87,6 +87,7 @@ public:
 
     const Vector<LayoutUnit>& columnPositions() const { return m_columnPositions; }
     const Vector<LayoutUnit>& rowPositions() const { return m_rowPositions; }
+    const Vector<LayoutUnit>& positions(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? columnPositions() : rowPositions(); }
 
     unsigned autoRepeatCountForDirection(Style::GridTrackSizingDirection direction) const { return currentGrid().autoRepeatTracks(direction); }
     unsigned explicitGridStartForDirection(Style::GridTrackSizingDirection direction) const { return currentGrid().explicitGridStart(direction); }
@@ -128,8 +129,8 @@ public:
 
     bool isMasonry() const;
     bool isMasonry(Style::GridTrackSizingDirection) const;
-    bool areMasonryRows() const;
-    bool areMasonryColumns() const;
+    bool areMasonryRows() const { return isMasonry(Style::GridTrackSizingDirection::Rows); }
+    bool areMasonryColumns() const { return isMasonry(Style::GridTrackSizingDirection::Columns); }
 
     const Grid& currentGrid() const;
     Grid& currentGrid();
@@ -159,6 +160,8 @@ private:
     friend class GridTrackSizingAlgorithmStrategy;
     friend class GridMasonryLayout;
     friend class PositionedLayoutConstraints;
+
+    using OutOfFlowPositionsMap = SingleThreadWeakHashMap<const RenderBox, std::optional<size_t>>;
 
     void computeLayoutRequirementsForItemsBeforeLayout(GridLayoutState&) const;
     bool canSetColumnAxisStretchRequirementForItem(const RenderBox&) const;
@@ -204,7 +207,7 @@ private:
 
     static bool itemGridAreaIsWithinImplicitGrid(const GridArea& area, unsigned gridAxisLinesCount, Style::GridTrackSizingDirection gridAxisDirection)
     {
-        auto itemSpan = gridAxisDirection == Style::GridTrackSizingDirection::Columns ? area.columns : area.rows;
+        auto itemSpan = area.span(gridAxisDirection);
         return itemSpan.startLine() <  gridAxisLinesCount && itemSpan.endLine() < gridAxisLinesCount;
     }
 
@@ -287,9 +290,17 @@ private:
 
     bool computeGridPositionsForOutOfFlowGridItem(const RenderBox&, Style::GridTrackSizingDirection, int&, bool&, int&, bool&) const;
 
-    AutoRepeatType autoRepeatColumnsType() const;
-    AutoRepeatType autoRepeatRowsType() const;
-    AutoRepeatType autoRepeatType(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? autoRepeatColumnsType() : autoRepeatRowsType(); }
+    AutoRepeatType autoRepeatType(Style::GridTrackSizingDirection) const;
+    AutoRepeatType autoRepeatRowsType() const { return autoRepeatType(Style::GridTrackSizingDirection::Rows); }
+    AutoRepeatType autoRepeatColumnsType() const { return autoRepeatType(Style::GridTrackSizingDirection::Columns); }
+
+    Vector<LayoutUnit>& positions(Style::GridTrackSizingDirection direction) { return direction == Style::GridTrackSizingDirection::Columns ? m_columnPositions : m_rowPositions; }
+
+    ContentAlignmentData& offsetBetweenTracks(Style::GridTrackSizingDirection direction) { return direction == Style::GridTrackSizingDirection::Columns ? m_offsetBetweenColumns : m_offsetBetweenRows; }
+    const ContentAlignmentData& offsetBetweenTracks(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? m_offsetBetweenColumns : m_offsetBetweenRows; }
+
+    OutOfFlowPositionsMap& outOfFlowItem(Style::GridTrackSizingDirection direction) { return direction == Style::GridTrackSizingDirection::Columns ? m_outOfFlowItemColumn : m_outOfFlowItemRow; }
+    const OutOfFlowPositionsMap& outOfFlowItem(Style::GridTrackSizingDirection direction) const { return direction == Style::GridTrackSizingDirection::Columns ? m_outOfFlowItemColumn : m_outOfFlowItemRow; }
 
     bool canCreateIntrinsicLogicalHeightsForRowSizingFirstPassCache() const;
 
@@ -312,7 +323,6 @@ private:
 
     mutable GridMasonryLayout m_masonryLayout;
 
-    using OutOfFlowPositionsMap = SingleThreadWeakHashMap<const RenderBox, std::optional<size_t>>;
     OutOfFlowPositionsMap m_outOfFlowItemColumn;
     OutOfFlowPositionsMap m_outOfFlowItemRow;
 

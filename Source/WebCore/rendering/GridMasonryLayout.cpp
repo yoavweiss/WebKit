@@ -108,10 +108,10 @@ LayoutUnit GridMasonryLayout::calculateMasonryIntrinsicLogicalWidth(RenderBox& g
 
 void GridMasonryLayout::setItemGridAxisContainingBlockToGridArea(const GridTrackSizingAlgorithm& algorithm, RenderBox& gridItem)
 {
-    if (gridAxisDirection() == Style::GridTrackSizingDirection::Columns)
-        gridItem.setGridAreaContentLogicalWidth(algorithm.gridAreaBreadthForGridItem(gridItem, Style::GridTrackSizingDirection::Columns));
+    if (auto direction = gridAxisDirection(); direction == Style::GridTrackSizingDirection::Columns)
+        gridItem.setGridAreaContentLogicalWidth(algorithm.gridAreaBreadthForGridItem(gridItem, direction));
     else
-        gridItem.setGridAreaContentLogicalHeight(algorithm.gridAreaBreadthForGridItem(gridItem, Style::GridTrackSizingDirection::Rows));
+        gridItem.setGridAreaContentLogicalHeight(algorithm.gridAreaBreadthForGridItem(gridItem, direction));
     
     // FIXME(249230): Try to cache masonry layout sizes
     gridItem.setChildNeedsLayout(MarkOnlyThis);
@@ -221,7 +221,7 @@ inline Style::GridTrackSizingDirection GridMasonryLayout::gridAxisDirection() co
 {
     // The masonry axis and grid axis can never be the same. 
     // They are always perpendicular to each other.
-    return m_masonryAxisDirection == Style::GridTrackSizingDirection::Rows ? Style::GridTrackSizingDirection::Columns : Style::GridTrackSizingDirection::Rows;
+    return orthogonalDirection(m_masonryAxisDirection);
 }
 
 bool GridMasonryLayout::hasDefiniteGridAxisPosition(const RenderBox& gridItem, Style::GridTrackSizingDirection gridAxisDirection) const
@@ -231,12 +231,14 @@ bool GridMasonryLayout::hasDefiniteGridAxisPosition(const RenderBox& gridItem, S
 
 GridSpan GridMasonryLayout::gridAxisSpanFromArea(const GridArea& gridArea) const
 {
-    return gridAxisDirection() == Style::GridTrackSizingDirection::Rows ? gridArea.rows : gridArea.columns;
+    return gridArea.span(gridAxisDirection());
 }
 
 GridArea GridMasonryLayout::masonryGridAreaFromGridAxisSpan(const GridSpan& gridAxisSpan) const
 {
-    return m_masonryAxisDirection == Style::GridTrackSizingDirection::Rows ? GridArea { m_masonryAxisSpan, gridAxisSpan } : GridArea { gridAxisSpan, m_masonryAxisSpan };
+    return m_masonryAxisDirection == Style::GridTrackSizingDirection::Rows
+        ? GridArea { m_masonryAxisSpan, gridAxisSpan }
+        : GridArea { gridAxisSpan, m_masonryAxisSpan };
 }
 
 bool GridMasonryLayout::hasEnoughSpaceAtPosition(unsigned startingPosition, unsigned spanLength) const

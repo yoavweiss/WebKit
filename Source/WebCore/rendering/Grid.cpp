@@ -183,8 +183,7 @@ OrderedTrackIndexSet* Grid::autoRepeatEmptyTracks(Style::GridTrackSizingDirectio
 
 GridSpan Grid::gridItemSpan(const RenderBox& gridItem, Style::GridTrackSizingDirection direction) const
 {
-    GridArea area = gridItemArea(gridItem);
-    return direction == Style::GridTrackSizingDirection::Columns ? area.columns : area.rows;
+    return gridItemArea(gridItem).span(direction);
 }
 
 GridSpan Grid::gridItemSpanIgnoringCollapsedTracks(const RenderBox& gridItem, Style::GridTrackSizingDirection direction) const
