@@ -220,7 +220,7 @@ class GitHubEWS(GitHub):
 
     @classmethod
     def generate_updated_pr_description(self, description, ews_comment):
-        description = description.split(self.STATUS_BUBBLE_START)[0]
+        description = "" if description is None else description.split(self.STATUS_BUBBLE_START)[0]
         return u'{}{}\n{}\n{}'.format(description, self.STATUS_BUBBLE_START, ews_comment, self.STATUS_BUBBLE_END)
 
     def generate_comment_text_for_change(self, change):
