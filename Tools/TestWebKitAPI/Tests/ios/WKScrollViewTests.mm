@@ -651,6 +651,34 @@ TEST(WKScrollViewTests, ColorExtensionViewsDuringAnimatedResize)
     }
 }
 
+TEST(WKScrollViewTests, ShouldSuppressTopColorExtensionView)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 800)]);
+
+    auto insets = UIEdgeInsetsMake(50, 0, 0, 0);
+    [webView setObscuredContentInsets:insets];
+
+    RetainPtr scrollView = [webView scrollView];
+    [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    [scrollView setContentInset:insets];
+
+    [webView _setShouldSuppressTopColorExtensionView:YES];
+    [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_NULL([webView _colorExtensionViewForTesting:UIRectEdgeTop]);
+
+    [webView _setShouldSuppressTopColorExtensionView:NO];
+    RetainPtr topColorExtension = [webView _colorExtensionViewForTesting:UIRectEdgeTop];
+    EXPECT_NOT_NULL(topColorExtension);
+    EXPECT_FALSE([topColorExtension isHidden]);
+
+    [webView _setShouldSuppressTopColorExtensionView:YES];
+    Util::waitForConditionWithLogging([topColorExtension] {
+        return [topColorExtension isHidden];
+    }, 5, @"Color extension view failed to hide");
+}
+
 #endif // HAVE(LIQUID_GLASS)
 
 } // namespace TestWebKitAPI

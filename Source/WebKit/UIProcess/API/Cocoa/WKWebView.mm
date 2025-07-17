@@ -3245,15 +3245,15 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
         }
 
         RetainPtr edgeColor = cocoaColorOrNil(_fixedContainerEdges.predominantColor(side)) ?: self.underPageBackgroundColor;
-#if PLATFORM(MAC)
         if (side == WebCore::BoxSide::Top) {
+#if PLATFORM(MAC)
             edgeColor = [self _adjustedColorForTopContentInsetColorFromUIDelegate:edgeColor.get()];
+#endif
             if (_shouldSuppressTopColorExtensionView) {
                 [extensionView fadeOut];
                 return;
             }
         }
-#endif // PLATFORM(MAC)
 
         if (!extensionView) {
             extensionView = adoptNS([[WKColorExtensionView alloc] initWithFrame:CGRectZero delegate:self]);
