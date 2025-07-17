@@ -39,7 +39,7 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(BloomFilter);
 // See http://en.wikipedia.org/wiki/Bloom_filter
 template <unsigned keyBits>
 class BloomFilter {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(BloomFilter, BloomFilter);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(BloomFilter);
 public:
     static constexpr size_t tableSize = 1 << keyBits;
 
@@ -160,7 +160,7 @@ inline void BloomFilter<keyBits>::clear()
 // See http://en.wikipedia.org/wiki/Bloom_filter#Counting_filters
 template <unsigned keyBits>
 class CountingBloomFilter {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(CountingBloomFilter);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static constexpr size_t tableSize = 1 << keyBits;
     static unsigned maximumCount() { return std::numeric_limits<uint8_t>::max(); }

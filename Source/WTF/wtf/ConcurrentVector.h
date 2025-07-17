@@ -38,7 +38,7 @@ namespace WTF {
 // An iterator for ConcurrentVector. It supports only the pre ++ operator
 template <typename T, size_t SegmentSize = 8> class ConcurrentVector;
 template <typename T, size_t SegmentSize = 8> class ConcurrentVectorIterator {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ConcurrentVectorIterator);
+    WTF_MAKE_FAST_ALLOCATED;
 private:
     friend class ConcurrentVector<T, SegmentSize>;
 public:
@@ -96,7 +96,7 @@ template <typename T, size_t SegmentSize>
 class ConcurrentVector final {
     friend class ConcurrentVectorIterator<T, SegmentSize>;
     WTF_MAKE_NONCOPYABLE(ConcurrentVector);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ConcurrentVector);
+    WTF_MAKE_FAST_ALLOCATED;
 
 public:
     typedef ConcurrentVectorIterator<T, SegmentSize> Iterator;
@@ -225,7 +225,7 @@ public:
 
 private:
     struct Segment {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Segment);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
             
         T entries[SegmentSize];
     };

@@ -65,7 +65,7 @@ WEBCORE_EXPORT ResponseBody isolatedResponseBody(const ResponseBody&);
 WEBCORE_EXPORT ResponseBody copyResponseBody(const ResponseBody&);
 
 struct Record {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Record);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     WEBCORE_EXPORT Record copy() const;
 
     uint64_t identifier;
@@ -83,7 +83,7 @@ struct Record {
 };
 
 struct CrossThreadRecord {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(CrossThreadRecord);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     CrossThreadRecord(const CrossThreadRecord&) = delete;
     CrossThreadRecord& operator=(const CrossThreadRecord&) = delete;
     CrossThreadRecord() = default;

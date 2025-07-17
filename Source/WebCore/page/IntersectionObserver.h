@@ -54,7 +54,7 @@ struct IntersectionObserverRegistration {
 };
 
 struct IntersectionObserverData {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(IntersectionObserverData);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     // IntersectionObservers for which the node that owns this IntersectionObserverData is the root.
     // An IntersectionObserver is only owned by a JavaScript wrapper. ActiveDOMObject::virtualHasPendingActivity

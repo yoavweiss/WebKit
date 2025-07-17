@@ -59,7 +59,7 @@ struct MetadataStatistics {
 
 
 class UnlinkedMetadataTable : public ThreadSafeRefCounted<UnlinkedMetadataTable> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(UnlinkedMetadataTable, UnlinkedMetadataTable);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(UnlinkedMetadataTable);
     friend class LLIntOffsetsExtractor;
     friend class MetadataTable;
     friend class CachedMetadataTable;

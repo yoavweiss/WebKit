@@ -67,7 +67,7 @@ private:
     };
 
     struct LayerNode final {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(LayerNode);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         explicit LayerNode(Layer&& layer)
         {

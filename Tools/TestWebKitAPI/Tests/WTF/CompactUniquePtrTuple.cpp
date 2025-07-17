@@ -36,7 +36,7 @@ namespace TestWebKitAPI {
 namespace CompactUniquePtrTupleTest {
 
 class A {
-    WTF_DEPRECATED_MAKE_FAST_COMPACT_ALLOCATED(A);
+    WTF_MAKE_FAST_COMPACT_ALLOCATED;
 
 public:
     A() { ++s_constructorCallCount; }
@@ -156,7 +156,7 @@ TEST(WTF_CompactUniquePtrTuple, Basic)
 }
 
 class B : public A {
-    WTF_DEPRECATED_MAKE_FAST_COMPACT_ALLOCATED(B);
+    WTF_MAKE_FAST_COMPACT_ALLOCATED;
 
 public:
     B() { ++s_constructorCallCount; }

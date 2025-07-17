@@ -239,7 +239,7 @@ private:
     void didCompleteTileRender(const TileForGrid& renderKey, PDFTileRenderIdentifier, RenderedPDFTile);
 
     struct RevalidationStateForGrid {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(RevalidationStateForGrid);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         bool inFullTileRevalidation { false };
         bool inScaleChangeRepaint { false };
         HashSet<PDFTileRenderIdentifier> renderIdentifiersForCurrentRevalidation;

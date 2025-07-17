@@ -36,7 +36,7 @@
 namespace WTR {
 
 class AccessibilityNotificationHandler {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(AccessibilityNotificationHandler);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     explicit AccessibilityNotificationHandler(JSValueRef, PlatformUIElement = nullptr);
     ~AccessibilityNotificationHandler();

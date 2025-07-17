@@ -66,7 +66,7 @@ class NodeList;
 class Page;
 
 struct InspectorOverlayHighlight {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(InspectorOverlayHighlight);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     enum class Type : uint8_t {
         None, // Provides only non-quad information, including grid overlays.
@@ -76,7 +76,7 @@ struct InspectorOverlayHighlight {
     };
 
     struct Config {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Config);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         Color content;
         Color contentOutline;
         Color padding;
@@ -87,10 +87,10 @@ struct InspectorOverlayHighlight {
     };
 
     struct GridHighlightOverlay {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(GridHighlightOverlay);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         struct Area {
-            WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Area);
+            WTF_MAKE_STRUCT_FAST_ALLOCATED;
             String name;
             FloatQuad quad;
         };
@@ -103,7 +103,7 @@ struct InspectorOverlayHighlight {
     };
 
     struct FlexHighlightOverlay {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(FlexHighlightOverlay);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         Color color;
         FloatQuad containerBounds;
@@ -152,10 +152,10 @@ public:
     using Highlight = InspectorOverlayHighlight;
 
     struct Grid {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Grid);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         struct Config {
-            WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Config);
+            WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
             Color gridColor;
             bool showLineNames;
@@ -170,10 +170,10 @@ public:
     };
 
     struct Flex {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Flex);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         struct Config {
-            WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Config);
+            WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
             Color flexColor;
             bool showOrderNumbers;

@@ -1217,7 +1217,7 @@ private:
     RefPtr<MediaError> m_error;
 
     struct PendingSeek {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(PendingSeek);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         PendingSeek(const MediaTime& now, const SeekTarget& inTarget)
             : now(now)
             , target(inTarget)

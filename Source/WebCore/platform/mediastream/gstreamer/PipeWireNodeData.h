@@ -26,7 +26,7 @@
 namespace WebCore {
 
 struct PipeWireNodeData {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(PipeWireNodeData);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     PipeWireNodeData(uint32_t objectId)
         : objectId(objectId)

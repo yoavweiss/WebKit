@@ -297,7 +297,7 @@ struct FrameData {
 #endif
 
     struct LayerData {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(LayerData);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 #if PLATFORM(COCOA)
         std::optional<LayerSetupData> layerSetup = { std::nullopt };
         uint64_t renderingFrameIndex { 0 };

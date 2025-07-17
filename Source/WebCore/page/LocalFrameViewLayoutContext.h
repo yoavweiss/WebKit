@@ -55,7 +55,7 @@ class LayoutTree;
 enum class LayoutOptions : uint8_t;
 
 struct UpdateScrollInfoAfterLayoutTransaction {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(UpdateScrollInfoAfterLayoutTransaction);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     UpdateScrollInfoAfterLayoutTransaction();
     ~UpdateScrollInfoAfterLayoutTransaction();

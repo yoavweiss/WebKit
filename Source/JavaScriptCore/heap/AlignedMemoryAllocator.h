@@ -36,7 +36,7 @@ class Subspace;
 
 class AlignedMemoryAllocator {
     WTF_MAKE_NONCOPYABLE(AlignedMemoryAllocator);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(AlignedMemoryAllocator);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     AlignedMemoryAllocator();
     virtual ~AlignedMemoryAllocator();

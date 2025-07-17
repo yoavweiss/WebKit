@@ -37,7 +37,7 @@ namespace Style {
 struct ColorResolutionState;
 
 struct ContrastColor {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ContrastColor);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     Color color;
 

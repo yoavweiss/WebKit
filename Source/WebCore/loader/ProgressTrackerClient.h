@@ -32,7 +32,7 @@ namespace WebCore {
 class LocalFrame;
 
 class ProgressTrackerClient {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ProgressTrackerClient, Loader);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Loader);
 public:
     virtual ~ProgressTrackerClient() = default;
 

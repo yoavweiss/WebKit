@@ -33,7 +33,7 @@ namespace WTF {
 
 template<typename T, typename WeakPtrImpl, EnableWeakPtrThreadingAssertions assertionsPolicy>
 class WeakHashSet final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WeakHashSet);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     using WeakPtrImplSet = HashSet<Ref<WeakPtrImpl>>;
     using AddResult = typename WeakPtrImplSet::AddResult;

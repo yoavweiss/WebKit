@@ -34,7 +34,7 @@ namespace WTF {
 class Thread;
 
 class ParkingLot {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ParkingLot);
+    WTF_MAKE_FAST_ALLOCATED;
 
     ParkingLot() = delete;
     ParkingLot(const ParkingLot&) = delete;

@@ -51,7 +51,7 @@ public:
 
 private:
     struct Data : RefCounted<Data> {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Data);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         Data(double theValue)
             : value(theValue)

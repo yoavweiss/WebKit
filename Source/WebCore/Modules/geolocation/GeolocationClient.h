@@ -36,7 +36,7 @@ class GeolocationPositionData;
 class Page;
 
 class GeolocationClient : public AbstractRefCounted {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(GeolocationClient);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     virtual void geolocationDestroyed() = 0;
 

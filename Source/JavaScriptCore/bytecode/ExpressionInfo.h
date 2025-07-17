@@ -42,7 +42,7 @@ namespace JSC {
 
 class ExpressionInfo {
     WTF_MAKE_NONCOPYABLE(ExpressionInfo);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ExpressionInfo);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     enum class FieldID : uint8_t { InstPC, Divot, Start, End, Line, Column };
 

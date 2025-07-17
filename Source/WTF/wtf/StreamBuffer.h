@@ -37,7 +37,7 @@ namespace WTF {
 
 template <typename T, size_t BlockSize>
 class StreamBuffer {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(StreamBuffer);
+    WTF_MAKE_FAST_ALLOCATED;
 private:
     typedef Vector<T> Block;
 public:

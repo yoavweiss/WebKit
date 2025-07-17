@@ -64,7 +64,7 @@ namespace WTF {
 
 // https://github.com/wangyi-fudan/wyhash
 class WYHash {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WYHash);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static constexpr bool forceConvertInRead = false;
     static constexpr unsigned flagCount = StringHasher::flagCount;

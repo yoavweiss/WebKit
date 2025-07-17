@@ -37,7 +37,7 @@ namespace WebCore {
 class ResourceMonitorPersistence;
 
 class ResourceMonitorThrottler final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ResourceMonitorThrottler);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ResourceMonitorThrottler(String&& databaseDirectoryPath, size_t count, Seconds duration, size_t maxHosts);
     ~ResourceMonitorThrottler();
@@ -63,7 +63,7 @@ private:
     };
 
     class AccessThrottler final {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(AccessThrottler);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         AccessThrottler() = default;
 

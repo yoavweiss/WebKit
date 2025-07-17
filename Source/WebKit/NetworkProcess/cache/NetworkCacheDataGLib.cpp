@@ -118,7 +118,7 @@ Data concatenate(const Data& a, const Data& b)
 }
 
 struct MapWrapper {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(MapWrapper);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     FileSystem::MappedFileData mappedFile;
 };

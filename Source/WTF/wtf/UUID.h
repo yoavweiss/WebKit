@@ -47,7 +47,7 @@ namespace WTF {
 class StringView;
 
 class UUID {
-WTF_DEPRECATED_MAKE_FAST_ALLOCATED(UUID);
+WTF_MAKE_FAST_ALLOCATED;
 public:
     static constexpr UInt128 emptyValue = 0;
     static constexpr UInt128 deletedValue = 1;

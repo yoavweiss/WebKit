@@ -182,7 +182,7 @@ public:
     }
 
     class iterator {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(iterator);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         iterator() = default;
 

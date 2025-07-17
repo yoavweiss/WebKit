@@ -41,7 +41,7 @@ class Device;
 class XRProjectionLayer;
 
 class XRView : public RefCountedAndCanMakeWeakPtr<XRView>, public WGPUXRViewImpl {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(XRView);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static Ref<XRView> create(Device& device)
     {

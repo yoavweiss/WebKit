@@ -33,7 +33,7 @@ namespace WTF {
 class StringImpl;
 
 class AtomStringTable {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(AtomStringTable);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     // If CompactPtr is 32bit, it is more efficient than PackedPtr (6 bytes).
     // We select underlying implementation based on CompactPtr's efficacy.

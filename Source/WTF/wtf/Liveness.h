@@ -56,7 +56,7 @@ public:
     
     // This calculator has to be run in reverse.
     class LocalCalc {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(LocalCalc);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         LocalCalc(Liveness& liveness, typename CFG::Node block)
             : m_liveness(liveness)
@@ -70,7 +70,7 @@ public:
         }
 
         class Iterable {
-            WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Iterable);
+            WTF_MAKE_FAST_ALLOCATED;
         public:
             Iterable(Liveness& liveness)
                 : m_liveness(liveness)
@@ -78,7 +78,7 @@ public:
             }
 
             class iterator {
-                WTF_DEPRECATED_MAKE_FAST_ALLOCATED(iterator);
+                WTF_MAKE_FAST_ALLOCATED;
             public:
                 iterator(Adapter& adapter, Workset::const_iterator sparceSetIterator)
                     : m_adapter(adapter)
@@ -161,7 +161,7 @@ public:
 
     template<typename UnderlyingIterable>
     class Iterable {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Iterable);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         Iterable(Liveness& liveness, const UnderlyingIterable& iterable)
             : m_liveness(liveness)
@@ -170,7 +170,7 @@ public:
         }
 
         class iterator {
-            WTF_DEPRECATED_MAKE_FAST_ALLOCATED(iterator);
+            WTF_MAKE_FAST_ALLOCATED;
         public:
             iterator()
                 : m_liveness(nullptr)
@@ -232,7 +232,7 @@ public:
     Workset& workset() { return m_workset; }
     
     class LiveAtHead {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(LiveAtHead);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         LiveAtHead(Liveness& liveness)
             : m_liveness(liveness)

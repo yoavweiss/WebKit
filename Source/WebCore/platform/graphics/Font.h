@@ -93,7 +93,7 @@ struct FontInternalAttributes {
 
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(Font);
 class Font : public RefCounted<Font>, public CanMakeSingleThreadWeakPtr<Font> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Font, Font);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Font);
 public:
     using Origin = FontOrigin;
     using IsInterstitial = FontIsInterstitial;
@@ -341,7 +341,7 @@ private:
     Attributes m_attributes;
 
     struct DerivedFonts {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(DerivedFonts);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
     public:
 
         RefPtr<Font> smallCapsFont;

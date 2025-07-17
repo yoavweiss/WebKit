@@ -30,7 +30,7 @@
 namespace WTF {
 
 class TextBreakIteratorCFStringTokenizer {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(TextBreakIteratorCFStringTokenizer);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     enum class Mode {
         Word,

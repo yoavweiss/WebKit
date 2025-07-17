@@ -53,7 +53,7 @@ struct SnapOffset {
 
 template <typename UnitType, typename RectType>
 struct ScrollSnapOffsetsInfo {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ScrollSnapOffsetsInfo);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     ScrollSnapStrictness strictness { ScrollSnapStrictness::None };
     Vector<SnapOffset<UnitType>> horizontalSnapOffsets;
     Vector<SnapOffset<UnitType>> verticalSnapOffsets;

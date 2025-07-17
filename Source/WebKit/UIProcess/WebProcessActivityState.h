@@ -37,7 +37,7 @@ class WebPageProxy;
 class WebProcessProxy;
 
 class WebProcessActivityState {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WebProcessActivityState);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     explicit WebProcessActivityState(WebPageProxy&);
     explicit WebProcessActivityState(RemotePageProxy&);

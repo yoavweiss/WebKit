@@ -323,7 +323,7 @@ public:
 
 private:
     struct TLSConnectionInfo {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(TLSConnectionInfo);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         String protocol;
         String cipher;
     };

@@ -61,7 +61,7 @@ private:
     explicit ModelPresentationManagerProxy(WebPageProxy&);
 
     struct ModelPresentation {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ModelPresentation);
+        WTF_MAKE_FAST_ALLOCATED;
 
     public:
         Ref<WebCore::ModelContext> modelContext;

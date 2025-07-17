@@ -79,7 +79,7 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(CachedResource);
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(CachedResourceResponseData);
 class CachedResource : public CanMakeWeakPtr<CachedResource> {
     WTF_MAKE_NONCOPYABLE(CachedResource);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CachedResource, CachedResource);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CachedResource);
     friend class MemoryCache;
 
 public:
@@ -379,7 +379,7 @@ private:
 
     struct ResponseData {
         WTF_MAKE_NONCOPYABLE(ResponseData);
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ResponseData, CachedResourceResponseData);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CachedResourceResponseData);
 
     public:
         ResponseData(CachedResource&);
@@ -453,7 +453,7 @@ private:
 };
 
 class CachedResourceCallback {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CachedResourceCallback, Loader);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Loader);
 public:
     CachedResourceCallback(CachedResource&, CachedResourceClient&);
     void cancel();

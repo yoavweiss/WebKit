@@ -35,7 +35,7 @@ namespace Detail {
 
 template<typename Out, typename... In>
 class CallableWrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(CallableWrapperBase);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     virtual ~CallableWrapperBase() { }
     virtual Out call(In...) = 0;
@@ -61,7 +61,7 @@ template<typename Out, typename... In> Function<Out(In...)> adopt(Detail::Callab
 
 template <typename Out, typename... In>
 class Function<Out(In...)> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Function);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     using Impl = Detail::CallableWrapperBase<Out, In...>;
 

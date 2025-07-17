@@ -105,7 +105,7 @@ namespace WebKit {
 using namespace WebCore;
 
 struct NetworkResourceLoader::SynchronousLoadData {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(NetworkResourceLoader);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     SynchronousLoadData(CompletionHandler<void(const ResourceError&, const ResourceResponse, Vector<uint8_t>&&)>&& reply)
         : delayedReply(WTFMove(reply))

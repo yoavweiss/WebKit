@@ -42,7 +42,7 @@ class Device;
 class Texture;
 
 class XRSubImage : public RefCountedAndCanMakeWeakPtr<XRSubImage>, public WGPUXRSubImageImpl {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(XRSubImage);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static Ref<XRSubImage> create(Device& device)
     {

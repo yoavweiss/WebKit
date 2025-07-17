@@ -30,7 +30,7 @@
 namespace WebKit {
 
 struct ViewWindowCoordinates {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ViewWindowCoordinates);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     WebCore::FloatRect windowFrameInScreenCoordinates;
     WebCore::FloatRect windowFrameInUnflippedScreenCoordinates;

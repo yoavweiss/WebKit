@@ -63,7 +63,7 @@ namespace LayoutIntegration {
 class LineLayout;
 
 class InlineContent : public CanMakeWeakPtr<InlineContent> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(InlineContent);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     InlineContent(const RenderBlockFlow& formattingContextRoot);
 

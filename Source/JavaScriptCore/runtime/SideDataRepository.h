@@ -34,7 +34,7 @@ namespace JSC {
 class SideDataRepository {
 public:
     class SideData {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(SideData);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         virtual ~SideData() = default;
     };

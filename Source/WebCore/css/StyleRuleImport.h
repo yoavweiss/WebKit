@@ -34,7 +34,7 @@ class StyleSheetContents;
 
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(StyleRuleImport);
 class StyleRuleImport final : public StyleRuleBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleRuleImport, StyleRuleImport);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleRuleImport);
 public:
     struct SupportsCondition {
         String text;

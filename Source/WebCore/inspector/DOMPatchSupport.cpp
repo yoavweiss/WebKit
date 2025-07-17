@@ -60,7 +60,7 @@ using HTMLNames::headTag;
 using HTMLNames::htmlTag;
 
 struct DOMPatchSupport::Digest {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(DOMPatchSupport);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     String sha1;
     String attrsSHA1;

@@ -26,7 +26,7 @@
 namespace WTF {
 
 class TextBreakIteratorCF {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(TextBreakIteratorCF);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     enum class Mode {
         ComposedCharacter,

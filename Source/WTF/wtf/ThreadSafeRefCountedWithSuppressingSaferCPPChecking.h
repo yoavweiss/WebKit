@@ -38,7 +38,7 @@ namespace WTF {
 // the checker introduces a solution which works well with JSC::VM.
 class ThreadSafeRefCountedWithSuppressingSaferCPPCheckingBase {
     WTF_MAKE_NONCOPYABLE(ThreadSafeRefCountedWithSuppressingSaferCPPCheckingBase);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ThreadSafeRefCountedWithSuppressingSaferCPPCheckingBase);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ThreadSafeRefCountedWithSuppressingSaferCPPCheckingBase() = default;
 

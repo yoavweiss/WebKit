@@ -60,7 +60,7 @@ enum class ScreenAPIsAccessed : uint64_t {
 };
 
 struct ResourceLoadStatistics {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ResourceLoadStatistics);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     explicit ResourceLoadStatistics(const RegistrableDomain& domain)
         : registrableDomain { domain }
     {

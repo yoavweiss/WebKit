@@ -37,7 +37,7 @@
 #endif
 
 class AccessibilityController {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(AccessibilityController);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     AccessibilityController();
     ~AccessibilityController();

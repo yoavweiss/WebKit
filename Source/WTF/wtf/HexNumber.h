@@ -48,7 +48,7 @@ inline std::span<LChar> appendHex(std::array<LChar, arraySize>& buffer, NumberTy
 } // namespace Internal
 
 struct HexNumberBuffer {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(HexNumberBuffer);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     std::array<LChar, 16> buffer;
     unsigned length;

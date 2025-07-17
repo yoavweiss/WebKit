@@ -48,7 +48,7 @@ namespace WebCore::WebGPU {
 class ConvertToBackingContext;
 
 class XRViewImpl final : public XRView {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(XRViewImpl);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static Ref<XRViewImpl> create(WebGPUPtr<WGPUXRView>&& binding, ConvertToBackingContext& convertToBackingContext)
     {

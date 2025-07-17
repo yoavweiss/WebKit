@@ -33,10 +33,10 @@ namespace TestWebKitAPI {
 namespace UniqueRefTest {
 
 class A {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(A);
+    WTF_MAKE_FAST_ALLOCATED;
 };
 class B {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(B);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     B(int a, int b, int c)
         : a(a)
@@ -48,7 +48,7 @@ public:
     int c;
 };
 class C {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(C);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     C(UniqueRef<A>&& a)
         : a(WTFMove(a))

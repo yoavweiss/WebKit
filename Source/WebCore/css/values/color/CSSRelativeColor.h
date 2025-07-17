@@ -42,7 +42,7 @@ using RelativeColorComponent = GetCSSColorParseTypeWithCalcAndSymbolsComponentRe
 
 template<typename D>
 struct RelativeColor {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(RelativeColor);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     using Descriptor = D;
 

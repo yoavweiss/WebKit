@@ -245,7 +245,7 @@ void DropTarget::accept(GdkDrop* drop, std::optional<WebCore::IntPoint> position
 
 template<typename T>
 struct DropReadAsyncData {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(DropReadAsyncData);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     DropReadAsyncData(GCancellable* cancellable, CompletionHandler<T>&& handler)
         : cancellable(cancellable)

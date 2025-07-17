@@ -31,7 +31,7 @@ namespace WTF {
 
 template<typename ValueArg, typename HashArg, typename TraitsArg, typename TableTraitsArg, ShouldValidateKey shouldValidateKey>
 class HashSet final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(HashSet);
+    WTF_MAKE_FAST_ALLOCATED;
 private:
     using HashFunctions = HashArg;
     using ValueTraits = TraitsArg;

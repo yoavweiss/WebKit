@@ -207,7 +207,7 @@ private:
 #endif
 
     struct RareData {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(RareData);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         unsigned m_numDuplicateNamedCaptureGroups;
         Vector<String> m_captureGroupNames;
 

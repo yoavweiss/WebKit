@@ -32,7 +32,7 @@
 namespace WebKit {
 
 class ModelProcessModelPlayerTransformState final : public WebCore::ModelPlayerTransformState {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ModelProcessModelPlayerTransformState);
+    WTF_MAKE_FAST_ALLOCATED;
 
 public:
     static std::unique_ptr<ModelProcessModelPlayerTransformState> create(std::optional<WebCore::TransformationMatrix> entityTransform, std::optional<WebCore::FloatPoint3D> boundingBoxCenter, std::optional<WebCore::FloatPoint3D> boundingBoxExtents, bool hasPortal, WebCore::StageModeOperation);

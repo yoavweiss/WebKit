@@ -60,7 +60,7 @@ typedef LockAlgorithm<uint8_t, 1, 2> DefaultLockAlgorithm;
 // use lock capability annotations defined in ThreadSafetyAnalysis.h.
 class WTF_CAPABILITY_LOCK Lock {
     WTF_MAKE_NONCOPYABLE(Lock);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Lock);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     constexpr Lock() = default;
 

@@ -36,7 +36,7 @@ namespace JSC {
 
 template<typename KeyArg, typename ValueArg, typename HashArg = DefaultHash<KeyArg>, typename KeyTraitsArg = HashTraits<KeyArg>>
 class WeakGCMap final : public WeakGCHashTable {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WeakGCMap);
+    WTF_MAKE_FAST_ALLOCATED;
     typedef Weak<ValueArg> ValueType;
     typedef UncheckedKeyHashMap<KeyArg, ValueType, HashArg, KeyTraitsArg> HashMapType;
 

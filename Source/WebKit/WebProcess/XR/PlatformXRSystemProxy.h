@@ -42,7 +42,7 @@ namespace WebKit {
 class WebPage;
 
 class PlatformXRSystemProxy : public IPC::MessageReceiver {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(PlatformXRSystemProxy);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     PlatformXRSystemProxy(WebPage&);
     virtual ~PlatformXRSystemProxy();

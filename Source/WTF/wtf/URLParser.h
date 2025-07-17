@@ -37,7 +37,7 @@ namespace WTF {
 template<typename CharacterType> class CodePointIterator;
 
 class URLParser {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(URLParser);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     constexpr static int allowedNameToASCIIErrors =
         UIDNA_ERROR_EMPTY_LABEL

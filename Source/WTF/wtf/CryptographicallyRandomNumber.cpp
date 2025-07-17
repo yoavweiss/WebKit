@@ -43,7 +43,7 @@ namespace WTF {
 namespace {
 
 class ARC4Stream {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ARC4Stream);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ARC4Stream();
 
@@ -53,7 +53,7 @@ public:
 };
 
 class ARC4RandomNumberGenerator {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ARC4RandomNumberGenerator);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ARC4RandomNumberGenerator() = default;
 

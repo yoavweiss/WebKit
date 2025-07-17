@@ -33,7 +33,7 @@
 namespace WTF {
 
 class GregorianDateTime final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(GregorianDateTime);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     GregorianDateTime() = default;
     WTF_EXPORT_PRIVATE explicit GregorianDateTime(double ms, LocalTimeOffset);

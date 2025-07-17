@@ -134,7 +134,7 @@ gboolean webkitWebViewRunFileChooser(WebKitWebView* webView, WebKitFileChooserRe
 }
 
 struct WindowStateEvent {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(WindowStateEvent);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     enum class Type { Maximize, Minimize, Restore };
 

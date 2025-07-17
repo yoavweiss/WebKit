@@ -43,7 +43,7 @@ namespace WTF {
 template<typename T, typename WeakPtrImpl = DefaultWeakPtrImpl>
 class WeakPtrFactory {
     WTF_MAKE_NONCOPYABLE(WeakPtrFactory);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WeakPtrFactory);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     using ObjectType = T;
     using WeakPtrImplType = WeakPtrImpl;
@@ -125,7 +125,7 @@ private:
 template<typename T, typename WeakPtrImpl = DefaultWeakPtrImpl>
 class WeakPtrFactoryWithBitField {
     WTF_MAKE_NONCOPYABLE(WeakPtrFactoryWithBitField);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WeakPtrFactoryWithBitField);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     using ObjectType = T;
     using WeakPtrImplType = WeakPtrImpl;

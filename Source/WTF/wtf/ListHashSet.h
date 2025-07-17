@@ -68,7 +68,7 @@ template<typename ValueArg, typename HashArg> class ListHashSet final
     : public CanMakeWeakPtr<ListHashSet<ValueArg, HashArg>, WeakPtrFactoryInitialization::Eager>
 #endif
 {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ListHashSet);
+    WTF_MAKE_FAST_ALLOCATED;
 private:
     typedef ListHashSetNode<ValueArg> Node;
 
@@ -200,7 +200,7 @@ template<typename ValueArg> struct ListHashSetNode
     : CanMakeWeakPtr<ListHashSetNode<ValueArg>, WeakPtrFactoryInitialization::Eager>
 #endif
 {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ListHashSetNode);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     template<typename T> ListHashSetNode(T&& value)
         : m_value(std::forward<T>(value))
@@ -219,7 +219,7 @@ template<typename HashArg> struct ListHashSetNodeHashFunctions {
 };
 
 template<typename ValueArg, typename HashArg> class ListHashSetIterator {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ListHashSetIterator);
+    WTF_MAKE_FAST_ALLOCATED;
 private:
     typedef ListHashSet<ValueArg, HashArg> ListHashSetType;
     typedef ListHashSetIterator<ValueArg, HashArg> iterator;
@@ -270,7 +270,7 @@ private:
 };
 
 template<typename ValueArg, typename HashArg> class ListHashSetConstIterator {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ListHashSetConstIterator);
+    WTF_MAKE_FAST_ALLOCATED;
 private:
     typedef ListHashSet<ValueArg, HashArg> ListHashSetType;
     typedef ListHashSetIterator<ValueArg, HashArg> iterator;

@@ -217,7 +217,7 @@ private:
     friend void add(Hasher&, const Color&);
 
     class OutOfLineComponents : public ThreadSafeRefCounted<OutOfLineComponents> {
-        WTF_DEPRECATED_MAKE_FAST_COMPACT_ALLOCATED(OutOfLineComponents);
+        WTF_MAKE_FAST_COMPACT_ALLOCATED;
     public:
         static Ref<OutOfLineComponents> create(ColorComponents<float, 4>&& components)
         {

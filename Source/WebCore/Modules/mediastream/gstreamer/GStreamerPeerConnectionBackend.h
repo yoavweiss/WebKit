@@ -54,7 +54,7 @@ class RealtimeOutgoingAudioSourceGStreamer;
 class RealtimeOutgoingVideoSourceGStreamer;
 
 struct GStreamerIceCandidate {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(GStreamerIceCandidate);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     unsigned sdpMLineIndex;
     String candidate;
 };

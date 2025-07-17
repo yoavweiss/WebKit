@@ -239,7 +239,7 @@ static GBytes* wpeBufferDMABufImportToPixels(WPEBuffer* buffer, GError** error)
     }
 
     struct BufferData {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(BufferData);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         struct gbm_bo* buffer;
         void* data;
     };

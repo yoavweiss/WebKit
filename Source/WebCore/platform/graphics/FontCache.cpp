@@ -125,7 +125,7 @@ using FontVerticalDataCache = HashMap<FontPlatformData, RefPtr<OpenTypeVerticalD
 #endif
 
 struct FontCache::FontDataCaches {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(FontCache);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     FontDataCache data;
     FontPlatformDataCache platformData;

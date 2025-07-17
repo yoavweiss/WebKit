@@ -183,7 +183,7 @@ public:
 
     class Slot {
     public:
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Slot);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         Slot() = default;
         Slot(TableGridCell&, bool isColumnSpanned, bool isRowSpanned);
 

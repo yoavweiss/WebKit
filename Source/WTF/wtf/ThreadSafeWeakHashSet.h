@@ -33,7 +33,7 @@ namespace WTF {
 
 template<typename T>
 class ThreadSafeWeakHashSet final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ThreadSafeWeakHashSet);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ThreadSafeWeakHashSet() = default;
     ThreadSafeWeakHashSet(ThreadSafeWeakHashSet&& other) { moveFrom(WTFMove(other)); }

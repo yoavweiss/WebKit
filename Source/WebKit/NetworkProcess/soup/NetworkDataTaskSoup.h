@@ -70,7 +70,7 @@ private:
     void clearRequest();
 
     struct SendRequestData {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(SendRequestData);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         GRefPtr<SoupMessage> soupMessage;
         RefPtr<NetworkDataTaskSoup> task;
     };

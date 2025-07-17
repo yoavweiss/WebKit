@@ -43,7 +43,7 @@ class RemoteInspectorClient;
 class RemoteInspectorProxy;
 
 class RemoteInspectorObserver : public CanMakeCheckedPtr<RemoteInspectorObserver> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(RemoteInspectorObserver);
+    WTF_MAKE_FAST_ALLOCATED;
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(RemoteInspectorObserver);
 public:
     virtual ~RemoteInspectorObserver() { }

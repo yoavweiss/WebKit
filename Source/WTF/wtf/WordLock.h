@@ -47,7 +47,7 @@ namespace WTF {
 
 class WordLock final {
     WTF_MAKE_NONCOPYABLE(WordLock);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WordLock);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     constexpr WordLock() = default;
 

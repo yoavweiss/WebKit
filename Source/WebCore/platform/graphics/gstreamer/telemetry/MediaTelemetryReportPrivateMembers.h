@@ -33,7 +33,7 @@
 namespace WebCore {
 
 struct MediaTelemetryReportPrivateMembers {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(MediaTelemetryReportPrivateMembers);
+    WTF_MAKE_FAST_ALLOCATED;
     // Private members here.
 };
 

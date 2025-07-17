@@ -108,7 +108,7 @@ private:
     friend class Box;
 
     struct ReplacedData {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ReplacedData);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         OptionSet<ListMarkerAttribute> listMarkerAttributes;
         std::pair<int, int> layoutBounds;

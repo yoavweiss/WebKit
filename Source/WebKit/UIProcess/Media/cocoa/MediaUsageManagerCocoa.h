@@ -50,7 +50,7 @@ private:
 #endif
 
     struct SessionMediaUsage {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(SessionMediaUsage);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         SessionMediaUsage(WebCore::MediaSessionIdentifier identifier, const String& bundleIdentifier, const URL& pageURL)
             : identifier(identifier)

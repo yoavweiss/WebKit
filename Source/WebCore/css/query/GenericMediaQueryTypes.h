@@ -89,7 +89,7 @@ struct FeatureEvaluationContext {
 };
 
 struct FeatureSchema {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(FeatureSchema);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     enum class Type : uint8_t { Discrete, Range };
     enum class ValueType : uint8_t { Integer, Number, Length, Ratio, Resolution, Identifier, CustomProperty };

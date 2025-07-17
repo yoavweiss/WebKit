@@ -27,7 +27,7 @@
 namespace WTF {
 
 class AtomString final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(AtomString);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     AtomString();
     AtomString(std::span<const LChar>);

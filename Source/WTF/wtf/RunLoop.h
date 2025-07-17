@@ -179,7 +179,7 @@ public:
     };
 
     class Timer : public TimerBase {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Timer);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         template <typename TimerFiredClass>
         requires (WTF::HasRefPtrMemberFunctions<TimerFiredClass>::value)
@@ -225,7 +225,7 @@ public:
     };
 
     class DispatchTimer final : public TimerBase, public ThreadSafeRefCounted<DispatchTimer> {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(DispatchTimer);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         DispatchTimer(RunLoop& runLoop)
             : TimerBase(runLoop)

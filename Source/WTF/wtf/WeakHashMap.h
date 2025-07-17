@@ -34,7 +34,7 @@ namespace WTF {
 // Value will be deleted lazily upon rehash or amortized over time. For manual cleanup, call removeNullReferences().
 template<typename KeyType, typename ValueType, typename WeakPtrImpl>
 class WeakHashMap final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WeakHashMap);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
 
     using RefType = Ref<WeakPtrImpl>;

@@ -41,7 +41,7 @@ class TimeWithDynamicClockType;
 class WallTime;
 
 class Seconds final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Seconds);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     constexpr Seconds() { }
     

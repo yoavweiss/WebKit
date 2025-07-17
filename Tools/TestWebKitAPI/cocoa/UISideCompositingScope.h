@@ -38,7 +38,7 @@ namespace TestWebKitAPI {
 enum class UISideCompositingState : bool { Disabled, Enabled };
 
 class UISideCompositingScope {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(UISideCompositingScope);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     UISideCompositingScope(UISideCompositingState);
     ~UISideCompositingScope();

@@ -31,7 +31,7 @@
 namespace WTR {
 
 class PlatformWebViewClient {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(PlatformWebViewClient);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     virtual ~PlatformWebViewClient()
     {

@@ -32,7 +32,7 @@ namespace WTR {
 class TestController;
 
 class EventSenderProxyClient {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(EventSenderProxyClient);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     virtual ~EventSenderProxyClient() = default;
 

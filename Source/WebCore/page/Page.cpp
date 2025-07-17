@@ -345,7 +345,7 @@ Ref<Page> Page::create(PageConfiguration&& pageConfiguration)
 }
 
 struct Page::Internals {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Page);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     Region topRelevantPaintedRegion;
     Region bottomRelevantPaintedRegion;

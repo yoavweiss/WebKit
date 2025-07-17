@@ -105,7 +105,7 @@ private:
 #endif
 
     struct PerDomainData {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(PerDomainData);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         WeakHashSet<WebProcessProxy> watchers;
         WeakHashSet<WebProcessProxy> watchersNeedingHighAccuracy;
         std::optional<WebCore::GeolocationPositionData> lastPosition;

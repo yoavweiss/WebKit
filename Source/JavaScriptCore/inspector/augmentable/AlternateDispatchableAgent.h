@@ -36,7 +36,7 @@ namespace Inspector {
 
 template<typename TBackendDispatcher, typename TAlternateDispatcher>
 class AlternateDispatchableAgent final : public InspectorAgentBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(AlternateDispatchableAgent);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     AlternateDispatchableAgent(const String& domainName, AugmentableInspectorController& controller, std::unique_ptr<TAlternateDispatcher> alternateDispatcher)
         : InspectorAgentBase(domainName)

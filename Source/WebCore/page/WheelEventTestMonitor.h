@@ -89,7 +89,7 @@ private:
 
 class WheelEventTestMonitorCompletionDeferrer {
     WTF_MAKE_NONCOPYABLE(WheelEventTestMonitorCompletionDeferrer);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(WheelEventTestMonitorCompletionDeferrer);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     WheelEventTestMonitorCompletionDeferrer(WheelEventTestMonitor* monitor, ScrollingNodeID identifier, WheelEventTestMonitor::DeferReason reason)
         : m_monitor(monitor)

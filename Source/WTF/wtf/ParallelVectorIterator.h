@@ -34,7 +34,7 @@ namespace WTF {
 template<typename VectorType>
 class ParallelVectorIterator {
     WTF_MAKE_NONCOPYABLE(ParallelVectorIterator);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ParallelVectorIterator);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ParallelVectorIterator(VectorType& vector, size_t shardSize)
         : m_vector(vector)

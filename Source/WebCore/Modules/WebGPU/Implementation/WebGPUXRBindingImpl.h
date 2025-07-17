@@ -48,7 +48,7 @@ namespace WebCore::WebGPU {
 class ConvertToBackingContext;
 
 class XRBindingImpl final : public XRBinding {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(XRBindingImpl);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static Ref<XRBindingImpl> create(WebGPUPtr<WGPUXRBinding>&& binding, ConvertToBackingContext& convertToBackingContext)
     {

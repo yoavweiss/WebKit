@@ -590,7 +590,7 @@ private:
     static constexpr unsigned DontEnum = 0 | PropertyAttribute::DontEnum;
 
     class PropertyFilter : public SideDataRepository::SideData {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(PropertyFilter);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         void add(UniquedStringImpl* uid)
         {

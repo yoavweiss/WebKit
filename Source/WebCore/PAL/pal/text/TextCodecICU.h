@@ -60,7 +60,7 @@ private:
 };
 
 struct ICUConverterWrapper {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ICUConverterWrapper);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     ICUConverterPtr converter;
 };

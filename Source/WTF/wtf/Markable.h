@@ -108,7 +108,7 @@ struct MarkableTraits<T> {
 // Otherwise, you should use Optional.
 template<typename T, typename Traits>
 class Markable {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Markable);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     constexpr Markable()
         : m_value(Traits::emptyValue())

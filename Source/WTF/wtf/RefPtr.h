@@ -34,7 +34,7 @@ template<typename T, typename PtrTraits = RawPtrTraits<T>, typename RefDerefTrai
 
 template<typename T, typename _PtrTraits, typename _RefDerefTraits>
 class RefPtr {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(RefPtr);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     using PtrTraits = _PtrTraits;
     using RefDerefTraits = _RefDerefTraits;

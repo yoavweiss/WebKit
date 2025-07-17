@@ -50,7 +50,7 @@ enum class CacheType : int8_t;
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(GetByStatus);
 
 class GetByStatus final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(GetByStatus, GetByStatus);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(GetByStatus);
 public:
     enum State : uint8_t {
         // It's uncached so we have no information.

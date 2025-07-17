@@ -34,7 +34,7 @@ namespace WebCore {
 class SQLiteDatabase;
 
 class ResourceMonitorPersistence final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ResourceMonitorPersistence);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     struct Record {
         String host;

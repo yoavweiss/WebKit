@@ -52,7 +52,7 @@ struct CopyMoveCounter {
 
 
 struct ConstructorDestructorCounter {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ConstructorDestructorCounter);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     static unsigned constructionCount;
     static unsigned destructionCount;
 

@@ -30,7 +30,7 @@
 namespace WTF {
 
 class NoLock {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(NoLock);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     void lock() { }
     void unlock() { }

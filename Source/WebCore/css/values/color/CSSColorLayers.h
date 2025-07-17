@@ -38,7 +38,7 @@ namespace CSS {
 struct PlatformColorResolutionState;
 
 struct ColorLayers {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ColorLayers);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     BlendMode blendMode;
     CommaSeparatedVector<Color> colors;

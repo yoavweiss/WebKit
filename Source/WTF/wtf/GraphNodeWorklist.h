@@ -31,7 +31,7 @@ namespace WTF {
 
 template<typename Node, typename Set = UncheckedKeyHashSet<Node>>
 class GraphNodeWorklist {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(GraphNodeWorklist);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     GraphNodeWorklist() { }
     ~GraphNodeWorklist() { }
@@ -73,7 +73,7 @@ private:
 
 template<typename Node, typename T>
 struct GraphNodeWith {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(GraphNodeWith);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     GraphNodeWith()
         : node()
@@ -95,7 +95,7 @@ struct GraphNodeWith {
 
 template<typename Node, typename T, typename Set = UncheckedKeyHashSet<Node>>
 class ExtendedGraphNodeWorklist {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ExtendedGraphNodeWorklist);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ExtendedGraphNodeWorklist() { }
 
@@ -145,7 +145,7 @@ enum class GraphVisitOrder : uint8_t {
 
 template<typename Node>
 struct GraphNodeWithOrder {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(GraphNodeWithOrder);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     GraphNodeWithOrder()
         : node()
@@ -167,7 +167,7 @@ struct GraphNodeWithOrder {
 
 template<typename Node, typename Set = UncheckedKeyHashSet<Node>>
 class PostOrderGraphNodeWorklist {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(PostOrderGraphNodeWorklist);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     PostOrderGraphNodeWorklist()
     {

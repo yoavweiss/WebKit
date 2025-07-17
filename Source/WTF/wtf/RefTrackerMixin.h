@@ -48,7 +48,7 @@ struct RefTrackerLoggingDisabledScope {
 };
 
 struct RefTracker {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(RefTracker);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     RefTracker() = default;
     ~RefTracker() = default;

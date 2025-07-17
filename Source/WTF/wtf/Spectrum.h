@@ -33,7 +33,7 @@ namespace WTF {
 
 template<typename T, typename CounterType = unsigned>
 class Spectrum {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Spectrum);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     typedef typename UncheckedKeyHashMap<T, CounterType>::iterator iterator;
     typedef typename UncheckedKeyHashMap<T, CounterType>::const_iterator const_iterator;
@@ -72,7 +72,7 @@ public:
     const_iterator end() const LIFETIME_BOUND { return m_map.end(); }
     
     struct KeyAndCount {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(KeyAndCount);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         KeyAndCount() { }
         
         KeyAndCount(const T& key, CounterType count)

@@ -187,7 +187,7 @@ ${returnAssignments}
 
     FrontendDispatcherDomainDispatcherDeclaration = (
 """${classAndExportMacro} ${domainName}FrontendDispatcher {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(${domainName}FrontendDispatcher);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ${domainName}FrontendDispatcher(FrontendRouter& frontendRouter) : m_frontendRouter(frontendRouter) { }
 ${eventDeclarations}

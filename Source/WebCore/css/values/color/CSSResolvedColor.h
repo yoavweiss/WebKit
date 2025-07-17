@@ -35,7 +35,7 @@ namespace CSS {
 struct PlatformColorResolutionState;
 
 struct ResolvedColor {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ResolvedColor);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     WebCore::Color value;
 

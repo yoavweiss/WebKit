@@ -90,7 +90,7 @@ struct AccessibilitySearchCriteria {
 };
 
 class AXSearchManager {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(AXSearchManager, AXSearchManager);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(AXSearchManager);
 public:
     AXCoreObject::AccessibilityChildrenVector findMatchingObjects(AccessibilitySearchCriteria&&);
     std::optional<AXTextMarkerRange> findMatchingRange(AccessibilitySearchCriteria&&);

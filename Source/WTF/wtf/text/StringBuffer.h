@@ -43,7 +43,7 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(StringBuffer);
 template <typename CharType>
 class StringBuffer {
     WTF_MAKE_NONCOPYABLE(StringBuffer);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(StringBuffer);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     explicit StringBuffer(unsigned length)
         : m_length(length)

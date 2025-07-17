@@ -41,7 +41,7 @@ class WebTransportServer;
 struct HTTPResponse;
 
 class HTTPServer {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(HTTPServer);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     struct RequestData;
     enum class Protocol : uint8_t { Http, Https, HttpsWithLegacyTLS, Http2, HttpsProxy, HttpsProxyWithAuthentication };

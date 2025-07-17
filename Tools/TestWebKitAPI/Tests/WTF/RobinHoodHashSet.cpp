@@ -297,7 +297,7 @@ TEST(WTF_RobinHoodHashSet, CopyCapacityIsNotOnBoundary)
 }
 
 struct DerefObserver {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(DerefObserver);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     NEVER_INLINE void ref()
     {
         ++count;

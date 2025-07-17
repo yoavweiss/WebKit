@@ -34,7 +34,7 @@ namespace WTF {
 
 class BinarySemaphore final {
     WTF_MAKE_NONCOPYABLE(BinarySemaphore);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(BinarySemaphore);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     constexpr BinarySemaphore() = default;
 

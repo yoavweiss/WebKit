@@ -45,7 +45,7 @@
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
 class CallbackArgument {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(CallbackArgument);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     virtual ~CallbackArgument();
     virtual void set(NSInvocation *, NSInteger, JSContext *, JSValueRef, JSValueRef*) = 0;
@@ -280,7 +280,7 @@ public:
 };
 
 class CallbackResult {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(CallbackResult);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     virtual ~CallbackResult()
     {
@@ -410,7 +410,7 @@ enum CallbackType {
 namespace JSC {
 
 class ObjCCallbackFunctionImpl final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ObjCCallbackFunctionImpl);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ObjCCallbackFunctionImpl(NSInvocation *invocation, CallbackType type, Class instanceClass, std::unique_ptr<CallbackArgument> arguments, std::unique_ptr<CallbackResult> result)
         : m_type(type)

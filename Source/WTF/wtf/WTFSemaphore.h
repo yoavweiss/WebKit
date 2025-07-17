@@ -33,7 +33,7 @@ namespace WTF {
 
 class Semaphore final {
     WTF_MAKE_NONCOPYABLE(Semaphore);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Semaphore);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     constexpr Semaphore(unsigned value)
         : m_value(value)

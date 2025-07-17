@@ -32,7 +32,7 @@
 namespace PAL {
 
 struct CryptoDigestContext {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(CryptoDigestContext);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     int algorithm;
     gcry_md_hd_t md;

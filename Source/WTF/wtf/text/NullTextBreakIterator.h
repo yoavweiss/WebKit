@@ -25,7 +25,7 @@
 namespace WTF {
 
 class NullTextBreakIterator {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(NullTextBreakIterator);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     NullTextBreakIterator() = default;
     NullTextBreakIterator(const NullTextBreakIterator&) = delete;

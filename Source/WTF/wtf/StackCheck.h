@@ -47,7 +47,7 @@ constexpr bool verboseStackCheckVerification = false;
 namespace WTF {
 
 class StackCheck {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(StackCheck);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     class Scope {
     public:

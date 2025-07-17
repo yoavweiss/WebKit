@@ -1124,7 +1124,7 @@ public:
     std::unique_ptr<type> m_##name;
     
     struct SpaceAndSet {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(SpaceAndSet);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         IsoSubspace space;
         IsoCellSet set;
@@ -1155,7 +1155,7 @@ public:
     }
 
     struct ScriptExecutableSpaceAndSets {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ScriptExecutableSpaceAndSets);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         IsoSubspace space;
         IsoCellSet clearableCodeSet;

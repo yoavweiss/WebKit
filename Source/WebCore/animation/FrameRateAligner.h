@@ -34,7 +34,7 @@
 namespace WebCore {
 
 class FrameRateAligner {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FrameRateAligner, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FrameRateAligner();
     ~FrameRateAligner();

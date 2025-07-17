@@ -397,7 +397,7 @@ bool dictionariesEqual(CFDictionaryRef a, CFDictionaryRef b)
         return false;
 
     struct Context {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Context);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
         Context(bool& result, CFDictionaryRef b)
             : result(result)
             , b(b) { }

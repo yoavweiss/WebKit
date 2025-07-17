@@ -36,7 +36,7 @@ namespace WTF {
 // JavaScriptCore and the CodeGeneratorJS.pm script in WebCore.
 
 class SuperFastHash {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(SuperFastHash);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static constexpr unsigned flagCount = StringHasher::flagCount;
     static constexpr unsigned maskHash = StringHasher::maskHash;

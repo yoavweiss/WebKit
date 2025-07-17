@@ -316,7 +316,7 @@ private:
 #if PLATFORM(WPE)
 static unsigned frameDisplayCallbackID;
 struct FrameDisplayedCallback {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(FrameDisplayedCallback);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     FrameDisplayedCallback(WebKitFrameDisplayedCallback callback, gpointer userData = nullptr, GDestroyNotify destroyNotifyFunction = nullptr)
         : id(++frameDisplayCallbackID)
         , callback(callback)
@@ -343,7 +343,7 @@ struct FrameDisplayedCallback {
 #endif // PLATFORM(WPE)
 
 struct _WebKitWebViewPrivate {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(_WebKitWebViewPrivate);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     ~_WebKitWebViewPrivate()
     {
         // For modal dialogs, make sure the main loop is stopped when finalizing the webView.
@@ -4834,7 +4834,7 @@ gboolean webkit_web_view_can_show_mime_type(WebKitWebView* webView, const char* 
 
 #if ENABLE(MHTML)
 struct ViewSaveAsyncData {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ViewSaveAsyncData);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     RefPtr<API::Data> webData;
     GRefPtr<GFile> file;
 };

@@ -39,7 +39,7 @@ namespace WTF {
 
 template<typename T, typename PtrTraits>
 class CheckedPtr {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(CheckedPtr);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
 
     constexpr CheckedPtr()

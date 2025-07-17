@@ -30,7 +30,7 @@
 namespace WebCore {
 
 struct OwnerPermissionsPolicyData {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(OwnerPermissionsPolicyData);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     using PolicyDirective = PermissionsPolicy::PolicyDirective;
     OwnerPermissionsPolicyData(SecurityOriginData&& documentOrigin, PermissionsPolicy&& documentPolicy, PolicyDirective&& containerPolicy)

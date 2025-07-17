@@ -34,7 +34,7 @@
 namespace WebCore {
 
 class DesktopPortal : public RefCounted<DesktopPortal> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(DesktopPortal);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     DesktopPortal(ASCIILiteral, GRefPtr<GDBusProxy>&&);
 
@@ -52,7 +52,7 @@ protected:
 };
 
 class DesktopPortalCamera : public DesktopPortal {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(DesktopPortalCamera);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static RefPtr<DesktopPortalCamera> create();
 
@@ -66,7 +66,7 @@ private:
 };
 
 class DesktopPortalScreenCast : public DesktopPortal {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(DesktopPortalScreenCast);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static RefPtr<DesktopPortalScreenCast> create();
 

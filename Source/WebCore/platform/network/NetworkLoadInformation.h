@@ -41,7 +41,7 @@ struct NetworkTransactionInformation {
 };
 
 struct NetworkLoadInformation {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(NetworkLoadInformation);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     ResourceRequest request;
     ResourceResponse response;
     NetworkLoadMetrics metrics;

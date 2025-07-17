@@ -36,7 +36,7 @@ class WorkQueue;
 namespace WebCore {
 
 class ParentalControlsURLFilter {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ParentalControlsURLFilter);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
 #if HAVE(WEBCONTENTRESTRICTIONS_PATH_SPI)
     static ParentalControlsURLFilter& filterWithConfigurationPath(const String&);

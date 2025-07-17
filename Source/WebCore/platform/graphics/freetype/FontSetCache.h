@@ -76,7 +76,7 @@ public:
 
 private:
     struct FontSet {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(FontSet);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         explicit FontSet(RefPtr<FcPattern>&&);
 

@@ -36,7 +36,7 @@ using Boxes = Vector<Box>;
 using Lines = Vector<Line>;
 
 struct Content {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Content);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     void clear();
     void set(Content&& newContent);

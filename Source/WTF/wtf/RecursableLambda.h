@@ -31,7 +31,7 @@ namespace WTF {
 
 template<typename Functor>
 class RecursableLambda {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(RecursableLambda);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     explicit RecursableLambda(Functor&& functor)
         : m_functor(std::forward<Functor>(functor))

@@ -45,7 +45,7 @@ class InspectorOverlayLabel {
     WTF_MAKE_TZONE_ALLOCATED(InspectorOverlayLabel);
 public:
     struct Arrow {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Arrow);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         enum class Direction : uint8_t {
             None,
@@ -74,7 +74,7 @@ public:
     };
 
     struct Content {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Content);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         struct Decoration {
             enum class Type : uint8_t {

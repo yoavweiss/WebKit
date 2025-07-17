@@ -36,7 +36,7 @@ class NaturalLoops;
 
 template<typename Graph>
 class NaturalLoop {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(NaturalLoop);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     NaturalLoop()
         : m_graph(nullptr)
@@ -116,7 +116,7 @@ private:
 
 template<typename Graph>
 class NaturalLoops {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(NaturalLoops);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     typedef std::array<unsigned, 2> InnerMostLoopIndices;
 

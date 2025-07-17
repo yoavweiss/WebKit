@@ -62,7 +62,7 @@ struct ViewportAttributes {
 };
 
 struct ViewportArguments {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ViewportArguments);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     enum class Type : uint8_t {
         // These are ordered in increasing importance.

@@ -33,7 +33,7 @@ namespace WTF {
 // used uninitialized.
 
 template <typename T> class NakedPtr {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(NakedPtr);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ALWAYS_INLINE NakedPtr() : m_ptr(nullptr) { }
     ALWAYS_INLINE NakedPtr(T* ptr) : m_ptr(ptr) { }

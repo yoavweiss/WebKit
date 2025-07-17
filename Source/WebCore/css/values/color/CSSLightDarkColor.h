@@ -38,7 +38,7 @@ struct PlatformColorResolutionState;
 enum class LightDarkColorAppearance : bool { Light, Dark };
 
 struct LightDarkColor {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(LightDarkColor);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     Color lightColor;
     Color darkColor;

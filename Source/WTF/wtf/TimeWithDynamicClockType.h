@@ -37,7 +37,7 @@ namespace WTF {
 class PrintStream;
 
 class TimeWithDynamicClockType final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(TimeWithDynamicClockType);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     TimeWithDynamicClockType() { }
     

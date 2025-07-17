@@ -77,7 +77,7 @@ using namespace HTMLNames;
 using WeakSVGElementSet = WeakHashSet<SVGElement, WeakPtrImplWithEventTargetData>;
 struct SVGResourcesMap {
     WTF_MAKE_NONCOPYABLE(SVGResourcesMap);
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(SVGResourcesMap);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     SVGResourcesMap() = default;
 
     MemoryCompactRobinHoodHashMap<AtomString, WeakSVGElementSet> pendingResources;

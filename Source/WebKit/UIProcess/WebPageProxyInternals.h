@@ -272,7 +272,7 @@ struct WebPageProxy::Internals final : WebPopupMenuProxy::Client
     , WebCore::WebMediaSessionManagerClient
 #endif
 {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(WebPageProxy);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(Internals);
 
 public:

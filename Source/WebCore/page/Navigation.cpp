@@ -814,7 +814,7 @@ void Navigation::abortOngoingNavigation(NavigateEvent& event)
 }
 
 struct AwaitingPromiseData : public RefCounted<AwaitingPromiseData> {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(AwaitingPromiseData);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     Function<void()> fulfilledCallback;
     Function<void(JSC::JSValue)> rejectionCallback;
     size_t remainingPromises = 0;

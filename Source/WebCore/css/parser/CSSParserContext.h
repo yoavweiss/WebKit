@@ -39,7 +39,7 @@ namespace WebCore {
 class Document;
 
 struct CSSParserContext {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(CSSParserContext);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     URL baseURL;
     ASCIILiteral charset;

@@ -34,7 +34,7 @@
 namespace WebCore {
 
 class PipeWireCaptureDeviceManager : public RefCounted<PipeWireCaptureDeviceManager> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(PipeWireCaptureDeviceManager);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static RefPtr<PipeWireCaptureDeviceManager> create(OptionSet<CaptureDevice::DeviceType>);
     PipeWireCaptureDeviceManager(OptionSet<CaptureDevice::DeviceType>);

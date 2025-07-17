@@ -496,7 +496,7 @@ static bool isInWindowOrStandardFullscreen(HTMLMediaElementEnums::VideoFullscree
 }
 
 struct HTMLMediaElement::CueData {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(HTMLMediaElement);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     TextTrackCueIntervalTree cueTree;
     CueList currentlyActiveCues;
 };

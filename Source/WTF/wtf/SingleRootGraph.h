@@ -36,7 +36,7 @@ namespace WTF {
 
 template <typename Graph>
 class SingleRootGraphNode {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(SingleRootGraphNode);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     // We use "#root" to refer to the synthetic root we have created.
     static ASCIILiteral rootName() { return "#root"_s; };
@@ -76,7 +76,7 @@ private:
 
 template <typename Graph>
 class SingleRootGraphSet {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(SingleRootGraphSet);
+    WTF_MAKE_FAST_ALLOCATED;
     using Node = SingleRootGraphNode<Graph>;
 public:
     SingleRootGraphSet() = default;
@@ -116,7 +116,7 @@ private:
 
 template<typename T, typename Graph>
 class SingleRootMap {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(SingleRootMap);
+    WTF_MAKE_FAST_ALLOCATED;
     using Node = SingleRootGraphNode<Graph>;
 public:
     SingleRootMap(Graph& graph)
@@ -170,7 +170,7 @@ private:
 template<typename Graph>
 class SingleRootGraph {
     WTF_MAKE_NONCOPYABLE(SingleRootGraph);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(SingleRootGraph);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
 
     using Node = SingleRootGraphNode<Graph>;

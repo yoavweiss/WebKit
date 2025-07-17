@@ -43,7 +43,7 @@ namespace WTF {
 // We are assuming 48bit pointers here, which is also assumed in JSValue anyway.
 template<typename PointerType, typename Type>
 class CompactPointerTuple final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(CompactPointerTuple);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static_assert(sizeof(Type) <= 2);
     static_assert(std::is_pointer<PointerType>::value);

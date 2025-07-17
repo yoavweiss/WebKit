@@ -659,7 +659,7 @@ TEST(WTF_RobinHoodHashMap, Ensure_RefPtr)
 }
 
 class ObjectWithRefLogger {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ObjectWithRefLogger);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ObjectWithRefLogger(Ref<RefLogger>&& logger)
         : m_logger(WTFMove(logger))
@@ -751,7 +751,7 @@ TEST(WTF_RobinHoodHashMap, ValueIsDestructedOnRemove)
 }
 
 struct DerefObserver {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(DerefObserver);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     NEVER_INLINE void ref()
     {
         ++count;
@@ -1186,7 +1186,7 @@ TEST(WTF_RobinHoodHashMap, Random_IsEvenlyDistributedAfterRemove)
 }
 
 class TestObjectWithCustomDestructor {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(TestObjectWithCustomDestructor);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     TestObjectWithCustomDestructor(Function<void()>&& runInDestructor)
         : m_runInDestructor(WTFMove(runInDestructor))

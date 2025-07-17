@@ -44,7 +44,7 @@ namespace WebKit {
 using namespace WebCore;
 
 struct AuthenticationManager::Challenge {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(AuthenticationManager);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     Challenge(std::optional<WebPageProxyIdentifier> pageID, const WebCore::AuthenticationChallenge& challenge, ChallengeCompletionHandler&& completionHandler)
         : pageID(pageID)
         , challenge(challenge)

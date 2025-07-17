@@ -49,7 +49,7 @@ public:
 
 private:
     struct HashSaltForOrigin {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(HashSaltForOrigin);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         HashSaltForOrigin(WebCore::SecurityOriginData&& documentOrigin, WebCore::SecurityOriginData&& parentOrigin, String&& deviceIdHashSalt, WallTime lastTimeUsed = WallTime::now())
             : documentOrigin(WTFMove(documentOrigin))

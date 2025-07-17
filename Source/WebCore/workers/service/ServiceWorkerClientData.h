@@ -42,7 +42,7 @@ enum class AdvancedPrivacyProtections : uint16_t;
 enum class LastNavigationWasAppInitiated : bool { No, Yes };
 
 struct ServiceWorkerClientData {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(ServiceWorkerClientData);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     ScriptExecutionContextIdentifier identifier;
     ServiceWorkerClientType type;

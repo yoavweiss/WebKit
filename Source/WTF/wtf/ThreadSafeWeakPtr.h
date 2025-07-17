@@ -40,7 +40,7 @@ template<typename, DestructionThread> class ThreadSafeRefCountedAndCanMakeThread
 
 class ThreadSafeWeakPtrControlBlock {
     WTF_MAKE_NONCOPYABLE(ThreadSafeWeakPtrControlBlock);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ThreadSafeWeakPtrControlBlock);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     ThreadSafeWeakPtrControlBlock* weakRef()
     {
@@ -203,7 +203,7 @@ using ControlBlockRefPtr = RefPtr<ThreadSafeWeakPtrControlBlock, RawPtrTraits<Th
 template<typename T, DestructionThread destructionThread = DestructionThread::Any>
 class ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr {
     WTF_MAKE_NONCOPYABLE(ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     static_assert(alignof(ThreadSafeWeakPtrControlBlock) >= 2);
     static constexpr uintptr_t strongOnlyFlag = 1;

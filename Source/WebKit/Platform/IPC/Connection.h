@@ -258,7 +258,7 @@ public:
     using AsyncReplyID = IPC::AsyncReplyID;
 
     class Client : public MessageReceiver, public CanMakeThreadSafeCheckedPtr<Client> {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Client);
+        WTF_MAKE_FAST_ALLOCATED;
         WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(Client);
     public:
         virtual void didClose(Connection&) = 0;

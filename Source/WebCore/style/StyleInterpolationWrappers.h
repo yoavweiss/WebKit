@@ -47,7 +47,7 @@ namespace WebCore::Style::Interpolation {
 
 template<typename T, typename GetterType = T>
 class WrapperWithGetter : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(WrapperWithGetter, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     WrapperWithGetter(CSSPropertyID property, GetterType (RenderStyle::*getter)() const)
         : WrapperBase(property)
@@ -80,7 +80,7 @@ private:
 
 template<typename T, typename GetterType = T, typename SetterType = T>
 class Wrapper : public WrapperWithGetter<T, GetterType> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Wrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     Wrapper(CSSPropertyID property, GetterType (RenderStyle::*getter)() const, void (RenderStyle::*setter)(SetterType))
         : WrapperWithGetter<T, GetterType>(property, getter)
@@ -107,7 +107,7 @@ Wrapper(CSSPropertyID, const T& (RenderStyle::*getter)() const, void (RenderStyl
 
 template<typename T>
 class RefCountedWrapper : public WrapperWithGetter<T*> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(RefCountedWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     RefCountedWrapper(CSSPropertyID property, T* (RenderStyle::*getter)() const, void (RenderStyle::*setter)(RefPtr<T>&&))
         : WrapperWithGetter<T*>(property, getter)
@@ -128,7 +128,7 @@ private:
 
 template<typename StyleType>
 class StyleTypeWrapper : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleTypeWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     StyleTypeWrapper(CSSPropertyID property, const StyleType& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(StyleType&&))
         : WrapperBase(property)
@@ -177,7 +177,7 @@ private:
 };
 
 template<typename T> class VisitedAffectedStyleTypeWrapper : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(VisitedAffectedStyleTypeWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     VisitedAffectedStyleTypeWrapper(CSSPropertyID property, const T& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T&&), const T& (RenderStyle::*visitedGetter)() const, void (RenderStyle::*visitedSetter)(T&&))
         : WrapperBase(property)
@@ -216,7 +216,7 @@ public:
 
 template<typename T>
 class AutoWrapper final : public Wrapper<T> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(AutoWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     AutoWrapper(CSSPropertyID property, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T), bool (RenderStyle::*autoGetter)() const, void (RenderStyle::*autoSetter)(), std::optional<T> minValue = std::nullopt)
         : Wrapper<T>(property, getter, setter)
@@ -258,7 +258,7 @@ private:
 };
 
 class FloatWrapper : public Wrapper<float> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FloatWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     enum class ValueRange : uint8_t {
         All,
@@ -287,7 +287,7 @@ private:
 
 template<typename T>
 class PositiveWrapper final : public Wrapper<T> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(PositiveWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     PositiveWrapper(CSSPropertyID property, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T))
         : Wrapper<T>(property, getter, setter)
@@ -302,7 +302,7 @@ public:
 };
 
 class LengthWrapper : public WrapperWithGetter<const WebCore::Length&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LengthWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     enum class Flags {
         IsLengthPercentage          = 1 << 0,
@@ -337,7 +337,7 @@ private:
 };
 
 class LengthPointWrapper : public WrapperWithGetter<const LengthPoint&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LengthPointWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     LengthPointWrapper(CSSPropertyID property, const LengthPoint& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(LengthPoint))
         : WrapperWithGetter(property, getter)
@@ -364,7 +364,7 @@ private:
 
 template<typename T>
 class LengthVariantWrapper final : public WrapperWithGetter<const T&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LengthVariantWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     LengthVariantWrapper(CSSPropertyID property, const T& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T&&))
         : WrapperWithGetter<const T&>(property, getter)
@@ -392,7 +392,7 @@ private:
 };
 
 class OptionalLengthWrapper : public WrapperWithGetter<std::optional<WebCore::Length>> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(OptionalLengthWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     enum class Flags {
         IsLengthPercentage = 1 << 0,
@@ -434,7 +434,7 @@ private:
 // MARK: - Discrete Wrappers
 
 template<typename T, typename GetterType = T, typename SetterType = T> class DiscreteWrapper : public WrapperWithGetter<T, GetterType> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(DiscreteWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     DiscreteWrapper(CSSPropertyID property, GetterType (RenderStyle::*getter)() const, void (RenderStyle::*setter)(SetterType))
         : WrapperWithGetter<T, GetterType>(property, getter)
@@ -466,7 +466,7 @@ template<typename T>
 DiscreteWrapper(CSSPropertyID, const T& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T&&)) -> DiscreteWrapper<T, const T&, T&&>;
 
 class FontSizeWrapper final : public Wrapper<float> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontSizeWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontSizeWrapper()
         : Wrapper<float>(CSSPropertyID::CSSPropertyFontSize, &RenderStyle::computedFontSize, &RenderStyle::setFontSize)
@@ -480,7 +480,7 @@ public:
 };
 
 class DiscreteFontDescriptionWrapper : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(DiscreteFontDescriptionWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     DiscreteFontDescriptionWrapper(CSSPropertyID property)
         : WrapperBase(property)
@@ -519,7 +519,7 @@ protected:
 
 template<typename T>
 class DiscreteFontDescriptionTypedWrapper final : public DiscreteFontDescriptionWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(DiscreteFontDescriptionTypedWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     DiscreteFontDescriptionTypedWrapper(CSSPropertyID property, T (FontCascadeDescription::*getter)() const, void (FontCascadeDescription::*setter)(T))
         : DiscreteFontDescriptionWrapper(property)
@@ -550,7 +550,7 @@ private:
 
 template<typename T>
 class NonNormalizedDiscreteWrapper final : public Wrapper<T> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(NonNormalizedDiscreteWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     NonNormalizedDiscreteWrapper(CSSPropertyID property, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T))
         : Wrapper<T>(property, getter, setter)
@@ -564,7 +564,7 @@ public:
 };
 
 class ContentWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ContentWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     ContentWrapper()
         : WrapperBase(CSSPropertyContent)
@@ -606,7 +606,7 @@ public:
 };
 
 class FontFeatureSettingsWrapper final : public DiscreteFontDescriptionWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontFeatureSettingsWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontFeatureSettingsWrapper()
         : DiscreteFontDescriptionWrapper(CSSPropertyFontFeatureSettings)
@@ -626,7 +626,7 @@ private:
 };
 
 class FontVariantEastAsianWrapper final : public DiscreteFontDescriptionWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontVariantEastAsianWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontVariantEastAsianWrapper()
         : DiscreteFontDescriptionWrapper(CSSPropertyFontVariantEastAsian)
@@ -650,7 +650,7 @@ private:
 };
 
 class FontVariantLigaturesWrapper final : public DiscreteFontDescriptionWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontVariantLigaturesWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontVariantLigaturesWrapper()
         : DiscreteFontDescriptionWrapper(CSSPropertyFontVariantLigatures)
@@ -676,7 +676,7 @@ private:
 };
 
 class FontFamilyWrapper final : public DiscreteFontDescriptionWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontFamilyWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontFamilyWrapper()
         : DiscreteFontDescriptionWrapper(CSSPropertyFontFamily)
@@ -696,7 +696,7 @@ private:
 };
 
 class FontVariantNumericWrapper final : public DiscreteFontDescriptionWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontVariantNumericWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontVariantNumericWrapper()
         : DiscreteFontDescriptionWrapper(CSSPropertyFontVariantNumeric)
@@ -726,7 +726,7 @@ private:
 // MARK: - Customized Wrappers
 
 class NinePieceImageRepeatWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(NinePieceImageRepeatWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     NinePieceImageRepeatWrapper(CSSPropertyID property, NinePieceImageRule (RenderStyle::*horizontalGetter)() const, void (RenderStyle::*horizontalSetter)(NinePieceImageRule), NinePieceImageRule (RenderStyle::*verticalGetter)() const, void (RenderStyle::*verticalSetter)(NinePieceImageRule))
         : WrapperBase(property)
@@ -764,7 +764,7 @@ public:
 };
 
 class LengthBoxWrapper : public WrapperWithGetter<const LengthBox&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LengthBoxWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     enum class Flags : uint8_t {
         IsLengthPercentage      = 1 << 0,
@@ -846,7 +846,7 @@ private:
 #if ENABLE(VARIATION_FONTS)
 
 class FontVariationSettingsWrapper final : public Wrapper<FontVariationSettings> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontVariationSettingsWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontVariationSettingsWrapper()
         : Wrapper(CSSPropertyFontVariationSettings, &RenderStyle::fontVariationSettings, &RenderStyle::setFontVariationSettings)
@@ -882,7 +882,7 @@ public:
 #endif
 
 class ShapeWrapper final : public RefCountedWrapper<ShapeValue> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ShapeWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     ShapeWrapper(CSSPropertyID property, ShapeValue* (RenderStyle::*getter)() const, void (RenderStyle::*setter)(RefPtr<ShapeValue>&&))
         : RefCountedWrapper(property, getter, setter)
@@ -913,7 +913,7 @@ public:
 };
 
 class StyleImageWrapper final : public RefCountedWrapper<StyleImage> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleImageWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     StyleImageWrapper(CSSPropertyID property, StyleImage* (RenderStyle::*getter)() const, void (RenderStyle::*setter)(RefPtr<StyleImage>&&))
         : RefCountedWrapper(property, getter, setter)
@@ -937,7 +937,7 @@ public:
 };
 
 class TransformOperationsWrapper final : public WrapperWithGetter<const TransformOperations&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TransformOperationsWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     TransformOperationsWrapper()
         : WrapperWithGetter<const TransformOperations&>(CSSPropertyTransform, &RenderStyle::transform)
@@ -963,7 +963,7 @@ public:
 };
 
 class FilterWrapper final : public WrapperWithGetter<const FilterOperations&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FilterWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FilterWrapper(CSSPropertyID property, const FilterOperations& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(FilterOperations&&))
         : WrapperWithGetter<const FilterOperations&>(property, getter)
@@ -1051,7 +1051,7 @@ inline const TextShadow& shadowForInterpolation(const TextShadow&)
 }
 
 template<typename ShadowListType> class ShadowWrapper final : public WrapperWithGetter<const ShadowListType&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ShadowWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     using ShadowType = typename ShadowListType::value_type;
 
@@ -1175,7 +1175,7 @@ private:
 };
 
 class ColorWrapper final : public WrapperWithGetter<const WebCore::Color&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ColorWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     ColorWrapper(CSSPropertyID property, const WebCore::Color& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(WebCore::Color&&))
         : WrapperWithGetter<const WebCore::Color&>(property, getter)
@@ -1193,7 +1193,7 @@ private:
 };
 
 class ScrollbarColorWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ScrollbarColorWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     ScrollbarColorWrapper()
         : WrapperBase(CSSPropertyScrollbarColor)
@@ -1246,7 +1246,7 @@ private:
 };
 
 class VisitedAffectedColorWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(VisitedAffectedColorWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     VisitedAffectedColorWrapper(CSSPropertyID property, const WebCore::Color& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(WebCore::Color&&), const WebCore::Color& (RenderStyle::*visitedGetter)() const, void (RenderStyle::*visitedSetter)(WebCore::Color&&))
         : WrapperBase(property)
@@ -1284,7 +1284,7 @@ public:
 };
 
 class AccentColorWrapper final : public StyleTypeWrapper<Color> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(AccentColorWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     AccentColorWrapper()
         : StyleTypeWrapper<Color>(CSSPropertyAccentColor, &RenderStyle::accentColor, &RenderStyle::setAccentColor)
@@ -1319,7 +1319,7 @@ public:
 };
 
 class CaretColorWrapper final : public VisitedAffectedStyleTypeWrapper<Color> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CaretColorWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     CaretColorWrapper()
         : VisitedAffectedStyleTypeWrapper<Color>(CSSPropertyCaretColor, &RenderStyle::caretColor, &RenderStyle::setCaretColor, &RenderStyle::visitedLinkCaretColor, &RenderStyle::setVisitedLinkCaretColor)
@@ -1371,7 +1371,7 @@ private:
 };
 
 class FontWeightWrapper final : public Wrapper<FontSelectionValue> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontWeightWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontWeightWrapper()
         : Wrapper(CSSPropertyFontWeight, &RenderStyle::fontWeight, &RenderStyle::setFontWeight)
@@ -1385,7 +1385,7 @@ public:
 };
 
 class FontStyleWrapper final : public Wrapper<std::optional<FontSelectionValue>> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontStyleWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontStyleWrapper()
         : Wrapper(CSSPropertyFontStyle, &RenderStyle::fontItalic, &RenderStyle::setFontItalic)
@@ -1417,7 +1417,7 @@ public:
 };
 
 class FontSizeAdjustWrapper final : public WrapperWithGetter<FontSizeAdjust> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontSizeAdjustWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FontSizeAdjustWrapper()
         : WrapperWithGetter(CSSPropertyFontSizeAdjust, &RenderStyle::fontSizeAdjust)
@@ -1450,7 +1450,7 @@ public:
 };
 
 class BaselineShiftWrapper final : public WrapperWithGetter<const WebCore::Length&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(BaselineShiftWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     BaselineShiftWrapper()
         : WrapperWithGetter(CSSPropertyBaselineShift, &RenderStyle::baselineShiftValue)
@@ -1497,7 +1497,7 @@ public:
 };
 
 class TextDecorationThicknessWrapper final : public WrapperWithGetter<TextDecorationThickness> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TextDecorationThicknessWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     TextDecorationThicknessWrapper()
         : WrapperWithGetter(CSSPropertyTextDecorationThickness, &RenderStyle::textDecorationThickness)
@@ -1537,7 +1537,7 @@ public:
 };
 
 class LineHeightWrapper final : public LengthWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LineHeightWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     LineHeightWrapper()
         : LengthWrapper(CSSPropertyLineHeight, &RenderStyle::specifiedLineHeight, &RenderStyle::setLineHeight)
@@ -1564,7 +1564,7 @@ public:
 };
 
 class VerticalAlignWrapper final : public LengthWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(VerticalAlignWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     VerticalAlignWrapper()
         : LengthWrapper(CSSPropertyVerticalAlign, &RenderStyle::verticalAlignLength, &RenderStyle::setVerticalAlignLength, LengthWrapper::Flags::IsLengthPercentage)
@@ -1585,7 +1585,7 @@ public:
 };
 
 class TabSizeWrapper final : public Wrapper<const TabSize&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TabSizeWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     TabSizeWrapper()
         : Wrapper(CSSPropertyTabSize, &RenderStyle::tabSize, &RenderStyle::setTabSize)
@@ -1607,7 +1607,7 @@ public:
 };
 
 class CounterWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CounterWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     CounterWrapper(CSSPropertyID property)
         : WrapperBase(property)
@@ -1682,7 +1682,7 @@ public:
 };
 
 class QuotesWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(QuotesWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     QuotesWrapper()
         : WrapperBase(CSSPropertyQuotes)
@@ -1713,7 +1713,7 @@ public:
 };
 
 class VisibilityWrapper final : public Wrapper<Visibility> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(VisibilityWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     VisibilityWrapper()
         : Wrapper(CSSPropertyVisibility, &RenderStyle::visibility, &RenderStyle::setVisibility)
@@ -1730,7 +1730,7 @@ public:
 
 template<typename T, typename GetterType = T, typename SetterType = T>
 class DiscreteSVGWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(DiscreteSVGWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     DiscreteSVGWrapper(CSSPropertyID property, GetterType (SVGRenderStyle::*getter)() const, void (SVGRenderStyle::*setter)(SetterType))
         : WrapperBase(property)
@@ -1780,7 +1780,7 @@ template<typename T>
 DiscreteSVGWrapper(CSSPropertyID, const T& (SVGRenderStyle::*getter)() const, void (SVGRenderStyle::*setter)(T&&)) -> DiscreteSVGWrapper<T, const T&, T&&>;
 
 class DWrapper final : public RefCountedWrapper<StylePathData> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(DWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     DWrapper()
         : RefCountedWrapper(CSSPropertyD, &RenderStyle::d, &RenderStyle::setD)
@@ -1799,7 +1799,7 @@ public:
 
 // Wrapper base class for an animatable property in a FillLayer
 class FillLayerWrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FillLayerWrapperBase, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FillLayerWrapperBase(CSSPropertyID property)
         : m_property(property)
@@ -1822,7 +1822,7 @@ private:
 
 template<typename T>
 class FillLayerWrapperWithGetter : public FillLayerWrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FillLayerWrapperWithGetter, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
     WTF_MAKE_NONCOPYABLE(FillLayerWrapperWithGetter);
 public:
     FillLayerWrapperWithGetter(CSSPropertyID property, T (FillLayer::*getter)() const)
@@ -1859,7 +1859,7 @@ private:
 
 template<typename T>
 class FillLayerWrapper final : public FillLayerWrapperWithGetter<const T&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FillLayerWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FillLayerWrapper(CSSPropertyID property, const T& (FillLayer::*getter)() const, void (FillLayer::*setter)(T))
         : FillLayerWrapperWithGetter<const T&>(property, getter)
@@ -1892,7 +1892,7 @@ private:
 };
 
 class FillLayerPositionWrapper final : public FillLayerWrapperWithGetter<const WebCore::Length&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FillLayerPositionWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FillLayerPositionWrapper(CSSPropertyID property, const WebCore::Length& (FillLayer::*lengthGetter)() const, void (FillLayer::*lengthSetter)(WebCore::Length))
         : FillLayerWrapperWithGetter(property, lengthGetter)
@@ -1929,7 +1929,7 @@ private:
 
 template<typename T>
 class FillLayerRefCountedWrapper : public FillLayerWrapperWithGetter<T*> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FillLayerRefCountedWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FillLayerRefCountedWrapper(CSSPropertyID property, T* (FillLayer::*getter)() const, void (FillLayer::*setter)(RefPtr<T>&&))
         : FillLayerWrapperWithGetter<T*>(property, getter)
@@ -1957,7 +1957,7 @@ private:
 };
 
 class FillLayerStyleImageWrapper final : public FillLayerRefCountedWrapper<StyleImage> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FillLayerStyleImageWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     FillLayerStyleImageWrapper(CSSPropertyID property, StyleImage* (FillLayer::*getter)() const, void (FillLayer::*setter)(RefPtr<StyleImage>&&))
         : FillLayerRefCountedWrapper(property, getter, setter)
@@ -1991,7 +1991,7 @@ private:
 
 template<typename T>
 class DiscreteFillLayerWrapper final : public FillLayerWrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(DiscreteFillLayerWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     DiscreteFillLayerWrapper(CSSPropertyID property, T (FillLayer::*getter)() const, void (FillLayer::*setter)(T))
         : FillLayerWrapperBase(property)
@@ -2029,7 +2029,7 @@ private:
 };
 
 class FillLayersWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FillLayersWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     typedef const FillLayer& (RenderStyle::*LayersGetter)() const;
     typedef FillLayer& (RenderStyle::*LayersAccessor)();
@@ -2174,7 +2174,7 @@ private:
 // MARK: - Shorthand Wrapper
 
 class ShorthandWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ShorthandWrapper, Animation);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(Animation);
 public:
     ShorthandWrapper(CSSPropertyID property, Vector<WrapperBase*> longhandWrappers)
         : WrapperBase(property)

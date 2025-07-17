@@ -28,7 +28,7 @@
 namespace WebCore {
 
 class LogClient {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(LogClient);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     LogClient() = default;
     virtual ~LogClient() { }

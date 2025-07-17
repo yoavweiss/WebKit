@@ -71,7 +71,7 @@ struct TextureMapperLayer::ComputeTransformData {
 };
 
 class TextureMapperFlattenedLayer final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(TextureMapperFlattenedLayer);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     explicit TextureMapperFlattenedLayer(const IntRect& rect, double zNear, double zFar)
         : m_rect(rect)

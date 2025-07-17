@@ -36,7 +36,7 @@ namespace WebCore {
 namespace InlineDisplay {
 
 struct Box {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Box);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
 #pragma pack(push, 4)
     struct Text {

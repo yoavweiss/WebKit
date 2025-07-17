@@ -31,7 +31,7 @@
 namespace WebCore {
 
 class EmptyPlatformMediaSessionClient final : public PlatformMediaSessionClient {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(EmptyPlatformMediaSessionClient);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     PlatformMediaSessionMediaType mediaType() const final { return PlatformMediaSessionMediaType::None; }
     PlatformMediaSessionMediaType presentationType() const final { return PlatformMediaSessionMediaType::None; }

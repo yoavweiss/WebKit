@@ -35,7 +35,7 @@ struct LineContent;
 struct LineCandidate;
 
 class LineBuilder final : public AbstractLineBuilder {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(LineBuilder);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     LineBuilder(InlineFormattingContext&, HorizontalConstraints rootHorizontalConstraints, const InlineItemList&, TextSpacingContext = { });
     virtual ~LineBuilder() { };

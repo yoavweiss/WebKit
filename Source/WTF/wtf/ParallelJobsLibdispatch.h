@@ -34,7 +34,7 @@
 namespace WTF {
 
 class ParallelEnvironment {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ParallelEnvironment);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     typedef void (*ThreadFunction)(void*);
 

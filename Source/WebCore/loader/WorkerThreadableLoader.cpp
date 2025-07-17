@@ -97,7 +97,7 @@ void WorkerThreadableLoader::computeIsDone()
 }
 
 struct LoaderTaskOptions {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(LoaderTaskOptions);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     LoaderTaskOptions(const ThreadableLoaderOptions&, const String&, Ref<SecurityOrigin>&&);
     ThreadableLoaderOptions options;

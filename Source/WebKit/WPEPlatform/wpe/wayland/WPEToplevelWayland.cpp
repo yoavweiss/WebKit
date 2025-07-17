@@ -46,7 +46,7 @@
 #endif
 
 struct DMABufFeedback {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(DMABufFeedback);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     struct FormatTable {
         struct Data {

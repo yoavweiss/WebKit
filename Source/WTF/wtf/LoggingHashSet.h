@@ -38,7 +38,7 @@ template<
     typename TraitsArg = HashTraits<ValueArg>,
     typename LoggingTraits = LoggingHashKeyTraits<ValueArg>>
 class LoggingHashSet final {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(LoggingHashSet);
+    WTF_MAKE_FAST_ALLOCATED;
 
     typedef TraitsArg ValueTraits;
     typedef typename ValueTraits::TakeType TakeType;

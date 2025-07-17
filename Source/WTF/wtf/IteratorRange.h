@@ -42,7 +42,7 @@ template<typename T> concept SizedContainer = Container<T> && requires(T contain
 
 template<typename Iterator>
 class IteratorRange {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(IteratorRange);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     using reverse_iterator = std::reverse_iterator<Iterator>;
 
@@ -64,7 +64,7 @@ private:
 
 template<typename Container, typename Iterator>
 class SizedIteratorRange {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(SizedIteratorRange);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     SizedIteratorRange(const Container& container, Iterator begin, Iterator end)
         : m_container(container)

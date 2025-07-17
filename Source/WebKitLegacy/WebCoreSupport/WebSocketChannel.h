@@ -139,7 +139,7 @@ private:
         QueuedFrameTypeBlob
     };
     struct QueuedFrame {
-        WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(QueuedFrame);
+        WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
         WebSocketFrame::OpCode opCode;
         QueuedFrameType frameType;

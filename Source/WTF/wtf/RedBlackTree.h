@@ -44,7 +44,7 @@ namespace WTF {
 template<class NodeType, typename KeyType>
 class RedBlackTree final {
     WTF_MAKE_NONCOPYABLE(RedBlackTree);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(RedBlackTree);
+    WTF_MAKE_FAST_ALLOCATED;
 private:
     static constexpr unsigned s_maximumTreeDepth = 128;
 

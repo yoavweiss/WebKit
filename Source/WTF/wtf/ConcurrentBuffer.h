@@ -43,7 +43,7 @@ DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(ConcurrentBuffer);
 template<typename T>
 class ConcurrentBuffer final {
     WTF_MAKE_NONCOPYABLE(ConcurrentBuffer);
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ConcurrentBuffer);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     
     ConcurrentBuffer() = default;

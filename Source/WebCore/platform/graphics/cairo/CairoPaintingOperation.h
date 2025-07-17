@@ -42,7 +42,7 @@ class GraphicsContextCairo;
 namespace Cairo {
 
 struct PaintingOperation {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(PaintingOperation);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
     virtual ~PaintingOperation() = default;
     virtual void execute(WebCore::GraphicsContextCairo&) = 0;
     virtual void dump(WTF::TextStream&) = 0;

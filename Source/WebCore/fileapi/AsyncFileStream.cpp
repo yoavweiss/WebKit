@@ -49,7 +49,7 @@ namespace WebCore {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(AsyncFileStream);
 
 struct AsyncFileStream::Internals {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(AsyncFileStream);
+    WTF_MAKE_STRUCT_FAST_ALLOCATED;
 
     explicit Internals(FileStreamClient&);
 

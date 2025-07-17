@@ -35,7 +35,7 @@
 namespace JSC {
 
 struct JSCallbackObjectData {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(JSCallbackObjectData);
+    WTF_MAKE_FAST_ALLOCATED;
 public:
     JSCallbackObjectData(void* privateData, JSClassRef jsClass)
         : privateData(privateData)
@@ -84,7 +84,7 @@ public:
     void* privateData;
     JSClassRef jsClass;
     struct JSPrivatePropertyMap {
-        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(JSPrivatePropertyMap);
+        WTF_MAKE_FAST_ALLOCATED;
     public:
         JSValue getPrivateProperty(const Identifier& propertyName) const
         {

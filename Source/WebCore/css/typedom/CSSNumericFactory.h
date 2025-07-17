@@ -39,7 +39,7 @@ class DOMCSSNamespace;
 
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(CSSNumericFactory);
 class CSSNumericFactory final : public Supplement<DOMCSSNamespace> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CSSNumericFactory, CSSNumericFactory);
+    WTF_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(CSSNumericFactory);
 public:
     explicit CSSNumericFactory(DOMCSSNamespace&) { }
 
