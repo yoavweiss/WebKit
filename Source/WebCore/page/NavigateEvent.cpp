@@ -50,6 +50,7 @@ NavigateEvent::NavigateEvent(const AtomString& type, const NavigateEvent::Init& 
     , m_signal(init.signal)
     , m_formData(init.formData)
     , m_downloadRequest(init.downloadRequest)
+    , m_sourceElement(init.sourceElement)
     , m_canIntercept(init.canIntercept)
     , m_userInitiated(init.userInitiated)
     , m_hashChange(init.hashChange)

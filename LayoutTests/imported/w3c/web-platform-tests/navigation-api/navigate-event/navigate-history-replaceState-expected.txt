@@ -1,3 +1,3 @@
 
-FAIL history.replaceState() fires the navigate event assert_equals: expected (object) null but got (undefined) undefined
+PASS history.replaceState() fires the navigate event
 

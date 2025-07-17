@@ -72,6 +72,7 @@
 #include "FrameNetworkingContext.h"
 #include "FrameTree.h"
 #include "GCController.h"
+#include "HTMLAnchorElement.h"
 #include "HTMLFormElement.h"
 #include "HTMLIFrameElement.h"
 #include "HTMLInputElement.h"
@@ -1482,7 +1483,8 @@ void FrameLoader::loadFrameRequest(FrameLoadRequest&& request, Event* event, Ref
                 RefPtr<SerializedScriptValue> stateObject;
                 if (RefPtr currentItem = history().currentItem())
                     stateObject = currentItem->navigationAPIStateObject();
-                if (!dispatchNavigateEvent(url, loadType, request.downloadAttribute(), request.navigationHistoryBehavior(), false, formState.get(), stateObject.get()))
+                RefPtr sourceElement = event ? dynamicDowncast<Element>(event->target()) : nullptr;
+                if (!dispatchNavigateEvent(url, loadType, request.downloadAttribute(), request.navigationHistoryBehavior(), false, formState.get(), stateObject.get(), sourceElement.get()))
                     return;
                 if (!frame->page())
                     return;
@@ -1635,8 +1637,8 @@ void FrameLoader::loadURL(FrameLoadRequest&& frameLoadRequest, const String& ref
     // exactly the same so pages with '#' links and DHTML side effects
     // work properly.
     if (shouldPerformFragmentNavigation(isFormSubmission, httpMethod, newLoadType, newURL)) {
-
-        if (!dispatchNavigateEvent(newURL, newLoadType, action.downloadAttribute(), historyHandling, true))
+        RefPtr sourceElement = event ? dynamicDowncast<Element>(event->target()) : nullptr;
+        if (!dispatchNavigateEvent(newURL, newLoadType, action.downloadAttribute(), historyHandling, true, formState.get(), nullptr, sourceElement.get()))
             return;
 
         oldDocumentLoader->setTriggeringAction(WTFMove(action));
@@ -1651,7 +1653,8 @@ void FrameLoader::loadURL(FrameLoadRequest&& frameLoadRequest, const String& ref
     }
 
     if (isSameOrigin && newLoadType != FrameLoadType::Reload) {
-        if (!dispatchNavigateEvent(newURL, newLoadType, action.downloadAttribute(), historyHandling, false))
+        RefPtr sourceElement = event ? dynamicDowncast<Element>(event->target()) : nullptr;
+        if (!dispatchNavigateEvent(newURL, newLoadType, action.downloadAttribute(), historyHandling, false, formState.get(), nullptr, sourceElement.get()))
             return;
     }
 
@@ -4322,7 +4325,7 @@ RefPtr<Frame> FrameLoader::findFrameForNavigation(const AtomString& name, Docume
     return frame;
 }
 
-bool FrameLoader::dispatchNavigateEvent(const URL& newURL, FrameLoadType loadType, const AtomString& downloadAttribute, NavigationHistoryBehavior historyHandling, bool isSameDocument, FormState* formState, SerializedScriptValue* classicHistoryAPIState)
+bool FrameLoader::dispatchNavigateEvent(const URL& newURL, FrameLoadType loadType, const AtomString& downloadAttribute, NavigationHistoryBehavior historyHandling, bool isSameDocument, FormState* formState, SerializedScriptValue* classicHistoryAPIState, Element* sourceElement)
 {
     RefPtr document = m_frame->document();
     if (!document || !document->settings().navigationAPIEnabled())
@@ -4341,7 +4344,11 @@ bool FrameLoader::dispatchNavigateEvent(const URL& newURL, FrameLoadType loadTyp
     if (navigationType == NavigationNavigationType::Traverse)
         return true;
 
-    return window->protectedNavigation()->dispatchPushReplaceReloadNavigateEvent(newURL, navigationType, isSameDocument, formState, classicHistoryAPIState);
+    // If sourceElement is from a different frame, it should be null.
+    if (sourceElement && sourceElement->document().frame() != m_frame.ptr())
+        sourceElement = nullptr;
+
+    return window->protectedNavigation()->dispatchPushReplaceReloadNavigateEvent(newURL, navigationType, isSameDocument, formState, classicHistoryAPIState, sourceElement);
 }
 
 void FrameLoader::loadSameDocumentItem(HistoryItem& item)

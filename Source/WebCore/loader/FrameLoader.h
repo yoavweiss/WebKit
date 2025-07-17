@@ -66,6 +66,7 @@ class SharedBuffer;
 class DOMWrapperWorld;
 class Document;
 class DocumentLoader;
+class Element;
 class Event;
 class Frame;
 class FormState;
@@ -467,7 +468,7 @@ private:
 
     void updateRequestAndAddExtraFields(Frame&, ResourceRequest&, IsMainResource, FrameLoadType, ShouldUpdateAppInitiatedValue, IsServiceWorkerNavigationLoad, WillOpenInNewWindow, Document*);
 
-    bool dispatchNavigateEvent(const URL& newURL, FrameLoadType, const AtomString&, NavigationHistoryBehavior, bool isSameDocument, FormState* = nullptr, SerializedScriptValue* classicHistoryAPIState = nullptr);
+    bool dispatchNavigateEvent(const URL& newURL, FrameLoadType, const AtomString&, NavigationHistoryBehavior, bool isSameDocument, FormState* = nullptr, SerializedScriptValue* classicHistoryAPIState = nullptr, Element* sourceElement = nullptr);
 
     WeakRef<LocalFrame> m_frame;
     const UniqueRef<LocalFrameLoaderClient> m_client;

@@ -865,7 +865,7 @@ static void waitForAllPromises(const Vector<RefPtr<DOMPromise>>& promises, Funct
 }
 
 // https://html.spec.whatwg.org/multipage/nav-history-apis.html#inner-navigate-event-firing-algorithm
-Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavigationType navigationType, Ref<NavigationDestination>&& destination, const String& downloadRequestFilename, FormState* formState, SerializedScriptValue* classicHistoryAPIState)
+Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavigationType navigationType, Ref<NavigationDestination>&& destination, const String& downloadRequestFilename, FormState* formState, SerializedScriptValue* classicHistoryAPIState, Element* sourceElement)
 {
     if (hasEntriesAndEventsDisabled()) {
         ASSERT(!m_ongoingAPIMethodTracker);
@@ -900,10 +900,19 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
 
     RefPtr scriptExecutionContext = this->scriptExecutionContext();
     RefPtr<DOMFormData> formData = nullptr;
-    if (formState && (navigationType == NavigationNavigationType::Push || navigationType == NavigationNavigationType::Replace)) {
-        // FIXME: Set submitter element.
-        if (auto domFormData = DOMFormData::create(*scriptExecutionContext, Ref { formState->form() }.ptr(), nullptr); !domFormData.hasException())
-            formData = domFormData.releaseReturnValue();
+    if (formState) {
+        if (formState->form().isMethodPost() && (navigationType == NavigationNavigationType::Push || navigationType == NavigationNavigationType::Replace)) {
+            if (auto domFormData = DOMFormData::create(*scriptExecutionContext, Ref { formState->form() }.ptr(), RefPtr { formState->submitter() }.get()); !domFormData.hasException())
+                formData = domFormData.releaseReturnValue();
+        }
+
+        if (!formState->form().target().isEmpty())
+            sourceElement = nullptr;
+        else {
+            sourceElement = formState->submitter();
+            if (!sourceElement)
+                sourceElement = &formState->form();
+        }
     }
 
     RefPtr abortController = AbortController::create(*scriptExecutionContext);
@@ -916,6 +925,7 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
         formData,
         downloadRequestFilename,
         info,
+        sourceElement,
         canIntercept,
         UserGestureIndicator::processingUserGesture(document.get()),
         hashChange,
@@ -1087,12 +1097,18 @@ Navigation::DispatchResult Navigation::dispatchTraversalNavigateEvent(HistoryIte
 }
 
 // https://html.spec.whatwg.org/multipage/nav-history-apis.html#fire-a-push/replace/reload-navigate-event
-bool Navigation::dispatchPushReplaceReloadNavigateEvent(const URL& url, NavigationNavigationType navigationType, bool isSameDocument, FormState* formState, SerializedScriptValue* classicHistoryAPIState)
+bool Navigation::dispatchPushReplaceReloadNavigateEvent(const URL& url, NavigationNavigationType navigationType, bool isSameDocument, FormState* formState, SerializedScriptValue* classicHistoryAPIState, Element* sourceElement)
 {
     Ref destination = NavigationDestination::create(url, nullptr, isSameDocument);
     if (classicHistoryAPIState)
         destination->setStateObject(classicHistoryAPIState);
-    return innerDispatchNavigateEvent(navigationType, WTFMove(destination), { }, formState, classicHistoryAPIState) == DispatchResult::Completed;
+
+    if (navigationType == NavigationNavigationType::Reload) {
+        formState = nullptr;
+        sourceElement = nullptr;
+    }
+
+    return innerDispatchNavigateEvent(navigationType, WTFMove(destination), { }, formState, classicHistoryAPIState, sourceElement) == DispatchResult::Completed;
 }
 
 // https://html.spec.whatwg.org/multipage/nav-history-apis.html#fire-a-download-request-navigate-event

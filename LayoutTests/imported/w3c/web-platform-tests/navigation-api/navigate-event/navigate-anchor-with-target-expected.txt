@@ -1,4 +1,4 @@
 
 
-FAIL <a> with a target fires navigate event in target window but not source assert_equals: expected (object) null but got (undefined) undefined
+PASS <a> with a target fires navigate event in target window but not source
 
