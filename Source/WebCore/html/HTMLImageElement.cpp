@@ -1016,7 +1016,7 @@ void HTMLImageElement::invalidateAttributeMapping()
     invalidateStyle();
 }
 
-Ref<Element> HTMLImageElement::cloneElementWithoutAttributesAndChildren(Document& document, CustomElementRegistry*)
+Ref<Element> HTMLImageElement::cloneElementWithoutAttributesAndChildren(Document& document, CustomElementRegistry*) const
 {
     auto clone = create(document);
 #if ENABLE(ATTACHMENT_ELEMENT)

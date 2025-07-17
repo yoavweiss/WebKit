@@ -284,7 +284,7 @@ bool HTMLScriptElement::isScriptPreventedByAttributes() const
     return false;
 }
 
-Ref<Element> HTMLScriptElement::cloneElementWithoutAttributesAndChildren(Document& document, CustomElementRegistry*)
+Ref<Element> HTMLScriptElement::cloneElementWithoutAttributesAndChildren(Document& document, CustomElementRegistry*) const
 {
     return adoptRef(*new HTMLScriptElement(tagQName(), document, false, alreadyStarted()));
 }

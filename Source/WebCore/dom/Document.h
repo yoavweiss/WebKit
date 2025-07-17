@@ -1950,7 +1950,7 @@ public:
     WEBCORE_EXPORT JSC::VM& vm() final;
     JSC::VM* vmIfExists() const final;
 
-    String debugDescription() const;
+    String debugDescription() const override;
 
     URL fallbackBaseURL() const;
 
@@ -2077,7 +2077,7 @@ private:
 
     String nodeName() const final;
     bool childTypeAllowed(NodeType) const final;
-    Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) final;
+    Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const final;
     void cloneDataFromDocument(const Document&);
 
     Seconds minimumDOMTimerInterval() const final;

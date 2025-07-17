@@ -369,8 +369,8 @@ public:
 
     String nodeName() const override;
 
-    Ref<Element> cloneElementWithChildren(Document&, CustomElementRegistry*);
-    Ref<Element> cloneElementWithoutChildren(Document&, CustomElementRegistry*);
+    Ref<Element> cloneElementWithChildren(Document&, CustomElementRegistry*) const;
+    Ref<Element> cloneElementWithoutChildren(Document&, CustomElementRegistry*) const;
 
     void normalizeAttributes();
 
@@ -963,9 +963,9 @@ private:
     void disconnectFromResizeObserversSlow(ResizeObserverData&);
 
     // The cloneNode function is private so that non-virtual cloneElementWith/WithoutChildren are used instead.
-    Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) override;
-    void cloneShadowTreeIfPossible(Element& newHost, CustomElementRegistry*);
-    virtual Ref<Element> cloneElementWithoutAttributesAndChildren(Document&, CustomElementRegistry*);
+    Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const override;
+    void cloneShadowTreeIfPossible(Element& newHost, CustomElementRegistry*) const;
+    virtual Ref<Element> cloneElementWithoutAttributesAndChildren(Document&, CustomElementRegistry*) const;
 
     inline void removeShadowRoot(); // Defined in ElementRareData.h.
     void removeShadowRootSlow(ShadowRoot&);

@@ -619,7 +619,7 @@ bool Element::dispatchSimulatedClick(Event* underlyingEvent, SimulatedClickMouse
     return simulateClick(*this, underlyingEvent, eventOptions, visualOptions, SimulatedClickSource::UserAgent);
 }
 
-Ref<Node> Element::cloneNodeInternal(Document& document, CloningOperation type, CustomElementRegistry* registry)
+Ref<Node> Element::cloneNodeInternal(Document& document, CloningOperation type, CustomElementRegistry* registry) const
 {
     switch (type) {
     case CloningOperation::SelfOnly:
@@ -635,7 +635,7 @@ Ref<Node> Element::cloneNodeInternal(Document& document, CloningOperation type, 
     return cloneElementWithChildren(document, registry);
 }
 
-void Element::cloneShadowTreeIfPossible(Element& newHost, CustomElementRegistry* registry)
+void Element::cloneShadowTreeIfPossible(Element& newHost, CustomElementRegistry* registry) const
 {
     RefPtr oldShadowRoot = this->shadowRoot();
     if (!oldShadowRoot || !oldShadowRoot->isClonable())
@@ -653,7 +653,7 @@ void Element::cloneShadowTreeIfPossible(Element& newHost, CustomElementRegistry*
     oldShadowRoot->cloneChildNodes(newHost.document(), clonedShadowRoot->usesNullCustomElementRegistry() ? nullptr : registry, clonedShadowRoot);
 }
 
-Ref<Element> Element::cloneElementWithChildren(Document& document, CustomElementRegistry* registry)
+Ref<Element> Element::cloneElementWithChildren(Document& document, CustomElementRegistry* registry) const
 {
     Ref clone = cloneElementWithoutChildren(document, registry);
     ScriptDisallowedScope::EventAllowedScope eventAllowedScope { clone };
@@ -662,7 +662,7 @@ Ref<Element> Element::cloneElementWithChildren(Document& document, CustomElement
     return clone;
 }
 
-Ref<Element> Element::cloneElementWithoutChildren(Document& document, CustomElementRegistry* registry)
+Ref<Element> Element::cloneElementWithoutChildren(Document& document, CustomElementRegistry* registry) const
 {
     Ref clone = cloneElementWithoutAttributesAndChildren(document, registry);
 
@@ -678,7 +678,7 @@ Ref<Element> Element::cloneElementWithoutChildren(Document& document, CustomElem
     return clone;
 }
 
-Ref<Element> Element::cloneElementWithoutAttributesAndChildren(Document& document, CustomElementRegistry* registry)
+Ref<Element> Element::cloneElementWithoutAttributesAndChildren(Document& document, CustomElementRegistry* registry) const
 {
     return document.createElement(tagQName(), false, registry);
 }

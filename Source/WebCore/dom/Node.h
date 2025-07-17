@@ -192,9 +192,9 @@ public:
         SelfWithTemplateContent,
         Everything,
     };
-    virtual Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) = 0;
-    Ref<Node> cloneNode(bool deep);
-    WEBCORE_EXPORT ExceptionOr<Ref<Node>> cloneNodeForBindings(bool deep);
+    virtual Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const = 0;
+    Ref<Node> cloneNode(bool deep) const;
+    WEBCORE_EXPORT ExceptionOr<Ref<Node>> cloneNodeForBindings(bool deep) const;
 
     virtual const AtomString& localName() const;
     virtual const AtomString& namespaceURI() const;
