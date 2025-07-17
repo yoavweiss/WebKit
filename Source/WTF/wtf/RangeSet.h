@@ -52,7 +52,7 @@ namespace WTF {
 
 template<typename RangeType>
 class RangeSet final {
-    WTF_MAKE_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(RangeSet);
 public:
     typedef RangeType Range;
     typedef typename Range::Type Type;

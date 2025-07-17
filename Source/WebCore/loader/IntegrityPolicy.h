@@ -39,7 +39,7 @@ struct ResourceLoaderOptions;
 
 // https://w3c.github.io/webappsec-subresource-integrity/#integrity-policy-struct
 struct IntegrityPolicy {
-    WTF_MAKE_FAST_ALLOCATED;
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(IntegrityPolicy);
 
 public:
     // https://w3c.github.io/webappsec-subresource-integrity/#blocked-destinations

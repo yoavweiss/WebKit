@@ -1212,7 +1212,7 @@ void WKPageSetFullScreenClientForTesting(WKPageRef pageRef, const WKPageFullScre
     CRASH_IF_SUSPENDED;
 #if ENABLE(FULLSCREEN_API)
     class FullScreenClientForTesting : public API::Client<WKPageFullScreenClientBase>, public WebKit::WebFullScreenManagerProxyClient {
-        WTF_MAKE_FAST_ALLOCATED;
+        WTF_DEPRECATED_MAKE_FAST_ALLOCATED(FullScreenClientForTesting);
         WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(FullScreenClientForTesting);
     public:
         FullScreenClientForTesting(const WKPageFullScreenClientBase* client, WebPageProxy* page)
