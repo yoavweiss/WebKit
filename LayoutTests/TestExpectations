@@ -2962,8 +2962,6 @@ imported/blink/http/tests/security/shape-image-cors-port.html [ ImageOnlyFailure
 webkit.org/b/163706 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-024.html [ ImageOnlyFailure ]
 
 # webkit.org/b/166941 missing sideways implementation.
-imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-box/shape-outside-border-box-border-radius-012.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-box/shape-outside-border-box-border-radius-011.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/circle/shape-outside-circle-052.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/circle/shape-outside-circle-053.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/ellipse/shape-outside-ellipse-050.html [ ImageOnlyFailure ]
