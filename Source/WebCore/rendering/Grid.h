@@ -41,6 +41,7 @@ using GridAsMatrix = Vector<Vector<GridCell>>;
 using OrderedTrackIndexSet = ListHashSet<size_t>;
 
 class GridArea;
+class GridSpan;
 class RenderGrid;
 
 class Grid final {

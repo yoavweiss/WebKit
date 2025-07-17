@@ -28,6 +28,7 @@
 #include "LayoutUnit.h"
 
 #include <optional>
+#include <wtf/CheckedRef.h>
 
 namespace WebCore {
 namespace Layout {

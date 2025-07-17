@@ -25,13 +25,11 @@
 
 #pragma once
 
-#include <wtf/OptionSet.h>
+#include <wtf/CheckedRef.h>
 #include <wtf/TZoneMalloc.h>
 
 namespace WebCore {
 
-class GraphicsContext;
-class IntRect;
 class LayoutSize;
 class RenderView;
 
