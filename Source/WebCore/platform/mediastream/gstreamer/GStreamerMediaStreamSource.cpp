@@ -327,7 +327,7 @@ public:
         stopObserving();
 
         // Flushing unlocks the basesrc in case its hasn't emitted its first buffer yet.
-        if (m_src)
+        if (m_src && !m_hasPushedInitialSample)
             flush();
 
         if (m_src)
@@ -453,6 +453,7 @@ public:
             m_needsDiscont = false;
         }
 
+        m_hasPushedInitialSample = true;
         gst_app_src_push_sample(GST_APP_SRC(m_src.get()), sample.get());
     }
 
@@ -727,6 +728,7 @@ private:
     RefPtr<RealtimeMediaSource> m_trackSource;
     GRefPtr<GstElement> m_src;
     bool m_hasPushedInitialTags { false };
+    bool m_hasPushedInitialSample { false };
     bool m_enoughData { false };
     bool m_needsDiscont { false };
     String m_padName;

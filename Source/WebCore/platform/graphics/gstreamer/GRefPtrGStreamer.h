@@ -247,16 +247,6 @@ template<> void derefGPtr<GstWebRTCICE>(GstWebRTCICE*);
 
 #endif
 
-#if USE(GSTREAMER_TRANSCODER)
-template<> GRefPtr<GstTranscoder> adoptGRef(GstTranscoder*);
-template<> GstTranscoder* refGPtr<GstTranscoder>(GstTranscoder*);
-template<> void derefGPtr<GstTranscoder>(GstTranscoder*);
-
-template<> GRefPtr<GstTranscoderSignalAdapter> adoptGRef(GstTranscoderSignalAdapter*);
-template<> GstTranscoderSignalAdapter* refGPtr<GstTranscoderSignalAdapter>(GstTranscoderSignalAdapter*);
-template<> void derefGPtr<GstTranscoderSignalAdapter>(GstTranscoderSignalAdapter*);
-#endif // USE(GSTREAMER_TRANSCODER)
-
 } // namespace WTF
 
 #endif // USE(GSTREAMER)

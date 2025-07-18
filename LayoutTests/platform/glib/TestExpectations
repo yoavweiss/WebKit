@@ -1266,22 +1266,13 @@ webkit.org/b/254525 http/tests/media/video-throttled-load-metadata.html [ Pass F
 media/video-seek-to-current-time.html [ Pass Failure ]
 webkit.org/b/285595 media/video-seek-after-end-play.html [ Skip ]
 
-# MediaRecorder implementation
 webkit.org/b/213699 http/wpt/mediarecorder/mute-tracks.html [ Timeout Pass ]
-webkit.org/b/213699 webkit.org/b/295985 imported/w3c/web-platform-tests/mediacapture-record/MediaRecorder-no-sink.https.html [ Crash Failure ]
+webkit.org/b/213699 imported/w3c/web-platform-tests/mediacapture-record/MediaRecorder-no-sink.https.html [ Failure ]
 webkit.org/b/213699 imported/w3c/web-platform-tests/mediacapture-record/MediaRecorder-peerconnection.https.html [ Failure ]
 webkit.org/b/213699 http/wpt/mediarecorder/set-srcObject-MediaStream-Blob.html [ Pass Failure ]
-webkit.org/b/213699 webkit.org/b/295985 http/wpt/mediarecorder/MediaRecorder-audio-bitrate.html [ Crash Pass Failure ]
+webkit.org/b/213699 http/wpt/mediarecorder/MediaRecorder-audio-bitrate.html [ Pass Failure ]
 webkit.org/b/213699 http/wpt/mediarecorder/MediaRecorder-AV-audio-video-dataavailable.html [ Crash Timeout Failure ]
 webkit.org/b/213699 http/wpt/mediarecorder/MediaRecorder-first-frame.html [ Failure Pass ]
-# Some MediaRecorder flaky crashes related to "Resource deadlock avoided during pthread_join"
-webkit.org/b/295985 http/wpt/mediarecorder/MediaRecorder-video-bitrate.html [ Crash Pass ]
-webkit.org/b/295985 http/wpt/mediarecorder/MediaRecorder-onremovetrack.html [ Crash Pass ]
-webkit.org/b/295985 http/wpt/mediarecorder/MediaRecorder-multiple-start-stop.html [ Crash Pass ]
-webkit.org/b/295985 http/wpt/mediarecorder/MediaRecorder-start-stop-crash.html [ Crash Pass ]
-webkit.org/b/295985 imported/w3c/web-platform-tests/mediacapture-record/MediaRecorder-bitrate.https.html [ Crash Pass ]
-webkit.org/b/295985 imported/w3c/web-platform-tests/mediacapture-record/MediaRecorder-disabled-tracks.https.html [ Crash Pass ]
-webkit.org/b/295985 imported/w3c/web-platform-tests/mediacapture-record/MediaRecorder-blob-timecode.https.html [ Crash Pass ]
 
 # No support for Matroska container in GStreamer port.
 http/wpt/mediarecorder/MediaRecorder-matroska-AV-audio-video-dataavailable.html
@@ -1289,7 +1280,7 @@ http/wpt/mediarecorder/MediaRecorder-matroska-AV-audio-video-dataavailable.html
 webkit.org/b/293119 http/wpt/mediarecorder/MediaRecorder-webm-AV-audio-video-dataavailable.html [ Timeout Failure ]
 
 # The "Pausing and resuming the recording should impact the video duration" test fails.
-webkit.org/b/285813 webkit.org/b/295985 http/wpt/mediarecorder/pause-recording.html [ Crash Failure ]
+webkit.org/b/285813 http/wpt/mediarecorder/pause-recording.html [ Failure ]
 
 webkit.org/b/218317 media/media-source/media-source-trackid-change.html [ Failure ]
 webkit.org/b/238201 media/media-source/media-mp4-hevc-bframes.html [ Failure ]
