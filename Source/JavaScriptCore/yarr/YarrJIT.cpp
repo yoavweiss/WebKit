@@ -5842,7 +5842,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> tryReadUnicodeCharThunkGenerator(VM
 
     LinkBuffer patchBuffer(jit, GLOBAL_THUNK_ID, LinkBuffer::Profile::Thunk);
 
-    return FINALIZE_THUNK(patchBuffer, JITThunkPtrTag, nullptr, "YARR tryReadUnicodeChar thunk");
+    return FINALIZE_THUNK(patchBuffer, JITThunkPtrTag, "Yarr tryReadUnicodeChar"_s, "YARR tryReadUnicodeChar thunk");
 }
 
 #if ENABLE(YARR_JIT_UNICODE_CAN_INCREMENT_INDEX_FOR_NON_BMP)
@@ -5860,7 +5860,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> tryReadUnicodeCharIncForNonBMPThunk
 
     LinkBuffer patchBuffer(jit, GLOBAL_THUNK_ID, LinkBuffer::Profile::Thunk);
 
-    return FINALIZE_THUNK(patchBuffer, JITThunkPtrTag, nullptr, "YARR tryReadUnicodeChar w/Inc for non-BMP thunk");
+    return FINALIZE_THUNK(patchBuffer, JITThunkPtrTag, "Yarr tryReadUnicodeChar w/Inc for non-BMP"_s, "YARR tryReadUnicodeChar w/Inc for non-BMP thunk");
 }
 #endif
 #endif
@@ -5945,7 +5945,7 @@ static MacroAssemblerCodeRef<JITThunkPtrTag> areCanonicallyEquivalentThunkGenera
 
     LinkBuffer patchBuffer(jit, GLOBAL_THUNK_ID, LinkBuffer::Profile::Thunk);
 
-    return FINALIZE_THUNK(patchBuffer, JITThunkPtrTag, nullptr, "YARR areCanonicallyEquivalent call");
+    return FINALIZE_THUNK(patchBuffer, JITThunkPtrTag, "Yarr areCanonicallyEquivalent", "YARR areCanonicallyEquivalent call");
 }
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationAreCanonicallyEquivalent, bool, (unsigned a, unsigned b, CanonicalMode canonicalMode))
