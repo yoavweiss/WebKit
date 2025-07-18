@@ -14,7 +14,6 @@ Property values requiring vendor prefixes:
 None
 ------------------------------------------------------------------------
 List of files:
-/LayoutTests/imported/w3c/web-platform-tests/css/css-text-decor/animations/WEB_FEATURES.yml
-/LayoutTests/imported/w3c/web-platform-tests/css/css-text-decor/animations/discrete-no-interpolation.html
-/LayoutTests/imported/w3c/web-platform-tests/css/css-text-decor/animations/text-decoration-thickness-interpolation.html
-/LayoutTests/imported/w3c/web-platform-tests/css/css-text-decor/animations/text-underline-offset-interpolation.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-text-decor/decorating-box/text-decoration-decorating-box-thickness-001-expected.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-text-decor/decorating-box/text-decoration-decorating-box-thickness-001-ref.html
+/LayoutTests/imported/w3c/web-platform-tests/css/css-text-decor/decorating-box/text-decoration-decorating-box-thickness-001.html

@@ -6291,6 +6291,7 @@
         "web-platform-tests/css/css-tables/whitespace-001-ref.html",
         "web-platform-tests/css/css-tables/zero-rowspan-001-ref.html",
         "web-platform-tests/css/css-tables/zero-rowspan-002-ref.html",
+        "web-platform-tests/css/css-text-decor/decorating-box/text-decoration-decorating-box-thickness-001-ref.html",
         "web-platform-tests/css/css-text-decor/invalidation/reference/selection-pseudo-with-decoration-invalidation-001-ref.html",
         "web-platform-tests/css/css-text-decor/invalidation/reference/selection-pseudo-with-decoration-invalidation-002-ref.html",
         "web-platform-tests/css/css-text-decor/invalidation/reference/text-decoration-invalidation-dashed-ref.html",
