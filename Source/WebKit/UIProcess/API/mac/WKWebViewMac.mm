@@ -1470,6 +1470,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)_setIgnoresNonWheelEvents:(BOOL)ignoresNonWheelEvents
 {
+    RELEASE_LOG(MouseHandling, "[pageProxyID=%lld] [WKWebView _setIgnoresNonWheelEvents:%d]", _page->identifier().toUInt64(), ignoresNonWheelEvents);
     _impl->setIgnoresNonWheelEvents(ignoresNonWheelEvents);
 }
 
@@ -1810,6 +1811,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)_setIgnoresAllEvents:(BOOL)ignoresAllEvents
 {
+    RELEASE_LOG(MouseHandling, "[pageProxyID=%lld] [WKWebView _setIgnoresAllEvents:%d]", _page->identifier().toUInt64(), ignoresAllEvents);
     _impl->setIgnoresAllEvents(ignoresAllEvents);
 }
 

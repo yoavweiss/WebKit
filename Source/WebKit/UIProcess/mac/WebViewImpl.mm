@@ -3670,6 +3670,8 @@ void WebViewImpl::videoControlsManagerDidChange()
 
 void WebViewImpl::setIgnoresNonWheelEvents(bool ignoresNonWheelEvents)
 {
+    RELEASE_LOG(MouseHandling, "[pageProxyID=%lld] WebViewImpl::setIgnoresNonWheelEvents:%d", m_page->identifier().toUInt64(), ignoresNonWheelEvents);
+
     if (m_ignoresNonWheelEvents == ignoresNonWheelEvents)
         return;
 
@@ -3686,6 +3688,7 @@ void WebViewImpl::setIgnoresNonWheelEvents(bool ignoresNonWheelEvents)
 
 void WebViewImpl::setIgnoresAllEvents(bool ignoresAllEvents)
 {
+    RELEASE_LOG(MouseHandling, "[pageProxyID=%lld] WebViewImpl::setIgnoresAllEvents:%d", m_page->identifier().toUInt64(), ignoresAllEvents);
     m_ignoresAllEvents = ignoresAllEvents;
     setIgnoresNonWheelEvents(ignoresAllEvents);
 }
@@ -4949,14 +4952,18 @@ void WebViewImpl::setDidMoveSwipeSnapshotCallback(BlockPtr<void (CGRect)>&& call
 
 void WebViewImpl::scrollWheel(NSEvent *event)
 {
-    if (m_ignoresAllEvents)
+    if (m_ignoresAllEvents) {
+        RELEASE_LOG(MouseHandling, "[pageProxyID=%lld] WebViewImpl::scrollWheel: ignored event", m_page->identifier().toUInt64());
         return;
+    }
 
     if (event.phase == NSEventPhaseBegan)
         dismissContentRelativeChildWindowsWithAnimation(false);
 
-    if (m_allowsBackForwardNavigationGestures && ensureProtectedGestureController()->handleScrollWheelEvent(event))
+    if (m_allowsBackForwardNavigationGestures && ensureProtectedGestureController()->handleScrollWheelEvent(event)) {
+        RELEASE_LOG(MouseHandling, "[pageProxyID=%lld] WebViewImpl::scrollWheel: Gesture controller handled wheel event", m_page->identifier().toUInt64());
         return;
+    }
 
     auto webEvent = NativeWebWheelEvent(event, m_view.getAutoreleased());
     m_page->handleNativeWheelEvent(webEvent);
@@ -5878,8 +5885,10 @@ static TextStream& operator<<(TextStream& ts, NSEventType eventType)
 
 void WebViewImpl::nativeMouseEventHandler(NSEvent *event)
 {
-    if (m_ignoresNonWheelEvents)
+    if (m_ignoresNonWheelEvents) {
+        RELEASE_LOG(MouseHandling, "[pageProxyID=%lld] WebViewImpl::nativeMouseEventHandler: ignored event", m_page->identifier().toUInt64());
         return;
+    }
 
     if (RetainPtr context = [m_view inputContext]) {
         WeakPtr weakThis { *this };
