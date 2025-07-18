@@ -28,6 +28,7 @@
 
 #include <wtf/CompactRefPtrTuple.h>
 #include <wtf/Packed.h>
+#include <wtf/RefPtr.h>
 #include <wtf/WeakRef.h>
 
 namespace WTF {
