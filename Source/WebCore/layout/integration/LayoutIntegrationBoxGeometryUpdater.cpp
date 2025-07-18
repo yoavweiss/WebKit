@@ -396,6 +396,8 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
 
 LayoutUnit static baselinePosition(const RenderBox& renderBox)
 {
+    ASSERT(renderBox.isInFlow());
+
     auto writingMode = renderBox.containingBlock()->writingMode();
     auto marginBefore = writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight();
 
@@ -534,6 +536,9 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
 
 static inline void setIntegrationBaseline(const RenderBox& renderBox)
 {
+    if (renderBox.isFloatingOrOutOfFlowPositioned())
+        return;
+
     auto hasNonSyntheticBaseline = [&] {
         if (auto* renderListMarker = dynamicDowncast<RenderListMarker>(renderBox))
             return !renderListMarker->isImage();
