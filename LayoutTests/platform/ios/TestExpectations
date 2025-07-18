@@ -8078,3 +8078,5 @@ imported/w3c/web-platform-tests/beacon/beacon-cors.https.window.html [ Pass Fail
 webkit.org/b/296183 [ Debug ] imported/w3c/web-platform-tests/workers/WorkerGlobalScope_ErrorEvent_colno.htm [ Pass Failure ]
 
 webkit.org/b/296199 fast/events/onunload-not-on-body.html [ Pass Failure ]
+
+webkit.org/b/296200 [ Debug ] fast/dom/Element/scale-page-bounding-client-rect.html [ Pass Failure ]
