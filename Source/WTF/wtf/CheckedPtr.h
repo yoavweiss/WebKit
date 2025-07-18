@@ -26,7 +26,6 @@
 #pragma once
 
 #include <wtf/CheckedRef.h>
-#include <wtf/RawPtrTraits.h>
 
 namespace WTF {
 

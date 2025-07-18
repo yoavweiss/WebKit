@@ -15,7 +15,6 @@ dfg/DFGFinalizer.h
 dfg/DFGLazyJSValue.h
 dfg/DFGNode.h
 dfg/DFGPropertyTypeKey.h
-dfg/DFGSpeculativeJIT.h
 ftl/FTLOSRExitHandle.h
 heap/Heap.h
 heap/HeapSnapshotBuilder.h

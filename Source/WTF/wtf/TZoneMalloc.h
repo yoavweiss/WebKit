@@ -107,7 +107,6 @@
 #else // !USE(SYSTEM_MALLOC) && USE(TZONE_MALLOC)
 
 #include <bmalloc/TZoneHeap.h>
-#include <bmalloc/bmalloc.h>
 
 #if !BUSE(TZONE)
 #error "TZones enabled in WTF, but not enabled in bmalloc"

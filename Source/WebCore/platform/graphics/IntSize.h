@@ -27,7 +27,6 @@
 
 #include "PlatformExportMacros.h"
 #include <algorithm>
-#include <cmath>
 #include <wtf/JSONValues.h>
 #include <wtf/Forward.h>
 
