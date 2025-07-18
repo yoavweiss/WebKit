@@ -691,10 +691,6 @@ webkit.org/b/168366 http/tests/security/credentials-iframes.html
 # We render the focus ring differently
 fast/images/image-map-outline-with-scale-transform.html [ ImageOnlyFailure ]
 
-# Require FILE_REPLACEMENT.
-fast/files/filereader-zip-bundle-using-open-panel.html [ Skip ]
-http/tests/local/fileapi/upload-zip-bundle-as-blob-using-open-panel.html [ Skip ]
-
 # We don't support APPLE_PAY.
 http/tests/ssl/applepay [ Skip ]
 
@@ -1326,10 +1322,6 @@ Bug(GTK) editing/selection/context-menu-text-selection-lookup.html [ Failure ]
 Bug(GTK) fast/backgrounds/background-position-parsing.html [ Failure ]
 
 Bug(GTK) fast/css/sticky/sticky-top-zoomed.html [ ImageOnlyFailure ]
-
-# There is no network load scheduling or prioritization with NetworkProcess.
-webkit.org/b/123431 http/tests/local/link-stylesheet-load-order-preload.html [ Failure ]
-webkit.org/b/123431 http/tests/local/link-stylesheet-load-order.html [ Failure ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # 9. TESTS FAILING

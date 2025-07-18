@@ -1512,6 +1512,14 @@ http/tests/push-api [ Skip ]
 
 webkit.org/b/202750 http/tests/download/anchor-download-attribute-content-disposition-no-extension-text-plain.html [ Failure ]
 
+# There is no network load scheduling or prioritization with NetworkProcess.
+webkit.org/b/123431 http/tests/local/link-stylesheet-load-order-preload.html [ Failure ]
+webkit.org/b/123431 http/tests/local/link-stylesheet-load-order.html [ Failure ]
+
+# Doesn't support .rtfd (Rich Text Format Directory). Require FILE_REPLACEMENT.
+webkit.org/b/296171 fast/files/filereader-zip-bundle-using-open-panel.html [ Skip ]
+webkit.org/b/296171 http/tests/local/fileapi/upload-zip-bundle-as-blob-using-open-panel.html [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of HTTP-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
