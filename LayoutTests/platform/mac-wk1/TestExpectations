@@ -1781,6 +1781,8 @@ fast/events/wheel/wheel-event-in-passive-region-non-cancelable.html [ Skip ]
 # WK1 main frame scrollbars are native widgets whose size is unaffected by webkit-scrollbar.
 fast/visual-viewport/viewport-dimensions-exclude-custom-scrollbars.html [ Skip ]
 
+imported/w3c/web-platform-tests/visual-viewport/viewport-apply-initial-scale-after-navigation.html [ ImageOnlyFailure ]
+
 imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/history_go_no_argument.html [ Pass Failure ]
 imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/history_go_to_uri.html [ Pass Failure ]
 

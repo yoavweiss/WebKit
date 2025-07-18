@@ -4552,6 +4552,9 @@ webkit.org/b/291636 svg/text/timeout-long-text-content.html [ Timeout Pass ]
 
 imported/w3c/web-platform-tests/uievents/interface/keyboard-accesskey-click-event.html [ Failure Pass ]
 
+imported/w3c/web-platform-tests/visual-viewport/page-and-offset-in-iframe.html [ Skip ]
+imported/w3c/web-platform-tests/visual-viewport/scroll-event-order.html [ Skip ]
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////
