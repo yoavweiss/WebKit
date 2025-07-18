@@ -8082,3 +8082,5 @@ webkit.org/b/296199 fast/events/onunload-not-on-body.html [ Pass Failure ]
 webkit.org/b/296200 [ Debug ] fast/dom/Element/scale-page-bounding-client-rect.html [ Pass Failure ]
 
 webkit.org/b/296202 imported/w3c/web-platform-tests/service-workers/service-worker/skip-waiting-installed.https.html [ Pass Failure ]
+
+webkit.org/b/296209 http/tests/workers/service/basic-timeout.https.html [ Pass Failure ]
