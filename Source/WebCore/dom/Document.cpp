@@ -3039,7 +3039,7 @@ auto Document::updateLayout(OptionSet<LayoutOptions> layoutOptions, const Elemen
 
             auto& layoutContext = frameView->layoutContext();
             auto runForcedLayoutOnSkippedContentIfNeeded = [&] {
-                if (!layoutOptions.containsAny({ LayoutOptions::TreatContentVisibilityHiddenAsVisible, LayoutOptions::TreatContentVisibilityAutoAsVisible }))
+                if (!layoutOptions.containsAny({ LayoutOptions::TreatContentVisibilityHiddenAsVisible, LayoutOptions::TreatContentVisibilityAutoAsVisible, LayoutOptions::TreatRevealedWhenFoundAsVisible }))
                     return false;
 
                 if (context && (!context->renderer() || !context->renderer()->style().isSkippedRootOrSkippedContent()))
@@ -3063,10 +3063,13 @@ auto Document::updateLayout(OptionSet<LayoutOptions> layoutOptions, const Elemen
                 if (layoutOptions.contains(LayoutOptions::TreatContentVisibilityHiddenAsVisible)) {
                     for (auto& descendant : descendantsOfType<RenderObject>(*rootForLayout))
                         isSkippedContentStale |= markRendererDirtyIfNeeded(descendant);
-                } else if (layoutOptions.contains(LayoutOptions::TreatContentVisibilityAutoAsVisible)) {
+                } else if (layoutOptions.contains(LayoutOptions::TreatContentVisibilityAutoAsVisible) || layoutOptions.contains(LayoutOptions::TreatRevealedWhenFoundAsVisible)) {
                     for (auto& descendant : descendantsOfType<RenderObject>(*rootForLayout)) {
                         // FIXME: While 'c-v: auto' is used 'hidden' inside 'c-v: hidden' we could entirly skip hidden subtrees here.
-                        if (descendant.style().usedContentVisibility() == ContentVisibility::Auto)
+                        auto shouldLayoutSkippedContent = (layoutOptions.contains(LayoutOptions::TreatContentVisibilityAutoAsVisible) && descendant.style().usedContentVisibility() == ContentVisibility::Auto)
+                            || (layoutOptions.contains(LayoutOptions::TreatRevealedWhenFoundAsVisible) && descendant.style().autoRevealsWhenFound());
+
+                        if (shouldLayoutSkippedContent)
                             isSkippedContentStale |= markRendererDirtyIfNeeded(descendant);
                     }
                 }
@@ -3081,6 +3084,8 @@ auto Document::updateLayout(OptionSet<LayoutOptions> layoutOptions, const Elemen
                         types.add(ContentVisibilityOverrideScope::OverrideType::Hidden);
                     if (layoutOptions.contains(LayoutOptions::TreatContentVisibilityAutoAsVisible))
                         types.add(ContentVisibilityOverrideScope::OverrideType::Auto);
+                    if (layoutOptions.contains(LayoutOptions::TreatRevealedWhenFoundAsVisible))
+                        types.add(ContentVisibilityOverrideScope::OverrideType::RevealedWhenFound);
                     return types;
                 };
                 auto contentVisibilityOverrideScope = ContentVisibilityOverrideScope { layoutContext, overrideTypes() };

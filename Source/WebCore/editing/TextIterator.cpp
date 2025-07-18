@@ -369,13 +369,8 @@ TextIterator::TextIterator(const SimpleRange& range, TextIteratorBehaviors behav
     ASSERT(!m_behaviors.contains(TextIteratorBehavior::EmitsObjectReplacementCharacters) || !m_behaviors.contains(TextIteratorBehavior::EmitsObjectReplacementCharactersForImages));
 
     OptionSet<LayoutOptions> findInPageLayoutOptions;
-    if (m_behaviors.contains(TextIteratorBehavior::EntersSkippedContentRelevantToUser)) {
-        findInPageLayoutOptions.add(LayoutOptions::TreatContentVisibilityAutoAsVisible);
-
-        // FIXME: Use a more tailored layout option to avoid laying out all c-v: hidden subtrees.
-        if (range.start.protectedDocument()->settings().detailsAutoExpandEnabled())
-            findInPageLayoutOptions.add(LayoutOptions::TreatContentVisibilityHiddenAsVisible);
-    }
+    if (m_behaviors.contains(TextIteratorBehavior::EntersSkippedContentRelevantToUser))
+        findInPageLayoutOptions.add({ LayoutOptions::TreatContentVisibilityAutoAsVisible, LayoutOptions::TreatRevealedWhenFoundAsVisible });
     range.start.protectedDocument()->updateLayoutIgnorePendingStylesheets(findInPageLayoutOptions);
 
     m_startContainer = range.start.container.ptr();
