@@ -2236,3 +2236,5 @@ webkit.org/b/295929 [ Release ] imported/w3c/web-platform-tests/css/css-conditio
 webkit.org/b/296096 [ Debug arm64 ] pdf/annotations/radio-buttons-select-second.html [ Pass Timeout ]
 
 webkit.org/b/296130 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/image-loading-lazy-in-scroller-nested-4.html [ Pass Failure ]
+
+webkit.org/b/296101 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-012.html [ Pass ImageOnlyFailure ]
