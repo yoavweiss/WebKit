@@ -378,6 +378,14 @@ struct FastFree<T[]> {
     }
 };
 
+template<typename T, typename Malloc>
+struct NonDestructingDeleter {
+    void operator()(T* pointer) const
+    {
+        Malloc::free(const_cast<typename std::remove_cv<T>::type*>(pointer));
+    }
+};
+
 } // namespace WTF
 
 #if !defined(NDEBUG)
