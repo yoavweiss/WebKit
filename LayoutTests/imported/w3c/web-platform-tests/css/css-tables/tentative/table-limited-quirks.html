@@ -1,5 +1,6 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<title>Table quirks</title>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<meta charset="utf-8">
+<title>Table in limited-quirks mode</title>
 <script src='/resources/testharness.js'></script>
 <script src='/resources/testharnessreport.js'></script>
 <script src="/resources/check-layout-th.js"></script>
@@ -7,7 +8,10 @@
 <link rel="stylesheet" type="text/css" href="/fonts/ahem.css" />
 <link rel="stylesheet" type="text/css" href="./support/table-tentative.css" />
 <link rel="author" title="Aleks Totic" href="atotic@chromium.org" />
+<link rel="author" title="Oriol Brufau" href="obrufau@igalia.com" />
 <link rel="help" href="https://quirks.spec.whatwg.org/#the-table-cell-width-calculation-quirk" />
+<link rel="help" href="https://dom.spec.whatwg.org/#concept-document-limited-quirks" />
+<link rel="help" href="https://github.com/servo/servo/pull/37814" />
 <style>
  table {
     table-layout: auto;
@@ -25,12 +29,12 @@
   }
 </style>
 
-<h1>Tables in quirks mode proposals</h1>
+<h1>Tables in limited-quirks mode proposals</h1>
 
-<p><a href="https://quirks.spec.whatwg.org/#the-table-cell-height-box-sizing-quirk">The table cell height box sizing quirk</a></p>
-<table data-expected-height=116>
+<p><a href="https://quirks.spec.whatwg.org/#the-table-cell-height-box-sizing-quirk">The table cell height box sizing quirk</a> does NOT apply to limited-quirks mode</p>
+<table data-expected-height=156>
   <tr>
-    <td style="height:100px;box-sizing:content-box" data-expected-height=100>100 height</td>
+    <td style="height:100px;box-sizing:content-box" data-expected-height=140>100 height</td>
   </tr>
 </table>
 <table data-expected-height=116>
@@ -39,32 +43,29 @@
   </tr>
 </table>
 
-<p><a href="https://quirks.spec.whatwg.org/#the-table-cell-nowrap-minimum-width-calculation-quirk">The table cell nowrap minimum width calculation quirk</a></p>
-<p class="error">Chrome Legacy, Edge, Safari fail, only FF gets it correct.<b>Proposal: deprecate the quirk</b></p>
+<p><a href="https://quirks.spec.whatwg.org/#the-table-cell-nowrap-minimum-width-calculation-quirk">The table cell nowrap minimum width calculation quirk</a> does NOT apply to limited-quirks mode</p>
 <table>
   <tr>
     <td nowrap style="width:50px;font: 20px/1 Ahem" data-expected-width=580>nowrap nowrap nowrap nowrap</td>
   </tr>
 </table>
 
-<p><a href="https://quirks.spec.whatwg.org/#the-text-decoration-doesnt-propagate-into-tables-quirk">The text decoration doesn’t propagate into tables quirk</a></p>
+<p><a href="https://quirks.spec.whatwg.org/#the-text-decoration-doesnt-propagate-into-tables-quirk">The text decoration doesn’t propagate into tables quirk</a> does NOT apply to limited-quirks mode</p>
 <div style="font-style:italic">
   <table>
-    <td id="notitalic">decoration</td>
+    <td id="italic">decoration</td>
   </table>
 </div>
 
-<p><a href="https://quirks.spec.whatwg.org/#the-collapsing-table-quirk">The collapsing table quirk</a></p>
-<p class="error">Chrome Legacy/Edge/Safari ignore the quirk, FF does not. <b>Proposal: deprecate the quirk</b></p>
+<p><a href="https://quirks.spec.whatwg.org/#the-collapsing-table-quirk">The collapsing table quirk</a> does NOT apply to limited-quirks mode</p>
 <table style="border: 20px solid green" data-expected-height=40 data-expected-width=40></table>
 
-<p><a href="https://quirks.spec.whatwg.org/#the-table-cell-width-calculation-quirk">The table cell width calculation quirk</a></p>
+<p><a href="https://quirks.spec.whatwg.org/#the-table-cell-width-calculation-quirk">The table cell width calculation quirk</a> does NOT apply to limited-quirks mode</p>
 <table style="width:200px">
-  <td data-expected-width=290><img style="width:50px;height:20px"><img style="width:50px;height:20px"><img style="width:50px;height:20px"><img style="width:50px;height:20px"><img style="width:50px;height:20px"></td>
+  <td data-expected-width=184><img style="width:50px;height:20px"><img style="width:50px;height:20px"><img style="width:50px;height:20px"><img style="width:50px;height:20px"><img style="width:50px;height:20px"></td>
 </table>
 
-<p><a href="https://html.spec.whatwg.org/multipage/tables.html#algorithm-for-processing-rows">The "let <i>cell grows downward</i> be false" quirk</a></p>
-<p class="error">Chrome LayoutNG and Safari ignore the quirk, FF does not. <b>Proposal: deprecate the quirk</b></p>
+<p><a href="https://html.spec.whatwg.org/multipage/tables.html#algorithm-for-processing-rows">The "let <i>cell grows downward</i> be false" quirk</a> does NOT apply to limited-quirks mode</p>
 <table>
   <tr style="height: 100px">
     <td id="rowspan" rowspan="0" data-expected-height=208>208 height</td>
@@ -79,8 +80,8 @@
     img.src = pngSrc;
   }
   test(_ => {
-    assert_equals(window.getComputedStyle(document.querySelector("#notitalic")).fontStyle, "normal");
-  }, "decoration does not propagate into table");
+    assert_equals(window.getComputedStyle(document.querySelector("#italic")).fontStyle, "italic");
+  }, "decoration propagates into table");
   test(_ => {
     assert_equals(document.querySelector("#rowspan").rowSpan, 0);
   }, "rowspan can be zero");

@@ -6260,6 +6260,7 @@
         "web-platform-tests/css/css-tables/paint/col-paint-htb-rtl-ref.html",
         "web-platform-tests/css/css-tables/paint/col-paint-vrl-rtl-ref.html",
         "web-platform-tests/css/css-tables/paint/row-background-paint-remove-last-cell-ref.html",
+        "web-platform-tests/css/css-tables/paint/table-border-paint-caption-change-ref.html",
         "web-platform-tests/css/css-tables/reference/subpixel-collapsed-borders-003-ref.html",
         "web-platform-tests/css/css-tables/remove-caption-from-anon-table-ref.html",
         "web-platform-tests/css/css-tables/row-group-margin-border-padding-ref.html",

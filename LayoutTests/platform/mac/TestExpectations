@@ -2490,3 +2490,6 @@ webkit.org/b/295810 [ Debug ] fast/dynamic/disappearing-content-on-size-change-c
 webkit.org/b/296010 fast/frames/frame-append-body-child-crash.html [ Pass Failure ]
 
 webkit.org/b/296138 compositing/transforms/transformed-replaced-with-shadow-children.html [ Pass ImageOnlyFailure ]
+
+# Test seems to pass on WPT dashboard but fails on macOS
+imported/w3c/web-platform-tests/css/css-tables/paint/table-border-paint-caption-change.html [ Skip ]
