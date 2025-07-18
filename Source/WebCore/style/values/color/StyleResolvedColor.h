@@ -56,6 +56,9 @@ constexpr bool containsCurrentColor(const ResolvedColor&)
     return false;
 }
 
+void serializationForCSSTokenization(StringBuilder&, const CSS::SerializationContext&, const ResolvedColor&);
+String serializationForCSSTokenization(const CSS::SerializationContext&, const ResolvedColor&);
+
 WTF::TextStream& operator<<(WTF::TextStream&, const ResolvedColor&);
 
 } // namespace Style

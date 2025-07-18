@@ -53,6 +53,9 @@ Color toStyleColor(const CSS::ContrastColor&, ColorResolutionState&);
 WebCore::Color resolveColor(const ContrastColor&, const WebCore::Color& currentColor);
 bool containsCurrentColor(const ContrastColor&);
 
+void serializationForCSSTokenization(StringBuilder&, const CSS::SerializationContext&, const ContrastColor&);
+String serializationForCSSTokenization(const CSS::SerializationContext&, const ContrastColor&);
+
 WTF::TextStream& operator<<(WTF::TextStream&, const ContrastColor&);
 
 } // namespace Style

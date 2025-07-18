@@ -68,6 +68,9 @@ Color toStyleColor(const CSS::ColorMix&, ColorResolutionState&);
 WebCore::Color resolveColor(const ColorMix&, const WebCore::Color& currentColor);
 bool containsCurrentColor(const ColorMix&);
 
+void serializationForCSSTokenization(StringBuilder&, const CSS::SerializationContext&, const ColorMix&);
+String serializationForCSSTokenization(const CSS::SerializationContext&, const ColorMix&);
+
 WTF::TextStream& operator<<(WTF::TextStream&, const ColorMix&);
 
 } // namespace Style

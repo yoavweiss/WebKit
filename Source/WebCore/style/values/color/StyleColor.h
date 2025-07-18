@@ -164,6 +164,9 @@ private:
 WebCore::Color resolveColor(const Color&, const WebCore::Color& currentColor);
 bool containsCurrentColor(const Color&);
 
+void serializationForCSSTokenization(StringBuilder&, const CSS::SerializationContext&, const Color&);
+String serializationForCSSTokenization(const CSS::SerializationContext&, const Color&);
+
 template<> struct Serialize<Color> {
     void operator()(StringBuilder&, const CSS::SerializationContext&, const RenderStyle&, const Color&);
 };
