@@ -29,7 +29,7 @@ dom/Node.cpp
 dom/Node.h
 dom/QualifiedName.h
 dom/TreeScope.h
-editing/cocoa/HTMLConverter.mm
+editing/cocoa/NodeHTMLConverter.mm
 html/FormListedElement.cpp
 html/parser/HTMLTreeBuilder.h
 html/track/TrackBase.h

@@ -224,7 +224,7 @@ editing/VisibleUnits.cpp
 editing/cocoa/DataDetection.mm
 editing/cocoa/DictionaryLookup.mm
 editing/cocoa/EditorCocoa.mm
-editing/cocoa/HTMLConverter.mm
+editing/cocoa/NodeHTMLConverter.mm
 editing/mac/EditorMac.mm
 editing/mac/FrameSelectionMac.mm
 history/CachedFrame.cpp
