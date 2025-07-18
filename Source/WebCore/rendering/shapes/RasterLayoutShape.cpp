@@ -175,7 +175,11 @@ LineSegment RasterLayoutShape::getExcludedInterval(LayoutUnit logicalTop, Layout
             excludedInterval.unite(intervals.intervalAt(y));
     }
 
-    return LineSegment(excludedInterval.x1(), excludedInterval.x2());
+    if (writingMode().isBidiLTR())
+        return LineSegment(excludedInterval.x1(), excludedInterval.x2());
+
+    auto x1 = m_marginRectSize.width() - excludedInterval.x2();
+    return LineSegment(x1, x1 + excludedInterval.width());
 }
 
 } // namespace WebCore
