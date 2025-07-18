@@ -2790,7 +2790,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/grid/StyleGridTrackSizingDirection.h
 
     style/values/images/StyleGradient.h
-    style/values/images/StyleObjectPosition.h
 
     style/values/inline/StyleLineBoxContain.h
 
@@ -2818,7 +2817,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/primitives/StylePrimitiveNumericAdaptors.h
     style/values/primitives/StylePrimitiveNumericConcepts.h
     style/values/primitives/StylePrimitiveNumericOrKeyword.h
-    style/values/primitives/StylePrimitiveNumericTypes+Platform.h
     style/values/primitives/StylePrimitiveNumericTypes.h
     style/values/primitives/StyleRatio.h
     style/values/primitives/StyleURL.h
@@ -2862,11 +2860,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/text-decoration/StyleTextUnderlineOffset.h
 
     style/values/transforms/StylePerspective.h
-    style/values/transforms/StylePerspectiveOrigin.h
     style/values/transforms/StyleRotate.h
     style/values/transforms/StyleScale.h
     style/values/transforms/StyleTransformOperationWrapper.h
-    style/values/transforms/StyleTransformOrigin.h
     style/values/transforms/StyleTranslate.h
 
     style/values/view-transitions/StyleViewTransitionClass.h
