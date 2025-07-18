@@ -272,6 +272,8 @@ public:
 
     bool shouldEnterNativeFullscreenWhenCallingElementRequestFullscreenQuirk() const;
 
+    bool shouldDisableDOMAudioSessionQuirk() const;
+
 private:
     bool needsQuirks() const;
     bool isDomain(const String&) const;
