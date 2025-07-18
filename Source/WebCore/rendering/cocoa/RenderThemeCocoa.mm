@@ -3380,9 +3380,9 @@ bool RenderThemeCocoa::adjustSearchFieldDecorationPartStyleForVectorBasedControl
 #endif
     auto searchFieldDecorationHeight = searchFieldDecorationEmSize;
 
-    style.setWidth(Style::PreferredSize::Fixed { searchFieldDecorationWidth * pixelsPerEm });
-    style.setHeight(Style::PreferredSize::Fixed { searchFieldDecorationHeight * pixelsPerEm });
-    style.setMarginEnd(Style::MarginEdge::Fixed { searchFieldDecorationEmMargin * pixelsPerEm });
+    style.setWidth(Style::PreferredSize::Fixed { static_cast<float>(searchFieldDecorationWidth * pixelsPerEm) });
+    style.setHeight(Style::PreferredSize::Fixed { static_cast<float>(searchFieldDecorationHeight * pixelsPerEm) });
+    style.setMarginEnd(Style::MarginEdge::Fixed { static_cast<float>(searchFieldDecorationEmMargin * pixelsPerEm) });
     return true;
 }
 
