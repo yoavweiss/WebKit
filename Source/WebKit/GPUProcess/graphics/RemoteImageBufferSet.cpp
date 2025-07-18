@@ -75,12 +75,12 @@ RemoteImageBufferSet::~RemoteImageBufferSet()
 
 void RemoteImageBufferSet::startListeningForIPC()
 {
-    m_renderingBackend->protectedStreamConnection()->startReceivingMessages(*this, Messages::RemoteImageBufferSet::messageReceiverName(), m_identifier.toUInt64());
+    m_renderingBackend->streamConnection().startReceivingMessages(*this, Messages::RemoteImageBufferSet::messageReceiverName(), m_identifier.toUInt64());
 }
 
 void RemoteImageBufferSet::stopListeningForIPC()
 {
-    m_renderingBackend->protectedStreamConnection()->stopReceivingMessages(Messages::RemoteImageBufferSet::messageReceiverName(), m_identifier.toUInt64());
+    m_renderingBackend->streamConnection().stopReceivingMessages(Messages::RemoteImageBufferSet::messageReceiverName(), m_identifier.toUInt64());
 }
 
 IPC::StreamConnectionWorkQueue& RemoteImageBufferSet::workQueue() const
@@ -116,7 +116,7 @@ void RemoteImageBufferSet::endPrepareForDisplay(RenderingUpdateID renderingUpdat
     }
 
     outputData.bufferCacheIdentifiers = BufferIdentifierSet { bufferIdentifier(frontBuffer), bufferIdentifier(m_backBuffer), bufferIdentifier(m_secondaryBackBuffer) };
-    m_renderingBackend->protectedStreamConnection()->send(Messages::RemoteImageBufferSetProxy::DidPrepareForDisplay(WTFMove(outputData), renderingUpdateID), m_identifier);
+    m_renderingBackend->streamConnection().send(Messages::RemoteImageBufferSetProxy::DidPrepareForDisplay(WTFMove(outputData), renderingUpdateID), m_identifier);
 #endif
 }
 
