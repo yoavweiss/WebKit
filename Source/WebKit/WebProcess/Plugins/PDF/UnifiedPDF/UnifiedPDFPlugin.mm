@@ -1645,7 +1645,17 @@ DelegatedScrollingMode UnifiedPDFPlugin::scrollingMode() const
 
 bool UnifiedPDFPlugin::isFullMainFramePlugin() const
 {
-    return protectedFrame()->isMainFrame() && isFullFramePlugin();
+    if (!m_cachedIsFullMainFramePlugin) [[unlikely]] {
+        m_cachedIsFullMainFramePlugin = [&] {
+            RefPtr frame = m_frame.get();
+            if (!frame)
+                return false;
+
+            return frame->isMainFrame() && isFullFramePlugin();
+        }();
+    }
+
+    return *m_cachedIsFullMainFramePlugin;
 }
 
 bool UnifiedPDFPlugin::shouldCachePagePreviews() const

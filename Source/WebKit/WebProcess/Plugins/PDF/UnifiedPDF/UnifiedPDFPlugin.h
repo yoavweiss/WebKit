@@ -740,6 +740,8 @@ private:
 #endif
 
     HashMap<WebFoundTextRange::PDFData, RetainPtr<PDFSelection>> m_webFoundTextRangePDFDataSelectionMap;
+
+    mutable std::optional<bool> m_cachedIsFullMainFramePlugin;
 };
 
 WTF::TextStream& operator<<(WTF::TextStream&, RepaintRequirement);
