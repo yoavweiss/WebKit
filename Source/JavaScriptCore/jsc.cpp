@@ -1527,6 +1527,9 @@ JSObject* GlobalObject::moduleLoaderCreateImportMetaProperties(JSGlobalObject* g
     metaProperties->putDirect(vm, Identifier::fromString(vm, "filename"_s), key);
     RETURN_IF_EXCEPTION(scope, nullptr);
 
+    metaProperties->putDirect(vm, JSC::Identifier::fromString(vm, "url"_s), key);
+    RETURN_IF_EXCEPTION(scope, nullptr);
+
     return metaProperties;
 }
 
