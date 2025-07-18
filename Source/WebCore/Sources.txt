@@ -2936,6 +2936,7 @@ rendering/shapes/RasterLayoutShape.cpp
 rendering/shapes/RectangleLayoutShape.cpp
 rendering/shapes/LayoutShape.cpp
 rendering/shapes/ShapeOutsideInfo.cpp
+rendering/style/AutosizeStatus.cpp
 rendering/style/BorderData.cpp
 rendering/style/BorderValue.cpp
 rendering/style/ContentData.cpp
@@ -2991,7 +2992,6 @@ rendering/style/StyleSurroundData.cpp
 rendering/style/StyleTextEdge.cpp
 rendering/style/StyleTransformData.cpp
 rendering/style/StyleVisitedLinkColorData.cpp
-rendering/style/TextSizeAdjustment.cpp
 rendering/style/WillChangeData.cpp
 rendering/svg/legacy/LegacyRenderSVGContainer.cpp
 rendering/svg/legacy/LegacyRenderSVGEllipse.cpp
@@ -3214,6 +3214,7 @@ style/values/shapes/StylePolygonFunction.cpp
 style/values/shapes/StyleRectFunction.cpp
 style/values/shapes/StyleShapeFunction.cpp
 style/values/shapes/StyleXywhFunction.cpp
+style/values/size-adjust/StyleTextSizeAdjust.cpp
 style/values/sizing/StyleAspectRatio.cpp
 style/values/sizing/StyleContainIntrinsicSize.cpp
 style/values/sizing/StylePreferredSize.cpp

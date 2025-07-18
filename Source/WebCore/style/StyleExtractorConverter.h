@@ -223,9 +223,6 @@ public:
     static Ref<CSSValue> convertPositionArea(ExtractorState&, const std::optional<PositionArea>&);
     static Ref<CSSValue> convertNameScope(ExtractorState&, const NameScope&);
     static Ref<CSSValue> convertPositionVisibility(ExtractorState&, OptionSet<PositionVisibility>);
-#if ENABLE(TEXT_AUTOSIZING)
-    static Ref<CSSValue> convertWebkitTextSizeAdjust(ExtractorState&, const TextSizeAdjustment&);
-#endif
 #if ENABLE(OVERFLOW_SCROLLING_TOUCH)
     static Ref<CSSValue> convertOverflowScrolling(ExtractorState&, bool);
 #endif
@@ -1469,17 +1466,6 @@ inline Ref<CSSValue> ExtractorConverter::convertPositionVisibility(ExtractorStat
 
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
-
-#if ENABLE(TEXT_AUTOSIZING)
-inline Ref<CSSValue> ExtractorConverter::convertWebkitTextSizeAdjust(ExtractorState&, const TextSizeAdjustment& textSizeAdjust)
-{
-    if (textSizeAdjust.isAuto())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    if (textSizeAdjust.isNone())
-        return CSSPrimitiveValue::create(CSSValueNone);
-    return CSSPrimitiveValue::create(textSizeAdjust.percentage(), CSSUnitType::CSS_PERCENTAGE);
-}
-#endif
 
 #if ENABLE(OVERFLOW_SCROLLING_TOUCH)
 inline Ref<CSSValue> ExtractorConverter::convertOverflowScrolling(ExtractorState&, bool useTouchOverflowScrolling)

@@ -1396,12 +1396,12 @@
                 "none"
             ],
             "codegen-properties": {
-                "settings-flag": "textAutosizingEnabled",
-                "style-builder-custom": "Value",
-                "style-extractor-converter": "WebkitTextSizeAdjust",
-                "render-style-name-for-methods": "TextSizeAdjust",
-                "high-priority": true,
                 "enable-if": "ENABLE_TEXT_AUTOSIZING",
+                "settings-flag": "textAutosizingEnabled",
+                "high-priority": true,
+                "style-builder-custom": "Value",
+                "style-converter": "StyleType<TextSizeAdjust>",
+                "render-style-name-for-methods": "TextSizeAdjust",
                 "parser-grammar": "auto | none | <percentage [0,inf]>"
             },
             "status": "experimental",

@@ -864,8 +864,8 @@ inline bool RenderStyle::useTouchOverflowScrolling() const { return m_rareInheri
 
 #if ENABLE(TEXT_AUTOSIZING)
 inline Length RenderStyle::initialSpecifiedLineHeight() { return LengthType::Normal; }
-constexpr TextSizeAdjustment RenderStyle::initialTextSizeAdjust() { return { }; }
-inline TextSizeAdjustment RenderStyle::textSizeAdjust() const { return m_rareInheritedData->textSizeAdjust; }
+constexpr Style::TextSizeAdjust RenderStyle::initialTextSizeAdjust() { return CSS::Keyword::Auto { }; }
+inline Style::TextSizeAdjust RenderStyle::textSizeAdjust() const { return m_rareInheritedData->textSizeAdjust; }
 #endif
 
 #if ENABLE(TOUCH_EVENTS)

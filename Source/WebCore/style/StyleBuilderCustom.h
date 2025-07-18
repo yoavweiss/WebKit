@@ -62,7 +62,6 @@
 #include "StyleResolver.h"
 #include "StyleScope.h"
 #include "StyleTextShadow.h"
-#include "TextSizeAdjustment.h"
 
 namespace WebCore {
 namespace Style {
@@ -593,17 +592,7 @@ inline void BuilderCustom::applyValueTextOrientation(BuilderState& builderState,
 #if ENABLE(TEXT_AUTOSIZING)
 inline void BuilderCustom::applyValueWebkitTextSizeAdjust(BuilderState& builderState, CSSValue& value)
 {
-    auto primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return;
-
-    if (primitiveValue->valueID() == CSSValueAuto)
-        builderState.style().setTextSizeAdjust(TextSizeAdjustment::autoAdjust());
-    else if (primitiveValue->valueID() == CSSValueNone)
-        builderState.style().setTextSizeAdjust(TextSizeAdjustment::none());
-    else
-        builderState.style().setTextSizeAdjust(TextSizeAdjustment(primitiveValue->resolveAsPercentage<float>(builderState.cssToLengthConversionData())));
-
+    builderState.style().setTextSizeAdjust(toStyleFromCSSValue<TextSizeAdjust>(builderState, value));
     builderState.setFontDirty();
 }
 #endif

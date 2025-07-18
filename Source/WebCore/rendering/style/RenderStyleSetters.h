@@ -387,7 +387,7 @@ inline void RenderStyle::setUseTouchOverflowScrolling(bool value) { SET(m_rareIn
 #endif
 
 #if ENABLE(TEXT_AUTOSIZING)
-inline void RenderStyle::setTextSizeAdjust(TextSizeAdjustment adjustment) { SET(m_rareInheritedData, textSizeAdjust, adjustment); }
+inline void RenderStyle::setTextSizeAdjust(Style::TextSizeAdjust adjustment) { SET(m_rareInheritedData, textSizeAdjust, adjustment); }
 #endif
 
 #if ENABLE(TOUCH_EVENTS)

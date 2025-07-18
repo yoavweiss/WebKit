@@ -56,7 +56,7 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     short hyphenationShorts[3];
 
 #if ENABLE(TEXT_AUTOSIZING)
-    TextSizeAdjustment textSizeAdjust;
+    Style::TextSizeAdjust textSizeAdjust;
 #endif
 
 #if ENABLE(TOUCH_EVENTS)

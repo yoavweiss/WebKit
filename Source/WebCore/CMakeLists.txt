@@ -222,6 +222,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/style/values/scroll-animations"
     "${WEBCORE_DIR}/style/values/scroll-snap"
     "${WEBCORE_DIR}/style/values/shapes"
+    "${WEBCORE_DIR}/style/values/size-adjust"
     "${WEBCORE_DIR}/style/values/sizing"
     "${WEBCORE_DIR}/style/values/svg"
     "${WEBCORE_DIR}/style/values/text"

@@ -24,6 +24,7 @@
 #include "config.h"
 #include "RenderStyle.h"
 
+#include "AutosizeStatus.h"
 #include "CSSCustomPropertyValue.h"
 #include "CSSPropertyNames.h"
 #include "CSSPropertyParser.h"

@@ -139,9 +139,6 @@ public:
     static void serializePositionArea(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const std::optional<PositionArea>&);
     static void serializeNameScope(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const NameScope&);
     static void serializePositionVisibility(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<PositionVisibility>);
-#if ENABLE(TEXT_AUTOSIZING)
-    static void serializeWebkitTextSizeAdjust(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextSizeAdjustment&);
-#endif
 #if ENABLE(OVERFLOW_SCROLLING_TOUCH)
     static void serializeOverflowScrolling(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, bool);
 #endif
@@ -1620,22 +1617,6 @@ inline void ExtractorSerializer::serializePositionVisibility(ExtractorState& sta
     if (listEmpty)
         serializationForCSS(builder, context, state.style, CSS::Keyword::Always { });
 }
-
-#if ENABLE(TEXT_AUTOSIZING)
-inline void ExtractorSerializer::serializeWebkitTextSizeAdjust(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const TextSizeAdjustment& textSizeAdjust)
-{
-    if (textSizeAdjust.isAuto()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        return;
-    }
-    if (textSizeAdjust.isNone()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    CSS::serializationForCSS(builder, context, CSS::PercentageRaw<> { textSizeAdjust.percentage() });
-}
-#endif
 
 #if ENABLE(OVERFLOW_SCROLLING_TOUCH)
 inline void ExtractorSerializer::serializeOverflowScrolling(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext&, bool useTouchOverflowScrolling)

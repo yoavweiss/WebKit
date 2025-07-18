@@ -51,7 +51,7 @@
 #endif
 
 #if ENABLE(TEXT_AUTOSIZING)
-#include "TextSizeAdjustment.h"
+#include "StyleTextSizeAdjust.h"
 #endif
 
 #if ENABLE(DARK_MODE_CSS)
@@ -204,7 +204,7 @@ public:
     TabSize tabSize;
 
 #if ENABLE(TEXT_AUTOSIZING)
-    TextSizeAdjustment textSizeAdjust;
+    Style::TextSizeAdjust textSizeAdjust;
 #endif
 
 #if ENABLE(TOUCH_EVENTS)

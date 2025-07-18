@@ -95,7 +95,6 @@ class StyleReflection;
 class StyleScrollSnapArea;
 class StyleSelfAlignmentData;
 class TextDecorationThickness;
-class TextSizeAdjustment;
 class TransformOperations;
 class TransformationMatrix;
 class TranslateTransformOperation;
@@ -322,6 +321,7 @@ struct ScrollbarGutter;
 struct TextEmphasisStyle;
 struct TextIndent;
 struct TextShadow;
+struct TextSizeAdjust;
 struct TextUnderlineOffset;
 struct TransformOrigin;
 struct Translate;
@@ -1154,7 +1154,7 @@ public:
     inline bool nativeAppearanceDisabled() const;
 
 #if ENABLE(TEXT_AUTOSIZING)
-    inline TextSizeAdjustment textSizeAdjust() const;
+    inline Style::TextSizeAdjust textSizeAdjust() const;
     AutosizeStatus autosizeStatus() const;
     bool isIdempotentTextAutosizingCandidate() const;
     bool isIdempotentTextAutosizingCandidate(AutosizeStatus overrideStatus) const;
@@ -1699,7 +1699,7 @@ public:
     inline void setNativeAppearanceDisabled(bool);
 
 #if ENABLE(TEXT_AUTOSIZING)
-    inline void setTextSizeAdjust(TextSizeAdjustment);
+    inline void setTextSizeAdjust(Style::TextSizeAdjust);
     void setAutosizeStatus(AutosizeStatus);
 #endif
 
@@ -2125,7 +2125,7 @@ public:
 
 #if ENABLE(TEXT_AUTOSIZING)
     static inline Length initialSpecifiedLineHeight();
-    static constexpr TextSizeAdjustment initialTextSizeAdjust();
+    static constexpr Style::TextSizeAdjust initialTextSizeAdjust();
 #endif
 
     static WillChangeData* initialWillChange() { return nullptr; }

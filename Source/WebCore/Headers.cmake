@@ -2715,7 +2715,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/StyleTransformData.h
     rendering/style/StyleVisitedLinkColorData.h
     rendering/style/TextDecorationThickness.h
-    rendering/style/TextSizeAdjustment.h
     rendering/style/ViewTransitionName.h
     rendering/style/WillChangeData.h
 
@@ -2848,6 +2847,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/shapes/StyleShapeFunction.h
     style/values/shapes/StyleWindRuleComputation.h
     style/values/shapes/StyleXywhFunction.h
+
+    style/values/size-adjust/StyleTextSizeAdjust.h
 
     style/values/sizing/StyleAspectRatio.h
     style/values/sizing/StyleContainIntrinsicSize.h
