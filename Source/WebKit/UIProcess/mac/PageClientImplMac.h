@@ -79,7 +79,8 @@ private:
     WebCore::IntSize viewSize() override;
     bool isViewWindowActive() override;
     bool isViewFocused() override;
-    bool isViewVisible() override;
+    bool isActiveViewVisible() override;
+    bool isMainViewVisible() override;
     bool canTakeForegroundAssertions() override { return true; };
     bool isViewVisibleOrOccluded() override;
     bool isViewInWindow() override;
@@ -326,6 +327,8 @@ private:
 #endif
 
     CheckedPtr<WebViewImpl> checkedImpl() const { return m_impl.get(); }
+
+    bool isViewVisible(NSView *, NSWindow *);
 
     WeakObjCPtr<NSView> m_view;
     WeakPtr<WebViewImpl> m_impl;

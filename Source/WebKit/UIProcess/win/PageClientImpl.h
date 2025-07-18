@@ -70,7 +70,7 @@ private:
     WebCore::IntSize viewSize() override;
     bool isViewWindowActive() override;
     bool isViewFocused() override;
-    bool isViewVisible() override;
+    bool isActiveViewVisible() override;
     bool isViewInWindow() override;
     void processDidExit() override;
     void didRelaunchProcess() override;

@@ -138,7 +138,7 @@ IntSize PageClientImpl::viewSize()
 bool PageClientImpl::isViewWindowActive()
 {
     // FIXME: https://bugs.webkit.org/show_bug.cgi?id=133098
-    return isViewVisible() || [webView() _isRetainingActiveFocusedState];
+    return isActiveViewVisible() || [webView() _isRetainingActiveFocusedState];
 }
 
 bool PageClientImpl::isViewFocused()
@@ -147,7 +147,7 @@ bool PageClientImpl::isViewFocused()
     return (isViewInWindow() && ![webView _isBackground] && [webView _contentViewIsFirstResponder]) || [webView _isRetainingActiveFocusedState];
 }
 
-bool PageClientImpl::isViewVisible()
+bool PageClientImpl::isActiveViewVisible()
 {
     auto webView = this->webView();
     if (!webView)
@@ -206,12 +206,12 @@ bool PageClientImpl::isViewInWindow()
 
 bool PageClientImpl::isViewVisibleOrOccluded()
 {
-    return isViewVisible();
+    return isActiveViewVisible();
 }
 
 bool PageClientImpl::isVisuallyIdle()
 {
-    return !isViewVisible();
+    return !isActiveViewVisible();
 }
 
 void PageClientImpl::processDidExit()

@@ -3004,7 +3004,7 @@ void WebPageProxy::updateActivityState(OptionSet<ActivityState> flagsToUpdate)
     if (flagsToUpdate & ActivityState::WindowIsActive && pageClient->isViewWindowActive())
         internals().activityState.add(ActivityState::WindowIsActive);
     if (flagsToUpdate & ActivityState::IsVisible) {
-        bool isNowVisible = pageClient->isViewVisible();
+        bool isNowVisible = pageClient->isMainViewVisible();
         if (isNowVisible)
             internals().activityState.add(ActivityState::IsVisible);
         if (wasVisible != isNowVisible)
@@ -3016,7 +3016,7 @@ void WebPageProxy::updateActivityState(OptionSet<ActivityState> flagsToUpdate)
         internals().activityState.add(ActivityState::IsInWindow);
     bool isVisuallyIdle = pageClient->isVisuallyIdle();
 #if PLATFORM(COCOA) && !HAVE(CGS_FIX_FOR_RADAR_97530095) && ENABLE(MEDIA_USAGE)
-    if (pageClient->isViewVisible() && m_mediaUsageManager && m_mediaUsageManager->isPlayingVideoInViewport())
+    if (pageClient->isMainViewVisible() && m_mediaUsageManager && m_mediaUsageManager->isPlayingVideoInViewport())
         isVisuallyIdle = false;
 #endif
     if (flagsToUpdate & ActivityState::IsVisuallyIdle && isVisuallyIdle)
@@ -3045,7 +3045,7 @@ void WebPageProxy::activityStateDidChange(OptionSet<ActivityState> mayHaveChange
 
     // We need to do this here instead of inside dispatchActivityStateChange() or viewIsBecomingVisible() because these don't run when the view doesn't
     // have a running WebProcess. For the same reason, we need to rely on PageClient::isViewVisible() instead of WebPageProxy::isViewVisible().
-    if (internals().potentiallyChangedActivityStateFlags & ActivityState::IsVisible && m_shouldReloadDueToCrashWhenVisible && pageClient->isViewVisible()) {
+    if (internals().potentiallyChangedActivityStateFlags & ActivityState::IsVisible && m_shouldReloadDueToCrashWhenVisible && pageClient->isMainViewVisible()) {
         RunLoop::mainSingleton().dispatch([weakThis = WeakPtr { *this }] {
             RefPtr protectedThis = weakThis.get();
             if (protectedThis && std::exchange(protectedThis->m_shouldReloadDueToCrashWhenVisible, false)) {
