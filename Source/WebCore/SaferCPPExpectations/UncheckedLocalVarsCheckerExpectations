@@ -1,4 +1,3 @@
-Modules/gamepad/GamepadHapticActuator.cpp
 Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBTransaction.cpp
 Modules/indexeddb/server/MemoryBackingStoreTransaction.cpp

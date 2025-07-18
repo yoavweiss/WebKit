@@ -102,7 +102,6 @@ platform/gamepad/cocoa/GameControllerGamepadProvider.mm
 platform/gamepad/cocoa/GameControllerHapticEffect.mm
 platform/gamepad/cocoa/GameControllerHapticEngines.mm
 platform/gamepad/cocoa/GameControllerSoftLink.h
-platform/gamepad/mac/HIDGamepad.cpp
 platform/gamepad/mac/HIDGamepadElement.cpp
 platform/gamepad/mac/HIDGamepadProvider.mm
 platform/graphics/BitmapImageDescriptor.cpp

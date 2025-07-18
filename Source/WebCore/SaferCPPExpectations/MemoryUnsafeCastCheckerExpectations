@@ -10,7 +10,6 @@ Modules/cache/WindowOrWorkerGlobalScopeCaches.cpp
 Modules/contact-picker/NavigatorContacts.cpp
 Modules/credentialmanagement/NavigatorCredentials.cpp
 Modules/encryptedmedia/MediaKeySystemController.cpp
-Modules/gamepad/NavigatorGamepad.cpp
 Modules/geolocation/GeolocationController.h
 Modules/geolocation/NavigatorGeolocation.cpp
 Modules/indexeddb/WindowOrWorkerGlobalScopeIndexedDatabase.cpp

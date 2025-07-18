@@ -48,7 +48,6 @@ platform/cocoa/SystemBattery.mm
 platform/cocoa/SystemVersion.mm
 platform/cocoa/VideoToolboxSoftLink.cpp
 platform/gamepad/cocoa/GameControllerSoftLink.mm
-platform/gamepad/mac/HIDGamepadProvider.mm
 platform/graphics/DestinationColorSpace.cpp
 platform/graphics/avfoundation/AVTrackPrivateAVFObjCImpl.mm
 platform/graphics/avfoundation/FormatDescriptionUtilities.cpp
