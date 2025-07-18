@@ -103,7 +103,7 @@ enum class IncludeReasons : bool {
 
 static inline bool mayHaveScrollbarOrScrollableOverflow(const RenderStyle& style)
 {
-    return !style.isOverflowVisible() || style.scrollbarGutter() != RenderStyle::initialScrollbarGutter();
+    return !style.isOverflowVisible() || !style.scrollbarGutter().isAuto();
 }
 
 static OptionSet<AvoidanceReason> canUseForFlexLayoutWithReason(const RenderFlexibleBox& flexBox, IncludeReasons includeReasons)

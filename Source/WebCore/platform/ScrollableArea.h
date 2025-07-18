@@ -59,7 +59,10 @@ class Element;
 enum class WheelScrollGestureState : uint8_t;
 
 struct ScrollbarColor;
+
+namespace Style {
 struct ScrollbarGutter;
+}
 
 inline int offsetForOrientation(ScrollOffset offset, ScrollbarOrientation orientation)
 {
@@ -157,7 +160,7 @@ public:
 
     WEBCORE_EXPORT virtual Color scrollbarThumbColorStyle() const;
     WEBCORE_EXPORT virtual Color scrollbarTrackColorStyle() const;
-    WEBCORE_EXPORT virtual ScrollbarGutter scrollbarGutterStyle() const;
+    WEBCORE_EXPORT virtual Style::ScrollbarGutter scrollbarGutterStyle() const;
     virtual ScrollbarWidth scrollbarWidthStyle() const { return ScrollbarWidth::Auto; }
 
     WEBCORE_EXPORT bool allowsHorizontalScrolling() const;

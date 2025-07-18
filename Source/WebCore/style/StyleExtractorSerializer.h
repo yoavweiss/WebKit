@@ -117,7 +117,6 @@ public:
     static void serializeScrollSnapType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapType&);
     static void serializeScrollSnapAlign(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapAlign&);
     static void serializeScrollbarColor(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, std::optional<ScrollbarColor>);
-    static void serializeScrollbarGutter(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollbarGutter&);
     static void serializeLineBoxContain(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<Style::LineBoxContain>);
     static void serializeWebkitRubyPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, RubyPosition);
     static void serializePosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LengthPoint&);
@@ -1176,21 +1175,6 @@ inline void ExtractorSerializer::serializeScrollbarColor(ExtractorState& state, 
     serializeStyleType(state, builder, context, scrollbarColor->thumbColor);
     builder.append(' ');
     serializeStyleType(state, builder, context, scrollbarColor->trackColor);
-}
-
-inline void ExtractorSerializer::serializeScrollbarGutter(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const ScrollbarGutter& gutter)
-{
-    if (!gutter.bothEdges) {
-        if (gutter.isAuto)
-            serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        else
-            serializationForCSS(builder, context, state.style, CSS::Keyword::Stable { });
-        return;
-    }
-
-    serializationForCSS(builder, context, state.style, CSS::Keyword::Stable { });
-    builder.append(' ');
-    serializationForCSS(builder, context, state.style, CSS::Keyword::BothEdges { });
 }
 
 inline void ExtractorSerializer::serializeLineBoxContain(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<Style::LineBoxContain> lineBoxContain)

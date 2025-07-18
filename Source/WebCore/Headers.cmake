@@ -2684,7 +2684,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/RenderStyleInlines.h
     rendering/style/RenderStyleSetters.h
     rendering/style/ScrollbarColor.h
-    rendering/style/ScrollbarGutter.h
     rendering/style/SVGRenderStyle.h
     rendering/style/SVGRenderStyleDefs.h
     rendering/style/ShapeValue.h
@@ -2808,6 +2807,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/motion/StyleRayFunction.h
 
     style/values/overflow/StyleBlockEllipsis.h
+    style/values/overflow/StyleScrollbarGutter.h
 
     style/values/position/StyleInset.h
 

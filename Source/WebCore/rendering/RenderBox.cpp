@@ -835,8 +835,8 @@ LayoutRect RenderBox::paddingBoxRect() const
 
 LayoutPoint RenderBox::contentBoxLocation() const
 {
-    LayoutUnit verticalScrollbarSpace = (shouldPlaceVerticalScrollbarOnLeft() || style().scrollbarGutter().bothEdges) ? verticalScrollbarWidth() : 0;
-    LayoutUnit horizontalScrollbarSpace = style().scrollbarGutter().bothEdges ? horizontalScrollbarHeight() : 0;
+    LayoutUnit verticalScrollbarSpace = (shouldPlaceVerticalScrollbarOnLeft() || style().scrollbarGutter().isStableBothEdges()) ? verticalScrollbarWidth() : 0;
+    LayoutUnit horizontalScrollbarSpace = style().scrollbarGutter().isStableBothEdges() ? horizontalScrollbarHeight() : 0;
     return { borderLeft() + paddingLeft() + verticalScrollbarSpace, borderTop() + paddingTop() + horizontalScrollbarSpace };
 }
 
@@ -952,14 +952,14 @@ bool RenderBox::includeVerticalScrollbarSize() const
 {
     return hasNonVisibleOverflow() && layer() && !layer()->hasOverlayScrollbars()
         && (style().overflowY() == Overflow::Scroll || style().overflowY() == Overflow::Auto
-            || (style().overflowY() == Overflow::Hidden && !style().scrollbarGutter().isAuto));
+            || (style().overflowY() == Overflow::Hidden && !style().scrollbarGutter().isAuto()));
 }
 
 bool RenderBox::includeHorizontalScrollbarSize() const
 {
     return hasNonVisibleOverflow() && layer() && !layer()->hasOverlayScrollbars()
         && (style().overflowX() == Overflow::Scroll || style().overflowX() == Overflow::Auto
-            || (style().overflowX() == Overflow::Hidden && !style().scrollbarGutter().isAuto));
+            || (style().overflowX() == Overflow::Hidden && !style().scrollbarGutter().isAuto()));
 }
 
 int RenderBox::verticalScrollbarWidth() const
@@ -983,15 +983,15 @@ int RenderBox::intrinsicScrollbarLogicalWidthIncludingGutter() const
     if (!hasNonVisibleOverflow())
         return 0;
 
-    auto shouldIncludeScrollbarGutter = [](ScrollbarGutter gutter, bool hasVisibleOverflow, Overflow overflow) {
-        return (overflow == Overflow::Auto && (!gutter.isAuto || hasVisibleOverflow)) || (overflow == Overflow::Hidden && !gutter.isAuto);
+    auto shouldIncludeScrollbarGutter = [](Style::ScrollbarGutter gutter, bool hasVisibleOverflow, Overflow overflow) {
+        return (overflow == Overflow::Auto && (!gutter.isAuto() || hasVisibleOverflow)) || (overflow == Overflow::Hidden && !gutter.isAuto());
     };
 
     if (isHorizontalWritingMode() && ((style().overflowY() == Overflow::Scroll || shouldIncludeScrollbarGutter(style().scrollbarGutter(), hasScrollableOverflowY(), style().overflowY())) && !canUseOverlayScrollbars()))
-        return style().scrollbarGutter().bothEdges ? verticalScrollbarWidth() * 2 : verticalScrollbarWidth();
+        return style().scrollbarGutter().isStableBothEdges() ? verticalScrollbarWidth() * 2 : verticalScrollbarWidth();
 
     if (!isHorizontalWritingMode() && ((style().overflowX() == Overflow::Scroll || shouldIncludeScrollbarGutter(style().scrollbarGutter(), hasScrollableOverflowX(), style().overflowX())) && !canUseOverlayScrollbars()))
-        return style().scrollbarGutter().bothEdges ? horizontalScrollbarHeight() * 2 : horizontalScrollbarHeight();
+        return style().scrollbarGutter().isStableBothEdges() ? horizontalScrollbarHeight() * 2 : horizontalScrollbarHeight();
 
     return 0;
 }

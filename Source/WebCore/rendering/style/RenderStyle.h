@@ -250,7 +250,6 @@ struct SingleTimelineRange;
 
 struct ScrollSnapAlign;
 struct ScrollSnapType;
-struct ScrollbarGutter;
 struct ScrollbarColor;
 struct NameScope;
 
@@ -319,6 +318,7 @@ struct ScopedName;
 struct ScrollMarginEdge;
 struct ScrollPaddingEdge;
 struct ScrollTimelines;
+struct ScrollbarGutter;
 struct TextEmphasisStyle;
 struct TextIndent;
 struct TextShadow;
@@ -1135,7 +1135,7 @@ public:
     inline std::optional<ScrollbarColor> scrollbarColor() const;
     inline const Style::Color& scrollbarThumbColor() const;
     inline const Style::Color& scrollbarTrackColor() const;
-    WEBCORE_EXPORT ScrollbarGutter scrollbarGutter() const;
+    inline const Style::ScrollbarGutter& scrollbarGutter() const;
     inline ScrollbarWidth scrollbarWidth() const;
 
 #if ENABLE(TOUCH_EVENTS)
@@ -1680,7 +1680,7 @@ public:
     inline void setScrollbarColor(const std::optional<ScrollbarColor>&);
     inline void setScrollbarThumbColor(Style::Color&&);
     inline void setScrollbarTrackColor(Style::Color&&);
-    void setScrollbarGutter(ScrollbarGutter);
+    inline void setScrollbarGutter(Style::ScrollbarGutter&&);
     inline void setScrollbarWidth(ScrollbarWidth);
 
 #if ENABLE(TOUCH_EVENTS)
@@ -2149,7 +2149,7 @@ public:
     static inline Style::ViewTimelineInsets initialViewTimelineInsets();
 
     static inline std::optional<ScrollbarColor> initialScrollbarColor();
-    static ScrollbarGutter initialScrollbarGutter();
+    static constexpr Style::ScrollbarGutter initialScrollbarGutter();
     static constexpr ScrollbarWidth initialScrollbarWidth();
 
 #if ENABLE(APPLE_PAY)

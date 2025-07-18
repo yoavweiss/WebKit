@@ -95,7 +95,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , viewTimelineAxes(RenderStyle::initialViewTimelineAxes())
     , viewTimelineNames(RenderStyle::initialViewTimelineNames())
     // timelineScope
-    // scrollbarGutter
+    , scrollbarGutter(RenderStyle::initialScrollbarGutter())
     // scrollSnapType
     // scrollSnapAlign
     // scrollSnapStop

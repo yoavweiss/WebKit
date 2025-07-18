@@ -35,7 +35,6 @@
 #include "PositionTryFallback.h"
 #include "ScopedName.h"
 #include "ScrollTypes.h"
-#include "ScrollbarGutter.h"
 #include "ShapeValue.h"
 #include "StyleAnchorName.h"
 #include "StyleClip.h"
@@ -61,6 +60,7 @@
 #include "StyleScrollPadding.h"
 #include "StyleScrollSnapPoints.h"
 #include "StyleScrollTimelines.h"
+#include "StyleScrollbarGutter.h"
 #include "StyleSelfAlignmentData.h"
 #include "StyleTextEdge.h"
 #include "StyleTranslate.h"
@@ -222,7 +222,7 @@ public:
 
     NameScope timelineScope;
 
-    ScrollbarGutter scrollbarGutter;
+    Style::ScrollbarGutter scrollbarGutter;
 
     ScrollSnapType scrollSnapType;
     ScrollSnapAlign scrollSnapAlign;

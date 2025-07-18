@@ -152,6 +152,7 @@ private:
     enum class GridTrackBreadthType : bool { Length, Flex };
     GridTrackBreadthType m_type;
 };
+
 // MARK: - Conversion
 
 template<> struct CSSValueConversion<GridTrackBreadth> { auto operator()(BuilderState&, const CSSPrimitiveValue&) -> GridTrackBreadth; };

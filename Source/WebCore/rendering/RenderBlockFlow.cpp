@@ -1212,9 +1212,9 @@ void RenderBlockFlow::determineLogicalLeftPositionForChild(RenderBox& child, App
 {
     LayoutUnit startPosition = borderAndPaddingStart();
     LayoutUnit initialStartPosition = startPosition;
-    if ((shouldPlaceVerticalScrollbarOnLeft() || style().scrollbarGutter().bothEdges) && isHorizontalWritingMode())
+    if ((shouldPlaceVerticalScrollbarOnLeft() || style().scrollbarGutter().isStableBothEdges()) && isHorizontalWritingMode())
         startPosition += (writingMode().isLogicalLeftInlineStart() ? 1 : -1) * verticalScrollbarWidth();
-    if (style().scrollbarGutter().bothEdges && !isHorizontalWritingMode())
+    if (style().scrollbarGutter().isStableBothEdges() && !isHorizontalWritingMode())
         startPosition += (writingMode().isLogicalLeftInlineStart() ? 1 : -1) * horizontalScrollbarHeight();
     LayoutUnit totalAvailableLogicalWidth = borderAndPaddingLogicalWidth() + contentBoxLogicalWidth();
 

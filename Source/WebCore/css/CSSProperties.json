@@ -11963,7 +11963,7 @@
             ],
             "codegen-properties": {
                 "settings-flag": "cssScrollbarGutterEnabled",
-                "style-converter": "ScrollbarGutter",
+                "style-converter": "StyleType<ScrollbarGutter>",
                 "parser-grammar": "auto | [ stable && both-edges? ]@(type=CSSValuePair)"
             },
             "specification": {

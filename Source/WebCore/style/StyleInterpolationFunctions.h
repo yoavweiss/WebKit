@@ -52,7 +52,6 @@
 #include "RenderStyleSetters.h"
 #include "SVGRenderStyle.h"
 #include "ScopedName.h"
-#include "ScrollbarGutter.h"
 #include "Settings.h"
 #include "StyleBoxShadow.h"
 #include "StyleCachedImage.h"

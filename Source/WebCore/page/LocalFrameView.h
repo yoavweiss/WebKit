@@ -731,7 +731,7 @@ public:
 
     Color scrollbarThumbColorStyle() const final;
     Color scrollbarTrackColorStyle() const final;
-    ScrollbarGutter scrollbarGutterStyle() const final;
+    Style::ScrollbarGutter scrollbarGutterStyle() const final;
     ScrollbarWidth scrollbarWidthStyle() const final;
 
     void dequeueScrollableAreaForScrollAnchoringUpdate(ScrollableArea&);

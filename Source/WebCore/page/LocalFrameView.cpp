@@ -6834,13 +6834,13 @@ Color LocalFrameView::scrollbarTrackColorStyle() const
     return { };
 }
 
-ScrollbarGutter LocalFrameView::scrollbarGutterStyle()  const
+Style::ScrollbarGutter LocalFrameView::scrollbarGutterStyle()  const
 {
     auto* document = m_frame->document();
     auto scrollingObject = document && document->documentElement() ? document->documentElement()->renderer() : nullptr;
     if (scrollingObject)
         return scrollingObject->style().scrollbarGutter();
-    return { };
+    return CSS::Keyword::Auto { };
 }
 
 ScrollbarWidth LocalFrameView::scrollbarWidthStyle()  const
@@ -6952,7 +6952,7 @@ int LocalFrameView::scrollbarGutterWidth(bool isHorizontalWritingMode) const
     if (verticalScrollbar() && verticalScrollbar()->isOverlayScrollbar())
         return 0;
 
-    if (!verticalScrollbar() && !(scrollbarGutterStyle().isAuto || ScrollbarTheme::theme().usesOverlayScrollbars()) && isHorizontalWritingMode)
+    if (!verticalScrollbar() && !(scrollbarGutterStyle().isAuto() || ScrollbarTheme::theme().usesOverlayScrollbars()) && isHorizontalWritingMode)
         return ScrollbarTheme::theme().scrollbarThickness(scrollbarWidthStyle());
 
     if (!verticalScrollbar())
@@ -6966,7 +6966,7 @@ IntSize LocalFrameView::totalScrollbarSpace() const
     IntSize scrollbarGutter = { horizontalScrollbarIntrusion(), verticalScrollbarIntrusion() };
 
     if (isHorizontalWritingMode()) {
-        if (scrollbarGutterStyle().bothEdges)
+        if (scrollbarGutterStyle().isStableBothEdges())
             scrollbarGutter.setWidth(scrollbarGutterWidth() * 2);
         else
             scrollbarGutter.setWidth(scrollbarGutterWidth());
@@ -6976,7 +6976,7 @@ IntSize LocalFrameView::totalScrollbarSpace() const
 
 int LocalFrameView::insetForLeftScrollbarSpace() const
 {
-    if (scrollbarGutterStyle().bothEdges)
+    if (scrollbarGutterStyle().isStableBothEdges())
         return scrollbarGutterWidth();
     if (shouldPlaceVerticalScrollbarOnLeft())
         return verticalScrollbar() ? verticalScrollbar()->occupiedWidth() : 0;

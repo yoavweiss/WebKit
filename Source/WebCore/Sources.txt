@@ -2954,7 +2954,6 @@ rendering/style/RenderStyleConstants.cpp
 rendering/style/SVGRenderStyle.cpp
 rendering/style/SVGRenderStyleDefs.cpp
 rendering/style/ScrollbarColor.cpp
-rendering/style/ScrollbarGutter.cpp
 rendering/style/ShapeValue.cpp
 rendering/style/StyleBackgroundData.cpp
 rendering/style/StyleBoxData.cpp
@@ -3194,6 +3193,7 @@ style/values/motion/StyleOffsetPosition.cpp
 style/values/motion/StyleOffsetRotate.cpp
 style/values/motion/StyleRayFunction.cpp
 style/values/overflow/StyleBlockEllipsis.cpp
+style/values/overflow/StyleScrollbarGutter.cpp
 style/values/primitives/StyleLengthResolution.cpp
 style/values/primitives/StylePosition.cpp
 style/values/primitives/StylePrimitiveNumericTypes+Conversions.cpp

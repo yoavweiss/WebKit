@@ -200,7 +200,6 @@ public:
     static Ref<CSSValue> convertScrollSnapType(ExtractorState&, const ScrollSnapType&);
     static Ref<CSSValue> convertScrollSnapAlign(ExtractorState&, const ScrollSnapAlign&);
     static Ref<CSSValue> convertScrollbarColor(ExtractorState&, std::optional<ScrollbarColor>);
-    static Ref<CSSValue> convertScrollbarGutter(ExtractorState&, const ScrollbarGutter&);
     static Ref<CSSValue> convertLineBoxContain(ExtractorState&, OptionSet<Style::LineBoxContain>);
     static Ref<CSSValue> convertWebkitRubyPosition(ExtractorState&, RubyPosition);
     static Ref<CSSValue> convertPosition(ExtractorState&, const LengthPoint&);
@@ -970,16 +969,6 @@ inline Ref<CSSValue> ExtractorConverter::convertScrollbarColor(ExtractorState& s
     return CSSValuePair::createNoncoalescing(
         convertStyleType(state, scrollbarColor->thumbColor),
         convertStyleType(state, scrollbarColor->trackColor)
-    );
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertScrollbarGutter(ExtractorState&, const ScrollbarGutter& gutter)
-{
-    if (!gutter.bothEdges)
-        return CSSPrimitiveValue::create(gutter.isAuto ? CSSValueAuto : CSSValueStable);
-    return CSSValuePair::create(
-        CSSPrimitiveValue::create(CSSValueStable),
-        CSSPrimitiveValue::create(CSSValueBothEdges)
     );
 }
 

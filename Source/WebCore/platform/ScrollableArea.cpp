@@ -42,9 +42,9 @@
 #include "PlatformWheelEvent.h"
 #include "ScrollAnimator.h"
 #include "ScrollbarColor.h"
-#include "ScrollbarGutter.h"
 #include "ScrollbarTheme.h"
 #include "ScrollbarsControllerMock.h"
+#include "StyleScrollbarGutter.h"
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/TextStream.h>
 
@@ -552,9 +552,9 @@ Color ScrollableArea::scrollbarTrackColorStyle() const
     return { };
 }
 
-ScrollbarGutter ScrollableArea::scrollbarGutterStyle() const
+Style::ScrollbarGutter ScrollableArea::scrollbarGutterStyle() const
 {
-    return { };
+    return CSS::Keyword::Auto { };
 }
 
 const LayoutScrollSnapOffsetsInfo* ScrollableArea::snapOffsetsInfo() const

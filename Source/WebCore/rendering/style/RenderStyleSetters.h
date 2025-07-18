@@ -281,6 +281,7 @@ inline void RenderStyle::setTimelineScope(const NameScope& scope) { SET_NESTED(m
 inline void RenderStyle::setScrollbarColor(const std::optional<ScrollbarColor>& color) { SET(m_rareInheritedData, scrollbarColor, color); }
 inline void RenderStyle::setScrollbarThumbColor(Style::Color&& color) { m_rareInheritedData.access().scrollbarColor->thumbColor = WTFMove(color); }
 inline void RenderStyle::setScrollbarTrackColor(Style::Color&& color) { m_rareInheritedData.access().scrollbarColor->trackColor = WTFMove(color); }
+inline void RenderStyle::setScrollbarGutter(Style::ScrollbarGutter&& gutter) { SET_NESTED(m_nonInheritedData, rareData, scrollbarGutter, WTFMove(gutter)); }
 inline void RenderStyle::setScrollbarWidth(ScrollbarWidth width) { SET_NESTED(m_nonInheritedData, rareData, scrollbarWidth, static_cast<unsigned>(width)); }
 inline void RenderStyle::setShapeMargin(Length&& margin) { SET_NESTED(m_nonInheritedData, rareData, shapeMargin, WTFMove(margin)); }
 inline void RenderStyle::setUsedContentVisibility(ContentVisibility usedContentVisibility) { SET(m_rareInheritedData, usedContentVisibility, static_cast<unsigned>(usedContentVisibility)); }

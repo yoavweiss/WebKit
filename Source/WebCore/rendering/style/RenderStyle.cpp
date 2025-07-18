@@ -49,7 +49,6 @@
 #include "SVGRenderStyle.h"
 #include "ScaleTransformOperation.h"
 #include "ScrollAxis.h"
-#include "ScrollbarGutter.h"
 #include "StyleCustomPropertyRegistry.h"
 #include "StyleExtractor.h"
 #include "StyleImage.h"
@@ -3590,11 +3589,6 @@ ScrollSnapStop RenderStyle::initialScrollSnapStop()
     return ScrollSnapStop::Normal;
 }
 
-ScrollbarGutter RenderStyle::initialScrollbarGutter()
-{
-    return { };
-}
-
 ScrollSnapType RenderStyle::scrollSnapType() const
 {
     return m_nonInheritedData->rareData->scrollSnapType;
@@ -3622,11 +3616,6 @@ bool RenderStyle::scrollSnapDataEquivalent(const RenderStyle& other) const
         && m_nonInheritedData->rareData->scrollSnapAlign == other.m_nonInheritedData->rareData->scrollSnapAlign;
 }
 
-ScrollbarGutter RenderStyle::scrollbarGutter() const
-{
-    return m_nonInheritedData->rareData->scrollbarGutter;
-}
-
 void RenderStyle::setScrollSnapType(ScrollSnapType type)
 {
     SET_NESTED_VAR(m_nonInheritedData, rareData, scrollSnapType, type);
@@ -3640,11 +3629,6 @@ void RenderStyle::setScrollSnapAlign(const ScrollSnapAlign& alignment)
 void RenderStyle::setScrollSnapStop(ScrollSnapStop stop)
 {
     SET_NESTED_VAR(m_nonInheritedData, rareData, scrollSnapStop, stop);
-}
-
-void RenderStyle::setScrollbarGutter(const ScrollbarGutter gutter)
-{
-    SET_NESTED_VAR(m_nonInheritedData, rareData, scrollbarGutter, gutter);
 }
 
 bool RenderStyle::hasSnapPosition() const

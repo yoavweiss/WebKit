@@ -69,7 +69,6 @@
 #include "ScopedName.h"
 #include "ScrollAxis.h"
 #include "ScrollbarColor.h"
-#include "ScrollbarGutter.h"
 #include "Settings.h"
 #include "StyleBasicShape.h"
 #include "StyleBuilderChecking.h"
@@ -169,7 +168,6 @@ public:
     static ScrollSnapType convertScrollSnapType(BuilderState&, const CSSValue&);
     static ScrollSnapAlign convertScrollSnapAlign(BuilderState&, const CSSValue&);
     static std::optional<ScrollbarColor> convertScrollbarColor(BuilderState&, const CSSValue&);
-    static ScrollbarGutter convertScrollbarGutter(BuilderState&, const CSSValue&);
     // scrollbar-width converter is only needed for quirking.
     static ScrollbarWidth convertScrollbarWidth(BuilderState&, const CSSValue&);
     static GridAutoFlow convertGridAutoFlow(BuilderState&, const CSSValue&);
@@ -962,23 +960,6 @@ inline std::optional<ScrollbarColor> BuilderConverter::convertScrollbarColor(Bui
         convertStyleType<Color>(builderState, pair->first(), ForVisitedLink::No),
         convertStyleType<Color>(builderState, pair->second(), ForVisitedLink::No),
     };
-}
-
-inline ScrollbarGutter BuilderConverter::convertScrollbarGutter(BuilderState&, const CSSValue& value)
-{
-    ScrollbarGutter gutter;
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (primitiveValue->valueID() == CSSValueStable)
-            gutter.isAuto = false;
-        return gutter;
-    }
-
-    ASSERT(value.isPair());
-
-    gutter.isAuto = false;
-    gutter.bothEdges = true;
-
-    return gutter;
 }
 
 inline ScrollbarWidth BuilderConverter::convertScrollbarWidth(BuilderState& builderState, const CSSValue& value)
