@@ -187,11 +187,6 @@ GstPadProbeReturn RealtimeIncomingSourceGStreamer::handleDownstreamEvent(GstElem
     return GST_PAD_PROBE_OK;
 }
 
-void RealtimeIncomingSourceGStreamer::tearDown()
-{
-    notImplemented();
-}
-
 #undef GST_CAT_DEFAULT
 
 } // namespace WebCore
