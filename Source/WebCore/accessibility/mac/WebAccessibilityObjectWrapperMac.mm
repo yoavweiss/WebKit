@@ -1184,7 +1184,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
         return roleDescription(*backingObject).autorelease();
 
     if ([attributeName isEqualToString: NSAccessibilityParentAttribute]) {
-        // This will return the parent of the AXWebArea, if this is a web area.
+        // This will return the parent of the AXScrollArea, if this is a AccessibilityScrollView.
         if (id scrollView = scrollViewParent(*backingObject))
             return scrollView;
 
