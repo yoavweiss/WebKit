@@ -31,8 +31,6 @@
 #include <wtf/ConcurrentBuffer.h>
 #include <wtf/Noncopyable.h>
 
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-
 namespace WTF {
 
 // An iterator for ConcurrentVector. It supports only the pre ++ operator
@@ -227,7 +225,7 @@ private:
     struct Segment {
         WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Segment);
             
-        T entries[SegmentSize];
+        std::array<T, SegmentSize> entries;
     };
 
     bool segmentExistsFor(size_t index)
@@ -275,5 +273,3 @@ private:
 } // namespace WTF
 
 using WTF::ConcurrentVector;
-
-WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
