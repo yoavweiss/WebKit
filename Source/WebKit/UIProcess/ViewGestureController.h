@@ -179,6 +179,8 @@ public:
 
     bool canSwipeInDirection(SwipeDirection, DeferToConflictingGestures) const;
 
+    bool hasActiveSwipeGesture() const { return m_activeGestureType == ViewGestureType::Swipe; }
+
     WebCore::Color backgroundColorForCurrentSnapshot() const { return m_backgroundColorForCurrentSnapshot; }
 
     void didStartProvisionalLoadForMainFrame();
