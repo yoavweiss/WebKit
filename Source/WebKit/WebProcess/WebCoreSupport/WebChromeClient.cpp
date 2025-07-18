@@ -732,20 +732,28 @@ OptionSet<PointerCharacteristics> WebChromeClient::pointerCharacteristicsOfAllAv
 
 #if ENABLE(POINTER_LOCK)
 
-bool WebChromeClient::requestPointerLock()
+void WebChromeClient::requestPointerLock(CompletionHandler<void(WebCore::PointerLockRequestResult)>&& completionHandler)
 {
     RefPtr page = m_page.get();
-    if (!page)
-        return false;
+    if (!page) {
+        completionHandler(WebCore::PointerLockRequestResult::Failure);
+        return;
+    }
 
-    page->send(Messages::WebPageProxy::RequestPointerLock());
-    return true;
+    page->sendWithAsyncReply(Messages::WebPageProxy::RequestPointerLock(), [completionHandler = WTFMove(completionHandler)](bool result) mutable {
+        if (result)
+            completionHandler(WebCore::PointerLockRequestResult::Success);
+        else
+            completionHandler(WebCore::PointerLockRequestResult::Failure);
+    });
 }
 
-void WebChromeClient::requestPointerUnlock()
+void WebChromeClient::requestPointerUnlock(CompletionHandler<void(bool)>&& completionHandler)
 {
     if (RefPtr page = m_page.get())
-        page->send(Messages::WebPageProxy::RequestPointerUnlock());
+        page->sendWithAsyncReply(Messages::WebPageProxy::RequestPointerUnlock(), WTFMove(completionHandler));
+    else
+        completionHandler(false);
 }
 
 #endif

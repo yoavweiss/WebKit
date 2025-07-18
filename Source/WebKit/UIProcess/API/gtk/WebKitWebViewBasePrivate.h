@@ -122,7 +122,7 @@ void webkitWebViewBaseDidRestoreScrollPosition(WebKitWebViewBase*);
 
 void webkitWebViewBaseShowEmojiChooser(WebKitWebViewBase*, const WebCore::IntRect&, CompletionHandler<void(String)>&&);
 
-void webkitWebViewBaseRequestPointerLock(WebKitWebViewBase*);
+void webkitWebViewBaseRequestPointerLock(WebKitWebViewBase*, CompletionHandler<void(bool)>&&);
 void webkitWebViewBaseDidLosePointerLock(WebKitWebViewBase*);
 
 void webkitWebViewBaseSetInputMethodContext(WebKitWebViewBase*, WebKitInputMethodContext*);

@@ -198,6 +198,12 @@ class GPU;
 }
 #endif
 
+enum class PointerLockRequestResult : uint8_t {
+    Success,
+    Failure,
+    Unsupported
+};
+
 class ChromeClient {
 public:
     virtual void chromeDestroyed() = 0;
@@ -581,8 +587,8 @@ public:
     virtual bool isSVGImageChromeClient() const { return false; }
 
 #if ENABLE(POINTER_LOCK)
-    virtual bool requestPointerLock() { return false; }
-    virtual void requestPointerUnlock() { }
+    virtual void requestPointerLock(CompletionHandler<void(PointerLockRequestResult)>&& completionHandler) { completionHandler(PointerLockRequestResult::Unsupported); }
+    virtual void requestPointerUnlock(CompletionHandler<void(bool)>&& completionHandler) { completionHandler(false); }
 #endif
 
     virtual FloatSize minimumWindowSize() const { return FloatSize(100, 100); };

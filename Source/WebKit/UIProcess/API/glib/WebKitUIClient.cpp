@@ -349,9 +349,9 @@ private:
     }
 
 #if ENABLE(POINTER_LOCK)
-    void requestPointerLock(WebPageProxy* page) final
+    void requestPointerLock(WebPageProxy* page, CompletionHandler<void(bool)>&& completionHandler) final
     {
-        GRefPtr<WebKitPointerLockPermissionRequest> permissionRequest = adoptGRef(webkitPointerLockPermissionRequestCreate(m_webView));
+        GRefPtr<WebKitPointerLockPermissionRequest> permissionRequest = adoptGRef(webkitPointerLockPermissionRequestCreate(m_webView, WTFMove(completionHandler)));
         RELEASE_ASSERT(!m_pointerLockPermissionRequest);
         m_pointerLockPermissionRequest.reset(permissionRequest.get());
         webkitWebViewMakePermissionRequest(m_webView, WEBKIT_PERMISSION_REQUEST(permissionRequest.get()));

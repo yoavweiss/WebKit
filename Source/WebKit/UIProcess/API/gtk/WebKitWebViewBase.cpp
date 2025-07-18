@@ -3085,7 +3085,7 @@ void webkitWebViewBaseShowEmojiChooser(WebKitWebViewBase* webkitWebViewBase, con
 }
 
 #if ENABLE(POINTER_LOCK)
-void webkitWebViewBaseRequestPointerLock(WebKitWebViewBase* webViewBase)
+void webkitWebViewBaseRequestPointerLock(WebKitWebViewBase* webViewBase, CompletionHandler<void(bool)>&& completionHandler)
 {
     WebKitWebViewBasePrivate* priv = webViewBase->priv;
     ASSERT(!priv->pointerLockManager);
@@ -3093,13 +3093,11 @@ void webkitWebViewBaseRequestPointerLock(WebKitWebViewBase* webViewBase)
         priv->lastMotionEvent = MotionEvent(GTK_WIDGET(webViewBase), nullptr);
     priv->pointerLockManager = PointerLockManager::create(*priv->pageProxy, priv->lastMotionEvent->position, priv->lastMotionEvent->globalPosition,
         priv->lastMotionEvent->button, priv->lastMotionEvent->buttons, priv->lastMotionEvent->modifiers);
-    if (priv->pointerLockManager->lock()) {
-        priv->pageProxy->didAllowPointerLock();
-        return;
-    }
+    if (priv->pointerLockManager->lock())
+        return completionHandler(true);
 
     priv->pointerLockManager = nullptr;
-    priv->pageProxy->didDenyPointerLock();
+    completionHandler(false);
 }
 
 void webkitWebViewBaseDidLosePointerLock(WebKitWebViewBase* webViewBase)

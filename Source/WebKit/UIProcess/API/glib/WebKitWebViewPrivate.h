@@ -115,8 +115,8 @@ void webkitWebViewDidChangePageID(WebKitWebView*);
 void webkitWebViewDidReceiveUserMessage(WebKitWebView*, WebKit::UserMessage&&, CompletionHandler<void(WebKit::UserMessage&&)>&&);
 
 #if ENABLE(POINTER_LOCK)
-void webkitWebViewRequestPointerLock(WebKitWebView*);
-void webkitWebViewDenyPointerLockRequest(WebKitWebView*);
+void webkitWebViewRequestPointerLock(WebKitWebView*, CompletionHandler<void(bool)>&&);
+void webkitWebViewDenyPointerLockRequest(CompletionHandler<void(bool)>&&);
 void webkitWebViewDidLosePointerLock(WebKitWebView*);
 #endif
 

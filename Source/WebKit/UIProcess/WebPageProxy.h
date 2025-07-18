@@ -1867,9 +1867,7 @@ public:
     void requestMediaPlaybackState(CompletionHandler<void(MediaPlaybackState)>&&);
 
 #if ENABLE(POINTER_LOCK)
-    void didAllowPointerLock();
-    void didDenyPointerLock();
-    void requestPointerUnlock();
+    void requestPointerUnlock(CompletionHandler<void(bool)>&&);
 #endif
 
     void setSuppressVisibilityUpdates(bool flag);
@@ -2777,6 +2775,12 @@ public:
 
     Ref<AboutSchemeHandler> protectedAboutSchemeHandler();
 
+#if ENABLE(POINTER_LOCK)
+    RefPtr<WebProcessProxy> webContentPointerLockProcess();
+    void clearWebContentPointerLockProcess();
+    void resetPointerLockState(void);
+#endif
+
 private:
     WebPageProxy(PageClient&, WebProcessProxy&, Ref<API::PageConfiguration>&&);
     void platformInitialize();
@@ -2819,7 +2823,9 @@ private:
     void setUserAgent(String&&, IsCustomUserAgent = IsCustomUserAgent::No);
 
 #if ENABLE(POINTER_LOCK)
-    void requestPointerLock();
+    void didAllowPointerLock(CompletionHandler<void(bool)>&&);
+    void didDenyPointerLock(CompletionHandler<void(bool)>&&);
+    void requestPointerLock(IPC::Connection&, CompletionHandler<void(bool)>&&);
 #endif
 
     void didCreateSubframe(WebCore::FrameIdentifier parent, WebCore::FrameIdentifier newFrameID, String&& frameName, WebCore::SandboxFlags, WebCore::ScrollbarMode);
@@ -3804,6 +3810,7 @@ private:
 #if ENABLE(POINTER_LOCK)
     bool m_isPointerLockPending { false };
     bool m_isPointerLocked { false };
+    RefPtr<WebProcessProxy> m_webContentPointerLockProcess;
 #endif
 
     bool m_openedByDOM { false };

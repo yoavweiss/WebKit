@@ -223,8 +223,8 @@ private:
 #endif
 
 #if ENABLE(POINTER_LOCK)
-    bool requestPointerLock() final;
-    void requestPointerUnlock() final;
+    void requestPointerLock(CompletionHandler<void(WebCore::PointerLockRequestResult)>&&) final;
+    void requestPointerUnlock(CompletionHandler<void(bool)>&&) final;
 #endif
 
     void didAssociateFormControls(const Vector<RefPtr<WebCore::Element>>&, WebCore::LocalFrame&) final;

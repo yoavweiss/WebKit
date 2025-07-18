@@ -77,6 +77,7 @@
 #import "WebEventFactory.h"
 #import "WebFrameProxy.h"
 #import "WebInspectorUIProxy.h"
+#import "WebPageMessages.h"
 #import "WebPageProxy.h"
 #import "WebProcessPool.h"
 #import "WebProcessProxy.h"
@@ -179,8 +180,8 @@
 
 #import "AppKitSoftLink.h"
 #import <pal/cocoa/RevealSoftLink.h>
-#import <pal/cocoa/VisionKitCoreSoftLink.h>
 #import <pal/cocoa/TranslationUIServicesSoftLink.h>
+#import <pal/cocoa/VisionKitCoreSoftLink.h>
 #import <pal/cocoa/WritingToolsUISoftLink.h>
 #import <pal/mac/DataDetectorsSoftLink.h>
 
@@ -1491,7 +1492,7 @@ bool WebViewImpl::isOpaque() const
 }
 
 void WebViewImpl::setShouldSuppressFirstResponderChanges(bool shouldSuppress)
-{   
+{
     m_pageClient->setShouldSuppressFirstResponderChanges(shouldSuppress);
 }
 
@@ -2132,7 +2133,7 @@ void WebViewImpl::windowDidResize()
 void WebViewImpl::windowWillBeginSheet()
 {
 #if ENABLE(POINTER_LOCK)
-    m_page->requestPointerUnlock();
+    m_page->resetPointerLockState();
 #endif
 }
 

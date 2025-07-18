@@ -3096,20 +3096,21 @@ void webkitWebViewDidReceiveUserMessage(WebKitWebView* webView, UserMessage&& me
 }
 
 #if ENABLE(POINTER_LOCK)
-void webkitWebViewRequestPointerLock(WebKitWebView* webView)
+void webkitWebViewRequestPointerLock(WebKitWebView* webView, CompletionHandler<void(bool)>&& completionHandler)
 {
 #if PLATFORM(GTK)
-    webkitWebViewBaseRequestPointerLock(WEBKIT_WEB_VIEW_BASE(webView));
+    webkitWebViewBaseRequestPointerLock(WEBKIT_WEB_VIEW_BASE(webView), WTFMove(completionHandler));
 #endif
 
 #if PLATFORM(WPE)
     webView->priv->view->requestPointerLock();
+    completionHandler(true);
 #endif
 }
 
-void webkitWebViewDenyPointerLockRequest(WebKitWebView* webView)
+void webkitWebViewDenyPointerLockRequest(CompletionHandler<void(bool)>&& completionHandler)
 {
-    getPage(webView).didDenyPointerLock();
+    completionHandler(false);
 }
 
 void webkitWebViewDidLosePointerLock(WebKitWebView* webView)
