@@ -8070,3 +8070,7 @@ webkit.org/b/296095 fast/forms/switch/click-animation-disabled.html [ Pass Timeo
 webkit.org/b/296101 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-012.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/295408 imported/w3c/web-platform-tests/xhr/send-redirect.htm [ Pass Failure ]
+
+# webkit.org/b/296182 [ iOS ] 2x imported/w3c/web-platform-tests/beacon (layout tests) are flakey text failures 
+[ Debug ] imported/w3c/web-platform-tests/beacon/beacon-redirect.https.window.html [ Pass Failure ]
+imported/w3c/web-platform-tests/beacon/beacon-cors.https.window.html [ Pass Failure ]
