@@ -101,6 +101,20 @@ void RemoteScrollingTree::scrollingTreeNodeDidStopAnimatedScroll(ScrollingTreeSc
     scrollingCoordinatorProxy->scrollingThreadAddedPendingUpdate();
 }
 
+void RemoteScrollingTree::scrollingTreeNodeDidStopWheelEventScroll(WebCore::ScrollingTreeScrollingNode& node)
+{
+    ASSERT(isMainRunLoop());
+
+    CheckedPtr scrollingCoordinatorProxy = m_scrollingCoordinatorProxy.get();
+    if (!scrollingCoordinatorProxy)
+        return;
+
+    auto scrollUpdate = ScrollUpdate { node.scrollingNodeID(), { }, { }, ScrollUpdateType::WheelEventScrollDidEnd };
+    addPendingScrollUpdate(WTFMove(scrollUpdate));
+
+    scrollingCoordinatorProxy->scrollingThreadAddedPendingUpdate();
+}
+
 bool RemoteScrollingTree::scrollingTreeNodeRequestsScroll(ScrollingNodeID nodeID, const RequestedScrollData& request)
 {
     ASSERT(isMainRunLoop());

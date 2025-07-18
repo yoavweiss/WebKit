@@ -266,6 +266,19 @@ void RemoteScrollingTreeMac::scrollingTreeNodeDidStopAnimatedScroll(ScrollingTre
     });
 }
 
+void RemoteScrollingTreeMac::scrollingTreeNodeDidStopWheelEventScroll(WebCore::ScrollingTreeScrollingNode& node)
+{
+    ASSERT(ScrollingThread::isCurrentThread());
+
+    auto scrollUpdate = ScrollUpdate { node.scrollingNodeID(), { }, { }, ScrollUpdateType::WheelEventScrollDidEnd };
+    addPendingScrollUpdate(WTFMove(scrollUpdate));
+
+    RunLoop::mainSingleton().dispatch([protectedThis = Ref { *this }, nodeID = node.scrollingNodeID()] {
+        if (CheckedPtr scrollingCoordinatorProxy = protectedThis->scrollingCoordinatorProxy())
+            scrollingCoordinatorProxy->scrollingThreadAddedPendingUpdate();
+    });
+}
+
 bool RemoteScrollingTreeMac::scrollingTreeNodeRequestsScroll(ScrollingNodeID nodeID, const RequestedScrollData& request)
 {
     if (request.animated == ScrollIsAnimated::Yes) {

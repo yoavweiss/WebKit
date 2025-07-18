@@ -431,14 +431,25 @@ void RenderLayerScrollableArea::scrollTo(const ScrollPosition& position)
     }
 
     // Schedule the scroll and scroll-related DOM events.
-    if (RefPtr element = renderer.element())
+    if (RefPtr element = renderer.element()) {
+        setIsAwaitingScrollend(true);
         element->protectedDocument()->addPendingScrollEventTarget(*element);
+    }
 
     if (scrollsOverflow())
         view.frameView().didChangeScrollOffset();
 
     view.frameView().viewportContentsChanged();
     frame->protectedEditor()->renderLayerDidScroll(m_layer);
+}
+
+void RenderLayerScrollableArea::scrollDidEnd()
+{
+    if (!isAwaitingScrollend())
+        return;
+    setIsAwaitingScrollend(false);
+    if (RefPtr element = m_layer.renderer().element())
+        element->protectedDocument()->addPendingScrollendEventTarget(*element);
 }
 
 void RenderLayerScrollableArea::updateCompositingLayersAfterScroll()

@@ -981,6 +981,7 @@ void Document::commonTeardown()
         appHighlightRegistry->clear();
 #endif
     m_pendingScrollEventTargetList = nullptr;
+    m_pendingScrollendEventTargetList = nullptr;
 
     if (m_timelinesController)
         m_timelinesController->detachFromDocument();
@@ -5564,6 +5565,23 @@ void Document::flushDeferredResizeEvents()
     runResizeSteps();
 }
 
+void Document::addPendingScrollendEventTarget(ContainerNode& target)
+{
+    if (!settings().scrollendEventEnabled())
+        return;
+    if (!m_pendingScrollendEventTargetList)
+        m_pendingScrollendEventTargetList = makeUnique<PendingScrollEventTargetList>();
+
+    auto& targets = m_pendingScrollendEventTargetList->targets;
+    if (targets.containsIf([&] (auto& entry) { return entry.ptr() == &target; }))
+        return;
+
+    if (targets.isEmpty())
+        scheduleRenderingUpdate(RenderingUpdateStep::Scroll);
+
+    targets.append(target);
+}
+
 void Document::addPendingScrollEventTarget(ContainerNode& target)
 {
     if (!m_pendingScrollEventTargetList)
@@ -5642,6 +5660,14 @@ void Document::runScrollSteps()
         m_needsVisualViewportScrollEvent = false;
         if (RefPtr window = this->window())
             window->visualViewport().dispatchEvent(Event::create(eventNames().scrollEvent, Event::CanBubble::No, Event::IsCancelable::No));
+    }
+    if (m_pendingScrollendEventTargetList && !m_pendingScrollendEventTargetList->targets.isEmpty()) {
+        LOG_WITH_STREAM(Events, stream << "Document " << this << " sending scrollend events to pending scrollend event targets");
+        auto currentTargets = std::exchange(m_pendingScrollendEventTargetList->targets, { });
+        for (auto& target : currentTargets) {
+            auto bubbles = target->isDocumentNode() ? Event::CanBubble::Yes : Event::CanBubble::No;
+            target->dispatchEvent(Event::create(eventNames().scrollendEvent, bubbles, Event::IsCancelable::No));
+        }
     }
 }
 

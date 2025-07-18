@@ -784,6 +784,7 @@ public:
         AutoPreventLayerAccess(LocalFrameView*) { }
     };
 #endif
+    void scrollDidEnd() final;
 
 private:
     explicit LocalFrameView(LocalFrame&);

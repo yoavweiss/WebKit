@@ -305,6 +305,7 @@ private:
     void registerScrollableAreaForAnimatedScroll();
 
     float deviceScaleFactor() const final;
+    void scrollDidEnd() final;
 
 private:
     bool m_scrollDimensionsDirty { true };

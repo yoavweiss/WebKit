@@ -1642,6 +1642,7 @@ public:
     void runResizeSteps();
     void flushDeferredResizeEvents();
 
+    void addPendingScrollendEventTarget(ContainerNode&);
     void addPendingScrollEventTarget(ContainerNode&);
     void setNeedsVisualViewportScrollEvent();
     void runScrollSteps();
@@ -2548,6 +2549,7 @@ private:
 
     struct PendingScrollEventTargetList;
     std::unique_ptr<PendingScrollEventTargetList> m_pendingScrollEventTargetList;
+    std::unique_ptr<PendingScrollEventTargetList> m_pendingScrollendEventTargetList;
 
     WeakHashSet<ValidationMessage> m_validationMessagesToPosition;
 

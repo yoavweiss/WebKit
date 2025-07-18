@@ -6146,8 +6146,20 @@ void LocalFrameView::scrollableAreaSetChanged()
         scrollingCoordinator->frameViewEventTrackingRegionsChanged(*this);
 }
 
+void LocalFrameView::scrollDidEnd()
+{
+    if (!isAwaitingScrollend())
+        return;
+    setIsAwaitingScrollend(false);
+    if (!m_frame->view())
+        return;
+    if (RefPtr document = m_frame->document())
+        document->addPendingScrollendEventTarget(*document);
+}
+
 void LocalFrameView::scheduleScrollEvent()
 {
+    setIsAwaitingScrollend(true);
     m_frame->eventHandler().scheduleScrollEvent();
     m_frame->eventHandler().dispatchFakeMouseMoveEventSoon();
 }

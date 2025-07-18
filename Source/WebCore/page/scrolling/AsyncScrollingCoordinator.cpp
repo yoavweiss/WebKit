@@ -703,11 +703,18 @@ void AsyncScrollingCoordinator::wheelEventScrollDidEndForNode(ScrollingNodeID sc
 {
     ASSERT(isMainThread());
 
-    if (!page())
+    RefPtr page = this->page();
+    if (!page)
         return;
 
-    if (!frameViewForScrollingNode(scrollingNodeID))
+    RefPtr frameView = frameViewForScrollingNode(scrollingNodeID);
+    if (!frameView)
         return;
+
+    if (scrollingNodeID == frameView->scrollingNodeID())
+        frameView->scrollDidEnd();
+    else if (CheckedPtr scrollableArea = frameView->scrollableAreaForScrollingNodeID(scrollingNodeID))
+        scrollableArea->scrollDidEnd();
 
     m_hysterisisActivity.stop();
 }
