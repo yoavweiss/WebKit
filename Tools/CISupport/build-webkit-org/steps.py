@@ -289,51 +289,51 @@ class CheckOutSpecificRevision(shell.ShellCommandNewStyle):
         return super().run()
 
 
-class KillOldProcesses(shell.Compile):
+class KillOldProcesses(shell.CompileNewStyle):
     name = "kill-old-processes"
     description = ["killing old processes"]
     descriptionDone = ["killed old processes"]
     command = ["python3", "Tools/CISupport/kill-old-processes", "buildbot"]
 
 
-class TriggerCrashLogSubmission(shell.Compile):
+class TriggerCrashLogSubmission(shell.CompileNewStyle):
     name = "trigger-crash-log-submission"
     description = ["triggering crash log submission"]
     descriptionDone = ["triggered crash log submission"]
     command = ["python3", "Tools/CISupport/trigger-crash-log-submission"]
 
 
-class WaitForCrashCollection(shell.Compile):
+class WaitForCrashCollection(shell.CompileNewStyle):
     name = "wait-for-crash-collection"
     description = ["waiting for crash collection to quiesce"]
     descriptionDone = ["crash collection has quiesced"]
     command = ["python3", "Tools/CISupport/wait-for-crash-collection", "--timeout", str(5 * 60)]
 
 
-class CleanBuildIfScheduled(shell.Compile):
+class CleanBuildIfScheduled(shell.CompileNewStyle):
     name = "delete-WebKitBuild-directory"
     description = ["deleting WebKitBuild directory"]
     descriptionDone = ["deleted WebKitBuild directory"]
     command = ["python3", "Tools/CISupport/clean-build", WithProperties("--platform=%(fullPlatform)s"), WithProperties("--%(configuration)s")]
 
-    def start(self):
+    def run(self):
         if not self.getProperty('is_clean'):
             self.hideStepIf = True
             return SKIPPED
-        return shell.Compile.start(self)
+        return super().run()
 
 
-class DeleteStaleBuildFiles(shell.Compile):
+class DeleteStaleBuildFiles(shell.CompileNewStyle):
     name = "delete-stale-build-files"
     description = ["deleting stale build files"]
     descriptionDone = ["deleted stale build files"]
     command = ["python3", "Tools/CISupport/delete-stale-build-files", WithProperties("--platform=%(fullPlatform)s"), WithProperties("--%(configuration)s")]
 
-    def start(self):
+    def run(self):
         if self.getProperty('is_clean'):  # Nothing to be done if WebKitBuild had been removed.
             self.hideStepIf = True
             return SKIPPED
-        return shell.Compile.start(self)
+        return super().run()
 
 
 class InstallGtkDependencies(shell.ShellCommandNewStyle, CustomFlagsMixin):
@@ -1356,7 +1356,7 @@ class RunWPEAPITests(RunGLibAPITests):
     command = ["python3", "Tools/Scripts/run-wpe-tests", WithProperties("--%(configuration)s")]
 
 
-class RunWebDriverTests(shell.Test, CustomFlagsMixin, ShellMixin):
+class RunWebDriverTests(shell.TestNewStyle, CustomFlagsMixin, ShellMixin):
     name = "webdriver-test"
     description = ["webdriver-tests running"]
     descriptionDone = ["webdriver-tests"]
