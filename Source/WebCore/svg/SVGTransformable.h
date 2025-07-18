@@ -33,10 +33,10 @@ public:
     virtual ~SVGTransformable();
 
     template<typename CharacterType>
-    static bool parseAndReplaceTransform(SVGTransformValue::SVGTransformType, StringParsingBuffer<CharacterType>&, SVGTransform&);
+    static bool parseAndReplaceTransform(SVGTransformValue::SVGTransformType, StringParsingBuffer<CharacterType>&, SVGTransform&); // Defined in SVGTransformableInlines.h
 
     template<typename CharacterType>
-    static RefPtr<SVGTransform> parseTransform(SVGTransformValue::SVGTransformType, StringParsingBuffer<CharacterType>&);
+    static RefPtr<SVGTransform> parseTransform(SVGTransformValue::SVGTransformType, StringParsingBuffer<CharacterType>&); // Defined in SVGTransformableInlines.h
 
     static std::optional<SVGTransformValue::SVGTransformType> parseTransformType(StringView);
     static std::optional<SVGTransformValue::SVGTransformType> parseTransformType(StringParsingBuffer<LChar>&);
