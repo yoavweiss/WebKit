@@ -401,6 +401,14 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
     auto writingMode = renderBox.containingBlock()->writingMode();
     auto marginBefore = writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight();
 
+    if (renderBox.shouldApplyLayoutContainment()) {
+        if (renderBox.isFieldset()) {
+            // This is to preserve legacy behavior.
+            return renderBox.marginBoxLogicalHeight(writingMode);
+        }
+        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+    }
+
     if (is<RenderIFrame>(renderBox)
         || is<RenderEmbeddedObject>(renderBox)
         || is<LegacyRenderSVGRoot>(renderBox)
@@ -446,10 +454,7 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         // FIXME: This hardcoded baselineAdjustment is what we used to do for the old
         // widget, but I'm not sure this is right for the new control.
         const int baselineAdjustment = 7;
-        auto baseline = roundToInt(renderer->marginBoxLogicalHeight(writingMode));
-        if (renderer->shouldApplyLayoutContainment())
-            return baseline;
-        return baseline - baselineAdjustment;
+        return roundToInt(renderer->marginBoxLogicalHeight(writingMode)) - baselineAdjustment;
     }
 
     if (CheckedPtr renderer = dynamicDowncast<RenderTextControlMultiLine>(renderBox))
