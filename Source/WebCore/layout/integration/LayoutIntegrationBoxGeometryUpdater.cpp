@@ -513,7 +513,7 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
     if (is<RenderMathMLBlock>(renderBox)) {
         if (auto baseline = renderBox.firstLineBaseline())
             return *baseline;
-        // Fallback to regular block level baseline.
+        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
     }
 #endif
 
