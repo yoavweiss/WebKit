@@ -308,6 +308,7 @@ typedef HashCountedSet<JSCell*> ProtectCountSet;
 typedef HashCountedSet<ASCIILiteral> TypeCountSet;
 
 enum class HeapType : uint8_t { Small, Medium, Large };
+enum class GrowthMode : uint8_t { Default, Aggressive };
 
 class HeapUtil;
 
@@ -757,6 +758,7 @@ private:
 
     void deleteUnmarkedCompiledCode();
     JS_EXPORT_PRIVATE void addToRememberedSet(const JSCell*);
+    double projectedGCRateLimitingValue(MonotonicTime);
     void updateAllocationLimits();
     void didFinishCollection();
     void resumeCompilerThreads();
@@ -814,7 +816,10 @@ private:
     const HeapType m_heapType;
     MutatorState m_mutatorState { MutatorState::Running };
     const size_t m_ramSize;
+    const GrowthMode m_growthMode;
     const size_t m_minBytesPerCycle;
+    const size_t m_maxEdenSizeForRateLimiting;
+    double m_gcRateLimitingValue { 0.0 };
     size_t m_bytesAllocatedBeforeLastEdenCollect { 0 };
     size_t m_sizeAfterLastCollect { 0 };
     size_t m_sizeAfterLastFullCollect { 0 };

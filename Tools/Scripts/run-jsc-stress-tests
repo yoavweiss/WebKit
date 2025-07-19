@@ -3160,7 +3160,7 @@ end
 # We do not adjust hardTimeout. If we are not producing any results during 1200 seconds, buildbot terminates the tests. So we should terminate hung tests.
 
 if !ENV["JSCTEST_memoryLimit"] && $memoryLimited
-    ENV["JSCTEST_memoryLimit"] = (600 * 1024 * 1024).to_s
+    ENV["JSCTEST_memoryLimit"] = (1 * 1024 * 1024 * 1024).to_s
 end
 
 # Some tests fail if the time zone is not set to US/Pacific
