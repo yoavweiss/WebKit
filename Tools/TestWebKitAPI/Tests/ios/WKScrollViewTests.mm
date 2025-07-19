@@ -42,6 +42,23 @@
 constexpr CGFloat blackColorComponents[4] = { 0, 0, 0, 1 };
 constexpr CGFloat whiteColorComponents[4] = { 1, 1, 1, 1 };
 
+@interface UIView (TestWebKitAPI)
+- (BOOL)_appearsBeforeViewInSubviewOrder:(UIView *)view;
+@end
+
+@implementation UIView (TestWebKitAPI)
+
+- (BOOL)_appearsBeforeViewInSubviewOrder:(UIView *)view
+{
+    if (!view || view.superview != self.superview)
+        return false;
+
+    RetainPtr subviews = [self.superview subviews];
+    return [subviews count] && [subviews indexOfObject:self] < [subviews indexOfObject:view];
+}
+
+@end
+
 #if HAVE(UISCROLLVIEW_ASYNCHRONOUS_SCROLL_EVENT_HANDLING)
 
 #if USE(BROWSERENGINEKIT)
@@ -677,6 +694,36 @@ TEST(WKScrollViewTests, ShouldSuppressTopColorExtensionView)
     Util::waitForConditionWithLogging([topColorExtension] {
         return [topColorExtension isHidden];
     }, 5, @"Color extension view failed to hide");
+}
+
+TEST(WKScrollViewTests, TopColorExtensionViewAfterRemovingRefreshControl)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 800)]);
+    RetainPtr contentView = [webView wkContentView];
+    RetainPtr scrollView = [webView scrollView];
+
+    auto insets = UIEdgeInsetsMake(50, 0, 0, 0);
+    [webView setObscuredContentInsets:insets];
+
+    [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    [scrollView setContentInset:insets];
+
+    RetainPtr refreshControl = adoptNS([[UIRefreshControl alloc] init]);
+    [scrollView setRefreshControl:refreshControl.get()];
+
+    [webView synchronouslyLoadTestPageNamed:@"top-fixed-element"];
+    [webView waitForNextPresentationUpdate];
+
+    RetainPtr topColorExtension = [webView _colorExtensionViewForTesting:UIRectEdgeTop];
+
+    [scrollView setContentOffset:CGPointMake(0, -100)];
+    [webView waitForNextVisibleContentRectUpdate];
+    EXPECT_TRUE([topColorExtension _appearsBeforeViewInSubviewOrder:refreshControl.get()]);
+
+    [scrollView setRefreshControl:nil];
+    [scrollView setContentOffset:CGPointMake(0, 100)];
+    [webView waitForNextVisibleContentRectUpdate];
+    EXPECT_TRUE([contentView _appearsBeforeViewInSubviewOrder:topColorExtension.get()]);
 }
 
 #endif // HAVE(LIQUID_GLASS)

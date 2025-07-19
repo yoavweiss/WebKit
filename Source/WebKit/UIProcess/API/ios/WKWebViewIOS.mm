@@ -2447,10 +2447,9 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
     if (!topColorExtensionView || [topColorExtensionView isHidden])
         return;
 
-    auto refreshControlIndex = NSNotFound;
-    auto topColorExtensionViewIndex = NSNotFound;
-    auto contentViewIndex = NSNotFound;
-    BOOL foundAllViews = NO;
+    std::optional<NSInteger> refreshControlIndex;
+    std::optional<NSInteger> topColorExtensionViewIndex;
+    std::optional<NSInteger> contentViewIndex;
 
     NSInteger index = 0;
     RetainPtr refreshControl = [_scrollView refreshControl];
@@ -2462,21 +2461,19 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
         else if (subview == _contentView)
             contentViewIndex = index;
 
-        if (refreshControlIndex != NSNotFound && topColorExtensionViewIndex != NSNotFound && contentViewIndex != NSNotFound) {
-            foundAllViews = YES;
+        if (refreshControlIndex && topColorExtensionViewIndex && contentViewIndex)
             break;
-        }
 
         index++;
     }
 
-    if (!foundAllViews)
+    if (!topColorExtensionViewIndex)
         return;
 
     BOOL scrolledBeyondTopExtent = [_scrollView _wk_isScrolledBeyondTopExtent];
-    if (scrolledBeyondTopExtent && refreshControlIndex < topColorExtensionViewIndex)
+    if (scrolledBeyondTopExtent && refreshControlIndex && *refreshControlIndex < *topColorExtensionViewIndex)
         [_scrollView insertSubview:topColorExtensionView.get() belowSubview:refreshControl.get()];
-    else if (!scrolledBeyondTopExtent && topColorExtensionViewIndex < contentViewIndex)
+    else if (!scrolledBeyondTopExtent && contentViewIndex && *topColorExtensionViewIndex < *contentViewIndex)
         [_scrollView insertSubview:topColorExtensionView.get() aboveSubview:_contentView.get()];
 }
 
