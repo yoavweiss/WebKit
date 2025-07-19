@@ -9203,6 +9203,8 @@ header: <WebCore/AXObjectCache.h>
     bool isAccessibilityThreadInitialized;
     String liveTree;
     String isolatedTree;
+    uint64_t remoteTokenHash;
+    uint64_t webProcessLocalTokenHash;
 }
 
 header: <WebCore/ScriptTrackingPrivacyCategory.h>

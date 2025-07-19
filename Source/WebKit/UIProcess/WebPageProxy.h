@@ -1448,7 +1448,7 @@ public:
     void accessibilitySettingsDidChange();
     void enableAccessibilityForAllProcesses();
 
-#if PLATFORM(COCOA)
+#if PLATFORM(MAC)
     NSDictionary *getAccessibilityWebProcessDebugInfo();
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
     void clearAccessibilityIsolatedTree();

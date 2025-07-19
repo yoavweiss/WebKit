@@ -826,10 +826,12 @@ public:
     void enableAccessibilityForAllProcesses();
     void enableAccessibility();
 
+#if PLATFORM(MAC)
     void getAccessibilityWebProcessDebugInfo(CompletionHandler<void(WebCore::AXDebugInfo)>&&);
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
     void clearAccessibilityIsolatedTree();
 #endif
+#endif // PLATFORM(MAC)
 
     void screenPropertiesDidChange();
 

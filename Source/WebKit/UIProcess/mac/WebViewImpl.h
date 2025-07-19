@@ -501,6 +501,8 @@ public:
     void accessibilityRegisterUIProcessTokens();
     void updateRemoteAccessibilityRegistration(bool registerProcess);
     id accessibilityFocusedUIElement();
+    NSUInteger accessibilityRemoteChildTokenHash();
+    NSUInteger accessibilityUIProcessLocalTokenHash();
     bool accessibilityIsIgnored() const { return false; }
     id accessibilityHitTest(CGPoint);
     void enableAccessibilityIfNecessary(NSString *attribute = nil);
@@ -1004,6 +1006,8 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     bool m_allowsMagnification { false };
 
     RetainPtr<NSAccessibilityRemoteUIElement> m_remoteAccessibilityChild;
+    RetainPtr<NSData> m_remoteAccessibilityChildToken;
+    RetainPtr<NSData> m_remoteAccessibilityTokenGeneratedByUIProcess;
     RetainPtr<NSMutableDictionary> m_remoteAccessibilityFrameCache;
 
     RefPtr<WebCore::Image> m_promisedImage;

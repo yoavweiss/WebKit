@@ -509,9 +509,11 @@ messages -> WebPage WantsAsyncDispatchMessage {
     ResolveAccessibilityHitTestForTesting(WebCore::FrameIdentifier frameID, WebCore::IntPoint point) -> (String result)
     EnableAccessibility()
 
+#if PLATFORM(MAC)
     GetAccessibilityWebProcessDebugInfo() -> (struct WebCore::AXDebugInfo result) Synchronous
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
     ClearAccessibilityIsolatedTree()
+#endif
 #endif
 
 #if PLATFORM(COCOA)

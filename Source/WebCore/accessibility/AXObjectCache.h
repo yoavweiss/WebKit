@@ -145,6 +145,8 @@ struct AXDebugInfo {
     bool isAccessibilityThreadInitialized;
     String liveTree;
     String isolatedTree;
+    uint64_t remoteTokenHash;
+    uint64_t webProcessLocalTokenHash;
 };
 
 #if PLATFORM(COCOA)
@@ -491,6 +493,9 @@ public:
 
     static void enableAccessibility();
     static void disableAccessibility();
+#if PLATFORM(MAC)
+    WEBCORE_EXPORT static bool isAppleInternalInstall();
+#endif
     static bool forceDeferredSpellChecking();
     static void setForceDeferredSpellChecking(bool);
 #if PLATFORM(MAC)

@@ -3703,8 +3703,19 @@ void WebViewImpl::setAccessibilityWebProcessToken(NSData *data, pid_t pid)
 {
     if (pid == m_page->legacyMainFrameProcess().processID()) {
         m_remoteAccessibilityChild = data.length ? adoptNS([[NSAccessibilityRemoteUIElement alloc] initWithRemoteToken:data]) : nil;
+        m_remoteAccessibilityChildToken = data;
         updateRemoteAccessibilityRegistration(true);
     }
+}
+
+NSUInteger WebViewImpl::accessibilityRemoteChildTokenHash()
+{
+    return [m_remoteAccessibilityChildToken hash];
+}
+
+NSUInteger WebViewImpl::accessibilityUIProcessLocalTokenHash()
+{
+    return [m_remoteAccessibilityTokenGeneratedByUIProcess hash];
 }
 
 void WebViewImpl::updateRemoteAccessibilityRegistration(bool registerProcess)
@@ -3718,6 +3729,7 @@ void WebViewImpl::updateRemoteAccessibilityRegistration(bool registerProcess)
     else if (!registerProcess) {
         pid = [m_remoteAccessibilityChild processIdentifier];
         m_remoteAccessibilityChild = nil;
+        m_remoteAccessibilityChildToken = nil;
     }
     if (!pid)
         return;
@@ -3732,6 +3744,7 @@ void WebViewImpl::accessibilityRegisterUIProcessTokens()
 {
     // Initialize remote accessibility when the window connection has been established.
     RetainPtr remoteElementToken = [NSAccessibilityRemoteUIElement remoteTokenForLocalUIElement:m_view.getAutoreleased()];
+    m_remoteAccessibilityTokenGeneratedByUIProcess = remoteElementToken.get();
     RetainPtr remoteWindowToken = [NSAccessibilityRemoteUIElement remoteTokenForLocalUIElement:[m_view window]];
     m_page->registerUIProcessAccessibilityTokens(span(remoteElementToken.get()), span(remoteWindowToken.get()));
 }

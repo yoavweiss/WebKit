@@ -2736,31 +2736,6 @@ void WebPage::enableAccessibility()
         WebCore::AXObjectCache::enableAccessibility();
 }
 
-void WebPage::getAccessibilityWebProcessDebugInfo(CompletionHandler<void(WebCore::AXDebugInfo)>&& completionHandler)
-{
-    if (auto treeData = protectedCorePage()->accessibilityTreeData(IncludeDOMInfo::No)) {
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-        completionHandler({ WebCore::AXObjectCache::accessibilityEnabled(), WebCore::AXObjectCache::isAXThreadInitialized(), treeData->liveTree, treeData->isolatedTree });
-#else
-        completionHandler({ WebCore::AXObjectCache::accessibilityEnabled(), false, treeData->liveTree, treeData->isolatedTree });
-#endif
-        return;
-    }
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    completionHandler({ WebCore::AXObjectCache::accessibilityEnabled(), WebCore::AXObjectCache::isAXThreadInitialized(), { }, { } });
-#else
-    completionHandler({ WebCore::AXObjectCache::accessibilityEnabled(), false, { }, { } });
-#endif
-}
-
-#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-void WebPage::clearAccessibilityIsolatedTree()
-{
-    if (RefPtr page = m_page)
-        page->clearAccessibilityIsolatedTree();
-}
-#endif
-
 void WebPage::screenPropertiesDidChange()
 {
     protectedCorePage()->screenPropertiesDidChange();

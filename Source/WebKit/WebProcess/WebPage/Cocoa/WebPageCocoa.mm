@@ -526,6 +526,39 @@ void WebPage::resolveAccessibilityHitTestForTesting(WebCore::FrameIdentifier fra
     completionHandler("NULL"_s);
 }
 
+#if PLATFORM(MAC)
+void WebPage::getAccessibilityWebProcessDebugInfo(CompletionHandler<void(WebCore::AXDebugInfo)>&& completionHandler)
+{
+    if (!AXObjectCache::isAppleInternalInstall()) {
+        completionHandler({ });
+        return;
+    }
+
+    if (auto treeData = protectedCorePage()->accessibilityTreeData(IncludeDOMInfo::No)) {
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+        completionHandler({ WebCore::AXObjectCache::accessibilityEnabled(), WebCore::AXObjectCache::isAXThreadInitialized(), treeData->liveTree, treeData->isolatedTree, [m_mockAccessibilityElement remoteTokenHash], [accessibilityRemoteTokenData() hash] });
+#else
+        completionHandler({ WebCore::AXObjectCache::accessibilityEnabled(), false, treeData->liveTree, treeData->isolatedTree, [m_mockAccessibilityElement remoteTokenHash], [accessibilityRemoteTokenData() hash] });
+#endif
+        return;
+    }
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    completionHandler({ WebCore::AXObjectCache::accessibilityEnabled(), WebCore::AXObjectCache::isAXThreadInitialized(), { }, { }, 0, 0 });
+#else
+    completionHandler({ WebCore::AXObjectCache::accessibilityEnabled(), false, { }, { }, 0, 0 });
+#endif
+}
+
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+void WebPage::clearAccessibilityIsolatedTree()
+{
+    if (RefPtr page = m_page)
+        page->clearAccessibilityIsolatedTree();
+}
+#endif
+
+#endif // PLATFORM(MAC)
+
 #if ENABLE(APPLE_PAY)
 WebPaymentCoordinator* WebPage::paymentCoordinator()
 {

@@ -1758,6 +1758,7 @@ String WebPageProxy::presentingApplicationBundleIdentifier() const
     return { };
 }
 
+#if PLATFORM(MAC)
 NSDictionary *WebPageProxy::getAccessibilityWebProcessDebugInfo()
 {
     const Seconds messageTimeout(2);
@@ -1772,7 +1773,9 @@ NSDictionary *WebPageProxy::getAccessibilityWebProcessDebugInfo()
         @"axIsEnabled": [NSNumber numberWithBool:result.isAccessibilityEnabled],
         @"axIsThreadInitialized": [NSNumber numberWithBool:result.isAccessibilityThreadInitialized],
         @"axLiveTree": result.liveTree.createNSString().get(),
-        @"axIsolatedTree": result.isolatedTree.createNSString().get()
+        @"axIsolatedTree": result.isolatedTree.createNSString().get(),
+        @"axWebProcessRemoteHash": [NSNumber numberWithUnsignedInteger:result.remoteTokenHash],
+        @"axWebProcessLocalHash": [NSNumber numberWithUnsignedInteger:result.webProcessLocalTokenHash]
     };
 }
 
@@ -1784,6 +1787,7 @@ void WebPageProxy::clearAccessibilityIsolatedTree()
     });
 }
 #endif
+#endif // PLATFORM(MAC)
 
 } // namespace WebKit
 

@@ -138,6 +138,10 @@
 #include <wtf/text/AtomString.h>
 #include <wtf/text/MakeString.h>
 
+#if PLATFORM(COCOA)
+#include <wtf/spi/darwin/OSVariantSPI.h>
+#endif
+
 namespace WebCore {
 
 DEFINE_ALLOCATOR_WITH_HEAP_IDENTIFIER(AXComputedObjectAttributeCache);
@@ -5947,5 +5951,18 @@ void AXObjectCache::onWidgetVisibilityChanged(RenderWidget& widget)
     UNUSED_PARAM(widget);
 #endif
 }
+
+#if PLATFORM(MAC)
+bool AXObjectCache::isAppleInternalInstall()
+{
+    static bool isInternal = false;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        isInternal = os_variant_allows_internal_security_policies("com.apple.Accessibility");
+    });
+
+    return isInternal;
+}
+#endif // PLATFORM(COCOA)
 
 } // namespace WebCore

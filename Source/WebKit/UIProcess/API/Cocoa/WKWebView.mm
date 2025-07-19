@@ -6338,6 +6338,18 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
 #endif
 }
 
+#if PLATFORM(MAC)
+- (NSUInteger)accessibilityRemoteChildTokenHash
+{
+    return _impl->accessibilityRemoteChildTokenHash();
+}
+
+- (NSUInteger)accessibilityUIProcessLocalTokenHash
+{
+    return _impl->accessibilityUIProcessLocalTokenHash();
+}
+#endif // PLATFORM(MAC)
+
 @end
 
 @implementation WKWebView (WKDeprecated)
