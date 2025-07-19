@@ -270,16 +270,17 @@ Ref<const LayoutShape> makeShapeForShapeOutside(const RenderBox& renderer)
     case ShapeValue::Type::Image: {
         ASSERT(shapeValue.isImageValid());
         auto* styleImage = shapeValue.image();
-        auto imageSize = renderer.calculateImageIntrinsicDimensions(styleImage, boxSize, RenderImage::ScaleByUsedZoom::Yes);
-        styleImage->setContainerContextForRenderer(renderer, imageSize, style.usedZoom());
+        auto logicalImageSize = renderer.calculateImageIntrinsicDimensions(styleImage, boxSize, RenderImage::ScaleByUsedZoom::Yes);
+        styleImage->setContainerContextForRenderer(renderer, logicalImageSize, style.usedZoom());
 
-        auto marginRect = shapeImageMarginRect(renderer, boxSize);
+        auto logicalMarginRect = shapeImageMarginRect(renderer, boxSize);
         auto* renderImage = dynamicDowncast<RenderImage>(renderer);
-        auto imageRect = renderImage ? renderImage->replacedContentRect() : LayoutRect { { }, imageSize };
+        auto logicalImageRect = renderImage ? renderImage->replacedContentRect() : LayoutRect { { }, logicalImageSize };
 
         ASSERT(!styleImage->isPending());
-        RefPtr<Image> image = styleImage->image(const_cast<RenderBox*>(&renderer), imageSize);
-        return LayoutShape::createRasterShape(image.get(), shapeImageThreshold, imageRect, marginRect, writingMode, margin);
+        auto physicalImageSize = writingMode.isHorizontal() ? logicalImageSize : logicalImageSize.transposedSize();
+        RefPtr image = styleImage->image(const_cast<RenderBox*>(&renderer), physicalImageSize);
+        return LayoutShape::createRasterShape(image.get(), shapeImageThreshold, logicalImageRect, logicalMarginRect, writingMode, margin);
     }
     case ShapeValue::Type::Box: {
         auto shapeRect = computeRoundedRectForBoxShape(shapeValue.effectiveCSSBox(), renderer);
