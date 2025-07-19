@@ -298,7 +298,7 @@ static inline LayoutSize scrollbarLogicalSize(const RenderBox& renderer)
 
 static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox&);
 
-std::optional<LayoutUnit> lastInflowBoxBaseline(auto& blockContainer)
+static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockContainer)
 {
     auto writingMode = blockContainer.containingBlock()->writingMode();
     auto haveInFlowChild = false;
@@ -471,7 +471,13 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         return roundToInt(renderer->marginBoxLogicalHeight(writingMode));
     }
 
-    if ((is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox)) && !is<RenderMenuList>(renderBox)) {
+    if (CheckedPtr menuList = dynamicDowncast<RenderMenuList>(renderBox)) {
+        if (auto baseline = lastInflowBoxBaseline(*menuList))
+            return marginBefore + *baseline;
+        return menuList->marginBoxLogicalHeight(writingMode);
+    }
+
+    if (is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox)) {
         if (auto baseline = renderBox.firstLineBaseline())
             return marginBefore.toInt() + *baseline;
         return synthesizedBaseline(renderBox, *renderBox.parentStyle(), writingMode.isHorizontal() ? HorizontalLine : VerticalLine, BorderBox) + renderBox.marginLogicalHeight();
