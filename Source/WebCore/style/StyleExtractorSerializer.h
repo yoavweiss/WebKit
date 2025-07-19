@@ -116,7 +116,6 @@ public:
     static void serializeTabSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TabSize&);
     static void serializeScrollSnapType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapType&);
     static void serializeScrollSnapAlign(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapAlign&);
-    static void serializeScrollbarColor(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, std::optional<ScrollbarColor>);
     static void serializeLineBoxContain(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<Style::LineBoxContain>);
     static void serializeWebkitRubyPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, RubyPosition);
     static void serializePosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LengthPoint&);
@@ -1160,18 +1159,6 @@ inline void ExtractorSerializer::serializeScrollSnapAlign(ExtractorState& state,
     serialize(state, builder, context, alignment.blockAlign);
     builder.append(' ');
     serialize(state, builder, context, alignment.inlineAlign);
-}
-
-inline void ExtractorSerializer::serializeScrollbarColor(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, std::optional<ScrollbarColor> scrollbarColor)
-{
-    if (!scrollbarColor) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        return;
-    }
-
-    serializeStyleType(state, builder, context, scrollbarColor->thumbColor);
-    builder.append(' ');
-    serializeStyleType(state, builder, context, scrollbarColor->trackColor);
 }
 
 inline void ExtractorSerializer::serializeLineBoxContain(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<Style::LineBoxContain> lineBoxContain)

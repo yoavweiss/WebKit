@@ -1166,59 +1166,6 @@ private:
     void (RenderStyle::*m_setter)(WebCore::Color&&);
 };
 
-class ScrollbarColorWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ScrollbarColorWrapper, Animation);
-public:
-    ScrollbarColorWrapper()
-        : WrapperBase(CSSPropertyScrollbarColor)
-        , m_thumbWrapper(StyleTypeWrapper<Color>(CSSPropertyScrollbarColor, &RenderStyle::scrollbarThumbColor, &RenderStyle::setScrollbarThumbColor))
-        , m_trackWrapper(StyleTypeWrapper<Color>(CSSPropertyScrollbarColor, &RenderStyle::scrollbarTrackColor, &RenderStyle::setScrollbarTrackColor))
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        bool aAuto = !a.scrollbarColor().has_value();
-        bool bAuto = !b.scrollbarColor().has_value();
-
-        if (aAuto || bAuto)
-            return aAuto == bAuto;
-
-        return m_thumbWrapper.equals(a, b) && m_trackWrapper.equals(a, b);
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        return from.scrollbarColor().has_value() && to.scrollbarColor().has_value();
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        if (canInterpolate(from, to, context.compositeOperation)) {
-            destination.setScrollbarColor(from.scrollbarColor().value());
-            m_thumbWrapper.interpolate(destination, from, to, context);
-            m_trackWrapper.interpolate(destination, from, to, context);
-            return;
-        }
-
-        ASSERT(!context.progress || context.progress == 1.0);
-        auto& blendingRenderStyle = context.progress ? to : from;
-        destination.setScrollbarColor(blendingRenderStyle.scrollbarColor());
-    }
-
-#if !LOG_DISABLED
-    void log(const RenderStyle& from, const RenderStyle& to, const RenderStyle& destination, double progress) const final
-    {
-        m_thumbWrapper.log(from, to, destination, progress);
-        m_trackWrapper.log(from, to, destination, progress);
-    }
-#endif
-
-private:
-    StyleTypeWrapper<Color> m_thumbWrapper;
-    StyleTypeWrapper<Color> m_trackWrapper;
-};
-
 class VisitedAffectedColorWrapper final : public WrapperBase {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(VisitedAffectedColorWrapper, Animation);
 public:

@@ -32,7 +32,6 @@
 #include "ScrollSnapOffsetsInfo.h"
 #include "ScrollTypes.h"
 #include "Scrollbar.h"
-#include "ScrollbarColor.h"
 #include <wtf/CheckedPtr.h>
 #include <wtf/Forward.h>
 #include <wtf/TZoneMalloc.h>
@@ -57,8 +56,6 @@ class TiledBacking;
 class Element;
 
 enum class WheelScrollGestureState : uint8_t;
-
-struct ScrollbarColor;
 
 namespace Style {
 struct ScrollbarGutter;

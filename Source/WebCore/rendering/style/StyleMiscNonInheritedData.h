@@ -55,8 +55,6 @@ class StyleMultiColData;
 class StyleTransformData;
 class StyleVisitedLinkColorData;
 
-constexpr int appearanceBitWidth = 7;
-
 DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(StyleMiscNonInheritedData);
 class StyleMiscNonInheritedData : public RefCounted<StyleMiscNonInheritedData> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleMiscNonInheritedData, StyleMiscNonInheritedData);

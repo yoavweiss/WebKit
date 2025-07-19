@@ -41,7 +41,6 @@
 #include "Logging.h"
 #include "PlatformWheelEvent.h"
 #include "ScrollAnimator.h"
-#include "ScrollbarColor.h"
 #include "ScrollbarTheme.h"
 #include "ScrollbarsControllerMock.h"
 #include "StyleScrollbarGutter.h"

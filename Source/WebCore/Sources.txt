@@ -2954,7 +2954,6 @@ rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleConstants.cpp
 rendering/style/SVGRenderStyle.cpp
 rendering/style/SVGRenderStyleDefs.cpp
-rendering/style/ScrollbarColor.cpp
 rendering/style/ShapeValue.cpp
 rendering/style/StyleBackgroundData.cpp
 rendering/style/StyleBoxData.cpp
@@ -3204,6 +3203,7 @@ style/values/scroll-animations/StyleProgressTimelineName.cpp
 style/values/scroll-animations/StyleViewTimelineInsets.cpp
 style/values/scroll-snap/StyleScrollMargin.cpp
 style/values/scroll-snap/StyleScrollPadding.cpp
+style/values/scrollbars/StyleScrollbarColor.cpp
 style/values/shapes/StyleBasicShape.cpp
 style/values/shapes/StyleCircleFunction.cpp
 style/values/shapes/StyleEllipseFunction.cpp

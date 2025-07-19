@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 1999 Antti Koivisto (koivisto@kde.org)
  * Copyright (C) 2004-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -39,6 +40,7 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     void* styleImage;
     Style::Color firstColor;
     Style::Color colors[10];
+    Style::ScrollbarColor scrollbarColor;
     Style::DynamicRangeLimit dynamicRangeLimit;
     void* ownPtrs[1];
     AtomString atomStrings[5];
@@ -67,9 +69,6 @@ struct GreaterThanOrSameSizeAsStyleRareInheritedData : public RefCounted<Greater
     Style::ColorScheme colorScheme;
 #endif
     Style::ListStyleType listStyleType;
-
-    Markable<ScrollbarColor> scrollbarColor;
-
     Style::BlockEllipsis blockEllipsis;
 };
 
@@ -89,6 +88,7 @@ StyleRareInheritedData::StyleRareInheritedData()
     , caretColor(Style::Color::currentColor())
     , visitedLinkCaretColor(Style::Color::currentColor())
     , accentColor(Style::Color::currentColor())
+    , scrollbarColor(RenderStyle::initialScrollbarColor())
     , dynamicRangeLimit(RenderStyle::initialDynamicRangeLimit())
     , textShadow(RenderStyle::initialTextShadow())
     , usedZoom(RenderStyle::initialZoom())
@@ -169,7 +169,6 @@ StyleRareInheritedData::StyleRareInheritedData()
     , tapHighlightColor(RenderStyle::initialTapHighlightColor())
 #endif
     , listStyleType(RenderStyle::initialListStyleType())
-    , scrollbarColor(RenderStyle::initialScrollbarColor())
     , blockEllipsis(RenderStyle::initialBlockEllipsis())
 {
 }
@@ -187,6 +186,7 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , caretColor(o.caretColor)
     , visitedLinkCaretColor(o.visitedLinkCaretColor)
     , accentColor(o.accentColor)
+    , scrollbarColor(o.scrollbarColor)
     , dynamicRangeLimit(o.dynamicRangeLimit)
     , textShadow(o.textShadow)
     , cursorData(o.cursorData)
@@ -275,7 +275,6 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , tapHighlightColor(o.tapHighlightColor)
 #endif
     , listStyleType(o.listStyleType)
-    , scrollbarColor(o.scrollbarColor)
     , blockEllipsis(o.blockEllipsis)
 {
     ASSERT(o == *this, "StyleRareInheritedData should be properly copied.");
@@ -300,6 +299,7 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && caretColor == o.caretColor
         && visitedLinkCaretColor == o.visitedLinkCaretColor
         && accentColor == o.accentColor
+        && scrollbarColor == o.scrollbarColor
         && dynamicRangeLimit == o.dynamicRangeLimit
 #if ENABLE(TOUCH_EVENTS)
         && tapHighlightColor == o.tapHighlightColor
@@ -390,7 +390,6 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && customProperties == o.customProperties
         && arePointingToEqualData(listStyleImage, o.listStyleImage)
         && listStyleType == o.listStyleType
-        && scrollbarColor == o.scrollbarColor
         && blockEllipsis == o.blockEllipsis;
 }
 
@@ -417,6 +416,10 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT(caretColor);
     LOG_IF_DIFFERENT(visitedLinkCaretColor);
+
+    LOG_IF_DIFFERENT(accentColor);
+
+    LOG_IF_DIFFERENT(scrollbarColor);
 
     LOG_IF_DIFFERENT(dynamicRangeLimit);
 
@@ -542,7 +545,6 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 #endif
 
     LOG_IF_DIFFERENT(listStyleType);
-    LOG_IF_DIFFERENT(scrollbarColor);
     LOG_IF_DIFFERENT(blockEllipsis);
 }
 #endif

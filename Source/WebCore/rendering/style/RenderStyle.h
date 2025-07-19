@@ -249,7 +249,6 @@ struct SingleTimelineRange;
 
 struct ScrollSnapAlign;
 struct ScrollSnapType;
-struct ScrollbarColor;
 struct NameScope;
 
 struct TabSize;
@@ -317,6 +316,7 @@ struct ScopedName;
 struct ScrollMarginEdge;
 struct ScrollPaddingEdge;
 struct ScrollTimelines;
+struct ScrollbarColor;
 struct ScrollbarGutter;
 struct TextEmphasisStyle;
 struct TextIndent;
@@ -1132,9 +1132,7 @@ public:
 
     Color usedScrollbarThumbColor() const;
     Color usedScrollbarTrackColor() const;
-    inline std::optional<ScrollbarColor> scrollbarColor() const;
-    inline const Style::Color& scrollbarThumbColor() const;
-    inline const Style::Color& scrollbarTrackColor() const;
+    inline const Style::ScrollbarColor& scrollbarColor() const;
     inline const Style::ScrollbarGutter& scrollbarGutter() const;
     inline ScrollbarWidth scrollbarWidth() const;
 
@@ -1677,9 +1675,7 @@ public:
     void setScrollSnapAlign(const ScrollSnapAlign&);
     void setScrollSnapStop(ScrollSnapStop);
 
-    inline void setScrollbarColor(const std::optional<ScrollbarColor>&);
-    inline void setScrollbarThumbColor(Style::Color&&);
-    inline void setScrollbarTrackColor(Style::Color&&);
+    inline void setScrollbarColor(Style::ScrollbarColor&&);
     inline void setScrollbarGutter(Style::ScrollbarGutter&&);
     inline void setScrollbarWidth(ScrollbarWidth);
 
@@ -2148,7 +2144,7 @@ public:
     static inline Style::ProgressTimelineNames initialViewTimelineNames();
     static inline Style::ViewTimelineInsets initialViewTimelineInsets();
 
-    static inline std::optional<ScrollbarColor> initialScrollbarColor();
+    static inline Style::ScrollbarColor initialScrollbarColor();
     static constexpr Style::ScrollbarGutter initialScrollbarGutter();
     static constexpr ScrollbarWidth initialScrollbarWidth();
 

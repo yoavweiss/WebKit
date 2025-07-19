@@ -68,7 +68,6 @@
 #include "ScaleTransformOperation.h"
 #include "ScopedName.h"
 #include "ScrollAxis.h"
-#include "ScrollbarColor.h"
 #include "Settings.h"
 #include "StyleBasicShape.h"
 #include "StyleBuilderChecking.h"
@@ -167,7 +166,6 @@ public:
     static RefPtr<ShapeValue> convertShapeValue(BuilderState&, const CSSValue&);
     static ScrollSnapType convertScrollSnapType(BuilderState&, const CSSValue&);
     static ScrollSnapAlign convertScrollSnapAlign(BuilderState&, const CSSValue&);
-    static std::optional<ScrollbarColor> convertScrollbarColor(BuilderState&, const CSSValue&);
     // scrollbar-width converter is only needed for quirking.
     static ScrollbarWidth convertScrollbarWidth(BuilderState&, const CSSValue&);
     static GridAutoFlow convertGridAutoFlow(BuilderState&, const CSSValue&);
@@ -942,23 +940,6 @@ inline ScrollSnapAlign BuilderConverter::convertScrollSnapAlign(BuilderState& bu
     return {
         fromCSSValue<ScrollSnapAxisAlignType>(pair->first),
         fromCSSValue<ScrollSnapAxisAlignType>(pair->second)
-    };
-}
-
-inline std::optional<ScrollbarColor> BuilderConverter::convertScrollbarColor(BuilderState& builderState, const CSSValue& value)
-{
-    if (is<CSSPrimitiveValue>(value)) {
-        ASSERT(value.valueID() == CSSValueAuto);
-        return std::nullopt;
-    }
-
-    auto* pair = requiredDowncast<CSSValuePair>(builderState, value);
-    if (!pair)
-        return { };
-
-    return ScrollbarColor {
-        convertStyleType<Color>(builderState, pair->first(), ForVisitedLink::No),
-        convertStyleType<Color>(builderState, pair->second(), ForVisitedLink::No),
     };
 }
 

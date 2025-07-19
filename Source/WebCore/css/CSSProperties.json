@@ -11933,20 +11933,19 @@
         },
         "scrollbar-color": {
             "animation-type": "by computed value",
+            "inherited": true,
             "initial": "auto",
             "values": [
                 "auto"
             ],
             "codegen-properties": {
                 "settings-flag": "cssScrollbarColorEnabled",
-                "animation-wrapper": "ScrollbarColorWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-converter": "ScrollbarColor",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ScrollbarColor>",
                 "parser-function": "consumeScrollbarColor",
                 "parser-grammar-unused": "auto | <color>{2}",
                 "parser-grammar-unused-reason": "Needs support for non-coalescing CSSValuePair."
             },
-            "inherited": true,
             "specification": {
                 "category": "css-scrollbars",
                 "url": "https://drafts.csswg.org/css-scrollbars/#scrollbar-color"

@@ -3018,24 +3018,30 @@ Color RenderStyle::usedAccentColor(OptionSet<StyleColorOptions> styleColorOption
 
 Color RenderStyle::usedScrollbarThumbColor() const
 {
-    if (!scrollbarColor().has_value())
-        return { };
-
-    if (hasAppleColorFilter())
-        return colorByApplyingColorFilter(colorResolvingCurrentColor(scrollbarColor().value().thumbColor));
-
-    return colorResolvingCurrentColor(scrollbarColor().value().thumbColor);
+    return WTF::switchOn(scrollbarColor(),
+        [&](const CSS::Keyword::Auto&) -> Color {
+            return { };
+        },
+        [&](const auto& parts) -> Color {
+            if (hasAppleColorFilter())
+                return colorByApplyingColorFilter(colorResolvingCurrentColor(parts.thumb));
+            return colorResolvingCurrentColor(parts.thumb);
+        }
+    );
 }
 
 Color RenderStyle::usedScrollbarTrackColor() const
 {
-    if (!scrollbarColor().has_value())
-        return { };
-
-    if (hasAppleColorFilter())
-        return colorByApplyingColorFilter(colorResolvingCurrentColor(scrollbarColor().value().trackColor));
-
-    return colorResolvingCurrentColor(scrollbarColor().value().trackColor);
+    return WTF::switchOn(scrollbarColor(),
+        [&](const CSS::Keyword::Auto&) -> Color {
+            return { };
+        },
+        [&](const auto& parts) -> Color {
+            if (hasAppleColorFilter())
+                return colorByApplyingColorFilter(colorResolvingCurrentColor(parts.track));
+            return colorResolvingCurrentColor(parts.track);
+        }
+    );
 }
 
 const BorderValue& RenderStyle::borderBefore(const WritingMode writingMode) const

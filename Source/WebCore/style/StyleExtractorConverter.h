@@ -199,7 +199,6 @@ public:
     static Ref<CSSValue> convertTabSize(ExtractorState&, const TabSize&);
     static Ref<CSSValue> convertScrollSnapType(ExtractorState&, const ScrollSnapType&);
     static Ref<CSSValue> convertScrollSnapAlign(ExtractorState&, const ScrollSnapAlign&);
-    static Ref<CSSValue> convertScrollbarColor(ExtractorState&, std::optional<ScrollbarColor>);
     static Ref<CSSValue> convertLineBoxContain(ExtractorState&, OptionSet<Style::LineBoxContain>);
     static Ref<CSSValue> convertWebkitRubyPosition(ExtractorState&, RubyPosition);
     static Ref<CSSValue> convertPosition(ExtractorState&, const LengthPoint&);
@@ -956,16 +955,6 @@ inline Ref<CSSValue> ExtractorConverter::convertScrollSnapAlign(ExtractorState& 
     return CSSValuePair::create(
         convert(state, alignment.blockAlign),
         convert(state, alignment.inlineAlign)
-    );
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertScrollbarColor(ExtractorState& state, std::optional<ScrollbarColor> scrollbarColor)
-{
-    if (!scrollbarColor)
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    return CSSValuePair::createNoncoalescing(
-        convertStyleType(state, scrollbarColor->thumbColor),
-        convertStyleType(state, scrollbarColor->trackColor)
     );
 }
 
