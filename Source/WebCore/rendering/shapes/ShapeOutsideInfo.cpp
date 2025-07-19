@@ -255,17 +255,16 @@ Ref<const LayoutShape> makeShapeForShapeOutside(const RenderBox& renderer)
 
     auto boxSize = computeLogicalBoxSize(renderer, isHorizontalWritingMode);
 
-    auto margin = [&] {
-        auto shapeMargin = floatValueForLength(style.shapeMargin(), containingBlock.contentBoxWidth());
+    auto logicalMargin = [&] {
+        auto shapeMargin = floatValueForLength(style.shapeMargin(), containingBlock.contentBoxLogicalWidth());
         return isnan(shapeMargin) ? 0.0f : shapeMargin;
     }();
-
 
     switch (shapeValue.type()) {
     case ShapeValue::Type::Shape: {
         ASSERT(shapeValue.shape());
         auto offset = LayoutPoint { logicalLeftOffset(renderer), logicalTopOffset(renderer) };
-        return LayoutShape::createShape(*shapeValue.shape(), offset, boxSize, writingMode, margin);
+        return LayoutShape::createShape(*shapeValue.shape(), offset, boxSize, writingMode, logicalMargin);
     }
     case ShapeValue::Type::Image: {
         ASSERT(shapeValue.isImageValid());
@@ -280,7 +279,7 @@ Ref<const LayoutShape> makeShapeForShapeOutside(const RenderBox& renderer)
         ASSERT(!styleImage->isPending());
         auto physicalImageSize = writingMode.isHorizontal() ? logicalImageSize : logicalImageSize.transposedSize();
         RefPtr image = styleImage->image(const_cast<RenderBox*>(&renderer), physicalImageSize);
-        return LayoutShape::createRasterShape(image.get(), shapeImageThreshold, logicalImageRect, logicalMarginRect, writingMode, margin);
+        return LayoutShape::createRasterShape(image.get(), shapeImageThreshold, logicalImageRect, logicalMarginRect, writingMode, logicalMargin);
     }
     case ShapeValue::Type::Box: {
         auto shapeRect = computeRoundedRectForBoxShape(shapeValue.effectiveCSSBox(), renderer);
@@ -302,7 +301,7 @@ Ref<const LayoutShape> makeShapeForShapeOutside(const RenderBox& renderer)
             }
         };
         flipForWritingAndInlineDirection();
-        return LayoutShape::createBoxShape(shapeRect, writingMode, margin);
+        return LayoutShape::createBoxShape(shapeRect, writingMode, logicalMargin);
     }
     }
     ASSERT_NOT_REACHED();

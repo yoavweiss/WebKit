@@ -92,7 +92,7 @@ static inline FloatSize physicalSizeToLogical(const FloatSize& size, WritingMode
     return size.transposedSize();
 }
 
-Ref<const LayoutShape> LayoutShape::createShape(const Style::BasicShape& basicShape, const LayoutPoint& borderBoxOffset, const LayoutSize& logicalBoxSize, WritingMode writingMode, float margin)
+Ref<const LayoutShape> LayoutShape::createShape(const Style::BasicShape& basicShape, const LayoutPoint& borderBoxOffset, const LayoutSize& logicalBoxSize, WritingMode writingMode, float logicalMargin)
 {
     bool horizontalWritingMode = writingMode.isHorizontal();
     float boxWidth = horizontalWritingMode ? logicalBoxSize.width() : logicalBoxSize.height();
@@ -166,12 +166,12 @@ Ref<const LayoutShape> LayoutShape::createShape(const Style::BasicShape& basicSh
     );
 
     shape->m_writingMode = writingMode;
-    shape->m_margin = margin;
+    shape->m_margin = logicalMargin;
 
     return shape;
 }
 
-Ref<const LayoutShape> LayoutShape::createRasterShape(Image* image, float threshold, const LayoutRect& logicalImageRect, const LayoutRect& logicalMarginRect, WritingMode writingMode, float margin)
+Ref<const LayoutShape> LayoutShape::createRasterShape(Image* image, float threshold, const LayoutRect& logicalImageRect, const LayoutRect& logicalMarginRect, WritingMode writingMode, float logicalMargin)
 {
     ASSERT(logicalMarginRect.height() >= 0);
 
@@ -185,7 +185,7 @@ Ref<const LayoutShape> LayoutShape::createRasterShape(Image* image, float thresh
     auto createShape = [&]() {
         auto rasterShape = adoptRef(*new RasterLayoutShape(WTFMove(intervals), snappedLogicalMarginRect.size()));
         rasterShape->m_writingMode = writingMode;
-        rasterShape->m_margin = margin;
+        rasterShape->m_margin = logicalMargin;
         return rasterShape;
     };
 
@@ -237,14 +237,14 @@ Ref<const LayoutShape> LayoutShape::createRasterShape(Image* image, float thresh
     return createShape();
 }
 
-Ref<const LayoutShape> LayoutShape::createBoxShape(const LayoutRoundedRect& roundedRect, WritingMode writingMode, float margin)
+Ref<const LayoutShape> LayoutShape::createBoxShape(const LayoutRoundedRect& roundedRect, WritingMode writingMode, float logicalMargin)
 {
     ASSERT(roundedRect.rect().width() >= 0 && roundedRect.rect().height() >= 0);
 
     FloatRoundedRect bounds { roundedRect };
     auto shape = adoptRef(*new BoxLayoutShape(bounds));
     shape->m_writingMode = writingMode;
-    shape->m_margin = margin;
+    shape->m_margin = logicalMargin;
 
     return shape;
 }

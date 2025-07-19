@@ -3695,12 +3695,7 @@ imported/w3c/web-platform-tests/css/cssom-view/scroll-behavior-smooth.html [ Ski
 
 # wpt css-shapes
 webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-008.html [ ImageOnlyFailure ]
-webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-011.html [ ImageOnlyFailure ]
-webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-012.html [ ImageOnlyFailure ]
-webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-013.html [ ImageOnlyFailure ]
 webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-014.html [ ImageOnlyFailure ]
-webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-015.html [ ImageOnlyFailure ]
-webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-016.html [ ImageOnlyFailure ]
 
 # Initial failures on the import of css-overflow
 imported/w3c/web-platform-tests/css/css-overflow/line-clamp/line-clamp-001.html [ ImageOnlyFailure ]
