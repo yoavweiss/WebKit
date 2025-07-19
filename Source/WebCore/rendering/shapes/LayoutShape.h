@@ -38,12 +38,7 @@
 namespace WebCore {
 
 struct LineSegment {
-    LineSegment()
-        : logicalLeft(0)
-        , logicalRight(0)
-        , isValid(false)
-    {
-    }
+    LineSegment() = default;
 
     LineSegment(float logicalLeft, float logicalRight)
         : logicalLeft(logicalLeft)
@@ -52,9 +47,9 @@ struct LineSegment {
     {
     }
 
-    float logicalLeft;
-    float logicalRight;
-    bool isValid;
+    float logicalLeft { 0.f };
+    float logicalRight { 0.f };
+    bool isValid { false };
 };
 
 class Image;
