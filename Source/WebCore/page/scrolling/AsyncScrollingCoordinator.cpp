@@ -618,6 +618,7 @@ void AsyncScrollingCoordinator::applyScrollUpdate(ScrollUpdate&& update, ScrollT
 
 void AsyncScrollingCoordinator::applyScrollPositionUpdate(ScrollUpdate&& update, ScrollType scrollType)
 {
+    LOG_WITH_STREAM(Scrolling, stream << "AsyncScrollingCoordinator::applyScrollPositionUpdate " << update);
     switch (update.updateType) {
     case ScrollUpdateType::AnimatedScrollWillStart:
         animatedScrollWillStartForNode(update.nodeID);
@@ -637,6 +638,10 @@ void AsyncScrollingCoordinator::applyScrollPositionUpdate(ScrollUpdate&& update,
 
     case ScrollUpdateType::PositionUpdate:
         updateScrollPositionAfterAsyncScroll(update.nodeID, update.scrollPosition, update.layoutViewportOrigin, update.updateLayerPositionAction, scrollType);
+        return;
+
+    case ScrollUpdateType::ProgrammaticScrollDidEnd:
+        notifyScrollableAreasForScrollEnd(update.nodeID);
         return;
     }
 }
@@ -672,15 +677,14 @@ void AsyncScrollingCoordinator::animatedScrollDidEndForNode(ScrollingNodeID scro
 
     m_hysterisisActivity.stop();
 
-    if (scrollingNodeID == frameView->scrollingNodeID()) {
+    if (scrollingNodeID == frameView->scrollingNodeID())
         frameView->setScrollAnimationStatus(ScrollAnimationStatus::NotAnimating);
-        return;
-    }
-
-    if (auto* scrollableArea = frameView->scrollableAreaForScrollingNodeID(scrollingNodeID)) {
+    else if (auto* scrollableArea = frameView->scrollableAreaForScrollingNodeID(scrollingNodeID)) {
         scrollableArea->setScrollAnimationStatus(ScrollAnimationStatus::NotAnimating);
         scrollableArea->animatedScrollDidEnd();
     }
+
+    notifyScrollableAreasForScrollEnd(scrollingNodeID);
 }
 
 void AsyncScrollingCoordinator::wheelEventScrollWillStartForNode(ScrollingNodeID scrollingNodeID)
@@ -702,6 +706,21 @@ void AsyncScrollingCoordinator::wheelEventScrollWillStartForNode(ScrollingNodeID
 void AsyncScrollingCoordinator::wheelEventScrollDidEndForNode(ScrollingNodeID scrollingNodeID)
 {
     ASSERT(isMainThread());
+    RefPtr page = this->page();
+    if (!page)
+        return;
+
+    RefPtr frameView = frameViewForScrollingNode(scrollingNodeID);
+    if (!frameView)
+        return;
+
+    m_hysterisisActivity.stop();
+    notifyScrollableAreasForScrollEnd(scrollingNodeID);
+}
+
+void AsyncScrollingCoordinator::notifyScrollableAreasForScrollEnd(ScrollingNodeID scrollingNodeID)
+{
+    ASSERT(isMainThread());
 
     RefPtr page = this->page();
     if (!page)
@@ -715,8 +734,6 @@ void AsyncScrollingCoordinator::wheelEventScrollDidEndForNode(ScrollingNodeID sc
         frameView->scrollDidEnd();
     else if (CheckedPtr scrollableArea = frameView->scrollableAreaForScrollingNodeID(scrollingNodeID))
         scrollableArea->scrollDidEnd();
-
-    m_hysterisisActivity.stop();
 }
 
 void AsyncScrollingCoordinator::updateScrollPositionAfterAsyncScroll(ScrollingNodeID scrollingNodeID, const FloatPoint& scrollPosition, std::optional<FloatPoint> layoutViewportOrigin, ScrollingLayerPositionAction scrollingLayerPositionAction, ScrollType scrollType)

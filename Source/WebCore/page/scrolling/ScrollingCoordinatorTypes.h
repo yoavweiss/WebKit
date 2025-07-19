@@ -157,6 +157,7 @@ enum class ScrollUpdateType : uint8_t {
     AnimatedScrollDidEnd,
     WheelEventScrollWillStart,
     WheelEventScrollDidEnd,
+    ProgrammaticScrollDidEnd,
 };
 
 struct ScrollUpdate {

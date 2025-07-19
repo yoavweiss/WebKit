@@ -2147,6 +2147,9 @@ webkit.org/b/291966 [ Sequoia+ ] http/tests/webgpu/webgpu/api/validation/render_
 [ Sonoma+ Debug ] imported/w3c/web-platform-tests/webcodecs/video-encoder-rescaling.https.any.worker.html?vp8 [ Skip ]
 [ Sonoma+ Debug ] imported/w3c/web-platform-tests/webcodecs/video-encoder-rescaling.https.any.worker.html?vp9_p0 [ Skip ]
 
+webkit.org/b/296195 imported/w3c/web-platform-tests/dom/events/scrolling/scrollend-event-fired-to-element-with-overscroll-behavior.html [ Skip ]
+webkit.org/b/296195 imported/w3c/web-platform-tests/dom/events/scrolling/scrollend-fires-to-text-input.html [ Skip ]
+
 webkit.org/b/292203 [ Debug ] imported/w3c/web-platform-tests/css/css-view-transitions/transition-in-hidden-page.html [ Pass Crash ]
 
 webkit.org/b/292650 http/tests/iframe-monitor/throttler.html [ Timeout ]
