@@ -338,15 +338,19 @@ AccessibilityObject* AccessibilityScrollView::parentObject() const
     if (!cache)
         return nullptr;
 
-    WeakPtr owner = m_frameOwnerElement.get();
+    Element* ancestorElement = m_frameOwnerElement.get();
     if (RefPtr localFrameView = dynamicDowncast<LocalFrameView>(m_scrollView.get()))
-        owner = localFrameView->frame().ownerElement();
+        ancestorElement = localFrameView->frame().ownerElement();
     else if (RefPtr remoteFrameView = dynamicDowncast<RemoteFrameView>(m_scrollView.get()))
-        owner = remoteFrameView->frame().ownerElement();
+        ancestorElement = remoteFrameView->frame().ownerElement();
 
-    if (owner && owner->renderer())
-        return cache->getOrCreate(*owner);
-    return nullptr;
+    AccessibilityObject* ancestorAccessibilityObject = nullptr;
+    while (ancestorElement && !ancestorAccessibilityObject) {
+        if ((ancestorAccessibilityObject = cache->getOrCreate(*ancestorElement)))
+            break;
+        ancestorElement = ancestorElement->parentElementInComposedTree();
+    }
+    return ancestorAccessibilityObject;
 }
 
 void AccessibilityScrollView::scrollTo(const IntPoint& point) const
