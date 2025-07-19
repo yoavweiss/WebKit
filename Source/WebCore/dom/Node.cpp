@@ -57,7 +57,6 @@
 #include "InputEvent.h"
 #include "InspectorController.h"
 #include "InspectorInstrumentation.h"
-#include "JSNode.h"
 #include "KeyboardEvent.h"
 #include "LiveNodeListInlines.h"
 #include "LocalDOMWindow.h"
@@ -81,7 +80,6 @@
 #include "SVGElementInlines.h"
 #include "ScopedEventQueue.h"
 #include "ScriptDisallowedScope.h"
-#include "SerializedNode.h"
 #include "Settings.h"
 #include "StorageEvent.h"
 #include "StyleResolver.h"
@@ -826,13 +824,6 @@ ExceptionOr<void> Node::normalize()
     }
 
     return { };
-}
-
-JSC::JSValue Node::deserializeNode(JSC::JSGlobalObject* lexicalGlobalObject, JSDOMGlobalObject* domGlobalObject, Document& document, SerializedNode&& serializedNode)
-{
-    // FIXME: Support other kinds of nodes.
-    Ref<Node> node = Text::create(document, WTFMove(serializedNode.text));
-    return toJSNewlyCreated(lexicalGlobalObject, domGlobalObject, WTFMove(node));
 }
 
 Ref<Node> Node::cloneNode(bool deep) const

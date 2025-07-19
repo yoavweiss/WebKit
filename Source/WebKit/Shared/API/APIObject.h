@@ -52,7 +52,7 @@ class Object
 {
     WTF_MAKE_NONCOPYABLE(Object);
 public:
-    enum class Type : uint8_t {
+    enum class Type {
         // Base types
         Null = 0,
         Array,
@@ -171,7 +171,6 @@ public:
         RunJavaScriptAlertResultListener,
         RunJavaScriptConfirmResultListener,
         RunJavaScriptPromptResultListener,
-        SerializedNode,
         SpeechRecognitionPermissionCallback,
         TextChecker,
         TextRun,

@@ -27,7 +27,7 @@ struct WebKit::NodeInfo {
 
 class WebKit::JavaScriptEvaluationResult {
     WebKit::JSObjectID root()
-    HashMap<WebKit::JSObjectID, Variant<WebKit::JavaScriptEvaluationResult::EmptyType, bool, double, String, Seconds, Vector<WebKit::JSObjectID>, HashMap<WebKit::JSObjectID, WebKit::JSObjectID>, WebKit::NodeInfo, WebCore::SerializedNode>> map()
+    HashMap<WebKit::JSObjectID, Variant<WebKit::JavaScriptEvaluationResult::EmptyType, bool, double, String, Seconds, Vector<WebKit::JSObjectID>, HashMap<WebKit::JSObjectID, WebKit::JSObjectID>, WebKit::NodeInfo>> map()
 }
 
 [Nested] enum class WebKit::JavaScriptEvaluationResult::EmptyType : bool

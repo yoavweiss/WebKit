@@ -29,12 +29,10 @@
 #import "PlatformUtilities.h"
 #import "TestNavigationDelegate.h"
 #import "TestScriptMessageHandler.h"
-#import "TestWKWebView.h"
 #import <WebKit/WKContentWorldPrivate.h>
 #import <WebKit/_WKContentWorldConfiguration.h>
 #import <WebKit/_WKFeature.h>
 #import <WebKit/_WKNodeInfo.h>
-#import <WebKit/_WKSerializedNode.h>
 
 namespace TestWebKitAPI {
 
@@ -103,26 +101,6 @@ TEST(NodeInfo, Basic)
     [webView evaluateJavaScript:@"window.WebKitNodeInfo" completionHandler:^(id result, NSError *error) {
         EXPECT_NULL(result);
         EXPECT_NULL(error);
-        done = true;
-    }];
-    Util::run(&done);
-}
-
-TEST(SerializedNode, Basic)
-{
-    RetainPtr webView = adoptNS([WKWebView new]);
-
-    RetainPtr worldConfiguration = adoptNS([_WKContentWorldConfiguration new]);
-    worldConfiguration.get().allowNodeInfo = YES;
-    RetainPtr world = [WKContentWorld _worldWithConfiguration:worldConfiguration.get()];
-
-    __block bool done = false;
-    [webView evaluateJavaScript:@"window.webkit.serializeNode(document.createTextNode('text content'))" inFrame:nil inContentWorld:world.get() completionHandler:^(id serializedNode, NSError *error) {
-        EXPECT_TRUE([serializedNode isKindOfClass:_WKSerializedNode.class]);
-        EXPECT_NULL(error);
-        RetainPtr other = adoptNS([TestWKWebView new]);
-        id result = [other objectByCallingAsyncFunction:@"return n.wholeText" withArguments:@{ @"n" : serializedNode } error:nil];
-        EXPECT_WK_STREQ(result, "text content");
         done = true;
     }];
     Util::run(&done);

@@ -30,10 +30,8 @@
 #import "WKTextAnimationManagerMac.h"
 
 #import "ImageOptions.h"
-#import "WKWebView.h"
 #import "WebPageProxy.h"
 #import "WebViewImpl.h"
-#import <WebCore/NativeImage.h>
 #import <WebCore/TextAnimationTypes.h>
 #import <pal/cocoa/WritingToolsUISoftLink.h>
 

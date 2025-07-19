@@ -34,7 +34,6 @@
 #include "MediaQueryParser.h"
 #include "MediaQueryParserContext.h"
 #include "NodeInlines.h"
-#include "SerializedNode.h"
 #include "StyleScope.h"
 #include "StyleSheetContents.h"
 #include "XMLDocumentParser.h"
@@ -79,11 +78,6 @@ Ref<Node> ProcessingInstruction::cloneNodeInternal(Document& document, CloningOp
     // FIXME: Is it a problem that this does not copy m_localHref?
     // What about other data members?
     return create(document, String { m_target }, String { data() });
-}
-
-SerializedNode ProcessingInstruction::serializeNode(CloningOperation) const
-{
-    return { };
 }
 
 void ProcessingInstruction::checkStyleSheet()

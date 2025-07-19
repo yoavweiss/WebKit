@@ -1593,7 +1593,6 @@ JS_BINDING_IDLS := \
     $(WebCore)/page/WebKitNamespace.idl \
     $(WebCore)/page/WebKitNodeInfo.idl \
     $(WebCore)/page/WebKitPoint.idl \
-    $(WebCore)/page/WebKitSerializedNode.idl \
     $(WebCore)/page/WindowEventHandlers.idl \
     $(WebCore)/page/WindowLocalStorage.idl \
     $(WebCore)/page/WindowOrWorkerGlobalScope+Crypto.idl \

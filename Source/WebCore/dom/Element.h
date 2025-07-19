@@ -964,7 +964,6 @@ private:
 
     // The cloneNode function is private so that non-virtual cloneElementWith/WithoutChildren are used instead.
     Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const override;
-    SerializedNode serializeNode(CloningOperation) const override;
     void cloneShadowTreeIfPossible(Element& newHost, CustomElementRegistry*) const;
     virtual Ref<Element> cloneElementWithoutAttributesAndChildren(Document&, CustomElementRegistry*) const;
 

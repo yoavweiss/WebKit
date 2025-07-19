@@ -46,11 +46,6 @@ namespace WTF {
 class TextStream;
 }
 
-namespace JSC {
-class JSValue;
-class JSGlobalObject;
-}
-
 namespace WebCore {
 
 class ContainerNode;
@@ -82,8 +77,6 @@ class TouchEvent;
 class TreeScope;
 class WebCoreOpaqueRoot;
 
-struct SerializedNode;
-
 enum class TextDirection : bool;
 
 template<typename T> class ExceptionOr;
@@ -97,8 +90,6 @@ struct PseudoElementIdentifier;
 WTF_ALLOW_COMPACT_POINTERS_TO_INCOMPLETE_TYPE(WebCore::NodeRareData);
 
 namespace WebCore {
-
-class JSDOMGlobalObject;
 
 enum class MutationObserverOptionType : uint8_t;
 enum class TaskSource : uint8_t;
@@ -202,8 +193,6 @@ public:
         Everything,
     };
     virtual Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const = 0;
-    virtual SerializedNode serializeNode(CloningOperation) const = 0;
-    WEBCORE_EXPORT static JSC::JSValue deserializeNode(JSC::JSGlobalObject*, JSDOMGlobalObject*, Document&, SerializedNode&&);
     Ref<Node> cloneNode(bool deep) const;
     WEBCORE_EXPORT ExceptionOr<Ref<Node>> cloneNodeForBindings(bool deep) const;
 

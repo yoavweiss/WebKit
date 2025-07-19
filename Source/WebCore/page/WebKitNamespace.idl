@@ -32,5 +32,4 @@
 ] interface WebKitNamespace {
     readonly attribute UserMessageHandlersNamespace messageHandlers;
     [EnabledForWorld=nodeInfoEnabled] WebKitNodeInfo createNodeInfo(Node node);
-    [EnabledForWorld=nodeInfoEnabled] WebKitSerializedNode serializeNode(Node node);
 };

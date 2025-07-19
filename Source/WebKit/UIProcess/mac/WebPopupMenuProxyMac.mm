@@ -37,7 +37,6 @@
 #import <pal/system/mac/PopupMenu.h>
 #import <wtf/BlockObjCExceptions.h>
 #import <wtf/ProcessPrivilege.h>
-#import <wtf/cocoa/TypeCastsCocoa.h>
 
 namespace WebKit {
 using namespace WebCore;

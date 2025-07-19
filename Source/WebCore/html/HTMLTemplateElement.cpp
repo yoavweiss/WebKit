@@ -39,7 +39,6 @@
 #include "HTMLNames.h"
 #include "NodeInlines.h"
 #include "NodeTraversal.h"
-#include "SerializedNode.h"
 #include "ShadowRoot.h"
 #include "ShadowRootInit.h"
 #include "SlotAssignmentMode.h"
@@ -126,11 +125,6 @@ Ref<Node> HTMLTemplateElement::cloneNodeInternal(Document& document, CloningOper
         content().cloneChildNodes(fragment->document(), nullptr, fragment);
     }
     return clone.releaseNonNull();
-}
-
-SerializedNode HTMLTemplateElement::serializeNode(CloningOperation) const
-{
-    return { };
 }
 
 void HTMLTemplateElement::didMoveToNewDocument(Document& oldDocument, Document& newDocument)

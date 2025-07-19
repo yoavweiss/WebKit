@@ -2079,7 +2079,6 @@ private:
     String nodeName() const final;
     bool childTypeAllowed(NodeType) const final;
     Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const final;
-    SerializedNode serializeNode(CloningOperation) const final;
     void cloneDataFromDocument(const Document&);
 
     Seconds minimumDOMTimerInterval() const final;
