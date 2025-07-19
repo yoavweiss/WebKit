@@ -190,6 +190,19 @@ void AXIsolatedTree::applyPendingRootNodeLocked()
         if (RefPtr root = objectForID(m_pendingRootNodeID)) {
             m_rootNode = WTFMove(root);
             m_pendingRootNodeID = std::nullopt;
+
+#if ASSERT_ENABLED
+            auto markReachableNodes = [](AXCoreObject* object, HashSet<AXID>& reachableNodes, auto& self) -> void {
+                reachableNodes.add(object->objectID());
+                for (auto& child : object->children())
+                    self(&child.get(), reachableNodes, self);
+            };
+            HashSet<AXID> reachableNodes;
+            if (m_rootNode) {
+                markReachableNodes(m_rootNode.get(), reachableNodes, markReachableNodes);
+                ASSERT_WITH_MESSAGE(reachableNodes.size() == m_readerThreadNodeMap.size(), "AX: After applying pending root node, %u reachable nodes but %u are in the node map", reachableNodes.size(), m_readerThreadNodeMap.size());
+            }
+#endif
         }
     }
 }
