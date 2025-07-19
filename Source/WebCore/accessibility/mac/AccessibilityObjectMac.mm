@@ -250,6 +250,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
             return "AXDescriptionList"_s;
     }
 
+    if (listBoxInterpretation() == ListBoxInterpretation::ActuallyStaticList)
+        return "AXContentList"_s;
+
     // ARIA content subroles.
     switch (role) {
     case AccessibilityRole::Form:

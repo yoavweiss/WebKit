@@ -812,6 +812,13 @@ enum class TextEmissionBehavior : uint8_t {
     DoubleNewline
 };
 
+enum class ListBoxInterpretation : uint8_t {
+    ActuallyListBox,
+    ActuallyStaticList,
+    InvalidListBox,
+    NotListBox
+};
+
 class AXCoreObject : public RefCountedAndCanMakeWeakPtr<AXCoreObject> {
 public:
     virtual ~AXCoreObject() = default;
@@ -851,9 +858,8 @@ public:
     bool isCheckbox() const { return role() == AccessibilityRole::Checkbox; }
     bool isRadioButton() const { return role() == AccessibilityRole::RadioButton; }
     bool isListBox() const { return role() == AccessibilityRole::ListBox; }
-    // The children of listboxes must be of specific roles. Returns true if at least one of those is present.
-    bool isValidListBox() const;
-    bool isInvalidListBox() const { return isListBox() && !isValidListBox(); }
+    // For elements with role=listbox, checks its children to determine if it's actually a valid listbox, a static list, or neither.
+    ListBoxInterpretation listBoxInterpretation() const;
     bool isListBoxOption() const { return role() == AccessibilityRole::ListBoxOption; }
     virtual bool isAttachment() const = 0;
     bool isMenuRelated() const;
