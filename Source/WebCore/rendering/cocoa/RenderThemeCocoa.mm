@@ -1700,15 +1700,13 @@ bool RenderThemeCocoa::paintInnerSpinButtonStyleForVectorBasedControls(const Ren
     const auto isEnabled = controlStates.contains(ControlStyle::State::Enabled);
     const auto isPressed = controlStates.contains(ControlStyle::State::Pressed);
     const auto isSpinningUp = controlStates.contains(ControlStyle::State::SpinUp);
-#if PLATFORM(MAC)
     const auto isWindowActive = controlStates.contains(ControlStyle::State::WindowActive);
-    auto indicatorColor = isWindowActive ? controlTintColor(box.style(), styleColorOptions) : systemColor(CSSValueAppleSystemSecondaryLabel, styleColorOptions);
-#else
-    auto indicatorColor = controlTintColor(box.style(), styleColorOptions);
-#endif
+
+    const auto cssValueForIndicatorColor = isWindowActive ? CSSValueAppleSystemLabel : CSSValueAppleSystemSecondaryLabel;
 
     auto backgroundColor = systemColor(CSSValueAppleSystemQuinaryLabel, styleColorOptions);
     auto dividerColor = systemColor(CSSValueAppleSystemQuaternaryLabel, styleColorOptions);
+    auto indicatorColor = systemColor(cssValueForIndicatorColor, styleColorOptions);
 
     if (!isEnabled) {
         backgroundColor = backgroundColor.colorWithAlphaMultipliedBy(kDisabledControlAlpha);
