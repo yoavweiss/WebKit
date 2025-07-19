@@ -274,6 +274,7 @@
 #include "SecurityPolicy.h"
 #include "SegmentedString.h"
 #include "SelectorQuery.h"
+#include "SerializedNode.h"
 #include "ServiceWorkerClientData.h"
 #include "ServiceWorkerContainer.h"
 #include "ServiceWorkerProvider.h"
@@ -5464,6 +5465,11 @@ Ref<Node> Document::cloneNodeInternal(Document&, CloningOperation type, CustomEl
         break;
     }
     return clone;
+}
+
+SerializedNode Document::serializeNode(CloningOperation) const
+{
+    return { };
 }
 
 Ref<Document> Document::cloneDocumentWithoutChildren() const

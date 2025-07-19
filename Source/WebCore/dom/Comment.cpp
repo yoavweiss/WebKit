@@ -23,6 +23,7 @@
 #include "Comment.h"
 
 #include "Document.h"
+#include "SerializedNode.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
@@ -47,6 +48,11 @@ String Comment::nodeName() const
 Ref<Node> Comment::cloneNodeInternal(Document& document, CloningOperation, CustomElementRegistry*) const
 {
     return create(document, String { data() });
+}
+
+SerializedNode Comment::serializeNode(CloningOperation) const
+{
+    return { };
 }
 
 } // namespace WebCore

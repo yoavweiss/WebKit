@@ -1542,6 +1542,7 @@ set(WebCore_NON_SVG_IDL_FILES
     page/VisualViewport.idl
     page/WebKitNodeInfo.idl
     page/WebKitPoint.idl
+    page/WebKitSerializedNode.idl
     page/WindowEventHandlers.idl
     page/WindowLocalStorage.idl
     page/WindowOrWorkerGlobalScope+Crypto.idl

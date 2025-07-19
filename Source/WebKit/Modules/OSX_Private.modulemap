@@ -1969,6 +1969,11 @@ framework module WebKit_Private [system] {
     export *
   }
 
+  explicit module _WKSerializedNode {
+    header "_WKSerializedNode.h"
+    export *
+  }
+
   explicit module _WKSessionState {
     header "_WKSessionState.h"
     export *

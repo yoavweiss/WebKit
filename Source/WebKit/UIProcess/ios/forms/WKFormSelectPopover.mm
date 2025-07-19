@@ -34,6 +34,7 @@
 #import "WKFormPopover.h"
 #import "WKFormSelectControl.h"
 #import "WebPageProxy.h"
+#import "WebPreferencesDefaultValues.h"
 #import <UIKit/UIPickerView.h>
 #import <WebCore/LocalizedStrings.h>
 #import <pal/spi/cocoa/IOKitSPI.h>

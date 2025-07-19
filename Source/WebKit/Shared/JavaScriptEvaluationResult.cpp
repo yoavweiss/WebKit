@@ -34,8 +34,11 @@
 #include "APIString.h"
 #include "WKSharedAPICast.h"
 #include "WebFrame.h"
+#include <WebCore/Document.h>
 #include <WebCore/ExceptionDetails.h>
 #include <WebCore/JSWebKitNodeInfo.h>
+#include <WebCore/JSWebKitSerializedNode.h>
+#include <WebCore/ScriptWrappableInlines.h>
 #include <WebCore/SerializedScriptValue.h>
 
 namespace WebKit {
@@ -64,7 +67,9 @@ RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Value&& root)
         Ref dictionary = API::Dictionary::create();
         m_dictionaries.append({ WTFMove(map), dictionary });
         return { WTFMove(dictionary) };
-    }, [] (NodeInfo&& nodeInfo) -> RefPtr<API::Object> {
+    }, [] (NodeInfo&&) -> RefPtr<API::Object> {
+        return nullptr;
+    }, [] (WebCore::SerializedNode&&) -> RefPtr<API::Object> {
         return nullptr;
     });
 }
@@ -125,7 +130,7 @@ static std::optional<std::pair<JSGlobalContextRef, JSValueRef>> roundTripThrough
     auto* globalObject = ::toJS(serializationContext);
     JSC::JSValue jsValue = ::toJS(globalObject, value);
     if (auto* object = jsValue.isObject() ? jsValue.toObject(globalObject) : nullptr) {
-        if (object->inherits<WebCore::JSWebKitNodeInfo>())
+        if (object->inherits<WebCore::JSWebKitNodeInfo>() || object->inherits<WebCore::JSWebKitSerializedNode>())
             return { { serializationContext, value } };
     }
 
@@ -169,6 +174,11 @@ auto JavaScriptEvaluationResult::toValue(JSGlobalContextRef context, JSValueRef 
     if (auto* info = jsDynamicCast<WebCore::JSWebKitNodeInfo*>(::toJS(::toJS(context), object))) {
         Ref nodeInfo { info->wrapped() };
         return NodeInfo { nodeInfo->nodeIdentifier(), nodeInfo->contentFrameIdentifier() };
+    }
+
+    if (auto* node = jsDynamicCast<WebCore::JSWebKitSerializedNode*>(::toJS(::toJS(context), object))) {
+        Ref serializedNode { node->wrapped() };
+        return WebCore::SerializedNode { serializedNode->serializedNode() };
     }
 
     if (JSValueIsDate(context, object))
@@ -239,6 +249,19 @@ JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Value&& 
     }, [] (NodeInfo&&) -> JSValueRef {
         // FIXME: Implement with checks for the element being in the expected frame.
         return nullptr;
+    }, [&] (WebCore::SerializedNode&& serializedNode) -> JSValueRef {
+        auto* globalObject = ::toJS(context);
+        if (!globalObject->inherits<WebCore::JSDOMGlobalObject>()) {
+            ASSERT_NOT_REACHED();
+            return nullptr;
+        }
+        auto* domGlobalObject = jsCast<WebCore::JSDOMGlobalObject*>(globalObject);
+        RefPtr document = dynamicDowncast<WebCore::Document>(domGlobalObject->scriptExecutionContext());
+        if (!document) {
+            ASSERT_NOT_REACHED();
+            return nullptr;
+        }
+        return ::toRef(globalObject, WebCore::Node::deserializeNode(globalObject, domGlobalObject, *document, WTFMove(serializedNode)));
     });
 }
 

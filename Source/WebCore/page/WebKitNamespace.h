@@ -37,6 +37,7 @@ class Node;
 class UserContentProvider;
 class UserMessageHandlersNamespace;
 class WebKitNodeInfo;
+class WebKitSerializedNode;
 
 class WebKitNamespace : public LocalDOMWindowProperty, public RefCounted<WebKitNamespace> {
 public:
@@ -48,7 +49,8 @@ public:
     virtual ~WebKitNamespace();
 
     UserMessageHandlersNamespace* messageHandlers();
-    RefPtr<WebKitNodeInfo> createNodeInfo(Node&);
+    Ref<WebKitNodeInfo> createNodeInfo(Node&);
+    Ref<WebKitSerializedNode> serializeNode(Node&);
 
 private:
     explicit WebKitNamespace(LocalDOMWindow&, UserContentProvider&);

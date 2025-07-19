@@ -29,6 +29,7 @@
 #include "HTMLDocumentParser.h"
 #include "HTMLDocumentParserFastPath.h"
 #include "Page.h"
+#include "SerializedNode.h"
 #include "TypedElementDescendantIteratorInlines.h"
 #include "XMLDocumentParser.h"
 #include "markup.h"
@@ -129,6 +130,11 @@ Element* DocumentFragment::getElementById(const AtomString& id) const
     }
 
     return nullptr;
+}
+
+SerializedNode DocumentFragment::serializeNode(CloningOperation) const
+{
+    return { };
 }
 
 }
