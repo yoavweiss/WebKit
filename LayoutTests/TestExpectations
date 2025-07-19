@@ -3693,10 +3693,6 @@ imported/w3c/web-platform-tests/css/mediaqueries/viewport-script-dynamic.html [ 
 # https://github.com/web-platform-tests/wpt/issues/31174
 imported/w3c/web-platform-tests/css/cssom-view/scroll-behavior-smooth.html [ Skip ]
 
-# wpt css-shapes
-webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-008.html [ ImageOnlyFailure ]
-webkit.org/b/203539 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/gradients/shape-outside-linear-gradient-014.html [ ImageOnlyFailure ]
-
 # Initial failures on the import of css-overflow
 imported/w3c/web-platform-tests/css/css-overflow/line-clamp/line-clamp-001.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-overflow/line-clamp/line-clamp-004.html [ ImageOnlyFailure ]
