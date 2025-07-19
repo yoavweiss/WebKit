@@ -42,6 +42,7 @@
 #include "NotImplemented.h"
 #endif
 #include "RenderElement.h"
+#include "SerializedNode.h"
 #include "SlotAssignment.h"
 #include "StyleResolver.h"
 #include "StyleScope.h"
@@ -298,6 +299,11 @@ Ref<Node> ShadowRoot::cloneNodeInternal(Document& document, CloningOperation typ
     }
 
     RELEASE_ASSERT_NOT_REACHED(); // ShadowRoot is never cloned directly on its own.
+}
+
+SerializedNode ShadowRoot::serializeNode(CloningOperation) const
+{
+    return { };
 }
 
 void ShadowRoot::removeAllEventListeners()

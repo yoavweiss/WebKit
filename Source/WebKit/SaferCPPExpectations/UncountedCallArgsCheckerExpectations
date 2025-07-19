@@ -37,6 +37,7 @@ UIProcess/API/Cocoa/_WKProcessPoolConfiguration.mm
 UIProcess/API/Cocoa/_WKRemoteWebInspectorViewController.mm
 UIProcess/API/Cocoa/_WKResourceLoadStatisticsFirstParty.mm
 UIProcess/API/Cocoa/_WKResourceLoadStatisticsThirdParty.mm
+UIProcess/API/Cocoa/_WKSerializedNode.mm
 UIProcess/API/Cocoa/_WKTargetedElementInfo.mm
 UIProcess/API/Cocoa/_WKTargetedElementRequest.mm
 UIProcess/API/Cocoa/_WKUserInitiatedAction.mm

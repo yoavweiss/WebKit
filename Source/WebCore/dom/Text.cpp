@@ -29,6 +29,7 @@
 #include "SVGElementInlines.h"
 #include "SVGNames.h"
 #include "ScopedEventQueue.h"
+#include "SerializedNode.h"
 #include "ShadowRoot.h"
 #include "StyleInheritedData.h"
 #include "StyleResolver.h"
@@ -154,6 +155,11 @@ String Text::nodeName() const
 Ref<Node> Text::cloneNodeInternal(Document& document, CloningOperation, CustomElementRegistry*) const
 {
     return create(document, String { data() });
+}
+
+SerializedNode Text::serializeNode(CloningOperation) const
+{
+    return { data() };
 }
 
 static bool isSVGShadowText(const Text& text)

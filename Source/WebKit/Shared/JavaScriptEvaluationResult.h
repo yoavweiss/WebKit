@@ -30,6 +30,7 @@
 #include "WKRetainPtr.h"
 #include <JavaScriptCore/APICast.h>
 #include <JavaScriptCore/Strong.h>
+#include <WebCore/SerializedNode.h>
 #include <optional>
 #include <wtf/HashMap.h>
 #include <wtf/ObjectIdentifier.h>
@@ -60,7 +61,7 @@ using JSObjectID = ObjectIdentifier<JSObjectIDType>;
 class JavaScriptEvaluationResult {
 public:
     enum class EmptyType : bool { Undefined, Null };
-    using Value = Variant<EmptyType, bool, double, String, Seconds, Vector<JSObjectID>, HashMap<JSObjectID, JSObjectID>, NodeInfo>;
+    using Value = Variant<EmptyType, bool, double, String, Seconds, Vector<JSObjectID>, HashMap<JSObjectID, JSObjectID>, NodeInfo, WebCore::SerializedNode>;
 
     JavaScriptEvaluationResult(JSObjectID, HashMap<JSObjectID, Value>&&);
     static std::optional<JavaScriptEvaluationResult> extract(JSGlobalContextRef, JSValueRef);

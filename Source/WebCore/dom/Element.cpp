@@ -142,6 +142,7 @@
 #include "ScrollToOptions.h"
 #include "SecurityPolicyViolationEvent.h"
 #include "SelectorQuery.h"
+#include "SerializedNode.h"
 #include "Settings.h"
 #include "ShadowRootInit.h"
 #include "SimulatedClick.h"
@@ -633,6 +634,11 @@ Ref<Node> Element::cloneNodeInternal(Document& document, CloningOperation type, 
         break;
     }
     return cloneElementWithChildren(document, registry);
+}
+
+SerializedNode Element::serializeNode(CloningOperation) const
+{
+    return { };
 }
 
 void Element::cloneShadowTreeIfPossible(Element& newHost, CustomElementRegistry* registry) const

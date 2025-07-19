@@ -88,6 +88,7 @@
 #import "_WKResourceLoadInfoInternal.h"
 #import "_WKResourceLoadStatisticsFirstPartyInternal.h"
 #import "_WKResourceLoadStatisticsThirdPartyInternal.h"
+#import "_WKSerializedNodeInternal.h"
 #import "_WKTargetedElementInfoInternal.h"
 #import "_WKTargetedElementRequestInternal.h"
 #import "_WKTextRunInternal.h"
@@ -523,6 +524,10 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
     case Type::NodeInfo:
         wrapper = [_WKNodeInfo alloc];
+        break;
+
+    case Type::SerializedNode:
+        wrapper = [_WKSerializedNode alloc];
         break;
 
     default:

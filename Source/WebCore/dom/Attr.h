@@ -71,6 +71,7 @@ private:
     ExceptionOr<void> setPrefix(const AtomString&) final;
 
     Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const final;
+    SerializedNode serializeNode(CloningOperation) const final;
 
     bool isAttributeNode() const final { return true; }
 

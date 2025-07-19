@@ -50,6 +50,7 @@ protected:
 
 private:
     Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const override;
+    SerializedNode serializeNode(CloningOperation) const override;
     bool childTypeAllowed(NodeType) const override;
 };
 

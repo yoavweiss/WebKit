@@ -34,6 +34,7 @@
 #include "MutableStyleProperties.h"
 #include "NodeInlines.h"
 #include "ScopedEventQueue.h"
+#include "SerializedNode.h"
 #include "StyledElement.h"
 #include "TextNodeTraversal.h"
 #include "TreeScopeInlines.h"
@@ -153,6 +154,11 @@ void Attr::attachToElement(Element& element)
     m_element = element;
     m_standaloneValue = nullAtom();
     setTreeScopeRecursively(element.treeScope());
+}
+
+SerializedNode Attr::serializeNode(CloningOperation) const
+{
+    return { };
 }
 
 }

@@ -9219,3 +9219,7 @@ header: <WebCore/ScriptTrackingPrivacyCategory.h>
     Speech,
     FormControls,
 };
+
+struct WebCore::SerializedNode {
+    String text;
+}

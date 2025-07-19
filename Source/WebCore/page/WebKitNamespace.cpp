@@ -32,6 +32,7 @@
 #include "LocalFrameLoaderClient.h"
 #include "Logging.h"
 #include "WebKitNodeInfo.h"
+#include "WebKitSerializedNode.h"
 
 #define WEBKIT_NAMESPACE_RELEASE_LOG_ERROR(channel, fmt, ...) RELEASE_LOG_ERROR(channel, "%p - WebKitNamespace::" fmt, this, ##__VA_ARGS__)
 
@@ -66,9 +67,14 @@ UserMessageHandlersNamespace* WebKitNamespace::messageHandlers()
     return &m_messageHandlerNamespace.get();
 }
 
-RefPtr<WebKitNodeInfo> WebKitNamespace::createNodeInfo(Node& node)
+Ref<WebKitNodeInfo> WebKitNamespace::createNodeInfo(Node& node)
 {
     return WebKitNodeInfo::create(node);
+}
+
+Ref<WebKitSerializedNode> WebKitNamespace::serializeNode(Node& node)
+{
+    return WebKitSerializedNode::create(node);
 }
 
 } // namespace WebCore
