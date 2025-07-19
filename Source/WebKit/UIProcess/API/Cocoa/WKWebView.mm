@@ -241,8 +241,9 @@
 #import <pal/spi/ios/GraphicsServicesSPI.h>
 #import <wtf/cocoa/Entitlements.h>
 
-#define WKWEBVIEW_RELEASE_LOG(...) RELEASE_LOG(ViewState, __VA_ARGS__)
 #endif // PLATFORM(IOS_FAMILY)
+
+#define WKWEBVIEW_RELEASE_LOG(...) RELEASE_LOG(ViewState, __VA_ARGS__)
 
 #if PLATFORM(MAC)
 #import "AppKitSPI.h"
@@ -3393,11 +3394,26 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
     return view && ![view isHiddenOrFadingOut];
 }
 
+static ASCIILiteral descriptionForReason(WebKit::HideScrollPocketReason reason)
+{
+    switch (reason) {
+    case WebKit::HideScrollPocketReason::FullScreen:
+        return "FullScreen"_s;
+    case WebKit::HideScrollPocketReason::ScrolledToTop:
+        return "ScrolledToTop"_s;
+    case WebKit::HideScrollPocketReason::SiteSpecificQuirk:
+        return "SiteSpecificQuirk"_s;
+    }
+    ASSERT_NOT_REACHED();
+    return ""_s;
+}
+
 - (void)_addReasonToHideTopScrollPocket:(WebKit::HideScrollPocketReason)reason
 {
     if (_reasonsToHideTopScrollPocket.contains(reason))
         return;
 
+    WKWEBVIEW_RELEASE_LOG("%p Hide top scroll pocket (%s)", self, descriptionForReason(reason).characters());
     _reasonsToHideTopScrollPocket.add(reason);
 
     [self _updateHiddenScrollPocketEdges];
@@ -3408,6 +3424,7 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
     if (!_reasonsToHideTopScrollPocket.contains(reason))
         return;
 
+    WKWEBVIEW_RELEASE_LOG("%p Unhide top scroll pocket (%s)", self, descriptionForReason(reason).characters());
     _reasonsToHideTopScrollPocket.remove(reason);
 
     [self _updateHiddenScrollPocketEdges];

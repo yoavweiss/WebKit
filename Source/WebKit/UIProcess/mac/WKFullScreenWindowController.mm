@@ -36,6 +36,7 @@
 #import "WKAPICast.h"
 #import "WKViewInternal.h"
 #import "WKViewPrivate.h"
+#import "WKWebViewInternal.h"
 #import "WebFullScreenManagerProxy.h"
 #import "WebPageProxy.h"
 #import "WebProcessProxy.h"
@@ -493,6 +494,11 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     [_webViewPlaceholder setExitWarningVisible:NO];
     _fullScreenState = ExitingFullScreen;
     [self finishedExitFullScreenAnimationAndExitImmediately:YES];
+
+#if HAVE(LIQUID_GLASS)
+    if (RefPtr page = _page.get())
+        [page->cocoaView() _removeReasonToHideTopScrollPocket:WebKit::HideScrollPocketReason::FullScreen];
+#endif
 }
 
 - (void)requestExitFullScreen
