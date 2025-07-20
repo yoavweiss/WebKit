@@ -1082,7 +1082,7 @@ template<typename T, std::size_t Extent>
 void memsetSpan(std::span<T, Extent> destination, uint8_t byte)
 {
     static_assert(std::is_trivially_copyable_v<T>);
-    memset(destination.data(), byte, destination.size_bytes()); // NOLINT
+    memset(static_cast<void*>(destination.data()), byte, destination.size_bytes()); // NOLINT
 }
 
 template<typename T, std::size_t Extent>
