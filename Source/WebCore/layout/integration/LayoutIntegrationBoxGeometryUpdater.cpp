@@ -40,6 +40,7 @@
 #include "RenderDeprecatedFlexibleBox.h"
 #include "RenderElementInlines.h"
 #include "RenderEmbeddedObject.h"
+#include "RenderFileUploadControl.h"
 #include "RenderFlexibleBox.h"
 #include "RenderFrameSet.h"
 #include "RenderGrid.h"
@@ -459,6 +460,12 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
 
     if (CheckedPtr renderer = dynamicDowncast<RenderTextControlMultiLine>(renderBox))
         return roundToInt(renderer->marginBoxLogicalHeight(writingMode));
+
+    if (CheckedPtr fileUpload = dynamicDowncast<RenderFileUploadControl>(renderBox)) {
+        if (auto* inlineLayout = fileUpload->inlineLayout())
+            return std::min(renderBox.marginBoxLogicalHeight(writingMode), marginBefore + floorToInt(inlineLayout->lastLineLogicalBaseline()));
+        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+    }
 
     if (CheckedPtr renderer = dynamicDowncast<RenderSlider>(renderBox)) {
         // FIXME: Patch this function for writing-mode.
