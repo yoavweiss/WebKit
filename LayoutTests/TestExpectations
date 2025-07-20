@@ -2967,10 +2967,6 @@ imported/blink/http/tests/security/shape-image-cors-port.html [ ImageOnlyFailure
 # 1px off
 webkit.org/b/163706 imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-024.html [ ImageOnlyFailure ]
 
-# webkit.org/b/166941 missing sideways implementation.
-imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/inset/shape-outside-inset-026.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-shapes/shape-outside/supported-shapes/inset/shape-outside-inset-027.html [ ImageOnlyFailure ]
-
 # Temporary failure until we start using ANGLE as a WebGL backend
 webkit.org/b/163924 fast/canvas/webgl/bufferData-offset-length.html [ Pass Failure ]
 

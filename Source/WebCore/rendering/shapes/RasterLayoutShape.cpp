@@ -175,7 +175,7 @@ LineSegment RasterLayoutShape::getExcludedInterval(LayoutUnit logicalTop, Layout
             excludedInterval.unite(intervals.intervalAt(y));
     }
 
-    if (!shouldFlipStartAndEndPoints())
+    if (!shouldFlipStartAndEndPoints(writingMode()))
         return LineSegment(excludedInterval.x1(), excludedInterval.x2());
 
     auto x1 = m_marginRectSize.width() - excludedInterval.x2();

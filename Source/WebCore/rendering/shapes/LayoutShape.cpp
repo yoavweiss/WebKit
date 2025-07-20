@@ -142,7 +142,7 @@ Ref<const LayoutShape> LayoutShape::createShape(const Style::BasicShape& basicSh
             auto bottomLeftRadius = physicalSizeToLogical(Style::evaluate(horizontalWritingMode ? inset->radii.bottomLeft() : isBlockLeftToRight ? inset->radii.topRight() : inset->radii.topLeft(), boxSize), writingMode);
             auto bottomRightRadius = physicalSizeToLogical(Style::evaluate(horizontalWritingMode ? inset->radii.bottomRight() : isBlockLeftToRight ? inset->radii.bottomRight() : inset->radii.bottomLeft(), boxSize), writingMode);
             auto cornerRadii = FloatRoundedRect::Radii(topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius);
-            if (writingMode.isBidiRTL())
+            if (shouldFlipStartAndEndPoints(writingMode))
                 cornerRadii = { cornerRadii.topRight(), cornerRadii.topLeft(), cornerRadii.bottomRight(), cornerRadii.bottomLeft() };
 
             cornerRadii.scale(calcBorderRadiiConstraintScaleFor(logicalRect, cornerRadii));
@@ -249,11 +249,11 @@ Ref<const LayoutShape> LayoutShape::createBoxShape(const LayoutRoundedRect& roun
     return shape;
 }
 
-bool LayoutShape::shouldFlipStartAndEndPoints() const
+bool LayoutShape::shouldFlipStartAndEndPoints(WritingMode writingMode)
 {
     // Start and end flip in horizontal/vertical/sideways-rl with RTL and sideways-lr with LTR (line is either right to left or bottom to top).
     // (see https://www.w3.org/TR/css-writing-modes-4/#line-directions)
-    return (writingMode().isHorizontal() && !writingMode().isInlineLeftToRight()) || (!writingMode().isHorizontal() && !writingMode().isInlineTopToBottom());
+    return (writingMode.isHorizontal() && !writingMode.isInlineLeftToRight()) || (!writingMode.isHorizontal() && !writingMode.isInlineTopToBottom());
 }
 
 } // namespace WebCore
