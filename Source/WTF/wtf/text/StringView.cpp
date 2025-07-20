@@ -510,9 +510,9 @@ StringView::UnderlyingString::UnderlyingString(const StringImpl& string)
 
 static Lock underlyingStringsLock;
 
-static UncheckedKeyHashMap<const StringImpl*, StringView::UnderlyingString*>& underlyingStrings() WTF_REQUIRES_LOCK(underlyingStringsLock)
+static HashMap<const StringImpl*, StringView::UnderlyingString*>& underlyingStrings() WTF_REQUIRES_LOCK(underlyingStringsLock)
 {
-    static NeverDestroyed<UncheckedKeyHashMap<const StringImpl*, StringView::UnderlyingString*>> map;
+    static NeverDestroyed<HashMap<const StringImpl*, StringView::UnderlyingString*>> map;
     return map;
 }
 
