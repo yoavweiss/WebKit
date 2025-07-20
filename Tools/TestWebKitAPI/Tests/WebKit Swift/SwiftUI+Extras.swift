@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Apple Inc. All rights reserved.
+// Copyright (C) 2025 Apple Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -21,28 +21,20 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 // THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE_SWIFTUI && canImport(Testing) && compiler(>=6.0)
+import SwiftUI
 
-import Foundation
+extension Font {
+    #if canImport(UIKit)
+    typealias CocoaAttributes = AttributeScopes.UIKitAttributes
+    #else
+    typealias CocoaAttributes = AttributeScopes.AppKitAttributes
+    #endif
 
-extension RangeReplaceableCollection {
-    init<Failure>(
-        _ sequence: some AsyncSequence<Element, Failure>,
-        isolation: isolated (any Actor)? = #isolation
-    ) async throws(Failure) where Failure: Error {
-        self.init()
-
-        for try await element in sequence {
-            append(element)
+    init?(_ font: CocoaAttributes.FontAttribute.Value?) {
+        guard let font else {
+            return nil
         }
+
+        self = Font(font as CTFont)
     }
 }
-
-extension AsyncSequence {
-    func wait(isolation: isolated (any Actor)? = #isolation) async throws(Failure) {
-        for try await _ in self {
-        }
-    }
-}
-
-#endif // ENABLE_SWIFTUI && canImport(Testing) && compiler(>=6.0)

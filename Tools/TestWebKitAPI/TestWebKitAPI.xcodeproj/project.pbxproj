@@ -62,6 +62,7 @@
 		078B044A2CF139BF00B453A6 /* Foundation+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078B04492CF139BF00B453A6 /* Foundation+Extras.swift */; };
 		078B0CA92DF656BD00B3E569 /* TestPDFDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078B0CA82DF656BD00B3E569 /* TestPDFDocument.swift */; };
 		079D45F22A2A6BBE003830C7 /* Viewport.mm in Sources */ = {isa = PBXBuildFile; fileRef = 079D45F12A2A6BBE003830C7 /* Viewport.mm */; };
+		07A1E0042E2C1F25004E5C66 /* SwiftUI+Extras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A1DFFC2E2C1F20004E5C66 /* SwiftUI+Extras.swift */; };
 		07C02FD22D6D6FBC0004ED97 /* rtl-sideways-scrolling.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = 07C02FD12D6D6FBC0004ED97 /* rtl-sideways-scrolling.html */; };
 		07C046CA1E4262A8007201E7 /* CARingBufferTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07C046C91E42573E007201E7 /* CARingBufferTest.cpp */; };
 		07CE1CF31F06A7E000BF89F5 /* GetUserMediaNavigation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07CE1CF21F06A7E000BF89F5 /* GetUserMediaNavigation.mm */; };
@@ -2459,6 +2460,7 @@
 		0794742C25CB33B000C597EE /* camera-to-canvas.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "camera-to-canvas.html"; sourceTree = "<group>"; };
 		0799C34A1EBA32F4003B7532 /* disableGetUserMedia.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = disableGetUserMedia.html; sourceTree = "<group>"; };
 		079D45F12A2A6BBE003830C7 /* Viewport.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Viewport.mm; sourceTree = "<group>"; };
+		07A1DFFC2E2C1F20004E5C66 /* SwiftUI+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftUI+Extras.swift"; sourceTree = "<group>"; };
 		07C02FD12D6D6FBC0004ED97 /* rtl-sideways-scrolling.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "rtl-sideways-scrolling.html"; sourceTree = "<group>"; };
 		07C046C91E42573E007201E7 /* CARingBufferTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CARingBufferTest.cpp; sourceTree = "<group>"; };
 		07CC7DFD2266330800E39181 /* MediaBufferingPolicy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MediaBufferingPolicy.mm; sourceTree = "<group>"; };
@@ -4486,6 +4488,7 @@
 			children = (
 				074E87E42CF920A20059E469 /* Bundle+Extras.swift */,
 				078B04492CF139BF00B453A6 /* Foundation+Extras.swift */,
+				07A1DFFC2E2C1F20004E5C66 /* SwiftUI+Extras.swift */,
 				070721102CE2F4B8004D9EC8 /* TestWebKitAPIBundle-Bridging-Header.h */,
 				078B04472CF118BD00B453A6 /* URLSchemeHandlerTests.swift */,
 				07DF05172E0531AD00007A1B /* WebPageNavigationTests.swift */,
@@ -8185,6 +8188,7 @@
 				078B044A2CF139BF00B453A6 /* Foundation+Extras.swift in Sources */,
 				A17C58472C9BF524009DD0B5 /* GoogleTests.mm in Sources */,
 				DD5698002DC1320500050321 /* rdar150228472.swift in Sources */,
+				07A1E0042E2C1F25004E5C66 /* SwiftUI+Extras.swift in Sources */,
 				078B0CA92DF656BD00B3E569 /* TestPDFDocument.swift in Sources */,
 				078B04482CF118BD00B453A6 /* URLSchemeHandlerTests.swift in Sources */,
 				07DF05182E0531AD00007A1B /* WebPageNavigationTests.swift in Sources */,
