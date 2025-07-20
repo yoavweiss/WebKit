@@ -25,9 +25,6 @@ test/built-ins/Iterator/concat/fresh-iterator-result.js:
 test/built-ins/Iterator/concat/next-method-returns-throwing-value.js:
   default: 'Test262Error: '
   strict mode: 'Test262Error: '
-test/built-ins/Map/prototype/getOrInsertComputed/canonical-key-passed-to-callback.js:
-  default: 'Test262Error: Expected SameValue(«0», «-0») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«0», «-0») to be true'
 test/built-ins/Proxy/apply/arguments-realm.js:
   default: 'Test262Error: Expected SameValue(«function Array() {'
   strict mode: 'Test262Error: Expected SameValue(«function Array() {'
