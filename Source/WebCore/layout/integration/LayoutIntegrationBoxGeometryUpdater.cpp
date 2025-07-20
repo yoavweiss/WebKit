@@ -410,6 +410,9 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
     }
 
+    if (renderBox.isWritingModeRoot())
+        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+
     if (is<RenderIFrame>(renderBox)
         || is<RenderEmbeddedObject>(renderBox)
         || is<LegacyRenderSVGRoot>(renderBox)
