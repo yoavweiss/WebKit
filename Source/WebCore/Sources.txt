@@ -2949,7 +2949,6 @@ rendering/style/OutlineValue.cpp
 rendering/style/PositionArea.cpp
 rendering/style/PositionTryFallback.cpp
 rendering/style/PositionTryOrder.cpp
-rendering/style/QuotesData.cpp
 rendering/style/ReferenceFilterOperation.cpp
 rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleConstants.cpp
@@ -3154,6 +3153,7 @@ style/values/color/StyleHexColor.cpp
 style/values/color/StyleKeywordColor.cpp
 style/values/color/StyleLightDarkColor.cpp
 style/values/color/StyleResolvedColor.cpp
+style/values/content/StyleQuotes.cpp
 style/values/counter-styles/StyleCounterStyle.cpp
 style/values/easing/StyleCubicBezierEasingFunction.cpp
 style/values/easing/StyleEasingFunction.cpp

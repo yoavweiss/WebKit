@@ -59,7 +59,6 @@
 #include "LineClampValue.h"
 #include "LocalFrame.h"
 #include "Quirks.h"
-#include "QuotesData.h"
 #include "RenderStyleInlines.h"
 #include "RotateTransformOperation.h"
 #include "SVGElementTypeHelpers.h"
@@ -155,7 +154,6 @@ public:
     static Resize convertResize(BuilderState&, const CSSValue&);
     static int convertMarqueeRepetition(BuilderState&, const CSSValue&);
     static int convertMarqueeSpeed(BuilderState&, const CSSValue&);
-    static RefPtr<QuotesData> convertQuotes(BuilderState&, const CSSValue&);
     static OptionSet<TextUnderlinePosition> convertTextUnderlinePosition(BuilderState&, const CSSValue&);
     static TextDecorationThickness convertTextDecorationThickness(BuilderState&, const CSSValue&);
     static RefPtr<StyleReflection> convertReflection(BuilderState&, const CSSValue&);
@@ -587,33 +585,6 @@ inline int BuilderConverter::convertMarqueeSpeed(BuilderState& builderState, con
     // For scrollamount support.
     ASSERT(primitiveValue->isNumber());
     return primitiveValue->resolveAsNumber<int>(conversionData);
-}
-
-inline RefPtr<QuotesData> BuilderConverter::convertQuotes(BuilderState& builderState, const CSSValue& value)
-{
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (primitiveValue->valueID() == CSSValueNone)
-            return QuotesData::create({ });
-        ASSERT(primitiveValue->valueID() == CSSValueAuto);
-        return nullptr;
-    }
-
-    auto list = requiredListDowncast<CSSValueList, CSSPrimitiveValue>(builderState, value);
-    if (!list)
-        return { };
-
-    Vector<std::pair<String, String>> quotes;
-    quotes.reserveInitialCapacity(list->size() / 2);
-    for (unsigned i = 0; i < list->size(); i += 2) {
-        auto& first = list->item(i);
-        if (list->size() <= i + 1)
-            break;
-        auto& second = list->item(i + 1);
-        String startQuote = first.stringValue();
-        String endQuote = second.stringValue();
-        quotes.append(std::make_pair(startQuote, endQuote));
-    }
-    return QuotesData::create(quotes);
 }
 
 inline static OptionSet<TextUnderlinePosition> valueToUnderlinePosition(const CSSPrimitiveValue& primitiveValue)

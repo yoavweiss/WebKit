@@ -7306,9 +7306,7 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "QuotesWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-converter": "Quotes",
+                "style-converter": "StyleType<Quotes>",
                 "parser-function": "consumeQuotes",
                 "parser-grammar-unused": "auto | none | [ <string> <string> ]+",
                 "parser-grammar-unused-reason": "Needs support for flattening order group into parent list."

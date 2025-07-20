@@ -72,7 +72,6 @@
 #include "Length.h"
 #include "PathOperation.h"
 #include "PerspectiveTransformOperation.h"
-#include "QuotesData.h"
 #include "RenderBlock.h"
 #include "RenderBoxInlines.h"
 #include "RenderElementInlines.h"
@@ -191,7 +190,6 @@ public:
     static Ref<CSSValue> convertReflection(ExtractorState&, const StyleReflection*);
     static Ref<CSSValue> convertLineFitEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertTextBoxEdge(ExtractorState&, const TextEdge&);
-    static Ref<CSSValue> convertQuotes(ExtractorState&, const QuotesData*);
     static Ref<CSSValue> convertViewTransitionName(ExtractorState&, const ViewTransitionName&);
     static Ref<CSSValue> convertPositionTryFallbacks(ExtractorState&, const FixedVector<PositionTryFallback>&);
     static Ref<CSSValue> convertWillChange(ExtractorState&, const WillChangeData*);
@@ -851,21 +849,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTextBoxEdge(ExtractorState& stat
         return convert(state, textEdge.over);
 
     return CSSValuePair::create(convert(state, textEdge.over), convert(state, textEdge.under));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertQuotes(ExtractorState&, const QuotesData* quotes)
-{
-    if (!quotes)
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    unsigned size = quotes->size();
-    if (!size)
-        return CSSPrimitiveValue::create(CSSValueNone);
-    CSSValueListBuilder list;
-    for (unsigned i = 0; i < size; ++i) {
-        list.append(CSSPrimitiveValue::create(quotes->openQuote(i)));
-        list.append(CSSPrimitiveValue::create(quotes->closeQuote(i)));
-    }
-    return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertViewTransitionName(ExtractorState&, const ViewTransitionName& viewTransitionName)

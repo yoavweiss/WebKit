@@ -47,7 +47,6 @@
 #include "Matrix3DTransformOperation.h"
 #include "MatrixTransformOperation.h"
 #include "PathOperation.h"
-#include "QuotesData.h"
 #include "RenderBox.h"
 #include "RenderStyleSetters.h"
 #include "SVGRenderStyle.h"

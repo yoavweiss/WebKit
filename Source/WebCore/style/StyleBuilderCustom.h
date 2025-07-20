@@ -94,6 +94,7 @@ inline MarginEdge forwardInheritedValue(const MarginEdge& value) { auto copy = v
 inline PaddingEdge forwardInheritedValue(const PaddingEdge& value) { auto copy = value; return copy; }
 inline InsetEdge forwardInheritedValue(const InsetEdge& value) { auto copy = value; return copy; }
 inline Perspective forwardInheritedValue(const Perspective& value) { auto copy = value; return copy; }
+inline Quotes forwardInheritedValue(const Quotes& value) { auto copy = value; return copy; }
 inline Rotate forwardInheritedValue(const Rotate& value) { auto copy = value; return copy; }
 inline Scale forwardInheritedValue(const Scale& value) { auto copy = value; return copy; }
 inline Translate forwardInheritedValue(const Translate& value) { auto copy = value; return copy; }

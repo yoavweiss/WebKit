@@ -24,7 +24,6 @@
 #include "StyleRareInheritedData.h"
 
 #include "CursorList.h"
-#include "QuotesData.h"
 #include "RenderStyleInlines.h"
 #include "RenderStyleConstants.h"
 #include "RenderStyleDifference.h"
@@ -346,7 +345,7 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && touchCalloutEnabled == o.touchCalloutEnabled
 #endif
         && hyphenationString == o.hyphenationString
-        && arePointingToEqualData(quotes, o.quotes)
+        && quotes == o.quotes
         && appleColorFilter == o.appleColorFilter
         && tabSize == o.tabSize
         && lineGrid == o.lineGrid

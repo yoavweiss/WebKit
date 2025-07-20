@@ -76,7 +76,6 @@ class OutlineValue;
 class PathOperation;
 class PositionArea;
 class PseudoIdSet;
-class QuotesData;
 class RenderElement;
 class RenderStyle;
 class RotateTransformOperation;
@@ -309,6 +308,7 @@ struct PositionTryFallback;
 struct PreferredSize;
 struct ProgressTimelineAxes;
 struct ProgressTimelineNames;
+struct Quotes;
 struct Rotate;
 struct SVGPaint;
 struct Scale;
@@ -1846,8 +1846,8 @@ public:
     const CounterDirectiveMap& counterDirectives() const;
     CounterDirectiveMap& accessCounterDirectives();
 
-    inline QuotesData* quotes() const;
-    void setQuotes(RefPtr<QuotesData>&&);
+    inline const Style::Quotes& quotes() const;
+    void setQuotes(Style::Quotes&&);
 
     inline void setViewTransitionClasses(Style::ViewTransitionClasses&&);
     inline void setViewTransitionName(Style::ViewTransitionName&&);
@@ -2105,7 +2105,7 @@ public:
     static StyleImage* initialBorderImageSource() { return nullptr; }
     static StyleImage* initialMaskBorderSource() { return nullptr; }
     static constexpr PrintColorAdjust initialPrintColorAdjust();
-    static QuotesData* initialQuotes() { return nullptr; }
+    static inline Style::Quotes initialQuotes();
 
 #if ENABLE(DARK_MODE_CSS)
     static inline Style::ColorScheme initialColorScheme();

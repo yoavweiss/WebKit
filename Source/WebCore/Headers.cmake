@@ -2763,10 +2763,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/box/StyleMargin.h
     style/values/box/StylePadding.h
 
-    style/values/contain/StyleContainerName.h
-
-    style/values/counter-styles/StyleCounterStyle.h
-
     style/values/color/StyleColor.h
     style/values/color/StyleColorOptions.h
     style/values/color/StyleCurrentColor.h
@@ -2775,6 +2771,12 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/color/StyleResolvedColor.h
 
     style/values/color-adjust/StyleColorScheme.h
+
+    style/values/contain/StyleContainerName.h
+
+    style/values/content/StyleQuotes.h
+
+    style/values/counter-styles/StyleCounterStyle.h
 
     style/values/flexbox/StyleFlexBasis.h
 

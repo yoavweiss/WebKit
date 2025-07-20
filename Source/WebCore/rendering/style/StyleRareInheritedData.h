@@ -33,6 +33,7 @@
 #include "StyleLineBoxContain.h"
 #include "StyleDynamicRangeLimit.h"
 #include "StyleListStyleType.h"
+#include "StyleQuotes.h"
 #include "StyleScrollbarColor.h"
 #include "StyleTextEdge.h"
 #include "StyleTextEmphasisStyle.h"
@@ -66,7 +67,6 @@ class TextStream;
 namespace WebCore {
 
 class CursorList;
-class QuotesData;
 class StyleFilterData;
 class StyleImage;
 
@@ -200,7 +200,8 @@ public:
     Style::ColorScheme colorScheme;
 #endif
 
-    RefPtr<QuotesData> quotes;
+    Style::Quotes quotes;
+
     DataRef<StyleFilterData> appleColorFilter;
 
     AtomString lineGrid;
