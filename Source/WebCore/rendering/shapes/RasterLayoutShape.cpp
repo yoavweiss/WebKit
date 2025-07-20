@@ -175,10 +175,7 @@ LineSegment RasterLayoutShape::getExcludedInterval(LayoutUnit logicalTop, Layout
             excludedInterval.unite(intervals.intervalAt(y));
     }
 
-    // Start and end flip in horizontal/vertical/sideways-rl with RTL and sideways-lr with LTR (line is either right to left or bottom to top).
-    // (see https://www.w3.org/TR/css-writing-modes-4/#line-directions)
-    auto shouldFlipStartAndEnd = (writingMode().isHorizontal() && !writingMode().isInlineLeftToRight()) || (!writingMode().isHorizontal() && !writingMode().isInlineTopToBottom());
-    if (!shouldFlipStartAndEnd)
+    if (!shouldFlipStartAndEndPoints())
         return LineSegment(excludedInterval.x1(), excludedInterval.x2());
 
     auto x1 = m_marginRectSize.width() - excludedInterval.x2();

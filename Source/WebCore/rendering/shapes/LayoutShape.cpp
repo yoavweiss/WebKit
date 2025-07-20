@@ -249,4 +249,11 @@ Ref<const LayoutShape> LayoutShape::createBoxShape(const LayoutRoundedRect& roun
     return shape;
 }
 
+bool LayoutShape::shouldFlipStartAndEndPoints() const
+{
+    // Start and end flip in horizontal/vertical/sideways-rl with RTL and sideways-lr with LTR (line is either right to left or bottom to top).
+    // (see https://www.w3.org/TR/css-writing-modes-4/#line-directions)
+    return (writingMode().isHorizontal() && !writingMode().isInlineLeftToRight()) || (!writingMode().isHorizontal() && !writingMode().isInlineTopToBottom());
+}
+
 } // namespace WebCore
