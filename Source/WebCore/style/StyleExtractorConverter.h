@@ -183,7 +183,6 @@ public:
     static Ref<CSSValue> convertLineClamp(ExtractorState&, const LineClampValue&);
     static Ref<CSSValue> convertContain(ExtractorState&, OptionSet<Containment>);
     static Ref<CSSValue> convertMaxLines(ExtractorState&, size_t);
-    static Ref<CSSValue> convertSmoothScrolling(ExtractorState&, bool);
     static Ref<CSSValue> convertInitialLetter(ExtractorState&, IntSize);
     static Ref<CSSValue> convertTextSpacingTrim(ExtractorState&, TextSpacingTrim);
     static Ref<CSSValue> convertTextAutospace(ExtractorState&, TextAutospace);
@@ -220,12 +219,6 @@ public:
     static Ref<CSSValue> convertPositionArea(ExtractorState&, const std::optional<PositionArea>&);
     static Ref<CSSValue> convertNameScope(ExtractorState&, const NameScope&);
     static Ref<CSSValue> convertPositionVisibility(ExtractorState&, OptionSet<PositionVisibility>);
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-    static Ref<CSSValue> convertOverflowScrolling(ExtractorState&, bool);
-#endif
-#if PLATFORM(IOS_FAMILY)
-    static Ref<CSSValue> convertTouchCallout(ExtractorState&, bool);
-#endif
 
     // MARK: FillLayer conversions
 
@@ -731,13 +724,6 @@ inline Ref<CSSValue> ExtractorConverter::convertMaxLines(ExtractorState&, size_t
     if (!maxLines)
         return CSSPrimitiveValue::create(CSSValueNone);
     return CSSPrimitiveValue::create(maxLines);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertSmoothScrolling(ExtractorState&, bool useSmoothScrolling)
-{
-    if (useSmoothScrolling)
-        return CSSPrimitiveValue::create(CSSValueSmooth);
-    return CSSPrimitiveValue::create(CSSValueAuto);
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertInitialLetter(ExtractorState&, IntSize initialLetter)
@@ -1438,20 +1424,6 @@ inline Ref<CSSValue> ExtractorConverter::convertPositionVisibility(ExtractorStat
 
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
-
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-inline Ref<CSSValue> ExtractorConverter::convertOverflowScrolling(ExtractorState&, bool useTouchOverflowScrolling)
-{
-    return CSSPrimitiveValue::create(useTouchOverflowScrolling ? CSSValueTouch : CSSValueAuto);
-}
-#endif
-
-#if PLATFORM(IOS_FAMILY)
-inline Ref<CSSValue> ExtractorConverter::convertTouchCallout(ExtractorState&, bool touchCalloutEnabled)
-{
-    return CSSPrimitiveValue::create(touchCalloutEnabled ? CSSValueDefault : CSSValueNone);
-}
-#endif
 
 // MARK: - FillLayer conversions
 

@@ -2810,7 +2810,11 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/motion/StyleOffsetRotate.h
     style/values/motion/StyleRayFunction.h
 
+    style/values/non-standard/StyleWebKitOverflowScrolling.h
+    style/values/non-standard/StyleWebKitTouchCallout.h
+
     style/values/overflow/StyleBlockEllipsis.h
+    style/values/overflow/StyleScrollBehavior.h
     style/values/overflow/StyleScrollbarGutter.h
 
     style/values/position/StyleInset.h

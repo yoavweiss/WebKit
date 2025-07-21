@@ -961,8 +961,8 @@ static bool rareInheritedDataChangeRequiresLayout(const StyleRareInheritedData& 
         || first.lineAlign != second.lineAlign
         || first.hangingPunctuation != second.hangingPunctuation
         || first.usedContentVisibility != second.usedContentVisibility
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-        || first.useTouchOverflowScrolling != second.useTouchOverflowScrolling
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+        || first.webkitOverflowScrolling != second.webkitOverflowScrolling
 #endif
         || first.listStyleType != second.listStyleType
         || first.listStyleImage != second.listStyleImage
@@ -1959,7 +1959,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyTransformStyle);
         if (first.backfaceVisibility != second.backfaceVisibility)
             changingProperties.m_properties.set(CSSPropertyBackfaceVisibility);
-        if (first.useSmoothScrolling != second.useSmoothScrolling)
+        if (first.scrollBehavior != second.scrollBehavior)
             changingProperties.m_properties.set(CSSPropertyScrollBehavior);
         if (first.textDecorationStyle != second.textDecorationStyle)
             changingProperties.m_properties.set(CSSPropertyTextDecorationStyle);
@@ -2187,7 +2187,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
         // hyphenationLimitLines
         // tapHighlightColor
         // nbspMode
-        // useTouchOverflowScrolling
+        // webkitOverflowScrolling
         // textSizeAdjust
         // userSelect
         // isInSubtreeWithBlendMode
@@ -2203,7 +2203,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
         // speakAs
         // textCombine
         // lineBoxContain
-        // touchCalloutEnabled
+        // webkitTouchCallout
         // lineGrid
         // textZoom
         // lineSnap

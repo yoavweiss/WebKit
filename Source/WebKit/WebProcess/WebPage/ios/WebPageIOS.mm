@@ -3613,7 +3613,7 @@ static void elementPositionInformation(WebPage& page, Element& element, const In
     if (linkElement && info.title.isEmpty())
         info.title = element.innerText();
     if (element.renderer())
-        info.touchCalloutEnabled = element.renderer()->style().touchCalloutEnabled();
+        info.touchCalloutEnabled = element.renderer()->style().touchCallout() == WebCore::Style::WebkitTouchCallout::Default;
 
     if (linkElement && !info.isImageOverlayText) {
         info.isLink = true;

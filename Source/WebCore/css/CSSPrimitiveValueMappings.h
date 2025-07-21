@@ -45,6 +45,9 @@
 #include "ScrollAxis.h"
 #include "ScrollTypes.h"
 #include "StyleBuilderState.h"
+#include "StyleScrollBehavior.h"
+#include "StyleWebKitOverflowScrolling.h"
+#include "StyleWebKitTouchCallout.h"
 #include "TextFlags.h"
 #include "ThemeTypes.h"
 #include "TouchAction.h"
@@ -2627,6 +2630,32 @@ DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef TYPE
 #undef FOR_EACH
+
+#define TYPE Style::ScrollBehavior
+#define FOR_EACH(CASE) CASE(Auto) CASE(Smooth)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+
+#define TYPE Style::WebkitOverflowScrolling
+#define FOR_EACH(CASE) CASE(Auto) CASE(Touch)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
+#endif
+
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+
+#define TYPE Style::WebkitTouchCallout
+#define FOR_EACH(CASE) CASE(Default) CASE(None)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
+#endif
 
 #undef EMIT_TO_CSS_SWITCH_CASE
 #undef EMIT_FROM_CSS_SWITCH_CASE

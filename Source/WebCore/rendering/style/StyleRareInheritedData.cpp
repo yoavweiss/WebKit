@@ -118,8 +118,8 @@ StyleRareInheritedData::StyleRareInheritedData()
     , imageRendering(static_cast<unsigned>(RenderStyle::initialImageRendering()))
     , lineSnap(static_cast<unsigned>(RenderStyle::initialLineSnap()))
     , lineAlign(static_cast<unsigned>(RenderStyle::initialLineAlign()))
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-    , useTouchOverflowScrolling(RenderStyle::initialUseTouchOverflowScrolling())
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+    , webkitOverflowScrolling(static_cast<unsigned>(RenderStyle::initialOverflowScrolling()))
 #endif
     , textAlignLast(static_cast<unsigned>(RenderStyle::initialTextAlignLast()))
     , textJustify(static_cast<unsigned>(RenderStyle::initialTextJustify()))
@@ -129,8 +129,8 @@ StyleRareInheritedData::StyleRareInheritedData()
     , rubyAlign(static_cast<unsigned>(RenderStyle::initialRubyAlign()))
     , rubyOverhang(static_cast<unsigned>(RenderStyle::initialRubyOverhang()))
     , textZoom(static_cast<unsigned>(RenderStyle::initialTextZoom()))
-#if PLATFORM(IOS_FAMILY)
-    , touchCalloutEnabled(RenderStyle::initialTouchCalloutEnabled())
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+    , webkitTouchCallout(static_cast<unsigned>(RenderStyle::initialTouchCallout()))
 #endif
     , hangingPunctuation(RenderStyle::initialHangingPunctuation().toRaw())
     , paintOrder(static_cast<unsigned>(RenderStyle::initialPaintOrder()))
@@ -218,8 +218,8 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , imageRendering(o.imageRendering)
     , lineSnap(o.lineSnap)
     , lineAlign(o.lineAlign)
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-    , useTouchOverflowScrolling(o.useTouchOverflowScrolling)
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+    , webkitOverflowScrolling(o.webkitOverflowScrolling)
 #endif
     , textAlignLast(o.textAlignLast)
     , textJustify(o.textJustify)
@@ -229,8 +229,8 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , rubyAlign(o.rubyAlign)
     , rubyOverhang(o.rubyOverhang)
     , textZoom(o.textZoom)
-#if PLATFORM(IOS_FAMILY)
-    , touchCalloutEnabled(o.touchCalloutEnabled)
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+    , webkitTouchCallout(o.webkitTouchCallout)
 #endif
     , hangingPunctuation(o.hangingPunctuation)
     , paintOrder(o.paintOrder)
@@ -323,8 +323,8 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && overflowWrap == o.overflowWrap
         && nbspMode == o.nbspMode
         && lineBreak == o.lineBreak
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-        && useTouchOverflowScrolling == o.useTouchOverflowScrolling
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+        && webkitOverflowScrolling == o.webkitOverflowScrolling
 #endif
 #if ENABLE(TEXT_AUTOSIZING)
         && textSizeAdjust == o.textSizeAdjust
@@ -341,8 +341,8 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && textCombine == o.textCombine
         && textEmphasisPosition == o.textEmphasisPosition
         && lineBoxContain == o.lineBoxContain
-#if PLATFORM(IOS_FAMILY)
-        && touchCalloutEnabled == o.touchCalloutEnabled
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+        && webkitTouchCallout == o.webkitTouchCallout
 #endif
         && hyphenationString == o.hyphenationString
         && quotes == o.quotes
@@ -467,8 +467,8 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
     LOG_IF_DIFFERENT_WITH_CAST(LineSnap, lineSnap);
     LOG_IF_DIFFERENT_WITH_CAST(LineAlign, lineAlign);
 
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-    LOG_IF_DIFFERENT_WITH_CAST(bool, useTouchOverflowScrolling);
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+    LOG_IF_DIFFERENT_WITH_CAST(Style::WebkitOverflowScrolling, webkitOverflowScrolling);
 #endif
 
     LOG_IF_DIFFERENT_WITH_CAST(TextAlignLast, textAlignLast);
@@ -481,8 +481,8 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT_WITH_CAST(TextZoom, textZoom);
 
-#if PLATFORM(IOS_FAMILY)
-    LOG_IF_DIFFERENT_WITH_CAST(bool, touchCalloutEnabled);
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+    LOG_IF_DIFFERENT_WITH_CAST(Style::WebkitTouchCallout, webkitTouchCallout);
 #endif
 
     LOG_RAW_OPTIONSET_IF_DIFFERENT(HangingPunctuation, hangingPunctuation);

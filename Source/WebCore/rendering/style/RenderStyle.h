@@ -333,6 +333,9 @@ enum class Change : uint8_t;
 enum class GridTrackSizingDirection : bool;
 enum class LineBoxContain : uint8_t;
 enum class PositionTryOrder : uint8_t;
+enum class ScrollBehavior : bool;
+enum class WebkitOverflowScrolling : bool;
+enum class WebkitTouchCallout : bool;
 
 template<typename> struct Shadows;
 
@@ -457,8 +460,12 @@ public:
     void setIsPopoverInvoker();
     bool isPopoverInvoker() const;
 
+    inline bool nativeAppearanceDisabled() const;
+    inline void setNativeAppearanceDisabled(bool);
+    static bool initialNativeAppearanceDisabled() { return false; }
+
     void setColumnStylesFromPaginationMode(PaginationMode);
-    
+
     inline bool isFloating() const;
     inline bool hasMargin() const;
     inline bool hasBorder() const;
@@ -1140,16 +1147,15 @@ public:
     inline Style::Color tapHighlightColor() const;
 #endif
 
-#if PLATFORM(IOS_FAMILY)
-    inline bool touchCalloutEnabled() const;
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+    inline Style::WebkitTouchCallout touchCallout() const;
 #endif
 
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-    inline bool useTouchOverflowScrolling() const;
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+    inline Style::WebkitOverflowScrolling overflowScrolling() const;
 #endif
 
-    inline bool useSmoothScrolling() const;
-    inline bool nativeAppearanceDisabled() const;
+    inline Style::ScrollBehavior scrollBehavior() const;
 
 #if ENABLE(TEXT_AUTOSIZING)
     inline Style::TextSizeAdjust textSizeAdjust() const;
@@ -1683,16 +1689,15 @@ public:
     inline void setTapHighlightColor(Style::Color&&);
 #endif
 
-#if PLATFORM(IOS_FAMILY)
-    inline void setTouchCalloutEnabled(bool);
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+    inline void setTouchCallout(Style::WebkitTouchCallout);
 #endif
 
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-    inline void setUseTouchOverflowScrolling(bool);
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+    inline void setOverflowScrolling(Style::WebkitOverflowScrolling);
 #endif
 
-    inline void setUseSmoothScrolling(bool);
-    inline void setNativeAppearanceDisabled(bool);
+    inline void setScrollBehavior(Style::ScrollBehavior);
 
 #if ENABLE(TEXT_AUTOSIZING)
     inline void setTextSizeAdjust(Style::TextSizeAdjust);
@@ -2183,21 +2188,19 @@ public:
     static constexpr TextSecurity initialTextSecurity();
     static constexpr InputSecurity initialInputSecurity();
 
-#if PLATFORM(IOS_FAMILY)
-    static bool initialTouchCalloutEnabled() { return true; }
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+    static constexpr Style::WebkitTouchCallout initialTouchCallout();
 #endif
 
 #if ENABLE(TOUCH_EVENTS)
     static Style::Color initialTapHighlightColor();
 #endif
 
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-    static bool initialUseTouchOverflowScrolling() { return false; }
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+    static constexpr Style::WebkitOverflowScrolling initialOverflowScrolling();
 #endif
 
-    static bool initialUseSmoothScrolling() { return false; }
-
-    static bool initialNativeAppearanceDisabled() { return false; }
+    static constexpr Style::ScrollBehavior initialScrollBehavior();
 
     static inline FilterOperations initialFilter();
     static inline FilterOperations initialAppleColorFilter();

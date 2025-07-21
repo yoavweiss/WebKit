@@ -40,6 +40,8 @@
 #include "StyleTextIndent.h"
 #include "StyleTextShadow.h"
 #include "StyleTextUnderlineOffset.h"
+#include "StyleWebKitOverflowScrolling.h"
+#include "StyleWebKitTouchCallout.h"
 #include "TabSize.h"
 #include "TouchAction.h"
 #include <wtf/DataRef.h>
@@ -150,8 +152,8 @@ public:
     PREFERRED_TYPE(ImageRendering) unsigned imageRendering : 3;
     PREFERRED_TYPE(LineSnap) unsigned lineSnap : 2;
     PREFERRED_TYPE(LineAlign) unsigned lineAlign : 1;
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-    PREFERRED_TYPE(bool) unsigned useTouchOverflowScrolling: 1;
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+    PREFERRED_TYPE(Style::WebkitOverflowScrolling) unsigned webkitOverflowScrolling: 1;
 #endif
     PREFERRED_TYPE(TextAlignLast) unsigned textAlignLast : 3;
     PREFERRED_TYPE(TextJustify) unsigned textJustify : 2;
@@ -161,8 +163,8 @@ public:
     PREFERRED_TYPE(RubyAlign) unsigned rubyAlign : 2;
     PREFERRED_TYPE(RubyOverhang) unsigned rubyOverhang : 1;
     PREFERRED_TYPE(TextZoom) unsigned textZoom: 1;
-#if PLATFORM(IOS_FAMILY)
-    PREFERRED_TYPE(bool) unsigned touchCalloutEnabled : 1;
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+    PREFERRED_TYPE(Style::WebkitTouchCallout) unsigned webkitTouchCallout : 1;
 #endif
     PREFERRED_TYPE(OptionSet<HangingPunctuation>) unsigned hangingPunctuation : 4;
     PREFERRED_TYPE(PaintOrder) unsigned paintOrder : 3;

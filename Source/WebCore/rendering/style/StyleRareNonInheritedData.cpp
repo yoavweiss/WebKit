@@ -115,7 +115,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , transformStyle3D(static_cast<unsigned>(RenderStyle::initialTransformStyle3D()))
     , transformStyleForcedToFlat(false)
     , backfaceVisibility(static_cast<unsigned>(RenderStyle::initialBackfaceVisibility()))
-    , useSmoothScrolling(static_cast<unsigned>(RenderStyle::initialUseSmoothScrolling()))
+    , scrollBehavior(static_cast<unsigned>(RenderStyle::initialScrollBehavior()))
     , textDecorationStyle(static_cast<unsigned>(RenderStyle::initialTextDecorationStyle()))
     , textGroupAlign(static_cast<unsigned>(RenderStyle::initialTextGroupAlign()))
     , contentVisibility(static_cast<unsigned>(RenderStyle::initialContentVisibility()))
@@ -221,7 +221,7 @@ inline StyleRareNonInheritedData::StyleRareNonInheritedData(const StyleRareNonIn
     , transformStyle3D(o.transformStyle3D)
     , transformStyleForcedToFlat(o.transformStyleForcedToFlat)
     , backfaceVisibility(o.backfaceVisibility)
-    , useSmoothScrolling(o.useSmoothScrolling)
+    , scrollBehavior(o.scrollBehavior)
     , textDecorationStyle(o.textDecorationStyle)
     , textGroupAlign(o.textGroupAlign)
     , contentVisibility(o.contentVisibility)
@@ -332,7 +332,7 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
         && transformStyle3D == o.transformStyle3D
         && transformStyleForcedToFlat == o.transformStyleForcedToFlat
         && backfaceVisibility == o.backfaceVisibility
-        && useSmoothScrolling == o.useSmoothScrolling
+        && scrollBehavior == o.scrollBehavior
         && textDecorationStyle == o.textDecorationStyle
         && textGroupAlign == o.textGroupAlign
         && effectiveBlendMode == o.effectiveBlendMode
@@ -499,7 +499,7 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
     LOG_IF_DIFFERENT_WITH_CAST(bool, transformStyleForcedToFlat);
     LOG_IF_DIFFERENT_WITH_CAST(BackfaceVisibility, backfaceVisibility);
 
-    LOG_IF_DIFFERENT_WITH_CAST(ScrollBehavior, useSmoothScrolling);
+    LOG_IF_DIFFERENT_WITH_CAST(Style::ScrollBehavior, scrollBehavior);
     LOG_IF_DIFFERENT_WITH_CAST(TextDecorationStyle, textDecorationStyle);
     LOG_IF_DIFFERENT_WITH_CAST(TextGroupAlign, textGroupAlign);
 

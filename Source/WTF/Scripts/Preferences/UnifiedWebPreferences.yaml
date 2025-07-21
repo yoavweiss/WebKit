@@ -4187,7 +4187,7 @@ LegacyOverflowScrollingTouchEnabled:
   webcoreOnChange: setNeedsRelayoutAllFrames
   humanReadableName: "Legacy -webkit-overflow-scrolling property"
   humanReadableDescription: "Support the legacy -webkit-overflow-scrolling CSS property"
-  condition: ENABLE(OVERFLOW_SCROLLING_TOUCH)
+  condition: ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
   defaultValue:
     WebKitLegacy:
       default: true

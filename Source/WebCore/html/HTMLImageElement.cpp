@@ -893,7 +893,7 @@ bool HTMLImageElement::childShouldCreateRenderer(const Node& child) const
 bool HTMLImageElement::willRespondToMouseClickEventsWithEditability(Editability editability, IgnoreTouchCallout ignoreTouchCallout) const
 {
     auto renderer = this->renderer();
-    if (ignoreTouchCallout == IgnoreTouchCallout::No && (!renderer || renderer->style().touchCalloutEnabled()))
+    if (ignoreTouchCallout == IgnoreTouchCallout::No && (!renderer || renderer->style().touchCallout() == Style::WebkitTouchCallout::Default))
         return true;
     return HTMLElement::willRespondToMouseClickEventsWithEditability(editability);
 }

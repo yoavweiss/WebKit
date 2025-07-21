@@ -11395,8 +11395,6 @@
                 "smooth"
             ],
             "codegen-properties": {
-                "style-converter": "SmoothScrolling",
-                "render-style-name-for-methods": "UseSmoothScrolling",
                 "parser-grammar": "<<values>>"
             },
             "specification": {
@@ -12329,9 +12327,7 @@
                 "touch"
             ],
             "codegen-properties": {
-                "render-style-name-for-methods": "UseTouchOverflowScrolling",
-                "style-converter": "OverflowScrolling",
-                "enable-if": "ENABLE_OVERFLOW_SCROLLING_TOUCH",
+                "enable-if": "ENABLE_WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY",
                 "settings-flag": "legacyOverflowScrollingTouchEnabled",
                 "parser-grammar": "<<values>>"
             },
@@ -12387,9 +12383,7 @@
                 "none"
             ],
             "codegen-properties": {
-                "render-style-name-for-methods": "TouchCalloutEnabled",
-                "style-converter": "TouchCallout",
-                "enable-if": "WTF_PLATFORM_IOS_FAMILY",
+                "enable-if": "ENABLE_WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY",
                 "parser-grammar": "<<values>>"
             },
             "status": "non-standard"

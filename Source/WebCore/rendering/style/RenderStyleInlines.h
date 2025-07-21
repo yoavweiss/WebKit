@@ -465,6 +465,7 @@ inline Style::GapGutter RenderStyle::initialRowGap() { return CSS::Keyword::Norm
 constexpr RubyPosition RenderStyle::initialRubyPosition() { return RubyPosition::Over; }
 constexpr RubyAlign RenderStyle::initialRubyAlign() { return RubyAlign::SpaceAround; }
 constexpr RubyOverhang RenderStyle::initialRubyOverhang() { return RubyOverhang::Auto; }
+constexpr Style::ScrollBehavior RenderStyle::initialScrollBehavior() { return Style::ScrollBehavior::Auto; }
 inline Style::ScrollMarginEdge RenderStyle::initialScrollMargin() { return 0_css_px; }
 inline Style::ScrollPaddingEdge RenderStyle::initialScrollPadding() { return CSS::Keyword::Auto { }; }
 inline Style::ProgressTimelineAxes RenderStyle::initialScrollTimelineAxes() { return CSS::Keyword::Block { }; }
@@ -759,7 +760,7 @@ inline TransformStyle3D RenderStyle::transformStyle3D() const { return static_ca
 inline const AnimationList* RenderStyle::transitions() const { return m_nonInheritedData->miscData->transitions.get(); }
 inline AnimationList* RenderStyle::transitions() { return m_nonInheritedData->miscData->transitions.get(); }
 inline const Style::Translate& RenderStyle::translate() const { return m_nonInheritedData->rareData->translate; }
-inline bool RenderStyle::useSmoothScrolling() const { return m_nonInheritedData->rareData->useSmoothScrolling; }
+inline Style::ScrollBehavior RenderStyle::scrollBehavior() const { return static_cast<Style::ScrollBehavior>(m_nonInheritedData->rareData->scrollBehavior); }
 inline float RenderStyle::usedPerspective() const { return perspective().usedPerspective(); }
 inline TransformStyle3D RenderStyle::usedTransformStyle3D() const { return static_cast<bool>(m_nonInheritedData->rareData->transformStyleForcedToFlat) ? TransformStyle3D::Flat : transformStyle3D(); }
 inline int RenderStyle::usedZIndex() const { return m_nonInheritedData->boxData->usedZIndex(); }
@@ -852,12 +853,14 @@ inline bool RenderStyle::hasExplicitlySetWritingMode() const { return m_nonInher
 inline const Style::DynamicRangeLimit& RenderStyle::dynamicRangeLimit() const { return m_rareInheritedData->dynamicRangeLimit; }
 inline Style::DynamicRangeLimit RenderStyle::initialDynamicRangeLimit() { return CSS::Keyword::NoLimit { }; }
 
-#if PLATFORM(IOS_FAMILY)
-inline bool RenderStyle::touchCalloutEnabled() const { return m_rareInheritedData->touchCalloutEnabled; }
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
+inline Style::WebkitOverflowScrolling RenderStyle::overflowScrolling() const { return static_cast<Style::WebkitOverflowScrolling>(m_rareInheritedData->webkitOverflowScrolling); }
+constexpr Style::WebkitOverflowScrolling RenderStyle::initialOverflowScrolling() { return Style::WebkitOverflowScrolling::Auto; }
 #endif
 
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
-inline bool RenderStyle::useTouchOverflowScrolling() const { return m_rareInheritedData->useTouchOverflowScrolling; }
+#if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
+inline Style::WebkitTouchCallout RenderStyle::touchCallout() const { return static_cast<Style::WebkitTouchCallout>(m_rareInheritedData->webkitTouchCallout); }
+constexpr Style::WebkitTouchCallout RenderStyle::initialTouchCallout() { return Style::WebkitTouchCallout::Default; }
 #endif
 
 #if ENABLE(TEXT_AUTOSIZING)

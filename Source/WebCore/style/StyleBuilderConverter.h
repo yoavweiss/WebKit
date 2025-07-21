@@ -176,10 +176,9 @@ public:
     static Color convertTapHighlightColor(BuilderState&, const CSSValue&);
 #endif
     static OptionSet<TouchAction> convertTouchAction(BuilderState&, const CSSValue&);
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
     static bool convertOverflowScrolling(BuilderState&, const CSSValue&);
 #endif
-    static bool convertSmoothScrolling(BuilderState&, const CSSValue&);
 
     static FontSizeAdjust convertFontSizeAdjust(BuilderState&, const CSSValue&);
     static std::optional<FontSelectionValue> convertFontStyleFromValue(BuilderState&, const CSSValue&);
@@ -1084,17 +1083,12 @@ inline OptionSet<TouchAction> BuilderConverter::convertTouchAction(BuilderState&
     return RenderStyle::initialTouchActions();
 }
 
-#if ENABLE(OVERFLOW_SCROLLING_TOUCH)
+#if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
 inline bool BuilderConverter::convertOverflowScrolling(BuilderState&, const CSSValue& value)
 {
     return value.valueID() == CSSValueTouch;
 }
 #endif
-
-inline bool BuilderConverter::convertSmoothScrolling(BuilderState&, const CSSValue& value)
-{
-    return value.valueID() == CSSValueSmooth;
-}
 
 inline FixedVector<WebCore::Length> BuilderConverter::convertStrokeDashArray(BuilderState& builderState, const CSSValue& value)
 {
