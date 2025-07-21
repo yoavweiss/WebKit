@@ -38,7 +38,6 @@ bindings/js/JSDOMConvertBase.h
 bindings/js/JSLocationCustom.cpp
 bindings/js/JSPaintRenderingContext2DCustom.cpp
 bindings/js/WebCoreOpaqueRootInlines.h
-bindings/js/WindowProxy.h
 bridge/objc/objc_runtime.h
 crypto/cocoa/CryptoAlgorithmEd25519Cocoa.cpp
 crypto/cocoa/CryptoKeyOKPCocoa.cpp
