@@ -151,6 +151,10 @@ template<typename T> inline constexpr ASCIILiteral SerializationSeparatorString 
     DEFINE_RANGE_LIKE_CONFORMANCE(t) \
     template<> inline constexpr WebCore::SerializationSeparatorType WebCore::SerializationSeparator<t> = WebCore::SerializationSeparatorType::Slash;
 
+// Helper to define an empty-like conformance for a type.
+#define DEFINE_EMPTY_LIKE_CONFORMANCE(t) \
+    template<> inline constexpr auto WebCore::TreatAsEmptyLike<t> = true;
+
 // MARK: - Conforming Existing Types
 
 // - Optional-like
@@ -631,6 +635,11 @@ template<typename List, typename Defaulter> inline constexpr auto SerializationS
 
 // Concept to constrain types to only those that derive from `ListOrDefault`.
 template<typename T> concept ListOrDefaultDerived = WTF::IsBaseOfTemplate<ListOrDefault, T>::value;
+
+// Helper to define a range-like conformance for a type that derives from `ListOrDefault`.
+#define DEFINE_RANGE_LIKE_CONFORMANCE_FOR_LIST_OR_DEFAULT_DERIVED_TYPE(t) \
+    DEFINE_RANGE_LIKE_CONFORMANCE(t) \
+    template<> inline constexpr auto WebCore::SerializationSeparator<t> = WebCore::SerializationSeparator<typename t::List>;
 
 // Wraps a fixed size list of elements of a single type, semantically marking them as serializing as "space separated".
 template<typename T, size_t N> struct SpaceSeparatedArray {

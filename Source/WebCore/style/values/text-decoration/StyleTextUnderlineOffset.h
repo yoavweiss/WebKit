@@ -47,4 +47,4 @@ template<> struct Blending<TextUnderlineOffset> {
 } // namespace Style
 } // namespace WebCore
 
-template<> inline constexpr auto WebCore::TreatAsVariantLike<WebCore::Style::TextUnderlineOffset> = true;
+DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::TextUnderlineOffset)

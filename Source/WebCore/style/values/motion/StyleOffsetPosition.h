@@ -107,4 +107,4 @@ template<> struct ToPlatform<OffsetPosition> { auto operator()(const OffsetPosit
 } // namespace Style
 } // namespace WebCore
 
-template<> inline constexpr auto WebCore::TreatAsVariantLike<WebCore::Style::OffsetPosition> = true;
+DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::OffsetPosition)

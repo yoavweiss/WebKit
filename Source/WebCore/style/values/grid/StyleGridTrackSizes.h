@@ -53,5 +53,4 @@ struct GridTrackSizes : ListOrDefault<GridTrackSizeList, GridTrackSizeDefaulter>
 } // namespace Style
 } // namespace WebCore
 
-template<> inline constexpr auto WebCore::TreatAsRangeLike<WebCore::Style::GridTrackSizes> = true;
-template<> inline constexpr auto WebCore::SerializationSeparator<WebCore::Style::GridTrackSizes> = WebCore::SerializationSeparator<typename WebCore::Style::GridTrackSizes::List>;
+DEFINE_RANGE_LIKE_CONFORMANCE_FOR_LIST_OR_DEFAULT_DERIVED_TYPE(WebCore::Style::GridTrackSizes)
