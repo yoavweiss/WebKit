@@ -173,13 +173,13 @@ class TestWithFailureCount(shell.TestNewStyle):
         return {'step': status}
 
 
-class ConfigureBuild(buildstep.BuildStep):
+class ConfigureBuild(buildstep.BuildStep, AddToLogMixin):
     name = "configure-build"
     description = ["configuring build"]
     descriptionDone = ["configured build"]
 
     def __init__(self, platform, configuration, architecture, buildOnly, additionalArguments, device_model, triggers, *args, **kwargs):
-        buildstep.BuildStep.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.platform = platform
         if platform != 'jsc-only':
             self.platform = platform.split('-', 1)[0]
@@ -191,7 +191,8 @@ class ConfigureBuild(buildstep.BuildStep):
         self.device_model = device_model
         self.triggers = triggers
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         self.setProperty("platform", self.platform)
         self.setProperty("fullPlatform", self.fullPlatform)
         self.setProperty("configuration", self.configuration)
@@ -200,8 +201,8 @@ class ConfigureBuild(buildstep.BuildStep):
         self.setProperty("additionalArguments", self.additionalArguments)
         self.setProperty("device_model", self.device_model)
         self.setProperty("triggers", self.triggers)
-        self.finished(SUCCESS)
-        return defer.succeed(None)
+        yield self._addToLog('stdio', 'Set build properties')
+        return defer.returnValue(SUCCESS)
 
 
 class CheckOutSource(git.Git):
@@ -1443,9 +1444,9 @@ class RunWebKit1LeakTests(RunWebKit1Tests):
     want_stderr = False
     warnOnWarnings = True
 
-    def start(self):
+    def run(self):
         self.command += ["--leaks", "--result-report-flavor", "Leaks"]
-        return RunWebKit1Tests.start(self)
+        return super().run()
 
 
 class RunAndUploadPerfTests(shell.TestNewStyle):
