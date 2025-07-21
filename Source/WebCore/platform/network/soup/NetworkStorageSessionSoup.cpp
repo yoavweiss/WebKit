@@ -435,6 +435,7 @@ void NetworkStorageSession::setCookiesFromDOM(const URL& firstParty, const SameS
         auto cookieName = String::fromUTF8(soup_cookie_get_name(cookie.get()));
         if (cookieName.startsWithIgnoringASCIICase("__Http-"_s) || cookieName.startsWithIgnoringASCIICase("__HostHttp-"_s))
             continue;
+
         // Make sure the cookie is not httpOnly since such cookies should not be set from JavaScript.
         if (soup_cookie_get_http_only(cookie.get()))
             continue;
