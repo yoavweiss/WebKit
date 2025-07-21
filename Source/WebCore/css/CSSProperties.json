@@ -12160,7 +12160,7 @@
             ],
             "codegen-properties": {
                 "settings-flag": "viewTransitionsEnabled",
-                "style-converter": "ViewTransitionName",
+                "style-converter": "StyleType<ViewTransitionName>",
                 "parser-grammar": "none | auto | match-element | <custom-ident>"
             },
             "specification": {

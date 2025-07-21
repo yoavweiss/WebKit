@@ -188,7 +188,6 @@ public:
     static Ref<CSSValue> convertReflection(ExtractorState&, const StyleReflection*);
     static Ref<CSSValue> convertLineFitEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertTextBoxEdge(ExtractorState&, const TextEdge&);
-    static Ref<CSSValue> convertViewTransitionName(ExtractorState&, const ViewTransitionName&);
     static Ref<CSSValue> convertPositionTryFallbacks(ExtractorState&, const FixedVector<PositionTryFallback>&);
     static Ref<CSSValue> convertWillChange(ExtractorState&, const WillChangeData*);
     static Ref<CSSValue> convertBlockStepSize(ExtractorState&, std::optional<WebCore::Length>);
@@ -835,16 +834,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTextBoxEdge(ExtractorState& stat
 
     return CSSValuePair::create(convert(state, textEdge.over), convert(state, textEdge.under));
 }
-
-inline Ref<CSSValue> ExtractorConverter::convertViewTransitionName(ExtractorState&, const ViewTransitionName& viewTransitionName)
-{
-    if (viewTransitionName.isNone())
-        return CSSPrimitiveValue::create(CSSValueNone);
-    if (viewTransitionName.isAuto())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    return CSSPrimitiveValue::createCustomIdent(viewTransitionName.customIdent());
-}
-
 
 inline Ref<CSSValue> ExtractorConverter::convertPositionTryFallbacks(ExtractorState& state, const FixedVector<PositionTryFallback>& fallbacks)
 {

@@ -266,7 +266,6 @@ namespace Style {
 class CustomProperty;
 class CustomPropertyData;
 class CustomPropertyRegistry;
-class ViewTransitionName;
 struct AnchorNames;
 struct AspectRatio;
 struct BlockEllipsis;
@@ -326,6 +325,7 @@ struct Translate;
 struct ViewTimelineInsets;
 struct ViewTimelines;
 struct ViewTransitionClasses;
+struct ViewTransitionName;
 
 enum class Change : uint8_t;
 enum class GridTrackSizingDirection : bool;

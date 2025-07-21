@@ -3233,6 +3233,7 @@ style/values/transforms/StyleRotate.cpp
 style/values/transforms/StylePerspective.cpp
 style/values/transforms/StyleScale.cpp
 style/values/transforms/StyleTranslate.cpp
+style/values/view-transitions/StyleViewTransitionName.cpp
 svg/DocumentSVG.cpp
 svg/SVGAElement.cpp
 svg/SVGAltGlyphDefElement.cpp

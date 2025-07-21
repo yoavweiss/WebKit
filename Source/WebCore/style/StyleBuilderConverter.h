@@ -216,7 +216,6 @@ public:
 
     static std::optional<WebCore::Length> convertBlockStepSize(BuilderState&, const CSSValue&);
 
-    static ViewTransitionName convertViewTransitionName(BuilderState&, const CSSValue&);
     static RefPtr<WillChangeData> convertWillChange(BuilderState&, const CSSValue&);
 
     static std::optional<ScopedName> convertPositionAnchor(BuilderState&, const CSSValue&);
@@ -1513,24 +1512,6 @@ inline OptionSet<Containment> BuilderConverter::convertContain(BuilderState& bui
         };
     }
     return containment;
-}
-
-inline ViewTransitionName BuilderConverter::convertViewTransitionName(BuilderState& state, const CSSValue& value)
-{
-    auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value);
-    if (!primitiveValue)
-        return ViewTransitionName::createWithNone();
-
-    if (value.valueID() == CSSValueNone)
-        return ViewTransitionName::createWithNone();
-
-    if (value.valueID() == CSSValueAuto)
-        return ViewTransitionName::createWithAuto(state.styleScopeOrdinal());
-
-    if (value.valueID() == CSSValueMatchElement)
-        return ViewTransitionName::createWithMatchElement(state.styleScopeOrdinal());
-
-    return ViewTransitionName::createWithCustomIdent(state.styleScopeOrdinal(), AtomString { primitiveValue->stringValue() });
 }
 
 inline RefPtr<WillChangeData> BuilderConverter::convertWillChange(BuilderState& builderState, const CSSValue& value)
