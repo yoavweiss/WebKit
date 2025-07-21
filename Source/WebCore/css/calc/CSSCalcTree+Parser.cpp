@@ -741,7 +741,7 @@ static std::optional<TypedChild> consumeRandom(CSSParserTokenRange& tokens, int 
     if (!state.propertyParserState.context.cssRandomFunctionEnabled)
         return { };
 
-    if (state.propertyParserState.currentRule != StyleRuleType::Style)
+    if (state.propertyParserState.currentRule != StyleRuleType::Style && state.propertyParserState.currentRule != StyleRuleType::Keyframe)
         return { };
     if (state.propertyParserState.currentProperty == CSSPropertyInvalid)
         return { };
