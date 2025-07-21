@@ -40,8 +40,9 @@ CoreIPCPKPaymentSetupFeature::CoreIPCPKPaymentSetupFeature(PKPaymentSetupFeature
 
 RetainPtr<id> CoreIPCPKPaymentSetupFeature::toID() const
 {
+    if (!isInWebProcess())
+        return nil;
     RetainPtr data = toNSDataNoCopy(m_data.span(), FreeWhenDone::No);
-    RELEASE_ASSERT(isInWebProcess());
     return [NSKeyedUnarchiver unarchivedObjectOfClass:PAL::getPKPaymentSetupFeatureClass() fromData:data.get() error:nil];
 }
 
