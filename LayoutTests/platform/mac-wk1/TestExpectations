@@ -1069,6 +1069,7 @@ http/tests/local/blob/navigate-blob.html [ Skip ]
 media/no-fullscreen-when-hidden.html [ Skip ]
 fullscreen/full-screen-enter-while-exiting-fully-mid-completion-handler.html [ Skip ]
 fullscreen/full-screen-enter-while-exiting-mid-completion-handler.html [ Skip ]
+fullscreen/fullscreen-zero-height-element-with-non-zero-children.html [ Skip ]
 
 # Multi-process test
 fullscreen/iframe-fullscreen-system-exit.html [ Skip ]
