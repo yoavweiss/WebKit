@@ -83,8 +83,8 @@ InjectedBundleScriptWorld* InjectedBundleScriptWorld::find(const String& name)
 
 InjectedBundleScriptWorld& InjectedBundleScriptWorld::normalWorldSingleton()
 {
-    static InjectedBundleScriptWorld& world = adoptRef(*new InjectedBundleScriptWorld(mainThreadNormalWorldSingleton(), String())).leakRef();
-    return world;
+    static NeverDestroyed<Ref<InjectedBundleScriptWorld>> world = adoptRef(*new InjectedBundleScriptWorld(mainThreadNormalWorldSingleton(), String())).leakRef();
+    return world.get();
 }
 
 InjectedBundleScriptWorld::InjectedBundleScriptWorld(DOMWrapperWorld& world, const String& name)

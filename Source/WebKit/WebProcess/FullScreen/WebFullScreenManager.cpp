@@ -467,7 +467,7 @@ void WebFullScreenManager::updateMainVideoElement()
                 continue;
 
             mainVideoBounds = bounds;
-            mainVideo = video.ptr();
+            mainVideo = WTFMove(video);
         }
         return mainVideo;
     }());

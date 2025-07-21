@@ -75,7 +75,7 @@ WKURLRef WKBundleFrameCopyProvisionalURL(WKBundleFrameRef frameRef)
 
 WKFrameLoadState WKBundleFrameGetFrameLoadState(WKBundleFrameRef frameRef)
 {
-    auto* coreFrame = WebKit::toImpl(frameRef)->coreLocalFrame();
+    RefPtr coreFrame = WebKit::toImpl(frameRef)->coreLocalFrame();
     if (!coreFrame)
         return kWKFrameLoadStateFinished;
 
@@ -251,7 +251,7 @@ WKDataRef WKBundleFrameCopyWebArchiveFilteringSubframes(WKBundleFrameRef frameRe
     UNUSED_PARAM(context);
 #endif
     
-    return 0;
+    return nullptr;
 }
 
 bool WKBundleFrameCallShouldCloseOnWebView(WKBundleFrameRef frameRef)
@@ -259,7 +259,7 @@ bool WKBundleFrameCallShouldCloseOnWebView(WKBundleFrameRef frameRef)
     if (!frameRef)
         return true;
 
-    auto* coreFrame = WebKit::toImpl(frameRef)->coreLocalFrame();
+    RefPtr coreFrame = WebKit::toImpl(frameRef)->coreLocalFrame();
     if (!coreFrame)
         return true;
 
@@ -274,7 +274,7 @@ WKBundleHitTestResultRef WKBundleFrameCreateHitTestResult(WKBundleFrameRef frame
 
 WKSecurityOriginRef WKBundleFrameCopySecurityOrigin(WKBundleFrameRef frameRef)
 {
-    auto* coreFrame = WebKit::toImpl(frameRef)->coreLocalFrame();
+    RefPtr coreFrame = WebKit::toImpl(frameRef)->coreLocalFrame();
     if (!coreFrame)
         return 0;
 
@@ -322,6 +322,6 @@ void* WKAccessibilityRootObject(WKBundleFrameRef frameRef)
     if (!axObjectCache)
         return nullptr;
 
-    auto* root = axObjectCache->rootObjectForFrame(*frame);
+    RefPtr root = axObjectCache->rootObjectForFrame(*frame);
     return root ? root->wrapper() : nullptr;
 }
