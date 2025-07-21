@@ -1251,6 +1251,18 @@ typedef NS_ENUM(NSUInteger, _UIScrollDeviceCategory) {
 @property (nonatomic, readonly, getter=isInteractivelyResizing) BOOL interactivelyResizing;
 @end
 
+#if HAVE(LIQUID_GLASS)
+
+@interface _UIScrollPocket : UIView
+- (void)invalidateAllElements;
+@end
+
+@interface UIScrollView (ScrollPocket_IPI)
+- (_UIScrollPocket *)_pocketForEdge:(UIRectEdge)edge makeIfNeeded:(BOOL)makeIfNeeded;
+@end
+
+#endif // HAVE(LIQUID_GLASS)
+
 WTF_EXTERN_C_BEGIN
 
 BOOL UIKeyboardEnabledInputModesAllowOneToManyShortcuts(void);

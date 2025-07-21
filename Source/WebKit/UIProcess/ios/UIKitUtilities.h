@@ -89,6 +89,13 @@ UIScrollView *scrollViewForTouches(NSSet<UITouch *> *);
 UIRectEdge uiRectEdgeForSide(WebCore::BoxSide);
 UIEdgeInsets maxEdgeInsets(const UIEdgeInsets&, const UIEdgeInsets&);
 
+static constexpr auto allUIRectEdges = std::array {
+    UIRectEdgeTop,
+    UIRectEdgeLeft,
+    UIRectEdgeBottom,
+    UIRectEdgeRight
+};
+
 } // namespace WebKit
 
 #endif // PLATFORM(IOS_FAMILY)
