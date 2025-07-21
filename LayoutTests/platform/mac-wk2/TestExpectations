@@ -2275,3 +2275,5 @@ webkit.org/b/296289 media/media-session/play-after-seek.html [ Pass Failure ]
 webkit.org/b/296296 [ Sequoia Release arm64 ] imported/w3c/web-platform-tests/css/css-fill-stroke/paint-order-001.html [ ImageOnlyFailure ]
 
 webkit.org/b/296300 [ Sequoia Debug arm64 ] webgl/2.0.y/conformance2/offscreencanvas/offscreencanvas-transfer-image-bitmap.html [ Pass Timeout ]
+
+webkit.org/b/296297 fast/images/image-map-outline-with-paint-root-offset.html [ Pass Failure ]
