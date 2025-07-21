@@ -47,7 +47,7 @@ public:
 
     double computeIntrinsicAspectRatio() const;
 
-    void computeIntrinsicRatioInformation(FloatSize& intrinsicSize, FloatSize& intrinsicRatio) const override;
+    void computeIntrinsicSizeAndPreferredAspectRatio(FloatSize& intrinsicSize, FloatSize& preferredAspectRatio) const override;
 
     virtual bool paintsContent() const { return true; }
 

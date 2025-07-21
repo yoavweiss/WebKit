@@ -450,16 +450,16 @@ static bool isVideoWithDefaultObjectSize(const RenderReplaced* maybeVideo)
     return false;
 } 
 
-void RenderReplaced::computeAspectRatioInformationForRenderBox(RenderBox* contentRenderer, FloatSize& constrainedSize, FloatSize& intrinsicRatio) const
+void RenderReplaced::computeAspectRatioInformationForRenderBox(RenderBox* contentRenderer, FloatSize& constrainedSize, FloatSize& preferredAspectRatio) const
 {
     FloatSize intrinsicSize;
     if (shouldApplySizeOrInlineSizeContainment())
-        RenderReplaced::computeIntrinsicRatioInformation(intrinsicSize, intrinsicRatio);
+        RenderReplaced::computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
     else if (contentRenderer) {
-        contentRenderer->computeIntrinsicRatioInformation(intrinsicSize, intrinsicRatio);
+        contentRenderer->computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
 
-        if (style().aspectRatio().isRatio() || (style().aspectRatio().isAutoAndRatio() && intrinsicRatio.isEmpty()))
-            intrinsicRatio = FloatSize::narrowPrecision(style().aspectRatioWidth().value, style().aspectRatioHeight().value);
+        if (style().aspectRatio().isRatio() || (style().aspectRatio().isAutoAndRatio() && preferredAspectRatio.isEmpty()))
+            preferredAspectRatio = FloatSize::narrowPrecision(style().aspectRatioWidth().value, style().aspectRatioHeight().value);
 
         // Handle zoom & vertical writing modes here, as the embedded document doesn't know about them.
         intrinsicSize.scale(style().usedZoom());
@@ -470,17 +470,17 @@ void RenderReplaced::computeAspectRatioInformationForRenderBox(RenderBox* conten
         // Update our intrinsic size to match what the content renderer has computed, so that when we
         // constrain the size below, the correct intrinsic size will be obtained for comparison against
         // min and max widths.
-        if (!intrinsicRatio.isEmpty() && !intrinsicSize.isZero())
+        if (!preferredAspectRatio.isEmpty() && !intrinsicSize.isZero())
             m_intrinsicSize = LayoutSize(intrinsicSize);
 
         if (!isHorizontalWritingMode()) {
-            if (!intrinsicRatio.isEmpty())
-                intrinsicRatio = intrinsicRatio.transposedSize();
+            if (!preferredAspectRatio.isEmpty())
+                preferredAspectRatio = preferredAspectRatio.transposedSize();
             intrinsicSize = intrinsicSize.transposedSize();
         }
     } else {
-        computeIntrinsicRatioInformation(intrinsicSize, intrinsicRatio);
-        if (!intrinsicRatio.isEmpty() && !intrinsicSize.isZero())
+        computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
+        if (!preferredAspectRatio.isEmpty() && !intrinsicSize.isZero())
             m_intrinsicSize = LayoutSize(isHorizontalWritingMode() ? intrinsicSize : intrinsicSize.transposedSize());
     }
     constrainedSize = intrinsicSize;
@@ -556,7 +556,7 @@ double RenderReplaced::computeIntrinsicAspectRatio() const
     return intrinsicRatio.aspectRatioDouble();
 }
 
-void RenderReplaced::computeIntrinsicRatioInformation(FloatSize& intrinsicSize, FloatSize& intrinsicRatio) const
+void RenderReplaced::computeIntrinsicSizeAndPreferredAspectRatio(FloatSize& intrinsicSize, FloatSize& intrinsicRatio) const
 {
     // If there's an embeddedContentBox() of a remote, referenced document available, this code-path should never be used.
     ASSERT(!embeddedContentBox() || shouldApplySizeOrInlineSizeContainment());
