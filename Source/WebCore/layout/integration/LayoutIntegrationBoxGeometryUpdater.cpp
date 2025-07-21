@@ -511,6 +511,18 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         return synthesizedBaseline(renderBox, *renderBox.parentStyle(), writingMode.isHorizontal() ? HorizontalLine : VerticalLine, BorderBox) + renderBox.marginLogicalHeight();
     }
 
+    if (renderBox.isFieldset()) {
+        // Note that <fieldset> may simply be a flex/grid box (a non-RenderBlockFlow RenderBlock) and already handled above.
+        if (CheckedPtr blockFlow = dynamicDowncast<RenderBlockFlow>(renderBox)) {
+            // <fieldset> with no legend.
+            if (CheckedPtr inlineLayout = blockFlow->inlineLayout())
+                return marginBefore + floorToInt(inlineLayout->lastLineLogicalBaseline());
+            if (auto baseline = lastInflowBoxBaseline(*blockFlow))
+                return marginBefore + *baseline;
+        }
+        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+    }
+
     if (CheckedPtr deprecatedFlexBox = dynamicDowncast<RenderDeprecatedFlexibleBox>(renderBox)) {
         // Historically, we did this check for all baselines. But we can't
         // remove this code from deprecated flexbox, because it effectively
