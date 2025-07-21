@@ -2282,6 +2282,9 @@ ByteCodeParser::CallOptimizationResult ByteCodeParser::handleInlining(
                 && callee.executable()
                 && (callOp == Call || callOp == TailCall || callOp == Construct)) {
                 auto* executable = callee.executable();
+                if (executable->intrinsic() == WasmFunctionIntrinsic && !Options::forceICFailure())
+                    return inliningResult;
+
                 if (auto* functionExecutable = jsDynamicCast<FunctionExecutable*>(executable)) {
                     // We need to update m_parameterSlots before we get to the backend, but we don't
                     // want to do too much of this.
