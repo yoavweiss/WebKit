@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <wtf/RawPtrTraits.h>
 #include <wtf/Ref.h>
 
 namespace WTF {

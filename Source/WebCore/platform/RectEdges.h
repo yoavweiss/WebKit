@@ -28,6 +28,7 @@
 #include "BoxSides.h"
 #include "WritingMode.h"
 #include <array>
+#include <concepts>
 #include <wtf/OptionSet.h>
 #include <wtf/text/TextStream.h>
 
