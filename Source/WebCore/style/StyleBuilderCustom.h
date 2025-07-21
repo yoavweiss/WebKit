@@ -42,7 +42,6 @@
 #include "CSSRegisteredCustomProperty.h"
 #include "CSSTextShadowPropertyValue.h"
 #include "CSSURLValue.h"
-#include "CounterContent.h"
 #include "CursorList.h"
 #include "ElementAncestorIteratorInlines.h"
 #include "FontVariantBuilder.h"
@@ -80,6 +79,7 @@ inline BorderRadiusValue forwardInheritedValue(const BorderRadiusValue& value) {
 inline BoxShadows forwardInheritedValue(const BoxShadows& value) { auto copy = value; return copy; }
 inline ContainIntrinsicSize forwardInheritedValue(const ContainIntrinsicSize& value) { auto copy = value; return copy; }
 inline ContainerNames forwardInheritedValue(const ContainerNames& value) { auto copy = value; return copy; }
+inline Content forwardInheritedValue(const Content& value) { auto copy = value; return copy; }
 inline WebCore::Color forwardInheritedValue(const WebCore::Color& value) { auto copy = value; return copy; }
 inline Color forwardInheritedValue(const Color& value) { auto copy = value; return copy; }
 inline WebCore::Length forwardInheritedValue(const WebCore::Length& value) { auto copy = value; return copy; }
@@ -154,7 +154,6 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(BoxShadow);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CaretColor);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Color);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(Content);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterIncrement);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterReset);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterSet);
@@ -1003,119 +1002,6 @@ inline void BuilderCustom::applyValueStroke(BuilderState& builderState, CSSValue
         svgStyle.setStroke(BuilderConverter::convertStyleType<SVGPaint>(builderState, value, ForVisitedLink::No));
     if (builderState.applyPropertyToVisitedLinkStyle())
         svgStyle.setVisitedLinkStroke(BuilderConverter::convertStyleType<SVGPaint>(builderState, value, ForVisitedLink::Yes));
-}
-
-inline void BuilderCustom::applyInitialContent(BuilderState& builderState)
-{
-    builderState.style().clearContent();
-    builderState.style().setHasContentNone(false);
-}
-
-inline void BuilderCustom::applyInheritContent(BuilderState&)
-{
-}
-
-inline void BuilderCustom::applyValueContent(BuilderState& builderState, CSSValue& value)
-{
-    if (is<CSSPrimitiveValue>(value)) {
-        ASSERT(value.valueID() == CSSValueNormal || value.valueID() == CSSValueNone);
-        builderState.style().clearContent();
-        builderState.style().setHasContentNone(value.valueID() == CSSValueNone);
-        return;
-    }
-
-    auto* altTextPair = dynamicDowncast<CSSValuePair>(value);
-    auto visibleContentList = requiredDowncast<CSSValueList>(builderState, altTextPair ? altTextPair->first() : value);
-    if (!visibleContentList)
-        return;
-
-    auto processAttrContent = [&](const CSSPrimitiveValue& primitiveValue) -> AtomString {
-        // FIXME: Can a namespace be specified for an attr(foo)?
-        if (builderState.style().pseudoElementType() == PseudoId::None)
-            builderState.style().setHasAttrContent();
-        else
-            const_cast<RenderStyle&>(builderState.parentStyle()).setHasAttrContent();
-
-        auto value = primitiveValue.cssAttrValue();
-        QualifiedName attr(nullAtom(), value->attributeName().impl(), nullAtom());
-        const AtomString& attributeValue = builderState.element() ? builderState.element()->getAttribute(attr) : nullAtom();
-
-        // Register the fact that the attribute value affects the style.
-        builderState.registerContentAttribute(attr.localName());
-
-        if (attributeValue.isNull()) {
-            auto fallback = dynamicDowncast<CSSPrimitiveValue>(value->fallback());
-            return fallback && fallback->isString() ? fallback->stringValue().impl() : emptyAtom();
-        }
-        return attributeValue.impl();
-    };
-
-
-    bool didSet = false;
-    for (auto& item : *visibleContentList) {
-        if (item.isImage()) {
-            builderState.style().setContent(builderState.createStyleImage(item), didSet);
-            didSet = true;
-            continue;
-        }
-
-        auto* primitive = dynamicDowncast<CSSPrimitiveValue>(item);
-        if (primitive && primitive->isString()) {
-            builderState.style().setContent(primitive->stringValue().impl(), didSet);
-            didSet = true;
-        } else if (primitive && primitive->isAttr()) {
-            builderState.style().setContent(processAttrContent(*primitive), didSet);
-            didSet = true;
-        } else if (auto* counter = dynamicDowncast<CSSCounterValue>(item)) {
-            builderState.style().setContent(makeUnique<CounterContent>(counter->identifier(), counter->separator(), toStyleFromCSSValue<CounterStyle>(builderState, counter->counterStyle())), didSet);
-            didSet = true;
-        } else {
-            switch (item.valueID()) {
-            case CSSValueOpenQuote:
-                builderState.style().setContent(QuoteType::OpenQuote, didSet);
-                didSet = true;
-                break;
-            case CSSValueCloseQuote:
-                builderState.style().setContent(QuoteType::CloseQuote, didSet);
-                didSet = true;
-                break;
-            case CSSValueNoOpenQuote:
-                builderState.style().setContent(QuoteType::NoOpenQuote, didSet);
-                didSet = true;
-                break;
-            case CSSValueNoCloseQuote:
-                builderState.style().setContent(QuoteType::NoCloseQuote, didSet);
-                didSet = true;
-                break;
-            default:
-                // normal and none do not have any effect.
-                break;
-            }
-        }
-    }
-
-    if (!didSet) {
-        builderState.style().clearContent();
-        return;
-    }
-
-    if (!altTextPair) {
-        builderState.style().setContentAltText({ });
-        return;
-    }
-
-    auto altTextContentList = requiredListDowncast<CSSValueList, CSSPrimitiveValue>(builderState, altTextPair->second());
-    if (!altTextContentList)
-        return;
-
-    StringBuilder altText;
-    for (auto& item : *altTextContentList) {
-        if (item.isString())
-            altText.append(item.stringValue());
-        else if (item.isAttr())
-            altText.append(processAttrContent(item));
-    }
-    builderState.style().setContentAltText(altText.toString());
 }
 
 inline void BuilderCustom::applyInheritFontVariantLigatures(BuilderState& builderState)

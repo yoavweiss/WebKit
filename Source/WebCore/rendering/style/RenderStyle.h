@@ -49,8 +49,6 @@ class BorderData;
 class BorderValue;
 struct CSSPropertiesBitSet;
 class Color;
-class ContentData;
-class CounterContent;
 class CursorList;
 class Element;
 class FillLayer;
@@ -189,7 +187,6 @@ enum class PositionType : uint8_t;
 enum class PositionVisibility : uint8_t;
 enum class PrintColorAdjust : bool;
 enum class PseudoId : uint32_t;
-enum class QuoteType : uint8_t;
 enum class Resize : uint8_t;
 enum class RubyPosition : uint8_t;
 enum class RubyAlign : uint8_t;
@@ -281,6 +278,7 @@ struct Color;
 struct ColorScheme;
 struct ContainIntrinsicSize;
 struct ContainerNames;
+struct Content;
 struct CornerShapeValue;
 struct DynamicRangeLimit;
 struct FlexBasis;
@@ -1834,19 +1832,11 @@ public:
 
     inline bool hasUsedContentNone() const;
     inline bool hasContent() const;
-    inline const ContentData* contentData() const;
-    void setContent(std::unique_ptr<ContentData>, bool add);
-    inline bool contentDataEquivalent(const RenderStyle&) const;
-    void clearContent();
-    inline void setHasContentNone(bool);
-    void setContent(const String&, bool add = false);
-    void setContent(RefPtr<StyleImage>&&, bool add = false);
-    void setContent(std::unique_ptr<CounterContent>, bool add = false);
-    void setContent(QuoteType, bool add = false);
-    void setContentAltText(const String&);
-    const String& contentAltText() const;
+    inline const Style::Content& content() const;
+    inline void setContent(Style::Content&&);
+
     inline bool hasAttrContent() const;
-    void setHasAttrContent();
+    inline void setHasAttrContent();
 
     const CounterDirectiveMap& counterDirectives() const;
     CounterDirectiveMap& accessCounterDirectives();
@@ -2068,8 +2058,9 @@ public:
     static constexpr OptionSet<Containment> strictContainment();
     static constexpr OptionSet<Containment> contentContainment();
     static constexpr ContainerType initialContainerType();
-    static constexpr ContentVisibility initialContentVisibility();
     static Style::ContainerNames initialContainerNames();
+    static inline Style::Content initialContent();
+    static constexpr ContentVisibility initialContentVisibility();
 
     static inline Style::ContainIntrinsicSize initialContainIntrinsicWidth();
     static inline Style::ContainIntrinsicSize initialContainIntrinsicHeight();
@@ -2373,7 +2364,6 @@ private:
         unsigned usesViewportUnits : 1;
         unsigned usesContainerUnits : 1;
         unsigned useTreeCountingFunctions : 1;
-        unsigned hasContentNone : 1;
         unsigned textDecorationLine : TextDecorationLineBits; // Text decorations defined *only* by this element.
         unsigned hasExplicitlyInheritedProperties : 1; // Explicitly inherits a non-inherited property.
         unsigned disallowsFastPathInheritance : 1;

@@ -30,7 +30,6 @@
 #include "CSSPropertyParser.h"
 #include "CSSValuePool.h"
 #include "ColorBlending.h"
-#include "ContentData.h"
 #include "CursorList.h"
 #include "FloatRoundedRect.h"
 #include "FontCascade.h"
@@ -223,7 +222,6 @@ RenderStyle::RenderStyle(CreateDefaultStyleTag)
     m_nonInheritedFlags.useTreeCountingFunctions = false;
     m_nonInheritedFlags.hasExplicitlyInheritedProperties = false;
     m_nonInheritedFlags.disallowsFastPathInheritance = false;
-    m_nonInheritedFlags.hasContentNone = false;
     m_nonInheritedFlags.emptyState = false;
     m_nonInheritedFlags.firstChildState = false;
     m_nonInheritedFlags.lastChildState = false;
@@ -403,7 +401,6 @@ inline void RenderStyle::NonInheritedFlags::copyNonInheritedFrom(const NonInheri
     useTreeCountingFunctions = other.useTreeCountingFunctions;
     hasExplicitlyInheritedProperties = other.hasExplicitlyInheritedProperties;
     disallowsFastPathInheritance = other.disallowsFastPathInheritance;
-    hasContentNone = other.hasContentNone;
 }
 
 void RenderStyle::copyNonInheritedFrom(const RenderStyle& other)
@@ -419,9 +416,9 @@ void RenderStyle::copyNonInheritedFrom(const RenderStyle& other)
 
 void RenderStyle::copyContentFrom(const RenderStyle& other)
 {
-    if (!other.m_nonInheritedData->miscData->content)
+    if (!other.m_nonInheritedData->miscData->content.isData())
         return;
-    m_nonInheritedData.access().miscData.access().content = other.m_nonInheritedData->miscData->content->clone();
+    m_nonInheritedData.access().miscData.access().content = other.m_nonInheritedData->miscData->content;
 }
 
 void RenderStyle::copyPseudoElementsFrom(const RenderStyle& other)
@@ -2281,83 +2278,6 @@ void RenderStyle::clearCursorList()
         m_rareInheritedData.access().cursorData = nullptr;
 }
 
-void RenderStyle::clearContent()
-{
-    if (m_nonInheritedData->miscData->content)
-        m_nonInheritedData.access().miscData.access().content = nullptr;
-}
-
-static inline ContentData& lastContent(ContentData& firstContent)
-{
-    auto* lastContent = &firstContent;
-    for (auto* content = &firstContent; content; content = content->next())
-        lastContent = content;
-    return *lastContent;
-}
-
-void RenderStyle::setContent(std::unique_ptr<ContentData> contentData, bool add)
-{
-    auto& data = m_nonInheritedData.access().miscData.access();
-    if (add && data.content)
-        lastContent(*data.content).setNext(WTFMove(contentData));
-    else {
-        data.content = WTFMove(contentData);
-        auto& altText = data.altText;
-        if (!altText.isNull())
-            data.content->setAltText(altText);
-    }
-}
-
-void RenderStyle::setContent(RefPtr<StyleImage>&& image, bool add)
-{
-    if (!image)
-        return;
-    setContent(makeUnique<ImageContentData>(image.releaseNonNull()), add);
-}
-
-void RenderStyle::setContent(const String& string, bool add)
-{
-    auto& data = m_nonInheritedData.access().miscData.access();
-    if (add && data.content)
-        lastContent(*data.content).setNext(makeUnique<TextContentData>(string));
-    else {
-        data.content = makeUnique<TextContentData>(string);
-        auto& altText = data.altText;
-        if (!altText.isNull())
-            data.content->setAltText(altText);
-    }
-}
-
-void RenderStyle::setContent(std::unique_ptr<CounterContent> counter, bool add)
-{
-    if (!counter)
-        return;
-    setContent(makeUnique<CounterContentData>(WTFMove(counter)), add);
-}
-
-void RenderStyle::setContent(QuoteType quote, bool add)
-{
-    setContent(makeUnique<QuoteContentData>(quote), add);
-}
-
-void RenderStyle::setContentAltText(const String& string)
-{
-    auto& data = m_nonInheritedData.access().miscData.access();
-    data.altText = string;
-    if (data.content)
-        data.content->setAltText(string);
-}
-
-const String& RenderStyle::contentAltText() const
-{
-    return m_nonInheritedData->miscData->altText;
-}
-
-void RenderStyle::setHasAttrContent()
-{
-    SET_NESTED_VAR(m_nonInheritedData, miscData, hasAttrContent, true);
-}
-
 bool RenderStyle::affectedByTransformOrigin() const
 {
     if (rotate().affectedByTransformOrigin())
@@ -3895,7 +3815,6 @@ void RenderStyle::NonInheritedFlags::dumpDifferences(TextStream& ts, const NonIn
     LOG_IF_DIFFERENT(usesViewportUnits);
     LOG_IF_DIFFERENT(usesContainerUnits);
     LOG_IF_DIFFERENT(useTreeCountingFunctions);
-    LOG_IF_DIFFERENT(hasContentNone);
 
     LOG_IF_DIFFERENT_WITH_CAST(TextDecorationLine, textDecorationLine);
 

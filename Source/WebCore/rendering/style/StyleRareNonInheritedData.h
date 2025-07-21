@@ -85,7 +85,6 @@ namespace WebCore {
 using namespace CSS::Literals;
 
 class AnimationList;
-class ContentData;
 class PathOperation;
 class StyleCustomPropertyData;
 class StyleDeprecatedFlexibleBoxData;

@@ -30,7 +30,6 @@
 #include "BorderShape.h"
 #include "CachedResourceLoader.h"
 #include "ContainerNodeInlines.h"
-#include "ContentData.h"
 #include "ContentVisibilityDocumentState.h"
 #include "CursorList.h"
 #include "DocumentInlines.h"
@@ -180,23 +179,36 @@ const Layout::ElementBox* RenderElement::layoutBox() const
     return downcast<Layout::ElementBox>(RenderObject::layoutBox());
 }
 
-bool RenderElement::isContentDataSupported(const ContentData& contentData)
+static RefPtr<StyleImage> minimallySupportedContentDataImage(const Style::Content& content)
 {
     // Minimal support for content properties replacing an entire element.
     // Works only if we have exactly one piece of content and it's a URL.
     // Otherwise acts as if we didn't support this feature.
-    return is<ImageContentData>(contentData) && !contentData.next();
+    auto* data = content.tryData();
+    if (!data)
+        return nullptr;
+    if (data->list.size() != 1)
+        return nullptr;
+    auto* image = std::get_if<Style::Content::Image>(&data->list[0]);
+    if (!image)
+        return nullptr;
+    return image->image.ptr();
+}
+
+bool RenderElement::isContentDataSupported(const Style::Content& content)
+{
+    return minimallySupportedContentDataImage(content) != nullptr;
 }
 
 RenderPtr<RenderElement> RenderElement::createFor(Element& element, RenderStyle&& style, OptionSet<ConstructBlockLevelRendererFor> rendererTypeOverride)
 {
-    const ContentData* contentData = style.contentData();
-    if (!rendererTypeOverride && contentData && isContentDataSupported(*contentData) && !element.isPseudoElement()) {
-        Style::loadPendingResources(style, element.document(), &element);
-        Ref styleImage = downcast<ImageContentData>(*contentData).image();
-        auto image = createRenderer<RenderImage>(RenderObject::Type::Image, element, WTFMove(style), const_cast<StyleImage*>(styleImage.ptr()));
-        image->setIsGeneratedContent();
-        return image;
+    if (!rendererTypeOverride) {
+        if (RefPtr styleImage = minimallySupportedContentDataImage(style.content()); styleImage && !element.isPseudoElement()) {
+            Style::loadPendingResources(style, element.document(), &element);
+            auto image = createRenderer<RenderImage>(RenderObject::Type::Image, element, WTFMove(style), styleImage.get());
+            image->setIsGeneratedContent();
+            return image;
+        }
     }
 
     switch (style.display()) {

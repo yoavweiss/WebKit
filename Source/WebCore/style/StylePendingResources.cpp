@@ -28,7 +28,6 @@
 
 #include "CSSCursorImageValue.h"
 #include "CachedResourceLoader.h"
-#include "ContentData.h"
 #include "CursorData.h"
 #include "CursorList.h"
 #include "DocumentInlines.h"
@@ -78,10 +77,14 @@ void loadPendingResources(RenderStyle& style, Document& document, const Element*
     for (auto* backgroundLayer = &style.backgroundLayers(); backgroundLayer; backgroundLayer = backgroundLayer->next())
         loadPendingImage(document, backgroundLayer->image(), element);
 
-    for (auto* contentData = style.contentData(); contentData; contentData = contentData->next()) {
-        if (auto* imageContentData = dynamicDowncast<ImageContentData>(*contentData)) {
-            auto& styleImage = imageContentData->image();
-            loadPendingImage(document, &styleImage, element);
+    if (auto* contentData = style.content().tryData()) {
+        for (auto& contentItem : contentData->list) {
+            WTF::switchOn(contentItem,
+                [&](const Style::Content::Image& image) {
+                    loadPendingImage(document, image.image.ptr(), element);
+                },
+                [](const auto&) { }
+            );
         }
     }
 

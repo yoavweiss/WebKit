@@ -432,7 +432,7 @@ static CounterNode* makeCounterNode(RenderElement& renderer, const AtomString& i
     return newNode.ptr();
 }
 
-RenderCounter::RenderCounter(Document& document, const CounterContent& counter)
+RenderCounter::RenderCounter(Document& document, const Style::Content::Counter& counter)
     : RenderText(Type::Counter, document, emptyString())
     , m_counter(counter)
 {
@@ -470,11 +470,11 @@ String RenderCounter::originalText() const
         return counterStyle()->text(value, writingMode());
     };
     auto text = counterText(value);
-    if (!m_counter.separator().isNull()) {
+    if (!m_counter.separator.isNull()) {
         if (!child->actsAsReset())
             child = child->parent();
         while (CounterNode* parent = child->parent()) {
-            text = makeString(counterText(child->countInParent()), m_counter.separator(), text);
+            text = makeString(counterText(child->countInParent()), m_counter.separator, text);
             child = parent;
         }
     }
@@ -496,7 +496,7 @@ void RenderCounter::updateCounter()
                 break;
             beforeAfterContainer = beforeAfterContainer->parent();
         }
-        makeCounterNode(*beforeAfterContainer, m_counter.identifier(), true)->addRenderer(const_cast<RenderCounter&>(*this));
+        makeCounterNode(*beforeAfterContainer, m_counter.identifier, true)->addRenderer(const_cast<RenderCounter&>(*this));
     }
 
     setText(originalText(), true);
@@ -587,7 +587,7 @@ void RenderCounter::rendererStyleChangedSlowCase(RenderElement& renderer, const 
 
 Ref<CSSCounterStyle> RenderCounter::counterStyle() const
 {
-    return document().counterStyleRegistry().resolvedCounterStyle(m_counter.style());
+    return document().counterStyleRegistry().resolvedCounterStyle(m_counter.style);
 }
 
 } // namespace WebCore

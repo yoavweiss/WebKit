@@ -537,48 +537,6 @@ public:
     }
 };
 
-class ContentWrapper final : public WrapperBase {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ContentWrapper, Animation);
-public:
-    ContentWrapper()
-        : WrapperBase(CSSPropertyContent)
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        if (!a.hasContent() && !b.hasContent())
-            return true;
-        if (a.hasContent() && b.hasContent())
-            return *a.contentData() == *b.contentData();
-        return false;
-    }
-
-    bool canInterpolate(const RenderStyle&, const RenderStyle&, CompositeOperation) const final
-    {
-        return false;
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        ASSERT(context.isDiscrete);
-        ASSERT(!context.progress || context.progress == 1);
-
-        auto& style = context.progress ? to : from;
-        if (auto* content = style.contentData())
-            destination.setContent(content->clone(), false);
-        else
-            destination.clearContent();
-    }
-
-#if !LOG_DISABLED
-    void log(const RenderStyle&, const RenderStyle&, const RenderStyle&, double progress) const final
-    {
-        LOG_WITH_STREAM(Animations, stream << " blending content at " << TextStream::FormatNumberRespectingIntegers(progress) << ".");
-    }
-#endif
-};
-
 class FontFeatureSettingsWrapper final : public DiscreteFontDescriptionWrapper {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontFeatureSettingsWrapper, Animation);
 public:

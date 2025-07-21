@@ -194,7 +194,7 @@ inline bool RenderStyle::containsSize() const { return usedContain().contains(Co
 inline bool RenderStyle::containsSizeOrInlineSize() const { return usedContain().containsAny({ Containment::Size, Containment::InlineSize }); }
 inline bool RenderStyle::containsStyle() const { return usedContain().contains(Containment::Style); }
 constexpr OptionSet<Containment> RenderStyle::contentContainment() { return { Containment::Layout, Containment::Paint, Containment::Style }; }
-inline const ContentData* RenderStyle::contentData() const { return m_nonInheritedData->miscData->content.get(); }
+inline const Style::Content& RenderStyle::content() const { return m_nonInheritedData->miscData->content; }
 inline ContentVisibility RenderStyle::contentVisibility() const { return static_cast<ContentVisibility>(m_nonInheritedData->rareData->contentVisibility); }
 inline CursorList* RenderStyle::cursors() const { return m_rareInheritedData->cursorData.get(); }
 inline StyleAppearance RenderStyle::usedAppearance() const { return static_cast<StyleAppearance>(m_nonInheritedData->miscData->usedAppearance); }
@@ -273,12 +273,12 @@ inline bool RenderStyle::hasBorderImage() const { return border().hasBorderImage
 inline bool RenderStyle::hasBorderImageOutsets() const { return borderImage().hasImage() && !borderImage().outset().isZero(); }
 inline bool RenderStyle::hasBorderRadius() const { return border().hasBorderRadius(); }
 inline bool RenderStyle::hasClip() const { return !clip().isAuto(); }
-inline bool RenderStyle::hasClipPath() const { return !WTF::holdsAlternative<CSS::Keyword::None>(m_nonInheritedData->rareData->clipPath); }
-inline bool RenderStyle::hasContent() const { return contentData(); }
+inline bool RenderStyle::hasClipPath() const { return !clipPath().isNone(); }
+inline bool RenderStyle::hasContent() const { return content().isData(); }
 inline bool RenderStyle::hasDisplayAffectedByAnimations() const { return m_nonInheritedData->miscData->hasDisplayAffectedByAnimations; }
 // FIXME: Rename this function.
 inline bool RenderStyle::hasUsedAppearance() const { return usedAppearance() != StyleAppearance::None && usedAppearance() != StyleAppearance::Base; }
-inline bool RenderStyle::hasUsedContentNone() const { return !contentData() && (m_nonInheritedFlags.hasContentNone || pseudoElementType() == PseudoId::Before || pseudoElementType() == PseudoId::After); }
+inline bool RenderStyle::hasUsedContentNone() const { return content().isNone() || (content().isNormal() && (pseudoElementType() == PseudoId::Before || pseudoElementType() == PseudoId::After)); }
 inline bool RenderStyle::hasExplicitlySetBorderBottomLeftRadius() const { return m_nonInheritedData->surroundData->hasExplicitlySetBorderBottomLeftRadius; }
 inline bool RenderStyle::hasExplicitlySetBorderBottomRightRadius() const { return m_nonInheritedData->surroundData->hasExplicitlySetBorderBottomRightRadius; }
 inline bool RenderStyle::hasExplicitlySetBorderRadius() const { return hasExplicitlySetBorderBottomLeftRadius() || hasExplicitlySetBorderBottomRightRadius() || hasExplicitlySetBorderTopLeftRadius() || hasExplicitlySetBorderTopRightRadius(); }
@@ -373,6 +373,7 @@ inline Style::ContainIntrinsicSize RenderStyle::initialContainIntrinsicWidth() {
 inline Style::ContainerNames RenderStyle::initialContainerNames() { return CSS::Keyword::None { }; }
 constexpr ContainerType RenderStyle::initialContainerType() { return ContainerType::Normal; }
 constexpr OptionSet<Containment> RenderStyle::initialContainment() { return { }; }
+inline Style::Content RenderStyle::initialContent() { return CSS::Keyword::Normal { }; }
 constexpr StyleContentAlignmentData RenderStyle::initialContentAlignment() { return { }; }
 constexpr ContentVisibility RenderStyle::initialContentVisibility() { return ContentVisibility::Visible; }
 constexpr Style::CornerShapeValue RenderStyle::initialCornerShapeValue() { return Style::CornerShapeValue::round(); }
@@ -1096,15 +1097,6 @@ inline bool RenderStyle::borderIsEquivalentForPainting(const RenderStyle& other)
     return border().isEquivalentForPainting(other.border(), colorDiffers);
 }
 
-inline bool RenderStyle::contentDataEquivalent(const RenderStyle& other) const
-{
-    if (m_nonInheritedData.ptr() == other.m_nonInheritedData.ptr()
-        || m_nonInheritedData->miscData.ptr() == other.m_nonInheritedData->miscData.ptr())
-        return true;
-
-    return m_nonInheritedData->miscData->contentDataEquivalent(other.m_nonInheritedData->miscData);
-}
-
 inline bool RenderStyle::containerTypeAndNamesEqual(const RenderStyle& other) const
 {
     if (m_nonInheritedData.ptr() == other.m_nonInheritedData.ptr()
@@ -1135,7 +1127,7 @@ inline bool isNonVisibleOverflow(Overflow overflow)
 
 inline bool pseudoElementRendererIsNeeded(const RenderStyle* style)
 {
-    return style && style->display() != DisplayType::None && style->contentData();
+    return style && style->display() != DisplayType::None && style->content().isData();
 }
 
 inline bool isVisibleToHitTesting(const RenderStyle& style, const HitTestRequest& request)

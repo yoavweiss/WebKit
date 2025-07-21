@@ -248,6 +248,15 @@ public:
 
 template<CSSPropertyID> struct PropertyExtractorAdaptor;
 
+template<> struct PropertyExtractorAdaptor<CSSPropertyContent> {
+    template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
+    {
+        if (state.style.hasUsedContentNone())
+            return functor(CSS::Keyword::None { });
+        return functor(state.style.content());
+    }
+};
+
 template<> struct PropertyExtractorAdaptor<CSSPropertyRotate> {
     template<typename F> decltype(auto) computedValue(ExtractorState& state, F&& functor) const
     {
@@ -1250,32 +1259,12 @@ inline void ExtractorCustom::extractFloatSerialization(ExtractorState& state, St
 
 inline Ref<CSSValue> ExtractorCustom::extractContent(ExtractorState& state)
 {
-    CSSValueListBuilder list;
-    for (auto* contentData = state.style.contentData(); contentData; contentData = contentData->next()) {
-        if (auto* counterContentData = dynamicDowncast<CounterContentData>(*contentData))
-            list.append(CSSCounterValue::create(counterContentData->counter().identifier(), counterContentData->counter().separator(), CSSPrimitiveValue::createCustomIdent(counterContentData->counter().style().identifier.value)));
-        else if (auto* imageContentData = dynamicDowncast<ImageContentData>(*contentData))
-            list.append(imageContentData->image().computedStyleValue(state.style));
-        else if (auto* quoteContentData = dynamicDowncast<QuoteContentData>(*contentData))
-            list.append(ExtractorConverter::convert(state, quoteContentData->quote()));
-        else if (auto* textContentData = dynamicDowncast<TextContentData>(*contentData))
-            list.append(CSSPrimitiveValue::create(textContentData->text()));
-        else {
-            ASSERT_NOT_REACHED();
-            continue;
-        }
-    }
-    if (list.isEmpty())
-        list.append(CSSPrimitiveValue::create(state.style.hasUsedContentNone() ? CSSValueNone : CSSValueNormal));
-    else if (auto& altText = state.style.contentAltText(); !altText.isNull())
-        return CSSValuePair::createSlashSeparated(CSSValueList::createSpaceSeparated(WTFMove(list)), CSSPrimitiveValue::create(altText));
-    return CSSValueList::createSpaceSeparated(WTFMove(list));
+    return extractCSSValue<CSSPropertyContent>(state);
 }
 
 inline void ExtractorCustom::extractContentSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    // FIXME: Do this more efficiently without creating and destroying a CSSValue object.
-    builder.append(extractContent(state)->cssText(context));
+    extractSerialization<CSSPropertyContent>(state, builder, context);
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractCursor(ExtractorState& state)

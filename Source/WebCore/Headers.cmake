@@ -2774,6 +2774,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/contain/StyleContainerName.h
 
+    style/values/content/StyleContent.h
     style/values/content/StyleQuotes.h
 
     style/values/counter-styles/StyleCounterStyle.h

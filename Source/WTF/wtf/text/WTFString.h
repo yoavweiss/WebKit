@@ -374,6 +374,11 @@ template<> struct IntegerToStringConversionTrait<String> {
     static String flush(std::span<const LChar> characters, void*) { return characters; }
 };
 
+template<> struct MarkableTraits<String> {
+    static bool isEmptyValue(const String& string) { return string.isNull(); }
+    static String emptyValue() { return nullString(); }
+};
+
 #ifdef __OBJC__
 WTF_EXPORT_PRIVATE RetainPtr<id> makeNSArrayElement(const String&);
 WTF_EXPORT_PRIVATE std::optional<String> makeVectorElement(const String*, id);
