@@ -181,8 +181,17 @@
         return;
 
     NSUInteger index = audioTrack ? [player.audioTracks indexOfObject:audioTrack] : 0;
-    if (index != NSNotFound)
-        model->selectAudioMediaOption(index);
+    if (index == NSNotFound) {
+        RetainPtr indexSet = [player.audioTracks indexesOfObjectsPassingTest:^(WKSLinearMediaTrack *track, NSUInteger, BOOL*) {
+            return [track.localizedDisplayName isEqualToString:audioTrack.localizedDisplayName];
+        }];
+        ASSERT([indexSet count] < 2);
+        index = [indexSet firstIndex];
+        if (index == NSNotFound)
+            return;
+    }
+
+    model->selectAudioMediaOption(index);
 }
 
 - (void)linearMediaPlayer:(WKSLinearMediaPlayer *)player setLegibleTrack:(WKSLinearMediaTrack * _Nullable)legibleTrack
@@ -192,8 +201,17 @@
         return;
 
     NSUInteger index = legibleTrack ? [player.legibleTracks indexOfObject:legibleTrack] : 0;
-    if (index != NSNotFound)
-        model->selectLegibleMediaOption(index);
+    if (index == NSNotFound) {
+        RetainPtr indexSet = [player.legibleTracks indexesOfObjectsPassingTest:^(WKSLinearMediaTrack *track, NSUInteger, BOOL*) {
+            return [track.localizedDisplayName isEqualToString:legibleTrack.localizedDisplayName];
+        }];
+        ASSERT([indexSet count] < 2);
+        index = [indexSet firstIndex];
+        if (index == NSNotFound)
+            return;
+    }
+
+    model->selectLegibleMediaOption(index);
 }
 
 - (void)linearMediaPlayerEnterFullscreen:(WKSLinearMediaPlayer *)player
