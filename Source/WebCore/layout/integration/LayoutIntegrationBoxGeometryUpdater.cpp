@@ -461,6 +461,24 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         return roundToInt(renderer->marginBoxLogicalHeight(writingMode)) - baselineAdjustment;
     }
 
+    if (CheckedPtr textControl = dynamicDowncast<RenderTextControlSingleLine>(renderBox)) {
+        if (auto* innerTextRenderer = textControl->innerTextRenderer()) {
+            auto baseline = LayoutUnit { };
+            if (innerTextRenderer->inlineLayout())
+                baseline = std::min<LayoutUnit>(innerTextRenderer->marginBoxLogicalHeight(writingMode), floorToInt(innerTextRenderer->inlineLayout()->lastLineLogicalBaseline()));
+            else {
+                auto& fontMetrics = innerTextRenderer->firstLineStyle().metricsOfPrimaryFont();
+                baseline = fontMetrics.intAscent() + (innerTextRenderer->lineHeight() - fontMetrics.intHeight()) / 2;
+            }
+            baseline = floorToInt(innerTextRenderer->logicalTop() + baseline);
+            for (auto* ancestor = innerTextRenderer->containingBlock(); ancestor && ancestor != textControl; ancestor = ancestor->containingBlock())
+                baseline = floorToInt(ancestor->logicalTop() + baseline);
+            return marginBefore + baseline;
+        }
+        // input::-webkit-textfield-decoration-container { display: none }
+        return roundToInt(textControl->marginBoxLogicalHeight(writingMode));
+    }
+
     if (CheckedPtr renderer = dynamicDowncast<RenderTextControlMultiLine>(renderBox))
         return roundToInt(renderer->marginBoxLogicalHeight(writingMode));
 
