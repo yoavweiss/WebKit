@@ -36,7 +36,7 @@ import LinearMediaKit
 #endif
 
 private extension Logger {
-    static let linearMediaPlayer = Logger(subsystem: "com.apple.WebKit", category: "LinearMediaPlayer")
+    static let linearMediaPlayer = Logger(subsystem: "com.apple.WebKit", category: "Fullscreen")
 }
 
 private class SwiftOnlyData: NSObject {
@@ -138,7 +138,7 @@ enum LinearMediaPlayerErrors: Error {
     var isImmersiveVideo: Bool {
         get { swiftOnlyData.isImmersiveVideo }
         set {
-            Logger.linearMediaPlayer.log("\(#function) \(newValue)")
+            Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(newValue)")
             swiftOnlyData.isImmersiveVideo = newValue
             // FIXME: Should limit ContentTypePublisher to only publish changes to contentType if we have already created a default entity
             // rather than having to use a isImmersive attribute.
@@ -171,6 +171,10 @@ enum LinearMediaPlayerErrors: Error {
     @nonobjc private var swiftOnlyData: SwiftOnlyData
     @nonobjc private var cancellables: [AnyCancellable] = []
 
+    @nonobjc private final var logIdentifier: String {
+        String(delegate?.linearMediaPlayerLogIdentifier?(self) ?? 0, radix: 16, uppercase: true)
+    }
+
     private static let preferredTimescale: CMTimeScale = 600
 
     public override init() {
@@ -190,7 +194,7 @@ enum LinearMediaPlayerErrors: Error {
     }
 
     func makeViewController() -> WKSPlayableViewControllerHost {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
 
         if let viewController = swiftOnlyData.viewController {
             return viewController
@@ -202,9 +206,9 @@ enum LinearMediaPlayerErrors: Error {
 
         return viewController
     }
-    
+
     func enterExternalPresentation(completionHandler: @MainActor @Sendable @escaping (Bool, (any Error)?) -> Void) {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
 
         switch presentationState {
         case .enteringFullscreen, .exitingFullscreen, .fullscreen, .external:
@@ -220,9 +224,9 @@ enum LinearMediaPlayerErrors: Error {
             fatalError()
         }
     }
-    
+
     func exitExternalPresentation(completionHandler: @MainActor @Sendable @escaping (Bool, (any Error)?) -> Void) {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
 
         switch presentationState {
         case .enteringFullscreen, .exitingFullscreen, .fullscreen, .inline:
@@ -241,10 +245,10 @@ enum LinearMediaPlayerErrors: Error {
     }
 
     func enterFullscreen(completionHandler: @MainActor @Sendable @escaping (Bool, (any Error)?) -> Void) {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
 
         if let enterFullscreenCompletionHandler = enterFullscreenCompletionHandler {
-            Logger.linearMediaPlayer.error("\(#function): invalidating existing enterFullscreenCompletionHandler")
+            Logger.linearMediaPlayer.error("\(#function)(\(self.logIdentifier, privacy: .public)): invalidating existing enterFullscreenCompletionHandler")
             enterFullscreenCompletionHandler(false, LinearMediaPlayerErrors.invalidStateError)
             self.enterFullscreenCompletionHandler = nil
         }
@@ -265,10 +269,10 @@ enum LinearMediaPlayerErrors: Error {
     }
 
     func exitFullscreen(completionHandler: @MainActor @Sendable @escaping (Bool, (any Error)?) -> Void) {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
 
         if let exitFullscreenCompletionHandler = exitFullscreenCompletionHandler {
-            Logger.linearMediaPlayer.error("\(#function): invalidating existing exitFullscreenCompletionHandler")
+            Logger.linearMediaPlayer.error("\(#function)(\(self.logIdentifier, privacy: .public)): invalidating existing exitFullscreenCompletionHandler")
             exitFullscreenCompletionHandler(false, LinearMediaPlayerErrors.invalidStateError)
             self.exitFullscreenCompletionHandler = nil
         }
@@ -289,7 +293,7 @@ enum LinearMediaPlayerErrors: Error {
 
 extension WKSLinearMediaPlayer {
     private func presentationStateChanged(_ presentationState: WKSLinearMediaPresentationState) {
-        Logger.linearMediaPlayer.log("\(#function): \(presentationState, privacy: .public)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)): \(presentationState, privacy: .public)")
 
         switch presentationState {
         case .inline:
@@ -613,103 +617,103 @@ extension WKSLinearMediaPlayer {
     }
 
     public func play() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerPlay?(self)
     }
 
     public func pause() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerPause?(self)
     }
 
     public func togglePlayback() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerTogglePlayback?(self)
     }
 
     public func setPlaybackRate(_ rate: Double) {
-        Logger.linearMediaPlayer.log("\(#function) \(rate)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(rate)")
         delegate?.linearMediaPlayer?(self, setPlaybackRate: rate)
     }
 
     public func seek(to time: TimeInterval) {
-        Logger.linearMediaPlayer.log("\(#function) \(time)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(time)")
         delegate?.linearMediaPlayer?(self, seekToTime: time)
     }
 
     public func seek(delta: TimeInterval) {
-        Logger.linearMediaPlayer.log("\(#function) \(delta)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(delta)")
         delegate?.linearMediaPlayer?(self, seekByDelta: delta)
     }
 
     public func seek(to destination: TimeInterval, from source: TimeInterval, metadata: SeekMetadata) -> TimeInterval {
-        Logger.linearMediaPlayer.log("\(#function) destination=\(destination) source=\(source)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) destination=\(destination) source=\(source)")
         return delegate?.linearMediaPlayer?(self, seekToDestination: destination, fromSource: source) ?? TimeInterval.zero
     }
 
     public func completeTrimming(commitChanges: Bool) {
-        Logger.linearMediaPlayer.log("\(#function) \(commitChanges)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(commitChanges)")
         delegate?.linearMediaPlayer?(self, completeTrimming: commitChanges)
     }
 
     public func updateStartTime(_ time: TimeInterval) {
-        Logger.linearMediaPlayer.log("\(#function) \(time)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(time)")
         delegate?.linearMediaPlayer?(self, updateStartTime: time)
     }
 
     public func updateEndTime(_ time: TimeInterval) {
-        Logger.linearMediaPlayer.log("\(#function) \(time)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(time)")
         delegate?.linearMediaPlayer?(self, updateEndTime: time)
     }
 
     public func beginEditingVolume() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerBeginEditingVolume?(self)
     }
 
     public func endEditingVolume() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerEndEditingVolume?(self)
     }
 
     public func setAudioTrack(_ newTrack: Track?) {
-        Logger.linearMediaPlayer.log("\(#function) \(newTrack?.localizedDisplayName ?? "nil")")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(newTrack?.localizedDisplayName ?? "nil")")
         delegate?.linearMediaPlayer?(self, setAudioTrack: newTrack as? WKSLinearMediaTrack)
     }
 
     public func setLegibleTrack(_ newTrack: Track?) {
-        Logger.linearMediaPlayer.log("\(#function) \(newTrack?.localizedDisplayName ?? "nil")")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(newTrack?.localizedDisplayName ?? "nil")")
         delegate?.linearMediaPlayer?(self, setLegibleTrack: newTrack as? WKSLinearMediaTrack)
     }
 
     public func skipActiveInterstitial() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerSkipActiveInterstitial?(self)
     }
 
     public func setCaptionContentInsets(_ insets: UIEdgeInsets) {
-        Logger.linearMediaPlayer.log("\(#function) \(NSCoder.string(for: insets), privacy: .public)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(NSCoder.string(for: insets), privacy: .public)")
         delegate?.linearMediaPlayer?(self, setCaptionContentInsets: insets)
     }
 
     public func updateVideoBounds(_ bounds: CGRect) {
-        Logger.linearMediaPlayer.log("\(#function) \(NSCoder.string(for: bounds), privacy: .public)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(NSCoder.string(for: bounds), privacy: .public)")
         delegate?.linearMediaPlayer?(self, updateVideoBounds: bounds)
     }
 
     public func updateViewingMode(_ mode: ViewingMode?) {
         let viewingMode = WKSLinearMediaViewingMode(mode)
-        Logger.linearMediaPlayer.log("\(#function) \(viewingMode)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(viewingMode)")
         delegate?.linearMediaPlayer?(self, update: viewingMode)
     }
 
     public func togglePip() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerTogglePip?(self)
     }
 
     public func toggleInlineMode() {
-        Logger.linearMediaPlayer.log("\(#function): presentationState=\(self.presentationState, privacy: .public)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)): presentationState=\(self.presentationState, privacy: .public)")
 
         switch presentationState {
         case .inline:
@@ -724,7 +728,7 @@ extension WKSLinearMediaPlayer {
     }
 
     public func willEnterFullscreen() {
-        Logger.linearMediaPlayer.log("\(#function): presentationState=\(self.presentationState, privacy: .public)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)): presentationState=\(self.presentationState, privacy: .public)")
 
         switch presentationState {
         case .inline:
@@ -743,16 +747,16 @@ extension WKSLinearMediaPlayer {
 
         switch result {
         case .success():
-            Logger.linearMediaPlayer.log("\(#function): success")
+            Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)): success")
             completionHandler?(true, nil)
         case .failure(let error):
-            Logger.linearMediaPlayer.error("\(#function): \(error)")
+            Logger.linearMediaPlayer.error("\(#function)(\(self.logIdentifier, privacy: .public)): \(error)")
             completionHandler?(false, error)
         }
     }
 
     public func willExitFullscreen() {
-        Logger.linearMediaPlayer.log("\(#function): presentationState=\(self.presentationState, privacy: .public)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)): presentationState=\(self.presentationState, privacy: .public)")
 
         switch presentationState {
         case .fullscreen:
@@ -772,16 +776,16 @@ extension WKSLinearMediaPlayer {
 
         switch result {
         case .success():
-            Logger.linearMediaPlayer.log("\(#function): success")
+            Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)): success")
             completionHandler?(true, nil)
         case .failure(let error):
-            Logger.linearMediaPlayer.error("\(#function): \(error)")
+            Logger.linearMediaPlayer.error("\(#function)(\(self.logIdentifier, privacy: .public)): \(error)")
             completionHandler?(false, error)
         }
     }
 
     public func makeDefaultEntity() -> Entity? {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
 
         // This gets called from maybeCreateSpatialOrImmersiveEntity through the KVO when setting
         // peculiarEntity. As such, we can't check if the peculiarEntity is set or not.
@@ -796,75 +800,75 @@ extension WKSLinearMediaPlayer {
             return entity
         }
 
-        Logger.linearMediaPlayer.error("\(#function): failed to find spatialVideoMetadata and captionLayer")
+        Logger.linearMediaPlayer.error("\(#function)(\(self.logIdentifier, privacy: .public)): failed to find spatialVideoMetadata and captionLayer")
         swiftOnlyData.defaultEntity = nil
         return nil
     }
 
     public func setTimeResolverInterval(_ interval: TimeInterval) {
-        Logger.linearMediaPlayer.log("\(#function) \(interval)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(interval)")
         delegate?.linearMediaPlayer?(self, setTimeResolverInterval: interval)
     }
 
     public func setTimeResolverResolution(_ resolution: TimeInterval) {
-        Logger.linearMediaPlayer.log("\(#function) \(resolution)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(resolution)")
         delegate?.linearMediaPlayer?(self, setTimeResolverResolution: resolution)
     }
 
     public func setThumbnailSize(_ size: CGSize) {
-        Logger.linearMediaPlayer.log("\(#function) \(NSCoder.string(for: size), privacy: .public)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(NSCoder.string(for: size), privacy: .public)")
         delegate?.linearMediaPlayer?(self, setThumbnailSize: size)
     }
 
     public func seekThumbnail(to time: TimeInterval) {
-        Logger.linearMediaPlayer.log("\(#function) \(time)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(time)")
         delegate?.linearMediaPlayer?(self, seekThumbnailToTime: time)
     }
 
     public func beginScrubbing() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerBeginScrubbing?(self)
     }
 
     public func endScrubbing() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerEndScrubbing?(self)
     }
 
     public func beginScanningForward() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerBeginScanningForward?(self)
     }
 
     public func endScanningForward() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerEndScanningForward?(self)
     }
 
     public func beginScanningBackward() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerBeginScanningBackward?(self)
     }
 
     public func endScanningBackward() {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayerEndScanningBackward?(self)
     }
 
     public func setVolume(_ volume: Double) {
-        Logger.linearMediaPlayer.log("\(#function) \(volume)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(volume)")
         delegate?.linearMediaPlayer?(self, setVolume: volume)
     }
 
     public func setIsMuted(_ value: Bool) {
-        Logger.linearMediaPlayer.log("\(#function) \(value)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public)) \(value)")
         delegate?.linearMediaPlayer?(self, setMuted: value)
     }
 
 // FIXME (147782145): Define a clang module for XPC to be used in Public SDK builds
 #if canImport(XPC)
     public func setVideoReceiverEndpoint(_ endpoint: xpc_object_t) {
-        Logger.linearMediaPlayer.log("\(#function)")
+        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
         delegate?.linearMediaPlayer?(self, setVideoReceiverEndpoint: endpoint)
     }
 #endif
