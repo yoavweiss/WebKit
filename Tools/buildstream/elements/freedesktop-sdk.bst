@@ -30,3 +30,4 @@ config:
     components/dav1d.bst: sdk/dav1d.bst
     components/pango.bst: sdk/pango.bst
     components/noopenh264.bst: sdk/libopenh264.bst
+    components/ccache.bst: sdk/ccache.bst
