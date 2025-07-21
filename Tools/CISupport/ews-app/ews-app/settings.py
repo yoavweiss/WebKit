@@ -121,6 +121,7 @@ else:
             'USER': util.load_password('DB_USERNAME'),
             'PASSWORD': util.load_password('DB_PASSWORD'),
             'HOST': util.load_password('DB_URL'),
+            'PORT': util.load_password('DB_PORT', default='5432')
         }
     }
 
