@@ -165,6 +165,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     bool isSiblingSelector() const;
     bool isAttributeSelector() const;
     bool isHostPseudoClass() const;
+    bool isScopePseudoClass() const;
 
     Relation relation() const { return static_cast<Relation>(m_relation); }
     Match match() const { return static_cast<Match>(m_match); }
