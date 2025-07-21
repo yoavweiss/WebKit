@@ -523,6 +523,20 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
     }
 
+    if (renderBox.element() && renderBox.element()->isFormControlElement()) {
+        // For "leaf" theme objects like checkbox, let the theme decide what the baseline position is.
+        if (renderBox.style().hasUsedAppearance() && !renderBox.theme().isControlContainer(renderBox.style().usedAppearance()))
+            return renderBox.theme().baselinePosition(renderBox);
+
+        // Non-RenderTextControlSingleLine input type like input type color.
+        if (CheckedPtr container = dynamicDowncast<RenderBox>(renderBox.firstInFlowChild())) {
+            if (auto baselinePos = container->firstLineBaseline())
+                return marginBefore + container->logicalTop() + *baselinePos;
+        }
+        // e.g. leaf theme objects with no appearance (none) and empty content (e.g. before pseudo and content: "").
+        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+    }
+
     if (CheckedPtr deprecatedFlexBox = dynamicDowncast<RenderDeprecatedFlexibleBox>(renderBox)) {
         // Historically, we did this check for all baselines. But we can't
         // remove this code from deprecated flexbox, because it effectively
@@ -534,11 +548,6 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         if (baseline && *baseline <= bottomOfContent)
             return marginBefore + *baseline;
         return roundToInt(deprecatedFlexBox->marginBoxLogicalHeight(writingMode));
-    }
-
-    if (renderBox.style().hasUsedAppearance() && !renderBox.theme().isControlContainer(renderBox.style().usedAppearance())) {
-        // For "leaf" theme objects, let the theme decide what the baseline position is.
-        return renderBox.theme().baselinePosition(renderBox);
     }
 
     if (CheckedPtr renderer = dynamicDowncast<RenderListMarker>(renderBox)) {
