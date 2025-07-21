@@ -4508,6 +4508,8 @@ webkit.org/b/254044 http/tests/webxr [ Skip ]
 webkit.org/b/254044 http/wpt/webxr [ Skip ]
 webkit.org/b/254044 imported/w3c/web-platform-tests/feature-policy/reporting/xr-reporting.https.html [ Skip ]
 
+# Test times out:
+webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/only-observe-firstInput.html [ Skip ]
 
 # rdar://105509003
 imported/w3c/web-platform-tests/css/css-text/line-break/line-break-anywhere-overrides-uax-behavior-009.html [ ImageOnlyFailure ]

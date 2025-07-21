@@ -41,6 +41,7 @@
 #include "NodeRenderStyle.h"
 #include "Page.h"
 #include "RenderDescendantIterator.h"
+#include "RenderElementInlines.h"
 #include "RenderStyleInlines.h"
 #include "Quirks.h"
 #include "Settings.h"

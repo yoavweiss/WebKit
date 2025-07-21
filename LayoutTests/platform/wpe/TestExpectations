@@ -524,6 +524,10 @@ webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-wh
 
 webkit.org/b/286930 media/modern-media-controls/scrubber-support/scrubber-support-seek-back.html [ Crash ]
 
+# Crash mentioning WTR::UIScriptController::notImplemented() with the EventTimingEnabled feature flag
+webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/TapToStopFling.html [ Crash ]
+webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/interaction-count-tap.html [ Crash ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # 5. FLAKY TESTS
 #////////////////////////////////////////////////////////////////////////////////////////

@@ -1521,6 +1521,7 @@ JS_BINDING_IDLS := \
     $(WebCore)/page/DOMWindow+RequestIdleCallback.idl \
     $(WebCore)/page/DOMWindow+Selection.idl \
     $(WebCore)/page/DOMWindow+VisualViewport.idl \
+    $(WebCore)/page/EventCounts.idl \
     $(WebCore)/page/EventSource.idl \
     $(WebCore)/page/FragmentDirective.idl \
     $(WebCore)/page/GetComposedRangesOptions.idl \
@@ -1550,12 +1551,14 @@ JS_BINDING_IDLS := \
     $(WebCore)/page/NavigatorServiceWorker.idl \
     $(WebCore)/page/NavigatorShare.idl \
     $(WebCore)/page/NavigatorStorage.idl \
+    $(WebCore)/page/Performance+EventCounts.idl \
     $(WebCore)/page/Performance+NavigationTiming.idl \
     $(WebCore)/page/Performance+PerformanceTimeline.idl \
     $(WebCore)/page/Performance+ResourceTiming.idl \
     $(WebCore)/page/Performance+UserTiming.idl \
     $(WebCore)/page/Performance.idl \
     $(WebCore)/page/PerformanceEntry.idl \
+    $(WebCore)/page/PerformanceEventTiming.idl \
     $(WebCore)/page/PerformanceMark.idl \
     $(WebCore)/page/PerformanceMarkOptions.idl \
     $(WebCore)/page/PerformanceMeasure.idl \

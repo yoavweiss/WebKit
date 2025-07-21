@@ -2112,6 +2112,7 @@ page/DiagnosticLoggingKeys.cpp
 page/DisabledAdaptations.cpp
 page/DragController.cpp
 page/ElementTargetingController.cpp
+page/EventCounts.cpp
 page/EventHandler.cpp
 page/EventSource.cpp
 page/FocusController.cpp
@@ -2162,6 +2163,7 @@ page/PageOverlayController.cpp
 page/PageSerializer.cpp
 page/Performance.cpp
 page/PerformanceEntry.cpp
+page/PerformanceEventTiming.cpp
 page/PerformanceLogging.cpp
 page/PerformanceLoggingClient.cpp
 page/PerformanceMark.cpp
@@ -3856,6 +3858,7 @@ JSEndingType.cpp
 JSErrorCallback.cpp
 JSErrorEvent.cpp
 JSEvent.cpp
+JSEventCounts.cpp
 JSEventInit.cpp
 JSEventListenerOptions.cpp
 JSEventModifierInit.cpp
@@ -4376,6 +4379,7 @@ JSPaymentValidationErrors.cpp
 JSPbkdf2Params.cpp
 JSPerformance.cpp
 JSPerformanceEntry.cpp
+JSPerformanceEventTiming.cpp
 JSPerformanceMark.cpp
 JSPerformanceMarkOptions.cpp
 JSPerformanceMeasure.cpp

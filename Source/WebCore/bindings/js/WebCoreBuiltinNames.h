@@ -195,6 +195,7 @@ namespace WebCore {
     macro(ElementInternals) \
     macro(EncodedAudioChunk) \
     macro(EncodedVideoChunk) \
+    macro(EventCounts) \
     macro(ExtendableCookieChangeEvent) \
     macro(ExtendableEvent) \
     macro(ExtendableMessageEvent) \
@@ -355,6 +356,7 @@ namespace WebCore {
     macro(PaintWorkletGlobalScope) \
     macro(PerformanceEntry) \
     macro(PerformanceEntryList) \
+    macro(PerformanceEventTiming) \
     macro(PerformanceMark) \
     macro(PerformanceMeasure) \
     macro(PerformanceObserver) \
