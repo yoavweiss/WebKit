@@ -61,7 +61,7 @@ using namespace FileSystem;
 
 ContentRuleListStore& ContentRuleListStore::defaultStoreSingleton()
 {
-    static NeverDestroyed<Ref<ContentRuleListStore>> defaultStore = adoptRef(*new ContentRuleListStore());
+    static NeverDestroyed<Ref<ContentRuleListStore>> defaultStore = adoptRef(*new ContentRuleListStore);
     return defaultStore->get();
 }
 
@@ -96,13 +96,13 @@ static WTF::String constructedPath(const WTF::String& base, const WTF::String& i
 
 // The size and offset of the densely packed bytes in the file, not sizeof and offsetof, which would
 // represent the size and offset of the structure in memory, possibly with compiler-added padding.
-const size_t CurrentVersionFileHeaderSize = 2 * sizeof(uint32_t) + 7 * sizeof(uint64_t);
+constexpr size_t currentVersionFileHeaderSize = 2 * sizeof(uint32_t) + 7 * sizeof(uint64_t);
 
-static size_t headerSize(uint32_t version)
+static constexpr size_t headerSize(uint32_t version)
 {
     if (version < 12)
         return 2 * sizeof(uint32_t) + 5 * sizeof(uint64_t);
-    return CurrentVersionFileHeaderSize;
+    return currentVersionFileHeaderSize;
 }
 
 struct ContentRuleListMetaData {
@@ -141,7 +141,7 @@ static WebKit::NetworkCache::Data encodeContentRuleListMetaData(const ContentRul
     encoder << metaData.unused64bits1;
     encoder << metaData.unused64bits2;
 
-    ASSERT(encoder.bufferSize() == CurrentVersionFileHeaderSize);
+    ASSERT(encoder.bufferSize() == currentVersionFileHeaderSize);
     return WebKit::NetworkCache::Data(encoder.span());
 }
 
@@ -352,16 +352,20 @@ static Expected<MappedData, std::error_code> compiledToFile(WTF::String&& json, 
             m_metaData.frameURLFiltersBytecodeSize = m_frameURLFiltersBytecodeWritten;
 
             WebKit::NetworkCache::Data header = encodeContentRuleListMetaData(m_metaData);
-            if (!m_fileError && !m_fileHandle.seek(0ll, FileSeekOrigin::Beginning)) {
+            if (!m_hadFileError && !m_fileHandle.seek(0ll, FileSeekOrigin::Beginning)) {
+                RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: seek to file beginning failed");
                 m_fileHandle = { };
-                m_fileError = true;
+                m_hadFileError = true;
+                return;
             }
 
             writeToFile(header);
+
+            // Close file to flush changes to disk.
+            m_fileHandle = { };
         }
 
-        bool hadErrorWhileWritingToFile() { return m_fileError; }
-        void closeFile() { m_fileHandle = { }; }
+        bool hadErrorWhileWritingToFile() { return m_hadFileError; }
 
     private:
         void writeToFile(bool value)
@@ -371,9 +375,10 @@ static Expected<MappedData, std::error_code> compiledToFile(WTF::String&& json, 
 
         void writeToFile(const WebKit::NetworkCache::Data& data)
         {
-            if (!m_fileError && !writeDataToFile(data, m_fileHandle)) {
+            if (!m_hadFileError && !writeDataToFile(data, m_fileHandle)) {
+                RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: writeDataToFile failed");
                 m_fileHandle = { };
-                m_fileError = true;
+                m_hadFileError = true;
             }
         }
 
@@ -384,21 +389,21 @@ static Expected<MappedData, std::error_code> compiledToFile(WTF::String&& json, 
         size_t m_urlFiltersBytecodeWritten { 0 };
         size_t m_topURLFiltersBytecodeWritten { 0 };
         size_t m_frameURLFiltersBytecodeWritten { 0 };
-        bool m_fileError { false };
+        bool m_hadFileError { false };
     };
 
     auto [temporaryFilePath, temporaryFileHandle] = openTemporaryFile("ContentRuleList"_s);
     if (!temporaryFileHandle) {
-        WTFLogAlways("Content Rule List compiling failed: Opening temporary file failed.");
+        RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: Opening temporary file failed.");
         return makeUnexpected(ContentRuleListStore::Error::CompileFailed);
     }
 
-    std::array<uint8_t, CurrentVersionFileHeaderSize> invalidHeader;
+    std::array<uint8_t, currentVersionFileHeaderSize> invalidHeader;
     invalidHeader.fill(0xFF);
 
     // This header will be rewritten in CompilationClient::finalize.
     if (!temporaryFileHandle.write(invalidHeader)) {
-        WTFLogAlways("Content Rule List compiling failed: Writing header to file failed.");
+        RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: Writing header to file failed.");
         return makeUnexpected(ContentRuleListStore::Error::CompileFailed);
     }
 
@@ -406,34 +411,32 @@ static Expected<MappedData, std::error_code> compiledToFile(WTF::String&& json, 
     CompilationClient compilationClient(WTFMove(temporaryFileHandle), metaData);
     
     if (auto compilerError = compileRuleList(compilationClient, WTFMove(json), WTFMove(parsedRules))) {
-        WTFLogAlways("Content Rule List compiling failed: Compiling failed.");
+        RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: Compiling failed.");
         return makeUnexpected(compilerError);
     }
 
     if (compilationClient.hadErrorWhileWritingToFile()) {
-        WTFLogAlways("Content Rule List compiling failed: Writing to file failed.");
+        RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: Writing to file failed.");
         return makeUnexpected(ContentRuleListStore::Error::CompileFailed);
     }
-
-    // Make sure we close temporaryFileHandle before using the file on disk, otherwise, the
-    // data may not have been flushed yet.
-    compilationClient.closeFile();
 
     // Try and delete any files at the destination instead of overwriting them
     // in case there is already a file there and it is mmapped.
     deleteFile(finalFilePath);
 
     if (!moveFile(temporaryFilePath, finalFilePath)) {
-        WTFLogAlways("Content Rule List compiling failed: Moving file failed.");
+        RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: Moving file failed.");
         return makeUnexpected(ContentRuleListStore::Error::CompileFailed);
     }
 
-    if (!FileSystem::makeSafeToUseMemoryMapForPath(finalFilePath))
+    if (!FileSystem::makeSafeToUseMemoryMapForPath(finalFilePath)) {
+        RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: makeSafeToUseMemoryMapForPath failed.");
         return makeUnexpected(ContentRuleListStore::Error::CompileFailed);
+    }
 
     auto mappedData = mapFile(finalFilePath);
     if (mappedData.isNull()) {
-        WTFLogAlways("Content Rule List compiling failed: Mapping file failed.");
+        RELEASE_LOG_ERROR(ContentRuleLists, "Content Rule List compiling failed: Mapping file failed.");
         return makeUnexpected(ContentRuleListStore::Error::CompileFailed);
     }
 
@@ -726,7 +729,7 @@ void ContentRuleListStore::invalidateContentRuleListHeader(const WTF::String& id
     if (!fileHandle)
         return;
 
-    std::array<uint8_t, CurrentVersionFileHeaderSize> invalidHeader;
+    std::array<uint8_t, currentVersionFileHeaderSize> invalidHeader;
     invalidHeader.fill(0xFF);
 
     auto bytesWritten = fileHandle.write(asByteSpan(invalidHeader));
@@ -752,17 +755,17 @@ void ContentRuleListStore::getContentRuleListSource(WTF::String&& identifier, Co
     });
 }
 
-Ref<WTF::ConcurrentWorkQueue> ContentRuleListStore::protectedCompileQueue()
+Ref<ConcurrentWorkQueue> ContentRuleListStore::protectedCompileQueue()
 {
     return m_compileQueue;
 }
 
-Ref<WTF::WorkQueue> ContentRuleListStore::protectedReadQueue()
+Ref<WorkQueue> ContentRuleListStore::protectedReadQueue()
 {
     return m_readQueue;
 }
 
-Ref<WTF::WorkQueue> ContentRuleListStore::protectedRemoveQueue()
+Ref<WorkQueue> ContentRuleListStore::protectedRemoveQueue()
 {
     return m_removeQueue;
 }
