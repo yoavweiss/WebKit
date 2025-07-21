@@ -2484,6 +2484,9 @@ fast/forms/appearance-default-button.html  [ Pass ]
 fast/forms/form-control-refresh [ Pass ]
 imported/w3c/web-platform-tests/css/css-ui/button-author-level-padding-applies.html [ Pass ]
 
+# Tests which do not pass with form control refresh enabled due to differences in appearance
+fast/forms/datalist/input-appearance-range-with-datalist-rtl.html [ Skip ]
+
 webkit.org/b/295810 [ Debug ] fast/dynamic/disappearing-content-on-size-change-crash.html [ Timeout ]
 
 webkit.org/b/296010 fast/frames/frame-append-body-child-crash.html [ Pass Failure ]

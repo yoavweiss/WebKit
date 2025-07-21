@@ -53,8 +53,9 @@ fast/events/autoscroll-main-document.html [ Pass ]
 
 fast/forms/enterkeyhint-attribute-values.html [ Pass ]
 
-fast/forms/fixed-size-checkbox-vertically-centered.html [ Pass ]
-fast/forms/fixed-size-radio-vertically-centered.html [ Pass ]
+# With form control refresh enabled (introduced in Tahoe), these tests no longer pass since checkboxes and radio buttons can scale infinitely.
+[ Sequoia Sonoma ] fast/forms/fixed-size-checkbox-vertically-centered.html [ Pass ]
+[ Sequoia Sonoma ] fast/forms/fixed-size-radio-vertically-centered.html [ Pass ]
 
 accessibility/smart-invert.html [ Pass ]
 webkit.org/b/189818 accessibility/smart-invert-reference.html [ Pass ImageOnlyFailure ]
