@@ -92,8 +92,8 @@ public:
     // 4. When it is used, the old context data is found in VM and used.
     RefPtr<OpaqueJSClass> m_class;
 
-    std::unique_ptr<OpaqueJSClassStaticValuesTable> staticValues;
-    std::unique_ptr<OpaqueJSClassStaticFunctionsTable> staticFunctions;
+    OpaqueJSClassStaticValuesTable staticValues;
+    OpaqueJSClassStaticFunctionsTable staticFunctions;
     JSC::Weak<JSC::JSObject> cachedPrototype;
 };
 
@@ -136,8 +136,8 @@ private:
 
     // Strings in these data members should not be put into any AtomStringTable.
     String m_className;
-    std::unique_ptr<OpaqueJSClassStaticValuesTable> m_staticValues;
-    std::unique_ptr<OpaqueJSClassStaticFunctionsTable> m_staticFunctions;
+    OpaqueJSClassStaticValuesTable m_staticValues;
+    OpaqueJSClassStaticFunctionsTable m_staticFunctions;
 };
 
 #undef OPAQUE_JSCLASS_METHOD

@@ -1071,25 +1071,25 @@ size_t Heap::protectedObjectCount()
     return result;
 }
 
-std::unique_ptr<TypeCountSet> Heap::protectedObjectTypeCounts()
+TypeCountSet Heap::protectedObjectTypeCounts()
 {
-    std::unique_ptr<TypeCountSet> result = makeUnique<TypeCountSet>();
+    TypeCountSet result;
     forEachProtectedCell(
         [&] (JSCell* cell) {
-            recordType(*result, cell);
+            recordType(result, cell);
         });
     return result;
 }
 
-std::unique_ptr<TypeCountSet> Heap::objectTypeCounts()
+TypeCountSet Heap::objectTypeCounts()
 {
-    std::unique_ptr<TypeCountSet> result = makeUnique<TypeCountSet>();
+    TypeCountSet result;
     HeapIterationScope iterationScope(*this);
     m_objectSpace.forEachLiveCell(
         iterationScope,
         [&] (HeapCell* cell, HeapCell::Kind kind) -> IterationStatus {
             if (isJSCellKind(kind))
-                recordType(*result, static_cast<JSCell*>(cell));
+                recordType(result, static_cast<JSCell*>(cell));
             return IterationStatus::Continue;
         });
     return result;
