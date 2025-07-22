@@ -456,7 +456,8 @@ void RenderReplaced::computeAspectRatioInformationForRenderBox(RenderBox* conten
     if (shouldApplySizeOrInlineSizeContainment())
         RenderReplaced::computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
     else if (contentRenderer) {
-        contentRenderer->computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
+        if (auto* renderReplaced = dynamicDowncast<RenderReplaced>(contentRenderer))
+            renderReplaced->computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
 
         if (style().aspectRatio().isRatio() || (style().aspectRatio().isAutoAndRatio() && preferredAspectRatio.isEmpty()))
             preferredAspectRatio = FloatSize::narrowPrecision(style().aspectRatioWidth().value, style().aspectRatioHeight().value);
