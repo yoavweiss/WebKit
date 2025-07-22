@@ -5052,6 +5052,13 @@ void WebPageProxy::receivedNavigationActionPolicyDecision(WebProcessProxy& proce
     if (processSwapRequestedByClient == ProcessSwapRequestedByClient::Yes)
         m_browsingContextGroup = BrowsingContextGroup::create();
 
+    Ref browsingContextGroup = m_browsingContextGroup;
+    Site site { navigation->currentRequest().url() };
+    if (RefPtr process = browsingContextGroup->sharedProcessForSite(websiteDataStore, preferences, site, lockdownMode, Ref { m_configuration }, frame.isMainFrame() ? IsMainFrame::Yes : IsMainFrame::No)) {
+        continueWithProcessForNavigation(process->process(), nullptr, "Uses shared Web process"_s);
+        return;
+    }
+
     m_configuration->protectedProcessPool()->processForNavigation(*this, frame, *navigation, sourceURL, processSwapRequestedByClient, lockdownMode, loadedWebArchive, frameInfo, WTFMove(websiteDataStore), WTFMove(continueWithProcessForNavigation));
 }
 
@@ -8729,7 +8736,9 @@ void WebPageProxy::createNewPage(IPC::Connection& connection, WindowFeatures&& w
             m_browsingContextGroup.copyRef(),
             originatingFrameInfoData.frameID
         } });
-        configuration->setOpenedSite(openerFrame->frameProcess().site());
+        WebCore::Site site { openerFrame->url() };
+        ASSERT(!configuration->preferences().siteIsolationEnabled() || openerFrame->frameProcess().isSharedProcess() || (openerFrame->frameProcess().site() && *openerFrame->frameProcess().site() == site));
+        configuration->setOpenedSite(site);
     } else {
         configuration->setOpenerInfo(std::nullopt);
         configuration->setOpenedSite(WebCore::Site(request.url()));

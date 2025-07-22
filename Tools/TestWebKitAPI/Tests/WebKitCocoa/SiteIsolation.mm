@@ -132,24 +132,40 @@
 
 namespace TestWebKitAPI {
 
-static void enableSiteIsolation(WKWebViewConfiguration *configuration)
+static void enableFeature(WKWebViewConfiguration *configuration, NSString *featureName)
 {
     auto preferences = [configuration preferences];
     for (_WKFeature *feature in [WKPreferences _features]) {
-        if ([feature.key isEqualToString:@"SiteIsolationEnabled"]) {
+        if ([feature.key isEqualToString:featureName]) {
             [preferences _setEnabled:YES forFeature:feature];
             break;
         }
     }
 }
 
+static void enableSiteIsolation(WKWebViewConfiguration *configuration)
+{
+    enableFeature(configuration, @"SiteIsolationEnabled");
+}
+
 static std::pair<RetainPtr<TestWKWebView>, RetainPtr<TestNavigationDelegate>> siteIsolatedViewAndDelegate(RetainPtr<WKWebViewConfiguration> configuration, CGRect rect = CGRectZero, bool enable = true)
 {
     auto navigationDelegate = adoptNS([TestNavigationDelegate new]);
     [navigationDelegate allowAnyTLSCertificate];
-    if (enable)
-        enableSiteIsolation(configuration.get());
+    enableSiteIsolation(configuration.get());
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:rect configuration:configuration.get()]);
+    webView.get().navigationDelegate = navigationDelegate.get();
+    return { WTFMove(webView), WTFMove(navigationDelegate) };
+}
+
+static std::pair<RetainPtr<TestWKWebView>, RetainPtr<TestNavigationDelegate>> siteIsolatedViewWithSharedProcess(const HTTPServer& server)
+{
+    auto* configuration = server.httpsProxyConfiguration();
+    auto navigationDelegate = adoptNS([TestNavigationDelegate new]);
+    [navigationDelegate allowAnyTLSCertificate];
+    enableSiteIsolation(configuration);
+    enableFeature(configuration, @"SiteIsolationSharedProcessEnabled");
+    auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration]);
     webView.get().navigationDelegate = navigationDelegate.get();
     return { WTFMove(webView), WTFMove(navigationDelegate) };
 }
@@ -4992,6 +5008,29 @@ TEST(SiteIsolation, UserScript)
     RetainPtr script = adoptNS([[WKUserScript alloc] initWithSource:js injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO]);
     [[webView configuration].userContentController _addUserScriptImmediately:script.get()];
     EXPECT_WK_STREQ([webView _test_waitForAlert], "script ran in iframe");
+}
+
+TEST(SiteIsolation, SharedProcessMostBasic)
+{
+    HTTPServer server({
+        { "/example"_s, { "<!DOCTYPE html><iframe src='https://webkit.org/webkit'></iframe>"_s } },
+        { "/webkit"_s, { "<!DOCTYPE html><iframe src='https://apple.com/apple'></iframe>"_s } },
+        { "/apple"_s, { "hi"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+    auto [webView, navigationDelegate] = siteIsolatedViewWithSharedProcess(server);
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    checkFrameTreesInProcesses(webView.get(), {
+        {
+            "https://example.com"_s,
+            { { RemoteFrame, { { RemoteFrame } } } }
+        },
+        {
+            RemoteFrame,
+            { { "https://webkit.org"_s, { { "https://apple.com"_s } } } }
+        },
+    });
 }
 
 static auto advanceFocusAcrossFramesMainFrame = R"FOCUSRESOURCE(

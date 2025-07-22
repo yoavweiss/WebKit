@@ -2198,7 +2198,7 @@ void WebProcessProxy::didStartProvisionalLoadForMainFrame(const URL& url)
     WEBPROCESSPROXY_RELEASE_LOG(Loading, "didStartProvisionalLoadForMainFrame:");
 
     // This process has been used for several registrable domains already.
-    if (m_site && m_site->isEmpty())
+    if (!m_site && m_site.error() == SiteState::MultipleSites)
         return;
 
     if (url.protocolIsAbout())
@@ -2207,7 +2207,7 @@ void WebProcessProxy::didStartProvisionalLoadForMainFrame(const URL& url)
     if (!url.protocolIsInHTTPFamily() && !processPool().configuration().processSwapsOnNavigationWithinSameNonHTTPFamilyProtocol()) {
         // Unless the processSwapsOnNavigationWithinSameNonHTTPFamilyProtocol flag is set, we don't process swap on navigations withing the same
         // non HTTP(s) protocol. For this reason, we ignore the registrable domain and processes are not eligible for the process cache.
-        m_site = Site { { }, { } };
+        m_site = makeUnexpected(SiteState::MultipleSites);
         return;
     }
 
@@ -2219,23 +2219,27 @@ void WebProcessProxy::didStartProvisionalLoadForMainFrame(const URL& url)
         if (isRunningSharedWorkers())
             dataStore->protectedNetworkProcess()->terminateRemoteWorkerContextConnectionWhenPossible(RemoteWorkerType::SharedWorker, dataStore->sessionID(), m_site->domain(), coreProcessIdentifier());
 
-        // Null out registrable domain since this process has now been used for several domains.
-        m_site = Site { { }, { } };
+        m_site = makeUnexpected(SiteState::MultipleSites);
         return;
     }
 
     if (m_sharedPreferencesForWebProcess.siteIsolationEnabled)
-        ASSERT(m_site == site);
+        ASSERT((m_site && *m_site == site) || m_site.error() == SiteState::SharedProcess);
     else {
         // Associate the process with this site.
         m_site = WTFMove(site);
     }
 }
 
-void WebProcessProxy::didStartUsingProcessForSiteIsolation(const WebCore::Site& site)
+void WebProcessProxy::didStartUsingProcessForSiteIsolation(const std::optional<WebCore::Site>& site)
 {
-    ASSERT(!m_site || m_site == site);
-    m_site = site;
+    if (!site) {
+        ASSERT(m_site.error() == SiteState::NotYetSpecified || m_site.error() == SiteState::SharedProcess);
+        m_site = makeUnexpected(SiteState::SharedProcess);
+        return;
+    }
+    ASSERT((m_site && m_site == *site) || m_site.error() == SiteState::NotYetSpecified);
+    m_site = *site;
 }
 
 void WebProcessProxy::addSuspendedPageProxy(SuspendedPageProxy& suspendedPage)

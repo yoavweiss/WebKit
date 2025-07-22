@@ -7146,6 +7146,21 @@ SiteIsolationEnabled:
       default: false
   sharedPreferenceForWebProcess: true
 
+SiteIsolationSharedProcessEnabled:
+  type: bool
+  status: unstable
+  category: security
+  humanReadableName: "Shared process for Site Isolation"
+  humanReadableDescription: "Put cross-site frames in a shared Web process"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+  sharedPreferenceForWebProcess: true
+
 # FIXME: This is handled via WebView SPI rather than WebPreferences for WebKitLegacy. We should change the SPI to lookup the WebPreferences value instead.
 SmartInsertDeleteEnabled:
   type: bool
