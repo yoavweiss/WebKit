@@ -325,6 +325,7 @@ static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockC
 static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
 {
     ASSERT(!(renderBox.isInline() && renderBox.element() && renderBox.element()->isFormControlElement()));
+    ASSERT(!(renderBox.isInline() && renderBox.element() && renderBox.element()->shadowHost() && renderBox.element()->shadowHost()->isFormControlElement()));
 
     auto writingMode = renderBox.containingBlock()->writingMode();
     auto lineDirection = writingMode.isHorizontal() ? HorizontalLine : VerticalLine;
@@ -356,6 +357,12 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
                 return { };
         }
 
+        if (blockFlow->style().overflowY() != Overflow::Visible) {
+            // FIXME: Caller adds margin before so we can't yet return margin box height.
+            auto borderBoxHeighthWithtMarginBottom = blockFlow->marginBoxLogicalHeight(writingMode) -  (writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight());
+            return borderBoxHeighthWithtMarginBottom;
+        }
+
         auto lastBaseline = [&] -> std::optional<LayoutUnit> {
             // Note that here we only take the left and bottom into consideration. Our caller takes the right and top into consideration.
             if (!blockFlow->childrenInline())
@@ -377,17 +384,7 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
             }
             return { };
         };
-
-        if (blockFlow->style().overflowY() == Overflow::Visible)
-            return lastBaseline();
-
-        RefPtr element = blockFlow->element();
-        auto isInFormControl = element && element->shadowHost() && element->shadowHost()->isFormControlElement();
-        // FIXME: Caller adds margin before so we can't yet return margin box height.
-        auto borderBoxHeighthWithtMarginBottom = blockFlow->marginBoxLogicalHeight(writingMode) -  (writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight());
-        if (isInFormControl)
-            return std::min(borderBoxHeighthWithtMarginBottom, lastBaseline().value_or(0_lu));
-        return borderBoxHeighthWithtMarginBottom;
+        return lastBaseline();
     }
 
     if (CheckedPtr blockRenderer = dynamicDowncast<RenderBlock>(renderBox))
@@ -534,6 +531,18 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         }
         // e.g. leaf theme objects with no appearance (none) and empty content (e.g. before pseudo and content: "").
         return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
+    }
+
+    if (renderBox.element() && renderBox.element()->shadowHost() && renderBox.element()->shadowHost()->isFormControlElement()) {
+        // Inside RenderTextControl's shadow DOM (e.g. strong-password text)
+        auto lastBaseline = std::optional<LayoutUnit> { };
+        if (CheckedPtr blockFlow = dynamicDowncast<RenderBlockFlow>(renderBox)) {
+            if (auto* inlineLayout = blockFlow->inlineLayout())
+                lastBaseline = floorToInt(inlineLayout->lastLineLogicalBaseline());
+        }
+        if (!lastBaseline)
+            lastBaseline = (fontMetricsBasedBaseline(renderBox) + (writingMode.isHorizontal() ? renderBox.borderTop() + renderBox.paddingTop() : renderBox.borderRight() + renderBox.paddingRight())).toInt();
+        return std::min(renderBox.marginBoxLogicalHeight(writingMode), marginBefore + *lastBaseline);
     }
 
     if (CheckedPtr deprecatedFlexBox = dynamicDowncast<RenderDeprecatedFlexibleBox>(renderBox)) {
