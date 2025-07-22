@@ -120,7 +120,7 @@ bool MouseWheelRegionOverlay::updateRegion()
     return false;
 #else
     auto region = makeUnique<Region>();
-    
+
     for (RefPtr frame = page->mainFrame(); frame; frame = frame->tree().traverseNext()) {
         RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
         if (!localFrame)
@@ -129,11 +129,11 @@ bool MouseWheelRegionOverlay::updateRegion()
             continue;
 
         Ref document = *localFrame->document();
-        auto frameRegion = document->absoluteRegionForEventTargets(document->wheelEventTargets());
+        auto frameRegion = document->absoluteRegionForWheelEventTargets();
         frameRegion.first.translate(toIntSize(localFrame->protectedView()->contentsToRootView(IntPoint())));
         region->unite(frameRegion.first);
     }
-    
+
     region->translate(m_overlay->viewToOverlayOffset());
 
     bool regionChanged = !m_region || !(*m_region == *region);

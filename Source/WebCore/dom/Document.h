@@ -1497,8 +1497,8 @@ public:
     WEBCORE_EXPORT unsigned styleRecalcCount() const;
 
 #if ENABLE(TOUCH_EVENTS)
-    bool hasTouchEventHandlers() const { return m_touchEventTargets && !m_touchEventTargets->isEmptyIgnoringNullReferences(); }
-    bool touchEventTargetsContain(Node& node) const { return m_touchEventTargets && m_touchEventTargets->contains(node); }
+    bool hasTouchEventHandlers() const { return !m_touchEventTargets.isEmptyIgnoringNullReferences(); }
+    bool touchEventTargetsContain(Node& node) const { return m_touchEventTargets.contains(node); }
 #else
     bool hasTouchEventHandlers() const { return false; }
     bool touchEventTargetsContain(Node&) const { return false; }
@@ -1523,21 +1523,10 @@ public:
 
     void didRemoveEventTargetNode(Node&);
 
-    const EventTargetSet* touchEventTargets() const
-    {
-#if ENABLE(TOUCH_EVENTS)
-        return m_touchEventTargets.get();
-#else
-        return nullptr;
-#endif
-    }
-
-    bool hasWheelEventHandlers() const { return m_wheelEventTargets && !m_wheelEventTargets->isEmptyIgnoringNullReferences(); }
-    const EventTargetSet* wheelEventTargets() const { return m_wheelEventTargets.get(); }
+    bool hasWheelEventHandlers() const { return !m_wheelEventTargets.isEmptyIgnoringNullReferences(); }
 
     using RegionFixedPair = std::pair<Region, bool>;
-    RegionFixedPair absoluteEventRegionForNode(Node&);
-    RegionFixedPair absoluteRegionForEventTargets(const EventTargetSet*);
+    RegionFixedPair absoluteRegionForWheelEventTargets();
 
     LayoutRect absoluteEventHandlerBounds(bool&) final;
 
@@ -2191,6 +2180,8 @@ private:
 
     bool mainFrameDocumentHasHadUserInteraction() const;
 
+    RegionFixedPair absoluteEventRegionForNode(Node&);
+
     const Ref<const Settings> m_settings;
 
     const std::unique_ptr<Quirks> m_quirks;
@@ -2346,7 +2337,7 @@ private:
     WeakHashSet<VisibilityChangeClient> m_visibilityStateCallbackClients;
     bool m_deferResizeEventForVisibilityChange { false };
 
-    std::unique_ptr<HashMap<String, WeakPtr<Element, WeakPtrImplWithEventTargetData>, ASCIICaseInsensitiveHash>> m_accessKeyCache;
+    std::optional<HashMap<String, WeakPtr<Element, WeakPtrImplWithEventTargetData>, ASCIICaseInsensitiveHash>> m_accessKeyCache;
 
     std::unique_ptr<ConstantPropertyMap> m_constantPropertyMap;
 
@@ -2391,10 +2382,10 @@ private:
     RefPtr<MediaQueryMatcher> m_mediaQueryMatcher;
     
 #if ENABLE(TOUCH_EVENTS)
-    std::unique_ptr<EventTargetSet> m_touchEventTargets;
+    EventTargetSet m_touchEventTargets;
 #endif
 
-    std::unique_ptr<EventTargetSet> m_wheelEventTargets;
+    EventTargetSet m_wheelEventTargets;
 
     MonotonicTime m_lastHandledUserGestureTimestamp;
     MonotonicTime m_userActivatedMediaFinishedPlayingTimestamp;

@@ -1212,7 +1212,7 @@ Element* Document::elementForAccessKey(const String& key)
 
 void Document::buildAccessKeyCache()
 {
-    m_accessKeyCache = makeUnique<HashMap<String, WeakPtr<Element, WeakPtrImplWithEventTargetData>, ASCIICaseInsensitiveHash>>([this] {
+    m_accessKeyCache = [this] {
         HashMap<String, WeakPtr<Element, WeakPtrImplWithEventTargetData>, ASCIICaseInsensitiveHash> map;
         for (auto& node : composedTreeDescendants(*this)) {
             auto element = dynamicDowncast<Element>(node);
@@ -1224,12 +1224,12 @@ void Document::buildAccessKeyCache()
             map.add(key, *element);
         }
         return map;
-    }());
+    }();
 }
 
 void Document::invalidateAccessKeyCacheSlowCase()
 {
-    m_accessKeyCache = nullptr;
+    m_accessKeyCache = std::nullopt;
 }
 
 struct QuerySelectorAllResults {
@@ -3599,11 +3599,11 @@ void Document::willBeRemovedFromFrame()
     commonTeardown();
 
 #if ENABLE(TOUCH_EVENTS)
-    if (m_touchEventTargets && !m_touchEventTargets->isEmptyIgnoringNullReferences() && parentDocument())
+    if (!m_touchEventTargets.isEmptyIgnoringNullReferences() && parentDocument())
         protectedParentDocument()->didRemoveEventTargetNode(*this);
 #endif
 
-    if (m_wheelEventTargets && !m_wheelEventTargets->isEmptyIgnoringNullReferences() && parentDocument())
+    if (!m_wheelEventTargets.isEmptyIgnoringNullReferences() && parentDocument())
         protectedParentDocument()->didRemoveEventTargetNode(*this);
 
     if (RefPtr mediaQueryMatcher = m_mediaQueryMatcher)
@@ -9070,16 +9070,13 @@ void Document::wheelEventHandlersChanged(Node* node)
     UNUSED_PARAM(node);
 #endif
 
-    bool haveHandlers = m_wheelEventTargets && !m_wheelEventTargets->isEmptyIgnoringNullReferences();
+    bool haveHandlers = !m_wheelEventTargets.isEmptyIgnoringNullReferences();
     page->chrome().client().wheelEventHandlersChanged(haveHandlers);
 }
 
 void Document::didAddWheelEventHandler(Node& node)
 {
-    if (!m_wheelEventTargets)
-        m_wheelEventTargets = makeUnique<EventTargetSet>();
-
-    m_wheelEventTargets->add(node);
+    m_wheelEventTargets.add(node);
     wheelEventHandlersChanged(&node);
 
     if (RefPtr frame = this->frame())
@@ -9099,10 +9096,7 @@ static bool removeHandlerFromSet(EventTargetSet& handlerSet, Node& node, EventHa
 
 void Document::didRemoveWheelEventHandler(Node& node, EventHandlerRemoval removal)
 {
-    if (!m_wheelEventTargets)
-        return;
-
-    if (!removeHandlerFromSet(*m_wheelEventTargets, node, removal))
+    if (!removeHandlerFromSet(m_wheelEventTargets, node, removal))
         return;
 
     wheelEventHandlersChanged(&node);
@@ -9113,23 +9107,16 @@ void Document::didRemoveWheelEventHandler(Node& node, EventHandlerRemoval remova
 
 unsigned Document::wheelEventHandlerCount() const
 {
-    if (!m_wheelEventTargets)
-        return 0;
-
     unsigned count = 0;
-    for (auto handler : *m_wheelEventTargets)
+    for (auto handler : m_wheelEventTargets)
         count += handler.value;
-
     return count;
 }
 
 void Document::didAddTouchEventHandler(Node& handler)
 {
 #if ENABLE(TOUCH_EVENTS)
-    if (!m_touchEventTargets)
-        m_touchEventTargets = makeUnique<EventTargetSet>();
-
-    m_touchEventTargets->add(handler);
+    m_touchEventTargets.add(handler);
 
     if (RefPtr parent = parentDocument()) {
         parent->didAddTouchEventHandler(*this);
@@ -9149,10 +9136,7 @@ void Document::didAddTouchEventHandler(Node& handler)
 void Document::didRemoveTouchEventHandler(Node& handler, EventHandlerRemoval removal)
 {
 #if ENABLE(TOUCH_EVENTS)
-    if (!m_touchEventTargets)
-        return;
-
-    removeHandlerFromSet(*m_touchEventTargets, handler, removal);
+    removeHandlerFromSet(m_touchEventTargets, handler, removal);
 
     if (RefPtr parent = parentDocument())
         parent->didRemoveTouchEventHandler(*this);
@@ -9170,16 +9154,14 @@ void Document::didRemoveTouchEventHandler(Node& handler, EventHandlerRemoval rem
 void Document::didRemoveEventTargetNode(Node& handler)
 {
 #if ENABLE(TOUCH_EVENTS)
-    if (m_touchEventTargets) {
-        m_touchEventTargets->removeAll(handler);
-        if ((&handler == this || m_touchEventTargets->isEmptyIgnoringNullReferences()) && parentDocument())
+    if (m_touchEventTargets.removeAll(handler)) {
+        if ((&handler == this || m_touchEventTargets.isEmptyIgnoringNullReferences()) && parentDocument())
             protectedParentDocument()->didRemoveEventTargetNode(*this);
     }
 #endif
 
-    if (m_wheelEventTargets) {
-        m_wheelEventTargets->removeAll(handler);
-        if ((&handler == this || m_wheelEventTargets->isEmptyIgnoringNullReferences()) && parentDocument())
+    if (m_wheelEventTargets.removeAll(handler)) {
+        if ((&handler == this || m_wheelEventTargets.isEmptyIgnoringNullReferences()) && parentDocument())
             protectedParentDocument()->didRemoveEventTargetNode(*this);
     }
 }
@@ -9187,13 +9169,9 @@ void Document::didRemoveEventTargetNode(Node& handler)
 unsigned Document::touchEventHandlerCount() const
 {
 #if ENABLE(TOUCH_EVENTS)
-    if (!m_touchEventTargets)
-        return 0;
-
     unsigned count = 0;
-    for (auto handler : *m_touchEventTargets)
+    for (auto handler : m_touchEventTargets)
         count += handler.value;
-
     return count;
 #else
     return 0;
@@ -9253,17 +9231,14 @@ Document::RegionFixedPair Document::absoluteEventRegionForNode(Node& node)
     return RegionFixedPair(region, insideFixedPosition);
 }
 
-Document::RegionFixedPair Document::absoluteRegionForEventTargets(const EventTargetSet* targets)
+auto Document::absoluteRegionForWheelEventTargets() -> RegionFixedPair
 {
     LayoutDisallowedScope layoutDisallowedScope(LayoutDisallowedScope::Reason::ReentrancyAvoidance);
-
-    if (!targets)
-        return RegionFixedPair(Region(), false);
 
     Region targetRegion;
     bool insideFixedPosition = false;
 
-    for (auto keyValuePair : *targets) {
+    for (auto keyValuePair : m_wheelEventTargets) {
         Ref node = keyValuePair.key;
         auto targetRegionFixedPair = absoluteEventRegionForNode(node);
         targetRegion.unite(targetRegionFixedPair.first);
