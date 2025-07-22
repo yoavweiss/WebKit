@@ -4056,8 +4056,9 @@ void UnifiedPDFPlugin::setActiveAnnotation(SetActiveAnnotationParams&& setActive
                 return;
             }
 
-            m_activeAnnotation = PDFPluginAnnotation::create(annotation.get(), this);
-            protectedActiveAnnotation()->attach(m_annotationContainer.get());
+            RefPtr newActiveAnnotation = PDFPluginAnnotation::create(annotation.get(), this);
+            newActiveAnnotation->attach(m_annotationContainer.get());
+            m_activeAnnotation = WTFMove(newActiveAnnotation);
             revealAnnotation(protectedActiveAnnotation()->annotation());
         } else
             m_activeAnnotation = nullptr;

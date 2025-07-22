@@ -912,6 +912,7 @@
 		A17C46F62C98E54B0023F3C7 /* test-without-audio-track.mp4 in Copy Resources */ = {isa = PBXBuildFile; fileRef = C95984F61E36BCD7002C0D45 /* test-without-audio-track.mp4 */; };
 		A17C46F72C98E54B0023F3C7 /* test.mp4 in Copy Resources */ = {isa = PBXBuildFile; fileRef = 524BBCA019E30C63002F1AF1 /* test.mp4 */; };
 		A17C46F82C98E54B0023F3C7 /* test.pdf in Copy Resources */ = {isa = PBXBuildFile; fileRef = 7AE9E5081AE5AE8B00CF874B /* test.pdf */; };
+		A17C46F92C98E54B0023F3C8 /* test_form.pdf in Copy Resources */ = {isa = PBXBuildFile; fileRef = 7AE9E5091AE5AE8B00CF874C /* test_form.pdf */; };
 		A17C46F92C98E54B0023F3C7 /* test.xml in Copy Resources */ = {isa = PBXBuildFile; fileRef = 44D3F8422BE1DAD800BE0218 /* test.xml */; };
 		A17C46FA2C98E54B0023F3C7 /* UserInstalledAhem.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = 1C51534B261596BD00FBC4FE /* UserInstalledAhem.html */; };
 		A17C46FB2C98E54B0023F3C7 /* video-with-play-button.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = C9C9A91C21DED79400FDE96E /* video-with-play-button.html */; };
@@ -2295,6 +2296,7 @@
 				A17C480A2C98E5C20023F3C7 /* test.pages in Copy Resources */,
 				A17C46F82C98E54B0023F3C7 /* test.pdf in Copy Resources */,
 				A17C46F92C98E54B0023F3C7 /* test.xml in Copy Resources */,
+				A17C46F92C98E54B0023F3C8 /* test_form.pdf in Copy Resources */,
 				A17C47012C98E58C0023F3C7 /* test_print.pdf in Copy Resources */,
 				A17C480B2C98E5C20023F3C7 /* TestModalContainerControls.mlmodelc in Copy Resources */,
 				A17C480C2C98E5C20023F3C7 /* text-and-password-inputs.html in Copy Resources */,
@@ -3343,6 +3345,7 @@
 		7AC7B57220D9BAF0002C09A0 /* CustomBundleObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomBundleObject.h; sourceTree = "<group>"; };
 		7AD3FE8D1D75FB8D00B169A4 /* TransformationMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformationMatrix.cpp; sourceTree = "<group>"; };
 		7AE9E5081AE5AE8B00CF874B /* test.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = test.pdf; sourceTree = "<group>"; };
+		7AE9E5091AE5AE8B00CF874C /* test_form.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = test_form.pdf; sourceTree = "<group>"; };
 		7AEAD47C1E20113800416EFE /* CrossPartitionFileSchemeAccess.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CrossPartitionFileSchemeAccess.mm; sourceTree = "<group>"; };
 		7AEAD47D1E20114E00416EFE /* CrossPartitionFileSchemeAccess.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = CrossPartitionFileSchemeAccess.html; path = Tests/mac/CrossPartitionFileSchemeAccess.html; sourceTree = SOURCE_ROOT; };
 		7AFEA30F2CB838FF007EFE75 /* element-targeting-11.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "element-targeting-11.html"; sourceTree = "<group>"; };
@@ -6530,6 +6533,7 @@
 				524BBCA019E30C63002F1AF1 /* test.mp4 */,
 				7AE9E5081AE5AE8B00CF874B /* test.pdf */,
 				44D3F8422BE1DAD800BE0218 /* test.xml */,
+				7AE9E5091AE5AE8B00CF874C /* test_form.pdf */,
 				1C51534B261596BD00FBC4FE /* UserInstalledAhem.html */,
 				C9C9A91C21DED79400FDE96E /* video-with-play-button.html */,
 				07CD32F72065B72A0064A4BE /* video.html */,
