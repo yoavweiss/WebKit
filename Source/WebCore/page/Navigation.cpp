@@ -992,14 +992,8 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
 
         for (auto& handler : event->handlers()) {
             auto callbackResult = handler->invoke();
-            if (callbackResult.type() == CallbackResultType::Success)
+            if (callbackResult.type() != CallbackResultType::UnableToExecute)
                 promiseList.append(callbackResult.releaseReturnValue());
-            else if (callbackResult.type() == CallbackResultType::ExceptionThrown) {
-                // FIXME: We need to keep around the failure reason but the generated handleEvent() catches and consumes it.
-                auto promiseAndWrapper = createPromiseAndWrapper(*document);
-                Ref { promiseAndWrapper.second }->reject(ExceptionCode::TypeError);
-                promiseList.append(WTFMove(promiseAndWrapper.first));
-            }
         }
 
         if (promiseList.isEmpty()) {
