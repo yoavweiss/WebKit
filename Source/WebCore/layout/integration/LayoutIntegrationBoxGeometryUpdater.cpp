@@ -307,7 +307,6 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox&);
 
 static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockContainer)
 {
-    auto writingMode = blockContainer.containingBlock()->writingMode();
     auto haveInFlowChild = false;
     for (auto* box = blockContainer.lastChildBox(); box; box = box->previousSiblingBox()) {
         if (box->isFloatingOrOutOfFlowPositioned())
@@ -321,12 +320,27 @@ static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockC
         if (box->shouldApplyLayoutContainment())
             continue;
 
+        if (is<RenderTable>(*box))
+            continue;
+
+        if (is<RenderTextControlInnerContainer>(*box) || is<RenderMenuList>(*box)) {
+            if (auto baseline = lastInflowBoxBaseline(downcast<RenderBlock>(*box)))
+                return box->logicalTop() + *baseline;
+            continue;
+        }
+
+        if (is<RenderFlexibleBox>(*box) || is<RenderGrid>(*box)) {
+            if (auto baseline = box->firstLineBaseline())
+                return box->logicalTop() + *baseline;
+            continue;
+        }
+
         if (auto result = inlineBlockBaseline(*box))
             return LayoutUnit { (box->logicalTop() + result.value()).toInt() }; // Translate to our coordinate space.
     }
 
     if (!haveInFlowChild && blockContainer.hasLineIfEmpty())
-        return (fontMetricsBasedBaseline(blockContainer) + (writingMode.isHorizontal() ? blockContainer.borderTop() + blockContainer.paddingTop() : blockContainer.borderRight() + blockContainer.paddingRight())).toInt();
+        return (fontMetricsBasedBaseline(blockContainer) + (blockContainer.containingBlock()->writingMode().isHorizontal() ? blockContainer.borderTop() + blockContainer.paddingTop() : blockContainer.borderRight() + blockContainer.paddingRight())).toInt();
     return { };
 }
 
@@ -334,18 +348,7 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
 {
     ASSERT(!(renderBox.isInline() && renderBox.element() && renderBox.element()->isFormControlElement()));
     ASSERT(!(renderBox.isInline() && renderBox.element() && renderBox.element()->shadowHost() && renderBox.element()->shadowHost()->isFormControlElement()));
-
-    auto writingMode = renderBox.containingBlock()->writingMode();
-    auto lineDirection = writingMode.isHorizontal() ? HorizontalLine : VerticalLine;
-
-    if (is<RenderTable>(renderBox))
-        return { };
-
-    if ((is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox)) && !is<RenderMenuList>(renderBox) && !is<RenderTextControlInnerContainer>(renderBox))
-        return renderBox.firstLineBaseline();
-
-    if (CheckedPtr innerContainer = dynamicDowncast<RenderTextControlInnerContainer>(renderBox))
-        return lastInflowBoxBaseline(*innerContainer);
+    ASSERT(!is<RenderTable>(renderBox) && !is<RenderFlexibleBox>(renderBox) && !is<RenderGrid>(renderBox) && !is<RenderTextControlInnerContainer>(renderBox));
 
     if (CheckedPtr blockFlow = dynamicDowncast<RenderBlockFlow>(renderBox)) {
         if (blockFlow->style().display() == DisplayType::InlineBlock) {
@@ -356,6 +359,7 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
                 return { };
         }
 
+        auto writingMode = renderBox.containingBlock()->writingMode();
         if (blockFlow->style().overflowY() != Overflow::Visible) {
             // FIXME: Caller adds margin before so we can't yet return margin box height.
             auto borderBoxHeighthWithtMarginBottom = blockFlow->marginBoxLogicalHeight(writingMode) -  (writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight());
@@ -370,7 +374,7 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
             if (!blockFlow->hasLines()) {
                 if (!blockFlow->hasLineIfEmpty())
                     return { };
-                return (fontMetricsBasedBaseline(*blockFlow) + (lineDirection == HorizontalLine ? blockFlow->borderTop() + blockFlow->paddingTop() : blockFlow->borderRight() + blockFlow->paddingRight())).toInt();
+                return (fontMetricsBasedBaseline(*blockFlow) + (writingMode.isHorizontal() ? blockFlow->borderTop() + blockFlow->paddingTop() : blockFlow->borderRight() + blockFlow->paddingRight())).toInt();
             }
 
             if (auto* inlineLayout = blockFlow->inlineLayout())
