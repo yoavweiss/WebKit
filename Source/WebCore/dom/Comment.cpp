@@ -52,7 +52,7 @@ Ref<Node> Comment::cloneNodeInternal(Document& document, CloningOperation, Custo
 
 SerializedNode Comment::serializeNode(CloningOperation) const
 {
-    return { };
+    return { SerializedNode::Comment { data() } };
 }
 
 } // namespace WebCore

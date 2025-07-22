@@ -134,7 +134,8 @@ Element* DocumentFragment::getElementById(const AtomString& id) const
 
 SerializedNode DocumentFragment::serializeNode(CloningOperation) const
 {
-    return { };
+    // FIXME: Implement.
+    return { SerializedNode::DocumentFragment { } };
 }
 
 }

@@ -638,7 +638,8 @@ Ref<Node> Element::cloneNodeInternal(Document& document, CloningOperation type, 
 
 SerializedNode Element::serializeNode(CloningOperation) const
 {
-    return { };
+    // FIXME: Implement.
+    return { SerializedNode::Element { } };
 }
 
 void Element::cloneShadowTreeIfPossible(Element& newHost, CustomElementRegistry* registry) const

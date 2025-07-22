@@ -9222,6 +9222,40 @@ header: <WebCore/ScriptTrackingPrivacyCategory.h>
     FormControls,
 };
 
+[Nested] struct WebCore::SerializedNode::Attr {
+    String prefix;
+    String localName;
+    String namespaceURI;
+    String value;
+};
+[Nested] struct WebCore::SerializedNode::CharacterData {
+    String data;
+};
+[Nested] struct WebCore::SerializedNode::Document {
+};
+[Nested] struct WebCore::SerializedNode::DocumentFragment {
+};
+[Nested] struct WebCore::SerializedNode::DocumentType {
+    String name;
+    String publicId;
+    String systemId;
+};
+[Nested] struct WebCore::SerializedNode::Element {
+};
+[Nested] struct WebCore::SerializedNode::Comment : WebCore::SerializedNode::CharacterData {
+};
+[Nested] struct WebCore::SerializedNode::Text : WebCore::SerializedNode::CharacterData {
+};
+[Nested] struct WebCore::SerializedNode::CDATASection : WebCore::SerializedNode::Text {
+};
+[Nested] struct WebCore::SerializedNode::ProcessingInstruction : WebCore::SerializedNode::CharacterData {
+    String target;
+};
+[Nested] struct WebCore::SerializedNode::ShadowRoot {
+};
+[Nested] struct WebCore::SerializedNode::HTMLTemplateElement {
+};
+
 struct WebCore::SerializedNode {
-    String text;
+    Variant<WebCore::SerializedNode::Attr, WebCore::SerializedNode::CDATASection, WebCore::SerializedNode::Comment, WebCore::SerializedNode::Document, WebCore::SerializedNode::DocumentFragment, WebCore::SerializedNode::DocumentType, WebCore::SerializedNode::Element, WebCore::SerializedNode::ProcessingInstruction, WebCore::SerializedNode::ShadowRoot, WebCore::SerializedNode::Text, WebCore::SerializedNode::HTMLTemplateElement> data;
 }

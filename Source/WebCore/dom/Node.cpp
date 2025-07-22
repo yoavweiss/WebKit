@@ -27,7 +27,9 @@
 
 #include "AXObjectCache.h"
 #include "Attr.h"
+#include "CDATASection.h"
 #include "ChildListMutationScope.h"
+#include "Comment.h"
 #include "CommonAtomStrings.h"
 #include "CommonVM.h"
 #include "ComposedTreeAncestorIterator.h"
@@ -830,8 +832,23 @@ ExceptionOr<void> Node::normalize()
 
 JSC::JSValue Node::deserializeNode(JSC::JSGlobalObject* lexicalGlobalObject, JSDOMGlobalObject* domGlobalObject, Document& document, SerializedNode&& serializedNode)
 {
-    // FIXME: Support other kinds of nodes.
-    Ref<Node> node = Text::create(document, WTFMove(serializedNode.text));
+    // FIXME: Support other kinds of nodes and change RefPtr to Ref.
+    RefPtr node = WTF::switchOn(WTFMove(serializedNode.data), [&] (SerializedNode::Text&& text) -> RefPtr<Node> {
+        return Text::create(document, WTFMove(text.data));
+    }, [&] (SerializedNode::ProcessingInstruction&& instruction) -> RefPtr<Node> {
+        return ProcessingInstruction::create(document, WTFMove(instruction.target), WTFMove(instruction.data));
+    }, [&] (SerializedNode::DocumentType&& type) -> RefPtr<Node> {
+        return DocumentType::create(document, type.name, type.publicId, type.systemId);
+    }, [&] (SerializedNode::Comment&& comment) -> RefPtr<Node> {
+        return Comment::create(document, WTFMove(comment.data));
+    }, [&] (SerializedNode::CDATASection&& section) -> RefPtr<Node> {
+        return CDATASection::create(document, WTFMove(section.data));
+    }, [&] (SerializedNode::Attr&& attr) -> RefPtr<Node> {
+        QualifiedName name(AtomString(WTFMove(attr.prefix)), AtomString(WTFMove(attr.localName)), AtomString(WTFMove(attr.namespaceURI)));
+        return Attr::create(document, name, AtomString(WTFMove(attr.value)));
+    }, [] (auto&&) -> RefPtr<Node> {
+        return nullptr;
+    });
     return toJSNewlyCreated(lexicalGlobalObject, domGlobalObject, WTFMove(node));
 }
 

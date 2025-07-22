@@ -159,7 +159,7 @@ Ref<Node> Text::cloneNodeInternal(Document& document, CloningOperation, CustomEl
 
 SerializedNode Text::serializeNode(CloningOperation) const
 {
-    return { data() };
+    return { SerializedNode::Text { data() } };
 }
 
 static bool isSVGShadowText(const Text& text)

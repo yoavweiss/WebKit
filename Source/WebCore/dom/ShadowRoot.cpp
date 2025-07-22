@@ -303,7 +303,8 @@ Ref<Node> ShadowRoot::cloneNodeInternal(Document& document, CloningOperation typ
 
 SerializedNode ShadowRoot::serializeNode(CloningOperation) const
 {
-    return { };
+    // FIXME: Implement.
+    return { SerializedNode::ShadowRoot { } };
 }
 
 void ShadowRoot::removeAllEventListeners()

@@ -119,6 +119,18 @@ Ref<Node> Attr::cloneNodeInternal(Document& document, CloningOperation, CustomEl
     return adoptRef(*new Attr(document, qualifiedName(), value()));
 }
 
+SerializedNode Attr::serializeNode(CloningOperation) const
+{
+    return {
+        SerializedNode::Attr {
+            prefix(),
+            localName(),
+            namespaceURI(),
+            value()
+        }
+    };
+}
+
 CSSStyleProperties* Attr::style()
 {
     // This is not part of the DOM API, and therefore not available to webpages. However, WebKit SPI
@@ -154,11 +166,6 @@ void Attr::attachToElement(Element& element)
     m_element = element;
     m_standaloneValue = nullAtom();
     setTreeScopeRecursively(element.treeScope());
-}
-
-SerializedNode Attr::serializeNode(CloningOperation) const
-{
-    return { };
 }
 
 }

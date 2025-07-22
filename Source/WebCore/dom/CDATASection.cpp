@@ -53,7 +53,7 @@ Ref<Node> CDATASection::cloneNodeInternal(Document& document, CloningOperation, 
 
 SerializedNode CDATASection::serializeNode(CloningOperation) const
 {
-    return { };
+    return { SerializedNode::CDATASection { data() } };
 }
 
 Ref<Text> CDATASection::virtualCreate(String&& data)

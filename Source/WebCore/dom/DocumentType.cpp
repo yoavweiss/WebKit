@@ -53,7 +53,7 @@ Ref<Node> DocumentType::cloneNodeInternal(Document& document, CloningOperation, 
 
 SerializedNode DocumentType::serializeNode(CloningOperation) const
 {
-    return { };
+    return { SerializedNode::DocumentType { m_name, m_publicId, m_systemId } };
 }
 
 }

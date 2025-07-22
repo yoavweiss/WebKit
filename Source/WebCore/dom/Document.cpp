@@ -5469,7 +5469,8 @@ Ref<Node> Document::cloneNodeInternal(Document&, CloningOperation type, CustomEl
 
 SerializedNode Document::serializeNode(CloningOperation) const
 {
-    return { };
+    // FIXME: Implement.
+    return { SerializedNode::Document { } };
 }
 
 Ref<Document> Document::cloneDocumentWithoutChildren() const

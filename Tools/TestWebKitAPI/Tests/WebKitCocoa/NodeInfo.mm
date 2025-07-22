@@ -116,16 +116,35 @@ TEST(SerializedNode, Basic)
     worldConfiguration.get().allowNodeInfo = YES;
     RetainPtr world = [WKContentWorld _worldWithConfiguration:worldConfiguration.get()];
 
-    __block bool done = false;
-    [webView evaluateJavaScript:@"window.webkit.serializeNode(document.createTextNode('text content'))" inFrame:nil inContentWorld:world.get() completionHandler:^(id serializedNode, NSError *error) {
-        EXPECT_TRUE([serializedNode isKindOfClass:_WKSerializedNode.class]);
-        EXPECT_NULL(error);
-        RetainPtr other = adoptNS([TestWKWebView new]);
-        id result = [other objectByCallingAsyncFunction:@"return n.wholeText" withArguments:@{ @"n" : serializedNode } error:nil];
-        EXPECT_WK_STREQ(result, "text content");
-        done = true;
-    }];
-    Util::run(&done);
+    auto verifyNodeSerialization = [world, webView] (const char* constructor, const char* accessor, const char* expected, const char* className) {
+        __block bool done = false;
+        [webView evaluateJavaScript:[NSString stringWithFormat:@"window.webkit.serializeNode(%s)", constructor] inFrame:nil inContentWorld:world.get() completionHandler:^(id serializedNode, NSError *error) {
+            EXPECT_TRUE([serializedNode isKindOfClass:_WKSerializedNode.class]);
+            EXPECT_NULL(error);
+            RetainPtr other = adoptNS([TestWKWebView new]);
+
+            id instanceof = [other objectByCallingAsyncFunction:[NSString stringWithFormat:@"return n instanceof %s", className] withArguments:@{ @"n" : serializedNode } error:nil];
+            EXPECT_EQ(instanceof, @YES);
+
+            id result = [other objectByCallingAsyncFunction:[NSString stringWithFormat:@"return %s", accessor] withArguments:@{ @"n" : serializedNode } error:nil];
+            EXPECT_WK_STREQ(result, expected);
+            done = true;
+        }];
+        Util::run(&done);
+    };
+
+    auto textAccessor = "n.wholeText";
+    verifyNodeSerialization("document.createTextNode('text content')", textAccessor, "text content", "Text");
+
+    auto attrAccessor = "n.namespaceURI + ',' + n.prefix + ',' + n.localName + ',' + n.name + ',' + n.value";
+    verifyNodeSerialization("document.createAttributeNS('a', 'b')", attrAccessor, "a,null,b,b,", "Attr");
+    verifyNodeSerialization("document.createAttribute('c')", attrAccessor, "null,null,c,c,", "Attr");
+
+    verifyNodeSerialization("new Document().createCDATASection('test')", textAccessor, "test", "CDATASection");
+
+    verifyNodeSerialization("document.implementation.createDocumentType('a', 'b', 'c')", "n.name + ',' + n.publicId + ',' + n.systemId", "a,b,c", "DocumentType");
+
+    verifyNodeSerialization("document.createProcessingInstruction('a', 'b')", "n.target + ',' + n.data", "a,b", "ProcessingInstruction");
 }
 
 }

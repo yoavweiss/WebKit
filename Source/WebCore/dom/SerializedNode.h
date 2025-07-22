@@ -30,7 +30,43 @@
 namespace WebCore {
 
 struct SerializedNode {
-    String text;
+    struct Attr {
+        String prefix;
+        String localName;
+        String namespaceURI;
+        String value;
+    };
+    struct Document {
+        // FIXME: Implement.
+    };
+    struct DocumentFragment {
+        // FIXME: Implement.
+    };
+    struct DocumentType {
+        String name;
+        String publicId;
+        String systemId;
+    };
+    struct Element {
+        // FIXME: Implement.
+    };
+    struct ShadowRoot {
+        // FIXME: Implement.
+    };
+    struct HTMLTemplateElement {
+        // FIXME: Implement.
+    };
+    struct CharacterData {
+        String data;
+    };
+    struct Comment : public CharacterData { };
+    struct Text : public CharacterData { };
+    struct CDATASection : public Text { };
+    struct ProcessingInstruction : public CharacterData {
+        String target;
+    };
+
+    Variant<Attr, CDATASection, Comment, Document, DocumentFragment, DocumentType, Element, ProcessingInstruction, ShadowRoot, Text, HTMLTemplateElement> data;
 };
 
 }

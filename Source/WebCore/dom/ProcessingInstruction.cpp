@@ -83,7 +83,7 @@ Ref<Node> ProcessingInstruction::cloneNodeInternal(Document& document, CloningOp
 
 SerializedNode ProcessingInstruction::serializeNode(CloningOperation) const
 {
-    return { };
+    return { SerializedNode::ProcessingInstruction { { data() }, m_target } };
 }
 
 void ProcessingInstruction::checkStyleSheet()

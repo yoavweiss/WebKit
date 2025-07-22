@@ -130,7 +130,8 @@ Ref<Node> HTMLTemplateElement::cloneNodeInternal(Document& document, CloningOper
 
 SerializedNode HTMLTemplateElement::serializeNode(CloningOperation) const
 {
-    return { };
+    // FIXME: Implement.
+    return { SerializedNode::HTMLTemplateElement { } };
 }
 
 void HTMLTemplateElement::didMoveToNewDocument(Document& oldDocument, Document& newDocument)
