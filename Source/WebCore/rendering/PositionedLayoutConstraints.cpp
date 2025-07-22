@@ -275,6 +275,32 @@ LayoutRange PositionedLayoutConstraints::adjustForPositionArea(const LayoutRange
 
 // MARK: - Resolving margins and alignment (after sizing).
 
+bool PositionedLayoutConstraints::isEligibleForStaticRangeAlignment() const
+{
+
+    if (m_containingAxis == LogicalBoxAxis::Inline)
+        return false;
+
+    auto* parent = m_renderer->parent();
+
+    if (parent->isRenderBlockFlow())
+        return false;
+
+    if (parent->style().isDisplayInlineType())
+        return false;
+
+    if (parent->isRenderFlexibleBox())
+        return false;
+
+    if (parent->isRenderGrid())
+        return false;
+
+    // We can hit this in certain pieces of content (e.g. see mathml/crashtests/fixed-pos-children.html),
+    // but the spec has no definition for a static position rectangle.
+    return false;
+
+}
+
 void PositionedLayoutConstraints::resolvePosition(RenderBox::LogicalExtentComputedValues& computedValues) const
 {
     // Static position should have resolved one of our insets by now.
@@ -322,6 +348,13 @@ void PositionedLayoutConstraints::resolvePosition(RenderBox::LogicalExtentComput
         // Align into remaining space.
         if (!hasAutoBeforeInset && !hasAutoAfterInset && !hasAutoBeforeMargin && !hasAutoAfterMargin && remainingSpace)
             return resolveAlignmentShift(remainingSpace, computedValues.m_extent + usedMarginBefore + usedMarginAfter);
+
+        if (m_useStaticPosition) {
+            if (isEligibleForStaticRangeAlignment()) {
+                ASSERT_NOT_IMPLEMENTED_YET();
+                return { };
+            }
+        }
 
         if (hasAutoBeforeInset)
             return remainingSpace;
