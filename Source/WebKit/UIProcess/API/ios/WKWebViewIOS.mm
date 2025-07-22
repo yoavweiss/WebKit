@@ -238,7 +238,10 @@ static WebCore::IntDegrees deviceOrientationForUIInterfaceOrientation(UIInterfac
     if (UIEdgeInsetsEqualToEdgeInsets(_obscuredInsets, obscuredInsets))
         return;
 
-    _perProcessState.firstTransactionIDAfterObscuredInsetChange = downcast<WebKit::RemoteLayerTreeDrawingAreaProxy>(*_page->drawingArea()).nextMainFrameLayerTreeTransactionID();
+    if (RefPtr page = _page) {
+        if (RefPtr drawingArea = page->drawingArea())
+            _perProcessState.firstTransactionIDAfterObscuredInsetChange = downcast<WebKit::RemoteLayerTreeDrawingAreaProxy>(*drawingArea).nextMainFrameLayerTreeTransactionID();
+    }
 
 #if ENABLE(CONTENT_INSET_BACKGROUND_FILL)
     auto sidesWithInsets = [](UIEdgeInsets insets) {
