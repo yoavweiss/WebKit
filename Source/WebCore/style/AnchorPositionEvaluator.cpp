@@ -84,103 +84,25 @@ static BoxAxis mapInsetPropertyToPhysicalAxis(CSSPropertyID id, const WritingMod
     }
 }
 
-static BoxSide mapInsetPropertyToPhysicalSide(CSSPropertyID id, const WritingMode writingMode)
+static LogicalBoxAxis mapInsetPropertyToLogicalAxis(CSSPropertyID id, const WritingMode writingMode)
 {
     switch (id) {
     case CSSPropertyLeft:
-        return BoxSide::Left;
     case CSSPropertyRight:
-        return BoxSide::Right;
+        return writingMode.isHorizontal() ? LogicalBoxAxis::Inline : LogicalBoxAxis::Block;
     case CSSPropertyTop:
-        return BoxSide::Top;
     case CSSPropertyBottom:
-        return BoxSide::Bottom;
+        return writingMode.isHorizontal() ? LogicalBoxAxis::Block : LogicalBoxAxis::Inline;
     case CSSPropertyInsetInlineStart:
-        return mapSideLogicalToPhysical(writingMode, LogicalBoxSide::InlineStart);
     case CSSPropertyInsetInlineEnd:
-        return mapSideLogicalToPhysical(writingMode, LogicalBoxSide::InlineEnd);
+        return LogicalBoxAxis::Inline;
     case CSSPropertyInsetBlockStart:
-        return mapSideLogicalToPhysical(writingMode, LogicalBoxSide::BlockStart);
     case CSSPropertyInsetBlockEnd:
-        return mapSideLogicalToPhysical(writingMode, LogicalBoxSide::BlockEnd);
+        return LogicalBoxAxis::Block;
     default:
         ASSERT_NOT_REACHED();
-        return BoxSide::Top;
+        return LogicalBoxAxis::Inline;
     }
-}
-
-static BoxSide flipBoxSide(BoxSide side)
-{
-    switch (side) {
-    case BoxSide::Top:
-        return BoxSide::Bottom;
-    case BoxSide::Right:
-        return BoxSide::Left;
-    case BoxSide::Bottom:
-        return BoxSide::Top;
-    case BoxSide::Left:
-        return BoxSide::Right;
-    default:
-        ASSERT_NOT_REACHED();
-        return BoxSide::Top;
-    }
-}
-
-static std::pair<BoxSide, bool> swapSideForTryTactics(BoxSide side, const Vector<PositionTryFallback::Tactic>& tactics, WritingMode writingMode)
-{
-    bool swappedOpposing = false;
-
-    auto logicalSide = mapSidePhysicalToLogical(writingMode, side);
-    for (auto tactic : tactics) {
-        switch (tactic) {
-        case PositionTryFallback::Tactic::FlipInline:
-            switch (logicalSide) {
-            case LogicalBoxSide::InlineStart:
-                swappedOpposing = true;
-                logicalSide = LogicalBoxSide::InlineEnd;
-                break;
-            case LogicalBoxSide::InlineEnd:
-                swappedOpposing = true;
-                logicalSide = LogicalBoxSide::InlineStart;
-                break;
-            default:
-                break;
-            }
-            break;
-        case PositionTryFallback::Tactic::FlipBlock:
-            switch (logicalSide) {
-            case LogicalBoxSide::BlockStart:
-                swappedOpposing = true;
-                logicalSide = LogicalBoxSide::BlockEnd;
-                break;
-            case LogicalBoxSide::BlockEnd:
-                swappedOpposing = true;
-                logicalSide = LogicalBoxSide::BlockStart;
-                break;
-            default:
-                break;
-            }
-            break;
-        case PositionTryFallback::Tactic::FlipStart:
-            switch (logicalSide) {
-            case LogicalBoxSide::InlineStart:
-                logicalSide = LogicalBoxSide::BlockStart;
-                break;
-            case LogicalBoxSide::InlineEnd:
-                logicalSide = LogicalBoxSide::BlockEnd;
-                break;
-            case LogicalBoxSide::BlockStart:
-                logicalSide = LogicalBoxSide::InlineStart;
-                break;
-            case LogicalBoxSide::BlockEnd:
-                logicalSide = LogicalBoxSide::InlineEnd;
-                break;
-            default:
-                break;
-            }
-        }
-    }
-    return { mapSideLogicalToPhysical(writingMode, logicalSide), swappedOpposing };
 }
 
 // Physical sides (left/right/top/bottom) can only be used in certain inset properties. "For example,
@@ -207,53 +129,6 @@ static bool anchorSideMatchesInsetProperty(CSSValueID anchorSideID, BoxAxis phys
     default:
         ASSERT_NOT_REACHED();
         return false;
-    }
-}
-
-// Anchor side resolution for keywords 'start', 'end', 'self-start', and 'self-end'.
-// See: https://drafts.csswg.org/css-anchor-position-1/#funcdef-anchor
-static BoxSide computeStartEndBoxSide(CSSPropertyID insetPropertyID, CheckedRef<const RenderElement> anchorPositionedRenderer, bool shouldComputeStart, bool shouldUseContainingBlockWritingMode)
-{
-    // 1. Compute the physical axis of inset property (using the element's writing mode)
-    auto physicalAxis = mapInsetPropertyToPhysicalAxis(insetPropertyID, anchorPositionedRenderer->writingMode());
-
-    // 2. Convert the physical axis to the corresponding logical axis w.r.t. the element OR containing block's writing mode
-    auto& style = shouldUseContainingBlockWritingMode ? anchorPositionedRenderer->containingBlock()->style() : anchorPositionedRenderer->style();
-    auto writingMode = style.writingMode();
-    auto logicalAxis = mapAxisPhysicalToLogical(writingMode, physicalAxis);
-
-    // 3. Convert the logical start OR end side to the corresponding physical side w.r.t. the
-    // element OR containing block's writing mode
-    if (logicalAxis == LogicalBoxAxis::Inline) {
-        if (shouldComputeStart)
-            return mapSideLogicalToPhysical(writingMode, LogicalBoxSide::InlineStart);
-        return mapSideLogicalToPhysical(writingMode, LogicalBoxSide::InlineEnd);
-    }
-    if (shouldComputeStart)
-        return mapSideLogicalToPhysical(writingMode, LogicalBoxSide::BlockStart);
-    return mapSideLogicalToPhysical(writingMode, LogicalBoxSide::BlockEnd);
-}
-
-// Insets for positioned elements are specified w.r.t. their containing blocks. Additionally, the containing block
-// for a `position: absolute` element is defined by the padding box of its nearest absolutely positioned ancestor.
-// Source: https://www.w3.org/TR/CSS2/visudet.html#containing-block-details.
-// However, some of the logic in the codebase that deals with finding offsets from a containing block are done from
-// the perspective of the container element's border box instead of its padding box. In those cases, we must remove
-// the border widths from those locations for the final inset value.
-static LayoutUnit removeBorderForInsetValue(LayoutUnit insetValue, BoxSide insetPropertySide, const RenderBlock& containingBlock)
-{
-    switch (insetPropertySide) {
-    case BoxSide::Top:
-        return insetValue - containingBlock.borderTop();
-    case BoxSide::Right:
-        return insetValue - containingBlock.borderRight();
-    case BoxSide::Bottom:
-        return insetValue - containingBlock.borderBottom();
-    case BoxSide::Left:
-        return insetValue - containingBlock.borderLeft();
-    default:
-        ASSERT_NOT_REACHED();
-        return { };
     }
 }
 
@@ -384,128 +259,174 @@ LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(C
     return LayoutRect(anchorLocation, LayoutSize(anchorWidth, anchorHeight));
 }
 
+static bool inline isInsetPropertyContainerStartSide(CSSPropertyID insetPropertyID, PositionedLayoutConstraints& constraints)
+{
+    switch (insetPropertyID) {
+    case CSSPropertyLeft:
+        return constraints.containingWritingMode().isAnyLeftToRight();
+    case CSSPropertyRight:
+        return !constraints.containingWritingMode().isAnyLeftToRight();
+    case CSSPropertyTop:
+        return constraints.containingWritingMode().isAnyTopToBottom();
+    case CSSPropertyBottom:
+        return !constraints.containingWritingMode().isAnyTopToBottom();
+    case CSSPropertyInsetInlineStart:
+        return !constraints.selfWritingMode().isInlineOpposing(constraints.containingWritingMode());
+    case CSSPropertyInsetInlineEnd:
+        return constraints.selfWritingMode().isInlineOpposing(constraints.containingWritingMode());
+    case CSSPropertyInsetBlockStart:
+        return !constraints.selfWritingMode().isBlockOpposing(constraints.containingWritingMode());
+    case CSSPropertyInsetBlockEnd:
+        return constraints.selfWritingMode().isBlockOpposing(constraints.containingWritingMode());
+    default:
+        ASSERT_NOT_REACHED();
+        return true;
+    }
+}
+
+static CSSPropertyID getOppositeInset(CSSPropertyID propertyID)
+{
+    switch (propertyID) {
+    case CSSPropertyLeft:
+        return CSSPropertyRight;
+    case CSSPropertyRight:
+        return CSSPropertyLeft;
+    case CSSPropertyTop:
+        return CSSPropertyBottom;
+    case CSSPropertyBottom:
+        return CSSPropertyTop;
+
+    case CSSPropertyInsetInlineStart:
+        return CSSPropertyInsetInlineEnd;
+    case CSSPropertyInsetInlineEnd:
+        return CSSPropertyInsetInlineStart;
+    case CSSPropertyInsetBlockStart:
+        return CSSPropertyInsetBlockEnd;
+    case CSSPropertyInsetBlockEnd:
+        return CSSPropertyInsetBlockStart;
+
+    default:
+        ASSERT_NOT_REACHED();
+        return CSSPropertyInsetBlockStart;
+    }
+}
+
+static std::pair<CSSPropertyID, bool> applyTryTacticsToInset(CSSPropertyID propertyID, WritingMode writingMode, const BuilderPositionTryFallback& fallback)
+{
+    bool isFlipped = false;
+    for (auto tactic : fallback.tactics) {
+        switch (tactic) {
+        case PositionTryFallback::Tactic::FlipInline:
+            if (LogicalBoxAxis::Inline == mapInsetPropertyToLogicalAxis(propertyID, writingMode)) {
+                propertyID = getOppositeInset(propertyID);
+                isFlipped = true;
+            }
+            break;
+        case PositionTryFallback::Tactic::FlipBlock:
+            if (LogicalBoxAxis::Block == mapInsetPropertyToLogicalAxis(propertyID, writingMode)) {
+                propertyID = getOppositeInset(propertyID);
+                isFlipped = true;
+            }
+            break;
+        case PositionTryFallback::Tactic::FlipStart:
+            propertyID = [&] {
+                switch (propertyID) {
+                case CSSPropertyInsetInlineStart:
+                    return CSSPropertyInsetBlockStart;
+                case CSSPropertyInsetInlineEnd:
+                    return CSSPropertyInsetBlockEnd;
+                case CSSPropertyInsetBlockStart:
+                    return CSSPropertyInsetInlineStart;
+                case CSSPropertyInsetBlockEnd:
+                    return CSSPropertyInsetInlineEnd;
+
+                case CSSPropertyLeft:
+                    return writingMode.isAnyLeftToRight() == writingMode.isAnyTopToBottom()
+                        ? CSSPropertyTop : CSSPropertyBottom;
+                case CSSPropertyRight:
+                    return writingMode.isAnyLeftToRight() == writingMode.isAnyTopToBottom()
+                        ? CSSPropertyBottom : CSSPropertyTop;
+                case CSSPropertyTop:
+                    return writingMode.isAnyLeftToRight() == writingMode.isAnyTopToBottom()
+                        ? CSSPropertyLeft : CSSPropertyRight;
+                case CSSPropertyBottom:
+                    return writingMode.isAnyLeftToRight() == writingMode.isAnyTopToBottom()
+                        ? CSSPropertyRight : CSSPropertyLeft;
+
+                default:
+                    ASSERT_NOT_REACHED();
+                    return CSSPropertyInsetBlockStart;
+                }
+            }();
+            break;
+        }
+    }
+    return { propertyID, isFlipped };
+}
+
 // "An anchor() function representing a valid anchor function resolves...to the <length> that would
 // align the edge of the positioned elements' inset-modified containing block corresponding to the
 // property the function appears in with the specified border edge of the target anchor element..."
 // See: https://drafts.csswg.org/css-anchor-position-1/#anchor-pos
-static LayoutUnit computeInsetValue(CSSPropertyID insetPropertyID, CheckedRef<const RenderBoxModelObject> anchorBox, CheckedRef<const RenderElement> anchorPositionedRenderer, AnchorPositionEvaluator::Side anchorSide, const std::optional<BuilderPositionTryFallback>& positionTryFallback)
+static LayoutUnit computeInsetValue(CSSPropertyID insetPropertyID, CheckedRef<const RenderBoxModelObject> anchorBox, CheckedRef<const RenderBox> anchorPositionedRenderer, AnchorPositionEvaluator::Side anchorSide, const std::optional<BuilderPositionTryFallback>& positionTryFallback)
 {
-    CheckedPtr containingBlock = anchorPositionedRenderer->containingBlock();
+    auto writingMode = anchorPositionedRenderer->writingMode();
+    bool isFlipped = false;
+    if (positionTryFallback)
+        std::tie(insetPropertyID, isFlipped) = applyTryTacticsToInset(insetPropertyID, writingMode, *positionTryFallback);
+
+    auto selfLogicalAxis = mapInsetPropertyToLogicalAxis(insetPropertyID, writingMode);
+    PositionedLayoutConstraints constraints(anchorPositionedRenderer, selfLogicalAxis);
+
+    auto anchorPercentage = [&]() -> double {
+        if (std::holds_alternative<CSSValueID>(anchorSide)) {
+            auto anchorSideID = std::get<CSSValueID>(anchorSide);
+            switch (anchorSideID) {
+            case CSSValueCenter:
+                return 0.5;
+            case CSSValueStart:
+                return 0;
+            case CSSValueEnd:
+                return 1;
+            case CSSValueSelfStart:
+                return constraints.isOpposing() ? 1 : 0;
+            case CSSValueSelfEnd:
+                return constraints.isOpposing() ? 0 : 1;
+
+            case CSSValueTop:
+                return constraints.containingWritingMode().isAnyTopToBottom() ? 0 : 1;
+            case CSSValueBottom:
+                return constraints.containingWritingMode().isAnyTopToBottom() ? 1 : 0;
+            case CSSValueLeft:
+                return constraints.containingWritingMode().isAnyLeftToRight() ? 0 : 1;
+            case CSSValueRight:
+                return constraints.containingWritingMode().isAnyLeftToRight() ? 1 : 0;
+
+            case CSSValueInside:
+                return isInsetPropertyContainerStartSide(insetPropertyID, constraints) != isFlipped ? 0 : 1;
+            case CSSValueOutside:
+                return isInsetPropertyContainerStartSide(insetPropertyID, constraints) != isFlipped ? 1 : 0;
+
+            default:
+                ASSERT_NOT_REACHED();
+                return 0;
+            }
+        } else
+            return std::get<double>(anchorSide);
+    }();
+    if (constraints.startIsBefore() == isFlipped)
+        anchorPercentage = 1 - anchorPercentage;
+
+    auto containingBlock = anchorPositionedRenderer->containingBlock();
     ASSERT(containingBlock);
-
-    auto writingMode = containingBlock->writingMode();
-    auto insetPropertySide = mapInsetPropertyToPhysicalSide(insetPropertyID, writingMode);
-    auto anchorSideID = std::holds_alternative<CSSValueID>(anchorSide) ? std::get<CSSValueID>(anchorSide) : CSSValueInvalid;
     auto anchorRect = AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(anchorBox, *containingBlock);
+    auto anchorRange = constraints.extractRange(anchorRect);
 
-    // Explicitly deal with the center/percentage value here.
-    // "Refers to a position a corresponding percentage between the start and end sides, with
-    // 0% being equivalent to start and 100% being equivalent to end. center is equivalent to 50%."
-    if (anchorSideID == CSSValueCenter || anchorSideID == CSSValueInvalid) {
-        double percentage = anchorSideID == CSSValueCenter ? 0.5 : std::get<double>(anchorSide);
-
-        auto reversePercentageForWritingMode = [&] {
-            switch (insetPropertySide) {
-            case BoxSide::Top:
-            case BoxSide::Bottom:
-                return !writingMode.isAnyTopToBottom();
-            case BoxSide::Left:
-            case BoxSide::Right:
-                return !writingMode.isAnyLeftToRight();
-            }
-            return false;
-        };
-        if (reversePercentageForWritingMode())
-            percentage = 1 - percentage;
-
-        if (positionTryFallback) {
-            auto [swappedSide, directionsOpposing] = swapSideForTryTactics(insetPropertySide, positionTryFallback->tactics, writingMode);
-            insetPropertySide = swappedSide;
-            // "If a <percentage> is used, and directions are opposing, change it to 100% minus the original percentage."
-            if (directionsOpposing)
-                percentage = 1 - percentage;
-        }
-
-        auto insetValue = [&] {
-            if (insetPropertySide == BoxSide::Top || insetPropertySide == BoxSide::Bottom) {
-                auto offset = anchorRect.location().y() + LayoutUnit { anchorRect.height() * percentage };
-                return insetPropertySide == BoxSide::Top ? offset : containingBlock->height() - offset;
-            }
-            auto offset = anchorRect.location().x() + LayoutUnit { anchorRect.width() * percentage };
-            return insetPropertySide == BoxSide::Left ? offset : containingBlock->width() - offset;
-        };
-        return removeBorderForInsetValue(insetValue(), insetPropertySide, *containingBlock);
-    }
-
-    // Normalize the anchor side to a physical side
-    BoxSide boxSide;
-    switch (anchorSideID) {
-    case CSSValueID::CSSValueTop:
-        boxSide = BoxSide::Top;
-        break;
-    case CSSValueID::CSSValueBottom:
-        boxSide = BoxSide::Bottom;
-        break;
-    case CSSValueID::CSSValueLeft:
-        boxSide = BoxSide::Left;
-        break;
-    case CSSValueID::CSSValueRight:
-        boxSide = BoxSide::Right;
-        break;
-    case CSSValueID::CSSValueInside:
-        boxSide = insetPropertySide;
-        break;
-    case CSSValueID::CSSValueOutside:
-        boxSide = flipBoxSide(insetPropertySide);
-        break;
-    case CSSValueID::CSSValueStart:
-        boxSide = computeStartEndBoxSide(insetPropertyID, anchorPositionedRenderer, true, true);
-        break;
-    case CSSValueID::CSSValueEnd:
-        boxSide = computeStartEndBoxSide(insetPropertyID, anchorPositionedRenderer, false, true);
-        break;
-    case CSSValueID::CSSValueSelfStart:
-        boxSide = computeStartEndBoxSide(insetPropertyID, anchorPositionedRenderer, true, false);
-        break;
-    case CSSValueID::CSSValueSelfEnd:
-        boxSide = computeStartEndBoxSide(insetPropertyID, anchorPositionedRenderer, false, false);
-        break;
-    default:
-        ASSERT_NOT_REACHED();
-        boxSide = BoxSide::Top;
-        break;
-    }
-
-    if (positionTryFallback) {
-        boxSide = swapSideForTryTactics(boxSide, positionTryFallback->tactics, writingMode).first;
-        insetPropertySide = swapSideForTryTactics(insetPropertySide, positionTryFallback->tactics, writingMode).first;
-    }
-
-    // Compute inset from the containing block
-    LayoutUnit insetValue;
-    switch (boxSide) {
-    case BoxSide::Top:
-        insetValue = anchorRect.location().y();
-        if (insetPropertySide == BoxSide::Bottom)
-            insetValue = containingBlock->height() - insetValue;
-        break;
-    case BoxSide::Bottom:
-        insetValue = anchorRect.location().y() + anchorRect.height();
-        if (insetPropertySide == BoxSide::Bottom)
-            insetValue = containingBlock->height() - insetValue;
-        break;
-    case BoxSide::Left:
-        insetValue = anchorRect.location().x();
-        if (insetPropertySide == BoxSide::Right)
-            insetValue = containingBlock->width() - insetValue;
-        break;
-    case BoxSide::Right:
-        insetValue = anchorRect.location().x() + anchorRect.width();
-        if (insetPropertySide == BoxSide::Right)
-            insetValue = containingBlock->width() - insetValue;
-        break;
-    }
-    return removeBorderForInsetValue(insetValue, insetPropertySide, *containingBlock);
+    auto anchorPosition = anchorRange.min() + LayoutUnit(anchorRange.size() * anchorPercentage);
+    auto insetValue = isInsetPropertyContainerStartSide(insetPropertyID, constraints) == constraints.startIsBefore()
+        ? anchorPosition - constraints.containingRange().min()
+        : constraints.containingRange().max() - anchorPosition;
+    return insetValue;
 }
 
 CheckedPtr<RenderBoxModelObject> AnchorPositionEvaluator::findAnchorForAnchorFunctionAndAttemptResolution(BuilderState& builderState, std::optional<ScopedName> anchorNameArgument)
