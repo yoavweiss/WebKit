@@ -8222,3 +8222,5 @@ fast/forms/ios/form-control-refresh/select/decoration-color.html [ ImageOnlyFail
 imported/w3c/web-platform-tests/css/css-view-transitions/fractional-translation-from-position.html [ ImageOnlyFailure ]
 
 webkit.org/b/296338 http/tests/site-isolation/fullscreen.html [ Pass Failure ]
+
+webkit.org/b/296339 fast/mediastream/enumerate-devices-change-event.html [ Pass Failure Timeout ]
