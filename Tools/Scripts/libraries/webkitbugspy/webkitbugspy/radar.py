@@ -114,7 +114,6 @@ class Tracker(GenericTracker):
             except self.radarclient().exceptions.RadarAccessDeniedResponseException as e:
                 sys.stderr.write(f'{e.code} Permission Denied\n')
                 sys.stderr.write(f'{e.reason}\n')
-                sys.exit(1)
             except self.radarclient().exceptions.UnsuccessfulResponseException as e:
                 sys.stderr.write(f'{e.reason}\n')
                 sys.exit(1)
