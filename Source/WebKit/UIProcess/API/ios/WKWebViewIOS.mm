@@ -2563,7 +2563,7 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
     [self _scheduleVisibleContentRectUpdateAfterScrollInView:scrollView];
 
 #if ENABLE(MODEL_PROCESS)
-    [self _setWebViewTransform3DForModel:[scrollView zoomScale]];
+    [_contentView _setWebViewTransform3DForModel:[scrollView zoomScale]];
 #endif
 }
 
@@ -4218,13 +4218,6 @@ static bool isLockdownModeWarningNeeded()
 - (void)_willInvalidateDraggedModelWithContainerView:(UIView *)containerView
 {
     [_contentView _willInvalidateDraggedModelWithContainerView:containerView];
-}
-
-- (void)_setWebViewTransform3DForModel:(CGFloat)newScale
-{
-    CATransform3D newTransform = self.transform3D;
-    newTransform.m33 = newScale;
-    self.transform3D = newTransform;
 }
 #endif
 
