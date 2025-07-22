@@ -8037,3 +8037,6 @@ imported/w3c/web-platform-tests/focus/iframe-focuses-parent-different-site.html 
 imported/w3c/web-platform-tests/visual-viewport/resize-event-order.html [ Pass Failure ]
 
 webkit.org/b/294105 webanimations/document-teardown-due-to-last-reference-crash.html [ Pass Timeout Failure ]
+
+# Passes on WPT dashboard while fails locally
+imported/w3c/web-platform-tests/html/obsolete/requirements-for-implementations/the-marquee-element-0/marquee-with-trusted-types.html [ ImageOnlyFailure ]
