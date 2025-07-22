@@ -59,6 +59,12 @@ namespace API {
 using namespace WebKit::NetworkCache;
 using namespace FileSystem;
 
+static WorkQueue& fileSystemQueueSingleton()
+{
+    static MainRunLoopNeverDestroyed<Ref<WorkQueue>> fileSystemQueue = WorkQueue::create("ContentRuleListStore FileSystem Queue"_s);
+    return fileSystemQueue.get().get();
+}
+
 ContentRuleListStore& ContentRuleListStore::defaultStoreSingleton()
 {
     static NeverDestroyed<Ref<ContentRuleListStore>> defaultStore = adoptRef(*new ContentRuleListStore);
@@ -77,9 +83,6 @@ ContentRuleListStore::ContentRuleListStore()
 
 ContentRuleListStore::ContentRuleListStore(const WTF::String& storePath)
     : m_storePath(storePath)
-    , m_compileQueue(ConcurrentWorkQueue::create("ContentRuleListStore Compile Queue"_s))
-    , m_readQueue(WorkQueue::create("ContentRuleListStore Read Queue"_s))
-    , m_removeQueue(WorkQueue::create("ContentRuleListStore Remove Queue"_s))
 {
     makeAllDirectories(storePath);
 }
@@ -533,7 +536,7 @@ void ContentRuleListStore::lookupContentRuleListFile(WTF::String&& filePath, WTF
 {
     ASSERT(RunLoop::isMain());
 
-    protectedReadQueue()->dispatch([protectedThis = Ref { *this }, filePath = WTFMove(filePath).isolatedCopy(), identifier = WTFMove(identifier).isolatedCopy(), completionHandler = WTFMove(completionHandler)]() mutable {
+    fileSystemQueueSingleton().dispatch([protectedThis = Ref { *this }, filePath = WTFMove(filePath).isolatedCopy(), identifier = WTFMove(identifier).isolatedCopy(), completionHandler = WTFMove(completionHandler)]() mutable {
         auto contentRuleList = openAndMapContentRuleList(filePath);
         if (!contentRuleList) {
             RunLoop::mainSingleton().dispatch([protectedThis = WTFMove(protectedThis), completionHandler = WTFMove(completionHandler)] () mutable {
@@ -570,7 +573,7 @@ void ContentRuleListStore::getAvailableContentRuleListIdentifiers(CompletionHand
 {
     ASSERT(RunLoop::isMain());
 
-    protectedReadQueue()->dispatch([protectedThis = Ref { *this }, storePath = m_storePath.isolatedCopy(), completionHandler = WTFMove(completionHandler)]() mutable {
+    fileSystemQueueSingleton().dispatch([protectedThis = Ref { *this }, storePath = m_storePath.isolatedCopy(), completionHandler = WTFMove(completionHandler)]() mutable {
         Vector<WTF::String> identifiers;
         for (auto& fileName : listDirectory(storePath)) {
             if (fileName.startsWith(constructedPathPrefix))
@@ -603,7 +606,7 @@ void ContentRuleListStore::compileContentRuleListFile(WTF::String&& filePath, WT
             return completionHandler(nullptr, parsedRules.error());
     }
 
-    protectedCompileQueue()->dispatch([protectedThis = Ref { *this }, filePath = WTFMove(filePath).isolatedCopy(), identifier = WTFMove(identifier).isolatedCopy(), json = WTFMove(json).isolatedCopy(), parsedRules = crossThreadCopy(WTFMove(parsedRules).value()), storePath = m_storePath.isolatedCopy(), completionHandler = WTFMove(completionHandler), cssSelectorsAllowed] () mutable {
+    fileSystemQueueSingleton().dispatch([protectedThis = Ref { *this }, filePath = WTFMove(filePath).isolatedCopy(), identifier = WTFMove(identifier).isolatedCopy(), json = WTFMove(json).isolatedCopy(), parsedRules = crossThreadCopy(WTFMove(parsedRules).value()), storePath = m_storePath.isolatedCopy(), completionHandler = WTFMove(completionHandler), cssSelectorsAllowed] () mutable {
         if (cssSelectorsAllowed == WebCore::ContentExtensions::CSSSelectorsAllowed::No) {
             auto parsedRulesOnBackgroundQueue = WebCore::ContentExtensions::parseRuleList(json, cssSelectorsAllowed);
             if (!parsedRulesOnBackgroundQueue.has_value())
@@ -613,6 +616,7 @@ void ContentRuleListStore::compileContentRuleListFile(WTF::String&& filePath, WT
         }
 
         auto result = compiledToFile(WTFMove(json), WTFMove(parsedRules), filePath);
+
         if (!result.has_value()) {
             RunLoop::mainSingleton().dispatch([protectedThis = WTFMove(protectedThis), error = WTFMove(result.error()), completionHandler = WTFMove(completionHandler)] () mutable {
                 completionHandler(nullptr, error);
@@ -637,7 +641,7 @@ void ContentRuleListStore::removeContentRuleListFile(WTF::String&& filePath, Com
 {
     ASSERT(RunLoop::isMain());
 
-    protectedRemoveQueue()->dispatch([protectedThis = Ref { *this }, filePath = WTFMove(filePath).isolatedCopy(), completionHandler = WTFMove(completionHandler)]() mutable {
+    fileSystemQueueSingleton().dispatch([protectedThis = Ref { *this }, filePath = WTFMove(filePath).isolatedCopy(), completionHandler = WTFMove(completionHandler)]() mutable {
         auto complete = [protectedThis = WTFMove(protectedThis), completionHandler = WTFMove(completionHandler)](std::error_code error) mutable {
             RunLoop::mainSingleton().dispatch([protectedThis = WTFMove(protectedThis), completionHandler = WTFMove(completionHandler), error = WTFMove(error)] () mutable {
                 completionHandler(error);
@@ -740,7 +744,7 @@ void ContentRuleListStore::getContentRuleListSource(WTF::String&& identifier, Co
 {
     ASSERT(RunLoop::isMain());
 
-    protectedReadQueue()->dispatch([protectedThis = Ref { *this }, filePath = constructedPath(m_storePath, identifier).isolatedCopy(), completionHandler = WTFMove(completionHandler)]() mutable {
+    fileSystemQueueSingleton().dispatch([protectedThis = Ref { *this }, filePath = constructedPath(m_storePath, identifier).isolatedCopy(), completionHandler = WTFMove(completionHandler)]() mutable {
         auto complete = [protectedThis = WTFMove(protectedThis), completionHandler = WTFMove(completionHandler)](WTF::String&& source) mutable {
             RunLoop::mainSingleton().dispatch([protectedThis = WTFMove(protectedThis), completionHandler = WTFMove(completionHandler), source = WTFMove(source).isolatedCopy()] () mutable {
                 completionHandler(source);
@@ -753,21 +757,6 @@ void ContentRuleListStore::getContentRuleListSource(WTF::String&& identifier, Co
 
         complete(getContentRuleListSourceFromMappedFile(*contentRuleList));
     });
-}
-
-Ref<ConcurrentWorkQueue> ContentRuleListStore::protectedCompileQueue()
-{
-    return m_compileQueue;
-}
-
-Ref<WorkQueue> ContentRuleListStore::protectedReadQueue()
-{
-    return m_readQueue;
-}
-
-Ref<WorkQueue> ContentRuleListStore::protectedRemoveQueue()
-{
-    return m_removeQueue;
 }
 
 const std::error_category& contentRuleListStoreErrorCategory()

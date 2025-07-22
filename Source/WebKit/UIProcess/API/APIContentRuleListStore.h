@@ -78,17 +78,10 @@ public:
     void invalidateContentRuleListHeader(const WTF::String& identifier);
     void getContentRuleListSource(WTF::String&& identifier, CompletionHandler<void(WTF::String)>);
 
-    Ref<ConcurrentWorkQueue> protectedCompileQueue();
-    Ref<WorkQueue> protectedReadQueue();
-    Ref<WorkQueue> protectedRemoveQueue();
-
 private:
     WTF::String defaultStorePath();
 
     const WTF::String m_storePath;
-    const Ref<ConcurrentWorkQueue> m_compileQueue;
-    const Ref<WorkQueue> m_readQueue;
-    const Ref<WorkQueue> m_removeQueue;
 #endif // ENABLE(CONTENT_EXTENSIONS)
 };
 
