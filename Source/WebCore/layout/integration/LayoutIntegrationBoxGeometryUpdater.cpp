@@ -312,7 +312,15 @@ static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockC
     for (auto* box = blockContainer.lastChildBox(); box; box = box->previousSiblingBox()) {
         if (box->isFloatingOrOutOfFlowPositioned())
             continue;
+
         haveInFlowChild = true;
+
+        if (box->isWritingModeRoot())
+            continue;
+
+        if (box->shouldApplyLayoutContainment())
+            continue;
+
         if (auto result = inlineBlockBaseline(*box))
             return LayoutUnit { (box->logicalTop() + result.value()).toInt() }; // Translate to our coordinate space.
     }
@@ -335,15 +343,6 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
 
     if ((is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox)) && !is<RenderMenuList>(renderBox) && !is<RenderTextControlInnerContainer>(renderBox))
         return renderBox.firstLineBaseline();
-
-    if (renderBox.isWritingModeRoot())
-        return { };
-
-    if (renderBox.shouldApplyLayoutContainment()) {
-        if (renderBox.isInline())
-            return synthesizedBaseline(renderBox, *renderBox.parentStyle(), lineDirection, BorderBox) + (writingMode.isHorizontal() ? renderBox.marginBottom() : renderBox.marginLeft());
-        return { };
-    }
 
     if (CheckedPtr innerContainer = dynamicDowncast<RenderTextControlInnerContainer>(renderBox))
         return lastInflowBoxBaseline(*innerContainer);
@@ -579,9 +578,6 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
         // We also give up on finding a baseline if we have a vertical scrollbar, or if we are scrolled
         // vertically (e.g., an overflow:hidden block that has had scrollTop moved).
         auto ignoreBaseline = [&] {
-            if (renderer->isWritingModeRoot())
-                return true;
-
             CheckedPtr scrollableArea = renderer->layer() ? renderer->layer()->scrollableArea() : nullptr;
             if (!scrollableArea)
                 return false;
