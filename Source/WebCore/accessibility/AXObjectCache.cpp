@@ -2882,8 +2882,8 @@ void AXObjectCache::handleRoleChanged(Element& element, const AtomString& oldVal
         return;
 
     // The class of an AX object created for an Element depends on the role attribute of that Element.
-    // Thus when the role changes, remove the existing AX object and force a ChildrenChanged on the parent so that the object is re-created.
-    // At the moment this is done only for table and row roles. Other roles may be added here if needed.
+    // Thus when the role changes, remove the existing AX object and force a ChildrenChanged on the parent
+    // so that the object is re-created.
     if (oldValue.isEmpty() || isTableOrRowRole(oldValue)
         || newValue.isEmpty() || isTableOrRowRole(newValue)) {
         if (auto* parent = object->parentObject()) {

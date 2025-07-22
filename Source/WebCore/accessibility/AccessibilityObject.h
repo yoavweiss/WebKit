@@ -123,6 +123,8 @@ public:
     bool isMediaTimeline() const { return false; }
     virtual bool isSliderThumb() const { return false; }
     bool isLabel() const { return isAccessibilityLabelInstance() || labelForObjects().size(); }
+    // FIXME: Re-evaluate what this means when site isolation is enabled (is this method name accurate?)
+    virtual bool isRoot() const { return false; }
 
     std::optional<InputType::Type> inputType() const final;
 

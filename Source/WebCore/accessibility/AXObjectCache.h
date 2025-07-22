@@ -693,12 +693,12 @@ public:
     WEBCORE_EXPORT static bool isIsolatedTreeEnabled();
     WEBCORE_EXPORT static void initializeAXThreadIfNeeded();
     WEBCORE_EXPORT static bool isAXThreadInitialized();
+    WEBCORE_EXPORT RefPtr<AXIsolatedTree> getOrCreateIsolatedTree();
 private:
     static bool clientSupportsIsolatedTree();
     // Propagates the root of the isolated tree back into the Core and WebKit.
     void setIsolatedTree(Ref<AXIsolatedTree>);
     void setIsolatedTreeFocusedObject(AccessibilityObject*);
-    RefPtr<AXIsolatedTree> getOrCreateIsolatedTree();
     void buildIsolatedTree();
     void updateIsolatedTree(AccessibilityObject&, AXNotification);
     void updateIsolatedTree(AccessibilityObject*, AXNotification);

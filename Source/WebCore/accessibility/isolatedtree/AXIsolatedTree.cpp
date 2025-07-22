@@ -211,9 +211,9 @@ void AXIsolatedTree::storeTree(AXObjectCache& cache, const Ref<AXIsolatedTree>& 
 {
     ASSERT(isMainThread());
 
-    // Once we set this tree in the AXTreeStore, the secondary thread can start using it,
-    // and we can no longer access AXIsolatedTree::rootNode off the main-thread. Set the
-    // root now while we still can.
+    // Once we've added this new tree to the AXTreeStore, clients will be able to use
+    // it off the main-thread. Make any final state mutations while we are the only thread
+    // that can touch this tree.
     cache.setIsolatedTree(tree);
     AXTreeStore::set(tree->treeID(), tree.ptr());
     tree->m_replacingTree = nullptr;
@@ -308,7 +308,7 @@ std::optional<AXIsolatedTree::NodeChange> AXIsolatedTree::nodeChangeForObject(Re
     m_nodeMap.set(axObject->objectID(), ParentChildrenIDs { parentID, data.childrenIDs });
     NodeChange nodeChange { WTFMove(data), axObject->wrapper() };
 
-    if (!parentID && axObject->isScrollView())
+    if (axObject->isRoot())
         setPendingRootNodeID(axObject->objectID());
     return nodeChange;
 }

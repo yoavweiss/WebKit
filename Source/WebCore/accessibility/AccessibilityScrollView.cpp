@@ -41,8 +41,8 @@ namespace WebCore {
     
 AccessibilityScrollView::AccessibilityScrollView(AXID axID, ScrollView& view)
     : AccessibilityObject(axID)
-    , m_scrollView(view)
     , m_childrenDirty(false)
+    , m_scrollView(view)
 {
     if (RefPtr localFrameView = dynamicDowncast<LocalFrameView>(view))
         m_frameOwnerElement = localFrameView->frame().ownerElement();
@@ -51,6 +51,26 @@ AccessibilityScrollView::AccessibilityScrollView(AXID axID, ScrollView& view)
 AccessibilityScrollView::~AccessibilityScrollView()
 {
     ASSERT(isDetached());
+}
+
+bool AccessibilityScrollView::isRoot() const
+{
+    RefPtr frameView = dynamicDowncast<FrameView>(m_scrollView.get());
+    return frameView && frameView->frame().isMainFrame();
+}
+
+String AccessibilityScrollView::ownerDebugDescription() const
+{
+    if (!m_frameOwnerElement) {
+        StringBuilder builder;
+        builder.append("null frame owner"_s);
+        if (isRoot())
+            builder.append(" (root)"_s);
+        return builder.toString();
+    }
+
+    CheckedPtr renderer = m_frameOwnerElement->renderer();
+    return renderer ? renderer->debugDescription() : m_frameOwnerElement->debugDescription();
 }
 
 void AccessibilityScrollView::detachRemoteParts(AccessibilityDetachmentType detachmentType)

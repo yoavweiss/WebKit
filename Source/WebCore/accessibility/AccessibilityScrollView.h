@@ -49,6 +49,8 @@ public:
 
     RefPtr<AXRemoteFrame> remoteFrame() const { return m_remoteFrame; }
 
+    String ownerDebugDescription() const;
+
 private:
     explicit AccessibilityScrollView(AXID, ScrollView&);
     void detachRemoteParts(AccessibilityDetachmentType) final;
@@ -61,6 +63,7 @@ private:
     bool isEnabled() const final { return true; }
     bool hasRemoteFrameChild() const final { return m_remoteFrame; }
 
+    bool isRoot() const final;
     bool isAttachment() const final;
     PlatformWidget platformWidget() const final;
     Widget* widgetForAttachmentView() const final { return currentScrollView(); }
@@ -85,11 +88,11 @@ private:
     AccessibilityScrollbar* addChildScrollbar(Scrollbar*);
     void removeChildScrollbar(AccessibilityObject*);
 
+    bool m_childrenDirty;
     SingleThreadWeakPtr<ScrollView> m_scrollView;
     WeakPtr<HTMLFrameOwnerElement, WeakPtrImplWithEventTargetData> m_frameOwnerElement;
     RefPtr<AccessibilityObject> m_horizontalScrollbar;
     RefPtr<AccessibilityObject> m_verticalScrollbar;
-    bool m_childrenDirty;
     RefPtr<AXRemoteFrame> m_remoteFrame;
 };
     
