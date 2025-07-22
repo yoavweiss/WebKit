@@ -1,6 +1,6 @@
 
-FAIL Property text-decoration value 'none' assert_equals: expected "rgb(0, 0, 255)" but got "none"
-FAIL Property text-decoration value 'line-through' assert_equals: expected "line-through rgb(0, 0, 255)" but got "line-through"
+PASS Property text-decoration value 'none'
+PASS Property text-decoration value 'line-through'
 FAIL Property text-decoration value 'solid' assert_true: 'solid' is a supported value for text-decoration. expected true got false
 FAIL Property text-decoration value 'currentcolor' assert_true: 'currentcolor' is a supported value for text-decoration. expected true got false
 FAIL Property text-decoration value 'double overline underline' assert_true: 'double overline underline' is a supported value for text-decoration. expected true got false
