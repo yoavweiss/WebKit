@@ -218,7 +218,7 @@ void PolicyChecker::checkNavigationPolicy(ResourceRequest&& request, const Resou
         RefPtr document = frame->document();
         if (document && document->settings().navigationAPIEnabled()) {
             if (RefPtr window = document->window()) {
-                if (!window->protectedNavigation()->dispatchDownloadNavigateEvent(request.url(), action.downloadAttribute()))
+                if (!window->protectedNavigation()->dispatchDownloadNavigateEvent(request.url(), action.downloadAttribute(), action.sourceElement()))
                     return function({ }, nullptr, NavigationPolicyDecision::IgnoreLoad);
             }
         }

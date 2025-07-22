@@ -146,7 +146,7 @@ public:
     enum class DispatchResult : uint8_t { Completed, Aborted, Intercepted };
     DispatchResult dispatchTraversalNavigateEvent(HistoryItem&);
     bool dispatchPushReplaceReloadNavigateEvent(const URL&, NavigationNavigationType, bool isSameDocument, FormState*, SerializedScriptValue* classicHistoryAPIState = nullptr, Element* sourceElement = nullptr);
-    bool dispatchDownloadNavigateEvent(const URL&, const String& downloadFilename);
+    bool dispatchDownloadNavigateEvent(const URL&, const String& downloadFilename, Element* sourceElement = nullptr);
 
     void updateForNavigation(Ref<HistoryItem>&&, NavigationNavigationType, ShouldCopyStateObjectFromCurrentEntry = ShouldCopyStateObjectFromCurrentEntry::No);
     void updateForReactivation(Vector<Ref<HistoryItem>>& newHistoryItems, HistoryItem& reactivatedItem);

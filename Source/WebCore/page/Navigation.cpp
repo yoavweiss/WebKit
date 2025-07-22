@@ -1108,10 +1108,10 @@ bool Navigation::dispatchPushReplaceReloadNavigateEvent(const URL& url, Navigati
 }
 
 // https://html.spec.whatwg.org/multipage/nav-history-apis.html#fire-a-download-request-navigate-event
-bool Navigation::dispatchDownloadNavigateEvent(const URL& url, const String& downloadFilename)
+bool Navigation::dispatchDownloadNavigateEvent(const URL& url, const String& downloadFilename, Element* sourceElement)
 {
     Ref destination = NavigationDestination::create(url, nullptr, false);
-    return innerDispatchNavigateEvent(NavigationNavigationType::Push, WTFMove(destination), downloadFilename) == DispatchResult::Completed;
+    return innerDispatchNavigateEvent(NavigationNavigationType::Push, WTFMove(destination), downloadFilename, nullptr, nullptr, sourceElement) == DispatchResult::Completed;
 }
 
 // https://html.spec.whatwg.org/multipage/nav-history-apis.html#inform-the-navigation-api-about-aborting-navigation
