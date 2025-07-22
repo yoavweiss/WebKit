@@ -74,6 +74,7 @@ class Results(View):
         build_id = data['build_id']
         ci_system = data.get('ci_system', 'Misc')
         commit_hash = data['commit_hash']
+        pr_author = data.get('pr_author')
         pr_number = data['pr_number']
         pr_project = data.get('pr_project', 'WebKit/WebKit')
         result = data['result']
@@ -82,12 +83,15 @@ class Results(View):
         rc = CIBuild.save_build(commit_hash=commit_hash, build_id=build_id, builder_display_name=builder_display_name,
                                 result=result, url=url, ci_system=ci_system, pr_number=pr_number, pr_project=pr_project)
         _log.info(f'Saved CI build data for {commit_hash}')
+        if rc == SUCCESS:
+            GitHubEWS.add_or_update_comment_for_change_id(commit_hash, pr_number, pr_project, pr_author, True)
         return HttpResponse(f'Saved data for PR: {pr_number}, commit: {commit_hash}.\n')
 
     def build_event(self, data):
         change_id = data['change_id']
         pr_number = data.get('pr_number', data.get('pr_id')) or -1
         pr_project = data.get('pr_project', '') or ''
+        pr_author = data.get('pr_author')
 
         _log.info(f'Build {data["status"]}, change_id: {change_id}, build_id: {data["build_id"]}, pr_number: {pr_number}, pr_project: {pr_project}')
         if not change_id:
@@ -100,7 +104,7 @@ class Results(View):
         if rc == SUCCESS and pr_number and pr_number != -1:
             # For PR builds leave comment on PR
             allow_new_comment = (data['status'] == 'started' and data['builder_display_name'] in ['services', 'ios-wk2'])
-            GitHubEWS.add_or_update_comment_for_change_id(change_id, pr_number, pr_project, allow_new_comment)
+            GitHubEWS.add_or_update_comment_for_change_id(change_id, pr_number, pr_project, pr_author, allow_new_comment)
         return HttpResponse('Saved data for change: {}.\n'.format(change_id))
 
     def step_event(self, data):

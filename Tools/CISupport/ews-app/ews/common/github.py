@@ -20,6 +20,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import copy
 import json
 import logging
 import re
@@ -195,6 +196,8 @@ class GitHub(object):
 
 
 class GitHubEWS(GitHub):
+    APPLE_QUEUES = ['ios-apple', 'mac-apple']
+    CI_BUILD_TITLE = 'Apple'
     ICON_BUILD_PASS = u'\U00002705'
     ICON_BUILD_FAIL = u'\U0000274C'
     ICON_BUILD_WAITING = u'\U000023F3'
@@ -217,20 +220,30 @@ class GitHubEWS(GitHub):
                           ['', 'tv-sim', '', 'jsc-armv7-tests', ''],
                           ['', 'watch', '', '', ''],
                           ['', 'watch-sim', '', '', '']]
+    approved_user_list_for_cibuilds = ['adetaylor', 'aj062', 'briannafan', 'JonWBedard', 'ryanhaddad']  # FIXME: fetch this list dynamically and expand it appropriately
 
     @classmethod
     def generate_updated_pr_description(self, description, ews_comment):
         description = "" if description is None else description.split(self.STATUS_BUBBLE_START)[0]
         return u'{}{}\n{}\n{}'.format(description, self.STATUS_BUBBLE_START, ews_comment, self.STATUS_BUBBLE_END)
 
-    def generate_comment_text_for_change(self, change):
+    def generate_comment_text_for_change(self, change, include_ci_builds=False):
         repository_url = 'https://github.com/{}'.format(change.pr_project)
         hash_url = '{}/commit/{}'.format(repository_url, change.change_id)
 
         comment = '\n\n| Misc | iOS, visionOS, tvOS & watchOS  | macOS  | Linux |  Windows |'
         comment += '\n| ----- | ---------------------- | ------- |  ----- |  --------- |'
 
-        for row in self.STATUS_BUBBLE_ROWS:
+        status_bubble_rows = copy.deepcopy(self.STATUS_BUBBLE_ROWS)
+        if include_ci_builds:
+            comment = comment.replace('Windows', f'Windows | {self.CI_BUILD_TITLE}')
+            comment += ' ------ |'
+            for row in status_bubble_rows:
+                row.append('')
+            for i, queue in enumerate(self.APPLE_QUEUES):
+                status_bubble_rows[i][-1] = queue
+
+        for row in status_bubble_rows:
             comment_for_row = '\n'
             for queue in row:
                 if queue == '':
@@ -255,7 +268,39 @@ class GitHubEWS(GitHub):
     def escape_github_markdown(cls, string):
         return string.replace('|', '\\|')
 
+    def should_include_ci_builds(self, pr_author, pr_project):
+        return (pr_author in self.approved_user_list_for_cibuilds) and (pr_project in GITHUB_PROJECTS)
+
     def github_status_for_queue(self, change, queue):
+        if queue in self.APPLE_QUEUES:
+            return self.github_status_for_cibuild(change, queue)
+        return self.github_status_for_buildbot_queue(change, queue)
+
+    def github_status_for_cibuild(self, change, queue):
+        name = f'{StatusBubble.BUILDER_ICON} {queue}'
+        builds = util.get_cibuilds_for_queue(change, queue)
+        build = None
+        if builds:
+            build = builds[0]
+        icon = GitHubEWS.ICON_BUILD_WAITING
+        url = build.url if build else None
+        if url == '':
+            url = None
+        if not build:
+            return f'| [{icon} {name} ](url) '
+        if build.result is None:
+            icon = GitHubEWS.ICON_BUILD_ONGOING
+        elif build.result == Buildbot.SUCCESS:
+            icon = GitHubEWS.ICON_BUILD_PASS
+        elif build.result == Buildbot.FAILURE:
+            icon = GitHubEWS.ICON_BUILD_FAIL
+        elif build.result == Buildbot.CANCELLED:
+            icon = GitHubEWS.ICON_EMPTY_SPACE
+        else:
+            icon = GitHubEWS.ICON_BUILD_ERROR
+        return f'| [{icon} {name}]({url}) '
+
+    def github_status_for_buildbot_queue(self, change, queue):
         name = queue
         is_tester_queue = Buildbot.is_tester_queue(queue)
         is_builder_queue = Buildbot.is_builder_queue(queue)
@@ -279,7 +324,7 @@ class GitHubEWS(GitHub):
             if Buildbot.get_parent_queue(queue):
                 queue = Buildbot.get_parent_queue(queue)
             queue_full_name = Buildbot.queue_name_by_shortname_mapping.get(queue)
-            url = ''
+            url = None
             if queue_full_name:
                 url = 'https://{}/#/builders/{}'.format(config.BUILDBOT_SERVER_HOST, queue_full_name)
             hover_over_text = 'Waiting in queue, processing has not started yet'
@@ -349,7 +394,7 @@ class GitHubEWS(GitHub):
         return u'| [{icon} {name}]({url} "{hover_over_text}") '.format(icon=icon, name=name, url=url, hover_over_text=hover_over_text)
 
     @classmethod
-    def add_or_update_comment_for_change_id(self, sha, pr_number, pr_project=None, allow_new_comment=False):
+    def add_or_update_comment_for_change_id(self, sha, pr_number, pr_project=None, pr_author='', allow_new_comment=False):
         if not pr_number or pr_number == -1:
             _log.error(f'Invalid pr_number: {pr_number}')
             return -1
@@ -365,7 +410,8 @@ class GitHubEWS(GitHub):
             _log.error('Change not found for hash: {}. Unable to generate github comment.'.format(sha))
             return -1
         gh = GitHubEWS()
-        comment_text, folded_comment = gh.generate_comment_text_for_change(change)
+        include_ci_builds = self.should_include_ci_builds(pr_author, pr_project)
+        comment_text, folded_comment = gh.generate_comment_text_for_change(change, include_ci_builds)
         if not change.obsolete:
             gh.update_pr_description_with_status_bubble(pr_number, comment_text, repository_url)
 
@@ -378,7 +424,7 @@ class GitHubEWS(GitHub):
             new_comment_id = gh.update_or_leave_comment_on_pr(pr_number, folded_comment, repository_url=repository_url, change=change)
             obsolete_changes = Change.mark_old_changes_as_obsolete(pr_number, sha)
             for obsolete_change in obsolete_changes:
-                obsolete_comment_text, _ = gh.generate_comment_text_for_change(obsolete_change)
+                obsolete_comment_text, _ = gh.generate_comment_text_for_change(obsolete_change, include_ci_builds)
                 gh.update_or_leave_comment_on_pr(pr_number, obsolete_comment_text, repository_url=repository_url, comment_id=obsolete_change.comment_id, change=obsolete_change)
                 _log.info('Updated obsolete status-bubble on pr {} for hash: {}'.format(pr_number, obsolete_change.change_id))
 
