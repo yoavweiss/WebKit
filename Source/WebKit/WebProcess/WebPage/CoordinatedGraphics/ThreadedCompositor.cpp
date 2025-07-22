@@ -309,8 +309,12 @@ void ThreadedCompositor::paintToCurrentGLContext(const TransformationMatrix& mat
 #endif
 
 #if ENABLE(DAMAGE_TRACKING)
-    if (m_damage.visualizer)
+    if (m_damage.visualizer) {
         m_damage.visualizer->paintDamage(*m_textureMapper, m_surface->frameDamage());
+        // When damage visualizer is active, we cannot send the original damage to the platform as in this case
+        // the damage rects visualized previous frame may not get erased if platform actually uses damage.
+        m_surface->setFrameDamage(Damage(size, Damage::Mode::Full));
+    }
 #endif
 
     m_textureMapper->endClip();
