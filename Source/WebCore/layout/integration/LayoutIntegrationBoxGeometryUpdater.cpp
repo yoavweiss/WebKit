@@ -297,6 +297,12 @@ static inline LayoutSize scrollbarLogicalSize(const RenderBox& renderer)
     return { horizontalSpaceReservedForScrollbar, verticalSpaceReservedForScrollbar };
 }
 
+static LayoutUnit fontMetricsBasedBaseline(const RenderBox& renderBox)
+{
+    auto& fontMetrics = renderBox.firstLineStyle().metricsOfPrimaryFont();
+    return fontMetrics.intAscent() + (renderBox.lineHeight() - fontMetrics.intHeight()) / 2;
+}
+
 static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox&);
 
 static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockContainer)
@@ -311,12 +317,8 @@ static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockC
             return LayoutUnit { (box->logicalTop() + result.value()).toInt() }; // Translate to our coordinate space.
     }
 
-    if (!haveInFlowChild && blockContainer.hasLineIfEmpty()) {
-        auto& fontMetrics = blockContainer.firstLineStyle().metricsOfPrimaryFont();
-        return LayoutUnit { LayoutUnit(fontMetrics.intAscent()
-            + (blockContainer.lineHeight() - fontMetrics.intHeight()) / 2
-            + (writingMode.isHorizontal() ? blockContainer.borderTop() + blockContainer.paddingTop() : blockContainer.borderRight() + blockContainer.paddingRight())).toInt() };
-    }
+    if (!haveInFlowChild && blockContainer.hasLineIfEmpty())
+        return (fontMetricsBasedBaseline(blockContainer) + (writingMode.isHorizontal() ? blockContainer.borderTop() + blockContainer.paddingTop() : blockContainer.borderRight() + blockContainer.paddingRight())).toInt();
     return { };
 }
 
@@ -362,11 +364,7 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBox& renderBox)
             if (!blockFlow->hasLines()) {
                 if (!blockFlow->hasLineIfEmpty())
                     return { };
-
-                auto& fontMetrics = blockFlow->firstLineStyle().metricsOfPrimaryFont();
-                return { LayoutUnit(fontMetrics.intAscent()
-                    + (blockFlow->lineHeight() - fontMetrics.intHeight()) / 2
-                    + (lineDirection == HorizontalLine ? blockFlow->borderTop() + blockFlow->paddingTop() : blockFlow->borderRight() + blockFlow->paddingRight())).toInt() };
+                return (fontMetricsBasedBaseline(*blockFlow) + (lineDirection == HorizontalLine ? blockFlow->borderTop() + blockFlow->paddingTop() : blockFlow->borderRight() + blockFlow->paddingRight())).toInt();
             }
 
             if (auto* inlineLayout = blockFlow->inlineLayout())
@@ -469,10 +467,8 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
             auto baseline = LayoutUnit { };
             if (innerTextRenderer->inlineLayout())
                 baseline = std::min<LayoutUnit>(innerTextRenderer->marginBoxLogicalHeight(writingMode), floorToInt(innerTextRenderer->inlineLayout()->lastLineLogicalBaseline()));
-            else {
-                auto& fontMetrics = innerTextRenderer->firstLineStyle().metricsOfPrimaryFont();
-                baseline = fontMetrics.intAscent() + (innerTextRenderer->lineHeight() - fontMetrics.intHeight()) / 2;
-            }
+            else
+                baseline = fontMetricsBasedBaseline(*innerTextRenderer);
             baseline = floorToInt(innerTextRenderer->logicalTop() + baseline);
             for (auto* ancestor = innerTextRenderer->containingBlock(); ancestor && ancestor != textControl; ancestor = ancestor->containingBlock())
                 baseline = floorToInt(ancestor->logicalTop() + baseline);
@@ -554,10 +550,8 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
     }
 
     if (CheckedPtr renderer = dynamicDowncast<RenderListMarker>(renderBox)) {
-        if (CheckedPtr listItem = renderer->listItem(); listItem && !renderer->isImage()) {
-            auto& fontMetrics = renderer->style().metricsOfPrimaryFont();
-            return LayoutUnit { fontMetrics.intAscent() + (renderer->lineHeight() - fontMetrics.intHeight()) / 2 }.toInt();
-        }
+        if (CheckedPtr listItem = renderer->listItem(); listItem && !renderer->isImage())
+            return fontMetricsBasedBaseline(*renderer).toInt();
         return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
     }
 
