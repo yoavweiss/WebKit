@@ -8220,3 +8220,5 @@ fast/forms/ios/form-control-refresh/button/button-type-submit.html [ ImageOnlyFa
 fast/forms/ios/form-control-refresh/color/paint-within-box.html [ ImageOnlyFailure ]
 fast/forms/ios/form-control-refresh/select/decoration-color.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-view-transitions/fractional-translation-from-position.html [ ImageOnlyFailure ]
+
+webkit.org/b/296338 http/tests/site-isolation/fullscreen.html [ Pass Failure ]
