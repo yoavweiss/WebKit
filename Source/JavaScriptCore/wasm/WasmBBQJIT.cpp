@@ -4068,6 +4068,7 @@ void BBQJIT::saveValuesAcrossCallAndPassArguments(const Vector<Value, N>& argume
     // Next, for all values currently still occupying a caller-saved register, we flush them to their canonical slot.
     for (Reg reg : m_callerSaves) {
         RegisterBinding binding = reg.isGPR() ? gprBindings()[reg.gpr()] : fprBindings()[reg.fpr()];
+        ASSERT(!binding.isScratch());
         if (!binding.toValue().isNone())
             flushValue(binding.toValue());
     }
@@ -4086,6 +4087,7 @@ void BBQJIT::saveValuesAcrossCallAndPassArguments(const Vector<Value, N>& argume
                 binding = fprBindings()[paramLocation.asFPR()];
             else if (paramLocation.isGPR2())
                 binding = gprBindings()[paramLocation.asGPRhi()];
+            ASSERT(!binding.isScratch());
             if (!binding.toValue().isNone())
                 flushValue(binding.toValue());
         }
@@ -4124,24 +4126,8 @@ void BBQJIT::returnValuesFromCall(Vector<Value, N>& results, const FunctionSigna
                 currentBinding = fprBindings()[returnLocation.asFPR()];
             else if (returnLocation.isGPR2())
                 currentBinding = gprBindings()[returnLocation.asGPRhi()];
-            if (currentBinding.isScratch()) {
-                // FIXME: This is a total hack and could cause problems. We assume scratch registers (allocated by a ScratchScope)
-                // will never be live across a call. So far, this is probably true, but it's fragile. Probably the fix here is to
-                // exclude all possible return value registers from ScratchScope so we can guarantee there's never any interference.
-                currentBinding = RegisterBinding::none();
-                if (returnLocation.isGPR()) {
-                    ASSERT(m_validGPRs.contains(returnLocation.asGPR(), IgnoreVectors));
-                    m_gprSet.add(returnLocation.asGPR(), IgnoreVectors);
-                } else if (returnLocation.isGPR2()) {
-                    ASSERT(m_validGPRs.contains(returnLocation.asGPRlo(), IgnoreVectors));
-                    ASSERT(m_validGPRs.contains(returnLocation.asGPRhi(), IgnoreVectors));
-                    m_gprSet.add(returnLocation.asGPRlo(), IgnoreVectors);
-                    m_gprSet.add(returnLocation.asGPRhi(), IgnoreVectors);
-                } else {
-                    ASSERT(m_validFPRs.contains(returnLocation.asFPR(), Width::Width128));
-                    m_fprSet.add(returnLocation.asFPR(), Width::Width128);
-                }
-            }
+            // There's no way to preserve an abritrary scratch over a call so we shouldn't try to do so.
+            ASSERT(!currentBinding.isScratch());
         } else {
             ASSERT(returnLocation.isStackArgument());
             // FIXME: Ideally, we would leave these values where they are but a subsequent call could clobber them before they are used.
