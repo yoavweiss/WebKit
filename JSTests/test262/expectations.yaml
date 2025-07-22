@@ -1135,9 +1135,6 @@ test/intl402/Intl/supportedValuesOf/calendars-accepted-by-DisplayNames.js:
 test/intl402/Intl/supportedValuesOf/calendars.js:
   default: "Test262Error: malayalam matches the 'type' production"
   strict mode: "Test262Error: malayalam matches the 'type' production"
-test/intl402/Intl/supportedValuesOf/timeZones-include-non-continental.js:
-  default: 'Test262Error: non-continental timezone Etc/GMT+1 is not supported'
-  strict mode: 'Test262Error: non-continental timezone Etc/GMT+1 is not supported'
 test/intl402/Locale/extensions-grandfathered.js:
   default: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
   strict mode: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
