@@ -75,7 +75,7 @@ private:
     std::pair<id<MTLSharedEvent>, uint64_t> m_sharedEvent;
     size_t m_reusableTextureIndex { 0 };
 
-    const Ref<Device> m_device;
+    Ref<Device> m_device;
 };
 
 } // namespace WebGPU

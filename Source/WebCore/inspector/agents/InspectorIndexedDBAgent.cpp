@@ -249,7 +249,7 @@ private:
     DatabaseLoader(ScriptExecutionContext* context, Ref<IndexedDBBackendDispatcherHandler::RequestDatabaseCallback>&& requestCallback)
         : ExecutableWithDatabase(context)
         , m_requestCallback(WTFMove(requestCallback)) { }
-    const Ref<IndexedDBBackendDispatcherHandler::RequestDatabaseCallback> m_requestCallback;
+    Ref<IndexedDBBackendDispatcherHandler::RequestDatabaseCallback> m_requestCallback;
 };
 
 static RefPtr<IDBKey> idbKeyFromInspectorObject(Ref<JSON::Object>&& key)
@@ -421,7 +421,7 @@ private:
     {
     }
     InjectedScript m_injectedScript;
-    const Ref<IndexedDBBackendDispatcherHandler::RequestDataCallback> m_requestCallback;
+    Ref<IndexedDBBackendDispatcherHandler::RequestDataCallback> m_requestCallback;
     Ref<JSON::ArrayOf<Inspector::Protocol::IndexedDB::DataEntry>> m_result;
     int m_skipCount;
     unsigned m_pageSize;
@@ -490,11 +490,11 @@ public:
         , m_idbKeyRange(WTFMove(idbKeyRange))
         , m_skipCount(skipCount)
         , m_pageSize(pageSize) { }
-    const Ref<IndexedDBBackendDispatcherHandler::RequestDataCallback> m_requestCallback;
+    Ref<IndexedDBBackendDispatcherHandler::RequestDataCallback> m_requestCallback;
     InjectedScript m_injectedScript;
     String m_objectStoreName;
     String m_indexName;
-    const RefPtr<IDBKeyRange> m_idbKeyRange;
+    RefPtr<IDBKeyRange> m_idbKeyRange;
     int m_skipCount;
     unsigned m_pageSize;
 };
@@ -655,7 +655,7 @@ private:
     {
     }
 
-    const Ref<IndexedDBBackendDispatcherHandler::ClearObjectStoreCallback> m_requestCallback;
+    Ref<IndexedDBBackendDispatcherHandler::ClearObjectStoreCallback> m_requestCallback;
 };
 
 class ClearObjectStore final : public ExecutableWithDatabase {
@@ -703,7 +703,7 @@ public:
     BackendDispatcher::CallbackBase& requestCallback() override { return m_requestCallback.get(); }
 private:
     const String m_objectStoreName;
-    const Ref<IndexedDBBackendDispatcherHandler::ClearObjectStoreCallback> m_requestCallback;
+    Ref<IndexedDBBackendDispatcherHandler::ClearObjectStoreCallback> m_requestCallback;
 };
 
 } // anonymous namespace

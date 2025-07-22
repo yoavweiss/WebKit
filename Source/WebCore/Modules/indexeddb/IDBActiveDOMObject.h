@@ -86,7 +86,7 @@ protected:
     }
 
 private:
-    const Ref<Thread> m_originThread { Thread::currentSingleton() };
+    Ref<Thread> m_originThread { Thread::currentSingleton() };
     Lock m_scriptExecutionContextLock;
 };
 

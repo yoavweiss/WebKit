@@ -57,6 +57,16 @@ void XRView::setLabel(String&&)
 {
 }
 
+bool XRView::isValid() const
+{
+    return true;
+}
+
+Device& XRView::device()
+{
+    return m_device;
+}
+
 } // namespace WebGPU
 
 #pragma mark WGPU Stubs

@@ -46,7 +46,7 @@ public:
 private:
     static ASCIILiteral supplementName();
 
-    const Ref<MediaCapabilities> m_mediaCapabilities;
+    mutable Ref<MediaCapabilities> m_mediaCapabilities;
 };
 
 } // namespace WebCore

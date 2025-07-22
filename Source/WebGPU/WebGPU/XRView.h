@@ -56,14 +56,14 @@ public:
 
     void setLabel(String&&);
 
-    bool isValid() const { return true; }
-    Device& device() { return m_device; }
+    bool isValid() const;
+    Device& device();
 
 private:
     XRView(bool, Device&);
     XRView(Device&);
 
-    const Ref<Device> m_device;
+    Ref<Device> m_device;
 };
 
 } // namespace WebGPU

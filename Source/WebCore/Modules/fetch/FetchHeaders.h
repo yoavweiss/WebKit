@@ -68,7 +68,7 @@ public:
         std::optional<KeyValuePair<String, String>> next();
 
     private:
-        const Ref<FetchHeaders> m_headers;
+        Ref<FetchHeaders> m_headers;
         size_t m_currentIndex { 0 };
         size_t m_setCookieIndex { 0 };
         Vector<String> m_keys;
