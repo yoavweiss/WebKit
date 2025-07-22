@@ -46,11 +46,11 @@ public:
     DynamicContentScalingDisplayList(DynamicContentScalingDisplayList&&) = default;
     DynamicContentScalingDisplayList& operator=(DynamicContentScalingDisplayList&&) = default;
 
-    Ref<WebCore::SharedBuffer> displayList() const { return m_displayList; }
+    WebCore::SharedBuffer& displayList() const { return m_displayList; }
     Vector<MachSendRight> takeSurfaces() { return std::exchange(m_surfaces, { }); }
 
 private:
-    Ref<WebCore::SharedBuffer> m_displayList;
+    const Ref<WebCore::SharedBuffer> m_displayList;
     Vector<MachSendRight> m_surfaces;
 };
 

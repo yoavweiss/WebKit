@@ -63,14 +63,12 @@ public:
     Ref<XRProjectionLayer> createXRProjectionLayer(WGPUTextureFormat, WGPUTextureFormat*, WGPUTextureUsageFlags, double);
     RefPtr<XRSubImage> getViewSubImage(XRProjectionLayer&);
     Device& device() { return m_device; }
-    Ref<Device> protectedDevice() { return m_device; }
-
 
 private:
     XRBinding(bool, Device&);
     XRBinding(Device&);
 
-    Ref<Device> m_device;
+    const Ref<Device> m_device;
 };
 
 } // namespace WebGPU
