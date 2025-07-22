@@ -410,7 +410,7 @@ class GitHubEWS(GitHub):
             _log.error('Change not found for hash: {}. Unable to generate github comment.'.format(sha))
             return -1
         gh = GitHubEWS()
-        include_ci_builds = self.should_include_ci_builds(pr_author, pr_project)
+        include_ci_builds = gh.should_include_ci_builds(pr_author, pr_project)
         comment_text, folded_comment = gh.generate_comment_text_for_change(change, include_ci_builds)
         if not change.obsolete:
             gh.update_pr_description_with_status_bubble(pr_number, comment_text, repository_url)
