@@ -26,6 +26,9 @@ requirements = []
 [module.IOSurfaceSPI]
 attributes = ['extern_c']
 requirements = []
+[module.SwiftBridging]
+attributes = ['extern_c']
+requirements = []
 [module.HashMap]
 # These two headers depend on one another in a circular fashion
 # so we need to keep them together in the same submodule.
