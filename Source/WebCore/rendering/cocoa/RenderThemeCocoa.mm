@@ -871,11 +871,9 @@ static RoundedShape shapeForButton(const RenderObject& box, const FloatRect& rec
     const auto boxLogicalHeight = isVertical ? rect.width() : rect.height();
     const auto minDimension = std::min(rect.width(), rect.height());
 
-    const auto radiusForNonDateRelatedLargeButton = minDimension * largeButtonRadiusRatio;
-    if (nodeIsDateOrTimeRelatedInput(box.node()))
-        controlRadius = 5 * zoomScale;
-    else if (boxLogicalHeight >= largeButtonHeight * zoomScale)
-        controlRadius = radiusForNonDateRelatedLargeButton;
+    const auto radiusForLargeButton = minDimension * largeButtonRadiusRatio;
+    if (boxLogicalHeight >= largeButtonHeight * zoomScale)
+        controlRadius = radiusForLargeButton;
     else {
         controlRadius = minDimension / 2;
 
@@ -884,7 +882,7 @@ static RoundedShape shapeForButton(const RenderObject& box, const FloatRect& rec
         const auto sizeRatio = rect.width() / rect.height();
         const auto limitingRatio = 1.5f;
         if (limitingRatio > sizeRatio && sizeRatio > 1 / limitingRatio)
-            controlRadius = radiusForNonDateRelatedLargeButton;
+            controlRadius = radiusForLargeButton;
     }
 #endif
 
