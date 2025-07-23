@@ -7025,8 +7025,12 @@ void HTMLMediaElement::setTextTrackRepresentation(TextTrackRepresentation* repre
     }
 
 #if ENABLE(VIDEO_PRESENTATION_MODE)
-    if (representation->bounds().isEmpty())
-        representation->setBounds(enclosingIntRect(m_videoFullscreenFrame));
+    if (representation->bounds().isEmpty()) {
+        if (!m_textTrackRepresentationBounds.isEmpty())
+            representation->setBounds(m_textTrackRepresentationBounds);
+        else if (!m_videoFullscreenFrame.isEmpty())
+            representation->setBounds(enclosingIntRect(m_videoFullscreenFrame));
+    }
 #endif
 
     protectedDocument()->setMediaElementShowingTextTrack(*this);
