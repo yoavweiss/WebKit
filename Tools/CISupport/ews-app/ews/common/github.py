@@ -289,7 +289,7 @@ class GitHubEWS(GitHub):
         if url == '':
             url = None
         if not build:
-            return f'| [{icon} {name} ](url) '
+            return f'| {icon} {name} '
         if build.result is None:
             icon = GitHubEWS.ICON_BUILD_ONGOING
         elif build.result == Buildbot.SUCCESS:
@@ -300,7 +300,7 @@ class GitHubEWS(GitHub):
             icon = GitHubEWS.ICON_EMPTY_SPACE
         else:
             icon = GitHubEWS.ICON_BUILD_ERROR
-        return f'| [{icon} {name}]({url}) '
+        return f'| {icon} {name} '
 
     def github_status_for_buildbot_queue(self, change, queue):
         name = queue
