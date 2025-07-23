@@ -93,7 +93,7 @@ private:
     void sendWebInspectorEvent(const String&);
 
     String m_backendCommandsURL;
-    const CheckedRef<RemoteInspectorObserver> m_observer;
+    CheckedRef<RemoteInspectorObserver> m_observer;
     std::optional<ConnectionID> m_connectionID;
     HashMap<ConnectionID, Vector<Target>> m_targets;
     HashMap<std::pair<ConnectionID, TargetID>, std::unique_ptr<RemoteInspectorProxy>> m_inspectorProxyMap;

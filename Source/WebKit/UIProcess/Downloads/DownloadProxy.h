@@ -158,13 +158,13 @@ private:
     Vector<URL> m_redirectChain;
     bool m_wasUserInitiated { true };
     bool m_downloadIsCancelled { false };
-    const Ref<API::FrameInfo> m_frameInfo;
+    Ref<API::FrameInfo> m_frameInfo;
     CompletionHandler<void(DownloadProxy*)> m_didStartCallback;
 #if PLATFORM(COCOA)
     RetainPtr<NSProgress> m_progress;
 #endif
 #if HAVE(MODERN_DOWNLOADPROGRESS)
-    const Ref<ProcessAssertion> m_assertion;
+    RefPtr<ProcessAssertion> m_assertion;
 #endif
 };
 

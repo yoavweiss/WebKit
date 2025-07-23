@@ -97,8 +97,8 @@ public:
     }
 
 private:
-    const Ref<RemoteWebInspectorUIProxy> m_proxy;
-    const CheckedRef<RemoteInspectorClient> m_inspectorClient;
+    Ref<RemoteWebInspectorUIProxy> m_proxy;
+    CheckedRef<RemoteInspectorClient> m_inspectorClient;
     ConnectionID m_connectionID;
     TargetID m_targetID;
     Inspector::DebuggableType m_debuggableType;
