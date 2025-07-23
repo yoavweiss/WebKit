@@ -1544,6 +1544,20 @@ CSSTypedOMColorEnabled:
     WebCore:
       default: false
 
+CSSURLIntegrityModifierEnabled:
+  type: bool
+  status: testable
+  category: css
+  humanReadableName: "CSS URL Modifiers: integrity()"
+  humanReadableDescription: "Enable support for CSS Values and Units Module Level 5 URL integrity() modifier"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 CSSURLModifiersEnabled:
   type: bool
   status: testable
