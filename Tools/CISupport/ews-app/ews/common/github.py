@@ -221,8 +221,9 @@ class GitHubEWS(GitHub):
                           ['', 'watch', '', '', ''],
                           ['', 'watch-sim', '', '', '']]
     # FIXME: fetch below user list dynamically and expand it appropriately
-    approved_user_list_for_cibuilds = ['adetaylor', 'aj062', 'briannafan', 'JonWBedard', 'ryanhaddad',
-                                       'hortont424', 'aprotyas', 'pxlcoder', 'jesxilin', 'lilyspiniolas', 'megangardner', 'rr-codes', 'whsieh']
+    approved_user_list_for_cibuilds = ['aj062', 'aproskuryakov', 'briannafan', 'emw-apple', 'gsnedders', 'JonWBedard', 'ryanhaddad',
+                                       'aprotyas', 'hortont424', 'jesxilin', 'lilyspiniolas', 'megangardner', 'pxlcoder', 'rr-codes', 'whsieh',
+                                       'adetaylor', 'aestes', 'annevk', 'beidson', 'etiennesegonzac', 'zakariaridouh']
 
     @classmethod
     def generate_updated_pr_description(self, description, ews_comment):
