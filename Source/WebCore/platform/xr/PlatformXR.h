@@ -79,7 +79,7 @@ enum class ReferenceSpaceType : uint8_t {
     Unbounded
 };
 
-enum class Eye {
+enum class Eye : uint8_t {
     None,
     Left,
     Right,

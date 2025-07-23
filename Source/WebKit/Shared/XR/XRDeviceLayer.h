@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Igalia, S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -22,29 +22,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
-#if ENABLE(WEBXR)
 
-[
-    DispatchedFrom=WebContent,
-    DispatchedTo=UI,
-    SharedPreferencesNeedsConnection,
-    EnabledBy=WebXREnabled
-]
-messages -> PlatformXRSystem {
-    EnumerateImmersiveXRDevices() -> (Vector<WebKit::XRDeviceInfo> devicesInfos)
-    RequestPermissionOnSessionFeatures(WebCore::SecurityOriginData origin, PlatformXR::SessionMode mode, Vector<PlatformXR::SessionFeature> granted, Vector<PlatformXR::SessionFeature> consentRequired, Vector<PlatformXR::SessionFeature> consentOptional, Vector<PlatformXR::SessionFeature> requiredFeaturesRequested, Vector<PlatformXR::SessionFeature> optionalFeaturesRequested) -> (std::optional<Vector<PlatformXR::SessionFeature>> userGranted)
-    InitializeTrackingAndRendering()
-    ShutDownTrackingAndRendering()
-    RequestFrame(struct std::optional<PlatformXR::RequestData> requestData) -> (struct PlatformXR::FrameData frameData)
-#if USE(OPENXR)
-    CreateLayerProjection(uint32_t width, uint32_t height, bool alpha)
-    SubmitFrame(Vector<WebKit::XRDeviceLayer> layers)
-#endif
-#if !USE(OPENXR)
-    SubmitFrame()
-#endif
-    DidCompleteShutdownTriggeredBySystem()
-}
+#pragma once
 
-#endif
+#if ENABLE(WEBXR) && USE(OPENXR)
+
+#include <WebCore/PlatformXR.h>
+
+namespace WebKit {
+
+struct XRDeviceLayer {
+    PlatformXR::LayerHandle handle;
+    bool visible;
+    Vector<PlatformXR::Device::LayerView> views;
+};
+
+} // namespace WebKit
+
+#endif // ENABLE(WEBXR) && USE(OPENXR)
+

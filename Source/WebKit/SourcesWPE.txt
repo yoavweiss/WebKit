@@ -267,6 +267,8 @@ UIProcess/wpe/WebPasteboardProxyWPE.cpp
 UIProcess/wpe/WebPreferencesWPE.cpp
 
 UIProcess/XR/openxr/OpenXRExtensions.cpp
+UIProcess/XR/openxr/OpenXRLayer.cpp
+UIProcess/XR/openxr/OpenXRSwapchain.cpp
 UIProcess/XR/openxr/PlatformXROpenXR.cpp
 UIProcess/XR/openxr/PlatformXRSystemOpenXR.cpp
 
