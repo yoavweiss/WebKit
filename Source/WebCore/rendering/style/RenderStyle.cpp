@@ -282,7 +282,7 @@ StyleSelfAlignmentData RenderStyle::resolvedAlignItems(ItemPosition normalValueB
 StyleSelfAlignmentData RenderStyle::resolvedAlignSelf(const RenderStyle* parentStyle, ItemPosition normalValueBehavior) const
 {
     // The auto keyword computes to the parent's align-items computed value.
-    // We will return the behaviour of 'normal' value if needed, which is specific of each layout model.
+    // We will return the behavior of 'normal' value if needed, which is specific of each layout model.
     if (!parentStyle || alignSelf().position() != ItemPosition::Auto)
         return resolvedSelfAlignment(alignSelf(), normalValueBehavior);
     return parentStyle->resolvedAlignItems(normalValueBehavior);
@@ -296,7 +296,7 @@ StyleSelfAlignmentData RenderStyle::resolvedJustifyItems(ItemPosition normalValu
 StyleSelfAlignmentData RenderStyle::resolvedJustifySelf(const RenderStyle* parentStyle, ItemPosition normalValueBehavior) const
 {
     // The auto keyword computes to the parent's justify-items computed value.
-    // We will return the behaviour of 'normal' value if needed, which is specific of each layout model.
+    // We will return the behavior of 'normal' value if needed, which is specific of each layout model.
     if (!parentStyle || justifySelf().position() != ItemPosition::Auto)
         return resolvedSelfAlignment(justifySelf(), normalValueBehavior);
     return parentStyle->resolvedJustifyItems(normalValueBehavior);
@@ -309,13 +309,13 @@ static inline StyleContentAlignmentData resolvedContentAlignment(const StyleCont
 
 StyleContentAlignmentData RenderStyle::resolvedAlignContent(const StyleContentAlignmentData& normalValueBehavior) const
 {
-    // We will return the behaviour of 'normal' value if needed, which is specific of each layout model.
+    // We will return the behavior of 'normal' value if needed, which is specific of each layout model.
     return resolvedContentAlignment(alignContent(), normalValueBehavior);
 }
 
 StyleContentAlignmentData RenderStyle::resolvedJustifyContent(const StyleContentAlignmentData& normalValueBehavior) const
 {
-    // We will return the behaviour of 'normal' value if needed, which is specific of each layout model.
+    // We will return the behavior of 'normal' value if needed, which is specific of each layout model.
     return resolvedContentAlignment(justifyContent(), normalValueBehavior);
 }
 

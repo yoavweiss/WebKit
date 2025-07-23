@@ -1681,7 +1681,7 @@ static LayoutUnit marginAndBorderAndPaddingForEdge(const RenderGrid& grid, Style
 }
 
 // https://drafts.csswg.org/css-grid-2/#subgrid-edge-placeholders
-// FIXME: This is a simplification of the specified behaviour, where we add the hypothetical
+// FIXME: This is a simplification of the specified behavior, where we add the hypothetical
 // items directly to the edge tracks as if they had a span of 1. This matches the current Gecko
 // behavior.
 static LayoutUnit computeSubgridMarginBorderPadding(const RenderGrid* outermost, Style::GridTrackSizingDirection outermostDirection, GridTrack& track, unsigned trackIndex, GridSpan& span, RenderGrid* subgrid)
