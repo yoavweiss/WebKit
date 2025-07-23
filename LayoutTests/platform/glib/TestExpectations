@@ -27,6 +27,7 @@
 # * Clipboard API
 # * Compositing
 # * CSS
+# * Editing
 # * Events
 # * Fonts
 # * GStreamer
@@ -1154,6 +1155,41 @@ imported/w3c/web-platform-tests/focus/activeelement-after-nested-loses-focus.htm
 # End of CSS-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
+#////////////////////////////////////////////////////////////////////////////////////////
+# Editing-related bugs
+#////////////////////////////////////////////////////////////////////////////////////////
+
+# Doesn't support multiple items in the clipboard
+# FIXME: add platform specific tests equivalent to these but using single item.
+editing/async-clipboard/clipboard-read-write-images.html [ Skip ]
+editing/async-clipboard/clipboard-write-basic.html [ Skip ]
+editing/async-clipboard/sanitize-when-reading-markup.html [ Skip ]
+
+# These tests are intended to exercise programmatic paste mechanism specific to Apple ports.
+editing/async-clipboard/clipboard-change-data-while-reading.html [ Skip ]
+editing/async-clipboard/clipboard-read-text-from-platform.html [ Skip ]
+editing/async-clipboard/clipboard-read-while-pasting.html [ Skip ]
+
+webkit.org/b/186099 editing/caret/caret-in-empty-cell.html [ ImageOnlyFailure ]
+
+# Missing support for new emoji
+webkit.org/b/160120 editing/caret/emoji.html [ Skip ]
+webkit.org/b/160120 editing/deleting/delete-emoji-2.html [ Skip ]
+webkit.org/b/160120 editing/deleting/delete-emoji-3.html [ Skip ]
+webkit.org/b/160120 editing/deleting/delete-emoji-4.html [ Skip ]
+webkit.org/b/160120 editing/deleting/delete-emoji-5.html [ Skip ]
+webkit.org/b/160120 editing/deleting/delete-emoji-6.html [ Skip ]
+webkit.org/b/160120 editing/deleting/delete-emoji-7.html [ Skip ]
+webkit.org/b/160120 editing/deleting/delete-emoji-8.html [ Skip ]
+webkit.org/b/160120 editing/deleting/delete-emoji-9.html [ Skip ]
+
+webkit.org/b/178441 editing/deleting/delete-ligature-001.html [ Failure ]
+webkit.org/b/178441 editing/deleting/delete-ligature-002.html [ Failure ]
+webkit.org/b/178441 editing/deleting/delete-ligature-003.html [ Failure ]
+
+#////////////////////////////////////////////////////////////////////////////////////////
+# End of Editing-related bugs
+#////////////////////////////////////////////////////////////////////////////////////////
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # Events-related bugs

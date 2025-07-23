@@ -39,6 +39,19 @@ fast/events/touch/touch-target-limited.html [ Skip ] # Timeout.
 fast/events/touch/multi-touch-inside-nested-iframes.html [ Skip ] # Timeout.
 fast/events/touch/multi-touch-grouped-targets.html [ Skip ] # Timeout.
 
+webkit.org/b/296369 editing/deleting/paste-with-transparent-background-color-live-range.html [ Failure ]
+webkit.org/b/296369 editing/deleting/paste-with-transparent-background-color.html [ Failure ]
+webkit.org/b/296369 editing/deleting/smart-delete-004.html [ Failure ]
+webkit.org/b/296369 editing/deleting/smart-delete-paragraph-002.html [ Failure ]
+
+# Doesn't support async clipboard
+webkit.org/b/296368 editing/async-clipboard/clipboard-item-get-type-basic.html [ Skip ]
+webkit.org/b/296368 editing/async-clipboard/clipboard-read-text.html [ Skip ]
+webkit.org/b/296368 editing/async-clipboard/clipboard-read-basic.html [ Skip ]
+webkit.org/b/296368 editing/async-clipboard/clipboard-read-text-same-origin.html [ Skip ]
+webkit.org/b/296368 editing/async-clipboard/clipboard-write-items-twice.html [ Skip ]
+webkit.org/b/296368 editing/async-clipboard/clipboard-write-text.html [ Skip ]
+
 #//////////////////////////////////////////////////////////////////////////////////////////
 # End of Triaged Expectations
 #//////////////////////////////////////////////////////////////////////////////////////////
