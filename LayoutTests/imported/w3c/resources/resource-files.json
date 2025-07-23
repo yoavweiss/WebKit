@@ -12336,6 +12336,7 @@
         "web-platform-tests/svg/styling/support/circle-padding-right.svg",
         "web-platform-tests/svg/styling/support/circle.svg",
         "web-platform-tests/svg/styling/use-element-transitions-ref.html",
+        "web-platform-tests/svg/text/reftests/dominant-baseline-central-large-font-size-ref.svg",
         "web-platform-tests/svg/text/reftests/first-letter-ref.svg",
         "web-platform-tests/svg/text/reftests/font-size-scaling-ref.html",
         "web-platform-tests/svg/text/reftests/gradient-after-reposition-ref.html",
