@@ -978,7 +978,10 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
                         .name = anchorNameAndElement.key
                     });
                 }
-                document.styleScope().anchorPositionedToAnchorMap().set(*element, WTFMove(anchors));
+                document.styleScope().anchorPositionedToAnchorMap().set(*element, AnchorPositionedToAnchorEntry {
+                    .key = elementAndState.key,
+                    .anchors = WTFMove(anchors)
+                });
             }
             state.stage = renderer && renderer->style().usesAnchorFunctions() ? AnchorPositionResolutionStage::ResolveAnchorFunctions : AnchorPositionResolutionStage::Resolved;
             continue;
@@ -1049,7 +1052,7 @@ auto AnchorPositionEvaluator::makeAnchorPositionedForAnchorMap(AnchorPositionedT
 
     for (auto elementAndAnchors : toAnchorMap) {
         CheckedRef anchorPositionedElement = elementAndAnchors.key;
-        for (auto& anchor : elementAndAnchors.value) {
+        for (auto& anchor : elementAndAnchors.value.anchors) {
             if (!anchor.renderer)
                 continue;
             map.ensure(*anchor.renderer, [&] {
@@ -1296,7 +1299,7 @@ CheckedPtr<RenderBoxModelObject> AnchorPositionEvaluator::defaultAnchorForBox(co
 
     auto anchorName = ResolvedScopedName::createFromScopedName(element, defaultAnchorName(box.style()));
 
-    for (auto& anchor : it->value) {
+    for (auto& anchor : it->value.anchors) {
         if (anchorName == anchor.name)
             return anchor.renderer.get();
     }

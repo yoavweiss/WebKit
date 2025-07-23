@@ -1107,7 +1107,7 @@ void Scope::updateAnchorPositioningStateAfterStyleResolution()
     AnchorPositionEvaluator::updateSnapshottedScrollOffsets(m_document);
 
     m_anchorPositionedToAnchorMap.removeIf([](auto& elementAndState) {
-        return elementAndState.value.isEmpty();
+        return elementAndState.value.anchors.isEmpty();
     });
 }
 

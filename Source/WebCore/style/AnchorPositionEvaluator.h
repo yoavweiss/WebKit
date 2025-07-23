@@ -93,7 +93,17 @@ struct ResolvedAnchor {
     ResolvedScopedName name;
 };
 
-using AnchorPositionedToAnchorMap = WeakHashMap<Element, Vector<ResolvedAnchor>, WeakPtrImplWithEventTargetData>;
+struct AnchorPositionedToAnchorEntry {
+    // This key can be used to access the AnchorPositionedState struct of the current element
+    // in an AnchorPositionedStates map.
+    AnchorPositionedKey key;
+
+    Vector<ResolvedAnchor> anchors;
+
+    WTF_MAKE_STRUCT_TZONE_ALLOCATED(AnchorPositionedToAnchorEntry);
+};
+
+using AnchorPositionedToAnchorMap = WeakHashMap<Element, AnchorPositionedToAnchorEntry, WeakPtrImplWithEventTargetData>;
 using AnchorToAnchorPositionedMap = SingleThreadWeakHashMap<const RenderBoxModelObject, Vector<Ref<Element>>>;
 
 class AnchorPositionEvaluator {
