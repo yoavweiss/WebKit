@@ -2308,3 +2308,5 @@ webkit.org/b/296330 imported/w3c/web-platform-tests/content-security-policy/gen/
 webkit.org/b/296330 imported/w3c/web-platform-tests/content-security-policy/gen/top.meta/worker-src-wildcard/sharedworker-import.http.html [ Failure ]
 
 webkit.org/b/296344 imported/w3c/web-platform-tests/webrtc/RTCRtpSender-replaceTrack.https.html [ Pass Failure ]
+
+webkit.org/b/296348 [ Sequoia ] http/tests/cache/disk-cache/shattered-deduplication.html [ Pass Failure ] 
