@@ -287,7 +287,7 @@ PDFIncrementalLoader::PDFIncrementalLoader(PDFPluginBase& plugin)
     , m_streamLoaderClient(adoptRef(*new PDFPluginStreamLoaderClient(*this)))
     , m_requestData(makeUniqueRef<RequestData>())
 {
-    m_pdfThread = Thread::create("PDF document thread"_s, [protectedThis = Ref { *this }, this] () mutable {
+    m_pdfThread = Thread::create("PDF document thread"_s, [protectedThis = Ref { *this }, this] mutable {
         threadEntry(WTFMove(protectedThis));
     });
 }
@@ -771,7 +771,7 @@ void PDFIncrementalLoader::threadEntry(Ref<PDFIncrementalLoader>&& protectedLoad
         dataProviderReleaseInfoCallback,
     };
 
-    auto scopeExit = makeScopeExit([protectedLoader = WTFMove(protectedLoader)] () mutable {
+    auto scopeExit = makeScopeExit([protectedLoader = WTFMove(protectedLoader)] mutable {
         // Keep the PDFPlugin alive until the end of this function and the end
         // of the last main thread task submitted by this function.
         callOnMainRunLoop([protectedLoader = WTFMove(protectedLoader)] { });
