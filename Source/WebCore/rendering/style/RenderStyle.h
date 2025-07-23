@@ -91,7 +91,6 @@ class StyleRareInheritedData;
 class StyleReflection;
 class StyleScrollSnapArea;
 class StyleSelfAlignmentData;
-class TextDecorationThickness;
 class TransformOperations;
 class TransformationMatrix;
 class TranslateTransformOperation;
@@ -315,6 +314,7 @@ struct ScrollPaddingEdge;
 struct ScrollTimelines;
 struct ScrollbarColor;
 struct ScrollbarGutter;
+struct TextDecorationThickness;
 struct TextEmphasisStyle;
 struct TextIndent;
 struct TextShadow;
@@ -687,7 +687,7 @@ public:
     inline TextDecorationSkipInk textDecorationSkipInk() const;
     inline OptionSet<TextUnderlinePosition> textUnderlinePosition() const;
     inline const Style::TextUnderlineOffset& textUnderlineOffset() const;
-    inline TextDecorationThickness textDecorationThickness() const;
+    inline const Style::TextDecorationThickness& textDecorationThickness() const;
 
     inline TextJustify textJustify() const;
 
@@ -1349,7 +1349,7 @@ public:
     inline void setTextDecorationLine(OptionSet<TextDecorationLine>);
     inline void setTextDecorationStyle(TextDecorationStyle);
     inline void setTextDecorationSkipInk(TextDecorationSkipInk);
-    inline void setTextDecorationThickness(TextDecorationThickness);
+    inline void setTextDecorationThickness(Style::TextDecorationThickness&&);
     inline void setTextIndent(Style::TextIndent&&);
     inline void setTextUnderlinePosition(OptionSet<TextUnderlinePosition>);
     inline void setTextUnderlineOffset(Style::TextUnderlineOffset&&);
@@ -2001,7 +2001,7 @@ public:
     static constexpr TextDecorationSkipInk initialTextDecorationSkipInk();
     static constexpr OptionSet<TextUnderlinePosition> initialTextUnderlinePosition();
     static inline Style::TextUnderlineOffset initialTextUnderlineOffset();
-    static inline TextDecorationThickness initialTextDecorationThickness();
+    static inline Style::TextDecorationThickness initialTextDecorationThickness();
     static float initialZoom() { return 1.0f; }
     static constexpr TextZoom initialTextZoom();
     static float initialOutlineOffset() { return 0; }

@@ -3226,6 +3226,7 @@ style/values/sizing/StyleContainIntrinsicSize.cpp
 style/values/sizing/StylePreferredSize.cpp
 style/values/svg/StyleSVGPaint.cpp
 style/values/text/StyleTextIndent.cpp
+style/values/text-decoration/StyleTextDecorationThickness.cpp
 style/values/text-decoration/StyleTextEmphasisStyle.cpp
 style/values/text-decoration/StyleTextShadow.cpp
 style/values/text-decoration/StyleTextUnderlineOffset.cpp

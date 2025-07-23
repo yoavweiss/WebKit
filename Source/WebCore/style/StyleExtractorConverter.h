@@ -201,7 +201,6 @@ public:
     static Ref<CSSValue> convertTextTransform(ExtractorState&, OptionSet<TextTransform>);
     static Ref<CSSValue> convertTextDecorationLine(ExtractorState&, OptionSet<TextDecorationLine>);
     static Ref<CSSValue> convertTextUnderlinePosition(ExtractorState&, OptionSet<TextUnderlinePosition>);
-    static Ref<CSSValue> convertTextDecorationThickness(ExtractorState&, const TextDecorationThickness&);
     static Ref<CSSValue> convertTextEmphasisPosition(ExtractorState&, OptionSet<TextEmphasisPosition>);
     static Ref<CSSValue> convertSpeakAs(ExtractorState&, OptionSet<SpeakAs>);
     static Ref<CSSValue> convertHangingPunctuation(ExtractorState&, OptionSet<HangingPunctuation>);
@@ -1038,20 +1037,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTextUnderlinePosition(ExtractorS
     if (!isLeft && !isRight)
         return CSSPrimitiveValue::create(metric);
     return CSSValuePair::create(CSSPrimitiveValue::create(metric), CSSPrimitiveValue::create(side));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTextDecorationThickness(ExtractorState& state, const TextDecorationThickness& textDecorationThickness)
-{
-    if (textDecorationThickness.isAuto())
-        return CSSPrimitiveValue::create(CSSValueAuto);
-    if (textDecorationThickness.isFromFont())
-        return CSSPrimitiveValue::create(CSSValueFromFont);
-
-    ASSERT(textDecorationThickness.isLength());
-    auto& length = textDecorationThickness.length();
-    if (length.isPercent())
-        return CSSPrimitiveValue::create(length.percent(), CSSUnitType::CSS_PERCENTAGE);
-    return CSSPrimitiveValue::create(length, state.style);
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertTextEmphasisPosition(ExtractorState&, OptionSet<TextEmphasisPosition> textEmphasisPosition)

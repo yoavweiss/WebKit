@@ -1375,46 +1375,6 @@ public:
     }
 };
 
-class TextDecorationThicknessWrapper final : public WrapperWithGetter<TextDecorationThickness> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TextDecorationThicknessWrapper, Animation);
-public:
-    TextDecorationThicknessWrapper()
-        : WrapperWithGetter(CSSPropertyTextDecorationThickness, &RenderStyle::textDecorationThickness)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        auto fromTextDecorationThickness = from.textDecorationThickness();
-        auto toTextDecorationThickness = to.textDecorationThickness();
-        if (fromTextDecorationThickness.isAuto() || toTextDecorationThickness.isAuto())
-            return false;
-
-        auto fromValue = fromTextDecorationThickness.resolve(from.computedFontSize(), from.metricsOfPrimaryFont());
-        auto toValue = toTextDecorationThickness.resolve(to.computedFontSize(), to.metricsOfPrimaryFont());
-        return fromValue != toValue;
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto blendedTextDecorationThickness = [&]() -> TextDecorationThickness {
-            if (context.isDiscrete)
-                return (!context.progress ? from : to).textDecorationThickness();
-
-            auto fromTextDecorationThickness = from.textDecorationThickness();
-            auto toTextDecorationThickness = to.textDecorationThickness();
-
-            auto fromValue = fromTextDecorationThickness.resolve(from.computedFontSize(), from.metricsOfPrimaryFont());
-            auto toValue = toTextDecorationThickness.resolve(to.computedFontSize(), to.metricsOfPrimaryFont());
-
-            auto blendedValue = blendFunc(fromValue, toValue, context);
-            return TextDecorationThickness::createWithLength(WebCore::Length(clampTo<float>(blendedValue, minValueForCssLength, maxValueForCssLength), LengthType::Fixed));
-        };
-
-        destination.setTextDecorationThickness(blendedTextDecorationThickness());
-    }
-};
-
 class LineHeightWrapper final : public LengthWrapper {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LineHeightWrapper, Animation);
 public:

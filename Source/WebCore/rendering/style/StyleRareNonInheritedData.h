@@ -63,13 +63,13 @@
 #include "StyleScrollTimelines.h"
 #include "StyleScrollbarGutter.h"
 #include "StyleSelfAlignmentData.h"
+#include "StyleTextDecorationThickness.h"
 #include "StyleTextEdge.h"
 #include "StyleTranslate.h"
 #include "StyleViewTimelineInsets.h"
 #include "StyleViewTimelines.h"
 #include "StyleViewTransitionClass.h"
 #include "StyleViewTransitionName.h"
-#include "TextDecorationThickness.h"
 #include "TouchAction.h"
 #include <memory>
 #include <wtf/DataRef.h>
@@ -209,7 +209,7 @@ public:
     Style::OffsetAnchor offsetAnchor;
     Style::OffsetRotate offsetRotate;
 
-    TextDecorationThickness textDecorationThickness;
+    Style::TextDecorationThickness textDecorationThickness;
 
     Style::ScrollTimelines scrollTimelines;
     Style::ProgressTimelineAxes scrollTimelineAxes;

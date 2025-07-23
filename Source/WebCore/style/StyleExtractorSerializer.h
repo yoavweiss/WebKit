@@ -121,7 +121,6 @@ public:
     static void serializeTextTransform(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextTransform>);
     static void serializeTextDecorationLine(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextDecorationLine>);
     static void serializeTextUnderlinePosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextUnderlinePosition>);
-    static void serializeTextDecorationThickness(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextDecorationThickness&);
     static void serializeTextEmphasisPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextEmphasisPosition>);
     static void serializeSpeakAs(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<SpeakAs>);
     static void serializeHangingPunctuation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<HangingPunctuation>);
@@ -1266,26 +1265,6 @@ inline void ExtractorSerializer::serializeTextUnderlinePosition(ExtractorState& 
     }
 
     builder.append(nameLiteralForSerialization(metric), ' ', nameLiteralForSerialization(side));
-}
-
-inline void ExtractorSerializer::serializeTextDecorationThickness(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const TextDecorationThickness& textDecorationThickness)
-{
-    if (textDecorationThickness.isAuto()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Auto { });
-        return;
-    }
-    if (textDecorationThickness.isFromFont()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::FromFont { });
-        return;
-    }
-
-    ASSERT(textDecorationThickness.isLength());
-    auto& length = textDecorationThickness.length();
-    if (length.isPercent()) {
-        CSS::serializationForCSS(builder, context, CSS::PercentageRaw<> { length.percent() });
-        return;
-    }
-    return serializeLength(state, builder, context, length);
 }
 
 inline void ExtractorSerializer::serializeTextEmphasisPosition(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext&, OptionSet<TextEmphasisPosition> textEmphasisPosition)

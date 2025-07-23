@@ -10946,9 +10946,8 @@
                 "from-font"
             ],
             "codegen-properties": {
-                "animation-wrapper": "TextDecorationThicknessWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-converter": "TextDecorationThickness",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<TextDecorationThickness>",
                 "parser-grammar": "auto | from-font | <length-percentage>"
             },
             "specification": {
