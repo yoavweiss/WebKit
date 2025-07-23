@@ -635,6 +635,8 @@
 		95C52729275F35E100DA7E40 /* FontShadowTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 95C52728275F35E100DA7E40 /* FontShadowTests.cpp */; };
 		97A826852DF8B677004EA039 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC90964D1255620C00083756 /* JavaScriptCore.framework */; };
 		97A826862DF8B677004EA039 /* JavaScriptCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BC90964D1255620C00083756 /* JavaScriptCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		97B250AD2E26F36F0056806C /* switch.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB431F2E1D633600C63F41 /* switch.wgsl */; };
+		97B250AE2E2701AB0056806C /* const-assert.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E52E1D633600C63F41 /* const-assert.wgsl */; };
 		97DAA8CE2DF1F325004B3040 /* MetalCompilationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97DAA8CD2DF1F325004B3040 /* MetalCompilationTests.mm */; };
 		97DAA8D02DF70B91004B3040 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 97DAA8CF2DF70B91004B3040 /* Metal.framework */; };
 		97FB432E2E1D637C00C63F41 /* access-expression.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42D52E1D633600C63F41 /* access-expression.wgsl */; };
@@ -648,33 +650,22 @@
 		97FB43362E1D637C00C63F41 /* array-primitive-struct.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42DD2E1D633600C63F41 /* array-primitive-struct.wgsl */; };
 		97FB43372E1D637C00C63F41 /* array-vec3.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42DE2E1D633600C63F41 /* array-vec3.wgsl */; };
 		97FB43382E1D637C00C63F41 /* atomics.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42DF2E1D633600C63F41 /* atomics.wgsl */; };
-		97FB43392E1D637C00C63F41 /* attribute-validation.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E02E1D633600C63F41 /* attribute-validation.wgsl */; };
 		97FB433A2E1D637C00C63F41 /* attributes.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E12E1D633600C63F41 /* attributes.wgsl */; };
-		97FB433B2E1D637C00C63F41 /* attributes-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E22E1D633600C63F41 /* attributes-errors.wgsl */; };
 		97FB433C2E1D637C00C63F41 /* binding-uint-max.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E32E1D633600C63F41 /* binding-uint-max.wgsl */; };
-		97FB433D2E1D637C00C63F41 /* concretization.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E42E1D633600C63F41 /* concretization.wgsl */; };
-		97FB433E2E1D637C00C63F41 /* const-assert.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E52E1D633600C63F41 /* const-assert.wgsl */; };
-		97FB433F2E1D637C00C63F41 /* const-assert-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E62E1D633600C63F41 /* const-assert-errors.wgsl */; };
-		97FB43402E1D637C00C63F41 /* constant-matrix.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E72E1D633600C63F41 /* constant-matrix.wgsl */; };
-		97FB43412E1D637C00C63F41 /* constants-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E82E1D633600C63F41 /* constants-errors.wgsl */; };
 		97FB43422E1D637C00C63F41 /* constants-utf8.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42E92E1D633600C63F41 /* constants-utf8.wgsl */; };
 		97FB43432E1D637C00C63F41 /* constants-utf16.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42EA2E1D633600C63F41 /* constants-utf16.wgsl */; };
 		97FB43442E1D637C00C63F41 /* division.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42EB2E1D633600C63F41 /* division.wgsl */; };
-		97FB43452E1D637C00C63F41 /* division-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42EC2E1D633600C63F41 /* division-errors.wgsl */; };
 		97FB43462E1D637C00C63F41 /* for.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42ED2E1D633600C63F41 /* for.wgsl */; };
 		97FB43472E1D637C00C63F41 /* fragment-output.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42EE2E1D633600C63F41 /* fragment-output.wgsl */; };
-		97FB43482E1D637C00C63F41 /* function-call.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42EF2E1D633600C63F41 /* function-call.wgsl */; };
 		97FB43492E1D637C00C63F41 /* fuzz-127229681.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F02E1D633600C63F41 /* fuzz-127229681.wgsl */; };
 		97FB434A2E1D637C00C63F41 /* fuzz-128785160.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F12E1D633600C63F41 /* fuzz-128785160.wgsl */; };
 		97FB434B2E1D637C00C63F41 /* fuzz-130082002.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F22E1D633600C63F41 /* fuzz-130082002.wgsl */; };
 		97FB434C2E1D637C00C63F41 /* fuzz-130088292.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F32E1D633600C63F41 /* fuzz-130088292.wgsl */; };
 		97FB434D2E1D637C00C63F41 /* fuzz-130092499.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F42E1D633600C63F41 /* fuzz-130092499.wgsl */; };
 		97FB434E2E1D637C00C63F41 /* fuzz-133788509.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F52E1D633600C63F41 /* fuzz-133788509.wgsl */; };
-		97FB434F2E1D637C00C63F41 /* fuzz-136222279.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F62E1D633600C63F41 /* fuzz-136222279.wgsl */; };
 		97FB43502E1D637C00C63F41 /* global-constant-vector.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F72E1D633600C63F41 /* global-constant-vector.wgsl */; };
 		97FB43512E1D637C00C63F41 /* global-ordering.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F82E1D633600C63F41 /* global-ordering.wgsl */; };
 		97FB43522E1D637C00C63F41 /* global-same-binding.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42F92E1D633600C63F41 /* global-same-binding.wgsl */; };
-		97FB43532E1D637C00C63F41 /* global-used-by-callee.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42FA2E1D633600C63F41 /* global-used-by-callee.wgsl */; };
 		97FB43542E1D637C00C63F41 /* hex-double-lchar.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42FB2E1D633600C63F41 /* hex-double-lchar.wgsl */; };
 		97FB43552E1D637C00C63F41 /* hex-double-uchar.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42FC2E1D633600C63F41 /* hex-double-uchar.wgsl */; };
 		97FB43562E1D637C00C63F41 /* if.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB42FD2E1D633600C63F41 /* if.wgsl */; };
@@ -691,40 +682,23 @@
 		97FB43612E1D637C00C63F41 /* location-uint-max.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43082E1D633600C63F41 /* location-uint-max.wgsl */; };
 		97FB43622E1D637C00C63F41 /* loop.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43092E1D633600C63F41 /* loop.wgsl */; };
 		97FB43632E1D637C00C63F41 /* minus-minus-ambiguity.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB430A2E1D633600C63F41 /* minus-minus-ambiguity.wgsl */; };
-		97FB43642E1D637C00C63F41 /* modulo.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB430B2E1D633600C63F41 /* modulo.wgsl */; };
 		97FB43652E1D637C00C63F41 /* name-mangling.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB430C2E1D633600C63F41 /* name-mangling.wgsl */; };
 		97FB43662E1D637C00C63F41 /* overload.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB430D2E1D633600C63F41 /* overload.wgsl */; };
-		97FB43672E1D637C00C63F41 /* overload-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB430E2E1D633600C63F41 /* overload-errors.wgsl */; };
 		97FB43682E1D637C00C63F41 /* override.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB430F2E1D633600C63F41 /* override.wgsl */; };
 		97FB43692E1D637C00C63F41 /* pack-unpack.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43102E1D633600C63F41 /* pack-unpack.wgsl */; };
-		97FB436A2E1D637C00C63F41 /* packing.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43112E1D633600C63F41 /* packing.wgsl */; };
 		97FB436B2E1D637C00C63F41 /* packing-nested-array.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43122E1D633600C63F41 /* packing-nested-array.wgsl */; };
 		97FB436C2E1D637C00C63F41 /* packing-pointer-arguments.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43132E1D633600C63F41 /* packing-pointer-arguments.wgsl */; };
-		97FB436D2E1D637C00C63F41 /* parse-pointer-assignment.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43142E1D633600C63F41 /* parse-pointer-assignment.wgsl */; };
 		97FB436E2E1D637C00C63F41 /* pointers.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43152E1D633600C63F41 /* pointers.wgsl */; };
 		97FB436F2E1D637C00C63F41 /* references.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43162E1D633600C63F41 /* references.wgsl */; };
-		97FB43702E1D637C00C63F41 /* references-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43172E1D633600C63F41 /* references-errors.wgsl */; };
 		97FB43712E1D637C00C63F41 /* reordering.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43182E1D633600C63F41 /* reordering.wgsl */; };
-		97FB43722E1D637C00C63F41 /* required-alignment.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43192E1D633600C63F41 /* required-alignment.wgsl */; };
 		97FB43732E1D637C00C63F41 /* runtime-sized-array-resource.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB431A2E1D633600C63F41 /* runtime-sized-array-resource.wgsl */; };
 		97FB43742E1D637C00C63F41 /* scope.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB431B2E1D633600C63F41 /* scope.wgsl */; };
 		97FB43752E1D637C00C63F41 /* shadowing.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB431C2E1D633600C63F41 /* shadowing.wgsl */; };
 		97FB43762E1D637C00C63F41 /* struct.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB431D2E1D633600C63F41 /* struct.wgsl */; };
-		97FB43772E1D637C00C63F41 /* struct-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB431E2E1D633600C63F41 /* struct-errors.wgsl */; };
-		97FB43782E1D637C00C63F41 /* switch.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB431F2E1D633600C63F41 /* switch.wgsl */; };
-		97FB43792E1D637C00C63F41 /* switch-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43202E1D633600C63F41 /* switch-errors.wgsl */; };
 		97FB437A2E1D637C00C63F41 /* swizzle.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43212E1D633600C63F41 /* swizzle.wgsl */; };
 		97FB437B2E1D637C00C63F41 /* texture-external.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43222E1D633600C63F41 /* texture-external.wgsl */; };
-		97FB437C2E1D637C00C63F41 /* texture-gather.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43232E1D633600C63F41 /* texture-gather.wgsl */; };
-		97FB437D2E1D637C00C63F41 /* texture-offset.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43242E1D633600C63F41 /* texture-offset.wgsl */; };
 		97FB437E2E1D637C00C63F41 /* type-promotion.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43252E1D633600C63F41 /* type-promotion.wgsl */; };
-		97FB437F2E1D637C00C63F41 /* types-vs-values.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43262E1D633600C63F41 /* types-vs-values.wgsl */; };
-		97FB43802E1D637C00C63F41 /* unicode.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43272E1D633600C63F41 /* unicode.wgsl */; };
-		97FB43812E1D637C00C63F41 /* unterminated-comment.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43282E1D633600C63F41 /* unterminated-comment.wgsl */; };
-		97FB43822E1D637C00C63F41 /* var-initialization-with-var.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB43292E1D633600C63F41 /* var-initialization-with-var.wgsl */; };
-		97FB43832E1D637C00C63F41 /* visibility.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB432A2E1D633600C63F41 /* visibility.wgsl */; };
 		97FB43842E1D637C00C63F41 /* while.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB432B2E1D633600C63F41 /* while.wgsl */; };
-		97FB43852E1D637C00C63F41 /* while-errors.wgsl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 97FB432C2E1D633600C63F41 /* while-errors.wgsl */; };
 		97FB43872E1D655E00C63F41 /* TypeCheckingTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 97FB43862E1D655E00C63F41 /* TypeCheckingTests.mm */; };
 		9B0786A51C5885C300D159E3 /* InjectedBundleMakeAllShadowRootsOpen_Bundle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B0786A41C5885C300D159E3 /* InjectedBundleMakeAllShadowRootsOpen_Bundle.cpp */; };
 		9B0C051924FDFB7D00F2FE31 /* CompactUniquePtrTuple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B0C051824FDFB7000F2FE31 /* CompactUniquePtrTuple.cpp */; };
@@ -1744,33 +1718,23 @@
 				97FB43362E1D637C00C63F41 /* array-primitive-struct.wgsl in CopyFiles */,
 				97FB43372E1D637C00C63F41 /* array-vec3.wgsl in CopyFiles */,
 				97FB43382E1D637C00C63F41 /* atomics.wgsl in CopyFiles */,
-				97FB43392E1D637C00C63F41 /* attribute-validation.wgsl in CopyFiles */,
-				97FB433B2E1D637C00C63F41 /* attributes-errors.wgsl in CopyFiles */,
 				97FB433A2E1D637C00C63F41 /* attributes.wgsl in CopyFiles */,
 				97FB433C2E1D637C00C63F41 /* binding-uint-max.wgsl in CopyFiles */,
-				97FB433D2E1D637C00C63F41 /* concretization.wgsl in CopyFiles */,
-				97FB433F2E1D637C00C63F41 /* const-assert-errors.wgsl in CopyFiles */,
-				97FB433E2E1D637C00C63F41 /* const-assert.wgsl in CopyFiles */,
-				97FB43402E1D637C00C63F41 /* constant-matrix.wgsl in CopyFiles */,
-				97FB43412E1D637C00C63F41 /* constants-errors.wgsl in CopyFiles */,
+				97B250AE2E2701AB0056806C /* const-assert.wgsl in CopyFiles */,
 				97FB43432E1D637C00C63F41 /* constants-utf16.wgsl in CopyFiles */,
 				97FB43422E1D637C00C63F41 /* constants-utf8.wgsl in CopyFiles */,
-				97FB43452E1D637C00C63F41 /* division-errors.wgsl in CopyFiles */,
 				97FB43442E1D637C00C63F41 /* division.wgsl in CopyFiles */,
 				97FB43462E1D637C00C63F41 /* for.wgsl in CopyFiles */,
 				97FB43472E1D637C00C63F41 /* fragment-output.wgsl in CopyFiles */,
-				97FB43482E1D637C00C63F41 /* function-call.wgsl in CopyFiles */,
 				97FB43492E1D637C00C63F41 /* fuzz-127229681.wgsl in CopyFiles */,
 				97FB434A2E1D637C00C63F41 /* fuzz-128785160.wgsl in CopyFiles */,
 				97FB434B2E1D637C00C63F41 /* fuzz-130082002.wgsl in CopyFiles */,
 				97FB434C2E1D637C00C63F41 /* fuzz-130088292.wgsl in CopyFiles */,
 				97FB434D2E1D637C00C63F41 /* fuzz-130092499.wgsl in CopyFiles */,
 				97FB434E2E1D637C00C63F41 /* fuzz-133788509.wgsl in CopyFiles */,
-				97FB434F2E1D637C00C63F41 /* fuzz-136222279.wgsl in CopyFiles */,
 				97FB43502E1D637C00C63F41 /* global-constant-vector.wgsl in CopyFiles */,
 				97FB43512E1D637C00C63F41 /* global-ordering.wgsl in CopyFiles */,
 				97FB43522E1D637C00C63F41 /* global-same-binding.wgsl in CopyFiles */,
-				97FB43532E1D637C00C63F41 /* global-used-by-callee.wgsl in CopyFiles */,
 				97FB43542E1D637C00C63F41 /* hex-double-lchar.wgsl in CopyFiles */,
 				97FB43552E1D637C00C63F41 /* hex-double-uchar.wgsl in CopyFiles */,
 				97FB43562E1D637C00C63F41 /* if.wgsl in CopyFiles */,
@@ -1787,39 +1751,23 @@
 				97FB43612E1D637C00C63F41 /* location-uint-max.wgsl in CopyFiles */,
 				97FB43622E1D637C00C63F41 /* loop.wgsl in CopyFiles */,
 				97FB43632E1D637C00C63F41 /* minus-minus-ambiguity.wgsl in CopyFiles */,
-				97FB43642E1D637C00C63F41 /* modulo.wgsl in CopyFiles */,
 				97FB43652E1D637C00C63F41 /* name-mangling.wgsl in CopyFiles */,
-				97FB43672E1D637C00C63F41 /* overload-errors.wgsl in CopyFiles */,
 				97FB43662E1D637C00C63F41 /* overload.wgsl in CopyFiles */,
 				97FB43682E1D637C00C63F41 /* override.wgsl in CopyFiles */,
 				97FB43692E1D637C00C63F41 /* pack-unpack.wgsl in CopyFiles */,
 				97FB436B2E1D637C00C63F41 /* packing-nested-array.wgsl in CopyFiles */,
 				97FB436C2E1D637C00C63F41 /* packing-pointer-arguments.wgsl in CopyFiles */,
-				97FB436A2E1D637C00C63F41 /* packing.wgsl in CopyFiles */,
-				97FB436D2E1D637C00C63F41 /* parse-pointer-assignment.wgsl in CopyFiles */,
 				97FB436E2E1D637C00C63F41 /* pointers.wgsl in CopyFiles */,
-				97FB43702E1D637C00C63F41 /* references-errors.wgsl in CopyFiles */,
 				97FB436F2E1D637C00C63F41 /* references.wgsl in CopyFiles */,
 				97FB43712E1D637C00C63F41 /* reordering.wgsl in CopyFiles */,
-				97FB43722E1D637C00C63F41 /* required-alignment.wgsl in CopyFiles */,
 				97FB43732E1D637C00C63F41 /* runtime-sized-array-resource.wgsl in CopyFiles */,
 				97FB43742E1D637C00C63F41 /* scope.wgsl in CopyFiles */,
 				97FB43752E1D637C00C63F41 /* shadowing.wgsl in CopyFiles */,
-				97FB43772E1D637C00C63F41 /* struct-errors.wgsl in CopyFiles */,
 				97FB43762E1D637C00C63F41 /* struct.wgsl in CopyFiles */,
-				97FB43792E1D637C00C63F41 /* switch-errors.wgsl in CopyFiles */,
-				97FB43782E1D637C00C63F41 /* switch.wgsl in CopyFiles */,
+				97B250AD2E26F36F0056806C /* switch.wgsl in CopyFiles */,
 				97FB437A2E1D637C00C63F41 /* swizzle.wgsl in CopyFiles */,
 				97FB437B2E1D637C00C63F41 /* texture-external.wgsl in CopyFiles */,
-				97FB437C2E1D637C00C63F41 /* texture-gather.wgsl in CopyFiles */,
-				97FB437D2E1D637C00C63F41 /* texture-offset.wgsl in CopyFiles */,
 				97FB437E2E1D637C00C63F41 /* type-promotion.wgsl in CopyFiles */,
-				97FB437F2E1D637C00C63F41 /* types-vs-values.wgsl in CopyFiles */,
-				97FB43802E1D637C00C63F41 /* unicode.wgsl in CopyFiles */,
-				97FB43812E1D637C00C63F41 /* unterminated-comment.wgsl in CopyFiles */,
-				97FB43822E1D637C00C63F41 /* var-initialization-with-var.wgsl in CopyFiles */,
-				97FB43832E1D637C00C63F41 /* visibility.wgsl in CopyFiles */,
-				97FB43852E1D637C00C63F41 /* while-errors.wgsl in CopyFiles */,
 				97FB43842E1D637C00C63F41 /* while.wgsl in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
