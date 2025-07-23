@@ -275,7 +275,7 @@ LayoutRange PositionedLayoutConstraints::adjustForPositionArea(const LayoutRange
 
 // MARK: - Resolving margins and alignment (after sizing).
 
-bool PositionedLayoutConstraints::isEligibleForStaticRangeAlignment() const
+bool PositionedLayoutConstraints::isEligibleForStaticRangeAlignment(LayoutUnit spaceInStaticRange, LayoutUnit itemSize) const
 {
 
     if (m_containingAxis == LogicalBoxAxis::Inline)
@@ -292,8 +292,43 @@ bool PositionedLayoutConstraints::isEligibleForStaticRangeAlignment() const
     if (parent->isRenderFlexibleBox())
         return false;
 
-    if (parent->isRenderGrid())
-        return false;
+    if (parent->isRenderGrid()) {
+        if (m_container.get() == parent)
+            return false;
+
+        auto& containingBlockStyle = m_container->style();
+        if (!containingBlockStyle.writingMode().isHorizontal())
+            return false;
+
+        if (!containingBlockStyle.isLeftToRightDirection())
+            return false;
+
+        auto& parentStyle = parent->style();
+        if (!parentStyle.writingMode().isHorizontal())
+            return false;
+
+        if (!parentStyle.isLeftToRightDirection())
+            return false;
+
+        auto& itemStyle = m_renderer->style();
+        if (!itemStyle.writingMode().isHorizontal())
+            return false;
+
+        if (!itemStyle.isLeftToRightDirection())
+            return false;
+
+        auto itemAlignSelf = itemStyle.alignSelf();
+        if (itemAlignSelf.position() != ItemPosition::End)
+            return false;
+
+        if (itemAlignSelf.positionType() != ItemPositionType::NonLegacy)
+            return false;
+
+        if (itemAlignSelf.overflow() != OverflowAlignment::Default)
+            return false;
+
+        return spaceInStaticRange >= itemSize;
+    }
 
     // We can hit this in certain pieces of content (e.g. see mathml/crashtests/fixed-pos-children.html),
     // but the spec has no definition for a static position rectangle.
@@ -346,14 +381,23 @@ void PositionedLayoutConstraints::resolvePosition(RenderBox::LogicalExtentComput
 
     auto alignmentShift = [&] -> LayoutUnit {
         // Align into remaining space.
+        auto itemMarginBoxSize = computedValues.m_extent + usedMarginBefore + usedMarginAfter;
         if (!hasAutoBeforeInset && !hasAutoAfterInset && !hasAutoBeforeMargin && !hasAutoAfterMargin && remainingSpace)
-            return resolveAlignmentShift(remainingSpace, computedValues.m_extent + usedMarginBefore + usedMarginAfter);
+            return resolveAlignmentShift(remainingSpace, itemMarginBoxSize);
 
         if (m_useStaticPosition) {
-            if (isEligibleForStaticRangeAlignment()) {
-                ASSERT_NOT_IMPLEMENTED_YET();
+            auto spaceInStaticRange = [&] -> LayoutUnit {
+                if (m_containingAxis == LogicalBoxAxis::Inline)
+                    return { };
+
+                auto* parent = m_renderer->parent();
+                if (auto* renderGrid = dynamicDowncast<RenderGrid>(parent))
+                    return renderGrid->contentBoxLogicalHeight();
                 return { };
-            }
+            }();
+
+            if (isEligibleForStaticRangeAlignment(spaceInStaticRange, itemMarginBoxSize))
+                return resolveAlignmentShift(spaceInStaticRange - itemMarginBoxSize, itemMarginBoxSize);
         }
 
         if (hasAutoBeforeInset)
