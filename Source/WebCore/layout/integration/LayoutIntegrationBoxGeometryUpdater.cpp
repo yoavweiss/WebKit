@@ -351,11 +351,12 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBlockFlow& bloc
 {
     ASSERT(!(blockFlow.isInline() && blockFlow.element() && blockFlow.element()->isFormControlElement()));
     ASSERT(!(blockFlow.isInline() && blockFlow.element() && blockFlow.element()->shadowHost() && blockFlow.element()->shadowHost()->isFormControlElement()));
+    ASSERT(!is<RenderTextControlInnerBlock>(blockFlow));
 
     if (blockFlow.style().display() == DisplayType::InlineBlock) {
         // The baseline of an 'inline-block' is the baseline of its last line box in the normal flow, unless it has either no in-flow line boxes or if its 'overflow'
         // property has a computed value other than 'visible'. see https://www.w3.org/TR/CSS22/visudet.html
-        auto shouldSynthesizeBaseline = !blockFlow.style().isOverflowVisible() && !is<RenderTextControlInnerBlock>(blockFlow);
+        auto shouldSynthesizeBaseline = !blockFlow.style().isOverflowVisible();
         if (shouldSynthesizeBaseline)
             return { };
     }
@@ -367,28 +368,27 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBlockFlow& bloc
         return borderBoxHeighthWithtMarginBottom;
     }
 
-    auto lastBaseline = [&] -> std::optional<LayoutUnit> {
-        // Note that here we only take the left and bottom into consideration. Our caller takes the right and top into consideration.
-        if (!blockFlow.childrenInline())
-            return lastInflowBoxBaseline(blockFlow);
+    // Note that here we only take the left and bottom into consideration. Our caller takes the right and top into consideration.
+    if (!blockFlow.childrenInline())
+        return lastInflowBoxBaseline(blockFlow);
 
-        if (!blockFlow.hasLines()) {
-            if (!blockFlow.hasLineIfEmpty())
-                return { };
-            return (fontMetricsBasedBaseline(blockFlow) + (writingMode.isHorizontal() ? blockFlow.borderTop() + blockFlow.paddingTop() : blockFlow.borderRight() + blockFlow.paddingRight())).toInt();
-        }
+    if (!blockFlow.hasLines()) {
+        if (!blockFlow.hasLineIfEmpty())
+            return { };
+        return (fontMetricsBasedBaseline(blockFlow) + (writingMode.isHorizontal() ? blockFlow.borderTop() + blockFlow.paddingTop() : blockFlow.borderRight() + blockFlow.paddingRight())).toInt();
+    }
 
-        if (auto* inlineLayout = blockFlow.inlineLayout())
-            return floorToInt(inlineLayout->lastLineLogicalBaseline());
+    if (auto* inlineLayout = blockFlow.inlineLayout())
+        return floorToInt(inlineLayout->lastLineLogicalBaseline());
 
-        if (blockFlow.svgTextLayout()) {
-            auto& style = blockFlow.firstLineStyle();
-            // LegacyInlineFlowBox::placeBoxesInBlockDirection will flip lines in case of verticalLR mode, so we can assume verticalRL for now.
-            return LayoutUnit(style.metricsOfPrimaryFont().intAscent(blockFlow.legacyRootBox()->baselineType()) + (style.writingMode().isLineInverted() ? blockFlow.logicalHeight() - blockFlow.legacyRootBox()->logicalBottom() : blockFlow.legacyRootBox()->logicalTop()));
-        }
-        return { };
-    };
-    return lastBaseline();
+    if (blockFlow.svgTextLayout()) {
+        auto& style = blockFlow.firstLineStyle();
+        // LegacyInlineFlowBox::placeBoxesInBlockDirection will flip lines in case of verticalLR mode, so we can assume verticalRL for now.
+        return LayoutUnit(style.metricsOfPrimaryFont().intAscent(blockFlow.legacyRootBox()->baselineType()) + (style.writingMode().isLineInverted() ? blockFlow.logicalHeight() - blockFlow.legacyRootBox()->logicalBottom() : blockFlow.legacyRootBox()->logicalTop()));
+    }
+
+    ASSERT_NOT_REACHED();
+    return { };
 }
 
 LayoutUnit static baselinePosition(const RenderBox& renderBox)
