@@ -171,6 +171,7 @@ public:
 
 #if PLATFORM(COCOA)
     void postWillTakeSnapshotNotification(CompletionHandler<void()>&&);
+    void registerFonts(Vector<SandboxExtension::Handle>&&);
 #endif
 
 private:

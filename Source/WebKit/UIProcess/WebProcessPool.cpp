@@ -532,6 +532,9 @@ GPUProcessProxy& WebProcessPool::ensureGPUProcess()
         for (Ref process : m_processes)
             gpuProcess->updatePreferences(process);
         gpuProcess->updateScreenPropertiesIfNeeded();
+#if PLATFORM(COCOA)
+        registerFontsForGPUProcessIfNeeded();
+#endif
     }
     return *m_gpuProcess;
 }

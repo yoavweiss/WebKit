@@ -1494,8 +1494,8 @@ String WebProcessPool::platformResourceMonitorRuleListSourceForTesting()
 }
 #endif
 
-#if PLATFORM(MAC)
-static Vector<SandboxExtension::Handle> sandboxExtensionsForUserInstalledFonts(const Vector<URL>& fontPathURLs, std::optional<audit_token_t> auditToken)
+template <typename Collection>
+static Vector<SandboxExtension::Handle> sandboxExtensionsForFonts(const Collection& fontPathURLs, std::optional<audit_token_t> auditToken)
 {
     Vector<SandboxExtension::Handle> handles;
     for (auto& fontPathURL : fontPathURLs) {
@@ -1510,10 +1510,31 @@ static Vector<SandboxExtension::Handle> sandboxExtensionsForUserInstalledFonts(c
     return handles;
 }
 
+void WebProcessPool::registerFontsForGPUProcessIfNeeded()
+{
+    RefPtr gpuProcess = m_gpuProcess;
+    if (!gpuProcess)
+        return;
+
+    Vector<SandboxExtension::Handle> handles;
+    if (m_userInstalledFontURLs)
+        handles.appendVector(sandboxExtensionsForFonts(m_userInstalledFontURLs->values(), std::nullopt));
+
+    if (m_sandboxExtensionURLs)
+        handles.appendVector(sandboxExtensionsForFonts(*m_sandboxExtensionURLs, std::nullopt));
+
+    if (m_assetFontURLs)
+        handles.appendVector(sandboxExtensionsForFonts(*m_assetFontURLs, std::nullopt));
+
+    if (!handles.isEmpty())
+        gpuProcess->send(Messages::GPUProcess::RegisterFonts(WTFMove(handles)), 0);
+}
+
+#if PLATFORM(MAC)
 void WebProcessPool::registerUserInstalledFonts(WebProcessProxy& process)
 {
     if (m_userInstalledFontURLs) {
-        process.send(Messages::WebProcess::RegisterFontMap(*m_userInstalledFontURLs, *m_userInstalledFontFamilyMap,  sandboxExtensionsForUserInstalledFonts(*m_sandboxExtensionURLs, process.auditToken())), 0);
+        process.send(Messages::WebProcess::RegisterFontMap(*m_userInstalledFontURLs, *m_userInstalledFontFamilyMap,  sandboxExtensionsForFonts(*m_sandboxExtensionURLs, process.auditToken())), 0);
         return;
     }
 
@@ -1562,10 +1583,12 @@ void WebProcessPool::registerUserInstalledFonts(WebProcessProxy& process)
     sandboxExtensionURLs.append(URL(assetFontURL7.get()));
     sandboxExtensionURLs.append(URL(assetFontURL8.get()));
 
-    process.send(Messages::WebProcess::RegisterFontMap(fontURLs, fontFamilyMap, sandboxExtensionsForUserInstalledFonts(sandboxExtensionURLs, process.auditToken())), 0);
+    process.send(Messages::WebProcess::RegisterFontMap(fontURLs, fontFamilyMap, sandboxExtensionsForFonts(sandboxExtensionURLs, process.auditToken())), 0);
     m_userInstalledFontURLs = WTFMove(fontURLs);
     m_userInstalledFontFamilyMap = WTFMove(fontFamilyMap);
     m_sandboxExtensionURLs = WTFMove(sandboxExtensionURLs);
+
+    registerFontsForGPUProcessIfNeeded();
 }
 
 void WebProcessPool::registerAdditionalFonts(NSArray *fontNames)
@@ -1594,9 +1617,10 @@ void WebProcessPool::registerAdditionalFonts(NSArray *fontNames)
     for (Ref process : m_processes) {
         if (!process->canSendMessage())
             continue;
-        process->send(Messages::WebProcess::RegisterFontMap(*m_userInstalledFontURLs, *m_userInstalledFontFamilyMap, sandboxExtensionsForUserInstalledFonts(*m_sandboxExtensionURLs, process->auditToken())), 0);
+        process->send(Messages::WebProcess::RegisterFontMap(*m_userInstalledFontURLs, *m_userInstalledFontFamilyMap, sandboxExtensionsForFonts(*m_sandboxExtensionURLs, process->auditToken())), 0);
     }
 
+    registerFontsForGPUProcessIfNeeded();
 }
 #endif // PLATFORM(MAC)
 
@@ -1645,6 +1669,8 @@ void WebProcessPool::registerAssetFonts(WebProcessProxy& process)
             }
             if (weakProcess)
                 weakProcess->send(Messages::WebProcess::RegisterAdditionalFonts(AdditionalFonts::additionalFonts({ *protectedThis->m_assetFontURLs }, weakProcess->auditToken())), 0);
+
+            protectedThis->registerFontsForGPUProcessIfNeeded();
         });
         return true;
     });
