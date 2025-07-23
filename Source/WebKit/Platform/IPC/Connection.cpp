@@ -474,7 +474,7 @@ void Connection::dispatchMessageReceiverMessage(MessageReceiverType& messageRece
 #endif
     ASSERT(decoder->isValid());
     if (!decoder->isValid())
-        dispatchDidReceiveInvalidMessage(decoder->messageName(), decoder->indexOfObjectFailingDecoding());
+        dispatchDidReceiveInvalidMessage(decoder->messageName(), decoder->indicesOfObjectsFailingDecoding());
 }
 
 template void Connection::dispatchMessageReceiverMessage<MessageReceiver>(MessageReceiver&, UniqueRef<Decoder>&&);
@@ -1022,7 +1022,7 @@ void Connection::processIncomingMessage(UniqueRef<Decoder> message)
         // If the message is invalid, we could send back a SyncMessageError. In case the message
         // would need a reply, we do not cancel it as we don't know the destination to cancel it
         // with. Currently ther is no use-case to handle invalid messages.
-        dispatchDidReceiveInvalidMessage(message->messageName(), message->indexOfObjectFailingDecoding());
+        dispatchDidReceiveInvalidMessage(message->messageName(), message->indicesOfObjectsFailingDecoding());
         return;
     }
 
@@ -1032,7 +1032,7 @@ void Connection::processIncomingMessage(UniqueRef<Decoder> message)
     }
 
     if (!MessageReceiveQueueMap::isValidMessage(message.get())) {
-        dispatchDidReceiveInvalidMessage(message->messageName(), message->indexOfObjectFailingDecoding());
+        dispatchDidReceiveInvalidMessage(message->messageName(), message->indicesOfObjectsFailingDecoding());
         return;
     }
 
@@ -1088,7 +1088,7 @@ void Connection::processIncomingMessage(UniqueRef<Decoder> message)
     }
 
     if ((message->shouldDispatchMessageWhenWaitingForSyncReply() == ShouldDispatchWhenWaitingForSyncReply::YesDuringUnboundedIPC && !message->isAllowedWhenWaitingForUnboundedSyncReply()) || (message->shouldDispatchMessageWhenWaitingForSyncReply() == ShouldDispatchWhenWaitingForSyncReply::Yes && !message->isAllowedWhenWaitingForSyncReply())) {
-        dispatchDidReceiveInvalidMessage(message->messageName(), message->indexOfObjectFailingDecoding());
+        dispatchDidReceiveInvalidMessage(message->messageName(), message->indicesOfObjectsFailingDecoding());
         return;
     }
 
@@ -1262,12 +1262,12 @@ void Connection::dispatchSyncMessage(Decoder& decoder)
         sendMessageImpl(makeUniqueRef<Encoder>(MessageName::CancelSyncMessageReply, decoder.syncRequestID().toUInt64()), { });
 }
 
-void Connection::dispatchDidReceiveInvalidMessage(MessageName messageName, int32_t indexOfObjectFailingDecoding)
+void Connection::dispatchDidReceiveInvalidMessage(MessageName messageName, const Vector<uint32_t>& indicesOfObjectsFailingDecoding)
 {
-    dispatchToClient([protectedThis = Ref { *this }, messageName, indexOfObjectFailingDecoding] {
+    dispatchToClient([protectedThis = Ref { *this }, messageName, indicesOfObjectsFailingDecoding] {
         if (!protectedThis->isValid())
             return;
-        protectedThis->protectedClient()->didReceiveInvalidMessage(protectedThis, messageName, indexOfObjectFailingDecoding);
+        protectedThis->protectedClient()->didReceiveInvalidMessage(protectedThis, messageName, indicesOfObjectsFailingDecoding);
     });
 }
 
@@ -1408,7 +1408,7 @@ void Connection::dispatchMessage(UniqueRef<Decoder> message)
             if (m_ignoreInvalidMessageForTesting)
                 return;
 #endif
-            protectedClient()->didReceiveInvalidMessage(*this, message->messageName(), message->indexOfObjectFailingDecoding());
+            protectedClient()->didReceiveInvalidMessage(*this, message->messageName(), message->indicesOfObjectsFailingDecoding());
             return;
         }
         m_inDispatchMessageMarkedToUseFullySynchronousModeForTesting++;
@@ -1460,7 +1460,7 @@ void Connection::dispatchMessage(UniqueRef<Decoder> message)
     }
 #endif
     if (didReceiveInvalidMessage && isValid())
-        protectedClient()->didReceiveInvalidMessage(*this, message->messageName(), message->indexOfObjectFailingDecoding());
+        protectedClient()->didReceiveInvalidMessage(*this, message->messageName(), message->indicesOfObjectsFailingDecoding());
 }
 
 size_t Connection::numberOfMessagesToProcess(size_t totalMessages)

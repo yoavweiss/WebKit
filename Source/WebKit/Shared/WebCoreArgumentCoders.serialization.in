@@ -2838,7 +2838,7 @@ struct WebCore::DictationAlternative {
     WebCore::DictationContext context;
 };
 
-class WebCore::UserStyleSheet {
+[DebugDecodingFailure] class WebCore::UserStyleSheet {
     String source();
     URL url();
     Vector<String> allowlist();
@@ -7697,7 +7697,7 @@ enum class WebCore::UserContentMatchParentFrame : uint8_t {
     ForOpaqueOrigins
 }
 
-class WebCore::UserScript {
+[DebugDecodingFailure] class WebCore::UserScript {
     String source();
     URL url();
     Vector<String> allowlist();

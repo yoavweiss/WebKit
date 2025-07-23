@@ -137,7 +137,7 @@ private:
         void didReceiveMessage(Connection&, Decoder&) final;
         bool didReceiveSyncMessage(Connection&, Decoder&, UniqueRef<Encoder>&) final;
         void didClose(Connection&) final;
-        void didReceiveInvalidMessage(Connection&, MessageName, int32_t indexOfObjectFailingDecoding) final;
+        void didReceiveInvalidMessage(Connection&, MessageName, const Vector<uint32_t>& indicesOfObjectsFailingDecoding) final;
     private:
         const CheckedRef<StreamClientConnection> m_owner;
         const CheckedRef<Connection::Client> m_receiver;

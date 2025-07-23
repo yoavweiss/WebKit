@@ -171,12 +171,8 @@ public:
 
     std::optional<Attachment> takeLastAttachment();
 
-    void setIndexOfDecodingFailure(int32_t indexOfObjectFailingDecoding)
-    {
-        if (m_indexOfObjectFailingDecoding == -1)
-            m_indexOfObjectFailingDecoding = indexOfObjectFailingDecoding;
-    }
-    int32_t indexOfObjectFailingDecoding() const { return m_indexOfObjectFailingDecoding; }
+    void addIndexOfDecodingFailure(uint32_t indexOfObjectFailingDecoding) { m_indicesOfObjectsFailingDecoding.append(indexOfObjectFailingDecoding); }
+    const Vector<uint32_t>& indicesOfObjectsFailingDecoding() const { return m_indicesOfObjectsFailingDecoding; }
 
 private:
     Decoder(std::span<const uint8_t> buffer, BufferDeallocator&&, Vector<Attachment>&&);
@@ -201,7 +197,7 @@ private:
     uint64_t m_destinationID;
     Markable<SyncRequestID> m_syncRequestID;
 
-    int32_t m_indexOfObjectFailingDecoding { -1 };
+    Vector<uint32_t> m_indicesOfObjectsFailingDecoding;
 };
 
 template<>

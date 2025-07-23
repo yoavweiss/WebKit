@@ -190,7 +190,7 @@ private:
     uint64_t messageSenderDestinationID() const override;
 
     // IPC::Connection::Client.
-    void didReceiveInvalidMessage(IPC::Connection&, IPC::MessageName, int32_t indexOfObjectFailingDecoding) final;
+    void didReceiveInvalidMessage(IPC::Connection&, IPC::MessageName, const Vector<uint32_t>& indicesOfObjectsFailingDecoding) final;
 
     void shutDown();
 

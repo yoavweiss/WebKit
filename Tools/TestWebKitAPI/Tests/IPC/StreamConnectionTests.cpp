@@ -239,7 +239,7 @@ public:
         markClosed();
     }
 
-    void didReceiveInvalidMessage(IPC::Connection&, IPC::MessageName, int32_t indexOfDecodingFailure) final { ASSERT_NOT_REACHED(); }
+    void didReceiveInvalidMessage(IPC::Connection&, IPC::MessageName, const Vector<uint32_t>& indicesOfObjectsFailingDecoding) final { ASSERT_NOT_REACHED(); }
 
 private:
     MockMessageReceiver() = default;

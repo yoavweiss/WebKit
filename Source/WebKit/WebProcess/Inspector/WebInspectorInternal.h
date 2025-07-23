@@ -56,7 +56,7 @@ public:
 
     // IPC::Connection::Client
     void didClose(IPC::Connection&) override { close(); }
-    void didReceiveInvalidMessage(IPC::Connection&, IPC::MessageName, int32_t indexOfObjectFailingDecoding) override { close(); }
+    void didReceiveInvalidMessage(IPC::Connection&, IPC::MessageName, const Vector<uint32_t>& indicesOfObjectsFailingDecoding) override { close(); }
 
     void show(CompletionHandler<void()>&&);
     void close();

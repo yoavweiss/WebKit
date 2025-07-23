@@ -30,7 +30,7 @@ header: "ContentWorldData.h"
     AllowNodeInfo,
 };
 
-struct WebKit::ContentWorldData {
+[DebugDecodingFailure] struct WebKit::ContentWorldData {
     WebKit::ContentWorldIdentifier identifier;
     String name;
     OptionSet<WebKit::ContentWorldOption> options;
