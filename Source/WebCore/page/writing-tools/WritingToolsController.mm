@@ -207,6 +207,7 @@ void WritingToolsController::willBeginWritingToolsSession(const std::optional<Wr
         IncludedElement::Attachments,
         IncludedElement::PreservedContent,
         IncludedElement::NonRenderedContent,
+        IncludedElement::TextLists,
     };
 
     auto selectedTextRange = document->selection().selection().firstRange();

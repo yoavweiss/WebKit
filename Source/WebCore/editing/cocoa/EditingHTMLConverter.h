@@ -40,6 +40,7 @@ enum class IncludedElement : uint8_t {
     Attachments = 1 << 1,
     PreservedContent = 1 << 2,
     NonRenderedContent = 1 << 3,
+    TextLists = 1 << 4,
 };
 
 WEBCORE_EXPORT AttributedString editingAttributedString(const SimpleRange&, OptionSet<IncludedElement> = { IncludedElement::Images });

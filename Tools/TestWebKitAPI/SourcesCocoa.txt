@@ -28,6 +28,7 @@ WKWebViewConfigurationExtras.mm
 
 cocoa/CGImagePixelReader.cpp
 cocoa/DaemonTestUtilities.mm
+cocoa/DecomposedAttributedText.mm
 cocoa/DragAndDropSimulator.mm
 cocoa/HostWindowManager.mm
 cocoa/ImageAnalysisTestingUtilities.mm

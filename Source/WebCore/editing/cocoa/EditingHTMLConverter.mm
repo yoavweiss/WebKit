@@ -44,12 +44,14 @@
 #import "ElementInlines.h"
 #import "ElementRareData.h"
 #import "ElementTraversal.h"
+#import "FontAttributes.h"
 #import "FontCascade.h"
 #import "FrameLoader.h"
 #import "HTMLAttachmentElement.h"
 #import "HTMLConverter.h"
 #import "HTMLElement.h"
 #import "HTMLImageElement.h"
+#import "HTMLOListElement.h"
 #import "LoaderNSURLExtras.h"
 #import "LocalFrame.h"
 #import "LocalizedStrings.h"
@@ -240,12 +242,12 @@ static bool hasAncestorQualifyingForWritingToolsPreservation(Element* ancestor, 
 }
 #endif // ENABLE(WRITING_TOOLS)
 
-static RefPtr<Element> enclosingLinkElement(const Node& node, ElementCache<RefPtr<Element>>& cache)
+static RefPtr<Element> enclosingElement(const Node& node, ElementCache<RefPtr<Element>>& cache, Function<bool(Element *)>&& predicate)
 {
     Vector<Ref<Element>> ancestors;
     RefPtr<Element> result;
     for (RefPtr ancestor = node.parentElementInComposedTree(); ancestor; ancestor = ancestor->parentElementInComposedTree()) {
-        if (ancestor->isLink()) {
+        if (predicate(ancestor.get())) {
             result = ancestor.get();
             break;
         }
@@ -265,8 +267,68 @@ static RefPtr<Element> enclosingLinkElement(const Node& node, ElementCache<RefPt
     return result;
 }
 
-static void updateAttributes(const Node* node, const RenderStyle& style, OptionSet<IncludedElement> includedElements,
-    ElementCache<bool>& elementQualifiesForWritingToolsPreservationCache, ElementCache<RefPtr<Element>>& enclosingLinkCache, NSMutableDictionary<NSAttributedStringKey, id> *attributes)
+static RefPtr<Element> enclosingLinkElement(const Node& node, ElementCache<RefPtr<Element>>& cache)
+{
+    return enclosingElement(node, cache, [](auto* element) {
+        return element->isLink();
+    });
+}
+
+static RefPtr<Element> enclosingListElement(const Node& node, ElementCache<RefPtr<Element>>& cache)
+{
+    return enclosingElement(node, cache, [](auto* element) {
+        return element->hasTagName(HTMLNames::olTag) || element->hasTagName(HTMLNames::ulTag);
+    });
+}
+
+// The `enclosingListCache` associates an element with its nearest enclosing list ancestor that (ol or ul)
+// and the `textListsForListElements` associates an enclosing list element with its array of text lists.
+static void associateElementWithTextLists(Element* element, ElementCache<RefPtr<Element>>& enclosingListCache, ElementCache<RetainPtr<NSArray<NSTextList *>>>& textListsForListElements)
+{
+    // Base case #1:
+    // Eventually, an element will be null since there will be no more list elements in the ancestor hierarchy to find.
+    // Therefore, associate the element with an empty array of text lists.
+    if (!element)
+        return;
+
+    // Base case #2:
+    // If the element is already associated with an array of text lists, no work needs to be done.
+    if (textListsForListElements.contains(*element))
+        return;
+
+    // Recursive case:
+    // The NSAttributedString API contract requires that the array of NSTextList's start at the outermost list
+    // and end at the innermost list. In the TextIterator traversal, for a given element, it's "enclosing list element"
+    // will be the innermost list, by definition.
+    //
+    // For nested lists, things get a bit complicated. The antecedents of the inner most text list correspond to the
+    // associated text lists for each enclosing list element of the one before, recursively. Consequently, memoization
+    // is used to acquire all antecedents of the element's text list, and then the final array of text lists for the
+    // element is the array of the text list antecedents followed by the element's own text list itself.
+
+    RetainPtr ancestors = adoptNS([[NSArray alloc] init]);
+
+    if (RefPtr parent = enclosingListElement(*element, enclosingListCache)) {
+        associateElementWithTextLists(parent.get(), enclosingListCache, textListsForListElements);
+        ancestors = textListsForListElements.get(*parent);
+    }
+
+    TextList list;
+    list.ordered = element->hasTagName(HTMLNames::olTag);
+
+    if (CheckedPtr renderer = element->renderer())
+        list.styleType = renderer->style().listStyleType();
+
+    if (RefPtr olElement = dynamicDowncast<HTMLOListElement>(element))
+        list.startingItemNumber = olElement->start();
+
+    RetainPtr nsTextList = list.createTextList();
+    RetainPtr allLists = [ancestors arrayByAddingObject:nsTextList.get()];
+    textListsForListElements.set(*element, allLists);
+}
+
+// FIXME: Encapsulate all these parameters into a type for readability and maintainability.
+static void updateAttributes(const Node* node, const RenderStyle& style, OptionSet<IncludedElement> includedElements, ElementCache<bool>& elementQualifiesForWritingToolsPreservationCache, ElementCache<RefPtr<Element>>& enclosingLinkCache, ElementCache<RefPtr<Element>>& enclosingListCache, NSMutableDictionary<NSAttributedStringKey, id> *attributes, ElementCache<RetainPtr<NSArray<NSTextList *>>>& textListsForListElements)
 {
 #if ENABLE(WRITING_TOOLS)
     if (includedElements.contains(IncludedElement::PreservedContent)) {
@@ -333,7 +395,7 @@ static void updateAttributes(const Node* node, const RenderStyle& style, OptionS
     }
 
     if (textAlignment != NSTextAlignmentNatural) {
-        auto paragraphStyle = adoptNS([PlatformNSParagraphStyle defaultParagraphStyle].mutableCopy);
+        RetainPtr<NSMutableParagraphStyle> paragraphStyle = adoptNS([(attributes[NSParagraphStyleAttributeName] ?: [PlatformNSParagraphStyle defaultParagraphStyle]) mutableCopy]);
         [paragraphStyle setAlignment:textAlignment];
         [attributes setObject:paragraphStyle.get() forKey:NSParagraphStyleAttributeName];
     }
@@ -362,6 +424,21 @@ static void updateAttributes(const Node* node, const RenderStyle& style, OptionS
         [attributes removeObjectForKey:NSLinkAttributeName];
     else
         [attributes setObject:linkNSURL.get() forKey:NSLinkAttributeName];
+
+    if (includedElements.contains(IncludedElement::TextLists)) {
+        if (RefPtr enclosingList = enclosingListElement(*node, enclosingListCache)) {
+            RetainPtr<NSMutableParagraphStyle> paragraphStyle = adoptNS([(attributes[NSParagraphStyleAttributeName] ?: [PlatformNSParagraphStyle defaultParagraphStyle]) mutableCopy]);
+
+            associateElementWithTextLists(enclosingList.get(), enclosingListCache, textListsForListElements);
+            if (RetainPtr lists = textListsForListElements.get(*enclosingList))
+                [paragraphStyle setTextLists:lists.get()];
+
+            attributes[NSParagraphStyleAttributeName] = paragraphStyle.get();
+        } else if (RetainPtr<NSMutableParagraphStyle> paragraphStyle = adoptNS([attributes[NSParagraphStyleAttributeName] mutableCopy])) {
+            [paragraphStyle setTextLists:@[ ]];
+            attributes[NSParagraphStyleAttributeName] = paragraphStyle.get();
+        }
+    }
 }
 
 // This function uses TextIterator, which makes offsets in its result compatible with HTML editing.
@@ -369,6 +446,8 @@ enum class ReplaceAllNoBreakSpaces : bool { No, Yes };
 static AttributedString editingAttributedStringInternal(const SimpleRange& range, TextIteratorBehaviors behaviors, OptionSet<IncludedElement> includedElements, ReplaceAllNoBreakSpaces replaceAllNoBreakSpaces)
 {
     ElementCache<RefPtr<Element>> enclosingLinkCache;
+    ElementCache<RefPtr<Element>> enclosingListCache;
+    ElementCache<RetainPtr<NSArray<NSTextList *>>> textListsForListElements;
     ElementCache<bool> elementQualifiesForWritingToolsPreservationCache;
 
     RetainPtr string = adoptNS([[NSMutableAttributedString alloc] init]);
@@ -400,7 +479,7 @@ static AttributedString editingAttributedStringInternal(const SimpleRange& range
         auto renderer = node->renderer();
 
         if (renderer)
-            updateAttributes(node.get(), renderer->style(), includedElements, elementQualifiesForWritingToolsPreservationCache, enclosingLinkCache, attributes.get());
+            updateAttributes(node.get(), renderer->style(), includedElements, elementQualifiesForWritingToolsPreservationCache, enclosingLinkCache, enclosingListCache, attributes.get(), textListsForListElements);
         else if (!includedElements.contains(IncludedElement::NonRenderedContent))
             continue;
 
