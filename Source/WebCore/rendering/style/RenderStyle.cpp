@@ -274,32 +274,32 @@ static StyleSelfAlignmentData resolvedSelfAlignment(const StyleSelfAlignmentData
     return value;
 }
 
-StyleSelfAlignmentData RenderStyle::resolvedAlignItems(ItemPosition normalValueBehaviour) const
+StyleSelfAlignmentData RenderStyle::resolvedAlignItems(ItemPosition normalValueBehavior) const
 {
-    return resolvedSelfAlignment(alignItems(), normalValueBehaviour);
+    return resolvedSelfAlignment(alignItems(), normalValueBehavior);
 }
 
-StyleSelfAlignmentData RenderStyle::resolvedAlignSelf(const RenderStyle* parentStyle, ItemPosition normalValueBehaviour) const
+StyleSelfAlignmentData RenderStyle::resolvedAlignSelf(const RenderStyle* parentStyle, ItemPosition normalValueBehavior) const
 {
     // The auto keyword computes to the parent's align-items computed value.
     // We will return the behaviour of 'normal' value if needed, which is specific of each layout model.
     if (!parentStyle || alignSelf().position() != ItemPosition::Auto)
-        return resolvedSelfAlignment(alignSelf(), normalValueBehaviour);
-    return parentStyle->resolvedAlignItems(normalValueBehaviour);
+        return resolvedSelfAlignment(alignSelf(), normalValueBehavior);
+    return parentStyle->resolvedAlignItems(normalValueBehavior);
 }
 
-StyleSelfAlignmentData RenderStyle::resolvedJustifyItems(ItemPosition normalValueBehaviour) const
+StyleSelfAlignmentData RenderStyle::resolvedJustifyItems(ItemPosition normalValueBehavior) const
 {
-    return resolvedSelfAlignment(justifyItems(), normalValueBehaviour);
+    return resolvedSelfAlignment(justifyItems(), normalValueBehavior);
 }
 
-StyleSelfAlignmentData RenderStyle::resolvedJustifySelf(const RenderStyle* parentStyle, ItemPosition normalValueBehaviour) const
+StyleSelfAlignmentData RenderStyle::resolvedJustifySelf(const RenderStyle* parentStyle, ItemPosition normalValueBehavior) const
 {
     // The auto keyword computes to the parent's justify-items computed value.
     // We will return the behaviour of 'normal' value if needed, which is specific of each layout model.
     if (!parentStyle || justifySelf().position() != ItemPosition::Auto)
-        return resolvedSelfAlignment(justifySelf(), normalValueBehaviour);
-    return parentStyle->resolvedJustifyItems(normalValueBehaviour);
+        return resolvedSelfAlignment(justifySelf(), normalValueBehavior);
+    return parentStyle->resolvedJustifyItems(normalValueBehavior);
 }
 
 static inline StyleContentAlignmentData resolvedContentAlignment(const StyleContentAlignmentData& value, const StyleContentAlignmentData& normalValueBehavior)

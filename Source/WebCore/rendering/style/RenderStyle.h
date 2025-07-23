@@ -415,12 +415,12 @@ public:
     ContentDistribution resolvedJustifyContentDistribution(const StyleContentAlignmentData& normalValueBehavior) const;
     ContentPosition resolvedAlignContentPosition(const StyleContentAlignmentData& normalValueBehavior) const;
     ContentDistribution resolvedAlignContentDistribution(const StyleContentAlignmentData& normalValueBehavior) const;
-    StyleSelfAlignmentData resolvedAlignItems(ItemPosition normalValueBehaviour) const;
-    StyleSelfAlignmentData resolvedAlignSelf(const RenderStyle* parentStyle, ItemPosition normalValueBehaviour) const;
-    StyleContentAlignmentData resolvedAlignContent(const StyleContentAlignmentData& normalValueBehaviour) const;
-    StyleSelfAlignmentData resolvedJustifyItems(ItemPosition normalValueBehaviour) const;
-    StyleSelfAlignmentData resolvedJustifySelf(const RenderStyle* parentStyle, ItemPosition normalValueBehaviour) const;
-    StyleContentAlignmentData resolvedJustifyContent(const StyleContentAlignmentData& normalValueBehaviour) const;
+    StyleSelfAlignmentData resolvedAlignItems(ItemPosition normalValueBehavior) const;
+    StyleSelfAlignmentData resolvedAlignSelf(const RenderStyle* parentStyle, ItemPosition normalValueBehavior) const;
+    StyleContentAlignmentData resolvedAlignContent(const StyleContentAlignmentData& normalValueBehavior) const;
+    StyleSelfAlignmentData resolvedJustifyItems(ItemPosition normalValueBehavior) const;
+    StyleSelfAlignmentData resolvedJustifySelf(const RenderStyle* parentStyle, ItemPosition normalValueBehavior) const;
+    StyleContentAlignmentData resolvedJustifyContent(const StyleContentAlignmentData& normalValueBehavior) const;
 
     PseudoId pseudoElementType() const { return static_cast<PseudoId>(m_nonInheritedFlags.pseudoElementType); }
     void setPseudoElementType(PseudoId pseudoElementType) { m_nonInheritedFlags.pseudoElementType = static_cast<unsigned>(pseudoElementType); }
