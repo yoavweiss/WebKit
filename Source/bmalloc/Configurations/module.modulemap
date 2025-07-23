@@ -1,5 +1,4 @@
 module bmalloc {
-    requires cplusplus11
     // List of "semi-public" bmalloc headers. What does "semi-public" mean? These are
     // the headers which, in practice, are included by WTF headers. WTF headers are
     // exported as part of the WebKit SPI, and therefore these headers need to be
@@ -14,22 +13,25 @@ module bmalloc {
     // Or, bmalloc would need to be tested in two different configurations instead
     // of producing an #error. This complexity is the main reason why bmalloc
     // has a narrower, hand-curated list of headers in its module.
-    header "Algorithm.h"
-    header "BAssert.h"
-    header "BCompiler.h"
-    header "BInline.h"
-    header "BPlatform.h"
-    header "BVMTags.h"
-    header "CompactAllocationMode.h"
-    header "Gigacage.h"
-    header "GigacageConfig.h"
-    header "GigacageKind.h"
-    header "IsoHeap.h"
-    header "IsoHeapInlines.h"
-    header "Logging.h"
-    header "Sizes.h"
-    header "TZoneHeap.h"
-    header "TZoneHeapInlines.h"
+    explicit module bmalloc_cpp {
+        requires cplusplus11
+        header "Algorithm.h"
+        header "BAssert.h"
+        header "BCompiler.h"
+        header "BInline.h"
+        header "BPlatform.h"
+        header "BVMTags.h"
+        header "CompactAllocationMode.h"
+        header "Gigacage.h"
+        header "GigacageConfig.h"
+        header "GigacageKind.h"
+        header "IsoHeap.h"
+        header "IsoHeapInlines.h"
+        header "Logging.h"
+        header "Sizes.h"
+        header "TZoneHeap.h"
+        header "TZoneHeapInlines.h"
+    }
     // The following header contains only plain C definitions so
     // we declare this in a submodule which doesn't require cplusplus11
     explicit module bexport {
