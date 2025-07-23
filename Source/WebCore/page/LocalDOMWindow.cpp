@@ -627,6 +627,7 @@ CustomElementRegistry& LocalDOMWindow::ensureCustomElementRegistry()
         }
         document()->setCustomElementRegistry(*m_customElementRegistry);
     }
+    ASSERT(!m_customElementRegistry->isScoped());
     ASSERT(m_customElementRegistry->scriptExecutionContext() == document());
     return *m_customElementRegistry;
 }

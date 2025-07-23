@@ -145,7 +145,7 @@ void TreeScope::setParentTreeScope(TreeScope& newParentScope)
     setDocumentScope(newParentScope.documentScope());
 }
 
-void TreeScope::setCustomElementRegistry(Ref<CustomElementRegistry>&& registry)
+void TreeScope::setCustomElementRegistry(RefPtr<CustomElementRegistry>&& registry)
 {
     m_customElementRegistry = WTFMove(registry);
 }

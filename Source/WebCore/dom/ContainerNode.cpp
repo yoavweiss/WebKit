@@ -1031,7 +1031,7 @@ void ContainerNode::childrenChanged(const ChildChange& change)
         cache->childrenChanged(*this);
 }
 
-void ContainerNode::cloneChildNodes(Document& document, CustomElementRegistry* registry, ContainerNode& clone, size_t currentDepth) const
+void ContainerNode::cloneChildNodes(Document& document, CustomElementRegistry* fallbackRegistry, ContainerNode& clone, size_t currentDepth) const
 {
     if (currentDepth == 1024)
         return;
@@ -1039,7 +1039,7 @@ void ContainerNode::cloneChildNodes(Document& document, CustomElementRegistry* r
     NodeVector postInsertionNotificationTargets;
     bool hadElement = false;
     for (RefPtr child = firstChild(); child; child = child->nextSibling()) {
-        Ref clonedChild = child->cloneNodeInternal(document, CloningOperation::SelfWithTemplateContent, registry);
+        Ref clonedChild = child->cloneNodeInternal(document, CloningOperation::SelfWithTemplateContent, fallbackRegistry);
         {
             WidgetHierarchyUpdatesSuspensionScope suspendWidgetHierarchyUpdates;
             ScriptDisallowedScope::InMainThread scriptDisallowedScope;
@@ -1052,7 +1052,7 @@ void ContainerNode::cloneChildNodes(Document& document, CustomElementRegistry* r
             hadElement = hadElement || is<Element>(clonedChild);
         }
         if (RefPtr childAsContainerNode = dynamicDowncast<ContainerNode>(*child))
-            childAsContainerNode->cloneChildNodes(document, registry, downcast<ContainerNode>(clonedChild), currentDepth + 1);
+            childAsContainerNode->cloneChildNodes(document, fallbackRegistry, downcast<ContainerNode>(clonedChild), currentDepth + 1);
     }
     clone.childrenChanged(makeChildChangeForCloneInsertion(hadElement ? ClonedChildIncludesElements::Yes : ClonedChildIncludesElements::No));
 
