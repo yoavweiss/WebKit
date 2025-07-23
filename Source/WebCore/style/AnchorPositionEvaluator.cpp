@@ -137,6 +137,9 @@ static LayoutSize offsetFromAncestorContainer(const RenderElement& descendantCon
     LayoutSize offset;
     LayoutPoint referencePoint;
     CheckedPtr currentContainer = &descendantContainer;
+    CheckedPtr maxContainer = &ancestorContainer;
+    if (CheckedPtr ancestorInline = dynamicDowncast<RenderInline>(&ancestorContainer))
+        maxContainer = ancestorInline->containingBlock();
     do {
         CheckedPtr nextContainer = currentContainer->container();
         ASSERT(nextContainer); // This means we reached the top without finding container.
@@ -153,7 +156,18 @@ static LayoutSize offsetFromAncestorContainer(const RenderElement& descendantCon
         offset += currentOffset;
         referencePoint.move(currentOffset);
         currentContainer = WTFMove(nextContainer);
-    } while (currentContainer != &ancestorContainer);
+    } while (currentContainer != maxContainer);
+
+    if (CheckedPtr descendantInline = dynamicDowncast<RenderInline>(&descendantContainer)) {
+        // RenderInline objects do not automatically account for their offset above,
+        // so we incorporate this offset here.
+        offset += toLayoutSize(descendantInline->linesBoundingBox().location());
+    }
+    if (descendantContainer.containingBlock() == ancestorContainer.containingBlock()) {
+        // Account for 'position: relative' inline containing blocks by shifting back down into them.
+        if (CheckedPtr ancestorInline = dynamicDowncast<RenderInline>(&ancestorContainer))
+            offset -= toLayoutSize(ancestorInline->firstInlineBoxTopLeft()); // FIXME: Handle RTL.
+    }
 
     return offset;
 }
@@ -217,7 +231,7 @@ LayoutSize AnchorPositionEvaluator::scrollOffsetFromAnchor(const RenderBoxModelO
 
 // This computes the top left location, physical width, and physical height of the specified
 // anchor element. The location is computed relative to the specified containing block.
-LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(CheckedRef<const RenderBoxModelObject> anchorBox, const RenderBlock& containingBlock)
+LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(CheckedRef<const RenderBoxModelObject> anchorBox, const RenderElement& containingBlock)
 {
     // Fragmented flows are a little tricky to deal with. One example of a fragmented
     // flow is a block anchor element that is "fragmented" or split across multiple columns
@@ -250,11 +264,6 @@ LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(C
     auto anchorWidth = anchorBox->offsetWidth();
     auto anchorHeight = anchorBox->offsetHeight();
     auto anchorLocation = LayoutPoint { offsetFromAncestorContainer(anchorBox, containingBlock) };
-    if (CheckedPtr anchorRenderInline = dynamicDowncast<RenderInline>(&anchorBox.get())) {
-        // RenderInline objects do not automatically account for their offset in offsetFromAncestorContainer,
-        // so we incorporate this offset here.
-        anchorLocation.moveBy(anchorRenderInline->linesBoundingBox().location());
-    }
 
     return LayoutRect(anchorLocation, LayoutSize(anchorWidth, anchorHeight));
 }
@@ -417,7 +426,7 @@ static LayoutUnit computeInsetValue(CSSPropertyID insetPropertyID, CheckedRef<co
     if (constraints.startIsBefore() == isFlipped)
         anchorPercentage = 1 - anchorPercentage;
 
-    auto containingBlock = anchorPositionedRenderer->containingBlock();
+    auto containingBlock = anchorPositionedRenderer->container();
     ASSERT(containingBlock);
     auto anchorRect = AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(anchorBox, *containingBlock);
     auto anchorRange = constraints.extractRange(anchorRect);
