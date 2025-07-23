@@ -83,6 +83,7 @@ public:
     virtual bool isNavigatorClipboard() const { return false; }
     virtual bool isNavigatorCookieConsent() const { return false; }
     virtual bool isNavigatorGamepad() const { return false; }
+    virtual bool isUserMediaController() const { return false; }
 };
 
 template<typename T>
