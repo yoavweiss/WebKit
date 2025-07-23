@@ -353,15 +353,33 @@ static std::optional<LayoutUnit> inlineBlockBaseline(const RenderBlockFlow& bloc
     ASSERT(!(blockFlow.isInline() && blockFlow.element() && blockFlow.element()->shadowHost() && blockFlow.element()->shadowHost()->isFormControlElement()));
     ASSERT(!is<RenderTextControlInnerBlock>(blockFlow));
 
-    if (blockFlow.style().display() == DisplayType::InlineBlock) {
+    auto writingMode = blockFlow.containingBlock()->writingMode();
+    auto ignoreBaseline = [&] {
         // The baseline of an 'inline-block' is the baseline of its last line box in the normal flow, unless it has either no in-flow line boxes or if its 'overflow'
         // property has a computed value other than 'visible'. see https://www.w3.org/TR/CSS22/visudet.html
-        auto shouldSynthesizeBaseline = !blockFlow.style().isOverflowVisible();
-        if (shouldSynthesizeBaseline)
-            return { };
-    }
+        if (blockFlow.style().display() == DisplayType::InlineBlock && !blockFlow.style().isOverflowVisible())
+            return true;
 
-    auto writingMode = blockFlow.containingBlock()->writingMode();
+        // CSS2.1 states that the baseline of an inline block is the baseline of the last line box in
+        // the normal flow. We make an exception for marquees, since their baselines are meaningless
+        // (the content inside them moves). This matches WinIE as well, which just bottom-aligns them.
+        // We also give up on finding a baseline if we have a vertical scrollbar, or if we are scrolled
+        // vertically (e.g., an overflow:hidden block that has had scrollTop moved).
+        CheckedPtr scrollableArea = blockFlow.layer() ? blockFlow.layer()->scrollableArea() : nullptr;
+        if (!scrollableArea)
+            return false;
+
+        if (scrollableArea->marquee())
+            return true;
+
+        if (writingMode.isHorizontal())
+            return scrollableArea->verticalScrollbar() || scrollableArea->scrollOffset().y();
+        return scrollableArea->horizontalScrollbar() || scrollableArea->scrollOffset().x();
+    };
+
+    if (ignoreBaseline())
+        return { };
+
     if (blockFlow.style().overflowY() != Overflow::Visible) {
         // FIXME: Caller adds margin before so we can't yet return margin box height.
         auto borderBoxHeighthWithtMarginBottom = blockFlow.marginBoxLogicalHeight(writingMode) -  (writingMode.isHorizontal() ? blockFlow.marginTop() : blockFlow.marginRight());
@@ -571,27 +589,6 @@ LayoutUnit static baselinePosition(const RenderBox& renderBox)
 #endif
 
     if (CheckedPtr renderer = dynamicDowncast<RenderBlockFlow>(renderBox)) {
-        // CSS2.1 states that the baseline of an inline block is the baseline of the last line box in
-        // the normal flow. We make an exception for marquees, since their baselines are meaningless
-        // (the content inside them moves). This matches WinIE as well, which just bottom-aligns them.
-        // We also give up on finding a baseline if we have a vertical scrollbar, or if we are scrolled
-        // vertically (e.g., an overflow:hidden block that has had scrollTop moved).
-        auto ignoreBaseline = [&] {
-            CheckedPtr scrollableArea = renderer->layer() ? renderer->layer()->scrollableArea() : nullptr;
-            if (!scrollableArea)
-                return false;
-
-            if (scrollableArea->marquee())
-                return true;
-
-            if (writingMode.isHorizontal())
-                return scrollableArea->verticalScrollbar() || scrollableArea->scrollOffset().y();
-            return scrollableArea->horizontalScrollbar() || scrollableArea->scrollOffset().x();
-        };
-
-        if (ignoreBaseline())
-            return roundToInt(renderer->marginBoxLogicalHeight(writingMode));
-
         if (auto inlineBlockBaselinePosition = inlineBlockBaseline(*renderer))
             return marginBefore + *inlineBlockBaselinePosition;
     }
