@@ -429,10 +429,14 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     auto writingMode = renderBox.containingBlock()->writingMode();
     auto marginBefore = writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight();
 
+    auto contentBoxBottom = writingMode.isHorizontal() ? renderBox.marginTop() + renderBox.borderTop() + renderBox.paddingTop() + renderBox.contentBoxHeight() : renderBox.marginRight() + renderBox.borderRight() + renderBox.paddingRight() + renderBox.contentBoxWidth();
+    auto borderBoxBottom = renderBox.height() + (writingMode.isHorizontal() ? renderBox.marginTop() : renderBox.marginRight());
+    auto marginBoxBottom = renderBox.marginBoxLogicalHeight(writingMode);
+
     if (CheckedPtr renderImage = dynamicDowncast<RenderImage>(renderBox)) {
 #if ENABLE(MULTI_REPRESENTATION_HEIC)
         if (renderImage->isMultiRepresentationHEIC())
-            return roundToInt(renderImage->marginBoxLogicalHeight(writingMode)) - LayoutUnit::fromFloatRound(renderImage->style().fontCascade().primaryFont()->metricsForMultiRepresentationHEIC().descent);
+            return roundToInt(marginBoxBottom) - LayoutUnit::fromFloatRound(renderImage->style().fontCascade().primaryFont()->metricsForMultiRepresentationHEIC().descent);
 #endif
         return { };
     }
@@ -456,15 +460,14 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
         // regarding baselines that shouldn't apply to buttons.
         if (auto baseline = renderBox.firstLineBaseline())
             return marginBefore + *baseline;
-        auto contentBoxBottom = writingMode.isHorizontal() ? renderBox.borderTop() + renderBox.paddingTop() + renderBox.contentBoxHeight() : renderBox.borderRight() + renderBox.paddingRight() + renderBox.contentBoxWidth();
-        return marginBefore + contentBoxBottom;
+        return contentBoxBottom;
     }
 
     if (is<RenderListBox>(renderBox)) {
         // FIXME: This hardcoded baselineAdjustment is what we used to do for the old
         // widget, but I'm not sure this is right for the new control.
         const int baselineAdjustment = 7;
-        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode)) - baselineAdjustment;
+        return roundToInt(marginBoxBottom) - baselineAdjustment;
     }
 
     if (CheckedPtr textControl = dynamicDowncast<RenderTextControlSingleLine>(renderBox)) {
@@ -485,19 +488,17 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
 
     if (CheckedPtr fileUpload = dynamicDowncast<RenderFileUploadControl>(renderBox)) {
         if (auto* inlineLayout = fileUpload->inlineLayout())
-            return std::min(renderBox.marginBoxLogicalHeight(writingMode), marginBefore + floorToInt(inlineLayout->lastLineLogicalBaseline()));
+            return std::min(marginBoxBottom, marginBefore + floorToInt(inlineLayout->lastLineLogicalBaseline()));
         return { };
     }
 
-    if (is<RenderSlider>(renderBox)) {
-        // FIXME: Patch this function for writing-mode.
-        return renderBox.marginTop() + renderBox.height();
-    }
+    if (is<RenderSlider>(renderBox))
+        return borderBoxBottom;
 
 #if ENABLE(MATHML)
     if (is<RenderMathMLBlock>(renderBox)) {
         if (auto baseline = renderBox.firstLineBaseline())
-            return *baseline;
+            return marginBefore + *baseline;
         return { };
     }
 #endif
@@ -509,6 +510,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     }
 
     if (CheckedPtr menuList = dynamicDowncast<RenderMenuList>(renderBox)) {
+        // menu list is a type of flex box but behaves slightly differently so always check this before checking for flex.
         if (auto baseline = lastInflowBoxBaseline(*menuList))
             return marginBefore + *baseline;
         return { };
@@ -517,7 +519,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     if (is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox)) {
         if (auto baseline = renderBox.firstLineBaseline())
             return marginBefore.toInt() + *baseline;
-        return synthesizedBaseline(renderBox, *renderBox.parentStyle(), writingMode.isHorizontal() ? HorizontalLine : VerticalLine, BorderBox) + renderBox.marginLogicalHeight();
+        return { };
     }
 
     if (renderBox.isFieldset()) {
@@ -555,7 +557,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
         }
         if (!lastBaseline)
             lastBaseline = (fontMetricsBasedBaseline(renderBox) + (writingMode.isHorizontal() ? renderBox.borderTop() + renderBox.paddingTop() : renderBox.borderRight() + renderBox.paddingRight())).toInt();
-        return std::min(renderBox.marginBoxLogicalHeight(writingMode), marginBefore + *lastBaseline);
+        return std::min(marginBoxBottom, marginBefore + *lastBaseline);
     }
 
     if (CheckedPtr deprecatedFlexBox = dynamicDowncast<RenderDeprecatedFlexibleBox>(renderBox)) {
@@ -573,7 +575,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
 
     if (CheckedPtr listMarker = dynamicDowncast<RenderListMarker>(renderBox)) {
         if (CheckedPtr listItem = listMarker->listItem(); listItem && !listMarker->isImage())
-            return fontMetricsBasedBaseline(*listMarker).toInt();
+            return marginBefore + fontMetricsBasedBaseline(*listMarker).toInt();
         return { };
     }
 
