@@ -179,7 +179,9 @@ ALWAYS_INLINE Int toIntImpl(double number)
 ALWAYS_INLINE int32_t toInt32(double number)
 {
 #if HAVE(FJCVTZS_INSTRUCTION)
-    return __builtin_arm_jcvt(number);
+    int32_t result = 0;
+    __asm__ ("fjcvtzs %w0, %d1" : "=r" (result) : "w" (number) : "cc");
+    return result;
 #else
     return toIntImpl<int32_t>(number);
 #endif
