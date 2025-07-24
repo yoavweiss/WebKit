@@ -74,6 +74,8 @@ RetainPtr<id> JavaScriptEvaluationResult::toID()
         for (auto identifier : vector) {
             if (RetainPtr element = m_instantiatedNSObjects.get(identifier))
                 [array addObject:element.get()];
+            else
+                [array addObject:NSNull.null];
         }
     }
     for (auto [map, dictionary] : std::exchange(m_nsDictionaries, { })) {
