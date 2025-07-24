@@ -3569,6 +3569,7 @@ struct WebCore::MediaEncodingConfiguration : WebCore::MediaConfiguration {
 
 struct WebCore::MediaDecodingConfiguration : WebCore::MediaConfiguration {
     WebCore::MediaDecodingType type;
+    std::optional<WebCore::PageIdentifier> pageIdentifier;
     bool canExposeVP9;
 };
 

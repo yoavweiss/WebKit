@@ -1541,14 +1541,14 @@ void WebProcess::systemWillPowerOn()
 
 void WebProcess::systemWillSleep()
 {
-    if (PlatformMediaSessionManager::singletonIfExists())
-        PlatformMediaSessionManager::singleton().processSystemWillSleep();
+    for (auto& page : m_pageMap.values())
+        page->processSystemWillSleep();
 }
 
 void WebProcess::systemDidWake()
 {
-    if (PlatformMediaSessionManager::singletonIfExists())
-        PlatformMediaSessionManager::singleton().processSystemDidWake();
+    for (auto& page : m_pageMap.values())
+        page->processSystemDidWake();
 }
 #endif
 

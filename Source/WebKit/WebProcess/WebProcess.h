@@ -109,6 +109,7 @@ class Site;
 class UserGestureToken;
 
 enum class EventMakesGamepadsVisible : bool;
+enum class PlatformMediaSessionRemoteControlCommandType : uint8_t;
 enum class RenderAsTextFlag : uint16_t;
 enum class RenderingPurpose : uint8_t;
 enum class ScriptTrackingPrivacyCategory : uint8_t;
@@ -119,6 +120,7 @@ struct MessagePortIdentifier;
 struct MessageWithMessagePorts;
 struct MockMediaDevice;
 struct PrewarmInformation;
+struct PlatformMediaSessionRemoteCommandArgument;
 struct ScreenProperties;
 struct ServiceWorkerContextData;
 }
@@ -511,6 +513,8 @@ public:
     void registerAdditionalFonts(AdditionalFonts&&);
     void registerFontMap(HashMap<String, URL>&&, HashMap<String, Vector<String>>&&, Vector<SandboxExtension::Handle>&& sandboxExtensions);
 #endif
+
+    void didReceiveRemoteCommand(WebCore::PlatformMediaSessionRemoteControlCommandType, const WebCore::PlatformMediaSessionRemoteCommandArgument&);
 
 #if ENABLE(INITIALIZE_ACCESSIBILITY_ON_DEMAND)
     void initializeAccessibility(Vector<SandboxExtension::Handle>&&);

@@ -48,6 +48,7 @@
 #include "Logging.h"
 #include "MediaConstraints.h"
 #include "MediaDevices.h"
+#include "MediaSessionManagerInterface.h"
 #include "MediaStream.h"
 #include "MediaStreamPrivate.h"
 #include "NavigatorMediaDevices.h"
@@ -101,7 +102,8 @@ MediaStreamTrack::MediaStreamTrack(ScriptExecutionContext& context, Ref<MediaStr
     m_isInterrupted = m_private->interrupted();
 
     if (m_private->isAudio())
-        PlatformMediaSessionManager::singleton().addAudioCaptureSource(*this);
+        if (RefPtr manager = mediaSessionManager())
+            manager->addAudioCaptureSource(*this);
 }
 
 MediaStreamTrack::~MediaStreamTrack()
@@ -121,7 +123,8 @@ MediaStreamTrack::~MediaStreamTrack()
         return;
 
     if (m_private->isAudio())
-        PlatformMediaSessionManager::singleton().removeAudioCaptureSource(*this);
+        if (RefPtr manager = mediaSessionManager())
+            manager->removeAudioCaptureSource(*this);
 }
 
 const AtomString& MediaStreamTrack::kind() const
@@ -259,7 +262,8 @@ void MediaStreamTrack::stopTrack(StopMode mode)
     m_ended = true;
 
     if (isAudio() && isCaptureTrack())
-        PlatformMediaSessionManager::singleton().audioCaptureSourceStateChanged();
+        if (RefPtr manager = mediaSessionManager())
+            manager->audioCaptureSourceStateChanged();
 
     configureTrackRendering();
 }
@@ -489,7 +493,8 @@ void MediaStreamTrack::trackStarted(MediaStreamTrackPrivate&)
 void MediaStreamTrack::trackEnded(MediaStreamTrackPrivate&)
 {
     if (m_isCaptureTrack && m_private->isAudio())
-        PlatformMediaSessionManager::singleton().removeAudioCaptureSource(*this);
+        if (RefPtr manager = mediaSessionManager())
+            manager->removeAudioCaptureSource(*this);
 
     ALWAYS_LOG(LOGIDENTIFIER);
 
@@ -540,7 +545,8 @@ void MediaStreamTrack::trackMutedChanged(MediaStreamTrackPrivate&)
         m_muted = muted;
 
         if (isAudio() && isCaptureTrack())
-            PlatformMediaSessionManager::singleton().audioCaptureSourceStateChanged();
+            if (RefPtr manager = mediaSessionManager())
+                manager->audioCaptureSourceStateChanged();
 
         dispatchEvent(Event::create(muted ? eventNames().muteEvent : eventNames().unmuteEvent, Event::CanBubble::No, Event::IsCancelable::No));
     };
@@ -653,6 +659,19 @@ Ref<MediaStreamTrack> MediaStreamTrack::create(ScriptExecutionContext& context, 
     }
 
     return track;
+}
+
+RefPtr<MediaSessionManagerInterface> MediaStreamTrack::mediaSessionManager() const
+{
+    RefPtr document = dynamicDowncast<Document>(scriptExecutionContext());
+    if (!document)
+        return nullptr;
+
+    RefPtr page = document->page();
+    if (!page)
+        return nullptr;
+
+    return &page->mediaSessionManager();
 }
 
 ScriptExecutionContext* MediaStreamTrack::scriptExecutionContext() const

@@ -112,6 +112,7 @@
 #include "LoginStatus.h"
 #include "LowPowerModeNotifier.h"
 #include "MediaCanStartListener.h"
+#include "MediaEngineConfigurationFactory.h"
 #include "MemoryCache.h"
 #include "ModelPlayerProvider.h"
 #include "NavigationScheduler.h"
@@ -468,6 +469,7 @@ Page::Page(PageConfiguration&& pageConfiguration)
 #if PLATFORM(COCOA)
     , m_presentingApplicationBundleIdentifier(WTFMove(pageConfiguration.presentingApplicationBundleIdentifier))
 #endif
+    , m_mediaSessionManagerFactory(WTFMove(pageConfiguration.mediaSessionManagerFactory))
 {
     updateTimerThrottlingState();
 
@@ -3029,9 +3031,31 @@ void Page::schedulePlaybackControlsManagerUpdate()
 
 #if ENABLE(VIDEO)
 
+RefPtr<HTMLMediaElement> Page::bestMediaElementForRemoteControls(MediaElementSession::PlaybackControlsPurpose purpose, Document* document)
+{
+    auto selectedSession = mediaSessionManager().bestEligibleSessionForRemoteControls([document] (auto& session) {
+        auto* mediaElementSession = dynamicDowncast<MediaElementSession>(session);
+        if (!mediaElementSession)
+            return false;
+
+        RefPtr element = mediaElementSession->element().get();
+        if (!element)
+            return false;
+
+        return !document || &element->document() == document;
+    }, purpose);
+
+    if (RefPtr mediaElementSession = dynamicDowncast<MediaElementSession>(selectedSession.get()))
+        return mediaElementSession->protectedElement();
+
+    return nullptr;
+}
+
 void Page::playbackControlsManagerUpdateTimerFired()
 {
-    if (auto bestMediaElement = HTMLMediaElement::bestMediaElementForRemoteControls(MediaElementSession::PlaybackControlsPurpose::ControlsManager))
+    WeakPtr localMainFrame = dynamicDowncast<LocalFrame>(m_mainFrame.get());
+    RefPtr document = localMainFrame ? localMainFrame->document() : nullptr;
+    if (auto bestMediaElement = bestMediaElementForRemoteControls(MediaElementSession::PlaybackControlsPurpose::ControlsManager, document.get()))
         chrome().client().setUpPlaybackControlsManager(*bestMediaElement);
     else
         chrome().client().clearPlaybackControlsManager();
@@ -3129,8 +3153,8 @@ void Page::stopMediaCapture(MediaProducerMediaCaptureKind kind)
 bool Page::mediaPlaybackExists()
 {
 #if ENABLE(VIDEO)
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        return !platformMediaSessionManager->hasNoSession();
+    if (RefPtr sessionManager = mediaSessionManagerIfExists())
+        return !sessionManager->hasNoSession();
 #endif
     return false;
 }
@@ -3138,8 +3162,8 @@ bool Page::mediaPlaybackExists()
 bool Page::mediaPlaybackIsPaused()
 {
 #if ENABLE(VIDEO)
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        return platformMediaSessionManager->mediaPlaybackIsPaused(mediaSessionGroupIdentifier());
+    if (RefPtr sessionManager = mediaSessionManagerIfExists())
+        return sessionManager->mediaPlaybackIsPaused(mediaSessionGroupIdentifier());
 #endif
     return false;
 }
@@ -3147,8 +3171,8 @@ bool Page::mediaPlaybackIsPaused()
 void Page::pauseAllMediaPlayback()
 {
 #if ENABLE(VIDEO)
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        platformMediaSessionManager->pauseAllMediaPlaybackForGroup(mediaSessionGroupIdentifier());
+    if (RefPtr sessionManager = mediaSessionManagerIfExists())
+        sessionManager->pauseAllMediaPlaybackForGroup(mediaSessionGroupIdentifier());
 #endif
 }
 
@@ -3159,8 +3183,8 @@ void Page::suspendAllMediaPlayback()
     if (m_mediaPlaybackIsSuspended)
         return;
 
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        platformMediaSessionManager->suspendAllMediaPlaybackForGroup(mediaSessionGroupIdentifier());
+    if (RefPtr sessionManager = mediaSessionManagerIfExists())
+        sessionManager->suspendAllMediaPlaybackForGroup(mediaSessionGroupIdentifier());
 
     // FIXME: We cannot set m_mediaPlaybackIsSuspended before, see https://bugs.webkit.org/show_bug.cgi?id=192829#c7.
     m_mediaPlaybackIsSuspended = true;
@@ -3184,8 +3208,8 @@ void Page::resumeAllMediaPlayback()
         return;
     m_mediaPlaybackIsSuspended = false;
 
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        platformMediaSessionManager->resumeAllMediaPlaybackForGroup(mediaSessionGroupIdentifier());
+    if (RefPtr sessionManager = mediaSessionManagerIfExists())
+        sessionManager->resumeAllMediaPlaybackForGroup(mediaSessionGroupIdentifier());
 #endif
 }
 
@@ -3197,8 +3221,8 @@ void Page::suspendAllMediaBuffering()
         return;
     m_mediaBufferingIsSuspended = true;
 
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        platformMediaSessionManager->suspendAllMediaBufferingForGroup(mediaSessionGroupIdentifier());
+    if (RefPtr sessionManager = mediaSessionManagerIfExists())
+        sessionManager->suspendAllMediaBufferingForGroup(mediaSessionGroupIdentifier());
 #endif
 }
 
@@ -3209,8 +3233,8 @@ void Page::resumeAllMediaBuffering()
         return;
     m_mediaBufferingIsSuspended = false;
 
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        platformMediaSessionManager->resumeAllMediaBufferingForGroup(mediaSessionGroupIdentifier());
+    if (RefPtr sessionManager = mediaSessionManagerIfExists())
+        sessionManager->resumeAllMediaBufferingForGroup(mediaSessionGroupIdentifier());
 #endif
 }
 
@@ -3261,7 +3285,7 @@ void Page::setActivityState(OptionSet<ActivityState> activityState)
         observer.activityStateDidChange(oldActivityState, m_activityState);
 
     if (wasVisibleAndActive != isVisibleAndActive()) {
-        PlatformMediaSessionManager::updateNowPlayingInfoIfNecessary();
+        mediaSessionManager().updateNowPlayingInfoIfNecessary();
         stopKeyboardScrollAnimation();
     }
 
@@ -5655,11 +5679,10 @@ void Page::updateActiveNowPlayingSessionNow()
     if (m_activeNowPlayingSessionUpdateTimer.isActive())
         m_activeNowPlayingSessionUpdateTimer.stop();
 
-    RefPtr mediaSessionManager = PlatformMediaSessionManager::singletonIfExists();
-    if (!mediaSessionManager)
+    if (!mediaSessionManagerIfExists())
         return;
 
-    bool hasActiveNowPlayingSession = mediaSessionManager->hasActiveNowPlayingSessionInGroup(mediaSessionGroupIdentifier());
+    bool hasActiveNowPlayingSession = mediaSessionManager().hasActiveNowPlayingSessionInGroup(mediaSessionGroupIdentifier());
     if (hasActiveNowPlayingSession == m_hasActiveNowPlayingSession)
         return;
 
@@ -5841,7 +5864,7 @@ void Page::setPresentingApplicationAuditToken(std::optional<audit_token_t> prese
         return;
 #endif
 
-    if (RefPtr mediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
+    if (RefPtr mediaSessionManager = mediaSessionManagerIfExists())
         mediaSessionManager->updatePresentingApplicationPIDIfNecessary(presentingApplicationPID());
 }
 #endif
@@ -5860,6 +5883,53 @@ bool Page::requiresUserGestureForVideoPlayback() const
     if (autoplayPolicy != AutoplayPolicy::Default)
         return autoplayPolicy == AutoplayPolicy::Deny;
     return m_settings->requiresUserGestureForVideoPlayback();
+}
+
+static RefPtr<PlatformMediaSessionManager>& mediaSessionManagerSingleton()
+{
+    static NeverDestroyed<RefPtr<PlatformMediaSessionManager>> manager;
+    return manager.get();
+}
+
+MediaSessionManagerInterface& Page::mediaSessionManager()
+{
+    if (!m_mediaSessionManager) {
+        if (!m_mediaSessionManagerFactory) {
+            m_mediaSessionManagerFactory = [](std::optional<PageIdentifier> identifier) {
+                RefPtr<PlatformMediaSessionManager>& manager = mediaSessionManagerSingleton();
+                if (!manager) {
+                    manager = PlatformMediaSessionManager::create(identifier);
+                    manager->resetRestrictions();
+                }
+                return manager;
+            };
+        }
+
+        m_mediaSessionManager = m_mediaSessionManagerFactory.value()(m_identifier);
+
+        MediaEngineConfigurationFactory::setMediaSessionManagerProvider([] (PageIdentifier identifier) {
+            return Page::mediaSessionManagerForPageIdentifier(identifier);
+        });
+    }
+
+    return *m_mediaSessionManager;
+}
+
+MediaSessionManagerInterface* Page::mediaSessionManagerIfExists() const
+{
+    return m_mediaSessionManager.get();
+}
+
+MediaSessionManagerInterface* Page::mediaSessionManagerForPageIdentifier(PageIdentifier identifier)
+{
+    RefPtr<MediaSessionManagerInterface> manager;
+
+    forEachPage([identifier, &manager](auto& page) {
+        if (identifier == page.identifier())
+            manager = &page.mediaSessionManager();
+    });
+
+    return manager.get();
 }
 
 #if HAVE(SUPPORT_HDR_DISPLAY)

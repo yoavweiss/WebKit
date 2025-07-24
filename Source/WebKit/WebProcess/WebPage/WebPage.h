@@ -201,6 +201,7 @@ class LocalFrame;
 class LocalFrameView;
 class MediaPlaybackTargetContext;
 class MediaSessionCoordinator;
+class MediaSessionManagerInterface;
 class Page;
 class PolicyDecision;
 class PrintContext;
@@ -248,6 +249,7 @@ enum class MediaProducerMediaCaptureKind : uint8_t;
 enum class MediaProducerMediaState : uint32_t;
 enum class MediaProducerMutedState : uint8_t;
 enum class PlatformEventModifier : uint8_t;
+enum class PlatformMediaSessionRemoteControlCommandType : uint8_t;
 enum class RenderAsTextFlag : uint16_t;
 enum class ScheduleLocationChangeResult : uint8_t;
 enum class SelectionDirection : uint8_t;
@@ -305,6 +307,7 @@ struct MediaUsageInfo;
 struct MessageWithMessagePorts;
 struct NavigationIdentifierType;
 struct NowPlayingInfo;
+struct PlatformMediaSessionRemoteCommandArgument;
 struct ProcessSyncData;
 struct PromisedAttachmentInfo;
 struct RemoteUserInputEventData;
@@ -1441,6 +1444,15 @@ public:
     void shouldDismissKeyboardAfterTapAtPoint(WebCore::FloatPoint, CompletionHandler<void(bool)>&&);
 #endif
 
+    void processWillSuspend();
+    void processDidResume();
+    void didReceiveRemoteCommand(WebCore::PlatformMediaSessionRemoteControlCommandType, const WebCore::PlatformMediaSessionRemoteCommandArgument&);
+
+#if PLATFORM(COCOA)
+    void processSystemWillSleep() const;
+    void processSystemDidWake() const;
+#endif
+
 #if ENABLE(META_VIEWPORT)
     void setViewportConfigurationViewLayoutSize(const WebCore::FloatSize&, double layoutSizeScaleFactorFromClient, double minimumEffectiveDeviceWidth);
     void setOverrideViewportArguments(const std::optional<WebCore::ViewportArguments>&);
@@ -2022,6 +2034,9 @@ public:
     bool shouldSendConsoleLogsToUIProcessForTesting() const { return m_shouldSendConsoleLogsToUIProcessForTesting; }
 
     void setNeedsFixedContainerEdgesUpdate() { m_needsFixedContainerEdgesUpdate = true; }
+
+    RefPtr<WebCore::MediaSessionManagerInterface> mediaSessionManager() const;
+    WebCore::MediaSessionManagerInterface* mediaSessionManagerIfExists() const;
 
 #if ENABLE(MODEL_ELEMENT)
     bool shouldDisableModelLoadDelaysForTesting() const;

@@ -1086,6 +1086,9 @@ public:
     WebCore::FloatRect selectionBoundingRectInRootViewCoordinates() const;
 #endif
 
+    void processWillSuspend();
+    void processDidResume();
+
 #if PLATFORM(IOS_FAMILY)
     void textInputContextsInRect(WebCore::FloatRect, CompletionHandler<void(const Vector<WebCore::ElementContext>&)>&&);
     void focusTextInputContextAndPlaceCaret(const WebCore::ElementContext&, const WebCore::IntPoint&, CompletionHandler<void(bool)>&&);

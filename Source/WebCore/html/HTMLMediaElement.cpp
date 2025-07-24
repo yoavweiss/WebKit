@@ -643,6 +643,16 @@ HTMLMediaElement::HTMLMediaElement(const QualifiedName& tagName, Document& docum
     InspectorInstrumentation::addEventListenersToNode(*this);
 }
 
+void HTMLMediaElement::invalidateMediaSession()
+{
+    if (!m_mediaSession)
+        return;
+
+    m_mediaSession->unregisterWithDocument(protectedDocument());
+    m_mediaSession->invalidateClient();
+    m_mediaSession = nullptr;
+}
+
 void HTMLMediaElement::initializeMediaSession()
 {
     ASSERT(!m_mediaSession);
@@ -746,7 +756,6 @@ HTMLMediaElement::~HTMLMediaElement()
     allMediaElements().remove(*this);
 
     setShouldDelayLoadEvent(false);
-    unregisterWithDocument(Ref<Document> { document() });
 
 #if USE(AUDIO_SESSION) && PLATFORM(MAC)
     AudioSession::singleton().removeConfigurationChangeObserver(*this);
@@ -795,35 +804,15 @@ HTMLMediaElement::~HTMLMediaElement()
         m_player = nullptr;
     }
 
-    if (m_mediaSession) {
-        m_mediaSession->invalidateClient();
-        m_mediaSession = nullptr;
-    }
     schedulePlaybackControlsManagerUpdate();
+
+    invalidateMediaSession();
+    unregisterWithDocument(Ref<Document> { document() });
 }
 
 std::optional<MediaPlayerIdentifier> HTMLMediaElement::playerIdentifier() const
 {
     return m_player ? std::optional { m_player->identifier() } : std::nullopt;
-}
-
-RefPtr<HTMLMediaElement> HTMLMediaElement::bestMediaElementForRemoteControls(MediaElementSession::PlaybackControlsPurpose purpose, const Document* document)
-{
-    auto selectedSession = PlatformMediaSessionManager::singleton().bestEligibleSessionForRemoteControls([&document] (auto& session) {
-        auto* mediaElementSession = dynamicDowncast<MediaElementSession>(session);
-        if (!mediaElementSession)
-            return false;
-
-        RefPtr element = mediaElementSession->element().get();
-        if (!element)
-            return false;
-
-        return !document || &element->document() == document;
-    }, purpose);
-
-    if (auto* mediaElementSession = dynamicDowncast<MediaElementSession>(selectedSession.get()))
-        return mediaElementSession->protectedElement();
-    return nullptr;
 }
 
 bool HTMLMediaElement::isNowPlayingEligible() const
@@ -898,8 +887,7 @@ void HTMLMediaElement::unregisterWithDocument(Document& document)
     }
 #endif
 
-    if (m_mediaSession)
-        m_mediaSession->unregisterWithDocument(document);
+    invalidateMediaSession();
 
     if (m_isWaitingUntilMediaCanStart)
         document.removeMediaCanStartListener(*this);
@@ -5972,7 +5960,8 @@ void HTMLMediaElement::seekToPlaybackPositionEndedTimerFired()
     if (!m_isScrubbingRemotely)
         return;
 
-    PlatformMediaSessionManager::singleton().sessionDidEndRemoteScrubbing(mediaSession());
+    if (RefPtr manager = sessionManager())
+        manager->sessionDidEndRemoteScrubbing(mediaSession());
     m_isScrubbingRemotely = false;
     m_seekToPlaybackPositionEndedTimer.stop();
 #endif
@@ -6330,7 +6319,8 @@ bool HTMLMediaElement::couldPlayIfEnoughData() const
     if (pausedForUserInteraction())
         return false;
 
-    if (!canProduceAudio() || PlatformMediaSessionManager::singleton().hasActiveAudioSession())
+    RefPtr manager = sessionManager();
+    if (!canProduceAudio() || (manager && manager->hasActiveAudioSession()))
         return true;
 
     if (mediaSession().activeAudioSessionRequired() && mediaSession().blockedBySystemInterruption())
@@ -8323,7 +8313,7 @@ HTMLMediaElement::SleepType HTMLMediaElement::shouldDisableSleep() const
         return SleepType::System;
 #endif
 
-    if (PlatformMediaSessionManager::singleton().processIsSuspended())
+    if (RefPtr manager = sessionManager(); manager && manager->processIsSuspended())
         return SleepType::None;
 
     bool shouldBeAbleToSleep = mediaType() != PlatformMediaSession::MediaType::VideoAudio;
@@ -9200,7 +9190,7 @@ bool HTMLMediaElement::shouldOverrideBackgroundPlaybackRestriction(PlatformMedia
             INFO_LOG(LOGIDENTIFIER, "returning true because isPlayingToExternalTarget() is true");
             return true;
         }
-        if (PlatformMediaSessionManager::singleton().isPlayingToAutomotiveHeadUnit()) {
+        if (RefPtr manager = sessionManager(); manager && manager->isPlayingToAutomotiveHeadUnit()) {
             INFO_LOG(LOGIDENTIFIER, "returning true because isPlayingToAutomotiveHeadUnit() is true");
             return true;
         }
@@ -9229,7 +9219,7 @@ bool HTMLMediaElement::shouldOverrideBackgroundPlaybackRestriction(PlatformMedia
             INFO_LOG(LOGIDENTIFIER, "returning true because isPlayingToExternalTarget() is true");
             return true;
         }
-        if (PlatformMediaSessionManager::singleton().isPlayingToAutomotiveHeadUnit()) {
+        if (RefPtr manager = sessionManager(); manager && manager->isPlayingToAutomotiveHeadUnit()) {
             INFO_LOG(LOGIDENTIFIER, "returning true because isPlayingToAutomotiveHeadUnit() is true");
             return true;
         }
@@ -10243,6 +10233,14 @@ bool HTMLMediaElement::limitedMatroskaSupportEnabled() const
 #else
     return false;
 #endif
+}
+
+RefPtr<MediaSessionManagerInterface> HTMLMediaElement::sessionManager() const
+{
+    if (RefPtr page = document().page())
+        return &page->mediaSessionManager();
+
+    return nullptr;
 }
 
 } // namespace WebCore

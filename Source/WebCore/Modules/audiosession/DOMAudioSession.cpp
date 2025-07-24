@@ -104,7 +104,7 @@ ExceptionOr<void> DOMAudioSession::setType(Type type)
     AudioSession::singleton().setCategoryOverride(categoryOverride);
 
     if (categoryOverride == AudioSessionCategory::None)
-        PlatformMediaSessionManager::updateAudioSessionCategoryIfNecessary();
+        Ref { page->mediaSessionManager() }->updateAudioSessionCategoryIfNecessary();
 
     return { };
 }

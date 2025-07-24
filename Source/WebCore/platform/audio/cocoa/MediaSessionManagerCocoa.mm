@@ -65,15 +65,14 @@ namespace WebCore {
 WTF_MAKE_TZONE_ALLOCATED_IMPL(MediaSessionManagerCocoa);
 
 #if PLATFORM(MAC)
-const std::unique_ptr<PlatformMediaSessionManager> PlatformMediaSessionManager::create()
+RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(std::optional<PageIdentifier>)
 {
-    return makeUniqueWithoutRefCountedCheck<MediaSessionManagerCocoa, PlatformMediaSessionManager>();
+    return adoptRef(new MediaSessionManagerCocoa);
 }
 #endif // !PLATFORM(MAC)
 
 MediaSessionManagerCocoa::MediaSessionManagerCocoa()
     : m_nowPlayingManager(hasPlatformStrategies() ? platformStrategies()->mediaStrategy().createNowPlayingManager() : nullptr)
-    , m_defaultBufferSize(AudioSession::singleton().preferredBufferSize())
     , m_delayCategoryChangeTimer(RunLoop::mainSingleton(), this, &MediaSessionManagerCocoa::possiblyChangeAudioCategory)
 {
 }
@@ -143,7 +142,11 @@ void MediaSessionManagerCocoa::updateSessionState()
 
     MEDIASESSIONMANAGER_RELEASE_LOG(UPDATESESSIONSTATE, captureCount, audioMediaStreamTrackCount, videoCount, audioCount, videoAudioCount, webAudioCount);
 
-    size_t bufferSize = m_defaultBufferSize;
+    Ref sharedSession = AudioSession::singleton();
+    if (!m_defaultBufferSize)
+        m_defaultBufferSize = sharedSession->preferredBufferSize();
+    size_t bufferSize = m_defaultBufferSize.value();
+
     if (webAudioCount)
         bufferSize = AudioUtilities::renderQuantumSize;
     else if (captureCount || audioMediaStreamTrackCount) {

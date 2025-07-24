@@ -45,9 +45,9 @@ namespace WebCore {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(MediaSessionManageriOS);
 
-const std::unique_ptr<PlatformMediaSessionManager> PlatformMediaSessionManager::create()
+RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(std::optional<PageIdentifier>)
 {
-    auto manager = std::unique_ptr<MediaSessionManageriOS>(new MediaSessionManageriOS);
+    auto manager = adoptRef(new MediaSessionManageriOS);
     MediaSessionHelper::sharedHelper().addClient(*manager);
     return manager;
 }

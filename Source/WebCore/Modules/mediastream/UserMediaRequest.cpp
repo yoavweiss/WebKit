@@ -145,7 +145,7 @@ void UserMediaRequest::start()
 
     ASSERT(document.page());
     if (RefPtr page = document.page())
-        PlatformMediaSessionManager::singleton().prepareToSendUserMediaPermissionRequestForPage(*page);
+        page->mediaSessionManager().prepareToSendUserMediaPermissionRequestForPage(*page);
     controller->requestUserMediaAccess(*this);
 }
 

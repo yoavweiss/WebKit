@@ -149,6 +149,7 @@ class LowPowerModeNotifier;
 class MediaCanStartListener;
 class MediaPlaybackTarget;
 class MediaSessionCoordinatorPrivate;
+class MediaSessionManagerInterface;
 class ModelPlayerProvider;
 class PageConfiguration;
 class PageConsoleClient;
@@ -252,6 +253,7 @@ enum class FindOption : uint16_t;
 enum class FilterRenderingMode : uint8_t;
 enum class LayoutMilestone : uint16_t;
 enum class LoginStatusAuthenticationType : uint8_t;
+enum class PlatformMediaSessionPlaybackControlsPurpose : uint8_t;
 enum class MediaPlaybackTargetContextMockState : uint8_t;
 enum class MediaProducerMediaState : uint32_t;
 enum class MediaProducerMediaCaptureKind : uint8_t;
@@ -1347,6 +1349,12 @@ public:
     WEBCORE_EXPORT void setPresentingApplicationBundleIdentifier(String&&);
 #endif
 
+    WEBCORE_EXPORT RefPtr<HTMLMediaElement> bestMediaElementForRemoteControls(PlatformMediaSessionPlaybackControlsPurpose, Document*);
+
+    WEBCORE_EXPORT MediaSessionManagerInterface& mediaSessionManager();
+    WEBCORE_EXPORT MediaSessionManagerInterface* mediaSessionManagerIfExists() const;
+    WEBCORE_EXPORT static MediaSessionManagerInterface* mediaSessionManagerForPageIdentifier(PageIdentifier);
+
 #if ENABLE(MODEL_ELEMENT)
     bool shouldDisableModelLoadDelaysForTesting() const { return m_modelLoadDelaysDisabledForTesting; }
     void disableModelLoadDelaysForTesting() { m_modelLoadDelaysDisabledForTesting = true; }
@@ -1819,6 +1827,10 @@ private:
 #if PLATFORM(COCOA)
     String m_presentingApplicationBundleIdentifier;
 #endif
+
+    using MediaSessionManagerFactory = Function<RefPtr<MediaSessionManagerInterface> (std::optional<PageIdentifier>)>;
+    std::optional<MediaSessionManagerFactory> m_mediaSessionManagerFactory;
+    RefPtr<MediaSessionManagerInterface> m_mediaSessionManager;
 
 #if ENABLE(MODEL_ELEMENT)
     bool m_modelLoadDelaysDisabledForTesting { false };

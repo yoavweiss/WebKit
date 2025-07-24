@@ -2625,9 +2625,11 @@ void Document::visibilityStateChanged()
     });
 
 #if ENABLE(MEDIA_STREAM) && PLATFORM(IOS_FAMILY)
-    if (auto mediaSessionManager = PlatformMediaSessionManager::singletonIfExists()) {
-        if (!mediaSessionManager->isInterrupted())
-            updateCaptureAccordingToMutedState();
+    if (RefPtr page = this->page()) {
+        if (RefPtr mediaSessionManager = page->mediaSessionManagerIfExists()) {
+            if (!mediaSessionManager->isInterrupted())
+                updateCaptureAccordingToMutedState();
+        }
     }
 #endif
 

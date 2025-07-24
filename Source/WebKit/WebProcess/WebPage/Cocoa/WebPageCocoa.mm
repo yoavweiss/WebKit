@@ -193,9 +193,9 @@ void WebPage::platformDidReceiveLoadParameters(const LoadParameters& parameters)
 
 void WebPage::requestActiveNowPlayingSessionInfo(CompletionHandler<void(bool, WebCore::NowPlayingInfo&&)>&& completionHandler)
 {
-    if (RefPtr sharedManager = WebCore::PlatformMediaSessionManager::singletonIfExists()) {
-        if (auto nowPlayingInfo = sharedManager->nowPlayingInfo()) {
-            bool registeredAsNowPlayingApplication = sharedManager->registeredAsNowPlayingApplication();
+    if (RefPtr manager = mediaSessionManagerIfExists()) {
+        if (auto nowPlayingInfo = manager->nowPlayingInfo()) {
+            bool registeredAsNowPlayingApplication = manager->registeredAsNowPlayingApplication();
             completionHandler(registeredAsNowPlayingApplication, WTFMove(*nowPlayingInfo));
             return;
         }
@@ -1442,6 +1442,18 @@ void WebPage::getWebArchives(CompletionHandler<void(HashMap<WebCore::FrameIdenti
             result.add(localFrame->frameID(), archive.releaseNonNull());
     }
     completionHandler(WTFMove(result));
+}
+
+void WebPage::processSystemWillSleep() const
+{
+    if (RefPtr manager = mediaSessionManagerIfExists())
+        manager->processSystemWillSleep();
+}
+
+void WebPage::processSystemDidWake() const
+{
+    if (RefPtr manager = mediaSessionManagerIfExists())
+        manager->processSystemDidWake();
 }
 
 } // namespace WebKit

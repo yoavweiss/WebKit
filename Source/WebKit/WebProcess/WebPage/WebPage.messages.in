@@ -148,6 +148,9 @@ messages -> WebPage WantsAsyncDispatchMessage {
     ClearServiceWorkerEntitlementOverride() -> ()
 #endif
 
+    ProcessWillSuspend()
+    ProcessDidResume()
+
     RequestImageBitmap(struct WebCore::ElementContext elementContext) -> (std::optional<WebCore::ShareableBitmapHandle> image, String sourceMIMEType)
 
     SetControlledByAutomation(bool controlled)

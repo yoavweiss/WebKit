@@ -67,6 +67,7 @@
 #include "JSDOMPromiseDeferred.h"
 #include "LocalFrame.h"
 #include "Logging.h"
+#include "MediaSessionManagerInterface.h"
 #include "NetworkingContext.h"
 #include "OriginAccessPatterns.h"
 #include "OscillatorNode.h"
@@ -244,7 +245,8 @@ void BaseAudioContext::setState(State state)
     if (m_state != state) {
         m_state = state;
         queueTaskToDispatchEvent(*this, TaskSource::MediaElement, Event::create(eventNames().statechangeEvent, Event::CanBubble::Yes, Event::IsCancelable::No));
-        PlatformMediaSessionManager::updateNowPlayingInfoIfNecessary();
+        if (RefPtr manager = mediaSessionManager())
+            manager->updateNowPlayingInfoIfNecessary();
     }
 
     size_t stateIndex = static_cast<size_t>(state);
@@ -982,6 +984,20 @@ WTFLogChannel& BaseAudioContext::logChannel() const
     return LogMedia;
 }
 #endif
+
+RefPtr<MediaSessionManagerInterface> BaseAudioContext::mediaSessionManager() const
+{
+    RefPtr document = this->document();
+    if (!document)
+        return nullptr;
+
+    RefPtr page = document->page();
+    if (!page)
+        return nullptr;
+
+    return &page->mediaSessionManager();
+}
+
 
 } // namespace WebCore
 

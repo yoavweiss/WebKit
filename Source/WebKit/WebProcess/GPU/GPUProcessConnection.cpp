@@ -54,7 +54,7 @@
 #include "WebPageMessages.h"
 #include "WebProcess.h"
 #include "WebProcessProxyMessages.h"
-#include <WebCore/PlatformMediaSessionManager.h>
+#include <WebCore/PlatformMediaSession.h>
 #include <WebCore/RenderingMode.h>
 #include <WebCore/SharedBuffer.h>
 
@@ -345,7 +345,7 @@ bool GPUProcessConnection::waitForDidInitialize()
 void GPUProcessConnection::didReceiveRemoteCommand(PlatformMediaSession::RemoteControlCommandType type, const PlatformMediaSession::RemoteCommandArgument& argument)
 {
 #if ENABLE(VIDEO) || ENABLE(WEB_AUDIO)
-    PlatformMediaSessionManager::singleton().processDidReceiveRemoteControlCommand(type, argument);
+    WebProcess::singleton().didReceiveRemoteCommand(type, argument);
 #endif
 }
 

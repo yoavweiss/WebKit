@@ -128,7 +128,7 @@
 #include <WebCore/PageGroup.h>
 #include <WebCore/PermissionController.h>
 #include <WebCore/PlatformKeyboardEvent.h>
-#include <WebCore/PlatformMediaSessionManager.h>
+#include <WebCore/PlatformMediaSession.h>
 #include <WebCore/ProcessIdentifier.h>
 #include <WebCore/ProcessWarming.h>
 #include <WebCore/Quirks.h>
@@ -1746,8 +1746,9 @@ void WebProcess::prepareToSuspend(bool isSuspensionImminent, MonotonicTime estim
 
 #if ENABLE(VIDEO)
     suspendAllMediaBuffering();
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        platformMediaSessionManager->processWillSuspend();
+
+    for (auto& page : m_pageMap.values())
+        page->processWillSuspend();
 #endif
 
     // Ask the process to slim down before it suspends, in case it suspends for a very long time.
@@ -1844,8 +1845,8 @@ void WebProcess::processDidResume()
 #endif
 
 #if ENABLE(VIDEO)
-    if (RefPtr platformMediaSessionManager = PlatformMediaSessionManager::singletonIfExists())
-        platformMediaSessionManager->processDidResume();
+    for (auto& page : m_pageMap.values())
+        page->processDidResume();
     resumeAllMediaBuffering();
 #endif
 }
@@ -2618,6 +2619,12 @@ void WebProcess::setResourceMonitorContentRuleListAsync(WebCompiledContentRuleLi
     completionHandler();
 }
 #endif
+
+void WebProcess::didReceiveRemoteCommand(PlatformMediaSession::RemoteControlCommandType type, const PlatformMediaSession::RemoteCommandArgument& argument)
+{
+    for (auto& page : m_pageMap.values())
+        page->didReceiveRemoteCommand(type, argument);
+}
 
 } // namespace WebKit
 
