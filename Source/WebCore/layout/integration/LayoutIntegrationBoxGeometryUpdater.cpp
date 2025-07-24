@@ -354,13 +354,7 @@ static std::optional<LayoutUnit> lastInflowBoxBaseline(const RenderBlock& blockC
             continue;
         }
 
-        if (is<RenderTextControlInnerContainer>(*inflowBox) || is<RenderMenuList>(*inflowBox)) {
-            if (auto baseline = lastInflowBoxBaseline(downcast<RenderBlock>(*inflowBox)))
-                return inflowBox->logicalTop() + *baseline;
-            continue;
-        }
-
-        if (is<RenderFlexibleBox>(*inflowBox) || is<RenderGrid>(*inflowBox) || is<RenderBlockFlow>(*inflowBox)) {
+        if (is<RenderFlexibleBox>(*inflowBox) || is<RenderGrid>(*inflowBox) || is<RenderBlockFlow>(*inflowBox) || is<RenderTextControlInnerContainer>(*inflowBox) || is<RenderMenuList>(*inflowBox)) {
             if (auto baseline = baselineForBox(*inflowBox))
                 return LayoutUnit { (inflowBox->logicalTop() + *baseline).toInt() };
             continue;
@@ -471,9 +465,9 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
         return { };
     }
 
-    if (CheckedPtr menuList = dynamicDowncast<RenderMenuList>(renderBox)) {
-        // menu list is a type of flex box but behaves slightly differently so always check this before checking for flex.
-        if (auto baseline = lastInflowBoxBaseline(*menuList))
+    if (is<RenderMenuList>(renderBox) || is<RenderTextControlInnerContainer>(renderBox)) {
+        // Both menu list and inner container are types of flex box but they behave slightly differently so always check them before checking for flex.
+        if (auto baseline = lastInflowBoxBaseline(downcast<RenderBlock>(renderBox)))
             return *baseline;
         return { };
     }
