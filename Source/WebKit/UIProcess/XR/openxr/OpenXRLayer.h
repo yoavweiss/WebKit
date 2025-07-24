@@ -32,7 +32,7 @@
 
 namespace WebKit {
 
-class XRDeviceLayer;
+struct XRDeviceLayer;
 
 class OpenXRLayer {
     WTF_MAKE_TZONE_ALLOCATED(OpenXRLayer);
