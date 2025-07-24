@@ -972,7 +972,6 @@
 		31B362952141EBCD007BFA53 /* _WKInternalDebugFeature.h in Headers */ = {isa = PBXBuildFile; fileRef = 31B362942141EBAD007BFA53 /* _WKInternalDebugFeature.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		31BA924E148831260062EDB5 /* WebNotificationManagerMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 31BA9249148830810062EDB5 /* WebNotificationManagerMessages.h */; };
 		31D755C11D91B81500843BD1 /* WKTextChecker.h in Headers */ = {isa = PBXBuildFile; fileRef = 314888FF1D91B11D00377042 /* WKTextChecker.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		33058F192D7F820300F375A9 /* CoreIPCPKPaymentSetupFeature.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33058F182D7F81ED00F375A9 /* CoreIPCPKPaymentSetupFeature.mm */; };
 		330934481315B9220097A7BC /* WebCookieManagerMessages.h in Headers */ = {isa = PBXBuildFile; fileRef = 330934441315B9220097A7BC /* WebCookieManagerMessages.h */; };
 		330934501315B94D0097A7BC /* WebCookieManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 3309344D1315B94D0097A7BC /* WebCookieManager.h */; };
 		3309345B1315B9980097A7BC /* WKCookieManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 330934591315B9980097A7BC /* WKCookieManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -2502,6 +2501,8 @@
 		F43019682DC97B10006522E0 /* WKColorExtensionView.h in Headers */ = {isa = PBXBuildFile; fileRef = F43019662DC97AAE006522E0 /* WKColorExtensionView.h */; };
 		F430E9422247335F005FE053 /* WebsiteMetaViewportPolicy.h in Headers */ = {isa = PBXBuildFile; fileRef = F430E941224732A9005FE053 /* WebsiteMetaViewportPolicy.h */; };
 		F430E94422473DFF005FE053 /* WebContentMode.h in Headers */ = {isa = PBXBuildFile; fileRef = F430E94322473DB8005FE053 /* WebContentMode.h */; };
+		F430FB742E316C1F003340BB /* CoreIPCStringSet.mm in Sources */ = {isa = PBXBuildFile; fileRef = F430FB732E316C10003340BB /* CoreIPCStringSet.mm */; };
+		F430FB762E3172C8003340BB /* CoreIPCStringSet.h in Headers */ = {isa = PBXBuildFile; fileRef = F430FB722E316B0D003340BB /* CoreIPCStringSet.h */; };
 		F433C0A72958C22F00E771C2 /* NetworkIssueReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = F433C0A52958C22F00E771C2 /* NetworkIssueReporter.h */; };
 		F4351B9E25EEC84C00D63892 /* ImageAnalysisUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = F4351B9D25EEC84C00D63892 /* ImageAnalysisUtilities.h */; };
 		F43548382AB7C41E00150894 /* WKTapHighlightView.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E8912E2AB7C344005AEBC3 /* WKTapHighlightView.h */; };
@@ -5133,8 +5134,6 @@
 		31F060DD1654317500F3281C /* NetworkSocketChannelMessageReceiver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkSocketChannelMessageReceiver.cpp; sourceTree = "<group>"; };
 		32DBCF5E0370ADEE00C91783 /* WebKit2Prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKit2Prefix.h; sourceTree = "<group>"; };
 		3302293F2938263E001F00FA /* WebExtensionAPIWebNavigationEvent.idl */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebExtensionAPIWebNavigationEvent.idl; sourceTree = "<group>"; };
-		33058F172D7F81ED00F375A9 /* CoreIPCPKPaymentSetupFeature.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreIPCPKPaymentSetupFeature.h; sourceTree = "<group>"; };
-		33058F182D7F81ED00F375A9 /* CoreIPCPKPaymentSetupFeature.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CoreIPCPKPaymentSetupFeature.mm; sourceTree = "<group>"; };
 		33066F09293A90DC008C5749 /* WebExtensionAPIWebNavigation.idl */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebExtensionAPIWebNavigation.idl; sourceTree = "<group>"; };
 		330934431315B9220097A7BC /* WebCookieManagerMessageReceiver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebCookieManagerMessageReceiver.cpp; sourceTree = "<group>"; };
 		330934441315B9220097A7BC /* WebCookieManagerMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebCookieManagerMessages.h; sourceTree = "<group>"; };
@@ -8437,6 +8436,9 @@
 		F43019672DC97AAE006522E0 /* WKColorExtensionView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WKColorExtensionView.mm; sourceTree = "<group>"; };
 		F430E941224732A9005FE053 /* WebsiteMetaViewportPolicy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebsiteMetaViewportPolicy.h; sourceTree = "<group>"; };
 		F430E94322473DB8005FE053 /* WebContentMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebContentMode.h; sourceTree = "<group>"; };
+		F430FB722E316B0D003340BB /* CoreIPCStringSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreIPCStringSet.h; sourceTree = "<group>"; };
+		F430FB732E316C10003340BB /* CoreIPCStringSet.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CoreIPCStringSet.mm; sourceTree = "<group>"; };
+		F430FB752E317177003340BB /* CoreIPCStringSet.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = CoreIPCStringSet.serialization.in; sourceTree = "<group>"; };
 		F433C0A52958C22F00E771C2 /* NetworkIssueReporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkIssueReporter.h; sourceTree = "<group>"; };
 		F433C0A62958C22F00E771C2 /* NetworkIssueReporter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkIssueReporter.mm; sourceTree = "<group>"; };
 		F4351B9D25EEC84C00D63892 /* ImageAnalysisUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageAnalysisUtilities.h; sourceTree = "<group>"; };
@@ -12571,8 +12573,6 @@
 				51AD568D2B1C46EF001A0ECB /* CoreIPCPersonNameComponents.h */,
 				51AD568E2B1C46EF001A0ECB /* CoreIPCPersonNameComponents.mm */,
 				51AD568F2B1C46F0001A0ECB /* CoreIPCPersonNameComponents.serialization.in */,
-				33058F172D7F81ED00F375A9 /* CoreIPCPKPaymentSetupFeature.h */,
-				33058F182D7F81ED00F375A9 /* CoreIPCPKPaymentSetupFeature.mm */,
 				FAF27D2E2D2850D400F1F0BB /* CoreIPCPKSecureElementPass.h */,
 				FAF27D2F2D2850D400F1F0BB /* CoreIPCPKSecureElementPass.mm */,
 				F4B63E162C49586700BC59EF /* CoreIPCPlist.serialization.in */,
@@ -12591,6 +12591,9 @@
 				5197FAD12AFD33B0009180C5 /* CoreIPCSecureCoding.serialization.in */,
 				5197FACC2AFD33AE009180C5 /* CoreIPCString.h */,
 				5197FAD42AFD33B0009180C5 /* CoreIPCString.serialization.in */,
+				F430FB722E316B0D003340BB /* CoreIPCStringSet.h */,
+				F430FB732E316C10003340BB /* CoreIPCStringSet.mm */,
+				F430FB752E317177003340BB /* CoreIPCStringSet.serialization.in */,
 				51D1B6932B09723A00FEA5CB /* CoreIPCTypes.h */,
 				5197FADB2AFD33B2009180C5 /* CoreIPCURL.h */,
 				5197FAC92AFD33AE009180C5 /* CoreIPCURL.serialization.in */,
@@ -17219,6 +17222,7 @@
 				561A54532B61E49E00073A72 /* CoreIPCSecCertificate.h in Headers */,
 				5197FAE92AFD33CF009180C5 /* CoreIPCSecureCoding.h in Headers */,
 				5197FAE52AFD33CF009180C5 /* CoreIPCString.h in Headers */,
+				F430FB762E3172C8003340BB /* CoreIPCStringSet.h in Headers */,
 				51D1B6942B09723A00FEA5CB /* CoreIPCTypes.h in Headers */,
 				5197FAE62AFD33CF009180C5 /* CoreIPCURL.h in Headers */,
 				37C21CAE1E994C0C0029D5F9 /* CorePredictionSPI.h in Headers */,
@@ -20549,7 +20553,6 @@
 				FAC7C0C22D712E2900E7297E /* CoreIPCNumber.mm in Sources */,
 				5157AE0B2B23E97400C0E095 /* CoreIPCPassKit.mm in Sources */,
 				51AD56902B1C46FE001A0ECB /* CoreIPCPersonNameComponents.mm in Sources */,
-				33058F192D7F820300F375A9 /* CoreIPCPKPaymentSetupFeature.mm in Sources */,
 				FAF27D302D2851EB00F1F0BB /* CoreIPCPKSecureElementPass.mm in Sources */,
 				F4F12CB32C48B8C100BC1254 /* CoreIPCPlistArray.mm in Sources */,
 				F4F12CB02C48B2C800BC1254 /* CoreIPCPlistDictionary.mm in Sources */,
@@ -20557,6 +20560,7 @@
 				564599972B71C3B700BC59E6 /* CoreIPCPresentationIntent.mm in Sources */,
 				F4B021E72D0BAC2D00D9145E /* CoreIPCSecTrust.mm in Sources */,
 				5197FAED2AFD33FF009180C5 /* CoreIPCSecureCoding.mm in Sources */,
+				F430FB742E316C1F003340BB /* CoreIPCStringSet.mm in Sources */,
 				5131D5462AE9D5230016EF39 /* CoreTextHelpers.mm in Sources */,
 				51AD56862B1AB839001A0ECB /* GeneratedWebKitSecureCoding.mm in Sources */,
 				7B9FC5D128A53014007570E7 /* PlatformUnifiedSource1-mm.mm in Sources */,

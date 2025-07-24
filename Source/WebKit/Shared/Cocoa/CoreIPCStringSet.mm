@@ -23,30 +23,44 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#import "config.h"
+#import "CoreIPCStringSet.h"
 
-#if USE(PASSKIT)
+#import <wtf/cocoa/VectorCocoa.h>
+#import <wtf/text/WTFString.h>
 
-#include <wtf/RetainPtr.h>
-#include <wtf/Vector.h>
+#if PLATFORM(COCOA)
 
-OBJC_CLASS PKPaymentSetupFeature;
+OBJC_CLASS NSSet;
 
 namespace WebKit {
 
-class CoreIPCPKPaymentSetupFeature {
-public:
-    CoreIPCPKPaymentSetupFeature(PKPaymentSetupFeature *);
-    CoreIPCPKPaymentSetupFeature(Vector<uint8_t>&& data)
-        : m_data(WTFMove(data)) { }
+CoreIPCStringSet::CoreIPCStringSet(NSSet *stringSet)
+{
+    if (![stringSet isKindOfClass:[NSSet class]])
+        return;
+    for (id value in stringSet) {
+        if (![value isKindOfClass:[NSString class]])
+            continue;
+        m_stringSet.append(value);
+    }
+}
 
-    RetainPtr<id> toID() const;
-    const Vector<uint8_t>& ipcData() const { return m_data; }
+CoreIPCStringSet::CoreIPCStringSet(Vector<String>&& strings)
+    : m_stringSet(WTFMove(strings)) { }
 
-private:
-    Vector<uint8_t> m_data;
-};
+CoreIPCStringSet::~CoreIPCStringSet() = default;
+
+RetainPtr<id> CoreIPCStringSet::toID() const
+{
+    RetainPtr result = adoptNS([[NSMutableArray alloc] init]);
+    for (auto& s : m_stringSet)
+        [result addObject:s.createNSString().get()];
+
+    RetainPtr<NSSet> set = [NSSet setWithArray:result.get()];
+    return set;
+}
 
 } // namespace WebKit
 
-#endif // USE(PASSKIT)
+#endif // PLATFORM(COCOA)

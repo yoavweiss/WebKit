@@ -372,6 +372,8 @@ class MemberVariable(object):
             return 'NSPersonNameComponents'
         if value.startswith('Array'):
             return 'NSArray'
+        if value == 'Set':
+            return 'NSSet'
         return value
 
     def ns_type_pointer(self):
