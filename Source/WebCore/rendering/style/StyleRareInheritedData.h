@@ -29,6 +29,7 @@
 #include "RenderStyleConstants.h"
 #include "StyleBlockEllipsis.h"
 #include "StyleColor.h"
+#include "StyleCursor.h"
 #include "StyleCustomPropertyData.h"
 #include "StyleLineBoxContain.h"
 #include "StyleDynamicRangeLimit.h"
@@ -68,7 +69,6 @@ class TextStream;
 
 namespace WebCore {
 
-class CursorList;
 class StyleFilterData;
 class StyleImage;
 
@@ -114,7 +114,11 @@ public:
 
     Style::TextShadows textShadow;
 
-    RefPtr<CursorList> cursorData;
+    // The `cursor` property's state is stored broken up into two parts:
+    //  - the cursor's `predefined` state is stored in `RenderStyle::InheritedFlags::cursor`.
+    //  - the cursor's `images` state is stored here in `StyleRareInheritedData::cursorImages`.
+    Style::Cursor::Images cursorImages;
+
     float usedZoom;
 
     Style::TextEmphasisStyle textEmphasisStyle;

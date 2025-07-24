@@ -31,7 +31,6 @@
 #include "CachedResourceLoader.h"
 #include "ContainerNodeInlines.h"
 #include "ContentVisibilityDocumentState.h"
-#include "CursorList.h"
 #include "DocumentInlines.h"
 #include "ElementChildIteratorInlines.h"
 #include "EventHandler.h"
@@ -1038,19 +1037,6 @@ inline void RenderCounter::rendererStyleChanged(RenderElement& renderer, const R
     rendererStyleChangedSlowCase(renderer, oldStyle, newStyle);
 }
 
-#if !PLATFORM(IOS_FAMILY)
-static bool areNonIdenticalCursorListsEqual(const RenderStyle* a, const RenderStyle* b)
-{
-    ASSERT(a->cursors() != b->cursors());
-    return a->cursors() && b->cursors() && *a->cursors() == *b->cursors();
-}
-
-static inline bool areCursorsEqual(const RenderStyle* a, const RenderStyle* b)
-{
-    return a->cursor() == b->cursor() && (a->cursors() == b->cursors() || areNonIdenticalCursorListsEqual(a, b));
-}
-#endif
-
 void RenderElement::styleDidChange(StyleDifference diff, const RenderStyle* oldStyle)
 {
     auto registerImages = [this](auto* style, auto* oldStyle) {
@@ -1106,7 +1092,7 @@ void RenderElement::styleDidChange(StyleDifference diff, const RenderStyle* oldS
     // updated by subclasses before we know if we have to repaint (in setStyle()).
 
 #if !PLATFORM(IOS_FAMILY)
-    if (oldStyle && !areCursorsEqual(oldStyle, &style()))
+    if (oldStyle && oldStyle->cursor() != style().cursor())
         protectedFrame()->eventHandler().scheduleCursorUpdate();
 #endif
 

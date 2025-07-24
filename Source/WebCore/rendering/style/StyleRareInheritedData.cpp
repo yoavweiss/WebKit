@@ -23,7 +23,6 @@
 #include "config.h"
 #include "StyleRareInheritedData.h"
 
-#include "CursorList.h"
 #include "RenderStyleInlines.h"
 #include "RenderStyleConstants.h"
 #include "RenderStyleDifference.h"
@@ -90,6 +89,7 @@ StyleRareInheritedData::StyleRareInheritedData()
     , scrollbarColor(RenderStyle::initialScrollbarColor())
     , dynamicRangeLimit(RenderStyle::initialDynamicRangeLimit())
     , textShadow(RenderStyle::initialTextShadow())
+    , cursorImages(RenderStyle::initialCursor().images)
     , usedZoom(RenderStyle::initialZoom())
     , textEmphasisStyle(RenderStyle::initialTextEmphasisStyle())
     , textIndent(RenderStyle::initialTextIndent())
@@ -188,7 +188,7 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , scrollbarColor(o.scrollbarColor)
     , dynamicRangeLimit(o.dynamicRangeLimit)
     , textShadow(o.textShadow)
-    , cursorData(o.cursorData)
+    , cursorImages(o.cursorImages)
     , usedZoom(o.usedZoom)
     , textEmphasisStyle(o.textEmphasisStyle)
     , textIndent(o.textIndent)
@@ -304,7 +304,7 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && tapHighlightColor == o.tapHighlightColor
 #endif
         && textShadow == o.textShadow
-        && arePointingToEqualData(cursorData, o.cursorData)
+        && cursorImages == o.cursorImages
         && usedZoom == o.usedZoom
         && textEmphasisStyle == o.textEmphasisStyle
         && textIndent == o.textIndent
@@ -424,7 +424,7 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT(textShadow);
 
-    LOG_IF_DIFFERENT(cursorData);
+    LOG_IF_DIFFERENT(cursorImages);
 
     LOG_IF_DIFFERENT(usedZoom);
 

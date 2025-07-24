@@ -42,7 +42,6 @@
 #include "CSSRegisteredCustomProperty.h"
 #include "CSSTextShadowPropertyValue.h"
 #include "CSSURLValue.h"
-#include "CursorList.h"
 #include "ElementAncestorIteratorInlines.h"
 #include "FontVariantBuilder.h"
 #include "HTMLElement.h"
@@ -158,7 +157,6 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterIncrement);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterReset);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(CounterSet);
-    DECLARE_PROPERTY_CUSTOM_HANDLERS(Cursor);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Fill);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(FontFamily);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(FontSize);
@@ -903,48 +901,6 @@ inline void BuilderCustom::applyInheritCounterSet(BuilderState& builderState)
 inline void BuilderCustom::applyValueCounterSet(BuilderState& builderState, CSSValue& value)
 {
     applyValueCounter<Set>(builderState, value);
-}
-
-inline void BuilderCustom::applyInitialCursor(BuilderState& builderState)
-{
-    builderState.style().clearCursorList();
-    builderState.style().setCursor(RenderStyle::initialCursor());
-}
-
-inline void BuilderCustom::applyInheritCursor(BuilderState& builderState)
-{
-    builderState.style().setCursor(forwardInheritedValue(builderState.parentStyle().cursor()));
-    builderState.style().setCursorList(forwardInheritedValue(builderState.parentStyle().cursors()));
-}
-
-inline void BuilderCustom::applyValueCursor(BuilderState& builderState, CSSValue& value)
-{
-    builderState.style().clearCursorList();
-    if (is<CSSPrimitiveValue>(value)) {
-        auto cursor = fromCSSValue<CursorType>(value);
-        if (builderState.style().cursor() != cursor)
-            builderState.style().setCursor(cursor);
-        return;
-    }
-
-    builderState.style().setCursor(CursorType::Auto);
-
-    auto list = requiredListDowncast<CSSValueList, CSSValue>(builderState, value);
-    if (!list)
-        return;
-
-    for (auto& item : *list) {
-        if (auto* image = dynamicDowncast<CSSCursorImageValue>(item)) {
-            auto styleImage = image->createStyleImage(builderState);
-            auto hotSpot = styleImage->hotSpot();
-            builderState.style().addCursor(WTFMove(styleImage), hotSpot);
-            continue;
-        }
-
-        builderState.style().setCursor(fromCSSValue<CursorType>(item));
-        ASSERT_WITH_MESSAGE(&item == &list->item(list->size() - 1), "Cursor ID fallback should always be last in the list");
-        return;
-    }
 }
 
 inline void BuilderCustom::applyInitialFill(BuilderState& builderState)

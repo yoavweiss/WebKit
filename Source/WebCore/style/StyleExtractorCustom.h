@@ -51,7 +51,6 @@ public:
     static Ref<CSSValue> extractWritingMode(ExtractorState&);
     static Ref<CSSValue> extractFloat(ExtractorState&);
     static Ref<CSSValue> extractContent(ExtractorState&);
-    static Ref<CSSValue> extractCursor(ExtractorState&);
     static Ref<CSSValue> extractBaselineShift(ExtractorState&);
     static Ref<CSSValue> extractVerticalAlign(ExtractorState&);
     static Ref<CSSValue> extractLetterSpacing(ExtractorState&);
@@ -152,7 +151,6 @@ public:
     static void extractWritingModeSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFloatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractContentSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractCursorSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractBaselineShiftSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractVerticalAlignSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractLetterSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1265,27 +1263,6 @@ inline Ref<CSSValue> ExtractorCustom::extractContent(ExtractorState& state)
 inline void ExtractorCustom::extractContentSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     extractSerialization<CSSPropertyContent>(state, builder, context);
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractCursor(ExtractorState& state)
-{
-    auto value = ExtractorConverter::convert(state, state.style.cursor());
-    auto* cursors = state.style.cursors();
-    if (!cursors || !cursors->size())
-        return value;
-    CSSValueListBuilder list;
-    for (unsigned i = 0; i < cursors->size(); ++i) {
-        if (auto* image = cursors->at(i).image())
-            list.append(image->computedStyleValue(state.style));
-    }
-    list.append(WTFMove(value));
-    return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
-inline void ExtractorCustom::extractCursorSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    // FIXME: Do this more efficiently without creating and destroying a CSSValue object.
-    builder.append(extractCursor(state)->cssText(context));
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractBaselineShift(ExtractorState& state)

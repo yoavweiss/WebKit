@@ -465,6 +465,12 @@ inline void RenderStyle::setColumnCount(unsigned short count)
     SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, autoCount, false);
 }
 
+inline void RenderStyle::setCursor(Style::Cursor&& cursor)
+{
+    m_inheritedFlags.cursorType = static_cast<unsigned>(cursor.predefined);
+    SET(m_rareInheritedData, cursorImages, WTFMove(cursor.images));
+}
+
 inline bool RenderStyle::setDirection(TextDirection bidiDirection)
 {
     if (writingMode().computedTextDirection() == bidiDirection)

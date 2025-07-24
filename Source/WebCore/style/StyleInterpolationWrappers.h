@@ -439,6 +439,10 @@ DiscreteWrapper(CSSPropertyID, T (RenderStyle::*getter)() const, void (RenderSty
 template<typename T>
 DiscreteWrapper(CSSPropertyID, const T& (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T&&)) -> DiscreteWrapper<T, const T&, T&&>;
 
+// Deduction guide for getter/setters that return values and take r-value references.
+template<typename T>
+DiscreteWrapper(CSSPropertyID, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T&&)) -> DiscreteWrapper<T, T, T&&>;
+
 class FontSizeWrapper final : public Wrapper<float> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FontSizeWrapper, Animation);
 public:

@@ -196,7 +196,7 @@ inline bool RenderStyle::containsStyle() const { return usedContain().contains(C
 constexpr OptionSet<Containment> RenderStyle::contentContainment() { return { Containment::Layout, Containment::Paint, Containment::Style }; }
 inline const Style::Content& RenderStyle::content() const { return m_nonInheritedData->miscData->content; }
 inline ContentVisibility RenderStyle::contentVisibility() const { return static_cast<ContentVisibility>(m_nonInheritedData->rareData->contentVisibility); }
-inline CursorList* RenderStyle::cursors() const { return m_rareInheritedData->cursorData.get(); }
+inline Style::Cursor RenderStyle::cursor() const { return { m_rareInheritedData->cursorImages, cursorType() }; }
 inline StyleAppearance RenderStyle::usedAppearance() const { return static_cast<StyleAppearance>(m_nonInheritedData->miscData->usedAppearance); }
 #if HAVE(CORE_MATERIAL)
 inline AppleVisualEffect RenderStyle::usedAppleVisualEffectForSubtree() const { return static_cast<AppleVisualEffect>(m_rareInheritedData->usedAppleVisualEffectForSubtree); }
@@ -377,7 +377,7 @@ inline Style::Content RenderStyle::initialContent() { return CSS::Keyword::Norma
 constexpr StyleContentAlignmentData RenderStyle::initialContentAlignment() { return { }; }
 constexpr ContentVisibility RenderStyle::initialContentVisibility() { return ContentVisibility::Visible; }
 constexpr Style::CornerShapeValue RenderStyle::initialCornerShapeValue() { return Style::CornerShapeValue::round(); }
-constexpr CursorType RenderStyle::initialCursor() { return CursorType::Auto; }
+inline Style::Cursor RenderStyle::initialCursor() { return CSS::Keyword::Auto { }; }
 constexpr StyleSelfAlignmentData RenderStyle::initialDefaultAlignment() { return { ItemPosition::Normal, OverflowAlignment::Default }; }
 constexpr TextDirection RenderStyle::initialDirection() { return TextDirection::LTR; }
 constexpr DisplayType RenderStyle::initialDisplay() { return DisplayType::Inline; }

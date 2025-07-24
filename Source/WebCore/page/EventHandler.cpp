@@ -38,7 +38,6 @@
 #include "ComposedTreeAncestorIterator.h"
 #include "ComposedTreeIterator.h"
 #include "ContainerNodeInlines.h"
-#include "CursorList.h"
 #include "DocumentFullscreen.h"
 #include "DocumentInlines.h"
 #include "DocumentMarkerController.h"
@@ -1677,18 +1676,16 @@ std::optional<Cursor> EventHandler::selectCursor(const HitTestResult& result, bo
         }
     }
 
-    if (style && style->cursors()) {
-        const CursorList* cursors = style->cursors();
-        for (unsigned i = 0; i < cursors->size(); ++i) {
-            StyleImage* styleImage = (*cursors)[i].image();
-            if (!styleImage)
-                continue;
+    auto styleCursor = style ? style->cursor() : Style::Cursor { CSS::Keyword::Auto { } };
+    if (styleCursor.images) {
+        for (auto& styleCursorImage : *styleCursor.images) {
+            Ref styleImage = styleCursorImage.image;
             CachedImage* cachedImage = styleImage->cachedImage();
             if (!cachedImage)
                 continue;
             float scale = styleImage->imageScaleFactor();
             // Get hotspot and convert from logical pixels to physical pixels.
-            IntPoint hotSpot = (*cursors)[i].hotSpot();
+            auto hotSpot = styleCursorImage.hotSpot;
             FloatSize size = cachedImage->imageForRenderer(renderer)->size();
             if (cachedImage->errorOccurred())
                 continue;
@@ -1721,7 +1718,7 @@ std::optional<Cursor> EventHandler::selectCursor(const HitTestResult& result, bo
         }
     }
 
-    switch (style ? style->cursor() : CursorType::Auto) {
+    switch (styleCursor.predefined) {
     case CursorType::Auto: {
         if (ImageOverlay::isOverlayText(node.get())) {
             if (renderer && renderer->style().usedUserSelect() != UserSelect::None)

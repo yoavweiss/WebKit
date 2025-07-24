@@ -1770,7 +1770,7 @@ bool Quirks::shouldAvoidStartingSelectionOnMouseDownOverPointerCursor(const Node
         return false;
 
     if (CheckedPtr style = target.renderStyle()) {
-        if (style->cursor() == CursorType::Pointer)
+        if (style->cursorType() == CursorType::Pointer)
             return true;
     }
 

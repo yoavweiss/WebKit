@@ -3770,7 +3770,7 @@ static bool canForceCaretForPosition(const VisiblePosition& position)
 
     auto* renderer = node->renderer();
     auto* style = renderer ? &renderer->style() : nullptr;
-    auto cursorType = style ? style->cursor() : CursorType::Auto;
+    auto cursorType = style ? style->cursorType() : CursorType::Auto;
 
     if (cursorType == CursorType::Text)
         return true;

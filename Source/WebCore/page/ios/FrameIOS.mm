@@ -450,7 +450,7 @@ Node* LocalFrame::approximateNodeAtViewportLocationLegacy(const FloatPoint& view
                 pointerCursorStillValid = false;
 
             // If we haven't reached the body, and we are still paying attention to pointer cursors, and the node has a pointer cursor.
-            if (pointerCursorStillValid && node->renderStyle() && node->renderStyle()->cursor() == CursorType::Pointer)
+            if (pointerCursorStillValid && node->renderStyle() && node->renderStyle()->cursorType() == CursorType::Pointer)
                 pointerCursorNode = node;
             else if (pointerCursorNode) {
                 // We want the lowest unbroken chain of pointer cursors.

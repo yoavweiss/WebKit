@@ -30,7 +30,6 @@
 #include "CSSPropertyParser.h"
 #include "CSSValuePool.h"
 #include "ColorBlending.h"
-#include "CursorList.h"
 #include "FloatRoundedRect.h"
 #include "FontCascade.h"
 #include "FontSelector.h"
@@ -191,7 +190,7 @@ RenderStyle::RenderStyle(CreateDefaultStyleTag)
     m_inheritedFlags.textAlign = static_cast<unsigned>(initialTextAlign());
     m_inheritedFlags.textTransform = initialTextTransform().toRaw();
     m_inheritedFlags.textDecorationLineInEffect = initialTextDecorationLine().toRaw();
-    m_inheritedFlags.cursor = static_cast<unsigned>(initialCursor());
+    m_inheritedFlags.cursorType = static_cast<unsigned>(initialCursor().predefined);
 #if ENABLE(CURSOR_VISIBILITY)
     m_inheritedFlags.cursorVisibility = static_cast<unsigned>(initialCursorVisibility());
 #endif
@@ -1542,7 +1541,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyTextTransform);
         if (first.textDecorationLineInEffect != second.textDecorationLineInEffect)
             changingProperties.m_properties.set(CSSPropertyTextDecorationLine);
-        if (first.cursor != second.cursor)
+        if (first.cursorType != second.cursorType)
             changingProperties.m_properties.set(CSSPropertyCursor);
         if (first.whiteSpaceCollapse != second.whiteSpaceCollapse)
             changingProperties.m_properties.set(CSSPropertyWhiteSpaceCollapse);
@@ -2243,21 +2242,6 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
         m_svgStyle->conservativelyCollectChangedAnimatableProperties(*other.m_svgStyle, changingProperties);
 }
 
-void RenderStyle::addCursor(RefPtr<StyleImage>&& image, const std::optional<IntPoint>& hotSpot)
-{
-    auto& cursorData = m_rareInheritedData.access().cursorData;
-    if (!cursorData)
-        cursorData = CursorList::create();
-    // Point outside the image is how we tell the cursor machinery there is no hot spot, and it should generate one (done in the Cursor class).
-    // FIXME: Would it be better to extend the concept of "no hot spot" deeper, into CursorData and beyond, rather than using -1/-1 for it?
-    cursorData->append(CursorData(WTFMove(image), hotSpot.value_or(IntPoint { -1, -1 })));
-}
-
-void RenderStyle::setCursorList(RefPtr<CursorList>&& list)
-{
-    m_rareInheritedData.access().cursorData = WTFMove(list);
-}
-
 void RenderStyle::setQuotes(Style::Quotes&& quotes)
 {
     if (m_rareInheritedData->quotes != quotes)
@@ -2270,12 +2254,6 @@ void RenderStyle::setWillChange(RefPtr<WillChangeData>&& willChangeData)
         return;
 
     m_nonInheritedData.access().rareData.access().willChange = WTFMove(willChangeData);
-}
-
-void RenderStyle::clearCursorList()
-{
-    if (m_rareInheritedData->cursorData)
-        m_rareInheritedData.access().cursorData = nullptr;
 }
 
 bool RenderStyle::affectedByTransformOrigin() const
@@ -3847,10 +3825,10 @@ void RenderStyle::InheritedFlags::dumpDifferences(TextStream& ts, const Inherite
 
     LOG_IF_DIFFERENT_WITH_CAST(PointerEvents, pointerEvents);
     LOG_IF_DIFFERENT_WITH_CAST(Visibility, visibility);
-    LOG_IF_DIFFERENT_WITH_CAST(CursorType, cursor);
+    LOG_IF_DIFFERENT_WITH_CAST(CursorType, cursorType);
 
 #if ENABLE(CURSOR_VISIBILITY)
-    LOG_IF_DIFFERENT_WITH_CAST(bool, cursorVisibility);
+    LOG_IF_DIFFERENT_WITH_CAST(CursorVisibility, cursorVisibility);
 #endif
 
     LOG_IF_DIFFERENT_WITH_CAST(ListStylePosition, listStylePosition);

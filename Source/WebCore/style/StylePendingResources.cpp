@@ -28,14 +28,13 @@
 
 #include "CSSCursorImageValue.h"
 #include "CachedResourceLoader.h"
-#include "CursorData.h"
-#include "CursorList.h"
 #include "DocumentInlines.h"
 #include "FillLayer.h"
 #include "RenderStyleInlines.h"
 #include "SVGURIReference.h"
 #include "Settings.h"
 #include "ShapeValue.h"
+#include "StyleCursor.h"
 #include "StyleImage.h"
 #include "StyleReflection.h"
 #include "TransformOperationsBuilder.h"
@@ -88,9 +87,9 @@ void loadPendingResources(RenderStyle& style, Document& document, const Element*
         }
     }
 
-    if (auto* cursorList = style.cursors()) {
-        for (size_t i = 0; i < cursorList->size(); ++i)
-            loadPendingImage(document, cursorList->at(i).image(), element);
+    if (auto cursorImages = style.cursor().images) {
+        for (auto& cursorImage : *cursorImages)
+            loadPendingImage(document, cursorImage.image.ptr(), element);
     }
 
     loadPendingImage(document, style.listStyleImage(), element);

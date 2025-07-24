@@ -278,6 +278,7 @@ struct ContainIntrinsicSize;
 struct ContainerNames;
 struct Content;
 struct CornerShapeValue;
+struct Cursor;
 struct DynamicRangeLimit;
 struct FlexBasis;
 struct GapGutter;
@@ -801,13 +802,12 @@ public:
     inline bool hasExplicitlySetPaddingRight() const;
     inline bool hasExplicitlySetPaddingTop() const;
 
-    CursorType cursor() const { return static_cast<CursorType>(m_inheritedFlags.cursor); }
+    CursorType cursorType() const { return static_cast<CursorType>(m_inheritedFlags.cursorType); }
+    Style::Cursor cursor() const;
 
 #if ENABLE(CURSOR_VISIBILITY)
     CursorVisibility cursorVisibility() const { return static_cast<CursorVisibility>(m_inheritedFlags.cursorVisibility); }
 #endif
-
-    CursorList* cursors() const;
 
     InsideLink insideLink() const { return static_cast<InsideLink>(m_inheritedFlags.insideLink); }
     bool isLink() const { return m_nonInheritedFlags.isLink; }
@@ -1458,10 +1458,7 @@ public:
     inline void setHasExplicitlySetPaddingRight(bool);
     inline void setHasExplicitlySetPaddingTop(bool);
 
-    void setCursor(CursorType c) { m_inheritedFlags.cursor = static_cast<unsigned>(c); }
-    void addCursor(RefPtr<StyleImage>&&, const std::optional<IntPoint>& hotSpot);
-    void setCursorList(RefPtr<CursorList>&&);
-    void clearCursorList();
+    inline void setCursor(Style::Cursor&&);
 
 #if ENABLE(CURSOR_VISIBILITY)
     void setCursorVisibility(CursorVisibility c) { m_inheritedFlags.cursorVisibility = static_cast<unsigned>(c); }
@@ -1965,7 +1962,7 @@ public:
     static constexpr WhiteSpaceCollapse initialWhiteSpaceCollapse();
     static float initialHorizontalBorderSpacing() { return 0; }
     static float initialVerticalBorderSpacing() { return 0; }
-    static constexpr CursorType initialCursor();
+    static inline Style::Cursor initialCursor();
     static inline Color initialColor();
     static inline Style::Color initialTextStrokeColor();
     static inline Style::Color initialTextDecorationColor();
@@ -2340,7 +2337,7 @@ public:
 
 private:
     struct NonInheritedFlags {
-        friend bool operator==(const NonInheritedFlags&, const NonInheritedFlags&) = default;
+        bool operator==(const NonInheritedFlags&) const = default;
 
         inline void copyNonInheritedFrom(const NonInheritedFlags&);
 
@@ -2352,35 +2349,35 @@ private:
         void dumpDifferences(TextStream&, const NonInheritedFlags&) const;
 #endif
 
-        unsigned effectiveDisplay : 5; // DisplayType
-        unsigned originalDisplay : 5; // DisplayType
-        unsigned overflowX : 3; // Overflow
-        unsigned overflowY : 3; // Overflow
-        unsigned clear : 3; // Clear
-        unsigned position : 3; // PositionType
-        unsigned unicodeBidi : 3; // UnicodeBidi
-        unsigned floating : 3; // Float
+        PREFERRED_TYPE(DisplayType) unsigned effectiveDisplay : 5;
+        PREFERRED_TYPE(DisplayType) unsigned originalDisplay : 5;
+        PREFERRED_TYPE(Overflow) unsigned overflowX : 3;
+        PREFERRED_TYPE(Overflow) unsigned overflowY : 3;
+        PREFERRED_TYPE(Clear) unsigned clear : 3;
+        PREFERRED_TYPE(PositionType) unsigned position : 3;
+        PREFERRED_TYPE(UnicodeBidi) unsigned unicodeBidi : 3;
+        PREFERRED_TYPE(Float) unsigned floating : 3;
 
-        unsigned usesViewportUnits : 1;
-        unsigned usesContainerUnits : 1;
-        unsigned useTreeCountingFunctions : 1;
-        unsigned textDecorationLine : TextDecorationLineBits; // Text decorations defined *only* by this element.
-        unsigned hasExplicitlyInheritedProperties : 1; // Explicitly inherits a non-inherited property.
-        unsigned disallowsFastPathInheritance : 1;
+        PREFERRED_TYPE(bool) unsigned usesViewportUnits : 1;
+        PREFERRED_TYPE(bool) unsigned usesContainerUnits : 1;
+        PREFERRED_TYPE(bool) unsigned useTreeCountingFunctions : 1;
+        PREFERRED_TYPE(OptionSet<TextDecorationLine>) unsigned textDecorationLine : TextDecorationLineBits; // Text decorations defined *only* by this element.
+        PREFERRED_TYPE(bool) unsigned hasExplicitlyInheritedProperties : 1; // Explicitly inherits a non-inherited property.
+        PREFERRED_TYPE(bool) unsigned disallowsFastPathInheritance : 1;
 
         // Non-property related state bits.
-        unsigned emptyState : 1;
-        unsigned firstChildState : 1;
-        unsigned lastChildState : 1;
-        unsigned isLink : 1;
-        unsigned pseudoElementType : PseudoElementTypeBits; // PseudoId
+        PREFERRED_TYPE(bool) unsigned emptyState : 1;
+        PREFERRED_TYPE(bool) unsigned firstChildState : 1;
+        PREFERRED_TYPE(bool) unsigned lastChildState : 1;
+        PREFERRED_TYPE(bool) unsigned isLink : 1;
+        PREFERRED_TYPE(PseudoId) unsigned pseudoElementType : PseudoElementTypeBits;
         unsigned pseudoBits : PublicPseudoIDBits;
 
         // If you add more style bits here, you will also need to update RenderStyle::NonInheritedFlags::copyNonInheritedFrom().
     };
 
     struct InheritedFlags {
-        friend bool operator==(const InheritedFlags&, const InheritedFlags&) = default;
+        bool operator==(const InheritedFlags&) const = default;
 
 #if !LOG_DISABLED
         void dumpDifferences(TextStream&, const InheritedFlags&) const;
@@ -2390,36 +2387,36 @@ private:
         WritingMode writingMode;
 
         // Text Formatting = 19 bits aligned onto 2 bytes + 4 trailing bits
-        unsigned char whiteSpaceCollapse : 3; // WhiteSpaceCollapse
-        unsigned char textWrapMode : 1; // TextWrapMode
-        unsigned char textAlign : 4; // TextAlignMode
-        unsigned char textWrapStyle : 2; // TextWrapStyle
-        unsigned char textTransform : TextTransformBits; // OptionSet<TextTransform>
+        PREFERRED_TYPE(WhiteSpaceCollapse) unsigned char whiteSpaceCollapse : 3;
+        PREFERRED_TYPE(TextWrapMode) unsigned char textWrapMode : 1;
+        PREFERRED_TYPE(TextAlignMode) unsigned char textAlign : 4;
+        PREFERRED_TYPE(TextWrapStyle) unsigned char textWrapStyle : 2;
+        PREFERRED_TYPE(OptionSet<TextTransform>) unsigned char textTransform : TextTransformBits;
         unsigned char : 1; // byte alignment
-        unsigned char textDecorationLineInEffect : TextDecorationLineBits;
+        PREFERRED_TYPE(OptionSet<TextDecorationLine>) unsigned char textDecorationLineInEffect : TextDecorationLineBits;
 
         // Cursors and Visibility = 13 bits aligned onto 4 bits + 1 byte + 1 bit
-        unsigned char pointerEvents : 4; // PointerEvents
-        unsigned char visibility : 2; // Visibility
-        unsigned char cursor : 6; // CursorType
+        PREFERRED_TYPE(PointerEvents) unsigned char pointerEvents : 4;
+        PREFERRED_TYPE(Visibility) unsigned char visibility : 2;
+        PREFERRED_TYPE(CursorType) unsigned char cursorType : 6;
 #if ENABLE(CURSOR_VISIBILITY)
-        unsigned char cursorVisibility : 1; // CursorVisibility
+        PREFERRED_TYPE(CursorVisibility) unsigned char cursorVisibility : 1;
 #endif
 
         // Display Type-Specific = 5 bits
-        unsigned char listStylePosition : 1; // ListStylePosition
-        unsigned char emptyCells : 1; // EmptyCell
-        unsigned char borderCollapse : 1; // BorderCollapse
-        unsigned char captionSide : 2; // CaptionSide
+        PREFERRED_TYPE(ListStylePosition) unsigned char listStylePosition : 1;
+        PREFERRED_TYPE(EmptyCell) unsigned char emptyCells : 1;
+        PREFERRED_TYPE(BorderCollapse) unsigned char borderCollapse : 1;
+        PREFERRED_TYPE(CaptionSide) unsigned char captionSide : 2;
 
         // -webkit- Stuff = 2 bits
-        unsigned char boxDirection : 1; // BoxDirection
-        unsigned char rtlOrdering : 1; // Order
+        PREFERRED_TYPE(BoxDirection) unsigned char boxDirection : 1;
+        PREFERRED_TYPE(Order) unsigned char rtlOrdering : 1;
 
         // Color Stuff = 4 bits
-        unsigned char hasExplicitlySetColor : 1;
-        unsigned char printColorAdjust : 1; // PrintColorAdjust
-        unsigned char insideLink : 2; // InsideLink
+        PREFERRED_TYPE(bool) unsigned char hasExplicitlySetColor : 1;
+        PREFERRED_TYPE(PrintColorAdjust) unsigned char printColorAdjust : 1;
+        PREFERRED_TYPE(InsideLink) unsigned char insideLink : 2;
 
 #if ENABLE(TEXT_AUTOSIZING)
         unsigned autosizeStatus : 5;
