@@ -574,27 +574,6 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     return { };
 }
 
-LayoutUnit static baselinePosition(const RenderBox& renderBox)
-{
-    ASSERT(renderBox.isInFlow());
-    auto writingMode = renderBox.containingBlock()->writingMode();
-
-    auto shouldIgnoreBaseline = renderBox.shouldApplyLayoutContainment() || renderBox.isWritingModeRoot();
-    if (shouldIgnoreBaseline) {
-        if (renderBox.isFieldset()) {
-            // This is to preserve legacy behavior.
-            return renderBox.marginBoxLogicalHeight(writingMode);
-        }
-        return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
-    }
-
-    if (auto baseline = baselineForBox(renderBox)) {
-        auto marginBefore = renderBox.writingMode().isHorizontal() ? renderBox.marginTop() : renderBox.marginRight();
-        return marginBefore + *baseline;
-    }
-    return roundToInt(renderBox.marginBoxLogicalHeight(writingMode));
-}
-
 static inline void setIntegrationBaseline(const RenderBox& renderBox)
 {
     if (renderBox.isFloatingOrOutOfFlowPositioned())
@@ -629,8 +608,20 @@ static inline void setIntegrationBaseline(const RenderBox& renderBox)
         return hasAppareance || !blockFlow->childrenInline() || blockFlow->hasLines() || blockFlow->hasLineIfEmpty();
     };
 
-    if (hasNonSyntheticBaseline())
-        const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(baselinePosition(renderBox));
+    if (hasNonSyntheticBaseline()) {
+        auto baselinePosition = [&]() -> LayoutUnit {
+            auto marginBoxLogicalHeight = renderBox.marginBoxLogicalHeight(renderBox.containingBlock()->writingMode());
+            auto shouldIgnoreBaseline = renderBox.shouldApplyLayoutContainment() || renderBox.isWritingModeRoot();
+            if (shouldIgnoreBaseline)
+                return renderBox.isFieldset() ? marginBoxLogicalHeight : LayoutUnit(roundToInt(marginBoxLogicalHeight));
+            if (auto baseline = baselineForBox(renderBox)) {
+                auto marginBefore = renderBox.writingMode().isHorizontal() ? renderBox.marginTop() : renderBox.marginRight();
+                return marginBefore + *baseline;
+            }
+            return roundToInt(marginBoxLogicalHeight);
+        };
+        const_cast<Layout::ElementBox&>(*renderBox.layoutBox()).setBaselineForIntegration(baselinePosition());
+    }
 }
 
 void BoxGeometryUpdater::updateLayoutBoxDimensions(const RenderBox& renderBox, std::optional<LayoutUnit> availableWidth, std::optional<Layout::IntrinsicWidthMode> intrinsicWidthMode)
