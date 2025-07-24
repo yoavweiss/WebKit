@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <os/log.h>
 #include <wtf/ThreadSafeRefCounted.h>
 
 namespace WebCore {
