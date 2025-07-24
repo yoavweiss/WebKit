@@ -229,6 +229,26 @@ LayoutSize AnchorPositionEvaluator::scrollOffsetFromAnchor(const RenderBoxModelO
     return offset;
 }
 
+static LayoutRect boundingRectForFragmentedAnchor(const RenderBoxModelObject& anchorBox, const RenderElement& containingBlock, const RenderFragmentedFlow& fragmentedFlow)
+{
+    // Compute the bounding box of the fragments.
+    // Location is relative to the fragmented flow.
+    CheckedPtr anchorRenderBox = dynamicDowncast<RenderBox>(&anchorBox);
+    if (!anchorRenderBox)
+        anchorRenderBox = anchorBox.containingBlock();
+    LayoutPoint offsetRelativeToFragmentedFlow = fragmentedFlow.mapFromLocalToFragmentedFlow(anchorRenderBox.get(), { }).location();
+    auto unfragmentedBorderBox = anchorBox.borderBoundingBox();
+    unfragmentedBorderBox.moveBy(offsetRelativeToFragmentedFlow);
+    auto fragmentsBoundingBox = fragmentedFlow.fragmentsBoundingBox(unfragmentedBorderBox);
+
+    // Change the location to be relative to the anchor's containing block.
+    fragmentsBoundingBox.move(offsetFromAncestorContainer(fragmentedFlow, containingBlock));
+
+    // FIXME: The final location of the fragments bounding box is not correctly
+    // computed in flipped writing modes (i.e. vertical-rl and horizontal-bt).
+    return fragmentsBoundingBox;
+}
+
 // This computes the top left location, physical width, and physical height of the specified
 // anchor element. The location is computed relative to the specified containing block.
 LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(CheckedRef<const RenderBoxModelObject> anchorBox, const RenderElement& containingBlock)
@@ -239,27 +259,9 @@ LayoutRect AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(C
     // bounding rectangle of the fragments' border boxes" and make that our anchorHeight/Width.
     // We also need to adjust the anchor's top left location to match that of the bounding box
     // instead of the first fragment.
-    if (CheckedPtr fragmentedFlow = anchorBox->enclosingFragmentedFlow()) {
-        // Compute the bounding box of the fragments.
-        // Location is relative to the fragmented flow.
-        CheckedPtr anchorRenderBox = dynamicDowncast<RenderBox>(&anchorBox.get());
-        if (!anchorRenderBox)
-            anchorRenderBox = anchorBox->containingBlock();
-        LayoutPoint offsetRelativeToFragmentedFlow = fragmentedFlow->mapFromLocalToFragmentedFlow(anchorRenderBox.get(), { }).location();
-        auto unfragmentedBorderBox = anchorBox->borderBoundingBox();
-        unfragmentedBorderBox.moveBy(offsetRelativeToFragmentedFlow);
-        auto fragmentsBoundingBox = fragmentedFlow->fragmentsBoundingBox(unfragmentedBorderBox);
-
-        // Change the location to be relative to the anchor's containing block.
-        if (fragmentedFlow->isDescendantOf(&containingBlock))
-            fragmentsBoundingBox.move(offsetFromAncestorContainer(*fragmentedFlow, containingBlock));
-        else
-            fragmentsBoundingBox.move(-offsetFromAncestorContainer(containingBlock, *fragmentedFlow));
-
-        // FIXME: The final location of the fragments bounding box is not correctly
-        // computed in flipped writing modes (i.e. vertical-rl and horizontal-bt).
-        return fragmentsBoundingBox;
-    }
+    if (CheckedPtr fragmentedFlow = anchorBox->enclosingFragmentedFlow();
+        fragmentedFlow && fragmentedFlow->isDescendantOf(&containingBlock))
+        return boundingRectForFragmentedAnchor(anchorBox, containingBlock, *fragmentedFlow);
 
     auto anchorWidth = anchorBox->offsetWidth();
     auto anchorHeight = anchorBox->offsetHeight();
@@ -699,6 +701,12 @@ std::optional<double> AnchorPositionEvaluator::evaluateSize(BuilderState& builde
     }
 
     auto anchorBorderBoundingBox = anchorRenderer->borderBoundingBox();
+    if (CheckedPtr fragmentedFlow = anchorRenderer->enclosingFragmentedFlow()) {
+        CheckedPtr containingBlock = anchorPositionedRenderer->containingBlock();
+        if (fragmentedFlow && containingBlock
+            && fragmentedFlow->isDescendantOf(containingBlock.get()))
+            anchorBorderBoundingBox = boundingRectForFragmentedAnchor(*anchorRenderer, *containingBlock, *fragmentedFlow);
+    }
 
     // Adjust for CSS `zoom` property and page zoom.
 
