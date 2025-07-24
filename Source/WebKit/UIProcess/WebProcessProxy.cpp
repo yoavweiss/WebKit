@@ -2238,7 +2238,7 @@ void WebProcessProxy::didStartUsingProcessForSiteIsolation(const std::optional<W
         m_site = makeUnexpected(SiteState::SharedProcess);
         return;
     }
-    ASSERT((m_site && m_site == *site) || m_site.error() == SiteState::NotYetSpecified);
+    ASSERT(m_site ? (m_site.value().isEmpty() || m_site.value() == *site) : m_site.error() == SiteState::NotYetSpecified);
     m_site = *site;
 }
 

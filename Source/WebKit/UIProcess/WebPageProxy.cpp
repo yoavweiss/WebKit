@@ -8737,7 +8737,7 @@ void WebPageProxy::createNewPage(IPC::Connection& connection, WindowFeatures&& w
             originatingFrameInfoData.frameID
         } });
         WebCore::Site site { openerFrame->url() };
-        ASSERT(!configuration->preferences().siteIsolationEnabled() || openerFrame->frameProcess().isSharedProcess() || (openerFrame->frameProcess().site() && *openerFrame->frameProcess().site() == site));
+        ASSERT(!configuration->preferences().siteIsolationEnabled() || openerFrame->frameProcess().isSharedProcess() || site.isEmpty() || (openerFrame->frameProcess().site() && *openerFrame->frameProcess().site() == site));
         configuration->setOpenedSite(site);
     } else {
         configuration->setOpenerInfo(std::nullopt);
