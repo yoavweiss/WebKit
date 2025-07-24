@@ -548,6 +548,8 @@ private:
 
     bool m_errorOccurredInLoading { false };
     bool m_doNotAbortNavigationAPI { false };
+    bool m_navigationAPITraversalInProgress { false };
+    RefPtr<HistoryItem> m_pendingNavigationAPIItem;
     uint64_t m_requiredCookiesVersion { 0 };
 };
 

@@ -736,11 +736,19 @@ void Navigation::promoteUpcomingAPIMethodTracker(const String& destinationKey)
 {
     // FIXME: We should be able to assert m_ongoingAPIMethodTracker is unset.
 
-    if (!destinationKey.isNull())
+    if (!destinationKey.isEmpty())
         m_ongoingAPIMethodTracker = m_upcomingTraverseMethodTrackers.take(destinationKey);
-    else {
+    else if (destinationKey.isNull()) {
         m_ongoingAPIMethodTracker = WTFMove(m_upcomingNonTraverseMethodTracker);
         m_upcomingNonTraverseMethodTracker = nullptr;
+    } else if (destinationKey.isEmpty() && !m_upcomingTraverseMethodTrackers.isEmpty()) {
+        // For traverse navigation where destination key is empty, try to use any available traverse method tracker.
+        // (e.g., cross-document navigation where NavigationHistoryEntry is not found).
+        auto firstTracker = m_upcomingTraverseMethodTrackers.begin();
+        if (firstTracker != m_upcomingTraverseMethodTrackers.end()) {
+            String trackerKey = firstTracker->key;
+            m_ongoingAPIMethodTracker = m_upcomingTraverseMethodTrackers.take(trackerKey);
+        }
     }
 }
 

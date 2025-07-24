@@ -4013,7 +4013,32 @@ void FrameLoader::continueLoadAfterNavigationPolicy(const ResourceRequest& reque
     Ref frame = m_frame.get();
 
     bool urlIsDisallowed = allowNavigationToInvalidURL == AllowNavigationToInvalidURL::No && !request.url().isValid();
-    bool canContinue = navigationPolicyDecision == NavigationPolicyDecision::ContinueLoad && shouldClose() && !urlIsDisallowed;
+
+    // For Navigation API traversal navigation, dispatch navigate event AFTER beforeunload.
+    bool navigateEventAborted = false;
+    bool shouldCloseResult = true;
+
+    if (m_navigationAPITraversalInProgress && m_pendingNavigationAPIItem) {
+        // Only call shouldClose() early for Navigation API traversals
+        shouldCloseResult = shouldClose();
+
+        if (shouldCloseResult && frame->document() && frame->document()->settings().navigationAPIEnabled()) {
+            if (RefPtr window = frame->document()->window()) {
+                if (RefPtr navigation = window->navigation(); navigation->frame()) {
+                    if (navigation->dispatchTraversalNavigateEvent(Ref { *m_pendingNavigationAPIItem }) == Navigation::DispatchResult::Aborted)
+                        navigateEventAborted = true;
+                }
+            }
+        }
+
+        m_pendingNavigationAPIItem = nullptr;
+        m_navigationAPITraversalInProgress = false;
+    } else {
+        // For non-Navigation API traversals, use original behavior with short-circuit evaluation
+        shouldCloseResult = (navigationPolicyDecision == NavigationPolicyDecision::ContinueLoad && !urlIsDisallowed) ? shouldClose() : false;
+    }
+
+    bool canContinue = navigationPolicyDecision == NavigationPolicyDecision::ContinueLoad && shouldCloseResult && !navigateEventAborted && !urlIsDisallowed;
     bool isTargetItem = frame->loader().history().provisionalItem() ? frame->loader().history().provisionalItem()->isTargetItem() : false;
 
     if (!canContinue) {
@@ -4341,6 +4366,15 @@ bool FrameLoader::dispatchNavigateEvent(const URL& newURL, FrameLoadType loadTyp
         return true;
 
     auto navigationType = determineNavigationType(loadType, historyHandling);
+
+    if (m_policyDocumentLoader && m_policyDocumentLoader->triggeringAction().isFromNavigationAPI()) {
+        auto& action = m_policyDocumentLoader->triggeringAction();
+        auto apiType = action.navigationAPIType();
+        // If this is from Navigation API and should be a traverse, dispatch proper traverse event.
+        if (apiType && *apiType == NavigationNavigationType::Traverse)
+            return true;
+    }
+
     // Traversals are handled earlier, in loadItem().
     if (navigationType == NavigationNavigationType::Traverse)
         return true;
@@ -4504,22 +4538,31 @@ void FrameLoader::loadItem(HistoryItem& item, HistoryItem* fromItem, FrameLoadTy
     m_requestedHistoryItem = item;
     RefPtr currentItem = history().currentItem();
 
-    if (frame().document() && frame().document()->settings().navigationAPIEnabled() && fromItem && SecurityOrigin::create(item.url())->isSameOriginAs(SecurityOrigin::create(fromItem->url()))) {
-        if (RefPtr window = frame().document()->window()) {
-            if (RefPtr navigation = window->navigation(); navigation->frame()) {
-                if (navigation->dispatchTraversalNavigateEvent(item) == Navigation::DispatchResult::Aborted)
-                    return;
-                // In case the event detached the frame.
-                if (!navigation->frame())
-                    return;
-            }
-        }
-    }
-
     bool sameDocumentNavigation = currentItem && item.shouldDoSameDocumentNavigationTo(*currentItem);
 
     // If we're continuing this history navigation in a new process, then doing a same document navigation never makes sense.
     ASSERT(!sameDocumentNavigation || shouldTreatAsContinuingLoad == ShouldTreatAsContinuingLoad::No);
+
+    // For Navigation API navigation, handle navigate event
+    if (frame().document() && frame().document()->settings().navigationAPIEnabled() && fromItem && SecurityOrigin::create(item.url())->isSameOriginAs(SecurityOrigin::create(fromItem->url()))) {
+        if (sameDocumentNavigation) {
+            // For same-document navigation, dispatch navigate event immediately.
+            if (RefPtr window = frame().document()->window()) {
+                if (RefPtr navigation = window->navigation(); navigation->frame()) {
+                    if (navigation->dispatchTraversalNavigateEvent(item) == Navigation::DispatchResult::Aborted)
+                        return;
+                    // In case the event detached the frame.
+                    if (!navigation->frame())
+                        return;
+                }
+            }
+        } else {
+            // For cross-document navigation, save the item for later dispatch.
+            // Navigate event will be dispatched after beforeunload.
+            m_pendingNavigationAPIItem = &item;
+            m_navigationAPITraversalInProgress = true;
+        }
+    }
 
     if (sameDocumentNavigation) {
         m_loadType = loadType;
