@@ -165,7 +165,7 @@ public:
     JSObjectRef createJSWrapper(JSContextRef);
     static JSIPCConnection* toWrapped(JSContextRef, JSValueRef);
 
-    const Ref<IPC::Connection> connection() const { return m_testedConnection; }
+    IPC::Connection& connection() const { return m_testedConnection; }
 private:
     JSIPCConnection(Ref<IPC::Connection> connection)
         : m_testedConnection { WTFMove(connection) }
@@ -193,7 +193,7 @@ private:
     static JSValueRef waitForMessage(JSContextRef, JSObjectRef, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception);
     static JSValueRef waitForAsyncReplyAndDispatchImmediately(JSContextRef, JSObjectRef, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception);
 
-    Ref<IPC::Connection> m_testedConnection;
+    const Ref<IPC::Connection> m_testedConnection;
 };
 
 class JSIPCStreamClientConnection : public RefCountedAndCanMakeWeakPtr<JSIPCStreamClientConnection> {
@@ -1950,21 +1950,21 @@ RefPtr<JSIPCConnection> JSIPC::processTargetFromArgument(JSC::JSGlobalObject* gl
 
     if (name == processTargetNameUI) {
         RefPtr connection = WebProcess::singleton().parentProcessConnection();
-        if (!m_uiConnection || m_uiConnection->connection().ptr() != connection)
+        if (!m_uiConnection || &m_uiConnection->connection() != connection)
             m_uiConnection = JSIPCConnection::create(connection.releaseNonNull());
         return m_uiConnection;
     }
 #if ENABLE(GPU_PROCESS)
     if (name == processTargetNameGPU) {
         RefPtr connection = WebProcess::singleton().ensureGPUProcessConnection().connection();
-        if (!m_gpuConnection || m_gpuConnection->connection().ptr() != connection)
+        if (!m_gpuConnection || &m_gpuConnection->connection() != connection)
             m_gpuConnection = JSIPCConnection::create(connection.releaseNonNull());
         return m_gpuConnection;
     }
 #endif
     if (name == processTargetNameNetworking) {
         RefPtr connection = WebProcess::singleton().ensureNetworkProcessConnection().connection();
-        if (!m_networkConnection || m_networkConnection->connection().ptr() != connection)
+        if (!m_networkConnection || &m_networkConnection->connection() != connection)
             m_networkConnection = JSIPCConnection::create(connection.releaseNonNull());
         return m_networkConnection;
     }
@@ -2004,7 +2004,7 @@ void JSIPC::addMessageListener(JSMessageListener::Type type, JSContextRef contex
         return;
     }
 
-    connection->connection()->addMessageObserver(*listener);
+    connection->connection().addMessageObserver(*listener);
     jsIPC->m_messageListeners.append(listener.releaseNonNull());
 }
 
@@ -2557,7 +2557,7 @@ JSValueRef JSIPC::sendMessage(JSContextRef context, JSObjectRef, JSObjectRef thi
     if (!messageName)
         return JSValueMakeUndefined(context);
     JSValueRef messageArguments = arguments.size() > 3 ? arguments[3] : nullptr;
-    return jsSend(connection->connection().get(), *destinationID, *messageName, context, messageArguments, exception);
+    return jsSend(connection->connection(), *destinationID, *messageName, context, messageArguments, exception);
 }
 
 JSValueRef JSIPC::waitForMessage(JSContextRef context, JSObjectRef, JSObjectRef thisObject, size_t rawArgumentCount, const JSValueRef rawArguments[], JSValueRef* exception)
@@ -2582,7 +2582,7 @@ JSValueRef JSIPC::waitForMessage(JSContextRef context, JSObjectRef, JSObjectRef 
     if (!info)
         return JSValueMakeUndefined(context);
     auto [destinationID, messageName, timeout] = *info;
-    return jsWaitForMessage(connection->connection().get(), destinationID, messageName, timeout, context, exception);
+    return jsWaitForMessage(connection->connection(), destinationID, messageName, timeout, context, exception);
 }
 
 JSValueRef JSIPC::sendSyncMessage(JSContextRef context, JSObjectRef, JSObjectRef thisObject, size_t rawArgumentCount, const JSValueRef rawArguments[], JSValueRef* exception)
@@ -2608,7 +2608,7 @@ JSValueRef JSIPC::sendSyncMessage(JSContextRef context, JSObjectRef, JSObjectRef
         return JSValueMakeUndefined(context);
     auto [destinationID, messageName, timeout] = *info;
     JSValueRef messageArguments = arguments.size() > 4 ? arguments[4] : nullptr;
-    return jsSendSync(connection->connection().get(), destinationID, messageName, timeout, context, messageArguments, exception);
+    return jsSendSync(connection->connection(), destinationID, messageName, timeout, context, messageArguments, exception);
 }
 
 JSValueRef JSIPC::createConnectionPair(JSContextRef context, JSObjectRef, JSObjectRef thisObject, size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception)
