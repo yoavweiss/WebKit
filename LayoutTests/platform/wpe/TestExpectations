@@ -155,6 +155,9 @@ webkit.org/b/296367 editing/deleting/delete-by-word-002.html [ Failure ]
 webkit.org/b/296367 editing/deleting/paragraph-in-preserveNewline.html [ Failure ]
 webkit.org/b/296367 editing/deleting/whitespace-pre-1.html [ Failure ]
 
+webkit.org/b/296415 editing/editability/user-modify-read-only-in-editable-view.html [ Failure ]
+webkit.org/b/296415 editing/editability/user-select-all-in-editable-view.html [ Failure ]
+
 # Hyphenation
 webkit.org/b/221377 [ Debug ] fast/text/hyphenation-unknown-locale.html [ Skip ]
 
@@ -449,13 +452,10 @@ webkit.org/b/264660 imported/w3c/web-platform-tests/html/semantics/disabled-elem
 # 3. UNRESOLVED TESTS
 #////////////////////////////////////////////////////////////////////////////////////////
 
-webkit.org/b/213131 editing/editability [ Skip ]
 webkit.org/b/213131 editing/execCommand [ Skip ]
-webkit.org/b/213131 editing/find [ Skip ]
 webkit.org/b/213131 editing/input [ Skip ]
 webkit.org/b/213131 editing/inserting [ Skip ]
 webkit.org/b/213131 editing/pasteboard [ Skip ]
-webkit.org/b/213131 editing/resources [ Skip ]
 webkit.org/b/213131 editing/secure-input [ Skip ]
 webkit.org/b/213131 editing/selection [ Skip ]
 webkit.org/b/213131 editing/spelling [ Skip ]
