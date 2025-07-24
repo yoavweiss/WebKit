@@ -69,6 +69,7 @@ public:
 
     std::optional<AXID> treeID() const final;
     String dbgInternal(bool, OptionSet<AXDebugStringOption>) const final;
+    virtual String extraDebugInfo() const { return emptyString(); }
 
     // After constructing an AccessibilityObject, it must be given a
     // unique ID, then added to AXObjectCache, and finally init() must

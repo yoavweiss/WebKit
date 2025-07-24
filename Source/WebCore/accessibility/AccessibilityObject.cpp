@@ -165,6 +165,12 @@ String AccessibilityObject::dbgInternal(bool verbose, OptionSet<AXDebugStringOpt
     else if (auto* node = this->node())
         result.append(", "_s, node->debugDescription());
 
+    if (String extraDebugInfo = this->extraDebugInfo(); !extraDebugInfo.isEmpty()) {
+        result.append(" ("_s);
+        result.append(WTFMove(extraDebugInfo));
+        result.append(")"_s);
+    }
+
     result.append("}"_s);
     return result.toString();
 }
@@ -3578,37 +3584,34 @@ static int computeBestScrollOffset(int currentScrollOffset, int subfocusMin, int
 }
 
 bool AccessibilityObject::isOnScreen() const
-{   
-    bool isOnscreen = true;
-
+{
     // To figure out if the element is onscreen, we start by building of a stack starting with the
     // element, and then include every scrollable parent in the hierarchy.
-    Vector<const AccessibilityObject*> objects;
-    
+    Vector<RefPtr<const AccessibilityObject>> objects;
+
     objects.append(this);
-    for (AccessibilityObject* parentObject = this->parentObject(); parentObject; parentObject = parentObject->parentObject()) {
-        if (parentObject->getScrollableAreaIfScrollable())
-            objects.append(parentObject);
+    for (RefPtr ancestor = parentObject(); ancestor; ancestor = ancestor->parentObject()) {
+        if (ancestor->getScrollableAreaIfScrollable())
+            objects.append(ancestor);
     }
 
     // Now, go back through that chain and make sure each inner object is within the
     // visible bounds of the outer object.
     size_t levels = objects.size() - 1;
-    
     for (size_t i = levels; i >= 1; i--) {
         RefPtr outer = objects[i];
         RefPtr inner = objects[i - 1];
         // FIXME: unclear if we need LegacyIOSDocumentVisibleRect.
         const IntRect outerRect = i < levels ? snappedIntRect(outer->boundingBoxRect()) : outer->getScrollableAreaIfScrollable()->visibleContentRect(ScrollableArea::LegacyIOSDocumentVisibleRect);
-        const IntRect innerRect = snappedIntRect(inner->isScrollView() ? inner->parentObject()->boundingBoxRect() : inner->boundingBoxRect());
-        
-        if (!outerRect.intersects(innerRect)) {
-            isOnscreen = false;
-            break;
-        }
+
+        IntRect innerRect = snappedIntRect(inner->boundingBoxRect());
+        if (RefPtr scrollView = !outer->isRoot() ? outer->scrollView() : nullptr)
+            innerRect = scrollView->contentsToRootView(innerRect);
+
+        if (!outerRect.intersects(innerRect))
+            return false;
     }
-    
-    return isOnscreen;
+    return true;
 }
 
 void AccessibilityObject::scrollToMakeVisible() const
