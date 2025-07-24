@@ -11548,13 +11548,15 @@ static RetainPtr<UITargetedPreview> createTargetedPreview(UIImage *image, UIView
     return adoptNS([[UITargetedPreview alloc] initWithView:imageView.get() parameters:parameters.get() target:target.get()]);
 }
 
-- (UITargetedPreview *)_createTargetedPreviewFromTextIndicator:(WebCore::TextIndicatorData)textIndicatorData previewContainer:(UIView *)previewContainer
+- (UITargetedPreview *)_createTargetedPreviewFromTextIndicator:(RefPtr<WebCore::TextIndicator>&&)textIndicator previewContainer:(UIView *)previewContainer
 {
-    RetainPtr textIndicatorImage = uiImageForImage(textIndicatorData.contentImage.get());
+    if (!textIndicator)
+        return nil;
 
-    RetainPtr preview = createTargetedPreview(textIndicatorImage.get(), self, previewContainer, textIndicatorData.textBoundingRectInRootViewCoordinates, textIndicatorData.textRectsInBoundingRectCoordinates, ^{
-        if (textIndicatorData.estimatedBackgroundColor != WebCore::Color::transparentBlack)
-            return cocoaColor(textIndicatorData.estimatedBackgroundColor).autorelease();
+    RetainPtr textIndicatorImage = uiImageForImage(textIndicator->contentImage());
+    RetainPtr preview = createTargetedPreview(textIndicatorImage.get(), self, previewContainer, textIndicator->textBoundingRectInRootViewCoordinates(), textIndicator->textRectsInBoundingRectCoordinates(), ^{
+        if (textIndicator->estimatedBackgroundColor() != WebCore::Color::transparentBlack)
+            return cocoaColor(textIndicator->estimatedBackgroundColor()).autorelease();
 
         // In the case where background color estimation fails, it doesn't make sense to
         // show a text indicator preview with a clear background in light mode. Default
@@ -11665,10 +11667,10 @@ static RetainPtr<UITargetedPreview> createFallbackTargetedPreview(UIView *rootVi
     RetainPtr<UITargetedPreview> targetedPreview;
 
     if (_positionInformation.isLink && _positionInformation.textIndicator && _positionInformation.textIndicator->contentImage()) {
-        RefPtr indicator = _positionInformation.textIndicator;
-        _positionInformationLinkIndicator = indicator ? std::optional { indicator->data() } : std::nullopt;
+        RefPtr textIndicator = _positionInformation.textIndicator;
+        _positionInformationLinkIndicator = textIndicator ? std::optional { textIndicator->data() } : std::nullopt;
 
-        targetedPreview = [self _createTargetedPreviewFromTextIndicator:indicator->data() previewContainer:self.containerForContextMenuHintPreviews];
+        targetedPreview = [self _createTargetedPreviewFromTextIndicator:WTFMove(textIndicator) previewContainer:self.containerForContextMenuHintPreviews];
     } else if ((_positionInformation.isAttachment || _positionInformation.isImage) && _positionInformation.image) {
         auto cgImage = _positionInformation.image->makeCGImageCopy();
         auto image = adoptNS([[UIImage alloc] initWithCGImage:cgImage.get()]);
@@ -13871,7 +13873,7 @@ inline static NSString *extendSelectionCommand(UITextLayoutDirection direction)
             return;
         }
 
-        RetainPtr targetedPreview = [protectedSelf _createTargetedPreviewFromTextIndicator:textIndicator->data() previewContainer:[protectedSelf containerForContextMenuHintPreviews]];
+        RetainPtr targetedPreview = [protectedSelf _createTargetedPreviewFromTextIndicator:WTFMove(textIndicator) previewContainer:[protectedSelf containerForContextMenuHintPreviews]];
         completionHandler(targetedPreview.get());
     });
 }
@@ -13911,13 +13913,13 @@ inline static NSString *extendSelectionCommand(UITextLayoutDirection direction)
     // Store this completion handler so that it can be called after the execution of the next
     // call to replace the text and eventually use this completion handler to pass the
     // text indicator to UIKit.
-    _page->storeDestinationCompletionHandlerForAnimationID(*animationUUID, [protectedSelf = retainPtr(self), completionHandler = makeBlockPtr(completionHandler)] (auto&& indicatorData) {
-        if (!indicatorData) {
+    _page->storeDestinationCompletionHandlerForAnimationID(*animationUUID, [protectedSelf = retainPtr(self), completionHandler = makeBlockPtr(completionHandler)] (auto&& textIndicatorData) {
+        if (!textIndicatorData) {
             completionHandler(nil);
             return;
         }
 
-        RetainPtr targetedPreview = [protectedSelf _createTargetedPreviewFromTextIndicator:*indicatorData previewContainer:[protectedSelf containerForContextMenuHintPreviews]];
+        RetainPtr targetedPreview = [protectedSelf _createTargetedPreviewFromTextIndicator:WebCore::TextIndicator::create(*textIndicatorData) previewContainer:[protectedSelf containerForContextMenuHintPreviews]];
         completionHandler(targetedPreview.get());
     });
 
