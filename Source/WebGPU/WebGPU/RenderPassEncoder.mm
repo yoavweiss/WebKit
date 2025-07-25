@@ -627,7 +627,7 @@ bool RenderPassEncoder::executePreDrawCommands(uint32_t firstInstance, uint32_t 
                 makeInvalid(error);
                 return false;
             }
-            if (group->makeSubmitInvalid(ShaderStage::Vertex, pipelineLayout->optionalBindGroupLayout(groupIndex)) || group->makeSubmitInvalid(ShaderStage::Fragment, pipelineLayout->optionalBindGroupLayout(groupIndex))) {
+            if (group->makeSubmitInvalid(ShaderStage::Vertex, pipelineLayout->protectedOptionalBindGroupLayout(groupIndex).get()) || group->makeSubmitInvalid(ShaderStage::Fragment, pipelineLayout->protectedOptionalBindGroupLayout(groupIndex).get())) {
                 m_parentEncoder->makeSubmitInvalid();
                 return false;
             }
@@ -1403,7 +1403,7 @@ void RenderPassEncoder::setBindGroup(uint32_t groupIndex, const BindGroup* group
 {
     RETURN_IF_FINISHED();
 
-    auto dynamicOffsetCount = (groupPtr && groupPtr->bindGroupLayout()) ? groupPtr->bindGroupLayout()->dynamicBufferCount() : 0;
+    auto dynamicOffsetCount = (groupPtr && groupPtr->bindGroupLayout()) ? groupPtr->protectedBindGroupLayout()->dynamicBufferCount() : 0;
     if (groupIndex >= m_device->limits().maxBindGroups || (dynamicOffsets && dynamicOffsetCount != dynamicOffsets->size())) {
         makeInvalid(@"setBindGroup: groupIndex >= limits.maxBindGroups");
         return;
