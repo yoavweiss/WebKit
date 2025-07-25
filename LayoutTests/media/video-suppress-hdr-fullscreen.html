@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- webkit-test-runner -->
+<!DOCTYPE html><!-- webkit-test-runner [ SupportHDRDisplayEnabled=true ] -->
 <html>
 <head>
     <title>video-suppress-hdr-fullscreen</title>
@@ -13,16 +13,12 @@
         if (CSS.supports("dynamic-range-limit", "no-limit")) {
             try {
                 let {success, observed} = compare(testFuncString, expected, '==');
-                if (!success) {
-                    reportExpected(success, testFuncString, '==', expected, observed);
-                    return false;
-                }
+                if (!success)
+                    reportExpected(success, testFuncString, '==', expected, observed)
             } catch (ex) {
                 consoleWrite(ex);
-                return false;
             }
         }
-        return true;
     }
 
     function go()
@@ -72,9 +68,7 @@
 
         testExpectedIfSupportsDynamicRangeLimit('internals.effectiveDynamicRangeLimitValue(video)', 1.0);
         run('internals.setPageShouldSuppressHDR(true)');
-        const success = testExpectedIfSupportsDynamicRangeLimit('internals.effectiveDynamicRangeLimitValue(video)', shouldSuppressHDR ? 0.5 : 1.0);
-        if (!success)
-            consoleWrite("isFullscreen=" + isFullscreen + " isMac=" + isMac + " -> shouldSuppressHDR=" + shouldSuppressHDR);
+        testExpectedIfSupportsDynamicRangeLimit('internals.effectiveDynamicRangeLimitValue(video)', shouldSuppressHDR ? 0.5 : 1.0);
         run('internals.setPageShouldSuppressHDR(false)');
         testExpectedIfSupportsDynamicRangeLimit('internals.effectiveDynamicRangeLimitValue(video)', 1.0);
 
