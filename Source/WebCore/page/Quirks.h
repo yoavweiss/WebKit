@@ -27,6 +27,7 @@
 
 #include "Event.h"
 #include "QuirksData.h"
+#include "RegistrableDomain.h"
 #include <optional>
 #include <wtf/Forward.h>
 #include <wtf/TZoneMalloc.h>
@@ -45,7 +46,6 @@ class LayoutUnit;
 class LocalFrame;
 class Node;
 class PlatformMouseEvent;
-class RegistrableDomain;
 class ResourceRequest;
 class RenderStyle;
 class SecurityOriginData;

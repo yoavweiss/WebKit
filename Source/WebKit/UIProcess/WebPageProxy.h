@@ -546,12 +546,12 @@ struct DocumentEditingContextRequest;
 struct DynamicViewportSizeUpdate;
 struct EditingRange;
 struct EditorState;
-struct FocusedElementInformation;
 struct FrameInfoData;
 struct FrameTreeCreationParameters;
 struct FrameTreeNodeData;
 struct GeolocationIdentifierType;
 #if PLATFORM(IOS_FAMILY)
+struct FocusedElementInformation;
 struct HardwareKeyboardState;
 #endif
 struct InputMethodState;
@@ -1894,6 +1894,8 @@ public:
 
     void blurFocusedElement();
     void setIsShowingInputViewForFocusedElement(bool);
+
+    void requestFocusedElementInformation(CompletionHandler<void(const std::optional<FocusedElementInformation>&)>&&);
 #endif
 
     void postMessageToInjectedBundle(const String& messageName, API::Object* messageBody);
@@ -1943,7 +1945,6 @@ public:
     void recordAutomaticNavigationSnapshot();
     void suppressNextAutomaticNavigationSnapshot() { m_shouldSuppressNextAutomaticNavigationSnapshot = true; }
     void recordNavigationSnapshot(WebBackForwardListItem&);
-    void requestFocusedElementInformation(CompletionHandler<void(const std::optional<FocusedElementInformation>&)>&&);
 
 #if PLATFORM(COCOA) || PLATFORM(GTK)
     RefPtr<ViewSnapshot> takeViewSnapshot(std::optional<WebCore::IntRect>&&);
