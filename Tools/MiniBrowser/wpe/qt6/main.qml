@@ -69,7 +69,8 @@ Window {
                 text: initialUrl
 
                 onAccepted: {
-                    web_view.url = url_bar.text;
+                    url_bar.text = urlHelper.parseUserUrl(url_bar.text)
+                    web_view.url = url_bar.text
                 }
             }
 
@@ -79,7 +80,10 @@ Window {
                 Layout.preferredHeight: 50
                 font.pointSize: 20
                 text: qsTr("↪")
-                onClicked: function() { web_view.url = url_bar.text; }
+                onClicked: function() {
+                    url_bar.text = urlHelper.parseUserUrl(url_bar.text)
+                    web_view.url = url_bar.text
+                }
             }
 
             Button {
