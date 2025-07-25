@@ -312,15 +312,24 @@ extension WKSLinearMediaPlayer {
     private func maybeCreateSpatialOrImmersiveEntity() {
         if swiftOnlyData.peculiarEntity != nil || contentType == .immersive { return }
         if swiftOnlyData.isImmersiveVideo {
+            Logger.linearMediaPlayer.log("\(#function)\(self.logIdentifier, privacy: .public): isImmersiveVideo; setting contentType = .immersive")
             contentType = .immersive
             return
         }
         if swiftOnlyData.enteredFromInline || swiftOnlyData.spatialVideoMetadata == nil {
+            if swiftOnlyData.enteredFromInline {
+                Logger.linearMediaPlayer.log("\(#function)\(self.logIdentifier, privacy: .public): enteredFromInline; setting contentType = .planar")
+            } else {
+                Logger.linearMediaPlayer.log("\(#function)\(self.logIdentifier, privacy: .public): !spatialVideoMetadata; setting contentType = .planar")
+            }
+
             contentType = .planar
             return
         }
         let metadata = swiftOnlyData.spatialVideoMetadata!
         swiftOnlyData.peculiarEntity = ContentType.makeSpatialEntity(videoMetadata: metadata.metadata, extruded: true)
+        Logger.linearMediaPlayer.log("\(#function)\(self.logIdentifier, privacy: .public): spatialVideoMetadata; making peculiar spatial entity")
+
         swiftOnlyData.peculiarEntity?.screenMode = spatialImmersive ? .immersive : .portal
 // FIXME (147782145): Define a clang module for XPC to be used in Public SDK builds
 #if canImport(XPC)
@@ -334,10 +343,12 @@ extension WKSLinearMediaPlayer {
 
     private func maybeClearSpatialOrImmersiveEntity() {
         if swiftOnlyData.isImmersiveVideo && contentType == .immersive {
+            Logger.linearMediaPlayer.log("\(#function)\(self.logIdentifier, privacy: .public): isImmersiveVideo; setting contentType = .none")
             contentType = .none
             return
         }
         if swiftOnlyData.peculiarEntity == nil { return }
+        Logger.linearMediaPlayer.log("\(#function)\(self.logIdentifier, privacy: .public): clearing peculiarEntity; setting contentType = .none")
         swiftOnlyData.videoReceiverEndpointObserver = nil
         swiftOnlyData.peculiarEntity = nil
         contentType = .none // this causes a call to makeDefaultEntity
@@ -785,18 +796,22 @@ extension WKSLinearMediaPlayer {
     }
 
     public func makeDefaultEntity() -> Entity? {
-        Logger.linearMediaPlayer.log("\(#function)(\(self.logIdentifier, privacy: .public))")
-
         // This gets called from maybeCreateSpatialOrImmersiveEntity through the KVO when setting
         // peculiarEntity. As such, we can't check if the peculiarEntity is set or not.
         // We will return nil here on the first call and will get call back again once
         // peculiarEntity is set.
-        if swiftOnlyData.spatialVideoMetadata != nil && !swiftOnlyData.enteredFromInline && swiftOnlyData.presentationState != .external {
+        if !swiftOnlyData.isImmersiveVideo
+            && swiftOnlyData.spatialVideoMetadata != nil
+            && !swiftOnlyData.enteredFromInline
+            && swiftOnlyData.presentationState != .external
+        {
+            Logger.linearMediaPlayer.log("\(#function)\(self.logIdentifier, privacy: .public): returning peculiarEntity")
             return swiftOnlyData.peculiarEntity
         }
         if let captionLayer {
             let entity = ContentType.makeEntity(captionLayer: captionLayer)
             swiftOnlyData.defaultEntity = entity
+            Logger.linearMediaPlayer.log("\(#function)\(self.logIdentifier, privacy: .public): returning new captionLayer entity")
             return entity
         }
 
