@@ -1830,6 +1830,7 @@ public:
     inline bool hasUsedContentNone() const;
     inline bool hasContent() const;
     inline const Style::Content& content() const;
+    String altFromContent() const;
     inline void setContent(Style::Content&&);
 
     inline bool hasAttrContent() const;

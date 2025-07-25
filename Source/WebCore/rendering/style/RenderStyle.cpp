@@ -3156,6 +3156,13 @@ Style::Color RenderStyle::initialTapHighlightColor()
 
 #endif
 
+String RenderStyle::altFromContent() const
+{
+    if (auto* contentData = content().tryData())
+        return contentData->altText.value_or(nullString());
+    return { };
+}
+
 LayoutBoxExtent RenderStyle::imageOutsets(const NinePieceImage& image) const
 {
     return {

@@ -206,6 +206,7 @@ RenderPtr<RenderElement> RenderElement::createFor(Element& element, RenderStyle&
             Style::loadPendingResources(style, element.document(), &element);
             auto image = createRenderer<RenderImage>(RenderObject::Type::Image, element, WTFMove(style), styleImage.get());
             image->setIsGeneratedContent();
+            image->updateAltText();
             return image;
         }
     }

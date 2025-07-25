@@ -841,6 +841,12 @@ void RenderImage::updateAltText()
         m_altText = input->altText();
     else if (auto* image = dynamicDowncast<HTMLImageElement>(*element()))
         m_altText = image->altText();
+
+    if (m_altText.isNull()) {
+        // We check isNull() and not isEmpty() because we don't want to override empty-string
+        // alt text provided by either of the above branches.
+        m_altText = style().altFromContent();
+    }
 }
 
 bool RenderImage::canHaveChildren() const

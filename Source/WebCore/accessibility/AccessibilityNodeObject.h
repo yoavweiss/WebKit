@@ -205,7 +205,7 @@ private:
     void visibleText(Vector<AccessibilityText>&) const;
     String alternativeTextForWebArea() const;
     void ariaLabeledByText(Vector<AccessibilityText>&) const;
-    bool usesAltTagForTextComputation() const;
+    bool usesAltForTextComputation() const;
     bool roleIgnoresTitle() const;
     bool postKeyboardKeysForValueChange(StepAction);
     void setNodeValue(StepAction, float);

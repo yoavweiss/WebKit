@@ -114,11 +114,7 @@ String AccessibilityImageMapLink::description() const
     if (!ariaLabel.isEmpty())
         return ariaLabel;
 
-    const auto& alt = getAttribute(altAttr);
-    if (!alt.isEmpty())
-        return alt;
-
-    return { };
+    return altTextFromAttributeOrStyle();
 }
 
 String AccessibilityImageMapLink::title() const

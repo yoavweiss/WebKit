@@ -1634,7 +1634,7 @@ AccessibilityObject* AccessibilityNodeObject::captionForFigure() const
     return nullptr;
 }
 
-bool AccessibilityNodeObject::usesAltTagForTextComputation() const
+bool AccessibilityNodeObject::usesAltForTextComputation() const
 {
     bool usesAltTag = isImage() || isInputImage() || isNativeImage() || isCanvas() || elementName() == ElementName::HTML_img;
 #if ENABLE(MODEL_ELEMENT)
@@ -1657,7 +1657,7 @@ String AccessibilityNodeObject::textAsLabelFor(const AccessibilityObject& labele
     if (!labelAttribute.isEmpty())
         return labelAttribute;
 
-    labelAttribute = getAttribute(altAttr);
+    labelAttribute = altTextFromAttributeOrStyle();
     if (!labelAttribute.isEmpty())
         return labelAttribute;
 
@@ -1808,7 +1808,7 @@ void AccessibilityNodeObject::alternativeText(Vector<AccessibilityText>& textOrd
         }
     }
 
-    if (usesAltTagForTextComputation()) {
+    if (usesAltForTextComputation()) {
         if (auto* renderImage = dynamicDowncast<RenderImage>(renderer())) {
             String renderAltText = renderImage->altText();
 
@@ -1820,9 +1820,8 @@ void AccessibilityNodeObject::alternativeText(Vector<AccessibilityText>& textOrd
         }
         // Images should use alt as long as the attribute is present, even if empty.
         // Otherwise, it should fallback to other methods, like the title attribute.
-        const AtomString& alt = getAttribute(altAttr);
-        if (!alt.isEmpty())
-            textOrder.append(AccessibilityText(alt, AccessibilityTextSource::Alternative));
+        if (String alt = altTextFromAttributeOrStyle(); !alt.isNull())
+            textOrder.append(AccessibilityText(WTFMove(alt), AccessibilityTextSource::Alternative));
     }
 
     RefPtr node = this->node();
@@ -1896,6 +1895,12 @@ void AccessibilityNodeObject::alternativeText(Vector<AccessibilityText>& textOrd
     if (node->isMathMLElement())
         textOrder.append(AccessibilityText(getAttribute(MathMLNames::alttextAttr), AccessibilityTextSource::Alternative));
 #endif
+
+    if (CheckedPtr style = this->style()) {
+        String altText = style->altFromContent();
+        if (!altText.isEmpty())
+            textOrder.append(AccessibilityText(WTFMove(altText), AccessibilityTextSource::Alternative));
+    }
 }
 
 void AccessibilityNodeObject::visibleText(Vector<AccessibilityText>& textOrder) const
@@ -2038,11 +2043,10 @@ String AccessibilityNodeObject::description() const
     if (!ariaDescription.isEmpty())
         return ariaDescription;
 
-    if (usesAltTagForTextComputation()) {
+    if (usesAltForTextComputation()) {
         // Images should use alt as long as the attribute is present, even if empty.
         // Otherwise, it should fallback to other methods, like the title attribute.
-        const AtomString& alt = getAttribute(altAttr);
-        if (!alt.isNull())
+        if (String alt = altTextFromAttributeOrStyle(); !alt.isNull())
             return alt;
     }
 

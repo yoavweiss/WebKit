@@ -362,6 +362,7 @@ public:
     String title() const override { return { }; }
     String description() const override { return { }; }
     virtual String helpText() const { return { }; }
+    String altTextFromAttributeOrStyle() const;
 
     std::optional<String> textContent() const final;
     bool hasTextContent() const;

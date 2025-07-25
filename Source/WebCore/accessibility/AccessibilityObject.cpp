@@ -1202,6 +1202,19 @@ Vector<String> AccessibilityObject::performTextOperation(const AccessibilityText
     return result;
 }
 
+String AccessibilityObject::altTextFromAttributeOrStyle() const
+{
+    const auto& alt = getAttribute(altAttr);
+    if (!alt.isNull()) {
+        // Note that !isNull() is explicitly chosen over !isEmpty(), as alt="" is a meaningful value
+        // and should be respected.
+        return alt;
+    }
+
+    CheckedPtr style = this->style();
+    return style ? style->altFromContent() : nullString();
+}
+
 bool AccessibilityObject::isARIAInput(AccessibilityRole ariaRole)
 {
     switch (ariaRole) {

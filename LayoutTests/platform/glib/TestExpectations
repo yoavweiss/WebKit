@@ -700,6 +700,9 @@ accessibility/clip-path-bounding-box.html [ Skip ]
 accessibility/dynamic-content-visibility.html [ Skip ]
 accessibility/password-notifications-timing.html [ Skip ]
 
+# Timed out since it was introduced.
+accessibility/css-content-alt-text.html [ Skip ]
+
 # AXObjectCache::announce not implemented.
 accessibility/announcement-notification.html [ Skip ]
 
