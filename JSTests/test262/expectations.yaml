@@ -1138,9 +1138,6 @@ test/intl402/Intl/supportedValuesOf/calendars.js:
 test/intl402/Locale/extensions-grandfathered.js:
   default: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
   strict mode: 'Test262Error: Expected SameValue(«"fr-Cyrl-FR-gaulish-u-nu-latn"», «"fr-Cyrl-FR-u-nu-latn"») to be true'
-test/intl402/Locale/getters.js:
-  default: 'Test262Error: Expected SameValue(«undefined», «"und"») to be true'
-  strict mode: 'Test262Error: Expected SameValue(«undefined», «"und"») to be true'
 test/intl402/NumberFormat/currency-digits-nonstandard-notation.js:
   default: "Test262Error: Didn't get correct maximumFractionDigits for JPY in engineering notation. Expected SameValue(«0», «3») to be true"
   strict mode: "Test262Error: Didn't get correct maximumFractionDigits for JPY in engineering notation. Expected SameValue(«0», «3») to be true"
