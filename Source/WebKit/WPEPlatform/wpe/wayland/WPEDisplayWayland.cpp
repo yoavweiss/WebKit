@@ -94,6 +94,9 @@ struct _WPEDisplayWaylandPrivate {
 #if USE(SYSPROF_CAPTURE)
     struct wp_presentation* presentation;
 #endif
+#if USE(XDG_DECORATION_UNSTABLE_V1)
+    struct zxdg_decoration_manager_v1* xdgDecorationManager;
+#endif
     Vector<std::pair<uint32_t, uint64_t>> linuxDMABufFormats;
     std::unique_ptr<WPE::WaylandSeat> wlSeat;
     std::unique_ptr<WPE::WaylandCursor> wlCursor;
@@ -228,6 +231,9 @@ static void wpeDisplayWaylandDispose(GObject* object)
 #if USE(SYSPROF_CAPTURE)
     g_clear_pointer(&priv->presentation, wp_presentation_destroy);
 #endif
+#if USE(XDG_DECORATION_UNSTABLE_V1)
+    g_clear_pointer(&priv->xdgDecorationManager, zxdg_decoration_manager_v1_destroy);
+#endif
 #if USE(LIBDRM)
     g_clear_pointer(&priv->dmabufFeedback, zwp_linux_dmabuf_feedback_v1_destroy);
 #endif
@@ -283,6 +289,10 @@ const struct wl_registry_listener registryListener = {
 #if USE(SYSPROF_CAPTURE)
         else if (interfaceName == "wp_presentation"_s)
             priv->presentation = static_cast<struct wp_presentation*>(wl_registry_bind(registry, name, &wp_presentation_interface, 1));
+#endif
+#if USE(XDG_DECORATION_UNSTABLE_V1)
+        else if (interfaceName == "zxdg_decoration_manager_v1"_s)
+            priv->xdgDecorationManager = static_cast<struct zxdg_decoration_manager_v1*>(wl_registry_bind(registry, name, &zxdg_decoration_manager_v1_interface, 1));
 #endif
     },
     // global_remove
@@ -633,6 +643,13 @@ struct wp_presentation* wpeDisplayWaylandGetPresentation(WPEDisplayWayland* disp
     return display->priv->presentation;
 }
 #endif
+
+#if USE(XDG_DECORATION_UNSTABLE_V1)
+struct zxdg_decoration_manager_v1* wpeDisplayWaylandGetXDGDecorationManager(WPEDisplayWayland* display)
+{
+    return display->priv->xdgDecorationManager;
+}
+#endif // USE(XDG_DECORATION_UNSTABLE_V1)
 
 struct zwp_linux_explicit_synchronization_v1* wpeDisplayWaylandGetLinuxExplicitSync(WPEDisplayWayland* display)
 {
