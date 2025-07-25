@@ -141,7 +141,7 @@ struct WindowStateEvent {
     WindowStateEvent(Type type, CompletionHandler<void()>&& completionHandler)
         : type(type)
         , completionHandler(WTFMove(completionHandler))
-        , completeTimer(RunLoop::mainSingleton(), this, &WindowStateEvent::complete)
+        , completeTimer(RunLoop::mainSingleton(), "WindowStateEvent::CompleteTimer"_s, this, &WindowStateEvent::complete)
     {
         // Complete the event if not done after one second.
         completeTimer.startOneShot(1_s);

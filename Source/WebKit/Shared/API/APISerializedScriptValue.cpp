@@ -90,7 +90,7 @@ private:
     friend class NeverDestroyed<SharedJSContextWK, MainRunLoopAccessTraits>;
 
     SharedJSContextWK()
-        : m_timer(RunLoop::mainSingleton(), this, &SharedJSContextWK::releaseContextIfNecessary)
+        : m_timer(RunLoop::mainSingleton(), "SharedJSContextWK::Timer"_s, this, &SharedJSContextWK::releaseContextIfNecessary)
     {
     }
 

@@ -101,7 +101,7 @@ WebFullScreenManager::WebFullScreenManager(WebPage& page)
     : WebCore::EventListener(WebCore::EventListener::CPPEventListenerType)
     , m_page(page)
 #if ENABLE(VIDEO) && ENABLE(IMAGE_ANALYSIS)
-    , m_mainVideoElementTextRecognitionTimer(RunLoop::mainSingleton(), this, &WebFullScreenManager::mainVideoElementTextRecognitionTimerFired)
+    , m_mainVideoElementTextRecognitionTimer(RunLoop::mainSingleton(), "WebFullScreenManager::MainVideoElementTextRecognitionTimer"_s, this, &WebFullScreenManager::mainVideoElementTextRecognitionTimerFired)
 #endif
 #if !RELEASE_LOG_DISABLED
     , m_logger(page.logger())

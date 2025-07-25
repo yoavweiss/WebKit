@@ -185,7 +185,7 @@ Ref<AuthenticatorManager> AuthenticatorManager::create()
 }
 
 AuthenticatorManager::AuthenticatorManager()
-    : m_requestTimeOutTimer(RunLoop::mainSingleton(), this, &AuthenticatorManager::timeOutTimerFired)
+    : m_requestTimeOutTimer(RunLoop::mainSingleton(), "AuthenticatorManager::RequestTimeOutTimer"_s, this, &AuthenticatorManager::timeOutTimerFired)
 {
 }
 

@@ -44,7 +44,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(CompositingRunLoop);
 
 CompositingRunLoop::CompositingRunLoop(Function<void ()>&& updateFunction)
     : m_runLoop(RunLoop::create("org.webkit.ThreadedCompositor"_s, ThreadType::Graphics))
-    , m_updateTimer(m_runLoop.get(), this, &CompositingRunLoop::updateTimerFired)
+    , m_updateTimer(m_runLoop.get(), "CompositingRunLoop::UpdateTimer"_s, this, &CompositingRunLoop::updateTimerFired)
     , m_updateFunction(WTFMove(updateFunction))
 {
 #if USE(GLIB_EVENT_LOOP)

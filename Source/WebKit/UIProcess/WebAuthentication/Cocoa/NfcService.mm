@@ -46,7 +46,7 @@ Ref<NfcService> NfcService::create(AuthenticatorTransportServiceObserver& observ
 
 NfcService::NfcService(AuthenticatorTransportServiceObserver& observer)
     : FidoService(observer)
-    , m_restartTimer(RunLoop::mainSingleton(), this, &NfcService::platformStartDiscovery)
+    , m_restartTimer(RunLoop::mainSingleton(), "NfcService::RestartTimer"_s, this, &NfcService::platformStartDiscovery)
 {
 }
 

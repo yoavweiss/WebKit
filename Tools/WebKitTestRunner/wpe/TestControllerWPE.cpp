@@ -73,7 +73,7 @@ void TestController::platformRunUntil(bool& done, WTF::Seconds timeout)
     class TimeoutTimer {
     public:
         TimeoutTimer(WTF::Seconds timeout, bool& timedOut)
-            : m_timer(RunLoop::mainSingleton(), [&timedOut] {
+            : m_timer(RunLoop::mainSingleton(), "TestController::TimeoutTimer::Timer"_s, [&timedOut] {
                 timedOut = true;
                 RunLoop::mainSingleton().stop();
             })

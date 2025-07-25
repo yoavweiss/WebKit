@@ -180,7 +180,7 @@ void RunLoop::runImpl(RunMode runMode)
         static LazyNeverDestroyed<Timer> reporter;
         static std::once_flag onceKey;
         std::call_once(onceKey, [&] {
-            reporter.construct(*this, [this] {
+            reporter.construct(*this, "RunLoop::runImpl::Reporter"_s, [this] {
                 unsigned count = 0;
                 unsigned active = 0;
                 for (auto task = m_schedules.first(); task; task = task->successor()) {
@@ -297,8 +297,9 @@ void RunLoop::unscheduleWithLock(TimerBase::ScheduledTask& task)
 
 // Since RunLoop does not own the registered TimerBase,
 // TimerBase and its owner should manage these lifetime.
-RunLoop::TimerBase::TimerBase(Ref<RunLoop>&& runLoop)
+RunLoop::TimerBase::TimerBase(Ref<RunLoop>&& runLoop, ASCIILiteral description)
     : m_runLoop(WTFMove(runLoop))
+    , m_description(description)
     , m_scheduledTask(ScheduledTask::create(*this))
 {
 }

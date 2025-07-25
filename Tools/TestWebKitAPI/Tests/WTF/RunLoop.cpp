@@ -125,7 +125,7 @@ class DerivedOneShotTimer : public RunLoop::Timer, public CanMakeCheckedPtr<Deri
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(DerivedOneShotTimer);
 public:
     DerivedOneShotTimer(bool& testFinished)
-        : RunLoop::Timer(RunLoop::currentSingleton(), this, &DerivedOneShotTimer::fired)
+        : RunLoop::Timer(RunLoop::currentSingleton(), "DerivedOneShotTimer"_s, this, &DerivedOneShotTimer::fired)
         , m_testFinished(testFinished)
     {
     }
@@ -159,7 +159,7 @@ class DerivedRepeatingTimer : public RunLoop::Timer, public CanMakeCheckedPtr<De
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(DerivedRepeatingTimer);
 public:
     DerivedRepeatingTimer(bool& testFinished)
-        : RunLoop::Timer(RunLoop::currentSingleton(), this, &DerivedRepeatingTimer::fired)
+        : RunLoop::Timer(RunLoop::currentSingleton(), "DerivedRepeatingTimer"_s, this, &DerivedRepeatingTimer::fired)
         , m_testFinished(testFinished)
     {
     }

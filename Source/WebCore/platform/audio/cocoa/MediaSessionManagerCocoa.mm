@@ -73,7 +73,7 @@ RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(std::opt
 
 MediaSessionManagerCocoa::MediaSessionManagerCocoa()
     : m_nowPlayingManager(hasPlatformStrategies() ? platformStrategies()->mediaStrategy().createNowPlayingManager() : nullptr)
-    , m_delayCategoryChangeTimer(RunLoop::mainSingleton(), this, &MediaSessionManagerCocoa::possiblyChangeAudioCategory)
+    , m_delayCategoryChangeTimer(RunLoop::mainSingleton(), "MediaSessionManagerCocoa::DelayCategoryChangeTimer"_s, this, &MediaSessionManagerCocoa::possiblyChangeAudioCategory)
 {
 }
 

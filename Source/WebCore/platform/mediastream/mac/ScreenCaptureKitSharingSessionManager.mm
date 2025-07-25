@@ -422,7 +422,7 @@ void ScreenCaptureKitSharingSessionManager::promptForGetDisplayMedia(DisplayCapt
     }
 
     constexpr Seconds userPromptWatchdogInterval = 60_s;
-    m_promptWatchdogTimer = makeUnique<RunLoop::Timer>(RunLoop::mainSingleton(), [weakThis = WeakPtr { *this }, interval = userPromptWatchdogInterval]() mutable {
+    m_promptWatchdogTimer = makeUnique<RunLoop::Timer>(RunLoop::mainSingleton(), "ScreenCaptureKitSharingSessionManager::PromptWatchdogTimer"_s, [weakThis = WeakPtr { *this }, interval = userPromptWatchdogInterval]() mutable {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;

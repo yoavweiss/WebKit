@@ -122,7 +122,7 @@ static Ref<SuspendableWorkQueue> sharedStatisticsQueue()
 WebResourceLoadStatisticsStore::WebResourceLoadStatisticsStore(NetworkSession& networkSession, const String& resourceLoadStatisticsDirectory, ShouldIncludeLocalhost shouldIncludeLocalhost, ResourceLoadStatistics::IsEphemeral isEphemeral)
     : m_networkSession(networkSession)
     , m_statisticsQueue(sharedStatisticsQueue())
-    , m_dailyTasksTimer(RunLoop::mainSingleton(), this, &WebResourceLoadStatisticsStore::performDailyTasks)
+    , m_dailyTasksTimer(RunLoop::mainSingleton(), "WebResourceLoadStatisticsStore::DailyTasksTimer"_s, this, &WebResourceLoadStatisticsStore::performDailyTasks)
     , m_isEphemeral(isEphemeral)
 {
     RELEASE_ASSERT(RunLoop::isMain());

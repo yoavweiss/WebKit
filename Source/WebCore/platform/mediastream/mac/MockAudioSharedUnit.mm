@@ -203,8 +203,8 @@ static AudioStreamBasicDescription createAudioFormat(Float64 sampleRate, UInt32 
 MockAudioSharedInternalUnit::MockAudioSharedInternalUnit(bool enableEchoCancellation)
     : m_internalState(MockAudioSharedInternalUnitState::create())
     , m_enableEchoCancellation(enableEchoCancellation)
-    , m_timer(RunLoop::currentSingleton(), [this] { this->start(); })
-    , m_voiceDetectionTimer(RunLoop::currentSingleton(), [this] { this->voiceDetected(); })
+    , m_timer(RunLoop::currentSingleton(), "MockAudioSharedInternalUnit::Timer"_s, [this] { this->start(); })
+    , m_voiceDetectionTimer(RunLoop::currentSingleton(), "MockAudioSharedInternalUnit::VoiceDetectionTimer"_s, [this] { this->voiceDetected(); })
     , m_workQueue(WorkQueue::create("MockAudioSharedInternalUnit Capture Queue"_s, WorkQueue::QOS::UserInteractive))
 {
     m_streamFormat = m_outputStreamFormat = createAudioFormat(44100, 2);

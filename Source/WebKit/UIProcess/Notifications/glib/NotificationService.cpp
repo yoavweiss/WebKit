@@ -126,7 +126,7 @@ class IconCache {
     WTF_MAKE_TZONE_ALLOCATED_INLINE(IconCache);
 public:
     IconCache()
-        : m_timer(RunLoop::mainSingleton(), this, &IconCache::timerFired)
+        : m_timer(RunLoop::mainSingleton(), "IconCache::Timer"_s, this, &IconCache::timerFired)
     {
         m_timer.setPriority(RunLoopSourcePriority::ReleaseUnusedResourcesTimer);
     }

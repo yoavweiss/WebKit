@@ -122,7 +122,7 @@ void GPUProcessProxy::keepProcessAliveTemporarily()
         return;
 
     keptAliveGPUProcessProxy() = singleton().get();
-    static NeverDestroyed<RunLoop::Timer> releaseGPUProcessTimer(RunLoop::mainSingleton(), [] {
+    static NeverDestroyed<RunLoop::Timer> releaseGPUProcessTimer(RunLoop::mainSingleton(), "GPUProcessProxy::KeepProcessAliveTemporarily::ReleaseGPUProcessTimer"_s, [] {
         keptAliveGPUProcessProxy() = nullptr;
     });
     releaseGPUProcessTimer.get().startOneShot(durationToKeepGPUProcessAliveAfterDestruction);

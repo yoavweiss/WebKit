@@ -617,7 +617,7 @@ void AcceleratedSurfaceDMABuf::releaseUnusedBuffersTimerFired()
 
 void AcceleratedSurfaceDMABuf::didCreateCompositingRunLoop(RunLoop& runLoop)
 {
-    m_releaseUnusedBuffersTimer = makeUnique<RunLoop::Timer>(runLoop, this, &AcceleratedSurfaceDMABuf::releaseUnusedBuffersTimerFired);
+    m_releaseUnusedBuffersTimer = makeUnique<RunLoop::Timer>(runLoop, "AcceleratedSurfaceDMABuf::ReleaseUnusedBuffersTimer"_s, this, &AcceleratedSurfaceDMABuf::releaseUnusedBuffersTimerFired);
 #if USE(GLIB_EVENT_LOOP)
     m_releaseUnusedBuffersTimer->setPriority(RunLoopSourcePriority::ReleaseUnusedResourcesTimer);
 #endif

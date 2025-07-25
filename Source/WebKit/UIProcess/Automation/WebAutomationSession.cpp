@@ -151,7 +151,7 @@ WebAutomationSession::WebAutomationSession()
 #if ENABLE(WEBDRIVER_BIDI)
     , m_bidiProcessor(makeUniqueRef<WebDriverBidiProcessor>(*this))
 #endif
-    , m_loadTimer(RunLoop::mainSingleton(), this, &WebAutomationSession::loadTimerFired)
+    , m_loadTimer(RunLoop::mainSingleton(), "WebAutomationSession::LoadTimer"_s, this, &WebAutomationSession::loadTimerFired)
 #if ENABLE(REMOTE_INSPECTOR)
     , m_debuggable(Debuggable::create(*this))
 #endif

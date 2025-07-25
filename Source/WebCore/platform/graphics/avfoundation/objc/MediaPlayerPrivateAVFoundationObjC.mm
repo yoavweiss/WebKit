@@ -2870,7 +2870,7 @@ auto MediaPlayerPrivateAVFoundationObjC::waitForVideoOutputMediaDataWillChange()
         if (RefPtr videoOutput = m_videoOutput)
             videoOutput->addCurrentImageChangedObserver(*m_waitForVideoOutputMediaDataWillChangeObserver);
 
-        timeoutTimer.emplace(RunLoop::mainSingleton(), [&] {
+        timeoutTimer.emplace(RunLoop::mainSingleton(), "MediaPlayerPrivateAVFoundationObjC::TimeoutTimer"_s, [&] {
             RunLoop::mainSingleton().stop();
         });
         timeoutTimer->startOneShot(1_s);

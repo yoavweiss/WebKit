@@ -118,7 +118,7 @@ UIViewController *VideoPresentationInterfaceIOS::presentingViewController()
 }
 
 VideoPresentationInterfaceIOS::VideoPresentationInterfaceIOS(PlaybackSessionInterfaceIOS& playbackSessionInterface)
-    : m_watchdogTimer(RunLoop::mainSingleton(), this, &VideoPresentationInterfaceIOS::watchdogTimerFired)
+    : m_watchdogTimer(RunLoop::mainSingleton(), "VideoPresentationInterfaceIOS::WatchdogTimer"_s, this, &VideoPresentationInterfaceIOS::watchdogTimerFired)
     , m_playbackSessionInterface(playbackSessionInterface)
 {
     m_playbackSessionInterface->setVideoPresentationInterface(this);

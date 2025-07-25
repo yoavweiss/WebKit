@@ -123,7 +123,7 @@ NavigationState::NavigationState(WKWebView *webView)
     , m_navigationDelegateMethods()
     , m_historyDelegateMethods()
 #if USE(RUNNINGBOARD)
-    , m_releaseNetworkActivityTimer(RunLoop::currentSingleton(), this, &NavigationState::releaseNetworkActivityAfterLoadCompletion)
+    , m_releaseNetworkActivityTimer(RunLoop::currentSingleton(), "NavigationState::ReleaseNetworkActivityTimer"_s, this, &NavigationState::releaseNetworkActivityAfterLoadCompletion)
 #endif
 {
     RefPtr page = webView->_page;

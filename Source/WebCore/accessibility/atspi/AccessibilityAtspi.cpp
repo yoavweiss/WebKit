@@ -44,8 +44,8 @@ AccessibilityAtspi& AccessibilityAtspi::singleton()
 }
 
 AccessibilityAtspi::AccessibilityAtspi()
-    : m_cacheUpdateTimer(RunLoop::mainSingleton(), this, &AccessibilityAtspi::cacheUpdateTimerFired)
-    , m_cacheClearTimer(RunLoop::mainSingleton(), this, &AccessibilityAtspi::cacheClearTimerFired)
+    : m_cacheUpdateTimer(RunLoop::mainSingleton(), "AccessibilityAtspi::CacheUpdateTimer"_s, this, &AccessibilityAtspi::cacheUpdateTimerFired)
+    , m_cacheClearTimer(RunLoop::mainSingleton(), "AccessibilityAtspi::CacheClearTimer"_s, this, &AccessibilityAtspi::cacheClearTimerFired)
 {
     m_cacheUpdateTimer.setPriority(RunLoopSourcePriority::RunLoopDispatcher);
     m_cacheClearTimer.setPriority(RunLoopSourcePriority::ReleaseUnusedResourcesTimer);

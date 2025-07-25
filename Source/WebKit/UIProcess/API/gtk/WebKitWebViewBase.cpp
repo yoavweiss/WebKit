@@ -270,7 +270,7 @@ struct _WebKitWebViewBasePrivate {
     _WebKitWebViewBasePrivate()
         : pageScaleFactor(1.0)
 #if GTK_CHECK_VERSION(3, 24, 0)
-        , releaseEmojiChooserTimer(RunLoop::mainSingleton(), this, &_WebKitWebViewBasePrivate::releaseEmojiChooserTimerFired)
+        , releaseEmojiChooserTimer(RunLoop::mainSingleton(), "_WebKitWebViewBasePrivate::ReleaseEmojiChooserTimer"_s, this, &_WebKitWebViewBasePrivate::releaseEmojiChooserTimerFired)
 #endif
     {
 #if GTK_CHECK_VERSION(3, 24, 0)

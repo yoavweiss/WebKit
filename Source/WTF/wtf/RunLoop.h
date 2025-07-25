@@ -132,7 +132,7 @@ public:
     class TimerBase {
         friend class RunLoop;
     public:
-        WTF_EXPORT_PRIVATE explicit TimerBase(Ref<RunLoop>&&);
+        WTF_EXPORT_PRIVATE explicit TimerBase(Ref<RunLoop>&&, ASCIILiteral description);
         WTF_EXPORT_PRIVATE virtual ~TimerBase();
 
         void startRepeating(Seconds interval) { start(std::max(interval, 0_s), true); }
@@ -149,10 +149,13 @@ public:
         WTF_EXPORT_PRIVATE void setPriority(int);
 #endif
 
+        const ASCIILiteral& description() const { return m_description; }
+
     private:
         WTF_EXPORT_PRIVATE void start(Seconds interval, bool repeat);
 
         const Ref<RunLoop> m_runLoop;
+        ASCIILiteral m_description;
 
 #if USE(WINDOWS_EVENT_LOOP)
         bool isActiveWithLock() const WTF_REQUIRES_LOCK(m_runLoop->m_loopLock);
@@ -182,8 +185,8 @@ public:
     public:
         template <typename TimerFiredClass>
         requires (WTF::HasRefPtrMemberFunctions<TimerFiredClass>::value)
-        Timer(Ref<RunLoop>&& runLoop, TimerFiredClass* object, void (TimerFiredClass::*function)())
-            : Timer(WTFMove(runLoop), [object, function] SUPPRESS_UNCOUNTED_LAMBDA_CAPTURE { // The Timer's owner is expected to cancel the Timer in its destructor.
+        Timer(Ref<RunLoop>&& runLoop, ASCIILiteral description, TimerFiredClass* object, void (TimerFiredClass::*function)())
+            : Timer(WTFMove(runLoop), description, [object, function] SUPPRESS_UNCOUNTED_LAMBDA_CAPTURE { // The Timer's owner is expected to cancel the Timer in its destructor.
                 RefPtr protectedObject { object };
                 (object->*function)();
             })
@@ -192,8 +195,8 @@ public:
 
         template <typename TimerFiredClass>
         requires (WTF::HasCheckedPtrMemberFunctions<TimerFiredClass>::value && !WTF::HasRefPtrMemberFunctions<TimerFiredClass>::value)
-        Timer(Ref<RunLoop>&& runLoop, TimerFiredClass* object, void (TimerFiredClass::*function)())
-            : Timer(WTFMove(runLoop), [object, function] SUPPRESS_UNCOUNTED_LAMBDA_CAPTURE { // The Timer's owner is expected to cancel the Timer in its destructor.
+        Timer(Ref<RunLoop>&& runLoop, ASCIILiteral description, TimerFiredClass* object, void (TimerFiredClass::*function)())
+            : Timer(WTFMove(runLoop), description, [object, function] SUPPRESS_UNCOUNTED_LAMBDA_CAPTURE { // The Timer's owner is expected to cancel the Timer in its destructor.
                 CheckedPtr checkedObject { object };
                 (object->*function)();
             })
@@ -203,16 +206,16 @@ public:
         // FIXME: This constructor isn't as safe as the other ones and should be removed.
         template <typename TimerFiredClass>
         requires (!WTF::HasRefPtrMemberFunctions<TimerFiredClass>::value && !WTF::HasCheckedPtrMemberFunctions<TimerFiredClass>::value)
-        Timer(Ref<RunLoop>&& runLoop, TimerFiredClass* object, void (TimerFiredClass::*function)())
-            : Timer(WTFMove(runLoop), std::bind(function, object))
+        Timer(Ref<RunLoop>&& runLoop, ASCIILiteral description, TimerFiredClass* object, void (TimerFiredClass::*function)())
+            : Timer(WTFMove(runLoop), description, std::bind(function, object))
         {
             static_assert(IsDeprecatedTimerSmartPointerException<std::remove_cv_t<TimerFiredClass>>::value,
                 "Classes that use Timer should be ref-counted or CanMakeCheckedPtr. Please do not add new exceptions."
             );
         }
 
-        Timer(Ref<RunLoop>&& runLoop, Function<void ()>&& function)
-            : TimerBase(WTFMove(runLoop))
+        Timer(Ref<RunLoop>&& runLoop, ASCIILiteral description, Function<void ()>&& function)
+            : TimerBase(WTFMove(runLoop), description)
             , m_function(WTFMove(function))
         {
         }
@@ -227,7 +230,7 @@ public:
         WTF_DEPRECATED_MAKE_FAST_ALLOCATED(DispatchTimer);
     public:
         DispatchTimer(RunLoop& runLoop)
-            : TimerBase(runLoop)
+            : TimerBase(runLoop, "DispatchTimer"_s)
         {
         }
 

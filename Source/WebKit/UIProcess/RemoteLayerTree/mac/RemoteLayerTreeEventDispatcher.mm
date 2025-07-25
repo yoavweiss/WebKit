@@ -498,7 +498,7 @@ void RemoteLayerTreeEventDispatcher::scheduleDelayedRenderingUpdateDetectionTime
     ASSERT(ScrollingThread::isCurrentThread());
 
     if (!m_delayedRenderingUpdateDetectionTimer)
-        m_delayedRenderingUpdateDetectionTimer = makeUnique<RunLoop::Timer>(RunLoop::currentSingleton(), [weakThis = ThreadSafeWeakPtr { *this }] {
+        m_delayedRenderingUpdateDetectionTimer = makeUnique<RunLoop::Timer>(RunLoop::currentSingleton(), "RemoteLayerTreeEventDispatcher::DelayedRenderingUpdateDetectionTimer"_s, [weakThis = ThreadSafeWeakPtr { *this }] {
             auto strongThis = weakThis.get();
             if (strongThis)
                 strongThis->delayedRenderingUpdateDetectionTimerFired();

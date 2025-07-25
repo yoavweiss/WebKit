@@ -48,7 +48,7 @@ static const Seconds loadedIconExpirationTime { 30_s };
 IconDatabase::IconDatabase(const String& path, AllowDatabaseWrite allowDatabaseWrite)
     : m_workQueue(WorkQueue::create("org.webkit.IconDatabase"_s))
     , m_allowDatabaseWrite(allowDatabaseWrite)
-    , m_clearLoadedIconsTimer(RunLoop::mainSingleton(), this, &IconDatabase::clearLoadedIconsTimerFired)
+    , m_clearLoadedIconsTimer(RunLoop::mainSingleton(), "IconDatabase::ClearLoadedIconsTimer"_s, this, &IconDatabase::clearLoadedIconsTimerFired)
 {
     ASSERT(isMainRunLoop());
     m_clearLoadedIconsTimer.setPriority(RunLoopSourcePriority::ReleaseUnusedResourcesTimer);
@@ -88,7 +88,7 @@ IconDatabase::IconDatabase(const String& path, AllowDatabaseWrite allowDatabaseW
         m_db.executeCommand("PRAGMA cache_size = 200;"_s);
 
         if (allowDatabaseWrite == AllowDatabaseWrite::Yes) {
-            m_pruneTimer = makeUnique<RunLoop::Timer>(RunLoop::currentSingleton(), this, &IconDatabase::pruneTimerFired);
+            m_pruneTimer = makeUnique<RunLoop::Timer>(RunLoop::currentSingleton(), "IconDatabase::PruneTimer"_s, this, &IconDatabase::pruneTimerFired);
             m_pruneTimer->setPriority(RunLoopSourcePriority::ReleaseUnusedResourcesTimer);
         }
 

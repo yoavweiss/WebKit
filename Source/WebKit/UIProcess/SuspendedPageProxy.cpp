@@ -119,7 +119,7 @@ SuspendedPageProxy::SuspendedPageProxy(WebPageProxy& page, Ref<WebProcessProxy>&
     , m_mainFrame(WTFMove(mainFrame))
     , m_browsingContextGroup(WTFMove(browsingContextGroup))
     , m_shouldDelayClosingUntilFirstLayerFlush(shouldDelayClosingUntilFirstLayerFlush)
-    , m_suspensionTimeoutTimer(RunLoop::mainSingleton(), this, &SuspendedPageProxy::suspensionTimedOut)
+    , m_suspensionTimeoutTimer(RunLoop::mainSingleton(), "SuspendedPageProxy::SuspensionTimeoutTimer"_s, this, &SuspendedPageProxy::suspensionTimedOut)
 #if USE(RUNNINGBOARD)
     , m_suspensionActivity(m_process->protectedThrottler()->backgroundActivity("Page suspension for back/forward cache"_s))
 #endif

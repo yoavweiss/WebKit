@@ -49,7 +49,7 @@ UIGamepadProvider& UIGamepadProvider::singleton()
 }
 
 UIGamepadProvider::UIGamepadProvider()
-    : m_gamepadSyncTimer(RunLoop::mainSingleton(), this, &UIGamepadProvider::gamepadSyncTimerFired)
+    : m_gamepadSyncTimer(RunLoop::mainSingleton(), "UIGamepadProvider::GamepadSyncTimer"_s, this, &UIGamepadProvider::gamepadSyncTimerFired)
 {
     platformSetDefaultGamepadProvider();
 }
