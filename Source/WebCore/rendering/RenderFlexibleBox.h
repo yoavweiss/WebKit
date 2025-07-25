@@ -64,30 +64,7 @@ public:
     void paintChildren(PaintInfo& forSelf, const LayoutPoint&, PaintInfo& forChild, bool usePrintRect) override;
 
     bool isHorizontalFlow() const;
-    inline Direction crossAxisDirection() const
-    {
-        switch (writingMode().blockDirection()) {
-        case FlowDirection::TopToBottom:
-            if (style().isRowFlexDirection())
-                return (style().flexWrap() == FlexWrap::Reverse) ? Direction::BottomToTop : Direction::TopToBottom;
-            return (style().flexWrap() == FlexWrap::Reverse) ? Direction::RightToLeft : Direction::LeftToRight;
-        case FlowDirection::BottomToTop:
-            if (style().isRowFlexDirection())
-                return (style().flexWrap() == FlexWrap::Reverse) ? Direction::TopToBottom : Direction::BottomToTop;
-            return (style().flexWrap() == FlexWrap::Reverse) ? Direction::RightToLeft : Direction::LeftToRight;
-        case FlowDirection::LeftToRight:
-            if (style().isRowFlexDirection())
-                return (style().flexWrap() == FlexWrap::Reverse) ? Direction::RightToLeft : Direction::LeftToRight;
-            return (style().flexWrap() == FlexWrap::Reverse) ? Direction::BottomToTop : Direction::TopToBottom;
-        case FlowDirection::RightToLeft:
-            if (style().isRowFlexDirection())
-                return (style().flexWrap() == FlexWrap::Reverse) ? Direction::LeftToRight : Direction::RightToLeft;
-            return (style().flexWrap() == FlexWrap::Reverse) ? Direction::BottomToTop : Direction::TopToBottom;
-        default:
-            ASSERT_NOT_REACHED();
-            return Direction::TopToBottom;
-        }
-    }
+    Direction crossAxisDirection() const;
 
     const OrderIterator& orderIterator() const { return m_orderIterator; }
 

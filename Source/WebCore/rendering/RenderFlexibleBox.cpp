@@ -541,6 +541,24 @@ bool RenderFlexibleBox::isLeftToRightFlow() const
     return writingMode().isLogicalLeftInlineStart() ^ (style().flexDirection() == FlexDirection::RowReverse);
 }
 
+RenderFlexibleBox::Direction RenderFlexibleBox::crossAxisDirection() const
+{
+    auto crossAxisDirection = style().isRowFlexDirection() ? writingMode().blockDirection() : writingMode().inlineDirection();
+    switch (crossAxisDirection) {
+    case FlowDirection::TopToBottom:
+        return style().flexWrap() == FlexWrap::Reverse ? Direction::BottomToTop : Direction::TopToBottom;
+    case FlowDirection::BottomToTop:
+        return style().flexWrap() == FlexWrap::Reverse ? Direction::TopToBottom : Direction::BottomToTop;
+    case FlowDirection::LeftToRight:
+        return style().flexWrap() == FlexWrap::Reverse ? Direction::RightToLeft : Direction::LeftToRight;
+    case FlowDirection::RightToLeft:
+        return style().flexWrap() == FlexWrap::Reverse ? Direction::LeftToRight : Direction::RightToLeft;
+    default:
+        ASSERT_NOT_REACHED();
+        return Direction::TopToBottom;
+    }
+}
+
 bool RenderFlexibleBox::isMultiline() const
 {
     return style().flexWrap() != FlexWrap::NoWrap;

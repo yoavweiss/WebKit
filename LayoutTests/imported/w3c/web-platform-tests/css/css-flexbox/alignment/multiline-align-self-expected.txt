@@ -53,84 +53,16 @@ PASS .flexbox 3
 PASS .flexbox 4
 PASS .flexbox 5
 PASS .flexbox 6
-FAIL .flexbox 7 assert_equals:
-<div class="flexbox horizontal-tb rtl column wrap" style="height: 70px" data-expected-width="600" data-expected-height="70">
-    <div style="flex: 1 10px;width: 10px;align-self: flex-start" data-expected-width="10" data-expected-height="10" data-offset-x="590" data-offset-y="0"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: center" data-expected-width="10" data-expected-height="10" data-offset-x="580" data-offset-y="10"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-end" data-expected-width="10" data-expected-height="10" data-offset-x="570" data-offset-y="20"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline" data-expected-width="10" data-expected-height="10" data-offset-x="585" data-offset-y="30"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline; margin-inline-start: 5px;" data-expected-width="10" data-expected-height="10" data-offset-x="585" data-offset-y="40"></div>
-    <div style="flex: 1 10px;width: auto;align-self: stretch" data-expected-width="30" data-expected-height="10" data-offset-x="570" data-offset-y="50"></div>
-    <div style="flex: 1 10px;width: 30px;align-self: flex-start" data-expected-width="30" data-expected-height="10" data-offset-x="570" data-offset-y="60"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-start" data-expected-width="10" data-expected-height="10" data-offset-x="560" data-offset-y="0"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: center" data-expected-width="10" data-expected-height="10" data-offset-x="550" data-offset-y="10"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-end" data-expected-width="10" data-expected-height="10" data-offset-x="540" data-offset-y="20"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline" data-expected-width="10" data-expected-height="10" data-offset-x="555" data-offset-y="30"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline; margin-inline-start: 5px;" data-expected-width="10" data-expected-height="10" data-offset-x="555" data-offset-y="40"></div>
-    <div style="flex: 1 10px;width: auto;align-self: stretch" data-expected-width="30" data-expected-height="10" data-offset-x="540" data-offset-y="50"></div>
-    <div style="flex: 1 10px;width: 30px;align-self: flex-start" data-expected-width="30" data-expected-height="10" data-offset-x="540" data-offset-y="60"></div>
-  </div>
-offsetLeft expected 585 but got 570
-FAIL .flexbox 8 assert_equals:
-<div class="flexbox horizontal-tb rtl column wrap-reverse" style="height: 70px" data-expected-width="600" data-expected-height="70">
-    <div style="flex: 1 10px;width: 10px;align-self: flex-start" data-expected-width="10" data-expected-height="10" data-offset-x="0" data-offset-y="0"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: center" data-expected-width="10" data-expected-height="10" data-offset-x="10" data-offset-y="10"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-end" data-expected-width="10" data-expected-height="10" data-offset-x="20" data-offset-y="20"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline" data-expected-width="10" data-expected-height="10" data-offset-x="0" data-offset-y="30"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline; margin-inline-start: 5px;" data-expected-width="10" data-expected-height="10" data-offset-x="0" data-offset-y="40"></div>
-    <div style="flex: 1 10px;width: auto;align-self: stretch" data-expected-width="30" data-expected-height="10" data-offset-x="0" data-offset-y="50"></div>
-    <div style="flex: 1 10px;width: 30px;align-self: flex-start" data-expected-width="30" data-expected-height="10" data-offset-x="0" data-offset-y="60"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-start" data-expected-width="10" data-expected-height="10" data-offset-x="30" data-offset-y="0"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: center" data-expected-width="10" data-expected-height="10" data-offset-x="40" data-offset-y="10"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-end" data-expected-width="10" data-expected-height="10" data-offset-x="50" data-offset-y="20"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline" data-expected-width="10" data-expected-height="10" data-offset-x="30" data-offset-y="30"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline; margin-inline-start: 5px;" data-expected-width="10" data-expected-height="10" data-offset-x="30" data-offset-y="40"></div>
-    <div style="flex: 1 10px;width: auto;align-self: stretch" data-expected-width="30" data-expected-height="10" data-offset-x="30" data-offset-y="50"></div>
-    <div style="flex: 1 10px;width: 30px;align-self: flex-start" data-expected-width="30" data-expected-height="10" data-offset-x="30" data-offset-y="60"></div>
-  </div>
-offsetLeft expected 0 but got 15
+PASS .flexbox 7
+PASS .flexbox 8
 PASS .flexbox 9
 PASS .flexbox 10
 PASS .flexbox 11
 PASS .flexbox 12
 PASS .flexbox 13
 PASS .flexbox 14
-FAIL .flexbox 15 assert_equals:
-<div class="flexbox horizontal-tb rtl column-reverse wrap" style="height: 70px" data-expected-width="600" data-expected-height="70">
-    <div style="flex: 1 10px;width: 10px;align-self: flex-start" data-expected-width="10" data-expected-height="10" data-offset-x="590" data-offset-y="60"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: center" data-expected-width="10" data-expected-height="10" data-offset-x="580" data-offset-y="50"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-end" data-expected-width="10" data-expected-height="10" data-offset-x="570" data-offset-y="40"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline" data-expected-width="10" data-expected-height="10" data-offset-x="585" data-offset-y="30"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline; margin-inline-start: 5px;" data-expected-width="10" data-expected-height="10" data-offset-x="585" data-offset-y="20"></div>
-    <div style="flex: 1 10px;width: auto;align-self: stretch" data-expected-width="30" data-expected-height="10" data-offset-x="570" data-offset-y="10"></div>
-    <div style="flex: 1 10px;width: 30px;align-self: flex-start" data-expected-width="30" data-expected-height="10" data-offset-x="570" data-offset-y="0"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-start" data-expected-width="10" data-expected-height="10" data-offset-x="560" data-offset-y="60"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: center" data-expected-width="10" data-expected-height="10" data-offset-x="550" data-offset-y="50"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-end" data-expected-width="10" data-expected-height="10" data-offset-x="540" data-offset-y="40"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline" data-expected-width="10" data-expected-height="10" data-offset-x="555" data-offset-y="30"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline; margin-inline-start: 5px;" data-expected-width="10" data-expected-height="10" data-offset-x="555" data-offset-y="20"></div>
-    <div style="flex: 1 10px;width: auto;align-self: stretch" data-expected-width="30" data-expected-height="10" data-offset-x="540" data-offset-y="10"></div>
-    <div style="flex: 1 10px;width: 30px;align-self: flex-start" data-expected-width="30" data-expected-height="10" data-offset-x="540" data-offset-y="0"></div>
-  </div>
-offsetLeft expected 585 but got 570
-FAIL .flexbox 16 assert_equals:
-<div class="flexbox horizontal-tb rtl column-reverse wrap-reverse" style="height: 70px" data-expected-width="600" data-expected-height="70">
-    <div style="flex: 1 10px;width: 10px;align-self: flex-start" data-expected-width="10" data-expected-height="10" data-offset-x="0" data-offset-y="60"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: center" data-expected-width="10" data-expected-height="10" data-offset-x="10" data-offset-y="50"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-end" data-expected-width="10" data-expected-height="10" data-offset-x="20" data-offset-y="40"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline" data-expected-width="10" data-expected-height="10" data-offset-x="0" data-offset-y="30"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline; margin-inline-start: 5px;" data-expected-width="10" data-expected-height="10" data-offset-x="0" data-offset-y="20"></div>
-    <div style="flex: 1 10px;width: auto;align-self: stretch" data-expected-width="30" data-expected-height="10" data-offset-x="0" data-offset-y="10"></div>
-    <div style="flex: 1 10px;width: 30px;align-self: flex-start" data-expected-width="30" data-expected-height="10" data-offset-x="0" data-offset-y="0"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-start" data-expected-width="10" data-expected-height="10" data-offset-x="30" data-offset-y="60"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: center" data-expected-width="10" data-expected-height="10" data-offset-x="40" data-offset-y="50"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: flex-end" data-expected-width="10" data-expected-height="10" data-offset-x="50" data-offset-y="40"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline" data-expected-width="10" data-expected-height="10" data-offset-x="30" data-offset-y="30"></div>
-    <div style="flex: 1 10px;width: 10px;align-self: baseline; margin-inline-start: 5px;" data-expected-width="10" data-expected-height="10" data-offset-x="30" data-offset-y="20"></div>
-    <div style="flex: 1 10px;width: auto;align-self: stretch" data-expected-width="30" data-expected-height="10" data-offset-x="30" data-offset-y="10"></div>
-    <div style="flex: 1 10px;width: 30px;align-self: flex-start" data-expected-width="30" data-expected-height="10" data-offset-x="30" data-offset-y="0"></div>
-  </div>
-offsetLeft expected 0 but got 15
+PASS .flexbox 15
+PASS .flexbox 16
 PASS .flexbox 17
 PASS .flexbox 18
 PASS .flexbox 19
