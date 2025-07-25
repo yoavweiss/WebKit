@@ -5395,7 +5395,9 @@ void Page::updateFixedContainerEdges(BoxSideSet sides)
             if (!renderer)
                 continue;
 
-            if (renderer->style().usedVisibility() != Visibility::Visible)
+            if (renderer->style().usedVisibility() != Visibility::Visible
+                && (side != BoxSide::Top || !lastElement->hasTagName(HTMLNames::headerTag))
+                && (side != BoxSide::Bottom || !lastElement->hasTagName(HTMLNames::footerTag)))
                 continue;
 
             elements.setAt(side, WTFMove(lastElement));
