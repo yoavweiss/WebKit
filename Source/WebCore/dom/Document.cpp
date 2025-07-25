@@ -7743,6 +7743,8 @@ bool Document::shouldDeferAsynchronousScriptsUntilParsingFinishes() const
 
 void Document::scheduleToApplyXSLTransforms()
 {
+    ASSERT(settings().isXSLTEnabled());
+
     m_hasPendingXSLTransforms = true;
     if (!m_applyPendingXSLTransformsTimer.isActive())
         m_applyPendingXSLTransformsTimer.startOneShot(0_s);
@@ -7758,6 +7760,8 @@ void Document::applyPendingXSLTransformsNowIfScheduled()
 
 void Document::applyPendingXSLTransformsTimerFired()
 {
+    ASSERT(settings().isXSLTEnabled());
+
     if (parsing())
         return;
 

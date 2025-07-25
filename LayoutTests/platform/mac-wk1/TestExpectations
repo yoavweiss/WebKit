@@ -3185,8 +3185,6 @@ http/tests/websocket/tests/hybi/websocket-allowed-setting-cookie-as-third-party-
 
 webkit.org/b/294301 http/tests/media/hls/hls-audio-tracks-language.html [ Pass Failure ]
 
-http/tests/lockdown-mode [ Skip ]
-
 imported/w3c/web-platform-tests/css/css-transforms/individual-transform/individual-transform-3.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-images/gradient/conic-gradient-001.html [ ImageOnlyFailure ]
 
@@ -3205,3 +3203,8 @@ webkit.org/b/295119  imported/w3c/web-platform-tests/css/css-fonts/font-size-adj
 
 # setSinkId is not enabled on WK1
 media/video-setSinkId-default.html [ Skip ]
+
+# Lockdown Mode does not apply
+dom/xsl/lockdown-mode [ Skip ]
+http/tests/lockdown-mode [ Skip ]
+js/dom/lockdown-mode [ Skip ]

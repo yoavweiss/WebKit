@@ -4483,4 +4483,7 @@ imported/w3c/web-platform-tests/wasm/core/simd/simd_f64x2_pmin_pmax.wast.js.html
 
 http/tests/iframe-memory-monitor/media-video-autoplay-in-frames.html [ Skip ]
 
+# Lockdown Mode does not apply
+dom/xsl/lockdown-mode [ Skip ]
 http/tests/lockdown-mode [ Skip ]
+js/dom/lockdown-mode [ Skip ]

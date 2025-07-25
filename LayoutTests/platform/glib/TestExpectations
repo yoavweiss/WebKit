@@ -3227,6 +3227,11 @@ webkit.org/b/100238 fast/history/window-open.html [ Skip ]
 # WebXR is not fully supported yet
 webkit.org/b/208988 http/wpt/webxr [ Skip ]
 
+# Lockdown Mode does not apply
+dom/xsl/lockdown-mode [ Skip ]
+http/tests/lockdown-mode [ Skip ]
+js/dom/lockdown-mode [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of UNSUPPORTED tests.
 #////////////////////////////////////////////////////////////////////////////////////////

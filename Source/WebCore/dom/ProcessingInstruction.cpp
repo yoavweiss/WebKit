@@ -100,7 +100,8 @@ void ProcessingInstruction::checkStyleSheet()
 
         m_isCSS = type.isEmpty() || type == cssContentTypeAtom();
 #if ENABLE(XSLT)
-        m_isXSL = type == "text/xml"_s || type == "text/xsl"_s || type == "application/xml"_s || type == "application/xhtml+xml"_s || type == "application/rss+xml"_s || type == "application/atom+xml"_s;
+        bool isXSLTSupported = document->settings().isXSLTEnabled();
+        m_isXSL = isXSLTSupported && (type == "text/xml"_s || type == "text/xsl"_s || type == "application/xml"_s || type == "application/xhtml+xml"_s || type == "application/rss+xml"_s || type == "application/atom+xml"_s);
         if (!m_isCSS && !m_isXSL)
 #else
         if (!m_isCSS)

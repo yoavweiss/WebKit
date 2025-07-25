@@ -556,6 +556,7 @@ namespace WebCore {
     macro(XRWebGLBinding) \
     macro(XRWebGLLayer) \
     macro(XRWebGLSubImage) \
+    macro(XSLTProcessor) \
     macro(VideoTrackGenerator) \
     macro(abortAlgorithm) \
     macro(abortSteps) \

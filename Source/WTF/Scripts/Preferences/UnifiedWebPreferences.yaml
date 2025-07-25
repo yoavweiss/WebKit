@@ -9427,6 +9427,23 @@ WritingSuggestionsAttributeEnabled:
     WebCore:
       default: true
 
+XSLTEnabled:
+  type: bool
+  status: internal
+  webcoreName: "xsltEnabled"
+  webcoreGetter: "isXSLTEnabled"
+  condition: ENABLE(XSLT)
+  humanReadableName: "XSLT Support Enabled"
+  humanReadableDescription: "Enables support for XSLT"
+  defaultValue:
+    WebKitLegacy:
+      default: true
+    WebKit:
+      default: true
+    WebCore:
+      default: true
+  disableInLockdownMode: true
+
 ZoomOnDoubleTapWhenRoot:
   type: bool
   status: internal

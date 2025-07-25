@@ -448,6 +448,11 @@ webkit.org/b/252954 imported/w3c/web-platform-tests/html/rendering/replaced-elem
 
 webkit.org/b/264660 imported/w3c/web-platform-tests/html/semantics/disabled-elements/event-propagate-disabled-keyboard.tentative.html [ Failure ]
 
+# Lockdown Mode does not apply
+dom/xsl/lockdown-mode [ Skip ]
+http/tests/lockdown-mode [ Skip ]
+js/dom/lockdown-mode [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # 3. UNRESOLVED TESTS
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -507,8 +512,6 @@ imported/w3c/web-platform-tests/pointerevents/pointerevent_attributes.html?pen-n
 imported/w3c/web-platform-tests/pointerevents/pointerevent_attributes.html?pen-right [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_attributes.html?pen-right-nonstandard [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_attributes.html?touch-nonstandard [ Skip ]
-
-http/tests/lockdown-mode [ Skip ]
 
 css3/scroll-snap/resnap-after-layout.html [ Skip ] # Timeout.
 
@@ -1361,3 +1364,7 @@ webkit.org/b/292841 fullscreen/exit-full-screen-video-crash.html [ Timeout ]
 webkit.org/b/254518 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/autoplay-allowed-by-feature-policy.https.sub.html [ Crash Failure Pass ]
 
 webkit.org/b/267992 imported/w3c/web-platform-tests/html/anonymous-iframe/initial-empty-document.tentative.https.window.html [ Crash Pass ]
+
+# The Digital Credentials API is not supported on WPE port.
+http/wpt/identity/ [ Skip ]
+imported/w3c/web-platform-tests/digital-credentials/ [ Skip ]
