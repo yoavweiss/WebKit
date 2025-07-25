@@ -286,9 +286,13 @@ void PageClientImpl::preferencesDidChange()
     notImplemented();
 }
 
-void PageClientImpl::toolTipChanged(const String&, const String&)
+void PageClientImpl::toolTipChanged(const String&, const String& newToolTip)
 {
-    notImplemented();
+#if HAVE(UITOOLTIPINTERACTION)
+    [contentView() _toolTipChanged:newToolTip.createNSString().get()];
+#else
+    UNUSED_PARAM(newToolTip);
+#endif
 }
 
 void PageClientImpl::didNotHandleTapAsClick(const WebCore::IntPoint& point)

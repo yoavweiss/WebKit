@@ -390,6 +390,10 @@ struct ImageAnalysisContextMenuActionData {
     BOOL _pointerInteractionRegionNeedsUpdate;
 #endif
 
+#if HAVE(UITOOLTIPINTERACTION)
+    RetainPtr<UIToolTipInteraction> _toolTip;
+#endif
+
     RetainPtr<WKTextInteractionWrapper> _textInteractionWrapper;
     OptionSet<WebKit::SuppressSelectionAssistantReason> _suppressSelectionAssistantReasons;
 
@@ -702,6 +706,9 @@ struct ImageAnalysisContextMenuActionData {
     , WTWritingToolsDelegate
     , WKTextAnimationSourceDelegate
 #endif
+#if HAVE(UITOOLTIPINTERACTION)
+    , UIToolTipInteractionDelegate
+#endif
 >
 
 @property (nonatomic, readonly) CGPoint lastInteractionLocation;
@@ -870,6 +877,11 @@ FOR_EACH_PRIVATE_WKCONTENTVIEW_ACTION(DECLARE_WKCONTENTVIEW_ACTION_FOR_WEB_VIEW)
 
 - (void)doAfterEditorStateUpdateAfterFocusingElement:(dispatch_block_t)block;
 - (void)runModalJavaScriptDialog:(CompletionHandler<void()>&&)callback;
+
+#if HAVE(UITOOLTIPINTERACTION)
+- (void)_toolTipChanged:(NSString *)newToolTip;
+- (UIToolTipConfiguration *)toolTipInteraction:(UIToolTipInteraction *)interaction configurationAtPoint:(CGPoint)point;
+#endif
 
 #if ENABLE(DRAG_SUPPORT)
 - (void)_didChangeDragInteractionPolicy;

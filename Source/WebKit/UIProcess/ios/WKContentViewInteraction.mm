@@ -11424,6 +11424,29 @@ static Vector<WebCore::IntSize> sizesOfPlaceholderElementsToInsertWhenDroppingIt
 
 #endif // ENABLE(DRAG_SUPPORT)
 
+#if HAVE(UITOOLTIPINTERACTION)
+- (void)_toolTipChanged:(NSString *)newToolTip
+{
+    if (!_toolTip) {
+        _toolTip = adoptNS([[UIToolTipInteraction alloc] init]);
+        [_toolTip setDelegate:self];
+        [self addInteraction:_toolTip.get()];
+    }
+
+    // FIXME: rdar://156729915 ([Catalyst] Cannot update tooltip interaction on the same view)
+    [_toolTip setDefaultToolTip:newToolTip];
+    RetainPtr sceneView = [[UINSSharedApplicationDelegate() hostWindowForUIWindow:[self window]] sceneView];
+    [[sceneView _dynamicToolTipManager] windowChangedKeyState];
+}
+
+// MARK: UIToolTipInteractionDelegate
+
+- (UIToolTipConfiguration *)toolTipInteraction:(UIToolTipInteraction *)interaction configurationAtPoint:(CGPoint)point
+{
+    return [UIToolTipConfiguration configurationWithToolTip:interaction.defaultToolTip];
+}
+#endif
+
 #pragma mark - Model Interaction Support
 #if ENABLE(MODEL_PROCESS)
 - (void)modelInteractionPanGestureDidBeginAtPoint:(CGPoint)inputPoint
