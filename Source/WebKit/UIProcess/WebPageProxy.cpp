@@ -8821,23 +8821,6 @@ void WebPageProxy::enterFullscreen()
     playbackSessionModel->enterFullscreen();
 }
 
-void WebPageProxy::setPlayerIdentifierForVideoElement()
-{
-    RefPtr playbackSessionManager = m_playbackSessionManager;
-    if (!playbackSessionManager)
-        return;
-
-    RefPtr controlsManagerInterface = playbackSessionManager->controlsManagerInterface();
-    if (!controlsManagerInterface)
-        return;
-
-    CheckedPtr playbackSessionModel = controlsManagerInterface->playbackSessionModel();
-    if (!playbackSessionModel)
-        return;
-
-    playbackSessionModel->setPlayerIdentifierForVideoElement();
-}
-
 void WebPageProxy::willEnterFullscreen(PlaybackSessionContextIdentifier identifier)
 {
     m_uiClient->willEnterFullscreen(this);

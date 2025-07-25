@@ -5320,7 +5320,6 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
         return;
     }
 
-    _page->setPlayerIdentifierForVideoElement();
     _page->enterExternalPlaybackForNowPlayingMediaSession([handler = makeBlockPtr(enterHandler)](bool entered, UIViewController *viewController) {
         if (entered)
             handler(viewController, nil);

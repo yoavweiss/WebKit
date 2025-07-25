@@ -2353,7 +2353,6 @@ public:
 #endif
 
 #if ENABLE(VIDEO_PRESENTATION_MODE)
-    void setPlayerIdentifierForVideoElement();
     bool canEnterFullscreen();
     void enterFullscreen();
 

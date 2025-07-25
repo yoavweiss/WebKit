@@ -294,6 +294,14 @@ WKSLinearMediaPlayer *PlaybackSessionInterfaceLMK::linearMediaPlayer() const
     return m_player.get();
 }
 
+void PlaybackSessionInterfaceLMK::setPlayerIdentifier(std::optional<WebCore::MediaPlayerIdentifier> identifier)
+{
+    PlaybackSessionInterfaceIOS::setPlayerIdentifier(identifier);
+
+    if (RefPtr videoPresentationInterface = m_videoPresentationInterface.get())
+        videoPresentationInterface->didSetPlayerIdentifier();
+}
+
 void PlaybackSessionInterfaceLMK::durationChanged(double duration)
 {
     [m_player setStartTime:0];
@@ -393,8 +401,9 @@ void PlaybackSessionInterfaceLMK::supportsLinearMediaPlayerChanged(bool supports
         if (m_playbackSessionModel)
             m_playbackSessionModel->exitFullscreen();
         break;
+    case WKSLinearMediaPresentationStateEnteringExternal:
     case WKSLinearMediaPresentationStateExternal:
-        // If the player is in external presentation (which uses LinearMediaPlayer) but the current
+        // If the player is in (or entering) external presentation (which uses LinearMediaPlayer) but the current
         // media engine does not support it, exit external presentation.
         if (RefPtr videoPresentationInterface = m_videoPresentationInterface.get())
             videoPresentationInterface->exitExternalPlayback();
