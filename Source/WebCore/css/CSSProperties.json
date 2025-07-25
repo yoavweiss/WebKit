@@ -10810,7 +10810,7 @@
                 "line-through",
                 {
                     "value": "blink",
-                    "comment": "The value is parsed but ignored for rendering and computed style."
+                    "comment": "The value is parsed and computed but ignored for rendering."
                 }
             ],
             "codegen-properties": {
