@@ -5102,6 +5102,9 @@
     "imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerout_received_once.html": [
         "slow"
     ],
+    "imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerrawupdate_changes_pointer_capture.https.html": [
+        "slow"
+    ],
     "imported/w3c/web-platform-tests/pointerevents/pointerevent_releasepointercapture_invalid_pointerid.html": [
         "slow"
     ],

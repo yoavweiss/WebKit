@@ -1397,6 +1397,12 @@ imported/w3c/web-platform-tests/pointerevents/pointerup_after_pointerdown_target
 imported/w3c/web-platform-tests/pointerevents/predicted_events_attributes.html?touch [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/touch-action-with-swipe-dir-change.html?touch [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/coalesced_events_attributes_on_redispatch.https.html?touch [ Skip ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_element_haspointercapture_release_pending_capture.html?touch [ Skip ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_element_haspointercapture.html?touch [ Skip ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_releasepointercapture_release_right_after_capture.html?touch [ Skip ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_setpointercapture_override_pending_capture_element.html?touch [ Skip ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_setpointercapture_to_same_element_twice.html?touch [ Skip ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerrawupdate_changes_pointer_capture.https.html [ Skip ]
 
 webkit.org/b/274686 imported/w3c/web-platform-tests/pointerevents/pointerevent_capture_mouse_and_release_and_capture_again.html [ Skip ]
 

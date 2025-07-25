@@ -4549,6 +4549,12 @@ webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/pointerevent_t
 webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/pointerup_after_pointerdown_target_removed.html?touch [ Skip ]
 webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/predicted_events_attributes.html?touch [ Skip ]
 webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/touch-action-with-swipe-dir-change.html?touch [ Skip ]
+webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/pointerevent_element_haspointercapture_release_pending_capture.html?touch [ Skip ]
+webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/pointerevent_element_haspointercapture.html?touch [ Skip ]
+webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/pointerevent_releasepointercapture_release_right_after_capture.html?touch [ Skip ]
+webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/pointerevent_setpointercapture_override_pending_capture_element.html?touch [ Skip ]
+webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/pointerevent_setpointercapture_to_same_element_twice.html?touch [ Skip ]
+webkit.org/b/204115 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerrawupdate_changes_pointer_capture.https.html [ Skip ]
 
 # These tests crash because UIScriptController.sendEventStream is not implemented on GTK nor WPE.
 # Implement wheel WPT actions in WebKit's test vendor JS without UIScriptController.sendEventStream.

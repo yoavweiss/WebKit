@@ -738,6 +738,7 @@ imported/w3c/web-platform-tests/pointerevents/pointerevent_movementxy.html?pen [
 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerout_pen.html [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_releasepointercapture_events_to_original_target.html?pen [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_sequence_at_implicit_release_on_click.html?pen [ Skip ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_setpointercapture_override_pending_capture_element.html?pen [ Skip ]
 
 webkit.org/b/206872 platform/gtk/scrollbars/main-frame-scrollbar-horizontal-wheel-scroll.html [ ImageOnlyFailure ]
 
