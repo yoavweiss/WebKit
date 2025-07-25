@@ -679,7 +679,10 @@ void AcceleratedSurfaceDMABuf::didRenderFrame()
 
     Vector<WebCore::IntRect, 1> damageRects;
 #if ENABLE(DAMAGE_TRACKING)
-    m_target->setDamage(WebCore::Damage(m_size));
+    // For now, we use bounding box damage for render target damage, as its only 2 consumers so far
+    // (CoordinatedBackingStore & ThreadedCompositor) only fetch bounds. Thus having damage with
+    // better resolution is pointless as the bounds are the same in such case.
+    m_target->setDamage(WebCore::Damage(m_size, WebCore::Damage::Mode::BoundingBox));
     if (m_frameDamage) {
         damageRects = m_frameDamage->rects();
         m_frameDamage = std::nullopt;
