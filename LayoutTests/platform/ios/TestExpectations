@@ -8135,7 +8135,6 @@ http/tests/resourceLoadStatistics/only-partitioned-cookies-after-redirect.html [
 http/tests/site-isolation/touch-events/touch-event-coordinates.html [ Failure ]
 http/tests/websocket/tests/hybi/websocket-allowed-setting-cookie-as-third-party-with-third-party-cookie-blocking.https.html [ Failure ]
 http/tests/workers/service/basic-install-event-sw-fetch-third-party.html [ Failure ]
-http/wpt/mediarecorder/MediaRecorder-AV-audio-video-dataavailable.html [ Failure ]
 http/wpt/webcodecs/videoFrame-negative-timestamp.html [ Failure ]
 imported/w3c/web-platform-tests/css/selectors/invalidation/has-with-nesting-parent-containing-hover.html [ Failure ]
 imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-get.https.html [ Failure ]
