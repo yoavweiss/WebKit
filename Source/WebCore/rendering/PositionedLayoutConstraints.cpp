@@ -286,41 +286,46 @@ bool PositionedLayoutConstraints::isEligibleForStaticRangeAlignment(LayoutUnit s
         return false;
 
     if (parent->isRenderGrid()) {
-        if (m_container.get() == parent)
-            return false;
-
-        auto& containingBlockStyle = m_container->style();
-        if (!containingBlockStyle.writingMode().isHorizontal())
-            return false;
-
-        if (!containingBlockStyle.isLeftToRightDirection())
-            return false;
-
-        auto& parentStyle = parent->style();
-        if (!parentStyle.writingMode().isHorizontal())
-            return false;
-
-        if (!parentStyle.isLeftToRightDirection())
-            return false;
 
         auto& itemStyle = m_renderer->style();
-        if (!itemStyle.writingMode().isHorizontal())
-            return false;
-
-        if (!itemStyle.isLeftToRightDirection())
-            return false;
-
         auto itemAlignSelf = itemStyle.alignSelf();
-        if (itemAlignSelf.position() != ItemPosition::End)
-            return false;
+        switch (itemStyle.alignSelf().position()) {
+        case ItemPosition::FlexEnd:
+        case ItemPosition::SelfEnd:
+        case ItemPosition::End: {
+            if (m_container.get() == parent)
+                return false;
 
-        if (itemAlignSelf.positionType() != ItemPositionType::NonLegacy)
-            return false;
+            auto& containingBlockStyle = m_container->style();
+            if (!containingBlockStyle.writingMode().isHorizontal())
+                return false;
 
-        if (itemAlignSelf.overflow() != OverflowAlignment::Default)
-            return false;
+            if (!containingBlockStyle.isLeftToRightDirection())
+                return false;
 
-        return spaceInStaticRange >= itemSize;
+            auto& parentStyle = parent->style();
+            if (!parentStyle.writingMode().isHorizontal())
+                return false;
+
+            if (!parentStyle.isLeftToRightDirection())
+                return false;
+
+            if (!itemStyle.writingMode().isHorizontal())
+                return false;
+
+            if (!itemStyle.isLeftToRightDirection())
+                return false;
+
+            if (itemAlignSelf.positionType() != ItemPositionType::NonLegacy)
+                return false;
+
+            if (itemAlignSelf.overflow() != OverflowAlignment::Default)
+                return false;
+            return spaceInStaticRange >= itemSize;
+        }
+        default:
+            return false;
+        }
     }
 
     // We can hit this in certain pieces of content (e.g. see mathml/crashtests/fixed-pos-children.html),
