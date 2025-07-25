@@ -81,6 +81,11 @@ static void wpeDisplayDRMDispose(GObject* object)
 {
     auto* priv = WPE_DISPLAY_DRM(object)->priv;
 
+    if (priv->screen) {
+        wpe_screen_invalidate(priv->screen.get());
+        priv->screen = nullptr;
+    }
+
     priv->cursor = nullptr;
     g_clear_pointer(&priv->device, gbm_device_destroy);
 
