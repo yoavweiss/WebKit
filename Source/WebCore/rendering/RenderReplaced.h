@@ -47,7 +47,7 @@ public:
 
     double computeIntrinsicAspectRatio() const;
 
-    virtual void computeIntrinsicSizeAndPreferredAspectRatio(FloatSize& intrinsicSize, FloatSize& preferredAspectRatio) const;
+    virtual std::pair<FloatSize, FloatSize> computeIntrinsicSizeAndPreferredAspectRatio() const;
 
     virtual bool paintsContent() const { return true; }
 

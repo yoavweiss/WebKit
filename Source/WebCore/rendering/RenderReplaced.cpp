@@ -454,10 +454,10 @@ void RenderReplaced::computeAspectRatioInformationForRenderBox(RenderBox* conten
 {
     FloatSize intrinsicSize;
     if (shouldApplySizeOrInlineSizeContainment())
-        RenderReplaced::computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
+        std::tie(intrinsicSize, preferredAspectRatio) = RenderReplaced::computeIntrinsicSizeAndPreferredAspectRatio();
     else if (contentRenderer) {
         if (auto* renderReplaced = dynamicDowncast<RenderReplaced>(contentRenderer))
-            renderReplaced->computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
+            std::tie(intrinsicSize, preferredAspectRatio) = renderReplaced->computeIntrinsicSizeAndPreferredAspectRatio();
 
         if (style().aspectRatio().isRatio() || (style().aspectRatio().isAutoAndRatio() && preferredAspectRatio.isEmpty()))
             preferredAspectRatio = FloatSize::narrowPrecision(style().aspectRatioWidth().value, style().aspectRatioHeight().value);
@@ -480,7 +480,7 @@ void RenderReplaced::computeAspectRatioInformationForRenderBox(RenderBox* conten
             intrinsicSize = intrinsicSize.transposedSize();
         }
     } else {
-        computeIntrinsicSizeAndPreferredAspectRatio(intrinsicSize, preferredAspectRatio);
+        std::tie(intrinsicSize, preferredAspectRatio) = computeIntrinsicSizeAndPreferredAspectRatio();
         if (!preferredAspectRatio.isEmpty() && !intrinsicSize.isZero())
             m_intrinsicSize = LayoutSize(isHorizontalWritingMode() ? intrinsicSize : intrinsicSize.transposedSize());
     }
@@ -557,26 +557,27 @@ double RenderReplaced::computeIntrinsicAspectRatio() const
     return intrinsicRatio.aspectRatioDouble();
 }
 
-void RenderReplaced::computeIntrinsicSizeAndPreferredAspectRatio(FloatSize& intrinsicSize, FloatSize& intrinsicRatio) const
+std::pair<FloatSize, FloatSize> RenderReplaced::computeIntrinsicSizeAndPreferredAspectRatio() const
 {
     // If there's an embeddedContentBox() of a remote, referenced document available, this code-path should never be used.
     ASSERT(!embeddedContentBox() || shouldApplySizeOrInlineSizeContainment());
-    intrinsicSize = FloatSize(intrinsicLogicalWidth(), intrinsicLogicalHeight());
+    auto intrinsicSize = FloatSize(intrinsicLogicalWidth(), intrinsicLogicalHeight());
+    FloatSize preferredAspectRatio;
 
     if (style().hasAspectRatio()) {
-        intrinsicRatio = FloatSize::narrowPrecision(style().aspectRatioLogicalWidth().value, style().aspectRatioLogicalHeight().value);
+        preferredAspectRatio = FloatSize::narrowPrecision(style().aspectRatioLogicalWidth().value, style().aspectRatioLogicalHeight().value);
         if (style().aspectRatio().isRatio() || isVideoWithDefaultObjectSize(this))
-            return;
+            return { intrinsicSize, preferredAspectRatio };
     }
     // Figure out if we need to compute an intrinsic ratio.
     if (!RenderBox::hasIntrinsicAspectRatio() && !isRenderOrLegacyRenderSVGRoot())
-        return;
+        return { intrinsicSize, preferredAspectRatio };
 
     // After supporting contain-intrinsic-size, the intrinsicSize of size containment is not always empty.
     if (intrinsicSize.isEmpty() || shouldApplySizeContainment())
-        return;
+        return { intrinsicSize, preferredAspectRatio };
 
-    intrinsicRatio = { intrinsicSize.width(), intrinsicSize.height() };
+    return { intrinsicSize, { intrinsicSize.width(), intrinsicSize.height() } };
 }
 
 LayoutUnit RenderReplaced::computeConstrainedLogicalWidth() const
