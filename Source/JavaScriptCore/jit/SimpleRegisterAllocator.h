@@ -38,7 +38,7 @@ namespace JSC {
 // 4) Emit assembly.
 // 5) Unlock anything that was locked.
 //
-// Since a bytecode/IR node could have the same operand more than once it's expected that the number of locks on a register matches the number of unlocks before the then next bytecode/IR node begins (thus any subsequent locks). Between the the first unlock and the remaining unlocks it's invalid to allocate a new register.
+// Since a bytecode/IR node could have the same operand more than once it's expected that the number of locks on a register matches the number of unlocks before the then next bytecode/IR node begins (thus any subsequent locks).
 template<typename RegisterBank>
 class SimpleRegisterAllocator {
     WTF_MAKE_NONCOPYABLE(SimpleRegisterAllocator);
@@ -54,9 +54,8 @@ public:
     using RegisterBinding = JITBackend::RegisterBinding;
     using RegisterBindings = std::array<RegisterBinding, RegisterBank::numberOfRegisters>;
     using SpillHint = JITBackend::SpillHint;
-    // We use the high to signify registers that cannot be used or are locked.
     static_assert(std::unsigned_integral<SpillHint>);
-    static constexpr SpillHint lockBit = SpillHint(1) << (std::numeric_limits<SpillHint>::digits - 1);
+    static constexpr SpillHint invalidRegisterHint = std::numeric_limits<SpillHint>::max();
 
     static constexpr Width registerWidth = RegisterBank::defaultWidth;
 
@@ -64,10 +63,8 @@ public:
 
     Register allocate(JITBackend& backend, RegisterBinding&& binding, std::optional<SpillHint> hint, Register hintReg = invalidRegister)
     {
-        Register result;
-        if (hintReg != invalidRegister && m_freeRegisters.contains(hintReg, registerWidth))
-            result = hintReg;
-        else
+        Register result = hintReg;
+        if (result == invalidRegister || !m_freeRegisters.contains(result, registerWidth))
             result = m_freeRegisters.isEmpty() ? evictRegister(backend) : nextFreeRegister();
         bind(result, WTFMove(binding), hint);
         return result;
@@ -135,8 +132,6 @@ public:
 #if ASSERT_ENABLED
         for (Reg reg : m_validRegisters)
             ASSERT(!m_spiller.isLocked(fromJSCReg(reg)));
-        for (auto lockCount : m_spiller.m_lockCounts)
-            ASSERT(!lockCount);
 #endif
     }
 
@@ -147,8 +142,6 @@ public:
         m_spiller.setHint(reg, hint);
     }
 
-    // Note: It's valid to nest calls to lock on the same register more than once. However it is invalid to
-    // call unlock on that register and allocate before all other matching unlocks have run.
     void lock(Register reg) { m_spiller.lock(reg); }
     void unlock(Register reg) { m_spiller.unlock(reg); }
     bool isLocked(Register reg) const { return m_spiller.isLocked(reg); }
@@ -175,7 +168,7 @@ private:
 
     Register evictRegister(JITBackend& backend)
     {
-        Register result = m_spiller.findMin();
+        Register result = m_spiller.findMinHintRegisterToSpill();
         ASSERT(m_bindings[result] != RegisterBinding());
         dataLogLnIf(!m_logPrefix.isNull(), m_logPrefix, "\tEvicting ", result, " currently bound to ", m_bindings[result]);
         backend.flush(result, m_bindings[result]);
@@ -201,10 +194,8 @@ private:
     public:
         Spiller()
         {
-            m_hints.fill(lockBit);
-#if ASSERT_ENABLED
+            m_hints.fill(invalidRegisterHint);
             m_lockCounts.fill(0);
-#endif
         }
 
         void initialize(RegisterSet registers)
@@ -214,59 +205,35 @@ private:
             });
         }
 
-        Register findMin()
+        Register findMinHintRegisterToSpill()
         {
             int32_t minIndex = -1;
-            SpillHint minHint = lockBit;
+            SpillHint minHint = invalidRegisterHint;
             for (unsigned i = 0; i < m_hints.size(); ++i) {
-                ASSERT_IMPLIES(!isLockedOrInvalid(m_hints[i]), !m_lockCounts[i]);
-                if (m_hints[i] < minHint) {
+                if (!m_lockCounts[i] && m_hints[i] < minHint) {
                     minHint = m_hints[i];
                     minIndex = i;
                 }
             }
 
-            RELEASE_ASSERT_WITH_MESSAGE(!isLockedOrInvalid(minHint), "No remaining allocatable registers in Spiller");
-            ASSERT(minIndex >= 0);
+            RELEASE_ASSERT_WITH_MESSAGE(minIndex >= 0, "No remaining allocatable registers in Spiller");
+            // This should be guaranteed by the above assert but doesn't hurt to double check.
+            ASSERT(minHint != invalidRegisterHint);
             return static_cast<Register>(minIndex);
         }
 
         void setHint(Register reg, SpillHint newHint)
         {
-            ASSERT(!isLockedOrInvalid(newHint));
-            ASSERT_IMPLIES(isLockedOrInvalid(m_hints[reg]), m_lockCounts[reg]); // Leave untracked registers alone.
-            m_hints[reg] = (m_hints[reg] & lockBit) + newHint;
+            ASSERT(newHint < invalidRegisterHint);
+            m_hints[reg] = newHint;
         }
 
-        static bool isLockedOrInvalid(SpillHint hint) { return hint & lockBit; }
-        bool isLocked(Register reg) const
-        {
-            ASSERT(!!m_lockCounts[reg] == isLockedOrInvalid(m_hints[reg]));
-            return isLockedOrInvalid(m_hints[reg]);
-        }
-
-        void lock(Register reg)
-        {
-#if ASSERT_ENABLED
-            ASSERT(!!m_lockCounts[reg] == isLockedOrInvalid(m_hints[reg]));
-            m_lockCounts[reg]++;
-#endif
-            m_hints[reg] |= lockBit;
-        }
-
-        void unlock(Register reg)
-        {
-            m_hints[reg] &= ~lockBit;
-#if ASSERT_ENABLED
-            ASSERT(m_lockCounts[reg]);
-            m_lockCounts[reg]--;
-#endif
-        }
+        bool isLocked(Register reg) const { return m_lockCounts[reg]; }
+        void lock(Register reg) { m_lockCounts[reg]++; }
+        void unlock(Register reg) { m_lockCounts[reg]--; }
 
         std::array<SpillHint, RegisterBank::numberOfRegisters> m_hints;
-#if ASSERT_ENABLED
         std::array<unsigned, RegisterBank::numberOfRegisters> m_lockCounts;
-#endif
     };
 
     ASCIILiteral m_logPrefix; // non-empty means log.
