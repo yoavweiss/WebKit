@@ -199,9 +199,9 @@ static void appendAccessibilityObject(Ref<AXCoreObject> object, AccessibilityObj
 {
     if (!object->isAttachment()) [[likely]]
         results.append(WTFMove(object));
-    else {
+    else if (RefPtr axObject = dynamicDowncast<AccessibilityObject>(object)) {
         // Find the next descendant of this attachment object so search can continue through frames.
-        RefPtr widget = object->widgetForAttachmentView();
+        RefPtr widget = axObject->widgetForAttachmentView();
         RefPtr frameView = dynamicDowncast<LocalFrameView>(widget);
         if (!frameView)
             return;
@@ -209,9 +209,9 @@ static void appendAccessibilityObject(Ref<AXCoreObject> object, AccessibilityObj
         if (!document || !document->hasLivingRenderTree())
             return;
 
-        CheckedPtr cache = object->axObjectCache();
+        CheckedPtr cache = axObject->axObjectCache();
         if (RefPtr axDocument = cache ? cache->getOrCreate(*document) : nullptr)
-            results.append(*axDocument);
+            results.append(axDocument.releaseNonNull());
     }
 }
 

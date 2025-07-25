@@ -336,6 +336,19 @@ AXObjectCache::~AXObjectCache()
     AXTreeStore::remove(m_id);
 }
 
+String AXObjectCache::debugDescription() const
+{
+    TextStream stream;
+    stream << this;
+    return makeString(
+        "AXObjectCache "_s,
+        stream.release(),
+        " { "_s,
+        m_document ? m_document->debugDescription() : "null document"_s,
+        " }"_s
+    );
+}
+
 bool AXObjectCache::isModalElement(Element& element) const
 {
     if (hasAnyRole(element, { "dialog"_s, "alertdialog"_s }) && equalLettersIgnoringASCIICase(element.attributeWithDefaultARIA(aria_modalAttr), "true"_s))
@@ -777,37 +790,37 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
     RefPtr node = renderer.node();
     if (RefPtr element = dynamicDowncast<Element>(node)) {
         if (isAccessibilityList(*element))
-            return AccessibilityList::create(AXID::generate(), renderer);
+            return AccessibilityList::create(AXID::generate(), renderer, *this);
 
         if (isAccessibilityARIATable(*element))
-            return AccessibilityARIATable::create(AXID::generate(), renderer);
+            return AccessibilityARIATable::create(AXID::generate(), renderer, *this);
         if (isAccessibilityARIAGridRow(*element))
-            return AccessibilityARIAGridRow::create(AXID::generate(), renderer);
+            return AccessibilityARIAGridRow::create(AXID::generate(), renderer, *this);
         if (isAccessibilityARIAGridCell(*element))
-            return AccessibilityARIAGridCell::create(AXID::generate(), renderer);
+            return AccessibilityARIAGridCell::create(AXID::generate(), renderer, *this);
 
         if (isAccessibilityTree(*element))
-            return AccessibilityTree::create(AXID::generate(), renderer);
+            return AccessibilityTree::create(AXID::generate(), renderer, *this);
         if (isAccessibilityTreeItem(*element))
-            return AccessibilityTreeItem::create(AXID::generate(), renderer);
+            return AccessibilityTreeItem::create(AXID::generate(), renderer, *this);
 
         if (is<HTMLLabelElement>(*element) && hasRole(*element, nullAtom()))
-            return AccessibilityLabel::create(AXID::generate(), renderer);
+            return AccessibilityLabel::create(AXID::generate(), renderer, *this);
 
 #if PLATFORM(IOS_FAMILY)
         if (is<HTMLMediaElement>(*element) && hasRole(*element, nullAtom()))
-            return AccessibilityMediaObject::create(AXID::generate(), renderer);
+            return AccessibilityMediaObject::create(AXID::generate(), renderer, *this);
 #endif
     }
 
     if (renderer.isRenderOrLegacyRenderSVGRoot())
-        return AccessibilitySVGRoot::create(AXID::generate(), renderer, this);
+        return AccessibilitySVGRoot::create(AXID::generate(), renderer, *this);
 
     if (is<SVGElement>(node) || is<RenderSVGInlineText>(renderer))
-        return AccessibilitySVGObject::create(AXID::generate(), renderer, this);
+        return AccessibilitySVGObject::create(AXID::generate(), renderer, *this);
 
     if (auto* renderImage = toSimpleImage(renderer))
-        return AXImage::create(AXID::generate(), *renderImage);
+        return AXImage::create(AXID::generate(), *renderImage, *this);
 
 #if ENABLE(MATHML)
     // The mfenced element creates anonymous RenderMathMLOperators which should be treated
@@ -815,11 +828,11 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
     // inclusion and role mapping is not bypassed.
     bool isAnonymousOperator = renderer.isAnonymous() && is<RenderMathMLOperator>(renderer);
     if (isAnonymousOperator || is<MathMLElement>(node))
-        return AccessibilityMathMLElement::create(AXID::generate(), renderer, isAnonymousOperator);
+        return AccessibilityMathMLElement::create(AXID::generate(), renderer, *this, isAnonymousOperator);
 #endif
 
     if (is<RenderListBox>(renderer))
-        return AccessibilityListBox::create(AXID::generate(), renderer);
+        return AccessibilityListBox::create(AXID::generate(), renderer, *this);
     if (CheckedPtr renderMenuList = dynamicDowncast<RenderMenuList>(renderer))
         return AccessibilityMenuList::create(AXID::generate(), *renderMenuList, *this);
 
@@ -833,54 +846,54 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
     // We don't want to consider these tables (since they are typically wrapped by an actual <table> element),
     // so only create an AccessibilityTable when !is<HTMLTableSectionElement>.
     if ((is<RenderTable>(renderer) && !isAnonymous && !is<HTMLTableSectionElement>(node.get())) || isAccessibilityTable(node.get()))
-        return AccessibilityTable::create(AXID::generate(), renderer);
+        return AccessibilityTable::create(AXID::generate(), renderer, *this);
     if ((is<RenderTableRow>(renderer) && !isAnonymous) || isAccessibilityTableRow(node.get()))
-        return AccessibilityTableRow::create(AXID::generate(), renderer);
+        return AccessibilityTableRow::create(AXID::generate(), renderer, *this);
     if ((is<RenderTableCell>(renderer) && !isAnonymous) || isAccessibilityTableCell(node.get()))
-        return AccessibilityTableCell::create(AXID::generate(), renderer);
+        return AccessibilityTableCell::create(AXID::generate(), renderer, *this);
 
     // Progress indicator.
     if (is<RenderProgress>(renderer) || is<RenderMeter>(renderer)
         || is<HTMLProgressElement>(node) || is<HTMLMeterElement>(node))
-        return AccessibilityProgressIndicator::create(AXID::generate(), renderer);
+        return AccessibilityProgressIndicator::create(AXID::generate(), renderer, *this);
 
 #if ENABLE(ATTACHMENT_ELEMENT)
     if (auto* renderAttachment = dynamicDowncast<RenderAttachment>(renderer))
-        return AccessibilityAttachment::create(AXID::generate(), *renderAttachment);
+        return AccessibilityAttachment::create(AXID::generate(), *renderAttachment, *this);
 #endif
 
     // input type=range
     if (is<RenderSlider>(renderer))
-        return AccessibilitySlider::create(AXID::generate(), renderer);
+        return AccessibilitySlider::create(AXID::generate(), renderer, *this);
 
-    return AccessibilityRenderObject::create(AXID::generate(), renderer);
+    return AccessibilityRenderObject::create(AXID::generate(), renderer, *this);
 }
 
 Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
 {
     if (RefPtr element = dynamicDowncast<Element>(node)) {
         if (isAccessibilityList(*element))
-            return AccessibilityList::create(AXID::generate(), *element);
+            return AccessibilityList::create(AXID::generate(), *element, *this);
         if (isAccessibilityTable(element.get()))
-            return AccessibilityTable::create(AXID::generate(), *element);
+            return AccessibilityTable::create(AXID::generate(), *element, *this);
         if (isAccessibilityTableRow(element.get()))
-            return AccessibilityTableRow::create(AXID::generate(), *element);
+            return AccessibilityTableRow::create(AXID::generate(), *element, *this);
         if (isAccessibilityTableCell(element.get()))
-            return AccessibilityTableCell::create(AXID::generate(), *element);
+            return AccessibilityTableCell::create(AXID::generate(), *element, *this);
         if (isAccessibilityTree(*element))
-            return AccessibilityTree::create(AXID::generate(), *element);
+            return AccessibilityTree::create(AXID::generate(), *element, *this);
         if (isAccessibilityTreeItem(*element))
-            return AccessibilityTreeItem::create(AXID::generate(), *element);
+            return AccessibilityTreeItem::create(AXID::generate(), *element, *this);
         if (isAccessibilityARIATable(*element))
-            return AccessibilityARIATable::create(AXID::generate(), *element);
+            return AccessibilityARIATable::create(AXID::generate(), *element, *this);
         if (isAccessibilityARIAGridRow(*element))
-            return AccessibilityARIAGridRow::create(AXID::generate(), *element);
+            return AccessibilityARIAGridRow::create(AXID::generate(), *element, *this);
         if (isAccessibilityARIAGridCell(*element))
-            return AccessibilityARIAGridCell::create(AXID::generate(), *element);
+            return AccessibilityARIAGridCell::create(AXID::generate(), *element, *this);
         if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*element))
-            return AccessibilityImageMapLink::create(AXID::generate(), *areaElement);
+            return AccessibilityImageMapLink::create(AXID::generate(), *areaElement, *this);
     }
-    return AccessibilityNodeObject::create(AXID::generate(), node);
+    return AccessibilityNodeObject::create(AXID::generate(), node, *this);
 }
 
 void AXObjectCache::cacheAndInitializeWrapper(AccessibilityObject& newObject, DOMObjectVariant domObject)
@@ -915,9 +928,9 @@ AccessibilityObject* AXObjectCache::getOrCreate(Widget& widget)
 
     RefPtr<AccessibilityObject> newObject;
     if (auto* scrollView = dynamicDowncast<ScrollView>(widget))
-        newObject = AccessibilityScrollView::create(AXID::generate(), *scrollView);
+        newObject = AccessibilityScrollView::create(AXID::generate(), *scrollView, *this);
     else if (auto* scrollbar = dynamicDowncast<Scrollbar>(widget))
-        newObject = AccessibilityScrollbar::create(AXID::generate(), *scrollbar);
+        newObject = AccessibilityScrollbar::create(AXID::generate(), *scrollbar, *this);
 
     // Will crash later if we have two objects for the same widget.
     ASSERT(!get(widget));
@@ -957,9 +970,9 @@ AccessibilityObject* AXObjectCache::getOrCreate(Node& node, IsPartOfRelation isP
         if (select->usesMenuList()) {
             if (!optionElement || !select->renderer())
                 return nullptr;
-            object = AccessibilityMenuListOption::create(AXID::generate(), *optionElement);
+            object = AccessibilityMenuListOption::create(AXID::generate(), *optionElement, *this);
         } else
-            object = AccessibilityListBoxOption::create(AXID::generate(), downcast<HTMLElement>(node));
+            object = AccessibilityListBoxOption::create(AXID::generate(), downcast<HTMLElement>(node), *this);
         cacheAndInitializeWrapper(*object, &node);
         return object.get();
     }
@@ -1123,25 +1136,25 @@ AccessibilityObject* AXObjectCache::create(AccessibilityRole role)
     RefPtr<AccessibilityObject> object;
     switch (role) {
     case AccessibilityRole::Column:
-        object = AccessibilityTableColumn::create(AXID::generate());
+        object = AccessibilityTableColumn::create(AXID::generate(), *this);
         break;
     case AccessibilityRole::TableHeaderContainer:
-        object = AccessibilityTableHeaderContainer::create(AXID::generate());
+        object = AccessibilityTableHeaderContainer::create(AXID::generate(), *this);
         break;
     case AccessibilityRole::RemoteFrame:
-        object = AXRemoteFrame::create(AXID::generate());
+        object = AXRemoteFrame::create(AXID::generate(), *this);
         break;
     case AccessibilityRole::SliderThumb:
-        object = AccessibilitySliderThumb::create(AXID::generate());
+        object = AccessibilitySliderThumb::create(AXID::generate(), *this);
         break;
     case AccessibilityRole::MenuListPopup:
-        object = AccessibilityMenuListPopup::create(AXID::generate());
+        object = AccessibilityMenuListPopup::create(AXID::generate(), *this);
         break;
     case AccessibilityRole::SpinButton:
         object = AccessibilitySpinButton::create(AXID::generate(), *this);
         break;
     case AccessibilityRole::SpinButtonPart:
-        object = AccessibilitySpinButtonPart::create(AXID::generate());
+        object = AccessibilitySpinButtonPart::create(AXID::generate(), *this);
         break;
     default:
         break;

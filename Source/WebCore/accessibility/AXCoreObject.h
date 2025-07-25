@@ -1244,8 +1244,6 @@ public:
     // Non-localized string associated with the object's subrole.
     virtual String subrolePlatformString() const = 0;
 
-    virtual AXObjectCache* axObjectCache() const = 0;
-
     bool supportsPressAction() const;
     virtual Element* actionElement() const = 0;
 

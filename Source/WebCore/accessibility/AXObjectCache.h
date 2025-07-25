@@ -315,6 +315,8 @@ public:
     explicit AXObjectCache(Page&, Document*);
     ~AXObjectCache();
 
+    String debugDescription() const;
+
     // Returns the root object for a specific frame.
     WEBCORE_EXPORT AXCoreObject* rootObjectForFrame(LocalFrame&);
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
@@ -983,6 +985,11 @@ private:
     VisibleSelection m_lastSelection;
 #endif
 };
+
+inline AXObjectCache* AccessibilityObject::axObjectCache() const
+{
+    return m_axObjectCache.get();
+}
 
 template<typename U>
 inline Vector<Ref<AXCoreObject>> AXObjectCache::objectsForIDs(const U& axIDs) const

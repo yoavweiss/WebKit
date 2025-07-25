@@ -118,8 +118,9 @@ namespace WebCore {
 
 using namespace HTMLNames;
 
-AccessibilityObject::AccessibilityObject(AXID axID)
+AccessibilityObject::AccessibilityObject(AXID axID, AXObjectCache& cache)
     : AXCoreObject(axID)
+    , m_axObjectCache(cache)
 {
 }
 
@@ -3135,12 +3136,6 @@ AccessibilityObject* AccessibilityObject::elementAccessibilityHitTest(const IntP
     return const_cast<AccessibilityObject*>(this);
 }
     
-AXObjectCache* AccessibilityObject::axObjectCache() const
-{
-    RefPtr document = this->document();
-    return document ? document->axObjectCache() : nullptr;
-}
-
 CommandType AccessibilityObject::commandType() const
 {
     return CommandType::Invalid;

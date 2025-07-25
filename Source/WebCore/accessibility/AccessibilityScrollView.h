@@ -38,7 +38,7 @@ class ScrollView;
     
 class AccessibilityScrollView final : public AccessibilityObject {
 public:
-    static Ref<AccessibilityScrollView> create(AXID, ScrollView&);
+    static Ref<AccessibilityScrollView> create(AXID, ScrollView&, AXObjectCache&);
     AccessibilityRole determineAccessibilityRole() final { return AccessibilityRole::ScrollArea; }
     ScrollView* scrollView() const final { return currentScrollView(); }
 
@@ -53,7 +53,7 @@ public:
     String extraDebugInfo() const final { return ownerDebugDescription(); }
 
 private:
-    explicit AccessibilityScrollView(AXID, ScrollView&);
+    explicit AccessibilityScrollView(AXID, ScrollView&, AXObjectCache&);
     void detachRemoteParts(AccessibilityDetachmentType) final;
 
     ScrollView* currentScrollView() const;

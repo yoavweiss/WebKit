@@ -539,7 +539,7 @@ private:
 #if PLATFORM(COCOA)
     RetainPtr<NSAttributedString> attributedStringForTextMarkerRange(AXTextMarkerRange&&, SpellCheck) const final;
 #endif
-    AXObjectCache* axObjectCache() const final;
+    AXObjectCache* axObjectCache() const;
     Element* actionElement() const final;
     Path elementPath() const final { return pathAttributeValue(AXProperty::Path); };
     bool supportsPath() const final { return boolAttributeValue(AXProperty::SupportsPath); }

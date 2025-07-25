@@ -105,8 +105,8 @@ using namespace HTMLNames;
 static String accessibleNameForNode(Node&, Node* labelledbyNode = nullptr);
 static void appendNameToStringBuilder(StringBuilder&, String&&, bool prependSpace = true);
 
-AccessibilityNodeObject::AccessibilityNodeObject(AXID axID, Node* node)
-    : AccessibilityObject(axID)
+AccessibilityNodeObject::AccessibilityNodeObject(AXID axID, Node* node, AXObjectCache& cache)
+    : AccessibilityObject(axID, cache)
     , m_node(node)
 {
 }
@@ -125,9 +125,9 @@ void AccessibilityNodeObject::init()
     AccessibilityObject::init();
 }
 
-Ref<AccessibilityNodeObject> AccessibilityNodeObject::create(AXID axID, Node& node)
+Ref<AccessibilityNodeObject> AccessibilityNodeObject::create(AXID axID, Node& node, AXObjectCache& cache)
 {
-    return adoptRef(*new AccessibilityNodeObject(axID, &node));
+    return adoptRef(*new AccessibilityNodeObject(axID, &node, cache));
 }
 
 void AccessibilityNodeObject::detachRemoteParts(AccessibilityDetachmentType detachmentType)
@@ -207,7 +207,7 @@ AccessibilityObject* AccessibilityNodeObject::parentObject() const
     if (!node)
         return nullptr;
 
-    if (RefPtr ownerParent = ownerParentObject())
+    if (RefPtr ownerParent = ownerParentObject()) [[unlikely]]
         return ownerParent.get();
 
     CheckedPtr cache = axObjectCache();

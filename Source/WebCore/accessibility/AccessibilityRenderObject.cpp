@@ -149,8 +149,8 @@ static Node* nodeForRenderer(RenderObject& renderer)
     return &renderer.document();
 }
 
-AccessibilityRenderObject::AccessibilityRenderObject(AXID axID, RenderObject& renderer)
-    : AccessibilityNodeObject(axID, nodeForRenderer(renderer))
+AccessibilityRenderObject::AccessibilityRenderObject(AXID axID, RenderObject& renderer, AXObjectCache& cache)
+    : AccessibilityNodeObject(axID, nodeForRenderer(renderer), cache)
     , m_renderer(renderer)
 {
 #if ASSERT_ENABLED
@@ -158,8 +158,8 @@ AccessibilityRenderObject::AccessibilityRenderObject(AXID axID, RenderObject& re
 #endif
 }
 
-AccessibilityRenderObject::AccessibilityRenderObject(AXID axID, Node& node)
-    : AccessibilityNodeObject(axID, &node)
+AccessibilityRenderObject::AccessibilityRenderObject(AXID axID, Node& node, AXObjectCache& cache)
+    : AccessibilityNodeObject(axID, &node, cache)
 {
     // We should only ever create an instance of this class with a node if that node has no renderer (i.e. because of display:contents).
     ASSERT(!node.renderer());
@@ -170,9 +170,9 @@ AccessibilityRenderObject::~AccessibilityRenderObject()
     ASSERT(isDetached());
 }
 
-Ref<AccessibilityRenderObject> AccessibilityRenderObject::create(AXID axID, RenderObject& renderer)
+Ref<AccessibilityRenderObject> AccessibilityRenderObject::create(AXID axID, RenderObject& renderer, AXObjectCache& cache)
 {
-    return adoptRef(*new AccessibilityRenderObject(axID, renderer));
+    return adoptRef(*new AccessibilityRenderObject(axID, renderer, cache));
 }
 
 void AccessibilityRenderObject::detachRemoteParts(AccessibilityDetachmentType detachmentType)
@@ -513,7 +513,7 @@ RenderObject* AccessibilityRenderObject::renderParentObject() const
 
 AccessibilityObject* AccessibilityRenderObject::parentObject() const
 {
-    if (RefPtr ownerParent = ownerParentObject())
+    if (RefPtr ownerParent = ownerParentObject()) [[unlikely]]
         return ownerParent.get();
 
 #if USE(ATSPI)
@@ -2143,7 +2143,7 @@ AccessibilityObject* AccessibilityRenderObject::accessibilityImageMapHitTest(HTM
 
 AccessibilityObject* AccessibilityRenderObject::remoteSVGElementHitTest(const IntPoint& point) const
 {
-    RefPtr remote = remoteSVGRootElement(Create);
+    RefPtr remote = remoteSVGRootElement(CreateIfNecessary::Yes);
     if (!remote)
         return nullptr;
     
@@ -2308,7 +2308,7 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
         if (is<HTMLInputElement>(node))
             return selfOrAncestorLinkHasPopup() ? AccessibilityRole::PopUpButton : AccessibilityRole::Button;
 
-        if (RefPtr svgRoot = remoteSVGRootElement(Create)) {
+        if (RefPtr svgRoot = remoteSVGRootElement(CreateIfNecessary::Yes)) {
             if (svgRoot->hasAccessibleContent())
                 return AccessibilityRole::SVGRoot;
         }
@@ -2466,16 +2466,16 @@ void AccessibilityRenderObject::addTextFieldChildren()
     
 bool AccessibilityRenderObject::isSVGImage() const
 {
-    return remoteSVGRootElement(Create);
+    return remoteSVGRootElement(CreateIfNecessary::Yes);
 }
     
 void AccessibilityRenderObject::detachRemoteSVGRoot()
 {
-    if (RefPtr root = remoteSVGRootElement(Retrieve))
+    if (RefPtr root = remoteSVGRootElement(CreateIfNecessary::No))
         root->setParent(nullptr);
 }
 
-AccessibilitySVGRoot* AccessibilityRenderObject::remoteSVGRootElement(CreationChoice createIfNecessary) const
+AccessibilitySVGRoot* AccessibilityRenderObject::remoteSVGRootElement(CreateIfNecessary createIfNecessary) const
 {
     auto* renderImage = dynamicDowncast<RenderImage>(renderer());
     if (!renderImage)
@@ -2511,14 +2511,14 @@ AccessibilitySVGRoot* AccessibilityRenderObject::remoteSVGRootElement(CreationCh
     if (!cache)
         return nullptr;
 
-    RefPtr rootSVGObject = createIfNecessary == Create ? cache->getOrCreate(*rendererRoot) : cache->get(rendererRoot);
-    ASSERT(!createIfNecessary || rootSVGObject);
+    RefPtr rootSVGObject = createIfNecessary == CreateIfNecessary::Yes ? cache->getOrCreate(*rendererRoot) : cache->get(rendererRoot);
+    ASSERT(createIfNecessary == CreateIfNecessary::No || rootSVGObject);
     return dynamicDowncast<AccessibilitySVGRoot>(rootSVGObject).get();
 }
     
 void AccessibilityRenderObject::addRemoteSVGChildren()
 {
-    RefPtr<AccessibilitySVGRoot> root = remoteSVGRootElement(Create);
+    RefPtr<AccessibilitySVGRoot> root = remoteSVGRootElement(CreateIfNecessary::Yes);
     if (!root)
         return;
 
