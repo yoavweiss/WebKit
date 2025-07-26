@@ -679,6 +679,14 @@ def generate_header(serialized_types, serialized_enums, additional_forward_decla
     for header in ['<wtf/ArgumentCoder.h>', '<wtf/OptionSet.h>', '<wtf/Ref.h>', '<wtf/RetainPtr.h>']:
         result.append(f'#include {header}')
 
+    result.append('#if USE(CF)')
+    result.append('#ifdef __swift__')
+    result.append('#include <Security/SecTrust.h>')
+    result.append('#else')
+    result.append('typedef struct CF_BRIDGED_TYPE(id) __SecTrust *SecTrustRef;')
+    result.append('#endif')
+    result.append('#endif')
+
     result += generate_forward_declarations(serialized_types, serialized_enums, additional_forward_declarations)
     result.append('')
     result.append('namespace IPC {')

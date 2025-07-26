@@ -25,6 +25,7 @@
 #include <wtf/Forward.h>
 #include <wtf/GetPtr.h>
 #include <wtf/HashTable.h>
+#include <wtf/HashTraits.h>
 #include <wtf/RobinHoodHashTable.h>
 
 namespace WTF {

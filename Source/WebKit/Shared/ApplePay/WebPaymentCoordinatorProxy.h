@@ -39,6 +39,7 @@
 #include <wtf/TZoneMalloc.h>
 #include <wtf/WeakObjCPtr.h>
 #include <wtf/WeakPtr.h>
+#include <wtf/WeakPtrFactory.h>
 #include <wtf/WorkQueue.h>
 
 #if PLATFORM(COCOA)

@@ -32,6 +32,7 @@
 #if USE(UNIX_DOMAIN_SOCKETS)
 #include <wtf/unix/UnixFileDescriptor.h>
 #elif OS(DARWIN)
+#include <mach/mach.h>
 #include <wtf/MachSendRight.h>
 #include <wtf/StdLibExtras.h>
 #elif OS(WINDOWS)

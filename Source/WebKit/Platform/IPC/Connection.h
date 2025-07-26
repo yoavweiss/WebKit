@@ -73,7 +73,10 @@
 #include <mach/mach_port.h>
 #include <wtf/OSObjectPtr.h>
 #include <wtf/spi/darwin/XPCSPI.h>
+#if HAVE(XPC_API)
+#include <xpc/xpc.h>
 #endif
+#endif // OS(DARWIN)
 
 #if USE(GLIB)
 #include <wtf/glib/GSocketMonitor.h>

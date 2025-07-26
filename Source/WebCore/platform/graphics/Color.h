@@ -29,6 +29,7 @@
 #include "ColorSpace.h"
 #include "ColorUtilities.h"
 #include "DestinationColorSpace.h"
+#include <bit>
 #include <functional>
 #include <wtf/Forward.h>
 #include <wtf/HashFunctions.h>
