@@ -8157,6 +8157,9 @@ fast/forms/ios/form-control-refresh/color/paint-within-box.html [ ImageOnlyFailu
 fast/forms/ios/form-control-refresh/select/decoration-color.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-view-transitions/fractional-translation-from-position.html [ ImageOnlyFailure ]
 
+# <rdar://156470462> RTL inputs with type=password have larger logical width than RTL inputs with type number, url, tel, & text
+fast/forms/input-password-logical-widths.html [ Failure ]
+
 webkit.org/b/296338 http/tests/site-isolation/fullscreen.html [ Pass Failure ]
 
 # webkit.org/b/296017 4x imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-021.html (layout-tests) are flakey image failures

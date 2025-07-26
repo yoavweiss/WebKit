@@ -264,6 +264,8 @@ protected:
     Color disabledSubmitButtonTextColor() const final;
 
     bool mayNeedBleedAvoidance(const RenderStyle&) const final;
+
+    float adjustedMaximumLogicalWidthForControl(const RenderStyle&, const Element&, float) const final;
 #endif
 
 private:

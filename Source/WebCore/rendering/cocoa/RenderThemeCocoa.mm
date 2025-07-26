@@ -1821,14 +1821,14 @@ static void applyEmPadding(RenderStyle& style, const Element* element, float pad
     applyPaddingIfNotExplicitlySet(style, paddingBox);
 }
 
-#if PLATFORM(MAC)
-static void applyEmPaddingForNumberField(RenderStyle& style, const Element* element, float inlineStartPadding, float inlineEndAndBlockPadding)
-{
-    if (!element)
-        return;
+static constexpr auto standardTextControlInlinePaddingEm = 0.5f;
+static constexpr auto standardTextControlBlockPaddingEm = 0.25f;
 
-    Ref paddingInlineStart = CSSPrimitiveValue::create(inlineStartPadding, CSSUnitType::CSS_EM);
-    Ref paddingInlineEndAndBlock = CSSPrimitiveValue::create(inlineEndAndBlockPadding, CSSUnitType::CSS_EM);
+#if PLATFORM(MAC)
+static Style::PaddingBox paddingBoxForNumberField(const RenderStyle& style, const Element* element)
+{
+    Ref paddingInlineStart = CSSPrimitiveValue::create(standardTextControlInlinePaddingEm, CSSUnitType::CSS_EM);
+    Ref paddingInlineEndAndBlock = CSSPrimitiveValue::create(standardTextControlBlockPaddingEm, CSSUnitType::CSS_EM);
     Ref document = element->document();
 
     const auto paddingInlineStartPixels = Style::PaddingEdge::Fixed { static_cast<float>(paddingInlineStart->resolveAsLength<int>({ style, document->renderStyle(), nullptr, document->renderView() })) };
@@ -1837,12 +1837,17 @@ static void applyEmPaddingForNumberField(RenderStyle& style, const Element* elem
     Style::PaddingBox paddingBox { paddingInlineEndAndBlockPixels };
     paddingBox.setStart(paddingInlineStartPixels, style.writingMode());
 
-    applyPaddingIfNotExplicitlySet(style, paddingBox);
+    return paddingBox;
+}
+
+static void applyEmPaddingForNumberField(RenderStyle& style, const Element* element)
+{
+    if (!element)
+        return;
+
+    applyPaddingIfNotExplicitlySet(style, paddingBoxForNumberField(style, element));
 }
 #endif
-
-static constexpr auto standardTextControlInlinePaddingEm = 0.5f;
-static constexpr auto standardTextControlBlockPaddingEm = 0.25f;
 
 bool RenderThemeCocoa::adjustTextFieldStyleForVectorBasedControls(RenderStyle& style, const Element* element) const
 {
@@ -1864,7 +1869,7 @@ bool RenderThemeCocoa::adjustTextFieldStyleForVectorBasedControls(RenderStyle& s
     // concentricity will be determined by the list button rather than the spin button.
     if (RefPtr input = dynamicDowncast<HTMLInputElement>(*element); input && !input->hasDataList()) {
         if (input->isNumberField())
-            applyEmPaddingForNumberField(style, element, standardTextControlInlinePaddingEm, standardTextControlBlockPaddingEm);
+            applyEmPaddingForNumberField(style, element);
         else
             applyEmPadding(style, element, standardTextControlInlinePaddingEm, standardTextControlBlockPaddingEm);
     }
@@ -3741,6 +3746,39 @@ FloatSize RenderThemeCocoa::inflateRectForInteractionRegion(const RenderObject& 
     }
 
     return { 0, 0 };
+}
+
+float RenderThemeCocoa::adjustedMaximumLogicalWidthForControl(const RenderStyle& style, const Element& element, float maximumLogicalWidth) const
+{
+#if PLATFORM(MAC)
+    if (!formControlRefreshEnabled(&element) || !style.hasUsedAppearance() || style.nativeAppearanceDisabled())
+        return maximumLogicalWidth;
+
+    const auto writingMode = style.writingMode();
+
+    const auto inlineEndPaddingExplicitlySet = [&] {
+        const auto isInlineFlipped = writingMode.isInlineFlipped();
+        if (writingMode.isHorizontal())
+            return isInlineFlipped ? style.hasExplicitlySetPaddingLeft() : style.hasExplicitlySetPaddingRight();
+
+        return isInlineFlipped ? style.hasExplicitlySetPaddingTop() : style.hasExplicitlySetPaddingBottom();
+    };
+
+    if (RefPtr input = dynamicDowncast<HTMLInputElement>(element); input && input->isNumberField() && !inlineEndPaddingExplicitlySet()) {
+        const auto paddingBox = paddingBoxForNumberField(style, &element);
+        const auto paddingEdgeInlineStart = paddingBox.start(writingMode);
+        const auto paddingEdgeInlineEnd = paddingBox.end(writingMode);
+
+        if (auto paddingEdgeInlineStartFixed = paddingEdgeInlineStart.tryFixed()) {
+            if (auto paddingEdgeInlineEndFixed = paddingEdgeInlineEnd.tryFixed())
+                maximumLogicalWidth += paddingEdgeInlineStartFixed->value - paddingEdgeInlineEndFixed->value;
+        }
+    }
+#else
+    UNUSED_PARAM(style);
+    UNUSED_PARAM(element);
+#endif
+    return maximumLogicalWidth;
 }
 #endif
 
