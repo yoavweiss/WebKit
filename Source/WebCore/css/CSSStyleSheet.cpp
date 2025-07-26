@@ -1,6 +1,6 @@
 /*
  * (C) 1999-2003 Lars Knoll (knoll@kde.org)
- * Copyright (C) 2004-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2004-2025 Apple Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -367,9 +367,14 @@ ExceptionOr<unsigned> CSSStyleSheet::insertRule(const String& ruleString, unsign
 
     RuleMutationScope mutationScope(this, RuleInsertion, dynamicDowncast<StyleRuleKeyframes>(*rule));
 
+    bool isNamespace = rule->isNamespaceRule();
     bool success = m_contents.get().wrapperInsertRule(rule.releaseNonNull(), index);
-    if (!success)
+    if (!success) {
+        if (isNamespace)
+            return Exception { ExceptionCode::InvalidStateError };
         return Exception { ExceptionCode::HierarchyRequestError };
+    }
+
     if (!m_childRuleCSSOMWrappers.isEmpty())
         m_childRuleCSSOMWrappers.insert(index, RefPtr<CSSRule>());
 
