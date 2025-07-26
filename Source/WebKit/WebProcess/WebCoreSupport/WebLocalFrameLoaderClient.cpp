@@ -1125,7 +1125,7 @@ void WebLocalFrameLoaderClient::dispatchWillSubmitForm(FormState& formState, Com
         }
     }
 
-    webPage->sendWithAsyncReply(Messages::WebPageProxy::WillSubmitForm(m_frame->frameID(), sourceFrame->frameID(), values, UserData(WebProcess::singleton().transformObjectsToHandles(userData.get()).get())), WTFMove(completionHandler));
+    webPage->sendWithAsyncReply(Messages::WebPageProxy::WillSubmitForm(m_frame->info(), sourceFrame->info(), values, UserData(WebProcess::singleton().transformObjectsToHandles(userData.get()).get())), WTFMove(completionHandler));
 }
 
 void WebLocalFrameLoaderClient::revertToProvisionalState(DocumentLoader*)

@@ -178,7 +178,7 @@ messages -> WebPageProxy {
     DidFinishLoadingDataForCustomContentProvider(String suggestedFilename, std::span<const uint8_t> data)
 
     # Forms messages
-    WillSubmitForm(WebCore::FrameIdentifier frameID, WebCore::FrameIdentifier sourceFrameID, Vector<std::pair<String, String>> textFieldValues, WebKit::UserData userData) -> ()
+    WillSubmitForm(struct WebKit::FrameInfoData frame, struct WebKit::FrameInfoData sourceFrame, Vector<std::pair<String, String>> textFieldValues, WebKit::UserData userData) -> ()
 
 #if PLATFORM(IOS_FAMILY)
     InterpretKeyEvent(struct WebKit::EditorState state, struct WebKit::KeyEventInterpretationContext context) -> (bool handled) Synchronous

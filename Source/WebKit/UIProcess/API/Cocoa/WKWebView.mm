@@ -5654,7 +5654,7 @@ static inline OptionSet<WebKit::FindOptions> toFindOptions(_WKFindOptions wkFind
 
         virtual ~FormClient() { }
 
-        void willSubmitForm(WebKit::WebPageProxy&, WebKit::WebFrameProxy&, WebKit::WebFrameProxy& sourceFrame, const Vector<std::pair<WTF::String, WTF::String>>& textFieldValues, API::Object* userData, CompletionHandler<void()>&& completionHandler) override
+        void willSubmitForm(WebKit::WebPageProxy& page, WebKit::WebFrameProxy&, WebKit::WebFrameProxy&, WebKit::FrameInfoData&& frameInfoData, WebKit::FrameInfoData&& sourceFrameInfoData, const Vector<std::pair<WTF::String, WTF::String>>& textFieldValues, API::Object* userData, CompletionHandler<void()>&& completionHandler) override
         {
             auto webView = m_webView.get();
             if (!webView)
@@ -5662,7 +5662,10 @@ static inline OptionSet<WebKit::FindOptions> toFindOptions(_WKFindOptions wkFind
 
             auto inputDelegate = webView->_inputDelegate.get();
 
-            if (![inputDelegate respondsToSelector:@selector(_webView:willSubmitFormValues:userObject:submissionHandler:)]) {
+            bool inputDelegateResponseToWillSubmitFormValues = [inputDelegate respondsToSelector:@selector(_webView:willSubmitFormValues:frameInfo:sourceFrameInfo:userObject:submissionHandler:)];
+            bool inputDelegateResponseToWillSubmitFormValuesLegacy = [inputDelegate respondsToSelector:@selector(_webView:willSubmitFormValues:userObject:submissionHandler:)];
+
+            if (!inputDelegateResponseToWillSubmitFormValues && !inputDelegateResponseToWillSubmitFormValuesLegacy) {
                 completionHandler();
                 return;
             }
@@ -5673,8 +5676,21 @@ static inline OptionSet<WebKit::FindOptions> toFindOptions(_WKFindOptions wkFind
 
             auto userObject = userData ? userData->toNSObject() : RetainPtr<NSObject<NSSecureCoding>>();
 
-            auto checker = WebKit::CompletionHandlerCallChecker::create(inputDelegate.get(), @selector(_webView:willSubmitFormValues:userObject:submissionHandler:));
-            [inputDelegate _webView:webView.get() willSubmitFormValues:valueMap.get() userObject:userObject.get() submissionHandler:makeBlockPtr([completionHandler = WTFMove(completionHandler), checker = WTFMove(checker)] () mutable {
+            if (inputDelegateResponseToWillSubmitFormValuesLegacy) {
+                auto checker = WebKit::CompletionHandlerCallChecker::create(inputDelegate.get(), @selector(_webView:willSubmitFormValues:userObject:submissionHandler:));
+                [inputDelegate _webView:webView.get() willSubmitFormValues:valueMap.get() userObject:userObject.get() submissionHandler:makeBlockPtr([completionHandler = WTFMove(completionHandler), checker = WTFMove(checker)] () mutable {
+                    if (checker->completionHandlerHasBeenCalled())
+                        return;
+                    checker->didCallCompletionHandler();
+                    completionHandler();
+                }).get()];
+                return;
+            }
+
+            auto checker = WebKit::CompletionHandlerCallChecker::create(inputDelegate.get(), @selector(_webView:willSubmitFormValues:frameInfo:sourceFrameInfo:userObject:submissionHandler:));
+            auto frameInfo = wrapper(API::FrameInfo::create(WTFMove(frameInfoData), &page));
+            auto sourceFrameInfo = wrapper(API::FrameInfo::create(WTFMove(sourceFrameInfoData), &page));
+            [inputDelegate _webView:webView.get() willSubmitFormValues:valueMap.get() frameInfo:frameInfo.get() sourceFrameInfo:sourceFrameInfo.get() userObject:userObject.get() submissionHandler:makeBlockPtr([completionHandler = WTFMove(completionHandler), checker = WTFMove(checker)] () mutable {
                 if (checker->completionHandlerHasBeenCalled())
                     return;
                 checker->didCallCompletionHandler();

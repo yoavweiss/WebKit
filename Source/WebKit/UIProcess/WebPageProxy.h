@@ -2881,7 +2881,7 @@ private:
 
     WebContentMode effectiveContentModeAfterAdjustingPolicies(API::WebsitePolicies&, const WebCore::ResourceRequest&);
 
-    void willSubmitForm(IPC::Connection&, WebCore::FrameIdentifier, WebCore::FrameIdentifier sourceFrameID, Vector<std::pair<String, String>>&& textFieldValues, const UserData&, CompletionHandler<void()>&&);
+    void willSubmitForm(IPC::Connection&, FrameInfoData&&, FrameInfoData&& sourceFrameInfoData, Vector<std::pair<String, String>>&& textFieldValues, const UserData&, CompletionHandler<void()>&&);
 
 #if ENABLE(CONTENT_EXTENSIONS)
     void contentRuleListNotification(URL&&, WebCore::ContentRuleListResults&&);

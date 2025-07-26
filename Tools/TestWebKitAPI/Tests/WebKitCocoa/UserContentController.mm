@@ -61,7 +61,7 @@ static bool isDoneWithFormSubmission;
 @implementation InputDelegateForFormSubmission {
 }
 
-- (void)_webView:(WKWebView *)webView willSubmitFormValues:(NSDictionary *)values userObject:(NSObject <NSSecureCoding> *)userObject submissionHandler:(void (^)(void))submissionHandler
+- (void)_webView:(WKWebView *)webView willSubmitFormValues:(NSDictionary *)values frameInfo:(WKFrameInfo *)frameInfo sourceFrameInfo:(WKFrameInfo *)sourceFrameInfo userObject:(NSObject <NSSecureCoding> *)userObject submissionHandler:(void (^)(void))submissionHandler
 {
     auto *dictionary = (NSDictionary *)userObject;
     EXPECT_WK_STREQ((NSString *)dictionary[@"foo"], @"bar");
