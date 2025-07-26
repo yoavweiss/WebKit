@@ -555,7 +555,7 @@ RemoteLayerBackingStoreProperties::LayerContentsBufferInfo RemoteLayerBackingSto
         [&] (MachSendRight& machSendRight) {
             if (auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight))) {
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
-                if (surface->hasFormat(WebCore::IOSurface::Format::RGBA16F)) {
+                if (surface->pixelFormat() == WebCore::IOSurface::Format::RGBA16F) {
                     hasExtendedDynamicRange = true;
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
                     if (isDelegatedDisplay && !surface->contentEDRHeadroom())
@@ -694,7 +694,7 @@ RemoteLayerBackingStoreProperties::LayerContentsBufferInfo RemoteLayerBackingSto
         if (m_frontBufferInfo->resourceIdentifier == current.imageBufferInfo.resourceIdentifier) {
             result.buffer = current.buffer;
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
-            if (current.ioSurface->hasFormat(WebCore::IOSurface::Format::RGBA16F))
+            if (current.ioSurface->pixelFormat() == WebCore::IOSurface::Format::RGBA16F)
                 result.hasExtendedDynamicRange = true;
 #endif
             break;
@@ -705,7 +705,7 @@ RemoteLayerBackingStoreProperties::LayerContentsBufferInfo RemoteLayerBackingSto
         if (auto surface = WebCore::IOSurface::createFromSendRight(std::get<MachSendRight>(*std::exchange(m_bufferHandle, std::nullopt)))) {
             result.buffer = surface->asCAIOSurfaceLayerContents();
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
-            if (surface->hasFormat(WebCore::IOSurface::Format::RGBA16F))
+            if (surface->pixelFormat() == WebCore::IOSurface::Format::RGBA16F)
                 result.hasExtendedDynamicRange = true;
 #endif
             cachedBuffers.append({ *m_frontBufferInfo, result.buffer, WTFMove(surface) });

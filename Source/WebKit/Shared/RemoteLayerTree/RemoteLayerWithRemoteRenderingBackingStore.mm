@@ -126,13 +126,15 @@ void RemoteLayerWithRemoteRenderingBackingStore::ensureBackingStore(const Parame
 
     m_parameters = parameters;
     clearBackingStore();
+
+    auto useLosslessCompression = UseLosslessCompression::No;
     if (m_bufferSet) {
         RemoteImageBufferSetConfiguration configuration {
             .logicalSize = size(),
             .resolutionScale = scale(),
             .colorSpace = colorSpace(),
             .contentsFormat = contentsFormat(),
-            .pixelFormat = pixelFormat(),
+            .bufferFormat = { pixelFormat(), useLosslessCompression },
             .renderingMode = type() == RemoteLayerBackingStore::Type::IOSurface ? RenderingMode::Accelerated : RenderingMode::Unaccelerated,
             .renderingPurpose = WebCore::RenderingPurpose::LayerBacking,
 #if ENABLE(RE_DYNAMIC_CONTENT_SCALING)

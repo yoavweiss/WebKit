@@ -201,7 +201,9 @@ void RemoteRenderingBackendProxy::didClose(IPC::Connection&)
         RefPtr imageBuffer  = weakImageBuffer.get();
         if (!imageBuffer)
             continue;
-        send(Messages::RemoteRenderingBackend::CreateImageBuffer(imageBuffer->logicalSize(), imageBuffer->renderingMode(), imageBuffer->renderingPurpose(), imageBuffer->resolutionScale(), imageBuffer->colorSpace(), imageBuffer->pixelFormat(), identifier, imageBuffer->contextIdentifier()));
+
+        auto useLosslessCompression = WebCore::UseLosslessCompression::No;
+        send(Messages::RemoteRenderingBackend::CreateImageBuffer(imageBuffer->logicalSize(), imageBuffer->renderingMode(), imageBuffer->renderingPurpose(), imageBuffer->resolutionScale(), imageBuffer->colorSpace(), { imageBuffer->pixelFormat(), useLosslessCompression }, identifier, imageBuffer->contextIdentifier()));
     }
     for (auto& [identifier, weakImageBufferSet] : m_imageBufferSets) {
         RefPtr imageBufferSet = weakImageBufferSet.get();
@@ -250,38 +252,40 @@ bool RemoteRenderingBackendProxy::canMapRemoteImageBufferBackendBackingStore()
     return !WebProcess::singleton().shouldUseRemoteRenderingFor(RenderingPurpose::DOM);
 }
 
-RefPtr<RemoteImageBufferProxy> RemoteRenderingBackendProxy::createImageBuffer(const FloatSize& size, RenderingMode renderingMode, RenderingPurpose purpose, float resolutionScale, const DestinationColorSpace& colorSpace, ImageBufferPixelFormat pixelFormat)
+RefPtr<RemoteImageBufferProxy> RemoteRenderingBackendProxy::createImageBuffer(const FloatSize& size, RenderingMode renderingMode, RenderingPurpose purpose, float resolutionScale, const DestinationColorSpace& colorSpace, ImageBufferFormat bufferFormat)
 {
     RefPtr<RemoteImageBufferProxy> imageBuffer;
     switch (renderingMode) {
     case RenderingMode::Accelerated:
 #if HAVE(IOSURFACE)
         if (canMapRemoteImageBufferBackendBackingStore())
-            imageBuffer = RemoteImageBufferProxy::create<ImageBufferShareableMappedIOSurfaceBackend>(size, resolutionScale, colorSpace, pixelFormat, purpose, *this);
+            imageBuffer = RemoteImageBufferProxy::create<ImageBufferShareableMappedIOSurfaceBackend>(size, resolutionScale, colorSpace, bufferFormat, purpose, *this);
         else
-            imageBuffer = RemoteImageBufferProxy::create<ImageBufferRemoteIOSurfaceBackend>(size, resolutionScale, colorSpace, pixelFormat, purpose, *this);
+            imageBuffer = RemoteImageBufferProxy::create<ImageBufferRemoteIOSurfaceBackend>(size, resolutionScale, colorSpace, bufferFormat, purpose, *this);
 #endif
         [[fallthrough]];
 
     case RenderingMode::Unaccelerated:
         if (!imageBuffer)
-            imageBuffer = RemoteImageBufferProxy::create<ImageBufferShareableBitmapBackend>(size, resolutionScale, colorSpace, pixelFormat, purpose, *this);
+            imageBuffer = RemoteImageBufferProxy::create<ImageBufferShareableBitmapBackend>(size, resolutionScale, colorSpace, bufferFormat, purpose, *this);
         break;
 
     case RenderingMode::PDFDocument:
-        imageBuffer = RemoteImageBufferProxy::create<ImageBufferRemotePDFDocumentBackend>(size, resolutionScale, colorSpace, pixelFormat, purpose, *this);
+        imageBuffer = RemoteImageBufferProxy::create<ImageBufferRemotePDFDocumentBackend>(size, resolutionScale, colorSpace, bufferFormat, purpose, *this);
         break;
 
     case RenderingMode::DisplayList:
-        imageBuffer = RemoteImageBufferProxy::create<ImageBufferRemoteDisplayListBackend>(size, resolutionScale, colorSpace, pixelFormat, purpose, *this);
+        imageBuffer = RemoteImageBufferProxy::create<ImageBufferRemoteDisplayListBackend>(size, resolutionScale, colorSpace, bufferFormat, purpose, *this);
         break;
     }
+
     if (imageBuffer) {
         auto identifier = imageBuffer->renderingResourceIdentifier();
-        send(Messages::RemoteRenderingBackend::CreateImageBuffer(imageBuffer->logicalSize(), imageBuffer->renderingMode(), imageBuffer->renderingPurpose(), imageBuffer->resolutionScale(), imageBuffer->colorSpace(), imageBuffer->pixelFormat(), identifier, imageBuffer->contextIdentifier()));
+        send(Messages::RemoteRenderingBackend::CreateImageBuffer(imageBuffer->logicalSize(), imageBuffer->renderingMode(), imageBuffer->renderingPurpose(), imageBuffer->resolutionScale(), imageBuffer->colorSpace(), { imageBuffer->pixelFormat(), bufferFormat.useLosslessCompression }, identifier, imageBuffer->contextIdentifier()));
         auto addResult = m_imageBuffers.add(identifier, *imageBuffer);
         ASSERT_UNUSED(addResult, addResult.isNewEntry);
     }
+
     return imageBuffer;
 }
 
