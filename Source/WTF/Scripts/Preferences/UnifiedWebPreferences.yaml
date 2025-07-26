@@ -5811,6 +5811,23 @@ PitchCorrectionAlgorithm:
     WebCore:
       default: MediaPlayerEnums::PitchCorrectionAlgorithm::BestAllAround
 
+PointerLockEnabled:
+  type: bool
+  status: internal
+  category: dom
+  condition: ENABLE(POINTER_LOCK)
+  humanReadableName: "Pointer Lock API"
+  humanReadableDescription: "Enable the Pointer Lock API"
+  defaultValue:
+    WebKitLegacy:
+      "PLATFORM(IOS_FAMILY)": false
+      default: true
+    WebKit:
+      "PLATFORM(IOS_FAMILY)": false
+      default: true
+    WebCore:
+      default: false
+
 PointerLockOptionsEnabled:
   type: bool
   status: stable
