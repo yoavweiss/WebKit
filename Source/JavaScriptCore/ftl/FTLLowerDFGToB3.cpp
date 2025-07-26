@@ -18041,30 +18041,44 @@ IGNORE_CLANG_WARNINGS_END
 
     void compileNewMap()
     {
-        VM& vm = this->vm();
-        RegisteredStructure structure = m_node->structure();
-        LValue slowResultValue = lazySlowPath(
-            [=, &vm] (const Vector<Location>& locations) -> RefPtr<LazySlowPath::Generator> {
-                return createLazyCallGenerator(vm,
-                    operationNewMap, locations[0].directGPR(), locations[1].directGPR(),
-                    CCallHelpers::TrustedImmPtr(structure.get()));
-            },
-            m_vmValue);
-        setJSValue(slowResultValue);
+        LBasicBlock slowCase = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        LBasicBlock lastNext = m_out.insertNewBlocksBefore(slowCase);
+
+        LValue object = allocateObject<JSMap>(m_node->structure(), m_out.intPtrZero, slowCase);
+        m_out.storePtr(m_out.constIntPtr(0), object, m_heaps.JSMap_butterfly);
+        mutatorFence();
+        ValueFromBlock fastResult = m_out.anchor(object);
+        m_out.jump(continuation);
+
+        m_out.appendTo(slowCase, continuation);
+        ValueFromBlock slowResult = m_out.anchor(vmCall(pointerType(), operationNewMap, m_vmValue, frozenPointer(m_graph.freezeStrong(m_node->structure().get()))));
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        setJSValue(m_out.phi(pointerType(), fastResult, slowResult));
     }
 
     void compileNewSet()
     {
-        VM& vm = this->vm();
-        RegisteredStructure structure = m_node->structure();
-        LValue slowResultValue = lazySlowPath(
-            [=, &vm] (const Vector<Location>& locations) -> RefPtr<LazySlowPath::Generator> {
-                return createLazyCallGenerator(vm,
-                    operationNewSet, locations[0].directGPR(), locations[1].directGPR(),
-                    CCallHelpers::TrustedImmPtr(structure.get()));
-            },
-            m_vmValue);
-        setJSValue(slowResultValue);
+        LBasicBlock slowCase = m_out.newBlock();
+        LBasicBlock continuation = m_out.newBlock();
+
+        LBasicBlock lastNext = m_out.insertNewBlocksBefore(slowCase);
+
+        LValue object = allocateObject<JSSet>(m_node->structure(), m_out.intPtrZero, slowCase);
+        m_out.storePtr(m_out.constIntPtr(0), object, m_heaps.JSSet_butterfly);
+        mutatorFence();
+        ValueFromBlock fastResult = m_out.anchor(object);
+        m_out.jump(continuation);
+
+        m_out.appendTo(slowCase, continuation);
+        ValueFromBlock slowResult = m_out.anchor(vmCall(pointerType(), operationNewSet, m_vmValue, frozenPointer(m_graph.freezeStrong(m_node->structure().get()))));
+        m_out.jump(continuation);
+
+        m_out.appendTo(continuation, lastNext);
+        setJSValue(m_out.phi(pointerType(), fastResult, slowResult));
     }
 
     void compileSetFunctionName()

@@ -11357,19 +11357,47 @@ void SpeculativeJIT::compileNewSymbol(Node* node)
 
 void SpeculativeJIT::compileNewMap(Node* node)
 {
-    flushRegisters();
-    GPRFlushedCallResult result(this);
+    GPRTemporary result(this);
+    GPRTemporary scratch1(this);
+    GPRTemporary scratch2(this);
+
     GPRReg resultGPR = result.gpr();
-    callOperation(operationNewMap, resultGPR, TrustedImmPtr(&vm()), node->structure());
+    GPRReg scratch1GPR = scratch1.gpr();
+    GPRReg scratch2GPR = scratch2.gpr();
+
+    JumpList slowCases;
+
+    FrozenValue* structure = m_graph.freezeStrong(node->structure().get());
+    auto butterfly = TrustedImmPtr(nullptr);
+    emitAllocateJSObjectWithKnownSize<JSMap>(resultGPR, TrustedImmPtr(structure), butterfly, scratch1GPR, scratch2GPR, slowCases, sizeof(JSMap), SlowAllocationResult::UndefinedBehavior);
+    storePtr(TrustedImmPtr(nullptr), Address(resultGPR, JSMap::offsetOfButterfly()));
+    mutatorFence(vm());
+
+    addSlowPathGenerator(slowPathCall(slowCases, this, operationNewMap, resultGPR, TrustedImmPtr(&vm()), TrustedImmPtr(structure)));
+
     cellResult(resultGPR, node);
 }
 
 void SpeculativeJIT::compileNewSet(Node* node)
 {
-    flushRegisters();
-    GPRFlushedCallResult result(this);
+    GPRTemporary result(this);
+    GPRTemporary scratch1(this);
+    GPRTemporary scratch2(this);
+
     GPRReg resultGPR = result.gpr();
-    callOperation(operationNewSet, resultGPR, TrustedImmPtr(&vm()), node->structure());
+    GPRReg scratch1GPR = scratch1.gpr();
+    GPRReg scratch2GPR = scratch2.gpr();
+
+    JumpList slowCases;
+
+    FrozenValue* structure = m_graph.freezeStrong(node->structure().get());
+    auto butterfly = TrustedImmPtr(nullptr);
+    emitAllocateJSObjectWithKnownSize<JSSet>(resultGPR, TrustedImmPtr(structure), butterfly, scratch1GPR, scratch2GPR, slowCases, sizeof(JSSet), SlowAllocationResult::UndefinedBehavior);
+    storePtr(TrustedImmPtr(nullptr), Address(resultGPR, JSSet::offsetOfButterfly()));
+    mutatorFence(vm());
+
+    addSlowPathGenerator(slowPathCall(slowCases, this, operationNewSet, resultGPR, TrustedImmPtr(&vm()), TrustedImmPtr(structure)));
+
     cellResult(resultGPR, node);
 }
 
