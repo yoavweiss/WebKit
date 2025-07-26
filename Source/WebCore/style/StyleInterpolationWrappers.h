@@ -365,46 +365,6 @@ private:
     void (RenderStyle::*m_setter)(T&&);
 };
 
-class OptionalLengthWrapper : public WrapperWithGetter<std::optional<WebCore::Length>> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(OptionalLengthWrapper, Animation);
-public:
-    enum class Flags {
-        IsLengthPercentage = 1 << 0,
-        NegativeLengthsAreInvalid = 1 << 1,
-    };
-    OptionalLengthWrapper(CSSPropertyID property, std::optional<WebCore::Length> (RenderStyle::*getter)() const, void (RenderStyle::*setter)(std::optional<WebCore::Length>), OptionSet<Flags> flags = { })
-        : WrapperWithGetter<std::optional<WebCore::Length>>(property, getter)
-        , m_setter(setter)
-        , m_flags(flags)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const override
-    {
-        if (!this->value(from) || !this->value(to))
-            return false;
-
-        bool isLengthPercentage = m_flags.contains(Flags::IsLengthPercentage);
-        return canInterpolateLengths(*this->value(from), *this->value(to), isLengthPercentage);
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const override
-    {
-        if (context.isDiscrete) {
-            ASSERT(!context.progress || context.progress == 1);
-            (destination.*m_setter)(context.progress ? this->value(to) : this->value(from));
-            return;
-        }
-
-        auto valueRange = m_flags.contains(Flags::NegativeLengthsAreInvalid) ? ValueRange::NonNegative : ValueRange::All;
-        (destination.*m_setter)(blendFunc(*this->value(from), *this->value(to), context, valueRange));
-    }
-
-private:
-    void (RenderStyle::*m_setter)(std::optional<WebCore::Length>);
-    OptionSet<Flags> m_flags;
-};
-
 // MARK: - Discrete Wrappers
 
 template<typename T, typename GetterType = T, typename SetterType = T> class DiscreteWrapper : public WrapperWithGetter<T, GetterType> {

@@ -173,6 +173,9 @@ public:
     inline bool isCustomIdent() const;
     inline String customIdent() const;
 
+    inline bool isString() const;
+    inline String string() const;
+
     inline bool isInteger() const;
     inline int integer(const CSSToLengthConversionData&) const;
     inline int integerDeprecated() const;

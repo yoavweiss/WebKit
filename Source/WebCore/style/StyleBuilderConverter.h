@@ -137,14 +137,9 @@ public:
     static OptionSet<TextDecorationLine> convertTextDecorationLine(BuilderState&, const CSSValue&);
     static OptionSet<TextTransform> convertTextTransform(BuilderState&, const CSSValue&);
     template<typename T> static T convertNumber(BuilderState&, const CSSValue&);
-    template<typename T, CSSValueID> static T convertNumberOrKeyword(BuilderState&, const CSSValue&);
     static RefPtr<StyleImage> convertImageOrNone(BuilderState&, CSSValue&);
     static ImageOrientation convertImageOrientation(BuilderState&, const CSSValue&);
     static TransformOperations convertTransform(BuilderState&, const CSSValue&);
-    static String convertString(BuilderState&, const CSSValue&);
-    template<CSSValueID> static String convertStringOrKeyword(BuilderState&, const CSSValue&);
-    template<CSSValueID> static String convertCustomIdentOrKeyword(BuilderState&, const CSSValue&);
-    template<CSSValueID> static AtomString convertStringAtomOrKeyword(BuilderState&, const CSSValue&);
     template<CSSValueID> static AtomString convertCustomIdentAtomOrKeyword(BuilderState&, const CSSValue&);
 
     static OptionSet<TextEmphasisPosition> convertTextEmphasisPosition(BuilderState&, const CSSValue&);
@@ -213,15 +208,11 @@ public:
     static TextSpacingTrim convertTextSpacingTrim(BuilderState&, const CSSValue&);
     static TextAutospace convertTextAutospace(BuilderState&, const CSSValue&);
 
-    static std::optional<WebCore::Length> convertBlockStepSize(BuilderState&, const CSSValue&);
-
     static RefPtr<WillChangeData> convertWillChange(BuilderState&, const CSSValue&);
 
     static std::optional<ScopedName> convertPositionAnchor(BuilderState&, const CSSValue&);
     static std::optional<PositionArea> convertPositionArea(BuilderState&, const CSSValue&);
     static OptionSet<PositionVisibility> convertPositionVisibility(BuilderState&, const CSSValue&);
-
-    static size_t convertMaxLines(BuilderState&, const CSSValue&);
 
     static LineClampValue convertLineClamp(BuilderState&, const CSSValue&);
 
@@ -376,14 +367,6 @@ inline T BuilderConverter::convertNumber(BuilderState& builderState, const CSSVa
     return primitiveValue->resolveAsNumber<T>(builderState.cssToLengthConversionData());
 }
 
-template<typename T, CSSValueID keyword>
-inline T BuilderConverter::convertNumberOrKeyword(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.valueID() == keyword)
-        return -1;
-    return convertNumber<T>(builderState, value);
-}
-
 inline RefPtr<StyleImage> BuilderConverter::convertImageOrNone(BuilderState& builderState, CSSValue& value)
 {
     return builderState.createStyleImage(value);
@@ -407,40 +390,15 @@ inline TransformOperations BuilderConverter::convertTransform(BuilderState& buil
     return createTransformOperations(value, builderState);
 }
 
-inline String BuilderConverter::convertString(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-    return primitiveValue->stringValue();
-}
-
-template<CSSValueID keyword> inline String BuilderConverter::convertStringOrKeyword(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.valueID() == keyword)
-        return nullAtom();
-    return convertString(builderState, value);
-}
-
-template<CSSValueID keyword> inline String BuilderConverter::convertCustomIdentOrKeyword(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.valueID() == keyword)
-        return nullAtom();
-    return convertString(builderState, value);
-}
-
-template<CSSValueID keyword> inline AtomString BuilderConverter::convertStringAtomOrKeyword(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.valueID() == keyword)
-        return nullAtom();
-    return AtomString { convertString(builderState, value) };
-}
-
 template<CSSValueID keyword> inline AtomString BuilderConverter::convertCustomIdentAtomOrKeyword(BuilderState& builderState, const CSSValue& value)
 {
-    if (value.valueID() == keyword)
+    RefPtr primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
+    if (!primitiveValue)
         return nullAtom();
-    return AtomString { convertString(builderState, value) };
+
+    if (primitiveValue->valueID() == keyword)
+        return nullAtom();
+    return AtomString { primitiveValue->stringValue() };
 }
 
 inline static OptionSet<TextEmphasisPosition> valueToEmphasisPosition(const CSSPrimitiveValue& primitiveValue)
@@ -1440,13 +1398,6 @@ inline TextAutospace BuilderConverter::convertTextAutospace(BuilderState& builde
     return options;
 }
 
-inline std::optional<WebCore::Length> BuilderConverter::convertBlockStepSize(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.valueID() == CSSValueNone)
-        return { };
-    return convertLength(builderState, value);
-}
-
 inline OptionSet<Containment> BuilderConverter::convertContain(BuilderState& builderState, const CSSValue& value)
 {
     if (is<CSSPrimitiveValue>(value)) {
@@ -1874,17 +1825,6 @@ inline OptionSet<PositionVisibility> BuilderConverter::convertPositionVisibility
         result.add(fromCSSValue<PositionVisibility>(value));
 
     return result;
-}
-
-inline size_t BuilderConverter::convertMaxLines(BuilderState& builderState, const CSSValue& value)
-{
-    auto* primitiveValue = requiredDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!primitiveValue)
-        return { };
-
-    if (primitiveValue->valueID() == CSSValueNone)
-        return 0;
-    return convertNumber<size_t>(builderState, value);
 }
 
 inline LineClampValue BuilderConverter::convertLineClamp(BuilderState& builderState, const CSSValue& value)

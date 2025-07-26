@@ -66,16 +66,16 @@ auto Blending<ScrollbarColor>::equals(const ScrollbarColor& a, const ScrollbarCo
     if (aAuto || bAuto)
         return aAuto == bAuto;
 
-    return Style::equalsForBlending(a.m_parts->thumb, b.m_parts->thumb, aStyle, bStyle)
-        && Style::equalsForBlending(a.m_parts->track, b.m_parts->track, aStyle, bStyle);
+    return Style::equalsForBlending(a.tryValue()->thumb, b.tryValue()->thumb, aStyle, bStyle)
+        && Style::equalsForBlending(a.tryValue()->track, b.tryValue()->track, aStyle, bStyle);
 }
 
 auto Blending<ScrollbarColor>::canBlend(const ScrollbarColor& a, const ScrollbarColor& b) -> bool
 {
     return !a.isAuto()
         && !b.isAuto()
-        && Style::canBlend(a.m_parts->thumb, b.m_parts->thumb)
-        && Style::canBlend(a.m_parts->track, b.m_parts->track);
+        && Style::canBlend(a.tryValue()->thumb, b.tryValue()->thumb)
+        && Style::canBlend(a.tryValue()->track, b.tryValue()->track);
 }
 
 auto Blending<ScrollbarColor>::blend(const ScrollbarColor& a, const ScrollbarColor& b, const RenderStyle& aStyle, const RenderStyle& bStyle, const BlendingContext& context) -> ScrollbarColor
@@ -86,8 +86,8 @@ auto Blending<ScrollbarColor>::blend(const ScrollbarColor& a, const ScrollbarCol
     }
 
     return ScrollbarColor::Parts {
-        .thumb = Style::blend(a.m_parts->thumb, b.m_parts->thumb, aStyle, bStyle, context),
-        .track = Style::blend(a.m_parts->track, b.m_parts->track, aStyle, bStyle, context),
+        .thumb = Style::blend(a.tryValue()->thumb, b.tryValue()->thumb, aStyle, bStyle, context),
+        .track = Style::blend(a.tryValue()->track, b.tryValue()->track, aStyle, bStyle, context),
     };
 }
 

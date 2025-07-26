@@ -1272,11 +1272,8 @@ void RenderText::computePreferredLogicalWidths(float leadWidth, SingleThreadWeak
         maxWordWidth = 0;
 
         // Map 'hyphenate-limit-{before,after}: auto;' to 2.
-        auto before = style.hyphenationLimitBefore();
-        minimumPrefixLength = before < 0 ? 2 : before;
-
-        auto after = style.hyphenationLimitAfter();
-        minimumSuffixLength = after < 0 ? 2 : after;
+        minimumPrefixLength = style.hyphenateLimitBefore().tryValue().value_or(2).value;
+        minimumSuffixLength = style.hyphenateLimitAfter().tryValue().value_or(2).value;
     }
 
     std::optional<LayoutUnit> firstGlyphLeftOverflow;

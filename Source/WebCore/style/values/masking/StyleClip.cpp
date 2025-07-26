@@ -114,7 +114,7 @@ auto Blending<ClipEdge>::blend(const ClipEdge& a, const ClipEdge& b, const Blend
         return context.progress < 0.5 ? a : b;
 
     ASSERT(canBlend(a, b));
-    return Style::blend(*a.value, *b.value, context);
+    return Style::blend(*a.tryValue(), *b.tryValue(), context);
 }
 
 auto Blending<ClipRect>::canBlend(const ClipRect& a, const ClipRect& b) -> bool

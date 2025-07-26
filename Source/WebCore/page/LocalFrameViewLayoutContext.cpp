@@ -729,7 +729,7 @@ bool LocalFrameViewLayoutContext::pushLayoutState(RenderBox& renderer, const Lay
     // We push LayoutState even if layoutState is disabled because it stores layoutDelta too.
     auto* layoutState = this->layoutState();
     if (!layoutState || !needsFullRepaint() || layoutState->isPaginated() || renderer.enclosingFragmentedFlow()
-        || layoutState->lineGrid() || (renderer.style().lineGrid() != RenderStyle::initialLineGrid() && renderer.isRenderBlockFlow())) {
+        || layoutState->lineGrid() || (!renderer.style().lineGrid().isNone() && renderer.isRenderBlockFlow())) {
         m_layoutStateStack.append(makeUnique<RenderLayoutState>(m_layoutStateStack
             , renderer
             , offset

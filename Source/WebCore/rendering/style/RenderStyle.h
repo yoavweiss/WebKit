@@ -268,6 +268,7 @@ class CustomPropertyRegistry;
 struct AnchorNames;
 struct AspectRatio;
 struct BlockEllipsis;
+struct BlockStepSize;
 struct BorderRadius;
 struct BoxShadow;
 struct Clip;
@@ -286,9 +287,13 @@ struct GridPosition;
 struct GridTemplateAreas;
 struct GridTemplateList;
 struct GridTrackSizes;
+struct HyphenateCharacter;
+struct HyphenateLimitEdge;
+struct HyphenateLimitLines;
 struct InsetEdge;
 struct ListStyleType;
 struct MarginEdge;
+struct MaximumLines;
 struct MaximumSize;
 struct MinimumSize;
 struct OffsetAnchor;
@@ -327,6 +332,7 @@ struct ViewTimelineInsets;
 struct ViewTimelines;
 struct ViewTransitionClasses;
 struct ViewTransitionName;
+struct WebkitLineGrid;
 
 enum class Change : uint8_t;
 enum class GridTrackSizingDirection : bool;
@@ -937,10 +943,10 @@ public:
     inline NBSPMode nbspMode() const;
     inline LineBreak lineBreak() const;
     inline Hyphens hyphens() const;
-    inline short hyphenationLimitBefore() const;
-    inline short hyphenationLimitAfter() const;
-    inline short hyphenationLimitLines() const;
-    inline const AtomString& hyphenationString() const;
+    inline Style::HyphenateLimitEdge hyphenateLimitBefore() const;
+    inline Style::HyphenateLimitEdge hyphenateLimitAfter() const;
+    inline Style::HyphenateLimitLines hyphenateLimitLines() const;
+    inline const Style::HyphenateCharacter& hyphenateCharacter() const;
     inline const AtomString& computedLocale() const;
     inline const AtomString& specifiedLocale() const;
     inline Resize resize() const;
@@ -1042,9 +1048,7 @@ public:
 
     inline const TabSize& tabSize() const;
 
-    // End CSS3 Getters
-
-    inline const AtomString& lineGrid() const;
+    inline const Style::WebkitLineGrid& lineGrid() const;
     inline LineSnap lineSnap() const;
     inline LineAlign lineAlign() const;
 
@@ -1103,7 +1107,7 @@ public:
     inline OptionSet<Style::LineBoxContain> lineBoxContain() const;
     inline const LineClampValue& lineClamp() const;
     inline const Style::BlockEllipsis& blockEllipsis() const;
-    inline size_t maxLines() const;
+    inline Style::MaximumLines maxLines() const;
     inline OverflowContinue overflowContinue() const;
     inline const IntSize& initialLetter() const;
     inline int initialLetterDrop() const;
@@ -1554,10 +1558,10 @@ public:
     inline void setNBSPMode(NBSPMode);
     inline void setLineBreak(LineBreak);
     inline void setHyphens(Hyphens);
-    inline void setHyphenationLimitBefore(short);
-    inline void setHyphenationLimitAfter(short);
-    inline void setHyphenationLimitLines(short);
-    inline void setHyphenationString(const AtomString&);
+    inline void setHyphenateLimitBefore(Style::HyphenateLimitEdge);
+    inline void setHyphenateLimitAfter(Style::HyphenateLimitEdge);
+    inline void setHyphenateLimitLines(Style::HyphenateLimitLines);
+    inline void setHyphenateCharacter(Style::HyphenateCharacter&&);
     inline void setResize(Resize);
     inline void setColumnAxis(ColumnAxis);
     inline void setColumnProgression(ColumnProgression);
@@ -1621,7 +1625,7 @@ public:
     
     inline void setHangingPunctuation(OptionSet<HangingPunctuation>);
 
-    inline void setLineGrid(const AtomString&);
+    inline void setLineGrid(Style::WebkitLineGrid&&);
     inline void setLineSnap(LineSnap);
     inline void setLineAlign(LineAlign);
 
@@ -1650,7 +1654,7 @@ public:
     inline void setLineBoxContain(OptionSet<Style::LineBoxContain>);
     inline void setLineClamp(LineClampValue);
     
-    inline void setMaxLines(size_t);
+    inline void setMaxLines(Style::MaximumLines);
     inline void setOverflowContinue(OverflowContinue);
     inline void setBlockEllipsis(Style::BlockEllipsis&&);
 
@@ -2045,10 +2049,10 @@ public:
     static constexpr LineBreak initialLineBreak();
     static constexpr OptionSet<SpeakAs> initialSpeakAs();
     static constexpr Hyphens initialHyphens();
-    static short initialHyphenationLimitBefore() { return -1; }
-    static short initialHyphenationLimitAfter() { return -1; }
-    static short initialHyphenationLimitLines() { return -1; }
-    static const AtomString& initialHyphenationString();
+    static constexpr Style::HyphenateLimitEdge initialHyphenateLimitBefore();
+    static constexpr Style::HyphenateLimitEdge initialHyphenateLimitAfter();
+    static constexpr Style::HyphenateLimitLines initialHyphenateLimitLines();
+    static inline Style::HyphenateCharacter initialHyphenateCharacter();
     static constexpr Resize initialResize();
     static constexpr StyleAppearance initialAppearance();
     static inline Style::AspectRatio initialAspectRatio();
@@ -2165,7 +2169,7 @@ public:
 
     static constexpr TabSize initialTabSize();
 
-    static inline const AtomString& initialLineGrid();
+    static inline Style::WebkitLineGrid initialLineGrid();
     static constexpr LineSnap initialLineSnap();
     static constexpr LineAlign initialLineAlign();
 
@@ -2173,7 +2177,7 @@ public:
     static constexpr LineClampValue initialLineClamp();
     static inline Style::BlockEllipsis initialBlockEllipsis();
     static OverflowContinue initialOverflowContinue();
-    static constexpr size_t initialMaxLines() { return 0; }
+    static constexpr Style::MaximumLines initialMaxLines();
     static constexpr TextSecurity initialTextSecurity();
     static constexpr InputSecurity initialInputSecurity();
 
@@ -2283,9 +2287,9 @@ public:
     inline void setOverflowAnchor(OverflowAnchor);
     static constexpr OverflowAnchor initialOverflowAnchor();
 
-    static inline std::optional<Length> initialBlockStepSize();
-    inline std::optional<Length> blockStepSize() const;
-    inline void setBlockStepSize(std::optional<Length>);
+    static inline Style::BlockStepSize initialBlockStepSize();
+    inline const Style::BlockStepSize& blockStepSize() const;
+    inline void setBlockStepSize(Style::BlockStepSize&&);
 
     static constexpr BlockStepAlign initialBlockStepAlign();
     inline BlockStepAlign blockStepAlign() const;

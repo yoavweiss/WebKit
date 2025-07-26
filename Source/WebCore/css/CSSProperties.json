@@ -359,9 +359,8 @@
             "initial": "none",
             "codegen-properties": {
                 "settings-flag": "cssRhythmicSizingEnabled",
-                "animation-wrapper": "OptionalLengthWrapper",
-                "animation-wrapper-requires-additional-parameters": ["{ OptionalLengthWrapper::Flags::NegativeLengthsAreInvalid }"],
-                "style-converter": "BlockStepSize",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<BlockStepSize>",
                 "parser-grammar": "none | <length [0,inf]>",
                 "parser-exported": true
             },
@@ -1327,9 +1326,8 @@
                 "auto"
             ],
             "codegen-properties": {
-                "style-builder-custom": "Value",
-                "style-extractor-converter": "CustomIdentAtomOrKeyword<CSSValueAuto>",
-                "style-extractor-converter-comment": "FIXME: This should probably be using StringAtomOrKeyword<CSSValueAuto>",
+                "style-converter": "CustomIdentAtomOrKeyword<CSSValueAuto>",
+                "style-converter-comment": "FIXME: This should probably be using StringAtomOrKeyword<CSSValueAuto>",
                 "font-description-name-for-methods": "SpecifiedLocale",
                 "font-property": true,
                 "high-priority": true,
@@ -6132,7 +6130,7 @@
             ],
             "codegen-properties": {
                 "settings-flag": "cssLineClampEnabled",
-                "style-converter": "MaxLines",
+                "style-converter": "StyleType<MaximumLines>",
                 "parser-grammar": "none | <integer [1,inf]>",
                 "parser-exported": true
             },
@@ -10161,8 +10159,7 @@
                 "aliases": [
                     "-webkit-hyphenate-character"
                 ],
-                "render-style-name-for-methods": "HyphenationString",
-                "style-converter": "StringAtomOrKeyword<CSSValueAuto>",
+                "style-converter": "StyleType<HyphenateCharacter>",
                 "parser-grammar": "auto | <string>"
             },
             "specification": {
@@ -10178,8 +10175,7 @@
                 "auto"
             ],
             "codegen-properties": {
-                "render-style-name-for-methods": "HyphenationLimitAfter",
-                "style-converter": "NumberOrKeyword<short, CSSValueAuto>",
+                "style-converter": "StyleType<HyphenateLimitEdge>",
                 "parser-grammar": "auto | <number [0,inf]>"
             },
             "status": "non-standard"
@@ -10192,8 +10188,7 @@
                 "auto"
             ],
             "codegen-properties": {
-                "render-style-name-for-methods": "HyphenationLimitBefore",
-                "style-converter": "NumberOrKeyword<short, CSSValueAuto>",
+                "style-converter": "StyleType<HyphenateLimitEdge>",
                 "parser-grammar": "auto | <number [0,inf]>"
             },
             "status": "non-standard"
@@ -10206,8 +10201,7 @@
                 "no-limit"
             ],
             "codegen-properties": {
-                "render-style-name-for-methods": "HyphenationLimitLines",
-                "style-converter": "NumberOrKeyword<short, CSSValueNoLimit>",
+                "style-converter": "StyleType<HyphenateLimitLines>",
                 "parser-grammar": "no-limit | <number [0,inf]>"
             },
             "status": {
@@ -10365,7 +10359,7 @@
                 "none"
             ],
             "codegen-properties": {
-                "style-converter": "CustomIdentAtomOrKeyword<CSSValueNone>",
+                "style-converter": "StyleType<WebkitLineGrid>",
                 "parser-grammar": "none | <custom-ident>"
             },
             "status": {

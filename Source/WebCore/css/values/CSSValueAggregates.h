@@ -490,6 +490,51 @@ template<typename T> struct CommaSeparatedRefCountedFixedVector {
 template<typename T> inline constexpr auto TreatAsRangeLike<CommaSeparatedRefCountedFixedVector<T>> = true;
 template<typename T> inline constexpr auto SerializationSeparator<CommaSeparatedRefCountedFixedVector<T>> = SerializationSeparatorType::Comma;
 
+// Wraps a `markable` type and enforces the invariant that it is either created with a non-empty value or the provided keyword.
+template<typename T, typename K, typename Traits = MarkableTraits<T>> struct ValueOrKeyword {
+    using Base = ValueOrKeyword<T, K, Traits>;
+    using Value = T;
+    using Keyword = K;
+
+    constexpr ValueOrKeyword(Keyword)
+    {
+    }
+
+    constexpr ValueOrKeyword(Value&& value)
+        : m_value { WTFMove(value) }
+    {
+    }
+
+    constexpr bool isKeyword() const { return !m_value; }
+    constexpr bool isValue() const { return !!m_value; }
+    constexpr std::optional<Value> tryValue() const { return m_value; }
+
+    template<typename U> bool holdsAlternative() const
+    {
+             if constexpr (std::same_as<U, Keyword>) return isKeyword();
+        else if constexpr (std::same_as<U, Value>)   return isValue();
+    }
+
+    template<typename... F> constexpr decltype(auto) switchOn(F&&... f) const
+    {
+        auto visitor = WTF::makeVisitor(std::forward<F>(f)...);
+
+        if (isKeyword())
+            return visitor(Keyword { });
+        return visitor(*m_value);
+    }
+
+    constexpr bool operator==(const ValueOrKeyword&) const = default;
+
+private:
+    Markable<Value, Traits> m_value { };
+};
+
+template<typename T, typename K, typename Traits> inline constexpr auto TreatAsVariantLike<ValueOrKeyword<T, K, Traits>> = true;
+
+// Concept to constrain types to only those that derive from `ValueOrKeyword`.
+template<typename T> concept ValueOrKeywordDerived = WTF::IsBaseOfTemplate<ValueOrKeyword, T>::value;
+
 // Wraps a list and enforces the invariant that it is either created with a non-empty value or `CSS::Keyword::None`.
 template<typename T> struct ListOrNone {
     using List = T;

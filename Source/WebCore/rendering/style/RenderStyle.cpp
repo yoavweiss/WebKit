@@ -941,9 +941,9 @@ static bool rareInheritedDataChangeRequiresLayout(const StyleRareInheritedData& 
         || first.lineBreak != second.lineBreak
         || first.textSecurity != second.textSecurity
         || first.hyphens != second.hyphens
-        || first.hyphenationLimitBefore != second.hyphenationLimitBefore
-        || first.hyphenationLimitAfter != second.hyphenationLimitAfter
-        || first.hyphenationString != second.hyphenationString
+        || first.hyphenateLimitBefore != second.hyphenateLimitBefore
+        || first.hyphenateLimitAfter != second.hyphenateLimitAfter
+        || first.hyphenateCharacter != second.hyphenateCharacter
         || first.rubyPosition != second.rubyPosition
         || first.rubyAlign != second.rubyAlign
         || first.textCombine != second.textCombine
@@ -2168,7 +2168,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyScrollbarColor);
         if (first.listStyleType != second.listStyleType)
             changingProperties.m_properties.set(CSSPropertyListStyleType);
-        if (first.hyphenationString != second.hyphenationString)
+        if (first.hyphenateCharacter != second.hyphenateCharacter)
             changingProperties.m_properties.set(CSSPropertyHyphenateCharacter);
         if (first.blockEllipsis != second.blockEllipsis)
             changingProperties.m_properties.set(CSSPropertyBlockEllipsis);
@@ -2178,9 +2178,9 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
         //
         // textStrokeWidth
         // mathStyle
-        // hyphenationLimitBefore
-        // hyphenationLimitAfter
-        // hyphenationLimitLines
+        // hyphenateLimitBefore
+        // hyphenateLimitAfter
+        // hyphenateLimitLines
         // tapHighlightColor
         // nbspMode
         // webkitOverflowScrolling
@@ -2458,14 +2458,18 @@ const AtomString& RenderStyle::hyphenString() const
 {
     ASSERT(hyphens() != Hyphens::None);
 
-    auto& hyphenationString = m_rareInheritedData->hyphenationString;
-    if (!hyphenationString.isNull())
-        return hyphenationString;
+    return WTF::switchOn(m_rareInheritedData->hyphenateCharacter,
+        [&](const CSS::Keyword::Auto&) -> const AtomString& {
+            // FIXME: This should depend on locale.
+            static MainThreadNeverDestroyed<const AtomString> hyphenMinusString(span(hyphenMinus));
+            static MainThreadNeverDestroyed<const AtomString> hyphenString(span(hyphen));
 
-    // FIXME: This should depend on locale.
-    static MainThreadNeverDestroyed<const AtomString> hyphenMinusString(span(hyphenMinus));
-    static MainThreadNeverDestroyed<const AtomString> hyphenString(span(hyphen));
-    return fontCascade().primaryFont()->glyphForCharacter(hyphen) ? hyphenString : hyphenMinusString;
+            return fontCascade().primaryFont()->glyphForCharacter(hyphen) ? hyphenString : hyphenMinusString;
+        },
+        [](const AtomString& string) -> const AtomString& {
+            return string;
+        }
+    );
 }
 
 void RenderStyle::adjustAnimations()

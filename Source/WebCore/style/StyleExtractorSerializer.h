@@ -64,12 +64,8 @@ public:
     template<typename T> static void serializeNumber(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T);
     template<typename T> static void serializeNumberAsPixels(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T);
     template<typename T> static void serializeComputedLength(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T);
-    template<typename T, CSSValueID> static void serializeNumberOrKeyword(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T);
     template<typename T> static void serializeLineWidth(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, T lineWidth);
 
-    template<CSSValueID> static void serializeStringOrKeyword(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const String&);
-    template<CSSValueID> static void serializeCustomIdentOrKeyword(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const String&);
-    template<CSSValueID> static void serializeStringAtomOrKeyword(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const AtomString&);
     template<CSSValueID> static void serializeCustomIdentAtomOrKeyword(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const AtomString&);
 
     // MARK: SVG serializations
@@ -100,7 +96,6 @@ public:
     static void serializeImageOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, ImageOrientation);
     static void serializeLineClamp(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LineClampValue&);
     static void serializeContain(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<Containment>);
-    static void serializeMaxLines(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, size_t);
     static void serializeSmoothScrolling(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, bool);
     static void serializeInitialLetter(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, IntSize);
     static void serializeTextSpacingTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextSpacingTrim);
@@ -110,7 +105,6 @@ public:
     static void serializeTextBoxEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextEdge&);
     static void serializePositionTryFallbacks(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<PositionTryFallback>&);
     static void serializeWillChange(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const WillChangeData*);
-    static void serializeBlockStepSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, std::optional<WebCore::Length>);
     static void serializeTabSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TabSize&);
     static void serializeScrollSnapType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapType&);
     static void serializeScrollSnapAlign(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ScrollSnapAlign&);
@@ -324,49 +318,9 @@ template<typename T> void ExtractorSerializer::serializeComputedLength(Extractor
     serializeNumberAsPixels(state, builder, context, number);
 }
 
-template<typename T, CSSValueID keyword> void ExtractorSerializer::serializeNumberOrKeyword(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, T number)
-{
-    if (number < 0) {
-        serializationForCSS(builder, context, state.style, Constant<keyword> { });
-        return;
-    }
-
-    serialize(state, builder, context, number);
-}
-
 template<typename T> void ExtractorSerializer::serializeLineWidth(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, T lineWidth)
 {
     serializeNumberAsPixels(state, builder, context, lineWidth);
-}
-
-template<CSSValueID keyword> void ExtractorSerializer::serializeStringOrKeyword(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const String& string)
-{
-    if (string.isNull()) {
-        serializationForCSS(builder, context, state.style, Constant<keyword> { });
-        return;
-    }
-
-    serializationForCSS(builder, context, state.style, string);
-}
-
-template<CSSValueID keyword> void ExtractorSerializer::serializeCustomIdentOrKeyword(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const String& string)
-{
-    if (string.isNull()) {
-        serializationForCSS(builder, context, state.style, Constant<keyword> { });
-        return;
-    }
-
-    serializationForCSS(builder, context, state.style, CustomIdentifier { AtomString { string } });
-}
-
-template<CSSValueID keyword> void ExtractorSerializer::serializeStringAtomOrKeyword(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const AtomString& string)
-{
-    if (string.isNull()) {
-        serializationForCSS(builder, context, state.style, Constant<keyword> { });
-        return;
-    }
-
-    serializationForCSS(builder, context, state.style, string);
 }
 
 template<CSSValueID keyword> void ExtractorSerializer::serializeCustomIdentAtomOrKeyword(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const AtomString& string)
@@ -839,16 +793,6 @@ inline void ExtractorSerializer::serializeContain(ExtractorState& state, StringB
     appendOption(Containment::Paint, CSSValuePaint);
 }
 
-inline void ExtractorSerializer::serializeMaxLines(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, size_t maxLines)
-{
-    if (!maxLines) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { maxLines });
-}
-
 inline void ExtractorSerializer::serializeInitialLetter(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, IntSize initialLetter)
 {
     auto append = [&](auto axis) {
@@ -1056,16 +1000,6 @@ inline void ExtractorSerializer::serializeWillChange(ExtractorState& state, Stri
         }
     }
     builder.append(CSSValueList::createCommaSeparated(WTFMove(list))->cssText(context));
-}
-
-inline void ExtractorSerializer::serializeBlockStepSize(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, std::optional<WebCore::Length> blockStepSize)
-{
-    if (!blockStepSize) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    serializeLength(state, builder, context, *blockStepSize);
 }
 
 inline void ExtractorSerializer::serializeTabSize(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext& context, const TabSize& tabSize)

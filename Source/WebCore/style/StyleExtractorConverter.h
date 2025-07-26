@@ -144,12 +144,8 @@ public:
     template<typename T> static Ref<CSSPrimitiveValue> convertNumber(ExtractorState&, T);
     template<typename T> static Ref<CSSPrimitiveValue> convertNumberAsPixels(ExtractorState&, T);
     template<typename T> static Ref<CSSPrimitiveValue> convertComputedLength(ExtractorState&, T);
-    template<typename T, CSSValueID> static Ref<CSSValue> convertNumberOrKeyword(ExtractorState&, T);
     template<typename T> static Ref<CSSPrimitiveValue> convertLineWidth(ExtractorState&, T lineWidth);
 
-    template<CSSValueID> static Ref<CSSPrimitiveValue> convertStringOrKeyword(ExtractorState&, const String&);
-    template<CSSValueID> static Ref<CSSPrimitiveValue> convertCustomIdentOrKeyword(ExtractorState&, const String&);
-    template<CSSValueID> static Ref<CSSPrimitiveValue> convertStringAtomOrKeyword(ExtractorState&, const AtomString&);
     template<CSSValueID> static Ref<CSSPrimitiveValue> convertCustomIdentAtomOrKeyword(ExtractorState&, const AtomString&);
 
     // MARK: SVG conversions
@@ -180,7 +176,6 @@ public:
     static Ref<CSSValue> convertImageOrientation(ExtractorState&, ImageOrientation);
     static Ref<CSSValue> convertLineClamp(ExtractorState&, const LineClampValue&);
     static Ref<CSSValue> convertContain(ExtractorState&, OptionSet<Containment>);
-    static Ref<CSSValue> convertMaxLines(ExtractorState&, size_t);
     static Ref<CSSValue> convertInitialLetter(ExtractorState&, IntSize);
     static Ref<CSSValue> convertTextSpacingTrim(ExtractorState&, TextSpacingTrim);
     static Ref<CSSValue> convertTextAutospace(ExtractorState&, TextAutospace);
@@ -189,7 +184,6 @@ public:
     static Ref<CSSValue> convertTextBoxEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertPositionTryFallbacks(ExtractorState&, const FixedVector<PositionTryFallback>&);
     static Ref<CSSValue> convertWillChange(ExtractorState&, const WillChangeData*);
-    static Ref<CSSValue> convertBlockStepSize(ExtractorState&, std::optional<WebCore::Length>);
     static Ref<CSSValue> convertTabSize(ExtractorState&, const TabSize&);
     static Ref<CSSValue> convertScrollSnapType(ExtractorState&, const ScrollSnapType&);
     static Ref<CSSValue> convertScrollSnapAlign(ExtractorState&, const ScrollSnapAlign&);
@@ -366,37 +360,9 @@ template<typename T> Ref<CSSPrimitiveValue> ExtractorConverter::convertComputedL
     return convertNumberAsPixels(state, number);
 }
 
-template<typename T, CSSValueID keyword> Ref<CSSValue> ExtractorConverter::convertNumberOrKeyword(ExtractorState&, T number)
-{
-    if (number < 0)
-        return CSSPrimitiveValue::create(keyword);
-    return CSSPrimitiveValue::create(number);
-}
-
 template<typename T> Ref<CSSPrimitiveValue> ExtractorConverter::convertLineWidth(ExtractorState& state, T lineWidth)
 {
     return convertNumberAsPixels(state, lineWidth);
-}
-
-template<CSSValueID keyword> Ref<CSSPrimitiveValue> ExtractorConverter::convertStringOrKeyword(ExtractorState&, const String& string)
-{
-    if (string.isNull())
-        return CSSPrimitiveValue::create(keyword);
-    return CSSPrimitiveValue::create(string);
-}
-
-template<CSSValueID keyword> Ref<CSSPrimitiveValue> ExtractorConverter::convertCustomIdentOrKeyword(ExtractorState&, const String& string)
-{
-    if (string.isNull())
-        return CSSPrimitiveValue::create(keyword);
-    return CSSPrimitiveValue::createCustomIdent(string);
-}
-
-template<CSSValueID keyword> Ref<CSSPrimitiveValue> ExtractorConverter::convertStringAtomOrKeyword(ExtractorState&, const AtomString& string)
-{
-    if (string.isNull())
-        return CSSPrimitiveValue::create(keyword);
-    return CSSPrimitiveValue::create(string);
 }
 
 template<CSSValueID keyword> Ref<CSSPrimitiveValue> ExtractorConverter::convertCustomIdentAtomOrKeyword(ExtractorState&, const AtomString& string)
@@ -715,13 +681,6 @@ inline Ref<CSSValue> ExtractorConverter::convertContain(ExtractorState&, OptionS
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
 
-inline Ref<CSSValue> ExtractorConverter::convertMaxLines(ExtractorState&, size_t maxLines)
-{
-    if (!maxLines)
-        return CSSPrimitiveValue::create(CSSValueNone);
-    return CSSPrimitiveValue::create(maxLines);
-}
-
 inline Ref<CSSValue> ExtractorConverter::convertInitialLetter(ExtractorState&, IntSize initialLetter)
 {
     return CSSValuePair::create(
@@ -882,13 +841,6 @@ inline Ref<CSSValue> ExtractorConverter::convertWillChange(ExtractorState&, cons
         }
     }
     return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertBlockStepSize(ExtractorState& state, std::optional<WebCore::Length> blockStepSize)
-{
-    if (blockStepSize)
-        return convertLength(state, *blockStepSize);
-    return CSSPrimitiveValue::create(CSSValueNone);
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertTabSize(ExtractorState&, const TabSize& tabSize)

@@ -32,57 +32,41 @@
 namespace WebCore {
 namespace Style {
 
-// <'scrollbar-color'> = auto | <color>{2}
-// https://www.w3.org/TR/css-scrollbars/#propdef-scrollbar-color
-struct ScrollbarColor {
-    struct Parts {
-        Color thumb;
-        Color track;
+// <scrollbar-color-parts> = <color>{2}
+struct ScrollbarColorParts {
+    Color thumb;
+    Color track;
 
-        bool operator==(const Parts&) const = default;
-    };
-
-    ScrollbarColor(CSS::Keyword::Auto) { }
-    ScrollbarColor(Parts&& parts) : m_parts { WTFMove(parts) } { }
-
-    bool isAuto() const { return !m_parts; }
-    bool isParts() const { return !!m_parts; }
-
-    template<typename... F> decltype(auto) switchOn(F&&... f) const
-    {
-        auto visitor = WTF::makeVisitor(std::forward<F>(f)...);
-
-        if (isAuto())
-            return visitor(CSS::Keyword::Auto { });
-        return visitor(*m_parts);
-    }
-
-    bool operator==(const ScrollbarColor&) const = default;
-
-private:
-    friend struct Blending<ScrollbarColor>;
-
-    struct PartsMarkableTraits {
-        static bool isEmptyValue(const Parts& value)
-        {
-            return WTF::MarkableTraits<Color>::isEmptyValue(value.thumb);
-        }
-        static Parts emptyValue()
-        {
-            return { WTF::MarkableTraits<Color>::emptyValue(), WTF::MarkableTraits<Color>::emptyValue() };
-        }
-    };
-
-    Markable<Parts, PartsMarkableTraits> m_parts { };
+    bool operator==(const ScrollbarColorParts&) const = default;
 };
-
-template<size_t I> const auto& get(const ScrollbarColor::Parts& value)
+template<size_t I> const auto& get(const ScrollbarColorParts& value)
 {
     if constexpr (!I)
         return value.thumb;
     else if constexpr (I == 1)
         return value.track;
 }
+
+struct ScrollbarColorMarkableTraits {
+    static bool isEmptyValue(const ScrollbarColorParts& value)
+    {
+        return WTF::MarkableTraits<Color>::isEmptyValue(value.thumb);
+    }
+    static ScrollbarColorParts emptyValue()
+    {
+        return { WTF::MarkableTraits<Color>::emptyValue(), WTF::MarkableTraits<Color>::emptyValue() };
+    }
+};
+
+// <'scrollbar-color'> = auto | <color>{2}
+// https://www.w3.org/TR/css-scrollbars/#propdef-scrollbar-color
+struct ScrollbarColor : ValueOrKeyword<ScrollbarColorParts, CSS::Keyword::Auto, ScrollbarColorMarkableTraits> {
+    using Base::Base;
+    using Parts = typename Base::Value;
+
+    bool isAuto() const { return isKeyword(); }
+    bool isParts() const { return isValue(); }
+};
 
 // MARK: - Conversion
 
@@ -99,5 +83,5 @@ template<> struct Blending<ScrollbarColor> {
 } // namespace Style
 } // namespace WebCore
 
-DEFINE_SPACE_SEPARATED_TUPLE_LIKE_CONFORMANCE(WebCore::Style::ScrollbarColor::Parts, 2)
+DEFINE_SPACE_SEPARATED_TUPLE_LIKE_CONFORMANCE(WebCore::Style::ScrollbarColorParts, 2)
 DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::ScrollbarColor)

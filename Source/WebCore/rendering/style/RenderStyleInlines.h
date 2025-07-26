@@ -110,7 +110,7 @@ inline const Style::BlockEllipsis& RenderStyle::blockEllipsis() const { return m
 inline BlockStepAlign RenderStyle::blockStepAlign() const { return static_cast<BlockStepAlign>(m_nonInheritedData->rareData->blockStepAlign); }
 inline BlockStepInsert RenderStyle::blockStepInsert() const { return static_cast<BlockStepInsert>(m_nonInheritedData->rareData->blockStepInsert); }
 inline BlockStepRound RenderStyle::blockStepRound() const { return static_cast<BlockStepRound>(m_nonInheritedData->rareData->blockStepRound); }
-inline std::optional<Length> RenderStyle::blockStepSize() const { return m_nonInheritedData->rareData->blockStepSize; }
+inline const Style::BlockStepSize& RenderStyle::blockStepSize() const { return m_nonInheritedData->rareData->blockStepSize; }
 inline const BorderData& RenderStyle::border() const { return m_nonInheritedData->surroundData->border; }
 inline const BorderValue& RenderStyle::borderBottom() const { return border().bottom(); }
 inline const Style::Color& RenderStyle::borderBottomColor() const { return border().bottom().color(); }
@@ -320,10 +320,10 @@ inline bool RenderStyle::hasVisibleBorderDecoration() const { return hasVisibleB
 inline bool RenderStyle::hasVisitedLinkAutoCaretColor() const { return m_rareInheritedData->hasVisitedLinkAutoCaretColor; }
 inline bool RenderStyle::hasZeroOpacity() const { return m_nonInheritedData->miscData->hasZeroOpacity(); }
 inline const Style::PreferredSize& RenderStyle::height() const { return m_nonInheritedData->boxData->height(); }
-inline short RenderStyle::hyphenationLimitAfter() const { return m_rareInheritedData->hyphenationLimitAfter; }
-inline short RenderStyle::hyphenationLimitBefore() const { return m_rareInheritedData->hyphenationLimitBefore; }
-inline short RenderStyle::hyphenationLimitLines() const { return m_rareInheritedData->hyphenationLimitLines; }
-inline const AtomString& RenderStyle::hyphenationString() const { return m_rareInheritedData->hyphenationString; }
+inline Style::HyphenateLimitEdge RenderStyle::hyphenateLimitAfter() const { return m_rareInheritedData->hyphenateLimitAfter; }
+inline Style::HyphenateLimitEdge RenderStyle::hyphenateLimitBefore() const { return m_rareInheritedData->hyphenateLimitBefore; }
+inline Style::HyphenateLimitLines RenderStyle::hyphenateLimitLines() const { return m_rareInheritedData->hyphenateLimitLines; }
+inline const Style::HyphenateCharacter& RenderStyle::hyphenateCharacter() const { return m_rareInheritedData->hyphenateCharacter; }
 inline Hyphens RenderStyle::hyphens() const { return static_cast<Hyphens>(m_rareInheritedData->hyphens); }
 inline ImageOrientation RenderStyle::imageOrientation() const { return static_cast<ImageOrientation::Orientation>(m_rareInheritedData->imageOrientation); }
 inline ImageRendering RenderStyle::imageRendering() const { return static_cast<ImageRendering>(m_rareInheritedData->imageRendering); }
@@ -343,7 +343,7 @@ inline Style::BlockEllipsis RenderStyle::initialBlockEllipsis() { return CSS::Ke
 constexpr BlockStepAlign RenderStyle::initialBlockStepAlign() { return BlockStepAlign::Auto; }
 constexpr BlockStepInsert RenderStyle::initialBlockStepInsert() { return BlockStepInsert::MarginBox; }
 constexpr BlockStepRound RenderStyle::initialBlockStepRound() { return BlockStepRound::Up; }
-inline std::optional<Length> RenderStyle::initialBlockStepSize() { return std::nullopt; }
+inline Style::BlockStepSize RenderStyle::initialBlockStepSize() { return CSS::Keyword::None { }; }
 constexpr BorderCollapse RenderStyle::initialBorderCollapse() { return BorderCollapse::Separate; }
 inline Style::BorderRadiusValue RenderStyle::initialBorderRadius() { return { 0_css_px, 0_css_px }; }
 constexpr BorderStyle RenderStyle::initialBorderStyle() { return BorderStyle::None; }
@@ -399,7 +399,10 @@ inline Style::GridTemplateList RenderStyle::initialGridTemplateColumns() { retur
 inline Style::GridTemplateList RenderStyle::initialGridTemplateRows() { return CSS::Keyword::None { }; }
 inline Style::GridTemplateAreas RenderStyle::initialGridTemplateAreas() { return CSS::Keyword::None { }; }
 constexpr OptionSet<HangingPunctuation> RenderStyle::initialHangingPunctuation() { return { }; }
-inline const AtomString& RenderStyle::initialHyphenationString() { return nullAtom(); }
+constexpr Style::HyphenateLimitEdge RenderStyle::initialHyphenateLimitAfter() { return CSS::Keyword::Auto { }; }
+constexpr Style::HyphenateLimitEdge RenderStyle::initialHyphenateLimitBefore() { return CSS::Keyword::Auto { }; }
+constexpr Style::HyphenateLimitLines RenderStyle::initialHyphenateLimitLines() { return CSS::Keyword::NoLimit { }; }
+inline Style::HyphenateCharacter RenderStyle::initialHyphenateCharacter() { return CSS::Keyword::Auto { }; }
 constexpr Hyphens RenderStyle::initialHyphens() { return Hyphens::Manual; }
 constexpr ImageOrientation RenderStyle::initialImageOrientation() { return ImageOrientation::Orientation::FromImage; }
 constexpr ImageRendering RenderStyle::initialImageRendering() { return ImageRendering::Auto; }
@@ -416,7 +419,7 @@ constexpr LineAlign RenderStyle::initialLineAlign() { return LineAlign::None; }
 constexpr OptionSet<Style::LineBoxContain> RenderStyle::initialLineBoxContain() { return { Style::LineBoxContain::Block, Style::LineBoxContain::Inline, Style::LineBoxContain::Replaced }; }
 constexpr LineBreak RenderStyle::initialLineBreak() { return LineBreak::Auto; }
 constexpr LineClampValue RenderStyle::initialLineClamp() { return { }; }
-inline const AtomString& RenderStyle::initialLineGrid() { return nullAtom(); }
+inline Style::WebkitLineGrid RenderStyle::initialLineGrid() { return CSS::Keyword::None { }; }
 constexpr LineSnap RenderStyle::initialLineSnap() { return LineSnap::None; }
 constexpr ListStylePosition RenderStyle::initialListStylePosition() { return ListStylePosition::Outside; }
 inline Style::ListStyleType RenderStyle::initialListStyleType() { return CSS::Keyword::Disc { }; }
@@ -426,6 +429,7 @@ constexpr MarqueeBehavior RenderStyle::initialMarqueeBehavior() { return Marquee
 constexpr MarqueeDirection RenderStyle::initialMarqueeDirection() { return MarqueeDirection::Auto; }
 inline Length RenderStyle::initialMarqueeIncrement() { return { 6, LengthType::Fixed }; }
 constexpr MathStyle RenderStyle::initialMathStyle() { return MathStyle::Normal; }
+constexpr Style::MaximumLines RenderStyle::initialMaxLines() { return CSS::Keyword::None { }; }
 inline Style::MaximumSize RenderStyle::initialMaxSize() { return CSS::Keyword::None { }; }
 inline Style::MinimumSize RenderStyle::initialMinSize() { return CSS::Keyword::Auto { }; }
 constexpr NBSPMode RenderStyle::initialNBSPMode() { return NBSPMode::Normal; }
@@ -577,7 +581,7 @@ inline LineAlign RenderStyle::lineAlign() const { return static_cast<LineAlign>(
 inline OptionSet<Style::LineBoxContain> RenderStyle::lineBoxContain() const { return OptionSet<Style::LineBoxContain>::fromRaw(m_rareInheritedData->lineBoxContain); }
 inline LineBreak RenderStyle::lineBreak() const { return static_cast<LineBreak>(m_rareInheritedData->lineBreak); }
 inline const LineClampValue& RenderStyle::lineClamp() const { return m_nonInheritedData->rareData->lineClamp; }
-inline const AtomString& RenderStyle::lineGrid() const { return m_rareInheritedData->lineGrid; }
+inline const Style::WebkitLineGrid& RenderStyle::lineGrid() const { return m_rareInheritedData->lineGrid; }
 inline LineSnap RenderStyle::lineSnap() const { return static_cast<LineSnap>(m_rareInheritedData->lineSnap); }
 inline const Style::ListStyleType& RenderStyle::listStyleType() const { return m_rareInheritedData->listStyleType; }
 inline const Style::InsetEdge& RenderStyle::logicalBottom() const { return m_nonInheritedData->surroundData->inset.after(writingMode()); }
@@ -634,7 +638,7 @@ inline const LengthSize& RenderStyle::maskSizeLength() const { return maskLayers
 inline FillSizeType RenderStyle::maskSizeType() const { return maskLayers().sizeType(); }
 inline MathStyle RenderStyle::mathStyle() const { return static_cast<MathStyle>(m_rareInheritedData->mathStyle); }
 inline const Style::MaximumSize& RenderStyle::maxHeight() const { return m_nonInheritedData->boxData->maxHeight(); }
-inline size_t RenderStyle::maxLines() const { return m_nonInheritedData->rareData->maxLines; }
+inline Style::MaximumLines RenderStyle::maxLines() const { return m_nonInheritedData->rareData->maxLines; }
 inline const Style::MaximumSize& RenderStyle::maxWidth() const { return m_nonInheritedData->boxData->maxWidth(); }
 inline const Style::MinimumSize& RenderStyle::minHeight() const { return m_nonInheritedData->boxData->minHeight(); }
 inline const Style::MinimumSize& RenderStyle::minWidth() const { return m_nonInheritedData->boxData->minWidth(); }

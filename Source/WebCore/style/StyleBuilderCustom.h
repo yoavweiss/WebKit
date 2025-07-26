@@ -74,6 +74,7 @@ template<auto R, typename V> inline Length<R, V> forwardInheritedValue(const Len
 inline AnchorNames forwardInheritedValue(const AnchorNames& value) { auto copy = value; return copy; }
 inline AspectRatio forwardInheritedValue(const AspectRatio& value) { auto copy = value; return copy; }
 inline BlockEllipsis forwardInheritedValue(const BlockEllipsis& value) { auto copy = value; return copy; }
+inline BlockStepSize forwardInheritedValue(const BlockStepSize& value) { auto copy = value; return copy; }
 inline BorderRadiusValue forwardInheritedValue(const BorderRadiusValue& value) { auto copy = value; return copy; }
 inline BoxShadows forwardInheritedValue(const BoxShadows& value) { auto copy = value; return copy; }
 inline ContainIntrinsicSize forwardInheritedValue(const ContainIntrinsicSize& value) { auto copy = value; return copy; }
@@ -109,6 +110,7 @@ inline GridPosition forwardInheritedValue(const GridPosition& value) { auto copy
 inline GridTemplateAreas forwardInheritedValue(const GridTemplateAreas& value) { auto copy = value; return copy; }
 inline GridTemplateList forwardInheritedValue(const GridTemplateList& value) { auto copy = value; return copy; }
 inline GridTrackSizes forwardInheritedValue(const GridTrackSizes& value) { auto copy = value; return copy; }
+inline HyphenateCharacter forwardInheritedValue(const HyphenateCharacter& value) { auto copy = value; return copy; }
 inline ListStyleType forwardInheritedValue(const ListStyleType& value) { auto copy = value; return copy; }
 inline OffsetAnchor forwardInheritedValue(const OffsetAnchor& value) { auto copy = value; return copy; }
 inline OffsetDistance forwardInheritedValue(const OffsetDistance& value) { auto copy = value; return copy; }
@@ -137,6 +139,7 @@ inline ViewTimelines forwardInheritedValue(const ViewTimelines& value) { auto co
 inline ViewTransitionClasses forwardInheritedValue(const ViewTransitionClasses& value) { auto copy = value; return copy; }
 inline ViewTransitionName forwardInheritedValue(const ViewTransitionName& value) { auto copy = value; return copy; }
 inline Vector<GridTrackSize> forwardInheritedValue(const Vector<GridTrackSize>& value) { auto copy = value; return copy; }
+inline WebkitLineGrid forwardInheritedValue(const WebkitLineGrid& value) { auto copy = value; return copy; }
 
 // Note that we assume the CSS parser only allows valid CSSValue types.
 class BuilderCustom {

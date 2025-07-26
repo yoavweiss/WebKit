@@ -33,6 +33,9 @@
 #include "StyleCustomPropertyData.h"
 #include "StyleLineBoxContain.h"
 #include "StyleDynamicRangeLimit.h"
+#include "StyleHyphenateCharacter.h"
+#include "StyleHyphenateLimitEdge.h"
+#include "StyleHyphenateLimitLines.h"
 #include "StyleListStyleType.h"
 #include "StyleQuotes.h"
 #include "StyleScrollbarColor.h"
@@ -41,6 +44,7 @@
 #include "StyleTextIndent.h"
 #include "StyleTextShadow.h"
 #include "StyleTextUnderlineOffset.h"
+#include "StyleWebKitLineGrid.h"
 #include "StyleWebKitOverflowScrolling.h"
 #include "StyleWebKitTouchCallout.h"
 #include "TabSize.h"
@@ -197,10 +201,10 @@ public:
     Style::Color strokeColor;
     Style::Color visitedLinkStrokeColor;
 
-    AtomString hyphenationString;
-    short hyphenationLimitBefore { -1 };
-    short hyphenationLimitAfter { -1 };
-    short hyphenationLimitLines { -1 };
+    Style::HyphenateCharacter hyphenateCharacter;
+    Style::HyphenateLimitEdge hyphenateLimitBefore;
+    Style::HyphenateLimitEdge hyphenateLimitAfter;
+    Style::HyphenateLimitLines hyphenateLimitLines;
 
 #if ENABLE(DARK_MODE_CSS)
     Style::ColorScheme colorScheme;
@@ -210,7 +214,7 @@ public:
 
     DataRef<StyleFilterData> appleColorFilter;
 
-    AtomString lineGrid;
+    Style::WebkitLineGrid lineGrid;
     TabSize tabSize;
 
 #if ENABLE(TEXT_AUTOSIZING)

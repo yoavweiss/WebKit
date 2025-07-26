@@ -32,36 +32,13 @@ namespace WebCore {
 namespace Style {
 
 // <clip-edge> = <length> | auto
-struct ClipEdge {
-    ClipEdge(CSS::Keyword::Auto)
-        : value { }
-    {
-    }
+struct ClipEdge : ValueOrKeyword<Length<>, CSS::Keyword::Auto> {
+    using Base::Base;
+    using Length = typename Base::Value;
 
-    ClipEdge(Length<> value)
-        : value { value }
-    {
-    }
-
-    bool isAuto() const { return !value; }
-    bool isLength() const { return !!value; }
-    std::optional<Length<>> tryLength() const { return value.asOptional(); }
-
-    template<typename... F> decltype(auto) switchOn(F&&... f) const
-    {
-        auto visitor = WTF::makeVisitor(std::forward<F>(f)...);
-
-        if (isAuto())
-            return visitor(CSS::Keyword::Auto { });
-        return visitor(*value);
-    }
-
-    bool operator==(const ClipEdge&) const = default;
-
-private:
-    friend struct Blending<ClipEdge>;
-
-    Markable<Length<>> value;
+    bool isAuto() const { return isKeyword(); }
+    bool isLength() const { return isValue(); }
+    std::optional<Length> tryLength() const { return tryValue(); }
 };
 
 // <rect()> = rect( <clip-edge> , <clip-edge> , <clip-edge> , <clip-edge> )

@@ -335,6 +335,11 @@ template<> struct IntegerToStringConversionTrait<AtomString> {
     static AtomString flush(std::span<const LChar> characters, void*) { return characters; }
 };
 
+template<> struct MarkableTraits<AtomString> {
+    static bool isEmptyValue(const AtomString& string) { return string.isNull(); }
+    static AtomString emptyValue() { return nullAtom(); }
+};
+
 } // namespace WTF
 
 using WTF::AtomString;

@@ -2320,8 +2320,8 @@ inline void ExtractorCustom::extractBackgroundPositionShorthandSerialization(Ext
 inline RefPtr<CSSValue> ExtractorCustom::extractBlockStepShorthand(ExtractorState& state)
 {
     CSSValueListBuilder list;
-    if (auto blockStepSize = state.style.blockStepSize())
-        list.append(ExtractorConverter::convertLength(state, *blockStepSize));
+    if (auto blockStepSize = state.style.blockStepSize(); blockStepSize != RenderStyle::initialBlockStepSize())
+        list.append(ExtractorConverter::convertStyleType(state, blockStepSize));
 
     if (auto blockStepInsert = state.style.blockStepInsert(); blockStepInsert != RenderStyle::initialBlockStepInsert())
         list.append(ExtractorConverter::convert(state, blockStepInsert));
@@ -2342,10 +2342,10 @@ inline void ExtractorCustom::extractBlockStepShorthandSerialization(ExtractorSta
 {
     bool listEmpty = true;
 
-    if (auto blockStepSize = state.style.blockStepSize()) {
+    if (auto blockStepSize = state.style.blockStepSize(); blockStepSize != RenderStyle::initialBlockStepSize()) {
         if (!listEmpty)
             builder.append(' ');
-        ExtractorSerializer::serializeLength(state, builder, context, *blockStepSize);
+        ExtractorSerializer::serializeStyleType(state, builder, context, blockStepSize);
         listEmpty = false;
     }
 
@@ -2644,25 +2644,25 @@ inline void ExtractorCustom::extractFontVariantShorthandSerialization(ExtractorS
 
 inline RefPtr<CSSValue> ExtractorCustom::extractLineClampShorthand(ExtractorState& state)
 {
-    auto maxLines = state.style.maxLines();
+    auto maxLines = state.style.maxLines().tryValue();
     if (!maxLines)
         return CSSPrimitiveValue::create(CSSValueNone);
 
     return CSSValuePair::create(
-        createCSSValue(state.pool, state.style, Integer<> { maxLines }),
+        createCSSValue(state.pool, state.style, *maxLines),
         createCSSValue(state.pool, state.style, state.style.blockEllipsis())
     );
 }
 
 inline void ExtractorCustom::extractLineClampShorthandSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    auto maxLines = state.style.maxLines();
+    auto maxLines = state.style.maxLines().tryValue();
     if (!maxLines) {
         CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
         return;
     }
 
-    serializationForCSS(builder, context, state.style, Integer<> { maxLines });
+    serializationForCSS(builder, context, state.style, *maxLines);
     builder.append(' ');
     serializationForCSS(builder, context, state.style, state.style.blockEllipsis());
 }

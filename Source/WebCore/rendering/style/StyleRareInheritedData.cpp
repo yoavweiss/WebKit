@@ -154,6 +154,10 @@ StyleRareInheritedData::StyleRareInheritedData()
     , usedTouchActions(RenderStyle::initialTouchActions())
     , strokeWidth(RenderStyle::initialStrokeWidth())
     , strokeColor(RenderStyle::initialStrokeColor())
+    , hyphenateCharacter(RenderStyle::initialHyphenateCharacter())
+    , hyphenateLimitBefore(RenderStyle::initialHyphenateLimitBefore())
+    , hyphenateLimitAfter(RenderStyle::initialHyphenateLimitAfter())
+    , hyphenateLimitLines(RenderStyle::initialHyphenateLimitLines())
 #if ENABLE(DARK_MODE_CSS)
     , colorScheme(RenderStyle::initialColorScheme())
 #endif
@@ -256,10 +260,10 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , strokeWidth(o.strokeWidth)
     , strokeColor(o.strokeColor)
     , visitedLinkStrokeColor(o.visitedLinkStrokeColor)
-    , hyphenationString(o.hyphenationString)
-    , hyphenationLimitBefore(o.hyphenationLimitBefore)
-    , hyphenationLimitAfter(o.hyphenationLimitAfter)
-    , hyphenationLimitLines(o.hyphenationLimitLines)
+    , hyphenateCharacter(o.hyphenateCharacter)
+    , hyphenateLimitBefore(o.hyphenateLimitBefore)
+    , hyphenateLimitAfter(o.hyphenateLimitAfter)
+    , hyphenateLimitLines(o.hyphenateLimitLines)
 #if ENABLE(DARK_MODE_CSS)
     , colorScheme(o.colorScheme)
 #endif
@@ -332,9 +336,9 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && userSelect == o.userSelect
         && speakAs == o.speakAs
         && hyphens == o.hyphens
-        && hyphenationLimitBefore == o.hyphenationLimitBefore
-        && hyphenationLimitAfter == o.hyphenationLimitAfter
-        && hyphenationLimitLines == o.hyphenationLimitLines
+        && hyphenateLimitBefore == o.hyphenateLimitBefore
+        && hyphenateLimitAfter == o.hyphenateLimitAfter
+        && hyphenateLimitLines == o.hyphenateLimitLines
 #if ENABLE(DARK_MODE_CSS)
         && colorScheme == o.colorScheme
 #endif
@@ -344,7 +348,7 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
 #if ENABLE(WEBKIT_TOUCH_CALLOUT_CSS_PROPERTY)
         && webkitTouchCallout == o.webkitTouchCallout
 #endif
-        && hyphenationString == o.hyphenationString
+        && hyphenateCharacter == o.hyphenateCharacter
         && quotes == o.quotes
         && appleColorFilter == o.appleColorFilter
         && tabSize == o.tabSize
@@ -520,10 +524,10 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
     LOG_IF_DIFFERENT(strokeColor);
     LOG_IF_DIFFERENT(visitedLinkStrokeColor);
 
-    LOG_IF_DIFFERENT(hyphenationString);
-    LOG_IF_DIFFERENT(hyphenationLimitBefore);
-    LOG_IF_DIFFERENT(hyphenationLimitAfter);
-    LOG_IF_DIFFERENT(hyphenationLimitLines);
+    LOG_IF_DIFFERENT(hyphenateCharacter);
+    LOG_IF_DIFFERENT(hyphenateLimitBefore);
+    LOG_IF_DIFFERENT(hyphenateLimitAfter);
+    LOG_IF_DIFFERENT(hyphenateLimitLines);
 
 #if ENABLE(DARK_MODE_CSS)
     LOG_IF_DIFFERENT(colorScheme);
