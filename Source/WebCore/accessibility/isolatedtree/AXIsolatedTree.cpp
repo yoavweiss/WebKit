@@ -377,7 +377,7 @@ void AXIsolatedTree::queueRemovalsLocked(Vector<AXID>&& subtreeRemovals)
     ASSERT(isMainThread());
     ASSERT(m_changeLogLock.isLocked());
 
-    m_pendingSubtreeRemovals.appendVector(WTFMove(subtreeRemovals));
+    m_pendingSubtreeRemovals.addAll(WTFMove(subtreeRemovals));
     m_pendingProtectedFromDeletionIDs.addAll(std::exchange(m_protectedFromDeletionIDs, { }));
 }
 
@@ -1342,17 +1342,46 @@ void AXIsolatedTree::applyPendingChangesLocked()
     }
 
     while (m_pendingSubtreeRemovals.size()) {
-        auto axID = m_pendingSubtreeRemovals.takeLast();
-        if (m_pendingProtectedFromDeletionIDs.contains(axID))
-            continue;
-        AXLOG(makeString("removing subtree axID "_s, axID.loggingString()));
-        if (RefPtr object = objectForID(axID)) {
+        // WTF_IGNORES_THREAD_SAFETY_ANALYSIS because we _do_ hold the m_changeLogLock, but the thread-safety
+        // analysis throws a false-positive compile error when we access m_pendingProtectedFromDeletionIDs in
+        // this lambda.
+        std::function<void(Ref<AXCoreObject>&&)> deleteSubtree = [&] (Ref<AXCoreObject>&& coreObjectToDelete) WTF_IGNORES_THREAD_SAFETY_ANALYSIS {
+
+            auto& objectToDelete = downcast<AXIsolatedObject>(coreObjectToDelete.get());
+            while (objectToDelete.m_children.size()) {
+                Ref child = objectToDelete.m_children.takeLast();
+                if (!m_pendingProtectedFromDeletionIDs.contains(child->objectID()))
+                    deleteSubtree(WTFMove(child));
+            }
+
             // There's no need to call the more comprehensive AXCoreObject::detach here since
             // we're deleting the entire subtree of this object and thus don't need to `detachRemoteParts`.
-            object->detachWrapper(AccessibilityDetachmentType::ElementDestroyed);
-            m_pendingSubtreeRemovals.appendVector(object->m_childrenIDs);
-            m_readerThreadNodeMap.remove(axID);
-        }
+            objectToDelete.detachWrapper(AccessibilityDetachmentType::ElementDestroyed);
+
+            auto deleteAXID = objectToDelete.objectID();
+            m_readerThreadNodeMap.remove(deleteAXID);
+            m_pendingSubtreeRemovals.remove(deleteAXID);
+
+            for (const AXID& childID : objectToDelete.m_unresolvedChildrenIDs) {
+                // Ideally, assuming m_children has been initialized, there would be no unresolved children IDs.
+                // But sometimes when initializing m_children, AXIsolatedTree::objectForID fails for an unknown
+                // reason, and thus we are left with an entry in m_unresolvedChildrenIDs. See the ASSERT in
+                // AXIsolatedObject::children. In case any of our unresolved IDs got populated with an object
+                // later somehow, try to clean them up.
+                if (!m_pendingProtectedFromDeletionIDs.contains(childID)) {
+                    if (RefPtr child = m_readerThreadNodeMap.take(childID))
+                        deleteSubtree(child.releaseNonNull());
+                }
+            }
+        };
+
+        // This dereference is safe because we checked m_pendingSubtreeRemovals.size() to get here.
+        auto axID = *m_pendingSubtreeRemovals.takeAny();
+        if (m_pendingProtectedFromDeletionIDs.contains(axID))
+            continue;
+
+        if (RefPtr object = m_readerThreadNodeMap.take(axID))
+            deleteSubtree(object.releaseNonNull());
     }
     m_pendingProtectedFromDeletionIDs.clear();
 

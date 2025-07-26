@@ -53,7 +53,7 @@ using namespace HTMLNames;
 
 AXIsolatedObject::AXIsolatedObject(IsolatedObjectData&& data)
     : AXCoreObject(data.axID, data.role)
-    , m_childrenIDs(WTFMove(data.childrenIDs))
+    , m_unresolvedChildrenIDs(WTFMove(data.childrenIDs))
     , m_properties(WTFMove(data.properties))
     , m_tree(WTFMove(data.tree))
     , m_parentID(data.parentID)
@@ -225,12 +225,17 @@ void AXIsolatedObject::detachRemoteParts(AccessibilityDetachmentType)
 {
     ASSERT(!isMainThread());
 
-    for (const auto& childID : m_childrenIDs) {
+    for (const auto& child : m_children)
+        child->detachFromParent();
+
+    for (const auto& childID : m_unresolvedChildrenIDs) {
+        // Also loop through unresolved IDs in case they have become resolved.
         if (RefPtr child = tree()->objectForID(childID))
             child->detachFromParent();
     }
-    m_childrenIDs.clear();
-    m_childrenDirty = true;
+    m_unresolvedChildrenIDs.clear();
+    m_children.clear();
+    m_childrenDirty = false;
 }
 
 #if !PLATFORM(MAC)
@@ -248,7 +253,7 @@ void AXIsolatedObject::detachFromParent()
 
 void AXIsolatedObject::setChildrenIDs(Vector<AXID>&& ids)
 {
-    m_childrenIDs = WTFMove(ids);
+    m_unresolvedChildrenIDs = WTFMove(ids);
     m_childrenDirty = true;
 }
 
@@ -262,16 +267,21 @@ const AXCoreObject::AccessibilityChildrenVector& AXIsolatedObject::children(bool
 #endif
     if (updateChildrenIfNeeded && m_childrenDirty) {
         unsigned index = 0;
-        m_children = WTF::compactMap(m_childrenIDs, [&] (auto& childID) -> std::optional<Ref<AXCoreObject>> {
+        Vector<AXID> unresolvedIDs;
+        m_children = WTF::compactMap(m_unresolvedChildrenIDs, [&] (auto& childID) -> std::optional<Ref<AXCoreObject>> {
             if (RefPtr child = tree()->objectForID(childID)) {
                 if (setChildIndexInParent(*child, index))
                     ++index;
                 return child.releaseNonNull();
             }
+            unresolvedIDs.append(childID);
             return std::nullopt;
         });
         m_childrenDirty = false;
-        ASSERT(m_children.size() == m_childrenIDs.size());
+        m_unresolvedChildrenIDs = WTFMove(unresolvedIDs);
+        // Having any unresolved children IDs at this point means we should've had a child / children, but they didn't
+        // exist in tree()->objectForID(), so we were never able to hydrate it into an object.
+        ASSERT(m_unresolvedChildrenIDs.isEmpty());
 
 #ifndef NDEBUG
         verifyChildrenIndexInParent();
