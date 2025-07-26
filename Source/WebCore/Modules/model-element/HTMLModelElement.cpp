@@ -1107,7 +1107,7 @@ bool HTMLModelElement::shouldDeferLoading() const
     if (!document().frame() || !document().frame()->script().canExecuteScripts(ReasonForCallingCanExecuteScripts::NotAboutToExecuteScript))
         return false;
 
-    return isModelDeferred() && !document().page()->shouldDisableModelLoadDelaysForTesting();
+    return !isVisible() && isModelDeferred() && !document().page()->shouldDisableModelLoadDelaysForTesting();
 }
 
 void HTMLModelElement::modelResourceFinished()
