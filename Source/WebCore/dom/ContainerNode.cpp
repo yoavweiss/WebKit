@@ -61,6 +61,7 @@
 #include "SVGUseElement.h"
 #include "ScriptDisallowedScope.h"
 #include "SelectorQuery.h"
+#include "SerializedNode.h"
 #include "SlotAssignment.h"
 #include "StaticNodeList.h"
 #include "TemplateContentDocumentFragment.h"
@@ -1031,9 +1032,11 @@ void ContainerNode::childrenChanged(const ChildChange& change)
         cache->childrenChanged(*this);
 }
 
+static constexpr size_t cloneMaxDepth = 1024;
+
 void ContainerNode::cloneChildNodes(Document& document, CustomElementRegistry* fallbackRegistry, ContainerNode& clone, size_t currentDepth) const
 {
-    if (currentDepth == 1024)
+    if (currentDepth >= cloneMaxDepth)
         return;
 
     NodeVector postInsertionNotificationTargets;
@@ -1058,6 +1061,26 @@ void ContainerNode::cloneChildNodes(Document& document, CustomElementRegistry* f
 
     for (auto& target : postInsertionNotificationTargets)
         target->didFinishInsertingNode();
+}
+
+Vector<SerializedNode> ContainerNode::serializeChildNodes(size_t currentDepth) const
+{
+    if (currentDepth >= cloneMaxDepth)
+        return { };
+
+    Vector<SerializedNode> result;
+    for (RefPtr child = firstChild(); child; child = child->nextSibling()) {
+        result.append(child->serializeNode(CloningOperation::SelfWithTemplateContent));
+        RefPtr childAsContainerNode = dynamicDowncast<ContainerNode>(*child);
+        if (!childAsContainerNode)
+            continue;
+        WTF::switchOn(result.last().data, [&] (SerializedNode::ContainerNode& node) {
+            node.children = childAsContainerNode->serializeChildNodes(currentDepth + 1);
+        }, []<typename T>(const T&) requires (!std::derived_from<T, SerializedNode::ContainerNode>) {
+            RELEASE_ASSERT_NOT_REACHED();
+        });
+    }
+    return result;
 }
 
 unsigned ContainerNode::countChildNodes() const

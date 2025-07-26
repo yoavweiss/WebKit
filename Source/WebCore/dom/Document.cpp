@@ -249,6 +249,7 @@
 #include "ResolvedStyle.h"
 #include "ResourceLoadObserver.h"
 #include "ResourceMonitor.h"
+#include "SVGDocument.h"
 #include "SVGDocumentExtensions.h"
 #include "SVGElementFactory.h"
 #include "SVGElementTypeHelpers.h"
@@ -5470,10 +5471,23 @@ bool Document::canAcceptChild(const Node& newChild, const Node* refChild, Accept
     return true;
 }
 
+ClonedDocumentType Document::clonedDocumentType() const
+{
+    if (isXMLDocument()) {
+        if (isXHTMLDocument())
+            return ClonedDocumentType::XHTMLDocument;
+        return ClonedDocumentType::XMLDocument;
+    }
+    if (isSVGDocument())
+        return ClonedDocumentType::SVGDocument;
+    if (isHTMLDocument())
+        return ClonedDocumentType::HTMLDocument;
+    return ClonedDocumentType::Document;
+}
+
 Ref<Node> Document::cloneNodeInternal(Document&, CloningOperation type, CustomElementRegistry* registry) const
 {
-    Ref clone = cloneDocumentWithoutChildren();
-    clone->cloneDataFromDocument(*this);
+    Ref clone = createCloned(clonedDocumentType(), settings(), url(), baseURL(), baseURLOverride(), m_documentURI, m_compatibilityMode, protectedContextDocument(), securityOriginPolicy(), contentType(), protectedDecoder().get());
     switch (type) {
     case CloningOperation::SelfOnly:
     case CloningOperation::SelfWithTemplateContent:
@@ -5485,34 +5499,57 @@ Ref<Node> Document::cloneNodeInternal(Document&, CloningOperation type, CustomEl
     return clone;
 }
 
-SerializedNode Document::serializeNode(CloningOperation) const
+SerializedNode Document::serializeNode(CloningOperation type) const
 {
-    // FIXME: Implement.
-    return { SerializedNode::Document { } };
-}
-
-Ref<Document> Document::cloneDocumentWithoutChildren() const
-{
-    if (isXMLDocument()) {
-        if (isXHTMLDocument())
-            return XMLDocument::createXHTML(nullptr, m_settings, url());
-        return XMLDocument::create(nullptr, m_settings, url());
+    Vector<SerializedNode> children;
+    switch (type) {
+    case CloningOperation::SelfOnly:
+    case CloningOperation::SelfWithTemplateContent:
+        break;
+    case CloningOperation::Everything:
+        children = serializeChildNodes();
+        break;
     }
-    return create(m_settings, url());
+    return {
+        SerializedNode::Document { { WTFMove(children) },
+            clonedDocumentType(),
+            url(),
+            m_baseURL,
+            m_baseURLOverride,
+            m_documentURI,
+            contentType(),
+        }
+    };
 }
 
-void Document::cloneDataFromDocument(const Document& other)
+Ref<Document> Document::createCloned(ClonedDocumentType clonedDocumentType, const Settings& settings, const URL& url, const URL& baseURL, const URL& baseURLOverride, const Variant<String, URL>& documentURI, DocumentCompatibilityMode compatibilityMode, Document& contextDocument, SecurityOriginPolicy* securityOriginPolicy, const String& contentType, TextResourceDecoder* decoder)
 {
-    ASSERT(m_url == other.url());
-    m_baseURL = other.baseURL();
-    m_baseURLOverride = other.baseURLOverride();
-    m_documentURI = other.m_documentURI;
+    Ref clone = [&] -> Ref<Document> {
+        switch (clonedDocumentType) {
+        case ClonedDocumentType::XMLDocument:
+            return XMLDocument::createXHTML(nullptr, settings, url);
+        case ClonedDocumentType::XHTMLDocument:
+            return XMLDocument::create(nullptr, settings, url);
+        case ClonedDocumentType::HTMLDocument:
+            return HTMLDocument::create(nullptr, settings, url);
+        case ClonedDocumentType::SVGDocument:
+            return SVGDocument::create(nullptr, settings, url);
+        case ClonedDocumentType::Document:
+            return create(settings, url);
+        }
+        RELEASE_ASSERT_NOT_REACHED();
+    } ();
 
-    setCompatibilityMode(other.m_compatibilityMode);
-    setContextDocument(other.protectedContextDocument());
-    setSecurityOriginPolicy(other.securityOriginPolicy());
-    overrideMIMEType(other.contentType());
-    setDecoder(other.protectedDecoder());
+    ASSERT(clone->m_url == url);
+    clone->m_baseURL = baseURL;
+    clone->m_baseURLOverride = baseURLOverride;
+    clone->m_documentURI = documentURI;
+    clone->setCompatibilityMode(compatibilityMode);
+    clone->setContextDocument(contextDocument);
+    clone->setSecurityOriginPolicy(securityOriginPolicy);
+    clone->overrideMIMEType(contentType);
+    clone->setDecoder(decoder);
+    return clone;
 }
 
 StyleSheetList& Document::styleSheets()

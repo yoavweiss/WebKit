@@ -111,6 +111,7 @@ TEST(NodeInfo, Basic)
 TEST(SerializedNode, Basic)
 {
     RetainPtr webView = adoptNS([WKWebView new]);
+    [webView loadHTMLString:@"<div><div>test</div></div>" baseURL:[NSURL URLWithString:@"https://webkit.org/"]];
 
     RetainPtr worldConfiguration = adoptNS([_WKContentWorldConfiguration new]);
     worldConfiguration.get().allowNodeInfo = YES;
@@ -118,13 +119,14 @@ TEST(SerializedNode, Basic)
 
     auto verifyNodeSerialization = [world, webView] (const char* constructor, const char* accessor, const char* expected, const char* className) {
         __block bool done = false;
-        [webView evaluateJavaScript:[NSString stringWithFormat:@"window.webkit.serializeNode(%s)", constructor] inFrame:nil inContentWorld:world.get() completionHandler:^(id serializedNode, NSError *error) {
+        [webView evaluateJavaScript:[NSString stringWithFormat:@"window.webkit.serializeNode(%s, { deep:true })", constructor] inFrame:nil inContentWorld:world.get() completionHandler:^(id serializedNode, NSError *error) {
             EXPECT_TRUE([serializedNode isKindOfClass:_WKSerializedNode.class]);
             EXPECT_NULL(error);
             RetainPtr other = adoptNS([TestWKWebView new]);
 
-            id instanceof = [other objectByCallingAsyncFunction:[NSString stringWithFormat:@"return n instanceof %s", className] withArguments:@{ @"n" : serializedNode } error:nil];
-            EXPECT_EQ(instanceof, @YES);
+            id instanceof = [other objectByCallingAsyncFunction:@"return Object.getPrototypeOf(n).toString()" withArguments:@{ @"n" : serializedNode } error:nil];
+            NSString *expectedClass = [NSString stringWithFormat:@"[object %s]", className];
+            EXPECT_WK_STREQ(instanceof, expectedClass);
 
             id result = [other objectByCallingAsyncFunction:[NSString stringWithFormat:@"return %s", accessor] withArguments:@{ @"n" : serializedNode } error:nil];
             EXPECT_WK_STREQ(result, expected);
@@ -145,6 +147,12 @@ TEST(SerializedNode, Basic)
     verifyNodeSerialization("document.implementation.createDocumentType('a', 'b', 'c')", "n.name + ',' + n.publicId + ',' + n.systemId", "a,b,c", "DocumentType");
 
     verifyNodeSerialization("document.createProcessingInstruction('a', 'b')", "n.target + ',' + n.data", "a,b", "ProcessingInstruction");
+
+    auto documentAccessor = "n.URL + ',' + n.documentURI + ',' + new XMLSerializer().serializeToString(n)";
+    auto documentExpected = "about:blank,about:blank,";
+    verifyNodeSerialization("document.implementation.createDocument('http://www.w3.org/2000/svg', 'svg', null)", documentAccessor, documentExpected, "XMLDocument");
+    verifyNodeSerialization("document.implementation.createHTMLDocument('test title')", documentAccessor, documentExpected, "HTMLDocument");
+    verifyNodeSerialization("document", documentAccessor, "https://webkit.org/,https://webkit.org/,", "HTMLDocument");
 }
 
 }

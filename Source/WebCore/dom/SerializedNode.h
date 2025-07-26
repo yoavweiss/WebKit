@@ -25,9 +25,20 @@
 
 #pragma once
 
+#include "SecurityOriginData.h"
 #include <wtf/text/WTFString.h>
 
+namespace JSC {
+class JSGlobalObject;
+class JSValue;
+}
+
 namespace WebCore {
+
+class Document;
+class JSDOMGlobalObject;
+
+enum class ClonedDocumentType : uint8_t;
 
 struct SerializedNode {
     struct Attr {
@@ -36,10 +47,18 @@ struct SerializedNode {
         String namespaceURI;
         String value;
     };
-    struct Document {
-        // FIXME: Implement.
+    struct ContainerNode {
+        Vector<SerializedNode> children;
     };
-    struct DocumentFragment {
+    struct Document : public ContainerNode {
+        ClonedDocumentType type;
+        URL url;
+        URL baseURL;
+        URL baseURLOverride;
+        Variant<String, URL> documentURI;
+        String contentType;
+    };
+    struct DocumentFragment : public ContainerNode {
         // FIXME: Implement.
     };
     struct DocumentType {
@@ -47,13 +66,13 @@ struct SerializedNode {
         String publicId;
         String systemId;
     };
-    struct Element {
+    struct Element : public ContainerNode {
         // FIXME: Implement.
     };
-    struct ShadowRoot {
+    struct ShadowRoot : public DocumentFragment {
         // FIXME: Implement.
     };
-    struct HTMLTemplateElement {
+    struct HTMLTemplateElement : public Element {
         // FIXME: Implement.
     };
     struct CharacterData {
@@ -67,6 +86,8 @@ struct SerializedNode {
     };
 
     Variant<Attr, CDATASection, Comment, Document, DocumentFragment, DocumentType, Element, ProcessingInstruction, ShadowRoot, Text, HTMLTemplateElement> data;
+
+    WEBCORE_EXPORT static JSC::JSValue deserialize(SerializedNode&&, JSC::JSGlobalObject* lexicalGlobalObject, JSDOMGlobalObject*, WebCore::Document&);
 };
 
 }

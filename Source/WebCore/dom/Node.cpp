@@ -27,9 +27,7 @@
 
 #include "AXObjectCache.h"
 #include "Attr.h"
-#include "CDATASection.h"
 #include "ChildListMutationScope.h"
-#include "Comment.h"
 #include "CommonAtomStrings.h"
 #include "CommonVM.h"
 #include "ComposedTreeAncestorIterator.h"
@@ -59,7 +57,6 @@
 #include "InputEvent.h"
 #include "InspectorController.h"
 #include "InspectorInstrumentation.h"
-#include "JSNode.h"
 #include "KeyboardEvent.h"
 #include "LiveNodeListInlines.h"
 #include "LocalDOMWindow.h"
@@ -83,7 +80,6 @@
 #include "SVGElementInlines.h"
 #include "ScopedEventQueue.h"
 #include "ScriptDisallowedScope.h"
-#include "SerializedNode.h"
 #include "Settings.h"
 #include "StorageEvent.h"
 #include "StyleResolver.h"
@@ -828,28 +824,6 @@ ExceptionOr<void> Node::normalize()
     }
 
     return { };
-}
-
-JSC::JSValue Node::deserializeNode(JSC::JSGlobalObject* lexicalGlobalObject, JSDOMGlobalObject* domGlobalObject, Document& document, SerializedNode&& serializedNode)
-{
-    // FIXME: Support other kinds of nodes and change RefPtr to Ref.
-    RefPtr node = WTF::switchOn(WTFMove(serializedNode.data), [&] (SerializedNode::Text&& text) -> RefPtr<Node> {
-        return Text::create(document, WTFMove(text.data));
-    }, [&] (SerializedNode::ProcessingInstruction&& instruction) -> RefPtr<Node> {
-        return ProcessingInstruction::create(document, WTFMove(instruction.target), WTFMove(instruction.data));
-    }, [&] (SerializedNode::DocumentType&& type) -> RefPtr<Node> {
-        return DocumentType::create(document, type.name, type.publicId, type.systemId);
-    }, [&] (SerializedNode::Comment&& comment) -> RefPtr<Node> {
-        return Comment::create(document, WTFMove(comment.data));
-    }, [&] (SerializedNode::CDATASection&& section) -> RefPtr<Node> {
-        return CDATASection::create(document, WTFMove(section.data));
-    }, [&] (SerializedNode::Attr&& attr) -> RefPtr<Node> {
-        QualifiedName name(AtomString(WTFMove(attr.prefix)), AtomString(WTFMove(attr.localName)), AtomString(WTFMove(attr.namespaceURI)));
-        return Attr::create(document, name, AtomString(WTFMove(attr.value)));
-    }, [] (auto&&) -> RefPtr<Node> {
-        return nullptr;
-    });
-    return toJSNewlyCreated(lexicalGlobalObject, domGlobalObject, WTFMove(node));
 }
 
 Ref<Node> Node::cloneNode(bool deep) const

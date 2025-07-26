@@ -72,9 +72,9 @@ Ref<WebKitNodeInfo> WebKitNamespace::createNodeInfo(Node& node)
     return WebKitNodeInfo::create(node);
 }
 
-Ref<WebKitSerializedNode> WebKitNamespace::serializeNode(Node& node)
+Ref<WebKitSerializedNode> WebKitNamespace::serializeNode(Node& node, SerializedNodeInit&& init)
 {
-    return WebKitSerializedNode::create(node);
+    return WebKitSerializedNode::create(node, init.deep);
 }
 
 } // namespace WebCore

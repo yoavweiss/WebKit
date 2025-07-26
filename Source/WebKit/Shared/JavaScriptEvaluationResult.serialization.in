@@ -25,9 +25,13 @@ struct WebKit::NodeInfo {
     Markable<WebCore::FrameIdentifier> contentFrameIdentifier;
 };
 
+[Nested] struct WebKit::JavaScriptEvaluationResult::Value {
+    Variant<WebKit::JavaScriptEvaluationResult::EmptyType, bool, double, String, Seconds, Vector<WebKit::JSObjectID>, HashMap<WebKit::JSObjectID, WebKit::JSObjectID>, WebKit::NodeInfo, WebCore::SerializedNode> value;
+}
+
 class WebKit::JavaScriptEvaluationResult {
     WebKit::JSObjectID root()
-    HashMap<WebKit::JSObjectID, Variant<WebKit::JavaScriptEvaluationResult::EmptyType, bool, double, String, Seconds, Vector<WebKit::JSObjectID>, HashMap<WebKit::JSObjectID, WebKit::JSObjectID>, WebKit::NodeInfo, WebCore::SerializedNode>> map()
+    HashMap<WebKit::JSObjectID, UniqueRef<WebKit::JavaScriptEvaluationResult::Value>> map()
 }
 
 [Nested] enum class WebKit::JavaScriptEvaluationResult::EmptyType : bool

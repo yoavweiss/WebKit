@@ -30,8 +30,8 @@
 
 namespace WebCore {
 
-WebKitSerializedNode::WebKitSerializedNode(const Node& node)
-    : m_serializedNode(node.serializeNode(Node::CloningOperation::SelfOnly))
+WebKitSerializedNode::WebKitSerializedNode(const Node& node, bool deep)
+    : m_serializedNode(node.serializeNode(deep ? Node::CloningOperation::Everything : Node::CloningOperation::SelfOnly))
 {
 }
 

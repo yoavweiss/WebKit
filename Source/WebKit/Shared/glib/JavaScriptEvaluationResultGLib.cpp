@@ -45,7 +45,7 @@ GRefPtr<JSCValue> JavaScriptEvaluationResult::toJSC()
 JSObjectID JavaScriptEvaluationResult::addObjectToMap(GVariant* variant)
 {
     auto identifier = JSObjectID::generate();
-    m_map.add(identifier, toValue(variant));
+    m_map.add(identifier, makeUniqueRef<Value>(toValue(variant)));
     return identifier;
 }
 
@@ -61,33 +61,33 @@ auto JavaScriptEvaluationResult::toValue(GVariant* variant) -> Value
             if (!key || !value)
                 continue;
             auto keyID = JSObjectID::generate();
-            m_map.add(keyID, String::fromUTF8(key));
+            m_map.add(keyID, makeUniqueRef<Value>(Value { { String::fromUTF8(key) } }));
             auto valueID = JSObjectID::generate();
-            m_map.add(valueID, toValue(value));
+            m_map.add(valueID, makeUniqueRef<Value>(toValue(value)));
             map.add(keyID, valueID);
         }
-        return { WTFMove(map) };
+        return { { WTFMove(map) } };
     }
 
     if (g_variant_is_of_type(variant, G_VARIANT_TYPE_UINT32))
-        return static_cast<double>(g_variant_get_uint32(variant));
+        return { static_cast<double>(g_variant_get_uint32(variant)) };
     if (g_variant_is_of_type(variant, G_VARIANT_TYPE_INT32))
-        return static_cast<double>(g_variant_get_int32(variant));
+        return { static_cast<double>(g_variant_get_int32(variant)) };
     if (g_variant_is_of_type(variant, G_VARIANT_TYPE_UINT64))
-        return static_cast<double>(g_variant_get_uint64(variant));
+        return { static_cast<double>(g_variant_get_uint64(variant)) };
     if (g_variant_is_of_type(variant, G_VARIANT_TYPE_INT64))
-        return static_cast<double>(g_variant_get_int64(variant));
+        return { static_cast<double>(g_variant_get_int64(variant)) };
     if (g_variant_is_of_type(variant, G_VARIANT_TYPE_INT16))
-        return static_cast<double>(g_variant_get_int16(variant));
+        return { static_cast<double>(g_variant_get_int16(variant)) };
     if (g_variant_is_of_type(variant, G_VARIANT_TYPE_UINT16))
-        return static_cast<double>(g_variant_get_uint16(variant));
+        return { static_cast<double>(g_variant_get_uint16(variant)) };
     if (g_variant_is_of_type(variant, G_VARIANT_TYPE_DOUBLE))
-        return static_cast<double>(g_variant_get_double(variant));
+        return { static_cast<double>(g_variant_get_double(variant)) };
 
     if (g_variant_is_of_type(variant, G_VARIANT_TYPE_STRING))
-        return String::fromUTF8(g_variant_get_string(variant, nullptr));
+        return { String::fromUTF8(g_variant_get_string(variant, nullptr)) };
 
-    return EmptyType::Null;
+    return { EmptyType::Null };
 }
 
 JavaScriptEvaluationResult::JavaScriptEvaluationResult(GVariant* variant)

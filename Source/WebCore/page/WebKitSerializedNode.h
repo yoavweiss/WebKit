@@ -33,12 +33,12 @@ class Node;
 
 class WebKitSerializedNode : public RefCounted<WebKitSerializedNode> {
 public:
-    static Ref<WebKitSerializedNode> create(const Node& node) { return adoptRef(*new WebKitSerializedNode(node)); }
+    static Ref<WebKitSerializedNode> create(const Node& node, bool deep) { return adoptRef(*new WebKitSerializedNode(node, deep)); }
 
     const SerializedNode& serializedNode() const { return m_serializedNode; }
 
 private:
-    WebKitSerializedNode(const Node&);
+    WebKitSerializedNode(const Node&, bool);
 
     const SerializedNode m_serializedNode;
 };

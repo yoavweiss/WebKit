@@ -396,6 +396,8 @@ enum class CustomElementNameValidationStatus {
     ConflictsWithStandardElementName
 };
 
+enum class ClonedDocumentType : uint8_t { XMLDocument, XHTMLDocument, HTMLDocument, SVGDocument, Document };
+
 using RenderingContext = Variant<
 #if ENABLE(WEBGL)
     RefPtr<WebGLRenderingContext>,
@@ -435,6 +437,7 @@ public:
     inline static Ref<Document> create(const Settings&, const URL&);
     static Ref<Document> createNonRenderedPlaceholder(LocalFrame&, const URL&);
     static Ref<Document> create(Document&);
+    static Ref<Document> createCloned(ClonedDocumentType, const Settings&, const URL&, const URL& baseURL, const URL& baseURLOverride, const Variant<String, URL>& documentURI, DocumentCompatibilityMode, Document& contextDocument, SecurityOriginPolicy*, const String& contentType, TextResourceDecoder*);
 
     virtual ~Document();
 
@@ -903,6 +906,7 @@ public:
     bool inQuirksMode() const { return m_compatibilityMode == DocumentCompatibilityMode::QuirksMode; }
     bool inLimitedQuirksMode() const { return m_compatibilityMode == DocumentCompatibilityMode::LimitedQuirksMode; }
     bool inNoQuirksMode() const { return m_compatibilityMode == DocumentCompatibilityMode::NoQuirksMode; }
+    DocumentCompatibilityMode compatibilityMode() const { return m_compatibilityMode; }
 
     void setReadyState(ReadyState);
     void setParsing(bool);
@@ -2012,8 +2016,6 @@ protected:
 
     void clearXMLVersion() { m_xmlVersion = String(); }
 
-    virtual Ref<Document> cloneDocumentWithoutChildren() const;
-
 private:
     friend class DocumentParserYieldToken;
     friend class DocumentSyncData;
@@ -2069,8 +2071,9 @@ private:
     String nodeName() const final;
     bool childTypeAllowed(NodeType) const final;
     Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const final;
+    ClonedDocumentType clonedDocumentType() const;
+
     SerializedNode serializeNode(CloningOperation) const final;
-    void cloneDataFromDocument(const Document&);
 
     Seconds minimumDOMTimerInterval() const final;
 

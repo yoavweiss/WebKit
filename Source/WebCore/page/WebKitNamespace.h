@@ -50,7 +50,11 @@ public:
 
     UserMessageHandlersNamespace* messageHandlers();
     Ref<WebKitNodeInfo> createNodeInfo(Node&);
-    Ref<WebKitSerializedNode> serializeNode(Node&);
+
+    struct SerializedNodeInit {
+        bool deep { false };
+    };
+    Ref<WebKitSerializedNode> serializeNode(Node&, SerializedNodeInit&&);
 
 private:
     explicit WebKitNamespace(LocalDOMWindow&, UserContentProvider&);

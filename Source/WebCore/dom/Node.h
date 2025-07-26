@@ -46,11 +46,6 @@ namespace WTF {
 class TextStream;
 }
 
-namespace JSC {
-class JSValue;
-class JSGlobalObject;
-}
-
 namespace WebCore {
 
 class ContainerNode;
@@ -203,7 +198,6 @@ public:
     };
     virtual Ref<Node> cloneNodeInternal(Document&, CloningOperation, CustomElementRegistry*) const = 0;
     virtual SerializedNode serializeNode(CloningOperation) const = 0;
-    WEBCORE_EXPORT static JSC::JSValue deserializeNode(JSC::JSGlobalObject*, JSDOMGlobalObject*, Document&, SerializedNode&&);
     Ref<Node> cloneNode(bool deep) const;
     WEBCORE_EXPORT ExceptionOr<Ref<Node>> cloneNodeForBindings(bool deep) const;
 
