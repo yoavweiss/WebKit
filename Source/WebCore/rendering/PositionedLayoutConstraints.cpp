@@ -290,6 +290,7 @@ bool PositionedLayoutConstraints::isEligibleForStaticRangeAlignment(LayoutUnit s
         auto& itemStyle = m_renderer->style();
         auto itemAlignSelf = itemStyle.alignSelf();
         switch (itemStyle.alignSelf().position()) {
+        case ItemPosition::Center:
         case ItemPosition::FlexEnd:
         case ItemPosition::SelfEnd:
         case ItemPosition::End: {
