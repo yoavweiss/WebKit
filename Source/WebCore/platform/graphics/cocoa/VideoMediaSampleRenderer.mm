@@ -94,8 +94,18 @@ static bool isRendererThreadSafe(WebSampleBufferVideoRendering *renderering)
 
 #define LogPerformance(...) RELEASE_LOG_DEBUG_IF(LOG_CHANNEL(MediaPerformance).level >= WTFLogLevel::Debug, MediaPerformance, __VA_ARGS__)
 
+WorkQueue& VideoMediaSampleRenderer::queueSingleton()
+{
+    static std::once_flag onceKey;
+    static LazyNeverDestroyed<Ref<WorkQueue>> workQueue;
+    std::call_once(onceKey, [] {
+        workQueue.construct(WorkQueue::create("VideoMediaSampleRenderer Queue"_s, WorkQueue::QOS::UserInteractive));
+    });
+    return workQueue.get();
+}
+
 VideoMediaSampleRenderer::VideoMediaSampleRenderer(WebSampleBufferVideoRendering *renderer)
-    : m_workQueue(isRendererThreadSafe(renderer) ? RefPtr { WorkQueue::create("VideoMediaSampleRenderer Queue"_s) } : nullptr)
+    : m_rendererIsThreadSafe(isRendererThreadSafe(renderer))
     , m_frameRateMonitor([] (auto info) {
         RELEASE_LOG_ERROR(MediaPerformance, "VideoMediaSampleRenderer Frame decoding allowance exceeded:%f expected:%f", Seconds { info.lastFrameTime - info.frameTime }.value(), 1 / info.observedFrameRate);
     })
@@ -598,11 +608,11 @@ void VideoMediaSampleRenderer::initializeDecompressionSession()
 #if HAVE(RECOMMENDED_PIXEL_ATTRIBUTES_API)
         if (m_renderer) {
             if ([m_renderer.get() respondsToSelector:@selector(recommendedPixelBufferAttributes)])
-                m_decompressionSession = WebCoreDecompressionSession::create([m_renderer recommendedPixelBufferAttributes]);
+                m_decompressionSession = WebCoreDecompressionSession::create([m_renderer recommendedPixelBufferAttributes], m_rendererIsThreadSafe ? dispatcher().ptr() : nullptr);
         }
 #endif
         if (!m_decompressionSession)
-            m_decompressionSession = WebCoreDecompressionSession::createOpenGL();
+            m_decompressionSession = WebCoreDecompressionSession::createOpenGL(m_rendererIsThreadSafe ? dispatcher().ptr() : nullptr);
         m_isUsingDecompressionSession = true;
     }
     if (!m_startupTime)
@@ -1136,12 +1146,12 @@ void VideoMediaSampleRenderer::notifyVideoRendererRequiresFlushToResumeDecoding(
 
 Ref<GuaranteedSerialFunctionDispatcher> VideoMediaSampleRenderer::dispatcher() const
 {
-    return m_workQueue ? *m_workQueue : static_cast<GuaranteedSerialFunctionDispatcher&>(MainThreadDispatcher::singleton());
+    return m_rendererIsThreadSafe ? queueSingleton() : static_cast<GuaranteedSerialFunctionDispatcher&>(MainThreadDispatcher::singleton());
 }
 
 dispatch_queue_t VideoMediaSampleRenderer::dispatchQueue() const
 {
-    return m_workQueue ? m_workQueue->dispatchQueue() : WorkQueue::mainSingleton().dispatchQueue();
+    return m_rendererIsThreadSafe ? queueSingleton().dispatchQueue() : WorkQueue::mainSingleton().dispatchQueue();
 }
 
 void VideoMediaSampleRenderer::ensureOnDispatcher(Function<void()>&& function) const
@@ -1151,8 +1161,8 @@ void VideoMediaSampleRenderer::ensureOnDispatcher(Function<void()>&& function) c
         return;
     }
 
-    if (m_workQueue)
-        return m_workQueue->dispatch(WTFMove(function));
+    if (m_rendererIsThreadSafe)
+        return queueSingleton().dispatch(WTFMove(function));
     callOnMainThread(WTFMove(function));
 }
 
@@ -1163,8 +1173,8 @@ void VideoMediaSampleRenderer::ensureOnDispatcherSync(Function<void()>&& functio
         return;
     }
 
-    if (m_workQueue)
-        return m_workQueue->dispatchSync(WTFMove(function));
+    if (m_rendererIsThreadSafe)
+        return queueSingleton().dispatchSync(WTFMove(function));
     callOnMainThreadAndWait(WTFMove(function));
 }
 

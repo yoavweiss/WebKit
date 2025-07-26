@@ -42,7 +42,6 @@
 OBJC_CLASS AVSampleBufferDisplayLayer;
 OBJC_CLASS AVSampleBufferVideoRenderer;
 OBJC_PROTOCOL(WebSampleBufferVideoRendering);
-typedef struct opaqueCMBufferQueue *CMBufferQueueRef;
 typedef struct opaqueCMSampleBuffer *CMSampleBufferRef;
 typedef struct OpaqueCMTimebase* CMTimebaseRef;
 typedef struct CF_BRIDGED_TYPE(id) __CVBuffer* CVPixelBufferRef;
@@ -104,6 +103,8 @@ public:
 
     void setResourceOwner(const ProcessIdentity&);
 
+    static WorkQueue& queueSingleton();
+
 private:
     VideoMediaSampleRenderer(WebSampleBufferVideoRendering *);
 
@@ -158,7 +159,7 @@ private:
     bool useDecompressionSessionForProtectedContent() const;
     bool useStereoDecoding() const;
 
-    const RefPtr<WTF::WorkQueue> m_workQueue;
+    const bool m_rendererIsThreadSafe { false };
     RetainPtr<AVSampleBufferDisplayLayer> m_displayLayer;
 #if HAVE(AVSAMPLEBUFFERVIDEORENDERER)
     RetainPtr<AVSampleBufferVideoRenderer> m_renderer;
