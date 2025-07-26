@@ -1299,7 +1299,7 @@ inline Ref<CSSValue> ExtractorConverter::convertPositionArea(ExtractorState&, co
     auto blockOrXAxisKeyword = keywordForPositionAreaSpan(positionArea.blockOrXAxis());
     auto inlineOrYAxisKeyword = keywordForPositionAreaSpan(positionArea.inlineOrYAxis());
 
-    return CSSPropertyParserHelpers::valueForPositionArea(blockOrXAxisKeyword, inlineOrYAxisKeyword).releaseNonNull();
+    return CSSPropertyParserHelpers::valueForPositionArea(blockOrXAxisKeyword, inlineOrYAxisKeyword, CSSPropertyParserHelpers::ValueType::Computed).releaseNonNull();
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertPositionArea(ExtractorState& state, const std::optional<PositionArea>& positionArea)
