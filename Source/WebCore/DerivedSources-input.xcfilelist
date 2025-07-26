@@ -1884,6 +1884,9 @@ $(PROJECT_DIR)/page/NavigatorServiceWorker.idl
 $(PROJECT_DIR)/page/NavigatorShare.idl
 $(PROJECT_DIR)/page/NavigatorStorage.idl
 $(PROJECT_DIR)/page/NavigatorStorageManager.idl
+$(PROJECT_DIR)/page/NavigatorUA.idl
+$(PROJECT_DIR)/page/NavigatorUABrandVersion.idl
+$(PROJECT_DIR)/page/NavigatorUAData.idl
 $(PROJECT_DIR)/page/Performance+EventCounts.idl
 $(PROJECT_DIR)/page/Performance+NavigationTiming.idl
 $(PROJECT_DIR)/page/Performance+PerformanceTimeline.idl
@@ -1924,6 +1927,8 @@ $(PROJECT_DIR)/page/Settings.yaml
 $(PROJECT_DIR)/page/ShadowRealmGlobalScope.idl
 $(PROJECT_DIR)/page/ShareData.idl
 $(PROJECT_DIR)/page/StructuredSerializeOptions.idl
+$(PROJECT_DIR)/page/UADataValues.idl
+$(PROJECT_DIR)/page/UALowEntropyJSON.idl
 $(PROJECT_DIR)/page/UndoItem.idl
 $(PROJECT_DIR)/page/UndoManager.idl
 $(PROJECT_DIR)/page/UserMessageHandler.idl

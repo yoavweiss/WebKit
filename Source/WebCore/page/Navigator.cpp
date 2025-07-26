@@ -40,6 +40,7 @@
 #include "LocalFrame.h"
 #include "LocalFrameLoaderClient.h"
 #include "LocalizedStrings.h"
+#include "NavigatorUAData.h"
 #include "Page.h"
 #include "PermissionsPolicy.h"
 #include "PlatformStrategies.h"
@@ -446,5 +447,22 @@ int Navigator::maxTouchPoints() const
 
     return 0;
 }
+
+void Navigator::initializeNavigatorUAData() const
+{
+    if (m_navigatorUAData)
+        return;
+
+    // FIXME(296489): populate the data structure
+    return;
+}
+
+NavigatorUAData& Navigator::userAgentData() const
+{
+    if (!m_navigatorUAData)
+        initializeNavigatorUAData();
+
+    return *m_navigatorUAData;
+};
 
 } // namespace WebCore

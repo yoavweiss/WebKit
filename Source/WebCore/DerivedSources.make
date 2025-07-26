@@ -1541,6 +1541,9 @@ JS_BINDING_IDLS := \
     $(WebCore)/page/NavigationNavigationType.idl \
     $(WebCore)/page/NavigationTransition.idl \
     $(WebCore)/page/Navigator.idl \
+    $(WebCore)/page/NavigatorUA.idl \
+    $(WebCore)/page/NavigatorUABrandVersion.idl \
+    $(WebCore)/page/NavigatorUAData.idl \
     $(WebCore)/page/Navigator+LoginStatus.idl \
     $(WebCore)/page/Navigator+UserActivation.idl \
     $(WebCore)/page/NavigatorCookies.idl \
@@ -1588,6 +1591,8 @@ JS_BINDING_IDLS := \
     $(WebCore)/page/ShadowRealmGlobalScope.idl \
     $(WebCore)/page/ShareData.idl \
     $(WebCore)/page/StructuredSerializeOptions.idl \
+    $(WebCore)/page/UADataValues.idl \
+    $(WebCore)/page/UALowEntropyJSON.idl \
     $(WebCore)/page/UndoItem.idl \
     $(WebCore)/page/UndoManager.idl \
     $(WebCore)/page/UserMessageHandler.idl \

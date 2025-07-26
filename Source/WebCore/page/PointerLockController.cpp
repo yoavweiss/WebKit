@@ -42,6 +42,7 @@
 #include "VoidCallback.h"
 #include <wtf/Ref.h>
 #include <wtf/TZoneMallocInlines.h>
+#include <JavaScriptCore/ConsoleTypes.h>
 
 namespace WebCore {
 

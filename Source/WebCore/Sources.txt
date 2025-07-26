@@ -2149,6 +2149,7 @@ page/NavigationTransition.cpp
 page/Navigator.cpp
 page/NavigatorBase.cpp
 page/NavigatorLoginStatus.cpp
+page/NavigatorUAData.cpp
 page/OpportunisticTaskScheduler.cpp
 page/OriginAccessEntry.cpp
 page/OriginAccessPatterns.cpp
@@ -4304,6 +4305,9 @@ JSNavigationTransition.cpp
 JSNavigationNavigationType.cpp
 JSNavigator.cpp
 JSNavigatorGPU.cpp
+JSNavigatorUA.cpp
+JSNavigatorUABrandVersion.cpp
+JSNavigatorUAData.cpp
 JSNode.cpp
 JSNodeFilter.cpp
 JSCustomXPathNSResolver.cpp
@@ -4820,6 +4824,8 @@ JSCSSUnitValue.cpp
 JSCSSUnparsedValue.cpp
 JSFragmentDirective.cpp
 JSFullscreenOptions.cpp
+JSUADataValues.cpp
+JSUALowEntropyJSON.cpp
 JSUIEvent.cpp
 JSUIEventInit.cpp
 JSURLPattern.cpp
