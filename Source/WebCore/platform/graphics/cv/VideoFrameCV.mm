@@ -183,7 +183,11 @@ RefPtr<VideoFrame> VideoFrame::createBGRA(std::span<const uint8_t> span, size_t 
         CVPixelBufferUnlockBaseAddress(rawPixelBuffer, 0);
     });
 
-    copyToCVPixelBufferPlane(rawPixelBuffer, 0, span, height, plane.sourceWidthBytes);
+    auto sourceBuffer = makeVImageBuffer8888(spanConstCast<uint8_t>(span), width, height, plane.sourceWidthBytes);
+    auto destinationBuffer = makeVImageBuffer8888(rawPixelBuffer);
+    auto error = vImageCopyBuffer(&sourceBuffer, &destinationBuffer, 4, kvImageNoFlags);
+    // Copy will not fail as long as the provided arguments are valid.
+    ASSERT_UNUSED(error, error == kvImageNoError);
 
     return VideoFrameCV::create({ }, false, Rotation::None, WTFMove(pixelBuffer), WTFMove(colorSpace));
 }
