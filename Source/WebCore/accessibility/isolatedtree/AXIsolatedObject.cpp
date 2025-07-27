@@ -52,13 +52,12 @@ namespace WebCore {
 using namespace HTMLNames;
 
 AXIsolatedObject::AXIsolatedObject(IsolatedObjectData&& data)
-    : AXCoreObject(data.axID, data.role)
+    : AXCoreObject(data.axID, data.role, data.getsGeometryFromChildren)
     , m_unresolvedChildrenIDs(WTFMove(data.childrenIDs))
     , m_properties(WTFMove(data.properties))
     , m_tree(WTFMove(data.tree))
     , m_parentID(data.parentID)
     , m_propertyFlags(data.propertyFlags)
-    , m_getsGeometryFromChildren(data.getsGeometryFromChildren)
 {
     ASSERT(!isMainThread());
 }

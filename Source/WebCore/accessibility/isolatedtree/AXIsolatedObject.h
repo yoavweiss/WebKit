@@ -597,9 +597,6 @@ private:
     Markable<AXID> m_parentID;
 
     OptionSet<AXPropertyFlag> m_propertyFlags;
-    // Some objects (e.g. display:contents) form their geometry through their children.
-    bool m_getsGeometryFromChildren { false };
-    bool m_childrenDirty { true };
 
 #if !PLATFORM(COCOA)
     PlatformWidget m_platformWidget;

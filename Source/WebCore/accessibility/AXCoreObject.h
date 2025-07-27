@@ -1613,6 +1613,12 @@ protected:
         , m_id(axID)
     { }
 
+    explicit AXCoreObject(AXID axID, AccessibilityRole role, bool getsGeometryFromChildren)
+        : m_role(role)
+        , m_getsGeometryFromChildren(getsGeometryFromChildren)
+        , m_id(axID)
+    { }
+
 private:
     virtual String dbgInternal(bool, OptionSet<AXDebugStringOption>) const = 0;
 
@@ -1627,10 +1633,27 @@ private:
 // MARK: Member variables
 protected:
     AccessibilityRole m_role { AccessibilityRole::Unknown };
+    // Only used by AccessibilityObject, but placed here to use space that would otherwise be taken by padding.
+    OptionSet<AXAncestorFlag> m_ancestorFlags;
+    // Only used by AccessibilityObject, but placed here to use space that would otherwise be taken by padding.
+    AccessibilityObjectInclusion m_lastKnownIsIgnoredValue { AccessibilityObjectInclusion::DefaultBehavior };
+    // Only used by AccessibilityObject, but placed here to use space that would otherwise be taken by padding.
+    // FIXME: This can be replaced by AXAncestorFlags.
+    AccessibilityIsIgnoredFromParentData m_isIgnoredFromParentData;
+
     // This index always refers to the parent's m_children. Keep in mind that when
     // ENABLE(INCLUDE_IGNORE_IN_CORE_AX_TREE), m_children includes ignored objects, so cannot be
     // used to determine the place of |this| relative to its unignored siblings (only its ignored ones).
     unsigned m_indexInParent;
+
+    bool m_childrenDirty { false };
+    // Only used by AccessibilityObject, but placed here to use space that would otherwise be taken by padding.
+    bool m_subtreeDirty { false };
+    // Only used by AccessibilityObject, but placed here to use space that would otherwise be taken by padding.
+    mutable bool m_childrenInitialized { false };
+    // Only used by AXIsolatedObject, but placed here to use space that would otherwise be taken by padding.
+    // Some objects (e.g. display:contents) form their geometry through their children.
+    bool m_getsGeometryFromChildren { false };
 
 private:
     AXID m_id;

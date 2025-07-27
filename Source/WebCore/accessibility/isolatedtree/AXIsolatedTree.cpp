@@ -994,11 +994,12 @@ void AXIsolatedTree::updateChildren(AccessibilityObject& axObject, ResolveNodeCh
     }
 #endif // !ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
 
+    // FIXME: This copy out of the hashmap seems unnecessary — can we use HashMap::find instead?
     auto oldIDs = m_nodeMap.get(axAncestor->objectID());
     auto& oldChildrenIDs = oldIDs.childrenIDs;
 
     const auto& newChildren = axAncestor->children();
-    auto newChildrenIDs = axAncestor->childrenIDs(false);
+    auto newChildrenIDs = axIDs(newChildren);
 
     bool childrenChanged = oldChildrenIDs.size() != newChildrenIDs.size();
     for (size_t i = 0; i < newChildren.size(); ++i) {
