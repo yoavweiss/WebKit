@@ -48,6 +48,7 @@ private:
     void error(const SourceSpan&, Arguments&&...);
 
     ShaderModule& m_shaderModule;
+    Vector<Error> m_errors;
     ShaderStage m_stage;
 };
 
@@ -64,9 +65,9 @@ std::optional<FailedCheck> VisibilityValidator::validate()
 
     }
 
-    if (!hasError())
+    if (m_errors.isEmpty())
         return std::nullopt;
-    return FailedCheck { Vector<Error> { result().error() }, { } };
+    return FailedCheck { WTFMove(m_errors), { } };
 }
 
 void VisibilityValidator::visit(AST::Function& function)
@@ -74,7 +75,7 @@ void VisibilityValidator::visit(AST::Function& function)
     AST::Visitor::visit(function);
 
     for (auto& callee : m_shaderModule.callGraph().callees(function))
-        checkErrorAndVisit(*callee.target);
+        visit(*callee.target);
 }
 
 void VisibilityValidator::visit(AST::CallExpression& call)
@@ -87,7 +88,7 @@ void VisibilityValidator::visit(AST::CallExpression& call)
 template<typename... Arguments>
 void VisibilityValidator::error(const SourceSpan& span, Arguments&&... arguments)
 {
-    setError({ makeString(std::forward<Arguments>(arguments)...), span });
+    m_errors.append({ makeString(std::forward<Arguments>(arguments)...), span });
 }
 
 std::optional<FailedCheck> validateVisibility(ShaderModule& shaderModule)
