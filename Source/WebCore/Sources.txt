@@ -3164,6 +3164,7 @@ style/values/easing/StyleEasingFunction.cpp
 style/values/easing/StyleLinearEasingFunction.cpp
 style/values/easing/StyleSpringEasingFunction.cpp
 style/values/easing/StyleStepsEasingFunction.cpp
+style/values/fill-stroke/StyleStrokeWidth.cpp
 style/values/filter-effects/StyleAppleColorFilterProperty.cpp
 style/values/filter-effects/StyleAppleInvertLightnessFunction.cpp
 style/values/filter-effects/StyleBlurFunction.cpp
@@ -3197,6 +3198,7 @@ style/values/motion/StyleOffsetPosition.cpp
 style/values/motion/StyleOffsetRotate.cpp
 style/values/motion/StyleRayFunction.cpp
 style/values/non-standard/StyleWebKitOverflowScrolling.cpp
+style/values/non-standard/StyleWebKitTextStrokeWidth.cpp
 style/values/non-standard/StyleWebKitTouchCallout.cpp
 style/values/overflow/StyleBlockEllipsis.cpp
 style/values/overflow/StyleScrollBehavior.cpp

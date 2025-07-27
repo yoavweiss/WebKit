@@ -169,7 +169,6 @@ public:
     static Ref<CSSValue> convertShapeValue(ExtractorState&, const ShapeValue*);
     static Ref<CSSValue> convertDPath(ExtractorState&, const StylePathData*);
     static Ref<CSSValue> convertStrokeDashArray(ExtractorState&, const FixedVector<WebCore::Length>&);
-    static Ref<CSSValue> convertTextStrokeWidth(ExtractorState&, float);
     static Ref<CSSValue> convertFilterOperations(ExtractorState&, const FilterOperations&);
     static Ref<CSSValue> convertAppleColorFilterOperations(ExtractorState&, const FilterOperations&);
     static Ref<CSSValue> convertWebkitTextCombine(ExtractorState&, TextCombine);
@@ -619,11 +618,6 @@ inline Ref<CSSValue> ExtractorConverter::convertStrokeDashArray(ExtractorState& 
     for (auto& dash : dashes)
         list.append(convertLength(state, dash));
     return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTextStrokeWidth(ExtractorState& state, float textStrokeWidth)
-{
-    return convertNumberAsPixels(state, textStrokeWidth);
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertFilterOperations(ExtractorState& state, const FilterOperations& filterOperations)

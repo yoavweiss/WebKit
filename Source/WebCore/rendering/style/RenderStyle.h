@@ -320,6 +320,7 @@ struct ScrollPaddingEdge;
 struct ScrollTimelines;
 struct ScrollbarColor;
 struct ScrollbarGutter;
+struct StrokeWidth;
 struct TextDecorationThickness;
 struct TextEmphasisStyle;
 struct TextIndent;
@@ -333,6 +334,7 @@ struct ViewTimelines;
 struct ViewTransitionClasses;
 struct ViewTransitionName;
 struct WebkitLineGrid;
+struct WebkitTextStrokeWidth;
 
 enum class Change : uint8_t;
 enum class GridTrackSizingDirection : bool;
@@ -829,7 +831,7 @@ public:
 
     OptionSet<HangingPunctuation> hangingPunctuation() const;
 
-    inline float textStrokeWidth() const;
+    inline Style::WebkitTextStrokeWidth textStrokeWidth() const;
     inline float opacity() const;
     inline bool hasOpacity() const;
     inline bool hasZeroOpacity() const;
@@ -1493,7 +1495,7 @@ public:
     inline void setOutlineOffset(float);
     inline void setTextShadow(Style::TextShadows&&);
     inline void setTextStrokeColor(Style::Color&&);
-    inline void setTextStrokeWidth(float);
+    inline void setTextStrokeWidth(Style::WebkitTextStrokeWidth);
     inline void setTextFillColor(Style::Color&&);
     inline void setCaretColor(Style::Color&&);
     inline void setHasAutoCaretColor();
@@ -1732,10 +1734,10 @@ public:
     inline LineJoin joinStyle() const;
     static constexpr LineJoin initialJoinStyle();
     
-    inline const Length& strokeWidth() const;
-    inline void setStrokeWidth(Length&&);
+    inline const Style::StrokeWidth& strokeWidth() const;
+    inline void setStrokeWidth(Style::StrokeWidth&&);
     inline bool hasVisibleStroke() const;
-    static inline Length initialStrokeWidth();
+    static inline Style::StrokeWidth initialStrokeWidth();
 
     float computedStrokeWidth(const IntSize& viewportSize) const;
     inline void setHasExplicitlySetStrokeWidth(bool);
@@ -1990,7 +1992,6 @@ public:
     static TextEdge initialTextBoxEdge();
     static TextEdge initialLineFitEdge();
     static constexpr LengthType zeroLength();
-    static inline Length oneLength();
     static unsigned short initialWidows() { return 2; }
     static unsigned short initialOrphans() { return 2; }
     // Returning -100% percent here means the line-height is not set.
@@ -2068,7 +2069,7 @@ public:
     static inline Style::ContainIntrinsicSize initialContainIntrinsicHeight();
 
     static constexpr Order initialRTLOrdering();
-    static float initialTextStrokeWidth() { return 0; }
+    static constexpr Style::WebkitTextStrokeWidth initialTextStrokeWidth();
     static unsigned short initialColumnCount() { return 1; }
     static constexpr ColumnFill initialColumnFill();
     static constexpr ColumnSpan initialColumnSpan();

@@ -51,6 +51,7 @@
 #include "StyleExtractor.h"
 #include "StyleImage.h"
 #include "StyleInheritedData.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include "StyleResolver.h"
 #include "StyleScrollSnapPoints.h"
 #include "StyleSelfAlignmentData.h"
@@ -3649,30 +3650,28 @@ float RenderStyle::computedStrokeWidth(const IntSize& viewportSize) const
     // Since there will be no visible stroke when stroke-color is not specified (transparent by default), we fall
     // back to the legacy Webkit text stroke combination in that case.
     if (!hasExplicitlySetStrokeColor())
-        return textStrokeWidth();
-    
-    const Length& length = strokeWidth();
+        return Style::evaluate(textStrokeWidth());
 
-    if (length.isPercent()) {
-        // According to the spec, https://drafts.fxtf.org/paint/#stroke-width, the percentage is relative to the scaled viewport size.
-        // The scaled viewport size is the geometric mean of the viewport width and height.
-        ExceptionOr<float> result = length.value() * (viewportSize.width() + viewportSize.height()) / 200.0f;
-        if (result.hasException())
-            return 0;
-        return result.releaseReturnValue();
-    }
-    
-    if (length.isAuto() || !length.isSpecified())
-        return 0;
-    
-    return floatValueForLength(length, viewportSize.width());
+    return WTF::switchOn(strokeWidth(),
+        [&](const Style::StrokeWidth::Fixed& fixedStrokeWidth) -> float {
+            return fixedStrokeWidth.value;
+        },
+        [&](const Style::StrokeWidth::Percentage& percentageStrokeWidth) -> float {
+            // According to the spec, https://drafts.fxtf.org/paint/#stroke-width, the percentage is relative to the scaled viewport size.
+            // The scaled viewport size is the geometric mean of the viewport width and height.
+            return percentageStrokeWidth.value * (viewportSize.width() + viewportSize.height()) / 200.0f;
+        },
+        [&](const Style::StrokeWidth::Calc& calcStrokeWidth) -> float {
+            // FIXME: It is almost certainly wrong that calc and percentage are being handled differently - https://bugs.webkit.org/show_bug.cgi?id=296482
+            return Style::evaluate(calcStrokeWidth, viewportSize.width());
+        }
+    );
 }
 
 bool RenderStyle::hasPositiveStrokeWidth() const
 {
     if (!hasExplicitlySetStrokeWidth())
-        return textStrokeWidth() > 0;
-
+        return textStrokeWidth().isPositive();
     return strokeWidth().isPositive();
 }
 

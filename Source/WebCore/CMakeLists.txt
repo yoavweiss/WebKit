@@ -209,6 +209,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/style/values/content"
     "${WEBCORE_DIR}/style/values/counter-styles"
     "${WEBCORE_DIR}/style/values/easing"
+    "${WEBCORE_DIR}/style/values/fill-stroke"
     "${WEBCORE_DIR}/style/values/filter-effects"
     "${WEBCORE_DIR}/style/values/flexbox"
     "${WEBCORE_DIR}/style/values/grid"

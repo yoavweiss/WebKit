@@ -89,7 +89,6 @@ public:
     static void serializeShapeValue(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const ShapeValue*);
     static void serializeDPath(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StylePathData*);
     static void serializeStrokeDashArray(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<WebCore::Length>&);
-    static void serializeTextStrokeWidth(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, float);
     static void serializeFilterOperations(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FilterOperations&);
     static void serializeAppleColorFilterOperations(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FilterOperations&);
     static void serializeWebkitTextCombine(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextCombine);
@@ -718,11 +717,6 @@ inline void ExtractorSerializer::serializeStrokeDashArray(ExtractorState& state,
     builder.append(interleave(dashes, [&](auto& builder, auto& dash) {
         serializeLength(state, builder, context, dash);
     }, ", "_s));
-}
-
-inline void ExtractorSerializer::serializeTextStrokeWidth(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, float textStrokeWidth)
-{
-    serializeNumberAsPixels(state, builder, context, textStrokeWidth);
 }
 
 inline void ExtractorSerializer::serializeFilterOperations(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FilterOperations& filterOperations)

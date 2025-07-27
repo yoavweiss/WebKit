@@ -39,6 +39,7 @@
 #include "StyleListStyleType.h"
 #include "StyleQuotes.h"
 #include "StyleScrollbarColor.h"
+#include "StyleStrokeWidth.h"
 #include "StyleTextEdge.h"
 #include "StyleTextEmphasisStyle.h"
 #include "StyleTextIndent.h"
@@ -46,6 +47,7 @@
 #include "StyleTextUnderlineOffset.h"
 #include "StyleWebKitLineGrid.h"
 #include "StyleWebKitOverflowScrolling.h"
+#include "StyleWebKitTextStrokeWidth.h"
 #include "StyleWebKitTouchCallout.h"
 #include "TabSize.h"
 #include "TouchAction.h"
@@ -95,10 +97,11 @@ public:
 
     bool hasColorFilters() const;
 
-    float textStrokeWidth;
+    float usedZoom;
 
     RefPtr<StyleImage> listStyleImage;
 
+    Style::WebkitTextStrokeWidth textStrokeWidth;
     Style::Color textStrokeColor;
     Style::Color textFillColor;
     Style::Color textEmphasisColor;
@@ -122,8 +125,6 @@ public:
     //  - the cursor's `predefined` state is stored in `RenderStyle::InheritedFlags::cursor`.
     //  - the cursor's `images` state is stored here in `StyleRareInheritedData::cursorImages`.
     Style::Cursor::Images cursorImages;
-
-    float usedZoom;
 
     Style::TextEmphasisStyle textEmphasisStyle;
     Style::TextIndent textIndent;
@@ -197,7 +198,7 @@ public:
     OptionSet<TouchAction> usedTouchActions;
     OptionSet<EventListenerRegionType> eventListenerRegionTypes;
 
-    Length strokeWidth;
+    Style::StrokeWidth strokeWidth;
     Style::Color strokeColor;
     Style::Color visitedLinkStrokeColor;
 

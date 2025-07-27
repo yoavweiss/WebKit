@@ -2779,6 +2779,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/counter-styles/StyleCounterStyle.h
 
+    style/values/fill-stroke/StyleStrokeWidth.h
+
     style/values/flexbox/StyleFlexBasis.h
 
     style/values/grid/StyleGridNamedAreaMap.h
@@ -2814,6 +2816,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/motion/StyleRayFunction.h
 
     style/values/non-standard/StyleWebKitOverflowScrolling.h
+    style/values/non-standard/StyleWebKitTextStrokeWidth.h
     style/values/non-standard/StyleWebKitTouchCallout.h
 
     style/values/overflow/StyleBlockEllipsis.h

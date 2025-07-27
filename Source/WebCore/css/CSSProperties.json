@@ -2119,7 +2119,7 @@
             "initial": "transparent",
             "codegen-properties": {
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "visited-link-color-support": true,
                 "color-property": true,
                 "disables-native-appearance": true,
@@ -2674,7 +2674,7 @@
                     "resolver": "bottom"
                 },
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -3255,7 +3255,7 @@
                     "resolver": "left"
                 },
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -3364,7 +3364,7 @@
                     "resolver": "right"
                 },
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -3528,7 +3528,7 @@
                     "resolver": "top"
                 },
                 "accepts-quirky-color": true,
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -4521,7 +4521,7 @@
             "animation-type": "by computed value",
             "initial": "black",
             "codegen-properties": {
-                "animation-wrapper": "StyleTypeWrapper<Color>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-requires-render-style": true,
                 "svg": true,
                 "color-property": true,
@@ -4952,7 +4952,7 @@
             "animation-type": "by computed value",
             "initial": "white",
             "codegen-properties": {
-                "animation-wrapper": "StyleTypeWrapper<Color>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-requires-render-style": true,
                 "svg": true,
                 "color-property": true,
@@ -6618,7 +6618,7 @@
             "initial": "currentColor",
             "initial-comment": "Current spec initial value is 'auto'",
             "codegen-properties": {
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -7474,7 +7474,7 @@
             "animation-type": "by computed value",
             "initial": "black",
             "codegen-properties": {
-                "animation-wrapper": "StyleTypeWrapper<Color>",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-requires-render-style": true,
                 "svg": true,
                 "color-property": true,
@@ -7655,8 +7655,8 @@
             "inherited": true,
             "initial": "transparent",
             "codegen-properties": {
-                "animation-wrapper": "StyleTypeWrapper<Color>",
-                "animation-wrapper-comment": "FIXME: Why doesn't this use VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper-comment": "FIXME: Why doesn't this use VisitedAffectedStyleTypeWrapper",
                 "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyStrokeColor", "&RenderStyle::strokeColor", "&RenderStyle::setStrokeColor"],
                 "style-builder-custom": "Value",
                 "visited-link-color-support": true,
@@ -7674,11 +7674,9 @@
             "inherited": true,
             "initial": "1px",
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage'",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "Value",
-                "render-style-initial": "oneLength",
-                "style-converter": "LengthAllowingNumber",
+                "style-converter": "StyleType<StrokeWidth>",
                 "parser-grammar": "<length-percentage [0,inf]> | <number [0,inf]>"
             },
             "status": "supported",
@@ -9250,7 +9248,7 @@
                 "aliases": [
                     "-webkit-column-rule-color"
                 ],
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -10848,7 +10846,7 @@
                 "aliases": [
                     "-webkit-text-decoration-color"
                 ],
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -11000,7 +10998,7 @@
                     "-epub-text-emphasis-color",
                     "-webkit-text-emphasis-color"
                 ],
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -11049,7 +11047,7 @@
             "inherited": true,
             "initial": "currentColor",
             "codegen-properties": {
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -11095,7 +11093,7 @@
             "inherited": true,
             "initial": "currentColor",
             "codegen-properties": {
-                "animation-wrapper": "VisitedAffectedStyleTypeWrapper<Color>",
+                "animation-wrapper": "VisitedAffectedStyleTypeWrapper",
                 "render-style-initial": "currentColor",
                 "visited-link-color-support": true,
                 "color-property": true,
@@ -11116,7 +11114,7 @@
                 "thick"
             ],
             "codegen-properties": {
-                "style-converter": "TextStrokeWidth",
+                "style-converter": "StyleType<WebkitTextStrokeWidth>",
                 "parser-grammar": "<line-width>"
             },
             "status": {
