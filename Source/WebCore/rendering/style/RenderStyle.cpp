@@ -3589,22 +3589,27 @@ bool RenderStyle::hasReferenceFilterOnly() const
     return filterOperations.size() == 1 && filterOperations.at(0)->type() == FilterOperation::Type::Reference;
 }
 
-float RenderStyle::outlineWidth() const
+Style::LineWidth RenderStyle::outlineWidth() const
 {
     auto& outline = m_nonInheritedData->backgroundData->outline;
     if (outline.style() == OutlineStyle::None)
-        return 0;
+        return 0_css_px;
     if (outlineStyle() == OutlineStyle::Auto)
-        return std::max(outline.width(), RenderTheme::platformFocusRingWidth());
+        return Style::LineWidth { std::max(Style::evaluate(outline.width()), RenderTheme::platformFocusRingWidth()) };
     return outline.width();
 }
 
-float RenderStyle::outlineOffset() const
+Style::Length<> RenderStyle::outlineOffset() const
 {
     auto& outline = m_nonInheritedData->backgroundData->outline;
     if (outlineStyle() == OutlineStyle::Auto)
-        return (outline.offset() + RenderTheme::platformFocusRingOffset(outlineWidth()));
+        return Style::Length<> { static_cast<float>(Style::evaluate(outline.offset()) + RenderTheme::platformFocusRingOffset(Style::evaluate(outline.width()))) };
     return outline.offset();
+}
+
+float RenderStyle::outlineSize() const
+{
+    return std::max<float>(0, Style::evaluate(outlineWidth()) + Style::evaluate(outlineOffset()));
 }
 
 CheckedRef<const FontCascade> RenderStyle::checkedFontCascade() const

@@ -3140,6 +3140,7 @@ style/StyleUpdate.cpp
 style/Styleable.cpp
 style/TransformOperationsBuilder.cpp
 style/UserAgentStyle.cpp
+style/values/backgrounds/StyleLineWidth.cpp
 style/values/borders/StyleBorderRadius.cpp
 style/values/borders/StyleBoxShadow.cpp
 style/values/borders/StyleCornerShapeValue.cpp

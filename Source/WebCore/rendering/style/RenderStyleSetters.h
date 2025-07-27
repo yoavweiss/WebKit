@@ -241,9 +241,9 @@ inline void RenderStyle::setOffsetPosition(Style::OffsetPosition&& position) { S
 inline void RenderStyle::setOffsetRotate(Style::OffsetRotate&& rotate) { SET_NESTED(m_nonInheritedData, rareData, offsetRotate, WTFMove(rotate)); }
 inline void RenderStyle::setOrder(int o) { SET_NESTED(m_nonInheritedData, miscData, order, o); }
 inline void RenderStyle::setOutlineColor(Style::Color&& color) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_color, WTFMove(color)); }
-inline void RenderStyle::setOutlineOffset(float offset) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_offset, offset); }
+inline void RenderStyle::setOutlineOffset(Style::Length<> offset) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_offset, offset); }
 inline void RenderStyle::setOutlineStyle(OutlineStyle style) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_style, static_cast<unsigned>(style)); }
-inline void RenderStyle::setOutlineWidth(float width) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_width, width); }
+inline void RenderStyle::setOutlineWidth(Style::LineWidth width) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_width, width); }
 inline void RenderStyle::setOverflowAnchor(OverflowAnchor a) { SET_NESTED(m_nonInheritedData, rareData, overflowAnchor, static_cast<unsigned>(a)); }
 inline void RenderStyle::setOverflowContinue(OverflowContinue value) { SET_NESTED(m_nonInheritedData, rareData, overflowContinue, value); }
 inline void RenderStyle::setOverflowWrap(OverflowWrap rule) { SET(m_rareInheritedData, overflowWrap, static_cast<unsigned>(rule)); }

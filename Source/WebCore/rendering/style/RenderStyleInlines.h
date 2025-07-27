@@ -299,7 +299,7 @@ inline bool RenderStyle::hasInset() const { return !Style::isZero(insetBox()); }
 inline bool RenderStyle::hasOffsetPath() const { return !WTF::holdsAlternative<CSS::Keyword::None>(m_nonInheritedData->rareData->offsetPath); }
 inline bool RenderStyle::hasOpacity() const { return m_nonInheritedData->miscData->hasOpacity(); }
 inline bool RenderStyle::hasOutOfFlowPosition() const { return position() == PositionType::Absolute || position() == PositionType::Fixed; }
-inline bool RenderStyle::hasOutline() const { return outlineStyle() != OutlineStyle::None && outlineWidth() > 0; }
+inline bool RenderStyle::hasOutline() const { return outlineStyle() != OutlineStyle::None && outlineWidth().isPositive(); }
 inline bool RenderStyle::hasOutlineInVisualOverflow() const { return hasOutline() && outlineSize() > 0; }
 inline bool RenderStyle::hasPadding() const { return !Style::isZero(paddingBox()); }
 inline bool RenderStyle::hasPerspective() const { return !perspective().isNone(); }
@@ -442,7 +442,9 @@ inline Style::OffsetPosition RenderStyle::initialOffsetPosition() { return CSS::
 constexpr Style::OffsetRotate RenderStyle::initialOffsetRotate() { return CSS::Keyword::Auto { }; }
 constexpr OverflowAnchor RenderStyle::initialOverflowAnchor() { return OverflowAnchor::Auto; }
 inline OverflowContinue RenderStyle::initialOverflowContinue() { return OverflowContinue::Auto; }
+constexpr Style::Length<> RenderStyle::initialOutlineOffset() { return 0_css_px; }
 constexpr OutlineStyle RenderStyle::initialOutlineStyle() { return OutlineStyle::None; }
+constexpr Style::LineWidth RenderStyle::initialOutlineWidth() { return CSS::Keyword::Medium { }; }
 constexpr OverflowWrap RenderStyle::initialOverflowWrap() { return OverflowWrap::Normal; }
 constexpr Overflow RenderStyle::initialOverflowX() { return Overflow::Visible; }
 constexpr Overflow RenderStyle::initialOverflowY() { return Overflow::Visible; }

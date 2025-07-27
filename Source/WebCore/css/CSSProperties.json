@@ -6634,8 +6634,8 @@
             "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "Wrapper",
-                "style-converter": "ComputedLength<float>",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<Length<>>",
                 "parser-grammar": "<length>"
             },
             "specification": {
@@ -6676,9 +6676,8 @@
                 "thick"
             ],
             "codegen-properties": {
-                "animation-wrapper": "FloatWrapper",
-                "animation-wrapper-requires-additional-parameters": ["FloatWrapper::ValueRange::NonNegative"],
-                "style-converter": "LineWidth<float>",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<LineWidth>",
                 "parser-grammar": "<line-width>"
             },
             "specification": {
@@ -7656,7 +7655,7 @@
             "initial": "transparent",
             "codegen-properties": {
                 "animation-wrapper": "StyleTypeWrapper",
-                "animation-wrapper-comment": "FIXME: Why doesn't this use VisitedAffectedStyleTypeWrapper",
+                "animation-wrapper-comment": "FIXME: Why doesn't this use VisitedAffectedStyleTypeWrapper?",
                 "animation-wrapper-requires-override-parameters": ["CSSPropertyID::CSSPropertyStrokeColor", "&RenderStyle::strokeColor", "&RenderStyle::setStrokeColor"],
                 "style-builder-custom": "Value",
                 "visited-link-color-support": true,

@@ -291,6 +291,7 @@ struct HyphenateCharacter;
 struct HyphenateLimitEdge;
 struct HyphenateLimitLines;
 struct InsetEdge;
+struct LineWidth;
 struct ListStyleType;
 struct MarginEdge;
 struct MaximumLines;
@@ -636,9 +637,9 @@ public:
     void setCornerTopRightShape(Style::CornerShapeValue&&);
 
     inline const OutlineValue& outline() const;
-    float outlineSize() const { return std::max<float>(0, outlineWidth() + outlineOffset()); }
-    float outlineWidth() const;
-    float outlineOffset() const;
+    float outlineSize() const;
+    Style::LineWidth outlineWidth() const;
+    Style::Length<> outlineOffset() const;
     inline bool hasOutline() const;
     inline OutlineStyle outlineStyle() const;
     inline bool hasOutlineInVisualOverflow() const;
@@ -1310,7 +1311,7 @@ public:
     inline void setBorderBottomStyle(BorderStyle);
     inline void setBorderBottomColor(Style::Color&&);
 
-    inline void setOutlineWidth(float);
+    inline void setOutlineWidth(Style::LineWidth);
     inline void setOutlineStyle(OutlineStyle);
     inline void setOutlineColor(Style::Color&&);
 
@@ -1492,7 +1493,7 @@ public:
     inline void setHasAutoOrphans();
     inline void setOrphans(unsigned short);
 
-    inline void setOutlineOffset(float);
+    inline void setOutlineOffset(Style::Length<>);
     inline void setTextShadow(Style::TextShadows&&);
     inline void setTextStrokeColor(Style::Color&&);
     inline void setTextStrokeWidth(Style::WebkitTextStrokeWidth);
@@ -1976,7 +1977,7 @@ public:
     static StyleImage* initialListStyleImage() { return 0; }
     static float initialBorderWidth() { return 3; }
     static unsigned short initialColumnRuleWidth() { return 3; }
-    static float initialOutlineWidth() { return 3; }
+    static constexpr Style::LineWidth initialOutlineWidth();
     static inline Length initialLetterSpacing();
     static inline Length initialWordSpacing();
     static inline Style::PreferredSize initialSize();
@@ -2007,7 +2008,7 @@ public:
     static inline Style::TextDecorationThickness initialTextDecorationThickness();
     static float initialZoom() { return 1.0f; }
     static constexpr TextZoom initialTextZoom();
-    static float initialOutlineOffset() { return 0; }
+    static constexpr Style::Length<> initialOutlineOffset();
     static float initialOpacity() { return 1.0f; }
     static constexpr BoxAlignment initialBoxAlign();
     static constexpr BoxDecorationBreak initialBoxDecorationBreak();
