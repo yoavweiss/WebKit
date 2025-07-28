@@ -7,9 +7,6 @@ Modules/applepay/ApplePaySession.cpp
 Modules/applepay/paymentrequest/ApplePayPaymentHandler.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/cache/DOMCache.cpp
-Modules/cache/DOMCacheStorage.cpp
-Modules/cache/RetrieveRecordsOptions.h
-Modules/cache/WindowOrWorkerGlobalScopeCaches.cpp
 Modules/credentialmanagement/CredentialsContainer.cpp
 Modules/entriesapi/FileSystemDirectoryEntry.cpp
 Modules/entriesapi/FileSystemEntry.cpp

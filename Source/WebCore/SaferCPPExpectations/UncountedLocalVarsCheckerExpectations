@@ -1,6 +1,4 @@
 Modules/applicationmanifest/ApplicationManifestParser.cpp
-Modules/cache/DOMCache.cpp
-Modules/cache/DOMCacheStorage.cpp
 Modules/indexeddb/IDBActiveDOMObject.h
 Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBIndex.cpp
