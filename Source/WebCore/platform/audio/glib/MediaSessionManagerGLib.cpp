@@ -313,6 +313,10 @@ void MediaSessionManagerGLib::updateNowPlayingInfo()
         return;
     }
 
+    auto session = m_sessions.get(platformSession->mediaSessionIdentifier());
+    if (!session)
+        return;
+
     auto nowPlayingInfo = platformSession->nowPlayingInfo();
     if (!nowPlayingInfo)
         return;
@@ -342,7 +346,6 @@ void MediaSessionManagerGLib::updateNowPlayingInfo()
 
     m_nowPlayingActive = nowPlayingInfo->allowsNowPlayingControlsVisibility;
 
-    auto session = m_sessions.get(platformSession->mediaSessionIdentifier());
     session->updateNowPlaying(*nowPlayingInfo);
 }
 
