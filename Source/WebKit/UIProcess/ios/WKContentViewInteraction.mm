@@ -2273,6 +2273,18 @@ typedef NS_ENUM(NSInteger, EndEditingReason) {
 }
 #endif // ENABLE(TOUCH_EVENTS)
 
+- (BOOL)_isTouchActionSwipeGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+{
+    return gestureRecognizer == _touchActionLeftSwipeGestureRecognizer || gestureRecognizer == _touchActionRightSwipeGestureRecognizer || gestureRecognizer == _touchActionUpSwipeGestureRecognizer || gestureRecognizer == _touchActionDownSwipeGestureRecognizer;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveEvent:(UIEvent *)event
+{
+    if ([self _isTouchActionSwipeGestureRecognizer:gestureRecognizer])
+        return event.type != UIEventTypeScroll;
+    return YES;
+}
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
 #if HAVE(LOOKUP_GESTURE_RECOGNIZER)
@@ -2292,7 +2304,7 @@ typedef NS_ENUM(NSInteger, EndEditingReason) {
         return touch.type != UITouchTypeIndirectPointer;
 #endif
 
-    if (gestureRecognizer == _touchActionLeftSwipeGestureRecognizer || gestureRecognizer == _touchActionRightSwipeGestureRecognizer || gestureRecognizer == _touchActionUpSwipeGestureRecognizer || gestureRecognizer == _touchActionDownSwipeGestureRecognizer) {
+    if ([self _isTouchActionSwipeGestureRecognizer:gestureRecognizer]) {
         // We update the enabled state of the various swipe gesture recognizers such that if we have a unidirectional touch-action
         // specified (only pan-x or only pan-y) we enable the two recognizers in the opposite axis to prevent scrolling from starting
         // if the initial gesture is such a swipe. Since the recognizers are specified to use a single finger for recognition, we don't
