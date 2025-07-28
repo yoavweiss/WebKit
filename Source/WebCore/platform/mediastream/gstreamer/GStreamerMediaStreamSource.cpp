@@ -148,20 +148,27 @@ public:
         , m_padName(padName)
         , m_consumerIsVideoPlayer(consumerIsVideoPlayer)
     {
-        m_isIncomingVideoSource = m_track->source().isIncomingVideoSource();
+        auto& trackSource = m_track->source();
+        m_isIncomingVideoSource = trackSource.isIncomingVideoSource();
         m_isVideoTrack = m_track->isVideo();
+
+        ASCIILiteral namePrefix;
+        if (trackSource.isIncomingAudioSource() || m_isIncomingVideoSource)
+            namePrefix = "incoming-"_s;
+        else if (trackSource.isCaptureSource())
+            namePrefix = "capture-"_s;
 
         static uint64_t audioCounter = 0;
         static uint64_t videoCounter = 0;
         String elementName;
         if (track.isAudio()) {
             m_audioTrack = AudioTrackPrivateMediaStream::create(track);
-            elementName = makeString("audiosrc"_s, audioCounter);
+            elementName = makeString(namePrefix, "audiosrc"_s, audioCounter);
             audioCounter++;
         } else {
             RELEASE_ASSERT(m_isVideoTrack);
             m_videoTrack = VideoTrackPrivateMediaStream::create(track);
-            elementName = makeString("videosrc"_s, videoCounter);
+            elementName = makeString(namePrefix, "videosrc"_s, videoCounter);
             videoCounter++;
         }
 
@@ -223,7 +230,6 @@ public:
             return GST_PAD_PROBE_OK;
         }), this, nullptr);
 
-        auto& trackSource = m_track->source();
         if (!trackSource.isIncomingAudioSource() && !trackSource.isIncomingVideoSource())
             return;
 
