@@ -2502,8 +2502,6 @@ webkit.org/b/296138 compositing/transforms/transformed-replaced-with-shadow-chil
 # Test seems to pass on WPT dashboard but fails on macOS
 imported/w3c/web-platform-tests/css/css-tables/paint/table-border-paint-caption-change.html [ Skip ]
 
-webkit.org/b/296334 media/media-source/media-source-rvfc-paused-offscreen.html [ Pass Failure ]
-
 webkit.org/b/296017 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/shape-outside/shape-image/shape-image-022.html [ Pass ImageOnlyFailure ]
 
 [ x86_64 ] imported/w3c/web-platform-tests/svg/text/reftests/dominant-baseline-central-large-font-size.svg [ Skip ]
