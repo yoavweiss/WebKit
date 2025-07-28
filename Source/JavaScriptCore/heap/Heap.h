@@ -478,7 +478,7 @@ public:
     void deleteAllCodeBlocks(DeleteAllCodeEffort);
     void deleteAllUnlinkedCodeBlocks(DeleteAllCodeEffort);
 
-    void didAllocate(size_t);
+    JS_EXPORT_PRIVATE void didAllocate(size_t);
     bool isPagedOut();
     
     const JITStubRoutineSet& jitStubRoutines() { return *m_jitStubRoutines; }

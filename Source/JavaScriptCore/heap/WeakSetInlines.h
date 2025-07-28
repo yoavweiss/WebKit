@@ -41,6 +41,7 @@ inline WeakImpl* WeakSet::allocate(JSValue jsValue, WeakHandleOwner* weakHandleO
     weakSet.m_allocator = allocator->next;
 
     WeakImpl* weakImpl = WeakBlock::asWeakImpl(allocator);
+    container.vm().heap.didAllocate(sizeof(WeakImpl));
     return new (NotNull, weakImpl) WeakImpl(jsValue, weakHandleOwner, context);
 }
 
