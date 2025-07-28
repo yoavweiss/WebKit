@@ -2312,3 +2312,5 @@ webkit.org/b/296344 imported/w3c/web-platform-tests/webrtc/RTCRtpSender-replaceT
 webkit.org/b/296348 [ Sequoia ] http/tests/cache/disk-cache/shattered-deduplication.html [ Pass Failure ] 
 
 webkit.org/b/296571 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/execution/expression/binary/f32_matrix_vector_multiplication.html [ Timeout ]
+
+webkit.org/b/295746 webanimations/no-scheduling-while-filling-accelerated.html [ Pass Failure ]
