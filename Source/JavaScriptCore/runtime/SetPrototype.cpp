@@ -225,17 +225,17 @@ static EncodedJSValue fastSetIntersection(JSGlobalObject* globalObject, JSSet* t
     if (sourceStorageCell == vm.orderedHashTableSentinel())
         return JSValue::encode(result);
 
-    JSSet::Storage& sourceStorage = *jsCast<JSSet::Storage*>(sourceStorageCell);
+    auto* sourceStorage = jsCast<JSSet::Storage*>(sourceStorageCell);
     JSSet::Helper::Entry entry = 0;
 
     while (true) {
-        sourceStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, sourceStorage, entry);
+        sourceStorageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *sourceStorage, entry);
         if (sourceStorageCell == vm.orderedHashTableSentinel())
             break;
 
-        JSSet::Storage& currentStorage = *jsCast<JSSet::Storage*>(sourceStorageCell);
-        entry = JSSet::Helper::iterationEntry(currentStorage) + 1;
-        JSValue entryKey = JSSet::Helper::getIterationEntryKey(currentStorage);
+        auto* currentStorage = jsCast<JSSet::Storage*>(sourceStorageCell);
+        entry = JSSet::Helper::iterationEntry(*currentStorage) + 1;
+        JSValue entryKey = JSSet::Helper::getIterationEntryKey(*currentStorage);
 
         bool targetHasEntry = targetSet->has(globalObject, entryKey);
         RETURN_IF_EXCEPTION(scope, { });
@@ -290,7 +290,7 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIntersection, (JSGlobalObject* globalObject
         if (storageCell == vm.orderedHashTableSentinel())
             return JSValue::encode(result);
 
-        JSSet::Storage& storage = *jsCast<JSSet::Storage*>(storageCell);
+        auto* storage = jsCast<JSSet::Storage*>(storageCell);
         JSSet::Helper::Entry entry = 0;
         CallData hasCallData = JSC::getCallData(has);
 
@@ -301,13 +301,13 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIntersection, (JSGlobalObject* globalObject
         }
 
         while (true) {
-            storageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, storage, entry);
+            storageCell = JSSet::Helper::nextAndUpdateIterationEntry(vm, *storage, entry);
             if (storageCell == vm.orderedHashTableSentinel())
                 break;
 
-            storage = *jsCast<JSSet::Storage*>(storageCell);
-            entry = JSSet::Helper::iterationEntry(storage) + 1;
-            JSValue entryKey = JSSet::Helper::getIterationEntryKey(storage);
+            storage = jsCast<JSSet::Storage*>(storageCell);
+            entry = JSSet::Helper::iterationEntry(*storage) + 1;
+            JSValue entryKey = JSSet::Helper::getIterationEntryKey(*storage);
 
             JSValue hasResult;
             if (cachedHasCall) [[likely]] {
