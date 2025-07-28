@@ -711,7 +711,7 @@ messages -> WebPage WantsAsyncDispatchMessage {
 #endif
 
 #if PLATFORM(WPE) && USE(GBM) && ENABLE(WPE_PLATFORM)
-    PreferredBufferFormatsDidChange(Vector<WebKit::DMABufRendererBufferFormat> preferredBufferFormats)
+    PreferredBufferFormatsDidChange(Vector<WebKit::RendererBufferFormat> preferredBufferFormats)
 #endif
 
     StartTextManipulations(Vector<WebCore::TextManipulationControllerExclusionRule> exclusionRules, bool includeSubframes) -> ()

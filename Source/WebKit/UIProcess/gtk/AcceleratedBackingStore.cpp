@@ -142,7 +142,7 @@ bool AcceleratedBackingStore::checkRequirements()
 }
 
 #if USE(GBM)
-Vector<DMABufRendererBufferFormat> AcceleratedBackingStore::preferredBufferFormats()
+Vector<RendererBufferFormat> AcceleratedBackingStore::preferredBufferFormats()
 {
     auto mode = rendererBufferTransportMode();
     if (!mode.contains(RendererBufferTransportMode::Hardware))
@@ -153,8 +153,8 @@ Vector<DMABufRendererBufferFormat> AcceleratedBackingStore::preferredBufferForma
     if (formatString && *formatString) {
         auto tokens = String::fromUTF8(formatString).split(':');
         if (!tokens.isEmpty() && tokens[0].length() >= 2 && tokens[0].length() <= 4) {
-            DMABufRendererBufferFormat format;
-            format.usage = display.glDisplayIsSharedWithGtk() ? DMABufRendererBufferFormat::Usage::Rendering : DMABufRendererBufferFormat::Usage::Mapping;
+            RendererBufferFormat format;
+            format.usage = display.glDisplayIsSharedWithGtk() ? RendererBufferFormat::Usage::Rendering : RendererBufferFormat::Usage::Mapping;
             format.drmDevice = drmRenderNodeDevice().utf8();
             uint32_t fourcc = fourcc_code(tokens[0][0], tokens[0][1], tokens[0].length() > 2 ? tokens[0][2] : ' ', tokens[0].length() > 3 ? tokens[0][3] : ' ');
             char* endptr = nullptr;
@@ -169,8 +169,8 @@ Vector<DMABufRendererBufferFormat> AcceleratedBackingStore::preferredBufferForma
     }
 
     if (!display.glDisplayIsSharedWithGtk()) {
-        DMABufRendererBufferFormat format;
-        format.usage = DMABufRendererBufferFormat::Usage::Mapping;
+        RendererBufferFormat format;
+        format.usage = RendererBufferFormat::Usage::Mapping;
         format.drmDevice = drmRenderNodeDevice().utf8();
         format.formats.append({ DRM_FORMAT_XRGB8888, { DRM_FORMAT_MOD_LINEAR } });
         format.formats.append({ DRM_FORMAT_ARGB8888, { DRM_FORMAT_MOD_LINEAR } });
@@ -179,10 +179,10 @@ Vector<DMABufRendererBufferFormat> AcceleratedBackingStore::preferredBufferForma
 
     RELEASE_ASSERT(display.glDisplay());
 
-    DMABufRendererBufferFormat format;
-    format.usage = DMABufRendererBufferFormat::Usage::Rendering;
+    RendererBufferFormat format;
+    format.usage = RendererBufferFormat::Usage::Rendering;
     format.drmDevice = drmRenderNodeDevice().utf8();
-    format.formats = display.glDisplay()->dmabufFormats().map([](const auto& format) -> DMABufRendererBufferFormat::Format {
+    format.formats = display.glDisplay()->dmabufFormats().map([](const auto& format) -> RendererBufferFormat::Format {
         return { format.fourcc, format.modifiers };
     });
     return { WTFMove(format) };
@@ -221,7 +221,7 @@ AcceleratedBackingStore::~AcceleratedBackingStore()
     }
 }
 
-AcceleratedBackingStore::Buffer::Buffer(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, DMABufRendererBufferFormat::Usage usage)
+AcceleratedBackingStore::Buffer::Buffer(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, RendererBufferFormat::Usage usage)
     : m_webPage(webPage)
     , m_id(id)
     , m_surfaceID(surfaceID)
@@ -317,7 +317,7 @@ static RefPtr<NativeImage> nativeImageFromGdkTexture(GdkTexture* texture)
 #endif
 
 #if GTK_CHECK_VERSION(4, 13, 4)
-RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferDMABuf::create(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, DMABufRendererBufferFormat::Usage usage, uint32_t format, Vector<UnixFileDescriptor>&& fds, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier)
+RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferDMABuf::create(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, RendererBufferFormat::Usage usage, uint32_t format, Vector<UnixFileDescriptor>&& fds, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier)
 {
     GRefPtr<GdkDmabufTextureBuilder> builder = adoptGRef(gdk_dmabuf_texture_builder_new());
     gdk_dmabuf_texture_builder_set_display(builder.get(), gtk_widget_get_display(webPage.viewWidget()));
@@ -336,7 +336,7 @@ RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferDMABuf::c
     return adoptRef(*new BufferDMABuf(webPage, id, surfaceID, size, usage, WTFMove(fds), WTFMove(builder)));
 }
 
-AcceleratedBackingStore::BufferDMABuf::BufferDMABuf(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, DMABufRendererBufferFormat::Usage usage, Vector<UnixFileDescriptor>&& fds, GRefPtr<GdkDmabufTextureBuilder>&& builder)
+AcceleratedBackingStore::BufferDMABuf::BufferDMABuf(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, RendererBufferFormat::Usage usage, Vector<UnixFileDescriptor>&& fds, GRefPtr<GdkDmabufTextureBuilder>&& builder)
     : Buffer(webPage, id, surfaceID, size, usage)
     , m_fds(WTFMove(fds))
     , m_builder(WTFMove(builder))
@@ -364,9 +364,9 @@ void AcceleratedBackingStore::BufferDMABuf::didUpdateContents(Buffer* previousBu
         WTFLogAlways("Failed to create DMA-BUF texture of size %dx%d: %s", m_size.width(), m_size.height(), error->message);
 }
 
-RendererBufferFormat AcceleratedBackingStore::BufferDMABuf::format() const
+RendererBufferDescription AcceleratedBackingStore::BufferDMABuf::description() const
 {
-    return { RendererBufferFormat::Type::DMABuf, m_usage, gdk_dmabuf_texture_builder_get_fourcc(m_builder.get()), gdk_dmabuf_texture_builder_get_modifier(m_builder.get()) };
+    return { RendererBufferDescription::Type::DMABuf, m_usage, gdk_dmabuf_texture_builder_get_fourcc(m_builder.get()), gdk_dmabuf_texture_builder_get_modifier(m_builder.get()) };
 }
 
 RefPtr<NativeImage> AcceleratedBackingStore::BufferDMABuf::asNativeImageForTesting() const
@@ -381,7 +381,7 @@ void AcceleratedBackingStore::BufferDMABuf::release()
 }
 #endif
 
-RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferEGLImage::create(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, DMABufRendererBufferFormat::Usage usage, uint32_t format, Vector<UnixFileDescriptor>&& fds, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier)
+RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferEGLImage::create(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, RendererBufferFormat::Usage usage, uint32_t format, Vector<UnixFileDescriptor>&& fds, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier)
 {
     auto* glDisplay = Display::singleton().glDisplay();
     if (!glDisplay)
@@ -432,7 +432,7 @@ RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferEGLImage:
     return adoptRef(*new BufferEGLImage(webPage, id, surfaceID, size, usage, format, WTFMove(fds), modifier, image));
 }
 
-AcceleratedBackingStore::BufferEGLImage::BufferEGLImage(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, DMABufRendererBufferFormat::Usage usage, uint32_t format, Vector<UnixFileDescriptor>&& fds, uint64_t modifier, EGLImage image)
+AcceleratedBackingStore::BufferEGLImage::BufferEGLImage(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, RendererBufferFormat::Usage usage, uint32_t format, Vector<UnixFileDescriptor>&& fds, uint64_t modifier, EGLImage image)
     : Buffer(webPage, id, surfaceID, size, usage)
     , m_fds(WTFMove(fds))
     , m_image(image)
@@ -501,9 +501,9 @@ void AcceleratedBackingStore::BufferEGLImage::didUpdateContents(Buffer*, const R
 }
 #endif
 
-RendererBufferFormat AcceleratedBackingStore::BufferEGLImage::format() const
+RendererBufferDescription AcceleratedBackingStore::BufferEGLImage::description() const
 {
-    return { RendererBufferFormat::Type::DMABuf, m_usage, m_fourcc, m_modifier };
+    return { RendererBufferDescription::Type::DMABuf, m_usage, m_fourcc, m_modifier };
 }
 
 RefPtr<NativeImage> AcceleratedBackingStore::BufferEGLImage::asNativeImageForTesting() const
@@ -524,7 +524,7 @@ void AcceleratedBackingStore::BufferEGLImage::release()
 }
 
 #if USE(GBM)
-RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferGBM::create(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, DMABufRendererBufferFormat::Usage usage, uint32_t format, UnixFileDescriptor&& fd, uint32_t stride)
+RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferGBM::create(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, RendererBufferFormat::Usage usage, uint32_t format, UnixFileDescriptor&& fd, uint32_t stride)
 {
     auto& manager = DRMDeviceManager::singleton();
     if (!manager.isInitialized())
@@ -545,7 +545,7 @@ RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferGBM::crea
     return adoptRef(*new BufferGBM(webPage, id, surfaceID, size, usage, WTFMove(fd), buffer));
 }
 
-AcceleratedBackingStore::BufferGBM::BufferGBM(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, DMABufRendererBufferFormat::Usage usage, UnixFileDescriptor&& fd, struct gbm_bo* buffer)
+AcceleratedBackingStore::BufferGBM::BufferGBM(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, const IntSize& size, RendererBufferFormat::Usage usage, UnixFileDescriptor&& fd, struct gbm_bo* buffer)
     : Buffer(webPage, id, surfaceID, size, usage)
     , m_fd(WTFMove(fd))
     , m_buffer(buffer)
@@ -581,9 +581,9 @@ void AcceleratedBackingStore::BufferGBM::didUpdateContents(Buffer*, const Rects&
     });
 }
 
-RendererBufferFormat AcceleratedBackingStore::BufferGBM::format() const
+RendererBufferDescription AcceleratedBackingStore::BufferGBM::description() const
 {
-    return { RendererBufferFormat::Type::DMABuf, m_usage, gbm_bo_get_format(m_buffer), gbm_bo_get_modifier(m_buffer) };
+    return { RendererBufferDescription::Type::DMABuf, m_usage, gbm_bo_get_format(m_buffer), gbm_bo_get_modifier(m_buffer) };
 }
 
 RefPtr<NativeImage> AcceleratedBackingStore::BufferGBM::asNativeImageForTesting() const
@@ -607,7 +607,7 @@ RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferSHM::crea
 }
 
 AcceleratedBackingStore::BufferSHM::BufferSHM(WebPageProxy& webPage, uint64_t id, uint64_t surfaceID, RefPtr<ShareableBitmap>&& bitmap)
-    : Buffer(webPage, id, surfaceID, bitmap->size(), DMABufRendererBufferFormat::Usage::Rendering)
+    : Buffer(webPage, id, surfaceID, bitmap->size(), RendererBufferFormat::Usage::Rendering)
     , m_bitmap(WTFMove(bitmap))
 {
 }
@@ -627,10 +627,10 @@ void AcceleratedBackingStore::BufferSHM::didUpdateContents(Buffer*, const Rects&
     cairo_surface_set_device_scale(m_surface.get(), deviceScaleFactor(), deviceScaleFactor());
 }
 
-RendererBufferFormat AcceleratedBackingStore::BufferSHM::format() const
+RendererBufferDescription AcceleratedBackingStore::BufferSHM::description() const
 {
 #if USE(LIBDRM)
-    return { RendererBufferFormat::Type::SharedMemory, m_usage, DRM_FORMAT_ARGB8888, 0 };
+    return { RendererBufferDescription::Type::SharedMemory, m_usage, DRM_FORMAT_ARGB8888, 0 };
 #else
     return { };
 #endif
@@ -649,7 +649,7 @@ void AcceleratedBackingStore::BufferSHM::release()
     didRelease();
 }
 
-void AcceleratedBackingStore::didCreateDMABufBuffer(uint64_t id, const IntSize& size, uint32_t format, Vector<WTF::UnixFileDescriptor>&& fds, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier, DMABufRendererBufferFormat::Usage usage)
+void AcceleratedBackingStore::didCreateDMABufBuffer(uint64_t id, const IntSize& size, uint32_t format, Vector<WTF::UnixFileDescriptor>&& fds, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier, RendererBufferFormat::Usage usage)
 {
     RefPtr webPage = m_webPage.get();
     if (!webPage)
@@ -822,10 +822,10 @@ bool AcceleratedBackingStore::paint(cairo_t* cr, const IntRect& clipRect)
 }
 #endif
 
-RendererBufferFormat AcceleratedBackingStore::bufferFormat() const
+RendererBufferDescription AcceleratedBackingStore::bufferDescription() const
 {
     auto* buffer = m_committedBuffer ? m_committedBuffer.get() : m_pendingBuffer.get();
-    return buffer ? buffer->format() : RendererBufferFormat { };
+    return buffer ? buffer->description() : RendererBufferDescription { };
 }
 
 RefPtr<NativeImage> AcceleratedBackingStore::bufferAsNativeImageForTesting() const

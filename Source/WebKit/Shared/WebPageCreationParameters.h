@@ -74,7 +74,7 @@
 #endif
 
 #if (PLATFORM(GTK) || PLATFORM(WPE)) && USE(GBM)
-#include "DMABufRendererBufferFormat.h"
+#include "RendererBufferFormat.h"
 #endif
 
 #if PLATFORM(IOS_FAMILY)
@@ -337,7 +337,7 @@ struct WebPageCreationParameters {
 
 #if PLATFORM(GTK) || PLATFORM(WPE)
 #if USE(GBM)
-    Vector<DMABufRendererBufferFormat> preferredBufferFormats { };
+    Vector<RendererBufferFormat> preferredBufferFormats { };
 #endif
 #endif
 

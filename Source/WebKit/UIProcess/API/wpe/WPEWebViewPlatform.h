@@ -28,7 +28,7 @@
 #if ENABLE(WPE_PLATFORM)
 
 #include "GRefPtrWPE.h"
-#include "RendererBufferFormat.h"
+#include "RendererBufferDescription.h"
 #include "WPEWebView.h"
 #include <wpe/wpe-platform.h>
 #include <wtf/HashMap.h>
@@ -63,7 +63,7 @@ public:
 #endif
 
     void updateAcceleratedSurface(uint64_t);
-    WebKit::RendererBufferFormat renderBufferFormat() const;
+    WebKit::RendererBufferDescription renderBufferDescription() const;
 
 private:
     ViewPlatform(WPEDisplay*, const API::PageConfiguration&);

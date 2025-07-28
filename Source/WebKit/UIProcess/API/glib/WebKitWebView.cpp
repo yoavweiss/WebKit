@@ -3172,12 +3172,12 @@ void webkitWebViewPermissionStateQuery(WebKitWebView* webView, WebKitPermissionS
 }
 
 #if PLATFORM(GTK) || (PLATFORM(WPE) && ENABLE(WPE_PLATFORM))
-RendererBufferFormat webkitWebViewGetRendererBufferFormat(WebKitWebView* webView)
+RendererBufferDescription webkitWebViewGetRendererBufferDescription(WebKitWebView* webView)
 {
 #if PLATFORM(GTK)
-    return webkitWebViewBaseGetRendererBufferFormat(WEBKIT_WEB_VIEW_BASE(webView));
+    return webkitWebViewBaseGetRendererBufferDescription(WEBKIT_WEB_VIEW_BASE(webView));
 #elif PLATFORM(WPE) && ENABLE(WPE_PLATFORM)
-    return static_cast<WKWPE::ViewPlatform*>(webView->priv->view.get())->renderBufferFormat();
+    return static_cast<WKWPE::ViewPlatform*>(webView->priv->view.get())->renderBufferDescription();
 #endif
 }
 #endif

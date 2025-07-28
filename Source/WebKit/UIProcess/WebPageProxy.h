@@ -594,7 +594,7 @@ struct WebSpeechSynthesisVoice;
 struct WebURLSchemeHandlerIdentifierType;
 struct WebsitePoliciesData;
 #if USE(GBM) && (PLATFORM(GTK) || PLATFORM(WPE))
-struct DMABufRendererBufferFormat;
+struct RendererBufferFormat;
 #endif
 
 enum class ColorControlSupportsAlpha : bool;
@@ -3042,7 +3042,7 @@ private:
     void bindAccessibilityTree(const String&);
     OptionSet<WebCore::PlatformEventModifier> currentStateOfModifierKeys();
 #if USE(GBM)
-    Vector<DMABufRendererBufferFormat> preferredBufferFormats() const;
+    Vector<RendererBufferFormat> preferredBufferFormats() const;
 #endif
 #endif
 

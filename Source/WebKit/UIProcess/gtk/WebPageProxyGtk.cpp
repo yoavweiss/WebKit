@@ -150,7 +150,7 @@ OptionSet<WebCore::PlatformEvent::Modifier> WebPageProxy::currentStateOfModifier
 }
 
 #if USE(GBM)
-Vector<DMABufRendererBufferFormat> WebPageProxy::preferredBufferFormats() const
+Vector<RendererBufferFormat> WebPageProxy::preferredBufferFormats() const
 {
     return AcceleratedBackingStore::preferredBufferFormats();
 }

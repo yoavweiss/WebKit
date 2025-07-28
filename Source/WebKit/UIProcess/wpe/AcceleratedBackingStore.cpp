@@ -98,7 +98,7 @@ void AcceleratedBackingStore::updateSurfaceID(uint64_t surfaceID)
     }
 }
 
-void AcceleratedBackingStore::didCreateDMABufBuffer(uint64_t id, const WebCore::IntSize& size, uint32_t format, Vector<WTF::UnixFileDescriptor>&& fds, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier, DMABufRendererBufferFormat::Usage usage)
+void AcceleratedBackingStore::didCreateDMABufBuffer(uint64_t id, const WebCore::IntSize& size, uint32_t format, Vector<WTF::UnixFileDescriptor>&& fds, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier, RendererBufferFormat::Usage usage)
 {
     Vector<int> fileDescriptors;
     fileDescriptors.reserveInitialCapacity(fds.size());
@@ -195,32 +195,32 @@ void AcceleratedBackingStore::bufferReleased(WPEBuffer* buffer)
     }
 }
 
-RendererBufferFormat AcceleratedBackingStore::bufferFormat() const
+RendererBufferDescription AcceleratedBackingStore::bufferDescription() const
 {
-    RendererBufferFormat format;
+    RendererBufferDescription description;
     auto* buffer = m_committedBuffer ? m_committedBuffer.get() : m_pendingBuffer.get();
     if (!buffer)
-        return format;
+        return description;
 
     if (WPE_IS_BUFFER_DMA_BUF(buffer)) {
         auto* dmabuf = WPE_BUFFER_DMA_BUF(buffer);
-        format.type = RendererBufferFormat::Type::DMABuf;
-        format.fourcc = wpe_buffer_dma_buf_get_format(dmabuf);
-        format.modifier = wpe_buffer_dma_buf_get_modifier(dmabuf);
-        format.usage = static_cast<DMABufRendererBufferFormat::Usage>(GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(buffer), "wk-buffer-format-usage")));
+        description.type = RendererBufferDescription::Type::DMABuf;
+        description.fourcc = wpe_buffer_dma_buf_get_format(dmabuf);
+        description.modifier = wpe_buffer_dma_buf_get_modifier(dmabuf);
+        description.usage = static_cast<RendererBufferFormat::Usage>(GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(buffer), "wk-buffer-format-usage")));
     } else if (WPE_IS_BUFFER_SHM(buffer)) {
-        format.type = RendererBufferFormat::Type::SharedMemory;
+        description.type = RendererBufferDescription::Type::SharedMemory;
         switch (wpe_buffer_shm_get_format(WPE_BUFFER_SHM(buffer))) {
         case WPE_PIXEL_FORMAT_ARGB8888:
 #if USE(LIBDRM)
-            format.fourcc = DRM_FORMAT_ARGB8888;
+            description.fourcc = DRM_FORMAT_ARGB8888;
 #endif
             break;
         }
-        format.usage = DMABufRendererBufferFormat::Usage::Rendering;
+        description.usage = RendererBufferFormat::Usage::Rendering;
     }
 
-    return format;
+    return description;
 }
 
 } // namespace WebKit

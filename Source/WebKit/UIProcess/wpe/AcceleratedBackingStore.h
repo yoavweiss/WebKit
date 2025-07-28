@@ -28,7 +28,7 @@
 #if ENABLE(WPE_PLATFORM)
 #include "FenceMonitor.h"
 #include "MessageReceiver.h"
-#include "RendererBufferFormat.h"
+#include "RendererBufferDescription.h"
 #include <WebCore/IntRect.h>
 #include <WebCore/IntSize.h>
 #include <wtf/HashMap.h>
@@ -67,7 +67,7 @@ public:
 
     void updateSurfaceID(uint64_t);
 
-    RendererBufferFormat bufferFormat() const;
+    RendererBufferDescription bufferDescription() const;
 
 private:
     AcceleratedBackingStore(WebPageProxy&, WPEView*);
@@ -75,7 +75,7 @@ private:
     // IPC::MessageReceiver.
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&) override;
 
-    void didCreateDMABufBuffer(uint64_t id, const WebCore::IntSize&, uint32_t format, Vector<WTF::UnixFileDescriptor>&&, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier, DMABufRendererBufferFormat::Usage);
+    void didCreateDMABufBuffer(uint64_t id, const WebCore::IntSize&, uint32_t format, Vector<WTF::UnixFileDescriptor>&&, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier, RendererBufferFormat::Usage);
     void didCreateSHMBuffer(uint64_t id, WebCore::ShareableBitmapHandle&&);
     void didDestroyBuffer(uint64_t id);
     void frame(uint64_t bufferID, Rects&&, WTF::UnixFileDescriptor&&);

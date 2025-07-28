@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2023 Igalia S.L.
+ * Copyright (C) 2025 Igalia S.L.
+ * Copyright (C) 2024 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,27 +26,17 @@
 
 #pragma once
 
-#include <wtf/Vector.h>
-#include <wtf/text/CString.h>
+#include "RendererBufferFormat.h"
 
 namespace WebKit {
 
-enum class DMABufRendererBufferFormatUsage : uint8_t {
-    Rendering,
-    Mapping,
-    Scanout
-};
+struct RendererBufferDescription {
+    enum class Type : bool { DMABuf, SharedMemory };
 
-struct DMABufRendererBufferFormat {
-    struct Format {
-        uint32_t fourcc { 0 };
-        Vector<uint64_t, 1> modifiers;
-    };
-
-    using Usage = DMABufRendererBufferFormatUsage;
-    Usage usage { Usage::Rendering };
-    CString drmDevice;
-    Vector<Format> formats;
+    Type type { Type::DMABuf };
+    RendererBufferFormat::Usage usage { RendererBufferFormat::Usage::Rendering };
+    uint32_t fourcc { 0 };
+    uint64_t modifier { 0 };
 };
 
 } // namespace WebKit

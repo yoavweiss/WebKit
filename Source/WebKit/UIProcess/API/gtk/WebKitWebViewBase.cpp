@@ -3474,13 +3474,13 @@ void webkitWebViewBaseSetPlugID(WebKitWebViewBase* webViewBase, const String& pl
 }
 #endif
 
-RendererBufferFormat webkitWebViewBaseGetRendererBufferFormat(WebKitWebViewBase* webViewBase)
+RendererBufferDescription webkitWebViewBaseGetRendererBufferDescription(WebKitWebViewBase* webViewBase)
 {
     auto* drawingArea = static_cast<DrawingAreaProxyCoordinatedGraphics*>(webViewBase->priv->pageProxy->drawingArea());
     if (!drawingArea || !drawingArea->isInAcceleratedCompositingMode())
         return { };
 
-    return webViewBase->priv->acceleratedBackingStore->bufferFormat();
+    return webViewBase->priv->acceleratedBackingStore->bufferDescription();
 }
 
 #if USE(CAIRO)

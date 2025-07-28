@@ -29,7 +29,7 @@
 
 #include "APIPageConfiguration.h"
 #include "InputMethodState.h"
-#include "RendererBufferFormat.h"
+#include "RendererBufferDescription.h"
 #include "SameDocumentNavigationType.h"
 #include "ViewGestureController.h"
 #include "ViewSnapshotStore.h"
@@ -144,4 +144,4 @@ void webkitWebViewBaseCallAfterNextPresentationUpdate(WebKitWebViewBase*, Comple
 void webkitWebViewBaseSetPlugID(WebKitWebViewBase*, const String&);
 #endif
 
-WebKit::RendererBufferFormat webkitWebViewBaseGetRendererBufferFormat(WebKitWebViewBase*);
+WebKit::RendererBufferDescription webkitWebViewBaseGetRendererBufferDescription(WebKitWebViewBase*);

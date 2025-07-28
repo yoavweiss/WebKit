@@ -473,7 +473,7 @@ struct ContentWorldData;
 struct ContentWorldIdentifierType;
 struct CoreIPCAuditToken;
 #if (PLATFORM(GTK) || PLATFORM(WPE)) && USE(GBM)
-struct DMABufRendererBufferFormat;
+struct RendererBufferFormat;
 #endif
 struct DataDetectionResult;
 struct DeferredDidReceiveMouseEvent;
@@ -1954,7 +1954,7 @@ public:
 
 #if PLATFORM(GTK) || PLATFORM(WPE)
 #if USE(GBM)
-    const Vector<DMABufRendererBufferFormat>& preferredBufferFormats() const { return m_preferredBufferFormats; }
+    const Vector<RendererBufferFormat>& preferredBufferFormats() const { return m_preferredBufferFormats; }
 #endif
 #endif
 
@@ -2510,7 +2510,7 @@ private:
 #endif
 
 #if PLATFORM(WPE) && USE(GBM) && ENABLE(WPE_PLATFORM)
-    void preferredBufferFormatsDidChange(Vector<DMABufRendererBufferFormat>&&);
+    void preferredBufferFormatsDidChange(Vector<RendererBufferFormat>&&);
 #endif
 
     void platformDidScalePage();
@@ -3043,7 +3043,7 @@ private:
 
 #if PLATFORM(GTK) || PLATFORM(WPE)
 #if USE(GBM)
-    Vector<DMABufRendererBufferFormat> m_preferredBufferFormats;
+    Vector<RendererBufferFormat> m_preferredBufferFormats;
 #endif
 #endif
 

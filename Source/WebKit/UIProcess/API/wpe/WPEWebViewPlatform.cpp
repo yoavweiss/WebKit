@@ -252,9 +252,9 @@ void ViewPlatform::updateAcceleratedSurface(uint64_t surfaceID)
     m_backingStore->updateSurfaceID(surfaceID);
 }
 
-RendererBufferFormat ViewPlatform::renderBufferFormat() const
+RendererBufferDescription ViewPlatform::renderBufferDescription() const
 {
-    return m_backingStore->bufferFormat();
+    return m_backingStore->bufferDescription();
 }
 
 void ViewPlatform::updateDisplayID()

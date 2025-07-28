@@ -107,7 +107,7 @@ list(APPEND WebKit_UNIFIED_SOURCE_LIST_FILES
     "SourcesWPE.txt"
 )
 
-list(APPEND WebKit_SERIALIZATION_IN_FILES Shared/glib/DMABufRendererBufferFormat.serialization.in)
+list(APPEND WebKit_SERIALIZATION_IN_FILES Shared/glib/RendererBufferFormat.serialization.in)
 
 if (USE_GBM)
   list(APPEND WebKit_SERIALIZATION_IN_FILES Shared/gbm/DMABufBuffer.serialization.in)
