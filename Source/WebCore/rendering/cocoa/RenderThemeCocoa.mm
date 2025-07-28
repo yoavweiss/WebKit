@@ -55,6 +55,7 @@
 #import "RenderProgress.h"
 #import "RenderSlider.h"
 #import "RenderText.h"
+#import "StylePrimitiveNumericTypes+Evaluation.h"
 #import "Theme.h"
 #import "TypedElementDescendantIteratorInlines.h"
 #import "UserAgentParts.h"
@@ -127,7 +128,7 @@ static void drawFocusRingForPathForVectorBasedControls(const RenderObject& box, 
     // macOS controls have never honored outline offset.
 #if PLATFORM(IOS_FAMILY)
     auto deviceScaleFactor = box.document().deviceScaleFactor();
-    auto outlineOffset = floorToDevicePixel(box.style().outlineOffset().value, deviceScaleFactor);
+    auto outlineOffset = floorToDevicePixel(Style::evaluate(box.style().outlineOffset()), deviceScaleFactor);
 
     if (outlineOffset > 0) {
         const auto center = rect.center();
