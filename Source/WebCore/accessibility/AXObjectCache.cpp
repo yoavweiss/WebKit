@@ -597,9 +597,11 @@ void AXObjectCache::setIsolatedTreeFocusedObject(AccessibilityObject* focus)
 AccessibilityObject* AXObjectCache::get(Node& node) const
 {
     auto* renderer = node.renderer();
-    auto renderID = renderer ? m_renderObjectMapping.getOptional(*renderer) : std::nullopt;
-    if (renderID)
-        return m_objects.get(*renderID);
+    if (renderer && !renderer->isYouTubeReplacement()) {
+        auto renderID = m_renderObjectMapping.getOptional(*renderer);
+        if (renderID)
+            return m_objects.get(*renderID);
+    }
 
     auto nodeID = m_nodeObjectMapping.get(node);
     return nodeID ? m_objects.get(*nodeID) : nullptr;
@@ -949,7 +951,8 @@ AccessibilityObject* AXObjectCache::getOrCreate(Node& node, IsPartOfRelation isP
     if (RefPtr object = get(node))
         return object.get();
 
-    if (CheckedPtr renderer = node.renderer())
+    CheckedPtr renderer = node.renderer();
+    if (renderer && !renderer->isYouTubeReplacement())
         return getOrCreate(*renderer);
 
     RefPtr composedParent = node.parentElementInComposedTree();
@@ -994,7 +997,10 @@ AccessibilityObject* AXObjectCache::getOrCreate(Node& node, IsPartOfRelation isP
         bool hasDisplayContents = element && element->hasDisplayContents();
         bool isPopover = element && element->hasAttributeWithoutSynchronization(popoverAttr);
         bool isAreaElement = is<HTMLAreaElement>(element);
-        if (!inCanvasSubtree && !insideMeterElement && !hasDisplayContents && !isPopover && !isNodeFocused(node) && !isAreaElement)
+        // YouTube embeds specifically create a render hierarchy with two elements that share a renderer.
+        // In this instance, we want the <embed> element to associate its node with an AX element, so we need to create one here.
+        bool replacementWillCreateRenderer = renderer && renderer->isYouTubeReplacement();
+        if (!inCanvasSubtree && !insideMeterElement && !hasDisplayContents && !isPopover && !isNodeFocused(node) && !isAreaElement && !replacementWillCreateRenderer)
             return nullptr;
     }
 
@@ -1023,6 +1029,9 @@ AccessibilityObject* AXObjectCache::getOrCreate(Node& node, IsPartOfRelation isP
 
 AccessibilityObject* AXObjectCache::getOrCreate(RenderObject& renderer)
 {
+    if (renderer.isYouTubeReplacement()) [[unlikely]]
+        return getOrCreate(renderer.node());
+
     if (RefPtr object = get(renderer))
         return object.get();
 

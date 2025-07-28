@@ -971,6 +971,9 @@ accessibility/full-size-kana-untransformed.html [ Skip ]
 # Static text are not exposed as accessibility elements on glib appointments.
 accessibility/element-outside-modal-with-zindex.html [ Skip ]
 
+# Skipping because different hierarchy.
+accessibility/youtube-embed-accessibility-hierarchy.html [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Accessibility-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////

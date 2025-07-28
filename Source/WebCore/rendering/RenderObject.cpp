@@ -2120,6 +2120,11 @@ void RenderObject::setHasOutlineAutoAncestor(bool hasOutlineAutoAncestor)
         ensureRareData().hasOutlineAutoAncestor = hasOutlineAutoAncestor;
 }
 
+void RenderObject::markIsYouTubeReplacement()
+{
+    ensureRareData().isYouTubeReplacement = true;
+}
+
 RenderObject::RareDataMap& RenderObject::rareDataMap()
 {
     static NeverDestroyed<RareDataMap> map;
