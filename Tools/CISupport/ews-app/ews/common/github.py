@@ -197,7 +197,7 @@ class GitHub(object):
 
 class GitHubEWS(GitHub):
     APPLE_QUEUES = ['ios-apple', 'mac-apple']
-    CI_BUILD_TITLE = 'Apple'
+    APPLE_INTERNAL_BUILDS_TITLE = 'Apple Internal'
     ICON_BUILD_PASS = u'\U00002705'
     ICON_BUILD_FAIL = u'\U0000274C'
     ICON_BUILD_WAITING = u'\U000023F3'
@@ -240,7 +240,7 @@ class GitHubEWS(GitHub):
 
         status_bubble_rows = copy.deepcopy(self.STATUS_BUBBLE_ROWS)
         if include_ci_builds:
-            comment = comment.replace('Windows', f'Windows | {self.CI_BUILD_TITLE}')
+            comment = comment.replace('Windows', f'Windows | {self.APPLE_INTERNAL_BUILDS_TITLE}')
             comment += ' ------ |'
             for row in status_bubble_rows:
                 row.append('')
