@@ -29,7 +29,6 @@
 #define DOUBLE_CONVERSION_BIGNUM_H_
 
 #include <array>
-#include <utility>
 #include <wtf/dtoa/utils.h>
 
 namespace WTF {
@@ -115,7 +114,7 @@ class Bignum {
 
   void EnsureCapacity(int size) {
     if (size > kBigitCapacity) {
-      std::unreachable();
+      UNREACHABLE();
     }
   }
   void Align(const Bignum& other);

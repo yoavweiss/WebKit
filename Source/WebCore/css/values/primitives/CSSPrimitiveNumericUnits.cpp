@@ -41,7 +41,7 @@ ASCIILiteral unitString(AngleUnit angleUnit)
     case Turn:   return "turn"_s;
     }
 
-    std::unreachable();
+    WTF_UNREACHABLE();
 }
 
 ASCIILiteral unitString(LengthUnit lengthUnit)
@@ -101,7 +101,7 @@ ASCIILiteral unitString(LengthUnit lengthUnit)
     case Cqmax:     return "cqmax"_s;
     }
 
-    std::unreachable();
+    WTF_UNREACHABLE();
 
 }
 
@@ -114,7 +114,7 @@ ASCIILiteral unitString(TimeUnit timeUnit)
     case Ms:   return "ms"_s;
     }
 
-    std::unreachable();
+    WTF_UNREACHABLE();
 }
 
 ASCIILiteral unitString(FrequencyUnit frequencyUnit)
@@ -126,7 +126,7 @@ ASCIILiteral unitString(FrequencyUnit frequencyUnit)
     case Khz:   return "khz"_s;;
     }
 
-    std::unreachable();
+    WTF_UNREACHABLE();
 }
 
 ASCIILiteral unitString(ResolutionUnit resolutionUnit)
@@ -140,7 +140,7 @@ ASCIILiteral unitString(ResolutionUnit resolutionUnit)
     case Dpcm:   return "dpcm"_s;
     }
 
-    std::unreachable();
+    WTF_UNREACHABLE();
 }
 
 // Ensure the angle units in `AngleUnit` and `AnglePercentageUnit` are all equal.

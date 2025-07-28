@@ -373,7 +373,7 @@ static BignumDtoaMode DtoaToBignumDtoaMode(
     case DoubleToStringConverter::FIXED:     return BIGNUM_DTOA_FIXED;
     case DoubleToStringConverter::PRECISION: return BIGNUM_DTOA_PRECISION;
     default:
-      std::unreachable();
+      UNREACHABLE();
   }
 }
 
@@ -426,7 +426,7 @@ void DoubleToStringConverter::DoubleToAscii(double v,
       break;
     default:
       fast_worked = false;
-      std::unreachable();
+      UNREACHABLE();
   }
   if (fast_worked) return;
 

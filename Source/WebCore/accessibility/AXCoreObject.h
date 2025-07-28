@@ -539,7 +539,7 @@ ALWAYS_INLINE String accessibilityRoleToString(AccessibilityRole role)
     case AccessibilityRole::WebArea:
         return "WebArea"_s;
     }
-    std::unreachable();
+    UNREACHABLE();
     return ""_s;
 }
 

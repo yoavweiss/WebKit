@@ -270,7 +270,7 @@ static DiyFp AdjustmentPowerOfTen(int exponent) {
     case 6: return DiyFp(UINT64_2PART_C(0xf4240000, 00000000), -44);
     case 7: return DiyFp(UINT64_2PART_C(0x98968000, 00000000), -40);
     default:
-      std::unreachable();
+      UNREACHABLE();
   }
 }
 
