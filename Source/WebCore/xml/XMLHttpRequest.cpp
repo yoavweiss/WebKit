@@ -1227,4 +1227,9 @@ bool XMLHttpRequest::virtualHasPendingActivity() const
     return false;
 }
 
+void XMLHttpRequest::dispatchThrottledProgressEventIfNeeded()
+{
+    m_progressEventThrottle->dispatchThrottledProgressEventIfNeeded();
+}
+
 } // namespace WebCore

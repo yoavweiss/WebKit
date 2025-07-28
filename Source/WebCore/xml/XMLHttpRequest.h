@@ -140,6 +140,8 @@ public:
     using EventTarget::dispatchEvent;
     void dispatchEvent(Event&) override;
 
+    void dispatchThrottledProgressEventIfNeeded();
+
 private:
     friend class XMLHttpRequestUpload;
     explicit XMLHttpRequest(ScriptExecutionContext&);
