@@ -73,15 +73,15 @@ static bool shouldTreatAsSameOriginNavigation(const Document& document, const UR
 
 static std::optional<NavigationAction::UIEventWithKeyStateData> keyStateDataForFirstEventWithKeyState(Event* event)
 {
-    if (UIEventWithKeyState* uiEvent = findEventWithKeyState(event))
+    if (RefPtr uiEvent = findEventWithKeyState(event))
         return NavigationAction::UIEventWithKeyStateData { *uiEvent };
     return std::nullopt;
 }
 
 static std::optional<NavigationAction::MouseEventData> mouseEventDataForFirstMouseEvent(Event* event)
 {
-    for (auto* e = event; e; e = e->underlyingEvent()) {
-        if (auto* mouseEvent = dynamicDowncast<MouseEvent>(e))
+    for (RefPtr e = event; e; e = e->underlyingEvent()) {
+        if (RefPtr mouseEvent = dynamicDowncast<MouseEvent>(e))
             return NavigationAction::MouseEventData { *mouseEvent };
     }
     return { };

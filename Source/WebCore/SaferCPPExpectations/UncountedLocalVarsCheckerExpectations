@@ -294,17 +294,10 @@ layout/formattingContexts/inline/InlineLineBoxBuilder.cpp
 layout/integration/inline/LayoutIntegrationLineLayout.cpp
 layout/layouttree/LayoutTreeBuilder.cpp
 loader/ApplicationManifestLoader.cpp
-loader/DocumentLoader.cpp
 loader/EmptyClients.cpp
-loader/NavigationAction.cpp
-loader/NavigationScheduler.cpp
-loader/ThreadableLoader.cpp
 loader/appcache/ApplicationCacheGroup.cpp
 loader/appcache/ApplicationCacheHost.cpp
 loader/appcache/ApplicationCacheStorage.cpp
-loader/archive/cf/LegacyWebArchive.cpp
-loader/cache/CachedImage.cpp
-loader/cache/CachedResourceRequest.cpp
 mathml/MathMLSelectElement.cpp
 page/BarProp.cpp
 page/CaptionUserPreferences.cpp

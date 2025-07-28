@@ -86,9 +86,6 @@ inspector/agents/InspectorCSSAgent.cpp
 inspector/agents/InspectorIndexedDBAgent.cpp
 layout/layouttree/LayoutIterator.h
 layout/layouttree/LayoutTreeBuilder.cpp
-loader/ThreadableLoader.cpp
-loader/cache/CachedCSSStyleSheet.cpp
-loader/cache/CachedImage.cpp
 loader/cache/CachedResourceClientWalker.h
 loader/cache/CachedResourceHandle.h
 mathml/MathMLRowElement.cpp

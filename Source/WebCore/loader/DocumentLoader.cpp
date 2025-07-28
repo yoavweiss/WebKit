@@ -2149,10 +2149,7 @@ void DocumentLoader::loadErrorDocument()
 
 static bool canUseServiceWorkers(LocalFrame* frame)
 {
-    if (!frame || !frame->settings().serviceWorkersEnabled())
-        return false;
-    auto* ownerElement = frame->ownerElement();
-    return !ownerElement || !is<HTMLPlugInElement>(ownerElement);
+    return frame && frame->settings().serviceWorkersEnabled() && !is<HTMLPlugInElement>(frame->ownerElement());
 }
 
 bool DocumentLoader::shouldCancelLoadingAboutURL(const URL& url) const

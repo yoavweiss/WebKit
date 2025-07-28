@@ -306,7 +306,7 @@ void CachedResourceRequest::updateReferrerAndOriginHeaders(FrameLoader& frameLoa
     if (!m_resourceRequest.httpOrigin().isEmpty())
         return;
 
-    auto* document = frameLoader.frame().document();
+    RefPtr document = frameLoader.frame().document();
     auto actualOrigin = (document && m_options.destination == FetchOptionsDestination::EmptyString && m_initiatorType == cachedResourceRequestInitiatorTypes().fetch) ? Ref { document->securityOrigin() } : SecurityOrigin::create(outgoingReferrerURL);
     String outgoingOrigin;
     if (m_options.mode == FetchOptions::Mode::Cors)

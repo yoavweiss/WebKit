@@ -607,9 +607,7 @@ loader/CrossOriginOpenerPolicy.cpp
 loader/CrossOriginPreflightChecker.cpp
 loader/DocumentThreadableLoader.cpp
 loader/DocumentWriter.cpp
-loader/FormSubmission.cpp
 loader/FrameLoadRequest.cpp
-loader/LinkLoader.cpp
 loader/MediaResourceLoader.cpp
 loader/MixedContentChecker.cpp
 loader/NavigationScheduler.cpp
@@ -621,14 +619,12 @@ loader/appcache/ApplicationCacheGroup.cpp
 loader/appcache/ApplicationCacheHost.cpp
 loader/appcache/ApplicationCacheStorage.cpp
 loader/archive/cf/LegacyWebArchive.cpp
-loader/cache/CachedCSSStyleSheet.cpp
 loader/cache/CachedImage.cpp
 loader/cache/CachedImage.h
 loader/cache/CachedResourceRequest.cpp
 loader/cache/CachedResourceRequestInitiatorTypes.h
 loader/cache/CachedSVGFont.cpp
 loader/cocoa/BundleResourceLoader.mm
-loader/icon/IconLoader.cpp
 mathml/MathMLElement.cpp
 mathml/MathMLSelectElement.cpp
 page/AutoscrollController.cpp

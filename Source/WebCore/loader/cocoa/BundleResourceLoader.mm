@@ -51,9 +51,9 @@ void loadResourceFromBundle(ResourceLoader& loader, const String& subdirectory)
     ASSERT(RunLoop::isMain());
 
     loadQueue().dispatch([protectedLoader = Ref { loader }, url = loader.request().url().isolatedCopy(), subdirectory = subdirectory.isolatedCopy()]() mutable {
-        auto *relativePath = [subdirectory.createNSString() stringByAppendingString: url.path().createNSString().get()];
+        RetainPtr relativePath = [subdirectory.createNSString() stringByAppendingString: url.path().createNSString().get()];
         auto *bundle = [NSBundle bundleWithIdentifier:@"com.apple.WebCore"];
-        auto *path = [bundle pathForResource:relativePath ofType:nil];
+        auto *path = [bundle pathForResource:relativePath.get() ofType:nil];
         auto *data = [NSData dataWithContentsOfFile:path];
 
         if (!data) {
