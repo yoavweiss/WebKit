@@ -186,6 +186,17 @@ Vector<Ref<HistoryItem>> BackForwardController::allItems()
     return historyItems;
 }
 
+Vector<Ref<HistoryItem>> BackForwardController::itemsForFrame(FrameIdentifier frameID)
+{
+    Vector<Ref<HistoryItem>> historyItems;
+    for (Ref item : allItems()) {
+        if (item->frameID() == frameID)
+            historyItems.append(WTFMove(item));
+    }
+
+    return historyItems;
+}
+
 void BackForwardController::close()
 {
     m_client->close();

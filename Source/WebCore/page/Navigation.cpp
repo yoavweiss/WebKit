@@ -170,7 +170,7 @@ void Navigation::initializeForNewWindow(std::optional<NavigationNavigationType> 
 
     // https://html.spec.whatwg.org/multipage/browsing-the-web.html#getting-session-history-entries-for-the-navigation-api
     Vector<Ref<HistoryItem>> items;
-    auto rawEntries = page->checkedBackForward()->allItems();
+    auto rawEntries = page->backForward().itemsForFrame(frame()->frameID());
     auto startingIndex = rawEntries.find(*currentItem);
     if (startingIndex != notFound) {
         Ref startingOrigin = SecurityOrigin::create(Ref { rawEntries[startingIndex] }->url());
