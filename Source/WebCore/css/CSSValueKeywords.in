@@ -1907,11 +1907,11 @@ match-element
 // url
 
 // <url-modifier>
-crossorigin
+cross-origin
 anonymous
 use-credentials
 integrity
-referrerpolicy
+referrer-policy
 no-referrer
 no-referrer-when-downgrade
 same-origin
