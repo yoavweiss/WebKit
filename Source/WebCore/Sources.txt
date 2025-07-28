@@ -3190,6 +3190,7 @@ style/values/grid/StyleGridTrackBreadth.cpp
 style/values/grid/StyleGridTrackSize.cpp
 style/values/grid/StyleGridTrackSizes.cpp
 style/values/images/StyleGradient.cpp
+style/values/inline/StyleVerticalAlign.cpp
 style/values/lists/StyleListStyleType.cpp
 style/values/masking/StyleClip.cpp
 style/values/masking/StyleClipPath.cpp

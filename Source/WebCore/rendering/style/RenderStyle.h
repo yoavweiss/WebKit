@@ -225,7 +225,6 @@ enum class UsedFloat : uint8_t;
 enum class UserDrag : uint8_t;
 enum class UserModify : uint8_t;
 enum class UserSelect : uint8_t;
-enum class VerticalAlign : uint8_t;
 enum class Visibility : uint8_t;
 enum class WhiteSpace : uint8_t;
 enum class WhiteSpaceCollapse : uint8_t;
@@ -337,6 +336,7 @@ struct TextSizeAdjust;
 struct TextUnderlineOffset;
 struct TransformOrigin;
 struct Translate;
+struct VerticalAlign;
 struct ViewTimelineInsets;
 struct ViewTimelines;
 struct ViewTransitionClasses;
@@ -661,8 +661,7 @@ public:
     Visibility visibility() const { return static_cast<Visibility>(m_inheritedFlags.visibility); }
     inline Visibility usedVisibility() const;
 
-    VerticalAlign verticalAlign() const;
-    const Length& verticalAlignLength() const;
+    const Style::VerticalAlign& verticalAlign() const;
 
     inline const Style::Clip& clip() const;
     inline bool hasClip() const;
@@ -1327,8 +1326,7 @@ public:
     inline void setOverscrollBehaviorX(OverscrollBehavior);
     inline void setOverscrollBehaviorY(OverscrollBehavior);
     void setVisibility(Visibility v) { m_inheritedFlags.visibility = static_cast<unsigned>(v); }
-    void setVerticalAlign(VerticalAlign);
-    void setVerticalAlignLength(Length&&);
+    void setVerticalAlign(Style::VerticalAlign&&);
 
     inline void setClip(Style::Clip&&);
 
@@ -1951,7 +1949,7 @@ public:
     static constexpr DisplayType initialDisplay();
     static constexpr UnicodeBidi initialUnicodeBidi();
     static constexpr PositionType initialPosition();
-    static constexpr VerticalAlign initialVerticalAlign();
+    static inline Style::VerticalAlign initialVerticalAlign();
     static constexpr Float initialFloating();
     static constexpr BreakBetween initialBreakBetween();
     static constexpr BreakInside initialBreakInside();

@@ -235,6 +235,10 @@ template<LengthWrapperBaseDerived T> struct Evaluation<T> {
     {
         return valueForLengthWithLazyMaximum<LayoutUnit, LayoutUnit>(toPlatform(value), lazyMaximumValueFunctor);
     }
+    auto operator()(const T& value, NOESCAPE const Invocable<float()> auto& lazyMaximumValueFunctor) -> float
+    {
+        return valueForLengthWithLazyMaximum<float, float>(toPlatform(value), lazyMaximumValueFunctor);
+    }
     auto operator()(const T& value, LayoutUnit referenceLength) -> LayoutUnit
     {
         return valueForLength(toPlatform(value), referenceLength);

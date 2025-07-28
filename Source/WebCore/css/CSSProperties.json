@@ -8239,16 +8239,16 @@
             ],
             "codegen-properties": {
                 "accepts-quirky-length": true,
-                "animation-wrapper": "VerticalAlignWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-builder-custom": "Inherit|Value",
-                "style-extractor-custom": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<VerticalAlign>",
                 "parser-grammar": "<<values>> | <length-percentage>",
                 "parser-grammar-comment": "Current spec has 'vertical-align' specified as a shorthand with grammar '[ first | last] || <<'alignment-baseline'>> || <<'baseline-shift'>>'"
             },
             "specification": {
-                "category": "css-22",
-                "url": "https://www.w3.org/TR/CSS22/visudet.html#propdef-vertical-align"
+                "category": "css-inline",
+                "url": "https://drafts.csswg.org/css-inline/#propdef-vertical-align",
+                "obsolete-category": "css-22",
+                "obsolete-url": "https://www.w3.org/TR/CSS22/visudet.html#propdef-vertical-align"
             }
         },
         "visibility": {

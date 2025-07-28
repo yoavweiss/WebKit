@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006-2025 Apple Inc. All rights reserved.
  * Copyright (C) 2008 Nokia Corporation and/or its subsidiary(-ies)
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -4589,30 +4590,31 @@ FontAttributes Editor::fontAttributesAtSelectionStart()
     if (foregroundColor.isValid() && !Color::isBlackColor(foregroundColor))
         attributes.foregroundColor = foregroundColor;
 
-    WTF::switchOn(style->textShadow(),
-        [&](const CSS::Keyword::None&) { },
+    attributes.fontShadow = WTF::switchOn(style->textShadow(),
+        [&](const CSS::Keyword::None&) {
+            return FontShadow { };
+        },
         [&](const auto& shadows) {
-            attributes.fontShadow = { style->colorWithColorFilter(shadows[0].color), { shadows[0].location.x().value, shadows[0].location.y().value }, shadows[0].blur.value };
+            return FontShadow {
+                style->colorWithColorFilter(shadows[0].color),
+                { shadows[0].location.x().value, shadows[0].location.y().value },
+                shadows[0].blur.value
+            };
         }
     );
 
-    switch (style->verticalAlign()) {
-    case VerticalAlign::Baseline:
-    case VerticalAlign::Bottom:
-    case VerticalAlign::BaselineMiddle:
-    case VerticalAlign::Length:
-    case VerticalAlign::Middle:
-    case VerticalAlign::TextBottom:
-    case VerticalAlign::TextTop:
-    case VerticalAlign::Top:
-        break;
-    case VerticalAlign::Sub:
-        attributes.subscriptOrSuperscript = FontAttributes::SubscriptOrSuperscript::Subscript;
-        break;
-    case VerticalAlign::Super:
-        attributes.subscriptOrSuperscript = FontAttributes::SubscriptOrSuperscript::Superscript;
-        break;
-    }
+    attributes.subscriptOrSuperscript = WTF::switchOn(style->verticalAlign(),
+        [](const CSS::Keyword::Baseline&) { return FontAttributes::SubscriptOrSuperscript::None; },
+        [](const CSS::Keyword::Sub&) { return FontAttributes::SubscriptOrSuperscript::Subscript; },
+        [](const CSS::Keyword::Super&) { return FontAttributes::SubscriptOrSuperscript::Superscript; },
+        [](const CSS::Keyword::Bottom&) { return FontAttributes::SubscriptOrSuperscript::None; },
+        [](const CSS::Keyword::Middle&) { return FontAttributes::SubscriptOrSuperscript::None; },
+        [](const CSS::Keyword::TextBottom&) { return FontAttributes::SubscriptOrSuperscript::None; },
+        [](const CSS::Keyword::TextTop&) { return FontAttributes::SubscriptOrSuperscript::None; },
+        [](const CSS::Keyword::Top&) { return FontAttributes::SubscriptOrSuperscript::None; },
+        [](const CSS::Keyword::WebkitBaselineMiddle&) { return FontAttributes::SubscriptOrSuperscript::None; },
+        [](const Style::VerticalAlign::Length&) { return FontAttributes::SubscriptOrSuperscript::None; }
+    );
 
     attributes.textLists = editableTextListsAtPositionInDescendingOrder(document().selection().selection().start());
 

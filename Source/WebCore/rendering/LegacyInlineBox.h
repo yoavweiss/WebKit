@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -215,7 +216,7 @@ public:
 
     const RenderStyle& lineStyle() const { return m_bitfields.firstLine() ? renderer().firstLineStyle() : renderer().style(); }
     
-    VerticalAlign verticalAlign() const { return lineStyle().verticalAlign(); }
+    const Style::VerticalAlign& verticalAlign() const { return lineStyle().verticalAlign(); }
 
     // Use with caution! The type is not checked!
     RenderBoxModelObject* boxModelObject() const

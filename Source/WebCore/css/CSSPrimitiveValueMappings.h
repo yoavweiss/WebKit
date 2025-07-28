@@ -4,6 +4,7 @@
  * Copyright (C) 2009 Torch Mobile Inc. All rights reserved. (http://www.torchmobile.com/)
  * Copyright (C) 2009 Jeff Schiller <codedread@gmail.com>
  * Copyright (C) Research In Motion Limited 2010. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1338,62 +1339,6 @@ template<> constexpr UserSelect fromCSSValueID(CSSValueID valueID)
     }
     ASSERT_NOT_REACHED_UNDER_CONSTEXPR_CONTEXT();
     return UserSelect::Text;
-}
-
-constexpr CSSValueID toCSSValueID(VerticalAlign a)
-{
-    switch (a) {
-    case VerticalAlign::Top:
-        return CSSValueTop;
-    case VerticalAlign::Bottom:
-        return CSSValueBottom;
-    case VerticalAlign::Middle:
-        return CSSValueMiddle;
-    case VerticalAlign::Baseline:
-        return CSSValueBaseline;
-    case VerticalAlign::TextBottom:
-        return CSSValueTextBottom;
-    case VerticalAlign::TextTop:
-        return CSSValueTextTop;
-    case VerticalAlign::Sub:
-        return CSSValueSub;
-    case VerticalAlign::Super:
-        return CSSValueSuper;
-    case VerticalAlign::BaselineMiddle:
-        return CSSValueWebkitBaselineMiddle;
-    case VerticalAlign::Length:
-        return CSSValueInvalid;
-    }
-    ASSERT_NOT_REACHED_UNDER_CONSTEXPR_CONTEXT();
-    return CSSValueInvalid;
-}
-
-template<> constexpr VerticalAlign fromCSSValueID(CSSValueID valueID)
-{
-    switch (valueID) {
-    case CSSValueTop:
-        return VerticalAlign::Top;
-    case CSSValueBottom:
-        return VerticalAlign::Bottom;
-    case CSSValueMiddle:
-        return VerticalAlign::Middle;
-    case CSSValueBaseline:
-        return VerticalAlign::Baseline;
-    case CSSValueTextBottom:
-        return VerticalAlign::TextBottom;
-    case CSSValueTextTop:
-        return VerticalAlign::TextTop;
-    case CSSValueSub:
-        return VerticalAlign::Sub;
-    case CSSValueSuper:
-        return VerticalAlign::Super;
-    case CSSValueWebkitBaselineMiddle:
-        return VerticalAlign::BaselineMiddle;
-    default:
-        break;
-    }
-    ASSERT_NOT_REACHED_UNDER_CONSTEXPR_CONTEXT();
-    return VerticalAlign::Top;
 }
 
 #define TYPE Visibility

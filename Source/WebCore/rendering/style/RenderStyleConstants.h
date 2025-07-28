@@ -305,19 +305,6 @@ enum class Overflow : uint8_t {
     PagedY
 };
 
-enum class VerticalAlign : uint8_t {
-    Baseline,
-    Middle,
-    Sub,
-    Super,
-    TextTop,
-    TextBottom,
-    Top,
-    Bottom,
-    BaselineMiddle,
-    Length
-};
-
 enum class Clear : uint8_t {
     None,
     Left,
@@ -1360,7 +1347,6 @@ WTF::TextStream& operator<<(WTF::TextStream&, TransformStyle3D);
 WTF::TextStream& operator<<(WTF::TextStream&, UserDrag);
 WTF::TextStream& operator<<(WTF::TextStream&, UserModify);
 WTF::TextStream& operator<<(WTF::TextStream&, UserSelect);
-WTF::TextStream& operator<<(WTF::TextStream&, VerticalAlign);
 WTF::TextStream& operator<<(WTF::TextStream&, Visibility);
 WTF::TextStream& operator<<(WTF::TextStream&, WhiteSpace);
 WTF::TextStream& operator<<(WTF::TextStream&, WhiteSpaceCollapse);

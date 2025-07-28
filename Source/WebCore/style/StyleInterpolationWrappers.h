@@ -1331,27 +1331,6 @@ public:
     }
 };
 
-class VerticalAlignWrapper final : public LengthWrapper {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(VerticalAlignWrapper, Animation);
-public:
-    VerticalAlignWrapper()
-        : LengthWrapper(CSSPropertyVerticalAlign, &RenderStyle::verticalAlignLength, &RenderStyle::setVerticalAlignLength, LengthWrapper::Flags::IsLengthPercentage)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation compositeOperation) const final
-    {
-        return from.verticalAlign() == VerticalAlign::Length && to.verticalAlign() == VerticalAlign::Length && LengthWrapper::canInterpolate(from, to, compositeOperation);
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        LengthWrapper::interpolate(destination, from, to, context);
-        auto& blendingStyle = context.isDiscrete && context.progress ? to : from;
-        destination.setVerticalAlign(blendingStyle.verticalAlign());
-    }
-};
-
 class TabSizeWrapper final : public Wrapper<const TabSize&> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TabSizeWrapper, Animation);
 public:

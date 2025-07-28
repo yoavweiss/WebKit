@@ -2803,6 +2803,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/images/StyleObjectPosition.h
 
     style/values/inline/StyleLineBoxContain.h
+    style/values/inline/StyleVerticalAlign.h
 
     style/values/line-grid/StyleWebKitLineGrid.h
 

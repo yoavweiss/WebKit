@@ -1419,23 +1419,6 @@ TextStream& operator<<(TextStream& ts, UserSelect userSelect)
     return ts;
 }
 
-TextStream& operator<<(TextStream& ts, VerticalAlign verticalAlign)
-{
-    switch (verticalAlign) {
-    case VerticalAlign::Baseline: ts << "baseline"_s; break;
-    case VerticalAlign::Middle: ts << "middle"_s; break;
-    case VerticalAlign::Sub: ts << "sub"_s; break;
-    case VerticalAlign::Super: ts << "super"_s; break;
-    case VerticalAlign::TextTop: ts << "text-top"_s; break;
-    case VerticalAlign::TextBottom: ts << "text-bottom"_s; break;
-    case VerticalAlign::Top: ts << "top"_s; break;
-    case VerticalAlign::Bottom: ts << "bottom"_s; break;
-    case VerticalAlign::BaselineMiddle: ts << "baseline-middle"_s; break;
-    case VerticalAlign::Length: ts << "length"_s; break;
-    }
-    return ts;
-}
-
 TextStream& operator<<(TextStream& ts, Visibility visibility)
 {
     switch (visibility) {

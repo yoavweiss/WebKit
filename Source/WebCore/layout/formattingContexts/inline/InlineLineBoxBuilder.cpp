@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -751,7 +752,7 @@ InlineLayoutUnit LineBoxBuilder::applyTextBoxTrimOnLineBoxIfNeeded(InlineLayoutU
             // When trimming makes the line box move up, bottom aligned boxes has to follow the root inline box.
             // All other boxes can keep their vertical positions relative to the line box top.
             for (auto& inlineLevelBox : lineBox.nonRootInlineLevelBoxes()) {
-                if (inlineLevelBox.verticalAlign().type != VerticalAlign::Bottom)
+                if (!WTF::holdsAlternative<CSS::Keyword::Bottom>(inlineLevelBox.verticalAlign()))
                     continue;
                 inlineLevelBox.setLogicalTop(inlineLevelBox.logicalTop() - needToTrimThisMuch);
             }

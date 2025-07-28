@@ -997,8 +997,7 @@ bool RenderStyle::changeRequiresLayout(const RenderStyle& other, OptionSet<Style
                 || m_nonInheritedData->boxData->maxHeight() != other.m_nonInheritedData->boxData->maxHeight())
                 return true;
 
-            if (m_nonInheritedData->boxData->verticalAlign() != other.m_nonInheritedData->boxData->verticalAlign()
-                || m_nonInheritedData->boxData->verticalAlignLength() != other.m_nonInheritedData->boxData->verticalAlignLength())
+            if (m_nonInheritedData->boxData->verticalAlign() != other.m_nonInheritedData->boxData->verticalAlign())
                 return true;
 
             if (m_nonInheritedData->boxData->boxSizing() != other.m_nonInheritedData->boxData->boxSizing())
@@ -1637,7 +1636,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyMinHeight);
         if (first.maxHeight() != second.maxHeight())
             changingProperties.m_properties.set(CSSPropertyMaxHeight);
-        if (first.verticalAlign() != second.verticalAlign() || first.verticalAlignLength() != second.verticalAlignLength())
+        if (first.verticalAlign() != second.verticalAlign())
             changingProperties.m_properties.set(CSSPropertyVerticalAlign);
         if (first.specifiedZIndex() != second.specifiedZIndex() || first.hasAutoSpecifiedZIndex() != second.hasAutoSpecifiedZIndex())
             changingProperties.m_properties.set(CSSPropertyZIndex);

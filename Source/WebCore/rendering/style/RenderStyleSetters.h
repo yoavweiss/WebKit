@@ -276,6 +276,7 @@ inline void RenderStyle::setScale(Style::Scale&& scale) { SET_NESTED(m_nonInheri
 inline void RenderStyle::setScrollBehavior(Style::ScrollBehavior behavior) { SET_NESTED(m_nonInheritedData, rareData, scrollBehavior, static_cast<unsigned>(behavior)); }
 inline void RenderStyle::setScrollTimelineAxes(Style::ProgressTimelineAxes&& axes) { SET_NESTED(m_nonInheritedData, rareData, scrollTimelineAxes, WTFMove(axes)); }
 inline void RenderStyle::setScrollTimelineNames(Style::ProgressTimelineNames&& names) { SET_NESTED(m_nonInheritedData, rareData, scrollTimelineNames, WTFMove(names)); }
+inline void RenderStyle::setVerticalAlign(Style::VerticalAlign&& align) { SET_NESTED(m_nonInheritedData, boxData, m_verticalAlign, WTFMove(align)); }
 inline void RenderStyle::setViewTimelineAxes(Style::ProgressTimelineAxes&& axes) { SET_NESTED(m_nonInheritedData, rareData, viewTimelineAxes, WTFMove(axes)); }
 inline void RenderStyle::setViewTimelineInsets(Style::ViewTimelineInsets&& insets) { SET_NESTED(m_nonInheritedData, rareData, viewTimelineInsets, WTFMove(insets)); }
 inline void RenderStyle::setViewTimelineNames(Style::ProgressTimelineNames&& names) { SET_NESTED(m_nonInheritedData, rareData, viewTimelineNames, WTFMove(names)); }
@@ -611,17 +612,6 @@ inline bool RenderStyle::setTextOrientation(TextOrientation textOrientation)
         return false;
     m_inheritedFlags.writingMode.setTextOrientation(textOrientation);
     return true;
-}
-
-inline void RenderStyle::setVerticalAlign(VerticalAlign align)
-{
-    SET_NESTED(m_nonInheritedData, boxData, m_verticalAlign, static_cast<unsigned>(align));
-}
-
-inline void RenderStyle::setVerticalAlignLength(Length&& length)
-{
-    setVerticalAlign(VerticalAlign::Length);
-    SET_NESTED(m_nonInheritedData, boxData, m_verticalAlignLength, WTFMove(length));
 }
 
 inline void RenderStyle::setWidows(unsigned short count)

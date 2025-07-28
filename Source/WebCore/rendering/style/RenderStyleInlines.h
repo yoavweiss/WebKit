@@ -532,7 +532,7 @@ constexpr UnicodeBidi RenderStyle::initialUnicodeBidi() { return UnicodeBidi::No
 constexpr UserDrag RenderStyle::initialUserDrag() { return UserDrag::Auto; }
 constexpr UserModify RenderStyle::initialUserModify() { return UserModify::ReadOnly; }
 constexpr UserSelect RenderStyle::initialUserSelect() { return UserSelect::Text; }
-constexpr VerticalAlign RenderStyle::initialVerticalAlign() { return VerticalAlign::Baseline; }
+inline Style::VerticalAlign RenderStyle::initialVerticalAlign() { return CSS::Keyword::Baseline { }; }
 inline Style::ProgressTimelineAxes RenderStyle::initialViewTimelineAxes() { return CSS::Keyword::Block { };}
 inline Style::ViewTimelineInsets RenderStyle::initialViewTimelineInsets() { return CSS::Keyword::Auto { };}
 inline Style::ProgressTimelineNames RenderStyle::initialViewTimelineNames() { return CSS::Keyword::None { }; }
@@ -773,8 +773,7 @@ inline int RenderStyle::usedZIndex() const { return m_nonInheritedData->boxData-
 inline UserDrag RenderStyle::userDrag() const { return static_cast<UserDrag>(m_nonInheritedData->miscData->userDrag); }
 inline UserModify RenderStyle::userModify() const { return static_cast<UserModify>(m_rareInheritedData->userModify); }
 inline UserSelect RenderStyle::userSelect() const { return static_cast<UserSelect>(m_rareInheritedData->userSelect); }
-inline VerticalAlign RenderStyle::verticalAlign() const { return m_nonInheritedData->boxData->verticalAlign(); }
-inline const Length& RenderStyle::verticalAlignLength() const { return m_nonInheritedData->boxData->verticalAlignLength(); }
+inline const Style::VerticalAlign& RenderStyle::verticalAlign() const { return m_nonInheritedData->boxData->verticalAlign(); }
 inline const Style::ViewTransitionClasses& RenderStyle::viewTransitionClasses() const { return m_nonInheritedData->rareData->viewTransitionClasses; }
 inline const Style::ViewTransitionName& RenderStyle::viewTransitionName() const { return m_nonInheritedData->rareData->viewTransitionName; }
 inline const Style::Color& RenderStyle::visitedLinkBackgroundColor() const { return m_nonInheritedData->miscData->visitedLinkColor->background; }

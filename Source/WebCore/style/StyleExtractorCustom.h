@@ -51,7 +51,6 @@ public:
     static Ref<CSSValue> extractWritingMode(ExtractorState&);
     static Ref<CSSValue> extractFloat(ExtractorState&);
     static Ref<CSSValue> extractContent(ExtractorState&);
-    static Ref<CSSValue> extractVerticalAlign(ExtractorState&);
     static Ref<CSSValue> extractLetterSpacing(ExtractorState&);
     static Ref<CSSValue> extractWordSpacing(ExtractorState&);
     static Ref<CSSValue> extractLineHeight(ExtractorState&);
@@ -150,7 +149,6 @@ public:
     static void extractWritingModeSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFloatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractContentSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractVerticalAlignSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractLetterSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractWordSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractLineHeightSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1261,70 +1259,6 @@ inline Ref<CSSValue> ExtractorCustom::extractContent(ExtractorState& state)
 inline void ExtractorCustom::extractContentSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     extractSerialization<CSSPropertyContent>(state, builder, context);
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractVerticalAlign(ExtractorState& state)
-{
-    switch (state.style.verticalAlign()) {
-    case VerticalAlign::Baseline:
-        return CSSPrimitiveValue::create(CSSValueBaseline);
-    case VerticalAlign::Middle:
-        return CSSPrimitiveValue::create(CSSValueMiddle);
-    case VerticalAlign::Sub:
-        return CSSPrimitiveValue::create(CSSValueSub);
-    case VerticalAlign::Super:
-        return CSSPrimitiveValue::create(CSSValueSuper);
-    case VerticalAlign::TextTop:
-        return CSSPrimitiveValue::create(CSSValueTextTop);
-    case VerticalAlign::TextBottom:
-        return CSSPrimitiveValue::create(CSSValueTextBottom);
-    case VerticalAlign::Top:
-        return CSSPrimitiveValue::create(CSSValueTop);
-    case VerticalAlign::Bottom:
-        return CSSPrimitiveValue::create(CSSValueBottom);
-    case VerticalAlign::BaselineMiddle:
-        return CSSPrimitiveValue::create(CSSValueWebkitBaselineMiddle);
-    case VerticalAlign::Length:
-        return ExtractorConverter::convertLength(state, state.style.verticalAlignLength());
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline void ExtractorCustom::extractVerticalAlignSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    switch (state.style.verticalAlign()) {
-    case VerticalAlign::Baseline:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Baseline { });
-        return;
-    case VerticalAlign::Middle:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Middle { });
-        return;
-    case VerticalAlign::Sub:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Sub { });
-        return;
-    case VerticalAlign::Super:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Super { });
-        return;
-    case VerticalAlign::TextTop:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::TextTop { });
-        return;
-    case VerticalAlign::TextBottom:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::TextBottom { });
-        return;
-    case VerticalAlign::Top:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Top { });
-        return;
-    case VerticalAlign::Bottom:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Bottom { });
-        return;
-    case VerticalAlign::BaselineMiddle:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::WebkitBaselineMiddle { });
-        return;
-    case VerticalAlign::Length:
-        ExtractorSerializer::serializeLength(state, builder, context, state.style.verticalAlignLength());
-        return;
-    }
-    RELEASE_ASSERT_NOT_REACHED();
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractLetterSpacing(ExtractorState& state)

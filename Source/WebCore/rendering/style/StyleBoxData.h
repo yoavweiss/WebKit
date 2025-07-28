@@ -4,6 +4,7 @@
  *           (C) 2000 Dirk Mueller (mueller@kde.org)
  * Copyright (C) 2003, 2005, 2006, 2007, 2008 Apple Inc. All rights reserved.
  * Copyright (C) 2006 Graham Dennis (graham.dennis@gmail.com)
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,6 +30,7 @@
 #include "StyleMaximumSize.h"
 #include "StyleMinimumSize.h"
 #include "StylePreferredSize.h"
+#include "StyleVerticalAlign.h"
 #include <wtf/Ref.h>
 #include <wtf/RefCounted.h>
 
@@ -60,7 +62,7 @@ public:
     const Style::MaximumSize& maxWidth() const { return m_maxWidth; }
     const Style::MaximumSize& maxHeight() const { return m_maxHeight; }
     
-    const Length& verticalAlignLength() const { return m_verticalAlignLength; }
+    const Style::VerticalAlign& verticalAlign() const { return m_verticalAlign; }
     
     int specifiedZIndex() const { return m_specifiedZIndex; }
     bool hasAutoSpecifiedZIndex() const { return m_hasAutoSpecifiedZIndex; }
@@ -70,7 +72,6 @@ public:
 
     BoxSizing boxSizing() const { return static_cast<BoxSizing>(m_boxSizing); }
     BoxDecorationBreak boxDecorationBreak() const { return static_cast<BoxDecorationBreak>(m_boxDecorationBreak); }
-    VerticalAlign verticalAlign() const { return static_cast<VerticalAlign>(m_verticalAlign); }
 
 private:
     friend class RenderStyle;
@@ -87,15 +88,15 @@ private:
     Style::MinimumSize m_minHeight;
     Style::MaximumSize m_maxHeight;
 
-    Length m_verticalAlignLength;
+    Style::VerticalAlign m_verticalAlign;
+
+    PREFERRED_TYPE(bool) uint8_t m_hasAutoSpecifiedZIndex : 1;
+    PREFERRED_TYPE(bool) uint8_t m_hasAutoUsedZIndex : 1;
+    PREFERRED_TYPE(BoxSizing) uint8_t m_boxSizing : 1;
+    PREFERRED_TYPE(BoxDecorationBreak) uint8_t m_boxDecorationBreak : 1;
 
     int m_specifiedZIndex;
     int m_usedZIndex;
-    PREFERRED_TYPE(bool) unsigned m_hasAutoSpecifiedZIndex : 1;
-    PREFERRED_TYPE(bool) unsigned m_hasAutoUsedZIndex : 1;
-    PREFERRED_TYPE(BoxSizing) unsigned m_boxSizing : 1;
-    PREFERRED_TYPE(BoxDecorationBreak) unsigned m_boxDecorationBreak : 1;
-    PREFERRED_TYPE(VerticalAlign) unsigned m_verticalAlign : 4;
 };
 
 } // namespace WebCore

@@ -142,6 +142,7 @@ inline FixedVector<PositionTryFallback> forwardInheritedValue(const FixedVector<
 inline ProgressTimelineAxes forwardInheritedValue(const ProgressTimelineAxes& value) { auto copy = value; return copy; }
 inline ProgressTimelineNames forwardInheritedValue(const ProgressTimelineNames& value) { auto copy = value; return copy; }
 inline ScrollTimelines forwardInheritedValue(const ScrollTimelines& value) { auto copy = value; return copy; }
+inline VerticalAlign forwardInheritedValue(const VerticalAlign& value) { auto copy = value; return copy; }
 inline ViewTimelineInsets forwardInheritedValue(const ViewTimelineInsets& value) { auto copy = value; return copy; }
 inline ViewTimelines forwardInheritedValue(const ViewTimelines& value) { auto copy = value; return copy; }
 inline ViewTransitionClasses forwardInheritedValue(const ViewTransitionClasses& value) { auto copy = value; return copy; }
@@ -191,10 +192,6 @@ public:
     DECLARE_PROPERTY_CUSTOM_HANDLERS(OutlineStyle);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Stroke);
     DECLARE_PROPERTY_CUSTOM_HANDLERS(Zoom);
-
-    // Custom handling of inherit + value setting only.
-    static void applyInheritVerticalAlign(BuilderState&);
-    static void applyValueVerticalAlign(BuilderState&, CSSValue&);
 
     // Custom handling of inherit setting only.
     static void applyInheritWordSpacing(BuilderState&);
@@ -273,20 +270,6 @@ inline void BuilderCustom::applyValueZoom(BuilderState& builderState, CSSValue& 
         if (float number = primitiveValue->resolveAsNumber<float>(builderState.cssToLengthConversionData()))
             builderState.setZoom(number);
     }
-}
-
-inline void BuilderCustom::applyInheritVerticalAlign(BuilderState& builderState)
-{
-    builderState.style().setVerticalAlignLength(forwardInheritedValue(builderState.parentStyle().verticalAlignLength()));
-    builderState.style().setVerticalAlign(forwardInheritedValue(builderState.parentStyle().verticalAlign()));
-}
-
-inline void BuilderCustom::applyValueVerticalAlign(BuilderState& builderState, CSSValue& value)
-{
-    if (auto valueID = value.valueID(); valueID != CSSValueInvalid)
-        builderState.style().setVerticalAlign(fromCSSValueID<VerticalAlign>(valueID));
-    else
-        builderState.style().setVerticalAlignLength(BuilderConverter::convertLength(builderState, value));
 }
 
 enum BorderImageType { BorderImage, MaskBorder };
