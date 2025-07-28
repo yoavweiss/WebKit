@@ -127,7 +127,7 @@ static void drawFocusRingForPathForVectorBasedControls(const RenderObject& box, 
     // macOS controls have never honored outline offset.
 #if PLATFORM(IOS_FAMILY)
     auto deviceScaleFactor = box.document().deviceScaleFactor();
-    auto outlineOffset = floorToDevicePixel(box.style().outlineOffset(), deviceScaleFactor);
+    auto outlineOffset = floorToDevicePixel(box.style().outlineOffset().value, deviceScaleFactor);
 
     if (outlineOffset > 0) {
         const auto center = rect.center();
