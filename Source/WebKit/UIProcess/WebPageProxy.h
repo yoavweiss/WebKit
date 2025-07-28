@@ -593,7 +593,7 @@ struct WebPreferencesStore;
 struct WebSpeechSynthesisVoice;
 struct WebURLSchemeHandlerIdentifierType;
 struct WebsitePoliciesData;
-#if PLATFORM(WPE) && USE(GBM)
+#if USE(GBM) && (PLATFORM(GTK) || PLATFORM(WPE))
 struct DMABufRendererBufferFormat;
 #endif
 
@@ -3041,14 +3041,13 @@ private:
 #if PLATFORM(GTK) || PLATFORM(WPE)
     void bindAccessibilityTree(const String&);
     OptionSet<WebCore::PlatformEventModifier> currentStateOfModifierKeys();
+#if USE(GBM)
+    Vector<DMABufRendererBufferFormat> preferredBufferFormats() const;
+#endif
 #endif
 
 #if PLATFORM(GTK)
     void showEmojiPicker(const WebCore::IntRect&, CompletionHandler<void(String)>&&);
-#endif
-
-#if PLATFORM(WPE) && USE(GBM)
-    Vector<DMABufRendererBufferFormat> preferredBufferFormats() const;
 #endif
 
     // Popup Menu.

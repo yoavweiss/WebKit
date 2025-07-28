@@ -346,9 +346,6 @@
 #endif
 
 #if PLATFORM(GTK)
-#if USE(GBM)
-#include "AcceleratedBackingStoreDMABuf.h"
-#endif
 #include <WebCore/SelectionData.h>
 #endif
 
@@ -12071,13 +12068,8 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
         parameters.machBootstrapHandle = SandboxExtension::createHandleForMachBootstrapExtension();
 #endif
 
-#if USE(GBM)
-#if PLATFORM(GTK)
-    parameters.preferredBufferFormats = AcceleratedBackingStoreDMABuf::preferredBufferFormats();
-#endif
-#if PLATFORM(WPE)
+#if USE(GBM) && (PLATFORM(GTK) || PLATFORM(WPE))
     parameters.preferredBufferFormats = preferredBufferFormats();
-#endif
 #endif
 
 #if HAVE(AUDIT_TOKEN)

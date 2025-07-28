@@ -59,7 +59,7 @@
 #endif
 
 #if PLATFORM(GTK)
-#include "AcceleratedBackingStoreDMABuf.h"
+#include "AcceleratedBackingStore.h"
 #include "Display.h"
 #include <gtk/gtk.h>
 #endif
@@ -192,7 +192,7 @@ static String dmabufRendererWithSupportedBuffers()
     buffers.append("DMABuf (Supported buffers: "_s);
 
 #if PLATFORM(GTK)
-    auto mode = AcceleratedBackingStoreDMABuf::rendererBufferTransportMode();
+    auto mode = AcceleratedBackingStore::rendererBufferTransportMode();
 #else
     OptionSet<RendererBufferTransportMode> mode;
     if (wpe_display_get_drm_render_node(wpe_display_get_primary()))
@@ -461,7 +461,7 @@ void WebKitProtocolHandler::handleGPU(WebKitURISchemeRequest* request)
 #if PLATFORM(GTK)
     addTableRow(versionObject, "GTK version"_s, makeString(GTK_MAJOR_VERSION, '.', GTK_MINOR_VERSION, '.', GTK_MICRO_VERSION, " (build) "_s, gtk_get_major_version(), '.', gtk_get_minor_version(), '.', gtk_get_micro_version(), " (runtime)"_s));
 
-    bool usingDMABufRenderer = AcceleratedBackingStoreDMABuf::checkRequirements();
+    bool usingDMABufRenderer = AcceleratedBackingStore::checkRequirements();
 #endif
 
 #if PLATFORM(WPE)

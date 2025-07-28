@@ -505,7 +505,7 @@ if (ENABLE_WPE_PLATFORM)
     )
 
     list(APPEND WebKit_MESSAGES_IN_FILES
-        UIProcess/dmabuf/AcceleratedBackingStoreDMABuf
+        UIProcess/glib/AcceleratedBackingStore
 
         WebProcess/WebPage/dmabuf/AcceleratedSurfaceDMABuf
     )

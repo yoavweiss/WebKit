@@ -257,7 +257,7 @@ UIProcess/linux/MemoryPressureMonitor.cpp
 
 UIProcess/soup/WebProcessPoolSoup.cpp
 
-UIProcess/wpe/AcceleratedBackingStoreDMABuf.cpp
+UIProcess/wpe/AcceleratedBackingStore.cpp
 UIProcess/wpe/DisplayVBlankMonitorWPE.cpp
 UIProcess/wpe/ScreenManagerWPE.cpp
 UIProcess/wpe/SystemSettingsManagerProxyWPE.cpp

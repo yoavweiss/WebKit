@@ -36,7 +36,7 @@
 #include <wtf/glib/GRefPtr.h>
 
 namespace WebKit {
-class AcceleratedBackingStoreDMABuf;
+class AcceleratedBackingStore;
 class WebPlatformTouchPoint;
 }
 
@@ -92,7 +92,7 @@ private:
     void handleGesture(WPEEvent*);
 
     GRefPtr<WPEView> m_wpeView;
-    RefPtr<WebKit::AcceleratedBackingStoreDMABuf> m_backingStore;
+    RefPtr<WebKit::AcceleratedBackingStore> m_backingStore;
     uint32_t m_displayID { 0 };
     unsigned long m_bufferRenderedID { 0 };
     Vector<CompletionHandler<void()>> m_nextPresentationUpdateCallbacks;

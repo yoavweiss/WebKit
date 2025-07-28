@@ -53,14 +53,14 @@ namespace WebKit {
 class WebPageProxy;
 class WebProcessProxy;
 
-class AcceleratedBackingStoreDMABuf final : public IPC::MessageReceiver, public RefCounted<AcceleratedBackingStoreDMABuf> {
-    WTF_MAKE_TZONE_ALLOCATED(AcceleratedBackingStoreDMABuf);
-    WTF_MAKE_NONCOPYABLE(AcceleratedBackingStoreDMABuf);
+class AcceleratedBackingStore final : public IPC::MessageReceiver, public RefCounted<AcceleratedBackingStore> {
+    WTF_MAKE_TZONE_ALLOCATED(AcceleratedBackingStore);
+    WTF_MAKE_NONCOPYABLE(AcceleratedBackingStore);
 public:
     using Rects = Vector<WebCore::IntRect, 1>;
 
-    static Ref<AcceleratedBackingStoreDMABuf> create(WebPageProxy&, WPEView*);
-    ~AcceleratedBackingStoreDMABuf();
+    static Ref<AcceleratedBackingStore> create(WebPageProxy&, WPEView*);
+    ~AcceleratedBackingStore();
 
     void ref() const final { RefCounted::ref(); }
     void deref() const final { RefCounted::deref(); }
@@ -70,13 +70,13 @@ public:
     RendererBufferFormat bufferFormat() const;
 
 private:
-    AcceleratedBackingStoreDMABuf(WebPageProxy&, WPEView*);
+    AcceleratedBackingStore(WebPageProxy&, WPEView*);
 
     // IPC::MessageReceiver.
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&) override;
 
-    void didCreateBuffer(uint64_t id, const WebCore::IntSize&, uint32_t format, Vector<WTF::UnixFileDescriptor>&&, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier, DMABufRendererBufferFormat::Usage);
-    void didCreateBufferSHM(uint64_t id, WebCore::ShareableBitmapHandle&&);
+    void didCreateDMABufBuffer(uint64_t id, const WebCore::IntSize&, uint32_t format, Vector<WTF::UnixFileDescriptor>&&, Vector<uint32_t>&& offsets, Vector<uint32_t>&& strides, uint64_t modifier, DMABufRendererBufferFormat::Usage);
+    void didCreateSHMBuffer(uint64_t id, WebCore::ShareableBitmapHandle&&);
     void didDestroyBuffer(uint64_t id);
     void frame(uint64_t bufferID, Rects&&, WTF::UnixFileDescriptor&&);
     void frameDone();
