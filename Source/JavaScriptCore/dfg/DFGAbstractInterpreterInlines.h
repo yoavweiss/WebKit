@@ -2406,12 +2406,18 @@ bool AbstractInterpreter<AbstractStateType>::executeEffects(unsigned clobberLimi
                 switch (node->op()) {
                 case CompareLess:
                 case CompareGreater:
+                    // symbol < symbol, symbol > symbol throws TypeError
+                    if (value.isType(SpecSymbol))
+                        break;
                     setConstant(node, jsBoolean(false));
                     break;
                 case CompareLessEq:
                 case CompareGreaterEq: {
                     // null <= null is true, but undefined <= undefined is false.
                     if (value.isType(SpecOther))
+                        break;
+                    // symbol <= symbol, symbol >= symbol throws TypeError
+                    if (value.isType(SpecSymbol))
                         break;
                     [[fallthrough]];
                 }
