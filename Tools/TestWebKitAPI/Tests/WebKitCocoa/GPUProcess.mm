@@ -685,7 +685,12 @@ TEST(GPUProcess, ExitsUnderMemoryPressureCanvasCase)
     });
 }
 
+// FIXME when rdar://154212960 is resolved.
+#if PLATFORM(IOS)
+TEST(GPUProcess, DISABLED_ExitsUnderMemoryPressureVideoCase)
+#else
 TEST(GPUProcess, ExitsUnderMemoryPressureVideoCase)
+#endif
 {
     runMemoryPressureExitTest([](WKWebView *webView) {
         [webView synchronouslyLoadTestPageNamed:@"large-videos-with-audio"];
