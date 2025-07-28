@@ -1870,6 +1870,41 @@ String AccessibilityObject::textContentPrefixFromListMarker() const
     return { };
 }
 
+bool AccessibilityObject::shouldCacheStringValue() const
+{
+    if (!isStaticText()) {
+        // Quick non-virtual exit path (this only checks m_role — renderer() is virtual).
+        return true;
+    }
+
+    CheckedPtr renderer = this->renderer();
+    if (!renderer || !is<RenderText>(*renderer))
+        return true;
+    // Only consider RenderTexts for now.
+
+    if (renderer->isAnonymous()) {
+        CheckedPtr parent = renderer ? renderer->parent() : nullptr;
+        if (is<PseudoElement>(parent ? parent->element() : nullptr)) {
+            // RenderTexts descending from pseudo-elements (e.g. ::before) can have alt text that
+            // we don't currently handle via text runs, and thus we must cache the string value.
+            return true;
+        }
+    }
+
+    if (CheckedPtr containingBlock = renderer->containingBlock()) {
+        // Check for ::first-letter, which would require some special handling to serve off the main-thread
+        // that we don't have right now.
+        if (containingBlock->style().hasPseudoStyle(PseudoId::FirstLetter))
+            return true;
+        if (containingBlock->isAnonymous()) {
+            containingBlock = containingBlock->containingBlock();
+            return containingBlock && containingBlock->style().hasPseudoStyle(PseudoId::FirstLetter);
+        }
+    }
+    // Getting to the end means we can avoid caching string value.
+    return false;
+}
+
 String AccessibilityObject::stringForVisiblePositionRange(const VisiblePositionRange& visiblePositionRange)
 {
     auto range = makeSimpleRange(visiblePositionRange);

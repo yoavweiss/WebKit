@@ -32,6 +32,7 @@
 #include "AXIsolatedTree.h"
 #include "AXLogger.h"
 #include "AXSearchManager.h"
+#include "AXTextMarker.h"
 #include "AXTextRun.h"
 #include "AccessibilityNodeObject.h"
 #include "DateComponents.h"
@@ -1670,7 +1671,20 @@ String AXIsolatedObject::titleAttributeValue() const
 String AXIsolatedObject::stringValue() const
 {
 #if ENABLE(AX_THREAD_TEXT_APIS)
-    return stringAttributeValue(AXProperty::StringValue);
+    size_t index = indexOfProperty(AXProperty::StringValue);
+    if (index == notFound) {
+        if (isStaticText()) {
+            // We can compute the stringValue of rendered text on-demand using AXProperty::TextRuns.
+            // See AccessibilityObject::shouldCacheStringValue.
+            return textMarkerRange().toString(IncludeListMarkerText::No);
+        }
+        return emptyString();
+    }
+
+    return WTF::switchOn(m_properties[index].second,
+        [] (const String& typedValue) { return typedValue; },
+        [] (auto&) { return emptyString(); }
+    );
 #else
     if (std::optional stringValue = optionalAttributeValue<String>(AXProperty::StringValue))
         return *stringValue;

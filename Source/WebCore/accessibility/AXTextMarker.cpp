@@ -546,8 +546,12 @@ String listMarkerTextOnSameLine(const AXTextMarker& marker)
 }
 #endif // ENABLE(AX_THREAD_TEXT_APIS)
 
-String AXTextMarkerRange::toString() const
+String AXTextMarkerRange::toString(IncludeListMarkerText includeListMarkerText) const
 {
+#if !ENABLE(AX_THREAD_TEXT_APIS)
+    UNUSED_PARAM(includeListMarkerText);
+#endif // !ENABLE(AX_THREAD_TEXT_APIS)
+
 #if ENABLE(AX_THREAD_TEXT_APIS)
     if (!isMainThread() && AXObjectCache::useAXThreadTextApis()) {
         // Traverses from m_start to m_end, collecting all text along the way.
@@ -559,7 +563,8 @@ String AXTextMarkerRange::toString() const
             return emptyString();
 
         StringBuilder result;
-        result.append(listMarkerTextOnSameLine(start));
+        if (includeListMarkerText == IncludeListMarkerText::Yes)
+            result.append(listMarkerTextOnSameLine(start));
 
         if (start.isolatedObject() == end.isolatedObject()) {
             size_t minOffset = std::min(start.offset(), end.offset());

@@ -372,6 +372,8 @@ public:
 
     // Methods for determining accessibility text.
     bool isARIAStaticText() const { return ariaRoleAttribute() == AccessibilityRole::StaticText; }
+    // Whether this object should cache a string value when an isolated object is created for it.
+    bool shouldCacheStringValue() const;
     String stringValue() const override { return { }; }
     bool dependsOnTextUnderElement() const;
     String textUnderElement(TextUnderElementMode = { }) const override { return { }; }

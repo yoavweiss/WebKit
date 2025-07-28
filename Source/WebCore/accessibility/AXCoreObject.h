@@ -659,6 +659,7 @@ enum class AccessibilityOrientation : uint8_t {
     Vertical
 };
 
+enum class IncludeListMarkerText : bool { No, Yes };
 enum class TrimWhitespace : bool { No, Yes };
 
 struct TextUnderElementMode {

@@ -74,8 +74,9 @@ void appendPlatformProperties(AXPropertyVector& properties, OptionSet<AXProperty
             setProperty(AXProperty::UnderlineColor, style.underlineColor());
         setProperty(AXProperty::FontOrientation, object->fontOrientation());
     }
-    // FIXME: Can we compute this off the main-thread with our cached text runs?
-    setProperty(AXProperty::StringValue, object->stringValue().isolatedCopy());
+
+    if (object->shouldCacheStringValue())
+        setProperty(AXProperty::StringValue, object->stringValue().isolatedCopy());
 #endif // ENABLE(AX_THREAD_TEXT_APIS)
 
 #if !ENABLE(AX_THREAD_TEXT_APIS)
