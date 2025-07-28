@@ -2310,7 +2310,3 @@ webkit.org/b/296330 imported/w3c/web-platform-tests/content-security-policy/gen/
 webkit.org/b/296344 imported/w3c/web-platform-tests/webrtc/RTCRtpSender-replaceTrack.https.html [ Pass Failure ]
 
 webkit.org/b/296348 [ Sequoia ] http/tests/cache/disk-cache/shattered-deduplication.html [ Pass Failure ] 
-
-# webkit.org/b/296487 ASSERTION FAILED: !hasError() in webgpu/shader/validation/shader_io tests
-[ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/validation/shader_io/locations.html [ Skip ] 
-[ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/validation/shader_io/pipeline_stage.html [ Skip ]
