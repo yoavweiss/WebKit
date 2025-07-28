@@ -145,7 +145,6 @@ public:
         virtual void fired() = 0;
 
 #if USE(GLIB_EVENT_LOOP)
-        WTF_EXPORT_PRIVATE void setName(ASCIILiteral);
         WTF_EXPORT_PRIVATE void setPriority(int);
 #endif
 

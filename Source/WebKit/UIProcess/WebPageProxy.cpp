@@ -773,7 +773,6 @@ WebPageProxy::Internals::Internals(WebPageProxy& page)
 #endif
 {
 #if PLATFORM(GTK) || PLATFORM(WPE)
-    activityStateChangeTimer.setName("[WebKit] ActivityStateChange"_s);
     // Give the events causing activity state changes more priority than the change timer.
     activityStateChangeTimer.setPriority(RunLoopSourcePriority::RunLoopTimer + 1);
 #endif

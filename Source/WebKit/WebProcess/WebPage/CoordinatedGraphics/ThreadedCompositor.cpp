@@ -119,7 +119,6 @@ ThreadedCompositor::ThreadedCompositor(LayerTreeHost& layerTreeHost, ThreadedDis
         m_display.updateTimer = makeUnique<RunLoop::Timer>(RunLoop::currentSingleton(), "ThreadedCompositor::UpdateTimer"_s, this, &ThreadedCompositor::displayUpdateFired);
 #if USE(GLIB_EVENT_LOOP)
         m_display.updateTimer->setPriority(RunLoopSourcePriority::CompositingThreadUpdateTimer);
-        m_display.updateTimer->setName("[WebKit] ThreadedCompositor::DisplayUpdate");
 #endif
         m_display.updateTimer->startOneShot(Seconds { 1.0 / m_display.displayUpdate.updatesPerSecond });
 #endif
