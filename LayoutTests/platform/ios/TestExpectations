@@ -1325,6 +1325,7 @@ fast/scrolling/rtl-scrollbars-text-selection.html [ Skip ]
 fast/scrolling/v-rl-scrollbars-initial-position-dynamic.html [ Skip ]
 fast/scrolling/v-rl-scrollbars-initial-position.html [ Skip ]
 fast/scrolling/vertical-scrollbar-position.html [ Skip ]
+fast/scrolling/content-box-smaller-than-scrollbar.html [ Skip ]
 
 imported/w3c/web-platform-tests/css/css-overflow/scrollbar-gutter-root-both-edges.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-overflow/scrollbar-gutter-root.html [ ImageOnlyFailure ]

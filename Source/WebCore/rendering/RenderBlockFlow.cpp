@@ -1212,8 +1212,9 @@ void RenderBlockFlow::determineLogicalLeftPositionForChild(RenderBox& child, App
 {
     LayoutUnit startPosition = borderAndPaddingStart();
     LayoutUnit initialStartPosition = startPosition;
+    auto verticalScrollbarWidthClampedToContentBox = std::min<LayoutUnit>(verticalScrollbarWidth(), std::max(0_lu, logicalWidth() - borderAndPaddingLogicalWidth()));
     if ((shouldPlaceVerticalScrollbarOnLeft() || style().scrollbarGutter().isStableBothEdges()) && isHorizontalWritingMode())
-        startPosition += (writingMode().isLogicalLeftInlineStart() ? 1 : -1) * verticalScrollbarWidth();
+        startPosition += (writingMode().isLogicalLeftInlineStart() ? 1 : -1) * verticalScrollbarWidthClampedToContentBox;
     if (style().scrollbarGutter().isStableBothEdges() && !isHorizontalWritingMode())
         startPosition += (writingMode().isLogicalLeftInlineStart() ? 1 : -1) * horizontalScrollbarHeight();
     LayoutUnit totalAvailableLogicalWidth = borderAndPaddingLogicalWidth() + contentBoxLogicalWidth();
