@@ -8269,8 +8269,10 @@
       "emails" : [
          "v_bykov@apple.com"
       ],
+      "expertise" : "JavaScriptCore",
       "github" : "ast-hugger",
-      "name" : "Vassili Bykov"
+      "name" : "Vassili Bykov",
+      "status" : "committer"
    },
    {
       "emails" : [
