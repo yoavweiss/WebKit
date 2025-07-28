@@ -55,7 +55,7 @@ class AccessibilityObject;
 class Page;
 enum class AXStreamOptions : uint16_t;
 
-static constexpr uint16_t lastPropertyFlagIndex = 21;
+static constexpr uint16_t lastPropertyFlagIndex = 24;
 // The most common boolean properties are stored in a bitfield rather than in a HashMap.
 // If you edit these, make sure the corresponding AXProperty is ordered correctly in that
 // enum, and update lastPropertyFlagIndex above.
@@ -75,12 +75,16 @@ enum class AXPropertyFlag : uint32_t {
     IsKeyboardFocusable                           = 1 << 12,
     IsNonLayerSVGObject                           = 1 << 13,
     IsTableRow                                    = 1 << 14,
-    IsVisited                                     = 1 << 15,
-    SupportsCheckedState                          = 1 << 16,
-    SupportsDragging                              = 1 << 17,
-    SupportsExpanded                              = 1 << 18,
-    SupportsPath                                  = 1 << 19,
-    SupportsPosInSet                              = 1 << 20,
+    // These IsTextEmissionBehavior flags are the variants of enum TextEmissionBehavior.
+    IsTextEmissionBehaviorTab                     = 1 << 15,
+    IsTextEmissionBehaviorNewline                 = 1 << 16,
+    IsTextEmissionBehaviorDoubleNewline           = 1 << 17,
+    IsVisited                                     = 1 << 18,
+    SupportsCheckedState                          = 1 << 19,
+    SupportsDragging                              = 1 << 20,
+    SupportsExpanded                              = 1 << 21,
+    SupportsPath                                  = 1 << 22,
+    SupportsPosInSet                              = 1 << 23,
     SupportsSetSize                               = 1 << lastPropertyFlagIndex
 };
 
@@ -100,12 +104,15 @@ enum class AXProperty : uint16_t {
     IsKeyboardFocusable = 12,
     IsNonLayerSVGObject = 13,
     IsTableRow = 14,
-    IsVisited = 15,
-    SupportsCheckedState = 16,
-    SupportsDragging = 17,
-    SupportsExpanded = 18,
-    SupportsPath = 19,
-    SupportsPosInSet = 20,
+    IsTextEmissionBehaviorTab = 15,
+    IsTextEmissionBehaviorNewline = 16,
+    IsTextEmissionBehaviorDoubleNewline = 17,
+    IsVisited = 18,
+    SupportsCheckedState = 19,
+    SupportsDragging = 20,
+    SupportsExpanded = 21,
+    SupportsPath = 22,
+    SupportsPosInSet = 23,
     SupportsSetSize = lastPropertyFlagIndex,
     // End bool attributes that are matched in order by AXPropertyFlag.
 
@@ -281,7 +288,6 @@ enum class AXProperty : uint16_t {
     // synthesize it on-the-fly using AXProperty::TextRuns.
     TextContent,
 #endif // !ENABLE(AX_THREAD_TEXT_APIS)
-    TextEmissionBehavior,
     TextInputMarkedTextMarkerRange,
 #if ENABLE(AX_THREAD_TEXT_APIS)
     TextRuns,
@@ -315,7 +321,6 @@ using AXPropertyValueVariant = Variant<std::nullptr_t, Markable<AXID>, String, b
     , RetainPtr<CTFontRef>
     , FontOrientation
     , std::shared_ptr<AXTextRuns>
-    , TextEmissionBehavior
     , AXTextRunLineID
 #endif // ENABLE(AX_THREAD_TEXT_APIS)
 >;

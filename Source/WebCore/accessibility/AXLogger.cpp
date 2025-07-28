@@ -748,9 +748,6 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::EmbeddedImageDescription:
         stream << "EmbeddedImageDescription";
         break;
-    case AXProperty::TextEmissionBehavior:
-        stream << "TextEmissionBehavior";
-        break;
     case AXProperty::ExpandedTextValue:
         stream << "ExpandedTextValue";
         break;
@@ -965,6 +962,15 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
         break;
     case AXProperty::IsTableRow:
         stream << "IsTableRow";
+        break;
+    case AXProperty::IsTextEmissionBehaviorDoubleNewline:
+        stream << "IsTextEmissionBehaviorDoubleNewline";
+        break;
+    case AXProperty::IsTextEmissionBehaviorNewline:
+        stream << "IsTextEmissionBehaviorNewline";
+        break;
+    case AXProperty::IsTextEmissionBehaviorTab:
+        stream << "IsTextEmissionBehaviorTab";
         break;
     case AXProperty::IsTree:
         stream << "IsTree";

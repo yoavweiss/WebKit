@@ -806,7 +806,6 @@ enum class AXDebugStringOption {
 
 enum class TextEmissionBehavior : uint8_t {
     None,
-    Space,
     Tab,
     Newline,
     DoubleNewline

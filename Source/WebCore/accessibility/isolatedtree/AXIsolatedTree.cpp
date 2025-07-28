@@ -1778,7 +1778,19 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
 
 #if ENABLE(AX_THREAD_TEXT_APIS)
         setProperty(AXProperty::TextRuns, std::make_shared<AXTextRuns>(object.textRuns()));
-        setProperty(AXProperty::TextEmissionBehavior, object.textEmissionBehavior());
+        switch (object.textEmissionBehavior()) {
+        case TextEmissionBehavior::DoubleNewline:
+            propertyFlags.add(AXPropertyFlag::IsTextEmissionBehaviorDoubleNewline);
+            break;
+        case TextEmissionBehavior::Newline:
+            propertyFlags.add(AXPropertyFlag::IsTextEmissionBehaviorNewline);
+            break;
+        case TextEmissionBehavior::Tab:
+            propertyFlags.add(AXPropertyFlag::IsTextEmissionBehaviorTab);
+            break;
+        case TextEmissionBehavior::None:
+            break;
+        }
         if (object.role() == AccessibilityRole::ListMarker) {
             setProperty(AXProperty::ListMarkerText, object.listMarkerText().isolatedCopy());
             setProperty(AXProperty::ListMarkerLineID, object.listMarkerLineID());

@@ -93,7 +93,7 @@ public:
         const auto* runs = textRuns();
         return runs && runs->size();
     }
-    TextEmissionBehavior textEmissionBehavior() const final { return propertyValue<TextEmissionBehavior>(AXProperty::TextEmissionBehavior); }
+    TextEmissionBehavior textEmissionBehavior() const final;
     AXTextRunLineID listMarkerLineID() const final { return propertyValue<AXTextRunLineID>(AXProperty::ListMarkerLineID); };
     String listMarkerText() const final { return stringAttributeValue(AXProperty::ListMarkerText); }
     FontOrientation fontOrientation() const final { return propertyValue<FontOrientation>(AXProperty::FontOrientation); }
@@ -154,6 +154,7 @@ private:
 
     void setPropertyFlag(AXPropertyFlag, bool);
     bool hasPropertyFlag(AXPropertyFlag) const;
+    bool hasPropertyFlag(AXProperty) const;
 
     // FIXME: consolidate all AttributeValue retrieval in a single template method.
     bool boolAttributeValue(AXProperty) const;
@@ -631,6 +632,13 @@ inline void AXIsolatedObject::setPropertyFlag(AXPropertyFlag flag, bool set)
 inline bool AXIsolatedObject::hasPropertyFlag(AXPropertyFlag flag) const
 {
     return m_propertyFlags.contains(flag);
+}
+
+inline bool AXIsolatedObject::hasPropertyFlag(AXProperty property) const
+{
+    ASSERT(static_cast<uint16_t>(property) <= lastPropertyFlagIndex);
+    uint16_t propertyIndex = static_cast<uint16_t>(property);
+    return hasPropertyFlag(static_cast<AXPropertyFlag>(1 << propertyIndex));
 }
 
 } // namespace WebCore
