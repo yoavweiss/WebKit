@@ -3230,7 +3230,10 @@ style/values/size-adjust/StyleTextSizeAdjust.cpp
 style/values/sizing/StyleAspectRatio.cpp
 style/values/sizing/StyleContainIntrinsicSize.cpp
 style/values/sizing/StylePreferredSize.cpp
+style/values/svg/StyleSVGBaselineShift.cpp
 style/values/svg/StyleSVGPaint.cpp
+style/values/svg/StyleSVGStrokeDasharray.cpp
+style/values/svg/StyleSVGStrokeDashoffset.cpp
 style/values/text/StyleTextIndent.cpp
 style/values/text-decoration/StyleTextDecorationThickness.cpp
 style/values/text-decoration/StyleTextEmphasisStyle.cpp

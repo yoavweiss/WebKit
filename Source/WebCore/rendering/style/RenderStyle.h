@@ -313,7 +313,14 @@ struct ProgressTimelineAxes;
 struct ProgressTimelineNames;
 struct Quotes;
 struct Rotate;
+struct SVGBaselineShift;
+struct SVGCenterCoordinateComponent;
+struct SVGCoordinateComponent;
 struct SVGPaint;
+struct SVGRadius;
+struct SVGRadiusComponent;
+struct SVGStrokeDasharray;
+struct SVGStrokeDashoffset;
 struct Scale;
 struct ScopedName;
 struct ScrollMarginEdge;
@@ -1759,6 +1766,9 @@ public:
     inline void setStrokeMiterLimit(float);
     static constexpr float initialStrokeMiterLimit();
 
+    static inline Style::SVGStrokeDasharray initialStrokeDashArray();
+    static inline Style::SVGStrokeDashoffset initialStrokeDashOffset();
+
     const SVGRenderStyle& svgStyle() const { return m_svgStyle; }
     inline SVGRenderStyle& accessSVGStyle();
 
@@ -1777,25 +1787,25 @@ public:
     inline void setVisitedLinkStroke(Style::SVGPaint&&);
     inline float strokeOpacity() const;
     inline void setStrokeOpacity(float);
-    inline const FixedVector<Length>& strokeDashArray() const;
-    inline void setStrokeDashArray(FixedVector<Length>&&);
-    inline const Length& strokeDashOffset() const;
-    inline void setStrokeDashOffset(Length&&);
+    inline const Style::SVGStrokeDasharray& strokeDashArray() const;
+    inline void setStrokeDashArray(Style::SVGStrokeDasharray&&);
+    inline const Style::SVGStrokeDashoffset& strokeDashOffset() const;
+    inline void setStrokeDashOffset(Style::SVGStrokeDashoffset&&);
 
-    inline const Length& cx() const;
-    inline void setCx(Length&&);
-    inline const Length& cy() const;
-    inline void setCy(Length&&);
-    inline const Length& r() const;
-    inline void setR(Length&&);
-    inline const Length& rx() const;
-    inline void setRx(Length&&);
-    inline const Length& ry() const;
-    inline void setRy(Length&&);
-    inline const Length& x() const;
-    inline void setX(Length&&);
-    inline const Length& y() const;
-    inline void setY(Length&&);
+    inline const Style::SVGCenterCoordinateComponent& cx() const;
+    inline void setCx(Style::SVGCenterCoordinateComponent&&);
+    inline const Style::SVGCenterCoordinateComponent& cy() const;
+    inline void setCy(Style::SVGCenterCoordinateComponent&&);
+    inline const Style::SVGRadius& r() const;
+    inline void setR(Style::SVGRadius&&);
+    inline const Style::SVGRadiusComponent& rx() const;
+    inline void setRx(Style::SVGRadiusComponent&&);
+    inline const Style::SVGRadiusComponent& ry() const;
+    inline void setRy(Style::SVGRadiusComponent&&);
+    inline const Style::SVGCoordinateComponent& x() const;
+    inline void setX(Style::SVGCoordinateComponent&&);
+    inline const Style::SVGCoordinateComponent& y() const;
+    inline void setY(Style::SVGCoordinateComponent&&);
 
     inline void setD(RefPtr<StylePathData>&&);
     inline StylePathData* d() const;
@@ -1811,10 +1821,8 @@ public:
     inline void setFloodColor(Style::Color&&);
     inline void setLightingColor(Style::Color&&);
 
-    inline const Length& baselineShiftValue() const;
-    inline void setBaselineShiftValue(Length&&);
-    inline SVGLengthValue kerning() const;
-    inline void setKerning(SVGLengthValue);
+    inline const Style::SVGBaselineShift& baselineShift() const;
+    inline void setBaselineShift(Style::SVGBaselineShift&&);
 
     inline void setShapeOutside(RefPtr<ShapeValue>&&);
     inline ShapeValue* shapeOutside() const; // Defined in RenderStyleInlines.h.
@@ -1938,6 +1946,8 @@ public:
 
     static constexpr Clear initialClear();
     static inline Style::Clip initialClip();
+    static inline Style::SVGCenterCoordinateComponent initialCx();
+    static inline Style::SVGCenterCoordinateComponent initialCy();
     static constexpr DisplayType initialDisplay();
     static constexpr UnicodeBidi initialUnicodeBidi();
     static constexpr PositionType initialPosition();
@@ -1984,7 +1994,9 @@ public:
     static inline Style::MinimumSize initialMinSize();
     static inline Style::MaximumSize initialMaxSize();
     static inline Style::InsetEdge initialInset();
-    static inline Length initialRadius();
+    static inline Style::SVGRadius initialR();
+    static inline Style::SVGRadiusComponent initialRx();
+    static inline Style::SVGRadiusComponent initialRy();
     static inline Style::MarginEdge initialMargin();
     static constexpr OptionSet<MarginTrimType> initialMarginTrim();
     static inline Style::PaddingEdge initialPadding();
@@ -2106,6 +2118,8 @@ public:
     static StyleImage* initialMaskBorderSource() { return nullptr; }
     static constexpr PrintColorAdjust initialPrintColorAdjust();
     static inline Style::Quotes initialQuotes();
+    static inline Style::SVGCoordinateComponent initialX();
+    static inline Style::SVGCoordinateComponent initialY();
 
 #if ENABLE(DARK_MODE_CSS)
     static inline Style::ColorScheme initialColorScheme();

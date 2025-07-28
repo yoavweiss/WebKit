@@ -246,25 +246,6 @@ inline LengthBox blendFunc(const LengthBox& from, const LengthBox& to, const Con
     };
 }
 
-inline FixedVector<WebCore::Length> blendFunc(const FixedVector<WebCore::Length>& from, const FixedVector<WebCore::Length>& to, const Context& context)
-{
-    size_t fromLength = from.size();
-    size_t toLength = to.size();
-    if (!fromLength || !toLength)
-        return context.progress < 0.5 ? from : to;
-
-    size_t resultLength = fromLength;
-    if (fromLength != toLength) {
-        if (!remainder(std::max(fromLength, toLength), std::min(fromLength, toLength)))
-            resultLength = std::max(fromLength, toLength);
-        else
-            resultLength = fromLength * toLength;
-    }
-    return FixedVector<WebCore::Length>::createWithSizeFromGenerator(resultLength, [&](auto i) {
-        return blendFunc(from[i % fromLength], to[i % toLength], context);
-    });
-}
-
 inline RefPtr<StyleImage> crossfadeBlend(StyleCachedImage& fromStyleImage, StyleCachedImage& toStyleImage, const Context& context)
 {
     // If progress is at one of the extremes, we want getComputedStyle to show the image,

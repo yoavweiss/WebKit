@@ -2272,10 +2272,9 @@
                 "super"
             ],
             "codegen-properties": {
-                "animation-wrapper": "BaselineShiftWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-builder-custom": "Inherit|Value",
-                "style-extractor-custom": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "animation-wrapper-requires-render-style": true,
+                "style-converter": "StyleType<SVGBaselineShift>",
                 "svg": true,
                 "parser-grammar": "baseline | sub | super | <length-percentage>"
             },
@@ -4318,10 +4317,8 @@
             "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage'",
-                "render-style-initial": "zeroLength",
-                "style-converter": "Length",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<SVGCenterCoordinateComponent>",
                 "parser-grammar": "<length-percentage>"
             },
             "specification": {
@@ -4333,10 +4330,8 @@
             "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage'",
-                "render-style-initial": "zeroLength",
-                "style-converter": "Length",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<SVGCenterCoordinateComponent>",
                 "parser-grammar": "<length-percentage>"
             },
             "specification": {
@@ -7316,10 +7311,8 @@
             "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage, NegativeLengthsAreInvalid'",
-                "render-style-initial": "zeroLength",
-                "style-converter": "Length",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<SVGRadius>",
                 "parser-grammar": "<length-percentage [0,inf]>"
             },
             "specification": {
@@ -7421,10 +7414,8 @@
                 "auto"
             ],
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage, NegativeLengthsAreInvalid'",
-                "render-style-initial": "initialRadius",
-                "style-converter": "LengthOrAuto",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<SVGRadiusComponent>",
                 "parser-grammar": "auto | <length-percentage [0,inf]>"
             },
             "specification": {
@@ -7439,10 +7430,8 @@
                 "auto"
             ],
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage, NegativeLengthsAreInvalid'",
-                "render-style-initial": "initialRadius",
-                "style-converter": "LengthOrAuto",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<SVGRadiusComponent>",
                 "parser-grammar": "auto | <length-percentage [0,inf]>"
             },
             "specification": {
@@ -7538,11 +7527,11 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "Wrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-requires-render-style": true,
                 "animation-wrapper-requires-non-additive-or-cumulative-interpolation": true,
                 "render-style-name-for-methods": "StrokeDashArray",
-                "style-converter": "StrokeDashArray",
+                "style-converter": "StyleType<SVGStrokeDasharray>",
                 "svg": true,
                 "parser-function": "consumeStrokeDasharray",
                 "parser-function-allows-number-or-integer-input": true,
@@ -7560,11 +7549,9 @@
             "inherited": true,
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage'",
-                "render-style-initial": "zeroLength",
+                "animation-wrapper": "StyleTypeWrapper",
                 "render-style-name-for-methods": "StrokeDashOffset",
-                "style-converter": "LengthAllowingNumber",
+                "style-converter": "StyleType<SVGStrokeDashoffset>",
                 "parser-grammar": "<length-percentage> | <number>"
             },
             "specification": {
@@ -8474,10 +8461,8 @@
             "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage'",
-                "render-style-initial": "zeroLength",
-                "style-converter": "Length",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<SVGCoordinateComponent>",
                 "parser-grammar": "<length-percentage>"
             },
             "specification": {
@@ -8489,10 +8474,8 @@
             "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-comment": "FIXME: Should probably pass 'IsLengthPercentage'",
-                "render-style-initial": "zeroLength",
-                "style-converter": "Length",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<SVGCoordinateComponent>",
                 "parser-grammar": "<length-percentage>"
             },
             "specification": {

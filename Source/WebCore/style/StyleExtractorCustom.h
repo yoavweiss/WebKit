@@ -51,7 +51,6 @@ public:
     static Ref<CSSValue> extractWritingMode(ExtractorState&);
     static Ref<CSSValue> extractFloat(ExtractorState&);
     static Ref<CSSValue> extractContent(ExtractorState&);
-    static Ref<CSSValue> extractBaselineShift(ExtractorState&);
     static Ref<CSSValue> extractVerticalAlign(ExtractorState&);
     static Ref<CSSValue> extractLetterSpacing(ExtractorState&);
     static Ref<CSSValue> extractWordSpacing(ExtractorState&);
@@ -151,7 +150,6 @@ public:
     static void extractWritingModeSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractFloatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractContentSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractBaselineShiftSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractVerticalAlignSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractLetterSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractWordSpacingSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1263,40 +1261,6 @@ inline Ref<CSSValue> ExtractorCustom::extractContent(ExtractorState& state)
 inline void ExtractorCustom::extractContentSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     extractSerialization<CSSPropertyContent>(state, builder, context);
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractBaselineShift(ExtractorState& state)
-{
-    switch (state.style.svgStyle().baselineShift()) {
-    case BaselineShift::Baseline:
-        return CSSPrimitiveValue::create(CSSValueBaseline);
-    case BaselineShift::Super:
-        return CSSPrimitiveValue::create(CSSValueSuper);
-    case BaselineShift::Sub:
-        return CSSPrimitiveValue::create(CSSValueSub);
-    case BaselineShift::Length:
-        return ExtractorConverter::convertLength(state, state.style.svgStyle().baselineShiftValue());
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline void ExtractorCustom::extractBaselineShiftSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    switch (state.style.svgStyle().baselineShift()) {
-    case BaselineShift::Baseline:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Baseline { });
-        return;
-    case BaselineShift::Super:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Super { });
-        return;
-    case BaselineShift::Sub:
-        CSS::serializationForCSS(builder, context, CSS::Keyword::Sub { });
-        return;
-    case BaselineShift::Length:
-        ExtractorSerializer::serializeLength(state, builder, context, state.style.svgStyle().baselineShiftValue());
-        return;
-    }
-    RELEASE_ASSERT_NOT_REACHED();
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractVerticalAlign(ExtractorState& state)

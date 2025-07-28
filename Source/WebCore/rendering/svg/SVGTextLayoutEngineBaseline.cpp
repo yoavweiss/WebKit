@@ -38,18 +38,20 @@ SVGTextLayoutEngineBaseline::SVGTextLayoutEngineBaseline(const FontCascade& font
 
 float SVGTextLayoutEngineBaseline::calculateBaselineShift(const SVGRenderStyle& style) const
 {
-    switch (style.baselineShift()) {
-    case BaselineShift::Baseline:
-        return 0;
-    case BaselineShift::Sub:
-        return -m_font->metricsOfPrimaryFont().height() / 2;
-    case BaselineShift::Super:
-        return m_font->metricsOfPrimaryFont().height() / 2;
-    case BaselineShift::Length:
-        return floatValueForLength(style.baselineShiftValue(), m_font->size());
-    }
-    ASSERT_NOT_REACHED();
-    return 0;
+    return WTF::switchOn(style.baselineShift(),
+        [](const CSS::Keyword::Baseline&) -> float {
+            return 0;
+        },
+        [&](const CSS::Keyword::Sub&) -> float {
+            return -m_font->metricsOfPrimaryFont().height() / 2;
+        },
+        [&](const CSS::Keyword::Super&) -> float {
+            return m_font->metricsOfPrimaryFont().height() / 2;
+        },
+        [&](const Style::SVGBaselineShift::Length& length) -> float {
+            return Style::evaluate(length, m_font->size());
+        }
+    );
 }
 
 AlignmentBaseline SVGTextLayoutEngineBaseline::dominantBaselineToAlignmentBaseline(bool isVerticalText, const RenderElement& textRenderer) const

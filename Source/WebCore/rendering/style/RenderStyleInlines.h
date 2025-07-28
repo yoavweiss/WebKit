@@ -466,7 +466,6 @@ constexpr OptionSet<PositionVisibility> RenderStyle::initialPositionVisibility()
 constexpr PrintColorAdjust RenderStyle::initialPrintColorAdjust() { return PrintColorAdjust::Economy; }
 inline Style::Quotes RenderStyle::initialQuotes() { return CSS::Keyword::Auto { }; }
 constexpr Order RenderStyle::initialRTLOrdering() { return Order::Logical; }
-inline Length RenderStyle::initialRadius() { return LengthType::Auto; }
 constexpr Resize RenderStyle::initialResize() { return Resize::None; }
 inline Style::GapGutter RenderStyle::initialRowGap() { return CSS::Keyword::Normal { }; }
 constexpr RubyPosition RenderStyle::initialRubyPosition() { return RubyPosition::Over; }

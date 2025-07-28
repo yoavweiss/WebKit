@@ -3,6 +3,7 @@
                   2004, 2005 Rob Buis <buis@kde.org>
     Copyright (C) Research In Motion Limited 2010. All rights reserved.
     Copyright (C) 2014 Adobe Systems Incorporated. All rights reserved.
+    Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
 
     Based on khtml code by:
     Copyright (C) 2000-2003 Lars Knoll (knoll@kde.org)
@@ -33,7 +34,14 @@
 #include "StyleBoxShadow.h"
 #include "StyleColor.h"
 #include "StylePathData.h"
+#include "StyleSVGBaselineShift.h"
+#include "StyleSVGCenterCoordinateComponent.h"
+#include "StyleSVGCoordinateComponent.h"
 #include "StyleSVGPaint.h"
+#include "StyleSVGRadius.h"
+#include "StyleSVGRadiusComponent.h"
+#include "StyleSVGStrokeDasharray.h"
+#include "StyleSVGStrokeDashoffset.h"
 #include "StyleURL.h"
 #include <wtf/FixedVector.h>
 #include <wtf/RefCounted.h>
@@ -47,13 +55,6 @@ namespace WebCore {
 
 class CSSValue;
 class CSSValueList;
-
-enum class BaselineShift : uint8_t {
-    Baseline,
-    Sub,
-    Super,
-    Length
-};
 
 enum class TextAnchor : uint8_t {
     Start,
@@ -172,8 +173,8 @@ public:
     float opacity;
     Style::SVGPaint paint;
     Style::SVGPaint visitedLinkPaint;
-    Length dashOffset;
-    FixedVector<Length> dashArray;
+    Style::SVGStrokeDashoffset dashOffset;
+    Style::SVGStrokeDasharray dashArray;
 
 private:
     StyleStrokeData();
@@ -219,7 +220,7 @@ public:
     Style::Color floodColor;
     Style::Color lightingColor;
 
-    Length baselineShiftValue;
+    Style::SVGBaselineShift baselineShift;
 
 private:
     StyleMiscData();
@@ -283,13 +284,13 @@ public:
     void dumpDifferences(TextStream&, const StyleLayoutData&) const;
 #endif
 
-    Length cx;
-    Length cy;
-    Length r;
-    Length rx;
-    Length ry;
-    Length x;
-    Length y;
+    Style::SVGCenterCoordinateComponent cx;
+    Style::SVGCenterCoordinateComponent cy;
+    Style::SVGRadius r;
+    Style::SVGRadiusComponent rx;
+    Style::SVGRadiusComponent ry;
+    Style::SVGCoordinateComponent x;
+    Style::SVGCoordinateComponent y;
     RefPtr<StylePathData> d;
 
 private:
@@ -299,7 +300,6 @@ private:
 
 
 WTF::TextStream& operator<<(WTF::TextStream&, AlignmentBaseline);
-WTF::TextStream& operator<<(WTF::TextStream&, BaselineShift);
 WTF::TextStream& operator<<(WTF::TextStream&, BufferedRendering);
 WTF::TextStream& operator<<(WTF::TextStream&, ColorInterpolation);
 WTF::TextStream& operator<<(WTF::TextStream&, ColorRendering);

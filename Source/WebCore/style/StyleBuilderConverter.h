@@ -180,7 +180,6 @@ public:
     static FontSelectionValue convertFontStyle(BuilderState&, const CSSValue&);
     static FontFeatureSettings convertFontFeatureSettings(BuilderState&, const CSSValue&);
     static FontVariationSettings convertFontVariationSettings(BuilderState&, const CSSValue&);
-    static FixedVector<WebCore::Length> convertStrokeDashArray(BuilderState&, const CSSValue&);
     static PaintOrder convertPaintOrder(BuilderState&, const CSSValue&);
     static float convertOpacity(BuilderState&, const CSSValue&);
     static URL convertSVGURIReference(BuilderState&, const CSSValue&);
@@ -987,25 +986,6 @@ inline bool BuilderConverter::convertOverflowScrolling(BuilderState&, const CSSV
     return value.valueID() == CSSValueTouch;
 }
 #endif
-
-inline FixedVector<WebCore::Length> BuilderConverter::convertStrokeDashArray(BuilderState& builderState, const CSSValue& value)
-{
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (primitiveValue->valueID() == CSSValueNone)
-            return SVGRenderStyle::initialStrokeDashArray();
-
-        // Values coming from CSS-Typed-OM may not have been converted to a CSSValueList yet.
-        return FixedVector<WebCore::Length> { convertLengthAllowingNumber(builderState, *primitiveValue) };
-    }
-
-    auto list = requiredListDowncast<CSSValueList, CSSPrimitiveValue>(builderState, value);
-    if (!list)
-        return { };
-
-    return FixedVector<WebCore::Length>::map(*list, [&](auto& item) {
-        return convertLengthAllowingNumber(builderState, item);
-    });
-}
 
 inline PaintOrder BuilderConverter::convertPaintOrder(BuilderState& builderState, const CSSValue& value)
 {

@@ -1304,53 +1304,6 @@ public:
     }
 };
 
-class BaselineShiftWrapper final : public WrapperWithGetter<const WebCore::Length&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(BaselineShiftWrapper, Animation);
-public:
-    BaselineShiftWrapper()
-        : WrapperWithGetter(CSSPropertyBaselineShift, &RenderStyle::baselineShiftValue)
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        if (&a == &b)
-            return true;
-        if (a.svgStyle().baselineShift() != b.svgStyle().baselineShift())
-            return false;
-        if (a.svgStyle().baselineShift() != BaselineShift::Length)
-            return true;
-        return value(a) == value(b);
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        if (from.svgStyle().baselineShift() != to.svgStyle().baselineShift())
-            return false;
-        if (from.svgStyle().baselineShift() != BaselineShift::Length)
-            return true;
-        return canInterpolateLengths(value(from), value(to), true);
-    }
-
-    bool requiresInterpolationForAccumulativeIteration(const RenderStyle& from, const RenderStyle& to) const final
-    {
-        if (from.svgStyle().baselineShift() != to.svgStyle().baselineShift() || from.svgStyle().baselineShift() != BaselineShift::Length)
-            return false;
-        return lengthsRequireInterpolationForAccumulativeIteration(value(from), value(to));
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto& srcSVGStyle = !context.progress ? from.svgStyle() : to.svgStyle();
-        destination.accessSVGStyle().setBaselineShift(srcSVGStyle.baselineShift());
-
-        if (srcSVGStyle.baselineShift() != BaselineShift::Length)
-            return;
-
-        destination.accessSVGStyle().setBaselineShiftValue(blendFunc(value(from), value(to), context, ValueRange::All));
-    }
-};
-
 class LineHeightWrapper final : public LengthWrapper {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LineHeightWrapper, Animation);
 public:
