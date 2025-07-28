@@ -2492,6 +2492,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/mediastream/libwebrtc/LibWebRTCAudioModule.h
     platform/mediastream/libwebrtc/LibWebRTCMacros.h
     platform/mediastream/libwebrtc/LibWebRTCProvider.h
+    platform/mediastream/libwebrtc/LibWebRTCRefWrappers.h
     platform/mediastream/libwebrtc/LibWebRTCSocketIdentifier.h
 
     platform/mock/DeviceOrientationClientMock.h
