@@ -179,7 +179,6 @@ enum class AXProperty : uint16_t {
     IsSubscript,
     IsSuperscript,
     HasTextShadow,
-    HasUnderline,
     HorizontalScrollBar,
     IdentifierAttribute,
     IncrementButton,

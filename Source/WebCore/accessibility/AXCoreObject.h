@@ -2004,6 +2004,7 @@ String roleToPlatformString(AccessibilityRole);
 #if ENABLE(AX_THREAD_TEXT_APIS)
 std::optional<AXTextMarkerRange> markerRangeFrom(NSRange, const AXCoreObject&);
 #endif
+Color defaultColor();
 
 // Intended to work with size-types (like IntSize) or rect-types (like LayoutRect).
 template <typename SizeOrRectType>

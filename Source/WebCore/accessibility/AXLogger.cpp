@@ -816,9 +816,6 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::HasTextShadow:
         stream << "HasTextShadow";
         break;
-    case AXProperty::HasUnderline:
-        stream << "HasUnderline";
-        break;
     case AXProperty::HorizontalScrollBar:
         stream << "HorizontalScrollBar";
         break;

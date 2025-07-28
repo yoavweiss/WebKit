@@ -823,9 +823,6 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
         case AXProperty::HasTextShadow:
             properties.append({ AXProperty::HasTextShadow, axObject.hasTextShadow() });
             break;
-        case AXProperty::HasUnderline:
-            properties.append({ AXProperty::HasUnderline, axObject.lineDecorationStyle().hasUnderline });
-            break;
         case AXProperty::IsSubscript:
             properties.append({ AXProperty::IsSubscript, axObject.isSubscript() });
             break;
@@ -850,9 +847,15 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
         case AXProperty::TextRuns:
             properties.append({ AXProperty::TextRuns, std::make_shared<AXTextRuns>(axObject.textRuns()) });
             break;
-        case AXProperty::UnderlineColor:
-            properties.append({ AXProperty::UnderlineColor, axObject.lineDecorationStyle().underlineColor });
+        case AXProperty::UnderlineColor: {
+            if (axObject.hasUnderline())
+                properties.append({ AXProperty::UnderlineColor, axObject.lineDecorationStyle().underlineColor });
+            else {
+                // Queue the default color to remove it from the property map.
+                properties.append({ AXProperty::UnderlineColor, Accessibility::defaultColor() });
+            }
             break;
+        }
 #endif // ENABLE(AX_THREAD_TEXT_APIS)
         case AXProperty::Title:
             properties.append({ AXProperty::Title, axObject.title().isolatedCopy() });
@@ -1732,7 +1735,9 @@ static bool canBeMultilineTextField(AccessibilityObject& object)
     return true;
 }
 
-// Allocate a capacity based on the minimum properties an object has (based on measurements from a real webpage).
+// Allocate a capacity based on the most common property count objects have (based on measurements from a real webpage).
+// Based on said measurements, 59.6% objects have 2 or less properties. We'll shrink the vector at the end for objects
+// that have less than 2.
 static constexpr unsigned unignoredSizeToReserve = 2;
 IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axObject, Ref<AXIsolatedTree> tree)
 {
@@ -1877,7 +1882,6 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
         setProperty(AXProperty::HasItalicFont, object.hasItalicFont());
         setProperty(AXProperty::HasPlainText, object.hasPlainText());
 #if !ENABLE(AX_THREAD_TEXT_APIS)
-        setProperty(AXProperty::HasUnderline, object.hasUnderline());
         setProperty(AXProperty::TextContentPrefixFromListMarker, object.textContentPrefixFromListMarker());
 #endif
         setProperty(AXProperty::IsKeyboardFocusable, object.isKeyboardFocusable());

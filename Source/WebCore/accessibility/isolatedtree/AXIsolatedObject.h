@@ -513,7 +513,7 @@ private:
     bool hasSameFont(AXCoreObject&) final;
     bool hasSameFontColor(AXCoreObject&) final;
     bool hasSameStyle(AXCoreObject&) final;
-    bool hasUnderline() const final { return boolAttributeValue(AXProperty::HasUnderline); }
+    bool hasUnderline() const final { return colorAttributeValue(AXProperty::UnderlineColor) != Accessibility::defaultColor(); }
     AXTextMarkerRange textInputMarkedTextMarkerRange() const final;
     Element* element() const final;
     Node* node() const final;

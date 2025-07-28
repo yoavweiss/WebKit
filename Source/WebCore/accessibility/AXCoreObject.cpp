@@ -1744,6 +1744,12 @@ bool inRenderTreeOrStyleUpdate(const Document& document)
     return view && view->layoutContext().isInRenderTreeLayout();
 }
 
+Color defaultColor()
+{
+    static NeverDestroyed<Color> color = Color().toColorTypeLossy<SRGBA<uint8_t>>();
+    return color.get();
+}
+
 } // namespace Accessibility
 
 } // namespace WebCore

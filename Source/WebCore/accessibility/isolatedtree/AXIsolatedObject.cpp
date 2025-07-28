@@ -119,7 +119,7 @@ static bool isDefaultValue(AXProperty property, AXPropertyValueVariant& value)
                 return typedValue == Color::black;
             if (property == AXProperty::TextColor)
                 return false;
-            return typedValue.toColorTypeLossy<SRGBA<uint8_t>>() == Color().toColorTypeLossy<SRGBA<uint8_t>>();
+            return typedValue.toColorTypeLossy<SRGBA<uint8_t>>() == Accessibility::defaultColor();
         },
         [](std::shared_ptr<URL>& typedValue) { return !typedValue || *typedValue == URL(); },
         [](LayoutRect& typedValue) { return typedValue == LayoutRect(); },
@@ -751,7 +751,7 @@ Color AXIsolatedObject::colorAttributeValue(AXProperty property) const
             if (RefPtr parent = parentObject())
                 return parent->textColor();
         }
-        return Color();
+        return Accessibility::defaultColor();
     }
 
 #ifndef NDEBUG
