@@ -43,6 +43,7 @@
 #include <CoreVideo/CVPixelBufferPrivate.h>
 #else
 
+// FIXME: Move to CoreVideoSPI.h.
 enum {
     kCVPixelFormatType_420YpCbCr10PackedBiPlanarVideoRange = 'p420',
     kCVPixelFormatType_422YpCbCr10PackedBiPlanarVideoRange = 'p422',

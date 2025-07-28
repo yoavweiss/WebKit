@@ -150,6 +150,71 @@ void IOSurface::moveToPool(std::unique_ptr<IOSurface>&& surface, IOSurfacePool* 
 
 // MARK: -
 
+static OSType coreVideoFormatFromIOSurfaceFormat(IOSurface::Format format, UseLosslessCompression useLosslessCompression)
+{
+    switch (format) {
+    case IOSurface::Format::BGRX:
+    case IOSurface::Format::BGRA:
+        return useLosslessCompression == UseLosslessCompression::Yes ? static_cast<OSType>(kCVPixelFormatType_Lossless_32BGRA) : static_cast<OSType>(kCVPixelFormatType_32BGRA);
+    case IOSurface::Format::YUV422:
+        return static_cast<OSType>(kCVPixelFormatType_422YpCbCr8BiPlanarFullRange);
+    case IOSurface::Format::RGBA:
+    case IOSurface::Format::RGBX:
+        // CoreVideo does not support allocation of RGBA surfaces: rdar://156609776.
+        ASSERT_NOT_REACHED();
+        return kCVPixelFormatType_32RGBA;
+#if ENABLE(PIXEL_FORMAT_RGB10)
+    case IOSurface::Format::RGB10:
+        return useLosslessCompression == UseLosslessCompression::Yes ? static_cast<OSType>(kCVPixelFormatType_AGX_30RGBLEPackedWideGamut) : static_cast<OSType>(kCVPixelFormatType_30RGBLEPackedWideGamut);
+#endif
+#if ENABLE(PIXEL_FORMAT_RGB10A8)
+    case IOSurface::Format::RGB10A8:
+        return useLosslessCompression == UseLosslessCompression::Yes ? static_cast<OSType>(kCVPixelFormatType_AGX_30RGBLE_8A_BiPlanar) : static_cast<OSType>(kCVPixelFormatType_30RGBLE_8A_BiPlanar);
+#endif
+#if ENABLE(PIXEL_FORMAT_RGBA16F)
+    case IOSurface::Format::RGBA16F:
+        return useLosslessCompression == UseLosslessCompression::Yes ? static_cast<OSType>(kCVPixelFormatType_Lossless_64RGBAHalf) : static_cast<OSType>(kCVPixelFormatType_64RGBAHalf);
+#endif
+    }
+
+    ASSERT_NOT_REACHED();
+    return 0;
+}
+
+static RetainPtr<IOSurfaceRef> createSurfaceViaCoreVideo(IntSize size, IOSurface::Name name, IOSurface::Format format, UseLosslessCompression useLosslessCompression)
+{
+    ASSERT(useLosslessCompression == UseLosslessCompression::Yes);
+
+    // FIXME: WebKit shouldn't have to know about size limits: rdar://156866095.
+    if (size.width() < 32 || size.height() < 32)
+        return nullptr;
+
+    auto coreVideoFormat = coreVideoFormatFromIOSurfaceFormat(format, useLosslessCompression);
+    if (!CVIsCompressedPixelFormatAvailable(coreVideoFormat))
+        return nullptr;
+
+    NSDictionary *additionalProperties = @{
+        (id)kCVPixelBufferIOSurfacePropertiesKey: @{
+#if PLATFORM(IOS_FAMILY)
+            // FIXME: Determine what hardware/platforms this should be used on.
+            (id)kIOSurfaceCacheMode: @(kIOMapWriteCombineCache),
+#endif
+            (id)kIOSurfaceName: surfaceNameToNSString(name)
+        },
+        @"IOSurfacePurgeable" : @YES, // FIXME: Use kCVPixelBufferIOSurfacePurgeableKey: rdar://156450702.
+    };
+
+    CVPixelBufferRef rawPixelBuffer = nullptr;
+    CVReturn status = CVPixelBufferCreate(kCFAllocatorDefault, size.width(), size.height(), coreVideoFormat, (CFDictionaryRef)additionalProperties, &rawPixelBuffer);
+    if (status != kCVReturnSuccess) {
+        RELEASE_LOG_ERROR(Layers, "IOSurface creation via CVPixelBufferCreate failed for size: (%d %d) and format: (%d) - error %d", size.width(), size.height(), enumToUnderlyingType(format), status);
+        return nullptr;
+    }
+
+    RetainPtr cvBuffer = adoptCF(rawPixelBuffer);
+    return CVPixelBufferGetIOSurface(cvBuffer.get());
+}
+
 static NSDictionary *optionsForBiplanarSurface(IntSize size, unsigned pixelFormat, size_t firstPlaneBytesPerPixel, size_t secondPlaneBytesPerPixel, IOSurface::Name name)
 {
     int width = size.width();
@@ -282,7 +347,19 @@ IOSurface::IOSurface(IntSize size, const DestinationColorSpace& colorSpace, IOSu
     ASSERT(!success);
     ASSERT(!size.isEmpty());
 
-    m_surface = createSurface(size, name, format);
+#if !HAVE(COREVIDEO_COMPRESSED_PIXEL_FORMAT_TYPES)
+    useLosslessCompression = UseLosslessCompression::No;
+#endif
+
+    if (useLosslessCompression == UseLosslessCompression::Yes) {
+        // We could allocate more formats via CoreVideo in future.
+        m_surface = createSurfaceViaCoreVideo(size, name, format, useLosslessCompression);
+        if (!m_surface)
+            m_format = { format, UseLosslessCompression::No };
+    }
+
+    if (!m_surface)
+        m_surface = createSurface(size, name, format);
 
     success = !!m_surface;
     if (success) {
@@ -298,6 +375,9 @@ static std::optional<IOSurface::UsedFormat> formatFromSurface(IOSurfaceRef surfa
     if (pixelFormat == kCVPixelFormatType_32BGRA)
         return IOSurface::UsedFormat { IOSurface::Format::BGRA, UseLosslessCompression::No };
 
+    if (pixelFormat == kCVPixelFormatType_Lossless_32BGRA)
+        return IOSurface::UsedFormat { IOSurface::Format::BGRA, UseLosslessCompression::Yes };
+
     if (pixelFormat == kCVPixelFormatType_422YpCbCr8BiPlanarFullRange)
         return IOSurface::UsedFormat { IOSurface::Format::YUV422, UseLosslessCompression::No };
 
@@ -307,16 +387,25 @@ static std::optional<IOSurface::UsedFormat> formatFromSurface(IOSurfaceRef surfa
 #if ENABLE(PIXEL_FORMAT_RGB10)
     if (pixelFormat == kCVPixelFormatType_30RGBLEPackedWideGamut)
         return IOSurface::UsedFormat { IOSurface::Format::RGB10, UseLosslessCompression::No };
+
+    if (pixelFormat == kCVPixelFormatType_AGX_30RGBLEPackedWideGamut)
+        return IOSurface::UsedFormat { IOSurface::Format::RGB10, UseLosslessCompression::Yes };
 #endif
 
 #if ENABLE(PIXEL_FORMAT_RGB10A8)
     if (pixelFormat == kCVPixelFormatType_30RGBLE_8A_BiPlanar)
         return IOSurface::UsedFormat { IOSurface::Format::RGB10A8, UseLosslessCompression::No };
+
+    if (pixelFormat == kCVPixelFormatType_AGX_30RGBLE_8A_BiPlanar)
+        return IOSurface::UsedFormat { IOSurface::Format::RGB10A8, UseLosslessCompression::Yes };
 #endif
 
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
     if (pixelFormat == kCVPixelFormatType_64RGBAHalf)
         return IOSurface::UsedFormat { IOSurface::Format::RGBA16F, UseLosslessCompression::No };
+
+    if (pixelFormat == kCVPixelFormatType_Lossless_64RGBAHalf)
+        return IOSurface::UsedFormat { IOSurface::Format::RGBA16F, UseLosslessCompression::Yes };
 #endif
 
     return { };
