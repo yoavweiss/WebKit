@@ -650,7 +650,7 @@ bool FastDtoa(double v,
       result = Grisu3Counted(v, requested_digits, buffer, length, decimal_exponent);
       break;
     default:
-      UNREACHABLE();
+      std::unreachable();
   }
   if (result) {
     decimal_point = length + decimal_exponent;

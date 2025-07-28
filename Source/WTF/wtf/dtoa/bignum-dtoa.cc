@@ -158,7 +158,7 @@ void BignumDtoa(double v, BignumDtoaMode mode, int requested_digits,
       GenerateCountedDigits(requested_digits, decimal_point, numerator, denominator, buffer, length);
       break;
     default:
-      UNREACHABLE();
+      std::unreachable();
   }
   buffer[length] = '\0';
 }
