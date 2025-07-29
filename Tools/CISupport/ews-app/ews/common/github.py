@@ -302,7 +302,7 @@ class GitHubEWS(GitHub):
             icon = GitHubEWS.ICON_EMPTY_SPACE
         else:
             icon = GitHubEWS.ICON_BUILD_ERROR
-        return f'| {icon} {name} '
+        return f'| [{icon} {name}]({url}) '
 
     def github_status_for_buildbot_queue(self, change, queue):
         name = queue
