@@ -28,6 +28,8 @@
 #include "RegisterSet.h"
 #include <array>
 
+#if ENABLE(JIT)
+
 namespace JSC {
 
 // Designed as a flexible register allocator for our non-Air backends. Since those backends emit one bytecode or IR node at a time in isolation this API is designed around that. The expected usage of this API will look something like:
@@ -244,3 +246,5 @@ private:
 };
 
 } // namespace JSC
+
+#endif // ENABLE(JIT)
