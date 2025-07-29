@@ -636,10 +636,19 @@ Ref<Node> Element::cloneNodeInternal(Document& document, CloningOperation type, 
     return cloneElementWithChildren(document, fallbackRegistry);
 }
 
-SerializedNode Element::serializeNode(CloningOperation) const
+SerializedNode Element::serializeNode(CloningOperation type) const
 {
-    // FIXME: Implement.
-    return { SerializedNode::Element { } };
+    Vector<SerializedNode> children;
+    switch (type) {
+    case CloningOperation::SelfOnly:
+    case CloningOperation::SelfWithTemplateContent:
+        break;
+    case CloningOperation::Everything:
+        children = serializeChildNodes();
+        break;
+    }
+    // FIXME: Make an equivalent of Element::cloneDataFromElement and cloneShadowTreeIfPossible.
+    return { SerializedNode::Element { { WTFMove(children) }, { tagQName() } } };
 }
 
 void Element::cloneShadowTreeIfPossible(Element& newHost) const

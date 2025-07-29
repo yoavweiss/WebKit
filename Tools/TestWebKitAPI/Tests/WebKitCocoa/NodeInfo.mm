@@ -111,15 +111,15 @@ TEST(NodeInfo, Basic)
 TEST(SerializedNode, Basic)
 {
     RetainPtr webView = adoptNS([WKWebView new]);
-    [webView loadHTMLString:@"<div><div>test</div></div>" baseURL:[NSURL URLWithString:@"https://webkit.org/"]];
+    [webView loadHTMLString:@"<div id='testid'><div>test</div></div><template id='outerTemplate'><template id='innerTemplate'><span>Contents</span></template></template>" baseURL:[NSURL URLWithString:@"https://webkit.org/"]];
 
     RetainPtr worldConfiguration = adoptNS([_WKContentWorldConfiguration new]);
     worldConfiguration.get().allowNodeInfo = YES;
     RetainPtr world = [WKContentWorld _worldWithConfiguration:worldConfiguration.get()];
 
-    auto verifyNodeSerialization = [world, webView] (const char* constructor, const char* accessor, const char* expected, const char* className) {
+    auto verifyNodeSerialization = [world, webView] (const char* constructor, const char* accessor, const char* expected, const char* className, const char* init = "deep:true") {
         __block bool done = false;
-        [webView evaluateJavaScript:[NSString stringWithFormat:@"window.webkit.serializeNode(%s, { deep:true })", constructor] inFrame:nil inContentWorld:world.get() completionHandler:^(id serializedNode, NSError *error) {
+        [webView evaluateJavaScript:[NSString stringWithFormat:@"window.webkit.serializeNode(%s, { %s })", constructor, init] inFrame:nil inContentWorld:world.get() completionHandler:^(id serializedNode, NSError *error) {
             EXPECT_TRUE([serializedNode isKindOfClass:_WKSerializedNode.class]);
             EXPECT_NULL(error);
             RetainPtr other = adoptNS([TestWKWebView new]);
@@ -149,10 +149,10 @@ TEST(SerializedNode, Basic)
     verifyNodeSerialization("document.createProcessingInstruction('a', 'b')", "n.target + ',' + n.data", "a,b", "ProcessingInstruction");
 
     auto documentAccessor = "n.URL + ',' + n.documentURI + ',' + new XMLSerializer().serializeToString(n)";
-    auto documentExpected = "about:blank,about:blank,";
-    verifyNodeSerialization("document.implementation.createDocument('http://www.w3.org/2000/svg', 'svg', null)", documentAccessor, documentExpected, "XMLDocument");
-    verifyNodeSerialization("document.implementation.createHTMLDocument('test title')", documentAccessor, documentExpected, "HTMLDocument");
-    verifyNodeSerialization("document", documentAccessor, "https://webkit.org/,https://webkit.org/,", "HTMLDocument");
+    verifyNodeSerialization("document.implementation.createDocument('http://www.w3.org/2000/svg', 'svg', null)", documentAccessor, "about:blank,about:blank,<svg xmlns=\"http://www.w3.org/2000/svg\"/>", "XMLDocument");
+    verifyNodeSerialization("document.implementation.createHTMLDocument('test title')", documentAccessor, "about:blank,about:blank,<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>test title</title></head><body></body></html>", "HTMLDocument");
+    verifyNodeSerialization("document", documentAccessor, "https://webkit.org/,https://webkit.org/,<html xmlns=\"http://www.w3.org/1999/xhtml\"><head></head><body><div><div>test</div></div><template></template></body></html>", "HTMLDocument");
+    verifyNodeSerialization("document.getElementById('testid')", documentAccessor, "undefined,undefined,<div xmlns=\"http://www.w3.org/1999/xhtml\"></div>", "HTMLDivElement", "");
 }
 
 }

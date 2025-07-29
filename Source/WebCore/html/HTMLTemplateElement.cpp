@@ -128,10 +128,19 @@ Ref<Node> HTMLTemplateElement::cloneNodeInternal(Document& document, CloningOper
     return clone.releaseNonNull();
 }
 
-SerializedNode HTMLTemplateElement::serializeNode(CloningOperation) const
+SerializedNode HTMLTemplateElement::serializeNode(CloningOperation type) const
 {
-    // FIXME: Implement.
-    return { SerializedNode::HTMLTemplateElement { } };
+    // FIXME: Implement CloningOperation::SelfWithTemplateContent and ShadowRoot serialization.
+    Vector<SerializedNode> children;
+    switch (type) {
+    case CloningOperation::SelfOnly:
+    case CloningOperation::SelfWithTemplateContent:
+        break;
+    case CloningOperation::Everything:
+        children = serializeChildNodes();
+        break;
+    }
+    return { SerializedNode::HTMLTemplateElement { { { WTFMove(children) }, { tagQName() } } } };
 }
 
 void HTMLTemplateElement::didMoveToNewDocument(Document& oldDocument, Document& newDocument)
