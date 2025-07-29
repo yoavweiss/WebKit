@@ -2316,3 +2316,9 @@ webkit.org/b/296571 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/exec
 webkit.org/b/295746 webanimations/no-scheduling-while-filling-accelerated.html [ Pass Failure ]
 
 webkit.org/b/296584 imported/w3c/web-platform-tests/dom/events/scrolling/scrollend-event-fired-after-snap.html [ Pass Failure ]
+
+# webkit.org/b/296631 4x imported/w3c/web-platform-tests/webcodecs/ tests (layout-tests) is a constant text failure and flakey text failure 
+imported/w3c/web-platform-tests/webcodecs/video-encoder-h26x-annexb.https.any.worker.html?h265_annexb_software [ Pass Failure ]
+imported/w3c/web-platform-tests/webcodecs/video-encoder-h26x-annexb.https.any.worker.html?h265_annexb_hardware [ Pass Failure ]
+imported/w3c/web-platform-tests/webcodecs/video-encoder-h26x-annexb.https.any.html?h265_annexb_software [ Pass Failure ]
+imported/w3c/web-platform-tests/webcodecs/video-encoder-h26x-annexb.https.any.html?h265_annexb_hardware [ Pass Failure ]
