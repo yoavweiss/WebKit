@@ -268,9 +268,6 @@ typedef CF_ENUM(int, CFURLCredentialPersistence)
 - (void)_setIgnoreHSTS:(BOOL)ignoreHSTS;
 @property (setter=_setProhibitPrivacyProxy:) BOOL _prohibitPrivacyProxy;
 @property (setter=_setPrivacyProxyFailClosedForUnreachableHosts:) BOOL _privacyProxyFailClosedForUnreachableHosts;
-#if HAVE(STRICT_FAIL_CLOSED)
-@property (setter=_setPrivacyProxyStrictFailClosed:) BOOL _privacyProxyStrictFailClosed;
-#endif
 #if ENABLE(TRACKER_DISPOSITION)
 @property (setter=_setNeedsNetworkTrackingPrevention:) BOOL _needsNetworkTrackingPrevention;
 #endif
@@ -598,6 +595,12 @@ WTF_EXTERN_C_END
 
 @interface NSMutableURLRequest (Staging_88972294)
 @property (setter=_setPrivacyProxyFailClosedForUnreachableNonMainHosts:) BOOL _privacyProxyFailClosedForUnreachableNonMainHosts;
+@end
+
+@interface NSMutableURLRequest (Staging_151313184)
+#if HAVE(STRICT_FAIL_CLOSED)
+@property (setter=_setPrivacyProxyStrictFailClosed:) BOOL _privacyProxyStrictFailClosed;
+#endif
 @end
 
 @interface NSURLSessionConfiguration (Staging_102778152)
