@@ -105,6 +105,7 @@ public:
             std::optional<bool> allowInsecureMediaCapture;
             std::optional<bool> suppressICECandidateFiltering;
             std::optional<bool> alwaysAllowAutoplay;
+            std::optional<bool> siteIsolationEnabled;
 #endif
         };
 
