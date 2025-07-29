@@ -3417,7 +3417,7 @@ IOSurfaceLosslessCompressionEnabled:
     WebKitLegacy:
       default: false
     WebKit:
-      "HAVE(LOSSLESS_COMPRESSED_IOSURFACE_CG_SUPPORT)": defaultIOSurfaceLosslessCompressionEnabled
+      "HAVE(LOSSLESS_COMPRESSED_IOSURFACE_CG_SUPPORT)": defaultIOSurfaceLosslessCompressionEnabled()
       default: false
     WebCore:
       default: false
