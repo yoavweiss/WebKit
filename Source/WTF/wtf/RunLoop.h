@@ -245,6 +245,8 @@ public:
 
     WTF_EXPORT_PRIVATE Ref<RunLoop::DispatchTimer> dispatchAfter(Seconds, Function<void()>&&);
 
+    WTF_EXPORT_PRIVATE String listActiveTimersForLogging() const;
+
 private:
     class Holder;
     static ThreadSpecific<Holder>& runLoopHolder();
@@ -252,6 +254,12 @@ private:
     RunLoop();
 
     void performWork();
+
+    void registerTimer(TimerBase&);
+    void unregisterTimer(TimerBase&);
+
+    mutable Lock m_registeredTimerLock;
+    HashSet<TimerBase *> m_registeredTimers;
 
     Deque<Function<void()>> m_currentIteration;
 
