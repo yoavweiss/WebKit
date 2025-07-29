@@ -106,7 +106,7 @@ const int initialNodeVectorSize = 11; // Covers 99.5%. See webkit.org/b/80706
 typedef Vector<Ref<Node>, initialNodeVectorSize> NodeVector;
 
 class Node : public EventTarget, public CanMakeCheckedPtr<Node> {
-    WTF_MAKE_TZONE_OR_ISO_ALLOCATED(Node);
+    WTF_MAKE_PREFERABLY_COMPACT_TZONE_OR_ISO_ALLOCATED(Node);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(Node);
 
     friend class Document;

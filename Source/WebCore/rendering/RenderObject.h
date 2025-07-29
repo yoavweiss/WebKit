@@ -110,7 +110,7 @@ typedef const void* WrappedImagePtr;
 
 // Base class for all rendering tree objects.
 class RenderObject : public CachedImageClient {
-    WTF_MAKE_TZONE_OR_ISO_ALLOCATED(RenderObject);
+    WTF_MAKE_PREFERABLY_COMPACT_TZONE_OR_ISO_ALLOCATED(RenderObject);
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(RenderObject);
     friend class RenderBlock;
     friend class RenderBlockFlow;
@@ -1280,7 +1280,7 @@ private:
 
     // FIXME: This should be RenderElementRareData.
     class RenderObjectRareData {
-        WTF_MAKE_TZONE_ALLOCATED(RenderObjectRareData);
+        WTF_MAKE_PREFERABLY_COMPACT_TZONE_ALLOCATED(RenderObjectRareData);
     public:
         RenderObjectRareData();
         ~RenderObjectRareData();

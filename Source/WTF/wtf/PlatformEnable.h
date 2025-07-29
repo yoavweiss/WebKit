@@ -593,6 +593,15 @@
 #define ENABLE_MALLOC_HEAP_BREAKDOWN 0
 #endif
 
+/*
+ * Enable this to allocate types which prefer, but do not require, compact-compatible allocation
+ * (indicated by WTF_MAKE_PREFERABLY_COMPACT_TZONE_ALLOCATED and friends)
+ * via the compact allocation path. If disabled, they are allocated like normal, non-compact types.
+ */
+#if !defined(ENABLE_COMPACT_ALLOCATION_FOR_PREFERABLY_COMPACT_TYPES)
+#define ENABLE_COMPACT_ALLOCATION_FOR_PREFERABLY_COMPACT_TYPES 1
+#endif
+
 // See RefTrackerMixin.h
 #if ASSERT_ENABLED
 #undef ENABLE_REFTRACKER
