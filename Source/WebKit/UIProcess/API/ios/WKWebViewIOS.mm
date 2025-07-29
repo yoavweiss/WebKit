@@ -2495,7 +2495,7 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
         if ([_scrollView _wk_isScrolledBeyondTopExtent])
             return NO;
 
-        if ([_scrollView _wk_usesHardTopScrollEdgeEffect])
+        if ([_scrollView _usesHardTopScrollEdgeEffect])
             return NO;
 
         return [_scrollView contentOffset].y < 0;
@@ -2516,6 +2516,9 @@ static WebCore::FloatPoint constrainContentOffset(WebCore::FloatPoint contentOff
         return YES;
 
     if (_needsTopScrollPocketDueToVisibleContentInset)
+        return NO;
+
+    if ([_scrollView _usesHardTopScrollEdgeEffect])
         return NO;
 
     return [self _hasVisibleColorExtensionView:WebCore::BoxSide::Top];

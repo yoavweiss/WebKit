@@ -1286,6 +1286,10 @@ typedef NS_ENUM(NSUInteger, _UIScrollDeviceCategory) {
 - (_UIScrollPocket *)_pocketForEdge:(UIRectEdge)edge makeIfNeeded:(BOOL)makeIfNeeded;
 @end
 
+@interface UIScrollView (Staging_155261419)
+- (void)_setPrefersSolidColorHardPocket:(BOOL)prefersSolidColorHardPocket forEdge:(UIRectEdge)edge;
+@end
+
 #endif // HAVE(LIQUID_GLASS)
 
 WTF_EXTERN_C_BEGIN
