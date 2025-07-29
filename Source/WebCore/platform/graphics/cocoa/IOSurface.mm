@@ -351,6 +351,12 @@ IOSurface::IOSurface(IntSize size, const DestinationColorSpace& colorSpace, IOSu
     useLosslessCompression = UseLosslessCompression::No;
 #endif
 
+#if ENABLE(PIXEL_FORMAT_RGBA16F)
+    // FIXME: Remove when rdar://156761787 is resolved.
+    if (format == IOSurface::Format::RGBA16F)
+        useLosslessCompression = UseLosslessCompression::No;
+#endif
+
     if (useLosslessCompression == UseLosslessCompression::Yes) {
         // We could allocate more formats via CoreVideo in future.
         m_surface = createSurfaceViaCoreVideo(size, name, format, useLosslessCompression);
