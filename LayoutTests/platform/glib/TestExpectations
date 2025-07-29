@@ -3029,6 +3029,7 @@ fast/zooming/ios [ Skip ]
 
 # Needs site isolation drawing implementation
 http/tests/site-isolation [ Skip ]
+http/tests/contentextensions/cross-origin-content-rules.html [ Skip ]
 
 # Tests behavior specific to MediaSessionManagerCocoa
 media/audio-session-category.html [ Skip ]
