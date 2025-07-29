@@ -38,7 +38,6 @@
 #include "AXTextMarker.h"
 #include "AccessibilityARIAGridCell.h"
 #include "AccessibilityARIAGridRow.h"
-#include "AccessibilityARIATable.h"
 #include "AccessibilityAttachment.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityLabel.h"
@@ -795,7 +794,7 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
             return AccessibilityList::create(AXID::generate(), renderer, *this);
 
         if (isAccessibilityARIATable(*element))
-            return AccessibilityARIATable::create(AXID::generate(), renderer, *this);
+            return AccessibilityTable::create(AXID::generate(), renderer, *this, /* isARIATable */ true);
         if (isAccessibilityARIAGridRow(*element))
             return AccessibilityARIAGridRow::create(AXID::generate(), renderer, *this);
         if (isAccessibilityARIAGridCell(*element))
@@ -887,7 +886,7 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
         if (isAccessibilityTreeItem(*element))
             return AccessibilityTreeItem::create(AXID::generate(), *element, *this);
         if (isAccessibilityARIATable(*element))
-            return AccessibilityARIATable::create(AXID::generate(), *element, *this);
+            return AccessibilityTable::create(AXID::generate(), *element, *this, /* isARIATable */ true);
         if (isAccessibilityARIAGridRow(*element))
             return AccessibilityARIAGridRow::create(AXID::generate(), *element, *this);
         if (isAccessibilityARIAGridCell(*element))

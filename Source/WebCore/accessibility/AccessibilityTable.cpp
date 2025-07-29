@@ -56,17 +56,19 @@ namespace WebCore {
 
 using namespace HTMLNames;
 
-AccessibilityTable::AccessibilityTable(AXID axID, RenderObject& renderer, AXObjectCache& cache)
+AccessibilityTable::AccessibilityTable(AXID axID, RenderObject& renderer, AXObjectCache& cache, bool isAriaTable)
     : AccessibilityRenderObject(axID, renderer, cache)
     , m_headerContainer(nullptr)
     , m_isExposable(true)
+    , m_isAriaTable(isAriaTable)
 {
 }
 
-AccessibilityTable::AccessibilityTable(AXID axID, Node& node, AXObjectCache& cache)
+AccessibilityTable::AccessibilityTable(AXID axID, Node& node, AXObjectCache& cache, bool isAriaTable)
     : AccessibilityRenderObject(axID, node, cache)
     , m_headerContainer(nullptr)
     , m_isExposable(true)
+    , m_isAriaTable(isAriaTable)
 {
 }
 
@@ -81,14 +83,14 @@ void AccessibilityTable::init()
     AccessibilityRenderObject::init();
 }
 
-Ref<AccessibilityTable> AccessibilityTable::create(AXID axID, RenderObject& renderer, AXObjectCache& cache)
+Ref<AccessibilityTable> AccessibilityTable::create(AXID axID, RenderObject& renderer, AXObjectCache& cache, bool isAriaTable)
 {
-    return adoptRef(*new AccessibilityTable(axID, renderer, cache));
+    return adoptRef(*new AccessibilityTable(axID, renderer, cache, isAriaTable));
 }
 
-Ref<AccessibilityTable> AccessibilityTable::create(AXID axID, Node& node, AXObjectCache& cache)
+Ref<AccessibilityTable> AccessibilityTable::create(AXID axID, Node& node, AXObjectCache& cache, bool isAriaTable)
 {
-    return adoptRef(*new AccessibilityTable(axID, node, cache));
+    return adoptRef(*new AccessibilityTable(axID, node, cache, isAriaTable));
 }
 
 bool AccessibilityTable::hasNonTableARIARole() const
@@ -408,6 +410,17 @@ void AccessibilityTable::recomputeIsExposable()
 
         m_childrenDirty = true;
     }
+}
+
+bool AccessibilityTable::isMultiSelectable() const
+{
+    // Per https://w3c.github.io/aria/#table, role="table" elements don't support selection,
+    // or aria-multiselectable — only role="grid" and role="treegrid".
+    if (!hasGridRole())
+        return false;
+
+    const AtomString& ariaMultiSelectable = getAttribute(HTMLNames::aria_multiselectableAttr);
+    return !equalLettersIgnoringASCIICase(ariaMultiSelectable, "false"_s);
 }
 
 Vector<Vector<Markable<AXID>>> AccessibilityTable::cellSlots()
