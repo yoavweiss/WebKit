@@ -2,7 +2,6 @@ AutomationFrontendDispatchers.cpp
 AutomationProtocolObjects.h
 GeneratedSerializers.mm
 Platform/IPC/ArgumentCoders.h
-Shared/RemoteLayerTree/RemoteLayerWithRemoteRenderingBackingStore.mm
 UIProcess/API/C/mac/WKPagePrivateMac.mm
 UIProcess/API/Cocoa/WKContentWorld.mm
 UIProcess/API/Cocoa/WKDownload.mm
