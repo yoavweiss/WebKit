@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "SharedBuffer.h"
 #include <wtf/URL.h>
 
 namespace IPC {
@@ -38,8 +37,6 @@ class BlobPart {
 private:
     friend struct IPC::ArgumentCoder<BlobPart, void>;
 public:
-    using VariantType = Variant<Vector<uint8_t>, Ref<SharedBuffer>, URL>;
-
     enum class Type : bool {
         Data,
         Blob
@@ -50,17 +47,12 @@ public:
     {
     }
 
-    explicit BlobPart(Vector<uint8_t>&& data)
+    BlobPart(Vector<uint8_t>&& data)
         : m_dataOrURL(WTFMove(data))
     {
     }
 
-    explicit BlobPart(Ref<SharedBuffer>&& data)
-        : m_dataOrURL(WTFMove(data))
-    {
-    }
-
-    explicit BlobPart(const URL& url)
+    BlobPart(const URL& url)
         : m_dataOrURL(url)
     {
     }
@@ -70,17 +62,10 @@ public:
         return std::holds_alternative<URL>(m_dataOrURL) ? Type::Blob : Type::Data;
     }
 
-    Vector<uint8_t> takeData()
+    Vector<uint8_t>&& moveData()
     {
-        auto blobPartVariant = std::exchange(m_dataOrURL, Vector<uint8_t> { });
-        return switchOn(WTFMove(blobPartVariant), [](Ref<SharedBuffer>&& buffer) {
-            return buffer->extractData();
-        }, [](Vector<uint8_t>&& vector) {
-            return WTFMove(vector);
-        }, [](URL&&) {
-            ASSERT_NOT_REACHED();
-            return Vector<uint8_t> { };
-        });
+        ASSERT(std::holds_alternative<Vector<uint8_t>>(m_dataOrURL));
+        return WTFMove(std::get<Vector<uint8_t>>(m_dataOrURL));
     }
 
     const URL& url() const
@@ -96,12 +81,12 @@ public:
     }
 
 private:
-    explicit BlobPart(VariantType&& dataOrURL)
+    BlobPart(Variant<Vector<uint8_t>, URL>&& dataOrURL)
         : m_dataOrURL(WTFMove(dataOrURL))
     {
     }
 
-    VariantType m_dataOrURL;
+    Variant<Vector<uint8_t>, URL> m_dataOrURL;
 };
 
 } // namespace WebCore

@@ -190,7 +190,7 @@ void BlobRegistryImpl::registerInternalBlobURL(const URL& url, Vector<BlobPart>&
     for (BlobPart& part : blobParts) {
         switch (part.type()) {
         case BlobPart::Type::Data: {
-            blobData->appendData(createDataSegment(part.takeData(), blobData));
+            blobData->appendData(createDataSegment(part.moveData(), blobData));
             break;
         }
         case BlobPart::Type::Blob: {
