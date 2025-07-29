@@ -1533,8 +1533,6 @@ webkit.org/b/99036 pointer-lock/pointerlockchange-pointerlockerror-events.html [
 
 webkit.org/b/211981 editing/pasteboard/data-transfer-get-data-on-pasting-html-uses-blob-url.html [ Failure ]
 
-webkit.org/b/219248 imported/w3c/web-platform-tests/uievents/mouse/mouseevent_move_button.html [ Failure ]
-
 webkit.org/b/224062 webgl/1.0.x/conformance/rendering/gl-scissor-test.html [ Failure ]
 webgl/2.0.y/conformance/rendering/texture-switch-performance.html [ Failure ]
 
