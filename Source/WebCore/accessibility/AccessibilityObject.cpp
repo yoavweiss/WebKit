@@ -2103,9 +2103,15 @@ bool AccessibilityObject::contentEditableAttributeIsEnabled(Element& element)
     const AtomString& contentEditableValue = element.attributeWithoutSynchronization(contenteditableAttr);
     if (contentEditableValue.isNull())
         return false;
-    
-    // Both "true" (case-insensitive) and the empty string count as true.
-    return contentEditableValue.isEmpty() || equalLettersIgnoringASCIICase(contentEditableValue, "true"_s);
+
+    if (auto* htmlElement = dynamicDowncast<HTMLElement>(&element)) {
+        if (htmlElement->isTextControlInnerTextElement())
+            return false;
+    }
+
+    // All of "true", "plaintext-only", (both case-insensitive) and the empty string count as true for accessibility.
+    // This needs to be consistent with contentEditableType(const AtomString&) from HTMLElement.cpp.
+    return contentEditableValue.isEmpty() || equalLettersIgnoringASCIICase(contentEditableValue, "true"_s) || equalLettersIgnoringASCIICase(contentEditableValue, "plaintext-only"_s);
 }
 
 int AccessibilityObject::lineForPosition(const VisiblePosition& visiblePos) const
