@@ -8178,3 +8178,5 @@ webkit.org/b/296389 [ Release ] http/tests/dom/noreferrer-window-not-targetable.
 webkit.org/b/296566 [ Release ] imported/w3c/web-platform-tests/screen-orientation/lock-basic.html [ Pass Failure ]
 
 webkit.org/b/295803 [ Release ] http/tests/webcodecs/video-encoder-callbacks-do-not-leak.html [ Pass Failure ]
+
+webkit.org/b/296637 [ Release ] http/tests/dom/noopener-window-not-targetable.html [ Pass Failure ]
