@@ -57,7 +57,7 @@ public:
 
     // FIXME: tree()->treeID() is never optional, so this shouldn't return an optional either.
     std::optional<AXID> treeID() const final { return tree()->treeID(); }
-    String dbgInternal(bool, OptionSet<AXDebugStringOption>) const final;
+    String debugDescriptionInternal(bool, std::optional<OptionSet<AXDebugStringOption>> = std::nullopt) const final;
 
     void attachPlatformWrapper(AccessibilityObjectWrapper*);
     bool isDetached() const final;

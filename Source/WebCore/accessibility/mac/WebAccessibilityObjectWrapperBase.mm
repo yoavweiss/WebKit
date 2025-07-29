@@ -373,6 +373,20 @@ NSArray *makeNSArray(const WebCore::AXCoreObject::AccessibilityChildrenVector& c
 }
 #endif
 
+- (NSString *)description
+{
+    if (RefPtr<AXCoreObject> backingObject = self.axBackingObject) {
+        NSString *backingDescription = backingObject->debugDescription().createNSString().autorelease();
+        return [NSString stringWithFormat:@"wrapper %p { object %@ }", self, backingDescription];
+    }
+    return [NSString stringWithFormat:@"%@ (null backing object)", [super description]];
+}
+
+- (NSString *)debugDescription
+{
+    return [self description];
+}
+
 - (id)attachmentView
 {
     return nil;

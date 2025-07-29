@@ -822,8 +822,8 @@ enum class ListBoxInterpretation : uint8_t {
 class AXCoreObject : public RefCountedAndCanMakeWeakPtr<AXCoreObject> {
 public:
     virtual ~AXCoreObject() = default;
-    String dbg(bool verbose = false) const { return dbgInternal(verbose, { }); }
-    String dbg(OptionSet<AXDebugStringOption> options) const { return dbgInternal(false, options); }
+    String debugDescription(bool verbose = false) const { return debugDescriptionInternal(verbose); }
+    String debugDescription(OptionSet<AXDebugStringOption> options) const { return debugDescriptionInternal(false, { options }); }
 
     inline AXID objectID() const { return m_id; }
     virtual std::optional<AXID> treeID() const = 0;
@@ -1620,7 +1620,7 @@ protected:
     { }
 
 private:
-    virtual String dbgInternal(bool, OptionSet<AXDebugStringOption>) const = 0;
+    virtual String debugDescriptionInternal(bool, std::optional<OptionSet<AXDebugStringOption>> = std::nullopt) const = 0;
 
     // Detaches this object from the objects it references and it is referenced by.
     virtual void detachRemoteParts(AccessibilityDetachmentType) = 0;

@@ -140,26 +140,28 @@ std::optional<AXID> AccessibilityObject::treeID() const
     return cache ? std::optional { cache->treeID() } : std::nullopt;
 }
 
-String AccessibilityObject::dbgInternal(bool verbose, OptionSet<AXDebugStringOption> debugOptions) const
+String AccessibilityObject::debugDescriptionInternal(bool verbose, std::optional<OptionSet<AXDebugStringOption>> debugOptions) const
 {
     StringBuilder result;
     result.append("{"_s);
     result.append("role: "_s, accessibilityRoleToString(role()));
     result.append(", ID "_s, objectID().loggingString());
 
-    if (verbose || debugOptions & AXDebugStringOption::Ignored)
-        result.append(isIgnored() ? ", ignored"_s : emptyString());
+    if (debugOptions) {
+        if (verbose || *debugOptions & AXDebugStringOption::Ignored)
+            result.append(isIgnored() ? ", ignored"_s : emptyString());
 
-    if (verbose || debugOptions & AXDebugStringOption::RelativeFrame) {
-        FloatRect frame = relativeFrame();
-        result.append(", relativeFrame ((x: "_s, frame.x(), ", y: "_s, frame.y(), "), (w: "_s, frame.width(), ", h: "_s, frame.height(), "))"_s);
+        if (verbose || *debugOptions & AXDebugStringOption::RelativeFrame) {
+            FloatRect frame = relativeFrame();
+            result.append(", relativeFrame ((x: "_s, frame.x(), ", y: "_s, frame.y(), "), (w: "_s, frame.width(), ", h: "_s, frame.height(), "))"_s);
+        }
+
+        if (verbose || *debugOptions & AXDebugStringOption::RemoteFrameOffset)
+            result.append(", remoteFrameOffset ("_s, remoteFrameOffset().x(), ", "_s, remoteFrameOffset().y(), ")"_s);
+
+        if (verbose || *debugOptions & AXDebugStringOption::IsRemoteFrame)
+            result.append(isRemoteFrame() ? ", remote frame"_s : emptyString());
     }
-
-    if (verbose || debugOptions & AXDebugStringOption::RemoteFrameOffset)
-        result.append(", remoteFrameOffset ("_s, remoteFrameOffset().x(), ", "_s, remoteFrameOffset().y(), ")"_s);
-
-    if (verbose || debugOptions & AXDebugStringOption::IsRemoteFrame)
-        result.append(isRemoteFrame() ? ", remote frame"_s : emptyString());
 
     if (auto* renderer = this->renderer())
         result.append(", "_s, renderer->debugDescription());
