@@ -1560,17 +1560,17 @@ CSSURLIntegrityModifierEnabled:
 
 CSSURLModifiersEnabled:
   type: bool
-  status: testable
+  status: stable
   category: css
   humanReadableName: "CSS URL Modifiers"
   humanReadableDescription: "Enable support for CSS Values and Units Module Level 5 URL modifiers"
   defaultValue:
     WebKitLegacy:
-      default: false
+      default: true
     WebKit:
-      default: false
+      default: true
     WebCore:
-      default: false
+      default: true
 
 CSSUnprefixedBackdropFilterEnabled:
   type: bool
