@@ -59,6 +59,7 @@
 #include "RenderView.h"
 #include "StyleBoxShadow.h"
 #include "StyleInheritedData.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/SetForScope.h>
 #include <wtf/StackStats.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -156,8 +157,8 @@ void RenderTable::styleDidChange(StyleDifference diff, const RenderStyle* oldSty
     bool oldFixedTableLayout = oldStyle ? oldStyle->isFixedTableLayout() : false;
 
     // In the collapsed border model, there is no cell spacing.
-    m_hSpacing = collapseBorders() ? 0 : style().horizontalBorderSpacing();
-    m_vSpacing = collapseBorders() ? 0 : style().verticalBorderSpacing();
+    m_hSpacing = collapseBorders() ? 0 : Style::evaluate(style().borderHorizontalSpacing());
+    m_vSpacing = collapseBorders() ? 0 : Style::evaluate(style().borderVerticalSpacing());
 
     if (!m_tableLayout || style().isFixedTableLayout() != oldFixedTableLayout) {
         // According to the CSS2 spec, you only use fixed table layout if an explicit width is specified on the table. Auto width implies auto table layout.

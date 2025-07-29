@@ -47,6 +47,7 @@
 #include "RenderObject.h"
 #include "RenderTable.h"
 #include "RenderTableCell.h"
+#include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <wtf/Scope.h>
 #include <wtf/WeakRef.h>
 
@@ -207,8 +208,8 @@ bool AccessibilityTable::isDataTable() const
     // Store the background color of the table to check against cell's background colors.
     const auto* tableStyle = this->style();
     Color tableBackgroundColor = tableStyle ? tableStyle->visitedDependentColor(CSSPropertyBackgroundColor) : Color::white;
-    unsigned tableHorizontalBorderSpacing = tableStyle ? tableStyle->horizontalBorderSpacing() : 0;
-    unsigned tableVerticalBorderSpacing = tableStyle ? tableStyle->verticalBorderSpacing() : 0;
+    unsigned tableHorizontalBorderSpacing = tableStyle ? Style::evaluate(tableStyle->borderHorizontalSpacing()) : 0;
+    unsigned tableVerticalBorderSpacing = tableStyle ? Style::evaluate(tableStyle->borderVerticalSpacing()) : 0;
 
     unsigned cellCount = 0;
     unsigned borderedCellCount = 0;

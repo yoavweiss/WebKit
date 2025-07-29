@@ -563,8 +563,8 @@ unsigned RenderStyle::hashForTextAutosizing() const
     hash ^= m_rareInheritedData->lineBreak;
     hash ^= WTF::FloatHash<float>::hash(m_inheritedData->specifiedLineHeight.value());
     hash ^= computeFontHash(m_inheritedData->fontData->fontCascade);
-    hash ^= WTF::FloatHash<float>::hash(m_inheritedData->horizontalBorderSpacing);
-    hash ^= WTF::FloatHash<float>::hash(m_inheritedData->verticalBorderSpacing);
+    hash ^= WTF::FloatHash<float>::hash(Style::evaluate(m_inheritedData->borderHorizontalSpacing));
+    hash ^= WTF::FloatHash<float>::hash(Style::evaluate(m_inheritedData->borderVerticalSpacing));
     hash ^= m_inheritedFlags.boxDirection;
     hash ^= m_inheritedFlags.rtlOrdering;
     hash ^= m_nonInheritedFlags.position;
@@ -585,8 +585,8 @@ bool RenderStyle::equalForTextAutosizing(const RenderStyle& other) const
         && m_rareInheritedData->textSecurity == other.m_rareInheritedData->textSecurity
         && m_inheritedData->specifiedLineHeight == other.m_inheritedData->specifiedLineHeight
         && m_inheritedData->fontData->fontCascade.equalForTextAutoSizing(other.m_inheritedData->fontData->fontCascade)
-        && m_inheritedData->horizontalBorderSpacing == other.m_inheritedData->horizontalBorderSpacing
-        && m_inheritedData->verticalBorderSpacing == other.m_inheritedData->verticalBorderSpacing
+        && m_inheritedData->borderHorizontalSpacing == other.m_inheritedData->borderHorizontalSpacing
+        && m_inheritedData->borderVerticalSpacing == other.m_inheritedData->borderVerticalSpacing
         && m_inheritedFlags.boxDirection == other.m_inheritedFlags.boxDirection
         && m_inheritedFlags.rtlOrdering == other.m_inheritedFlags.rtlOrdering
         && m_nonInheritedFlags.position == other.m_nonInheritedFlags.position
@@ -1060,8 +1060,8 @@ bool RenderStyle::changeRequiresLayout(const RenderStyle& other, OptionSet<Style
 #if ENABLE(TEXT_AUTOSIZING)
             || m_inheritedData->specifiedLineHeight != other.m_inheritedData->specifiedLineHeight
 #endif
-            || m_inheritedData->horizontalBorderSpacing != other.m_inheritedData->horizontalBorderSpacing
-            || m_inheritedData->verticalBorderSpacing != other.m_inheritedData->verticalBorderSpacing)
+            || m_inheritedData->borderHorizontalSpacing != other.m_inheritedData->borderHorizontalSpacing
+            || m_inheritedData->borderVerticalSpacing != other.m_inheritedData->borderVerticalSpacing)
             return true;
 
         if (m_inheritedData->fontData != other.m_inheritedData->fontData)
@@ -2069,10 +2069,10 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyFontVariantEmoji);
         }
 
-        if (first.horizontalBorderSpacing != second.horizontalBorderSpacing)
+        if (first.borderHorizontalSpacing != second.borderHorizontalSpacing)
             changingProperties.m_properties.set(CSSPropertyWebkitBorderHorizontalSpacing);
 
-        if (first.verticalBorderSpacing != second.verticalBorderSpacing)
+        if (first.borderVerticalSpacing != second.borderVerticalSpacing)
             changingProperties.m_properties.set(CSSPropertyWebkitBorderVerticalSpacing);
 
         if (first.color != second.color || first.visitedLinkColor != second.visitedLinkColor)
@@ -2404,26 +2404,6 @@ void RenderStyle::setColor(Color&& v)
 void RenderStyle::setVisitedLinkColor(Color&& v)
 {
     SET_VAR(m_inheritedData, visitedLinkColor, WTFMove(v));
-}
-
-float RenderStyle::horizontalBorderSpacing() const
-{
-    return m_inheritedData->horizontalBorderSpacing;
-}
-
-float RenderStyle::verticalBorderSpacing() const
-{
-    return m_inheritedData->verticalBorderSpacing;
-}
-
-void RenderStyle::setHorizontalBorderSpacing(float v)
-{
-    SET_VAR(m_inheritedData, horizontalBorderSpacing, v);
-}
-
-void RenderStyle::setVerticalBorderSpacing(float v)
-{
-    SET_VAR(m_inheritedData, verticalBorderSpacing, v);
 }
 
 bool RenderStyle::hasEntirelyFixedBackground() const
