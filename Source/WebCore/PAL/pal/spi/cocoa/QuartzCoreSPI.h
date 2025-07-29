@@ -305,6 +305,7 @@ void CARenderCGRender(CARenderCGContext*, CARenderUpdate*, CGContextRef);
 void CARenderUpdateAddContext(CARenderUpdate*, CARenderContext*);
 void CARenderUpdateAddRect(CARenderUpdate*, const CGRect*);
 void CARenderUpdateFinish(CARenderUpdate*);
+bool CASupportsFeature(uint64_t);
 
 WTF_EXTERN_C_END
 

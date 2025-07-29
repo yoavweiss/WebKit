@@ -203,4 +203,6 @@ bool defaultTrustedTypesEnabled();
 bool defaultHostedBlurMaterialInMediaControlsEnabled();
 #endif
 
+bool defaultIOSurfaceLosslessCompressionEnabled();
+
 } // namespace WebKit

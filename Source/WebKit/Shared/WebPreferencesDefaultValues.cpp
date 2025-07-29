@@ -413,4 +413,11 @@ bool defaultTopContentInsetBackgroundCanChangeAfterScrolling()
 }
 #endif
 
+#if !PLATFORM(COCOA)
+bool defaultIOSurfaceLosslessCompressionEnabled()
+{
+    return false;
+}
+#endif
+
 } // namespace WebKit

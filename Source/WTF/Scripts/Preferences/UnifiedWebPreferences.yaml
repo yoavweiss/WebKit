@@ -3408,6 +3408,20 @@ IFrameResourceMonitoringTestingSettingsEnabled:
     WebCore:
       default: false
 
+IOSurfaceLosslessCompressionEnabled:
+  type: bool
+  status: internal
+  humanReadableName: "IOSurface Lossless Compression"
+  humanReadableDescription: "Use losslessly compressed IOSurfaces"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      "HAVE(LOSSLESS_COMPRESSED_IOSURFACE_CG_SUPPORT)": defaultIOSurfaceLosslessCompressionEnabled
+      default: false
+    WebCore:
+      default: false
+
 IPAddressAndLocalhostMixedContentUpgradeTestingEnabled:
   type: bool
   status: testable
