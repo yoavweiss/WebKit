@@ -2353,3 +2353,5 @@ loader/navigation-policy/should-open-external-urls/user-gesture-window-open-with
 loader/navigation-policy/should-open-external-urls/user-gesture-window-open-without-flag.html [ Slow ]
 media/crash-closing-page-with-media-as-plugin-fallback.html [ Slow ]
 webgl/2.0.y/conformance2/sync/sync-webgl-specific.html [ Slow ]
+
+webkit.org/b/296647 [ arm64 ] http/wpt/background-fetch/background-fetch-pause-resume.window.html [ Pass Failure ]
