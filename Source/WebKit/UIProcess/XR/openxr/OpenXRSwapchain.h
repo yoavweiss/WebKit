@@ -28,6 +28,9 @@ typedef void* EGLDisplay;
 typedef void* EGLContext;
 typedef void* EGLConfig;
 typedef unsigned EGLenum;
+#if defined(XR_USE_PLATFORM_EGL)
+typedef void (*(*PFNEGLGETPROCADDRESSPROC)(const char *))(void);
+#endif
 #include <openxr/openxr_platform.h>
 #include <wtf/Noncopyable.h>
 #include <wtf/TZoneMalloc.h>
