@@ -196,7 +196,7 @@ class GitHub(object):
 
 
 class GitHubEWS(GitHub):
-    APPLE_QUEUES = ['ios-apple', 'mac-apple']
+    APPLE_INTERNAL_QUEUES = ['ios-apple', 'mac-apple']
     APPLE_INTERNAL_BUILDS_TITLE = 'Apple Internal'
     ICON_BUILD_PASS = u'\U00002705'
     ICON_BUILD_FAIL = u'\U0000274C'
@@ -221,7 +221,7 @@ class GitHubEWS(GitHub):
                           ['', 'watch', '', '', ''],
                           ['', 'watch-sim', '', '', '']]
     # FIXME: fetch below user list dynamically and expand it appropriately
-    approved_user_list_for_cibuilds = ['adetaylor', 'aestes', 'aj062', 'annevk', 'aproskuryakov', 'aprotyas', 'beidson', 'briannafan',
+    approved_user_list_for_apple_internal_builds = ['adetaylor', 'aestes', 'aj062', 'annevk', 'aproskuryakov', 'aprotyas', 'beidson', 'briannafan',
                                        'Constellation', 'danlliu', 'ddkilzer', 'emw-apple', 'eric-carlson', 'etiennesegonzac', 'gsnedders',
                                        'hortont424', 'jesxilin', 'JonWBedard', 'lilyspiniolas', 'megangardner', 'pxlcoder', 'rr-codes',
                                        'ryanhaddad', 'Smackteo', 'squelart', 'whsieh', 'zakariaridouh']
@@ -231,7 +231,7 @@ class GitHubEWS(GitHub):
         description = "" if description is None else description.split(self.STATUS_BUBBLE_START)[0]
         return u'{}{}\n{}\n{}'.format(description, self.STATUS_BUBBLE_START, ews_comment, self.STATUS_BUBBLE_END)
 
-    def generate_comment_text_for_change(self, change, include_ci_builds=False):
+    def generate_comment_text_for_change(self, change, include_apple_internal_builds=False):
         repository_url = 'https://github.com/{}'.format(change.pr_project)
         hash_url = '{}/commit/{}'.format(repository_url, change.change_id)
 
@@ -239,12 +239,12 @@ class GitHubEWS(GitHub):
         comment += '\n| ----- | ---------------------- | ------- |  ----- |  --------- |'
 
         status_bubble_rows = copy.deepcopy(self.STATUS_BUBBLE_ROWS)
-        if include_ci_builds:
+        if include_apple_internal_builds:
             comment = comment.replace('Windows', f'Windows | {self.APPLE_INTERNAL_BUILDS_TITLE}')
             comment += ' ------ |'
             for row in status_bubble_rows:
                 row.append('')
-            for i, queue in enumerate(self.APPLE_QUEUES):
+            for i, queue in enumerate(self.APPLE_INTERNAL_QUEUES):
                 status_bubble_rows[i][-1] = queue
 
         for row in status_bubble_rows:
@@ -272,11 +272,11 @@ class GitHubEWS(GitHub):
     def escape_github_markdown(cls, string):
         return string.replace('|', '\\|')
 
-    def should_include_ci_builds(self, pr_author, pr_project):
-        return (pr_author in self.approved_user_list_for_cibuilds) and (pr_project in GITHUB_PROJECTS)
+    def should_include_apple_internal_builds(self, pr_author, pr_project):
+        return (pr_author in self.approved_user_list_for_apple_internal_builds) and (pr_project in GITHUB_PROJECTS)
 
     def github_status_for_queue(self, change, queue):
-        if queue in self.APPLE_QUEUES:
+        if queue in self.APPLE_INTERNAL_QUEUES:
             return self.github_status_for_cibuild(change, queue)
         return self.github_status_for_buildbot_queue(change, queue)
 
@@ -414,8 +414,8 @@ class GitHubEWS(GitHub):
             _log.error('Change not found for hash: {}. Unable to generate github comment.'.format(sha))
             return -1
         gh = GitHubEWS()
-        include_ci_builds = gh.should_include_ci_builds(pr_author, pr_project)
-        comment_text, folded_comment = gh.generate_comment_text_for_change(change, include_ci_builds)
+        include_apple_internal_builds = gh.should_include_apple_internal_builds(pr_author, pr_project)
+        comment_text, folded_comment = gh.generate_comment_text_for_change(change, include_apple_internal_builds)
         if not change.obsolete:
             gh.update_pr_description_with_status_bubble(pr_number, comment_text, repository_url)
 
@@ -428,7 +428,7 @@ class GitHubEWS(GitHub):
             new_comment_id = gh.update_or_leave_comment_on_pr(pr_number, folded_comment, repository_url=repository_url, change=change)
             obsolete_changes = Change.mark_old_changes_as_obsolete(pr_number, sha)
             for obsolete_change in obsolete_changes:
-                obsolete_comment_text, _ = gh.generate_comment_text_for_change(obsolete_change, include_ci_builds)
+                obsolete_comment_text, _ = gh.generate_comment_text_for_change(obsolete_change, include_apple_internal_builds)
                 gh.update_or_leave_comment_on_pr(pr_number, obsolete_comment_text, repository_url=repository_url, comment_id=obsolete_change.comment_id, change=obsolete_change)
                 _log.info('Updated obsolete status-bubble on pr {} for hash: {}'.format(pr_number, obsolete_change.change_id))
 
