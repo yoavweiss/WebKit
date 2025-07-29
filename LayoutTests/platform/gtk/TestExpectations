@@ -839,7 +839,6 @@ webkit.org/b/286930 media/modern-media-controls/scrubber-support/scrubber-suppor
 # Tests crashing due to failing assertions
 
 webkit.org/b/286127 editing/pasteboard/copy-paste-across-shadow-boundaries-with-style-2.html [ Crash ]
-webkit.org/b/286128 editing/inserting/insert-list-user-select-none-crash.html [ Crash ]
 webkit.org/b/286129 fast/forms/textarea-node-removed-from-document-crash.html [ Crash ]
 webkit.org/b/286130 imported/w3c/web-platform-tests/css/css-multicol/crashtests/inline-float-parallel-flow.html [ Crash ]
 webkit.org/b/286131 imported/w3c/web-platform-tests/css/css-transforms/transform-box/cssbox-content-box-002.html [ Crash ]
@@ -974,7 +973,6 @@ imported/w3c/web-platform-tests/html/dom/render-blocking/remove-element-unblocks
 
 # Flaky tests detected from 29Jan2023 to 23Feb2023
 webkit.org/b/252878 compositing/backing/solid-color-with-paints-into-ancestor.html [ ImageOnlyFailure Pass ]
-webkit.org/b/252878 editing/execCommand/insert-ordered-list-and-delete.html [ Failure Pass ]
 webkit.org/b/252878 fast/frames/exponential-frames.html [ Pass Timeout ]
 webkit.org/b/252878 fast/frames/lots-of-objects.html [ Pass Timeout ]
 webkit.org/b/252878 http/wpt/mediarecorder/MediaRecorder-video-h264-profiles.html [ Crash Pass Timeout ]
@@ -1188,8 +1186,6 @@ webkit.org/b/144690 editing/spelling/spelling-exactly-selected-word.html [ Timeo
 webkit.org/b/144690 editing/spelling/spelling-with-punctuation-selection.html [ Timeout ]
 webkit.org/b/144690 editing/spelling/delete-into-misspelled-word.html [ Timeout ]
 
-
-webkit.org/b/179261 editing/selection/drag-to-contenteditable-iframe.html [ Timeout ]
 
 webkit.org/b/156077 inspector/heap/getRemoteObject.html [ Skip ]
 
@@ -1459,8 +1455,6 @@ webkit.org/b/176648 fast/repaint/inline-outline-repaint.html [ ImageOnlyFailure 
 webkit.org/b/177294 platform/gtk/fonts/fontconfig-aliasing-settings.html [ Failure ]
 
 webkit.org/b/144690 fast/writing-mode/english-bt-text-with-spelling-marker.html [ ImageOnlyFailure ]
-
-webkit.org/b/179605 editing/execCommand/underline-selection-containing-image.html [ Failure ]
 
 webkit.org/b/181662 fast/forms/auto-fill-button/input-strong-password-viewable-baseline-alignment.html [ ImageOnlyFailure ]
 

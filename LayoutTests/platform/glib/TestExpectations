@@ -1241,6 +1241,14 @@ webkit.org/b/178441 editing/deleting/delete-ligature-001.html [ Failure ]
 webkit.org/b/178441 editing/deleting/delete-ligature-002.html [ Failure ]
 webkit.org/b/178441 editing/deleting/delete-ligature-003.html [ Failure ]
 
+webkit.org/b/239345 editing/execCommand/insert-ordered-list-and-delete.html [ Failure Pass ]
+
+webkit.org/b/179605 editing/execCommand/underline-selection-containing-image.html [ Failure ]
+
+webkit.org/b/286128 editing/inserting/insert-list-user-select-none-crash.html [ Crash ]
+
+webkit.org/b/179261 editing/selection/drag-to-contenteditable-iframe.html [ Timeout ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Editing-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////

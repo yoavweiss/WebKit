@@ -455,18 +455,19 @@ js/dom/lockdown-mode [ Skip ]
 # 3. UNRESOLVED TESTS
 #////////////////////////////////////////////////////////////////////////////////////////
 
-webkit.org/b/213131 editing/execCommand [ Skip ]
-webkit.org/b/213131 editing/input [ Skip ]
-webkit.org/b/213131 editing/inserting [ Skip ]
+editing/execCommand/change-list-type.html [ Skip ]
+editing/execCommand/delete-selection-has-style-live-range.html [ Skip ]
+editing/execCommand/delete-selection-has-style.html [ Skip ]
+editing/execCommand/format-block-multiple-paragraphs-in-pre.html [ Skip ]
+editing/execCommand/insert-nested-lists.html [ Skip ]
+editing/execCommand/selectAll.html [ Skip ]
+editing/style/preserve-selection-direction.html [ Skip ]
+editing/style/stylewithcss-without-selection.html [ Skip ]
+  
 webkit.org/b/213131 editing/pasteboard [ Skip ]
 webkit.org/b/213131 editing/secure-input [ Skip ]
-webkit.org/b/213131 editing/selection [ Skip ]
 webkit.org/b/213131 editing/spelling [ Skip ]
-webkit.org/b/213131 editing/style [ Skip ]
-webkit.org/b/213131 editing/text-iterator [ Skip ]
-webkit.org/b/213131 editing/text-placeholder [ Skip ]
 webkit.org/b/213131 editing/undo [ Skip ]
-webkit.org/b/213131 editing/unsupported-content [ Skip ]
 
 webkit.org/b/213131 inspector/ [ Skip ]
 
