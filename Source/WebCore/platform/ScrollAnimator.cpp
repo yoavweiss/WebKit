@@ -114,6 +114,7 @@ bool ScrollAnimator::scrollToPositionWithoutAnimation(const FloatPoint& position
     m_scrollController.stopAnimatedScroll();
 
     setCurrentPosition(adjustedPosition, NotifyScrollableArea::Yes);
+    scrollableArea().scrollDidEnd();
     return true;
 }
 
@@ -301,6 +302,7 @@ void ScrollAnimator::didStopAnimatedScroll()
 {
     m_scrollableArea.setScrollAnimationStatus(ScrollAnimationStatus::NotAnimating);
     m_scrollableArea.animatedScrollDidEnd();
+    m_scrollableArea.scrollDidEnd();
 }
 
 #if HAVE(RUBBER_BANDING)
