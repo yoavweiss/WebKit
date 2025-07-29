@@ -656,6 +656,9 @@ static _WKWebsiteDeviceOrientationAndMotionAccessPolicy toWKWebsiteDeviceOrienta
     if (webCorePolicy.contains(WebCore::AdvancedPrivacyProtections::FailClosedForAllHosts))
         policy |= _WKWebsiteNetworkConnectionIntegrityPolicyFailClosedForAllHosts;
 
+    if (webCorePolicy.contains(WebCore::AdvancedPrivacyProtections::StrictFailClosed))
+        policy |= _WKWebsiteNetworkConnectionIntegrityPolicyStrictFailClosed;
+
     if (webCorePolicy.contains(WebCore::AdvancedPrivacyProtections::WebSearchContent))
         policy |= _WKWebsiteNetworkConnectionIntegrityPolicyWebSearchContent;
 
@@ -692,6 +695,9 @@ static _WKWebsiteDeviceOrientationAndMotionAccessPolicy toWKWebsiteDeviceOrienta
 
     if (advancedPrivacyProtections & _WKWebsiteNetworkConnectionIntegrityPolicyFailClosedForAllHosts)
         webCorePolicy.add(WebCore::AdvancedPrivacyProtections::FailClosedForAllHosts);
+
+    if (advancedPrivacyProtections & _WKWebsiteNetworkConnectionIntegrityPolicyStrictFailClosed)
+        webCorePolicy.add(WebCore::AdvancedPrivacyProtections::StrictFailClosed);
 
     if (advancedPrivacyProtections & _WKWebsiteNetworkConnectionIntegrityPolicyWebSearchContent)
         webCorePolicy.add(WebCore::AdvancedPrivacyProtections::WebSearchContent);
