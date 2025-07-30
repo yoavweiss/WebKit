@@ -58,7 +58,6 @@ public:
 
     virtual void didCreateGLContext() { }
     virtual void willDestroyGLContext() { }
-    virtual void finalize() { }
     virtual void willRenderFrame() { }
     virtual void didRenderFrame() { }
 

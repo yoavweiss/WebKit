@@ -26,17 +26,10 @@
 #include "config.h"
 #include "AcceleratedSurface.h"
 
+#include "AcceleratedSurfaceDMABuf.h"
 #include "WebPage.h"
 #include <WebCore/PlatformDisplay.h>
 #include <wtf/TZoneMallocInlines.h>
-
-#if USE(WPE_RENDERER)
-#include "AcceleratedSurfaceLibWPE.h"
-#endif
-
-#if (PLATFORM(GTK) || (PLATFORM(WPE) && ENABLE(WPE_PLATFORM)))
-#include "AcceleratedSurfaceDMABuf.h"
-#endif
 
 #if USE(LIBEPOXY)
 #include <epoxy/gl.h>
@@ -51,20 +44,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(AcceleratedSurface);
 
 std::unique_ptr<AcceleratedSurface> AcceleratedSurface::create(ThreadedCompositor& compositor, WebPage& webPage, Function<void()>&& frameCompleteHandler)
 {
-#if (PLATFORM(GTK) || (PLATFORM(WPE) && ENABLE(WPE_PLATFORM)))
-#if USE(GBM)
-    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::GBM)
-        return AcceleratedSurfaceDMABuf::create(compositor, webPage, WTFMove(frameCompleteHandler));
-#endif
-    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::Surfaceless)
-        return AcceleratedSurfaceDMABuf::create(compositor, webPage, WTFMove(frameCompleteHandler));
-#endif
-#if USE(WPE_RENDERER)
-    if (PlatformDisplay::sharedDisplay().type() == PlatformDisplay::Type::WPE)
-        return AcceleratedSurfaceLibWPE::create(webPage, WTFMove(frameCompleteHandler));
-#endif
-    RELEASE_ASSERT_NOT_REACHED();
-    return nullptr;
+    return AcceleratedSurfaceDMABuf::create(compositor, webPage, WTFMove(frameCompleteHandler));
 }
 
 AcceleratedSurface::AcceleratedSurface(WebPage& webPage, Function<void()>&& frameCompleteHandler)

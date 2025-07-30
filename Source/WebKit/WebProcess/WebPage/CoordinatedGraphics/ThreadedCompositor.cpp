@@ -167,7 +167,6 @@ void ThreadedCompositor::invalidate()
         m_textureMapper = nullptr;
         m_surface->willDestroyGLContext();
         m_context = nullptr;
-        m_surface->finalize();
 
 #if !HAVE(DISPLAY_LINK)
         m_display.updateTimer = nullptr;
