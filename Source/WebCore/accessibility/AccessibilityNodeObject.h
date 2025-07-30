@@ -143,6 +143,9 @@ protected:
     void detachRemoteParts(AccessibilityDetachmentType) override;
 
     AccessibilityRole m_ariaRole { AccessibilityRole::Unknown };
+
+    // Only used by AccessibilityTableCell, but placed here to use space that would otherwise be taken by padding.
+    bool m_isARIAGridCell { false };
 #ifndef NDEBUG
     bool m_initialized { false };
 #endif

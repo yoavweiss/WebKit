@@ -841,7 +841,6 @@ public:
     virtual bool isAccessibilityObject() const = 0;
     virtual bool isAccessibilityRenderObject() const = 0;
     virtual bool isAccessibilityTableInstance() const = 0;
-    virtual bool isAccessibilityARIAGridCellInstance() const = 0;
     virtual bool isAXIsolatedObjectInstance() const = 0;
     virtual bool isAXRemoteFrame() const = 0;
 

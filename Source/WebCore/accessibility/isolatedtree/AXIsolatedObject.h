@@ -492,7 +492,6 @@ private:
     // Functions that should never be called on an isolated tree object. ASSERT that these are not reached;
     bool isAccessibilityRenderObject() const final;
     bool isAccessibilityTableInstance() const final;
-    bool isAccessibilityARIAGridCellInstance() const final { return false; }
     bool isAXRemoteFrame() const final { return false; }
     bool isNativeTextControl() const final;
     bool isMockObject() const final;

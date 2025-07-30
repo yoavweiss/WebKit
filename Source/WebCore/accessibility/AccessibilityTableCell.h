@@ -37,17 +37,19 @@ class AccessibilityTableRow;
 
 class AccessibilityTableCell : public AccessibilityRenderObject {
 public:
-    static Ref<AccessibilityTableCell> create(AXID, RenderObject&, AXObjectCache&);
-    static Ref<AccessibilityTableCell> create(AXID, Node&, AXObjectCache&);
+    static Ref<AccessibilityTableCell> create(AXID, RenderObject&, AXObjectCache&, bool isARIAGridCell = false);
+    static Ref<AccessibilityTableCell> create(AXID, Node&, AXObjectCache&, bool isARIAGridCell = false);
     virtual ~AccessibilityTableCell();
     bool isTableCell() const final { return true; }
+    bool isARIAGridCell() const { return m_isARIAGridCell; }
 
     bool isExposedTableCell() const final;
     bool isTableHeaderCell() const;
     bool isColumnHeader() const final;
     bool isRowHeader() const final;
 
-    virtual AccessibilityTable* parentTable() const;
+    AccessibilityTable* parentTable() const;
+    String readOnlyValue() const;
 
     // Returns the start location and row span of the cell.
     std::pair<unsigned, unsigned> rowIndexRange() const final;
@@ -73,8 +75,8 @@ public:
 #endif
 
 protected:
-    explicit AccessibilityTableCell(AXID, RenderObject&, AXObjectCache&);
-    explicit AccessibilityTableCell(AXID, Node&, AXObjectCache&);
+    explicit AccessibilityTableCell(AXID, RenderObject&, AXObjectCache&, bool isARIAGridCell = false);
+    explicit AccessibilityTableCell(AXID, Node&, AXObjectCache&, bool isARIAGridCell = false);
 
     AccessibilityTableRow* parentRow() const;
     AccessibilityRole determineAccessibilityRole() final;

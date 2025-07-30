@@ -42,26 +42,28 @@ namespace WebCore {
 
 using namespace HTMLNames;
 
-AccessibilityTableCell::AccessibilityTableCell(AXID axID, RenderObject& renderer, AXObjectCache& cache)
+AccessibilityTableCell::AccessibilityTableCell(AXID axID, RenderObject& renderer, AXObjectCache& cache, bool isARIAGridCell)
     : AccessibilityRenderObject(axID, renderer, cache)
 {
+    m_isARIAGridCell = isARIAGridCell;
 }
 
-AccessibilityTableCell::AccessibilityTableCell(AXID axID, Node& node, AXObjectCache& cache)
+AccessibilityTableCell::AccessibilityTableCell(AXID axID, Node& node, AXObjectCache& cache, bool isARIAGridCell)
     : AccessibilityRenderObject(axID, node, cache)
 {
+    m_isARIAGridCell = isARIAGridCell;
 }
 
 AccessibilityTableCell::~AccessibilityTableCell() = default;
 
-Ref<AccessibilityTableCell> AccessibilityTableCell::create(AXID axID, RenderObject& renderer, AXObjectCache& cache)
+Ref<AccessibilityTableCell> AccessibilityTableCell::create(AXID axID, RenderObject& renderer, AXObjectCache& cache, bool isARIAGridCell)
 {
-    return adoptRef(*new AccessibilityTableCell(axID, renderer, cache));
+    return adoptRef(*new AccessibilityTableCell(axID, renderer, cache, isARIAGridCell));
 }
 
-Ref<AccessibilityTableCell> AccessibilityTableCell::create(AXID axID, Node& node, AXObjectCache& cache)
+Ref<AccessibilityTableCell> AccessibilityTableCell::create(AXID axID, Node& node, AXObjectCache& cache, bool isARIAGridCell)
 {
-    return adoptRef(*new AccessibilityTableCell(axID, node, cache));
+    return adoptRef(*new AccessibilityTableCell(axID, node, cache, isARIAGridCell));
 }
 
 bool AccessibilityTableCell::computeIsIgnored() const
@@ -84,6 +86,16 @@ bool AccessibilityTableCell::computeIsIgnored() const
 
 AccessibilityTable* AccessibilityTableCell::parentTable() const
 {
+    // ARIA gridcells may have multiple levels of unignored ancestors that are not the parent table,
+    // including rows and interactive rowgroups. In addition, poorly-formed grids may contain elements
+    // which pass the tests for inclusion.
+    if (isARIAGridCell()) {
+        return dynamicDowncast<AccessibilityTable>(Accessibility::findAncestor<AccessibilityObject>(*this, false, [] (const auto& ancestor) {
+            RefPtr ancestorTable = dynamicDowncast<AccessibilityTable>(ancestor);
+            return ancestorTable && ancestorTable->isExposable() && !ancestorTable->isIgnored();
+        }));
+    }
+
     CheckedPtr cache = axObjectCache();
     // If the document no longer exists, we might not have an axObjectCache.
     if (!cache)
@@ -124,6 +136,20 @@ AccessibilityTable* AccessibilityTableCell::parentTable() const
     }
     
     return tableFromRenderTree.get();
+}
+
+String AccessibilityTableCell::readOnlyValue() const
+{
+    const AtomString& readOnlyValue = getAttribute(aria_readonlyAttr);
+    if (readOnlyValue != nullAtom())
+        return readOnlyValue.string().convertToASCIILowercase();
+
+    // ARIA 1.1 requires user agents to propagate the grid's aria-readonly value to all
+    // gridcell elements if the property is not present on the gridcell element itself.
+    if (RefPtr parent = parentTable())
+        return parent->readOnlyValue();
+
+    return String();
 }
     
 bool AccessibilityTableCell::isExposedTableCell() const
