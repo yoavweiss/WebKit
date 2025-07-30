@@ -51,7 +51,6 @@
 #include "AccessibilityProgressIndicator.h"
 #include "AccessibilityRenderObject.h"
 #include "AccessibilitySVGObject.h"
-#include "AccessibilitySVGRoot.h"
 #include "AccessibilityScrollView.h"
 #include "AccessibilityScrollbar.h"
 #include "AccessibilitySlider.h"
@@ -814,7 +813,7 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
     }
 
     if (renderer.isRenderOrLegacyRenderSVGRoot())
-        return AccessibilitySVGRoot::create(AXID::generate(), renderer, *this);
+        return AccessibilitySVGObject::create(AXID::generate(), renderer, *this, /* isSVGRoot */ true);
 
     if (is<SVGElement>(node) || is<RenderSVGInlineText>(renderer))
         return AccessibilitySVGObject::create(AXID::generate(), renderer, *this);

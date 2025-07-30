@@ -33,7 +33,7 @@
 #include "AXObjectCache.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityListBox.h"
-#include "AccessibilitySVGRoot.h"
+#include "AccessibilitySVGObject.h"
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTable.h"
 #include "CachedImage.h"
@@ -2310,7 +2310,7 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
             return selfOrAncestorLinkHasPopup() ? AccessibilityRole::PopUpButton : AccessibilityRole::Button;
 
         if (RefPtr svgRoot = remoteSVGRootElement(CreateIfNecessary::Yes)) {
-            if (svgRoot->hasAccessibleContent())
+            if (svgRoot->isRootWithAccessibleContent())
                 return AccessibilityRole::SVGRoot;
         }
         return AccessibilityRole::Image;
@@ -2476,7 +2476,7 @@ void AccessibilityRenderObject::detachRemoteSVGRoot()
         root->setParent(nullptr);
 }
 
-AccessibilitySVGRoot* AccessibilityRenderObject::remoteSVGRootElement(CreateIfNecessary createIfNecessary) const
+AccessibilitySVGObject* AccessibilityRenderObject::remoteSVGRootElement(CreateIfNecessary createIfNecessary) const
 {
     auto* renderImage = dynamicDowncast<RenderImage>(renderer());
     if (!renderImage)
@@ -2514,12 +2514,12 @@ AccessibilitySVGRoot* AccessibilityRenderObject::remoteSVGRootElement(CreateIfNe
 
     RefPtr rootSVGObject = createIfNecessary == CreateIfNecessary::Yes ? cache->getOrCreate(*rendererRoot) : cache->get(rendererRoot);
     ASSERT(createIfNecessary == CreateIfNecessary::No || rootSVGObject);
-    return dynamicDowncast<AccessibilitySVGRoot>(rootSVGObject).get();
+    return dynamicDowncast<AccessibilitySVGObject>(rootSVGObject).get();
 }
     
 void AccessibilityRenderObject::addRemoteSVGChildren()
 {
-    RefPtr<AccessibilitySVGRoot> root = remoteSVGRootElement(CreateIfNecessary::Yes);
+    RefPtr<AccessibilitySVGObject> root = remoteSVGRootElement(CreateIfNecessary::Yes);
     if (!root)
         return;
 

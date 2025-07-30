@@ -97,7 +97,7 @@ String AXIsolatedObject::debugDescriptionInternal(bool verbose, std::optional<Op
     return result.toString();
 }
 
-static bool isDefaultValue(AXProperty property, AXPropertyValueVariant& value)
+bool isDefaultValue(AXProperty property, AXPropertyValueVariant& value)
 {
     return WTF::switchOn(value,
         [](std::nullptr_t&) { return true; },

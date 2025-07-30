@@ -37,7 +37,7 @@
 
 namespace WebCore {
     
-class AccessibilitySVGRoot;
+class AccessibilitySVGObject;
 class AXObjectCache;
 class Element;
 class HTMLAreaElement;
@@ -173,7 +173,7 @@ private:
     bool isSVGImage() const;
     void detachRemoteSVGRoot();
     enum class CreateIfNecessary : bool { No, Yes };
-    AccessibilitySVGRoot* remoteSVGRootElement(CreateIfNecessary) const;
+    AccessibilitySVGObject* remoteSVGRootElement(CreateIfNecessary) const;
     AccessibilityObject* remoteSVGElementHitTest(const IntPoint&) const;
     void offsetBoundingBoxForRemoteSVGElement(LayoutRect&) const;
     bool supportsPath() const final;

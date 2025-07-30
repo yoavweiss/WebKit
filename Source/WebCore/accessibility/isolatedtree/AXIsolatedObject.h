@@ -640,6 +640,8 @@ inline bool AXIsolatedObject::hasPropertyFlag(AXProperty property) const
     return hasPropertyFlag(static_cast<AXPropertyFlag>(1 << propertyIndex));
 }
 
+bool isDefaultValue(AXProperty, AXPropertyValueVariant&);
+
 } // namespace WebCore
 
 SPECIALIZE_TYPE_TRAITS_ACCESSIBILITY(AXIsolatedObject, isAXIsolatedObjectInstance())

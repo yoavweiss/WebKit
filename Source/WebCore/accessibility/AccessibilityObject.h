@@ -105,6 +105,7 @@ public:
     bool isAXRemoteFrame() const override { return false; }
     virtual bool isAccessibilityScrollViewInstance() const { return false; }
     virtual bool isAccessibilitySVGRoot() const { return false; }
+    virtual bool isAccessibilitySVGObjectInstance() const { return false; }
     bool isAccessibilityTableInstance() const override { return false; }
     virtual bool isAccessibilityTableColumnInstance() const { return false; }
     virtual bool isAccessibilityARIAGridRowInstance() const { return false; }
