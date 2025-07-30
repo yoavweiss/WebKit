@@ -25,8 +25,6 @@
 
 #pragma once
 
-#if ENABLE(UNIFIED_PDF)
-
 #import <wtf/RetainPtr.h>
 
 OBJC_CLASS WKWebViewConfiguration;
@@ -44,5 +42,3 @@ static constexpr bool unifiedPDFForTestingEnabled = false;
 RetainPtr<WKWebViewConfiguration> configurationForWebViewTestingUnifiedPDF(bool hudEnabled = false);
 
 }
-
-#endif

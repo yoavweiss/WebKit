@@ -26,8 +26,6 @@
 #import "config.h"
 #import "UnifiedPDFTestHelpers.h"
 
-#if ENABLE(UNIFIED_PDF)
-
 #import "WKWebViewConfigurationExtras.h"
 #import <WebKit/WKPreferencesPrivate.h>
 #import <WebKit/WKWebViewConfiguration.h>
@@ -51,5 +49,3 @@ RetainPtr<WKWebViewConfiguration> configurationForWebViewTestingUnifiedPDF(bool 
 }
 
 }
-
-#endif
