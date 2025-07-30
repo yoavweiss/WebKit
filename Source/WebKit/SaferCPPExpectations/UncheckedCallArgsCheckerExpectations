@@ -60,7 +60,6 @@ WebProcess/WebPage/mac/TiledCoreAnimationDrawingArea.mm
 WebProcess/WebPage/mac/WKAccessibilityWebPageObjectBase.mm
 WebProcess/WebPage/mac/WebPageMac.mm
 WebProcess/cocoa/PlaybackSessionManager.mm
-WebProcess/cocoa/RemoteRealtimeMediaSource.cpp
 WebProcess/cocoa/UserMediaCaptureManager.cpp
 WebProcess/cocoa/VideoPresentationManager.mm
 WebProcess/cocoa/WebProcessCocoa.mm
