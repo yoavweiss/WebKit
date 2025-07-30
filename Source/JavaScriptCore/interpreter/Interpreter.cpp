@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2008-2025 Apple Inc. All rights reserved.
  * Copyright (C) 2008 Cameron Zwarich <cwzwarich@uwaterloo.ca>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1119,11 +1119,6 @@ failedJSONP:
     if (error) [[unlikely]]
         return throwException(globalObject, throwScope, error);
 
-    if (vm.traps().needHandling(VMTraps::NonDebuggerAsyncEvents)) [[unlikely]] {
-        if (vm.hasExceptionsAfterHandlingTraps())
-            return throwScope.exception();
-    }
-
     if (scope->structure()->isUncacheableDictionary())
         scope->flattenDictionaryObject(vm);
 
@@ -1216,11 +1211,6 @@ ALWAYS_INLINE JSValue Interpreter::executeCallImpl(VM& vm, JSObject* function, c
 
     if (vm.disallowVMEntryCount) [[unlikely]]
         return checkVMEntryPermission();
-
-    if (vm.traps().needHandling(VMTraps::NonDebuggerAsyncEvents)) [[unlikely]] {
-        if (vm.hasExceptionsAfterHandlingTraps())
-            return scope.exception();
-    }
 
     RefPtr<JSC::JITCode> jitCode;
     ProtoCallFrame protoCallFrame;
@@ -1318,11 +1308,6 @@ JSObject* Interpreter::executeConstruct(JSObject* constructor, const CallData& c
         return globalObject->globalThis();
     }
 
-    if (vm.traps().needHandling(VMTraps::NonDebuggerAsyncEvents)) [[unlikely]] {
-        if (vm.hasExceptionsAfterHandlingTraps())
-            return nullptr;
-    }
-
     RefPtr<JSC::JITCode> jitCode;
     ProtoCallFrame protoCallFrame;
     {
@@ -1395,11 +1380,6 @@ JSValue Interpreter::executeEval(EvalExecutable* eval, JSValue thisValue, JSScop
     JSGlobalObject* globalObject = scope->globalObject();
     if (!vm.isSafeToRecurseSoft()) [[unlikely]]
         return throwStackOverflowError(globalObject, throwScope);
-
-    if (vm.traps().needHandling(VMTraps::NonDebuggerAsyncEvents)) [[unlikely]] {
-        if (vm.hasExceptionsAfterHandlingTraps())
-            return throwScope.exception();
-    }
 
     auto topLevelFunctionDecls = eval->topLevelFunctionDecls();
     auto variables = eval->variables();
@@ -1606,11 +1586,6 @@ JSValue Interpreter::executeModuleProgram(JSModuleRecord* record, ModuleProgramE
 
     if (vm.disallowVMEntryCount) [[unlikely]]
         return checkVMEntryPermission();
-
-    if (vm.traps().needHandling(VMTraps::NonDebuggerAsyncEvents)) [[unlikely]] {
-        if (vm.hasExceptionsAfterHandlingTraps())
-            return throwScope.exception();
-    }
 
     if (scope->structure()->isUncacheableDictionary())
         scope->flattenDictionaryObject(vm);

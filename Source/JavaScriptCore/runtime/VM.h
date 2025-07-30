@@ -1009,7 +1009,7 @@ private:
         m_throwingThread = nullptr;
 #endif
         m_exception = nullptr;
-        traps().clearTrapBit(VMTraps::NeedExceptionHandling);
+        traps().clearTrap(VMTraps::NeedExceptionHandling);
     }
 
     JS_EXPORT_PRIVATE void setException(Exception*);
