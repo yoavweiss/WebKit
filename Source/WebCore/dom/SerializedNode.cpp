@@ -44,6 +44,13 @@
 
 namespace WebCore {
 
+static void setAttributes(Element& element, Vector<SerializedNode::Element::Attribute>&& attributes)
+{
+    element.parserSetAttributes(WTF::map(WTFMove(attributes), [] (auto&& attribute) {
+        return Attribute(WTFMove(attribute.name).qualifiedName(), AtomString(WTFMove(attribute.value)));
+    }).span());
+}
+
 RefPtr<Node> SerializedNode::deserialize(SerializedNode&& serializedNode, WebCore::Document& document)
 {
     auto serializedChildren = WTF::switchOn(serializedNode.data, [&] (SerializedNode::ContainerNode& containerNode) {
@@ -81,9 +88,13 @@ RefPtr<Node> SerializedNode::deserialize(SerializedNode&& serializedNode, WebCor
         );
     }, [&] (SerializedNode::Element&& element) -> RefPtr<Node> {
         constexpr bool createdByParser { false };
-        return document.createElement(WTFMove(element.name).qualifiedName(), createdByParser);
+        Ref result = document.createElement(WTFMove(element.name).qualifiedName(), createdByParser);
+        setAttributes(result, WTFMove(element.attributes));
+        return result;
     }, [&] (SerializedNode::HTMLTemplateElement&& element) -> RefPtr<Node> {
-        return WebCore::HTMLTemplateElement::create(WTFMove(element.name).qualifiedName(), document);
+        Ref result = WebCore::HTMLTemplateElement::create(WTFMove(element.name).qualifiedName(), document);
+        setAttributes(result, WTFMove(element.attributes));
+        return result;
     }, [] (auto&&) -> RefPtr<Node> {
         return nullptr;
     });

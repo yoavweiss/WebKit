@@ -151,8 +151,8 @@ TEST(SerializedNode, Basic)
     auto documentAccessor = "n.URL + ',' + n.documentURI + ',' + new XMLSerializer().serializeToString(n)";
     verifyNodeSerialization("document.implementation.createDocument('http://www.w3.org/2000/svg', 'svg', null)", documentAccessor, "about:blank,about:blank,<svg xmlns=\"http://www.w3.org/2000/svg\"/>", "XMLDocument");
     verifyNodeSerialization("document.implementation.createHTMLDocument('test title')", documentAccessor, "about:blank,about:blank,<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>test title</title></head><body></body></html>", "HTMLDocument");
-    verifyNodeSerialization("document", documentAccessor, "https://webkit.org/,https://webkit.org/,<html xmlns=\"http://www.w3.org/1999/xhtml\"><head></head><body><div><div>test</div></div><template></template></body></html>", "HTMLDocument");
-    verifyNodeSerialization("document.getElementById('testid')", documentAccessor, "undefined,undefined,<div xmlns=\"http://www.w3.org/1999/xhtml\"></div>", "HTMLDivElement", "");
+    verifyNodeSerialization("document", documentAccessor, "https://webkit.org/,https://webkit.org/,<html xmlns=\"http://www.w3.org/1999/xhtml\"><head></head><body><div id=\"testid\"><div>test</div></div><template id=\"outerTemplate\"></template></body></html>", "HTMLDocument");
+    verifyNodeSerialization("document.getElementById('testid')", documentAccessor, "undefined,undefined,<div xmlns=\"http://www.w3.org/1999/xhtml\" id=\"testid\"></div>", "HTMLDivElement", "");
 }
 
 }

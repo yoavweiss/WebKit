@@ -80,7 +80,12 @@ struct SerializedNode {
         String systemId;
     };
     struct Element : public ContainerNode {
+        struct Attribute {
+            QualifiedName name;
+            String value;
+        };
         QualifiedName name;
+        Vector<Attribute> attributes;
     };
     struct ShadowRoot : public DocumentFragment {
         // FIXME: Implement.

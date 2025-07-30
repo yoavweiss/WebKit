@@ -57,8 +57,13 @@
     String publicId;
     String systemId;
 };
+[Nested] struct WebCore::SerializedNode::Element::Attribute {
+    WebCore::SerializedNode::QualifiedName name;
+    String value;
+}
 [Nested] struct WebCore::SerializedNode::Element : WebCore::SerializedNode::ContainerNode {
     WebCore::SerializedNode::QualifiedName name;
+    Vector<WebCore::SerializedNode::Element::Attribute> attributes;
 };
 [Nested] struct WebCore::SerializedNode::Comment : WebCore::SerializedNode::CharacterData {
 };
