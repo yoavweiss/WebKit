@@ -352,10 +352,10 @@ static bool applicationBundleIsEqualTo(const String& bundleIdentifierString)
     return applicationBundleIdentifier() == bundleIdentifierString;
 }
 
-bool CocoaApplication::isIBooks()
+bool CocoaApplication::isAppleBooks()
 {
-    static bool isIBooks = applicationBundleIsEqualTo("com.apple.iBooksX"_s) || applicationBundleIsEqualTo("com.apple.iBooks"_s);
-    return isIBooks;
+    static bool isAppleBooks = applicationBundleIsEqualTo("com.apple.iBooksX"_s) || applicationBundleIsEqualTo("com.apple.iBooks"_s);
+    return isAppleBooks;
 }
 
 bool CocoaApplication::isWebkitTestRunner()

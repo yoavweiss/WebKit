@@ -1104,7 +1104,7 @@ void WebProcessPool::initializeNewWebProcess(WebProcessProxy& process, WebsiteDa
 #endif
 
 #if PLATFORM(IOS) && ENABLE(REMOVE_XPC_AND_MACH_SANDBOX_EXTENSIONS_IN_WEBCONTENT)
-    if (WTF::CocoaApplication::isIBooks())
+    if (WTF::CocoaApplication::isAppleBooks())
         registerAssetFonts(process);
 #endif
 

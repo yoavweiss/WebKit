@@ -3887,7 +3887,7 @@ LayoutUnit RenderBox::computeReplacedLogicalHeight(std::optional<LayoutUnit>) co
 static bool allowMinMaxPercentagesInAutoHeightBlocksQuirk()
 {
 #if PLATFORM(COCOA)
-    return WTF::CocoaApplication::isIBooks();
+    return WTF::CocoaApplication::isAppleBooks();
 #else
     return false;
 #endif
@@ -3966,7 +3966,7 @@ bool RenderBox::replacedMinMaxLogicalHeightComputesAsNone(const auto& logicalHei
     // Make sure % min-height and % max-height resolve to none if the containing block has auto height.
     // Note that the "height" case for replaced elements was handled by hasReplacedLogicalHeight, which is why
     // min and max-height are the only ones handled here.
-    // FIXME: For now we put in a quirk for iBooks until we can move them to viewport units.
+    // FIXME: For now we put in a quirk for Apple Books until we can move them to viewport units.
     if (auto* cb = containingBlockForAutoHeightDetection(logicalHeight))
         return allowMinMaxPercentagesInAutoHeightBlocksQuirk() ? false : cb->hasAutoHeightOrContainingBlockWithAutoHeight();
 
