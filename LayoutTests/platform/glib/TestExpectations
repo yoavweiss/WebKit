@@ -2932,6 +2932,8 @@ imported/w3c/web-platform-tests/html/interaction/focus/sequential-focus-navigati
 webkit.org/b/264596 imported/w3c/web-platform-tests/xhr/ [ Skip ]
 # webkit.org/b/189343 imported/w3c/web-platform-tests/xhr/sync-no-timeout.any.html [ Failure ]
 
+webkit.org/b/189994 fast/files/xhr-response-blob.html [ Failure ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of XHR-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////

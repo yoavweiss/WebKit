@@ -1483,8 +1483,6 @@ webkit.org/b/189564 http/tests/xmlhttprequest/url-with-credentials.html [ Failur
 webkit.org/b/189739 imported/mozilla/svg/linearGradient-basic-03.svg [ ImageOnlyFailure ]
 webkit.org/b/189739 imported/mozilla/svg/marker-viewBox-01.svg [ ImageOnlyFailure ]
 
-webkit.org/b/189994 fast/files/xhr-response-blob.html [ Failure ]
-
 webkit.org/b/190709 editing/pasteboard/emacs-ctrl-a-k-y.html [ Failure ]
 
 webkit.org/b/190991 http/tests/navigation/page-cache-mediakeysession.html [ Skip ]
