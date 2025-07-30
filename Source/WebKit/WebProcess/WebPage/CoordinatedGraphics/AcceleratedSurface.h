@@ -26,12 +26,14 @@
 #pragma once
 
 #if USE(COORDINATED_GRAPHICS)
-#include "AcceleratedSurface.h"
+
 #include "MessageReceiver.h"
 #include <WebCore/Damage.h>
-#include <wtf/Noncopyable.h>
+#include <WebCore/IntSize.h>
 #include <wtf/RunLoop.h>
 #include <wtf/TZoneMalloc.h>
+#include <wtf/ThreadSafeRefCounted.h>
+#include <wtf/WeakRef.h>
 #include <wtf/unix/UnixFileDescriptor.h>
 
 #if USE(GBM)
@@ -47,46 +49,43 @@ struct gbm_bo;
 struct wpe_renderer_backend_egl_target;
 #endif
 
+namespace WTF {
+class RunLoop;
+}
+
 namespace WebCore {
 class GLFence;
-class Region;
 class ShareableBitmap;
 class ShareableBitmapHandle;
 }
 
 namespace WebKit {
-class AcceleratedSurfaceDMABuf;
-}
-
-namespace WTF {
-template<typename T> struct IsDeprecatedTimerSmartPointerException;
-template<> struct IsDeprecatedTimerSmartPointerException<WebKit::AcceleratedSurfaceDMABuf> : std::true_type { };
+class AcceleratedSurface;
 }
 
 namespace WebKit {
-
-class ThreadedCompositor;
 class WebPage;
 
-class AcceleratedSurfaceDMABuf final : public AcceleratedSurface
+class AcceleratedSurface final : public ThreadSafeRefCounted<AcceleratedSurface, WTF::DestructionThread::MainRunLoop>
 #if PLATFORM(GTK) || ENABLE(WPE_PLATFORM)
     , public IPC::MessageReceiver
 #endif
 {
+    WTF_MAKE_TZONE_ALLOCATED(AcceleratedSurface);
 public:
-    static std::unique_ptr<AcceleratedSurfaceDMABuf> create(ThreadedCompositor&, WebPage&, Function<void()>&& frameCompleteHandler);
-    ~AcceleratedSurfaceDMABuf();
+    static Ref<AcceleratedSurface> create(WebPage&, Function<void()>&& frameCompleteHandler);
+    ~AcceleratedSurface();
 
 #if PLATFORM(GTK) || ENABLE(WPE_PLATFORM)
-    void ref() const final;
-    void deref() const final;
+    void ref() const final { ThreadSafeRefCounted::ref(); }
+    void deref() const final { ThreadSafeRefCounted::deref(); }
 #endif
 
-private:
-    uint64_t window() const override;
-    uint64_t surfaceID() const override;
-    bool resize(const WebCore::IntSize&) override;
-    bool shouldPaintMirrored() const override
+public:
+    uint64_t window() const;
+    uint64_t surfaceID() const;
+    bool resize(const WebCore::IntSize&);
+    bool shouldPaintMirrored() const
     {
 #if PLATFORM(WPE) || (PLATFORM(GTK) && USE(GTK4))
         return false;
@@ -94,25 +93,30 @@ private:
         return true;
 #endif
     }
-    void willDestroyGLContext() override;
-    void willRenderFrame() override;
-    void didRenderFrame() override;
+
+    void willDestroyGLContext();
+    void willRenderFrame();
+    void didRenderFrame();
+    void clearIfNeeded();
 
 #if ENABLE(DAMAGE_TRACKING)
-    const std::optional<WebCore::Damage>& frameDamageSinceLastUse() override;
+    void setFrameDamage(WebCore::Damage&&);
+    const std::optional<WebCore::Damage>& frameDamage() const { return m_frameDamage; }
+    const std::optional<WebCore::Damage>& frameDamageSinceLastUse();
 #endif
 
-    void didCreateCompositingRunLoop(WTF::RunLoop&) override;
-    void willDestroyCompositingRunLoop() override;
+    void didCreateCompositingRunLoop(WTF::RunLoop&);
+    void willDestroyCompositingRunLoop();
 
 #if PLATFORM(WPE) && USE(GBM) && ENABLE(WPE_PLATFORM)
-    void preferredBufferFormatsDidChange() override;
+    void preferredBufferFormatsDidChange();
 #endif
 
-    void visibilityDidChange(bool) override;
-    bool backgroundColorDidChange() override;
+    void visibilityDidChange(bool);
+    bool backgroundColorDidChange();
 
-    AcceleratedSurfaceDMABuf(ThreadedCompositor&, WebPage&, Function<void()>&& frameCompleteHandler);
+private:
+    AcceleratedSurface(WebPage&, Function<void()>&& frameCompleteHandler);
 
 #if PLATFORM(GTK) || ENABLE(WPE_PLATFORM)
     // IPC::MessageReceiver.
@@ -253,8 +257,8 @@ private:
 #if USE(WPE_RENDERER)
     class RenderTargetWPEBackend final : public RenderTarget {
     public:
-        static std::unique_ptr<RenderTarget> create(uint64_t, const WebCore::IntSize&, UnixFileDescriptor&&, const AcceleratedSurfaceDMABuf&);
-        RenderTargetWPEBackend(uint64_t, const WebCore::IntSize&, UnixFileDescriptor&&, const AcceleratedSurfaceDMABuf&);
+        static std::unique_ptr<RenderTarget> create(uint64_t, const WebCore::IntSize&, UnixFileDescriptor&&, const AcceleratedSurface&);
+        RenderTargetWPEBackend(uint64_t, const WebCore::IntSize&, UnixFileDescriptor&&, const AcceleratedSurface&);
         ~RenderTargetWPEBackend();
 
         uint64_t window() const;
@@ -307,7 +311,7 @@ private:
 
 #if USE(WPE_RENDERER)
         void initialize(WebPage&);
-        uint64_t initializeTarget(const AcceleratedSurfaceDMABuf&);
+        uint64_t initializeTarget(const AcceleratedSurface&);
 #endif
 
     private:
@@ -331,13 +335,19 @@ private:
 #endif
     };
 
-    const CheckedRef<ThreadedCompositor> m_compositor;
+    WeakRef<WebPage> m_webPage;
+    Function<void()> m_frameCompleteHandler;
     uint64_t m_id { 0 };
+    WebCore::IntSize m_size;
     SwapChain m_swapChain;
     RenderTarget* m_target { nullptr };
     bool m_isVisible { false };
     bool m_useExplicitSync { false };
+    std::atomic<bool> m_isOpaque { true };
     std::unique_ptr<RunLoop::Timer> m_releaseUnusedBuffersTimer;
+#if ENABLE(DAMAGE_TRACKING)
+    std::optional<WebCore::Damage> m_frameDamage;
+#endif
 };
 
 } // namespace WebKit

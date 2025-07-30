@@ -28,7 +28,7 @@
 
 #if ENABLE(WPE_PLATFORM)
 #include "AcceleratedBackingStoreMessages.h"
-#include "AcceleratedSurfaceDMABufMessages.h"
+#include "AcceleratedSurfaceMessages.h"
 #include "WebPageProxy.h"
 #include "WebProcessProxy.h"
 #include <WebCore/ShareableBitmap.h>
@@ -174,7 +174,7 @@ void AcceleratedBackingStore::renderPendingBuffer()
 void AcceleratedBackingStore::frameDone()
 {
     if (RefPtr legacyMainFrameProcess = m_legacyMainFrameProcess.get())
-        legacyMainFrameProcess->send(Messages::AcceleratedSurfaceDMABuf::FrameDone(), m_surfaceID);
+        legacyMainFrameProcess->send(Messages::AcceleratedSurface::FrameDone(), m_surfaceID);
 }
 
 void AcceleratedBackingStore::bufferRendered()
@@ -191,7 +191,7 @@ void AcceleratedBackingStore::bufferReleased(WPEBuffer* buffer)
             releaseFence = UnixFileDescriptor { wpe_buffer_dma_buf_take_release_fence(WPE_BUFFER_DMA_BUF(buffer)), UnixFileDescriptor::Adopt };
 
         if (RefPtr legacyMainFrameProcess = m_legacyMainFrameProcess.get())
-            legacyMainFrameProcess->send(Messages::AcceleratedSurfaceDMABuf::ReleaseBuffer(id, WTFMove(releaseFence)), m_surfaceID);
+            legacyMainFrameProcess->send(Messages::AcceleratedSurface::ReleaseBuffer(id, WTFMove(releaseFence)), m_surfaceID);
     }
 }
 

@@ -27,7 +27,7 @@
 #include "AcceleratedBackingStore.h"
 
 #include "AcceleratedBackingStoreMessages.h"
-#include "AcceleratedSurfaceDMABufMessages.h"
+#include "AcceleratedSurfaceMessages.h"
 #include "DRMDevice.h"
 #include "Display.h"
 #include "HardwareAccelerationManager.h"
@@ -289,7 +289,7 @@ void AcceleratedBackingStore::Buffer::didRelease() const
     if (!m_surfaceID || !m_webPage)
         return;
 
-    m_webPage->legacyMainFrameProcess().send(Messages::AcceleratedSurfaceDMABuf::ReleaseBuffer(m_id, { }), m_surfaceID);
+    m_webPage->legacyMainFrameProcess().send(Messages::AcceleratedSurface::ReleaseBuffer(m_id, { }), m_surfaceID);
 }
 
 #if USE(GTK4)
@@ -707,7 +707,7 @@ void AcceleratedBackingStore::frame(uint64_t bufferID, Rects&& damageRects, WTF:
 void AcceleratedBackingStore::frameDone()
 {
     if (RefPtr legacyMainFrameProcess = m_legacyMainFrameProcess.get())
-        legacyMainFrameProcess->send(Messages::AcceleratedSurfaceDMABuf::FrameDone(), m_surfaceID);
+        legacyMainFrameProcess->send(Messages::AcceleratedSurface::FrameDone(), m_surfaceID);
 }
 
 void AcceleratedBackingStore::realize()

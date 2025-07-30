@@ -91,11 +91,8 @@ list(APPEND WebKit_SOURCES
 
     WebProcess/InjectedBundle/playstation/InjectedBundlePlayStation.cpp
 
-    WebProcess/WebPage/AcceleratedSurface.cpp
-
+    WebProcess/WebPage/CoordinatedGraphics/AcceleratedSurface.cpp
     WebProcess/WebPage/CoordinatedGraphics/DrawingAreaCoordinatedGraphics.cpp
-
-    WebProcess/WebPage/dmabuf/AcceleratedSurfaceDMABuf.cpp
 
     WebProcess/WebPage/playstation/WebPagePlayStation.cpp
 
@@ -114,7 +111,6 @@ list(APPEND WebKit_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBKIT_DIR}/UIProcess/CoordinatedGraphics"
     "${WEBKIT_DIR}/UIProcess/playstation"
     "${WEBKIT_DIR}/WebProcess/WebPage/CoordinatedGraphics"
-    "${WEBKIT_DIR}/WebProcess/WebPage/dmabuf"
     "${WEBKIT_DIR}/WebProcess/WebPage/libwpe"
 )
 
