@@ -26,6 +26,7 @@
 #include "config.h"
 #include "StyleVerticalAlign.h"
 
+#include "AnimationUtilities.h"
 #include "CSSPrimitiveValue.h"
 #include "StyleBuilderChecking.h"
 #include "StyleLengthWrapper+CSSValueConversion.h"

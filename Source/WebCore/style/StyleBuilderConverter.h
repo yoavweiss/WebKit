@@ -29,7 +29,6 @@
 #pragma once
 
 #include "AnchorPositionEvaluator.h"
-#include "CSSBasicShapeValue.h"
 #include "CSSCalcSymbolTable.h"
 #include "CSSCalcValue.h"
 #include "CSSContentDistributionValue.h"
@@ -154,7 +153,6 @@ public:
     static TextEdge convertTextEdge(BuilderState&, const CSSValue&);
     static IntSize convertInitialLetter(BuilderState&, const CSSValue&);
     static OptionSet<LineBoxContain> convertLineBoxContain(BuilderState&, const CSSValue&);
-    static RefPtr<ShapeValue> convertShapeValue(BuilderState&, const CSSValue&);
     static ScrollSnapType convertScrollSnapType(BuilderState&, const CSSValue&);
     static ScrollSnapAlign convertScrollSnapAlign(BuilderState&, const CSSValue&);
     // scrollbar-width converter is only needed for quirking.
@@ -741,41 +739,6 @@ inline OptionSet<LineBoxContain> BuilderConverter::convertLineBoxContain(Builder
         }
     }
     return result;
-}
-
-inline RefPtr<ShapeValue> BuilderConverter::convertShapeValue(BuilderState& builderState, const CSSValue& value)
-{
-    if (is<CSSPrimitiveValue>(value)) {
-        ASSERT(value.valueID() == CSSValueNone);
-        return nullptr;
-    }
-
-    if (value.isImage())
-        return ShapeValue::create(builderState.createStyleImage(value).releaseNonNull());
-
-    std::optional<BasicShape> shape;
-    auto referenceBox = CSSBoxType::BoxMissing;
-    auto processSingleValue = [&](const CSSValue& currentValue) {
-        if (RefPtr shapeValue = dynamicDowncast<CSSBasicShapeValue>(currentValue))
-            shape = toStyle(shapeValue->shape(), builderState, 1.0f);
-        else
-            referenceBox = fromCSSValue<CSSBoxType>(currentValue);
-    };
-    if (auto* list = dynamicDowncast<CSSValueList>(value)) {
-        for (auto& currentValue : *list)
-            processSingleValue(currentValue);
-    } else
-        processSingleValue(value);
-
-    
-    if (shape)
-        return ShapeValue::create(WTFMove(*shape), referenceBox);
-
-    if (referenceBox != CSSBoxType::BoxMissing)
-        return ShapeValue::create(referenceBox);
-
-    ASSERT_NOT_REACHED();
-    return nullptr;
 }
 
 inline ScrollSnapType BuilderConverter::convertScrollSnapType(BuilderState& builderState, const CSSValue& value)

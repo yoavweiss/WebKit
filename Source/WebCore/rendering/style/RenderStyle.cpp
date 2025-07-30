@@ -1907,7 +1907,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyMaskBorderRepeat);
             changingProperties.m_properties.set(CSSPropertyWebkitMaskBoxImage);
         }
-        if (!arePointingToEqualData(first.shapeOutside, second.shapeOutside))
+        if (first.shapeOutside != second.shapeOutside)
             changingProperties.m_properties.set(CSSPropertyShapeOutside);
         if (first.shapeMargin != second.shapeMargin)
             changingProperties.m_properties.set(CSSPropertyShapeMargin);

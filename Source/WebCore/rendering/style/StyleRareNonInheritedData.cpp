@@ -283,7 +283,7 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
         && arePointingToEqualData(boxReflect, o.boxReflect)
         && maskBorder == o.maskBorder
         && pageSize == o.pageSize
-        && arePointingToEqualData(shapeOutside, o.shapeOutside)
+        && shapeOutside == o.shapeOutside
         && shapeMargin == o.shapeMargin
         && shapeImageThreshold == o.shapeImageThreshold
         && perspective == o.perspective
@@ -424,7 +424,6 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
     LOG_IF_DIFFERENT(pageSize);
 
     LOG_IF_DIFFERENT(shapeOutside);
-
     LOG_IF_DIFFERENT(shapeMargin);
     LOG_IF_DIFFERENT(shapeImageThreshold);
 

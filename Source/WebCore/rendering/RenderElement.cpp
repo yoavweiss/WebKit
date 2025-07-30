@@ -191,7 +191,7 @@ static RefPtr<StyleImage> minimallySupportedContentDataImage(const Style::Conten
     auto* image = std::get_if<Style::Content::Image>(&data->list[0]);
     if (!image)
         return nullptr;
-    return image->image.ptr();
+    return image->image.value.ptr();
 }
 
 bool RenderElement::isContentDataSupported(const Style::Content& content)
@@ -446,10 +446,10 @@ void RenderElement::updateImage(StyleImage* oldImage, StyleImage* newImage)
         newImage->addClient(*this);
 }
 
-void RenderElement::updateShapeImage(const ShapeValue* oldShapeValue, const ShapeValue* newShapeValue)
+void RenderElement::updateShapeImage(const Style::ShapeOutside* oldShapeValue, const Style::ShapeOutside* newShapeValue)
 {
     if (oldShapeValue || newShapeValue)
-        updateImage(oldShapeValue ? oldShapeValue->image() : nullptr, newShapeValue ? newShapeValue->protectedImage().get() : nullptr);
+        updateImage(oldShapeValue ? oldShapeValue->image().get() : nullptr, newShapeValue ? newShapeValue->image().get() : nullptr);
 }
 
 bool RenderElement::repaintBeforeStyleChange(StyleDifference diff, const RenderStyle& oldStyle, const RenderStyle& newStyle)
@@ -1049,7 +1049,7 @@ void RenderElement::styleDidChange(StyleDifference diff, const RenderStyle* oldS
             updateFillImages(oldStyle ? &oldStyle->protectedMaskLayers().get() : nullptr, style ? &style->protectedMaskLayers().get() : nullptr);
         updateImage(oldStyle ? oldStyle->borderImage().protectedImage().get() : nullptr, style ? style->borderImage().protectedImage().get() : nullptr);
         updateImage(oldStyle ? oldStyle->maskBorder().protectedImage().get() : nullptr, style ? style->maskBorder().protectedImage().get() : nullptr);
-        updateShapeImage(oldStyle ? oldStyle->protectedShapeOutside().get() : nullptr, style ? style->protectedShapeOutside().get() : nullptr);
+        updateShapeImage(oldStyle ? &oldStyle->shapeOutside() : nullptr, style ? &style->shapeOutside() : nullptr);
     };
 
     registerImages(&style(), oldStyle);
@@ -1200,8 +1200,7 @@ void RenderElement::willBeDestroyed()
             unregisterImage(maskLayer->protectedImage().get());
         unregisterImage(style.borderImage().protectedImage().get());
         unregisterImage(style.maskBorder().protectedImage().get());
-        if (auto shapeValue = style.shapeOutside())
-            unregisterImage(shapeValue->protectedImage().get());
+        unregisterImage(style.shapeOutside().image().get());
     };
 
     if (hasInitializedStyle()) {

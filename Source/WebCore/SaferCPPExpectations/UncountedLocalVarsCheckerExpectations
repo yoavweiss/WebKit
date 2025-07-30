@@ -457,7 +457,6 @@ rendering/RenderWidget.cpp
 rendering/TextBoxPainter.cpp
 rendering/mac/RenderThemeMac.mm
 rendering/mathml/MathMLStyle.cpp
-rendering/shapes/ShapeOutsideInfo.cpp
 rendering/style/FillLayer.cpp
 rendering/style/NinePieceImage.cpp
 rendering/style/RenderStyle.cpp

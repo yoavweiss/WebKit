@@ -164,18 +164,6 @@ inline Ref<TransformOperation> blendFunc(TransformOperation& from, TransformOper
     return to.blend(&from, context);
 }
 
-inline RefPtr<ShapeValue> blendFunc(ShapeValue* from, ShapeValue* to, const Context& context)
-{
-    if (context.isDiscrete) {
-        ASSERT(!context.progress || context.progress == 1);
-        return context.progress ? to : from;
-    }
-
-    ASSERT(from);
-    ASSERT(to);
-    return from->blend(*to, context);
-}
-
 inline FilterOperations blendFunc(const FilterOperations& from, const FilterOperations& to, const Context& context)
 {
     return from.blend(to, context);

@@ -327,6 +327,8 @@ struct ScrollPaddingEdge;
 struct ScrollTimelines;
 struct ScrollbarColor;
 struct ScrollbarGutter;
+struct ShapeMargin;
+struct ShapeOutside;
 struct StrokeWidth;
 struct TextDecorationThickness;
 struct TextEmphasisStyle;
@@ -365,6 +367,7 @@ using PerspectiveOriginX = PositionX;
 using PerspectiveOriginY = PositionY;
 using ScrollMarginBox = MinimallySerializingSpaceSeparatedRectEdges<ScrollMarginEdge>;
 using ScrollPaddingBox = MinimallySerializingSpaceSeparatedRectEdges<ScrollPaddingEdge>;
+using ShapeImageThreshold = Number<CSS::ClosedUnitRangeClampBoth, float>;
 using TextShadows = Shadows<TextShadow>;
 using TransformOriginX = PositionX;
 using TransformOriginXY = Position;
@@ -1823,18 +1826,17 @@ public:
     inline const Style::SVGBaselineShift& baselineShift() const;
     inline void setBaselineShift(Style::SVGBaselineShift&&);
 
-    inline void setShapeOutside(RefPtr<ShapeValue>&&);
-    inline ShapeValue* shapeOutside() const; // Defined in RenderStyleInlines.h.
-    inline RefPtr<ShapeValue> protectedShapeOutside() const; // Defined in RenderStyleInlines.h.
-    static ShapeValue* initialShapeOutside() { return nullptr; }
+    inline void setShapeOutside(Style::ShapeOutside&&);
+    inline const Style::ShapeOutside& shapeOutside() const;
+    static Style::ShapeOutside initialShapeOutside();
 
-    inline const Length& shapeMargin() const;
-    inline void setShapeMargin(Length&&);
-    static inline Length initialShapeMargin();
+    inline const Style::ShapeMargin& shapeMargin() const;
+    inline void setShapeMargin(Style::ShapeMargin&&);
+    static inline Style::ShapeMargin initialShapeMargin();
 
-    inline float shapeImageThreshold() const;
-    void setShapeImageThreshold(float);
-    static float initialShapeImageThreshold() { return 0; }
+    inline Style::ShapeImageThreshold shapeImageThreshold() const;
+    void setShapeImageThreshold(Style::ShapeImageThreshold);
+    static constexpr Style::ShapeImageThreshold initialShapeImageThreshold();
 
     inline const Style::ClipPath& clipPath() const;
     inline bool hasClipPath() const;

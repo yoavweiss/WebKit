@@ -130,6 +130,8 @@ inline SVGStrokeDasharray forwardInheritedValue(const SVGStrokeDasharray& value)
 inline SVGStrokeDashoffset forwardInheritedValue(const SVGStrokeDashoffset& value) { auto copy = value; return copy; }
 inline ScrollbarColor forwardInheritedValue(const ScrollbarColor& value) { auto copy = value; return copy; }
 inline ScrollbarGutter forwardInheritedValue(const ScrollbarGutter& value) { auto copy = value; return copy; }
+inline ShapeMargin forwardInheritedValue(const ShapeMargin& value) { auto copy = value; return copy; }
+inline ShapeOutside forwardInheritedValue(const ShapeOutside& value) { auto copy = value; return copy; }
 inline StrokeWidth forwardInheritedValue(const StrokeWidth& value) { auto copy = value; return copy; }
 inline TextDecorationThickness forwardInheritedValue(const TextDecorationThickness& value) { auto copy = value; return copy; }
 inline TextEmphasisStyle forwardInheritedValue(const TextEmphasisStyle& value) { auto copy = value; return copy; }

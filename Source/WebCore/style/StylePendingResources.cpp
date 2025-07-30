@@ -33,7 +33,6 @@
 #include "RenderStyleInlines.h"
 #include "SVGURIReference.h"
 #include "Settings.h"
-#include "ShapeValue.h"
 #include "StyleCursor.h"
 #include "StyleImage.h"
 #include "StyleReflection.h"
@@ -80,7 +79,7 @@ void loadPendingResources(RenderStyle& style, Document& document, const Element*
         for (auto& contentItem : contentData->list) {
             WTF::switchOn(contentItem,
                 [&](const Style::Content::Image& image) {
-                    loadPendingImage(document, image.image.ptr(), element);
+                    loadPendingImage(document, image.image.value.ptr(), element);
                 },
                 [](const auto&) { }
             );
@@ -105,8 +104,8 @@ void loadPendingResources(RenderStyle& style, Document& document, const Element*
     for (auto* maskLayer = &style.maskLayers(); maskLayer; maskLayer = maskLayer->next())
         loadPendingImage(document, maskLayer->image(), element, LoadPolicy::CORS);
 
-    if (style.shapeOutside())
-        loadPendingImage(document, style.shapeOutside()->image(), element, LoadPolicy::Anonymous);
+    if (RefPtr shapeValueImage = style.shapeOutside().image())
+        loadPendingImage(document, shapeValueImage.get(), element, LoadPolicy::Anonymous);
 
     // Are there other pseudo-elements that need resource loading? 
     if (auto* firstLineStyle = style.getCachedPseudoStyle({ PseudoId::FirstLine }))

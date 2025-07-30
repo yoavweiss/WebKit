@@ -789,37 +789,6 @@ public:
 
 #endif
 
-class ShapeWrapper final : public RefCountedWrapper<ShapeValue> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(ShapeWrapper, Animation);
-public:
-    ShapeWrapper(CSSPropertyID property, ShapeValue* (RenderStyle::*getter)() const, void (RenderStyle::*setter)(RefPtr<ShapeValue>&&))
-        : RefCountedWrapper(property, getter, setter)
-    {
-    }
-
-    bool equals(const RenderStyle& a, const RenderStyle& b) const final
-    {
-        // If the style pointers are the same, don't bother doing the test.
-        if (&a == &b)
-            return true;
-
-        auto* shapeA = value(a);
-        auto* shapeB = value(b);
-        if (shapeA == shapeB)
-            return true;
-        if (!shapeA || !shapeB)
-            return false;
-        return *shapeA == *shapeB;
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        auto* fromShape = value(from);
-        auto* toShape = value(to);
-        return fromShape && toShape && fromShape->canBlend(*toShape);
-    }
-};
-
 class StyleImageWrapper final : public RefCountedWrapper<StyleImage> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(StyleImageWrapper, Animation);
 public:

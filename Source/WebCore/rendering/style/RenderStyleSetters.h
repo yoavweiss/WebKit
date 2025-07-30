@@ -286,7 +286,8 @@ inline void RenderStyle::setTimelineScope(const NameScope& scope) { SET_NESTED(m
 inline void RenderStyle::setScrollbarColor(Style::ScrollbarColor&& color) { SET(m_rareInheritedData, scrollbarColor, WTFMove(color)); }
 inline void RenderStyle::setScrollbarGutter(Style::ScrollbarGutter&& gutter) { SET_NESTED(m_nonInheritedData, rareData, scrollbarGutter, WTFMove(gutter)); }
 inline void RenderStyle::setScrollbarWidth(ScrollbarWidth width) { SET_NESTED(m_nonInheritedData, rareData, scrollbarWidth, static_cast<unsigned>(width)); }
-inline void RenderStyle::setShapeMargin(Length&& margin) { SET_NESTED(m_nonInheritedData, rareData, shapeMargin, WTFMove(margin)); }
+inline void RenderStyle::setShapeMargin(Style::ShapeMargin&& shapeMargin) { SET_NESTED(m_nonInheritedData, rareData, shapeMargin, WTFMove(shapeMargin)); }
+inline void RenderStyle::setShapeOutside(Style::ShapeOutside&& shapeOutside) { SET_NESTED(m_nonInheritedData, rareData, shapeOutside, WTFMove(shapeOutside)); }
 inline void RenderStyle::setUsedContentVisibility(ContentVisibility usedContentVisibility) { SET(m_rareInheritedData, usedContentVisibility, static_cast<unsigned>(usedContentVisibility)); }
 inline void RenderStyle::setSpeakAs(OptionSet<SpeakAs> style) { SET(m_rareInheritedData, speakAs, style.toRaw()); }
 inline void RenderStyle::setSpecifiedZIndex(int value) { SET_NESTED_PAIR(m_nonInheritedData, boxData, m_hasAutoSpecifiedZIndex, false, m_specifiedZIndex, value); }
@@ -595,17 +596,10 @@ inline void RenderStyle::setOrphans(unsigned short count)
     SET_PAIR(m_rareInheritedData, orphans, clampedCount, hasAutoOrphans, false);
 }
 
-inline void RenderStyle::setShapeImageThreshold(float shapeImageThreshold)
+inline void RenderStyle::setShapeImageThreshold(Style::ShapeImageThreshold shapeImageThreshold)
 {
-    float clampedShapeImageThreshold = clampTo<float>(shapeImageThreshold, 0.f, 1.f);
+    auto clampedShapeImageThreshold = Style::ShapeImageThreshold { clampTo(shapeImageThreshold.value, 0.0f, 1.0f) };
     SET_NESTED(m_nonInheritedData, rareData, shapeImageThreshold, clampedShapeImageThreshold);
-}
-
-inline void RenderStyle::setShapeOutside(RefPtr<ShapeValue>&& value)
-{
-    if (m_nonInheritedData->rareData->shapeOutside == value)
-        return;
-    m_nonInheritedData.access().rareData.access().shapeOutside = WTFMove(value);
 }
 
 inline bool RenderStyle::setTextOrientation(TextOrientation textOrientation)

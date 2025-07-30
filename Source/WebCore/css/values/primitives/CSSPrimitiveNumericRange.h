@@ -85,6 +85,9 @@ inline constexpr auto ClosedUnitRange = Range { 0, 1 };
 // Constant value for `[0,1(clamp upper)]`.
 inline constexpr auto ClosedUnitRangeClampUpper = Range { 0, 1, RangeOptions::ClampUpper };
 
+// Constant value for `[0,1(clamp both)]`.
+inline constexpr auto ClosedUnitRangeClampBoth = Range { 0, 1, RangeOptions::ClampBoth };
+
 // Constant value for `[0,100]`.
 inline constexpr auto ClosedPercentageRange = Range { 0, 100 };
 

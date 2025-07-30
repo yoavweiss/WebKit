@@ -2956,7 +2956,6 @@ rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleConstants.cpp
 rendering/style/SVGRenderStyle.cpp
 rendering/style/SVGRenderStyleDefs.cpp
-rendering/style/ShapeValue.cpp
 rendering/style/StyleBackgroundData.cpp
 rendering/style/StyleBoxData.cpp
 rendering/style/StyleCachedImage.cpp
@@ -3189,6 +3188,7 @@ style/values/grid/StyleGridTrackBreadth.cpp
 style/values/grid/StyleGridTrackSize.cpp
 style/values/grid/StyleGridTrackSizes.cpp
 style/values/images/StyleGradient.cpp
+style/values/images/StyleImageWrapper.cpp
 style/values/inline/StyleVerticalAlign.cpp
 style/values/lists/StyleListStyleType.cpp
 style/values/masking/StyleClip.cpp
@@ -3225,6 +3225,7 @@ style/values/shapes/StylePathOperationWrappers.cpp
 style/values/shapes/StylePolygonFunction.cpp
 style/values/shapes/StyleRectFunction.cpp
 style/values/shapes/StyleShapeFunction.cpp
+style/values/shapes/StyleShapeOutside.cpp
 style/values/shapes/StyleXywhFunction.cpp
 style/values/size-adjust/StyleTextSizeAdjust.cpp
 style/values/sizing/StyleAspectRatio.cpp

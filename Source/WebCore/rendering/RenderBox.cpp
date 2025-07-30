@@ -392,7 +392,7 @@ void RenderBox::styleDidChange(StyleDifference diff, const RenderStyle* oldStyle
             view().compositor().rootOrBodyStyleChanged(*this, oldStyle);
     }
 
-    if ((oldStyle && oldStyle->shapeOutside()) || style().shapeOutside())
+    if ((oldStyle && !oldStyle->shapeOutside().isNone()) || !style().shapeOutside().isNone())
         updateShapeOutsideInfoAfterStyleChange(style(), oldStyle);
     updateGridPositionAfterStyleChange(style(), oldStyle);
 
@@ -444,25 +444,25 @@ void RenderBox::updateGridPositionAfterStyleChange(const RenderStyle& style, con
 
 void RenderBox::updateShapeOutsideInfoAfterStyleChange(const RenderStyle& style, const RenderStyle* oldStyle)
 {
-    const ShapeValue* shapeOutside = style.shapeOutside();
-    const ShapeValue* oldShapeOutside = oldStyle ? oldStyle->shapeOutside() : nullptr;
+    Style::ShapeOutside shapeOutside = style.shapeOutside();
+    Style::ShapeOutside oldShapeOutside = oldStyle ? oldStyle->shapeOutside() : RenderStyle::initialShapeOutside();
 
-    Length shapeMargin = style.shapeMargin();
-    Length oldShapeMargin = oldStyle ? oldStyle->shapeMargin() : RenderStyle::initialShapeMargin();
+    Style::ShapeMargin shapeMargin = style.shapeMargin();
+    Style::ShapeMargin oldShapeMargin = oldStyle ? oldStyle->shapeMargin() : RenderStyle::initialShapeMargin();
 
-    float shapeImageThreshold = style.shapeImageThreshold();
-    float oldShapeImageThreshold = oldStyle ? oldStyle->shapeImageThreshold() : RenderStyle::initialShapeImageThreshold();
+    Style::ShapeImageThreshold shapeImageThreshold = style.shapeImageThreshold();
+    Style::ShapeImageThreshold oldShapeImageThreshold = oldStyle ? oldStyle->shapeImageThreshold() : RenderStyle::initialShapeImageThreshold();
 
     // FIXME: A future optimization would do a deep comparison for equality. (bug 100811)
     if (shapeOutside == oldShapeOutside && shapeMargin == oldShapeMargin && shapeImageThreshold == oldShapeImageThreshold)
         return;
 
-    if (!shapeOutside)
+    if (shapeOutside.isNone())
         removeShapeOutsideInfo();
     else
         ensureShapeOutsideInfo().markShapeAsDirty();
 
-    if (shapeOutside || shapeOutside != oldShapeOutside)
+    if (!shapeOutside.isNone() || shapeOutside != oldShapeOutside)
         markShapeOutsideDependentsForLayout();
 }
 
@@ -1841,7 +1841,7 @@ static bool isCandidateForOpaquenessTest(const RenderBox& childBox)
         return false;
     if (childStyle.usedVisibility() != Visibility::Visible)
         return false;
-    if (childStyle.shapeOutside())
+    if (!childStyle.shapeOutside().isNone())
         return false;
     if (!childBox.width() || !childBox.height())
         return false;
@@ -2032,10 +2032,11 @@ void RenderBox::imageChanged(WrappedImagePtr image, const IntRect*)
         return;
     }
 
-    ShapeValue* shapeOutsideValue = style().shapeOutside();
-    if (!view().frameView().layoutContext().isInRenderTreeLayout() && isFloating() && shapeOutsideValue && shapeOutsideValue->image() && shapeOutsideValue->image()->data() == image) {
-        ensureShapeOutsideInfo().markShapeAsDirty();
-        markShapeOutsideDependentsForLayout();
+    if (!view().frameView().layoutContext().isInRenderTreeLayout() && isFloating()) {
+        if (RefPtr shapeOutsideImage = style().shapeOutside().image(); shapeOutsideImage && shapeOutsideImage->data() == image) {
+            ensureShapeOutsideInfo().markShapeAsDirty();
+            markShapeOutsideDependentsForLayout();
+        }
     }
 
     bool didFullRepaint = false;

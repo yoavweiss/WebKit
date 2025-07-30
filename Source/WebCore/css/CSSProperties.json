@@ -11966,8 +11966,8 @@
                 "aliases": [
                     "-webkit-shape-outside"
                 ],
-                "animation-wrapper": "ShapeWrapper",
-                "style-converter": "ShapeValue",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ShapeOutside>",
                 "parser-function": "consumeShapeOutside",
                 "parser-grammar-unused": "none | [ <basic-shape> || <shape-box> ] | <image>",
                 "parser-grammar-unused-reason": "Needs support for transforming parsed input to minimal form and the strong value representation."
@@ -11984,9 +11984,8 @@
                 "aliases": [
                     "-webkit-shape-margin"
                 ],
-                "animation-wrapper": "LengthWrapper",
-                "animation-wrapper-requires-additional-parameters": ["{ LengthWrapper::Flags::IsLengthPercentage, LengthWrapper::Flags::NegativeLengthsAreInvalid }"],
-                "style-converter": "Length",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ShapeMargin>",
                 "parser-grammar": "<length-percentage [0,inf]>"
             },
             "specification": {
@@ -12001,9 +12000,10 @@
                 "aliases": [
                     "-webkit-shape-image-threshold"
                 ],
-                "animation-wrapper": "Wrapper",
-                "style-converter": "Number<float>",
-                "parser-grammar": "<number>"
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ShapeImageThreshold>",
+                "parser-grammar": "<number>",
+                "parser-grammar-comment": "Current spec grammar is '<opacity-value>'"
             },
             "specification": {
                 "category": "css-shapes",

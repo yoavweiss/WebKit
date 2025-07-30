@@ -2692,7 +2692,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/RenderStyleSetters.h
     rendering/style/SVGRenderStyle.h
     rendering/style/SVGRenderStyleDefs.h
-    rendering/style/ShapeValue.h
     rendering/style/StyleBackgroundData.h
     rendering/style/StyleBoxData.h
     rendering/style/StyleContentAlignmentData.h
@@ -2800,6 +2799,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/grid/StyleGridTrackSizingDirection.h
 
     style/values/images/StyleGradient.h
+    style/values/images/StyleImageWrapper.h
     style/values/images/StyleObjectPosition.h
 
     style/values/inline/StyleLineBoxContain.h
@@ -2868,6 +2868,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/shapes/StylePolygonFunction.h
     style/values/shapes/StyleRectFunction.h
     style/values/shapes/StyleShapeFunction.h
+    style/values/shapes/StyleShapeImageThreshold.h
+    style/values/shapes/StyleShapeMargin.h
+    style/values/shapes/StyleShapeOutside.h
     style/values/shapes/StyleWindRuleComputation.h
     style/values/shapes/StyleXywhFunction.h
 
