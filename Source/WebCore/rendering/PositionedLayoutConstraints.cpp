@@ -173,11 +173,18 @@ void PositionedLayoutConstraints::captureGridArea()
         return;
 
     if (LogicalBoxAxis::Inline == m_containingAxis) {
-        m_containingRange = gridContainer->gridAreaRangeForOutOfFlow(m_renderer, Style::GridTrackSizingDirection::Columns);
-        m_containingInlineSize = m_containingRange.size();
+        auto range = gridContainer->gridAreaColumnRangeForOutOfFlow(m_renderer);
+        if (!range)
+            return;
+        m_containingRange = *range;
+        m_containingInlineSize = range->size();
     } else {
-        m_containingRange = gridContainer->gridAreaRangeForOutOfFlow(m_renderer, Style::GridTrackSizingDirection::Rows);
-        m_containingInlineSize = gridContainer->gridAreaRangeForOutOfFlow(m_renderer, Style::GridTrackSizingDirection::Columns).size();
+        auto range = gridContainer->gridAreaRowRangeForOutOfFlow(m_renderer);
+        if (range)
+            m_containingRange = *range;
+        auto columnRange = gridContainer->gridAreaColumnRangeForOutOfFlow(m_renderer);
+        if (columnRange)
+            m_containingInlineSize = columnRange->size();
     }
 
     if (!startIsBefore()) {
