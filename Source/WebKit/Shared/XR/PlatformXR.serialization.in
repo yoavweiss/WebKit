@@ -36,6 +36,7 @@ enum class PlatformXR::SessionFeature : uint8_t {
 #if ENABLE(WEBXR_HANDS)
     HandTracking,
 #endif
+    WebGPU,
 };
 
 enum class PlatformXR::SessionMode : uint8_t {

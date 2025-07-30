@@ -669,7 +669,7 @@ Ref<RenderPassEncoder> CommandEncoder::beginRenderPass(const WGPURenderPassDescr
             mtlAttachment.resolveSlice = 0;
             mtlAttachment.resolveDepthPlane = 0;
             if (resolveTarget->width() != texture->width() || resolveTarget->height() != texture->height())
-                return RenderPassEncoder::createInvalid(*this, m_device, @"resolve target dimensions are invalid");
+                return RenderPassEncoder::createInvalid(*this, m_device, [NSString stringWithFormat:@"resolve target dimensions (%u x %u) don't match expected dimensions (%u x %u)", resolveTarget->width(), resolveTarget->height(), texture->width(), texture->height()]);
         }
         if (textureToClear) {
             TextureAndClearColor *textureWithResolve = [[TextureAndClearColor alloc] initWithTexture:textureToClear];

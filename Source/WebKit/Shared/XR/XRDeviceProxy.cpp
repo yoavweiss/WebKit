@@ -50,6 +50,8 @@ XRDeviceProxy::XRDeviceProxy(XRDeviceInfo&& deviceInfo, PlatformXRSystemProxy& x
     m_recommendedResolution = deviceInfo.recommendedResolution;
     m_minimumNearClipPlane = deviceInfo.minimumNearClipPlane;
 
+    if (!deviceInfo.vrFeatures.contains(SessionFeature::WebGPU))
+        deviceInfo.vrFeatures.append(SessionFeature::WebGPU);
     if (!deviceInfo.vrFeatures.isEmpty())
         setSupportedFeatures(SessionMode::ImmersiveVr, deviceInfo.vrFeatures);
     if (!deviceInfo.arFeatures.isEmpty())

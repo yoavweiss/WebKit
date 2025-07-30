@@ -95,7 +95,7 @@ public:
     Device& device() const { return m_device; }
 
     bool isValid() const { return m_renderCommandEncoder; }
-    bool colorDepthStencilTargetsMatch(const RenderPipeline&) const;
+    NSString* errorValidatingColorDepthStencilTargets(const RenderPipeline&) const;
     id<MTLRenderCommandEncoder> renderCommandEncoder() const;
     void makeInvalid(NSString* = nil);
     CommandEncoder& parentEncoder() const { return m_parentEncoder; }

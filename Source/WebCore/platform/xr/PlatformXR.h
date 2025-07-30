@@ -76,7 +76,8 @@ enum class ReferenceSpaceType : uint8_t {
     Local,
     LocalFloor,
     BoundedFloor,
-    Unbounded
+    Unbounded,
+    Webgpu
 };
 
 enum class Eye : uint8_t {
@@ -121,6 +122,7 @@ enum class SessionFeature : uint8_t {
 #if ENABLE(WEBXR_HANDS)
     HandTracking,
 #endif
+    WebGPU,
 };
 
 inline SessionFeature sessionFeatureFromReferenceSpaceType(ReferenceSpaceType referenceSpaceType)
@@ -136,6 +138,8 @@ inline SessionFeature sessionFeatureFromReferenceSpaceType(ReferenceSpaceType re
         return SessionFeature::ReferenceSpaceTypeBoundedFloor;
     case ReferenceSpaceType::Unbounded:
         return SessionFeature::ReferenceSpaceTypeUnbounded;
+    case ReferenceSpaceType::Webgpu:
+        return SessionFeature::WebGPU;
     }
 
     ASSERT_NOT_REACHED();
@@ -160,6 +164,8 @@ inline std::optional<SessionFeature> parseSessionFeatureDescriptor(StringView st
     if (feature == "hand-tracking"_s)
         return SessionFeature::HandTracking;
 #endif
+    if (feature == "webgpu"_s)
+        return SessionFeature::WebGPU;
 
     return std::nullopt;
 }
@@ -181,6 +187,8 @@ inline String sessionFeatureDescriptor(SessionFeature sessionFeature)
     case SessionFeature::HandTracking:
         return "hand-tracking"_s;
 #endif
+    case SessionFeature::WebGPU:
+        return "webgpu"_s;
     default:
         ASSERT_NOT_REACHED();
         return ""_s;

@@ -87,6 +87,7 @@ public:
     static NSString* errorValidatingLinearTextureData(const WGPUTextureDataLayout&, uint64_t, WGPUTextureFormat, WGPUExtent3D);
     static MTLTextureUsage usage(WGPUTextureUsageFlags, WGPUTextureFormat);
     static MTLPixelFormat pixelFormat(WGPUTextureFormat);
+    static WGPUTextureFormat textureFormat(MTLPixelFormat);
     static std::optional<MTLPixelFormat> depthOnlyAspectMetalFormat(WGPUTextureFormat);
     static std::optional<MTLPixelFormat> stencilOnlyAspectMetalFormat(WGPUTextureFormat);
     static WGPUTextureFormat removeSRGBSuffix(WGPUTextureFormat);

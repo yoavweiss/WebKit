@@ -2107,6 +2107,8 @@ static _WKXRSessionFeatureFlags toWKXRSessionFeatureFlags(PlatformXR::SessionFea
     case PlatformXR::SessionFeature::HandTracking:
         return _WKXRSessionFeatureFlagsHandTracking;
 #endif
+    case PlatformXR::SessionFeature::WebGPU:
+        return _WKXRSessionFeatureFlagsWebGPU;
     }
 }
 
@@ -2138,6 +2140,8 @@ static std::optional<PlatformXR::Device::FeatureList> toPlatformXRFeatures(_WKXR
     if (featureFlags & _WKXRSessionFeatureFlagsHandTracking)
         features.append(PlatformXR::SessionFeature::HandTracking);
 #endif
+    if (featureFlags & _WKXRSessionFeatureFlagsWebGPU)
+        features.append(PlatformXR::SessionFeature::WebGPU);
     return features;
 }
 

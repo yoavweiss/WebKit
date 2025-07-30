@@ -297,21 +297,6 @@ void RenderPassEncoder::addTextureToActiveResources(const void* resourceAddress,
     if (!mtlResource)
         return;
 
-    if (isTextureBindGroupEntryUsage(initialUsage)) {
-        ASSERT([mtlResource conformsToProtocol:@protocol(MTLTexture)]);
-        id<MTLTexture> textureView = (id<MTLTexture>)mtlResource;
-        if (id<MTLTexture> parentTexture = textureView.parentTexture) {
-            mtlResource = parentTexture;
-            ASSERT(textureView.parentRelativeLevel <= std::numeric_limits<uint32_t>::max() && textureView.parentRelativeSlice <= std::numeric_limits<uint32_t>::max());
-            if (baseMipLevel || baseArrayLayer) {
-                ASSERT(textureView.parentRelativeLevel == baseMipLevel);
-                ASSERT(textureView.parentRelativeSlice == baseArrayLayer);
-            }
-            baseMipLevel = static_cast<uint32_t>(textureView.parentRelativeLevel);
-            baseArrayLayer = static_cast<uint32_t>(textureView.parentRelativeSlice);
-        }
-    }
-
     auto mapKey = BindGroup::makeEntryMapKey(baseMipLevel, baseArrayLayer, aspect);
     EntryUsage resourceUsage = initialUsage;
     EntryMap* entryMap = nullptr;
@@ -1326,9 +1311,9 @@ void RenderPassEncoder::executeBundles(Vector<Ref<RenderBundle>>&& bundles)
     m_maxDynamicOffsetAtIndex.fill(0);
 }
 
-bool RenderPassEncoder::colorDepthStencilTargetsMatch(const RenderPipeline& pipeline) const
+NSString* RenderPassEncoder::errorValidatingColorDepthStencilTargets(const RenderPipeline& pipeline) const
 {
-    return pipeline.colorDepthStencilTargetsMatch(m_descriptor, m_colorAttachmentViews, m_depthStencilView);
+    return pipeline.errorValidatingColorDepthStencilTargets(m_descriptor, m_colorAttachmentViews, m_depthStencilView);
 }
 
 id<MTLRenderCommandEncoder> RenderPassEncoder::renderCommandEncoder() const
@@ -1509,8 +1494,8 @@ NSString* RenderPassEncoder::errorValidatingPipeline(const RenderPipeline& pipel
     if (!pipeline.validateDepthStencilState(m_depthReadOnly, m_stencilReadOnly))
         return @"setPipeline: invalid depth stencil state";
 
-    if (!colorDepthStencilTargetsMatch(pipeline))
-        return @"setPipeline: color and depth targets from pass do not match pipeline";
+    if (NSString* error = errorValidatingColorDepthStencilTargets(pipeline))
+        return [NSString stringWithFormat:@"setPipeline: color and depth targets from pass do not match pipeline - %@", error];
 
     if (sumOverflows<uint64_t>(pipeline.pipelineLayout().sizeOfFragmentDynamicOffsets(), RenderBundleEncoder::startIndexForFragmentDynamicOffsets))
         return @"setPipeline: invalid size of fragmentDynamicOffsets";
