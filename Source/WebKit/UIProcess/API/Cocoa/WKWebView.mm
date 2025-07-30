@@ -3526,7 +3526,7 @@ struct WKWebViewData {
 - (void)fetchDataOfTypes:(WKWebViewDataType)dataTypes completionHandler:(void (^)(NSData *, NSError *))completionHandler
 {
     Vector<WebKit::WebViewDataType> dataTypesToEncode;
-    if (dataTypes & _WKWebViewDataTypeSessionStorage)
+    if (dataTypes & WKWebViewDataTypeSessionStorage)
         dataTypesToEncode.append(WebKit::WebViewDataType::SessionStorage);
 
     auto data = Box<WKWebViewData>::create();
@@ -3557,7 +3557,7 @@ struct WKWebViewData {
         completionHandler(toNSData(encoder.span()).get(), nullptr);
     });
 
-    if (dataTypes & _WKWebViewDataTypeSessionStorage) {
+    if (dataTypes & WKWebViewDataTypeSessionStorage) {
         RefPtr page = [self _protectedPage];
         page->fetchSessionStorage([callbackAggregator, protectedPage = page, data](auto&& sessionStorage) {
             data->sessionStorage = WTFMove(sessionStorage);
