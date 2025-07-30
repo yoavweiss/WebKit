@@ -31,7 +31,7 @@ OBJC_CLASS WKWebViewConfiguration;
 
 namespace TestWebKitAPI {
 
-#if ENABLE(UNIFIED_PDF_FOR_TESTING)
+#if ENABLE(UNIFIED_PDF_BY_DEFAULT)
 static constexpr bool unifiedPDFForTestingEnabled = true;
 #define UNIFIED_PDF_TEST(name) TEST(UnifiedPDF, name)
 #else

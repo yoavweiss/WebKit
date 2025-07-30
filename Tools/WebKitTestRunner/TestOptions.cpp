@@ -54,7 +54,7 @@ static constexpr bool fullGPUProcessEnabledValue = false;
 #endif
 
 #if ENABLE(UNIFIED_PDF)
-#if ENABLE(UNIFIED_PDF_FOR_TESTING)
+#if ENABLE(UNIFIED_PDF_BY_DEFAULT)
 static constexpr bool unifiedPDFEnabledValue = true;
 #else
 static constexpr bool unifiedPDFEnabledValue = false;
