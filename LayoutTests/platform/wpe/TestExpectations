@@ -753,11 +753,10 @@ webkit.org/b/173419 fast/events/input-events-drag-and-drop.html [ Failure ]
 webkit.org/b/173419 fast/events/input-events-insert-by-drop.html [ Failure ]
 webkit.org/b/173419 fast/events/wheel/continuous-platform-wheelevent-in-scrolling-div.html [ Failure ]
 webkit.org/b/109469 fast/events/mouse-cursor-image-set.html [ Failure ]
-webkit.org/b/173419 fast/events/autoscroll-main-document.html [ Timeout ]
-webkit.org/b/173419 fast/events/autoscroll-when-zoomed.html [ Timeout ]
+webkit.org/b/173419 fast/events/autoscroll-main-document.html [ Failure ]
+webkit.org/b/173419 fast/events/autoscroll-when-zoomed.html [ Failure ]
 webkit.org/b/173419 fast/events/clipboard-dataTransferItemList.html [ Timeout Pass ]
 webkit.org/b/173419 fast/events/drag-dataTransferItemList.html [ Timeout ]
-webkit.org/b/173419 fast/events/mouseover-button.html [ Failure ]
 webkit.org/b/173419 fast/events/option-tab.html [ Failure ]
 webkit.org/b/173419 fast/events/page-visibility-iframe-delete-test.html [ Timeout ]
 webkit.org/b/173419 fast/events/page-visibility-iframe-move-test.html [ Timeout ]
@@ -831,7 +830,6 @@ Bug(WPE) svg/animations/animations-paused-when-inserted-in-hidden-document2.html
 
 webkit.org/b/99893 svg/animations/mozilla/animateMotion-mpath-targetChange-1.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/animations/stop-animation-01.html [ Pass ]
-Bug(WPE) svg/text/select-text-svgfont.html [ Failure ]
 Bug(WPE) svg/zoom/page/zoom-zoom-coords.xhtml [ Failure ]
 
 svg/text/kerning.svg [ Pass ]
@@ -1194,8 +1192,6 @@ webkit.org/b/281053 imported/w3c/web-platform-tests/worklets/audio-worklet-refer
 http/tests/cookies/same-site/fetch-after-navigating-iframe-in-cross-origin-page.html [ Failure ]
 http/tests/cookies/same-site/fetch-in-cross-origin-service-worker.html [ Failure ]
 http/tests/cookies/same-site/popup-cross-site-post.html [ Failure ]
-
-webkit.org/b/282970 imported/w3c/web-platform-tests/scroll-to-text-fragment/drag-selection-over-target-text.html [ Failure ]
 
 fast/text/hyphenate-avoid-orphaned-word.html [ Failure ]
 
