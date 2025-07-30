@@ -966,6 +966,7 @@ BroadcastChannelEnabled:
       default: true
     WebCore:
       default: true
+  sharedPreferenceForWebProcess: true
 
 BuiltInNotificationsEnabled:
   type: bool
