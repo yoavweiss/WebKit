@@ -58,6 +58,7 @@
 #include "HTMLObjectElement.h"
 #include "HTTPHeaderNames.h"
 #include "HTTPParsers.h"
+#include "HTTPStatusCodes.h"
 #include "HistoryItem.h"
 #include "HistoryController.h"
 #include "IconLoader.h"
@@ -1215,12 +1216,18 @@ void DocumentLoader::continueAfterContentPolicy(PolicyAction policy)
 
     if (m_response.isInHTTPFamily()) {
         int status = m_response.httpStatusCode(); // Status may be zero when loading substitute data, in particular from a WebArchive.
-        if (status && (status < 200 || status >= 300)) {
-            if (RefPtr owner = dynamicDowncast<HTMLObjectElement>(frame->ownerElement())) {
-                owner->renderFallbackContent();
-                // object elements are no longer rendered after we fallback, so don't
-                // keep trying to process data from their load
-                cancelMainResourceLoad(protectedFrameLoader()->cancelledError(m_request));
+        if (status) {
+            if (status < httpStatus200OK || status >= httpStatus300MultipleChoices) {
+                if (RefPtr owner = dynamicDowncast<HTMLObjectElement>(frame->ownerElement())) {
+                    owner->renderFallbackContent();
+                    // object elements are no longer rendered after we fallback, so don't
+                    // keep trying to process data from their load
+                    cancelMainResourceLoad(protectedFrameLoader()->cancelledError(m_request));
+                }
+            } else if (status == httpStatus204NoContent || status == httpStatus205ResetContent) {
+                // 204/205 responses should abort navigation without changing the document.
+                stopLoadingForPolicyChange();
+                return;
             }
         }
     }
