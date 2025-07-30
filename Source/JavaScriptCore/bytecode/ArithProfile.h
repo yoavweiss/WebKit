@@ -181,6 +181,8 @@ protected:
     BitfieldType m_bits { 0 }; // We take care to update m_bits only in a single operation. We don't ever store an inconsistent bit representation to it.
 };
 
+extern template class ArithProfile<uint16_t>;
+
 /* This class stores the following components in 16 bits:
  * - ObservedResults
  * - ObservedType for the argument
