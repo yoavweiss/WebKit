@@ -6,7 +6,6 @@ NetworkProcess/cocoa/WKURLSessionTaskDelegate.mm
 NetworkProcess/cocoa/WebSocketTaskCocoa.mm
 Platform/IPC/ArgumentCoders.h
 Platform/cocoa/_WKWebViewTextInputNotifications.mm
-Shared/RemoteLayerTree/RemoteLayerBackingStoreCollection.mm
 Shared/RemoteLayerTree/RemoteLayerTreeTransaction.mm
 Shared/WebWheelEventCoalescer.cpp
 UIProcess/API/Cocoa/WKWebView.mm
