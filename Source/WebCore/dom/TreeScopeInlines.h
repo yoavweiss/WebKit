@@ -66,14 +66,7 @@ inline bool TreeScope::containsMultipleElementsWithName(const AtomString& name) 
 
 inline void TreeScope::setDocumentScope(Document& document)
 {
-    Locker locker { treeScopeMutationLock() };
     m_documentScope = document;
-}
-
-ALWAYS_INLINE Lock& TreeScope::treeScopeMutationLock()
-{
-    static Lock s_treeScopeMutationLock;
-    return s_treeScopeMutationLock;
 }
 
 } // namespace WebCore
