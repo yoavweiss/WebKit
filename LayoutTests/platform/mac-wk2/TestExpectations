@@ -2342,7 +2342,6 @@ fast/events/popup-blocked-from-fake-user-gesture.html [ Slow ]
 fast/events/popup-blocking-timers1.html [ Slow ]
 fast/history/history_reload.html [ Slow ]
 fast/mediacapturefromelement/CanvasCaptureMediaStream-offscreencanvas.html [ Slow ]
-http/tests/misc/timer-vs-loading.html [ Slow ]
 http/tests/privateClickMeasurement/attribution-conversion-through-image-redirect-in-new-window.html [ Slow ]
 http/tests/security/isolatedWorld/userGestureEvents.html [ Slow ]
 imported/w3c/web-platform-tests/digital-credentials/create.disabled-by-permissions-policy.https.sub.html [ Slow ]
@@ -2363,3 +2362,5 @@ webkit.org/b/296655 http/tests/resourceLoadStatistics/website-data-removal-for-s
 webkit.org/b/296655 http/tests/resourceLoadStatistics/website-data-removal-for-site-navigated-to-without-link-decoration.html [ Failure ]
 
 webkit.org/b/296660 [ Debug ] fast/mediastream/getDisplayMedia-frame-rate.html [ Pass Failure ]
+
+webkit.org/b/294152 http/tests/misc/timer-vs-loading.html [ Pass Timeout ]
