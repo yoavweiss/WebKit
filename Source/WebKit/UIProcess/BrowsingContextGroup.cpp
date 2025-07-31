@@ -50,6 +50,8 @@ RefPtr<FrameProcess> BrowsingContextGroup::sharedProcessForSite(WebsiteDataStore
         return nullptr;
     if (isMainFrame == IsMainFrame::Yes)
         return nullptr;
+    if (site.isEmpty())
+        return nullptr;
     // FIXME: Add a mechanism for WebKit / Safari to identify websites that need an isolation.
     m_sharedProcessSites.add(site);
     if (m_sharedProcess)
