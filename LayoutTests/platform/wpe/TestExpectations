@@ -228,6 +228,10 @@ imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-worker-overridesexpir
 imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-synconmain.html?timeout_after_open [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-synconmain.html?timeout_before_open [ DumpJSConsoleLogInStdErr ]
 
+# Repaint
+
+webkit.org/b/212233 fast/repaint/iframe-on-subpixel-position.html [ Pass Failure ]
+
 # Timeout.
 imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-worker-aborted.html?aborted_immediately_after_send() [ Skip ]
 imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-worker-aborted.html?call_abort()_after_TIME_NORMAL_LOAD [ Skip ]
@@ -465,8 +469,27 @@ webkit.org/b/213131 inspector/ [ Skip ]
 
 Bug(WPE) fast/autoresize [ Skip ]
 webkit.org/b/213131 fast/forms [ Skip ]
-webkit.org/b/213131 fast/media [ Skip ]
-webkit.org/b/213131 fast/repaint [ Skip ]
+
+fast/media/mq-any-hover-matchMedia.html [ Skip ]
+fast/media/mq-any-hover-styling.html [ Skip ]
+fast/media/mq-any-pointer-matchMedia.html [ Skip ]
+fast/media/mq-any-pointer-styling.html [ Skip ]
+fast/media/mq-hover-matchMedia.html [ Skip ]
+fast/media/mq-hover-styling.html [ Skip ]
+fast/media/mq-pointer-matchMedia.html [ Skip ]
+fast/media/mq-pointer-styling.html [ Skip ]
+fast/media/mq-pointer.html [ Skip ]
+fast/media/mq-inverted-colors-ua-style-on-to-off.html [ Skip ]
+
+fast/repaint/overflow-scroll-touch-repaint.html [ Skip ]
+fast/repaint/vertical-overflow-child.html [ Skip ]
+fast/repaint/vertical-overflow-parent.html [ Skip ]
+fast/repaint/vertical-overflow-same.html [ Skip ]
+
+fast/repaint/horizontal-bt-overflow-child.html [ Skip ]
+fast/repaint/horizontal-bt-overflow-parent.html [ Skip ]
+fast/repaint/horizontal-bt-overflow-same.html [ Skip ]
+fast/repaint/fixed-move-after-keyboard-scroll.html [ Skip ]
 
 Bug(WPE) fast/text/woff2-totalsfntsize.html [ Pass ]
 Bug(WPE) fast/text/woff2.html [ Pass ]

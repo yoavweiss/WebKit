@@ -46,6 +46,7 @@
 # * Skia
 # * SOUP
 # * Media
+# * Repaint
 # * Streams
 # * SVG
 # * Text
@@ -1634,6 +1635,16 @@ media/modern-media-controls/scrubber-support/scrubber-support-drag.html [ Pass T
 
 webkit.org/b/213293 fast/images/hidpi-image-position-on-device-pixels-with-border-radius.html [ ImageOnlyFailure ]
 
+# HighDPI support is not enabled
+webkit.org/b/131347 fast/hidpi/hidpi-3x-device-pixel-ratio.html [ Failure ]
+webkit.org/b/131347 fast/repaint/hidpi-absolute-positioned-element-wrong-cliprect-after-move.html [ Failure ]
+webkit.org/b/131347 fast/repaint/hidpi-box-with-subpixel-height-inflates.html [ Failure ]
+webkit.org/b/131347 fast/repaint/hidpi-content-inside-iframe-leaves-trails.html [ Failure ]
+webkit.org/b/131347 fast/repaint/hidpi-device-pixel-based-repaint-rect-tracking.html [ Failure ]
+webkit.org/b/131347 fast/repaint/hidpi-transform-on-subpixel-repaintrect.html [ Failure ]
+webkit.org/b/131347 fast/repaint/hidpi-wrong-repaint-rect-when-parent-has-noncompositing-transform.html [ Failure ]
+webkit.org/b/131347 svg/custom/hidpi-masking-clipping.svg [ ImageOnlyFailure ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of HiDPI-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -1967,6 +1978,8 @@ imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/
 
 fast/mediastream/camera-powerEfficient-track.html [ Failure ]
 
+webkit.org/b/208182 fast/repaint/backgroundSizeRepaint.html [ ImageOnlyFailure Pass ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Skia-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -2102,6 +2115,27 @@ webkit.org/b/292839 media/media-fullscreen-not-in-document.html [ Timeout ]
 # End of Media-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
+#////////////////////////////////////////////////////////////////////////////////////////
+# Repaint-related bugs
+#////////////////////////////////////////////////////////////////////////////////////////
+
+webkit.org/b/188218 fast/repaint/canvas-object-fit.html [ Failure ]
+
+webkit.org/b/170337 fast/repaint/obscured-background-no-repaint.html [ Pass Failure ]
+
+# Makes subsequent tests randomly fail
+webkit.org/b/296727 fast/repaint/fixed-in-page-scale.html [ Skip ]
+webkit.org/b/296727 fast/repaint/fixed-right-bottom-in-page-scale.html [ Skip ]
+webkit.org/b/296727 fast/repaint/fixed-right-in-page-scale.html [ Skip ]
+
+webkit.org/b/160119 fast/repaint/selection-gap-fixed-child.html [ Failure ]
+webkit.org/b/160119 fast/repaint/selection-gap-flipped-fixed-child.html [ Failure ]
+
+webkit.org/b/296730 fast/repaint/no-animation-outside-viewport-subframe.html [ Failure Pass ]
+
+#////////////////////////////////////////////////////////////////////////////////////////
+# End of Repaint-related bugs
+#////////////////////////////////////////////////////////////////////////////////////////
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # Streams-related bugs
