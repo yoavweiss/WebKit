@@ -365,7 +365,6 @@ class CompileWebKit(shell.Compile, CustomFlagsMixin, ShellMixin):
     build_command = ["perl", "Tools/Scripts/build-webkit", "--no-fatal-warnings"]
     filter_command = ['perl', 'Tools/Scripts/filter-build-webkit', '-logfile', 'build-log.txt']
     APPLE_PLATFORMS = ('mac', 'ios', 'visionos', 'tvos', 'watchos')
-    env = {'MFLAGS': ''}
     name = "compile-webkit"
     description = ["compiling"]
     descriptionDone = ["compiled"]
