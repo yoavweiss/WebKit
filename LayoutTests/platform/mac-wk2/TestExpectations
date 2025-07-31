@@ -2364,3 +2364,5 @@ webkit.org/b/296655 http/tests/resourceLoadStatistics/website-data-removal-for-s
 webkit.org/b/296660 [ Debug ] fast/mediastream/getDisplayMedia-frame-rate.html [ Pass Failure ]
 
 webkit.org/b/294152 http/tests/misc/timer-vs-loading.html [ Pass Timeout ]
+
+webkit.org/b/296755 [ Debug ] imported/w3c/web-platform-tests/content-security-policy/worker-src/service-worker-src-child-fallback.https.sub.html [ Pass Failure ]
