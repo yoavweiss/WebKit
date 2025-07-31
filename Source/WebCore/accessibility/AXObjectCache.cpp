@@ -36,7 +36,6 @@
 #include "AXLogger.h"
 #include "AXRemoteFrame.h"
 #include "AXTextMarker.h"
-#include "AccessibilityARIAGridRow.h"
 #include "AccessibilityAttachment.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityLabel.h"
@@ -794,7 +793,7 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
         if (isAccessibilityARIATable(*element))
             return AccessibilityTable::create(AXID::generate(), renderer, *this, /* isARIATable */ true);
         if (isAccessibilityARIAGridRow(*element))
-            return AccessibilityARIAGridRow::create(AXID::generate(), renderer, *this);
+            return AccessibilityTableRow::create(AXID::generate(), renderer, *this, /* isARIAGridRow */ true);
         if (isAccessibilityARIAGridCell(*element))
             return AccessibilityTableCell::create(AXID::generate(), renderer, *this, /* isARIAGridCell */ true);
 
@@ -886,7 +885,7 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
         if (isAccessibilityARIATable(*element))
             return AccessibilityTable::create(AXID::generate(), *element, *this, /* isARIATable */ true);
         if (isAccessibilityARIAGridRow(*element))
-            return AccessibilityARIAGridRow::create(AXID::generate(), *element, *this);
+            return AccessibilityTableRow::create(AXID::generate(), *element, *this, /* isARIAGridRow */ true);
         if (isAccessibilityARIAGridCell(*element))
             return AccessibilityTableCell::create(AXID::generate(), *element, *this, /* isARIAGridCell */ true);
         if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*element))

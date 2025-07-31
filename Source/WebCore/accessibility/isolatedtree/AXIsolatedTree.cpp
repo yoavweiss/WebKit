@@ -2002,7 +2002,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
             setProperty(AXProperty::IsARIATreeGridRow, true);
             setObjectVectorProperty(AXProperty::DisclosedRows, object.disclosedRows());
             setObjectProperty(AXProperty::DisclosedByRow, object.disclosedByRow());
-        } else if (object.isAccessibilityARIAGridRowInstance())
+        } else if (object.isARIAGridRow())
             setProperty(AXProperty::IsARIAGridRow, true);
 
         bool isTreeItem = object.isTreeItem();

@@ -562,7 +562,6 @@ accessibility/AXSearchManager.cpp
 accessibility/AXTextMarker.cpp
 accessibility/AXTextRun.cpp
 accessibility/AXTreeStore.cpp
-accessibility/AccessibilityARIAGridRow.cpp
 accessibility/AccessibilityAttachment.cpp
 accessibility/AccessibilityImageMapLink.cpp
 accessibility/AccessibilityLabel.cpp
