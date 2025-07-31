@@ -1697,28 +1697,7 @@
     "imported/w3c/web-platform-tests/content-security-policy/generic/no-default-src.sub.html": [
         "slow"
     ],
-    "imported/w3c/web-platform-tests/content-security-policy/navigate-to/child-navigates-parent-allowed.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/content-security-policy/navigate-to/link-click-allowed.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/content-security-policy/navigate-to/link-click-cross-origin-allowed.sub.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/content-security-policy/navigate-to/link-click-cross-origin-blocked.sub.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/content-security-policy/navigate-to/link-click-redirected-allowed.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/content-security-policy/navigate-to/link-click-redirected-blocked.sub.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/content-security-policy/object-src/object-src-2_1.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/content-security-policy/object-src/object-src-2_2.html": [
+    "imported/w3c/web-platform-tests/content-security-policy/inheritance/history-iframe.sub.html": [
         "slow"
     ],
     "imported/w3c/web-platform-tests/content-security-policy/report-hash/multiple-policies.https.sub.html": [
@@ -1734,6 +1713,9 @@
         "slow"
     ],
     "imported/w3c/web-platform-tests/content-security-policy/reporting/report-only-in-meta.sub.html": [
+        "slow"
+    ],
+    "imported/w3c/web-platform-tests/content-security-policy/resource-hints/prefetch-generate-directives.html": [
         "slow"
     ],
     "imported/w3c/web-platform-tests/content-security-policy/style-src/style-src-multiple-policies-multiple-hashing-algorithms.html": [
