@@ -2089,6 +2089,7 @@ public:
 
     DECLARE_INFO;
 
+private:
     WriteBarrier<JSPromise> m_promise;
     const Ref<Wasm::StreamingCompiler> m_streamingCompiler;
 };

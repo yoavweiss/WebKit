@@ -520,11 +520,12 @@ private:
 #endif
 
 protected:
-    DECLARE_VISIT_CHILDREN;
     static size_t estimatedSize(JSCell*, VM&);
 
 public:
     DECLARE_INFO;
+
+    DECLARE_VISIT_CHILDREN;
 };
 
 }

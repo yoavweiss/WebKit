@@ -40,6 +40,8 @@ struct ProtoCallFrame;
 class WebAssemblyInstance;
 
 class WebAssemblyFunction final : public WebAssemblyFunctionBase {
+    friend JSC::LLIntOffsetsExtractor;
+
 public:
     using Base = WebAssemblyFunctionBase;
 
@@ -55,6 +57,8 @@ public:
     }
 
     DECLARE_EXPORT_INFO;
+
+    DECLARE_VISIT_CHILDREN;
 
     JS_EXPORT_PRIVATE static WebAssemblyFunction* create(VM&, JSGlobalObject*, Structure*, unsigned, const String&, JSWebAssemblyInstance*, Wasm::JSEntrypointCallee& jsEntrypoint, Wasm::Callee& wasmCallee, WasmToWasmImportableFunction::LoadLocation, Wasm::TypeIndex, RefPtr<const Wasm::RTT>&&);
     static Structure* createStructure(VM&, JSGlobalObject*, JSValue);
@@ -89,7 +93,6 @@ public:
     static constexpr ptrdiff_t offsetOfFrameSize() { return OBJECT_OFFSETOF(WebAssemblyFunction, m_frameSize); }
 
 private:
-    DECLARE_VISIT_CHILDREN;
     WebAssemblyFunction(VM&, NativeExecutable*, JSGlobalObject*, Structure*, JSWebAssemblyInstance*, Wasm::JSEntrypointCallee& jsEntrypoint, Wasm::Callee& wasmCallee, WasmToWasmImportableFunction::LoadLocation entrypointLoadLocation, Wasm::TypeIndex, RefPtr<const Wasm::RTT>&&);
 
     CodePtr<JSEntryPtrTag> jsCallEntrypointSlow();

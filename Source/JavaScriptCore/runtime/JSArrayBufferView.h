@@ -254,8 +254,6 @@ protected:
     
     JS_EXPORT_PRIVATE JSArrayBufferView(VM&, ConstructionContext&);
     JS_EXPORT_PRIVATE void finishCreation(VM&);
-
-    DECLARE_VISIT_CHILDREN;
     
 public:
     TypedArrayMode mode() const { return m_mode; }
@@ -344,6 +342,8 @@ public:
     }
 
     DECLARE_EXPORT_INFO;
+
+    DECLARE_VISIT_CHILDREN;
     
     static constexpr ptrdiff_t offsetOfVector() { return OBJECT_OFFSETOF(JSArrayBufferView, m_vector); }
     static constexpr ptrdiff_t offsetOfLength() { return OBJECT_OFFSETOF(JSArrayBufferView, m_length); }
