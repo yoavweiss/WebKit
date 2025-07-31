@@ -898,7 +898,8 @@ end
     loadp JSWebAssemblyInstance::m_vm[wasmInstance], a0
     copyCalleeSavesToVMEntryFrameCalleeSavesBuffer(a0, a1)
 
-if ASSERT_ENABLED
+# Should be (not USE_BUILTIN_FRAME_ADDRESS) but need to keep down the size of LLIntAssembly.h
+if ASSERT_ENABLED or ARMv7
     storep cfr, JSWebAssemblyInstance::m_temporaryCallFrame[wasmInstance]
 end
 
@@ -1028,7 +1029,7 @@ else
     end)
 end
 
-if ASSERT_ENABLED
+if ASSERT_ENABLED or ARMv7
     storep cfr, JSWebAssemblyInstance::m_temporaryCallFrame[wasmInstance]
 end
 
@@ -1170,7 +1171,7 @@ end
     loadp JSWebAssemblyInstance::m_vm[wasmInstance], a0
     copyCalleeSavesToVMEntryFrameCalleeSavesBuffer(a0, a1)
 
-if ASSERT_ENABLED
+if ASSERT_ENABLED or ARMv7
     storep cfr, JSWebAssemblyInstance::m_temporaryCallFrame[wasmInstance]
 end
 
