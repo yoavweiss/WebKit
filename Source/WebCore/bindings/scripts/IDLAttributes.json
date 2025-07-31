@@ -425,6 +425,13 @@
             "contextsAllowed": ["attribute"],
             "values": ["*"]
         },
+        "ReflectURL": {
+            "contextsAllowed": ["attribute"],
+            "values": ["*"],
+            "standard": {
+                "url": "https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#xattr-reflecturl"
+            }
+        },
         "ReflectSetter": {
             "contextsAllowed": ["attribute"],
             "values": ["*"],

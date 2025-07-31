@@ -109,12 +109,12 @@ enum TestConfidence { "high", "kinda-low" };
     [Reflect] attribute boolean reflectedBooleanAttr;
     [Reflect] attribute Element reflectedElementAttr;
     [Reflect] attribute FrozenArray<Element> reflectedElementsArrayAttr;
-    [Reflect, URL] attribute DOMString reflectedURLAttr;
-    [Reflect, URL] attribute USVString reflectedUSVURLAttr;
+    [ReflectURL] attribute DOMString reflectedURLAttr;
+    [ReflectURL] attribute USVString reflectedUSVURLAttr;
     [Reflect=customContentStringAttr] attribute DOMString reflectedStringAttr;
     [Reflect=customContentIntegralAttr] attribute long reflectedCustomIntegralAttr;
     [Reflect=customContentBooleanAttr] attribute boolean reflectedCustomBooleanAttr;
-    [Reflect=customContentURLAttr, URL] attribute DOMString reflectedCustomURLAttr;
+    [ReflectURL="customContentURLAttr"] attribute DOMString reflectedCustomURLAttr;
 
     // Reflected for setter only DOM attributes
     [ReflectSetter] attribute DOMString reflectedSetterStringAttr;
@@ -124,12 +124,9 @@ enum TestConfidence { "high", "kinda-low" };
     [ReflectSetter] attribute boolean reflectedSetterBooleanAttr;
     [ReflectSetter] attribute Element reflectedSetterElementAttr;
     [ReflectSetter] attribute FrozenArray<Element> reflectedSetterElementsArrayAttr;
-    [ReflectSetter, URL] attribute DOMString reflectedSetterURLAttr;
-    [ReflectSetter, URL] attribute USVString reflectedSetterUSVURLAttr;
     [ReflectSetter=customContentStringAttr] attribute DOMString reflectedSetterStringAttr;
     [ReflectSetter=customContentIntegralAttr] attribute long reflectedSetterCustomIntegralAttr;
     [ReflectSetter=customContentBooleanAttr] attribute boolean reflectedSetterCustomBooleanAttr;
-    [ReflectSetter=customContentURLAttr, URL] attribute DOMString reflectedSetterCustomURLAttr;
 
     // [EnabledByDeprecatedGlobalSetting] attributes and operations.
     [Conditional=TEST_FEATURE, EnabledByDeprecatedGlobalSetting=TestFeatureEnabled&TestFeature1Enabled] attribute DOMString enabledAtRuntimeAttribute;

@@ -1113,10 +1113,13 @@ sub ContentAttributeName
     my ($generator, $implIncludes, $interfaceName, $attribute, $getterOrSetter) = @_;
 
     my $reflect = $attribute->extendedAttributes->{Reflect};
+    my $reflectURL = $attribute->extendedAttributes->{ReflectURL};
     my $reflectSetter = $attribute->extendedAttributes->{ReflectSetter};
+    die "Do not use both [ReflectURL] and [Reflect] on the same attribute" if $reflectURL && $reflect;
+    die "Do not use both [ReflectURL] and [ReflectSetter] on the same attribute" if $reflectURL && $reflectSetter;
     die "Do not use both [Reflect] and [ReflectSetter] on the same attribute" if $reflect && $reflectSetter;
 
-    my $contentAttributeName = ($getterOrSetter eq "setter" ? $reflect || $reflectSetter : $reflect);
+    my $contentAttributeName = ($getterOrSetter eq "setter" ? $reflect || UnquoteStringLiteral($reflectURL) || $reflectSetter : $reflect || UnquoteStringLiteral($reflectURL));
     return undef if !$contentAttributeName;
 
     $contentAttributeName = lc $attribute->name if $contentAttributeName eq "VALUE_IS_MISSING";
@@ -1125,6 +1128,18 @@ sub ContentAttributeName
 
     $implIncludes->{"${namespace}.h"} = 1;
     return "WebCore::${namespace}::${contentAttributeName}Attr";
+}
+
+sub UnquoteStringLiteral
+{
+    my ($s) = @_;
+    return $s if !$s;
+    return $s if length($s) < 2;
+    if (substr($s, 0, 1) ne '"' && substr($s, 0, 1) ne "'") {
+        die "Identifier '$s' should be a string literal" if $s ne "VALUE_IS_MISSING";
+        return $s;
+    }
+    return substr($s, 1, -1);
 }
 
 sub GetterExpression
@@ -1140,7 +1155,7 @@ sub GetterExpression
     my $attributeType = $attribute->type;
 
     my $functionName;
-    if ($attribute->extendedAttributes->{"URL"}) {
+    if ($attribute->extendedAttributes->{ReflectURL}) {
         $implIncludes->{"ElementInlines.h"} = 1;
         $functionName = "getURLAttributeForBindings";
     } elsif ($attributeType->name eq "boolean") {

@@ -51,7 +51,7 @@ typedef (
     readonly attribute MediaError? error;
 
     // network state
-    [CEReactions=NotNeeded, Reflect, URL] attribute USVString src;
+    [CEReactions=NotNeeded, ReflectURL] attribute USVString src;
     attribute MediaProvider? srcObject;
     [URL] readonly attribute USVString currentSrc;
     [CEReactions=NotNeeded, ReflectSetter] attribute [AtomString] DOMString? crossOrigin;

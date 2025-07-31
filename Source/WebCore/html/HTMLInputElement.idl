@@ -71,7 +71,7 @@ enum AutofillButtonType {
     [CEReactions=NotNeeded, Reflect] attribute boolean readOnly;
     [CEReactions=NotNeeded, Reflect] attribute boolean required;
     [CEReactions=NotNeeded] attribute unsigned long size;
-    [CEReactions=NotNeeded, Reflect, URL] attribute USVString src;
+    [CEReactions=NotNeeded, ReflectURL] attribute USVString src;
     [CEReactions=NotNeeded, Reflect] attribute DOMString step;
     [EnabledBySetting=SwitchControlEnabled, CEReactions=NotNeeded, Reflect] attribute boolean switch;
     [CEReactions=NotNeeded, ReflectSetter] attribute [AtomString] DOMString type;
