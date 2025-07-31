@@ -359,6 +359,7 @@ template<typename> struct Shadows;
 using BorderRadiusValue = MinimallySerializingSpaceSeparatedSize<LengthPercentage<CSS::Nonnegative>>;
 using BoxShadows = Shadows<BoxShadow>;
 using InsetBox = MinimallySerializingSpaceSeparatedRectEdges<InsetEdge>;
+using LineWidthBox = MinimallySerializingSpaceSeparatedRectEdges<LineWidth>;
 using MarginBox = MinimallySerializingSpaceSeparatedRectEdges<MarginEdge>;
 using ObjectPosition = Position;
 using PaddingBox = MinimallySerializingSpaceSeparatedRectEdges<PaddingEdge>;
@@ -612,28 +613,28 @@ public:
     inline bool hasExplicitlySetBorderTopRightRadius() const;
     inline bool hasExplicitlySetBorderRadius() const;
 
-    inline float borderLeftWidth() const;
+    inline Style::LineWidth borderLeftWidth() const;
     inline BorderStyle borderLeftStyle() const;
     inline bool borderLeftIsTransparent() const;
-    inline float borderRightWidth() const;
+    inline Style::LineWidth borderRightWidth() const;
     inline BorderStyle borderRightStyle() const;
     inline bool borderRightIsTransparent() const;
-    inline float borderTopWidth() const;
+    inline Style::LineWidth borderTopWidth() const;
     inline BorderStyle borderTopStyle() const;
     inline bool borderTopIsTransparent() const;
-    inline float borderBottomWidth() const;
+    inline Style::LineWidth borderBottomWidth() const;
     inline BorderStyle borderBottomStyle() const;
     inline bool borderBottomIsTransparent() const;
-    inline FloatBoxExtent borderWidth() const;
+    inline Style::LineWidthBox borderWidth() const;
 
-    float borderBeforeWidth(const WritingMode) const;
-    float borderAfterWidth(const WritingMode) const;
-    float borderStartWidth(const WritingMode) const;
-    float borderEndWidth(const WritingMode) const;
-    float borderBeforeWidth() const { return borderBeforeWidth(writingMode()); }
-    float borderAfterWidth() const { return borderAfterWidth(writingMode()); }
-    float borderStartWidth() const { return borderStartWidth(writingMode()); }
-    float borderEndWidth() const { return borderEndWidth(writingMode()); }
+    Style::LineWidth borderBeforeWidth(const WritingMode) const;
+    Style::LineWidth borderAfterWidth(const WritingMode) const;
+    Style::LineWidth borderStartWidth(const WritingMode) const;
+    Style::LineWidth borderEndWidth(const WritingMode) const;
+    inline Style::LineWidth borderBeforeWidth() const;
+    inline Style::LineWidth borderAfterWidth() const;
+    inline Style::LineWidth borderStartWidth() const;
+    inline Style::LineWidth borderEndWidth() const;
 
     inline bool borderIsEquivalentForPainting(const RenderStyle&) const;
 
@@ -973,7 +974,7 @@ public:
     inline bool specifiesColumns() const;
     inline ColumnFill columnFill() const;
     inline BorderStyle columnRuleStyle() const;
-    inline unsigned short columnRuleWidth() const;
+    inline Style::LineWidth columnRuleWidth() const;
     inline bool columnRuleIsTransparent() const;
     inline ColumnSpan columnSpan() const;
     inline bool columnSpanEqual(const RenderStyle&) const;
@@ -1308,16 +1309,16 @@ public:
     inline void setHasExplicitlySetBorderTopLeftRadius(bool);
     inline void setHasExplicitlySetBorderTopRightRadius(bool);
 
-    inline void setBorderLeftWidth(float);
+    inline void setBorderLeftWidth(Style::LineWidth);
     inline void setBorderLeftStyle(BorderStyle);
     inline void setBorderLeftColor(Style::Color&&);
-    inline void setBorderRightWidth(float);
+    inline void setBorderRightWidth(Style::LineWidth);
     inline void setBorderRightStyle(BorderStyle);
     inline void setBorderRightColor(Style::Color&&);
-    inline void setBorderTopWidth(float);
+    inline void setBorderTopWidth(Style::LineWidth);
     inline void setBorderTopStyle(BorderStyle);
     inline void setBorderTopColor(Style::Color&&);
-    inline void setBorderBottomWidth(float);
+    inline void setBorderBottomWidth(Style::LineWidth);
     inline void setBorderBottomStyle(BorderStyle);
     inline void setBorderBottomColor(Style::Color&&);
 
@@ -1586,7 +1587,7 @@ public:
     inline void setRowGap(Style::GapGutter&&);
     inline void setColumnRuleColor(Style::Color&&);
     inline void setColumnRuleStyle(BorderStyle);
-    inline void setColumnRuleWidth(unsigned short);
+    inline void setColumnRuleWidth(Style::LineWidth);
     inline void resetColumnRule();
     inline void setColumnSpan(ColumnSpan);
     inline void inheritColumnPropertiesFrom(const RenderStyle& parent);
@@ -1986,8 +1987,8 @@ public:
     static inline Style::Color initialTextStrokeColor();
     static inline Style::Color initialTextDecorationColor();
     static StyleImage* initialListStyleImage() { return 0; }
-    static float initialBorderWidth() { return 3; }
-    static unsigned short initialColumnRuleWidth() { return 3; }
+    static constexpr Style::LineWidth initialBorderWidth();
+    static constexpr Style::LineWidth initialColumnRuleWidth();
     static constexpr Style::LineWidth initialOutlineWidth();
     static inline Length initialLetterSpacing();
     static inline Length initialWordSpacing();

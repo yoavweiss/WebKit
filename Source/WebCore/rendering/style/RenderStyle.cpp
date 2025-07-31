@@ -2969,7 +2969,7 @@ const BorderValue& RenderStyle::borderEnd(const WritingMode writingMode) const
     return writingMode.isInlineTopToBottom() ? borderBottom() : borderTop();
 }
 
-float RenderStyle::borderBeforeWidth(const WritingMode writingMode) const
+Style::LineWidth RenderStyle::borderBeforeWidth(const WritingMode writingMode) const
 {
     switch (writingMode.blockDirection()) {
     case FlowDirection::TopToBottom:
@@ -2985,7 +2985,7 @@ float RenderStyle::borderBeforeWidth(const WritingMode writingMode) const
     return borderTopWidth();
 }
 
-float RenderStyle::borderAfterWidth(const WritingMode writingMode) const
+Style::LineWidth RenderStyle::borderAfterWidth(const WritingMode writingMode) const
 {
     switch (writingMode.blockDirection()) {
     case FlowDirection::TopToBottom:
@@ -3001,14 +3001,14 @@ float RenderStyle::borderAfterWidth(const WritingMode writingMode) const
     return borderBottomWidth();
 }
 
-float RenderStyle::borderStartWidth(const WritingMode writingMode) const
+Style::LineWidth RenderStyle::borderStartWidth(const WritingMode writingMode) const
 {
     if (writingMode.isHorizontal())
         return writingMode.isInlineLeftToRight() ? borderLeftWidth() : borderRightWidth();
     return writingMode.isInlineTopToBottom() ? borderTopWidth() : borderBottomWidth();
 }
 
-float RenderStyle::borderEndWidth(const WritingMode writingMode) const
+Style::LineWidth RenderStyle::borderEndWidth(const WritingMode writingMode) const
 {
     if (writingMode.isHorizontal())
         return writingMode.isInlineLeftToRight() ? borderRightWidth() : borderLeftWidth();
@@ -3150,10 +3150,10 @@ String RenderStyle::altFromContent() const
 LayoutBoxExtent RenderStyle::imageOutsets(const NinePieceImage& image) const
 {
     return {
-        NinePieceImage::computeOutset(image.outset().top(), LayoutUnit(borderTopWidth())),
-        NinePieceImage::computeOutset(image.outset().right(), LayoutUnit(borderRightWidth())),
-        NinePieceImage::computeOutset(image.outset().bottom(), LayoutUnit(borderBottomWidth())),
-        NinePieceImage::computeOutset(image.outset().left(), LayoutUnit(borderLeftWidth()))
+        NinePieceImage::computeOutset(image.outset().top(), LayoutUnit(Style::evaluate(borderTopWidth()))),
+        NinePieceImage::computeOutset(image.outset().right(), LayoutUnit(Style::evaluate(borderRightWidth()))),
+        NinePieceImage::computeOutset(image.outset().bottom(), LayoutUnit(Style::evaluate(borderBottomWidth()))),
+        NinePieceImage::computeOutset(image.outset().left(), LayoutUnit(Style::evaluate(borderLeftWidth())))
     };
 }
 

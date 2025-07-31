@@ -100,19 +100,19 @@ inline void RenderStyle::setBorderBottomColor(Style::Color&& value) { SET_NESTED
 inline void RenderStyle::setBorderBottomLeftRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomLeft(), WTFMove(size)); }
 inline void RenderStyle::setBorderBottomRightRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomRight(), WTFMove(size)); }
 inline void RenderStyle::setBorderBottomStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.bottom().m_style, static_cast<unsigned>(value)); }
-inline void RenderStyle::setBorderBottomWidth(float value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.bottom().m_width, value); }
+inline void RenderStyle::setBorderBottomWidth(Style::LineWidth value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.bottom().m_width, value); }
 inline void RenderStyle::setBorderImage(const NinePieceImage& image) { SET_NESTED(m_nonInheritedData, surroundData, border.m_image, image); }
 inline void RenderStyle::setBorderLeftColor(Style::Color&& value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_color, WTFMove(value)); }
 inline void RenderStyle::setBorderLeftStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_style, static_cast<unsigned>(value)); }
-inline void RenderStyle::setBorderLeftWidth(float value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_width, value); }
+inline void RenderStyle::setBorderLeftWidth(Style::LineWidth value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_width, value); }
 inline void RenderStyle::setBorderRightColor(Style::Color&& value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.right().m_color, WTFMove(value)); }
 inline void RenderStyle::setBorderRightStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.right().m_style, static_cast<unsigned>(value)); }
-inline void RenderStyle::setBorderRightWidth(float value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.right().m_width, value); }
+inline void RenderStyle::setBorderRightWidth(Style::LineWidth value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.right().m_width, value); }
 inline void RenderStyle::setBorderTopColor(Style::Color&& value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.top().m_color, WTFMove(value)); }
 inline void RenderStyle::setBorderTopLeftRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.topLeft(), WTFMove(size)); }
 inline void RenderStyle::setBorderTopRightRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.topRight(), WTFMove(size)); }
 inline void RenderStyle::setBorderTopStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.top().m_style, static_cast<unsigned>(value)); }
-inline void RenderStyle::setBorderTopWidth(float value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.top().m_width, value); }
+inline void RenderStyle::setBorderTopWidth(Style::LineWidth value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.top().m_width, value); }
 inline void RenderStyle::setBorderHorizontalSpacing(Style::WebkitBorderSpacing borderSpacing) { SET(m_inheritedData, borderHorizontalSpacing, borderSpacing); }
 inline void RenderStyle::setBorderVerticalSpacing(Style::WebkitBorderSpacing borderSpacing) { SET(m_inheritedData, borderVerticalSpacing, borderSpacing); }
 inline void RenderStyle::setBottom(Style::InsetEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, inset.bottom(), WTFMove(edge)); }
@@ -138,7 +138,7 @@ inline void RenderStyle::setColumnGap(Style::GapGutter&& gap) { SET_NESTED(m_non
 inline void RenderStyle::setColumnProgression(ColumnProgression progression) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, progression, static_cast<unsigned>(progression)); }
 inline void RenderStyle::setColumnRuleColor(Style::Color&& c) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, rule.m_color, c); }
 inline void RenderStyle::setColumnRuleStyle(BorderStyle b) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, rule.m_style, static_cast<unsigned>(b)); }
-inline void RenderStyle::setColumnRuleWidth(unsigned short w) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, rule.m_width, w); }
+inline void RenderStyle::setColumnRuleWidth(Style::LineWidth width) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, rule.m_width, width); }
 inline void RenderStyle::setColumnSpan(ColumnSpan span) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, columnSpan, static_cast<unsigned>(span)); }
 inline void RenderStyle::setColumnWidth(float width) { SET_DOUBLY_NESTED_PAIR(m_nonInheritedData, miscData, multiCol, width, width, autoWidth, false); }
 inline void RenderStyle::setContain(OptionSet<Containment> containment) { SET_NESTED(m_nonInheritedData, rareData, contain, containment); }

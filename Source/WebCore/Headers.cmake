@@ -2838,6 +2838,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/primitives/StylePrimitiveNumericAdaptors.h
     style/values/primitives/StylePrimitiveNumericConcepts.h
     style/values/primitives/StylePrimitiveNumericOrKeyword.h
+    style/values/primitives/StylePrimitiveNumericTypes+Calculation.h
+    style/values/primitives/StylePrimitiveNumericTypes+Evaluation.h
     style/values/primitives/StylePrimitiveNumericTypes+Platform.h
     style/values/primitives/StylePrimitiveNumericTypes.h
     style/values/primitives/StyleRatio.h

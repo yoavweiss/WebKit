@@ -2772,10 +2772,9 @@
                     "resolver": "bottom"
                 },
                 "accepts-quirky-length": true,
-                "animation-wrapper": "FloatWrapper",
-                "animation-wrapper-requires-additional-parameters": ["FloatWrapper::ValueRange::NonNegative"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialBorderWidth",
-                "style-converter": "LineWidth<float>",
+                "style-converter": "StyleType<LineWidth>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<line-width>"
             },
@@ -3309,10 +3308,9 @@
                     "resolver": "left"
                 },
                 "accepts-quirky-length": true,
-                "animation-wrapper": "FloatWrapper",
-                "animation-wrapper-requires-additional-parameters": ["FloatWrapper::ValueRange::NonNegative"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialBorderWidth",
-                "style-converter": "LineWidth<float>",
+                "style-converter": "StyleType<LineWidth>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<line-width>"
             },
@@ -3418,10 +3416,9 @@
                     "resolver": "right"
                 },
                 "accepts-quirky-length": true,
-                "animation-wrapper": "FloatWrapper",
-                "animation-wrapper-requires-additional-parameters": ["FloatWrapper::ValueRange::NonNegative"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialBorderWidth",
-                "style-converter": "LineWidth<float>",
+                "style-converter": "StyleType<LineWidth>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<line-width>"
             },
@@ -3626,10 +3623,9 @@
                     "resolver": "top"
                 },
                 "accepts-quirky-length": true,
-                "animation-wrapper": "FloatWrapper",
-                "animation-wrapper-requires-additional-parameters": ["FloatWrapper::ValueRange::NonNegative"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "render-style-initial": "initialBorderWidth",
-                "style-converter": "LineWidth<float>",
+                "style-converter": "StyleType<LineWidth>",
                 "disables-native-appearance": true,
                 "parser-grammar": "<line-width>"
             },
@@ -9276,8 +9272,8 @@
                 "aliases": [
                     "-webkit-column-rule-width"
                 ],
-                "animation-wrapper": "Wrapper",
-                "style-converter": "LineWidth<unsigned short>",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<LineWidth>",
                 "parser-grammar": "<line-width>"
             },
             "specification":  {

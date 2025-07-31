@@ -112,13 +112,16 @@ inline BlockStepInsert RenderStyle::blockStepInsert() const { return static_cast
 inline BlockStepRound RenderStyle::blockStepRound() const { return static_cast<BlockStepRound>(m_nonInheritedData->rareData->blockStepRound); }
 inline const Style::BlockStepSize& RenderStyle::blockStepSize() const { return m_nonInheritedData->rareData->blockStepSize; }
 inline const BorderData& RenderStyle::border() const { return m_nonInheritedData->surroundData->border; }
+inline Style::LineWidth RenderStyle::borderAfterWidth() const { return borderAfterWidth(writingMode()); }
+inline Style::LineWidth RenderStyle::borderBeforeWidth() const { return borderBeforeWidth(writingMode()); }
 inline const BorderValue& RenderStyle::borderBottom() const { return border().bottom(); }
 inline const Style::Color& RenderStyle::borderBottomColor() const { return border().bottom().color(); }
 inline bool RenderStyle::borderBottomIsTransparent() const { return border().bottom().isTransparent(); }
 inline const Style::BorderRadiusValue& RenderStyle::borderBottomLeftRadius() const { return border().bottomLeftRadius(); }
 inline const Style::BorderRadiusValue& RenderStyle::borderBottomRightRadius() const { return border().bottomRightRadius(); }
 inline BorderStyle RenderStyle::borderBottomStyle() const { return border().bottom().style(); }
-inline float RenderStyle::borderBottomWidth() const { return border().borderBottomWidth(); }
+inline Style::LineWidth RenderStyle::borderBottomWidth() const { return border().borderBottomWidth(); }
+inline Style::LineWidth RenderStyle::borderEndWidth() const { return borderEndWidth(writingMode()); }
 inline const NinePieceImage& RenderStyle::borderImage() const { return border().image(); }
 inline NinePieceImageRule RenderStyle::borderImageHorizontalRule() const { return border().image().horizontalRule(); }
 inline const LengthBox& RenderStyle::borderImageOutset() const { return border().image().outset(); }
@@ -131,21 +134,22 @@ inline const BorderValue& RenderStyle::borderLeft() const { return border().left
 inline const Style::Color& RenderStyle::borderLeftColor() const { return border().left().color(); }
 inline bool RenderStyle::borderLeftIsTransparent() const { return border().left().isTransparent(); }
 inline BorderStyle RenderStyle::borderLeftStyle() const { return border().left().style(); }
-inline float RenderStyle::borderLeftWidth() const { return border().borderLeftWidth(); }
+inline Style::LineWidth RenderStyle::borderLeftWidth() const { return border().borderLeftWidth(); }
 inline const Style::BorderRadius& RenderStyle::borderRadii() const { return border().radii(); }
 inline const BorderValue& RenderStyle::borderRight() const { return border().right(); }
 inline const Style::Color& RenderStyle::borderRightColor() const { return border().right().color(); }
 inline bool RenderStyle::borderRightIsTransparent() const { return border().right().isTransparent(); }
 inline BorderStyle RenderStyle::borderRightStyle() const { return border().right().style(); }
-inline float RenderStyle::borderRightWidth() const { return border().borderRightWidth(); }
+inline Style::LineWidth RenderStyle::borderRightWidth() const { return border().borderRightWidth(); }
+inline Style::LineWidth RenderStyle::borderStartWidth() const { return borderStartWidth(writingMode()); }
 inline const BorderValue& RenderStyle::borderTop() const { return border().top(); }
 inline const Style::Color& RenderStyle::borderTopColor() const { return border().top().color(); }
 inline bool RenderStyle::borderTopIsTransparent() const { return border().top().isTransparent(); }
 inline const Style::BorderRadiusValue& RenderStyle::borderTopLeftRadius() const { return border().topLeftRadius(); }
 inline const Style::BorderRadiusValue& RenderStyle::borderTopRightRadius() const { return border().topRightRadius(); }
 inline BorderStyle RenderStyle::borderTopStyle() const { return border().top().style(); }
-inline float RenderStyle::borderTopWidth() const { return border().borderTopWidth(); }
-inline FloatBoxExtent RenderStyle::borderWidth() const { return border().borderWidth(); }
+inline Style::LineWidth RenderStyle::borderTopWidth() const { return border().borderTopWidth(); }
+inline Style::LineWidthBox RenderStyle::borderWidth() const { return border().borderWidth(); }
 inline Style::WebkitBorderSpacing RenderStyle::borderHorizontalSpacing() const { return m_inheritedData->borderHorizontalSpacing; }
 inline Style::WebkitBorderSpacing RenderStyle::borderVerticalSpacing() const { return m_inheritedData->borderVerticalSpacing; }
 inline const Style::InsetEdge& RenderStyle::bottom() const { return m_nonInheritedData->surroundData->inset.bottom(); }
@@ -177,7 +181,7 @@ inline ColumnProgression RenderStyle::columnProgression() const { return static_
 inline const Style::Color& RenderStyle::columnRuleColor() const { return m_nonInheritedData->miscData->multiCol->rule.color(); }
 inline bool RenderStyle::columnRuleIsTransparent() const { return m_nonInheritedData->miscData->multiCol->rule.isTransparent(); }
 inline BorderStyle RenderStyle::columnRuleStyle() const { return m_nonInheritedData->miscData->multiCol->rule.style(); }
-inline unsigned short RenderStyle::columnRuleWidth() const { return m_nonInheritedData->miscData->multiCol->ruleWidth(); }
+inline Style::LineWidth RenderStyle::columnRuleWidth() const { return m_nonInheritedData->miscData->multiCol->ruleWidth(); }
 inline ColumnSpan RenderStyle::columnSpan() const { return static_cast<ColumnSpan>(m_nonInheritedData->miscData->multiCol->columnSpan); }
 inline float RenderStyle::columnWidth() const { return m_nonInheritedData->miscData->multiCol->width; }
 inline const AtomString& RenderStyle::computedLocale() const { return fontDescription().computedLocale(); }
@@ -351,6 +355,7 @@ constexpr Style::Length<CSS::Nonnegative> RenderStyle::initialBorderHorizontalSp
 inline Style::BorderRadiusValue RenderStyle::initialBorderRadius() { return { 0_css_px, 0_css_px }; }
 constexpr BorderStyle RenderStyle::initialBorderStyle() { return BorderStyle::None; }
 constexpr Style::Length<CSS::Nonnegative> RenderStyle::initialBorderVerticalSpacing() { return 0_css_px; }
+constexpr Style::LineWidth RenderStyle::initialBorderWidth() { return CSS::Keyword::Medium { }; }
 constexpr BoxAlignment RenderStyle::initialBoxAlign() { return BoxAlignment::Stretch; }
 constexpr BoxDecorationBreak RenderStyle::initialBoxDecorationBreak() { return BoxDecorationBreak::Slice; }
 constexpr BoxDirection RenderStyle::initialBoxDirection() { return BoxDirection::Normal; }
@@ -371,6 +376,7 @@ constexpr ColumnAxis RenderStyle::initialColumnAxis() { return ColumnAxis::Auto;
 constexpr ColumnFill RenderStyle::initialColumnFill() { return ColumnFill::Balance; }
 inline Style::GapGutter RenderStyle::initialColumnGap() { return CSS::Keyword::Normal { }; }
 constexpr ColumnProgression RenderStyle::initialColumnProgression() { return ColumnProgression::Normal; }
+constexpr Style::LineWidth RenderStyle::initialColumnRuleWidth() { return CSS::Keyword::Medium { }; }
 constexpr ColumnSpan RenderStyle::initialColumnSpan() { return ColumnSpan::None; }
 inline Style::ContainIntrinsicSize RenderStyle::initialContainIntrinsicHeight() { return CSS::Keyword::None { }; }
 inline Style::ContainIntrinsicSize RenderStyle::initialContainIntrinsicWidth() { return CSS::Keyword::None { }; }
