@@ -35,12 +35,10 @@
 
 namespace WebCore {
 class SecurityOriginData;
-class SerializedScriptValue;
 }
 
 namespace API {
 class ContentWorld;
-class SerializedScriptValue;
 }
 
 namespace WebKit {

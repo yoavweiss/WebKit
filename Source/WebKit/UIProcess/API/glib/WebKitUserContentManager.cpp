@@ -291,7 +291,7 @@ struct _WebKitScriptMessageReply {
 
     void sendValue(JSCValue* value)
     {
-        if (auto result = JavaScriptEvaluationResult::extract(jscContextGetJSContext(API::SerializedScriptValue::sharedJSCContext()), jscValueGetJSValue(value)))
+        if (auto result = JavaScriptEvaluationResult::extract(API::SerializedScriptValue::deserializationContext().get(), jscValueGetJSValue(value)))
             return completionHandler(WTFMove(*result));
         completionHandler(makeUnexpected(String()));
     }
@@ -304,7 +304,7 @@ struct _WebKitScriptMessageReply {
     ~_WebKitScriptMessageReply()
     {
         if (completionHandler) {
-            auto value = adoptGRef(jsc_value_new_undefined(API::SerializedScriptValue::sharedJSCContext()));
+            auto value = adoptGRef(jsc_value_new_undefined(jscContextGetOrCreate(API::SerializedScriptValue::deserializationContext().get()).get()));
             sendValue(value.get());
         }
     }

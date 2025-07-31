@@ -37,9 +37,9 @@ namespace WebKit {
 
 GRefPtr<JSCValue> JavaScriptEvaluationResult::toJSC()
 {
-    auto context = API::SerializedScriptValue::sharedJSCContext();
-    auto js = this->toJS(jscContextGetJSContext(context));
-    return jscContextGetOrCreateValue(context, js.get());
+    auto context = API::SerializedScriptValue::deserializationContext();
+    auto js = this->toJS(context.get());
+    return jscContextGetOrCreateValue(jscContextGetOrCreate(context.get()).get(), js.get());
 }
 
 JSObjectID JavaScriptEvaluationResult::addObjectToMap(GVariant* variant)

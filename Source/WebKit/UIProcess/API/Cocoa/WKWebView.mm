@@ -179,6 +179,7 @@
 #import <WebCore/TextManipulationItem.h>
 #import <WebCore/ViewportArguments.h>
 #import <WebCore/WebCoreObjCExtras.h>
+#import <WebCore/WebCorePersistentCoders.h>
 #import <WebCore/WebViewVisualIdentificationOverlay.h>
 #import <WebCore/WritingMode.h>
 #import <wtf/BlockPtr.h>
@@ -2991,22 +2992,7 @@ static _WKSelectionAttributes selectionAttributes(const WebKit::EditorState& edi
 #endif // PLATFORM(VISION)
 #endif // ENABLE(GAMEPAD)
 
-- (_WKRectEdge)_fixedContainerEdges
-{
-    // FIXME: Remove once it's no longer required to maintain binary compatibility with internal clients.
-    _WKRectEdge edges = _WKRectEdgeNone;
-    if (_fixedContainerEdges.hasFixedEdge(WebCore::BoxSide::Bottom))
-        edges |= _WKRectEdgeBottom;
-    if (_fixedContainerEdges.hasFixedEdge(WebCore::BoxSide::Left))
-        edges |= _WKRectEdgeLeft;
-    if (_fixedContainerEdges.hasFixedEdge(WebCore::BoxSide::Right))
-        edges |= _WKRectEdgeRight;
-    if (_fixedContainerEdges.hasFixedEdge(WebCore::BoxSide::Top))
-        edges |= _WKRectEdgeTop;
-    return edges;
-}
-
-static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContainerEdges& edges, WebCore::BoxSide side)
+WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContainerEdges& edges, WebCore::BoxSide side)
 {
     if (!edges.hasFixedEdge(side))
         return nil;
@@ -3014,24 +3000,9 @@ static WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::Fixe
     return cocoaColorOrNil(edges.predominantColor(side)).autorelease();
 }
 
-- (WebCore::CocoaColor *)_sampledBottomFixedPositionContentColor
-{
-    return sampledFixedPositionContentColor(_fixedContainerEdges, WebCore::BoxSide::Bottom);
-}
-
-- (WebCore::CocoaColor *)_sampledLeftFixedPositionContentColor
-{
-    return sampledFixedPositionContentColor(_fixedContainerEdges, WebCore::BoxSide::Left);
-}
-
 - (WebCore::CocoaColor *)_sampledTopFixedPositionContentColor
 {
     return sampledFixedPositionContentColor(_fixedContainerEdges, WebCore::BoxSide::Top);
-}
-
-- (WebCore::CocoaColor *)_sampledRightFixedPositionContentColor
-{
-    return sampledFixedPositionContentColor(_fixedContainerEdges, WebCore::BoxSide::Right);
 }
 
 - (void)_updateScrollGeometryWithContentOffset:(CGPoint)contentOffset contentSize:(CGSize)contentSize

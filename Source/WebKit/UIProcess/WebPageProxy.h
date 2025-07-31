@@ -64,7 +64,6 @@ class PageConfiguration;
 class PageLoadTiming;
 class PolicyClient;
 class ResourceLoadClient;
-class SerializedScriptValue;
 class TargetedElementInfo;
 class TargetedElementRequest;
 class TextRun;
