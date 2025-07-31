@@ -230,6 +230,9 @@ public:
     double initialScaleFactor() const { return m_initialScaleFactor; }
     void setInitialScaleFactor(double scale) { m_initialScaleFactor = scale; }
 
+    WebCore::InteractiveWidget viewportMetaTagInteractiveWidget() const { return m_viewportMetaTagInteractiveWidget; }
+    void setViewportMetaTagInteractiveWidget(WebCore::InteractiveWidget interactiveWidgetValue) { m_viewportMetaTagInteractiveWidget = interactiveWidgetValue; }
+
     double viewportMetaTagWidth() const { return m_viewportMetaTagWidth; }
     void setViewportMetaTagWidth(double width) { m_viewportMetaTagWidth = width; }
 
@@ -328,6 +331,7 @@ private:
     bool m_viewportMetaTagWidthWasExplicit { false };
     bool m_viewportMetaTagCameFromImageDocument { false };
     bool m_isInStableState { false };
+    WebCore::InteractiveWidget m_viewportMetaTagInteractiveWidget { WebCore::InteractiveWidget::ResizesVisual };
 
     std::optional<EditorState> m_editorState;
 #if PLATFORM(IOS_FAMILY)

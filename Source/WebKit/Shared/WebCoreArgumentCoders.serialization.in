@@ -863,6 +863,12 @@ enum class WebCore::ViewportFit : uint8_t {
     Cover,
 };
 
+enum class WebCore::InteractiveWidget : uint8_t {
+    ResizesVisual,
+    ResizesContent,
+    OverlaysContent
+};
+
 header: <WebCore/ShareData.h>
 [CustomHeader] struct WebCore::ShareDataWithParsedURL {
     WebCore::ShareData shareData;
@@ -2034,6 +2040,7 @@ struct WebCore::ViewportArguments {
     float shrinkToFit;
     WebCore::ViewportFit viewportFit;
     bool widthWasExplicit;
+    WebCore::InteractiveWidget interactiveWidget;
 };
 #endif // ENABLE(META_VIEWPORT)
 
