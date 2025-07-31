@@ -45,6 +45,7 @@
 #include "PlatformCAFilters.h"
 #include "PlatformCALayer.h"
 #include "PlatformCALayerCocoa.h"
+#include "PlatformLayer.h"
 #include "PlatformScreen.h"
 #include "Region.h"
 #include "RotateTransformOperation.h"
