@@ -1,4 +1,6 @@
-The green box should be a union of blue boxes, and the purple box should be at the right-bottom of the green box.
+The dashed aqua rectangle should encompass both yellow fragments, and the teal box should be at the bottom-right of the aqua box.
+
+The fuchsia rectangle should match the edge of the yellow box except where it's split across columns, and the purple box should be at the bottom-right of the fuchsia rectangle.
 
 
 PASS .target 1

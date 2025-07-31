@@ -7700,7 +7700,6 @@ imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-chained-fa
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-position-try-012.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-to-sticky-003.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-to-sticky-004.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-anchor-position/position-area-scroll-adjust.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/position-try-switch-to-fixed-anchor.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-add-no-overflow.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-anchors-visible-with-position.html [ ImageOnlyFailure ]
@@ -7713,9 +7712,18 @@ imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-no-o
 imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-no-overflow-scroll.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-no-overflow-stacked-child.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-remove-no-overflow.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/anchor-position-multicol-colspan-003.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-no-overflow-without-anchor.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/transform-001.tentative.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/transform-002.tentative.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/transform-003.tentative.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/transform-004.tentative.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/transform-006.tentative.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/transform-007.tentative.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-anchor-position/transform-008.tentative.html [ ImageOnlyFailure ]
 
 # timeouts
-imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-js-expose.html [ Skip ]
+imported/w3c/web-platform-tests/css/css-anchor-position/anchor-ident-function.html [ Skip ]
 
 # -- End: Anchor Positioning -- #
 
