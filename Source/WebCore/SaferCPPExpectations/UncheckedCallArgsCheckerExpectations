@@ -692,6 +692,7 @@ rendering/svg/SVGTextBoxPainter.cpp
 rendering/svg/SVGTextChunk.cpp
 rendering/svg/SVGTextLayoutEngine.cpp
 rendering/svg/SVGTextLayoutEngineBaseline.cpp
+rendering/svg/SVGTextLayoutEngineSpacing.cpp
 rendering/svg/SVGTextMetrics.cpp
 rendering/svg/SVGTextQuery.cpp
 rendering/svg/SVGVisitedRendererTracking.h

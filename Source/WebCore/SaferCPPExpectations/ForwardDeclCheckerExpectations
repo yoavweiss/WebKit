@@ -122,6 +122,7 @@ rendering/style/StyleCachedImage.cpp
 rendering/svg/SVGRenderingContext.h
 style/StyleExtractorState.h
 style/StyleScope.h
+style/values/primitives/StyleLengthWrapper.h
 testing/Internals.cpp
 workers/DedicatedWorkerThread.cpp
 workers/Worker.h
