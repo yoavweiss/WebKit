@@ -302,11 +302,6 @@ RenderBlock* RenderBoxModelObject::containingBlockForAutoHeightDetection(const S
 DecodingMode RenderBoxModelObject::decodingModeForImageDraw(const Image& image, const PaintInfo& paintInfo) const
 {
     // Some document types force synchronous decoding.
-#if PLATFORM(IOS_FAMILY)
-    if (WTF::IOSApplication::isIBooksStorytime())
-        return DecodingMode::Synchronous;
-#endif
-
     if (document().isImageDocument())
         return DecodingMode::Synchronous;
 

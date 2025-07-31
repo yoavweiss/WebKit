@@ -494,12 +494,6 @@ bool IOSApplication::isWebProcess()
     return isInWebProcess();
 }
 
-bool IOSApplication::isIBooksStorytime()
-{
-    static bool isIBooksStorytime = applicationBundleIsEqualTo("com.apple.TVBooks"_s);
-    return isIBooksStorytime;
-}
-
 bool IOSApplication::isHoYoLAB()
 {
     static bool isHoYoLAB = applicationBundleIsEqualTo("com.miHoYo.HoYoLAB"_s);
