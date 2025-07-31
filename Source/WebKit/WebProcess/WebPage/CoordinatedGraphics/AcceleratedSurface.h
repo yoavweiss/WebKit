@@ -84,7 +84,6 @@ public:
 public:
     uint64_t window() const;
     uint64_t surfaceID() const;
-    bool resize(const WebCore::IntSize&);
     bool shouldPaintMirrored() const
     {
 #if PLATFORM(WPE) || (PLATFORM(GTK) && USE(GTK4))
@@ -95,9 +94,8 @@ public:
     }
 
     void willDestroyGLContext();
-    void willRenderFrame();
+    void willRenderFrame(const WebCore::IntSize&);
     void didRenderFrame();
-    void clearIfNeeded();
 
 #if ENABLE(DAMAGE_TRACKING)
     void setFrameDamage(WebCore::Damage&&);
@@ -293,7 +291,8 @@ private:
         };
 
         Type type() const { return m_type; }
-        void resize(const WebCore::IntSize&);
+        bool resize(const WebCore::IntSize&);
+        const WebCore::IntSize& size() const { return m_size; }
         RenderTarget* nextTarget();
         void releaseTarget(uint64_t, UnixFileDescriptor&& releaseFence);
         void reset();
@@ -302,8 +301,6 @@ private:
 #if ENABLE(DAMAGE_TRACKING)
         void addDamage(const std::optional<WebCore::Damage>&);
 #endif
-
-        unsigned size() const { return m_freeTargets.size() + m_lockedTargets.size(); }
 
 #if USE(GBM) && (PLATFORM(GTK) || ENABLE(WPE_PLATFORM))
         void setupBufferFormat(const Vector<RendererBufferFormat>&, bool);

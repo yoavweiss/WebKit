@@ -594,19 +594,20 @@ void AcceleratedSurface::SwapChain::setupBufferFormat(const Vector<RendererBuffe
 }
 #endif
 
-void AcceleratedSurface::SwapChain::resize(const IntSize& size)
+bool AcceleratedSurface::SwapChain::resize(const IntSize& size)
 {
     if (m_size == size)
-        return;
+        return false;
 
     m_size = size;
 #if USE(WPE_RENDERER)
     if (m_type == Type::WPEBackend) {
         static_cast<RenderTargetWPEBackend*>(m_lockedTargets[0].get())->resize(m_size);
-        return;
+        return true;
     }
 #endif
     reset();
+    return true;
 }
 
 std::unique_ptr<AcceleratedSurface::RenderTarget> AcceleratedSurface::SwapChain::createTarget() const
@@ -820,23 +821,21 @@ uint64_t AcceleratedSurface::window() const
     return 0;
 }
 
-bool AcceleratedSurface::resize(const IntSize& size)
+void AcceleratedSurface::willRenderFrame(const IntSize& size)
 {
-    if (m_size == size)
-        return false;
+    bool sizeDidChange = m_swapChain.resize(size);
 
-    m_size = size;
-    m_swapChain.resize(m_size);
-    return true;
-}
-
-void AcceleratedSurface::willRenderFrame()
-{
     m_target = m_swapChain.nextTarget();
-    if (!m_target)
-        return;
+    if (m_target)
+        m_target->willRenderFrame();
 
-    m_target->willRenderFrame();
+    if (sizeDidChange)
+        glViewport(0, 0, size.width(), size.height());
+
+    if (!m_isOpaque) {
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
 }
 
 void AcceleratedSurface::didRenderFrame()
@@ -855,7 +854,7 @@ void AcceleratedSurface::didRenderFrame()
     // For now, we use bounding box damage for render target damage, as its only 2 consumers so far
     // (CoordinatedBackingStore & ThreadedCompositor) only fetch bounds. Thus having damage with
     // better resolution is pointless as the bounds are the same in such case.
-    m_target->setDamage(Damage(m_size, Damage::Mode::BoundingBox));
+    m_target->setDamage(Damage(m_swapChain.size(), Damage::Mode::BoundingBox));
     if (m_frameDamage) {
         damageRects = m_frameDamage->rects();
         m_frameDamage = std::nullopt;
@@ -863,15 +862,6 @@ void AcceleratedSurface::didRenderFrame()
 #endif
 
     m_target->didRenderFrame(WTFMove(damageRects));
-}
-
-void AcceleratedSurface::clearIfNeeded()
-{
-    if (m_isOpaque)
-        return;
-
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 #if ENABLE(DAMAGE_TRACKING)

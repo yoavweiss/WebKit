@@ -358,22 +358,12 @@ void ThreadedCompositor::renderLayerTree()
     TransformationMatrix viewportTransform;
     viewportTransform.scale(deviceScaleFactor);
 
-    // Resize the surface, if necessary, before the will-render-frame call is dispatched.
-    // GL viewport is updated separately, if necessary. This establishes sequencing where
-    // everything inside the will-render and did-render scope is done for a constant-sized scene,
-    // and similarly all GL operations are done inside that specific scope.
-    bool needsGLViewportResize = m_surface->resize(viewportSize);
+    m_surface->willRenderFrame(viewportSize);
 
-    m_surface->willRenderFrame();
     RunLoop::mainSingleton().dispatch([this, protectedThis = Ref { *this }] {
         if (m_layerTreeHost)
             m_layerTreeHost->willRenderFrame();
     });
-
-    if (needsGLViewportResize)
-        glViewport(0, 0, viewportSize.width(), viewportSize.height());
-
-    m_surface->clearIfNeeded();
 
     WTFBeginSignpost(this, PaintToGLContext);
     paintToCurrentGLContext(viewportTransform, viewportSize);
