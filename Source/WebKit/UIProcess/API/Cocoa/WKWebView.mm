@@ -68,6 +68,7 @@
 #import "ViewGestureController.h"
 #import "WKBackForwardListInternal.h"
 #import "WKBackForwardListItemInternal.h"
+#import "WKBrowsingContextController.h"
 #import "WKBrowsingContextHandleInternal.h"
 #import "WKColorExtensionView.h"
 #import "WKContentWorldInternal.h"
@@ -546,7 +547,14 @@ static uint32_t convertSystemLayoutDirection(NSUserInterfaceLayoutDirection dire
 
 #if PLATFORM(IOS_FAMILY)
 
-static id browsingContextControllerMethodStub(id, SEL)
+static id browsingContextControllerMethodStubNonNil(id, SEL)
+{
+ALLOW_DEPRECATED_DECLARATIONS_BEGIN
+    return adoptNS([WKBrowsingContextController new]).autorelease();
+ALLOW_DEPRECATED_DECLARATIONS_END
+}
+
+static id browsingContextControllerMethodStubNil(id, SEL)
 {
     return nil;
 }
@@ -558,8 +566,8 @@ static void addBrowsingContextControllerMethodStubsIfNeeded()
         if (linkedOnOrAfterSDKWithBehavior(SDKAlignedBehavior::BrowsingContextControllerMethodStubRemoved))
             return;
 
-        for (auto wkClass : std::array { WKWebView.class, WKContentView.class })
-            class_addMethod(wkClass, NSSelectorFromString(@"browsingContextController"), reinterpret_cast<IMP>(browsingContextControllerMethodStub), "@@:");
+        class_addMethod(WKWebView.class, NSSelectorFromString(@"browsingContextController"), reinterpret_cast<IMP>(browsingContextControllerMethodStubNil), "@@:");
+        class_addMethod(WKContentView.class, NSSelectorFromString(@"browsingContextController"), reinterpret_cast<IMP>(browsingContextControllerMethodStubNonNil), "@@:");
     });
 }
 
