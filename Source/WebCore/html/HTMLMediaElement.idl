@@ -101,7 +101,7 @@ typedef (
     [CEReactions=NotNeeded] attribute boolean controls;
     attribute double volume;
     attribute boolean muted;
-    [CEReactions=NotNeeded, Reflect=muted] attribute boolean defaultMuted;
+    [CEReactions=NotNeeded, Reflect="muted"] attribute boolean defaultMuted;
 
     // The number of bytes consumed by the media decoder.
     [Conditional=MEDIA_STATISTICS] readonly attribute unsigned long webkitAudioDecodedByteCount;

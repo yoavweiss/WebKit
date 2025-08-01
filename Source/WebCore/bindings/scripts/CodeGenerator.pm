@@ -1119,8 +1119,10 @@ sub ContentAttributeName
     die "Do not use both [ReflectURL] and [ReflectSetter] on the same attribute" if $reflectURL && $reflectSetter;
     die "Do not use both [Reflect] and [ReflectSetter] on the same attribute" if $reflect && $reflectSetter;
 
-    my $contentAttributeName = ($getterOrSetter eq "setter" ? $reflect || UnquoteStringLiteral($reflectURL) || $reflectSetter : $reflect || UnquoteStringLiteral($reflectURL));
+    my $contentAttributeName = ($getterOrSetter eq "setter" ? UnquoteStringLiteral($reflect || $reflectURL) || $reflectSetter : UnquoteStringLiteral($reflect || $reflectURL));
     return undef if !$contentAttributeName;
+
+    $contentAttributeName =~ s/-/_/g;
 
     $contentAttributeName = lc $attribute->name if $contentAttributeName eq "VALUE_IS_MISSING";
 

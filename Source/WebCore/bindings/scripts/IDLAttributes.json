@@ -423,7 +423,10 @@
         },
         "Reflect": {
             "contextsAllowed": ["attribute"],
-            "values": ["*"]
+            "values": ["*"],
+            "standard": {
+                "url": "https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#xattr-reflect"
+            }
         },
         "ReflectURL": {
             "contextsAllowed": ["attribute"],

@@ -111,10 +111,10 @@ enum TestConfidence { "high", "kinda-low" };
     [Reflect] attribute FrozenArray<Element> reflectedElementsArrayAttr;
     [ReflectURL] attribute DOMString reflectedURLAttr;
     [ReflectURL] attribute USVString reflectedUSVURLAttr;
-    [Reflect=customContentStringAttr] attribute DOMString reflectedStringAttr;
-    [Reflect=customContentIntegralAttr] attribute long reflectedCustomIntegralAttr;
-    [Reflect=customContentBooleanAttr] attribute boolean reflectedCustomBooleanAttr;
-    [ReflectURL="customContentURLAttr"] attribute DOMString reflectedCustomURLAttr;
+    [Reflect="custom-content-string"] attribute DOMString reflectedStringAttr;
+    [Reflect="custom-content-integral"] attribute long reflectedCustomIntegralAttr;
+    [Reflect="custom-content-boolean"] attribute boolean reflectedCustomBooleanAttr;
+    [ReflectURL="custom-conten-url"] attribute DOMString reflectedCustomURLAttr;
 
     // Reflected for setter only DOM attributes
     [ReflectSetter] attribute DOMString reflectedSetterStringAttr;
