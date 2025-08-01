@@ -5380,15 +5380,15 @@ LayoutUnit synthesizedBaseline(const RenderBox& box, const RenderStyle& parentSt
     auto parentWritingMode = parentStyle.writingMode();
     // https://drafts.csswg.org/css-inline-3/#alignment-baseline-property
     // https://drafts.csswg.org/css-inline-3/#dominant-baseline-property
-    auto baselineType = parentWritingMode.prefersCentralBaseline() ? FontBaseline::CentralBaseline : FontBaseline::AlphabeticBaseline;
+    auto baselineType = parentWritingMode.prefersCentralBaseline() ? FontBaseline::Central : FontBaseline::Alphabetic;
 
     auto boxSize = direction == HorizontalLine ? box.height() : box.width();
-    if (edge == ContentBox)
+    if (edge == BaselineSynthesisEdge::ContentBox)
         boxSize -= direction == HorizontalLine ? box.verticalBorderAndPaddingExtent() : box.horizontalBorderAndPaddingExtent();
-    else if (edge == MarginBox)
+    else if (edge == BaselineSynthesisEdge::MarginBox)
         boxSize += direction == HorizontalLine ? box.verticalMarginExtent() : box.horizontalMarginExtent();
     
-    if (baselineType == FontBaseline::AlphabeticBaseline) {
+    if (baselineType == FontBaseline::Alphabetic) {
         auto shouldTreatAsHorizontal = direction == HorizontalLine
             || (parentWritingMode.isSidewaysOrientation() && parentWritingMode.computedWritingMode() == StyleWritingMode::VerticalRl);
         return shouldTreatAsHorizontal ? boxSize : LayoutUnit();

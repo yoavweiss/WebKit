@@ -99,7 +99,7 @@ TextUtil::FallbackFontList LineBoxBuilder::collectFallbackFonts(const InlineLeve
     return fallbackFonts;
 }
 
-static InlineLevelBox::AscentAndDescent primaryFontMetricsForInlineBox(const InlineLevelBox& inlineBox, FontBaseline fontBaseline = AlphabeticBaseline)
+static InlineLevelBox::AscentAndDescent primaryFontMetricsForInlineBox(const InlineLevelBox& inlineBox, FontBaseline fontBaseline = FontBaseline::Alphabetic)
 {
     ASSERT(inlineBox.isInlineBox());
     auto& fontMetrics = inlineBox.primarymetricsOfPrimaryFont();
@@ -133,10 +133,10 @@ static InlineLevelBox::AscentAndDescent layoutBoundstWithEdgeAdjustmentForInline
         case TextEdgeType::ExHeight:
             return roundf(fontMetrics.xHeight().value_or(0.f));
         case TextEdgeType::CJKIdeographic:
-            return fontMetrics.intAscent(IdeographicBaseline);
+            return fontMetrics.intAscent(FontBaseline::Ideographic);
         case TextEdgeType::CJKIdeographicInk:
             ASSERT_NOT_IMPLEMENTED_YET();
-            return fontMetrics.intAscent(IdeographicBaseline);
+            return fontMetrics.intAscent(FontBaseline::Ideographic);
         default:
             ASSERT_NOT_REACHED();
             return fontMetrics.intAscent(fontBaseline);
@@ -151,10 +151,10 @@ static InlineLevelBox::AscentAndDescent layoutBoundstWithEdgeAdjustmentForInline
         case TextEdgeType::Alphabetic:
             return 0.f;
         case TextEdgeType::CJKIdeographic:
-            return fontMetrics.intDescent(IdeographicBaseline);
+            return fontMetrics.intDescent(FontBaseline::Ideographic);
         case TextEdgeType::CJKIdeographicInk:
             ASSERT_NOT_IMPLEMENTED_YET();
-            return fontMetrics.intDescent(IdeographicBaseline);
+            return fontMetrics.intDescent(FontBaseline::Ideographic);
         default:
             ASSERT_NOT_REACHED();
             return fontMetrics.intDescent(fontBaseline);
@@ -182,10 +182,10 @@ static InlineLevelBox::AscentAndDescent textBoxAdjustedInlineBoxHeight(const Inl
         case TextEdgeType::ExHeight:
             return roundf(fontMetrics.xHeight().value_or(0.f));
         case TextEdgeType::CJKIdeographic:
-            return fontMetrics.intAscent(IdeographicBaseline);
+            return fontMetrics.intAscent(FontBaseline::Ideographic);
         case TextEdgeType::CJKIdeographicInk:
             ASSERT_NOT_IMPLEMENTED_YET();
-            return fontMetrics.intAscent(IdeographicBaseline);
+            return fontMetrics.intAscent(FontBaseline::Ideographic);
         default:
             ASSERT_NOT_REACHED();
             return fontMetrics.intAscent(fontBaseline);
@@ -201,10 +201,10 @@ static InlineLevelBox::AscentAndDescent textBoxAdjustedInlineBoxHeight(const Inl
         case TextEdgeType::Alphabetic:
             return 0.f;
         case TextEdgeType::CJKIdeographic:
-            return fontMetrics.intDescent(IdeographicBaseline);
+            return fontMetrics.intDescent(FontBaseline::Ideographic);
         case TextEdgeType::CJKIdeographicInk:
             ASSERT_NOT_IMPLEMENTED_YET();
-            return fontMetrics.intDescent(IdeographicBaseline);
+            return fontMetrics.intDescent(FontBaseline::Ideographic);
         default:
             ASSERT_NOT_REACHED();
             return fontMetrics.intDescent(fontBaseline);
@@ -334,7 +334,7 @@ void LineBoxBuilder::setVerticalPropertiesForInlineLevelBox(const LineBox& lineB
         auto& listMarkerBoxGeometry = formattingContext().geometryForBox(layoutBox);
         auto marginBoxHeight = listMarkerBoxGeometry.marginBoxHeight();
 
-        if (lineBox.baselineType() == IdeographicBaseline) {
+        if (lineBox.baselineType() == FontBaseline::Ideographic) {
             // FIXME: We should rely on the integration baseline.
             setVerticalProperties(primaryFontMetricsForInlineBox(lineBox.parentInlineBox(inlineLevelBox), lineBox.baselineType()));
             inlineLevelBox.setLogicalHeight(marginBoxHeight);
@@ -411,7 +411,7 @@ void LineBoxBuilder::constructInlineLevelBoxes(LineBox& lineBox)
             if (auto fallbackFonts = collectFallbackFonts(parentInlineBox, run, style); !fallbackFonts.isEmptyIgnoringNullReferences()) {
                 // Adjust non-empty inline box height when glyphs from the non-primary font stretch the box.
                 if (parentInlineBox.isPreferredLineHeightFontMetricsBased()) {
-                    auto enclosingAscentAndDescent = enclosingAscentDescentWithFallbackFonts(parentInlineBox, fallbackFonts, AlphabeticBaseline);
+                    auto enclosingAscentAndDescent = enclosingAscentDescentWithFallbackFonts(parentInlineBox, fallbackFonts, FontBaseline::Alphabetic);
                     auto layoutBounds = parentInlineBox.layoutBounds();
                     parentInlineBox.setLayoutBounds({ std::max(layoutBounds.ascent, enclosingAscentAndDescent.ascent), std::max(layoutBounds.descent, enclosingAscentAndDescent.descent) });
                 }
@@ -585,7 +585,7 @@ void LineBoxBuilder::adjustInlineBoxHeightsForLineBoxContainIfApplicable(LineBox
             auto ascentAndDescent = TextUtil::enclosingGlyphBoundsForText(StringView(textBox.content()).substring(textContent->start, textContent->length), style, textBox.shouldUseSimpleGlyphOverflowCodePath() ? TextUtil::ShouldUseSimpleGlyphOverflowCodePath::Yes : TextUtil::ShouldUseSimpleGlyphOverflowCodePath::No);
 
             initialLetterDescent = ascentAndDescent.descent;
-            if (lineBox.baselineType() != AlphabeticBaseline)
+            if (lineBox.baselineType() != FontBaseline::Alphabetic)
                 initialLetterAscent = -ascentAndDescent.ascent;
             break;
         }
@@ -635,7 +635,7 @@ void LineBoxBuilder::adjustIdeographicBaselineIfApplicable(LineBox& lineBox)
     if (!lineNeedsIdeographicBaseline())
         return;
 
-    lineBox.setBaselineType(IdeographicBaseline);
+    lineBox.setBaselineType(FontBaseline::Ideographic);
 
     auto adjustLayoutBoundsWithIdeographicBaseline = [&] (auto& inlineLevelBox) {
         auto initiatesLayoutBoundsChange = inlineLevelBox.isInlineBox() || inlineLevelBox.isAtomicInlineBox() || inlineLevelBox.isLineBreakBox();
@@ -655,7 +655,7 @@ void LineBoxBuilder::adjustIdeographicBaselineIfApplicable(LineBox& lineBox)
         auto needsFontFallbackAdjustment = inlineLevelBox.isInlineBox();
         if (needsFontFallbackAdjustment) {
             if (auto fallbackFonts = m_fallbackFontsForInlineBoxes.get(&inlineLevelBox); !fallbackFonts.isEmptyIgnoringNullReferences() && inlineLevelBox.isPreferredLineHeightFontMetricsBased()) {
-                auto enclosingAscentAndDescent = enclosingAscentDescentWithFallbackFonts(inlineLevelBox, fallbackFonts, IdeographicBaseline);
+                auto enclosingAscentAndDescent = enclosingAscentDescentWithFallbackFonts(inlineLevelBox, fallbackFonts, FontBaseline::Ideographic);
                 auto layoutBounds = inlineLevelBox.layoutBounds();
                 inlineLevelBox.setLayoutBounds({ std::max(layoutBounds.ascent, enclosingAscentAndDescent.ascent), std::max(layoutBounds.descent, enclosingAscentAndDescent.descent) });
             }
