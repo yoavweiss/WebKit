@@ -2366,3 +2366,5 @@ webkit.org/b/294152 http/tests/misc/timer-vs-loading.html [ Pass Timeout ]
 webkit.org/b/296755 [ Debug ] imported/w3c/web-platform-tests/content-security-policy/worker-src/service-worker-src-child-fallback.https.sub.html [ Pass Failure ]
 
 webkit.org/b/296754 [ Debug arm64 ] imported/w3c/web-platform-tests/webrtc/RTCPeerConnection-connectionState.https.html [ Pass Failure ]
+
+webkit.org/b/296816 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside-012.html [ Pass Failure ]
