@@ -644,9 +644,12 @@ std::optional<IOSurface::LockAndContext> IOSurface::createBitmapPlatformContext(
         return std::nullopt;
     auto configuration = bitmapConfiguration();
     auto size = this->size();
+
     auto context = adoptCF(CGBitmapContextCreate(locker->surfaceBaseAddress(), size.width(), size.height(), configuration.bitsPerComponent, bytesPerRow(), colorSpace().platformColorSpace(), configuration.bitmapInfo));
-    if (!context)
+    if (!context) {
+        RELEASE_LOG_ERROR(IOSurface, "IOSurface::createBitmapPlatformContext: Failed to create bitmap context for IOSurface %x (size %d x %d), bitsPerComponent %lu, bytesPerRow %lu", surfaceID(), size.width(), size.height(), configuration.bitsPerComponent, bytesPerRow());
         return std::nullopt;
+    }
     return LockAndContext { WTFMove(*locker), WTFMove(context) };
 }
 
@@ -787,7 +790,7 @@ void IOSurface::setOwnershipIdentity(IOSurfaceRef surface, const ProcessIdentity
     task_id_token_t ownerTaskIdToken = resourceOwner.taskIdToken();
     auto result = IOSurfaceSetOwnershipIdentity(surface, ownerTaskIdToken, kIOSurfaceMemoryLedgerTagGraphics, 0);
     if (result != kIOReturnSuccess)
-        RELEASE_LOG_ERROR(IOSurface, "IOSurface::setOwnershipIdentity: Failed to claim ownership of IOSurface %p, task id token: %d, error: %d", surface, (int)ownerTaskIdToken, result);
+        RELEASE_LOG_ERROR(IOSurface, "IOSurface::setOwnershipIdentity: Failed to claim ownership of IOSurface %x, task id token: %d, error: %d", IOSurfaceGetID(surface), (int)ownerTaskIdToken, result);
 #else
     UNUSED_PARAM(surface);
     UNUSED_PARAM(resourceOwner);
