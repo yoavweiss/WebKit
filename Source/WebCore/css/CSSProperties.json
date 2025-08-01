@@ -12366,6 +12366,10 @@
                     "enable-if": "HAVE_MATERIAL_HOSTING"
                 },
                 {
+                    "value": "-apple-system-glass-material-clear",
+                    "enable-if": "HAVE_MATERIAL_HOSTING"
+                },
+                {
                     "value": "-apple-system-glass-material-subdued",
                     "enable-if": "HAVE_MATERIAL_HOSTING"
                 },

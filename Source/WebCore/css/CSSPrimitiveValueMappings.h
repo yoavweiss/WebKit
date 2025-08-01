@@ -1935,6 +1935,8 @@ constexpr CSSValueID toCSSValueID(AppleVisualEffect effect)
 #if HAVE(MATERIAL_HOSTING)
     case AppleVisualEffect::GlassMaterial:
         return CSSValueAppleSystemGlassMaterial;
+    case AppleVisualEffect::GlassClearMaterial:
+        return CSSValueAppleSystemGlassMaterialClear;
     case AppleVisualEffect::GlassSubduedMaterial:
         return CSSValueAppleSystemGlassMaterialSubdued;
     case AppleVisualEffect::GlassMediaControlsMaterial:
@@ -1981,6 +1983,8 @@ template<> constexpr AppleVisualEffect fromCSSValueID(CSSValueID valueID)
 #if HAVE(MATERIAL_HOSTING)
     case CSSValueAppleSystemGlassMaterial:
         return AppleVisualEffect::GlassMaterial;
+    case CSSValueAppleSystemGlassMaterialClear:
+        return AppleVisualEffect::GlassClearMaterial;
     case CSSValueAppleSystemGlassMaterialSubdued:
         return AppleVisualEffect::GlassSubduedMaterial;
     case CSSValueAppleSystemGlassMaterialMediaControls:
