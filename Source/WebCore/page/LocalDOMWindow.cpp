@@ -59,6 +59,7 @@
 #include "DocumentLoader.h"
 #include "Editor.h"
 #include "Element.h"
+#include "EventCounts.h"
 #include "EventHandler.h"
 #include "EventListener.h"
 #include "EventLoop.h"
@@ -139,6 +140,7 @@
 #include <JavaScriptCore/ScriptCallStackFactory.h>
 #include <algorithm>
 #include <memory>
+#include <wtf/Assertions.h>
 #include <wtf/Language.h>
 #include <wtf/MainThread.h>
 #include <wtf/MathExtras.h>
@@ -2455,6 +2457,44 @@ void LocalDOMWindow::finishedLoading()
         if (RefPtr loader = localFrame()->loader().activeDocumentLoader(); !loader || loader->mainDocumentError().isNull())
             print();
     }
+}
+
+LocalDOMWindow::PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTimingEntry(const Event& event, EventTypeInfo typeInfo)
+{
+    LOG_WITH_STREAM(PerformanceTimeline, stream << "Initializing event timing entry of type " << event.type());
+    // FIXME: implement InteractionId logic
+    auto processingStart = performance().now();
+    return PerformanceEventTimingCandidate {
+        .typeInfo = typeInfo,
+        .cancelable = event.cancelable(),
+        // Account for event.timeStamp() unreliability (based on wall clock):
+        .startTime =  std::min(processingStart, performance().relativeTimeFromTimeOriginInReducedResolution(event.timeStamp())),
+        .processingStart = processingStart
+    };
+}
+
+void LocalDOMWindow::finalizeEventTimingEntry(const PerformanceEventTimingCandidate& entry, const Event& event)
+{
+    m_performanceEventTimingCandidates.append(entry);
+    // FIXME: implement InteractionId logic
+    m_performanceEventTimingCandidates.last().target = event.target();
+    m_performanceEventTimingCandidates.last().processingEnd = performance().now();
+}
+
+void LocalDOMWindow::dispatchPendingEventTimingEntries()
+{
+    if (m_performanceEventTimingCandidates.isEmpty())
+        return;
+
+    LOG_WITH_STREAM(PerformanceTimeline, stream << "Dispatching " << m_performanceEventTimingCandidates.size() << " event timing entries");
+    for (auto &candidateEntry : m_performanceEventTimingCandidates) {
+        performance().countEvent(candidateEntry.typeInfo.type());
+        // FIXME: calculate duration and ignore if < 16ms
+        // FIXME: dispatch to relevant performance observers
+        // FIXME: first-input handling
+        // FIXME: if duration > 104ms and buffer is not full, add to buffer
+    }
+    m_performanceEventTimingCandidates.clear();
 }
 
 void LocalDOMWindow::setLocation(LocalDOMWindow& activeWindow, const URL& completedURL, NavigationHistoryBehavior historyHandling, SetLocationLocking locking, CanNavigateState navigationState)

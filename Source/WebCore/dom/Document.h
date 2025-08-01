@@ -1923,6 +1923,8 @@ public:
     bool hasVisuallyNonEmptyCustomContent() const { return m_hasVisuallyNonEmptyCustomContent; }
     void enqueuePaintTimingEntryIfNeeded();
 
+    void enqueueEventTimingEntriesIfNeeded();
+
     WEBCORE_EXPORT Editor& editor();
     WEBCORE_EXPORT const Editor& editor() const;
     WEBCORE_EXPORT Ref<Editor> protectedEditor();

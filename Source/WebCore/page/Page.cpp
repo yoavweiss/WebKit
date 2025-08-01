@@ -2334,6 +2334,10 @@ void Page::doAfterUpdateRendering()
     });
 
     forEachRenderableDocument([] (Document& document) {
+        document.enqueueEventTimingEntriesIfNeeded();
+    });
+
+    forEachRenderableDocument([] (Document& document) {
         document.selection().updateAppearanceAfterUpdatingRendering();
     });
 
