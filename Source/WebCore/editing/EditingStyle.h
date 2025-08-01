@@ -57,7 +57,7 @@ class StyleProperties;
 class StyledElement;
 class VisibleSelection;
 
-enum class TextDecorationChange { None, Add, Remove };
+enum class TextDecorationChange : uint8_t { None, Add, Remove };
 
 // FIXME: "Keep" should be "Resolve" instead and resolve all generic font family names.
 enum class StandardFontFamilySerializationMode : uint8_t { Keep, Strip };
@@ -65,10 +65,10 @@ enum class StandardFontFamilySerializationMode : uint8_t { Keep, Strip };
 class EditingStyle : public RefCounted<EditingStyle> {
 public:
 
-    enum class PropertiesToInclude { AllProperties, OnlyEditingInheritableProperties, EditingPropertiesInEffect, PostLayoutProperties };
+    enum class PropertiesToInclude : uint8_t { AllProperties, OnlyEditingInheritableProperties, EditingPropertiesInEffect, PostLayoutProperties };
 
-    enum ShouldPreserveWritingDirection { PreserveWritingDirection, DoNotPreserveWritingDirection };
-    enum ShouldExtractMatchingStyle { ExtractMatchingStyle, DoNotExtractMatchingStyle };
+    enum class ShouldPreserveWritingDirection : bool { No, Yes };
+    enum class ShouldExtractMatchingStyle : bool { No, Yes };
     static float NoFontDelta;
 
     static Ref<EditingStyle> create()
@@ -125,7 +125,7 @@ public:
     void removeStyleConflictingWithStyleOfNode(Node&);
     template<typename T> void removeEquivalentProperties(T&);
     void collapseTextDecorationProperties();
-    enum ShouldIgnoreTextOnlyProperties { IgnoreTextOnlyProperties, DoNotIgnoreTextOnlyProperties };
+    enum class ShouldIgnoreTextOnlyProperties : bool { No, Yes };
     TriState triStateOfStyle(EditingStyle*) const;
     TriState triStateOfStyle(const VisibleSelection&) const;
     bool conflictsWithInlineStyleOfElement(StyledElement& element) const { return conflictsWithInlineStyleOfElement(element, nullptr, nullptr); }
@@ -133,16 +133,16 @@ public:
     {
         return conflictsWithInlineStyleOfElement(element, &newInlineStyle, extractedStyle);
     }
-    bool conflictsWithImplicitStyleOfElement(HTMLElement&, EditingStyle* extractedStyle = nullptr, ShouldExtractMatchingStyle = DoNotExtractMatchingStyle) const;
+    bool conflictsWithImplicitStyleOfElement(HTMLElement&, EditingStyle* extractedStyle = nullptr, ShouldExtractMatchingStyle = ShouldExtractMatchingStyle::No) const;
     bool conflictsWithImplicitStyleOfAttributes(HTMLElement&) const;
     bool extractConflictingImplicitStyleOfAttributes(HTMLElement&, ShouldPreserveWritingDirection, EditingStyle* extractedStyle, Vector<QualifiedName>& conflictingAttributes, ShouldExtractMatchingStyle) const;
     bool styleIsPresentInComputedStyleOfNode(Node&) const;
 
     static bool elementIsStyledSpanOrHTMLEquivalent(const HTMLElement&);
 
-    void prepareToApplyAt(const Position&, ShouldPreserveWritingDirection = DoNotPreserveWritingDirection);
+    void prepareToApplyAt(const Position&, ShouldPreserveWritingDirection = ShouldPreserveWritingDirection::No);
     void mergeTypingStyle(Document&);
-    enum CSSPropertyOverrideMode { OverrideValues, DoNotOverrideValues };
+    enum class CSSPropertyOverrideMode : bool { DoNotOverrideValues, OverrideValues };
     void mergeInlineStyleOfElement(StyledElement&, CSSPropertyOverrideMode, PropertiesToInclude = PropertiesToInclude::AllProperties);
     static Ref<EditingStyle> wrappingStyleForSerialization(Node& context, bool shouldAnnotate, StandardFontFamilySerializationMode);
     void mergeStyleFromRules(StyledElement&);

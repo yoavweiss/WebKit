@@ -195,7 +195,7 @@ template<typename T> CSSValueID identifierForStyleProperty(T& style, CSSProperty
 }
 
 template<typename T> Ref<MutableStyleProperties> getPropertiesNotIn(StyleProperties& styleWithRedundantProperties, T& baseStyle);
-enum LegacyFontSizeMode { AlwaysUseLegacyFontSize, UseLegacyFontSizeOnlyIfPixelValuesMatch };
+enum class LegacyFontSizeMode : bool { AlwaysUseLegacyFontSize, UseLegacyFontSizeOnlyIfPixelValuesMatch };
 static int legacyFontSizeFromCSSValue(Document&, CSSPrimitiveValue*, bool shouldUseFixedFontDefaultSize, LegacyFontSizeMode);
 static bool hasTransparentBackgroundColor(StyleProperties*);
 static RefPtr<CSSValue> backgroundColorInEffect(Node*);
@@ -692,7 +692,7 @@ void EditingStyle::setStyle(RefPtr<MutableStyleProperties>&& style)
 
 void EditingStyle::overrideWithStyle(const StyleProperties& style)
 {
-    return mergeStyle(&style, OverrideValues);
+    return mergeStyle(&style, CSSPropertyOverrideMode::OverrideValues);
 }
 
 static void applyTextDecorationChangeToValueList(CSSValueListBuilder& valueList, TextDecorationChange change, Ref<CSSPrimitiveValue>&& value)
@@ -711,11 +711,11 @@ static void applyTextDecorationChangeToValueList(CSSValueListBuilder& valueList,
 
 void EditingStyle::overrideTypingStyleAt(const EditingStyle& style, const Position& position)
 {
-    mergeStyle(style.m_mutableStyle.get(), OverrideValues);
+    mergeStyle(style.m_mutableStyle.get(), CSSPropertyOverrideMode::OverrideValues);
 
     m_fontSizeDelta += style.m_fontSizeDelta;
 
-    prepareToApplyAt(position, EditingStyle::PreserveWritingDirection);
+    prepareToApplyAt(position, EditingStyle::ShouldPreserveWritingDirection::Yes);
 
     auto underlineChange = style.underlineChange();
     auto strikeThroughChange = style.strikeThroughChange();
@@ -872,7 +872,7 @@ TriState EditingStyle::triStateOfStyle(EditingStyle* style) const
 {
     if (!style || !style->m_mutableStyle)
         return TriState::False;
-    return triStateOfStyle(*style->m_mutableStyle.copyRef(), DoNotIgnoreTextOnlyProperties);
+    return triStateOfStyle(*style->m_mutableStyle.copyRef(), ShouldIgnoreTextOnlyProperties::No);
 }
 
 template<typename T>
@@ -884,7 +884,7 @@ TriState EditingStyle::triStateOfStyle(T& styleToCompare, ShouldIgnoreTextOnlyPr
 
     auto difference = getPropertiesNotIn(*mutableStyle, styleToCompare);
 
-    if (shouldIgnoreTextOnlyProperties == IgnoreTextOnlyProperties)
+    if (shouldIgnoreTextOnlyProperties == ShouldIgnoreTextOnlyProperties::Yes)
         difference->removeProperties(textOnlyProperties);
 
     if (difference->isEmpty())
@@ -908,7 +908,7 @@ TriState EditingStyle::triStateOfStyle(const VisibleSelection& selection) const
     for (RefPtr node = selection.start().deprecatedNode(); node; node = NodeTraversal::next(*node)) {
         if (node->renderer() && node->hasEditableStyle()) {
             Style::Extractor computedStyle(node.get());
-            TriState nodeState = triStateOfStyle(computedStyle, node->isTextNode() ? EditingStyle::DoNotIgnoreTextOnlyProperties : EditingStyle::IgnoreTextOnlyProperties);
+            TriState nodeState = triStateOfStyle(computedStyle, node->isTextNode() ? EditingStyle::ShouldIgnoreTextOnlyProperties::No : EditingStyle::ShouldIgnoreTextOnlyProperties::Yes);
             if (nodeIsStart) {
                 state = nodeState;
                 nodeIsStart = false;
@@ -1051,7 +1051,7 @@ bool EditingStyle::conflictsWithImplicitStyleOfElement(HTMLElement& element, Edi
 
     for (auto& equivalent : htmlElementEquivalents()) {
         if (equivalent->matches(element) && equivalent->propertyExistsInStyle(*this)
-            && (shouldExtractMatchingStyle == ExtractMatchingStyle || !equivalent->valueIsPresentInStyle(element, *this))) {
+            && (shouldExtractMatchingStyle == ShouldExtractMatchingStyle::Yes || !equivalent->valueIsPresentInStyle(element, *this))) {
             if (extractedStyle)
                 equivalent->addToStyle(&element, extractedStyle);
             return true;
@@ -1092,18 +1092,18 @@ bool EditingStyle::extractConflictingImplicitStyleOfAttributes(HTMLElement& elem
     EditingStyle* extractedStyle, Vector<QualifiedName>& conflictingAttributes, ShouldExtractMatchingStyle shouldExtractMatchingStyle) const
 {
     // HTMLAttributeEquivalent::addToStyle doesn't support unicode-bidi and direction properties
-    ASSERT(!extractedStyle || shouldPreserveWritingDirection == PreserveWritingDirection);
+    ASSERT(!extractedStyle || shouldPreserveWritingDirection == ShouldPreserveWritingDirection::Yes);
     if (!m_mutableStyle)
         return false;
 
     bool removed = false;
     for (auto& equivalent : htmlAttributeEquivalents()) {
         // unicode-bidi and direction are pushed down separately so don't push down with other styles.
-        if (shouldPreserveWritingDirection == PreserveWritingDirection && equivalent->attributeName() == HTMLNames::dirAttr)
+        if (shouldPreserveWritingDirection == ShouldPreserveWritingDirection::Yes && equivalent->attributeName() == HTMLNames::dirAttr)
             continue;
 
         if (!equivalent->matches(element) || !equivalent->propertyExistsInStyle(*this)
-            || (shouldExtractMatchingStyle == DoNotExtractMatchingStyle && equivalent->valueIsPresentInStyle(element, *this)))
+            || (shouldExtractMatchingStyle == ShouldExtractMatchingStyle::No && equivalent->valueIsPresentInStyle(element, *this)))
             continue;
 
         if (extractedStyle)
@@ -1197,7 +1197,7 @@ void EditingStyle::prepareToApplyAt(const Position& position, ShouldPreserveWrit
 
     std::optional<CSSValueID> unicodeBidi;
     std::optional<CSSValueID> direction;
-    if (shouldPreserveWritingDirection == PreserveWritingDirection) {
+    if (shouldPreserveWritingDirection == ShouldPreserveWritingDirection::Yes) {
         unicodeBidi = mutableStyle->propertyAsValueID(CSSPropertyUnicodeBidi);
         direction = mutableStyle->propertyAsValueID(CSSPropertyDirection);
     }
@@ -1235,7 +1235,7 @@ void EditingStyle::mergeTypingStyle(Document& document)
     if (!typingStyle || typingStyle == this)
         return;
 
-    mergeStyle(typingStyle->protectedStyle().get(), OverrideValues);
+    mergeStyle(typingStyle->protectedStyle().get(), CSSPropertyOverrideMode::OverrideValues);
 }
 
 void EditingStyle::mergeInlineStyleOfElement(StyledElement& element, CSSPropertyOverrideMode mode, PropertiesToInclude propertiesToInclude)
@@ -1266,7 +1266,7 @@ static inline bool elementMatchesAndPropertyIsNotInInlineStyleDecl(const HTMLEle
 {
     if (!equivalent.matches(element))
         return false;
-    if (mode != EditingStyle::OverrideValues && equivalent.propertyExistsInStyle(style))
+    if (mode != EditingStyle::CSSPropertyOverrideMode::OverrideValues && equivalent.propertyExistsInStyle(style))
         return false;
 
     return !element.inlineStyle() || !equivalent.propertyExistsInStyle(EditingStyle::create(element.protectedInlineStyle().get()).get());
@@ -1334,7 +1334,7 @@ Ref<EditingStyle> EditingStyle::wrappingStyleForSerialization(Node& context, boo
     // When not annotating for interchange, we only preserve inline style declarations.
     for (RefPtr node = context; node && !node->isDocumentNode(); node = node->parentNode()) {
         if (auto* element = dynamicDowncast<StyledElement>(*node); element && !isMailBlockquote(*element))
-            wrappingStyle->mergeInlineAndImplicitStyleOfElement(*element, DoNotOverrideValues, PropertiesToInclude::EditingPropertiesInEffect, standardFontFamilySerializationMode);
+            wrappingStyle->mergeInlineAndImplicitStyleOfElement(*element, CSSPropertyOverrideMode::DoNotOverrideValues, PropertiesToInclude::EditingPropertiesInEffect, standardFontFamilySerializationMode);
     }
 
     return wrappingStyle;
@@ -1376,7 +1376,7 @@ void EditingStyle::mergeStyle(const StyleProperties* style, CSSPropertyOverrideM
             }
         }
 
-        if (mode == OverrideValues || (mode == DoNotOverrideValues && !value))
+        if (mode == CSSPropertyOverrideMode::OverrideValues || (mode == CSSPropertyOverrideMode::DoNotOverrideValues && !value))
             m_mutableStyle->setProperty(property.id(), property.protectedValue(), property.isImportant() ? IsImportant::Yes : IsImportant::No);
     }
 
@@ -1603,7 +1603,7 @@ int EditingStyle::legacyFontSize(Document& document) const
     RefPtr cssValue = dynamicDowncast<CSSPrimitiveValue>(m_mutableStyle->getPropertyCSSValue(CSSPropertyFontSize));
     if (!cssValue)
         return 0;
-    return legacyFontSizeFromCSSValue(document, cssValue.get(), m_shouldUseFixedDefaultFontSize, AlwaysUseLegacyFontSize);
+    return legacyFontSizeFromCSSValue(document, cssValue.get(), m_shouldUseFixedDefaultFontSize, LegacyFontSizeMode::AlwaysUseLegacyFontSize);
 }
 
 bool EditingStyle::hasStyle(CSSPropertyID propertyID, const String& value)
@@ -1971,7 +1971,7 @@ void StyleChange::extractTextStyles(Document& document, MutableStyleProperties& 
         auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(*fontSize);
         if (!primitiveValue)
             style.removeProperty(CSSPropertyFontSize); // Can't make sense of the number. Put no font size.
-        else if (int legacyFontSize = legacyFontSizeFromCSSValue(document, primitiveValue, shouldUseFixedFontDefaultSize, UseLegacyFontSizeOnlyIfPixelValuesMatch)) {
+        else if (int legacyFontSize = legacyFontSizeFromCSSValue(document, primitiveValue, shouldUseFixedFontDefaultSize, LegacyFontSizeMode::UseLegacyFontSizeOnlyIfPixelValuesMatch)) {
             m_applyFontSize = AtomString::number(legacyFontSize);
             style.removeProperty(CSSPropertyFontSize);
         }
@@ -2038,7 +2038,7 @@ int legacyFontSizeFromCSSValue(Document& document, CSSPrimitiveValue* value, boo
         int legacyFontSize = Style::legacyFontSizeForPixelSize(pixelFontSize, shouldUseFixedFontDefaultSize, document);
         // Use legacy font size only if pixel value matches exactly to that of legacy font size.
         int cssPrimitiveEquivalent = legacyFontSize - 1 + CSSValueXSmall;
-        if (mode == AlwaysUseLegacyFontSize || Style::fontSizeForKeyword(cssPrimitiveEquivalent, shouldUseFixedFontDefaultSize, document) == pixelFontSize)
+        if (mode == LegacyFontSizeMode::AlwaysUseLegacyFontSize || Style::fontSizeForKeyword(cssPrimitiveEquivalent, shouldUseFixedFontDefaultSize, document) == pixelFontSize)
             return legacyFontSize;
 
         return 0;
