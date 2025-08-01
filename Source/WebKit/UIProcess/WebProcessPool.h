@@ -644,6 +644,9 @@ public:
     void initializeAccessibilityIfNecessary();
 #endif
 
+    std::optional<SandboxExtension::Handle> sandboxExtensionForFile(const String& fileName);
+    void addSandboxExtensionForFile(const String& fileName, SandboxExtension::Handle);
+
 private:
     enum class NeedsGlobalStaticInitialization : bool { No, Yes };
     void platformInitialize(NeedsGlobalStaticInitialization);
@@ -1039,6 +1042,8 @@ private:
 
     bool m_hasReceivedAXRequestInUIProcess { false };
     bool m_suppressEDR { false };
+
+    HashMap<String, SandboxExtension::Handle> m_fileSandboxExtensions;
 };
 
 template<typename T>
