@@ -8190,3 +8190,5 @@ webkit.org/b/296707 imported/w3c/web-platform-tests/screen-orientation/non-fully
 webkit.org/b/296709 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/evil/media_height_19.html [ ImageOnlyFailure ]
 
 webkit.org/b/296816 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside-012.html [ Pass Failure ]
+
+webkit.org/b/296824 [ Release ] http/tests/webcodecs/audio-encoder-callbacks-do-not-leak.html [ Pass Failure ]
