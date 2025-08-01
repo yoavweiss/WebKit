@@ -4902,7 +4902,7 @@ static inline bool setJSTestObj_reflectedSetterStringAttrSetter(JSGlobalObject& 
     if (nativeValueConversionResult.hasException(throwScope)) [[unlikely]]
         return false;
     invokeFunctorPropagatingExceptionIfNecessary(lexicalGlobalObject, throwScope, [&] {
-        return impl.setAttributeWithoutSynchronization(WebCore::HTMLNames::customContentStringAttrAttr, nativeValueConversionResult.releaseReturnValue());
+        return impl.setAttributeWithoutSynchronization(WebCore::HTMLNames::custom_content_stringAttr, nativeValueConversionResult.releaseReturnValue());
     });
     return true;
 }
@@ -4935,7 +4935,7 @@ static inline bool setJSTestObj_reflectedSetterCustomIntegralAttrSetter(JSGlobal
     if (nativeValueConversionResult.hasException(throwScope)) [[unlikely]]
         return false;
     invokeFunctorPropagatingExceptionIfNecessary(lexicalGlobalObject, throwScope, [&] {
-        return impl.setIntegralAttribute(WebCore::HTMLNames::customContentIntegralAttrAttr, nativeValueConversionResult.releaseReturnValue());
+        return impl.setIntegralAttribute(WebCore::HTMLNames::custom_content_integralAttr, nativeValueConversionResult.releaseReturnValue());
     });
     return true;
 }
@@ -4968,7 +4968,7 @@ static inline bool setJSTestObj_reflectedSetterCustomBooleanAttrSetter(JSGlobalO
     if (nativeValueConversionResult.hasException(throwScope)) [[unlikely]]
         return false;
     invokeFunctorPropagatingExceptionIfNecessary(lexicalGlobalObject, throwScope, [&] {
-        return impl.setBooleanAttribute(WebCore::HTMLNames::customContentBooleanAttrAttr, nativeValueConversionResult.releaseReturnValue());
+        return impl.setBooleanAttribute(WebCore::HTMLNames::custom_content_booleanAttr, nativeValueConversionResult.releaseReturnValue());
     });
     return true;
 }

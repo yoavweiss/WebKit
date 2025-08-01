@@ -124,9 +124,9 @@ enum TestConfidence { "high", "kinda-low" };
     [ReflectSetter] attribute boolean reflectedSetterBooleanAttr;
     [ReflectSetter] attribute Element reflectedSetterElementAttr;
     [ReflectSetter] attribute FrozenArray<Element> reflectedSetterElementsArrayAttr;
-    [ReflectSetter=customContentStringAttr] attribute DOMString reflectedSetterStringAttr;
-    [ReflectSetter=customContentIntegralAttr] attribute long reflectedSetterCustomIntegralAttr;
-    [ReflectSetter=customContentBooleanAttr] attribute boolean reflectedSetterCustomBooleanAttr;
+    [ReflectSetter="custom-content-string"] attribute DOMString reflectedSetterStringAttr;
+    [ReflectSetter="custom-content-integral"] attribute long reflectedSetterCustomIntegralAttr;
+    [ReflectSetter="custom-content-boolean"] attribute boolean reflectedSetterCustomBooleanAttr;
 
     // [EnabledByDeprecatedGlobalSetting] attributes and operations.
     [Conditional=TEST_FEATURE, EnabledByDeprecatedGlobalSetting=TestFeatureEnabled&TestFeature1Enabled] attribute DOMString enabledAtRuntimeAttribute;

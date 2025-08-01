@@ -438,7 +438,10 @@
         "ReflectSetter": {
             "contextsAllowed": ["attribute"],
             "values": ["*"],
-            "notes": "Variant of Reflect that relies on C++ implementation for the getter, but automatically generates the setter"
+            "notes": "Variant of Reflect that relies on C++ implementation for the getter, but automatically generates the setter",
+            "standard": {
+                "url": "https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#xattr-reflectsetter"
+            }
         },
         "Replaceable": {
             "contextsAllowed": ["attribute"],
