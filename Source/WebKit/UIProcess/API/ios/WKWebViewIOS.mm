@@ -1129,8 +1129,13 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
         if (isFirstTransactionAfterObscuredInsetChange) {
             _perProcessState.firstTransactionIDAfterObscuredInsetChange = std::nullopt;
-            [self _didStopDeferringGeometryUpdates];
-            needUpdateVisibleContentRects = true;
+            if (_overriddenLayoutParameters && !self._shouldDeferGeometryUpdates) {
+                [self _dispatchSetViewLayoutSize:WebCore::FloatSize(_overriddenLayoutParameters->viewLayoutSize)];
+                _page->setMinimumUnobscuredSize(WebCore::FloatSize(_overriddenLayoutParameters->minimumUnobscuredSize));
+                _page->setDefaultUnobscuredSize(WebCore::FloatSize(_overriddenLayoutParameters->maximumUnobscuredSize));
+                _page->setMaximumUnobscuredSize(WebCore::FloatSize(_overriddenLayoutParameters->maximumUnobscuredSize));
+                needUpdateVisibleContentRects = true;
+            }
         }
 
         if (_perProcessState.dynamicViewportUpdateMode != WebKit::DynamicViewportUpdateMode::NotResizing) {
