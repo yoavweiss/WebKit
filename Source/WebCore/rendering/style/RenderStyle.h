@@ -301,6 +301,7 @@ struct OffsetDistance;
 struct OffsetPath;
 struct OffsetPosition;
 struct OffsetRotate;
+struct Opacity;
 struct PaddingEdge;
 struct Perspective;
 struct Position;
@@ -844,9 +845,8 @@ public:
     OptionSet<HangingPunctuation> hangingPunctuation() const;
 
     inline Style::WebkitTextStrokeWidth textStrokeWidth() const;
-    inline float opacity() const;
+    inline Style::Opacity opacity() const;
     inline bool hasOpacity() const;
-    inline bool hasZeroOpacity() const;
     inline StyleAppearance appearance() const;
     inline StyleAppearance usedAppearance() const;
 
@@ -1512,7 +1512,7 @@ public:
     inline void setHasAutoCaretColor();
     inline void setAccentColor(Style::Color&&);
     inline void setHasAutoAccentColor();
-    inline void setOpacity(float);
+    inline void setOpacity(Style::Opacity);
     inline void setAppearance(StyleAppearance);
     inline void setUsedAppearance(StyleAppearance);
     inline void setBoxAlign(BoxAlignment);
@@ -1769,6 +1769,8 @@ public:
     inline void setStrokeMiterLimit(float);
     static constexpr float initialStrokeMiterLimit();
 
+    static constexpr Style::Opacity initialFillOpacity();
+    static constexpr Style::Opacity initialStrokeOpacity();
     static inline Style::SVGStrokeDasharray initialStrokeDashArray();
     static inline Style::SVGStrokeDashoffset initialStrokeDashOffset();
 
@@ -1781,15 +1783,15 @@ public:
     inline void setVisitedLinkFill(Style::SVGPaint&&);
     inline void setHasExplicitlySetColor(bool);
     inline bool hasExplicitlySetColor() const;
-    inline float fillOpacity() const;
-    inline void setFillOpacity(float);
+    inline Style::Opacity fillOpacity() const;
+    inline void setFillOpacity(Style::Opacity);
 
     inline const Style::SVGPaint& stroke() const;
     inline const Style::SVGPaint& visitedLinkStroke() const;
     inline void setStroke(Style::SVGPaint&&);
     inline void setVisitedLinkStroke(Style::SVGPaint&&);
-    inline float strokeOpacity() const;
-    inline void setStrokeOpacity(float);
+    inline Style::Opacity strokeOpacity() const;
+    inline void setStrokeOpacity(Style::Opacity);
     inline const Style::SVGStrokeDasharray& strokeDashArray() const;
     inline void setStrokeDashArray(Style::SVGStrokeDasharray&&);
     inline const Style::SVGStrokeDashoffset& strokeDashOffset() const;
@@ -1814,11 +1816,13 @@ public:
     inline StylePathData* d() const;
     static StylePathData* initialD() { return nullptr; }
 
-    inline float floodOpacity() const;
-    inline void setFloodOpacity(float);
+    inline Style::Opacity floodOpacity() const;
+    inline void setFloodOpacity(Style::Opacity);
+    static constexpr Style::Opacity initialFloodOpacity();
 
-    inline float stopOpacity() const;
-    inline void setStopOpacity(float);
+    inline Style::Opacity stopOpacity() const;
+    inline void setStopOpacity(Style::Opacity);
+    static constexpr Style::Opacity initialStopOpacity();
 
     inline void setStopColor(Style::Color&&);
     inline void setFloodColor(Style::Color&&);
@@ -2023,7 +2027,7 @@ public:
     static float initialZoom() { return 1.0f; }
     static constexpr TextZoom initialTextZoom();
     static constexpr Style::Length<> initialOutlineOffset();
-    static float initialOpacity() { return 1.0f; }
+    static constexpr Style::Opacity initialOpacity();
     static constexpr BoxAlignment initialBoxAlign();
     static constexpr BoxDecorationBreak initialBoxDecorationBreak();
     static constexpr BoxDirection initialBoxDirection();

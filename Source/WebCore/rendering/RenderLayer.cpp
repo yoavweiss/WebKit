@@ -6115,14 +6115,14 @@ bool RenderLayer::hasVisibleBoxDecorations() const
 
 bool RenderLayer::isVisibilityHiddenOrOpacityZero() const
 {
-    return !hasVisibleContent() || renderer().style().hasZeroOpacity();
+    return !hasVisibleContent() || renderer().style().opacity().isTransparent();
 }
 
 bool RenderLayer::isVisuallyNonEmpty(PaintedContentRequest* request) const
 {
     ASSERT(!m_visibleContentStatusDirty);
 
-    if (!hasVisibleContent() || renderer().style().hasZeroOpacity())
+    if (!hasVisibleContent() || renderer().style().opacity().isTransparent())
         return false;
 
     if (renderer().isRenderReplaced() || (m_scrollableArea && m_scrollableArea->hasOverflowControls())) {
@@ -6196,7 +6196,7 @@ void RenderLayer::styleChanged(StyleDifference diff, const RenderStyle* oldStyle
         if (oldStyle->isOverflowVisible() != renderer().style().isOverflowVisible())
             setSelfAndDescendantsNeedPositionUpdate();
 
-        if (oldStyle->hasZeroOpacity() != renderer().style().hasZeroOpacity())
+        if (oldStyle->opacity().isTransparent() != renderer().style().opacity().isTransparent())
             setNeedsPositionUpdate();
 
         if (oldStyle->preserves3D() != preserves3D()) {
@@ -6458,7 +6458,7 @@ bool RenderLayer::isTransparentRespectingParentFrames() const
 
     float currentOpacity = 1;
     for (auto* layer = this; layer; layer = parentLayerCrossFrame(*layer)) {
-        currentOpacity *= layer->renderer().style().opacity();
+        currentOpacity *= layer->renderer().style().opacity().value.value;
         if (currentOpacity < minimumVisibleOpacity)
             return true;
     }

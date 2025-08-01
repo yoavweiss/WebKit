@@ -800,7 +800,7 @@ static bool miscDataChangeRequiresLayout(const StyleMiscNonInheritedData& first,
         }
     }
 
-    if (first.hasOpacity() != second.hasOpacity()) {
+    if (first.opacity.isOpaque() != second.opacity.isOpaque()) {
         // FIXME: We would like to use SimplifiedLayout here, but we can't quite do that yet.
         // We need to make sure SimplifiedLayout can operate correctly on RenderInlines (we will need
         // to add a selfNeedsSimplifiedLayout bit in order to not get confused and taint every line).
@@ -1238,7 +1238,7 @@ static bool requiresPainting(const RenderStyle& style)
 {
     if (style.usedVisibility() == Visibility::Hidden)
         return false;
-    if (!style.opacity())
+    if (style.opacity().isTransparent())
         return false;
     return true;
 }

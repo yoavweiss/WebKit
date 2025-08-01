@@ -114,7 +114,7 @@ template<typename T> static RefPtr<TransformOperation> resolveCalculateValuesFor
 
 AcceleratedEffectValues::AcceleratedEffectValues(const RenderStyle& style, const IntRect& borderBoxRect, const RenderLayerModelObject* renderer)
 {
-    opacity = style.opacity();
+    opacity = style.opacity().value.value;
 
     auto borderBoxSize = borderBoxRect.size();
 

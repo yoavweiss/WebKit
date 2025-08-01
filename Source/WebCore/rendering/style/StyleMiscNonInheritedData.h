@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Samuel Weinig <sam@webkit.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,6 +33,7 @@
 #include "StyleContent.h"
 #include "StyleContentAlignmentData.h"
 #include "StyleObjectPosition.h"
+#include "StyleOpacity.h"
 #include "StyleSelfAlignmentData.h"
 #include <memory>
 #include <wtf/DataRef.h>
@@ -69,12 +71,10 @@ public:
     void dumpDifferences(TextStream&, const StyleMiscNonInheritedData&) const;
 #endif
 
-    bool hasOpacity() const { return opacity < 1; }
-    bool hasZeroOpacity() const { return !opacity; }
     bool hasFilters() const;
 
     // This is here to pack in with m_refCount.
-    float opacity;
+    Style::Opacity opacity;
 
     DataRef<StyleDeprecatedFlexibleBoxData> deprecatedFlexibleBox; // Flexible box properties
     DataRef<StyleFlexibleBoxData> flexibleBox;

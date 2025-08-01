@@ -1266,7 +1266,7 @@ Vector<TargetedElementInfo> ElementTargetingController::extractTargets(Vector<Re
                 return true;
 
             return targetRenderer->isOutOfFlowPositioned()
-                && (!style.hasBackground() || !style.opacity())
+                && (!style.hasBackground() || style.opacity().isTransparent())
                 && targetRenderer->usedPointerEvents() == PointerEvents::None;
         }();
 

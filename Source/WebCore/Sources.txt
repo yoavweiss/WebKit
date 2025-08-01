@@ -3151,6 +3151,7 @@ style/values/color/StyleDynamicRangeLimitMix.cpp
 style/values/color/StyleHexColor.cpp
 style/values/color/StyleKeywordColor.cpp
 style/values/color/StyleLightDarkColor.cpp
+style/values/color/StyleOpacity.cpp
 style/values/color/StyleResolvedColor.cpp
 style/values/content/StyleContent.cpp
 style/values/content/StyleQuotes.cpp

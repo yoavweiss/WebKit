@@ -81,7 +81,6 @@ public:
 
     // MARK: Shared serializations
 
-    static void serializeOpacity(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, float);
     static void serializeImageOrNone(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StyleImage*);
     static void serializeGlyphOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeGlyphOrientationOrAuto(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
@@ -567,11 +566,6 @@ inline void ExtractorSerializer::serializeTransformOperation(const RenderStyle& 
 }
 
 // MARK: - Shared serializations
-
-inline void ExtractorSerializer::serializeOpacity(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, float opacity)
-{
-    serialize(state, builder, context, opacity);
-}
 
 inline void ExtractorSerializer::serializeImageOrNone(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const StyleImage* image)
 {

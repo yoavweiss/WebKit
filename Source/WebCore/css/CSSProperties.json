@@ -4454,9 +4454,9 @@
             "inherited": true,
             "initial": "1",
             "codegen-properties": {
-                "animation-wrapper": "Wrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-requires-render-style": true,
-                "style-converter": "Opacity",
+                "style-converter": "StyleType<Opacity>",
                 "svg": true,
                 "parser-grammar": "<opacity-value>"
             },
@@ -4527,9 +4527,9 @@
             "animation-type": "by computed value",
             "initial": "1",
             "codegen-properties": {
-                "animation-wrapper": "Wrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-requires-render-style": true,
-                "style-converter": "Opacity",
+                "style-converter": "StyleType<Opacity>",
                 "svg": true,
                 "parser-grammar": "<opacity-value>"
             },
@@ -6561,9 +6561,9 @@
                 "aliases": [
                     "-webkit-opacity"
                 ],
-                "animation-wrapper": "Wrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "always",
-                "style-converter": "Opacity",
+                "style-converter": "StyleType<Opacity>",
                 "parser-grammar": "<opacity-value>"
             },
             "status": {
@@ -7473,9 +7473,9 @@
             "animation-type": "by computed value",
             "initial": "1",
             "codegen-properties": {
-                "animation-wrapper": "Wrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-requires-render-style": true,
-                "style-converter": "Opacity",
+                "style-converter": "StyleType<Opacity>",
                 "svg": true,
                 "parser-grammar": "<opacity-value>"
             },
@@ -7621,9 +7621,9 @@
             "inherited": true,
             "initial": "1",
             "codegen-properties": {
-                "animation-wrapper": "Wrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-requires-render-style": true,
-                "style-converter": "Opacity",
+                "style-converter": "StyleType<Opacity>",
                 "svg": true,
                 "parser-grammar": "<opacity-value>"
             },

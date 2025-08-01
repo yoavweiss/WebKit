@@ -160,7 +160,6 @@ public:
 
     // MARK: Shared conversions
 
-    static Ref<CSSValue> convertOpacity(ExtractorState&, float);
     static Ref<CSSValue> convertImageOrNone(ExtractorState&, const StyleImage*);
     static Ref<CSSValue> convertGlyphOrientation(ExtractorState&, GlyphOrientation);
     static Ref<CSSValue> convertGlyphOrientationOrAuto(ExtractorState&, GlyphOrientation);
@@ -509,11 +508,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTransformOperation(const RenderS
 }
 
 // MARK: - Shared conversions
-
-inline Ref<CSSValue> ExtractorConverter::convertOpacity(ExtractorState& state, float opacity)
-{
-    return convert(state, opacity);
-}
 
 inline Ref<CSSValue> ExtractorConverter::convertImageOrNone(ExtractorState& state, const StyleImage* image)
 {

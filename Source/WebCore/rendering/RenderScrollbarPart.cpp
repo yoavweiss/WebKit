@@ -165,16 +165,16 @@ void RenderScrollbarPart::paintIntoRect(GraphicsContext& graphicsContext, const 
     setWidth(rect.width());
     setHeight(rect.height());
 
-    if (graphicsContext.paintingDisabled() || !style().opacity())
+    if (graphicsContext.paintingDisabled() || style().opacity().isTransparent())
         return;
 
     // We don't use RenderLayers for scrollbar parts, so we need to handle opacity here.
     // Opacity for ScrollbarBGPart is handled by RenderScrollbarTheme::willPaintScrollbar().
-    bool needsTransparencyLayer = m_part != ScrollbarBGPart && style().opacity() < 1;
+    bool needsTransparencyLayer = m_part != ScrollbarBGPart && !style().opacity().isOpaque();
     if (needsTransparencyLayer) {
         graphicsContext.save();
         graphicsContext.clip(rect);
-        graphicsContext.beginTransparencyLayer(style().opacity());
+        graphicsContext.beginTransparencyLayer(style().opacity().value.value);
     }
     
     // Now do the paint.
