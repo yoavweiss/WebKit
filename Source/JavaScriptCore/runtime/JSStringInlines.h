@@ -180,10 +180,14 @@ inline JSValue jsMakeNontrivialString(JSGlobalObject* globalObject, StringType&&
 }
 
 template <typename CharacterType>
+    requires (std::same_as<CharacterType, LChar> || std::same_as<CharacterType, char16_t>)
 inline JSString* repeatCharacter(JSGlobalObject* globalObject, CharacterType character, unsigned repeatCount)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
+
+    if (!repeatCount)
+        return jsEmptyString(vm);
 
     std::span<CharacterType> buffer;
     auto impl = StringImpl::tryCreateUninitialized(repeatCount, buffer);
@@ -192,7 +196,13 @@ inline JSString* repeatCharacter(JSGlobalObject* globalObject, CharacterType cha
         return nullptr;
     }
 
-    std::fill_n(buffer.data(), repeatCount, character);
+    *buffer.data() = character;
+    unsigned copied = 1;
+    while (copied < repeatCount) {
+        unsigned copyLen = std::min(copied, repeatCount - copied);
+        memcpySpan(buffer.subspan(copied, copyLen), buffer.subspan(0, copyLen));
+        copied += copyLen;
+    }
 
     RELEASE_AND_RETURN(scope, jsString(vm, impl.releaseNonNull()));
 }
