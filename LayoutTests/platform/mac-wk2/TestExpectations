@@ -2376,3 +2376,6 @@ imported/w3c/web-platform-tests/navigation-api/navigate-event/navigation-travers
 imported/w3c/web-platform-tests/navigation-api/navigation-methods/back-forward-multiple-frames.html [ Failure ]
 imported/w3c/web-platform-tests/navigation-api/navigation-methods/traverseTo-navigates-multiple-iframes.html [ Failure ]
 imported/w3c/web-platform-tests/navigation-api/per-entry-events/dispose-for-navigation-in-child.html [ Failure ]
+
+webkit.org/b/293808 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/atan2.html [ Failure ]
+webkit.org/b/293808 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/bitcast.html [ Timeout ]
