@@ -330,6 +330,7 @@ struct ScrollbarColor;
 struct ScrollbarGutter;
 struct ShapeMargin;
 struct ShapeOutside;
+struct StrokeMiterlimit;
 struct StrokeWidth;
 struct TextDecorationThickness;
 struct TextEmphasisStyle;
@@ -1765,9 +1766,9 @@ public:
     Color computedStrokeColor() const;
     inline CSSPropertyID usedStrokeColorProperty() const;
 
-    inline float strokeMiterLimit() const;
-    inline void setStrokeMiterLimit(float);
-    static constexpr float initialStrokeMiterLimit();
+    inline Style::StrokeMiterlimit strokeMiterLimit() const;
+    inline void setStrokeMiterLimit(Style::StrokeMiterlimit);
+    static constexpr Style::StrokeMiterlimit initialStrokeMiterLimit();
 
     static constexpr Style::Opacity initialFillOpacity();
     static constexpr Style::Opacity initialStrokeOpacity();

@@ -39,6 +39,7 @@
 #include "StyleListStyleType.h"
 #include "StyleQuotes.h"
 #include "StyleScrollbarColor.h"
+#include "StyleStrokeMiterlimit.h"
 #include "StyleStrokeWidth.h"
 #include "StyleTextEdge.h"
 #include "StyleTextEmphasisStyle.h"
@@ -134,7 +135,7 @@ public:
     TextEdge lineFitEdge;
     
     Length wordSpacing;
-    float miterLimit;
+    Style::StrokeMiterlimit miterLimit;
 
     DataRef<Style::CustomPropertyData> customProperties;
 

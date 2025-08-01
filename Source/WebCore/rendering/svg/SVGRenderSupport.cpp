@@ -485,7 +485,7 @@ void SVGRenderSupport::applyStrokeStyleToContext(GraphicsContext& context, const
     context.setLineCap(style.capStyle());
     context.setLineJoin(style.joinStyle());
     if (style.joinStyle() == LineJoin::Miter)
-        context.setMiterLimit(style.strokeMiterLimit());
+        context.setMiterLimit(style.strokeMiterLimit().value.value);
 
     auto& dashes = svgStyle.strokeDashArray();
     if (dashes.isNone())
@@ -581,7 +581,7 @@ FloatRect SVGRenderSupport::calculateApproximateStrokeBoundingBox(const RenderEl
         case Renderer::ShapeType::Line: {
             auto& style = renderer.style();
             if (renderer.shapeType() == Renderer::ShapeType::Path && style.joinStyle() == LineJoin::Miter) {
-                const float miter = style.strokeMiterLimit();
+                auto miter = style.strokeMiterLimit().value.value;
                 if (miter < std::numbers::sqrt2 && style.capStyle() == LineCap::Square)
                     delta *= std::numbers::sqrt2;
                 else

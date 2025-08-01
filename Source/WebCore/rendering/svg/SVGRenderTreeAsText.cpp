@@ -214,7 +214,7 @@ static void writeSVGStrokePaintingResource(TextStream& ts, const RenderElement& 
 
     writeIfNotDefault(ts, "opacity"_s, svgStyle.strokeOpacity().value.value, 1.0f);
     writeIfNotDefault(ts, "stroke width"_s, strokeWidth, 1.0);
-    writeIfNotDefault(ts, "miter limit"_s, style.strokeMiterLimit(), 4.0f);
+    writeIfNotDefault(ts, "miter limit"_s, style.strokeMiterLimit().value.value, 4.0f);
     writeIfNotDefault(ts, "line cap"_s, style.capStyle(), LineCap::Butt);
     writeIfNotDefault(ts, "line join"_s, style.joinStyle(), LineJoin::Miter);
     writeIfNotDefault(ts, "dash offset"_s, dashOffset, 0.0);

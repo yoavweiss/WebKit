@@ -7603,10 +7603,11 @@
             "inherited": true,
             "initial": "4",
             "codegen-properties": {
-                "animation-wrapper": "Wrapper",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<StrokeMiterlimit>",
                 "render-style-name-for-methods": "StrokeMiterLimit",
-                "style-converter": "Number<float>",
-                "parser-grammar": "<number [0,inf]>"
+                "parser-grammar": "<number [0,inf]>",
+                "parser-grammar-comment": "Current spec grammar is '<number [1,inf]>'."
             },
             "status": "supported",
             "specification": {
