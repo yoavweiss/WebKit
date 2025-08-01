@@ -504,8 +504,6 @@ Bug(WPE) fast/dom/Geolocation/requestQueuingForHiddenPage.html [ Skip ]
 Bug(WPE) fast/dom/Geolocation/startUpdatingOnlyWhenPageVisible.html [ Skip ]
 Bug(WPE) fast/dom/Geolocation/stopUpdatingForHiddenPage.html [ Skip ]
 
-Bug(WPE) fast/dom/HTMLAnchorElement [ Skip ]
-
 # Failure.
 imported/w3c/web-platform-tests/pointerevents/compat/pointerevent_mouseevent_key_pressed.html [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/persistentDeviceId/get-persistendeviceid-from-pointer-mouse-event.tentative.html [ Skip ]
