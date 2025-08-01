@@ -26,6 +26,7 @@
 #include "config.h"
 #include "WPEViewWayland.h"
 
+#include "GRefPtrWPE.h"
 #include "WPEBufferDMABufFormats.h"
 #include "WPEDisplayWaylandPrivate.h"
 #include "WPEToplevelWaylandPrivate.h"
@@ -636,9 +637,8 @@ static const struct zwp_relative_pointer_v1_listener relativePointerListener = {
         double dX = wl_fixed_to_double(deltaX);
         double dY = wl_fixed_to_double(deltaY);
 
-        auto* event = wpe_event_pointer_move_new(WPE_EVENT_POINTER_MOVE, view, WPE_INPUT_SOURCE_MOUSE, 0, static_cast<WPEModifiers>(pointerModifiers), x, y, dX, dY);
-        wpe_view_event(view, event);
-        wpe_event_unref(event);
+        GRefPtr<WPEEvent> event = adoptGRef(wpe_event_pointer_move_new(WPE_EVENT_POINTER_MOVE, view, WPE_INPUT_SOURCE_MOUSE, 0, static_cast<WPEModifiers>(pointerModifiers), x, y, dX, dY));
+        wpe_view_event(view, event.get());
     }
 };
 

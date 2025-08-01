@@ -37,8 +37,8 @@
 #include <wtf/glib/GUniquePtr.h>
 
 #if ENABLE(WPE_PLATFORM)
-#include "GRefPtrWPE.h"
 #include "WPEUtilities.h"
+#include <wpe/GRefPtrWPE.h>
 #include <wpe/wpe-platform.h>
 #endif
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Igalia S.L.
+ * Copyright (C) 2025 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,41 +23,38 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "GRefPtrWPE.h"
+#pragma once
 
-#if ENABLE(WPE_PLATFORM)
-
-#include <wpe/wpe-platform.h>
+#include <wpe/WPEClipboard.h>
+#include <wpe/WPEEvent.h>
+#include <wtf/glib/GRefPtr.h>
 
 namespace WTF {
 
-template <> WPEEvent* refGPtr(WPEEvent* ptr)
+template<> inline WPEEvent* refGPtr(WPEEvent* ptr)
 {
-    if (ptr)
+    if (ptr) [[likely]]
         wpe_event_ref(ptr);
     return ptr;
 }
 
-template <> void derefGPtr(WPEEvent* ptr)
+template<> inline void derefGPtr(WPEEvent* ptr)
 {
-    if (ptr)
+    if (ptr) [[likely]]
         wpe_event_unref(ptr);
 }
 
-template <> WPEClipboardContent* refGPtr(WPEClipboardContent* ptr)
+template<> inline WPEClipboardContent* refGPtr(WPEClipboardContent* ptr)
 {
-    if (ptr)
+    if (ptr) [[likely]]
         wpe_clipboard_content_ref(ptr);
     return ptr;
 }
 
-template <> void derefGPtr(WPEClipboardContent* ptr)
+template<> inline void derefGPtr(WPEClipboardContent* ptr)
 {
-    if (ptr)
+    if (ptr) [[likely]]
         wpe_clipboard_content_unref(ptr);
 }
 
 } // namespace WTF
-
-#endif // ENABLE(WPE_PLATFORM)
