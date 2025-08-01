@@ -52,6 +52,10 @@ RefPtr<LibWebRTCNetworkManager> LibWebRTCNetworkManager::getOrCreate(WebCore::Sc
     if (!document)
         return nullptr;
 
+    // Check if PeerConnection is enabled to prevent IPC crashes
+    if (!document->settings().peerConnectionEnabled())
+        return nullptr;
+
     RefPtr networkManager = downcast<LibWebRTCNetworkManager>(document->rtcNetworkManager());
     if (!networkManager) {
         auto newNetworkManager = adoptRef(*new LibWebRTCNetworkManager(identifier));
