@@ -496,6 +496,12 @@ imported/w3c/web-platform-tests/html/webappapis/scripting/event-loops/fully_acti
 
 # Skip WPT webaudio tests that are timing out.
 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-mediastreamaudiosourcenode-interface/mediastreamaudiosourcenode-routing.html [ Skip ]
+webkit.org/b/280303  imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audiocontext-interface/audiocontext-sinkid-state-change.https.html [ Skip ]
+imported/w3c/web-platform-tests/webaudio/the-audio-api/the-mediaelementaudiosourcenode-interface/setSinkId-with-MediaElementAudioSourceNode.https.html [ Skip ]
+imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audiocontext-interface/audiocontext-suspend-resume-close.html [ Skip ]
+imported/w3c/web-platform-tests/webaudio/the-audio-api/the-analysernode-interface/test-analyser-resume-after-suspended.html [ Skip ]
+imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audioworklet-interface/audioworkletglobalscope-creation-time.https.html [ Skip ]
+imported/w3c/web-platform-tests/webaudio/the-audio-api/the-mediaelementaudiosourcenode-interface/mediaElementAudioSourceToScriptProcessorTest.html [ Skip ]
 
 # This test is timing out due to lack of support for SharedArrayBuffer.
 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audioworklet-interface/audioworklet-postmessage-sharedarraybuffer.https.html [ Skip ]
@@ -1076,7 +1082,6 @@ imported/w3c/web-platform-tests/user-timing/mark.html [ Failure Pass ]
 imported/w3c/web-platform-tests/user-timing/measure_associated_with_navigation_timing.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/anonymous-iframe/sharedworker-partitioning.tentative.https.window.html [ Failure Pass ]
 imported/w3c/web-platform-tests/service-workers/service-worker/navigation-timing-extended.https.html [ Failure Pass ]
-imported/w3c/web-platform-tests/webaudio/the-audio-api/the-mediaelementaudiosourcenode-interface/mediaElementAudioSourceToScriptProcessorTest.html [ Failure Pass ]
 
 imported/w3c/web-platform-tests/html/semantics/document-metadata/the-link-element/link-load-error-events.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/html/semantics/document-metadata/the-link-element/link-load-error-events.https.html [ DumpJSConsoleLogInStdErr ]
