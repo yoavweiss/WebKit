@@ -8184,9 +8184,6 @@ webkit.org/b/296639 [ Release ] imported/w3c/web-platform-tests/html/browsers/br
 
 webkit.org/b/296657 fast/scrolling/ios/scroll-anchoring-when-revealing-focused-element.html [ Pass Failure ]
 
-webkit.org/b/296660 [ Debug ] fast/mediastream/getDisplayMedia-frame-rate.html [ Pass Failure ]
-
 webkit.org/b/296707 imported/w3c/web-platform-tests/screen-orientation/non-fully-active.html [ Pass Failure ]
 
 webkit.org/b/296709 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video/processing-model/evil/media_height_19.html [ ImageOnlyFailure ]
-
