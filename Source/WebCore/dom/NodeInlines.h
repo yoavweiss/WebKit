@@ -40,7 +40,12 @@ inline RefPtr<ScriptExecutionContext> Node::protectedScriptExecutionContext() co
 
 inline WebCoreOpaqueRoot Node::opaqueRoot() const
 {
-    return WebCoreOpaqueRoot { m_opaqueRoot };
+    if (isConnected()) {
+        Locker locker { TreeScope::treeScopeMutationLock() };
+        return WebCoreOpaqueRoot { &treeScope().documentScope() };
+    }
+    // FIXME: Possible race?
+    return traverseToOpaqueRoot();
 }
 
 inline Document& Node::document() const
@@ -178,8 +183,7 @@ inline Node& Node::rootNode() const
 {
     if (isInTreeScope())
         return treeScope().rootNode();
-    ASSERT(m_opaqueRoot == &traverseToRootNode());
-    return *m_opaqueRoot;
+    return traverseToRootNode();
 }
 
 inline void Node::setParentNode(ContainerNode* parent)
@@ -243,6 +247,7 @@ inline ContainerNode* Node::parentNodeGuaranteedHostFree() const
 
 inline void Node::setTreeScope(TreeScope& scope)
 {
+    Locker locker { TreeScope::treeScopeMutationLock() };
     m_treeScope = &scope;
 }
 

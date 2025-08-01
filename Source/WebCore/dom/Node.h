@@ -325,8 +325,7 @@ public:
     inline void setParentNode(ContainerNode*);
     inline Node& rootNode() const;
     WEBCORE_EXPORT Node& traverseToRootNode() const;
-    Node& shadowIncludingRoot() const { ASSERT(m_opaqueRoot == &traverseToShadowIncludingRoot()); return *m_opaqueRoot; }
-    Node& traverseToShadowIncludingRoot() const;
+    Node& shadowIncludingRoot() const;
 
     struct GetRootNodeOptions {
         bool composed;
@@ -814,7 +813,6 @@ private:
     mutable OptionSet<StateFlag> m_stateFlags;
 
     CheckedPtr<ContainerNode> m_parentNode;
-    Node* m_opaqueRoot { this };
     TreeScope* m_treeScope { nullptr };
     Node* m_previousSibling { nullptr };
     CheckedPtr<Node> m_next;

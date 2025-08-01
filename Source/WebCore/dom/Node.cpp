@@ -126,7 +126,11 @@ public:
     uint32_t refCountAndParentBit;
     uint32_t nodeFlags;
     uint32_t stateFlags;
-    void* pointers[6];
+    void* parentNode;
+    void* treeScope;
+    void* previous;
+    void* next;
+    void* renderer;
     uint8_t rareDataWithBitfields[8];
 };
 
@@ -1478,20 +1482,14 @@ Node& Node::traverseToRootNode() const
 }
 
 // https://dom.spec.whatwg.org/#concept-shadow-including-root
-Node& Node::traverseToShadowIncludingRoot() const
+Node& Node::shadowIncludingRoot() const
 {
-    auto* root = &rootNode();
-    while (root) {
-        auto* shadowRoot = dynamicDowncast<ShadowRoot>(root);
-        if (!shadowRoot)
-            return *root;
+    auto& root = this->rootNode();
+    if (auto* shadowRoot = dynamicDowncast<ShadowRoot>(root)) {
         auto* host = shadowRoot->host();
-        if (!host)
-            return *root;
-        root = &host->rootNode();
+        return host ? host->shadowIncludingRoot() : root;
     }
-    ASSERT_NOT_REACHED();
-    return rootNode();
+    return root;
 }
 
 Node& Node::getRootNode(const GetRootNodeOptions& options) const
@@ -1521,8 +1519,6 @@ Node::InsertedIntoAncestorResult Node::insertedIntoAncestor(InsertionType insert
     if (parentOfInsertedTree.isInShadowTree())
         setEventTargetFlag(EventTargetFlag::IsInShadowTree);
 
-    m_opaqueRoot = parentOfInsertedTree.m_opaqueRoot;
-
     invalidateStyle(Style::Validity::SubtreeInvalid, Style::InvalidationMode::InsertedIntoAncestor);
 
     return InsertedIntoAncestorResult::Done;
@@ -1539,8 +1535,6 @@ void Node::removedFromAncestor(RemovalType removalType, ContainerNode& oldParent
         if (CheckedPtr cache = oldParentOfRemovedTree.document().existingAXObjectCache())
             cache->remove(*this);
     }
-    auto* newParent = parentOrShadowHostNode();
-    m_opaqueRoot = newParent ? newParent->m_opaqueRoot : this;
 }
 
 bool Node::isRootEditableElement() const
