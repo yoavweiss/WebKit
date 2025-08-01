@@ -23,43 +23,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "config.h"
-#include "LibDRMUtilities.h"
+#ifndef WPEDRMDevice_h
+#define WPEDRMDevice_h
 
-#if USE(LIBDRM)
+#if !defined(__WPE_PLATFORM_H_INSIDE__) && !defined(BUILDING_WEBKIT)
+#error "Only <wpe/wpe-platform.h> can be included directly."
+#endif
 
-#include <glib.h>
-#include <wtf/StdLibExtras.h>
-#include <xf86drm.h>
+#include <glib-object.h>
+#include <wpe/WPEDefines.h>
 
-std::pair<CString, CString> lookupNodesWithLibDRM()
-{
-    std::array<drmDevicePtr, 64> devices { };
+G_BEGIN_DECLS
 
-    int numDevices = drmGetDevices2(0, devices.data(), std::size(devices));
-    if (numDevices <= 0)
-        return { };
+typedef struct _WPEDRMDevice WPEDRMDevice;
 
-    CString devicePath;
-    CString renderNodePath;
-    for (int i = 0; i < numDevices; ++i) {
-        drmDevice* device = devices[i];
-        if (!(device->available_nodes & (1 << DRM_NODE_PRIMARY | 1 << DRM_NODE_RENDER)))
-            continue;
+#define WPE_TYPE_DRM_DEVICE (wpe_drm_device_get_type())
 
-        if (!devicePath.isNull()) {
-            g_warning("Infered DRM device (%s) using libdrm but multiple were found, you can override this with WPE_DRM_DEVICE and WPE_DRM_RENDER_NODE", devicePath.data());
-            break;
-        }
+WPE_API GType         wpe_drm_device_get_type         (void);
+WPE_API WPEDRMDevice *wpe_drm_device_new              (const char   *primary_node,
+                                                       const char   *render_node);
+WPE_API WPEDRMDevice *wpe_drm_device_ref              (WPEDRMDevice *device);
+WPE_API void          wpe_drm_device_unref            (WPEDRMDevice *device);
+WPE_API const char   *wpe_drm_device_get_primary_node (WPEDRMDevice *device);
+WPE_API const char   *wpe_drm_device_get_render_node  (WPEDRMDevice *device);
 
-        if (device->available_nodes & (1 << DRM_NODE_RENDER))
-            renderNodePath = CString(device->nodes[DRM_NODE_RENDER]);
-        if (device->available_nodes & (1 << DRM_NODE_PRIMARY))
-            devicePath = CString(device->nodes[DRM_NODE_PRIMARY]);
-    }
-    drmFreeDevices(devices.data(), numDevices);
+G_END_DECLS
 
-    return { WTFMove(devicePath), WTFMove(renderNodePath) };
-}
-
-#endif /* USE(LIBDRM) */
+#endif /* WPEDRMDevice_h */

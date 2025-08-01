@@ -187,7 +187,13 @@ static bool wpeBufferDMABufTryEnsureGBMDevice(WPEBufferDMABuf* buffer)
     if (!display)
         return false;
 
-    const char* filename = wpe_display_get_drm_render_node(display);
+    auto* drmDevice = wpe_display_get_drm_device(display);
+    if (!drmDevice)
+        return false;
+
+    const char* filename = wpe_drm_device_get_render_node(drmDevice);
+    if (!filename)
+        filename = wpe_drm_device_get_primary_node(drmDevice);
     if (!filename)
         return false;
 

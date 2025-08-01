@@ -100,7 +100,7 @@ OptionSet<RendererBufferTransportMode> AcceleratedBackingStore::rendererBufferTr
             return;
 
         // Don't claim to support hardware buffers if we don't have a device to import them.
-        auto device = drmRenderNodeDevice();
+        const auto& device = drmRenderNodeOrPrimaryDevice();
         if (device.isEmpty())
             return;
 
@@ -155,7 +155,7 @@ Vector<RendererBufferFormat> AcceleratedBackingStore::preferredBufferFormats()
         if (!tokens.isEmpty() && tokens[0].length() >= 2 && tokens[0].length() <= 4) {
             RendererBufferFormat format;
             format.usage = display.glDisplayIsSharedWithGtk() ? RendererBufferFormat::Usage::Rendering : RendererBufferFormat::Usage::Mapping;
-            format.drmDevice = drmRenderNodeDevice().utf8();
+            format.drmDevice = drmRenderNodeOrPrimaryDevice().utf8();
             uint32_t fourcc = fourcc_code(tokens[0][0], tokens[0][1], tokens[0].length() > 2 ? tokens[0][2] : ' ', tokens[0].length() > 3 ? tokens[0][3] : ' ');
             char* endptr = nullptr;
             uint64_t modifier = tokens.size() > 1 ? g_ascii_strtoull(tokens[1].ascii().data(), &endptr, 16) : DRM_FORMAT_MOD_INVALID;
@@ -171,7 +171,7 @@ Vector<RendererBufferFormat> AcceleratedBackingStore::preferredBufferFormats()
     if (!display.glDisplayIsSharedWithGtk()) {
         RendererBufferFormat format;
         format.usage = RendererBufferFormat::Usage::Mapping;
-        format.drmDevice = drmRenderNodeDevice().utf8();
+        format.drmDevice = drmRenderNodeOrPrimaryDevice().utf8();
         format.formats.append({ DRM_FORMAT_XRGB8888, { DRM_FORMAT_MOD_LINEAR } });
         format.formats.append({ DRM_FORMAT_ARGB8888, { DRM_FORMAT_MOD_LINEAR } });
         return { WTFMove(format) };
@@ -181,7 +181,7 @@ Vector<RendererBufferFormat> AcceleratedBackingStore::preferredBufferFormats()
 
     RendererBufferFormat format;
     format.usage = RendererBufferFormat::Usage::Rendering;
-    format.drmDevice = drmRenderNodeDevice().utf8();
+    format.drmDevice = drmRenderNodeOrPrimaryDevice().utf8();
     format.formats = display.glDisplay()->dmabufFormats().map([](const auto& format) -> RendererBufferFormat::Format {
         return { format.fourcc, format.modifiers };
     });
@@ -528,7 +528,7 @@ RefPtr<AcceleratedBackingStore::Buffer> AcceleratedBackingStore::BufferGBM::crea
 {
     auto& manager = DRMDeviceManager::singleton();
     if (!manager.isInitialized())
-        manager.initializeMainDevice(drmRenderNodeDevice());
+        manager.initializeMainDevice(drmPrimaryDevice());
     auto* device = manager.mainGBMDeviceNode(DRMDeviceManager::NodeType::Render);
     if (!device) {
         WTFLogAlways("Failed to get GBM device");

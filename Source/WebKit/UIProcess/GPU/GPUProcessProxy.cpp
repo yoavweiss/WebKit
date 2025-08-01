@@ -199,7 +199,7 @@ GPUProcessProxy::GPUProcessProxy()
 #endif
 
 #if USE(GBM)
-    parameters.renderDeviceFile = drmRenderNodeDevice();
+    parameters.renderDeviceFile = drmRenderNodeOrPrimaryDevice();
 #endif
 
 #if PLATFORM(COCOA)

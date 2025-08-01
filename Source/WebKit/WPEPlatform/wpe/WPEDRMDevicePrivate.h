@@ -22,12 +22,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #pragma once
 
-#if USE(LIBDRM)
+#include "GRefPtrWPE.h"
+#include "WPEDRMDevice.h"
 
-#include <wtf/text/CString.h>
-
-std::pair<CString, CString> lookupNodesWithLibDRM();
-
-#endif /* USE(LIBDRM) */
+GRefPtr<WPEDRMDevice> wpeDRMDeviceCreateForDevice(const char*);

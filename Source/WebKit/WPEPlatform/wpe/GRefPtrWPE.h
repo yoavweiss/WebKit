@@ -26,6 +26,7 @@
 #pragma once
 
 #include <wpe/WPEClipboard.h>
+#include <wpe/WPEDRMDevice.h>
 #include <wpe/WPEEvent.h>
 #include <wtf/glib/GRefPtr.h>
 
@@ -56,5 +57,19 @@ template<> inline void derefGPtr(WPEClipboardContent* ptr)
     if (ptr) [[likely]]
         wpe_clipboard_content_unref(ptr);
 }
+
+template<> inline WPEDRMDevice* refGPtr(WPEDRMDevice* ptr)
+{
+    if (ptr) [[likely]]
+        wpe_drm_device_ref(ptr);
+    return ptr;
+}
+
+template<> inline void derefGPtr(WPEDRMDevice* ptr)
+{
+    if (ptr) [[likely]]
+        wpe_drm_device_unref(ptr);
+}
+
 
 } // namespace WTF
