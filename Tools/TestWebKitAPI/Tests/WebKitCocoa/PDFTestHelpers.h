@@ -23,29 +23,35 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "config.h"
-#import "UnifiedPDFTestHelpers.h"
+#pragma once
 
-#import "WKWebViewConfigurationExtras.h"
-#import <WebKit/WKPreferencesPrivate.h>
-#import <WebKit/WKWebViewConfiguration.h>
-#import <WebKit/_WKFeature.h>
 #import <wtf/RetainPtr.h>
+
+OBJC_CLASS NSData;
+OBJC_CLASS WKWebViewConfiguration;
+OBJC_CLASS _WKFrameHandle;
+
+OBJC_PROTOCOL(WKUIDelegate);
+
+@interface PDFPrintUIDelegate : NSObject <WKUIDelegate>
+
+- (NSSize)waitForPageSize;
+- (_WKFrameHandle *)lastPrintedFrame;
+
+@end
 
 namespace TestWebKitAPI {
 
-RetainPtr<WKWebViewConfiguration> configurationForWebViewTestingUnifiedPDF(bool hudEnabled)
-{
-    RetainPtr configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"WebProcessPlugInWithInternals" configureJSCForTesting:YES];
+#if ENABLE(UNIFIED_PDF_BY_DEFAULT)
+static constexpr bool unifiedPDFForTestingEnabled = true;
+#define UNIFIED_PDF_TEST(name) TEST(UnifiedPDF, name)
+#else
+static constexpr bool unifiedPDFForTestingEnabled = false;
+#define UNIFIED_PDF_TEST(name) TEST(UnifiedPDF, DISABLED_##name)
+#endif
 
-    for (_WKFeature *feature in [WKPreferences _features]) {
-        if ([feature.key isEqualToString:@"UnifiedPDFEnabled"])
-            [[configuration preferences] _setEnabled:YES forFeature:feature];
-        if ([feature.key isEqualToString:@"PDFPluginHUDEnabled"])
-            [[configuration preferences] _setEnabled:static_cast<BOOL>(hudEnabled) forFeature:feature];
-    }
+RetainPtr<WKWebViewConfiguration> configurationForWebViewTestingUnifiedPDF(bool hudEnabled = false);
 
-    return configuration;
-}
+RetainPtr<NSData> testPDFData();
 
 }

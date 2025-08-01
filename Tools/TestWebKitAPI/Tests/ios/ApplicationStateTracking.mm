@@ -28,11 +28,11 @@
 #if PLATFORM(IOS_FAMILY)
 
 #import "ClassMethodSwizzler.h"
+#import "PDFTestHelpers.h"
 #import "PlatformUtilities.h"
 #import "TestNavigationDelegate.h"
 #import "TestProtocol.h"
 #import "TestWKWebView.h"
-#import "UnifiedPDFTestHelpers.h"
 #import "WKWebViewConfigurationExtras.h"
 
 namespace TestWebKitAPI {

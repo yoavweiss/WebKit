@@ -28,11 +28,11 @@
 #if USE(QUICK_LOOK)
 
 #import "DeprecatedGlobalValues.h"
+#import "PDFTestHelpers.h"
 #import "PlatformUtilities.h"
 #import "Test.h"
 #import "TestProtocol.h"
 #import "TestWKWebView.h"
-#import "UnifiedPDFTestHelpers.h"
 #import <CoreServices/CoreServices.h>
 #import <WebCore/WebCoreThread.h>
 #import <WebKit/WKNavigationDelegatePrivate.h>

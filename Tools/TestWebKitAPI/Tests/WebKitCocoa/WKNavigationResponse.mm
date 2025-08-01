@@ -27,10 +27,10 @@
 
 #import "DeprecatedGlobalValues.h"
 #import "HTTPServer.h"
+#import "PDFTestHelpers.h"
 #import "PlatformUtilities.h"
 #import "Test.h"
 #import "TestNavigationDelegate.h"
-#import "UnifiedPDFTestHelpers.h"
 #import "WKWebViewConfigurationExtras.h"
 #import <WebKit/WKNavigationResponsePrivate.h>
 #import <WebKit/WKProcessPoolPrivate.h>

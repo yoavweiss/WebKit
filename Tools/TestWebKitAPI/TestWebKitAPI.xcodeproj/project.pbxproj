@@ -2693,6 +2693,7 @@
 		331987782CEF457300BC283C /* MouseSupportUIDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MouseSupportUIDelegate.mm; sourceTree = "<group>"; };
 		333A213D2DA71F3E0023C9C6 /* anchor-element-with-invalid-href.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "anchor-element-with-invalid-href.html"; sourceTree = "<group>"; };
 		333B9CE11277F23100FEFCE3 /* PreventEmptyUserAgent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreventEmptyUserAgent.cpp; sourceTree = "<group>"; };
+		335406B42E3BEA96008B3349 /* LegacyPDFPluginTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LegacyPDFPluginTests.mm; sourceTree = "<group>"; };
 		3378222C2947C095002106BB /* WKWebExtensionAPIWebNavigation.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WKWebExtensionAPIWebNavigation.mm; sourceTree = "<group>"; };
 		33976D8224DC479B00812304 /* IndexSparseSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IndexSparseSet.cpp; sourceTree = "<group>"; };
 		33B6F9E32CCB29EA009AD8FE /* WKPrinting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKPrinting.h; sourceTree = "<group>"; };
@@ -2710,8 +2711,8 @@
 		33E3CFEC2D5D949300FA96A5 /* anchorLink.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = anchorLink.pdf; sourceTree = "<group>"; };
 		33E79E05137B5FCE00E32D99 /* mouse-move-listener.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "mouse-move-listener.html"; sourceTree = "<group>"; };
 		33F734682D3B4ADB003B8704 /* multiple-pages-colored.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "multiple-pages-colored.pdf"; sourceTree = "<group>"; };
-		33FFFC3A2CB9CCFB00248AC3 /* UnifiedPDFTestHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnifiedPDFTestHelpers.h; sourceTree = "<group>"; };
-		33FFFC442CBA079500248AC3 /* UnifiedPDFTestHelpers.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = UnifiedPDFTestHelpers.mm; sourceTree = "<group>"; };
+		33FFFC3A2CB9CCFB00248AC3 /* PDFTestHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PDFTestHelpers.h; sourceTree = "<group>"; };
+		33FFFC442CBA079500248AC3 /* PDFTestHelpers.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PDFTestHelpers.mm; sourceTree = "<group>"; };
 		3545E58827E2AD1200F1910E /* WritingModeTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WritingModeTests.cpp; sourceTree = "<group>"; };
 		370CE2291F57343400E7410B /* WKContentViewTargetForAction.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WKContentViewTargetForAction.mm; sourceTree = "<group>"; };
 		371195AA1FE5797700A1FB92 /* WKWebViewAlwaysShowsScroller.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WKWebViewAlwaysShowsScroller.mm; sourceTree = "<group>"; };
@@ -4808,6 +4809,7 @@
 				9B6D9FF8252EFDE500A51640 /* IPCTestingAPI.mm */,
 				5C69BDD41F82A7EB000F4F4B /* JavaScriptDuringNavigation.mm */,
 				5C0160C021A132320077FA32 /* JITEnabled.mm */,
+				335406B42E3BEA96008B3349 /* LegacyPDFPluginTests.mm */,
 				C25CCA051E51380B0026CB8A /* LineBreaking.mm */,
 				37D36ED61AF42ECD00BAF5D9 /* LoadAlternateHTMLString.mm */,
 				FA049D0F2BCF22210099C221 /* LoadAndDecodeImage.mm */,
@@ -4868,6 +4870,8 @@
 				9B2346411F943A2400DB1D23 /* PasteWebArchive.mm */,
 				51D8C18F2267B26700797E40 /* PDFLinkReferrer.mm */,
 				516281262325C19100BB7E42 /* PDFSnapshot.mm */,
+				33FFFC3A2CB9CCFB00248AC3 /* PDFTestHelpers.h */,
+				33FFFC442CBA079500248AC3 /* PDFTestHelpers.mm */,
 				41E9EE1A28B4DBF8006A2298 /* PermissionsAPI.mm */,
 				3FCC4FE41EC4E8520076E37C /* PictureInPictureDelegate.mm */,
 				DFB8FF312492F51A00F00B0D /* Preconnect.mm */,
@@ -4947,8 +4951,6 @@
 				F3CEF6B82808F2D3001E23A5 /* TimeZoneOverride.mm */,
 				5C73A81A2323059800DEA85A /* TLSDeprecation.mm */,
 				5CB40B4D1F4B98BE007DC7B9 /* UIDelegate.mm */,
-				33FFFC3A2CB9CCFB00248AC3 /* UnifiedPDFTestHelpers.h */,
-				33FFFC442CBA079500248AC3 /* UnifiedPDFTestHelpers.mm */,
 				F4D2C66A2BCF9D8400DADC86 /* UnifiedPDFTests.mm */,
 				5C3A77A922F20B8A003827FF /* UploadDirectory.mm */,
 				7CC3E1FA197E234100BE6252 /* UserContentController.mm */,

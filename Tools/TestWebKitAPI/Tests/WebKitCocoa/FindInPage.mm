@@ -26,11 +26,11 @@
 #import "config.h"
 
 #import "InstanceMethodSwizzler.h"
+#import "PDFTestHelpers.h"
 #import "PlatformUtilities.h"
 #import "Test.h"
 #import "TestNavigationDelegate.h"
 #import "TestWKWebView.h"
-#import "UnifiedPDFTestHelpers.h"
 #import "WKWebViewConfigurationExtras.h"
 #import <WebKit/WKWebViewPrivate.h>
 #import <WebKit/_WKFindDelegate.h>

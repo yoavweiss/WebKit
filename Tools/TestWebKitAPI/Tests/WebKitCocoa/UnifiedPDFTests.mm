@@ -33,6 +33,7 @@
 #import "IOSMouseEventTestHarness.h"
 #import "InstanceMethodSwizzler.h"
 #import "MouseSupportUIDelegate.h"
+#import "PDFTestHelpers.h"
 #import "PlatformUtilities.h"
 #import "Test.h"
 #import "TestCocoa.h"
@@ -43,7 +44,6 @@
 #import "TestWKWebView.h"
 #import "UIKitSPIForTesting.h"
 #import "UISideCompositingScope.h"
-#import "UnifiedPDFTestHelpers.h"
 #import "WKPrinting.h"
 #import "WKWebViewConfigurationExtras.h"
 #import "WKWebViewForTestingImmediateActions.h"
@@ -107,48 +107,7 @@
 
 @end
 
-@interface PDFPrintUIDelegate : NSObject <WKUIDelegate>
-
-- (NSSize)waitForPageSize;
-- (_WKFrameHandle *)lastPrintedFrame;
-
-@end
-
-@implementation PDFPrintUIDelegate {
-    NSSize _pageSize;
-    bool _receivedSize;
-    RetainPtr<_WKFrameHandle> _lastPrintedFrame;
-}
-
-- (void)_webView:(WKWebView *)webView printFrame:(_WKFrameHandle *)frame pdfFirstPageSize:(CGSize)size completionHandler:(void (^)(void))completionHandler
-{
-    _pageSize = size;
-    _receivedSize = true;
-    _lastPrintedFrame = frame;
-    completionHandler();
-}
-
-- (NSSize)waitForPageSize
-{
-    _receivedSize = false;
-    while (!_receivedSize)
-        TestWebKitAPI::Util::spinRunLoop();
-    return _pageSize;
-}
-
-- (_WKFrameHandle *)lastPrintedFrame
-{
-    return _lastPrintedFrame.get();
-}
-
-@end
-
 namespace TestWebKitAPI {
-
-static RetainPtr<NSData> testPDFData()
-{
-    return [NSData dataWithContentsOfURL:[NSBundle.test_resourcesBundle URLForResource:@"test" withExtension:@"pdf"]];
-}
 
 #if PLATFORM(MAC)
 
