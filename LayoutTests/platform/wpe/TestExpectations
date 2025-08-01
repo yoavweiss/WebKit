@@ -158,11 +158,6 @@ webkit.org/b/213829 css3/calc/background-position-parsing.html [ ImageOnlyFailur
 
 # Editing
 
-webkit.org/b/296367 editing/deleting/delete-and-undo.html [ Failure ]
-webkit.org/b/296367 editing/deleting/delete-by-word-002.html [ Failure ]
-webkit.org/b/296367 editing/deleting/paragraph-in-preserveNewline.html [ Failure ]
-webkit.org/b/296367 editing/deleting/whitespace-pre-1.html [ Failure ]
-
 webkit.org/b/296415 editing/editability/user-modify-read-only-in-editable-view.html [ Failure ]
 webkit.org/b/296415 editing/editability/user-select-all-in-editable-view.html [ Failure ]
 
@@ -1011,7 +1006,6 @@ webkit.org/b/258166 fast/inline/hyphen-across-renderers.html [ ImageOnlyFailure 
 
 fast/canvas/webgl/drawingbuffer-test.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-overflow/scrollbar-gutter-propagation-007.html [ Failure ]
-imported/w3c/web-platform-tests/editing/run/undo-redo-after-mutation.html [ Failure ]
 
 imported/w3c/web-platform-tests/css/css-masking/clip/clip-rect-scroll.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-position/position-fixed-scroll-nested-fixed.html [ ImageOnlyFailure ]
