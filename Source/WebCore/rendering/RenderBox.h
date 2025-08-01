@@ -875,7 +875,7 @@ inline RenderBox* RenderBox::nextInFlowSiblingBox() const
     return nullptr;
 }
 
-LayoutUnit synthesizedBaseline(const RenderBox&, const RenderStyle& parentStyle, LineDirectionMode, BaselineSynthesisEdge);
+LayoutUnit synthesizedBaseline(const RenderBox&, const RenderStyle& parentStyle, LineDirection, BaselineSynthesisEdge);
 
 } // namespace WebCore
 

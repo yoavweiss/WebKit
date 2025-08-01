@@ -70,7 +70,7 @@ LayoutUnit GridBaselineAlignment::ascentForGridItem(const RenderBox& gridItem, S
 
     if (alignmentContextType == Style::GridTrackSizingDirection::Rows) {
         auto alignmentContextDirection = [&] {
-            return parentStyle.writingMode().isHorizontal() ? LineDirectionMode::HorizontalLine : LineDirectionMode::VerticalLine;
+            return parentStyle.writingMode().isHorizontal() ? LineDirection::Horizontal : LineDirection::Vertical;
         };
 
         if (!isParallelToAlignmentAxisForGridItem(gridItem, alignmentContextType))
@@ -87,7 +87,7 @@ LayoutUnit GridBaselineAlignment::ascentForGridItem(const RenderBox& gridItem, S
             ASSERT(!gridItem.needsLayout());
             if (isVerticalAlignmentContext(alignmentContextType))
                 return m_writingMode.isBlockFlipped() ? gridItemMargin + gridItem.size().width().toInt() : gridItemMargin;
-            return gridItemMargin + synthesizedBaseline(gridItem, parentStyle, LineDirectionMode::HorizontalLine, BaselineSynthesisEdge::BorderBox);
+            return gridItemMargin + synthesizedBaseline(gridItem, parentStyle, LineDirection::Horizontal, BaselineSynthesisEdge::BorderBox);
         }
     }
 

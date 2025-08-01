@@ -2014,7 +2014,7 @@ std::optional<LayoutUnit> RenderGrid::firstLineBaseline() const
     if (!baseline) {
         // FIXME: We should pass |direction| into firstLineBaseline and stop bailing out if we're a writing
         // mode root. This would also fix some cases where the grid is orthogonal to its container.
-        LineDirectionMode direction = isHorizontalWritingMode() ? HorizontalLine : VerticalLine;
+        auto direction = isHorizontalWritingMode() ? LineDirection::Horizontal : LineDirection::Vertical;
         return synthesizedBaseline(*baselineGridItem, style(), direction, BaselineSynthesisEdge::BorderBox) + logicalTopForChild(*baselineGridItem);
     }
     return baseline.value() + baselineGridItem->logicalTop().toInt();
@@ -2031,7 +2031,7 @@ std::optional<LayoutUnit> RenderGrid::lastLineBaseline() const
 
     auto baseline = GridLayoutFunctions::isOrthogonalGridItem(*this, *baselineGridItem) ? std::nullopt : baselineGridItem->lastLineBaseline();
     if (!baseline) {
-        LineDirectionMode direction = isHorizontalWritingMode() ? HorizontalLine : VerticalLine;
+        auto direction = isHorizontalWritingMode() ? LineDirection::Horizontal : LineDirection::Vertical;
         return synthesizedBaseline(*baselineGridItem, style(), direction, BaselineSynthesisEdge::BorderBox) + logicalTopForChild(*baselineGridItem);
 
     }

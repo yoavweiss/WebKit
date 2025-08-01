@@ -5375,21 +5375,21 @@ LayoutBoxExtent RenderBox::scrollPaddingForViewportRect(const LayoutRect& viewpo
     return Style::extentForRect(style().scrollPaddingBox(), viewportRect);
 }
 
-LayoutUnit synthesizedBaseline(const RenderBox& box, const RenderStyle& parentStyle, LineDirectionMode direction, BaselineSynthesisEdge edge)
+LayoutUnit synthesizedBaseline(const RenderBox& box, const RenderStyle& parentStyle, LineDirection direction, BaselineSynthesisEdge edge)
 {
     auto parentWritingMode = parentStyle.writingMode();
     // https://drafts.csswg.org/css-inline-3/#alignment-baseline-property
     // https://drafts.csswg.org/css-inline-3/#dominant-baseline-property
     auto baselineType = parentWritingMode.prefersCentralBaseline() ? FontBaseline::Central : FontBaseline::Alphabetic;
 
-    auto boxSize = direction == HorizontalLine ? box.height() : box.width();
+    auto boxSize = direction == LineDirection::Horizontal ? box.height() : box.width();
     if (edge == BaselineSynthesisEdge::ContentBox)
-        boxSize -= direction == HorizontalLine ? box.verticalBorderAndPaddingExtent() : box.horizontalBorderAndPaddingExtent();
+        boxSize -= direction == LineDirection::Horizontal ? box.verticalBorderAndPaddingExtent() : box.horizontalBorderAndPaddingExtent();
     else if (edge == BaselineSynthesisEdge::MarginBox)
-        boxSize += direction == HorizontalLine ? box.verticalMarginExtent() : box.horizontalMarginExtent();
+        boxSize += direction == LineDirection::Horizontal ? box.verticalMarginExtent() : box.horizontalMarginExtent();
     
     if (baselineType == FontBaseline::Alphabetic) {
-        auto shouldTreatAsHorizontal = direction == HorizontalLine
+        auto shouldTreatAsHorizontal = direction == LineDirection::Horizontal
             || (parentWritingMode.isSidewaysOrientation() && parentWritingMode.computedWritingMode() == StyleWritingMode::VerticalRl);
         return shouldTreatAsHorizontal ? boxSize : LayoutUnit();
     }
