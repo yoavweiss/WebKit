@@ -338,27 +338,7 @@ public:
         if (!entry)
             return std::nullopt;
 
-        Ref historyItem = entry.value()->associatedHistoryItem();
-
-        if (localFrame.isMainFrame())
-            return historyItem;
-
-        // FIXME: heuristic to fix disambigaute-* tests, we should find something more exact.
-        bool backwards = entry.value()->index() < localFrame.window()->navigation().currentEntry()->index();
-
-        RefPtr page { localFrame.page() };
-        auto items = page->checkedBackForward()->allItems();
-        for (size_t i = 0 ; i < items.size(); i++) {
-            Ref item = items[backwards ? items.size() - 1 - i: i];
-            auto index = item->children().findIf([&historyItem](const auto& child) {
-                return child->itemSequenceNumber() == historyItem->itemSequenceNumber();
-            });
-            if (index != notFound) {
-                historyItem = item;
-                break;
-            }
-        }
-        return historyItem;
+        return entry.value()->associatedHistoryItem();
     }
 
     void fire(Frame& frame) override
@@ -386,9 +366,8 @@ public:
 
         auto completionHandler = std::exchange(m_completionHandler, nullptr);
 
-        Ref rootFrame = localFrame->rootFrame();
         RefPtr upcomingTraverseMethodTracker = localFrame->window()->navigation().upcomingTraverseMethodTracker(m_key);
-        page->goToItemForNavigationAPI(rootFrame, *historyItem, FrameLoadType::IndexedBackForward, *localFrame, upcomingTraverseMethodTracker.get());
+        page->goToItemForNavigationAPI(*localFrame, *historyItem, FrameLoadType::IndexedBackForward, *localFrame, upcomingTraverseMethodTracker.get());
 
         completionHandler(ScheduleHistoryNavigationResult::Completed);
     }
