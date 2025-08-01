@@ -392,7 +392,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     if (CheckedPtr rendererAttachment = dynamicDowncast<RenderAttachment>(renderBox)) {
         // Subtract margin top to preserve legacy behavior.
         auto marginBefore = renderBox.writingMode().isHorizontal() ? renderBox.marginTop() : renderBox.marginRight();
-        if (auto* baselineElement = rendererAttachment->attachmentElement().wideLayoutImageElement()) {
+        if (CheckedPtr baselineElement = CheckedRef { rendererAttachment->attachmentElement() }->wideLayoutImageElement()) {
             if (auto* baselineElementRenderBox = baselineElement->renderBox()) {
                 // This is the bottom of the image assuming it is vertically centered.
                 return (borderBoxBottom + baselineElementRenderBox->height()) / 2 - marginBefore;
@@ -497,7 +497,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
         return { };
     }
 
-    if (renderBox.element() && renderBox.element()->shadowHost() && renderBox.element()->shadowHost()->isFormControlElement()) {
+    if (RefPtr element = renderBox.element(); element && element->shadowHost() && element->shadowHost()->isFormControlElement()) {
         // Inside RenderTextControl's shadow DOM (e.g. strong-password text)
         auto lastBaseline = std::optional<LayoutUnit> { };
         if (CheckedPtr blockFlow = dynamicDowncast<RenderBlockFlow>(renderBox)) {

@@ -102,7 +102,7 @@ RefPtr<Node> SerializedNode::deserialize(SerializedNode&& serializedNode, WebCor
     RefPtr containerNode = dynamicDowncast<WebCore::ContainerNode>(node);
     for (auto&& child : WTFMove(serializedChildren)) {
         if (RefPtr childNode = deserialize(WTFMove(child), document)) {
-            childNode->setTreeScopeRecursively(containerNode->treeScope());
+            childNode->setTreeScopeRecursively(containerNode->protectedTreeScope());
             containerNode->appendChildCommon(*childNode);
         }
     }
