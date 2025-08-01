@@ -372,12 +372,7 @@ webkit.org/b/204001 fast/shadow-dom/pointerlockelement-in-shadow-tree.html [ Ski
 webkit.org/b/204001 fast/shadow-dom/pointerlockelement-in-slot.html [ Skip ]
 webkit.org/b/204001 imported/w3c/web-platform-tests/pointerlock/ [ Skip ]
 
-
-
 Bug(WPE) fast/fixed-layout [ Skip ]
-
-# No support for resource load statistics yet
-webkit.org/b/177943 http/tests/resourceLoadStatistics/ [ Skip ]
 
 webkit.org/b/206454 fast/events/mouse-cursor-change.html [ Failure ]
 webkit.org/b/206454 fast/events/mouse-cursor-no-mousemove.html [ Failure ]

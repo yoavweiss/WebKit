@@ -743,10 +743,6 @@ webkit.org/b/209727 fast/forms/placeholder-content-line-height.html [ ImageOnlyF
 webkit.org/b/209727 fast/forms/placeholder-content-center.html [ ImageOnlyFailure ]
 webkit.org/b/209727 fast/forms/single-text-line-content-clipping.html [ ImageOnlyFailure ]
 
-webkit.org/b/210487 http/tests/resourceLoadStatistics/switch-session-on-navigation-to-prevalent-with-interaction.py [ Failure ]
-
-webkit.org/b/210796 http/tests/resourceLoadStatistics/standalone-web-application-exempt-from-website-data-deletion.html [ Failure ]
-
 webkit.org/b/212233 fast/repaint/iframe-on-subpixel-position.html [ Failure ]
 
 webkit.org/b/214454 imported/w3c/web-platform-tests/css/css-backgrounds/background-attachment-margin-root-001.html [ ImageOnlyFailure ]
@@ -1175,13 +1171,6 @@ webkit.org/b/210796 http/tests/resourceLoadStatistics/clear-in-memory-and-persis
 webkit.org/b/211566 http/tests/resourceLoadStatistics/exemptDomains/app-bound-domains-exempt-from-cookie-blocking-between-each-other.html [ Skip ]
 webkit.org/b/211566 http/tests/resourceLoadStatistics/exemptDomains/app-bound-domains-exempt-from-website-data-deletion-database.html [ Skip ]
 webkit.org/b/211566 http/tests/resourceLoadStatistics/exemptDomains/app-bound-domains-exempt-from-website-data-deletion.html [ Skip ]
-
-http/tests/resourceLoadStatistics/omit-document-referrer-nested-third-party-iframe-ephemeral.html [ Skip ]
-http/tests/resourceLoadStatistics/omit-document-referrer-third-party-iframe-ephemeral.html [ Skip ]
-http/tests/resourceLoadStatistics/omit-referrer-for-navigation-ephemeral.html [ Skip ]
-
-http/tests/resourceLoadStatistics/cname-cloaking-top-cname-sub-3p-cname.https.html [ Failure ]
-http/tests/resourceLoadStatistics/cname-cloaking-top-no-cname-sub-3p-cname.https.html [ Failure ]
 
 # Test is flaky timing out. Also skipped in Mac and iOS.
 editing/selection/select-bidi-run.html [ Skip ]
