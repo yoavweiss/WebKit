@@ -10728,29 +10728,29 @@ static NSArray<NSItemProvider *> *extractItemProvidersFromDropSession(id <UIDrop
     _waitingForEditDragSnapshot = YES;
 }
 
-- (void)_didReceiveEditDragSnapshot:(std::optional<WebCore::TextIndicatorData>)data
+- (void)_didReceiveEditDragSnapshot:(RefPtr<WebCore::TextIndicator>&&)textIndicator
 {
     _waitingForEditDragSnapshot = NO;
 
-    [self _deliverDelayedDropPreviewIfPossible:data];
+    [self _deliverDelayedDropPreviewIfPossible:WTFMove(textIndicator)];
     [self cleanUpDragSourceSessionState];
 
     if (auto action = WTFMove(_actionToPerformAfterReceivingEditDragSnapshot))
         action();
 }
 
-- (void)_deliverDelayedDropPreviewIfPossible:(std::optional<WebCore::TextIndicatorData>)data
+- (void)_deliverDelayedDropPreviewIfPossible:(RefPtr<WebCore::TextIndicator>&&)textIndicator
 {
     if (!_visibleContentViewSnapshot)
         return;
 
-    if (!data)
+    if (!textIndicator)
         return;
 
-    if (!data->contentImage)
+    if (!textIndicator->contentImage())
         return;
 
-    auto snapshotWithoutSelection = data->contentImageWithoutSelection;
+    auto snapshotWithoutSelection = textIndicator->contentImageWithoutSelection();
     if (!snapshotWithoutSelection)
         return;
 
@@ -10763,10 +10763,10 @@ static NSArray<NSItemProvider *> *extractItemProvidersFromDropSession(id <UIDrop
 
     auto unselectedContentImageForEditDrag = adoptNS([[UIImage alloc] initWithCGImage:unselectedSnapshotImage->platformImage().get() scale:_page->deviceScaleFactor() orientation:UIImageOrientationUp]);
     _unselectedContentSnapshot = adoptNS([[UIImageView alloc] initWithImage:unselectedContentImageForEditDrag.get()]);
-    [_unselectedContentSnapshot setFrame:data->contentImageWithoutSelectionRectInRootViewCoordinates];
+    [_unselectedContentSnapshot setFrame:textIndicator->contentImageWithoutSelectionRectInRootViewCoordinates()];
 
     [self insertSubview:_unselectedContentSnapshot.get() belowSubview:_visibleContentViewSnapshot.get()];
-    _dragDropInteractionState.deliverDelayedDropPreview(self, self.containerForDropPreviews, data.value());
+    _dragDropInteractionState.deliverDelayedDropPreview(self, self.containerForDropPreviews, WTFMove(textIndicator));
 }
 
 - (void)_didPerformDragOperation:(BOOL)handled

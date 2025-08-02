@@ -1054,9 +1054,9 @@ void PageClientImpl::willReceiveEditDragSnapshot()
     [contentView() _willReceiveEditDragSnapshot];
 }
 
-void PageClientImpl::didReceiveEditDragSnapshot(std::optional<TextIndicatorData> data)
+void PageClientImpl::didReceiveEditDragSnapshot(RefPtr<WebCore::TextIndicator>&& textIndicator)
 {
-    [contentView() _didReceiveEditDragSnapshot:data];
+    [contentView() _didReceiveEditDragSnapshot:WTFMove(textIndicator)];
 }
 
 void PageClientImpl::didChangeDragCaretRect(const IntRect& previousCaretRect, const IntRect& caretRect)

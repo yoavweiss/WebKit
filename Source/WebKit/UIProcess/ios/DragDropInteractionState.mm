@@ -208,10 +208,10 @@ UITargetedDragPreview *DragDropInteractionState::finalDropPreview(UIDragItem *it
     return m_finalDropPreviews.get(item).get();
 }
 
-void DragDropInteractionState::deliverDelayedDropPreview(UIView *contentView, UIView *previewContainer, const WebCore::TextIndicatorData& indicator)
+void DragDropInteractionState::deliverDelayedDropPreview(UIView *contentView, UIView *previewContainer, const RefPtr<WebCore::TextIndicator>&& textIndicator)
 {
-    auto textIndicatorImage = uiImageForImage(indicator.contentImage.get());
-    auto preview = createTargetedDragPreview(textIndicatorImage.get(), contentView, previewContainer, indicator.textBoundingRectInRootViewCoordinates, indicator.textRectsInBoundingRectCoordinates, cocoaColor(indicator.estimatedBackgroundColor).get(), nil, AddPreviewViewToContainer::No);
+    auto textIndicatorImage = uiImageForImage(textIndicator->contentImage());
+    auto preview = createTargetedDragPreview(textIndicatorImage.get(), contentView, previewContainer, textIndicator->textBoundingRectInRootViewCoordinates(), textIndicator->textRectsInBoundingRectCoordinates(), cocoaColor(textIndicator->estimatedBackgroundColor()).get(), nil, AddPreviewViewToContainer::No);
     if (!preview)
         return;
 

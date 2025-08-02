@@ -720,7 +720,7 @@ public:
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(DRAG_SUPPORT)
     virtual void willReceiveEditDragSnapshot() = 0;
-    virtual void didReceiveEditDragSnapshot(std::optional<WebCore::TextIndicatorData>) = 0;
+    virtual void didReceiveEditDragSnapshot(RefPtr<WebCore::TextIndicator>&&) = 0;
 #endif
 
 #if ENABLE(MODEL_PROCESS)

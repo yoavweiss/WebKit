@@ -103,7 +103,7 @@ public:
 
     void addDefaultDropPreview(UIDragItem *, UITargetedDragPreview *);
     UITargetedDragPreview *finalDropPreview(UIDragItem *) const;
-    void deliverDelayedDropPreview(UIView *contentView, UIView *previewContainer, const WebCore::TextIndicatorData&);
+    void deliverDelayedDropPreview(UIView *contentView, UIView *previewContainer, const RefPtr<WebCore::TextIndicator>&&);
     void deliverDelayedDropPreview(UIView *contentView, CGRect unobscuredContentRect, NSArray<UIDragItem *> *, const Vector<WebCore::IntRect>& placeholderRects);
 
 private:

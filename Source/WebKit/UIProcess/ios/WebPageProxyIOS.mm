@@ -1356,10 +1356,10 @@ void WebPageProxy::willReceiveEditDragSnapshot()
         pageClient->willReceiveEditDragSnapshot();
 }
 
-void WebPageProxy::didReceiveEditDragSnapshot(std::optional<TextIndicatorData> data)
+void WebPageProxy::didReceiveEditDragSnapshot(RefPtr<WebCore::TextIndicator>&& textIndicator)
 {
     if (RefPtr pageClient = this->pageClient())
-        pageClient->didReceiveEditDragSnapshot(data);
+        pageClient->didReceiveEditDragSnapshot(WTFMove(textIndicator));
 }
 
 void WebPageProxy::didConcludeDrop()

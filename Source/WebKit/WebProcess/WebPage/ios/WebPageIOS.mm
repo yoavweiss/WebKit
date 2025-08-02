@@ -1257,7 +1257,7 @@ void WebPage::didFinishLoadingImageForElement(WebCore::HTMLImageElement& element
 
 void WebPage::computeAndSendEditDragSnapshot()
 {
-    std::optional<TextIndicatorData> textIndicatorData;
+    RefPtr<WebCore::TextIndicator> textIndicator;
     constexpr OptionSet<TextIndicatorOption> defaultTextIndicatorOptionsForEditDrag {
         TextIndicatorOption::IncludeSnapshotOfAllVisibleContentWithoutSelection,
         TextIndicatorOption::ExpandClipBeyondVisibleRect,
@@ -1268,11 +1268,10 @@ void WebPage::computeAndSendEditDragSnapshot()
         TextIndicatorOption::UseSelectionRectForSizing,
         TextIndicatorOption::IncludeSnapshotWithSelectionHighlight
     };
-    if (auto range = std::exchange(m_rangeForDropSnapshot, std::nullopt)) {
-        if (auto textIndicator = TextIndicator::createWithRange(*range, defaultTextIndicatorOptionsForEditDrag, TextIndicatorPresentationTransition::None, { }))
-            textIndicatorData = textIndicator->data();
-    }
-    send(Messages::WebPageProxy::DidReceiveEditDragSnapshot(WTFMove(textIndicatorData)));
+    if (auto range = std::exchange(m_rangeForDropSnapshot, std::nullopt))
+        textIndicator = TextIndicator::createWithRange(*range, defaultTextIndicatorOptionsForEditDrag, TextIndicatorPresentationTransition::None, { });
+
+    send(Messages::WebPageProxy::DidReceiveEditDragSnapshot(WTFMove(textIndicator)));
 }
 
 #endif

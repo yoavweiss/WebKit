@@ -339,7 +339,7 @@ messages -> WebPageProxy {
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(DRAG_SUPPORT)
     WillReceiveEditDragSnapshot()
-    DidReceiveEditDragSnapshot(struct std::optional<WebCore::TextIndicatorData> textIndicator)
+    DidReceiveEditDragSnapshot(RefPtr<WebCore::TextIndicator> textIndicator)
 #endif
 
 #if ENABLE(MODEL_PROCESS)
