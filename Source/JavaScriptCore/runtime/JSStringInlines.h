@@ -353,6 +353,12 @@ inline void JSRopeString::resolveToBuffer(JSString* fiber0, JSString* fiber1, JS
                     view0.substring(offset, rope0Length).getCharacters(buffer);
                 } else
                     resolveToBuffer(rope0->fiber0(), rope0->fiber1(), rope0->fiber2(), buffer.first(rope0Length), stackLimit);
+
+                // Both ropes are the same fibers! Then we can just copy the previously generated characters.
+                if (fiber0 == fiber1) {
+                    memcpySpan(buffer.subspan(rope0Length, rope0Length), buffer.first(rope0Length));
+                    return;
+                }
                 skip(buffer, rope0Length);
 
                 auto* rope1 = static_cast<const JSRopeString*>(fiber1);
