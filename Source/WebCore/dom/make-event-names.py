@@ -275,7 +275,7 @@ EventNames::EventNames()''')
         writeln('    return set;')
         writeln('}')
         writeln('')
-        writeln('static constexpr std::array eventStringInEventNames {')
+        writeln(f'static constexpr std::array<const AtomString EventNames::*, {len(event_names_input)}> eventStringInEventNames {{')
         for name in sorted(event_names_input.keys()):
             entry = event_names_input[name]
             conditional = entry.get('conditional', None)
