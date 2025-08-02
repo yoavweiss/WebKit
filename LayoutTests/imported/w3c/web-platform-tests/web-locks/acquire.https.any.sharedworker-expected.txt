@@ -9,4 +9,5 @@ PASS callback must be a function
 PASS navigator.locks.request's returned promise resolves after lock is released
 PASS Returned Promise rejects if callback throws synchronously
 PASS Returned Promise rejects if callback throws asynchronously
+PASS If callback throws a thenable, its then() should not be invoked
 
