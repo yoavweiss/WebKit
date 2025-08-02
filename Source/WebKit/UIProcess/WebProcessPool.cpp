@@ -160,6 +160,7 @@
 
 #if ENABLE(EXTENSION_CAPABILITIES)
 #include "ExtensionCapabilityGrant.h"
+#include "ExtensionCapabilityGranter.h"
 #include "MediaCapability.h"
 #endif
 
@@ -1240,7 +1241,7 @@ void WebProcessPool::disconnectProcess(WebProcessProxy& process)
     removeProcessFromOriginCacheSet(process);
 
 #if ENABLE(EXTENSION_CAPABILITIES)
-    extensionCapabilityGranter().invalidateGrants(moveToVector(std::exchange(process.extensionCapabilityGrants(), { }).values()));
+    ExtensionCapabilityGranter::invalidateGrants(moveToVector(std::exchange(process.extensionCapabilityGrants(), { }).values()));
 #endif
 }
 

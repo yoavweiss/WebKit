@@ -1395,32 +1395,8 @@ void WebProcessPool::suppressEDR(bool suppressEDR)
 ExtensionCapabilityGranter& WebProcessPool::extensionCapabilityGranter()
 {
     if (!m_extensionCapabilityGranter)
-        m_extensionCapabilityGranter = ExtensionCapabilityGranter::create(*this);
+        m_extensionCapabilityGranter = ExtensionCapabilityGranter::create();
     return *m_extensionCapabilityGranter;
-}
-
-RefPtr<GPUProcessProxy> WebProcessPool::gpuProcessForCapabilityGranter(const ExtensionCapabilityGranter& extensionCapabilityGranter)
-{
-    ASSERT_UNUSED(extensionCapabilityGranter, m_extensionCapabilityGranter.get() == &extensionCapabilityGranter);
-    return gpuProcess();
-}
-
-RefPtr<WebProcessProxy> WebProcessPool::webProcessForCapabilityGranter(const ExtensionCapabilityGranter& extensionCapabilityGranter, const String& environmentIdentifier)
-{
-    ASSERT_UNUSED(extensionCapabilityGranter, m_extensionCapabilityGranter.get() == &extensionCapabilityGranter);
-
-    auto index = processes().findIf([&](auto& process) {
-        return process->pages().containsIf([&](auto& page) {
-            if (RefPtr mediaCapability = page->mediaCapability())
-                return mediaCapability->environmentIdentifier() == environmentIdentifier;
-            return false;
-        });
-    });
-
-    if (index == notFound)
-        return nullptr;
-
-    return processes()[index].ptr();
 }
 #endif
 
