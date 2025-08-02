@@ -43,7 +43,7 @@
     readonly attribute USVString currentSrc;
     [CEReactions=NotNeeded, ImplementedAs=referrerPolicyForBindings, ReflectSetter] attribute [AtomString] DOMString referrerPolicy;
     [CEReactions=NotNeeded, ReflectSetter] attribute [AtomString] DOMString decoding;
-    [CEReactions=NotNeeded, EnabledBySetting=LazyImageLoadingEnabled, ImplementedAs=loadingForBindings, ReflectSetter] attribute [AtomString] DOMString loading;
+    [CEReactions=NotNeeded, EnabledBySetting=LazyImageLoadingEnabled, Reflect, Enumerated=HTMLImageElementLoadingValues] attribute DOMString loading;
 
     Promise<undefined> decode();
 
@@ -63,3 +63,4 @@
     [Conditional=ATTACHMENT_ELEMENT, EnabledByDeprecatedGlobalSetting=AttachmentElementEnabled] readonly attribute DOMString attachmentIdentifier;
 };
 
+[MissingValueDefault="eager", InvalidValueDefault="eager"] enum HTMLImageElementLoadingValues { "lazy", "eager" };

@@ -404,6 +404,13 @@ sub ProcessInterfaceSupplementalDependencies
         foreach my $interface (@{$document->interfaces}) {
             next unless $object->IsValidSupplementalInterface($interface, $targetInterface, \%includesMap);
 
+            # Ensure the root IDLDocument has access to all relevant enums (e.g., such as those defined in a mixin interface).
+            foreach my $enumeration (@{$document->enumerations}) {
+                my $enumName = $enumeration->type->name;
+                next if grep { $_->type->name eq $enumName } @{$targetDocument->enumerations};
+                push @{$targetDocument->enumerations}, $enumeration;
+            }
+
             if ($interface->isMixin && !$interface->isPartial) {
                 # Recursively process any supplemental dependencies for each valid mixin. This
                 # allows partial partial interface mixins to be merged into the mixin.

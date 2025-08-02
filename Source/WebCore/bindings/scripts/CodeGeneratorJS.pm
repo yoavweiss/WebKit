@@ -5218,7 +5218,7 @@ sub GenerateImplementation
     }
 
     foreach my $attribute (@{$interface->extendedAttributes->{SyntheticIDLAttributes}}, @{$interface->attributes}) {
-        GenerateAttributeGetterDefinition(\@implContent, $interface, $className, $attribute);
+        GenerateAttributeGetterDefinition(\@implContent, $interface, $className, $attribute, $enumerations);
         GenerateAttributeSetterDefinition(\@implContent, $interface, $className, $attribute);
     }
 
@@ -5576,7 +5576,7 @@ sub GenerateForEachEventHandlerContentAttribute
 
 sub GenerateAttributeGetterBodyDefinition
 {
-    my ($outputArray, $interface, $className, $attribute, $attributeGetterBodyName, $conditional) = @_;
+    my ($outputArray, $interface, $className, $attribute, $attributeGetterBodyName, $conditional, $enumerations) = @_;
     
     my @signatureArguments = ();
     push(@signatureArguments, "JSGlobalObject& lexicalGlobalObject");
@@ -5678,6 +5678,50 @@ sub GenerateAttributeGetterBodyDefinition
             }
         }
 
+        if ($attribute->extendedAttributes->{Reflect} && $attribute->extendedAttributes->{Enumerated}) {
+            my $attributeName = $attribute->extendedAttributes->{Reflect};
+            $attributeName = $attribute->name if !$attributeName || $attributeName eq "VALUE_IS_MISSING";
+            my $enumType = $attribute->extendedAttributes->{Enumerated};
+            my $missingValueDefault;
+            my $invalidValueDefault;
+            unless ($enumType) {
+                print "\nThe {$attributeName} attribute does not have a valid enum specified. Ensure proper usage, e.g., [Reflect, Enumerated=myEnum...]\n";
+            }
+
+            foreach my $enum (@$enumerations) {                
+                my $enumName = $enum->{'IDLEnum::name'};
+                my $className = GetEnumerationClassName($enum->type, $interface);
+                if ($enumName eq $enumType) {
+                    my $attributes = $enum->{'IDLEnum::extendedAttributes'};
+                    # FIXME: The "VALUE_IS_MISSING" string may not be the most optimal way of checking undefined values for extended attributes.
+                    $missingValueDefault = $attributes->{'MissingValueDefault'};
+                    undef $missingValueDefault if ($missingValueDefault // '') eq "VALUE_IS_MISSING";
+                    $invalidValueDefault = $attributes->{'InvalidValueDefault'};
+                    undef $invalidValueDefault if ($invalidValueDefault // '') eq "VALUE_IS_MISSING";
+
+                    push(@$outputArray, "    const AtomString& contentAttributeValue = impl.attributeWithoutSynchronization(WebCore::HTMLNames::${attributeName}Attr);\n");
+                    push(@$outputArray, "    AtomString result;\n");
+                    push(@$outputArray, "    if (contentAttributeValue.isNull())\n");
+                    if (defined $missingValueDefault) {
+                        $missingValueDefault =~ s/^"(.*)"$/$1/;
+                        push(@$outputArray, "        result = AtomString(\"$missingValueDefault\"_s);\n");
+                    } else {
+                        push(@$outputArray, "        { }\n");
+                    }
+                    push(@$outputArray, "    else if (auto value = parseEnumerationFromString<${className}>(contentAttributeValue.convertToASCIILowercase()); value) [[likely]]\n");
+                    push(@$outputArray, "        result = AtomString(convertEnumerationToString(*value));\n");
+                    push(@$outputArray, "    else\n");
+                    if (defined $invalidValueDefault) {
+                        $invalidValueDefault =~ s/^"(.*)"$/$1/;
+                        push(@$outputArray, "        result = AtomString(\"$invalidValueDefault\"_s);\n");
+                    } else {
+                        push(@$outputArray, "        { }\n");
+                    }
+                    $toJSExpression = NativeToJSValueUsingReferences($attribute, $interface, "result", $globalObjectReference);
+                }
+            }
+        }
+
         if ($attribute->extendedAttributes->{CachedAttribute}) {
             push(@$outputArray, "    JSValue result = ${toJSExpression};\n");
             push(@$outputArray, "    RETURN_IF_EXCEPTION(throwScope, { });\n") if ($needThrowScope);
@@ -5720,7 +5764,7 @@ sub GenerateAttributeGetterTrampolineDefinition
 
 sub GenerateAttributeGetterDefinition
 {
-    my ($outputArray, $interface, $className, $attribute) = @_;
+    my ($outputArray, $interface, $className, $attribute, $enumerations) = @_;
 
     return if IsJSBuiltin($interface, $attribute);
     return if $attribute->extendedAttributes->{DelegateToSharedSyntheticAttribute};
@@ -5734,7 +5778,7 @@ sub GenerateAttributeGetterDefinition
         push(@$outputArray, "#if ${conditionalString}\n");;
     }
     
-    GenerateAttributeGetterBodyDefinition($outputArray, $interface, $className, $attribute, $attributeGetterBodyName, $conditional);
+    GenerateAttributeGetterBodyDefinition($outputArray, $interface, $className, $attribute, $attributeGetterBodyName, $conditional, $enumerations);
     GenerateAttributeGetterTrampolineDefinition($outputArray, $interface, $className, $attribute, $attributeGetterName, $attributeGetterBodyName, $conditional);
     
     push(@$outputArray, "#endif\n\n") if $conditional;

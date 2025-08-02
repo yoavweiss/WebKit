@@ -202,6 +202,14 @@
                 "url": "https://webidl.spec.whatwg.org/#EnforceRange"
             }
         },
+        "Enumerated": {
+            "contextsAllowed": ["attribute"],
+            "values": ["*"],
+            "notes": "Specifies that an attribute is limited to known values, e.g., [Reflect, Enumerated=AttributeValues] where AttributeValues is an enum",
+            "standard": {
+                "url": "https://html.spec.whatwg.org/#keywords-and-enumerated-attributes"
+            }
+        },
         "Exception": {
             "contextsAllowed": ["interface"]
         },
@@ -263,6 +271,13 @@
         "InterfaceName": {
             "contextsAllowed": ["interface", "namespace"],
             "values": ["*"]
+        },
+        "InvalidValueDefault": {
+            "contextsAllowed": ["enum"],
+            "values": ["*"],
+            "standard": {
+                "url": "https://html.spec.whatwg.org/#keywords-and-enumerated-attributes"
+            }
         },
         "IsImmutablePrototypeExoticObject": {
             "contextsAllowed": ["interface"]
@@ -377,6 +392,13 @@
         },
         "MasqueradesAsUndefined": {
             "contextsAllowed": ["interface"]
+        },
+        "MissingValueDefault": {
+            "contextsAllowed": ["enum"],
+            "values": ["*"],
+            "standard": {
+                "url": "https://html.spec.whatwg.org/#keywords-and-enumerated-attributes"
+            }
         },
         "NewImpurePropertyFiresWatchpoints": {
             "contextsAllowed": ["interface"]
