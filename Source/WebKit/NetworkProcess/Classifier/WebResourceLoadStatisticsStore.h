@@ -229,6 +229,8 @@ public:
     void clearFrameLoadRecordsForStorageAccess(WebCore::FrameIdentifier);
     void clearFrameLoadRecordsForStorageAccess(WebPageProxyIdentifier);
 
+    void setStorageAccessPermissionForTesting(bool, RegistrableDomain&& topFrameDomain, RegistrableDomain&& subFrameDomain, CompletionHandler<void()>&&);
+
 private:
     explicit WebResourceLoadStatisticsStore(NetworkSession&, const String&, ShouldIncludeLocalhost, WebCore::ResourceLoadStatistics::IsEphemeral);
 

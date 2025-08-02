@@ -2431,6 +2431,14 @@ void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messag
         });
     }
 
+    if (WKStringIsEqualToUTF8CString(messageName, "SetStorageAccessPermission")) {
+        auto messageBodyDictionary = dictionaryValue(messageBody);
+        auto value = booleanValue(messageBodyDictionary, "Value");
+        auto subFrameURL = stringValue(messageBodyDictionary, "SubFrameURL");
+        auto mainFrameURL = adoptWK(WKURLCopyString(WKPageCopyActiveURL(TestController::singleton().mainWebView()->page())));
+        return WKWebsiteDataStoreSetStorageAccessPermissionForTesting(websiteDataStore(), value, mainFrameURL.get(), subFrameURL, completionHandler.leak(), adoptAndCallCompletionHandler);
+    }
+
     ASSERT_NOT_REACHED();
 }
 

@@ -545,6 +545,9 @@ window.test_driver_internal.set_permission = async function(permission_params)
     case "screen-wake-lock":
         testRunner.setScreenWakeLockPermission(permission_params.state == "granted");
         break;
+    case "storage-access":
+        await testRunner.setStorageAccessPermission(permission_params.state === "granted", location.href);
+        break;
     default:
         throw new Error(`Unsupported permission name "${permission_params.descriptor.name}".`);
     }

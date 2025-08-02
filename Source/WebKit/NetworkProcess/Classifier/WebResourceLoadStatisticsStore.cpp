@@ -1608,4 +1608,21 @@ StorageAccessWasGranted WebResourceLoadStatisticsStore::storageAccessWasGrantedV
     return value.lastRequestTime.value() < value.lastLoadTime ? StorageAccessWasGranted::Yes : StorageAccessWasGranted::YesWithException;
 }
 
+void WebResourceLoadStatisticsStore::setStorageAccessPermissionForTesting(bool granted, RegistrableDomain&& topFrameDomain, RegistrableDomain&& subFrameDomain, CompletionHandler<void()>&& completionHandler)
+{
+    ASSERT(RunLoop::isMain());
+
+    postTask([granted, subFrameDomain = WTFMove(subFrameDomain).isolatedCopy(), topFrameDomain = WTFMove(topFrameDomain).isolatedCopy(), completionHandler = WTFMove(completionHandler)](auto& store) mutable {
+        RefPtr statisticsStore = store.m_statisticsStore;
+        if (!statisticsStore)
+            return postTaskReply(WTFMove(completionHandler));
+
+        if (granted)
+            statisticsStore->grantStorageAccessPermission(topFrameDomain, subFrameDomain);
+        else
+            statisticsStore->revokeStorageAccessPermission(subFrameDomain);
+        postTaskReply(WTFMove(completionHandler));
+    });
+}
+
 } // namespace WebKit
