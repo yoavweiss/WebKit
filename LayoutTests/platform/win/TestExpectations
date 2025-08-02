@@ -1844,7 +1844,7 @@ streams/readable-stream-byob-request.html [ Skip ]
 streams/readable-stream-byob-request-worker.html [ Skip ]
 
 # The Cookie Store API is not fully implemented on the Windows port yet.
-imported/w3c/web-platform-tests/cookie-store [ Skip ]
+imported/w3c/web-platform-tests/cookiestore [ Skip ]
 imported/w3c/web-platform-tests/cookies/partitioned-cookies/partitioned-cookies.tentative.https.html [ Skip ]
 http/tests/cookies/cookie-store-get-secure.https.html [ Skip ]
 http/tests/cookies/cookie-store-set-secure.https.html [ Skip ]

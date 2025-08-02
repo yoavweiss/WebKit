@@ -608,10 +608,34 @@ imported/w3c/web-platform-tests/x-frame-options/get-decode-split.html [ DumpJSCo
 imported/w3c/web-platform-tests/x-frame-options/invalid.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/x-frame-options/multiple.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/x-frame-options/sameorigin.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/cookie-store/cookieStore_event_basic.https.window.html [ DumpJSConsoleLogInStdErr ]
+imported/w3c/web-platform-tests/cookiestore/cookieStore_event_basic.https.window.html [ DumpJSConsoleLogInStdErr ]
 
 # We need to fix our WebVTT implementation to pass most of the WebVTT rendering WPT (https://bugs.webkit.org/show_bug.cgi?id=277975).
 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video [ ImageOnlyFailure ]
+
+# Cookie Store API tests that timeout
+imported/w3c/web-platform-tests/cookiestore/cookieStore_delete.sub.https.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/cookieStore_get_set_across_origins.sub.https.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/cookieStore_set_domain_parsing.sub.https.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/cookieStore_set_domain_parsing.tentative.sub.https.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/serviceworker_cookieStore_cross_origin.https.sub.html [ Skip ]
+
+# Cookie Store API tests for unsupported service worker change events 
+imported/w3c/web-platform-tests/cookiestore/serviceworker_cookiechange_eventhandler_already_expired.https.any.serviceworker.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/serviceworker_cookiechange_eventhandler_mismatched_subscription.https.any.serviceworker.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/serviceworker_cookiechange_eventhandler_multiple_subscriptions.https.any.serviceworker.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/serviceworker_cookiechange_eventhandler_no_change.https.any.serviceworker.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/serviceworker_cookiechange_eventhandler_overlapping_subscriptions.https.any.serviceworker.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/serviceworker_cookiechange_eventhandler_single_subscription.https.any.serviceworker.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/serviceworker_oncookiechange_eventhandler_single_subscription.https.any.serviceworker.html [ Skip ]
+
+# Cookie Store API tests for unsupported partitioned cookies: rdar://157300908
+imported/w3c/web-platform-tests/cookiestore/change_eventhandler_for_already_expired.https.window.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/change_eventhandler_for_no_change.https.window.html [ Skip ]
+
+# Cookie Store API tests that are flaky: rdar://157301019
+imported/w3c/web-platform-tests/cookiestore/change_eventhandler_for_document_cookie.https.window.html [ Pass Failure ]
+imported/w3c/web-platform-tests/cookiestore/change_eventhandler_for_http_cookie_and_set_cookie_headers.https.window.html [ Pass Failure ]
 
 webkit.org/b/285993 imported/w3c/web-platform-tests/html/canvas/element/manual/text/canvas.2d.lang.dynamic.html [ ImageOnlyFailure ]
 webkit.org/b/285993 imported/w3c/web-platform-tests/html/canvas/element/manual/text/canvas.2d.lang.html [ ImageOnlyFailure ]

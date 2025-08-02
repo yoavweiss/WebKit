@@ -1249,7 +1249,7 @@ media/video-currenttime-monotonic.html [ Failure ]
 webkit.org/b/251113 inspector/timeline/timeline-event-screenshots.html [ Skip ]
 
 # The Cookie Store API is not supported on WK1.
-imported/w3c/web-platform-tests/cookie-store [ Skip ]
+imported/w3c/web-platform-tests/cookiestore [ Skip ]
 imported/w3c/web-platform-tests/cookies/partitioned-cookies/partitioned-cookies.tentative.https.html [ Skip ]
 http/tests/cookies/cookie-store-get-secure.https.html [ Skip ]
 http/tests/cookies/cookie-store-set-secure.https.html [ Skip ]
