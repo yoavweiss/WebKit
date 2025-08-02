@@ -3335,17 +3335,17 @@ HiddenPageDOMTimerThrottlingEnabled:
 
 HiddenUntilFoundEnabled:
    type: bool
-   status: preview
+   status: stable
    category: html
    humanReadableName: "hidden=until-found"
    humanReadableDescription: "Enable support for hidden=until-found"
    defaultValue:
      WebKitLegacy:
-       default: false
+       default: true
      WebKit:
-       default: false
+       default: true
      WebCore:
-       default: false
+       default: true
 
 HostedBlurMaterialInMediaControlsEnabled:
   type: bool
