@@ -41,6 +41,7 @@
 #include <WebCore/MediaPlayerEnums.h>
 #include <WebCore/PlatformCALayer.h>
 #include <WebCore/ScrollTypes.h>
+#include <WebCore/ViewportArguments.h>
 #include <wtf/CheckedPtr.h>
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
