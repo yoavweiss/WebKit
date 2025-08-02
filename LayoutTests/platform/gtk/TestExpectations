@@ -1753,6 +1753,8 @@ imported/w3c/web-platform-tests/svg/geometry/reftests/circle-003.svg [ ImageOnly
 imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-001.svg [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/svg/painting/reftests/marker-path-011.svg [ ImageOnlyFailure ]
 
+media/adopt-node-after-showing-picker-crash.html [ Skip ]
+
 webkit.org/b/267992 [ Debug ] imported/w3c/web-platform-tests/html/anonymous-iframe/initial-empty-document.tentative.https.window.html [ Crash Pass ]
 
 fast/media/mq-inverted-colors-ua-style-on-to-off.html [ ImageOnlyFailure ]

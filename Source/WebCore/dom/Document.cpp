@@ -3629,9 +3629,11 @@ void Document::willBeRemovedFromFrame()
         mediaQueryMatcher->documentDestroyed();
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
-    if (!m_clientToIDMap.isEmpty() && page()) {
-        for (auto* client : copyToVector(m_clientToIDMap.keys()))
-            removePlaybackTargetPickerClient(*client);
+    if (!m_idToClientMap.isEmpty() && page()) {
+        for (WeakPtr weakClient : copyToVector(m_idToClientMap.values())) {
+            if (RefPtr client = weakClient.get())
+                removePlaybackTargetPickerClient(*client);
+        }
     }
 #endif
 
@@ -9888,24 +9890,26 @@ void Document::addPlaybackTargetPickerClient(MediaPlaybackTargetClient& client)
         return;
 
     // FIXME: change this back to an ASSERT once https://webkit.org/b/144970 is fixed.
-    if (m_clientToIDMap.contains(&client))
+    m_clientToIDMap.removeNullReferences();
+    if (m_clientToIDMap.contains(client))
         return;
 
     auto contextId = PlaybackTargetClientContextIdentifier::generate();
-    m_clientToIDMap.add(&client, contextId);
+    m_clientToIDMap.add(client, contextId);
     m_idToClientMap.add(contextId, &client);
     page->addPlaybackTargetPickerClient(contextId);
 }
 
 void Document::removePlaybackTargetPickerClient(MediaPlaybackTargetClient& client)
 {
-    auto it = m_clientToIDMap.find(&client);
+    m_clientToIDMap.removeNullReferences();
+    auto it = m_clientToIDMap.find(client);
     if (it == m_clientToIDMap.end())
         return;
 
     auto clientId = it->value;
     m_idToClientMap.remove(clientId);
-    m_clientToIDMap.remove(it);
+    m_clientToIDMap.remove(client);
 
     // Unable to ref the page as it may have started destruction.
     if (WeakPtr page = this->page())
@@ -9921,7 +9925,8 @@ void Document::showPlaybackTargetPicker(MediaPlaybackTargetClient& client, bool 
     if (!frame())
         return;
 
-    auto it = m_clientToIDMap.find(&client);
+    m_clientToIDMap.removeNullReferences();
+    auto it = m_clientToIDMap.find(client);
     if (it == m_clientToIDMap.end())
         return;
 
@@ -9936,7 +9941,8 @@ void Document::playbackTargetPickerClientStateDidChange(MediaPlaybackTargetClien
     if (!page)
         return;
 
-    auto it = m_clientToIDMap.find(&client);
+    m_clientToIDMap.removeNullReferences();
+    auto it = m_clientToIDMap.find(client);
     if (it == m_clientToIDMap.end())
         return;
 
@@ -9949,7 +9955,8 @@ void Document::playbackTargetAvailabilityDidChange(PlaybackTargetClientContextId
     if (it == m_idToClientMap.end())
         return;
 
-    it->value->externalOutputDeviceAvailableDidChange(available);
+    if (RefPtr client = it->value.get())
+        client->externalOutputDeviceAvailableDidChange(available);
 }
 
 void Document::setPlaybackTarget(PlaybackTargetClientContextIdentifier contextId, Ref<MediaPlaybackTarget>&& target)
@@ -9958,7 +9965,8 @@ void Document::setPlaybackTarget(PlaybackTargetClientContextIdentifier contextId
     if (it == m_idToClientMap.end())
         return;
 
-    it->value->setPlaybackTarget(target.copyRef());
+    if (RefPtr client = it->value.get())
+        client->setPlaybackTarget(target.copyRef());
 }
 
 void Document::setShouldPlayToPlaybackTarget(PlaybackTargetClientContextIdentifier contextId, bool shouldPlay)
@@ -9967,7 +9975,8 @@ void Document::setShouldPlayToPlaybackTarget(PlaybackTargetClientContextIdentifi
     if (it == m_idToClientMap.end())
         return;
 
-    it->value->setShouldPlayToPlaybackTarget(shouldPlay);
+    if (RefPtr client = it->value.get())
+        client->setShouldPlayToPlaybackTarget(shouldPlay);
 }
 
 void Document::playbackTargetPickerWasDismissed(PlaybackTargetClientContextIdentifier contextId)
@@ -9976,7 +9985,8 @@ void Document::playbackTargetPickerWasDismissed(PlaybackTargetClientContextIdent
     if (it == m_idToClientMap.end())
         return;
 
-    it->value->playbackTargetPickerWasDismissed();
+    if (RefPtr client = it->value.get())
+        client->playbackTargetPickerWasDismissed();
 }
 
 #endif // ENABLE(WIRELESS_PLAYBACK_TARGET)

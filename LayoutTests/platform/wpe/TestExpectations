@@ -1342,4 +1342,6 @@ webkit.org/b/267992 imported/w3c/web-platform-tests/html/anonymous-iframe/initia
 http/wpt/identity/ [ Skip ]
 imported/w3c/web-platform-tests/digital-credentials/ [ Skip ]
 
+media/adopt-node-after-showing-picker-crash.html [ Skip ]
+
 imported/w3c/web-platform-tests/css/css-pseudo/highlight-custom-properties-dynamic-001.html [ ImageOnlyFailure Pass ]
