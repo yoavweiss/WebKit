@@ -8192,3 +8192,5 @@ webkit.org/b/296709 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-v
 webkit.org/b/296816 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside-012.html [ Pass Failure ]
 
 webkit.org/b/296824 [ Release ] http/tests/webcodecs/audio-encoder-callbacks-do-not-leak.html [ Pass Failure ]
+
+webkit.org/b/296833 imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-096.html [ Pass ImageOnlyFailure ]
