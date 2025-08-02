@@ -29,6 +29,7 @@
 #include "config.h"
 #include "AccessibilityTableColumn.h"
 
+#include "AXObjectCache.h"
 #include "AccessibilityTable.h"
 
 namespace WebCore {

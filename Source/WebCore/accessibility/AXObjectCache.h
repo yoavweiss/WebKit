@@ -66,6 +66,7 @@ class HTMLTextFormControlElement;
 class Node;
 class Page;
 class RenderBlock;
+class RenderImage;
 class RenderObject;
 class RenderStyle;
 class RenderText;
@@ -1061,6 +1062,8 @@ ContainerNode* composedParentIgnoringDocumentFragments(Node*);
 
 ElementName elementName(Node*);
 ElementName elementName(Node&);
+
+RenderImage* toSimpleImage(RenderObject&);
 
 // Returns true if the element has an attribute that will result in an accname being computed.
 // https://www.w3.org/TR/accname-1.2/

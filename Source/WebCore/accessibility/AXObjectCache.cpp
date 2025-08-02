@@ -30,7 +30,6 @@
 
 #include "AXObjectCache.h"
 
-#include "AXImage.h"
 #include "AXIsolatedObject.h"
 #include "AXIsolatedTree.h"
 #include "AXLogger.h"
@@ -648,7 +647,7 @@ bool hasAccNameAttribute(Element& element)
     return element.attributeWithoutSynchronization(titleAttr).length();
 }
 
-static RenderImage* toSimpleImage(RenderObject& renderer)
+RenderImage* toSimpleImage(RenderObject& renderer)
 {
     CheckedPtr renderImage = dynamicDowncast<RenderImage>(renderer);
     if (!renderImage)
@@ -817,8 +816,8 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
     if (is<SVGElement>(node) || is<RenderSVGInlineText>(renderer))
         return AccessibilitySVGObject::create(AXID::generate(), renderer, *this);
 
-    if (auto* renderImage = toSimpleImage(renderer))
-        return AXImage::create(AXID::generate(), *renderImage, *this);
+    if (CheckedPtr renderImage = toSimpleImage(renderer))
+        return AccessibilityRenderObject::create(AXID::generate(), *renderImage, *this);
 
 #if ENABLE(MATHML)
     // The mfenced element creates anonymous RenderMathMLOperators which should be treated

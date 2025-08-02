@@ -37,9 +37,12 @@
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTable.h"
 #include "CachedImage.h"
+#include "Chrome.h"
+#include "ChromeClient.h"
 #include "ComplexTextController.h"
 #include "ComposedTreeIterator.h"
 #include "ContainerNodeInlines.h"
+#include "DocumentInlines.h"
 #include "DocumentSVG.h"
 #include "Editing.h"
 #include "Editor.h"
@@ -124,6 +127,7 @@
 #include "Text.h"
 #include "TextControlInnerElements.h"
 #include "TextIterator.h"
+#include "TextRecognitionOptions.h"
 #include "TypedElementDescendantIteratorInlines.h"
 #include "VisibleUnits.h"
 #include "WidthIterator.h"
@@ -1804,7 +1808,7 @@ Widget* AccessibilityRenderObject::widget() const
     return renderWidget ? renderWidget->widget() : nullptr;
 }
 
-AccessibilityObject* AccessibilityRenderObject::associatedAXImage(HTMLMapElement& map) const
+AccessibilityObject* AccessibilityRenderObject::associatedImageObject(HTMLMapElement& map) const
 {
     CheckedPtr cache = axObjectCache();
     return cache ? cache->getOrCreate(map.imageElement().get()) : nullptr;
@@ -2130,7 +2134,7 @@ IntRect AccessibilityRenderObject::doAXBoundsForRangeUsingCharacterOffset(const 
 AccessibilityObject* AccessibilityRenderObject::accessibilityImageMapHitTest(HTMLAreaElement& area, const IntPoint& point) const
 {
     RefPtr mapAncestor = ancestorsOfType<HTMLMapElement>(area).first();
-    RefPtr associatedImage = mapAncestor ? associatedAXImage(*mapAncestor) : nullptr;
+    RefPtr associatedImage = mapAncestor ? associatedImageObject(*mapAncestor) : nullptr;
     if (!associatedImage)
         return nullptr;
 
@@ -2378,6 +2382,38 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
         return AccessibilityRole::Inline;
 
     return AccessibilityRole::Unknown;
+}
+
+std::optional<AXCoreObject::AccessibilityChildrenVector> AccessibilityRenderObject::imageOverlayElements()
+{
+    AXTRACE("AccessibilityRenderObject::imageOverlayElements"_s);
+
+    if (!m_renderer || !toSimpleImage(*m_renderer))
+        return std::nullopt;
+
+    const auto& children = this->unignoredChildren();
+    if (children.size())
+        return children;
+
+#if ENABLE(IMAGE_ANALYSIS)
+    RefPtr page = this->page();
+    if (!page)
+        return std::nullopt;
+
+    RefPtr element = this->element();
+    if (!element)
+        return std::nullopt;
+
+    page->chrome().client().requestTextRecognition(*element, { }, [] (RefPtr<Element>&& imageOverlayHost) {
+        if (!imageOverlayHost)
+            return;
+
+        if (CheckedPtr cache = imageOverlayHost->document().existingAXObjectCache())
+            cache->postNotification(imageOverlayHost.get(), AXNotification::ImageOverlayChanged);
+    });
+#endif
+
+    return std::nullopt;
 }
 
 bool AccessibilityRenderObject::inheritsPresentationalRole() const

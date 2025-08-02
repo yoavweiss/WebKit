@@ -147,6 +147,7 @@ protected:
     bool shouldIgnoreAttributeRole() const override;
     AccessibilityRole determineAccessibilityRole() override;
     bool computeIsIgnored() const override;
+    std::optional<AccessibilityChildrenVector> imageOverlayElements() final;
 
 #if ENABLE(MATHML)
     virtual bool isIgnoredElementWithinMathTree() const;
@@ -163,7 +164,7 @@ private:
     Path elementPath() const final;
 
     AccessibilityObject* accessibilityImageMapHitTest(HTMLAreaElement&, const IntPoint&) const;
-    AccessibilityObject* associatedAXImage(HTMLMapElement&) const;
+    AccessibilityObject* associatedImageObject(HTMLMapElement&) const;
     AccessibilityObject* elementAccessibilityHitTest(const IntPoint&) const override;
 
     bool renderObjectIsObservable(RenderObject&) const;

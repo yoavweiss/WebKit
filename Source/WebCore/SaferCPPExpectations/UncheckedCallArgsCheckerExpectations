@@ -40,7 +40,6 @@ Modules/websockets/WebSocketChannelInspector.cpp
 Modules/websockets/WorkerThreadableWebSocketChannel.cpp
 StyleBuilderGenerated.cpp
 StyleExtractorGenerated.cpp
-accessibility/AXImage.cpp
 accessibility/AXObjectCache.cpp
 accessibility/AXObjectCache.h
 accessibility/AccessibilityList.cpp
