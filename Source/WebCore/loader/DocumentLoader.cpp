@@ -835,7 +835,7 @@ bool DocumentLoader::tryLoadingRequestFromApplicationCache()
 void DocumentLoader::setRedirectionAsSubstituteData(ResourceResponse&& response)
 {
     ASSERT(response.isRedirection());
-    m_substituteData = { FragmentedSharedBuffer::create(), { }, WTFMove(response), SubstituteData::SessionHistoryVisibility::Visible };
+    m_substituteData = { SharedBuffer::create(), { }, WTFMove(response), SubstituteData::SessionHistoryVisibility::Visible };
 }
 
 bool DocumentLoader::tryLoadingSubstituteData()

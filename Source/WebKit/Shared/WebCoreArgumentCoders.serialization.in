@@ -4896,7 +4896,7 @@ enum class WebCore::CreateNewGroupForHighlight : bool
 enum class WebCore::HighlightRequestOriginatedInApp : bool
 
 struct WebCore::AppHighlight {
-    Ref<WebCore::FragmentedSharedBuffer> highlight;
+    Ref<WebCore::SharedBuffer> highlight;
     std::optional<String> text;
     WebCore::CreateNewGroupForHighlight isNewGroup;
     WebCore::HighlightRequestOriginatedInApp requestOriginatedInApp;

@@ -504,7 +504,7 @@ void PageClientImpl::requestDOMPasteAccess(WebCore::DOMPasteAccessCategory, WebC
         if (requiresInteraction == WebCore::DOMPasteRequiresInteraction::No) {
             auto* clipboard = wpe_display_get_clipboard(wpe_view_get_display(view));
             if (GRefPtr<GBytes> bytes = adoptGRef(wpe_clipboard_read_bytes(clipboard, WebCore::PasteboardCustomData::wpeType().characters()))) {
-                auto buffer = WebCore::FragmentedSharedBuffer::create(bytes.get())->makeContiguous();
+                Ref buffer = WebCore::SharedBuffer::create(bytes.get());
                 if (WebCore::PasteboardCustomData::fromSharedBuffer(buffer.get()).origin() == originIdentifier) {
                     completionHandler(WebCore::DOMPasteAccessResponse::GrantedForGesture);
                     return;
