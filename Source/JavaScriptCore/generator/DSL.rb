@@ -263,6 +263,7 @@ EOF
 #include "config.h"
 #include "BytecodeDumper.h"
 
+#include "ButterflyInlines.h"
 #include "BytecodeStructs.h"
 
 namespace JSC {
