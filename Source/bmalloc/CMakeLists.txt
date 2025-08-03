@@ -690,6 +690,7 @@ set(bmalloc_PUBLIC_HEADERS
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     list(APPEND bmalloc_SOURCES
+        bmalloc/TZoneLog.cpp
         bmalloc/Zone.cpp
     )
 endif ()
