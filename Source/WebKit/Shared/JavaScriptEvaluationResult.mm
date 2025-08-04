@@ -134,6 +134,9 @@ auto JavaScriptEvaluationResult::toValue(id object) -> Value
     if ([object isKindOfClass:_WKSerializedNode.class])
         return { WebCore::SerializedNode { ((_WKSerializedNode *)object)->_node->coreSerializedNode() } };
 
+    if ([object isKindOfClass:_WKNodeInfo.class])
+        return { NodeInfo { ((_WKNodeInfo *)object)->_info->info() } };
+
     // This object has been null checked and went through isSerializable which only supports these types.
     ASSERT_NOT_REACHED();
     return { EmptyType::Undefined };
@@ -168,6 +171,7 @@ static bool isSerializable(id argument)
         || [argument isKindOfClass:NSNumber.class]
         || [argument isKindOfClass:NSDate.class]
         || [argument isKindOfClass:NSNull.class]
+        || [argument isKindOfClass:_WKNodeInfo.class]
         || [argument isKindOfClass:_WKSerializedNode.class])
         return true;
 

@@ -36,6 +36,7 @@
 #include "WebFrame.h"
 #include <WebCore/Document.h>
 #include <WebCore/ExceptionDetails.h>
+#include <WebCore/JSNodeCustom.h>
 #include <WebCore/JSWebKitNodeInfo.h>
 #include <WebCore/JSWebKitSerializedNode.h>
 #include <WebCore/ScriptWrappableInlines.h>
@@ -223,6 +224,15 @@ JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSGlobalContextRef contex
 
 JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Value&& root)
 {
+    auto globalObjectTuple = [] (auto context) {
+        auto* lexicalGlobalObject = ::toJS(context);
+        RELEASE_ASSERT(lexicalGlobalObject->template inherits<WebCore::JSDOMGlobalObject>());
+        auto* domGlobalObject = jsCast<WebCore::JSDOMGlobalObject*>(lexicalGlobalObject);
+        RefPtr document = dynamicDowncast<WebCore::Document>(domGlobalObject->scriptExecutionContext());
+        RELEASE_ASSERT(document);
+        return std::make_tuple(lexicalGlobalObject, domGlobalObject, WTFMove(document));
+    };
+
     return WTF::switchOn(WTFMove(root.value), [&] (EmptyType emptyType) -> JSValueRef {
         switch (emptyType) {
         case EmptyType::Undefined:
@@ -248,22 +258,17 @@ JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Value&& 
         JSObjectRef dictionary = JSObjectMake(context, 0, 0);
         m_jsDictionaries.append({ WTFMove(map), Protected<JSObjectRef>(context, dictionary) });
         return dictionary;
-    }, [] (NodeInfo&&) -> JSValueRef {
-        // FIXME: Implement with checks for the element being in the expected frame.
-        return nullptr;
+    }, [&] (NodeInfo&& nodeInfo) -> JSValueRef {
+        RefPtr node = WebCore::Node::fromIdentifier(nodeInfo.nodeIdentifier);
+        if (!node)
+            return JSValueMakeUndefined(context);
+        auto [lexicalGlobalObject, domGlobalObject, document] = globalObjectTuple(context);
+        if (document.get() != &node->document())
+            return JSValueMakeUndefined(context);
+        return ::toRef(lexicalGlobalObject, WebCore::toJS(lexicalGlobalObject, domGlobalObject, *node));
     }, [&] (WebCore::SerializedNode&& serializedNode) -> JSValueRef {
-        auto* globalObject = ::toJS(context);
-        if (!globalObject->inherits<WebCore::JSDOMGlobalObject>()) {
-            ASSERT_NOT_REACHED();
-            return nullptr;
-        }
-        auto* domGlobalObject = jsCast<WebCore::JSDOMGlobalObject*>(globalObject);
-        RefPtr document = dynamicDowncast<WebCore::Document>(domGlobalObject->scriptExecutionContext());
-        if (!document) {
-            ASSERT_NOT_REACHED();
-            return nullptr;
-        }
-        return ::toRef(globalObject, WebCore::SerializedNode::deserialize(WTFMove(serializedNode), globalObject, domGlobalObject, *document));
+        auto [lexicalGlobalObject, domGlobalObject, document] = globalObjectTuple(context);
+        return ::toRef(lexicalGlobalObject, WebCore::SerializedNode::deserialize(WTFMove(serializedNode), lexicalGlobalObject, domGlobalObject, *document));
     });
 }
 

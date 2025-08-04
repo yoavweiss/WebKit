@@ -38,6 +38,19 @@
 
 namespace TestWebKitAPI {
 
+static WKFrameInfo *getContentFrameInfo(RetainPtr<_WKNodeInfo> node)
+{
+    EXPECT_TRUE([node isKindOfClass:_WKNodeInfo.class]);
+    __block RetainPtr<WKFrameInfo> frame;
+    __block bool done { false };
+    [node contentFrameInfo:^(WKFrameInfo *info) {
+        frame = info;
+        done = true;
+    }];
+    Util::run(&done);
+    return frame.autorelease();
+}
+
 TEST(NodeInfo, Basic)
 {
     HTTPServer server({
@@ -47,7 +60,7 @@ TEST(NodeInfo, Basic)
 
     RetainPtr configuration = server.httpsProxyConfiguration();
 
-    RetainPtr webView = adoptNS([[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration.get()]);
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectZero configuration:configuration.get()]);
     RetainPtr navigationDelegate = adoptNS([TestNavigationDelegate new]);
     [navigationDelegate allowAnyTLSCertificate];
     webView.get().navigationDelegate = navigationDelegate.get();
@@ -58,54 +71,34 @@ TEST(NodeInfo, Basic)
     worldConfiguration.get().allowNodeInfo = YES;
     RetainPtr world = [WKContentWorld _worldWithConfiguration:worldConfiguration.get()];
 
-    __block bool done { false };
-    [webView evaluateJavaScript:@"window.webkit.createNodeInfo(onlyframe)" inFrame:nil inContentWorld:world.get() completionHandler:^(id result, NSError *error) {
-        EXPECT_NULL(error);
-        EXPECT_TRUE([result isKindOfClass:_WKNodeInfo.class]);
-        [result contentFrameInfo:^(WKFrameInfo *info) {
-            EXPECT_WK_STREQ(info.request.URL.absoluteString, "https://webkit.org/webkit");
+    RetainPtr<id> result = [webView objectByEvaluatingJavaScript:@"window.webkit.createNodeInfo(onlyframe)" inFrame:nil inContentWorld:world.get()];
+    RetainPtr<_WKNodeInfo> iframeElement = result;
+    EXPECT_WK_STREQ(getContentFrameInfo(iframeElement).request.URL.absoluteString, "https://webkit.org/webkit");
+
+    result = [webView objectByEvaluatingJavaScript:@"window.webkit.createNodeInfo(onlydiv)" inFrame:nil inContentWorld:world.get()];
+    EXPECT_NULL(getContentFrameInfo(result));
+
+    {
+        __block bool done { false };
+        [webView evaluateJavaScript:@"window.webkit.createNodeInfo(5)" inFrame:nil inContentWorld:world.get() completionHandler:^(id result, NSError *error) {
+            EXPECT_NULL(result);
+            EXPECT_NOT_NULL(error);
             done = true;
         }];
-    }];
-    Util::run(&done);
+        Util::run(&done);
+    }
 
-    done = false;
-    [webView evaluateJavaScript:@"window.webkit.createNodeInfo(onlydiv)" inFrame:nil inContentWorld:world.get() completionHandler:^(id result, NSError *error) {
-        EXPECT_TRUE([result isKindOfClass:_WKNodeInfo.class]);
-        EXPECT_NULL(error);
-        [result contentFrameInfo:^(WKFrameInfo *info) {
-            EXPECT_NULL(info);
-            done = true;
-        }];
-    }];
-    Util::run(&done);
+    result = [webView objectByEvaluatingJavaScript:@"window.webkit.createNodeInfo(document.createTextNode('hi'))" inFrame:nil inContentWorld:world.get()];
+    EXPECT_NULL(getContentFrameInfo(result));
 
-    done = false;
-    [webView evaluateJavaScript:@"window.webkit.createNodeInfo(5)" inFrame:nil inContentWorld:world.get() completionHandler:^(id result, NSError *error) {
-        EXPECT_NULL(result);
-        EXPECT_NOT_NULL(error);
-        done = true;
-    }];
-    Util::run(&done);
+    result = [webView objectByEvaluatingJavaScript:@"window.WebKitNodeInfo"];
+    EXPECT_NULL(result);
 
-    done = false;
-    [webView evaluateJavaScript:@"window.webkit.createNodeInfo(document.createTextNode('hi'))" inFrame:nil inContentWorld:world.get() completionHandler:^(id result, NSError *error) {
-        EXPECT_TRUE([result isKindOfClass:_WKNodeInfo.class]);
-        EXPECT_NULL(error);
-        [result contentFrameInfo:^(WKFrameInfo *info) {
-            EXPECT_NULL(info);
-            done = true;
-        }];
-    }];
-    Util::run(&done);
+    result = [webView objectByCallingAsyncFunction:@"return n === undefined" withArguments:@{ @"n" : iframeElement.get() } inFrame:getContentFrameInfo(iframeElement) inContentWorld:WKContentWorld.pageWorld];
+    EXPECT_EQ(result.get(), @YES);
 
-    done = false;
-    [webView evaluateJavaScript:@"window.WebKitNodeInfo" completionHandler:^(id result, NSError *error) {
-        EXPECT_NULL(result);
-        EXPECT_NULL(error);
-        done = true;
-    }];
-    Util::run(&done);
+    result = [webView objectByCallingAsyncFunction:@"return n.id" withArguments:@{ @"n" : iframeElement.get() }];
+    EXPECT_WK_STREQ(result.get(), "onlyframe");
 }
 
 TEST(SerializedNode, Basic)
@@ -118,21 +111,16 @@ TEST(SerializedNode, Basic)
     RetainPtr world = [WKContentWorld _worldWithConfiguration:worldConfiguration.get()];
 
     auto verifyNodeSerialization = [world, webView] (const char* constructor, const char* accessor, const char* expected, const char* className, const char* init = "deep:true") {
-        __block bool done = false;
-        [webView evaluateJavaScript:[NSString stringWithFormat:@"window.webkit.serializeNode(%s, { %s })", constructor, init] inFrame:nil inContentWorld:world.get() completionHandler:^(id serializedNode, NSError *error) {
-            EXPECT_TRUE([serializedNode isKindOfClass:_WKSerializedNode.class]);
-            EXPECT_NULL(error);
-            RetainPtr other = adoptNS([TestWKWebView new]);
+        RetainPtr serializedNode = [webView objectByEvaluatingJavaScript:[NSString stringWithFormat:@"window.webkit.serializeNode(%s, { %s })", constructor, init] inFrame:nil inContentWorld:world.get()];
+        EXPECT_TRUE([serializedNode isKindOfClass:_WKSerializedNode.class]);
+        RetainPtr other = adoptNS([TestWKWebView new]);
 
-            id instanceof = [other objectByCallingAsyncFunction:@"return Object.getPrototypeOf(n).toString()" withArguments:@{ @"n" : serializedNode } error:nil];
-            NSString *expectedClass = [NSString stringWithFormat:@"[object %s]", className];
-            EXPECT_WK_STREQ(instanceof, expectedClass);
+        id instanceof = [other objectByCallingAsyncFunction:@"return Object.getPrototypeOf(n).toString()" withArguments:@{ @"n" : serializedNode.get() }];
+        NSString *expectedClass = [NSString stringWithFormat:@"[object %s]", className];
+        EXPECT_WK_STREQ(instanceof, expectedClass);
 
-            id result = [other objectByCallingAsyncFunction:[NSString stringWithFormat:@"return %s", accessor] withArguments:@{ @"n" : serializedNode } error:nil];
-            EXPECT_WK_STREQ(result, expected);
-            done = true;
-        }];
-        Util::run(&done);
+        id result = [other objectByCallingAsyncFunction:[NSString stringWithFormat:@"return %s", accessor] withArguments:@{ @"n" : serializedNode.get() }];
+        EXPECT_WK_STREQ(result, expected);
     };
 
     auto textAccessor = "n.wholeText";
