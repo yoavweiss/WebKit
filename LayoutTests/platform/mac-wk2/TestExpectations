@@ -2386,3 +2386,5 @@ webkit.org/b/293808 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/exec
 webkit.org/b/296885 [ Debug arm64 ] fast/scrolling/mac/scrollend-event-user-scroll-basic.html [ Pass Failure ]
 
 webkit.org/b/296890 [ Debug x86_64 ] fast/webgpu/nocrash/fuzz-282097.html [ Pass Failure ]
+
+webkit.org/b/296893 imported/w3c/web-platform-tests/css/css-view-transitions/column-span-during-transition-doesnt-skip.html [ Pass Failure ]
