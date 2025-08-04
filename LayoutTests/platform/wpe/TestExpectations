@@ -457,7 +457,27 @@ webkit.org/b/213131 editing/spelling [ Skip ]
 webkit.org/b/213131 inspector/ [ Skip ]
 
 Bug(WPE) fast/autoresize [ Skip ]
-webkit.org/b/213131 fast/forms [ Skip ]
+
+fast/forms/date/date-validity-badinput.html [ Skip ]
+fast/forms/datetimelocal/datetimelocal-validity-badinput.html [ Skip ]
+fast/forms/drag-into-textarea.html [ Skip ]
+fast/forms/drag-out-of-textarea.html [ Skip ]
+fast/forms/file/file-input-capture.html [ Skip ]
+fast/forms/file/file-input-empty-validation.html [ Skip ]
+fast/forms/file/file-input-reset-validation.html [ Skip ]
+fast/forms/listbox-onchange.html [ Skip ]
+fast/forms/number/number-min-max-spinbutton-appearance-none-percentage-width.html [ Skip ]
+fast/forms/range/slider-delete-while-dragging-thumb.html [ Skip ]
+fast/forms/range/slider-zoomed.html [ Skip ]
+fast/forms/search/search-zoom-computed-style-height.html [ Skip ]
+fast/forms/select/popup-closes-on-blur.html [ Skip ]
+fast/forms/textarea-metrics.html [ Skip ]
+fast/forms/time-input-svg-font.html [ Skip ]
+fast/forms/time/time-validity-badinput.html [ Skip ]
+fast/forms/validation-message-in-relative-body.html [ Skip ]
+fast/forms/validation-message-maxLength.html [ Skip ]
+fast/forms/validation-message-on-range.html [ Skip ]
+fast/forms/validation-message-on-textarea.html [ Skip ]
 
 fast/media/mq-any-hover-matchMedia.html [ Skip ]
 fast/media/mq-any-hover-styling.html [ Skip ]
@@ -552,6 +572,33 @@ webkit.org/b/286930 media/modern-media-controls/scrubber-support/scrubber-suppor
 # Crash mentioning WTR::UIScriptController::notImplemented() with the EventTimingEnabled feature flag
 webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/TapToStopFling.html [ Crash ]
 webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/interaction-count-tap.html [ Crash ]
+
+# notImplemented in WTR::UIScriptController::isShowingDateTimePicker
+fast/forms/datalist [ Skip ]
+fast/forms/date/date-show-hide-picker.html [ Skip ]
+fast/forms/date/date-show-picker.html [ Skip ]
+fast/forms/datetimelocal/datetimelocal-show-hide-picker.html [ Skip ]
+fast/forms/datetimelocal/datetimelocal-show-picker.html [ Skip ]
+
+# notImplemented in WTR::UIScriptController::paste
+fast/forms/input-text-max-length-emojis.html [ Skip ]
+
+# notImplemented in WTR::UIScriptController::contentsOfUserInterfaceItem
+fast/forms/navigation-dismisses-validation-bubbles.html [ Skip ]
+fast/forms/scroll-into-view-and-show-validation-message.html [ Skip ]
+fast/forms/validation-bubble-disappears-when-input-detached.html [ Skip ]
+fast/forms/validation-bubble-disappears-when-input-moved.html [ Skip ]
+fast/forms/validation-bubble-disappears-when-input-no-longer-visible.html [ Skip ]
+fast/forms/validation-bubble-escape-key-dismiss.html [ Skip ]
+fast/forms/validation-custom-message.html [ Skip ]
+fast/forms/validation-message-detached-iframe.html [ Skip ]
+fast/forms/validation-message-detached-iframe2.html [ Skip ]
+fast/forms/validation-message-minimum-font-size.html [ Skip ]
+fast/forms/validation-messages.html [ Skip ]
+fast/forms/validation-message-on-checkbox.html [ Skip ]
+fast/forms/validation-message-on-listbox.html [ Skip ]
+fast/forms/validation-message-on-menulist.html [ Skip ]
+fast/forms/validation-message-on-radio.html [ Skip ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # 5. FLAKY TESTS

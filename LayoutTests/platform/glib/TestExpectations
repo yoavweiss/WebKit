@@ -31,6 +31,7 @@
 # * Editing
 # * Events
 # * Fonts
+# * Forms
 # * GStreamer
 # * Media-controls-related
 # * HiDPI
@@ -1057,7 +1058,6 @@ webkit.org/b/221308 [ Debug ] fast/selectors/matches-backtracking.html [ Timeout
 webkit.org/b/221308 [ Debug ] fast/selectors/is-backtracking.html [ Timeout ]
 
 fast/forms/vertical-writing-mode/meter.html [ ImageOnlyFailure ]
-fast/forms/vertical-writing-mode/progress.html [ ImageOnlyFailure ]
 webkit.org/b/264558 fast/forms/vertical-writing-mode/listbox-horizontal-scrollbar.html [ ImageOnlyFailure ]
 
 imported/w3c/web-platform-tests/css/CSS2/floats/line-pushed-by-floats-crash.html [ Skip ]
@@ -1413,6 +1413,48 @@ webkit.org/b/177294 fast/text/fitzpatrick-combination.html [ ImageOnlyFailure ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Fonts-related bugs
+#////////////////////////////////////////////////////////////////////////////////////////
+
+#////////////////////////////////////////////////////////////////////////////////////////
+# Forms-related bugs
+#////////////////////////////////////////////////////////////////////////////////////////
+
+webkit.org/b/218349 fast/forms/focus2.html [ Failure ]
+
+webkit.org/b/143703 fast/forms/listbox-visible-size.html [ Failure ]
+
+# This tests were moved on r188159 from platform/mac/fast/forms/
+webkit.org/b/152247 fast/forms/focus-option-control-on-page.html [ Skip ]
+webkit.org/b/152247 fast/forms/indeterminate-progress-inline-height.html [ Skip ]
+webkit.org/b/152247 fast/forms/listbox-scrollbar-hit-test.html [ Skip ]
+
+webkit.org/b/209403 fast/forms/placeholder-content-center-line-height-greater-than-content-height.html [ ImageOnlyFailure ]
+
+# This test assumes that color on sliders is not reversed for RTL, so failing is good.
+fast/forms/range/input-appearance-range-rtl.html [ ImageOnlyFailure ]
+
+webkit.org/b/209727 fast/forms/single-text-line-content-clipping.html [ ImageOnlyFailure ]
+
+fast/forms/listbox-typeahead-cyrillic.html [ Failure ]
+fast/forms/listbox-typeahead-greek.html [ Failure ]
+fast/forms/select-type-ahead-non-latin.html [ Failure ]
+
+# Some input type=range tests fail because of the size of the slider thumb in Adwaita theme.
+fast/forms/range/slider-mouse-events.html [ Failure ]
+
+# Needs textInputController.setComposition
+webkit.org/b/89845 fast/forms/input-set-composition-scroll.html [ Failure ]
+
+webkit.org/b/144673 fast/forms/button-line-height.html [ ImageOnlyFailure ]
+
+webkit.org/b/181662 fast/forms/auto-fill-button/input-strong-password-viewable-baseline-alignment.html [ ImageOnlyFailure ]
+
+webkit.org/b/182103 fast/forms/focus-selection-textarea.html [ Failure ]
+
+webkit.org/b/286129 fast/forms/textarea-node-removed-from-document-crash.html [ Crash ]
+
+#////////////////////////////////////////////////////////////////////////////////////////
+# End of Forms-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -4125,7 +4167,6 @@ imported/w3c/web-platform-tests/preload/preload-type-match.html [ DumpJSConsoleL
 
 # Tests crashing in Debug only.
 [ Debug ] editing/pasteboard/copy-paste-across-shadow-boundaries-with-style-2.html [ Crash ]
-[ Debug ] fast/forms/textarea-node-removed-from-document-crash.html [ Crash ]
 [ Debug ] http/tests/loading/sizes/preload-image-sizes-2x.html [ Crash ]
 [ Debug ] imported/blink/fast/hidpi/border-background-align.html [ ImageOnlyFailure Pass ]
 [ Debug ] imported/blink/svg/zoom/text/lowdpi-zoom-text.html [ Crash ]

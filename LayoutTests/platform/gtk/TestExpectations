@@ -113,7 +113,6 @@ accessibility/gtk/media-controls-panel-title.html [ Failure ]
 webkit.org/b/216777 imported/w3c/web-platform-tests/css/css-text/writing-system/writing-system-segment-break-001.html [ ImageOnlyFailure Crash ]
 
 # Navigation
-webkit.org/b/218349 fast/forms/focus2.html [ Failure ]
 webkit.org/b/218349 mathml/presentation/href-enter.html [ ImageOnlyFailure ]
 webkit.org/b/218349 mathml/presentation/href-style.html [ ImageOnlyFailure ]
 
@@ -583,8 +582,6 @@ fast/shadow-dom/touch-event-on-text-assigned-to-slot.html [ Skip ]
 webkit.org/b/141467 fast/multicol/pagination/LeftToRight-tb-hittest.html [ Failure ]
 webkit.org/b/141467 fast/multicol/pagination/RightToLeft-rl-hittest.html [ Failure ]
 
-webkit.org/b/143703 fast/forms/listbox-visible-size.html [ Failure ]
-
 # JSC does not support setIsolatedWorldSecurityOrigin
 webkit.org/b/61540 http/tests/security/isolatedWorld/cross-origin-xhr.html
 
@@ -660,23 +657,12 @@ fast/images/image-map-outline-with-scale-transform.html [ ImageOnlyFailure ]
 # We don't support APPLE_PAY.
 http/tests/ssl/applepay [ Skip ]
 
-# This test assumes that color on sliders is not reversed for RTL, so failing is good.
-fast/forms/range/input-appearance-range-rtl.html [ ImageOnlyFailure ]
-
 # Test does not make sense for our platform
 webkit.org/b/181659 fast/canvas/webgl/simulated-vertexAttrib0-invalid-indicies.html [ Skip ]
 
 # Requires support for testing text replacement
 editing/spelling/text-replacement-after-typing-to-word.html [ Skip ]
 editing/spelling/text-replacement-first-word-second-line.html [ Skip ]
-
-# This tests were moved on r188159 from platform/mac/fast/forms/
-webkit.org/b/152247 fast/forms/attributed-strings.html [ Skip ]
-webkit.org/b/152247 fast/forms/focus-option-control-on-page.html [ Skip ]
-webkit.org/b/152247 fast/forms/indeterminate-progress-inline-height.html [ Skip ]
-webkit.org/b/152247 fast/forms/input-appearance-spinbutton-up.html [ Skip ]
-webkit.org/b/152247 fast/forms/input-appearance-spinbutton.html [ Skip ]
-webkit.org/b/152247 fast/forms/listbox-scrollbar-hit-test.html [ Skip ]
 
 # This is a Mac specific feature
 webkit.org/b/168466 http/tests/security/bypassing-cors-checks-for-extension-urls.html [ Skip ]
@@ -737,11 +723,8 @@ imported/w3c/web-platform-tests/css/css-text/hyphens/hyphenate-character-002.htm
 
 imported/w3c/web-platform-tests/html/browsers/the-window-object/open-close/open-features-non-integer-screeny.html [ Failure ]
 
-webkit.org/b/209403 fast/forms/placeholder-content-center-line-height-greater-than-content-height.html [ ImageOnlyFailure ]
-
 webkit.org/b/209727 fast/forms/placeholder-content-line-height.html [ ImageOnlyFailure ]
 webkit.org/b/209727 fast/forms/placeholder-content-center.html [ ImageOnlyFailure ]
-webkit.org/b/209727 fast/forms/single-text-line-content-clipping.html [ ImageOnlyFailure ]
 
 webkit.org/b/212233 fast/repaint/iframe-on-subpixel-position.html [ Failure ]
 
@@ -809,7 +792,6 @@ webkit.org/b/286930 media/modern-media-controls/scrubber-support/scrubber-suppor
 # Tests crashing due to failing assertions
 
 webkit.org/b/286127 editing/pasteboard/copy-paste-across-shadow-boundaries-with-style-2.html [ Crash ]
-webkit.org/b/286129 fast/forms/textarea-node-removed-from-document-crash.html [ Crash ]
 webkit.org/b/286130 imported/w3c/web-platform-tests/css/css-multicol/crashtests/inline-float-parallel-flow.html [ Crash ]
 webkit.org/b/286131 imported/w3c/web-platform-tests/css/css-transforms/transform-box/cssbox-content-box-002.html [ Crash ]
 webkit.org/b/286132 inspector/debugger/breakpoints/resolved-dump-all-inline-script-pause-locations.html [ Crash ]
@@ -1246,11 +1228,6 @@ Bug(GTK) svg/text/select-textLength-spacing-squeeze-3.svg [ Failure Pass ]
 # Missing support for the modifierArray argument to EventSendingController::mouseMoveTo().
 Bug(GTK) platform/gtk/fast/events/event-sender-metakey.html [ Failure ]
 
-# Unexplained failures
-Bug(GTK) fast/forms/listbox-typeahead-cyrillic.html [ Failure ]
-Bug(GTK) fast/forms/listbox-typeahead-greek.html [ Failure ]
-Bug(GTK) fast/forms/select-type-ahead-non-latin.html [ Failure ]
-
 # Selection doesn't work properly.
 Bug(GTK) editing/selection/context-menu-text-selection-lookup.html [ Failure ]
 
@@ -1293,10 +1270,6 @@ Bug(GTK) fast/events/wheel/platform-wheelevent-paging-y-in-scrolling-page.html [
 # Need to add functionality to DumpRenderTree to handle scrollbar policy changes
 Bug(GTK) fast/overflow/scrollbar-restored-and-then-locked.html [ Failure ]
 
-# Some input type=range tests fail because of the size
-# of the slider thumb in GTK+ themes.
-Bug(GTK) fast/forms/range/slider-mouse-events.html [ Failure ]
-
 # Tests that fail because they assume a certain number of mouse
 # movements during drags or fail only in Xvfb
 Bug(GTK) http/tests/local/drag-over-remote-content.html [ Failure ]
@@ -1315,9 +1288,6 @@ webkit.org/b/105693 http/tests/multipart/multipart-wait-before-boundary.html [ S
 webkit.org/b/74282 editing/pasteboard/emacs-ctrl-k-with-move.html [ Failure ]
 
 webkit.org/b/84679 css3/zoom-coords.xhtml [ Failure ]
-
-# Failing after r121121 on both GTK and EFL
-webkit.org/b/89845 fast/forms/input-set-composition-scroll.html [ Failure ]
 
 # Enable when support drag-and-drop autoscrolling
 
@@ -1372,7 +1342,6 @@ webkit.org/b/142479 svg/text/select-textLength-spacingAndGlyphs-squeeze-4.svg [ 
 webkit.org/b/142479 svg/text/select-textLength-spacingAndGlyphs-stretch-2.svg [ Failure ]
 webkit.org/b/142479 svg/text/select-textLength-spacingAndGlyphs-stretch-3.svg [ Failure ]
 
-webkit.org/b/144673 fast/forms/button-line-height.html [ ImageOnlyFailure ]
 webkit.org/b/144763 fast/events/scroll-in-scaled-page-with-overflow-hidden.html
 
 # web-platform-tests XHR tests
@@ -1413,10 +1382,6 @@ webkit.org/b/176648 fast/repaint/inline-outline-repaint.html [ ImageOnlyFailure 
 webkit.org/b/177294 platform/gtk/fonts/fontconfig-aliasing-settings.html [ Failure ]
 
 webkit.org/b/144690 fast/writing-mode/english-bt-text-with-spelling-marker.html [ ImageOnlyFailure ]
-
-webkit.org/b/181662 fast/forms/auto-fill-button/input-strong-password-viewable-baseline-alignment.html [ ImageOnlyFailure ]
-
-webkit.org/b/182103 fast/forms/focus-selection-textarea.html [ Failure ]
 
 webkit.org/b/182763 accessibility/gtk/aria-activedescendant-changed-notification.html [ Failure ]
 
