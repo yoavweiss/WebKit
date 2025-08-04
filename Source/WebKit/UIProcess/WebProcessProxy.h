@@ -618,7 +618,7 @@ private:
 #endif
 
 #if ENABLE(MODEL_PROCESS)
-    void createModelProcessConnection(IPC::Connection::Handle&&, ModelProcessConnectionParameters&&);
+    void createModelProcessConnection(IPC::Connection::Handle&&);
 #endif
 
     bool shouldAllowNonValidInjectedCode() const;

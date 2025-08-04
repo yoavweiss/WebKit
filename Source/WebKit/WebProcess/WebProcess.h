@@ -30,6 +30,7 @@
 #include "EventDispatcher.h"
 #include "IdentifierTypes.h"
 #include "ScriptTrackingPrivacyFilter.h"
+#include "SharedPreferencesForWebProcess.h"
 #include "StorageAreaMapIdentifier.h"
 #include "TextCheckerState.h"
 #include "WebInspectorInterruptDispatcher.h"
@@ -286,6 +287,10 @@ public:
     RefPtr<WebTransportSession> webTransportSession(WebTransportSessionIdentifier);
     void addWebTransportSession(WebTransportSessionIdentifier, WebTransportSession&);
     void removeWebTransportSession(WebTransportSessionIdentifier);
+
+    std::optional<SharedPreferencesForWebProcess> sharedPreferencesForWebProcess() const { return m_sharedPreferencesForWebProcess; }
+    const SharedPreferencesForWebProcess& sharedPreferencesForWebProcessValue() const { return m_sharedPreferencesForWebProcess; }
+    void updateSharedPreferencesForWebProcess(SharedPreferencesForWebProcess sharedPreferencesForWebProcess) { m_sharedPreferencesForWebProcess = WTFMove(sharedPreferencesForWebProcess); }
 
 #if ENABLE(GPU_PROCESS)
     GPUProcessConnection& ensureGPUProcessConnection();
@@ -938,6 +943,8 @@ private:
     HashSet<WebCore::RegistrableDomain> m_domainsWithStorageAccessQuirks;
     std::unique_ptr<ScriptTrackingPrivacyFilter> m_scriptTrackingPrivacyFilter;
     bool m_mediaPlaybackEnabled { false };
+
+    SharedPreferencesForWebProcess m_sharedPreferencesForWebProcess;
 
 #if ENABLE(NOTIFY_BLOCKING)
     HashMap<String, int> m_notifyTokens;
