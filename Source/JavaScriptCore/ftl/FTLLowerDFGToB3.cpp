@@ -11236,10 +11236,12 @@ IGNORE_CLANG_WARNINGS_END
         LValue stringImpl = m_out.loadPtr(base, m_heaps.JSString_value);
         LValue data = m_out.loadPtr(stringImpl, m_heaps.StringImpl_data);
 
-        speculate(
-            Uncountable, noValue(), nullptr,
-            m_out.aboveOrEqual(
-                index, m_out.load32NonNegative(stringImpl, m_heaps.StringImpl_length)));
+        if (!m_node->arrayMode().isInBounds()) {
+            speculate(
+                Uncountable, noValue(), nullptr,
+                m_out.aboveOrEqual(
+                    index, m_out.load32NonNegative(stringImpl, m_heaps.StringImpl_length)));
+        }
 
         m_out.branch(
             m_out.testIsZero32(
