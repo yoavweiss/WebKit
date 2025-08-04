@@ -1737,7 +1737,6 @@ http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/fwidthFine.htm
 [ x86_64 ] fast/webgpu/regression/repro_283595-while.html [ Skip ]
 
 # pixel differences on Intel Macs
-[ x86_64 ] fast/webgpu/regression/repro_275345.html [ ImageOnlyFailure ]
 [ x86_64 ] media/media-video-videorange.html [ Failure ]
 [ x86_64 ] media/media-video-videorange-offscreen.html [ Failure ]
 
@@ -2379,3 +2378,7 @@ imported/w3c/web-platform-tests/navigation-api/per-entry-events/dispose-for-navi
 
 webkit.org/b/293808 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/atan2.html [ Failure ]
 webkit.org/b/293808 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/execution/expression/call/builtin/bitcast.html [ Timeout ]
+
+# 2X fast/webgpu/regression/repro tests are consistent crashes 
+[ Sonoma+ x86_64 ] fast/webgpu/regression/repro_275345.html [ Crash ]
+[ Sonoma+ x86_64 ] fast/webgpu/regression/repro_296062.html [ Crash ]
