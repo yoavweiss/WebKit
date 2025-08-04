@@ -523,7 +523,7 @@ void Interpreter::getStackTrace(JSCell* owner, Vector<StackFrame>& results, size
             auto* nativeCallee = visitor->callee().asNativeCallee();
             switch (nativeCallee->category()) {
             case NativeCallee::Category::Wasm: {
-                results.append(StackFrame(visitor->wasmFunctionIndexOrName()));
+                results.append(StackFrame(visitor->wasmFunctionIndexOrName(), visitor->wasmFunctionIndex()));
                 break;
             }
             case NativeCallee::Category::InlineCache: {

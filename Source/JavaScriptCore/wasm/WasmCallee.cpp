@@ -425,7 +425,7 @@ void OptimizingJITCallee::addCodeOrigin(unsigned firstInlineCSI, unsigned lastIn
     codeOrigins.append({ firstInlineCSI, lastInlineCSI, functionIndex, 0 });
 }
 
-IndexOrName OptimizingJITCallee::getOrigin(unsigned csi, unsigned depth, bool& isInlined) const
+const WasmCodeOrigin* OptimizingJITCallee::getCodeOrigin(unsigned csi, unsigned depth, bool& isInlined) const
 {
     isInlined = false;
     auto iter = std::lower_bound(codeOrigins.begin(), codeOrigins.end(), WasmCodeOrigin { 0, csi, 0, 0 }, [&](const auto& a, const auto& b) {
@@ -436,11 +436,25 @@ IndexOrName OptimizingJITCallee::getOrigin(unsigned csi, unsigned depth, bool& i
     while (iter != codeOrigins.end()) {
         if (iter->firstInlineCSI <= csi && iter->lastInlineCSI >= csi && !(depth--)) {
             isInlined = true;
-            return IndexOrName(iter->functionIndex, nameSections[iter->moduleIndex]->get(iter->functionIndex));
+            return iter;
         }
         ++iter;
     }
 
+    return nullptr;
+}
+
+IndexOrName OptimizingJITCallee::getIndexOrName(const WasmCodeOrigin* codeOrigin) const
+{
+    if (!codeOrigin)
+        return indexOrName();
+    return IndexOrName(codeOrigin->functionIndex, nameSections[codeOrigin->moduleIndex]->get(codeOrigin->functionIndex));
+}
+
+IndexOrName OptimizingJITCallee::getOrigin(unsigned csi, unsigned depth, bool& isInlined) const
+{
+    if (auto* codeOrigin = getCodeOrigin(csi, depth, isInlined))
+        return getIndexOrName(codeOrigin);
     return indexOrName();
 }
 

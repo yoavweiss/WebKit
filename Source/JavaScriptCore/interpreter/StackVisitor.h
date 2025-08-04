@@ -88,6 +88,7 @@ public:
             ASSERT(isNativeCalleeFrame());
             return m_wasmFunctionIndexOrName;
         }
+        size_t wasmFunctionIndex() const;
 
         JS_EXPORT_PRIVATE String functionName() const;
         JS_EXPORT_PRIVATE String sourceURL() const;
@@ -135,6 +136,7 @@ public:
         bool m_callerIsEntryFrame : 1 { false };
         bool m_isWasmFrame : 1 { false };
         Wasm::IndexOrName m_wasmFunctionIndexOrName { };
+        size_t m_wasmFunctionIndex { 0 };
 
         friend class StackVisitor;
     };

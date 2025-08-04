@@ -255,7 +255,9 @@ public:
     const StackMap& stackmap(CallSiteIndex) const;
 
     void addCodeOrigin(unsigned firstInlineCSI, unsigned lastInlineCSI, const Wasm::ModuleInformation&, uint32_t functionIndex);
+    const WasmCodeOrigin* getCodeOrigin(unsigned csi, unsigned depth, bool& isInlined) const;
     IndexOrName getOrigin(unsigned csi, unsigned depth, bool& isInlined) const;
+    IndexOrName getIndexOrName(const WasmCodeOrigin*) const;
     std::optional<CallSiteIndex> tryGetCallSiteIndex(const void*) const;
 
     Box<PCToCodeOriginMap> materializePCToOriginMap(B3::PCToOriginMap&&, LinkBuffer&);
