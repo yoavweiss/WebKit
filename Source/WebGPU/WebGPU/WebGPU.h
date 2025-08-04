@@ -30,7 +30,15 @@
 #ifndef WEBGPU_H_
 #define WEBGPU_H_
 
+#include <array>
+#include <optional>
+#include <wtf/Forward.h>
+#include <wtf/StdLibExtras.h>
 #include <wtf/SwiftBridging.h>
+
+#if __has_include(<swift/bridging>)
+#include <swift/bridging>
+#endif
 
 #ifdef __cplusplus
 

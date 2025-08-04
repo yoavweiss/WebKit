@@ -40,6 +40,10 @@
 #import <wtf/CompletionHandler.h>
 #import <wtf/FastMalloc.h>
 #import <wtf/Function.h>
+#import <wtf/HashIterators.h>
+#import <wtf/HashMap.h>
+#import <wtf/HashTable.h>
+#import <wtf/KeyValuePair.h>
 #import <wtf/Ref.h>
 #import <wtf/RetainReleaseSwift.h>
 #import <wtf/TZoneMalloc.h>
