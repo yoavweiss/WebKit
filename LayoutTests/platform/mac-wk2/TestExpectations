@@ -2378,6 +2378,8 @@ webkit.org/b/296885 [ Debug arm64 ] fast/scrolling/mac/scrollend-event-user-scro
 
 webkit.org/b/296890 [ Debug x86_64 ] fast/webgpu/nocrash/fuzz-282097.html [ Pass Failure ]
 
-webkit.org/b/296893 imported/w3c/web-platform-tests/css/css-view-transitions/column-span-during-transition-doesnt-skip.html [ Pass Failure ]
+webkit.org/b/296893 imported/w3c/web-platform-tests/css/css-view-transitions/column-span-during-transition-doesnt-skip.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/296898 [ Debug arm64 ] fast/block/transparent-outline-with-and-without-border-radius.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/296901 [ Sonoma x86_64 ] imported/w3c/web-platform-tests/css/filter-effects/filters-drop-shadow-002.html [ ImageOnlyFailure ]
