@@ -203,7 +203,6 @@
     "processorerror": { },
     "progress": { },
     "push": { },
-    "pushnotification": { },
     "pushsubscriptionchange": { },
     "qualitychange": { },
     "ratechange": { },
