@@ -37,6 +37,7 @@
 #include <WebCore/Document.h>
 #include <WebCore/LibWebRTCUtils.h>
 #include <WebCore/Page.h>
+#include <WebCore/Settings.h>
 #include <algorithm>
 #include <wtf/EnumTraits.h>
 #include <wtf/TZoneMalloc.h>
