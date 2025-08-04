@@ -2379,14 +2379,15 @@ bool RenderThemeCocoa::adjustButtonStyleForVectorBasedControls(RenderStyle& styl
 
 bool RenderThemeCocoa::adjustMenuListButtonStyleForVectorBasedControls(RenderStyle& style, const Element* element) const
 {
-#if PLATFORM(MAC)
-    UNUSED_PARAM(style);
-    UNUSED_PARAM(element);
-    return false;
-#else
     if (!formControlRefreshEnabled(element))
         return false;
 
+    if (!style.hasExplicitlySetColor()) {
+        const auto styleColorOptions = element->document().styleColorOptions(&style);
+        style.setColor(buttonTextColor(styleColorOptions, !element->isDisabledFormControl()));
+    }
+
+#if PLATFORM(IOS_FAMILY)
     const int menuListMinHeight = 15;
     const float menuListBaseHeight = 20;
     const float menuListBaseFontSize = 11;
@@ -2396,14 +2397,6 @@ bool RenderThemeCocoa::adjustMenuListButtonStyleForVectorBasedControls(RenderSty
     else
         style.setLogicalMinHeight(Style::MinimumSize::Fixed { static_cast<float>(menuListMinHeight) });
 
-    if (!element)
-        return true;
-
-    if (!style.hasExplicitlySetColor()) {
-        const auto styleColorOptions = element->document().styleColorOptions(&style);
-        style.setColor(buttonTextColor(styleColorOptions, !element->isDisabledFormControl()));
-    }
-
     // Enforce some default styles in the case that this is a non-multiple <select> element,
     // or a date input. We don't force these if this is just an element with
     // "-webkit-appearance: menulist-button".
@@ -2411,9 +2404,9 @@ bool RenderThemeCocoa::adjustMenuListButtonStyleForVectorBasedControls(RenderSty
         adjustSelectListButtonStyleForVectorBasedControls(style, *element);
     else if (RefPtr input = dynamicDowncast<HTMLInputElement>(*element))
         adjustInputElementButtonStyleForVectorBasedControls(style, *input);
+#endif
 
     return true;
-#endif
 }
 
 bool RenderThemeCocoa::paintMenuListButtonDecorationsForVectorBasedControls(const RenderObject& box, const PaintInfo& paintInfo, const FloatRect& rect)

@@ -1412,8 +1412,14 @@ PopupMenuStyle::Size RenderThemeMac::popupMenuSize(const RenderStyle& style, Int
     }
 }
 
-void RenderThemeMac::adjustMenuListButtonStyle(RenderStyle& style, const Element*) const
+void RenderThemeMac::adjustMenuListButtonStyle(RenderStyle& style, const Element* element) const
 {
+#if ENABLE(FORM_CONTROL_REFRESH)
+    if (element && element->document().settings().formControlRefreshEnabled())
+        RenderThemeCocoa::adjustMenuListButtonStyle(style, element);
+#else
+    UNUSED_PARAM(element);
+#endif
     float fontScale = style.computedFontSize() / baseFontSize;
 
     style.resetPadding();
