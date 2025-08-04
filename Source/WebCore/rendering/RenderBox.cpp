@@ -5375,27 +5375,6 @@ LayoutBoxExtent RenderBox::scrollPaddingForViewportRect(const LayoutRect& viewpo
     return Style::extentForRect(style().scrollPaddingBox(), viewportRect);
 }
 
-LayoutUnit synthesizedBaseline(const RenderBox& box, const RenderStyle& parentStyle, LineDirection direction, BaselineSynthesisEdge edge)
-{
-    auto parentWritingMode = parentStyle.writingMode();
-    // https://drafts.csswg.org/css-inline-3/#alignment-baseline-property
-    // https://drafts.csswg.org/css-inline-3/#dominant-baseline-property
-    auto baselineType = parentWritingMode.prefersCentralBaseline() ? FontBaseline::Central : FontBaseline::Alphabetic;
-
-    auto boxSize = direction == LineDirection::Horizontal ? box.height() : box.width();
-    if (edge == BaselineSynthesisEdge::ContentBox)
-        boxSize -= direction == LineDirection::Horizontal ? box.verticalBorderAndPaddingExtent() : box.horizontalBorderAndPaddingExtent();
-    else if (edge == BaselineSynthesisEdge::MarginBox)
-        boxSize += direction == LineDirection::Horizontal ? box.verticalMarginExtent() : box.horizontalMarginExtent();
-    
-    if (baselineType == FontBaseline::Alphabetic) {
-        auto shouldTreatAsHorizontal = direction == LineDirection::Horizontal
-            || (parentWritingMode.isSidewaysOrientation() && parentWritingMode.computedWritingMode() == StyleWritingMode::VerticalRl);
-        return shouldTreatAsHorizontal ? boxSize : LayoutUnit();
-    }
-    return boxSize / 2;
-}
-
 LayoutUnit RenderBox::intrinsicLogicalWidth() const
 {
     return writingMode().isHorizontal() ? intrinsicSize().width() : intrinsicSize().height();
