@@ -889,6 +889,9 @@ accessibility/dismiss-action-returns-whether-keyevent-handled.html [ Skip ]
 # Different roles
 accessibility/contenteditable-values.html [ Skip ]
 
+# Exposing aria-{row,col}indextext needs to be implemented on glib platforms.
+accessibility/aria-table-indextext.html [ Skip ]
+
 # Added in r263823. Both tests are timing out.
 webkit.org/b/213874 accessibility/keyevents-for-increment-actions-with-node-removal.html [ Skip ]
 webkit.org/b/213874 accessibility/keyevents-posted-for-increment-actions.html [ Skip ]

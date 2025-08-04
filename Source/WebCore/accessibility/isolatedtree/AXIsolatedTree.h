@@ -125,8 +125,10 @@ enum class AXProperty : uint16_t {
 #endif // !ENABLE(AX_THREAD_TEXT_APIS)
     AXColumnCount,
     AXColumnIndex,
+    AXColumnIndexText,
     AXRowCount,
     AXRowIndex,
+    AXRowIndexText,
     AccessKey,
     AccessibilityText,
     ActionVerb,

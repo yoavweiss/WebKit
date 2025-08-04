@@ -60,6 +60,8 @@ public:
 
     std::optional<unsigned> axColumnIndex() const final;
     std::optional<unsigned> axRowIndex() const final;
+    String axColumnIndexText() const final;
+    String axRowIndexText() const final;
     unsigned colSpan() const;
     unsigned rowSpan() const;
     void incrementEffectiveRowSpan() { ++m_effectiveRowSpan; }

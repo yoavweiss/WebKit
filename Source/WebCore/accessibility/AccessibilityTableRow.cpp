@@ -177,6 +177,11 @@ std::optional<unsigned> AccessibilityTableRow::axRowIndex() const
     return value >= 1 ? std::optional(value) : std::nullopt;
 }
 
+String AccessibilityTableRow::axRowIndexText() const
+{
+    return getAttribute(aria_rowindextextAttr);
+}
+
 AccessibilityObject::AccessibilityChildrenVector AccessibilityTableRow::disclosedRows()
 {
     if (!isARIATreeGridRow())

@@ -34,6 +34,7 @@ interface mixin AriaAttributes {
     [CEReactions=Needed, Reflect="aria-checked"]                attribute DOMString? ariaChecked;
     [CEReactions=Needed, Reflect="aria-colcount"]               attribute DOMString? ariaColCount;
     [CEReactions=Needed, Reflect="aria-colindex"]               attribute DOMString? ariaColIndex;
+    [CEReactions=Needed, Reflect="aria-colindextext"]           attribute DOMString? ariaColIndexText;
     [CEReactions=Needed, Reflect="aria-colspan"]                attribute DOMString? ariaColSpan;
     [CEReactions=Needed, CustomGetter, Reflect="aria-controls"] attribute FrozenArray<Element>? ariaControlsElements;
     [CEReactions=Needed, Reflect="aria-current"]          attribute DOMString? ariaCurrent;
@@ -66,6 +67,7 @@ interface mixin AriaAttributes {
     [CEReactions=Needed, Reflect="aria-roledescription"]  attribute DOMString? ariaRoleDescription;
     [CEReactions=Needed, Reflect="aria-rowcount"]         attribute DOMString? ariaRowCount;
     [CEReactions=Needed, Reflect="aria-rowindex"]         attribute DOMString? ariaRowIndex;
+    [CEReactions=Needed, Reflect="aria-rowindextext"]     attribute DOMString? ariaRowIndexText;
     [CEReactions=Needed, Reflect="aria-rowspan"]          attribute DOMString? ariaRowSpan;
     [CEReactions=Needed, Reflect="aria-selected"]         attribute DOMString? ariaSelected;
     [CEReactions=Needed, Reflect="aria-setsize"]          attribute DOMString? ariaSetSize;

@@ -3161,6 +3161,8 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     } else if (attrName == aria_colindexAttr) {
         postNotification(element, AXNotification::ARIAColumnIndexChanged);
         recomputeParentTableProperties(element, TableProperty::Exposed);
+    } else if (attrName == aria_colindextextAttr) {
+        postNotification(element, AXNotification::ARIAColumnIndexTextChanged);
     } else if (attrName == aria_colspanAttr) {
         postNotification(element, AXNotification::ColumnSpanChanged);
         recomputeParentTableProperties(element, { TableProperty::CellSlots, TableProperty::Exposed });
@@ -3196,7 +3198,8 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     else if (attrName == aria_rowindexAttr) {
         postNotification(element, AXNotification::ARIARowIndexChanged);
         recomputeParentTableProperties(element, { TableProperty::CellSlots, TableProperty::Exposed });
-    }
+    } else if (attrName == aria_rowindextextAttr)
+        postNotification(element, AXNotification::ARIARowIndexTextChanged);
     else if (attrName == aria_valuemaxAttr)
         postNotification(element, AXNotification::MaximumValueChanged);
     else if (attrName == aria_valueminAttr)
@@ -5002,11 +5005,17 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
         case AXNotification::ARIAColumnIndexChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::AXColumnIndex });
             break;
+        case AXNotification::ARIAColumnIndexTextChanged:
+            tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::AXColumnIndexText });
+            break;
         case AXNotification::ARIARoleDescriptionChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::ARIARoleDescription });
             break;
         case AXNotification::ARIARowIndexChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::AXRowIndex });
+            break;
+        case AXNotification::ARIARowIndexTextChanged:
+            tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::AXRowIndexText });
             break;
         case AXNotification::BrailleLabelChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::BrailleLabel });

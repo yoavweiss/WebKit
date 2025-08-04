@@ -1376,6 +1376,30 @@ static void appendStringToResult(NSMutableString *result, NSString *string)
     return columnIndex ? *columnIndex : NSNotFound;
 }
 
+- (NSString *)accessibilityRowIndexDescription
+{
+    if (![self _prepareAccessibilityCall])
+        return nil;
+    RefPtr<AccessibilityTableCell> tableCell = [self tableCellParent];
+    if (!tableCell)
+        return nil;
+
+    String rowIndexText = tableCell->axRowIndexText();
+    return !rowIndexText.isNull() ? rowIndexText.createNSString().autorelease() : nil;
+}
+
+- (NSString *)accessibilityColumnIndexDescription
+{
+    if (![self _prepareAccessibilityCall])
+        return nil;
+    RefPtr<AccessibilityTableCell> tableCell = [self tableCellParent];
+    if (!tableCell)
+        return nil;
+
+    String columnIndexText = tableCell->axColumnIndexText();
+    return !columnIndexText.isNull() ? columnIndexText.createNSString().autorelease() : nil;
+}
+
 - (NSRange)accessibilityRowRange
 {
     if (![self _prepareAccessibilityCall])

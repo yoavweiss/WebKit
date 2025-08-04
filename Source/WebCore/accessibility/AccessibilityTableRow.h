@@ -53,6 +53,8 @@ public:
 
     std::optional<unsigned> axColumnIndex() const final;
     std::optional<unsigned> axRowIndex() const final;
+    String axRowIndexText() const final;
+    // aria-colindextext is not allowed on rows
 
     AccessibilityChildrenVector disclosedRows() override;
     AccessibilityObject* disclosedByRow() const override;

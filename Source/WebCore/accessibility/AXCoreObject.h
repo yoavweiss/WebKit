@@ -920,6 +920,8 @@ public:
     virtual std::pair<unsigned, unsigned> columnIndexRange() const = 0;
     virtual std::optional<unsigned> axColumnIndex() const = 0;
     virtual std::optional<unsigned> axRowIndex() const = 0;
+    virtual String axColumnIndexText() const = 0;
+    virtual String axRowIndexText() const = 0;
 
     // Table column support.
     bool isTableColumn() const { return role() == AccessibilityRole::Column; }

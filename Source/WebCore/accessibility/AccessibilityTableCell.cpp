@@ -406,6 +406,22 @@ std::optional<unsigned> AccessibilityTableCell::axRowIndex() const
     return { };
 }
 
+String AccessibilityTableCell::axColumnIndexText() const
+{
+    return getAttribute(aria_colindextextAttr);
+}
+
+String AccessibilityTableCell::axRowIndexText() const
+{
+    if (String text = getAttribute(aria_rowindextextAttr); !text.isNull())
+        return text;
+
+    if (RefPtr parentRow = this->parentRow())
+        return parentRow->axRowIndexText();
+
+    return { };
+}
+
 unsigned AccessibilityTableCell::rowSpan() const
 {
     // According to the ARIA spec, "If aria-rowspan is used on an element for which the host language

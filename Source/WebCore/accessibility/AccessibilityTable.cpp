@@ -261,7 +261,7 @@ bool AccessibilityTable::isDataTable() const
                 if (isDataTableBasedOnRowColumnCount())
                     return true;
 
-                if (tableRow->integralAttribute(aria_rowindexAttr) >= 1 || tableRow->integralAttribute(aria_colindexAttr) || hasRole(*tableRow, "row"_s))
+                if (tableRow->integralAttribute(aria_rowindexAttr) >= 1 || tableRow->integralAttribute(aria_colindexAttr) || !tableRow->getAttribute(aria_rowindextextAttr).isEmpty() || hasRole(*tableRow, "row"_s))
                     return true;
 
                 // For the first 5 rows, cache the background color so we can check if this table has zebra-striped rows.
@@ -294,9 +294,9 @@ bool AccessibilityTable::isDataTable() const
                 if (!cell->headers().isEmpty() || !cell->abbr().isEmpty() || !cell->axis().isEmpty() || !cell->scope().isEmpty() || hasCellARIARole(*cell))
                     return true;
 
-                // If the author has used ARIA to specify a valid column or row index, assume they want us
+                // If the author has used ARIA to specify a valid column or row index or index text, assume they want us
                 // to treat the table as a data table.
-                if (cell->integralAttribute(aria_colindexAttr) >= 1 || cell->integralAttribute(aria_rowindexAttr) >= 1)
+                if (cell->integralAttribute(aria_colindexAttr) >= 1 || cell->integralAttribute(aria_rowindexAttr) >= 1 || !cell->getAttribute(aria_colindextextAttr).isEmpty() || !cell->getAttribute(aria_rowindextextAttr).isEmpty())
                     return true;
 
                 // If the author has used ARIA to specify a column or row span, we're supposed to ignore

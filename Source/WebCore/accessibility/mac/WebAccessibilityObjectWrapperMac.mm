@@ -788,6 +788,9 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     static NeverDestroyed tableRowAttrs = [] {
         auto tempArray = adoptNS([[NSMutableArray alloc] initWithArray:attributes.get().get()]);
         [tempArray addObject:NSAccessibilityIndexAttribute];
+        // FIXME: Consider exposing NSAccessibilityARIARowIndexAttribute and NSAccessibilityRowIndexDescriptionAttribute,
+        // i.e. aria-rowindex and aria-rowindextext, just like already done for cells
+        // https://bugs.webkit.org/show_bug.cgi?id=296857
         return tempArray;
     }();
     static NeverDestroyed tableColAttrs = [] {
@@ -806,6 +809,8 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
         [tempArray addObject:NSAccessibilityRowHeaderUIElementsAttribute];
         [tempArray addObject:NSAccessibilityARIAColumnIndexAttribute];
         [tempArray addObject:NSAccessibilityARIARowIndexAttribute];
+        [tempArray addObject:NSAccessibilityColumnIndexDescriptionAttribute];
+        [tempArray addObject:NSAccessibilityRowIndexDescriptionAttribute];
         return tempArray;
     }();
     static NeverDestroyed groupAttrs = [] {
@@ -1518,6 +1523,16 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
             if (std::optional rowIndex = backingObject->axRowIndex())
                 return @(*rowIndex);
             return @(-1);
+        }
+
+        if ([attributeName isEqualToString:NSAccessibilityColumnIndexDescriptionAttribute]) {
+            String columnIndexText = backingObject->axColumnIndexText();
+            return !columnIndexText.isNull() ? columnIndexText.createNSString().autorelease() : nil;
+        }
+
+        if ([attributeName isEqualToString:NSAccessibilityRowIndexDescriptionAttribute]) {
+            String rowIndexText = backingObject->axRowIndexText();
+            return !rowIndexText.isNull() ? rowIndexText.createNSString().autorelease() : nil;
         }
     }
 

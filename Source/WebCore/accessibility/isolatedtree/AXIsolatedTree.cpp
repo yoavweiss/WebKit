@@ -637,6 +637,9 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
                 properties.append({ AXProperty::AXColumnIndex, *columnIndex });
             break;
         }
+        case AXProperty::AXColumnIndexText:
+            properties.append({ AXProperty::AXColumnIndexText, axObject.axColumnIndexText().isolatedCopy() });
+            break;
         case AXProperty::CanSetFocusAttribute:
             properties.append({ AXProperty::CanSetFocusAttribute, axObject.canSetFocusAttribute() });
             break;
@@ -760,6 +763,9 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
                 properties.append({ AXProperty::AXRowIndex, *rowIndex });
             break;
         }
+        case AXProperty::AXRowIndexText:
+            properties.append({ AXProperty::AXRowIndexText, axObject.axRowIndexText().isolatedCopy() });
+            break;
         case AXProperty::CellScope:
             properties.append({ AXProperty::CellScope, axObject.cellScope().isolatedCopy() });
             break;
@@ -1986,6 +1992,8 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
                 setProperty(AXProperty::AXColumnIndex, *columnIndex);
             if (std::optional rowIndex = object.axRowIndex())
                 setProperty(AXProperty::AXRowIndex, *rowIndex);
+            setProperty(AXProperty::AXColumnIndexText, object.axColumnIndexText().isolatedCopy());
+            setProperty(AXProperty::AXRowIndexText, object.axRowIndexText().isolatedCopy());
             setProperty(AXProperty::IsColumnHeader, object.isColumnHeader());
             setProperty(AXProperty::IsRowHeader, object.isRowHeader());
             setProperty(AXProperty::CellScope, object.cellScope().isolatedCopy());

@@ -158,6 +158,9 @@ public:
     std::pair<unsigned, unsigned> columnIndexRange() const override { return { 0, 1 }; }
     std::optional<unsigned> axColumnIndex() const override { return std::nullopt; }
     std::optional<unsigned> axRowIndex() const override { return std::nullopt; }
+    String axColumnIndexText() const override { return { }; }
+    String axRowIndexText() const override { return { }; }
+
 
     // Table column support.
     unsigned columnIndex() const override { return 0; }

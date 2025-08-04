@@ -177,8 +177,10 @@ protected:
     macro(AutocorrectionOccured) \
     macro(AutofillTypeChanged) \
     macro(ARIAColumnIndexChanged) \
+    macro(ARIAColumnIndexTextChanged) \
     macro(ARIARoleDescriptionChanged) \
     macro(ARIARowIndexChanged) \
+    macro(ARIARowIndexTextChanged) \
     macro(BrailleLabelChanged) \
     macro(BrailleRoleDescriptionChanged) \
     macro(CellSlotsChanged) \
