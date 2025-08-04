@@ -467,7 +467,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
 
     if (is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox)) {
         if (auto baseline = renderBox.firstLineBaseline())
-            return *baseline;
+            return writingMode.isLineInverted() ? renderBox.logicalHeight() - *baseline : *baseline;
         return { };
     }
 
