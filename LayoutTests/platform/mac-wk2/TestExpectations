@@ -2382,3 +2382,5 @@ webkit.org/b/293808 [ Sequoia Debug arm64 ] http/tests/webgpu/webgpu/shader/exec
 # 2X fast/webgpu/regression/repro tests are consistent crashes 
 [ Sonoma+ x86_64 ] fast/webgpu/regression/repro_275345.html [ Crash ]
 [ Sonoma+ x86_64 ] fast/webgpu/regression/repro_296062.html [ Crash ]
+
+webkit.org/b/296885 [ Debug arm64 ] fast/scrolling/mac/scrollend-event-user-scroll-basic.html [ Pass Failure ]
