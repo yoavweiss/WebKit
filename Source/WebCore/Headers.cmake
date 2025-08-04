@@ -2834,6 +2834,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/position/StyleInset.h
 
     style/values/primitives/StyleLengthWrapper.h
+    style/values/primitives/StyleLengthWrapperData.h
     style/values/primitives/StylePosition.h
     style/values/primitives/StylePrimitiveNumeric+Forward.h
     style/values/primitives/StylePrimitiveNumeric.h

@@ -34,7 +34,7 @@ std::optional<PreferredSize> FlexBasis::tryPreferredSize() const
 {
     if (isContent())
         return { };
-    return PreferredSize { WebCore::Length { m_value } };
+    return PreferredSize { m_value };
 }
 
 } // namespace Style

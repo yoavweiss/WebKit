@@ -3202,6 +3202,7 @@ style/values/overflow/StyleBlockEllipsis.cpp
 style/values/overflow/StyleScrollBehavior.cpp
 style/values/overflow/StyleScrollbarGutter.cpp
 style/values/primitives/StyleLengthResolution.cpp
+style/values/primitives/StyleLengthWrapperData.cpp
 style/values/primitives/StylePosition.cpp
 style/values/primitives/StylePrimitiveNumericTypes+Conversions.cpp
 style/values/primitives/StyleRatio.cpp

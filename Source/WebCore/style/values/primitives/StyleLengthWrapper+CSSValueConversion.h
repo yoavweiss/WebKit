@@ -43,24 +43,28 @@ template<LengthWrapperBaseDerived T> struct CSSValueConversion<T> {
                 : state.cssToLengthConversionData();
 
             if (primitiveValue.isLength()) {
-                return T { WebCore::Length {
-                    CSS::clampToRange<T::Fixed::range, float>(primitiveValue.resolveAsLength(conversionData), minValueForCssLength, maxValueForCssLength),
-                    LengthType::Fixed,
+                return T {
+                    typename T::Fixed {
+                        CSS::clampToRange<T::Fixed::range, float>(primitiveValue.resolveAsLength(conversionData), minValueForCssLength, maxValueForCssLength),
+                    },
                     primitiveValue.primitiveType() == CSSUnitType::CSS_QUIRKY_EM
-                } };
+                };
             }
 
             if (primitiveValue.isPercentage()) {
-                return T { WebCore::Length {
-                    CSS::clampToRange<T::Percentage::range, float>(primitiveValue.resolveAsPercentage(conversionData)),
-                    LengthType::Percent
-                } };
+                return T {
+                    typename T::Percentage {
+                        CSS::clampToRange<T::Percentage::range, float>(primitiveValue.resolveAsPercentage(conversionData)),
+                    }
+                };
             }
 
             if (primitiveValue.isCalculatedPercentageWithLength()) {
-                return T { WebCore::Length {
-                    primitiveValue.protectedCssCalcValue()->createCalculationValue(conversionData, CSSCalcSymbolTable { })
-                } };
+                return T {
+                    typename T::Calc {
+                        primitiveValue.protectedCssCalcValue()->createCalculationValue(conversionData, CSSCalcSymbolTable { })
+                    }
+                };
             }
 
             ASSERT_NOT_REACHED();
@@ -76,55 +80,55 @@ template<LengthWrapperBaseDerived T> struct CSSValueConversion<T> {
                 return convertLengthPercentage();
             case CSSValueIntrinsic:
                 if constexpr (T::SupportsIntrinsic)
-                    return T { WebCore::Length(LengthType::Intrinsic) };
+                    return CSS::Keyword::Intrinsic { };
                 else
                     break;
             case CSSValueMinIntrinsic:
                 if constexpr (T::SupportsMinIntrinsic)
-                    return T { WebCore::Length(LengthType::MinIntrinsic) };
+                    return CSS::Keyword::MinIntrinsic { };
                 else
                     break;
             case CSSValueMinContent:
             case CSSValueWebkitMinContent:
                 if constexpr (T::SupportsMinContent)
-                    return T { WebCore::Length(LengthType::MinContent) };
+                    return CSS::Keyword::MinContent { };
                 else
                     break;
             case CSSValueMaxContent:
             case CSSValueWebkitMaxContent:
                 if constexpr (T::SupportsMaxContent)
-                    return T { WebCore::Length(LengthType::MaxContent) };
+                    return CSS::Keyword::MaxContent { };
                 else
                     break;
             case CSSValueWebkitFillAvailable:
                 if constexpr (T::SupportsWebkitFillAvailable)
-                    return T { WebCore::Length(LengthType::FillAvailable) };
+                    return CSS::Keyword::WebkitFillAvailable { };
                 else
                     break;
             case CSSValueFitContent:
             case CSSValueWebkitFitContent:
                 if constexpr (T::SupportsFitContent)
-                    return T { WebCore::Length(LengthType::FitContent) };
+                    return CSS::Keyword::FitContent { };
                 else
                     break;
             case CSSValueAuto:
                 if constexpr (T::SupportsAuto)
-                    return T { WebCore::Length(LengthType::Auto) };
+                    return CSS::Keyword::Auto { };
                 else
                     break;
             case CSSValueContent:
                 if constexpr (T::SupportsContent)
-                    return T { WebCore::Length(LengthType::Content) };
+                    return CSS::Keyword::Content { };
                 else
                     break;
             case CSSValueNormal:
                 if constexpr (T::SupportsNormal)
-                    return T { WebCore::Length(LengthType::Normal) };
+                    return CSS::Keyword::Normal { };
                 else
                     break;
             case CSSValueNone:
                 if constexpr (T::SupportsNone)
-                    return T { WebCore::Length(LengthType::Undefined) };
+                    return CSS::Keyword::None { };
                 else
                     break;
             default:

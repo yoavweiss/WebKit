@@ -155,6 +155,8 @@ public:
     std::optional<Percentage> tryPercentage() const { return isPercent() ? std::make_optional(Percentage { value() }) : std::nullopt; }
 
     LengthType type() const;
+    bool isFloat() const;
+
     WEBCORE_EXPORT IPCData ipcData() const;
 
     bool isFixed() const;
@@ -420,6 +422,11 @@ inline float Length::percent() const
 inline LengthType Length::type() const
 {
     return static_cast<LengthType>(m_type);
+}
+
+inline bool Length::isFloat() const
+{
+    return m_isFloat;
 }
 
 inline bool Length::hasQuirk() const
