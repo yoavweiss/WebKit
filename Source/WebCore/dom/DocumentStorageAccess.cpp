@@ -94,6 +94,8 @@ static bool hasSameOriginAsAllAncestors(const Document& document)
 std::optional<bool> DocumentStorageAccess::hasStorageAccessQuickCheck()
 {
     Ref document = m_document.get();
+    if (!document->isSecureContext())
+        return false;
 
     RefPtr frame = document->frame();
     if (frame && hasFrameSpecificStorageAccess())
@@ -195,6 +197,11 @@ void DocumentStorageAccess::requestStorageAccess(Ref<DeferredPromise>&& promise)
     Ref document = m_document.get();
     if (!document->isFullyActive()) {
         promise->reject(ExceptionCode::InvalidStateError);
+        return;
+    }
+
+    if (!document->isSecureContext()) {
+        promise->reject(ExceptionCode::NotAllowedError);
         return;
     }
 
