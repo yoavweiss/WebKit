@@ -104,7 +104,8 @@ class GitHub(object):
 
         return cls._cache[prefix]
 
-    def fetch_data_from_url_with_authentication_github(self, url):
+    @classmethod
+    def fetch_data_from_url_with_authentication_github(cls, url):
         response = None
         try:
             username, access_token = GitHub.credentials()
@@ -114,11 +115,11 @@ class GitHub(object):
                 headers=dict(Accept='application/vnd.github.v3+json'),
             )
             if response.status_code // 100 != 2:
-                _log.error('Accessed {url} with unexpected status code {status_code}.\n'.format(url=url, status_code=response.status_code))
+                _log.error(f'Accessed {url} with unexpected status code {response.status_code}.\n')
                 return None
         except Exception as e:
             # Catching all exceptions here to safeguard access token.
-            _log.error('Failed to access {}.\n'.format(url=url))
+            _log.error(f'Failed to access {url}.\n')
             return None
         return response
 
@@ -220,11 +221,31 @@ class GitHubEWS(GitHub):
                           ['', 'tv-sim', '', 'jsc-armv7-tests', ''],
                           ['', 'watch', '', '', ''],
                           ['', 'watch-sim', '', '', '']]
-    # FIXME: fetch below user list dynamically and expand it appropriately
-    approved_user_list_for_apple_internal_builds = ['adetaylor', 'aestes', 'aj062', 'annevk', 'aproskuryakov', 'aprotyas', 'beidson', 'briannafan',
-                                       'Constellation', 'danlliu', 'ddkilzer', 'emw-apple', 'eric-carlson', 'etiennesegonzac', 'gsnedders',
-                                       'hortont424', 'jesxilin', 'JonWBedard', 'lilyspiniolas', 'megangardner', 'pxlcoder', 'rr-codes',
-                                       'ryanhaddad', 'Smackteo', 'squelart', 'whsieh', 'zakariaridouh']
+    approved_user_list_for_apple_internal_builds = []
+
+    @classmethod
+    def update_approved_user_list_for_apple_internal_builds(cls):
+        PER_PAGE_LIMIT = 100
+        NUM_PAGE_LIMIT = 10
+        URL_FOR_TRUSTED_GITHUB_LIST = f'https://api.github.com/orgs/apple/teams/webkit/members'
+        members = []
+        for page in range(1, NUM_PAGE_LIMIT + 1):
+            url = f'{URL_FOR_TRUSTED_GITHUB_LIST}?per_page={PER_PAGE_LIMIT}&page={page}'
+            content = cls.fetch_data_from_url_with_authentication_github(url)
+            if not content:
+                _log.error(f'ERROR: Unable to fetch list of trusted users, this might impact Internal EWS.')
+                break
+            response_content = content.json() or []
+            if not isinstance(response_content, list):
+                _log.info(f"Malformed response when listing users with '{url}'\n")
+                return members
+            members.extend(user['login'] for user in response_content)
+            if len(response_content) < PER_PAGE_LIMIT:
+                break
+
+        _log.info(f'{len(members)} Members: \n{members}')
+        if members:
+            GitHubEWS.approved_user_list_for_apple_internal_builds = members
 
     @classmethod
     def generate_updated_pr_description(self, description, ews_comment):
