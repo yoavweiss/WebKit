@@ -2944,14 +2944,38 @@ inSingleLineComment:
         auto lineStartOffset = currentLineStartOffset();
         auto endPosition = currentPosition();
 
-        while (!isLineTerminator(m_current)) {
-            if (atEnd()) {
-                token = EOFTOK;
-                fillTokenInfo(tokenRecord, token, lineNumber, endOffset, lineStartOffset, endPosition);
-                return token;
+        using UnsignedType = std::make_unsigned_t<T>;
+        constexpr auto lineFeedMask = SIMD::splat<UnsignedType>('\n');
+        constexpr auto carriageReturnMask = SIMD::splat<UnsignedType>('\r');
+        constexpr auto u2028Mask = SIMD::splat<UnsignedType>(static_cast<UnsignedType>(0x2028));
+        constexpr auto u2029Mask = SIMD::splat<UnsignedType>(static_cast<UnsignedType>(0x2029));
+        auto vectorMatch = [&](auto input) ALWAYS_INLINE_LAMBDA {
+            auto lineFeed = SIMD::equal(input, lineFeedMask);
+            auto carriageReturn = SIMD::equal(input, carriageReturnMask);
+            if constexpr (std::is_same_v<T, LChar>) {
+                auto mask = SIMD::bitOr(lineFeed, carriageReturn);
+                return SIMD::findFirstNonZeroIndex(mask);
+            } else {
+                auto u2028 = SIMD::equal(input, u2028Mask);
+                auto u2029 = SIMD::equal(input, u2029Mask);
+                auto mask = SIMD::bitOr(lineFeed, carriageReturn, u2028, u2029);
+                return SIMD::findFirstNonZeroIndex(mask);
             }
-            shift();
+        };
+
+        auto scalarMatch = [&](auto character) ALWAYS_INLINE_LAMBDA {
+            return isLineTerminator(character);
+        };
+
+        m_code = SIMD::find(std::span { currentSourcePtr(), m_codeEnd }, vectorMatch, scalarMatch);
+        if (m_code == m_codeEnd) {
+            m_current = 0;
+            token = EOFTOK;
+            fillTokenInfo(tokenRecord, token, lineNumber, endOffset, lineStartOffset, endPosition);
+            return token;
         }
+
+        m_current = *m_code;
         shiftLineTerminator();
         m_atLineStart = true;
         m_hasLineTerminatorBeforeToken = true;
