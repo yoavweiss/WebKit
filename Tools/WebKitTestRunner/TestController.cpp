@@ -2435,8 +2435,9 @@ void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messag
         auto messageBodyDictionary = dictionaryValue(messageBody);
         auto value = booleanValue(messageBodyDictionary, "Value");
         auto subFrameURL = stringValue(messageBodyDictionary, "SubFrameURL");
-        auto mainFrameURL = adoptWK(WKURLCopyString(WKPageCopyActiveURL(TestController::singleton().mainWebView()->page())));
-        return WKWebsiteDataStoreSetStorageAccessPermissionForTesting(websiteDataStore(), value, mainFrameURL.get(), subFrameURL, completionHandler.leak(), adoptAndCallCompletionHandler);
+        auto page = mainWebView()->page();
+        auto mainFrameURL = adoptWK(WKURLCopyString(WKPageCopyActiveURL(page)));
+        return WKWebsiteDataStoreSetStorageAccessPermissionForTesting(websiteDataStore(), page, value, mainFrameURL.get(), subFrameURL, completionHandler.leak(), adoptAndCallCompletionHandler);
     }
 
     ASSERT_NOT_REACHED();

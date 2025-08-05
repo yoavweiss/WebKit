@@ -517,7 +517,7 @@ public:
     uint64_t cookiesVersion() const { return m_cookiesVersion; }
     void setCookies(Vector<WebCore::Cookie>&&, CompletionHandler<void()>&&);
 
-    void setStorageAccessPermissionForTesting(bool, const String& topFrameDomain, const String& subFrameDomain, CompletionHandler<void()>&&);
+    void setStorageAccessPermissionForTesting(bool, WebPageProxyIdentifier, const String& topFrameDomain, const String& subFrameDomain, CompletionHandler<void()>&&);
 
 private:
     enum class ForceReinitialization : bool { No, Yes };

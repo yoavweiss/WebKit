@@ -2011,12 +2011,12 @@ void WebChromeClient::hasStorageAccess(RegistrableDomain&& subFrameDomain, Regis
         completionHandler(false);
 }
 
-void WebChromeClient::requestStorageAccess(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, LocalFrame& frame, StorageAccessScope scope, CompletionHandler<void(RequestStorageAccessResult)>&& completionHandler)
+void WebChromeClient::requestStorageAccess(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, LocalFrame& frame, StorageAccessScope scope, HasOrShouldIgnoreUserGesture hasOrShouldIgnoreUserGesture, CompletionHandler<void(RequestStorageAccessResult)>&& completionHandler)
 {
     auto webFrame = WebFrame::fromCoreFrame(frame);
     ASSERT(webFrame);
     if (RefPtr page = m_page.get())
-        page->requestStorageAccess(WTFMove(subFrameDomain), WTFMove(topFrameDomain), *webFrame, scope, WTFMove(completionHandler));
+        page->requestStorageAccess(WTFMove(subFrameDomain), WTFMove(topFrameDomain), *webFrame, scope, hasOrShouldIgnoreUserGesture, WTFMove(completionHandler));
     else
         completionHandler({ });
 }

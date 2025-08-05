@@ -2906,9 +2906,9 @@ void WebsiteDataStore::setCookies(Vector<WebCore::Cookie>&& cookies, CompletionH
     protectedNetworkProcess()->sendWithAsyncReply(Messages::WebCookieManager::SetCookie(m_sessionID, WTFMove(cookies), ++m_cookiesVersion), WTFMove(completionHandler));
 }
 
-void WebsiteDataStore::setStorageAccessPermissionForTesting(bool granted, const String& topFrame, const String& subFrame, CompletionHandler<void()>&& completionHandler)
+void WebsiteDataStore::setStorageAccessPermissionForTesting(bool granted, WebPageProxyIdentifier webPageProxyID, const String& topFrame, const String& subFrame, CompletionHandler<void()>&& completionHandler)
 {
-    protectedNetworkProcess()->sendWithAsyncReply(Messages::NetworkProcess::SetStorageAccessPermissionForTesting(m_sessionID, granted, WebCore::RegistrableDomain(URL(topFrame)), WebCore::RegistrableDomain(URL(subFrame))), WTFMove(completionHandler));
+    protectedNetworkProcess()->sendWithAsyncReply(Messages::NetworkProcess::SetStorageAccessPermissionForTesting(m_sessionID, granted, webPageProxyID, WebCore::RegistrableDomain(URL(topFrame)), WebCore::RegistrableDomain(URL(subFrame))), WTFMove(completionHandler));
 }
 
 } // namespace WebKit

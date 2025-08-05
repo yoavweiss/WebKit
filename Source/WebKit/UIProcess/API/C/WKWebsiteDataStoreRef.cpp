@@ -797,9 +797,9 @@ void WKWebsiteDataStoreResetResourceMonitorThrottler(WKWebsiteDataStoreRef dataS
 #endif
 }
 
-void WKWebsiteDataStoreSetStorageAccessPermissionForTesting(WKWebsiteDataStoreRef dataStoreRef, bool granted, WKStringRef topFrame, WKStringRef subFrame, void* context, WKWebsiteDataStoreSetStorageAccessPermissionForTestingFunction completionHandler)
+void WKWebsiteDataStoreSetStorageAccessPermissionForTesting(WKWebsiteDataStoreRef dataStoreRef, WKPageRef pageRef, bool granted, WKStringRef topFrame, WKStringRef subFrame, void* context, WKWebsiteDataStoreSetStorageAccessPermissionForTestingFunction completionHandler)
 {
-    WebKit::toProtectedImpl(dataStoreRef)->setStorageAccessPermissionForTesting(granted, WebKit::toProtectedImpl(topFrame)->string(), WebKit::toProtectedImpl(subFrame)->string(), [context, completionHandler] {
+    WebKit::toProtectedImpl(dataStoreRef)->setStorageAccessPermissionForTesting(granted, WebKit::toImpl(pageRef)->identifier(), WebKit::toProtectedImpl(topFrame)->string(), WebKit::toProtectedImpl(subFrame)->string(), [context, completionHandler] {
         completionHandler(context);
     });
 }
