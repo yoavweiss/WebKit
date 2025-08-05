@@ -2399,3 +2399,5 @@ webkit.org/b/296952 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/o
 webkit.org/b/296952 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/unset/sharedworker-import-data.https.html [ Failure ]
 
 webkit.org/b/296954 imported/w3c/web-platform-tests/event-timing/event-click-counts.html [ Pass Failure ]
+
+webkit.org/b/296964 imported/w3c/web-platform-tests/webrtc/RTCDataChannel-GC.html [ Pass Failure ]
