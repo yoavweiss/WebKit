@@ -2397,3 +2397,5 @@ imported/w3c/web-platform-tests/content-security-policy/gen/top.meta/worker-src-
 webkit.org/b/296952 imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/sharedworker-import-data.https.html [ Failure ]
 webkit.org/b/296952 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/sharedworker-import-data.https.html [ Failure ]
 webkit.org/b/296952 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/unset/sharedworker-import-data.https.html [ Failure ]
+
+webkit.org/b/296954 imported/w3c/web-platform-tests/event-timing/event-click-counts.html [ Pass Failure ]
