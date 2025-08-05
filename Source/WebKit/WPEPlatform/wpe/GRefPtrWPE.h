@@ -32,44 +32,8 @@
 
 namespace WTF {
 
-template<> inline WPEEvent* refGPtr(WPEEvent* ptr)
-{
-    if (ptr) [[likely]]
-        wpe_event_ref(ptr);
-    return ptr;
-}
-
-template<> inline void derefGPtr(WPEEvent* ptr)
-{
-    if (ptr) [[likely]]
-        wpe_event_unref(ptr);
-}
-
-template<> inline WPEClipboardContent* refGPtr(WPEClipboardContent* ptr)
-{
-    if (ptr) [[likely]]
-        wpe_clipboard_content_ref(ptr);
-    return ptr;
-}
-
-template<> inline void derefGPtr(WPEClipboardContent* ptr)
-{
-    if (ptr) [[likely]]
-        wpe_clipboard_content_unref(ptr);
-}
-
-template<> inline WPEDRMDevice* refGPtr(WPEDRMDevice* ptr)
-{
-    if (ptr) [[likely]]
-        wpe_drm_device_ref(ptr);
-    return ptr;
-}
-
-template<> inline void derefGPtr(WPEDRMDevice* ptr)
-{
-    if (ptr) [[likely]]
-        wpe_drm_device_unref(ptr);
-}
-
+WTF_DEFINE_GREF_TRAITS_INLINE(WPEEvent, wpe_event_ref, wpe_event_unref)
+WTF_DEFINE_GREF_TRAITS_INLINE(WPEClipboardContent, wpe_clipboard_content_ref, wpe_clipboard_content_unref)
+WTF_DEFINE_GREF_TRAITS_INLINE(WPEDRMDevice, wpe_drm_device_ref, wpe_drm_device_unref)
 
 } // namespace WTF

@@ -713,7 +713,7 @@ static void gotFaviconCallback(GObject* object, GAsyncResult* result, gpointer u
 
     WebKitWebView* webView = WEBKIT_WEB_VIEW(userData);
     webkitWebViewUpdateFavicon(webView, favicon.get());
-    webView->priv->faviconCancellable = 0;
+    webView->priv->faviconCancellable = nullptr;
 }
 
 static WebKitFaviconDatabase* webkitWebViewGetFaviconDatabase(WebKitWebView* webView)

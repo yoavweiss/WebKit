@@ -56,7 +56,7 @@ public:
 
     void waitUntilLoadFinished()
     {
-        m_certificate = 0;
+        m_certificate = nullptr;
         m_tlsErrors = static_cast<GTlsCertificateFlags>(0);
         LoadTrackingTest::waitUntilLoadFinished();
     }
