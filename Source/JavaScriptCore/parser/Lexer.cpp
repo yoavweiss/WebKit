@@ -1208,17 +1208,69 @@ template <bool shouldBuildStrings> ALWAYS_INLINE typename Lexer<T>::StringParseR
 
     const T* stringStart = currentSourcePtr();
 
+    using UnsignedType = std::make_unsigned_t<T>;
+    auto quoteMask = SIMD::splat<UnsignedType>(stringQuoteCharacter);
+    constexpr auto escapeMask = SIMD::splat<UnsignedType>('\\');
+    constexpr auto controlMask = SIMD::splat<UnsignedType>(0xE);
+    constexpr auto nonLatin1Mask = SIMD::splat<UnsignedType>(0xff);
+    auto vectorMatch = [&](auto input) ALWAYS_INLINE_LAMBDA {
+        auto quotes = SIMD::equal(input, quoteMask);
+        auto escapes = SIMD::equal(input, escapeMask);
+        auto controls = SIMD::lessThan(input, controlMask);
+        if constexpr (std::is_same_v<T, LChar> || !shouldBuildStrings) {
+            auto mask = SIMD::bitOr(quotes, escapes, controls);
+            return SIMD::findFirstNonZeroIndex(mask);
+        } else {
+            auto nonLatin1 = SIMD::greaterThan(input, nonLatin1Mask);
+            auto mask = SIMD::bitOr(quotes, escapes, controls, nonLatin1);
+            return SIMD::findFirstNonZeroIndex(mask);
+        }
+    };
+
+    auto scalarMatch = [&](auto character) ALWAYS_INLINE_LAMBDA {
+        if (character == stringQuoteCharacter)
+            return true;
+        if (character == '\\')
+            return true;
+        if (character < 0xE)
+            return true;
+
+        if constexpr (std::is_same_v<T, LChar> || !shouldBuildStrings)
+            return false;
+        else
+            return !isLatin1(character);
+    };
+
+    const T* found = SIMD::find(std::span { stringStart, m_codeEnd }, vectorMatch, scalarMatch);
+    if (found == m_codeEnd) [[unlikely]] {
+        setOffset(startingOffset, startingLineStartOffset);
+        setLineNumber(startingLineNumber);
+        return parseStringSlowCase<shouldBuildStrings>(tokenData, strictMode);
+    }
+
+    m_code = found;
+    m_current = *found;
+    if (m_current == stringQuoteCharacter) [[likely]] {
+        if constexpr (shouldBuildStrings)
+            tokenData->ident = makeIdentifier(std::span { stringStart, found });
+        else
+            tokenData->ident = nullptr;
+        return StringParsedSuccessfully;
+    }
+
     while (m_current != stringQuoteCharacter) {
         if (m_current == '\\') [[unlikely]] {
-            if (stringStart != currentSourcePtr() && shouldBuildStrings)
-                append8({ stringStart, currentSourcePtr() });
+            if constexpr (shouldBuildStrings) {
+                if (stringStart != currentSourcePtr())
+                    append8({ stringStart, currentSourcePtr() });
+            }
             shift();
 
             LChar escape = singleEscape(m_current);
 
             // Most common escape sequences first.
             if (escape) {
-                if (shouldBuildStrings)
+                if constexpr (shouldBuildStrings)
                     record8(escape);
                 shift();
             } else if (isLineTerminator(m_current)) [[unlikely]]
@@ -1231,7 +1283,7 @@ template <bool shouldBuildStrings> ALWAYS_INLINE typename Lexer<T>::StringParseR
                 }
                 T prev = m_current;
                 shift();
-                if (shouldBuildStrings)
+                if constexpr (shouldBuildStrings)
                     record8(convertHex(prev, m_current));
                 shift();
             } else {
@@ -1254,9 +1306,9 @@ template <bool shouldBuildStrings> ALWAYS_INLINE typename Lexer<T>::StringParseR
         shift();
     }
 
-    if (currentSourcePtr() != stringStart && shouldBuildStrings)
-        append8({ stringStart, currentSourcePtr() });
-    if (shouldBuildStrings) {
+    if constexpr (shouldBuildStrings) {
+        if (currentSourcePtr() != stringStart)
+            append8({ stringStart, currentSourcePtr() });
         tokenData->ident = makeIdentifier(m_buffer8.span());
         m_buffer8.shrink(0);
     } else
@@ -1286,7 +1338,7 @@ template <bool shouldBuildStrings> ALWAYS_INLINE auto Lexer<T>::parseComplexEsca
 
         T prev = m_current;
         shift();
-        if (shouldBuildStrings)
+        if constexpr (shouldBuildStrings)
             record16(convertHex(prev, m_current));
         shift();
 
@@ -1298,7 +1350,7 @@ template <bool shouldBuildStrings> ALWAYS_INLINE auto Lexer<T>::parseComplexEsca
 
         auto character = parseUnicodeEscape();
         if (character.isValid()) {
-            if (shouldBuildStrings)
+            if constexpr (shouldBuildStrings)
                 recordUnicodeCodePoint(character.value());
             return StringParsedSuccessfully;
         }
@@ -1324,7 +1376,7 @@ template <bool shouldBuildStrings> ALWAYS_INLINE auto Lexer<T>::parseComplexEsca
                 m_lexErrorMessage = "The only valid numeric escape in strict mode is '\\0'"_s;
                 return atEnd() ? StringUnterminated : StringCannotBeParsed;
             }
-            if (shouldBuildStrings)
+            if constexpr (shouldBuildStrings)
                 record16(0);
             return StringParsedSuccessfully;
         }
@@ -1338,15 +1390,15 @@ template <bool shouldBuildStrings> ALWAYS_INLINE auto Lexer<T>::parseComplexEsca
                 T character2 = m_current;
                 shift();
                 if (character1 >= '0' && character1 <= '3' && isASCIIOctalDigit(m_current)) {
-                    if (shouldBuildStrings)
+                    if constexpr (shouldBuildStrings)
                         record16((character1 - '0') * 64 + (character2 - '0') * 8 + m_current - '0');
                     shift();
                 } else {
-                    if (shouldBuildStrings)
+                    if constexpr (shouldBuildStrings)
                         record16((character1 - '0') * 8 + character2 - '0');
                 }
             } else {
-                if (shouldBuildStrings)
+                if constexpr (shouldBuildStrings)
                     record16(character1 - '0');
             }
             return StringParsedSuccessfully;
@@ -1354,7 +1406,7 @@ template <bool shouldBuildStrings> ALWAYS_INLINE auto Lexer<T>::parseComplexEsca
     }
 
     if (!atEnd()) {
-        if (shouldBuildStrings)
+        if constexpr (shouldBuildStrings)
             record16(m_current);
         shift();
         return StringParsedSuccessfully;
@@ -1374,15 +1426,17 @@ template <bool shouldBuildStrings> auto Lexer<T>::parseStringSlowCase(JSTokenDat
 
     while (m_current != stringQuoteCharacter) {
         if (m_current == '\\') [[unlikely]] {
-            if (stringStart != currentSourcePtr() && shouldBuildStrings)
-                append16({ stringStart, currentSourcePtr() });
+            if constexpr (shouldBuildStrings) {
+                if (stringStart != currentSourcePtr())
+                    append16({ stringStart, currentSourcePtr() });
+            }
             shift();
 
             LChar escape = singleEscape(m_current);
 
             // Most common escape sequences first
             if (escape) {
-                if (shouldBuildStrings)
+                if constexpr (shouldBuildStrings)
                     record16(escape);
                 shift();
             } else if (isLineTerminator(m_current)) [[unlikely]]
@@ -1410,11 +1464,11 @@ template <bool shouldBuildStrings> auto Lexer<T>::parseStringSlowCase(JSTokenDat
         shift();
     }
 
-    if (currentSourcePtr() != stringStart && shouldBuildStrings)
-        append16({ stringStart, currentSourcePtr() });
-    if (shouldBuildStrings)
+    if constexpr (shouldBuildStrings) {
+        if (currentSourcePtr() != stringStart)
+            append16({ stringStart, currentSourcePtr() });
         tokenData->ident = makeIdentifier(m_buffer16.span());
-    else
+    } else
         tokenData->ident = nullptr;
 
     m_buffer16.shrink(0);
