@@ -3264,7 +3264,7 @@ std::optional<LayoutUnit> RenderBlockFlow::firstLineBaseline() const
     }
 
     if (auto* lineLayout = this->inlineLayout())
-        return LayoutUnit { floorToInt(lineLayout->firstLinePhysicalBaseline()) };
+        return LayoutUnit { floorToInt(lineLayout->firstLineBaseline()) };
 
     ASSERT_NOT_REACHED();
     return { };
@@ -3290,7 +3290,7 @@ std::optional<LayoutUnit> RenderBlockFlow::lastLineBaseline() const
     }
 
     if (auto* lineLayout = inlineLayout())
-        return LayoutUnit { floorToInt(lineLayout->lastLinePhysicalBaseline()) };
+        return LayoutUnit { floorToInt(lineLayout->lastLineBaseline()) };
 
     ASSERT_NOT_REACHED();
     return { };
