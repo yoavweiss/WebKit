@@ -30,6 +30,7 @@
 #include "AccessibilityNodeObject.h"
 
 #include "AXLogger.h"
+#include "AXLoggerBase.h"
 #include "AXObjectCache.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityLabel.h"
@@ -197,7 +198,7 @@ AccessibilityObject* AccessibilityNodeObject::nextSibling() const
 AccessibilityObject* AccessibilityNodeObject::ownerParentObject() const
 {
     auto owners = this->owners();
-    ASSERT(owners.size() <= 1);
+    AX_DEBUG_ASSERT(owners.size() <= 1);
     return owners.size() ? dynamicDowncast<AccessibilityObject>(owners.first().get()) : nullptr;
 }
 

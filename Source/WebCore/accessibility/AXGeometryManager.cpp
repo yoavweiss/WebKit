@@ -25,6 +25,7 @@
 
 #include "config.h"
 #include "AXGeometryManager.h"
+#include "AXLoggerBase.h"
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 #include "AXIsolatedTree.h"
@@ -67,8 +68,8 @@ std::optional<IntRect> AXGeometryManager::cachedRectForID(AXID axID)
 void AXGeometryManager::cacheRect(std::optional<AXID> axID, IntRect&& rect)
 {
     // We shouldn't call this method on a geometry manager that has no page ID.
-    ASSERT(m_cache->pageID());
-    ASSERT(AXObjectCache::isIsolatedTreeEnabled());
+    AX_DEBUG_ASSERT(m_cache->pageID());
+    AX_DEBUG_ASSERT(AXObjectCache::isIsolatedTreeEnabled());
 
     if (!axID)
         return;

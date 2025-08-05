@@ -555,6 +555,7 @@ Modules/webxr/XRWebGLSubImage.cpp
 accessibility/AXCoreObject.cpp
 accessibility/AXGeometryManager.cpp
 accessibility/AXLogger.cpp
+accessibility/AXLoggerBase.cpp
 accessibility/AXObjectCache.cpp
 accessibility/AXRemoteFrame.cpp
 accessibility/AXSearchManager.cpp

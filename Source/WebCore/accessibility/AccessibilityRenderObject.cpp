@@ -30,6 +30,7 @@
 #include "AccessibilityRenderObject.h"
 
 #include "AXLogger.h"
+#include "AXLoggerBase.h"
 #include "AXObjectCache.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityListBox.h"
@@ -2736,7 +2737,7 @@ void AccessibilityRenderObject::addChildren()
     }
     // If the need to add more children in addition to existing children arises,
     // childrenChanged should have been called, leaving the object with no children.
-    ASSERT(!m_childrenInitialized); 
+    AX_DEBUG_ASSERT(!m_childrenInitialized);
     m_childrenInitialized = true;
 
     auto clearDirtySubtree = makeScopeExit([&] {

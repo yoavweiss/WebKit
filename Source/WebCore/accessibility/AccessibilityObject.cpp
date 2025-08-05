@@ -74,6 +74,7 @@
 #include "HitTestResult.h"
 #include "LocalFrame.h"
 #include "LocalizedStrings.h"
+#include "Logging.h"
 #include "MathMLNames.h"
 #include "NodeList.h"
 #include "NodeName.h"
@@ -635,12 +636,10 @@ bool AccessibilityObject::isDescendantOfRole(AccessibilityRole role) const
     }) != nullptr;
 }
 
-#if ASSERT_ENABLED
 static bool isTableComponent(AXCoreObject& axObject)
 {
     return axObject.isTable() || axObject.isTableColumn() || axObject.isTableRow() || axObject.isTableCell();
 }
-#endif
 
 void AccessibilityObject::insertChild(AccessibilityObject& child, unsigned index, DescendIfIgnored descendIfIgnored)
 {
@@ -728,7 +727,7 @@ void AccessibilityObject::insertChild(AccessibilityObject& child, unsigned index
         // Table component child-parent relationships often don't line up properly, hence the need for methods
         // like parentTable() and parentRow(). Exclude them from this ASSERT.
         // FIXME: We hit this ASSERT on gmail.com. https://bugs.webkit.org/show_bug.cgi?id=293264
-        ASSERT(isTableComponent(child) || isTableComponent(*this) || child.parentObject() == this);
+        AX_BROKEN_ASSERT(isTableComponent(child) || isTableComponent(*this) || child.parentObject() == this);
         insert(Ref { child }, index);
     }
     

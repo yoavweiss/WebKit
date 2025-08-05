@@ -31,12 +31,14 @@
 #include "AXGeometryManager.h"
 #include "AXIsolatedTree.h"
 #include "AXLogger.h"
+#include "AXLoggerBase.h"
 #include "AXSearchManager.h"
 #include "AXTextMarker.h"
 #include "AXTextRun.h"
 #include "AccessibilityNodeObject.h"
 #include "DateComponents.h"
 #include "HTMLNames.h"
+#include "Logging.h"
 #include "RenderObject.h"
 #include <wtf/text/MakeString.h>
 
@@ -70,7 +72,7 @@ Ref<AXIsolatedObject> AXIsolatedObject::create(IsolatedObjectData&& data)
 
 AXIsolatedObject::~AXIsolatedObject()
 {
-    ASSERT(!wrapper());
+    AX_BROKEN_ASSERT(!wrapper());
 }
 
 String AXIsolatedObject::debugDescriptionInternal(bool verbose, std::optional<OptionSet<AXDebugStringOption>> debugOptions) const
@@ -261,7 +263,7 @@ void AXIsolatedObject::setChildrenIDs(Vector<AXID>&& ids)
 const AXCoreObject::AccessibilityChildrenVector& AXIsolatedObject::children(bool updateChildrenIfNeeded)
 {
 #if USE(APPLE_INTERNAL_SDK)
-    ASSERT(_AXSIsolatedTreeModeFunctionIsAvailable() && ((_AXSIsolatedTreeMode_Soft() == AXSIsolatedTreeModeSecondaryThread && !isMainThread())
+    AX_DEBUG_ASSERT(_AXSIsolatedTreeModeFunctionIsAvailable() && ((_AXSIsolatedTreeMode_Soft() == AXSIsolatedTreeModeSecondaryThread && !isMainThread())
         || (_AXSIsolatedTreeMode_Soft() == AXSIsolatedTreeModeMainThread && isMainThread())));
 #elif USE(ATSPI)
     ASSERT(!isMainThread());
@@ -282,7 +284,7 @@ const AXCoreObject::AccessibilityChildrenVector& AXIsolatedObject::children(bool
         m_unresolvedChildrenIDs = WTFMove(unresolvedIDs);
         // Having any unresolved children IDs at this point means we should've had a child / children, but they didn't
         // exist in tree()->objectForID(), so we were never able to hydrate it into an object.
-        ASSERT(m_unresolvedChildrenIDs.isEmpty());
+        AX_BROKEN_ASSERT(m_unresolvedChildrenIDs.isEmpty());
 
 #ifndef NDEBUG
         verifyChildrenIndexInParent();

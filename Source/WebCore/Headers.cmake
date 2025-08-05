@@ -726,6 +726,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     accessibility/AXCoreObject.h
     accessibility/AXGeometryManager.h
     accessibility/AXLogger.h
+    accessibility/AXLoggerBase.h
     accessibility/AXObjectCache.h
     accessibility/AXSearchManager.h
     accessibility/AXTextMarker.h

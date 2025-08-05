@@ -28,6 +28,7 @@
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 
 #include "AXCoreObject.h"
+#include "AXLoggerBase.h"
 #include "AXTextMarker.h"
 #include "AXTextRun.h"
 #include "AXTreeStore.h"
@@ -425,7 +426,7 @@ public:
 
     inline AXIsolatedObject* objectForID(AXID axID) const
     {
-        ASSERT(!isMainThread());
+        AX_DEBUG_ASSERT(!isMainThread());
 
         auto iterator = m_readerThreadNodeMap.find(axID);
         if (iterator != m_readerThreadNodeMap.end())
@@ -698,7 +699,7 @@ std::optional<AXPropertyFlag> convertToPropertyFlag(AXProperty);
 
 inline AXObjectCache* AXIsolatedTree::axObjectCache() const
 {
-    ASSERT(isMainThread());
+    AX_DEBUG_ASSERT(isMainThread());
     return m_axObjectCache.get();
 }
 

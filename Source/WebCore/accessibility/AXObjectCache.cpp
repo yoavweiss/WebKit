@@ -33,6 +33,7 @@
 #include "AXIsolatedObject.h"
 #include "AXIsolatedTree.h"
 #include "AXLogger.h"
+#include "AXLoggerBase.h"
 #include "AXRemoteFrame.h"
 #include "AXTextMarker.h"
 #include "AccessibilityAttachment.h"
@@ -286,6 +287,8 @@ AXObjectCache::AXObjectCache(Page& page, Document* document)
         AXLOG("No pageID.");
 #endif
     ASSERT(isMainThread());
+
+    setAccessibilityLogChannelEnabled(LOG_CHANNEL(Accessibility).state != logChannelStateOff);
 
 #if ENABLE(AX_THREAD_TEXT_APIS)
     gAccessibilityThreadTextApisEnabled = DeprecatedGlobalSettings::accessibilityThreadTextApisEnabled();
@@ -693,7 +696,7 @@ bool hasAnyRole(Element& element, Vector<StringView>&& roles)
         return false;
 
     for (const auto& role : roles) {
-        ASSERT(!role.isEmpty());
+        AX_DEBUG_ASSERT(!role.isEmpty());
         if (SpaceSplitString::spaceSplitStringContainsValue(roleValue, role, SpaceSplitString::ShouldFoldCase::Yes))
             return true;
     }
@@ -1037,7 +1040,7 @@ AccessibilityObject* AXObjectCache::getOrCreate(RenderObject& renderer)
     Ref object = createObjectFromRenderer(renderer);
 
     // Will crash later if we have two objects for the same renderer.
-    ASSERT(!get(renderer));
+    AX_BROKEN_ASSERT(!get(renderer));
 
     cacheAndInitializeWrapper(object.get(), &renderer);
     // Compute the object's initial ignored status.

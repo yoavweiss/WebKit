@@ -31,6 +31,7 @@
 
 #import "AXCoreObject.h"
 #import "AXIsolatedObject.h"
+#import "AXLoggerBase.h"
 #import "AXObjectCache.h"
 #import "AXRemoteFrame.h"
 #import "AXSearchManager.h"
@@ -397,7 +398,7 @@ NSArray *makeNSArray(const WebCore::AXCoreObject::AccessibilityChildrenVector& c
         return m_axObject.get();
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    ASSERT(AXObjectCache::isIsolatedTreeEnabled());
+    AX_DEBUG_ASSERT(AXObjectCache::isIsolatedTreeEnabled());
     return m_isolatedObject.get();
 #else
     ASSERT_NOT_REACHED();

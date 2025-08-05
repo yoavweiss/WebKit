@@ -1521,7 +1521,7 @@ AXTreePtr findAXTree(Function<bool(AXTreePtr)>&& match)
 
 void AXIsolatedTree::queueNodeUpdate(AXID objectID, const NodeUpdateOptions& options)
 {
-    ASSERT(isMainThread());
+    AX_DEBUG_ASSERT(isMainThread());
 
     if (!options.shouldUpdateNode && options.properties.size()) {
         // If we're going to recompute all properties for the node (i.e., the node is in m_needsUpdateNode),

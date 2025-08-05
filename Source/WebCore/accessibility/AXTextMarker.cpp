@@ -1163,7 +1163,7 @@ AXTextMarker AXTextMarker::findLine(AXDirection direction, AXTextUnitBoundary bo
                 ASSERT(adjacentRunIndex - runIndex == 2);
                 // This scenario really should only happen with single "entity" runs (where an entity could be an ASCII
                 // character, or a multi-byte emoji that occupies multiple indices but is one atomic entity).
-                ASSERT(!currentRuns->containsOnlyASCII || (currentRuns->runLength(runIndex) == 1 && currentRuns->runLength(adjacentRunIndex) == 1));
+                AX_BROKEN_ASSERT(!currentRuns->containsOnlyASCII || (currentRuns->runLength(runIndex) == 1 && currentRuns->runLength(adjacentRunIndex) == 1));
                 // The next line end is simply the adjacent marker with an upstream affinity (with an ASSERT to verify this).
                 ASSERT(currentRuns->indexForOffset(adjacentMarker.offset(), Affinity::Upstream) == runIndex + 1);
                 adjacentMarker.setAffinity(Affinity::Upstream);

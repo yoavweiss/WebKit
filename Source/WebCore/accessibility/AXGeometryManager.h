@@ -30,6 +30,7 @@
 #include "IntRectHash.h"
 #include <wtf/Lock.h>
 #include <wtf/RefCounted.h>
+#include <wtf/ThreadSafeRefCounted.h>
 
 namespace WebCore {
 
