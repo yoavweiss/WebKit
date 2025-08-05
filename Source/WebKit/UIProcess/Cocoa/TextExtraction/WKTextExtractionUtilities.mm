@@ -28,7 +28,7 @@
 
 #if USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
 
-#import "WKTextExtractionItem.h"
+#import "_WKTextExtractionInternal.h"
 #import <WebCore/TextExtraction.h>
 #import <wtf/cocoa/VectorCocoa.h>
 

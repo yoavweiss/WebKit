@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2024-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,21 +23,22 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#import <CoreGraphics/CoreGraphics.h>
+#import <Foundation/Foundation.h>
+#import <WebKit/WKFoundation.h>
 
-#import <WebKit/WebKit.h>
-#import <WebKit/_WKTextExtraction.h>
+NS_HEADER_AUDIT_BEGIN(nullability, sendability)
 
-@class WKTextExtractionItem;
-@class WKTextExtractionResult;
+WK_CLASS_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA))
+@interface _WKTextExtractionConfiguration : NSObject
 
-@interface WKWebView (TextExtractionTesting)
-- (void)_requestTextExtraction:(_WKTextExtractionConfiguration *)configuration completionHandler:(void(^)(WKTextExtractionResult *))completionHandler;
+/*!
+ Element extraction is constrained to this rect (in the web view's coordinate space).
+ Extracted elements must intersect with this rect, to be included.
+ The default value is `.null`, which includes all elements.
+ */
+@property (nonatomic) CGRect targetRect;
+
 @end
 
-namespace WTR {
-
-enum class IncludeRects : bool { No, Yes };
-NSString *recursiveDescription(WKTextExtractionItem *, IncludeRects);
-
-}
+NS_HEADER_AUDIT_END(nullability, sendability)

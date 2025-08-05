@@ -24,6 +24,7 @@
  */
 
 #import <WebKit/WKWebView.h>
+#import <WebKit/_WKTextExtraction.h>
 
 #ifdef __cplusplus
 
@@ -36,6 +37,7 @@
 #import <WebKit/WKWebViewConfiguration.h>
 #import <WebKit/WKWebViewPrivate.h>
 #import "_WKAttachmentInternal.h"
+#import "_WKTextExtractionInternal.h"
 #import "_WKWebViewPrintFormatterInternal.h"
 #import <pal/spi/cocoa/WritingToolsSPI.h>
 #import <wtf/BlockPtr.h>
@@ -151,7 +153,6 @@ enum class HideScrollPocketReason : uint8_t {
 @class WKPasswordView;
 @class WKScrollGeometry;
 @class WKScrollView;
-@class WKTextExtractionItem;
 @class WKWebViewContentProviderRegistry;
 @class _WKFrameHandle;
 @class _WKWarningView;
@@ -644,6 +645,6 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
 
 - (void)_scrollToEdge:(_WKRectEdge)edge animated:(BOOL)animated;
 
-- (void)_requestTextExtraction:(CGRect)rect completionHandler:(void(^)(WKTextExtractionItem *))completionHandler;
+- (void)_requestTextExtraction:(_WKTextExtractionConfiguration *)configuration completionHandler:(void (^)(WKTextExtractionResult *))completionHandler;
 
 @end

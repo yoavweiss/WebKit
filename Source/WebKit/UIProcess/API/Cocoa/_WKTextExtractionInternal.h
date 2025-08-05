@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2024-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,12 +25,26 @@
 
 #pragma once
 
-#if USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
-
-#import <CoreGraphics/CoreGraphics.h>
-#import <Foundation/Foundation.h>
+#import <WebKit/_WKTextExtraction.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface _WKTextExtractionConfiguration ()
+
+/*!
+ Whether to merge adjacent runs of text into paragraphs.
+ This also combines links and editable containers into a single text item.
+ Defaults to `false`.
+ */
+@property (nonatomic) BOOL mergeParagraphs;
+
+/*!
+ Ignores transparent (or nearly-transparent) subtrees.
+ Defaults to `false`.
+ */
+@property (nonatomic) BOOL ignoreTransparency;
+
+@end
 
 typedef NS_ENUM(NSInteger, WKTextExtractionContainer) {
     WKTextExtractionContainerRoot,
@@ -41,18 +55,9 @@ typedef NS_ENUM(NSInteger, WKTextExtractionContainer) {
     WKTextExtractionContainerArticle,
     WKTextExtractionContainerSection,
     WKTextExtractionContainerNav,
-    WKTextExtractionContainerButton
+    WKTextExtractionContainerButton,
+    WKTextExtractionContainerGeneric
 };
-
-@interface WKTextExtractionItem : NSObject
-@property (nonatomic, readonly) NSArray<WKTextExtractionItem *> *children;
-@property (nonatomic, readonly) CGRect rectInWebView;
-@end
-
-@interface WKTextExtractionContainerItem : WKTextExtractionItem
-- (instancetype)initWithContainer:(WKTextExtractionContainer)container rectInWebView:(CGRect)rectInWebView children:(NSArray<WKTextExtractionItem *> *)children;
-@property (nonatomic, readonly) WKTextExtractionContainer container;
-@end
 
 @interface WKTextExtractionLink : NSObject
 - (instancetype)initWithURL:(NSURL *)url range:(NSRange)range;
@@ -68,12 +73,22 @@ typedef NS_ENUM(NSInteger, WKTextExtractionContainer) {
 @property (nonatomic, readonly, getter=isFocused) BOOL focused;
 @end
 
+@interface WKTextExtractionItem : NSObject
+@property (nonatomic, readonly) NSArray<WKTextExtractionItem *> *children;
+@property (nonatomic, readonly) CGRect rectInWebView;
+@end
+
+@interface WKTextExtractionContainerItem : WKTextExtractionItem
+- (instancetype)initWithContainer:(WKTextExtractionContainer)container rectInWebView:(CGRect)rectInWebView children:(NSArray<WKTextExtractionItem *> *)children;
+@property (nonatomic, readonly) WKTextExtractionContainer container;
+@end
+
 @interface WKTextExtractionTextItem : WKTextExtractionItem
 - (instancetype)initWithContent:(NSString *)content selectedRange:(NSRange)selectedRange links:(NSArray<WKTextExtractionLink *> *)links editable:(WKTextExtractionEditable * _Nullable)editable rectInWebView:(CGRect)rectInWebView children:(NSArray<WKTextExtractionItem *> *)children;
-@property (nonatomic, readonly) NSString *content;
-@property (nonatomic, readonly) NSRange selectedRange;
 @property (nonatomic, readonly) NSArray<WKTextExtractionLink *> *links;
 @property (nonatomic, readonly, nullable) WKTextExtractionEditable *editable;
+@property (nonatomic, readonly) NSString *content;
+@property (nonatomic, readonly) NSRange selectedRange;
 @end
 
 @interface WKTextExtractionScrollableItem : WKTextExtractionItem
@@ -87,6 +102,9 @@ typedef NS_ENUM(NSInteger, WKTextExtractionContainer) {
 @property (nonatomic, readonly) NSString *altText;
 @end
 
-NS_ASSUME_NONNULL_END
+@interface WKTextExtractionResult : NSObject
+- (instancetype)initWithRootItem:(WKTextExtractionItem *)rootItem;
+@property (nonatomic, readonly) WKTextExtractionItem *rootItem;
+@end
 
-#endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
+NS_ASSUME_NONNULL_END

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,21 +23,21 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#import "config.h"
+#import "_WKTextExtractionInternal.h"
 
-#import <WebKit/WebKit.h>
-#import <WebKit/_WKTextExtraction.h>
+@implementation _WKTextExtractionConfiguration
 
-@class WKTextExtractionItem;
-@class WKTextExtractionResult;
+@synthesize mergeParagraphs = _mergeParagraphs;
+@synthesize ignoreTransparency = _ignoreTransparency;
 
-@interface WKWebView (TextExtractionTesting)
-- (void)_requestTextExtraction:(_WKTextExtractionConfiguration *)configuration completionHandler:(void(^)(WKTextExtractionResult *))completionHandler;
-@end
+- (instancetype)init
+{
+    if (!(self = [super init]))
+        return nil;
 
-namespace WTR {
-
-enum class IncludeRects : bool { No, Yes };
-NSString *recursiveDescription(WKTextExtractionItem *, IncludeRects);
-
+    _targetRect = CGRectNull;
+    return self;
 }
+
+@end

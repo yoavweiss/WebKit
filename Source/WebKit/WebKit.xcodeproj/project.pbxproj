@@ -170,7 +170,6 @@
 		074E75FE1DF2211900D318EC /* UserMediaProcessManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 074E75FB1DF1FD1300D318EC /* UserMediaProcessManager.h */; };
 		074E87E12CF8EA3D0059E469 /* WebPage+NavigationDeciding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074E87E02CF8EA3D0059E469 /* WebPage+NavigationDeciding.swift */; };
 		074F34812CC5F7D500CA5301 /* WKIntelligenceTextEffectCoordinator.h in Headers */ = {isa = PBXBuildFile; fileRef = 074F34802CC5F7D500CA5301 /* WKIntelligenceTextEffectCoordinator.h */; };
-		075369482DC589DB006446F8 /* WKTextExtractionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073A63D42DC344870057A3F5 /* WKTextExtractionItem.swift */; };
 		075369492DC589E1006446F8 /* WKWebView+TextExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073A63D72DC344F40057A3F5 /* WKWebView+TextExtraction.swift */; };
 		0753932C2DC94A2B0002EBCD /* WKGroupSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 0753932A2DC94A2B0002EBCD /* WKGroupSession.h */; };
 		075A9CF326169BAB006DFA3A /* MediaSessionCoordinatorProxyPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 077BA570260E8F630072F19F /* MediaSessionCoordinatorProxyPrivate.h */; };
@@ -2544,7 +2543,6 @@
 		F4974E76265ECBBC00B49B8C /* WKRevealItemPresenter.h in Headers */ = {isa = PBXBuildFile; fileRef = F446EDEF265EB2B00031DA8F /* WKRevealItemPresenter.h */; };
 		F4975CF22624B80A003C626E /* WKQuickLookPreviewController.h in Headers */ = {isa = PBXBuildFile; fileRef = F4975CF12624B80A003C626E /* WKQuickLookPreviewController.h */; };
 		F499BAA32947C1A4001241D6 /* RevealFocusedElementDeferrer.h in Headers */ = {isa = PBXBuildFile; fileRef = F499BAA12947C1A4001241D6 /* RevealFocusedElementDeferrer.h */; };
-		F49DC6FE2B76A89600816E73 /* WKTextExtractionItem.h in Headers */ = {isa = PBXBuildFile; fileRef = F49DC6FD2B76A88F00816E73 /* WKTextExtractionItem.h */; };
 		F49EE2212AE87F41003E3C34 /* CoreIPCDate.h in Headers */ = {isa = PBXBuildFile; fileRef = F49EE2202AE87F41003E3C34 /* CoreIPCDate.h */; };
 		F4A0D3BF2CC2D276008A45B0 /* APITextRun.h in Headers */ = {isa = PBXBuildFile; fileRef = F4A0D3BD2CC2D088008A45B0 /* APITextRun.h */; };
 		F4A30A6D2B08255B004E1F24 /* CoreIPCLocale.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A30A6C2B08254C004E1F24 /* CoreIPCLocale.mm */; };
@@ -2610,6 +2608,9 @@
 		F4F7A4042E22F99C0029BCF2 /* WKUIScrollEdgeEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = F4F7A4022E22F99C0029BCF2 /* WKUIScrollEdgeEffect.h */; };
 		F4F94AD92D8E05DB0087FE6F /* DigitalCredentialsRequestValidatorBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = F4F94AD82D8E05DB0087FE6F /* DigitalCredentialsRequestValidatorBridge.h */; };
 		F4F94AE02D91B2A80087FE6F /* WKIdentityDocumentRawRequestValidator.h in Headers */ = {isa = PBXBuildFile; fileRef = F4F94ADE2D91B2A80087FE6F /* WKIdentityDocumentRawRequestValidator.h */; };
+		F4FE87B72E2F25030065A3F5 /* _WKTextExtractionInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = F4FE87B62E2F25030065A3F5 /* _WKTextExtractionInternal.h */; };
+		F4FE87B82E2F25030065A3F5 /* _WKTextExtraction.h in Headers */ = {isa = PBXBuildFile; fileRef = F4FE87B42E2F25030065A3F5 /* _WKTextExtraction.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		F4FE87B92E2F25030065A3F5 /* _WKTextExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FE87B52E2F25030065A3F5 /* _WKTextExtraction.swift */; };
 		F6113E25126CE1820057D0A7 /* APIUserContentURLPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = F6113E24126CE1820057D0A7 /* APIUserContentURLPattern.h */; };
 		F6113E29126CE19B0057D0A7 /* WKUserContentURLPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = F6113E27126CE19B0057D0A7 /* WKUserContentURLPattern.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		F634445612A885C8000612D8 /* APISecurityOrigin.h in Headers */ = {isa = PBXBuildFile; fileRef = F634445512A885C8000612D8 /* APISecurityOrigin.h */; };
@@ -3295,7 +3296,6 @@
 		0736B75C260D4A4E00E06994 /* RemoteMediaSessionCoordinatorProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemoteMediaSessionCoordinatorProxy.cpp; sourceTree = "<group>"; };
 		0736B75D260D4A4F00E06994 /* RemoteMediaSessionCoordinatorProxy.messages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = RemoteMediaSessionCoordinatorProxy.messages.in; sourceTree = "<group>"; };
 		0736B75E260D4A5000E06994 /* RemoteMediaSessionCoordinatorProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteMediaSessionCoordinatorProxy.h; sourceTree = "<group>"; };
-		073A63D42DC344870057A3F5 /* WKTextExtractionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKTextExtractionItem.swift; sourceTree = "<group>"; };
 		073A63D72DC344F40057A3F5 /* WKWebView+TextExtraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WKWebView+TextExtraction.swift"; sourceTree = "<group>"; };
 		073EFBB72D0F448500FAE7CF /* Foundation+Extras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Foundation+Extras.swift"; sourceTree = "<group>"; };
 		074021602DDA651600BAEC91 /* GroupActivities_SPI.swiftinterface */ = {isa = PBXFileReference; lastKnownFileType = text; path = GroupActivities_SPI.swiftinterface; sourceTree = "<group>"; };
@@ -8491,6 +8491,7 @@
 		F454C12B2BA3AC8C00871551 /* _WKTargetedElementInfoInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _WKTargetedElementInfoInternal.h; sourceTree = "<group>"; };
 		F454C12D2BA3AFFD00871551 /* APITargetedElementInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APITargetedElementInfo.h; sourceTree = "<group>"; };
 		F454C12E2BA3AFFD00871551 /* APITargetedElementInfo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APITargetedElementInfo.cpp; sourceTree = "<group>"; };
+		F457FD572E40FF92003F3B28 /* _WKTextExtraction.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = _WKTextExtraction.mm; sourceTree = "<group>"; };
 		F4648E90296E81F500744170 /* WebPrivacyHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebPrivacyHelpers.h; sourceTree = "<group>"; };
 		F4648E91296E81F500744170 /* WebPrivacyHelpers.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WebPrivacyHelpers.mm; sourceTree = "<group>"; };
 		F4660BC125DEF08100E86598 /* PasteboardAccessIntent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PasteboardAccessIntent.h; sourceTree = "<group>"; };
@@ -8522,7 +8523,6 @@
 		F4975CF32624B918003C626E /* WKQuickLookPreviewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WKQuickLookPreviewController.mm; sourceTree = "<group>"; };
 		F499BAA12947C1A4001241D6 /* RevealFocusedElementDeferrer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RevealFocusedElementDeferrer.h; path = ios/RevealFocusedElementDeferrer.h; sourceTree = "<group>"; };
 		F499BAA22947C1A4001241D6 /* RevealFocusedElementDeferrer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = RevealFocusedElementDeferrer.mm; path = ios/RevealFocusedElementDeferrer.mm; sourceTree = "<group>"; };
-		F49DC6FD2B76A88F00816E73 /* WKTextExtractionItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKTextExtractionItem.h; sourceTree = "<group>"; };
 		F49EE21F2AE87ED7003E3C34 /* CoreIPCDate.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = CoreIPCDate.serialization.in; sourceTree = "<group>"; };
 		F49EE2202AE87F41003E3C34 /* CoreIPCDate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreIPCDate.h; sourceTree = "<group>"; };
 		F4A0D3BD2CC2D088008A45B0 /* APITextRun.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APITextRun.h; sourceTree = "<group>"; };
@@ -8615,6 +8615,9 @@
 		F4F94AD82D8E05DB0087FE6F /* DigitalCredentialsRequestValidatorBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DigitalCredentialsRequestValidatorBridge.h; sourceTree = "<group>"; };
 		F4F94ADD2D8E066A0087FE6F /* DigitalCredentialsRequestValidatorBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DigitalCredentialsRequestValidatorBridge.mm; sourceTree = "<group>"; };
 		F4F94ADE2D91B2A80087FE6F /* WKIdentityDocumentRawRequestValidator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKIdentityDocumentRawRequestValidator.h; sourceTree = "<group>"; };
+		F4FE87B42E2F25030065A3F5 /* _WKTextExtraction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _WKTextExtraction.h; sourceTree = "<group>"; };
+		F4FE87B52E2F25030065A3F5 /* _WKTextExtraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _WKTextExtraction.swift; sourceTree = "<group>"; };
+		F4FE87B62E2F25030065A3F5 /* _WKTextExtractionInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _WKTextExtractionInternal.h; sourceTree = "<group>"; };
 		F6113E24126CE1820057D0A7 /* APIUserContentURLPattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIUserContentURLPattern.h; sourceTree = "<group>"; };
 		F6113E26126CE19B0057D0A7 /* WKUserContentURLPattern.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WKUserContentURLPattern.cpp; sourceTree = "<group>"; };
 		F6113E27126CE19B0057D0A7 /* WKUserContentURLPattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKUserContentURLPattern.h; sourceTree = "<group>"; };
@@ -9005,8 +9008,6 @@
 		0753694A2DC589F4006446F8 /* TextExtraction */ = {
 			isa = PBXGroup;
 			children = (
-				F49DC6FD2B76A88F00816E73 /* WKTextExtractionItem.h */,
-				073A63D42DC344870057A3F5 /* WKTextExtractionItem.swift */,
 				F48EC3562B7585A300D1B886 /* WKTextExtractionUtilities.h */,
 				F48EC3542B7585A300D1B886 /* WKTextExtractionUtilities.mm */,
 				073A63D72DC344F40057A3F5 /* WKWebView+TextExtraction.swift */,
@@ -12238,6 +12239,10 @@
 				F440B4B02BA52D3700AD1D1F /* _WKTargetedElementRequest.h */,
 				F443CDF22BA5307600688F60 /* _WKTargetedElementRequest.mm */,
 				F4500D8B2BE02FC90081A5F1 /* _WKTargetedElementRequestInternal.h */,
+				F4FE87B42E2F25030065A3F5 /* _WKTextExtraction.h */,
+				F457FD572E40FF92003F3B28 /* _WKTextExtraction.mm */,
+				F4FE87B52E2F25030065A3F5 /* _WKTextExtraction.swift */,
+				F4FE87B62E2F25030065A3F5 /* _WKTextExtractionInternal.h */,
 				2DE9B1382231F61C005287B7 /* _WKTextInputContext.h */,
 				2DE9B1372231F61C005287B7 /* _WKTextInputContext.mm */,
 				2DE9B13B2231F77C005287B7 /* _WKTextInputContextInternal.h */,
@@ -16994,6 +16999,8 @@
 				F454C12C2BA3AC8C00871551 /* _WKTargetedElementInfoInternal.h in Headers */,
 				F440B4B12BA52D3700AD1D1F /* _WKTargetedElementRequest.h in Headers */,
 				F4500D8C2BE02FC90081A5F1 /* _WKTargetedElementRequestInternal.h in Headers */,
+				F4FE87B82E2F25030065A3F5 /* _WKTextExtraction.h in Headers */,
+				F4FE87B72E2F25030065A3F5 /* _WKTextExtractionInternal.h in Headers */,
 				2DE9B13A2231F61C005287B7 /* _WKTextInputContext.h in Headers */,
 				2DE9B13C2231F77C005287B7 /* _WKTextInputContextInternal.h in Headers */,
 				9B5499AD2362A6F900DF8BA5 /* _WKTextManipulationConfiguration.h in Headers */,
@@ -18553,7 +18560,6 @@
 				44DBDA502BB23DE9004E3712 /* WKTextAnimationManagerIOS.h in Headers */,
 				440C0BE52BBCAA3C0086046E /* WKTextAnimationManagerMac.h in Headers */,
 				31D755C11D91B81500843BD1 /* WKTextChecker.h in Headers */,
-				F49DC6FE2B76A89600816E73 /* WKTextExtractionItem.h in Headers */,
 				F48EC3582B75895800D1B886 /* WKTextExtractionUtilities.h in Headers */,
 				2DD67A351BD861060053B251 /* WKTextFinderClient.h in Headers */,
 				F4D5F51D206087A10038BBA8 /* WKTextInputListViewController.h in Headers */,
@@ -20662,6 +20668,7 @@
 				07F6B5592D719323009F206D /* _WKRectEdge+Extras.swift in Sources */,
 				49FBEFFD239B011D00BD032F /* _WKResourceLoadStatisticsFirstParty.mm in Sources */,
 				49FBEFFF239B012F00BD032F /* _WKResourceLoadStatisticsThirdParty.mm in Sources */,
+				F4FE87B92E2F25030065A3F5 /* _WKTextExtraction.swift in Sources */,
 				5CA26D83217AD1B800F97A35 /* _WKWarningView.mm in Sources */,
 				3326F2652B06A1F4001A535F /* _WKWebExtensionDeclarativeNetRequestRule.mm in Sources */,
 				3343C3272B21140C00AD10A6 /* _WKWebExtensionDeclarativeNetRequestSQLiteStore.mm in Sources */,
@@ -21146,7 +21153,6 @@
 				B66047412CED45F600ADE38E /* WKSeparatedImageView.swift in Sources */,
 				1DB01944211CF005009FB3E8 /* WKShareSheet.mm in Sources */,
 				7A78FF332241919B0096483E /* WKStorageAccessAlert.mm in Sources */,
-				075369482DC589DB006446F8 /* WKTextExtractionItem.swift in Sources */,
 				076897F02D07B330006F9FA7 /* WKUIDelegateAdapter.swift in Sources */,
 				079A4DB02D73EA4A00CA387F /* WKURLSchemeHandlerAdapter.swift in Sources */,
 				1C627479288B2F7400CED3A2 /* WKWebExtension.mm in Sources */,

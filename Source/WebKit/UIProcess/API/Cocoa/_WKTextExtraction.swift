@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Apple Inc. All rights reserved.
+// Copyright (C) 2024-2025 Apple Inc. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -176,6 +176,20 @@ extension WKTextExtractionImageItem {
         self.name = name
         self.altText = altText
         super.init(with: rectInWebView, children: children)
+    }
+
+    #if compiler(<6.0)
+    @objc
+    deinit {}
+    #endif
+}
+
+@_objcImplementation
+extension WKTextExtractionResult {
+    let rootItem: WKTextExtractionItem
+
+    init(rootItem: WKTextExtractionItem) {
+        self.rootItem = rootItem
     }
 
     #if compiler(<6.0)

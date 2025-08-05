@@ -140,6 +140,8 @@ typedef NS_ENUM(NSInteger, _WKImmediateActionType) {
 @class _WKTargetedElementInfo;
 @class _WKTargetedElementRequest;
 @class _WKTextInputContext;
+@class _WKTextExtractionConfiguration;
+@class WKTextExtractionResult;
 @class _WKTextManipulationConfiguration;
 @class _WKTextManipulationItem;
 @class _WKTextRun;
@@ -164,6 +166,7 @@ typedef NS_ENUM(NSInteger, _WKImmediateActionType) {
 @protocol _WKIconLoadingDelegate;
 @protocol _WKInputDelegate;
 @protocol _WKResourceLoadDelegate;
+@protocol _WKTextExtractionInteraction;
 @protocol _WKTextManipulationDelegate;
 
 @interface WKWebView (WKPrivate)

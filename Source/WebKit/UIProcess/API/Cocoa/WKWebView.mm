@@ -95,7 +95,6 @@
 #import "WKSecurityOriginInternal.h"
 #import "WKSharedAPICast.h"
 #import "WKSnapshotConfigurationPrivate.h"
-#import "WKTextExtractionItem.h"
 #import "WKTextExtractionUtilities.h"
 #import "WKUIDelegate.h"
 #import "WKUIDelegateInternal.h"
@@ -140,6 +139,7 @@
 #import "_WKSpatialBackdropSourceInternal.h"
 #import "_WKTargetedElementInfoInternal.h"
 #import "_WKTargetedElementRequestInternal.h"
+#import "_WKTextExtractionInternal.h"
 #import "_WKTextInputContextInternal.h"
 #import "_WKTextManipulationConfiguration.h"
 #import "_WKTextManipulationDelegate.h"
@@ -175,6 +175,7 @@
 #import <WebCore/SpatialBackdropSource.h>
 #import <WebCore/StringUtilities.h>
 #import <WebCore/TextAnimationTypes.h>
+#import <WebCore/TextExtractionTypes.h>
 #import <WebCore/TextManipulationController.h>
 #import <WebCore/TextManipulationItem.h>
 #import <WebCore/ViewportArguments.h>
@@ -6350,12 +6351,13 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
 
 @implementation WKWebView (WKTextExtraction)
 
-- (void)_requestTextExtraction:(CGRect)rectInWebView completionHandler:(void(^)(WKTextExtractionItem *))completionHandler
+- (void)_requestTextExtraction:(_WKTextExtractionConfiguration *)configuration completionHandler:(void(^)(WKTextExtractionResult *))completionHandler
 {
 #if USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
     if (!self._isValid || !_page->protectedPreferences()->textExtractionEnabled())
         return completionHandler(nil);
 
+    auto rectInWebView = configuration.targetRect;
     auto rectInRootView = [&]() -> std::optional<WebCore::FloatRect> {
         if (CGRectIsNull(rectInWebView))
             return std::nullopt;
@@ -6368,13 +6370,15 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
     }();
 
     _page->requestTextExtraction(WTFMove(rectInRootView), [completionHandler = makeBlockPtr(completionHandler), weakSelf = WeakObjCPtr<WKWebView>(self)](auto&& item) {
-        completionHandler(WebKit::createItem(item, [strongSelf = weakSelf.get()](auto& rectInRootView) -> WebCore::FloatRect {
+        RetainPtr rootItem = WebKit::createItem(item, [strongSelf = weakSelf.get()](auto& rectInRootView) -> WebCore::FloatRect {
 #if PLATFORM(IOS_FAMILY)
             if (RetainPtr contentView = strongSelf ? strongSelf->_contentView : nil)
                 return { [strongSelf convertRect:rectInRootView fromView:contentView.get()] };
 #endif
             return rectInRootView;
-        }).get());
+        });
+        RetainPtr result = adoptNS([[WKTextExtractionResult alloc] initWithRootItem:rootItem.get()]);
+        completionHandler(result.get());
     });
 #endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
 }
