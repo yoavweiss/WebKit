@@ -2830,6 +2830,10 @@ private:
     void requestPointerLock(IPC::Connection&, CompletionHandler<void(bool)>&&);
 #endif
 
+#if HAVE(MOUSE_DEVICE_OBSERVATION)
+    static bool hasMouseDevice();
+#endif
+
     void didCreateSubframe(WebCore::FrameIdentifier parent, WebCore::FrameIdentifier newFrameID, String&& frameName, WebCore::SandboxFlags, WebCore::ScrollbarMode);
 
     void didStartProvisionalLoadForFrame(IPC::Connection&, WebCore::FrameIdentifier, FrameInfoData&&, WebCore::ResourceRequest&&, std::optional<WebCore::NavigationIdentifier>, URL&&, URL&& unreachableURL, const UserData&, WallTime);

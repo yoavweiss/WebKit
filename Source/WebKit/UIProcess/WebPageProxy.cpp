@@ -14441,6 +14441,13 @@ void WebPageProxy::requestPointerLock(IPC::Connection& connection, CompletionHan
         return;
     }
 
+#if HAVE(MOUSE_DEVICE_OBSERVATION)
+    if (!hasMouseDevice()) {
+        didDenyPointerLock(WTFMove(completionHandler));
+        return;
+    }
+#endif
+
     Ref webContentProcess = WebProcessProxy::fromConnection(connection);
 
     m_uiClient->requestPointerLock(this, [this, protectedThis = Ref { *this }, completionHandler = WTFMove(completionHandler), webContentProcess = WTFMove(webContentProcess)] (bool result) mutable {
