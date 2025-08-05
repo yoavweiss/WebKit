@@ -30,7 +30,6 @@
 #include "LengthPoint.h"
 #include "LineClampValue.h"
 #include "NameScope.h"
-#include "NinePieceImage.h"
 #include "PositionArea.h"
 #include "PositionTryFallback.h"
 #include "ScopedName.h"
@@ -44,6 +43,7 @@
 #include "StyleContainerName.h"
 #include "StyleContentAlignmentData.h"
 #include "StyleGapGutter.h"
+#include "StyleMaskBorder.h"
 #include "StyleMaximumLines.h"
 #include "StyleOffsetAnchor.h"
 #include "StyleOffsetDistance.h"
@@ -177,7 +177,7 @@ public:
     
     RefPtr<StyleReflection> boxReflect;
 
-    NinePieceImage maskBorder;
+    Style::MaskBorder maskBorder;
 
     LengthSize pageSize;
 

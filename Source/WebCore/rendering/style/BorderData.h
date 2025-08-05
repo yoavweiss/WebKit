@@ -27,9 +27,9 @@
 
 #include "BorderValue.h"
 #include "LengthSize.h"
-#include "NinePieceImage.h"
 #include "RectCorners.h"
 #include "RectEdges.h"
+#include "StyleBorderImage.h"
 #include "StyleBorderRadius.h"
 #include "StyleCornerShapeValue.h"
 
@@ -54,7 +54,7 @@ public:
 
     bool hasBorderImage() const
     {
-        return m_image.hasImage();
+        return !m_image.source().isNone();
     }
 
     bool hasBorderRadius() const
@@ -68,8 +68,8 @@ public:
         if (m_edges[side].style() == BorderStyle::None || m_edges[side].style() == BorderStyle::Hidden)
             return 0_css_px;
         if (m_image.overridesBorderWidths()) {
-            if (auto fixedBorderSlice = m_image.borderSlices()[side].tryFixed())
-                return Style::LineWidth { fixedBorderSlice->value };
+            if (auto fixedBorderWidthValue = m_image.width().values[side].tryFixed())
+                return Style::LineWidth { fixedBorderWidthValue->value };
         }
         return m_edges[side].width();
     }
@@ -91,7 +91,7 @@ public:
     const BorderValue& top() const { return m_edges.top(); }
     const BorderValue& bottom() const { return m_edges.bottom(); }
 
-    const NinePieceImage& image() const { return m_image; }
+    const Style::BorderImage& image() const { return m_image; }
 
     const Style::BorderRadiusValue& topLeftRadius() const { return m_radii.topLeft(); }
     const Style::BorderRadiusValue& topRightRadius() const { return m_radii.topRight(); }
@@ -112,7 +112,7 @@ private:
     bool containsCurrentColor() const;
 
     RectEdges<BorderValue> m_edges;
-    NinePieceImage m_image;
+    Style::BorderImage m_image;
     Style::BorderRadius m_radii { Style::BorderRadiusValue { 0_css_px, 0_css_px } };
     Style::CornerShape m_cornerShapes { Style::CornerShapeValue::round() };
 };

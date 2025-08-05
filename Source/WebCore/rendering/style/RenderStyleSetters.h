@@ -59,7 +59,7 @@ inline void RenderStyle::inheritMaskLayers(const FillLayer& parent) { m_nonInher
 inline void RenderStyle::resetBorderBottom() { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.bottom(), BorderValue()); }
 inline void RenderStyle::resetBorderBottomLeftRadius() { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomLeft(), initialBorderRadius()); }
 inline void RenderStyle::resetBorderBottomRightRadius() { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomRight(), initialBorderRadius()); }
-inline void RenderStyle::resetBorderImage() { SET_NESTED(m_nonInheritedData, surroundData, border.m_image, NinePieceImage()); }
+inline void RenderStyle::resetBorderImage() { SET_NESTED(m_nonInheritedData, surroundData, border.m_image, Style::BorderImage()); }
 inline void RenderStyle::resetBorderLeft() { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left(), BorderValue()); }
 inline void RenderStyle::resetBorderRight() { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.right(), BorderValue()); }
 inline void RenderStyle::resetBorderTop() { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.top(), BorderValue { }); }
@@ -101,7 +101,7 @@ inline void RenderStyle::setBorderBottomLeftRadius(Style::BorderRadiusValue&& si
 inline void RenderStyle::setBorderBottomRightRadius(Style::BorderRadiusValue&& size) { SET_NESTED(m_nonInheritedData, surroundData, border.m_radii.bottomRight(), WTFMove(size)); }
 inline void RenderStyle::setBorderBottomStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.bottom().m_style, static_cast<unsigned>(value)); }
 inline void RenderStyle::setBorderBottomWidth(Style::LineWidth value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.bottom().m_width, value); }
-inline void RenderStyle::setBorderImage(const NinePieceImage& image) { SET_NESTED(m_nonInheritedData, surroundData, border.m_image, image); }
+inline void RenderStyle::setBorderImage(Style::BorderImage&& image) { SET_NESTED(m_nonInheritedData, surroundData, border.m_image, WTFMove(image)); }
 inline void RenderStyle::setBorderLeftColor(Style::Color&& value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_color, WTFMove(value)); }
 inline void RenderStyle::setBorderLeftStyle(BorderStyle value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_style, static_cast<unsigned>(value)); }
 inline void RenderStyle::setBorderLeftWidth(Style::LineWidth value) { SET_NESTED(m_nonInheritedData, surroundData, border.m_edges.left().m_width, value); }
@@ -224,7 +224,7 @@ inline void RenderStyle::setMarqueeDirection(MarqueeDirection d) { SET_DOUBLY_NE
 inline void RenderStyle::setMarqueeIncrement(Length&& length) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, marquee, increment, WTFMove(length)); }
 inline void RenderStyle::setMarqueeLoopCount(int i) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, marquee, loops, i); }
 inline void RenderStyle::setMarqueeSpeed(int speed) { SET_DOUBLY_NESTED(m_nonInheritedData, rareData, marquee, speed, speed); }
-inline void RenderStyle::setMaskBorder(const NinePieceImage& image) { SET_NESTED(m_nonInheritedData, rareData, maskBorder, image); }
+inline void RenderStyle::setMaskBorder(Style::MaskBorder&& image) { SET_NESTED(m_nonInheritedData, rareData, maskBorder, WTFMove(image)); }
 inline void RenderStyle::setMaskImage(RefPtr<StyleImage>&& image) { m_nonInheritedData.access().miscData.access().mask.access().setImage(WTFMove(image)); }
 inline void RenderStyle::setMaskRepeat(FillRepeatXY repeat) { SET_DOUBLY_NESTED_PAIR(m_nonInheritedData, miscData, mask, m_repeat, repeat, m_repeatSet, true); }
 inline void RenderStyle::setMathStyle(const MathStyle& style) { SET(m_rareInheritedData, mathStyle, static_cast<unsigned>(style)); }

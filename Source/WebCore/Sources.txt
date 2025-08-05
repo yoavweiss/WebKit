@@ -2817,6 +2817,7 @@ rendering/LegacyLineLayout.cpp
 rendering/LegacyRootInlineBox.cpp
 rendering/MarkedText.cpp
 rendering/MotionPath.cpp
+rendering/NinePieceImagePainter.cpp
 rendering/OrderIterator.cpp
 rendering/PathOperation.cpp
 rendering/PointerEventsHitRules.cpp
@@ -2943,7 +2944,6 @@ rendering/style/BorderValue.cpp
 rendering/style/DropShadowFilterOperationWithStyleColor.cpp
 rendering/style/FillLayer.cpp
 rendering/style/GridSpan.cpp
-rendering/style/NinePieceImage.cpp
 rendering/style/OutlineValue.cpp
 rendering/style/PositionArea.cpp
 rendering/style/PositionTryFallback.cpp
@@ -3135,6 +3135,12 @@ style/StyleUpdate.cpp
 style/Styleable.cpp
 style/TransformOperationsBuilder.cpp
 style/UserAgentStyle.cpp
+style/values/backgrounds/StyleBorderImageOutset.cpp
+style/values/backgrounds/StyleBorderImageRepeat.cpp
+style/values/backgrounds/StyleBorderImageSlice.cpp
+style/values/backgrounds/StyleBorderImageSource.cpp
+style/values/backgrounds/StyleBorderImageWidth.cpp
+style/values/backgrounds/StyleBorderImage.cpp
 style/values/backgrounds/StyleLineWidth.cpp
 style/values/borders/StyleBorderRadius.cpp
 style/values/borders/StyleBoxShadow.cpp
@@ -3191,6 +3197,12 @@ style/values/inline/StyleVerticalAlign.cpp
 style/values/lists/StyleListStyleType.cpp
 style/values/masking/StyleClip.cpp
 style/values/masking/StyleClipPath.cpp
+style/values/masking/StyleMaskBorderOutset.cpp
+style/values/masking/StyleMaskBorderRepeat.cpp
+style/values/masking/StyleMaskBorderSlice.cpp
+style/values/masking/StyleMaskBorderSource.cpp
+style/values/masking/StyleMaskBorderWidth.cpp
+style/values/masking/StyleMaskBorder.cpp
 style/values/motion/StyleOffsetAnchor.cpp
 style/values/motion/StyleOffsetPath.cpp
 style/values/motion/StyleOffsetPosition.cpp

@@ -82,15 +82,8 @@ public:
     static Ref<CSSValue> extractCounterIncrement(ExtractorState&);
     static Ref<CSSValue> extractCounterReset(ExtractorState&);
     static Ref<CSSValue> extractCounterSet(ExtractorState&);
-    static Ref<CSSValue> extractBorderImageOutset(ExtractorState&);
-    static Ref<CSSValue> extractBorderImageRepeat(ExtractorState&);
-    static Ref<CSSValue> extractBorderImageSlice(ExtractorState&);
-    static RefPtr<CSSValue> extractBorderImageWidth(ExtractorState&);
-    static Ref<CSSValue> extractMaskBorderOutset(ExtractorState&);
-    static Ref<CSSValue> extractMaskBorderRepeat(ExtractorState&);
-    static Ref<CSSValue> extractMaskBorderSlice(ExtractorState&);
-    static Ref<CSSValue> extractMaskBorderWidth(ExtractorState&);
     static Ref<CSSValue> extractTransform(ExtractorState&);
+    static RefPtr<CSSValue> extractBorderImageWidth(ExtractorState&);
     static Ref<CSSValue> extractTranslate(ExtractorState&);
     static Ref<CSSValue> extractScale(ExtractorState&);
     static Ref<CSSValue> extractRotate(ExtractorState&);
@@ -180,14 +173,7 @@ public:
     static void extractCounterIncrementSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractCounterResetSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractCounterSetSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractBorderImageOutsetSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractBorderImageRepeatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractBorderImageSliceSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractBorderImageWidthSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractMaskBorderOutsetSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractMaskBorderRepeatSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractMaskBorderSliceSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
-    static void extractMaskBorderWidthSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractTransformSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractTranslateSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
     static void extractScaleSerialization(ExtractorState&, StringBuilder&, const CSS::SerializationContext&);
@@ -1868,42 +1854,12 @@ inline void ExtractorCustom::extractCounterSetSerialization(ExtractorState& stat
     extractCounterSerialization<CSSPropertyCounterSet>(state, builder, context);
 }
 
-inline Ref<CSSValue> ExtractorCustom::extractBorderImageOutset(ExtractorState& state)
-{
-    return ExtractorConverter::convertNinePieceImageQuad(state, state.style.borderImage().outset());
-}
-
-inline void ExtractorCustom::extractBorderImageOutsetSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeNinePieceImageQuad(state, builder, context, state.style.borderImage().outset());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractBorderImageRepeat(ExtractorState& state)
-{
-    return ExtractorConverter::convertNinePieceImageRepeat(state, state.style.borderImage());
-}
-
-inline void ExtractorCustom::extractBorderImageRepeatSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeNinePieceImageRepeat(state, builder, context, state.style.borderImage());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractBorderImageSlice(ExtractorState& state)
-{
-    return ExtractorConverter::convertNinePieceImageSlices(state, state.style.borderImage());
-}
-
-inline void ExtractorCustom::extractBorderImageSliceSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeNinePieceImageSlices(state, builder, context, state.style.borderImage());
-}
-
 inline RefPtr<CSSValue> ExtractorCustom::extractBorderImageWidth(ExtractorState& state)
 {
     auto& borderImage = state.style.borderImage();
     if (borderImage.overridesBorderWidths())
         return nullptr;
-    return ExtractorConverter::convertNinePieceImageQuad(state, borderImage.borderSlices());
+    return createCSSValue(state.pool, state.style, borderImage.width());
 }
 
 inline void ExtractorCustom::extractBorderImageWidthSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
@@ -1911,47 +1867,7 @@ inline void ExtractorCustom::extractBorderImageWidthSerialization(ExtractorState
     auto& borderImage = state.style.borderImage();
     if (borderImage.overridesBorderWidths())
         return;
-    ExtractorSerializer::serializeNinePieceImageQuad(state, builder, context, borderImage.borderSlices());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractMaskBorderOutset(ExtractorState& state)
-{
-    return ExtractorConverter::convertNinePieceImageQuad(state, state.style.maskBorder().outset());
-}
-
-inline void ExtractorCustom::extractMaskBorderOutsetSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeNinePieceImageQuad(state, builder, context, state.style.maskBorder().outset());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractMaskBorderRepeat(ExtractorState& state)
-{
-    return ExtractorConverter::convertNinePieceImageRepeat(state, state.style.maskBorder());
-}
-
-inline void ExtractorCustom::extractMaskBorderRepeatSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeNinePieceImageRepeat(state, builder, context, state.style.maskBorder());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractMaskBorderSlice(ExtractorState& state)
-{
-    return ExtractorConverter::convertNinePieceImageSlices(state, state.style.maskBorder());
-}
-
-inline void ExtractorCustom::extractMaskBorderSliceSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeNinePieceImageSlices(state, builder, context, state.style.maskBorder());
-}
-
-inline Ref<CSSValue> ExtractorCustom::extractMaskBorderWidth(ExtractorState& state)
-{
-    return ExtractorConverter::convertNinePieceImageQuad(state, state.style.maskBorder().borderSlices());
-}
-
-inline void ExtractorCustom::extractMaskBorderWidthSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
-{
-    ExtractorSerializer::serializeNinePieceImageQuad(state, builder, context, state.style.maskBorder().borderSlices());
+    serializationForCSS(builder, context, state.style, borderImage.width());
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractTransform(ExtractorState& state)
@@ -2299,23 +2215,23 @@ inline void ExtractorCustom::extractBorderBlockShorthandSerialization(ExtractorS
 inline RefPtr<CSSValue> ExtractorCustom::extractBorderImageShorthand(ExtractorState& state)
 {
     auto& borderImage = state.style.borderImage();
-    if (!borderImage.image())
+    if (borderImage.source().isNone())
         return CSSPrimitiveValue::create(CSSValueNone);
     if (borderImage.overridesBorderWidths())
         return nullptr;
-    return ExtractorConverter::convertNinePieceImage(state, borderImage);
+    return createCSSValue(state.pool, state.style, borderImage);
 }
 
 inline void ExtractorCustom::extractBorderImageShorthandSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     auto& borderImage = state.style.borderImage();
-    if (!borderImage.image()) {
+    if (borderImage.source().isNone()) {
         CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
         return;
     }
     if (borderImage.overridesBorderWidths())
         return;
-    ExtractorSerializer::serializeNinePieceImage(state, builder, context, borderImage);
+    serializationForCSS(builder, context, state.style, borderImage);
 }
 
 inline RefPtr<CSSValue> ExtractorCustom::extractBorderInlineShorthand(ExtractorState& state)
@@ -2597,24 +2513,12 @@ inline void ExtractorCustom::extractMaskShorthandSerialization(ExtractorState& s
 
 inline RefPtr<CSSValue> ExtractorCustom::extractMaskBorderShorthand(ExtractorState& state)
 {
-    auto& maskBorder = state.style.maskBorder();
-    if (!maskBorder.image())
-        return CSSPrimitiveValue::create(CSSValueNone);
-    if (maskBorder.overridesBorderWidths())
-        return nullptr;
-    return ExtractorConverter::convertNinePieceImage(state, maskBorder);
+    return createCSSValue(state.pool, state.style, state.style.maskBorder());
 }
 
 inline void ExtractorCustom::extractMaskBorderShorthandSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    auto& maskBorder = state.style.maskBorder();
-    if (!maskBorder.image()) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    }
-    if (maskBorder.overridesBorderWidths())
-        return;
-    ExtractorSerializer::serializeNinePieceImage(state, builder, context, maskBorder);
+    serializationForCSS(builder, context, state.style, state.style.maskBorder());
 }
 
 inline RefPtr<CSSValue> ExtractorCustom::extractMaskPositionShorthand(ExtractorState& state)
@@ -3098,27 +3002,28 @@ inline void ExtractorCustom::extractWhiteSpaceShorthandSerialization(ExtractorSt
 inline RefPtr<CSSValue> ExtractorCustom::extractWebkitBorderImageShorthand(ExtractorState& state)
 {
     auto& borderImage = state.style.borderImage();
-    if (!borderImage.image())
+    if (borderImage.source().isNone())
         return CSSPrimitiveValue::create(CSSValueNone);
     // -webkit-border-image has a legacy behavior that makes fixed border slices also set the border widths.
-    bool overridesBorderWidths = borderImage.borderSlices().anyOf([](const auto& side) { return side.isFixed(); });
+    bool overridesBorderWidths = borderImage.width().values.anyOf([](const auto& side) { return side.isFixed(); });
     if (overridesBorderWidths != borderImage.overridesBorderWidths())
         return nullptr;
-    return ExtractorConverter::convertNinePieceImage(state, borderImage);
+    return createCSSValue(state.pool, state.style, borderImage);
 }
 
 inline void ExtractorCustom::extractWebkitBorderImageShorthandSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     auto& borderImage = state.style.borderImage();
-    if (!borderImage.image()) {
+    if (borderImage.source().isNone()) {
         CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
         return;
     }
     // -webkit-border-image has a legacy behavior that makes fixed border slices also set the border widths.
-    bool overridesBorderWidths = borderImage.borderSlices().anyOf([](const auto& side) { return side.isFixed(); });
+    bool overridesBorderWidths = borderImage.width().values.anyOf([](const auto& side) { return side.isFixed(); });
     if (overridesBorderWidths != borderImage.overridesBorderWidths())
         return;
-    ExtractorSerializer::serializeNinePieceImage(state, builder, context, borderImage);
+
+    serializationForCSS(builder, context, state.style, borderImage);
 }
 
 inline RefPtr<CSSValue> ExtractorCustom::extractWebkitBorderRadiusShorthand(ExtractorState& state)

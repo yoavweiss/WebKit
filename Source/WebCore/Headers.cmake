@@ -2681,7 +2681,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/GridSpan.h
     rendering/style/LineClampValue.h
     rendering/style/NameScope.h
-    rendering/style/NinePieceImage.h
     rendering/style/OutlineValue.h
     rendering/style/PositionArea.h
     rendering/style/PositionTryFallback.h
@@ -2755,6 +2754,12 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/anchor-position/StyleAnchorName.h
 
+    style/values/backgrounds/StyleBorderImage.h
+    style/values/backgrounds/StyleBorderImageOutset.h
+    style/values/backgrounds/StyleBorderImageRepeat.h
+    style/values/backgrounds/StyleBorderImageSlice.h
+    style/values/backgrounds/StyleBorderImageSource.h
+    style/values/backgrounds/StyleBorderImageWidth.h
     style/values/backgrounds/StyleLineWidth.h
 
     style/values/borders/StyleBorderRadius.h
@@ -2813,6 +2818,12 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/masking/StyleClip.h
     style/values/masking/StyleClipPath.h
+    style/values/masking/StyleMaskBorder.h
+    style/values/masking/StyleMaskBorderOutset.h
+    style/values/masking/StyleMaskBorderRepeat.h
+    style/values/masking/StyleMaskBorderSlice.h
+    style/values/masking/StyleMaskBorderSource.h
+    style/values/masking/StyleMaskBorderWidth.h
 
     style/values/motion/StyleOffsetDistance.h
     style/values/motion/StyleOffsetAnchor.h

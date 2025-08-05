@@ -3147,13 +3147,36 @@ String RenderStyle::altFromContent() const
     return { };
 }
 
-LayoutBoxExtent RenderStyle::imageOutsets(const NinePieceImage& image) const
+template<typename OutsetValue>
+static LayoutUnit computeOutset(const OutsetValue& outsetValue, LayoutUnit borderWidth)
+{
+    return WTF::switchOn(outsetValue,
+        [&](const typename OutsetValue::Number& number) {
+            return LayoutUnit(number.value * borderWidth);
+        },
+        [&](const typename OutsetValue::Length& length) {
+            return LayoutUnit(length.value);
+        }
+    );
+}
+
+LayoutBoxExtent RenderStyle::imageOutsets(const Style::BorderImage& image) const
 {
     return {
-        NinePieceImage::computeOutset(image.outset().top(), LayoutUnit(Style::evaluate(borderTopWidth()))),
-        NinePieceImage::computeOutset(image.outset().right(), LayoutUnit(Style::evaluate(borderRightWidth()))),
-        NinePieceImage::computeOutset(image.outset().bottom(), LayoutUnit(Style::evaluate(borderBottomWidth()))),
-        NinePieceImage::computeOutset(image.outset().left(), LayoutUnit(Style::evaluate(borderLeftWidth())))
+        computeOutset(image.outset().values.top(), LayoutUnit(Style::evaluate(borderTopWidth()))),
+        computeOutset(image.outset().values.right(), LayoutUnit(Style::evaluate(borderRightWidth()))),
+        computeOutset(image.outset().values.bottom(), LayoutUnit(Style::evaluate(borderBottomWidth()))),
+        computeOutset(image.outset().values.left(), LayoutUnit(Style::evaluate(borderLeftWidth())))
+    };
+}
+
+LayoutBoxExtent RenderStyle::imageOutsets(const Style::MaskBorder& image) const
+{
+    return {
+        computeOutset(image.outset().values.top(), LayoutUnit(Style::evaluate(borderTopWidth()))),
+        computeOutset(image.outset().values.right(), LayoutUnit(Style::evaluate(borderRightWidth()))),
+        computeOutset(image.outset().values.bottom(), LayoutUnit(Style::evaluate(borderBottomWidth()))),
+        computeOutset(image.outset().values.left(), LayoutUnit(Style::evaluate(borderLeftWidth())))
     };
 }
 
@@ -3175,109 +3198,74 @@ std::pair<FontOrientation, NonCJKGlyphOrientation> RenderStyle::fontAndGlyphOrie
     }
 }
 
-void RenderStyle::setBorderImageSource(RefPtr<StyleImage>&& image)
+void RenderStyle::setBorderImageSource(Style::BorderImageSource&& source)
 {
-    if (m_nonInheritedData->surroundData->border.m_image.image() == image.get())
+    if (m_nonInheritedData->surroundData->border.m_image.source() == source)
         return;
-    m_nonInheritedData.access().surroundData.access().border.m_image.setImage(WTFMove(image));
+    m_nonInheritedData.access().surroundData.access().border.m_image.setSource(WTFMove(source));
 }
 
-void RenderStyle::setBorderImageSliceFill(bool fill)
+void RenderStyle::setBorderImageSlice(Style::BorderImageSlice&& slice)
 {
-    if (m_nonInheritedData->surroundData->border.m_image.fill() == fill)
+    if (m_nonInheritedData->surroundData->border.m_image.slice() == slice)
         return;
-    m_nonInheritedData.access().surroundData.access().border.m_image.setFill(fill);
+    m_nonInheritedData.access().surroundData.access().border.m_image.setSlice(WTFMove(slice));
 }
 
-void RenderStyle::setBorderImageSlice(LengthBox&& slices)
+void RenderStyle::setBorderImageWidth(Style::BorderImageWidth&& width)
 {
-    if (m_nonInheritedData->surroundData->border.m_image.imageSlices() == slices)
+    if (m_nonInheritedData->surroundData->border.m_image.width() == width)
         return;
-    m_nonInheritedData.access().surroundData.access().border.m_image.setImageSlices(WTFMove(slices));
+    m_nonInheritedData.access().surroundData.access().border.m_image.setWidth(WTFMove(width));
 }
 
-void RenderStyle::setBorderImageWidth(LengthBox&& slices)
-{
-    if (m_nonInheritedData->surroundData->border.m_image.borderSlices() == slices)
-        return;
-    m_nonInheritedData.access().surroundData.access().border.m_image.setBorderSlices(WTFMove(slices));
-}
-
-void RenderStyle::setBorderImageWidthOverridesBorderWidths(bool overridesBorderWidths)
-{
-    if (m_nonInheritedData->surroundData->border.m_image.overridesBorderWidths() == overridesBorderWidths)
-        return;
-    m_nonInheritedData.access().surroundData.access().border.m_image.setOverridesBorderWidths(overridesBorderWidths);
-}
-
-void RenderStyle::setBorderImageOutset(LengthBox&& outset)
+void RenderStyle::setBorderImageOutset(Style::BorderImageOutset&& outset)
 {
     if (m_nonInheritedData->surroundData->border.m_image.outset() == outset)
         return;
     m_nonInheritedData.access().surroundData.access().border.m_image.setOutset(WTFMove(outset));
 }
 
-void RenderStyle::setBorderImageHorizontalRule(NinePieceImageRule rule)
+void RenderStyle::setBorderImageRepeat(Style::BorderImageRepeat&& repeat)
 {
-    if (m_nonInheritedData->surroundData->border.m_image.horizontalRule() == rule)
+    if (m_nonInheritedData->surroundData->border.m_image.repeat() == repeat)
         return;
-    m_nonInheritedData.access().surroundData.access().border.m_image.setHorizontalRule(rule);
+    m_nonInheritedData.access().surroundData.access().border.m_image.setRepeat(WTFMove(repeat));
 }
 
-void RenderStyle::setBorderImageVerticalRule(NinePieceImageRule rule)
+void RenderStyle::setMaskBorderSource(Style::MaskBorderSource&& source)
 {
-    if (m_nonInheritedData->surroundData->border.m_image.verticalRule() == rule)
+    if (m_nonInheritedData.access().rareData.access().maskBorder.source() == source)
         return;
-    m_nonInheritedData.access().surroundData.access().border.m_image.setVerticalRule(rule);
+    m_nonInheritedData.access().rareData.access().maskBorder.setSource(WTFMove(source));
 }
 
-void RenderStyle::setMaskBorderSource(RefPtr<StyleImage>&& image)
+void RenderStyle::setMaskBorderSlice(Style::MaskBorderSlice&& slice)
 {
-    if (m_nonInheritedData.access().rareData.access().maskBorder.image() == image.get())
+    if (m_nonInheritedData->rareData->maskBorder.slice() == slice)
         return;
-    m_nonInheritedData.access().rareData.access().maskBorder.setImage(WTFMove(image));
+    m_nonInheritedData.access().rareData.access().maskBorder.setSlice(WTFMove(slice));
 }
 
-void RenderStyle::setMaskBorderSliceFill(bool fill)
+void RenderStyle::setMaskBorderWidth(Style::MaskBorderWidth&& width)
 {
-    if (m_nonInheritedData->rareData->maskBorder.fill() == fill)
+    if (m_nonInheritedData->rareData->maskBorder.width() == width)
         return;
-    m_nonInheritedData.access().rareData.access().maskBorder.setFill(fill);
+    m_nonInheritedData.access().rareData.access().maskBorder.setWidth(WTFMove(width));
 }
 
-void RenderStyle::setMaskBorderSlice(LengthBox&& slices)
-{
-    if (m_nonInheritedData->rareData->maskBorder.imageSlices() == slices)
-        return;
-    m_nonInheritedData.access().rareData.access().maskBorder.setImageSlices(WTFMove(slices));
-}
-
-void RenderStyle::setMaskBorderWidth(LengthBox&& slices)
-{
-    if (m_nonInheritedData->rareData->maskBorder.borderSlices() == slices)
-        return;
-    m_nonInheritedData.access().rareData.access().maskBorder.setBorderSlices(WTFMove(slices));
-}
-
-void RenderStyle::setMaskBorderOutset(LengthBox&& outset)
+void RenderStyle::setMaskBorderOutset(Style::MaskBorderOutset&& outset)
 {
     if (m_nonInheritedData->rareData->maskBorder.outset() == outset)
         return;
     m_nonInheritedData.access().rareData.access().maskBorder.setOutset(WTFMove(outset));
 }
 
-void RenderStyle::setMaskBorderHorizontalRule(NinePieceImageRule rule)
+void RenderStyle::setMaskBorderRepeat(Style::MaskBorderRepeat&& repeat)
 {
-    if (m_nonInheritedData->rareData->maskBorder.horizontalRule() == rule)
+    if (m_nonInheritedData->rareData->maskBorder.repeat() == repeat)
         return;
-    m_nonInheritedData.access().rareData.access().maskBorder.setHorizontalRule(rule);
-}
-
-void RenderStyle::setMaskBorderVerticalRule(NinePieceImageRule rule)
-{
-    if (m_nonInheritedData->rareData->maskBorder.verticalRule() == rule)
-        return;
-    m_nonInheritedData.access().rareData.access().maskBorder.setVerticalRule(rule);
+    m_nonInheritedData.access().rareData.access().maskBorder.setRepeat(WTFMove(repeat));
 }
 
 void RenderStyle::setColumnStylesFromPaginationMode(PaginationMode paginationMode)

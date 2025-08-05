@@ -1047,8 +1047,8 @@ void RenderElement::styleDidChange(StyleDifference diff, const RenderStyle* oldS
             updateFillImages(oldStyle ? &oldStyle->protectedBackgroundLayers().get() : nullptr, style ? &style->protectedBackgroundLayers().get() : nullptr);
         if ((style && style->maskLayers().hasImage()) || (oldStyle && oldStyle->maskLayers().hasImage()))
             updateFillImages(oldStyle ? &oldStyle->protectedMaskLayers().get() : nullptr, style ? &style->protectedMaskLayers().get() : nullptr);
-        updateImage(oldStyle ? oldStyle->borderImage().protectedImage().get() : nullptr, style ? style->borderImage().protectedImage().get() : nullptr);
-        updateImage(oldStyle ? oldStyle->maskBorder().protectedImage().get() : nullptr, style ? style->maskBorder().protectedImage().get() : nullptr);
+        updateImage(oldStyle ? oldStyle->borderImage().source().tryStyleImage().get() : nullptr, style ? style->borderImage().source().tryStyleImage().get() : nullptr);
+        updateImage(oldStyle ? oldStyle->maskBorder().source().tryStyleImage().get() : nullptr, style ? style->maskBorder().source().tryStyleImage().get() : nullptr);
         updateShapeImage(oldStyle ? &oldStyle->shapeOutside() : nullptr, style ? &style->shapeOutside() : nullptr);
     };
 
@@ -1198,8 +1198,8 @@ void RenderElement::willBeDestroyed()
             unregisterImage(backgroundLayer->protectedImage().get());
         for (auto* maskLayer = &style.maskLayers(); maskLayer; maskLayer = maskLayer->next())
             unregisterImage(maskLayer->protectedImage().get());
-        unregisterImage(style.borderImage().protectedImage().get());
-        unregisterImage(style.maskBorder().protectedImage().get());
+        unregisterImage(style.borderImage().source().tryStyleImage().get());
+        unregisterImage(style.maskBorder().source().tryStyleImage().get());
         unregisterImage(style.shapeOutside().image().get());
     };
 
@@ -1573,7 +1573,7 @@ bool RenderElement::borderImageIsLoadedAndCanBeRendered() const
 {
     ASSERT(style().hasBorder());
 
-    RefPtr borderImage = style().borderImage().image();
+    RefPtr borderImage = style().borderImage().source().tryStyleImage();
     return borderImage && borderImage->canRender(this, style().usedZoom()) && borderImage->isLoaded(this);
 }
 

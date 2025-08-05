@@ -62,7 +62,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     // counterDirectives
     , willChange(RenderStyle::initialWillChange())
     // boxReflect
-    , maskBorder(NinePieceImage::Type::Mask)
+    , maskBorder(RenderStyle::initialMaskBorder())
     // pageSize
     , shapeOutside(RenderStyle::initialShapeOutside())
     , shapeMargin(RenderStyle::initialShapeMargin())

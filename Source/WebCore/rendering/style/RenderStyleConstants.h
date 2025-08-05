@@ -1226,6 +1226,13 @@ enum class PositionVisibility : uint8_t {
     NoOverflow     = 1 << 2
 };
 
+enum class NinePieceImageRule : uint8_t {
+    Stretch,
+    Round,
+    Space,
+    Repeat,
+};
+
 CSSBoxType transformBoxToCSSBoxType(TransformBox);
 
 constexpr float defaultMiterLimit = 4;
@@ -1296,6 +1303,7 @@ WTF::TextStream& operator<<(WTF::TextStream&, MarqueeBehavior);
 WTF::TextStream& operator<<(WTF::TextStream&, MarqueeDirection);
 WTF::TextStream& operator<<(WTF::TextStream&, MaskMode);
 WTF::TextStream& operator<<(WTF::TextStream&, NBSPMode);
+WTF::TextStream& operator<<(WTF::TextStream&, NinePieceImageRule);
 WTF::TextStream& operator<<(WTF::TextStream&, ObjectFit);
 WTF::TextStream& operator<<(WTF::TextStream&, Order);
 WTF::TextStream& operator<<(WTF::TextStream&, OutlineStyle);

@@ -832,6 +832,17 @@ TextStream& operator<<(TextStream& ts, NBSPMode mode)
     return ts;
 }
 
+TextStream& operator<<(TextStream& ts, NinePieceImageRule rule)
+{
+    switch (rule) {
+    case NinePieceImageRule::Stretch: ts << "stretch"_s; break;
+    case NinePieceImageRule::Round: ts << "round"_s; break;
+    case NinePieceImageRule::Space: ts << "space"_s; break;
+    case NinePieceImageRule::Repeat: ts << "repeat"_s; break;
+    }
+    return ts;
+}
+
 TextStream& operator<<(TextStream& ts, ObjectFit objectFit)
 {
     switch (objectFit) {

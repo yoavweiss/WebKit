@@ -585,15 +585,18 @@ inline RefPtr<StyleReflection> BuilderConverter::convertReflection(BuilderState&
     if (!reflectValue)
         return { };
 
-    NinePieceImage mask(NinePieceImage::Type::Mask);
-    mask.setFill(true);
+    Style::MaskBorder mask { };
+    if (RefPtr maskValue = reflectValue->mask())
+        mask = toStyleFromCSSValue<Style::MaskBorder>(builderState, *maskValue);
 
-    builderState.styleMap().mapNinePieceImage(reflectValue->mask(), mask);
+    auto maskSlice = mask.slice();
+    maskSlice.fill = CSS::Keyword::Fill { };
+    mask.setSlice(WTFMove(maskSlice));
 
     auto reflection = StyleReflection::create();
     reflection->setDirection(fromCSSValueID<ReflectionDirection>(reflectValue->direction()));
     reflection->setOffset(convertLength(builderState, reflectValue->offset()));
-    reflection->setMask(mask);
+    reflection->setMask(WTFMove(mask));
     return reflection;
 }
 

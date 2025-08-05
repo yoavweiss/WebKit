@@ -2873,9 +2873,9 @@
             "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
-                "animation-wrapper": "LengthBoxWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<BorderImageOutset>",
                 "disables-native-appearance": true,
                 "parser-grammar": "[ <number [0,inf]> | <length [0,inf]> ]{1,4}@(type=CSSQuadValue no-single-item-opt)",
                 "parser-exported": true
@@ -2895,10 +2895,8 @@
                 "space"
             ],
             "codegen-properties": {
-                "animation-wrapper": "NinePieceImageRepeatWrapper",
-                "animation-wrapper-requires-override-parameters": ["CSSPropertyBorderImageRepeat", "&RenderStyle::borderImageHorizontalRule", "&RenderStyle::setBorderImageHorizontalRule", "&RenderStyle::borderImageVerticalRule", "&RenderStyle::setBorderImageVerticalRule"],
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<BorderImageRepeat>",
                 "disables-native-appearance": true,
                 "parser-exported": true,
                 "parser-grammar": "[ stretch | repeat | round | space ]{1,2}@(type=CSSValuePair default=previous)"
@@ -2915,10 +2913,9 @@
                 "fill"
             ],
             "codegen-properties": {
-                "animation-wrapper": "LengthBoxWrapper",
-                "animation-wrapper-requires-additional-parameters": ["{ LengthBoxWrapper::Flags::UsesFillKeyword }"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<BorderImageSlice>",
                 "disables-native-appearance": true,
                 "parser-function": "consumeBorderImageSlice",
                 "parser-function-allows-number-or-integer-input": true,
@@ -2938,8 +2935,8 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "StyleImageWrapper",
-                "style-converter": "ImageOrNone",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<BorderImageSource>",
                 "disables-native-appearance": true,
                 "parser-grammar": "none | <image>"
             },
@@ -2955,8 +2952,7 @@
                 "auto"
             ],
             "codegen-properties": {
-                "animation-wrapper": "LengthBoxWrapper",
-                "animation-wrapper-requires-additional-parameters": ["{ LengthBoxWrapper::Flags::IsLengthPercentage, LengthBoxWrapper::Flags::MayOverrideBorderWidths }"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
                 "style-extractor-custom": true,
                 "disables-native-appearance": true,
@@ -5543,15 +5539,15 @@
             }
         },
         "mask-border-outset": {
-            "animation-type": "discrete",
+            "animation-type": "by computed value",
             "initial": "0",
             "codegen-properties": {
                 "aliases": [
                     "-webkit-mask-box-image-outset"
                 ],
-                "animation-wrapper": "LengthBoxWrapper",
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<MaskBorderOutset>",
                 "parser-grammar": "[ <number [0,inf]> | <length [0,inf]> ]{1,4}@(type=CSSQuadValue no-single-item-opt)"
 
             },
@@ -5573,10 +5569,8 @@
                 "aliases": [
                     "-webkit-mask-box-image-repeat"
                 ],
-                "animation-wrapper": "NinePieceImageRepeatWrapper",
-                "animation-wrapper-requires-override-parameters": ["CSSPropertyMaskBorderRepeat", "&RenderStyle::maskBorderHorizontalRule", "&RenderStyle::setMaskBorderHorizontalRule", "&RenderStyle::maskBorderVerticalRule", "&RenderStyle::setMaskBorderVerticalRule"],
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<MaskBorderRepeat>",
                 "parser-grammar": "[ stretch | repeat | round | space ]{1,2}@(type=CSSValuePair default=previous)"
             },
             "specification": {
@@ -5585,7 +5579,7 @@
             }
         },
         "mask-border-slice": {
-            "animation-type": "discrete",
+            "animation-type": "by computed value",
             "initial": "0",
             "values": [
                 "fill"
@@ -5594,10 +5588,9 @@
                 "aliases": [
                     "-webkit-mask-box-image-slice"
                 ],
-                "animation-wrapper": "LengthBoxWrapper",
-                "animation-wrapper-requires-additional-parameters": ["{ LengthBoxWrapper::Flags::UsesFillKeyword }"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<MaskBorderSlice>",
                 "parser-function": "consumeBorderImageSlice",
                 "parser-grammar-unused": "[ <number [0,inf]> | <percentage [0,inf]> ]{1,4} && fill?",
                 "parser-grammar-unused-reason": "Needs support for different parsing based on the current shorthand."
@@ -5618,8 +5611,8 @@
                 "aliases": [
                     "-webkit-mask-box-image-source"
                 ],
-                "animation-wrapper": "StyleImageWrapper",
-                "style-converter": "ImageOrNone",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<MaskBorderSource>",
                 "parser-grammar": "none | <image>"
             },
             "specification": {
@@ -5628,7 +5621,7 @@
             }
         },
         "mask-border-width": {
-            "animation-type": "discrete",
+            "animation-type": "by computed value",
             "initial": "auto",
             "values": [
                 "auto"
@@ -5637,10 +5630,9 @@
                 "aliases": [
                     "-webkit-mask-box-image-width"
                 ],
-                "animation-wrapper": "LengthBoxWrapper",
-                "animation-wrapper-requires-additional-parameters": ["{ LengthBoxWrapper::Flags::IsLengthPercentage }"],
+                "animation-wrapper": "StyleTypeWrapper",
                 "style-builder-custom": "All",
-                "style-extractor-custom": true,
+                "style-extractor-converter": "StyleType<MaskBorderWidth>",
                 "parser-function": "consumeBorderImageWidth",
                 "parser-grammar-unused": "[ <length-percentage [0,inf]> | <number [0,inf]> | auto ]{1,4}",
                 "parser-grammar-unused-reason": "Needs support for different parsing based on the current shorthand."

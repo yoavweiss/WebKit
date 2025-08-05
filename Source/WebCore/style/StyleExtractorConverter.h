@@ -231,13 +231,6 @@ public:
     static Ref<CSSValue> convertFontFeatureSettings(ExtractorState&, const FontFeatureSettings&);
     static Ref<CSSValue> convertFontVariationSettings(ExtractorState&, const FontVariationSettings&);
 
-    // MARK: NinePieceImage conversions
-
-    static Ref<CSSValue> convertNinePieceImageQuad(ExtractorState&, const LengthBox&);
-    static Ref<CSSValue> convertNinePieceImageSlices(ExtractorState&, const NinePieceImage&);
-    static Ref<CSSValue> convertNinePieceImageRepeat(ExtractorState&, const NinePieceImage&);
-    static Ref<CSSValue> convertNinePieceImage(ExtractorState&, const NinePieceImage&);
-
     // MARK: Animation/Transition conversions
 
     static Ref<CSSValue> convertAnimationName(ExtractorState&, const ScopedName&, const Animation*, const AnimationList*);
@@ -709,12 +702,9 @@ inline Ref<CSSValue> ExtractorConverter::convertReflection(ExtractorState& state
 
     auto mask = [&] -> RefPtr<CSSValue> {
         auto& reflectionMask = reflection->mask();
-        RefPtr reflectionMaskImageSource = reflectionMask.image();
-        if (!reflectionMaskImageSource)
+        if (reflectionMask.source().isNone())
             return CSSPrimitiveValue::create(CSSValueNone);
-        if (reflectionMask.overridesBorderWidths())
-            return nullptr;
-        return convertNinePieceImage(state, reflectionMask);
+        return createCSSValue(state.pool, state.style, reflectionMask);
     }();
 
     return CSSReflectValue::create(
@@ -1524,135 +1514,6 @@ inline Ref<CSSValue> ExtractorConverter::convertFontVariationSettings(ExtractorS
     for (auto& feature : fontVariationSettings)
         list.append(CSSFontVariationValue::create(feature.tag(), convert(state, feature.value())));
     return CSSValueList::createCommaSeparated(WTFMove(list));
-}
-
-// MARK: - NinePieceImage conversions
-
-inline Ref<CSSValue> ExtractorConverter::convertNinePieceImageQuad(ExtractorState& state, const LengthBox& box)
-{
-    RefPtr<CSSPrimitiveValue> top;
-    RefPtr<CSSPrimitiveValue> right;
-    RefPtr<CSSPrimitiveValue> bottom;
-    RefPtr<CSSPrimitiveValue> left;
-
-    if (box.top().isRelative())
-        top = CSSPrimitiveValue::create(box.top().value());
-    else
-        top = CSSPrimitiveValue::create(box.top(), state.style);
-
-    if (box.right() == box.top() && box.bottom() == box.top() && box.left() == box.top()) {
-        right = top;
-        bottom = top;
-        left = top;
-    } else {
-        if (box.right().isRelative())
-            right = CSSPrimitiveValue::create(box.right().value());
-        else
-            right = CSSPrimitiveValue::create(box.right(), state.style);
-
-        if (box.bottom() == box.top() && box.right() == box.left()) {
-            bottom = top;
-            left = right;
-        } else {
-            if (box.bottom().isRelative())
-                bottom = CSSPrimitiveValue::create(box.bottom().value());
-            else
-                bottom = CSSPrimitiveValue::create(box.bottom(), state.style);
-
-            if (box.left() == box.right())
-                left = right;
-            else {
-                if (box.left().isRelative())
-                    left = CSSPrimitiveValue::create(box.left().value());
-                else
-                    left = CSSPrimitiveValue::create(box.left(), state.style);
-            }
-        }
-    }
-
-    return CSSQuadValue::create({
-        top.releaseNonNull(),
-        right.releaseNonNull(),
-        bottom.releaseNonNull(),
-        left.releaseNonNull()
-    });
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertNinePieceImageSlices(ExtractorState&, const NinePieceImage& image)
-{
-    auto sliceSide = [](const WebCore::Length& length) -> Ref<CSSPrimitiveValue> {
-        // These values can be percentages or numbers.
-        if (length.isPercent())
-            return CSSPrimitiveValue::create(length.percent(), CSSUnitType::CSS_PERCENTAGE);
-        ASSERT(length.isFixed());
-        return CSSPrimitiveValue::create(length.value());
-    };
-
-    auto& slices = image.imageSlices();
-
-    RefPtr<CSSPrimitiveValue> top = sliceSide(slices.top());
-    RefPtr<CSSPrimitiveValue> right;
-    RefPtr<CSSPrimitiveValue> bottom;
-    RefPtr<CSSPrimitiveValue> left;
-    if (slices.right() == slices.top() && slices.bottom() == slices.top() && slices.left() == slices.top()) {
-        right = top;
-        bottom = top;
-        left = top;
-    } else {
-        right = sliceSide(slices.right());
-        if (slices.bottom() == slices.top() && slices.right() == slices.left()) {
-            bottom = top;
-            left = right;
-        } else {
-            bottom = sliceSide(slices.bottom());
-            if (slices.left() == slices.right())
-                left = right;
-            else
-                left = sliceSide(slices.left());
-        }
-    }
-
-    return CSSBorderImageSliceValue::create({
-        top.releaseNonNull(),
-        right.releaseNonNull(),
-        bottom.releaseNonNull(),
-        left.releaseNonNull()
-    }, image.fill());
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertNinePieceImageRepeat(ExtractorState&, const NinePieceImage& image)
-{
-    auto valueID = [](NinePieceImageRule rule) -> CSSValueID {
-        switch (rule) {
-        case NinePieceImageRule::Repeat:
-            return CSSValueRepeat;
-        case NinePieceImageRule::Round:
-            return CSSValueRound;
-        case NinePieceImageRule::Space:
-            return CSSValueSpace;
-        default:
-            return CSSValueStretch;
-        }
-    };
-
-    auto horizontalRepeat = CSSPrimitiveValue::create(valueID(image.horizontalRule()));
-    RefPtr<CSSPrimitiveValue> verticalRepeat;
-    if (image.horizontalRule() == image.verticalRule())
-        verticalRepeat = horizontalRepeat.copyRef();
-    else
-        verticalRepeat = CSSPrimitiveValue::create(valueID(image.verticalRule()));
-    return CSSValuePair::create(WTFMove(horizontalRepeat), verticalRepeat.releaseNonNull());
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertNinePieceImage(ExtractorState& state, const NinePieceImage& image)
-{
-    return createBorderImageValue({
-        .source = image.image()->computedStyleValue(state.style),
-        .slice = convertNinePieceImageSlices(state, image),
-        .width = convertNinePieceImageQuad(state, image.borderSlices()),
-        .outset = convertNinePieceImageQuad(state, image.outset()),
-        .repeat = convertNinePieceImageRepeat(state, image),
-    });
 }
 
 // MARK: - Animation/Transition conversions

@@ -2586,6 +2586,12 @@ DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef TYPE
 #undef FOR_EACH
 
+#define TYPE NinePieceImageRule
+#define FOR_EACH(CASE) CASE(Stretch) CASE(Round) CASE(Space) CASE(Repeat)
+DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
+#undef TYPE
+#undef FOR_EACH
+
 #if ENABLE(WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY)
 
 #define TYPE Style::WebkitOverflowScrolling

@@ -268,6 +268,12 @@ struct AnchorNames;
 struct AspectRatio;
 struct BlockEllipsis;
 struct BlockStepSize;
+struct BorderImage;
+struct BorderImageOutset;
+struct BorderImageRepeat;
+struct BorderImageSlice;
+struct BorderImageSource;
+struct BorderImageWidth;
 struct BorderRadius;
 struct BoxShadow;
 struct Clip;
@@ -293,6 +299,12 @@ struct InsetEdge;
 struct LineWidth;
 struct ListStyleType;
 struct MarginEdge;
+struct MaskBorder;
+struct MaskBorderOutset;
+struct MaskBorderRepeat;
+struct MaskBorderSlice;
+struct MaskBorderSource;
+struct MaskBorderWidth;
 struct MaximumLines;
 struct MaximumSize;
 struct MinimumSize;
@@ -509,10 +521,11 @@ public:
 
     inline bool hasBackground() const;
     
-    LayoutBoxExtent imageOutsets(const NinePieceImage&) const;
+    LayoutBoxExtent imageOutsets(const Style::BorderImage&) const;
+    LayoutBoxExtent imageOutsets(const Style::MaskBorder&) const;
+
     inline bool hasBorderImageOutsets() const;
     inline LayoutBoxExtent borderImageOutsets() const;
-
     inline LayoutBoxExtent maskBorderOutsets() const;
 
     inline IntOutsets filterOutsets() const;
@@ -595,13 +608,15 @@ public:
     const BorderValue& borderStart() const { return borderStart(writingMode()); }
     const BorderValue& borderEnd() const { return borderEnd(writingMode()); }
 
-    inline const NinePieceImage& borderImage() const;
-    inline StyleImage* borderImageSource() const;
-    inline const LengthBox& borderImageSlice() const;
-    inline const LengthBox& borderImageWidth() const;
-    inline const LengthBox& borderImageOutset() const;
+    inline const Style::BorderImage& borderImage() const;
+    inline const Style::BorderImageSource& borderImageSource() const;
+    inline const Style::BorderImageSlice& borderImageSlice() const;
+    inline const Style::BorderImageWidth& borderImageWidth() const;
+    inline const Style::BorderImageOutset& borderImageOutset() const;
+    inline const Style::BorderImageRepeat& borderImageRepeat() const;
     inline NinePieceImageRule borderImageHorizontalRule() const;
     inline NinePieceImageRule borderImageVerticalRule() const;
+    static inline Style::BorderImage initialBorderImage();
 
     inline const Style::BorderRadiusValue& borderTopLeftRadius() const;
     inline const Style::BorderRadiusValue& borderTopRightRadius() const;
@@ -771,13 +786,16 @@ public:
     inline FillLayer& ensureMaskLayers();
     inline const FillLayer& maskLayers() const; // Defined in RenderStyleInlines.h.
     inline Ref<const FillLayer> protectedMaskLayers() const; // Defined in RenderStyleInlines.h.
-    inline const NinePieceImage& maskBorder() const;
-    inline StyleImage* maskBorderSource() const;
-    inline const LengthBox& maskBorderSlice() const;
-    inline const LengthBox& maskBorderWidth() const;
-    inline const LengthBox& maskBorderOutset() const;
+
+    inline const Style::MaskBorder& maskBorder() const;
+    inline const Style::MaskBorderSource& maskBorderSource() const;
+    inline const Style::MaskBorderSlice& maskBorderSlice() const;
+    inline const Style::MaskBorderWidth& maskBorderWidth() const;
+    inline const Style::MaskBorderOutset& maskBorderOutset() const;
+    inline const Style::MaskBorderRepeat& maskBorderRepeat() const;
     inline NinePieceImageRule maskBorderHorizontalRule() const;
     inline NinePieceImageRule maskBorderVerticalRule() const;
+    static inline Style::MaskBorder initialMaskBorder();
 
     BorderCollapse borderCollapse() const { return static_cast<BorderCollapse>(m_inheritedFlags.borderCollapse); }
     inline Style::WebkitBorderSpacing borderHorizontalSpacing() const;
@@ -1290,15 +1308,12 @@ public:
     inline void setBackgroundRepeat(FillRepeatXY);
     inline void setBackgroundBlendMode(BlendMode);
 
-    inline void setBorderImage(const NinePieceImage&);
-    void setBorderImageSource(RefPtr<StyleImage>&&);
-    void setBorderImageSliceFill(bool);
-    void setBorderImageSlice(LengthBox&&);
-    void setBorderImageWidth(LengthBox&&);
-    void setBorderImageWidthOverridesBorderWidths(bool);
-    void setBorderImageOutset(LengthBox&&);
-    void setBorderImageHorizontalRule(NinePieceImageRule);
-    void setBorderImageVerticalRule(NinePieceImageRule);
+    inline void setBorderImage(Style::BorderImage&&);
+    void setBorderImageSource(Style::BorderImageSource&&);
+    void setBorderImageSlice(Style::BorderImageSlice&&);
+    void setBorderImageWidth(Style::BorderImageWidth&&);
+    void setBorderImageOutset(Style::BorderImageOutset&&);
+    void setBorderImageRepeat(Style::BorderImageRepeat&&);
 
     inline void setBorderTopLeftRadius(Style::BorderRadiusValue&&);
     inline void setBorderTopRightRadius(Style::BorderRadiusValue&&);
@@ -1413,14 +1428,12 @@ public:
 
     inline void setMaskImage(RefPtr<StyleImage>&&);
 
-    inline void setMaskBorder(const NinePieceImage&);
-    void setMaskBorderSource(RefPtr<StyleImage>&&);
-    void setMaskBorderSliceFill(bool);
-    void setMaskBorderSlice(LengthBox&&);
-    void setMaskBorderWidth(LengthBox&&);
-    void setMaskBorderOutset(LengthBox&&);
-    void setMaskBorderHorizontalRule(NinePieceImageRule);
-    void setMaskBorderVerticalRule(NinePieceImageRule);
+    inline void setMaskBorder(Style::MaskBorder&&);
+    void setMaskBorderSource(Style::MaskBorderSource&&);
+    void setMaskBorderSlice(Style::MaskBorderSlice&&);
+    void setMaskBorderWidth(Style::MaskBorderWidth&&);
+    void setMaskBorderOutset(Style::MaskBorderOutset&&);
+    void setMaskBorderRepeat(Style::MaskBorderRepeat&&);
 
     inline void setMaskRepeat(FillRepeatXY);
 
@@ -2121,8 +2134,8 @@ public:
     static constexpr OptionSet<Style::LineBoxContain> initialLineBoxContain();
     static constexpr ImageOrientation initialImageOrientation();
     static constexpr ImageRendering initialImageRendering();
-    static StyleImage* initialBorderImageSource() { return nullptr; }
-    static StyleImage* initialMaskBorderSource() { return nullptr; }
+    static inline Style::BorderImageSource initialBorderImageSource();
+    static inline Style::MaskBorderSource initialMaskBorderSource();
     static constexpr PrintColorAdjust initialPrintColorAdjust();
     static inline Style::Quotes initialQuotes();
     static inline Style::SVGCoordinateComponent initialX();

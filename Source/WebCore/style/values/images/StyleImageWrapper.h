@@ -48,6 +48,12 @@ template<> struct CSSValueCreation<ImageWrapper> { Ref<CSSValue> operator()(CSSV
 
 template<> struct Serialize<ImageWrapper> { void operator()(StringBuilder&, const CSS::SerializationContext&, const RenderStyle&, const ImageWrapper&); };
 
+// MARK: - Blending
+
+template<> struct Blending<ImageWrapper> {
+    auto blend(const ImageWrapper&, const ImageWrapper&, const BlendingContext&) -> ImageWrapper;
+};
+
 // MARK: - Logging
 
 WTF::TextStream& operator<<(WTF::TextStream&, const ImageWrapper&);

@@ -6001,9 +6001,8 @@ static bool rendererHasHDRContent(const RenderElement& renderer)
                 return true;
         }
 
-        if (style.hasBorderImage()) {
-            auto image = style.borderImage().image();
-            if (auto* cachedImage = image ? image->cachedImage() : nullptr) {
+        if (auto image = style.borderImage().source().tryImage()) {
+            if (auto* cachedImage = image ? image->value->cachedImage() : nullptr) {
                 if (cachedImage->hasHDRContent())
                     return true;
             }
@@ -6318,7 +6317,7 @@ RenderStyle RenderLayer::createReflectionStyle()
     newStyle.setTransform(TransformOperations { WTFMove(operations) });
 
     // Map in our mask.
-    newStyle.setMaskBorder(renderer().style().boxReflect()->mask());
+    newStyle.setMaskBorder(Style::MaskBorder { renderer().style().boxReflect()->mask() });
 
     // Style has transform and mask, so needs to be stacking context.
     newStyle.setUsedZIndex(0);

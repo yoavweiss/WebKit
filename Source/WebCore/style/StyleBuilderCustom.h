@@ -152,6 +152,9 @@ inline ViewTransitionName forwardInheritedValue(const ViewTransitionName& value)
 inline Vector<GridTrackSize> forwardInheritedValue(const Vector<GridTrackSize>& value) { auto copy = value; return copy; }
 inline WebkitLineGrid forwardInheritedValue(const WebkitLineGrid& value) { auto copy = value; return copy; }
 
+inline BorderImageSource forwardInheritedValue(const BorderImageSource& value) { auto copy = value; return copy; }
+inline MaskBorderSource forwardInheritedValue(const MaskBorderSource& value) { auto copy = value; return copy; }
+
 // Note that we assume the CSS parser only allows valid CSSValue types.
 class BuilderCustom {
 public:
@@ -274,14 +277,14 @@ inline void BuilderCustom::applyValueZoom(BuilderState& builderState, CSSValue& 
     }
 }
 
-enum BorderImageType { BorderImage, MaskBorder };
 enum BorderImageModifierType { Outset, Repeat, Slice, Width };
-template<BorderImageType type, BorderImageModifierType modifier>
+
+template<typename T, BorderImageModifierType modifier>
 class ApplyPropertyBorderImageModifier {
 public:
     static void applyInheritValue(BuilderState& builderState)
     {
-        NinePieceImage image(getValue(builderState.style()));
+        T image(getValue(builderState.style()));
         switch (modifier) {
         case Outset:
             image.copyOutsetFrom(getValue(builderState.parentStyle()));
@@ -290,73 +293,78 @@ public:
             image.copyRepeatFrom(getValue(builderState.parentStyle()));
             break;
         case Slice:
-            image.copyImageSlicesFrom(getValue(builderState.parentStyle()));
+            image.copySliceFrom(getValue(builderState.parentStyle()));
             break;
         case Width:
-            image.copyBorderSlicesFrom(getValue(builderState.parentStyle()));
+            image.copyWidthFrom(getValue(builderState.parentStyle()));
             break;
         }
-        setValue(builderState.style(), image);
+        setValue(builderState.style(), WTFMove(image));
     }
 
     static void applyInitialValue(BuilderState& builderState)
     {
-        NinePieceImage image(getValue(builderState.style()));
+        T image(getValue(builderState.style()));
         switch (modifier) {
         case Outset:
-            image.setOutset(LengthBox(LengthType::Relative));
+            image.copyOutsetFrom(initialValue());
             break;
         case Repeat:
-            image.setHorizontalRule(NinePieceImageRule::Stretch);
-            image.setVerticalRule(NinePieceImageRule::Stretch);
+            image.copyRepeatFrom(initialValue());
             break;
         case Slice:
-            // Masks have a different initial value for slices. Preserve the value of "0 fill" for backwards compatibility.
-            image.setImageSlices(type == BorderImage ? LengthBox(WebCore::Length(100, LengthType::Percent), WebCore::Length(100, LengthType::Percent), WebCore::Length(100, LengthType::Percent), WebCore::Length(100, LengthType::Percent)) : LengthBox(LengthType::Fixed));
-            image.setFill(false);
+            image.copySliceFrom(initialValue());
             break;
         case Width:
-            // FIXME: This is a local variable to work around a bug in the GCC 8.1 Address Sanitizer.
-            // Might be slightly less efficient when the type is not BorderImage since this is unused in that case.
-            // Should be switched back to a temporary when possible. See https://webkit.org/b/186980
-            LengthBox lengthBox(WebCore::Length(1, LengthType::Relative), WebCore::Length(1, LengthType::Relative), WebCore::Length(1, LengthType::Relative), WebCore::Length(1, LengthType::Relative));
-            // Masks have a different initial value for widths. They use an 'auto' value rather than trying to fit to the border.
-            image.setBorderSlices(type == BorderImage ? lengthBox : LengthBox());
-            image.setOverridesBorderWidths(false);
+            image.copyWidthFrom(initialValue());
             break;
         }
-        setValue(builderState.style(), image);
+        setValue(builderState.style(), WTFMove(image));
     }
 
     static void applyValue(BuilderState& builderState, CSSValue& value)
     {
-        NinePieceImage image(getValue(builderState.style()));
+        T image(getValue(builderState.style()));
         switch (modifier) {
         case Outset:
-            image.setOutset(builderState.styleMap().mapNinePieceImageQuad(value));
+            image.setOutset(toStyleFromCSSValue<typename T::Outset>(builderState, value));
             break;
         case Repeat:
-            builderState.styleMap().mapNinePieceImageRepeat(value, image);
+            image.setRepeat(toStyleFromCSSValue<typename T::Repeat>(builderState, value));
             break;
         case Slice:
-            builderState.styleMap().mapNinePieceImageSlice(value, image);
+            image.setSlice(toStyleFromCSSValue<typename T::Slice>(builderState, value));
             break;
         case Width:
-            builderState.styleMap().mapNinePieceImageWidth(value, image);
+            image.setWidth(toStyleFromCSSValue<typename T::Width>(builderState, value));
             break;
         }
-        setValue(builderState.style(), image);
+        setValue(builderState.style(), WTFMove(image));
     }
 
 private:
-    static const NinePieceImage& getValue(const RenderStyle& style)
+    static T initialValue()
     {
-        return type == BorderImage ? style.borderImage() : style.maskBorder();
+        if constexpr (std::same_as<T, BorderImage>)
+            return RenderStyle::initialBorderImage();
+        else if constexpr (std::same_as<T, MaskBorder>)
+            return RenderStyle::initialMaskBorder();
     }
 
-    static void setValue(RenderStyle& style, const NinePieceImage& value)
+    static const T& getValue(const RenderStyle& style)
     {
-        return type == BorderImage ? style.setBorderImage(value) : style.setMaskBorder(value);
+        if constexpr (std::same_as<T, BorderImage>)
+            return style.borderImage();
+        else if constexpr (std::same_as<T, MaskBorder>)
+            return style.maskBorder();
+    }
+
+    static void setValue(RenderStyle& style, T&& value)
+    {
+        if constexpr (std::same_as<T, BorderImage>)
+            style.setBorderImage(WTFMove(value));
+        else if constexpr (std::same_as<T, MaskBorder>)
+            style.setMaskBorder(WTFMove(value));
     }
 };
 
