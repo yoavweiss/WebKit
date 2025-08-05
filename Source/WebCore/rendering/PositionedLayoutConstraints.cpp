@@ -632,52 +632,30 @@ static LayoutPoint staticDistance(const RenderBoxModelObject& container, const R
 
 void PositionedLayoutConstraints::computeInlineStaticDistance()
 {
-    auto* parent = m_renderer->parent();
-    auto parentWritingMode = parent->writingMode();
-
-    // For orthogonal flows we don't care whether the parent is LTR or RTL because it does not affect the position in our inline axis.
-    bool haveOrthogonalWritingModes = parentWritingMode.isOrthogonal(m_writingMode);
-    if (parentWritingMode.isLogicalLeftInlineStart() || haveOrthogonalWritingModes) {
-        LayoutUnit staticPosition = haveOrthogonalWritingModes
-            ? m_renderer->layer()->staticBlockPosition()
-            : m_renderer->layer()->staticInlinePosition();
-        for (auto* current = parent; current && current != m_container.get(); current = current->container()) {
-            CheckedPtr renderBox = dynamicDowncast<RenderBox>(*current);
-            if (!renderBox)
-                continue;
-            staticPosition += haveOrthogonalWritingModes ? renderBox->logicalTop() : renderBox->logicalLeft();
-            if (renderBox->isInFlowPositioned())
-                staticPosition += renderBox->isHorizontalWritingMode() ? renderBox->offsetForInFlowPosition().width() : renderBox->offsetForInFlowPosition().height();
-        }
-        if (needsGridAreaAdjustmentBeforeStaticPositioning())
-            staticPosition -= haveOrthogonalWritingModes ? m_container->borderBefore() : m_container->borderLogicalLeft();
-        else
-            staticPosition = staticPosition - m_containingRange.min();
-        m_insetBefore = Style::InsetEdge::Fixed { staticPosition };
-    } else {
-        ASSERT(!haveOrthogonalWritingModes);
-        LayoutUnit staticPosition = m_renderer->layer()->staticInlinePosition() + containingSize() + m_container->borderLogicalLeft();
-        auto& enclosingBox = parent->enclosingBox();
-        if (&enclosingBox != m_container.get() && m_container->isDescendantOf(&enclosingBox)) {
-            m_insetAfter = Style::InsetEdge::Fixed { staticPosition };
-            return;
-        }
-        staticPosition -= enclosingBox.logicalWidth();
-        for (const RenderElement* current = &enclosingBox; current; current = current->container()) {
-            CheckedPtr renderBox = dynamicDowncast<RenderBox>(*current);
-            if (!renderBox)
-                continue;
-
-            if (current != m_container.get()) {
-                staticPosition -= renderBox->logicalLeft();
-                if (renderBox->isInFlowPositioned())
-                    staticPosition -= renderBox->isHorizontalWritingMode() ? renderBox->offsetForInFlowPosition().width() : renderBox->offsetForInFlowPosition().height();
-            }
-            if (current == m_container.get())
-                break;
-        }
-        m_insetAfter = Style::InsetEdge::Fixed { staticPosition };
+    // Note that at this point staticPosition is relative to the containing block (x is inline direction, y is block direction)
+    // which may not match with the box's slef writing mode.
+    auto parentWritingMode = m_renderer->parent()->writingMode();
+    auto isParentOrthogonal = parentWritingMode.isOrthogonal(selfWritingMode());
+    auto shouldUseInsetAfter = !isParentOrthogonal && parentWritingMode.isInlineFlipped(); // This is what trunk has.
+    if (shouldUseInsetAfter && m_containingWritingMode.isOrthogonal(parentWritingMode) && m_containingWritingMode.isBlockFlipped()) {
+        // FIXME: Figure out why.
+        shouldUseInsetAfter = false;
     }
+
+    auto staticPosition = staticDistance(*m_container, m_renderer.get());
+    auto staticDistance = !isOrthogonal() ? staticPosition.x() : staticPosition.y();
+    if (CheckedPtr gridContainer = dynamicDowncast<RenderGrid>(m_container.get())) {
+        // Special grid handling: move static distance back to relative to border box and adjust with our offset.
+        auto containingBlockBorderSize = !isOrthogonal() ? (gridContainer->writingMode().isInlineFlipped() ? gridContainer->borderEnd() : gridContainer->borderStart()) : gridContainer->borderBefore();
+        staticDistance += containingBlockBorderSize;
+        staticDistance -= m_containingRange.min();
+    }
+
+    if (shouldUseInsetAfter) {
+        m_insetAfter = Style::InsetEdge::Fixed { containingSize() - staticDistance };
+        return;
+    }
+    m_insetBefore = Style::InsetEdge::Fixed { staticDistance };
 }
 
 void PositionedLayoutConstraints::computeBlockStaticDistance()
@@ -688,8 +666,25 @@ void PositionedLayoutConstraints::computeBlockStaticDistance()
     m_insetBefore = Style::InsetEdge::Fixed { !isOrthogonal() ? staticPosition.y() : staticPosition.x() };
 }
 
+static bool shouldInlineStaticDistanceAdjustedWithBoxHeight(WritingMode containinigBlockWritingMode, WritingMode parentWritingMode, WritingMode outOfFlowBoxWritingMode)
+{
+    if (!containinigBlockWritingMode.isOrthogonal(parentWritingMode))
+        return false;
+
+    if (parentWritingMode.isOrthogonal(outOfFlowBoxWritingMode))
+        return parentWritingMode.isBlockFlipped();
+
+    return containinigBlockWritingMode.isBlockFlipped() && !parentWritingMode.isInlineFlipped();
+}
+
 void PositionedLayoutConstraints::fixupLogicalLeftPosition(RenderBox::LogicalExtentComputedValues& computedValues) const
 {
+    if (m_useStaticPosition) {
+        if (m_container.get() != m_renderer->parent() && shouldInlineStaticDistanceAdjustedWithBoxHeight(m_containingWritingMode, m_renderer->parent()->writingMode(), selfWritingMode()))
+            computedValues.m_position -= computedValues.m_extent;
+        return;
+    }
+
     if (m_writingMode.isHorizontal()) {
         CheckedPtr containingBox = dynamicDowncast<RenderBox>(container());
         if (containingBox && containingBox->shouldPlaceVerticalScrollbarOnLeft())
