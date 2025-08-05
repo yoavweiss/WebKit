@@ -407,9 +407,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
     if (is<RenderButton>(renderBox)) {
         // We cannot rely on RenderFlexibleBox::baselinePosition() because of flexboxes have some special behavior
         // regarding baselines that shouldn't apply to buttons.
-        if (auto baseline = renderBox.firstLineBaseline())
-            return *baseline;
-        return contentBoxBottom;
+        return renderBox.firstLineBaseline().value_or(contentBoxBottom);
     }
 
     if (is<RenderListBox>(renderBox)) {
@@ -445,31 +443,20 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
         return borderBoxBottom;
 
 #if ENABLE(MATHML)
-    if (is<RenderMathMLBlock>(renderBox)) {
-        if (auto baseline = renderBox.firstLineBaseline())
-            return *baseline;
-        return { };
-    }
+    if (is<RenderMathMLBlock>(renderBox))
+        return renderBox.firstLineBaseline();
 #endif
 
-    if (is<RenderTable>(renderBox)) {
-        if (auto baseline = renderBox.firstLineBaseline())
-            return *baseline;
-        return { };
-    }
+    if (is<RenderTable>(renderBox))
+        return renderBox.firstLineBaseline();
 
     if (is<RenderMenuList>(renderBox) || is<RenderTextControlInnerContainer>(renderBox)) {
         // Both menu list and inner container are types of flex box but they behave slightly differently so always check them before checking for flex.
-        if (auto baseline = lastInflowBoxBaseline(downcast<RenderBlock>(renderBox)))
-            return *baseline;
-        return { };
+        return lastInflowBoxBaseline(downcast<RenderBlock>(renderBox));
     }
 
-    if (is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox)) {
-        if (auto baseline = renderBox.firstLineBaseline())
-            return *baseline;
-        return { };
-    }
+    if (is<RenderFlexibleBox>(renderBox) || is<RenderGrid>(renderBox))
+        return renderBox.firstLineBaseline();
 
     if (renderBox.isFieldset()) {
         // Note that <fieldset> may simply be a flex/grid box (a non-RenderBlockFlow RenderBlock) and already handled above.
@@ -477,8 +464,7 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
             // <fieldset> with no legend.
             if (CheckedPtr inlineLayout = blockFlow->inlineLayout())
                 return floorToInt(inlineLayout->lastLineBaseline());
-            if (auto baseline = lastInflowBoxBaseline(*blockFlow))
-                return *baseline;
+            return lastInflowBoxBaseline(*blockFlow);
         }
         return { };
     }
@@ -533,21 +519,16 @@ static std::optional<LayoutUnit> baselineForBox(const RenderBox& renderBox)
             return marginBoxBottom;
 
         // Note that here we only take the left and bottom into consideration. Our caller takes the right and top into consideration.
-        if (!blockFlow->childrenInline()) {
-            if (auto blockBaseline = lastInflowBoxBaseline(*blockFlow))
-                return *blockBaseline;
-            return { };
-        }
+        if (!blockFlow->childrenInline())
+            return lastInflowBoxBaseline(*blockFlow);
 
         if (!blockFlow->hasLines()) {
             ASSERT(blockFlow->hasLineIfEmpty());
             return (fontMetricsBasedBaseline(*blockFlow) + (writingMode.isHorizontal() ? blockFlow->borderTop() + blockFlow->paddingTop() : blockFlow->borderRight() + blockFlow->paddingRight())).toInt();
         }
 
-        if (auto* inlineLayout = blockFlow->inlineLayout()) {
-            auto baseline = inlineLayout->lastLineBaseline();
-            return floorToInt(baseline);
-        }
+        if (auto* inlineLayout = blockFlow->inlineLayout())
+            return floorToInt(inlineLayout->lastLineBaseline());
 
         if (blockFlow->svgTextLayout()) {
             auto& style = blockFlow->firstLineStyle();
