@@ -44,6 +44,16 @@
 #    include <vector>
 #endif
 
+#ifdef ANGLE_PLATFORM_APPLE
+#    if __has_include(<WebKitAdditions/ANGLEAllocProfile.h>)
+#        include <WebKitAdditions/ANGLEAllocProfile.h>
+#    endif
+#endif
+
+#if !defined(ANGLE_ALLOC_PROFILE)
+#define ANGLE_ALLOC_PROFILE(kind, ...)
+#endif
+
 namespace angle
 {
 
@@ -104,6 +114,7 @@ inline void PoolAllocator::addGuard(Span<uint8_t> alignedData, size_t size) {}
 inline Span<uint8_t> PoolAllocator::bump(size_t alignedSize)
 {
     Span<uint8_t> result = mMemory.first(alignedSize);
+    ANGLE_ALLOC_PROFILE(LOCAL_BUMP_ALLOCATION, result);
     mMemory              = mMemory.subspan(alignedSize);
     return result;
 }
