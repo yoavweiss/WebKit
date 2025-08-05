@@ -655,6 +655,9 @@ Ref<RenderPassEncoder> CommandEncoder::beginRenderPass(const WGPURenderPassDescr
         if (mtlAttachment.loadAction == MTLLoadActionLoad && !texture->previouslyCleared())
             textureToClear = mtlAttachment.texture;
 
+        if (id<MTLRasterizationRateMap> rateMap = texture->apiParentTexture().rasterizationMapForSlice(texture->parentRelativeSlice()))
+            mtlDescriptor.rasterizationRateMap = rateMap;
+
         if (attachment.resolveTarget) {
             Ref resolveTarget = fromAPI(attachment.resolveTarget);
             if (!isValidToUseWith(resolveTarget, *this))
@@ -664,6 +667,8 @@ Ref<RenderPassEncoder> CommandEncoder::beginRenderPass(const WGPURenderPassDescr
             if (mtlTexture.sampleCount == 1 || resolveTexture.sampleCount != 1 || isMultisampleTexture(resolveTexture) || !isMultisampleTexture(mtlTexture) || !isRenderableTextureView(resolveTarget) || mtlTexture.pixelFormat != resolveTexture.pixelFormat || !Texture::supportsResolve(resolveTarget->format(), m_device))
                 return RenderPassEncoder::createInvalid(*this, m_device, @"resolve target is invalid");
 
+            if (id<MTLRasterizationRateMap> rateMap = resolveTarget->apiParentTexture().rasterizationMapForSlice(resolveTarget->parentRelativeSlice()))
+                mtlDescriptor.rasterizationRateMap = rateMap;
             mtlAttachment.resolveTexture = resolveTexture;
             mtlAttachment.resolveLevel = 0;
             mtlAttachment.resolveSlice = 0;

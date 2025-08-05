@@ -111,7 +111,8 @@ header: <WebCore/PlatformXR.h>
     Vector<WebCore::FloatPoint> bounds;
 };
 
-[Nested] struct PlatformXR::FrameData::RateMapDescription {
+header: <WebCore/PlatformXR.h>
+[CustomHeader] struct PlatformXR::RateMapDescription {
     WebCore::IntSize screenSize;
     Vector<float> horizontalSamplesLeft;
     Vector<float> horizontalSamplesRight;
@@ -121,7 +122,7 @@ header: <WebCore/PlatformXR.h>
 [Nested, RValue] struct PlatformXR::FrameData::LayerSetupData {
     std::array<std::array<uint16_t, 2>, 2> physicalSize;
     std::array<WebCore::IntRect, 2> viewports;
-    PlatformXR::FrameData::RateMapDescription foveationRateMapDesc;
+    PlatformXR::RateMapDescription foveationRateMapDesc;
 #if PLATFORM(COCOA)
     MachSendRight completionSyncEvent;
 #endif

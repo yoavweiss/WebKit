@@ -262,6 +262,8 @@ public:
     }
     void removeBufferFromCache(uint64_t address) { m_bufferMap.remove(address); }
     uint32_t appleGPUFamily() const { return m_appleGPUFamily; }
+    id<MTLRasterizationRateMap> rasterizationMapForTexture(MTLResourceID, uint32_t) const;
+    void setRasterizationMapsForTexture(MTLResourceID, id<MTLRasterizationRateMap> left, id<MTLRasterizationRateMap> right);
 
 private:
     Device(id<MTLDevice>, id<MTLCommandQueue> defaultQueue, HardwareCapabilities&&, Adapter&);

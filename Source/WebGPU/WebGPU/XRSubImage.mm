@@ -104,6 +104,7 @@ void XRSubImage::update(const XRProjectionLayer& projectionLayer)
         };
         auto newTexture = Texture::create(colorTexture, colorTextureDescriptor, { colorFormat }, *device);
         newTexture->updateCompletionEvent(sharedEvent);
+        newTexture->setRasterizationRateMaps(projectionLayer.rasterizationRateMaps());
         m_colorTextures.set(currentTextureIndex, newTexture.ptr());
     } else
         texture->updateCompletionEvent(sharedEvent);

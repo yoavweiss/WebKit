@@ -43,6 +43,10 @@ namespace WebCore {
 class WebXRRigidTransform;
 }
 
+namespace PlatformXR {
+struct RateMapDescription;
+}
+
 namespace WebCore::WebGPU {
 
 class Device;
@@ -74,7 +78,7 @@ public:
 
     // WebXRLayer
 #if PLATFORM(COCOA)
-    virtual void startFrame(size_t frameIndex, MachSendRight&& colorBuffer, MachSendRight&& depthBuffer, MachSendRight&& completionSyncEvent, size_t reusableTextureIndex) = 0;
+    virtual void startFrame(size_t frameIndex, MachSendRight&& colorBuffer, MachSendRight&& depthBuffer, MachSendRight&& completionSyncEvent, size_t reusableTextureIndex, PlatformXR::RateMapDescription&&) = 0;
 #endif
     virtual void endFrame() = 0;
 

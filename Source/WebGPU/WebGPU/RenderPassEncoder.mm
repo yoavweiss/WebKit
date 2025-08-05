@@ -120,6 +120,7 @@ RenderPassEncoder::RenderPassEncoder(id<MTLRenderCommandEncoder> renderCommandEn
     , m_descriptorDepthStencilAttachment(descriptor.depthStencilAttachment ? *descriptor.depthStencilAttachment : WGPURenderPassDepthStencilAttachment())
     , m_metalDescriptor(metalDescriptor)
     , m_maxDrawCount(maxDrawCount)
+    , m_rasterizationRateMap(metalDescriptor.rasterizationRateMap)
 {
     if (m_device->baseCapabilities().memoryBarrierLimit > maxDrawCount)
         m_metalDescriptor = nil;
@@ -628,7 +629,10 @@ bool RenderPassEncoder::executePreDrawCommands(uint32_t firstInstance, uint32_t 
         [commandEncoder setDepthStencilState:pipeline->depthStencilState()];
     [commandEncoder setCullMode:pipeline->cullMode()];
     [commandEncoder setFrontFacingWinding:pipeline->frontFace()];
-    [commandEncoder setDepthClipMode:pipeline->depthClipMode()];
+    if (m_overrideDepthClipMode != MTLDepthClipModeClip)
+        [commandEncoder setDepthClipMode:m_overrideDepthClipMode];
+    else
+        [commandEncoder setDepthClipMode:pipeline->depthClipMode()];
     [commandEncoder setDepthBias:pipeline->depthBias() slopeScale:pipeline->depthBiasSlopeScale() clamp:pipeline->depthBiasClamp()];
     setCachedRenderPassState(commandEncoder);
 
@@ -1282,7 +1286,10 @@ void RenderPassEncoder::executeBundles(Vector<Ref<RenderBundle>>&& bundles)
                 [commandEncoder setDepthStencilState:depthStencilState];
             [commandEncoder setCullMode:icb.cullMode];
             [commandEncoder setFrontFacingWinding:icb.frontFace];
-            [commandEncoder setDepthClipMode:icb.depthClipMode];
+            if (m_overrideDepthClipMode != MTLDepthClipModeClip)
+                [commandEncoder setDepthClipMode:m_overrideDepthClipMode];
+            else
+                [commandEncoder setDepthClipMode:icb.depthClipMode];
             [commandEncoder setDepthBias:icb.depthBias slopeScale:icb.depthBiasSlopeScale clamp:icb.depthBiasClamp];
 
             id<MTLIndirectCommandBuffer> indirectCommandBuffer = icb.indirectCommandBuffer;
@@ -1592,7 +1599,15 @@ void RenderPassEncoder::setVertexBuffer(uint32_t slot, const Buffer* optionalBuf
 void RenderPassEncoder::setViewport(float x, float y, float width, float height, float minDepth, float maxDepth)
 {
     RETURN_IF_FINISHED();
-    if (x < 0 || y < 0 || width < 0 || height < 0 || x + width > m_renderTargetWidth || y + height > m_renderTargetHeight || minDepth < 0 || maxDepth > 1 || minDepth > maxDepth) {
+    MTLCoordinate2D renderTargetSize = MTLCoordinate2DMake(m_renderTargetWidth, m_renderTargetHeight);
+    if (m_rasterizationRateMap) {
+        renderTargetSize = [m_rasterizationRateMap mapPhysicalToScreenCoordinates:renderTargetSize forLayer:0];
+        // FIXME: workarond until rdar://134519572 is addressed
+        maxDepth = std::clamp(maxDepth, .01f, .99f);
+        m_overrideDepthClipMode = MTLDepthClipModeClamp;
+    }
+
+    if (x < 0 || y < 0 || width < 0 || height < 0 || x + width > ceilf(renderTargetSize.x) || y + height > ceilf(renderTargetSize.y) || minDepth < 0 || maxDepth > 1 || minDepth > maxDepth) {
         makeInvalid();
         return;
     }

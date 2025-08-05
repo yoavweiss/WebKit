@@ -242,6 +242,14 @@ struct RequestData {
     DepthRange depthRange;
 };
 
+struct RateMapDescription {
+    WebCore::IntSize screenSize = { 0, 0 };
+    Vector<float> horizontalSamplesLeft;
+    Vector<float> horizontalSamplesRight;
+    // Vertical samples is shared by both horizontalSamples
+    Vector<float> verticalSamples;
+};
+
 struct FrameData {
     struct FloatQuaternion {
         float x { 0.0f };
@@ -276,14 +284,6 @@ struct FrameData {
     struct StageParameters {
         int id { 0 };
         Vector<WebCore::FloatPoint> bounds;
-    };
-
-    struct RateMapDescription {
-        WebCore::IntSize screenSize = { 0, 0 };
-        Vector<float> horizontalSamplesLeft;
-        Vector<float> horizontalSamplesRight;
-        // Vertical samples is shared by both horizontalSamples
-        Vector<float> verticalSamples;
     };
 
     static constexpr auto LayerSetupSizeMax = std::numeric_limits<uint16_t>::max();

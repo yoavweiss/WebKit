@@ -57,7 +57,7 @@ void XRProjectionLayer::startFrame(PlatformXR::FrameData& data)
     if (frameData->layerSetup && frameData->textureData) {
         m_layerData = frameData;
         auto& textureData = frameData->textureData;
-        m_backing->startFrame(frameData->renderingFrameIndex, WTFMove(textureData->colorTexture.handle), WTFMove(textureData->depthStencilBuffer.handle), WTFMove(frameData->layerSetup->completionSyncEvent), textureData->reusableTextureIndex);
+        m_backing->startFrame(frameData->renderingFrameIndex, WTFMove(textureData->colorTexture.handle), WTFMove(textureData->depthStencilBuffer.handle), WTFMove(frameData->layerSetup->completionSyncEvent), textureData->reusableTextureIndex, WTFMove(frameData->layerSetup->foveationRateMapDesc));
     }
 }
 
