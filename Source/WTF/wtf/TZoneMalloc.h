@@ -40,6 +40,7 @@
 
 // struct allocators with FastMalloc fallback if TZoneHeap is disabled.
 #define WTF_MAKE_STRUCT_TZONE_ALLOCATED(name) WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(name)
+#define WTF_MAKE_STRUCT_TZONE_ALLOCATED_EXPORT(name, exportMacro) WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(name)
 
 // template allocators with FastMalloc fallback if TZoneHeap is disabled.
 #define WTF_MAKE_TZONE_ALLOCATED_TEMPLATE(name) WTF_DEPRECATED_MAKE_FAST_ALLOCATED(name)
@@ -153,6 +154,7 @@
 
 // struct allocators with FastMalloc fallback if TZoneHeap is enabled.
 #define WTF_MAKE_STRUCT_TZONE_ALLOCATED(name) MAKE_STRUCT_BTZONE_MALLOCED(name, NonCompact, WTF_NOEXPORT)
+#define WTF_MAKE_STRUCT_TZONE_ALLOCATED_EXPORT(name, exportMacro) MAKE_STRUCT_BTZONE_MALLOCED(name, NonCompact, exportMacro)
 
 // template allocators with FastMalloc fallback if TZoneHeap is enabled.
 #define WTF_MAKE_TZONE_ALLOCATED_TEMPLATE(name) MAKE_BTZONE_MALLOCED_TEMPLATE(name, NonCompact, WTF_NOEXPORT)

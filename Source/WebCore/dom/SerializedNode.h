@@ -43,6 +43,7 @@ class JSDOMGlobalObject;
 enum class ClonedDocumentType : uint8_t;
 
 struct SerializedNode {
+    WTF_MAKE_STRUCT_TZONE_ALLOCATED_EXPORT(SerializedNode, WEBCORE_EXPORT);
     struct QualifiedName {
         String prefix;
         String localName;

@@ -44,6 +44,8 @@
 
 namespace WebCore {
 
+WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(SerializedNode);
+
 static void setAttributes(Element& element, Vector<SerializedNode::Element::Attribute>&& attributes)
 {
     element.parserSetAttributes(WTF::map(WTFMove(attributes), [] (auto&& attribute) {
