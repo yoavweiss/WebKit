@@ -117,9 +117,9 @@ public:
     CommandType commandType() const final;
     AccessibilityObject* internalLinkElement() const final;
     AccessibilityChildrenVector radioButtonGroup() const final;
-   
+
     virtual void changeValueByPercent(float percentChange);
- 
+
     AccessibilityObject* firstChild() const override;
     AccessibilityObject* lastChild() const override;
     AccessibilityObject* previousSibling() const override;
@@ -170,7 +170,7 @@ protected:
     bool isDescendantOfBarrenParent() const final;
     void updateOwnedChildren();
     AccessibilityObject* ownerParentObject() const;
-    
+
     enum class StepAction : bool { Decrement, Increment };
     void alterRangeValue(StepAction);
     void changeValueByStep(StepAction);

@@ -31,7 +31,7 @@
 #include "AccessibilityRenderObject.h"
 
 namespace WebCore {
-    
+
 class AccessibilityTable;
 class AccessibilityTableRow;
 
@@ -102,6 +102,6 @@ private:
     unsigned m_effectiveRowSpan { 1 };
 };
 
-} // namespace WebCore 
+} // namespace WebCore
 
 SPECIALIZE_TYPE_TRAITS_ACCESSIBILITY(AccessibilityTableCell, isTableCell())

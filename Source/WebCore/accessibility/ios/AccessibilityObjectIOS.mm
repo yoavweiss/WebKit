@@ -62,7 +62,7 @@ SOFT_LINK_CONSTANT(AXRuntime, UIAccessibilityAcceptedInlineTextCompletion, NSStr
 #define AccessibilityAcceptedInlineTextCompletion getUIAccessibilityAcceptedInlineTextCompletion()
 
 namespace WebCore {
-    
+
 void AccessibilityObject::detachPlatformWrapper(AccessibilityDetachmentType)
 {
     [wrapper() detach];
@@ -116,7 +116,7 @@ bool AccessibilityObject::accessibilityIgnoreAttachment() const
 {
     return [[wrapper() attachmentView] accessibilityIsIgnored];
 }
-    
+
 AccessibilityObjectInclusion AccessibilityObject::accessibilityPlatformIncludesObject() const
 {
     if (role() == AccessibilityRole::Unknown)

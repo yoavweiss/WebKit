@@ -31,7 +31,7 @@
 #include "AccessibilityRenderObject.h"
 
 namespace WebCore {
-    
+
 class AccessibilityTable;
 
 class AccessibilityTableRow : public AccessibilityRenderObject {
@@ -48,7 +48,7 @@ public:
     // allows the table to add other children that may not originate
     // in the row, but their col/row spans overlap into it
     void appendChild(AccessibilityObject*);
-    
+
     void addChildren() final;
 
     std::optional<unsigned> axColumnIndex() const final;

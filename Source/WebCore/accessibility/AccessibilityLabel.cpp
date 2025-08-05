@@ -30,7 +30,7 @@
 #include "AccessibilityLabel.h"
 
 namespace WebCore {
-    
+
 using namespace HTMLNames;
 
 AccessibilityLabel::AccessibilityLabel(AXID axID, RenderObject& renderer, AXObjectCache& cache)

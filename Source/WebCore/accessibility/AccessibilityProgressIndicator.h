@@ -29,7 +29,7 @@ class RenderMeter;
 
 class HTMLProgressElement;
 class RenderProgress;
-    
+
 class AccessibilityProgressIndicator final : public AccessibilityRenderObject {
 public:
     static Ref<AccessibilityProgressIndicator> create(AXID, RenderObject&, AXObjectCache&);
@@ -49,7 +49,7 @@ private:
 
     HTMLProgressElement* progressElement() const;
     HTMLMeterElement* meterElement() const;
-    
+
     bool computeIsIgnored() const final;
 };
 

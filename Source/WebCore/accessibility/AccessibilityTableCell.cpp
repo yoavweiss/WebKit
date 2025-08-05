@@ -100,8 +100,8 @@ AccessibilityTable* AccessibilityTableCell::parentTable() const
     // If the document no longer exists, we might not have an axObjectCache.
     if (!cache)
         return nullptr;
-    
-    // Do not use getOrCreate. parentTable() can be called while the render tree is being modified 
+
+    // Do not use getOrCreate. parentTable() can be called while the render tree is being modified
     // by javascript, and creating a table element may try to access the render tree while in a bad state.
     // By using only get() implies that the AXTable must be created before AXTableCells. This should
     // always be the case when AT clients access a table.
@@ -134,7 +134,7 @@ AccessibilityTable* AccessibilityTableCell::parentTable() const
         }
         return nullptr;
     }
-    
+
     return tableFromRenderTree.get();
 }
 
@@ -151,7 +151,7 @@ String AccessibilityTableCell::readOnlyValue() const
 
     return String();
 }
-    
+
 bool AccessibilityTableCell::isExposedTableCell() const
 {
     // If the parent table is an accessibility table, then we are a table cell.
@@ -160,7 +160,7 @@ bool AccessibilityTableCell::isExposedTableCell() const
     RefPtr parentTable = this->parentTable();
     return parentTable && parentTable->isExposable();
 }
-    
+
 AccessibilityRole AccessibilityTableCell::determineAccessibilityRole()
 {
     // AccessibilityRenderObject::determineAccessibleRole provides any ARIA-supplied
@@ -177,7 +177,7 @@ AccessibilityRole AccessibilityTableCell::determineAccessibilityRole()
         return defaultRole;
     return parentTable->hasGridRole() ? AccessibilityRole::GridCell : AccessibilityRole::Cell;
 }
-    
+
 bool AccessibilityTableCell::isTableHeaderCell() const
 {
     RefPtr node = this->node();
@@ -260,12 +260,12 @@ bool AccessibilityTableCell::isRowHeader() const
     }
     return false;
 }
-    
+
 String AccessibilityTableCell::expandedTextValue() const
 {
     return getAttribute(abbrAttr);
 }
-    
+
 bool AccessibilityTableCell::supportsExpandedTextValue() const
 {
     return isTableHeaderCell() && hasAttribute(abbrAttr);
@@ -335,7 +335,7 @@ std::pair<unsigned, unsigned> AccessibilityTableCell::rowIndexRange() const
     ensureIndexesUpToDate();
     return { m_rowIndex, m_effectiveRowSpan };
 }
-    
+
 std::pair<unsigned, unsigned> AccessibilityTableCell::columnIndexRange() const
 {
     ensureIndexesUpToDate();
@@ -354,7 +354,7 @@ AccessibilityObject* AccessibilityTableCell::titleUIElement() const
     // they are title ui elements
     if (WebCore::elementName(node()) == ElementName::HTML_th)
         return nullptr;
-    
+
     RenderTableCell& renderCell = downcast<RenderTableCell>(*m_renderer);
 
     // If this cell is in the first column, there is no need to continue.
@@ -367,7 +367,7 @@ AccessibilityObject* AccessibilityTableCell::titleUIElement() const
     RenderTableSection* section = renderCell.section();
     if (!section)
         return nullptr;
-    
+
     RenderTableCell* headerCell = section->primaryCellAt(row, 0);
     if (!headerCell || headerCell == &renderCell)
         return nullptr;
@@ -378,7 +378,7 @@ AccessibilityObject* AccessibilityTableCell::titleUIElement() const
 
     return axObjectCache()->getOrCreate(*headerCell);
 }
-    
+
 std::optional<unsigned> AccessibilityTableCell::axColumnIndex() const
 {
     if (int value = integralAttribute(aria_colindexAttr); value >= 1)
@@ -392,7 +392,7 @@ std::optional<unsigned> AccessibilityTableCell::axColumnIndex() const
 
     return { };
 }
-    
+
 std::optional<unsigned> AccessibilityTableCell::axRowIndex() const
 {
     // ARIA 1.1: Authors should place aria-rowindex on each row. Authors may also place

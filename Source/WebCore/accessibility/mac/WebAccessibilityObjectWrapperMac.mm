@@ -1054,7 +1054,7 @@ static void WebTransformCGPathToNSBezierPath(void* info, const CGPathElement *el
     Path path = self.axBackingObject->elementPath();
     if (path.isEmpty())
         return NULL;
-    
+
     CGPathRef transformedPath = [self convertPathToScreenSpace:path];
     return [self bezierPathFromPath:transformedPath];
 }
@@ -2610,7 +2610,7 @@ static RenderObject* rendererForView(NSView* view)
 {
     if (![view conformsToProtocol:@protocol(WebCoreFrameView)])
         return nullptr;
-    
+
     NSView<WebCoreFrameView>* frameView = (NSView<WebCoreFrameView>*)view;
     auto frame = [frameView _web_frame];
     if (!frame)
@@ -2628,7 +2628,7 @@ static RenderObject* rendererForView(NSView* view)
     CheckedPtr renderer = rendererForView(subview);
     if (!renderer)
         return nil;
-    
+
     RefPtr object = renderer->document().axObjectCache()->getOrCreate(*renderer);
     if (object)
         return object->parentObjectUnignored()->wrapper();

@@ -36,7 +36,7 @@
 #include <wtf/WeakPtr.h>
 
 namespace WebCore {
-    
+
 class AccessibilitySVGObject;
 class AXObjectCache;
 class Element;
@@ -56,7 +56,7 @@ class AccessibilityRenderObject : public AccessibilityNodeObject {
 public:
     static Ref<AccessibilityRenderObject> create(AXID, RenderObject&, AXObjectCache&);
     virtual ~AccessibilityRenderObject();
-    
+
     FloatRect frameRect() const final;
     bool isNonLayerSVGObject() const final;
 
@@ -87,7 +87,7 @@ public:
     AccessibilityObject* accessibilityHitTest(const IntPoint&) const final;
 
     Element* anchorElement() const final;
-    
+
     LayoutRect boundingBoxRect() const final;
 
     RenderObject* renderer() const final { return m_renderer.get(); }

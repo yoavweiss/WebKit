@@ -79,27 +79,27 @@ bool AccessibilityTableRow::isTableRow() const
     RefPtr table = parentTable();
     return table && table->isExposable();
 }
-    
+
 AccessibilityObject* AccessibilityTableRow::observableObject() const
 {
     // This allows the table to be the one who sends notifications about tables.
     return parentTable();
 }
-    
+
 bool AccessibilityTableRow::computeIsIgnored() const
-{    
+{
     AccessibilityObjectInclusion decision = defaultObjectInclusion();
     if (decision == AccessibilityObjectInclusion::IncludeObject)
         return false;
     if (decision == AccessibilityObjectInclusion::IgnoreObject)
         return true;
-    
+
     if (!isTableRow())
         return AccessibilityRenderObject::computeIsIgnored();
 
     return isRenderHidden() || ignoredFromPresentationalRole();
 }
-    
+
 AccessibilityTable* AccessibilityTableRow::parentTable() const
 {
     // The parent table might not be the direct ancestor of the row unfortunately. ARIA states that role="grid" should

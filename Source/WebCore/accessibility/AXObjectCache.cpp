@@ -533,7 +533,7 @@ AccessibilityObject* AXObjectCache::focusedImageMapUIElement(HTMLAreaElement& ar
     RefPtr axRenderImage = areaElement.protectedDocument()->axObjectCache()->getOrCreate(*imageElement);
     if (!axRenderImage)
         return nullptr;
-    
+
     for (const auto& child : axRenderImage->unignoredChildren()) {
         auto* imageMapLink = dynamicDowncast<AccessibilityImageMapLink>(child.get());
         if (imageMapLink && imageMapLink->node() == &areaElement)
@@ -1748,7 +1748,7 @@ void AXObjectCache::postNotification(RenderObject* renderer, AXNotification noti
 {
     if (!renderer)
         return;
-    
+
     stopCachingComputedObjectAttributes();
 
     // Get an accessibility object that already exists. One should not be created here
@@ -1758,10 +1758,10 @@ void AXObjectCache::postNotification(RenderObject* renderer, AXNotification noti
         renderer = renderer->parent();
         object = get(renderer);
     }
-    
+
     if (!renderer)
         return;
-    
+
     postNotification(object.get(), renderer->protectedDocument().ptr(), notification, postTarget);
 }
 
@@ -1770,7 +1770,7 @@ void AXObjectCache::postNotification(Node* node, AXNotification notification, Po
     RefPtr axNode = node;
     if (!axNode)
         return;
-    
+
     stopCachingComputedObjectAttributes();
 
     // Get an accessibility object that already exists. One should not be created here
@@ -1780,10 +1780,10 @@ void AXObjectCache::postNotification(Node* node, AXNotification notification, Po
         axNode = axNode->parentNode();
         object = get(axNode.get());
     }
-    
+
     if (!axNode)
         return;
-    
+
     postNotification(object.get(), axNode->protectedDocument().ptr(), notification, postTarget);
 }
 
@@ -2440,7 +2440,7 @@ void AXObjectCache::setTextSelectionIntent(const AXTextStateChangeIntent& intent
 {
     m_textSelectionIntent = intent;
 }
-    
+
 void AXObjectCache::setIsSynchronizingSelection(bool isSynchronizing)
 {
     m_isSynchronizingSelection = isSynchronizing;
@@ -3411,7 +3411,7 @@ CharacterOffset AXObjectCache::traverseToOffsetInRange(const SimpleRange& range,
     bool toNodeEnd = option & TraverseOptionToNodeEnd;
     bool validateOffset = option & TraverseOptionValidateOffset;
     bool doNotEnterTextControls = option & TraverseOptionDoNotEnterTextControls;
-    
+
     int offsetInCharacter = 0;
     int cumulativeOffset = 0;
     int remaining = 0;
@@ -3419,12 +3419,12 @@ CharacterOffset AXObjectCache::traverseToOffsetInRange(const SimpleRange& range,
     RefPtr<Node> currentNode;
     bool finished = false;
     int lastStartOffset = 0;
-    
+
     TextIteratorBehaviors behaviors;
     if (!doNotEnterTextControls)
         behaviors.add(TextIteratorBehavior::EntersTextControls);
     TextIterator iterator(range, behaviors);
-    
+
     // Enable the cache here for isIgnored calls in replacedNodeNeedsCharacter.
     AXAttributeCacheEnabler enableCache(this);
 
@@ -3436,7 +3436,7 @@ CharacterOffset AXObjectCache::traverseToOffsetInRange(const SimpleRange& range,
             if (AccessibilityObject::replacedNodeNeedsCharacter(*currentNode) || (currentNode->renderer() && currentNode->renderer()->isBR()))
                 cumulativeOffset++;
             lastLength = cumulativeOffset;
-            
+
             // When going backwards, stayWithinRange is false.
             // Here when we don't have any character to move and we are going backwards, we traverse to the previous node.
             if (!lastLength && toNodeEnd && !stayWithinRange) {
@@ -3446,7 +3446,7 @@ CharacterOffset AXObjectCache::traverseToOffsetInRange(const SimpleRange& range,
             }
         }
     }
-    
+
     // Sometimes text contents in a node are split into several iterations, so that iterator.range().startOffset()
     // might not be the total character count. Here we use a previousNode object to keep track of that.
     RefPtr<Node> previousNode;
@@ -3455,7 +3455,7 @@ CharacterOffset AXObjectCache::traverseToOffsetInRange(const SimpleRange& range,
         bool hasReplacedNodeOrBR = false;
 
         currentNode = iterator.range().start.container;
-        
+
         // When currentLength == 0, we check if there's any replaced node.
         // If not, we skip the node with no length.
         if (!currentLength) {
@@ -3506,7 +3506,7 @@ CharacterOffset AXObjectCache::traverseToOffsetInRange(const SimpleRange& range,
             lastLength = currentLength;
             lastStartOffset = hasReplacedNodeOrBR ? 0 : iterator.range().start.offset;
         }
-        
+
         // Break early if we have advanced enough characters.
         bool offsetLimitReached = validateOffset ? cumulativeOffset + lastStartOffset >= offset : cumulativeOffset >= offset;
         if (!toNodeEnd && offsetLimitReached) {
@@ -3516,18 +3516,18 @@ CharacterOffset AXObjectCache::traverseToOffsetInRange(const SimpleRange& range,
         }
         previousNode = currentNode;
     }
-    
+
     if (!finished) {
         offsetInCharacter = lastLength;
         if (!toNodeEnd)
             remaining = offset - cumulativeOffset;
     }
-    
+
     // Sometimes when we are getting the end CharacterOffset of a line range, the TextIterator will emit an extra space at the end
     // and make the character count greater than the Range's end offset.
     if (toNodeEnd && currentNode->isTextNode() && currentNode.get() == range.end.container.ptr() && static_cast<int>(range.end.offset) < lastStartOffset + offsetInCharacter)
         offsetInCharacter = range.end.offset - lastStartOffset;
-    
+
     return CharacterOffset(currentNode.get(), lastStartOffset, offsetInCharacter, remaining);
 }
 
@@ -3555,7 +3555,7 @@ SimpleRange AXObjectCache::rangeForNodeContents(Node& node)
     }
     return makeRangeSelectingNodeContents(node);
 }
-    
+
 std::optional<SimpleRange> AXObjectCache::rangeMatchesTextNearRange(const SimpleRange& originalRange, const String& matchText)
 {
     // Create a large enough range to find the text within it that's being searched for.
@@ -3596,10 +3596,10 @@ static bool characterOffsetsInOrder(const CharacterOffset& characterOffset1, con
 
     if (characterOffset1.isNull() || characterOffset2.isNull())
         return false;
-    
+
     if (characterOffset1.node == characterOffset2.node)
         return characterOffset1.offset <= characterOffset2.offset;
-    
+
     RefPtr node1 = characterOffset1.node;
     RefPtr node2 = characterOffset2.node;
     if (!node1->isCharacterDataNode() && !isReplacedNodeOrBR(*node1) && node1->hasChildNodes())
@@ -3608,7 +3608,7 @@ static bool characterOffsetsInOrder(const CharacterOffset& characterOffset1, con
         node2 = node2->traverseToChildAt(characterOffset2.offset);
     if (!node1 || !node2)
         return false;
-    
+
     auto range1 = AXObjectCache::rangeForNodeContents(*node1);
     auto range2 = AXObjectCache::rangeForNodeContents(*node2);
     return is_lteq(treeOrder<ComposedTree>(range1.start, range2.start));
@@ -3677,14 +3677,14 @@ CharacterOffset AXObjectCache::startOrEndCharacterOffsetForRange(const SimpleRan
     // When getting the end CharacterOffset at node boundary, we don't want to collapse to the previous node.
     if (!isStart && !range.end.offset)
         return characterOffsetForNodeAndOffset(range.end.container, 0, TraverseOptionIncludeStart);
-    
+
     // If it's end text marker, we want to go to the end of the range, and stay within the range.
     bool stayWithinRange = !isStart;
-    
+
     Ref endNode = range.end.container;
     if (endNode->isCharacterDataNode() && !isStart)
         return traverseToOffsetInRange(rangeForNodeContents(endNode.get()), range.end.offset, TraverseOptionValidateOffset);
-    
+
     auto copyRange = range;
     // Change the start of the range, so the character offset starts from node beginning.
     int offset = 0;
@@ -3716,7 +3716,7 @@ CharacterOffset AXObjectCache::characterOffsetForNodeAndOffset(Node& node, int o
     RefPtr domNode = node;
     bool toNodeEnd = option & TraverseOptionToNodeEnd;
     bool includeStart = option & TraverseOptionIncludeStart;
-    
+
     // ignoreStart is used to determine if we should go to previous node or
     // stay in current node when offset is 0.
     if (!toNodeEnd && (offset < 0 || (!offset && !includeStart))) {
@@ -3737,7 +3737,7 @@ CharacterOffset AXObjectCache::characterOffsetForNodeAndOffset(Node& node, int o
             charOffset = characterOffsetForNodeAndOffset(Ref { *charOffset.node }, charOffset.offset - offset, TraverseOptionIncludeStart);
         return charOffset;
     }
-    
+
     auto range = rangeForNodeContents(*domNode);
 
     // Traverse the offset amount of characters forward and see if there's remaining offsets.
@@ -3750,7 +3750,7 @@ CharacterOffset AXObjectCache::characterOffsetForNodeAndOffset(Node& node, int o
         range = rangeForNodeContents(*domNode);
         characterOffset = traverseToOffsetInRange(range, characterOffset.remaining(), option);
     }
-    
+
     return characterOffset;
 }
 
@@ -3759,17 +3759,17 @@ bool AXObjectCache::shouldSkipBoundary(const CharacterOffset& previous, const Ch
     // Match the behavior of VisiblePosition, we should skip the node boundary when there's no visual space or new line character.
     if (previous.isNull() || next.isNull())
         return false;
-    
+
     if (previous.node == next.node)
         return false;
-    
+
     if (next.startIndex > 0 || next.offset > 0)
         return false;
-    
+
     CharacterOffset newLine = startCharacterOffsetOfLine(next);
     if (next.isEqual(newLine))
         return false;
-    
+
     return true;
 }
 
@@ -3846,7 +3846,7 @@ Node* AXObjectCache::nextNode(Node* node) const
 {
     if (!node)
         return nullptr;
-    
+
     return NodeTraversal::nextSkippingChildren(*node);
 }
 
@@ -3854,7 +3854,7 @@ Node* AXObjectCache::previousNode(Node* node) const
 {
     if (!node)
         return nullptr;
-    
+
     // First child of body shouldn't have previous node.
     if (node->parentNode() && node->parentNode()->renderer() && node->parentNode()->renderer()->isBody() && !node->previousSibling())
         return nullptr;
@@ -3866,7 +3866,7 @@ VisiblePosition AXObjectCache::visiblePositionFromCharacterOffset(const Characte
 {
     if (characterOffset.isNull())
         return VisiblePosition();
-    
+
     // Create a collapsed range and use that to form a VisiblePosition, so that the case with
     // composed characters will be covered.
     auto range = rangeForUnorderedCharacterOffsets(characterOffset, characterOffset);
@@ -3914,7 +3914,7 @@ CharacterOffset AXObjectCache::characterOffsetFromVisiblePosition(const VisibleP
             characterOffset += currentPosition.offsetInContainerNode() - previousPosition.offsetInContainerNode() - 1;
         }
     }
-    
+
     // Sometimes when the node is a replaced node and is ignored in accessibility, we get a wrong CharacterOffset from it.
     CharacterOffset result = traverseToOffsetInRange(rangeForNodeContents(targetNode.get()), characterOffset);
     if (result.remainingOffset > 0 && !result.isNull() && isRendererReplacedElement(result.node->renderer()))
@@ -4037,12 +4037,12 @@ CharacterOffset AXObjectCache::nextCharacterOffset(const CharacterOffset& charac
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     RefPtr node = characterOffset.node;
     // We don't always move one 'character' at a time since there might be composed characters.
     unsigned nextOffset = Position::uncheckedNextOffset(node.get(), characterOffset.offset);
     CharacterOffset next = characterOffsetForNodeAndOffset(*node, nextOffset);
-    
+
     // To be consistent with VisiblePosition, we should consider the case that current node end to next node start counts 1 offset.
     RefPtr nextNode = next.node;
     if (!ignoreNextNodeStart && !next.isNull() && !isReplacedNodeOrBR(*nextNode) && nextNode != node) {
@@ -4052,7 +4052,7 @@ CharacterOffset AXObjectCache::nextCharacterOffset(const CharacterOffset& charac
                 next = characterOffsetForNodeAndOffset(*nextNode, 0, TraverseOptionIncludeStart);
         }
     }
-    
+
     return next;
 }
 
@@ -4060,11 +4060,11 @@ CharacterOffset AXObjectCache::previousCharacterOffset(const CharacterOffset& ch
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     // To be consistent with VisiblePosition, we should consider the case that current node start to previous node end counts 1 offset.
     if (!ignorePreviousNodeEnd && !characterOffset.offset)
         return characterOffsetForNodeAndOffset(Ref { *characterOffset.node }, 0);
-    
+
     // We don't always move one 'character' a time since there might be composed characters.
     RefPtr characterOffsetNode = characterOffset.node;
     int previousOffset = Position::uncheckedPreviousOffset(characterOffsetNode.get(), characterOffset.offset);
@@ -4075,13 +4075,13 @@ CharacterOffset AXObjectCache::startCharacterOffsetOfWord(const CharacterOffset&
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     CharacterOffset c = characterOffset;
     if (side == WordSide::RightWordIfOnBoundary) {
         CharacterOffset endOfParagraph = endCharacterOffsetOfParagraph(c);
         if (c.isEqual(endOfParagraph))
             return c;
-        
+
         // We should consider the node boundary that splits words. Otherwise VoiceOver won't see it as space.
         c = nextCharacterOffset(characterOffset, false);
         if (shouldSkipBoundary(characterOffset, c))
@@ -4089,7 +4089,7 @@ CharacterOffset AXObjectCache::startCharacterOffsetOfWord(const CharacterOffset&
         if (c.isNull())
             return characterOffset;
     }
-    
+
     return previousBoundary(c, startWordBoundary);
 }
 
@@ -4097,13 +4097,13 @@ CharacterOffset AXObjectCache::endCharacterOffsetOfWord(const CharacterOffset& c
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     CharacterOffset c = characterOffset;
     if (side == WordSide::LeftWordIfOnBoundary) {
         CharacterOffset startOfParagraph = startCharacterOffsetOfParagraph(c);
         if (c.isEqual(startOfParagraph))
             return c;
-        
+
         c = previousCharacterOffset(characterOffset);
         if (c.isNull())
             return characterOffset;
@@ -4112,7 +4112,7 @@ CharacterOffset AXObjectCache::endCharacterOffsetOfWord(const CharacterOffset& c
         if (characterOffset.isEqual(endOfParagraph))
             return characterOffset;
     }
-    
+
     return nextBoundary(c, endWordBoundary);
 }
 
@@ -4120,11 +4120,11 @@ CharacterOffset AXObjectCache::previousWordStartCharacterOffset(const CharacterO
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     CharacterOffset previousOffset = previousCharacterOffset(characterOffset);
     if (previousOffset.isNull())
         return CharacterOffset();
-    
+
     return startCharacterOffsetOfWord(previousOffset, WordSide::RightWordIfOnBoundary);
 }
 
@@ -4132,11 +4132,11 @@ CharacterOffset AXObjectCache::nextWordEndCharacterOffset(const CharacterOffset&
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     CharacterOffset nextOffset = nextCharacterOffset(characterOffset);
     if (nextOffset.isNull())
         return CharacterOffset();
-    
+
     return endCharacterOffsetOfWord(nextOffset, WordSide::LeftWordIfOnBoundary);
 }
 
@@ -4158,7 +4158,7 @@ static char32_t characterForCharacterOffset(const CharacterOffset& characterOffs
 {
     if (characterOffset.isNull() || !characterOffset.node->isTextNode())
         return 0;
-    
+
     char32_t ch = 0;
     unsigned offset = characterOffset.startIndex + characterOffset.offset;
     if (offset < characterOffset.node->textContent().length()) {
@@ -4187,20 +4187,20 @@ static bool characterOffsetNodeIsBR(const CharacterOffset& characterOffset)
 
     return WebCore::elementName(*characterOffset.node) == ElementName::HTML_br;
 }
-    
+
 static Node* parentEditingBoundary(Node* node)
 {
     if (!node)
         return nullptr;
-    
+
     RefPtr documentElement = node->document().documentElement();
     if (!documentElement)
         return nullptr;
-    
+
     RefPtr boundary = node;
     while (boundary != documentElement && boundary->nonShadowBoundaryParentNode() && node->hasEditableStyle() == boundary->parentNode()->hasEditableStyle())
         boundary = boundary->nonShadowBoundaryParentNode();
-    
+
     return boundary.get();
 }
 
@@ -4217,35 +4217,35 @@ CharacterOffset AXObjectCache::nextBoundary(const CharacterOffset& characterOffs
 
     Vector<char16_t, 1024> string;
     unsigned prefixLength = 0;
-    
+
     if (requiresContextForWordBoundary(characterAfter(characterOffset))) {
         auto backwardsScanRange = makeRangeSelectingNodeContents(boundary->document());
         if (!setRangeStartOrEndWithCharacterOffset(backwardsScanRange, characterOffset, false))
             return { };
         prefixLength = prefixLengthForRange(backwardsScanRange, string);
     }
-    
+
     if (!setRangeStartOrEndWithCharacterOffset(searchRange, characterOffset, true))
         return { };
     CharacterOffset end = startOrEndCharacterOffsetForRange(searchRange, false);
-    
+
     TextIterator it(searchRange, TextIteratorBehavior::EmitsObjectReplacementCharacters);
     unsigned next = forwardSearchForBoundaryWithTextIterator(it, string, prefixLength, searchFunction);
-    
+
     if (it.atEnd() && next == string.size())
         return end;
-    
+
     // We should consider the node boundary that splits words.
     if (searchFunction == endWordBoundary && next - prefixLength == 1)
         return nextCharacterOffset(characterOffset, false);
-    
+
     // The endSentenceBoundary function will include a line break at the end of the sentence.
     if (searchFunction == endSentenceBoundary && string[next - 1] == '\n')
         next--;
-    
+
     if (next > prefixLength)
         return characterOffsetForNodeAndOffset(Ref { *characterOffset.node }, characterOffset.offset + next - prefixLength);
-    
+
     return characterOffset;
 }
 
@@ -4254,11 +4254,11 @@ CharacterOffset AXObjectCache::previousBoundary(const CharacterOffset& character
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     RefPtr boundary = parentEditingBoundary(RefPtr { characterOffset.node.get() }.get());
     if (!boundary)
         return CharacterOffset();
-    
+
     auto searchRange = rangeForNodeContents(*boundary);
     Vector<char16_t, 1024> string;
     unsigned suffixLength = 0;
@@ -4283,17 +4283,17 @@ CharacterOffset AXObjectCache::previousBoundary(const CharacterOffset& character
             return { };
         suffixLength = suffixLengthForRange(forwardsScanRange, string);
     }
-    
+
     if (!setRangeStartOrEndWithCharacterOffset(searchRange, characterOffset, false))
         return { };
     CharacterOffset start = startOrEndCharacterOffsetForRange(searchRange, true);
-    
+
     SimplifiedBackwardsTextIterator it(searchRange);
     unsigned next = backwardSearchForBoundaryWithTextIterator(it, string, suffixLength, searchFunction);
-    
+
     if (!next)
         return it.atEnd() ? start : characterOffset;
-    
+
     Ref node = (it.atEnd() ? searchRange : it.range()).start.container;
 
     // SimplifiedBackwardsTextIterator ignores replaced elements.
@@ -4311,7 +4311,7 @@ CharacterOffset AXObjectCache::previousBoundary(const CharacterOffset& character
             return traverseToOffsetInRange(rangeForNodeContents(node.get()), next, TraverseOptionValidateOffset);
         return characterOffsetForNodeAndOffset(node.get(), next, TraverseOptionIncludeStart);
     }
-    
+
     int characterCount = characterOffset.offset;
     if (next < string.size() - suffixLength)
         characterCount -= string.size() - suffixLength - next;
@@ -4325,22 +4325,22 @@ CharacterOffset AXObjectCache::startCharacterOffsetOfParagraph(const CharacterOf
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     Ref startNode = *characterOffset.node;
-    
+
     if (isRenderedAsNonInlineTableImageOrHR(startNode.ptr()))
         return startOrEndCharacterOffsetForRange(rangeForNodeContents(startNode), true);
-    
+
     auto startBlock = enclosingBlock(startNode.ptr());
     int offset = characterOffset.startIndex + characterOffset.offset;
     auto highestRoot = highestEditableRoot(firstPositionInOrBeforeNode(startNode.ptr()));
     Position::AnchorType type = Position::PositionIsOffsetInAnchor;
-    
+
     Ref node = *findStartOfParagraph(startNode.ptr(), highestRoot.get(), startBlock.get(), offset, type, boundaryCrossingRule);
-    
+
     if (type == Position::PositionIsOffsetInAnchor)
         return characterOffsetForNodeAndOffset(node, offset, TraverseOptionIncludeStart);
-    
+
     return startOrEndCharacterOffsetForRange(rangeForNodeContents(node), true);
 }
 
@@ -4348,16 +4348,16 @@ CharacterOffset AXObjectCache::endCharacterOffsetOfParagraph(const CharacterOffs
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     RefPtr startNode = characterOffset.node;
     if (isRenderedAsNonInlineTableImageOrHR(startNode.get()))
         return startOrEndCharacterOffsetForRange(rangeForNodeContents(*startNode), false);
-    
+
     auto stayInsideBlock = enclosingBlock(startNode.get());
     int offset = characterOffset.startIndex + characterOffset.offset;
     auto highestRoot = highestEditableRoot(firstPositionInOrBeforeNode(startNode.get()));
     Position::AnchorType type = Position::PositionIsOffsetInAnchor;
-    
+
     Ref node = *findEndOfParagraph(startNode.get(), highestRoot.get(), stayInsideBlock.get(), offset, type, boundaryCrossingRule);
     if (type == Position::PositionIsOffsetInAnchor) {
         if (node->isTextNode()) {
@@ -4366,7 +4366,7 @@ CharacterOffset AXObjectCache::endCharacterOffsetOfParagraph(const CharacterOffs
         }
         return characterOffsetForNodeAndOffset(node, offset, TraverseOptionIncludeStart);
     }
-    
+
     return startOrEndCharacterOffsetForRange(rangeForNodeContents(node), false);
 }
 
@@ -4381,11 +4381,11 @@ CharacterOffset AXObjectCache::nextParagraphEndCharacterOffset(const CharacterOf
 {
     // make sure we move off of a paragraph end
     CharacterOffset next = nextCharacterOffset(characterOffset);
-    
+
     // We should skip the following BR node.
     if (characterOffsetNodeIsBR(next) && !characterOffsetNodeIsBR(characterOffset))
         next = nextCharacterOffset(next);
-    
+
     return endCharacterOffsetOfParagraph(next);
 }
 
@@ -4393,11 +4393,11 @@ CharacterOffset AXObjectCache::previousParagraphStartCharacterOffset(const Chara
 {
     // make sure we move off of a paragraph start
     CharacterOffset previous = previousCharacterOffset(characterOffset);
-    
+
     // We should skip the preceding BR node.
     if (characterOffsetNodeIsBR(previous) && !characterOffsetNodeIsBR(characterOffset))
         previous = previousCharacterOffset(previous);
-    
+
     return startCharacterOffsetOfParagraph(previous);
 }
 
@@ -4428,11 +4428,11 @@ CharacterOffset AXObjectCache::previousSentenceStartCharacterOffset(const Charac
 {
     // Make sure we move off of a sentence start.
     CharacterOffset previous = previousCharacterOffset(characterOffset);
-    
+
     // We should skip the preceding BR node.
     if (characterOffsetNodeIsBR(previous) && !characterOffsetNodeIsBR(characterOffset))
         previous = previousCharacterOffset(previous);
-    
+
     return startCharacterOffsetOfSentence(previous);
 }
 
@@ -4442,11 +4442,11 @@ LayoutRect AXObjectCache::localCaretRectForCharacterOffset(RenderObject*& render
         renderer = nullptr;
         return IntRect();
     }
-    
+
     renderer = characterOffset.node->renderer();
     if (!renderer)
         return LayoutRect();
-    
+
     // Use a collapsed range to get the position.
     auto range = rangeForUnorderedCharacterOffsets(characterOffset, characterOffset);
     if (!range)
@@ -4465,11 +4465,11 @@ LayoutRect AXObjectCache::localCaretRectForCharacterOffset(RenderObject*& render
 IntRect AXObjectCache::absoluteCaretBoundsForCharacterOffset(const CharacterOffset& characterOffset)
 {
     RenderBlock* caretPainter = nullptr;
-    
+
     // First compute a rect local to the renderer at the selection start.
     RenderObject* renderer = nullptr;
     LayoutRect localRect = localCaretRectForCharacterOffset(renderer, characterOffset);
-    
+
     localRect = localCaretRectInRendererForRect(localRect, RefPtr { characterOffset.node }.get(), renderer, caretPainter);
     return absoluteBoundsForLocalCaretRect(caretPainter, localRect);
 }
@@ -4498,13 +4498,13 @@ CharacterOffset AXObjectCache::characterOffsetForBounds(const IntRect& rect, boo
 {
     if (rect.isEmpty())
         return CharacterOffset();
-    
+
     IntPoint corner = first ? rect.minXMinYCorner() : rect.maxXMaxYCorner();
     CharacterOffset characterOffset = characterOffsetForPoint(corner);
-    
+
     if (rect.contains(absoluteCaretBoundsForCharacterOffset(characterOffset).center()))
         return characterOffset;
-    
+
     // If the initial position is located outside the bounds adjust it incrementally as needed.
     CharacterOffset nextCharOffset = nextCharacterOffset(characterOffset, false);
     CharacterOffset previousCharOffset = previousCharacterOffset(characterOffset, false);
@@ -4513,11 +4513,11 @@ CharacterOffset AXObjectCache::characterOffsetForBounds(const IntRect& rect, boo
             return nextCharOffset;
         if (rect.contains(absoluteCaretBoundsForCharacterOffset(previousCharOffset).center()))
             return previousCharOffset;
-        
+
         nextCharOffset = nextCharacterOffset(nextCharOffset, false);
         previousCharOffset = previousCharacterOffset(previousCharOffset, false);
     }
-    
+
     return CharacterOffset();
 }
 
@@ -4526,10 +4526,10 @@ CharacterOffset AXObjectCache::endCharacterOffsetOfLine(const CharacterOffset& c
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     VisiblePosition vp = visiblePositionFromCharacterOffset(characterOffset);
     VisiblePosition endLine = endOfLine(vp);
-    
+
     return characterOffsetFromVisiblePosition(endLine);
 }
 
@@ -4537,10 +4537,10 @@ CharacterOffset AXObjectCache::startCharacterOffsetOfLine(const CharacterOffset&
 {
     if (characterOffset.isNull())
         return CharacterOffset();
-    
+
     VisiblePosition vp = visiblePositionFromCharacterOffset(characterOffset);
     VisiblePosition startLine = startOfLine(vp);
-    
+
     return characterOffsetFromVisiblePosition(startLine);
 }
 
@@ -4602,7 +4602,7 @@ static void conditionallyAddNodeToFilterList(Node* node, const Document& documen
     if (node && (!node->isConnected() || &node->document() == &document))
         nodesToRemove.add(*node);
 }
-    
+
 template<typename T>
 static void filterVectorPairForRemoval(const Vector<std::pair<T, T>>& list, const Document& document, HashSet<Ref<Node>>& nodesToRemove)
 {
@@ -4611,7 +4611,7 @@ static void filterVectorPairForRemoval(const Vector<std::pair<T, T>>& list, cons
         conditionallyAddNodeToFilterList(entry.second, document, nodesToRemove);
     }
 }
-    
+
 template<typename T, typename U>
 static void filterMapForRemoval(const HashMap<T, U>& list, const Document& document, HashSet<Ref<Node>>& nodesToRemove)
 {
@@ -4674,7 +4674,7 @@ void AXObjectCache::prepareForDocumentDestruction(const Document& document)
     for (auto& node : nodesToRemove)
         remove(node);
 }
-    
+
 bool AXObjectCache::elementIsTextControl(const Element& element)
 {
     const RefPtr axObject = getOrCreate(const_cast<Element&>(element));
@@ -5268,7 +5268,7 @@ void AXObjectCache::deferRecomputeIsIgnoredIfNeeded(Element* element)
 {
     if (!nodeAndRendererAreValid(element))
         return;
-    
+
     SingleThreadWeakRef<RenderObject> renderer = *element->renderer();
     if (rendererNeedsDeferredUpdate(renderer.get())) {
         m_deferredRecomputeIsIgnoredList.add(*element);
@@ -5911,7 +5911,7 @@ AXAttributeCacheEnabler::AXAttributeCacheEnabler(AXObjectCache* cache)
             m_cache->startCachingComputedObjectAttributesUntilTreeMutates();
     }
 }
-    
+
 AXAttributeCacheEnabler::~AXAttributeCacheEnabler()
 {
     if (m_cache && !m_wasAlreadyCaching)

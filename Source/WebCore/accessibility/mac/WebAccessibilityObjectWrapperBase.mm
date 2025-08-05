@@ -427,7 +427,7 @@ NSArray *makeNSArray(const WebCore::AXCoreObject::AccessibilityChildrenVector& c
     RefPtr<AXCoreObject> backingObject = [self baseUpdateBackingStore];
     if (!backingObject)
         return nil;
-    
+
     RetainPtr<NSMutableArray<AXCustomContent *>> accessibilityCustomContent = nil;
     auto extendedDescription = backingObject->extendedDescription();
     if (extendedDescription.length()) {
@@ -437,7 +437,7 @@ NSArray *makeNSArray(const WebCore::AXCoreObject::AccessibilityChildrenVector& c
         [contentItem setImportance:AXCustomContentImportanceHigh];
         [accessibilityCustomContent addObject:contentItem];
     }
-    
+
     return accessibilityCustomContent.autorelease();
 }
 #endif
@@ -565,7 +565,7 @@ NSRange makeNSRange(std::optional<SimpleRange> range)
 {
     if (!range)
         return NSMakeRange(NSNotFound, 0);
-    
+
     Ref document = range->start.document();
     RefPtr frame = document->frame();
     if (!frame)
@@ -721,7 +721,7 @@ std::optional<SimpleRange> makeDOMRange(Document* document, NSRange range)
 - (NSString *)accessibilityPlatformMathSuperscriptKey
 {
     ASSERT_NOT_REACHED();
-    return nil;    
+    return nil;
 }
 
 - (NSArray *)accessibilityMathPostscriptPairs
@@ -904,11 +904,11 @@ static AccessibilitySearchKeyMap* createAccessibilitySearchKeyMap()
         SearchKeyEntry { NSAccessibilityUnvisitedLinkSearchKey, AccessibilitySearchKey::UnvisitedLink },
         SearchKeyEntry { NSAccessibilityVisitedLinkSearchKey, AccessibilitySearchKey::VisitedLink }
     };
-    
+
     AccessibilitySearchKeyMap* searchKeyMap = new AccessibilitySearchKeyMap;
     for (auto& searchKey : searchKeys)
         searchKeyMap->set(searchKey.key, searchKey.value);
-    
+
     return searchKeyMap;
 }
 
@@ -916,9 +916,9 @@ static AccessibilitySearchKey accessibilitySearchKeyForString(const String& valu
 {
     if (value.isEmpty())
         return AccessibilitySearchKey::AnyType;
-    
+
     static const AccessibilitySearchKeyMap* searchKeyMap = createAccessibilitySearchKeyMap();
-    AccessibilitySearchKey searchKey = searchKeyMap->get(value);    
+    AccessibilitySearchKey searchKey = searchKeyMap->get(value);
     return static_cast<int>(searchKey) ? searchKey : AccessibilitySearchKey::AnyType;
 }
 

@@ -573,26 +573,26 @@ public:
     CharacterOffset previousWordStartCharacterOffset(const CharacterOffset&);
     std::optional<SimpleRange> leftWordRange(const CharacterOffset&);
     std::optional<SimpleRange> rightWordRange(const CharacterOffset&);
-    
+
     // Paragraph
     std::optional<SimpleRange> paragraphForCharacterOffset(const CharacterOffset&);
     CharacterOffset nextParagraphEndCharacterOffset(const CharacterOffset&);
     CharacterOffset previousParagraphStartCharacterOffset(const CharacterOffset&);
-    
+
     // Sentence
     std::optional<SimpleRange> sentenceForCharacterOffset(const CharacterOffset&);
     CharacterOffset nextSentenceEndCharacterOffset(const CharacterOffset&);
     CharacterOffset previousSentenceStartCharacterOffset(const CharacterOffset&);
-    
+
     // Bounds
     CharacterOffset characterOffsetForPoint(const IntPoint&, AXCoreObject*);
     IntRect absoluteCaretBoundsForCharacterOffset(const CharacterOffset&);
     CharacterOffset characterOffsetForBounds(const IntRect&, bool);
-    
+
     // Lines
     CharacterOffset endCharacterOffsetOfLine(const CharacterOffset&);
     CharacterOffset startCharacterOffsetOfLine(const CharacterOffset&);
-    
+
     // Index
     CharacterOffset characterOffsetForIndex(int, const AXCoreObject*);
 

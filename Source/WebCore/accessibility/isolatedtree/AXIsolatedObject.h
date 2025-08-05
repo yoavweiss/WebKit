@@ -579,7 +579,7 @@ private:
 #if PLATFORM(COCOA) && ENABLE(MODEL_ELEMENT)
     Vector<RetainPtr<id>> modelElementChildren() final;
 #endif
-    
+
     void updateBackingStore() final;
 
     String innerHTML() const final;

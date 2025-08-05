@@ -164,7 +164,7 @@ bool AccessibilityTable::isDataTable() const
             || (tableElement->tFoot() && tableElement->tFoot()->renderer())
             || tableElement->caption())
             return true;
-        
+
         // If someone used "rules" attribute than the table should appear.
         if (!tableElement->rules().isEmpty())
             return true;
@@ -176,11 +176,11 @@ bool AccessibilityTable::isDataTable() const
                 return true;
         }
     }
-    
+
     // The following checks should only apply if this is a real <table> element.
     if (!hasElementName(ElementName::HTML_table))
         return false;
-    
+
     // If the author has used ARIA to specify a valid column or row count, assume they
     // want us to treat the table as a data table.
     auto ariaRowOrColCountIsSet = [this] (const QualifiedName& attribute) {
@@ -370,7 +370,7 @@ bool AccessibilityTable::isDataTable() const
         || cellsWithLeftBorder >= neededCellCount
         || cellsWithRightBorder >= neededCellCount)
         return true;
-    
+
     // At least half of the cells had different background colors, it's a data table.
     if (backgroundDifferenceCellCount >= neededCellCount)
         return true;
@@ -834,7 +834,7 @@ AXCoreObject::AccessibilityChildrenVector AccessibilityTable::columns()
 AXCoreObject::AccessibilityChildrenVector AccessibilityTable::rows()
 {
     updateChildrenIfNecessary();
-    
+
     return m_rows;
 }
 
@@ -873,18 +873,18 @@ AXCoreObject::AccessibilityChildrenVector AccessibilityTable::cells()
         cells.appendVector(row->unignoredChildren());
     return cells;
 }
-    
+
 unsigned AccessibilityTable::columnCount()
 {
     updateChildrenIfNecessary();
-    
+
     return m_columns.size();
 }
-    
+
 unsigned AccessibilityTable::rowCount()
 {
     updateChildrenIfNecessary();
-    
+
     return m_rows.size();
 }
 
@@ -910,7 +910,7 @@ AccessibilityRole AccessibilityTable::determineAccessibilityRole()
 
     return AccessibilityRole::Table;
 }
-    
+
 bool AccessibilityTable::computeIsIgnored() const
 {
     AccessibilityObjectInclusion decision = defaultObjectInclusion();
@@ -918,7 +918,7 @@ bool AccessibilityTable::computeIsIgnored() const
         return false;
     if (decision == AccessibilityObjectInclusion::IgnoreObject)
         return true;
-    
+
     if (!isExposable())
         return AccessibilityRenderObject::computeIsIgnored();
 
@@ -936,14 +936,14 @@ String AccessibilityTable::title() const
 {
     if (!isExposable())
         return AccessibilityRenderObject::title();
-    
+
     String title;
     // Prefer the table caption if present.
     if (RefPtr tableElement = dynamicDowncast<HTMLTableElement>(node())) {
         if (RefPtr caption = tableElement->caption())
             title = caption->innerText();
     }
-    
+
     // Fall back to standard title computation.
     if (title.isEmpty())
         title = AccessibilityRenderObject::title();
@@ -959,7 +959,7 @@ int AccessibilityTable::axColumnCount() const
     // the user agent." If we have a valid value, make it available to platforms.
     if (colCountInt == -1 || colCountInt >= (int)m_columns.size())
         return colCountInt;
-    
+
     return 0;
 }
 
@@ -972,7 +972,7 @@ int AccessibilityTable::axRowCount() const
     // user agent." If we have a valid value, make it available to platforms.
     if (rowCountInt == -1 || rowCountInt >= (int)m_rows.size())
         return rowCountInt;
-    
+
     return 0;
 }
 

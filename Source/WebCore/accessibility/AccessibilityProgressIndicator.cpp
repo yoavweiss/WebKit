@@ -32,7 +32,7 @@
 #include "RenderProgress.h"
 
 namespace WebCore {
-    
+
 using namespace HTMLNames;
 
 AccessibilityProgressIndicator::AccessibilityProgressIndicator(AXID axID, RenderObject& renderer, AXObjectCache& cache)
@@ -50,7 +50,7 @@ bool AccessibilityProgressIndicator::computeIsIgnored() const
 {
     return isIgnoredByDefault();
 }
-    
+
 String AccessibilityProgressIndicator::valueDescription() const
 {
     // If the author has explicitly provided a value through aria-valuetext, use it.
@@ -145,7 +145,7 @@ String AccessibilityProgressIndicator::gaugeRegionValueDescription() const
     // Only expose this when the author has explicitly specified the following attributes.
     if (!hasAttribute(lowAttr) && !hasAttribute(highAttr) && !hasAttribute(optimumAttr))
         return String();
-    
+
     switch (meterElement->gaugeRegion()) {
     case HTMLMeterElement::GaugeRegionOptimum:
         return AXMeterGaugeRegionOptimumText();
