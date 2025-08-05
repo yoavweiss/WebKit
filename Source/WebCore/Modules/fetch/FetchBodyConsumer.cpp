@@ -440,31 +440,56 @@ RefPtr<JSC::ArrayBuffer> FetchBodyConsumer::takeAsArrayBuffer()
 
 Ref<Blob> FetchBodyConsumer::takeAsBlob(ScriptExecutionContext* context, const String& contentType)
 {
-    static constexpr size_t MaximumBlobSize = 512 * 1024 * 1024;
-
     String normalizedContentType = Blob::normalizedContentType(extractMIMETypeFromMediaType(contentType));
 
     if (!m_buffer)
         return Blob::create(context, Vector<uint8_t>(), normalizedContentType);
 
-    RefPtr buffer = m_buffer.take();
-    if (!context || buffer->isContiguous() || buffer->size() < MaximumBlobSize)
-        return blobFromData(context, buffer->extractData(), normalizedContentType);
+    // Minimise the number of DataSegments to reduce overall memory allocation.
+    // We pack it in 8MiB minimum segment.
+    static constexpr size_t MinimumBlobSize = 8 * 1024 * 1024;
 
-    Vector<RefPtr<SharedBuffer>> segments;
+    RefPtr buffer = m_buffer.take();
+    if (buffer->size() <= MinimumBlobSize)
+        return Blob::create(context, buffer->extractData(), normalizedContentType);
+
+    size_t packedBufferSize = std::min(buffer->size(), MinimumBlobSize);
+    Vector<uint8_t> packedBuffer;
+    packedBuffer.reserveInitialCapacity(packedBufferSize);
+
+    Vector<Ref<SharedBuffer>> segments;
     segments.reserveInitialCapacity(buffer->segmentsCount());
     buffer->forEachSegmentAsSharedBuffer([&](Ref<SharedBuffer>&& sharedBuffer) {
         segments.append(WTFMove(sharedBuffer));
     });
     buffer = nullptr; // So that the segments above hold each a single refcount to allow extractData to move the content.
 
-    Vector<BlobPartVariant> blobPartsFromBuffer { segments.size(), [&](auto index) {
-        RefPtr blob = Blob::create(context, std::exchange(segments[index], nullptr)->extractData(), normalizedContentType);
-        return blob;
-    } };
+    SharedBufferBuilder bufferBuilder;
+    for (auto&& segment : segments) {
+        if (segment->size() >= MinimumBlobSize) {
+            if (packedBuffer.size()) {
+                bufferBuilder.append(std::exchange(packedBuffer, { }));
+                packedBuffer.reserveInitialCapacity(packedBufferSize);
+            }
+            bufferBuilder.append(WTFMove(segment));
+            continue;
+        }
+        if (packedBuffer.size() + segment->size() <= MinimumBlobSize) {
+            packedBuffer.appendVector(segment->extractData());
+            continue;
+        }
+        ASSERT(packedBuffer.size() <= MinimumBlobSize);
+        size_t leftInPacked = MinimumBlobSize - packedBuffer.size();
+        auto segmentData = segment->extractData();
+        packedBuffer.appendVector(segmentData.subvector(0, leftInPacked));
+        bufferBuilder.append(std::exchange(packedBuffer, { }));
+        packedBuffer.reserveInitialCapacity(packedBufferSize);
+        packedBuffer.appendVector(segmentData.subvector(leftInPacked));
+    };
+    if (!packedBuffer.isEmpty())
+        bufferBuilder.append(WTFMove(packedBuffer));
 
-    BlobPropertyBag propertyBag = { .type = normalizedContentType };
-    return Blob::create(*context, WTFMove(blobPartsFromBuffer), propertyBag);
+    return Blob::create(context, bufferBuilder.take(), normalizedContentType);
 }
 
 String FetchBodyConsumer::takeAsText()
