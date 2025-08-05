@@ -26,11 +26,9 @@
 
 #pragma once
 
-#include "BaselineAlignmentInlines.h"
 #include "Grid.h"
 #include "GridMasonryLayout.h"
 #include "GridTrackSizingAlgorithm.h"
-#include "LayoutRange.h"
 #include "RenderBlock.h"
 #include "StyleGridTrackSizingDirection.h"
 #include <wtf/TZoneMalloc.h>
@@ -45,6 +43,7 @@ namespace WebCore {
 class GridArea;
 class GridLayoutState;
 class GridSpan;
+class LayoutRange;
 
 struct ContentAlignmentData {
     LayoutUnit positionOffset;
