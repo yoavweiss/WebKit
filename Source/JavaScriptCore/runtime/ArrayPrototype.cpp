@@ -2248,12 +2248,14 @@ JSC_DEFINE_HOST_FUNCTION(arrayProtoFuncFlat, (JSGlobalObject* globalObject, Call
                 return static_cast<uint64_t>(depthInt32);
             }
             double depthDouble = depthValue.toIntegerOrInfinity(globalObject);
+            RETURN_IF_EXCEPTION(scope, { });
             if (depthDouble < 0) [[unlikely]]
                 return 0;
             if (std::isinf(depthDouble)) [[unlikely]]
                 return std::numeric_limits<uint64_t>::max();
             return static_cast<uint64_t>(depthDouble);
         }();
+        RETURN_IF_EXCEPTION(scope, { });
     }
 
     if (isJSArray(thisObject) && arraySpeciesWatchpointIsValid(vm, thisObject)) [[likely]] {
