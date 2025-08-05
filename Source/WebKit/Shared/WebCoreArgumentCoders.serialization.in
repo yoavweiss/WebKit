@@ -3247,14 +3247,14 @@ header: <WebCore/StyleLengthWrapperData.h>
 [CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::NormalData {
 };
 [CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::FixedData {
-    Variant<float, int> value
+    float value
     bool hasQuirk
 };
 [CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::RelativeData {
-    Variant<float, int> value
+    float value
 };
 [CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::PercentData {
-    Variant<float, int> value
+    float value
 };
 [CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::IntrinsicData {
 };

@@ -73,27 +73,15 @@ LengthWrapperData::LengthWrapperData(const WebCore::Length& length)
     switch (length.type()) {
     case WebCore::LengthType::Fixed:
         m_type = LengthWrapperDataType::Fixed;
-        m_isFloat = length.isFloat();
-        if (m_isFloat)
-            m_floatValue = length.value();
-        else
-            m_intValue = length.intValue();
+        m_floatValue = length.value();
         return;
     case WebCore::LengthType::Percent:
         m_type = LengthWrapperDataType::Percent;
-        m_isFloat = length.isFloat();
-        if (m_isFloat)
-            m_floatValue = length.value();
-        else
-            m_intValue = length.intValue();
+        m_floatValue = length.value();
         return;
     case WebCore::LengthType::Relative:
         m_type = LengthWrapperDataType::Relative;
-        m_isFloat = length.isFloat();
-        if (m_isFloat)
-            m_floatValue = length.value();
-        else
-            m_intValue = length.intValue();
+        m_floatValue = length.value();
         return;
     case WebCore::LengthType::Calculated:
         m_type = LengthWrapperDataType::Calculated;
@@ -138,27 +126,15 @@ LengthWrapperData::LengthWrapperData(WebCore::Length&& length)
     switch (length.type()) {
     case WebCore::LengthType::Fixed:
         m_type = LengthWrapperDataType::Fixed;
-        m_isFloat = length.isFloat();
-        if (m_isFloat)
-            m_floatValue = length.value();
-        else
-            m_intValue = length.intValue();
+        m_floatValue = length.value();
         return;
     case WebCore::LengthType::Percent:
         m_type = LengthWrapperDataType::Percent;
-        m_isFloat = length.isFloat();
-        if (m_isFloat)
-            m_floatValue = length.value();
-        else
-            m_intValue = length.intValue();
+        m_floatValue = length.value();
         return;
     case WebCore::LengthType::Relative:
         m_type = LengthWrapperDataType::Relative;
-        m_isFloat = length.isFloat();
-        if (m_isFloat)
-            m_floatValue = length.value();
-        else
-            m_intValue = length.intValue();
+        m_floatValue = length.value();
         return;
     case WebCore::LengthType::Calculated:
         m_type = LengthWrapperDataType::Calculated;
@@ -202,17 +178,11 @@ WebCore::Length LengthWrapperData::toPlatform() const
 {
     switch (type()) {
     case LengthWrapperDataType::Fixed:
-        return m_isFloat
-            ? WebCore::Length(m_floatValue, WebCore::LengthType::Fixed, m_hasQuirk)
-            : WebCore::Length(m_intValue, WebCore::LengthType::Fixed, m_hasQuirk);
+        return WebCore::Length(m_floatValue, WebCore::LengthType::Fixed, m_hasQuirk);
     case LengthWrapperDataType::Percent:
-        return m_isFloat
-            ? WebCore::Length(m_floatValue, WebCore::LengthType::Percent)
-            : WebCore::Length(m_intValue, WebCore::LengthType::Percent);
+        return WebCore::Length(m_floatValue, WebCore::LengthType::Percent);
     case LengthWrapperDataType::Relative:
-        return m_isFloat
-            ? WebCore::Length(m_floatValue, WebCore::LengthType::Relative)
-            : WebCore::Length(m_intValue, WebCore::LengthType::Relative);
+        return WebCore::Length(m_floatValue, WebCore::LengthType::Relative);
     case LengthWrapperDataType::Calculated:
         return WebCore::Length(protectedCalculationValue());
     case LengthWrapperDataType::FillAvailable:
@@ -279,41 +249,14 @@ LengthWrapperData::LengthWrapperData(IPCData&& data)
 {
     WTF::switchOn(data,
         [&](const FixedData& data) {
-            WTF::switchOn(data.value,
-                [&](float value) {
-                    m_isFloat = true;
-                    m_floatValue = value;
-                },
-                [&](int value) {
-                    m_isFloat = false;
-                    m_intValue = value;
-                }
-            );
+            m_floatValue = data.value;
             m_hasQuirk = data.hasQuirk;
         },
         [&](const RelativeData& data) {
-            WTF::switchOn(data.value,
-                [&](float value) {
-                    m_isFloat = true;
-                    m_floatValue = value;
-                },
-                [&](int value) {
-                    m_isFloat = false;
-                    m_intValue = value;
-                }
-            );
+            m_floatValue = data.value;
         },
         [&](const PercentData& data) {
-            WTF::switchOn(data.value,
-                [&](float value) {
-                    m_isFloat = true;
-                    m_floatValue = value;
-                },
-                [&](int value) {
-                    m_isFloat = false;
-                    m_intValue = value;
-                }
-            );
+            m_floatValue = data.value;
         },
         []<typename EmptyData>(EmptyData) requires std::is_empty_v<EmptyData> { }
     );
@@ -327,11 +270,11 @@ auto LengthWrapperData::ipcData() const -> IPCData
     case LengthWrapperDataType::Normal:
         return NormalData { };
     case LengthWrapperDataType::Relative:
-        return RelativeData { floatOrInt() };
+        return RelativeData { value() };
     case LengthWrapperDataType::Percent:
-        return PercentData { floatOrInt() };
+        return PercentData { value() };
     case LengthWrapperDataType::Fixed:
-        return FixedData { floatOrInt(), m_hasQuirk };
+        return FixedData { value(), m_hasQuirk };
     case LengthWrapperDataType::Intrinsic:
         return IntrinsicData { };
     case LengthWrapperDataType::MinIntrinsic:
@@ -353,14 +296,6 @@ auto LengthWrapperData::ipcData() const -> IPCData
         return { };
     }
     RELEASE_ASSERT_NOT_REACHED();
-}
-
-auto LengthWrapperData::floatOrInt() const -> FloatOrInt
-{
-    ASSERT(m_type != LengthWrapperDataType::Calculated);
-    if (m_isFloat)
-        return m_floatValue;
-    return m_intValue;
 }
 
 float LengthWrapperData::nonNanCalculatedValue(float maxValue) const

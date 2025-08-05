@@ -51,18 +51,17 @@ enum class LengthWrapperDataType : uint8_t {
 struct LengthWrapperData {
     LengthWrapperData(LengthWrapperDataType = LengthWrapperDataType::Auto);
 
-    using FloatOrInt = Variant<float, int>;
     struct AutoData { };
     struct NormalData { };
     struct FixedData {
-        FloatOrInt value;
+        float value;
         bool hasQuirk;
     };
     struct RelativeData {
-        FloatOrInt value;
+        float value;
     };
     struct PercentData {
-        FloatOrInt value;
+        float value;
     };
     struct IntrinsicData { };
     struct MinIntrinsicData { };
@@ -90,10 +89,7 @@ struct LengthWrapperData {
     >;
 
     WEBCORE_EXPORT LengthWrapperData(IPCData&&);
-    LengthWrapperData(int value, LengthWrapperDataType, bool hasQuirk = false);
-    LengthWrapperData(LayoutUnit value, LengthWrapperDataType, bool hasQuirk = false);
     LengthWrapperData(float value, LengthWrapperDataType, bool hasQuirk = false);
-    LengthWrapperData(double value, LengthWrapperDataType, bool hasQuirk = false);
     WEBCORE_EXPORT explicit LengthWrapperData(Ref<CalculationValue>&&);
     explicit LengthWrapperData(WTF::HashTableEmptyValueType);
 
@@ -109,7 +105,6 @@ struct LengthWrapperData {
     LengthWrapperDataType type() const;
 
     float value() const;
-    int intValue() const;
     CalculationValue& calculationValue() const;
     Ref<CalculationValue> protectedCalculationValue() const;
 
@@ -150,17 +145,14 @@ private:
 
     WEBCORE_EXPORT void ref() const;
     WEBCORE_EXPORT void deref() const;
-    FloatOrInt floatOrInt() const;
     static LengthWrapperDataType typeFromIndex(const IPCData&);
 
     union {
-        int m_intValue { 0 };
-        float m_floatValue;
+        float m_floatValue { 0.0f };
         unsigned m_calculationValueHandle;
     };
     LengthWrapperDataType m_type;
     bool m_hasQuirk { false };
-    bool m_isFloat { false };
     bool m_isEmptyValue { false };
 };
 
@@ -170,37 +162,10 @@ inline LengthWrapperData::LengthWrapperData(LengthWrapperDataType type)
     ASSERT(type != LengthWrapperDataType::Calculated);
 }
 
-inline LengthWrapperData::LengthWrapperData(int value, LengthWrapperDataType type, bool hasQuirk)
-    : m_intValue(value)
-    , m_type(type)
-    , m_hasQuirk(hasQuirk)
-{
-    ASSERT(type != LengthWrapperDataType::Calculated);
-}
-
-inline LengthWrapperData::LengthWrapperData(LayoutUnit value, LengthWrapperDataType type, bool hasQuirk)
-    : m_floatValue(value.toFloat())
-    , m_type(type)
-    , m_hasQuirk(hasQuirk)
-    , m_isFloat(true)
-{
-    ASSERT(type != LengthWrapperDataType::Calculated);
-}
-
 inline LengthWrapperData::LengthWrapperData(float value, LengthWrapperDataType type, bool hasQuirk)
     : m_floatValue(value)
     , m_type(type)
     , m_hasQuirk(hasQuirk)
-    , m_isFloat(true)
-{
-    ASSERT(type != LengthWrapperDataType::Calculated);
-}
-
-inline LengthWrapperData::LengthWrapperData(double value, LengthWrapperDataType type, bool hasQuirk)
-    : m_floatValue(static_cast<float>(value))
-    , m_type(type)
-    , m_hasQuirk(hasQuirk)
-    , m_isFloat(true)
 {
     ASSERT(type != LengthWrapperDataType::Calculated);
 }
@@ -256,8 +221,6 @@ inline void LengthWrapperData::initialize(const LengthWrapperData& other)
     case LengthWrapperDataType::Normal:
     case LengthWrapperDataType::Content:
     case LengthWrapperDataType::Undefined:
-        m_intValue = 0;
-        break;
     case LengthWrapperDataType::Fixed:
     case LengthWrapperDataType::Relative:
     case LengthWrapperDataType::Intrinsic:
@@ -267,11 +230,7 @@ inline void LengthWrapperData::initialize(const LengthWrapperData& other)
     case LengthWrapperDataType::FillAvailable:
     case LengthWrapperDataType::FitContent:
     case LengthWrapperDataType::Percent:
-        m_isFloat = other.m_isFloat;
-        if (m_isFloat)
-            m_floatValue = other.m_floatValue;
-        else
-            m_intValue = other.m_intValue;
+        m_floatValue = other.m_floatValue;
         break;
     case LengthWrapperDataType::Calculated:
         m_calculationValueHandle = other.m_calculationValueHandle;
@@ -291,8 +250,6 @@ inline void LengthWrapperData::initialize(LengthWrapperData&& other)
     case LengthWrapperDataType::Normal:
     case LengthWrapperDataType::Content:
     case LengthWrapperDataType::Undefined:
-        m_intValue = 0;
-        break;
     case LengthWrapperDataType::Fixed:
     case LengthWrapperDataType::Relative:
     case LengthWrapperDataType::Intrinsic:
@@ -302,11 +259,7 @@ inline void LengthWrapperData::initialize(LengthWrapperData&& other)
     case LengthWrapperDataType::FillAvailable:
     case LengthWrapperDataType::FitContent:
     case LengthWrapperDataType::Percent:
-        m_isFloat = other.m_isFloat;
-        if (m_isFloat)
-            m_floatValue = other.m_floatValue;
-        else
-            m_intValue = other.m_intValue;
+        m_floatValue = other.m_floatValue;
         break;
     case LengthWrapperDataType::Calculated:
         m_calculationValueHandle = std::exchange(other.m_calculationValueHandle, 0);
@@ -339,15 +292,7 @@ inline bool LengthWrapperData::operator==(const LengthWrapperData& other) const
 inline float LengthWrapperData::value() const
 {
     ASSERT(!isEmptyValue());
-    return m_isFloat ? m_floatValue : m_intValue;
-}
-
-inline int LengthWrapperData::intValue() const
-{
-    // FIXME: Makes no sense to return 0 here but not in the value() function above.
-    if (m_type == LengthWrapperDataType::Calculated)
-        return 0;
-    return m_isFloat ? static_cast<int>(m_floatValue) : m_intValue;
+    return m_floatValue;
 }
 
 inline LengthWrapperDataType LengthWrapperData::type() const
@@ -365,7 +310,7 @@ inline bool LengthWrapperData::isPositive() const
     ASSERT(!isEmptyValue());
     if (m_type == LengthWrapperDataType::Calculated)
         return true;
-    return m_isFloat ? (m_floatValue > 0) : (m_intValue > 0);
+    return m_floatValue > 0;
 }
 
 inline bool LengthWrapperData::isNegative() const
@@ -373,7 +318,7 @@ inline bool LengthWrapperData::isNegative() const
     ASSERT(!isEmptyValue());
     if (m_type == LengthWrapperDataType::Calculated)
         return false;
-    return m_isFloat ? (m_floatValue < 0) : (m_intValue < 0);
+    return m_floatValue < 0;
 }
 
 inline bool LengthWrapperData::isZero() const
@@ -381,7 +326,7 @@ inline bool LengthWrapperData::isZero() const
     ASSERT(!isEmptyValue());
     if (m_type == LengthWrapperDataType::Calculated)
         return false;
-    return m_isFloat ? !m_floatValue : !m_intValue;
+    return !m_floatValue;
 }
 
 LengthWrapperData blendLengthWrapperData(const LengthWrapperData& from, const LengthWrapperData& to, const BlendingContext&);
