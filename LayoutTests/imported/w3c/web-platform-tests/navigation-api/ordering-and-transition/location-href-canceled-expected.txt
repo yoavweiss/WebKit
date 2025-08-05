@@ -1,5 +1,3 @@
 
-Harness Error (TIMEOUT), message = null
-
-TIMEOUT event and promise ordering for the location.href setter where the navigate event is canceled Test timed out
+FAIL event and promise ordering for the location.href setter where the navigate event is canceled assert_array_equals: lengths differ, expected array ["navigate", "AbortSignal abort", "navigateerror", "promise microtask"] length 4, got ["promise microtask"] length 1
 

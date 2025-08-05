@@ -1,5 +1,6 @@
+CONSOLE MESSAGE: Unhandled Promise Rejection: Error: boo
 
-Harness Error (TIMEOUT), message = null
+Harness Error (FAIL), message = Unhandled rejection: boo
 
-TIMEOUT event and promise ordering for location.href setter intercepted by passing a rejected promise to intercept() Test timed out
+FAIL event and promise ordering for location.href setter intercepted by passing a rejected promise to intercept() assert_array_equals: expected property 0 to be "navigate" but got "promise microtask" (expected array ["navigate", "currententrychange", "handler run", "promise microtask", "navigateerror", "transition.finished rejected"] got ["promise microtask", "navigate", "currententrychange", "handler run", "navigateerror", "transition.finished rejected"])
 
