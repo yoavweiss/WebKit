@@ -86,7 +86,7 @@ public:
     LayoutUnit resolveAlignmentShift(const LayoutUnit unusedSpace, const LayoutUnit itemSize) const;
 
     void fixupLogicalLeftPosition(RenderBox::LogicalExtentComputedValues&) const;
-    void fixupLogicalTopPosition(RenderBox::LogicalExtentComputedValues&) const;
+    void adjustLogicalTopWithLogicalHeightIfNeeded(RenderBox::LogicalExtentComputedValues&) const;
 
 private:
     bool containingCoordsAreFlipped() const;
