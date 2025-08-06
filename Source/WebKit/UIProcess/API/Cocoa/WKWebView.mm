@@ -6377,7 +6377,7 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
 #endif
             return rectInRootView;
         });
-        RetainPtr result = adoptNS([[WKTextExtractionResult alloc] initWithRootItem:rootItem.get()]);
+        RetainPtr result = adoptNS([[WKTextExtractionResult alloc] initWithRootItem:rootItem.get() popupMenu:nil]);
         completionHandler(result.get());
     });
 #endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
