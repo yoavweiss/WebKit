@@ -5679,8 +5679,15 @@ sub GenerateAttributeGetterBodyDefinition
         }
 
         if ($attribute->extendedAttributes->{Reflect} && $attribute->extendedAttributes->{Enumerated}) {
-            my $attributeName = $attribute->extendedAttributes->{Reflect};
-            $attributeName = $attribute->name if !$attributeName || $attributeName eq "VALUE_IS_MISSING";
+            my $reflect = $attribute->extendedAttributes->{Reflect};
+            my $attributeName;
+            if (!defined $reflect || $reflect eq "VALUE_IS_MISSING") {
+                $attributeName = $attribute->name;
+            } else {
+                $attributeName = $codeGenerator->UnquoteStringLiteral($reflect);
+                $attributeName =~ s/-/_/g;
+            }
+
             my $enumType = $attribute->extendedAttributes->{Enumerated};
             my $missingValueDefault;
             my $invalidValueDefault;
