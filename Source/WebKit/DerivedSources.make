@@ -456,12 +456,9 @@ SANDBOX_PROFILES_IOS = \
 	com.apple.WebKit.adattributiond.sb \
 	com.apple.WebKit.webpushd.sb \
 	com.apple.WebKit.GPU.sb \
-	com.apple.WebKit.GPU.Development.sb \
 	com.apple.WebKit.Model.sb \
 	com.apple.WebKit.Networking.sb \
-	com.apple.WebKit.Networking.Development.sb \
-	com.apple.WebKit.WebContent.sb \
-	com.apple.WebKit.WebContent.Development.sb
+	com.apple.WebKit.WebContent.sb
 
 sandbox-profiles-ios : $(SANDBOX_PROFILES_IOS)
 

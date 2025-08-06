@@ -8304,9 +8304,6 @@
 		E3CAAA432413278A00CED2E2 /* AccessibilitySupportSPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AccessibilitySupportSPI.h; sourceTree = "<group>"; };
 		E3D0A93F2D62B1C90094538A /* ServiceWorkerDebuggableFrontendChannel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServiceWorkerDebuggableFrontendChannel.h; sourceTree = "<group>"; };
 		E3D0A9402D62B1C90094538A /* ServiceWorkerDebuggableFrontendChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ServiceWorkerDebuggableFrontendChannel.cpp; sourceTree = "<group>"; };
-		E3D80CA02E43AA3000D285E0 /* com.apple.WebKit.GPU.Development.sb.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = com.apple.WebKit.GPU.Development.sb.in; sourceTree = "<group>"; };
-		E3D80CA12E43AA3000D285E0 /* com.apple.WebKit.Networking.Development.sb.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = com.apple.WebKit.Networking.Development.sb.in; sourceTree = "<group>"; };
-		E3D80CA22E43AA3000D285E0 /* com.apple.WebKit.WebContent.Development.sb.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = com.apple.WebKit.WebContent.Development.sb.in; sourceTree = "<group>"; };
 		E3DC5B1A2C9AE09700D73BB3 /* LogStreamIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogStreamIdentifier.h; sourceTree = "<group>"; };
 		E3DCC9AA2DA07FA0008712FE /* WebKitServiceNames.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebKitServiceNames.h; sourceTree = "<group>"; };
 		E3E6297C2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServiceWorkerDebuggableProxy.h; sourceTree = "<group>"; };
@@ -14456,12 +14453,9 @@
 			isa = PBXGroup;
 			children = (
 				5C1578E5270E0DBC00ED5280 /* com.apple.WebKit.adattributiond.sb.in */,
-				E3D80CA02E43AA3000D285E0 /* com.apple.WebKit.GPU.Development.sb.in */,
 				2DB96052239886B900102791 /* com.apple.WebKit.GPU.sb.in */,
 				2DA8152D28A43CBF00CF811C /* com.apple.WebKit.Model.sb.in */,
-				E3D80CA12E43AA3000D285E0 /* com.apple.WebKit.Networking.Development.sb.in */,
 				A78CCDD8193AC9E3005ECC25 /* com.apple.WebKit.Networking.sb.in */,
-				E3D80CA22E43AA3000D285E0 /* com.apple.WebKit.WebContent.Development.sb.in */,
 				E313664D265EE5AF0051084F /* com.apple.WebKit.WebContent.sb.in */,
 				EBE0B837294BDD65004FA3BE /* com.apple.WebKit.webpushd.sb.in */,
 			);
@@ -20299,7 +20293,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Preprocessing sandbox\"\nScripts/generate-derived-sources.sh sandbox-profiles-ios\nmkdir -p ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.adattributiond.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.webpushd.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.GPU.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.GPU.Development.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.Networking.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.Networking.Development.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.WebAuthn.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.WebContent.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.WebContent.Development.sb ${DSTROOT}/${INSTALL_PATH}\n\nif [[ -e ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.Model.sb ]]; then\n    cp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.Model.sb ${DSTROOT}/${INSTALL_PATH}\nfi\n";
+			shellScript = "echo \"Preprocessing sandbox\"\nScripts/generate-derived-sources.sh sandbox-profiles-ios\nmkdir -p ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.adattributiond.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.webpushd.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.GPU.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.Networking.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.WebAuthn.sb ${DSTROOT}/${INSTALL_PATH}\ncp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.WebContent.sb ${DSTROOT}/${INSTALL_PATH}\n\nif [[ -e ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.Model.sb ]]; then\n    cp ${BUILT_PRODUCTS_DIR}/DerivedSources/WebKit/com.apple.WebKit.Model.sb ${DSTROOT}/${INSTALL_PATH}\nfi\n";
 		};
 		E311D2A92B76DCCA0074BC7E /* Create symlink */ = {
 			isa = PBXShellScriptBuildPhase;
