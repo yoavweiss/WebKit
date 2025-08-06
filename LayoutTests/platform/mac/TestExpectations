@@ -2508,3 +2508,5 @@ webkit.org/b/296017 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/s
 [ x86_64 ] imported/w3c/web-platform-tests/svg/text/reftests/dominant-baseline-central-large-font-size.svg [ Skip ]
 
 webkit.org/b/296944 [ Release ] imported/w3c/web-platform-tests/html/dom/idlharness.worker.html [ Pass Failure ]
+
+webkit.org/b/296976 [ x86_64 ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audioworklet-interface/audioworklet-denormals.https.window.html [ Failure ]
