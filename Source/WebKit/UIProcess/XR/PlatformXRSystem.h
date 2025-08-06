@@ -64,7 +64,11 @@ public:
 
     USING_CAN_MAKE_WEAKPTR(PlatformXRCoordinatorSessionEventClient);
 
-    void invalidate();
+    enum class InvalidationReason : uint8_t {
+        Client,
+        State
+    };
+    void invalidate(InvalidationReason invalidateReason = InvalidationReason::State);
 
     bool hasActiveSession() const { return !!m_immersiveSessionActivity; }
     void ensureImmersiveSessionActivity();

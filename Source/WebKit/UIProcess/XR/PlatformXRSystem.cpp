@@ -64,7 +64,7 @@ std::optional<SharedPreferencesForWebProcess> PlatformXRSystem::sharedPreference
     return WebProcessProxy::fromConnection(connection)->sharedPreferencesForWebProcess();
 }
 
-void PlatformXRSystem::invalidate()
+void PlatformXRSystem::invalidate(InvalidationReason reason)
 {
     ASSERT(RunLoop::isMain());
     RefPtr page = m_page.get();
@@ -77,7 +77,7 @@ void PlatformXRSystem::invalidate()
     if (xrCoordinator())
         xrCoordinator()->endSessionIfExists(*page);
 
-    invalidateImmersiveSessionState();
+    invalidateImmersiveSessionState(reason == InvalidationReason::Client ? ImmersiveSessionState::SessionEndingFromSystem : ImmersiveSessionState::Idle);
 }
 
 void PlatformXRSystem::ensureImmersiveSessionActivity()

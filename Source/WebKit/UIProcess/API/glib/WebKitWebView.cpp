@@ -32,6 +32,7 @@
 #include "JavaScriptEvaluationResult.h"
 #include "NotificationService.h"
 #include "PageLoadState.h"
+#include "PlatformXRSystem.h"
 #include "ProcessTerminationReason.h"
 #include "ProvisionalPageProxy.h"
 #include "RunJavaScriptParameters.h"
@@ -5842,4 +5843,27 @@ webkit_web_view_get_default_content_security_policy(WebKitWebView* webView)
         return nullptr;
 
     return webView->priv->defaultContentSecurityPolicy.data();
+}
+
+/**
+ * webkit_web_view_end_immersive_session:
+ * @web_view: a #WebKitWebView
+ *
+ * Requests the immersive session associated to this #WebKitWebView to end.
+ *
+ * Since: 2.50
+ */
+void
+webkit_web_view_end_immersive_session(WebKitWebView* webView)
+{
+    g_return_if_fail(WEBKIT_IS_WEB_VIEW(webView));
+
+#if ENABLE(WEBXR)
+    Ref page = getPage(webView);
+    if (auto xrSystem = page->xrSystem()) {
+        // This asks the xr coordinator to end the session for the page it's invoked on,
+        // going through the sessionDidEnd message
+        xrSystem->invalidate(PlatformXRSystem::InvalidationReason::Client);
+    }
+#endif
 }
