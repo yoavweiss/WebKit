@@ -79,7 +79,7 @@ String ScriptBuffer::toString() const
 
 bool ScriptBuffer::containsSingleFileMappedSegment() const
 {
-    return m_buffer && m_buffer.get()->hasOneSegment() && m_buffer.get()->begin()->segment->containsMappedFileData();
+    return m_buffer.hasOneSegment() && m_buffer.begin()->segment->containsMappedFileData();
 }
 
 void ScriptBuffer::append(const String& string)

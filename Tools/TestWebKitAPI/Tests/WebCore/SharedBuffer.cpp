@@ -225,6 +225,26 @@ TEST_F(FragmentedSharedBufferTest, builder)
     EXPECT_TRUE(builder2.isEmpty());
 }
 
+TEST_F(FragmentedSharedBufferTest, builderEmptyFollowedByGet)
+{
+    SharedBufferBuilder builder;
+    EXPECT_TRUE(!builder.get());
+    builder.empty();
+    EXPECT_FALSE(!builder.get());
+}
+
+TEST_F(FragmentedSharedBufferTest, builderInPlace)
+{
+    SharedBufferBuilder builder(std::in_place, "Hello"_span, "GoodBye"_span);
+    EXPECT_FALSE(builder.isNull());
+    EXPECT_FALSE(builder.isEmpty());
+    EXPECT_FALSE(builder.isContiguous());
+    EXPECT_EQ(builder.take()->segmentsCount(), 2u);
+    EXPECT_TRUE(builder.isNull());
+    EXPECT_TRUE(builder.isEmpty());
+    EXPECT_TRUE(builder.isContiguous());
+}
+
 static void checkBufferWithLength(const uint8_t* buffer, size_t bufferLength, const char* expected, size_t length)
 {
     ASSERT_EQ(length, bufferLength);
@@ -381,7 +401,7 @@ TEST_F(FragmentedSharedBufferTest, extractData)
     auto vector = copy->extractData();
     EXPECT_TRUE(copy->isEmpty());
     EXPECT_FALSE(original->isEmpty());
-    ASSERT_TRUE(original->hasOneSegment());
+    ASSERT_EQ(original->segmentsCount(), 1u);
     EXPECT_GT(original->begin()->segment->size(), 0u);
 }
 
