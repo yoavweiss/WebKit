@@ -23,6 +23,7 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import "CocoaHelpers.h"
 #import "config.h"
 #import "HTTPServer.h"
 #import "WebExtensionUtilities.h"
@@ -75,7 +76,8 @@
     return [_dictionary[@"index"] integerValue];
 }
 
-- (_WKWebExtensionBookmarkType)bookmarkTypeForWebExtensionContext:(WKWebExtensionContext *)context {
+- (_WKWebExtensionBookmarkType)bookmarkTypeForWebExtensionContext:(WKWebExtensionContext *)context
+{
     NSString *typeString = self.dictionary[@"type"];
     if ([typeString isEqualToString:@"folder"])
         return _WKWebExtensionBookmarkTypeFolder;
@@ -85,7 +87,9 @@
         return _WKWebExtensionBookmarkTypeBookmark;
     return _WKWebExtensionBookmarkTypeFolder;
 }
-- (NSArray<id<_WKWebExtensionBookmark>> *)childrenForWebExtensionContext:(WKWebExtensionContext *)context {
+
+- (NSArray<id<_WKWebExtensionBookmark>> *)childrenForWebExtensionContext:(WKWebExtensionContext *)context
+{
     NSArray *childDictionaries = _dictionary[@"children"];
     if (!childDictionaries)
         return nil;
@@ -93,6 +97,18 @@
     for (NSDictionary *childDict in childDictionaries)
         [children addObject:[[_MockBookmarkNode alloc] initWithDictionary:childDict]];
     return children;
+}
+
+- (NSDate *)dateAddedForWebExtensionContext:(WKWebExtensionContext *)context
+{
+    NSNumber *dateValue = WebKit::objectForKey<NSNumber>(_dictionary, @"dateAdded");
+    if (!dateValue)
+        return nil;
+
+    double millisecondsSinceEpoch = dateValue.doubleValue;
+    NSTimeInterval secondsSinceEpoch = millisecondsSinceEpoch / 1000.0;
+
+    return [NSDate dateWithTimeIntervalSince1970:secondsSinceEpoch];
 }
 
 @end
@@ -254,6 +270,9 @@ protected:
             newBookmarkData[@"title"] = title;
             if (url)
                 newBookmarkData[@"url"] = url;
+            double dateAddedInMilliseconds = NSDate.date.timeIntervalSince1970 * 1000.0;
+            newBookmarkData[@"dateAdded"] = @(dateAddedInMilliseconds);
+
             NSString *newId = [NSString stringWithFormat:@"%ld", (long)this->nextMockBookmarkId];
             this->nextMockBookmarkId++;
             newBookmarkData[@"id"] = newId;
@@ -381,16 +400,17 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPICheckgetRecent)
     Util::loadAndRunExtension(bookmarkOnManifest, @{ @"background.js": Util::constructScript(script) }, bookmarkConfig);
 }
 
-TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIMockNodeWithgetRecent)
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIGetRecent)
 {
     auto *script = @[
-        @"browser.bookmarks.create({id: 'id_old', title: 'Oldest Bookmark', url: 'http://example.com/1', dateAdded: 1000})",
-        @"browser.bookmarks.create({id: 'id_new', title: 'Newest Bookmark', url: 'http://example.com/3', dateAdded: 3000})",
-        @"browser.bookmarks.create({id: 'id_mid', title: 'Middle Bookmark', url: 'http://example.com/2', dateAdded: 2000})",
+        @"let oldBm = await browser.bookmarks.create({title: 'Oldest Bookmark', url: 'http://example.com/1'})",
+        @"let midBm = await browser.bookmarks.create({title: 'Middle Bookmark', url: 'http://example.com/2'})",
+        @"let newBm = await browser.bookmarks.create({title: 'Newest Bookmark', url: 'http://example.com/3'})",
         @"let recent = await browser.bookmarks.getRecent(2)",
         @"browser.test.assertEq(2, recent.length, 'Should return exactly 2 bookmarks')",
         @"browser.test.assertEq('Newest Bookmark', recent[0].title, 'First result should be the newest bookmark')",
         @"browser.test.assertEq('Middle Bookmark', recent[1].title, 'Second result should be the middle bookmark')",
+        @"let newFolder = await browser.bookmarks.create({title: 'Newest Folder'})",
         @"let recent2 = await browser.bookmarks.getRecent(5)",
         @"browser.test.assertEq(3, recent2.length, 'Should adapt and return the max available which is 3')",
         @"browser.test.assertEq('Newest Bookmark', recent2[0].title, 'First result should be the newest bookmark')",
@@ -404,21 +424,25 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIMockNodeWithgetRecent)
     auto manager = getManagerFor(resources, bookmarkOnManifest);
 
     configureCreateBookmarkDelegate(manager.get());
+    configureGetBookmarksDelegate(manager.get());
 
     [manager loadAndRun];
 }
 
-TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPICreateParse)
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPICreate)
 {
     auto *script = @[
-        @"let createdNode = await browser.bookmarks.create({id: 'test1', title: 'My Test Bookmark', url: 'https://example.com/test1'})",
+        @"let createdNode = await browser.bookmarks.create({title: 'My Test Bookmark', url: 'https://example.com/test1'})",
         @"browser.test.assertEq('My Test Bookmark', createdNode.title, 'Title should match');",
         @"browser.test.assertEq('https://example.com/test1', createdNode.url, 'URL should match');",
         @"browser.test.assertEq('bookmark', createdNode.type, 'Type should be bookmark');",
-        @"let createdNode2 = await browser.bookmarks.create({id: 'test2', title: 'My Test Folder', parentId: 'testFavorites'})",
+        @"let createdNode2 = await browser.bookmarks.create({title: 'My Test Folder'})",
         @"browser.test.assertEq('My Test Folder', createdNode2.title, 'Title should match');",
         @"browser.test.assertEq('folder', createdNode2.type, 'type should be folder because url is not specified');",
-        @"browser.test.assertEq('testFavorites', createdNode2.parentId, 'parentId should match');",
+        @"let createdNode3 = await browser.bookmarks.create({title: 'My Children Folder', parentId: createdNode2.id})",
+        @"browser.test.assertEq('My Children Folder', createdNode3.title, 'Title should match');",
+        @"browser.test.assertEq('folder', createdNode3.type, 'type should be folder because url is not specified');",
+        @"browser.test.assertEq(createdNode2.id, createdNode3.parentId, 'parentId should match');",
         @"browser.test.notifyPass()",
     ];
 
@@ -435,18 +459,18 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPICreateParse)
 TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIGetTree)
 {
     auto *script = @[
-        @"let bookmark1 = await browser.bookmarks.create({type: 'bookmark', id: 'bookmark1', title: 'Top Bookmark 1', url: 'http://example.com/bm1'});",
-        @"let folder1 = await browser.bookmarks.create({id: 'folder1', type: 'folder', title: 'Top Folder 1'});",
-        @"let bookmark2 = await browser.bookmarks.create({id: 'bookmark2', title: 'Child Bookmark 2', url: 'http://example.com/bm2', parentId: folder1.id});",
-        @"let bookmark3 = await browser.bookmarks.create({id: 'bookmark3', title: 'Top Bookmark 3', url: 'http://example.com/bm3'});",
+        @"let bookmark1 = await browser.bookmarks.create({type: 'bookmark', title: 'Top Bookmark 1', url: 'http://example.com/bm1'});",
+        @"let folder1 = await browser.bookmarks.create({type: 'folder', title: 'Top Folder 1'});",
+        @"let bookmark2 = await browser.bookmarks.create({title: 'Child Bookmark 2', url: 'http://example.com/bm2', parentId: folder1.id});",
+        @"let bookmark3 = await browser.bookmarks.create({title: 'Top Bookmark 3', url: 'http://example.com/bm3'});",
         @"let root = await browser.bookmarks.getTree();",
-        @"browser.test.assertEq('testBookmarksRoot', root.id, 'Root node ID should be root');",
-        @"browser.test.assertTrue(root.children.length >= 1, 'Root should have at least one child (default folder)');",
-        @"let foundBookmark1 = root.children.find(n => n.title === bookmark1.title);",
+        @"browser.test.assertTrue(Array.isArray(root), 'Root object should have a children array');",
+        @"browser.test.assertTrue(root.length >= 1, 'Root should have at least one child (default folder)');",
+        @"let foundBookmark1 = root.find(n => n.title === bookmark1.title);",
         @"browser.test.assertEq('Top Bookmark 1', foundBookmark1.title, 'Bm1 title matches');",
         @"browser.test.assertEq('http://example.com/bm1', foundBookmark1.url, 'Bm1 URL matches');",
         @"browser.test.assertEq('bookmark', foundBookmark1.type, 'Bm1 type is bookmark');",
-        @"let foundFolder1 = root.children.find(n => n.title === folder1.title);",
+        @"let foundFolder1 = root.find(n => n.title === folder1.title);",
         @"browser.test.assertEq('Top Folder 1', foundFolder1.title, 'Folder1 title matches');",
         @"browser.test.assertEq('folder', foundFolder1.type, 'Folder1 type is folder');",
         @"browser.test.assertEq(bookmark2.title, foundFolder1.children[0].title, 'Folder1 should have children array');",
@@ -467,29 +491,29 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIGetTree)
     [manager loadAndRun];
 }
 
-TEST_F(WKWebExtensionAPIBookmarks, CreateAndGetTree)
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPICreateAndGetTree)
 {
     auto *script = @[
-        @"let folder = await browser.bookmarks.create({ id: 'testFolder', title: 'Test Folder' });",
+        @"let folder = await browser.bookmarks.create({ title: 'Test Folder' });",
         @"browser.test.assertEq(folder.title, 'Test Folder', 'Folder title should be correct');",
         @"browser.test.assertTrue(!!folder.id, 'Folder should have an ID');",
-        @"let bookmark = await browser.bookmarks.create({ id: 'testbookmark1', parentId: folder.id, title: 'WebKit.org', url: 'https://webkit.org/' });",
+        @"let bookmark = await browser.bookmarks.create({ parentId: folder.id, title: 'WebKit.org', url: 'https://webkit.org/' });",
         @"browser.test.assertEq(bookmark.title, 'WebKit.org', 'Bookmark title should be correct');",
         @"browser.test.assertEq(bookmark.url, 'https://webkit.org/', 'Bookmark URL should be correct');",
         @"let rootNode = await browser.bookmarks.getTree();",
-        @"browser.test.assertTrue(Array.isArray(rootNode.children), 'Root object should have a children array');",
-        @"browser.test.assertEq(rootNode.children.length, 1);",
-        @"browser.test.assertEq(rootNode.children[0].title, 'Test Folder');",
-        @"browser.test.assertTrue(Array.isArray(rootNode.children[0].children), 'Folder should have a children array');",
-        @"browser.test.assertEq(rootNode.children[0].children[0].title, 'WebKit.org', 'Child bookmark in tree should have correct title');",
-        @"browser.test.assertEq(rootNode.children[0].children[0].url, 'https://webkit.org/', 'Child bookmark in tree should have correct URL');",
+        @"browser.test.assertTrue(Array.isArray(rootNode), 'Root object should have a children array');",
+        @"browser.test.assertEq(rootNode.length, 1);",
+        @"browser.test.assertEq(rootNode[0].title, 'Test Folder');",
+        @"browser.test.assertTrue(Array.isArray(rootNode[0].children), 'Folder should have a children array');",
+        @"browser.test.assertEq(rootNode[0].children[0].title, 'WebKit.org', 'Child bookmark in tree should have correct title');",
+        @"browser.test.assertEq(rootNode[0].children[0].url, 'https://webkit.org/', 'Child bookmark in tree should have correct URL');",
         @"let bookmark2 = await browser.bookmarks.create({ id: 'topLevelBookmark', title: 'Test Top Bookmark', url: 'https://coolbook.com/' });",
         @"browser.test.assertEq(bookmark2.title, 'Test Top Bookmark', 'Bookmark title should be correct');",
         @"browser.test.assertEq(bookmark2.url, 'https://coolbook.com/', 'Bookmark URL should be correct');",
         @"let updatedRootNode = await browser.bookmarks.getTree();",
-        @"browser.test.assertEq(updatedRootNode.children.length, 2);",
-        @"browser.test.assertEq(updatedRootNode.children[0].title, 'Test Folder');",
-        @"browser.test.assertEq(updatedRootNode.children[1].title, 'Test Top Bookmark');",
+        @"browser.test.assertEq(updatedRootNode.length, 2);",
+        @"browser.test.assertEq(updatedRootNode[0].title, 'Test Folder');",
+        @"browser.test.assertEq(updatedRootNode[1].title, 'Test Top Bookmark');",
         @"browser.test.notifyPass();",
     ];
 
@@ -502,7 +526,7 @@ TEST_F(WKWebExtensionAPIBookmarks, CreateAndGetTree)
     [manager loadAndRun];
 }
 
-TEST_F(WKWebExtensionAPIBookmarks, GetSubTree)
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIGetSubTreeChildren)
 {
     auto *script = @[
         @"let folder = await browser.bookmarks.create({title: 'Test Folder' });",

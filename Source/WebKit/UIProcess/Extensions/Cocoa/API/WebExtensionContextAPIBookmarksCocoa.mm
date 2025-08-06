@@ -46,6 +46,12 @@ static std::optional<WebExtensionBookmarksParameters> createParametersFromProtoc
     if (NSArray *children = [bookmark childrenForWebExtensionContext:context])
         parameters.children = createParametersFromProtocolObjects(children, context);
 
+    NSDate *dateAdded = [bookmark dateAddedForWebExtensionContext:context];
+    if (dateAdded)
+        parameters.dateAdded = WTF::WallTime::fromRawSeconds(dateAdded.timeIntervalSince1970);
+    else
+        parameters.dateAdded = WTF::WallTime::fromRawSeconds(0);
+
     return parameters;
 }
 
@@ -105,6 +111,30 @@ static Vector<WebExtensionBookmarksParameters> createShallowParametersFromProtoc
     return parameters;
 }
 
+static Vector<WebExtensionBookmarksParameters> flattenAndConvertAllBookmarks(NSArray<id<_WKWebExtensionBookmark>> *nodes, WKWebExtensionContext *context)
+{
+    Vector<WebExtensionBookmarksParameters> flattened;
+    if (!nodes)
+        return flattened;
+
+    for (id<_WKWebExtensionBookmark> node in nodes) {
+        auto parametersOptional = createParametersFromProtocolObject(node, context);
+
+        if (parametersOptional.has_value()) {
+            WebExtensionBookmarksParameters params = WTFMove(parametersOptional.value());
+            flattened.append(WTFMove(params));
+        }
+
+        if ([node bookmarkTypeForWebExtensionContext:context] == _WKWebExtensionBookmarkTypeFolder) {
+            if (NSArray<id<_WKWebExtensionBookmark>> *children = [node childrenForWebExtensionContext:context]) {
+                Vector<WebExtensionBookmarksParameters> childFlattened = flattenAndConvertAllBookmarks(children, context);
+                flattened.appendVector(WTFMove(childFlattened));
+            }
+        }
+    }
+    return flattened;
+}
+
 void WebExtensionContext::bookmarksCreate(const std::optional<String>& parentId, const std::optional<uint64_t>& index, const std::optional<String>& url, const std::optional<String>& title, CompletionHandler<void(Expected<WebExtensionBookmarksParameters, WebExtensionError>&&)>&& completionHandler)
 {
     static NSString * const apiName = @"bookmarks.create()";
@@ -144,7 +174,7 @@ void WebExtensionContext::bookmarksCreate(const std::optional<String>& parentId,
         completionHandler(Expected<WebExtensionBookmarksParameters, WebExtensionError> { WTFMove(parametersOptional.value()) });
     }];
 }
-void WebExtensionContext::bookmarksGetTree(CompletionHandler<void(Expected<WebExtensionBookmarksParameters, WebExtensionError>&&)>&& completionHandler)
+void WebExtensionContext::bookmarksGetTree(CompletionHandler<void(Expected<Vector<WebExtensionBookmarksParameters>, WebExtensionError>&&)>&& completionHandler)
 {
     static NSString * const apiName = @"bookmarks.getTree()";
     ASSERT(isLoaded());
@@ -175,12 +205,7 @@ void WebExtensionContext::bookmarksGetTree(CompletionHandler<void(Expected<WebEx
             return;
         }
         Vector<WebExtensionBookmarksParameters> topLevelNodes = createParametersFromProtocolObjects(bookmarkNodes, contextWrapper);
-        WebExtensionBookmarksParameters rootNode;
-
-        // FIXME: @"testBookmarksRoot" will be removed or changed when we aren't mocking bookmarks anymore.
-        rootNode.nodeId = @"testBookmarksRoot";
-        rootNode.children = WTFMove(topLevelNodes);
-        completionHandler(Expected<WebExtensionBookmarksParameters, WebExtensionError> { WTFMove(rootNode) });
+        completionHandler(Expected<Vector<WebExtensionBookmarksParameters>, WebExtensionError> { WTFMove(topLevelNodes) });
     }];
 }
 void WebExtensionContext::bookmarksGetSubTree(const String& bookmarkId, CompletionHandler<void(Expected<Vector<WebExtensionBookmarksParameters>, WebExtensionError>&&)>&& completionHandler)
@@ -337,7 +362,56 @@ void WebExtensionContext::bookmarksGetChildren(const String& bookmarkId, Complet
 }
 void WebExtensionContext::bookmarksGetRecent(uint64_t count, CompletionHandler<void(Expected<Vector<WebExtensionBookmarksParameters>, WebExtensionError>&&)>&& completionHandler)
 {
+    static NSString *const apiName = @"bookmarks.getRecent()";
 
+    ASSERT(isLoaded());
+    if (!isLoaded())
+        return;
+
+    RefPtr controller = extensionController();
+    if (!controller)
+        return;
+
+    auto *controllerDelegate = controller->delegate();
+    auto *controllerWrapper = controller->wrapper();
+    WKWebExtensionContext *contextWrapper = wrapper();
+
+    if (![controllerDelegate respondsToSelector:@selector(_webExtensionController:bookmarksForExtensionContext:completionHandler:)]) {
+        completionHandler(toWebExtensionError(apiName, nullString(), @"it is not implemented"));
+        return;
+    }
+
+    [controllerDelegate _webExtensionController:controllerWrapper bookmarksForExtensionContext:contextWrapper
+        completionHandler:^(NSArray<id<_WKWebExtensionBookmark>> *allTopLevelNodes, NSError *error) {
+        if (error) {
+            completionHandler(toWebExtensionError(apiName, nullString(), @"failed because it returned an error"));
+            return;
+        }
+
+        if (!allTopLevelNodes) {
+            completionHandler(toWebExtensionError(apiName, nullString(), @"returned array of bookmarks was invalid"));
+            return;
+        }
+
+        Vector<WebExtensionBookmarksParameters> allBookmarksParameters = flattenAndConvertAllBookmarks(allTopLevelNodes, contextWrapper);
+
+        std::sort(allBookmarksParameters.begin(), allBookmarksParameters.end(), [](const WebExtensionBookmarksParameters& a, const WebExtensionBookmarksParameters& b) {
+            return a.dateAdded > b.dateAdded;
+        });
+
+        Vector<WebExtensionBookmarksParameters> recentBookmarks;
+        recentBookmarks.reserveInitialCapacity(std::min(static_cast<size_t>(count), allBookmarksParameters.size()));
+
+        for (const auto& bookmarkParams : allBookmarksParameters) {
+            if (recentBookmarks.size() >= count)
+                break;
+
+            if (bookmarkParams.url.has_value() && bookmarkParams.url.value().length() > 0)
+                recentBookmarks.append(bookmarkParams);
+        }
+
+        completionHandler(Expected<Vector<WebExtensionBookmarksParameters>, WebExtensionError> { WTFMove(recentBookmarks) });
+    }];
 }
 void WebExtensionContext::bookmarksSearch(const std::optional<String>& query, const std::optional<String>& url, const std::optional<String>& title, CompletionHandler<void(Expected<Vector<WebExtensionBookmarksParameters>, WebExtensionError>&&)>&& completionHandler)
 {
