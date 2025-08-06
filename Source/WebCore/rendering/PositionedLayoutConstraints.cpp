@@ -278,8 +278,8 @@ bool PositionedLayoutConstraints::isEligibleForStaticRangeAlignment(LayoutUnit s
     if (parent->isRenderGrid()) {
 
         auto& itemStyle = m_renderer->style();
-        auto itemAlignSelf = itemStyle.alignSelf();
-        switch (itemStyle.alignSelf().position()) {
+        auto itemResolvedAlignSelf = itemStyle.resolvedAlignSelf(&parent->style(), ItemPosition::Start);
+        switch (itemResolvedAlignSelf.position()) {
         case ItemPosition::Center:
         case ItemPosition::FlexEnd:
         case ItemPosition::SelfEnd:
@@ -307,10 +307,10 @@ bool PositionedLayoutConstraints::isEligibleForStaticRangeAlignment(LayoutUnit s
             if (!itemStyle.isLeftToRightDirection())
                 return false;
 
-            if (itemAlignSelf.positionType() != ItemPositionType::NonLegacy)
+            if (itemResolvedAlignSelf.positionType() != ItemPositionType::NonLegacy)
                 return false;
 
-            if (itemAlignSelf.overflow() != OverflowAlignment::Default)
+            if (itemResolvedAlignSelf.overflow() != OverflowAlignment::Default)
                 return false;
             return spaceInStaticRange >= itemSize;
         }
@@ -385,8 +385,12 @@ void PositionedLayoutConstraints::resolvePosition(RenderBox::LogicalExtentComput
                 return { };
             }();
 
-            if (isEligibleForStaticRangeAlignment(spaceInStaticRange, itemMarginBoxSize))
+            if (isEligibleForStaticRangeAlignment(spaceInStaticRange, itemMarginBoxSize)) {
+#if ASSERT_ENABLED
+                m_isEligibleForStaticRangeAlignment = true;
+#endif
                 return resolveAlignmentShift(spaceInStaticRange - itemMarginBoxSize, itemMarginBoxSize);
+            }
         }
 
         if (hasAutoBeforeInset)
@@ -475,9 +479,19 @@ LayoutUnit PositionedLayoutConstraints::resolveAlignmentShift(LayoutUnit unusedS
 
 ItemPosition PositionedLayoutConstraints::resolveAlignmentValue() const
 {
-    auto alignmentPosition = m_alignment.position();
-    if (ItemPosition::Auto == alignmentPosition)
-        alignmentPosition = ItemPosition::Normal;
+    auto alignmentPosition = [&] {
+        auto itemPosition = m_alignment.position();
+        if (m_useStaticPosition) {
+#if ASSERT_ENABLED
+            ASSERT(m_isEligibleForStaticRangeAlignment);
+#endif
+            auto* parentStyle = m_renderer->parentStyle();
+            return m_style.resolvedAlignSelf(parentStyle, ItemPosition::Start).position();
+        }
+        if (ItemPosition::Auto == itemPosition)
+            return ItemPosition::Normal;
+        return itemPosition;
+    }();
 
     if (m_style.positionArea() && ItemPosition::Normal == alignmentPosition)
         return m_style.positionArea()->defaultAlignmentForAxis(m_physicalAxis, m_containingWritingMode, m_writingMode);
