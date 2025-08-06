@@ -414,6 +414,7 @@ public:
     bool isWindowActive(const RenderObject&) const;
     bool isChecked(const RenderObject&) const;
     bool isIndeterminate(const RenderObject&) const;
+    bool isSubmitButton(const RenderObject&) const;
     bool isEnabled(const RenderObject&) const;
     bool isFocused(const RenderObject&) const;
     bool isPressed(const RenderObject&) const;

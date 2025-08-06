@@ -531,6 +531,32 @@ LayoutRect RenderThemeCocoa::adjustedPaintRect(const RenderBox& box, const Layou
 
 #if ENABLE(FORM_CONTROL_REFRESH)
 
+bool RenderThemeCocoa::controlSupportsTints(const RenderObject& box) const
+{
+#if PLATFORM(MAC)
+    switch (box.style().usedAppearance()) {
+    case StyleAppearance::Button:
+        return isSubmitButton(box);
+    case StyleAppearance::Checkbox:
+    case StyleAppearance::Radio:
+        return isChecked(box) || isIndeterminate(box);
+    case StyleAppearance::ListButton:
+    case StyleAppearance::ProgressBar:
+    case StyleAppearance::SliderHorizontal:
+    case StyleAppearance::SliderVertical:
+        return true;
+    case StyleAppearance::Switch:
+        return isChecked(box);
+    default:
+        break;
+    }
+#else
+    UNUSED_PARAM(box)
+#endif
+
+    return false;
+}
+
 enum class ControlSize : uint8_t {
     Micro,
     Mini,

@@ -63,6 +63,8 @@ public:
 #if ENABLE(FORM_CONTROL_REFRESH)
     static std::optional<RoundedShape> shapeForInteractionRegion(const RenderBox&, const FloatRect&, ShouldComputePath);
     static FloatSize inflateRectForInteractionRegion(const RenderObject&, FloatRect&);
+    bool controlSupportsTints(const RenderObject&) const override;
+    bool supportsControlTints() const override { return true; }
 #endif
 
     struct IconAndSize {
