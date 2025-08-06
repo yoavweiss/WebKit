@@ -288,7 +288,9 @@ AXObjectCache::AXObjectCache(Page& page, Document* document)
 #endif
     ASSERT(isMainThread());
 
+#if !LOG_DISABLED || !RELEASE_LOG_DISABLED
     setAccessibilityLogChannelEnabled(LOG_CHANNEL(Accessibility).state != logChannelStateOff);
+#endif
 
 #if ENABLE(AX_THREAD_TEXT_APIS)
     gAccessibilityThreadTextApisEnabled = DeprecatedGlobalSettings::accessibilityThreadTextApisEnabled();
