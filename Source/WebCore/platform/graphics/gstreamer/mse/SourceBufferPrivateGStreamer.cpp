@@ -184,9 +184,13 @@ void SourceBufferPrivateGStreamer::enqueueSample(Ref<MediaSample>&& sample, Trac
 
     GRefPtr<GstSample> gstSample = sample->platformSample().sample.gstSample;
     ASSERT(gstSample);
-    ASSERT(gst_sample_get_buffer(gstSample.get()));
 
-    if (RefPtr player = this->player()) {
+    GRefPtr<GstBuffer> gstBuffer = gst_sample_get_buffer(gstSample.get());
+    ASSERT(gstBuffer);
+
+    RefPtr player = this->player();
+
+    if (player) {
         GST_TRACE_OBJECT(player->pipeline(), "enqueing sample trackId=%" PRIu64 " presentationSize=%.0fx%.0f at PTS %" GST_TIME_FORMAT " duration: %" GST_TIME_FORMAT,
             trackId, sample->presentationSize().width(), sample->presentationSize().height(),
             GST_TIME_ARGS(WebCore::toGstClockTime(sample->presentationTime())),
@@ -194,6 +198,16 @@ void SourceBufferPrivateGStreamer::enqueueSample(Ref<MediaSample>&& sample, Trac
     }
     ASSERT(m_tracks.contains(trackId));
     auto track = m_tracks[trackId];
+
+    if (player && track->type() == TrackPrivateBaseGStreamer::Text) {
+        GstMappedBuffer mappedBuffer(gstBuffer, GST_MAP_READ);
+
+        if (mappedBuffer) {
+            GST_TRACE_OBJECT(player->pipeline(), "text sample (trackId=%" PRIu64 ") contents:\n%.*s",
+                trackId, static_cast<int>(mappedBuffer.size()), reinterpret_cast<char*>(mappedBuffer.data()));
+        }
+    }
+
     track->enqueueObject(adoptGRef(GST_MINI_OBJECT(gstSample.leakRef())));
 }
 
@@ -204,7 +218,7 @@ bool SourceBufferPrivateGStreamer::isReadyForMoreSamples(TrackID trackId)
     auto track = m_tracks[trackId];
     bool ret = track->isReadyForMoreSamples();
     if (RefPtr player = this->player())
-        GST_TRACE_OBJECT(player->pipeline(), "isReadyForMoreSamples: %s", boolForPrinting(ret));
+        GST_TRACE_OBJECT(player->pipeline(), "track %" PRIu64 "isReadyForMoreSamples: %s", trackId, boolForPrinting(ret));
     return ret;
 }
 

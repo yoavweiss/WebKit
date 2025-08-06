@@ -511,6 +511,10 @@ fast/css/accent-color/text.html [ Pass ]
 # Currently failing due to a different issue below.
 # media/video-with-alpha.html [ Pass ]
 
+# MSE text track support for formats other than WebVTT
+media/media-source/media-source-mp4ttsimple.html [ Pass ]
+media/media-source/media-source-inband-cea608-track.html [ Pass ]
+
 # Only GStreamer is honoring the CodecDelay field
 webkit.org/b/254222 media/media-source/media-webm-opus-codecdelay.html [ Pass ]
 
