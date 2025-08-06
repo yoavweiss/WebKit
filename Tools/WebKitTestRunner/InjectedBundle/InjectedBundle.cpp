@@ -39,9 +39,11 @@
 #include <WebKit/WKRetainPtr.h>
 #include <WebKit/WebKit2_C.h>
 #include <wtf/CompletionHandler.h>
+#include <wtf/Logging.h>
 #include <wtf/Vector.h>
 #include <wtf/text/CString.h>
 #include <wtf/text/StringBuilder.h>
+#include <wtf/text/TextStream.h>
 
 namespace WTR {
 
@@ -273,6 +275,14 @@ void InjectedBundle::didReceiveMessageToPage(WKBundlePageRef page, WKStringRef m
     if (WKStringIsEqualToUTF8CString(messageName, "NotifyDownloadDone")) {
         if (m_testRunner && m_testRunner->shouldFinishAfterDownload())
             m_testRunner->notifyDone();
+        return;
+    }
+
+    if (WKStringIsEqualToUTF8CString(messageName, "CallTooltipDidChangeCallback")) {
+        auto messageBodyDictionary = dictionaryValue(messageBody);
+        auto tooltipString = stringValue(messageBodyDictionary, "Tooltip");
+        if (m_testRunner)
+            m_testRunner->callTooltipDidChangeCallback(toJS(tooltipString).get());
         return;
     }
 

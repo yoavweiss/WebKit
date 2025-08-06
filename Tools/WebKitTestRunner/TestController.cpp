@@ -84,6 +84,7 @@
 #include <wtf/CompletionHandler.h>
 #include <wtf/CryptographicallyRandomNumber.h>
 #include <wtf/FileSystem.h>
+#include <wtf/Logging.h>
 #include <wtf/MainThread.h>
 #include <wtf/MallocSpan.h>
 #include <wtf/ProcessPrivilege.h>
@@ -97,6 +98,7 @@
 #include <wtf/WTFProcess.h>
 #include <wtf/text/CString.h>
 #include <wtf/text/MakeString.h>
+#include <wtf/text/TextStream.h>
 #include <wtf/unicode/CharacterNames.h>
 
 #if PLATFORM(COCOA)
@@ -502,6 +504,19 @@ static void addMessageToConsole(WKPageRef, WKStringRef message, const void*)
         invocation->outputText(messageString);
 }
 
+void TestController::tooltipDidChange(WKPageRef, WKStringRef tooltip, const void*)
+{
+    TestController::singleton().tooltipDidChange(tooltip);
+}
+
+void TestController::tooltipDidChange(WKStringRef tooltip)
+{
+    if (m_state != RunningTest)
+        return;
+
+    protectedCurrentInvocation()->tooltipDidChange(tooltip);
+}
+
 void TestController::closeOtherPage(WKPageRef page, PlatformWebView* view)
 {
     WKPageClose(page);
@@ -718,7 +733,8 @@ PlatformWebView* TestController::createOtherPlatformWebView(PlatformWebView* par
         nullptr, // queryPermission
         nullptr, // lockScreenOrientationCallback,
         nullptr, // unlockScreenOrientationCallback,
-        addMessageToConsole
+        addMessageToConsole,
+        tooltipDidChange
     };
     WKPageSetPageUIClient(newPage, &otherPageUIClient.base);
 
@@ -1198,7 +1214,8 @@ void TestController::createWebViewWithOptions(const TestOptions& options)
         nullptr, // lockScreenOrientation
         nullptr, // unlockScreenOrientation
 #endif
-        addMessageToConsole
+        addMessageToConsole,
+        tooltipDidChange
     };
     WKPageSetPageUIClient(m_mainWebView->page(), &pageUIClient.base);
 
@@ -1899,7 +1916,7 @@ bool TestController::runTest(const char* inputLine)
     auto command = parseInputLine(std::string(inputLine));
 
     m_state = RunningTest;
-    
+
     TestOptions options = testOptionsForTest(command);
 
     m_mainResourceURL = adoptWK(createTestURL(command.pathOrURL));

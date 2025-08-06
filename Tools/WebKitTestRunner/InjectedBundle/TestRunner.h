@@ -402,6 +402,9 @@ public:
     void callDidEndSwipeCallback();
     void callDidRemoveSwipeSnapshotCallback();
 
+    void installTooltipDidChangeCallback(JSContextRef, JSValueRef);
+    void callTooltipDidChangeCallback(JSStringRef tooltip);
+
     void clearTestRunnerCallbacks();
 
     void accummulateLogsForChannel(JSStringRef channel);

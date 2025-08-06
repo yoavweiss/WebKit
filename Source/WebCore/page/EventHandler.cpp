@@ -2194,7 +2194,8 @@ HandleUserInputEventResult EventHandler::mouseMoved(const PlatformMouseEvent& ev
         return result;
 
     hitTestResult.setToNonUserAgentShadowAncestor();
-    page->chrome().mouseDidMoveOverElement(hitTestResult, event.modifiers());
+    if (!result.remoteUserInputEventData())
+        page->chrome().mouseDidMoveOverElement(hitTestResult, event.modifiers());
 
 #if ENABLE(IMAGE_ANALYSIS)
     if (event.syntheticClickType() == SyntheticClickType::NoTap && m_textRecognitionHoverTimer.isActive())

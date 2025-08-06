@@ -43,9 +43,11 @@
 #include <WebKit/WKWebsiteDataStoreRef.h>
 #include <climits>
 #include <cstdio>
+#include <wtf/Logging.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/text/CString.h>
 #include <wtf/text/MakeString.h>
+#include <wtf/text/TextStream.h>
 
 #if PLATFORM(MAC) && !PLATFORM(IOS_FAMILY)
 #include <Carbon/Carbon.h>
@@ -272,6 +274,13 @@ void TestInvocation::forceRepaintDoneCallback(WKErrorRef error, void* context)
 
     testInvocation->m_gotRepaint = true;
     TestController::singleton().notifyDone();
+}
+
+void TestInvocation::tooltipDidChange(WKStringRef toolTip)
+{
+    auto messageBody = adoptWK(WKMutableDictionaryCreate());
+    setValue(messageBody, "Tooltip", toolTip);
+    postPageMessage("CallTooltipDidChangeCallback", messageBody);
 }
 
 void TestInvocation::dumpResourceLoadStatisticsIfNecessary()

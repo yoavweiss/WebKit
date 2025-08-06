@@ -605,6 +605,7 @@ enum {
     TextDidChangeInTextFieldCallbackID,
     TextFieldDidBeginEditingCallbackID,
     TextFieldDidEndEditingCallbackID,
+    ToolTipDidChangeCallbackID,
     FirstUIScriptCallbackID = 100
 };
 
@@ -1162,6 +1163,16 @@ void TestRunner::callDidEndSwipeCallback()
 void TestRunner::callDidRemoveSwipeSnapshotCallback()
 {
     callTestRunnerCallback(DidRemoveSwipeSnapshotCallbackID);
+}
+
+void TestRunner::installTooltipDidChangeCallback(JSContextRef context, JSValueRef callback)
+{
+    cacheTestRunnerCallback(context, ToolTipDidChangeCallbackID, callback);
+}
+
+void TestRunner::callTooltipDidChangeCallback(JSStringRef tooltip)
+{
+    callTestRunnerCallback(ToolTipDidChangeCallbackID, tooltip);
 }
 
 void TestRunner::clearStatisticsDataForDomain(JSStringRef domain)

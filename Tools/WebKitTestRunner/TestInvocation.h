@@ -76,6 +76,8 @@ public:
 
     void notifyDownloadDone();
 
+    void tooltipDidChange(WKStringRef toolTip);
+
     void dumpResourceLoadStatistics();
 
     bool canOpenWindows() const { return m_canOpenWindows; }
