@@ -8210,3 +8210,5 @@ webkit.org/b/296910 http/tests/app-privacy-report/app-attribution-beacon-isnotap
 webkit.org/b/296964 [ Release ] imported/w3c/web-platform-tests/webrtc/RTCDataChannel-GC.html [ Pass Failure ]
 
 webkit.org/b/297001 http/tests/local/blob/navigate-blob.html [ Pass Failure ]
+
+webkit.org/b/297007 media/webaudio-background-playback.html [ Pass Failure ]

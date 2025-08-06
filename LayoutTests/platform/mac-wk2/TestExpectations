@@ -2402,3 +2402,5 @@ webkit.org/b/296952 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/u
 webkit.org/b/296954 imported/w3c/web-platform-tests/event-timing/event-click-counts.html [ Pass Failure ]
 
 webkit.org/b/296964 imported/w3c/web-platform-tests/webrtc/RTCDataChannel-GC.html [ Pass Failure ]
+
+webkit.org/b/297007 media/webaudio-background-playback.html [ Pass Failure ]
