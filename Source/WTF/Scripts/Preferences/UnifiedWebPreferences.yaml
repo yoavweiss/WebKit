@@ -2005,6 +2005,7 @@ CookieStoreAPIEnabled:
       default: defaultCookieStoreAPIEnabled()
     WebCore:
       default: true
+  sharedPreferenceForWebProcess: true
 
 CookieStoreAPIExtendedAttributesEnabled:
   type: bool
