@@ -270,6 +270,9 @@ imported/w3c/web-platform-tests/fs/ [ Skip ]
 storage/filesystemaccess/ [ Skip ]
 storage/storagemanager/ [ Skip ]
 
+# Not implemented yet
+imported/w3c/web-platform-tests/largest-contentful-paint/ [ Skip ]
+
 # Tests that require wheel events
 compositing/repaint/sticky-repaint-on-scroll.html [ Skip ]
 
