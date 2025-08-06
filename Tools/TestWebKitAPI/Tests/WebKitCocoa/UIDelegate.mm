@@ -28,8 +28,10 @@
 #import "ClassMethodSwizzler.h"
 #import "DeprecatedGlobalValues.h"
 #import "HTTPServer.h"
+#import "IOSMouseEventTestHarness.h"
 #import "InstanceMethodSwizzler.h"
 #import "PlatformUtilities.h"
+#import "TestCocoa.h"
 #import "TestNavigationDelegate.h"
 #import "TestURLSchemeHandler.h"
 #import "TestWKWebView.h"
@@ -43,7 +45,9 @@
 #import <WebKit/WKProcessPoolPrivate.h>
 #import <WebKit/WKRetainPtr.h>
 #import <WebKit/WKUIDelegatePrivate.h>
+#import <WebKit/WKWebViewConfiguration.h>
 #import <WebKit/WKWebViewPrivateForTesting.h>
+#import <WebKit/_WKFeature.h>
 #import <WebKit/_WKHitTestResult.h>
 #import <wtf/BlockPtr.h>
 #import <wtf/RetainPtr.h>
@@ -681,88 +685,6 @@ TEST(WebKit, ShowWebView)
     TestWebKitAPI::Util::run(&done);
     
     ASSERT_EQ(webViewFromDelegateCallback, createdWebView);
-}
-
-@interface PointerLockDelegate : NSObject <WKUIDelegatePrivate>
-- (void)resetState;
-- (void)waitForPointerLockEngaged;
-- (void)waitForPointerLockLost;
-@end
-
-@implementation PointerLockDelegate {
-    bool _didEngagePointerLock;
-    bool _didLosePointerLock;
-}
-
-- (void)resetState
-{
-    _didEngagePointerLock = false;
-    _didLosePointerLock = false;
-}
-
-- (void)waitForPointerLockEngaged
-{
-    TestWebKitAPI::Util::run(&_didEngagePointerLock);
-}
-
-- (void)waitForPointerLockLost
-{
-    TestWebKitAPI::Util::run(&_didLosePointerLock);
-}
-
-- (void)_webViewDidRequestPointerLock:(WKWebView *)webView completionHandler:(void (^)(BOOL))completionHandler
-{
-    completionHandler(YES);
-    _didEngagePointerLock = true;
-}
-
-- (void)_webViewDidLosePointerLock:(WKWebView *)webView
-{
-    _didLosePointerLock = true;
-}
-
-@end
-
-TEST(WebKit, PointerLock)
-{
-    auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600)]);
-    auto delegate = adoptNS([[PointerLockDelegate alloc] init]);
-    [webView setUIDelegate:delegate.get()];
-    [webView synchronouslyLoadHTMLString:
-        @"<canvas width='800' height='600'></canvas><script>"
-        @"var canvas = document.querySelector('canvas');"
-        @"canvas.onclick = ()=>{canvas.requestPointerLock()};"
-        @"</script>"
-    ];
-    [webView sendClicksAtPoint:NSMakePoint(200, 200) numberOfClicks:1];
-    [delegate waitForPointerLockEngaged];
-}
-
-TEST(WebKit, ClientDisplaysAlertSheetWhilePointerLockActive)
-{
-    auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600)]);
-    auto delegate = adoptNS([[PointerLockDelegate alloc] init]);
-    [webView setUIDelegate:delegate.get()];
-    [webView synchronouslyLoadHTMLString:
-        @"<canvas width='800' height='600'></canvas><script>"
-        @"var canvas = document.querySelector('canvas');"
-        @"canvas.onclick = ()=>{canvas.requestPointerLock()};"
-        @"</script>"
-    ];
-    [webView sendClicksAtPoint:NSMakePoint(200, 200) numberOfClicks:1];
-    [delegate waitForPointerLockEngaged];
-    [delegate resetState];
-
-    // Check that pointer lock is lost upon sheet presentation.
-    auto alert = adoptNS([[NSAlert alloc] init]);
-    [alert beginSheetModalForWindow:[webView hostWindow] completionHandler:^(NSModalResponse) { }];
-    [delegate waitForPointerLockLost];
-    [[webView hostWindow] endSheet:[alert window]];
-    [delegate resetState];
-
-    // Check that pointer lock can be requested again successfully.
-    [webView sendClicksAtPoint:NSMakePoint(200, 200) numberOfClicks:1];
-    [delegate waitForPointerLockEngaged];
 }
 
 static bool receivedWindowFrame;
@@ -1508,3 +1430,171 @@ TEST(WebKit, DidNotHandleWheelEvent)
 #endif // RELIABLE_DID_NOT_HANDLE_WHEEL_EVENT
 
 #endif // PLATFORM(MAC)
+
+#if ENABLE(POINTER_LOCK)
+
+@interface PointerLockDelegate : NSObject <WKUIDelegatePrivate>
+@property (nonatomic, readonly) bool didEngagePointerLock;
+- (void)resetState;
+- (void)waitForPointerLockEngaged;
+- (void)waitForPointerLockLost;
+@end
+
+@implementation PointerLockDelegate {
+    bool _didLosePointerLock;
+}
+
+- (void)resetState
+{
+    _didEngagePointerLock = false;
+    _didLosePointerLock = false;
+}
+
+- (void)waitForPointerLockEngaged
+{
+    TestWebKitAPI::Util::run(&_didEngagePointerLock);
+}
+
+- (void)waitForPointerLockLost
+{
+    TestWebKitAPI::Util::run(&_didLosePointerLock);
+}
+
+- (void)_webViewDidRequestPointerLock:(WKWebView *)webView completionHandler:(void (^)(BOOL))completionHandler
+{
+    completionHandler(YES);
+    _didEngagePointerLock = true;
+}
+
+- (void)_webViewDidLosePointerLock:(WKWebView *)webView
+{
+    _didLosePointerLock = true;
+}
+
+@end
+
+#if HAVE(MOUSE_DEVICE_OBSERVATION)
+
+@interface WKMouseDeviceObserver
++ (WKMouseDeviceObserver *)sharedInstance;
+- (void)start;
+- (void)stop;
+- (void)_setHasMouseDeviceForTesting:(BOOL)hasMouseDevice;
+@end
+
+#endif
+
+class PointerLockTests : public testing::Test {
+public:
+    void SetUp() final
+    {
+#if PLATFORM(IOS_FAMILY)
+        TestWebKitAPI::Util::instantiateUIApplicationIfNeeded();
+#endif
+        setHasMouseDeviceForTesting(true);
+
+        m_webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configurationForWebViewTestingPointerLock().get()]);
+        m_delegate = adoptNS([[PointerLockDelegate alloc] init]);
+        [m_webView setUIDelegate:m_delegate.get()];
+        [m_webView synchronouslyLoadHTMLString:
+            @"<canvas width='800' height='600'></canvas><script>"
+            @"var canvas = document.querySelector('canvas');"
+            @"canvas.onclick = () => canvas.requestPointerLock();"
+            @"</script>"
+        ];
+
+        [m_webView focus];
+    }
+
+    static void SetUpTestSuite()
+    {
+#if HAVE(MOUSE_DEVICE_OBSERVATION)
+        [sharedMouseDeviceObserver() start];
+#endif
+    }
+
+    static void TearDownTestSuite()
+    {
+#if HAVE(MOUSE_DEVICE_OBSERVATION)
+        [sharedMouseDeviceObserver() stop];
+#endif
+    }
+
+    void setHasMouseDeviceForTesting(bool hasMouseDeviceForTesting)
+    {
+#if HAVE(MOUSE_DEVICE_OBSERVATION)
+        [sharedMouseDeviceObserver() _setHasMouseDeviceForTesting:hasMouseDeviceForTesting];
+#endif
+        UNUSED_PARAM(hasMouseDeviceForTesting);
+    }
+
+    void click(int x, int y)
+    {
+#if PLATFORM(IOS_FAMILY)
+        TestWebKitAPI::MouseEventTestHarness testHarness { m_webView.get() };
+        testHarness.mouseMove(x, y);
+        testHarness.mouseDown();
+        testHarness.mouseUp();
+#else
+        [m_webView sendClickAtPoint:NSMakePoint(x, y)];
+#endif
+    }
+
+    RetainPtr<TestWKWebView> webView() const { return m_webView.get(); }
+    RetainPtr<PointerLockDelegate> pointerLockDelegate() const { return m_delegate.get(); }
+private:
+#if HAVE(MOUSE_DEVICE_OBSERVATION)
+    static WKMouseDeviceObserver *sharedMouseDeviceObserver()
+    {
+        return [NSClassFromString(@"WKMouseDeviceObserver") sharedInstance];
+    }
+#endif
+
+    static RetainPtr<WKWebViewConfiguration> configurationForWebViewTestingPointerLock()
+    {
+        RetainPtr configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"WebProcessPlugInWithInternals" configureJSCForTesting:YES];
+
+        for (_WKFeature *feature in [WKPreferences _features]) {
+            if ([feature.key isEqualToString:@"PointerLockEnabled"])
+                [[configuration preferences] _setEnabled:YES forFeature:feature];
+        }
+
+        return configuration;
+    }
+
+    RetainPtr<TestWKWebView> m_webView;
+    RetainPtr<PointerLockDelegate> m_delegate;
+};
+
+TEST_F(PointerLockTests, Simple)
+{
+    click(200, 200);
+    [pointerLockDelegate() waitForPointerLockEngaged];
+}
+
+// FIXME: <https://webkit.org/296955> Add test coverage for equivalent flows on iOS.
+#if PLATFORM(MAC)
+TEST_F(PointerLockTests, ClientDisplaysAlertSheetWhilePointerLockActive)
+{
+    click(200, 200);
+
+    RetainPtr delegate = pointerLockDelegate();
+    [delegate waitForPointerLockEngaged];
+    [delegate resetState];
+
+    // Check that pointer lock is lost upon sheet presentation.
+    RetainPtr alert = adoptNS([[NSAlert alloc] init]);
+    [alert beginSheetModalForWindow:[webView() hostWindow] completionHandler:^(NSModalResponse) { }];
+    [delegate waitForPointerLockLost];
+    [[webView() hostWindow] endSheet:[alert window]];
+    [delegate resetState];
+
+    // Check that pointer lock can be requested again successfully.
+    click(200, 200);
+    [delegate waitForPointerLockEngaged];
+}
+#endif
+
+// FIXME: <https://webkit.org/b/296956> [iOS] Add test coverage for mouse availability based gating of pointer lock.
+
+#endif
