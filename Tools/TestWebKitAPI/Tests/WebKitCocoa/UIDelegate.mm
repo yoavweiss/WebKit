@@ -1595,6 +1595,24 @@ TEST_F(PointerLockTests, ClientDisplaysAlertSheetWhilePointerLockActive)
 }
 #endif
 
-// FIXME: <https://webkit.org/b/296956> [iOS] Add test coverage for mouse availability based gating of pointer lock.
+#if HAVE(MOUSE_DEVICE_OBSERVATION)
+
+TEST_F(PointerLockTests, DeniedWithoutMouseDevice)
+{
+    setHasMouseDeviceForTesting(false);
+
+    click(200, 200);
+
+    __block bool done = false;
+
+    [webView() _doAfterProcessingAllPendingMouseEvents:^{
+        EXPECT_FALSE([pointerLockDelegate() didEngagePointerLock]);
+        done = true;
+    }];
+
+    TestWebKitAPI::Util::run(&done);
+}
+
+#endif
 
 #endif
