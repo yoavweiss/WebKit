@@ -38,7 +38,7 @@ bool isAccessibilityLogChannelEnabled();
 // Monitor with:
 //     log stream --process Safari --predicate 'subsystem="com.apple.WebKit" AND category="Accessibility"'
 #define AX_BROKEN_ASSERT(assertion, ...) do { \
-    if (isAccessibilityLogChannelEnabled) { \
+    if (isAccessibilityLogChannelEnabled()) { \
         RELEASE_LOG_ERROR_IF(!(assertion), Accessibility, "BROKEN ASSERTION FAILED in %s(%d) : %s\n", __FILE__, __LINE__, WTF_PRETTY_FUNCTION); \
     } \
 } while (0)
