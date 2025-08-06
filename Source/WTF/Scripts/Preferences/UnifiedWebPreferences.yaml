@@ -4126,6 +4126,21 @@ LargeImageAsyncDecodingEnabled:
     WebCore:
       default: true
 
+
+LargestContentfulPaintEnabled:
+  type: bool
+  status: unstable
+  humanReadableName: "Largest Contentful Paint"
+  humanReadableDescription: "Enable Largest Contentful Paint performance entries"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
+
 LayerBasedSVGEngineEnabled:
   type: bool
   status: unstable
