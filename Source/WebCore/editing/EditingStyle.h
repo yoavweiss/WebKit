@@ -149,7 +149,7 @@ public:
     void mergeStyleFromRulesForSerialization(StyledElement&, StandardFontFamilySerializationMode);
     void removeStyleFromRulesAndContext(StyledElement&, Node* context);
     void removePropertiesInElementDefaultStyle(Element&);
-    void forceInline();
+    void forceDisplayInline();
     void addDisplayContents();
     bool convertPositionStyle();
     bool isFloating();

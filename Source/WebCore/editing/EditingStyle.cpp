@@ -1556,7 +1556,7 @@ void EditingStyle::removeEquivalentProperties(T& style)
     m_mutableStyle->removeProperties(propertiesToRemove.span());
 }
 
-void EditingStyle::forceInline()
+void EditingStyle::forceDisplayInline()
 {
     if (!m_mutableStyle)
         m_mutableStyle = MutableStyleProperties::create();
