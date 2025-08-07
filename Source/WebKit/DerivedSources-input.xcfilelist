@@ -173,10 +173,13 @@ $(PROJECT_DIR)/Platform/IPC/StreamServerConnection.serialization.in
 $(PROJECT_DIR)/Platform/LogMessages.in
 $(PROJECT_DIR)/Platform/SharedMemory.serialization.in
 $(PROJECT_DIR)/Platform/cocoa/MediaPlaybackTargetContextSerialized.serialization.in
+$(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.GPU.Development.sb.in
 $(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.GPU.sb.in
 $(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.Model.sb.in
+$(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.Networking.Development.sb.in
 $(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.Networking.sb.in
 $(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.WebAuthn.sb.in
+$(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.WebContent.Development.sb.in
 $(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.WebContent.sb.in
 $(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.adattributiond.sb.in
 $(PROJECT_DIR)/Resources/SandboxProfiles/ios/com.apple.WebKit.webpushd.sb.in
