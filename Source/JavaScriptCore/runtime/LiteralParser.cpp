@@ -729,10 +729,7 @@ static constexpr const bool safeStringLatin1CharactersInStrictJSON[256] = {
 template <typename CharType>
 static ALWAYS_INLINE bool isJSONWhiteSpace(const CharType& c)
 {
-    if constexpr (std::is_same_v<CharType, LChar>)
-        return tokenTypesOfLatin1Characters[static_cast<uint8_t>(c)] == TokErrorSpace;
-    else
-        return (tokenTypesOfLatin1Characters[static_cast<uint8_t>(c)] == TokErrorSpace) & isLatin1(c);
+    return tokenTypesOfLatin1Characters[static_cast<uint8_t>(c)] == TokErrorSpace && isLatin1(c);
 }
 
 template<typename CharType, JSONReviverMode reviverMode>
@@ -759,351 +756,91 @@ ALWAYS_INLINE TokenType LiteralParser<CharType, reviverMode>::Lexer::lex(Literal
     ASSERT(m_ptr < m_end);
     token.type = TokError;
     CharType character = *m_ptr;
-    LChar type = character;
-    if constexpr (!std::is_same_v<CharType, LChar>) {
-        if (!isLatin1(character)) [[unlikely]]
-            type = '\0';
-    }
-
-    switch (type) {
-    case  39 /*  39 = ' TokString */: {
-        if (m_mode == StrictJSON) [[unlikely]] {
-            m_lexErrorMessage = "Single quotes (\') are not allowed in JSON"_s;
+    if (isLatin1(character)) [[likely]] {
+        TokenType tokenType = tokenTypesOfLatin1Characters[character];
+        switch (tokenType) {
+        case TokString: {
+            if (character == '\'' && m_mode == StrictJSON) [[unlikely]] {
+                m_lexErrorMessage = "Single quotes (\') are not allowed in JSON"_s;
+                if constexpr (reviverMode == JSONReviverMode::Enabled)
+                    m_currentTokenEnd = m_ptr;
+                return TokError;
+            }
+            auto result = lexString<hint>(token, character);
             if constexpr (reviverMode == JSONReviverMode::Enabled)
                 m_currentTokenEnd = m_ptr;
-            return TokError;
+            return result;
         }
-        [[fallthrough]];
-    }
-    case  34 /*  34 = " TokString */: {
-        auto result = lexString<hint>(token, character);
-        if constexpr (reviverMode == JSONReviverMode::Enabled)
-            m_currentTokenEnd = m_ptr;
-        return result;
-    }
 
-    case 116 /* 116 = t TokIdentifier */: {
-        // Because "true" is 4 characters, we use compareCharacters with `m_ptr` instead of `m_ptr + 1`.
-        if (m_end - m_ptr >= 4 && compareCharacters(m_ptr, 't', 'r', 'u', 'e')) [[likely]] {
-            m_ptr += 4;
-            token.type = TokTrue;
+        case TokIdentifier: {
+            switch (character) {
+            case 't':
+                if (m_end - m_ptr >= 4 && compareCharacters(m_ptr + 1, 'r', 'u', 'e')) {
+                    m_ptr += 4;
+                    token.type = TokTrue;
+                    if constexpr (reviverMode == JSONReviverMode::Enabled)
+                        m_currentTokenEnd = m_ptr;
+                    return TokTrue;
+                }
+                break;
+            case 'f':
+                if (m_end - m_ptr >= 5 && compareCharacters(m_ptr + 1, 'a', 'l', 's', 'e')) {
+                    m_ptr += 5;
+                    token.type = TokFalse;
+                    if constexpr (reviverMode == JSONReviverMode::Enabled)
+                        m_currentTokenEnd = m_ptr;
+                    return TokFalse;
+                }
+                break;
+            case 'n':
+                if (m_end - m_ptr >= 4 && compareCharacters(m_ptr + 1, 'u', 'l', 'l')) {
+                    m_ptr += 4;
+                    token.type = TokNull;
+                    if constexpr (reviverMode == JSONReviverMode::Enabled)
+                        m_currentTokenEnd = m_ptr;
+                    return TokNull;
+                }
+                break;
+            }
+            auto result = lexIdentifier(token);
             if constexpr (reviverMode == JSONReviverMode::Enabled)
                 m_currentTokenEnd = m_ptr;
-            return TokTrue;
+            return result;
         }
-        auto result = lexIdentifier(token);
-        if constexpr (reviverMode == JSONReviverMode::Enabled)
-            m_currentTokenEnd = m_ptr;
-        return result;
-    }
 
-    case 102 /* 102 = f TokIdentifier */: {
-        if (m_end - m_ptr >= 5 && compareCharacters(m_ptr + 1, 'a', 'l', 's', 'e')) [[likely]] {
-            m_ptr += 5;
-            token.type = TokFalse;
+        case TokNumber: {
+            auto result = lexNumber(token);
             if constexpr (reviverMode == JSONReviverMode::Enabled)
                 m_currentTokenEnd = m_ptr;
-            return TokFalse;
+            return result;
         }
-        auto result = lexIdentifier(token);
-        if constexpr (reviverMode == JSONReviverMode::Enabled)
-            m_currentTokenEnd = m_ptr;
-        return result;
-    }
 
-    case 110 /* 110 = n TokIdentifier */: {
-        // Because "null" is 4 characters, we use compareCharacters with `m_ptr` instead of `m_ptr + 1`.
-        if (m_end - m_ptr >= 4 && compareCharacters(m_ptr, 'n', 'u', 'l', 'l')) [[likely]] {
-            m_ptr += 4;
-            token.type = TokNull;
+        case TokError:
+        case TokErrorSpace:
+            break;
+
+        default:
+            ASSERT(tokenType == TokLBracket
+                || tokenType == TokRBracket
+                || tokenType == TokLBrace
+                || tokenType == TokRBrace
+                || tokenType == TokColon
+                || tokenType == TokLParen
+                || tokenType == TokRParen
+                || tokenType == TokComma
+                || tokenType == TokDot
+                || tokenType == TokAssign
+                || tokenType == TokSemi);
+            token.type = tokenType;
+            ++m_ptr;
             if constexpr (reviverMode == JSONReviverMode::Enabled)
                 m_currentTokenEnd = m_ptr;
-            return TokNull;
+            return tokenType;
         }
-        auto result = lexIdentifier(token);
-        if constexpr (reviverMode == JSONReviverMode::Enabled)
-            m_currentTokenEnd = m_ptr;
-        return result;
     }
-
-    case  36 /*  36 = $ TokIdentifier */:
-    case  65 /*  65 = A TokIdentifier */:
-    case  66 /*  66 = B TokIdentifier */:
-    case  67 /*  67 = C TokIdentifier */:
-    case  68 /*  68 = D TokIdentifier */:
-    case  69 /*  69 = E TokIdentifier */:
-    case  70 /*  70 = F TokIdentifier */:
-    case  71 /*  71 = G TokIdentifier */:
-    case  72 /*  72 = H TokIdentifier */:
-    case  73 /*  73 = I TokIdentifier */:
-    case  74 /*  74 = J TokIdentifier */:
-    case  75 /*  75 = K TokIdentifier */:
-    case  76 /*  76 = L TokIdentifier */:
-    case  77 /*  77 = M TokIdentifier */:
-    case  78 /*  78 = N TokIdentifier */:
-    case  79 /*  79 = O TokIdentifier */:
-    case  80 /*  80 = P TokIdentifier */:
-    case  81 /*  81 = Q TokIdentifier */:
-    case  82 /*  82 = R TokIdentifier */:
-    case  83 /*  83 = S TokIdentifier */:
-    case  84 /*  84 = T TokIdentifier */:
-    case  85 /*  85 = U TokIdentifier */:
-    case  86 /*  86 = V TokIdentifier */:
-    case  87 /*  87 = W TokIdentifier */:
-    case  88 /*  88 = X TokIdentifier */:
-    case  89 /*  89 = Y TokIdentifier */:
-    case  90 /*  90 = Z TokIdentifier */:
-    case  95 /*  95 = _ TokIdentifier */:
-    case  97 /*  97 = a TokIdentifier */:
-    case  98 /*  98 = b TokIdentifier */:
-    case  99 /*  99 = c TokIdentifier */:
-    case 100 /* 100 = d TokIdentifier */:
-    case 101 /* 101 = e TokIdentifier */:
-    case 103 /* 103 = g TokIdentifier */:
-    case 104 /* 104 = h TokIdentifier */:
-    case 105 /* 105 = i TokIdentifier */:
-    case 106 /* 106 = j TokIdentifier */:
-    case 107 /* 107 = k TokIdentifier */:
-    case 108 /* 108 = l TokIdentifier */:
-    case 109 /* 109 = m TokIdentifier */:
-    case 111 /* 111 = o TokIdentifier */:
-    case 112 /* 112 = p TokIdentifier */:
-    case 113 /* 113 = q TokIdentifier */:
-    case 114 /* 114 = r TokIdentifier */:
-    case 115 /* 115 = s TokIdentifier */:
-    case 117 /* 117 = u TokIdentifier */:
-    case 118 /* 118 = v TokIdentifier */:
-    case 119 /* 119 = w TokIdentifier */:
-    case 120 /* 120 = x TokIdentifier */:
-    case 121 /* 121 = y TokIdentifier */:
-    case 122 /* 122 = z TokIdentifier */: {
-        auto result = lexIdentifier(token);
-        if constexpr (reviverMode == JSONReviverMode::Enabled)
-            m_currentTokenEnd = m_ptr;
-        return result;
-    }
-
-    case  45 /*  45 = - TokNumber */:
-    case  48 /*  48 = 0 TokNumber */:
-    case  49 /*  49 = 1 TokNumber */:
-    case  50 /*  50 = 2 TokNumber */:
-    case  51 /*  51 = 3 TokNumber */:
-    case  52 /*  52 = 4 TokNumber */:
-    case  53 /*  53 = 5 TokNumber */:
-    case  54 /*  54 = 6 TokNumber */:
-    case  55 /*  55 = 7 TokNumber */:
-    case  56 /*  56 = 8 TokNumber */:
-    case  57 /*  57 = 9 TokNumber */: {
-        auto result = lexNumber(token);
-        if constexpr (reviverMode == JSONReviverMode::Enabled)
-            m_currentTokenEnd = m_ptr;
-        return result;
-    }
-
-    case   0 /*   0 = Null               TokError */:
-    case   1 /*   1 = Start of Heading   TokError */:
-    case   2 /*   2 = Start of Text      TokError */:
-    case   3 /*   3 = End of Text        TokError */:
-    case   4 /*   4 = End of Transm.     TokError */:
-    case   5 /*   5 = Enquiry            TokError */:
-    case   6 /*   6 = Acknowledgment     TokError */:
-    case   7 /*   7 = Bell               TokError */:
-    case   8 /*   8 = Back Space         TokError */:
-    case  11 /*  11 = Vertical Tab       TokError */:
-    case  12 /*  12 = Form Feed          TokError */:
-    case  14 /*  14 = Shift Out          TokError */:
-    case  15 /*  15 = Shift In           TokError */:
-    case  16 /*  16 = Data Line Escape   TokError */:
-    case  17 /*  17 = Device Control 1   TokError */:
-    case  18 /*  18 = Device Control 2   TokError */:
-    case  19 /*  19 = Device Control 3   TokError */:
-    case  20 /*  20 = Device Control 4   TokError */:
-    case  21 /*  21 = Negative Ack.      TokError */:
-    case  22 /*  22 = Synchronous Idle   TokError */:
-    case  23 /*  23 = End of Transmit    TokError */:
-    case  24 /*  24 = Cancel             TokError */:
-    case  25 /*  25 = End of Medium      TokError */:
-    case  26 /*  26 = Substitute         TokError */:
-    case  27 /*  27 = Escape             TokError */:
-    case  28 /*  28 = File Separator     TokError */:
-    case  29 /*  29 = Group Separator    TokError */:
-    case  30 /*  30 = Record Separator   TokError */:
-    case  31 /*  31 = Unit Separator     TokError */:
-    case  33 /*  33 = !                  TokError */:
-    case  35 /*  35 = #                  TokError */:
-    case  37 /*  37 = %                  TokError */:
-    case  38 /*  38 = &                  TokError */:
-    case  42 /*  42 = *                  TokError */:
-    case  43 /*  43 = +                  TokError */:
-    case  47 /*  47 = /                  TokError */:
-    case  60 /*  60 = <                  TokError */:
-    case  62 /*  62 = >                  TokError */:
-    case  63 /*  63 = ?                  TokError */:
-    case  64 /*  64 = @                  TokError */:
-    case  92 /*  92 = \                  TokError */:
-    case  94 /*  94 = ^                  TokError */:
-    case  96 /*  96 = `                  TokError */:
-    case 124 /* 124 = |                  TokError */:
-    case 126 /* 126 = ~                  TokError */:
-    case 127 /* 127 = Delete             TokError */:
-    case 128 /* 128 = Cc category        TokError */:
-    case 129 /* 129 = Cc category        TokError */:
-    case 130 /* 130 = Cc category        TokError */:
-    case 131 /* 131 = Cc category        TokError */:
-    case 132 /* 132 = Cc category        TokError */:
-    case 133 /* 133 = Cc category        TokError */:
-    case 134 /* 134 = Cc category        TokError */:
-    case 135 /* 135 = Cc category        TokError */:
-    case 136 /* 136 = Cc category        TokError */:
-    case 137 /* 137 = Cc category        TokError */:
-    case 138 /* 138 = Cc category        TokError */:
-    case 139 /* 139 = Cc category        TokError */:
-    case 140 /* 140 = Cc category        TokError */:
-    case 141 /* 141 = Cc category        TokError */:
-    case 142 /* 142 = Cc category        TokError */:
-    case 143 /* 143 = Cc category        TokError */:
-    case 144 /* 144 = Cc category        TokError */:
-    case 145 /* 145 = Cc category        TokError */:
-    case 146 /* 146 = Cc category        TokError */:
-    case 147 /* 147 = Cc category        TokError */:
-    case 148 /* 148 = Cc category        TokError */:
-    case 149 /* 149 = Cc category        TokError */:
-    case 150 /* 150 = Cc category        TokError */:
-    case 151 /* 151 = Cc category        TokError */:
-    case 152 /* 152 = Cc category        TokError */:
-    case 153 /* 153 = Cc category        TokError */:
-    case 154 /* 154 = Cc category        TokError */:
-    case 155 /* 155 = Cc category        TokError */:
-    case 156 /* 156 = Cc category        TokError */:
-    case 157 /* 157 = Cc category        TokError */:
-    case 158 /* 158 = Cc category        TokError */:
-    case 159 /* 159 = Cc category        TokError */:
-    case 160 /* 160 = Zs category (nbsp) TokError */:
-    case 161 /* 161 = Po category        TokError */:
-    case 162 /* 162 = Sc category        TokError */:
-    case 163 /* 163 = Sc category        TokError */:
-    case 164 /* 164 = Sc category        TokError */:
-    case 165 /* 165 = Sc category        TokError */:
-    case 166 /* 166 = So category        TokError */:
-    case 167 /* 167 = So category        TokError */:
-    case 168 /* 168 = Sk category        TokError */:
-    case 169 /* 169 = So category        TokError */:
-    case 170 /* 170 = Ll category        TokError */:
-    case 171 /* 171 = Pi category        TokError */:
-    case 172 /* 172 = Sm category        TokError */:
-    case 173 /* 173 = Cf category        TokError */:
-    case 174 /* 174 = So category        TokError */:
-    case 175 /* 175 = Sk category        TokError */:
-    case 176 /* 176 = So category        TokError */:
-    case 177 /* 177 = Sm category        TokError */:
-    case 178 /* 178 = No category        TokError */:
-    case 179 /* 179 = No category        TokError */:
-    case 180 /* 180 = Sk category        TokError */:
-    case 181 /* 181 = Ll category        TokError */:
-    case 182 /* 182 = So category        TokError */:
-    case 183 /* 183 = Po category        TokError */:
-    case 184 /* 184 = Sk category        TokError */:
-    case 185 /* 185 = No category        TokError */:
-    case 186 /* 186 = Ll category        TokError */:
-    case 187 /* 187 = Pf category        TokError */:
-    case 188 /* 188 = No category        TokError */:
-    case 189 /* 189 = No category        TokError */:
-    case 190 /* 190 = No category        TokError */:
-    case 191 /* 191 = Po category        TokError */:
-    case 192 /* 192 = Lu category        TokError */:
-    case 193 /* 193 = Lu category        TokError */:
-    case 194 /* 194 = Lu category        TokError */:
-    case 195 /* 195 = Lu category        TokError */:
-    case 196 /* 196 = Lu category        TokError */:
-    case 197 /* 197 = Lu category        TokError */:
-    case 198 /* 198 = Lu category        TokError */:
-    case 199 /* 199 = Lu category        TokError */:
-    case 200 /* 200 = Lu category        TokError */:
-    case 201 /* 201 = Lu category        TokError */:
-    case 202 /* 202 = Lu category        TokError */:
-    case 203 /* 203 = Lu category        TokError */:
-    case 204 /* 204 = Lu category        TokError */:
-    case 205 /* 205 = Lu category        TokError */:
-    case 206 /* 206 = Lu category        TokError */:
-    case 207 /* 207 = Lu category        TokError */:
-    case 208 /* 208 = Lu category        TokError */:
-    case 209 /* 209 = Lu category        TokError */:
-    case 210 /* 210 = Lu category        TokError */:
-    case 211 /* 211 = Lu category        TokError */:
-    case 212 /* 212 = Lu category        TokError */:
-    case 213 /* 213 = Lu category        TokError */:
-    case 214 /* 214 = Lu category        TokError */:
-    case 215 /* 215 = Sm category        TokError */:
-    case 216 /* 216 = Lu category        TokError */:
-    case 217 /* 217 = Lu category        TokError */:
-    case 218 /* 218 = Lu category        TokError */:
-    case 219 /* 219 = Lu category        TokError */:
-    case 220 /* 220 = Lu category        TokError */:
-    case 221 /* 221 = Lu category        TokError */:
-    case 222 /* 222 = Lu category        TokError */:
-    case 223 /* 223 = Ll category        TokError */:
-    case 224 /* 224 = Ll category        TokError */:
-    case 225 /* 225 = Ll category        TokError */:
-    case 226 /* 226 = Ll category        TokError */:
-    case 227 /* 227 = Ll category        TokError */:
-    case 228 /* 228 = Ll category        TokError */:
-    case 229 /* 229 = Ll category        TokError */:
-    case 230 /* 230 = Ll category        TokError */:
-    case 231 /* 231 = Ll category        TokError */:
-    case 232 /* 232 = Ll category        TokError */:
-    case 233 /* 233 = Ll category        TokError */:
-    case 234 /* 234 = Ll category        TokError */:
-    case 235 /* 235 = Ll category        TokError */:
-    case 236 /* 236 = Ll category        TokError */:
-    case 237 /* 237 = Ll category        TokError */:
-    case 238 /* 238 = Ll category        TokError */:
-    case 239 /* 239 = Ll category        TokError */:
-    case 240 /* 240 = Ll category        TokError */:
-    case 241 /* 241 = Ll category        TokError */:
-    case 242 /* 242 = Ll category        TokError */:
-    case 243 /* 243 = Ll category        TokError */:
-    case 244 /* 244 = Ll category        TokError */:
-    case 245 /* 245 = Ll category        TokError */:
-    case 246 /* 246 = Ll category        TokError */:
-    case 247 /* 247 = Sm category        TokError */:
-    case 248 /* 248 = Ll category        TokError */:
-    case 249 /* 249 = Ll category        TokError */:
-    case 250 /* 250 = Ll category        TokError */:
-    case 251 /* 251 = Ll category        TokError */:
-    case 252 /* 252 = Ll category        TokError */:
-    case 253 /* 253 = Ll category        TokError */:
-    case 254 /* 254 = Ll category        TokError */:
-    case 255 /* 255 = Ll category        TokError */:
-    case   9 /*   9 = Horizontal Tab     TokErrorSpace */:
-    case  10 /*  10 = Line Feed          TokErrorSpace */:
-    case  13 /*  13 = Carriage Return    TokErrorSpace */:
-    case  32 /*  32 = Space              TokErrorSpace */: [[unlikely]] {
-        m_lexErrorMessage = makeString("Unrecognized token '"_s, span(*m_ptr), '\'');
-        if constexpr (reviverMode == JSONReviverMode::Enabled)
-            m_currentTokenEnd = m_ptr;
-        return TokError;
-    }
-
-    case  40 /*  40 = ( TokLParen */:
-    case  41 /*  41 = ) TokRParen */:
-    case  44 /*  44 = , TokComma */:
-    case  46 /*  46 = . TokDot */:
-    case  58 /*  58 = : TokColon */:
-    case  59 /*  59 = ; TokSemi */:
-    case  61 /*  61 = = TokAssign */:
-    case  91 /*  91 = [ TokLBracket */:
-    case  93 /*  93 = ] TokRBracket */:
-    case 123 /* 123 = { TokLBrace */:
-    case 125 /* 125 = } TokRBrace */: {
-        token.type = tokenTypesOfLatin1Characters[type];
-        ++m_ptr;
-        if constexpr (reviverMode == JSONReviverMode::Enabled)
-            m_currentTokenEnd = m_ptr;
-        return token.type;
-    }
-    }
-
-    RELEASE_ASSERT_NOT_REACHED();
+    m_lexErrorMessage = makeString("Unrecognized token '"_s, span(*m_ptr), '\'');
+    if constexpr (reviverMode == JSONReviverMode::Enabled)
+        m_currentTokenEnd = m_ptr;
     return TokError;
 }
 
