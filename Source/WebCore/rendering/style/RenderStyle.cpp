@@ -1279,7 +1279,7 @@ static bool rareInheritedDataChangeRequiresRepaint(const StyleRareInheritedData&
         || first.imageRendering != second.imageRendering
         || first.accentColor != second.accentColor
         || first.insideDefaultButton != second.insideDefaultButton
-        || first.insideDisabledSubmitButton != second.insideDisabledSubmitButton
+        || first.insideSubmitButton != second.insideSubmitButton
 #if ENABLE(DARK_MODE_CSS)
         || first.colorScheme != second.colorScheme
 #endif

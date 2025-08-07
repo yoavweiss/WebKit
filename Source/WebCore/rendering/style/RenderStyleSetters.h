@@ -400,7 +400,7 @@ inline void RenderStyle::setTapHighlightColor(Style::Color&& color) { SET(m_rare
 
 inline void RenderStyle::setInsideDefaultButton(bool value) { SET(m_rareInheritedData, insideDefaultButton, value); }
 
-inline void RenderStyle::setInsideDisabledSubmitButton(bool value) { SET(m_rareInheritedData, insideDisabledSubmitButton, value); }
+inline void RenderStyle::setInsideSubmitButton(bool value) { SET(m_rareInheritedData, insideSubmitButton, value); }
 
 inline void RenderStyle::NonInheritedFlags::setHasPseudoStyles(PseudoIdSet pseudoIdSet)
 {

@@ -101,10 +101,14 @@ TextPaintStyle computeTextPaintStyle(const RenderText& renderer, const RenderSty
         }
     }
 
-    if (lineStyle.insideDisabledSubmitButton()) {
+    if (lineStyle.insideSubmitButton()) {
         RefPtr page = renderer.frame().page();
-        if (page && page->focusController().isActive()) {
-            paintStyle.fillColor = RenderTheme::singleton().disabledSubmitButtonTextColor();
+        auto focusControllerActive = true;
+#if PLATFORM(MAC)
+        focusControllerActive = page && page->focusController().isActive();
+#endif
+        if (focusControllerActive) {
+            paintStyle.fillColor = RenderTheme::singleton().submitButtonTextColor(renderer);
             return paintStyle;
         }
     }

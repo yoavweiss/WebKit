@@ -2373,8 +2373,8 @@ public:
     inline bool insideDefaultButton() const;
     inline void setInsideDefaultButton(bool);
 
-    inline bool insideDisabledSubmitButton() const;
-    inline void setInsideDisabledSubmitButton(bool);
+    inline bool insideSubmitButton() const;
+    inline void setInsideSubmitButton(bool);
 
 private:
     struct NonInheritedFlags {

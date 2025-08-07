@@ -61,6 +61,7 @@ public:
     WEBCORE_EXPORT static RenderThemeCocoa& singleton();
 
 #if ENABLE(FORM_CONTROL_REFRESH)
+    Color controlTintColorWithContrast(const RenderStyle&, OptionSet<StyleColorOptions>) const;
     static std::optional<RoundedShape> shapeForInteractionRegion(const RenderBox&, const FloatRect&, ShouldComputePath);
     static FloatSize inflateRectForInteractionRegion(const RenderObject&, FloatRect&);
     bool controlSupportsTints(const RenderObject&) const override;
@@ -263,7 +264,8 @@ protected:
     bool adjustTextControlInnerTextStyleForVectorBasedControls(RenderStyle&, const RenderStyle&, const Element*) const;
 
     Color buttonTextColor(OptionSet<StyleColorOptions>, bool) const;
-    Color disabledSubmitButtonTextColor() const final;
+
+    Color submitButtonTextColor(const RenderObject&) const final;
 
     bool mayNeedBleedAvoidance(const RenderStyle&) const final;
 

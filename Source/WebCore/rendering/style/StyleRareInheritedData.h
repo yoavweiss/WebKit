@@ -191,7 +191,7 @@ public:
     PREFERRED_TYPE(ContentVisibility) unsigned usedContentVisibility : 2;
     PREFERRED_TYPE(bool) unsigned autoRevealsWhenFound : 1;
     PREFERRED_TYPE(bool) unsigned insideDefaultButton : 1;
-    PREFERRED_TYPE(bool) unsigned insideDisabledSubmitButton : 1;
+    PREFERRED_TYPE(bool) unsigned insideSubmitButton : 1;
 #if HAVE(CORE_MATERIAL)
     PREFERRED_TYPE(AppleVisualEffect) unsigned usedAppleVisualEffectForSubtree : 4;
 #endif

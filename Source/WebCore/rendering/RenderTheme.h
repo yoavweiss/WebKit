@@ -263,7 +263,7 @@ public:
     virtual void adjustTextControlInnerPlaceholderStyle(RenderStyle&, const RenderStyle&, const Element*) const { }
     virtual void adjustTextControlInnerTextStyle(RenderStyle&, const RenderStyle&, const Element*) const { }
 
-    virtual Color disabledSubmitButtonTextColor() const { return Color::black; }
+    virtual Color submitButtonTextColor(const RenderObject&) const { return Color::black; }
 
     virtual bool mayNeedBleedAvoidance(const RenderStyle&) const { return true; }
 

@@ -897,7 +897,7 @@ inline Style::Color RenderStyle::tapHighlightColor() const { return m_rareInheri
 
 inline bool RenderStyle::insideDefaultButton() const { return m_rareInheritedData->insideDefaultButton; }
 
-inline bool RenderStyle::insideDisabledSubmitButton() const { return m_rareInheritedData->insideDisabledSubmitButton; }
+inline bool RenderStyle::insideSubmitButton() const { return m_rareInheritedData->insideSubmitButton; }
 
 inline bool RenderStyle::NonInheritedFlags::hasPseudoStyle(PseudoId pseudo) const
 {
