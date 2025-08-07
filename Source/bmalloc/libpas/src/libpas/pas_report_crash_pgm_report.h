@@ -35,7 +35,7 @@
 
 #ifdef __APPLE__
 
-#include "pas_probabilistic_guard_malloc_allocator.h"
+#include "pas_backtrace_metadata.h"
 #include <mach/mach_types.h>
 #include <mach/vm_types.h>
 
