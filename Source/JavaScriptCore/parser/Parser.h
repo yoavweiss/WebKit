@@ -1162,78 +1162,6 @@ private:
         Parser* m_parser;
     };
 
-    enum ExpressionErrorClass {
-        ErrorIndicatesNothing = 0,
-        ErrorIndicatesPattern,
-        ErrorIndicatesAsyncArrowFunction
-    };
-
-    struct ExpressionErrorClassifier {
-        ExpressionErrorClassifier(Parser* parser)
-            : m_class(ErrorIndicatesNothing)
-            , m_previous(parser->m_expressionErrorClassifier)
-            , m_parser(parser)
-        {
-            m_parser->m_expressionErrorClassifier = this;
-        }
-
-        ~ExpressionErrorClassifier()
-        {
-            m_parser->m_expressionErrorClassifier = m_previous;
-        }
-
-        void classifyExpressionError(ExpressionErrorClass classification)
-        {
-            if (m_class != ErrorIndicatesNothing)
-                return;
-            m_class = classification;
-        }
-
-        void forceClassifyExpressionError(ExpressionErrorClass classification)
-        {
-            m_class = classification;
-        }
-
-        void reclassifyExpressionError(ExpressionErrorClass oldClassification, ExpressionErrorClass classification)
-        {
-            if (m_class != oldClassification)
-                return;
-            m_class = classification;
-        }
-
-        void propagateExpressionErrorClass()
-        {
-            if (m_previous)
-                m_previous->m_class = m_class;
-        }
-
-        bool indicatesPossiblePattern() const { return m_class == ErrorIndicatesPattern; }
-        bool indicatesPossibleAsyncArrowFunction() const { return m_class == ErrorIndicatesAsyncArrowFunction; }
-
-    private:
-        ExpressionErrorClass m_class;
-        ExpressionErrorClassifier* m_previous;
-        Parser* m_parser;
-    };
-
-    ALWAYS_INLINE void classifyExpressionError(ExpressionErrorClass classification)
-    {
-        if (m_expressionErrorClassifier)
-            m_expressionErrorClassifier->classifyExpressionError(classification);
-    }
-
-    ALWAYS_INLINE void forceClassifyExpressionError(ExpressionErrorClass classification)
-    {
-        if (m_expressionErrorClassifier)
-            m_expressionErrorClassifier->forceClassifyExpressionError(classification);
-    }
-
-    ALWAYS_INLINE void reclassifyExpressionError(ExpressionErrorClass oldClassification, ExpressionErrorClass classification)
-    {
-        if (m_expressionErrorClassifier)
-            m_expressionErrorClassifier->reclassifyExpressionError(oldClassification, classification);
-    }
-
     ALWAYS_INLINE DestructuringKind destructuringKindFromDeclarationType(DeclarationType type)
     {
         switch (type) {
@@ -1560,6 +1488,42 @@ private:
     };
     Expected<ParseInnerResult, String> parseInner(const Identifier&, ParsingContext, std::optional<int> functionConstructorParametersEndPosition, const FixedVector<UnlinkedFunctionExecutable::ClassElementDefinition>*, const PrivateNameEnvironment* parentScopePrivateNames);
 
+    enum class FunctionParsePhase { Parameters, Body };
+
+    struct ParserState {
+        int assignmentCount { 0 };
+        int nonLHSCount { 0 };
+        int nonTrivialExpressionCount { 0 };
+        int returnStatementCount { 0 };
+        int unaryTokenStackDepth { 0 };
+        FunctionParsePhase functionParsePhase { FunctionParsePhase::Body };
+        const Identifier* lastIdentifier { nullptr };
+        const Identifier* lastFunctionName { nullptr };
+        const Identifier* lastPrivateName { nullptr };
+        bool allowAwait { true };
+        bool isParsingClassFieldInitializer { false };
+        bool classFieldInitMasksAsync { false };
+    };
+
+    struct LexerState {
+        int startOffset;
+        unsigned oldLineStartOffset;
+        unsigned oldLastLineNumber;
+        unsigned oldLineNumber;
+        bool hasLineTerminatorBeforeToken;
+    };
+
+    struct SavePoint {
+        ParserState parserState;
+        LexerState lexerState;
+    };
+
+    struct SavePointWithError : public SavePoint {
+        bool lexerError;
+        String lexerErrorMessage;
+        String parserErrorMessage;
+    };
+
     // Used to determine type of error to report.
     bool isFunctionMetadataNode(ScopeNode*) { return false; }
     bool isFunctionMetadataNode(FunctionMetadataNode*) { return true; }
@@ -1820,9 +1784,7 @@ private:
     enum class BlockType : uint8_t { Normal, CatchBlock, StaticBlock };
     template <class TreeBuilder> TreeStatement parseBlockStatement(TreeBuilder&, BlockType = BlockType::Normal);
     template <class TreeBuilder> TreeExpression parseExpression(TreeBuilder&);
-    template <class TreeBuilder> TreeExpression parseAssignmentExpression(TreeBuilder&, ExpressionErrorClassifier&);
     template <class TreeBuilder> TreeExpression parseAssignmentExpression(TreeBuilder&);
-    template <class TreeBuilder> TreeExpression parseAssignmentExpressionOrPropagateErrorClass(TreeBuilder&);
     template <class TreeBuilder> TreeExpression parseYieldExpression(TreeBuilder&);
     template <class TreeBuilder> ALWAYS_INLINE TreeExpression parseConditionalExpression(TreeBuilder&);
     template <class TreeBuilder> ALWAYS_INLINE TreeExpression parseBinaryExpression(TreeBuilder&);
@@ -2015,22 +1977,6 @@ private:
         return *m_token.m_data.ident == m_vm.propertyNames->arguments;
     }
 
-    enum class FunctionParsePhase { Parameters, Body };
-    struct ParserState {
-        int assignmentCount { 0 };
-        int nonLHSCount { 0 };
-        int nonTrivialExpressionCount { 0 };
-        int returnStatementCount { 0 };
-        int unaryTokenStackDepth { 0 };
-        FunctionParsePhase functionParsePhase { FunctionParsePhase::Body };
-        const Identifier* lastIdentifier { nullptr };
-        const Identifier* lastFunctionName { nullptr };
-        const Identifier* lastPrivateName { nullptr };
-        bool allowAwait { true };
-        bool isParsingClassFieldInitializer { false };
-        bool classFieldInitMasksAsync { false };
-    };
-
     // If you're using this directly, you probably should be using
     // createSavePoint() instead.
     template <class TreeBuilder>
@@ -2047,14 +1993,6 @@ private:
         m_parserState = state;
         context.setUnaryTokenStackDepth(m_parserState.unaryTokenStackDepth);
     }
-
-    struct LexerState {
-        int startOffset;
-        unsigned oldLineStartOffset;
-        unsigned oldLastLineNumber;
-        unsigned oldLineNumber;
-        bool hasLineTerminatorBeforeToken;
-    };
 
     // If you're using this directly, you probably should be using
     // createSavePoint() instead.
@@ -2081,17 +2019,6 @@ private:
         nextWithoutClearingLineTerminator();
         m_lexer->setLastLineNumber(lexerState.oldLastLineNumber);
     }
-
-    struct SavePoint {
-        ParserState parserState;
-        LexerState lexerState;
-    };
-
-    struct SavePointWithError : public SavePoint {
-        bool lexerError;
-        String lexerErrorMessage;
-        String parserErrorMessage;
-    };
 
     template <class TreeBuilder>
     ALWAYS_INLINE void internalSaveState(TreeBuilder& context, SavePoint& savePoint)
@@ -2167,7 +2094,6 @@ private:
     JSParserScriptMode m_scriptMode;
     SuperBinding m_superBinding;
     ConstructorKind m_constructorKindForTopLevelFunctionExpressions { ConstructorKind::None };
-    ExpressionErrorClassifier* m_expressionErrorClassifier;
     bool m_isEvalContext;
     bool m_immediateParentAllowsFunctionDeclarationInStatement;
     RefPtr<ModuleScopeData> m_moduleScopeData;

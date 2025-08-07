@@ -148,7 +148,6 @@ Parser<LexerType>::Parser(VM& vm, const SourceCode& source, ImplementationVisibi
     m_token.m_location.endOffset = source.startOffset();
     m_token.m_location.lineStartOffset = source.startOffset();
     m_functionCache = vm.addSourceProviderCache(source.provider());
-    m_expressionErrorClassifier = nullptr;
 
     ScopeRef scope = pushScope();
     scope->setLexicallyScopedFeatures(lexicallyScopedFeatures);
@@ -1099,16 +1098,10 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseOb
     JSTextPosition startPosition = tokenStartPosition();
     auto element = parseMemberExpression(context);
 
-    if (!element || !context.isAssignmentLocation(element)) [[unlikely]] {
-        reclassifyExpressionError(ErrorIndicatesPattern, ErrorIndicatesNothing);
-        semanticFail("Invalid destructuring assignment target");
-    }
-
+    semanticFailIfTrue(!element || !context.isAssignmentLocation(element), "Invalid destructuring assignment target");
     if (strictMode() && m_parserState.lastIdentifier && context.isResolve(element)) {
         bool isEvalOrArguments = m_vm.propertyNames->eval == *m_parserState.lastIdentifier || m_vm.propertyNames->arguments == *m_parserState.lastIdentifier;
-        if (isEvalOrArguments && strictMode())
-            reclassifyExpressionError(ErrorIndicatesPattern, ErrorIndicatesNothing);
-        failIfTrueIfStrict(isEvalOrArguments, "Cannot modify '", m_parserState.lastIdentifier->impl(), "' in strict mode");
+        failIfTrue(isEvalOrArguments, "Cannot modify '", m_parserState.lastIdentifier->impl(), "' in strict mode");
     }
 
     return createAssignmentElement(context, element, startPosition, lastTokenEndPosition());
@@ -1287,8 +1280,6 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseDe
                     semanticFailIfTrue(isDisallowedIdentifierAwait(identifierToken), "Cannot use 'await' as a ", destructuringKindToVariableKindName(kind), " ", disallowedIdentifierAwaitReason());
                     if (kind == DestructuringKind::DestructureToExpressions) {
                         bool isEvalOrArguments = m_vm.propertyNames->eval == *propertyName || m_vm.propertyNames->arguments == *propertyName;
-                        if (isEvalOrArguments && strictMode())
-                            reclassifyExpressionError(ErrorIndicatesPattern, ErrorIndicatesNothing);
                         failIfTrueIfStrict(isEvalOrArguments, "Cannot modify '", propertyName->impl(), "' in strict mode");
 
                         if (match(EQUAL))
@@ -4090,24 +4081,6 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseExpression(T
 }
 
 template <typename LexerType>
-template <typename TreeBuilder> TreeExpression Parser<LexerType>::parseAssignmentExpressionOrPropagateErrorClass(TreeBuilder& context)
-{
-    ExpressionErrorClassifier classifier(this);
-    auto assignment = parseAssignmentExpression(context, classifier);
-    if (!assignment)
-        classifier.propagateExpressionErrorClass();
-    return assignment;
-}
-
-template <typename LexerType>
-template <typename TreeBuilder> TreeExpression Parser<LexerType>::parseAssignmentExpression(TreeBuilder& context)
-{
-    ExpressionErrorClassifier classifier(this);
-    return parseAssignmentExpression(context, classifier);
-}
-
-
-template <typename LexerType>
 template <typename TreeBuilder> NEVER_INLINE const char* Parser<LexerType>::metaPropertyName(TreeBuilder& context, TreeExpression expr)
 {
     if (context.isNewTarget(expr))
@@ -4127,7 +4100,7 @@ template <typename TreeBuilder> bool Parser<LexerType>::isSimpleAssignmentTarget
 }
 
 template <typename LexerType>
-template <typename TreeBuilder> TreeExpression Parser<LexerType>::parseAssignmentExpression(TreeBuilder& context, ExpressionErrorClassifier& classifier)
+template <typename TreeBuilder> TreeExpression Parser<LexerType>::parseAssignmentExpression(TreeBuilder& context)
 {
     ASSERT(!hasError());
     
@@ -4176,35 +4149,47 @@ template <typename TreeBuilder> TreeExpression Parser<LexerType>::parseAssignmen
         bool isArrowFunctionToken = match(ARROWFUNCTION);
         if (!lhs || isArrowFunctionToken) {
             SavePointWithError errorRestorationSavePoint = swapSavePointForError(context, savePoint);
-            bool isAsync { false };
-            if (classifier.indicatesPossibleAsyncArrowFunction()) [[unlikely]] {
-                if (matchContextualKeyword(m_vm.propertyNames->async)) {
+            bool isAsync = false;
+            if (matchContextualKeyword(m_vm.propertyNames->async)) {
+                next();
+                if (!m_lexer->hasLineTerminatorBeforeToken() && (match(OPENPAREN) || matchSpecIdentifier()))
                     isAsync = true;
-                    next();
+                else {
+                    // This is async => ... case. So this "async" is not a contextual keyword, it is parameter name.
+                    restoreSavePoint(context, savePoint);
                 }
             }
+
             if (isArrowFunctionParameters(context)) {
                 if (wasOpenParen)
                     currentScope()->revertToPreviousUsedVariables(usedVariablesSize);
                 return parseArrowFunctionExpression(context, isAsync, location);
             }
+
+            // The reason why we use propagateError only when isArrowFunctionToken = true is that
+            // this can produce better error message than restoring it to errorRestorationSavePoint.
             if (isArrowFunctionToken)
                 propagateError();
+
             restoreSavePointWithError(context, errorRestorationSavePoint);
             if (isArrowFunctionToken) [[unlikely]]
                 failDueToUnexpectedToken();
         }
     }
 
-    if (!lhs && (!maybeAssignmentPattern || !classifier.indicatesPossiblePattern()))
+    if (!lhs && !maybeAssignmentPattern)
         propagateError();
 
-    if (maybeAssignmentPattern && (!lhs || (context.isObjectOrArrayLiteral(lhs) && match(EQUAL)))) {
+    if (maybeAssignmentPattern && (!lhs || (match(EQUAL) && context.isObjectOrArrayLiteral(lhs)))) {
+        bool isPossiblePattern = !lhs;
         SavePointWithError expressionErrorLocation = swapSavePointForError(context, savePoint);
         auto pattern = tryParseDestructuringPatternExpression(context, AssignmentContext::AssignmentExpression);
-        if (classifier.indicatesPossiblePattern() && (!pattern || !match(EQUAL))) {
+
+        // The reason why we use restoreSavePointWithError only when isPossiblePattern = true is that
+        // this can produce better error message.
+        if (isPossiblePattern && (!pattern || !match(EQUAL))) {
             restoreSavePointWithError(context, expressionErrorLocation);
-            return 0;
+            propagateError();
         }
         failIfFalse(pattern, "Cannot parse assignment pattern");
         consumeOrFail(EQUAL, "Expected '=' following assignment pattern");
@@ -4324,7 +4309,6 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseAwaitExpress
     JSTextPosition divotStart = tokenStartPosition();
     next();
     JSTextPosition argumentStart = tokenStartPosition();
-    ExpressionErrorClassifier classifier(this);
     TreeExpression argument = parseUnaryExpression(context);
     failIfFalse(argument, "Failed to parse await expression");
     return context.createAwait(location, argument, divotStart, argumentStart, lastTokenEndPosition());
@@ -4524,7 +4508,7 @@ namedProperty:
 
         if (!isGeneratorMethodParseMode(parseMode) && !isAsyncMethodParseMode(parseMode) && match(COLON)) {
             next();
-            TreeExpression node = parseAssignmentExpressionOrPropagateErrorClass(context);
+            TreeExpression node = parseAssignmentExpression(context);
             failIfFalse(node, "Cannot parse expression for property declaration");
             context.setEndOffset(node, m_lexer->currentOffset());
             InferName inferName = ident && *ident == m_vm.propertyNames->underscoreProto ? InferName::Disallowed : InferName::Allowed;
@@ -4551,9 +4535,6 @@ namedProperty:
             TreeExpression node = context.createResolve(location, *ident, start, lastTokenEndPosition());
             return context.createProperty(ident, node, static_cast<PropertyNode::Type>(PropertyNode::Constant | PropertyNode::Shorthand), SuperBinding::NotNeeded, InferName::Allowed, ClassElementTag::No);
         }
-
-        if (match(EQUAL)) // CoverInitializedName is exclusive to BindingPattern and AssignmentPattern
-            classifyExpressionError(ErrorIndicatesPattern);
 
         std::optional<PropertyNode::Type> type;
         if (wasUnescapedIdent) {
@@ -4631,7 +4612,7 @@ namedProperty:
         auto start = m_token.m_startPosition;
         auto divot = m_token.m_endPosition;
         next();
-        TreeExpression elem = parseAssignmentExpressionOrPropagateErrorClass(context);
+        TreeExpression elem = parseAssignmentExpression(context);
         failIfFalse(elem, "Cannot parse subject of a spread operation");
         auto node = context.createObjectSpreadExpression(spreadLocation, elem, start, divot, m_lastTokenEndPosition);
         return context.createProperty(node, PropertyNode::Spread, SuperBinding::NotNeeded, ClassElementTag::No);
@@ -4806,11 +4787,11 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseArrayLiteral
         auto start = m_token.m_startPosition;
         auto divot = m_token.m_endPosition;
         next();
-        auto spreadExpr = parseAssignmentExpressionOrPropagateErrorClass(context);
+        auto spreadExpr = parseAssignmentExpression(context);
         failIfFalse(spreadExpr, "Cannot parse subject of a spread operation");
         elem = context.createSpreadExpression(spreadLocation, spreadExpr, start, divot, m_lastTokenEndPosition);
     } else
-        elem = parseAssignmentExpressionOrPropagateErrorClass(context);
+        elem = parseAssignmentExpression(context);
     failIfFalse(elem, "Cannot parse array literal element");
     typename TreeBuilder::ElementList elementList = context.createElementList(elisions, elem);
     typename TreeBuilder::ElementList tail = elementList;
@@ -4830,13 +4811,13 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseArrayLiteral
             auto start = m_token.m_startPosition;
             auto divot = m_token.m_endPosition;
             next();
-            TreeExpression elem = parseAssignmentExpressionOrPropagateErrorClass(context);
+            TreeExpression elem = parseAssignmentExpression(context);
             failIfFalse(elem, "Cannot parse subject of a spread operation");
             auto spread = context.createSpreadExpression(spreadLocation, elem, start, divot, m_lastTokenEndPosition);
             tail = context.createElementList(tail, elisions, spread);
             continue;
         }
-        TreeExpression elem = parseAssignmentExpressionOrPropagateErrorClass(context);
+        TreeExpression elem = parseAssignmentExpression(context);
         failIfFalse(elem, "Cannot parse array literal element");
         tail = context.createElementList(tail, elisions, elem);
     }
@@ -5338,12 +5319,9 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseMemberExpres
             base = parsePrimaryExpression(context);
         failIfFalse(base, "Cannot parse base expression");
         if (isAsync && context.isResolve(base) && !m_lexer->hasLineTerminatorBeforeToken()) [[unlikely]] {
-            if (matchSpecIdentifier()) [[unlikely]] {
-                // AsyncArrowFunction
-                forceClassifyExpressionError(ErrorIndicatesAsyncArrowFunction);
-                failDueToUnexpectedToken();
-            }
             baseIsAsyncKeyword = true;
+            if (matchSpecIdentifier()) [[unlikely]]
+                failDueToUnexpectedToken();
         }
     }
 
@@ -5411,7 +5389,6 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseMemberExpres
 
                     if (baseIsAsyncKeyword && (!arguments || match(ARROWFUNCTION))) [[unlikely]] {
                         currentScope()->revertToPreviousUsedVariables(usedVariablesSize);
-                        forceClassifyExpressionError(ErrorIndicatesAsyncArrowFunction);
                         failDueToUnexpectedToken();
                     }
 
