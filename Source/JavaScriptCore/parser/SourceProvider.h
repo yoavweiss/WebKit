@@ -90,6 +90,7 @@ public:
 
     TextPosition startPosition() const { return m_startPosition; }
     SourceProviderSourceType sourceType() const { return m_sourceType; }
+    bool isModuleType() const { return m_sourceType == SourceProviderSourceType::Module || m_sourceType == SourceProviderSourceType::JSON; }
 
     SourceID asID()
     {
