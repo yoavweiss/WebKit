@@ -1529,6 +1529,8 @@ void WebProcessPool::registerUserInstalledFonts(WebProcessProxy& process)
             continue;
         RetainPtr cfFontURL = checked_cf_cast<CFURLRef>(CFDictionaryGetValue(fontDictionary.get(), CFSTR("NSCTFontFileURLAttribute")));
         URL fontURL(cfFontURL.get());
+        if (fontURL.string().startsWith("file:///Applications/"_s))
+            continue;
         if (fontURL.string().startsWith("file:///System/Library/Fonts/"_s))
             continue;
         if (fontURL.string().startsWith("file:///System/Library/PrivateFrameworks/"_s))
