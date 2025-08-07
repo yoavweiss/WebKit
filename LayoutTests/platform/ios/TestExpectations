@@ -8135,7 +8135,6 @@ fast/forms/basic-textareas.html [ Failure ]
 fast/forms/placeholder-position.html [ Failure ]
 fast/mediastream/play-newly-added-audio-track.html [ Failure ]
 http/tests/resourceLoadStatistics/only-partitioned-cookies-after-redirect.html [ Failure ]
-http/tests/site-isolation/touch-events/touch-event-coordinates.html [ Failure ]
 http/tests/websocket/tests/hybi/websocket-allowed-setting-cookie-as-third-party-with-third-party-cookie-blocking.https.html [ Failure ]
 http/tests/workers/service/basic-install-event-sw-fetch-third-party.html [ Failure ]
 http/wpt/webcodecs/videoFrame-negative-timestamp.html [ Failure ]
@@ -8216,3 +8215,5 @@ webkit.org/b/297007 media/webaudio-background-playback.html [ Pass Failure ]
 webkit.org/b/297013 [ Debug ] imported/w3c/web-platform-tests/css/css-viewport/zoom/scroll-top-test-with-zoom.html [ Pass Crash ]
 
 webkit.org/b/297026 [ Release ] http/tests/app-privacy-report/app-attribution-beacon-isappinitiated.html [ Pass Failure ]
+
+webkit.org/b/297056 http/tests/site-isolation/touch-events/touch-event-coordinates.html [ Timeout ]
