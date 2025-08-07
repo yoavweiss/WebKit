@@ -2406,3 +2406,5 @@ webkit.org/b/296964 imported/w3c/web-platform-tests/webrtc/RTCDataChannel-GC.htm
 webkit.org/b/297007 media/webaudio-background-playback.html [ Pass Failure ]
 
 webkit.org/b/292402 http/tests/site-isolation/draw-after-cross-origin-navigation-between-two-remote-frames.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/297063 [ arm64 ] http/tests/xmlhttprequest/chunked-progress-event-expectedLength.html [ Pass Failure ]
