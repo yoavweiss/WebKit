@@ -17,7 +17,7 @@ FAIL Invalid color: keyword crimson assert_equals: expected "#000000" but got "#
 FAIL Invalid color: keyword bisque assert_equals: expected "#000000" but got "#ffe4c4"
 PASS Invalid color: keyword currentColor
 PASS Invalid color: keyword transparent
-FAIL Invalid color: keyword ActiveBorder assert_equals: expected "#000000" but got "#0067f4"
+FAIL Invalid color: keyword ActiveBorder assert_equals: expected "#000000" but got "#ffffff"
 PASS Invalid color: keyword inherit
 FAIL Invalid color: rgb(1,1,1) assert_equals: expected "#000000" but got "#010101"
 FAIL Invalid color: rgb(1,1,1,1) assert_equals: expected "#000000" but got "#010101"
