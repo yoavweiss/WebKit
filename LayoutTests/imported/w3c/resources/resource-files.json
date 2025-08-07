@@ -9879,7 +9879,6 @@
         "web-platform-tests/html/browsers/history/the-location-interface/reload_document_open_write-1.html",
         "web-platform-tests/html/browsers/history/the-location-interface/reload_document_write-1.html",
         "web-platform-tests/html/browsers/history/the-location-interface/reload_document_write_onload-1.html",
-        "web-platform-tests/html/browsers/history/the-location-interface/reload_post_1-1.html",
         "web-platform-tests/html/browsers/history/the-location-interface/same_origin_frame.html",
         "web-platform-tests/html/browsers/history/the-location-interface/scripted_click_assign_during_load-1.html",
         "web-platform-tests/html/browsers/history/the-location-interface/scripted_click_assign_during_load-2.html",
