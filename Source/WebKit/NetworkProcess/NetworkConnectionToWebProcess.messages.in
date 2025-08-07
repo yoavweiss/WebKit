@@ -80,13 +80,13 @@ messages -> NetworkConnectionToWebProcess WantsDispatchMessage {
 
     ClearPageSpecificData(WebCore::PageIdentifier pageID);
 
-    RemoveStorageAccessForFrame(WebCore::FrameIdentifier frameID, WebCore::PageIdentifier pageID);
+    [EnabledBy=StorageAccessAPIEnabled] RemoveStorageAccessForFrame(WebCore::FrameIdentifier frameID, WebCore::PageIdentifier pageID);
     LogUserInteraction(WebCore::RegistrableDomain domain)
     ResourceLoadStatisticsUpdated(Vector<WebCore::ResourceLoadStatistics> statistics) -> ()
-    HasStorageAccess(WebCore::RegistrableDomain subFrameDomain, WebCore::RegistrableDomain topFrameDomain, WebCore::FrameIdentifier frameID, WebCore::PageIdentifier pageID) -> (bool hasStorageAccess)
-    RequestStorageAccess(WebCore::RegistrableDomain subFrameDomain, WebCore::RegistrableDomain topFrameDomain, WebCore::FrameIdentifier frameID, WebCore::PageIdentifier webPageID, WebKit::WebPageProxyIdentifier webPageProxyID, enum:bool WebCore::StorageAccessScope scope, enum:bool WebCore::HasOrShouldIgnoreUserGesture hasOrShouldIgnoreUserGesture) -> (struct WebCore::RequestStorageAccessResult result)
-    StorageAccessQuirkForTopFrameDomain(URL topFrameURL) -> (Vector<WebCore::RegistrableDomain> domains)
-    RequestStorageAccessUnderOpener(WebCore::RegistrableDomain domainInNeedOfStorageAccess, WebCore::PageIdentifier openerPageID, WebCore::RegistrableDomain openerDomain)
+    [EnabledBy=StorageAccessAPIEnabled] HasStorageAccess(WebCore::RegistrableDomain subFrameDomain, WebCore::RegistrableDomain topFrameDomain, WebCore::FrameIdentifier frameID, WebCore::PageIdentifier pageID) -> (bool hasStorageAccess)
+    [EnabledBy=StorageAccessAPIEnabled] RequestStorageAccess(WebCore::RegistrableDomain subFrameDomain, WebCore::RegistrableDomain topFrameDomain, WebCore::FrameIdentifier frameID, WebCore::PageIdentifier webPageID, WebKit::WebPageProxyIdentifier webPageProxyID, enum:bool WebCore::StorageAccessScope scope, enum:bool WebCore::HasOrShouldIgnoreUserGesture hasOrShouldIgnoreUserGesture) -> (struct WebCore::RequestStorageAccessResult result)
+    [EnabledBy=StorageAccessAPIEnabled] StorageAccessQuirkForTopFrameDomain(URL topFrameURL) -> (Vector<WebCore::RegistrableDomain> domains)
+    [EnabledBy=StorageAccessAPIEnabled] RequestStorageAccessUnderOpener(WebCore::RegistrableDomain domainInNeedOfStorageAccess, WebCore::PageIdentifier openerPageID, WebCore::RegistrableDomain openerDomain)
 
     AddOriginAccessAllowListEntry(String sourceOrigin, String destinationProtocol, String destinationHost, bool allowDestinationSubdomains);
     RemoveOriginAccessAllowListEntry(String sourceOrigin, String destinationProtocol, String destinationHost, bool allowDestinationSubdomains);

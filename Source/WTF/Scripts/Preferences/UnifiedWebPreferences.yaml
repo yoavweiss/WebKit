@@ -7426,6 +7426,20 @@ StorageAPIEstimateEnabled:
     WebCore:
       "PLATFORM(COCOA)" : true
       default: false
+      
+StorageAccessAPIEnabled:
+  type: bool
+  status: embedder
+  humanReadableName: "Storage Access API"
+  humanReadableDescription: "Enable the Storage Access API for cross-site cookie access"
+  defaultValue:
+    WebKitLegacy:
+      default: true
+    WebKit:
+      default: true
+    WebCore:
+      default: true
+  sharedPreferenceForWebProcess: true
 
 StorageBlockingPolicy:
   type: uint32_t

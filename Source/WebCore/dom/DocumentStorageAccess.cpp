@@ -57,6 +57,12 @@ DocumentStorageAccess::~DocumentStorageAccess() = default;
 
 DocumentStorageAccess* DocumentStorageAccess::from(Document& document)
 {
+    RefPtr frame = document.frame();
+    RefPtr page = frame ? frame->page() : nullptr;
+
+    if (!page || !page->settings().storageAccessAPIEnabled())
+        return nullptr;
+
     auto* supplement = static_cast<DocumentStorageAccess*>(Supplement<Document>::from(&document, supplementName()));
     if (!supplement) {
         auto newSupplement = makeUnique<DocumentStorageAccess>(document);
@@ -73,7 +79,12 @@ ASCIILiteral DocumentStorageAccess::supplementName()
 
 void DocumentStorageAccess::hasStorageAccess(Document& document, Ref<DeferredPromise>&& promise)
 {
-    DocumentStorageAccess::from(document)->hasStorageAccess(WTFMove(promise));
+    auto* storageAccess = DocumentStorageAccess::from(document);
+    if (!storageAccess) {
+        promise->reject(ExceptionCode::InvalidStateError);
+        return;
+    }
+    storageAccess->hasStorageAccess(WTFMove(promise));
 }
 
 static bool hasSameOriginAsAllAncestors(const Document& document)
@@ -151,7 +162,11 @@ void DocumentStorageAccess::hasStorageAccess(Ref<DeferredPromise>&& promise)
 
 bool DocumentStorageAccess::hasStorageAccessForDocumentQuirk(Document& document)
 {
-    auto quickCheckResult = DocumentStorageAccess::from(document)->hasStorageAccessQuickCheck();
+    auto* storageAccess = DocumentStorageAccess::from(document);
+    if (!storageAccess)
+        return false;
+
+    auto quickCheckResult = storageAccess->hasStorageAccessQuickCheck();
     if (quickCheckResult)
         return *quickCheckResult;
     return false;
@@ -159,7 +174,12 @@ bool DocumentStorageAccess::hasStorageAccessForDocumentQuirk(Document& document)
 
 void DocumentStorageAccess::requestStorageAccess(Document& document, Ref<DeferredPromise>&& promise)
 {
-    DocumentStorageAccess::from(document)->requestStorageAccess(WTFMove(promise));
+    auto* storageAccess = DocumentStorageAccess::from(document);
+    if (!storageAccess) {
+        promise->reject(ExceptionCode::InvalidStateError);
+        return;
+    }
+    storageAccess->requestStorageAccess(WTFMove(promise));
 }
 
 std::optional<StorageAccessQuickResult> DocumentStorageAccess::requestStorageAccessQuickCheck()
@@ -278,7 +298,12 @@ Ref<Document> DocumentStorageAccess::protectedDocument() const
 
 void DocumentStorageAccess::requestStorageAccessForDocumentQuirk(Document& document, CompletionHandler<void(StorageAccessWasGranted)>&& completionHandler)
 {
-    DocumentStorageAccess::from(document)->requestStorageAccessForDocumentQuirk(WTFMove(completionHandler));
+    auto* storageAccess = DocumentStorageAccess::from(document);
+    if (!storageAccess) {
+        completionHandler(StorageAccessWasGranted::No);
+        return;
+    }
+    storageAccess->requestStorageAccessForDocumentQuirk(WTFMove(completionHandler));
 }
 
 void DocumentStorageAccess::requestStorageAccessForDocumentQuirk(CompletionHandler<void(StorageAccessWasGranted)>&& completionHandler)
@@ -293,7 +318,12 @@ void DocumentStorageAccess::requestStorageAccessForDocumentQuirk(CompletionHandl
 
 void DocumentStorageAccess::requestStorageAccessForNonDocumentQuirk(Document& hostingDocument, RegistrableDomain&& requestingDomain, CompletionHandler<void(StorageAccessWasGranted)>&& completionHandler)
 {
-    DocumentStorageAccess::from(hostingDocument)->requestStorageAccessForNonDocumentQuirk(WTFMove(requestingDomain), WTFMove(completionHandler));
+    auto* storageAccess = DocumentStorageAccess::from(hostingDocument);
+    if (!storageAccess) {
+        completionHandler(StorageAccessWasGranted::No);
+        return;
+    }
+    storageAccess->requestStorageAccessForNonDocumentQuirk(WTFMove(requestingDomain), WTFMove(completionHandler));
 }
 
 void DocumentStorageAccess::requestStorageAccessForNonDocumentQuirk(RegistrableDomain&& requestingDomain, CompletionHandler<void(StorageAccessWasGranted)>&& completionHandler)
