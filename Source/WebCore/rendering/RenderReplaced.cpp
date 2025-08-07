@@ -799,7 +799,7 @@ void RenderReplaced::computePreferredLogicalWidths()
     clearNeedsPreferredWidthsUpdate();
 }
 
-VisiblePosition RenderReplaced::positionForPoint(const LayoutPoint& point, HitTestSource source, const RenderFragmentContainer* fragment)
+PositionWithAffinity RenderReplaced::positionForPoint(const LayoutPoint& point, HitTestSource source, const RenderFragmentContainer* fragment)
 {
     auto [top, bottom] = [&]() -> std::pair<float, float> {
         if (auto run = InlineIterator::boxFor(*this)) {
@@ -814,15 +814,15 @@ VisiblePosition RenderReplaced::positionForPoint(const LayoutPoint& point, HitTe
     LayoutUnit lineDirectionPosition = isHorizontalWritingMode() ? point.x() + x() : point.y() + y();
     
     if (blockDirectionPosition < top)
-        return createVisiblePosition(caretMinOffset(), Affinity::Downstream); // coordinates are above
-    
+        return createPositionWithAffinity(caretMinOffset(), Affinity::Downstream); // coordinates are above
+
     if (blockDirectionPosition >= bottom)
-        return createVisiblePosition(caretMaxOffset(), Affinity::Downstream); // coordinates are below
-    
+        return createPositionWithAffinity(caretMaxOffset(), Affinity::Downstream); // coordinates are below
+
     if (element()) {
         if (lineDirectionPosition <= logicalLeft() + (logicalWidth() / 2))
-            return createVisiblePosition(0, Affinity::Downstream);
-        return createVisiblePosition(1, Affinity::Downstream);
+            return createPositionWithAffinity(0, Affinity::Downstream);
+        return createPositionWithAffinity(1, Affinity::Downstream);
     }
 
     return RenderBox::positionForPoint(point, source, fragment);

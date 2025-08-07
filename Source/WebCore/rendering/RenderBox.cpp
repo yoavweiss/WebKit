@@ -4615,11 +4615,11 @@ void RenderBox::computePositionedLogicalHeightReplaced(LogicalExtentComputedValu
     blockConstraints.adjustLogicalTopWithLogicalHeightIfNeeded(computedValues);
 }
 
-VisiblePosition RenderBox::positionForPoint(const LayoutPoint& point, HitTestSource source, const RenderFragmentContainer* fragment)
+PositionWithAffinity RenderBox::positionForPoint(const LayoutPoint& point, HitTestSource source, const RenderFragmentContainer* fragment)
 {
     // no children...return this render object's element, if there is one, and offset 0
     if (!firstChild())
-        return createVisiblePosition(nonPseudoElement() ? firstPositionInOrBeforeNode(nonPseudoElement()) : Position());
+        return createPositionWithAffinity(nonPseudoElement() ? firstPositionInOrBeforeNode(nonPseudoElement()) : Position());
 
     if (isRenderTable() && nonPseudoElement()) {
         LayoutUnit right = contentBoxWidth() + horizontalBorderAndPaddingExtent();
@@ -4627,8 +4627,8 @@ VisiblePosition RenderBox::positionForPoint(const LayoutPoint& point, HitTestSou
         
         if (point.x() < 0 || point.x() > right || point.y() < 0 || point.y() > bottom) {
             if (point.x() <= right / 2)
-                return createVisiblePosition(firstPositionInOrBeforeNode(nonPseudoElement()));
-            return createVisiblePosition(lastPositionInOrAfterNode(nonPseudoElement()));
+                return createPositionWithAffinity(firstPositionInOrBeforeNode(nonPseudoElement()));
+            return createPositionWithAffinity(lastPositionInOrAfterNode(nonPseudoElement()));
         }
     }
 
@@ -4697,7 +4697,7 @@ VisiblePosition RenderBox::positionForPoint(const LayoutPoint& point, HitTestSou
     if (closestRenderer)
         return closestRenderer->positionForPoint(adjustedPoint - closestRenderer->locationOffset(), source, fragment);
     
-    return createVisiblePosition(firstPositionInOrBeforeNode(nonPseudoElement()));
+    return createPositionWithAffinity(firstPositionInOrBeforeNode(nonPseudoElement()));
 }
 
 bool RenderBox::shrinkToAvoidFloats() const

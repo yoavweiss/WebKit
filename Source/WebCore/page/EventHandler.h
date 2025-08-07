@@ -103,6 +103,7 @@ class Scrollbar;
 class TextEvent;
 class Touch;
 class TouchEvent;
+class VisiblePosition;
 class VisibleSelection;
 class WheelEvent;
 class Widget;

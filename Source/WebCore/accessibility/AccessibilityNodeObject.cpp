@@ -1543,7 +1543,7 @@ VisiblePositionRange AccessibilityNodeObject::visiblePositionRangeForLine(unsign
 
     // iterate over the lines
     // FIXME: This is wrong when lineNumber is lineCount+1, because nextLinePosition takes you to the last offset of the last line.
-    VisiblePosition position = renderView->positionForPoint(IntPoint(), HitTestSource::User, nullptr);
+    auto position = renderView->visiblePositionForPoint(IntPoint(), HitTestSource::User);
     while (--lineCount) {
         auto previousLinePosition = position;
         position = nextLinePosition(position, 0);

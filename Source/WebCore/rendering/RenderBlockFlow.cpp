@@ -3625,14 +3625,14 @@ RenderText* RenderBlockFlow::findClosestTextAtAbsolutePoint(const FloatPoint& po
     return nullptr;
 }
 
-VisiblePosition RenderBlockFlow::positionForPointWithInlineChildren(const LayoutPoint& pointInLogicalContents, HitTestSource source)
+PositionWithAffinity RenderBlockFlow::positionForPointWithInlineChildren(const LayoutPoint& pointInLogicalContents, HitTestSource source)
 {
     ASSERT(childrenInline());
 
     auto firstLineBox = InlineIterator::firstLineBoxFor(*this);
 
     if (!firstLineBox)
-        return createVisiblePosition(0, Affinity::Downstream);
+        return createPositionWithAffinity(0, Affinity::Downstream);
 
     bool linesAreFlipped = writingMode().isLineInverted();
     bool blocksAreFlipped = writingMode().isBlockFlipped();
@@ -3713,15 +3713,15 @@ VisiblePosition RenderBlockFlow::positionForPointWithInlineChildren(const Layout
     // Can't reach this. We have a root line box, but it has no kids.
     // FIXME: This should ASSERT_NOT_REACHED(), but clicking on placeholder text
     // seems to hit this code path.
-    return createVisiblePosition(0, Affinity::Downstream);
+    return createPositionWithAffinity(0, Affinity::Downstream);
 }
 
 Position RenderBlockFlow::positionForPoint(const LayoutPoint& point, HitTestSource source)
 {
-    return positionForPoint(point, source, nullptr).deepEquivalent();
+    return positionForPoint(point, source, nullptr).position();
 }
 
-VisiblePosition RenderBlockFlow::positionForPoint(const LayoutPoint& point, HitTestSource source, const RenderFragmentContainer*)
+PositionWithAffinity RenderBlockFlow::positionForPoint(const LayoutPoint& point, HitTestSource source, const RenderFragmentContainer*)
 {
     return RenderBlock::positionForPoint(point, source, nullptr);
 }

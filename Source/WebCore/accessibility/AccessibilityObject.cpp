@@ -1557,7 +1557,7 @@ VisiblePosition AccessibilityObject::visiblePositionForPoint(const IntPoint& poi
 #endif
     }
 
-    return innerNode->renderer()->positionForPoint(pointResult, HitTestSource::User, nullptr);
+    return innerNode->renderer()->visiblePositionForPoint(pointResult, HitTestSource::User);
 }
 
 VisiblePositionRange AccessibilityObject::visiblePositionRangeForUnorderedPositions(const VisiblePosition& visiblePos1, const VisiblePosition& visiblePos2) const

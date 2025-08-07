@@ -93,8 +93,8 @@ private:
 
     RepaintRects localRectsForRepaint(RepaintOutlineBounds) const override;
 
-    VisiblePosition positionForPoint(const LayoutPoint&, HitTestSource, const RenderFragmentContainer*) final;
-    
+    PositionWithAffinity positionForPoint(const LayoutPoint&, HitTestSource, const RenderFragmentContainer*) final;
+
     bool canBeSelectionLeaf() const override { return true; }
 
     LayoutRect selectionRectForRepaint(const RenderLayerModelObject* repaintContainer, bool clipToVisibleContent = true) final;

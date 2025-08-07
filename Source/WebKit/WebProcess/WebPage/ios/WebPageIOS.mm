@@ -3730,7 +3730,7 @@ static void selectionPositionInformation(WebPage& page, const InteractionInforma
     }
 #if PLATFORM(MACCATALYST)
     bool isInsideFixedPosition;
-    VisiblePosition caretPosition(renderer->positionForPoint(request.point, HitTestSource::User, nullptr));
+    VisiblePosition caretPosition(renderer->visiblePositionForPoint(request.point, HitTestSource::User));
     info.caretRect = caretPosition.absoluteCaretBounds(&isInsideFixedPosition);
 #endif
 
