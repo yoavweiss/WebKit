@@ -2464,6 +2464,14 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         return samplingRect;
     };
 
+    auto pageBackgroundColor = page->pageExtendedBackgroundColor();
+    auto blendAgainstPageBackground = [pageBackgroundColor](const Color& color) {
+        if (color.isOpaque())
+            return color;
+
+        return blendSourceOver(pageBackgroundColor, color);
+    };
+
     for (auto sideFlag : sides) {
         auto side = boxSideFromFlag(sideFlag);
         auto result = findFixedContainer(side, IgnoreCSSPointerEvents::Yes);
@@ -2486,7 +2494,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         }
 
         if (result.backgroundColor.isVisible()) {
-            edges.colors.setAt(side, result.isDimmingLayer ? result.backgroundColor : result.backgroundColor.colorWithAlpha(1));
+            edges.colors.setAt(side, result.isDimmingLayer ? blendAgainstPageBackground(result.backgroundColor) : result.backgroundColor.colorWithAlpha(1));
             continue;
         }
 
@@ -2496,14 +2504,15 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         }
 
         edges.colors.setAt(side, [&] -> FixedContainerEdge {
-            auto color = PageColorSampler::predominantColor(*page, computeSamplingRect(result.container->renderStyle(), side));
+            auto samplingResult = PageColorSampler::predominantColor(*page, computeSamplingRect(result.container->renderStyle(), side));
+            if (!std::holds_alternative<Color>(samplingResult))
+                return samplingResult;
+
+            auto color = std::get<Color>(samplingResult);
             if (result.isDimmingLayer)
-                return color;
+                return blendAgainstPageBackground(color);
 
-            if (!std::holds_alternative<Color>(color))
-                return color;
-
-            return std::get<Color>(color).colorWithAlpha(1);
+            return color.colorWithAlpha(1);
         }());
     }
 
