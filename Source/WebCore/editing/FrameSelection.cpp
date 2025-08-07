@@ -561,7 +561,7 @@ void FrameSelection::updateAndRevealSelection(const AXTextStateChangeIntent& int
         if (forceCenterScroll == ForceCenterScroll::Yes)
             alignment = ScrollAlignment::alignCenterAlways;
 
-        revealSelection(m_selectionRevealMode, alignment, revealExtent, scrollBehavior, onlyAllowForwardScrolling);
+        revealSelection({ m_selectionRevealMode, alignment, revealExtent, scrollBehavior, onlyAllowForwardScrolling });
     }
     if (!m_document->editor().ignoreSelectionChanges())
         notifyAccessibilityForSelectionChange(intent);
@@ -2654,9 +2654,9 @@ RefPtr<HTMLFormElement> FrameSelection::currentForm() const
     return scanForForm(start.get());
 }
 
-void FrameSelection::revealSelection(SelectionRevealMode revealMode, const ScrollAlignment& alignment, RevealExtentOption revealExtentOption, ScrollBehavior scrollBehavior, OnlyAllowForwardScrolling onlyAllowForwardScrolling)
+void FrameSelection::revealSelection(const RevealSelectionOptions& revealSelectionOptions)
 {
-    if (revealMode == SelectionRevealMode::DoNotReveal)
+    if (revealSelectionOptions.selectionRevealMode == SelectionRevealMode::DoNotReveal)
         return;
 
     if (isNone())
@@ -2669,7 +2669,7 @@ void FrameSelection::revealSelection(SelectionRevealMode revealMode, const Scrol
     if (isCaret())
         rect = absoluteCaretBounds(&insideFixed);
     else
-        rect = revealExtentOption == RevealExtentOption::RevealExtent ? VisiblePosition(m_selection.extent()).absoluteCaretBounds() : enclosingIntRect(selectionBounds(ClipToVisibleContent::No));
+        rect = revealSelectionOptions.revealExtentOption == RevealExtentOption::RevealExtent ? VisiblePosition(m_selection.extent()).absoluteCaretBounds() : enclosingIntRect(selectionBounds(ClipToVisibleContent::No));
 
     Position start = m_selection.start();
     ASSERT(start.deprecatedNode());
@@ -2685,7 +2685,7 @@ void FrameSelection::revealSelection(SelectionRevealMode revealMode, const Scrol
     // the selection rect could intersect more than just that.
     // See <rdar://problem/4799899>.
     m_document->frame()->view()->setLastUserScrollType(LocalFrameView::UserScrollType::Implicit);
-    LocalFrameView::scrollRectToVisible(rect, *start.deprecatedNode()->renderer(), insideFixed, { revealMode, alignment, alignment, ShouldAllowCrossOriginScrolling::Yes, scrollBehavior, onlyAllowForwardScrolling });
+    LocalFrameView::scrollRectToVisible(rect, *start.deprecatedNode()->renderer(), insideFixed, { revealSelectionOptions.selectionRevealMode, revealSelectionOptions.scrollAlignment, revealSelectionOptions.scrollAlignment, ShouldAllowCrossOriginScrolling::Yes, revealSelectionOptions.scrollBehavior, revealSelectionOptions.onlyAllowForwardScrolling });
     updateAppearance();
 
 #if PLATFORM(IOS_FAMILY)

@@ -4864,7 +4864,7 @@ void Page::revealCurrentSelection()
     RefPtr focusedOrMainFrame = focusController().focusedOrMainFrame();
     if (!focusedOrMainFrame)
         return;
-    focusedOrMainFrame->checkedSelection()->revealSelection(SelectionRevealMode::Reveal, ScrollAlignment::alignCenterIfNeeded);
+    focusedOrMainFrame->checkedSelection()->revealSelection({ SelectionRevealMode::Reveal, ScrollAlignment::alignCenterIfNeeded });
 }
 
 void Page::injectUserStyleSheet(UserStyleSheet& userStyleSheet)

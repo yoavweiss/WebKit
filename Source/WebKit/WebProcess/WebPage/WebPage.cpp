@@ -4004,7 +4004,7 @@ void WebPage::centerSelectionInVisibleArea()
     RefPtr frame = corePage()->focusController().focusedOrMainFrame();
     if (!frame)
         return;
-    frame->selection().revealSelection(SelectionRevealMode::Reveal, ScrollAlignment::alignCenterAlways);
+    frame->selection().revealSelection({ SelectionRevealMode::Reveal, ScrollAlignment::alignCenterAlways });
     findController().showFindIndicatorInSelection();
 }
 

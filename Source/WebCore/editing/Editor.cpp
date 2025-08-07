@@ -3566,7 +3566,7 @@ void Editor::revealSelectionAfterEditingOperation(const ScrollAlignment& alignme
 
     SelectionRevealMode revealMode = SelectionRevealMode::Reveal;
     Ref document = this->document();
-    document->selection().revealSelection(revealMode, alignment, revealExtentOption);
+    document->selection().revealSelection({ revealMode, alignment, revealExtentOption });
 }
 
 void Editor::setIgnoreSelectionChanges(bool ignore, RevealSelection shouldRevealExistingSelection)

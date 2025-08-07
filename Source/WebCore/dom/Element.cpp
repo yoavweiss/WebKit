@@ -4198,7 +4198,7 @@ void Element::updateFocusAppearance(SelectionRestorationMode, SelectionRevealMod
         
         if (frame->selection().shouldChangeSelection(newSelection)) {
             frame->selection().setSelection(newSelection, FrameSelection::defaultSetSelectionOptions(), Element::defaultFocusTextStateChangeIntent());
-            frame->selection().revealSelection(revealMode);
+            frame->selection().revealSelection({ revealMode });
             return;
         }
     }

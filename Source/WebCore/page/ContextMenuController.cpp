@@ -502,7 +502,7 @@ void ContextMenuController::contextMenuItemSelected(ContextMenuAction action, co
             ASSERT(document);
             Ref command = ReplaceSelectionCommand::create(*document, createFragmentFromMarkup(*document, title, emptyString()), replaceOptions);
             command->apply();
-            frame->checkedSelection()->revealSelection(SelectionRevealMode::Reveal, ScrollAlignment::alignToEdgeIfNeeded);
+            frame->checkedSelection()->revealSelection({ SelectionRevealMode::Reveal, ScrollAlignment::alignToEdgeIfNeeded });
         }
         break;
     }
