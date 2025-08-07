@@ -6652,15 +6652,6 @@ imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/cs
 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/css-module/import-css-module-basic.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/css-module/integrity.html [ Skip ]
 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/css-module/load-error-events.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/import-assertions/empty-assertion-clause.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/import-assertions/invalid-type-assertion-error.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/import-assertions/unsupported-assertion.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/json-module/charset.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/json-module/integrity.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/json-module/json-module-service-worker-test.https.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/json-module/load-error-events.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/json-module/module.html [ Skip ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/json-module/valid-content-type.html [ Skip ]
 
 # Early hints require network callbacks that are only present in macOS 12 / iOS 15 or greater.
 http/wpt/loading/early-hints [ Skip ]
