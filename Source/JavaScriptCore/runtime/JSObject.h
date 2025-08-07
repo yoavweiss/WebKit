@@ -1156,7 +1156,7 @@ public:
 
     static inline constexpr TypeInfo typeInfo() { return TypeInfo(FinalObjectType, StructureFlags); }
     static constexpr IndexingType defaultIndexingType = NonArray;
-    static constexpr int32_t defaultTypeInfoBlob()
+    static constexpr uint32_t defaultTypeInfoBlob()
     {
         return TypeInfoBlob::typeInfoBlob(defaultIndexingType, typeInfo().type(), typeInfo().inlineTypeFlags());
     }

@@ -82,13 +82,10 @@ inline JSCell::JSCell(VM&, Structure* structure)
 
 // This constructor should not be used directly. Exceptions are for quite few well-defined builtin objects, e.g. JSString, empty JSFinalObject etc.
 // Structure must be kept alive somehow (e.g. by JSGlobalObject, or ensureStillAliveHere).
-ALWAYS_INLINE JSCell::JSCell(CreatingWellDefinedBuiltinCellTag, StructureID structureID, int32_t blob)
+ALWAYS_INLINE JSCell::JSCell(CreatingWellDefinedBuiltinCellTag, StructureID structureID, uint32_t blob)
     : m_structureID(structureID)
 #if CPU(LITTLE_ENDIAN)
-    , m_indexingTypeAndMisc(static_cast<uint8_t>(blob >> 0))
-    , m_type(std::bit_cast<JSType>(static_cast<uint8_t>(blob >> 8)))
-    , m_flags(std::bit_cast<TypeInfo::InlineTypeFlags>(static_cast<uint8_t>(blob >> 16)))
-    , m_cellState(std::bit_cast<CellState>(static_cast<uint8_t>(blob >> 24)))
+    , m_blob(blob)
 #else
     , m_indexingTypeAndMisc(static_cast<uint8_t>(blob >> 24))
     , m_type(std::bit_cast<JSType>(static_cast<uint8_t>(blob >> 16)))

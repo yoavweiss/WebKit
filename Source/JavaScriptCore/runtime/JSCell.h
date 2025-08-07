@@ -115,7 +115,7 @@ public:
     enum CreatingEarlyCellTag { CreatingEarlyCell };
     JSCell(CreatingEarlyCellTag);
     enum CreatingWellDefinedBuiltinCellTag { CreatingWellDefinedBuiltinCell };
-    JSCell(CreatingWellDefinedBuiltinCellTag, StructureID, int32_t typeInfoBlob);
+    JSCell(CreatingWellDefinedBuiltinCellTag, StructureID, uint32_t typeInfoBlob);
 
     JS_EXPORT_PRIVATE static void destroy(JSCell*);
 
@@ -288,10 +288,15 @@ private:
     JS_EXPORT_PRIVATE JSObject* toObjectSlow(JSGlobalObject*) const;
 
     StructureID m_structureID;
-    IndexingType m_indexingTypeAndMisc; // DO NOT store to this field. Always CAS.
-    JSType m_type;
-    TypeInfo::InlineTypeFlags m_flags;
-    CellState m_cellState;
+    union {
+        uint32_t m_blob;
+        struct {
+            IndexingType m_indexingTypeAndMisc; // DO NOT store to this field. Always CAS.
+            JSType m_type;
+            TypeInfo::InlineTypeFlags m_flags;
+            CellState m_cellState;
+        };
+    };
 };
 
 class JSCellLock : public JSCell {

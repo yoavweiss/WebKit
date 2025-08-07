@@ -255,7 +255,7 @@ private:
 public:
     StructureID id() const { return StructureID::encode(this); }
 
-    int32_t typeInfoBlob() const { return m_blob.blob(); }
+    uint32_t typeInfoBlob() const { return m_blob.blob(); }
 
     bool isProxy() const
     {
