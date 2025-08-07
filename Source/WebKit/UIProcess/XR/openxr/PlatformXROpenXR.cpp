@@ -164,7 +164,7 @@ std::unique_ptr<OpenXRSwapchain> OpenXRCoordinator::createSwapchain(uint32_t wid
     info.sampleCount = sampleCount;
     info.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
 
-    return OpenXRSwapchain::create(m_instance, m_session, info);
+    return OpenXRSwapchain::create(m_session, info);
 }
 
 void OpenXRCoordinator::createLayerProjection(uint32_t width, uint32_t height, bool alpha)
