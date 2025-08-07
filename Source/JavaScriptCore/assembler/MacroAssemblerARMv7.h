@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "AssemblerCommon.h"
 #include <wtf/Platform.h>
 
 #if ENABLE(ASSEMBLER) && CPU(ARM_THUMB2)
@@ -119,8 +120,8 @@ public:
     static JumpLinkType computeJumpType(LinkRecord& record, const uint8_t* from, const uint8_t* to) { return ARMv7Assembler::computeJumpType(record, from, to); }
     static int jumpSizeDelta(JumpType jumpType, JumpLinkType jumpLinkType) { return ARMv7Assembler::jumpSizeDelta(jumpType, jumpLinkType); }
 
-    template<MachineCodeCopyMode copy>
-    ALWAYS_INLINE static void link(LinkRecord& record, uint8_t* from, const uint8_t* fromInstruction, uint8_t* to) { return ARMv7Assembler::link<copy>(record, from, fromInstruction, to); }
+    template<RepatchingInfo repatch>
+    ALWAYS_INLINE static void link(LinkRecord& record, uint8_t* from, const uint8_t* fromInstruction, uint8_t* to) { return ARMv7Assembler::link<repatch>(record, from, fromInstruction, to); }
 
     struct ArmAddress {
         enum AddressType {

@@ -852,9 +852,9 @@ private:
             auto emitJumpTo = [&] (void* target) {
                 RELEASE_ASSERT(Assembler::canEmitJump(std::bit_cast<void*>(jumpLocation), target));
                 if (useMemcpy)
-                    Assembler::fillNearTailCall<MachineCodeCopyMode::Memcpy>(currentIsland, target);
+                    Assembler::fillNearTailCall<RepatchingInfo { RepatchingFlag::Memcpy, RepatchingFlag::Flush }>(currentIsland, target);
                 else
-                    Assembler::fillNearTailCall<MachineCodeCopyMode::JITMemcpy>(currentIsland, target);
+                    Assembler::fillNearTailCall<jitMemcpyRepatchFlush>(currentIsland, target);
             };
 
             if (Assembler::canEmitJump(std::bit_cast<void*>(jumpLocation), std::bit_cast<void*>(target))) {
@@ -1427,7 +1427,7 @@ ExecutableMemoryHandle::~ExecutableMemoryHandle()
         // We don't have a performJITMemset so just use a zeroed buffer.
         auto zeros = MallocSpan<uint8_t>::zeroedMalloc(sizeInBytes());
         auto span = zeros.span();
-        performJITMemcpy(start().untaggedPtr(), span.data(), span.size());
+        performJITMemcpy<jitMemcpyRepatch>(start().untaggedPtr(), span.data(), span.size());
     }
     jit_heap_deallocate(key());
 }
