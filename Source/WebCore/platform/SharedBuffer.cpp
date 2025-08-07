@@ -398,9 +398,18 @@ bool FragmentedSharedBuffer::operator==(const FragmentedSharedBuffer& other) con
     if (m_size != other.m_size)
         return false;
 
-    auto thisSpan = m_segments.span();
+    return haveIdenticalContent(m_segments, other.m_segments);
+}
+
+bool FragmentedSharedBuffer::haveIdenticalContent(const DataSegmentVector& a, const DataSegmentVector& b)
+{
+    // Fast comparison.
+    if (a == b)
+        return true;
+
+    auto thisSpan = a.span();
     size_t thisOffset = 0;
-    auto otherSpan = other.m_segments.span();
+    auto otherSpan = b.span();
     size_t otherOffset = 0;
 
     while (!thisSpan.empty() && !otherSpan.empty()) {
@@ -714,6 +723,17 @@ SharedBufferBuilder& SharedBufferBuilder::operator=(const SharedBufferBuilder& o
         return SharedBuffer::DataSegmentVectorEntry { element.beginPosition, element.segment.copyRef() };
     });
     return *this;
+}
+
+bool SharedBufferBuilder::operator==(const SharedBufferBuilder& other) const
+{
+    if (this == &other)
+        return true;
+
+    if (m_size != other.m_size)
+        return false;
+
+    return FragmentedSharedBuffer::haveIdenticalContent(m_segments, other.m_segments);
 }
 
 SharedBufferDataView::SharedBufferDataView(Ref<const DataSegment>&& segment, size_t positionWithinSegment, std::optional<size_t> size)

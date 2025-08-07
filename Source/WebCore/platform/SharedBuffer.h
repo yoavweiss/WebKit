@@ -199,6 +199,8 @@ public:
     struct DataSegmentVectorEntry {
         size_t beginPosition;
         const Ref<const DataSegment> segment;
+
+        bool operator==(const DataSegmentVectorEntry&) const = default;
     };
     using DataSegmentVector = Vector<DataSegmentVectorEntry, 1>;
     DataSegmentVector::const_iterator begin() const LIFETIME_BOUND { return m_segments.begin(); }
@@ -240,6 +242,8 @@ private:
     // Combines all the segments into a Vector and returns that vector after clearing the FragmentedSharedBuffer.
     WEBCORE_EXPORT Vector<uint8_t> takeData();
     std::span<const DataSegmentVectorEntry> segmentForPosition(size_t position) const;
+
+    static bool haveIdenticalContent(const DataSegmentVector&, const DataSegmentVector&);
 
     size_t m_size { 0 };
     DataSegmentVector m_segments;
@@ -395,13 +399,12 @@ public:
     WEBCORE_EXPORT Ref<SharedBuffer> takeAsContiguous();
     WEBCORE_EXPORT RefPtr<ArrayBuffer> takeAsArrayBuffer();
 
+    WEBCORE_EXPORT bool operator==(const SharedBufferBuilder&) const;
+
 private:
     friend class ScriptBuffer;
     friend class FetchBodyConsumer;
-    // Copy constructor should make a copy of the underlying SharedBuffer
-    // This is prevented by ScriptBuffer and FetchBodyConsumer classes (bug 234215)
-    // For now let the default constructor/operator take a reference to the
-    // SharedBuffer.
+
     WEBCORE_EXPORT SharedBufferBuilder(const SharedBufferBuilder&);
     WEBCORE_EXPORT SharedBufferBuilder& operator=(const SharedBufferBuilder&);
 
