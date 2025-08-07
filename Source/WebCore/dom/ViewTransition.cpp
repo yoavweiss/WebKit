@@ -1088,6 +1088,11 @@ void ViewTransition::stop()
         clearViewTransition();
 }
 
+Document* ViewTransition::document() const
+{
+    return downcast<Document>(scriptExecutionContext());
+}
+
 bool ViewTransition::documentElementIsCaptured() const
 {
     RefPtr document = this->document();

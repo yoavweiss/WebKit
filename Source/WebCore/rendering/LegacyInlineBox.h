@@ -214,7 +214,7 @@ public:
     void invalidateParentChildList();
 #endif
 
-    const RenderStyle& lineStyle() const { return m_bitfields.firstLine() ? renderer().firstLineStyle() : renderer().style(); }
+    const RenderStyle& lineStyle() const;
     
     const Style::VerticalAlign& verticalAlign() const { return lineStyle().verticalAlign(); }
 

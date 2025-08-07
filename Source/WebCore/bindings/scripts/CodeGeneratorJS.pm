@@ -6830,7 +6830,7 @@ sub GenerateCallbackHeaderContent
     push(@$contentRef, "        return adoptRef(*new ${className}(callback, globalObject));\n");
     push(@$contentRef, "    }\n\n");
 
-    push(@$contentRef, "    ScriptExecutionContext* scriptExecutionContext() const { return ContextDestructionObserver::scriptExecutionContext(); }\n\n");
+    push(@$contentRef, "    ScriptExecutionContext* scriptExecutionContext() const;\n\n");
 
     push(@$contentRef, "    ~$className() final;\n");
 
@@ -7139,6 +7139,11 @@ sub GenerateCallbackImplementationContent
     push(@$contentRef, "        return jsNull();\n\n");
     push(@$contentRef, "    return static_cast<${className}&>(impl).callbackData()->callback();\n");
     push(@$contentRef, "}\n\n");
+
+    push(@$contentRef, "ScriptExecutionContext* ${className}::scriptExecutionContext() const\n");
+    push(@$contentRef, "{\n");
+    push(@$contentRef, "    return ContextDestructionObserver::scriptExecutionContext();\n");
+    push(@$contentRef, "}\n");
 }
 
 sub GenerateWriteBarriersForArguments
