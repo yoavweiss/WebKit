@@ -11135,7 +11135,7 @@ static Vector<WebCore::IntSize> sizesOfPlaceholderElementsToInsertWhenDroppingIt
         if (overriddenPreview)
             return overriddenPreview;
     }
-    return _dragDropInteractionState.previewForLifting(item, self, self.containerForDragPreviews, std::exchange(_positionInformationLinkIndicator, { }));
+    return _dragDropInteractionState.previewForLifting(item, self, self.containerForDragPreviews, WTFMove(_positionInformationLinkIndicator));
 }
 
 - (void)dragInteraction:(UIDragInteraction *)interaction willAnimateLiftWithAnimator:(id<UIDragAnimating>)animator session:(id<UIDragSession>)session
@@ -11704,7 +11704,7 @@ static RetainPtr<UITargetedPreview> createFallbackTargetedPreview(UIView *rootVi
 
     if (_positionInformation.isLink && _positionInformation.textIndicator && _positionInformation.textIndicator->contentImage()) {
         RefPtr textIndicator = _positionInformation.textIndicator;
-        _positionInformationLinkIndicator = textIndicator ? std::optional { textIndicator->data() } : std::nullopt;
+        _positionInformationLinkIndicator = textIndicator;
 
         targetedPreview = [self _createTargetedPreviewFromTextIndicator:WTFMove(textIndicator) previewContainer:self.containerForContextMenuHintPreviews];
     } else if ((_positionInformation.isAttachment || _positionInformation.isImage) && _positionInformation.image) {

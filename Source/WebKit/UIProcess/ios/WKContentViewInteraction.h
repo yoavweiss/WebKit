@@ -104,7 +104,6 @@ struct ContactsRequestData;
 struct DigitalCredentialsRequestData;
 struct PromisedAttachmentInfo;
 struct ShareDataWithParsedURL;
-struct TextIndicatorData;
 struct TextRecognitionResult;
 enum class DOMPasteAccessCategory : uint8_t;
 enum class DOMPasteAccessResponse : uint8_t;
@@ -505,7 +504,7 @@ struct ImageAnalysisContextMenuActionData {
     WebKit::WebAutocorrectionContext _lastAutocorrectionContext;
     WebKit::WKAutoCorrectionData _autocorrectionData;
     WebKit::InteractionInformationAtPosition _positionInformation;
-    std::optional<WebCore::TextIndicatorData> _positionInformationLinkIndicator;
+    RefPtr<WebCore::TextIndicator> _positionInformationLinkIndicator;
     WebKit::FocusedElementInformation _focusedElementInformation;
     std::optional<WebKit::FocusedElementInformationIdentifier> _pendingFocusedElementIdentifier;
     RetainPtr<NSObject<WKFormPeripheral>> _inputPeripheral;
