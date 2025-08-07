@@ -71,7 +71,13 @@ class SelectorChecker {
 
 public:
     enum class Mode : unsigned char {
-        ResolvingStyle = 0, CollectingRules, CollectingRulesIgnoringVirtualPseudoElements, QueryingRules
+        ResolvingStyle = 0,
+        CollectingRules,
+        // This is used for invalidation
+        // FIXME: Rename this to Mode::StyleInvalidation
+        CollectingRulesIgnoringVirtualPseudoElements,
+        // This is used for querySelector() API
+        QueryingRules
     };
 
     SelectorChecker(Document&);

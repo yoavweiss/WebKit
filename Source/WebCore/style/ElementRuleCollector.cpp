@@ -654,7 +654,7 @@ std::pair<bool, std::optional<Vector<ElementRuleCollector::ScopingRootWithDistan
         return { true, { } };
 
     SelectorChecker checker(element().rootElement()->document());
-    SelectorChecker::CheckingContext context(SelectorChecker::Mode::CollectingRulesIgnoringVirtualPseudoElements);
+    SelectorChecker::CheckingContext context(m_mode);
     context.styleScopeOrdinal = matchRequest.styleScopeOrdinal;
 
     Vector<ScopingRootWithDistance> scopingRoots;

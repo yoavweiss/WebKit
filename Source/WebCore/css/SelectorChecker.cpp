@@ -108,6 +108,7 @@ struct SelectorChecker::LocalContext {
     bool hasViewTransitionPseudo { false };
     bool mustMatchHostPseudoClass { false };
     bool matchedHostPseudoClass { false };
+    bool isNegation { false };
 };
 
 static inline void addStyleRelation(SelectorChecker::CheckingContext& checkingContext, const Element& element, Style::Relation::Type type, unsigned value = 1)
@@ -786,6 +787,7 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
 
             for (auto& subselector : *selectorList) {
                 LocalContext subcontext(context);
+                subcontext.isNegation = !context.isNegation;
                 subcontext.inFunctionalPseudoClass = true;
                 subcontext.pseudoElementEffective = false;
                 subcontext.selector = &subselector;
@@ -1137,6 +1139,10 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
 #endif
 
         case CSSSelector::PseudoClass::Scope: {
+            // During style invalidation, we don't collect the @scope rules.
+            if (checkingContext.resolvingMode == SelectorChecker::Mode::CollectingRulesIgnoringVirtualPseudoElements)
+                return !context.isNegation;
+
             const Node* contextualReferenceNode = !checkingContext.scope ? element.document().documentElement() : checkingContext.scope.get();
             auto match = &element == contextualReferenceNode;
             if (match && element.shadowRoot())
