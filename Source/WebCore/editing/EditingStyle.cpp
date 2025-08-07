@@ -1465,17 +1465,16 @@ static void removePropertiesInStyle(MutableStyleProperties& styleToRemovePropert
     }).span());
 }
 
-void EditingStyle::removeStyleFromRulesAndContext(StyledElement& element, Node* context)
+Ref<MutableStyleProperties> EditingStyle::removeInlineStyleRedundantDueToMatchedRules(StyledElement& element)
 {
-    if (!m_mutableStyle)
-        return;
-
-    // 1. Remove style from matched rules because style remain without repeating it in inline style declaration
     auto styleFromMatchedRules = styleFromMatchedRulesForElement(element, Style::Resolver::AllButEmptyCSSRules);
     if (!styleFromMatchedRules->isEmpty())
         m_mutableStyle = getPropertiesNotIn(*m_mutableStyle.copyRef(), styleFromMatchedRules.get());
+    return styleFromMatchedRules;
+}
 
-    // 2. Remove style present in context and not overridden by matched rules.
+void EditingStyle::removeStyleInContextNotOverridenByMatchedRules(StyledElement& element, Node* context, MutableStyleProperties& styleFromMatchedRules)
+{
     auto computedStyle = EditingStyle::create(context, PropertiesToInclude::EditingPropertiesInEffect);
     if (RefPtr computedStyleMutableStyle = computedStyle->m_mutableStyle) {
         if (!computedStyleMutableStyle->getPropertyCSSValue(CSSPropertyBackgroundColor))
@@ -1496,11 +1495,9 @@ void EditingStyle::removeStyleFromRulesAndContext(StyledElement& element, Node* 
         }
 
         RefPtr<EditingStyle> computedStyleOfElement;
-        auto replaceSemanticColorWithComputedValue = [&](const CSSPropertyID id) {
-            auto color = mutableStyle->propertyAsColor(id);
-            if (!color || (color->isVisible() && !color->isSemantic()))
+        auto replaceSpecifiedValueWithComputedValue = [&](const CSSPropertyID id) {
+            if (m_mutableStyle->findPropertyIndex(id) == -1)
                 return;
-
             if (!computedStyleOfElement)
                 computedStyleOfElement = EditingStyle::create(&element, PropertiesToInclude::EditingPropertiesInEffect);
 
@@ -1512,6 +1509,13 @@ void EditingStyle::removeStyleFromRulesAndContext(StyledElement& element, Node* 
                 return;
 
             mutableStyle->setProperty(id, computedValue);
+
+        };
+        auto replaceSemanticColorWithComputedValue = [&](const CSSPropertyID id) {
+            auto color = mutableStyle->propertyAsColor(id);
+            if (!color || (color->isVisible() && !color->isSemantic()))
+                return;
+            replaceSpecifiedValueWithComputedValue(id);
         };
 
         // Replace semantic color identifiers like -apple-system-label with RGB values so that comparsions in getPropertiesNotIn below would work.
@@ -1519,19 +1523,35 @@ void EditingStyle::removeStyleFromRulesAndContext(StyledElement& element, Node* 
         replaceSemanticColorWithComputedValue(CSSPropertyCaretColor);
         replaceSemanticColorWithComputedValue(CSSPropertyBackgroundColor);
 
-        removePropertiesInStyle(*computedStyleMutableStyle, styleFromMatchedRules.get());
+        removePropertiesInStyle(*computedStyleMutableStyle, styleFromMatchedRules);
         m_mutableStyle = getPropertiesNotIn(mutableStyle, *computedStyleMutableStyle);
     }
+}
 
-    // 3. If this element is a span and has display: inline or float: none, remove them unless they are overridden by rules.
+void EditingStyle::removeDisplayPropertyFromSpanStyleIfRedundant(StyledElement& element, MutableStyleProperties& styleFromMatchedRules)
+{
+    // If this element is a span and has display: inline or float: none, remove them unless they are overridden by rules.
     // These rules are added by serialization code to wrap text nodes.
-    if (isStyleSpanOrSpanWithOnlyStyleAttribute(element)) {
-        Ref mutableStyle = *m_mutableStyle;
-        if (!styleFromMatchedRules->getPropertyCSSValue(CSSPropertyDisplay) && identifierForStyleProperty(mutableStyle, CSSPropertyDisplay) == CSSValueInline)
-            mutableStyle->removeProperty(CSSPropertyDisplay);
-        if (!styleFromMatchedRules->getPropertyCSSValue(CSSPropertyFloat) && identifierForStyleProperty(mutableStyle, CSSPropertyFloat) == CSSValueNone)
-            mutableStyle->removeProperty(CSSPropertyFloat);
-    }
+    if (!isStyleSpanOrSpanWithOnlyStyleAttribute(element))
+        return;
+
+    Ref mutableStyle = *m_mutableStyle;
+    if (!styleFromMatchedRules.getPropertyCSSValue(CSSPropertyDisplay) && identifierForStyleProperty(mutableStyle, CSSPropertyDisplay) == CSSValueInline)
+        mutableStyle->removeProperty(CSSPropertyDisplay);
+    if (!styleFromMatchedRules.getPropertyCSSValue(CSSPropertyFloat) && identifierForStyleProperty(mutableStyle, CSSPropertyFloat) == CSSValueNone)
+    mutableStyle->removeProperty(CSSPropertyFloat);
+}
+
+
+void EditingStyle::removeStyleFromRulesAndContext(StyledElement& element, Node* context)
+{
+    if (!m_mutableStyle)
+        return;
+
+    auto styleFromMatchedRules = removeInlineStyleRedundantDueToMatchedRules(element);
+    removeStyleInContextNotOverridenByMatchedRules(element, context, styleFromMatchedRules.get());
+    removeDisplayPropertyFromSpanStyleIfRedundant(element, styleFromMatchedRules.get());
+
 }
 
 void EditingStyle::removePropertiesInElementDefaultStyle(Element& element)
