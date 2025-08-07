@@ -772,6 +772,16 @@ static _WKWebsiteDeviceOrientationAndMotionAccessPolicy toWKWebsiteDeviceOrienta
     return selectors.autorelease();
 }
 
+- (BOOL)_allowSharedProcess
+{
+    return _websitePolicies->allowSharedProcess();
+}
+
+- (void)_setAllowSharedProcess:(BOOL)allowSharedProcess
+{
+    _websitePolicies->setAllowSharedProcess(allowSharedProcess);
+}
+
 - (BOOL)_pushAndNotificationAPIEnabled
 {
     return _websitePolicies->pushAndNotificationsEnabledPolicy() == WebKit::WebsitePushAndNotificationsEnabledPolicy::Yes;

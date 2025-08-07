@@ -27,6 +27,7 @@
 #include "BrowsingContextGroup.h"
 
 #include "APIPageConfiguration.h"
+#include "APIWebsitePolicies.h"
 #include "FrameProcess.h"
 #include "PageLoadState.h"
 #include "ProvisionalPageProxy.h"
@@ -44,7 +45,7 @@ BrowsingContextGroup::BrowsingContextGroup() = default;
 
 BrowsingContextGroup::~BrowsingContextGroup() = default;
 
-RefPtr<FrameProcess> BrowsingContextGroup::sharedProcessForSite(WebsiteDataStore& websiteDataStore, const WebPreferences& preferences, const WebCore::Site& site, WebProcessProxy::LockdownMode lockdownMode, API::PageConfiguration& pageConfiguration, IsMainFrame isMainFrame)
+RefPtr<FrameProcess> BrowsingContextGroup::sharedProcessForSite(WebsiteDataStore& websiteDataStore, API::WebsitePolicies* websitePolicies, const WebPreferences& preferences, const WebCore::Site& site, WebProcessProxy::LockdownMode lockdownMode, API::PageConfiguration& pageConfiguration, IsMainFrame isMainFrame)
 {
     if (!preferences.siteIsolationEnabled() || !preferences.siteIsolationSharedProcessEnabled())
         return nullptr;
@@ -52,7 +53,8 @@ RefPtr<FrameProcess> BrowsingContextGroup::sharedProcessForSite(WebsiteDataStore
         return nullptr;
     if (site.isEmpty())
         return nullptr;
-    // FIXME: Add a mechanism for WebKit / Safari to identify websites that need an isolation.
+    if (websitePolicies && !websitePolicies->allowSharedProcess() && !m_sharedProcessSites.contains(site))
+        return nullptr;
     m_sharedProcessSites.add(site);
     if (m_sharedProcess)
         return m_sharedProcess.get();

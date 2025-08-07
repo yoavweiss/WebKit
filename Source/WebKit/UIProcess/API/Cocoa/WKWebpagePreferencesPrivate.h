@@ -125,6 +125,8 @@ typedef NS_OPTIONS(NSUInteger, _WKWebsiteNetworkConnectionIntegrityPolicy) {
 @property (nonatomic, copy, setter=_setVisibilityAdjustmentSelectorsIncludingShadowHosts:) NSArray<NSArray<NSSet<NSString *> *> *> *_visibilityAdjustmentSelectorsIncludingShadowHosts WK_API_AVAILABLE(macos(15.0), ios(18.0), visionos(2.0));
 @property (nonatomic, copy, setter=_setVisibilityAdjustmentSelectors:) NSSet<NSString *> *_visibilityAdjustmentSelectors WK_API_AVAILABLE(macos(15.0), ios(18.0), visionos(2.0));
 
+@property (nonatomic, setter=_setAllowSharedProcess:) BOOL _allowSharedProcess WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+
 - (void)_setContentRuleListsEnabled:(BOOL)enabled exceptions:(NSSet<NSString *> *)exceptions WK_API_AVAILABLE(macos(14.0), ios(17.0));
 
 @property (nonatomic, setter=_setPushAndNotificationAPIEnabled:) BOOL _pushAndNotificationAPIEnabled;

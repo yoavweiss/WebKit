@@ -5060,6 +5060,59 @@ TEST(SiteIsolation, SharedProcessBasicNavigation)
     });
 }
 
+TEST(SiteIsolation, SharedProcessWithWebsitePolicies)
+{
+    HTTPServer server({
+        { "/example"_s, { "<iframe src='https://webkit.org/webkit'></iframe><iframe src='https://apple.com/apple'></iframe><iframe src='https://w3.org/w3c'></iframe>"_s } },
+        { "/apple"_s, { "apple content"_s } },
+        { "/webkit"_s, { "webkit content"_s } },
+        { "/w3c"_s, { "w3c content"_s } },
+        { "/alert_when_loaded"_s, { "<script>alert('loaded alert iframe')</script>"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto [webView, navigationDelegate] = siteIsolatedViewWithSharedProcess(server);
+    navigationDelegate.get().decidePolicyForNavigationActionWithPreferences = ^(WKNavigationAction *navigationAction, WKWebpagePreferences *preferences, void (^decisionHandler)(WKNavigationActionPolicy, WKWebpagePreferences *)) {
+        if ([navigationAction.request.URL.host isEqual:@"apple.com"] || [navigationAction.request.URL.path isEqual:@"alert_when_loaded"])
+            preferences._allowSharedProcess = NO;
+        decisionHandler(WKNavigationActionPolicyAllow, preferences);
+    };
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    checkFrameTreesInProcesses(webView.get(), {
+        {
+            "https://example.com"_s,
+            { { RemoteFrame }, { RemoteFrame }, { RemoteFrame } }
+        },
+        {
+            RemoteFrame,
+            { { "https://webkit.org"_s }, { RemoteFrame }, { "https://w3.org"_s } }
+        },
+        {
+            RemoteFrame,
+            { { RemoteFrame }, { "https://apple.com"_s }, { RemoteFrame } }
+        },
+    });
+
+    [webView evaluateJavaScript:@"document.body.appendChild(document.createElement('iframe')).src = 'https://w3.org/alert_when_loaded'" completionHandler:nil];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "loaded alert iframe");
+
+    checkFrameTreesInProcesses(webView.get(), {
+        {
+            "https://example.com"_s,
+            { { RemoteFrame }, { RemoteFrame }, { RemoteFrame }, { RemoteFrame } }
+        },
+        {
+            RemoteFrame,
+            { { "https://webkit.org"_s }, { RemoteFrame }, { "https://w3.org"_s }, { "https://w3.org"_s } }
+        },
+        {
+            RemoteFrame,
+            { { RemoteFrame }, { "https://apple.com"_s }, { RemoteFrame }, { RemoteFrame } }
+        },
+    });
+}
+
 static auto advanceFocusAcrossFramesMainFrame = R"FOCUSRESOURCE(
 <script>
 
