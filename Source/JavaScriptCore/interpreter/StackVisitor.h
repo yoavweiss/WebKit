@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "BytecodeIndex.h"
-#include "CalleeBits.h"
-#include "LineColumn.h"
-#include "SourceID.h"
-#include "WasmIndexOrName.h"
+#include <JavaScriptCore/BytecodeIndex.h>
+#include <JavaScriptCore/CalleeBits.h>
+#include <JavaScriptCore/LineColumn.h>
+#include <JavaScriptCore/SourceID.h>
+#include <JavaScriptCore/WasmIndexOrName.h>
 #include <wtf/Function.h>
 #include <wtf/Indenter.h>
 #include <wtf/IterationStatus.h>

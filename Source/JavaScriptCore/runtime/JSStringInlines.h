@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "HeapCellInlines.h"
-#include "JSGlobalObjectInlines.h"
-#include "JSString.h"
-#include "KeyAtomStringCacheInlines.h"
-#include "MarkedBlockInlines.h"
+#include <JavaScriptCore/HeapCellInlines.h>
+#include <JavaScriptCore/JSGlobalObjectInlines.h>
+#include <JavaScriptCore/JSString.h>
+#include <JavaScriptCore/KeyAtomStringCacheInlines.h>
+#include <JavaScriptCore/MarkedBlockInlines.h>
 #include <wtf/text/MakeString.h>
 #include <wtf/text/ParsingUtilities.h>
 

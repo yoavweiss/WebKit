@@ -22,11 +22,11 @@
 
 #pragma once
 
-#include "Lookup.h"
-#include "ParserArena.h"
-#include "ParserModes.h"
-#include "ParserTokens.h"
-#include "SourceCode.h"
+#include <JavaScriptCore/Lookup.h>
+#include <JavaScriptCore/ParserArena.h>
+#include <JavaScriptCore/ParserModes.h>
+#include <JavaScriptCore/ParserTokens.h>
+#include <JavaScriptCore/SourceCode.h>
 #include <wtf/ASCIICType.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/Vector.h>

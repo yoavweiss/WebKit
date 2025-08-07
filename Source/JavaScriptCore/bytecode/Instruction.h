@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "Opcode.h"
-#include "OpcodeSize.h"
+#include <JavaScriptCore/Opcode.h>
+#include <JavaScriptCore/OpcodeSize.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 

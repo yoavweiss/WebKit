@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include "ErrorType.h"
-#include "JSString.h"
-#include "PrivateName.h"
+#include <JavaScriptCore/ErrorType.h>
+#include <JavaScriptCore/JSString.h>
+#include <JavaScriptCore/PrivateName.h>
 #include <wtf/Expected.h>
 
 namespace JSC {

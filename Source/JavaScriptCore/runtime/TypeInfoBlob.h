@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "CellState.h"
-#include "IndexingType.h"
-#include "JSTypeInfo.h"
-#include "StructureID.h"
+#include <JavaScriptCore/CellState.h>
+#include <JavaScriptCore/IndexingType.h>
+#include <JavaScriptCore/JSTypeInfo.h>
+#include <JavaScriptCore/StructureID.h>
 
 namespace JSC {
 

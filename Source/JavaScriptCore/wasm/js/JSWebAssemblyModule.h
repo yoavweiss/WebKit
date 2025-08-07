@@ -27,11 +27,11 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "CallLinkInfo.h"
-#include "JSDestructibleObject.h"
-#include "JSObject.h"
-#include "MemoryMode.h"
-#include "WasmFormat.h"
+#include <JavaScriptCore/CallLinkInfo.h>
+#include <JavaScriptCore/JSDestructibleObject.h>
+#include <JavaScriptCore/JSObject.h>
+#include <JavaScriptCore/MemoryMode.h>
+#include <JavaScriptCore/WasmFormat.h>
 #include <wtf/Bag.h>
 #include <wtf/Expected.h>
 #include <wtf/Forward.h>

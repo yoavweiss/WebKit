@@ -31,10 +31,9 @@
 
 #if ENABLE(ASSEMBLER) && CPU(ARM_THUMB2)
 
+#include <JavaScriptCore/ARMv7Assembler.h>
+#include <JavaScriptCore/AbstractMacroAssembler.h>
 #include <initializer_list>
-
-#include "ARMv7Assembler.h"
-#include "AbstractMacroAssembler.h"
 
 namespace JSC {
 

@@ -27,10 +27,10 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "MacroAssemblerCodeRef.h"
-#include "MemoryMode.h"
-#include "WasmCallee.h"
-#include "WasmJS.h"
+#include <JavaScriptCore/MacroAssemblerCodeRef.h>
+#include <JavaScriptCore/MemoryMode.h>
+#include <JavaScriptCore/WasmCallee.h>
+#include <JavaScriptCore/WasmJS.h>
 #include <wtf/CrossThreadCopier.h>
 #include <wtf/FixedBitVector.h>
 #include <wtf/FixedVector.h>

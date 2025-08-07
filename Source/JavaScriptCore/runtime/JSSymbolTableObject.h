@@ -28,11 +28,11 @@
 
 #pragma once
 
-#include "JSScope.h"
-#include "PropertyDescriptor.h"
-#include "SymbolTable.h"
-#include "ThrowScope.h"
-#include "VariableWriteFireDetail.h"
+#include <JavaScriptCore/JSScope.h>
+#include <JavaScriptCore/PropertyDescriptor.h>
+#include <JavaScriptCore/SymbolTable.h>
+#include <JavaScriptCore/ThrowScope.h>
+#include <JavaScriptCore/VariableWriteFireDetail.h>
 
 namespace JSC {
 

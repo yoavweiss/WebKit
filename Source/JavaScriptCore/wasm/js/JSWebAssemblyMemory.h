@@ -27,8 +27,8 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "JSObject.h"
-#include "WasmMemory.h"
+#include <JavaScriptCore/JSObject.h>
+#include <JavaScriptCore/WasmMemory.h>
 #include <wtf/Ref.h>
 #include <wtf/RefPtr.h>
 

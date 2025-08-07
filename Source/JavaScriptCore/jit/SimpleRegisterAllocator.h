@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "RegisterSet.h"
+#include <JavaScriptCore/RegisterSet.h>
 #include <array>
 
 #if ENABLE(JIT)

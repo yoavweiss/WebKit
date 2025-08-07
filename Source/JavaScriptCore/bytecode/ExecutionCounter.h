@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "Options.h"
+#include <JavaScriptCore/Options.h>
 #include <wtf/Nonmovable.h>
 #include <wtf/PrintStream.h>
 #include <wtf/TZoneMalloc.h>

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "ParserModes.h"
-#include "ParserTokens.h"
+#include <JavaScriptCore/ParserModes.h>
+#include <JavaScriptCore/ParserTokens.h>
 #include <wtf/Vector.h>
 #include <wtf/text/UniquedStringImpl.h>
 #include <wtf/text/WTFString.h>

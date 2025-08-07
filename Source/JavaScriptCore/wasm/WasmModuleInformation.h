@@ -27,8 +27,8 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "WasmBranchHints.h"
-#include "WasmFormat.h"
+#include <JavaScriptCore/WasmBranchHints.h>
+#include <JavaScriptCore/WasmFormat.h>
 
 #include <wtf/FixedBitVector.h>
 #include <wtf/HashMap.h>

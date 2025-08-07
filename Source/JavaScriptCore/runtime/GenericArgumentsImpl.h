@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "CagedBarrierPtr.h"
-#include "JSObject.h"
+#include <JavaScriptCore/CagedBarrierPtr.h>
+#include <JavaScriptCore/JSObject.h>
 
 namespace JSC {
 

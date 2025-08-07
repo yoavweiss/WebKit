@@ -20,10 +20,10 @@
 
 #pragma once
 
-#include "JSObject.h"
-#include "RegExp.h"
-#include "ThrowScope.h"
-#include "TypeError.h"
+#include <JavaScriptCore/JSObject.h>
+#include <JavaScriptCore/RegExp.h>
+#include <JavaScriptCore/ThrowScope.h>
+#include <JavaScriptCore/TypeError.h>
 
 namespace JSC {
     

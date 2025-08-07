@@ -27,7 +27,7 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "WasmCallingConvention.h"
+#include <JavaScriptCore/WasmCallingConvention.h>
 #include <wtf/Expected.h>
 #include <wtf/text/WTFString.h>
 

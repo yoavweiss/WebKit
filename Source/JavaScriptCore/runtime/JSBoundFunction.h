@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "JSFunction.h"
-#include "JSImmutableButterfly.h"
+#include <JavaScriptCore/JSFunction.h>
+#include <JavaScriptCore/JSImmutableButterfly.h>
 
 namespace JSC {
 

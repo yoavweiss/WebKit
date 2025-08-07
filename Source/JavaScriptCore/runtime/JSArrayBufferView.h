@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "AuxiliaryBarrier.h"
-#include "JSObject.h"
+#include <JavaScriptCore/AuxiliaryBarrier.h>
+#include <JavaScriptCore/JSObject.h>
 #include <wtf/TaggedArrayStoragePtr.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN

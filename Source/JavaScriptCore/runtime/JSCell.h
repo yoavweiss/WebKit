@@ -22,21 +22,21 @@
 
 #pragma once
 
-#include "CallData.h"
-#include "CellState.h"
-#include "ConstructData.h"
-#include "DestructionMode.h"
-#include "EnumerationMode.h"
-#include "Heap.h"
-#include "HeapCell.h"
-#include "IndexingType.h"
-#include "JSLock.h"
-#include "JSTypeInfo.h"
-#include "SlotVisitor.h"
-#include "SlotVisitorMacros.h"
-#include "SubspaceAccess.h"
-#include "TypedArrayType.h"
-#include "WriteBarrier.h"
+#include <JavaScriptCore/CallData.h>
+#include <JavaScriptCore/CellState.h>
+#include <JavaScriptCore/ConstructData.h>
+#include <JavaScriptCore/DestructionMode.h>
+#include <JavaScriptCore/EnumerationMode.h>
+#include <JavaScriptCore/Heap.h>
+#include <JavaScriptCore/HeapCell.h>
+#include <JavaScriptCore/IndexingType.h>
+#include <JavaScriptCore/JSLock.h>
+#include <JavaScriptCore/JSTypeInfo.h>
+#include <JavaScriptCore/SlotVisitor.h>
+#include <JavaScriptCore/SlotVisitorMacros.h>
+#include <JavaScriptCore/SubspaceAccess.h>
+#include <JavaScriptCore/TypedArrayType.h>
+#include <JavaScriptCore/WriteBarrier.h>
 
 namespace JSC {
 

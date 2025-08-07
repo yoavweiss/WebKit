@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include "JSLexicalEnvironment.h"
+#include <JavaScriptCore/JSLexicalEnvironment.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 

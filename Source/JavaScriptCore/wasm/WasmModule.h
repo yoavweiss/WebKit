@@ -31,10 +31,10 @@
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
-#include "WasmCalleeGroup.h"
-#include "WasmJS.h"
-#include "WasmMemory.h"
-#include "WasmOps.h"
+#include <JavaScriptCore/WasmCalleeGroup.h>
+#include <JavaScriptCore/WasmJS.h>
+#include <JavaScriptCore/WasmMemory.h>
+#include <JavaScriptCore/WasmOps.h>
 #include <wtf/Expected.h>
 #include <wtf/Lock.h>
 #include <wtf/SharedTask.h>

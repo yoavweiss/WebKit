@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "Gate.h"
-#include "Opcode.h"
-#include "OptionsList.h"
-#include "SecureARM64EHashPins.h"
+#include <JavaScriptCore/Gate.h>
+#include <JavaScriptCore/Opcode.h>
+#include <JavaScriptCore/OptionsList.h>
+#include <JavaScriptCore/SecureARM64EHashPins.h>
 #include <wtf/WTFConfig.h>
 
 namespace JSC {

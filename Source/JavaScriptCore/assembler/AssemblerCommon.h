@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "OSCheck.h"
-#include "Options.h"
+#include <JavaScriptCore/OSCheck.h>
+#include <JavaScriptCore/Options.h>
 #include <optional>
 #include <wtf/Atomics.h>
 #include <wtf/MathExtras.h>

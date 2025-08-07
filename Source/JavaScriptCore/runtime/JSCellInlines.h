@@ -29,27 +29,27 @@
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
-#include "AllocatorForMode.h"
-#include "AllocatorInlines.h"
-#include "CompleteSubspaceInlines.h"
-#include "CPU.h"
-#include "CallFrameInlines.h"
-#include "DeferGCInlines.h"
-#include "FreeListInlines.h"
-#include "Handle.h"
-#include "HeapInlines.h"
-#include "IsoSubspaceInlines.h"
-#include "JSBigInt.h"
-#include "JSCast.h"
-#include "JSDestructibleObject.h"
-#include "JSFunction.h"
-#include "JSObject.h"
-#include "JSString.h"
-#include "LocalAllocatorInlines.h"
-#include "MarkedBlock.h"
-#include "SlotVisitorInlines.h"
-#include "Structure.h"
-#include "Symbol.h"
+#include <JavaScriptCore/AllocatorForMode.h>
+#include <JavaScriptCore/AllocatorInlines.h>
+#include <JavaScriptCore/CPU.h>
+#include <JavaScriptCore/CallFrameInlines.h>
+#include <JavaScriptCore/CompleteSubspaceInlines.h>
+#include <JavaScriptCore/DeferGCInlines.h>
+#include <JavaScriptCore/FreeListInlines.h>
+#include <JavaScriptCore/Handle.h>
+#include <JavaScriptCore/HeapInlines.h>
+#include <JavaScriptCore/IsoSubspaceInlines.h>
+#include <JavaScriptCore/JSBigInt.h>
+#include <JavaScriptCore/JSCast.h>
+#include <JavaScriptCore/JSDestructibleObject.h>
+#include <JavaScriptCore/JSFunction.h>
+#include <JavaScriptCore/JSObject.h>
+#include <JavaScriptCore/JSString.h>
+#include <JavaScriptCore/LocalAllocatorInlines.h>
+#include <JavaScriptCore/MarkedBlock.h>
+#include <JavaScriptCore/SlotVisitorInlines.h>
+#include <JavaScriptCore/Structure.h>
+#include <JavaScriptCore/Symbol.h>
 #include <wtf/CompilationThread.h>
 
 namespace JSC {

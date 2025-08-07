@@ -29,11 +29,11 @@
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
-#include "Integrity.h"
-#include "JSAPIValueWrapper.h"
-#include "JSCJSValue.h"
-#include "JSCJSValueInlines.h"
-#include "HeapCellInlines.h"
+#include <JavaScriptCore/HeapCellInlines.h>
+#include <JavaScriptCore/Integrity.h>
+#include <JavaScriptCore/JSAPIValueWrapper.h>
+#include <JavaScriptCore/JSCJSValue.h>
+#include <JavaScriptCore/JSCJSValueInlines.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 

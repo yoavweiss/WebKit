@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "BytecodeIndex.h"
-#include "Heap.h"
-#include "LineColumn.h"
-#include "SlotVisitorMacros.h"
-#include "VM.h"
-#include "WasmIndexOrName.h"
-#include "WriteBarrier.h"
+#include <JavaScriptCore/BytecodeIndex.h>
+#include <JavaScriptCore/Heap.h>
+#include <JavaScriptCore/LineColumn.h>
+#include <JavaScriptCore/SlotVisitorMacros.h>
+#include <JavaScriptCore/VM.h>
+#include <JavaScriptCore/WasmIndexOrName.h>
+#include <JavaScriptCore/WriteBarrier.h>
 #include <limits.h>
 
 namespace JSC {

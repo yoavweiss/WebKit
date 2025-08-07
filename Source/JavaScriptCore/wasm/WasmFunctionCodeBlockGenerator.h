@@ -27,14 +27,14 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "BytecodeConventions.h"
-#include "HandlerInfo.h"
-#include "InstructionStream.h"
-#include "MacroAssemblerCodeRef.h"
-#include "WasmFormat.h"
-#include "WasmHandlerInfo.h"
-#include "WasmLLIntTierUpCounter.h"
-#include "WasmOps.h"
+#include <JavaScriptCore/BytecodeConventions.h>
+#include <JavaScriptCore/HandlerInfo.h>
+#include <JavaScriptCore/InstructionStream.h>
+#include <JavaScriptCore/MacroAssemblerCodeRef.h>
+#include <JavaScriptCore/WasmFormat.h>
+#include <JavaScriptCore/WasmHandlerInfo.h>
+#include <JavaScriptCore/WasmLLIntTierUpCounter.h>
+#include <JavaScriptCore/WasmOps.h>
 #include <wtf/FixedBitVector.h>
 #include <wtf/HashMap.h>
 #include <wtf/TZoneMalloc.h>

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "AbstractModuleRecord.h"
-#include "JSDestructibleObject.h"
+#include <JavaScriptCore/AbstractModuleRecord.h>
+#include <JavaScriptCore/JSDestructibleObject.h>
 #include <wtf/FixedVector.h>
 
 namespace JSC {

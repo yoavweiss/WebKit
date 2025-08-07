@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "WasmName.h"
-#include "WasmNameSection.h"
+#include <JavaScriptCore/WasmName.h>
+#include <JavaScriptCore/WasmNameSection.h>
 #include <wtf/RefPtr.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/text/WTFString.h>

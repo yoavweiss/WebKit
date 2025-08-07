@@ -20,12 +20,12 @@
 
 #pragma once
 
-#include "ArgList.h"
-#include "ArrayConventions.h"
-#include "Butterfly.h"
-#include "JSCell.h"
-#include "JSObject.h"
-#include "ResourceExhaustion.h"
+#include <JavaScriptCore/ArgList.h>
+#include <JavaScriptCore/ArrayConventions.h>
+#include <JavaScriptCore/Butterfly.h>
+#include <JavaScriptCore/JSCell.h>
+#include <JavaScriptCore/JSObject.h>
+#include <JavaScriptCore/ResourceExhaustion.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 

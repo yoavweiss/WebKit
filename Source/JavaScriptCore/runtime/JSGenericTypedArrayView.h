@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "JSArrayBufferView.h"
-#include "ThrowScope.h"
-#include "ToNativeFromValue.h"
+#include <JavaScriptCore/JSArrayBufferView.h>
+#include <JavaScriptCore/ThrowScope.h>
+#include <JavaScriptCore/ToNativeFromValue.h>
 #include <wtf/CheckedArithmetic.h>
 
 namespace JSC {

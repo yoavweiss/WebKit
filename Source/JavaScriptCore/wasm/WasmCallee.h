@@ -27,21 +27,21 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "JITCompilation.h"
-#include "NativeCallee.h"
-#include "PCToCodeOriginMap.h"
-#include "RegisterAtOffsetList.h"
-#include "StackAlignment.h"
-#include "WasmCompilationMode.h"
-#include "WasmFormat.h"
-#include "WasmFunctionCodeBlockGenerator.h"
-#include "WasmFunctionIPIntMetadataGenerator.h"
-#include "WasmHandlerInfo.h"
-#include "WasmIPIntGenerator.h"
-#include "WasmIPIntTierUpCounter.h"
-#include "WasmIndexOrName.h"
-#include "WasmLLIntTierUpCounter.h"
-#include "WasmTierUpCount.h"
+#include <JavaScriptCore/JITCompilation.h>
+#include <JavaScriptCore/NativeCallee.h>
+#include <JavaScriptCore/PCToCodeOriginMap.h>
+#include <JavaScriptCore/RegisterAtOffsetList.h>
+#include <JavaScriptCore/StackAlignment.h>
+#include <JavaScriptCore/WasmCompilationMode.h>
+#include <JavaScriptCore/WasmFormat.h>
+#include <JavaScriptCore/WasmFunctionCodeBlockGenerator.h>
+#include <JavaScriptCore/WasmFunctionIPIntMetadataGenerator.h>
+#include <JavaScriptCore/WasmHandlerInfo.h>
+#include <JavaScriptCore/WasmIPIntGenerator.h>
+#include <JavaScriptCore/WasmIPIntTierUpCounter.h>
+#include <JavaScriptCore/WasmIndexOrName.h>
+#include <JavaScriptCore/WasmLLIntTierUpCounter.h>
+#include <JavaScriptCore/WasmTierUpCount.h>
 #include <wtf/EmbeddedFixedVector.h>
 #include <wtf/FixedVector.h>
 #include <wtf/RefCountedFixedVector.h>

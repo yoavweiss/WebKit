@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "IterationKind.h"
-#include "JSInternalFieldObjectImpl.h"
-#include "JSSet.h"
+#include <JavaScriptCore/IterationKind.h>
+#include <JavaScriptCore/JSInternalFieldObjectImpl.h>
+#include <JavaScriptCore/JSSet.h>
 
 namespace JSC {
 

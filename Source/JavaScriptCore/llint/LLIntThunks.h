@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "MacroAssemblerCodeRef.h"
-#include "OpcodeSize.h"
-#include "VM.h"
+#include <JavaScriptCore/MacroAssemblerCodeRef.h>
+#include <JavaScriptCore/OpcodeSize.h>
+#include <JavaScriptCore/VM.h>
 #include <wtf/Scope.h>
 
 namespace JSC {

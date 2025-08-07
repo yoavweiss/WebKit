@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "JSCPtrTag.h"
+#include <JavaScriptCore/JSCPtrTag.h>
 
 namespace JSC {
 

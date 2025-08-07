@@ -27,10 +27,10 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include "ExecutionCounter.h"
-#include "InstructionStream.h"
-#include "Options.h"
-#include "VirtualRegister.h"
+#include <JavaScriptCore/ExecutionCounter.h>
+#include <JavaScriptCore/InstructionStream.h>
+#include <JavaScriptCore/Options.h>
+#include <JavaScriptCore/VirtualRegister.h>
 #include <wtf/FixedVector.h>
 #include <wtf/HashMap.h>
 

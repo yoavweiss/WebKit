@@ -28,9 +28,9 @@
  
 #pragma once
 
-#include "CodeBlock.h"
-#include "JSSymbolTableObject.h"
-#include "SymbolTable.h"
+#include <JavaScriptCore/CodeBlock.h>
+#include <JavaScriptCore/JSSymbolTableObject.h>
+#include <JavaScriptCore/SymbolTable.h>
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 

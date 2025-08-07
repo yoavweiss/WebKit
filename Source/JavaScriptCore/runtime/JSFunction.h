@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "FunctionRareData.h"
-#include "InternalFunction.h"
-#include "JSCallee.h"
-#include "JSScope.h"
+#include <JavaScriptCore/FunctionRareData.h>
+#include <JavaScriptCore/InternalFunction.h>
+#include <JavaScriptCore/JSCallee.h>
+#include <JavaScriptCore/JSScope.h>
 
 namespace JSC {
 

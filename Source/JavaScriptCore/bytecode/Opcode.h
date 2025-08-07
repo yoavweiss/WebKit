@@ -29,9 +29,9 @@
 
 #pragma once
 
-#include "Bytecodes.h"
-#include "LLIntOpcode.h"
-#include "OpcodeSize.h"
+#include <JavaScriptCore/Bytecodes.h>
+#include <JavaScriptCore/LLIntOpcode.h>
+#include <JavaScriptCore/OpcodeSize.h>
 
 #include <algorithm>
 #include <string.h>

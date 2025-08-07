@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "CatchScope.h"
-#include "StackAlignment.h"
-#include "VM.h"
+#include <JavaScriptCore/CatchScope.h>
+#include <JavaScriptCore/StackAlignment.h>
+#include <JavaScriptCore/VM.h>
 
 namespace JSC {
 

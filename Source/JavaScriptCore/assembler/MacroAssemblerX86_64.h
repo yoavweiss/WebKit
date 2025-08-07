@@ -27,8 +27,8 @@
 
 #if ENABLE(ASSEMBLER) && CPU(X86_64)
 
-#include "X86Assembler.h"
-#include "AbstractMacroAssembler.h"
+#include <JavaScriptCore/AbstractMacroAssembler.h>
+#include <JavaScriptCore/X86Assembler.h>
 #include <array>
 #include <wtf/TZoneMalloc.h>
 
