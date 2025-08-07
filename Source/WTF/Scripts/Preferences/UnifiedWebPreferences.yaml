@@ -4477,6 +4477,7 @@ LocalStorageEnabled:
       default: true
     WebCore:
       default: false
+  sharedPreferenceForWebProcess: true
 
 LockdownFontParserEnabled:
   type: bool
@@ -6821,6 +6822,20 @@ ServiceWorkersUserGestureEnabled:
       default: true
     WebCore:
       default: true
+      
+SessionStorageEnabled:
+  type: bool
+  status: mature
+  humanReadableName: "Session Storage"
+  humanReadableDescription: "Enable Session Storage"
+  defaultValue:
+    WebKitLegacy:
+      default: true
+    WebKit:
+      default: true
+    WebCore:
+      default: false
+  sharedPreferenceForWebProcess: true
 
 ShadowRootReferenceTargetEnabled:
   type: bool

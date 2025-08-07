@@ -889,6 +889,9 @@ ExceptionOr<Storage*> LocalDOMWindow::sessionStorage()
     if (!page)
         return nullptr;
 
+    if (!page->settings().sessionStorageEnabled())
+        return nullptr;
+
     Ref storageArea = page->storageNamespaceProvider().sessionStorageArea(*document);
     m_sessionStorage = Storage::create(*this, WTFMove(storageArea));
     if (hasEventListeners(eventNames().storageEvent))
