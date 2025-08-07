@@ -23,26 +23,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "WPEScreenMock.h"
 
-#include <gio/gio.h>
-#include <glib-object.h>
-#include <wpe/wpe-platform.h>
+struct _WPEScreenMock {
+    WPEScreen parent;
 
-G_BEGIN_DECLS
+    gboolean isInvalid;
+};
+G_DEFINE_FINAL_TYPE(WPEScreenMock, wpe_screen_mock, WPE_TYPE_SCREEN)
 
-#define WPE_TYPE_DISPLAY_MOCK (wpe_display_mock_get_type())
-G_DECLARE_FINAL_TYPE(WPEDisplayMock, wpe_display_mock, WPE, DISPLAY_MOCK, WPEDisplay)
+static void wpeScreenMockInvalidate(WPEScreen* screen)
+{
+    auto* screenMock = WPE_SCREEN_MOCK(screen);
+    screenMock->isInvalid = TRUE;
 
-void wpeDisplayMockRegister(GIOModule*);
-WPEDisplay* wpeDisplayMockNew();
-void wpeDisplayMockUseFakeDRMNodes(WPEDisplayMock*, gboolean);
-void wpeDisplayMockUseFakeDMABufFormats(WPEDisplayMock*, gboolean);
-void wpeDisplayMockSetUseExplicitSync(WPEDisplayMock*, gboolean);
-void wpeDisplayMockSetInitialInputDevices(WPEDisplayMock*, WPEAvailableInputDevices);
-void wpeDisplayMockAddInputDevice(WPEDisplayMock*, WPEAvailableInputDevices);
-void wpeDisplayMockRemoveInputDevice(WPEDisplayMock*, WPEAvailableInputDevices);
-void wpeDisplayMockAddSecondaryScreen(WPEDisplayMock*);
-void wpeDisplayMockRemoveSecondaryScreen(WPEDisplayMock*);
+    WPE_SCREEN_CLASS(wpe_screen_mock_parent_class)->invalidate(screen);
+}
 
-G_END_DECLS
+static void wpe_screen_mock_class_init(WPEScreenMockClass* screenMockClass)
+{
+    WPEScreenClass* screenClass = WPE_SCREEN_CLASS(screenMockClass);
+    screenClass->invalidate = wpeScreenMockInvalidate;
+}
+
+static void wpe_screen_mock_init(WPEScreenMock*)
+{
+}
+
+gboolean wpeScreenMockIsInvalid(WPEScreenMock* screenMock)
+{
+    return screenMock->isInvalid;
+}

@@ -25,24 +25,14 @@
 
 #pragma once
 
-#include <gio/gio.h>
 #include <glib-object.h>
 #include <wpe/wpe-platform.h>
 
 G_BEGIN_DECLS
 
-#define WPE_TYPE_DISPLAY_MOCK (wpe_display_mock_get_type())
-G_DECLARE_FINAL_TYPE(WPEDisplayMock, wpe_display_mock, WPE, DISPLAY_MOCK, WPEDisplay)
+#define WPE_TYPE_SCREEN_MOCK (wpe_screen_mock_get_type())
+G_DECLARE_FINAL_TYPE(WPEScreenMock, wpe_screen_mock, WPE, SCREEN_MOCK, WPEScreen)
 
-void wpeDisplayMockRegister(GIOModule*);
-WPEDisplay* wpeDisplayMockNew();
-void wpeDisplayMockUseFakeDRMNodes(WPEDisplayMock*, gboolean);
-void wpeDisplayMockUseFakeDMABufFormats(WPEDisplayMock*, gboolean);
-void wpeDisplayMockSetUseExplicitSync(WPEDisplayMock*, gboolean);
-void wpeDisplayMockSetInitialInputDevices(WPEDisplayMock*, WPEAvailableInputDevices);
-void wpeDisplayMockAddInputDevice(WPEDisplayMock*, WPEAvailableInputDevices);
-void wpeDisplayMockRemoveInputDevice(WPEDisplayMock*, WPEAvailableInputDevices);
-void wpeDisplayMockAddSecondaryScreen(WPEDisplayMock*);
-void wpeDisplayMockRemoveSecondaryScreen(WPEDisplayMock*);
+gboolean wpeScreenMockIsInvalid(WPEScreenMock*);
 
 G_END_DECLS
