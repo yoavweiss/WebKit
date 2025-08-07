@@ -1747,17 +1747,17 @@ CaretBrowsingEnabled:
 
 CaretPositionFromPointEnabled:
   type: bool
-  status: testable
+  status: stable
   category: dom
   humanReadableName: "document.caretPositionFromPoint() API"
   humanReadableDescription: "Enable document.caretPositionFromPoint() API"
   defaultValue:
     WebKitLegacy:
-      default: false
+      default: true
     WebKit:
-      default: false
+      default: true
     WebCore:
-      default: false
+      default: true
 
 ChildProcessDebuggabilityEnabled:
   comment: Disables GPU process IPC timeouts
