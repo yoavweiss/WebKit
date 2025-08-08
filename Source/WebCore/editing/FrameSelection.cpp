@@ -64,6 +64,7 @@
 #include "LocalFrameView.h"
 #include "Logging.h"
 #include "MutableStyleProperties.h"
+#include "NodeInlines.h"
 #include "OpacityCaretAnimator.h"
 #include "Page.h"
 #include "PositionInlines.h"
