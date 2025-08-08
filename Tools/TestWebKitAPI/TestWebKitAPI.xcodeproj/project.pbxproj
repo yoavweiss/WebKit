@@ -261,6 +261,9 @@
 		53FCDE6B229EFFB900598ECF /* IsoHeap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53FCDE6A229EFFB900598ECF /* IsoHeap.cpp */; };
 		5597F8361D9596C80066BC21 /* SynchronizedFixedQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5597F8341D9596C80066BC21 /* SynchronizedFixedQueue.cpp */; };
 		55F9D2E52205031800A9AB38 /* AdditionalSupportedImageTypes.mm in Sources */ = {isa = PBXBuildFile; fileRef = 55F9D2E42205031800A9AB38 /* AdditionalSupportedImageTypes.mm */; };
+		56EEE4782D8D6B85003D4FB1 /* coreipc.js in Copy Resources */ = {isa = PBXBuildFile; fileRef = 56EEE4772D8D6B85003D4FB1 /* coreipc.js */; };
+		56EEE4832D8D706F003D4FB1 /* RemoteObjectRegistry-BadReplyBlock.html in Copy Resources */ = {isa = PBXBuildFile; fileRef = 56EEE4822D8D706F003D4FB1 /* RemoteObjectRegistry-BadReplyBlock.html */; };
+		56EEE48F2D8DB402003D4FB1 /* coreipc-helpers.js in Copy Resources */ = {isa = PBXBuildFile; fileRef = 56EEE48E2D8DB402003D4FB1 /* coreipc-helpers.js */; };
 		57152B5E21CC2045000C37CA /* ApduTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57152B5D21CC2045000C37CA /* ApduTest.cpp */; };
 		57152B7821DD4E8D000C37CA /* U2fCommandConstructorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57D1D75E21DCB7A80093E86A /* U2fCommandConstructorTest.cpp */; };
 		572B403421769A88000AD43E /* CtapRequestTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 572B403321769A88000AD43E /* CtapRequestTest.cpp */; };
@@ -1886,6 +1889,8 @@
 				A17C47342C98E5C20023F3C7 /* CookieMessage.html in Copy Resources */,
 				A17C47352C98E5C20023F3C7 /* copy-html.html in Copy Resources */,
 				A17C47362C98E5C20023F3C7 /* copy-url.html in Copy Resources */,
+				56EEE48F2D8DB402003D4FB1 /* coreipc-helpers.js in Copy Resources */,
+				56EEE4782D8D6B85003D4FB1 /* coreipc.js in Copy Resources */,
 				A17C466E2C98E4D20023F3C7 /* CrossPartitionFileSchemeAccess.html in Copy Resources */,
 				A17C47372C98E5C20023F3C7 /* csp-document-uri-report.html in Copy Resources */,
 				A17C47382C98E5C20023F3C7 /* CSSViewportUnits.html in Copy Resources */,
@@ -2180,6 +2185,7 @@
 				A17C46E22C98E54B0023F3C7 /* push-state.html in Copy Resources */,
 				A17C46E32C98E54B0023F3C7 /* qr-code.png in Copy Resources */,
 				A17C46E42C98E54B0023F3C7 /* red.html in Copy Resources */,
+				56EEE4832D8D706F003D4FB1 /* RemoteObjectRegistry-BadReplyBlock.html in Copy Resources */,
 				A17C46E52C98E54B0023F3C7 /* remove-node-on-drop.html in Copy Resources */,
 				A17C47EF2C98E5C20023F3C7 /* rendered-image-excluding-overflow.html in Copy Resources */,
 				A17C47F02C98E5C20023F3C7 /* resourceLoadStatisticsMissingUniqueIndex.db in Copy Resources */,
@@ -3021,6 +3027,9 @@
 		55A817FD218101DF0004A39A /* 400x400-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "400x400-green.png"; sourceTree = "<group>"; };
 		55A817FE218101DF0004A39A /* 100x100-red.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = "100x100-red.tga"; sourceTree = "<group>"; };
 		55F9D2E42205031800A9AB38 /* AdditionalSupportedImageTypes.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = AdditionalSupportedImageTypes.mm; sourceTree = "<group>"; };
+		56EEE4772D8D6B85003D4FB1 /* coreipc.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = coreipc.js; sourceTree = "<group>"; };
+		56EEE4822D8D706F003D4FB1 /* RemoteObjectRegistry-BadReplyBlock.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "RemoteObjectRegistry-BadReplyBlock.html"; sourceTree = "<group>"; };
+		56EEE48E2D8DB402003D4FB1 /* coreipc-helpers.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "coreipc-helpers.js"; sourceTree = "<group>"; };
 		5703BB8C2463F87200475FB2 /* web-authentication-make-credential-la-no-attestation.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "web-authentication-make-credential-la-no-attestation.html"; sourceTree = "<group>"; };
 		570D26F323C3CA5500D5CF67 /* web-authentication-make-credential-hid-pin-get-key-agreement-error.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "web-authentication-make-credential-hid-pin-get-key-agreement-error.html"; sourceTree = "<group>"; };
 		570D26F523C3D32700D5CF67 /* web-authentication-make-credential-hid-pin.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "web-authentication-make-credential-hid-pin.html"; sourceTree = "<group>"; };
@@ -5659,6 +5668,8 @@
 				5C2936941D5BFD1900DEAB1E /* CookieMessage.html */,
 				9B1056421F9047CC00D5583F /* copy-html.html */,
 				9B62630B1F8C2510007EE29B /* copy-url.html */,
+				56EEE48E2D8DB402003D4FB1 /* coreipc-helpers.js */,
+				56EEE4772D8D6B85003D4FB1 /* coreipc.js */,
 				4995A6EF25E876A300E5F0A9 /* csp-document-uri-report.html */,
 				952F7166270BD99700D00DCC /* CSSViewportUnits.html */,
 				952F7166270BD99700D00DCD /* CSSViewportUnits.svg */,
@@ -5850,6 +5861,7 @@
 				46FD40302A6B3E3500A1B210 /* postMessage-various-types.html */,
 				F41AB9941EF4692C0083FA08 /* prevent-operation.html */,
 				F41AB99A1EF4692C0083FA08 /* prevent-start.html */,
+				56EEE4822D8D706F003D4FB1 /* RemoteObjectRegistry-BadReplyBlock.html */,
 				A12DDBFF1E8373C100CF6CAE /* rendered-image-excluding-overflow.html */,
 				498D030926376B2C009CBFAD /* resourceLoadStatisticsMissingUniqueIndex.db */,
 				F46849BF1EEF5EDC00B937FE /* rich-and-plain-text.html */,
