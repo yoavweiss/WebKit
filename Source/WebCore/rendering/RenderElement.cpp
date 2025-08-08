@@ -988,6 +988,21 @@ void RenderElement::styleWillChange(StyleDifference diff, const RenderStyle& new
             downcast<RenderBox>(*this).removeFloatingOrOutOfFlowChildFromBlockLists();
         }
 
+        auto invalidateEnclosingFragmentedFlowInfoIfNeeded = [&] {
+            if (fragmentedFlowState() == FragmentedFlowState::NotInsideFlow)
+                return;
+            ASSERT(locateEnclosingFragmentedFlow());
+            if (oldStyle->position() == newStyle.position())
+                return;
+            auto* newContainingBlock = RenderObject::containingBlockForPositionType(newStyle.position(), *this);
+            ASSERT(containingBlock() && newContainingBlock);
+            if (containingBlock() == newContainingBlock || !newContainingBlock)
+                return;
+            if (CheckedPtr enclosingFragmentedFlow = locateEnclosingFragmentedFlow(); enclosingFragmentedFlow && !newContainingBlock->isDescendantOf(enclosingFragmentedFlow.get()))
+                enclosingFragmentedFlow->removeFlowChildInfo(*this);
+        };
+        invalidateEnclosingFragmentedFlowInfoIfNeeded();
+
         // reset style flags
         if (diff == StyleDifference::Layout || diff == StyleDifference::LayoutOutOfFlowMovementOnly) {
             setFloating(false);
