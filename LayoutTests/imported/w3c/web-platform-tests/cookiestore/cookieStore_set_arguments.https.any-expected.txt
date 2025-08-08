@@ -44,8 +44,8 @@ PASS cookieStore.set default domain is null and differs from current hostname
 PASS cookieStore.set with path set to the current directory
 PASS cookieStore.set with path set to a subdirectory of the current directory
 PASS cookieStore.set default path is /
-FAIL cookieStore.set does not add / to path that does not end with / assert_equals: expected null but got object "[object Object]"
-FAIL cookieStore.set can modify a cookie set by document.cookie if document is defined assert_equals: expected 1 but got 2
+PASS cookieStore.set does not add / to path that does not end with /
+PASS cookieStore.set can modify a cookie set by document.cookie if document is defined
 PASS cookieStore.set with path that does not start with /
 PASS cookieStore.set with get result
 PASS cookieStore.set checks if the path is too long
