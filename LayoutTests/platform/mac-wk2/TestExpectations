@@ -2410,3 +2410,5 @@ webkit.org/b/292402 http/tests/site-isolation/draw-after-cross-origin-navigation
 webkit.org/b/297063 [ arm64 ] http/tests/xmlhttprequest/chunked-progress-event-expectedLength.html [ Pass Failure ]
 
 webkit.org/b/297078 [ Debug arm64 ] fast/parser/entity-comment-in-style.html [ Pass Timeout ]
+
+webkit.org/b/297121 fast/page-color-sampling/color-sampling-fixed-ancestor-with-relative-container.html [ Failure ]
