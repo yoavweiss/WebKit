@@ -5311,4 +5311,35 @@ TEST(SiteIsolation, HitTesting)
     runTest(false);
 }
 
+TEST(SiteIsolation, WKFrameInfo_isSameFrame)
+{
+    HTTPServer server({
+        { "/example"_s, { "<!DOCTYPE html><iframe src='https://webkit.org/webkit'></iframe><iframe src='https://apple.com/apple'></iframe>"_s } },
+        { "/webkit"_s, { "hello"_s } },
+        { "/apple"_s, { "world"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto [webView, navigationDelegate] = siteIsolatedViewWithSharedProcess(server);
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    __block RetainPtr<WKFrameInfo> mainFrameInfo;
+    [webView _frames:^(_WKFrameTreeNode *result) {
+        mainFrameInfo = result.info;
+    }];
+    while (!mainFrameInfo)
+        Util::spinRunLoop();
+
+    __block RetainPtr<_WKFrameTreeNode> frames;
+    [webView _frames:^(_WKFrameTreeNode *result) {
+        frames = result;
+    }];
+    while (!frames)
+        Util::spinRunLoop();
+
+    EXPECT_TRUE([mainFrameInfo _isSameFrame:[frames info]]);
+    EXPECT_FALSE([mainFrameInfo _isSameFrame:[[[frames childFrames]objectAtIndex:0] info]]);
+    EXPECT_FALSE([mainFrameInfo _isSameFrame:[[[frames childFrames]objectAtIndex:1] info]]);
+}
+
 }
