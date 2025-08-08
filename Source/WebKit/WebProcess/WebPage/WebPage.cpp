@@ -52,6 +52,7 @@
 #include "ImageOptions.h"
 #include "InjectUserScriptImmediately.h"
 #include "InjectedBundle.h"
+#include "InjectedBundleHitTestResult.h"
 #include "InjectedBundleScriptWorld.h"
 #include "JavaScriptEvaluationResult.h"
 #include "LibWebRTCCodecs.h"
@@ -63,6 +64,7 @@
 #include "MessageSenderInlines.h"
 #include "NetworkConnectionToWebProcessMessages.h"
 #include "NetworkProcessConnection.h"
+#include "NodeHitTestResult.h"
 #include "NotificationPermissionRequestManager.h"
 #include "PageBanner.h"
 #include "PluginView.h"
@@ -10068,6 +10070,27 @@ template<typename T> T WebPage::contentsToRootView(WebCore::FrameIdentifier fram
     return view->contentsToRootView(geometry);
 }
 
+template<typename T> T WebPage::rootViewToContents(WebCore::FrameIdentifier frameID, T geometry)
+{
+    RefPtr webFrame = WebProcess::singleton().webFrame(frameID);
+    if (!webFrame)
+        return geometry;
+
+    RefPtr coreFrame = webFrame->coreFrame();
+    if (!coreFrame) {
+        ASSERT_NOT_REACHED();
+        return geometry;
+    }
+
+    RefPtr view = coreFrame->virtualView();
+    if (!view) {
+        ASSERT_NOT_REACHED();
+        return geometry;
+    }
+
+    return view->rootViewToContents(geometry);
+}
+
 void WebPage::contentsToRootViewRect(FrameIdentifier frameID, FloatRect rect, CompletionHandler<void(FloatRect)>&& completionHandler)
 {
     completionHandler(contentsToRootView(frameID, rect));
@@ -10094,6 +10117,46 @@ void WebPage::remoteDictionaryPopupInfoToRootView(WebCore::FrameIdentifier frame
         textRect = contentsToRootView<FloatRect>(frameID, textRect);
 #endif
     completionHandler(popupInfo);
+}
+
+void WebPage::hitTestAtPoint(WebCore::FrameIdentifier frameID, WebCore::FloatPoint point, CompletionHandler<void(NodeHitTestResult)>&& completionHandler)
+{
+    RefPtr frame = WebFrame::webFrame(frameID);
+    if (!frame)
+        return completionHandler({ });
+
+    auto options = WebFrame::defaultHitTestRequestTypes();
+    options.remove(HitTestRequest::Type::AllowChildFrameContent);
+    options.add(HitTestRequest::Type::SkipTransformToRootFrameCoordinates);
+    RefPtr result = frame->hitTest(roundedIntPoint(point), options);
+    if (!result)
+        return completionHandler({ });
+
+    RefPtr node = result->coreHitTestResult().innerNonSharedNode();
+    if (!node)
+        return completionHandler({ });
+
+    if (RefPtr frameOwner = dynamicDowncast<HTMLFrameOwnerElement>(node.get())) {
+        if (RefPtr contentFrame = frameOwner->contentFrame()) {
+            auto transformedCoordinates = rootViewToContents(contentFrame->frameID(), contentsToRootView(frameID, point));
+            switch (contentFrame->frameType()) {
+            case Frame::FrameType::Remote:
+                return completionHandler( { NodeHitTestResult::RemoteFrameInfo { contentFrame->frameID(), transformedCoordinates } });
+            case Frame::FrameType::Local:
+                return hitTestAtPoint(contentFrame->frameID(), transformedCoordinates, WTFMove(completionHandler));
+            }
+        }
+    }
+
+    RefPtr nodeFrame = node->document().frame();
+    if (!nodeFrame)
+        return completionHandler({ });
+
+    RefPtr nodeWebFrame = WebFrame::fromCoreFrame(*nodeFrame);
+    if (!nodeWebFrame)
+        return completionHandler({ });
+
+    completionHandler({ NodeAndFrameInfo { { node->nodeIdentifier(), std::nullopt }, { nodeWebFrame->info() } } });
 }
 
 void WebPage::adjustVisibilityForTargetedElements(Vector<TargetedElementAdjustment>&& adjustments, CompletionHandler<void(bool)>&& completion)

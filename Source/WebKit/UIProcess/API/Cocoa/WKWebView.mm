@@ -51,6 +51,7 @@
 #import "MediaPlaybackState.h"
 #import "MediaUtilities.h"
 #import "NavigationState.h"
+#import "NodeHitTestResult.h"
 #import "PDFPluginIdentifier.h"
 #import "PageClient.h"
 #import "PlatformWritingToolsUtilities.h"
@@ -133,6 +134,7 @@
 #import "_WKHitTestResultInternal.h"
 #import "_WKInputDelegate.h"
 #import "_WKInspectorInternal.h"
+#import "_WKNodeInfoInternal.h"
 #import "_WKPageLoadTimingInternal.h"
 #import "_WKRemoteObjectRegistryInternal.h"
 #import "_WKSessionStateInternal.h"
@@ -2189,6 +2191,11 @@ inline OptionSet<WebKit::FindOptions> toFindOptions(WKFindConfiguration *configu
     });
 }
 
+static RetainPtr<NSError> unknownError()
+{
+    return adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:nil]);
+}
+
 - (void)createWebArchiveDataWithCompletionHandler:(void (^)(NSData *, NSError *))completionHandler
 {
     THROW_IF_SUSPENDED;
@@ -2196,7 +2203,7 @@ inline OptionSet<WebKit::FindOptions> toFindOptions(WKFindConfiguration *configu
         if (data)
             completionHandler(wrapper(data), nil);
         else
-            completionHandler(nil, adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:nil]).get());
+            completionHandler(nil, unknownError().get());
     });
 }
 
@@ -4248,7 +4255,7 @@ static RetainPtr<NSArray> wkTextManipulationErrors(NSArray<_WKTextManipulationIt
         if (result)
             completionHandler(*result, nil);
         else
-            completionHandler({ }, adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:nil]).get());
+            completionHandler({ }, unknownError().get());
     });
 }
 
@@ -4261,7 +4268,19 @@ static RetainPtr<NSArray> wkTextManipulationErrors(NSArray<_WKTextManipulationIt
         if (result)
             completionHandler(*result, nil);
         else
-            completionHandler({ }, adoptNS([[NSError alloc] initWithDomain:WKErrorDomain code:WKErrorUnknown userInfo:nil]).get());
+            completionHandler({ }, unknownError().get());
+    });
+}
+
+- (void)_hitTestAtPoint:(CGPoint)point inFrameCoordinateSpace:(WKFrameInfo *)frame completionHandler:(void (^)(_WKNodeInfo *, WKFrameInfo *, NSError *))completionHandler
+{
+    RefPtr mainFrame = _page->mainFrame();
+    if (!frame && !mainFrame)
+        return completionHandler(nil, nil, unknownError().get());
+    _page->hitTestAtPoint(frame ? frame->_frameInfo->frameInfoData().frameID : mainFrame->frameID(), point, [completionHandler = makeBlockPtr(completionHandler), page = RefPtr { _page.get() }] (auto&& result) mutable {
+        if (!result)
+            return completionHandler(nil, nil, unknownError().get());
+        completionHandler(wrapper(API::NodeInfo::create(WTFMove(result->node))).get(), wrapper(API::FrameInfo::create(WTFMove(result->frame), WTFMove(page))).get(), nil);
     });
 }
 

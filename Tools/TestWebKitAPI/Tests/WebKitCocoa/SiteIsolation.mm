@@ -5232,4 +5232,83 @@ TEST(SiteIsolation, AdvanceFocusAcrossFrames)
 }
 #endif // PLATFORM(MAC)
 
+TEST(SiteIsolation, HitTesting)
+{
+    auto text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum "_s;
+
+    HTTPServer server({
+        { "/example"_s, { makeString(
+            "<iframe id=iframeid1 src='https://webkit.org/webkitframe'></iframe>"
+            "<iframe id=iframeid2 src='/exampleframe'></iframe>"
+            "<div id=mainframediv>"_s, text, text, "</div>"_s
+        ) } },
+        { "/webkitframe"_s, { makeString("<div id=webkitiframediv>"_s, text, text, "</div>"_s) } },
+        { "/exampleframe"_s, { makeString("<div id=exampleiframediv>"_s, text, text, "</div>"_s) } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto hitTestResult = [] (RetainPtr<WKWebView> webView, CGPoint point, WKFrameInfo *coordinateFrame = nil) -> std::optional<std::pair<RetainPtr<_WKNodeInfo>, RetainPtr<WKFrameInfo>>> {
+        __block bool done { false };
+        __block std::optional<std::pair<RetainPtr<_WKNodeInfo>, RetainPtr<WKFrameInfo>>> result;
+        [webView _hitTestAtPoint:point inFrameCoordinateSpace:coordinateFrame completionHandler:^(_WKNodeInfo *node, WKFrameInfo *frame, NSError *error) {
+            done = true;
+            if (error)
+                return;
+            result = { { { node }, { frame } } };
+        }];
+        Util::run(&done);
+        return result;
+    };
+
+    auto hitNodePrototypeAndParentElement = [&] (RetainPtr<TestWKWebView> webView, CGPoint point, WKFrameInfo *coordinateFrame = nil) -> NSString * {
+        auto result = hitTestResult(webView, point, coordinateFrame);
+        if (!result)
+            return @"(error)";
+        auto [node, frame] = *result;
+        return [webView objectByCallingAsyncFunction:@"return Object.getPrototypeOf(n).toString() + ' ' + n.id + ', child of ' + n.parentElement?.id" withArguments:@{ @"n" : node.get() } inFrame:frame.get() inContentWorld:WKContentWorld.pageWorld];
+    };
+
+    auto runTest = [&] (bool withSiteIsolation) {
+        RetainPtr configuration = server.httpsProxyConfiguration();
+        if (withSiteIsolation)
+            enableSiteIsolation(configuration.get());
+
+        constexpr size_t widthWiderThanTwoIframes { 650 };
+        constexpr size_t heightShorterThanHitTestCoordinates { 100 };
+        RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, widthWiderThanTwoIframes, heightShorterThanHitTestCoordinates) configuration:configuration.get()]);
+#if PLATFORM(MAC)
+        // on iOS this is a race condition because iOS proactively launches the web content process,
+        // which sometimes makes a main frame before the hit test request and sometimes does not.
+        EXPECT_FALSE(hitTestResult(webView, CGPointMake(100, 100)));
+#endif
+
+        [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example"]]];
+        [webView _test_waitForDidFinishNavigationWhileIgnoringSSLErrors];
+
+        auto hitTestPointInMainFrame = [=] (size_t x, size_t y, const char* expected) {
+            EXPECT_WK_STREQ(hitNodePrototypeAndParentElement(webView, CGPointMake(x, y)), expected);
+        };
+        hitTestPointInMainFrame(40, 40, "[object Text] undefined, child of webkitiframediv");
+        hitTestPointInMainFrame(340, 40, "[object Text] undefined, child of exampleiframediv");
+        hitTestPointInMainFrame(40, 240, "[object Text] undefined, child of mainframediv");
+        hitTestPointInMainFrame(300, 240, "[object Text] undefined, child of mainframediv");
+        hitTestPointInMainFrame(340, 300,
+#if PLATFORM(MAC)
+            "[object Text] undefined, child of mainframediv"
+#else
+            "[object HTMLDivElement] mainframediv, child of "
+#endif
+        );
+
+        RetainPtr iframe = [webView firstChildFrame];
+        auto hitTestPointInIFrame = [=] (size_t x, size_t y, const char* expected) {
+            EXPECT_WK_STREQ(hitNodePrototypeAndParentElement(webView, CGPointMake(x, y), iframe.get()), expected);
+        };
+        hitTestPointInIFrame(10, 10, "[object Text] undefined, child of webkitiframediv");
+        hitTestPointInIFrame(260, 160, "[object HTMLDivElement] webkitiframediv, child of ");
+        hitTestPointInIFrame(300, 220, "[object HTMLHtmlElement] , child of undefined");
+    };
+    runTest(true);
+    runTest(false);
+}
+
 }

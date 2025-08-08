@@ -106,6 +106,7 @@
 #include "NavigationActionData.h"
 #include "NetworkProcessMessages.h"
 #include "NetworkProcessProxy.h"
+#include "NodeHitTestResult.h"
 #include "NotificationManagerMessageHandlerMessages.h"
 #include "NotificationPermissionRequest.h"
 #include "NotificationPermissionRequestManager.h"
@@ -13136,6 +13137,22 @@ Awaitable<std::optional<WebCore::FloatRect>> WebPageProxy::convertRectToMainFram
     co_return co_await AwaitableFromCompletionHandler<std::optional<WebCore::FloatRect>> { [protectedThis = Ref { *this }, rect, frameID] (auto completionHandler) {
         protectedThis->convertRectToMainFrameCoordinates(rect, frameID, WTFMove(completionHandler));
     } };
+}
+
+void WebPageProxy::hitTestAtPoint(WebCore::FrameIdentifier frameID, WebCore::FloatPoint point, CompletionHandler<void(std::optional<NodeAndFrameInfo>&&)>&& completionHandler)
+{
+    sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::HitTestAtPoint(frameID, point), [weakThis = WeakPtr { *this }, completionHandler = WTFMove(completionHandler)] (auto&& result) mutable {
+        WTF::switchOn(WTFMove(result.variant), [&] (std::monostate) {
+            completionHandler(std::nullopt);
+        }, [&] (WebKit::NodeHitTestResult::RemoteFrameInfo&& info) {
+            RefPtr protectedThis = weakThis.get();
+            if (!protectedThis)
+                return completionHandler(std::nullopt);
+            protectedThis->hitTestAtPoint(info.remoteFrameIdentifier, info.transformedPoint, WTFMove(completionHandler));
+        }, [&] (NodeAndFrameInfo&& nodeAndFrame) {
+            completionHandler(WTFMove(nodeAndFrame));
+        });
+    });
 }
 
 void WebPageProxy::didFinishLoadingDataForCustomContentProvider(String&& suggestedFilename, std::span<const uint8_t> dataReference)

@@ -1360,14 +1360,13 @@ HitTestResult EventHandler::hitTestResultAtPoint(const LayoutPoint& point, Optio
 {
     Ref frame = m_frame.get();
 
-    // We always send hitTestResultAtPoint to the main frame if we have one,
+    // We always send hitTestResultAtPoint to the root frame if we have one,
     // otherwise we might hit areas that are obscured by higher frames.
-    if (!frame->isMainFrame()) {
-        if (RefPtr mainFrame = dynamicDowncast<LocalFrame>(frame->mainFrame())) {
-            if (RefPtr frameView = frame->view(), mainView = mainFrame->view(); frameView && mainView) {
-                IntPoint mainFramePoint = mainView->rootViewToContents(frameView->contentsToRootView(roundedIntPoint(point)));
-                return mainFrame->eventHandler().hitTestResultAtPoint(mainFramePoint, hitType);
-            }
+    if (!frame->isRootFrame() && !hitType.contains(HitTestRequest::Type::SkipTransformToRootFrameCoordinates)) {
+        Ref rootFrame = frame->rootFrame();
+        if (RefPtr frameView = frame->view(), rootView = rootFrame->view(); frameView && rootView) {
+            IntPoint rootFramePoint = rootView->rootViewToContents(frameView->contentsToRootView(roundedIntPoint(point)));
+            return rootFrame->eventHandler().hitTestResultAtPoint(rootFramePoint, hitType);
         }
     }
 

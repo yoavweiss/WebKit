@@ -8643,6 +8643,8 @@
 		FA39AE672B23972A008F93CD /* CoreIPCAuditToken.serialization.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CoreIPCAuditToken.serialization.in; sourceTree = "<group>"; };
 		FA4066DF2D4472CE00A2E622 /* WKPageFullScreenClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WKPageFullScreenClient.h; sourceTree = "<group>"; };
 		FA4368C62B811BA3001B993D /* CoreIPCNSURLCredential.serialization.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CoreIPCNSURLCredential.serialization.in; sourceTree = "<group>"; };
+		FA45FA392E4545E500057B45 /* NodeHitTestResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NodeHitTestResult.h; sourceTree = "<group>"; };
+		FA45FA3B2E45462200057B45 /* NodeHitTestResult.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = NodeHitTestResult.serialization.in; sourceTree = "<group>"; };
 		FA4899BD2C5C56E800B04660 /* APISerializedScriptValue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APISerializedScriptValue.cpp; sourceTree = "<group>"; };
 		FA4EFC4E2E024493005DADAF /* RemotePagePlaybackSessionManagerProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemotePagePlaybackSessionManagerProxy.h; sourceTree = "<group>"; };
 		FA4EFC4F2E024493005DADAF /* RemotePagePlaybackSessionManagerProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemotePagePlaybackSessionManagerProxy.cpp; sourceTree = "<group>"; };
@@ -9780,6 +9782,8 @@
 				86D1970829AE4E930083B077 /* NetworkProcessConnectionParameters.h */,
 				86D1970729AE4E8A0083B077 /* NetworkProcessConnectionParameters.serialization.in */,
 				5CD748B523C8EB190092A9B5 /* NetworkResourceLoadIdentifier.h */,
+				FA45FA392E4545E500057B45 /* NodeHitTestResult.h */,
+				FA45FA3B2E45462200057B45 /* NodeHitTestResult.serialization.in */,
 				FA58F4562E1E030A0098E1C8 /* NodeInfo.h */,
 				8657EE3928EDB8C500FF9B40 /* Pasteboard.serialization.in */,
 				7AFBD36E21E546E3005DBACB /* PersistencyUtils.cpp */,
