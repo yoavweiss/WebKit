@@ -43,8 +43,8 @@ public:
         : m_width(width), m_height(height) { }
     explicit DoubleSize(const FloatSize&&);
 
-    double width() const { return m_width; }
-    double height() const { return m_height; }
+    constexpr double width() const { return m_width; }
+    constexpr double height() const { return m_height; }
 
 
 #if USE(CG)
