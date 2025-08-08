@@ -2463,6 +2463,9 @@ platform/graphics/DisplayRefreshMonitor.cpp
 platform/graphics/DisplayRefreshMonitorClient.cpp
 platform/graphics/DisplayRefreshMonitorManager.cpp
 platform/graphics/DisplayUpdate.cpp
+platform/graphics/DoublePoint.cpp
+platform/graphics/DoubleRect.cpp
+platform/graphics/DoubleSize.cpp
 platform/graphics/Float16ArrayPixelBuffer.cpp
 platform/graphics/FloatLine.cpp
 platform/graphics/FloatPoint.cpp

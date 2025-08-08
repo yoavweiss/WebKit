@@ -32,6 +32,7 @@
 #endif
 #endif
 
+#include "DoublePoint.h"
 #include "IntRect.h"
 #include "PlatformScreen.h"
 #include <wtf/CheckedRef.h>
@@ -147,11 +148,13 @@ public:
 
     IntPoint convertToRootView(IntPoint) const;
     FloatPoint convertToRootView(FloatPoint) const;
+    DoublePoint convertToRootView(DoublePoint) const;
     WEBCORE_EXPORT IntRect convertToRootView(const IntRect&) const;
     FloatRect convertToRootView(const FloatRect&) const;
 
     IntPoint convertFromRootView(IntPoint) const;
     FloatPoint convertFromRootView(FloatPoint) const;
+    DoublePoint convertFromRootView(DoublePoint) const;
     IntRect convertFromRootView(const IntRect&) const;
     FloatRect convertFromRootView(const FloatRect&) const;
 
@@ -166,6 +169,7 @@ public:
 
     IntPoint convertFromContainingWindow(IntPoint) const;
     FloatPoint convertFromContainingWindow(FloatPoint) const;
+    DoublePoint convertFromContainingWindow(DoublePoint) const;
     IntRect convertFromContainingWindow(const IntRect&) const;
     FloatRect convertFromContainingWindow(const FloatRect&) const;
 
@@ -194,11 +198,13 @@ public:
     // Virtual methods to convert points to/from the containing ScrollView
     WEBCORE_EXPORT virtual IntPoint convertToContainingView(IntPoint) const;
     WEBCORE_EXPORT virtual FloatPoint convertToContainingView(FloatPoint) const;
+    WEBCORE_EXPORT virtual DoublePoint convertToContainingView(DoublePoint) const;
     WEBCORE_EXPORT virtual IntRect convertToContainingView(const IntRect&) const;
     WEBCORE_EXPORT virtual FloatRect convertToContainingView(const FloatRect&) const;
 
     WEBCORE_EXPORT virtual IntPoint convertFromContainingView(IntPoint) const;
     WEBCORE_EXPORT virtual FloatPoint convertFromContainingView(FloatPoint) const;
+    WEBCORE_EXPORT virtual DoublePoint convertFromContainingView(DoublePoint) const;
     WEBCORE_EXPORT virtual IntRect convertFromContainingView(const IntRect&) const;
     WEBCORE_EXPORT virtual FloatRect convertFromContainingView(const FloatRect&) const;
 
@@ -216,6 +222,7 @@ private:
 
     static IntPoint convertFromContainingWindowToRoot(const Widget* rootWidget, IntPoint);
     static FloatPoint convertFromContainingWindowToRoot(const Widget* rootWidget, FloatPoint);
+    static DoublePoint convertFromContainingWindowToRoot(const Widget* rootWidget, DoublePoint);
     static IntRect convertFromContainingWindowToRoot(const Widget* rootWidget, const IntRect&);
     static FloatRect convertFromContainingWindowToRoot(const Widget* rootWidget, const FloatRect&);
 

@@ -813,7 +813,7 @@ public:
     // Convert the given local point to absolute coordinates. If OptionSet<MapCoordinatesMode> includes UseTransforms, take transforms into account.
     WEBCORE_EXPORT FloatPoint localToAbsolute(const FloatPoint& localPoint = FloatPoint(), OptionSet<MapCoordinatesMode> = { }, bool* wasFixed = nullptr) const;
     TransformState viewTransitionTransform() const;
-    FloatPoint absoluteToLocal(const FloatPoint&, OptionSet<MapCoordinatesMode> = { }) const;
+    FloatPoint absoluteToLocal(const DoublePoint&, OptionSet<MapCoordinatesMode> = { }) const;
 
     // Convert a local quad to absolute coordinates, taking transforms into account.
     inline FloatQuad localToAbsoluteQuad(const FloatQuad&, OptionSet<MapCoordinatesMode> = UseTransforms, bool* wasFixed = nullptr) const; // Defined in RenderObjectInlines.h

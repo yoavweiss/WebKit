@@ -4527,6 +4527,9 @@ dom/xsl/lockdown-mode [ Skip ]
 http/tests/lockdown-mode [ Skip ]
 js/dom/lockdown-mode [ Skip ]
 
+imported/w3c/web-platform-tests/pointerevents/pointerevent_fractional_coordinates.html?mouse [ Pass ]
+imported/w3c/web-platform-tests/pointerevents/pointerevent_fractional_coordinates.html?pen [ Pass ]
+
 # New imported 'focus' timeout failures
 imported/w3c/web-platform-tests/focus/activeelement-after-focusing-different-site-iframe-contentwindow.html [ Failure ]
 imported/w3c/web-platform-tests/focus/activeelement-after-focusing-same-site-iframe-contentwindow.html [ Failure ]

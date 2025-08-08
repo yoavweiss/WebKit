@@ -23,81 +23,27 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "DoubleRect.h"
 
 #if USE(CG)
-#import <CoreGraphics/CGGeometry.h>
+#include <CoreGraphics/CoreGraphics.h>
 #endif
 
-namespace WebKit {
+namespace WebCore {
 
-struct DoublePoint {
 #if USE(CG)
-    DoublePoint(const CGPoint& point)
-        : DoublePoint(point.x, point.y)
-    {
-    }
+DoubleRect::DoubleRect(const CGRect& rect)
+    : m_location(rect.origin)
+    , m_size(rect.size)
+{
+}
 
-    CGPoint toCG() const
-    {
-        return { static_cast<CGFloat>(x), static_cast<CGFloat>(y) };
-    }
+DoubleRect::operator CGRect() const
+{
+    return CGRectMake(static_cast<CGFloat>(location().x()), static_cast<CGFloat>(location().y()), static_cast<CGFloat>(size().width()), static_cast<CGFloat>(size().height()));
+}
 #endif
 
-    DoublePoint(double x, double y)
-        : x(x)
-        , y(y)
-    {
-    }
+} // namespace WebCore
 
-    double x { 0 };
-    double y { 0 };
-};
-
-struct DoubleSize {
-#if USE(CG)
-    DoubleSize(const CGSize& size)
-        : DoubleSize(size.width, size.height)
-    {
-    }
-
-    CGSize toCG() const
-    {
-        return { static_cast<CGFloat>(width), static_cast<CGFloat>(height) };
-    }
-#endif
-
-    DoubleSize(double width, double height)
-        : width(width)
-        , height(height)
-    {
-    }
-
-    double width { 0 };
-    double height { 0 };
-};
-
-struct DoubleRect {
-#if USE(CG)
-    DoubleRect(const CGRect& rect)
-        : DoubleRect(rect.origin, rect.size)
-    {
-    }
-
-    CGRect toCG() const
-    {
-        return { origin.toCG(), size.toCG() };
-    }
-#endif
-
-    DoubleRect(DoublePoint origin, DoubleSize size)
-        : origin(origin)
-        , size(size)
-    {
-    }
-
-    DoublePoint origin;
-    DoubleSize size;
-};
-
-} // namespace WebKit

@@ -648,7 +648,7 @@ bool InteractionRegionOverlay::mouseEvent(PageOverlay& overlay, const PlatformMo
     else if (!valueForSetting("hover"_s))
         cursorToSet = pointerCursor();
 
-    auto eventInContentsCoordinates = mainFrameView->windowToContents(event.position());
+    auto eventInContentsCoordinates = mainFrameView->windowToContents(flooredIntPoint(event.position()));
     for (unsigned i = 0; i < m_settings.size(); i++) {
         if (!rectForSettingAtIndex(i).contains(eventInContentsCoordinates))
             continue;

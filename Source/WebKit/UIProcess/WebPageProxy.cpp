@@ -4406,7 +4406,7 @@ void WebPageProxy::updateTouchEventTracking(const WebTouchEvent& touchStartEvent
                 trackingType = mergeTrackingTypes(trackingType, trackingTypeForLocation);
             }
 #else
-            auto trackingTypeForLocation = m_scrollingCoordinatorProxy->eventTrackingTypeForPoint(eventType, location);
+            auto trackingTypeForLocation = m_scrollingCoordinatorProxy->eventTrackingTypeForPoint(eventType, roundedIntPoint(location));
             trackingType = mergeTrackingTypes(trackingType, trackingTypeForLocation);
 #endif
         };

@@ -20,7 +20,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-webkit_platform_headers: <WebCore/Color.h> <WebCore/ColorTypes.h>
+webkit_platform_headers: <WebCore/Color.h> <WebCore/ColorTypes.h> <WebCore/DoublePoint.h> <WebCore/DoubleRect.h> <WebCore/DoubleSize.h>
 
 header: <WebCore/DOMCacheEngine.h>
 [CustomHeader] struct WebCore::DOMCacheEngine::CacheInfo {
@@ -495,6 +495,21 @@ struct WebCore::CharacterRange {
 
 [AdditionalEncoder=StreamConnectionEncoder] class WebCore::AffineTransform {
     std::span<const double, 6> span();
+}
+
+[WebKitPlatform] class WebCore::DoublePoint {
+    double x()
+    double y()
+}
+
+[WebKitPlatform] class WebCore::DoubleSize {
+    double width()
+    double height()
+}
+
+[WebKitPlatform] class WebCore::DoubleRect {
+    WebCore::DoublePoint location()
+    WebCore::DoubleSize size()
 }
 
 [AdditionalEncoder=StreamConnectionEncoder] class WebCore::FloatPoint {

@@ -2258,7 +2258,7 @@ typedef NS_ENUM(NSInteger, EndEditingReason) {
     for (const auto& touchPoint : touchEvent.touchPoints()) {
         auto phase = touchPoint.phase();
         if (phase == WebKit::WebPlatformTouchPoint::State::Pressed) {
-            auto touchActions = WebKit::touchActionsForPoint(self, touchPoint.locationInRootView());
+            auto touchActions = WebKit::touchActionsForPoint(self, WebCore::roundedIntPoint(touchPoint.locationInRootView()));
             LOG_WITH_STREAM(UIHitTesting, stream << "touchActionsForPoint " << touchPoint.locationInRootView() << " found " << touchActions);
             if (!touchActions || touchActions.contains(WebCore::TouchAction::Auto))
                 continue;

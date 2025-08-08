@@ -1508,11 +1508,12 @@ TransformState RenderObject::viewTransitionTransform() const
     return transformState;
 }
 
-FloatPoint RenderObject::absoluteToLocal(const FloatPoint& containerPoint, OptionSet<MapCoordinatesMode> mode) const
+// FIXME: Should this exist? It is lossy but not obvious when called.
+FloatPoint RenderObject::absoluteToLocal(const DoublePoint& containerPoint, OptionSet<MapCoordinatesMode> mode) const
 {
-    TransformState transformState(TransformState::UnapplyInverseTransformDirection, containerPoint);
+    TransformState transformState(TransformState::UnapplyInverseTransformDirection, FloatPoint(containerPoint));
     mapAbsoluteToLocalPoint(mode, transformState);
-    
+
     return transformState.mappedPoint();
 }
 

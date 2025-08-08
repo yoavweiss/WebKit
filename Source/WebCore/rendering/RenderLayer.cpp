@@ -2997,7 +2997,7 @@ void RenderLayer::resize(const PlatformMouseEvent& evt, const LayoutSize& oldOff
     float zoomFactor = renderer->style().usedZoom();
 
     auto absolutePoint = document->view()->windowToContents(evt.position());
-    auto localPoint = roundedIntPoint(absoluteToContents(absolutePoint));
+    auto localPoint = roundedIntPoint(absoluteToContents(LayoutPoint(absolutePoint)));
 
     LayoutSize newOffset = offsetFromResizeCorner(localPoint);
     newOffset.setWidth(newOffset.width() / zoomFactor);

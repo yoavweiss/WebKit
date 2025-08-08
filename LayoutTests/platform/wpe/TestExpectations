@@ -1225,6 +1225,7 @@ webkit.org/b/278719 fast/events/touch/ontouchstart-active-selector.html [ Failur
 webkit.org/b/278719 fast/events/touch/send-oncancel-event.html [ Pass Timeout ]
 webkit.org/b/278719 fast/events/touch/touch-target.html [ Pass Timeout ]
 webkit.org/b/278719 fast/events/touch/zoomed-touch-event-pageXY.html [ Pass Timeout ]
+webkit.org/b/278719 fast/events/touch/touch-fractional-coordinates.html [ Crash ]
 webkit.org/b/278719 fast/events/touch/touch-slider.html [ Timeout Pass ]
 webkit.org/b/278719 fast/events/touch/touch-slider-no-js-touch-listener.html [ Pass Crash ]
 webkit.org/b/278719 fast/events/touch/touch-target-limited.html [ Pass Timeout ]

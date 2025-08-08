@@ -1457,7 +1457,7 @@ void GraphicsLayerCA::setContentsToVideoElement(HTMLVideoElement& videoElement, 
         return;
     }
 #endif
-    setContentsToPlatformLayer(videoElement.platformLayer(), purpose);
+    SUPPRESS_FORWARD_DECL_ARG setContentsToPlatformLayer(videoElement.platformLayer(), purpose);
 }
 
 void GraphicsLayerCA::setContentsDisplayDelegate(RefPtr<GraphicsLayerContentsDisplayDelegate>&& delegate, ContentsLayerPurpose purpose)

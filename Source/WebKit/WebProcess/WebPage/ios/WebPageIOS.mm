@@ -790,7 +790,7 @@ IntRect WebPage::rectForElementAtInteractionLocation() const
     RefPtr localMainFrame = m_page->localMainFrame();
     if (!localMainFrame)
         return IntRect();
-    HitTestResult result = localMainFrame->eventHandler().hitTestResultAtPoint(m_lastInteractionLocation, hitType);
+    HitTestResult result = localMainFrame->eventHandler().hitTestResultAtPoint(flooredIntPoint(m_lastInteractionLocation), hitType);
     Node* hitNode = result.innerNode();
     if (!hitNode || !hitNode->renderer())
         return IntRect();
@@ -4152,7 +4152,7 @@ std::optional<FocusedElementInformation> WebPage::focusedElementInformation()
     if (RefPtr webFrame = WebProcess::singleton().webFrame(focusedOrMainFrame->frameID()))
         information.frame = webFrame->info();
 
-    information.lastInteractionLocation = m_lastInteractionLocation;
+    information.lastInteractionLocation = flooredIntPoint(m_lastInteractionLocation);
     if (auto elementContext = contextForElement(*focusedElement))
         information.elementContext = WTFMove(*elementContext);
 

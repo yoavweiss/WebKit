@@ -2709,7 +2709,7 @@ bool LocalFrameView::fixedElementsLayoutRelativeToFrame() const
 
 IntPoint LocalFrameView::lastKnownMousePositionInView() const
 {
-    return convertFromContainingWindow(m_frame->eventHandler().lastKnownMousePosition());
+    return flooredIntPoint(convertFromContainingWindow(m_frame->eventHandler().lastKnownMousePosition()));
 }
 
 bool LocalFrameView::isHandlingWheelEvent() const
@@ -5959,6 +5959,11 @@ FloatPoint LocalFrameView::absoluteToDocumentPoint(FloatPoint p, std::optional<f
     return p.scaled(absoluteToDocumentScaleFactor(usedZoom));
 }
 
+DoublePoint LocalFrameView::absoluteToDocumentPoint(DoublePoint p, std::optional<float> usedZoom) const
+{
+    return p.scaled(absoluteToDocumentScaleFactor(usedZoom));
+}
+
 FloatRect LocalFrameView::absoluteToClientRect(FloatRect rect, std::optional<float> usedZoom) const
 {
     return documentToClientRect(absoluteToDocumentRect(rect, usedZoom));
@@ -5979,6 +5984,12 @@ FloatRect LocalFrameView::documentToClientRect(FloatRect rect) const
 }
 
 FloatPoint LocalFrameView::documentToClientPoint(FloatPoint p) const
+{
+    p.move(documentToClientOffset());
+    return p;
+}
+
+DoublePoint LocalFrameView::documentToClientPoint(DoublePoint p) const
 {
     p.move(documentToClientOffset());
     return p;

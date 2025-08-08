@@ -9931,7 +9931,7 @@ void Document::showPlaybackTargetPicker(MediaPlaybackTargetClient& client, bool 
         return;
 
     // FIXME: This is probably wrong for subframes.
-    auto position = frame()->eventHandler().lastKnownMousePosition();
+    auto position = flooredIntPoint(frame()->eventHandler().lastKnownMousePosition());
     page->showPlaybackTargetPicker(it->value, position, isVideo, routeSharingPolicy, routingContextUID);
 }
 

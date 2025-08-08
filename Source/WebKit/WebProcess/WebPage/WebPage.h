@@ -2901,7 +2901,7 @@ private:
 #if PLATFORM(IOS_FAMILY)
     std::optional<WebCore::SimpleRange> m_currentWordRange;
     RefPtr<WebCore::Node> m_interactionNode;
-    WebCore::IntPoint m_lastInteractionLocation;
+    WebCore::DoublePoint m_lastInteractionLocation;
 
     bool m_isShowingInputViewForFocusedElement { false };
     bool m_wasShowingInputViewForFocusedElementDuringLastPotentialTap { false };

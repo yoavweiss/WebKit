@@ -823,7 +823,7 @@ void EventHandler::tryToBeginDragAtPoint(const IntPoint& clientPosition, const I
     constexpr OptionSet<HitTestRequest::Type> hitType { HitTestRequest::Type::Active, HitTestRequest::Type::DisallowUserAgentShadowContent };
     RefPtr frameView = frame->view();
     auto documentPoint = frameView ? frameView->windowToContents(syntheticMouseMoveEvent.position()) : syntheticMouseMoveEvent.position();
-    auto hitTestedMouseEvent = document->prepareMouseEvent(hitType, documentPoint, syntheticMouseMoveEvent);
+    auto hitTestedMouseEvent = document->prepareMouseEvent(hitType, LayoutPoint(documentPoint), syntheticMouseMoveEvent);
 
     if (RefPtr subframe = subframeForHitTestResult(hitTestedMouseEvent)) {
         if (RefPtr localSubframe = dynamicDowncast<LocalFrame>(subframe.get()))
