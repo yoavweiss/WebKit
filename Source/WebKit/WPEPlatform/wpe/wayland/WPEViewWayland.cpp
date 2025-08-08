@@ -599,7 +599,7 @@ static gboolean wpeViewWaylandRenderBuffer(WPEView* view, WPEBuffer* buffer, con
     wl_callback_add_listener(priv->frameCallback, &frameListener, view);
 
 #if USE(SYSPROF_CAPTURE)
-    if (auto* annotator = SysprofAnnotator::singletonIfCreated()) {
+    if (SysprofAnnotator::singletonIfCreated()) {
         if (auto* presentation = wpeDisplayWaylandGetPresentation(display)) {
             if (!priv->presentationFeedbackStatistics)
                 priv->presentationFeedbackStatistics = makeUnique<PresentationFeedbackStatistics>(kFrameHistorySize);

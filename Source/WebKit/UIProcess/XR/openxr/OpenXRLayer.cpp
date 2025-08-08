@@ -150,7 +150,7 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRLayerProjection::startFram
 
     auto halfWidth = m_swapchain->width() / 2;
     layerData.layerSetup = {
-        .physicalSize = { static_cast<uint16_t>(m_swapchain->width()), static_cast<uint16_t>(m_swapchain->height()) },
+        .physicalSize = { { { static_cast<uint16_t>(m_swapchain->width()), static_cast<uint16_t>(m_swapchain->height()) } } },
         .viewports = { },
         .foveationRateMapDesc = { }
     };
