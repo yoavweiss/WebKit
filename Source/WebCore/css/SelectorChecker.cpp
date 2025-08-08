@@ -230,7 +230,7 @@ bool SelectorChecker::match(const CSSSelector& selector, const Element& element,
 
         // When ignoring virtual pseudo elements, the context's pseudo should also be PseudoId::None but that does
         // not cause a failure.
-        return checkingContext.resolvingMode == Mode::CollectingRulesIgnoringVirtualPseudoElements || result.matchType == MatchType::Element;
+        return checkingContext.resolvingMode == Mode::StyleInvalidation || result.matchType == MatchType::Element;
     }
     return true;
 }
@@ -1057,7 +1057,7 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
         case CSSSelector::PseudoClass::Hover:
             if (m_strictParsing || element.isLink() || canMatchHoverOrActiveInQuirksMode(context)) {
                 // See the comment in generateElementIsHovered() in SelectorCompiler.
-                if (checkingContext.resolvingMode == SelectorChecker::Mode::CollectingRulesIgnoringVirtualPseudoElements && !context.isMatchElement)
+                if (checkingContext.resolvingMode == SelectorChecker::Mode::StyleInvalidation && !context.isMatchElement)
                     return true;
 
                 if (element.hovered() || InspectorInstrumentation::forcePseudoState(element, CSSSelector::PseudoClass::Hover))
@@ -1140,7 +1140,7 @@ bool SelectorChecker::checkOne(CheckingContext& checkingContext, LocalContext& c
 
         case CSSSelector::PseudoClass::Scope: {
             // During style invalidation, we don't collect the @scope rules.
-            if (checkingContext.resolvingMode == SelectorChecker::Mode::CollectingRulesIgnoringVirtualPseudoElements)
+            if (checkingContext.resolvingMode == SelectorChecker::Mode::StyleInvalidation)
                 return !context.isNegation;
 
             const Node* contextualReferenceNode = !checkingContext.scope ? element.document().documentElement() : checkingContext.scope.get();

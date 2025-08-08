@@ -73,9 +73,7 @@ public:
     enum class Mode : unsigned char {
         ResolvingStyle = 0,
         CollectingRules,
-        // This is used for invalidation
-        // FIXME: Rename this to Mode::StyleInvalidation
-        CollectingRulesIgnoringVirtualPseudoElements,
+        StyleInvalidation,
         // This is used for querySelector() API
         QueryingRules
     };
