@@ -256,12 +256,6 @@ private:
     StyleSelfAlignmentData alignSelfForGridItem(const RenderBox&, StretchingMode = StretchingMode::Any, const RenderStyle* = nullptr) const;
     void applyStretchAlignmentToGridItemIfNeeded(RenderBox&, GridLayoutState&);
     void applySubgridStretchAlignmentToGridItemIfNeeded(RenderBox&);
-    bool hasAutoSizeInColumnAxis(const RenderBox& gridItem) const;
-    bool hasAutoSizeInRowAxis(const RenderBox& gridItem) const;
-    inline bool allowedToStretchGridItemAlongColumnAxis(const RenderBox& gridItem) const;
-    inline bool allowedToStretchGridItemAlongRowAxis(const RenderBox& gridItem) const;
-    bool hasAutoMarginsInColumnAxis(const RenderBox&) const;
-    bool hasAutoMarginsInRowAxis(const RenderBox&) const;
     void resetAutoMarginsAndLogicalTopInColumnAxis(RenderBox& child);
     void updateAutoMarginsInColumnAxisIfNeeded(RenderBox&);
     void updateAutoMarginsInRowAxisIfNeeded(RenderBox&);

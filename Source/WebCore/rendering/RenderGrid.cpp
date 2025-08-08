@@ -347,7 +347,7 @@ Vector<RenderBox*> RenderGrid::computeAspectRatioDependentAndBaselineItems(GridL
 bool RenderGrid::canSetColumnAxisStretchRequirementForItem(const RenderBox& gridItem) const
 {
     auto gridItemBlockFlowDirection = GridLayoutFunctions::flowAwareDirectionForGridItem(*this, gridItem, Style::GridTrackSizingDirection::Rows);
-    return gridItemBlockFlowDirection == Style::GridTrackSizingDirection::Rows && allowedToStretchGridItemAlongColumnAxis(gridItem);
+    return gridItemBlockFlowDirection == Style::GridTrackSizingDirection::Rows && GridLayoutFunctions::allowedToStretchGridItemAlongColumnAxis(gridItem, alignSelfForGridItem(gridItem).position(), writingMode());
 }
 
 void RenderGrid::computeLayoutRequirementsForItemsBeforeLayout(GridLayoutState& gridLayoutState) const
@@ -1809,16 +1809,6 @@ bool RenderGrid::aspectRatioPrefersInline(const RenderBox& gridItem, bool blockF
     return !hasExplicitBlockStretch;
 }
 
-inline bool RenderGrid::allowedToStretchGridItemAlongColumnAxis(const RenderBox& gridItem) const
-{
-    return alignSelfForGridItem(gridItem).position() == ItemPosition::Stretch && hasAutoSizeInColumnAxis(gridItem) && !hasAutoMarginsInColumnAxis(gridItem);
-}
-
-inline bool RenderGrid::allowedToStretchGridItemAlongRowAxis(const RenderBox& gridItem) const
-{
-    return justifySelfForGridItem(gridItem).position() == ItemPosition::Stretch && hasAutoSizeInRowAxis(gridItem) && !hasAutoMarginsInRowAxis(gridItem);
-}
-
 // FIXME: This logic is shared by RenderFlexibleBox, so it should be moved to RenderBox.
 void RenderGrid::applyStretchAlignmentToGridItemIfNeeded(RenderBox& gridItem, GridLayoutState& gridLayoutState)
 {
@@ -1832,7 +1822,7 @@ void RenderGrid::applyStretchAlignmentToGridItemIfNeeded(RenderBox& gridItem, Gr
     auto gridItemBlockDirection = GridLayoutFunctions::flowAwareDirectionForGridItem(*this, gridItem, Style::GridTrackSizingDirection::Rows);
     auto gridItemInlineDirection = GridLayoutFunctions::flowAwareDirectionForGridItem(*this, gridItem, Style::GridTrackSizingDirection::Columns);
     bool blockFlowIsColumnAxis = gridItemBlockDirection == Style::GridTrackSizingDirection::Rows;
-    bool allowedToStretchgridItemBlockSize = blockFlowIsColumnAxis ? allowedToStretchGridItemAlongColumnAxis(gridItem) : allowedToStretchGridItemAlongRowAxis(gridItem);
+    bool allowedToStretchgridItemBlockSize = blockFlowIsColumnAxis ? GridLayoutFunctions::allowedToStretchGridItemAlongColumnAxis(gridItem, alignSelfForGridItem(gridItem).position(), writingMode()) : GridLayoutFunctions::allowedToStretchGridItemAlongRowAxis(gridItem, justifySelfForGridItem(gridItem).position(), writingMode());
     if (allowedToStretchgridItemBlockSize && !aspectRatioPrefersInline(gridItem, blockFlowIsColumnAxis)) {
         auto overridingContainingBlockContentSizeForGridItem = GridLayoutFunctions::overridingContainingBlockContentSizeForGridItem(gridItem, gridItemBlockDirection);
         ASSERT(overridingContainingBlockContentSizeForGridItem && *overridingContainingBlockContentSizeForGridItem);
@@ -1857,7 +1847,7 @@ void RenderGrid::applyStretchAlignmentToGridItemIfNeeded(RenderBox& gridItem, Gr
             gridItem.setLogicalHeight(0_lu);
             gridItem.setNeedsLayout(MarkOnlyThis);
         }
-    } else if (!allowedToStretchgridItemBlockSize && allowedToStretchGridItemAlongRowAxis(gridItem)) {
+    } else if (!allowedToStretchgridItemBlockSize && GridLayoutFunctions::allowedToStretchGridItemAlongRowAxis(gridItem, justifySelfForGridItem(gridItem).position(), writingMode())) {
         auto overridingContainingBlockContentSizeForGridItem = GridLayoutFunctions::overridingContainingBlockContentSizeForGridItem(gridItem, gridItemInlineDirection);
         ASSERT(overridingContainingBlockContentSizeForGridItem && *overridingContainingBlockContentSizeForGridItem);
         LayoutUnit stretchedLogicalWidth = availableAlignmentSpaceForGridItemBeforeStretching(overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Columns);
@@ -1891,21 +1881,7 @@ void RenderGrid::applySubgridStretchAlignmentToGridItemIfNeeded(RenderBox& gridI
     }
 }
 
-// FIXME: This logic is shared by RenderFlexibleBox, so it should be moved to RenderBox.
-bool RenderGrid::hasAutoMarginsInColumnAxis(const RenderBox& gridItem) const
-{
-    if (isHorizontalWritingMode())
-        return gridItem.style().marginTop().isAuto() || gridItem.style().marginBottom().isAuto();
-    return gridItem.style().marginLeft().isAuto() || gridItem.style().marginRight().isAuto();
-}
 
-// FIXME: This logic is shared by RenderFlexibleBox, so it should be moved to RenderBox.
-bool RenderGrid::hasAutoMarginsInRowAxis(const RenderBox& gridItem) const
-{
-    if (isHorizontalWritingMode())
-        return gridItem.style().marginLeft().isAuto() || gridItem.style().marginRight().isAuto();
-    return gridItem.style().marginTop().isAuto() || gridItem.style().marginBottom().isAuto();
-}
 
 // FIXME: This logic is shared by RenderFlexibleBox, so it should be moved to RenderBox.
 void RenderGrid::updateAutoMarginsInRowAxisIfNeeded(RenderBox& gridItem)
@@ -1996,7 +1972,7 @@ bool RenderGrid::isBaselineAlignmentForGridItem(const RenderBox& gridItem, Style
     if (gridItem.isOutOfFlowPositioned())
         return false;
     auto align = selfAlignmentForGridItem(alignmentContextType, gridItem).position();
-    bool hasAutoMargins = alignmentContextType == Style::GridTrackSizingDirection::Rows ? hasAutoMarginsInColumnAxis(gridItem) : hasAutoMarginsInRowAxis(gridItem);
+    bool hasAutoMargins = alignmentContextType == Style::GridTrackSizingDirection::Rows ? GridLayoutFunctions::hasAutoMarginsInColumnAxis(gridItem, writingMode()) : GridLayoutFunctions::hasAutoMarginsInRowAxis(gridItem, writingMode());
     return isBaselinePosition(align) && !hasAutoMargins;
 }
 
@@ -2221,7 +2197,7 @@ LayoutUnit RenderGrid::columnAxisOffsetForGridItem(const RenderBox& gridItem) co
     LayoutUnit masonryOffset = areMasonryRows() ? m_masonryLayout.offsetForGridItem(gridItem) : 0_lu;
     auto overflow = alignSelfForGridItem(gridItem).overflow();
         LayoutUnit offsetFromStartPosition = computeOverflowAlignmentOffset(overflow, endOfRow - startOfRow, columnAxisGridItemSize);
-    if (hasAutoMarginsInColumnAxis(gridItem))
+    if (GridLayoutFunctions::hasAutoMarginsInColumnAxis(gridItem, writingMode()))
         return startPosition;
     GridAxisPosition axisPosition = columnAxisPositionForGridItem(gridItem);
     switch (axisPosition) {
@@ -2242,7 +2218,7 @@ LayoutUnit RenderGrid::rowAxisOffsetForGridItem(const RenderBox& gridItem) const
     auto [startOfColumn, endOfColumn] = gridAreaPositionForGridItem(gridItem, Style::GridTrackSizingDirection::Columns);
     LayoutUnit startPosition = startOfColumn + marginStartForChild(gridItem);
     LayoutUnit masonryOffset = areMasonryColumns() ? m_masonryLayout.offsetForGridItem(gridItem) : 0_lu;
-    if (hasAutoMarginsInRowAxis(gridItem))
+    if (GridLayoutFunctions::hasAutoMarginsInRowAxis(gridItem, writingMode()))
         return startPosition;
     GridAxisPosition axisPosition = rowAxisPositionForGridItem(gridItem);
     switch (axisPosition) {
@@ -2655,40 +2631,6 @@ ASCIILiteral RenderGrid::renderName() const
     if (isRelativelyPositioned())
         return "RenderGrid (relative positioned)"_s;
     return "RenderGrid"_s;
-}
-
-bool RenderGrid::hasAutoSizeInColumnAxis(const RenderBox& gridItem) const
-{
-    if (gridItem.style().hasAspectRatio()) {
-        // FIXME: should align-items + align-self: auto/justify-items + justify-self: auto be taken into account?
-        if (isHorizontalWritingMode() == gridItem.isHorizontalWritingMode() && gridItem.style().alignSelf().position() != ItemPosition::Stretch) {
-            // A non-auto inline size means the same for block size (column axis size) because of the aspect ratio.
-            if (!gridItem.style().logicalWidth().isAuto())
-                return false;
-        } else if (gridItem.style().justifySelf().position() != ItemPosition::Stretch) {
-            auto& logicalHeight = gridItem.style().logicalHeight();
-            if (logicalHeight.isFixed() || (logicalHeight.isPercentOrCalculated() && gridItem.percentageLogicalHeightIsResolvable()))
-                return false;
-        }
-    }
-    return isHorizontalWritingMode() ? gridItem.style().height().isAuto() : gridItem.style().width().isAuto();
-}
-
-bool RenderGrid::hasAutoSizeInRowAxis(const RenderBox& gridItem) const
-{
-    if (gridItem.style().hasAspectRatio()) {
-        // FIXME: should align-items + align-self: auto/justify-items + justify-self: auto be taken into account?
-        if (isHorizontalWritingMode() == gridItem.isHorizontalWritingMode() && gridItem.style().justifySelf().position() != ItemPosition::Stretch) {
-            // A non-auto block size means the same for inline size (row axis size) because of the aspect ratio.
-            auto& logicalHeight = gridItem.style().logicalHeight();
-            if (logicalHeight.isFixed() || (logicalHeight.isPercentOrCalculated() && gridItem.percentageLogicalHeightIsResolvable()))
-                return false;
-        } else if (gridItem.style().alignSelf().position() != ItemPosition::Stretch) {
-            if (!gridItem.style().logicalWidth().isAuto())
-                return false;
-        }
-    }
-    return isHorizontalWritingMode() ? gridItem.style().width().isAuto() : gridItem.style().height().isAuto();
 }
 
 bool RenderGrid::computeGridPositionsForOutOfFlowGridItem(const RenderBox& gridItem, Style::GridTrackSizingDirection direction, int& startLine, bool& startIsAuto, int& endLine, bool& endIsAuto) const
