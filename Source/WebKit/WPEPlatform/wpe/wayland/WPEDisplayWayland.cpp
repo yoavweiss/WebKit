@@ -457,8 +457,10 @@ static gboolean wpeDisplayWaylandSetup(WPEDisplayWayland* display, GError** erro
             g_debug("Compositor does not support zwp_linux_dmabuf_v1_get_default_feedback");
 #endif
         zwp_linux_dmabuf_v1_add_listener(priv->linuxDMABuf, &linuxDMABufListener, display);
-        wl_display_roundtrip(priv->wlDisplay);
     }
+
+    if (priv->wlSeat || priv->linuxDMABuf || !priv->screens.isEmpty())
+        wl_display_roundtrip(priv->wlDisplay);
 
     if (!priv->drmDevice)
         wpeDisplayWaylandInitializeDRMDeviceFromEGL(display);
