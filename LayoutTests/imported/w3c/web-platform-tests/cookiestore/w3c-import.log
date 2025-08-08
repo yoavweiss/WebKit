@@ -24,6 +24,7 @@ List of files:
 /LayoutTests/imported/w3c/web-platform-tests/cookiestore/change_eventhandler_for_no_name_equals_in_value.https.window.js
 /LayoutTests/imported/w3c/web-platform-tests/cookiestore/change_eventhandler_for_no_name_multiple_values.https.window.js
 /LayoutTests/imported/w3c/web-platform-tests/cookiestore/cookieListItem_attributes.https.any.js
+/LayoutTests/imported/w3c/web-platform-tests/cookiestore/cookieListItem_attributes.https.window.js
 /LayoutTests/imported/w3c/web-platform-tests/cookiestore/cookieStoreManager_getSubscriptions_empty.https.any.js
 /LayoutTests/imported/w3c/web-platform-tests/cookiestore/cookieStoreManager_getSubscriptions_multiple.https.any.js
 /LayoutTests/imported/w3c/web-platform-tests/cookiestore/cookieStoreManager_getSubscriptions_single.https.any.js

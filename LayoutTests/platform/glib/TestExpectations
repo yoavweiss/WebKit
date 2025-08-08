@@ -4839,7 +4839,7 @@ webkit.org/b/131934 fast/dom/Window/mozilla-focus-blur.html [ Failure Pass ]
 
 # These WPT cookiestore/ tests need some investigation
 imported/w3c/web-platform-tests/cookiestore/cookieListItem_attributes.https.any.serviceworker.html [ Skip ]
-imported/w3c/web-platform-tests/cookiestore/cookieListItem_attributes.https.any.html [ Skip ]
+imported/w3c/web-platform-tests/cookiestore/cookieListItem_attributes.https.window.html [ Skip ]
 imported/w3c/web-platform-tests/cookiestore/cookieStore_delete_arguments.https.any.html [ Skip ]
 imported/w3c/web-platform-tests/cookiestore/cookieStore_delete_arguments.https.any.serviceworker.html [ Skip ]
 imported/w3c/web-platform-tests/cookiestore/change_eventhandler_for_no_name_multiple_values.https.window.html [ Skip ]

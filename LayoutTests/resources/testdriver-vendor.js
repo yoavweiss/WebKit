@@ -565,6 +565,36 @@ window.test_driver_internal.delete_all_cookies = async function(context=null)
     return new Promise(r => context.testRunner.removeAllCookies(r));
 }
 
+/**
+ *
+ * @param {Window?} context
+ * @returns Promise<sequence<WebDriverCookieData>>
+ */
+window.test_driver_internal.get_all_cookies = async function(context=null)
+{
+    context = context ?? window;
+
+    return internals.webDriverGetCookies(context.document);
+}
+
+/**
+ *
+ * @param DOMString name
+ * @param {Window?} context
+ * @returns Promise<WebDriverCookieData?>
+ */
+window.test_driver_internal.get_named_cookie = async function(name, context=null)
+{
+    context = context ?? window;
+
+    const cookies = internals.webDriverGetCookies(context.document);
+    for (const cookie of cookies) {
+        if (cookie.name == name)
+            return cookie;
+    }
+    return null;
+}
+
 window.test_driver_internal.generate_test_report = async function(message, context=null)
 {
     context = context ?? window;

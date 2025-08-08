@@ -7058,6 +7058,19 @@ auto Internals::getCookies() const -> Vector<CookieData>
     });
 }
 
+auto Internals::webDriverGetCookies(Document& document) const -> Vector<WebDriverCookieData>
+{
+    auto* page = document.page();
+    if (!page)
+        return { };
+
+    Vector<Cookie> cookies;
+    page->cookieJar().getRawCookies(document, document.cookieURL(), cookies);
+    return WTF::map(cookies, [](auto& cookie) {
+        return WebDriverCookieData { cookie };
+    });
+}
+
 void Internals::setAlwaysAllowLocalWebarchive(bool alwaysAllowLocalWebarchive)
 {
     auto* localFrame = frame();

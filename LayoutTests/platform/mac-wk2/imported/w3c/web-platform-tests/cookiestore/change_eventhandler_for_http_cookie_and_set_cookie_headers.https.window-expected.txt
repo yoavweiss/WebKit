@@ -1,9 +1,0 @@
-
-PASS HTTP set/overwrite/delete observed in CookieStore
-FAIL HTTP set already-expired cookie should not be observed by CookieStore assert_equals: Deletion not observed after HTTP sets already-expired cookie: number of changed cookies expected 1 but got 0
-FAIL HTTP duplicate cookie should not be observed by CookieStore assert_equals: Duplicate cookie is not observed.: changed cookie name expected "HTTP-alt-cookie" but got "HTTP-cookie"
-FAIL CookieStore agreed with HTTP headers agree on encoding non-ASCII cookies assert_equals: Cookie we wrote using HTTP in cookie jar expected "HTTP-🍪=🔵" but got "HTTP-ðª=ðµ"
-PASS CookieStore set/overwrite/delete observed in HTTP headers
-FAIL HTTP headers agreed with CookieStore on encoding non-ASCII cookies assert_equals: HTTP cookie jar contains only cookie we set expected "🍪=🔵" but got ""
-FAIL Binary HTTP set/overwrite/delete observed in CookieStore assert_equals: Binary cookie we wrote using HTTP in cookie jar expected "HTTP-cookie=value\ufffd" but got "HTTP-cookie=valueï¿½"
-
