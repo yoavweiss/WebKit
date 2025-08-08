@@ -94,6 +94,12 @@ struct pas_pgm_storage {
     pas_large_heap* large_heap;
 };
 
+/* 
+ * Flag to indicate if PGM was ever enabled for this process,
+ * even if it been subsequently disabled, or no guarded allocations have been made.
+*/
+extern bool pas_probabilistic_guard_malloc_has_been_used;
+
 /* max amount of free memory that can be wasted (1MB) */
 #define PAS_PGM_MAX_WASTED_MEMORY (1024 * 1024)
 
