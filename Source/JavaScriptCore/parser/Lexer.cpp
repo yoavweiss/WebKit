@@ -1909,16 +1909,57 @@ ALWAYS_INLINE void Lexer<T>::parseCommentDirective()
     }
 }
 
+ALWAYS_INLINE const LChar* parseCommentDirectiveValueSIMD(const LChar* start, const LChar* end)
+{
+    constexpr auto controlMinChar = SIMD::splat<LChar>(0x09); // '\t'
+    constexpr auto controlMaxChar = SIMD::splat<LChar>(0x0D); // '\r'
+    constexpr auto spaceChar = SIMD::splat<LChar>(0x20); // ' '
+    constexpr auto quoteChar = SIMD::splat<LChar>(0x22); // '"'
+    constexpr auto squoteChar = SIMD::splat<LChar>(0x27); // '\''
+    constexpr auto nbspChar = SIMD::splat<LChar>(0xA0); // non-breaking space
+
+    auto vectorMatch = [&](auto input) ALWAYS_INLINE_LAMBDA {
+        auto controls = SIMD::bitAnd(
+            SIMD::greaterThanOrEqual(input, controlMinChar),
+            SIMD::lessThanOrEqual(input, controlMaxChar)
+        );
+        auto spaces = SIMD::equal(input, spaceChar);
+        auto quotes = SIMD::equal(input, quoteChar);
+        auto squotes = SIMD::equal(input, squoteChar);
+        auto nbsps = SIMD::equal(input, nbspChar);
+
+        auto mask = SIMD::bitOr(controls, spaces, quotes, squotes, nbsps);
+        return SIMD::findFirstNonZeroIndex(mask);
+    };
+
+    auto scalarMatch = [&](auto character) ALWAYS_INLINE_LAMBDA {
+        return Lexer<LChar>::isWhiteSpace(character)
+            || Lexer<LChar>::isLineTerminator(character)
+            || character == '"'
+            || character == '\'';
+    };
+
+    return SIMD::find(std::span { start, end }, vectorMatch, scalarMatch);
+}
+
 IGNORE_WARNINGS_BEGIN("unused-but-set-variable")
 template<typename CharacterType> ALWAYS_INLINE String Lexer<CharacterType>::parseCommentDirectiveValue()
 {
     skipWhitespace();
     char16_t mergedCharacterBits = 0;
     auto stringStart = currentSourcePtr();
-    while (!isWhiteSpace(m_current) && !isLineTerminator(m_current) && m_current != '"' && m_current != '\'' && !atEnd()) {
-        if constexpr (std::is_same_v<CharacterType, char16_t>)
-            mergedCharacterBits |= m_current;
-        shift();
+    if constexpr (std::is_same_v<CharacterType, LChar>) {
+        m_code = parseCommentDirectiveValueSIMD(stringStart, m_codeEnd);
+        if (m_code < m_codeEnd)
+            m_current = *m_code;
+        else
+            m_current = 0;
+    } else {
+        while (!isWhiteSpace(m_current) && !isLineTerminator(m_current) && m_current != '"' && m_current != '\'' && !atEnd()) {
+            if constexpr (std::is_same_v<CharacterType, char16_t>)
+                mergedCharacterBits |= m_current;
+            shift();
+        }
     }
     std::span commentDirective { stringStart, currentSourcePtr() };
 
