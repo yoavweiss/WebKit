@@ -1520,7 +1520,7 @@ void WebProcessPool::registerUserInstalledFonts(WebProcessProxy& process)
 
     RELEASE_LOG(Process, "WebProcessPool::registerUserInstalledFonts: start registering fonts");
     RetainPtr requestedProperties = [NSSet setWithArray:@[@"NSFontNameAttribute", @"NSFontFamilyAttribute", @"NSCTFontFileURLAttribute", @"NSCTFontUserInstalledAttribute"]];
-    RetainPtr fontProperties = adoptCF(XTCopyPropertiesForAllFontsWithOptions(bridge_cast(requestedProperties.get()), kXTScopeAll, kXTOptionsDoNotSortResults));
+    RetainPtr fontProperties = adoptCF(XTCopyPropertiesForAllFontsWithOptions(bridge_cast(requestedProperties.get()), kXTScopeGlobal, kXTOptionsDoNotSortResults));
     if (!fontProperties)
         return;
     for (CFIndex i = 0; i < CFArrayGetCount(fontProperties.get()); ++i) {
@@ -1529,8 +1529,6 @@ void WebProcessPool::registerUserInstalledFonts(WebProcessProxy& process)
             continue;
         RetainPtr cfFontURL = checked_cf_cast<CFURLRef>(CFDictionaryGetValue(fontDictionary.get(), CFSTR("NSCTFontFileURLAttribute")));
         URL fontURL(cfFontURL.get());
-        if (fontURL.string().startsWith("file:///Applications/"_s))
-            continue;
         if (fontURL.string().startsWith("file:///System/Library/Fonts/"_s))
             continue;
         if (fontURL.string().startsWith("file:///System/Library/PrivateFrameworks/"_s))
