@@ -236,7 +236,7 @@ static AccessibilityObjectWrapper* AccessibilityUnignoredAncestor(AccessibilityO
 
     // Initialize to a sentinel value.
     m_accessibilityTraitsFromAncestor = ULLONG_MAX;
-    m_isAccessibilityElement = -1;
+    m_isAccessibilityElement = IsAccessibilityElement::Unknown;
 
     return self;
 }
@@ -886,6 +886,9 @@ static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descenda
 
     backingObject->updateBackingStore();
 
+    if (backingObject->isIgnored())
+        return NO;
+
     switch (backingObject->role()) {
     case AccessibilityRole::TextField:
     case AccessibilityRole::TextArea:
@@ -1062,10 +1065,22 @@ static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descenda
     if (![self _prepareAccessibilityCall])
         return NO;
 
-    if (m_isAccessibilityElement == -1)
-        m_isAccessibilityElement = [self determineIsAccessibilityElement];
+    if (m_isAccessibilityElement == IsAccessibilityElement::Unknown)
+        m_isAccessibilityElement = [self determineIsAccessibilityElement] ? IsAccessibilityElement::Yes : IsAccessibilityElement::No;
 
-    return m_isAccessibilityElement;
+    ASSERT(m_isAccessibilityElement != IsAccessibilityElement::Unknown);
+    switch (m_isAccessibilityElement) {
+    case IsAccessibilityElement::Yes:
+        return YES;
+    case IsAccessibilityElement::No:
+    case IsAccessibilityElement::Unknown:
+        return NO;
+    }
+}
+
+- (void)_clearCachedIsAccessibilityElementState
+{
+    m_isAccessibilityElement = IsAccessibilityElement::Unknown;
 }
 
 - (BOOL)stringValueShouldBeUsedInLabel

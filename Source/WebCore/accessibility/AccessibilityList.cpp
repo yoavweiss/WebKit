@@ -66,7 +66,7 @@ Ref<AccessibilityList> AccessibilityList::create(AXID axID, Node& node, AXObject
 
 bool AccessibilityList::computeIsIgnored() const
 {
-    return isIgnoredByDefault();
+    return m_renderer ? isIgnoredByDefault() : AccessibilityNodeObject::computeIsIgnored();
 }
 
 bool AccessibilityList::isUnorderedList() const

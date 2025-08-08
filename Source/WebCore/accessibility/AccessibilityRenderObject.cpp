@@ -159,9 +159,6 @@ AccessibilityRenderObject::AccessibilityRenderObject(AXID axID, RenderObject& re
     : AccessibilityNodeObject(axID, nodeForRenderer(renderer), cache)
     , m_renderer(renderer)
 {
-#if ASSERT_ENABLED
-    renderer.setHasAXObject(true);
-#endif
 }
 
 AccessibilityRenderObject::AccessibilityRenderObject(AXID axID, Node& node, AXObjectCache& cache)
@@ -181,16 +178,16 @@ Ref<AccessibilityRenderObject> AccessibilityRenderObject::create(AXID axID, Rend
     return adoptRef(*new AccessibilityRenderObject(axID, renderer, cache));
 }
 
+Ref<AccessibilityRenderObject> AccessibilityRenderObject::create(AXID axID, Node& node, AXObjectCache& cache)
+{
+    return adoptRef(*new AccessibilityRenderObject(axID, node, cache));
+}
+
 void AccessibilityRenderObject::detachRemoteParts(AccessibilityDetachmentType detachmentType)
 {
     AccessibilityNodeObject::detachRemoteParts(detachmentType);
 
     detachRemoteSVGRoot();
-
-#if ASSERT_ENABLED
-    if (m_renderer)
-        m_renderer->setHasAXObject(false);
-#endif
     m_renderer = nullptr;
 }
 
@@ -449,10 +446,20 @@ AccessibilityObject* AccessibilityRenderObject::nextSibling() const
         return nullptr;
 
     // After case 4, there are chances that nextSibling has the same node as the current renderer,
-    // which might lead to adding the same child repeatedly.
+    // which might lead to looping over the same object repeatedly.
     if (nextSibling->node() && nextSibling->node() == m_renderer->node()) {
-        if (RefPtr nextObject = cache->getOrCreate(*nextSibling))
+        if (RefPtr nextObject = cache->getOrCreate(*nextSibling)) {
+            if (nextObject.get() == this) {
+                // WebKit accessibility objects use DOM nodes as the "primary key" (i.e. in m_nodeObjectMapping).
+                // This can cause a bit of trouble for continuations, which result in multiple renderers being associated
+                // with the same node. That can cause us to get into this branch — if nextSibling or us is a continuation,
+                // we will be different renderers with the same node, and thus `nextObject` will be us.
+                //
+                // Fallback to walking the DOM in this case to avoid looping infinitely.
+                return AccessibilityNodeObject::nextSibling();
+            }
             return nextObject->nextSibling();
+        }
     }
 
     RefPtr nextObject = cache->getOrCreate(*nextSibling);
@@ -600,7 +607,7 @@ bool AccessibilityRenderObject::isOffScreen() const
 Element* AccessibilityRenderObject::anchorElement() const
 {
     if (!m_renderer)
-        return nullptr;
+        return AccessibilityNodeObject::anchorElement();
 
     WeakPtr cache = axObjectCache();
     if (!cache)
@@ -1426,8 +1433,8 @@ String AccessibilityRenderObject::selectedText() const
     if (isSecureField())
         return String(); // need to return something distinct from empty string
 
-    if (isNativeTextControl()) {
-        Ref textControl = uncheckedDowncast<RenderTextControl>(*m_renderer).textFormControlElement();
+    if (isNativeTextControl() && m_renderer) {
+        Ref textControl = downcast<RenderTextControl>(*m_renderer).textFormControlElement();
         return textControl->selectedText();
     }
 
@@ -1439,8 +1446,8 @@ CharacterRange AccessibilityRenderObject::selectedTextRange() const
     ASSERT(isTextControl());
 
     // Use the text control native range if it's a native object.
-    if (isNativeTextControl()) {
-        Ref textControl = uncheckedDowncast<RenderTextControl>(*m_renderer).textFormControlElement();
+    if (isNativeTextControl() && m_renderer) {
+        Ref textControl = downcast<RenderTextControl>(*m_renderer).textFormControlElement();
         return { textControl->selectionStart(), textControl->selectionEnd() - textControl->selectionStart() };
     }
 
@@ -1676,8 +1683,8 @@ int AccessibilityRenderObject::insertionPointLineNumber() const
     ASSERT(isTextControl());
 
     // Use the text control native range if it's a native object.
-    if (isNativeTextControl()) {
-        Ref textControl = uncheckedDowncast<RenderTextControl>(*m_renderer).textFormControlElement();
+    if (isNativeTextControl() && m_renderer) {
+        Ref textControl = downcast<RenderTextControl>(*m_renderer).textFormControlElement();
         int start = textControl->selectionStart();
         int end = textControl->selectionEnd();
 
@@ -1726,8 +1733,8 @@ void AccessibilityRenderObject::setSelectedTextRange(CharacterRange&& range)
     if (client)
         client->willChangeSelectionForAccessibility();
 
-    if (isNativeTextControl()) {
-        Ref textControl = uncheckedDowncast<RenderTextControl>(*m_renderer).textFormControlElement();
+    if (isNativeTextControl() && m_renderer) {
+        Ref textControl = downcast<RenderTextControl>(*m_renderer).textFormControlElement();
         FocusOptions focusOptions { .preventScroll = true };
         textControl->focus(focusOptions);
         textControl->setSelectionRange(range.location, range.location + range.length);
@@ -1871,7 +1878,7 @@ VisiblePosition AccessibilityRenderObject::visiblePositionForIndex(int index) co
 {
     if (m_renderer) {
         if (isNativeTextControl()) {
-            Ref textControl = uncheckedDowncast<RenderTextControl>(*m_renderer).textFormControlElement();
+            Ref textControl = downcast<RenderTextControl>(*m_renderer).textFormControlElement();
             return textControl->visiblePositionForIndex(std::clamp(index, 0, static_cast<int>(textControl->value()->length())));
         }
 
@@ -1885,7 +1892,7 @@ int AccessibilityRenderObject::indexForVisiblePosition(const VisiblePosition& po
 {
     if (m_renderer) {
         if (isNativeTextControl())
-            return uncheckedDowncast<RenderTextControl>(*m_renderer).textFormControlElement().indexForVisiblePosition(position);
+            return downcast<RenderTextControl>(*m_renderer).textFormControlElement().indexForVisiblePosition(position);
 
         if (!allowsTextRanges() && !is<RenderText>(*m_renderer))
             return 0;
@@ -2355,10 +2362,8 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
         return AccessibilityRole::Ignored;
 #endif // USE(ATSPI)
 
-    // This return value is what will be used if AccessibilityTableCell determines
-    // the cell should not be treated as a cell (e.g. because it is a layout table.
     if (is<RenderTableCell>(m_renderer.get()))
-        return AccessibilityRole::TextGroup;
+        return Accessibility::layoutTableCellRole;
     if (m_renderer->isRenderTableSection())
         return AccessibilityRole::Ignored;
 

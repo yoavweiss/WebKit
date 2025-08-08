@@ -55,7 +55,17 @@ class VisibleSelection;
 class AccessibilityRenderObject : public AccessibilityNodeObject {
 public:
     static Ref<AccessibilityRenderObject> create(AXID, RenderObject&, AXObjectCache&);
+    static Ref<AccessibilityRenderObject> create(AXID, Node&, AXObjectCache&);
     virtual ~AccessibilityRenderObject();
+
+    // Returns true if the renderer changed.
+    bool setRendererIfNeeded(RenderObject* renderer)
+    {
+        if (m_renderer == renderer)
+            return false;
+        m_renderer = renderer;
+        return true;
+    }
 
     FloatRect frameRect() const final;
     bool isNonLayerSVGObject() const final;

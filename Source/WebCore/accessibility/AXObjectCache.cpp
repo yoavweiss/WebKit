@@ -69,6 +69,7 @@
 #include "Editing.h"
 #include "Editor.h"
 #include "ElementAncestorIteratorInlines.h"
+#include "ElementChildIteratorInlines.h"
 #include "ElementRareData.h"
 #include "EventNames.h"
 #include "FocusController.h"
@@ -259,7 +260,7 @@ bool AXObjectCache::shouldServeInitialCachedFrame()
     return !clientIsInTestMode() || forceInitialFrameCaching();
 }
 
-static const Seconds updateTreeSnapshotTimerInterval { 100_ms };
+static constexpr Seconds updateTreeSnapshotTimerInterval { 100_ms };
 #endif
 
 AXObjectCache::AXObjectCache(Page& page, Document* document)
@@ -594,20 +595,7 @@ void AXObjectCache::setIsolatedTreeFocusedObject(AccessibilityObject* focus)
 }
 #endif
 
-AccessibilityObject* AXObjectCache::get(Node& node) const
-{
-    auto* renderer = node.renderer();
-    if (renderer && !renderer->isYouTubeReplacement()) {
-        auto renderID = m_renderObjectMapping.getOptional(*renderer);
-        if (renderID)
-            return m_objects.get(*renderID);
-    }
-
-    auto nodeID = m_nodeObjectMapping.get(node);
-    return nodeID ? m_objects.get(*nodeID) : nullptr;
-}
-
-ContainerNode* composedParentIgnoringDocumentFragments(Node& node)
+ContainerNode* composedParentIgnoringDocumentFragments(const Node& node)
 {
     RefPtr ancestor = node.parentInComposedTree();
     while (is<DocumentFragment>(ancestor.get()))
@@ -615,7 +603,7 @@ ContainerNode* composedParentIgnoringDocumentFragments(Node& node)
     return ancestor.get();
 }
 
-ContainerNode* composedParentIgnoringDocumentFragments(Node* node)
+ContainerNode* composedParentIgnoringDocumentFragments(const Node* node)
 {
     return node ? composedParentIgnoringDocumentFragments(*node) : nullptr;
 }
@@ -787,6 +775,11 @@ static bool isAccessibilityARIAGridCell(Element& element)
     return hasCellARIARole(element);
 }
 
+static bool shouldCreateAccessibilityLabel(Element& element)
+{
+    return is<HTMLLabelElement>(element) && hasRole(element, nullAtom());
+}
+
 Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObject& renderer)
 {
     RefPtr node = renderer.node();
@@ -806,7 +799,7 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
         if (isAccessibilityTreeItem(*element))
             return AccessibilityTreeItem::create(AXID::generate(), renderer, *this);
 
-        if (is<HTMLLabelElement>(*element) && hasRole(*element, nullAtom()))
+        if (shouldCreateAccessibilityLabel(*element))
             return AccessibilityLabel::create(AXID::generate(), renderer, *this);
 
 #if PLATFORM(IOS_FAMILY)
@@ -894,8 +887,14 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
             return AccessibilityTableCell::create(AXID::generate(), *element, *this, /* isARIAGridCell */ true);
         if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*element))
             return AccessibilityImageMapLink::create(AXID::generate(), *areaElement, *this);
+        if (is<HTMLProgressElement>(*element) || is<HTMLMeterElement>(*element))
+            return AccessibilityProgressIndicator::create(AXID::generate(), *element, *this);
+        if (is<SVGElement>(*element))
+            return AccessibilitySVGObject::create(AXID::generate(), *element, *this);
+        if (shouldCreateAccessibilityLabel(*element))
+            return AccessibilityLabel::create(AXID::generate(), *element, *this);
     }
-    return AccessibilityNodeObject::create(AXID::generate(), node, *this);
+    return AccessibilityRenderObject::create(AXID::generate(), node, *this);
 }
 
 void AXObjectCache::cacheAndInitializeWrapper(AccessibilityObject& newObject, DOMObjectVariant domObject)
@@ -904,14 +903,11 @@ void AXObjectCache::cacheAndInitializeWrapper(AccessibilityObject& newObject, DO
 
     WTF::switchOn(domObject,
         [&] (RenderObject* typedValue) {
-            m_renderObjectMapping.set(*typedValue, axID);
-            if (RefPtr node = typedValue->node()) {
-                // If this node existed in the m_nodeObjectMapping (ie. it is replacing an old object), we should
-                // update the object mapping so it is up to date the next time it is replaced.
-                auto objectMapIterator = m_nodeObjectMapping.find(*node);
-                if (objectMapIterator != m_nodeObjectMapping.end())
-                    objectMapIterator->value = axID;
-            }
+            CheckedPtr node = typedValue->node();
+            if (!node)
+                m_renderObjectMapping.set(*typedValue, axID);
+            else
+                m_nodeObjectMapping.set(*node, axID);
         },
         [&] (Node* typedValue) { m_nodeObjectMapping.set(*typedValue, axID); },
         [&] (Widget* typedValue) { m_widgetObjectMapping.set(*typedValue, axID); },
@@ -952,8 +948,13 @@ AccessibilityObject* AXObjectCache::getOrCreate(Node& node, IsPartOfRelation isP
         return object.get();
 
     CheckedPtr renderer = node.renderer();
-    if (renderer && !renderer->isYouTubeReplacement())
-        return getOrCreate(*renderer);
+    if (renderer) {
+        if (!renderer->isYouTubeReplacement()) [[likely]]
+            return getOrCreate(*renderer);
+    }
+
+    if (CheckedPtr document = dynamicDowncast<Document>(node)) [[unlikely]]
+        return getOrCreate(document->renderView());
 
     RefPtr composedParent = node.parentElementInComposedTree();
     if (!composedParent)
@@ -1213,7 +1214,18 @@ void AXObjectCache::remove(std::optional<AXID> axID)
 void AXObjectCache::remove(RenderObject& renderer)
 {
     AXTRACE(makeString("AXObjectCache::remove RenderObject* 0x"_s, hex(reinterpret_cast<uintptr_t>(this))));
-    remove(m_renderObjectMapping.takeOptional(renderer));
+    ASSERT(!renderer.node() || !m_renderObjectMapping.contains(renderer));
+
+    if (RefPtr node = renderer.node()) {
+        // We only delete objects with nodes when their DOM node is destroyed, not their renderer.
+        if (RefPtr existingObject = dynamicDowncast<AccessibilityRenderObject>(get(*node))) {
+            if (existingObject->setRendererIfNeeded(nullptr)) {
+                // We do need to update the object in response to losing its renderer, though.
+                m_deferredRendererChangedList.add(*existingObject);
+            }
+        }
+    } else
+        remove(m_renderObjectMapping.takeOptional(renderer));
 }
 
 void AXObjectCache::remove(Node& node)
@@ -1302,46 +1314,17 @@ void AXObjectCache::handleTextChanged(AccessibilityObject* object)
     object->recomputeIsIgnored();
 }
 
-void AXObjectCache::onRendererCreated(Element& element)
+void AXObjectCache::onRendererCreated(Node& node)
 {
-    if (!element.renderer()) {
+    CheckedPtr renderer = node.renderer();
+    if (!renderer) [[unlikely]] {
         ASSERT_NOT_REACHED();
         return;
     }
 
-    // If there is already an AXObject that was created for this element,
-    // remove it since there will be a new AXRenderObject created using the renderer.
-    if (auto axID = m_nodeObjectMapping.get(element)) {
-        // The removal needs to be async because this is called during a RenderTree
-        // update and remove(AXID) updates the isolated tree, that in turn calls
-        // parentObjectUnignored() on the object being removed, that may result
-        // in a call to textUnderElement, that can not be called during a layout.
-        m_deferredReplacedObjects.add(*axID);
-        if (!m_performCacheUpdateTimer.isActive())
-            m_performCacheUpdateTimer.startOneShot(0_s);
-    }
-}
-
-void AXObjectCache::onRendererCreated(Text& textNode)
-{
-    if (!textNode.renderer()) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
-
-    // If we created an AccessibilityNodeObject for this Text, remove it since there should
-    // be a new AccessibilityRenderObject created using the renderer.
-    if (auto axID = m_nodeObjectMapping.get(textNode)) {
-        if (RefPtr nodeObject = get(textNode)) {
-            if (auto* parent = nodeObject->parentObject()) {
-                remove(textNode);
-                childrenChanged(parent);
-                return;
-            }
-            // We don't need to add nodeObject to m_deferredReplacedObjects, as that currently
-            // only serves to repair relationships for replaced objects, which text nodes cannot
-            // possibly be part of (because they are not elements).
-        }
+    if (RefPtr existingObject = dynamicDowncast<AccessibilityRenderObject>(get(node))) {
+        if (existingObject->setRendererIfNeeded(renderer.get()))
+            m_deferredRendererChangedList.add(*existingObject);
     }
 }
 
@@ -2070,6 +2053,14 @@ void AXObjectCache::onSelectedChanged(Element& element)
 void AXObjectCache::onSlottedContentChange(const HTMLSlotElement& slot)
 {
     childrenChanged(get(const_cast<HTMLSlotElement&>(slot)));
+}
+
+void AXObjectCache::onDetailsSummarySlotChange(const HTMLDetailsElement& details)
+{
+    for (auto& summary : childrenOfType<HTMLSummaryElement>(const_cast<HTMLDetailsElement&>(details))) {
+        if (RefPtr object = get(summary))
+            m_deferredRecomputeActiveSummaryList.add(*object);
+    }
 }
 
 static bool isContentVisibilityHidden(const RenderStyle& style)
@@ -4744,19 +4735,20 @@ void AXObjectCache::performDeferredCacheUpdate(ForceLayout forceLayout)
             markedRelationsDirty = true;
         }
     };
-    AXLOGDeferredCollection("ReplacedObjectsList"_s, m_deferredReplacedObjects);
-    bool anyRelationsDirty = false;
-    for (AXID axID : m_deferredReplacedObjects) {
-        // If the replaced object was part of any relation, we need to make sure the relations are updated.
-        // Relations for this object may have been removed already (via the renderer being destroyed), so
-        // we should check if this axID was recently removed so we can dirty relations.
-        if (m_relations.contains(axID) || m_recentlyRemovedRelations.contains(axID))
-            anyRelationsDirty = true;
-        remove(axID);
+
+    AXLOGDeferredCollection("RendererChangedList"_s, m_deferredRendererChangedList);
+    for (auto& object : m_deferredRendererChangedList) {
+        object.updateRole();
+        object.recomputeIsIgnored();
     }
-    m_deferredReplacedObjects.clear();
-    if (anyRelationsDirty)
-        markRelationsDirty();
+    m_deferredRendererChangedList.clear();
+
+    AXLOGDeferredCollection("RecomputeActiveSummaryList"_s, m_deferredRecomputeActiveSummaryList);
+    for (auto& object : m_deferredRecomputeActiveSummaryList) {
+        object.updateRole();
+        object.recomputeIsIgnored();
+    }
+    m_deferredRecomputeActiveSummaryList.clear();
 
     AXLOGDeferredCollection("RecomputeTableIsExposedList"_s, m_deferredRecomputeTableIsExposedList);
     m_deferredRecomputeTableIsExposedList.forEach([this] (auto& tableElement) {
@@ -5233,14 +5225,17 @@ void AXObjectCache::onPaint(const RenderObject& renderer, IntRect&& paintRect) c
 {
     if (!m_pageID)
         return;
-    m_geometryManager->cacheRect(m_renderObjectMapping.getOptional(const_cast<RenderObject&>(renderer)), WTFMove(paintRect));
+
+    if (std::optional axID = getAXID(const_cast<RenderObject&>(renderer)))
+        m_geometryManager->cacheRect(*axID, WTFMove(paintRect));
 }
 
 void AXObjectCache::onPaint(const Widget& widget, IntRect&& paintRect) const
 {
     if (!m_pageID)
         return;
-    m_geometryManager->cacheRect(m_widgetObjectMapping.getOptional(const_cast<Widget&>(widget)), WTFMove(paintRect));
+    if (std::optional axID = m_widgetObjectMapping.getOptional(const_cast<Widget&>(widget)))
+        m_geometryManager->cacheRect(*axID, WTFMove(paintRect));
 }
 
 void AXObjectCache::onPaint(const RenderText& renderText, size_t lineIndex)

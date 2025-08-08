@@ -154,7 +154,6 @@ void RenderObjectDeleter::operator() (RenderObject* renderer) const
 RenderObject::RenderObject(Type type, Node& node, OptionSet<TypeFlag> typeFlags, TypeSpecificFlags typeSpecificFlags)
     : CachedImageClient()
 #if ASSERT_ENABLED
-    , m_hasAXObject(false)
     , m_setNeedsLayoutForbidden(false)
 #endif
     , m_node(node)
@@ -173,7 +172,6 @@ RenderObject::RenderObject(Type type, Node& node, OptionSet<TypeFlag> typeFlags,
 RenderObject::~RenderObject()
 {
     clearLayoutBox();
-    ASSERT(!m_hasAXObject);
 #ifndef NDEBUG
     renderObjectCounter.decrement();
 #endif

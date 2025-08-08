@@ -406,11 +406,6 @@ public:
     WEBCORE_EXPORT bool useDarkAppearance() const;
     WEBCORE_EXPORT OptionSet<StyleColorOptions> styleColorOptions() const;
 
-#if ASSERT_ENABLED
-    void setHasAXObject(bool flag) { m_hasAXObject = flag; }
-    bool hasAXObject() const { return m_hasAXObject; }
-#endif
-
     // Creates a scope where this object will assert on calls to setNeedsLayout().
     class SetLayoutNeededForbiddenScope;
     
@@ -1185,10 +1180,6 @@ private:
 
 #if ASSERT_ENABLED
     void setNeedsLayoutIsForbidden(bool flag) const { m_setNeedsLayoutForbidden = flag; }
-#endif
-
-#if ASSERT_ENABLED
-    bool m_hasAXObject : 1;
     mutable bool m_setNeedsLayoutForbidden : 1;
 #endif
 

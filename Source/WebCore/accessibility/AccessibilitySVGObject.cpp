@@ -56,11 +56,22 @@ AccessibilitySVGObject::AccessibilitySVGObject(AXID axID, RenderObject& renderer
     m_isSVGRoot = isSVGRoot;
 }
 
+AccessibilitySVGObject::AccessibilitySVGObject(AXID axID, Element& element, AXObjectCache& cache, bool isSVGRoot)
+    : AccessibilityRenderObject(axID, element, cache)
+{
+    m_isSVGRoot = isSVGRoot;
+}
+
 AccessibilitySVGObject::~AccessibilitySVGObject() = default;
 
 Ref<AccessibilitySVGObject> AccessibilitySVGObject::create(AXID axID, RenderObject& renderer, AXObjectCache& cache, bool isSVGRoot)
 {
     return adoptRef(*new AccessibilitySVGObject(axID, renderer, cache, isSVGRoot));
+}
+
+Ref<AccessibilitySVGObject> AccessibilitySVGObject::create(AXID axID, Element& element, AXObjectCache& cache, bool isSVGRoot)
+{
+    return adoptRef(*new AccessibilitySVGObject(axID, element, cache, isSVGRoot));
 }
 
 AccessibilityObject* AccessibilitySVGObject::targetForUseElement() const

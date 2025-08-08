@@ -50,7 +50,7 @@ public:
     RefPtr<AXRemoteFrame> remoteFrame() const { return m_remoteFrame; }
 
     String ownerDebugDescription() const;
-    String extraDebugInfo() const final { return ownerDebugDescription(); }
+    String extraDebugInfo() const final;
 
 private:
     explicit AccessibilityScrollView(AXID, ScrollView&, AXObjectCache&);

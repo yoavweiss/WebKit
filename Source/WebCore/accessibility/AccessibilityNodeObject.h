@@ -41,7 +41,6 @@ class Node;
 
 class AccessibilityNodeObject : public AccessibilityObject {
 public:
-    static Ref<AccessibilityNodeObject> create(AXID, Node&, AXObjectCache&);
     virtual ~AccessibilityNodeObject();
 
     void init() override;
@@ -232,6 +231,10 @@ namespace Accessibility {
 
 RefPtr<HTMLElement> controlForLabelElement(const HTMLLabelElement&);
 Vector<Ref<HTMLElement>> labelsForElement(Element*);
+
+// This value is what will be used if AccessibilityTableCell determines the cell
+// should not be treated as a cell (e.g. because it is in a layout table).
+static constexpr AccessibilityRole layoutTableCellRole = AccessibilityRole::TextGroup;
 
 } // namespace Accessibility
 

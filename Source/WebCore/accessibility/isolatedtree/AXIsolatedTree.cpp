@@ -1606,9 +1606,9 @@ void AXIsolatedTree::processQueuedNodeUpdates()
         updateRelations(cache->relations());
 
     if (m_mostRecentlyPaintedTextIsDirty) {
+        m_mostRecentlyPaintedTextIsDirty = false;
         Locker lock { m_changeLogLock };
         m_pendingMostRecentlyPaintedText = cache->mostRecentlyPaintedText();
-        m_mostRecentlyPaintedTextIsDirty = false;
     }
 
     queueRemovalsAndUnresolvedChanges();

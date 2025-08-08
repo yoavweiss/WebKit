@@ -350,13 +350,13 @@ public:
     AccessibilityObject* create(AccessibilityRole);
 
     // Will only return the AccessibilityObject if it already exists.
-    inline AccessibilityObject* get(RenderObject* renderer)
+    inline AccessibilityObject* get(RenderObject* renderer) const
     {
         return renderer ? get(*renderer) : nullptr;
     }
     inline AccessibilityObject* get(RenderObject& renderer) const
     {
-        auto axID = m_renderObjectMapping.getOptional(renderer);
+        std::optional axID = getAXID(renderer);
         return axID ? m_objects.get(*axID) : nullptr;
     }
 
@@ -374,7 +374,19 @@ public:
     {
         return node ? get(*node) : nullptr;
     }
-    AccessibilityObject* get(Node&) const;
+    inline AccessibilityObject* get(Node& node) const
+    {
+        if (CheckedPtr document = dynamicDowncast<Document>(node)) [[unlikely]]
+            return get(document->renderView());
+        auto nodeID = m_nodeObjectMapping.get(node);
+        return nodeID ? m_objects.get(*nodeID) : nullptr;
+    }
+    inline std::optional<AXID> getAXID(RenderObject& renderer) const
+    {
+        if (RefPtr node = renderer.node())
+            return m_nodeObjectMapping.getOptional(*node);
+        return m_renderObjectMapping.getOptional(const_cast<RenderObject&>(renderer));
+    }
 
     void remove(RenderObject&);
     void remove(Node&);
@@ -405,6 +417,7 @@ public:
     }
     void childrenChanged(RenderObject&, RenderObject* newChild = nullptr);
     void childrenChanged(AccessibilityObject*);
+    void onDetailsSummarySlotChange(const HTMLDetailsElement&);
     void onDragElementChanged(Element* oldElement, Element* newElement);
     void onEventListenerAdded(Node&, const AtomString& eventType);
     void onEventListenerRemoved(Node&, const AtomString& eventType);
@@ -442,15 +455,7 @@ public:
     void rowIndexChanged(AccessibilityObject&);
 #endif
 
-    // Called when a RenderObject is created for an Element. Depending on the
-    // presence of a RenderObject, we may have instatiated an AXRenderObject or
-    // an AXNodeObject. This occurs when an Element with no renderer is
-    // re-parented into a subtree that does have a renderer.
-    void onRendererCreated(Element&);
-    // Similar to the above, but for when a RenderText is created for a Text node.
-    // We may have already created an AccessibilityNodeObject for the Text, so this
-    // method allows us to make any appropriate changes now that the Text has a renderer.
-    void onRendererCreated(Text&);
+    void onRendererCreated(Node&);
 #if PLATFORM(MAC)
     void onDocumentRenderTreeCreation(const Document&);
 #endif
@@ -873,6 +878,7 @@ private:
     OptionSet<ActivityState> m_pageActivityState;
     HashMap<AXID, Ref<AccessibilityObject>> m_objects;
 
+    // Should be used only for renderer-only (i.e. no DOM node) accessibility objects.
     WeakHashMap<RenderObject, AXID, SingleThreadWeakPtrImpl> m_renderObjectMapping;
     WeakHashMap<Widget, AXID, SingleThreadWeakPtrImpl> m_widgetObjectMapping;
     // FIXME: The type for m_nodeObjectMapping really should be:
@@ -936,9 +942,8 @@ private:
     Timer m_performCacheUpdateTimer;
 
     AXTextStateChangeIntent m_textSelectionIntent;
-    // An object can be "replaced" when we create an AX object from the backing element before it has
-    // attached a renderer, but then want to replace it with a new AX object after the renderer has been attached.
-    HashSet<AXID> m_deferredReplacedObjects;
+    WeakHashSet<AccessibilityObject> m_deferredRendererChangedList;
+    WeakHashSet<AccessibilityObject> m_deferredRecomputeActiveSummaryList;
     WeakHashSet<Element, WeakPtrImplWithEventTargetData> m_deferredRecomputeIsIgnoredList;
     WeakHashSet<HTMLTableElement, WeakPtrImplWithEventTargetData> m_deferredRecomputeTableIsExposedList;
     WeakHashSet<AccessibilityTable> m_deferredRecomputeTableCellSlotsList;
@@ -1059,8 +1064,8 @@ bool hasPresentationRole(Element&);
 bool hasTableRole(Element&);
 bool isRowGroup(Element&);
 bool isRowGroup(Node*);
-ContainerNode* composedParentIgnoringDocumentFragments(Node&);
-ContainerNode* composedParentIgnoringDocumentFragments(Node*);
+ContainerNode* composedParentIgnoringDocumentFragments(const Node&);
+ContainerNode* composedParentIgnoringDocumentFragments(const Node*);
 
 ElementName elementName(Node*);
 ElementName elementName(Node&);

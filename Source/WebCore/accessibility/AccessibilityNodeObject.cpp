@@ -68,6 +68,7 @@
 #include "HTMLSelectElement.h"
 #include "HTMLSlotElement.h"
 #include "HTMLSummaryElement.h"
+#include "HTMLTableCellElement.h"
 #include "HTMLTextAreaElement.h"
 #include "HTMLTextFormControlElement.h"
 #include "HTMLVideoElement.h"
@@ -124,11 +125,6 @@ void AccessibilityNodeObject::init()
     m_initialized = true;
 #endif
     AccessibilityObject::init();
-}
-
-Ref<AccessibilityNodeObject> AccessibilityNodeObject::create(AXID axID, Node& node, AXObjectCache& cache)
-{
-    return adoptRef(*new AccessibilityNodeObject(axID, &node, cache));
 }
 
 void AccessibilityNodeObject::detachRemoteParts(AccessibilityDetachmentType detachmentType)
@@ -344,6 +340,9 @@ AccessibilityRole AccessibilityNodeObject::determineAccessibilityRoleFromNode(Tr
         return AccessibilityRole::Legend;
     if (elementName == ElementName::HTML_canvas)
         return AccessibilityRole::Canvas;
+
+    if (is<HTMLTableCellElement>(*element))
+        return Accessibility::layoutTableCellRole;
 
     if (RefPtr input = dynamicDowncast<HTMLInputElement>(*element))
         return roleFromInputElement(*input);
@@ -709,7 +708,6 @@ bool AccessibilityNodeObject::computeIsIgnored() const
     if (!node)
         return true;
 
-    // Handle non-rendered text that is exposed through aria-hidden=false.
     if (node->isTextNode() && !renderer()) {
         RefPtr parent = node->parentNode();
         // Fallback content in iframe nodes should be ignored.

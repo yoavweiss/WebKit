@@ -2742,6 +2742,8 @@ private:
     mutable std::unique_ptr<CSSParserContext> m_cachedCSSParserContext;
     mutable std::unique_ptr<PermissionsPolicy> m_permissionsPolicy;
 
+    // FIXME: This will need to be re-evaluated for site isolation.
+    mutable WeakPtr<AXObjectCache> m_topAXObjectCache;
     RefPtr<FrameMemoryMonitor> m_frameMemoryMonitor;
 
 #if ENABLE(CONTENT_EXTENSIONS)

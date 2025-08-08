@@ -176,6 +176,8 @@ public:
     AccessibilityChildrenVector disclosedRows() override; // ARIATreeItem implementation. AccessibilityTableRow overrides this method for grid rows.
     AccessibilityObject* disclosedByRow() const override { return nullptr; }
 
+    void postMenuClosedNotificationIfNecessary() const;
+
     bool isFieldset() const override { return false; }
     virtual bool isImageMapLink() const { return false; }
     virtual bool isMenuList() const { return false; }
@@ -883,6 +885,11 @@ protected:
 
     void detachRemoteParts(AccessibilityDetachmentType) override;
     void detachPlatformWrapper(AccessibilityDetachmentType) final;
+#if PLATFORM(IOS_FAMILY)
+    void markPlatformWrapperIgnoredStateDirty() const;
+#else
+    void markPlatformWrapperIgnoredStateDirty() const { };
+#endif
 
     void setIsIgnoredFromParentData(AccessibilityIsIgnoredFromParentData& data) { m_isIgnoredFromParentData = data; }
     bool ignoredFromPresentationalRole() const;

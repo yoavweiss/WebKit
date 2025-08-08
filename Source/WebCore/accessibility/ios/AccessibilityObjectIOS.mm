@@ -112,6 +112,11 @@ unsigned AccessibilityObject::accessibilitySecureFieldLength()
     return inputElement ? inputElement->value()->length() : 0;
 }
 
+void AccessibilityObject::markPlatformWrapperIgnoredStateDirty() const
+{
+    [wrapper() _clearCachedIsAccessibilityElementState];
+}
+
 bool AccessibilityObject::accessibilityIgnoreAttachment() const
 {
     return [[wrapper() attachmentView] accessibilityIsIgnored];

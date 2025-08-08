@@ -73,6 +73,12 @@ String AccessibilityScrollView::ownerDebugDescription() const
     return makeString("owned by: "_s, renderer ? renderer->debugDescription() : m_frameOwnerElement->debugDescription());
 }
 
+String AccessibilityScrollView::extraDebugInfo() const
+{
+    Vector<String> debugStrings = { ownerDebugDescription(), AccessibilityObject::extraDebugInfo() };
+    return makeStringByJoining(debugStrings, ","_s);
+}
+
 void AccessibilityScrollView::detachRemoteParts(AccessibilityDetachmentType detachmentType)
 {
     AccessibilityObject::detachRemoteParts(detachmentType);

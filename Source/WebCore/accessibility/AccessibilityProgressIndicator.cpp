@@ -41,9 +41,20 @@ AccessibilityProgressIndicator::AccessibilityProgressIndicator(AXID axID, Render
     ASSERT(is<RenderProgress>(renderer) || is<RenderMeter>(renderer) || is<HTMLProgressElement>(renderer.node()) || is<HTMLMeterElement>(renderer.node()));
 }
 
+AccessibilityProgressIndicator::AccessibilityProgressIndicator(AXID axID, Element& element, AXObjectCache& cache)
+    : AccessibilityRenderObject(axID, element, cache)
+{
+    ASSERT(is<HTMLProgressElement>(element) || is<HTMLMeterElement>(element));
+}
+
 Ref<AccessibilityProgressIndicator> AccessibilityProgressIndicator::create(AXID axID, RenderObject& renderer, AXObjectCache& cache)
 {
     return adoptRef(*new AccessibilityProgressIndicator(axID, renderer, cache));
+}
+
+Ref<AccessibilityProgressIndicator> AccessibilityProgressIndicator::create(AXID axID, Element& element, AXObjectCache& cache)
+{
+    return adoptRef(*new AccessibilityProgressIndicator(axID, element, cache));
 }
 
 bool AccessibilityProgressIndicator::computeIsIgnored() const

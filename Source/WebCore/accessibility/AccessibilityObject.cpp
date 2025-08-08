@@ -179,13 +179,21 @@ String AccessibilityObject::debugDescriptionInternal(bool verbose, std::optional
     return result.toString();
 }
 
+void AccessibilityObject::postMenuClosedNotificationIfNecessary() const
+{
+    if (!isMenu())
+        return;
+    if (CheckedPtr cache = axObjectCache()) {
+        // Assistive technologies need to be informed when menus close.
+        // No element is passed in the notification because it's a destruction event.
+        cache->postNotification(nullptr, cache->document(), AXNotification::MenuClosed);
+    }
+}
+
 void AccessibilityObject::detachRemoteParts(AccessibilityDetachmentType detachmentType)
 {
-    // Menu close events need to notify the platform. No element is used in the notification because it's a destruction event.
-    if (detachmentType == AccessibilityDetachmentType::ElementDestroyed && role() == AccessibilityRole::Menu) {
-        if (auto* cache = axObjectCache())
-            cache->postNotification(nullptr, cache->document(), AXNotification::MenuClosed);
-    }
+    if (detachmentType == AccessibilityDetachmentType::ElementDestroyed)
+        postMenuClosedNotificationIfNecessary();
 
     // Clear any children and call detachFromParent on them so that
     // no children are left with dangling pointers to their parent.
@@ -4111,8 +4119,11 @@ bool AccessibilityObject::isIgnoredWithoutCache(AXObjectCache* cache) const
         bool becameIgnored = !becameUnignored && previousLastKnownIsIgnoredValue == AccessibilityObjectInclusion::IncludeObject && ignored;
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-        if (becameIgnored)
+        if (becameIgnored) {
+            // If a menu became ignored, e.g. because it became display:none, ATs need to be informed.
+            postMenuClosedNotificationIfNecessary();
             cache->objectBecameIgnored(*this);
+        }
         else if (becameUnignored)
             cache->objectBecameUnignored(*this);
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
@@ -4121,6 +4132,7 @@ bool AccessibilityObject::isIgnoredWithoutCache(AXObjectCache* cache) const
             // FIXME: We should not have to submit a children-changed when ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE), but that causes a few failing
             // tests. We should fix that or remove this comment before enabling ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE) by default for any port.
             cache->childrenChanged(parentObject());
+            markPlatformWrapperIgnoredStateDirty();
         }
     }
     return ignored;
