@@ -124,7 +124,6 @@ editing/BreakBlockquoteCommand.cpp
 editing/ChangeListTypeCommand.cpp
 editing/DictationCommand.cpp
 editing/Editing.cpp
-editing/EditingStyle.cpp
 editing/Editor.cpp
 editing/EditorCommand.cpp
 editing/FormatBlockCommand.cpp

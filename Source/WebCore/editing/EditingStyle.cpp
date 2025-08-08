@@ -557,31 +557,32 @@ static int textAlignResolvingStartAndEnd(T& style)
     return textAlignResolvingStartAndEnd(identifierForStyleProperty(style, CSSPropertyTextAlign), identifierForStyleProperty(style, CSSPropertyDirection));
 }
 
-void EditingStyle::init(Node* node, PropertiesToInclude propertiesToInclude)
+void EditingStyle::init(Node* initialNode, PropertiesToInclude propertiesToInclude)
 {
-    if (auto* tabSpan = parentTabSpanNode(node))
+    RefPtr node = initialNode;
+    if (RefPtr tabSpan = parentTabSpanNode(node.get()))
         node = tabSpan->parentNode();
-    else if (tabSpanNode(node))
+    else if (tabSpanNode(node.get()))
         node = node->parentNode();
 
-    Style::Extractor computedStyleAtPosition(node);
+    Style::Extractor computedStyleAtPosition(node.get());
     // FIXME: It's strange to not set background-color and text-decoration when propertiesToInclude is EditingPropertiesInEffect.
     // However editing/selection/contains-boundaries.html fails without this ternary.
     m_mutableStyle = copyPropertiesFromComputedStyle(computedStyleAtPosition,
         propertiesToInclude == PropertiesToInclude::EditingPropertiesInEffect ? PropertiesToInclude::OnlyEditingInheritableProperties : propertiesToInclude);
 
     if (propertiesToInclude == PropertiesToInclude::EditingPropertiesInEffect) {
-        if (RefPtr<CSSValue> value = backgroundColorInEffect(node))
+        if (RefPtr value = backgroundColorInEffect(node.get()))
             m_mutableStyle->setProperty(CSSPropertyBackgroundColor, value->cssText(CSS::defaultSerializationContext()));
-        if (RefPtr<CSSValue> value = computedStyleAtPosition.propertyValue(CSSPropertyWebkitTextDecorationsInEffect)) {
+        if (RefPtr value = computedStyleAtPosition.propertyValue(CSSPropertyWebkitTextDecorationsInEffect)) {
             m_mutableStyle->setProperty(CSSPropertyTextDecorationLine, value->cssText(CSS::defaultSerializationContext()));
             m_mutableStyle->removeProperty(CSSPropertyWebkitTextDecorationsInEffect);
         }
     }
 
     if (node && node->computedStyle()) {
-        auto* renderStyle = node->computedStyle();
-        removeTextFillAndStrokeColorsIfNeeded(renderStyle);
+        CheckedPtr renderStyle = node->computedStyle();
+        removeTextFillAndStrokeColorsIfNeeded(renderStyle.get());
         if (renderStyle->fontDescription().keywordSize()) {
             if (auto cssValue = computedStyleAtPosition.getFontSizeCSSValuePreferringKeyword())
                 m_mutableStyle->setProperty(CSSPropertyFontSize, cssValue->cssText(CSS::defaultSerializationContext()));
@@ -1719,10 +1720,10 @@ WritingDirection EditingStyle::textDirectionForSelection(const VisibleSelection&
     Position end;
     if (selection.isRange()) {
         end = selection.end().upstream();
-        for (auto& intersectingNode : intersectingNodes(*makeSimpleRange(position, end))) {
-            if (!intersectingNode.isStyledElement())
+        for (Ref intersectingNode : intersectingNodes(*makeSimpleRange(position, end))) {
+            if (!intersectingNode->isStyledElement())
                 continue;
-            auto value = valueID(Style::Extractor(&intersectingNode).propertyValue(CSSPropertyUnicodeBidi).get());
+            auto value = valueID(Style::Extractor(intersectingNode.ptr()).propertyValue(CSSPropertyUnicodeBidi).get());
             if (value == CSSValueEmbed || value == CSSValueBidiOverride)
                 return WritingDirection::Natural;
         }
