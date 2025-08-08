@@ -1129,7 +1129,22 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
 
         if (isFirstTransactionAfterObscuredInsetChange) {
             _perProcessState.firstTransactionIDAfterObscuredInsetChange = std::nullopt;
-            if (_overriddenLayoutParameters && !self._shouldDeferGeometryUpdates) {
+            bool needsOverrideLayoutSizeUpdate = [&] {
+                if (!_overriddenLayoutParameters)
+                    return false;
+
+                if (!self._shouldDeferGeometryUpdates)
+                    return true;
+
+                // rdar://157669095: SFSafariViewController may misplace content if geometry updates are deferred.
+                // Dispatch updates as long as the scene isn't being interactively resized.
+                if (WTF::IOSApplication::isSafariViewService() && !self.window.windowScene.effectiveGeometry.isInteractivelyResizing)
+                    return true;
+
+                return false;
+            }();
+
+            if (needsOverrideLayoutSizeUpdate) {
                 [self _dispatchSetViewLayoutSize:WebCore::FloatSize(_overriddenLayoutParameters->viewLayoutSize)];
                 _page->setMinimumUnobscuredSize(WebCore::FloatSize(_overriddenLayoutParameters->minimumUnobscuredSize));
                 _page->setDefaultUnobscuredSize(WebCore::FloatSize(_overriddenLayoutParameters->maximumUnobscuredSize));
