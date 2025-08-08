@@ -37,6 +37,7 @@
 #include "StyleHyphenateLimitEdge.h"
 #include "StyleHyphenateLimitLines.h"
 #include "StyleListStyleType.h"
+#include "StyleOrphans.h"
 #include "StyleQuotes.h"
 #include "StyleScrollbarColor.h"
 #include "StyleStrokeMiterlimit.h"
@@ -50,6 +51,7 @@
 #include "StyleWebKitOverflowScrolling.h"
 #include "StyleWebKitTextStrokeWidth.h"
 #include "StyleWebKitTouchCallout.h"
+#include "StyleWidows.h"
 #include "TabSize.h"
 #include "TouchAction.h"
 #include <wtf/DataRef.h>
@@ -139,10 +141,8 @@ public:
 
     DataRef<Style::CustomPropertyData> customProperties;
 
-    unsigned short widows;
-    unsigned short orphans;
-    PREFERRED_TYPE(bool) unsigned hasAutoWidows : 1;
-    PREFERRED_TYPE(bool) unsigned hasAutoOrphans : 1;
+    Style::Widows widows;
+    Style::Orphans orphans;
 
     PREFERRED_TYPE(TextSecurity) unsigned textSecurity : 2;
     PREFERRED_TYPE(UserModify) unsigned userModify : 2;

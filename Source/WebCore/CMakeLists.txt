@@ -204,6 +204,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/style/values/backgrounds"
     "${WEBCORE_DIR}/style/values/borders"
     "${WEBCORE_DIR}/style/values/box"
+    "${WEBCORE_DIR}/style/values/break"
     "${WEBCORE_DIR}/style/values/color-adjust"
     "${WEBCORE_DIR}/style/values/color"
     "${WEBCORE_DIR}/style/values/contain"

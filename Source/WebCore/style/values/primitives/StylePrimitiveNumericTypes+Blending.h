@@ -51,7 +51,7 @@ template<Numeric StyleType> struct Blending<StyleType> {
         // that concept, and the `WebCore::Length` code path did clamping in the same fashion.
         // https://drafts.csswg.org/css-values/#combining-range
 
-        return StyleType { CSS::clampToRange<StyleType::range>(WebCore::blend(from.value, to.value, context)) };
+        return StyleType { CSS::clampToRange<StyleType::range, typename StyleType::ResolvedValueType>(WebCore::blend(from.value, to.value, context)) };
     }
 };
 

@@ -256,13 +256,12 @@ template<typename TargetType, typename SourceType>
           &&   std::unsigned_integral<TargetType>
           &&   std::signed_integral<SourceType>
           &&   sizeof(SourceType) > sizeof(TargetType))
-constexpr TargetType clampTo(SourceType value)
+constexpr TargetType clampTo(SourceType value, TargetType min = defaultMinimumForClamp<TargetType>(), TargetType max = defaultMaximumForClamp<TargetType>())
 {
-    if (value < 0)
-        return 0;
-    TargetType max = std::numeric_limits<TargetType>::max();
     if (value >= static_cast<SourceType>(max))
         return max;
+    if (value <= static_cast<SourceType>(min))
+        return min;
     return static_cast<TargetType>(value);
 }
 

@@ -6571,13 +6571,15 @@
             "inherited": true,
             "initial": "2",
             "codegen-properties": {
-                "animation-wrapper": "PositiveWrapper<unsigned short>",
-                "auto-functions": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<Orphans>",
                 "parser-grammar": "<integer [1,inf]>"
             },
             "specification": {
-                "category": "css-22",
-                "url": "https://www.w3.org/TR/CSS22/page.html#propdef-orphans"
+                "category": "css-break",
+                "url": "https://drafts.csswg.org/css-break/#propdef-orphans",
+                "obsolete-category": "css-22",
+                "obsolete-url": "https://www.w3.org/TR/CSS22/page.html#propdef-orphans"
             }
         },
         "outline": {
@@ -8308,13 +8310,15 @@
             "inherited": true,
             "initial": "2",
             "codegen-properties": {
-                "animation-wrapper": "PositiveWrapper<unsigned short>",
-                "auto-functions": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<Widows>",
                 "parser-grammar": "<integer [1,inf]>"
             },
             "specification": {
-                "category": "css-22",
-                "url": "https://www.w3.org/TR/CSS22/page.html#propdef-orphans"
+                "category": "css-break",
+                "url": "https://drafts.csswg.org/css-break/#propdef-widows",
+                "obsolete-category": "css-22",
+                "obsolete-url": "https://www.w3.org/TR/CSS22/page.html#propdef-widows"
             }
         },
         "width": {

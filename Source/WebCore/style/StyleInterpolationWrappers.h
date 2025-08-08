@@ -297,22 +297,6 @@ private:
     ValueRange m_valueRange;
 };
 
-template<typename T>
-class PositiveWrapper final : public Wrapper<T> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(PositiveWrapper, Animation);
-public:
-    PositiveWrapper(CSSPropertyID property, T (RenderStyle::*getter)() const, void (RenderStyle::*setter)(T))
-        : Wrapper<T>(property, getter, setter)
-    {
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const final
-    {
-        auto blendedValue = blendFunc(this->value(from), this->value(to), context);
-        (destination.*this->m_setter)(blendedValue > 1 ? blendedValue : 1);
-    }
-};
-
 class LengthWrapper : public WrapperWithGetter<const WebCore::Length&> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(LengthWrapper, Animation);
 public:

@@ -1969,7 +1969,7 @@ static inline LayoutUnit calculateMinimumPageHeight(const RenderStyle& renderSty
 {
     // We may require a certain minimum number of lines per page in order to satisfy
     // orphans and widows, and that may affect the minimum page height.
-    unsigned lineCount = std::max<unsigned>(renderStyle.hasAutoOrphans() ? 1 : renderStyle.orphans(), renderStyle.hasAutoWidows() ? 1 : renderStyle.widows());
+    unsigned lineCount = std::max<unsigned>(renderStyle.orphans().tryValue().value_or(1).value, renderStyle.widows().tryValue().value_or(1).value);
     if (lineCount > 1) {
         auto line = lastLine;
         for (unsigned i = 1; i < lineCount && line->previous(); i++)
@@ -2104,7 +2104,8 @@ RenderBlockFlow::LinePaginationAdjustment RenderBlockFlow::computeLineAdjustment
         setPageBreak(logicalOffset, lineHeight - remainingLogicalHeight);
 
         bool avoidFirstLinePageBreak = lineBox->isFirst() && totalLogicalHeight < pageLogicalHeightAtNewOffset && !floatMinimumBottom;
-        bool affectedByOrphans = !style().hasAutoOrphans() && style().orphans() >= lineNumber;
+        auto orphansValue = style().orphans().tryValue();
+        bool affectedByOrphans = orphansValue && orphansValue->value >= lineNumber;
 
         if ((avoidFirstLinePageBreak || affectedByOrphans) && !isOutOfFlowPositioned() && !isRenderTableCell()) {
             if (needsAppleMailPaginationQuirk(*this))

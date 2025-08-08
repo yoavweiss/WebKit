@@ -171,10 +171,8 @@ inline void RenderStyle::setHasAutoAccentColor() { SET_PAIR(m_rareInheritedData,
 inline void RenderStyle::setHasAutoCaretColor() { SET_PAIR(m_rareInheritedData, hasAutoCaretColor, true, caretColor, Style::Color::currentColor()); }
 inline void RenderStyle::setHasAutoColumnCount() { SET_DOUBLY_NESTED_PAIR(m_nonInheritedData, miscData, multiCol, autoCount, true, count, initialColumnCount()); }
 inline void RenderStyle::setHasAutoColumnWidth() { SET_DOUBLY_NESTED_PAIR(m_nonInheritedData, miscData, multiCol, autoWidth, true, width, 0); }
-inline void RenderStyle::setHasAutoOrphans() { SET_PAIR(m_rareInheritedData, hasAutoOrphans, true, orphans, initialOrphans()); }
 inline void RenderStyle::setHasAutoSpecifiedZIndex() { SET_NESTED_PAIR(m_nonInheritedData, boxData, m_hasAutoSpecifiedZIndex, true, m_specifiedZIndex, 0); }
 inline void RenderStyle::setHasAutoUsedZIndex() { SET_NESTED_PAIR(m_nonInheritedData, boxData, m_hasAutoUsedZIndex, true, m_usedZIndex, 0); }
-inline void RenderStyle::setHasAutoWidows() { SET_PAIR(m_rareInheritedData, hasAutoWidows, true, widows, initialWidows()); }
 inline void RenderStyle::setHasDisplayAffectedByAnimations() { SET_NESTED(m_nonInheritedData, miscData, hasDisplayAffectedByAnimations, true); }
 inline void RenderStyle::setHasExplicitlySetBorderBottomLeftRadius(bool value) { SET_NESTED(m_nonInheritedData, surroundData, hasExplicitlySetBorderBottomLeftRadius, value); }
 inline void RenderStyle::setHasExplicitlySetBorderBottomRightRadius(bool value) { SET_NESTED(m_nonInheritedData, surroundData, hasExplicitlySetBorderBottomRightRadius, value); }
@@ -243,6 +241,7 @@ inline void RenderStyle::setOffsetPosition(Style::OffsetPosition&& position) { S
 inline void RenderStyle::setOffsetRotate(Style::OffsetRotate&& rotate) { SET_NESTED(m_nonInheritedData, rareData, offsetRotate, WTFMove(rotate)); }
 inline void RenderStyle::setOpacity(Style::Opacity opacity) { SET_NESTED(m_nonInheritedData, miscData, opacity, opacity); }
 inline void RenderStyle::setOrder(int o) { SET_NESTED(m_nonInheritedData, miscData, order, o); }
+inline void RenderStyle::setOrphans(Style::Orphans orphans) { SET(m_rareInheritedData, orphans, orphans); }
 inline void RenderStyle::setOutlineColor(Style::Color&& color) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_color, WTFMove(color)); }
 inline void RenderStyle::setOutlineOffset(Style::Length<> offset) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_offset, offset); }
 inline void RenderStyle::setOutlineStyle(OutlineStyle style) { SET_NESTED(m_nonInheritedData, backgroundData, outline.m_style, static_cast<unsigned>(style)); }
@@ -287,6 +286,7 @@ inline void RenderStyle::setTimelineScope(const NameScope& scope) { SET_NESTED(m
 inline void RenderStyle::setScrollbarColor(Style::ScrollbarColor&& color) { SET(m_rareInheritedData, scrollbarColor, WTFMove(color)); }
 inline void RenderStyle::setScrollbarGutter(Style::ScrollbarGutter&& gutter) { SET_NESTED(m_nonInheritedData, rareData, scrollbarGutter, WTFMove(gutter)); }
 inline void RenderStyle::setScrollbarWidth(ScrollbarWidth width) { SET_NESTED(m_nonInheritedData, rareData, scrollbarWidth, static_cast<unsigned>(width)); }
+inline void RenderStyle::setShapeImageThreshold(Style::ShapeImageThreshold shapeImageThreshold) { SET_NESTED(m_nonInheritedData, rareData, shapeImageThreshold, shapeImageThreshold); }
 inline void RenderStyle::setShapeMargin(Style::ShapeMargin&& shapeMargin) { SET_NESTED(m_nonInheritedData, rareData, shapeMargin, WTFMove(shapeMargin)); }
 inline void RenderStyle::setShapeOutside(Style::ShapeOutside&& shapeOutside) { SET_NESTED(m_nonInheritedData, rareData, shapeOutside, WTFMove(shapeOutside)); }
 inline void RenderStyle::setUsedContentVisibility(ContentVisibility usedContentVisibility) { SET(m_rareInheritedData, usedContentVisibility, static_cast<unsigned>(usedContentVisibility)); }
@@ -356,6 +356,7 @@ inline void RenderStyle::setVisitedLinkTextDecorationColor(Style::Color&& value)
 inline void RenderStyle::setVisitedLinkTextEmphasisColor(Style::Color&& value) { SET(m_rareInheritedData, visitedLinkTextEmphasisColor, WTFMove(value)); }
 inline void RenderStyle::setVisitedLinkTextFillColor(Style::Color&& value) { SET(m_rareInheritedData, visitedLinkTextFillColor, WTFMove(value)); }
 inline void RenderStyle::setVisitedLinkTextStrokeColor(Style::Color&& value) { SET(m_rareInheritedData, visitedLinkTextStrokeColor, WTFMove(value)); }
+inline void RenderStyle::setWidows(Style::Widows widows) { SET(m_rareInheritedData, widows, widows); }
 inline void RenderStyle::setWidth(Style::PreferredSize&& length) { SET_NESTED(m_nonInheritedData, boxData, m_width, WTFMove(length)); }
 inline void RenderStyle::setWordBreak(WordBreak rule) { SET(m_rareInheritedData, wordBreak, static_cast<unsigned>(rule)); }
 
@@ -585,30 +586,12 @@ inline void RenderStyle::setLogicalMaxHeight(Style::MaximumSize&& height)
         setMaxWidth(WTFMove(height));
 }
 
-inline void RenderStyle::setOrphans(unsigned short count)
-{
-    unsigned short clampedCount = std::max<unsigned short>(count, 1);
-    SET_PAIR(m_rareInheritedData, orphans, clampedCount, hasAutoOrphans, false);
-}
-
-inline void RenderStyle::setShapeImageThreshold(Style::ShapeImageThreshold shapeImageThreshold)
-{
-    auto clampedShapeImageThreshold = Style::ShapeImageThreshold { clampTo(shapeImageThreshold.value, 0.0f, 1.0f) };
-    SET_NESTED(m_nonInheritedData, rareData, shapeImageThreshold, clampedShapeImageThreshold);
-}
-
 inline bool RenderStyle::setTextOrientation(TextOrientation textOrientation)
 {
     if (writingMode().computedTextOrientation() == textOrientation)
         return false;
     m_inheritedFlags.writingMode.setTextOrientation(textOrientation);
     return true;
-}
-
-inline void RenderStyle::setWidows(unsigned short count)
-{
-    auto clampedCount = std::max<unsigned short>(count, 1);
-    SET_PAIR(m_rareInheritedData, widows, clampedCount, hasAutoWidows, false);
 }
 
 inline bool RenderStyle::setWritingMode(StyleWritingMode mode)

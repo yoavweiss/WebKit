@@ -100,8 +100,6 @@ StyleRareInheritedData::StyleRareInheritedData()
     , customProperties(Style::CustomPropertyData::create())
     , widows(RenderStyle::initialWidows())
     , orphans(RenderStyle::initialOrphans())
-    , hasAutoWidows(true)
-    , hasAutoOrphans(true)
     , textSecurity(static_cast<unsigned>(RenderStyle::initialTextSecurity()))
     , userModify(static_cast<unsigned>(UserModify::ReadOnly))
     , wordBreak(static_cast<unsigned>(RenderStyle::initialWordBreak()))
@@ -203,8 +201,6 @@ inline StyleRareInheritedData::StyleRareInheritedData(const StyleRareInheritedDa
     , customProperties(o.customProperties)
     , widows(o.widows)
     , orphans(o.orphans)
-    , hasAutoWidows(o.hasAutoWidows)
-    , hasAutoOrphans(o.hasAutoOrphans)
     , textSecurity(o.textSecurity)
     , userModify(o.userModify)
     , wordBreak(o.wordBreak)
@@ -319,8 +315,6 @@ bool StyleRareInheritedData::operator==(const StyleRareInheritedData& o) const
         && miterLimit == o.miterLimit
         && widows == o.widows
         && orphans == o.orphans
-        && hasAutoWidows == o.hasAutoWidows
-        && hasAutoOrphans == o.hasAutoOrphans
         && textSecurity == o.textSecurity
         && userModify == o.userModify
         && wordBreak == o.wordBreak
@@ -445,8 +439,6 @@ void StyleRareInheritedData::dumpDifferences(TextStream& ts, const StyleRareInhe
 
     LOG_IF_DIFFERENT(widows);
     LOG_IF_DIFFERENT(orphans);
-    LOG_IF_DIFFERENT(hasAutoWidows);
-    LOG_IF_DIFFERENT(hasAutoOrphans);
 
     LOG_IF_DIFFERENT_WITH_CAST(TextSecurity, textSecurity);
     LOG_IF_DIFFERENT_WITH_CAST(UserModify, userModify);

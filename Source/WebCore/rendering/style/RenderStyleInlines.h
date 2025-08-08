@@ -267,11 +267,9 @@ inline bool RenderStyle::hasAutoColumnCount() const { return m_nonInheritedData-
 inline bool RenderStyle::hasAutoColumnWidth() const { return m_nonInheritedData->miscData->multiCol->autoWidth; }
 inline bool RenderStyle::hasAutoLeftAndRight() const { return left().isAuto() && right().isAuto(); }
 inline bool RenderStyle::hasAutoLengthContainIntrinsicSize() const { return containIntrinsicWidth().hasAuto() || containIntrinsicHeight().hasAuto(); }
-inline bool RenderStyle::hasAutoOrphans() const { return m_rareInheritedData->hasAutoOrphans; }
 inline bool RenderStyle::hasAutoSpecifiedZIndex() const { return m_nonInheritedData->boxData->hasAutoSpecifiedZIndex(); }
 inline bool RenderStyle::hasAutoTopAndBottom() const { return top().isAuto() && bottom().isAuto(); }
 inline bool RenderStyle::hasAutoUsedZIndex() const { return m_nonInheritedData->boxData->hasAutoUsedZIndex(); }
-inline bool RenderStyle::hasAutoWidows() const { return m_rareInheritedData->hasAutoWidows; }
 inline bool RenderStyle::hasBackground() const { return visitedDependentColor(CSSPropertyBackgroundColor).isVisible() || hasBackgroundImage(); }
 inline bool RenderStyle::hasBackgroundImage() const { return backgroundLayers().hasImage(); }
 inline bool RenderStyle::hasBlendMode() const { return blendMode() != BlendMode::Normal; }
@@ -454,6 +452,7 @@ inline Style::OffsetDistance RenderStyle::initialOffsetDistance() { return 0_css
 inline Style::OffsetPath RenderStyle::initialOffsetPath() { return CSS::Keyword::None { }; }
 inline Style::OffsetPosition RenderStyle::initialOffsetPosition() { return CSS::Keyword::Normal { }; }
 constexpr Style::OffsetRotate RenderStyle::initialOffsetRotate() { return CSS::Keyword::Auto { }; }
+constexpr Style::Orphans RenderStyle::initialOrphans() { return CSS::Keyword::Auto { }; }
 constexpr OverflowAnchor RenderStyle::initialOverflowAnchor() { return OverflowAnchor::Auto; }
 inline OverflowContinue RenderStyle::initialOverflowContinue() { return OverflowContinue::Auto; }
 constexpr Style::Length<> RenderStyle::initialOutlineOffset() { return 0_css_px; }
@@ -558,6 +557,7 @@ inline Style::ViewTransitionName RenderStyle::initialViewTransitionName() { retu
 constexpr Visibility RenderStyle::initialVisibility() { return Visibility::Visible; }
 inline const NameScope RenderStyle::initialTimelineScope() { return { }; }
 constexpr WhiteSpaceCollapse RenderStyle::initialWhiteSpaceCollapse() { return WhiteSpaceCollapse::Collapse; }
+constexpr Style::Widows RenderStyle::initialWidows() { return CSS::Keyword::Auto { }; }
 constexpr WordBreak RenderStyle::initialWordBreak() { return WordBreak::Normal; }
 inline Length RenderStyle::initialLetterSpacing() { return zeroLength(); }
 inline Length RenderStyle::initialWordSpacing() { return zeroLength(); }
@@ -673,7 +673,7 @@ inline const Style::OffsetPosition& RenderStyle::offsetPosition() const { return
 inline const Style::OffsetRotate& RenderStyle::offsetRotate() const { return m_nonInheritedData->rareData->offsetRotate; }
 inline Style::Opacity RenderStyle::opacity() const { return m_nonInheritedData->miscData->opacity; }
 inline int RenderStyle::order() const { return m_nonInheritedData->miscData->order; }
-inline unsigned short RenderStyle::orphans() const { return m_rareInheritedData->orphans; }
+inline Style::Orphans RenderStyle::orphans() const { return m_rareInheritedData->orphans; }
 inline const OutlineValue& RenderStyle::outline() const { return m_nonInheritedData->backgroundData->outline; }
 inline const Style::Color& RenderStyle::outlineColor() const { return outline().color(); }
 inline OutlineStyle RenderStyle::outlineStyle() const { return outline().style(); }
@@ -806,7 +806,7 @@ inline const Style::Color& RenderStyle::visitedLinkTextDecorationColor() const {
 inline const Style::Color& RenderStyle::visitedLinkTextEmphasisColor() const { return m_rareInheritedData->visitedLinkTextEmphasisColor; }
 inline const Style::Color& RenderStyle::visitedLinkTextFillColor() const { return m_rareInheritedData->visitedLinkTextFillColor; }
 inline const Style::Color& RenderStyle::visitedLinkTextStrokeColor() const { return m_rareInheritedData->visitedLinkTextStrokeColor; }
-inline unsigned short RenderStyle::widows() const { return m_rareInheritedData->widows; }
+inline Style::Widows RenderStyle::widows() const { return m_rareInheritedData->widows; }
 inline const Style::PreferredSize& RenderStyle::width() const { return m_nonInheritedData->boxData->width(); }
 inline WillChangeData* RenderStyle::willChange() const { return m_nonInheritedData->rareData->willChange.get(); }
 inline bool RenderStyle::willChangeCreatesStackingContext() const { return willChange() && willChange()->canCreateStackingContext(); }

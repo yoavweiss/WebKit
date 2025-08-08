@@ -3148,6 +3148,8 @@ style/values/backgrounds/StyleLineWidth.cpp
 style/values/borders/StyleBorderRadius.cpp
 style/values/borders/StyleBoxShadow.cpp
 style/values/borders/StyleCornerShapeValue.cpp
+style/values/break/StyleOrphans.cpp
+style/values/break/StyleWidows.cpp
 style/values/color-adjust/StyleColorScheme.cpp
 style/values/color/StyleColor.cpp
 style/values/color/StyleColorLayers.cpp

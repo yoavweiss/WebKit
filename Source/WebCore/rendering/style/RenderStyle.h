@@ -314,6 +314,7 @@ struct OffsetPath;
 struct OffsetPosition;
 struct OffsetRotate;
 struct Opacity;
+struct Orphans;
 struct PaddingEdge;
 struct Perspective;
 struct Position;
@@ -359,6 +360,7 @@ struct ViewTransitionClasses;
 struct ViewTransitionName;
 struct WebkitLineGrid;
 struct WebkitTextStrokeWidth;
+struct Widows;
 
 enum class Change : uint8_t;
 enum class GridTrackSizingDirection : bool;
@@ -852,10 +854,8 @@ public:
     InsideLink insideLink() const { return static_cast<InsideLink>(m_inheritedFlags.insideLink); }
     bool isLink() const { return m_nonInheritedFlags.isLink; }
 
-    inline unsigned short widows() const;
-    inline unsigned short orphans() const;
-    inline bool hasAutoWidows() const;
-    inline bool hasAutoOrphans() const;
+    inline Style::Widows widows() const;
+    inline Style::Orphans orphans() const;
 
     inline BreakInside breakInside() const;
     inline BreakBetween breakBefore() const;
@@ -1511,11 +1511,8 @@ public:
     inline void setUsedZIndex(int);
     inline void setHasAutoUsedZIndex();
 
-    inline void setHasAutoWidows();
-    inline void setWidows(unsigned short);
-
-    inline void setHasAutoOrphans();
-    inline void setOrphans(unsigned short);
+    inline void setWidows(Style::Widows);
+    inline void setOrphans(Style::Orphans);
 
     inline void setOutlineOffset(Style::Length<>);
     inline void setTextShadow(Style::TextShadows&&);
@@ -2025,8 +2022,8 @@ public:
     static TextEdge initialTextBoxEdge();
     static TextEdge initialLineFitEdge();
     static constexpr LengthType zeroLength();
-    static unsigned short initialWidows() { return 2; }
-    static unsigned short initialOrphans() { return 2; }
+    static constexpr Style::Widows initialWidows();
+    static constexpr Style::Orphans initialOrphans();
     // Returning -100% percent here means the line-height is not set.
     static inline Length initialLineHeight();
     static constexpr TextAlignMode initialTextAlign();
