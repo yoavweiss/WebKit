@@ -56,7 +56,7 @@ Ref<QuerySet> Device::createQuerySet(const WGPUQuerySetDescriptor& descriptor)
     switch (type) {
     case WGPUQueryType_Timestamp: {
 #if !PLATFORM(WATCHOS)
-        std::pair<id<MTLCounterSampleBuffer>, uint32_t> querySetWithOffset = QuerySet::counterSampleBufferWithOffset(count, *this);
+        std::pair<id<MTLCounterSampleBuffer>, uint32_t> querySetWithOffset = QuerySet::counterSampleBufferWithOffsetForDevice(count, *this);
         if (!querySetWithOffset.first)
             return QuerySet::createInvalid(*this);
 
@@ -174,7 +174,7 @@ void QuerySet::destroyQuerySet(const QuerySet& querySet)
     }
 }
 
-QuerySet::CounterSampleBuffer QuerySet::counterSampleBufferWithOffset(size_t sampleCount, const Device& device)
+QuerySet::CounterSampleBuffer QuerySet::counterSampleBufferWithOffsetForDevice(size_t sampleCount, const Device& device)
 {
     Locker locker { querySetLock };
     uint32_t sampleCountInBytes = static_cast<uint32_t>(sampleCount * sizeof(uint64_t));

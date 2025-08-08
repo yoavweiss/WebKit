@@ -835,7 +835,9 @@ extension WebGPU.CommandEncoder {
         let mtlDescriptor = MTLRenderPassDescriptor()
         var counterSampleBuffer: MTLCounterSampleBuffer? = nil
         if let wgpuTimestampWrites = unsafe descriptor.timestampWrites {
-            counterSampleBuffer = unsafe WebGPU.fromAPI(wgpuTimestampWrites.pointee.querySet).counterSampleBuffer()
+            let wgpuQuerySet = unsafe wgpuTimestampWrites.pointee.querySet
+            let querySet = unsafe WebGPU.fromAPI(wgpuQuerySet)
+            counterSampleBuffer = unsafe querySet.counterSampleBufferWithOffset().pointee.first
         }
 
         if (m_device.ptr().enableEncoderTimestamps() || counterSampleBuffer != nil) {
@@ -2065,7 +2067,7 @@ extension WebGPU.CommandEncoder {
         computePassDescriptor.dispatchType = MTLDispatchType.serial
         var counterSampleBuffer: MTLCounterSampleBuffer? = nil
         if let wgpuTimestampWrites = unsafe descriptor.timestampWrites {
-            counterSampleBuffer = unsafe WebGPU.fromAPI(wgpuTimestampWrites.pointee.querySet).counterSampleBuffer()
+            counterSampleBuffer = unsafe WebGPU.fromAPI(wgpuTimestampWrites.pointee.querySet).counterSampleBufferWithOffset().pointee.first
         }
 
         if m_device.ptr().enableEncoderTimestamps() || counterSampleBuffer != nil {
