@@ -8219,3 +8219,5 @@ webkit.org/b/297056 http/tests/site-isolation/touch-events/touch-event-coordinat
 webkit.org/b/297067 fast/forms/state-restore-form-associated-custom-elements.html [ Pass Timeout ]
 
 webkit.org/b/297081 http/tests/resourceLoadStatistics/exemptDomains/managed-domains-cookieEnabled.html [ Pass Failure ]
+
+webkit.org/b/297122 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside-010.html [ Pass Failure ]
