@@ -1080,8 +1080,6 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
                         errorMessage = makeString("Uncaught "_s, errorInformation.errorTypeString, ": "_s, errorInformation.message);
                     }
                 }
-                auto exception = Exception(ExceptionCode::UnknownError, errorMessage);
-                auto domException = createDOMException(*protectedThis->protectedScriptExecutionContext()->globalObject(), exception.isolatedCopy());
 
                 protectedThis->dispatchEvent(ErrorEvent::create(eventNames().navigateerrorEvent, errorMessage, errorInformation.sourceURL, errorInformation.line, errorInformation.column, { protectedThis->protectedScriptExecutionContext()->globalObject()->vm(), result }));
 
@@ -1089,7 +1087,7 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
                     Ref { apiMethodTracker->finishedPromise }->reject<IDLAny>(result, RejectAsHandled::Yes);
 
                 if (RefPtr transition = std::exchange(protectedThis->m_transition, nullptr))
-                    transition->rejectPromise(exception, domException);
+                    transition->rejectPromise(result);
             });
         });
 

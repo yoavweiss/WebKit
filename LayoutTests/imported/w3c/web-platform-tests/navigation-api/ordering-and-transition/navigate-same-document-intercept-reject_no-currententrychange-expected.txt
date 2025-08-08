@@ -2,5 +2,5 @@ CONSOLE MESSAGE: Unhandled Promise Rejection: Error: boo
 
 Harness Error (FAIL), message = Unhandled rejection: boo
 
-FAIL event and promise ordering for same-document navigation.navigate() intercepted by passing a rejected promise to intercept() assert_equals: error objects must match: error object for transition.finished rejected did not match the one for navigateerror expected object "Error: boo" but got object "UnknownError: Uncaught Error: boo"
+PASS event and promise ordering for same-document navigation.navigate() intercepted by passing a rejected promise to intercept()
 
