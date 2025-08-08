@@ -63,7 +63,7 @@ namespace WebKit {
 
 bool methodSignaturesAreCompatible(NSString *wire, NSString *local)
 {
-    if ([local isEqualToString:wire] ==  NSOrderedSame)
+    if ([local isEqualToString:wire])
         return true;
 
     if (local.length != wire.length)
