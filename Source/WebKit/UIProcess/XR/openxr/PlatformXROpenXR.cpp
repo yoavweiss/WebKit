@@ -185,7 +185,7 @@ void OpenXRCoordinator::createLayerProjection(uint32_t width, uint32_t height, b
         m_layers.add(defaultLayerHandle(), WTFMove(layer));
 }
 
-void OpenXRCoordinator::startSession(WebPageProxy& page, WeakPtr<PlatformXRCoordinatorSessionEventClient>&& sessionEventClient, const WebCore::SecurityOriginData&, PlatformXR::SessionMode sessionMode, const PlatformXR::Device::FeatureList&)
+void OpenXRCoordinator::startSession(WebPageProxy& page, WeakPtr<PlatformXRCoordinatorSessionEventClient>&& sessionEventClient, const WebCore::SecurityOriginData&, PlatformXR::SessionMode sessionMode, const PlatformXR::Device::FeatureList&, std::optional<WebCore::XRCanvasConfiguration>&&)
 {
     ASSERT(RunLoop::isMain());
     LOG(XR, "OpenXRCoordinator::startSession");

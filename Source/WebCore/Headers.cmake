@@ -315,6 +315,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/WebGPU/InternalAPI/WebGPUXRSubImage.h
     Modules/WebGPU/InternalAPI/WebGPUXRView.h
 
+    Modules/webxr/XRCanvasConfiguration.h
+
     Modules/airplay/PlaybackTargetClientContextIdentifier.h
 
     Modules/applepay/ApplePayLogoSystemImage.h

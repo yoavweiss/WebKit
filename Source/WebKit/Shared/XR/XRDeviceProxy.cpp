@@ -31,6 +31,7 @@
 #include "PlatformXRSystemProxy.h"
 #include "XRDeviceInfo.h"
 #include <WebCore/SecurityOriginData.h>
+#include <WebCore/XRCanvasConfiguration.h>
 
 using namespace PlatformXR;
 
@@ -70,7 +71,7 @@ void XRDeviceProxy::updateSessionVisibilityState(PlatformXR::VisibilityState vis
         trackingAndRenderingClient()->updateSessionVisibilityState(visibilityState);
 }
 
-void XRDeviceProxy::initializeTrackingAndRendering(const WebCore::SecurityOriginData& securityOriginData, PlatformXR::SessionMode sessionMode, const PlatformXR::Device::FeatureList& requestedFeatures)
+void XRDeviceProxy::initializeTrackingAndRendering(const WebCore::SecurityOriginData& securityOriginData, PlatformXR::SessionMode sessionMode, const PlatformXR::Device::FeatureList& requestedFeatures, std::optional<WebCore::XRCanvasConfiguration>&& init)
 {
     if (!isImmersive(sessionMode))
         return;
@@ -79,7 +80,7 @@ void XRDeviceProxy::initializeTrackingAndRendering(const WebCore::SecurityOrigin
     if (!xrSystem)
         return;
 
-    xrSystem->initializeTrackingAndRendering();
+    xrSystem->initializeTrackingAndRendering(WTFMove(init));
 
     // This is called from the constructor of WebXRSession. Since sessionDidInitializeInputSources()
     // ends up calling queueTaskKeepingObjectAlive() which refs the WebXRSession object, we

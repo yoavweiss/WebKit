@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "PlatformXR.h"
 #include "WebGPUTextureFormat.h"
 #include "WebGPUTextureUsage.h"
 #include "WebGPUXREye.h"

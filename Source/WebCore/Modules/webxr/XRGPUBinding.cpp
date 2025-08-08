@@ -56,7 +56,7 @@ static WebGPU::XREye convertToBacking(XREye eye)
 
 WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(XRGPUBinding);
 
-XRGPUBinding::XRGPUBinding(const WebXRSession& session, GPUDevice& device)
+XRGPUBinding::XRGPUBinding(WebXRSession& session, GPUDevice& device)
     : m_backing(device.createXRBinding(session))
     , m_session(&session)
     , m_device(device)
@@ -70,8 +70,17 @@ GPUDevice& XRGPUBinding::device()
 
 ExceptionOr<Ref<XRProjectionLayer>> XRGPUBinding::createProjectionLayer(ScriptExecutionContext& scriptExecutionContext, std::optional<XRGPUProjectionLayerInit> init)
 {
-    if (!m_backing)
+    if (!m_backing || !m_session)
         return Exception { ExceptionCode::AbortError };
+
+    if (init) {
+        auto converted = init->convertToBacking();
+        m_session->initializeTrackingAndRendering(XRCanvasConfiguration {
+            .colorFormat = converted.colorFormat,
+            .depthStencilFormat = converted.depthStencilFormat
+        });
+    } else
+        m_session->initializeTrackingAndRendering(std::nullopt);
 
     WebGPU::XRProjectionLayerInit convertedInit;
     if (init)

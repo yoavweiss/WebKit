@@ -43,6 +43,8 @@
 
 namespace WebCore {
 
+struct XRCanvasConfiguration;
+
 class GraphicsContextGL;
 template<typename> class ExceptionOr;
 
@@ -90,7 +92,7 @@ public:
     void addInputConnection(Ref<WebFakeXRInputController>&& input) { m_inputConnections.append(WTFMove(input)); };
 private:
     WebCore::IntSize recommendedResolution(PlatformXR::SessionMode) final;
-    void initializeTrackingAndRendering(const WebCore::SecurityOriginData&, PlatformXR::SessionMode, const PlatformXR::Device::FeatureList&) final;
+    void initializeTrackingAndRendering(const WebCore::SecurityOriginData&, PlatformXR::SessionMode, const PlatformXR::Device::FeatureList&, std::optional<WebCore::XRCanvasConfiguration>&&) final;
     void shutDownTrackingAndRendering() final;
     bool supportsSessionShutdownNotification() const final { return m_supportsShutdownNotification; }
     void initializeReferenceSpace(PlatformXR::ReferenceSpaceType) final { }

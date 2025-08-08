@@ -28,6 +28,7 @@
 
 #if HAVE(WEBGPU_IMPLEMENTATION)
 
+#include "PlatformXR.h"
 #include "WebGPUConvertToBackingContext.h"
 #include "WebGPUDevice.h"
 #include "WebGPUTextureFormat.h"

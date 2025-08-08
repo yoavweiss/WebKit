@@ -39,6 +39,7 @@
 
 #if PLATFORM(COCOA)
 #include "IOSurface.h"
+#include <WebCore/XRGPUProjectionLayerInit.h>
 #include <wtf/MachSendRight.h>
 #endif
 
@@ -53,6 +54,8 @@ template<> struct IsDeprecatedWeakRefSmartPointerException<PlatformXR::TrackingA
 
 namespace WebCore {
 class SecurityOriginData;
+
+struct XRCanvasConfiguration;
 }
 
 namespace PlatformXR {
@@ -400,7 +403,7 @@ public:
     // the native resolution if the device supports supersampling.
     virtual double maxFramebufferScalingFactor() const { return nativeFramebufferScalingFactor(); }
 
-    virtual void initializeTrackingAndRendering(const WebCore::SecurityOriginData&, SessionMode, const FeatureList&) = 0;
+    virtual void initializeTrackingAndRendering(const WebCore::SecurityOriginData&, SessionMode, const FeatureList&, std::optional<WebCore::XRCanvasConfiguration>&&) = 0;
     virtual void shutDownTrackingAndRendering() = 0;
     virtual void didCompleteShutdownTriggeredBySystem() { }
     TrackingAndRenderingClient* trackingAndRenderingClient() const { return m_trackingAndRenderingClient.get(); }

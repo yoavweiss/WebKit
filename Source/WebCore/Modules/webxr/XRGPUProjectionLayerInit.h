@@ -25,12 +25,10 @@
 
 #pragma once
 
-#if ENABLE(WEBXR_LAYERS)
-
 #include "GPUTextureFormat.h"
 #include "GPUTextureUsage.h"
 #include "WebGPUXRProjectionLayer.h"
-#include "XRTextureType.h"
+#include "XRCanvasConfiguration.h"
 
 namespace WebCore {
 
@@ -56,5 +54,3 @@ struct XRGPUProjectionLayerInit {
 };
 
 } // namespace WebCore
-
-#endif // ENABLE(WEBXR_LAYERS)
