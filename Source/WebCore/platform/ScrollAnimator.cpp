@@ -182,6 +182,13 @@ bool ScrollAnimator::handleWheelEvent(const PlatformWheelEvent& wheelEvent)
 // "Stepped scrolling" is only used by RenderListBox. It's special in that it has no rubberbanding, and scroll deltas respect Scrollbar::pixelStep().
 bool ScrollAnimator::handleSteppedScrolling(const PlatformWheelEvent& wheelEvent)
 {
+#if ENABLE(KINETIC_SCROLLING)
+    if ((wheelEvent.phase() == PlatformWheelEventPhase::Ended && wheelEvent.momentumPhase() == PlatformWheelEventPhase::None) || wheelEvent.momentumPhase() == PlatformWheelEventPhase::Ended) {
+        m_scrollableArea.scrollDidEnd();
+        return true;
+    }
+#endif
+
     auto* horizontalScrollbar = m_scrollableArea.horizontalScrollbar();
     auto* verticalScrollbar = m_scrollableArea.verticalScrollbar();
 

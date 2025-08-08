@@ -1220,4 +1220,12 @@ std::optional<FrameIdentifier> RenderListBox::rootFrameID() const
     return view().frameView().frame().rootFrame().frameID();
 }
 
+void RenderListBox::scrollDidEnd()
+{
+    if (ScrollAnimator* scrollAnimator = existingScrollAnimator(); scrollAnimator && !scrollAnimator->isUserScrollInProgress() && !isAwaitingScrollend()) {
+        setIsAwaitingScrollend(false);
+        selectElement().protectedDocument()->addPendingScrollendEventTarget(selectElement());
+    }
+}
+
 } // namespace WebCore
