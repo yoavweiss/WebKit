@@ -608,6 +608,8 @@ messages -> WebPage WantsAsyncDispatchMessage {
 
     DidBeginMagnificationGesture()
     DidEndMagnificationGesture()
+
+    SetOverflowHeightForTopScrollEdgeEffect(double value)
 #endif
 
     StartDeferringResizeEvents();

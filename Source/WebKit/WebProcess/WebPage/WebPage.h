@@ -2047,6 +2047,10 @@ public:
 
     std::unique_ptr<FrameInfoData> takeMainFrameNavigationInitiator();
 
+#if PLATFORM(MAC)
+    void setOverflowHeightForTopScrollEdgeEffect(double value) { m_overflowHeightForTopScrollEdgeEffect = value; }
+#endif
+
 private:
     WebPage(WebCore::PageIdentifier, WebPageCreationParameters&&);
 
@@ -2872,6 +2876,10 @@ private:
 
 #if HAVE(UIKIT_RESIZABLE_WINDOWS)
     bool m_isWindowResizingEnabled { false };
+#endif
+
+#if PLATFORM(MAC)
+    double m_overflowHeightForTopScrollEdgeEffect { 0 };
 #endif
 
     bool m_needsScrollGeometryUpdates { false };
