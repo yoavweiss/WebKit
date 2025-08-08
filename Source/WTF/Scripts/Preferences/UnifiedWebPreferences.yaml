@@ -9471,17 +9471,17 @@ WirelessPlaybackTargetAPIEnabled:
 
 WorkerAsynchronousURLErrorHandlingEnabled:
   type: bool
-  status: preview
+  status: stable
   category: dom
   humanReadableName: "Worker asynchronous URL error handling"
   humanReadableDescription: "Worker asynchronous URL error handling"
   defaultValue:
     WebKitLegacy:
-      default: false
+      default: true
     WebKit:
-      default: false
+      default: true
     WebCore:
-      default: false
+      default: true
 
 WriteRichTextDataWhenCopyingOrDragging:
   type: bool
