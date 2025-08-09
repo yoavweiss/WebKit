@@ -226,7 +226,7 @@ static NSString * const _WKARQLWebsiteURLParameterKey = @"ARQLWebsiteURLParamete
     if (!previewController)
         return nil;
     RefPtr page = previewController->page();
-    if (page)
+    if (!page)
         return nil;
 
     // FIXME: When in element fullscreen, UIClient::presentingViewController() may not return the
