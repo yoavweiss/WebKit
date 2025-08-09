@@ -3529,38 +3529,7 @@ static WebCore::IntDegrees activeOrientation(WKWebView *webView)
             [_contentView becomeFirstResponder];
         _contentViewShouldBecomeFirstResponderAfterNavigationGesture = NO;
     }
-
-#if HAVE(LIQUID_GLASS)
-    [self _forceScrollPocketsToRecomputeElementRegions];
-#endif
 }
-
-#if HAVE(LIQUID_GLASS)
-
-- (void)_forceScrollPocketsToRecomputeElementRegions
-{
-    if (![_scrollView respondsToSelector:@selector(_pocketForEdge:makeIfNeeded:)])
-        return;
-
-    // FIXME: This is a temporary workaround for rdar://156271879, where the scroll pocket's
-    // element region does not update after the scroll view is reparented from the live swipe
-    // view back to the web view after a navigation swipe. This can be removed once
-    // rdar://156271879 is fixed.
-
-    for (auto edge : WebKit::allUIRectEdges) {
-        RetainPtr scrollPocket = [_scrollView _pocketForEdge:edge makeIfNeeded:NO];
-        if (!scrollPocket)
-            continue;
-
-        static BOOL canInvalidateAllElements = [scrollPocket respondsToSelector:@selector(invalidateAllElements)];
-        if (!canInvalidateAllElements)
-            return;
-
-        [scrollPocket invalidateAllElements];
-    }
-}
-
-#endif // HAVE(LIQUID_GLASS)
 
 - (void)_showPasswordViewWithDocumentName:(NSString *)documentName passwordHandler:(void (^)(NSString *))passwordHandler
 {
