@@ -187,6 +187,14 @@
         completionHandler(@[], nil);
 }
 
+- (void)_webExtensionController:(WKWebExtensionController *)controller removeBookmarkWithIdentifier:(NSString *)bookmarkId removeFolderWithChildren:(BOOL)removeFolderWithChildren forExtensionContext:(WKWebExtensionContext *)context completionHandler:(void (^)(NSError *))completionHandler
+{
+    if (_removeBookmarkWithIdentifier)
+        _removeBookmarkWithIdentifier(bookmarkId, removeFolderWithChildren, completionHandler);
+    else if (completionHandler)
+        completionHandler(nil);
+}
+
 @end
 
 #endif // ENABLE(WK_WEB_EXTENSIONS)

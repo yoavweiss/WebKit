@@ -162,7 +162,7 @@ void WebExtensionContext::bookmarksCreate(const std::optional<String>& parentId,
 
     [controllerDelegate _webExtensionController:controllerWrapper createBookmarkWithParentIdentifier:parentIdString index:indexNumber url:urlString title:titleString forExtensionContext:contextWrapper completionHandler:^(NSObject<_WKWebExtensionBookmark> *newBookmark, NSError *error) {
         if (error) {
-            completionHandler(toWebExtensionError(apiName, nullString(), @"error was reported"));
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
             return;
         }
         auto parametersOptional = createParametersFromProtocolObject(newBookmark, contextWrapper);
@@ -196,7 +196,7 @@ void WebExtensionContext::bookmarksGetTree(CompletionHandler<void(Expected<Vecto
 
     [controllerDelegate _webExtensionController:controllerWrapper bookmarksForExtensionContext:contextWrapper completionHandler:^(NSArray<id<_WKWebExtensionBookmark>> *bookmarkNodes, NSError *error) {
         if (error) {
-            completionHandler(toWebExtensionError(apiName, nullString(), @"failed because it returned an error"));
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
             return;
         }
 
@@ -231,7 +231,7 @@ void WebExtensionContext::bookmarksGetSubTree(const String& bookmarkId, Completi
 
     [controllerDelegate _webExtensionController:controllerWrapper bookmarksForExtensionContext:contextWrapper completionHandler:^(NSArray<id<_WKWebExtensionBookmark>> *allTopLevelNodes, NSError *error) {
         if (error) {
-            completionHandler(toWebExtensionError(apiName, nullString(), @"failed because it returned an error"));
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
             return;
         }
 
@@ -278,7 +278,7 @@ void WebExtensionContext::bookmarksGet(const Vector<String>& bookmarkId, Complet
 
     [controllerDelegate _webExtensionController:controllerWrapper bookmarksForExtensionContext:contextWrapper completionHandler:^(NSArray<id<_WKWebExtensionBookmark>> *allTopLevelNodes, NSError *error) {
         if (error) {
-            completionHandler(toWebExtensionError(apiName, nullString(), @"failed because it returned an error"));
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
             return;
         }
 
@@ -328,7 +328,7 @@ void WebExtensionContext::bookmarksGetChildren(const String& bookmarkId, Complet
 
     [controllerDelegate _webExtensionController:controllerWrapper bookmarksForExtensionContext:contextWrapper completionHandler:^(NSArray<id<_WKWebExtensionBookmark>> *allTopLevelNodes, NSError *error) {
         if (error) {
-            completionHandler(toWebExtensionError(apiName, nullString(), @"failed because it returned an error"));
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
             return;
         }
 
@@ -384,7 +384,7 @@ void WebExtensionContext::bookmarksGetRecent(uint64_t count, CompletionHandler<v
     [controllerDelegate _webExtensionController:controllerWrapper bookmarksForExtensionContext:contextWrapper
         completionHandler:^(NSArray<id<_WKWebExtensionBookmark>> *allTopLevelNodes, NSError *error) {
         if (error) {
-            completionHandler(toWebExtensionError(apiName, nullString(), @"failed because it returned an error"));
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
             return;
         }
 
@@ -427,11 +427,62 @@ void WebExtensionContext::bookmarksMove(const String& bookmarkId, const std::opt
 }
 void WebExtensionContext::bookmarksRemove(const String& bookmarkId, CompletionHandler<void(Expected<void, WebExtensionError>&&)>&& completionHandler)
 {
+    static NSString *const apiName = @"bookmarks.remove()";
+    ASSERT(isLoaded());
+    if (!isLoaded())
+        return;
 
+    RefPtr controller = extensionController();
+    if (!controller)
+        return;
+
+    auto *controllerDelegate = controller->delegate();
+    auto *controllerWrapper = controller->wrapper();
+    WKWebExtensionContext *contextWrapper = wrapper();
+
+    if (![controllerDelegate respondsToSelector:@selector(_webExtensionController:removeBookmarkWithIdentifier:removeFolderWithChildren:forExtensionContext:completionHandler:)]) {
+        completionHandler(toWebExtensionError(apiName, nullString(), @"it is not implemented"));
+        return;
+    }
+
+    NSString *bookmarkIdString = bookmarkId.createNSString().get();
+    [controllerDelegate _webExtensionController:controllerWrapper removeBookmarkWithIdentifier:bookmarkIdString removeFolderWithChildren:NO forExtensionContext:contextWrapper completionHandler:^(NSError *error) {
+        if (error) {
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
+            return;
+        }
+        completionHandler({ });
+    }];
 }
 void WebExtensionContext::bookmarksRemoveTree(const String& bookmarkId, CompletionHandler<void(Expected<void, WebExtensionError>&&)>&& completionHandler)
 {
+    static NSString *const apiName = @"bookmarks.removeTree()";
+    ASSERT(isLoaded());
+    if (!isLoaded())
+        return;
 
+    RefPtr controller = extensionController();
+    if (!controller)
+        return;
+
+    auto *controllerDelegate = controller->delegate();
+    auto *controllerWrapper = controller->wrapper();
+    WKWebExtensionContext *contextWrapper = wrapper();
+
+    if (![controllerDelegate respondsToSelector:@selector(_webExtensionController:removeBookmarkWithIdentifier:removeFolderWithChildren:forExtensionContext:completionHandler:)]) {
+        completionHandler(toWebExtensionError(apiName, nullString(), @"it is not implemented"));
+        return;
+    }
+
+    NSString *bookmarkIdString = bookmarkId.createNSString().get();
+
+    [controllerDelegate _webExtensionController:controllerWrapper removeBookmarkWithIdentifier:bookmarkIdString removeFolderWithChildren:YES forExtensionContext:contextWrapper completionHandler:^(NSError *error) {
+        if (error) {
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
+            return;
+        }
+        completionHandler({ });
+    }];
 }
 
 } // namespace WebKit

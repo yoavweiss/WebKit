@@ -134,6 +134,23 @@ static NSMutableDictionary *findParentInMockTree(NSMutableArray<NSMutableDiction
     return nil;
 }
 
+static NSMutableDictionary *findBookmarkAndParentArrayInMockTree(NSMutableArray *children, NSString *bookmarkId)
+{
+    if (!children.count)
+        return nil;
+
+    for (NSMutableDictionary *childDict in children) {
+        if ([childDict[@"id"] isEqualToString:bookmarkId])
+            return [@{ @"bookmark": childDict, @"parentChildren": children } mutableCopy];
+        if ([childDict[@"type"] isEqualToString:@"folder"] && [childDict[@"children"] isKindOfClass:[NSMutableArray class]]) {
+            NSMutableDictionary *found = findBookmarkAndParentArrayInMockTree(childDict[@"children"], bookmarkId);
+            if (found)
+                return found;
+        }
+    }
+    return nil;
+}
+
 
 @implementation TestBookmarksDelegate
 - (instancetype)init
@@ -277,6 +294,11 @@ protected:
             this->nextMockBookmarkId++;
             newBookmarkData[@"id"] = newId;
 
+            if (!newBookmarkData[@"type"]) {
+                NSString *url = newBookmarkData[@"url"];
+                newBookmarkData[@"type"] = (url && url.length > 0) ? @"bookmark" : @"folder";
+            }
+
             newBookmarkData[@"parentId"] = parentId;
             if (parentId && ![parentId isEqualToString:@"0"]) {
                 NSMutableDictionary *parentDict = findParentInMockTree(this->uiProcessMockBookmarks.get(), parentId);
@@ -304,6 +326,44 @@ protected:
             for (NSDictionary *dict in this->uiProcessMockBookmarks.get())
                 [results addObject:[[_MockBookmarkNode alloc] initWithDictionary:dict]];
             completionHandler(results, nil);
+        };
+    }
+
+    void configureRemoveBookmarksDelegate(TestWebExtensionManager *manager)
+    {
+        manager.internalDelegate.removeBookmarkWithIdentifier = ^(NSString *bookmarkId, BOOL removeFolderWithChildren, void (^completionHandler)(NSError *)) {
+            NSMutableDictionary *foundInfo = findBookmarkAndParentArrayInMockTree(uiProcessMockBookmarks.get(), bookmarkId);
+
+            if (!foundInfo) {
+                completionHandler([NSError errorWithDomain:NSCocoaErrorDomain code:NSExecutableRuntimeMismatchError userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Bookmark with ID '%@' not found.", bookmarkId] }]);
+                return;
+            }
+
+            NSMutableDictionary *foundBookmarkDict = foundInfo[@"bookmark"];
+            NSMutableArray *parentChildrenArray = foundInfo[@"parentChildren"];
+            NSString *foundBookmarkType = foundBookmarkDict[@"type"];
+
+            if (!removeFolderWithChildren) {
+                if ([foundBookmarkType isEqualToString:@"folder"]) {
+                    NSArray *folderChildren = foundBookmarkDict[@"children"];
+
+                    if (folderChildren.count) {
+                        completionHandler([NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteUnknownError userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Bookmark with ID '%@' is a non-empty folder and cannot be removed with bookmarks.remove(). Use bookmarks.removeTree().", bookmarkId] }]);
+                        return;
+                    }
+                }
+            } else {
+                if ([foundBookmarkType isEqualToString:@"bookmark"]) {
+                    completionHandler([NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteUnknownError userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Can't remove a non-folder item '%@' with bookmarks.removeTree(). Use bookmarks.remove().", bookmarkId] }]);
+                    return;
+                }
+            }
+
+            if (parentChildrenArray) {
+                [parentChildrenArray removeObject:foundBookmarkDict];
+                completionHandler(nil);
+            } else
+                completionHandler([NSError errorWithDomain:NSCocoaErrorDomain code:NSExecutableRuntimeMismatchError userInfo:@{ NSLocalizedDescriptionKey: @"Failed to remove bookmark from top level (parent array not found)." }]);
         };
     }
 
@@ -570,6 +630,66 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIGetSubTreeChildren)
 
     configureCreateBookmarkDelegate(manager.get());
     configureGetBookmarksDelegate(manager.get());
+
+    [manager loadAndRun];
+}
+
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIRemoveAndRemoveTree)
+{
+    auto script = @[
+        @"let folder1 = await browser.bookmarks.create({ title: 'Folder One' });",
+        @"let bookmarkA = await browser.bookmarks.create({ parentId: folder1.id, title: 'Bookmark A', url: 'http://example.com/a' });",
+        @"let folder2 = await browser.bookmarks.create({ parentId: folder1.id, title: 'Folder Two' });",
+        @"let bookmarkB = await browser.bookmarks.create({ parentId: folder2.id, title: 'Bookmark B', url: 'http://example.com/b' });",
+        @"let topLevelBookmark = await browser.bookmarks.create({ title: 'Top Level Bookmark', url: 'http://example.com/top' });",
+        @"let tree1 = await browser.bookmarks.getTree();",
+        @"browser.test.assertEq(2, tree1[0].children.length, 'folder1 should have 2 children');",
+        @"browser.test.assertEq('Top Level Bookmark', tree1[1].title, 'Second top-level is topBookmark');",
+        @"browser.test.assertEq('Bookmark A', tree1[0].children[0].title, 'bookmarkA is child of folder1');",
+
+        @"await browser.test.assertRejects(",
+        @"browser.bookmarks.removeTree(bookmarkA.id),",
+        @"/Can't remove a non-folder item '.*' with bookmarks.removeTree\\(\\). Use bookmarks.remove\\(\\)./,",
+        @"'FAIL-1: removeTree on a bookmark should fail with the correct message');",
+
+        @"await browser.test.assertRejects(",
+        @"browser.bookmarks.remove(folder2.id),",
+        @"/Bookmark with ID '.*' is a non-empty folder and cannot be removed with bookmarks.remove\\(\\). Use bookmarks.removeTree\\(\\)./,",
+        @"'FAIL-2: remove on a non-empty folder should fail with the correct message');",
+
+        @"await browser.test.assertRejects(",
+        @"browser.bookmarks.remove('nonexistent-id-123'),",
+        @"/Bookmark with ID 'nonexistent-id-123' not found./,",
+        @"'FAIL-3a: remove on a non-existent ID should fail with the correct message');",
+
+        @"await browser.test.assertRejects(",
+        @"browser.bookmarks.removeTree('nonexistent-id-456'),",
+        @"/Bookmark with ID 'nonexistent-id-456' not found./,",
+        @"'FAIL-3b: removeTree on a non-existent ID should fail with the correct message');",
+
+        @"await browser.bookmarks.remove(bookmarkA.id);",
+        @"let tree2 = await browser.bookmarks.getTree();",
+        @"browser.test.assertEq(1, tree2[0].children.length, 'folder1 should now have 1 child after removing bookmarkA');",
+        @"browser.test.assertEq('Folder Two', tree2[0].children[0].title, 'folder2 should be the only child of folder1');",
+        @"await browser.bookmarks.removeTree(folder2.id);",
+        @"let tree3 = await browser.bookmarks.getTree();",
+        @"browser.test.assertEq(0, tree3[0].children.length, 'folder1 should now have 0 children after removing folder2');",
+        @"browser.test.assertEq(2, tree3.length, 'Tree should still have 2 top-level items (folder1 and topBookmark)');",
+        @"browser.test.assertEq('Folder One', tree3[0].title, 'folder1 is still present');",
+        @"browser.test.assertEq(0, tree3[0].children.length, 'folder1 is still present but has no children');",
+        @"await browser.bookmarks.remove(folder1.id);",
+        @"let tree4 = await browser.bookmarks.getTree();",
+        @"browser.test.assertEq(1, tree4.length, 'the top level now ONLY has the top level bookmark');",
+        @"browser.test.notifyPass();",
+    ];
+
+    auto resources = @{ @"background.js": Util::constructScript(script) };
+
+    auto manager = getManagerFor(resources, bookmarkOnManifest);
+
+    configureCreateBookmarkDelegate(manager.get());
+    configureGetBookmarksDelegate(manager.get());
+    configureRemoveBookmarksDelegate(manager.get());
 
     [manager loadAndRun];
 }

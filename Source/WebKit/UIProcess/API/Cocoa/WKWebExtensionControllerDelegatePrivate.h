@@ -141,6 +141,16 @@ WK_API_AVAILABLE(macos(15.4), ios(18.4), visionos(2.4))
  represents the created item.
  */
 - (void)_webExtensionController:(WKWebExtensionController * _Nonnull)controller createBookmarkWithParentIdentifier:(nullable NSString *)parentId index:(nullable NSNumber *)index url:(nullable NSString *)url title:(NSString * _Nonnull)title forExtensionContext:(WKWebExtensionContext * _Nonnull)context completionHandler:(void (^)(NSObject<_WKWebExtensionBookmark> * _Nullable, NSError * _Nullable))completionHandler;
+
+/*!
+ @abstract Called when a bookmark or bookmark folder is requested to be removed.
+ @param controller The web extension controller initiating the request.
+ @param bookmarkIdentifier The unique string identifier of the bookmark or folder to remove.
+ @param recursively If YES, the entire subtree should be removed (for removeTree). If NO, only a single bookmark or an empty folder should be removed (for remove).
+ @param context The context within which the web extension is running.
+ @param completionHandler A block that must be called upon completion.
+ */
+- (void)_webExtensionController:(WKWebExtensionController * _Nonnull)controller removeBookmarkWithIdentifier:(NSString *)bookmarkIdentifier removeFolderWithChildren:(BOOL)removeFolderWithChildren forExtensionContext:(WKWebExtensionContext * _Nonnull)context completionHandler:(void (^)(NSError * _Nullable))completionHandler;
 @end
 
 WK_HEADER_AUDIT_END(nullability, sendability)
