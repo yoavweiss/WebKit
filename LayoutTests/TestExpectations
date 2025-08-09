@@ -6167,6 +6167,7 @@ imported/w3c/web-platform-tests/css/motion/offset-path-url-011.html [ ImageOnlyF
 webkit.org/b/272000 [ Debug ] ipc/send-filter.html [ Crash ]
 webkit.org/b/272000 [ Debug ] ipc/send-gradient.html [ Crash ]
 webkit.org/b/272000 [ Debug ] ipc/invalid-feConvolveMatrix-crash.html [ Crash ]
+webkit.org/b/272000 [ Debug ] ipc/restore-empty-stack-crash.html [ Crash ]
 
 # mac-only IPC test
 ipc/webpageproxy-correctionpanel-no-crash.html [ Skip ]
