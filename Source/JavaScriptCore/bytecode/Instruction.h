@@ -45,20 +45,6 @@ struct JSOpcodeTraits {
     static constexpr OpcodeSize maxOpcodeIDWidth = maxJSOpcodeIDWidth;
 };
 
-struct WasmOpcodeTraits {
-    using OpcodeID = WasmOpcodeID;
-    static constexpr OpcodeID numberOfBytecodesWithCheckpoints = static_cast<OpcodeID>(NUMBER_OF_WASM_WITH_CHECKPOINTS);
-    static constexpr OpcodeID numberOfBytecodesWithMetadata = static_cast<OpcodeID>(NUMBER_OF_WASM_WITH_METADATA);
-    static_assert(numberOfBytecodesWithCheckpoints <= numberOfBytecodesWithMetadata);
-    static constexpr OpcodeID wide16 = wasm_wide16;
-    static constexpr OpcodeID wide32 = wasm_wide32;
-    static constexpr const unsigned* opcodeLengths = wasmOpcodeLengths;
-    static constexpr const char* const* opcodeNames = wasmOpcodeNames;
-    static constexpr auto checkpointCountTable = wasmCheckpointCountTable;
-    static constexpr OpcodeSize maxOpcodeIDWidth = maxWasmOpcodeIDWidth;
-};
-
-
 template<typename Traits>
 struct BaseInstruction {
     struct Metadata { };
@@ -213,7 +199,6 @@ public:
 };
 
 using JSInstruction = BaseInstruction<JSOpcodeTraits>;
-using WasmInstruction  = BaseInstruction<WasmOpcodeTraits>;
 static_assert(sizeof(JSInstruction) == 1, "So pointer math is the same as byte math");
 
 } // namespace JSC

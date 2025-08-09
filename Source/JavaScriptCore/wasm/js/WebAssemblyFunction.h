@@ -97,7 +97,7 @@ private:
 
     CodePtr<JSEntryPtrTag> jsCallEntrypointSlow();
 
-    // This is the callee needed by LLInt/IPInt
+    // This is the callee needed by IPInt
     // FIXME: Make this a Wasm::IPIntCallee once wasm LLInt goes away.
     Ref<Wasm::Callee, BoxedNativeCalleePtrTraits<Wasm::Callee>> m_boxedWasmCallee;
     // This let's the JS->Wasm interpreter find its metadata

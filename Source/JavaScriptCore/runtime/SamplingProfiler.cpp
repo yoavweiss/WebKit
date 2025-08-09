@@ -1056,8 +1056,6 @@ static String tierName(SamplingProfiler::StackFrame& frame)
     case SamplingProfiler::FrameType::Wasm:
         if (frame.wasmCompilationMode) {
             switch (frame.wasmCompilationMode.value()) {
-            case Wasm::CompilationMode::LLIntMode:
-                return Tiers::wasmllint;
             case Wasm::CompilationMode::IPIntMode:
                 return Tiers::ipint;
             case Wasm::CompilationMode::JSToWasmEntrypointMode:

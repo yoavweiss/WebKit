@@ -54,11 +54,9 @@ struct HandlerInfo;
 
 template<typename> struct BaseInstruction;
 struct JSOpcodeTraits;
-struct WasmOpcodeTraits;
 using JSInstruction = BaseInstruction<JSOpcodeTraits>;
-using WasmInstruction = BaseInstruction<WasmOpcodeTraits>;
 
-using JSOrWasmInstruction = Variant<const JSInstruction*, const WasmInstruction*, uintptr_t /* IPIntOffset */>;
+using JSOrWasmInstruction = Variant<const JSInstruction*, uintptr_t /* IPIntOffset */>;
 
     class ArgList;
     class CachedCall;

@@ -102,6 +102,5 @@ private:
 WTF_MAKE_TZONE_ALLOCATED_TEMPLATE_IMPL(template<typename OpcodeTraits>, BytecodeBasicBlock<OpcodeTraits>);
 
 using JSBytecodeBasicBlock = BytecodeBasicBlock<JSOpcodeTraits>;
-using WasmBytecodeBasicBlock = BytecodeBasicBlock<WasmOpcodeTraits>;
 
 } // namespace JSC

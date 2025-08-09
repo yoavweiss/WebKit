@@ -109,7 +109,6 @@ struct Config {
 
     struct {
         uint8_t exceptionInstructions[maxBytecodeStructLength + 1];
-        uint8_t wasmExceptionInstructions[maxBytecodeStructLength + 1];
         const void* gateMap[numberOfGates];
     } llint;
 

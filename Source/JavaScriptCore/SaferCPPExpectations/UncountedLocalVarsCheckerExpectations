@@ -128,8 +128,6 @@ wasm/WasmIPIntGenerator.cpp
 wasm/WasmIPIntPlan.cpp
 wasm/WasmIPIntSlowPaths.cpp
 wasm/WasmIRGeneratorHelpers.h
-wasm/WasmLLIntGenerator.cpp
-wasm/WasmLLIntPlan.cpp
 wasm/WasmModule.cpp
 wasm/WasmOMGIRGenerator.cpp
 wasm/WasmOMGPlan.cpp
@@ -138,7 +136,6 @@ wasm/WasmOperations.cpp
 wasm/WasmOperationsInlines.h
 wasm/WasmParser.h
 wasm/WasmSectionParser.cpp
-wasm/WasmSlowPaths.cpp
 wasm/WasmStreamingCompiler.cpp
 wasm/WasmTypeDefinition.cpp
 wasm/WasmTypeDefinitionInlines.h

@@ -363,7 +363,6 @@ private:
 
 using JSInstructionStream = InstructionStream<JSInstruction>;
 using JSInstructionStreamWriter = InstructionStreamWriter<JSInstruction>;
-using WasmInstructionStream = InstructionStream<WasmInstruction>;
 
 } // namespace JSC
 

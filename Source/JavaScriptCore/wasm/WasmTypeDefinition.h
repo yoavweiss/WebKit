@@ -29,7 +29,6 @@
 
 #include <JavaScriptCore/JITCompilation.h>
 #include <JavaScriptCore/SIMDInfo.h>
-#include <JavaScriptCore/WasmLLIntBuiltin.h>
 #include <JavaScriptCore/WasmOps.h>
 #include <JavaScriptCore/WasmSIMDOpcodes.h>
 #include <JavaScriptCore/Width.h>
@@ -941,7 +940,6 @@ class TypeInformation {
 public:
     static TypeInformation& singleton();
 
-    static const TypeDefinition& signatureForLLIntBuiltin(LLIntBuiltin);
     static const TypeDefinition& signatureForJSException();
 
     static RefPtr<TypeDefinition> typeDefinitionForFunction(const Vector<Type, 16>& returnTypes, const Vector<Type, 16>& argumentTypes);

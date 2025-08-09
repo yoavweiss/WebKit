@@ -37,7 +37,6 @@
 #include "WasmContext.h"
 #include "WasmFunctionIPIntMetadataGenerator.h"
 #include "WasmFunctionParser.h"
-#include "WasmGeneratorTraits.h"
 #include <wtf/Assertions.h>
 #include <wtf/CompletionHandler.h>
 #include <wtf/RefPtr.h>

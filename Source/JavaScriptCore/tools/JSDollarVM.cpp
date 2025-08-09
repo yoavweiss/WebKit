@@ -2374,7 +2374,7 @@ JSC_DEFINE_HOST_FUNCTION(functionOMGTrue, (JSGlobalObject* globalObject, CallFra
         if (visitor->codeType() != StackVisitor::Frame::Wasm
             || !visitor->callee().isNativeCallee()) {
             allFramesAreValid = false;
-            return Wasm::CompilationMode::LLIntMode;
+            return Wasm::CompilationMode::IPIntMode;
         }
         return static_cast<Wasm::Callee*>(visitor->callee().asNativeCallee())->compilationMode();
     };

@@ -6814,3 +6814,10 @@ argumINTAlign(_stack)
 
 argumINTAlign(_end)
     jmp .ipint_entry_end_local
+
+if ARM64E
+    global _wasmTailCallTrampoline
+    _wasmTailCallTrampoline:
+        untagReturnAddress ws2
+        jmp ws0, WasmEntryPtrTag
+end

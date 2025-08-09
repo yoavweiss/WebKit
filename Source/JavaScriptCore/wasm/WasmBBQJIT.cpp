@@ -3865,7 +3865,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addEndToUnreachable(ControlEntry& entry
         // normal execution: jump past the handlers
         entryData.flushAndSingleExit(*this, entryData, entry.enclosedExpressionStack, false, true, unreachable);
         entryData.addBranch(m_jit.jump());
-        // similar to LLInt, we make a handler section to avoid jumping into random parts of code and not having
+        // similar to IPInt, we make a handler section to avoid jumping into random parts of code and not having
         // a real landing pad
         // FIXME: should we generate this all at the end of the code? this might help icache performance since
         // exceptions are rare

@@ -48,7 +48,6 @@
 #include "WasmCallee.h"
 #include "WasmCallingConvention.h"
 #include "WasmContext.h"
-#include "WasmLLIntGenerator.h"
 #include "WasmMemory.h"
 #include "WasmModuleInformation.h"
 #include "WasmOMGPlan.h"
@@ -1245,7 +1244,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmLoopOSREnterBBQJIT, void, (Probe:
             context.gpr(value.gprLo(B3::ValueRep::OSRValueRep)) = encodedValue & 0xffffffff;
 #endif
         } else if (value.isFPR()) {
-            ASSERT(type.isFloat()); // We don't expect vectors from LLInt right now.
+            ASSERT(type.isFloat()); // We don't expect vectors from IPInt right now.
             context.fpr(value.fpr()) = encodedValue;
         } else if (value.isStack()) {
             auto* baseStore = std::bit_cast<uint8_t*>(context.fp()) + value.offsetFromFP();
@@ -1263,7 +1262,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmLoopOSREnterBBQJIT, void, (Probe:
                 *std::bit_cast<double*>(baseStore) = std::bit_cast<double>(encodedValue);
                 break;
             case B3::V128:
-                RELEASE_ASSERT_NOT_REACHED_WITH_MESSAGE("We shouldn't be receiving v128 values when tiering up from LLInt into BBQ.");
+                RELEASE_ASSERT_NOT_REACHED_WITH_MESSAGE("We shouldn't be receiving v128 values when tiering up from IPInt into BBQ.");
                 break;
             default:
                 RELEASE_ASSERT_NOT_REACHED();
