@@ -164,6 +164,23 @@ template<ASCIISubset subset, unsigned size> static FixedVector<ASCIILiteral> mak
     return result;
 }
 
+static bool isValidMIMETypeWithSuffix(const String& mimeType, const ASCIILiteral suffix)
+{
+    if (!mimeType.endsWithIgnoringASCIICase(suffix))
+        return false;
+
+    if (mimeType.length() < suffix.length() + 2)
+        return false;
+
+    auto slashPosition = mimeType.find('/');
+    if (slashPosition == notFound || slashPosition <= 0)
+        return false;
+
+    // FIXME: Also check if type is a valid HTTP token.
+    auto subtypeExcludingSuffix = mimeType.substring(slashPosition + 1, mimeType.length() - suffix.length() - 1 - slashPosition);
+    return isValidHTTPToken(subtypeExcludingSuffix);
+}
+
 FixedVector<ASCIILiteral> MIMETypeRegistry::supportedImageMIMETypes()
 {
     return makeFixedVector(supportedImageMIMETypeArray);
@@ -550,25 +567,10 @@ bool MIMETypeRegistry::isTextMediaPlaylistMIMEType(const String& mimeType)
 // https://mimesniff.spec.whatwg.org/#json-mime-type
 bool MIMETypeRegistry::isSupportedJSONMIMEType(const String& mimeType)
 {
-    if (mimeType.isEmpty())
-        return false;
-
-    if (equalLettersIgnoringASCIICase(mimeType, "application/json"_s))
+    if (equalLettersIgnoringASCIICase(mimeType, "text/json"_s) || equalLettersIgnoringASCIICase(mimeType, "application/json"_s))
         return true;
 
-    if (equalLettersIgnoringASCIICase(mimeType, "text/json"_s))
-        return true;
-
-    // When detecting +json ensure there is a non-empty type / subtype preceeding the suffix.
-    if (mimeType.endsWithIgnoringASCIICase("+json"_s) && mimeType.length() >= 8) {
-        size_t slashPosition = mimeType.find('/');
-        if (slashPosition != notFound && slashPosition > 0 && slashPosition <= mimeType.length() - 6) {
-            if (isValidHTTPToken(mimeType.substring(slashPosition + 1, mimeType.length() - slashPosition - 6)))
-                return true;
-        }
-    }
-
-    return false;
+    return isValidMIMETypeWithSuffix(mimeType, "+json"_s);
 }
 
 bool MIMETypeRegistry::isSupportedNonImageMIMEType(const String& mimeType)
@@ -606,35 +608,13 @@ bool MIMETypeRegistry::isTextMIMEType(const String& mimeType)
             && !equalLettersIgnoringASCIICase(mimeType, "text/xsl"_s));
 }
 
-static inline bool isValidXMLMIMETypeChar(char16_t c)
-{
-    // Valid characters per RFCs 3023 and 2045: 0-9a-zA-Z_-+~!$^{}|.%'`#&*
-    return isASCIIAlphanumeric(c) || c == '!' || c == '#' || c == '$' || c == '%' || c == '&' || c == '\'' || c == '*' || c == '+'
-        || c == '-' || c == '.' || c == '^' || c == '_' || c == '`' || c == '{' || c == '|' || c == '}' || c == '~';
-}
-
 // https://mimesniff.spec.whatwg.org/#xml-mime-type
 bool MIMETypeRegistry::isXMLMIMEType(const String& mimeType)
 {
     if (equalLettersIgnoringASCIICase(mimeType, "text/xml"_s) || equalLettersIgnoringASCIICase(mimeType, "application/xml"_s))
         return true;
 
-    if (!mimeType.endsWithIgnoringASCIICase("+xml"_s))
-        return false;
-
-    size_t slashPosition = mimeType.find('/');
-    // Take into account the '+xml' ending of mimeType.
-    if (slashPosition == notFound || !slashPosition || slashPosition == mimeType.length() - 5)
-        return false;
-
-    // Again, mimeType ends with '+xml', no need to check the validity of that substring.
-    size_t mimeLength = mimeType.length();
-    for (size_t i = 0; i < mimeLength - 4; ++i) {
-        if (!isValidXMLMIMETypeChar(mimeType[i]) && i != slashPosition)
-            return false;
-    }
-
-    return true;
+    return isValidMIMETypeWithSuffix(mimeType, "+xml"_s);
 }
 
 bool MIMETypeRegistry::isXMLEntityMIMEType(StringView mimeType)
