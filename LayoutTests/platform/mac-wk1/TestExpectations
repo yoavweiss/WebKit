@@ -3224,3 +3224,5 @@ media/video-setSinkId-default.html [ Skip ]
 dom/xsl/lockdown-mode [ Skip ]
 http/tests/lockdown-mode [ Skip ]
 js/dom/lockdown-mode [ Skip ]
+
+webkit.org/b/289382 fast/canvas/offscreen-no-script-context-crash.html [ Skip ]
