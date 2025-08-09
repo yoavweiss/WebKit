@@ -1372,7 +1372,8 @@ TEST(WebKit, TabDoesNotTakeFocusFromEditableWebView)
 
 @end
 
-TEST(WebKit, SaveDataToFile)
+// FIXME: <webkit.org/b/296970> [macOS] Several API tests interacting with the PDF HUD are failing
+TEST(WebKit, DISABLED_SaveDataToFile)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600)]);
     RetainPtr delegate = adoptNS([[SaveDataToFileDelegate alloc] init]);

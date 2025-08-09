@@ -341,7 +341,8 @@ UNIFIED_PDF_TEST(PrintSize)
     TestWebKitAPI::Util::run(&receivedSize);
 }
 
-UNIFIED_PDF_TEST(SetPageZoomFactorDoesNotBailIncorrectly)
+// FIXME: <webkit.org/b/296970> [macOS] Several API tests interacting with the PDF HUD are failing
+UNIFIED_PDF_TEST(DISABLED_SetPageZoomFactorDoesNotBailIncorrectly)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configurationForWebViewTestingUnifiedPDF(true).get()]);
     [webView loadData:testPDFData().get() MIMEType:@"application/pdf" characterEncodingName:@"" baseURL:[NSURL URLWithString:@"https://www.apple.com/testPath"]];
@@ -372,7 +373,8 @@ static void checkFrame(NSRect frame, CGFloat x, CGFloat y, CGFloat width, CGFloa
     EXPECT_EQ(frame.size.height, height);
 }
 
-UNIFIED_PDF_TEST(PDFHUDMainResourcePDF)
+// FIXME: <webkit.org/b/296970> [macOS] Several API tests interacting with the PDF HUD are failing
+UNIFIED_PDF_TEST(DISABLED_PDFHUDMainResourcePDF)
 {
     RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:NSMakeRect(0, 0, 800, 600) configuration:configurationForWebViewTestingUnifiedPDF(true).get()]);
     [webView loadData:testPDFData().get() MIMEType:@"application/pdf" characterEncodingName:@"" baseURL:[NSURL URLWithString:@"https://www.apple.com/testPath"]];
@@ -400,7 +402,8 @@ UNIFIED_PDF_TEST(PDFHUDMainResourcePDF)
         TestWebKitAPI::Util::spinRunLoop();
 }
 
-UNIFIED_PDF_TEST(PDFHUDMoveIFrame)
+// FIXME: <webkit.org/b/296970> [macOS] Several API tests interacting with the PDF HUD are failing
+UNIFIED_PDF_TEST(DISABLED_PDFHUDMoveIFrame)
 {
     RetainPtr handler = adoptNS([TestURLSchemeHandler new]);
     [handler setStartURLSchemeTaskHandler:^(WKWebView *, id<WKURLSchemeTask> task) {
@@ -459,7 +462,8 @@ UNIFIED_PDF_TEST(PDFHUDMoveIFrame)
     checkFrame([webView _pdfHUDs].anyObject.frame, 14, 40, 560, 210);
 }
 
-UNIFIED_PDF_TEST(PDFHUDNestedIFrames)
+// FIXME: <webkit.org/b/296970> [macOS] Several API tests interacting with the PDF HUD are failing
+UNIFIED_PDF_TEST(DISABLED_PDFHUDNestedIFrames)
 {
     RetainPtr handler = adoptNS([TestURLSchemeHandler new]);
     [handler setStartURLSchemeTaskHandler:^(WKWebView *, id<WKURLSchemeTask> task) {
@@ -498,7 +502,8 @@ UNIFIED_PDF_TEST(PDFHUDNestedIFrames)
         TestWebKitAPI::Util::spinRunLoop();
 }
 
-UNIFIED_PDF_TEST(PDFHUDIFrame3DTransform)
+// FIXME: <webkit.org/b/296970> [macOS] Several API tests interacting with the PDF HUD are failing
+UNIFIED_PDF_TEST(DISABLED_PDFHUDIFrame3DTransform)
 {
     RetainPtr handler = adoptNS([TestURLSchemeHandler new]);
     [handler setStartURLSchemeTaskHandler:^(WKWebView *, id<WKURLSchemeTask> task) {
@@ -528,7 +533,8 @@ UNIFIED_PDF_TEST(PDFHUDIFrame3DTransform)
     checkFrame([webView _pdfHUDs].anyObject.frame, 403, 10, 500, 500);
 }
 
-UNIFIED_PDF_TEST(PDFHUDMultipleIFrames)
+// FIXME: <webkit.org/b/296970> [macOS] Several API tests interacting with the PDF HUD are failing
+UNIFIED_PDF_TEST(DISABLED_PDFHUDMultipleIFrames)
 {
     RetainPtr handler = adoptNS([TestURLSchemeHandler new]);
     [handler setStartURLSchemeTaskHandler:^(WKWebView *, id<WKURLSchemeTask> task) {
@@ -570,7 +576,8 @@ UNIFIED_PDF_TEST(PDFHUDMultipleIFrames)
     EXPECT_TRUE(hadRightFrame);
 }
 
-UNIFIED_PDF_TEST(PDFHUDLoadPDFTypeWithPluginsBlocked)
+// FIXME: <webkit.org/b/296970> [macOS] Several API tests interacting with the PDF HUD are failing
+UNIFIED_PDF_TEST(DISABLED_PDFHUDLoadPDFTypeWithPluginsBlocked)
 {
     RetainPtr configuration = configurationForWebViewTestingUnifiedPDF(true);
     [configuration _setOverrideContentSecurityPolicy:@"object-src 'none'"];
