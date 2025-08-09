@@ -56,7 +56,6 @@ public:
 
     SymbolImpl& uid() const { return m_privateName.uid(); }
     PrivateName privateName() const { return m_privateName; }
-    String descriptiveString() const;
     String description() const;
     Expected<String, ErrorTypeWithExtension> tryGetDescriptiveString() const;
 
