@@ -176,8 +176,12 @@ static bool isValidMIMETypeWithSuffix(const String& mimeType, const ASCIILiteral
     if (slashPosition == notFound || slashPosition <= 0)
         return false;
 
-    // FIXME: Also check if type is a valid HTTP token.
-    auto subtypeExcludingSuffix = mimeType.substring(slashPosition + 1, mimeType.length() - suffix.length() - 1 - slashPosition);
+    auto type = mimeType.substring(0, slashPosition);
+    if (!isValidHTTPToken(type))
+        return false;
+
+    // Assume the suffix is already a valid HTTP token and avoid checking it.
+    auto subtypeExcludingSuffix = mimeType.substring(slashPosition + 1, mimeType.length() - slashPosition - suffix.length());
     return isValidHTTPToken(subtypeExcludingSuffix);
 }
 
