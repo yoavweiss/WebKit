@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,21 +23,31 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "APIScriptMessage.h"
-#import "WKObject.h"
-#import "WKScriptMessage.h"
-#import <wtf/AlignedStorage.h>
+#include "config.h"
+#include "APIScriptMessage.h"
 
-namespace WebKit {
+#include "APIContentWorld.h"
+#include "APIFrameInfo.h"
+#include "JavaScriptEvaluationResult.h"
 
-template<> struct WrapperTraits<API::ScriptMessage> {
-    using WrapperClass = WKScriptMessage;
-};
+namespace API {
 
+ScriptMessage::~ScriptMessage() = default;
+
+ScriptMessage::ScriptMessage(WebKit::JavaScriptEvaluationResult&& body, ResultType resultType, WebKit::WebPageProxy& page, Ref<API::FrameInfo>&& frame, const WTF::String& name, Ref<API::ContentWorld>&& world)
+    : m_page(page)
+    , m_frame(WTFMove(frame))
+    , m_name(name)
+    , m_world(WTFMove(world))
+{
+#if PLATFORM(COCOA)
+    switch (resultType) {
+    case ResultType::ObjC:
+        m_body = body.toID();
+    }
+#else
+    UNUSED_PARAM(resultType);
+#endif
 }
 
-@interface WKScriptMessage () <WKObject> {
-@package
-    AlignedStorage<API::ScriptMessage> _scriptMessage;
 }
-@end

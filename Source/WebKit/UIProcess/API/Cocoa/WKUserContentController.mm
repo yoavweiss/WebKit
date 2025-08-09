@@ -134,7 +134,7 @@ public:
     ScriptMessageHandlerDelegate(WKUserContentController *controller, id <WKScriptMessageHandler> handler, NSString *name)
         : m_controller(controller)
         , m_handler(handler)
-        , m_name(adoptNS([name copy]))
+        , m_name(name)
         , m_supportsAsyncReply(false)
     {
     }
@@ -142,7 +142,7 @@ public:
     ScriptMessageHandlerDelegate(WKUserContentController *controller, id <WKScriptMessageHandlerWithReply> handler, NSString *name)
         : m_controller(controller)
         , m_handler(handler)
-        , m_name(adoptNS([name copy]))
+        , m_name(name)
         , m_supportsAsyncReply(true)
     {
     }
@@ -150,11 +150,7 @@ public:
     void didPostMessage(WebKit::WebPageProxy& page, WebKit::FrameInfoData&& frameInfoData, API::ContentWorld& world, WebKit::JavaScriptEvaluationResult&& jsMessage, CompletionHandler<void(Expected<WebKit::JavaScriptEvaluationResult, String>&&)>&& replyHandler) final
     {
         @autoreleasepool {
-            RetainPtr webView = page.cocoaView();
-            if (!webView)
-                return replyHandler(makeUnexpected("The WKWebView was deallocated before the message was delivered"_s));
-            RetainPtr frameInfo = wrapper(API::FrameInfo::create(WTFMove(frameInfoData), &page));
-            RetainPtr message = adoptNS([[WKScriptMessage alloc] _initWithBody:jsMessage.toID().get() webView:webView.get() frameInfo:frameInfo.get() name:m_name.get() world:wrapper(world)]);
+            RetainPtr message = wrapper(API::ScriptMessage::create(WTFMove(jsMessage), API::ScriptMessage::ResultType::ObjC, page, API::FrameInfo::create(WTFMove(frameInfoData), &page), m_name, world));
 
             if (m_supportsAsyncReply) {
                 __block auto handler = CompletionHandlerWithFinalizer<void(Expected<WebKit::JavaScriptEvaluationResult, String>&&)>(WTFMove(replyHandler), [](auto& function) {
@@ -183,7 +179,7 @@ public:
 private:
     const RetainPtr<WKUserContentController> m_controller;
     const RetainPtr<id> m_handler;
-    const RetainPtr<NSString> m_name;
+    const String m_name;
     const bool m_supportsAsyncReply { false };
 };
 
