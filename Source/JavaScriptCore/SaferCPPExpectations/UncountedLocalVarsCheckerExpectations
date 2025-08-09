@@ -6,7 +6,6 @@ API/tests/testapi.cpp
 builtins/BuiltinNames.cpp
 bytecode/AccessCase.cpp
 bytecode/AdaptiveInferredPropertyValueWatchpointBase.cpp
-bytecode/BytecodeDumper.cpp
 bytecode/CallLinkStatus.cpp
 bytecode/CheckPrivateBrandStatus.cpp
 bytecode/CodeBlock.cpp
