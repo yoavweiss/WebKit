@@ -665,7 +665,7 @@ op(js_to_wasm_wrapper_entry, macro ()
         addp constexpr Wasm::JSEntrypointCallee::SpillStackSpaceAligned, sp
     end
 
-    macro getWebAssemblyFunctionAndsetNativeCalleeAndInstance(webAssemblyFunctionOut, scratch)
+    macro getWebAssemblyFunctionAndSetNativeCalleeAndInstance(webAssemblyFunctionOut, scratch)
         # Re-load WebAssemblyFunction Callee
         loadp Callee[cfr], webAssemblyFunctionOut
 
@@ -764,7 +764,7 @@ if ASSERT_ENABLED
     end)
 end
 
-    getWebAssemblyFunctionAndsetNativeCalleeAndInstance(ws1, ws0)
+    getWebAssemblyFunctionAndSetNativeCalleeAndInstance(ws1, ws0)
 
     # Load callee entrypoint
     loadp WebAssemblyFunction::m_importableFunction + Wasm::WasmOrJSImportableFunction::entrypointLoadLocation[ws1], ws0
@@ -888,11 +888,11 @@ end
 
     # We need to set our NativeCallee/instance here since haven't done it already and wasm_throw_from_slow_path_trampoline expects them.
 .stackOverflow:
-    getWebAssemblyFunctionAndsetNativeCalleeAndInstance(ws1, ws0)
+    getWebAssemblyFunctionAndSetNativeCalleeAndInstance(ws1, ws0)
     throwException(StackOverflow)
 
 .buildEntryFrameThrew:
-    getWebAssemblyFunctionAndsetNativeCalleeAndInstance(ws1, ws0)
+    getWebAssemblyFunctionAndSetNativeCalleeAndInstance(ws1, ws0)
 
 .unwind:
     loadp JSWebAssemblyInstance::m_vm[wasmInstance], a0
