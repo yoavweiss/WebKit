@@ -291,8 +291,11 @@ void InsertListCommand::doApplyForSingleParagraph(bool forceCreateList, const HT
             if (rangeEndIsInList && newList)
                 currentSelection.end = makeBoundaryPointAfterNodeContents(*newList);
 
-            setEndingSelection(VisibleSelection(makeContainerOffsetPosition(currentSelection.start),
-                makeContainerOffsetPosition(currentSelection.end)));
+            if ((rangeStartIsInList || rangeEndIsInList) && newList) {
+                setEndingSelection(VisibleSelection(makeContainerOffsetPosition(currentSelection.start),
+                    makeContainerOffsetPosition(currentSelection.end)));
+            } else
+                setEndingSelection(VisibleSelection(firstPositionInNode(newList.get())));
 
             return;
         }
