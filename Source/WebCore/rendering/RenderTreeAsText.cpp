@@ -196,8 +196,8 @@ void RenderTreeAsText::writeRenderObject(TextStream& ts, const RenderObject& o, 
     if (behavior.contains(RenderAsTextFlag::ShowAddresses))
         ts << ' ' << &o;
 
-    if (o.style().usedZIndex()) // FIXME: This should use !hasAutoUsedZIndex().
-        ts << " zI: "_s << o.style().usedZIndex();
+    if (auto value = o.style().usedZIndex().tryValue(); value && value->value) // FIXME: This should log even when value->value is zero.
+        ts << " zI: "_s << value->value;
 
     if (o.node()) {
         String tagName = getTagName(o.node());

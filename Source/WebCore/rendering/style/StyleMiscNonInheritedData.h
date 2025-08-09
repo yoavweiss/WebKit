@@ -34,6 +34,7 @@
 #include "StyleContentAlignmentData.h"
 #include "StyleObjectPosition.h"
 #include "StyleOpacity.h"
+#include "StyleOrder.h"
 #include "StyleSelfAlignmentData.h"
 #include <memory>
 #include <wtf/DataRef.h>
@@ -96,7 +97,7 @@ public:
     StyleSelfAlignmentData justifyItems;
     StyleSelfAlignmentData justifySelf;
     Style::ObjectPosition objectPosition;
-    int order;
+    Style::Order order;
 
     PREFERRED_TYPE(bool) unsigned hasAttrContent : 1 { false };
     PREFERRED_TYPE(bool) unsigned hasDisplayAffectedByAnimations : 1 { false };

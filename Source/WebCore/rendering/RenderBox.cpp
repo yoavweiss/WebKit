@@ -1849,7 +1849,7 @@ static bool isCandidateForOpaquenessTest(const RenderBox& childBox)
         if (childLayer->isComposited())
             return false;
         // FIXME: Deal with z-index.
-        if (!childStyle.hasAutoUsedZIndex())
+        if (!childStyle.usedZIndex().isAuto())
             return false;
         if (childLayer->isTransformed() || childLayer->isTransparent() || childLayer->hasFilter())
             return false;
@@ -5455,8 +5455,12 @@ std::optional<LayoutUnit> RenderBox::explicitIntrinsicInnerHeight() const
 // position:static elements that are not flex-items get their z-index coerced to auto.
 bool RenderBox::requiresLayer() const
 {
-    return RenderBoxModelObject::requiresLayer() || hasNonVisibleOverflow() || style().specifiesColumns()
-        || style().containsLayout() || !style().hasAutoUsedZIndex() || hasRunningAcceleratedAnimations();
+    return RenderBoxModelObject::requiresLayer()
+        || hasNonVisibleOverflow()
+        || style().specifiesColumns()
+        || style().containsLayout()
+        || !style().usedZIndex().isAuto()
+        || hasRunningAcceleratedAnimations();
 }
 
 void RenderBox::updateFloatPainterAfterSelfPaintingLayerChange()

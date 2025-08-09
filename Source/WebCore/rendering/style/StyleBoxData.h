@@ -31,6 +31,7 @@
 #include "StyleMinimumSize.h"
 #include "StylePreferredSize.h"
 #include "StyleVerticalAlign.h"
+#include "StyleZIndex.h"
 #include <wtf/Ref.h>
 #include <wtf/RefCounted.h>
 
@@ -55,20 +56,17 @@ public:
 
     const Style::PreferredSize& width() const { return m_width; }
     const Style::PreferredSize& height() const { return m_height; }
-    
+
     const Style::MinimumSize& minWidth() const { return m_minWidth; }
     const Style::MinimumSize& minHeight() const { return m_minHeight; }
-    
+
     const Style::MaximumSize& maxWidth() const { return m_maxWidth; }
     const Style::MaximumSize& maxHeight() const { return m_maxHeight; }
     
     const Style::VerticalAlign& verticalAlign() const { return m_verticalAlign; }
-    
-    int specifiedZIndex() const { return m_specifiedZIndex; }
-    bool hasAutoSpecifiedZIndex() const { return m_hasAutoSpecifiedZIndex; }
 
-    int usedZIndex() const { return m_usedZIndex; }
-    bool hasAutoUsedZIndex() const { return m_hasAutoUsedZIndex; }
+    Style::ZIndex specifiedZIndex() const { return { static_cast<bool>(m_hasAutoSpecifiedZIndex), m_specifiedZIndexValue }; }
+    Style::ZIndex usedZIndex() const { return { static_cast<bool>(m_hasAutoUsedZIndex), m_usedZIndexValue }; }
 
     BoxSizing boxSizing() const { return static_cast<BoxSizing>(m_boxSizing); }
     BoxDecorationBreak boxDecorationBreak() const { return static_cast<BoxDecorationBreak>(m_boxDecorationBreak); }
@@ -95,8 +93,8 @@ private:
     PREFERRED_TYPE(BoxSizing) uint8_t m_boxSizing : 1;
     PREFERRED_TYPE(BoxDecorationBreak) uint8_t m_boxDecorationBreak : 1;
 
-    int m_specifiedZIndex;
-    int m_usedZIndex;
+    Style::ZIndex::Value m_specifiedZIndexValue;
+    Style::ZIndex::Value m_usedZIndexValue;
 };
 
 } // namespace WebCore

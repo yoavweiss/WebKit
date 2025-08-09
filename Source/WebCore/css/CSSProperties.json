@@ -8468,10 +8468,9 @@
                 "auto"
             ],
             "codegen-properties": {
-                "animation-wrapper": "AutoWrapper<int>",
-                "animation-wrapper-requires-additional-parameters": ["&RenderStyle::hasAutoSpecifiedZIndex", "&RenderStyle::setHasAutoSpecifiedZIndex"],
-                "auto-functions": true,
+                "animation-wrapper": "StyleTypeWrapper",
                 "render-style-name-for-methods": "SpecifiedZIndex",
+                "style-converter": "StyleType<ZIndex>",
                 "parser-grammar": "auto | <integer>"
             },
             "specification": {
@@ -9080,9 +9079,8 @@
                 "aliases": [
                     "-webkit-column-count"
                 ],
-                "animation-wrapper": "AutoWrapper<unsigned short>",
-                "animation-wrapper-requires-additional-parameters": ["&RenderStyle::hasAutoColumnCount", "&RenderStyle::setHasAutoColumnCount", "1U"],
-                "auto-functions": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ColumnCount>",
                 "parser-grammar": "auto | <integer [1,inf]>",
                 "parser-exported": true
             },
@@ -9291,10 +9289,8 @@
                 "aliases": [
                     "-webkit-column-width"
                 ],
-                "animation-wrapper": "AutoWrapper<float>",
-                "animation-wrapper-requires-additional-parameters": ["&RenderStyle::hasAutoColumnWidth", "&RenderStyle::setHasAutoColumnWidth", "0.0f"],
-                "style-converter": "ComputedLength<float>",
-                "auto-functions": true,
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ColumnWidth>",
                 "parser-grammar": "auto | <length [0,inf]>",
                 "parser-exported": true
             },
@@ -9655,8 +9651,8 @@
                 "aliases": [
                     "-webkit-flex-grow"
                 ],
-                "animation-wrapper": "FloatWrapper",
-                "animation-wrapper-requires-additional-parameters": ["FloatWrapper::ValueRange::NonNegative"],
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<FlexGrow>",
                 "parser-grammar": "<number [0,inf]>"
             },
             "specification": {
@@ -9671,8 +9667,8 @@
                 "aliases": [
                     "-webkit-flex-shrink"
                 ],
-                "animation-wrapper": "FloatWrapper",
-                "animation-wrapper-requires-additional-parameters": ["FloatWrapper::ValueRange::NonNegative"],
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<FlexShrink>",
                 "parser-grammar": "<number [0,inf]>"
             },
             "specification": {
@@ -10561,12 +10557,13 @@
                 "aliases": [
                     "-webkit-order"
                 ],
-                "animation-wrapper": "Wrapper",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<Order>",
                 "parser-grammar": "<integer>"
             },
             "specification": {
-                "category": "css-flexbox",
-                "url": "https://www.w3.org/TR/css-flexbox-1/#order-property"
+                "category": "css-display",
+                "url": "https://drafts.csswg.org/css-display-4/#propdef-order"
             }
         },
         "perspective": {

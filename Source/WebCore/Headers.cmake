@@ -2795,10 +2795,16 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     style/values/counter-styles/StyleCounterStyle.h
 
+    style/values/css2/StyleZIndex.h
+
+    style/values/display/StyleOrder.h
+
     style/values/fill-stroke/StyleStrokeMiterlimit.h
     style/values/fill-stroke/StyleStrokeWidth.h
 
     style/values/flexbox/StyleFlexBasis.h
+    style/values/flexbox/StyleFlexGrow.h
+    style/values/flexbox/StyleFlexShrink.h
 
     style/values/grid/StyleGridNamedAreaMap.h
     style/values/grid/StyleGridNamedLinesMap.h
@@ -2839,6 +2845,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/motion/StyleOffsetPosition.h
     style/values/motion/StyleOffsetRotate.h
     style/values/motion/StyleRayFunction.h
+
+    style/values/multicol/StyleColumnCount.h
+    style/values/multicol/StyleColumnWidth.h
 
     style/values/non-standard/StyleWebKitBorderSpacing.h
     style/values/non-standard/StyleWebKitOverflowScrolling.h

@@ -48,12 +48,12 @@ StyleBoxData::StyleBoxData()
     , m_minHeight(RenderStyle::initialMinSize())
     , m_maxHeight(RenderStyle::initialMaxSize())
     , m_verticalAlign(RenderStyle::initialVerticalAlign())
-    , m_hasAutoSpecifiedZIndex(true)
-    , m_hasAutoUsedZIndex(true)
-    , m_boxSizing(static_cast<unsigned>(BoxSizing::ContentBox))
-    , m_boxDecorationBreak(static_cast<unsigned>(BoxDecorationBreak::Slice))
-    , m_specifiedZIndex(0)
-    , m_usedZIndex(0)
+    , m_hasAutoSpecifiedZIndex(static_cast<uint8_t>(RenderStyle::initialSpecifiedZIndex().m_isAuto))
+    , m_hasAutoUsedZIndex(static_cast<uint8_t>(RenderStyle::initialUsedZIndex().m_isAuto))
+    , m_boxSizing(static_cast<uint8_t>(BoxSizing::ContentBox))
+    , m_boxDecorationBreak(static_cast<uint8_t>(BoxDecorationBreak::Slice))
+    , m_specifiedZIndexValue(RenderStyle::initialSpecifiedZIndex().m_value)
+    , m_usedZIndexValue(RenderStyle::initialUsedZIndex().m_value)
 {
 }
 
@@ -70,8 +70,8 @@ inline StyleBoxData::StyleBoxData(const StyleBoxData& o)
     , m_hasAutoUsedZIndex(o.m_hasAutoUsedZIndex)
     , m_boxSizing(o.m_boxSizing)
     , m_boxDecorationBreak(o.m_boxDecorationBreak)
-    , m_specifiedZIndex(o.m_specifiedZIndex)
-    , m_usedZIndex(o.m_usedZIndex)
+    , m_specifiedZIndexValue(o.m_specifiedZIndexValue)
+    , m_usedZIndexValue(o.m_usedZIndexValue)
 {
 }
 
@@ -89,11 +89,11 @@ bool StyleBoxData::operator==(const StyleBoxData& o) const
         && m_minHeight == o.m_minHeight
         && m_maxHeight == o.m_maxHeight
         && m_verticalAlign == o.m_verticalAlign
-        && m_usedZIndex == o.m_usedZIndex
+        && m_usedZIndexValue == o.m_usedZIndexValue
         && m_hasAutoUsedZIndex == o.m_hasAutoUsedZIndex
         && m_boxSizing == o.m_boxSizing
         && m_boxDecorationBreak == o.m_boxDecorationBreak
-        && m_specifiedZIndex == o.m_specifiedZIndex
+        && m_specifiedZIndexValue == o.m_specifiedZIndexValue
         && m_hasAutoSpecifiedZIndex == o.m_hasAutoSpecifiedZIndex;
 }
 
@@ -117,8 +117,8 @@ void StyleBoxData::dumpDifferences(TextStream& ts, const StyleBoxData& other) co
     LOG_IF_DIFFERENT_WITH_CAST(BoxSizing, m_boxSizing);
     LOG_IF_DIFFERENT_WITH_CAST(BoxDecorationBreak, m_boxDecorationBreak);
 
-    LOG_IF_DIFFERENT(m_specifiedZIndex);
-    LOG_IF_DIFFERENT(m_usedZIndex);
+    LOG_IF_DIFFERENT(m_specifiedZIndexValue);
+    LOG_IF_DIFFERENT(m_usedZIndexValue);
 }
 #endif
 

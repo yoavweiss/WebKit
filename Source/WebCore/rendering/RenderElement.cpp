@@ -473,7 +473,6 @@ bool RenderElement::repaintBeforeStyleChange(StyleDifference diff, const RenderS
                 // Certain style changes require layer repaint, since the layer could end up being destroyed.
                 auto layerMayGetDestroyed = oldStyle.position() != newStyle.position()
                     || oldStyle.usedZIndex() != newStyle.usedZIndex()
-                    || oldStyle.hasAutoUsedZIndex() != newStyle.hasAutoUsedZIndex()
                     || oldStyle.clip() != newStyle.clip()
                     || oldStyle.hasClip() != newStyle.hasClip()
                     || oldStyle.hasOpacity() != newStyle.hasOpacity()
@@ -929,8 +928,7 @@ void RenderElement::styleWillChange(StyleDifference diff, const RenderStyle& new
         // If our z-index changes value or our visibility changes,
         // we need to dirty our stacking context's z-order list.
         bool visibilityChanged = m_style.usedVisibility() != newStyle.usedVisibility()
-            || m_style.usedZIndex() != newStyle.usedZIndex()
-            || m_style.hasAutoUsedZIndex() != newStyle.hasAutoUsedZIndex();
+            || m_style.usedZIndex() != newStyle.usedZIndex();
 
         if (visibilityChanged)
             protectedDocument()->invalidateRenderingDependentRegions();

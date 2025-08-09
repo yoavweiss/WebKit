@@ -613,7 +613,7 @@ static bool canCreateStackingContext(const RenderLayer& layer)
         || renderer.hasReflection()
         || renderer.style().hasIsolation()
         || renderer.shouldApplyPaintContainment()
-        || !renderer.style().hasAutoUsedZIndex()
+        || !renderer.style().usedZIndex().isAuto()
         || (renderer.style().willChange() && renderer.style().willChange()->canCreateStackingContext())
         || layer.establishesTopLayer();
 }
@@ -634,7 +634,14 @@ bool RenderLayer::shouldBeNormalFlowOnly() const
 
 bool RenderLayer::shouldBeCSSStackingContext() const
 {
-    return !renderer().style().hasAutoUsedZIndex() || renderer().shouldApplyLayoutContainment() || renderer().shouldApplyPaintContainment() || renderer().requiresRenderingConsolidationForViewTransition() || renderer().isRenderViewTransitionCapture() ||  renderer().isViewTransitionRoot() || renderer().isViewTransitionContainingBlock() || isRenderViewLayer();
+    return !renderer().style().usedZIndex().isAuto()
+        || renderer().shouldApplyLayoutContainment()
+        || renderer().shouldApplyPaintContainment()
+        || renderer().requiresRenderingConsolidationForViewTransition()
+        || renderer().isRenderViewTransitionCapture()
+        || renderer().isViewTransitionRoot()
+        || renderer().isViewTransitionContainingBlock()
+        || isRenderViewLayer();
 }
 
 bool RenderLayer::computeCanBeBackdropRoot() const

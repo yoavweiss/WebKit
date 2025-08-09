@@ -1004,7 +1004,7 @@ bool RenderStyle::changeRequiresLayout(const RenderStyle& other, OptionSet<Style
             if (m_nonInheritedData->boxData->boxSizing() != other.m_nonInheritedData->boxData->boxSizing())
                 return true;
 
-            if (m_nonInheritedData->boxData->hasAutoUsedZIndex() != other.m_nonInheritedData->boxData->hasAutoUsedZIndex())
+            if (m_nonInheritedData->boxData->usedZIndex().isAuto() != other.m_nonInheritedData->boxData->usedZIndex().isAuto())
                 return true;
         }
 
@@ -1192,7 +1192,7 @@ bool RenderStyle::changeRequiresLayerRepaint(const RenderStyle& other, OptionSet
 
     if (m_nonInheritedData.ptr() != other.m_nonInheritedData.ptr()) {
         if (m_nonInheritedData->boxData.ptr() != other.m_nonInheritedData->boxData.ptr()) {
-            if (m_nonInheritedData->boxData->usedZIndex() != other.m_nonInheritedData->boxData->usedZIndex() || m_nonInheritedData->boxData->hasAutoUsedZIndex() != other.m_nonInheritedData->boxData->hasAutoUsedZIndex())
+            if (m_nonInheritedData->boxData->usedZIndex() != other.m_nonInheritedData->boxData->usedZIndex())
                 return true;
         }
 
@@ -1639,7 +1639,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyMaxHeight);
         if (first.verticalAlign() != second.verticalAlign())
             changingProperties.m_properties.set(CSSPropertyVerticalAlign);
-        if (first.specifiedZIndex() != second.specifiedZIndex() || first.hasAutoSpecifiedZIndex() != second.hasAutoSpecifiedZIndex())
+        if (first.specifiedZIndex() != second.specifiedZIndex())
             changingProperties.m_properties.set(CSSPropertyZIndex);
         if (first.boxSizing() != second.boxSizing())
             changingProperties.m_properties.set(CSSPropertyBoxSizing);
