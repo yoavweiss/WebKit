@@ -1756,16 +1756,15 @@ private:
             }
 
             if (node->child2()->shouldSpeculateString()) {
-                m_insertionSet.insertNode(
-                    m_indexInBlock, SpecNone, Check, node->origin,
-                    Edge(node->child2().node(), StringUse));
                 fixEdge<StringUse>(node->child2());
-            } else if (op == StringReplace || op == StringReplaceAll) {
+                break;
+            }
+
+            if (op == StringReplace || op == StringReplaceAll) {
                 if (node->child2()->shouldSpeculateRegExpObject() && m_graph.isWatchingRegExpPrimordialPropertiesWatchpoint(node))
                     addStringReplacePrimordialChecks(node->child2().node());
                 else 
-                    m_insertionSet.insertNode(
-                        m_indexInBlock, SpecNone, ForceOSRExit, node->origin);
+                    m_insertionSet.insertNode(m_indexInBlock, SpecNone, ForceOSRExit, node->origin);
             }
 
             if (node->child1()->shouldSpeculateString()
