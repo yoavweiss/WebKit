@@ -7810,21 +7810,6 @@
                 "url": "https://svgwg.org/svg2-draft/text.html#TextAnchorProperty"
             }
         },
-        "text-decoration": {
-            "codegen-properties": {
-                "longhands": [
-                    "text-decoration-line"
-                ],
-                "shorthand-pattern": "Single",
-                "parser-grammar-unused": "<'text-decoration-line'>",
-                "parser-grammar-unused-comment": "Current spec has 'text-decoration' specified as a shorthand with grammar '<'text-decoration-line'> || <'text-decoration-style'> || <'text-decoration-color'>'",
-                "parser-grammar-unused-reason": "Needs support for shorthand grammars."
-            },
-            "specification": {
-                "category": "css-text-decor",
-                "url": "https://drafts.csswg.org/css-text-decor/#text-decoration-property"
-            }
-        },
         "text-group-align": {
             "animation-type": "discrete",
             "initial": "none",
@@ -10744,14 +10729,19 @@
                 "url": "https://www.w3.org/TR/css-writing-modes-3/#propdef-direction"
             }
         },
-        "-webkit-text-decoration": {
+        "text-decoration": {
             "codegen-properties": {
                 "longhands": [
                     "text-decoration-line",
+                    "text-decoration-thickness",
                     "text-decoration-style",
                     "text-decoration-color"
                 ],
+                "aliases": [
+                    "-webkit-text-decoration"
+                ],
                 "shorthand-pattern": "StandardSpaceSeparated",
+                "style-extractor-custom": true,
                 "parser-grammar-unused": "<'text-decoration-line'> || <'text-decoration-style'> || <'text-decoration-color'>",
                 "parser-grammar-unused-reason": "Needs support for shorthand grammars."
             },
