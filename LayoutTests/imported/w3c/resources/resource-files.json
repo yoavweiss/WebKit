@@ -12055,6 +12055,8 @@
         "web-platform-tests/mediacapture-streams/support/iframe-MediaStreamTrack-transfer-video.html",
         "web-platform-tests/mediacapture-streams/support/iframe-MediaStreamTrack-transfer.html",
         "web-platform-tests/mediasession/helper/artwork-generator.html",
+        "web-platform-tests/mimesniff/sniffing/support/atom.html",
+        "web-platform-tests/mimesniff/sniffing/support/rss.html",
         "web-platform-tests/payment-request/show-method-postmessage-iframe.html",
         "web-platform-tests/permissions/feature-policy-permissions-query.html",
         "web-platform-tests/quirks/body-fills-html-quirk-ref.html",

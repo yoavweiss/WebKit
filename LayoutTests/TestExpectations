@@ -8066,6 +8066,9 @@ imported/w3c/web-platform-tests/focus/hasfocus-different-site.html [ Skip ]
 imported/w3c/web-platform-tests/focus/iframe-activeelement-after-focusing-out-iframes.html [ Skip ]
 imported/w3c/web-platform-tests/focus/iframe-focuses-parent-different-site.html [ Skip ]
 
+# Timeout.
+imported/w3c/web-platform-tests/mimesniff/sniffing/html.window.html [ Skip ]
+
 imported/w3c/web-platform-tests/visual-viewport/resize-event-order.html [ Pass Failure ]
 
 webkit.org/b/294105 webanimations/document-teardown-due-to-last-reference-crash.html [ Pass Timeout Failure ]
