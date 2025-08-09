@@ -41,6 +41,7 @@
 #import "NativeWebKeyboardEvent.h"
 #import "NavigationState.h"
 #import "PDFPluginIdentifier.h"
+#import "PickerDismissalReason.h"
 #import "PlatformXRSystem.h"
 #import "RemoteLayerTreeNode.h"
 #import "RunningBoardServicesSPI.h"
@@ -770,6 +771,11 @@ void PageClientImpl::dismissDigitalCredentialsPicker(CompletionHandler<void(bool
     [contentView() _dismissDigitalCredentialsPicker:WTFMove(completionHandler)];
 }
 #endif
+
+void PageClientImpl::dismissAnyOpenPicker()
+{
+    [contentView() dismissPickersIfNeededWithReason:WebKit::PickerDismissalReason::ViewRemoved];
+}
 
 void PageClientImpl::showInspectorHighlight(const WebCore::InspectorOverlay::Highlight& highlight)
 {

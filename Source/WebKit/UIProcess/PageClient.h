@@ -331,6 +331,7 @@ public:
         completionHandler(makeUnexpected(WebCore::ExceptionData { WebCore::ExceptionCode::NotSupportedError, "Digital credentials are not supported."_s }));
     }
     virtual void dismissDigitalCredentialsPicker(WTF::CompletionHandler<void(bool)>&& completionHandler) { completionHandler(true); }
+    virtual void dismissAnyOpenPicker() { }
 
     virtual void didChangeContentSize(const WebCore::IntSize&) = 0;
 
