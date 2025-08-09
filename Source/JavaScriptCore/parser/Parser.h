@@ -1530,9 +1530,9 @@ private:
 
     ALWAYS_INLINE void next(OptionSet<LexerFlags> lexerFlags = { })
     {
-        int lastLine = m_token.m_location.line;
-        int lastTokenEnd = m_token.m_location.endOffset;
-        int lastTokenLineStart = m_token.m_location.lineStartOffset;
+        int lastLine = m_token.m_startPosition.line;
+        int lastTokenEnd = m_token.m_endPosition.offset;
+        int lastTokenLineStart = m_token.m_startPosition.lineStartOffset;
         m_lastTokenEndPosition = JSTextPosition(lastLine, lastTokenEnd, lastTokenLineStart);
         m_lexer->setLastLineNumber(lastLine);
         m_token.m_type = m_lexer->lex(&m_token, lexerFlags, strictMode());
@@ -1540,9 +1540,9 @@ private:
 
     ALWAYS_INLINE void nextWithoutClearingLineTerminator(OptionSet<LexerFlags> lexerFlags = { })
     {
-        int lastLine = m_token.m_location.line;
-        int lastTokenEnd = m_token.m_location.endOffset;
-        int lastTokenLineStart = m_token.m_location.lineStartOffset;
+        int lastLine = m_token.m_startPosition.line;
+        int lastTokenEnd = m_token.m_endPosition.offset;
+        int lastTokenLineStart = m_token.m_startPosition.lineStartOffset;
         m_lastTokenEndPosition = JSTextPosition(lastLine, lastTokenEnd, lastTokenLineStart);
         m_lexer->setLastLineNumber(lastLine);
         m_token.m_type = m_lexer->lexWithoutClearingLineTerminator(&m_token, lexerFlags, strictMode());
@@ -1550,9 +1550,9 @@ private:
 
     ALWAYS_INLINE void nextExpectIdentifier(OptionSet<LexerFlags> lexerFlags = { })
     {
-        int lastLine = m_token.m_location.line;
-        int lastTokenEnd = m_token.m_location.endOffset;
-        int lastTokenLineStart = m_token.m_location.lineStartOffset;
+        int lastLine = m_token.m_startPosition.line;
+        int lastTokenEnd = m_token.m_endPosition.offset;
+        int lastTokenLineStart = m_token.m_startPosition.lineStartOffset;
         m_lastTokenEndPosition = JSTextPosition(lastLine, lastTokenEnd, lastTokenLineStart);
         m_lexer->setLastLineNumber(lastLine);
         m_token.m_type = m_lexer->lexExpectIdentifier(&m_token, lexerFlags, strictMode());
@@ -1616,7 +1616,7 @@ private:
     
     ALWAYS_INLINE unsigned tokenStart()
     {
-        return m_token.m_location.startOffset;
+        return m_token.m_startPosition.offset;
     }
     
     ALWAYS_INLINE const JSTextPosition& tokenStartPosition()
@@ -1626,7 +1626,7 @@ private:
 
     ALWAYS_INLINE int tokenLine()
     {
-        return m_token.m_location.line;
+        return m_token.m_startPosition.line;
     }
     
     ALWAYS_INLINE int tokenColumn()
@@ -1641,12 +1641,12 @@ private:
     
     ALWAYS_INLINE unsigned tokenLineStart()
     {
-        return m_token.m_location.lineStartOffset;
+        return m_token.m_startPosition.lineStartOffset;
     }
     
-    ALWAYS_INLINE const JSTokenLocation& tokenLocation()
+    ALWAYS_INLINE JSTokenLocation tokenLocation()
     {
-        return m_token.m_location;
+        return m_token.location();
     }
 
     void setErrorMessage(const String& message)
@@ -2001,8 +2001,8 @@ private:
     ALWAYS_INLINE LexerState internalSaveLexerState()
     {
         LexerState result;
-        result.startOffset = m_token.m_location.startOffset;
-        result.oldLineStartOffset = m_token.m_location.lineStartOffset;
+        result.startOffset = m_token.m_startPosition.offset;
+        result.oldLineStartOffset = m_token.m_startPosition.lineStartOffset;
         result.oldLastLineNumber = m_lexer->lastLineNumber();
         result.oldLineNumber = m_lexer->lineNumber();
         result.hasLineTerminatorBeforeToken = m_lexer->hasLineTerminatorBeforeToken();

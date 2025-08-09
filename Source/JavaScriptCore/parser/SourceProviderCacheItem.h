@@ -67,10 +67,10 @@ public:
         JSToken token;
         token.m_type = isBodyArrowExpression ? static_cast<JSTokenType>(tokenType) : CLOSEBRACE;
         token.m_data.offset = lastTokenStartOffset;
-        token.m_location.startOffset = lastTokenStartOffset;
-        token.m_location.endOffset = lastTokenEndOffset;
-        token.m_location.line = lastTokenLine;
-        token.m_location.lineStartOffset = lastTokenLineStartOffset;
+        token.m_startPosition.offset = lastTokenStartOffset;
+        token.m_startPosition.line = lastTokenLine;
+        token.m_startPosition.lineStartOffset = lastTokenLineStartOffset;
+        token.m_endPosition.offset = lastTokenEndOffset;
         // token.m_location.sourceOffset is initialized once by the client. So,
         // we do not need to set it here.
         return token;

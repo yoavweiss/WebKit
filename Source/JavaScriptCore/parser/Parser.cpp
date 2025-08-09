@@ -143,10 +143,10 @@ Parser<LexerType>::Parser(VM& vm, const SourceCode& source, ImplementationVisibi
 {
     m_lexer = makeUnique<LexerType>(vm, builtinMode, scriptMode);
     m_lexer->setCode(source, &m_parserArena);
-    m_token.m_location.line = source.firstLine().oneBasedInt();
-    m_token.m_location.startOffset = source.startOffset();
-    m_token.m_location.endOffset = source.startOffset();
-    m_token.m_location.lineStartOffset = source.startOffset();
+    m_token.m_startPosition.line = source.firstLine().oneBasedInt();
+    m_token.m_startPosition.offset = source.startOffset();
+    m_token.m_startPosition.lineStartOffset = source.startOffset();
+    m_token.m_endPosition.offset = source.startOffset();
     m_functionCache = vm.addSourceProviderCache(source.provider());
 
     ScopeRef scope = pushScope();
@@ -527,8 +527,8 @@ template <class TreeBuilder> TreeSourceElements Parser<LexerType>::parseGenerato
     JSTokenLocation startLocation(tokenLocation());
     JSTextPosition start = tokenStartPosition();
     unsigned startColumn = tokenColumn();
-    int functionNameStart = m_token.m_location.startOffset;
-    int parametersStart = m_token.m_location.startOffset;
+    int functionNameStart = m_token.m_startPosition.offset;
+    int parametersStart = functionNameStart;
 
     ParserFunctionInfo<TreeBuilder> info;
     info.name = &m_vm.propertyNames->nullIdentifier;
@@ -572,8 +572,8 @@ template <class TreeBuilder> TreeSourceElements Parser<LexerType>::parseAsyncFun
     JSTokenLocation startLocation(tokenLocation());
     JSTextPosition start = tokenStartPosition();
     unsigned startColumn = tokenColumn();
-    int functionNameStart = m_token.m_location.startOffset;
-    int parametersStart = m_token.m_location.startOffset;
+    int functionNameStart = m_token.m_startPosition.offset;
+    int parametersStart = functionNameStart;
 
     ParserFunctionInfo<TreeBuilder> info;
     info.name = &m_vm.propertyNames->nullIdentifier;
@@ -626,9 +626,9 @@ template <class TreeBuilder> TreeSourceElements Parser<LexerType>::parseAsyncGen
     JSTokenLocation startLocation(tokenLocation());
     JSTextPosition start = tokenStartPosition();
     unsigned startColumn = tokenColumn();
-    int functionNameStart = m_token.m_location.startOffset;
-    int parametersStart = m_token.m_location.startOffset;
-    
+    int functionNameStart = m_token.m_startPosition.offset;
+    int parametersStart = functionNameStart;
+
     ParserFunctionInfo<TreeBuilder> info;
     info.name = &m_vm.propertyNames->nullIdentifier;
     createGeneratorParameters(context, info.parameterCount);
@@ -974,7 +974,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseVariableDecl
         }
     } while (match(COMMA));
     if (lastIdent)
-        lastPattern = context.createBindingLocation(lastIdentToken.m_location, *lastIdent, lastIdentToken.m_startPosition, lastIdentToken.m_endPosition, assignmentContext);
+        lastPattern = context.createBindingLocation(lastIdentToken.location(), *lastIdent, lastIdentToken.m_startPosition, lastIdentToken.m_endPosition, assignmentContext);
 
     return head;
 }
@@ -1044,7 +1044,7 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::createB
         semanticFailIfFalse(exportName(name), "Cannot export a duplicate name '", name.impl(), "'");
         m_moduleScopeData->exportBinding(name);
     }
-    return context.createBindingLocation(token.m_location, name, token.m_startPosition, token.m_endPosition, bindingContext);
+    return context.createBindingLocation(token.location(), name, token.m_startPosition, token.m_endPosition, bindingContext);
 }
 
 template <typename LexerType>
@@ -1188,7 +1188,7 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseDe
     switch (m_token.m_type) {
     case OPENBRACKET: {
         JSTextPosition divotStart = tokenStartPosition();
-        auto arrayPattern = context.createArrayPattern(m_token.m_location);
+        auto arrayPattern = context.createArrayPattern(m_token.location());
         next();
 
         if (hasDestructuringPattern)
@@ -1198,7 +1198,7 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseDe
 
         do {
             while (match(COMMA)) {
-                context.appendArrayPatternSkipEntry(arrayPattern, m_token.m_location);
+                context.appendArrayPatternSkipEntry(arrayPattern, m_token.location());
                 next();
             }
             propagateError();
@@ -1207,7 +1207,7 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseDe
                 break;
 
             if (match(DOTDOTDOT)) [[unlikely]] {
-                JSTokenLocation location = m_token.m_location;
+                JSTokenLocation location = m_token.location();
                 next();
                 auto innerPattern = parseBindingOrAssignmentElement(context, kind, exportType, duplicateIdentifier, hasDestructuringPattern, bindingContext, depth + 1);
                 if (kind == DestructuringKind::DestructureToExpressions && !innerPattern)
@@ -1218,7 +1218,7 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseDe
                 break;
             }
 
-            JSTokenLocation location = m_token.m_location;
+            JSTokenLocation location = m_token.location();
             auto innerPattern = parseBindingOrAssignmentElement(context, kind, exportType, duplicateIdentifier, hasDestructuringPattern, bindingContext, depth + 1);
             if (kind == DestructuringKind::DestructureToExpressions && !innerPattern)
                 return 0;
@@ -1235,7 +1235,7 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseDe
     }
     case OPENBRACE: {
         JSTextPosition divotStart = tokenStartPosition();
-        auto objectPattern = context.createObjectPattern(m_token.m_location);
+        auto objectPattern = context.createObjectPattern(m_token.location());
         next();
 
         if (hasDestructuringPattern)
@@ -1250,7 +1250,7 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseDe
                 break;
 
             if (match(DOTDOTDOT)) {
-                JSTokenLocation location = m_token.m_location;
+                JSTokenLocation location = m_token.location();
                 next();
                 auto innerPattern = parseObjectRestBindingOrAssignmentElement(context, kind, exportType, duplicateIdentifier, bindingContext);
                 propagateError();
@@ -1265,7 +1265,7 @@ template <class TreeBuilder> TreeDestructuringPattern Parser<LexerType>::parseDe
             const Identifier* propertyName = nullptr;
             TreeExpression propertyExpression = 0;
             TreeDestructuringPattern innerPattern = 0;
-            JSTokenLocation location = m_token.m_location;
+            JSTokenLocation location = m_token.location();
             bool escapedKeyword = match(ESCAPED_KEYWORD);
             if (escapedKeyword || matchSpecIdentifier()) {
                 bool letMatched = match(LET);
@@ -1856,7 +1856,7 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseTryStatement(
             if (matchSpecIdentifier()) {
                 catchScope->setIsSimpleCatchParameterScope();
                 ident = m_token.m_data.ident;
-                catchPattern = context.createBindingLocation(m_token.m_location, *ident, m_token.m_startPosition, m_token.m_endPosition, AssignmentContext::DeclarationStatement);
+                catchPattern = context.createBindingLocation(m_token.location(), *ident, m_token.m_startPosition, m_token.m_endPosition, AssignmentContext::DeclarationStatement);
                 next();
                 failIfTrueIfStrict(catchScope->declareLexicalVariable(ident, false) & DeclarationResult::InvalidStrictMode, "Cannot declare a catch variable named '", ident->impl(), "' in strict mode");
             } else {
@@ -2059,8 +2059,10 @@ template <class TreeBuilder> TreeStatement Parser<LexerType>::parseStatement(Tre
     }
     case STRING:
         directive = m_token.m_data.ident;
-        if (directiveLiteralLength)
-            *directiveLiteralLength = m_token.m_location.endOffset - m_token.m_location.startOffset;
+        if (directiveLiteralLength) {
+            auto location = m_token.location();
+            *directiveLiteralLength = location.endOffset - location.startOffset;
+        }
         nonTrivialExpressionCount = m_parserState.nonTrivialExpressionCount;
         [[fallthrough]];
     default:
@@ -2429,7 +2431,7 @@ template <class TreeBuilder> bool Parser<LexerType>::parseFunctionInfo(TreeBuild
     functionScope->setConstructorKind(constructorKind);
 
     SetForScope functionParsePhasePoisoner(m_parserState.functionParsePhase, FunctionParsePhase::Body);
-    int functionNameStart = m_token.m_location.startOffset;
+    int functionNameStart = m_token.m_startPosition.offset;
     const Identifier* lastFunctionName = m_parserState.lastFunctionName;
     m_parserState.lastFunctionName = nullptr;
     int parametersStart = -1;
@@ -2494,10 +2496,10 @@ template <class TreeBuilder> bool Parser<LexerType>::parseFunctionInfo(TreeBuild
             m_token = cachedInfo->endFunctionToken();
 
             if (endColumnIsOnStartLine)
-                m_token.m_location.lineStartOffset = currentLineStartOffset;
+                m_token.m_startPosition.lineStartOffset = currentLineStartOffset;
 
-            m_lexer->setOffset(m_token.m_location.endOffset, m_token.m_location.lineStartOffset);
-            m_lexer->setLineNumber(m_token.m_location.line);
+            m_lexer->setOffset(m_token.m_endPosition.offset, m_token.m_startPosition.lineStartOffset);
+            m_lexer->setLineNumber(m_token.m_startPosition.line);
 
             switch (functionBodyType) {
             case ArrowFunctionBodyExpression:
@@ -2525,7 +2527,7 @@ template <class TreeBuilder> bool Parser<LexerType>::parseFunctionInfo(TreeBuild
         functionInfo.startLine = tokenLine();
         startColumn = tokenColumn();
 
-        parametersStart = m_token.m_location.startOffset;
+        parametersStart = m_token.m_startPosition.offset;
         functionInfo.startOffset = parametersStart;
         functionInfo.parametersStartColumn = startColumn;
 
@@ -2605,7 +2607,7 @@ template <class TreeBuilder> bool Parser<LexerType>::parseFunctionInfo(TreeBuild
         startColumn = tokenColumn();
         functionInfo.parametersStartColumn = startColumn;
 
-        parametersStart = m_token.m_location.startOffset;
+        parametersStart = m_token.m_startPosition.offset;
         functionInfo.startOffset = parametersStart;
 
         if (tryLoadCachedFunction())
@@ -2694,7 +2696,7 @@ template <class TreeBuilder> bool Parser<LexerType>::parseFunctionInfo(TreeBuild
         semanticFailIfTrue(m_vm.propertyNames->yieldKeyword == *functionInfo.name, "'", functionInfo.name->impl(), "' is not a valid function name in strict mode");
     }
 
-    JSTokenLocation location = JSTokenLocation(m_token.m_location);
+    JSTokenLocation location = m_token.location();
     functionInfo.endOffset = m_token.m_data.offset;
     
     if (functionBodyType == ArrowFunctionBodyExpression) {
@@ -4608,7 +4610,7 @@ namedProperty:
         return context.createProperty(propertyName, node, static_cast<PropertyNode::Type>(PropertyNode::Constant | PropertyNode::Computed), SuperBinding::NotNeeded, ClassElementTag::No);
     }
     case DOTDOTDOT: {
-        auto spreadLocation = m_token.m_location;
+        auto spreadLocation = m_token.location();
         auto start = m_token.m_startPosition;
         auto divot = m_token.m_endPosition;
         next();
@@ -4783,7 +4785,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseArrayLiteral
     
     TreeExpression elem;
     if (match(DOTDOTDOT)) [[unlikely]] {
-        auto spreadLocation = m_token.m_location;
+        auto spreadLocation = m_token.location();
         auto start = m_token.m_startPosition;
         auto divot = m_token.m_endPosition;
         next();
@@ -4807,7 +4809,7 @@ template <class TreeBuilder> TreeExpression Parser<LexerType>::parseArrayLiteral
             return context.createArray(location, elisions, elementList);
 
         if (match(DOTDOTDOT)) [[unlikely]] {
-            auto spreadLocation = m_token.m_location;
+            auto spreadLocation = m_token.location();
             auto start = m_token.m_startPosition;
             auto divot = m_token.m_endPosition;
             next();
