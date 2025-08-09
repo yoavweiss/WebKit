@@ -4292,13 +4292,10 @@ void Document::implicitClose()
         // This notification is now called AXNewDocumentLoadComplete because there are other handlers that will
         // catch new AND page history loads, and that uses AXLoadComplete
 
-        axObjectCache()->getOrCreate(renderView());
         if (isTopDocument())
-            axObjectCache()->postNotification(renderView(), AXNotification::NewDocumentLoadComplete);
+            axObjectCache()->onTopDocumentLoaded(*renderView());
         else {
-            // AXLoadComplete can only be posted on the top document, so if it's a document
-            // in an iframe that just finished loading, post AXLayoutComplete instead.
-            axObjectCache()->postNotification(renderView(), AXNotification::LayoutComplete);
+            axObjectCache()->onNonTopDocumentLoaded(*renderView());
         }
     }
 #endif

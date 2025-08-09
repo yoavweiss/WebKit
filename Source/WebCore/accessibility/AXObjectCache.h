@@ -419,13 +419,19 @@ public:
     void childrenChanged(AccessibilityObject*);
     void onDetailsSummarySlotChange(const HTMLDetailsElement&);
     void onDragElementChanged(Element* oldElement, Element* newElement);
+    void onDraggingStarted(Element&);
+    void onDraggingEnded(Element&);
+    void onDraggingEnteredDropZone(Element&);
+    void onDraggingExitedDropZone(Element&);
+    void onDraggingDropped(Element&);
     void onEventListenerAdded(Node&, const AtomString& eventType);
     void onEventListenerRemoved(Node&, const AtomString& eventType);
     void onFocusChange(Element* oldElement, Element* newElement);
     void onInertOrVisibilityChange(RenderElement&);
     void onPopoverToggle(const HTMLElement&);
     void onScrollbarFrameRectChange(const Scrollbar&);
-    void onSelectedChanged(Element&);
+    void onSelectedOptionChanged(Element&);
+    void onSelectedOptionChanged(RenderObject&, int);
     void onSelectedTextChanged(const VisiblePositionRange&, AccessibilityObject* = nullptr);
     void onSlottedContentChange(const HTMLSlotElement&);
     void onStyleChange(Element&, OptionSet<Style::Change>, const RenderStyle* oldStyle, const RenderStyle* newStyle);
@@ -448,7 +454,6 @@ public:
     void autofillTypeChanged(HTMLInputElement&);
     void handleRoleChanged(AccessibilityObject&, AccessibilityRole previousRole);
     void handleReferenceTargetChanged();
-    void handlePageEditibilityChanged(Document&);
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
     void columnIndexChanged(AccessibilityObject&);
@@ -465,6 +470,14 @@ public:
     void updateLoadingProgress(double);
     void loadingFinished() { updateLoadingProgress(1); }
     double loadingProgress() const { return m_loadingProgress; }
+
+    void onTopDocumentLoaded(RenderObject&);
+    void onNonTopDocumentLoaded(RenderObject&);
+    void handlePageEditibilityChanged(Document&);
+    void onAutocorrectionOccured(Element&);
+    void onEditableTextValueChanged(Node&);
+    void onDocumentInitialFocus(Node&);
+    void onLayoutComplete(RenderObject&);
 
     struct AttributeChange {
         WeakPtr<Element, WeakPtrImplWithEventTargetData> element { nullptr };

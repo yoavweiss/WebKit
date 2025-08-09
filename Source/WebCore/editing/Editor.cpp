@@ -828,7 +828,7 @@ void Editor::respondToChangedContents(const VisibleSelection& endingSelection)
     if (AXObjectCache::accessibilityEnabled()) {
         RefPtr node = endingSelection.start().deprecatedNode();
         if (AXObjectCache* cache = document().existingAXObjectCache())
-            cache->postNotification(node.get(), AXNotification::ValueChanged, PostTarget::ObservableParent);
+            cache->onEditableTextValueChanged(*node.get());
     }
 
     updateMarkersForWordsAffectedByEditing(true);
@@ -3355,7 +3355,7 @@ void Editor::markAndReplaceFor(const SpellCheckRequest& request, const Vector<Te
 
                 if (AXObjectCache* cache = document->existingAXObjectCache()) {
                     if (RefPtr root = document->selection().selection().rootEditableElement())
-                        cache->postNotification(root.get(), AXNotification::AutocorrectionOccured);
+                        cache->onAutocorrectionOccured(*root.get());
                 }
 
                 // Skip all other results for the replaced text.

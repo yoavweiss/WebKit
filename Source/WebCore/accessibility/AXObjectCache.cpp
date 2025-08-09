@@ -1354,6 +1354,31 @@ void AXObjectCache::onDragElementChanged(Element* oldElement, Element* newElemen
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 }
 
+void AXObjectCache::onDraggingStarted(Element& dragTarget)
+{
+    postNotification(&dragTarget, AXNotification::DraggingStarted);
+}
+
+void AXObjectCache::onDraggingEnded(Element& dragTarget)
+{
+    postNotification(&dragTarget, AXNotification::DraggingEnded);
+}
+
+void AXObjectCache::onDraggingEnteredDropZone(Element& dragTarget)
+{
+    postNotification(&dragTarget, AXNotification::DraggingEnteredDropZone);
+}
+
+void AXObjectCache::onDraggingExitedDropZone(Element& dragTarget)
+{
+    postNotification(&dragTarget, AXNotification::DraggingExitedDropZone);
+}
+
+void AXObjectCache::onDraggingDropped(Element& dragTarget)
+{
+    postNotification(&dragTarget, AXNotification::DraggingDropped);
+}
+
 void AXObjectCache::onEventListenerAdded(Node& node, const AtomString& eventType)
 {
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
@@ -1400,6 +1425,38 @@ void AXObjectCache::updateLoadingProgress(double newProgressValue)
 #else
     UNUSED_PARAM(newProgressValue);
 #endif
+}
+
+void AXObjectCache::onTopDocumentLoaded(RenderObject& renderObject)
+{
+    postNotification(getOrCreate(renderObject), AXNotification::NewDocumentLoadComplete);
+}
+
+void AXObjectCache::onNonTopDocumentLoaded(RenderObject& renderObject)
+{
+    // AXLoadComplete can only be posted on the top document, so if it's a document
+    // in an iframe that just finished loading, post AXLayoutComplete instead.
+    postNotification(getOrCreate(renderObject), AXNotification::LayoutComplete);
+}
+
+void AXObjectCache::onAutocorrectionOccured(Element& element)
+{
+    postNotification(&element, AXNotification::AutocorrectionOccured);
+}
+
+void AXObjectCache::onEditableTextValueChanged(Node& node)
+{
+    postNotification(&node, AXNotification::ValueChanged, PostTarget::ObservableParent);
+}
+
+void AXObjectCache::onDocumentInitialFocus(Node& node)
+{
+    postNotification(&node, AXNotification::FocusedUIElementChanged);
+}
+
+void AXObjectCache::onLayoutComplete(RenderObject& renderObject)
+{
+    postNotification(&renderObject, AXNotification::LayoutComplete);
 }
 
 void AXObjectCache::handleAllDeferredChildrenChanged()
@@ -2031,7 +2088,7 @@ void AXObjectCache::onScrollbarFrameRectChange(const Scrollbar& scrollbar)
 #endif
 }
 
-void AXObjectCache::onSelectedChanged(Element& element)
+void AXObjectCache::onSelectedOptionChanged(Element& element)
 {
     if (hasCellARIARole(element))
         postNotification(&element, AXNotification::SelectedCellsChanged);
@@ -2048,6 +2105,12 @@ void AXObjectCache::onSelectedChanged(Element& element)
 
     handleMenuItemSelected(&element);
     handleTabPanelSelected(nullptr, &element);
+}
+
+void AXObjectCache::onSelectedOptionChanged(RenderObject& menuList, int optionIndex)
+{
+    if (RefPtr axMenuList = dynamicDowncast<AccessibilityMenuList>(get(menuList)))
+        axMenuList->didUpdateActiveOption(optionIndex);
 }
 
 void AXObjectCache::onSlottedContentChange(const HTMLSlotElement& slot)
@@ -3216,7 +3279,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     else if (attrName == aria_relevantAttr)
         postNotification(element, AXNotification::LiveRegionRelevantChanged);
     else if (attrName == aria_selectedAttr)
-        onSelectedChanged(*element);
+        onSelectedOptionChanged(*element);
     else if (attrName == aria_setsizeAttr)
         postNotification(element, AXNotification::SetSizeChanged);
     else if (attrName == aria_expandedAttr)
