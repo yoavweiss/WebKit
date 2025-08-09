@@ -16,4 +16,5 @@ FAIL cookieStore.delete with positional empty name promise_test: Unhandled rejec
 FAIL cookieStore.delete with empty name in options promise_test: Unhandled rejection with value: object "TypeError: Type error"
 PASS cookieStore.delete with maximum cookie name size
 PASS cookieStore.delete with a __Host- prefix should not have a domain
+PASS cookieStore.delete with whitespace
 
