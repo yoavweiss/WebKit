@@ -225,10 +225,11 @@ private:
 
 class ScheduledLocationChange : public ScheduledURLNavigation {
 public:
-    ScheduledLocationChange(Document& initiatingDocument, SecurityOrigin* securityOrigin, const URL& url, const String& referrer, LockHistory lockHistory, LockBackForwardList lockBackForwardList, bool duringLoad, NavigationHistoryBehavior navigationHandling, CompletionHandler<void(bool)>&& completionHandler)
+    ScheduledLocationChange(Document& initiatingDocument, SecurityOrigin* securityOrigin, const URL& url, const String& referrer, LockHistory lockHistory, LockBackForwardList lockBackForwardList, bool duringLoad, NavigationHistoryBehavior navigationHandling, bool hasDispatchedNavigateEvent, CompletionHandler<void(bool)>&& completionHandler)
         : ScheduledURLNavigation(initiatingDocument, 0.0, securityOrigin, url, referrer, lockHistory, lockBackForwardList, duringLoad, true)
         , m_completionHandler(WTFMove(completionHandler))
         , m_navigationHistoryBehavior(navigationHandling)
+        , m_hasDispatchedNavigateEvent(hasDispatchedNavigateEvent)
     {
     }
 
@@ -249,6 +250,7 @@ public:
         frameLoadRequest.disableNavigationToInvalidURL();
         frameLoadRequest.setShouldOpenExternalURLsPolicy(shouldOpenExternalURLs());
         frameLoadRequest.setNavigationHistoryBehavior(m_navigationHistoryBehavior);
+        frameLoadRequest.setSkipNavigateEvent(m_hasDispatchedNavigateEvent);
 
         auto completionHandler = std::exchange(m_completionHandler, nullptr);
         frame.changeLocation(WTFMove(frameLoadRequest));
@@ -258,6 +260,7 @@ public:
 private:
     CompletionHandler<void(bool)> m_completionHandler;
     NavigationHistoryBehavior m_navigationHistoryBehavior;
+    bool m_hasDispatchedNavigateEvent { false };
 };
 
 class ScheduledRefresh : public ScheduledURLNavigation {
@@ -606,11 +609,33 @@ void NavigationScheduler::scheduleLocationChange(Document& initiatingDocument, S
         return completionHandler(ScheduleLocationChangeResult::Completed);
     }
 
+    // Fire Navigation API navigate event synchronously before scheduling navigation.
+    // This ensures proper event ordering where navigate event fires before microtasks.
+    // Only fire for same-origin navigations to avoid cross-origin issues.
+    bool hasDispatchedNavigateEvent = false;
+    if (localFrame && !url.protocolIsJavaScript()) {
+        RefPtr document = localFrame->document();
+        if (document && document->settings().navigationAPIEnabled() && document->securityOrigin().isSameOriginAs(securityOrigin)) {
+            if (RefPtr window = document->window()) {
+                if (RefPtr navigation = window->navigation()) {
+                    auto navigationType = (historyHandling == NavigationHistoryBehavior::Replace) ? NavigationNavigationType::Replace : NavigationNavigationType::Push;
+                    bool isSameDocument = false;
+                    FormState* formState = nullptr;
+
+                    if (!navigation->dispatchPushReplaceReloadNavigateEvent(url, navigationType, isSameDocument, formState))
+                        return completionHandler(ScheduleLocationChangeResult::Stopped);
+
+                    hasDispatchedNavigateEvent = true;
+                }
+            }
+        }
+    }
+
     // Handle a location change of a page with no document as a special case.
     // This may happen when a frame changes the location of another frame.
     bool duringLoad = loader && !loader->stateMachine().committedFirstRealDocumentLoad();
 
-    schedule(makeUnique<ScheduledLocationChange>(initiatingDocument, &securityOrigin, url, referrer, lockHistory, lockBackForwardList, duringLoad, historyHandling, [completionHandler = WTFMove(completionHandler)] (bool hasStarted) mutable {
+    schedule(makeUnique<ScheduledLocationChange>(initiatingDocument, &securityOrigin, url, referrer, lockHistory, lockBackForwardList, duringLoad, historyHandling, hasDispatchedNavigateEvent, [completionHandler = WTFMove(completionHandler)] (bool hasStarted) mutable {
         completionHandler(hasStarted ? ScheduleLocationChangeResult::Started : ScheduleLocationChangeResult::Stopped);
     }));
 }

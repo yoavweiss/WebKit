@@ -2,5 +2,5 @@ CONSOLE MESSAGE: Unhandled Promise Rejection: Error: boo
 
 Harness Error (FAIL), message = Unhandled rejection: boo
 
-FAIL event and promise ordering for location.href setter intercepted by passing a rejected promise to intercept() assert_array_equals: expected property 0 to be "navigate" but got "promise microtask" (expected array ["navigate", "currententrychange", "handler run", "promise microtask", "navigateerror", "transition.finished rejected"] got ["promise microtask", "navigate", "currententrychange", "handler run", "navigateerror", "transition.finished rejected"])
+PASS event and promise ordering for location.href setter intercepted by passing a rejected promise to intercept()
 

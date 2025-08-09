@@ -1,3 +1,3 @@
 
-FAIL event and promise ordering for location.href setter intercepted by intercept() assert_array_equals: expected property 0 to be "navigate" but got "promise microtask" (expected array ["navigate", "currententrychange", "handler run", "promise microtask", "navigatesuccess", "transition.finished fulfilled"] got ["promise microtask", "navigate", "currententrychange", "handler run", "navigatesuccess", "transition.finished fulfilled"])
+PASS event and promise ordering for location.href setter intercepted by intercept()
 

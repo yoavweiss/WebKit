@@ -1,3 +1,3 @@
 
-FAIL event and promise ordering when location.href is set repeatedly and handled by intercept() assert_array_equals: lengths differ, expected array ["navigate", "handler run", "AbortSignal abort", "navigateerror", "navigate", "handler run", "transition.finished rejected", "promise microtask", "navigatesuccess", "transition.finished fulfilled"] length 10, got ["promise microtask", "navigate", "handler run", "navigatesuccess", "transition.finished fulfilled"] length 5
+PASS event and promise ordering when location.href is set repeatedly and handled by intercept()
 
