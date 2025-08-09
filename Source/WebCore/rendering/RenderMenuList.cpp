@@ -53,6 +53,7 @@
 #include "RenderTheme.h"
 #include "RenderTreeBuilder.h"
 #include "RenderView.h"
+#include "StyleLengthWrapper+Platform.h"
 #include "StyleResolver.h"
 #include "TextRun.h"
 #include <math.h>

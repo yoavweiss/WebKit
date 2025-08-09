@@ -3254,46 +3254,21 @@ using WebCore::Style::ShapeCommand = Variant<WebCore::Style::MoveCommand, WebCor
 };
 
 header: <WebCore/StyleLengthWrapperData.h>
-[CustomHeader] struct WebCore::Style::LengthWrapperData {
-    Variant<WebCore::Style::LengthWrapperData::AutoData, WebCore::Style::LengthWrapperData::NormalData, WebCore::Style::LengthWrapperData::RelativeData, WebCore::Style::LengthWrapperData::PercentData, WebCore::Style::LengthWrapperData::FixedData, WebCore::Style::LengthWrapperData::IntrinsicData, WebCore::Style::LengthWrapperData::MinIntrinsicData, WebCore::Style::LengthWrapperData::MinContentData, WebCore::Style::LengthWrapperData::MaxContentData, WebCore::Style::LengthWrapperData::FillAvailableData, WebCore::Style::LengthWrapperData::FitContentData, WebCore::Style::LengthWrapperData::ContentData, WebCore::Style::LengthWrapperData::UndefinedData> ipcData();
-}
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::AutoData {
+[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::IPCData {
+    float value;
+    uint8_t opaqueType;
+    bool hasQuirk;
 };
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::NormalData {
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::FixedData {
-    float value
-    bool hasQuirk
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::RelativeData {
-    float value
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::PercentData {
-    float value
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::IntrinsicData {
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::MinIntrinsicData {
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::MinContentData {
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::MaxContentData {
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::FillAvailableData {
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::FitContentData {
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::ContentData {
-};
-[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData::UndefinedData {
+[CustomHeader, Nested] struct WebCore::Style::LengthWrapperData {
+    WebCore::Style::LengthWrapperData::IPCData ipcData();
 };
 
 header: <WebCore/StylePosition.h>
 [CustomHeader, Nested] struct WebCore::Style::PositionX {
-    Variant<WebCore::Style::LengthWrapperData::AutoData, WebCore::Style::LengthWrapperData::NormalData, WebCore::Style::LengthWrapperData::RelativeData, WebCore::Style::LengthWrapperData::PercentData, WebCore::Style::LengthWrapperData::FixedData, WebCore::Style::LengthWrapperData::IntrinsicData, WebCore::Style::LengthWrapperData::MinIntrinsicData, WebCore::Style::LengthWrapperData::MinContentData, WebCore::Style::LengthWrapperData::MaxContentData, WebCore::Style::LengthWrapperData::FillAvailableData, WebCore::Style::LengthWrapperData::FitContentData, WebCore::Style::LengthWrapperData::ContentData, WebCore::Style::LengthWrapperData::UndefinedData> ipcData();
+    WebCore::Style::LengthWrapperData::IPCData ipcData();
 };
 [CustomHeader, Nested] struct WebCore::Style::PositionY {
-    Variant<WebCore::Style::LengthWrapperData::AutoData, WebCore::Style::LengthWrapperData::NormalData, WebCore::Style::LengthWrapperData::RelativeData, WebCore::Style::LengthWrapperData::PercentData, WebCore::Style::LengthWrapperData::FixedData, WebCore::Style::LengthWrapperData::IntrinsicData, WebCore::Style::LengthWrapperData::MinIntrinsicData, WebCore::Style::LengthWrapperData::MinContentData, WebCore::Style::LengthWrapperData::MaxContentData, WebCore::Style::LengthWrapperData::FillAvailableData, WebCore::Style::LengthWrapperData::FitContentData, WebCore::Style::LengthWrapperData::ContentData, WebCore::Style::LengthWrapperData::UndefinedData> ipcData();
+    WebCore::Style::LengthWrapperData::IPCData ipcData();
 };
 [CustomHeader, Nested] struct WebCore::Style::Position {
     WebCore::Style::PositionX x;

@@ -56,6 +56,7 @@
 #include "StyleImageWrapper.h"
 #include "StyleInterpolationClient.h"
 #include "StyleInterpolationContext.h"
+#include "StyleLengthWrapper+Blending.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
 #include "StyleResolver.h"
 #include "StyleTextEdge.h"
