@@ -423,15 +423,14 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncUnion, (JSGlobalObject* globalObject, CallF
     JSValue iterator = call(globalObject, keys, keysCallData, otherValue, args);
     RETURN_IF_EXCEPTION(scope, { });
 
-    // unused but iterator.get call is observable
-    iterator.get(globalObject, vm.propertyNames->next);
+    IterationRecord iterationRecord = iteratorDirect(globalObject, iterator);
     RETURN_IF_EXCEPTION(scope, { });
 
     JSSet* result = thisSet->clone(globalObject, vm, globalObject->setStructure());
     RETURN_IF_EXCEPTION(scope, { });
 
     scope.release();
-    forEachInIteratorProtocol(globalObject, iterator, [&](VM&, JSGlobalObject* globalObject, JSValue key) -> void {
+    forEachInIterationRecord(globalObject, iterationRecord, [&](VM&, JSGlobalObject* globalObject, JSValue key) -> void {
         result->add(globalObject, key);
         RETURN_IF_EXCEPTION(scope, void());
     });
