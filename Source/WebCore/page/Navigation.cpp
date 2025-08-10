@@ -160,8 +160,7 @@ void Navigation::initializeForNewWindow(std::optional<NavigationNavigationType> 
 
                 m_currentEntryIndex = getEntryIndexOfHistoryItem(m_entries, *currentItem);
 
-                if (navigationType) // Unset in the case of forms/POST requests.
-                    m_activation = NavigationActivation::create(*navigationType, *currentEntry(), WTFMove(previousEntry));
+                m_activation = NavigationActivation::create(*navigationType, *currentEntry(), WTFMove(previousEntry));
 
                 return;
             }

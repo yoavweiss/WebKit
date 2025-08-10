@@ -3563,6 +3563,7 @@ void FrameLoader::loadPostRequest(FrameLoadRequest&& request, const String& refe
     action.setLockBackForwardList(request.lockBackForwardList());
     action.setShouldReplaceDocumentIfJavaScriptURL(request.shouldReplaceDocumentIfJavaScriptURL());
     action.setNewFrameOpenerPolicy(request.newFrameOpenerPolicy());
+    action.setNavigationAPIType(determineNavigationType(loadType, request.navigationHistoryBehavior()));
 
     if (!frameName.isEmpty()) {
         // The search for a target frame is done earlier in the case of form submission.
