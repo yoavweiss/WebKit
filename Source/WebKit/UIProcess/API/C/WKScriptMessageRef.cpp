@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,35 +24,23 @@
  */
 
 #include "config.h"
-#include "WKUserScriptRef.h"
+#include "WKScriptMessageRef.h"
 
-#include "APIArray.h"
-#include "APIUserScript.h"
+#include "APIFrameInfo.h"
+#include "APIScriptMessage.h"
 #include "WKAPICast.h"
 
-using namespace WebKit;
-
-WKTypeID WKUserScriptGetTypeID()
+WKTypeID WKScriptMessageGetTypeID()
 {
-    return toAPI(API::UserScript::APIType);
+    return WebKit::toAPI(API::ScriptMessage::APIType);
 }
 
-WKUserScriptRef WKUserScriptCreateWithSource(WKStringRef sourceRef, _WKUserScriptInjectionTime injectionTime, bool forMainFrameOnly)
+WKTypeRef WKScriptMessageGetBody(WKScriptMessageRef message)
 {
-    return toAPILeakingRef(API::UserScript::create(WebCore::UserScript { toWTFString(sourceRef), { }, { }, { }, toUserScriptInjectionTime(injectionTime), forMainFrameOnly ? WebCore::UserContentInjectedFrames::InjectInTopFrameOnly : WebCore::UserContentInjectedFrames::InjectInAllFrames }, API::ContentWorld::pageContentWorldSingleton()));
+    return WebKit::toImpl(message)->wkBody();
 }
 
-WKStringRef WKUserScriptCopySource(WKUserScriptRef userScriptRef)
+WKFrameInfoRef WKScriptMessageGetFrameInfo(WKScriptMessageRef message)
 {
-    return toCopiedAPI(toImpl(userScriptRef)->userScript().source());
-}
-
-_WKUserScriptInjectionTime WKUserScriptGetInjectionTime(WKUserScriptRef userScriptRef)
-{
-    return toWKUserScriptInjectionTime(toImpl(userScriptRef)->userScript().injectionTime());
-}
-
-bool WKUserScriptGetMainFrameOnly(WKUserScriptRef userScriptRef)
-{
-    return toImpl(userScriptRef)->userScript().injectedFrames() == WebCore::UserContentInjectedFrames::InjectInTopFrameOnly;
+    return WebKit::toAPI(&WebKit::toImpl(message)->frame());
 }

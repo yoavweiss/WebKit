@@ -278,14 +278,6 @@ void InjectedBundle::didReceiveMessageToPage(WKBundlePageRef page, WKStringRef m
         return;
     }
 
-    if (WKStringIsEqualToUTF8CString(messageName, "CallTooltipDidChangeCallback")) {
-        auto messageBodyDictionary = dictionaryValue(messageBody);
-        auto tooltipString = stringValue(messageBodyDictionary, "Tooltip");
-        if (m_testRunner)
-            m_testRunner->callTooltipDidChangeCallback(toJS(tooltipString).get());
-        return;
-    }
-
     if (WKStringIsEqualToUTF8CString(messageName, "NotifyDone")) {
         if (m_testRunner && InjectedBundle::page())
             InjectedBundle::page()->dump(m_testRunner->shouldForceRepaint());

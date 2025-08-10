@@ -276,13 +276,6 @@ void TestInvocation::forceRepaintDoneCallback(WKErrorRef error, void* context)
     TestController::singleton().notifyDone();
 }
 
-void TestInvocation::tooltipDidChange(WKStringRef toolTip)
-{
-    auto messageBody = adoptWK(WKMutableDictionaryCreate());
-    setValue(messageBody, "Tooltip", toolTip);
-    postPageMessage("CallTooltipDidChangeCallback", messageBody);
-}
-
 void TestInvocation::dumpResourceLoadStatisticsIfNecessary()
 {
     if (m_shouldDumpResourceLoadStatistics)

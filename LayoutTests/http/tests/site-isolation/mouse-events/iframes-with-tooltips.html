@@ -8,14 +8,13 @@ jsTestIsAsync = true;
 var tooltips = [];
 function tooltipDidChangeCallback(tooltip)
 {
-    testRunner.installTooltipDidChangeCallback(tooltipDidChangeCallback);
     tooltips.push(tooltip);
 }
 
 async function runTest() {
 
     if (window.testRunner) {
-        testRunner.installTooltipDidChangeCallback(tooltipDidChangeCallback);
+        testRunner.installTooltipDidChangeCallback('tooltipDidChangeCallback');
 
         await eventSender.asyncMouseMoveTo(30, 30);
         await eventSender.asyncMouseMoveTo(100, 100);

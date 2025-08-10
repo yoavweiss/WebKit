@@ -26,6 +26,7 @@
 #pragma once
 
 #include "APIObject.h"
+#include "WKRetainPtr.h"
 #include <wtf/WeakPtr.h>
 #include <wtf/text/WTFString.h>
 
@@ -45,7 +46,6 @@ class FrameInfo;
 
 class ScriptMessage final : public ObjectImpl<Object::Type::ScriptMessage> {
 public:
-    enum class ResultType : bool { ObjC };
     template <typename... Args> static Ref<ScriptMessage> create(Args&&... args) { return adoptRef(*new ScriptMessage(std::forward<Args>(args)...)); }
 
     virtual ~ScriptMessage();
@@ -53,17 +53,20 @@ public:
 #if PLATFORM(COCOA)
     const RetainPtr<id>& body() const { return m_body; }
 #endif
-    WebKit::WebPageProxy* page() const { return m_page.get(); }
+    WKTypeRef wkBody() const { return m_wkBody.get(); }
+    WebKit::WebPageProxy* page() const;
     API::FrameInfo& frame() const { return m_frame.get(); }
     const WTF::String& name() const { return m_name; }
     API::ContentWorld& world() const { return m_world.get(); }
 
 private:
-    ScriptMessage(WebKit::JavaScriptEvaluationResult&&, ResultType, WebKit::WebPageProxy&, Ref<API::FrameInfo>&&, const WTF::String&, Ref<API::ContentWorld>&&);
-
+    ScriptMessage(WKRetainPtr<WKTypeRef>&&, WebKit::WebPageProxy&, Ref<API::FrameInfo>&&, const WTF::String&, Ref<API::ContentWorld>&&);
 #if PLATFORM(COCOA)
-    RetainPtr<id> m_body;
+    ScriptMessage(RetainPtr<id>&&, WebKit::WebPageProxy&, Ref<API::FrameInfo>&&, const WTF::String&, Ref<API::ContentWorld>&&);
+
+    const RetainPtr<id> m_body;
 #endif
+    const WKRetainPtr<WKTypeRef> m_wkBody;
     const WeakPtr<WebKit::WebPageProxy> m_page;
     const Ref<API::FrameInfo> m_frame;
     const WTF::String m_name;

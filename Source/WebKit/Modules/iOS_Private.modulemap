@@ -1676,6 +1676,11 @@ framework module WebKit_Private [system] {
     export *
   }
 
+  explicit module WKScriptMessageRef {
+    header "WKScriptMessageRef.h"
+    export *
+  }
+
   explicit module WKSessionStateRef {
     header "WKSessionStateRef.h"
     export *

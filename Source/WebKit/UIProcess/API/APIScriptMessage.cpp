@@ -29,25 +29,31 @@
 #include "APIContentWorld.h"
 #include "APIFrameInfo.h"
 #include "JavaScriptEvaluationResult.h"
+#include "WebPageProxy.h"
 
 namespace API {
 
 ScriptMessage::~ScriptMessage() = default;
 
-ScriptMessage::ScriptMessage(WebKit::JavaScriptEvaluationResult&& body, ResultType resultType, WebKit::WebPageProxy& page, Ref<API::FrameInfo>&& frame, const WTF::String& name, Ref<API::ContentWorld>&& world)
-    : m_page(page)
+#if PLATFORM(COCOA)
+ScriptMessage::ScriptMessage(RetainPtr<id>&& body, WebKit::WebPageProxy& page, Ref<API::FrameInfo>&& frame, const WTF::String& name, Ref<API::ContentWorld>&& world)
+    : m_body(WTFMove(body))
+    , m_page(page)
     , m_frame(WTFMove(frame))
     , m_name(name)
-    , m_world(WTFMove(world))
-{
-#if PLATFORM(COCOA)
-    switch (resultType) {
-    case ResultType::ObjC:
-        m_body = body.toID();
-    }
-#else
-    UNUSED_PARAM(resultType);
+    , m_world(WTFMove(world)) { }
 #endif
+
+ScriptMessage::ScriptMessage(WKRetainPtr<WKTypeRef>&& body, WebKit::WebPageProxy& page, Ref<API::FrameInfo>&& frame, const WTF::String& name, Ref<API::ContentWorld>&& world)
+    : m_wkBody(WTFMove(body))
+    , m_page(page)
+    , m_frame(WTFMove(frame))
+    , m_name(name)
+    , m_world(WTFMove(world)) { }
+
+WebKit::WebPageProxy* ScriptMessage::page() const
+{
+    return m_page.get();
 }
 
 }
