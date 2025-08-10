@@ -484,7 +484,7 @@ static size_t trampolineReservedStackSize()
 
 static RegisterAtOffsetList usedCalleeSaveRegisters(const Wasm::FunctionSignature& signature)
 {
-    // Pessimistically save callee saves in BoundsChecking mode since the LLInt always bounds checks
+    // Pessimistically save callee saves in BoundsChecking mode since the IPInt always bounds checks
     RegisterSetBuilder calleeSaves = RegisterSetBuilder::wasmPinnedRegisters();
     // FIXME: Is it really worth considering functions that have void() signature? Are those actually common?
     if (signature.argumentCount() || !signature.returnsVoid()) {

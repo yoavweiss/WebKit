@@ -274,8 +274,6 @@ BYTECODE_FILES = \
     BytecodeIndices.h \
     BytecodeStructs.h \
     InitBytecodes.asm \
-    WasmLLIntGeneratorInlines.h \
-    InitWasm.asm \
     BytecodeDumperGenerated.cpp \
 #
 BYTECODE_FILES_PATTERNS = $(call to-pattern, $(BYTECODE_FILES))

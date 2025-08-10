@@ -5806,7 +5806,7 @@ auto OMGIRGenerator::addCall(FunctionSpaceIndex functionIndexSpace, const TypeDe
 
     auto [patchpoint, handle, prepareForCall] = createCallPatchpoint(m_currentBlock, signature, wasmCalleeInfo, args);
     emitUnlinkedWasmToWasmCall(patchpoint, handle, prepareForCall);
-    // We need to clobber the size register since the LLInt always bounds checks
+    // We need to clobber the size register since the IPInt always bounds checks
 #if OMG_JSVALUE_32_64_PINNED_MEMORY_REGISTERS
     if (useSignalingMemory() || m_info.memory.isShared())
         patchpoint->clobberLate(RegisterSetBuilder { GPRInfo::wasmBoundsCheckingSizeRegister });

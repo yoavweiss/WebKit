@@ -78,7 +78,7 @@ CalleeGroup::CalleeGroup(VM& vm, MemoryMode mode, ModuleInformation& moduleInfor
         }
 
         m_wasmIndirectCallEntryPoints = FixedVector<CodePtr<WasmEntryPtrTag>>(m_calleeCount);
-        m_wasmIndirectCallWasmCallees = FixedVector<RefPtr<Wasm::Callee>>(m_calleeCount);
+        m_wasmIndirectCallWasmCallees = FixedVector<RefPtr<Wasm::IPIntCallee>>(m_calleeCount);
 
         for (unsigned i = 0; i < m_calleeCount; ++i) {
             m_wasmIndirectCallEntryPoints[i] = m_ipintCallees->at(i)->entrypoint();
