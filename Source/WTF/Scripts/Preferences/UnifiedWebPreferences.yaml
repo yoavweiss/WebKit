@@ -5041,7 +5041,7 @@ MediaSourcePrefersDecompressionSession:
     WebKitLegacy:
       default: false
     WebKit:
-      default: true
+      default: WebKit::defaultMediaSourcePrefersDecompressionSession()
     WebCore:
       default: true
   sharedPreferenceForWebProcess: true
