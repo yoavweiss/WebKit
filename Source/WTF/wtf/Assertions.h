@@ -168,7 +168,6 @@ typedef struct {
     const char* name;
     WTFLogLevel level;
 #if !RELEASE_LOG_DISABLED && USE(OS_LOG)
-    const char* subsystem;
     __unsafe_unretained os_log_t osLogChannel;
 #endif
 } WTFLogChannel;
@@ -193,10 +192,10 @@ typedef struct {
 
 #if !defined(DEFINE_LOG_CHANNEL)
 #if USE(OS_LOG)
-#define DEFINE_LOG_CHANNEL_WITH_DETAILS(name, initialState, level, subsystem) \
-    WTFLogChannel LOG_CHANNEL(name) = { initialState, #name, level, subsystem, OS_LOG_DEFAULT };
+#define DEFINE_LOG_CHANNEL_WITH_DETAILS(name, initialState, level) \
+    WTFLogChannel LOG_CHANNEL(name) = { initialState, #name, level, OS_LOG_DEFAULT };
 #else
-#define DEFINE_LOG_CHANNEL_WITH_DETAILS(name, initialState, level, subsystem) \
+#define DEFINE_LOG_CHANNEL_WITH_DETAILS(name, initialState, level) \
     WTFLogChannel LOG_CHANNEL(name) = { initialState, #name, level };
 #endif
 #endif
@@ -205,7 +204,7 @@ typedef struct {
 static const WTFLogChannelState logChannelStateOff = (WTFLogChannelState)0;
 static const WTFLogChannelState logChannelStateOn = (WTFLogChannelState)1;
 static const WTFLogLevel logLevelError = (WTFLogLevel)1;
-#define DEFINE_LOG_CHANNEL(name, subsystem) DEFINE_LOG_CHANNEL_WITH_DETAILS(name, logChannelStateOff, logLevelError, subsystem);
+#define DEFINE_LOG_CHANNEL(name) DEFINE_LOG_CHANNEL_WITH_DETAILS(name, logChannelStateOff, logLevelError);
 
 WTF_EXPORT_PRIVATE void WTFReportNotImplementedYet(const char* file, int line, const char* function);
 WTF_EXPORT_PRIVATE void WTFReportAssertionFailure(const char* file, int line, const char* function, const char* assertion);
