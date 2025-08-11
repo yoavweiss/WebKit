@@ -2077,8 +2077,7 @@ template<typename DestinationVector, typename Collection>
 inline auto copyToVectorSpecialization(const Collection& collection) -> DestinationVector
 {
     DestinationVector result;
-    // FIXME: Use std::size when available on all compilers.
-    result.reserveInitialCapacity(collection.size());
+    result.reserveInitialCapacity(std::size(collection));
     for (auto&& item : collection)
         result.unsafeAppendWithoutCapacityCheck(item);
     return result;
