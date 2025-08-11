@@ -1224,9 +1224,9 @@ bool RenderTheme::isIndeterminate(const RenderObject& renderer) const
     return input && input->isCheckbox() && input->matchesIndeterminatePseudoClass();
 }
 
-bool RenderTheme::isSubmitButton(const RenderObject& renderer) const
+bool RenderTheme::isSubmitButton(const Node* node) const
 {
-    RefPtr element = dynamicDowncast<HTMLFormControlElement>(renderer.node());
+    RefPtr element = dynamicDowncast<HTMLFormControlElement>(node);
     return element && element->isSubmitButton();
 }
 

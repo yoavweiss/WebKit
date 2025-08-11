@@ -8146,8 +8146,6 @@ fast/css/accent-color/button.html [ ImageOnlyFailure ]
 fast/css/accent-color/date.html [ ImageOnlyFailure ]
 fast/css/accent-color/select.html [ ImageOnlyFailure ]
 fast/forms/form-control-refresh/submit-button-appearance-matches-button-window-inactive.html [ ImageOnlyFailure ]
-fast/forms/ios/form-control-refresh/button/button-type-submit.html [ ImageOnlyFailure ]
-fast/forms/ios/form-control-refresh/color/paint-within-box.html [ ImageOnlyFailure ]
 fast/forms/ios/form-control-refresh/select/decoration-color.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-view-transitions/fractional-translation-from-position.html [ ImageOnlyFailure ]
 
@@ -8218,6 +8216,10 @@ webkit.org/b/297081 http/tests/resourceLoadStatistics/exemptDomains/managed-doma
 webkit.org/b/297122 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside-010.html [ Pass Failure ]
 
 webkit.org/b/297141 [ Debug ] fast/eventsource/eventsource-attribute-listeners.html [ Pass Crash ]
+
+# Inactive window appearance for form controls is not supported on iOS.
+fast/forms/form-control-refresh/accent-color-contrast-does-not-affect-inactive-window-light-mode.html [ Skip ]
+fast/forms/form-control-refresh/accent-color-contrast-does-not-affect-inactive-window-dark-mode.html [ Skip ]
 
 webkit.org/b/297144 fast/forms/state-restore-to-non-edited-controls.html [ Pass Timeout ]
 
