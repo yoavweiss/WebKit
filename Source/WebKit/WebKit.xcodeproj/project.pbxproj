@@ -126,6 +126,7 @@
 		0201B9522C238F4800227220 /* WebPageProxyTesting.h in Headers */ = {isa = PBXBuildFile; fileRef = 0201B9512C238EFE00227220 /* WebPageProxyTesting.h */; };
 		0201B9552C238FA800227220 /* WebPageTesting.h in Headers */ = {isa = PBXBuildFile; fileRef = 0201B9532C238F8500227220 /* WebPageTesting.h */; };
 		020E13132CA5F2FE002C616E /* WebBackForwardListFrameItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 020E13112CA5F2F1002C616E /* WebBackForwardListFrameItem.h */; };
+		022A83DD2E4405DD00F3E092 /* StorageAccessPermissionChangeObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 022A83DC2E4405DD00F3E092 /* StorageAccessPermissionChangeObserver.h */; };
 		0237F5EA2C4B40E800AD23EF /* WebExtensionSidebarParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 0237F5E92C4B27F500AD23EF /* WebExtensionSidebarParameters.h */; };
 		0237F5EC2C4EC77300AD23EF /* WebExtensionContextAPISidebarCocoa.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0237F5EB2C4EC76800AD23EF /* WebExtensionContextAPISidebarCocoa.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		0250C2512B5DCB2000D05C0B /* FindStringCallbackAggregator.h in Headers */ = {isa = PBXBuildFile; fileRef = 0250C24F2B5DCB0100D05C0B /* FindStringCallbackAggregator.h */; };
@@ -3201,6 +3202,7 @@
 		020E13122CA5F2F1002C616E /* WebBackForwardListFrameItem.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebBackForwardListFrameItem.cpp; sourceTree = "<group>"; };
 		0214701A2995D2FE0077AFD6 /* DrawingAreaCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DrawingAreaCocoa.mm; sourceTree = "<group>"; };
 		0214701B2995D3860077AFD6 /* DrawingArea.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DrawingArea.cpp; sourceTree = "<group>"; };
+		022A83DC2E4405DD00F3E092 /* StorageAccessPermissionChangeObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StorageAccessPermissionChangeObserver.h; path = Classifier/StorageAccessPermissionChangeObserver.h; sourceTree = "<group>"; };
 		0237C21428C168D10018A851 /* WebGPUSupportedFeatures.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebGPUSupportedFeatures.serialization.in; sourceTree = "<group>"; };
 		0237F5E82C4B27DC00AD23EF /* WebExtensionSidebarParameters.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebExtensionSidebarParameters.serialization.in; sourceTree = "<group>"; };
 		0237F5E92C4B27F500AD23EF /* WebExtensionSidebarParameters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebExtensionSidebarParameters.h; sourceTree = "<group>"; };
@@ -13946,6 +13948,7 @@
 				7ACE82E8221CAE07000DA94C /* ResourceLoadStatisticsStore.cpp */,
 				7ACE82E7221CAE06000DA94C /* ResourceLoadStatisticsStore.h */,
 				7A41E9FA21F81DAC00B88CDB /* ShouldGrandfatherStatistics.h */,
+				022A83DC2E4405DD00F3E092 /* StorageAccessPermissionChangeObserver.h */,
 				7A3FECA121F7C09700F267CD /* StorageAccessStatus.h */,
 				2D1DE3592AFA465300D955D4 /* StorageAccessStatus.serialization.in */,
 				7A843A1A21E41FB200DEF663 /* WebResourceLoadStatisticsStore.cpp */,
@@ -17771,6 +17774,7 @@
 				93D6B784254CCD0E0058DD3A /* SpeechRecognitionServerMessages.h in Headers */,
 				93E799DA276121080074008A /* SQLiteStorageArea.h in Headers */,
 				EEFE72792D64FE5600DC6214 /* StageModeInteractionState.h in Headers */,
+				022A83DD2E4405DD00F3E092 /* StorageAccessPermissionChangeObserver.h in Headers */,
 				7A3FECA221F7C09700F267CD /* StorageAccessStatus.h in Headers */,
 				93E799DC276121080074008A /* StorageAreaBase.h in Headers */,
 				932CA81C283C35EC00C20BEB /* StorageAreaIdentifier.h in Headers */,

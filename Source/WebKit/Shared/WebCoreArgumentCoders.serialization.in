@@ -9014,6 +9014,7 @@ struct WebCore::OwnerPermissionsPolicyData {
     XRSpatialTracking,
 #endif
     PrivateToken,
+    StorageAccess,
     Invalid
 };
 

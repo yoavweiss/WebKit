@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,35 +25,18 @@
 
 #pragma once
 
-#include <wtf/WeakPtr.h>
+#include <wtf/AbstractRefCountedAndCanMakeWeakPtr.h>
 
 namespace WebCore {
-
-class Page;
 class RegistrableDomain;
-class ScriptExecutionContext;
-enum class PermissionState : uint8_t;
-enum class PermissionQuerySource : uint8_t;
-struct ClientOrigin;
-struct PermissionDescriptor;
+}
 
-class PermissionObserver : public CanMakeWeakPtr<PermissionObserver> {
+namespace WebKit {
+
+class StorageAccessPermissionChangeObserver : public AbstractRefCountedAndCanMakeWeakPtr<StorageAccessPermissionChangeObserver> {
 public:
-    virtual ~PermissionObserver() = default;
-
-    virtual PermissionState currentState() const = 0;
-    virtual void stateChanged(PermissionState) = 0;
-    virtual void addChangeListener(const RegistrableDomain& topFrameDomain, const RegistrableDomain& subFrameDomain) = 0;
-    virtual void removeChangeListener(const RegistrableDomain& topFrameDomain, const RegistrableDomain& subFrameDomain) = 0;
-    virtual const ClientOrigin& origin() const = 0;
-    virtual PermissionDescriptor descriptor() const = 0;
-    virtual PermissionQuerySource source() const = 0;
-    virtual const WeakPtr<Page>& page() const = 0;
+    virtual ~StorageAccessPermissionChangeObserver() { }
+    virtual void storageAccessPermissionChanged(const WebCore::RegistrableDomain& topFrameDomain, const WebCore::RegistrableDomain& subFrameDomain) = 0;
 };
 
-} // namespace WebCore
-
-namespace WTF {
-template<typename T> struct IsDeprecatedWeakRefSmartPointerException;
-template<> struct IsDeprecatedWeakRefSmartPointerException<WebCore::PermissionObserver> : std::true_type { };
-}
+} // namespace WebKit

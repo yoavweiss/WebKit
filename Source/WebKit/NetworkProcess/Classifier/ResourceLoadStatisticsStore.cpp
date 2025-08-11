@@ -42,6 +42,7 @@
 #include <WebCore/KeyedCoding.h>
 #include <WebCore/NetworkStorageSession.h>
 #include <WebCore/OrganizationStorageAccessPromptQuirk.h>
+#include <WebCore/PermissionState.h>
 #include <WebCore/ResourceLoadStatistics.h>
 #include <WebCore/SQLiteDatabase.h>
 #include <WebCore/SQLiteStatement.h>
@@ -1743,6 +1744,20 @@ void ResourceLoadStatisticsStore::requestStorageAccess(SubFrameDomain&& subFrame
     grantStorageAccessInternal(WTFMove(subFrameDomain), WTFMove(topFrameDomain), frameID, pageID, userWasPromptedEarlier, scope, canRequestStorageAccessWithoutUserInteraction, [completionHandler = WTFMove(completionHandler)] (StorageAccessWasGranted wasGranted) mutable {
         completionHandler(wasGranted == StorageAccessWasGranted::Yes ? StorageAccessStatus::HasAccess : StorageAccessStatus::CannotRequestAccess);
     });
+}
+
+void ResourceLoadStatisticsStore::queryStorageAccessPermission(const SubFrameDomain& subFrameDomain, const TopFrameDomain& topFrameDomain, CompletionHandler<void(PermissionState)>&& completionHandler)
+{
+    ASSERT(!RunLoop::isMain());
+
+    auto subFrameDomainID = domainID(subFrameDomain);
+    if (!subFrameDomainID)
+        return completionHandler(PermissionState::Prompt);
+
+    if (hasUserGrantedStorageAccessThroughPrompt(*subFrameDomainID, topFrameDomain) == StorageAccessPromptWasShown::No)
+        return completionHandler(PermissionState::Prompt);
+
+    completionHandler(PermissionState::Granted);
 }
 
 void ResourceLoadStatisticsStore::requestStorageAccessUnderOpener(DomainInNeedOfStorageAccess&& domainInNeedOfStorageAccess, PageIdentifier openerPageID, OpenerDomain&& openerDomain, CanRequestStorageAccessWithoutUserInteraction canRequestStorageAccessWithoutUserInteraction)

@@ -70,6 +70,7 @@ public:
         XRSpatialTracking,
 #endif
         PrivateToken,
+        StorageAccess,
         Invalid
     };
     enum class ShouldReportViolation : bool { No, Yes };

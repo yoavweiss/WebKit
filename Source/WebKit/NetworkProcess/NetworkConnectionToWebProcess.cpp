@@ -199,6 +199,11 @@ NetworkConnectionToWebProcess::~NetworkConnectionToWebProcess()
     if (CheckedPtr networkStorageSession = storageSession())
         networkStorageSession->removeCookiesEnabledStateObserver(*this);
 
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics())
+            resourceLoadStatistics->stopListeningForStorageAccessPermissionChanges(*this);
+    }
+
 #if USE(LIBWEBRTC)
     if (RefPtr rtcProvider = m_rtcProvider)
         rtcProvider->close();
@@ -1043,6 +1048,27 @@ void NetworkConnectionToWebProcess::allCookiesDeleted()
 
 #endif
 
+void NetworkConnectionToWebProcess::subscribeToStorageAccessPermissionChanges(RegistrableDomain&& topFrameDomain, RegistrableDomain&& subFrameDomain)
+{
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics())
+            resourceLoadStatistics->startListeningForStorageAccessPermissionChanges(*this, WTFMove(topFrameDomain), WTFMove(subFrameDomain));
+    }
+}
+
+void NetworkConnectionToWebProcess::unsubscribeFromStorageAccessPermissionChanges(RegistrableDomain&& topFrameDomain, RegistrableDomain&& subFrameDomain)
+{
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics())
+            resourceLoadStatistics->stopListeningForStorageAccessPermissionChanges(*this, WTFMove(topFrameDomain), WTFMove(subFrameDomain));
+    }
+}
+
+void NetworkConnectionToWebProcess::storageAccessPermissionChanged(const RegistrableDomain& topFrameDomain, const RegistrableDomain& subFrameDomain)
+{
+    m_connection->send(Messages::NetworkProcessConnection::StorageAccessPermissionChanged(topFrameDomain, subFrameDomain), 0);
+}
+
 void NetworkConnectionToWebProcess::cookieEnabledStateMayHaveChanged()
 {
     m_connection->send(Messages::NetworkProcessConnection::UpdateCachedCookiesEnabled(), 0);
@@ -1285,6 +1311,16 @@ void NetworkConnectionToWebProcess::requestStorageAccess(RegistrableDomain&& sub
     }
 
     completionHandler({ WebCore::StorageAccessWasGranted::Yes, WebCore::StorageAccessPromptWasShown::No, scope, topFrameDomain, subFrameDomain });
+}
+
+void NetworkConnectionToWebProcess::queryStorageAccessPermission(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, CompletionHandler<void(WebCore::PermissionState)>&& completionHandler)
+{
+    if (CheckedPtr networkSession = this->networkSession()) {
+        if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
+            resourceLoadStatistics->queryStorageAccessPermission(WTFMove(subFrameDomain), WTFMove(topFrameDomain), WTFMove(completionHandler));
+            return;
+        }
+    }
 }
 
 void NetworkConnectionToWebProcess::setLoginStatus(RegistrableDomain&& domain, IsLoggedIn loggedInStatus, std::optional<WebCore::LoginStatus>&& lastAuthentication, CompletionHandler<void()>&& completionHandler)
