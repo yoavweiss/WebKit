@@ -1182,17 +1182,17 @@ CSSDynamicRangeLimitMixEnabled:
 
 CSSFieldSizingEnabled:
   type: bool
-  status: preview
+  status: stable
   category: css
   humanReadableName: "CSS field-sizing property"
   humanReadableDescription: "Enable field-sizing CSS property"
   defaultValue:
     WebKitLegacy:
-      default: false
+      default: true
     WebKit:
-      default: false
+      default: true
     WebCore:
-      default: false
+      default: true
 
 CSSFontVariantEmojiEnabled:
   type: bool
