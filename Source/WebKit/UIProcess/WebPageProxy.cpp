@@ -6835,6 +6835,15 @@ void WebPageProxy::didStartProvisionalLoadForFrameShared(Ref<WebProcessProxy>&& 
     frame->setUnreachableURL(unreachableURL);
     frame->didStartProvisionalLoad(WTFMove(url));
 
+#if ENABLE(WEBDRIVER_BIDI)
+    if (m_controlledByAutomation) {
+        if (RefPtr automationSession = process->processPool().automationSession()) {
+            automationSession->navigationStartedForFrame(*frame, url.string(),
+                navigationID, timestamp.secondsSinceEpoch().milliseconds());
+        }
+    }
+#endif
+
     pageLoadState->commitChanges();
     if (m_loaderClient)
         m_loaderClient->didStartProvisionalLoadForFrame(*this, *frame, navigation.get(), process->transformHandlesToObjects(userData.protectedObject().get()).get());
