@@ -2187,6 +2187,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         RefPtr<Element> container;
         bool foundBackdropFilter { false };
         bool retryHonoringPointerEvents { false };
+        bool isViewportSized { false };
         bool isDimmingLayer { false };
         Color backgroundColor;
     };
@@ -2225,10 +2226,26 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         return { };
     };
 
-    auto isNearlyViewportSized = [&](BoxSide side, const RenderObject& renderer) {
-        static constexpr auto minimumRatio = 0.8;
+    enum class ViewportComparison : uint8_t {
+        Smaller,
+        Similar,
+        Larger,
+    };
+
+    auto compareWithViewportSize = [&](BoxSide side, const RenderObject& renderer) {
+        using enum ViewportComparison;
+        static constexpr auto minimumRatio = 0.9;
+        static constexpr auto maximumRatio = 1.05;
         auto elementRect = enclosingLayoutRect(renderer.absoluteBoundingBoxRect());
-        return lengthOnSide(side, elementRect) > minimumRatio * lengthOnSide(side, fixedRect);
+        auto containerLength = lengthOnSide(side, elementRect);
+        auto viewportLength = lengthOnSide(side, fixedRect);
+        if (containerLength < viewportLength * minimumRatio)
+            return Smaller;
+
+        if (containerLength < viewportLength * maximumRatio)
+            return Similar;
+
+        return Larger;
     };
 
     auto midpointOnSide = [&](BoxSide side, const LayoutRect& rect) -> LayoutPoint {
@@ -2278,7 +2295,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         if (!styleColor.isResolvedColor())
             return { };
 
-        if (!isNearlyViewportSized(side, renderer))
+        if (compareWithViewportSize(side, renderer) == ViewportComparison::Smaller)
             return { };
 
         return styleColor.resolvedColor();
@@ -2291,6 +2308,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         IsScrollable,
         TooSmall,
         TooLarge,
+        IsViewportSizedCandidate,
         IsDimmingLayer,
         IsCandidate,
     };
@@ -2303,8 +2321,8 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
         if (!renderer.isFixedPositioned() && !renderer.isStickilyPositioned())
             return NotFixedOrSticky;
 
-        bool isNearlyViewportSizedOnSide = isNearlyViewportSized(side, renderer);
-        bool isNearlyViewportSizedOnAdjacentSide = isNearlyViewportSized(adjacentSideInClockwiseOrder(side), renderer);
+        auto lengthOnSide = compareWithViewportSize(side, renderer);
+        auto lengthOnAdjacentSide = compareWithViewportSize(adjacentSideInClockwiseOrder(side), renderer);
         bool isProbablyDimmingContainer = false;
         if (CheckedPtr box = dynamicDowncast<RenderBox>(renderer)) {
             if (isHiddenOrNearlyTransparent(*box))
@@ -2314,7 +2332,10 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
                 return IsScrollable;
 
             isProbablyDimmingContainer = [&] {
-                if (!isNearlyViewportSizedOnAdjacentSide || !isNearlyViewportSizedOnSide)
+                if (lengthOnSide == ViewportComparison::Smaller)
+                    return false;
+
+                if (lengthOnAdjacentSide == ViewportComparison::Smaller)
                     return false;
 
                 if (!box->hasBackground())
@@ -2331,13 +2352,19 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             }();
         }
 
-        if (!isNearlyViewportSizedOnSide)
+        if (lengthOnSide == ViewportComparison::Smaller)
             return TooSmall;
 
-        if (!isProbablyDimmingContainer && isNearlyViewportSizedOnAdjacentSide)
+        if (!isProbablyDimmingContainer && lengthOnAdjacentSide == ViewportComparison::Larger)
             return TooLarge;
 
-        return isProbablyDimmingContainer ? IsDimmingLayer : IsCandidate;
+        if (isProbablyDimmingContainer)
+            return IsDimmingLayer;
+
+        if (lengthOnSide == ViewportComparison::Similar && lengthOnAdjacentSide == ViewportComparison::Similar)
+            return IsViewportSizedCandidate;
+
+        return IsCandidate;
     };
 
     enum class IgnoreCSSPointerEvents : bool { No, Yes };
@@ -2391,12 +2418,14 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
                 hitInvisiblePointerEventsNoneContainer = ancestor->usedPointerEvents() == PointerEvents::None;
                 break;
             }
+            case IsViewportSizedCandidate:
             case IsDimmingLayer:
             case IsCandidate: {
                 return {
                     .container = { ancestor->element() },
                     .foundBackdropFilter = foundBackdropFilter,
                     .retryHonoringPointerEvents = false,
+                    .isViewportSized = candidateType == IsViewportSizedCandidate,
                     .isDimmingLayer = candidateType == IsDimmingLayer,
                     .backgroundColor = hasMultipleBackgroundColors ? Color { } : WTFMove(primaryBackgroundColor),
                 };
@@ -2408,6 +2437,7 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             .container = { },
             .foundBackdropFilter = foundBackdropFilter,
             .retryHonoringPointerEvents = hitInvisiblePointerEventsNoneContainer,
+            .isViewportSized = false,
             .isDimmingLayer = false,
             .backgroundColor = { },
         };
@@ -2488,7 +2518,8 @@ std::pair<FixedContainerEdges, WeakElementEdges> LocalFrameView::fixedContainerE
             continue;
         }
 
-        if (result.isDimmingLayer && page->fixedContainerEdges().hasFixedEdge(side)) {
+        bool preferExistingColor = result.isDimmingLayer || result.isViewportSized;
+        if (preferExistingColor && page->fixedContainerEdges().hasFixedEdge(side)) {
             edges.colors.setAt(side, page->fixedContainerEdges().colors.at(side));
             continue;
         }
