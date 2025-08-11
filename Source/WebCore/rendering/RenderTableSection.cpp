@@ -334,6 +334,26 @@ LayoutUnit RenderTableSection::calcRowLogicalHeight()
     return m_rowPos[m_grid.size()];
 }
 
+LayoutUnit RenderTableSection::cellLogicalWidthInTableDirectionIncludingColumnSpan(const RenderTableCell& cell, size_t startColumn, size_t numberOfColumns) const
+{
+    ASSERT(startColumn < numberOfColumns);
+
+    auto endColumn = startColumn;
+    auto columnSpan = cell.colSpan();
+    auto& columns = table()->columns();
+    while (columnSpan && endColumn < numberOfColumns) {
+        ASSERT(endColumn < columns.size());
+        columnSpan -= columns[endColumn].span;
+        endColumn++;
+    }
+    auto& columnPositions = table()->columnPositions();
+    if (startColumn >= columnPositions.size() || endColumn >= columnPositions.size()) {
+        ASSERT_NOT_REACHED();
+        return { };
+    }
+    return columnPositions[endColumn] - columnPositions[startColumn] - table()->hBorderSpacing();
+}
+
 void RenderTableSection::layout()
 {
     StackStats::LayoutCheckPoint layoutCheckPoint;
@@ -348,32 +368,22 @@ void RenderTableSection::layout()
 
     LayoutStateMaintainer statePusher(*this, locationOffset(), isTransformed() || hasReflection() || writingMode().isBlockFlipped());
     bool paginated = view().frameView().layoutContext().layoutState()->isPaginated();
-    
-    const Vector<LayoutUnit>& columnPos = table()->columnPositions();
-    
-    for (unsigned r = 0; r < m_grid.size(); ++r) {
-        Row& row = m_grid[r].row;
-        unsigned cols = row.size();
+
+    for (size_t rowIndex = 0; rowIndex < m_grid.size(); ++rowIndex) {
+        auto& columnList = m_grid[rowIndex].row;
+        auto numberOfColumns = columnList.size();
         // First, propagate our table layout's information to the cells. This will mark the row as needing layout
         // if there was a column logical width change.
-        for (unsigned startColumn = 0; startColumn < cols; ++startColumn) {
-            CellStruct& current = row[startColumn];
-            RenderTableCell* cell = current.primaryCell();
-            if (!cell || current.inColSpan)
+        for (size_t startColumn = 0; startColumn < numberOfColumns; ++startColumn) {
+            auto& currentColumn = columnList[startColumn];
+            auto* cell = currentColumn.primaryCell();
+            if (!cell || currentColumn.inColSpan)
                 continue;
 
-            unsigned endCol = startColumn;
-            unsigned cspan = cell->colSpan();
-            while (cspan && endCol < cols) {
-                ASSERT(endCol < table()->columns().size());
-                cspan -= table()->columns()[endCol].span;
-                endCol++;
-            }
-            LayoutUnit tableLayoutLogicalWidth = columnPos[endCol] - columnPos[startColumn] - table()->hBorderSpacing();
-            cell->setCellLogicalWidth(tableLayoutLogicalWidth);
+            cell->setCellLogicalWidth(cellLogicalWidthInTableDirectionIncludingColumnSpan(*cell, startColumn, numberOfColumns));
         }
 
-        if (RenderTableRow* rowRenderer = m_grid[r].rowRenderer) {
+        if (auto* rowRenderer = m_grid[rowIndex].rowRenderer) {
             if (!rowRenderer->needsLayout() && paginated && view().frameView().layoutContext().layoutState()->pageLogicalHeightChanged())
                 rowRenderer->setChildNeedsLayout(MarkOnlyThis);
 
