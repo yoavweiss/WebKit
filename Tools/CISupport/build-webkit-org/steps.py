@@ -426,11 +426,7 @@ class CompileWebKit(shell.CompileNewStyle, CustomFlagsMixin, ShellMixin, AddToLo
         if self.line_count == THRESHOLD_FOR_EXCESSIVE_LOGS:
             self.handleExcessiveLogging()
             return
-
-        if "arning:" in line:
-            self._addToLog('warnings', line + '\n')
-        if "rror:" in line:
-            self._addToLog('errors', line + '\n')
+        # FIXME: Re-enable error and warning filtering from logs.
 
     def handleExcessiveLogging(self):
         build_url = f'{self.master.config.buildbotURL}#/builders/{self.build._builderid}/builds/{self.build.number}'
