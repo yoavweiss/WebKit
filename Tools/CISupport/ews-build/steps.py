@@ -3667,8 +3667,30 @@ class CompileJSC(CompileWebKit):
         return shell.Compile.getResultSummary(self)
 
 
+class CompileJSC32(CompileWebKit):
+    name = 'compile-jsc-32bit'
+    descriptionDone = ['Compiled JSC']
+    build_command = ["linux32", "perl", "Tools/Scripts/build-jsc", "--32-bit", "--cmakeargs=\"-DUSE_LIBBACKTRACE=OFF -DDEVELOPER_MODE=ON -DENABLE_OFFLINE_ASM_ALT_ENTRY=1 -DCMAKE_CXX_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DCMAKE_C_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DUSE_LD_LLD=OFF\""]
+
+    def start(self):
+        self.setProperty('group', 'jsc')
+        return CompileWebKit.start(self)
+
+    def getResultSummary(self):
+        if self.results == FAILURE:
+            return {'step': 'Failed to compile JSC'}
+        return shell.Compile.getResultSummary(self)
+
+
 class CompileJSCWithoutChange(CompileJSC):
     name = 'compile-jsc-without-change'
+
+    def evaluateCommand(self, cmd):
+        return shell.Compile.evaluateCommand(self, cmd)
+
+
+class CompileJSCWithoutChange32(CompileJSC):
+    name = 'compile-jsc-32bit-without-change'
 
     def evaluateCommand(self, cmd):
         return shell.Compile.evaluateCommand(self, cmd)
@@ -3744,7 +3766,7 @@ class RunJavaScriptCoreTests(shell.Test, AddToLogMixin, ShellMixin):
                 RevertAppliedChanges(),
                 CleanWorkingDirectory(),
                 ValidateChange(verifyBugClosed=False, addURLs=False),
-                CompileJSCWithoutChange(),
+                CompileJSCWithoutChange() if self.bits() == 64 else CompileJSCWithoutChange32(),
                 ValidateChange(verifyBugClosed=False, addURLs=False),
                 KillOldProcesses(),
                 RunJSCTestsWithoutChange(),
@@ -3821,6 +3843,16 @@ class RunJavaScriptCoreTests(shell.Test, AddToLogMixin, ShellMixin):
             count += int(match.group(1))
 
         return count
+
+    def bits(self):
+        return 64
+
+
+class RunJavaScriptCoreTests32(RunJavaScriptCoreTests):
+    name = 'jscore-test-32bit'
+
+    def bits(self):
+        return 32
 
 
 class RunJSCTestsWithoutChange(RunJavaScriptCoreTests):

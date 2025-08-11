@@ -503,9 +503,9 @@ class CompileLLINTCLoop(CompileWebKit):
     build_command = ["perl", "Tools/Scripts/build-jsc", "--cloop"]
 
 
-class Compile32bitJSC(CompileWebKit):
+class CompileJSCOnly32(CompileWebKit):
     name = 'compile-jsc-32bit'
-    build_command = ["perl", "Tools/Scripts/build-jsc", "--32-bit"]
+    build_command = ["linux32", "perl", "Tools/Scripts/build-jsc", "--32-bit", "--cmakeargs=\"-DUSE_LIBBACKTRACE=OFF -DDEVELOPER_MODE=ON -DENABLE_OFFLINE_ASM_ALT_ENTRY=1 -DCMAKE_CXX_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DCMAKE_C_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DUSE_LD_LLD=OFF\""]
 
 
 class CompileJSCOnly(CompileWebKit):
