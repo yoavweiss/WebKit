@@ -97,8 +97,8 @@ public:
     static JumpLinkType computeJumpType(LinkRecord& record, const uint8_t* from, const uint8_t* to) { return Assembler::computeJumpType(record, from, to); }
     static int jumpSizeDelta(JumpType jumpType, JumpLinkType jumpLinkType) { return Assembler::jumpSizeDelta(jumpType, jumpLinkType); }
 
-    template<RepatchingInfo repatch>
-    ALWAYS_INLINE static void link(LinkRecord& record, uint8_t* from, const uint8_t* fromInstruction, uint8_t* to) { return Assembler::link<repatch>(record, from, fromInstruction, to); }
+    template<MachineCodeCopyMode copy>
+    ALWAYS_INLINE static void link(LinkRecord& record, uint8_t* from, const uint8_t* fromInstruction, uint8_t* to) { return Assembler::link<copy>(record, from, fromInstruction, to); }
 
     static bool isCompactPtrAlignedAddressOffset(ptrdiff_t value)
     {
@@ -5211,7 +5211,7 @@ public:
 
     static void reemitInitialMoveWithPatch(void* address, void* value)
     {
-        Assembler::setPointer<jitMemcpyRepatchFlush>(static_cast<int*>(address), value, dataTempRegister);
+        Assembler::setPointer(static_cast<int*>(address), value, dataTempRegister, true);
     }
 
     // Miscellaneous operations:

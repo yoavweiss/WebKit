@@ -1094,7 +1094,7 @@ public:
         size_t startCodeSize = buffer.codeSize();
         size_t targetCodeSize = startCodeSize + memoryToFillWithNopsInBytes;
         buffer.ensureSpace(memoryToFillWithNopsInBytes);
-        AssemblerType::template fillNops<RepatchingInfo { RepatchingFlag::Memcpy }>(static_cast<char*>(buffer.data()) + startCodeSize, memoryToFillWithNopsInBytes);
+        AssemblerType::template fillNops<MachineCodeCopyMode::Memcpy>(static_cast<char*>(buffer.data()) + startCodeSize, memoryToFillWithNopsInBytes);
         buffer.setCodeSize(targetCodeSize);
 #endif
     }
@@ -1250,3 +1250,4 @@ void printInternal(PrintStream& out, JSC::AbstractMacroAssemblerBase::StatusCond
 } // namespace WTF
 
 #endif // ENABLE(ASSEMBLER)
+

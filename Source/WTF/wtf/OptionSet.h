@@ -38,7 +38,6 @@
 namespace WTF {
 
 template<typename E> class OptionSet;
-template<typename E> struct ConstexprOptionSet;
 
 // OptionSet is a class that represents a set of enumerators in a space-efficient manner. The enumerators
 // must be powers of two greater than 0. This class is useful as a replacement for passing a bitmask of
@@ -196,8 +195,6 @@ private:
     {
     }
     StorageType m_storage { 0 };
-
-    friend struct ConstexprOptionSet<E>;
 };
 
 namespace IsValidOptionSetHelper {
@@ -219,24 +216,6 @@ WARN_UNUSED_RETURN constexpr bool isValidOptionSet(OptionSet<E> optionSet)
     auto allValidBitsValue = IsValidOptionSetHelper::OptionSetValueChecker<std::make_unsigned_t<std::underlying_type_t<E>>, typename EnumTraits<E>::values>::allValidBits();
     return (optionSet.toRaw() | allValidBitsValue) == allValidBitsValue;
 }
-
-// A structural type requires all base classes and non-static data members are public and non-mutable.
-// This helper lets you use OptionSet in template parameters.
-template<typename E> struct ConstexprOptionSet {
-    constexpr ConstexprOptionSet(OptionSet<E> o)
-        : storage(o.m_storage)
-    {
-    }
-
-    constexpr ConstexprOptionSet(std::initializer_list<E> initializerList)
-        : ConstexprOptionSet<E>(OptionSet<E>(WTFMove(initializerList)))
-    {
-    }
-
-    constexpr OptionSet<E> operator*() const { return OptionSet<E>::fromRaw(storage); }
-
-    const OptionSet<E>::StorageType storage;
-};
 
 } // namespace WTF
 
