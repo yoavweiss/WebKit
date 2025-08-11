@@ -67,6 +67,8 @@ WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(RenderTableCell);
 struct SameSizeAsRenderTableCell : public RenderBlockFlow {
     unsigned bitfields;
     LayoutUnit padding[2];
+    bool isComputingPreferredSize;
+    std::optional<LayoutUnit> orthogonalCellContentIntrinsicHeight;
 };
 
 static_assert(sizeof(RenderTableCell) == sizeof(SameSizeAsRenderTableCell), "RenderTableCell should stay small");
@@ -316,8 +318,23 @@ bool RenderTableCell::computeIntrinsicPadding(LayoutUnit rowHeight)
     return intrinsicPaddingBefore != oldIntrinsicPaddingBefore || intrinsicPaddingAfter != oldIntrinsicPaddingAfter;
 }
 
+RenderBox::LogicalExtentComputedValues RenderTableCell::computeLogicalHeight(LayoutUnit logicalHeight, LayoutUnit logicalTop) const
+{
+    if (isOrthogonal()) {
+        // Note that at this point, contentBoxLogicalHeight means content height.
+        m_orthogonalCellContentIntrinsicHeight = contentBoxLogicalHeight();
+    }
+    return RenderBlockFlow::computeLogicalHeight(logicalHeight, logicalTop);
+}
+
 void RenderTableCell::updateLogicalWidth()
 {
+    if (isComputingPreferredSize()) {
+        // While table layout sets the final logical width for cells, in case of
+        // preferred width computation for orthogonal content, we have
+        // to follow normal layout flow to be able to compute logical height.
+        RenderBlockFlow::updateLogicalWidth();
+    }
 }
 
 void RenderTableCell::setCellLogicalWidth(LayoutUnit tableLayoutLogicalWidth)
@@ -433,12 +450,26 @@ void RenderTableCell::setOverridingLogicalHeightFromRowHeight(LayoutUnit rowHeig
 
 LayoutUnit RenderTableCell::minLogicalWidthForColumnSizing()
 {
-    return RenderBlockFlow::minPreferredLogicalWidth();
+    if (!isOrthogonal())
+        return RenderBlockFlow::minPreferredLogicalWidth();
+
+    auto computingPreferredSize = SetForScope<bool> { m_isComputingPreferredSize, true };
+    setNeedsLayout(MarkOnlyThis);
+    layoutIfNeeded();
+    ASSERT(m_orthogonalCellContentIntrinsicHeight.has_value());
+    return std::max(logicalHeight(), m_orthogonalCellContentIntrinsicHeight.value_or(0_lu));
 }
 
 LayoutUnit RenderTableCell::maxLogicalWidthForColumnSizing()
 {
-    return RenderBlockFlow::maxPreferredLogicalWidth();
+    if (!isOrthogonal())
+        return RenderBlockFlow::maxPreferredLogicalWidth();
+
+    auto computingPreferredSize = SetForScope<bool> { m_isComputingPreferredSize, true };
+    setNeedsLayout(MarkOnlyThis);
+    layoutIfNeeded();
+    ASSERT(m_orthogonalCellContentIntrinsicHeight.has_value());
+    return std::max(logicalHeight(), m_orthogonalCellContentIntrinsicHeight.value_or(0_lu));
 }
 
 LayoutSize RenderTableCell::offsetFromContainer(const RenderElement& container, const LayoutPoint& point, bool* offsetDependsOnPoint) const

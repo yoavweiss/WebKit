@@ -3286,8 +3286,12 @@ RenderBox::LogicalExtentComputedValues RenderBox::computeLogicalHeight(LayoutUni
     computedValues.m_extent = logicalHeight;
     computedValues.m_position = logicalTop;
 
-    // Cell height is managed by the table and inline non-replaced elements do not support a height property.
-    if (isRenderTableCell() || (isInline() && !isBlockLevelReplacedOrAtomicInline()))
+    // Inline non-replaced elements do not support a height property.
+    if (isInline() && !isBlockLevelReplacedOrAtomicInline())
+        return computedValues;
+
+    // Let's allow the table cell to compute its preferred size.
+    if (CheckedPtr tableCell = dynamicDowncast<RenderTableCell>(*this); tableCell && !tableCell->isComputingPreferredSize())
         return computedValues;
 
     if (isOutOfFlowPositioned()) {

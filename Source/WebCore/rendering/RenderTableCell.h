@@ -135,6 +135,11 @@ public:
 
     inline bool isOrthogonal() const;
 
+    bool isComputingPreferredSize() const { return m_isComputingPreferredSize; }
+
+protected:
+    LogicalExtentComputedValues computeLogicalHeight(LayoutUnit logicalHeight, LayoutUnit logicalTop) const override;
+
 private:
     void styleDidChange(StyleDifference, const RenderStyle* oldStyle) override;
     void computePreferredLogicalWidths() override;
@@ -208,8 +213,10 @@ private:
     mutable unsigned m_hasEmptyCollapsedAfterBorder: 1;
     mutable unsigned m_hasEmptyCollapsedStartBorder: 1;
     mutable unsigned m_hasEmptyCollapsedEndBorder: 1;
+    bool m_isComputingPreferredSize { false };
     LayoutUnit m_intrinsicPaddingBefore { 0 };
     LayoutUnit m_intrinsicPaddingAfter { 0 };
+    mutable std::optional<LayoutUnit> m_orthogonalCellContentIntrinsicHeight;
 };
 
 inline RenderTableCell* RenderTableCell::nextCell() const
