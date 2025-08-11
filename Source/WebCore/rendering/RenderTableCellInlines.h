@@ -89,4 +89,13 @@ inline bool RenderTableCell::isBaselineAligned() const
         || WTF::holdsAlternative<Style::VerticalAlign::Length>(verticalAlign);
 }
 
+inline bool RenderTableCell::isOrthogonal() const
+{
+    if (auto* row = this->row())
+        return writingMode().isOrthogonal(row->writingMode());
+
+    ASSERT_NOT_REACHED();
+    return false;
+}
+
 } // namespace WebCore

@@ -1623,6 +1623,8 @@ void RenderTableSection::setLogicalPositionForCell(RenderTableCell* cell, unsign
     else
         cellLocation.setX(table()->columnPositions()[effectiveColumn] + horizontalBorderSpacing);
 
+    if (cell->isOrthogonal())
+        cellLocation = cellLocation.transposedPoint();
     cell->setLogicalLocation(cellLocation);
     view().frameView().layoutContext().addLayoutDelta(oldCellLocation - cell->location());
 }

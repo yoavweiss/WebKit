@@ -133,6 +133,8 @@ public:
     void invalidateHasEmptyCollapsedBorders();
     void setHasEmptyCollapsedBorder(CollapsedBorderSide, bool empty) const;
 
+    inline bool isOrthogonal() const;
+
 private:
     void styleDidChange(StyleDifference, const RenderStyle* oldStyle) override;
     void computePreferredLogicalWidths() override;
