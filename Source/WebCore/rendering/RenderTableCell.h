@@ -62,6 +62,8 @@ public:
     unsigned rowIndex() const;
     inline Style::PreferredSize styleOrColLogicalWidth() const;
     inline LayoutUnit logicalHeightForRowSizing() const;
+    LayoutUnit minLogicalWidthForColumnSizing();
+    LayoutUnit maxLogicalWidthForColumnSizing();
 
     void setCellLogicalWidth(LayoutUnit constrainedLogicalWidth);
 

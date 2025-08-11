@@ -431,6 +431,16 @@ void RenderTableCell::setOverridingLogicalHeightFromRowHeight(LayoutUnit rowHeig
     setOverridingBorderBoxLogicalHeight(rowHeight);
 }
 
+LayoutUnit RenderTableCell::minLogicalWidthForColumnSizing()
+{
+    return RenderBlockFlow::minPreferredLogicalWidth();
+}
+
+LayoutUnit RenderTableCell::maxLogicalWidthForColumnSizing()
+{
+    return RenderBlockFlow::maxPreferredLogicalWidth();
+}
+
 LayoutSize RenderTableCell::offsetFromContainer(const RenderElement& container, const LayoutPoint& point, bool* offsetDependsOnPoint) const
 {
     ASSERT(&container == this->container());
