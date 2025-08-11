@@ -8068,8 +8068,6 @@ webkit.org/b/295728 [ Debug ] imported/w3c/web-platform-tests/workers/WorkerGlob
 
 webkit.org/b/295743 [ Release ] media/video-display-aspect-ratio.html [ Pass Failure ]
 
-webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-position-does-not-leak.https.html [ Pass Failure ]
-
 webkit.org/b/295798 fast/visual-viewport/ios/get-bounding-client-rect-unstable.html [ Pass Failure ]
 
 webkit.org/b/295800 [ Release ] http/wpt/resource-timing/rt-resource-errors.html [ Pass Failure ]
@@ -8229,3 +8227,5 @@ webkit.org/b/297222 imported/w3c/web-platform-tests/navigation-api/ordering-and-
 webkit.org/b/297240 http/tests/site-isolation/edge-sampling-commit-root-frame-load.html [ Failure ]
 
 webkit.org/b/297131 [ Debug ] imported/w3c/web-platform-tests/web-locks/storage-buckets.tentative.https.any.worker.html [ Pass Failure ]
+
+webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-position-does-not-leak.https.html [ Pass Failure ]
