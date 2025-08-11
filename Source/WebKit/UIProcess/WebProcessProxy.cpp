@@ -2586,6 +2586,8 @@ void WebProcessProxy::setRemoteWorkerUserAgent(const String& userAgent)
 
 void WebProcessProxy::updateRemoteWorkerPreferencesStore(const WebPreferencesStore& store)
 {
+    updateSharedPreferences(store);
+
     if (m_serviceWorkerInformation)
         send(Messages::WebSWContextManagerConnection::UpdatePreferencesStore { store }, 0);
     if (m_sharedWorkerInformation)
