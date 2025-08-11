@@ -4412,9 +4412,6 @@
     "imported/w3c/web-platform-tests/import-maps/import-maps-base-url.sub.html": [
         "slow"
     ],
-    "imported/w3c/web-platform-tests/mathml/presentation-markup/operators/operator-dictionary-001.html": [
-        "slow"
-    ],
     "imported/w3c/web-platform-tests/mathml/presentation-markup/operators/operator-dictionary-largeop-001.html": [
         "slow"
     ],
@@ -4509,9 +4506,6 @@
         "slow"
     ],
     "imported/w3c/web-platform-tests/mathml/relations/html5-tree/math-global-event-handlers.tentative.html": [
-        "slow"
-    ],
-    "imported/w3c/web-platform-tests/mathml/relations/html5-tree/tabindex-002.html": [
         "slow"
     ],
     "imported/w3c/web-platform-tests/mathml/relations/html5-tree/tabindex-002.tentative.html": [

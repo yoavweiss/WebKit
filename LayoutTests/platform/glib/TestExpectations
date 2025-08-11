@@ -1778,6 +1778,8 @@ webkit.org/b/243614 imported/w3c/web-platform-tests/IndexedDB/nested-cloning-lar
 #////////////////////////////////////////////////////////////////////////////////////////
 
 webkit.org/b/212080 imported/w3c/web-platform-tests/mathml/presentation-markup/tables/table-002.html [ Failure ]
+imported/w3c/web-platform-tests/mathml/relations/css-styling/lengths-1.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/mathml/relations/css-styling/lengths-2.html [ Skip ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of MathML-related bugs
