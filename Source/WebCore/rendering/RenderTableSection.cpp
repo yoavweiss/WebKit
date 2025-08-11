@@ -541,7 +541,7 @@ void RenderTableSection::relayoutCellIfFlexed(RenderTableCell& cell, int rowInde
         return;
 
     cell.setChildNeedsLayout(MarkOnlyThis);
-        // Alignment within a cell is based off the calculated
+    // Alignment within a cell is based off the calculated
     // height, which becomes irrelevant once the cell has
     // been resized based off its percentage.
     cell.setOverridingLogicalHeightFromRowHeight(rowHeight);

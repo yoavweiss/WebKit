@@ -65,7 +65,7 @@ public:
     LayoutUnit minLogicalWidthForColumnSizing();
     LayoutUnit maxLogicalWidthForColumnSizing();
 
-    void setCellLogicalWidth(LayoutUnit constrainedLogicalWidth);
+    void setCellLogicalWidth(LayoutUnit logicalWidthInTableDirection);
 
     RectEdges<LayoutUnit> borderWidths() const override;
     LayoutUnit borderLeft() const override;

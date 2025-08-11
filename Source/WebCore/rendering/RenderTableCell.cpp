@@ -337,16 +337,25 @@ void RenderTableCell::updateLogicalWidth()
     }
 }
 
-void RenderTableCell::setCellLogicalWidth(LayoutUnit tableLayoutLogicalWidth)
+void RenderTableCell::setCellLogicalWidth(LayoutUnit logicalWidthInTableDirection)
 {
-    if (tableLayoutLogicalWidth == logicalWidth())
+    auto logicalSizeInTableDirection = !isOrthogonal() ? logicalWidth() : logicalHeight();
+    if (logicalWidthInTableDirection == logicalSizeInTableDirection)
         return;
 
     setNeedsLayout(MarkOnlyThis);
     row()->setChildNeedsLayout(MarkOnlyThis);
-
-    setLogicalWidth(tableLayoutLogicalWidth);
     setCellWidthChanged(true);
+
+    if (!isOrthogonal()) {
+        setLogicalWidth(logicalWidthInTableDirection);
+        return;
+    }
+
+    setLogicalHeight(logicalWidthInTableDirection);
+    // As table layout drives the size of table cells, we have to prevent regular layout flow from
+    // overriding this height value. This is similar to how RenderTableCell handles logical widths by overriding ::updateLogicalWidth.
+    setOverridingBorderBoxLogicalHeight(logicalWidthInTableDirection);
 }
 
 void RenderTableCell::layout()

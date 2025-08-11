@@ -3291,8 +3291,13 @@ RenderBox::LogicalExtentComputedValues RenderBox::computeLogicalHeight(LayoutUni
         return computedValues;
 
     // Let's allow the table cell to compute its preferred size.
-    if (CheckedPtr tableCell = dynamicDowncast<RenderTableCell>(*this); tableCell && !tableCell->isComputingPreferredSize())
+    if (CheckedPtr tableCell = dynamicDowncast<RenderTableCell>(*this); tableCell && !tableCell->isComputingPreferredSize()) {
+        // Use the value set by table layout for orthogonal cells which in this case the logical width of the cell from the table's point of view.
+        // see RenderTableCell::setCellLogicalWidth.
+        if (tableCell->isOrthogonal())
+            computedValues.m_extent = overridingBorderBoxLogicalHeight().value_or(computedValues.m_extent);
         return computedValues;
+    }
 
     if (isOutOfFlowPositioned()) {
         computePositionedLogicalHeight(computedValues);
