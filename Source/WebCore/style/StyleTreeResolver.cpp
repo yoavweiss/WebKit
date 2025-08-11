@@ -330,7 +330,9 @@ auto TreeResolver::resolveElement(Element& element, const RenderStyle* existingS
     }
 
     auto resolveAndAddPseudoElementStyle = [&](const PseudoElementIdentifier& pseudoElementIdentifier) {
-        auto pseudoElementUpdate = resolvePseudoElement(element, pseudoElementIdentifier, update, parent().isInDisplayNoneTree);
+        const RenderStyle* existingPseudoStyle = existingStyle ? existingStyle->getCachedPseudoStyle(pseudoElementIdentifier) : nullptr;
+        auto pseudoElementUpdate = resolvePseudoElement(element, pseudoElementIdentifier, update, parent().isInDisplayNoneTree, existingPseudoStyle);
+
         auto pseudoElementChanges = [&]() -> OptionSet<Change> {
             if (pseudoElementUpdate) {
                 if (pseudoElementIdentifier.pseudoId == PseudoId::WebKitScrollbar)
@@ -404,7 +406,7 @@ inline bool supportsFirstLineAndLetterPseudoElement(const RenderStyle& style)
         || display == DisplayType::FlowRoot;
 };
 
-std::optional<ElementUpdate> TreeResolver::resolvePseudoElement(Element& element, const PseudoElementIdentifier& pseudoElementIdentifier, const ElementUpdate& elementUpdate, IsInDisplayNoneTree isInDisplayNoneTree)
+std::optional<ElementUpdate> TreeResolver::resolvePseudoElement(Element& element, const PseudoElementIdentifier& pseudoElementIdentifier, const ElementUpdate& elementUpdate, IsInDisplayNoneTree isInDisplayNoneTree, const RenderStyle* existingStyle)
 {
     if (elementUpdate.style->display() == DisplayType::None)
         return { };
@@ -435,9 +437,18 @@ std::optional<ElementUpdate> TreeResolver::resolvePseudoElement(Element& element
 
     auto resolutionContext = makeResolutionContextForPseudoElement(elementUpdate, pseudoElementIdentifier);
 
-    auto resolvedStyle = scope().resolver->styleForPseudoElement(element, pseudoElementIdentifier, resolutionContext);
+    bool pseudoSupportsPositionTry = pseudoElementIdentifier.pseudoId == PseudoId::Before || pseudoElementIdentifier.pseudoId == PseudoId::After || pseudoElementIdentifier.pseudoId == PseudoId::Backdrop;
+
+    std::optional<ResolvedStyle> resolvedStyle;
+    if (pseudoSupportsPositionTry)
+        resolvedStyle = tryChoosePositionOption({ element, pseudoElementIdentifier }, existingStyle);
+    if (!resolvedStyle)
+        resolvedStyle = scope().resolver->styleForPseudoElement(element, pseudoElementIdentifier, resolutionContext);
     if (!resolvedStyle)
         return { };
+
+    if (pseudoSupportsPositionTry)
+        generatePositionOptionsIfNeeded(*resolvedStyle, { element, pseudoElementIdentifier }, resolutionContext);
 
     auto animatedUpdate = createAnimatedElementUpdate(WTFMove(*resolvedStyle), { element, pseudoElementIdentifier }, elementUpdate.changes, resolutionContext, isInDisplayNoneTree);
 
@@ -1362,11 +1373,12 @@ std::unique_ptr<Update> TreeResolver::resolve()
         }
     }
 
-    for (auto& elementAndOptions : m_positionOptions) {
-        if (!elementAndOptions.value.chosen) {
-            elementAndOptions.key->invalidateForResumingAnchorPositionedElementResolution();
+    for (auto& [styleable, options] : m_positionOptions) {
+        if (!options.chosen) {
+            ASSERT(styleable.first);
+            const_cast<Element&>(*styleable.first).invalidateForResumingAnchorPositionedElementResolution();
             m_needsInterleavedLayout = true;
-            saveBeforeResolutionStyleForInterleaving(elementAndOptions.key);
+            saveBeforeResolutionStyleForInterleaving(*styleable.first);
         }
     }
 
@@ -1454,7 +1466,9 @@ void TreeResolver::generatePositionOptionsIfNeeded(const ResolvedStyle& resolved
     if (!resolvedStyle.style->hasOutOfFlowPosition())
         return;
 
-    if (m_positionOptions.contains(styleable.element))
+    AnchorPositionedKey positionOptionsKey { styleable.element, styleable.pseudoElementIdentifier };
+
+    if (m_positionOptions.contains(positionOptionsKey))
         return;
 
     auto generatePositionOptions = [&] {
@@ -1475,7 +1489,7 @@ void TreeResolver::generatePositionOptionsIfNeeded(const ResolvedStyle& resolved
     if (hasUnresolvedAnchorPosition(styleable))
         return;
 
-    m_positionOptions.add(styleable.element, WTFMove(options));
+    m_positionOptions.add(positionOptionsKey, WTFMove(options));
 }
 
 std::unique_ptr<RenderStyle> TreeResolver::generatePositionOption(const PositionTryFallback& fallback, const ResolvedStyle& resolvedStyle, const Styleable& styleable, const ResolutionContext& resolutionContext)
@@ -1554,7 +1568,9 @@ std::optional<ResolvedStyle> TreeResolver::tryChoosePositionOption(const Styleab
 {
     // https://drafts.csswg.org/css-anchor-position-1/#fallback-apply
 
-    auto optionIt = m_positionOptions.find(styleable.element);
+    AnchorPositionedKey anchorPositionedKey { styleable.element, styleable.pseudoElementIdentifier };
+
+    auto optionIt = m_positionOptions.find(anchorPositionedKey);
     if (optionIt == m_positionOptions.end())
         return { };
 

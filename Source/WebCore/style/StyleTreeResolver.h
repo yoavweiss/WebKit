@@ -99,7 +99,7 @@ private:
 
     HashSet<AnimatableCSSProperty> applyCascadeAfterAnimation(RenderStyle&, const HashSet<AnimatableCSSProperty>&, bool isTransition, const MatchResult&, const Element&, const ResolutionContext&);
 
-    std::optional<ElementUpdate> resolvePseudoElement(Element&, const PseudoElementIdentifier&, const ElementUpdate&, IsInDisplayNoneTree);
+    std::optional<ElementUpdate> resolvePseudoElement(Element&, const PseudoElementIdentifier&, const ElementUpdate&, IsInDisplayNoneTree, const RenderStyle*);
     std::optional<ElementUpdate> resolveAncestorPseudoElement(Element&, const PseudoElementIdentifier&, const ElementUpdate&);
     std::optional<ResolvedStyle> resolveAncestorFirstLinePseudoElement(Element&, const ElementUpdate&);
     std::optional<ResolvedStyle> resolveAncestorFirstLetterPseudoElement(Element&, const ElementUpdate&, ResolutionContext&);
@@ -219,7 +219,7 @@ private:
         bool sorted { false };
         bool chosen { false };
     };
-    HashMap<Ref<Element>, PositionOptions> m_positionOptions;
+    HashMap<AnchorPositionedKey, PositionOptions> m_positionOptions;
 
     HashSet<AtomString> m_changedAnchorNames;
     bool m_allAnchorNamesInvalid { false };
