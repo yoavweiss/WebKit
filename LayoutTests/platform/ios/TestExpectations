@@ -8141,7 +8141,6 @@ imported/w3c/web-platform-tests/shadow-dom/reference-target/tentative/interestta
 imported/w3c/web-platform-tests/uievents/mouse/mousemove_after_mouseover_target_removed.html [ Failure ]
 platform/ipad/fast/viewport/viewport-overriden-by-minimum-effective-width-if-ignore-meta-viewport.html [ Failure ]
 editing/selection/ios/selection-handles-in-readonly-input.html [ Timeout ]
-fast/events/ios/dragstart-hang-does-not-dismiss-context-menu.html [ Timeout ]
 media/modern-media-controls/tracks-support/show-contextmenu-then-double-click-on-tracks-button.html [ Timeout ]
 fast/css/accent-color/button.html [ ImageOnlyFailure ]
 fast/css/accent-color/date.html [ ImageOnlyFailure ]
