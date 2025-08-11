@@ -1223,12 +1223,13 @@ webkit.org/b/278719 fast/events/touch/multi-touch-inside-nested-iframes.html [ P
 webkit.org/b/278719 fast/events/touch/multi-touch-some-without-handlers.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/ontouchstart-active-selector.html [ Failure  ]
 webkit.org/b/278719 fast/events/touch/send-oncancel-event.html [ Pass Timeout ]
-webkit.org/b/278719 fast/events/touch/touch-target.html [ Pass Timeout ]
-webkit.org/b/278719 fast/events/touch/zoomed-touch-event-pageXY.html [ Pass Timeout ]
+webkit.org/b/278719 fast/events/touch/touch-event-pageXY.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/touch-fractional-coordinates.html [ Crash ]
+webkit.org/b/278719 fast/events/touch/touch-target.html [ Pass Timeout ]
 webkit.org/b/278719 fast/events/touch/touch-slider.html [ Timeout Pass ]
 webkit.org/b/278719 fast/events/touch/touch-slider-no-js-touch-listener.html [ Pass Crash ]
 webkit.org/b/278719 fast/events/touch/touch-target-limited.html [ Pass Timeout ]
+webkit.org/b/278719 fast/events/touch/zoomed-touch-event-pageXY.html [ Pass Timeout ]
 
 # The assertion failure occurs to WPE only.
 webkit.org/b/279178 fast/scrolling/scroll-into-view-on-composited-scrollable-overflow-layer-crash.html [ Skip ]
@@ -1392,3 +1393,15 @@ imported/w3c/web-platform-tests/digital-credentials/ [ Skip ]
 media/adopt-node-after-showing-picker-crash.html [ Skip ]
 
 imported/w3c/web-platform-tests/css/css-pseudo/highlight-custom-properties-dynamic-001.html [ ImageOnlyFailure Pass ]
+
+imported/w3c/web-platform-tests/css/css-view-transitions/start-skip-start.html [ Failure ]
+imported/w3c/web-platform-tests/css/css-view-transitions/start-view-transtion-skips-active.html [ Failure ]
+
+# These tests are passing in WebKitGTK, but failing on WPE (timeout).
+http/tests/websocket/tests/hybi/inspector/before-load.html [ Skip ]
+http/tests/websocket/tests/hybi/inspector/binary.html [ Skip ]
+http/tests/websocket/tests/hybi/inspector/client-close.html [ Skip ]
+http/tests/websocket/tests/hybi/inspector/resolveWebSocket.html [ Skip ]
+http/tests/websocket/tests/hybi/inspector/send-and-receive.html [ Skip ]
+http/tests/websocket/tests/hybi/inspector/send-and-recieve-debugger.html [ Skip ]
+http/tests/websocket/tests/hybi/inspector/server-close.html [ Skip ]
