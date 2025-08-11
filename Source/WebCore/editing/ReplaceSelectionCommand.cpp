@@ -41,6 +41,7 @@
 #include "DataTransfer.h"
 #include "Document.h"
 #include "DocumentFragment.h"
+#include "Editing.h"
 #include "EditingBehavior.h"
 #include "EditingInlines.h"
 #include "ElementIteratorInlines.h"
@@ -1384,7 +1385,10 @@ void ReplaceSelectionCommand::doApply()
 
     if (insertedNodes.isEmpty())
         return;
-    removeUnrenderedTextNodesAtEnds(insertedNodes);
+
+    // removeUnrenderedTextNodesAtEnds can trigger layout, so for performance, only do it when the presence of richly-editable text requires us to.
+    if (isRichlyEditablePosition(insertionPos))
+        removeUnrenderedTextNodesAtEnds(insertedNodes);
 
     if (!handledStyleSpans)
         handleStyleSpans(insertedNodes);
