@@ -419,7 +419,48 @@ void WebExtensionContext::bookmarksSearch(const std::optional<String>& query, co
 }
 void WebExtensionContext::bookmarksUpdate(const String& bookmarkId, const std::optional<String>& url, const std::optional<String>& title, CompletionHandler<void(Expected<WebExtensionBookmarksParameters, WebExtensionError>&&)>&& completionHandler)
 {
+    static NSString *const apiName = @"bookmarks.update()";
+    ASSERT(isLoaded());
+    if (!isLoaded())
+        return;
 
+    RefPtr controller = extensionController();
+    if (!controller)
+        return;
+
+    auto *controllerDelegate = controller->delegate();
+    auto *controllerWrapper = controller->wrapper();
+    WKWebExtensionContext *contextWrapper = wrapper();
+
+    if (![controllerDelegate respondsToSelector:@selector(_webExtensionController:updateBookmarkWithIdentifier:title:url:forExtensionContext:completionHandler:)]) {
+    completionHandler(toWebExtensionError(apiName, nullString(), @"it is not implemented"));
+        return;
+    }
+
+    NSString *bookmarkIdNSString = bookmarkId.createNSString().autorelease();
+    NSString *titleNSString = title.has_value() ? title->createNSString().autorelease() : nil;
+    NSString *urlNSString = url.has_value() ? url->createNSString().autorelease() : nil;
+
+    [controllerDelegate _webExtensionController:controllerWrapper updateBookmarkWithIdentifier:bookmarkIdNSString title:titleNSString url:urlNSString forExtensionContext:contextWrapper completionHandler:^(NSObject<_WKWebExtensionBookmark> *updatedBookmark, NSError *error) {
+        if (error) {
+            completionHandler(toWebExtensionError(apiName, nullString(), error.localizedDescription));
+            return;
+        }
+
+        if (!updatedBookmark) {
+            completionHandler(toWebExtensionError(apiName, nullString(), @"updating bookmark failed"));
+            return;
+        }
+
+        std::optional<WebExtensionBookmarksParameters> updatedBookmarkParams = createParametersFromProtocolObject(updatedBookmark, contextWrapper);
+
+        if (!updatedBookmarkParams.has_value()) {
+            completionHandler(toWebExtensionError(apiName, nullString(), @"bookmark was null or invalid"));
+            return;
+        }
+
+        completionHandler(Expected<WebExtensionBookmarksParameters, WebExtensionError> { WTFMove(updatedBookmarkParams.value()) });
+    }];
 }
 void WebExtensionContext::bookmarksMove(const String& bookmarkId, const std::optional<String>& parentId, const std::optional<uint64_t>& index, CompletionHandler<void(Expected<WebExtensionBookmarksParameters, WebExtensionError>&&)>&& completionHandler)
 {

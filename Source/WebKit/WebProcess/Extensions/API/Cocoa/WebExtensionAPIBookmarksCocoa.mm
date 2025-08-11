@@ -315,7 +315,56 @@ void WebExtensionAPIBookmarks::search(NSObject *query, Ref<WebExtensionCallbackH
 
 void WebExtensionAPIBookmarks::update(NSString *bookmarkIdentifier, NSDictionary *changes, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
 {
-    callback->reportError(@"unimplemented");
+    if (!bookmarkIdentifier || ![bookmarkIdentifier isKindOfClass:[NSString class]] || !bookmarkIdentifier.length) {
+        if (outExceptionString)
+            *outExceptionString = toErrorString(nullString(), @"bookmarkID", @"property must be a non-empty string.").createNSString().autorelease();
+        return;
+    }
+
+    if (!changes || ![changes isKindOfClass:[NSDictionary class]]) {
+        if (outExceptionString)
+            *outExceptionString = toErrorString(nullString(), @"changes", @"property must be an object (dictionary).").createNSString().autorelease();
+        return;
+    }
+
+    static NSDictionary<NSString *, id> *types = @{
+        urlKey: NSString.class,
+        titleKey: NSString.class
+    };
+
+    if (!validateDictionary(changes, @"changes", nil, types, outExceptionString))
+        return;
+
+    std::optional<WTF::String> newTitle;
+    std::optional<WTF::String> newURL;
+
+    id titleObj = changes[@"title"];
+    if (titleObj)
+        newTitle = dynamic_objc_cast<NSString>(titleObj);
+
+    id urlStringObj = changes[@"url"];
+    if (urlStringObj)
+        newURL = dynamic_objc_cast<NSString>(urlStringObj);
+
+    if (!newTitle.has_value() && !newURL.has_value()) {
+        if (outExceptionString)
+            *outExceptionString = toErrorString(nullString(), @"title or url", @"must be specified.").createNSString().autorelease();
+        return;
+    }
+
+    WebProcess::singleton().sendWithAsyncReply(
+        Messages::WebExtensionContext::BookmarksUpdate(bookmarkIdentifier, newURL, newTitle),
+        [protectedThis = Ref { *this }, callback = WTFMove(callback)](Expected<WebExtensionBookmarksParameters, WebExtensionError>&& result) {
+            if (!result) {
+                callback->reportError(result.error().createNSString().get());
+                return;
+            }
+
+            NSDictionary* updatedNodeDictionary = toAPI(result.value());
+            callback->call(updatedNodeDictionary);
+        },
+        extensionContext().identifier()
+    );
 }
 } // namespace WebKit
 

@@ -151,6 +151,22 @@ static NSMutableDictionary *findBookmarkAndParentArrayInMockTree(NSMutableArray 
     return nil;
 }
 
+NSMutableDictionary* findBookmarkInMockTree(NSMutableArray *tree, NSString *bookmarkId)
+{
+    if (!tree || !bookmarkId)
+        return nil;
+    for (NSMutableDictionary *item in tree) {
+        if ([item[@"id"] isEqualToString:bookmarkId])
+            return item;
+        if ([item[@"type"] isEqualToString:@"folder"] && item[@"children"]) {
+            NSMutableDictionary *foundInChild = findBookmarkInMockTree(item[@"children"], bookmarkId);
+            if (foundInChild)
+                return foundInChild;
+        }
+    }
+    return nil;
+}
+
 
 @implementation TestBookmarksDelegate
 - (instancetype)init
@@ -290,6 +306,11 @@ protected:
             double dateAddedInMilliseconds = NSDate.date.timeIntervalSince1970 * 1000.0;
             newBookmarkData[@"dateAdded"] = @(dateAddedInMilliseconds);
 
+            if (!newBookmarkData[@"type"]) {
+                NSString *url = newBookmarkData[@"url"];
+                newBookmarkData[@"type"] = (url && url.length > 0) ? @"bookmark" : @"folder";
+            }
+
             NSString *newId = [NSString stringWithFormat:@"%ld", (long)this->nextMockBookmarkId];
             this->nextMockBookmarkId++;
             newBookmarkData[@"id"] = newId;
@@ -367,6 +388,31 @@ protected:
         };
     }
 
+    void configureUpdateBookmarksDelegate(TestWebExtensionManager *manager)
+    {
+        manager.internalDelegate.updateBookmarkWithIdentifier = ^(NSString *bookmarkId, NSString *title, NSString *url, void (^completionHandler)(NSObject<_WKWebExtensionBookmark> *, NSError *)) {
+            NSMutableDictionary *bookmarkToUpdate = findBookmarkInMockTree(uiProcessMockBookmarks.get(), bookmarkId);
+            if (!bookmarkToUpdate) {
+                completionHandler(nil, [NSError errorWithDomain:NSCocoaErrorDomain code:NSExecutableRuntimeMismatchError userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Bookmark with ID '%@' not found.", bookmarkId] }]);
+                return;
+            }
+
+            if (title)
+                bookmarkToUpdate[@"title"] = title;
+
+            if (url) {
+                NSString *bookmarkType = bookmarkToUpdate[@"type"];
+                if ([bookmarkType isEqualToString:@"folder"]) {
+                    completionHandler(nil, [NSError errorWithDomain:NSCocoaErrorDomain code:NSExecutableRuntimeMismatchError userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Cannot update URL for a %@ (ID: %@).", bookmarkType, bookmarkId] }]);
+                    return;
+                }
+                bookmarkToUpdate[@"url"] = url;
+            }
+
+            _MockBookmarkNode *updatedMockNode = [[_MockBookmarkNode alloc] initWithDictionary:bookmarkToUpdate];
+            completionHandler(updatedMockNode, nil);
+        };
+    }
     WKWebExtensionControllerConfiguration *bookmarkConfig;
 };
 
@@ -690,6 +736,54 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIRemoveAndRemoveTree)
     configureCreateBookmarkDelegate(manager.get());
     configureGetBookmarksDelegate(manager.get());
     configureRemoveBookmarksDelegate(manager.get());
+
+    [manager loadAndRun];
+}
+
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIUpdate)
+{
+    auto *script = @[
+        @"let bm = await browser.bookmarks.create({ title: 'Initial Title', url: 'http://example.com/initial' });",
+        @"browser.test.assertEq('Initial Title', bm.title, 'Initial title check');",
+        @"browser.test.assertEq('http://example.com/initial', bm.url, 'Initial URL check');",
+
+        @"let updatedBm1 = await browser.bookmarks.update(bm.id, { title: 'Updated Title' });",
+        @"browser.test.assertEq('Updated Title', updatedBm1.title, 'Title updated correctly');",
+        @"browser.test.assertEq('http://example.com/initial', updatedBm1.url, 'URL unchanged after title update');",
+
+        @"let updatedBm2 = await browser.bookmarks.update(bm.id, { url: 'http://example.com/updated' });",
+        @"browser.test.assertEq('Updated Title', updatedBm2.title, 'Title unchanged after URL update');",
+        @"browser.test.assertEq('http://example.com/updated', updatedBm2.url, 'URL updated correctly');",
+
+        @"let updatedBm3 = await browser.bookmarks.update(bm.id, { title: 'Final Title', url: 'http://example.com/final' });",
+        @"browser.test.assertEq('Final Title', updatedBm3.title, 'Final title updated correctly');",
+        @"browser.test.assertEq('http://example.com/final', updatedBm3.url, 'Final URL updated correctly');",
+
+        @"let folder = await browser.bookmarks.create({ title: 'Initial Folder' });",
+        @"browser.test.assertEq('Initial Folder', folder.title, 'Initial title check');",
+        @"let updateFolder = await browser.bookmarks.update(folder.id, { title: 'Final Folder Title' });",
+        @"browser.test.assertEq('Final Folder Title', updateFolder.title, 'Final title updated correctly');",
+
+        @"await browser.test.assertRejects(",
+        @"browser.bookmarks.update(folder.id, { url: 'http://example.com/should-fail' }),",
+        @"/Cannot update URL for a \\w+ \\(ID: .*\\)\\./,",
+        @"'FAIL: Updating a folder URL should be rejected with the correct error message');",
+
+        @"await browser.test.assertRejects(",
+        @"browser.bookmarks.update('nonexistent-id', { title: 'New Title' }),",
+        @"/Bookmark with ID 'nonexistent-id' not found\\./,",
+        @"'FAIL: Updating a non-existent ID should be rejected with the correct error message');",
+
+        @"browser.test.notifyPass();",
+    ];
+
+    auto *resources = @{ @"background.js": Util::constructScript(script) };
+
+    auto manager = getManagerFor(resources, bookmarkOnManifest);
+
+    configureCreateBookmarkDelegate(manager.get());
+    configureGetBookmarksDelegate(manager.get());
+    configureUpdateBookmarksDelegate(manager.get());
 
     [manager loadAndRun];
 }

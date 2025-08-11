@@ -195,6 +195,14 @@
         completionHandler(nil);
 }
 
+- (void)_webExtensionController:(WKWebExtensionController *)controller updateBookmarkWithIdentifier:(NSString *)bookmarkId title:(NSString *)title url:(NSString *)url forExtensionContext:(WKWebExtensionContext *)context completionHandler:(void (^)(NSObject<_WKWebExtensionBookmark> *, NSError *))completionHandler
+{
+    if (_updateBookmarkWithIdentifier)
+        _updateBookmarkWithIdentifier(bookmarkId, title, url, completionHandler);
+    else if (completionHandler)
+        completionHandler(nil, nil);
+}
+
 @end
 
 #endif // ENABLE(WK_WEB_EXTENSIONS)
