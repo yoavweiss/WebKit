@@ -8226,3 +8226,5 @@ webkit.org/b/297144 fast/forms/state-restore-to-non-edited-controls.html [ Pass 
 webkit.org/b/297218 http/tests/in-app-browser-privacy/sub-frame-redirect-to-non-app-bound-domain-blocked.html [ Failure ]
 
 webkit.org/b/297222 imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/transition-finished-mark-as-handled.html [ Pass Failure ]
+
+webkit.org/b/297240 http/tests/site-isolation/edge-sampling-commit-root-frame-load.html [ Failure ]
