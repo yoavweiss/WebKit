@@ -615,6 +615,10 @@ void RenderTableSection::layoutRows()
             if (!cell->needsLayout() && layoutState->pageLogicalHeight() && layoutState->pageLogicalOffset(cell, cell->logicalTop()) != cell->pageLogicalOffset())
                 cell->setChildNeedsLayout(MarkOnlyThis);
 
+            if (cell->isOrthogonal()) {
+                cell->setNeedsLayout(MarkOnlyThis);
+                cell->setOverridingBorderBoxLogicalWidth(rowHeight);
+            }
             cell->layoutIfNeeded();
 
             // FIXME: Make pagination work with vertical tables.

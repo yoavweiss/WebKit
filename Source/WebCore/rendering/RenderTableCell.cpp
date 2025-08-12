@@ -334,7 +334,10 @@ void RenderTableCell::updateLogicalWidth()
         // preferred width computation for orthogonal content, we have
         // to follow normal layout flow to be able to compute logical height.
         RenderBlockFlow::updateLogicalWidth();
+        return;
     }
+    if (auto logicalWidth = overridingBorderBoxLogicalWidth())
+        setLogicalWidth(*logicalWidth);
 }
 
 void RenderTableCell::setCellLogicalWidth(LayoutUnit logicalWidthInTableDirection)
