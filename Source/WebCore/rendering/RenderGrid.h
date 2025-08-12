@@ -255,13 +255,11 @@ private:
     StyleSelfAlignmentData alignSelfForGridItem(const RenderBox&, StretchingMode = StretchingMode::Any, const RenderStyle* = nullptr) const;
     void applyStretchAlignmentToGridItemIfNeeded(RenderBox&, GridLayoutState&);
     void applySubgridStretchAlignmentToGridItemIfNeeded(RenderBox&);
-    void resetAutoMarginsAndLogicalTopInColumnAxis(RenderBox& child);
     bool isChildEligibleForMarginTrim(MarginTrimType, const RenderBox&) const final;
 
     std::optional<LayoutUnit> firstLineBaseline() const final;
     std::optional<LayoutUnit> lastLineBaseline() const final;
     SingleThreadWeakPtr<RenderBox> getBaselineGridItem(ItemPosition alignment) const;
-    bool isInlineBaselineAlignedChild(const RenderBox&) const;
 
     LayoutUnit columnAxisBaselineOffsetForGridItem(const RenderBox&) const;
     LayoutUnit rowAxisBaselineOffsetForGridItem(const RenderBox&) const;
@@ -281,8 +279,6 @@ private:
     bool computeGridPositionsForOutOfFlowGridItem(const RenderBox&, Style::GridTrackSizingDirection, int&, bool&, int&, bool&) const;
 
     AutoRepeatType autoRepeatType(Style::GridTrackSizingDirection) const;
-    AutoRepeatType autoRepeatRowsType() const { return autoRepeatType(Style::GridTrackSizingDirection::Rows); }
-    AutoRepeatType autoRepeatColumnsType() const { return autoRepeatType(Style::GridTrackSizingDirection::Columns); }
 
     Vector<LayoutUnit>& positions(Style::GridTrackSizingDirection direction) { return direction == Style::GridTrackSizingDirection::Columns ? m_columnPositions : m_rowPositions; }
 
