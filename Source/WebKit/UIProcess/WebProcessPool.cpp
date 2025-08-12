@@ -2878,14 +2878,4 @@ void WebProcessPool::initializeAccessibilityIfNecessary()
 }
 #endif
 
-std::optional<SandboxExtension::Handle> WebProcessPool::sandboxExtensionForFile(const String& fileName)
-{
-    return m_fileSandboxExtensions.getOptional(fileName);
-}
-
-void WebProcessPool::addSandboxExtensionForFile(const String& fileName, SandboxExtension::Handle handle)
-{
-    m_fileSandboxExtensions.add(fileName, handle);
-}
-
 } // namespace WebKit
