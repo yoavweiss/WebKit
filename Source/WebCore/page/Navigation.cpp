@@ -462,8 +462,7 @@ Navigation::Result Navigation::performTraversal(const String& key, Navigation::O
     if (!window->protectedDocument()->isFullyActive() || window->document()->unloadCounter())
         return createErrorResult(WTFMove(committed), WTFMove(finished), ExceptionCode::InvalidStateError, "Invalid state"_s);
 
-    auto entry = findEntryByKey(key);
-    if (!entry)
+    if (!hasEntryWithKey(key))
         createErrorResult(WTFMove(committed), WTFMove(finished), ExceptionCode::AbortError, "Navigation aborted"_s);
 
     RefPtr frame = this->frame();
@@ -491,23 +490,35 @@ Navigation::Result Navigation::performTraversal(const String& key, Navigation::O
     return apiMethodTrackerDerivedResult(*apiMethodTracker);
 }
 
-std::optional<Ref<NavigationHistoryEntry>> Navigation::findEntryByKey(const String& key)
+size_t Navigation::entryIndexOfKey(const String& key) const
 {
-    auto entryIndex = m_entries.findIf([&key](const Ref<NavigationHistoryEntry> entry) {
+    if (key.isEmpty())
+        return notFound;
+
+    return m_entries.findIf([&key](const Ref<NavigationHistoryEntry> entry) {
         return entry->key() == key;
     });
+}
 
-    if (entryIndex == notFound)
-        return std::nullopt;
+bool Navigation::hasEntryWithKey(const String& key) const
+{
+    return entryIndexOfKey(key) != notFound;
+}
 
-    return m_entries[entryIndex];
+NavigationHistoryEntry* Navigation::findEntryByKey(const String& key) const
+{
+    auto index = entryIndexOfKey(key);
+
+    if (index == notFound)
+        return nullptr;
+
+    return m_entries[index].ptr();
 }
 
 // https://html.spec.whatwg.org/multipage/nav-history-apis.html#dom-navigation-traverseto
 Navigation::Result Navigation::traverseTo(const String& key, Options&& options, Ref<DeferredPromise>&& committed, Ref<DeferredPromise>&& finished)
 {
-    auto entry = findEntryByKey(key);
-    if (!entry)
+    if (!hasEntryWithKey(key))
         return createErrorResult(WTFMove(committed), WTFMove(finished), ExceptionCode::InvalidStateError, "Invalid key"_s);
 
     return performTraversal(key, options, WTFMove(committed), WTFMove(finished));
@@ -1011,10 +1022,12 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
             m_transition = NavigationTransition::create(navigationType, *fromNavigationHistoryEntry, DeferredPromise::create(domGlobalObject, DeferredPromise::Mode::RetainPromiseOnResolve).releaseNonNull());
         }
 
-        if (navigationType == NavigationNavigationType::Traverse)
+        if (navigationType == NavigationNavigationType::Traverse) {
             m_suppressNormalScrollRestorationDuringOngoingNavigation = true;
-
-        if (navigationType == NavigationNavigationType::Reload) {
+            // For intercepted traverse navigations, we need to update the URL before handlers run.
+            if (destination->sameDocument() && hasEntryWithKey(destination->key()))
+                document->updateURLForPushOrReplaceState(destination->url());
+        } else if (navigationType == NavigationNavigationType::Reload) {
             // Not in specification but matches chromium implementation and tests.
             updateForNavigation(currentEntry()->associatedHistoryItem(), navigationType);
         } else if (navigationType == NavigationNavigationType::Push || navigationType == NavigationNavigationType::Replace) {

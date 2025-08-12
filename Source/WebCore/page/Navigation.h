@@ -156,7 +156,7 @@ public:
 
     void abortOngoingNavigationIfNeeded();
 
-    std::optional<Ref<NavigationHistoryEntry>> findEntryByKey(const String& key);
+    NavigationHistoryEntry* findEntryByKey(const String&) const;
     bool suppressNormalScrollRestoration() const { return m_suppressNormalScrollRestorationDuringOngoingNavigation; }
 
     void setFocusChanged(FocusDidChange changed) { m_focusChangedDuringOngoingNavigation = changed; }
@@ -208,6 +208,9 @@ private:
     void promoteUpcomingAPIMethodTracker(const String& destinationKey);
     void notifyCommittedToEntry(NavigationAPIMethodTracker*, NavigationHistoryEntry*, NavigationNavigationType);
     Result apiMethodTrackerDerivedResult(const NavigationAPIMethodTracker&);
+
+    size_t entryIndexOfKey(const String&) const;
+    bool hasEntryWithKey(const String&) const;
 
     std::optional<size_t> m_currentEntryIndex;
     RefPtr<NavigationTransition> m_transition;

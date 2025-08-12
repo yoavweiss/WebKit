@@ -337,11 +337,11 @@ public:
 
     std::optional<Ref<HistoryItem>> findBackForwardItemByKey(const LocalFrame& localFrame)
     {
-        auto entry = localFrame.window()->navigation().findEntryByKey(m_key);
+        RefPtr entry = localFrame.window()->protectedNavigation()->findEntryByKey(m_key);
         if (!entry)
             return std::nullopt;
 
-        return entry.value()->associatedHistoryItem();
+        return entry->associatedHistoryItem();
     }
 
     void fire(Frame& frame) override
