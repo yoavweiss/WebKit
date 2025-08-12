@@ -54,6 +54,7 @@ class Element;
 class FillLayer;
 class FilterOperations;
 class FloatPoint;
+class FloatSize;
 class FloatPoint3D;
 class FloatRect;
 class FontCascade;
@@ -1146,9 +1147,9 @@ public:
     inline const Style::BlockEllipsis& blockEllipsis() const;
     inline Style::MaximumLines maxLines() const;
     inline OverflowContinue overflowContinue() const;
-    inline const IntSize& initialLetter() const;
-    inline int initialLetterDrop() const;
-    inline int initialLetterHeight() const;
+    inline const FloatSize& initialLetter() const;
+    inline float initialLetterDrop() const;
+    inline float initialLetterHeight() const;
 
     inline OptionSet<TouchAction> touchActions() const;
     // 'touch-action' behavior depends on values in ancestors. We use an additional inherited property to implement that.
@@ -1680,7 +1681,7 @@ public:
     inline void setOverflowContinue(OverflowContinue);
     inline void setBlockEllipsis(Style::BlockEllipsis&&);
 
-    inline void setInitialLetter(const IntSize&);
+    inline void setInitialLetter(const FloatSize&);
     
     inline void setTouchActions(OptionSet<TouchAction>);
     inline void setUsedTouchActions(OptionSet<TouchAction>);
@@ -2207,7 +2208,7 @@ public:
     static constexpr LineSnap initialLineSnap();
     static constexpr LineAlign initialLineAlign();
 
-    static constexpr IntSize initialInitialLetter();
+    static constexpr FloatSize initialInitialLetter();
     static constexpr LineClampValue initialLineClamp();
     static inline Style::BlockEllipsis initialBlockEllipsis();
     static OverflowContinue initialOverflowContinue();

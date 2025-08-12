@@ -151,7 +151,7 @@ public:
     static OptionSet<TextUnderlinePosition> convertTextUnderlinePosition(BuilderState&, const CSSValue&);
     static RefPtr<StyleReflection> convertReflection(BuilderState&, const CSSValue&);
     static TextEdge convertTextEdge(BuilderState&, const CSSValue&);
-    static IntSize convertInitialLetter(BuilderState&, const CSSValue&);
+    static FloatSize convertInitialLetter(BuilderState&, const CSSValue&);
     static OptionSet<LineBoxContain> convertLineBoxContain(BuilderState&, const CSSValue&);
     static ScrollSnapType convertScrollSnapType(BuilderState&, const CSSValue&);
     static ScrollSnapAlign convertScrollSnapAlign(BuilderState&, const CSSValue&);
@@ -664,10 +664,10 @@ inline TextEdge BuilderConverter::convertTextEdge(BuilderState& builderState, co
     };
 }
 
-inline IntSize BuilderConverter::convertInitialLetter(BuilderState& builderState, const CSSValue& value)
+inline FloatSize BuilderConverter::convertInitialLetter(BuilderState& builderState, const CSSValue& value)
 {
     if (value.valueID() == CSSValueNormal)
-        return IntSize();
+        return { };
 
     auto& conversionData = builderState.cssToLengthConversionData();
 
@@ -676,8 +676,8 @@ inline IntSize BuilderConverter::convertInitialLetter(BuilderState& builderState
         return { };
 
     return {
-        pair->second->resolveAsNumber<int>(conversionData),
-        pair->first->resolveAsNumber<int>(conversionData)
+        pair->second->resolveAsNumber<float>(conversionData),
+        pair->first->resolveAsNumber<float>(conversionData)
     };
 }
 

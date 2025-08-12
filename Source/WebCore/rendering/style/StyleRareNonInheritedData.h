@@ -157,7 +157,7 @@ public:
     OptionSet<MarginTrimType> marginTrim;
     OptionSet<Containment> contain;
 
-    IntSize initialLetter;
+    FloatSize initialLetter;
 
     DataRef<StyleMarqueeData> marquee; // Marquee properties
 
