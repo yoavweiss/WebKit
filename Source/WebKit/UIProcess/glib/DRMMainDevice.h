@@ -25,16 +25,16 @@
 
 #pragma once
 
-#if PLATFORM(GTK) || PLATFORM(WPE)
+#if USE(GBM)
 
-#include <wtf/text/WTFString.h>
+namespace WebCore {
+struct DRMDevice;
+}
 
 namespace WebKit {
 
-const String& drmPrimaryDevice();
-const String& drmRenderNodeDevice();
-const String& drmRenderNodeOrPrimaryDevice();
+const WebCore::DRMDevice& drmMainDevice();
 
 } // namespace WebKit
 
-#endif // PLATFORM(GTK) || PLATFORM(WPE)
+#endif // USE(GBM)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Igalia S.L.
+ * Copyright (C) 2025 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,64 +24,45 @@
  */
 
 #include "config.h"
-#include "DRMDeviceNode.h"
+#include "GBMDevice.h"
 
-#if USE(LIBDRM)
+#if USE(GBM)
 #include <fcntl.h>
+#include <gbm.h>
 #include <unistd.h>
 #include <wtf/SafeStrerror.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/text/WTFString.h>
 
-#if USE(GBM)
-#include <gbm.h>
-#endif
-
 namespace WebCore {
 
-RefPtr<DRMDeviceNode> DRMDeviceNode::create(CString&& filename)
+RefPtr<GBMDevice> GBMDevice::create(const CString& filename)
 {
     RELEASE_ASSERT(isMainThread());
-    return adoptRef(*new DRMDeviceNode(WTFMove(filename)));
-}
-
-DRMDeviceNode::DRMDeviceNode(CString&& filename)
-    : m_filename(WTFMove(filename))
-{
-}
-
-DRMDeviceNode::~DRMDeviceNode()
-{
-#if USE(GBM)
-    if (m_gbmDevice.has_value() && m_gbmDevice.value())
-        gbm_device_destroy(m_gbmDevice.value());
-#endif
-}
-
-#if USE(GBM)
-struct gbm_device* DRMDeviceNode::gbmDevice() const
-{
-    if (m_gbmDevice)
-        return m_gbmDevice.value();
-
-    RELEASE_ASSERT(isMainThread());
-    m_fd = UnixFileDescriptor { open(m_filename.data(), O_RDWR | O_CLOEXEC), UnixFileDescriptor::Adopt };
-    if (m_fd) {
-        m_gbmDevice = gbm_create_device(m_fd.value());
-        if (m_gbmDevice.value())
-            return m_gbmDevice.value();
-
-        WTFLogAlways("Failed to create GBM device for DRM node: %s: %s", m_filename.data(), safeStrerror(errno).data());
-        m_fd = { };
-    } else {
-        WTFLogAlways("Failed to open DRM node %s: %s", m_filename.data(), safeStrerror(errno).data());
-        m_gbmDevice = nullptr;
+    auto fd = UnixFileDescriptor { open(filename.data(), O_RDWR | O_CLOEXEC), UnixFileDescriptor::Adopt };
+    if (!fd) {
+        WTFLogAlways("Failed to open DRM node %s: %s", filename.data(), safeStrerror(errno).data());
+        return nullptr;
     }
-
-    return m_gbmDevice.value();
+    auto* device = gbm_create_device(fd.value());
+    if (!device) {
+        WTFLogAlways("Failed to create GBM device for DRM node: %s: %s", filename.data(), safeStrerror(errno).data());
+        return nullptr;
+    }
+    return adoptRef(*new GBMDevice(WTFMove(fd), device));
 }
-#endif
+
+GBMDevice::GBMDevice(UnixFileDescriptor&& fd, struct gbm_device* device)
+    : m_fd(WTFMove(fd))
+    , m_device(device)
+{
+}
+
+GBMDevice::~GBMDevice()
+{
+    gbm_device_destroy(m_device);
+}
 
 } // namespace WebCore
 
-#endif // USE(LIBDRM)
+#endif // USE(GBM)

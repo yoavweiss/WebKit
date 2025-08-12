@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Igalia S.L.
+ * Copyright (C) 2025 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,43 +25,29 @@
 
 #pragma once
 
-#if USE(LIBDRM)
-
+#if USE(GBM)
 #include <wtf/ThreadSafeRefCounted.h>
 #include <wtf/text/CString.h>
 #include <wtf/unix/UnixFileDescriptor.h>
 
-#if USE(GBM)
 struct gbm_device;
-#endif
-
-namespace WTF {
-class String;
-}
 
 namespace WebCore {
 
-class DRMDeviceNode : public ThreadSafeRefCounted<DRMDeviceNode, WTF::DestructionThread::Main> {
+class GBMDevice final : public ThreadSafeRefCounted<GBMDevice, WTF::DestructionThread::Main> {
 public:
-    static RefPtr<DRMDeviceNode> create(CString&&);
-    ~DRMDeviceNode();
+    static RefPtr<GBMDevice> create(const CString&);
+    ~GBMDevice();
 
-    const CString& filename() const { return m_filename; }
-
-#if USE(GBM)
-    struct gbm_device* gbmDevice() const;
-#endif
+    struct gbm_device* device() const { return m_device; }
 
 private:
-    explicit DRMDeviceNode(CString&&);
+    GBMDevice(WTF::UnixFileDescriptor&&, struct gbm_device*);
 
-    CString m_filename;
-#if USE(GBM)
-    mutable WTF::UnixFileDescriptor m_fd;
-    mutable std::optional<struct gbm_device*> m_gbmDevice;
-#endif
+    WTF::UnixFileDescriptor m_fd;
+    struct gbm_device* m_device { nullptr };
 };
 
 } // namespace WebCore
 
-#endif // USE(LIBDRM)
+#endif // USE(GBM)

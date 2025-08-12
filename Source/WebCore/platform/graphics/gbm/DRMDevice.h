@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Igalia S.L.
+ * Copyright (C) 2025 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,30 +25,23 @@
 
 #pragma once
 
-#include <WebCore/DRMDevice.h>
-#include <wtf/Vector.h>
+#if USE(GBM)
 #include <wtf/text/CString.h>
 
-namespace WebKit {
+namespace WebCore {
 
-enum class RendererBufferFormatUsage : uint8_t {
-    Rendering,
-    Mapping,
-    Scanout
+struct DRMDevice {
+    bool isNull() const
+    {
+        return primaryNode.isNull();
+    }
+
+    bool operator==(const DRMDevice&) const = default;
+
+    CString primaryNode;
+    CString renderNode;
 };
 
-struct RendererBufferFormat {
-    struct Format {
-        uint32_t fourcc { 0 };
-        Vector<uint64_t, 1> modifiers;
-    };
+} // namespace WebCore
 
-    using Usage = RendererBufferFormatUsage;
-    Usage usage { Usage::Rendering };
-#if USE(GBM)
-    WebCore::DRMDevice drmDevice;
-#endif
-    Vector<Format> formats;
-};
-
-} // namespace WebKit
+#endif // USE(GBM)

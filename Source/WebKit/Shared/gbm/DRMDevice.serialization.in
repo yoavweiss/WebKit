@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Apple Inc. All rights reserved.
+# Copyright (C) 2025 Igalia S.L.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -20,46 +20,12 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#if ENABLE(GPU_PROCESS)
-
-[RValue, DebugDecodingFailure] struct WebKit::GPUProcessCreationParameters {
-    WebKit::AuxiliaryProcessCreationParameters auxiliaryProcessParameters;
-
-#if ENABLE(MEDIA_STREAM)
-    bool useMockCaptureDevices;
-#if PLATFORM(MAC)
-    WebKit::SandboxExtensionHandle microphoneSandboxExtensionHandle;
-    WebKit::SandboxExtensionHandle launchServicesExtensionHandle;
-#endif
-#endif
-
-#if USE(MODERN_AVCONTENTKEYSESSION)
-    bool shouldUseModernAVContentKeySession;
-#endif
-
-#if USE(SANDBOX_EXTENSIONS_FOR_CACHE_AND_TEMP_DIRECTORY_ACCESS)
-    WebKit::SandboxExtensionHandle containerCachesDirectoryExtensionHandle;
-    WebKit::SandboxExtensionHandle containerTemporaryDirectoryExtensionHandle;
-    String containerCachesDirectory;
-#endif
-
-    std::optional<WebKit::SandboxExtensionHandle> mobileGestaltExtensionHandle;
-
-#if PLATFORM(COCOA) && ENABLE(REMOTE_INSPECTOR)
-    Vector<WebKit::SandboxExtensionHandle> gpuToolsExtensionHandles;
-#endif
-
-    String applicationVisibleName;
-
 #if USE(GBM)
-    WebCore::DRMDevice drmDevice;
-#endif
 
-    Vector<String> overrideLanguages;
-#if PLATFORM(COCOA)
-    bool enableMetalDebugDeviceForTesting;
-    bool enableMetalShaderValidationForTesting;
-#endif
+header: <WebCore/DRMDevice.h>
+[CustomHeader] struct WebCore::DRMDevice {
+    CString primaryNode;
+    CString renderNode;
 };
 
 #endif

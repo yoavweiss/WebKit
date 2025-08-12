@@ -31,6 +31,7 @@
 #include "CoordinatedPlatformLayerBufferDMABuf.h"
 #include "DMABufBuffer.h"
 #include "DRMDeviceManager.h"
+#include "GBMDevice.h"
 #include "GBMVersioning.h"
 #include "GLFence.h"
 #include "Logging.h"
@@ -103,17 +104,17 @@ bool GraphicsContextGLTextureMapperGBM::platformInitializeExtensions()
 
 GraphicsContextGLTextureMapperGBM::DrawingBuffer GraphicsContextGLTextureMapperGBM::createDrawingBuffer() const
 {
-    auto* device = DRMDeviceManager::singleton().mainGBMDeviceNode(DRMDeviceManager::NodeType::Render);
-    if (!device)
+    auto gbmDevice = DRMDeviceManager::singleton().mainGBMDevice(DRMDeviceManager::NodeType::Render);
+    if (!gbmDevice)
         return { };
 
     const auto size = getInternalFramebufferSize();
     struct gbm_bo* bo = nullptr;
     bool disableModifiers = m_drawingBufferFormat.modifiers.size() == 1 && m_drawingBufferFormat.modifiers[0] == DRM_FORMAT_MOD_INVALID;
     if (!disableModifiers && !m_drawingBufferFormat.modifiers.isEmpty())
-        bo = gbm_bo_create_with_modifiers2(device, size.width(), size.height(), m_drawingBufferFormat.fourcc, m_drawingBufferFormat.modifiers.span().data(), m_drawingBufferFormat.modifiers.size(), GBM_BO_USE_RENDERING);
+        bo = gbm_bo_create_with_modifiers2(gbmDevice->device(), size.width(), size.height(), m_drawingBufferFormat.fourcc, m_drawingBufferFormat.modifiers.span().data(), m_drawingBufferFormat.modifiers.size(), GBM_BO_USE_RENDERING);
     if (!bo)
-        bo = gbm_bo_create(device, size.width(), size.height(), m_drawingBufferFormat.fourcc, GBM_BO_USE_RENDERING);
+        bo = gbm_bo_create(gbmDevice->device(), size.width(), size.height(), m_drawingBufferFormat.fourcc, GBM_BO_USE_RENDERING);
     if (!bo)
         return { };
 
