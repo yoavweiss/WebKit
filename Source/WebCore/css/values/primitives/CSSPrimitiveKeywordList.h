@@ -42,7 +42,11 @@ template<typename Keyword> concept PrimitiveKeyword
 
 // Concept for use in generic contexts to filter on keywords that are valid for the provided `Keywords` list.
 template<typename Keyword, typename KeywordsList> concept ValidKeywordForList
+#if COMPILER(GCC) && (__GNUC__ < 13)
+    = KeywordsList::isValidKeyword(Keyword()) && PrimitiveKeyword<Keyword>;
+#else
     = PrimitiveKeyword<Keyword> && KeywordsList::isValidKeyword(Keyword());
+#endif
 
 // MARK: - Primitive Keywords List
 
