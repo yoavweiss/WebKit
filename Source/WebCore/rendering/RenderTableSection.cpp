@@ -74,7 +74,7 @@ static inline void updateLogicalHeightForCell(RenderTableSection::RowStruct& row
     if (cell->rowSpan() != 1)
         return;
 
-    auto& logicalHeight = cell->style().logicalHeight();
+    auto& logicalHeight = !cell->isOrthogonal() ? cell->style().logicalHeight() : cell->style().logicalWidth();
     if (logicalHeight.isPositive()) {
         if (auto percentageLogicalHeight = logicalHeight.tryPercentage()) {
             if (auto percentageRowLogicalHeight = row.logicalHeight.tryPercentage(); !percentageRowLogicalHeight || percentageRowLogicalHeight->value < percentageLogicalHeight->value)
@@ -292,7 +292,7 @@ LayoutUnit RenderTableSection::calcRowLogicalHeight()
                 // For row spanning cells, |r| is the last row in the span.
                 unsigned cellStartRow = cell->rowIndex();
 
-                if (cell->overridingBorderBoxLogicalHeight()) {
+                if (cell->overridingBorderBoxLogicalHeight() && !cell->isOrthogonal()) {
                     cell->clearIntrinsicPadding();
                     cell->clearOverridingSize();
                     cell->setChildNeedsLayout(MarkOnlyThis);

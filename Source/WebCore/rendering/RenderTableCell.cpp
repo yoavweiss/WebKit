@@ -340,6 +340,28 @@ void RenderTableCell::updateLogicalWidth()
         setLogicalWidth(*logicalWidth);
 }
 
+LayoutUnit RenderTableCell::logicalHeightForRowSizing() const
+{
+    auto logicalSizeForRowSizing = [&] {
+        if (!isOrthogonal())
+            return logicalHeight() - (intrinsicPaddingBefore() + intrinsicPaddingAfter());
+        LogicalExtentComputedValues values;
+        computeLogicalWidth(values);
+        return values.m_extent;
+    };
+    // FIXME: This function does too much work, and is very hot during table layout!
+    auto usedLogicalSize = logicalSizeForRowSizing();
+    auto specifiedSize = !isOrthogonal() ? style().logicalHeight() : style().logicalWidth();
+    if (!specifiedSize.isSpecified())
+        return usedLogicalSize;
+    auto computedLogicaSize = Style::evaluate(specifiedSize, 0_lu);
+    // In strict mode, box-sizing: content-box do the right thing and actually add in the border and padding.
+    // Call computedCSSPadding* directly to avoid including implicitPadding.
+    if (!document().inQuirksMode() && style().boxSizing() != BoxSizing::BorderBox)
+        computedLogicaSize += computedCSSPaddingBefore() + computedCSSPaddingAfter() + borderBefore() + borderAfter();
+    return std::max(computedLogicaSize, usedLogicalSize);
+}
+
 void RenderTableCell::setCellLogicalWidth(LayoutUnit logicalWidthInTableDirection)
 {
     auto logicalSizeInTableDirection = !isOrthogonal() ? logicalWidth() : logicalHeight();
