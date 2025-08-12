@@ -1634,6 +1634,10 @@ void TreeResolver::updateForPositionVisibility(RenderStyle& style, const Styleab
             if (AnchorPositionEvaluator::isDefaultAnchorInvisibleOrClippedByInterveningBoxes(*anchored))
                 return true;
         }
+        if (style.positionVisibility().contains(PositionVisibility::NoOverflow)) {
+            if (AnchorPositionEvaluator::overflowsInsetModifiedContainingBlock(*anchored))
+                return true;
+        }
         // FIXME: Remaining `position-visibility` values.
         return false;
     };
