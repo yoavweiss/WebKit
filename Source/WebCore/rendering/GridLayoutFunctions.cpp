@@ -361,6 +361,15 @@ void updateAutoMarginsInColumnAxisIfNeeded(RenderBox& gridItem, WritingMode writ
         gridItem.setMarginAfter(availableAlignmentSpace, writingMode);
 }
 
+bool isRelativeGridTrackBreadthAsAuto(const Style::GridTrackFitContentLength& length, std::optional<LayoutUnit> availableSpace)
+{
+    return length.isPercentOrCalculated() && !availableSpace;
+}
+bool isRelativeGridTrackBreadthAsAuto(const Style::GridTrackBreadth& length, std::optional<LayoutUnit> availableSpace)
+{
+    return length.isPercentOrCalculated() && !availableSpace;
+}
+
 } // namespace GridLayoutFunctions
 
 } // namespace WebCore

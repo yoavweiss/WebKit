@@ -32,6 +32,8 @@ namespace WebCore {
 
 namespace Style {
 enum class GridTrackSizingDirection : bool;
+class GridTrackBreadth;
+struct GridTrackFitContentLength;
 }
 
 class GridSpan;
@@ -93,6 +95,9 @@ LayoutUnit availableAlignmentSpaceForGridItemBeforeStretching(const RenderGrid&,
 void updateAutoMarginsIfNeeded(RenderBox&, WritingMode);
 void updateAutoMarginsInRowAxisIfNeeded(RenderBox&, WritingMode);
 void updateAutoMarginsInColumnAxisIfNeeded(RenderBox&, WritingMode);
+
+bool isRelativeGridTrackBreadthAsAuto(const Style::GridTrackFitContentLength&, std::optional<LayoutUnit> availableSpace);
+bool isRelativeGridTrackBreadthAsAuto(const Style::GridTrackBreadth&, std::optional<LayoutUnit> availableSpace);
 
 } // namespace GridLayoutFunctions
 
