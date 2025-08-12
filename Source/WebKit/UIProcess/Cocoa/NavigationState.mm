@@ -769,7 +769,8 @@ void NavigationState::NavigationClient::contentRuleListMatchedRule(WebPageProxy&
     if (!m_navigationState)
         return;
 
-    // FIXME: rdar://157878200 (dNR: send a message from the navigation client to the web extensions controllers when a content extension rule matches)
+    if (RefPtr extensionController = page.webExtensionController())
+        extensionController->handleContentRuleListMatchedRule(page.identifier(), matchedRule);
 }
 #endif
     
