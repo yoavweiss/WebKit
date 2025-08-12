@@ -2415,3 +2415,4 @@ webkit.org/b/297121 fast/page-color-sampling/color-sampling-fixed-ancestor-with-
 
 webkit.org/b/297222 imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/transition-finished-mark-as-handled.html [ Pass Failure ]
 
+webkit.org/b/297251 fast/mediastream/getUserMedia-echoCancellation.html [ Pass Failure ]

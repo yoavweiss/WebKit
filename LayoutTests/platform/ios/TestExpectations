@@ -8230,3 +8230,5 @@ webkit.org/b/297240 http/tests/site-isolation/edge-sampling-commit-root-frame-lo
 webkit.org/b/297131 [ Debug ] imported/w3c/web-platform-tests/web-locks/storage-buckets.tentative.https.any.worker.html [ Pass Failure ]
 
 webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-position-does-not-leak.https.html [ Pass Failure ]
+
+webkit.org/b/297251 [ Release ] fast/mediastream/getUserMedia-echoCancellation.html [ Pass Failure ]
