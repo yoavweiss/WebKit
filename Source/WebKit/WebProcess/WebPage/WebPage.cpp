@@ -247,6 +247,7 @@
 #include <WebCore/ImageOverlay.h>
 #include <WebCore/InspectorController.h>
 #include <WebCore/JSDOMExceptionHandling.h>
+#include <WebCore/JSNode.h>
 #include <WebCore/KeyboardEvent.h>
 #include <WebCore/LegacySchemeRegistry.h>
 #include <WebCore/LocalFrame.h>
@@ -325,6 +326,7 @@
 #include <WebCore/ViolationReportType.h>
 #include <WebCore/VisiblePosition.h>
 #include <WebCore/VisibleUnits.h>
+#include <WebCore/WebKitJSHandle.h>
 #include <WebCore/WritingDirection.h>
 #include <WebCore/markup.h>
 #include <algorithm>
@@ -10156,7 +10158,15 @@ void WebPage::hitTestAtPoint(WebCore::FrameIdentifier frameID, WebCore::FloatPoi
     if (!nodeWebFrame)
         return completionHandler({ });
 
-    completionHandler({ NodeAndFrameInfo { { node->nodeIdentifier(), std::nullopt }, { nodeWebFrame->info() } } });
+    Ref nodeHandle = [node] {
+        Ref document = node->document();
+        auto* lexicalGlobalObject = document->globalObject();
+        RELEASE_ASSERT(lexicalGlobalObject->template inherits<WebCore::JSDOMGlobalObject>());
+        auto* domGlobalObject = jsCast<WebCore::JSDOMGlobalObject*>(lexicalGlobalObject);
+        JSLockHolder locker(lexicalGlobalObject);
+        return WebCore::WebKitJSHandle::create(document, WebCore::toJS(lexicalGlobalObject, domGlobalObject, *node).toObject(lexicalGlobalObject));
+    }();
+    completionHandler({ NodeAndFrameInfo { { nodeHandle->identifier(), nodeHandle->windowFrameIdentifier() }, { nodeWebFrame->info() } } });
 }
 
 void WebPage::adjustVisibilityForTargetedElements(Vector<TargetedElementAdjustment>&& adjustments, CompletionHandler<void(bool)>&& completion)

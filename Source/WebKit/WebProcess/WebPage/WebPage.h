@@ -498,7 +498,6 @@ struct InteractionInformationAtPosition;
 struct InteractionInformationRequest;
 struct LoadParameters;
 struct NodeHitTestResult;
-struct NodeInfo;
 struct PDFPluginIdentifierType;
 struct PlatformFontInfo;
 struct PrintInfo;

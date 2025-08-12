@@ -144,6 +144,7 @@
 #include <WebCore/SharedWorkerContextManager.h>
 #include <WebCore/SharedWorkerThreadProxy.h>
 #include <WebCore/UserGestureIndicator.h>
+#include <WebCore/WebKitJSHandle.h>
 #include <algorithm>
 #include <pal/Logging.h>
 #include <wtf/CallbackAggregator.h>
@@ -1874,6 +1875,11 @@ void WebProcess::sendPrewarmInformation(const URL& url)
     if (registrableDomain.isEmpty())
         return;
     protectedParentProcessConnection()->send(Messages::WebProcessProxy::DidCollectPrewarmInformation(registrableDomain, WebCore::ProcessWarming::collectPrewarmInformation()), 0);
+}
+
+void WebProcess::jSHandleDestroyed(WebCore::JSHandleIdentifier identifier)
+{
+    WebCore::WebKitJSHandle::jsHandleDestroyed(identifier);
 }
 
 void WebProcess::pageDidEnterWindow(PageIdentifier pageID)

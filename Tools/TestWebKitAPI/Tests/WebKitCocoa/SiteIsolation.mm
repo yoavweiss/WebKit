@@ -5246,10 +5246,10 @@ TEST(SiteIsolation, HitTesting)
         { "/exampleframe"_s, { makeString("<div id=exampleiframediv>"_s, text, text, "</div>"_s) } },
     }, HTTPServer::Protocol::HttpsProxy);
 
-    auto hitTestResult = [] (RetainPtr<WKWebView> webView, CGPoint point, WKFrameInfo *coordinateFrame = nil) -> std::optional<std::pair<RetainPtr<_WKNodeInfo>, RetainPtr<WKFrameInfo>>> {
+    auto hitTestResult = [] (RetainPtr<WKWebView> webView, CGPoint point, WKFrameInfo *coordinateFrame = nil) -> std::optional<std::pair<RetainPtr<_WKJSHandle>, RetainPtr<WKFrameInfo>>> {
         __block bool done { false };
-        __block std::optional<std::pair<RetainPtr<_WKNodeInfo>, RetainPtr<WKFrameInfo>>> result;
-        [webView _hitTestAtPoint:point inFrameCoordinateSpace:coordinateFrame completionHandler:^(_WKNodeInfo *node, WKFrameInfo *frame, NSError *error) {
+        __block std::optional<std::pair<RetainPtr<_WKJSHandle>, RetainPtr<WKFrameInfo>>> result;
+        [webView _hitTestAtPoint:point inFrameCoordinateSpace:coordinateFrame completionHandler:^(_WKJSHandle *node, WKFrameInfo *frame, NSError *error) {
             done = true;
             if (error)
                 return;

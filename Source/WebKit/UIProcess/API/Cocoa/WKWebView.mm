@@ -134,7 +134,7 @@
 #import "_WKHitTestResultInternal.h"
 #import "_WKInputDelegate.h"
 #import "_WKInspectorInternal.h"
-#import "_WKNodeInfoInternal.h"
+#import "_WKJSHandleInternal.h"
 #import "_WKPageLoadTimingInternal.h"
 #import "_WKRemoteObjectRegistryInternal.h"
 #import "_WKSessionStateInternal.h"
@@ -4272,7 +4272,7 @@ static RetainPtr<NSArray> wkTextManipulationErrors(NSArray<_WKTextManipulationIt
     });
 }
 
-- (void)_hitTestAtPoint:(CGPoint)point inFrameCoordinateSpace:(WKFrameInfo *)frame completionHandler:(void (^)(_WKNodeInfo *, WKFrameInfo *, NSError *))completionHandler
+- (void)_hitTestAtPoint:(CGPoint)point inFrameCoordinateSpace:(WKFrameInfo *)frame completionHandler:(void (^)(_WKJSHandle *, WKFrameInfo *, NSError *))completionHandler
 {
     RefPtr mainFrame = _page->mainFrame();
     if (!frame && !mainFrame)
@@ -4280,7 +4280,7 @@ static RetainPtr<NSArray> wkTextManipulationErrors(NSArray<_WKTextManipulationIt
     _page->hitTestAtPoint(frame ? frame->_frameInfo->frameInfoData().frameID : mainFrame->frameID(), point, [completionHandler = makeBlockPtr(completionHandler), page = RefPtr { _page.get() }] (auto&& result) mutable {
         if (!result)
             return completionHandler(nil, nil, unknownError().get());
-        completionHandler(wrapper(API::NodeInfo::create(WTFMove(result->node))).get(), wrapper(API::FrameInfo::create(WTFMove(result->frame), WTFMove(page))).get(), nil);
+        completionHandler(wrapper(API::JSHandle::create(WTFMove(result->node))).get(), wrapper(API::FrameInfo::create(WTFMove(result->frame), WTFMove(page))).get(), nil);
     });
 }
 

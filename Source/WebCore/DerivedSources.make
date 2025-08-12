@@ -1598,8 +1598,8 @@ JS_BINDING_IDLS := \
     $(WebCore)/page/UserMessageHandler.idl \
     $(WebCore)/page/UserMessageHandlersNamespace.idl \
     $(WebCore)/page/VisualViewport.idl \
+    $(WebCore)/page/WebKitJSHandle.idl \
     $(WebCore)/page/WebKitNamespace.idl \
-    $(WebCore)/page/WebKitNodeInfo.idl \
     $(WebCore)/page/WebKitPoint.idl \
     $(WebCore)/page/WebKitSerializedNode.idl \
     $(WebCore)/page/WindowEventHandlers.idl \

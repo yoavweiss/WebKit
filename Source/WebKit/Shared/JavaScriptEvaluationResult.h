@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "NodeInfo.h"
+#include "JSHandleInfo.h"
 #include "Protected.h"
 #include "WKRetainPtr.h"
 #include <JavaScriptCore/APICast.h>
@@ -61,7 +61,7 @@ using JSObjectID = ObjectIdentifier<JSObjectIDType>;
 class JavaScriptEvaluationResult {
 public:
     enum class EmptyType : bool { Undefined, Null };
-    using Value = Variant<EmptyType, bool, double, String, Seconds, Vector<JSObjectID>, HashMap<JSObjectID, JSObjectID>, NodeInfo, UniqueRef<WebCore::SerializedNode>>;
+    using Value = Variant<EmptyType, bool, double, String, Seconds, Vector<JSObjectID>, HashMap<JSObjectID, JSObjectID>, JSHandleInfo, UniqueRef<WebCore::SerializedNode>>;
 
     JavaScriptEvaluationResult(JSObjectID, HashMap<JSObjectID, Value>&&);
     static std::optional<JavaScriptEvaluationResult> extract(JSGlobalContextRef, JSValueRef);

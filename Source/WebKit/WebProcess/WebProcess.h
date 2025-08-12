@@ -125,6 +125,9 @@ struct PrewarmInformation;
 struct PlatformMediaSessionRemoteCommandArgument;
 struct ScreenProperties;
 struct ServiceWorkerContextData;
+struct JSHandleIdentifierType;
+
+using JSHandleIdentifier = ProcessQualified<ObjectIdentifier<JSHandleIdentifierType>>;
 }
 
 namespace WebKit {
@@ -365,6 +368,8 @@ public:
     void releaseMemory(CompletionHandler<void()>&&);
     void prepareToSuspend(bool isSuspensionImminent, MonotonicTime estimatedSuspendTime, CompletionHandler<void()>&&);
     void processDidResume();
+
+    void jSHandleDestroyed(WebCore::JSHandleIdentifier);
 
     void sendPrewarmInformation(const URL&);
 

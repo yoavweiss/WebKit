@@ -2210,7 +2210,7 @@ page/UserScript.cpp
 page/UserStyleSheet.cpp
 page/VisitedLinkStore.cpp
 page/VisualViewport.cpp
-page/WebKitNodeInfo.cpp
+page/WebKitJSHandle.cpp
 page/WebKitSerializedNode.cpp
 page/WheelEventDeltaFilter.cpp
 page/WheelEventTestMonitor.cpp
@@ -4971,13 +4971,13 @@ JSWebGLTransformFeedback.cpp
 JSWebGLUniformLocation.cpp
 JSWebGLVertexArrayObject.cpp
 JSWebGLVertexArrayObjectOES.cpp
+JSWebKitJSHandle.cpp
 JSWebKitMediaKeyError.cpp
 JSWebKitMediaKeyMessageEvent.cpp
 JSWebKitMediaKeyNeededEvent.cpp
 JSWebKitMediaKeySession.cpp
 JSWebKitMediaKeys.cpp
 JSWebKitNamespace.cpp
-JSWebKitNodeInfo.cpp
 JSWebKitPlaybackTargetAvailabilityEvent.cpp
 JSWebKitPoint.cpp
 JSWebKitSerializedNode.cpp

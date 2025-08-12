@@ -28,7 +28,7 @@
 
 #include "APIArray.h"
 #include "APIDictionary.h"
-#include "APINodeInfo.h"
+#include "APIJSHandle.h"
 #include "APINumber.h"
 #include "APISerializedScriptValue.h"
 #include "APIString.h"
@@ -36,8 +36,7 @@
 #include "WebFrame.h"
 #include <WebCore/Document.h>
 #include <WebCore/ExceptionDetails.h>
-#include <WebCore/JSNodeCustom.h>
-#include <WebCore/JSWebKitNodeInfo.h>
+#include <WebCore/JSWebKitJSHandle.h>
 #include <WebCore/JSWebKitSerializedNode.h>
 #include <WebCore/ScriptWrappableInlines.h>
 #include <WebCore/SerializedScriptValue.h>
@@ -68,7 +67,7 @@ RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Value&& root)
         Ref dictionary = API::Dictionary::create();
         m_dictionaries.append({ WTFMove(map), dictionary });
         return { WTFMove(dictionary) };
-    }, [] (NodeInfo&&) -> RefPtr<API::Object> {
+    }, [] (JSHandleInfo&&) -> RefPtr<API::Object> {
         return nullptr;
     }, [] (UniqueRef<WebCore::SerializedNode>&&) -> RefPtr<API::Object> {
         return nullptr;
@@ -127,11 +126,11 @@ JSObjectID JavaScriptEvaluationResult::addObjectToMap(JSGlobalContextRef context
 
 static std::optional<std::pair<JSGlobalContextRef, JSValueRef>> roundTripThroughSerializedScriptValue(JSGlobalContextRef serializationContext, JSGlobalContextRef deserializationContext, JSValueRef value)
 {
-    // FIXME: Make the SerializedScriptValue roundtrip allow JSWebKitNodeInfo to allow arrays of WebKitNodeInfo.
+    // FIXME: Make the SerializedScriptValue roundtrip allow JSWebKitJSHandle and JSWebKitSerializedNode to allow arrays of WebKitJSHandle and WebKitSerializedNode.
     auto* globalObject = ::toJS(serializationContext);
     JSC::JSValue jsValue = ::toJS(globalObject, value);
     if (auto* object = jsValue.isObject() ? jsValue.toObject(globalObject) : nullptr) {
-        if (object->inherits<WebCore::JSWebKitNodeInfo>() || object->inherits<WebCore::JSWebKitSerializedNode>())
+        if (object->inherits<WebCore::JSWebKitJSHandle>() || object->inherits<WebCore::JSWebKitSerializedNode>())
             return { { serializationContext, value } };
     }
 
@@ -172,9 +171,9 @@ auto JavaScriptEvaluationResult::toValue(JSGlobalContextRef context, JSValueRef 
 
     JSObjectRef object = JSValueToObject(context, value, 0);
 
-    if (auto* info = jsDynamicCast<WebCore::JSWebKitNodeInfo*>(::toJS(::toJS(context), object))) {
-        Ref nodeInfo { info->wrapped() };
-        return NodeInfo { nodeInfo->nodeIdentifier(), nodeInfo->contentFrameIdentifier() };
+    if (auto* info = jsDynamicCast<WebCore::JSWebKitJSHandle*>(::toJS(::toJS(context), object))) {
+        Ref ref { info->wrapped() };
+        return JSHandleInfo { ref->identifier(), ref->windowFrameIdentifier() };
     }
 
     if (auto* node = jsDynamicCast<WebCore::JSWebKitSerializedNode*>(::toJS(::toJS(context), object))) {
@@ -256,14 +255,14 @@ JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Value&& 
         JSObjectRef dictionary = JSObjectMake(context, 0, 0);
         m_jsDictionaries.append({ WTFMove(map), Protected<JSObjectRef>(context, dictionary) });
         return dictionary;
-    }, [&] (NodeInfo&& nodeInfo) -> JSValueRef {
-        RefPtr node = WebCore::Node::fromIdentifier(nodeInfo.nodeIdentifier);
-        if (!node)
+    }, [&] (JSHandleInfo&& info) -> JSValueRef {
+        auto [originalDocument, object] = WebCore::WebKitJSHandle::objectForIdentifier(info.identifier);
+        if (!object)
             return JSValueMakeUndefined(context);
         auto [lexicalGlobalObject, domGlobalObject, document] = globalObjectTuple(context);
-        if (document.get() != &node->document())
+        if (document.get() != originalDocument.get())
             return JSValueMakeUndefined(context);
-        return ::toRef(lexicalGlobalObject, WebCore::toJS(lexicalGlobalObject, domGlobalObject, *node));
+        return ::toRef(object);
     }, [&] (UniqueRef<WebCore::SerializedNode>&& serializedNode) -> JSValueRef {
         auto [lexicalGlobalObject, domGlobalObject, document] = globalObjectTuple(context);
         return ::toRef(lexicalGlobalObject, WebCore::SerializedNode::deserialize(WTFMove(serializedNode.get()), lexicalGlobalObject, domGlobalObject, *document));
