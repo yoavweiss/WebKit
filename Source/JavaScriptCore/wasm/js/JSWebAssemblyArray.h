@@ -52,6 +52,7 @@ public:
 
     DECLARE_INFO;
 
+    static inline TypeInfoBlob typeInfoBlob();
     static inline WebAssemblyGCStructure* createStructure(VM&, JSGlobalObject*, Ref<const Wasm::TypeDefinition>&&, Ref<const Wasm::RTT>&&);
 
     static JSWebAssemblyArray* tryCreate(VM& vm, WebAssemblyGCStructure* structure, unsigned size);

@@ -52,6 +52,7 @@ public:
 
     DECLARE_INFO;
 
+    static inline TypeInfoBlob typeInfoBlob();
     static inline WebAssemblyGCStructure* createStructure(VM&, JSGlobalObject*, Ref<const Wasm::TypeDefinition>&&, Ref<const Wasm::RTT>&&);
     static JSWebAssemblyStruct* tryCreate(VM&, WebAssemblyGCStructure*);
     static JSWebAssemblyStruct* create(VM&, WebAssemblyGCStructure*);
@@ -76,6 +77,12 @@ protected:
     JSWebAssemblyStruct(VM&, WebAssemblyGCStructure*);
     DECLARE_DEFAULT_FINISH_CREATION;
 };
+
+
+TypeInfoBlob JSWebAssemblyStruct::typeInfoBlob()
+{
+    return TypeInfoBlob(0, TypeInfo(WebAssemblyGCObjectType, StructureFlags));
+}
 
 WebAssemblyGCStructure* JSWebAssemblyStruct::createStructure(VM& vm, JSGlobalObject* globalObject, Ref<const Wasm::TypeDefinition>&& type, Ref<const Wasm::RTT>&& rtt)
 {
