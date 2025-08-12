@@ -29,6 +29,7 @@
 #include "CacheModel.h"
 #include "EventDispatcher.h"
 #include "IdentifierTypes.h"
+#include "NetworkProcessConnection.h"
 #include "ScriptTrackingPrivacyFilter.h"
 #include "SharedPreferencesForWebProcess.h"
 #include "StorageAreaMapIdentifier.h"
@@ -137,7 +138,6 @@ class LibWebRTCCodecs;
 class LibWebRTCNetwork;
 class ModelProcessConnection;
 class ModelProcessModelPlayerManager;
-class NetworkProcessConnection;
 class RemoteCDMFactory;
 class RemoteImageDecoderAVFManager;
 class RemoteLegacyCDMFactory;
