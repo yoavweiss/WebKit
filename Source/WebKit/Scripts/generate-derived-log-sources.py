@@ -12,7 +12,11 @@ def generate_messages_file(log_messages, log_messages_receiver_input_file, strea
 
     with open(log_messages_receiver_input_file, 'w') as file:
         file.write("#if ENABLE(LOGD_BLOCKING_IN_WEBCONTENT)\n")
-        file.write("[ExceptionForEnabledBy]\n")
+        file.write("[\n")
+        file.write("    DispatchedFrom=WebContent,\n")
+        file.write("    DispatchedTo=UI,\n")
+        file.write("    ExceptionForEnabledBy\n")
+        file.write("]\n")
         file.write("messages -> LogStream ")
         if streaming_ipc:
             file.write("Stream ")

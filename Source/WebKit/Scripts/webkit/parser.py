@@ -48,6 +48,8 @@ def parse(file):
     receiver_enabled_by_conjunction = None
     receiver_dispatched_from = None
     receiver_dispatched_to = None
+    receiver_dispatched_from_exception = False
+    receiver_dispatched_to_exception = False
     receiver_attributes = None
     shared_preferences_needs_connection = False
     wants_send_cancel_reply = False
@@ -79,12 +81,19 @@ def parse(file):
             elif attribute == 'ExceptionForEnabledBy':
                 receiver_enabled_by_exception = True
                 continue
+            elif attribute == 'ExceptionForDispatchedFrom':
+                receiver_dispatched_from_exception = True
+                continue
+            elif attribute == 'ExceptionForDispatchedTo':
+                receiver_dispatched_to_exception = True
+                continue
             elif attribute == 'WantsSendCancelReply':
                 wants_send_cancel_reply = True
                 continue
             raise Exception("ERROR: Unknown extended attribute: '%s'" % attribute)
     if receiver_enabled_by and receiver_enabled_by_exception:
         raise Exception("ERROR: 'ExceptionForEnabledBy' cannot be used together with 'EnabledBy=%s'" % receiver_enabled_by)
+
     for line in file_contents:
         line = line.strip()
         match = re.search(r'messages -> (?P<namespace>[A-Za-z]+)::(?P<destination>[A-Za-z_0-9]+) \s*(?::\s*(?P<superclass>.*?) \s*)?(?:(?P<attributes>.*?)\s+)?{', line)
@@ -162,7 +171,13 @@ def parse(file):
                 raise Exception(f"ERROR: DeferSendingIfSuspended not supported for message {name} since it contains reply parameters")
 
             messages.append(model.Message(name, parameters, reply_parameters, attributes, combine_condition(conditions), validator, enabled_by, enabled_by_exception, enabled_by_conjunction, coalescing_key_indices))
-    return model.MessageReceiver(destination, superclass, receiver_attributes, receiver_enabled_by, receiver_enabled_by_exception, receiver_enabled_by_conjunction, receiver_dispatched_from, receiver_dispatched_to, shared_preferences_needs_connection, messages, combine_condition(master_condition), namespace, wants_send_cancel_reply)
+
+    if receiver_dispatched_from and receiver_dispatched_from_exception:
+        raise Exception("ERROR: 'ExceptionForDispatchedFrom' cannot be used together with 'DispatchedFrom=%s'" % receiver_dispatched_from)
+    if receiver_dispatched_to and receiver_dispatched_to_exception:
+        raise Exception("ERROR: 'ExceptionForDispatchedTo' cannot be used together with 'DispatchedTo=%s'" % receiver_dispatched_to)
+
+    return model.MessageReceiver(destination, superclass, receiver_attributes, receiver_enabled_by, receiver_enabled_by_exception, receiver_enabled_by_conjunction, receiver_dispatched_from, receiver_dispatched_from_exception, receiver_dispatched_to, receiver_dispatched_to_exception, shared_preferences_needs_connection, messages, combine_condition(master_condition), namespace, wants_send_cancel_reply)
 
 
 def parse_attributes_string(attributes_string):
