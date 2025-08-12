@@ -5010,35 +5010,10 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
         return;
     }
 
-    enum class Field : uint8_t {
-        Children = 1 << 0,
-        DependentProperties = 1 << 1,
-        Node = 1 << 2,
-    };
-    HashMap<AXID, OptionSet<Field>> updatedObjects;
-    auto updateChildren = [&] (const Ref<AccessibilityObject>& axObject) {
-        auto updatedFields = updatedObjects.get(axObject->objectID());
-        if (!updatedFields.contains(Field::Children)) {
-            updatedFields.add(Field::Children);
-            updatedObjects.set(axObject->objectID(), updatedFields);
-            tree->queueNodeUpdate(axObject->objectID(), NodeUpdateOptions::childrenUpdate());
-        }
-    };
+    HashSet<AXID> idsWithUpdatedDependentProperties;
     auto updateDependentProperties = [&] (const Ref<AccessibilityObject>& axObject) {
-        auto updatedFields = updatedObjects.get(axObject->objectID());
-        if (!updatedFields.contains(Field::DependentProperties)) {
-            updatedFields.add(Field::DependentProperties);
-            updatedObjects.set(axObject->objectID(), updatedFields);
+        if (idsWithUpdatedDependentProperties.add(axObject->objectID()).isNewEntry)
             tree->updateDependentProperties(axObject.get());
-        }
-    };
-    auto updateNode = [&] (const Ref<AccessibilityObject>& axObject) {
-        auto updatedFields = updatedObjects.get(axObject->objectID());
-        if (!updatedFields.contains(Field::Node)) {
-            updatedFields.add(Field::Node);
-            updatedObjects.set(axObject->objectID(), updatedFields);
-            tree->queueNodeUpdate(axObject->objectID(), NodeUpdateOptions::nodeUpdate());
-        }
     };
 
     for (const auto& notification : notifications) {
@@ -5236,20 +5211,20 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
         case AXNotification::TextChanged:
         case AXNotification::TextSecurityChanged:
         case AXNotification::ValueChanged:
-            updateNode(notification.first);
+            tree->queueNodeUpdate(notification.first->objectID(), NodeUpdateOptions::nodeUpdate());
             break;
         case AXNotification::LabelChanged: {
-            updateNode(notification.first);
+            tree->queueNodeUpdate(notification.first->objectID(), NodeUpdateOptions::nodeUpdate());
             updateDependentProperties(notification.first);
             break;
         }
         case AXNotification::LanguageChanged:
         case AXNotification::RowCountChanged:
-            updateNode(notification.first);
+            tree->queueNodeUpdate(notification.first->objectID(), NodeUpdateOptions::nodeUpdate());
             [[fallthrough]];
         case AXNotification::RowCollapsed:
         case AXNotification::RowExpanded:
-            updateChildren(notification.first);
+            tree->queueNodeUpdate(notification.first->objectID(), NodeUpdateOptions::childrenUpdate());
             break;
         default:
             break;
