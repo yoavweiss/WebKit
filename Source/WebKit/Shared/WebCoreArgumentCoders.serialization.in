@@ -6136,6 +6136,35 @@ struct WebCore::ContentRuleListResults {
 
 #endif
 
+#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
+
+struct WebCore::ContentRuleListMatchedRule {
+    WebCore::ContentRuleListMatchedRule::Request request;
+    WebCore::ContentRuleListMatchedRule::MatchedRule rule;
+};
+
+[Nested] struct WebCore::ContentRuleListMatchedRule::Request {
+    std::optional<String> documentId;
+    std::optional<String> documentLifecycle;
+    std::optional<double> frameId;
+    std::optional<String> frameType;
+    std::optional<String> initiator;
+    std::optional<String> method;
+    std::optional<String> parentDocumentId;
+    std::optional<double> parentFrameId;
+    std::optional<String> requestId;
+    std::optional<String> type;
+    std::optional<String> url;
+};
+
+[Nested] struct WebCore::ContentRuleListMatchedRule::MatchedRule {
+    std::optional<String> extensionId;
+    std::optional<double> ruleId;
+    std::optional<String> rulesetId;
+};
+
+#endif
+
 enum class WebCore::PolicyAction : uint8_t {
     Use,
     Download,

@@ -877,6 +877,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     contentextensions/ContentExtensionStyleSheet.h
     contentextensions/ContentExtensionsBackend.h
     contentextensions/ContentExtensionsDebugging.h
+    contentextensions/ContentRuleListMatchedRule.h
     contentextensions/ContentRuleListResults.h
     contentextensions/DFA.h
     contentextensions/DFABytecode.h

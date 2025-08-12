@@ -93,6 +93,10 @@
 #import "WebExtensionController.h"
 #endif
 
+#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
+#import <WebCore/ContentRuleListMatchedRule.h>
+#endif
+
 #if PLATFORM(IOS_FAMILY) && !PLATFORM(MACCATALYST)
 #import <pal/ios/ManagedConfigurationSoftLink.h>
 #import <pal/spi/ios/ManagedConfigurationSPI.h>
@@ -756,6 +760,16 @@ void NavigationState::NavigationClient::contentRuleListNotification(WebPageProxy
         for (auto&& pair : WTFMove(results.results))
             [static_cast<id<WKNavigationDelegatePrivate>>(navigationDelegate) _webView:protectedNavigationState()->webView().get() contentRuleListWithIdentifier:pair.first.createNSString().get() performedAction:wrapper(API::ContentRuleListAction::create(WTFMove(pair.second)).get()) forURL:url.createNSURL().get()];
     }
+}
+#endif
+
+#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
+void NavigationState::NavigationClient::contentRuleListMatchedRule(WebPageProxy& page, WebCore::ContentRuleListMatchedRule&& matchedRule)
+{
+    if (!m_navigationState)
+        return;
+
+    // FIXME: rdar://157878200 (dNR: send a message from the navigation client to the web extensions controllers when a content extension rule matches)
 }
 #endif
     

@@ -483,6 +483,10 @@ messages -> WebPageProxy {
     ContentRuleListNotification(URL url, struct WebCore::ContentRuleListResults results)
 #endif
 
+#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
+    ContentRuleListMatchedRule(struct WebCore::ContentRuleListMatchedRule matchedRule)
+#endif
+
 #if ENABLE(WIRELESS_PLAYBACK_TARGET) && !PLATFORM(IOS_FAMILY)
     AddPlaybackTargetPickerClient(WebCore::PlaybackTargetClientContextIdentifier contextId)
     RemovePlaybackTargetPickerClient(WebCore::PlaybackTargetClientContextIdentifier contextId)

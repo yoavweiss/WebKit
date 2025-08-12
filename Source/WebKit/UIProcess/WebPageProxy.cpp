@@ -449,6 +449,10 @@
 #include "ModelPresentationManagerProxy.h"
 #endif
 
+#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
+#include <WebCore/ContentRuleListMatchedRule.h>
+#endif
+
 #define MESSAGE_CHECK(process, assertion) MESSAGE_CHECK_BASE(assertion, process->connection())
 #define MESSAGE_CHECK_URL(process, url) MESSAGE_CHECK_BASE(checkURLReceivedFromCurrentOrPreviousWebProcess(process, url), process->connection())
 #define MESSAGE_CHECK_URL_COROUTINE(process, url) MESSAGE_CHECK_BASE_COROUTINE(checkURLReceivedFromCurrentOrPreviousWebProcess(process, url), process->connection())
@@ -8534,6 +8538,13 @@ void WebPageProxy::willSubmitForm(IPC::Connection& connection, FrameInfoData&& f
 void WebPageProxy::contentRuleListNotification(URL&& url, ContentRuleListResults&& results)
 {
     m_navigationClient->contentRuleListNotification(*this, WTFMove(url), WTFMove(results));
+}
+#endif
+
+#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
+void WebPageProxy::contentRuleListMatchedRule(WebCore::ContentRuleListMatchedRule&& matchedRule)
+{
+    m_navigationClient->contentRuleListMatchedRule(*this, WTFMove(matchedRule));
 }
 #endif
 

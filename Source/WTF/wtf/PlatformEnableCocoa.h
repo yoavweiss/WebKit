@@ -1014,6 +1014,11 @@
 #define ENABLE_WK_WEB_EXTENSIONS 1
 #endif
 
+// When this is enabled, CurrentContentRuleListFileVersion and currentDeclarativeNetRequestRuleTranslatorVersion need to be bumped.
+#if !defined(ENABLE_DNR_ON_RULE_MATCHED_DEBUG)
+#define ENABLE_DNR_ON_RULE_MATCHED_DEBUG 0
+#endif
+
 #if !defined(ENABLE_WK_WEB_EXTENSIONS_ICON_VARIANTS)
 #define ENABLE_WK_WEB_EXTENSIONS_ICON_VARIANTS ENABLE_WK_WEB_EXTENSIONS
 #endif
