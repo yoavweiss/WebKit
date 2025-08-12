@@ -278,8 +278,6 @@ NSArray *makeNSArray(const WebCore::AXCoreObject::AccessibilityChildrenVector& c
 
 @implementation WebAccessibilityObjectWrapperBase
 
-@synthesize identifier = _identifier;
-
 - (id)initWithAccessibilityObject:(AccessibilityObject&)axObject
 {
     ASSERT(isMainThread());
@@ -292,23 +290,21 @@ NSArray *makeNSArray(const WebCore::AXCoreObject::AccessibilityChildrenVector& c
 
 - (void)attachAXObject:(AccessibilityObject&)axObject
 {
-    ASSERT(!_identifier || _identifier == axObject.objectID());
+    // Once a wrapper becomes associated with an object, it shouldn't ever be associated with any other one.
+    // The only acceptable scenario is when a new instance of the "same" object (as determined by the objectID)
+    // is created and attached to this wrapper, replacing it.
+    ASSERT(!m_axObject || m_axObject->objectID() == axObject.objectID());
     m_axObject = axObject;
-    if (!_identifier)
-        _identifier = m_axObject->objectID();
 }
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-- (void)attachIsolatedObject:(AXIsolatedObject*)isolatedObject
+- (void)attachIsolatedObject:(AXIsolatedObject&)newObject
 {
     ASSERT(!isMainThread());
-    ASSERT(isolatedObject && (!_identifier || *_identifier == isolatedObject->objectID()));
+    ASSERT(!m_isolatedObject || m_isolatedObject->objectID() == newObject.objectID());
 
-    m_isolatedObject = isolatedObject;
-    m_isolatedObjectInitialized = !!isolatedObject;
-
-    if (!_identifier)
-        _identifier = m_isolatedObject.get()->objectID();
+    m_isolatedObject = newObject;
+    m_isolatedObjectInitialized = true;
 }
 
 - (BOOL)hasIsolatedObject
@@ -320,7 +316,6 @@ NSArray *makeNSArray(const WebCore::AXCoreObject::AccessibilityChildrenVector& c
 - (void)detach
 {
     ASSERT(isMainThread());
-    _identifier = std::nullopt;
     m_axObject = nullptr;
 }
 

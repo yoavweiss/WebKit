@@ -181,7 +181,7 @@ bool AXIsolatedObject::isDetached() const
 
 void AXIsolatedObject::attachPlatformWrapper(AccessibilityObjectWrapper* wrapper)
 {
-    [wrapper attachIsolatedObject:this];
+    [wrapper attachIsolatedObject:*this];
     setWrapper(wrapper);
 }
 
