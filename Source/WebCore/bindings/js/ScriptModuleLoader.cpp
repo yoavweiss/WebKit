@@ -52,6 +52,7 @@
 #include "WorkerScriptLoader.h"
 #include "WorkletGlobalScope.h"
 #include <JavaScriptCore/AbstractModuleRecord.h>
+#include <JavaScriptCore/BuiltinNames.h>
 #include <JavaScriptCore/Completion.h>
 #include <JavaScriptCore/ImportMap.h>
 #include <JavaScriptCore/JSInternalPromise.h>
@@ -134,7 +135,7 @@ JSC::Identifier ScriptModuleLoader::resolve(JSC::JSGlobalObject* jsGlobalObject,
     if (!result) {
         auto* error = JSC::createTypeError(jsGlobalObject, result.error());
         ASSERT(error);
-        error->putDirect(vm, builtinNames(vm).failureKindPrivateName(), JSC::jsNumber(enumToUnderlyingType(ModuleFetchFailureKind::WasResolveError)));
+        error->putDirect(vm, vm.propertyNames->builtinNames().moduleFetchFailureKindPrivateName(), JSC::jsNumber(enumToUnderlyingType(ModuleFetchFailureKind::WasResolveError)));
         JSC::throwException(jsGlobalObject, scope, error);
         return { };
     }
@@ -152,7 +153,7 @@ static void rejectToPropagateNetworkError(ScriptExecutionContext& context, Ref<D
             // https://bugs.webkit.org/show_bug.cgi?id=167553
             auto* error = JSC::createTypeError(&jsGlobalObject, message);
             ASSERT(error);
-            error->putDirect(vm, builtinNames(vm).failureKindPrivateName(), JSC::jsNumber(enumToUnderlyingType(failureKind)));
+            error->putDirect(vm, vm.propertyNames->builtinNames().moduleFetchFailureKindPrivateName(), JSC::jsNumber(enumToUnderlyingType(failureKind)));
             return error;
         });
     });
@@ -166,7 +167,7 @@ static void rejectWithFetchError(ScriptExecutionContext& context, Ref<DeferredPr
             JSC::VM& vm = jsGlobalObject.vm();
             JSC::JSObject* error = JSC::jsCast<JSC::JSObject*>(createDOMException(&jsGlobalObject, ec, message));
             ASSERT(error);
-            error->putDirect(vm, builtinNames(vm).failureKindPrivateName(), JSC::jsNumber(enumToUnderlyingType(ModuleFetchFailureKind::WasFetchError)));
+            error->putDirect(vm, vm.propertyNames->builtinNames().moduleFetchFailureKindPrivateName(), JSC::jsNumber(enumToUnderlyingType(ModuleFetchFailureKind::WasFetchError)));
             return error;
         });
     });
