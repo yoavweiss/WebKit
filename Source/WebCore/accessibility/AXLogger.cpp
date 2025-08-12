@@ -604,7 +604,8 @@ TextStream& operator<<(TextStream& stream, AXNotification notification)
     case AXNotification::name: \
         stream << #name; \
         break;
-    WEBCORE_AXNOTIFICATION_KEYS(WEBCORE_LOG_AXNOTIFICATION)
+
+        WEBCORE_AXNOTIFICATION_KEYS(WEBCORE_LOG_AXNOTIFICATION)
 #undef WEBCORE_LOG_AXNOTIFICATION
     }
 

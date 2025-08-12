@@ -566,6 +566,6 @@ String AXIsolatedObject::computedRoleString() const
 }
 // End purposely un-cached properties block.
 
-} // WebCore
+} // namespace WebCore
 
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE) && PLATFORM(MAC)

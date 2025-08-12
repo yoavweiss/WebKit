@@ -27,7 +27,6 @@
  */
 
 #include "config.h"
-
 #include "AccessibilityObject.h"
 
 #include "AXLogger.h"
@@ -1635,8 +1634,8 @@ VisiblePositionRange AccessibilityObject::leftLineVisiblePositionRange(const Vis
 
     VisiblePosition startPosition = startOfLine(prevVisiblePos);
 
-    // keep searching for a valid line start position.  Unless the VisiblePosition is at the very beginning, there should
-    // always be a valid line range.  However, startOfLine will return null for position next to a floating object,
+    // keep searching for a valid line start position. Unless the VisiblePosition is at the very beginning, there should
+    // always be a valid line range. However, startOfLine will return null for position next to a floating object,
     // since floating object doesn't really belong to any line.
     // This check will reposition the marker before the floating object, to ensure we get a line start.
     if (startPosition.isNull()) {
@@ -1671,8 +1670,8 @@ VisiblePositionRange AccessibilityObject::rightLineVisiblePositionRange(const Vi
 
     VisiblePosition endPosition = endOfLine(nextVisiblePos);
 
-    // as long as the position hasn't reached the end of the doc,  keep searching for a valid line end position
-    // Unless the VisiblePosition is at the very end, there should always be a valid line range.  However, endOfLine will
+    // as long as the position hasn't reached the end of the doc, keep searching for a valid line end position
+    // Unless the VisiblePosition is at the very end, there should always be a valid line range. However, endOfLine will
     // return null for position by a floating object, since floating object doesn't really belong to any line.
     // This check will reposition the marker after the floating object, to ensure we get a line end.
     while (endPosition.isNull() && nextVisiblePos.isNotNull()) {
@@ -3690,10 +3689,13 @@ void AccessibilityObject::scrollToMakeVisibleWithSubFocus(IntRect&& subfocus) co
 {
     // Search up the parent chain until we find the first one that's scrollable.
     AccessibilityObject* scrollParent = parentObject();
-    ScrollableArea* scrollableArea;
-    for (scrollableArea = nullptr;
-         scrollParent && !(scrollableArea = scrollParent->getScrollableAreaIfScrollable());
-         scrollParent = scrollParent->parentObject()) { }
+    ScrollableArea* scrollableArea = nullptr;
+    while (scrollParent) {
+        scrollableArea = scrollParent->getScrollableAreaIfScrollable();
+        if (scrollableArea)
+            break;
+        scrollParent = scrollParent->parentObject();
+    }
     if (!scrollableArea)
         return;
 
@@ -3791,8 +3793,9 @@ void AccessibilityObject::scrollToGlobalPoint(IntPoint&& point) const
             scrollPosition = scrollableArea->scrollPosition();
             offsetX -= (scrollPosition.x() + point.x());
             offsetY -= (scrollPosition.y() + point.y());
-            point.move(scrollPosition.x() - innerRect.x(),
-                       scrollPosition.y() - innerRect.y());
+            point.move(
+                scrollPosition.x() - innerRect.x(),
+                scrollPosition.y() - innerRect.y());
         } else if (inner->isScrollView()) {
             // Otherwise, if the inner object is a scroll view, reset the coordinate transformation.
             offsetX = 0;
@@ -4071,7 +4074,6 @@ bool AccessibilityObject::isWithinHiddenWebArea() const
         frameRenderer = renderView ? renderView->frameView().frame().ownerRenderer() : nullptr;
     }
     return false;
-
 }
 
 bool AccessibilityObject::isIgnored() const
@@ -4123,8 +4125,7 @@ bool AccessibilityObject::isIgnoredWithoutCache(AXObjectCache* cache) const
             // If a menu became ignored, e.g. because it became display:none, ATs need to be informed.
             postMenuClosedNotificationIfNecessary();
             cache->objectBecameIgnored(*this);
-        }
-        else if (becameUnignored)
+        } else if (becameUnignored)
             cache->objectBecameUnignored(*this);
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 

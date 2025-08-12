@@ -615,7 +615,7 @@ Element* AccessibilityRenderObject::anchorElement() const
 
     RenderObject* currentRenderer;
 
-    // Search up the render tree for a RenderObject with a DOM node.  Defer to an earlier continuation, though.
+    // Search up the render tree for a RenderObject with a DOM node. Defer to an earlier continuation, though.
     for (currentRenderer = renderer(); currentRenderer && !currentRenderer->node(); currentRenderer = currentRenderer->parent()) {
         if (CheckedPtr blockRenderer = dynamicDowncast<RenderBlock>(*currentRenderer); blockRenderer && blockRenderer->isAnonymousBlock()) {
             if (auto* continuation = blockRenderer->continuation())

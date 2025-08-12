@@ -40,11 +40,11 @@
 #import "ChromeClient.h"
 #import "FontCascade.h"
 #import "FrameSelection.h"
-#import "HitTestResult.h"
 #import "HTMLFrameOwnerElement.h"
 #import "HTMLInputElement.h"
 #import "HTMLNames.h"
 #import "HTMLTextAreaElement.h"
+#import "HitTestResult.h"
 #import "IntRect.h"
 #import "LocalFrame.h"
 #import "LocalizedStrings.h"
@@ -57,10 +57,10 @@
 #import "SimpleRange.h"
 #import "TextIterator.h"
 #import "VisiblePosition.h"
+#import "VisibleUnits.h"
 #import "WAKScrollView.h"
 #import "WAKWindow.h"
 #import "WebCoreThread.h"
-#import "VisibleUnits.h"
 #import <CoreText/CoreText.h>
 #import <wtf/RuntimeApplicationChecks.h>
 #import <wtf/cocoa/VectorCocoa.h>

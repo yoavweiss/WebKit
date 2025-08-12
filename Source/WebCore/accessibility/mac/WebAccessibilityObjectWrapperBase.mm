@@ -64,13 +64,14 @@
 #import <Accessibility/Accessibility.h>
 #import <wtf/ObjCRuntimeExtras.h>
 #import <wtf/cocoa/VectorCocoa.h>
-#import <pal/cocoa/AccessibilitySoftLink.h>
 
 #if PLATFORM(MAC)
 #import "WebAccessibilityObjectWrapperMac.h"
 #else
 #import "WebAccessibilityObjectWrapperIOS.h"
 #endif
+
+#import <pal/cocoa/AccessibilitySoftLink.h>
 
 using namespace WebCore;
 
@@ -458,22 +459,19 @@ static void convertPathToScreenSpaceFunction(PathConversionInfo& conversion, con
     CGMutablePathRef newPath = conversion.path;
     FloatRect rect;
     switch (element.type) {
-    case PathElement::Type::MoveToPoint:
-    {
+    case PathElement::Type::MoveToPoint: {
         rect = FloatRect(element.points[0], FloatSize());
         CGPoint newPoint = [wrapper convertRectToSpace:rect space:AccessibilityConversionSpace::Screen].origin;
         CGPathMoveToPoint(newPath, nil, newPoint.x, newPoint.y);
         break;
     }
-    case PathElement::Type::AddLineToPoint:
-    {
+    case PathElement::Type::AddLineToPoint: {
         rect = FloatRect(element.points[0], FloatSize());
         CGPoint newPoint = [wrapper convertRectToSpace:rect space:AccessibilityConversionSpace::Screen].origin;
         CGPathAddLineToPoint(newPath, nil, newPoint.x, newPoint.y);
         break;
     }
-    case PathElement::Type::AddQuadCurveToPoint:
-    {
+    case PathElement::Type::AddQuadCurveToPoint: {
         rect = FloatRect(element.points[0], FloatSize());
         CGPoint newPoint1 = [wrapper convertRectToSpace:rect space:AccessibilityConversionSpace::Screen].origin;
 
@@ -482,8 +480,7 @@ static void convertPathToScreenSpaceFunction(PathConversionInfo& conversion, con
         CGPathAddQuadCurveToPoint(newPath, nil, newPoint1.x, newPoint1.y, newPoint2.x, newPoint2.y);
         break;
     }
-    case PathElement::Type::AddCurveToPoint:
-    {
+    case PathElement::Type::AddCurveToPoint: {
         rect = FloatRect(element.points[0], FloatSize());
         CGPoint newPoint1 = [wrapper convertRectToSpace:rect space:AccessibilityConversionSpace::Screen].origin;
 
@@ -495,8 +492,7 @@ static void convertPathToScreenSpaceFunction(PathConversionInfo& conversion, con
         CGPathAddCurveToPoint(newPath, nil, newPoint1.x, newPoint1.y, newPoint2.x, newPoint2.y, newPoint3.x, newPoint3.y);
         break;
     }
-    case PathElement::Type::CloseSubpath:
-    {
+    case PathElement::Type::CloseSubpath: {
         CGPathCloseSubpath(newPath);
         break;
     }
@@ -517,7 +513,6 @@ static void convertPathToScreenSpaceFunction(PathConversionInfo& conversion, con
 // advancing forward by line from top and backwards by line from the bottom, until we have a visible range.
 - (NSRange)accessibilityVisibleCharacterRange
 {
-
 #if ENABLE(AX_THREAD_TEXT_APIS)
     if (AXObjectCache::useAXThreadTextApis()) {
         RefPtr<AXCoreObject> backingObject = self.baseUpdateBackingStore;
@@ -638,7 +633,7 @@ std::optional<SimpleRange> makeDOMRange(Document* document, NSRange range)
         if (end <= start)
             break;
 
-        auto rect = backingObject->boundsForVisiblePositionRange({start, end});
+        auto rect = backingObject->boundsForVisiblePositionRange({ start, end });
 
         auto lineRange = makeSimpleRange(start, end);
         if (!lineRange)
@@ -681,7 +676,7 @@ std::optional<SimpleRange> makeDOMRange(Document* document, NSRange range)
                 [text appendAttributedString:attributedLabel.get()];
             }
         }
-        lines.append({rect, text});
+        lines.append({ rect, text });
 
         start = end;
         // If start is at a hard breakline "\n", move to the beginning of the next line.
@@ -702,8 +697,10 @@ std::optional<SimpleRange> makeDOMRange(Document* document, NSRange range)
     if (lines.isEmpty())
         return nil;
     return createNSArray(lines, [self] (const auto& line) {
-        return @{ @"rect": [NSValue valueWithRect:[self convertRectToSpace:FloatRect(line.first) space:AccessibilityConversionSpace::Screen]],
-                  @"text": line.second.get() };
+        return @{
+            @"rect": [NSValue valueWithRect:[self convertRectToSpace:FloatRect(line.first) space:AccessibilityConversionSpace::Screen]],
+            @"text": line.second.get()
+        };
     }).autorelease();
 }
 

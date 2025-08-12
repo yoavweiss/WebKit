@@ -48,10 +48,9 @@
 #include "RenderTable.h"
 #include "RenderTableCell.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
+#include <queue>
 #include <wtf/Scope.h>
 #include <wtf/WeakRef.h>
-
-#include <queue>
 
 namespace WebCore {
 

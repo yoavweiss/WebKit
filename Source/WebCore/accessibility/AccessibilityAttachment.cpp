@@ -99,4 +99,3 @@ void AccessibilityAttachment::accessibilityText(Vector<AccessibilityText>& textO
 } // namespace WebCore
 
 #endif // ENABLE(ATTACHMENT_ELEMENT)
-

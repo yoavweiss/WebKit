@@ -176,6 +176,6 @@ void AXObjectCache::platformPerformDeferredCacheUpdate()
 {
 }
 
-}
+} // namespace WebCore
 
 #endif // PLATFORM(IOS_FAMILY)

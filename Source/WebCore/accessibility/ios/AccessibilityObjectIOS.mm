@@ -355,8 +355,8 @@ RetainPtr<NSData> newAccessibilityRemoteToken(NSString *uuidString)
     return [NSKeyedArchiver archivedDataWithRootObject:@{ @"ax-pid" : @(getpid()), @"ax-uuid" : uuidString, @"ax-register" : @YES } requiringSecureCoding:YES error:nullptr];
 }
 
-}
+} // namespace Accessibility
 
-} // WebCore
+} // namespace WebCore
 
 #endif // PLATFORM(IOS_FAMILY)

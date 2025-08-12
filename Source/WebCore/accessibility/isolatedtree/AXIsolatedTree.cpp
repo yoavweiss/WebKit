@@ -1359,7 +1359,6 @@ void AXIsolatedTree::applyPendingChangesLocked()
         // analysis throws a false-positive compile error when we access m_pendingProtectedFromDeletionIDs in
         // this lambda.
         std::function<void(Ref<AXCoreObject>&&)> deleteSubtree = [&] (Ref<AXCoreObject>&& coreObjectToDelete) WTF_IGNORES_THREAD_SAFETY_ANALYSIS {
-
             auto& objectToDelete = downcast<AXIsolatedObject>(coreObjectToDelete.get());
             while (objectToDelete.m_children.size()) {
                 Ref child = objectToDelete.m_children.takeLast();

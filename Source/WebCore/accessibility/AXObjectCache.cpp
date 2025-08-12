@@ -27,7 +27,6 @@
  */
 
 #include "config.h"
-
 #include "AXObjectCache.h"
 
 #include "AXIsolatedObject.h"
@@ -3101,8 +3100,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     else if (attrName == contenteditableAttr) {
         if (RefPtr axObject = get(*element))
             axObject->updateRole();
-    }
-    else if (attrName == disabledAttr)
+    } else if (attrName == disabledAttr)
         postNotification(element, AXNotification::DisabledStateChanged);
     else if (attrName == forAttr) {
         if (RefPtr label = dynamicDowncast<HTMLLabelElement>(element)) {
@@ -3211,8 +3209,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
                 axObject->updateRole();
         }
         handleTextChanged(axObject.get());
-    }
-    else if (attrName == aria_checkedAttr)
+    } else if (attrName == aria_checkedAttr)
         checkedStateChanged(*element);
     else if (attrName == aria_colcountAttr) {
         postNotification(element, AXNotification::ColumnCountChanged);
@@ -3225,8 +3222,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
     } else if (attrName == aria_colspanAttr) {
         postNotification(element, AXNotification::ColumnSpanChanged);
         recomputeParentTableProperties(element, { TableProperty::CellSlots, TableProperty::Exposed });
-    }
-    else if (attrName == aria_describedbyAttr)
+    } else if (attrName == aria_describedbyAttr)
         postNotification(element, AXNotification::DescribedByChanged);
     else if (attrName == aria_descriptionAttr)
         postNotification(element, AXNotification::ExtendedDescriptionChanged);
@@ -3251,8 +3247,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
                 removeLiveRegion(*object);
         }
 #endif // PLATFORM(MAC)
-    }
-    else if (attrName == aria_placeholderAttr)
+    } else if (attrName == aria_placeholderAttr)
         postNotification(element, AXNotification::PlaceholderChanged);
     else if (attrName == aria_rowindexAttr) {
         postNotification(element, AXNotification::ARIARowIndexChanged);
@@ -3269,8 +3264,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
             if (axObject->role() == AccessibilityRole::TextArea || axObject->role() == AccessibilityRole::TextField)
                 axObject->updateRole();
         }
-    }
-    else if (attrName == aria_multiselectableAttr)
+    } else if (attrName == aria_multiselectableAttr)
         postNotification(element, AXNotification::MultiSelectableStateChanged);
     else if (attrName == aria_orientationAttr)
         postNotification(element, AXNotification::OrientationChanged);
@@ -3300,8 +3294,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
 
         if (m_currentModalElement && m_currentModalElement->isDescendantOf(element))
             deferModalChange(*m_currentModalElement);
-    }
-    else if (attrName == aria_invalidAttr)
+    } else if (attrName == aria_invalidAttr)
         postNotification(element, AXNotification::InvalidStatusChanged);
     else if (attrName == aria_modalAttr) {
         // aria-modal changed, so the element may have become modal or un-modal.
@@ -3310,8 +3303,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
         else
             m_modalElements.removeAll(element);
         deferModalChange(*element);
-    }
-    else if (attrName == aria_currentAttr)
+    } else if (attrName == aria_currentAttr)
         postNotification(element, AXNotification::CurrentStateChanged);
     else if (attrName == aria_disabledAttr)
         postNotification(element, AXNotification::DisabledStateChanged);
@@ -3782,9 +3774,9 @@ CharacterOffset AXObjectCache::characterOffsetForNodeAndOffset(Node& node, int o
         while (offset >= 0 && charOffset.offset <= offset) {
             offset -= charOffset.offset;
             domNode = previousNode(domNode.get());
-            if (domNode) {
+            if (domNode)
                 charOffset = characterOffsetForNodeAndOffset(*domNode, 0, TraverseOptionToNodeEnd);
-            } else
+            else
                 return CharacterOffset();
             if (charOffset.offset == offset)
                 break;
@@ -4031,7 +4023,6 @@ std::optional<TextMarkerData> AXObjectCache::textMarkerDataForVisiblePosition(co
                 object->isIgnored(),
                 origin
             });
-
         };
 
         if (isRendererReplacedElement(node->renderer()) || is<RenderLineBreak>(node->renderer()))
@@ -4218,10 +4209,10 @@ static char32_t characterForCharacterOffset(const CharacterOffset& characterOffs
     char32_t ch = 0;
     unsigned offset = characterOffset.startIndex + characterOffset.offset;
     if (offset < characterOffset.node->textContent().length()) {
-// FIXME: Remove IGNORE_CLANG_WARNINGS macros once one of <rdar://problem/58615489&58615391> is fixed.
-IGNORE_CLANG_WARNINGS_BEGIN("conditional-uninitialized")
+        // FIXME: Remove IGNORE_CLANG_WARNINGS macros once one of <rdar://problem/58615489&58615391> is fixed.
+        IGNORE_CLANG_WARNINGS_BEGIN("conditional-uninitialized")
         U16_NEXT(characterOffset.node->textContent(), offset, characterOffset.node->textContent().length(), ch);
-IGNORE_CLANG_WARNINGS_END
+        IGNORE_CLANG_WARNINGS_END
     }
     return ch;
 }
