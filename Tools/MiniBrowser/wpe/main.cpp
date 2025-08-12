@@ -239,7 +239,7 @@ static gboolean wpeViewEventCallback(WPEView* view, WPEEvent* event, WebKitWebVi
 
     if (keyval == WPE_KEY_Escape) {
         webkit_web_view_end_immersive_session(webView);
-        return TRUE;
+        return FALSE;
     }
 
     return FALSE;
