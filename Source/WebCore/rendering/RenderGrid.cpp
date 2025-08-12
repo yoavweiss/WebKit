@@ -1571,8 +1571,7 @@ void RenderGrid::layoutGridItems(GridLayoutState& gridLayoutState)
         gridItem.layoutIfNeeded();
 
         // We need pending layouts to be done in order to compute auto-margins properly.
-        updateAutoMarginsInColumnAxisIfNeeded(gridItem);
-        updateAutoMarginsInRowAxisIfNeeded(gridItem);
+        GridLayoutFunctions::updateAutoMarginsIfNeeded(gridItem, writingMode());
 
         setLogicalPositionForGridItem(gridItem);
 
@@ -1616,8 +1615,7 @@ void RenderGrid::layoutMasonryItems(GridLayoutState& gridLayoutState)
         gridItem.layoutIfNeeded();
 
         // We need pending layouts to be done in order to compute auto-margins properly.
-        updateAutoMarginsInColumnAxisIfNeeded(gridItem);
-        updateAutoMarginsInRowAxisIfNeeded(gridItem);
+        GridLayoutFunctions::updateAutoMarginsIfNeeded(gridItem, writingMode());
 
         setLogicalPositionForGridItem(gridItem);
 
@@ -1767,15 +1765,6 @@ static LayoutUnit computeOverflowAlignmentOffset(OverflowAlignment overflow, Lay
     return 0;
 }
 
-LayoutUnit RenderGrid::availableAlignmentSpaceForGridItemBeforeStretching(LayoutUnit gridAreaBreadthForGridItem, const RenderBox& gridItem, Style::GridTrackSizingDirection direction) const
-{
-    // Because we want to avoid multiple layouts, stretching logic might be performed before
-    // grid items are laid out, so we can't use the grid item cached values. Hence, we need to
-    // compute margins in order to determine the available height before stretching.
-    auto gridItemFlowDirection = GridLayoutFunctions::flowAwareDirectionForGridItem(*this, gridItem, direction);
-    return std::max(0_lu, gridAreaBreadthForGridItem - GridLayoutFunctions::marginLogicalSizeForGridItem(*this, gridItemFlowDirection, gridItem));
-}
-
 StyleSelfAlignmentData RenderGrid::alignSelfForGridItem(const RenderBox& gridItem, StretchingMode stretchingMode, const RenderStyle* gridStyle) const
 {
     CheckedPtr renderGrid = dynamicDowncast<RenderGrid>(gridItem);
@@ -1826,7 +1815,7 @@ void RenderGrid::applyStretchAlignmentToGridItemIfNeeded(RenderBox& gridItem, Gr
     if (allowedToStretchgridItemBlockSize && !aspectRatioPrefersInline(gridItem, blockFlowIsColumnAxis)) {
         auto overridingContainingBlockContentSizeForGridItem = GridLayoutFunctions::overridingContainingBlockContentSizeForGridItem(gridItem, gridItemBlockDirection);
         ASSERT(overridingContainingBlockContentSizeForGridItem && *overridingContainingBlockContentSizeForGridItem);
-        LayoutUnit stretchedLogicalHeight = availableAlignmentSpaceForGridItemBeforeStretching(overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Rows);
+        LayoutUnit stretchedLogicalHeight = GridLayoutFunctions::availableAlignmentSpaceForGridItemBeforeStretching(*this, overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Rows);
         LayoutUnit desiredLogicalHeight = gridItem.constrainLogicalHeightByMinMax(stretchedLogicalHeight, std::nullopt);
         gridItem.setOverridingBorderBoxLogicalHeight(desiredLogicalHeight);
 
@@ -1850,7 +1839,7 @@ void RenderGrid::applyStretchAlignmentToGridItemIfNeeded(RenderBox& gridItem, Gr
     } else if (!allowedToStretchgridItemBlockSize && GridLayoutFunctions::allowedToStretchGridItemAlongRowAxis(gridItem, justifySelfForGridItem(gridItem).position(), writingMode())) {
         auto overridingContainingBlockContentSizeForGridItem = GridLayoutFunctions::overridingContainingBlockContentSizeForGridItem(gridItem, gridItemInlineDirection);
         ASSERT(overridingContainingBlockContentSizeForGridItem && *overridingContainingBlockContentSizeForGridItem);
-        LayoutUnit stretchedLogicalWidth = availableAlignmentSpaceForGridItemBeforeStretching(overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Columns);
+        LayoutUnit stretchedLogicalWidth = GridLayoutFunctions::availableAlignmentSpaceForGridItemBeforeStretching(*this, overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Columns);
         LayoutUnit desiredLogicalWidth = gridItem.constrainLogicalWidthByMinMax(stretchedLogicalWidth, contentBoxWidth(), *this);
         gridItem.setOverridingBorderBoxLogicalWidth(desiredLogicalWidth);
         if (desiredLogicalWidth != gridItem.logicalWidth())
@@ -1868,7 +1857,7 @@ void RenderGrid::applySubgridStretchAlignmentToGridItemIfNeeded(RenderBox& gridI
         auto gridItemBlockDirection = GridLayoutFunctions::flowAwareDirectionForGridItem(*this, gridItem, Style::GridTrackSizingDirection::Rows);
         auto overridingContainingBlockContentSizeForGridItem = GridLayoutFunctions::overridingContainingBlockContentSizeForGridItem(gridItem, gridItemBlockDirection);
         ASSERT(overridingContainingBlockContentSizeForGridItem && *overridingContainingBlockContentSizeForGridItem);
-        auto stretchedLogicalHeight = availableAlignmentSpaceForGridItemBeforeStretching(overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Rows);
+        auto stretchedLogicalHeight = GridLayoutFunctions::availableAlignmentSpaceForGridItemBeforeStretching(*this, overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Rows);
         gridItem.setOverridingBorderBoxLogicalHeight(stretchedLogicalHeight);
     }
 
@@ -1876,70 +1865,8 @@ void RenderGrid::applySubgridStretchAlignmentToGridItemIfNeeded(RenderBox& gridI
         auto gridItemInlineDirection = GridLayoutFunctions::flowAwareDirectionForGridItem(*this, gridItem, Style::GridTrackSizingDirection::Columns);
         auto overridingContainingBlockContentSizeForGridItem = GridLayoutFunctions::overridingContainingBlockContentSizeForGridItem(gridItem, gridItemInlineDirection);
         ASSERT(overridingContainingBlockContentSizeForGridItem && *overridingContainingBlockContentSizeForGridItem);
-        auto stretchedLogicalWidth = availableAlignmentSpaceForGridItemBeforeStretching(overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Columns);
+        auto stretchedLogicalWidth = GridLayoutFunctions::availableAlignmentSpaceForGridItemBeforeStretching(*this, overridingContainingBlockContentSizeForGridItem->value(), gridItem, Style::GridTrackSizingDirection::Columns);
         gridItem.setOverridingBorderBoxLogicalWidth(stretchedLogicalWidth);
-    }
-}
-
-
-
-// FIXME: This logic is shared by RenderFlexibleBox, so it should be moved to RenderBox.
-void RenderGrid::updateAutoMarginsInRowAxisIfNeeded(RenderBox& gridItem)
-{
-    ASSERT(!gridItem.isOutOfFlowPositioned());
-
-    auto& marginStart = gridItem.style().marginStart(writingMode());
-    auto& marginEnd = gridItem.style().marginEnd(writingMode());
-    LayoutUnit marginLogicalWidth;
-    // We should only consider computed margins if their specified value isn't
-    // 'auto', since such computed value may come from a previous layout and may
-    // be incorrect now.
-    if (!marginStart.isAuto())
-        marginLogicalWidth += gridItem.marginStart();
-    if (!marginEnd.isAuto())
-        marginLogicalWidth += gridItem.marginEnd();
-
-    auto availableAlignmentSpace = gridItem.gridAreaContentLogicalWidth()->value() - gridItem.logicalWidth() - marginLogicalWidth;
-    if (availableAlignmentSpace <= 0)
-        return;
-
-    if (marginStart.isAuto() && marginEnd.isAuto()) {
-        gridItem.setMarginStart(availableAlignmentSpace / 2, writingMode());
-        gridItem.setMarginEnd(availableAlignmentSpace / 2, writingMode());
-    } else if (marginStart.isAuto()) {
-        gridItem.setMarginStart(availableAlignmentSpace, writingMode());
-    } else if (marginEnd.isAuto()) {
-        gridItem.setMarginEnd(availableAlignmentSpace, writingMode());
-    }
-}
-
-// FIXME: This logic is shared by RenderFlexibleBox, so it should be moved to RenderBox.
-void RenderGrid::updateAutoMarginsInColumnAxisIfNeeded(RenderBox& gridItem)
-{
-    ASSERT(!gridItem.isOutOfFlowPositioned());
-
-    auto& marginBefore = gridItem.style().marginBefore(writingMode());
-    auto& marginAfter = gridItem.style().marginAfter(writingMode());
-    LayoutUnit marginLogicalHeight;
-    // We should only consider computed margins if their specified value isn't
-    // 'auto', since such computed value may come from a previous layout and may
-    // be incorrect now.
-    if (!marginBefore.isAuto())
-        marginLogicalHeight += gridItem.marginBefore();
-    if (!marginAfter.isAuto())
-        marginLogicalHeight += gridItem.marginAfter();
-
-    auto availableAlignmentSpace = gridItem.gridAreaContentLogicalHeight()->value() - gridItem.logicalHeight() - marginLogicalHeight;
-    if (availableAlignmentSpace <= 0)
-        return;
-
-    if (marginBefore.isAuto() && marginAfter.isAuto()) {
-        gridItem.setMarginBefore(availableAlignmentSpace / 2, writingMode());
-        gridItem.setMarginAfter(availableAlignmentSpace / 2, writingMode());
-    } else if (marginBefore.isAuto()) {
-        gridItem.setMarginBefore(availableAlignmentSpace, writingMode());
-    } else if (marginAfter.isAuto()) {
-        gridItem.setMarginAfter(availableAlignmentSpace, writingMode());
     }
 }
 

@@ -251,14 +251,11 @@ private:
     LayoutOptionalOutsets allowedLayoutOverflow() const override;
     void computeOverflow(LayoutUnit oldClientAfterEdge, bool recomputeFloats = false) final;
 
-    LayoutUnit availableAlignmentSpaceForGridItemBeforeStretching(LayoutUnit gridAreaBreadthForGridItem, const RenderBox&, Style::GridTrackSizingDirection) const;
     StyleSelfAlignmentData justifySelfForGridItem(const RenderBox&, StretchingMode = StretchingMode::Any, const RenderStyle* = nullptr) const;
     StyleSelfAlignmentData alignSelfForGridItem(const RenderBox&, StretchingMode = StretchingMode::Any, const RenderStyle* = nullptr) const;
     void applyStretchAlignmentToGridItemIfNeeded(RenderBox&, GridLayoutState&);
     void applySubgridStretchAlignmentToGridItemIfNeeded(RenderBox&);
     void resetAutoMarginsAndLogicalTopInColumnAxis(RenderBox& child);
-    void updateAutoMarginsInColumnAxisIfNeeded(RenderBox&);
-    void updateAutoMarginsInRowAxisIfNeeded(RenderBox&);
     bool isChildEligibleForMarginTrim(MarginTrimType, const RenderBox&) const final;
 
     std::optional<LayoutUnit> firstLineBaseline() const final;

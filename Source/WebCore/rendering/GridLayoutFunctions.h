@@ -88,6 +88,12 @@ bool hasAutoSizeInRowAxis(const RenderBox&, WritingMode parentWritingMode);
 bool allowedToStretchGridItemAlongColumnAxis(const RenderBox&, ItemPosition, WritingMode);
 bool allowedToStretchGridItemAlongRowAxis(const RenderBox&, ItemPosition, WritingMode);
 
+LayoutUnit availableAlignmentSpaceForGridItemBeforeStretching(const RenderGrid&, LayoutUnit gridAreaBreadthForGridItem, const RenderBox&, Style::GridTrackSizingDirection);
+
+void updateAutoMarginsIfNeeded(RenderBox&, WritingMode);
+void updateAutoMarginsInRowAxisIfNeeded(RenderBox&, WritingMode);
+void updateAutoMarginsInColumnAxisIfNeeded(RenderBox&, WritingMode);
+
 } // namespace GridLayoutFunctions
 
 } // namespace WebCore
