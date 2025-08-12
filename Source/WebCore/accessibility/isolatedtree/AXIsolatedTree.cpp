@@ -246,7 +246,7 @@ void AXIsolatedTree::reportLoadingProgress(double processingProgress)
     WeakPtr cache = axObjectCache();
     if (RefPtr axWebArea = cache ? cache->rootWebArea() : nullptr) {
         overrideNodeProperties(axWebArea->objectID(), {
-            { AXProperty::TitleAttributeValue, WTFMove(title) },
+            { AXProperty::WebAreaTitle, WTFMove(title) },
         });
         if (cache)
             cache->postPlatformNotification(*axWebArea, AXNotification::LayoutComplete);
@@ -866,9 +866,6 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
             break;
         }
 #endif // ENABLE(AX_THREAD_TEXT_APIS)
-        case AXProperty::Title:
-            properties.append({ AXProperty::Title, axObject.title().isolatedCopy() });
-            break;
         case AXProperty::URL:
             properties.append({ AXProperty::URL, std::make_shared<URL>(axObject.url().isolatedCopy()) });
             break;
@@ -1705,6 +1702,7 @@ void setPropertyIn(AXProperty property, AXPropertyValueVariant&& value, AXProper
 static bool shouldCacheElementName(ElementName name)
 {
     switch (name) {
+    case ElementName::HTML_area:
     case ElementName::HTML_body:
     case ElementName::HTML_del:
     case ElementName::HTML_h1:
@@ -2108,17 +2106,11 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
             setProperty(AXProperty::IsVisible, object.isVisible());
         }
 
-        auto descriptor = object.title();
-        if (descriptor.length())
-            setProperty(AXProperty::Title, descriptor.isolatedCopy());
+        if (String description = object.description(); description.length())
+            setProperty(AXProperty::Description, WTFMove(description).isolatedCopy());
 
-        descriptor = object.description();
-        if (descriptor.length())
-            setProperty(AXProperty::Description, descriptor.isolatedCopy());
-
-        descriptor = object.extendedDescription();
-        if (descriptor.length())
-            setProperty(AXProperty::ExtendedDescription, descriptor.isolatedCopy());
+        if (String extendedDescription = object.extendedDescription(); extendedDescription.length())
+            setProperty(AXProperty::ExtendedDescription, WTFMove(extendedDescription).isolatedCopy());
 
         if (object.isTextControl()) {
             // FIXME: We don't keep this property up-to-date, and we can probably just compute it using

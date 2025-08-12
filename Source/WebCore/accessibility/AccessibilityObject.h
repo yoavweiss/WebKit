@@ -362,7 +362,6 @@ public:
     void setAccessibleName(const AtomString&) override { }
     virtual bool hasAttributesRequiredForInclusion() const { return false; }
 
-    String title() const override { return { }; }
     String description() const override { return { }; }
     virtual String helpText() const { return { }; }
     String altTextFromAttributeOrStyle() const;
@@ -745,7 +744,6 @@ public:
 #if PLATFORM(COCOA)
     bool preventKeyboardDOMEventDispatch() const final;
     void setPreventKeyboardDOMEventDispatch(bool) final;
-    bool fileUploadButtonReturnsValueInTitle() const final;
     OptionSet<SpeakAs> speakAs() const final;
     bool hasApplePDFAnnotationAttribute() const final { return hasAttribute(HTMLNames::x_apple_pdf_annotationAttr); }
 #endif

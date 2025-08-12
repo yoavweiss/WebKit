@@ -1310,7 +1310,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
                 return [attachmentView accessibilityAttributeValue:NSAccessibilityTitleAttribute];
         }
 
-        return backingObject->titleAttributeValue().createNSString().autorelease();
+        return backingObject->title().createNSString().autorelease();
     }
 
     if ([attributeName isEqualToString:NSAccessibilityDescriptionAttribute]) {

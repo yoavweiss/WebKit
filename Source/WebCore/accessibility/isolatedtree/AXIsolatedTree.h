@@ -294,8 +294,6 @@ enum class AXProperty : uint16_t {
 #if ENABLE(AX_THREAD_TEXT_APIS)
     TextRuns,
 #endif
-    Title,
-    TitleAttributeValue,
     URL,
     UnderlineColor,
     ValueAutofillButtonType,
@@ -304,6 +302,7 @@ enum class AXProperty : uint16_t {
     VerticalScrollBar,
     VisibleChildren,
     VisibleRows,
+    WebAreaTitle
 };
 WTF::TextStream& operator<<(WTF::TextStream&, AXProperty);
 

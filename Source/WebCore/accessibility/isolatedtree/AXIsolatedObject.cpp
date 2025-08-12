@@ -375,15 +375,6 @@ std::optional<AXCoreObject::AccessibilityChildrenVector> AXIsolatedObject::mathR
     return std::nullopt;
 }
 
-bool AXIsolatedObject::fileUploadButtonReturnsValueInTitle() const
-{
-#if PLATFORM(MAC)
-    return true;
-#else
-    return false;
-#endif
-}
-
 AXIsolatedObject* AXIsolatedObject::focusedUIElement() const
 {
     return tree()->focusedNode().get();
@@ -1665,11 +1656,6 @@ void AXIsolatedObject::setAccessibleName(const AtomString&)
 String AXIsolatedObject::textContentPrefixFromListMarker() const
 {
     return propertyValue<String>(AXProperty::TextContentPrefixFromListMarker);
-}
-
-String AXIsolatedObject::titleAttributeValue() const
-{
-    return optionalAttributeValue<String>(AXProperty::TitleAttributeValue).value_or(AXCoreObject::titleAttributeValue());
 }
 
 String AXIsolatedObject::stringValue() const

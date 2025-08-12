@@ -1196,7 +1196,7 @@ static void appendStringToResult(NSMutableString *result, NSString *string)
 
     // iOS doesn't distinguish between the title and description properties,
     // so concatenate them when different.
-    String title = backingObject->titleAttributeValue();
+    String title = backingObject->title();
     String description = backingObject->descriptionAttributeValue();
     RetainPtr landmarkDescription = [self ariaLandmarkRoleDescription];
     RetainPtr interactiveVideoDescription = [self interactiveVideoDescription];

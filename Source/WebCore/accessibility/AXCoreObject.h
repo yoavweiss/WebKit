@@ -1185,7 +1185,18 @@ public:
     // A programmatic way to set a name on an AccessibleObject.
     virtual void setAccessibleName(const AtomString&) = 0;
 
-    virtual String title() const = 0;
+    bool fileUploadButtonReturnsValueInTitle() const
+    {
+#if PLATFORM(MAC)
+        return true;
+#else
+        return false;
+#endif
+    }
+    // This should be the visible text that's actually on the screen if possible.
+    // If there's alternative text (e.g. provided by description()), that can override the title.
+    virtual String title() const;
+    virtual String webAreaTitle() const { return emptyString(); }
     virtual String description() const = 0;
 
     virtual std::optional<String> textContent() const = 0;
@@ -1560,14 +1571,8 @@ public:
     virtual void setPreventKeyboardDOMEventDispatch(bool) = 0;
     virtual OptionSet<SpeakAs> speakAs() const = 0;
     String speechHint() const;
-    virtual bool fileUploadButtonReturnsValueInTitle() const = 0;
     String descriptionAttributeValue() const;
-    bool shouldComputeDescriptionAttributeValue() const;
     String helpTextAttributeValue() const;
-    // This should be the visible text that's actually on the screen if possible.
-    // If there's alternative text, that can override the title.
-    virtual String titleAttributeValue() const;
-    bool shouldComputeTitleAttributeValue() const;
 
     virtual bool hasApplePDFAnnotationAttribute() const = 0;
 #endif
@@ -1681,20 +1686,6 @@ void attributedStringSetExpandedText(NSMutableAttributedString *, const AXCoreOb
 void attributedStringSetNeedsSpellCheck(NSMutableAttributedString *, const AXCoreObject&);
 void attributedStringSetElement(NSMutableAttributedString *, NSString *attribute, const AXCoreObject&, const NSRange&);
 #endif // PLATFORM(MAC)
-
-#if PLATFORM(COCOA)
-inline bool AXCoreObject::shouldComputeDescriptionAttributeValue() const
-{
-    // Static text objects shouldn't return a description. Their content is communicated via AXValue.
-    return role() != AccessibilityRole::StaticText;
-}
-
-inline bool AXCoreObject::shouldComputeTitleAttributeValue() const
-{
-    // Static text objects shouldn't return a title. Their content is communicated via AXValue.
-    return role() != AccessibilityRole::StaticText;
-}
-#endif // PLATFORM(COCOA)
 
 inline const String AXCoreObject::defaultLiveRegionStatusForRole(AccessibilityRole role)
 {

@@ -116,12 +116,6 @@ FloatRect AccessibilityObject::convertRectToPlatformSpace(const FloatRect& rect,
     return convertFrameToSpace(rect, space);
 }
 
-// On iOS, we don't have to return the value in the title. We can return the actual title, given the API.
-bool AccessibilityObject::fileUploadButtonReturnsValueInTitle() const
-{
-    return true;
-}
-
 bool AccessibilityObject::accessibilityIgnoreAttachment() const
 {
     // LocalFrameView attachments are now handled by AccessibilityScrollView,

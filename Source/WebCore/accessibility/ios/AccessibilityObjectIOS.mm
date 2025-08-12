@@ -94,12 +94,6 @@ FloatRect AccessibilityObject::convertRectToPlatformSpace(const FloatRect& rect,
     return convertFrameToSpace(rect, space);
 }
 
-// On iOS, we don't have to return the value in the title. We can return the actual title, given the API.
-bool AccessibilityObject::fileUploadButtonReturnsValueInTitle() const
-{
-    return false;
-}
-
 // In iPhone only code for now. It's debateable whether this is desired on all platforms.
 unsigned AccessibilityObject::accessibilitySecureFieldLength()
 {

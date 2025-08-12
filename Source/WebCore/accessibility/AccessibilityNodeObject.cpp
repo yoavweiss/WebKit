@@ -2357,56 +2357,6 @@ String AccessibilityNodeObject::textUnderElement(TextUnderElementMode mode) cons
         : result;
 }
 
-String AccessibilityNodeObject::title() const
-{
-    RefPtr node = this->node();
-    if (!node)
-        return { };
-
-    if (RefPtr input = dynamicDowncast<HTMLInputElement>(*node); input && input->isTextButton())
-        return input->valueWithDefault();
-
-    if (isLabelable()) {
-        auto labels = Accessibility::labelsForElement(element());
-        // Use the label text as the title if there's no ARIA override.
-        if (!labels.isEmpty() && !ariaAccessibilityDescription().length())
-            return textForLabelElements(WTFMove(labels));
-    }
-
-    // For <select> elements, title should be empty if they are not rendered or have role PopUpButton.
-    if (WebCore::elementName(*node) == ElementName::HTML_select
-        && (!isAccessibilityRenderObject() || role() == AccessibilityRole::PopUpButton))
-        return { };
-
-    switch (role()) {
-    case AccessibilityRole::Button:
-    case AccessibilityRole::Checkbox:
-    case AccessibilityRole::ListBoxOption:
-    case AccessibilityRole::ListItem:
-    case AccessibilityRole::MenuItem:
-    case AccessibilityRole::MenuItemCheckbox:
-    case AccessibilityRole::MenuItemRadio:
-    case AccessibilityRole::PopUpButton:
-    case AccessibilityRole::RadioButton:
-    case AccessibilityRole::Switch:
-    case AccessibilityRole::Tab:
-    case AccessibilityRole::ToggleButton:
-        return textUnderElement();
-    // SVGRoots should not use the text under itself as a title. That could include the text of objects like <text>.
-    case AccessibilityRole::SVGRoot:
-        return String();
-    default:
-        break;
-    }
-
-    if (isLink())
-        return textUnderElement();
-    if (isHeading())
-        return textUnderElement({ TextUnderElementMode::Children::SkipIgnoredChildren, true });
-
-    return { };
-}
-
 String AccessibilityNodeObject::text() const
 {
     if (isSecureField())

@@ -5170,7 +5170,7 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::TextInputMarkedTextMarkerRange });
             break;
         case AXNotification::TextUnderElementChanged:
-            tree->queueNodeUpdate(notification.first->objectID(), { { AXProperty::AccessibilityText, AXProperty::Title } });
+            tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::AccessibilityText });
             if (notification.first->isAccessibilityLabelInstance() || notification.first->role() == AccessibilityRole::TextField)
                 tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::StringValue });
             break;

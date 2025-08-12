@@ -376,7 +376,6 @@ private:
 #if PLATFORM(COCOA)
     OptionSet<SpeakAs> speakAs() const final { return optionSetAttributeValue<SpeakAs>(AXProperty::SpeakAs); }
 #endif
-    bool fileUploadButtonReturnsValueInTitle() const final;
 #if PLATFORM(MAC)
     bool caretBrowsingEnabled() const final { return boolAttributeValue(AXProperty::CaretBrowsingEnabled); }
     AccessibilityChildrenVector allSortedLiveRegions() const final;
@@ -530,8 +529,7 @@ private:
     void setAccessibleName(const AtomString&) final;
 
     String textContentPrefixFromListMarker() const final;
-    String titleAttributeValue() const final;
-    String title() const final { return stringAttributeValue(AXProperty::Title); }
+    String webAreaTitle() const final { return stringAttributeValue(AXProperty::WebAreaTitle); }
     String description() const final { return stringAttributeValue(AXProperty::Description); }
 
     std::optional<String> textContent() const final;

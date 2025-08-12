@@ -652,7 +652,7 @@ std::optional<SimpleRange> makeDOMRange(Document* document, NSRange range)
                     label = object->stringValue().createNSString();
                     break;
                 case AccessibilityRole::Image: {
-                    String name = object->titleAttributeValue();
+                    String name = object->title();
                     if (name.isEmpty())
                         name = object->descriptionAttributeValue();
                     label = name.createNSString();

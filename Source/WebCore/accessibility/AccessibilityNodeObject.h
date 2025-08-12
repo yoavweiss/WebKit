@@ -96,7 +96,6 @@ public:
     String accessibilityDescriptionForChildren() const;
     String description() const override;
     String helpText() const override;
-    String title() const override;
     String text() const final;
     void alternativeText(Vector<AccessibilityText>&) const;
     void helpText(Vector<AccessibilityText>&) const;
