@@ -511,6 +511,7 @@ public:
     virtual void setNeedsDisplayInRect(const FloatRect&, ShouldClipToLayer = ClipToLayer) = 0;
 
     virtual void setContentsNeedsDisplay() { };
+    virtual void setContentsNeedsDisplayInRect(const FloatRect&) { setContentsNeedsDisplay(); }
 
     // The tile phase is relative to the GraphicsLayer bounds.
     virtual void setContentsTilePhase(const FloatSize& p) { m_contentsTilePhase = p; }

@@ -3441,7 +3441,7 @@ bool RenderLayerBacking::rendererHasHDRContent() const
 }
 #endif
 
-void RenderLayerBacking::contentChanged(ContentChangeType changeType)
+void RenderLayerBacking::contentChanged(ContentChangeType changeType, const std::optional<FloatRect>& dirtyRect)
 {
     PaintedContentsInfo contentsInfo(*this);
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
@@ -3482,9 +3482,14 @@ void RenderLayerBacking::contentChanged(ContentChangeType changeType)
         if (changeType == ContentChangeType::Canvas)
             compositor().scheduleCompositingLayerUpdate();
 
-        m_graphicsLayer->setContentsNeedsDisplay();
+        if (dirtyRect)
+            m_graphicsLayer->setContentsNeedsDisplayInRect(*dirtyRect);
+        else
+            m_graphicsLayer->setContentsNeedsDisplay();
         return;
     }
+#else
+    UNUSED_PARAM(dirtyRect);
 #endif
 }
 

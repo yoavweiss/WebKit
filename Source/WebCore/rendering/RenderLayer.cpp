@@ -1012,7 +1012,7 @@ RenderLayerCompositor& RenderLayer::compositor() const
     return renderer().view().compositor();
 }
 
-void RenderLayer::contentChanged(ContentChangeType changeType)
+void RenderLayer::contentChanged(ContentChangeType changeType, const std::optional<FloatRect>& dirtyRect)
 {
     if (changeType == ContentChangeType::Canvas || changeType == ContentChangeType::Video || changeType == ContentChangeType::FullScreen || changeType == ContentChangeType::Model || changeType == ContentChangeType::HDRImage) {
         setNeedsPostLayoutCompositingUpdate();
@@ -1020,7 +1020,7 @@ void RenderLayer::contentChanged(ContentChangeType changeType)
     }
 
     if (auto* backing = this->backing())
-        backing->contentChanged(changeType);
+        backing->contentChanged(changeType, dirtyRect);
 }
 
 bool RenderLayer::canRender3DTransforms() const

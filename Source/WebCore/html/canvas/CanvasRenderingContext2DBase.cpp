@@ -2373,10 +2373,13 @@ void CanvasRenderingContext2DBase::didDraw(std::optional<FloatRect> rect, Option
         dirtyRect.unite(shadowRect);
     }
 
+#if !USE(COORDINATED_GRAPHICS)
     // FIXME: This does not apply the clip because we have no way of reading the clip out of the GraphicsContext.
     if (m_dirtyRect.contains(dirtyRect))
         canvasBase().didDraw(std::nullopt, shouldApplyPostProcessing);
-    else {
+    else
+#endif
+    {
         // Inflate dirty rect to cover antialiasing on image buffers.
         if (context->shouldAntialias())
             dirtyRect.inflate(1);

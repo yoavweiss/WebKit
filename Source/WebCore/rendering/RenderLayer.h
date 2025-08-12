@@ -520,7 +520,8 @@ public:
 
     // Notification from the renderer that its content changed (e.g. current frame of image changed).
     // Allows updates of layer content without repainting.
-    void contentChanged(ContentChangeType);
+    // Also, allows specifying the changed rectangle to limit the painting when patform supports it.
+    void contentChanged(ContentChangeType, const std::optional<FloatRect>& = std::nullopt);
 
     bool canRender3DTransforms() const;
 

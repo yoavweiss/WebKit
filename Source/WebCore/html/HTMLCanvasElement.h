@@ -185,6 +185,8 @@ private:
 
     void didMoveToNewDocument(Document& oldDocument, Document& newDocument) final;
 
+    std::optional<FloatRect> computeDirtyRectangleIfNeeded(const std::optional<FloatRect>&) const;
+
     bool m_ignoreReset { false };
     mutable bool m_didClearImageBuffer { false };
 #if ENABLE(WEBGL)
