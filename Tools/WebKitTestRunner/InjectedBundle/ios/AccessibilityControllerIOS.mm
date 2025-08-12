@@ -50,7 +50,7 @@ bool AccessibilityController::addNotificationListener(JSContextRef context, JSVa
 {
     if (!functionCallback)
         return false;
-    
+
     // Mac programmers should not be adding more than one global notification listener.
     // Other platforms may be different.
     if (m_globalNotificationHandler)
@@ -59,7 +59,7 @@ bool AccessibilityController::addNotificationListener(JSContextRef context, JSVa
     m_globalNotificationHandler = adoptNS([[AccessibilityNotificationHandler alloc] initWithContext:context]);
     [m_globalNotificationHandler setCallback:functionCallback];
     [m_globalNotificationHandler startObserving];
-    
+
     return true;
 }
 
@@ -84,14 +84,14 @@ static id findAccessibleObjectById(id obj, NSString *idAttribute)
     id objIdAttribute = [obj accessibilityIdentifier];
     if ([objIdAttribute isKindOfClass:[NSString class]] && [objIdAttribute isEqualToString:idAttribute])
         return obj;
-    
+
     NSUInteger childrenCount = [obj accessibilityElementCount];
     for (NSUInteger i = 0; i < childrenCount; ++i) {
         id result = findAccessibleObjectById([obj accessibilityElementAtIndex:i], idAttribute);
         if (result)
             return result;
     }
-    
+
     return nil;
 }
 

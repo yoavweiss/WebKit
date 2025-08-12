@@ -52,7 +52,7 @@ bool AccessibilityTextMarker::isEqual(AccessibilityTextMarker* other)
 }
 
 id AccessibilityTextMarker::platformTextMarker() const
-{ 
+{
     return m_textMarker.get();
 }
 
