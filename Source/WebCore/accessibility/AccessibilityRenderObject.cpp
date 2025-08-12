@@ -641,43 +641,6 @@ Element* AccessibilityRenderObject::anchorElement() const
     return nullptr;
 }
 
-String AccessibilityRenderObject::helpText() const
-{
-    if (!m_renderer)
-        return AccessibilityNodeObject::helpText();
-
-    const auto& ariaHelp = getAttribute(aria_helpAttr);
-    if (!ariaHelp.isEmpty()) [[unlikely]]
-        return ariaHelp;
-
-    String describedBy = ariaDescribedByAttribute();
-    if (!describedBy.isEmpty())
-        return describedBy;
-
-    String description = this->description();
-    for (CheckedPtr ancestor = renderer(); ancestor; ancestor = ancestor->parent()) {
-        if (RefPtr element = dynamicDowncast<HTMLElement>(ancestor->node())) {
-            const auto& summary = element->getAttribute(summaryAttr);
-            if (!summary.isEmpty())
-                return summary;
-
-            // The title attribute should be used as help text unless it is already being used as descriptive text.
-            const auto& title = element->getAttribute(titleAttr);
-            if (!title.isEmpty() && description != title)
-                return title;
-        }
-
-        // Only take help text from an ancestor element if its a group or an unknown role. If help was
-        // added to those kinds of elements, it is likely it was meant for a child element.
-        if (RefPtr axAncestor = axObjectCache()->getOrCreate(*ancestor)) {
-            if (!axAncestor->isGroup() && axAncestor->role() != AccessibilityRole::Unknown)
-                break;
-        }
-    }
-
-    return { };
-}
-
 String AccessibilityRenderObject::textUnderElement(TextUnderElementMode mode) const
 {
     // If we are within a hidden context, we don't want to add any text for this object, instead

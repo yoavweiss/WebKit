@@ -107,7 +107,6 @@ public:
     CharacterRange selectedTextRange() const final;
     int insertionPointLineNumber() const final;
     String stringValue() const override;
-    String helpText() const override;
     String textUnderElement(TextUnderElementMode = TextUnderElementMode()) const override;
     String selectedText() const final;
 #if ENABLE(AX_THREAD_TEXT_APIS)
