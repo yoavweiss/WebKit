@@ -3999,6 +3999,9 @@ bool RenderBox::replacedMaxLogicalHeightComputesAsNone() const
 
 LayoutUnit RenderBox::computeReplacedLogicalHeightRespectingMinMaxHeight(LayoutUnit logicalHeight) const
 {
+    if (shouldIgnoreLogicalMinMaxHeightSizes())
+        return logicalHeight;
+
     LayoutUnit minLogicalHeight;
     if (!replacedMinLogicalHeightComputesAsNone())
         minLogicalHeight = computeReplacedLogicalHeightUsing(style().logicalMinHeight());
