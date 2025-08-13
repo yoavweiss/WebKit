@@ -213,6 +213,7 @@ private:
     LayoutUnit crossAxisMarginExtentForFlexItem(const RenderBox& flexItem) const;
     LayoutUnit mainAxisMarginExtentForFlexItem(const RenderBox& flexItem) const;
     LayoutUnit crossAxisScrollbarExtent() const;
+    LayoutUnit mainAxisScrollbarExtent() const;
     LayoutUnit crossAxisScrollbarExtentForFlexItem(const RenderBox& flexItem) const;
     LayoutPoint flowAwareLocationForFlexItem(const RenderBox& flexItem) const;
 

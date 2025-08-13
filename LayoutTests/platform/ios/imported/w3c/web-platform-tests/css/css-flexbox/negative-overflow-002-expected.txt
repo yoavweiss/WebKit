@@ -291,10 +291,10 @@ FAIL .container 36 assert_equals:
 scrollWidth expected 130 but got 120
 FAIL .container 37 assert_equals:
 <div class="container" data-expected-scroll-width="130" data-expected-scroll-height="370" style="writing-mode: vertical-rl; direction: rtl; flex-flow: row;"><div class="item">1</div><div class="item">2</div><div class="item">3</div></div>
-scrollHeight expected 370 but got 345
+scrollHeight expected 370 but got 360
 FAIL .container 38 assert_equals:
 <div class="container" data-expected-scroll-width="370" data-expected-scroll-height="130" style="writing-mode: vertical-rl; direction: rtl; flex-flow: wrap;"><div class="item">1</div><div class="item">2</div><div class="item">3</div></div>
-scrollHeight expected 130 but got 105
+scrollHeight expected 130 but got 120
 FAIL .container 39 assert_equals:
 <div class="container" data-expected-scroll-width="370" data-expected-scroll-height="130" style="writing-mode: vertical-rl; direction: rtl; flex-flow: wrap-reverse;"><div class="item">1</div><div class="item">2</div><div class="item">3</div></div>
 scrollWidth expected 370 but got 360
@@ -343,10 +343,10 @@ FAIL .container 60 assert_equals:
 scrollWidth expected 130 but got 120
 FAIL .container 61 assert_equals:
 <div class="container" data-expected-scroll-width="130" data-expected-scroll-height="370" style="writing-mode: vertical-lr; direction: rtl; flex-flow: row;"><div class="item">1</div><div class="item">2</div><div class="item">3</div></div>
-scrollHeight expected 370 but got 345
+scrollHeight expected 370 but got 360
 FAIL .container 62 assert_equals:
 <div class="container" data-expected-scroll-width="370" data-expected-scroll-height="130" style="writing-mode: vertical-lr; direction: rtl; flex-flow: wrap;"><div class="item">1</div><div class="item">2</div><div class="item">3</div></div>
-scrollHeight expected 130 but got 105
+scrollHeight expected 130 but got 120
 FAIL .container 63 assert_equals:
 <div class="container" data-expected-scroll-width="370" data-expected-scroll-height="130" style="writing-mode: vertical-lr; direction: rtl; flex-flow: wrap-reverse;"><div class="item">1</div><div class="item">2</div><div class="item">3</div></div>
 scrollWidth expected 370 but got 360
