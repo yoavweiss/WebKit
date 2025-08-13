@@ -619,7 +619,6 @@ public:
 
 #if PLATFORM(COCOA)
     void registerAssetFonts(WebProcessProxy&);
-    void registerFontsForGPUProcessIfNeeded();
 #endif
 
 #if PLATFORM(MAC)
