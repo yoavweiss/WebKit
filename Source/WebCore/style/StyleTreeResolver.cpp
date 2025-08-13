@@ -1638,7 +1638,15 @@ void TreeResolver::updateForPositionVisibility(RenderStyle& style, const Styleab
             if (AnchorPositionEvaluator::overflowsInsetModifiedContainingBlock(*anchored))
                 return true;
         }
-        // FIXME: Remaining `position-visibility` values.
+        if (style.positionVisibility().contains(PositionVisibility::AnchorsValid)) {
+            auto* anchorPositionedState = m_treeResolutionState.anchorPositionedStates.get({ &styleable.element, styleable.pseudoElementIdentifier });
+            if (anchorPositionedState) {
+                for (auto& anchorElement : anchorPositionedState->anchorElements.values()) {
+                    if (!anchorElement)
+                        return true;
+                }
+            }
+        }
         return false;
     };
 
