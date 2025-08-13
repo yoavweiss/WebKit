@@ -48,6 +48,8 @@ public:
     IsCallbackRegistered whenSettled(std::function<void()>&&);
     JSC::JSValue result() const;
 
+    void markAsHandled();
+
     enum class Status { Pending, Fulfilled, Rejected };
     Status status() const;
 

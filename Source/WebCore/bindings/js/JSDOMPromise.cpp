@@ -95,4 +95,10 @@ DOMPromise::Status DOMPromise::status() const
     return Status::Rejected;
 }
 
+void DOMPromise::markAsHandled()
+{
+    ASSERT(!isSuspended());
+    promise()->markAsHandled(m_globalObject.get());
+}
+
 }
