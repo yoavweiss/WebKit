@@ -494,12 +494,10 @@ void WebResourceLoadStatisticsStore::stopListeningForStorageAccessPermissionChan
 
 void WebResourceLoadStatisticsStore::stopListeningForStorageAccessPermissionChanges(StorageAccessPermissionChangeObserver& observer)
 {
-    for (auto it = m_storageAccessPermissionChangeObservers.begin(); it != m_storageAccessPermissionChangeObservers.end(); ++it) {
-        if (it->value.contains(observer))
-            it->value.remove(observer);
-        if (it->value.isEmptyIgnoringNullReferences())
-            m_storageAccessPermissionChangeObservers.remove(it);
-    }
+    m_storageAccessPermissionChangeObservers.removeIf([&](auto& entry) {
+        entry.value.remove(observer);
+        return entry.value.isEmptyIgnoringNullReferences();
+    });
 }
 
 void WebResourceLoadStatisticsStore::setLoginStatus(RegistrableDomain&& domain, IsLoggedIn loggedInStatus, std::optional<LoginStatus>&& lastAuthentication, CompletionHandler<void()>&& completionHandler)
