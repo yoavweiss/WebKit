@@ -30,6 +30,7 @@
 #include "AccessibilityTableCell.h"
 
 #include "AXObjectCache.h"
+#include "AXUtilities.h"
 #include "AccessibilityTable.h"
 #include "AccessibilityTableRow.h"
 #include "HTMLParserIdioms.h"

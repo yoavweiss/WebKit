@@ -29,12 +29,16 @@
 #include "config.h"
 #include "AXObjectCache.h"
 
+#include "AXAttributeCacheScope.h"
 #include "AXIsolatedObject.h"
 #include "AXIsolatedTree.h"
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
+#include "AXObjectCacheInlines.h"
 #include "AXRemoteFrame.h"
 #include "AXTextMarker.h"
+#include "AXTreeStoreInlines.h"
+#include "AXUtilities.h"
 #include "AccessibilityAttachment.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityLabel.h"
@@ -593,136 +597,6 @@ void AXObjectCache::setIsolatedTreeFocusedObject(AccessibilityObject* focus)
         tree->setFocusedNodeID(focus ? std::optional { focus->objectID() } : std::nullopt);
 }
 #endif
-
-ContainerNode* composedParentIgnoringDocumentFragments(const Node& node)
-{
-    RefPtr ancestor = node.parentInComposedTree();
-    while (is<DocumentFragment>(ancestor.get()))
-        ancestor = ancestor->parentInComposedTree();
-    return ancestor.get();
-}
-
-ContainerNode* composedParentIgnoringDocumentFragments(const Node* node)
-{
-    return node ? composedParentIgnoringDocumentFragments(*node) : nullptr;
-}
-
-ElementName elementName(Node* node)
-{
-    auto* element = dynamicDowncast<Element>(node);
-    return element ? element->elementName() : ElementName::Unknown;
-}
-
-ElementName elementName(Node& node)
-{
-    auto* element = dynamicDowncast<Element>(node);
-    return element ? element->elementName() : ElementName::Unknown;
-}
-
-bool hasAccNameAttribute(Element& element)
-{
-    auto trimmed = [&] (const auto& attribute) {
-        const auto& value = element.attributeWithDefaultARIA(attribute);
-        if (value.isEmpty())
-            return emptyString();
-        auto copy = value.string();
-        return copy.trim(isASCIIWhitespace);
-    };
-
-    // Avoid calculating the actual description here (e.g. resolving aria-labelledby), as it's expensive.
-    // The spec is generally permissive in allowing user agents to not ensure complete validity of these attributes.
-    // For example, https://w3c.github.io/svg-aam/#include_elements:
-    // "It has an ‘aria-labelledby’ attribute or ‘aria-describedby’ attribute containing valid IDREF tokens. User agents MAY include elements with these attributes without checking for validity."
-    if (trimmed(aria_labelAttr).length() || trimmed(aria_labelledbyAttr).length() || trimmed(aria_labeledbyAttr).length() || trimmed(aria_descriptionAttr).length() || trimmed(aria_describedbyAttr).length())
-        return true;
-
-    return element.attributeWithoutSynchronization(titleAttr).length();
-}
-
-RenderImage* toSimpleImage(RenderObject& renderer)
-{
-    CheckedPtr renderImage = dynamicDowncast<RenderImage>(renderer);
-    if (!renderImage)
-        return nullptr;
-
-    // Exclude ImageButtons because they are treated as buttons, not as images.
-    RefPtr node = renderer.node();
-    if (is<HTMLInputElement>(node))
-        return nullptr;
-
-    // ImageMaps are not simple images.
-    if (renderImage->imageMap())
-        return nullptr;
-
-    if (RefPtr imgElement = dynamicDowncast<HTMLImageElement>(node); imgElement && imgElement->hasAttributeWithoutSynchronization(usemapAttr))
-        return nullptr;
-
-#if ENABLE(VIDEO)
-    // Exclude video and audio elements.
-    if (is<HTMLMediaElement>(node))
-        return nullptr;
-#endif // ENABLE(VIDEO)
-
-    return renderImage.get();
-}
-
-// FIXME: This probably belongs on Element.
-bool hasRole(Element& element, StringView role)
-{
-    auto roleValue = element.attributeWithDefaultARIA(roleAttr);
-    if (role.isNull())
-        return roleValue.isEmpty();
-    if (roleValue.isEmpty())
-        return false;
-
-    return SpaceSplitString::spaceSplitStringContainsValue(roleValue, role, SpaceSplitString::ShouldFoldCase::Yes);
-}
-
-bool hasAnyRole(Element& element, Vector<StringView>&& roles)
-{
-    auto roleValue = element.attributeWithDefaultARIA(roleAttr);
-    if (roleValue.isEmpty())
-        return false;
-
-    for (const auto& role : roles) {
-        AX_DEBUG_ASSERT(!role.isEmpty());
-        if (SpaceSplitString::spaceSplitStringContainsValue(roleValue, role, SpaceSplitString::ShouldFoldCase::Yes))
-            return true;
-    }
-    return false;
-}
-
-bool hasAnyRole(Element* element, Vector<StringView>&& roles)
-{
-    return element ? hasAnyRole(*element, WTFMove(roles)) : false;
-}
-
-bool hasTableRole(Element& element)
-{
-    return hasAnyRole(element, { "grid"_s, "table"_s, "treegrid"_s });
-}
-
-bool hasCellARIARole(Element& element)
-{
-    return hasAnyRole(element, { "gridcell"_s, "cell"_s, "columnheader"_s, "rowheader"_s });
-}
-
-bool hasPresentationRole(Element& element)
-{
-    return hasAnyRole(element, { "presentation"_s, "none"_s });
-}
-
-bool isRowGroup(Element& element)
-{
-    auto name = element.elementName();
-    return name == ElementName::HTML_thead || name == ElementName::HTML_tbody || name == ElementName::HTML_tfoot || hasRole(element, "rowgroup"_s);
-}
-
-bool isRowGroup(Node* node)
-{
-    auto* element = dynamicDowncast<Element>(node);
-    return element && isRowGroup(*element);
-}
 
 static bool isAccessibilityList(Element& element)
 {
@@ -3476,7 +3350,7 @@ CharacterOffset AXObjectCache::traverseToOffsetInRange(const SimpleRange& range,
     TextIterator iterator(range, behaviors);
 
     // Enable the cache here for isIgnored calls in replacedNodeNeedsCharacter.
-    AXAttributeCacheEnabler enableCache(this);
+    AXAttributeCacheScope enableCache(this);
 
     // When the range has zero length, there might be replaced node or brTag that we need to increment the characterOffset.
     if (iterator.atEnd()) {
@@ -5415,14 +5289,6 @@ AccessibilityObject* AXObjectCache::rootWebArea()
     return root->webAreaObject();
 }
 
-void dumpAccessibilityTreeToStderr(Document& document)
-{
-    if (CheckedPtr cache = document.existingAXObjectCache()) {
-        AXTreeData data = cache->treeData();
-        SAFE_FPRINTF(stderr, "==AX Trees==\n%s\n%s\n", data.liveTree.utf8(), data.isolatedTree.utf8());
-    }
-}
-
 AXTreeData AXObjectCache::treeData(std::optional<OptionSet<AXStreamOptions>> additionalOptions)
 {
     ASSERT(isMainThread());
@@ -5931,23 +5797,6 @@ void AXObjectCache::announce(const String&)
     // FIXME: implement in other platforms.
 }
 #endif
-
-AXAttributeCacheEnabler::AXAttributeCacheEnabler(AXObjectCache* cache)
-    : m_cache(cache)
-{
-    if (m_cache) {
-        if (m_cache->computedObjectAttributeCache())
-            m_wasAlreadyCaching = true;
-        else
-            m_cache->startCachingComputedObjectAttributesUntilTreeMutates();
-    }
-}
-
-AXAttributeCacheEnabler::~AXAttributeCacheEnabler()
-{
-    if (m_cache && !m_wasAlreadyCaching)
-        m_cache->stopCachingComputedObjectAttributes();
-}
 
 #if !PLATFORM(COCOA) && !USE(ATSPI)
 AXTextChange AXObjectCache::textChangeForEditType(AXTextEditType type)

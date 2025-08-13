@@ -28,8 +28,12 @@
 
 #if PLATFORM(IOS_FAMILY)
 
+#import "AXAttributeCacheScope.h"
 #import "AXLogger.h"
+#import "AXObjectCache.h"
+#import "AXObjectCacheInlines.h"
 #import "AXSearchManager.h"
+#import "AXUtilities.h"
 #import "AccessibilityAttachment.h"
 #import "AccessibilityMediaObject.h"
 #import "AccessibilityRenderObject.h"
@@ -348,7 +352,7 @@ static AccessibilityObjectWrapper* AccessibilityUnignoredAncestor(AccessibilityO
     // Try a fuzzy hit test first to find an accessible element.
     AXCoreObject *axObject = nullptr;
     {
-        AXAttributeCacheEnabler enableCache(self.axBackingObject->axObjectCache());
+        AXAttributeCacheScope enableCache(self.axBackingObject->axObjectCache());
         axObject = self.axBackingObject->accessibilityHitTest(IntPoint(point));
     }
 
@@ -1837,7 +1841,7 @@ static void appendStringToResult(NSMutableString *result, NSString *string)
     if (![self _prepareAccessibilityCall])
         return nil;
 
-    AXAttributeCacheEnabler enableCache(self.axBackingObject->axObjectCache());
+    AXAttributeCacheScope enableCache(self.axBackingObject->axObjectCache());
 
     // As long as there's a parent wrapper, that's the correct chain to climb.
     AXCoreObject* parent = self.axBackingObject->parentObjectUnignored();

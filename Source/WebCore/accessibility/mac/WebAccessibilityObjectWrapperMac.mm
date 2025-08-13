@@ -29,14 +29,19 @@
 #import "config.h"
 #import "WebAccessibilityObjectWrapperMac.h"
 
+#import "AXIsolatedTree.h"
+#import "AXObjectCache.h"
+#import "AXObjectCacheInlines.h"
+
 #if PLATFORM(MAC)
 
 #import "AXIsolatedObject.h"
 #import "AXLogger.h"
-#import "AXObjectCache.h"
 #import "AXRemoteFrame.h"
 #import "AXSearchManager.h"
 #import "AXTextMarker.h"
+#import "AXTreeStore.h"
+#import "AXTreeStoreInlines.h"
 #import "AccessibilityLabel.h"
 #import "AccessibilityList.h"
 #import "AccessibilityListBox.h"

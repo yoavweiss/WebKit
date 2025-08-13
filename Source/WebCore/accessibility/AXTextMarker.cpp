@@ -29,6 +29,8 @@
 #include "AXLogger.h"
 #include "AXObjectCache.h"
 #include "AXTreeStore.h"
+#include "AXTreeStoreInlines.h"
+#include "AXUtilities.h"
 #include "BoundaryPointInlines.h"
 #include "HTMLInputElement.h"
 #include "Logging.h"

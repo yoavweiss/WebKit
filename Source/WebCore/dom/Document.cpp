@@ -28,7 +28,9 @@
 #include "config.h"
 #include "Document.h"
 
+#include "AXIsolatedTree.h"
 #include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "AnimationTimelinesController.h"
 #include "ApplicationManifest.h"
 #include "AsyncNodeDeletionQueueInlines.h"

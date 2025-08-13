@@ -29,6 +29,7 @@
 #if PLATFORM(MAC)
 
 #import "AXIsolatedObject.h"
+#import "AXObjectCacheInlines.h"
 #import "AXSearchManager.h"
 #import "AccessibilityObject.h"
 #import "AccessibilityTable.h"
@@ -753,7 +754,7 @@ void AXObjectCache::initializeAXThreadIfNeeded()
         // Initialize the role map before the accessibility thread starts so that it's safe for both threads
         // to use (the only thing that needs to be thread-safe about it is initialization since it's not modified
         // after creation and is never destroyed).
-        initializeRoleMap();
+        Accessibility::initializeRoleMap();
 
         _AXUIElementUseSecondaryAXThread(true);
         axThreadInitialized = true;

@@ -552,6 +552,7 @@ Modules/webxr/XRSessionEvent.cpp
 Modules/webxr/XRSubImage.cpp
 Modules/webxr/XRWebGLBinding.cpp
 Modules/webxr/XRWebGLSubImage.cpp
+accessibility/AXAttributeCacheScope.cpp
 accessibility/AXCoreObject.cpp
 accessibility/AXGeometryManager.cpp
 accessibility/AXLogger.cpp
@@ -562,6 +563,7 @@ accessibility/AXSearchManager.cpp
 accessibility/AXTextMarker.cpp
 accessibility/AXTextRun.cpp
 accessibility/AXTreeStore.cpp
+accessibility/AXUtilities.cpp
 accessibility/AccessibilityAttachment.cpp
 accessibility/AccessibilityImageMapLink.cpp
 accessibility/AccessibilityLabel.cpp

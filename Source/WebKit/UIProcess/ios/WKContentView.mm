@@ -59,7 +59,7 @@
 #import "_WKFrameHandleInternal.h"
 #import "_WKWebViewPrintFormatterInternal.h"
 #import <CoreGraphics/CoreGraphics.h>
-#import <WebCore/AccessibilityObject.h>
+#import <WebCore/AXRemoteTokenIOS.h>
 #import <WebCore/FloatConversion.h>
 #import <WebCore/FloatQuad.h>
 #import <WebCore/InspectorOverlay.h>

@@ -20,7 +20,10 @@
 #include "config.h"
 #include "Page.h"
 
+#include "AXIsolatedTree.h"
 #include "AXLogger.h"
+#include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "ActivityStateChangeObserver.h"
 #include "AdvancedPrivacyProtections.h"
 #include "AlternativeTextClient.h"

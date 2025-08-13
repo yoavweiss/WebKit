@@ -725,16 +725,20 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
 
     Scripts/generate-log-declarations.py
 
+    accessibility/AXAttributeCacheScope.h
     accessibility/AXCoreObject.h
     accessibility/AXGeometryManager.h
     accessibility/AXLogger.h
     accessibility/AXLoggerBase.h
     accessibility/AXObjectCache.h
+    accessibility/AXObjectCacheInlines.h
     accessibility/AXSearchManager.h
     accessibility/AXTextMarker.h
     accessibility/AXTextRun.h
     accessibility/AXTextStateChangeIntent.h
     accessibility/AXTreeStore.h
+    accessibility/AXTreeStoreInlines.h
+    accessibility/AXUtilities.h
     accessibility/AccessibilityListBox.h
     accessibility/AccessibilityMenuListPopup.h
     accessibility/AccessibilityMockObject.h

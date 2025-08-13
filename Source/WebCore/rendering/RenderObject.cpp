@@ -28,6 +28,7 @@
 #include "RenderObject.h"
 
 #include "AXObjectCache.h"
+#include "AXUtilities.h"
 #include "BoundaryPointInlines.h"
 #include "ContainerNodeInlines.h"
 #include "DocumentInlines.h"

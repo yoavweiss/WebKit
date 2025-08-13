@@ -24,6 +24,7 @@
  */
 
 #import "config.h"
+#import "AXGeometryManager.h"
 #import "AXIsolatedObject.h"
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE) && PLATFORM(MAC)

@@ -28,8 +28,12 @@
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 #include "AXIsolatedTree.h"
 
+#include "AXAttributeCacheScope.h"
 #include "AXIsolatedObject.h"
 #include "AXLogger.h"
+#include "AXTreeStore.h"
+#include "AXTreeStoreInlines.h"
+#include "AXUtilities.h"
 #include "AccessibilityTable.h"
 #include "AccessibilityTableCell.h"
 #include "AccessibilityTableRow.h"
@@ -282,7 +286,7 @@ void AXIsolatedTree::generateSubtree(AccessibilityObject& axObject)
         return;
 
     // We're about to a lot of read-only work, so start the attribute cache.
-    AXAttributeCacheEnabler enableCache(axObject.axObjectCache());
+    AXAttributeCacheScope enableCache(axObject.axObjectCache());
     collectNodeChangesForSubtree(axObject);
     queueRemovalsAndUnresolvedChanges();
 }
@@ -949,7 +953,7 @@ void AXIsolatedTree::updateChildren(AccessibilityObject& axObject, ResolveNodeCh
         return;
 
     // We're about to do a lot of work, so start the attribute cache.
-    AXAttributeCacheEnabler enableCache(axObject.axObjectCache());
+    AXAttributeCacheScope enableCache(axObject.axObjectCache());
 
     // updateChildren may be called as the result of a children changed
     // notification for an axObject that has no associated isolated object.
@@ -1083,7 +1087,7 @@ void AXIsolatedTree::updateChildrenForObjects(const ListHashSet<Ref<Accessibilit
     if (isUpdatingSubtree())
         return;
 
-    AXAttributeCacheEnabler enableCache(axObjectCache());
+    AXAttributeCacheScope enableCache(axObjectCache());
     for (auto& axObject : axObjects)
         queueNodeUpdate(axObject->objectID(), NodeUpdateOptions::childrenUpdate());
 

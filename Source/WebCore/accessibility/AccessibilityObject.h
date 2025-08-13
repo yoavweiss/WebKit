@@ -948,6 +948,11 @@ private:
 #endif
 };
 
+inline AXObjectCache* AccessibilityObject::axObjectCache() const
+{
+    return m_axObjectCache.get();
+}
+
 inline bool AccessibilityObject::hasDisplayContents() const
 {
     RefPtr element = this->element();
@@ -992,13 +997,6 @@ inline bool AccessibilityObject::hasAttributedText() const
 #endif
 
 AccessibilityObject* firstAccessibleObjectFromNode(const Node*, NOESCAPE const Function<bool(const AccessibilityObject&)>& isAccessible);
-
-namespace Accessibility {
-
-#if PLATFORM(IOS_FAMILY)
-WEBCORE_EXPORT RetainPtr<NSData> newAccessibilityRemoteToken(NSString *);
-#endif
-} // namespace Accessibility
 
 class AXChildIterator {
 public:

@@ -29,11 +29,16 @@
 #include "config.h"
 #include "AccessibilityObject.h"
 
+#include "AXAttributeCacheScope.h"
+#include "AXIsolatedTree.h"
 #include "AXLogger.h"
+#include "AXLoggerBase.h"
 #include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "AXRemoteFrame.h"
 #include "AXSearchManager.h"
 #include "AXTextMarker.h"
+#include "AXUtilities.h"
 #include "AccessibilityMockObject.h"
 #include "AccessibilityRenderObject.h"
 #include "AccessibilityScrollView.h"
@@ -2285,7 +2290,7 @@ void AccessibilityObject::updateChildrenIfNecessary()
 {
     if (!childrenInitialized()) {
         // Enable the cache in case we end up adding a lot of children, we don't want to recompute axIsIgnored each time.
-        AXAttributeCacheEnabler enableCache(axObjectCache());
+        AXAttributeCacheScope enableCache(axObjectCache());
         addChildren();
     }
 }

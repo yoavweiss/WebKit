@@ -29,6 +29,8 @@
 #if PLATFORM(IOS_FAMILY)
 
 #import "AXRemoteFrame.h"
+#import "AXRemoteTokenIOS.h"
+#import "AXUtilities.h"
 #import "AccessibilityRenderObject.h"
 #import "EventNames.h"
 #import "EventTargetInlines.h"
@@ -339,17 +341,6 @@ RetainPtr<NSAttributedString> attributedStringCreate(Node& node, StringView text
 
     return result;
 }
-
-namespace Accessibility {
-
-RetainPtr<NSData> newAccessibilityRemoteToken(NSString *uuidString)
-{
-    if (!uuidString)
-        return nil;
-    return [NSKeyedArchiver archivedDataWithRootObject:@{ @"ax-pid" : @(getpid()), @"ax-uuid" : uuidString, @"ax-register" : @YES } requiringSecureCoding:YES error:nullptr];
-}
-
-} // namespace Accessibility
 
 } // namespace WebCore
 

@@ -31,6 +31,7 @@
 #if PLATFORM(IOS_FAMILY)
 #include "AccessibilityMediaObject.h"
 
+#include "AXObjectCache.h"
 #include "HTMLMediaElement.h"
 #include "HTMLNames.h"
 #include "HTMLVideoElement.h"
