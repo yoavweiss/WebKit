@@ -30,7 +30,6 @@ fast/forms/switch/zoom-approximates-transform-vertical-rl.html [ Pass ]
 fast/forms/switch/zoom-approximates-transform.html [ Pass ] 
 
 # rdar://154997421 (REGRESSION(Liquid Glass): [ Tahoe ] 5X fast/forms/range (layout-tests) are constant failures
-fast/forms/range/input-appearance-range-rtl.html [ Pass ]
 fast/forms/range/slider-in-multi-column.html [ Pass ]
 
 # Tests which pass only with form control refresh enabled (support added in Tahoe)
