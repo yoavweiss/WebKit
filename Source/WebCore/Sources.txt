@@ -2208,6 +2208,7 @@ page/UndoManager.cpp
 page/UserContentController.cpp
 page/UserContentProvider.cpp
 page/UserContentURLPattern.cpp
+page/UserAgentStringParser.cpp
 page/UserScript.cpp
 page/UserStyleSheet.cpp
 page/VisitedLinkStore.cpp
