@@ -2110,6 +2110,8 @@ imported/w3c/web-platform-tests/fetch/metadata/generated/worker-dedicated-constr
 imported/w3c/web-platform-tests/fetch/metadata/generated/worker-dedicated-importscripts.https.sub.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/fetch/metadata/generated/worker-dedicated-importscripts.sub.html [ DumpJSConsoleLogInStdErr ]
 
+imported/w3c/web-platform-tests/fetch/local-network-access/navigate.tentative.window.html [ Failure ]
+
 imported/w3c/web-platform-tests/fetch/private-network-access/service-worker-fetch.https.window.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/fetch/private-network-access/iframe.tentative.window.html [ DumpJSConsoleLogInStdErr ]
 
