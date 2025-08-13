@@ -356,29 +356,7 @@ if JIT and not ARMv7
     loadp UnboxedWasmCalleeStackSlot[cfr], ws0
     baddis increment, Wasm::IPIntCallee::m_tierUpCounter + Wasm::IPIntTierUpCounter::m_counter[ws0], .continue
 
-    subq (NumberOfWasmArgumentJSRs + NumberOfWasmArgumentFPRs) * 8, sp
-if ARM64 or ARM64E
-    forEachArgumentJSR(macro (offset, gpr1, gpr2)
-        storepairq gpr2, gpr1, offset[sp]
-    end)
-elsif JSVALUE64
-    forEachArgumentJSR(macro (offset, gpr)
-        storeq gpr, offset[sp]
-    end)
-else
-    forEachArgumentJSR(macro (offset, gprMsw, gpLsw)
-        store2ia gpLsw, gprMsw, offset[sp]
-    end)
-end
-if ARM64 or ARM64E
-    forEachArgumentFPR(macro (offset, fpr1, fpr2)
-        storepaird fpr2, fpr1, offset[sp]
-    end)
-else
-    forEachArgumentFPR(macro (offset, fpr)
-        stored fpr, offset[sp]
-    end)
-end
+    preserveWasmArgumentRegisters()
 
     ipintReloadMemory()
     push memoryBase, boundsCheckingSize
@@ -389,30 +367,7 @@ end
 
     pop boundsCheckingSize, memoryBase
 
-if ARM64 or ARM64E
-    forEachArgumentFPR(macro (offset, fpr1, fpr2)
-        loadpaird offset[sp], fpr2, fpr1
-    end)
-else
-    forEachArgumentFPR(macro (offset, fpr)
-        loadd offset[sp], fpr
-    end)
-end
-
-if ARM64 or ARM64E
-    forEachArgumentJSR(macro (offset, gpr1, gpr2)
-        loadpairq offset[sp], gpr2, gpr1
-    end)
-elsif JSVALUE64
-    forEachArgumentJSR(macro (offset, gpr)
-        loadq offset[sp], gpr
-    end)
-else
-    forEachArgumentJSR(macro (offset, gprMsw, gpLsw)
-        load2ia offset[sp], gpLsw, gpMsw
-    end)
-end
-    addq (NumberOfWasmArgumentJSRs + NumberOfWasmArgumentFPRs) * 8, sp
+    restoreWasmArgumentRegisters()
 
     btpz ws0, .recover
 

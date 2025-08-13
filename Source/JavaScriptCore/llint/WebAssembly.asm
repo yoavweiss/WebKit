@@ -35,18 +35,17 @@ end
 
 # Must match GPRInfo.h
 if X86_64
-    const NumberOfWasmArgumentJSRs = 6
+    const NumberOfWasmArgumentGPRs = 6
 elsif ARM64 or ARM64E or RISCV64
-    const NumberOfWasmArgumentJSRs = 8
+    const NumberOfWasmArgumentGPRs = 8
 elsif ARMv7
-    const NumberOfWasmArgumentJSRs = 2
+    # These 4 GPR holds only 2 JSValues in 2 pairs.
+    const NumberOfWasmArgumentGPRs = 4
 else
     error
 end
 
 const NumberOfWasmArgumentFPRs = 8
-
-const NumberOfWasmArguments = NumberOfWasmArgumentJSRs + NumberOfWasmArgumentFPRs
 
 # All callee saves must match the definition in WasmCallee.cpp
 
@@ -80,41 +79,101 @@ end
 # On JSVALUE32_64, a consecutive pair of even/odd numbered GPRs hold a single
 # Wasm value (even if that value is i32/f32, the odd numbered GPR holds the
 # more significant word).
-macro forEachArgumentJSR(fn)
+macro forEachWasmArgumentGPR(fn)
     if ARM64 or ARM64E
-        fn(0 * 8, wa0, wa1)
-        fn(2 * 8, wa2, wa3)
-        fn(4 * 8, wa4, wa5)
-        fn(6 * 8, wa6, wa7)
+        fn(0, wa0, wa1)
+        fn(2, wa2, wa3)
+        fn(4, wa4, wa5)
+        fn(6, wa6, wa7)
     elsif JSVALUE64
-        fn(0 * 8, wa0)
-        fn(1 * 8, wa1)
-        fn(2 * 8, wa2)
-        fn(3 * 8, wa3)
-        fn(4 * 8, wa4)
-        fn(5 * 8, wa5)
+        fn(0, wa0, wa1)
+        fn(2, wa2, wa3)
+        fn(4, wa4, wa5)
     else
-        fn(0 * 8, wa1, wa0)
-        fn(1 * 8, wa3, wa2)
+        fn(0, wa0, wa1)
+        fn(2, wa2, wa3)
     end
 end
 
-macro forEachArgumentFPR(fn)
-    if ARM64 or ARM64E
-        fn((NumberOfWasmArgumentJSRs + 0) * 8, wfa0, wfa1)
-        fn((NumberOfWasmArgumentJSRs + 2) * 8, wfa2, wfa3)
-        fn((NumberOfWasmArgumentJSRs + 4) * 8, wfa4, wfa5)
-        fn((NumberOfWasmArgumentJSRs + 6) * 8, wfa6, wfa7)
-    else
-        fn((NumberOfWasmArgumentJSRs + 0) * 8, wfa0)
-        fn((NumberOfWasmArgumentJSRs + 1) * 8, wfa1)
-        fn((NumberOfWasmArgumentJSRs + 2) * 8, wfa2)
-        fn((NumberOfWasmArgumentJSRs + 3) * 8, wfa3)
-        fn((NumberOfWasmArgumentJSRs + 4) * 8, wfa4)
-        fn((NumberOfWasmArgumentJSRs + 5) * 8, wfa5)
-        fn((NumberOfWasmArgumentJSRs + 6) * 8, wfa6)
-        fn((NumberOfWasmArgumentJSRs + 7) * 8, wfa7)
-    end
+macro forEachWasmArgumentFPR(fn)
+    fn(0, wfa0, wfa1)
+    fn(2, wfa2, wfa3)
+    fn(4, wfa4, wfa5)
+    fn(6, wfa6, wfa7)
+end
+
+macro preserveWasmGPRArgumentRegisters()
+    forEachWasmArgumentGPR(macro (index, gpr1, gpr2)
+        if ARM64 or ARM64E
+            storepairq gpr1, gpr2, index * MachineRegisterSize[sp]
+        elsif JSVALUE64
+            storeq gpr1, (index + 0) * MachineRegisterSize[sp]
+            storeq gpr2, (index + 1) * MachineRegisterSize[sp]
+        else
+            store2ia gpr1, gpr2, index * MachineRegisterSize[sp]
+        end
+    end)
+end
+
+macro preserveWasmArgumentRegisters()
+    subq (NumberOfWasmArgumentGPRs + NumberOfWasmArgumentFPRs) * 8, sp
+    preserveWasmGPRArgumentRegisters()
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = NumberOfWasmArgumentGPRs * MachineRegisterSize
+        if ARM64 or ARM64E
+            storepaird fpr1, fpr2, base + index * 8[sp]
+        else
+            stored fpr1, base + (index + 0) * 8[sp]
+            stored fpr2, base + (index + 1) * 8[sp]
+        end
+    end)
+end
+
+macro preserveWasmArgumentRegistersWithSIMD()
+    subq (NumberOfWasmArgumentGPRs * 8 + NumberOfWasmArgumentFPRs * 16), sp
+    preserveWasmGPRArgumentRegisters()
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = NumberOfWasmArgumentGPRs * MachineRegisterSize
+        storev fpr1, base + (index + 0) * 16[sp]
+        storev fpr2, base + (index + 1) * 16[sp]
+    end)
+end
+
+macro restoreWasmGPRArgumentRegisters()
+    forEachWasmArgumentGPR(macro (index, gpr1, gpr2)
+        if ARM64 or ARM64E
+            loadpairq index * MachineRegisterSize[sp], gpr1, gpr2
+        elsif JSVALUE64
+            loadq (index + 0) * MachineRegisterSize[sp], gpr1
+            loadq (index + 1) * MachineRegisterSize[sp], gpr2
+        else
+            load2ia index * MachineRegisterSize[sp], gpr1, gpr2
+        end
+    end)
+end
+
+macro restoreWasmArgumentRegisters()
+    restoreWasmGPRArgumentRegisters()
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = NumberOfWasmArgumentGPRs * MachineRegisterSize
+        if ARM64 or ARM64E
+            loadpaird base + index * 8[sp], fpr1, fpr2
+        else
+            loadd base + (index + 0) * 8[sp], fpr1
+            loadd base + (index + 1) * 8[sp], fpr2
+        end
+    end)
+    addq (NumberOfWasmArgumentGPRs + NumberOfWasmArgumentFPRs) * 8, sp
+end
+
+macro restoreWasmArgumentRegistersWithSIMD()
+    restoreWasmGPRArgumentRegisters()
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = NumberOfWasmArgumentGPRs * MachineRegisterSize
+        loadv base + (index + 0) * 16[sp], fpr1
+        loadv base + (index + 1) * 16[sp], fpr2
+    end)
+    addq (NumberOfWasmArgumentGPRs * 8 + NumberOfWasmArgumentFPRs * 16), sp
 end
 
 macro preserveCalleeSavesUsedByWasm()
@@ -214,18 +273,6 @@ macro callWasmCallSlowPath(slowPath, action)
     action(r0, r1)
 end
 
-macro forEachVectorArgument(fn)
-     const base = NumberOfWasmArgumentJSRs * 8
-     fn(base + 0 * 16, -(base + 0 * 16 + 8), wfa0)
-     fn(base + 1 * 16, -(base + 1 * 16 + 8), wfa1)
-     fn(base + 2 * 16, -(base + 2 * 16 + 8), wfa2)
-     fn(base + 3 * 16, -(base + 3 * 16 + 8), wfa3)
-     fn(base + 4 * 16, -(base + 4 * 16 + 8), wfa4)
-     fn(base + 5 * 16, -(base + 5 * 16 + 8), wfa5)
-     fn(base + 6 * 16, -(base + 6 * 16 + 8), wfa6)
-     fn(base + 7 * 16, -(base + 7 * 16 + 8), wfa7)
-end
-
 # Tier up immediately, while saving full vectors in argument FPRs
 macro wasmPrologueSIMD(slow_path)
 if (WEBASSEMBLY_BBQJIT or WEBASSEMBLY_OMGJIT) and not ARMv7
@@ -265,43 +312,41 @@ end
 .stackHeightOK:
     move ws1, sp
 
-if ARM64 or ARM64E
-    forEachArgumentJSR(macro (offset, gpr1, gpr2)
-        storepairq gpr2, gpr1, -offset - 16 - CalleeSaveSpaceAsVirtualRegisters * 8[cfr]
+    forEachWasmArgumentGPR(macro (index, gpr1, gpr2)
+        const base = - CalleeSaveSpaceAsVirtualRegisters * MachineRegisterSize
+        if ARM64 or ARM64E
+            storepairq gpr2, gpr1, base - (index + 2) * MachineRegisterSize[cfr]
+        elsif JSVALUE64
+            storeq gpr2, base - (index + 2) * MachineRegisterSize[cfr]
+            storeq gpr1, base - (index + 1) * MachineRegisterSize[cfr]
+        else
+            store2ia gpr2, gpr1, base - (index + 2) * MachineRegisterSize[cfr]
+        end
     end)
-elsif JSVALUE64
-    forEachArgumentJSR(macro (offset, gpr)
-        storeq gpr, -offset - 8 - CalleeSaveSpaceAsVirtualRegisters * 8[cfr]
-    end)
-else
-    forEachArgumentJSR(macro (offset, gprMsw, gpLsw)
-        store2ia gpLsw, gprMsw, -offset - 8 - CalleeSaveSpaceAsVirtualRegisters * 8[cfr]
-    end)
-end
-
-    forEachVectorArgument(macro (offset, negOffset, fpr)
-        storev fpr, negOffset - 8 - CalleeSaveSpaceAsVirtualRegisters * 8[cfr]
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = -(NumberOfWasmArgumentGPRs + CalleeSaveSpaceAsVirtualRegisters + 2) * MachineRegisterSize
+        storev fpr2, base - (index + 1) * 16[cfr]
+        storev fpr1, base - (index + 0) * 16[cfr]
     end)
 
     slow_path()
     move r0, ws0
 
-if ARM64 or ARM64E
-    forEachArgumentJSR(macro (offset, gpr1, gpr2)
-        loadpairq -offset - 16 - CalleeSaveSpaceAsVirtualRegisters * 8[cfr], gpr2, gpr1
+    forEachWasmArgumentGPR(macro (index, gpr1, gpr2)
+        const base = - CalleeSaveSpaceAsVirtualRegisters * MachineRegisterSize
+        if ARM64 or ARM64E
+            loadpairq base - (index + 2) * MachineRegisterSize[cfr], gpr2, gpr1
+        elsif JSVALUE64
+            loadq base - (index + 2) * MachineRegisterSize[cfr], gpr2
+            loadq base - (index + 1) * MachineRegisterSize[cfr], gpr1
+        else
+            load2ia base - (index + 2) * MachineRegisterSize[cfr], gpr2, gpr1
+        end
     end)
-elsif JSVALUE64
-    forEachArgumentJSR(macro (offset, gpr)
-        loadq -offset - 8 - CalleeSaveSpaceAsVirtualRegisters * 8[cfr], gpr
-    end)
-else
-    forEachArgumentJSR(macro (offset, gprMsw, gpLsw)
-        load2ia -offset - 8 - CalleeSaveSpaceAsVirtualRegisters * 8[cfr], gpLsw, gprMsw
-    end)
-end
-
-    forEachVectorArgument(macro (offset, negOffset, fpr)
-        loadv negOffset - 8 - CalleeSaveSpaceAsVirtualRegisters * 8[cfr], fpr
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = -(NumberOfWasmArgumentGPRs + CalleeSaveSpaceAsVirtualRegisters + 2) * MachineRegisterSize
+        loadv base - (index + 1) * 16[cfr], fpr2
+        loadv base - (index + 0) * 16[cfr], fpr1
     end)
 
     restoreCalleeSavesUsedByWasm()
@@ -497,29 +542,25 @@ end
 
     # Arguments
 
-if ARM64 or ARM64E
-    forEachArgumentJSR(macro (offset, gpr1, gpr2)
-        loadpairq offset[sp], gpr1, gpr2
+    forEachWasmArgumentGPR(macro (index, gpr1, gpr2)
+        if ARM64 or ARM64E
+            loadpairq index * MachineRegisterSize[sp], gpr1, gpr2
+        elsif JSVALUE64
+            loadq (index + 0) * MachineRegisterSize[sp], gpr1
+            loadq (index + 1) * MachineRegisterSize[sp], gpr2
+        else
+            load2ia index * MachineRegisterSize[sp], gpr1, gpr2
+        end
     end)
-elsif JSVALUE64
-    forEachArgumentJSR(macro (offset, gpr)
-        loadq offset[sp], gpr
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = NumberOfWasmArgumentGPRs * MachineRegisterSize
+        if ARM64 or ARM64E
+            loadpaird base + index * 8[sp], fpr1, fpr2
+        else
+            loadd base + (index + 0) * 8[sp], fpr1
+            loadd base + (index + 1) * 8[sp], fpr2
+        end
     end)
-else
-    forEachArgumentJSR(macro (offset, gprMsw, gpLsw)
-        load2ia offset[sp], gpLsw, gprMsw
-    end)
-end
-
-if ARM64 or ARM64E
-    forEachArgumentFPR(macro (offset, fpr1, fpr2)
-        loadpaird offset[sp], fpr1, fpr2
-    end)
-else
-    forEachArgumentFPR(macro (offset, fpr)
-        loadd offset[sp], fpr
-    end)
-end
 
     # Pop argument space values
     addp constexpr Wasm::JSEntrypointCallee::RegisterStackSpaceAligned, sp
@@ -570,68 +611,26 @@ if ASSERT_ENABLED
 end
 
     # Save return registers
-    macro forEachReturnWasmJSR(fn)
+    # Return register are the same as the argument registers.
+    forEachWasmArgumentGPR(macro (index, gpr1, gpr2)
         if ARM64 or ARM64E
-            fn(0 * 8, wa0, wa1)
-            fn(2 * 8, wa2, wa3)
-            fn(4 * 8, wa4, wa5)
-            fn(6 * 8, wa6, wa7)
-        elsif X86_64
-            fn(0 * 8, wa0)
-            fn(1 * 8, wa1)
-            fn(2 * 8, wa2)
-            fn(3 * 8, wa3)
-            fn(4 * 8, wa4)
-            fn(5 * 8, wa5)
+            storepairq gpr1, gpr2, index * MachineRegisterSize[sp]
         elsif JSVALUE64
-            fn(0 * 8, wa0)
-            fn(1 * 8, wa1)
-            fn(2 * 8, wa2)
-            fn(3 * 8, wa3)
-            fn(4 * 8, wa4)
-            fn(5 * 8, wa5)
+            storeq gpr1, (index + 0) * MachineRegisterSize[sp]
+            storeq gpr2, (index + 1) * MachineRegisterSize[sp]
         else
-            fn(0 * 8, wa1, wa0)
-            fn(1 * 8, wa3, wa2)
+            store2ia gpr1, gpr2, index * MachineRegisterSize[sp]
         end
-    end
-    macro forEachReturnJSJSR(fn)
+    end)
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = NumberOfWasmArgumentGPRs * MachineRegisterSize
         if ARM64 or ARM64E
-            fn(0 * 8, r0, r1)
-        elsif X86_64
-            fn(0 * 8, r0)
-            fn(1 * 8, r1)
-        elsif JSVALUE64
-            fn(0 * 8, r0)
-            fn(1 * 8, r1)
+            storepaird fpr1, fpr2, base + index * 8[sp]
         else
-            fn(0 * 8, r1, r0)
+            stored fpr1, base + (index + 0) * 8[sp]
+            stored fpr2, base + (index + 1) * 8[sp]
         end
-    end
-
-if ARM64 or ARM64E
-    forEachReturnWasmJSR(macro (offset, gpr1, gpr2)
-        storepairq gpr1, gpr2, offset[sp]
     end)
-elsif JSVALUE64
-    forEachReturnWasmJSR(macro (offset, gpr)
-        storeq gpr, offset[sp]
-    end)
-else
-    forEachReturnWasmJSR(macro (offset, gprMsw, gpLsw)
-        store2ia gpLsw, gprMsw, offset[sp]
-    end)
-end
-
-if ARM64 or ARM64E
-    forEachArgumentFPR(macro (offset, fpr1, fpr2)
-        storepaird fpr1, fpr2, offset[sp]
-    end)
-else
-    forEachArgumentFPR(macro (offset, fpr)
-        stored fpr, offset[sp]
-    end)
-end
 
     # Prepare frame
     move sp, a0
@@ -731,29 +730,25 @@ op(wasm_to_js_wrapper_entry, macro()
 
     # Store all the registers here
 
-if ARM64 or ARM64E
-    forEachArgumentJSR(macro (offset, gpr1, gpr2)
-        storepairq gpr1, gpr2, offset[sp]
+    forEachWasmArgumentGPR(macro (index, gpr1, gpr2)
+        if ARM64 or ARM64E
+            storepairq gpr1, gpr2, index * MachineRegisterSize[sp]
+        elsif JSVALUE64
+            storeq gpr1, (index + 0) * MachineRegisterSize[sp]
+            storeq gpr2, (index + 1) * MachineRegisterSize[sp]
+        else
+            store2ia gpr1, gpr2, index * MachineRegisterSize[sp]
+        end
     end)
-elsif JSVALUE64
-    forEachArgumentJSR(macro (offset, gpr)
-        storeq gpr, offset[sp]
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = NumberOfWasmArgumentGPRs * MachineRegisterSize
+        if ARM64 or ARM64E
+            storepaird fpr1, fpr2, base + index * 8[sp]
+        else
+            stored fpr1, base + (index + 0) * 8[sp]
+            stored fpr2, base + (index + 1) * 8[sp]
+        end
     end)
-else
-    forEachArgumentJSR(macro (offset, gprMsw, gpLsw)
-        store2ia gpLsw, gprMsw, offset[sp]
-    end)
-end
-
-if ARM64 or ARM64E
-    forEachArgumentFPR(macro (offset, fpr1, fpr2)
-        storepaird fpr1, fpr2, offset[sp]
-    end)
-else
-    forEachArgumentFPR(macro (offset, fpr)
-        stored fpr, offset[sp]
-    end)
-end
 
 if ASSERT_ENABLED or ARMv7
     storep cfr, JSWebAssemblyInstance::m_temporaryCallFrame[wasmInstance]
@@ -839,55 +834,27 @@ end
     btpnz r0, .handleException
 
 .end:
-    macro forEachReturnWasmJSR(fn)
+    # Retrieve return registers
+    # Return register are the same as the argument registers.
+    forEachWasmArgumentGPR(macro (index, gpr1, gpr2)
         if ARM64 or ARM64E
-            fn(0 * 8, wa0, wa1)
-            fn(2 * 8, wa2, wa3)
-            fn(4 * 8, wa4, wa5)
-            fn(6 * 8, wa6, wa7)
-        elsif X86_64
-            fn(0 * 8, wa0)
-            fn(1 * 8, wa1)
-            fn(2 * 8, wa2)
-            fn(3 * 8, wa3)
-            fn(4 * 8, wa4)
-            fn(5 * 8, wa5)
+            loadpairq index * MachineRegisterSize[sp], gpr1, gpr2
         elsif JSVALUE64
-            fn(0 * 8, wa0)
-            fn(1 * 8, wa1)
-            fn(2 * 8, wa2)
-            fn(3 * 8, wa3)
-            fn(4 * 8, wa4)
-            fn(5 * 8, wa5)
+            loadq (index + 0) * MachineRegisterSize[sp], gpr1
+            loadq (index + 1) * MachineRegisterSize[sp], gpr2
         else
-            fn(0 * 8, wa1, wa0)
-            fn(1 * 8, wa3, wa2)
+            load2ia index * MachineRegisterSize[sp], gpr1, gpr2
         end
-    end
-
-if ARM64 or ARM64E
-    forEachReturnWasmJSR(macro (offset, gpr1, gpr2)
-        loadpairq offset[sp], gpr1, gpr2
     end)
-elsif JSVALUE64
-    forEachReturnWasmJSR(macro (offset, gpr)
-        loadq offset[sp], gpr
+    forEachWasmArgumentFPR(macro (index, fpr1, fpr2)
+        const base = NumberOfWasmArgumentGPRs * MachineRegisterSize
+        if ARM64 or ARM64E
+            loadpaird base + index * 8[sp], fpr1, fpr2
+        else
+            loadd base + (index + 0) * 8[sp], fpr1
+            loadd base + (index + 1) * 8[sp], fpr2
+        end
     end)
-else
-    forEachReturnWasmJSR(macro (offset, gprMsw, gprLsw)
-        load2ia offset[sp], gprLsw, gprMsw
-    end)
-end
-
-if ARM64 or ARM64E
-    forEachArgumentFPR(macro (offset, fpr1, fpr2)
-        loadpaird offset[sp], fpr1, fpr2
-    end)
-else
-    forEachArgumentFPR(macro (offset, fpr)
-        loadd offset[sp], fpr
-    end)
-end
 
     loadp CodeBlock[cfr], wasmInstance
     restoreCallerPCAndCFR()
