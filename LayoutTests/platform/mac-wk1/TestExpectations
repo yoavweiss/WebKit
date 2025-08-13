@@ -991,6 +991,8 @@ accessibility/mac/bounds-for-range-centered.html [ Skip ]
 # Skipping because different hierarchy on WK1
 accessibility/youtube-embed-accessibility-hierarchy.html [ Skip ]
 
+accessibility/mac/iframe-hit-testing.html [ Skip ]
+
 # DOM paste access requests are not implemented in WebKit1.
 editing/async-clipboard/clipboard-change-data-while-reading.html [ Skip ]
 editing/async-clipboard/clipboard-do-not-read-text-from-platform-if-text-changes.html [ Skip ]
