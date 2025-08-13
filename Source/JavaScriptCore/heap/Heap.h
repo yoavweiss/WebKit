@@ -734,7 +734,6 @@ private:
     void prepareForMarking();
     
     void gatherStackRoots(ConservativeRoots&);
-    void gatherJSStackRoots(ConservativeRoots&);
     void gatherScratchBufferRoots(ConservativeRoots&);
     void beginMarking();
     void visitCompilerWorklistWeakReferences();

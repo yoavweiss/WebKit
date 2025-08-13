@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2012-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,6 +34,11 @@
 
 namespace JSC {
 
+ALWAYS_INLINE VM& CLoopStack::vm() const
+{
+    return *std::bit_cast<VM*>(std::bit_cast<uintptr_t>(this) - OBJECT_OFFSETOF(Interpreter, m_cloopStack) - OBJECT_OFFSETOF(VM, interpreter));
+}
+
 inline bool CLoopStack::ensureCapacityFor(Register* newTopOfStack)
 {
     if (newTopOfStack >= m_end)
@@ -41,20 +46,10 @@ inline bool CLoopStack::ensureCapacityFor(Register* newTopOfStack)
     return grow(newTopOfStack);
 }
 
-inline void* CLoopStack::currentStackPointer() const
-{
-    // One might be tempted to assert that m_currentStackPointer <= m_topCallFrame->topOfFrame()
-    // here. That assertion would be incorrect because this function may be called from function
-    // prologues (e.g. during a stack check) where m_currentStackPointer may be higher than
-    // m_topCallFrame->topOfFrame() because the stack pointer has not been initialized to point
-    // to frame top yet.
-    return m_currentStackPointer;
-}
-
 inline void CLoopStack::setCLoopStackLimit(Register* newTopOfStack)
 {
     m_end = newTopOfStack;
-    m_vm.setCLoopStackLimit(newTopOfStack);
+    vm().setCLoopStackLimit(newTopOfStack);
 }
 
 } // namespace JSC

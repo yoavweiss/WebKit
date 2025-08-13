@@ -181,6 +181,7 @@ using JSOrWasmInstruction = Variant<const JSInstruction*, uintptr_t /* IPIntOffs
         inline VM& vm();
 #if ENABLE(C_LOOP)
         CLoopStack m_cloopStack;
+        friend class CLoopStack; // Only needed to enable CLoopStack::vm()'s implementation.
 #endif
         
 #if ENABLE(COMPUTED_GOTO_OPCODES)

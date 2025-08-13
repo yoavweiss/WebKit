@@ -704,7 +704,7 @@ public:
     size_t updateSoftReservedZoneSize(size_t softReservedZoneSize);
     
     static size_t committedStackByteCount();
-    inline bool ensureStackCapacityFor(Register* newTopOfStack);
+    inline bool ensureJSStackCapacityFor(Register* newTopOfStack);
 
     void* stackLimit() { return m_stackLimit; }
     void* softStackLimit() { return m_softStackLimit; }
@@ -1015,7 +1015,7 @@ private:
     JS_EXPORT_PRIVATE void setException(Exception*);
 
 #if ENABLE(C_LOOP)
-    bool ensureStackCapacityForCLoop(Register* newTopOfStack);
+    bool ensureJSStackCapacityForCLoop(Register* newTopOfStack);
     bool isSafeToRecurseSoftCLoop() const;
 #endif // ENABLE(C_LOOP)
 

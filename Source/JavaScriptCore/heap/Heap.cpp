@@ -880,14 +880,8 @@ void Heap::assertMarkStacksEmpty()
 void Heap::gatherStackRoots(ConservativeRoots& roots)
 {
     m_machineThreads->gatherConservativeRoots(roots, *m_jitStubRoutines, *m_codeBlocks, m_currentThreadState, m_currentThread);
-}
-
-void Heap::gatherJSStackRoots(ConservativeRoots& roots)
-{
 #if ENABLE(C_LOOP)
     vm().interpreter.cloopStack().gatherConservativeRoots(roots, *m_jitStubRoutines, *m_codeBlocks);
-#else
-    UNUSED_PARAM(roots);
 #endif
 }
 
@@ -3006,7 +3000,6 @@ void Heap::addCoreConstraints()
                 ConservativeRoots conservativeRoots(*this);
 
                 gatherStackRoots(conservativeRoots);
-                gatherJSStackRoots(conservativeRoots);
                 gatherScratchBufferRoots(conservativeRoots);
 
                 SetRootMarkReasonScope rootScope(visitor, RootMarkReason::ConservativeScan);

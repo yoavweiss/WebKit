@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2011-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -569,7 +569,7 @@ LLINT_SLOW_PATH_DECL(stack_check)
     Register* topOfFrame = callFrame->topOfFrame();
     if (topOfFrame < reinterpret_cast<Register*>(callFrame)) [[likely]] {
         ASSERT(!vm.interpreter.cloopStack().containsAddress(topOfFrame));
-        if (vm.ensureStackCapacityFor(topOfFrame)) [[likely]]
+        if (vm.ensureJSStackCapacityFor(topOfFrame)) [[likely]]
             LLINT_RETURN_TWO(pc, 0);
     }
 #endif
@@ -2531,7 +2531,7 @@ static ALWAYS_INLINE int arityCheckFor(VM& vm, CallFrame* callFrame, CodeBlock* 
 
     Register* newStack = callFrame->registers() - WTF::roundUpToMultipleOf(stackAlignmentRegisters(), padding);
 
-    if (!vm.ensureStackCapacityFor(newStack)) [[unlikely]]
+    if (!vm.ensureJSStackCapacityFor(newStack)) [[unlikely]]
         return -1;
     return padding;
 }
@@ -2836,7 +2836,7 @@ extern "C" UGPRPair SYSV_ABI llint_throw_stack_overflow_error(VM* vm, ProtoCallF
 #if ENABLE(C_LOOP)
 extern "C" UGPRPair SYSV_ABI llint_stack_check_at_vm_entry(VM* vm, Register* newTopOfStack)
 {
-    bool success = vm->ensureStackCapacityFor(newTopOfStack);
+    bool success = vm->ensureJSStackCapacityFor(newTopOfStack);
     return encodeResult(reinterpret_cast<void*>(success), 0);
 }
 #endif
