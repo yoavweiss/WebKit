@@ -4588,6 +4588,7 @@ fast/images/pagewide-play-pause-offscreen-animations.html [ Pass ]
 
 # Only applicable on platforms with HDR support
 compositing/hdr [ Pass ]
+fast/canvas/hdr [ Pass ]
 fast/images/hdr-basic-image.html [ Pass ]
 fast/images/hdr-basic-image-dynamic-range-limit.html [ Pass ]
 fast/images/hdr-background-image.html [ Pass ]

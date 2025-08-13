@@ -2614,6 +2614,7 @@ fast/images/animated-jpegxl-loop-count.html [ Skip ]
 
 # Only applicable on platforms with HDR support
 compositing/hdr [ Skip ]
+fast/canvas/hdr [ Skip ]
 fast/images/hdr-basic-image.html [ Skip ]
 fast/images/hdr-basic-image-dynamic-range-limit.html [ Skip ]
 fast/images/hdr-background-image.html [ Skip ]

@@ -1682,7 +1682,7 @@ CanvasLayersEnabled:
 
 CanvasPixelFormatEnabled:
   type: bool
-  status: unstable
+  status: testable
   category: dom
   humanReadableName: "CanvasRenderingContext2DSettings.pixelFormat"
   humanReadableDescription: "Allow different pixel formats in 2D canvas"
