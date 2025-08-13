@@ -389,6 +389,109 @@ TEST(SiteIsolation, LoadingCallbacksAndPostMessage)
     });
 }
 
+TEST(SiteIsolation, CancelNavigationResponseCleansUpProvisionalFrame)
+{
+    HTTPServer server({
+        { "/main"_s, { "hi"_s } },
+        { "/iframe1"_s, { "<script>alert('loaded iframe1')</script>"_s } },
+        { "/iframe2"_s, { "shouldn't actually load"_s } }
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
+    webView.get().navigationDelegate = navigationDelegate.get();
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/main"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    [webView evaluateJavaScript:
+        @"var iframe1 = document.createElement('iframe');"
+        "document.body.appendChild(iframe1);"
+        "iframe1.src = 'https://apple.com/iframe1';"
+    completionHandler:nil];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "loaded iframe1");
+
+    __block uint32_t failureCount = 0;
+    navigationDelegate.get().didFailProvisionalLoadInSubframeWithError = ^(WKWebView* webView, WKFrameInfo* frame, NSError* error) {
+        EXPECT_WK_STREQ(error.domain, WebKitErrorDomain);
+        EXPECT_EQ(error.code, WebKitErrorFrameLoadInterruptedByPolicyChange);
+        failureCount++;
+    };
+
+    navigationDelegate.get().decidePolicyForNavigationResponse = ^(WKNavigationResponse* navigationResponse, void (^completionHandler)(WKNavigationResponsePolicy)) {
+        completionHandler(WKNavigationResponsePolicyCancel);
+    };
+
+    [webView evaluateJavaScript:
+        @"var iframe2 = document.createElement('iframe');"
+        "document.body.appendChild(iframe2);"
+        "iframe2.src = 'https://apple.com/iframe2';"
+    completionHandler:nil];
+
+    EXPECT_TRUE(TestWebKitAPI::Util::waitFor(
+        ^{ return failureCount == 1; }
+    ));
+
+    // Make sure second navigation doesn't assert in WebFrame::createProvisionalFrame()
+    [webView evaluateJavaScript:@"iframe2.src = 'https://apple.com/iframe2';" completionHandler:nil];
+
+    EXPECT_TRUE(TestWebKitAPI::Util::waitFor(
+        ^{ return failureCount == 2; }
+    ));
+}
+
+TEST(SiteIsolation, CancelNavigationActionCleansUpProvisionalFrame)
+{
+    HTTPServer server({
+        { "/main"_s, { "hi"_s } },
+        { "/iframe1"_s, { "<script>alert('loaded iframe1')</script>"_s } },
+        { "/iframe2"_s, { 302, { { "Location"_s, "https://example.org/redirected"_s } }, "redirecting..."_s } },
+        { "/redirected"_s, { "this should not be loaded"_s } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
+
+    webView.get().navigationDelegate = navigationDelegate.get();
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/main"]]];
+    [navigationDelegate waitForDidFinishNavigation];
+
+    [webView evaluateJavaScript:
+        @"var iframe1 = document.createElement('iframe');"
+        "document.body.appendChild(iframe1);"
+        "iframe1.src = 'https://apple.com/iframe1';"
+    completionHandler:nil];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "loaded iframe1");
+
+    __block uint32_t failureCount = 0;
+    navigationDelegate.get().didFailProvisionalLoadInSubframeWithError = ^(WKWebView* webView, WKFrameInfo* frame, NSError* error) {
+        EXPECT_WK_STREQ(error.domain, WebKitErrorDomain);
+        EXPECT_EQ(error.code, WebKitErrorFrameLoadInterruptedByPolicyChange);
+        failureCount++;
+    };
+
+    navigationDelegate.get().decidePolicyForNavigationAction = ^(WKNavigationAction* action, void (^completionHandler)(WKNavigationActionPolicy)) {
+        if ([action.request.URL.absoluteString containsString:@"/redirected"])
+            completionHandler(WKNavigationActionPolicyCancel);
+        else
+            completionHandler(WKNavigationActionPolicyAllow);
+    };
+
+    [webView evaluateJavaScript:
+        @"var iframe2 = document.createElement('iframe');"
+        "document.body.appendChild(iframe2);"
+        "iframe2.src = 'https://apple.com/iframe2';"
+    completionHandler:nil];
+
+    EXPECT_TRUE(TestWebKitAPI::Util::waitFor(
+        ^{ return failureCount == 1; }
+    ));
+
+    // Make sure second navigation doesn't assert in WebFrame::createProvisionalFrame()
+    [webView evaluateJavaScript:@"iframe2.src = 'https://apple.com/iframe2';" completionHandler:nil];
+
+    EXPECT_TRUE(TestWebKitAPI::Util::waitFor(
+        ^{ return failureCount == 2; }
+    ));
+}
+
 TEST(SiteIsolation, BasicPostMessageWindowOpen)
 {
     auto exampleHTML = "<script>"
