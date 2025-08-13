@@ -672,7 +672,23 @@ static Vector<std::pair<String, FloatRect>> extractAllTextAndRectsRecursive(Docu
         if (!renderer)
             continue;
 
-        result.append({ trimmedText.toString(), view->contentsToRootView(renderer->absoluteBoundingBoxRect()) });
+        IntRect absoluteBounds;
+        auto textRange = iterator.range();
+        if (!textRange.collapsed()) {
+            auto textRects = RenderObject::absoluteTextRects(textRange, {
+                RenderObject::BoundingRectBehavior::IgnoreTinyRects,
+                RenderObject::BoundingRectBehavior::IgnoreEmptyTextSelections,
+                RenderObject::BoundingRectBehavior::UseSelectionHeight,
+            });
+
+            for (auto textRect : textRects)
+                absoluteBounds.unite(textRect);
+        }
+
+        if (absoluteBounds.isEmpty())
+            absoluteBounds = renderer->absoluteBoundingBoxRect();
+
+        result.append({ trimmedText.toString(), view->contentsToRootView(absoluteBounds) });
     }
 
     for (auto& frameOwner : frameOwners) {
