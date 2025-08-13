@@ -760,6 +760,8 @@ imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-005.html [ Pass
 accessibility/opacity-0-bounding-box.html [ Skip ]
 accessibility/clip-path-bounding-box.html [ Skip ]
 
+accessibility/dynamic-expanded-text.html [ Skip ]
+
 accessibility/dynamic-content-visibility.html [ Skip ]
 accessibility/password-notifications-timing.html [ Skip ]
 

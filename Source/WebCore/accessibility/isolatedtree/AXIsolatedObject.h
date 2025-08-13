@@ -324,8 +324,7 @@ private:
     AccessibilityChildrenVector radioButtonGroup() const final { return tree()->objectsForIDs(vectorAttributeValue<AXID>(AXProperty::RadioButtonGroup)); }
     AXIsolatedObject* scrollBar(AccessibilityOrientation) final;
     const String placeholderValue() const final { return stringAttributeValue(AXProperty::PlaceholderValue); }
-    String expandedTextValue() const final { return stringAttributeValue(AXProperty::ExpandedTextValue); }
-    bool supportsExpandedTextValue() const final { return boolAttributeValue(AXProperty::SupportsExpandedTextValue); }
+    String abbreviation() const final { return stringAttributeValue(AXProperty::Abbreviation); }
     SRGBA<uint8_t> colorValue() const final;
     String subrolePlatformString() const final { return stringAttributeValue(AXProperty::SubrolePlatformString); }
     String ariaRoleDescription() const final { return stringAttributeValue(AXProperty::ARIARoleDescription); };
@@ -530,6 +529,7 @@ private:
 
     String textContentPrefixFromListMarker() const final;
     String webAreaTitle() const final { return stringAttributeValue(AXProperty::WebAreaTitle); }
+    String titleAttribute() const final { return stringAttributeValue(AXProperty::TitleAttribute); }
     String description() const final { return stringAttributeValue(AXProperty::Description); }
 
     std::optional<String> textContent() const final;

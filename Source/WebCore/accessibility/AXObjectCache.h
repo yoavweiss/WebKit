@@ -171,6 +171,7 @@ protected:
 };
 
 #define WEBCORE_AXNOTIFICATION_KEYS_DEFAULT(macro) \
+    macro(AbbreviationChanged) \
     macro(AccessKeyChanged) \
     macro(ActiveDescendantChanged) \
     macro(AnnouncementRequested) \

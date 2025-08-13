@@ -419,8 +419,7 @@ public:
     String extendedDescription() const final;
 
     // Abbreviations
-    String expandedTextValue() const override { return String(); }
-    bool supportsExpandedTextValue() const override { return false; }
+    String abbreviation() const final { return getAttribute(HTMLNames::abbrAttr); }
 
     Vector<Ref<Element>> elementsFromAttribute(const QualifiedName&) const;
 
@@ -561,7 +560,8 @@ public:
     const AtomString& getAttribute(const QualifiedName&) const;
     String getAttributeTrimmed(const QualifiedName&) const;
 
-    String nameAttribute() const final;
+    String nameAttribute() const final { return getAttribute(HTMLNames::nameAttr); }
+    String titleAttribute() const final { return getAttribute(HTMLNames::titleAttr); }
     int integralAttribute(const QualifiedName&) const;
     bool hasElementName(const ElementName) const final;
     bool hasAttachmentTag() const final { return hasElementName(ElementName::HTML_attachment); }

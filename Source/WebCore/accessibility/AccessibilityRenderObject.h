@@ -199,8 +199,6 @@ private:
 #if PLATFORM(MAC)
     void updateAttachmentViewParents();
 #endif
-    String expandedTextValue() const override;
-    bool supportsExpandedTextValue() const override;
     virtual void updateRoleAfterChildrenCreation();
 
     bool inheritsPresentationalRole() const override;

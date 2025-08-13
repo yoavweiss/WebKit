@@ -651,6 +651,9 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::AXRowIndexText:
         stream << "AXRowIndexText";
         break;
+    case AXProperty::Abbreviation:
+        stream << "Abbreviation";
+        break;
     case AXProperty::AccessKey:
         stream << "AccessKey";
         break;
@@ -754,9 +757,6 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
         break;
     case AXProperty::EmbeddedImageDescription:
         stream << "EmbeddedImageDescription";
-        break;
-    case AXProperty::ExpandedTextValue:
-        stream << "ExpandedTextValue";
         break;
     case AXProperty::ExplicitAutoCompleteValue:
         stream << "ExplicitAutoCompleteValue";
@@ -1159,9 +1159,6 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::SupportsExpanded:
         stream << "SupportsExpanded";
         break;
-    case AXProperty::SupportsExpandedTextValue:
-        stream << "SupportsExpandedTextValue";
-        break;
     case AXProperty::SupportsKeyShortcuts:
         stream << "SupportsKeyShortcuts";
         break;
@@ -1190,6 +1187,9 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
         stream << "TextRuns";
         break;
 #endif
+    case AXProperty::TitleAttribute:
+        stream << "TitleAttribute";
+        break;
     case AXProperty::URL:
         stream << "URL";
         break;

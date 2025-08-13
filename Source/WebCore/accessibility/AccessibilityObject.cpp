@@ -2608,11 +2608,6 @@ String AccessibilityObject::getAttributeTrimmed(const QualifiedName& attribute) 
     return value.trim(isASCIIWhitespace).simplifyWhiteSpace(isASCIIWhitespace);
 }
 
-String AccessibilityObject::nameAttribute() const
-{
-    return getAttribute(nameAttr);
-}
-
 int AccessibilityObject::integralAttribute(const QualifiedName& attributeName) const
 {
     return parseHTMLInteger(getAttribute(attributeName)).value_or(0);

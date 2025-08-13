@@ -261,16 +261,6 @@ bool AccessibilityTableCell::isRowHeader() const
     return false;
 }
 
-String AccessibilityTableCell::expandedTextValue() const
-{
-    return getAttribute(abbrAttr);
-}
-
-bool AccessibilityTableCell::supportsExpandedTextValue() const
-{
-    return isTableHeaderCell() && hasAttribute(abbrAttr);
-}
-
 AXCoreObject::AccessibilityChildrenVector AccessibilityTableCell::rowHeaders()
 {
     AccessibilityChildrenVector headers;

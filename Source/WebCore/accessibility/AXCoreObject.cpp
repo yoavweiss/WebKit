@@ -1525,6 +1525,29 @@ AXCoreObject* AXCoreObject::titleUIElement() const
 #endif
 }
 
+String AXCoreObject::expandedTextValue() const
+{
+    if (isStaticText()) {
+        if (RefPtr parent = parentObject()) {
+            auto parentName = parent->elementName();
+            if (parentName == ElementName::HTML_abbr || parentName == ElementName::HTML_acronym)
+                return parent->titleAttribute();
+        }
+    }
+    return hasCellRole() ? abbreviation() : String();
+}
+
+bool AXCoreObject::supportsExpandedTextValue() const
+{
+    if (isStaticText()) {
+        if (RefPtr parent = parentObject()) {
+            auto parentName = parent->elementName();
+            return parentName == ElementName::HTML_abbr || parentName == ElementName::HTML_acronym;
+        }
+    }
+    return hasCellRole() && !abbreviation().isEmpty();
+}
+
 AXCoreObject::AccessibilityChildrenVector AXCoreObject::linkedObjects() const
 {
     auto linkedObjects = flowToObjects();

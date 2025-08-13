@@ -2217,29 +2217,6 @@ AccessibilityObject* AccessibilityRenderObject::observableObject() const
     return nullptr;
 }
 
-String AccessibilityRenderObject::expandedTextValue() const
-{
-    if (RefPtr parent = parentObject()) {
-        auto parentName = parent->elementName();
-        if (parentName == ElementName::HTML_abbr || parentName == ElementName::HTML_acronym)
-            return parent->getAttribute(titleAttr);
-    }
-
-    return String();
-}
-
-bool AccessibilityRenderObject::supportsExpandedTextValue() const
-{
-    if (role() == AccessibilityRole::StaticText) {
-        if (RefPtr parent = parentObject()) {
-            auto parentName = parent->elementName();
-            return parentName == ElementName::HTML_abbr || parentName == ElementName::HTML_acronym;
-        }
-    }
-
-    return false;
-}
-
 bool AccessibilityRenderObject::shouldIgnoreAttributeRole() const
 {
     return m_ariaRole == AccessibilityRole::Document && hasContentEditableAttributeSet();

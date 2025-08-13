@@ -1196,7 +1196,11 @@ public:
     // This should be the visible text that's actually on the screen if possible.
     // If there's alternative text (e.g. provided by description()), that can override the title.
     virtual String title() const;
+    // This is the value of the title HTML / SVG attribute, differing from the above function which refers to
+    // the notion of "title" accessibility text, a composite of many different attributes and page text.
+    virtual String titleAttribute() const = 0;
     virtual String webAreaTitle() const { return emptyString(); }
+
     virtual String description() const = 0;
 
     virtual std::optional<String> textContent() const = 0;
@@ -1230,8 +1234,9 @@ public:
     virtual const String placeholderValue() const = 0;
 
     // Abbreviations
-    virtual String expandedTextValue() const = 0;
-    virtual bool supportsExpandedTextValue() const = 0;
+    virtual String abbreviation() const = 0;
+    String expandedTextValue() const;
+    bool supportsExpandedTextValue() const;
 
     // Only if isColorWell()
     virtual SRGBA<uint8_t> colorValue() const = 0;
