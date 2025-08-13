@@ -86,6 +86,7 @@ public:
     enum class Type : uint8_t {
         MainResource,
         ImageResource,
+        JSON,
         CSSStyleSheet,
         Script,
         FontResource,

@@ -1093,7 +1093,6 @@ imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/002.
 imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/combination_history_002.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/combination_history_003.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/execution-timing/058.html [ Failure Pass ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/json-module/repeated-imports.any.sharedworker.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/import-attributes/dynamic-import-with-attributes-argument.any.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/import-attributes/dynamic-import-with-attributes-argument.any.worker.html [ Failure Pass ]
 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/import-attributes/dynamic-import-with-attributes-argument.any.sharedworker.html [ Failure Pass ]

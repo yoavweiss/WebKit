@@ -139,6 +139,7 @@ static CachedResourceHandle<CachedResource> createResource(CachedResource::Type 
         return new CachedImage(WTFMove(request), sessionID, cookieJar);
     case CachedResource::Type::CSSStyleSheet:
         return new CachedCSSStyleSheet(WTFMove(request), sessionID, cookieJar);
+    case CachedResource::Type::JSON:
     case CachedResource::Type::Script:
         return new CachedScript(WTFMove(request), sessionID, cookieJar, requiresScriptTrackingPrivacyProtections(document, request.resourceRequest()));
     case CachedResource::Type::SVGDocumentResource:
@@ -184,6 +185,7 @@ static CachedResourceHandle<CachedResource> createResource(CachedResourceRequest
         return new CachedImage(WTFMove(request), resource.sessionID(), resource.cookieJar());
     case CachedResource::Type::CSSStyleSheet:
         return new CachedCSSStyleSheet(WTFMove(request), resource.sessionID(), resource.cookieJar());
+    case CachedResource::Type::JSON:
     case CachedResource::Type::Script:
         return new CachedScript(WTFMove(request), resource.sessionID(), resource.cookieJar(), requiresScriptTrackingPrivacyProtections(document, request.resourceRequest()));
     case CachedResource::Type::SVGDocumentResource:
@@ -330,7 +332,8 @@ CachedResourceHandle<CachedCSSStyleSheet> CachedResourceLoader::requestUserCSSSt
 
 ResourceErrorOr<CachedResourceHandle<CachedScript>> CachedResourceLoader::requestScript(CachedResourceRequest&& request)
 {
-    return castCachedResourceTo<CachedScript>(requestResource(CachedResource::Type::Script, WTFMove(request)));
+    return castCachedResourceTo<CachedScript>(requestResource(
+        request.options().destination == FetchOptionsDestination::Json ? CachedResource::Type::JSON : CachedResource::Type::Script, WTFMove(request)));
 }
 
 #if ENABLE(XSLT)
@@ -437,6 +440,7 @@ static MixedContentChecker::ContentType contentTypeFromResourceType(CachedResour
         return MixedContentChecker::ContentType::ActiveCanWarn;
 
     case CachedResource::Type::CSSStyleSheet:
+    case CachedResource::Type::JSON:
     case CachedResource::Type::Script:
     case CachedResource::Type::FontResource:
         return MixedContentChecker::ContentType::Active;
@@ -498,6 +502,7 @@ bool CachedResourceLoader::checkInsecureContent(CachedResource::Type type, const
         // XSL) or exfiltrate the content of the current document (CSS).
         // This block is a special-case for maintaining backwards compatibility.
         if (type == CachedResource::Type::Script
+            || type == CachedResource::Type::JSON
 #if ENABLE(XSLT)
             || type == CachedResource::Type::XSLStyleSheet
 #endif
@@ -510,6 +515,7 @@ bool CachedResourceLoader::checkInsecureContent(CachedResource::Type type, const
     }
 
     switch (type) {
+    case CachedResource::Type::JSON:
     case CachedResource::Type::Script:
 #if ENABLE(XSLT)
     case CachedResource::Type::XSLStyleSheet:
@@ -577,6 +583,7 @@ bool CachedResourceLoader::allowedByContentSecurityPolicy(CachedResource::Type t
 #if ENABLE(XSLT)
     case CachedResource::Type::XSLStyleSheet:
 #endif
+    case CachedResource::Type::JSON:
     case CachedResource::Type::Script:
         if (!contentSecurityPolicy->allowScriptFromSource(url, redirectResponseReceived, preRedirectURL, options.integrity, options.nonce))
             return false;
@@ -1051,6 +1058,8 @@ static FetchOptions::Destination destinationForType(CachedResource::Type type, L
         return FetchOptions::Destination::Image;
     case CachedResource::Type::CSSStyleSheet:
         return FetchOptions::Destination::Style;
+    case CachedResource::Type::JSON:
+        return FetchOptions::Destination::Json;
     case CachedResource::Type::Script:
         return FetchOptions::Destination::Script;
     case CachedResource::Type::FontResource:
@@ -1358,7 +1367,7 @@ ResourceErrorOr<CachedResourceHandle<CachedResource>> CachedResourceLoader::requ
     ASSERT(resource);
     resource->setOriginalRequest(WTFMove(originalRequest));
 
-    if (type == CachedResource::Type::Script && contentSecurityPolicy) {
+    if ((type == CachedResource::Type::Script || type == CachedResource::Type::JSON) && contentSecurityPolicy) {
         auto hashes = contentSecurityPolicy->hashesToReport();
         if (!hashes.isEmpty())
             resource->setIsHashReportingNeeded();
@@ -1821,7 +1830,7 @@ ResourceErrorOr<CachedResourceHandle<CachedResource>> CachedResourceLoader::prel
 
     RefPtr document = m_document.get();
     ASSERT(document);
-    if (request.charset().isEmpty() && document && (type == CachedResource::Type::Script || type == CachedResource::Type::CSSStyleSheet))
+    if (request.charset().isEmpty() && document && (type == CachedResource::Type::Script || type == CachedResource::Type::JSON || type == CachedResource::Type::CSSStyleSheet))
         request.setCharset(document->charset());
 
     auto resource = requestResource(type, WTFMove(request), ForPreload::Yes);

@@ -38,9 +38,11 @@ namespace WebCore {
 class CachedScript;
 class Document;
 
+enum class FetchOptionsDestination : uint8_t;
+
 class CachedScriptFetcher : public JSC::ScriptFetcher {
 public:
-    virtual CachedResourceHandle<CachedScript> requestModuleScript(Document&, const URL& sourceURL, String&& integrity, std::optional<ServiceWorkersMode>) const;
+    virtual CachedResourceHandle<CachedScript> requestModuleScript(Document&, const URL& sourceURL, FetchOptionsDestination, String&& integrity, std::optional<ServiceWorkersMode>) const;
 
     static Ref<CachedScriptFetcher> create(const AtomString& charset);
 
@@ -60,7 +62,7 @@ protected:
     {
     }
 
-    CachedResourceHandle<CachedScript> requestScriptWithCache(Document&, const URL& sourceURL, const String& crossOriginMode, String&& integrity, std::optional<ResourceLoadPriority>, std::optional<ServiceWorkersMode>) const;
+    CachedResourceHandle<CachedScript> requestScriptWithCache(Document&, const URL& sourceURL, FetchOptionsDestination, const String& crossOriginMode, String&& integrity, std::optional<ResourceLoadPriority>, std::optional<ServiceWorkersMode>) const;
 
 private:
     String m_nonce;

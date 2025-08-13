@@ -361,7 +361,8 @@ JSC::JSInternalPromise* ScriptModuleLoader::importModule(JSC::JSGlobalObject* js
         } else {
             // https://html.spec.whatwg.org/multipage/webappapis.html#default-classic-script-fetch-options
             baseURL = m_context->url();
-            scriptFetcher = WorkerScriptFetcher::create(*parameters, FetchOptions::Credentials::SameOrigin, FetchOptions::Destination::Script, ReferrerPolicy::EmptyString);
+            auto destination = type == JSC::ScriptFetchParameters::JSON ? FetchOptions::Destination::Json : FetchOptions::Destination::Script;
+            scriptFetcher = WorkerScriptFetcher::create(*parameters, FetchOptions::Credentials::SameOrigin, destination, ReferrerPolicy::EmptyString);
         }
     } else {
         baseURL = URL { sourceOrigin.string() };
@@ -375,6 +376,7 @@ JSC::JSInternalPromise* ScriptModuleLoader::importModule(JSC::JSGlobalObject* js
 
         URL moduleURL = globalObject.importMap().resolve(specifier, baseURL);
         parameters = ModuleFetchParameters::create(type, globalObject.importMap().integrityForURL(moduleURL), /* isTopLevelModule */ true);
+        auto destination = type == JSC::ScriptFetchParameters::JSON ? FetchOptions::Destination::Json : FetchOptions::Destination::Script;
 
         if (sourceOrigin.fetcher()) {
             scriptFetcher = sourceOrigin.fetcher();
@@ -382,7 +384,7 @@ JSC::JSInternalPromise* ScriptModuleLoader::importModule(JSC::JSGlobalObject* js
             // Destination should be "script" for dynamic-import.
             if (m_ownerType == OwnerType::WorkerOrWorklet) {
                 auto& fetcher = static_cast<WorkerScriptFetcher&>(*scriptFetcher);
-                scriptFetcher = WorkerScriptFetcher::create(*parameters, fetcher.credentials(), FetchOptions::Destination::Script, fetcher.referrerPolicy());
+                scriptFetcher = WorkerScriptFetcher::create(*parameters, fetcher.credentials(), destination, fetcher.referrerPolicy());
             }
         }
 
@@ -390,7 +392,7 @@ JSC::JSInternalPromise* ScriptModuleLoader::importModule(JSC::JSGlobalObject* js
             if (m_ownerType == OwnerType::Document)
                 scriptFetcher = CachedScriptFetcher::create(downcast<Document>(*m_context).charset());
             else
-                scriptFetcher = WorkerScriptFetcher::create(*parameters, FetchOptions::Credentials::SameOrigin, FetchOptions::Destination::Script, ReferrerPolicy::EmptyString);
+                scriptFetcher = WorkerScriptFetcher::create(*parameters, FetchOptions::Credentials::SameOrigin, destination, ReferrerPolicy::EmptyString);
         }
     }
     ASSERT(baseURL.isValid());
