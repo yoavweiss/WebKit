@@ -8257,3 +8257,5 @@ webkit.org/b/297131 [ Debug ] imported/w3c/web-platform-tests/web-locks/storage-
 webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-position-does-not-leak.https.html [ Pass Failure ]
 
 webkit.org/b/297251 [ Release ] fast/mediastream/getUserMedia-echoCancellation.html [ Pass Failure ]
+
+webkit.org/b/297346 workers/message-port-gc.html [ Crash ]
