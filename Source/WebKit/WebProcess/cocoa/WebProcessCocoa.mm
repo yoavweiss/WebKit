@@ -908,7 +908,7 @@ void WebProcess::setupLogStream()
     LogStreamIdentifier logStreamIdentifier { LogStreamIdentifier::generate() };
 
 #if ENABLE(STREAMING_IPC_IN_LOG_FORWARDING)
-    static constexpr auto connectionBufferSizeLog2 = 21;
+    static constexpr auto connectionBufferSizeLog2 = 17;
     auto connectionPair = IPC::StreamClientConnection::create(connectionBufferSizeLog2, 1_s);
     if (!connectionPair)
         CRASH();
