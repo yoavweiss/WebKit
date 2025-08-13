@@ -1162,7 +1162,7 @@ void WebProcessProxy::modelProcessDidFinishLaunching()
 
 void WebProcessProxy::modelProcessExited(ProcessTerminationReason reason)
 {
-    WEBPROCESSPROXY_RELEASE_LOG_ERROR(Process, "modelProcessExited: reason=%{public}s", processTerminationReasonToString(reason).characters());
+    WEBPROCESSPROXY_RELEASE_LOG_ERROR(Process, "modelProcessExited: reason=%" PUBLIC_LOG_STRING, processTerminationReasonToString(reason).characters());
 
     for (auto& page : m_pageMap.values())
         page->modelProcessExited(reason);
@@ -2090,7 +2090,7 @@ void WebProcessProxy::didExceedInactiveMemoryLimit()
 
 void WebProcessProxy::didExceedMemoryFootprintThreshold(uint64_t footprint)
 {
-    WEBPROCESSPROXY_RELEASE_LOG(PerformanceLogging, "didExceedMemoryFootprintThreshold: WebProcess exceeded notification threshold (current footprint: %llu MB)", footprint >> 20);
+    WEBPROCESSPROXY_RELEASE_LOG(PerformanceLogging, "didExceedMemoryFootprintThreshold: WebProcess exceeded notification threshold (current footprint: %" PRIu64 " MB)", footprint >> 20);
 
     RefPtr dataStore = websiteDataStore();
     if (!dataStore)
