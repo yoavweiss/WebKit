@@ -709,6 +709,12 @@ KeyboardUIMode WebChromeClient::keyboardUIMode()
     return page ? page->keyboardUIMode() : KeyboardAccessDefault;
 }
 
+bool WebChromeClient::hasAccessoryMousePointingDevice() const
+{
+    RefPtr page = m_page.get();
+    return page && page->hasAccessoryMousePointingDevice();
+}
+
 bool WebChromeClient::hoverSupportedByPrimaryPointingDevice() const
 {
     RefPtr page = m_page.get();

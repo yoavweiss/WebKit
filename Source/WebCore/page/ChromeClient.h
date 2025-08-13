@@ -261,6 +261,7 @@ public:
     virtual bool runJavaScriptPrompt(LocalFrame&, const String& message, const String& defaultValue, String& result) = 0;
     virtual KeyboardUIMode keyboardUIMode() = 0;
 
+    virtual bool hasAccessoryMousePointingDevice() const = 0;
     virtual bool hoverSupportedByPrimaryPointingDevice() const = 0;
     virtual bool hoverSupportedByAnyAvailablePointingDevice() const = 0;
     virtual std::optional<PointerCharacteristics> pointerCharacteristicsOfPrimaryPointingDevice() const = 0;

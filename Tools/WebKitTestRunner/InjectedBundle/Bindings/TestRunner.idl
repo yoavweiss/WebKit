@@ -472,4 +472,6 @@ interface TestRunner {
     // ResourceMonitor
     readonly attribute boolean canModifyResourceMonitorList;
     Promise<undefined> setResourceMonitorList(DOMString rulesText);
+
+    undefined setHasMouseDeviceForTesting(boolean hasMouseDevice);
 };

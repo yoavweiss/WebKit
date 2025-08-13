@@ -4684,4 +4684,10 @@ void TestController::setResourceMonitorList(WKStringRef rulesText, CompletionHan
     WKContextSetResourceMonitorURLsForTesting(m_context.get(), rulesText, completionHandler.leak(), adoptAndCallCompletionHandler);
 }
 
+#if !PLATFORM(IOS_FAMILY)
+void TestController::setHasMouseDeviceForTesting(bool)
+{
+}
+#endif
+
 } // namespace WTR

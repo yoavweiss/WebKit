@@ -10584,6 +10584,13 @@ std::unique_ptr<FrameInfoData> WebPage::takeMainFrameNavigationInitiator()
     return std::exchange(m_mainFrameNavigationInitiator, nullptr);
 }
 
+#if !PLATFORM(IOS_FAMILY)
+bool WebPage::hasAccessoryMousePointingDevice() const
+{
+    return true;
+}
+#endif
+
 } // namespace WebKit
 
 #undef WEBPAGE_RELEASE_LOG

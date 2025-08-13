@@ -50,6 +50,7 @@ OBJC_CLASS NSColor;
 OBJC_CLASS NSString;
 OBJC_CLASS UIKeyboardInputMode;
 OBJC_CLASS UIPasteboardConsistencyEnforcer;
+OBJC_CLASS WKMouseDeviceObserver;
 OBJC_CLASS WKWebViewConfiguration;
 
 namespace WTR {
@@ -465,6 +466,8 @@ public:
     bool useWorkQueue() const { return m_useWorkQueue; }
 
     void listenForTooltipChanges(WKFrameInfoRef, WKTypeRef);
+
+    void setHasMouseDeviceForTesting(bool);
 
 private:
     WKRetainPtr<WKPageConfigurationRef> generatePageConfiguration(const TestOptions&);

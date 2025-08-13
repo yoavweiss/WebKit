@@ -14,9 +14,10 @@ PASS [object Promise] is non-null.
 PASS onpointerlockchange received after: Unlock
      Lock with PointerLockOptionsEnabled = false
 PASS undefined is undefined.
-FAIL onpointerlockerror received after: Lock with PointerLockOptionsEnabled = false
+PASS onpointerlockchange received after: Lock with PointerLockOptionsEnabled = false
+     Unlock
+PASS onpointerlockchange received after: Unlock
 PASS successfullyParsed is true
-Some tests failed.
 
 TEST COMPLETE
 

@@ -588,6 +588,8 @@ public:
     }
     void setResourceMonitorList(JSContextRef, JSStringRef rulesText, JSValueRef callback);
 
+    void setHasMouseDeviceForTesting(bool);
+
 private:
     TestRunner();
 

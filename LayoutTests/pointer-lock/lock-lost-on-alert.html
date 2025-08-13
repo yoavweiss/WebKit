@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<script src="../http/tests/resources/js-test-pre.js"></script>
+<script src="../resources/js-test.js"></script>
 <script src="../http/tests/resources/pointer-lock/pointer-lock-test-harness.js"></script>
 </head>
 <body>
@@ -28,12 +28,14 @@
         function () {
             expectOnlyChangeEvent("Alert cancel targetDiv1 lock.");
             alert('Alert text');
+            setTimeout(doNextStep, 0);
+        },
+        function () {
             shouldBe("document.pointerLockElement", "null");
         },
     ];
     doNextStepWithUserGesture();
 </script>
-<script src="../http/tests/resources/js-test-post.js"></script>
 </body>
 </html>
 

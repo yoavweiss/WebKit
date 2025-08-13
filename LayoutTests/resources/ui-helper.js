@@ -2067,6 +2067,10 @@ window.UIHelper = class UIHelper {
 
     static setWindowIsKey(isKey)
     {
+        if (!this.isWebKit2()) {
+            testRunner.setWindowIsKey(isKey);
+            return Promise.resolve();
+        }
         const script = `uiController.windowIsKey = ${isKey}`;
         return new Promise(resolve => testRunner.runUIScript(script, resolve));
     }

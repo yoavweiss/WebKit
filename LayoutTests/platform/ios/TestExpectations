@@ -345,6 +345,8 @@ fast/shadow-dom/pointerlockelement-in-slot.html
 fast/js-promise/js-promise-invalid-context-access.html [ Skip ]
 imported/w3c/web-platform-tests/pointerlock [ Skip ]
 
+pointer-lock/pointer-lock-option-unadjusted-movement.html [ Pass ]
+
 # FIXME: Media tests not supported on iOS
 http/tests/media
 imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements

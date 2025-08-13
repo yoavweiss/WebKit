@@ -5499,7 +5499,7 @@ static bool isMousePrimaryPointingDevice()
 #endif
 }
 
-static bool hasAccessoryMousePointingDevice()
+bool WebPage::hasAccessoryMousePointingDevice() const
 {
     if (isMousePrimaryPointingDevice())
         return true;

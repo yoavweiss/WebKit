@@ -2189,6 +2189,11 @@ bool TestRunner::shouldDumpAllFrameScrollPositions() const
     return postSynchronousPageMessageReturningBoolean("ShouldDumpAllFrameScrollPositions");
 }
 
+void TestRunner::setHasMouseDeviceForTesting(bool hasMouseDevice)
+{
+    postSynchronousPageMessage("SetHasMouseDeviceForTesting", hasMouseDevice);
+}
+
 ALLOW_DEPRECATED_DECLARATIONS_END
 
 } // namespace WTR

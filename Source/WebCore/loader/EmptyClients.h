@@ -108,6 +108,7 @@ class EmptyChromeClient : public ChromeClient {
 
     KeyboardUIMode keyboardUIMode() final { return KeyboardAccessDefault; }
 
+    bool hasAccessoryMousePointingDevice() const final { return false; }
     bool hoverSupportedByPrimaryPointingDevice() const final { return false; };
     bool hoverSupportedByAnyAvailablePointingDevice() const final { return false; }
     std::optional<PointerCharacteristics> pointerCharacteristicsOfPrimaryPointingDevice() const final { return std::nullopt; };
