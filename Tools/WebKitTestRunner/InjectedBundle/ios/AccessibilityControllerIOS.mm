@@ -24,8 +24,9 @@
  */
 
 #import "config.h"
-#import "AccessibilityCommonCocoa.h"
 #import "AccessibilityController.h"
+
+#import "AccessibilityCommonCocoa.h"
 #import "AccessibilityNotificationHandler.h"
 #import "InjectedBundle.h"
 #import "InjectedBundlePage.h"

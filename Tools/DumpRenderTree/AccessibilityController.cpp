@@ -24,7 +24,6 @@
  */
 
 #include "config.h"
-
 #include "AccessibilityController.h"
 
 #include "AccessibilityUIElement.h"

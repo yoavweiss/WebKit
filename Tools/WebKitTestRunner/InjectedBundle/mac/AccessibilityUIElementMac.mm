@@ -24,17 +24,17 @@
  */
 
 #import "config.h"
-#import "AccessibilityCommonCocoa.h"
-
-#import "AccessibilityNotificationHandler.h"
 #import "AccessibilityUIElement.h"
+
+#import "AccessibilityCommonCocoa.h"
+#import "AccessibilityNotificationHandler.h"
 #import "InjectedBundle.h"
 #import "InjectedBundlePage.h"
 #import "JSBasics.h"
 #import <AppKit/NSAccessibility.h>
 #import <Foundation/Foundation.h>
-#import <JavaScriptCore/JSStringRefCF.h>
 #import <JavaScriptCore/JSObjectRef.h>
+#import <JavaScriptCore/JSStringRefCF.h>
 #import <WebCore/DateComponents.h>
 #import <WebKit/WKBundleFrame.h>
 #import <wtf/RetainPtr.h>
@@ -1477,7 +1477,7 @@ JSRetainPtr<JSStringRef> AccessibilityUIElement::boundsForRange(unsigned locatio
     NSRange range = NSMakeRange(location, length);
     BEGIN_AX_OBJC_EXCEPTIONS
     auto value = attributeValueForParameter(NSAccessibilityBoundsForRangeParameterizedAttribute, [NSValue valueWithRange:range]);
-    NSRect rect = NSMakeRect(0,0,0,0);
+    NSRect rect = NSMakeRect(0, 0, 0, 0);
     if ([value isKindOfClass:[NSValue class]])
         rect = [value rectValue];
 

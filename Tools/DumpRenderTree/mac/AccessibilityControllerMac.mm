@@ -24,12 +24,12 @@
  */
 
 #import "config.h"
-#import "DumpRenderTree.h"
 #import "AccessibilityController.h"
 
 #import "AccessibilityCommonMac.h"
 #import "AccessibilityNotificationHandler.h"
 #import "AccessibilityUIElement.h"
+#import "DumpRenderTree.h"
 #import "JSBasics.h"
 #import <AppKit/NSColor.h>
 #import <Foundation/Foundation.h>

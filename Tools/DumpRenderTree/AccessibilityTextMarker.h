@@ -83,8 +83,8 @@ private:
 #endif
 };
 
-AccessibilityTextMarker* toTextMarker(JSObjectRef object);
-AccessibilityTextMarkerRange* toTextMarkerRange(JSObjectRef object);
+AccessibilityTextMarker* toTextMarker(JSObjectRef);
+AccessibilityTextMarkerRange* toTextMarkerRange(JSObjectRef);
 
 #if !PLATFORM(COCOA)
 inline AccessibilityTextMarker::AccessibilityTextMarker(PlatformTextMarker) { }

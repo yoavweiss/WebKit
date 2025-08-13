@@ -24,8 +24,8 @@
  */
 
 #import "config.h"
-
 #import "AccessibilityTextMarker.h"
+
 #import "DumpRenderTree.h"
 
 #if PLATFORM(MAC)

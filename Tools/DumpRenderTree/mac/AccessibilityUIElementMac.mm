@@ -248,8 +248,7 @@ static NSDictionary *selectTextParameterizedAttributeForCriteria(JSContextRef co
             auto searchStringsString = adopt(JSValueToStringCopy(context, searchStrings, nullptr));
             if (searchStringsString)
                 [searchStringsParameter addObject:[NSString stringWithJSStringRef:searchStringsString.get()]];
-        }
-        else if (JSValueIsObject(context, searchStrings)) {
+        } else if (JSValueIsObject(context, searchStrings)) {
             auto searchStringsArray = (JSObjectRef)searchStrings;
             auto searchStringsArrayLength = WTR::arrayLength(context, searchStringsArray);
             for (unsigned i = 0; i < searchStringsArrayLength; ++i) {
@@ -657,9 +656,8 @@ JSRetainPtr<JSStringRef> AccessibilityUIElement::parameterizedAttributeNames()
     NSArray* supportedParameterizedAttributes = [m_element accessibilityParameterizedAttributeNames];
 
     NSMutableString* attributesString = [NSMutableString string];
-    for (NSUInteger i = 0; i < [supportedParameterizedAttributes count]; ++i) {
+    for (NSUInteger i = 0; i < [supportedParameterizedAttributes count]; ++i)
         [attributesString appendFormat:@"%@\n", [supportedParameterizedAttributes objectAtIndex:i]];
-    }
 
     return [attributesString createJSStringRef];
 }
@@ -1097,12 +1095,12 @@ JSRetainPtr<JSStringRef> AccessibilityUIElement::boundsForRange(unsigned locatio
     NSRange range = NSMakeRange(location, length);
     BEGIN_AX_OBJC_EXCEPTIONS
     id value = [m_element accessibilityAttributeValue:NSAccessibilityBoundsForRangeParameterizedAttribute forParameter:[NSValue valueWithRange:range]];
-    NSRect rect = NSMakeRect(0,0,0,0);
+    NSRect rect = NSMakeRect(0, 0, 0, 0);
     if ([value isKindOfClass:[NSValue class]])
         rect = [value rectValue];
 
     // don't return position information because it is platform dependent
-    NSMutableString* boundsDescription = [NSMutableString stringWithFormat:@"{{%f, %f}, {%f, %f}}",-1.0f,-1.0f,rect.size.width,rect.size.height];
+    NSMutableString* boundsDescription = [NSMutableString stringWithFormat:@"{{%f, %f}, {%f, %f}}", -1.0f, -1.0f, rect.size.width, rect.size.height];
     return [boundsDescription createJSStringRef];
     END_AX_OBJC_EXCEPTIONS
 
@@ -1335,7 +1333,7 @@ JSRetainPtr<JSStringRef> AccessibilityUIElement::columnIndexRange()
     NSNumber* indexRange = [m_element accessibilityAttributeValue:@"AXColumnIndexRange"];
     if (indexRange)
         range = [indexRange rangeValue];
-    NSMutableString* rangeDescription = [NSMutableString stringWithFormat:@"{%lu, %lu}",static_cast<unsigned long>(range.location), static_cast<unsigned long>(range.length)];
+    NSMutableString* rangeDescription = [NSMutableString stringWithFormat:@"{%lu, %lu}", static_cast<unsigned long>(range.location), static_cast<unsigned long>(range.length)];
     return [rangeDescription createJSStringRef];
     END_AX_OBJC_EXCEPTIONS
 
