@@ -81,6 +81,7 @@ public:
     AutoplayPolicy autoplayPolicy() const final;
 
     void updateScrollingMode() final;
+    const SecurityOrigin& frameDocumentSecurityOriginOrOpaque() const;
 
 private:
     WEBCORE_EXPORT explicit RemoteFrame(Page&, ClientCreator&&, FrameIdentifier, HTMLFrameOwnerElement*, Frame* parent, Markable<LayerHostingContextIdentifier>, Frame* opener, Ref<FrameTreeSyncData>&&, AddToFrameTree = AddToFrameTree::Yes);

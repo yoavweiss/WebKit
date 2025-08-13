@@ -92,6 +92,7 @@ struct StructuredSerializeOptions;
 struct WindowFeatures;
 struct WindowPostMessageOptions;
 
+enum class IncludeTargetOrigin : bool { No, Yes };
 enum class SetLocationLocking : bool { LockHistoryBasedOnGestureState, LockHistoryAndBackForwardList };
 enum class NavigationHistoryBehavior : uint8_t;
 
@@ -126,6 +127,7 @@ public:
 
     WindowProxy* opener() const;
     Document* documentIfLocal();
+    RefPtr<Document> protectedDocumentIfLocal();
 
     WindowProxy* top() const;
     WindowProxy* parent() const;
@@ -223,7 +225,17 @@ public:
     ExceptionOr<PushManager&> pushManager();
 #endif
 
+    // FIXME: When this LocalDOMWindow is no longer the active LocalDOMWindow (i.e.,
+    // when its document is no longer the document that is displayed in its
+    // frame), we would like to zero out m_frame to avoid being confused
+    // by the document that is currently active in m_frame.
+    bool isCurrentlyDisplayedInFrame() const;
+    void printErrorMessage(const String&) const;
+    String crossDomainAccessErrorMessage(const LocalDOMWindow& activeWindow, IncludeTargetOrigin);
+
 protected:
+    bool isInsecureScriptAccess(const LocalDOMWindow& activeWindow, const String& urlString);
+    bool passesSetLocationSecurityChecks(const LocalDOMWindow& activeWindow, const URL& completedURL, CanNavigateState& navigationState);
     explicit DOMWindow(GlobalWindowIdentifier&&, DOMWindowType);
 
     ExceptionOr<RefPtr<SecurityOrigin>> createTargetOriginForPostMessage(const String&, Document&);
