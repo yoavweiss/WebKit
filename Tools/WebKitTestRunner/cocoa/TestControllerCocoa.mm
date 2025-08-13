@@ -191,6 +191,7 @@ void initializeWebViewConfiguration(const char* libraryPath, WKStringRef injecte
 #endif
         [configuration setMediaTypesRequiringUserActionForPlayback:WKAudiovisualMediaTypeNone];
         WKPageConfigurationSetShouldSendConsoleLogsToUIProcessForTesting((__bridge WKPageConfigurationRef)configuration.get(), true);
+        WKPageConfigurationSetAllowJSHandleInPageContentWorld((__bridge WKPageConfigurationRef)configuration.get(), true);
 
 #if USE(SYSTEM_PREVIEW)
         [configuration _setSystemPreviewEnabled:YES];

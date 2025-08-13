@@ -517,8 +517,10 @@ void TestController::tooltipDidChange(WKStringRef tooltip)
         return;
 
     for (auto& listener : m_framesListeningForTooltipChange) {
-        WKRetainPtr js = toWK(makeString(listener.callbackName, "('"_s, toWTFString(tooltip), "')"_s));
-        WKPageEvaluateJavaScriptInFrame(WKFrameInfoGetPage(listener.frame.get()), listener.frame.get(), js.get(), nullptr, nullptr);
+        auto arguments = adoptWK(WKMutableDictionaryCreate());
+        setValue(arguments, "callback", listener.callbackHandle);
+        setValue(arguments, "tooltip", tooltip);
+        WKPageCallAsyncJavaScript(WKFrameInfoGetPage(listener.frame.get()), toWK("return callback(tooltip)").get(), arguments.get(), listener.frame.get(), nullptr, nullptr);
     }
 }
 
@@ -1112,9 +1114,9 @@ void TestController::simulateClickBackgroundFetch(WKStringRef)
 }
 #endif
 
-void TestController::listenForTooltipChanges(WKFrameInfoRef frame, WKStringRef callbackName)
+void TestController::listenForTooltipChanges(WKFrameInfoRef frame, WKTypeRef callbackHandle)
 {
-    m_framesListeningForTooltipChange.append({ frame, toWTFString(callbackName) });
+    m_framesListeningForTooltipChange.append({ frame, callbackHandle });
 }
 
 void TestController::createWebViewWithOptions(const TestOptions& options)
@@ -1825,14 +1827,14 @@ void TestController::installUserScript(const TestInvocation& test)
     if (!test.options().shouldInjectTestRunner())
         return;
 
-    WKRetainPtr js = toWK("if (window.testRunner) { testRunner.installTooltipDidChangeCallback = function (name) { window.webkit.messageHandlers.webkitTestRunner.postMessage(name) } }");
+    WKRetainPtr js = toWK("if (window.testRunner) { testRunner.installTooltipDidChangeCallback = function (f) { window.webkit.messageHandlers.webkitTestRunner.postMessage(window.webkit.createJSHandle(f)) } }");
     constexpr bool forMainFrameOnly { true };
     WKRetainPtr script = adoptWK(WKUserScriptCreateWithSource(js.get(), kWKInjectAtDocumentStart, forMainFrameOnly));
     WKUserContentControllerAddUserScript(controller.get(), script.get());
 
     // FIXME: Generalize this to be able to be used for different test callbacks.
     WKUserContentControllerAddScriptMessageHandler(controller.get(), toWK("webkitTestRunner").get(), [] (WKScriptMessageRef message, WKCompletionListenerRef, const void *) {
-        TestController::singleton().listenForTooltipChanges(WKScriptMessageGetFrameInfo(message), (WKStringRef)WKScriptMessageGetBody(message));
+        TestController::singleton().listenForTooltipChanges(WKScriptMessageGetFrameInfo(message), WKScriptMessageGetBody(message));
     }, nullptr);
 }
 

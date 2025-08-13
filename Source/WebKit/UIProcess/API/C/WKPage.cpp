@@ -2799,6 +2799,39 @@ void WKPageEvaluateJavaScriptInFrame(WKPageRef pageRef, WKFrameInfoRef frame, WK
     });
 }
 
+void WKPageCallAsyncJavaScript(WKPageRef page, WKStringRef script, WKDictionaryRef arguments, WKFrameInfoRef frame, void* context, WKPageEvaluateJavaScriptFunction callback)
+{
+    auto extractArguments = [] (API::Dictionary* dictionary) -> std::optional<Vector<std::pair<String, JavaScriptEvaluationResult>>> {
+        if (!dictionary)
+            return std::nullopt;
+
+        Vector<std::pair<String, JavaScriptEvaluationResult>> result;
+        for (auto& [key, value] : dictionary->map()) {
+            if (auto js = JavaScriptEvaluationResult::extract(value.get()))
+                result.append({ key, WTFMove(*js) });
+        }
+        return { WTFMove(result) };
+    };
+
+    auto frameID = frame ? std::optional(toImpl(frame)->frameInfoData().frameID) : std::nullopt;
+    toProtectedImpl(page)->runJavaScriptInFrameInScriptWorld(WebKit::RunJavaScriptParameters {
+        toProtectedImpl(script)->string(),
+        JSC::SourceTaintedOrigin::Untainted,
+        URL { },
+        WebCore::RunAsAsyncFunction::Yes,
+        extractArguments(toProtectedImpl(arguments).get()),
+        WebCore::ForceUserGesture::Yes,
+        RemoveTransientActivation::Yes
+    }, frameID, API::ContentWorld::pageContentWorldSingleton(), !!callback, [context, callback] (auto&& result) {
+        if (!callback)
+            return;
+        if (result)
+            callback(result->toWK().get(), nullptr, context);
+        else
+            callback(nullptr, nullptr, context);
+    });
+}
+
 static CompletionHandler<void(const String&)> toStringCallback(void* context, void(*callback)(WKStringRef, WKErrorRef, void*))
 {
     return [context, callback] (const String& returnValue) {

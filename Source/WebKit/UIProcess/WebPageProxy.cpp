@@ -12076,6 +12076,7 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
     parameters.canUseCredentialStorage = m_canUseCredentialStorage;
 
     parameters.httpsUpgradeEnabled = preferences->upgradeKnownHostsToHTTPSEnabled() ? m_configuration->httpsUpgradeEnabled() : false;
+    parameters.allowJSHandleInPageContentWorld = m_configuration->allowJSHandleInPageContentWorld();
     
 #if ENABLE(APP_HIGHLIGHTS)
     parameters.appHighlightsVisible = appHighlightsVisibility() ? HighlightVisibility::Visible : HighlightVisibility::Hidden;

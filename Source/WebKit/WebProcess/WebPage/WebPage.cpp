@@ -1182,6 +1182,9 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
         page->chrome().show();
         page->setOpenedByDOM();
     }
+
+    if (parameters.allowJSHandleInPageContentWorld)
+        InjectedBundleScriptWorld::normalWorldSingleton().setNodeInfoEnabled();
 }
 
 void WebPage::updateAfterDrawingAreaCreation(const WebPageCreationParameters& parameters)

@@ -85,6 +85,8 @@ public:
     GRefPtr<JSCValue> toJSC();
 #endif
 
+    static std::optional<JavaScriptEvaluationResult> extract(API::Object*);
+
     WKRetainPtr<WKTypeRef> toWK();
     RefPtr<API::Object> toAPI();
 
@@ -92,6 +94,10 @@ public:
 
 private:
     JavaScriptEvaluationResult(JSGlobalContextRef, JSValueRef);
+    JavaScriptEvaluationResult(API::Object*);
+
+    JSObjectID addObjectToMap(API::Object*);
+    Value toValue(API::Object*);
 
 #if USE(GLIB)
     explicit JavaScriptEvaluationResult(GVariant*);
@@ -128,6 +134,7 @@ private:
 
     // Used for serializing to IPC
     HashMap<Protected<JSValueRef>, JSObjectID> m_jsObjectsInMap;
+    HashMap<RefPtr<API::Object>, JSObjectID> m_apiObjectsInMap;
     std::optional<JSObjectID> m_nullObjectID;
 
     // Used for deserializing from IPC to JS

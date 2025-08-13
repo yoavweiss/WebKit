@@ -30,6 +30,7 @@
 #include "APIDictionary.h"
 #include "APIJSHandle.h"
 #include "APINumber.h"
+#include "APISerializedNode.h"
 #include "APISerializedScriptValue.h"
 #include "APIString.h"
 #include "WKSharedAPICast.h"
@@ -67,11 +68,109 @@ RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Value&& root)
         Ref dictionary = API::Dictionary::create();
         m_dictionaries.append({ WTFMove(map), dictionary });
         return { WTFMove(dictionary) };
-    }, [] (JSHandleInfo&&) -> RefPtr<API::Object> {
-        return nullptr;
-    }, [] (UniqueRef<WebCore::SerializedNode>&&) -> RefPtr<API::Object> {
-        return nullptr;
+    }, [] (JSHandleInfo&& info) -> RefPtr<API::Object> {
+        return API::JSHandle::create(WTFMove(info));
+    }, [] (UniqueRef<WebCore::SerializedNode>&& node) -> RefPtr<API::Object> {
+        return API::SerializedNode::create(WTFMove(node.get()));
     });
+}
+
+static bool isSerializable(API::Object* object)
+{
+    if (!object)
+        return false;
+
+    switch (object->type()) {
+    case API::Object::Type::String:
+    case API::Object::Type::Boolean:
+    case API::Object::Type::Double:
+    case API::Object::Type::UInt64:
+    case API::Object::Type::Int64:
+    case API::Object::Type::JSHandle:
+    case API::Object::Type::SerializedNode:
+        return true;
+    case API::Object::Type::Array:
+        return std::ranges::all_of(downcast<API::Array>(object)->elements(), [] (const RefPtr<API::Object>& element) {
+            return isSerializable(element.get());
+        });
+    case API::Object::Type::Dictionary:
+        return std::ranges::all_of(downcast<API::Dictionary>(object)->map(), [] (const KeyValuePair<String, RefPtr<API::Object>>& pair) {
+            return isSerializable(pair.value.get());
+        });
+    default:
+        return false;
+    }
+}
+
+auto JavaScriptEvaluationResult::toValue(API::Object* object) -> Value
+{
+    if (!object)
+        return EmptyType::Undefined;
+
+    switch (object->type()) {
+    case API::Object::Type::String:
+        return downcast<API::String>(object)->string();
+    case API::Object::Type::Boolean:
+        return downcast<API::Boolean>(object)->value();
+    case API::Object::Type::Double:
+        return downcast<API::Double>(object)->value();
+    case API::Object::Type::UInt64:
+        return static_cast<double>(downcast<API::UInt64>(object)->value());
+    case API::Object::Type::Int64:
+        return static_cast<double>(downcast<API::Int64>(object)->value());
+    case API::Object::Type::JSHandle:
+        return downcast<API::JSHandle>(object)->info();
+    case API::Object::Type::SerializedNode:
+        return makeUniqueRef<WebCore::SerializedNode>(downcast<API::SerializedNode>(object)->coreSerializedNode());
+    case API::Object::Type::Array: {
+        Vector<JSObjectID> vector;
+        for (auto& element : downcast<API::Array>(object)->elements())
+            vector.append(addObjectToMap(element.get()));
+        return { WTFMove(vector) };
+    }
+    case API::Object::Type::Dictionary: {
+        HashMap<JSObjectID, JSObjectID> map;
+        for (auto& [key, value] : downcast<API::Dictionary>(object)->map())
+            map.set(addObjectToMap(API::String::create(key).ptr()), addObjectToMap(value.get()));
+        return { WTFMove(map) };
+    }
+    default:
+        // This object has been null checked and went through isSerializable which only supports these types.
+        ASSERT_NOT_REACHED();
+        return EmptyType::Undefined;
+    }
+}
+
+std::optional<JavaScriptEvaluationResult> JavaScriptEvaluationResult::extract(API::Object* object)
+{
+    if (!isSerializable(object))
+        return std::nullopt;
+    return JavaScriptEvaluationResult(object);
+}
+
+JavaScriptEvaluationResult::JavaScriptEvaluationResult(API::Object* object)
+    : m_root(addObjectToMap(object))
+{
+}
+
+JSObjectID JavaScriptEvaluationResult::addObjectToMap(API::Object* object)
+{
+    if (!object) {
+        if (!m_nullObjectID) {
+            m_nullObjectID = JSObjectID::generate();
+            m_map.add(*m_nullObjectID, Value { EmptyType::Undefined });
+        }
+        return *m_nullObjectID;
+    }
+
+    auto it = m_apiObjectsInMap.find(object);
+    if (it != m_apiObjectsInMap.end())
+        return it->value;
+
+    auto identifier = JSObjectID::generate();
+    m_apiObjectsInMap.set(object, identifier);
+    m_map.add(identifier, toValue(object));
+    return identifier;
 }
 
 RefPtr<API::Object> JavaScriptEvaluationResult::toAPI()

@@ -464,7 +464,7 @@ public:
     void setUseWorkQueue(bool useWorkQueue) { m_useWorkQueue = useWorkQueue; }
     bool useWorkQueue() const { return m_useWorkQueue; }
 
-    void listenForTooltipChanges(WKFrameInfoRef, WKStringRef);
+    void listenForTooltipChanges(WKFrameInfoRef, WKTypeRef);
 
 private:
     WKRetainPtr<WKPageConfigurationRef> generatePageConfiguration(const TestOptions&);
@@ -801,7 +801,7 @@ private:
 
     struct TooltipChangeCallbackInfo {
         WKRetainPtr<WKFrameInfoRef> frame;
-        String callbackName;
+        WKRetainPtr<WKTypeRef> callbackHandle;
     };
     Vector<TooltipChangeCallbackInfo> m_framesListeningForTooltipChange;
 
