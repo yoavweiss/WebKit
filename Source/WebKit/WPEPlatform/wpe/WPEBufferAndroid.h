@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Igalia S.L.
+ * Copyright (C) 2025 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -22,45 +22,36 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __WPE_PLATFORM_H__
-#define __WPE_PLATFORM_H__
 
-#define __WPE_PLATFORM_H_INSIDE__
+#ifndef WPEBufferAndroid_h
+#define WPEBufferAndroid_h
 
-#include <wpe/WPEBuffer.h>
-#include <wpe/WPEBufferDMABuf.h>
-#include <wpe/WPEBufferDMABufFormats.h>
-#include <wpe/WPEBufferSHM.h>
-#include <wpe/WPEClipboard.h>
-#include <wpe/WPEColor.h>
-#include <wpe/WPEConfig.h>
-#include <wpe/WPEDRMDevice.h>
-#include <wpe/WPEDefines.h>
-#include <wpe/WPEDisplay.h>
-#include <wpe/WPEEGLError.h>
-#include <wpe/WPEEnumTypes.h>
-#include <wpe/WPEEvent.h>
-#include <wpe/WPEGamepad.h>
-#include <wpe/WPEGamepadManager.h>
-#include <wpe/WPEGestureController.h>
-#include <wpe/WPEInputMethodContext.h>
-#include <wpe/WPEKeymap.h>
-#include <wpe/WPEKeyUnicode.h>
-#include <wpe/WPEKeymapXKB.h>
-#include <wpe/WPEKeysyms.h>
-#include <wpe/WPEKeysyms.h>
-#include <wpe/WPERectangle.h>
-#include <wpe/WPEScreen.h>
-#include <wpe/WPEScreenSyncObserver.h>
-#include <wpe/WPEToplevel.h>
-#include <wpe/WPEVersion.h>
-#include <wpe/WPEView.h>
-#include <wpe/WPEViewAccessible.h>
-
-#ifdef WPE_PLATFORM_BUFFER_ANDROID
-#include <wpe/WPEBufferAndroid.h>
+#if !defined(__WPE_PLATFORM_H_INSIDE__) && !defined(BUILDING_WEBKIT)
+#error "Only <wpe/wpe-platform.h> can be included directly."
 #endif
 
-#undef __WPE_PLATFORM_H_INSIDE__
+#ifndef __GI_SCANNER__
 
-#endif /* __WPE_PLATFORM_H__ */
+#include <glib-object.h>
+#include <wpe/WPEDefines.h>
+#include <wpe/WPEBuffer.h>
+
+G_BEGIN_DECLS
+
+typedef struct AHardwareBuffer AHardwareBuffer;
+
+#define WPE_TYPE_BUFFER_ANDROID (wpe_buffer_android_get_type())
+WPE_API G_DECLARE_FINAL_TYPE (WPEBufferAndroid, wpe_buffer_android, WPE, BUFFER_ANDROID, WPEBuffer)
+
+WPE_API WPEBufferAndroid *wpe_buffer_android_new                  (WPEDisplay       *display,
+                                                                   AHardwareBuffer  *ahb);
+
+WPE_API AHardwareBuffer  *wpe_buffer_android_get_hardware_buffer  (WPEBufferAndroid *buffer);
+
+WPE_API guint32           wpe_buffer_android_get_format           (WPEBufferAndroid *buffer);
+
+G_END_DECLS
+
+#endif /* !__GI_SCANNER__ */
+
+#endif /* !WPEBufferAndroid_h */

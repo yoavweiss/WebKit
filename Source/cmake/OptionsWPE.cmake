@@ -24,7 +24,7 @@ find_package(WPE REQUIRED)
 find_package(ZLIB REQUIRED)
 
 if (ANDROID)
-    find_package(Android REQUIRED COMPONENTS Log)
+    find_package(Android REQUIRED COMPONENTS Android Log)
 endif ()
 
 WEBKIT_OPTION_BEGIN()
@@ -273,6 +273,10 @@ if (ENABLE_XSLT)
 endif ()
 
 if (ENABLE_WPE_PLATFORM)
+    if (ANDROID)
+        set(WPE_PLATFORM_BUFFER_ANDROID ON)
+    endif ()
+
     if (ENABLE_WPE_PLATFORM_DRM)
         find_package(LibInput 1.19.0 REQUIRED)
         find_package(Udev REQUIRED)

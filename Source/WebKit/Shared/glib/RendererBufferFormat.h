@@ -25,7 +25,10 @@
 
 #pragma once
 
+#if USE(GBM)
 #include <WebCore/DRMDevice.h>
+#endif
+
 #include <wtf/Vector.h>
 #include <wtf/text/CString.h>
 
