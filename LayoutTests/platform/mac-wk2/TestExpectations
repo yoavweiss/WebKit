@@ -2411,8 +2411,6 @@ webkit.org/b/297063 [ arm64 ] http/tests/xmlhttprequest/chunked-progress-event-e
 
 webkit.org/b/297078 [ Debug arm64 ] fast/parser/entity-comment-in-style.html [ Pass Timeout ]
 
-webkit.org/b/297121 fast/page-color-sampling/color-sampling-fixed-ancestor-with-relative-container.html [ Failure ]
-
 webkit.org/b/297222 imported/w3c/web-platform-tests/navigation-api/ordering-and-transition/transition-finished-mark-as-handled.html [ Pass Failure ]
 
 webkit.org/b/297251 fast/mediastream/getUserMedia-echoCancellation.html [ Pass Failure ]
