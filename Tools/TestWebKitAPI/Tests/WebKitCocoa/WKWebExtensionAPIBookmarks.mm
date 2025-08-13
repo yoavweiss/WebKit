@@ -413,6 +413,60 @@ protected:
             completionHandler(updatedMockNode, nil);
         };
     }
+
+    void configureMoveBookmarksDelegate(TestWebExtensionManager *manager)
+    {
+        manager.internalDelegate.moveBookmarkWithIdentifier = ^(NSString *bookmarkId, NSString *toParentId, NSNumber *atIndex, void (^completionHandler)(NSObject<_WKWebExtensionBookmark> *, NSError *)) {
+            NSMutableDictionary *foundInfo = findBookmarkAndParentArrayInMockTree(uiProcessMockBookmarks.get(), bookmarkId);
+            if (!foundInfo) {
+                completionHandler(nil, [NSError errorWithDomain:NSCocoaErrorDomain code:NSExecutableRuntimeMismatchError userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Bookmark with ID '%@' not found for move.", bookmarkId] }]);
+                return;
+            }
+
+            NSMutableDictionary *bookmarkToMove = foundInfo[@"bookmark"];
+            NSMutableArray *oldParentChildrenArray = foundInfo[@"parentChildren"];
+
+            NSUInteger oldIndex = [oldParentChildrenArray indexOfObject:bookmarkToMove];
+            if (oldIndex == NSNotFound) {
+                completionHandler(nil, [NSError errorWithDomain:NSCocoaErrorDomain code:NSExecutableRuntimeMismatchError userInfo:@{ NSLocalizedDescriptionKey: @"Bookmark found but not in its reported parent array." }]);
+                return;
+            }
+
+            NSMutableArray *newParentChildrenArray = nil;
+            if (!toParentId)
+                newParentChildrenArray = uiProcessMockBookmarks.get();
+            else {
+                NSMutableDictionary *newParent = findBookmarkInMockTree(uiProcessMockBookmarks.get(), toParentId);
+                if (!newParent || ![newParent[@"type"] isEqualToString:@"folder"]) {
+                    completionHandler(nil, [NSError errorWithDomain:NSCocoaErrorDomain code:NSExecutableRuntimeMismatchError userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithFormat:@"New parent folder with ID '%@' not found or not a folder.", toParentId] }]);
+                    return;
+                }
+                newParentChildrenArray = newParent[@"children"];
+            }
+
+            NSUInteger rawTargetIndex = atIndex ? atIndex.unsignedIntegerValue : newParentChildrenArray.count;
+            [oldParentChildrenArray removeObjectAtIndex:oldIndex];
+
+            if (oldParentChildrenArray == newParentChildrenArray && oldIndex < rawTargetIndex)
+                rawTargetIndex--;
+
+            NSUInteger finalTargetIndex = rawTargetIndex;
+            if (finalTargetIndex > newParentChildrenArray.count)
+                finalTargetIndex = newParentChildrenArray.count;
+
+            bookmarkToMove[@"parentId"] = toParentId ?: @"0";
+            NSUInteger targetIndex = atIndex ? atIndex.unsignedIntegerValue : newParentChildrenArray.count;
+            if (targetIndex > newParentChildrenArray.count)
+                targetIndex = newParentChildrenArray.count;
+
+            [newParentChildrenArray insertObject:bookmarkToMove atIndex:targetIndex];
+            bookmarkToMove[@"index"] = @(targetIndex);
+
+            _MockBookmarkNode *movedMockNode = [[_MockBookmarkNode alloc] initWithDictionary:bookmarkToMove];
+            completionHandler(movedMockNode, nil);
+        };
+    }
+
     WKWebExtensionControllerConfiguration *bookmarkConfig;
 };
 
@@ -784,6 +838,59 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIUpdate)
     configureCreateBookmarkDelegate(manager.get());
     configureGetBookmarksDelegate(manager.get());
     configureUpdateBookmarksDelegate(manager.get());
+
+    [manager loadAndRun];
+}
+
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIMove)
+{
+    auto *script = @[
+        @"let folderA = await browser.bookmarks.create({title: 'Folder A' });",
+        @"let folderB = await browser.bookmarks.create({title: 'Folder B' });",
+        @"let bmTop = await browser.bookmarks.create({title: 'Top Bookmark', url: 'http://top.com' });",
+        @"let bmA = await browser.bookmarks.create({title: 'Bookmark A', url: 'http://a.com', parentId: folderA.id });",
+        @"let bmC = await browser.bookmarks.create({title: 'Bookmark C', url: 'http://c.com', parentId: folderA.id });",
+        @"let bmB = await browser.bookmarks.create({title: 'Bookmark B', url: 'http://b.com', parentId: folderB.id });",
+
+        @"let movedBm1 = await browser.bookmarks.move(bmA.id, { parentId: folderB.id });",
+        @"browser.test.assertEq(bmA.id, movedBm1.id, 'Moved bookmark ID should match');",
+        @"browser.test.assertEq(folderB.id, movedBm1.parentId, 'bmA parentId should be Folder B');",
+        @"browser.test.assertEq(1, movedBm1.index, 'bmA should be at index 1 in Folder B');",
+
+        @"let bmD = await browser.bookmarks.create({ title: 'Bookmark D', url: 'http://d.com', parentId: folderA.id });",
+        @"let movedBm2 = await browser.bookmarks.move(bmC.id, { parentId: folderA.id, index: 1 });",
+        @"browser.test.assertEq(bmC.id, movedBm2.id, 'Moved bookmark ID should match');",
+        @"browser.test.assertEq(folderA.id, movedBm2.parentId, 'bmC parentId should be Folder A');",
+        @"browser.test.assertEq(1, movedBm2.index, 'bmC should be at index 1 in Folder A');",
+
+        @"let movedFolder = await browser.bookmarks.move(folderB.id, { index: 0 });",
+        @"browser.test.assertEq(folderB.id, movedFolder.id, 'Moved folder ID should match');",
+        @"browser.test.assertEq(0, movedFolder.index, 'Folder B parentId should be null (root)');",
+        @"let movedFolder2 = await browser.bookmarks.move(folderB.id, { parentId: folderA.id });",
+        @"browser.test.assertEq(folderB.id, movedFolder2.id, 'Moved folder ID should match');",
+        @"browser.test.assertEq(folderA.id, movedFolder2.parentId, 'Folder B parentId should be null (root)');",
+
+        @"await browser.test.assertRejects(",
+        @"browser.bookmarks.move('nonexistent-id', { parentId: folderA.id }),",
+        @"/Bookmark with ID 'nonexistent-id' not found for move./,",
+        @"'FAIL-1: Moving a non-existent bookmark should reject with the correct message');",
+
+        @"browser.test.log('Testing move to a non-folder parent...');",
+        @"await browser.test.assertRejects(",
+        @"browser.bookmarks.move(bmB.id, { parentId: bmD.id }),",
+        @"/New parent folder with ID '.*' not found or not a folder./,",
+        @"'FAIL-2: Moving to a non-folder parent should reject with the correct message');",
+
+        @"browser.test.notifyPass();",
+    ];
+
+    auto *resources = @{ @"background.js": Util::constructScript(script) };
+
+    auto manager = getManagerFor(resources, bookmarkOnManifest);
+
+    configureCreateBookmarkDelegate(manager.get());
+    configureGetBookmarksDelegate(manager.get());
+    configureMoveBookmarksDelegate(manager.get());
 
     [manager loadAndRun];
 }

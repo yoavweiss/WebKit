@@ -203,6 +203,13 @@
         completionHandler(nil, nil);
 }
 
+- (void)_webExtensionController:(WKWebExtensionController *)controller moveBookmarkWithIdentifier:(NSString *)bookmarkId toParent:(NSString *)parentId atIndex:(NSNumber *)index forExtensionContext:(WKWebExtensionContext *)context completionHandler:(void (^)(NSObject<_WKWebExtensionBookmark> *, NSError *))completionHandler
+{
+    if (_moveBookmarkWithIdentifier)
+        _moveBookmarkWithIdentifier(bookmarkId, parentId, index, completionHandler);
+    else if (completionHandler)
+        completionHandler(nil, nil);
+}
 @end
 
 #endif // ENABLE(WK_WEB_EXTENSIONS)

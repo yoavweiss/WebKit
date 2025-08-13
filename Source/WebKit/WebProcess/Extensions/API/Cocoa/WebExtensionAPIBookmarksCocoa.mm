@@ -275,7 +275,44 @@ void WebExtensionAPIBookmarks::get(NSObject *idOrIdList, Ref<WebExtensionCallbac
 
 void WebExtensionAPIBookmarks::move(NSString *bookmarkIdentifier, NSDictionary *destination, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
 {
-    callback->reportError(@"unimplemented");
+    std::optional<WTF::String> ipcParentId;
+    std::optional<uint64_t> ipcIndex;
+
+    if (![destination isKindOfClass:[NSDictionary class]]) {
+        if (outExceptionString)
+            *outExceptionString = toErrorString(nullString(), @"destination", @"property must be an object.").createNSString().autorelease();
+        return;
+    }
+
+    static NSDictionary<NSString *, id> *types = @{
+        indexKey: NSNumber.class,
+        parentIdKey: NSString.class,
+    };
+
+    if (!validateDictionary(destination, @"destination", nil, types, outExceptionString))
+        return;
+
+    id parentIdObj = destination[@"parentId"];
+    if (parentIdObj)
+        ipcParentId = dynamic_objc_cast<NSString>(parentIdObj);
+
+    id indexObj = destination[@"index"];
+    if (indexObj)
+        ipcIndex = dynamic_objc_cast<NSNumber>(indexObj).unsignedLongLongValue;
+
+    WebProcess::singleton().sendWithAsyncReply(
+        Messages::WebExtensionContext::BookmarksMove(bookmarkIdentifier, ipcParentId, ipcIndex),
+        [protectedThis = Ref { *this }, callback = WTFMove(callback)](Expected<WebExtensionBookmarksParameters, WebExtensionError>&& result) {
+            if (!result) {
+                callback->reportError(result.error().createNSString().get());
+                return;
+            }
+
+            NSDictionary *movedNodeDictionary = toAPI(result.value());
+            callback->call(movedNodeDictionary);
+        },
+        extensionContext().identifier()
+    );
 }
 
 void WebExtensionAPIBookmarks::remove(NSString *bookmarkIdentifier, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
