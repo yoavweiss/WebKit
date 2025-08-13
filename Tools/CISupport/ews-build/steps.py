@@ -59,9 +59,9 @@ S3URL = 'https://s3-us-west-2.amazonaws.com/'
 S3_BUCKET = f'ews-archives.webkit{custom_suffix}.org'
 S3_RESULTS_URL = f'https://ews-build{custom_suffix}.s3-us-west-2.amazonaws.com/'
 CURRENT_HOSTNAME = socket.gethostname().strip()
-EWS_BUILD_HOSTNAMES = ['ews-build.webkit.org', 'ews-build']
+EWS_BUILD_HOSTNAMES = load_password('EWS_BUILD_HOSTNAMES', default=['ews-build.webkit.org', 'ews-build'])
 TESTING_ENVIRONMENT_HOSTNAMES = ['ews-build.webkit-uat.org', 'ews-build-uat', 'ews-build.webkit-dev.org', 'ews-build-dev']
-EWS_URL = 'https://ews.webkit.org/'
+EWS_URL = load_password('EWS_BUILD_HOSTNAMES', default='https://ews.webkit.org/')
 RESULTS_DB_URL = 'https://results.webkit.org/'
 RESULTS_SERVER_API_KEY = 'RESULTS_SERVER_API_KEY'
 WithProperties = properties.WithProperties
