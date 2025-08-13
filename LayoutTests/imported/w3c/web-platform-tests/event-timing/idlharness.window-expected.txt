@@ -17,6 +17,7 @@ PASS PerformanceEventTiming interface: attribute processingStart
 PASS PerformanceEventTiming interface: attribute processingEnd
 PASS PerformanceEventTiming interface: attribute cancelable
 PASS PerformanceEventTiming interface: attribute target
+PASS PerformanceEventTiming interface: attribute interactionId
 PASS PerformanceEventTiming interface: operation toJSON()
 PASS EventCounts interface: existence and properties of interface object
 PASS EventCounts interface object length
@@ -28,5 +29,7 @@ FAIL EventCounts interface: maplike<DOMString, unsigned long long> undefined is 
 PASS EventCounts must be primary interface of performance.eventCounts
 PASS Stringification of performance.eventCounts
 PASS Performance interface: attribute eventCounts
+PASS Performance interface: attribute interactionCount
 PASS Performance interface: performance must inherit property "eventCounts" with the proper type
+PASS Performance interface: performance must inherit property "interactionCount" with the proper type
 
