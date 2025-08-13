@@ -33,7 +33,11 @@
 #include <wtf/FixedBitVector.h>
 #include <wtf/HashMap.h>
 
-namespace JSC { namespace Wasm {
+namespace JSC {
+
+class WebAssemblyCompileOptions;
+
+namespace Wasm {
 
 struct ModuleInformation final : public ThreadSafeRefCounted<ModuleInformation> {
 
@@ -171,8 +175,13 @@ struct ModuleInformation final : public ThreadSafeRefCounted<ModuleInformation> 
     }
     size_t totalFunctionSize() const { return m_totalFunctionSize; }
 
+    void applyCompileOptions(const WebAssemblyCompileOptions&);
+    bool importedStringConstantsEquals(const String& expected) const { return m_importedStringConstants && m_importedStringConstants.value() == expected; }
+    bool builtinSetsInclude(const String& qualifiedName) const { return m_qualifiedBuiltinSetNames.contains(qualifiedName); }
+
     // FIXME: These should probably be FixedVectors.
     Vector<Import> imports;
+    FixedBitVector importShouldBeHidden; // filter imports[i] from the result of Module.imports(moduleObject)
     Vector<TypeIndex> importFunctionTypeIndices;
     Vector<TypeIndex> internalFunctionTypeIndices;
     Vector<TypeIndex> importExceptionTypeIndices;
@@ -208,6 +217,12 @@ struct ModuleInformation final : public ThreadSafeRefCounted<ModuleInformation> 
     mutable FixedBitVector m_referencedFunctions;
     mutable FixedBitVector m_clobberingTailCalls;
     size_t m_totalFunctionSize { 0 };
+
+private:
+    void populateImportShouldBeHidden();
+
+    std::optional<String> m_importedStringConstants;
+    Vector<String> m_qualifiedBuiltinSetNames;
 };
 
     

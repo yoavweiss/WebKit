@@ -674,6 +674,98 @@ op(ipint_trampoline, macro ()
     jmp _ipint_entry
 end)
 
+# Naming dependencies:
+#
+# In the following two macros, certain identifiers replicate naming conventions
+# defined by C macros in wasm/js/WebAssemblyBuiltin.cpp.
+# These dependencies are marked with "[!]".
+
+# wasmInstanceArgGPR is the GPR used to pass the Wasm instance pointer.
+# It must map onto the argument following the actual arguments of the builtin.
+# WARNING: t5 is used as a scratch register by this macro, which is a choice that
+# works both on ARM and X86. That limits builtins to at most 4 "real" arguments (a0-a3),
+# with wasmInstance passed as a4. Higher arity builtins would require revising the macro.
+macro wasmBuiltinCallTrampoline(setName, builtinName, wasmInstanceArgGPR)
+    functionPrologue()
+
+    # IPInt stores the callee and wasmInstance into the frame but JIT tiers don't, so we must do that here.
+    leap JSWebAssemblyInstance::m_builtinCalleeBits[wasmInstance], t5
+    loadp WasmBuiltinCalleeOffsets::%setName%__%builtinName%[t5], t5  # [!] BUILTIN_FULL_NAME(setName, builtinName)
+    storep t5, Callee[cfr]
+    storep wasmInstance, CodeBlock[cfr]
+    # Set VM topCallFrame to null to not build an unnecessary stack trace if the function throws an exception.
+    loadp JSWebAssemblyInstance::m_vm[wasmInstance], t5
+    storep 0, VM::topCallFrame[t5]
+
+    move wasmInstance, wasmInstanceArgGPR
+    call _wasm_builtin__%setName%__%builtinName%  # [!] BUILTIN_WASM_ENTRY(setName, builtinName)
+
+    loadp JSWebAssemblyInstance::m_vm[wasmInstance], t5
+    btpnz VM::m_exception[t5], .handleException
+
+    # On x86, a0 and r0 are distinct (a0=rdi, r0=rax). The host function returns the result in r0,
+    # but IPInt always expects it in a0.
+if X86_64
+    move r0, a0
+end
+
+    functionEpilogue()
+    ret
+
+.handleException:
+    jmp _wasm_unwind_from_slow_path_trampoline
+end
+
+macro defineWasmBuiltinTrampoline(setName, builtinName, wasmInstanceArgGPR)
+global _wasm_builtin_trampoline__%setName%__%builtinName%    # [!] BUILTIN_TRAMPOLINE(setName, builtinName)
+_wasm_builtin_trampoline__%setName%__%builtinName%:
+    wasmBuiltinCallTrampoline(setName, builtinName, wasmInstanceArgGPR)
+end
+
+
+#   js-string builtins, in order of appearance in the spec
+
+
+# (externref, wasmInstance) -> externref
+defineWasmBuiltinTrampoline(jsstring, cast, a1)
+
+# (externref, wasmInstance) -> i32
+defineWasmBuiltinTrampoline(jsstring, test, a1)
+
+# (arrayref, i32, i32, wasmInstance) -> externref
+defineWasmBuiltinTrampoline(jsstring, fromCharCodeArray, a3)
+
+# (externref, arrayref, i32, wasmInstance) -> externref
+defineWasmBuiltinTrampoline(jsstring, intoCharCodeArray, a3)
+
+# (i32, wasmInstance) -> externref
+defineWasmBuiltinTrampoline(jsstring, fromCharCode, a1)
+
+# (i32, wasmInstance) -> externref
+defineWasmBuiltinTrampoline(jsstring, fromCodePoint, a1)
+
+# (externref, i32, wasmInstance) -> i32
+defineWasmBuiltinTrampoline(jsstring, charCodeAt, a2)
+
+# (externref, i32, wasmInstance) -> i32
+defineWasmBuiltinTrampoline(jsstring, codePointAt, a2)
+
+# (externref, wasmInstance) -> i32
+defineWasmBuiltinTrampoline(jsstring, length, a1)
+
+# (externref, externref, wasmInstance) -> externref
+defineWasmBuiltinTrampoline(jsstring, concat, a2)
+
+# (externref, i32, i32, wasmInstance) -> externref
+defineWasmBuiltinTrampoline(jsstring, substring, a3)
+
+# (externref, externref, wasmInstance) -> i32
+defineWasmBuiltinTrampoline(jsstring, equals, a2)
+
+# (externref, externref, wasmInstance) -> i32
+defineWasmBuiltinTrampoline(jsstring, compare, a2)
+
+
 #################################
 # 5. Instruction implementation #
 #################################

@@ -935,6 +935,20 @@ op(wasm_throw_from_slow_path_trampoline, macro ()
     jumpToException()
 end)
 
+# Almost the same as wasm_throw_from_slow_path_trampoline, but the exception
+# has already been thrown and is now sitting in the VM.
+op(wasm_unwind_from_slow_path_trampoline, macro()
+    loadp JSWebAssemblyInstance::m_vm[wasmInstance], t5
+    loadp VM::topEntryFrame[t5], t5
+    copyCalleeSavesToEntryFrameCalleeSavesBuffer(t5)
+
+    move cfr, a0
+    move wasmInstance, a1
+    storei 0, CallSiteIndex[cfr]
+    cCall3(_slow_path_wasm_unwind_exception)
+    jumpToException()
+end)
+
 macro wasm_throw_from_fault_handler(instance)
     # instance should be in a2 when we get here
     loadp JSWebAssemblyInstance::m_vm[instance], a0

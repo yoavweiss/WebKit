@@ -40,6 +40,7 @@
 #include "WasmModule.h"
 #include "WasmModuleInformation.h"
 #include "WasmTable.h"
+#include "WebAssemblyBuiltin.h"
 #include "WebAssemblyFunction.h"
 #include "WriteBarrier.h"
 #include <wtf/BitVector.h>
@@ -245,6 +246,7 @@ public:
     JSValue getFunctionWrapper(unsigned) const;
     typename FunctionWrapperMap::ValuesConstIteratorRange functionWrappers() const { return m_functionWrappers.values(); }
     void setFunctionWrapper(unsigned, JSValue);
+    void setBuiltinCalleeBits(uint32_t builtinID, CalleeBits calleeBits) { m_builtinCalleeBits[builtinID] = calleeBits; }
 
     Wasm::Global* getGlobalBinding(unsigned i)
     {
@@ -333,6 +335,9 @@ private:
     FixedVector<RefPtr<const Wasm::Tag>> m_tags;
     Vector<Ref<Wasm::WasmToJSCallee>> importCallees;
     void* m_faultPC { nullptr };
+    // Used by builtin trampolines to quickly fetch callee bits to store in the call frame.
+    // The actual callees are owned by builtins. Populated by WebAssemblyModuleRecord::initializeImports().
+    CalleeBits m_builtinCalleeBits[WASM_BUILTIN_COUNT];
 };
 
 } // namespace JSC
