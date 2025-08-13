@@ -49,6 +49,7 @@
 #include "JSDOMGlobalObject.h"
 #include "JSDOMPromise.h"
 #include "JSNavigationHistoryEntry.h"
+#include "Logging.h"
 #include "MessagePort.h"
 #include "NavigateEvent.h"
 #include "NavigationActivation.h"
@@ -600,9 +601,11 @@ void Navigation::resolveFinishedPromise(NavigationAPIMethodTracker* apiMethodTra
 // https://html.spec.whatwg.org/multipage/nav-history-apis.html#reject-the-finished-promise
 void Navigation::rejectFinishedPromise(NavigationAPIMethodTracker* apiMethodTracker, const Exception& exception, JSC::JSValue exceptionObject)
 {
-    // finished is already marked as handled at this point so don't overwrite that.
-    Ref { apiMethodTracker->finishedPromise }->reject(exception, RejectAsHandled::Yes, exceptionObject);
+    RELEASE_LOG(Navigation, "rejectFinishedPromise: rejecting promises for tracker=%p with exception='%s'", apiMethodTracker, exception.message().utf8().data());
+
+    // Reject committed first, then finished (matching Navigation API spec order)
     Ref { apiMethodTracker->committedPromise }->reject(exception, RejectAsHandled::No, exceptionObject);
+    Ref { apiMethodTracker->finishedPromise }->reject(exception, RejectAsHandled::Yes, exceptionObject);
     cleanupAPIMethodTracker(apiMethodTracker);
 }
 
@@ -1106,9 +1109,11 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
         // If a new event has been dispatched in our event handler then we were aborted above.
         if (m_ongoingNavigateEvent != event.ptr())
             return DispatchResult::Aborted;
-    } else if (apiMethodTracker)
-        cleanupAPIMethodTracker(apiMethodTracker.get());
-    else {
+    } else if (apiMethodTracker) {
+        // For cross-document navigations, don't cleanup the tracker immediately.
+        // It should remain ongoing until the navigation completes, fails, or gets interrupted.
+        RELEASE_LOG(Navigation, "innerDispatchNavigateEvent: cross-document navigation, keeping tracker=%p alive", apiMethodTracker.get());
+    } else {
         // FIXME: This situation isn't clear, we've made it through the event doing nothing so
         // to avoid incorrectly being aborted we clear this.
         // To reproduce see `inspector/runtime/execution-context-in-scriptless-page.html`.

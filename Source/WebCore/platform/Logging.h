@@ -141,6 +141,7 @@ namespace WebCore {
     M(MessagePorts) \
     M(ModelElement) \
     M(NativePromise) \
+    M(Navigation) \
     M(Network) \
     M(NotYetImplemented) \
     M(OverlayScrollbars) \
