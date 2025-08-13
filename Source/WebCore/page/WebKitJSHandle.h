@@ -26,6 +26,7 @@
 #pragma once
 
 #include "FrameIdentifier.h"
+#include "ProcessQualified.h"
 #include <wtf/Markable.h>
 #include <wtf/ObjectIdentifier.h>
 
