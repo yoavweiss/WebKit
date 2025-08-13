@@ -2411,3 +2411,5 @@ webkit.org/b/297222 imported/w3c/web-platform-tests/navigation-api/ordering-and-
 webkit.org/b/297251 fast/mediastream/getUserMedia-echoCancellation.html [ Pass Failure ]
 
 webkit.org/b/297289 [ Debug ] webarchive/loading/test-loading-archive-with-link.html [ Crash ]
+
+webkit.org/b/297343 [ Debug ] ipc/storage-area-cache-use-after-free.html [ Pass Timeout ]
