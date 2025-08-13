@@ -40,10 +40,13 @@ enum class ComponentTransferType : uint8_t {
 struct ComponentTransferFunction {
     ComponentTransferType type { ComponentTransferType::FECOMPONENTTRANSFER_TYPE_UNKNOWN };
 
-    float slope { 0 };
+    // For linear
+    float slope { 1 };
     float intercept { 0 };
-    float amplitude { 0 };
-    float exponent { 0 };
+
+    // For gamma
+    float amplitude { 1 };
+    float exponent { 1 };
     float offset { 0 };
 
     Vector<float> tableValues;
