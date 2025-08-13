@@ -457,7 +457,7 @@ bool FrameSelection::setSelectionWithoutUpdatingAppearance(const VisibleSelectio
         document->editor().respondToChangedSelection(oldSelection, options);
 
     if (shouldScheduleSelectionChangeEvent) {
-        if (textControl && !textControl->isInShadowTree())
+        if (textControl)
             textControl->scheduleSelectionChangeEvent();
         else if (!m_hasScheduledSelectionChangeEventOnDocument) {
             m_hasScheduledSelectionChangeEventOnDocument = true;
