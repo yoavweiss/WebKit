@@ -71,6 +71,7 @@
 #import "WebTouchEvent.h"
 #import <CoreText/CTFont.h>
 #import <WebCore/AXRemoteTokenIOS.h>
+#import <WebCore/AccessibilityObject.h>
 #import <WebCore/Autofill.h>
 #import <WebCore/AutofillElements.h>
 #import <WebCore/BoundaryPointInlines.h>
