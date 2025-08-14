@@ -112,7 +112,7 @@ protected:
     WEBCORE_EXPORT void updateStateForSetCTM(const AffineTransform&);
     WEBCORE_EXPORT void updateStateForBeginTransparencyLayer(float opacity);
     WEBCORE_EXPORT void updateStateForBeginTransparencyLayer(CompositeOperator, BlendMode);
-    WEBCORE_EXPORT void updateStateForEndTransparencyLayer();
+    [[nodiscard]] WEBCORE_EXPORT bool updateStateForEndTransparencyLayer();
     WEBCORE_EXPORT void updateStateForResetClip();
     WEBCORE_EXPORT void updateStateForClip(const FloatRect&);
     WEBCORE_EXPORT void updateStateForClipRoundedRect(const FloatRoundedRect&);
