@@ -5644,6 +5644,8 @@
 		DD4BEC0E29CB85AF00398E35 /* B3CanonicalizePrePostIncrements.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = B3CanonicalizePrePostIncrements.cpp; path = b3/B3CanonicalizePrePostIncrements.cpp; sourceTree = "<group>"; };
 		DD4BEC0F29CB85AF00398E35 /* B3CanonicalizePrePostIncrements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = B3CanonicalizePrePostIncrements.h; path = b3/B3CanonicalizePrePostIncrements.h; sourceTree = "<group>"; };
 		DD5F74F8283EF4380027A8C6 /* copy-profiling-data.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "copy-profiling-data.sh"; sourceTree = "<group>"; };
+		DD71812F2E21D3B700A096B7 /* AllowedSPI.toml */ = {isa = PBXFileReference; lastKnownFileType = text; path = AllowedSPI.toml; sourceTree = "<group>"; };
+		DD7181302E21D3B700A096B7 /* AllowedSPI-legacy.toml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "AllowedSPI-legacy.toml"; sourceTree = "<group>"; };
 		DDA35E4D29CACFDE006C1018 /* ExtraSymbolsForTAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtraSymbolsForTAPI.h; sourceTree = "<group>"; };
 		DDE9930E278D086600F60D26 /* libWebKitAdditions.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libWebKitAdditions.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26E9021CB5DD0500D2BE82 /* BuiltinExecutableCreator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuiltinExecutableCreator.h; sourceTree = "<group>"; };
@@ -7490,6 +7492,8 @@
 		1C90513E0BA9E8830081E9D0 /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
+				DD7181302E21D3B700A096B7 /* AllowedSPI-legacy.toml */,
+				DD71812F2E21D3B700A096B7 /* AllowedSPI.toml */,
 				1C9051450BA9E8A70081E9D0 /* Base.xcconfig */,
 				443CB47A2AE8A4E100878CC0 /* BaseTarget.xcconfig */,
 				1C9051440BA9E8A70081E9D0 /* DebugRelease.xcconfig */,
@@ -12799,7 +12803,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f \"${SCRIPT_INPUT_FILE_0}\" ]\nthen \"${SCRIPT_INPUT_FILE_0}\" \"${BUILT_PRODUCTS_DIR}/JavaScriptCore.framework/JavaScriptCore\" --allowlists \"${SRCROOT}/Configurations/AllowedSPI-legacy.toml\" \"${SRCROOT}/Configurations/AllowedSPI.toml\"\nfi && touch \"${DERIVED_FILES_DIR}/audit-spi.d\"\n";
+			shellScript = "if [ -f \"${SCRIPT_INPUT_FILE_0}\" ]\nthen \"${SCRIPT_INPUT_FILE_0}\" \"${BUILT_PRODUCTS_DIR}/JavaScriptCore.framework/JavaScriptCore\"\nfi && touch \"${DERIVED_FILES_DIR}/audit-spi.d\"\n";
 		};
 		DD190BB72E1C480200BE3ECA /* Generate <wtf/Platform.h> args */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -13815,6 +13819,7 @@
 		};
 		149C276D08902AFE008A9EFC /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = All;
 			};
@@ -13822,6 +13827,7 @@
 		};
 		149C276E08902AFE008A9EFC /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = All;
 			};
@@ -13829,6 +13835,7 @@
 		};
 		149C277008902AFE008A9EFC /* Production */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = All;
 			};
@@ -14188,6 +14195,7 @@
 		};
 		A761483E0E6402F700E357FA /* Profiling */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1C9051430BA9E8A70081E9D0 /* JavaScriptCore.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = All;
 			};

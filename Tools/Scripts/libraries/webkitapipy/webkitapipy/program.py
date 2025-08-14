@@ -107,7 +107,8 @@ def get_parser() -> argparse.ArgumentParser:
                         help='files to analyze')
     parser.add_argument('-a', '--arch-name', required=True,
                         help='which architecture to analyze binary with')
-    parser.add_argument('--allowlists', '--allowlist', nargs='*', type=Path,
+    parser.add_argument('--allowlist', action='append', type=Path,
+                        dest='allowlists',
                         help='config files listing additional allowed SPI')
     parser.add_argument('-D', action='append', dest='defines',
                         help='use this compiler flag for purposes of '

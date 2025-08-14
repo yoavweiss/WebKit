@@ -13,7 +13,6 @@
 			buildPhases = (
 				DDFA47222AA93C7F00C7C788 /* Check For Inappropriate Files In Framework */,
 				E3067ED02B758FEA007C7A03 /* Create symlinks for extensions */,
-				DD368B412DE56652000A650A /* Audit SPI use */,
 			);
 			dependencies = (
 				5C400E6A29DB8AB500446F6F /* PBXTargetDependency */,
@@ -97,6 +96,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = CD0C36D62639D39A004E35D8 /* Build configuration list for PBXAggregateTarget "Everything" */;
 			buildPhases = (
+				DDC3A65C2E286CC300C3E61A /* Audit SPI use */,
 			);
 			dependencies = (
 				07438C862D4DA1D400BD1E68 /* PBXTargetDependency */,
@@ -8188,6 +8188,8 @@
 		DD4BDE9B2CA729AE001A3339 /* WebKitSwiftOverlayMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebKitSwiftOverlayMacros.h; sourceTree = "<group>"; };
 		DD5697CC2DC06F7700050321 /* rdar150228472.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rdar150228472.swift; sourceTree = "<group>"; };
 		DD6E58C42BE004DE0000C264 /* RealitySystemSupportSPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RealitySystemSupportSPI.h; sourceTree = "<group>"; };
+		DD7181372E21D3ED00A096B7 /* AllowedSPI.toml */ = {isa = PBXFileReference; lastKnownFileType = text; path = AllowedSPI.toml; sourceTree = "<group>"; };
+		DD7181382E21D3ED00A096B7 /* AllowedSPI-legacy.toml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "AllowedSPI-legacy.toml"; sourceTree = "<group>"; };
 		DD8CD35F296D03A300C04CA1 /* _WKFeature.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = _WKFeature.mm; sourceTree = "<group>"; };
 		DD8CD360296D03A300C04CA1 /* _WKFeature.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKFeature.h; sourceTree = "<group>"; };
 		DD8CD361296D03A400C04CA1 /* _WKFeatureInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _WKFeatureInternal.h; sourceTree = "<group>"; };
@@ -9547,6 +9549,8 @@
 				07275C5F2D00CAAD002315A5 /* _WebKit_SwiftUI.xcconfig */,
 				5CAF7AA626F93AA50003F19E /* adattributiond.xcconfig */,
 				A1EDD2D91884ACE000BBFE98 /* All.xcconfig */,
+				DD7181382E21D3ED00A096B7 /* AllowedSPI-legacy.toml */,
+				DD7181372E21D3ED00A096B7 /* AllowedSPI.toml */,
 				1A4F976A100E7B6600637A18 /* Base.xcconfig */,
 				5C400E6D29DB8D7000446F6F /* BaseExtension.xcconfig */,
 				5DAD73F1116FF90C00EE5396 /* BaseTarget.xcconfig */,
@@ -20118,27 +20122,6 @@
 			shellPath = /bin/sh;
 			shellScript = "rm -vf \"${OBJROOT}/EagerLinkingTBDs/${CONFIGURATION}${EFFECTIVE_PLATFORM_NAME}/${CONTENTS_FOLDER_PATH}/${EXECUTABLE_PREFIX}${PRODUCT_NAME}${EXECUTABLE_VARIANT_SUFFIX}.tbd\" &&\ntouch \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 		};
-		DD368B412DE56652000A650A /* Audit SPI use */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			dependencyFile = "$(DERIVED_FILES_DIR)/audit-spi.d";
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(WTF_BUILD_SCRIPTS_DIR)/audit-spi-if-needed.sh",
-			);
-			name = "Audit SPI use";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/audit-spi.timestamp",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [ -f \"${SCRIPT_INPUT_FILE_0}\" ]\nthen \"${SCRIPT_INPUT_FILE_0}\" \"${BUILT_PRODUCTS_DIR}/WebKit.framework/WebKit\" \"${BUILT_PRODUCTS_DIR}/libWebKitSwift.dylib\" \"${BUILT_PRODUCTS_DIR}/_WebKit_SwiftUI.framework/_WebKit_SwiftUI\" -framework WebKit -framework WebCore -framework WebGPU -framework JavaScriptCore -lwebrtc -lWebKitSwift --allowlist \"${SRCROOT}/Configurations/AllowedSPI-legacy.toml\" \"${SRCROOT}/Configurations/AllowedSPI.toml\"\nfi && touch \"${DERIVED_FILES_DIR}/audit-spi.d\"\n";
-		};
 		DD4BDE9F2CAB1275001A3339 /* Create legacy Swift overlay symlink */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 8;
@@ -20206,6 +20189,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "xcrun clang -E -P -w -target ${ARCHS%% *}-${LLVM_TARGET_TRIPLE_VENDOR}-${LLVM_TARGET_TRIPLE_OS_VERSION}${LLVM_TARGET_TRIPLE_SUFFIX} - < \"${SCRIPT_INPUT_FILE_0}\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
+		DDC3A65C2E286CC300C3E61A /* Audit SPI use */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			dependencyFile = "$(DERIVED_FILES_DIR)/audit-spi.d";
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(WTF_BUILD_SCRIPTS_DIR)/audit-spi-if-needed.sh",
+			);
+			name = "Audit SPI use";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/audit-spi.timestamp",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f \"${SCRIPT_INPUT_FILE_0}\" ]\nthen \"${SCRIPT_INPUT_FILE_0}\" \"${BUILT_PRODUCTS_DIR}/WebKit.framework/WebKit\" \"${BUILT_PRODUCTS_DIR}/libWebKitSwift.dylib\" \"${BUILT_PRODUCTS_DIR}/_WebKit_SwiftUI.framework/_WebKit_SwiftUI\" -framework WebKit -framework WebCore -framework WebGPU -framework JavaScriptCore -lwebrtc -lWebKitSwift\nfi && touch \"${DERIVED_FILES_DIR}/audit-spi.d\"\n";
 		};
 		DDC907B5298B2DE800ECA4D6 /* Migrate WebCore and WebKitLegacy Headers */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -22027,6 +22031,7 @@
 		};
 		CD0C36D72639D39A004E35D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A1EDD2D91884ACE000BBFE98 /* All.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -22035,6 +22040,7 @@
 		};
 		CD0C36D82639D39A004E35D8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A1EDD2D91884ACE000BBFE98 /* All.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -22043,6 +22049,7 @@
 		};
 		CD0C36D92639D39A004E35D8 /* Production */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A1EDD2D91884ACE000BBFE98 /* All.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
