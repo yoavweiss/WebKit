@@ -210,11 +210,32 @@ bool GraphicsContextGLTextureMapperGBM::reshapeDrawingBuffer()
     return bindNextDrawingBuffer();
 }
 
+UnixFileDescriptor GraphicsContextGLTextureMapperGBM::createExportedFence() const
+{
+    const auto& eglExtensions = PlatformDisplay::sharedDisplay().eglExtensions();
+    if (!eglExtensions.KHR_fence_sync || !eglExtensions.ANDROID_native_fence_sync)
+        return { };
+
+    auto sync = EGL_CreateSyncKHR(m_displayObj, EGL_SYNC_NATIVE_FENCE_ANDROID, nullptr);
+    if (sync == EGL_NO_SYNC)
+        return { };
+
+    GL_Flush();
+    auto fd = UnixFileDescriptor { EGL_DupNativeFenceFDANDROID(m_displayObj, sync), UnixFileDescriptor::Adopt };
+    EGL_DestroySyncKHR(m_displayObj, sync);
+    return fd;
+}
+
 void GraphicsContextGLTextureMapperGBM::prepareForDisplay()
 {
+    UnixFileDescriptor fenceFD;
     std::unique_ptr<GLFence> fence;
-    prepareForDisplayWithFinishedSignal([&fence] {
-        fence = GLFence::create();
+    prepareForDisplayWithFinishedSignal([this, &fenceFD, &fence] {
+        fenceFD = createExportedFence();
+        if (!fenceFD) {
+            GL_Flush();
+            fence = GLFence::create();
+        }
     });
 
     if (!m_displayBuffer.dmabuf)
@@ -224,7 +245,12 @@ void GraphicsContextGLTextureMapperGBM::prepareForDisplay()
     OptionSet<TextureMapperFlags> flags = TextureMapperFlags::ShouldFlipTexture;
     if (contextAttributes().alpha)
         flags.add(TextureMapperFlags::ShouldBlend);
-    m_layerContentsDisplayDelegate->setDisplayBuffer(CoordinatedPlatformLayerBufferDMABuf::create(Ref { *m_displayBuffer.dmabuf }, flags, WTFMove(fence)));
+    std::unique_ptr<CoordinatedPlatformLayerBuffer> buffer;
+    if (fenceFD)
+        buffer = CoordinatedPlatformLayerBufferDMABuf::create(Ref { *m_displayBuffer.dmabuf }, flags, WTFMove(fenceFD));
+    else
+        buffer = CoordinatedPlatformLayerBufferDMABuf::create(Ref { *m_displayBuffer.dmabuf }, flags, WTFMove(fence));
+    m_layerContentsDisplayDelegate->setDisplayBuffer(WTFMove(buffer));
 }
 
 void GraphicsContextGLTextureMapperGBM::prepareForDisplayWithFinishedSignal(Function<void()>&& finishedSignalCreator)
