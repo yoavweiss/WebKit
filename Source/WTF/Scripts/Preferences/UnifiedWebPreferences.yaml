@@ -6633,7 +6633,7 @@ ScrollToTextFragmentMarkingEnabled:
       
 ScrollendEventEnabled:
   type: bool
-  status: testable
+  status: preview
   category: dom
   humanReadableName: "scrollend event"
   humanReadableDescription: "Enable scrollend event"
