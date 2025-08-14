@@ -499,6 +499,8 @@ PASS AUDIO.setAttribute(onwaitingforkey, "unsafe_handler()") calls default polic
 PASS AUDIO.setAttributeNS(onwaitingforkey, "unsafe_handler()") calls default policy
 PASS VIDEO.setAttribute(onwaitingforkey, "unsafe_handler()") calls default policy
 PASS VIDEO.setAttributeNS(onwaitingforkey, "unsafe_handler()") calls default policy
+PASS animation.setAttribute(onrepeat, "unsafe_handler()") calls default policy
+PASS animation.setAttributeNS(onrepeat, "unsafe_handler()") calls default policy
 PASS DIV.setAttribute("onafterprint", "unsafe_handler()") calls default policy
 PASS DIV.setAttribute("onwaitingforkey", "unsafe_handler()") calls default policy
 FAIL DIV.setAttribute("onbegin", "unsafe_handler()") calls default policy assert_equals: expected (string) "Element onbegin" but got (undefined) undefined

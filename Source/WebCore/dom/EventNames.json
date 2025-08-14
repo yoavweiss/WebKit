@@ -214,6 +214,8 @@
     "removesourcebuffer": { },
     "removestream": { },
     "removetrack": { },
+    "repeat": { },
+    "repeatEvent": { },
     "reset": { },
     "resize": { },
     "resourcetimingbufferfull": { },
