@@ -1091,7 +1091,6 @@ public:
     
     // Whenever possible, use subspaceFor<CellType>(vm) to get one of these subspaces.
     CompleteSubspace cellSpace;
-    CompleteSubspace variableSizedCellSpace;
     CompleteSubspace destructibleObjectSpace;
 
 #define DECLARE_ISO_SUBSPACE(name, heapCellType, type) \
