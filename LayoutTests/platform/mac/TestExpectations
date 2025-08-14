@@ -2476,12 +2476,6 @@ imported/w3c/web-platform-tests/css/css-view-transitions/new-content-transform-p
 # rdar://154889639 (REGRESSION(Liquid Glass): [ OS 26 ] fast/forms/datalist/datalist-fallback-content.html is a constant ImageOnlyFailure)
 fast/forms/datalist/datalist-fallback-content.html [ ImageOnlyFailure ]
 
-# rdar://154990654 (REGRESSION(Liquid Glass): [ Tahoe ] 4X fast/forms/switch/zoom-approximates-transform (layout-tests) are constant ImageOnlyFailures)
-fast/forms/switch/zoom-approximates-transform-rtl.html [ ImageOnlyFailure ]
-fast/forms/switch/zoom-approximates-transform-vertical-lr.html [ ImageOnlyFailure ] 
-fast/forms/switch/zoom-approximates-transform-vertical-rl.html [ ImageOnlyFailure ] 
-fast/forms/switch/zoom-approximates-transform.html [ ImageOnlyFailure ] 
-
 # Tests which pass only with form control refresh enabled
 fast/forms/appearance-default-button.html  [ Pass ]
 fast/forms/form-control-refresh [ Pass ]
