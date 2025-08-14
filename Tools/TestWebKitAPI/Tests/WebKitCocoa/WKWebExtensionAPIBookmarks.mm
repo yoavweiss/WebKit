@@ -895,6 +895,102 @@ TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPIMove)
     [manager loadAndRun];
 }
 
+TEST_F(WKWebExtensionAPIBookmarks, BookmarksAPISearch)
+{
+    auto *script = @[
+        @"let folderA = await browser.bookmarks.create({ id: 'folderA_id', title: 'Animals Folder' });",
+        @"let bm1 = await browser.bookmarks.create({ id: 'bm1_id', parentId: folderA.id, title: 'Dog', url: 'http://animals.com/dog' });",
+        @"let bm2 = await browser.bookmarks.create({ id: 'bm2_id', parentId: folderA.id, title: 'Cat', url: 'http://animals.com/cat' });",
+        @"let bm3 = await browser.bookmarks.create({ id: 'bm3_id', parentId: folderA.id, title: 'Bird', url: 'http://birds.org/sparrow' });",
+
+        @"let folderB = await browser.bookmarks.create({ id: 'folderB_id', title: 'Plants Folder' });",
+        @"let bm4 = await browser.bookmarks.create({ id: 'bm4_id', parentId: folderB.id, title: 'Rose', url: 'http://flowers.com/rose' });",
+        @"let bm5 = await browser.bookmarks.create({ id: 'bm5_id', parentId: folderB.id, title: 'Lily', url: 'http://flowers.com/lily' });",
+
+        @"let bm6 = await browser.bookmarks.create({ id: 'bm6_id', title: 'Wild Animal', url: 'http://nature.com/wildlife' });",
+        @"let bm7 = await browser.bookmarks.create({ id: 'bm7_id', title: 'My Favorite Dog Site', url: 'http://dogs.com/favorite' });",
+        @"let bm8 = await browser.bookmarks.create({ id: 'bm8_id', title: 'A Bookmark', url: 'http://a.com/bookmark' });",
+        @"let bm9 = await browser.bookmarks.create({ id: 'bm9_id', title: 'Another Bookmark', url: 'http://another.com/bookmark' });",
+        @"let bm10 = await browser.bookmarks.create({ id: 'bm10_id', title: 'Special Folder' });",
+        @"let bm11 = await browser.bookmarks.create({ id: 'bm11_id', title: 'Special Link', url: 'http://specialLink.com' });",
+
+        @"let results1 = await browser.bookmarks.search('dog');",
+        @"browser.test.assertEq(2, results1.length, 'S1: Should find 2 bookmarks for dog');",
+        @"browser.test.assertEq(bm1.id, results1[0].id, 'S1: First result should be bm1');",
+        @"browser.test.assertEq(bm7.id, results1[1].id, 'S1: Second result should be bm7');",
+
+        @"let results2 = await browser.bookmarks.search('dog site');",
+        @"browser.test.assertEq(1, results2.length, 'S2: Should find 1 bookmark for dog site');",
+        @"browser.test.assertEq(bm7.id, results2[0].id, 'S2: Result should be bm7');",
+
+        @"let results3 = await browser.bookmarks.search('Animals');",
+        @"browser.test.assertEq(3, results3.length, 'S3: Should find 1 folder for Animals');",
+        @"browser.test.assertEq(folderA.id, results3[0].id, 'S3: Result should be folderA');",
+        @"browser.test.assertEq(bm1.id, results3[1].id, 'S3: Result should be bm1 since animals appears in the url');",
+        @"browser.test.assertEq(bm2.id, results3[2].id, 'S3: Result should be bm2 since animals appears in the url and is after bm1');",
+
+        @"let results4 = await browser.bookmarks.search('nonexistent');",
+        @"browser.test.assertEq(0, results4.length, 'S4: Should find 0 bookmarks for nonexistent');",
+
+        @"let results5 = await browser.bookmarks.search({ query: 'cat' });",
+        @"browser.test.assertEq(1, results5.length, 'S5: Should find 1 bookmark for query cat');",
+        @"browser.test.assertEq(bm2.id, results5[0].id, 'S5: Result should be bm2');",
+
+        @"let results6 = await browser.bookmarks.search({ title: 'Bird' });",
+        @"browser.test.assertEq(1, results6.length, 'S6: Should find 1 bookmark for title Bird');",
+        @"browser.test.assertEq(bm3.id, results6[0].id, 'S6: Result should be bm3');",
+        @"let results6_partial = await browser.bookmarks.search({ title: 'Bir' });",
+        @"browser.test.assertEq(0, results6_partial.length, 'S6: Should find 0 bookmarks for partial title Bir');",
+        @"let results6_case = await browser.bookmarks.search({ title: 'bird' });",
+        @"browser.test.assertEq(0, results6_case.length, 'S6: Should find 0 bookmarks for case-sensitive title bird');",
+
+        @"let results7 = await browser.bookmarks.search({ url: 'flowers.com' });",
+        @"browser.test.assertEq(0, results7.length, 'S7: Should find 2 bookmarks for url flowers.com');",
+        @"let results8 = await browser.bookmarks.search('flowers.com');",
+        @"browser.test.assertEq(2, results8.length, 'S8: Should find 2 bookmarks for url flowers.com');",
+        @"browser.test.assertEq(bm4.id, results8[0].id, 'S8: First result should be bm4');",
+        @"browser.test.assertEq(bm5.id, results8[1].id, 'S8: Second result should be bm5');",
+
+        @"let results9 = await browser.bookmarks.search({ title: 'Dog', url: 'http://animals.com/dog' });",
+        @"browser.test.assertEq(1, results9.length, 'S9: Should find 1 bookmark for title Dog and url animals.com');",
+        @"browser.test.assertEq(bm1.id, results9[0].id, 'S9: Result should be bm1');",
+
+        @"let results9p2 = await browser.bookmarks.search({ title: 'Dog', url: 'https://animals.com/dog' });",
+        @"browser.test.assertEq(0, results9p2.length, 'S9: Should find 0 bookmarks with https');",
+
+        @"let results10 = await browser.bookmarks.search({ query: 'nature', title: 'Wild Animal' });",
+        @"browser.test.assertEq(1, results10.length, 'S10: Should find 1 bookmark for query animal and title Wild Animal');",
+        @"browser.test.assertEq(bm6.id, results10[0].id, 'S10: Result should be bm6');",
+
+        @"let results11 = await browser.bookmarks.search({});",
+        @"browser.test.assertEq(13, results11.length, 'S11: Should return all 10 items for empty query');",
+
+        @"let results12 = await browser.bookmarks.search({ query: 'bookmark A' });",
+        @"browser.test.assertEq(2, results12.length, 'S12: Should find 2 bookmarks for query bookmark a');",
+        @"browser.test.assertEq(bm8.id, results12[0].id, 'S12: First result should be bm8');",
+        @"browser.test.assertEq(bm9.id, results12[1].id, 'S12: Second result should be bm9');",
+
+        @"let results13 = await browser.bookmarks.search({ query: 'Special' });",
+        @"browser.test.assertEq(2, results13.length, 'S13: Should find 2 bookmarks for query Speical');",
+        @"browser.test.assertEq(bm10.id, results13[0].id, 'S13: First result should be bm10');",
+        @"browser.test.assertEq(bm11.id, results13[1].id, 'S13: Second result should be bm11');",
+        @"let results14 = await browser.bookmarks.search({ query: 'Special', url: 'http://specialLink.com' });",
+        @"browser.test.assertEq(1, results14.length, 'S14: Should find 1 bookmarks for query Speical');",
+        @"browser.test.assertEq(bm11.id, results14[0].id, 'S14: First result should be bm11');",
+
+        @"browser.test.notifyPass();",
+    ];
+
+    auto *resources = @{ @"background.js": Util::constructScript(script) };
+
+    auto manager = getManagerFor(resources, bookmarkOnManifest);
+
+    configureCreateBookmarkDelegate(manager.get());
+    configureGetBookmarksDelegate(manager.get());
+
+    [manager loadAndRun];
+}
+
 }
 #endif
 

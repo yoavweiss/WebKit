@@ -47,6 +47,7 @@ static NSString * const indexKey = @"index";
 static NSString * const parentIdKey = @"parentId";
 static NSString * const dateAddedKey = @"dateAdded";
 static NSString * const typeKey = @"type";
+static NSString * const queryKey = @"query";
 static NSString * const childrenKey = @"children";
 static NSString * const bookmarkKey = @"bookmark";
 static NSString * const folderKey = @"folder";
@@ -347,7 +348,59 @@ void WebExtensionAPIBookmarks::removeTree(NSString *bookmarkIdentifier, Ref<WebE
 
 void WebExtensionAPIBookmarks::search(NSObject *query, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
 {
-    callback->reportError(@"unimplemented");
+    std::optional<WTF::String> ipcQueryTerms;
+    std::optional<WTF::String> ipcTitle;
+    std::optional<WTF::String> ipcURL;
+
+    if ([query isKindOfClass:NSString.class])
+        ipcQueryTerms = dynamic_objc_cast<NSString>(query);
+    else if ([query isKindOfClass:NSDictionary.class]) {
+        NSDictionary *queryDict = dynamic_objc_cast<NSDictionary>(query);
+
+        static NSDictionary<NSString *, id> *types = @{
+            urlKey: NSString.class,
+            titleKey: NSString.class,
+            queryKey: NSString.class
+        };
+
+        if (!validateDictionary(queryDict, @"query", nil, types, outExceptionString))
+            return;
+
+        id queryTermsObj = queryDict[@"query"];
+        if (queryTermsObj)
+            ipcQueryTerms = dynamic_objc_cast<NSString>(queryTermsObj);
+
+        id titleObj = queryDict[@"title"];
+        if (titleObj)
+            ipcTitle = dynamic_objc_cast<NSString>(titleObj);
+
+        id urlObj = queryDict[@"url"];
+        if (urlObj)
+            ipcURL = dynamic_objc_cast<NSString>(urlObj);
+
+    } else {
+        if (outExceptionString)
+            *outExceptionString = toErrorString(nullString(), @"query", @"property must be a string or object.").createNSString().autorelease();
+        return;
+    }
+
+    WebProcess::singleton().sendWithAsyncReply(
+        Messages::WebExtensionContext::BookmarksSearch(ipcQueryTerms, ipcURL, ipcTitle),
+        [protectedThis = Ref { *this }, callback = WTFMove(callback)](Expected<Vector<WebExtensionBookmarksParameters>, WebExtensionError>&& result) {
+            if (!result) {
+                callback->reportError(result.error().createNSString().get());
+                return;
+            }
+
+            const Vector<WebExtensionBookmarksParameters>& resultVector = result.value();
+            NSMutableArray *resultArray = [NSMutableArray arrayWithCapacity:resultVector.size()];
+            for (const auto& node : resultVector)
+                [resultArray addObject:toAPI(node)];
+
+            callback->call(resultArray);
+        },
+        extensionContext().identifier()
+    );
 }
 
 void WebExtensionAPIBookmarks::update(NSString *bookmarkIdentifier, NSDictionary *changes, Ref<WebExtensionCallbackHandler>&& callback, NSString **outExceptionString)
