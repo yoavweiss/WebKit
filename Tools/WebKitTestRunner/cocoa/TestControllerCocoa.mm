@@ -284,7 +284,6 @@ void TestController::platformCreateWebView(WKPageConfigurationRef configuration,
 #endif
     [cocoaConfiguration setMediaTypesRequiringUserActionForPlayback:WKAudiovisualMediaTypeNone];
     WKPageConfigurationSetShouldSendConsoleLogsToUIProcessForTesting(configuration, true);
-    WKPageConfigurationSetAllowJSHandleInPageContentWorld(configuration, true);
 
 #if USE(SYSTEM_PREVIEW)
     [cocoaConfiguration _setSystemPreviewEnabled:YES];

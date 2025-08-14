@@ -182,7 +182,6 @@ public:
     void addUserStyleSheet(JSStringRef source, bool allFrames);
 
     // Text search testing.
-    void findString(JSContextRef, JSStringRef, JSValueRef optionsArray, JSValueRef callback);
     void findStringMatchesInPage(JSContextRef, JSStringRef, JSValueRef optionsArray);
     void indicateFindMatch(JSContextRef, uint32_t index);
     void replaceFindMatchesAtIndices(JSContextRef, JSValueRef matchIndices, JSStringRef replacementText, bool selectionOnly);

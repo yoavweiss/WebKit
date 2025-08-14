@@ -2614,6 +2614,7 @@
 		F6113E25126CE1820057D0A7 /* APIUserContentURLPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = F6113E24126CE1820057D0A7 /* APIUserContentURLPattern.h */; };
 		F6113E29126CE19B0057D0A7 /* WKUserContentURLPattern.h in Headers */ = {isa = PBXBuildFile; fileRef = F6113E27126CE19B0057D0A7 /* WKUserContentURLPattern.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		F634445612A885C8000612D8 /* APISecurityOrigin.h in Headers */ = {isa = PBXBuildFile; fileRef = F634445512A885C8000612D8 /* APISecurityOrigin.h */; };
+		FA0B9DB32E4DAA4D0029560E /* APICompletionListener.h in Headers */ = {isa = PBXBuildFile; fileRef = FA0B9DB22E4DA71F0029560E /* APICompletionListener.h */; };
 		FA1ED3F42B76B93700C90F3B /* CoreIPCCFType.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA1ED3F32B76B90700C90F3B /* CoreIPCCFType.mm */; };
 		FA39AE682B23972B008F93CD /* CoreIPCAuditToken.h in Headers */ = {isa = PBXBuildFile; fileRef = FA39AE662B23972A008F93CD /* CoreIPCAuditToken.h */; };
 		FA4066E02D44733200A2E622 /* WKPageFullScreenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = FA4066DF2D4472CE00A2E622 /* WKPageFullScreenClient.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -8634,6 +8635,7 @@
 		FA07D69C2CFFBB9700915660 /* NetworkTransportStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkTransportStream.h; sourceTree = "<group>"; };
 		FA07D69D2CFFBB9700915660 /* NetworkTransportStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkTransportStream.cpp; sourceTree = "<group>"; };
 		FA07D69E2CFFBBC800915660 /* NetworkTransportStreamCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkTransportStreamCocoa.mm; sourceTree = "<group>"; };
+		FA0B9DB22E4DA71F0029560E /* APICompletionListener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APICompletionListener.h; sourceTree = "<group>"; };
 		FA13529B2C7E70140049C1BC /* NetworkTransportSessionCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkTransportSessionCocoa.mm; sourceTree = "<group>"; };
 		FA1473272B06EE6200765CC1 /* SandboxExtension.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = SandboxExtension.serialization.in; sourceTree = "<group>"; };
 		FA1A7DE42E012DB3005E394B /* RemotePageVideoPresentationManagerProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemotePageVideoPresentationManagerProxy.h; sourceTree = "<group>"; };
@@ -15082,6 +15084,7 @@
 				2E5C770C1FA7D429005932C3 /* APIAttachment.h */,
 				99C81D5B1C20E817005C4C82 /* APIAutomationClient.h */,
 				990D28B31C6526D400986977 /* APIAutomationSessionClient.h */,
+				FA0B9DB22E4DA71F0029560E /* APICompletionListener.h */,
 				7C89D2B11A6B068C003A5FDE /* APIContentRuleList.cpp */,
 				7C89D2B21A6B068C003A5FDE /* APIContentRuleList.h */,
 				5C4609E522430FA6009943C2 /* APIContentRuleListAction.cpp */,
@@ -17114,6 +17117,7 @@
 				99C81D5D1C21F38B005C4C82 /* APIAutomationClient.h in Headers */,
 				990D28C01C6553F100986977 /* APIAutomationSessionClient.h in Headers */,
 				1A3DD206125E5A2F004515E6 /* APIClient.h in Headers */,
+				FA0B9DB32E4DAA4D0029560E /* APICompletionListener.h in Headers */,
 				7C89D2B41A6B068C003A5FDE /* APIContentRuleList.h in Headers */,
 				7C3A06A81AAB903E009D74BA /* APIContentRuleListStore.h in Headers */,
 				5183722223CE97410003CF83 /* APIContentWorld.h in Headers */,

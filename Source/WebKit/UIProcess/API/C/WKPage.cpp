@@ -28,6 +28,7 @@
 #include "WKPagePrivate.h"
 
 #include "APIArray.h"
+#include "APICompletionListener.h"
 #include "APIContentWorld.h"
 #include "APIContextMenuClient.h"
 #include "APIData.h"
@@ -1183,26 +1184,6 @@ void WKPageSetPageInjectedBundleClient(WKPageRef pageRef, const WKPageInjectedBu
     toProtectedImpl(pageRef)->setInjectedBundleClient(wkClient);
 }
 
-class CompletionListener : public API::ObjectImpl<API::Object::Type::CompletionListener> {
-public:
-    static Ref<CompletionListener> create(CompletionHandler<void(WKTypeRef)>&& completionHandler) { return adoptRef(*new CompletionListener(WTFMove(completionHandler))); }
-    void complete(WKTypeRef result) { m_completionHandler(result); }
-
-private:
-    explicit CompletionListener(CompletionHandler<void(WKTypeRef)>&& completionHandler)
-        : m_completionHandler(WTFMove(completionHandler)) { }
-
-    CompletionHandler<void(WKTypeRef)> m_completionHandler;
-};
-
-SPECIALIZE_TYPE_TRAITS_BEGIN(CompletionListener)
-static bool isType(const API::Object& object) { return object.type() == API::Object::Type::CompletionListener; }
-SPECIALIZE_TYPE_TRAITS_END()
-
-namespace WebKit {
-WK_ADD_API_MAPPING(WKCompletionListenerRef, CompletionListener);
-}
-
 void WKCompletionListenerComplete(WKCompletionListenerRef listener, WKTypeRef result)
 {
     toProtectedImpl(listener)->complete(result);
@@ -1230,7 +1211,7 @@ void WKPageSetFullScreenClientForTesting(WKPageRef pageRef, const WKPageFullScre
         {
             if (!m_client.willEnterFullScreen)
                 return completionHandler(false);
-            m_client.willEnterFullScreen(toAPI(protectedPage().get()), toAPI(CompletionListener::create([completionHandler = WTFMove(completionHandler)] (WKTypeRef) mutable {
+            m_client.willEnterFullScreen(toAPI(protectedPage().get()), toAPI(API::CompletionListener::create([completionHandler = WTFMove(completionHandler)] (WKTypeRef) mutable {
                 completionHandler(true);
             }).ptr()), m_client.base.clientInfo);
         }
@@ -1255,7 +1236,7 @@ void WKPageSetFullScreenClientForTesting(WKPageRef pageRef, const WKPageFullScre
         {
             if (!m_client.beganExitFullScreen)
                 return completionHandler();
-            m_client.beganExitFullScreen(toAPI(protectedPage().get()), toAPI(initialFrame), toAPI(finalFrame), toAPI(CompletionListener::create([completionHandler = WTFMove(completionHandler)] (WKTypeRef) mutable {
+            m_client.beganExitFullScreen(toAPI(protectedPage().get()), toAPI(initialFrame), toAPI(finalFrame), toAPI(API::CompletionListener::create([completionHandler = WTFMove(completionHandler)] (WKTypeRef) mutable {
                 completionHandler();
             }).ptr()), m_client.base.clientInfo);
         }
@@ -2256,7 +2237,7 @@ void WKPageSetPageUIClient(WKPageRef pageRef, const WKPageUIClientBase* wkClient
             if (!m_client.requestPointerLock)
                 return completionHandler(false);
 
-            Ref listener = CompletionListener::create([completionHandler = WTFMove(completionHandler)] (WKTypeRef) mutable { completionHandler(true); });
+            Ref listener = API::CompletionListener::create([completionHandler = WTFMove(completionHandler)] (WKTypeRef) mutable { completionHandler(true); });
             m_client.requestPointerLock(toAPI(page), toAPI(listener.ptr()), m_client.base.clientInfo);
         }
 
