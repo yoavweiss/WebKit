@@ -5341,6 +5341,7 @@ TEST(SiteIsolation, HitTesting)
 
     HTTPServer server({
         { "/example"_s, { makeString(
+            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
             "<iframe id=iframeid1 src='https://webkit.org/webkitframe'></iframe>"
             "<iframe id=iframeid2 src='/exampleframe'></iframe>"
             "<div id=mainframediv>"_s, text, text, "</div>"_s
@@ -5394,13 +5395,7 @@ TEST(SiteIsolation, HitTesting)
         hitTestPointInMainFrame(340, 40, "[object Text] undefined, child of exampleiframediv");
         hitTestPointInMainFrame(40, 240, "[object Text] undefined, child of mainframediv");
         hitTestPointInMainFrame(300, 240, "[object Text] undefined, child of mainframediv");
-        hitTestPointInMainFrame(340, 300,
-#if PLATFORM(MAC)
-            "[object Text] undefined, child of mainframediv"
-#else
-            "[object HTMLDivElement] mainframediv, child of "
-#endif
-        );
+        hitTestPointInMainFrame(340, 300, "[object Text] undefined, child of mainframediv");
 
         RetainPtr iframe = [webView firstChildFrame];
         auto hitTestPointInIFrame = [=] (size_t x, size_t y, const char* expected) {
