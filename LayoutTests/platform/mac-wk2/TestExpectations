@@ -2412,4 +2412,4 @@ webkit.org/b/297251 fast/mediastream/getUserMedia-echoCancellation.html [ Pass F
 
 webkit.org/b/297289 [ Debug ] webarchive/loading/test-loading-archive-with-link.html [ Crash ]
 
-webkit.org/b/297343 [ Debug ] ipc/storage-area-cache-use-after-free.html [ Pass Timeout ]
+webkit.org/b/297343 [ Debug ] ipc/storage-area-cache-use-after-free.html [ Slow ]
