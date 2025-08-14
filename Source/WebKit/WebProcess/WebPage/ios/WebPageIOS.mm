@@ -5234,6 +5234,10 @@ void WebPage::updateVisibleContentRects(const VisibleContentRectUpdateInfo& visi
             layerAction = ScrollingLayerPositionAction::SetApproximate;
         }
         scrollingCoordinator->reconcileScrollingState(frameView, scrollPosition, visibleContentRectUpdateInfo.layoutViewportRect(), ScrollType::User, viewportStability, layerAction);
+        if (visibleContentRectUpdateInfo.needsScrollend()) {
+            auto scrollUpdate = ScrollUpdate { *frameView.scrollingNodeID(), { }, { }, ScrollUpdateType::WheelEventScrollDidEnd };
+            scrollingCoordinator->applyScrollUpdate(WTFMove(scrollUpdate), ScrollType::User);
+        }
     }
 }
 

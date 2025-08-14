@@ -453,9 +453,10 @@ void ScrollingTreeScrollingNodeDelegateIOS::scrollWillStart() const
     scrollingTree()->scrollingTreeNodeWillStartScroll(scrollingNode().scrollingNodeID());
 }
 
-void ScrollingTreeScrollingNodeDelegateIOS::scrollDidEnd() const
+void ScrollingTreeScrollingNodeDelegateIOS::scrollDidEnd()
 {
     scrollingTree()->scrollingTreeNodeDidEndScroll(scrollingNode().scrollingNodeID());
+    scrollingTree()->scrollingTreeNodeDidStopWheelEventScroll(scrollingNode());
 }
 
 void ScrollingTreeScrollingNodeDelegateIOS::scrollViewWillStartPanGesture() const
