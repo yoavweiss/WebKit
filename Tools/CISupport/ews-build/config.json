@@ -155,6 +155,8 @@
     { "name": "ews197", "platform": "ios-simulator-18" },
     { "name": "ews198", "platform": "ios-simulator-18" },
     { "name": "ews200", "platform": "mac-sonoma" },
+    { "name": "ews205", "platform": "mac-sonoma" },
+    { "name": "ews206", "platform": "mac-sonoma" },
     { "name": "ews201", "platform": "mac-sonoma" },
     { "name": "ews202", "platform": "mac-sonoma" },
     { "name": "ews203", "platform": "mac-sonoma" },
@@ -408,7 +410,7 @@
       "name": "JSC-Tests-EWS", "shortname": "jsc", "icon": "buildAndTest",
       "factory": "JSCBuildAndTestsFactory", "platform": "mac-sonoma",
       "configuration": "release", "runTests": "true",
-      "workernames": ["ews127", "ews128", "ews251", "ews252"]
+      "workernames": ["ews127", "ews128", "ews205", "ews206", "ews251", "ews252"]
     },
     {
       "name": "JSC-Tests-arm64-EWS", "shortname": "jsc-arm64", "icon": "buildAndTest",
