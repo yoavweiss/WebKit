@@ -75,6 +75,7 @@
 #include "WebsiteDataType.h"
 #include <WebCore/ClientOrigin.h>
 #include <WebCore/CommonAtomStrings.h>
+#include <WebCore/ContentFilterUnblockHandler.h>
 #include <WebCore/CookieJar.h>
 #include <WebCore/CrossOriginPreflightResultCache.h>
 #include <WebCore/DNS.h>
@@ -129,6 +130,10 @@
 
 #if USE(CURL)
 #include <WebCore/CurlContext.h>
+#endif
+
+#if HAVE(WEBCONTENTRESTRICTIONS)
+#include <WebCore/ParentalControlsURLFilter.h>
 #endif
 
 namespace WebKit {
@@ -3297,5 +3302,12 @@ void NetworkProcess::setDefaultRequestTimeoutInterval(double timeoutInterval)
 {
     ResourceRequestBase::setDefaultTimeoutInterval(timeoutInterval);
 }
+
+#if HAVE(WEBCONTENTRESTRICTIONS)
+void NetworkProcess::allowEvaluatedURL(const WebCore::ParentalControlsURLFilterParameters& parameters, CompletionHandler<void(bool)>&& completionHandler)
+{
+    WebCore::ParentalControlsURLFilter::allowURL(parameters, WTFMove(completionHandler));
+}
+#endif
 
 } // namespace WebKit

@@ -281,4 +281,8 @@ messages -> NetworkProcess : AuxiliaryProcess WantsAsyncDispatchMessage {
 #endif
 
     SetDefaultRequestTimeoutInterval(double timeoutInterval)
+
+#if HAVE(WEBCONTENTRESTRICTIONS)
+    AllowEvaluatedURL(struct WebCore::ParentalControlsURLFilterParameters parameters) -> (bool allowed)
+#endif
 }

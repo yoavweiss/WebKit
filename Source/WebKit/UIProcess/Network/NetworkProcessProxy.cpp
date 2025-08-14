@@ -2047,6 +2047,13 @@ void NetworkProcessProxy::setDefaultRequestTimeoutInterval(double timeoutInterva
         send(Messages::NetworkProcess::SetDefaultRequestTimeoutInterval(timeoutInterval), 0);
 }
 
+#if HAVE(WEBCONTENTRESTRICTIONS)
+void NetworkProcessProxy::allowEvaluatedURL(const WebCore::ParentalControlsURLFilterParameters& parameters, CompletionHandler<void(bool)>&& completionHandler)
+{
+    sendWithAsyncReply(Messages::NetworkProcess::AllowEvaluatedURL(parameters), WTFMove(completionHandler));
+}
+#endif
+
 } // namespace WebKit
 
 #undef MESSAGE_CHECK_COMPLETION

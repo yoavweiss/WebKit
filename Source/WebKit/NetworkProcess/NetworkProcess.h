@@ -100,6 +100,10 @@ struct MessageWithMessagePorts;
 class SecurityOriginData;
 struct OrganizationStorageAccessPromptQuirk;
 struct SoupNetworkProxySettings;
+
+#if HAVE(WEBCONTENTRESTRICTIONS)
+struct ParentalControlsURLFilterParameters;
+#endif
 }
 
 namespace WebKit {
@@ -477,6 +481,10 @@ public:
     WebCore::ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlockingForPage(std::optional<WebPageProxyIdentifier>) const;
 
     void setDefaultRequestTimeoutInterval(double);
+
+#if HAVE(WEBCONTENTRESTRICTIONS)
+    void allowEvaluatedURL(const WebCore::ParentalControlsURLFilterParameters&, CompletionHandler<void(bool)>&&);
+#endif
 
 private:
     void platformInitializeNetworkProcess(const NetworkProcessCreationParameters&);

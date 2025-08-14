@@ -9309,3 +9309,12 @@ header: <WebCore/ScriptTrackingPrivacyCategory.h>
     Speech,
     FormControls,
 };
+
+#if HAVE(WEBCONTENTRESTRICTIONS)
+struct WebCore::ParentalControlsURLFilterParameters {
+    URL urlToAllow;
+#if HAVE(WEBCONTENTRESTRICTIONS_PATH_SPI)
+    String configurationPath;
+#endif
+};
+#endif

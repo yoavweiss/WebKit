@@ -27,46 +27,15 @@
 
 #if HAVE(WEBCONTENTRESTRICTIONS)
 
-OBJC_CLASS WCRBrowserEngineClient;
-
-namespace WTF {
-class WorkQueue;
-}
-
 namespace WebCore {
 
-struct ParentalControlsURLFilterParameters;
-
-class ParentalControlsURLFilter {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ParentalControlsURLFilter);
-public:
+struct ParentalControlsURLFilterParameters {
+    URL urlToAllow;
 #if HAVE(WEBCONTENTRESTRICTIONS_PATH_SPI)
-    static ParentalControlsURLFilter& filterWithConfigurationPath(const String&);
-#else
-    static ParentalControlsURLFilter& singleton();
-#endif
-    WEBCORE_EXPORT static void allowURL(const ParentalControlsURLFilterParameters&, CompletionHandler<void(bool)>&&);
-
-    void resetIsEnabled();
-    bool isEnabled() const;
-    void isURLAllowedWithQueue(const URL&, CompletionHandler<void(bool, NSData *)>&&, WTF::WorkQueue& completionHandlerQueue);
-    void allowURL(const URL&, CompletionHandler<void(bool)>&&);
-
-private:
-#if HAVE(WEBCONTENTRESTRICTIONS_PATH_SPI)
-    ParentalControlsURLFilter(const String& configurationPath);
-#else
-    ParentalControlsURLFilter();
-#endif
-    WCRBrowserEngineClient* effectiveWCRBrowserEngineClient();
-
-    mutable std::optional<bool> m_isEnabled;
-    const RetainPtr<WCRBrowserEngineClient> m_wcrBrowserEngineClient;
-#if HAVE(WEBCONTENTRESTRICTIONS_PATH_SPI)
-    String m_configurationPath;
+    String configurationPath;
 #endif
 };
 
-} // namespace WebCore
+}
 
-#endif // HAVE(WEBCONTENTRESTRICTIONS)
+#endif

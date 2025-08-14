@@ -8276,14 +8276,11 @@ UsesWebContentRestrictionsForFilter:
   webcoreBinding: DeprecatedGlobalSettings
   defaultValue:
     WebKitLegacy:
-      "PLATFORM(IOS_FAMILY) && !PLATFORM(MACCATALYST)": true
-      default: false
+      default: true
     WebKit:
-      "PLATFORM(IOS_FAMILY) && !PLATFORM(MACCATALYST)": true
-      default: false
+      default: true
     WebCore:
-      "PLATFORM(IOS_FAMILY) && !PLATFORM(MACCATALYST)": true
-      default: false
+      default: true
   sharedPreferenceForWebProcess: true
 
 VP9DecoderEnabled:
