@@ -1,4 +1,4 @@
 
-FAIL WebSocket inherits storage access assert_true: frame has access to cookies after request. expected true got false
+FAIL WebSocket inherits storage access assert_true: requestStorageAccess resolves without requiring a gesture. expected true got false
 PASS WebSocket omits unpartitioned cookies without storage access
 

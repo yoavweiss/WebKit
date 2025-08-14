@@ -1,4 +1,4 @@
 
-FAIL Workers don't inherit storage access assert_true: frame has access to cookies after request. expected true got false
-FAIL Workers don't observe parent's storage access assert_true: frame has access to cookies after request. expected true got false
+FAIL Workers don't inherit storage access assert_true: requestStorageAccess resolves without requiring a gesture. expected true got false
+FAIL Workers don't observe parent's storage access assert_true: requestStorageAccess resolves without requiring a gesture. expected true got false
 
