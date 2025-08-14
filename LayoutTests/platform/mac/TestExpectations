@@ -286,6 +286,8 @@ fast/events/wheel/platform-wheelevent-paging-y-in-scrolling-page.html [ Skip ]
 # Pointer Lock can only check some of the API at the moment.
 pointer-lock/bug90391-move-then-window-open-crash.html
 pointer-lock/locked-element-iframe-removed-from-dom.html
+
+# webkit.org/b/297360 3 pointer-lock tests are failing because of missing TestRunner support
 pointer-lock/pointerlockchange-event-on-lock-lost.html
 pointer-lock/pointerlockchange-pointerlockerror-events.html
 pointer-lock/pointerlockelement-null-when-pending.html
@@ -1903,8 +1905,6 @@ imported/w3c/web-platform-tests/webcodecs/videoFrame-drawImage.any.worker.html [
 
 [ x86_64 ] imported/w3c/web-platform-tests/webcodecs/audioDecoder-codec-specific.https.any.html?mp3 [ Failure ]
 [ x86_64 ] imported/w3c/web-platform-tests/webcodecs/audioDecoder-codec-specific.https.any.worker.html?mp3 [ Failure ]
-
-webkit.org/b/229521 pointer-lock/lock-already-locked.html [ Pass Failure ]
 
 webkit.org/b/230327 imported/w3c/web-platform-tests/css/css-transforms/crashtests/transform-marquee-resize-div-image-001.html [ Pass Failure ]
 

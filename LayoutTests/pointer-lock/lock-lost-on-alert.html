@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE HTML> <!-- webkit-test-runner [ PointerLockEnabled=true ] -->
 <html>
 <head>
 <script src="../resources/js-test.js"></script>
@@ -12,6 +12,7 @@
     description("Test that pointerlockchange event is dispatched when lock is lost.")
     window.jsTestIsAsync = true;
     shouldBeDefined("window.testRunner");
+    window.testRunner?.setHasMouseDeviceForTesting(true);
 
     targetDiv1 = document.getElementById("target1");
 
