@@ -30,7 +30,7 @@ from enum import Enum
 from typing import Any, NamedTuple, Optional, Union
 
 if sys.version_info < (3, 11):
-    from webkitapipy._vendor import tomli
+    from webkitapipy._vendor import tomli as tomllib
 else:
     import tomllib
 
@@ -92,11 +92,9 @@ class AllowList:
                 reqs = entry.pop('requires', [])
                 sels = []
                 for sel in entry.pop('selectors', []):
-                    if isinstance(sel, str):
-                        sels.append(AllowedSPI.Selector(sel, None))
-                    else:
-                        sels.append(AllowedSPI.Selector(sel['name'],
-                                                        sel.get('class')))
+                    receiver = sel.get('class')
+                    sels.append(AllowedSPI.Selector(sel['name'],
+                                                    None if receiver == '?' else receiver))
                 if entry:
                     raise ValueError(f'Unrecognized items in "{key}"."{bug}": '
                                      f'{entry}')
@@ -128,14 +126,12 @@ class AllowList:
 
     @classmethod
     def from_file(cls, config_file: Path) -> AllowList:
-        if sys.version_info < (3, 11):
-            try:
-                doc = tomli.load(config_file.open('rb'))
-            except tomli.TOMLDecodeError as error:
-                raise ValueError(f'failed to parse "{config_file}"') from error
-        else:
-            try:
-                doc = tomllib.load(config_file.open('rb'))
-            except tomllib.TOMLDecodeError as error:
-                raise ValueError(f'failed to parse "{config_file}"') from error
+        try:
+            doc = tomllib.load(config_file.open('rb'))
+        except tomllib.TOMLDecodeError as error:
+            if sys.version_info < (3, 11):
+                raise ValueError(f'{config_file}: error: decode failed') from error
+            else:
+                error.add_note(f'{config_file}: error: decode failed"')
+                raise
         return cls.from_dict(doc)

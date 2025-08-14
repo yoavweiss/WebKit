@@ -53,7 +53,7 @@ R_MissingSelector = MissingName(name='initWithData:', file=F_Client, arch='arm64
 A = AllowList.from_dict({'sdkdb-unittest':
                          {'rdar://12345':
                           {'classes': ['WKDoesntExist'],
-                           'selectors': ['initWithData:'],
+                           'selectors': [{'name': 'initWithData:', 'class': '?'}],
                            'symbols': ['_WKDoesntExistLibraryVersion']}}})
 A_File = Path('/allowed.toml')
 A_Hash = 23456
@@ -71,7 +71,7 @@ R_Uses_Own_Selector = APIReport(
 A_Conditional = AllowList.from_dict(
     {'sdkdb-unittest': {'rdar://12345': {
         'classes': ['WKDoesntExist'],
-        'selectors': ['initWithData:'],
+        'selectors': [{'name': 'initWithData:', 'class': '?'}],
         'symbols': ['_WKDoesntExistLibraryVersion'],
         'requires': ['ENABLE_FEATURE']}
     }}
@@ -80,7 +80,7 @@ A_Conditional = AllowList.from_dict(
 A_NegatedConditional = AllowList.from_dict(
     {'sdkdb-unittest': {'rdar://12345': {
         'classes': ['WKDoesntExist'],
-        'selectors': ['initWithData:'],
+        'selectors': [{'name': 'initWithData:', 'class': '?'}],
         'symbols': ['_WKDoesntExistLibraryVersion'],
         'requires': ['!ENABLE_FEATURE']}
     }}
@@ -89,7 +89,7 @@ A_NegatedConditional = AllowList.from_dict(
 A_MultipleConditions = AllowList.from_dict(
     {'sdkdb-unittest': {'rdar://12345': {
         'classes': ['WKDoesntExist'],
-        'selectors': ['initWithData:'],
+        'selectors': [{'name': 'initWithData:', 'class': '?'}],
         'symbols': ['_WKDoesntExistLibraryVersion'],
         'requires': ['ENABLE_A', 'ENABLE_B', '!ENABLE_C']}
     }}
@@ -293,7 +293,9 @@ class TestSDKDB(TestCase):
         self.add_allowlist()
         self.reconnect()
 
-        other_allowlist = AllowList.from_dict({'test': {'legacy': {'selectors': ['initWithData:']}}})
+        other_allowlist = AllowList.from_dict(
+            {'test': {'legacy': {'selectors': [{'name': 'initWithData:',
+                                                'class': '?'}]}}})
         other_file = Path('/allowed2.toml')
         with self.sdkdb:
             self.sdkdb._cache_hit_preparing_to_insert(other_file, 34567890)
@@ -306,7 +308,9 @@ class TestSDKDB(TestCase):
         self.reconnect()
         self.add_library()
 
-        other_allowlist = AllowList.from_dict({'test': {'legacy': {'selectors': ['initWithData:']}}})
+        other_allowlist = AllowList.from_dict(
+            {'test': {'legacy': {'selectors': [{'name': 'initWithData:',
+                                                'class': '?'}]}}})
         other_file = Path('/allowed2.toml')
         with self.sdkdb:
             self.sdkdb._cache_hit_preparing_to_insert(other_file, 34567890)
@@ -324,7 +328,9 @@ class TestSDKDB(TestCase):
         self.add_allowlist()
         self.add_library()
 
-        other_allowlist = AllowList.from_dict({'test': {'legacy': {'selectors': ['initWithData:']}}})
+        other_allowlist = AllowList.from_dict(
+            {'test': {'legacy': {'selectors': [{'name': 'initWithData:',
+                                                'class': '?'}]}}})
         other_file = Path('/allowed2.toml')
         with self.sdkdb:
             self.sdkdb._cache_hit_preparing_to_insert(other_file, 34567890)

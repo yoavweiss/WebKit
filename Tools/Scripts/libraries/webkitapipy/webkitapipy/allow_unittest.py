@@ -30,7 +30,7 @@ from .allow import AllowList, AllowedSPI, PermanentlyAllowedReason
 Toml = b'''
 [key1."rdar://123456789"]
 symbols = ["_TemporarilyAllowedSymbol"]
-selectors = ["_initWithTemporarilyAllowedData:"]
+selectors = [{ name = "_initWithTemporarilyAllowedData:", class = "?" }]
 classes = ["NSTemporarilyAllowed"]
 
 [key2.not-web-essential]
