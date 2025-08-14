@@ -1168,11 +1168,16 @@ LayoutUnit GridTrackSizingAlgorithmStrategy::minContributionForGridItem(RenderBo
         return minContentContributionForGridItem(gridItem, gridLayoutState);
 
     auto& gridItemMinSize = isRowAxis ? gridItem.style().logicalMinWidth() : gridItem.style().logicalMinHeight();
-    bool overflowIsVisible = isRowAxis ? gridItem.effectiveOverflowInlineDirection() == Overflow::Visible : gridItem.effectiveOverflowBlockDirection() == Overflow::Visible;
+
+    auto computedOverflowIsNotScrollable = [&gridItem, isRowAxis]() {
+        auto overflow = isRowAxis ? gridItem.effectiveOverflowInlineDirection() : gridItem.effectiveOverflowBlockDirection();
+        return overflow == Overflow::Visible || overflow == Overflow::Clip;
+    };
+
     LayoutUnit baselineShim = m_algorithm.baselineOffsetForGridItem(gridItem, direction());
 
     if (gridItemMinSize.isAuto()) {
-        if (!overflowIsVisible)
+        if (!computedOverflowIsNotScrollable())
             return { };
 
         auto minSize = minContentContributionForGridItem(gridItem, gridLayoutState);
