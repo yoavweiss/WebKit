@@ -208,6 +208,8 @@ private:
     bool shouldOverrideMomentumScrolling() const;
     void discreteSnapTransitionTimerFired();
     void scheduleDiscreteScrollSnap(const FloatSize& delta);
+    void scrollendTimerFired();
+    void scheduleScrollendTimer();
 
     bool modifyScrollDeltaForStretching(const PlatformWheelEvent&, FloatSize&, bool isHorizontallyStretched, bool isVerticallyStretched);
     bool applyScrollDeltaWithStretching(const PlatformWheelEvent&, FloatSize, bool isHorizontallyStretched, bool isVerticallyStretched);
@@ -283,6 +285,7 @@ private:
 
     Deque<FloatSize> m_recentDiscreteWheelDeltas;
     std::unique_ptr<ScrollingEffectsControllerTimer> m_discreteSnapTransitionTimer;
+    std::unique_ptr<ScrollingEffectsControllerTimer> m_discreteScrollendTimer;
 
 #if HAVE(RUBBER_BANDING)
     RectEdges<bool> m_rubberBandingEdges;
