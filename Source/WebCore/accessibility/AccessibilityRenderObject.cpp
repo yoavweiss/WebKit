@@ -35,6 +35,7 @@
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityListBox.h"
+#include "AccessibilityMediaHelpers.h"
 #include "AccessibilitySVGObject.h"
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTable.h"
@@ -750,6 +751,11 @@ bool AccessibilityRenderObject::shouldGetTextFromNode(const TextUnderElementMode
 
 String AccessibilityRenderObject::stringValue() const
 {
+#if PLATFORM(IOS_FAMILY)
+    if (RefPtr element = mediaElement())
+        return localizedMediaTimeDescription(element->currentTime());
+#endif
+
     if (!m_renderer)
         return AccessibilityNodeObject::stringValue();
 
@@ -1760,6 +1766,18 @@ bool AccessibilityRenderObject::setValue(const String& string)
     }
 
     return false;
+}
+
+bool AccessibilityRenderObject::press()
+{
+#if PLATFORM(IOS_FAMILY)
+    if (RefPtr mediaElement = this->mediaElement()) {
+        // We can safely call the internal togglePlayState method, which doesn't check restrictions,
+        // because this method is only called from user interaction.
+        return AccessibilityMediaHelpers::press(*mediaElement);
+    }
+#endif
+    return AccessibilityObject::press();
 }
 
 Document* AccessibilityRenderObject::document() const
@@ -2930,5 +2948,37 @@ bool AccessibilityRenderObject::isIgnoredElementWithinMathTree() const
     return m_renderer && m_renderer->isAnonymous() && m_renderer->parent() && is<RenderMathMLBlock>(m_renderer->parent());
 }
 #endif
+
+#if PLATFORM(IOS_FAMILY)
+String AccessibilityRenderObject::interactiveVideoDuration() const
+{
+    return AccessibilityMediaHelpers::interactiveVideoDuration(mediaElement());
+}
+
+void AccessibilityRenderObject::toggleMute()
+{
+    AccessibilityMediaHelpers::toggleMute(mediaElement());
+}
+
+bool AccessibilityRenderObject::isPlaying() const
+{
+    return AccessibilityMediaHelpers::isPlaying(mediaElement());
+}
+
+bool AccessibilityRenderObject::isMuted() const
+{
+    return AccessibilityMediaHelpers::isMuted(mediaElement());
+}
+
+bool AccessibilityRenderObject::isAutoplayEnabled() const
+{
+    return AccessibilityMediaHelpers::isAutoplayEnabled(mediaElement());
+}
+
+void AccessibilityRenderObject::enterFullscreen() const
+{
+    AccessibilityMediaHelpers::enterFullscreen(videoElement());
+}
+#endif // PLATFORM(IOS_FAMILY)
 
 } // namespace WebCore

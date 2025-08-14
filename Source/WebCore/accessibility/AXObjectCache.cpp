@@ -46,7 +46,6 @@
 #include "AccessibilityListBox.h"
 #include "AccessibilityListBoxOption.h"
 #include "AccessibilityMathMLElement.h"
-#include "AccessibilityMediaObject.h"
 #include "AccessibilityMenuList.h"
 #include "AccessibilityMenuListOption.h"
 #include "AccessibilityMenuListPopup.h"
@@ -674,11 +673,6 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
 
         if (shouldCreateAccessibilityLabel(*element))
             return AccessibilityLabel::create(AXID::generate(), renderer, *this);
-
-#if PLATFORM(IOS_FAMILY)
-        if (is<HTMLMediaElement>(*element) && hasRole(*element, nullAtom()))
-            return AccessibilityMediaObject::create(AXID::generate(), renderer, *this);
-#endif
     }
 
     if (renderer.isRenderOrLegacyRenderSVGRoot())

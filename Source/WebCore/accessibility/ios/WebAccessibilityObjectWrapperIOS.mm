@@ -35,7 +35,6 @@
 #import "AXSearchManager.h"
 #import "AXUtilities.h"
 #import "AccessibilityAttachment.h"
-#import "AccessibilityMediaObject.h"
 #import "AccessibilityRenderObject.h"
 #import "AccessibilityScrollView.h"
 #import "AccessibilityTable.h"
@@ -706,14 +705,14 @@ static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descenda
         return NO;
 
     // Convey the video object as interactive if auto-play is not enabled.
-    auto* mediaObject = dynamicDowncast<AccessibilityMediaObject>(self.axBackingObject);
-    return mediaObject && !mediaObject->isAutoplayEnabled();
+    RefPtr object = dynamicDowncast<AccessibilityRenderObject>(self.axBackingObject);
+    return object && !object->isAutoplayEnabled();
 }
 
 - (NSString *)interactiveVideoDescription
 {
-    auto* mediaObject = dynamicDowncast<AccessibilityMediaObject>(self.axBackingObject);
-    return mediaObject ? mediaObject->interactiveVideoDuration().createNSString().autorelease() : @"";
+    RefPtr object = dynamicDowncast<AccessibilityRenderObject>(self.axBackingObject);
+    return object ? object->interactiveVideoDuration().createNSString().autorelease() : @"";
 }
 
 - (BOOL)accessibilityIsMediaPlaying
@@ -721,8 +720,8 @@ static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descenda
     if (![self _prepareAccessibilityCall])
         return NO;
 
-    auto* mediaObject = dynamicDowncast<AccessibilityMediaObject>(self.axBackingObject);
-    return mediaObject && mediaObject->isPlaying();
+    RefPtr object = dynamicDowncast<AccessibilityRenderObject>(self.axBackingObject);
+    return object && object->isPlaying();
 }
 
 - (BOOL)accessibilityIsMediaMuted
@@ -730,8 +729,8 @@ static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descenda
     if (![self _prepareAccessibilityCall])
         return NO;
 
-    auto* mediaObject = dynamicDowncast<AccessibilityMediaObject>(self.axBackingObject);
-    return mediaObject && mediaObject->isMuted();
+    RefPtr object = dynamicDowncast<AccessibilityRenderObject>(self.axBackingObject);
+    return object && object->isMuted();
 }
 
 - (void)accessibilityToggleMuteForMedia
@@ -739,8 +738,8 @@ static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descenda
     if (![self _prepareAccessibilityCall])
         return;
 
-    if (auto* mediaObject = dynamicDowncast<AccessibilityMediaObject>(self.axBackingObject))
-        mediaObject->toggleMute();
+    if (RefPtr object = dynamicDowncast<AccessibilityRenderObject>(self.axBackingObject))
+        object->toggleMute();
 }
 
 - (void)accessibilityVideoEnterFullscreen
@@ -748,8 +747,8 @@ static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descenda
     if (![self _prepareAccessibilityCall])
         return;
 
-    if (auto* mediaObject = dynamicDowncast<AccessibilityMediaObject>(self.axBackingObject))
-        mediaObject->enterFullscreen();
+    if (RefPtr object = dynamicDowncast<AccessibilityRenderObject>(self.axBackingObject))
+        object->enterFullscreen();
 }
 
 - (uint64_t)_accessibilityTextEntryTraits

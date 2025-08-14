@@ -37,6 +37,7 @@
 #include "AccessibilityLabel.h"
 #include "AccessibilityList.h"
 #include "AccessibilityListBox.h"
+#include "AccessibilityMediaHelpers.h"
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTable.h"
 #include "ComposedTreeIterator.h"
@@ -216,6 +217,18 @@ AccessibilityObject* AccessibilityNodeObject::parentObject() const
     return cache ? cache->getOrCreate(composedParentIgnoringDocumentFragments(*node)) : nullptr;
 #endif // USE(ATSPI)
 }
+
+#if PLATFORM(IOS_FAMILY)
+HTMLMediaElement* AccessibilityNodeObject::mediaElement() const
+{
+    return dynamicDowncast<HTMLMediaElement>(node());
+}
+
+HTMLVideoElement* AccessibilityNodeObject::videoElement() const
+{
+    return dynamicDowncast<HTMLVideoElement>(node());
+}
+#endif
 
 LayoutRect AccessibilityNodeObject::checkboxOrRadioRect() const
 {
@@ -1333,12 +1346,26 @@ void AccessibilityNodeObject::alterRangeValue(StepAction stepAction)
 void AccessibilityNodeObject::increment()
 {
     UserGestureIndicator gestureIndicator(IsProcessingUserGesture::Yes, document());
+#if PLATFORM(IOS_FAMILY)
+    if (RefPtr mediaElement = this->mediaElement()) {
+        AccessibilityMediaHelpers::increment(*mediaElement);
+        return;
+    }
+#endif
+
     alterRangeValue(StepAction::Increment);
 }
 
 void AccessibilityNodeObject::decrement()
 {
     UserGestureIndicator gestureIndicator(IsProcessingUserGesture::Yes, document());
+#if PLATFORM(IOS_FAMILY)
+    if (RefPtr mediaElement = this->mediaElement()) {
+        AccessibilityMediaHelpers::decrement(*mediaElement);
+        return;
+    }
+#endif
+
     alterRangeValue(StepAction::Decrement);
 }
 

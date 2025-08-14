@@ -203,6 +203,11 @@ protected:
 
     AccessibilityObject* captionForFigure() const;
     virtual void labelText(Vector<AccessibilityText>&) const;
+
+#if PLATFORM(IOS_FAMILY)
+    HTMLMediaElement* mediaElement() const;
+    HTMLVideoElement* videoElement() const;
+#endif
 private:
     bool isAccessibilityNodeObject() const final { return true; }
     void accessibilityText(Vector<AccessibilityText>&) const override;
