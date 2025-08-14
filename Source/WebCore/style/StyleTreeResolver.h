@@ -231,6 +231,17 @@ private:
 void deprecatedQueuePostResolutionCallback(Function<void()>&&);
 bool postResolutionCallbacksAreSuspended();
 
+inline bool supportsFirstLineAndLetterPseudoElement(const RenderStyle& style)
+{
+    auto display = style.display();
+    return display == DisplayType::Block
+        || display == DisplayType::ListItem
+        || display == DisplayType::InlineBlock
+        || display == DisplayType::TableCell
+        || display == DisplayType::TableCaption
+        || display == DisplayType::FlowRoot;
+}
+
 class PostResolutionCallbackDisabler {
 public:
     enum class DrainCallbacks : bool { No, Yes };

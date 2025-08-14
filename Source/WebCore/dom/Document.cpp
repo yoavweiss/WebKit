@@ -3173,14 +3173,18 @@ std::unique_ptr<RenderStyle> Document::styleForElementIgnoringPendingStylesheets
     SetForScope change(m_ignorePendingStylesheets, true);
     Ref resolver = element.styleResolver();
 
+    auto elementStyle = resolver->styleForElement(element, { parentStyle });
     if (pseudoElementIdentifier) {
+        auto pseudoId = pseudoElementIdentifier->pseudoId;
+        if ((pseudoId == PseudoId::FirstLetter || pseudoId == PseudoId::FirstLine) && elementStyle.style && !Style::supportsFirstLineAndLetterPseudoElement(*elementStyle.style))
+            return { };
+
         auto style = resolver->styleForPseudoElement(element, { *pseudoElementIdentifier }, { parentStyle });
         if (!style)
             return nullptr;
         return WTFMove(style->style);
     }
 
-    auto elementStyle = resolver->styleForElement(element, { parentStyle });
     if (elementStyle.relations) {
         Style::Update emptyUpdate(*this);
         Style::commitRelations(WTFMove(elementStyle.relations), emptyUpdate);

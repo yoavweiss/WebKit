@@ -395,17 +395,6 @@ auto TreeResolver::resolveElement(Element& element, const RenderStyle* existingS
     return { WTFMove(update), descendantsToResolve };
 }
 
-inline bool supportsFirstLineAndLetterPseudoElement(const RenderStyle& style)
-{
-    auto display = style.display();
-    return display == DisplayType::Block
-        || display == DisplayType::ListItem
-        || display == DisplayType::InlineBlock
-        || display == DisplayType::TableCell
-        || display == DisplayType::TableCaption
-        || display == DisplayType::FlowRoot;
-};
-
 std::optional<ElementUpdate> TreeResolver::resolvePseudoElement(Element& element, const PseudoElementIdentifier& pseudoElementIdentifier, const ElementUpdate& elementUpdate, IsInDisplayNoneTree isInDisplayNoneTree, const RenderStyle* existingStyle)
 {
     if (elementUpdate.style->display() == DisplayType::None)
