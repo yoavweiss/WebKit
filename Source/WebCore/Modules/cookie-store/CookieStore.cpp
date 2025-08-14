@@ -464,18 +464,13 @@ void CookieStore::set(CookieInit&& options, Ref<DeferredPromise>&& promise)
         return;
     }
 
-    if (cookie.name.startsWithIgnoringASCIICase("__Host-"_s)) {
-        if (!options.domain.isNull()) {
-            promise->reject(Exception { ExceptionCode::TypeError, "If the cookie name begins with \"__Host-\", the domain must not be specified."_s });
-            return;
-        }
-
-        if (!options.path.isNull() && options.path != "/"_s)  {
-            promise->reject(Exception { ExceptionCode::TypeError, "If the cookie name begins with \"__Host-\", the path must either not be specified or be \"/\"."_s });
-            return;
-        }
+    // FIXME: This should be further down.
+    if (!options.domain.isNull() && cookie.name.startsWithIgnoringASCIICase("__Host-"_s)) {
+        promise->reject(Exception { ExceptionCode::TypeError, "If the cookie name begins with \"__Host-\", the domain must not be specified."_s });
+        return;
     }
 
+    // FIXME: The specification does not perform this initialization of domain.
     cookie.domain = options.domain.isNull() ? domain : options.domain;
     if (!cookie.domain.isNull()) {
         if (cookie.domain.startsWith('.')) {
@@ -507,17 +502,24 @@ void CookieStore::set(CookieInit&& options, Ref<DeferredPromise>&& promise)
     }
 
     cookie.path = WTFMove(options.path);
-    if (!cookie.path.isNull()) {
-        if (!cookie.path.startsWith('/')) {
-            promise->reject(Exception { ExceptionCode::TypeError, "The path must begin with a '/'"_s });
-            return;
-        }
+    ASSERT(!cookie.path.isNull());
+    if (cookie.path.isEmpty())
+        cookie.path = CookieUtil::defaultPathForURL(url);
 
-        // FIXME: <rdar://85515842> Obtain the encoded length without allocating and encoding.
-        if (cookie.path.utf8().length() > maximumAttributeValueSize) {
-            promise->reject(Exception { ExceptionCode::TypeError, makeString("The size of the path must not be greater than "_s, maximumAttributeValueSize, " bytes"_s) });
-            return;
-        }
+    if (!cookie.path.startsWith('/')) {
+        promise->reject(Exception { ExceptionCode::TypeError, "The path must begin with a '/'"_s });
+        return;
+    }
+
+    if (cookie.path != "/"_s && cookie.name.startsWithIgnoringASCIICase("__Host-"_s)) {
+        promise->reject(Exception { ExceptionCode::TypeError, "If the cookie name begins with \"__Host-\", the path must be \"/\" or default to that."_s });
+        return;
+    }
+
+    // FIXME: <rdar://85515842> Obtain the encoded length without allocating and encoding.
+    if (cookie.path.utf8().length() > maximumAttributeValueSize) {
+        promise->reject(Exception { ExceptionCode::TypeError, makeString("The size of the path must not be greater than "_s, maximumAttributeValueSize, " bytes"_s) });
+        return;
     }
 
     if (options.expires) {
