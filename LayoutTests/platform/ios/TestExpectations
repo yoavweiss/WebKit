@@ -8253,3 +8253,5 @@ webkit.org/b/297364 imported/w3c/web-platform-tests/digital-credentials/allow-at
 # webkit.org/b/297405 2x imported/w3c/web-platform-tests/css/css-flexbox/ (layout-tests) tests are constant image failures 
 imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-002.xhtml [ Failure ]
 imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-001.xhtml [ Failure ]
+
+webkit.org/b/297414 [ Debug ] imported/w3c/web-platform-tests/navigation-api/navigate-event/intercept-detach-multiple.html [ Crash ]
