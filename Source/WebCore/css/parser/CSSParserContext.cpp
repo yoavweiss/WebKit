@@ -92,6 +92,7 @@ CSSParserContext::CSSParserContext(const Document& document, const URL& sheetBas
     , cssPaintingAPIEnabled { document.settings().cssPaintingAPIEnabled() }
     , cssShapeFunctionEnabled { document.settings().cssShapeFunctionEnabled() }
     , cssTextUnderlinePositionLeftRightEnabled { document.settings().cssTextUnderlinePositionLeftRightEnabled() }
+    , cssTextDecorationLineErrorValues { document.settings().cssTextDecorationLineErrorValues() }
     , cssBackgroundClipBorderAreaEnabled  { document.settings().cssBackgroundClipBorderAreaEnabled() }
     , cssWordBreakAutoPhraseEnabled { document.settings().cssWordBreakAutoPhraseEnabled() }
     , popoverAttributeEnabled { document.settings().popoverAttributeEnabled() }
@@ -153,7 +154,8 @@ void add(Hasher& hasher, const CSSParserContext& context)
         | context.cssURLIntegrityModifierEnabled            << 26
         | context.cssAxisRelativePositionKeywordsEnabled    << 27
         | context.cssDynamicRangeLimitMixEnabled            << 28
-        | context.cssConstrainedDynamicRangeLimitEnabled    << 29;
+        | context.cssConstrainedDynamicRangeLimitEnabled    << 29
+        | context.cssTextDecorationLineErrorValues          << 30;
     add(hasher, context.baseURL, context.charset, context.propertySettings, context.mode, bits);
 }
 

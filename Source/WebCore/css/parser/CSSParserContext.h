@@ -65,6 +65,7 @@ struct CSSParserContext {
     bool cssPaintingAPIEnabled : 1 { false };
     bool cssShapeFunctionEnabled : 1 { false };
     bool cssTextUnderlinePositionLeftRightEnabled : 1 { false };
+    bool cssTextDecorationLineErrorValues : 1 { false };
     bool cssBackgroundClipBorderAreaEnabled : 1 { false };
     bool cssWordBreakAutoPhraseEnabled : 1 { false };
     bool popoverAttributeEnabled : 1 { false };

@@ -1103,7 +1103,14 @@ inline void ExtractorSerializer::serializeTextTransform(ExtractorState& state, S
 
 inline void ExtractorSerializer::serializeTextDecorationLine(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<TextDecorationLine> textDecorationLine)
 {
-    // Blink value is ignored for rendering but not for the computed value.
+    if (textDecorationLine.isEmpty()) {
+        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
+        return;
+    }
+    if (textDecorationLine & TextDecorationLine::SpellingError) {
+        serializationForCSS(builder, context, state.style, CSS::Keyword::SpellingError { });
+        return;
+    }
     bool listEmpty = true;
     auto appendOption = [&](TextDecorationLine test, CSSValueID value) {
         if (textDecorationLine & test) {
@@ -1116,6 +1123,7 @@ inline void ExtractorSerializer::serializeTextDecorationLine(ExtractorState& sta
     appendOption(TextDecorationLine::Underline, CSSValueUnderline);
     appendOption(TextDecorationLine::Overline, CSSValueOverline);
     appendOption(TextDecorationLine::LineThrough, CSSValueLineThrough);
+    // Blink value is ignored for rendering but not for the computed value.
     appendOption(TextDecorationLine::Blink, CSSValueBlink);
 
     if (listEmpty)

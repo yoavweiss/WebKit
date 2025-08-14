@@ -335,6 +335,13 @@ inline T BuilderConverter::convertLineWidth(BuilderState& builderState, const CS
 
 inline OptionSet<TextDecorationLine> BuilderConverter::convertTextDecorationLine(BuilderState&, const CSSValue& value)
 {
+    // none or spelling-error
+    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
+        if (primitiveValue->valueID() == CSSValueNone)
+            return { };
+        if (primitiveValue->valueID() == CSSValueSpellingError)
+            return TextDecorationLine::SpellingError;
+    }
     auto result = RenderStyle::initialTextDecorationLine();
     if (auto* list = dynamicDowncast<CSSValueList>(value)) {
         for (auto& currentValue : *list)

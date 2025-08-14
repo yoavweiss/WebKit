@@ -916,7 +916,11 @@ inline Ref<CSSValue> ExtractorConverter::convertTextTransform(ExtractorState&, O
 
 inline Ref<CSSValue> ExtractorConverter::convertTextDecorationLine(ExtractorState&, OptionSet<TextDecorationLine> textDecorationLine)
 {
-    // Blink value is ignored.
+    if (textDecorationLine.isEmpty())
+        return CSSPrimitiveValue::create(CSSValueNone);
+    if (textDecorationLine & TextDecorationLine::SpellingError)
+        return CSSPrimitiveValue::create(CSSValueSpellingError);
+
     CSSValueListBuilder list;
     if (textDecorationLine & TextDecorationLine::Underline)
         list.append(CSSPrimitiveValue::create(CSSValueUnderline));
