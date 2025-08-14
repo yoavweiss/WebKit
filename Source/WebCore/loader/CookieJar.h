@@ -83,7 +83,7 @@ public:
     virtual ~CookieJar();
 protected:
     static SameSiteInfo sameSiteInfo(const Document&, IsForDOMCookieAccess = IsForDOMCookieAccess::No);
-    static IncludeSecureCookies shouldIncludeSecureCookies(const Document&, const URL&);
+    static IncludeSecureCookies shouldIncludeSecureCookies(const URL&);
     CookieJar(Ref<StorageSessionProvider>&&);
 
 private:

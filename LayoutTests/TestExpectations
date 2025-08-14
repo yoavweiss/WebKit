@@ -688,7 +688,6 @@ imported/w3c/web-platform-tests/background-fetch/fetch.https.window.html [ Skip 
 # Skip some WPT that require cross-origin testrunner features we don't yet support, causing timeouts.
 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic.http-rp/opt-in/xhr.https.html [ Skip ]
 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module.http-rp/opt-in/xhr.https.html [ Skip ]
-imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/img-tag.https.html [ Skip ]
 imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/link-prefetch-tag.https.html [ Skip ]
 imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/object-tag.https.html [ Skip ]
 imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/picture-tag.https.html [ Skip ]
@@ -3058,8 +3057,6 @@ webkit.org/b/168238 imported/w3c/web-platform-tests/dom/events/EventListener-inv
 
 # Ignore MIME type refused console messages when comparing nosniff tests results as their ordering is non-deterministic.
 imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-ascii-case-insensitive.html [ DumpJSConsoleLogInStdErr ]
-
-http/tests/security/contentSecurityPolicy/block-all-mixed-content/insecure-css-in-iframe-report-only.html [ Pass Failure ]
 
 # text-spacing: These tests generate a bunch of render tree dumps
 imported/w3c/web-platform-tests/css/css-text/text-spacing-trim [ Skip ]
@@ -8005,3 +8002,12 @@ webkit.org/b/294105 webanimations/document-teardown-due-to-last-reference-crash.
 
 # Passes on WPT dashboard while fails locally
 imported/w3c/web-platform-tests/html/obsolete/requirements-for-implementations/the-marquee-element-0/marquee-with-trusted-types.html [ ImageOnlyFailure ]
+
+# Skip WPT tests that rely on the deprecated block-all-mixed-content CSP directive
+imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/audio-tag.https.html
+imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/beacon.https.html
+imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/img-tag.https.html
+imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/video-tag.https.html
+imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/audio-tag.https.html
+imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/beacon.https.html
+imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/video-tag.https.html

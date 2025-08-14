@@ -7224,8 +7224,7 @@ void WebPageProxy::didCommitLoadForFrame(IPC::Connection& connection, FrameIdent
         m_shouldSuppressNextAutomaticNavigationSnapshot = false;
         if (preferences->siteIsolationEnabled())
             m_framesWithSubresourceLoadingForPageLoadTiming.clear();
-    } else if (markPageInsecure)
-        protectedPageLoadState->didDisplayOrRunInsecureContent(transaction);
+    }
 
 #if USE(APPKIT)
     // FIXME (bug 59111): didCommitLoadForFrame comes too late when restoring a page from b/f cache, making us disable secure event mode in password fields.
@@ -7820,40 +7819,6 @@ void WebPageProxy::didReachLayoutMilestone(OptionSet<WebCore::LayoutMilestone> l
     if (m_loaderClient)
         m_loaderClient->didReachLayoutMilestone(*this, layoutMilestones);
     m_navigationClient->renderingProgressDidChange(*this, layoutMilestones);
-}
-
-void WebPageProxy::didDisplayInsecureContentForFrame(IPC::Connection& connection, FrameIdentifier frameID, const UserData& userData)
-{
-    RefPtr protectedPageClient { pageClient() };
-
-    RefPtr frame = WebFrameProxy::webFrame(frameID);
-    if (!frame)
-        return;
-
-    Ref protectedPageLoadState = pageLoadState();
-    auto transaction = protectedPageLoadState->transaction();
-    protectedPageLoadState->didDisplayOrRunInsecureContent(transaction);
-    protectedPageLoadState->commitChanges();
-
-    Ref process = WebProcessProxy::fromConnection(connection);
-    m_navigationClient->didDisplayInsecureContent(*this, process->transformHandlesToObjects(userData.protectedObject().get()).get());
-}
-
-void WebPageProxy::didRunInsecureContentForFrame(IPC::Connection& connection, FrameIdentifier frameID, const UserData& userData)
-{
-    RefPtr protectedPageClient { pageClient() };
-
-    RefPtr frame = WebFrameProxy::webFrame(frameID);
-    if (!frame)
-        return;
-
-    Ref protectedPageLoadState = pageLoadState();
-    auto transaction = protectedPageLoadState->transaction();
-    protectedPageLoadState->didDisplayOrRunInsecureContent(transaction);
-    protectedPageLoadState->commitChanges();
-
-    Ref process = WebProcessProxy::fromConnection(connection);
-    m_navigationClient->didRunInsecureContent(*this, process->transformHandlesToObjects(userData.protectedObject().get()).get());
 }
 
 void WebPageProxy::mainFramePluginHandlesPageScaleGestureDidChange(bool mainFramePluginHandlesPageScaleGesture, double minScale, double maxScale)

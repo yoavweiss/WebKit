@@ -2301,7 +2301,6 @@ imported/w3c/web-platform-tests/dom/events/Event-constants.html [ Skip ]
 # Skip tests that crash as of 09/02/2015:
 fast/dom/offset-position-writing-modes.html [ Skip ]
 http/tests/navigation/page-cache-pending-image-load-cache-partition.html [ Skip ]
-http/tests/security/mixedContent/websocket/insecure-websocket-in-iframe.html [ Skip ]
 http/tests/security/mixedContent/websocket/insecure-websocket-in-main-frame.html [ Skip ]
 
 webkit.org/b/148806 imported/w3c/web-platform-tests/css/css-multicol/multicol-rule-002.xht [ ImageOnlyFailure ]
@@ -2729,10 +2728,6 @@ fast/visual-viewport/client-rects-relative-to-layout-viewport-zoomed.html [ Skip
 
 # On iOS we do not visually highlight a programmatic selection
 fast/selectors/040.html
-
-webkit.org/b/165691 http/tests/security/contentSecurityPolicy/block-all-mixed-content/insecure-iframe-in-main-frame.html [ Pass Failure ]
-# Test is using eventSender
-http/tests/security/contentSecurityPolicy/block-all-mixed-content/insecure-ping-in-iframe.https.html [ Skip ]
 
 webkit.org/b/245610 http/tests/security/xss-DENIED-xsl-external-entity.xml [ Failure ]
 

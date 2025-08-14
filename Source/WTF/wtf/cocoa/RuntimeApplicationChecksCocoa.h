@@ -114,7 +114,6 @@ enum class SDKAlignedBehavior {
     ThrowIfCanDeclareGlobalFunctionFails,
     ThrowOnKVCInstanceVariableAccess,
     LaxCookieSameSiteAttribute,
-    BlockOptionallyBlockableMixedContent,
     UseCFNetworkNetworkLoader,
     AutoLayoutInWKWebView,
     BlockCrossOriginRedirectDownloads,

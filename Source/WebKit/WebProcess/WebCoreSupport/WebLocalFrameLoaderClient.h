@@ -172,9 +172,6 @@ private:
     bool supportsAsyncShouldGoToHistoryItem() const final;
     void shouldGoToHistoryItemAsync(WebCore::HistoryItem&, CompletionHandler<void(WebCore::ShouldGoToHistoryItem)>&&) const final;
 
-    void didDisplayInsecureContent() final;
-    void didRunInsecureContent(WebCore::SecurityOrigin&) final;
-
     void didFinishServiceWorkerPageRegistration(bool success) final;
     
     void loadStorageAccessQuirksIfNeeded() final;

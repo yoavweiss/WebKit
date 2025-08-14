@@ -1233,8 +1233,6 @@ webkit.org/b/177388 inspector/canvas/shaderProgram-add-remove-webgl.html [ Pass 
 
 webkit.org/b/177826 inspector/dom/csp-big5-hash.html [ Pass Timeout ]
 
-webkit.org/b/175998 http/tests/security/mixedContent/insecure-css-with-secure-cookies.html [ Pass Failure ]
-
 # User-installed font infrastructure is ony present on certain OSes.
 webkit.org/b/180062 fast/text/user-installed-fonts/shadow-postscript.html [ ImageOnlyFailure ]
 webkit.org/b/180062 fast/text/user-installed-fonts/shadow.html [ ImageOnlyFailure ]

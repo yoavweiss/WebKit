@@ -59,9 +59,9 @@ Ref<CookieJar> CookieJar::create(Ref<StorageSessionProvider>&& storageSessionPro
     return adoptRef(*new CookieJar(WTFMove(storageSessionProvider)));
 }
 
-IncludeSecureCookies CookieJar::shouldIncludeSecureCookies(const Document& document, const URL& url)
+IncludeSecureCookies CookieJar::shouldIncludeSecureCookies(const URL& url)
 {
-    return (url.protocolIs("https"_s) && !document.foundMixedContent().contains(SecurityContext::MixedContentType::Active)) ? IncludeSecureCookies::Yes : IncludeSecureCookies::No;
+    return url.protocolIs("https"_s) ? IncludeSecureCookies::Yes : IncludeSecureCookies::No;
 }
 
 SameSiteInfo CookieJar::sameSiteInfo(const Document& document, IsForDOMCookieAccess isAccessForDOM)
@@ -88,7 +88,7 @@ String CookieJar::cookies(Document& document, const URL& url) const
 {
     TraceScope scope(FetchCookiesStart, FetchCookiesEnd);
 
-    auto includeSecureCookies = shouldIncludeSecureCookies(document, url);
+    auto includeSecureCookies = shouldIncludeSecureCookies(url);
 
     auto pageID = document.pageID();
     std::optional<FrameIdentifier> frameID;
@@ -116,7 +116,7 @@ CookieRequestHeaderFieldProxy CookieJar::cookieRequestHeaderFieldProxy(const Doc
     if (auto* frame = document.frame())
         frameID = frame->frameID();
 
-    return { document.firstPartyForCookies(), sameSiteInfo(document), url, frameID, pageID, shouldIncludeSecureCookies(document, url) };
+    return { document.firstPartyForCookies(), sameSiteInfo(document), url, frameID, pageID, shouldIncludeSecureCookies(url) };
 }
 
 void CookieJar::setCookies(Document& document, const URL& url, const String& cookieString)
@@ -173,7 +173,7 @@ String CookieJar::cookieRequestHeaderFieldValue(Document& document, const URL& u
     if (auto* frame = document.frame())
         frameID = frame->frameID();
 
-    auto result = cookieRequestHeaderFieldValue(document.firstPartyForCookies(), sameSiteInfo(document), url, frameID, pageID, shouldIncludeSecureCookies(document, url));
+    auto result = cookieRequestHeaderFieldValue(document.firstPartyForCookies(), sameSiteInfo(document), url, frameID, pageID, shouldIncludeSecureCookies(url));
     if (result.second == SecureCookiesAccessed::Yes)
         document.setSecureCookiesAccessed();
     return result.first;

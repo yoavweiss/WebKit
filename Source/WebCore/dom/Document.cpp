@@ -8296,8 +8296,6 @@ void Document::initSecurityContext()
         m_isSrcdocDocument = true;
         setBaseURLOverride(parentDocument->baseURL());
     }
-    if (parentDocument)
-        setStrictMixedContentMode(parentDocument->isStrictMixedContentMode());
 
     if (!SecurityPolicy::shouldInheritSecurityOriginFromOwner(m_url))
         return;

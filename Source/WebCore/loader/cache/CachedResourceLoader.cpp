@@ -425,57 +425,6 @@ ResourceErrorOr<CachedResourceHandle<CachedRawResource>> CachedResourceLoader::r
 }
 #endif
 
-static MixedContentChecker::ContentType contentTypeFromResourceType(CachedResource::Type type)
-{
-    switch (type) {
-    // https://w3c.github.io/webappsec-mixed-content/#category-optionally-blockable
-    // Editor's Draft, 11 February 2016
-    // 3.1. Optionally-blockable Content
-    case CachedResource::Type::ImageResource:
-    case CachedResource::Type::MediaResource:
-#if ENABLE(MODEL_ELEMENT)
-    case CachedResource::Type::EnvironmentMapResource:
-    case CachedResource::Type::ModelResource:
-#endif
-        return MixedContentChecker::ContentType::ActiveCanWarn;
-
-    case CachedResource::Type::CSSStyleSheet:
-    case CachedResource::Type::JSON:
-    case CachedResource::Type::Script:
-    case CachedResource::Type::FontResource:
-        return MixedContentChecker::ContentType::Active;
-
-    case CachedResource::Type::SVGFontResource:
-        return MixedContentChecker::ContentType::Active;
-
-    case CachedResource::Type::Beacon:
-    case CachedResource::Type::Ping:
-    case CachedResource::Type::RawResource:
-    case CachedResource::Type::Icon:
-    case CachedResource::Type::SVGDocumentResource:
-        return MixedContentChecker::ContentType::Active;
-#if ENABLE(XSLT)
-    case CachedResource::Type::XSLStyleSheet:
-        return MixedContentChecker::ContentType::Active;
-#endif
-
-    case CachedResource::Type::LinkPrefetch:
-        return MixedContentChecker::ContentType::Active;
-
-#if ENABLE(VIDEO)
-    case CachedResource::Type::TextTrackResource:
-        return MixedContentChecker::ContentType::Active;
-#endif
-#if ENABLE(APPLICATION_MANIFEST)
-    case CachedResource::Type::ApplicationManifest:
-        return MixedContentChecker::ContentType::Active;
-#endif
-    default:
-        ASSERT_NOT_REACHED();
-        return MixedContentChecker::ContentType::Active;
-    }
-}
-
 static MixedContentChecker::IsUpgradable isUpgradableTypeFromResourceType(CachedResource::Type type)
 {
     // https://www.w3.org/TR/mixed-content/#category-upgradeable
@@ -496,23 +445,6 @@ bool CachedResourceLoader::checkInsecureContent(CachedResource::Type type, const
 {
     if (!canRequestInContentDispositionAttachmentSandbox(type, url))
         return false;
-
-    if (RefPtr document = m_document.get(); document && !document->settings().upgradeMixedContentEnabled()) {
-        // These resource can inject script into the current document (Script,
-        // XSL) or exfiltrate the content of the current document (CSS).
-        // This block is a special-case for maintaining backwards compatibility.
-        if (type == CachedResource::Type::Script
-            || type == CachedResource::Type::JSON
-#if ENABLE(XSLT)
-            || type == CachedResource::Type::XSLStyleSheet
-#endif
-            || type == CachedResource::Type::SVGDocumentResource
-            || type == CachedResource::Type::CSSStyleSheet) {
-
-            if (RefPtr frame = this->frame())
-                return MixedContentChecker::frameAndAncestorsCanRunInsecureContent(*frame, document->protectedSecurityOrigin(), url);
-        }
-    }
 
     switch (type) {
     case CachedResource::Type::JSON:
@@ -538,7 +470,7 @@ bool CachedResourceLoader::checkInsecureContent(CachedResource::Type type, const
     case CachedResource::Type::Ping:
     case CachedResource::Type::FontResource: {
         if (RefPtr frame = this->frame()) {
-            if (MixedContentChecker::shouldBlockRequestForDisplayableContent(*frame, url, contentTypeFromResourceType(type), isRequestUpgradable))
+            if (MixedContentChecker::shouldBlockRequest(*frame, url, isRequestUpgradable))
                 return false;
         }
         break;

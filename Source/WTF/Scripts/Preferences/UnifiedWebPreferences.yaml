@@ -222,17 +222,6 @@ AllowContentSecurityPolicySourceStarToMatchAnyProtocol:
     WebCore:
       default: false
 
-AllowDisplayOfInsecureContent:
-  type: bool
-  status: embedder
-  defaultValue:
-    WebKitLegacy:
-      default: WebKit::defaultAllowDisplayOfInsecureContent()
-    WebKit:
-      default: false
-    WebCore:
-      default: false
-
 AllowFileAccessFromFileURLs:
   type: bool
   status: embedder
@@ -283,17 +272,6 @@ AllowPrivacySensitiveOperationsInNonPersistentDataStores:
     WebCore:
       default: false
   sharedPreferenceForWebProcess: true
-
-AllowRunningOfInsecureContent:
-  type: bool
-  status: embedder
-  defaultValue:
-    WebKitLegacy:
-      default: WebKit::defaultAllowRunningOfInsecureContent()
-    WebKit:
-      default: false
-    WebCore:
-      default: false
 
 AllowTestOnlyIPC:
   type: bool
@@ -7943,20 +7921,6 @@ UpgradeKnownHostsToHTTPSEnabled:
   exposed: [ WebKit ]
   defaultValue:
     WebKit:
-      default: true
-
-UpgradeMixedContentEnabled:
-  type: bool
-  status: stable
-  category: networking
-  humanReadableName: "Upgrade upgradable mixed content"
-  humanReadableDescription: "Upgrade upgradable mixed content"
-  defaultValue:
-    WebKitLegacy:
-      default: true
-    WebKit:
-      default: true
-    WebCore:
       default: true
 
 UseARKitForModel:

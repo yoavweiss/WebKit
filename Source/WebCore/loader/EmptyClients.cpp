@@ -1054,15 +1054,6 @@ bool EmptyFrameLoaderClient::canCachePage() const
     return false;
 }
 
-void EmptyFrameLoaderClient::didDisplayInsecureContent()
-{
-}
-
-void EmptyFrameLoaderClient::didRunInsecureContent(SecurityOrigin&)
-{
-}
-
-
 ObjectContentType EmptyFrameLoaderClient::objectContentType(const URL&, const String&)
 {
     return ObjectContentType::None;

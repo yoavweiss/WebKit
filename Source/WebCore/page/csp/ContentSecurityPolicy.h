@@ -170,8 +170,6 @@ public:
 
     void gatherReportURIs(DOMStringList&) const;
 
-    bool allowRunningOrDisplayingInsecureContent(const URL&);
-
     // The following functions are used by internal data structures to call back into this object when parsing, validating,
     // and applying a Content Security Policy.
     // FIXME: We should make the various directives serve only as state stores for the parsed policy and remove these functions.
