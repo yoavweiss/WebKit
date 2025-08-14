@@ -8271,7 +8271,7 @@ imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-b
 
 webkit.org/b/297346 workers/message-port-gc.html [ Crash ]
 
-webkit.org/b/297364 [ Debug ] imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-create.https.html [ Failure ]
+webkit.org/b/297364 imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-create.https.html [ Failure ]
 
 # webkit.org/b/297405 2x imported/w3c/web-platform-tests/css/css-flexbox/ (layout-tests) tests are constant image failures 
 imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-002.xhtml [ Failure ]
