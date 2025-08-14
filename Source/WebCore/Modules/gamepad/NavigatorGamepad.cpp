@@ -49,7 +49,9 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(NavigatorGamepad);
 NavigatorGamepad::NavigatorGamepad(Navigator& navigator)
     : m_navigator(navigator)
 {
-    GamepadManager::singleton().registerNavigator(navigator);
+    RefPtr document = navigator.document();
+    if (document && document->settingsValues().gamepadsEnabled)
+        GamepadManager::singleton().registerNavigator(navigator);
 }
 
 NavigatorGamepad::~NavigatorGamepad()
