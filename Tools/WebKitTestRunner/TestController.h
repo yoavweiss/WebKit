@@ -489,7 +489,6 @@ private:
     void platformInitialize(const Options&);
     void platformInitializeDataStore(WKPageConfigurationRef, const TestOptions&);
     void platformDestroy();
-    WKContextRef platformAdjustContext(WKContextRef, WKContextConfigurationRef);
     void platformInitializeContext();
     void platformEnsureGPUProcessConfiguredForOptions(const TestOptions&);
     void platformCreateWebView(WKPageConfigurationRef, const TestOptions&);
@@ -508,7 +507,6 @@ private:
     void platformWillRunTest(const TestInvocation&);
     void platformRunUntil(bool& done, WTF::Seconds timeout);
     void platformDidCommitLoadForFrame(WKPageRef, WKFrameRef);
-    WKContextRef platformContext();
     void initializeInjectedBundlePath();
     void initializeTestPluginDirectory();
     void installUserScript(const TestInvocation&);

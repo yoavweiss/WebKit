@@ -946,7 +946,8 @@ WKRetainPtr<WKPageConfigurationRef> TestController::generatePageConfiguration(co
 {
     if (!m_context || !m_mainWebView || !m_mainWebView->viewSupportsOptions(options)) {
         auto contextConfiguration = generateContextConfiguration(options);
-        m_context = platformAdjustContext(adoptWK(WKContextCreateWithConfiguration(contextConfiguration.get())).get(), contextConfiguration.get());
+        m_preferences = adoptWK(WKPreferencesCreate());
+        m_context = adoptWK(WKContextCreateWithConfiguration(contextConfiguration.get()));
 
         auto localhostAliases = adoptWK(WKMutableArrayCreate());
         for (const auto& alias : m_localhostAliases)
@@ -3661,7 +3662,7 @@ void TestController::setUseDarkAppearanceForTesting(bool useDarkAppearance)
 
 void TestController::terminateGPUProcess()
 {
-    WKContextTerminateGPUProcess(platformContext());
+    WKContextTerminateGPUProcess(context());
 }
 
 void TestController::terminateNetworkProcess()
@@ -3671,7 +3672,7 @@ void TestController::terminateNetworkProcess()
 
 void TestController::terminateServiceWorkers()
 {
-    WKContextTerminateServiceWorkers(platformContext());
+    WKContextTerminateServiceWorkers(context());
 }
 
 #if !PLATFORM(COCOA)
@@ -3695,12 +3696,6 @@ void TestController::platformCreateWebView(WKPageConfigurationRef configuration,
 UniqueRef<PlatformWebView> TestController::platformCreateOtherPage(PlatformWebView* parentView, WKPageConfigurationRef configuration, const TestOptions& options)
 {
     return makeUniqueRef<PlatformWebView>(configuration, options);
-}
-
-WKContextRef TestController::platformAdjustContext(WKContextRef context, WKContextConfigurationRef)
-{
-    m_preferences = adoptWK(WKPreferencesCreate());
-    return context;
 }
 
 unsigned TestController::imageCountInGeneralPasteboard() const
@@ -4367,27 +4362,27 @@ void TestController::removeAllCookies(CompletionHandler<void(WKTypeRef)>&& compl
 void TestController::addMockMediaDevice(WKStringRef persistentID, WKStringRef label, WKStringRef type, WKDictionaryRef properties)
 {
     bool isDefault = false;
-    WKAddMockMediaDevice(platformContext(), persistentID, label, type, properties, isDefault);
+    WKAddMockMediaDevice(context(), persistentID, label, type, properties, isDefault);
 }
 
 void TestController::clearMockMediaDevices()
 {
-    WKClearMockMediaDevices(platformContext());
+    WKClearMockMediaDevices(context());
 }
 
 void TestController::removeMockMediaDevice(WKStringRef persistentID)
 {
-    WKRemoveMockMediaDevice(platformContext(), persistentID);
+    WKRemoveMockMediaDevice(context(), persistentID);
 }
 
 void TestController::setMockMediaDeviceIsEphemeral(WKStringRef persistentID, bool isEphemeral)
 {
-    WKSetMockMediaDeviceIsEphemeral(platformContext(), persistentID, isEphemeral);
+    WKSetMockMediaDeviceIsEphemeral(context(), persistentID, isEphemeral);
 }
 
 void TestController::resetMockMediaDevices()
 {
-    WKResetMockMediaDevices(platformContext());
+    WKResetMockMediaDevices(context());
 }
 
 void TestController::setMockCameraOrientation(uint64_t rotation, WKStringRef persistentId)
