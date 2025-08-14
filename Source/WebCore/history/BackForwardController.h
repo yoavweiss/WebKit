@@ -76,6 +76,7 @@ public:
 
     Vector<Ref<HistoryItem>> allItems();
     Vector<Ref<HistoryItem>> itemsForFrame(FrameIdentifier);
+    Vector<Ref<HistoryItem>> reachableItemsForFrame(FrameIdentifier);
 
 private:
     Ref<Page> protectedPage() const;
