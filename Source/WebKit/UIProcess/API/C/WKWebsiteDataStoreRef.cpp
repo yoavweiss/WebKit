@@ -467,7 +467,7 @@ void WKWebsiteDataStoreSetResourceLoadStatisticsShouldBlockThirdPartyCookiesForT
         case kWKThirdPartyCookieBlockingPolicyAllOnlyOnSitesWithoutUserInteraction:
             blockingMode = WebCore::ThirdPartyCookieBlockingMode::AllOnSitesWithoutUserInteraction;
             break;
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
         case kWKThirdPartyCookieBlockingPolicyAllExceptPartitioned:
             blockingMode = WebCore::ThirdPartyCookieBlockingMode::AllExceptPartitioned;
             break;

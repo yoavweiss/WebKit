@@ -909,7 +909,7 @@ void NetworkConnectionToWebProcess::setRawCookie(const URL& firstParty, const UR
     if (!networkStorageSession)
         return;
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     networkStorageSession->setCookie(firstParty, cookie, shouldPartitionCookie);
 #else
     UNUSED_PARAM(firstParty);

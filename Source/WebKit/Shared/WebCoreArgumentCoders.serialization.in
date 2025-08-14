@@ -5498,7 +5498,7 @@ enum class WebCore::ThirdPartyCookieBlockingMode : uint8_t {
     All,
     AllExceptBetweenAppBoundDomains,
     AllExceptManagedDomains,
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     AllExceptPartitioned,
 #endif
     AllOnSitesWithoutUserInteraction,

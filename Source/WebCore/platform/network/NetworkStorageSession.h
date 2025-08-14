@@ -102,7 +102,7 @@ enum class ThirdPartyCookieBlockingMode : uint8_t {
     All,
     AllExceptBetweenAppBoundDomains,
     AllExceptManagedDomains,
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     AllExceptPartitioned,
 #endif
     AllOnSitesWithoutUserInteraction,
@@ -111,7 +111,7 @@ enum class ThirdPartyCookieBlockingMode : uint8_t {
 enum class ThirdPartyCookieBlockingDecision : uint8_t {
     None,
     All,
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     AllExceptPartitioned
 #endif
 };
@@ -201,7 +201,7 @@ public:
 
     WEBCORE_EXPORT HTTPCookieAcceptPolicy cookieAcceptPolicy() const;
     WEBCORE_EXPORT void setCookie(const Cookie&);
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     WEBCORE_EXPORT void setCookie(const URL& firstParty, const Cookie&, ShouldPartitionCookie);
 #endif
     WEBCORE_EXPORT void setCookie(const Cookie&, const URL&, const URL& mainDocumentURL);
@@ -251,7 +251,7 @@ public:
     static String cookiePartitionIdentifier(const URL&);
 #if PLATFORM(COCOA)
     WEBCORE_EXPORT static RetainPtr<NSHTTPCookie> capExpiryOfPersistentCookie(NSHTTPCookie *, Seconds cap);
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     WEBCORE_EXPORT static NSHTTPCookie *setCookiePartition(NSHTTPCookie *, NSString*);
 #endif
 #endif
@@ -276,7 +276,7 @@ public:
     WEBCORE_EXPORT void setThirdPartyCookieBlockingMode(ThirdPartyCookieBlockingMode);
     WEBCORE_EXPORT void setOptInCookiePartitioningEnabled(bool);
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     bool isOptInCookiePartitioningEnabled() const { return m_isOptInCookiePartitioningEnabled; }
 #endif
 
@@ -360,7 +360,7 @@ private:
     MemoryCompactRobinHoodHashMap<String, WeakHashSet<CookieChangeObserver>> m_cookieChangeObservers;
 #endif // HAVE(COOKIE_CHANGE_LISTENER_API)
     WeakHashSet<CookiesEnabledStateObserver> m_cookiesEnabledStateObservers;
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     bool m_isOptInCookiePartitioningEnabled { false };
 #endif
 

@@ -330,7 +330,7 @@ RetainPtr<NSArray> NetworkStorageSession::httpCookiesForURL(CFHTTPCookieStorageR
     // FIXME: Stop creating a new NSHTTPCookieStorage object each time we want to query the cookie jar.
     // NetworkStorageSession could instead keep a NSHTTPCookieStorage object for us.
     RetainPtr<NSHTTPCookieStorage> nsCookieStorage = adoptNS([[NSHTTPCookieStorage alloc] _initWithCFHTTPCookieStorage:cookieStorage]);
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     RetainPtr partitionKey = isOptInCookiePartitioningEnabled() ? cookiePartitionIdentifier(firstParty).createNSString() : nil;
 #else
     RetainPtr<NSString> partitionKey;
@@ -352,7 +352,7 @@ RetainPtr<NSHTTPCookie> NetworkStorageSession::capExpiryOfPersistentCookie(NSHTT
     return cookie;
 }
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 NSHTTPCookie *NetworkStorageSession::setCookiePartition(NSHTTPCookie *cookie, NSString* partitionKey)
 {
     if (!cookie)
@@ -517,7 +517,7 @@ void NetworkStorageSession::setCookiesFromDOM(const URL& firstParty, const SameS
 
     auto cookieCap = clientSideCookieCap(RegistrableDomain { firstParty }, requiresScriptTrackingPrivacy, pageID);
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     String partitionKey = isOptInCookiePartitioningEnabled() ? cookiePartitionIdentifier(firstParty) : String { };
 #else
     String partitionKey;
@@ -737,7 +737,7 @@ Vector<Cookie> NetworkStorageSession::domCookiesForHost(const URL& firstParty)
     RetainPtr<NSArray> unpartitionedCookies = [nsCookieStorage() _getCookiesForDomain:host.get()];
     RetainPtr nsCookies = adoptNS([[NSMutableArray alloc] initWithArray:unpartitionedCookies.get()]);
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     if (isOptInCookiePartitioningEnabled()) {
         // Next, get all cookies in the partition for this site. However, we
         // only want the cookies for this host, so we filter all cookies that

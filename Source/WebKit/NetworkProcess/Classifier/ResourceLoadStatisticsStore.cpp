@@ -2577,7 +2577,7 @@ void ResourceLoadStatisticsStore::clear(CompletionHandler<void()>&& completionHa
 
 bool ResourceLoadStatisticsStore::areAllUnpartitionedThirdPartyCookiesBlockedUnder(const TopFrameDomain& topFrameDomain)
 {
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     if (thirdPartyCookieBlockingMode() == ThirdPartyCookieBlockingMode::All || thirdPartyCookieBlockingMode() == ThirdPartyCookieBlockingMode::AllExceptPartitioned)
 #else
     if (thirdPartyCookieBlockingMode() == ThirdPartyCookieBlockingMode::All)

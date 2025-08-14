@@ -276,7 +276,7 @@ typedef CF_ENUM(int, CFURLCredentialPersistence)
 @property (setter=_setBlockTrackers:) BOOL _blockTrackers;
 #endif
 @property (setter=_setAllowPrivateAccessTokensForThirdParty:) BOOL _allowPrivateAccessTokensForThirdParty;
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 @property (setter=_setAllowOnlyPartitionedCookies:) BOOL _allowOnlyPartitionedCookies;
 #endif
 @end

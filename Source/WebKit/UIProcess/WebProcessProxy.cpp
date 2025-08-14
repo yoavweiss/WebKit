@@ -755,7 +755,7 @@ void WebProcessProxy::setThirdPartyCookieBlockingMode(ThirdPartyCookieBlockingMo
     sendWithAsyncReply(Messages::WebProcess::SetThirdPartyCookieBlockingMode(thirdPartyCookieBlockingMode), WTFMove(completionHandler));
 }
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 void WebProcessProxy::setOptInCookiePartitioningEnabled(bool enabled)
 {
     send(Messages::WebProcess::SetOptInCookiePartitioningEnabled(enabled), 0);

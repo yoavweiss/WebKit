@@ -323,7 +323,7 @@ public:
     void setPrivateClickMeasurementDebugMode(PAL::SessionID, bool);
 
     void setShouldSendPrivateTokenIPCForTesting(PAL::SessionID, bool) const;
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     void setOptInCookiePartitioningEnabled(PAL::SessionID, bool) const;
 #endif
 

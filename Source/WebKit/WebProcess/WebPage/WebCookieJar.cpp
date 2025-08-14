@@ -440,7 +440,7 @@ void WebCookieJar::removeChangeListener(const String& host, const WebCore::Cooki
 }
 #endif
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 void WebCookieJar::setOptInCookiePartitioningEnabled(bool enabled)
 {
     m_cache->setOptInCookiePartitioningEnabled(enabled);

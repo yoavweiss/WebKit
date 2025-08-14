@@ -167,7 +167,7 @@ messages -> NetworkProcess : AuxiliaryProcess WantsAsyncDispatchMessage {
     SetPrivateClickMeasurementDebugMode(PAL::SessionID sessionID, bool debugMode)
 
     SetShouldSendPrivateTokenIPCForTesting(PAL::SessionID sessionID, bool enabled)
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     SetOptInCookiePartitioningEnabled(PAL::SessionID sessionID, bool enabled)
 #endif
 

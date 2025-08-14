@@ -215,7 +215,7 @@ NetworkSession::NetworkSession(NetworkProcess& networkProcess, const NetworkSess
     setTrackingPreventionEnabled(parameters.resourceLoadStatisticsParameters.enabled);
 
     setShouldSendPrivateTokenIPCForTesting(parameters.shouldSendPrivateTokenIPCForTesting);
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     setOptInCookiePartitioningEnabled(parameters.isOptInCookiePartitioningEnabled);
 #endif
 
@@ -543,7 +543,7 @@ void NetworkSession::setShouldSendPrivateTokenIPCForTesting(bool enabled)
     m_shouldSendPrivateTokenIPCForTesting = enabled;
 }
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 void NetworkSession::setOptInCookiePartitioningEnabled(bool enabled)
 {
     if (!m_resourceLoadStatistics)

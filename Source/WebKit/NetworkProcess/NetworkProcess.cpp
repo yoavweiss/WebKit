@@ -1534,7 +1534,7 @@ void NetworkProcess::setShouldSendPrivateTokenIPCForTesting(PAL::SessionID sessi
         session->setShouldSendPrivateTokenIPCForTesting(enabled);
 }
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 void NetworkProcess::setOptInCookiePartitioningEnabled(PAL::SessionID sessionID, bool enabled) const
 {
     if (CheckedPtr session = networkSession(sessionID))

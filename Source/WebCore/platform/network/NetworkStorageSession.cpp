@@ -117,7 +117,7 @@ bool NetworkStorageSession::shouldBlockThirdPartyCookiesButKeepFirstPartyCookies
     return m_registrableDomainsToBlockButKeepCookiesFor.contains(registrableDomain);
 }
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 void NetworkStorageSession::setCookie(const URL& firstParty, const Cookie& cookie, ShouldPartitionCookie shouldPartitionCookie)
 {
     if (!isOptInCookiePartitioningEnabled() || shouldPartitionCookie != ShouldPartitionCookie::Yes || !cookie.partitionKey.isEmpty()) {
@@ -179,7 +179,7 @@ ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlocking
     if (hasStorageAccess(resourceDomain, firstPartyDomain, frameID, pageID))
         return ThirdPartyCookieBlockingDecision::None;
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     const auto decideThirdPartyCookieBlocking = [isOptInCookiePartitioningEnabled = isOptInCookiePartitioningEnabled()] (bool shouldAllowUnpartitionedCookies) {
         if (shouldAllowUnpartitionedCookies)
             return ThirdPartyCookieBlockingDecision::None;
@@ -198,7 +198,7 @@ ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlocking
         return decideThirdPartyCookieBlocking(shouldExemptDomainPairFromThirdPartyCookieBlocking(firstPartyDomain, resourceDomain));
     case ThirdPartyCookieBlockingMode::AllExceptManagedDomains:
         return m_managedDomains.contains(firstPartyDomain) ? ThirdPartyCookieBlockingDecision::None : ThirdPartyCookieBlockingDecision::All;
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     case ThirdPartyCookieBlockingMode::AllExceptPartitioned:
         return ThirdPartyCookieBlockingDecision::AllExceptPartitioned;
 #endif
@@ -246,7 +246,7 @@ String NetworkStorageSession::cookiePartitionIdentifier(const ResourceRequest& r
 std::optional<Seconds> NetworkStorageSession::maxAgeCacheCap(const ResourceRequest& request)
 {
     auto thirdPartyCookieBlockingDecision = thirdPartyCookieBlockingDecisionForRequest(request, std::nullopt, std::nullopt, ShouldRelaxThirdPartyCookieBlocking::No);
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     bool shouldEnforceMaxAgeCacheCap = thirdPartyCookieBlockingDecision == ThirdPartyCookieBlockingDecision::All || thirdPartyCookieBlockingDecision == ThirdPartyCookieBlockingDecision::AllExceptPartitioned;
 #else
     bool shouldEnforceMaxAgeCacheCap = thirdPartyCookieBlockingDecision == ThirdPartyCookieBlockingDecision::All;
@@ -440,7 +440,7 @@ void NetworkStorageSession::setThirdPartyCookieBlockingMode(ThirdPartyCookieBloc
     m_thirdPartyCookieBlockingMode = blockingMode;
 }
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 void NetworkStorageSession::setOptInCookiePartitioningEnabled(bool enabled)
 {
     m_isOptInCookiePartitioningEnabled = enabled;

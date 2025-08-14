@@ -174,7 +174,7 @@ NetworkStorageSession& WebCookieCache::inMemoryStorageSession()
     return *m_inMemoryStorageSession;
 }
 
-#if HAVE(ALLOW_ONLY_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
 void WebCookieCache::setOptInCookiePartitioningEnabled(bool)
 {
     ASSERT_NOT_IMPLEMENTED_YET();
