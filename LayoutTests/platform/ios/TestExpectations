@@ -8257,3 +8257,5 @@ webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-p
 webkit.org/b/297251 [ Release ] fast/mediastream/getUserMedia-echoCancellation.html [ Pass Failure ]
 
 webkit.org/b/297346 workers/message-port-gc.html [ Crash ]
+
+webkit.org/b/297364 [ Debug ] imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-create.https.html [ Failure ]
