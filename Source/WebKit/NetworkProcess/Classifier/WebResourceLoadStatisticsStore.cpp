@@ -1681,11 +1681,17 @@ void WebResourceLoadStatisticsStore::setStorageAccessPermissionForTesting(bool g
         if (!statisticsStore)
             return postTaskReply(WTFMove(completionHandler));
 
-        if (granted)
+        Ref callbackAggregator = CallbackAggregator::create([completionHandler = WTFMove(completionHandler)] mutable {
+            postTaskReply(WTFMove(completionHandler));
+        });
+
+        if (granted) {
+            statisticsStore->logUserInteraction(subFrameDomain, [callbackAggregator] { });
             statisticsStore->grantStorageAccessPermission(topFrameDomain, subFrameDomain);
-        else
+        } else {
+            statisticsStore->clearUserInteraction(subFrameDomain, [callbackAggregator] { });
             statisticsStore->revokeStorageAccessPermission(subFrameDomain);
-        postTaskReply(WTFMove(completionHandler));
+        }
     });
 }
 
