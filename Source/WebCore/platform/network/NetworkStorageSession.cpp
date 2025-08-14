@@ -200,7 +200,7 @@ ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlocking
         return m_managedDomains.contains(firstPartyDomain) ? ThirdPartyCookieBlockingDecision::None : ThirdPartyCookieBlockingDecision::All;
 #if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     case ThirdPartyCookieBlockingMode::AllExceptPartitioned:
-        return ThirdPartyCookieBlockingDecision::AllExceptPartitioned;
+        return isOptInCookiePartitioningEnabled() ? ThirdPartyCookieBlockingDecision::AllExceptPartitioned : ThirdPartyCookieBlockingDecision::All;
 #endif
     case ThirdPartyCookieBlockingMode::AllOnSitesWithoutUserInteraction:
         if (!hasHadUserInteractionAsFirstParty(firstPartyDomain))
@@ -216,12 +216,17 @@ ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlocking
 
 bool NetworkStorageSession::shouldBlockCookies(const URL& firstPartyForCookies, const URL& resource, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking) const
 {
-    return thirdPartyCookieBlockingDecisionForRequest(firstPartyForCookies, resource, frameID, pageID, shouldRelaxThirdPartyCookieBlocking) == ThirdPartyCookieBlockingDecision::All;
+    return shouldBlockCookies(thirdPartyCookieBlockingDecisionForRequest(firstPartyForCookies, resource, frameID, pageID, shouldRelaxThirdPartyCookieBlocking));
 }
 
 bool NetworkStorageSession::shouldBlockCookies(const ResourceRequest& request, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking) const
 {
     return shouldBlockCookies(request.firstPartyForCookies(), request.url(), frameID, pageID, shouldRelaxThirdPartyCookieBlocking);
+}
+
+bool NetworkStorageSession::shouldBlockCookies(ThirdPartyCookieBlockingDecision thirdPartyCookieBlockingDecision)
+{
+    return thirdPartyCookieBlockingDecision == ThirdPartyCookieBlockingDecision::All;
 }
 
 bool NetworkStorageSession::shouldExemptDomainPairFromThirdPartyCookieBlocking(const RegistrableDomain& topFrameDomain, const RegistrableDomain& resourceDomain) const

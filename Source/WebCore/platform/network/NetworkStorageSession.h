@@ -246,6 +246,7 @@ public:
     WEBCORE_EXPORT bool shouldBlockCookies(const URL& firstPartyForCookies, const URL& resource, std::optional<FrameIdentifier>, std::optional<PageIdentifier>, ShouldRelaxThirdPartyCookieBlocking) const;
     WEBCORE_EXPORT bool shouldBlockThirdPartyCookies(const RegistrableDomain&) const;
     WEBCORE_EXPORT bool shouldBlockThirdPartyCookiesButKeepFirstPartyCookiesFor(const RegistrableDomain&) const;
+    WEBCORE_EXPORT static bool shouldBlockCookies(ThirdPartyCookieBlockingDecision);
     WEBCORE_EXPORT void setAllCookiesToSameSiteStrict(const RegistrableDomain&, CompletionHandler<void()>&&);
     WEBCORE_EXPORT static String cookiePartitionIdentifier(const ResourceRequest&);
     static String cookiePartitionIdentifier(const URL&);

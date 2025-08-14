@@ -320,16 +320,11 @@ void NetworkTaskCocoa::unblockCookies()
     }
 }
 
-bool NetworkTaskCocoa::shouldBlockCookies(WebCore::ThirdPartyCookieBlockingDecision thirdPartyCookieBlockingDecision)
-{
-    return thirdPartyCookieBlockingDecision == WebCore::ThirdPartyCookieBlockingDecision::All;
-}
-
 WebCore::ThirdPartyCookieBlockingDecision NetworkTaskCocoa::requestThirdPartyCookieBlockingDecision(const WebCore::ResourceRequest& request) const
 {
     auto thirdPartyCookieBlockingDecision = storedCredentialsPolicy() == WebCore::StoredCredentialsPolicy::EphemeralStateless ? WebCore::ThirdPartyCookieBlockingDecision::All : WebCore::ThirdPartyCookieBlockingDecision::None;
     if (CheckedPtr networkStorageSession = checkedNetworkSession()->networkStorageSession()) {
-        if (!shouldBlockCookies(thirdPartyCookieBlockingDecision))
+        if (!NetworkStorageSession::shouldBlockCookies(thirdPartyCookieBlockingDecision))
             thirdPartyCookieBlockingDecision = networkStorageSession->thirdPartyCookieBlockingDecisionForRequest(request, frameID(), pageID(), shouldRelaxThirdPartyCookieBlocking());
     }
 
@@ -387,7 +382,7 @@ void NetworkTaskCocoa::willPerformHTTPRedirection(WebCore::ResourceResponse&& re
     setCookieTransform(request, IsRedirect::Yes);
     if (!m_hasBeenSetToUseStatelessCookieStorage) {
         auto thirdPartyCookieBlockingDecision = requestThirdPartyCookieBlockingDecision(request);
-        if (shouldBlockCookies(thirdPartyCookieBlockingDecision))
+        if (NetworkStorageSession::shouldBlockCookies(thirdPartyCookieBlockingDecision))
             blockCookies();
 #if ENABLE(OPT_IN_PARTITIONED_COOKIES)
         else {
