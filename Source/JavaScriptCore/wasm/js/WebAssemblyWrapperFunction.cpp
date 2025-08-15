@@ -49,7 +49,7 @@ WebAssemblyWrapperFunction* WebAssemblyWrapperFunction::create(VM& vm, JSGlobalO
     ASSERT_WITH_MESSAGE(!function->inherits<WebAssemblyWrapperFunction>(), "We should never double wrap a wrapper function.");
 
     String name = emptyString();
-    const auto& signature = Wasm::TypeInformation::getFunctionSignature(typeIndex);
+    SUPPRESS_UNCOUNTED_LOCAL const auto& signature = Wasm::TypeInformation::getFunctionSignature(typeIndex);
     NativeExecutable* executable = nullptr;
     if (signature.argumentsOrResultsIncludeV128() || signature.argumentsOrResultsIncludeExnref()) [[unlikely]]
         executable = vm.getHostFunction(callWebAssemblyWrapperFunctionIncludingInvalidValues, ImplementationVisibility::Public, NoIntrinsic, callHostFunctionAsConstructor, nullptr, name);

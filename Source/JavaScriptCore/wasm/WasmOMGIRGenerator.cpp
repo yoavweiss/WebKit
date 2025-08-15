@@ -1468,10 +1468,11 @@ auto OMGIRGenerator::addInlinedArguments(const TypeDefinition& signature) -> Par
 
 auto OMGIRGenerator::addArguments(const TypeDefinition& signature) -> PartialResult
 {
+    SUPPRESS_UNCOUNTED_LOCAL auto functionSignature = signature.as<FunctionSignature>();
     ASSERT(!m_locals.size());
-    WASM_COMPILE_FAIL_IF(!m_locals.tryReserveCapacity(signature.as<FunctionSignature>()->argumentCount()), "can't allocate memory for "_s, signature.as<FunctionSignature>()->argumentCount(), " arguments"_s);
+    WASM_COMPILE_FAIL_IF(!m_locals.tryReserveCapacity(functionSignature->argumentCount()), "can't allocate memory for "_s, functionSignature->argumentCount(), " arguments"_s);
 
-    m_locals.grow(signature.as<FunctionSignature>()->argumentCount());
+    m_locals.grow(functionSignature->argumentCount());
 
     if (m_inlineParent)
         return addInlinedArguments(signature);
@@ -1486,14 +1487,14 @@ auto OMGIRGenerator::addArguments(const TypeDefinition& signature) -> PartialRes
         patch->effects.reads = HeapRange::top();
         patch->effects.writes = HeapRange::top();
         m_currentBlock->append(patch);
-        patch->setGenerator([functionIndex = m_functionIndex, signature = signature.as<FunctionSignature>(), wasmCallInfo] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-            jit.probeDebugSIMD([functionIndex, signature, wasmCallInfo] (Probe::Context& context) {
+        SUPPRESS_UNCOUNTED_LAMBDA_CAPTURE patch->setGenerator([functionIndex = m_functionIndex, functionSignature, wasmCallInfo](CCallHelpers& jit, const B3::StackmapGenerationParams&) {
+            SUPPRESS_UNCOUNTED_LAMBDA_CAPTURE jit.probeDebugSIMD([functionIndex, functionSignature, wasmCallInfo](Probe::Context& context) {
                 dataLogLn(" General Add arguments, fucntion ", functionIndex, " FP: ", RawHex(context.gpr<uint64_t>(GPRInfo::callFrameRegister)), " SP: ", RawHex(context.gpr<uint64_t>(MacroAssembler::stackPointerRegister)));
 
                 auto fpl = context.gpr<uint64_t*>(GPRInfo::callFrameRegister);
                 auto fpi = context.gpr<uint32_t*>(GPRInfo::callFrameRegister);
 
-                for (size_t i = 0; i < signature->argumentCount(); ++i) {
+                for (size_t i = 0; i < functionSignature->argumentCount(); ++i) {
                     auto rep = wasmCallInfo.params[i];
                     auto src = rep.location;
                     auto width = rep.width;
@@ -1513,8 +1514,8 @@ auto OMGIRGenerator::addArguments(const TypeDefinition& signature) -> PartialRes
         });
     }
 
-    for (size_t i = 0; i < signature.as<FunctionSignature>()->argumentCount(); ++i) {
-        B3::Type type = toB3Type(signature.as<FunctionSignature>()->argumentType(i));
+    for (size_t i = 0; i < functionSignature->argumentCount(); ++i) {
+        B3::Type type = toB3Type(functionSignature->argumentType(i));
         B3::Value* argument;
         auto rep = wasmCallInfo.params[i];
         if (rep.location.isGPR()) {

@@ -131,7 +131,7 @@ bool WebAssemblyCompileOptions::validateImportForBuiltinSetNames(const Wasm::Imp
     Ref<const Wasm::TypeDefinition> type = Wasm::TypeInformation::get(typeIndex);
     if (!type->is<Wasm::FunctionSignature>())
         return false;
-    auto* importSig = type->as<Wasm::FunctionSignature>();
+    SUPPRESS_UNCOUNTED_LOCAL auto* importSig = type->as<Wasm::FunctionSignature>();
 
     return builtinSig.check(*importSig);
 }
