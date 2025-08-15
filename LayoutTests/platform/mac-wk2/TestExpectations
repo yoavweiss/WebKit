@@ -2421,3 +2421,5 @@ webkit.org/b/297414 [ Debug ] imported/w3c/web-platform-tests/navigation-api/nav
 webkit.org/b/297428 http/tests/navigation/ping-attribute/anchor-cookie.html [ Pass Failure ]
 
 webkit.org/b/297477 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-back-bfcache.html [ Pass Failure ]
+
+webkit.org/b/297483 fast/scrolling/mac/scrollend-event-on-select-element.html [ Pass Failure ]
