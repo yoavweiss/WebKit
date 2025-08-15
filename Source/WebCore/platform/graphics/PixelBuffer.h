@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "IntSize.h"
-#include "PixelBufferFormat.h"
+#include <WebCore/IntSize.h>
+#include <WebCore/PixelBufferFormat.h>
 #include <optional>
 #include <span>
 #include <wtf/RefCounted.h>

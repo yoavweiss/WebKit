@@ -44,16 +44,16 @@
 
 #pragma once
 
-#include "ClipRect.h"
-#include "GraphicsLayer.h"
-#include "LayerFragment.h"
-#include "LayoutRect.h"
-#include "PaintFrequencyTracker.h"
-#include "PaintInfo.h"
-#include "RenderBox.h"
-#include "RenderPtr.h"
-#include "RenderSVGModelObject.h"
-#include "ScrollBehavior.h"
+#include <WebCore/ClipRect.h>
+#include <WebCore/GraphicsLayer.h>
+#include <WebCore/LayerFragment.h>
+#include <WebCore/LayoutRect.h>
+#include <WebCore/PaintFrequencyTracker.h>
+#include <WebCore/PaintInfo.h>
+#include <WebCore/RenderBox.h>
+#include <WebCore/RenderPtr.h>
+#include <WebCore/RenderSVGModelObject.h>
+#include <WebCore/ScrollBehavior.h>
 #include <memory>
 #include <wtf/CheckedRef.h>
 #include <wtf/Markable.h>

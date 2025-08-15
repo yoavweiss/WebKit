@@ -27,10 +27,10 @@
 
 #if HAVE(IOSURFACE)
 
-#include "ImageBuffer.h"
-#include "ImageBufferCGBackend.h"
-#include "IOSurface.h"
-#include "IOSurfacePool.h"
+#include <WebCore/IOSurface.h>
+#include <WebCore/IOSurfacePool.h>
+#include <WebCore/ImageBuffer.h>
+#include <WebCore/ImageBufferCGBackend.h>
 #include <wtf/TZoneMalloc.h>
 
 namespace WebCore {

@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include "HitTestLocation.h"
-#include "HitTestRequest.h"
+#include <WebCore/HitTestLocation.h>
+#include <WebCore/HitTestRequest.h>
 #include <wtf/Forward.h>
 #include <wtf/ListHashSet.h>
 #include <wtf/TZoneMalloc.h>

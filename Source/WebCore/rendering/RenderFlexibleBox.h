@@ -30,9 +30,9 @@
 
 #pragma once
 
-#include "OrderIterator.h"
-#include "RenderBlock.h"
-#include "RenderStyleInlines.h"
+#include <WebCore/OrderIterator.h>
+#include <WebCore/RenderBlock.h>
+#include <WebCore/RenderStyleInlines.h>
 #include <wtf/WeakHashSet.h>
 
 namespace WebCore {

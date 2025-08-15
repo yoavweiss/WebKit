@@ -27,18 +27,18 @@
 
 #pragma once
 
-#include "ActiveDOMObject.h"
-#include "CanvasBase.h"
-#include "Document.h"
-#include "FloatRect.h"
-#include "GraphicsTypes.h"
-#include "HTMLElement.h"
-#include "PlatformDynamicRangeLimit.h"
+#include <WebCore/ActiveDOMObject.h>
+#include <WebCore/CanvasBase.h>
+#include <WebCore/Document.h>
+#include <WebCore/FloatRect.h>
+#include <WebCore/GraphicsTypes.h>
+#include <WebCore/HTMLElement.h>
+#include <WebCore/PlatformDynamicRangeLimit.h>
 #include <memory>
 #include <wtf/Forward.h>
 
 #if ENABLE(WEBGL)
-#include "WebGLContextAttributes.h"
+#include <WebCore/WebGLContextAttributes.h>
 #endif
 
 namespace WebCore {

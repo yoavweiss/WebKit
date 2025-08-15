@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include "Icon.h"
-#include "RenderTheme.h"
+#include <WebCore/Icon.h>
+#include <WebCore/RenderTheme.h>
 #include <wtf/RetainPtr.h>
 
 OBJC_CLASS NSDateComponentsFormatter;

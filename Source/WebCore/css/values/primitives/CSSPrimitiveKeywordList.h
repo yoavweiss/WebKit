@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "CSSPrimitiveNumericConcepts.h"
-#include "CSSPrimitiveNumericRaw.h"
+#include <WebCore/CSSPrimitiveNumericConcepts.h>
+#include <WebCore/CSSPrimitiveNumericRaw.h>
 #include <limits>
 #include <type_traits>
 #include <wtf/Brigand.h>

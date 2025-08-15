@@ -24,14 +24,14 @@
 
 #pragma once
 
-#include "CSSValueKeywords.h"
-#include "EventTarget.h"
-#include "LayoutUnit.h"
-#include "PositionTryOrder.h"
-#include "PseudoElementIdentifier.h"
-#include "ResolvedScopedName.h"
-#include "ScopedName.h"
-#include "WritingMode.h"
+#include <WebCore/CSSValueKeywords.h>
+#include <WebCore/EventTarget.h>
+#include <WebCore/LayoutUnit.h>
+#include <WebCore/PositionTryOrder.h>
+#include <WebCore/PseudoElementIdentifier.h>
+#include <WebCore/ResolvedScopedName.h>
+#include <WebCore/ScopedName.h>
+#include <WebCore/WritingMode.h>
 #include <wtf/HashMap.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/WeakHashMap.h>

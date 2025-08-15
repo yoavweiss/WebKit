@@ -25,49 +25,49 @@
 
 #pragma once
 
-#include "AnchorPositionEvaluator.h"
-#include "AnimationList.h"
-#include "Element.h"
-#include "FontCascadeDescription.h"
-#include "GraphicsTypes.h"
-#include "HitTestRequest.h"
-#include "ImageOrientation.h"
-#include "PositionArea.h"
-#include "PositionTryOrder.h"
-#include "RenderStyle.h"
-#include "ScrollTypes.h"
-#include "StyleAppearance.h"
-#include "StyleBackgroundData.h"
-#include "StyleBoxData.h"
-#include "StyleDeprecatedFlexibleBoxData.h"
-#include "StyleFilterData.h"
-#include "StyleFlexibleBoxData.h"
-#include "StyleFontData.h"
-#include "StyleGridData.h"
-#include "StyleGridItemData.h"
-#include "StyleGridTrackSizingDirection.h"
-#include "StyleInheritedData.h"
-#include "StyleLineBoxContain.h"
-#include "StyleMarqueeData.h"
-#include "StyleMiscNonInheritedData.h"
-#include "StyleMultiColData.h"
-#include "StyleNonInheritedData.h"
-#include "StyleRareInheritedData.h"
-#include "StyleRareNonInheritedData.h"
-#include "StyleSurroundData.h"
-#include "StyleTransformData.h"
-#include "StyleVisitedLinkColorData.h"
-#include "UnicodeBidi.h"
-#include "ViewTimeline.h"
-#include "WebAnimationTypes.h"
-#include "WillChangeData.h"
+#include <WebCore/AnchorPositionEvaluator.h>
+#include <WebCore/AnimationList.h>
+#include <WebCore/Element.h>
+#include <WebCore/FontCascadeDescription.h>
+#include <WebCore/GraphicsTypes.h>
+#include <WebCore/HitTestRequest.h>
+#include <WebCore/ImageOrientation.h>
+#include <WebCore/PositionArea.h>
+#include <WebCore/PositionTryOrder.h>
+#include <WebCore/RenderStyle.h>
+#include <WebCore/ScrollTypes.h>
+#include <WebCore/StyleAppearance.h>
+#include <WebCore/StyleBackgroundData.h>
+#include <WebCore/StyleBoxData.h>
+#include <WebCore/StyleDeprecatedFlexibleBoxData.h>
+#include <WebCore/StyleFilterData.h>
+#include <WebCore/StyleFlexibleBoxData.h>
+#include <WebCore/StyleFontData.h>
+#include <WebCore/StyleGridData.h>
+#include <WebCore/StyleGridItemData.h>
+#include <WebCore/StyleGridTrackSizingDirection.h>
+#include <WebCore/StyleInheritedData.h>
+#include <WebCore/StyleLineBoxContain.h>
+#include <WebCore/StyleMarqueeData.h>
+#include <WebCore/StyleMiscNonInheritedData.h>
+#include <WebCore/StyleMultiColData.h>
+#include <WebCore/StyleNonInheritedData.h>
+#include <WebCore/StyleRareInheritedData.h>
+#include <WebCore/StyleRareNonInheritedData.h>
+#include <WebCore/StyleSurroundData.h>
+#include <WebCore/StyleTransformData.h>
+#include <WebCore/StyleVisitedLinkColorData.h>
+#include <WebCore/UnicodeBidi.h>
+#include <WebCore/ViewTimeline.h>
+#include <WebCore/WebAnimationTypes.h>
+#include <WebCore/WillChangeData.h>
 
 #if ENABLE(APPLE_PAY)
-#include "ApplePayButtonPart.h"
+#include <WebCore/ApplePayButtonPart.h>
 #endif
 
 #if HAVE(CORE_MATERIAL)
-#include "AppleVisualEffect.h"
+#include <WebCore/AppleVisualEffect.h>
 #endif
 
 namespace WebCore {

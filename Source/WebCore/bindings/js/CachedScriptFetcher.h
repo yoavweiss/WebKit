@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include "CachedResourceHandle.h"
-#include "ReferrerPolicy.h"
-#include "RequestPriority.h"
-#include "ResourceLoadPriority.h"
-#include "ResourceLoaderOptions.h"
 #include <JavaScriptCore/ScriptFetcher.h>
+#include <WebCore/CachedResourceHandle.h>
+#include <WebCore/ReferrerPolicy.h>
+#include <WebCore/RequestPriority.h>
+#include <WebCore/ResourceLoadPriority.h>
+#include <WebCore/ResourceLoaderOptions.h>
 #include <wtf/text/WTFString.h>
 
 namespace WebCore {

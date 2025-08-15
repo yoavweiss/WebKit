@@ -27,14 +27,14 @@
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 
-#include "AXCoreObject.h"
-#include "AXLoggerBase.h"
-#include "AXTextMarker.h"
-#include "AXTextRun.h"
-#include "AXTreeStore.h"
-#include "ColorHash.h"
-#include "PageIdentifier.h"
-#include "RenderStyleConstants.h"
+#include <WebCore/AXCoreObject.h>
+#include <WebCore/AXLoggerBase.h>
+#include <WebCore/AXTextMarker.h>
+#include <WebCore/AXTextRun.h>
+#include <WebCore/AXTreeStore.h>
+#include <WebCore/ColorHash.h>
+#include <WebCore/PageIdentifier.h>
+#include <WebCore/RenderStyleConstants.h>
 #include <wtf/HashMap.h>
 #include <wtf/Lock.h>
 #include <wtf/RefPtr.h>

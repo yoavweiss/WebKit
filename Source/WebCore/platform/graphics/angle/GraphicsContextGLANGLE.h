@@ -27,10 +27,10 @@
 
 #if ENABLE(WEBGL)
 
-#include "ANGLEUtilities.h"
-#include "GCGLSpan.h"
-#include "GraphicsContextGL.h"
-#include "GraphicsContextGLState.h"
+#include <WebCore/ANGLEUtilities.h>
+#include <WebCore/GCGLSpan.h>
+#include <WebCore/GraphicsContextGL.h>
+#include <WebCore/GraphicsContextGLState.h>
 #include <memory>
 #include <wtf/Function.h>
 

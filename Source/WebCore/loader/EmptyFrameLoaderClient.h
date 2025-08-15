@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "LocalFrameLoaderClient.h"
+#include <WebCore/LocalFrameLoaderClient.h>
 
 namespace WebCore {
 

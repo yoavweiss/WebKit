@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include "BoxSides.h"
-#include "LayoutRange.h"
-#include "RenderBox.h"
-#include "StyleInset.h"
-#include "StyleMargin.h"
-#include "StyleSelfAlignmentData.h"
+#include <WebCore/BoxSides.h>
+#include <WebCore/LayoutRange.h>
+#include <WebCore/RenderBox.h>
+#include <WebCore/StyleInset.h>
+#include <WebCore/StyleMargin.h>
+#include <WebCore/StyleSelfAlignmentData.h>
 
 namespace WebCore {
 

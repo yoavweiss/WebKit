@@ -27,11 +27,11 @@
 
 #if ENABLE(COCOA_WEBM_PLAYER)
 
-#include "MediaPlayerPrivate.h"
-#include "PlatformLayer.h"
-#include "SourceBufferParserWebM.h"
-#include "TimeRanges.h"
-#include "VideoFrameMetadata.h"
+#include <WebCore/MediaPlayerPrivate.h>
+#include <WebCore/PlatformLayer.h>
+#include <WebCore/SourceBufferParserWebM.h>
+#include <WebCore/TimeRanges.h>
+#include <WebCore/VideoFrameMetadata.h>
 #include "WebAVSampleBufferListener.h"
 #include "WebMResourceClient.h"
 #include <wtf/HashFunctions.h>

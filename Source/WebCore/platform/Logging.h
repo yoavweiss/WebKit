@@ -36,7 +36,7 @@
 #define OPTIONAL_ARGS(...) __VA_OPT__(COMMA()) __VA_ARGS__
 
 #if ENABLE(LOGD_BLOCKING_IN_WEBCONTENT)
-#include "LogClient.h"
+#include <WebCore/LogClient.h>
 
 #define RELEASE_LOG_FORWARDABLE(category, logMessage, ...) do { \
     if (auto& client = logClient()) \

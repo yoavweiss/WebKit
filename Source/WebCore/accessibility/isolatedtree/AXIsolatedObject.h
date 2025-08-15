@@ -27,14 +27,14 @@
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 
-#include "AXCoreObject.h"
-#include "AXIsolatedTree.h"
-#include "AXObjectCache.h"
-#include "IntPoint.h"
-#include "LayoutRect.h"
-#include "NodeName.h"
-#include "Path.h"
-#include "RenderStyleConstants.h"
+#include <WebCore/AXCoreObject.h>
+#include <WebCore/AXIsolatedTree.h>
+#include <WebCore/AXObjectCache.h>
+#include <WebCore/IntPoint.h>
+#include <WebCore/LayoutRect.h>
+#include <WebCore/NodeName.h>
+#include <WebCore/Path.h>
+#include <WebCore/RenderStyleConstants.h>
 #include <wtf/Forward.h>
 #include <wtf/HashMap.h>
 #include <wtf/RefPtr.h>

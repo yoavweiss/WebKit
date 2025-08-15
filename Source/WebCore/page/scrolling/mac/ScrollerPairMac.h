@@ -27,11 +27,11 @@
 
 #if PLATFORM(MAC)
 
-#include "FloatRect.h"
-#include "FloatSize.h"
-#include "PlatformWheelEvent.h"
-#include "ScrollerMac.h"
-#include "ScrollingStateScrollingNode.h"
+#include <WebCore/FloatRect.h>
+#include <WebCore/FloatSize.h>
+#include <WebCore/PlatformWheelEvent.h>
+#include <WebCore/ScrollerMac.h>
+#include <WebCore/ScrollingStateScrollingNode.h>
 #include <wtf/RecursiveLockAdapter.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/ThreadSafeWeakPtr.h>

@@ -27,9 +27,9 @@
 
 #if ENABLE(ASYNC_SCROLLING)
 
-#include "GraphicsLayer.h"
-#include "ScrollingCoordinator.h"
-#include "ScrollingPlatformLayer.h"
+#include <WebCore/GraphicsLayer.h>
+#include <WebCore/ScrollingCoordinator.h>
+#include <WebCore/ScrollingPlatformLayer.h>
 #include <stdint.h>
 #include <wtf/CheckedPtr.h>
 #include <wtf/TZoneMalloc.h>

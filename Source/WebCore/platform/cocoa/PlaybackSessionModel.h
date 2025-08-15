@@ -27,9 +27,9 @@
 
 #if PLATFORM(IOS_FAMILY) || (PLATFORM(MAC) && ENABLE(VIDEO_PRESENTATION_MODE))
 
-#include "NowPlayingMetadataObserver.h"
-#include "PlatformMediaSession.h"
-#include "VideoReceiverEndpoint.h"
+#include <WebCore/NowPlayingMetadataObserver.h>
+#include <WebCore/PlatformMediaSession.h>
+#include <WebCore/VideoReceiverEndpoint.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/Forward.h>
 #include <wtf/Ref.h>

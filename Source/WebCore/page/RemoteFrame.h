@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "Frame.h"
-#include "LayerHostingContextIdentifier.h"
+#include <WebCore/Frame.h>
+#include <WebCore/LayerHostingContextIdentifier.h>
 #include <wtf/RefPtr.h>
 #include <wtf/TypeCasts.h>
 #include <wtf/UniqueRef.h>

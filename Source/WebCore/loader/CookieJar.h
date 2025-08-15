@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "FrameIdentifier.h"
-#include "PageIdentifier.h"
-#include "SameSiteInfo.h"
+#include <WebCore/FrameIdentifier.h>
+#include <WebCore/PageIdentifier.h>
+#include <WebCore/SameSiteInfo.h>
 #include <optional>
 #include <wtf/Forward.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>

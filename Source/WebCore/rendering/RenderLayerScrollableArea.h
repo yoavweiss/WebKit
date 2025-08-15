@@ -44,8 +44,8 @@
 
 #pragma once
 
-#include "RenderLayer.h"
-#include "ScrollableArea.h"
+#include <WebCore/RenderLayer.h>
+#include <WebCore/ScrollableArea.h>
 #include <wtf/TZoneMalloc.h>
 
 namespace WebCore {

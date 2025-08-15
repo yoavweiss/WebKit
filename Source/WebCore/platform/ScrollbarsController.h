@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "FloatPoint.h"
-#include "FloatSize.h"
-#include "UserInterfaceLayoutDirection.h"
+#include <WebCore/FloatPoint.h>
+#include <WebCore/FloatSize.h>
+#include <WebCore/UserInterfaceLayoutDirection.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/WeakHashSet.h>
 #include <wtf/text/WTFString.h>

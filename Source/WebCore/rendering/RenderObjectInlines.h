@@ -19,16 +19,16 @@
 
 #pragma once
 
-#include "DocumentInlines.h"
-#include "FloatQuad.h"
-#include "FrameDestructionObserverInlines.h"
-#include "LocalFrameInlines.h"
-#include "RenderElement.h"
-#include "RenderIFrame.h"
-#include "RenderObject.h"
-#include "RenderReplaced.h"
-#include "RenderStyleInlines.h"
-#include "RenderView.h"
+#include <WebCore/DocumentInlines.h>
+#include <WebCore/FloatQuad.h>
+#include <WebCore/FrameDestructionObserverInlines.h>
+#include <WebCore/LocalFrameInlines.h>
+#include <WebCore/RenderElement.h>
+#include <WebCore/RenderIFrame.h>
+#include <WebCore/RenderObject.h>
+#include <WebCore/RenderReplaced.h>
+#include <WebCore/RenderStyleInlines.h>
+#include <WebCore/RenderView.h>
 
 namespace WebCore {
 

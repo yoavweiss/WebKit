@@ -26,8 +26,8 @@
 
 #if ENABLE(POINTER_LOCK)
 
-#include "ExceptionCode.h"
-#include "PointerLockOptions.h"
+#include <WebCore/ExceptionCode.h>
+#include <WebCore/PointerLockOptions.h>
 
 #include <optional>
 #include <wtf/Ref.h>

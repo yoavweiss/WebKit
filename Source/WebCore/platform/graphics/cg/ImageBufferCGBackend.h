@@ -27,8 +27,8 @@
 
 #if USE(CG)
 
-#include "GraphicsContextCG.h"
-#include "ImageBufferBackend.h"
+#include <WebCore/GraphicsContextCG.h>
+#include <WebCore/ImageBufferBackend.h>
 #include <wtf/Forward.h>
 
 namespace WebCore {

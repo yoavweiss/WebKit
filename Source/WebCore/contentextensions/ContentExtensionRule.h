@@ -27,8 +27,8 @@
 
 #if ENABLE(CONTENT_EXTENSIONS)
 
-#include "ContentExtensionActions.h"
-#include "ResourceLoadInfo.h"
+#include <WebCore/ContentExtensionActions.h>
+#include <WebCore/ResourceLoadInfo.h>
 #include <wtf/Hasher.h>
 #include <wtf/text/WTFString.h>
 

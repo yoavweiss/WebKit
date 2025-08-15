@@ -29,13 +29,13 @@
 
 #pragma once
 
-#include "AXCoreObject.h"
-#include "AXTextRun.h"
-#include "CharacterRange.h"
-#include "FloatQuad.h"
-#include "LayoutRect.h"
-#include "Path.h"
-#include "TextIterator.h"
+#include <WebCore/AXCoreObject.h>
+#include <WebCore/AXTextRun.h>
+#include <WebCore/CharacterRange.h>
+#include <WebCore/FloatQuad.h>
+#include <WebCore/LayoutRect.h>
+#include <WebCore/Path.h>
+#include <WebCore/TextIterator.h>
 #include <iterator>
 #include <wtf/Forward.h>
 #include <wtf/Function.h>

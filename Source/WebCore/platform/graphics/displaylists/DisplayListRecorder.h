@@ -25,16 +25,16 @@
 
 #pragma once
 
-#include "DisplayList.h"
-#include "DisplayListItems.h"
-#include "GraphicsContext.h"
-#include "Image.h" // For Image::TileRule.
-#include "TextFlags.h"
+#include <WebCore/DisplayList.h>
+#include <WebCore/DisplayListItems.h>
+#include <WebCore/GraphicsContext.h>
+#include <WebCore/Image.h> // For Image::TileRule.
+#include <WebCore/TextFlags.h>
 #include <wtf/Noncopyable.h>
 #include <wtf/TZoneMalloc.h>
 
 #if USE(CORE_TEXT)
-#include "DrawGlyphsRecorder.h"
+#include <WebCore/DrawGlyphsRecorder.h>
 #endif
 
 namespace WebCore {

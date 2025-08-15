@@ -26,16 +26,16 @@
 
 #pragma once
 
-#include "ContextDestructionObserverInlines.h"
-#include "DOMHighResTimeStamp.h"
-#include "DOMWindow.h"
-#include "EventNames.h"
-#include "EventTargetInterfaces.h"
-#include "PerformanceEventTiming.h"
-#include "PushSubscriptionOwner.h"
-#include "Supplementable.h"
-#include "WindowOrWorkerGlobalScope.h"
 #include <JavaScriptCore/HandleForward.h>
+#include <WebCore/ContextDestructionObserverInlines.h>
+#include <WebCore/DOMHighResTimeStamp.h>
+#include <WebCore/DOMWindow.h>
+#include <WebCore/EventNames.h>
+#include <WebCore/EventTargetInterfaces.h>
+#include <WebCore/PerformanceEventTiming.h>
+#include <WebCore/PushSubscriptionOwner.h>
+#include <WebCore/Supplementable.h>
+#include <WebCore/WindowOrWorkerGlobalScope.h>
 #include <wtf/FixedVector.h>
 #include <wtf/Function.h>
 #include <wtf/HashSet.h>

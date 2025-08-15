@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include "GraphicsTypes.h"
-#include "LengthSize.h"
-#include "RenderStyleConstants.h"
-#include "StyleImage.h"
-#include "StylePosition.h"
+#include <WebCore/GraphicsTypes.h>
+#include <WebCore/LengthSize.h>
+#include <WebCore/RenderStyleConstants.h>
+#include <WebCore/StyleImage.h>
+#include <WebCore/StylePosition.h>
 #include <wtf/RefPtr.h>
 #include <wtf/TZoneMalloc.h>
 

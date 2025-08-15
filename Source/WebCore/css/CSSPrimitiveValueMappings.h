@@ -30,38 +30,38 @@
 
 #pragma once
 
-#include "AnchorPositionEvaluator.h"
-#include "CSSCalcSymbolTable.h"
-#include "CSSCalcValue.h"
+#include <WebCore/AnchorPositionEvaluator.h>
+#include <WebCore/CSSCalcSymbolTable.h>
+#include <WebCore/CSSCalcValue.h>
 #include "CSSFontFaceSrcValue.h"
-#include "CSSPrimitiveValue.h"
-#include "CSSToLengthConversionData.h"
-#include "CSSValueKeywords.h"
-#include "FontSizeAdjust.h"
-#include "GraphicsTypes.h"
-#include "Length.h"
-#include "PositionTryFallback.h"
-#include "RenderStyleConstants.h"
-#include "SVGRenderStyleDefs.h"
-#include "ScrollAxis.h"
-#include "ScrollTypes.h"
+#include <WebCore/CSSPrimitiveValue.h>
+#include <WebCore/CSSToLengthConversionData.h>
+#include <WebCore/CSSValueKeywords.h>
+#include <WebCore/FontSizeAdjust.h>
+#include <WebCore/GraphicsTypes.h>
+#include <WebCore/Length.h>
+#include <WebCore/PositionTryFallback.h>
+#include <WebCore/RenderStyleConstants.h>
+#include <WebCore/SVGRenderStyleDefs.h>
+#include <WebCore/ScrollAxis.h>
+#include <WebCore/ScrollTypes.h>
 #include "StyleBuilderState.h"
-#include "StyleScrollBehavior.h"
-#include "StyleWebKitOverflowScrolling.h"
-#include "StyleWebKitTouchCallout.h"
-#include "TextFlags.h"
-#include "ThemeTypes.h"
-#include "TouchAction.h"
-#include "UnicodeBidi.h"
-#include "WritingMode.h"
+#include <WebCore/StyleScrollBehavior.h>
+#include <WebCore/StyleWebKitOverflowScrolling.h>
+#include <WebCore/StyleWebKitTouchCallout.h>
+#include <WebCore/TextFlags.h>
+#include <WebCore/ThemeTypes.h>
+#include <WebCore/TouchAction.h>
+#include <WebCore/UnicodeBidi.h>
+#include <WebCore/WritingMode.h>
 #include <wtf/MathExtras.h>
 
 #if ENABLE(APPLE_PAY)
-#include "ApplePayButtonPart.h"
+#include <WebCore/ApplePayButtonPart.h>
 #endif
 
 #if HAVE(CORE_MATERIAL)
-#include "AppleVisualEffect.h"
+#include <WebCore/AppleVisualEffect.h>
 #endif
 
 namespace WebCore {

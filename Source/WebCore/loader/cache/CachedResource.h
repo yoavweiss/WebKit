@@ -22,18 +22,18 @@
 
 #pragma once
 
-#include "CacheValidation.h"
-#include "CachedResourceClient.h"
-#include "FrameLoaderTypes.h"
-#include "LoaderMalloc.h"
-#include "ResourceCryptographicDigest.h"
-#include "ResourceError.h"
-#include "ResourceLoadPriority.h"
-#include "ResourceLoaderIdentifier.h"
-#include "ResourceLoaderOptions.h"
-#include "ResourceRequest.h"
-#include "ResourceResponse.h"
-#include "Timer.h"
+#include <WebCore/CacheValidation.h>
+#include <WebCore/CachedResourceClient.h>
+#include <WebCore/FrameLoaderTypes.h>
+#include <WebCore/LoaderMalloc.h>
+#include <WebCore/ResourceCryptographicDigest.h>
+#include <WebCore/ResourceError.h>
+#include <WebCore/ResourceLoadPriority.h>
+#include <WebCore/ResourceLoaderIdentifier.h>
+#include <WebCore/ResourceLoaderOptions.h>
+#include <WebCore/ResourceRequest.h>
+#include <WebCore/ResourceResponse.h>
+#include <WebCore/Timer.h>
 #include <pal/SessionID.h>
 #include <time.h>
 #include <wtf/HashCountedSet.h>

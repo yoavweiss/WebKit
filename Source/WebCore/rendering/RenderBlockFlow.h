@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "FloatingObjects.h"
-#include "LegacyLineLayout.h"
-#include "LineWidth.h"
-#include "RenderBlock.h"
+#include <WebCore/FloatingObjects.h>
+#include <WebCore/LegacyLineLayout.h>
+#include <WebCore/LineWidth.h>
+#include <WebCore/RenderBlock.h>
 #include <memory>
 #include <wtf/TZoneMalloc.h>
 

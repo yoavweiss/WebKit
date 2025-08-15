@@ -25,16 +25,16 @@
 
 #pragma once
 
-#include "FloatPoint.h"
-#include "FloatSize.h"
+#include <WebCore/FloatPoint.h>
+#include <WebCore/FloatSize.h>
 
-#include "KeyboardScroll.h"
-#include "RectEdges.h"
-#include "ScrollAnimation.h"
-#include "ScrollSnapAnimatorState.h"
-#include "ScrollSnapOffsetsInfo.h"
-#include "ScrollTypes.h"
-#include "WheelEventTestMonitor.h"
+#include <WebCore/KeyboardScroll.h>
+#include <WebCore/RectEdges.h>
+#include <WebCore/ScrollAnimation.h>
+#include <WebCore/ScrollSnapAnimatorState.h>
+#include <WebCore/ScrollSnapOffsetsInfo.h>
+#include <WebCore/ScrollTypes.h>
+#include <WebCore/WheelEventTestMonitor.h>
 #include <wtf/Deque.h>
 #include <wtf/Noncopyable.h>
 #include <wtf/RunLoop.h>

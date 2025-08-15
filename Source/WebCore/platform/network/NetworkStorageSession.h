@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include "CredentialStorage.h"
-#include "FrameIdentifier.h"
-#include "OrganizationStorageAccessPromptQuirk.h"
-#include "PageIdentifier.h"
-#include "RegistrableDomain.h"
-#include "ShouldRelaxThirdPartyCookieBlocking.h"
+#include <WebCore/CredentialStorage.h>
+#include <WebCore/FrameIdentifier.h>
+#include <WebCore/OrganizationStorageAccessPromptQuirk.h>
+#include <WebCore/PageIdentifier.h>
+#include <WebCore/RegistrableDomain.h>
+#include <WebCore/ShouldRelaxThirdPartyCookieBlocking.h>
 #include <optional>
 #include <pal/SessionID.h>
 #include <wtf/AbstractRefCountedAndCanMakeWeakPtr.h>
@@ -69,7 +69,7 @@ typedef struct _SoupCookie SoupCookie;
 #endif
 
 #if PLATFORM(COCOA)
-#include "CookieStorageObserver.h"
+#include <WebCore/CookieStorageObserver.h>
 OBJC_CLASS NSArray;
 OBJC_CLASS NSHTTPCookie;
 OBJC_CLASS NSHTTPCookieStorage;

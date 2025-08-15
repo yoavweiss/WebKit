@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include "BoxExtents.h"
-#include "PseudoElementIdentifier.h"
-#include "StylePrimitiveNumeric+Forward.h"
-#include "WritingMode.h"
+#include <WebCore/BoxExtents.h>
+#include <WebCore/PseudoElementIdentifier.h>
+#include <WebCore/StylePrimitiveNumeric+Forward.h>
+#include <WebCore/WritingMode.h>
 #include <unicode/utypes.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/DataRef.h>

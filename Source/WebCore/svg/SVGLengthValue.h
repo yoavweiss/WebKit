@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "CSSPrimitiveNumeric.h"
-#include "SVGParsingError.h"
-#include "SVGPropertyTraits.h"
+#include <WebCore/CSSPrimitiveNumeric.h>
+#include <WebCore/SVGParsingError.h>
+#include <WebCore/SVGPropertyTraits.h>
 #include <wtf/TZoneMalloc.h>
 
 namespace WebCore {
@@ -80,7 +80,7 @@ public:
     float value(const SVGLengthContext&) const;
     float valueAsPercentage() const;
     float valueInSpecifiedUnits() const;
-    
+
     String valueAsString() const;
     AtomString valueAsAtomString() const;
     ExceptionOr<float> valueForBindings(const SVGLengthContext&) const;

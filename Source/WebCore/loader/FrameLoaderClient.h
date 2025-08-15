@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "FrameLoaderTypes.h"
-#include "NavigationIdentifier.h"
-#include "SandboxFlags.h"
+#include <WebCore/FrameLoaderTypes.h>
+#include <WebCore/NavigationIdentifier.h>
+#include <WebCore/SandboxFlags.h>
 
 namespace WebCore {
 

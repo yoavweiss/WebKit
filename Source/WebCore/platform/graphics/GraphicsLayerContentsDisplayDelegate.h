@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "GraphicsLayer.h"
+#include <WebCore/GraphicsLayer.h>
 #include <wtf/RefCounted.h>
 
 #if !USE(CA) && !USE(COORDINATED_GRAPHICS)
-#include "PlatformLayer.h"
+#include <WebCore/PlatformLayer.h>
 #endif
 
 namespace WebCore {

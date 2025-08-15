@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "CharacterRange.h"
-#include "FloatRect.h"
-#include "FloatSize.h"
-#include "NodeIdentifier.h"
+#include <WebCore/CharacterRange.h>
+#include <WebCore/FloatRect.h>
+#include <WebCore/FloatSize.h>
+#include <WebCore/NodeIdentifier.h>
 #include <wtf/Forward.h>
 #include <wtf/URL.h>
 

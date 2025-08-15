@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "AXTextMarker.h"
-#include "AXTextStateChangeIntent.h"
-#include "AXTreeStore.h"
-#include "SimpleRange.h"
-#include "StyleChange.h"
-#include "Timer.h"
-#include "VisibleUnits.h"
+#include <WebCore/AXTextMarker.h>
+#include <WebCore/AXTextStateChangeIntent.h>
+#include <WebCore/AXTreeStore.h>
+#include <WebCore/SimpleRange.h>
+#include <WebCore/StyleChange.h>
+#include <WebCore/Timer.h>
+#include <WebCore/VisibleUnits.h>
 #include <limits.h>
 #include <wtf/Deque.h>
 #include <wtf/HashMap.h>

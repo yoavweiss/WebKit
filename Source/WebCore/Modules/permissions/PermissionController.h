@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "PermissionDescriptor.h"
+#include <WebCore/PermissionDescriptor.h>
 #include <wtf/CompletionHandler.h>
 #include <wtf/RefPtr.h>
 #include <wtf/ThreadSafeRefCounted.h>

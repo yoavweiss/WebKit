@@ -27,9 +27,9 @@
 
 #pragma once
 
-#include "CrossOriginEmbedderPolicy.h"
-#include "CrossOriginOpenerPolicy.h"
-#include "ReferrerPolicy.h"
+#include <WebCore/CrossOriginEmbedderPolicy.h>
+#include <WebCore/CrossOriginOpenerPolicy.h>
+#include <WebCore/ReferrerPolicy.h>
 #include <memory>
 #include <wtf/CheckedPtr.h>
 #include <wtf/Forward.h>

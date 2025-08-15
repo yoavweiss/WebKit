@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include "DocumentEnums.h"
-#include "EventTarget.h"
-#include "EventTargetInterfaces.h"
-#include "GlobalWindowIdentifier.h"
-#include "ImageBitmap.h"
-#include "ScrollTypes.h"
+#include <WebCore/DocumentEnums.h>
+#include <WebCore/EventTarget.h>
+#include <WebCore/EventTargetInterfaces.h>
+#include <WebCore/GlobalWindowIdentifier.h>
+#include <WebCore/ImageBitmap.h>
+#include <WebCore/ScrollTypes.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/HashMap.h>
 #include <wtf/RefCounted.h>

@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "CSSParserMode.h"
-#include "CSSPropertyNames.h"
-#include "LoadedFromOpaqueSource.h"
-#include "StyleRuleType.h"
+#include <WebCore/CSSParserMode.h>
+#include <WebCore/CSSPropertyNames.h>
+#include <WebCore/LoadedFromOpaqueSource.h>
+#include <WebCore/StyleRuleType.h>
 #include <pal/text/TextEncoding.h>
 #include <wtf/HashFunctions.h>
 #include <wtf/Hasher.h>

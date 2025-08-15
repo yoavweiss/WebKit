@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "FilterEffect.h"
+#include <WebCore/FilterEffect.h>
 #include <wtf/EnumeratedArray.h>
 #include <wtf/Vector.h>
 

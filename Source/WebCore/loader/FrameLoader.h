@@ -31,20 +31,20 @@
 
 #pragma once
 
-#include "FrameIdentifier.h"
-#include "FrameLoaderStateMachine.h"
-#include "FrameLoaderTypes.h"
-#include "LayoutMilestone.h"
-#include "LoaderMalloc.h"
-#include "PageIdentifier.h"
-#include "PrivateClickMeasurement.h"
-#include "ReferrerPolicy.h"
-#include "ResourceLoadNotifier.h"
-#include "ResourceLoaderOptions.h"
-#include "ResourceRequestBase.h"
-#include "SecurityContext.h"
-#include "StoredCredentialsPolicy.h"
-#include "Timer.h"
+#include <WebCore/FrameIdentifier.h>
+#include <WebCore/FrameLoaderStateMachine.h>
+#include <WebCore/FrameLoaderTypes.h>
+#include <WebCore/LayoutMilestone.h>
+#include <WebCore/LoaderMalloc.h>
+#include <WebCore/PageIdentifier.h>
+#include <WebCore/PrivateClickMeasurement.h>
+#include <WebCore/ReferrerPolicy.h>
+#include <WebCore/ResourceLoadNotifier.h>
+#include <WebCore/ResourceLoaderOptions.h>
+#include <WebCore/ResourceRequestBase.h>
+#include <WebCore/SecurityContext.h>
+#include <WebCore/StoredCredentialsPolicy.h>
+#include <WebCore/Timer.h>
 #include <wtf/CheckedRef.h>
 #include <wtf/CompletionHandler.h>
 #include <wtf/Forward.h>

@@ -27,10 +27,10 @@
 
 #if ENABLE(ASYNC_SCROLLING)
 
-#include "ScrollSnapOffsetsInfo.h"
-#include "ScrollTypes.h"
-#include "ScrollingCoordinator.h"
-#include "ScrollingStateNode.h"
+#include <WebCore/ScrollSnapOffsetsInfo.h>
+#include <WebCore/ScrollTypes.h>
+#include <WebCore/ScrollingCoordinator.h>
+#include <WebCore/ScrollingStateNode.h>
 
 #if PLATFORM(COCOA)
 OBJC_CLASS NSScrollerImp;

@@ -29,13 +29,13 @@
 
 #pragma once
 
-#include "FrameLoaderClient.h"
-#include "IntPoint.h"
-#include "LayoutMilestone.h"
-#include "LinkIcon.h"
-#include "LoaderMalloc.h"
-#include "RegistrableDomain.h"
-#include "ResourceLoaderIdentifier.h"
+#include <WebCore/FrameLoaderClient.h>
+#include <WebCore/IntPoint.h>
+#include <WebCore/LayoutMilestone.h>
+#include <WebCore/LinkIcon.h>
+#include <WebCore/LoaderMalloc.h>
+#include <WebCore/RegistrableDomain.h>
+#include <WebCore/ResourceLoaderIdentifier.h>
 #include <wtf/Expected.h>
 #include <wtf/Forward.h>
 #include <wtf/WallTime.h>
@@ -43,11 +43,11 @@
 #include <wtf/text/WTFString.h>
 
 #if ENABLE(APPLICATION_MANIFEST)
-#include "ApplicationManifest.h"
+#include <WebCore/ApplicationManifest.h>
 #endif
 
 #if ENABLE(CONTENT_FILTERING)
-#include "ContentFilterUnblockHandler.h"
+#include <WebCore/ContentFilterUnblockHandler.h>
 #endif
 
 #if PLATFORM(COCOA)

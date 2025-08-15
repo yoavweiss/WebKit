@@ -27,11 +27,11 @@
 
 #if ENABLE(ASYNC_SCROLLING)
 
-#include "IntRect.h"
-#include "ScrollSnapOffsetsInfo.h"
-#include "ScrollableArea.h"
-#include "ScrollingTree.h"
-#include "ScrollingTreeNode.h"
+#include <WebCore/IntRect.h>
+#include <WebCore/ScrollSnapOffsetsInfo.h>
+#include <WebCore/ScrollableArea.h>
+#include <WebCore/ScrollingTree.h>
+#include <WebCore/ScrollingTreeNode.h>
 #include <wtf/TZoneMalloc.h>
 
 namespace WebCore {

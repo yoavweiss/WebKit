@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "CachedScriptFetcher.h"
-#include "ResourceLoaderOptions.h"
-#include "ScriptType.h"
+#include <WebCore/CachedScriptFetcher.h>
+#include <WebCore/ResourceLoaderOptions.h>
+#include <WebCore/ScriptType.h>
 
 namespace WebCore {
 

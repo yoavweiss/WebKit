@@ -27,19 +27,19 @@
 
 #if ENABLE(ASYNC_SCROLLING)
 
-#include "BoxExtents.h"
-#include "EventTrackingRegions.h"
-#include "FrameIdentifier.h"
-#include "LayerHostingContextIdentifier.h"
-#include "PageIdentifier.h"
-#include "PlatformWheelEvent.h"
-#include "RectEdges.h"
-#include "Region.h"
-#include "ScrollTypes.h"
-#include "ScrollingCoordinatorTypes.h"
-#include "ScrollingTreeGestureState.h"
-#include "ScrollingTreeLatchingController.h"
-#include "WheelEventTestMonitor.h"
+#include <WebCore/BoxExtents.h>
+#include <WebCore/EventTrackingRegions.h>
+#include <WebCore/FrameIdentifier.h>
+#include <WebCore/LayerHostingContextIdentifier.h>
+#include <WebCore/PageIdentifier.h>
+#include <WebCore/PlatformWheelEvent.h>
+#include <WebCore/RectEdges.h>
+#include <WebCore/Region.h>
+#include <WebCore/ScrollTypes.h>
+#include <WebCore/ScrollingCoordinatorTypes.h>
+#include <WebCore/ScrollingTreeGestureState.h>
+#include <WebCore/ScrollingTreeLatchingController.h>
+#include <WebCore/WheelEventTestMonitor.h>
 #include <wtf/HashMap.h>
 #include <wtf/Lock.h>
 #include <wtf/MonotonicTime.h>

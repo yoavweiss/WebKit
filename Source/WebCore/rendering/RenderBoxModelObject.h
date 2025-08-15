@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "FontBaseline.h"
-#include "LayoutRect.h"
-#include "RectEdges.h"
-#include "RenderLayerModelObject.h"
+#include <WebCore/FontBaseline.h>
+#include <WebCore/LayoutRect.h>
+#include <WebCore/RectEdges.h>
+#include <WebCore/RenderLayerModelObject.h>
 
 namespace WebCore {
 

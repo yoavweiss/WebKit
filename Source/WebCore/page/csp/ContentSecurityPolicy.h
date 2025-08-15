@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include "ContentSecurityPolicyHash.h"
-#include "ContentSecurityPolicyResponseHeaders.h"
-#include "SecurityContext.h"
-#include "SecurityOrigin.h"
-#include "SecurityOriginHash.h"
+#include <WebCore/ContentSecurityPolicyHash.h>
+#include <WebCore/ContentSecurityPolicyResponseHeaders.h>
+#include <WebCore/SecurityContext.h>
+#include <WebCore/SecurityOrigin.h>
+#include <WebCore/SecurityOriginHash.h>
 #include <functional>
 #include <wtf/CheckedPtr.h>
 #include <wtf/FixedVector.h>

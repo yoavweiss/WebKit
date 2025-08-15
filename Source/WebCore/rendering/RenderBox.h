@@ -23,13 +23,13 @@
 
 #pragma once
 
-#include "FontBaseline.h"
-#include "LocalFrameView.h"
-#include "RenderBoxModelObject.h"
-#include "RenderOverflow.h"
-#include "ScrollSnapOffsetsInfo.h"
-#include "ScrollTypes.h"
-#include "ShapeOutsideInfo.h"
+#include <WebCore/FontBaseline.h>
+#include <WebCore/LocalFrameView.h>
+#include <WebCore/RenderBoxModelObject.h>
+#include <WebCore/RenderOverflow.h>
+#include <WebCore/ScrollSnapOffsetsInfo.h>
+#include <WebCore/ScrollTypes.h>
+#include <WebCore/ShapeOutsideInfo.h>
 #include <wtf/TypeCasts.h>
 
 namespace WebCore {

@@ -27,8 +27,8 @@
 
 #if PLATFORM(MAC)
 
-#include "ScrollTypes.h"
-#include "UserInterfaceLayoutDirection.h"
+#include <WebCore/ScrollTypes.h>
+#include <WebCore/UserInterfaceLayoutDirection.h>
 #include <wtf/RetainPtr.h>
 
 OBJC_CLASS CALayer;

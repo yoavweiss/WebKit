@@ -27,9 +27,9 @@
 
 #if ENABLE(MEDIA_STREAM) && USE(AVFOUNDATION)
 
-#include "FrameRateMonitor.h"
-#include "SampleBufferDisplayLayer.h"
-#include "VideoFrame.h"
+#include <WebCore/FrameRateMonitor.h>
+#include <WebCore/SampleBufferDisplayLayer.h>
+#include <WebCore/VideoFrame.h>
 #include <wtf/Deque.h>
 #include <wtf/Forward.h>
 #include <wtf/RetainPtr.h>

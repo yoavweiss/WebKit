@@ -29,8 +29,8 @@
 
 #pragma once
 
-#include "FetchOptions.h"
-#include "ResourceLoaderOptions.h"
+#include <WebCore/FetchOptions.h>
+#include <WebCore/ResourceLoaderOptions.h>
 
 namespace WebCore {
 

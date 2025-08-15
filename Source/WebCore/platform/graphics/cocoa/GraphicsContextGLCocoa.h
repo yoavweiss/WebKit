@@ -27,9 +27,9 @@
 
 #if ENABLE(WEBGL)
 
-#include "GraphicsContextGLANGLE.h"
-#include "IOSurfaceDrawingBuffer.h"
-#include "ProcessIdentity.h"
+#include <WebCore/GraphicsContextGLANGLE.h>
+#include <WebCore/IOSurfaceDrawingBuffer.h>
+#include <WebCore/ProcessIdentity.h>
 #include <array>
 #include <wtf/CheckedPtr.h>
 
@@ -38,7 +38,7 @@
 #endif
 
 #if ENABLE(WEBXR)
-#include "PlatformXR.h"
+#include <WebCore/PlatformXR.h>
 #include <wtf/EnumeratedArray.h>
 #endif
 

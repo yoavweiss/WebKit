@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "AnchorPositionEvaluator.h"
+#include <WebCore/AnchorPositionEvaluator.h>
 #include "PropertyCascade.h"
 #include "SelectorChecker.h"
 #include "SelectorMatchingState.h"
-#include "StyleChange.h"
-#include "StyleUpdate.h"
-#include "Styleable.h"
+#include <WebCore/StyleChange.h>
+#include <WebCore/StyleUpdate.h>
+#include <WebCore/Styleable.h>
 #include "TreeResolutionState.h"
 #include <wtf/Function.h>
 #include <wtf/Ref.h>

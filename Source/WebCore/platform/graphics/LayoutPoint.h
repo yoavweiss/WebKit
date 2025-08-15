@@ -30,9 +30,9 @@
 
 #pragma once
 
-#include "DoublePoint.h"
-#include "FloatPoint.h"
-#include "LayoutSize.h"
+#include <WebCore/DoublePoint.h>
+#include <WebCore/FloatPoint.h>
+#include <WebCore/LayoutSize.h>
 
 namespace WebCore {
 
