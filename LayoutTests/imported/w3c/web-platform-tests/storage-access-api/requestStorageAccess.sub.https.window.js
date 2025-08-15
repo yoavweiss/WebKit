@@ -79,6 +79,9 @@ promise_test(
 if (!canUseAutogrant) {
   promise_test(
       async t => {
+        t.add_cleanup(async () => {
+          await test_driver.set_permission({name: 'storage-access'}, 'prompt');
+        });
         await SetFirstPartyCookie(location.origin, initialCookie);
         await test_driver.set_permission(
             {name: 'storage-access'}, 'denied');
@@ -92,7 +95,10 @@ if (!canUseAutogrant) {
           '] document.requestStorageAccess() should be rejected with a NotAllowedError with denied permission');
 } else {
   promise_test(
-      async () => {
+      async t => {
+        t.add_cleanup(async () => {
+          await test_driver.set_permission({name: 'storage-access'}, 'prompt');
+        });
         await SetFirstPartyCookie(location.origin, initialCookie);
         await document.requestStorageAccess();
 

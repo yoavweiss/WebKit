@@ -248,7 +248,7 @@ promise_test(async (t) => {
                                        non_retry_path,
                                        [['script', responder_script]]));
     t.add_cleanup(async () => {
-        SetPermissionInFrame(iframe,
+        await SetPermissionInFrame(iframe,
             [{ name: 'storage-access' }, 'prompt']);
     });
     await SetPermissionInFrame(iframe,
