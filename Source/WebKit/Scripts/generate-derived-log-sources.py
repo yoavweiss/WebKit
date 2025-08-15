@@ -8,8 +8,6 @@ log_declarations_module = importlib.import_module("generate-log-declarations")
 
 
 def generate_messages_file(log_messages, log_messages_receiver_input_file, streaming_ipc):
-    print("Log messages receiver input file:", log_messages_receiver_input_file)
-
     with open(log_messages_receiver_input_file, 'w') as file:
         file.write("#if ENABLE(LOGD_BLOCKING_IN_WEBCONTENT)\n")
         file.write("[\n")
@@ -35,8 +33,6 @@ def generate_messages_file(log_messages, log_messages_receiver_input_file, strea
 
 
 def generate_log_client_declarations_file(log_messages, log_client_declarations_file):
-    print("Log client declarations file:", log_client_declarations_file)
-
     with open(log_client_declarations_file, 'w') as file:
 
         for log_message in log_messages:
@@ -60,8 +56,6 @@ def generate_log_client_declarations_file(log_messages, log_client_declarations_
 
 
 def generate_message_receiver_declarations_file(log_messages, log_messages_receiver_declarations_file):
-    print("Log messages receiver declarations file:", log_messages_receiver_declarations_file)
-
     with open(log_messages_receiver_declarations_file, 'w') as file:
         for log_message in log_messages:
             function_name = log_message[0]
@@ -75,8 +69,6 @@ def generate_message_receiver_declarations_file(log_messages, log_messages_recei
 
 
 def generate_message_receiver_implementations_file(log_messages, log_messages_receiver_implementations_file):
-    print("Log messages receiver implementations file:", log_messages_receiver_implementations_file)
-
     with open(log_messages_receiver_implementations_file, 'w') as file:
         for log_message in log_messages:
             function_name = log_message[0]
@@ -134,9 +126,6 @@ def main(argv):
     webkit_log_client_declarations_file = sys.argv[6]
     webcore_log_client_declarations_file = sys.argv[7]
     defines = sys.argv[8]
-
-    print("WebKit Log messages input file:", webkit_log_messages_input_file)
-    print("WebCore Log messages input file:", webcore_log_messages_input_file)
 
     streaming_ipc = defines.find("ENABLE_STREAMING_IPC_IN_LOG_FORWARDING") != -1
 

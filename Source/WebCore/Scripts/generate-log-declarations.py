@@ -32,8 +32,6 @@ def get_arguments_string(parameter_string, flags):
 
 
 def generate_log_client_declarations_file(log_messages, log_client_declarations_file):
-    print("Log message receiver header file:", log_client_declarations_file)
-
     with open(log_client_declarations_file, 'w') as file:
 
         file.write("#pragma once\n\n")
@@ -46,8 +44,6 @@ def generate_log_client_declarations_file(log_messages, log_client_declarations_
 
 
 def generate_log_client_virtual_functions(log_messages, log_client_virtual_functions_file):
-    print("Log client virtual_functions file:", log_client_virtual_functions_file)
-
     with open(log_client_virtual_functions_file, 'w') as file:
         for log_message in log_messages:
             function_name = log_message[0]
@@ -95,8 +91,6 @@ def main(argv):
         log_client_virtual_functions_file = sys.argv[3]
     else:
         log_client_virtual_functions_file = None
-
-    print("Log messages input file:", log_messages_input_file)
 
     log_messages = get_log_messages(log_messages_input_file)
 
