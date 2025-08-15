@@ -87,6 +87,7 @@ OBJC_CLASS UIView;
 OBJC_CLASS UIViewController;
 OBJC_CLASS WKBaseScrollView;
 OBJC_CLASS WKBEScrollViewScrollUpdate;
+OBJC_CLASS WKFullScreenWindowController;
 OBJC_CLASS _WKRemoteObjectRegistry;
 
 #if USE(APPKIT)

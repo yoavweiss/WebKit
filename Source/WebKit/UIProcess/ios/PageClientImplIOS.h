@@ -348,8 +348,8 @@ private:
     bool hasResizableWindows() const final;
 
 #if ENABLE(VIDEO_PRESENTATION_MODE)
-    void didEnterFullscreen() final { };
-    void didExitFullscreen() final { };
+    void didEnterFullscreen() final;
+    void didExitFullscreen() final;
     void didCleanupFullscreen() final;
 #endif
 

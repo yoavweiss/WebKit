@@ -150,6 +150,9 @@ public:
     virtual bool supportsLinearMediaPlayer() const { return false; }
 #endif
 
+    virtual bool prefersAutoDimming() const { return false; }
+    virtual void setPrefersAutoDimming(bool) { }
+
 #if !RELEASE_LOG_DISABLED
     virtual uint64_t logIdentifier() const { return 0; }
     virtual const Logger* loggerPtr() const { return nullptr; }
