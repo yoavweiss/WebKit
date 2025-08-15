@@ -60,7 +60,7 @@ struct CSSParserContext {
 #if HAVE(CORE_ANIMATION_SEPARATED_LAYERS)
     bool cssTransformStyleSeparatedEnabled : 1 { false };
 #endif
-    bool masonryEnabled : 1 { false };
+    bool itemPackCollapseDisplayGridEnabled : 1 { false };
     bool cssAppearanceBaseEnabled : 1 { false };
     bool cssPaintingAPIEnabled : 1 { false };
     bool cssShapeFunctionEnabled : 1 { false };
