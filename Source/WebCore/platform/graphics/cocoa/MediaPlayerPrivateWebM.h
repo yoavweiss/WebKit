@@ -300,9 +300,7 @@ private:
 
     enum class AcceleratedVideoMode: uint8_t {
         Layer = 0,
-        StagedVideoRenderer,
         VideoRenderer,
-        StagedLayer
     };
     AcceleratedVideoMode acceleratedVideoMode() const;
     void setLayerRequiresFlush();
@@ -340,7 +338,6 @@ private:
     PlatformTimeRanges m_buffered;
 
     RefPtr<VideoMediaSampleRenderer> m_videoRenderer;
-    RefPtr<VideoMediaSampleRenderer> m_expiringVideoRenderer;
 
     RetainPtr<AVSampleBufferDisplayLayer> m_sampleBufferDisplayLayer;
     RetainPtr<AVSampleBufferVideoRenderer> m_sampleBufferVideoRenderer;
