@@ -667,7 +667,7 @@ void RenderBlock::addOverflowFromBlockChildren()
 {
     for (auto& child : childrenOfType<RenderBox>(*this)) {
         if (!child.isFloatingOrOutOfFlowPositioned())
-            addOverflowFromChild(child);
+            addOverflowFromInFlowChildOrAbsolutePositionedDescendant(child);
     }
 }
 
@@ -677,11 +677,10 @@ void RenderBlock::addOverflowFromOutOfFlowBoxes()
     if (!outOfFlowDescendants)
         return;
 
-    auto clientBoxRect = this->flippedClientBoxRect();
     for (auto& outOfFlowBox : *outOfFlowDescendants) {
         // Fixed positioned elements don't contribute to layout overflow, since they don't scroll with the content.
-        if (!outOfFlowBox.isFixedPositioned())
-            addOverflowFromChild(outOfFlowBox, { outOfFlowBox.x(), outOfFlowBox.y() }, clientBoxRect);
+        if (outOfFlowBox.isAbsolutelyPositioned())
+            addOverflowFromInFlowChildOrAbsolutePositionedDescendant(outOfFlowBox);
     }
 }
 
