@@ -985,6 +985,7 @@ svg/SVGAElement.cpp
 svg/SVGAElement.h
 svg/SVGAltGlyphElement.cpp
 svg/SVGCircleElement.h
+svg/SVGCircleElement.cpp
 svg/SVGClipPathElement.cpp
 svg/SVGClipPathElement.h
 svg/SVGComponentTransferFunctionElement.cpp
