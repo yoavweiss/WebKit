@@ -830,7 +830,7 @@ VisualViewport& LocalDOMWindow::visualViewport()
 
 bool LocalDOMWindow::shouldHaveWebKitNamespaceForWorld(DOMWrapperWorld& world)
 {
-    if (world.nodeInfoEnabled())
+    if (world.allowJSHandleCreation() || world.allowNodeSerialization())
         return true;
 
     RefPtr frame = this->frame();
