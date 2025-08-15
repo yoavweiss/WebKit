@@ -186,7 +186,7 @@ int pthread_cond_wait(pthread_cond_t* cond, pthread_mutex_t* mutex)
 
 int pthread_cond_timedwait(pthread_cond_t* cond, pthread_mutex_t* mutex, const struct timespec* abstime)
 {
-    uint64_t wait_ms = abstime->tv_sec * 1000 + abstime->tv_nsec / 1000;
+    uint64_t wait_ms = abstime->tv_sec * 1000 + abstime->tv_nsec / 1000000;
     return SleepConditionVariableSRW(cond, mutex, wait_ms, 0);
 }
 

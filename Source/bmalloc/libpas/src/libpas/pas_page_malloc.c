@@ -317,7 +317,7 @@ static void commit_impl(void* ptr, size_t size, bool do_mprotect, pas_mmap_capab
         VirtualQuery(currentPtr, &memInfo, sizeof(memInfo));
         PAS_ASSERT(memInfo.State != 0x10000);
         PAS_ASSERT(memInfo.RegionSize > 0);
-        PAS_ASSERT(VirtualAlloc(currentPtr, memInfo.RegionSize, MEM_COMMIT, PAGE_READWRITE));
+        PAS_ASSERT(VirtualAlloc(currentPtr, PAS_MIN(memInfo.RegionSize, size - totalSeen), MEM_COMMIT, PAGE_READWRITE));
         currentPtr = (void*) ((uintptr_t) currentPtr + memInfo.RegionSize);
         totalSeen += memInfo.RegionSize;
     }
@@ -372,17 +372,22 @@ static void decommit_impl(void* ptr, size_t size,
     PAS_SYSCALL(madvise(ptr, size, MADV_DONTNEED));
     PAS_SYSCALL(madvise(ptr, size, MADV_DONTDUMP));
 #elif PAS_OS(WINDOWS)
-    /* Sometimes the returned memInfo.RegionSize < size, and VirtualAlloc can't span regions
-       We loop to make sure we get the full requested range. */
-    size_t totalSeen = 0;
-    void *currentPtr = ptr;
-    while (totalSeen < size) {
-        MEMORY_BASIC_INFORMATION memInfo;
-        VirtualQuery(currentPtr, &memInfo, sizeof(memInfo));
-        PAS_ASSERT(VirtualAlloc(currentPtr, memInfo.RegionSize, MEM_RESET, PAGE_READWRITE));
-        PAS_ASSERT(memInfo.RegionSize > 0);
-        currentPtr = (void*) ((uintptr_t) currentPtr + memInfo.RegionSize);
-        totalSeen += memInfo.RegionSize;
+    // DiscardVirtualMemory returns memory to the OS faster, but fails sometimes on Windows 10
+    // Fall back to VirtualAlloc in those cases
+    DWORD ret = DiscardVirtualMemory(ptr, size);
+    if (ret) {
+        /* Sometimes the returned memInfo.RegionSize < size, and VirtualAlloc can't span regions
+        We loop to make sure we get the full requested range. */
+        size_t totalSeen = 0;
+        void *currentPtr = ptr;
+        while (totalSeen < size) {
+            MEMORY_BASIC_INFORMATION memInfo;
+            VirtualQuery(currentPtr, &memInfo, sizeof(memInfo));
+            PAS_ASSERT(VirtualAlloc(currentPtr, PAS_MIN(memInfo.RegionSize, size - totalSeen), MEM_RESET, PAGE_READWRITE));
+            PAS_ASSERT(memInfo.RegionSize > 0);
+            currentPtr = (void*) ((uintptr_t) currentPtr + memInfo.RegionSize);
+            totalSeen += memInfo.RegionSize;
+        }
     }
 #else
     PAS_SYSCALL(madvise(ptr, size, MADV_DONTNEED));
