@@ -329,8 +329,18 @@ LayoutUnit RenderTableSection::calcRowLogicalHeight()
         m_rowPos[r + 1] = std::max(m_rowPos[r + 1], m_rowPos[r]);
     }
 
-    ASSERT(!needsLayout());
+    for (size_t rowIndex = 0; rowIndex < totalRows; ++rowIndex) {
+        if (m_grid[rowIndex].rowRenderer && m_grid[rowIndex].rowRenderer->style().visibility() == Visibility::Collapse) {
+            auto delta = m_rowPos[rowIndex + 1] - m_rowPos[rowIndex];
+            if (delta > 0_lu) {
+                // Reduce height of collapsed row to 0 without affecting other rows
+                for (size_t adjustedRowIndex = rowIndex + 1; adjustedRowIndex <= totalRows; ++adjustedRowIndex)
+                    m_rowPos[adjustedRowIndex] -= delta;
+            }
+        }
+    }
 
+    ASSERT(!needsLayout());
     return m_rowPos[m_grid.size()];
 }
 

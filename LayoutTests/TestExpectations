@@ -6777,7 +6777,6 @@ webkit.org/b/285971 imported/w3c/web-platform-tests/css/css-tables/table-intrins
 webkit.org/b/285971 imported/w3c/web-platform-tests/css/css-tables/table-intrinsic-size-004.html [ ImageOnlyFailure ]
 webkit.org/b/285971 imported/w3c/web-platform-tests/css/css-tables/tentative/padding-percentage.html [ ImageOnlyFailure ]
 webkit.org/b/285971 imported/w3c/web-platform-tests/css/css-tables/visibility-collapse-border-spacing-001.html [ ImageOnlyFailure ]
-webkit.org/b/285971 imported/w3c/web-platform-tests/css/css-tables/visibility-collapse-border-spacing-002.html [ ImageOnlyFailure ]
 
 # New failures after re-importing css-overflow
 imported/w3c/web-platform-tests/css/css-overflow/margin-block-end-scroll-area-001.html [ Skip ]
@@ -7923,8 +7922,6 @@ webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/fixed-table-
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/fixed-table-layout-029.xht [ ImageOnlyFailure ]
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/fixed-table-layout-030.xht [ ImageOnlyFailure ]
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/fixed-table-layout-031.xht [ ImageOnlyFailure ]
-webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/row-visibility-001.xht [ ImageOnlyFailure ]
-webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/row-visibility-002.xht [ ImageOnlyFailure ]
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/table-anonymous-objects-079.xht [ ImageOnlyFailure ]
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/table-anonymous-objects-080.xht [ ImageOnlyFailure ]
 webkit.org/b/288957 imported/w3c/web-platform-tests/css/CSS2/tables/table-anonymous-objects-085.xht [ ImageOnlyFailure ]
