@@ -25,6 +25,7 @@
 
 #pragma once
 
+#import "APIContentRuleListStore.h"
 #import "ScriptTrackingPrivacyFilter.h"
 #import <wtf/CompletionHandler.h>
 #import <wtf/ContinuousApproximateTime.h>
@@ -187,9 +188,13 @@ public:
     void prepare(CompletionHandler<void(WKContentRuleList *, bool)>&&);
     void getSource(CompletionHandler<void(String&&)>&&);
 
+    void setContentRuleListStore(API::ContentRuleListStore&);
+
 private:
     friend class NeverDestroyed<ResourceMonitorURLsController, MainRunLoopAccessTraits>;
     ResourceMonitorURLsController() = default;
+
+    RefPtr<API::ContentRuleListStore> m_contentRuleListStore;
 };
 
 #define HAVE_RESOURCE_MONITOR_URLS_GET_SOURCE 1

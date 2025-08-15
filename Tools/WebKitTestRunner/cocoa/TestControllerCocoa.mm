@@ -191,6 +191,11 @@ void TestController::cocoaPlatformInitialize(const Options& options)
 #if ENABLE(DATA_DETECTION)
     m_appStoreURLSwizzler = makeUnique<InstanceMethodSwizzler>(NSURL.class, @selector(iTunesStoreURL), reinterpret_cast<IMP>(swizzledAppStoreURL));
 #endif
+
+    String resourceMonitorContentRuleListStoreFolder = makeString(String::fromUTF8(dumpRenderTreeTemp), "/ResourceMonitorContentRuleList/"_s, getpid());
+    RetainPtr<NSURL> url = [NSURL fileURLWithPath:resourceMonitorContentRuleListStoreFolder.createNSString().get()];
+
+    [WKContentRuleListStore _setContentRuleListStoreForResourceMonitorURLsControllerForTesting:[WKContentRuleListStore storeWithURL:url.get()]];
 }
 
 #if ENABLE(IMAGE_ANALYSIS)

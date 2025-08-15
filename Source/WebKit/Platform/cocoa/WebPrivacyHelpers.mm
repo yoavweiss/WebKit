@@ -30,7 +30,7 @@
 
 #import "Logging.h"
 #import "RestrictedOpenerType.h"
-#import "WKContentRuleListStore.h"
+#import "WKContentRuleListStoreInternal.h"
 #import <WebCore/DNS.h>
 #import <WebCore/LinkDecorationFilteringData.h>
 #import <WebCore/OrganizationStorageAccessPromptQuirk.h>
@@ -412,6 +412,11 @@ ResourceMonitorURLsController& ResourceMonitorURLsController::singleton()
     return sharedInstance.get();
 }
 
+void ResourceMonitorURLsController::setContentRuleListStore(API::ContentRuleListStore& store)
+{
+    m_contentRuleListStore = &store;
+}
+
 void ResourceMonitorURLsController::prepare(CompletionHandler<void(WKContentRuleList*, bool)>&& completionHandler)
 {
     ASSERT(RunLoop::isMain());
@@ -425,9 +430,9 @@ void ResourceMonitorURLsController::prepare(CompletionHandler<void(WKContentRule
     if (lookupCompletionHandlers->size() > 1)
         return;
 
-    WKContentRuleListStore *store = [WKContentRuleListStore defaultStore];
+    Ref<API::ContentRuleListStore> store = m_contentRuleListStore ? *m_contentRuleListStore : API::ContentRuleListStore::defaultStoreSingleton();
 
-    [[PAL::getWPResourcesClass() sharedInstance] prepareResourceMonitorRulesForStore:store completionHandler:^(WKContentRuleList *list, bool updated, NSError *error) {
+    [[PAL::getWPResourcesClass() sharedInstance] prepareResourceMonitorRulesForStore:wrapper(store.get()) completionHandler:^(WKContentRuleList *list, bool updated, NSError *error) {
         if (error)
             RELEASE_LOG_ERROR(ResourceMonitoring, "Failed to request resource monitor urls from WebPrivacy: %@", error);
 
