@@ -7676,6 +7676,9 @@ imported/w3c/web-platform-tests/css/css-anchor-position/transform-006.tentative.
 imported/w3c/web-platform-tests/css/css-anchor-position/transform-007.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/transform-008.tentative.html [ ImageOnlyFailure ]
 
+# Might be a test error, see https://github.com/w3c/csswg-drafts/issues/12577
+imported/w3c/web-platform-tests/css/css-anchor-position/anchor-position-non-anchored-fallback.html [ ImageOnlyFailure ]
+
 # timeouts
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-ident-function.html [ Skip ]
 
