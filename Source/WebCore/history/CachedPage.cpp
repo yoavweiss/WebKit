@@ -39,6 +39,7 @@
 #include "LocalFrameLoaderClient.h"
 #include "LocalFrameView.h"
 #include "Navigation.h"
+#include "NavigationNavigationType.h"
 #include "Node.h"
 #include "Page.h"
 #include "PageTransitionEvent.h"
@@ -189,9 +190,10 @@ void CachedPage::restore(Page& page)
 
     // Update Navigation API after pageshow events to ensure correct event ordering.
     if (CheckedRef backForwardController = page.backForward(); page.settings().navigationAPIEnabled() && focusedDocument->window() && backForwardController->currentItem()) {
-        Ref currentItem = *backForwardController->currentItem();
         auto allItems = backForwardController->allItems();
-        focusedDocument->window()->navigation().updateForReactivation(allItems, currentItem);
+        Ref currentItem = *backForwardController->currentItem();
+        RefPtr previousItem = backForwardController->forwardItem();
+        focusedDocument->window()->navigation().updateForReactivation(WTFMove(allItems), currentItem, previousItem.get());
 
         // Update Navigation API for all child frames.
         Vector<Ref<LocalFrame>> childFrames;
@@ -207,8 +209,11 @@ void CachedPage::restore(Page& page)
             // For iframes, get only the reachable history items from the current session.
             auto reachableFrameItems = backForwardController->reachableItemsForFrame(child->frameID());
 
-            if (!reachableFrameItems.isEmpty() && child->loader().history().currentItem())
-                document->window()->navigation().updateForReactivation(reachableFrameItems, *child->loader().history().currentItem());
+            if (!reachableFrameItems.isEmpty() && child->loader().history().currentItem()) {
+                Ref currentItem = *child->loader().history().currentItem();
+                RefPtr previousItem = backForwardController->forwardItem();
+                document->window()->navigation().updateForReactivation(WTFMove(reachableFrameItems), currentItem, previousItem.get());
+            }
         }
     }
 

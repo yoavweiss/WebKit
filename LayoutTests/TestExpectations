@@ -7089,6 +7089,9 @@ imported/w3c/web-platform-tests/navigation-api/scroll-behavior/ [ Failure Pass ]
 imported/w3c/web-platform-tests/navigation-api/navigation-history-entry/opaque-origin.html [ Skip ]
 imported/w3c/web-platform-tests/navigation-api/navigation-methods/return-value/back-forward-opaque-origin.html [ Skip ]
 
+# Flaky result based on BFCache issue. 
+imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-back-bfcache.html [ Failure Pass ]
+
 # Out of target of Interop 2025.
 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-multiple-history-pushState.html [ Skip ]
 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-multiple-location.html [ Skip ]
