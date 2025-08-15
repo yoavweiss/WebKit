@@ -6903,6 +6903,21 @@ ScrollbarWidth LocalFrameView::scrollbarWidthStyle()  const
     return ScrollbarWidth::Auto;
 }
 
+std::optional<ScrollbarColor> LocalFrameView::scrollbarColorStyle() const
+{
+    auto* document = m_frame->document();
+    auto scrollingObject = document && document->documentElement() ? document->documentElement()->renderer() : nullptr;
+    if (scrollingObject && renderView()) {
+        if (auto value = scrollingObject->style().scrollbarColor().tryValue()) {
+            return ScrollbarColor {
+                .thumbColor = scrollingObject->style().colorResolvingCurrentColor(value->thumb),
+                .trackColor = scrollingObject->style().colorResolvingCurrentColor(value->track)
+            };
+        }
+    }
+    return { };
+}
+
 bool LocalFrameView::isVisibleToHitTesting() const
 {
     bool isVisibleToHitTest = true;

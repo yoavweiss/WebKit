@@ -28,6 +28,7 @@
 
 #if PLATFORM(MAC)
 
+#import "ColorCocoa.h"
 #import "FloatPoint.h"
 #import "IntRect.h"
 #import "NSScrollerImpDetails.h"
@@ -384,7 +385,10 @@ void ScrollerMac::updateValues()
     [m_scrollerImp setDoubleValue:values.value];
     [m_scrollerImp setPresentationValue:values.value];
     [m_scrollerImp setKnobProportion:values.proportion];
-
+#if HAVE(APPKIT_SCROLLBAR_COLOR_SPI)
+    [m_scrollerImp setTrackColor:m_trackColor.get()];
+    [m_scrollerImp setKnobColor:m_thumbColor.get()];
+#endif
     END_BLOCK_OBJC_EXCEPTIONS
 }
 
@@ -499,6 +503,18 @@ void ScrollerMac::setNeedsDisplay()
     [m_scrollerImp setNeedsDisplay:YES];
 }
 
+void ScrollerMac::scrollbarColorChanged(const std::optional<ScrollbarColor>& scrollbarColor)
+{
+    if (scrollbarColor) {
+        m_trackColor = cocoaColor(scrollbarColor->trackColor);
+        m_thumbColor = cocoaColor(scrollbarColor->thumbColor);
+    } else {
+        m_trackColor = nullptr;
+        m_thumbColor = nullptr;
+    }
+    updateValues();
+}
+
 String ScrollerMac::scrollbarState() const
 {
     if (!m_hostLayer || !m_scrollerImp)
@@ -526,6 +542,17 @@ String ScrollerMac::scrollbarState() const
     if ([m_scrollerImp controlSize] != NSControlSizeRegular)
         result.append(",thin"_s);
 
+#if HAVE(APPKIT_SCROLLBAR_COLOR_SPI)
+    if ([m_scrollerImp trackColor] != nil) {
+        result.append(",trackColor:"_s);
+        result.append(colorFromCocoaColor([m_scrollerImp trackColor]).debugDescription());
+    }
+
+    if ([m_scrollerImp knobColor] != nil) {
+        result.append(",knobColor:"_s);
+        result.append(colorFromCocoaColor([m_scrollerImp knobColor]).debugDescription());
+    }
+#endif
     return result.toString();
 }
 

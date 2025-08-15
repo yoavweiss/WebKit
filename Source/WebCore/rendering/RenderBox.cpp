@@ -372,6 +372,22 @@ void RenderBox::styleDidChange(StyleDifference diff, const RenderStyle* oldStyle
             scrollableArea->scrollbarWidthChanged(newStyle.scrollbarWidth());
     }
 
+    if (layer() && oldStyle && oldStyle->scrollbarColor() != newStyle.scrollbarColor()) {
+        std::optional<ScrollbarColor> scrollbarColor;
+
+        if (auto value = newStyle.scrollbarColor().tryValue()) {
+            scrollbarColor = ScrollbarColor {
+                .thumbColor = newStyle.colorResolvingCurrentColor(value->thumb),
+                .trackColor = newStyle.colorResolvingCurrentColor(value->track)
+            };
+        }
+
+        if (isDocElementRenderer)
+            view().frameView().scrollbarColorDidChange(scrollbarColor);
+        else if (auto* scrollableArea = layer()->scrollableArea())
+            scrollableArea->scrollbarColorDidChange(scrollbarColor);
+    }
+
 #if ENABLE(DARK_MODE_CSS)
     if (layer() && oldStyle && oldStyle->colorScheme() != newStyle.colorScheme()) {
         if (auto* scrollableArea = layer()->scrollableArea())

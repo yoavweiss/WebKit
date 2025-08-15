@@ -4523,6 +4523,7 @@ header: <WebCore/ScrollingStateNode.h>
     MouseActivityState
     ScrollbarHoverState
     ScrollbarEnabledState
+    ScrollbarColor
     ScrollbarLayoutDirection
     ScrollbarWidth
     UseDarkAppearanceForScrollbars

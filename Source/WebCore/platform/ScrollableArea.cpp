@@ -1026,4 +1026,9 @@ ScrollingNodeID ScrollableArea::scrollingNodeIDForTesting()
     return *testingNodeID;
 }
 
+void ScrollableArea::scrollbarColorDidChange(std::optional<ScrollbarColor> scrollbarColor)
+{
+    scrollbarsController().scrollbarColorChanged(scrollbarColor);
+}
+
 } // namespace WebCore

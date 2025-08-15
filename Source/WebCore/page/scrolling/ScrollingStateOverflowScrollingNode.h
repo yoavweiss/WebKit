@@ -69,6 +69,7 @@ private:
         MouseLocationState&&,
         ScrollbarHoverState&&,
         ScrollbarEnabledState&&,
+        std::optional<ScrollbarColor>&&,
         UserInterfaceLayoutDirection,
         ScrollbarWidth,
         bool useDarkAppearanceForScrollbars,

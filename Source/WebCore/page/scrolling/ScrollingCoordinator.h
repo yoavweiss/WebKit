@@ -48,6 +48,7 @@ class TextStream;
 namespace WebCore {
 
 class AbsolutePositionConstraints;
+class Color;
 class Document;
 class GraphicsLayer;
 class LocalFrame;
@@ -219,6 +220,7 @@ public:
     WEBCORE_EXPORT virtual void setLayerHostingContextIdentifierForFrameHostingNode(ScrollingNodeID, std::optional<LayerHostingContextIdentifier>) { }
     WEBCORE_EXPORT virtual void setScrollbarLayoutDirection(ScrollableArea&, UserInterfaceLayoutDirection) { }
     WEBCORE_EXPORT virtual void setScrollbarWidth(ScrollableArea&, ScrollbarWidth) { }
+    WEBCORE_EXPORT virtual void setScrollbarColor(ScrollableArea&, std::optional<ScrollbarColor>);
 
     FrameIdentifier mainFrameIdentifier() const;
 

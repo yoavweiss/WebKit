@@ -129,6 +129,9 @@ public:
     ScrollbarEnabledState scrollbarEnabledState() const { return m_scrollbarEnabledState; }
     WEBCORE_EXPORT void setScrollbarEnabledState(ScrollbarOrientation, bool);
 
+    const std::optional<ScrollbarColor>& scrollbarColor() const { return m_scrollbarColor; }
+    WEBCORE_EXPORT void setScrollbarColor(std::optional<ScrollbarColor>);
+
     void setScrollerImpsFromScrollbars(Scrollbar* verticalScrollbar, Scrollbar* horizontalScrollbar);
 
     WEBCORE_EXPORT void setMouseIsOverContentArea(bool);
@@ -175,6 +178,7 @@ protected:
         MouseLocationState&&,
         ScrollbarHoverState&&,
         ScrollbarEnabledState&&,
+        std::optional<ScrollbarColor>&&,
         UserInterfaceLayoutDirection,
         ScrollbarWidth,
         bool useDarkAppearanceForScrollbars,
@@ -205,6 +209,7 @@ private:
     ScrollbarHoverState m_scrollbarHoverState;
     MouseLocationState m_mouseLocationState;
     ScrollbarEnabledState m_scrollbarEnabledState;
+    std::optional<ScrollbarColor> m_scrollbarColor;
 
 #if PLATFORM(MAC)
     RetainPtr<NSScrollerImp> m_verticalScrollerImp;

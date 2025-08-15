@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "Color.h"
 #include "FloatPoint.h"
 #include "FloatSize.h"
 #include "ProcessQualified.h"
@@ -380,6 +381,12 @@ struct ScrollPositionChangeOptions {
     {
         return { ScrollType::Programmatic, ScrollClamping::Unclamped };
     }
+};
+
+struct ScrollbarColor {
+    Color thumbColor;
+    Color trackColor;
+    friend bool operator==(const ScrollbarColor&, const ScrollbarColor&) = default;
 };
 
 WEBCORE_EXPORT WTF::TextStream& operator<<(WTF::TextStream&, ScrollType);

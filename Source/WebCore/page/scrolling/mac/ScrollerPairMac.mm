@@ -444,6 +444,12 @@ void ScrollerPairMac::setScrollbarWidth(ScrollbarWidth scrollbarWidth)
     checkedVerticalScroller()->updateScrollbarStyle();
 }
 
+void ScrollerPairMac::scrollbarColorChanged(const std::optional<ScrollbarColor>& scrollbarColor)
+{
+    checkedHorizontalScroller()->scrollbarColorChanged(scrollbarColor);
+    checkedVerticalScroller()->scrollbarColorChanged(scrollbarColor);
+}
+
 } // namespace WebCore
 
 #endif // PLATFORM(MAC)

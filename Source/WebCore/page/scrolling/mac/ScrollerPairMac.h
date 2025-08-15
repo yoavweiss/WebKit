@@ -43,6 +43,9 @@ OBJC_CLASS WebScrollerImpPairDelegateMac;
 namespace WebCore {
 class PlatformWheelEvent;
 class ScrollingTreeScrollingNode;
+
+struct ScrollbarColor;
+
 }
 
 namespace WebCore {
@@ -110,6 +113,7 @@ public:
     void mouseExitedContentArea();
     void mouseMovedInContentArea(const MouseLocationState&);
     void mouseIsInScrollbar(ScrollbarHoverState);
+    void scrollbarColorChanged(const std::optional<ScrollbarColor>&);
 
     NSScrollerImpPair *scrollerImpPair() const { return m_scrollerImpPair.get(); }
     void ensureOnMainThreadWithProtectedThis(Function<void(ScrollerPairMac&)>&&);

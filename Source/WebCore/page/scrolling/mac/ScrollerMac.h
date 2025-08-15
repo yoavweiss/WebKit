@@ -32,6 +32,7 @@
 #include <wtf/RetainPtr.h>
 
 OBJC_CLASS CALayer;
+OBJC_CLASS NSColor;
 OBJC_CLASS NSScrollerImp;
 OBJC_CLASS WebScrollerImpDelegateMac;
 
@@ -39,6 +40,8 @@ namespace WebCore {
 
 class FloatPoint;
 class ScrollerPairMac;
+
+struct ScrollbarColor;
 
 class ScrollerMac final : public CanMakeThreadSafeCheckedPtr<ScrollerMac> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED(ScrollerMac);
@@ -79,6 +82,7 @@ public:
     void detach();
     void setEnabled(bool flag) { m_isEnabled = flag; }
     void setScrollbarLayoutDirection(UserInterfaceLayoutDirection);
+    void scrollbarColorChanged(const std::optional<ScrollbarColor>&);
 
     void setNeedsDisplay();
 
@@ -93,6 +97,8 @@ private:
     const ScrollbarOrientation m_orientation;
     IntPoint m_lastKnownMousePositionInScrollbar;
     UserInterfaceLayoutDirection m_scrollbarLayoutDirection { UserInterfaceLayoutDirection::LTR };
+    RetainPtr<NSColor> m_trackColor;
+    RetainPtr<NSColor> m_thumbColor;
 
     RetainPtr<CALayer> m_hostLayer;
     RetainPtr<NSScrollerImp> m_scrollerImp;
