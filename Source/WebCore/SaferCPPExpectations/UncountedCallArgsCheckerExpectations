@@ -638,10 +638,8 @@ page/ElementTargetingController.cpp
 page/EventHandler.cpp
 page/EventSource.cpp
 page/FocusController.cpp
-page/Frame.cpp
 page/FrameDestructionObserver.cpp
 page/FrameSnapshotting.cpp
-page/FrameTree.cpp
 page/ImageAnalysisQueue.cpp
 page/ImageOverlayController.cpp
 page/InteractionRegion.cpp
