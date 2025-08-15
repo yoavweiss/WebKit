@@ -452,13 +452,13 @@ class SDKDB:
                 # FIXME: split(',') falls apart if an allowlist path contains a
                 # comma. We could improve this by using quote() in the query
                 # and unquoting here.
-                for path in allowlist_paths.split(','):
+                for path in sorted(set(allowlist_paths.split(','))):
                     yield UnusedAllowedName(name=allowed_name, file=Path(path),
                                             kind=allowed_kind)
             elif allow_found and export_found:
                 # Allowed but also exported => unnecessary allowlist entry to
                 # remove.
-                for path in allowlist_paths.split(','):
+                for path in sorted(set(allowlist_paths.split(','))):
                     yield UnnecessaryAllowedName(name=allowed_name,
                                                  file=Path(path),
                                                  kind=allowed_kind,
