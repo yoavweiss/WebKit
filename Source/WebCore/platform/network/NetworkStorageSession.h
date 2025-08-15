@@ -317,7 +317,7 @@ private:
     RetainPtr<NSArray> httpCookies(CFHTTPCookieStorageRef) const;
     RetainPtr<NSArray> httpCookiesForURL(CFHTTPCookieStorageRef, NSURL *firstParty, const std::optional<SameSiteInfo>&, NSURL *, ThirdPartyCookieBlockingDecision) const;
     RetainPtr<NSArray> cookiesForURL(const URL& firstParty, const SameSiteInfo&, const URL&, std::optional<FrameIdentifier>, std::optional<PageIdentifier>, ApplyTrackingPrevention, ShouldRelaxThirdPartyCookieBlocking) const;
-    void setHTTPCookiesForURL(CFHTTPCookieStorageRef, NSArray *cookies, NSURL *, NSURL *mainDocumentURL, const SameSiteInfo&) const;
+    void setHTTPCookiesForURL(CFHTTPCookieStorageRef, NSArray *cookies, NSURL *, NSURL *mainDocumentURL, NSString *partition, const SameSiteInfo&, ThirdPartyCookieBlockingDecision) const;
     void deleteHTTPCookie(CFHTTPCookieStorageRef, NSHTTPCookie *, CompletionHandler<void()>&&) const;
     void deleteCookiesMatching(NOESCAPE const Function<bool(NSHTTPCookie *)>& matches, CompletionHandler<void()>&&);
 #endif
