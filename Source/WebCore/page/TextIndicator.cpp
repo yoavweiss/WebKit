@@ -106,6 +106,10 @@ RefPtr<TextIndicator> TextIndicator::createWithRange(const SimpleRange& range, O
 #endif
     TemporarySelectionChange selectionChange(*document, { rangeToUse }, temporarySelectionOptions);
 
+    // If the selection couldn't be set (usually due to user-select), we can't do a selection-only paint, so changed to painting everything.
+    if (rangeToUse != document->selection().selection().toNormalizedRange())
+        options |= TextIndicatorOption::PaintAllContent;
+
     TextIndicatorData data;
 
     data.presentationTransition = presentationTransition;
