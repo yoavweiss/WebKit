@@ -3670,7 +3670,7 @@ class CompileJSC(CompileWebKit):
 class CompileJSC32(CompileWebKit):
     name = 'compile-jsc-32bit'
     descriptionDone = ['Compiled JSC']
-    build_command = ["linux32", "perl", "Tools/Scripts/build-jsc", "--32-bit", "--cmakeargs=\"-DUSE_LIBBACKTRACE=OFF -DDEVELOPER_MODE=ON -DENABLE_OFFLINE_ASM_ALT_ENTRY=1 -DCMAKE_CXX_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DCMAKE_C_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DUSE_LD_LLD=OFF\""]
+    build_command = ["linux32", "perl", "Tools/Scripts/build-jsc", "--32-bit", "--cmakeargs", "-DUSE_LIBBACKTRACE=OFF -DDEVELOPER_MODE=ON -DENABLE_OFFLINE_ASM_ALT_ENTRY=1 -DCMAKE_CXX_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DCMAKE_C_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DUSE_LD_LLD=OFF"]
 
     def start(self):
         self.setProperty('group', 'jsc')
@@ -3689,7 +3689,7 @@ class CompileJSCWithoutChange(CompileJSC):
         return shell.Compile.evaluateCommand(self, cmd)
 
 
-class CompileJSCWithoutChange32(CompileJSC):
+class CompileJSCWithoutChange32(CompileJSC32):
     name = 'compile-jsc-32bit-without-change'
 
     def evaluateCommand(self, cmd):
@@ -3735,6 +3735,9 @@ class RunJavaScriptCoreTests(shell.Test, AddToLogMixin, ShellMixin):
         # Check: https://bugs.webkit.org/show_bug.cgi?id=175140
         if platform in ('gtk', 'wpe', 'jsc-only'):
             self.command.extend(['--memory-limited', '--verbose'])
+
+        if self.getProperty('architecture') in ["armv7"]:
+            self.command = ["linux32"] ++ self.command
 
         self.setCommand(self.command + customBuildFlag(self.getProperty('platform'), self.getProperty('fullPlatform')))
         self.command.extend(self.command_extra)
