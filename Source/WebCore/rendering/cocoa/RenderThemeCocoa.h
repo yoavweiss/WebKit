@@ -272,6 +272,8 @@ protected:
     float adjustedMaximumLogicalWidthForControl(const RenderStyle&, const Element&, float) const final;
 #endif
 
+    bool isSubmitStyleButton(const Node*) const;
+
 private:
     void purgeCaches() override;
 
