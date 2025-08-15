@@ -75,6 +75,7 @@ def parse(file):
                 if match.group('name') == 'DispatchedTo':
                     receiver_dispatched_to = parse_process_name_string(match.group('value'))
                     continue
+                raise Exception("ERROR: Unknown extended attribute  '%s'" % attribute)
             elif attribute == 'SharedPreferencesNeedsConnection':
                 shared_preferences_needs_connection = True
                 continue
@@ -137,21 +138,35 @@ def parse(file):
             enabled_by_conjunction = None
             coalescing_key_indices = None
             if options_string:
-                match = re.search(r"(?:(?:, |^)+(?:Validator=(.*)))(?:, |$)?", options_string)
-                if match:
-                    validator = match.groups()[0]
-                match = re.search(r"(?:(?:, |^)+(?:EnabledBy=([\w \&\|]+)))(?:, |$)?", options_string)
-                if match:
-                    (enabled_by, enabled_by_conjunction) = parse_enabled_by_string(match.groups()[0])
-                match = re.search(r"(?:(?:, |^)+(?:ExceptionForEnabledBy))(?:, |$)?", options_string)
-                if match:
-                    enabled_by_exception = True
-                match = re.search(r"(?:(?:, |^)+(?:DeferSendingIfSuspended))(?:, |$)?", options_string)
-                if match:
-                    coalescing_key_indices = []
-                match = re.search(r"(?:(?:, |^)+(?:DeferSendingIfSuspendedWithCoalescingKeys=\((.*?)\)))(?:, |$)?", options_string)
-                if match:
-                    coalescing_key_indices = parse_coalescing_keys(match.group(1), [parameter.name for parameter in parameters])
+                # Split by comma, but not if inside parentheses (like interface level parsing)
+                # Use regex with negative lookahead to avoid splitting on commas inside parentheses
+                annotations = re.split(r',\s*(?![^()]*\))', options_string)
+
+                for annotation in annotations:
+                    annotation = annotation.strip()
+                    if not annotation:  # Skip empty annotations
+                        continue
+
+                    # Process each annotation type with inline validation (like interface level)
+                    match = re.match(r'Validator=(.+)', annotation)
+                    if match:
+                        validator = match.group(1)
+                        continue
+                    match = re.match(r'EnabledBy=([\w \&\|]+)', annotation)
+                    if match:
+                        (enabled_by, enabled_by_conjunction) = parse_enabled_by_string(match.group(1))
+                        continue
+                    if annotation == 'ExceptionForEnabledBy':
+                        enabled_by_exception = True
+                        continue
+                    if annotation == 'DeferSendingIfSuspended':
+                        coalescing_key_indices = []
+                        continue
+                    match = re.match(r'DeferSendingIfSuspendedWithCoalescingKeys=\((.+)\)', annotation)
+                    if match:
+                        coalescing_key_indices = parse_coalescing_keys(match.group(1), [parameter.name for parameter in parameters])
+                        continue
+                    raise Exception("ERROR: Unknown annotation '%s' in message '%s'" % (annotation, name))
 
             if enabled_by and enabled_by_exception:
                 raise Exception("ERROR: 'ExceptionForEnabledBy' cannot be used together with 'EnabledBy=%s'" % enabled_by)
