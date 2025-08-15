@@ -3266,16 +3266,13 @@ TEST(WKDownload, OriginatingFrameWhenConvertingNavigationInNewWindow)
         EXPECT_EQ(a.webView, b.webView);
     };
 
-    __block bool isClientOrUserInitiated = false;
     __block bool checkedDownload { false };
 
     auto tryOpenerInitiatedDownloads = ^{
         checkedDownload = false;
-        isClientOrUserInitiated = true;
         [webView evaluateJavaScript:@"a = document.createElement('a'); a.href = 'https://webkit.org/download'; a.target = '_blank'; document.body.appendChild(a); a.click()" completionHandler:nil];
         Util::run(&checkedDownload);
 
-        isClientOrUserInitiated = false;
         checkedDownload = false;
         [webView evaluateJavaScript:@"w = window.open('https://webkit.org/download')" completionHandler:nil];
         Util::run(&checkedDownload);
@@ -3295,14 +3292,7 @@ TEST(WKDownload, OriginatingFrameWhenConvertingNavigationInNewWindow)
     };
     navigationDelegate.get().navigationResponseDidBecomeDownload = ^(WKNavigationResponse *response, WKDownload *download) {
         frameInfoShouldBeEqual(response._navigationInitiatingFrame, openerMainFrame.get());
-
-        if (isClientOrUserInitiated) {
-            EXPECT_WK_STREQ(download.originatingFrame.request.URL.absoluteString, "about:blank");
-            EXPECT_WK_STREQ(download.originatingFrame.securityOrigin.host, "");
-
-            isClientOrUserInitiated = false;
-        } else
-            frameInfoShouldBeEqual(download.originatingFrame, openerMainFrame.get());
+        frameInfoShouldBeEqual(download.originatingFrame, openerMainFrame.get());
 
         checkedDownload = true;
     };
