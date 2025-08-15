@@ -72,6 +72,9 @@ TextExtractionOptions* toTextExtractionOptions(JSContextRef context, JSValueRef 
     static TextExtractionOptions options;
     options.clipToBounds = booleanProperty(context, (JSObjectRef)argument, "clipToBounds", false);
     options.includeRects = booleanProperty(context, (JSObjectRef)argument, "includeRects", false);
+    options.mergeParagraphs = booleanProperty(context, (JSObjectRef)argument, "mergeParagraphs", false);
+    options.skipNearlyTransparentContent = booleanProperty(context, (JSObjectRef)argument, "skipNearlyTransparentContent", false);
+    options.canIncludeIdentifiers = booleanProperty(context, (JSObjectRef)argument, "canIncludeIdentifiers", false);
     return &options;
 }
 

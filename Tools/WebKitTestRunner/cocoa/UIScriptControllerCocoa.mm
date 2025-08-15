@@ -345,8 +345,8 @@ void UIScriptControllerCocoa::requestTextExtraction(JSValueRef callback, TextExt
     unsigned callbackID = m_context->prepareForAsyncTask(callback, CallbackTypeNonPersistent);
     RetainPtr configuration = adoptNS([_WKTextExtractionConfiguration new]);
     [configuration setTargetRect:extractionRect];
-    [configuration setMergeParagraphs:YES];
-    [configuration setIgnoreTransparency:YES];
+    [configuration setMergeParagraphs:options && options->mergeParagraphs];
+    [configuration setSkipNearlyTransparentContent:options && options->skipNearlyTransparentContent];
     [webView() _requestTextExtraction:configuration.get() completionHandler:^(WKTextExtractionResult *result) {
         if (!m_context)
             return;

@@ -38,7 +38,7 @@ enum class ExceptionCode : uint8_t;
 
 namespace TextExtraction {
 
-WEBCORE_EXPORT Item extractItem(std::optional<WebCore::FloatRect>&& collectionRectInRootView, Page&);
+WEBCORE_EXPORT Item extractItem(Request&&, Page&);
 WEBCORE_EXPORT Vector<std::pair<String, FloatRect>> extractAllTextAndRects(Page&);
 
 struct RenderedText {

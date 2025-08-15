@@ -16477,11 +16477,11 @@ void WebPageProxy::takeSnapshotForTargetedElement(const API::TargetedElementInfo
     sendWithAsyncReply(Messages::WebPage::TakeSnapshotForTargetedElement(info.nodeIdentifier(), info.documentIdentifier()), WTFMove(completion));
 }
 
-void WebPageProxy::requestTextExtraction(std::optional<FloatRect>&& collectionRectInRootView, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&& completion)
+void WebPageProxy::requestTextExtraction(WebCore::TextExtraction::Request&& request, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&& completion)
 {
     if (!hasRunningProcess())
         return completion({ });
-    sendWithAsyncReply(Messages::WebPage::RequestTextExtraction(WTFMove(collectionRectInRootView)), WTFMove(completion));
+    sendWithAsyncReply(Messages::WebPage::RequestTextExtraction(WTFMove(request)), WTFMove(completion));
 }
 
 void WebPageProxy::addConsoleMessage(FrameIdentifier frameID, MessageSource messageSource, MessageLevel messageLevel, const String& message, std::optional<ResourceLoaderIdentifier> coreIdentifier)

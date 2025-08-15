@@ -35,7 +35,7 @@ internal import WebKit_Internal
 
 extension WKTextExtractionEventListenerTypes {
     static let all: [WKTextExtractionEventListenerTypes] = [
-        .click, .hover, .touch, .wheel, .gesture, .pointer, .keyboard, .focus, .form, .media,
+        .click, .hover, .touch, .wheel, .keyboard,
     ]
 
     fileprivate var description: String {
@@ -48,18 +48,8 @@ extension WKTextExtractionEventListenerTypes {
             "touch"
         case .wheel:
             "wheel"
-        case .gesture:
-            "gesture"
-        case .pointer:
-            "pointer"
         case .keyboard:
             "keyboard"
-        case .focus:
-            "focus"
-        case .form:
-            "form"
-        case .media:
-            "media"
         default:
             "unknown"
         }

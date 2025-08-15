@@ -45,6 +45,8 @@ dictionary ScrollToOptions {
 dictionary TextExtractionOptions {
     boolean clipToBounds = false;
     boolean includeRects = false;
+    boolean mergeParagraphs = false;
+    boolean skipNearlyTransparentContent = false;
 };
 
 interface UIScriptController {

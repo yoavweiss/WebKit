@@ -60,6 +60,9 @@ ScrollToOptions* toScrollToOptions(JSContextRef, JSValueRef);
 struct TextExtractionOptions {
     bool clipToBounds { false };
     bool includeRects { false };
+    bool mergeParagraphs { false };
+    bool skipNearlyTransparentContent { false };
+    bool canIncludeIdentifiers { false };
 };
 
 TextExtractionOptions* toTextExtractionOptions(JSContextRef, JSValueRef);

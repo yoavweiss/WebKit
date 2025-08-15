@@ -10050,9 +10050,9 @@ void WebPage::requestAllTargetableElements(float hitTestInterval, CompletionHand
     completion(page->checkedElementTargetingController()->findAllTargets(hitTestInterval));
 }
 
-void WebPage::requestTextExtraction(std::optional<FloatRect>&& collectionRectInRootView, CompletionHandler<void(TextExtraction::Item&&)>&& completion)
+void WebPage::requestTextExtraction(TextExtraction::Request&& request, CompletionHandler<void(TextExtraction::Item&&)>&& completion)
 {
-    completion(TextExtraction::extractItem(WTFMove(collectionRectInRootView), Ref { *corePage() }));
+    completion(TextExtraction::extractItem(WTFMove(request), Ref { *corePage() }));
 }
 
 template<typename T> T WebPage::contentsToRootView(WebCore::FrameIdentifier frameID, T geometry)

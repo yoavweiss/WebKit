@@ -339,6 +339,7 @@ struct OpenID4VPRequest;
 
 namespace TextExtraction {
 struct Item;
+struct Request;
 }
 
 #if ENABLE(WRITING_TOOLS)
@@ -2619,7 +2620,7 @@ public:
     void requestAllTargetableElements(float, CompletionHandler<void(Vector<Vector<Ref<API::TargetedElementInfo>>>&&)>&&);
     void takeSnapshotForTargetedElement(const API::TargetedElementInfo&, CompletionHandler<void(std::optional<WebCore::ShareableBitmapHandle>&&)>&&);
 
-    void requestTextExtraction(std::optional<WebCore::FloatRect>&& collectionRectInRootView, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&&);
+    void requestTextExtraction(WebCore::TextExtraction::Request&&, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&&);
 
     void hasVideoInPictureInPictureDidChange(bool);
 

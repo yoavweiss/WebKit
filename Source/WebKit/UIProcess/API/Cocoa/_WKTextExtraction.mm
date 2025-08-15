@@ -29,7 +29,7 @@
 @implementation _WKTextExtractionConfiguration
 
 @synthesize mergeParagraphs = _mergeParagraphs;
-@synthesize ignoreTransparency = _ignoreTransparency;
+@synthesize skipNearlyTransparentContent = _skipNearlyTransparentContent;
 
 - (instancetype)init
 {
