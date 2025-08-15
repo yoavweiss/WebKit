@@ -405,7 +405,7 @@ inline void RenderStyle::setInsideSubmitButton(bool value) { SET(m_rareInherited
 inline void RenderStyle::NonInheritedFlags::setHasPseudoStyles(PseudoIdSet pseudoIdSet)
 {
     ASSERT(pseudoIdSet);
-    ASSERT((pseudoIdSet.data() & static_cast<unsigned>(PseudoId::PublicPseudoIdMask)) == pseudoIdSet.data());
+    ASSERT((pseudoIdSet.data() & PublicPseudoIdMask) == pseudoIdSet.data());
     pseudoBits |= pseudoIdSet.data() >> 1; // Shift down as we do not store a bit for PseudoId::None.
 }
 
