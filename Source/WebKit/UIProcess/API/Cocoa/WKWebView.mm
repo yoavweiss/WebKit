@@ -6343,6 +6343,13 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
 }
 #endif // PLATFORM(MAC)
 
+- (void)_debugTextWithConfiguration:(_WKTextExtractionConfiguration *)configuration completionHandler:(void(^)(NSString *))completionHandler
+{
+    [self _requestTextExtraction:configuration completionHandler:makeBlockPtr([completionHandler = makeBlockPtr(completionHandler)](WKTextExtractionResult *result) {
+        completionHandler(result.textRepresentation);
+    }).get()];
+}
+
 @end
 
 @implementation WKWebView (WKDeprecated)

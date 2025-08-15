@@ -2443,6 +2443,26 @@ window.UIHelper = class UIHelper {
             }, eventTarget || document.activeElement, waitForEvent);
         }
     }
+
+    static async requestDebugText(options = { })
+    {
+        if (!this.isWebKit2())
+            return Promise.resolve("");
+
+        return new Promise(resolve => {
+            testRunner.runUIScript(`(() => {
+                uiController.requestDebugText(result => uiController.uiScriptComplete(result));
+            })()`, debugText => {
+                if (options.normalize) {
+                    debugText = debugText
+                        .replace(/uid=\d+/g, "uid=…")
+                        .replace(/rect=\[[^\]]+\]/g, "rect=[…]")
+                        .replace(/\t/g, "    ");
+                }
+                resolve(debugText);
+            });
+        });
+    }
 }
 
 UIHelper.EventStreamBuilder = class {

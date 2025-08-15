@@ -28,14 +28,12 @@
 
 @implementation _WKTextExtractionConfiguration
 
-@synthesize mergeParagraphs = _mergeParagraphs;
-@synthesize skipNearlyTransparentContent = _skipNearlyTransparentContent;
-
 - (instancetype)init
 {
     if (!(self = [super init]))
         return nil;
 
+    _canIncludeIdentifiers = YES;
     _targetRect = CGRectNull;
     return self;
 }

@@ -436,6 +436,7 @@ public:
 
     // Text Extraction
     virtual void requestTextExtraction(JSValueRef, TextExtractionOptions*) { notImplemented(); }
+    virtual void requestDebugText(JSValueRef) { notImplemented(); }
 
     // Element Targeting
     virtual void requestRenderedTextForFrontmostTarget(int, int, JSValueRef) { notImplemented(); }

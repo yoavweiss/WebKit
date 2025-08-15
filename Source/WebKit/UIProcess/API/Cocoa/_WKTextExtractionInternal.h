@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  Whether to include unique identifiers, for each interactive element.
- Defaults to `NO`.
+ Defaults to `YES`.
  */
 @property (nonatomic) BOOL canIncludeIdentifiers;
 
@@ -166,6 +166,7 @@ typedef NS_ENUM(NSInteger, WKTextExtractionEditableType) {
 - (instancetype)initWithRootItem:(WKTextExtractionItem *)rootItem popupMenu:(nullable WKTextExtractionPopupMenu *)popupMenu;
 @property (nonatomic, readonly) WKTextExtractionItem *rootItem;
 @property (nonatomic, readonly, nullable) WKTextExtractionPopupMenu *popupMenu;
+@property (nonatomic, readonly) NSString *textRepresentation;
 @end
 
 NS_ASSUME_NONNULL_END
