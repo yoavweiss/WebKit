@@ -3,6 +3,6 @@ Blocked access to external URL https://www.localhost:9443/storage-access-api/res
 
 Harness Error (TIMEOUT), message = null
 
-FAIL Grants have per-frame scope assert_false: frame2 should still not have storage access. expected false got true
+PASS Grants have per-frame scope
 TIMEOUT Cross-site sibling iframes should not be able to take advantage of the existing permission grant requested by others. Test timed out
 
