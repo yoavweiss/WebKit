@@ -598,7 +598,7 @@ public:
 
     virtual bool isEmptyChromeClient() const { return false; }
 
-    virtual void didAssociateFormControls(const Vector<RefPtr<Element>>&, LocalFrame&) { };
+    virtual void didAssociateFormControls(const Vector<Ref<Element>>&, LocalFrame&) { };
     virtual bool shouldNotifyOnFormChanges() { return false; };
 
     virtual void didAddHeaderLayer(GraphicsLayer&) { }

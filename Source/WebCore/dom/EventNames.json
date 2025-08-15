@@ -300,6 +300,7 @@
     "webkitBeforeTextInserted": { "defaultEventHandler": true },
     "webkitTransitionEnd": { "categories": ["CSSTransition"] },
     "webkitautofillrequest": { },
+    "webkitassociateformcontrols": { },
     "webkitbeginfullscreen": { },
     "webkitcurrentplaybacktargetiswirelesschanged": { },
     "webkitendfullscreen": { },
