@@ -4142,7 +4142,7 @@ bool RenderLayerCompositor::requiresCompositingForOverflowScrolling(const Render
 
 bool RenderLayerCompositor::requiresCompositingForAnchorPositioning(const RenderLayer& layer) const
 {
-    return !!layer.snapshottedScrollOffsetForAnchorPositioning();
+    return !!layer.anchorScrollAdjustment();
 }
 
 IndirectCompositingReason RenderLayerCompositor::computeIndirectCompositingReason(const RenderLayer& layer, bool hasCompositedDescendants, bool has3DTransformedDescendants, bool paintsIntoProvidedBacking) const

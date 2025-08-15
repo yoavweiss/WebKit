@@ -4566,8 +4566,8 @@ void LocalFrameView::updateScrollAnchoringPositionForScrollableAreas()
 
 void LocalFrameView::updateAnchorPositionedAfterScroll()
 {
-    if (RefPtr document = m_frame->document())
-        Style::AnchorPositionEvaluator::updatePositionsAfterScroll(*document);
+    if (CheckedPtr view = renderView())
+        Style::AnchorPositionEvaluator::updateScrollAdjustments(*view);
 }
 
 IntSize LocalFrameView::sizeForResizeEvent() const

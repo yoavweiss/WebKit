@@ -726,7 +726,7 @@ void RenderLayerBacking::updateTransform(const RenderStyle& style)
                 t.translate(-scrollPosition.x(), -scrollPosition.y());
             }
         }
-    } else if (m_owningLayer.isTransformed() || m_owningLayer.snapshottedScrollOffsetForAnchorPositioning())
+    } else if (m_owningLayer.isTransformed())
         m_owningLayer.updateTransformFromStyle(t, style, RenderStyle::individualTransformOperations());
     
     if (m_contentsContainmentLayer) {

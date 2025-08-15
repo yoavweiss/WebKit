@@ -191,7 +191,7 @@ void PositionedLayoutConstraints::captureAnchorGeometry()
         return;
 
     // Store the anchor geometry.
-    LayoutRect anchorRect = Style::AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(*m_defaultAnchorBox, *m_container);
+    LayoutRect anchorRect = Style::AnchorPositionEvaluator::computeAnchorRectRelativeToContainingBlock(*m_defaultAnchorBox, *m_container, m_renderer.get());
     m_anchorArea = extractRange(anchorRect);
 
     // Adjust containing block for position-area.

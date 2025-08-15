@@ -173,6 +173,10 @@ void RenderBox::willBeDestroyed()
             view().unregisterAnchor(*this);
         if (!style().positionTryFallbacks().isEmpty())
             view().unregisterPositionTryBox(*this);
+        if (Style::AnchorPositionEvaluator::isAnchorPositioned(style())) // Keep this in sync with styleDidChange().
+            layoutContext().unregisterAnchorScrollAdjusterFor(*this);
+        if (hasPotentiallyScrollableOverflow()) // Keep this in sync with AnchorScrollAdjuster::addSnapshot() calls.
+            layoutContext().removeScrollerFromAnchorScrollAdjusters(*this);
     }
 
     RenderBoxModelObject::willBeDestroyed();
@@ -425,6 +429,16 @@ void RenderBox::styleDidChange(StyleDifference diff, const RenderStyle* oldStyle
             containingBlock->setNeedsLayoutAndPreferredWidthsUpdate();
         }
     }
+    if (oldStyle && Style::AnchorPositionEvaluator::isAnchorPositioned(*oldStyle)
+        && !Style::AnchorPositionEvaluator::isAnchorPositioned(style())) {
+        // Only out-of-flow code manages these, so if we're changing we need to clear them.
+        // Keep this in sync with willBeDestroyed().
+        layoutContext().unregisterAnchorScrollAdjusterFor(*this);
+    }
+
+    if ((layer() && diff == StyleDifference::Layout && hasNonVisibleOverflow())
+        || (oldStyle && oldStyle->isOverflowVisible() != style().isOverflowVisible()))
+        layoutContext().invalidateAnchorDependenciesForScroller(*this);
 }
 
 static bool hasEquivalentGridPositioningStyle(const RenderStyle& style, const RenderStyle& oldStyle)

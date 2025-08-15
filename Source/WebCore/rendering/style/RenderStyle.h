@@ -1225,7 +1225,7 @@ public:
     inline void setBlendMode(BlendMode);
     inline bool isInSubtreeWithBlendMode() const;
 
-    inline void setIsForceHidden();
+    inline void setIsForceHidden(bool = true);
     inline bool isForceHidden() const;
 
     inline void setIsolation(Isolation);

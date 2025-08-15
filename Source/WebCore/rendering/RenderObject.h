@@ -723,7 +723,7 @@ public:
 
     inline RenderView& view() const; // Defined in RenderObjectInlines.h
     CheckedRef<RenderView> checkedView() const;
-    inline const LocalFrameViewLayoutContext& layoutContext() const;
+    inline LocalFrameViewLayoutContext& layoutContext() const;
 
     HostWindow* hostWindow() const;
 
