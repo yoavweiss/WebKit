@@ -119,7 +119,7 @@ public:
     static void updateAnchorPositioningStatesAfterInterleavedLayout(Document&, AnchorPositionedStates&);
     static void updateSnapshottedScrollOffsets(Document&);
     static void updatePositionsAfterScroll(Document&);
-    static void updateAnchorPositionedStateForDefaultAnchor(Element&, const RenderStyle&, AnchorPositionedStates&);
+    static void updateAnchorPositionedStateForDefaultAnchorAndPositionVisibility(Element&, const RenderStyle&, AnchorPositionedStates&);
 
     static LayoutRect computeAnchorRectRelativeToContainingBlock(CheckedRef<const RenderBoxModelObject> anchorBox, const RenderElement& containingBlock);
 

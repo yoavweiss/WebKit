@@ -1008,18 +1008,26 @@ void AnchorPositionEvaluator::updateAnchorPositioningStatesAfterInterleavedLayou
     }
 }
 
-void AnchorPositionEvaluator::updateAnchorPositionedStateForDefaultAnchor(Element& element, const RenderStyle& style, AnchorPositionedStates& states)
+void AnchorPositionEvaluator::updateAnchorPositionedStateForDefaultAnchorAndPositionVisibility(Element& element, const RenderStyle& style, AnchorPositionedStates& states)
 {
-    if (!isAnchorPositioned(style))
+    auto shouldResolveDefaultAnchor = isAnchorPositioned(style);
+
+    // `position-visibility: no-overflow` should also work for non-anchor positioned out-of-flow boxes.
+    // Create an empty anchor positioning state for it so we perform the required layout interleaving.
+    auto hasPositionVisibilityNoOverflow = style.hasOutOfFlowPosition() && style.positionVisibility().contains(PositionVisibility::NoOverflow);
+
+    if (!shouldResolveDefaultAnchor && !hasPositionVisibilityNoOverflow)
         return;
 
     auto* state = states.ensure({ &element, style.pseudoElementIdentifier() }, [&] {
         return makeUnique<AnchorPositionedState>();
     }).iterator->value.get();
 
-    // Always resolve the default anchor. Even if nothing is anchored to it we need it to compute the scroll compensation.
-    auto resolvedDefaultAnchor = ResolvedScopedName::createFromScopedName(element, defaultAnchorName(style));
-    state->anchorNames.add(resolvedDefaultAnchor);
+    if (shouldResolveDefaultAnchor) {
+        // Always resolve the default anchor. Even if nothing is anchored to it we need it to compute the scroll compensation.
+        auto resolvedDefaultAnchor = ResolvedScopedName::createFromScopedName(element, defaultAnchorName(style));
+        state->anchorNames.add(resolvedDefaultAnchor);
+    }
 }
 
 void AnchorPositionEvaluator::updateSnapshottedScrollOffsets(Document& document)

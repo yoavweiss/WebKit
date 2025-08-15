@@ -7667,7 +7667,6 @@ imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-anch
 imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-anchors-visible-chained-004.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-no-overflow-scroll.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-position-multicol-colspan-003.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-anchor-position/position-visibility-no-overflow-without-anchor.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/transform-001.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/transform-002.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-anchor-position/transform-003.tentative.html [ ImageOnlyFailure ]
