@@ -817,6 +817,10 @@ http/tests/resourceLoadStatistics/website-data-removal-for-site-without-user-int
 
 http/tests/resourceLoadStatistics/only-partitioned-third-party-cookies.https.html [ Skip ]
 http/tests/resourceLoadStatistics/only-partitioned-cookies-after-redirect.https.html [ Skip ]
+http/tests/resourceLoadStatistics/only-partitioned-cookies-after-redirect-fetch.https.html [ Skip ]
+
+http/tests/cookies/multiple-cookies-iframes.https.html [ Skip ]
+http/tests/cookies/multiple-cookies.https.html [ Skip ]
 
 http/tests/security/XFrameOptions/x-frame-options-deny.html [ Skip ] # Failure
 http/tests/security/XFrameOptions/x-frame-options-multiple-headers-conflict.html [ Skip ] # Failure

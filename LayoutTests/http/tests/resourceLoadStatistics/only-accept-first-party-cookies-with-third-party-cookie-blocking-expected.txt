@@ -1,4 +1,4 @@
-Tests the first-party-only cookie policy.
+Tests the first-party-only cookie policy when third-party cookie blocking is enabled.
 
 On success, you will see a series of "PASS" messages, followed by "TEST COMPLETE".
 
@@ -16,7 +16,7 @@ Cookies are: test_cookie = 1
 --------
 Frame: '<!--frame2-->'
 --------
-Cookies are: test_cookie = 1
+Cookies are:
 
 --------
 Frame: '<!--frame3-->'
@@ -31,7 +31,7 @@ Frame: '<!--frame4-->'
 --------
 Frame: '<!--frame5-->'
 --------
-Cookies are: test_cookie = 1
+Cookies are:
 
 --------
 Frame: '<!--frame6-->'
