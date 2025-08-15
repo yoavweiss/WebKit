@@ -1047,7 +1047,8 @@ Navigation::DispatchResult Navigation::innerDispatchNavigateEvent(NavigationNavi
             if (callbackResult.type() != CallbackResultType::UnableToExecute) {
                 auto promise = callbackResult.releaseReturnValue();
                 // Because rejection is reported as `navigateerror` event, we can mark this as handled.
-                promise->markAsHandled();
+                if (!promise->isSuspended())
+                    promise->markAsHandled();
                 promiseList.append(WTFMove(promise));
             }
         }

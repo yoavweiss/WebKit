@@ -97,7 +97,6 @@ DOMPromise::Status DOMPromise::status() const
 
 void DOMPromise::markAsHandled()
 {
-    ASSERT(!isSuspended());
     promise()->markAsHandled(m_globalObject.get());
 }
 
