@@ -8240,7 +8240,7 @@ webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-p
 
 webkit.org/b/297251 [ Release ] fast/mediastream/getUserMedia-echoCancellation.html [ Pass Failure ]
 
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-back-bfcache.html [ Timeout ]
+webkit.org/b/297477 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-back-bfcache.html [ Timeout Pass Failure ]
 
 webkit.org/b/297346 workers/message-port-gc.html [ Crash ]
 

@@ -2419,3 +2419,5 @@ webkit.org/b/297411 http/tests/media/media-stream/get-display-media-prompt.html 
 webkit.org/b/297414 [ Debug ] imported/w3c/web-platform-tests/navigation-api/navigate-event/intercept-detach-multiple.html [ Crash ]
 
 webkit.org/b/297428 http/tests/navigation/ping-attribute/anchor-cookie.html [ Pass Failure ]
+
+webkit.org/b/297477 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-back-bfcache.html [ Pass Failure ]
