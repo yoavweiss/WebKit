@@ -594,6 +594,13 @@ bool AccessibilityRenderObject::isAttachment() const
     return renderer && renderer->isRenderWidget();
 }
 
+#if ENABLE(ATTACHMENT_ELEMENT)
+bool AccessibilityRenderObject::isAttachmentElement() const
+{
+    return is<HTMLAttachmentElement>(node());
+}
+#endif
+
 bool AccessibilityRenderObject::isOffScreen() const
 {
     if (!m_renderer)
@@ -1110,6 +1117,11 @@ bool AccessibilityRenderObject::computeIsIgnored() const
     // Allow the platform to decide if the attachment is ignored or not.
     if (isAttachment())
         return accessibilityIgnoreAttachment();
+
+#if ENABLE(ATTACHMENT_ELEMENT)
+    if (isAttachmentElement())
+        return false;
+#endif
 
 #if PLATFORM(COCOA)
     // If this widget has an underlying AX object, don't ignore it.
@@ -2251,6 +2263,11 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
 
 #if ENABLE(APPLE_PAY)
     if (isApplePayButton())
+        return AccessibilityRole::Button;
+#endif
+
+#if ENABLE(ATTACHMENT_ELEMENT)
+    if (isAttachmentElement())
         return AccessibilityRole::Button;
 #endif
 

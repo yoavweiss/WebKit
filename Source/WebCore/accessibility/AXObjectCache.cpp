@@ -39,7 +39,6 @@
 #include "AXTextMarker.h"
 #include "AXTreeStoreInlines.h"
 #include "AXUtilities.h"
-#include "AccessibilityAttachment.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityLabel.h"
 #include "AccessibilityList.h"
@@ -718,11 +717,6 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
     if (is<RenderProgress>(renderer) || is<RenderMeter>(renderer)
         || is<HTMLProgressElement>(node) || is<HTMLMeterElement>(node))
         return AccessibilityProgressIndicator::create(AXID::generate(), renderer, *this);
-
-#if ENABLE(ATTACHMENT_ELEMENT)
-    if (auto* renderAttachment = dynamicDowncast<RenderAttachment>(renderer))
-        return AccessibilityAttachment::create(AXID::generate(), *renderAttachment, *this);
-#endif
 
     // input type=range
     if (is<RenderSlider>(renderer))

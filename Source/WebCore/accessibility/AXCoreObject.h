@@ -1063,6 +1063,9 @@ public:
     virtual float valueForRange() const = 0;
     virtual float maxValueForRange() const = 0;
     virtual float minValueForRange() const = 0;
+#if ENABLE(ATTACHMENT_ELEMENT)
+    virtual bool hasProgress() const { return false; }
+#endif
     AXCoreObject* selectedRadioButton();
     AXCoreObject* selectedTabItem();
     virtual int layoutCount() const = 0;

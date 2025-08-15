@@ -564,7 +564,7 @@ accessibility/AXTextMarker.cpp
 accessibility/AXTextRun.cpp
 accessibility/AXTreeStore.cpp
 accessibility/AXUtilities.cpp
-accessibility/AccessibilityAttachment.cpp
+accessibility/AXAttachmentHelpers.cpp
 accessibility/AccessibilityImageMapLink.cpp
 accessibility/AccessibilityLabel.cpp
 accessibility/AccessibilityList.cpp

@@ -73,6 +73,9 @@ public:
     bool isNonLayerSVGObject() const final;
 
     bool isAttachment() const final;
+#if ENABLE(ATTACHMENT_ELEMENT)
+    bool isAttachmentElement() const final;
+#endif
     bool isDetached() const final { return !m_renderer && AccessibilityNodeObject::isDetached(); }
     bool isOffScreen() const final;
     bool hasBoldFont() const final;

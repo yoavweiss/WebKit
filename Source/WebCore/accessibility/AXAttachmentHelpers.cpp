@@ -25,66 +25,32 @@
  */
 
 #include "config.h"
-#include "AccessibilityAttachment.h"
-
-#include "HTMLAttachmentElement.h"
-#include "HTMLNames.h"
-#include "LocalizedStrings.h"
-#include "RenderAttachment.h"
 
 #if ENABLE(ATTACHMENT_ELEMENT)
+#include "AXAttachmentHelpers.h"
+
+#include "AXCoreObject.h"
+#include "HTMLAttachmentElement.h"
 
 namespace WebCore {
 
 using namespace HTMLNames;
 
-AccessibilityAttachment::AccessibilityAttachment(AXID axID, RenderAttachment& renderer, AXObjectCache& cache)
-    : AccessibilityRenderObject(axID, renderer, cache)
+bool AXAttachmentHelpers::hasProgress(const HTMLAttachmentElement& attachmentElement, float* progress)
 {
-}
-
-Ref<AccessibilityAttachment> AccessibilityAttachment::create(AXID axID, RenderAttachment& renderer, AXObjectCache& cache)
-{
-    return adoptRef(*new AccessibilityAttachment(axID, renderer, cache));
-}
-
-bool AccessibilityAttachment::hasProgress(float* progress) const
-{
-    auto& progressString = getAttribute(progressAttr);
-    bool validProgress;
+    auto& progressString = attachmentElement.getAttribute(progressAttr);
+    bool validProgress = false;
     float result = std::max<float>(std::min<float>(progressString.toFloat(&validProgress), 1), 0);
     if (progress)
         *progress = result;
     return validProgress;
 }
 
-float AccessibilityAttachment::valueForRange() const
+void AXAttachmentHelpers::accessibilityText(const HTMLAttachmentElement& attachmentElement, Vector<AccessibilityText>& textOrder)
 {
-    float progress = 0;
-    hasProgress(&progress);
-    return progress;
-}
-
-HTMLAttachmentElement* AccessibilityAttachment::attachmentElement() const
-{
-    ASSERT(is<HTMLAttachmentElement>(node()));
-    return dynamicDowncast<HTMLAttachmentElement>(node());
-}
-
-bool AccessibilityAttachment::computeIsIgnored() const
-{
-    return false;
-}
-
-void AccessibilityAttachment::accessibilityText(Vector<AccessibilityText>& textOrder) const
-{
-    RefPtr attachmentElement = this->attachmentElement();
-    if (!attachmentElement)
-        return;
-
-    auto title = attachmentElement->attachmentTitle();
-    auto& subtitle = attachmentElement->attachmentSubtitle();
-    auto& action = getAttribute(actionAttr);
+    auto title = attachmentElement.attachmentTitle();
+    auto& subtitle = attachmentElement.attachmentSubtitle();
+    auto& action = attachmentElement.getAttribute(actionAttr);
 
     if (action.length())
         textOrder.append(AccessibilityText(WTFMove(action), AccessibilityTextSource::Action));

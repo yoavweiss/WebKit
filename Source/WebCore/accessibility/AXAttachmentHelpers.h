@@ -28,35 +28,19 @@
 
 #if ENABLE(ATTACHMENT_ELEMENT)
 
-#include "AccessibilityRenderObject.h"
+#include <wtf/Forward.h>
 
 namespace WebCore {
 
 class HTMLAttachmentElement;
-class RenderAttachment;
+struct AccessibilityText;
 
-class AccessibilityAttachment final : public AccessibilityRenderObject {
+class AXAttachmentHelpers {
 public:
-    static Ref<AccessibilityAttachment> create(AXID, RenderAttachment&, AXObjectCache&);
-    HTMLAttachmentElement* attachmentElement() const;
-    bool hasProgress(float* progress = nullptr) const;
-
-private:
-    explicit AccessibilityAttachment(AXID, RenderAttachment&, AXObjectCache&);
-
-    AccessibilityRole determineAccessibilityRole() final { return AccessibilityRole::Button; }
-
-    bool isAttachmentElement() const final { return true; }
-
-    float valueForRange() const final;
-    bool computeIsIgnored() const final;
-    void accessibilityText(Vector<AccessibilityText>&) const final;
+    static bool hasProgress(const HTMLAttachmentElement&, float* progress = nullptr);
+    static void accessibilityText(const HTMLAttachmentElement&, Vector<AccessibilityText>&);
 };
 
 } // namespace WebCore
-
-SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::AccessibilityAttachment) \
-    static bool isType(const WebCore::AccessibilityObject& object) { return object.isAttachmentElement(); } \
-SPECIALIZE_TYPE_TRAITS_END()
 
 #endif // ENABLE(ATTACHMENT_ELEMENT)

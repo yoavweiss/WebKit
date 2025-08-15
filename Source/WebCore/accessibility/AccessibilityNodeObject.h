@@ -86,6 +86,10 @@ public:
     float minValueForRange() const override;
     float stepValueForRange() const override;
 
+#if ENABLE(ATTACHMENT_ELEMENT)
+    bool hasProgress() const final;
+#endif
+
     std::optional<AccessibilityOrientation> orientationFromARIA() const;
     std::optional<AccessibilityOrientation> explicitOrientation() const override { return orientationFromARIA(); }
 

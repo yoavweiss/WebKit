@@ -29,6 +29,7 @@
 #include "config.h"
 #include "AccessibilityNodeObject.h"
 
+#include "AXAttachmentHelpers.h"
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
 #include "AXObjectCache.h"
@@ -52,6 +53,7 @@
 #include "FloatRect.h"
 #include "FrameLoader.h"
 #include "FrameSelection.h"
+#include "HTMLAttachmentElement.h"
 #include "HTMLAudioElement.h"
 #include "HTMLButtonElement.h"
 #include "HTMLCanvasElement.h"
@@ -1042,6 +1044,14 @@ float AccessibilityNodeObject::valueForRange() const
     if (RefPtr input = dynamicDowncast<HTMLInputElement>(node()); input && input->isRangeControl())
         return input->valueAsNumber();
 
+#if ENABLE(ATTACHMENT_ELEMENT)
+    if (RefPtr attachmentElement = dynamicDowncast<HTMLAttachmentElement>(node())) {
+        float progress = 0;
+        if (AXAttachmentHelpers::hasProgress(*attachmentElement, &progress))
+            return progress;
+    }
+#endif
+
     if (!isRangeControl())
         return 0.0f;
 
@@ -1053,6 +1063,15 @@ float AccessibilityNodeObject::valueForRange() const
 
     return isSpinButton() ? 0 : std::midpoint(minValueForRange(), maxValueForRange());
 }
+
+#if ENABLE(ATTACHMENT_ELEMENT)
+bool AccessibilityNodeObject::hasProgress() const
+{
+    if (RefPtr attachmentElement = dynamicDowncast<HTMLAttachmentElement>(node()))
+        return AXAttachmentHelpers::hasProgress(*attachmentElement);
+    return false;
+}
+#endif
 
 float AccessibilityNodeObject::maxValueForRange() const
 {
@@ -2000,6 +2019,13 @@ void AccessibilityNodeObject::helpText(Vector<AccessibilityText>& textOrder) con
 
 void AccessibilityNodeObject::accessibilityText(Vector<AccessibilityText>& textOrder) const
 {
+#if ENABLE(ATTACHMENT_ELEMENT)
+    if (RefPtr attachmentElement = dynamicDowncast<HTMLAttachmentElement>(node())) {
+        AXAttachmentHelpers::accessibilityText(*attachmentElement, textOrder);
+        return;
+    }
+#endif
+
     labelText(textOrder);
     alternativeText(textOrder);
     visibleText(textOrder);

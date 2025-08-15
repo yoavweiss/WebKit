@@ -34,7 +34,6 @@
 #import "AXObjectCacheInlines.h"
 #import "AXSearchManager.h"
 #import "AXUtilities.h"
-#import "AccessibilityAttachment.h"
 #import "AccessibilityRenderObject.h"
 #import "AccessibilityScrollView.h"
 #import "AccessibilityTable.h"
@@ -1599,8 +1598,10 @@ static void appendStringToResult(NSMutableString *result, NSString *string)
         return [NSString stringWithFormat:@"%.2f", backingObject->valueForRange()];
     }
 
-    if (auto* attachment = dynamicDowncast<AccessibilityAttachment>(backingObject.get()); attachment && attachment->hasProgress())
+#if ENABLE(ATTACHMENT_ELEMENT)
+    if (backingObject->isAttachmentElement() && backingObject->hasProgress())
         return [NSString stringWithFormat:@"%.2f", backingObject->valueForRange()];
+#endif
 
     return nil;
 }
@@ -1648,7 +1649,11 @@ static void appendStringToResult(NSMutableString *result, NSString *string)
     if (![self _prepareAccessibilityCall])
         return NO;
 
-    return is<AccessibilityAttachment>(self.axBackingObject);
+#if ENABLE(ATTACHMENT_ELEMENT)
+    return self.axBackingObject->isAttachmentElement();
+#else
+    return NO;
+#endif
 }
 
 - (BOOL)accessibilityIsComboBox
