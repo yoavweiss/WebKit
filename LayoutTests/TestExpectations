@@ -2319,6 +2319,7 @@ fast/webgpu [ Pass ]
 
 fast/webgpu/regression/repro_275108.html [ Pass Failure Timeout ]
 [ Debug ] fast/webgpu/regression/repro_275624.html [ Skip ]
+fast/webgpu/regression/webkit.svg [ Skip ]
 
 # FIXME: https://bugs.webkit.org/show_bug.cgi?id=292024
 [ Debug ] fast/webgpu/regression/repro_281491.html [ Pass Crash ]
