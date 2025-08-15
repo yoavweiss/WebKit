@@ -1914,6 +1914,7 @@ void RenderObject::updateHitTestResult(HitTestResult& result, const LayoutPoint&
         if (!result.innerNonSharedNode())
             result.setInnerNonSharedNode(node.get());
         result.setLocalPoint(point);
+        result.setPseudoElementIdentifier(style().pseudoElementIdentifier());
     }
 }
 
