@@ -487,7 +487,10 @@ ItemPosition PositionedLayoutConstraints::resolveAlignmentValue() const
     }();
 
     if (m_style.positionArea() && ItemPosition::Normal == alignmentPosition)
-        return m_style.positionArea()->defaultAlignmentForAxis(m_physicalAxis, m_containingWritingMode, m_writingMode);
+        alignmentPosition = m_style.positionArea()->defaultAlignmentForAxis(m_physicalAxis, m_containingWritingMode, m_writingMode);
+
+    if (!m_defaultAnchorBox && alignmentPosition == ItemPosition::AnchorCenter)
+        return ItemPosition::Center;
     return alignmentPosition;
 }
 
