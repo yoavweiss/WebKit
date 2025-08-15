@@ -839,28 +839,30 @@ class RTT_ALIGNMENT RTT final : public ThreadSafeRefCounted<RTT>, private Traili
 public:
     RTT() = delete;
 
-    static RefPtr<RTT> tryCreate(RTTKind, DisplayCount);
+    static RefPtr<RTT> tryCreate(RTTKind);
+    static RefPtr<RTT> tryCreate(RTTKind, const RTT&);
 
     RTTKind kind() const { return m_kind; }
     DisplayCount displaySize() const { return size(); }
     const RTT* displayEntry(DisplayCount i) const { return at(i); }
-    void setDisplayEntry(DisplayCount i, RefPtr<const RTT> entry) { at(i) = entry.get(); }
 
     bool isSubRTT(const RTT& other) const { return this == &other ? true : isStrictSubRTT(other); }
     bool isStrictSubRTT(const RTT& other) const;
-    static size_t allocatedRTTSize(Checked<DisplayCount> count) { return sizeof(RTT) + count * sizeof(TypeIndex); }
 
     static constexpr ptrdiff_t offsetOfKind() { return OBJECT_OFFSETOF(RTT, m_kind); }
     static constexpr ptrdiff_t offsetOfDisplaySize() { return offsetOfSize(); }
     static constexpr ptrdiff_t offsetOfPayload() { return offsetOfData(); }
 
 private:
-    explicit RTT(RTTKind kind, DisplayCount displaySize)
-        : TrailingArrayType(displaySize)
+    explicit RTT(RTTKind kind)
+        : TrailingArrayType(0)
         , m_kind(kind)
-    { }
+    {
+    }
 
-    RTTKind m_kind;
+    RTT(RTTKind, const RTT& supertype);
+
+    const RTTKind m_kind;
 };
 
 inline void Type::dump(PrintStream& out) const
@@ -947,10 +949,9 @@ public:
 
     // Every type definition that is in a module's signature list should have a canonical RTT registered for subtyping checks.
     static void registerCanonicalRTTForType(TypeIndex);
-    static RefPtr<RTT> canonicalRTTForType(TypeIndex);
     // This will only return valid results for types in the type signature list and that have a registered canonical RTT.
-    static std::optional<RefPtr<const RTT>> tryGetCanonicalRTT(TypeIndex);
-    static RefPtr<const RTT> getCanonicalRTT(TypeIndex);
+    static RefPtr<const RTT> tryGetCanonicalRTT(TypeIndex);
+    static Ref<const RTT> getCanonicalRTT(TypeIndex);
 
     static bool castReference(JSValue, bool, TypeIndex);
 
@@ -962,9 +963,11 @@ public:
 
     static void tryCleanup();
 private:
+    static Ref<RTT> createCanonicalRTTForType(TypeIndex);
+
     UncheckedKeyHashSet<Wasm::TypeHash> m_typeSet;
     UncheckedKeyHashMap<TypeIndex, RefPtr<const TypeDefinition>> m_unrollingCache;
-    UncheckedKeyHashMap<TypeIndex, RefPtr<RTT>> m_rttMap;
+    UncheckedKeyHashMap<TypeIndex, Ref<RTT>> m_rttMap;
     UncheckedKeyHashSet<RefPtr<Projection>> m_placeholders;
     const FunctionSignature* thunkTypes[numTypes];
     RefPtr<FunctionSignature> m_I64_Void;

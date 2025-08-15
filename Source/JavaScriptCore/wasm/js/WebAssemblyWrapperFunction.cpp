@@ -44,7 +44,7 @@ WebAssemblyWrapperFunction::WebAssemblyWrapperFunction(VM& vm, NativeExecutable*
     , m_function(function, WriteBarrierEarlyInit)
 { }
 
-WebAssemblyWrapperFunction* WebAssemblyWrapperFunction::create(VM& vm, JSGlobalObject* globalObject, Structure* structure, JSObject* function, unsigned importIndex, JSWebAssemblyInstance* instance, Wasm::TypeIndex typeIndex, RefPtr<const Wasm::RTT>&& rtt)
+WebAssemblyWrapperFunction* WebAssemblyWrapperFunction::create(VM& vm, JSGlobalObject* globalObject, Structure* structure, JSObject* function, unsigned importIndex, JSWebAssemblyInstance* instance, Wasm::TypeIndex typeIndex, Ref<const Wasm::RTT>&& rtt)
 {
     ASSERT_WITH_MESSAGE(!function->inherits<WebAssemblyWrapperFunction>(), "We should never double wrap a wrapper function.");
 
@@ -66,7 +66,7 @@ WebAssemblyWrapperFunction* WebAssemblyWrapperFunction::create(VM& vm, JSGlobalO
                     &instance->importFunctionInfo(importIndex)->importFunctionStub
                 },
                 typeIndex,
-                rtt.get()
+                rtt.ptr()
             },
             { },
             { }

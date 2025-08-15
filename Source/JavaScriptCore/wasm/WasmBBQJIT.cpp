@@ -4502,7 +4502,7 @@ void BBQJIT::emitSlowPathRTTCheck(MacroAssembler::Label returnLabel, TypeIndex t
     auto rttBaseIndex = CCallHelpers::BaseIndex(calleeRTT, index, scale, RTT::offsetOfPayload());
     m_jit.sub32(TrustedImm32(1 + signatureRTT->displaySize()), index);
     m_jit.loadPtr(rttBaseIndex, calleeRTT);
-    auto rttEqual = m_jit.branchPtr(CCallHelpers::Equal, calleeRTT, TrustedImmPtr(signatureRTT.get()));
+    auto rttEqual = m_jit.branchPtr(CCallHelpers::Equal, calleeRTT, TrustedImmPtr(signatureRTT.ptr()));
     rttEqual.linkTo(returnLabel, &m_jit);
 
     displaySmallerThanParent.link(&m_jit);

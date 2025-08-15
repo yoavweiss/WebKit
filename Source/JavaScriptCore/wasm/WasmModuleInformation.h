@@ -208,7 +208,7 @@ struct ModuleInformation final : public ThreadSafeRefCounted<ModuleInformation> 
     Ref<NameSection> nameSection;
     BranchHints branchHints;
     std::optional<uint32_t> numberOfDataSegments;
-    Vector<RefPtr<const RTT>> rtts;
+    Vector<Ref<const RTT>> rtts;
     Vector<Vector<uint8_t>> constantExpressions;
     Name sourceMappingURL;
 

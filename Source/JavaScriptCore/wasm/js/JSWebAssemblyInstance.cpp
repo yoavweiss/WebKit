@@ -131,11 +131,11 @@ void JSWebAssemblyInstance::finishCreation(VM& vm)
     auto& moduleInformation = m_module->moduleInformation();
     JSGlobalObject* globalObject = this->globalObject();
     for (unsigned i = 0; i < moduleInformation.typeCount(); ++i) {
-        RefPtr rtt = moduleInformation.rtts[i];
+        Ref rtt = moduleInformation.rtts[i];
         if (rtt->kind() == RTTKind::Array)
-            gcObjectStructure(i).setWithoutWriteBarrier(JSWebAssemblyArray::createStructure(vm, globalObject, moduleInformation.typeSignatures[i]->expand(), rtt.releaseNonNull()));
+            gcObjectStructure(i).setWithoutWriteBarrier(JSWebAssemblyArray::createStructure(vm, globalObject, moduleInformation.typeSignatures[i]->expand(), WTFMove(rtt)));
         else if (rtt->kind() == RTTKind::Struct)
-            gcObjectStructure(i).setWithoutWriteBarrier(JSWebAssemblyStruct::createStructure(vm, globalObject, moduleInformation.typeSignatures[i]->expand(), rtt.releaseNonNull()));
+            gcObjectStructure(i).setWithoutWriteBarrier(JSWebAssemblyStruct::createStructure(vm, globalObject, moduleInformation.typeSignatures[i]->expand(), WTFMove(rtt)));
     }
     if (moduleInformation.typeCount())
         vm.writeBarrier(this);

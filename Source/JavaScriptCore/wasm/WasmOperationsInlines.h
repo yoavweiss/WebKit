@@ -151,7 +151,7 @@ inline JSValue arrayNewFixed(JSWebAssemblyInstance* instance, uint32_t typeIndex
     ASSERT(arraySignature.is<ArrayType>());
     Wasm::FieldType fieldType = arraySignature.as<ArrayType>()->elementType();
     size_t elementSize = fieldType.type.elementSize();
-    RefPtr arrayRTT = instance->module().moduleInformation().rtts[typeIndex];
+    Ref arrayRTT = instance->module().moduleInformation().rtts[typeIndex];
 
     // Copy the elements into the result array in reverse order
     JSWebAssemblyArray* array = nullptr;
