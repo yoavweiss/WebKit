@@ -1004,3 +1004,10 @@
 #if __has_include(<WebKitAdditions/com.apple.WebKit.GPU.sb.in>)
 #include <WebKitAdditions/com.apple.WebKit.GPU.sb.in>
 #endif
+
+(with-filter (require-not (state-flag "local:FeatureCoreMLDisabled"))
+    (allow file-clone)
+    (allow syscall-unix
+        (syscall-number
+            SYS_mkdirat
+            SYS_rmdir)))
