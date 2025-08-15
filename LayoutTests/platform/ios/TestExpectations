@@ -8250,3 +8250,5 @@ imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-002.
 imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-001.xhtml [ Failure ]
 
 webkit.org/b/297414 [ Debug ] imported/w3c/web-platform-tests/navigation-api/navigate-event/intercept-detach-multiple.html [ Crash ]
+
+webkit.org/b/297462 [ Debug ] imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-size-containment-001.html [ Failure ]
