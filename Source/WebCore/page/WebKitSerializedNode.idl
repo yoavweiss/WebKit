@@ -24,7 +24,7 @@
  */
 
 [
-    EnabledForWorld=allowNodeSerialization,
+    EnabledForWorld=nodeInfoEnabled,
     Exposed=Window,
     ExportMacro=WEBCORE_EXPORT
 ] interface WebKitSerializedNode {

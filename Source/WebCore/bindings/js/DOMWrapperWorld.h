@@ -55,11 +55,8 @@ public:
     void setAllowAutofill() { m_allowAutofill = true; }
     bool allowAutofill() const { return m_allowAutofill; }
 
-    bool allowJSHandleCreation() const { return m_allowJSHandleCreation; }
-    void setAllowJSHandleCreation() { m_allowJSHandleCreation = true; }
-
-    void setAllowNodeSerialization() { m_allowNodeSerialization = true; }
-    bool allowNodeSerialization() const { return m_allowNodeSerialization; }
+    void setNodeInfoEnabled() { m_nodeInfoEnabled = true; }
+    bool nodeInfoEnabled() const { return m_nodeInfoEnabled; }
 
     void setAllowElementUserInfo() { m_allowElementUserInfo = true; }
     bool allowElementUserInfo() const { return m_allowElementUserInfo; }
@@ -96,13 +93,12 @@ private:
     String m_name;
     Type m_type { Type::Internal };
 
-    bool m_allowAutofill : 1 { false };
-    bool m_allowElementUserInfo : 1 { false };
-    bool m_shadowRootIsAlwaysOpen : 1 { false };
-    bool m_closedShadowRootIsExposedForExtensions : 1 { false };
-    bool m_shouldDisableLegacyOverrideBuiltInsBehavior : 1 { false };
-    bool m_allowJSHandleCreation : 1 { false };
-    bool m_allowNodeSerialization : 1 { false };
+    bool m_allowAutofill { false };
+    bool m_allowElementUserInfo { false };
+    bool m_shadowRootIsAlwaysOpen { false };
+    bool m_closedShadowRootIsExposedForExtensions { false };
+    bool m_shouldDisableLegacyOverrideBuiltInsBehavior { false };
+    bool m_nodeInfoEnabled { false };
 };
 
 DOMWrapperWorld& normalWorld(JSC::VM&);

@@ -27,8 +27,7 @@ header: "ContentWorldData.h"
     AllowAutofill,
     AllowElementUserInfo,
     DisableLegacyBuiltinOverrides,
-    AllowJSHandleCreation,
-    AllowNodeSerialization,
+    AllowNodeInfo,
 };
 
 [DebugDecodingFailure] struct WebKit::ContentWorldData {

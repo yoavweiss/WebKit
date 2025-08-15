@@ -60,8 +60,7 @@ public:
     void makeAllShadowRootsOpen();
     void exposeClosedShadowRootsForExtensions();
     void disableOverrideBuiltinsBehavior();
-    void setAllowJSHandleCreation();
-    void setAllowNodeSerialization();
+    void setNodeInfoEnabled();
 
     const String& name() const { return m_name; }
 

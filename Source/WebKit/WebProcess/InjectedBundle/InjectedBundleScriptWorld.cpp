@@ -121,14 +121,9 @@ void InjectedBundleScriptWorld::setAllowAutofill()
     m_world->setAllowAutofill();
 }
 
-void InjectedBundleScriptWorld::setAllowJSHandleCreation()
+void InjectedBundleScriptWorld::setNodeInfoEnabled()
 {
-    m_world->setAllowJSHandleCreation();
-}
-
-void InjectedBundleScriptWorld::setAllowNodeSerialization()
-{
-    m_world->setAllowNodeSerialization();
+    m_world->setNodeInfoEnabled();
 }
 
 void InjectedBundleScriptWorld::setAllowElementUserInfo()
