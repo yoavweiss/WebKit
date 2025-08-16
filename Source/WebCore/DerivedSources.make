@@ -753,7 +753,6 @@ JS_BINDING_IDLS := \
     $(WebCore)/Modules/webauthn/PublicKeyCredentialParameters.idl \
     $(WebCore)/Modules/webauthn/PublicKeyCredentialUserEntity.idl \
     $(WebCore)/Modules/webauthn/PublicKeyCredentialUserEntityJSON.idl \
-    $(WebCore)/Modules/webauthn/AuthenticatorSelectionCriteria.idl \
     $(WebCore)/Modules/webauthn/PublicKeyCredentialDescriptor.idl \
     $(WebCore)/Modules/webauthn/PublicKeyCredentialDescriptorJSON.idl \
     $(WebCore)/Modules/webauthn/PublicKeyCredentialRequestOptions.idl \
@@ -1094,7 +1093,6 @@ JS_BINDING_IDLS := \
     $(WebCore)/dom/ClipboardEvent.idl \
     $(WebCore)/dom/CommandEvent.idl \
     $(WebCore)/dom/Comment.idl \
-    $(WebCore)/dom/CommandEvent.idl \
     $(WebCore)/dom/CompositionEvent.idl \
     $(WebCore)/dom/ContentVisibilityAutoStateChangeEvent.idl \
     $(WebCore)/dom/CreateHTMLCallback.idl \
