@@ -317,7 +317,7 @@ http/wpt/cross-origin-opener-policy/header-parsing-with-report-to.https.html [ S
 http/wpt/cross-origin-opener-policy/non-secure-to-secure-context-navigation.https.html [ Skip ]
 http/wpt/cross-origin-opener-policy/single-request-to-server.html [ Skip ]
 http/wpt/html/cross-origin-embedder-policy/require-corp.https.html [ Skip ]
-http/wpt/navigation-api/transition-promises.html [ Skip ]
+http/wpt/navigation-api/ [ Skip ]
 http/wpt/service-workers/navigate-iframes-window-client.https.html [ Skip ]
 http/wpt/service-workers/persistent-importScripts.html [ Skip ]
 http/wpt/service-workers/third-party-registration.html [ Skip ]

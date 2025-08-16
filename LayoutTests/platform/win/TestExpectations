@@ -1036,8 +1036,6 @@ http/wpt/service-workers/service-worker-spinning-install.https.html [ Failure Pa
 http/tests/workers/service/registerServiceWorkerClient-after-network-process-crash.html [ Failure ]
 http/wpt/push-api [ Skip ]
 
-webkit.org/b/282475 http/wpt/navigation-api/transition-promises.html [ Failure Pass ]
-
 http/tests/misc/slow-loading-animated-image.html [ ImageOnlyFailure ]
 
 http/tests/misc/webtiming-one-redirect.py [ Failure Pass ]
@@ -4444,6 +4442,7 @@ storage/indexeddb/connection-leak.html [ Failure Pass ]
 fast/text/font-load-data-partitioned-alphabet.html [ Failure ]
 
 imported/w3c/web-platform-tests/navigation-api [ Skip ]
+webkit.org/b/282475 http/wpt/navigation-api [ Skip ]
 
 http/tests/navigation/keyboard-events-during-provisional-subframe-navigation.html [ Failure ]
 

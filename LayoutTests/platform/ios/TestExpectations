@@ -1041,8 +1041,9 @@ webkit.org/b/164888 fast/shadow-dom/focus-navigation-passes-svg-use-element.html
 webkit.org/b/202497 imported/w3c/web-platform-tests/shadow-dom/focus/ [ Skip ]
 imported/w3c/web-platform-tests/shadow-dom/focus/focus-pseudo-matches-on-shadow-host.html [ Pass ]
 
-imported/w3c/web-platform-tests/navigation-api/focus-reset/basic.html [ Skip ]
-imported/w3c/web-platform-tests/navigation-api/focus-reset/multiple-intercept.html [ Skip ]
+# Navigation API
+imported/w3c/web-platform-tests/navigation-api/focus-reset/basic.html [ Failure ]
+imported/w3c/web-platform-tests/navigation-api/focus-reset/multiple-intercept.html [ Failure ]
 
 # This test needs to be rewritten to use runUIScript to work on iOS
 webkit.org/b/152993 http/tests/contentdispositionattachmentsandbox/form-submission-disabled.html [ Skip ]
@@ -7615,18 +7616,6 @@ imported/w3c/web-platform-tests/css/css-view-transitions/capture-with-opacity-ze
 
 webkit.org/b/279295 fast/inline/list-marker-inside-container-with-margin.html [ ImageOnlyFailure ]
 
-# webkit.org/b/279321 [Navigation] scroll API behaves differently on iOS
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/after-transition-basic.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/after-transition-change-history-scroll-restoration-during-promise.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/after-transition-explicit-scroll.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/after-transition-intercept-handler-modifies.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/after-transition-reload.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/after-transition-timing.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-scroll-after-dispatch.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-scroll-in-precommit-handler.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-scroll-reload.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-scroll-repeated.html [ Failure ]
-
 # webkit.org/b/280296 [EWS] 5 tests in fast/events/iOS/activating are pre-existing failures in iOS
 [ Release arm64 ] fast/events/ios/activating-button-should-not-scroll-page.html [ Skip ]
 [ Release arm64 ] fast/events/ios/activating-checkbox-should-not-scroll-page.html [ Skip ]
@@ -7766,8 +7755,6 @@ webkit.org/b/289002 [ Release ] imported/blink/fast/text/international-iteration
 
 webkit.org/b/289005 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-position-try-006.html [ Failure ]
 
-webkit.org/b/289018 imported/w3c/web-platform-tests/navigation-api/navigation-methods/return-value/back-204-205-download.html [ Pass Failure ]
-
 webkit.org/b/289020 imported/w3c/web-platform-tests/webrtc-stats/hardware-capability-stats.https.html [ Pass Failure ]
 
 webkit.org/b/289090 imported/w3c/web-platform-tests/dom/nodes/remove-from-shadow-host-and-adopt-into-iframe.html [ Pass Timeout ]
@@ -7805,8 +7792,6 @@ webkit.org/b/290416 [ Debug ] imported/w3c/web-platform-tests/html/semantics/emb
 
 webkit.org/b/290462 contact-picker/contacts-select-after-dismissing-picker.html [ Pass Timeout ]
 
-webkit.org/b/290483 [ Debug ] imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-scroll-fragment-does-not-exist.html [ Pass Failure ]
-
 webkit.org/b/290489 [ Debug ] media/video-webm-seek-singlekeyframe.html [ Pass Failure ]
 
 webkit.org/b/290494 editing/caret/caret-position-sideways-lr.html [ Pass Failure ]
@@ -7820,10 +7805,6 @@ webkit.org/b/290580 [ Debug ] fast/multicol/simple-line-layout-line-index-after-
 webkit.org/b/290568 [ Debug ] compositing/child-layer-with-subpixel-gap-needs-repaint-when-parent-moves.html [ Pass Crash ]
 
 webkit.org/b/290648 contact-picker/contacts-select-while-presenting-picker.html [ Pass Timeout ]
-
-# webkit.org/b/290654 REGRESSION(iOS 17.2 - 17.5?): [ iOS Debug ] 2x imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-*.html is a flaky failure (290654)
-[ Debug ] imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-immediate-scroll.html [ Pass Failure ]
-[ Debug ] imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-basic.html [ Pass Failure ]
 
 webkit.org/b/290666 imported/w3c/web-platform-tests/screen-orientation/fullscreen-interactions.html [ Pass Failure ]
 
@@ -7850,13 +7831,9 @@ webkit.org/b/290855 imported/w3c/web-platform-tests/css/css-anchor-position/posi
 webkit.org/b/290856 imported/w3c/web-platform-tests/css/css-view-transitions/navigation/navigation-auto-excludes-reload.html [ Pass Timeout ]
 webkit.org/b/290856 imported/w3c/web-platform-tests/css/css-viewport/zoom/background-image.html [ Pass Timeout ]
 
-webkit.org/b/290871 imported/w3c/web-platform-tests/navigation-api/scroll-behavior/after-transition-reject.html [ Pass Failure ]
-
 webkit.org/b/290888 fast/loader/redirect-to-invalid-url-using-meta-refresh-calls-policy-delegate.html [ Pass Failure ]
 
 webkit.org/b/290942 [ Debug ] fast/viewport/ios/width-is-device-width-overflowing-body-overflow-hidden.html [ Pass Crash ]
-
-webkit.org/b/290958 [ Debug ] imported/w3c/web-platform-tests/navigation-api/scroll-behavior/manual-scroll-after-resolve.html [ Pass Failure ]
 
 # hidden=until-found
 imported/w3c/web-platform-tests/html/editing/the-hidden-attribute/hidden-until-found-002.html [ Failure ]
@@ -7901,8 +7878,6 @@ imported/w3c/web-platform-tests/trusted-types/block-string-assignment-to-Dedicat
 imported/w3c/web-platform-tests/trusted-types/block-string-assignment-to-SharedWorker-setTimeout-setInterval.html [ Skip ]
 
 webkit.org/b/291436 http/tests/security/contentSecurityPolicy/extensions/manifest-v3/default-src/manifest-v3-default-src-block-wildcard.html [ Failure ]
-
-webkit.org/b/291451 imported/w3c/web-platform-tests/navigation-api/navigation-methods/return-value/navigate-intercept-interrupted.html [ Pass Crash ]
 
 webkit.org/b/291456 fast/forms/state-restore-per-form.html [ Pass Timeout ]
 
@@ -8149,8 +8124,6 @@ imported/w3c/web-platform-tests/css/selectors/invalidation/has-with-nesting-pare
 imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-get.https.html [ Failure ]
 imported/w3c/web-platform-tests/digital-credentials/get.tentative.https.html [ Failure ]
 imported/w3c/web-platform-tests/digital-credentials/user-activation.https.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-anchor-download-userInitiated.html [ Failure ]
-imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-anchor-download.html [ Failure ]
 imported/w3c/web-platform-tests/shadow-dom/reference-target/tentative/interesttarget.tentative.html [ Failure ]
 imported/w3c/web-platform-tests/uievents/mouse/mousemove_after_mouseover_target_removed.html [ Failure ]
 platform/ipad/fast/viewport/viewport-overriden-by-minimum-effective-width-if-ignore-meta-viewport.html [ Failure ]
@@ -8241,8 +8214,6 @@ webkit.org/b/295751 [ Release ] http/tests/geolocation/geolocation-get-current-p
 
 webkit.org/b/297251 [ Release ] fast/mediastream/getUserMedia-echoCancellation.html [ Pass Failure ]
 
-webkit.org/b/297477 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-back-bfcache.html [ Timeout Pass Failure ]
-
 webkit.org/b/297346 workers/message-port-gc.html [ Crash ]
 
 webkit.org/b/297364 imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-create.https.html [ Failure ]
@@ -8250,8 +8221,6 @@ webkit.org/b/297364 imported/w3c/web-platform-tests/digital-credentials/allow-at
 # webkit.org/b/297405 2x imported/w3c/web-platform-tests/css/css-flexbox/ (layout-tests) tests are constant image failures 
 imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-002.xhtml [ Failure ]
 imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-001.xhtml [ Failure ]
-
-webkit.org/b/297414 [ Debug ] imported/w3c/web-platform-tests/navigation-api/navigate-event/intercept-detach-multiple.html [ Crash ]
 
 webkit.org/b/297462 [ Debug ] imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-size-containment-001.html [ Failure ]
 
