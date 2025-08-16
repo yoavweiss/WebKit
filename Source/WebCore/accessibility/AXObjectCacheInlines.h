@@ -29,8 +29,22 @@
 #pragma once
 
 #include "AXGeometryManager.h"
+#include <wtf/text/MakeString.h>
 
 namespace WebCore {
+
+inline String CharacterOffset::debugDescription()
+{
+    auto nodeDescription = node ? CheckedPtr { node.get() }->debugDescription() : "null"_s;
+    return makeString("CharacterOffset {node: "_s, nodeDescription, ", startIndex: "_s, startIndex, ", offset: "_s, offset, ", remainingOffset: "_s, remainingOffset, '}');
+}
+
+inline bool CharacterOffset::isEqual(const CharacterOffset& other) const
+{
+    if (isNull() || other.isNull())
+        return false;
+    return node == other.node && startIndex == other.startIndex && offset == other.offset;
+}
 
 template<typename U>
 inline Vector<Ref<AXCoreObject>> AXObjectCache::objectsForIDs(const U& axIDs) const

@@ -29,6 +29,7 @@
 #if PLATFORM(MAC)
 
 #import "AXIsolatedObject.h"
+#import "AXNotifications.h"
 #import "AXObjectCacheInlines.h"
 #import "AXSearchManager.h"
 #import "AccessibilityObject.h"

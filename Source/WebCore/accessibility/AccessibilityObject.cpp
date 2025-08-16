@@ -30,9 +30,11 @@
 #include "AccessibilityObject.h"
 
 #include "AXAttributeCacheScope.h"
+#include "AXComputedObjectAttributeCache.h"
 #include "AXIsolatedTree.h"
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
+#include "AXNotifications.h"
 #include "AXObjectCache.h"
 #include "AXObjectCacheInlines.h"
 #include "AXRemoteFrame.h"

@@ -163,7 +163,7 @@ struct WindowFeatures;
 
 enum class ActivityStateForCPUSampling : uint8_t;
 enum class AXLoadingEvent : uint8_t;
-enum class AXNotification;
+enum class AXNotification : uint8_t;
 enum class AXTextChange : uint8_t;
 enum class CookieConsentDecisionResult : uint8_t;
 enum class DidFilterLinkDecoration : bool { No, Yes };

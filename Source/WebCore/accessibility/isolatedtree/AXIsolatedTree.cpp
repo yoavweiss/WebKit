@@ -31,6 +31,7 @@
 #include "AXAttributeCacheScope.h"
 #include "AXIsolatedObject.h"
 #include "AXLogger.h"
+#include "AXNotifications.h"
 #include "AXTreeStore.h"
 #include "AXTreeStoreInlines.h"
 #include "AXUtilities.h"

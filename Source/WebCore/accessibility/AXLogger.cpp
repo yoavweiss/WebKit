@@ -32,6 +32,7 @@
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 #include "AXIsolatedObject.h"
 #endif
+#include "AXNotifications.h"
 #include "AXObjectCache.h"
 #include "AXSearchManager.h"
 #include "AXTextRun.h"

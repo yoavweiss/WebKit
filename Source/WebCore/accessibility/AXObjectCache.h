@@ -26,7 +26,6 @@
 #pragma once
 
 #include <WebCore/AXTextMarker.h>
-#include <WebCore/AXTextStateChangeIntent.h>
 #include <WebCore/AXTreeStore.h>
 #include <WebCore/SimpleRange.h>
 #include <WebCore/StyleChange.h>
@@ -39,7 +38,6 @@
 #include <wtf/ListHashSet.h>
 #include <wtf/WeakHashMap.h>
 #include <wtf/WeakHashSet.h>
-#include <wtf/text/MakeString.h>
 
 OBJC_CLASS NSMutableArray;
 
@@ -49,6 +47,7 @@ class TextStream;
 
 namespace WebCore {
 
+class AXComputedObjectAttributeCache;
 class AXGeometryManager;
 class AXIsolatedTree;
 class AXRemoteFrame;
@@ -75,6 +74,9 @@ class ScrollView;
 class VisiblePosition;
 class Widget;
 
+struct AXTextStateChangeIntent;
+
+enum class AXNotification : uint8_t;
 enum class AXStreamOptions : uint16_t;
 enum class AXProperty : uint16_t;
 
@@ -93,36 +95,8 @@ struct CharacterOffset {
 
     int remaining() const { return remainingOffset; }
     bool isNull() const { return !node; }
-    bool isEqual(const CharacterOffset& other) const
-    {
-        if (isNull() || other.isNull())
-            return false;
-        return node == other.node && startIndex == other.startIndex && offset == other.offset;
-    }
-
-    String debugDescription()
-    {
-        return makeString("CharacterOffset {node: "_s, node ? node->debugDescription() : "null"_s, ", startIndex: "_s, startIndex, ", offset: "_s, offset, ", remainingOffset: "_s, remainingOffset, '}');
-    }
-};
-
-DECLARE_ALLOCATOR_WITH_HEAP_IDENTIFIER(AXComputedObjectAttributeCache);
-class AXComputedObjectAttributeCache {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(AXComputedObjectAttributeCache, AXComputedObjectAttributeCache);
-public:
-    AccessibilityObjectInclusion getIgnored(AXID) const;
-    void setIgnored(AXID, AccessibilityObjectInclusion);
-
-private:
-    struct CachedAXObjectAttributes {
-        CachedAXObjectAttributes()
-            : ignored(AccessibilityObjectInclusion::DefaultBehavior)
-        { }
-
-        AccessibilityObjectInclusion ignored;
-    };
-
-    HashMap<AXID, CachedAXObjectAttributes> m_idMapping;
+    inline bool isEqual(const CharacterOffset& other) const;
+    inline String debugDescription();
 };
 
 struct VisiblePositionIndex {
@@ -169,129 +143,6 @@ public:
 protected:
     String m_replacedText;
     VisiblePositionIndexRange m_replacedRange;
-};
-
-#define WEBCORE_AXNOTIFICATION_KEYS_DEFAULT(macro) \
-    macro(AbbreviationChanged) \
-    macro(AccessKeyChanged) \
-    macro(ActiveDescendantChanged) \
-    macro(AnnouncementRequested) \
-    macro(AutocorrectionOccured) \
-    macro(AutofillTypeChanged) \
-    macro(ARIAColumnIndexChanged) \
-    macro(ARIAColumnIndexTextChanged) \
-    macro(ARIARoleDescriptionChanged) \
-    macro(ARIARowIndexChanged) \
-    macro(ARIARowIndexTextChanged) \
-    macro(BrailleLabelChanged) \
-    macro(BrailleRoleDescriptionChanged) \
-    macro(CellSlotsChanged) \
-    macro(CheckedStateChanged) \
-    macro(ChildrenChanged) \
-    macro(ColumnCountChanged) \
-    macro(ColumnIndexChanged) \
-    macro(ColumnSpanChanged) \
-    macro(CommandChanged) \
-    macro(CommandForChanged) \
-    macro(ContentEditableAttributeChanged) \
-    macro(ControlledObjectsChanged) \
-    macro(CurrentStateChanged) \
-    macro(DatetimeChanged) \
-    macro(DescribedByChanged) \
-    macro(DisabledStateChanged) \
-    macro(DraggableStateChanged) \
-    macro(DropEffectChanged) \
-    macro(ExtendedDescriptionChanged) \
-    macro(FlowToChanged) \
-    macro(FocusableStateChanged) \
-    macro(FocusedUIElementChanged) \
-    macro(FontChanged) \
-    macro(FrameLoadComplete) \
-    macro(GrabbedStateChanged) \
-    macro(HasPopupChanged) \
-    macro(IdAttributeChanged) \
-    macro(ImageOverlayChanged) \
-    macro(InertOrVisibilityChanged) \
-    macro(InputTypeChanged) \
-    macro(IsAtomicChanged) \
-    macro(IsEditableWebAreaChanged) \
-    macro(KeyShortcutsChanged) \
-    macro(LabelChanged) \
-    macro(LanguageChanged) \
-    macro(LayoutComplete) \
-    macro(LevelChanged) \
-    macro(LoadComplete) \
-    macro(NameChanged) \
-    macro(NewDocumentLoadComplete) \
-    macro(PageScrolled) \
-    macro(PlaceholderChanged) \
-    macro(PopoverTargetChanged) \
-    macro(PositionInSetChanged) \
-    macro(RoleChanged) \
-    macro(RowIndexChanged) \
-    macro(RowSpanChanged) \
-    macro(CellScopeChanged) \
-    macro(SelectedChildrenChanged) \
-    macro(SelectedCellsChanged) \
-    macro(SelectedStateChanged) \
-    macro(SelectedTextChanged) \
-    macro(SetSizeChanged) \
-    macro(TextColorChanged) \
-    macro(TextCompositionBegan) \
-    macro(TextCompositionEnded) \
-    macro(URLChanged) \
-    macro(ValueChanged) \
-    macro(VisibilityChanged) \
-    macro(VisitedStateChanged) \
-    macro(ScrolledToAnchor) \
-    macro(LiveRegionCreated) \
-    macro(LiveRegionChanged) \
-    macro(LiveRegionRelevantChanged) \
-    macro(LiveRegionStatusChanged) \
-    macro(MaximumValueChanged) \
-    macro(MenuListItemSelected) \
-    macro(MenuListValueChanged) \
-    macro(MenuClosed) \
-    macro(MenuOpened) \
-    macro(MinimumValueChanged) \
-    macro(MultiSelectableStateChanged) \
-    macro(OrientationChanged) \
-    macro(RowCountChanged) \
-    macro(RowCollapsed) \
-    macro(RowExpanded) \
-    macro(ExpandedChanged) \
-    macro(InvalidStatusChanged) \
-    macro(PressDidSucceed) \
-    macro(PressDidFail) \
-    macro(PressedStateChanged) \
-    macro(ReadOnlyStatusChanged) \
-    macro(RequiredStatusChanged) \
-    macro(SortDirectionChanged) \
-    macro(SpeakAsChanged) \
-    macro(TextChanged) \
-    macro(TextCompositionChanged) \
-    macro(TextUnderElementChanged) \
-    macro(TextSecurityChanged) \
-    macro(ElementBusyChanged) \
-    macro(DraggingStarted) \
-    macro(DraggingEnded) \
-    macro(DraggingEnteredDropZone) \
-    macro(DraggingDropped) \
-    macro(DraggingExitedDropZone) \
-
-#if ENABLE(AX_THREAD_TEXT_APIS)
-#define WEBCORE_AXNOTIFICATION_KEYS(macro) \
-    WEBCORE_AXNOTIFICATION_KEYS_DEFAULT(macro) \
-    macro(TextRunsChanged)
-#else
-#define WEBCORE_AXNOTIFICATION_KEYS(macro) \
-    WEBCORE_AXNOTIFICATION_KEYS_DEFAULT(macro)
-#endif
-
-enum class AXNotification {
-#define WEBCORE_DEFINE_AXNOTIFICATION_ENUM(name) name,
-WEBCORE_AXNOTIFICATION_KEYS(WEBCORE_DEFINE_AXNOTIFICATION_ENUM)
-#undef WEBCORE_DEFINE_AXNOTIFICATION_ENUM
 };
 
 enum class AXLoadingEvent : uint8_t {

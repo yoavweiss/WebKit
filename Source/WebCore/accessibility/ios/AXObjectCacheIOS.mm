@@ -28,6 +28,7 @@
 
 #if PLATFORM(IOS_FAMILY)
 
+#import "AXNotifications.h"
 #import "AccessibilityObject.h"
 #import "Chrome.h"
 #import "RenderObject.h"

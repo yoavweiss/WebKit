@@ -32,6 +32,7 @@
 #include "AXAttachmentHelpers.h"
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
+#include "AXNotifications.h"
 #include "AXObjectCache.h"
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"

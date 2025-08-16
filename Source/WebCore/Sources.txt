@@ -553,6 +553,7 @@ Modules/webxr/XRSubImage.cpp
 Modules/webxr/XRWebGLBinding.cpp
 Modules/webxr/XRWebGLSubImage.cpp
 accessibility/AXAttributeCacheScope.cpp
+accessibility/AXComputedObjectAttributeCache.cpp
 accessibility/AXCoreObject.cpp
 accessibility/AXGeometryManager.cpp
 accessibility/AXLogger.cpp
