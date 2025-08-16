@@ -611,18 +611,27 @@ bool TypeDefinition::isFinalType() const
     return true;
 }
 
-RTT::RTT(RTTKind kind, const RTT& supertype)
-    : TrailingArrayType(supertype.displaySize() + 1)
+RTT::RTT(RTTKind kind)
+    : TrailingArrayType(1)
     , m_kind(kind)
+    , m_displaySizeExcludingThis(size() - 1)
 {
-    at(0) = &supertype;
-    for (unsigned i = 0; i < supertype.displaySize(); ++i)
-        at(i + 1) = supertype.at(i);
+    at(0) = this;
+}
+
+RTT::RTT(RTTKind kind, const RTT& supertype)
+    : TrailingArrayType(supertype.size() + 1)
+    , m_kind(kind)
+    , m_displaySizeExcludingThis(size() - 1)
+{
+    ASSERT(supertype.size() == (supertype.displaySizeExcludingThis() + 1));
+    memcpySpan(span(), supertype.span());
+    at(supertype.size()) = this;
 }
 
 RefPtr<RTT> RTT::tryCreate(RTTKind kind)
 {
-    auto result = tryFastMalloc(allocationSize(0));
+    auto result = tryFastMalloc(allocationSize(/* itself */ 1));
     void* memory = nullptr;
     if (!result.getValue(memory))
         return nullptr;
@@ -631,18 +640,25 @@ RefPtr<RTT> RTT::tryCreate(RTTKind kind)
 
 RefPtr<RTT> RTT::tryCreate(RTTKind kind, const RTT& supertype)
 {
-    auto result = tryFastMalloc(allocationSize(supertype.displaySize() + 1));
+    auto result = tryFastMalloc(allocationSize(supertype.size() + 1));
     void* memory = nullptr;
     if (!result.getValue(memory))
         return nullptr;
     return adoptRef(new (NotNull, memory) RTT(kind, supertype));
 }
 
+bool RTT::isSubRTT(const RTT& parent) const
+{
+    if (displaySizeExcludingThis() < parent.displaySizeExcludingThis())
+        return false;
+    return &parent == displayEntry(parent.displaySizeExcludingThis());
+}
+
 bool RTT::isStrictSubRTT(const RTT& parent) const
 {
-    if (displaySize() <= parent.displaySize())
+    if (displaySizeExcludingThis() <= parent.displaySizeExcludingThis())
         return false;
-    return &parent == displayEntry(displaySize() - parent.displaySize() - 1);
+    return &parent == displayEntry(parent.displaySizeExcludingThis());
 }
 
 const FunctionSignature& TypeInformation::signatureForJSException()

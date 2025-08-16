@@ -843,26 +843,22 @@ public:
     static RefPtr<RTT> tryCreate(RTTKind, const RTT&);
 
     RTTKind kind() const { return m_kind; }
-    DisplayCount displaySize() const { return size(); }
+    DisplayCount displaySizeExcludingThis() const { return m_displaySizeExcludingThis; }
     const RTT* displayEntry(DisplayCount i) const { return at(i); }
 
-    bool isSubRTT(const RTT& other) const { return this == &other ? true : isStrictSubRTT(other); }
+    bool isSubRTT(const RTT& other) const;
     bool isStrictSubRTT(const RTT& other) const;
 
     static constexpr ptrdiff_t offsetOfKind() { return OBJECT_OFFSETOF(RTT, m_kind); }
-    static constexpr ptrdiff_t offsetOfDisplaySize() { return offsetOfSize(); }
-    static constexpr ptrdiff_t offsetOfPayload() { return offsetOfData(); }
+    static constexpr ptrdiff_t offsetOfDisplaySizeExcludingThis() { return OBJECT_OFFSETOF(RTT, m_displaySizeExcludingThis); }
+    using TrailingArrayType::offsetOfData;
 
 private:
-    explicit RTT(RTTKind kind)
-        : TrailingArrayType(0)
-        , m_kind(kind)
-    {
-    }
-
+    explicit RTT(RTTKind kind);
     RTT(RTTKind, const RTT& supertype);
 
     const RTTKind m_kind;
+    unsigned m_displaySizeExcludingThis { };
 };
 
 inline void Type::dump(PrintStream& out) const
