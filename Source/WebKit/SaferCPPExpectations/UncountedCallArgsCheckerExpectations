@@ -99,7 +99,6 @@ WebProcess/InjectedBundle/InjectedBundleHitTestResult.cpp
 WebProcess/InjectedBundle/InjectedBundlePageUIClient.cpp
 WebProcess/Inspector/WebInspectorUI.cpp
 WebProcess/Inspector/WebInspectorUIExtensionController.cpp
-WebProcess/Speech/SpeechRecognitionRealtimeMediaSourceManager.cpp
 WebProcess/Storage/WebSWClientConnection.cpp
 WebProcess/WebCoreSupport/ShareableBitmapUtilities.cpp
 WebProcess/WebCoreSupport/WebBroadcastChannelRegistry.cpp

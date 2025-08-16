@@ -37,8 +37,9 @@
 
 namespace WebCore {
 
-class BlobLoader final : public FileReaderLoaderClient {
+class BlobLoader final : public FileReaderLoaderClient, public CanMakeThreadSafeCheckedPtr<BlobLoader> {
     WTF_MAKE_TZONE_ALLOCATED(BlobLoader);
+    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(BlobLoader);
 public:
     // CompleteCallback is always called except if BlobLoader is cancelled/deallocated.
     using CompleteCallback = Function<void(BlobLoader&)>;
