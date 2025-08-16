@@ -1079,11 +1079,4 @@ FOR_EACH_PRIVATE_WKCONTENTVIEW_ACTION(DECLARE_WKCONTENTVIEW_ACTION_FOR_WEB_VIEW)
 @end
 #endif
 
-#if ENABLE(POINTER_LOCK)
-@interface WKContentView (PointerLock)
-- (void)_beginPointerLockMouseTracking;
-- (void)_endPointerLockMouseTracking;
-@end
-#endif
-
 #endif // PLATFORM(IOS_FAMILY)

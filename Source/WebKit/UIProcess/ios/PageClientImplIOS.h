@@ -374,11 +374,6 @@ private:
 
     void scheduleVisibleContentRectUpdate() final;
 
-#if ENABLE(POINTER_LOCK)
-    void beginPointerLockMouseTracking() final;
-    void endPointerLockMouseTracking() final;
-#endif
-
     RetainPtr<WKContentView> contentView() const { return m_contentView.get(); }
 
     WeakObjCPtr<WKContentView> m_contentView;

@@ -1281,20 +1281,6 @@ UIViewController *PageClientImpl::presentingViewController() const
     return nil;
 }
 
-#if ENABLE(POINTER_LOCK)
-
-void PageClientImpl::beginPointerLockMouseTracking()
-{
-    [contentView() _beginPointerLockMouseTracking];
-}
-
-void PageClientImpl::endPointerLockMouseTracking()
-{
-    [contentView() _endPointerLockMouseTracking];
-}
-
-#endif
-
 FloatRect PageClientImpl::rootViewToWebView(const FloatRect& rect) const
 {
     return [webView() convertRect:rect fromView:contentView().get()];

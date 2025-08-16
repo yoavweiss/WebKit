@@ -138,7 +138,6 @@ extern "C" {
     M(PageLoadObserver) \
     M(Pasteboard) \
     M(PerformanceLogging) \
-    M(PointerLock) \
     M(Plugins) \
     M(Printing) \
     M(PrivateClickMeasurement) \

@@ -14507,7 +14507,10 @@ void WebPageProxy::didAllowPointerLock(CompletionHandler<void(bool)>&& completio
     m_isPointerLocked = true;
     m_isPointerLockPending = false;
 
-    platformLockPointer();
+#if PLATFORM(MAC)
+    CGDisplayHideCursor(CGMainDisplayID());
+    CGAssociateMouseAndMouseCursorPosition(false);
+#endif
 
     completionHandler(true);
 }
@@ -14525,14 +14528,19 @@ void WebPageProxy::didDenyPointerLock(CompletionHandler<void(bool)>&& completion
 
 void WebPageProxy::requestPointerUnlock(CompletionHandler<void(bool)>&& completionHandler)
 {
-    bool wasPointerLocked = std::exchange(m_isPointerLocked, false);
-    bool wasPointerLockPending = std::exchange(m_isPointerLockPending, false);
+    bool wasPointerLocked = m_isPointerLocked;
+    if (m_isPointerLocked) {
+#if PLATFORM(MAC)
+        CGAssociateMouseAndMouseCursorPosition(true);
+        CGDisplayShowCursor(CGMainDisplayID());
+#endif
+    }
 
-    if (wasPointerLocked)
-        platformUnlockPointer();
-
-    if (wasPointerLocked || wasPointerLockPending)
+    if (m_isPointerLocked || m_isPointerLockPending)
         m_uiClient->didLosePointerLock(this);
+
+    m_isPointerLocked = false;
+    m_isPointerLockPending = false;
 
     completionHandler(wasPointerLocked);
 }
@@ -14557,19 +14565,6 @@ void WebPageProxy::resetPointerLockState()
         }
     });
 }
-
-#if !PLATFORM(COCOA)
-
-void WebPageProxy::platformLockPointer()
-{
-}
-
-void WebPageProxy::platformUnlockPointer()
-{
-}
-
-#endif
-
 #endif // ENABLE(POINTER_LOCK)
 
 void WebPageProxy::setURLSchemeHandlerForScheme(Ref<WebURLSchemeHandler>&& handler, const String& scheme)
