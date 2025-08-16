@@ -128,9 +128,6 @@ public:
 private:
     ScrollerPairMac(ScrollingTreeScrollingNode&);
 
-    NSScrollerImp *scrollerImpHorizontal() { return horizontalScroller().scrollerImp(); }
-    NSScrollerImp *scrollerImpVertical() { return verticalScroller().scrollerImp(); }
-
     ThreadSafeWeakPtr<ScrollingTreeScrollingNode> m_scrollingNode;
 
     ScrollbarHoverState m_scrollbarHoverState;
