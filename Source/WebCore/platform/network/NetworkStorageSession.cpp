@@ -146,12 +146,12 @@ bool NetworkStorageSession::hasHadUserInteractionAsFirstParty(const RegistrableD
     return m_registrableDomainsWithUserInteractionAsFirstParty.contains(registrableDomain);
 }
 
-ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlockingDecisionForRequest(const ResourceRequest& request, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking) const
+ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlockingDecisionForRequest(const ResourceRequest& request, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking, IsKnownCrossSiteTracker isKnownCrossSiteTracker) const
 {
-    return thirdPartyCookieBlockingDecisionForRequest(request.firstPartyForCookies(), request.url(), frameID, pageID, shouldRelaxThirdPartyCookieBlocking);
+    return thirdPartyCookieBlockingDecisionForRequest(request.firstPartyForCookies(), request.url(), frameID, pageID, shouldRelaxThirdPartyCookieBlocking, isKnownCrossSiteTracker);
 }
     
-ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlockingDecisionForRequest(const URL& firstPartyForCookies, const URL& resource, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking) const
+ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlockingDecisionForRequest(const URL& firstPartyForCookies, const URL& resource, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking, IsKnownCrossSiteTracker isKnownCrossSiteTracker) const
 {
     if (shouldRelaxThirdPartyCookieBlocking == ShouldRelaxThirdPartyCookieBlocking::Yes)
         return ThirdPartyCookieBlockingDecision::None;
@@ -189,6 +189,7 @@ ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlocking
     const auto decideThirdPartyCookieBlocking = [] (bool shouldAllowUnpartitionedCookies) {
         return shouldAllowUnpartitionedCookies ? ThirdPartyCookieBlockingDecision::None : ThirdPartyCookieBlockingDecision::All;
     };
+    UNUSED_PARAM(isKnownCrossSiteTracker);
 #endif
 
     switch (m_thirdPartyCookieBlockingMode) {
@@ -200,7 +201,7 @@ ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlocking
         return m_managedDomains.contains(firstPartyDomain) ? ThirdPartyCookieBlockingDecision::None : ThirdPartyCookieBlockingDecision::All;
 #if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     case ThirdPartyCookieBlockingMode::AllExceptPartitioned:
-        return isOptInCookiePartitioningEnabled() ? ThirdPartyCookieBlockingDecision::AllExceptPartitioned : ThirdPartyCookieBlockingDecision::All;
+        return (isOptInCookiePartitioningEnabled() && isKnownCrossSiteTracker == IsKnownCrossSiteTracker::No) ? ThirdPartyCookieBlockingDecision::AllExceptPartitioned : ThirdPartyCookieBlockingDecision::All;
 #endif
     case ThirdPartyCookieBlockingMode::AllOnSitesWithoutUserInteraction:
         if (!hasHadUserInteractionAsFirstParty(firstPartyDomain))
@@ -214,14 +215,14 @@ ThirdPartyCookieBlockingDecision NetworkStorageSession::thirdPartyCookieBlocking
     return ThirdPartyCookieBlockingDecision::None;
 }
 
-bool NetworkStorageSession::shouldBlockCookies(const URL& firstPartyForCookies, const URL& resource, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking) const
+bool NetworkStorageSession::shouldBlockCookies(const URL& firstPartyForCookies, const URL& resource, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking, IsKnownCrossSiteTracker isKnownCrossSiteTracker) const
 {
-    return shouldBlockCookies(thirdPartyCookieBlockingDecisionForRequest(firstPartyForCookies, resource, frameID, pageID, shouldRelaxThirdPartyCookieBlocking));
+    return shouldBlockCookies(thirdPartyCookieBlockingDecisionForRequest(firstPartyForCookies, resource, frameID, pageID, shouldRelaxThirdPartyCookieBlocking, isKnownCrossSiteTracker));
 }
 
-bool NetworkStorageSession::shouldBlockCookies(const ResourceRequest& request, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking) const
+bool NetworkStorageSession::shouldBlockCookies(const ResourceRequest& request, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking, IsKnownCrossSiteTracker isKnownCrossSiteTracker) const
 {
-    return shouldBlockCookies(request.firstPartyForCookies(), request.url(), frameID, pageID, shouldRelaxThirdPartyCookieBlocking);
+    return shouldBlockCookies(request.firstPartyForCookies(), request.url(), frameID, pageID, shouldRelaxThirdPartyCookieBlocking, isKnownCrossSiteTracker);
 }
 
 bool NetworkStorageSession::shouldBlockCookies(ThirdPartyCookieBlockingDecision thirdPartyCookieBlockingDecision)
@@ -248,9 +249,9 @@ String NetworkStorageSession::cookiePartitionIdentifier(const ResourceRequest& r
     return cookiePartitionIdentifier(request.firstPartyForCookies());
 }
 
-std::optional<Seconds> NetworkStorageSession::maxAgeCacheCap(const ResourceRequest& request)
+std::optional<Seconds> NetworkStorageSession::maxAgeCacheCap(const ResourceRequest& request, IsKnownCrossSiteTracker isKnownCrossSiteTracker)
 {
-    auto thirdPartyCookieBlockingDecision = thirdPartyCookieBlockingDecisionForRequest(request, std::nullopt, std::nullopt, ShouldRelaxThirdPartyCookieBlocking::No);
+    auto thirdPartyCookieBlockingDecision = thirdPartyCookieBlockingDecisionForRequest(request, std::nullopt, std::nullopt, ShouldRelaxThirdPartyCookieBlocking::No, isKnownCrossSiteTracker);
 #if ENABLE(OPT_IN_PARTITIONED_COOKIES)
     bool shouldEnforceMaxAgeCacheCap = thirdPartyCookieBlockingDecision == ThirdPartyCookieBlockingDecision::All || thirdPartyCookieBlockingDecision == ThirdPartyCookieBlockingDecision::AllExceptPartitioned;
 #else
@@ -614,9 +615,9 @@ void NetworkStorageSession::deleteCookies(const ClientOrigin& origin, Completion
 }
 #endif
 
-bool NetworkStorageSession::cookiesEnabled(const URL& firstParty, const URL& url, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking) const
+bool NetworkStorageSession::cookiesEnabled(const URL& firstParty, const URL& url, std::optional<FrameIdentifier> frameID, std::optional<PageIdentifier> pageID, ShouldRelaxThirdPartyCookieBlocking shouldRelaxThirdPartyCookieBlocking, IsKnownCrossSiteTracker isKnownCrossSiteTracker) const
 {
-    return thirdPartyCookieBlockingDecisionForRequest(firstParty, url, frameID, pageID, shouldRelaxThirdPartyCookieBlocking) != ThirdPartyCookieBlockingDecision::All;
+    return thirdPartyCookieBlockingDecisionForRequest(firstParty, url, frameID, pageID, shouldRelaxThirdPartyCookieBlocking, isKnownCrossSiteTracker) != ThirdPartyCookieBlockingDecision::All;
 }
 
 void NetworkStorageSession::addCookiesEnabledStateObserver(CookiesEnabledStateObserver& observer)

@@ -49,6 +49,11 @@ OBJC_CLASS WKWebPrivacyNotificationListener;
 OBJC_CLASS NSURLSession;
 OBJC_CLASS WKContentRuleList;
 
+namespace WebCore {
+class ResourceRequest;
+enum class IsKnownCrossSiteTracker : bool;
+};
+
 namespace WebKit {
 
 #if ENABLE(ADVANCED_PRIVACY_PROTECTIONS)
@@ -57,6 +62,7 @@ enum class RestrictedOpenerType : uint8_t;
 
 void configureForAdvancedPrivacyProtections(NSURLSession *);
 bool isKnownTrackerAddressOrDomain(StringView host);
+WebCore::IsKnownCrossSiteTracker isRequestToKnownCrossSiteTracker(const WebCore::ResourceRequest&);
 void requestLinkDecorationFilteringData(CompletionHandler<void(Vector<WebCore::LinkDecorationFilteringData>&&)>&&);
 
 class ListDataObserver : public RefCountedAndCanMakeWeakPtr<ListDataObserver> {

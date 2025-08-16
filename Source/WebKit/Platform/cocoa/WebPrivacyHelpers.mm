@@ -33,7 +33,9 @@
 #import "WKContentRuleListStoreInternal.h"
 #import <WebCore/DNS.h>
 #import <WebCore/LinkDecorationFilteringData.h>
+#import <WebCore/NetworkStorageSession.h>
 #import <WebCore/OrganizationStorageAccessPromptQuirk.h>
+#import <WebCore/ResourceRequest.h>
 #import <numeric>
 #import <pal/spi/cf/CFNetworkSPI.h>
 #import <pal/spi/cocoa/NetworkSPI.h>
@@ -749,10 +751,15 @@ bool isKnownTrackerAddressOrDomain(StringView host)
     return TrackerDomainLookupInfo::find(domain.string()).owner().length();
 }
 
+IsKnownCrossSiteTracker isRequestToKnownCrossSiteTracker(const ResourceRequest& request)
+{
+    return request.isThirdParty() && isKnownTrackerAddressOrDomain(request.url().host()) ? WebCore::IsKnownCrossSiteTracker::Yes : WebCore::IsKnownCrossSiteTracker::No;
+}
 #else
 
 void configureForAdvancedPrivacyProtections(NSURLSession *) { }
 bool isKnownTrackerAddressOrDomain(StringView) { return false; }
+WebCore::IsKnownCrossSiteTracker isRequestToKnownCrossSiteTracker(const WebCore::ResourceRequest&) { return WebCore::IsKnownCrossSiteTracker::No; }
 
 #endif
 

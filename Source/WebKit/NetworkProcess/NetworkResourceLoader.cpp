@@ -1243,7 +1243,7 @@ std::optional<Seconds> NetworkResourceLoader::validateCacheEntryForMaxAgeCapVali
     
     if (!existingCacheEntryMatchesNewResponse) {
         if (CheckedPtr networkStorageSession = protectedConnectionToWebProcess()->networkProcess().storageSession(sessionID()))
-            return networkStorageSession->maxAgeCacheCap(request);
+            return networkStorageSession->maxAgeCacheCap(request, NetworkSession::isRequestToKnownCrossSiteTracker(request));
     }
     return std::nullopt;
 }
@@ -1986,7 +1986,7 @@ void NetworkResourceLoader::logCookieInformation(NetworkConnectionToWebProcess& 
 {
     ASSERT(shouldLogCookieInformation(connection, networkStorageSession.sessionID()));
 
-    if (networkStorageSession.shouldBlockCookies(firstParty, url, frameID, pageID, ShouldRelaxThirdPartyCookieBlocking::No))
+    if (networkStorageSession.shouldBlockCookies(firstParty, url, frameID, pageID, ShouldRelaxThirdPartyCookieBlocking::No, IsKnownCrossSiteTracker::No))
         logBlockedCookieInformation(connection, label, loggedObject, networkStorageSession, firstParty, sameSiteInfo, url, referrer, frameID, pageID, identifier);
     else
         logCookieInformationInternal(connection, label, loggedObject, networkStorageSession, firstParty, sameSiteInfo, url, referrer, frameID, pageID, identifier);
