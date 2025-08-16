@@ -6611,7 +6611,7 @@ ScrollToTextFragmentMarkingEnabled:
       
 ScrollendEventEnabled:
   type: bool
-  status: preview
+  status: stable
   category: dom
   humanReadableName: "scrollend event"
   humanReadableDescription: "Enable scrollend event"
@@ -6619,9 +6619,9 @@ ScrollendEventEnabled:
     WebKitLegacy:
       default: false
     WebKit:
-      default: false
+      default: true
     WebCore:
-      default: false
+      default: true
 
 ScrollingPerformanceTestingEnabled:
   type: bool
