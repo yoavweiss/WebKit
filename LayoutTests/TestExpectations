@@ -8014,3 +8014,5 @@ imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/video-tag.h
 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/audio-tag.https.html
 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/beacon.https.html
 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/video-tag.https.html
+
+webkit.org/b/293973 [ Debug ] http/tests/ipc/gpu-load-error-empty-user-info-crssh.html [ Skip ]
