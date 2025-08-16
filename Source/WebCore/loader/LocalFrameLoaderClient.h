@@ -342,6 +342,7 @@ public:
 #endif
 
     virtual bool hasFrameSpecificStorageAccess() { return false; }
+    virtual void revokeFrameSpecificStorageAccess() { }
     virtual void didLoadFromRegistrableDomain(RegistrableDomain&&) { }
     virtual Vector<RegistrableDomain> loadedSubresourceDomains() const { return { }; }
 

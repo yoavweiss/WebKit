@@ -2007,8 +2007,10 @@ void WebProcess::clearResourceLoadStatistics()
 {
     if (auto* observer = ResourceLoadObserver::sharedIfExists())
         observer->clearState();
-    for (auto& page : m_pageMap.values())
+    for (auto& page : m_pageMap.values()) {
         page->clearPageLevelStorageAccess();
+        page->revokeFrameSpecificStorageAccess();
+    }
 }
 
 void WebProcess::flushResourceLoadStatistics()

@@ -1125,6 +1125,10 @@ bool EmptyFrameLoaderClient::hasFrameSpecificStorageAccess()
     return false;
 }
 
+void EmptyFrameLoaderClient::revokeFrameSpecificStorageAccess()
+{
+}
+
 void EmptyFrameLoaderClient::dispatchLoadEventToOwnerElementInAnotherProcess()
 {
 }

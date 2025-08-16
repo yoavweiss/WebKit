@@ -193,6 +193,7 @@ private:
 #endif
 
     bool hasFrameSpecificStorageAccess() final;
+    void revokeFrameSpecificStorageAccess() final;
 
     void dispatchLoadEventToOwnerElementInAnotherProcess() final;
 

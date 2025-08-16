@@ -8721,6 +8721,17 @@ void WebPage::clearPageLevelStorageAccess()
     m_internals->domainsWithPageLevelStorageAccess.clear();
 }
 
+void WebPage::revokeFrameSpecificStorageAccess()
+{
+    for (RefPtr frame = m_mainFrame->coreFrame(); frame; frame = frame->tree().traverseNext()) {
+        RefPtr localFrame = dynamicDowncast<LocalFrame>(frame);
+        if (!localFrame)
+            continue;
+        if (auto* client = dynamicDowncast<WebLocalFrameLoaderClient>(localFrame->loader().client()))
+            client->revokeFrameSpecificStorageAccess();
+    }
+}
+
 void WebPage::wasLoadedWithDataTransferFromPrevalentResource()
 {
     if (RefPtr localTopDocument = this->localTopDocument())
