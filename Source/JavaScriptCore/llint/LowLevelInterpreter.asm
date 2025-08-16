@@ -271,6 +271,11 @@ const NoPtrTag = constexpr NoPtrTag
 # VMTraps data
 const VMTrapsAsyncEvents = constexpr VMTraps::AsyncEvents
 
+# VM offsets
+const VMTrapAwareSoftStackLimitOffset = VM::m_traps + VMTraps::m_stack + StackManager::m_trapAwareSoftStackLimit
+const VMCLoopStackLimitOffset = VM::m_traps + VMTraps::m_stack + StackManager::m_cloopStackLimit
+const VMSoftStackLimitOffset = VM::m_traps + VMTraps::m_stack + StackManager::m_softStackLimit
+
 # Some register conventions.
 # - We use a pair of registers to represent the PC: one register for the
 #   base of the bytecodes, and one register for the index.
@@ -1545,17 +1550,21 @@ if not ADDRESS64
     bpa t0, cfr, .needStackCheck
 end
     loadp CodeBlock::m_vm[t1], t2
-    if C_LOOP
-        bplteq VM::m_cloopStackLimit[t2], t0, .stackHeightOK
-    else
-        bplteq VM::m_softStackLimit[t2], t0, .stackHeightOK
-    end
+    bpbeq VMTrapAwareSoftStackLimitOffset[t2], t0, .stackHeightOK
 
 .needStackCheck:
     # Stack height check failed - need to call a slow_path.
     # Set up temporary stack pointer for call including callee saves
     subp maxFrameExtentForSlowPathCall, sp
-    callSlowPath(_llint_stack_check)
+
+    # Do the equivalent of callSlowPath() except with 3 arguments.
+    prepareStateForCCall()
+    move t0, a2
+    move cfr, a0
+    move PC, a1
+    cCall3(_llint_check_stack_and_vm_traps)
+    restoreStateAfterCCall()
+
     bpeq r1, 0, .stackHeightOKGetCodeBlock
 
     # We're throwing before the frame is fully set up. This frame will be

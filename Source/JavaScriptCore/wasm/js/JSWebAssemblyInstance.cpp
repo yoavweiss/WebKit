@@ -68,7 +68,6 @@ JSWebAssemblyInstance::JSWebAssemblyInstance(VM& vm, Structure* structure, JSWeb
     , m_jsModule(module, WriteBarrierEarlyInit)
     , m_moduleRecord(moduleRecord, WriteBarrierEarlyInit)
     , m_tables(module->module().moduleInformation().tableCount())
-    , m_softStackLimit(vm.softStackLimit())
     , m_module(module->module())
     , m_sourceProvider(sourceProvider)
     , m_globalsToMark(m_module.get().moduleInformation().globalCount())
@@ -139,10 +138,13 @@ void JSWebAssemblyInstance::finishCreation(VM& vm)
     }
     if (moduleInformation.typeCount())
         vm.writeBarrier(this);
+
+    m_vm->traps().registerMirror(m_stackMirror);
 }
 
 JSWebAssemblyInstance::~JSWebAssemblyInstance()
 {
+    m_vm->traps().unregisterMirror(m_stackMirror);
     clearJSCallICs(*m_vm);
     for (unsigned i = 0; i < m_numImportFunctions; ++i)
         importFunctionInfo(i)->~WasmOrJSImportableFunctionCallLinkInfo();

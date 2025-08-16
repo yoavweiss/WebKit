@@ -1126,6 +1126,22 @@ extern "C" UGPRPair SYSV_ABI slow_path_wasm_popcountll(const void* pc, uint64_t 
     WASM_RETURN_TWO(pc, result);
 }
 
+WASM_IPINT_EXTERN_CPP_DECL(check_stack_and_vm_traps, void* candidateNewStackPointer)
+{
+    VM& vm = instance->vm();
+    if (vm.traps().handleTrapsIfNeeded()) {
+        if (vm.hasPendingTerminationException())
+            IPINT_THROW(Wasm::ExceptionType::Termination);
+        ASSERT(!vm.exceptionForInspection());
+    }
+
+    // Redo stack check because we may really have gotten here due to an imminent StackOverflow.
+    if (vm.softStackLimit() <= candidateNewStackPointer)
+        IPINT_RETURN(encodedJSValue()); // No stack overflow. Carry on.
+
+    IPINT_THROW(Wasm::ExceptionType::StackOverflow);
+}
+
 } } // namespace JSC::IPInt
 
 #endif

@@ -1041,6 +1041,7 @@ runtime/SimpleTypedArrayController.cpp
 runtime/SmallStrings.cpp
 runtime/SparseArrayValueMap.cpp
 runtime/StackFrame.cpp
+runtime/StackManager.cpp
 runtime/StrictEvalActivation.cpp
 runtime/StringConstructor.cpp
 runtime/StringIteratorPrototype.cpp

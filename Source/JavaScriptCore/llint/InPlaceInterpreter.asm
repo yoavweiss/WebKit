@@ -125,7 +125,6 @@ end
 # -------------------------
 
 const PtrSize = constexpr (sizeof(void*))
-const MachineRegisterSize = constexpr (sizeof(CPURegister))
 const SlotSize = constexpr (sizeof(Register))
 
 # amount of memory a local takes up on the stack (16 bytes for a v128)
@@ -227,12 +226,17 @@ macro checkStackOverflow(callee, scratch)
     subp cfr, scratch, scratch
 
 if not ADDRESS64
-    bpa scratch, cfr, .stackOverflow
-end
-    bplteq JSWebAssemblyInstance::m_softStackLimit[wasmInstance], scratch, .stackHeightOK
-
-.stackOverflow:
+    bpbeq scratch, cfr, .checkTrapAwareSoftStackLimit
     ipintException(StackOverflow)
+.checkTrapAwareSoftStackLimit:
+end
+    bpbeq JSWebAssemblyInstance::m_stackMirror + StackManager::Mirror::m_trapAwareSoftStackLimit[wasmInstance], scratch, .stackHeightOK
+
+.checkStack:
+    operationCallMayThrowPreservingVolatileRegisters(macro()
+        move scratch, a1
+        cCall2(_ipint_extern_check_stack_and_vm_traps)
+    end)
 
 .stackHeightOK:
 end
@@ -318,7 +322,7 @@ macro operationCall(fn)
     pop MC, PC
 end
 
-macro operationCallMayThrow(fn)
+macro operationCallMayThrowImpl(fn, sizeOfExtraRegistersPreserved)
     saveCallSiteIndex()
 
     move wasmInstance, a0
@@ -332,7 +336,9 @@ macro operationCallMayThrow(fn)
     end
     fn()
     bpneq r1, (constexpr JSC::IPInt::SlowPathExceptionTag), .continuation
+
     storei r0, ArgumentCountIncludingThis + PayloadOffset[cfr]
+    addp sizeOfExtraRegistersPreserved + (4 * MachineRegisterSize), sp
     jmp _wasm_throw_from_slow_path_trampoline
 .continuation:
     if ARM64 or ARM64E
@@ -342,6 +348,17 @@ macro operationCallMayThrow(fn)
         pop PL
     end
     pop MC, PC
+end
+
+macro operationCallMayThrow(fn)
+    operationCallMayThrowImpl(fn, 0)
+end
+
+macro operationCallMayThrowPreservingVolatileRegisters(fn)
+    // FIXME: preserveVolatileRegisters() and restoreVolatileRegisters() are not safe for SIMD.
+    preserveVolatileRegisters()
+    operationCallMayThrowImpl(fn, (NumberOfVolatileGPRs * MachineRegisterSize) + (NumberOfWasmArgumentFPRs * FPRRegisterSize))
+    restoreVolatileRegisters()
 end
 
 # Exception handling

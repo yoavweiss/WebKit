@@ -32,6 +32,7 @@
 #include "JSWebAssemblyGlobal.h"
 #include "JSWebAssemblyMemory.h"
 #include "JSWebAssemblyTable.h"
+#include "StackManager.h"
 #include "WasmCalleeGroup.h"
 #include "WasmCreationMode.h"
 #include "WasmFormat.h"
@@ -130,9 +131,7 @@ public:
 
     using FunctionWrapperMap = UncheckedKeyHashMap<uint32_t, WriteBarrier<Unknown>, IntHash<uint32_t>, WTF::UnsignedWithZeroKeyHashTraits<uint32_t>>;
 
-    static constexpr ptrdiff_t offsetOfSoftStackLimit() { return OBJECT_OFFSETOF(JSWebAssemblyInstance, m_softStackLimit); }
-
-    void updateSoftStackLimit(void* softStackLimit) { m_softStackLimit = softStackLimit; }
+    static constexpr ptrdiff_t offsetOfSoftStackLimit() { return OBJECT_OFFSETOF(JSWebAssemblyInstance, m_stackMirror) + StackManager::Mirror::offsetOfSoftStackLimit(); }
 
     Wasm::Module& module() const { return m_module.get(); }
     SourceTaintedOrigin taintedness() const { return m_sourceProvider->sourceTaintedOrigin(); }
@@ -299,7 +298,7 @@ public:
         m_temporaryCallFrame = callFrame;
     }
 
-    void* softStackLimit() const { return m_softStackLimit; }
+    void* softStackLimit() const { return m_stackMirror.softStackLimit(); }
 
     void setFaultPC(void* pc) { m_faultPC = pc; };
     void* faultPC() const { return m_faultPC; }
@@ -317,7 +316,7 @@ private:
     WriteBarrier<WebAssemblyModuleRecord> m_moduleRecord;
     WriteBarrier<JSWebAssemblyMemory> m_memory;
     FixedVector<WriteBarrier<JSWebAssemblyTable>> m_tables;
-    void* m_softStackLimit { nullptr };
+    StackManager::Mirror m_stackMirror;
     CagedPtr<Gigacage::Primitive, void> m_cachedMemory;
     size_t m_cachedBoundsCheckingSize { 0 };
     const Ref<Wasm::Module> m_module;

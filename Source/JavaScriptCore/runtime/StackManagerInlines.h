@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2025 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -20,44 +20,21 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #pragma once
 
-#if ENABLE(C_LOOP)
-
-#include "CLoopStack.h"
-#include "CallFrame.h"
-#include "CodeBlock.h"
-#include "StackManagerInlines.h"
+#include "StackManager.h"
 #include "VM.h"
+#include "VMTrapsInlines.h"
 
 namespace JSC {
 
-ALWAYS_INLINE VM& CLoopStack::vm() const
+ALWAYS_INLINE VM& StackManager::vm()
 {
-    return stackManager().vm();
-}
-
-inline void CLoopStack::setCLoopStackLimit(Register* newTopOfStack)
-{
-    m_end = newTopOfStack;
-    stackManager().setCLoopStackLimit(newTopOfStack);
-}
-
-inline bool CLoopStack::ensureCapacityFor(Register* newTopOfStack)
-{
-    if (newTopOfStack >= m_end)
-        return true;
-    return grow(newTopOfStack);
-}
-
-ALWAYS_INLINE StackManager& CLoopStack::stackManager() const
-{
-    return *std::bit_cast<StackManager*>(std::bit_cast<uintptr_t>(this) - StackManager::offsetOfCLoopStack());
+    VMTraps& traps = *std::bit_cast<VMTraps*>(std::bit_cast<uintptr_t>(this) - VMTraps::offsetOfStackManager());
+    return traps.vm();
 }
 
 } // namespace JSC
-
-#endif // ENABLE(C_LOOP)

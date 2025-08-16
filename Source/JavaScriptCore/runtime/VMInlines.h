@@ -33,6 +33,10 @@
 #include <JavaScriptCore/VM.h>
 #include <JavaScriptCore/Watchdog.h>
 
+#if ENABLE(C_LOOP)
+#include "CLoopStackInlines.h"
+#endif
+
 namespace JSC {
 
 inline ActiveScratchBufferScope::ActiveScratchBufferScope(ScratchBuffer* buffer, size_t activeScratchBufferSizeInJSValues)
@@ -53,18 +57,18 @@ inline ActiveScratchBufferScope::~ActiveScratchBufferScope()
 bool VM::ensureJSStackCapacityFor(Register* newTopOfStack)
 {
 #if !ENABLE(C_LOOP)
-    return newTopOfStack >= m_softStackLimit;
+    return newTopOfStack >= softStackLimit();
 #else
-    return ensureJSStackCapacityForCLoop(newTopOfStack);
+    return cloopStack().ensureCapacityFor(newTopOfStack);
 #endif
     
 }
 
 bool VM::isSafeToRecurseSoft() const
 {
-    bool safe = isSafeToRecurse(m_softStackLimit);
+    bool safe = isSafeToRecurse(softStackLimit());
 #if ENABLE(C_LOOP)
-    safe = safe && isSafeToRecurseSoftCLoop();
+    safe = safe && cloopStack().isSafeToRecurse();
 #endif
     return safe;
 }

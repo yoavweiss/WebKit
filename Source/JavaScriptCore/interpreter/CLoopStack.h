@@ -39,6 +39,7 @@ namespace JSC {
     class CodeBlockSet;
     class ConservativeRoots;
     class JITStubRoutineSet;
+    class StackManager;
     class VM;
     class LLIntOffsetsExtractor;
 
@@ -76,6 +77,7 @@ namespace JSC {
         bool isSafeToRecurse() const;
 
     private:
+        StackManager& stackManager() const;
         VM& vm() const;
 
         Register* lowAddress() const
