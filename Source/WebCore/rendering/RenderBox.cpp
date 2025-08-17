@@ -4872,6 +4872,31 @@ void RenderBox::addOverflowWithRendererOffset(const RenderBox& renderer, LayoutS
     childLayoutOverflowRect.move(offsetFromThis);
     addLayoutOverflow(childLayoutOverflowRect, flippedClientRect);
 
+    auto ensurePaddingEndIsIncluded = [&] {
+        if (!hasNonVisibleOverflow())
+            return;
+
+        // As per https://github.com/w3c/csswg-drafts/issues/3653 padding should contribute to the scrollable overflow area.
+        if (!paddingEnd())
+            return;
+
+        // FIXME: Expand it to non-grid/flex cases when applicable.
+        if (!is<RenderGrid>(*this) && !is<RenderFlexibleBox>(*this))
+            return;
+
+        if (renderer.isOutOfFlowPositioned())
+            return;
+
+        // Note that we can't use childLayoutOverflowRect here as it already includes propagated overflow from descendents.
+        auto childLogicalRight = (isHorizontalWritingMode() ? offsetFromThis.width() + renderer.width() : offsetFromThis.height() + renderer.height()) + std::max(0_lu, renderer.marginEnd(writingMode()));
+        // Use padding box as the reference box.
+        auto layoutOverflowLogicalWidthIncludingPaddingEnd = (childLogicalRight + paddingEnd()) - borderStart();
+        auto layoutOverflowRect = this->layoutOverflowRect();
+        isHorizontalWritingMode() ? layoutOverflowRect.setWidth(layoutOverflowLogicalWidthIncludingPaddingEnd) : layoutOverflowRect.setHeight(layoutOverflowLogicalWidthIncludingPaddingEnd);
+        addLayoutOverflow(layoutOverflowRect);
+    };
+    ensurePaddingEndIsIncluded();
+
     if (paintContainmentApplies())
         return;
 

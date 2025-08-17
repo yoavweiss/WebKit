@@ -589,40 +589,6 @@ void RenderBlock::computeOverflow(LayoutUnit oldClientAfterEdge, bool)
     addOverflowFromOutOfFlowBoxes();
 
     if (hasNonVisibleOverflow()) {
-        auto includePaddingEnd = [&] {
-            // As per https://github.com/w3c/csswg-drafts/issues/3653 padding should contribute to the scrollable overflow area.
-            if (!paddingEnd())
-                return;
-            // FIXME: Expand it to non-grid/flex cases when applicable.
-            if (!is<RenderGrid>(*this) && !is<RenderFlexibleBox>(*this))
-                return;
-
-            auto layoutOverflowRect = this->layoutOverflowRect();
-            auto layoutOverflowLogicalWidthIncludingPaddingEnd = [&] {
-                if (hasHorizontalLayoutOverflow())
-                    return (isHorizontalWritingMode() ? layoutOverflowRect.width() : layoutOverflowRect.height()) + paddingEnd();
-
-                // FIXME: This is not sufficient for BFC layout (missing non-formatting-context root descendants).
-                auto contentLogicalRight = LayoutUnit { };
-                for (auto& child : childrenOfType<RenderBox>(*this)) {
-                    if (child.isOutOfFlowPositioned())
-                        continue;
-                    auto childLogicalRight = logicalLeftForChild(child) + logicalWidthForChild(child) + std::max(0_lu, marginEndForChild(child));
-                    contentLogicalRight = std::max(contentLogicalRight, childLogicalRight);
-                }
-                auto logicalRightWithPaddingEnd = contentLogicalRight + paddingEnd();
-                // Use padding box as the reference box.
-                return logicalRightWithPaddingEnd - (isHorizontalWritingMode() ? borderLeft() : borderTop());
-            };
-
-            if (isHorizontalWritingMode())
-                layoutOverflowRect.setWidth(layoutOverflowLogicalWidthIncludingPaddingEnd());
-            else
-                layoutOverflowRect.setHeight(layoutOverflowLogicalWidthIncludingPaddingEnd());
-            addLayoutOverflow(layoutOverflowRect);
-        };
-        includePaddingEnd();
-
         auto includePaddingAfter = [&] {
             // When we have overflow clip, propagate the original spillout since it will include collapsed bottom margins and bottom padding.
             auto clientRect = flippedClientBoxRect();
