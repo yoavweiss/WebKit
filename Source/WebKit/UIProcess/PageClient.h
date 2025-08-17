@@ -833,6 +833,11 @@ public:
     virtual void setURLIsPictureInPictureForScreenTime(bool) { };
     virtual void setURLIsPlayingVideoForScreenTime(bool) { };
 #endif
+
+#if ENABLE(POINTER_LOCK)
+    virtual void beginPointerLockMouseTracking() { }
+    virtual void endPointerLockMouseTracking() { }
+#endif
 };
 
 } // namespace WebKit

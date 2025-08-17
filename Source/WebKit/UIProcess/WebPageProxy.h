@@ -1877,10 +1877,6 @@ public:
     void resumeAllMediaPlayback(CompletionHandler<void()>&&);
     void requestMediaPlaybackState(CompletionHandler<void(MediaPlaybackState)>&&);
 
-#if ENABLE(POINTER_LOCK)
-    void requestPointerUnlock(CompletionHandler<void(bool)>&&);
-#endif
-
     void setSuppressVisibilityUpdates(bool flag);
     bool suppressVisibilityUpdates() { return m_suppressVisibilityUpdates; }
 
@@ -2839,6 +2835,9 @@ private:
     void didAllowPointerLock(CompletionHandler<void(bool)>&&);
     void didDenyPointerLock(CompletionHandler<void(bool)>&&);
     void requestPointerLock(IPC::Connection&, CompletionHandler<void(bool)>&&);
+    void requestPointerUnlock(CompletionHandler<void(bool)>&&);
+    void platformLockPointer();
+    void platformUnlockPointer();
 #endif
 
 #if HAVE(MOUSE_DEVICE_OBSERVATION)
