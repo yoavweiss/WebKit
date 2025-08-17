@@ -35,6 +35,21 @@
 namespace WebCore {
 namespace TextExtraction {
 
+enum class Action : uint8_t {
+    Click,
+    SelectText,
+    SelectMenuItem,
+    TextInput,
+};
+
+struct Interaction {
+    Action action { Action::Click };
+    String text;
+    std::optional<FloatPoint> locationInRootView;
+    std::optional<NodeIdentifier> nodeIdentifier;
+    bool replaceAll { false };
+};
+
 enum class EventListenerCategory : uint8_t {
     Click       = 1 << 0,
     Hover       = 1 << 1,

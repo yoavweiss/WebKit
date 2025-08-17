@@ -49,6 +49,14 @@ dictionary TextExtractionOptions {
     boolean skipNearlyTransparentContent = false;
 };
 
+dictionary TextExtractionInteractionOptions {
+    DOMString nodeIdentifier;
+    DOMString text;
+    double x = -1;
+    double y = -1;
+    boolean replaceAll = false;
+};
+
 interface UIScriptController {
 
     undefined doAsyncTask(object callback); // Used to test the harness.
@@ -431,6 +439,7 @@ interface UIScriptController {
 
     undefined requestTextExtraction(object callback, TextExtractionOptions options);
     undefined requestDebugText(object callback);
+    undefined performTextExtractionInteraction(DOMString action, TextExtractionInteractionOptions options, object callback);
 
     undefined requestRenderedTextForFrontmostTarget(long x, long y, object callback);
     undefined adjustVisibilityForFrontmostTarget(long x, long y, object callback);

@@ -338,6 +338,7 @@ struct OpenID4VPRequest;
 #endif
 
 namespace TextExtraction {
+struct Interaction;
 struct Item;
 struct Request;
 }
@@ -2621,6 +2622,7 @@ public:
     void takeSnapshotForTargetedElement(const API::TargetedElementInfo&, CompletionHandler<void(std::optional<WebCore::ShareableBitmapHandle>&&)>&&);
 
     void requestTextExtraction(WebCore::TextExtraction::Request&&, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&&);
+    void handleTextExtractionInteraction(WebCore::TextExtraction::Interaction&&, CompletionHandler<void(bool)>&&);
 
     void hasVideoInPictureInPictureDidChange(bool);
 

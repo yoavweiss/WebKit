@@ -619,14 +619,7 @@ extension WKTextExtractionScrollableItem {
 @_objcImplementation
 extension WKTextExtractionSelectItem {
     let selectedValues: [String]
-
-    @nonobjc
-    private let backingSupportsMultiple: Bool
-    @objc(multiple)
-    var supportsMultiple: Bool {
-        @objc(supportsMultiple)
-        get { backingSupportsMultiple }
-    }
+    let supportsMultiple: Bool
 
     init(
         selectedValues: [String],
@@ -639,7 +632,7 @@ extension WKTextExtractionSelectItem {
         nodeIdentifier: String?
     ) {
         self.selectedValues = selectedValues
-        self.backingSupportsMultiple = supportsMultiple
+        self.supportsMultiple = supportsMultiple
         super
             .init(
                 with: rectInWebView,

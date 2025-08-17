@@ -6354,6 +6354,60 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
     }).get()];
 }
 
+static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const String& nodeIdentifier)
+{
+    auto rawValue = parseInteger<uint64_t>(nodeIdentifier);
+    if (!rawValue || !WebCore::NodeIdentifier::isValidIdentifier(*rawValue))
+        return std::nullopt;
+    return WebCore::NodeIdentifier { *rawValue };
+}
+
+- (void)_performInteraction:(_WKTextExtractionInteraction *)wkInteraction completionHandler:(void(^)(BOOL success))completionHandler
+{
+#if USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
+    if (!self._isValid || !_page->protectedPreferences()->textExtractionEnabled())
+        return completionHandler(NO);
+
+    WebCore::TextExtraction::Interaction interaction;
+    interaction.action = [&] {
+        switch (wkInteraction.action) {
+        case _WKTextExtractionActionClick:
+            return WebCore::TextExtraction::Action::Click;
+        case _WKTextExtractionActionSelectText:
+            return WebCore::TextExtraction::Action::SelectText;
+        case _WKTextExtractionActionSelectMenuItem:
+            return WebCore::TextExtraction::Action::SelectMenuItem;
+        case _WKTextExtractionActionTextInput:
+            return WebCore::TextExtraction::Action::TextInput;
+        default:
+            ASSERT_NOT_REACHED();
+            return WebCore::TextExtraction::Action::Click;
+        }
+    }();
+
+    interaction.nodeIdentifier = toNodeIdentifier(wkInteraction.nodeIdentifier);
+    if (wkInteraction.hasSetLocation) {
+#if PLATFORM(IOS_FAMILY)
+        interaction.locationInRootView = [self convertPoint:wkInteraction.location toView:_contentView.get()];
+#else
+        interaction.locationInRootView = wkInteraction.location;
+#endif
+    }
+    interaction.text = wkInteraction.text;
+    interaction.replaceAll = wkInteraction.replaceAll;
+
+    _page->handleTextExtractionInteraction(WTFMove(interaction), [weakSelf = WeakObjCPtr<WKWebView>(self), completionHandler = makeBlockPtr(completionHandler)](bool success) {
+        RetainPtr strongSelf = weakSelf.get();
+        if (!strongSelf)
+            return completionHandler(success);
+
+        [strongSelf _doAfterNextPresentationUpdate:makeBlockPtr([completionHandler = WTFMove(completionHandler), success] {
+            completionHandler(success);
+        }).get()];
+    });
+#endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
+}
+
 @end
 
 @implementation WKWebView (WKDeprecated)

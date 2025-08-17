@@ -39,3 +39,51 @@
 }
 
 @end
+
+@implementation _WKTextExtractionInteraction {
+    RetainPtr<NSString> _nodeIdentifier;
+    RetainPtr<NSString> _text;
+}
+
+@synthesize action = _action;
+@synthesize replaceAll = _replaceAll;
+@synthesize location = _location;
+@synthesize hasSetLocation = _hasSetLocation;
+
+- (instancetype)initWithAction:(_WKTextExtractionAction)action
+{
+    if (!(self = [super init]))
+        return nil;
+
+    _location = CGPointZero;
+    _action = action;
+    return self;
+}
+
+- (NSString *)nodeIdentifier
+{
+    return _nodeIdentifier.get();
+}
+
+- (void)setNodeIdentifier:(NSString *)nodeIdentifier
+{
+    _nodeIdentifier = adoptNS(nodeIdentifier.copy);
+}
+
+- (NSString *)text
+{
+    return _text.get();
+}
+
+- (void)setText:(NSString *)text
+{
+    _text = adoptNS(text.copy);
+}
+
+- (void)setLocation:(CGPoint)location
+{
+    _hasSetLocation = YES;
+    _location = location;
+}
+
+@end

@@ -2463,6 +2463,34 @@ window.UIHelper = class UIHelper {
             });
         });
     }
+
+    static nodeIdentifierFromDebugText(text, searchTerm)
+    {
+        for (let line of text.split("\n")) {
+            if (!line.includes(searchTerm))
+                continue;
+
+            const match = line.match(/uid=(\d+)/);
+            if (match)
+                return match[1];
+        }
+        return null;
+    }
+
+    static async performTextExtractionInteraction(action, options)
+    {
+        if (!this.isWebKit2())
+            return Promise.resolve(false);
+
+        return new Promise(resolve => {
+            testRunner.runUIScript(`
+                uiController.performTextExtractionInteraction("${action}"
+                    , ${JSON.stringify(options)}
+                    , result => uiController.uiScriptComplete(result));`, (result) => {
+                        resolve(result === "true")
+                    });
+        });
+    }
 }
 
 UIHelper.EventStreamBuilder = class {

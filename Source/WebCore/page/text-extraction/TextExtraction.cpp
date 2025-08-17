@@ -28,8 +28,10 @@
 
 #include "AXObjectCache.h"
 #include "AccessibilityObject.h"
+#include "BoundaryPointInlines.h"
 #include "ComposedTreeIterator.h"
 #include "ContainerNodeInlines.h"
+#include "Editor.h"
 #include "ElementInlines.h"
 #include "EventListenerMap.h"
 #include "EventNames.h"
@@ -47,9 +49,13 @@
 #include "HTMLNames.h"
 #include "HTMLOptionElement.h"
 #include "HTMLSelectElement.h"
+#include "HandleUserInputEventResult.h"
+#include "HitTestResult.h"
 #include "ImageOverlay.h"
 #include "LocalFrame.h"
 #include "Page.h"
+#include "PlatformMouseEvent.h"
+#include "PositionInlines.h"
 #include "RenderBox.h"
 #include "RenderDescendantIterator.h"
 #include "RenderIFrame.h"
@@ -61,6 +67,9 @@
 #include "SimpleRange.h"
 #include "Text.h"
 #include "TextIterator.h"
+#include "UserGestureIndicator.h"
+#include "UserTypingGestureIndicator.h"
+#include "VisibleSelection.h"
 #include "WritingMode.h"
 #include <ranges>
 #include <unicode/uchar.h>
@@ -899,6 +908,246 @@ Vector<std::pair<String, FloatRect>> extractAllTextAndRects(Page& page)
         return { };
 
     return extractAllTextAndRectsRecursive(*document);
+}
+
+static std::optional<SimpleRange> searchForText(Node& node, const String& searchText)
+{
+    auto searchRange = makeRangeSelectingNodeContents(node);
+    auto foundRange = findPlainText(searchRange, searchText, {
+        FindOption::DoNotRevealSelection,
+        FindOption::DoNotSetSelection,
+    });
+
+    if (foundRange.collapsed())
+        return { };
+
+    return { WTFMove(foundRange) };
+}
+
+static void dispatchSimulatedClick(Page& page, IntPoint location, CompletionHandler<void(bool)>&& completion)
+{
+    RefPtr frame = page.localMainFrame();
+    if (!frame)
+        return completion(false);
+
+    frame->eventHandler().handleMouseMoveEvent({
+        location, location, MouseButton::Left, PlatformEvent::Type::MouseMoved, 0, { }, WallTime::now(), ForceAtClick, SyntheticClickType::NoTap
+    });
+
+    frame->eventHandler().handleMousePressEvent({
+        location, location, MouseButton::Left, PlatformEvent::Type::MousePressed, 1, { }, WallTime::now(), ForceAtClick, SyntheticClickType::NoTap
+    });
+
+    frame->eventHandler().handleMouseReleaseEvent({
+        location, location, MouseButton::Left, PlatformEvent::Type::MouseReleased, 1, { }, WallTime::now(), ForceAtClick, SyntheticClickType::NoTap
+    });
+
+    completion(true);
+}
+
+static void dispatchSimulatedClick(Node& targetNode, const String& searchText, CompletionHandler<void(bool)>&& completion)
+{
+    RefPtr element = dynamicDowncast<Element>(targetNode);
+    if (!element)
+        return completion(false);
+
+    if (!element->isConnected())
+        return completion(false);
+
+    {
+        CheckedPtr renderer = element->renderer();
+        if (!renderer)
+            return completion(false);
+
+        if (renderer->style().usedVisibility() != Visibility::Visible)
+            return completion(false);
+    }
+
+    Ref document = element->document();
+    RefPtr view = document->view();
+    if (!view)
+        return completion(false);
+
+    RefPtr page = document->page();
+    if (!page)
+        return completion(false);
+
+    static constexpr OptionSet defaultHitTestOptions {
+        HitTestRequest::Type::ReadOnly,
+        HitTestRequest::Type::DisallowUserAgentShadowContent,
+    };
+
+    std::optional<FloatRect> targetRectInRootView;
+    if (!searchText.isEmpty()) {
+        auto foundRange = searchForText(*element, searchText);
+        if (!foundRange) {
+            // Err on the side of failing, if the text has changed since the interaction was triggered.
+            return completion(false);
+        }
+
+        if (auto absoluteQuads = RenderObject::absoluteTextQuads(*foundRange); !absoluteQuads.isEmpty()) {
+            // If the text match wraps across multiple lines, arbitrarily click over the first rect to avoid
+            // missing the text node altogether.
+            targetRectInRootView = view->contentsToRootView(absoluteQuads.first().boundingBox());
+        }
+    }
+
+    if (!targetRectInRootView)
+        targetRectInRootView = rootViewBounds(*element);
+
+    auto centerInRootView = roundedIntPoint(targetRectInRootView->center());
+    auto centerInContents = view->rootViewToContents(centerInRootView);
+    HitTestResult result { centerInContents };
+    if (document->hitTest(defaultHitTestOptions, result)) {
+        if (RefPtr target = result.innerNode(); target && (target == element || target->isShadowIncludingDescendantOf(*element))) {
+            // Dispatch mouse events over the center of the element, if possible.
+            return dispatchSimulatedClick(*page, centerInRootView, WTFMove(completion));
+        }
+    }
+
+    UserGestureIndicator indicator { IsProcessingUserGesture::Yes, element->protectedDocument().ptr() };
+
+    // Fall back to dispatching a programmatic click.
+    completion(element->dispatchSimulatedClick(nullptr, SendMouseUpDownEvents));
+}
+
+static void dispatchSimulatedClick(NodeIdentifier identifier, const String& searchText, CompletionHandler<void(bool)>&& completion)
+{
+    RefPtr foundNode = Node::fromIdentifier(identifier);
+    if (!foundNode)
+        return completion(false);
+
+    dispatchSimulatedClick(*foundNode, searchText, WTFMove(completion));
+}
+
+static bool selectOptionByValue(NodeIdentifier identifier, const String& optionText)
+{
+    RefPtr foundNode = Node::fromIdentifier(identifier);
+    if (!foundNode)
+        return false;
+
+    if (RefPtr select = dynamicDowncast<HTMLSelectElement>(*foundNode)) {
+        if (optionText.isEmpty())
+            return false;
+
+        select->setValue(optionText);
+        return select->selectedIndex() != -1;
+    }
+
+    return false;
+}
+
+static void selectText(NodeIdentifier identifier, const String& searchText, CompletionHandler<void(bool)>&& completion)
+{
+    RefPtr foundNode = Node::fromIdentifier(identifier);
+    if (!foundNode)
+        return completion(false);
+
+    if (RefPtr control = dynamicDowncast<HTMLTextFormControlElement>(*foundNode)) {
+        // FIXME: This should probably honor `searchText`.
+        control->select();
+        return completion(true);
+    }
+
+    std::optional<SimpleRange> targetRange;
+    if (searchText.isEmpty())
+        targetRange = makeRangeSelectingNodeContents(*foundNode);
+    else
+        targetRange = searchForText(*foundNode, searchText);
+
+    if (!targetRange)
+        return completion(false);
+
+    completion(foundNode->protectedDocument()->selection().setSelectedRange(*targetRange, Affinity::Downstream, FrameSelection::ShouldCloseTyping::Yes, UserTriggered::Yes));
+}
+
+static void focusAndInsertText(NodeIdentifier identifier, String&& text, bool replaceAll, CompletionHandler<void(bool)>&& completion)
+{
+    RefPtr foundNode = Node::fromIdentifier(identifier);
+    if (!foundNode)
+        return completion(false);
+
+    RefPtr<Element> elementToFocus;
+    if (RefPtr element = dynamicDowncast<Element>(*foundNode); element && element->isTextField())
+        elementToFocus = element;
+    else if (RefPtr host = foundNode->shadowHost(); host && host->isTextField()) {
+        if (RefPtr formControl = dynamicDowncast<HTMLTextFormControlElement>(host.get()))
+            elementToFocus = WTFMove(formControl);
+    }
+
+    if (!elementToFocus)
+        elementToFocus = foundNode->isRootEditableElement() ? dynamicDowncast<Element>(*foundNode) : foundNode->rootEditableElement();
+
+    if (!elementToFocus)
+        return completion(false);
+
+    Ref document = elementToFocus->document();
+    RefPtr frame = document->frame();
+    if (!frame)
+        return completion(false);
+
+    // First, attempt to dispatch a click over the editable area (and fall back to programmatically setting focus).
+    dispatchSimulatedClick(*elementToFocus, { }, [document = document.copyRef(), elementToFocus, frame, replaceAll, text = WTFMove(text), completion = WTFMove(completion)](bool clicked) mutable {
+        if (!clicked || elementToFocus != document->activeElement())
+            elementToFocus->focus();
+
+        if (replaceAll) {
+            if (elementToFocus->isRootEditableElement())
+                document->selection().setSelectedRange(makeRangeSelectingNodeContents(*elementToFocus), Affinity::Downstream, FrameSelection::ShouldCloseTyping::Yes, UserTriggered::Yes);
+            else
+                document->selection().selectAll();
+        }
+
+        UserTypingGestureIndicator indicator { *frame };
+
+        document->protectedEditor()->pasteAsPlainText(text, false);
+        completion(true);
+    });
+}
+
+void handleInteraction(Interaction&& interaction, Page& page, CompletionHandler<void(bool)>&& completion)
+{
+    switch (interaction.action) {
+    case Action::Click: {
+        if (auto location = interaction.locationInRootView)
+            return dispatchSimulatedClick(page, roundedIntPoint(*location), WTFMove(completion));
+
+        if (auto identifier = interaction.nodeIdentifier)
+            return dispatchSimulatedClick(*identifier, WTFMove(interaction.text), WTFMove(completion));
+
+        return completion(false);
+    }
+    case Action::SelectMenuItem: {
+        if (auto identifier = interaction.nodeIdentifier) {
+            if (selectOptionByValue(*identifier, interaction.text))
+                return completion(true);
+
+            return dispatchSimulatedClick(*identifier, interaction.text, WTFMove(completion));
+        }
+
+        return completion(false);
+    }
+    case Action::SelectText: {
+        if (auto identifier = interaction.nodeIdentifier) {
+            if (selectOptionByValue(*identifier, interaction.text))
+                return completion(true);
+
+            return selectText(*identifier, WTFMove(interaction.text), WTFMove(completion));
+        }
+
+        return completion(false);
+    }
+    case Action::TextInput: {
+        if (auto identifier = interaction.nodeIdentifier)
+            return focusAndInsertText(*identifier, WTFMove(interaction.text), interaction.replaceAll, WTFMove(completion));
+
+        return completion(false);
+    }
+    default:
+        ASSERT_NOT_REACHED();
+        break;
+    }
+    completion(false);
 }
 
 } // namespace TextExtraction

@@ -7042,6 +7042,23 @@ header: <WebCore/LayerTreeAsTextOptions.h>
 };
 
 header: <WebCore/TextExtractionTypes.h>
+[CustomHeader] enum class WebCore::TextExtraction::Action : uint8_t {
+    Click,
+    SelectText,
+    SelectMenuItem,
+    TextInput
+};
+
+header: <WebCore/TextExtractionTypes.h>
+[CustomHeader] struct WebCore::TextExtraction::Interaction {
+    WebCore::TextExtraction::Action action;
+    String text;
+    std::optional<WebCore::FloatPoint> locationInRootView;
+    std::optional<WebCore::NodeIdentifier> nodeIdentifier;
+    bool replaceAll;
+};
+
+header: <WebCore/TextExtractionTypes.h>
 [CustomHeader] struct WebCore::TextExtraction::Request {
     std::optional<WebCore::FloatRect> collectionRectInRootView;
     bool mergeParagraphs;

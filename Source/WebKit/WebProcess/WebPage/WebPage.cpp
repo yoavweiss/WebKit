@@ -10066,6 +10066,11 @@ void WebPage::requestTextExtraction(TextExtraction::Request&& request, Completio
     completion(TextExtraction::extractItem(WTFMove(request), Ref { *corePage() }));
 }
 
+void WebPage::handleTextExtractionInteraction(TextExtraction::Interaction&& interaction, CompletionHandler<void(bool)>&& completion)
+{
+    TextExtraction::handleInteraction(WTFMove(interaction), Ref { *corePage() }, WTFMove(completion));
+}
+
 template<typename T> T WebPage::contentsToRootView(WebCore::FrameIdentifier frameID, T geometry)
 {
     RefPtr webFrame = WebProcess::singleton().webFrame(frameID);

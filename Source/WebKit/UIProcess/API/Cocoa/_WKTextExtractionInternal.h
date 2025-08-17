@@ -52,6 +52,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface _WKTextExtractionInteraction ()
+
+@property (nonatomic, readonly) BOOL hasSetLocation;
+
+@end
+
 typedef NS_ENUM(NSInteger, WKTextExtractionContainer) {
     WKTextExtractionContainerRoot,
     WKTextExtractionContainerViewportConstrained,
