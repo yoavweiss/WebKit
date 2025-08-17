@@ -508,7 +508,7 @@ void RenderFlexibleBox::repositionLogicalHeightDependentFlexItems(FlexLineStates
 
     alignFlexItems(lineStates);
     
-    if (style().flexWrap() == FlexWrap::Reverse)
+    if (isWrapReverse())
         flipForWrapReverse(lineStates, crossAxisStartEdge);
     
     // direction:rtl + flex-direction:column means the cross-axis direction is
@@ -531,6 +531,11 @@ bool RenderFlexibleBox::isColumnOrRowReverse() const
     return style().flexDirection() == FlexDirection::ColumnReverse || style().flexDirection() == FlexDirection::RowReverse;
 }
 
+bool RenderFlexibleBox::isWrapReverse() const
+{
+    return style().flexWrap() == FlexWrap::Reverse;
+}
+
 bool RenderFlexibleBox::isHorizontalFlow() const
 {
     if (isHorizontalWritingMode())
@@ -550,13 +555,13 @@ RenderFlexibleBox::Direction RenderFlexibleBox::crossAxisDirection() const
     auto crossAxisDirection = style().isRowFlexDirection() ? writingMode().blockDirection() : writingMode().inlineDirection();
     switch (crossAxisDirection) {
     case FlowDirection::TopToBottom:
-        return style().flexWrap() == FlexWrap::Reverse ? Direction::BottomToTop : Direction::TopToBottom;
+        return isWrapReverse() ? Direction::BottomToTop : Direction::TopToBottom;
     case FlowDirection::BottomToTop:
-        return style().flexWrap() == FlexWrap::Reverse ? Direction::TopToBottom : Direction::BottomToTop;
+        return isWrapReverse() ? Direction::TopToBottom : Direction::BottomToTop;
     case FlowDirection::LeftToRight:
-        return style().flexWrap() == FlexWrap::Reverse ? Direction::RightToLeft : Direction::LeftToRight;
+        return isWrapReverse() ? Direction::RightToLeft : Direction::LeftToRight;
     case FlowDirection::RightToLeft:
-        return style().flexWrap() == FlexWrap::Reverse ? Direction::LeftToRight : Direction::RightToLeft;
+        return isWrapReverse() ? Direction::LeftToRight : Direction::RightToLeft;
     default:
         ASSERT_NOT_REACHED();
         return Direction::TopToBottom;
@@ -1428,7 +1433,7 @@ void RenderFlexibleBox::performFlexLayout(RelayoutChildren relayoutChildren)
     }
 
     if (!lineStates.isEmpty()) {
-        auto isWrapReverse = style().flexWrap() == FlexWrap::Reverse;
+        auto isWrapReverse = this->isWrapReverse();
         auto firstLineItemsCountInOriginalOrder = lineStates.first().flexLayoutItems.size();
         auto lastLineItemsCountInOriginalOrder = lineStates.first().flexLayoutItems.size();
 
@@ -2067,7 +2072,7 @@ LayoutUnit RenderFlexibleBox::staticCrossAxisPositionForPositionedFlexItem(const
     auto align = alignmentForFlexItem(flexItem);
     if (availableSpace < 0 && safety == OverflowAlignment::Safe)
         align = ItemPosition::FlexStart;
-    return alignmentOffset(availableSpace, align, std::nullopt, std::nullopt, style().flexWrap() == FlexWrap::Reverse);
+    return alignmentOffset(availableSpace, align, { }, { }, isWrapReverse());
 }
 
 LayoutUnit RenderFlexibleBox::staticInlinePositionForPositionedFlexItem(const RenderBox& flexItem)
@@ -2181,7 +2186,7 @@ ItemPosition RenderFlexibleBox::alignmentForFlexItem(const RenderBox& flexItem) 
             ? ItemPosition::FlexStart : ItemPosition::FlexEnd;
     }
 
-    if (style().flexWrap() == FlexWrap::Reverse) {
+    if (isWrapReverse()) {
         if (align == ItemPosition::FlexStart)
             align = ItemPosition::FlexEnd;
         else if (align == ItemPosition::FlexEnd)
@@ -2540,7 +2545,7 @@ void RenderFlexibleBox::alignFlexLines(FlexLineStates& lineStates, LayoutUnit ga
     ContentPosition position = style().resolvedAlignContentPosition(contentAlignmentNormalBehavior());
     ContentDistribution distribution = style().resolvedAlignContentDistribution(contentAlignmentNormalBehavior());
     OverflowAlignment safety = style().alignContent().overflow();
-    bool isWrapReverse = style().flexWrap() == FlexWrap::Reverse;
+    bool isWrapReverse = this->isWrapReverse();
 
     if (position == ContentPosition::FlexStart && !gapBetweenLines && safety != OverflowAlignment::Safe && !isWrapReverse)
         return;
@@ -2593,7 +2598,7 @@ void RenderFlexibleBox::alignFlexItems(FlexLineStates& lineStates)
             LayoutUnit availableSpace = availableAlignmentSpaceForFlexItem(lineCrossAxisExtent, flexLayoutItem.renderer);
             if (availableSpace < 0 && safety == OverflowAlignment::Safe)
                 position = ItemPosition::FlexStart; // See Start == FlexStart assumption in alignmentForFlexItem().
-            LayoutUnit offset = alignmentOffset(availableSpace, position, std::nullopt, std::nullopt, style().flexWrap() == FlexWrap::Reverse);
+            LayoutUnit offset = alignmentOffset(availableSpace, position, { }, { }, isWrapReverse());
             adjustAlignmentForFlexItem(flexLayoutItem.renderer, offset);
         }
     }
@@ -2604,7 +2609,7 @@ void RenderFlexibleBox::performBaselineAlignment(LineState& lineState)
     ASSERT(lineState.baselineAlignmentState);
 
     auto lineCrossAxisExtent = lineState.crossAxisExtent;
-    bool containerHasWrapReverse = style().flexWrap() == FlexWrap::Reverse;
+    bool containerHasWrapReverse = isWrapReverse();
 
     auto flexItemWritingModeForBaselineAlignment = [&](const RenderBox& flexItem) {
         if (mainAxisIsFlexItemInlineAxis(flexItem))
@@ -2849,7 +2854,7 @@ const RenderBox* RenderFlexibleBox::lastBaselineCandidateOnLine(OrderIterator fl
 const RenderBox* RenderFlexibleBox::flexItemForFirstBaseline() const
 {
     // Looking for baseline flex candidate on visually first line.
-    auto useLastLine = style().flexWrap() == FlexWrap::Reverse;
+    auto useLastLine = isWrapReverse();
     auto useLastItem = style().flexDirection() == FlexDirection::RowReverse || style().flexDirection() == FlexDirection::ColumnReverse;
 
     if (!useLastLine) {
@@ -2872,7 +2877,7 @@ const RenderBox* RenderFlexibleBox::flexItemForFirstBaseline() const
 const RenderBox* RenderFlexibleBox::flexItemForLastBaseline() const
 {
     // Looking for baseline flex candidate on visually last line.
-    auto useLastLine = style().flexWrap() == FlexWrap::Reverse;
+    auto useLastLine = isWrapReverse();
     auto useLastItem = style().flexDirection() == FlexDirection::RowReverse || style().flexDirection() == FlexDirection::ColumnReverse;
 
     if (!useLastLine) {

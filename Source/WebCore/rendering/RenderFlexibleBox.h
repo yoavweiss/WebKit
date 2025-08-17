@@ -104,6 +104,9 @@ public:
 
     bool shouldResetFlexItemLogicalHeightBeforeLayout() const { return m_shouldResetFlexItemLogicalHeightBeforeLayout; }
 
+    bool isColumnOrRowReverse() const;
+    bool isWrapReverse() const;
+
 protected:
     void computeIntrinsicLogicalWidths(LayoutUnit& minLogicalWidth, LayoutUnit& maxLogicalWidth) const override;
 
@@ -176,7 +179,6 @@ private:
 
     bool mainAxisIsFlexItemInlineAxis(const RenderBox&) const;
     bool isColumnFlow() const;
-    bool isColumnOrRowReverse() const;
     bool isLeftToRightFlow() const;
     bool isMultiline() const;
     Style::FlexBasis flexBasisForFlexItem(const RenderBox& flexItem) const;
