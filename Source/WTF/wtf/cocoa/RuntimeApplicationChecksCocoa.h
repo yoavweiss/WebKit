@@ -125,6 +125,7 @@ enum class SDKAlignedBehavior {
     BlobFileAccessEnforcement,
     SupportGameControllerEventInteractionAPI,
     DidFailProvisionalNavigationWithErrorForFileURLNavigation,
+    CrashWhenPreconnectingFromBackgroundThread,
 
     NumberOfBehaviors
 };

@@ -188,6 +188,7 @@
 #import <wtf/BlockPtr.h>
 #import <wtf/CallbackAggregator.h>
 #import <wtf/HashMap.h>
+#import <wtf/MainThread.h>
 #import <wtf/MathExtras.h>
 #import <wtf/NeverDestroyed.h>
 #import <wtf/RetainPtr.h>
@@ -1035,6 +1036,9 @@ static void addBrowsingContextControllerMethodStubsIfNeeded()
 
 - (WKNavigation *)loadRequest:(NSURLRequest *)request
 {
+    if (!isUIThread())
+        RELEASE_LOG_FAULT(Loading, "WKWebView APIs must be called from the main thread");
+
     THROW_IF_SUSPENDED;
     if (_page->isServiceWorkerPage())
         [NSException raise:NSInternalInconsistencyException format:@"The WKWebView was used to load a service worker"];
