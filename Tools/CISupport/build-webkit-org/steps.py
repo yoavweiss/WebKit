@@ -738,7 +738,7 @@ class RunJavaScriptCoreTests(TestWithFailureCount, CustomFlagsMixin, ShellMixin)
         self.command += self.commandExtra
 
         if self.getProperty('architecture') in ["armv7"]:
-            self.command = ["linux32"] ++ self.command
+            self.command = ["linux32"] + self.command
 
         # Currently run-javascriptcore-test doesn't support run javascript core test binaries list below remotely
         if architecture in ['aarch64']:
