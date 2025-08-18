@@ -168,6 +168,7 @@ public:
     PREFERRED_TYPE(TextAlignLast) unsigned textAlignLast : 3;
     PREFERRED_TYPE(TextJustify) unsigned textJustify : 2;
     PREFERRED_TYPE(TextDecorationSkipInk) unsigned textDecorationSkipInk : 2;
+    PREFERRED_TYPE(MathShift) unsigned mathShift : 1;
     PREFERRED_TYPE(MathStyle) unsigned mathStyle : 1;
     PREFERRED_TYPE(RubyPosition) unsigned rubyPosition : 2;
     PREFERRED_TYPE(RubyAlign) unsigned rubyAlign : 2;

@@ -5916,6 +5916,22 @@
                 "url": "https://drafts.fxtf.org/css-masking-1/#propdef-mask-type"
             }
         },
+        "math-shift": {
+            "animation-type": "not animatable",
+            "inherited": true,
+            "initial": "normal",
+            "values": [
+                "normal",
+                "compact"
+            ],
+            "codegen-properties": {
+                "parser-grammar": "<<values>>"
+            },
+            "specification": {
+                "category": "mathml-core",
+                "url": "https://w3c.github.io/mathml-core/#propdef-math-shift"
+            }
+        },
         "math-style": {
             "animation-type": "not animatable",
             "inherited": true,

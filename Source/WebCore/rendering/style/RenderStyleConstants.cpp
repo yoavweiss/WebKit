@@ -1478,6 +1478,15 @@ TextStream& operator<<(TextStream& ts, WordBreak wordBreak)
     return ts;
 }
 
+TextStream& operator<<(TextStream& ts, MathShift mathShift)
+{
+    switch (mathShift) {
+    case MathShift::Normal: ts << "normal"_s; break;
+    case MathShift::Compact: ts << "compact"_s; break;
+    }
+    return ts;
+}
+
 TextStream& operator<<(TextStream& ts, MathStyle mathStyle)
 {
     switch (mathStyle) {
