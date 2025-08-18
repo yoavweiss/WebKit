@@ -8194,7 +8194,9 @@ webkit.org/b/297067 fast/forms/state-restore-form-associated-custom-elements.htm
 
 webkit.org/b/297081 http/tests/resourceLoadStatistics/exemptDomains/managed-domains-cookieEnabled.html [ Pass Failure ]
 
-webkit.org/b/297122 [ Release ] imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside-010.html [ Pass Failure ]
+# webkit.org/b/297122 2x imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside (layout-tests) tests are flaky text failures
+[ Release ] imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside-010.html [ Pass Failure ]
+[ Release ] imported/w3c/web-platform-tests/css/css-shapes/spec-examples/shape-outside-013.html [ Pass Failure ]
 
 webkit.org/b/297141 [ Debug ] fast/eventsource/eventsource-attribute-listeners.html [ Pass Crash ]
 
