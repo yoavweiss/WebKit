@@ -42,6 +42,9 @@ constexpr size_t logCategoryMaxSize = 32;
 constexpr size_t logSubsystemMaxSize = 32;
 constexpr size_t logStringMaxSize = 256;
 
+// Type which receives log messages from another process and invokes the platform logging.
+// The messages are found from generated LogStream.messages.in in build directory,
+// DerivedSources/WebKit/LogStream.messages.in.
 class LogStream final
 #if ENABLE(STREAMING_IPC_IN_LOG_FORWARDING)
 : public IPC::StreamMessageReceiver {

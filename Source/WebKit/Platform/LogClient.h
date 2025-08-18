@@ -43,6 +43,9 @@
 
 namespace WebKit {
 
+// Type which is captures WebKit and platform log calls and forwards log messages to another process.
+// The messages are found from generated LogStream.messages.in in build directory,
+// DerivedSources/WebKit/LogStream.messages.in.
 class LogClient final : public WebCore::LogClient {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED(LogClient);
 public:
