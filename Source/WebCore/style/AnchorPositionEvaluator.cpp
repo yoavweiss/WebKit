@@ -1414,25 +1414,25 @@ bool AnchorPositionEvaluator::isDefaultAnchorInvisibleOrClippedByInterveningBoxe
     if (!defaultAnchor)
         return false;
 
-    auto& anchorBox = *defaultAnchor;
-
-    if (anchorBox.style().usedVisibility() == Visibility::Hidden)
+    if (defaultAnchor->style().usedVisibility() == Visibility::Hidden)
         return true;
+
+    CheckedPtr anchorBox = dynamicDowncast<RenderBox>(*defaultAnchor);
 
     // https://drafts.csswg.org/css-anchor-position-1/#position-visibility
     // "An anchor box anchor is clipped by intervening boxes relative to a positioned box abspos relying on it if anchor’s ink overflow
     // rectangle is fully clipped by a box which is an ancestor of anchor but a descendant of abspos’s containing block."
 
     auto localAnchorRect = [&] {
-        if (auto* box = dynamicDowncast<RenderBox>(anchorBox))
-            return box->visualOverflowRect();
-        return downcast<RenderInline>(anchorBox).linesVisualOverflowBoundingBox();
+        if (anchorBox)
+            return anchorBox->visualOverflowRect();
+        return downcast<RenderInline>(*defaultAnchor).linesVisualOverflowBoundingBox();
     }();
     auto* anchoredContainingBlock = anchoredBox.container();
 
-    auto anchorRect = anchorBox.localToAbsoluteQuad(FloatQuad { localAnchorRect }).boundingBox();
+    auto anchorRect = defaultAnchor->localToAbsoluteQuad(FloatQuad { localAnchorRect }).boundingBox();
 
-    for (auto* anchorAncestor = anchorBox.parent(); anchorAncestor && anchorAncestor != anchoredContainingBlock; anchorAncestor = anchorAncestor->parent()) {
+    for (auto* anchorAncestor = defaultAnchor->parent(); anchorAncestor && anchorAncestor != anchoredContainingBlock; anchorAncestor = anchorAncestor->parent()) {
         if (!anchorAncestor->hasNonVisibleOverflow())
             continue;
         auto* clipAncestor = dynamicDowncast<RenderBox>(*anchorAncestor);
@@ -1443,6 +1443,13 @@ bool AnchorPositionEvaluator::isDefaultAnchorInvisibleOrClippedByInterveningBoxe
         if (!clipRect.intersects(anchorRect))
             return true;
     }
+
+    if (anchorBox) {
+        // Test for chained anchors.
+        if (isDefaultAnchorInvisibleOrClippedByInterveningBoxes(*anchorBox))
+            return true;
+    }
+
     return false;
 }
 
