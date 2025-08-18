@@ -8228,3 +8228,5 @@ webkit.org/b/295599 [ Release ] http/tests/webcodecs/audio-decoder-callbacks-do-
 webkit.org/b/286318 http/tests/iframe-monitor [ Pass ]
 
 webkit.org/b/294931 ipc/LocalSampleBufferDisplayLayer-LogIdentifier-data-race-uaf.html [ Skip ]
+
+webkit.org/b/289010 imported/w3c/web-platform-tests/html/semantics/disabled-elements/event-propagate-disabled-keyboard.tentative.html [ Failure ]
