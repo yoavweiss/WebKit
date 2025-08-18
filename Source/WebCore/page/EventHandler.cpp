@@ -4397,8 +4397,8 @@ std::optional<RemoteUserInputEventData> EventHandler::dragSourceEndedAt(const Pl
     // Send a hit test request so that RenderLayer gets a chance to update the :hover and :active pseudoclasses.
     auto mouseEvent = prepareMouseEvent(OptionSet<HitTestRequest::Type> { HitTestRequest::Type::Release, HitTestRequest::Type::DisallowUserAgentShadowContent }, event);
     if (RefPtr remoteSubframe = dynamicDowncast<RemoteFrame>(subframeForHitTestResult(mouseEvent))) {
-        // FIXME(264611): These mouse coordinates need to be correctly transformed.
-        return RemoteUserInputEventData { remoteSubframe->frameID(),  mouseEvent.hitTestResult().roundedPointInInnerNodeFrame() };
+        auto pointInFrame = mouseEvent.hitTestResult().roundedPointInInnerNodeFrame();
+        return userInputEventDataForRemoteFrame(remoteSubframe.get(), pointInFrame);
     }
 
     if (shouldDispatchEventsToDragSourceElement()) {
