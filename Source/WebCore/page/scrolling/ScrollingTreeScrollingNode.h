@@ -133,6 +133,7 @@ public:
     OverscrollBehavior verticalOverscrollBehavior() const { return m_scrollableAreaParameters.verticalOverscrollBehavior; }
 
     ScrollbarWidth scrollbarWidthStyle() const { return m_scrollableAreaParameters.scrollbarWidthStyle; }
+    std::optional<ScrollbarColor> scrollbarColorStyle() const { return m_scrollableAreaParameters.scrollbarColorStyle; }
 
     virtual String scrollbarStateForOrientation(ScrollbarOrientation) const { return ""_s; }
     

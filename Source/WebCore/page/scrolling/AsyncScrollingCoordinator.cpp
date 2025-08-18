@@ -1108,6 +1108,7 @@ void AsyncScrollingCoordinator::setScrollingNodeScrollableAreaGeometry(std::opti
     scrollParameters.horizontalNativeScrollbarVisibility = scrollableArea.horizontalNativeScrollbarVisibility();
     scrollParameters.verticalNativeScrollbarVisibility = scrollableArea.verticalNativeScrollbarVisibility();
     scrollParameters.scrollbarWidthStyle = scrollableArea.scrollbarWidthStyle();
+    scrollParameters.scrollbarColorStyle = scrollableArea.scrollbarColorStyle();
 
     scrollingNode->setScrollableAreaParameters(scrollParameters);
 

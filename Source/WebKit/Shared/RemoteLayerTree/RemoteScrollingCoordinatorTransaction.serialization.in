@@ -210,11 +210,6 @@ header: <WebCore/ScrollingStatePositionedNode.h>
     bool verticalScrollbarIsEnabled;
 };
 
-[CustomHeader] struct WebCore::ScrollbarColor {
-    WebCore::Color thumbColor;
-    WebCore::Color trackColor;
-};
-
 [RefCounted] class WebCore::ScrollingStateOverflowScrollProxyNode {
     WebCore::ScrollingNodeID scrollingNodeID()
     Vector<Ref<WebCore::ScrollingStateNode>> children()

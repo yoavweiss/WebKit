@@ -209,13 +209,13 @@ private:
     ScrollbarHoverState m_scrollbarHoverState;
     MouseLocationState m_mouseLocationState;
     ScrollbarEnabledState m_scrollbarEnabledState;
-    std::optional<ScrollbarColor> m_scrollbarColor;
 
 #if PLATFORM(MAC)
     RetainPtr<NSScrollerImp> m_verticalScrollerImp;
     RetainPtr<NSScrollerImp> m_horizontalScrollerImp;
 #endif
 
+    std::optional<ScrollbarColor> m_scrollbarColor;
     ScrollableAreaParameters m_scrollableAreaParameters;
     RequestedScrollData m_requestedScrollData;
     RequestedKeyboardScrollData m_keyboardScrollData;

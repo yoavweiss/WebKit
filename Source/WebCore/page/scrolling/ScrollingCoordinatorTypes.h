@@ -89,6 +89,7 @@ struct ScrollableAreaParameters {
     NativeScrollbarVisibility verticalNativeScrollbarVisibility { NativeScrollbarVisibility::Visible };
 
     ScrollbarWidth scrollbarWidthStyle { ScrollbarWidth::Auto };
+    std::optional<ScrollbarColor> scrollbarColorStyle;
 
     friend bool operator==(const ScrollableAreaParameters&, const ScrollableAreaParameters&) = default;
 };

@@ -1000,6 +1000,17 @@ static void changeContentOffsetBoundedInValidRange(UIScrollView *scrollView, Web
         [_scrollView setShowsVerticalScrollIndicator:(_page->scrollingCoordinatorProxy()->mainFrameScrollbarWidth() != WebCore::ScrollbarWidth::None)];
     }
 
+#if HAVE(UIKIT_SCROLLBAR_COLOR_SPI)
+    auto scrollbarColor = _page->scrollingCoordinatorProxy()->mainFrameScrollbarColor();
+    if (scrollbarColor) {
+        RetainPtr thumbColor = cocoaColor(scrollbarColor->thumbColor);
+        [_scrollView _setHorizontalScrollIndicatorColor:thumbColor.get()];
+        [_scrollView _setVerticalScrollIndicatorColor:thumbColor.get()];
+    } else {
+        [_scrollView _setHorizontalScrollIndicatorColor:nil];
+        [_scrollView _setVerticalScrollIndicatorColor:nil];
+    }
+#endif
     auto horizontalOverscrollBehavior = _page->scrollingCoordinatorProxy()->mainFrameHorizontalOverscrollBehavior();
     auto verticalOverscrollBehavior = _page->scrollingCoordinatorProxy()->mainFrameVerticalOverscrollBehavior();
     
