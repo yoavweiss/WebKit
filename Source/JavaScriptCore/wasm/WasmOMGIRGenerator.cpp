@@ -1557,7 +1557,7 @@ auto OMGIRGenerator::addTableGet(unsigned tableIndex, ExpressionType index, Expr
 {
     // FIXME: Emit this inline <https://bugs.webkit.org/show_bug.cgi?id=198506>.
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::Externref), operationGetWasmTableElement,
-        instanceValue(), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), tableIndex), get(index));
+        instanceValue(), constant(Int32, tableIndex), get(index));
     {
         result = push(resultValue);
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
@@ -1575,10 +1575,10 @@ auto OMGIRGenerator::addTableSet(unsigned tableIndex, ExpressionType index, Expr
 {
     // FIXME: Emit this inline <https://bugs.webkit.org/show_bug.cgi?id=198506>.
     auto shouldThrow = callWasmOperation(m_currentBlock, B3::Int32, operationSetWasmTableElement,
-        instanceValue(), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), tableIndex), get(index), get(value));
+        instanceValue(), constant(Int32, tableIndex), get(index), get(value));
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), shouldThrow, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), shouldThrow, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsTableAccess);
@@ -1599,10 +1599,11 @@ auto OMGIRGenerator::addRefFunc(FunctionSpaceIndex index, ExpressionType& result
 
 auto OMGIRGenerator::addRefAsNonNull(ExpressionType reference, ExpressionType& result) -> PartialResult
 {
-    result = push(get(reference));
+    auto value = get(reference);
+    result = push(value);
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(reference), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), value, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::NullRefAsNonNull);
         });
@@ -1619,13 +1620,13 @@ auto OMGIRGenerator::addTableInit(unsigned elementIndex, unsigned tableIndex, Ex
 {
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmTableInit,
         instanceValue(),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), elementIndex),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), tableIndex),
+        constant(Int32, elementIndex),
+        constant(Int32, tableIndex),
         get(dstOffset), get(srcOffset), get(length));
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsTableAccess);
@@ -1639,7 +1640,7 @@ auto OMGIRGenerator::addElemDrop(unsigned elementIndex) -> PartialResult
 {
     callWasmOperation(m_currentBlock, B3::Void, operationWasmElemDrop,
         instanceValue(),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), elementIndex));
+        constant(Int32, elementIndex));
 
     return { };
 }
@@ -1648,7 +1649,7 @@ auto OMGIRGenerator::addTableSize(unsigned tableIndex, ExpressionType& result) -
 {
     // FIXME: Emit this inline <https://bugs.webkit.org/show_bug.cgi?id=198506>.
     result = push(callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationGetWasmTableSize,
-        instanceValue(), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), tableIndex)));
+        instanceValue(), constant(Int32, tableIndex)));
 
     return { };
 }
@@ -1656,7 +1657,7 @@ auto OMGIRGenerator::addTableSize(unsigned tableIndex, ExpressionType& result) -
 auto OMGIRGenerator::addTableGrow(unsigned tableIndex, ExpressionType fill, ExpressionType delta, ExpressionType& result) -> PartialResult
 {
     result = push(callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmTableGrow,
-        instanceValue(), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), tableIndex), get(fill), get(delta)));
+        instanceValue(), constant(Int32, tableIndex), get(fill), get(delta)));
 
     return { };
 }
@@ -1664,11 +1665,11 @@ auto OMGIRGenerator::addTableGrow(unsigned tableIndex, ExpressionType fill, Expr
 auto OMGIRGenerator::addTableFill(unsigned tableIndex, ExpressionType offset, ExpressionType fill, ExpressionType count) -> PartialResult
 {
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmTableFill,
-        instanceValue(), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), tableIndex), get(offset), get(fill), get(count));
+        instanceValue(), constant(Int32, tableIndex), get(offset), get(fill), get(count));
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsTableAccess);
@@ -1683,13 +1684,13 @@ auto OMGIRGenerator::addTableCopy(unsigned dstTableIndex, unsigned srcTableIndex
     Value* resultValue = callWasmOperation(
         m_currentBlock, toB3Type(Types::I32), operationWasmTableCopy,
         instanceValue(),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), dstTableIndex),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), srcTableIndex),
+        constant(Int32, dstTableIndex),
+        constant(Int32, srcTableIndex),
         get(dstOffset), get(srcOffset), get(length));
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsTableAccess);
@@ -1881,8 +1882,7 @@ auto OMGIRGenerator::addCurrentMemory(ExpressionType& result) -> PartialResult
 
     constexpr uint32_t shiftValue = 16;
     static_assert(PageCount::pageSize == 1ull << shiftValue, "This must hold for the code below to be correct.");
-    Value* numPages = m_currentBlock->appendNew<Value>(m_proc, ZShr, origin(),
-        size, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), shiftValue));
+    Value* numPages = m_currentBlock->appendNew<Value>(m_proc, ZShr, origin(), size, constant(Int32, shiftValue));
 
     result = push(m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), numPages));
 
@@ -1897,7 +1897,7 @@ auto OMGIRGenerator::addMemoryFill(ExpressionType dstAddress, ExpressionType tar
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsMemoryAccess);
@@ -1911,12 +1911,12 @@ auto OMGIRGenerator::addMemoryInit(unsigned dataSegmentIndex, ExpressionType dst
 {
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmMemoryInit,
         instanceValue(),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), dataSegmentIndex),
+        constant(Int32, dataSegmentIndex),
         get(dstAddress), get(srcAddress), get(length));
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsMemoryAccess);
@@ -1934,7 +1934,7 @@ auto OMGIRGenerator::addMemoryCopy(ExpressionType dstAddress, ExpressionType src
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsMemoryAccess);
@@ -1948,7 +1948,7 @@ auto OMGIRGenerator::addDataDrop(unsigned dataSegmentIndex) -> PartialResult
 {
     callWasmOperation(m_currentBlock, B3::Void, operationWasmDataDrop,
         instanceValue(),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), dataSegmentIndex));
+        constant(Int32, dataSegmentIndex));
 
     return { };
 }
@@ -2142,7 +2142,7 @@ auto OMGIRGenerator::setGlobal(uint32_t index, ExpressionType value) -> PartialR
 
             Value* cellStateLoadAfterFence = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), cell, safeCast<int32_t>(JSCell::cellStateOffset()));
             m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(),
-                m_currentBlock->appendNew<Value>(m_proc, Above, origin(), cellStateLoadAfterFence, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), blackThreshold)),
+                m_currentBlock->appendNew<Value>(m_proc, Above, origin(), cellStateLoadAfterFence, constant(Int32, blackThreshold)),
                 FrequentedBlock(continuation), FrequentedBlock(doSlowPath, FrequencyClass::Rare));
             doSlowPath->addPredecessor(m_currentBlock);
             continuation->addPredecessor(m_currentBlock);
@@ -2198,7 +2198,7 @@ inline void OMGIRGenerator::emitWriteBarrier(Value* cell, Value* instanceCell)
 
     Value* cellStateLoadAfterFence = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), cell, safeCast<int32_t>(JSCell::cellStateOffset()));
     m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(),
-        m_currentBlock->appendNew<Value>(m_proc, Above, origin(), cellStateLoadAfterFence, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), blackThreshold)),
+        m_currentBlock->appendNew<Value>(m_proc, Above, origin(), cellStateLoadAfterFence, constant(Int32, blackThreshold)),
         FrequentedBlock(continuation), FrequentedBlock(doSlowPath, FrequencyClass::Rare));
     doSlowPath->addPredecessor(m_currentBlock);
     continuation->addPredecessor(m_currentBlock);
@@ -2815,16 +2815,16 @@ auto OMGIRGenerator::atomicWait(ExtAtomicOpType op, ExpressionType pointerVar, E
     Value* resultValue = nullptr;
     if (op == ExtAtomicOpType::MemoryAtomicWait32) {
         resultValue = callWasmOperation(m_currentBlock, Int32, operationMemoryAtomicWait32,
-            instanceValue(), pointer, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), offset), value, timeout);
+            instanceValue(), pointer, constant(Int32, offset), value, timeout);
     } else {
         resultValue = callWasmOperation(m_currentBlock, Int32, operationMemoryAtomicWait64,
-            instanceValue(), pointer, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), offset), value, timeout);
+            instanceValue(), pointer, constant(Int32, offset), value, timeout);
     }
 
     {
         result = push(resultValue);
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, LessThan, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, LessThan, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsMemoryAccess);
@@ -2837,11 +2837,11 @@ auto OMGIRGenerator::atomicWait(ExtAtomicOpType op, ExpressionType pointerVar, E
 auto OMGIRGenerator::atomicNotify(ExtAtomicOpType, ExpressionType pointer, ExpressionType count, ExpressionType& result, uint32_t offset) -> PartialResult
 {
     Value* resultValue = callWasmOperation(m_currentBlock, Int32, operationMemoryAtomicNotify,
-        instanceValue(), get(pointer), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), offset), get(count));
+        instanceValue(), get(pointer), constant(Int32, offset), get(count));
     {
         result = push(resultValue);
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, LessThan, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, LessThan, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsMemoryAccess);
@@ -3160,8 +3160,8 @@ auto OMGIRGenerator::addArrayNew(uint32_t typeIndex, ExpressionType size, Expres
 Variable* OMGIRGenerator::pushArrayNewFromSegment(ArraySegmentOperation operation, uint32_t typeIndex, uint32_t segmentIndex, ExpressionType arraySize, ExpressionType offset, ExceptionType exceptionType)
 {
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::Arrayref), operation,
-        instanceValue(), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), typeIndex),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), segmentIndex),
+        instanceValue(), constant(Int32, typeIndex),
+        constant(Int32, segmentIndex),
         get(arraySize), get(offset));
 
     // Indicates out of bounds for the segment or allocation failure.
@@ -3181,9 +3181,9 @@ auto OMGIRGenerator::addArrayNewDefault(uint32_t typeIndex, ExpressionType size,
     else if (elementType.elementSize() == 16)
         initValue = m_currentBlock->appendNew<Const128Value>(m_proc, origin(), v128_t { });
     else if (elementType.elementSize() <= 4)
-        initValue = m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0);
+        initValue = constant(Int32, 0);
     else
-        initValue = m_currentBlock->appendNew<Const64Value>(m_proc, origin(), 0);
+        initValue = constant(Int64, 0);
 
     Value* sizeValue = get(size);
     Value* array = allocateWasmGCArray(typeIndex, initValue, sizeValue);
@@ -3215,7 +3215,7 @@ auto OMGIRGenerator::addArrayNewFixed(uint32_t typeIndex, ArgumentList& args, Ex
     for (uint32_t i = 0; i < args.size(); ++i) {
         // Emit the array set code -- note that this omits the bounds check, since
         // if operationWasmArrayNewEmpty() returned a non-null value, it's an array of the right size
-        emitArraySetUncheckedWithoutWriteBarrier(typeIndex, object, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), i), get(args[i]));
+        emitArraySetUncheckedWithoutWriteBarrier(typeIndex, object, constant(Int32, i), get(args[i]));
     }
     mutatorFence();
     result = push(object);
@@ -3224,6 +3224,8 @@ auto OMGIRGenerator::addArrayNewFixed(uint32_t typeIndex, ArgumentList& args, Ex
 
 auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType& result) -> PartialResult
 {
+    auto arrayValue = get(arrayref);
+    auto indexValue = get(index);
     StorageType elementType;
     getArrayElementType(typeIndex, elementType);
     Wasm::Type resultType = elementType.unpacked();
@@ -3231,7 +3233,7 @@ auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, E
     // Ensure arrayref is non-null.
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(arrayref), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), arrayValue, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::NullArrayGet);
         });
@@ -3239,17 +3241,17 @@ auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, E
 
     // Check array bounds.
     Value* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(),
-        get(arrayref), safeCast<int32_t>(JSWebAssemblyArray::offsetOfSize()));
+        arrayValue, safeCast<int32_t>(JSWebAssemblyArray::offsetOfSize()));
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, AboveEqual, origin(), get(index), arraySize));
+            m_currentBlock->appendNew<Value>(m_proc, AboveEqual, origin(), indexValue, arraySize));
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsArrayGet);
         });
     }
 
-    Value* payloadBase = emitGetArrayPayloadBase(elementType, get(arrayref));
-    Value* indexValue = is32Bit() ? get(index) : m_currentBlock->appendNew<Value>(m_proc, ZExt32, origin(), get(index));
+    Value* payloadBase = emitGetArrayPayloadBase(elementType, arrayValue);
+    indexValue = is32Bit() ? indexValue : m_currentBlock->appendNew<Value>(m_proc, ZExt32, origin(), indexValue);
     Value* indexedAddress = m_currentBlock->appendNew<Value>(m_proc, Add, pointerType(), origin(), payloadBase,
         m_currentBlock->appendNew<Value>(m_proc, Mul, pointerType(), origin(), indexValue, constant(pointerType(), elementType.elementSize())));
 
@@ -3271,8 +3273,8 @@ auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, E
         case ExtGCOpType::ArrayGetS: {
             size_t elementSize = elementType.as<PackedType>() == PackedType::I8 ? sizeof(uint8_t) : sizeof(uint16_t);
             uint8_t bitShift = (sizeof(uint32_t) - elementSize) * 8;
-            Value* shiftLeft = m_currentBlock->appendNew<Value>(m_proc, B3::Shl, origin(), postProcess, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), bitShift));
-            postProcess = m_currentBlock->appendNew<Value>(m_proc, B3::SShr, origin(), shiftLeft, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), bitShift));
+            Value* shiftLeft = m_currentBlock->appendNew<Value>(m_proc, B3::Shl, origin(), postProcess, constant(Int32, bitShift));
+            postProcess = m_currentBlock->appendNew<Value>(m_proc, B3::SShr, origin(), shiftLeft, constant(Int32, bitShift));
             break;
         }
         default:
@@ -3355,37 +3357,43 @@ auto OMGIRGenerator::addArraySet(uint32_t typeIndex, ExpressionType arrayref, Ex
     UNUSED_VARIABLE(arrayType);
 #endif
 
+    auto arrayValue = get(arrayref);
+    auto indexValue = get(index);
+    auto valueValue = get(value);
+
     // Check for null array
-    emitArrayNullCheck(get(arrayref), ExceptionType::NullArraySet);
+    emitArrayNullCheck(arrayValue, ExceptionType::NullArraySet);
 
     // Check array bounds.
     Value* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(),
-        get(arrayref), safeCast<int32_t>(JSWebAssemblyArray::offsetOfSize()));
+        arrayValue, safeCast<int32_t>(JSWebAssemblyArray::offsetOfSize()));
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, AboveEqual, origin(), get(index), arraySize));
+            m_currentBlock->appendNew<Value>(m_proc, AboveEqual, origin(), indexValue, arraySize));
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsArraySet);
         });
     }
 
-    emitArraySetUnchecked(typeIndex, get(arrayref), get(index), get(value));
+    emitArraySetUnchecked(typeIndex, arrayValue, indexValue, valueValue);
 
     return { };
 }
 
 auto OMGIRGenerator::addArrayLen(ExpressionType arrayref, ExpressionType& result) -> PartialResult
 {
+    auto arrayValue = get(arrayref);
+
     // Ensure arrayref is non-null.
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(arrayref), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), arrayValue, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::NullArrayLen);
         });
     }
 
-    result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), get(arrayref), safeCast<int32_t>(JSWebAssemblyArray::offsetOfSize())));
+    result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), arrayValue, safeCast<int32_t>(JSWebAssemblyArray::offsetOfSize())));
 
     return { };
 }
@@ -3395,25 +3403,30 @@ auto OMGIRGenerator::addArrayFill(uint32_t typeIndex, ExpressionType arrayref, E
     StorageType elementType;
     getArrayElementType(typeIndex, elementType);
 
-    emitArrayNullCheck(get(arrayref), ExceptionType::NullArrayFill);
+    auto arrayValue = get(arrayref);
+    auto offsetValue = get(offset);
+    auto valueValue = get(value);
+    auto sizeValue = get(size);
+
+    emitArrayNullCheck(arrayValue, ExceptionType::NullArrayFill);
 
     Value* resultValue;
     if (!elementType.unpacked().isV128()) {
-        Value* valueGPR = get(value);
+        Value* valueGPR = valueValue;
         if (value->type().isFloat())
             valueGPR = m_currentBlock->appendNew<Value>(m_proc, BitwiseCast, origin(), valueGPR);
         resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayFill,
-            instanceValue(), get(arrayref), get(offset), valueGPR, get(size));
+            instanceValue(), arrayValue, offsetValue, valueGPR, sizeValue);
     } else {
-        Value* lane0 = m_currentBlock->appendNew<SIMDValue>(m_proc, origin(), B3::VectorExtractLane, B3::Int64, SIMDLane::i64x2, SIMDSignMode::None, uint8_t { 0 }, get(value));
-        Value* lane1 = m_currentBlock->appendNew<SIMDValue>(m_proc, origin(), B3::VectorExtractLane, B3::Int64, SIMDLane::i64x2, SIMDSignMode::None, uint8_t { 1 }, get(value));
+        Value* lane0 = m_currentBlock->appendNew<SIMDValue>(m_proc, origin(), B3::VectorExtractLane, B3::Int64, SIMDLane::i64x2, SIMDSignMode::None, uint8_t { 0 }, valueValue);
+        Value* lane1 = m_currentBlock->appendNew<SIMDValue>(m_proc, origin(), B3::VectorExtractLane, B3::Int64, SIMDLane::i64x2, SIMDSignMode::None, uint8_t { 1 }, valueValue);
         resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayFillVector,
-            instanceValue(), get(arrayref), get(offset), lane0, lane1, get(size));
+            instanceValue(), arrayValue, offsetValue, lane0, lane1, sizeValue);
     }
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsArrayFill);
@@ -3425,18 +3438,24 @@ auto OMGIRGenerator::addArrayFill(uint32_t typeIndex, ExpressionType arrayref, E
 
 auto OMGIRGenerator::addArrayCopy(uint32_t, ExpressionType dst, ExpressionType dstOffset, uint32_t, ExpressionType src, ExpressionType srcOffset, ExpressionType size) -> PartialResult
 {
-    emitArrayNullCheck(get(dst), ExceptionType::NullArrayCopy);
-    emitArrayNullCheck(get(src), ExceptionType::NullArrayCopy);
+    auto dstValue = get(dst);
+    auto dstOffsetValue = get(dstOffset);
+    auto srcValue = get(src);
+    auto srcOffsetValue = get(srcOffset);
+    auto sizeValue = get(size);
+
+    emitArrayNullCheck(dstValue, ExceptionType::NullArrayCopy);
+    emitArrayNullCheck(srcValue, ExceptionType::NullArrayCopy);
 
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayCopy,
         instanceValue(),
-        get(dst), get(dstOffset),
-        get(src), get(srcOffset),
-        get(size));
+        dstValue, dstOffsetValue,
+        srcValue, srcOffsetValue,
+        sizeValue);
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsArrayCopy);
@@ -3448,17 +3467,22 @@ auto OMGIRGenerator::addArrayCopy(uint32_t, ExpressionType dst, ExpressionType d
 
 auto OMGIRGenerator::addArrayInitElem(uint32_t, ExpressionType dst, ExpressionType dstOffset, uint32_t srcElementIndex, ExpressionType srcOffset, ExpressionType size) -> PartialResult
 {
-    emitArrayNullCheck(get(dst), ExceptionType::NullArrayInitElem);
+    auto dstValue = get(dst);
+    auto dstOffsetValue = get(dstOffset);
+    auto srcOffsetValue = get(srcOffset);
+    auto sizeValue = get(size);
+
+    emitArrayNullCheck(dstValue, ExceptionType::NullArrayInitElem);
 
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayInitElem,
         instanceValue(),
-        get(dst), get(dstOffset),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), srcElementIndex), get(srcOffset),
-        get(size));
+        dstValue, dstOffsetValue,
+        constant(Int32, srcElementIndex), srcOffsetValue,
+        sizeValue);
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsArrayInitElem);
@@ -3470,17 +3494,22 @@ auto OMGIRGenerator::addArrayInitElem(uint32_t, ExpressionType dst, ExpressionTy
 
 auto OMGIRGenerator::addArrayInitData(uint32_t, ExpressionType dst, ExpressionType dstOffset, uint32_t srcDataIndex, ExpressionType srcOffset, ExpressionType size) -> PartialResult
 {
-    emitArrayNullCheck(get(dst), ExceptionType::NullArrayInitData);
+    auto dstValue = get(dst);
+    auto dstOffsetValue = get(dstOffset);
+    auto srcOffsetValue = get(srcOffset);
+    auto sizeValue = get(size);
+
+    emitArrayNullCheck(dstValue, ExceptionType::NullArrayInitData);
 
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayInitData,
         instanceValue(),
-        get(dst), get(dstOffset),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), srcDataIndex), get(srcOffset),
-        get(size));
+        dstValue, dstOffsetValue,
+        constant(Int32, srcDataIndex), srcOffsetValue,
+        sizeValue);
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0)));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), resultValue, constant(Int32, 0)));
 
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::OutOfBoundsArrayInitData);
@@ -3512,9 +3541,9 @@ auto OMGIRGenerator::addStructNewDefault(uint32_t typeIndex, ExpressionType& res
         if (Wasm::isRefType(structType.field(i).type))
             initValue = m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()));
         else if (typeSizeInBytes(structType.field(i).type) <= 4)
-            initValue = m_currentBlock->appendNew<Const32Value>(m_proc, origin(), 0);
+            initValue = constant(Int32, 0);
         else
-            initValue = m_currentBlock->appendNew<Const64Value>(m_proc, origin(), 0);
+            initValue = constant(Int64, 0);
         // We know all the values here are not cells so we don't need a writeBarrier.
         bool needsWriteBarrier = emitStructSet(structValue, i, structType, initValue);
         UNUSED_VARIABLE(needsWriteBarrier);
@@ -3529,15 +3558,16 @@ auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, ExpressionType stru
     auto fieldType = structType.field(fieldIndex).type;
     auto resultType = fieldType.unpacked();
 
+    Value* structValue = get(structReference);
+
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(structReference), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), structValue, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::NullStructGet);
         });
     }
 
-    Value* structValue = get(structReference);
     int32_t fieldOffset = fixupPointerPlusOffset(structValue, JSWebAssemblyStruct::offsetOfData() + structType.offsetOfFieldInPayload(fieldIndex));
 
     if (fieldType.is<PackedType>()) {
@@ -3556,8 +3586,8 @@ auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, ExpressionType stru
             break;
         case ExtGCOpType::StructGetS: {
             uint8_t bitShift = (sizeof(uint32_t) - fieldType.elementSize()) * 8;
-            Value* shiftLeft = m_currentBlock->appendNew<Value>(m_proc, B3::Shl, origin(), postProcess, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), bitShift));
-            postProcess = m_currentBlock->appendNew<Value>(m_proc, B3::SShr, origin(), shiftLeft, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), bitShift));
+            Value* shiftLeft = m_currentBlock->appendNew<Value>(m_proc, B3::Shl, origin(), postProcess, constant(Int32, bitShift));
+            postProcess = m_currentBlock->appendNew<Value>(m_proc, B3::SShr, origin(), shiftLeft, constant(Int32, bitShift));
             break;
         }
         default:
@@ -3576,16 +3606,17 @@ auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, ExpressionType stru
 
 auto OMGIRGenerator::addStructSet(ExpressionType structReference, const StructType& structType, uint32_t fieldIndex, ExpressionType value) -> PartialResult
 {
+    Value* structValue = get(structReference);
+    Value* valueValue = get(value);
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(structReference), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
+            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), structValue, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
         check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
             this->emitExceptionCheck(jit, origin, ExceptionType::NullStructSet);
         });
     }
 
-    Value* structValue = get(structReference);
-    bool needsWriteBarrier = emitStructSet(structValue, fieldIndex, structType, get(value));
+    bool needsWriteBarrier = emitStructSet(structValue, fieldIndex, structType, valueValue);
     if (needsWriteBarrier)
         emitWriteBarrier(structValue, instanceValue());
     return { };
@@ -3820,7 +3851,7 @@ Value* OMGIRGenerator::decodeNonNullStructure(Value* structureID)
 Value* OMGIRGenerator::encodeStructureID(Value* structure)
 {
 #if ENABLE(STRUCTURE_ID_WITH_SHIFT)
-    return m_currentBlock->appendNew<B3::Value>(m_proc, B3::Trunc, origin(), m_currentBlock->appendNew<Value>(m_proc, ZShr, origin(), structure, m_currentBlock->appendNew<Const32Value>(m_proc, origin(), StructureID::encodeShiftAmount)));
+    return m_currentBlock->appendNew<B3::Value>(m_proc, B3::Trunc, origin(), m_currentBlock->appendNew<Value>(m_proc, ZShr, origin(), structure, constant(Int32, StructureID::encodeShiftAmount)));
 #else
     return m_currentBlock->appendNew<B3::Value>(m_proc, B3::Trunc, origin(), m_currentBlock->appendNew<Value>(m_proc, B3::BitAnd, origin(), structure, constant(pointerType(), StructureID::structureIDMask)));
 #endif
@@ -3838,7 +3869,7 @@ Value* OMGIRGenerator::allocatorForWasmGCHeapCellSize(Value* sizeInBytes, BasicB
 
     auto* sizeClassIndex = m_currentBlock->appendNew<Value>(m_proc, ZShr, origin(),
         m_currentBlock->appendNew<Value>(m_proc, B3::Add, origin(), sizeInBytes, constant(pointerType(), MarkedSpace::sizeStep - 1)),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), stepShift));
+        constant(Int32, stepShift));
 
     m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(),
         m_currentBlock->appendNew<Value>(m_proc, Above, origin(), sizeClassIndex, constant(pointerType(), MarkedSpace::largeCutoff >> stepShift)),
