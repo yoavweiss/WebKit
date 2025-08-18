@@ -127,6 +127,12 @@ bool WebAssemblyCompileOptions::validateImportForBuiltinSetNames(const Wasm::Imp
         return true;
     auto& builtinSig = builtin->signature();
 
+    // The spec does not explicitly check if the import is a function because an import type is fully self-contained in `import[2]`.
+    // A non-function import would have a non-function type as its `import[2]`, failing the `match_externtype` check in Step 7.
+    // In our implementation import type is held externally, so we must check that the import kind is a function before fetching the function type
+    // at `kindIndex`. The wrong import kind is equivalent in spec terms to `match_externtype` returning false in Step 7.
+    if (import.kind != Wasm::ExternalKind::Function)
+        return false;
     Wasm::TypeIndex typeIndex = moduleInfo.importFunctionTypeIndices[import.kindIndex];
     Ref<const Wasm::TypeDefinition> type = Wasm::TypeInformation::get(typeIndex);
     if (!type->is<Wasm::FunctionSignature>())

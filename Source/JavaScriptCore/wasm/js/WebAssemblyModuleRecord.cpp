@@ -135,6 +135,7 @@ static void defineImportedStringConstant(VM& vm, WriteBarrier<JSWebAssemblyInsta
 
 static void initializeBuiltinImport(VM& vm, WriteBarrier<JSWebAssemblyInstance>& instance, const Wasm::Import& import, const WebAssemblyBuiltin* builtin)
 {
+    RELEASE_ASSERT(import.kind == Wasm::ExternalKind::Function); // should be guaranteed by builtin import validation (see WebAssemblyCompileOptions::validateImportForBuiltinSetNames)
     auto* info = instance->importFunctionInfo(import.kindIndex);
     info->boxedCallee = builtin->callee(); // boxed by operator=
     instance->setBuiltinCalleeBits(builtin->id(), info->boxedCallee);
