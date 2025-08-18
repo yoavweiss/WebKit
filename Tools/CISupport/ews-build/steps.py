@@ -69,10 +69,11 @@ Interpolate = properties.Interpolate
 GITHUB_URL = 'https://github.com/'
 # First project is treated as the default
 GITHUB_PROJECTS = ['WebKit/WebKit', 'WebKit/WebKit-security']
+CANONICAL_GITHUB_PROJECT = 'WebKit/WebKit'
 HASH_LENGTH_TO_DISPLAY = 8
 DEFAULT_BRANCH = 'main'
 DEFAULT_REMOTE = 'origin'
-LAYOUT_TESTS_URL = '{}{}/blob/{}/LayoutTests/'.format(GITHUB_URL, GITHUB_PROJECTS[0], DEFAULT_BRANCH)
+LAYOUT_TESTS_URL = '{}{}/blob/{}/LayoutTests/'.format(GITHUB_URL, CANONICAL_GITHUB_PROJECT, DEFAULT_BRANCH)
 MAX_COMMITS_IN_PR_SERIES = 50
 QUEUES_WITH_PUSH_ACCESS = ('commit-queue', 'merge-queue', 'unsafe-merge-queue')
 THRESHOLD_FOR_EXCESSIVE_LOGS_DEFAULT = 1000000
@@ -145,7 +146,7 @@ class GitHub(object):
     @classmethod
     def pr_url(cls, pr_number, repository_url=None):
         if not repository_url:
-            repository_url = '{}{}'.format(GITHUB_URL, GITHUB_PROJECTS[0])
+            repository_url = '{}{}'.format(GITHUB_URL, CANONICAL_GITHUB_PROJECT)
 
         if repository_url not in GitHub.repository_urls():
             return ''
@@ -156,7 +157,7 @@ class GitHub(object):
     @classmethod
     def commit_url(cls, sha, repository_url=None):
         if not repository_url:
-            repository_url = '{}{}'.format(GITHUB_URL, GITHUB_PROJECTS[0])
+            repository_url = '{}{}'.format(GITHUB_URL, CANONICAL_GITHUB_PROJECT)
         if repository_url not in GitHub.repository_urls():
             return ''
         if not sha:
@@ -166,7 +167,7 @@ class GitHub(object):
     @classmethod
     def api_url(cls, repository_url=None):
         if not repository_url:
-            repository_url = '{}{}'.format(GITHUB_URL, GITHUB_PROJECTS[0])
+            repository_url = '{}{}'.format(GITHUB_URL, CANONICAL_GITHUB_PROJECT)
 
         if repository_url not in GitHub.repository_urls():
             return ''
@@ -258,7 +259,7 @@ class GitHubMixin(object):
 
     @defer.inlineCallbacks
     def get_number_of_prs_with_label(self, label, retry=0):
-        project = self.getProperty('project') or GITHUB_PROJECTS[0]
+        project = self.getProperty('project') or CANONICAL_GITHUB_PROJECT
         owner, name = project.split('/', 1)
         query_body = '{repository(owner:"%s", name:"%s") { pullRequests(labels: "%s") { totalCount } } }' % (owner, name, label)
         query = {'query': query_body}
@@ -563,7 +564,7 @@ class AddToLogMixin(object):
 
 
 class Contributors(object):
-    url = 'https://raw.githubusercontent.com/WebKit/WebKit/main/metadata/contributors.json'
+    url = f'https://raw.githubusercontent.com/{CANONICAL_GITHUB_PROJECT}/main/metadata/contributors.json'
     contributors = {}
     last_update = 0
     REFRESH = 4 * 60 * 60
@@ -718,7 +719,7 @@ class ConfigureBuild(buildstep.BuildStep, AddToLogMixin):
         revision = self.getProperty('github.head.sha')
 
         project = self.getProperty('project')
-        if project == GITHUB_PROJECTS[0]:
+        if project == CANONICAL_GITHUB_PROJECT:
             self.setProperty('remote', DEFAULT_REMOTE)
             self.setProperty('sensitive', False)
         elif project in GITHUB_PROJECTS:
@@ -749,7 +750,7 @@ class CheckOutSource(git.Git):
     CHECKOUT_DELAY_AND_MAX_RETRIES_PAIR = (0, 2)
     haltOnFailure = False
 
-    def __init__(self, repourl=f'{GITHUB_URL}{GITHUB_PROJECTS[0]}.git', **kwargs):
+    def __init__(self, repourl=f'{GITHUB_URL}{CANONICAL_GITHUB_PROJECT}.git', **kwargs):
         self.default_repourl = repourl
         super().__init__(
             repourl=repourl,
@@ -784,7 +785,7 @@ class CheckOutSource(git.Git):
 
     @defer.inlineCallbacks
     def _fetch(self, _):
-        project = self.getProperty('project', '') or GITHUB_PROJECTS[0]
+        project = self.getProperty('project', '') or CANONICAL_GITHUB_PROJECT
         self.repourl = f'{GITHUB_URL}{project}.git'
 
         try:
@@ -906,7 +907,7 @@ class FetchBranches(steps.ShellSequence, ShellMixin):
             util.ShellArg(command=['git', 'fetch', DEFAULT_REMOTE, '--prune'], logname='stdio'),
         ]
 
-        project = self.getProperty('project', GITHUB_PROJECTS[0])
+        project = self.getProperty('project', CANONICAL_GITHUB_PROJECT)
         remote = self.getProperty('remote', DEFAULT_REMOTE)
         if remote != DEFAULT_REMOTE:
             for command in [
@@ -2282,7 +2283,7 @@ class DetermineLabelOwner(buildstep.BuildStep, GitHubMixin, AddToLogMixin):
             yield self._addToLog('stdio', 'Unable to fetch PR number.\n')
             return defer.returnValue(FAILURE)
 
-        project = self.getProperty('project') or GITHUB_PROJECTS[0]
+        project = self.getProperty('project') or CANONICAL_GITHUB_PROJECT
         owner, name = project.split('/', 1)
         query_body = '{repository(owner:"%s", name:"%s") { pullRequest(number: %s) {timelineItems(itemTypes: LABELED_EVENT, last: 5) {nodes {... on LabeledEvent {actor { login } label { name } createdAt } } } } } }' % (owner, name, pr_number)
         query = {'query': query_body}
@@ -2536,7 +2537,7 @@ class RemoveAndAddLabels(buildstep.BuildStep, GitHubMixin, AddToLogMixin):
 class RetrievePRDataFromLabel(buildstep.BuildStep, GitHubMixin, AddToLogMixin):
     name = 'retrieve-pr-data-from-label'
 
-    def __init__(self, project="WebKit/WebKit", label='', **kwargs):
+    def __init__(self, project=CANONICAL_GITHUB_PROJECT, label='', **kwargs):
         self.project = project
         owner, name = project.lower().split('/', 1)
         self.name = f'{self.name}-{owner}-{name}'
@@ -2577,7 +2578,7 @@ class RetrievePRDataFromLabel(buildstep.BuildStep, GitHubMixin, AddToLogMixin):
 
     @defer.inlineCallbacks
     def getAllPRData(self, limit, label, retry=0):
-        project = self.getProperty('project') or GITHUB_PROJECTS[0]
+        project = self.getProperty('project') or CANONICAL_GITHUB_PROJECT
         owner, name = project.split('/', 1)
         query_body = '{repository(owner:"%s", name:"%s") { pullRequests(labels: "%s", last: %s) { edges { node { title number commits(last: 3) { nodes { commit { commitUrl status { state contexts { context state } } } } } } } } } }' % (owner, name, label, limit)
         query = {'query': query_body}
@@ -2667,7 +2668,7 @@ class CheckStatusOfPR(buildstep.BuildStep, GitHubMixin, AddToLogMixin):
     @defer.inlineCallbacks
     def checkPRStatus(self, pr_number):
         yield self._addToLog('stdio', f'Checking the status of PR {pr_number}...\n')
-        project = self.getProperty('project') or GITHUB_PROJECTS[0]
+        project = self.getProperty('project') or CANONICAL_GITHUB_PROJECT
         owner, name = project.split('/', 1)
         query_body = '{repository(owner: "%s", name: "%s") {pullRequest(number: %s) {commits (last:1) {edges {node {commit {oid } } } } } } }' % (owner, name, pr_number)
         query = {'query': query_body}
@@ -2710,7 +2711,7 @@ class CheckStatusOfPR(buildstep.BuildStep, GitHubMixin, AddToLogMixin):
 
         # FIXME: safe-merge-queue should obtain skipped status from EWS instead of hardcoding
         queues_for_safe_merge = self.EMBEDDED_CHECKS + self.MACOS_CHECKS
-        if self.getProperty('project') == GITHUB_PROJECTS[0]:
+        if self.getProperty('project') == CANONICAL_GITHUB_PROJECT:
             queues_for_safe_merge += self.LINUX_CHECKS
             queues_for_safe_merge += self.WINDOWS_CHECKS
 
@@ -6388,18 +6389,18 @@ class ValidateRemote(shell.ShellCommand):
         rc = super().evaluateCommand(cmd)
 
         if rc == SUCCESS:
-            self.summary = f"Cannot land on '{base_ref}', it is owned by '{GITHUB_PROJECTS[0]}'"
+            self.summary = f"Cannot land on '{base_ref}', it is owned by '{CANONICAL_GITHUB_PROJECT}'"
             self.setProperty(
                 'comment_text',
                 f"{self.summary}, blocking PR #{self.getProperty('github.number')}.\n"
-                f"Make a pull request against '{GITHUB_PROJECTS[0]}' to land this change."
+                f"Make a pull request against '{CANONICAL_GITHUB_PROJECT}' to land this change."
             )
             self.setProperty('build_finish_summary', self.summary)
             self.build.addStepsAfterCurrentStep([LeaveComment(), BlockPullRequest()])
             return FAILURE
 
         if rc == FAILURE:
-            self.summary = f"Verified '{GITHUB_PROJECTS[0]}' does not own '{base_ref}'"
+            self.summary = f"Verified '{CANONICAL_GITHUB_PROJECT}' does not own '{base_ref}'"
             return SUCCESS
 
         return rc
@@ -7720,7 +7721,7 @@ class DisplaySaferCPPResults(buildstep.BuildStep, AddToLogMixin):
             issue_comment = f" with {num_issues} issue{'s' if num_issues > 1 else ''}" if num_issues else ''
             pluralSuffix = 's' if num_failures > 1 else ''
             comment += f":x: Found [{num_failures} failing file{pluralSuffix}{issue_comment}]({results_link}). "
-            comment += 'Please address these issues before landing. See [WebKit Guidelines for Safer C++ Programming](https://github.com/WebKit/WebKit/wiki/Safer-CPP-Guidelines).\n(cc @rniwa)\n'
+            comment += f'Please address these issues before landing. See [WebKit Guidelines for Safer C++ Programming](https://github.com/{CANONICAL_GITHUB_PROJECT}/wiki/Safer-CPP-Guidelines).\n(cc @rniwa)\n'
         if num_passes:
             pluralSuffix = 's' if num_passes > 1 else ''
             pluralCommand = 's' if len(commands_for_comment) > 1 else ''
