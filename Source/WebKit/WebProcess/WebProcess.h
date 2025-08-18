@@ -88,11 +88,6 @@ OBJC_CLASS NSMutableDictionary;
 #include <WebCore/CaptionUserPreferences.h>
 #endif
 
-#if ENABLE(LOGD_BLOCKING_IN_WEBCONTENT)
-#include "LogStreamIdentifier.h"
-#include "StreamClientConnection.h"
-#endif
-
 namespace API {
 class Object;
 }
@@ -758,9 +753,7 @@ private:
     void accessibilityRelayProcessSuspended(bool);
 
 #if ENABLE(LOGD_BLOCKING_IN_WEBCONTENT)
-    void registerLogHook();
-    void setupLogStream();
-    void sendLogOnStream(std::span<const uint8_t> logChannel, std::span<const uint8_t> logCategory, std::span<const uint8_t> logString, os_log_type_t);
+    void initializeLogForwarding();
 #endif
 
     bool isProcessBeingCachedForPerformance();
