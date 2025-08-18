@@ -2037,8 +2037,7 @@ webkit.org/b/288404 [ Sonoma+ Release ] fast/text/canvas-color-fonts/stroke-grad
 
 webkit.org/b/288411 [ Sequoia x86_64 ] imported/w3c/web-platform-tests/webrtc/simulcast/getStats.https.html [ Failure ]
 
-webkit.org/b/288545 [ Sequoia x86_64 ] imported/w3c/web-platform-tests/requestidlecallback/deadline-max-rAF-dynamic.html [ Failure ]
-webkit.org/b/288545 [ Sonoma Release ] imported/w3c/web-platform-tests/requestidlecallback/deadline-max-rAF-dynamic.html [ Pass Failure ]
+webkit.org/b/288545 imported/w3c/web-platform-tests/requestidlecallback/deadline-max-rAF-dynamic.html [ Failure Pass ]
 
 webkit.org/b/288603 imported/w3c/web-platform-tests/screen-orientation/hidden_document.html [ Pass Failure ]
 
