@@ -1600,12 +1600,8 @@ void RenderPassEncoder::setViewport(float x, float y, float width, float height,
 {
     RETURN_IF_FINISHED();
     MTLCoordinate2D renderTargetSize = MTLCoordinate2DMake(m_renderTargetWidth, m_renderTargetHeight);
-    if (m_rasterizationRateMap) {
+    if (m_rasterizationRateMap)
         renderTargetSize = [m_rasterizationRateMap mapPhysicalToScreenCoordinates:renderTargetSize forLayer:0];
-        // FIXME: workarond until rdar://134519572 is addressed
-        maxDepth = std::clamp(maxDepth, .01f, .99f);
-        m_overrideDepthClipMode = MTLDepthClipModeClamp;
-    }
 
     if (x < 0 || y < 0 || width < 0 || height < 0 || x + width > ceilf(renderTargetSize.x) || y + height > ceilf(renderTargetSize.y) || minDepth < 0 || maxDepth > 1 || minDepth > maxDepth) {
         makeInvalid();

@@ -477,7 +477,17 @@ ExceptionOr<Ref<GPUShaderModule>> GPUDevice::createShaderModule(const GPUShaderM
 {
     if (!m_autoPipelineLayout)
         return Exception { ExceptionCode::InvalidStateError, "GPUDevice.createShaderModule: Unable to make shader module."_s };
-    RefPtr shaderModule = m_backing->createShaderModule(shaderModuleDescriptor.convertToBacking(*m_autoPipelineLayout));
+    RefPtr<WebCore::WebGPU::ShaderModule> shaderModule;
+
+#if PLATFORM(VISION)
+    // FIXME: Remove once https://bugs.webkit.org/show_bug.cgi?id=297538 is addressed
+    if (auto context = scriptExecutionContext(); context && context->url().string().contains("toji.github.io/webgpu-metaballs"_s)) {
+        GPUShaderModuleDescriptor clonedShaderModuleDescriptor = shaderModuleDescriptor;
+        clonedShaderModuleDescriptor.code = makeStringByReplacingAll(shaderModuleDescriptor.code, "fma(depthSample"_s, "fma(min(depthSample, 0.95)"_s);
+        shaderModule = m_backing->createShaderModule(clonedShaderModuleDescriptor.convertToBacking(*m_autoPipelineLayout));
+    } else
+#endif
+    shaderModule = m_backing->createShaderModule(shaderModuleDescriptor.convertToBacking(*m_autoPipelineLayout));
     if (!shaderModule)
         return Exception { ExceptionCode::InvalidStateError, "GPUDevice.createShaderModule: Unable to make shader module."_s };
     return GPUShaderModule::create(shaderModule.releaseNonNull());
