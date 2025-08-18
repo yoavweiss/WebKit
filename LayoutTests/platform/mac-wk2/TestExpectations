@@ -1975,8 +1975,6 @@ webkit.org/b/232282 fast/scrolling/mac/scrollbars/overlay-scrollbar-hovered.html
 [ arm64 ] fast/selectors/selection-window-inactive-stroke-color.html [ Pass ImageOnlyFailure ]
 [ arm64 ] fast/selectors/text-field-selection-stroke-color.html [ Pass ImageOnlyFailure ]
 
-webkit.org/b/286318 http/tests/iframe-monitor [ Pass ]
-
 webkit.org/b/286693 [ Sequoia Debug arm64 ] media/video-canvas-createPattern.html [ Pass Failure ]
 
 webkit.org/b/287040 [ Sonoma arm64 ] fast/webgpu/ftoi.html [ Skip ]

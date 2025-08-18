@@ -105,7 +105,7 @@ const TestFeatures& TestOptions::defaults()
             { "HiddenPageCSSAnimationSuspensionEnabled", false },
             { "HiddenPageDOMTimerThrottlingEnabled", false },
 #if ENABLE(CONTENT_EXTENSIONS)
-            { "IFrameResourceMonitoringEnabled", true },
+            { "IFrameResourceMonitoringEnabled", false },
 #endif
             { "InlineMediaPlaybackRequiresPlaysInlineAttribute", false },
             { "InputTypeDateEnabled", true },
