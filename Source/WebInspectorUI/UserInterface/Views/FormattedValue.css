@@ -80,6 +80,7 @@
 
 .formatted-node > .tree-outline.dom li {
     -webkit-user-select: none !important;
+    white-space: wrap;
 }
 
 .formatted-node > .tree-outline.dom li.selected .selection-area {
