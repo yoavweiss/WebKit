@@ -270,6 +270,7 @@ private:
     void audioRendererDidReceiveError(AVSampleBufferAudioRenderer *, NSError *) final;
 
     void setShouldDisableHDR(bool) final;
+    void setPlatformDynamicRangeLimit(PlatformDynamicRangeLimit) final;
     void playerContentBoxRectChanged(const LayoutRect&) final;
     void setShouldMaintainAspectRatio(bool) final;
     bool m_shouldMaintainAspectRatio { true };

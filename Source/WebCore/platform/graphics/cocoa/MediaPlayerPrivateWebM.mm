@@ -41,6 +41,7 @@
 #import "NativeImage.h"
 #import "NotImplemented.h"
 #import "PixelBufferConformerCV.h"
+#import "PlatformDynamicRangeLimitCocoa.h"
 #import "PlatformMediaResourceLoader.h"
 #import "ResourceError.h"
 #import "ResourceRequest.h"
@@ -1374,8 +1375,14 @@ void MediaPlayerPrivateWebM::ensureLayer()
 
     configureLayerOrVideoRenderer(m_sampleBufferDisplayLayer.get());
 
-    if (RefPtr player = m_player.get())
+    if (RefPtr player = m_player.get()) {
+        if ([m_sampleBufferDisplayLayer respondsToSelector:@selector(setToneMapToStandardDynamicRange:)])
+            [m_sampleBufferDisplayLayer setToneMapToStandardDynamicRange:player->shouldDisableHDR()];
+
+        setLayerDynamicRangeLimit(m_sampleBufferDisplayLayer.get(), player->platformDynamicRangeLimit());
+
         m_videoLayerManager->setVideoLayer(m_sampleBufferDisplayLayer.get(), player->presentationSize());
+    }
 }
 
 void MediaPlayerPrivateWebM::addAudioRenderer(TrackID trackId)
@@ -1707,6 +1714,14 @@ void MediaPlayerPrivateWebM::setShouldDisableHDR(bool shouldDisable)
 
     ALWAYS_LOG(LOGIDENTIFIER, shouldDisable);
     [m_sampleBufferDisplayLayer setToneMapToStandardDynamicRange:shouldDisable];
+}
+
+void MediaPlayerPrivateWebM::setPlatformDynamicRangeLimit(PlatformDynamicRangeLimit platformDynamicRangeLimit)
+{
+    if (!m_sampleBufferDisplayLayer)
+        return;
+
+    setLayerDynamicRangeLimit(m_sampleBufferDisplayLayer.get(), platformDynamicRangeLimit);
 }
 
 void MediaPlayerPrivateWebM::playerContentBoxRectChanged(const LayoutRect& newRect)
