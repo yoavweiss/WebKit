@@ -33,6 +33,7 @@
 #include "AXComputedObjectAttributeCache.h"
 #include "AXIsolatedObject.h"
 #include "AXIsolatedTree.h"
+#include "AXListHelpers.h"
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
 #include "AXNotifications.h"
@@ -43,7 +44,6 @@
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityLabel.h"
-#include "AccessibilityList.h"
 #include "AccessibilityListBox.h"
 #include "AccessibilityListBoxOption.h"
 #include "AccessibilityMathMLElement.h"
@@ -101,6 +101,7 @@
 #include "InlineIteratorLogicalOrderTraversal.h"
 #include "InlineRunAndOffset.h"
 #include "LocalFrame.h"
+#include "Logging.h"
 #include "MathMLElement.h"
 #include "Page.h"
 #include "ProgressTracker.h"
@@ -579,16 +580,6 @@ void AXObjectCache::setIsolatedTreeFocusedObject(AccessibilityObject* focus)
 }
 #endif
 
-static bool isAccessibilityList(Element& element)
-{
-    if (hasAnyRole(element, { "list"_s, "directory"_s }))
-        return true;
-
-    // Call it a list if it has no ARIA role and a list tag.
-    auto name = element.elementName();
-    return hasRole(element, nullAtom()) && (name == ElementName::HTML_ul || name == ElementName::HTML_ol || name == ElementName::HTML_dl || name == ElementName::HTML_menu);
-}
-
 static bool isAccessibilityTree(Element& element)
 {
     return hasRole(element, "tree"_s);
@@ -638,9 +629,9 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
 {
     RefPtr node = renderer.node();
     if (RefPtr element = dynamicDowncast<Element>(node)) {
-        if (isAccessibilityList(*element))
-            return AccessibilityList::create(AXID::generate(), renderer, *this);
-
+        // Lists shouldn't fallthrough to table components, so explicitly create a render object.
+        if (AXListHelpers::isAccessibilityList(*element))
+            return AccessibilityRenderObject::create(AXID::generate(), renderer, *this);
         if (isAccessibilityARIATable(*element))
             return AccessibilityTable::create(AXID::generate(), renderer, *this, /* isARIATable */ true);
         if (isAccessibilityARIAGridRow(*element))
@@ -711,8 +702,9 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
 Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
 {
     if (RefPtr element = dynamicDowncast<Element>(node)) {
-        if (isAccessibilityList(*element))
-            return AccessibilityList::create(AXID::generate(), *element, *this);
+        // Lists shouldn't fallthrough to table components, so explicitly create a render object.
+        if (AXListHelpers::isAccessibilityList(*element))
+            return AccessibilityRenderObject::create(AXID::generate(), *element, *this);
         if (isAccessibilityTable(element.get()))
             return AccessibilityTable::create(AXID::generate(), *element, *this);
         if (isAccessibilityTableRow(element.get()))
@@ -1418,7 +1410,7 @@ void AXObjectCache::handleChildrenChanged(AccessibilityObject& object)
     }
 
     // The role of list objects is dependent on their children, so we'll need to re-compute it here.
-    if (is<AccessibilityList>(object))
+    if (object.isAccessibilityList())
         object.updateRole();
 }
 

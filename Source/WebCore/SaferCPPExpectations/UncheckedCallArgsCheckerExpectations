@@ -42,7 +42,6 @@ StyleBuilderGenerated.cpp
 StyleExtractorGenerated.cpp
 accessibility/AXObjectCache.cpp
 accessibility/AXObjectCache.h
-accessibility/AccessibilityList.cpp
 accessibility/AccessibilityListBox.cpp
 accessibility/AccessibilityListBoxOption.cpp
 accessibility/AccessibilityMathMLElement.cpp

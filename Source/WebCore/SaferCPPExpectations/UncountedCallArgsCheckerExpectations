@@ -125,7 +125,6 @@ accessibility/AXLogger.cpp
 accessibility/AXObjectCache.cpp
 accessibility/AXObjectCache.h
 accessibility/AXSearchManager.cpp
-accessibility/AccessibilityList.cpp
 accessibility/AccessibilityListBox.cpp
 accessibility/AccessibilityListBoxOption.cpp
 accessibility/AccessibilityMenuList.cpp
@@ -982,8 +981,8 @@ style/values/transforms/StyleTranslate.cpp
 svg/SVGAElement.cpp
 svg/SVGAElement.h
 svg/SVGAltGlyphElement.cpp
-svg/SVGCircleElement.h
 svg/SVGCircleElement.cpp
+svg/SVGCircleElement.h
 svg/SVGClipPathElement.cpp
 svg/SVGClipPathElement.h
 svg/SVGComponentTransferFunctionElement.cpp

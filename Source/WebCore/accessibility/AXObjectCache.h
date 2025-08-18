@@ -557,6 +557,8 @@ public:
     WEBCORE_EXPORT static void initializeAXThreadIfNeeded();
     WEBCORE_EXPORT static bool isAXThreadInitialized();
     WEBCORE_EXPORT RefPtr<AXIsolatedTree> getOrCreateIsolatedTree();
+
+    static bool isAccessibilityList(Element&);
 private:
     static bool clientSupportsIsolatedTree();
     // Propagates the root of the isolated tree back into the Core and WebKit.

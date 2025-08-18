@@ -129,7 +129,7 @@ public:
 
     std::optional<InputType::Type> inputType() const final;
 
-    virtual bool isListInstance() const { return false; }
+    virtual bool isAccessibilityList() const { return false; }
     virtual bool isUnorderedList() const { return false; }
     virtual bool isOrderedList() const { return false; }
     bool isDescriptionList() const override { return false; }

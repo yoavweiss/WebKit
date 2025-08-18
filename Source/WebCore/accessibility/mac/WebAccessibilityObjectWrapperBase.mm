@@ -35,7 +35,6 @@
 #import "AXObjectCache.h"
 #import "AXRemoteFrame.h"
 #import "AXSearchManager.h"
-#import "AccessibilityList.h"
 #import "AccessibilityListBox.h"
 #import "AccessibilityRenderObject.h"
 #import "AccessibilityScrollView.h"

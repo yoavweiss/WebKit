@@ -50,6 +50,10 @@ public:
     bool isBusy() const final;
     bool isDetached() const override { return !m_node; }
     bool isFieldset() const final;
+    bool isAccessibilityList() const final;
+    bool isUnorderedList() const final;
+    bool isOrderedList() const final;
+    bool isDescriptionList() const final;
     bool isMultiSelectable() const override;
     bool isNativeImage() const;
     bool isNativeTextControl() const final;
@@ -156,6 +160,7 @@ protected:
 #endif
 
     AccessibilityRole determineAccessibilityRole() override;
+    AccessibilityRole determineListRoleWithCleanChildren();
     enum class TreatStyleFormatGroupAsInline : bool { No, Yes };
     AccessibilityRole determineAccessibilityRoleFromNode(TreatStyleFormatGroupAsInline = TreatStyleFormatGroupAsInline::No) const;
     AccessibilityRole roleFromInputElement(const HTMLInputElement&) const;

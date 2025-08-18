@@ -29,6 +29,7 @@
 #include "config.h"
 #include "AccessibilityRenderObject.h"
 
+#include "AXListHelpers.h"
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
 #include "AXNotifications.h"
@@ -1114,6 +1115,9 @@ bool AccessibilityRenderObject::computeIsIgnored() const
     // An ARIA tree can only have tree items and static text as children.
     if (!isAllowedChildOfTree())
         return true;
+
+    if (isAccessibilityList())
+        return false;
 
     // Allow the platform to decide if the attachment is ignored or not.
     if (isAttachment())
@@ -2256,6 +2260,14 @@ bool AccessibilityRenderObject::shouldIgnoreAttributeRole() const
 
 AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
 {
+    // Handle list role determination before checking for a renderer, because we want to use the same codepath in both scenarios.
+    if (isAccessibilityList()) {
+        if (!m_childrenDirty && childrenInitialized())
+            return determineListRoleWithCleanChildren();
+        m_ariaRole = determineAriaRoleAttribute();
+        return isDescriptionList() ? AccessibilityRole::DescriptionList : AccessibilityRole::List;
+    }
+
     if (!m_renderer)
         return AccessibilityNodeObject::determineAccessibilityRole();
 
@@ -2704,6 +2716,11 @@ void AccessibilityRenderObject::updateRoleAfterChildrenCreation()
     }
     if (role == AccessibilityRole::SVGRoot && unignoredChildren().isEmpty())
         m_role = AccessibilityRole::Image;
+
+    if (isAccessibilityList()) {
+        updateRole();
+        return;
+    }
 
     if (role != m_role) {
         if (auto* cache = axObjectCache())
