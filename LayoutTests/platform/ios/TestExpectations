@@ -8225,3 +8225,6 @@ imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-001.
 webkit.org/b/297462 [ Debug ] imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-size-containment-001.html [ Failure ]
 
 webkit.org/b/295599 [ Release ] http/tests/webcodecs/audio-decoder-callbacks-do-not-leak.html [ Pass Failure ]
+webkit.org/b/286318 http/tests/iframe-monitor [ Pass ]
+
+webkit.org/b/294931 ipc/LocalSampleBufferDisplayLayer-LogIdentifier-data-race-uaf.html [ Skip ]
