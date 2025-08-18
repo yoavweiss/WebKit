@@ -440,8 +440,7 @@ JSC_DEFINE_HOST_FUNCTION(webAssemblyInstantiateStreamingInternal, (JSGlobalObjec
 JSC_DEFINE_HOST_FUNCTION(webAssemblyGetterJSTag, (JSGlobalObject* globalObject, CallFrame*))
 {
     // https://webassembly.github.io/exception-handling/js-api/#dom-webassembly-jstag
-    VM& vm = globalObject->vm();
-    return JSValue::encode(JSWebAssemblyTag::create(vm, globalObject, globalObject->webAssemblyTagStructure(), Wasm::Tag::jsExceptionTag()));
+    return JSValue::encode(globalObject->webAssemblyJSTag());
 }
 
 } // namespace JSC
