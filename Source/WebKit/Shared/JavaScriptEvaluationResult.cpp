@@ -44,11 +44,57 @@
 
 namespace WebKit {
 
-JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSObjectID root, HashMap<JSObjectID, Value>&& map)
+class JavaScriptEvaluationResult::JSExtractor {
+public:
+    Map takeMap() { return WTFMove(m_map); }
+    JSObjectID addObjectToMap(JSGlobalContextRef, JSValueRef);
+private:
+    Value toValue(JSGlobalContextRef, JSValueRef);
+
+    Map m_map;
+    HashMap<Protected<JSValueRef>, JSObjectID> m_objectsInMap;
+};
+
+class JavaScriptEvaluationResult::JSInserter {
+public:
+    using Dictionaries = Vector<std::pair<ObjectMap, Protected<JSObjectRef>>>;
+    using Arrays = Vector<std::pair<Vector<JSObjectID>, Protected<JSValueRef>>>;
+    JSValueRef toJS(JSGlobalContextRef, Value&&);
+    Dictionaries takeDictionaries() { return WTFMove(m_dictionaries); }
+    Arrays takeArrays() { return WTFMove(m_arrays); }
+private:
+    Dictionaries m_dictionaries;
+    Arrays m_arrays;
+};
+
+class JavaScriptEvaluationResult::APIExtractor {
+public:
+    Map takeMap() { return WTFMove(m_map); }
+    JSObjectID addObjectToMap(API::Object&);
+private:
+    Value toValue(API::Object&);
+
+    HashMap<Ref<API::Object>, JSObjectID> m_objectsInMap;
+    Map m_map;
+};
+
+class JavaScriptEvaluationResult::APIInserter {
+public:
+    using Dictionaries = Vector<std::pair<ObjectMap, Ref<API::Dictionary>>>;
+    using Arrays = Vector<std::pair<Vector<JSObjectID>, Ref<API::Array>>>;
+    RefPtr<API::Object> toAPI(Value&&);
+    Dictionaries takeDictionaries() { return WTFMove(m_dictionaries); }
+    Arrays takeArrays() { return WTFMove(m_arrays); }
+private:
+    Dictionaries m_dictionaries;
+    Arrays m_arrays;
+};
+
+JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSObjectID root, Map&& map)
     : m_map(WTFMove(map))
     , m_root(root) { }
 
-RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Value&& root)
+RefPtr<API::Object> JavaScriptEvaluationResult::APIInserter::toAPI(Value&& root)
 {
     return WTF::switchOn(WTFMove(root), [] (EmptyType) -> RefPtr<API::Object> {
         return nullptr;
@@ -64,7 +110,7 @@ RefPtr<API::Object> JavaScriptEvaluationResult::toAPI(Value&& root)
         Ref array = API::Array::create();
         m_arrays.append({ WTFMove(vector), array });
         return { WTFMove(array) };
-    }, [&] (HashMap<JSObjectID, JSObjectID>&& map) -> RefPtr<API::Object> {
+    }, [&] (ObjectMap&& map) -> RefPtr<API::Object> {
         Ref dictionary = API::Dictionary::create();
         m_dictionaries.append({ WTFMove(map), dictionary });
         return { WTFMove(dictionary) };
@@ -102,36 +148,37 @@ static bool isSerializable(API::Object* object)
     }
 }
 
-auto JavaScriptEvaluationResult::toValue(API::Object* object) -> Value
+auto JavaScriptEvaluationResult::APIExtractor::toValue(API::Object& object) -> Value
 {
-    if (!object)
-        return EmptyType::Undefined;
-
-    switch (object->type()) {
+    switch (object.type()) {
     case API::Object::Type::String:
-        return downcast<API::String>(object)->string();
+        return downcast<API::String>(object).string();
     case API::Object::Type::Boolean:
-        return downcast<API::Boolean>(object)->value();
+        return downcast<API::Boolean>(object).value();
     case API::Object::Type::Double:
-        return downcast<API::Double>(object)->value();
+        return downcast<API::Double>(object).value();
     case API::Object::Type::UInt64:
-        return static_cast<double>(downcast<API::UInt64>(object)->value());
+        return static_cast<double>(downcast<API::UInt64>(object).value());
     case API::Object::Type::Int64:
-        return static_cast<double>(downcast<API::Int64>(object)->value());
+        return static_cast<double>(downcast<API::Int64>(object).value());
     case API::Object::Type::JSHandle:
-        return downcast<API::JSHandle>(object)->info();
+        return downcast<API::JSHandle>(object).info();
     case API::Object::Type::SerializedNode:
-        return makeUniqueRef<WebCore::SerializedNode>(downcast<API::SerializedNode>(object)->coreSerializedNode());
+        return makeUniqueRef<WebCore::SerializedNode>(downcast<API::SerializedNode>(object).coreSerializedNode());
     case API::Object::Type::Array: {
         Vector<JSObjectID> vector;
-        for (auto& element : downcast<API::Array>(object)->elements())
-            vector.append(addObjectToMap(element.get()));
+        for (RefPtr element : downcast<API::Array>(object).elements()) {
+            if (element)
+                vector.append(addObjectToMap(*element));
+        }
         return { WTFMove(vector) };
     }
     case API::Object::Type::Dictionary: {
-        HashMap<JSObjectID, JSObjectID> map;
-        for (auto& [key, value] : downcast<API::Dictionary>(object)->map())
-            map.set(addObjectToMap(API::String::create(key).ptr()), addObjectToMap(value.get()));
+        ObjectMap map;
+        for (auto& [key, value] : downcast<API::Dictionary>(object).map()) {
+            if (RefPtr protectedValue = value)
+                map.set(addObjectToMap(API::String::create(key).get()), addObjectToMap(*protectedValue));
+        }
         return { WTFMove(map) };
     }
     default:
@@ -143,82 +190,69 @@ auto JavaScriptEvaluationResult::toValue(API::Object* object) -> Value
 
 std::optional<JavaScriptEvaluationResult> JavaScriptEvaluationResult::extract(API::Object* object)
 {
+    if (!object)
+        return jsUndefined();
     if (!isSerializable(object))
         return std::nullopt;
-    return JavaScriptEvaluationResult(object);
+    APIExtractor extractor;
+    auto root = extractor.addObjectToMap(*object);
+    return JavaScriptEvaluationResult { root, extractor.takeMap() };
 }
 
-JavaScriptEvaluationResult::JavaScriptEvaluationResult(API::Object* object)
-    : m_root(addObjectToMap(object))
+JSObjectID JavaScriptEvaluationResult::APIExtractor::addObjectToMap(API::Object& object)
 {
-}
-
-JSObjectID JavaScriptEvaluationResult::addObjectToMap(API::Object* object)
-{
-    if (!object) {
-        if (!m_nullObjectID) {
-            m_nullObjectID = JSObjectID::generate();
-            m_map.add(*m_nullObjectID, Value { EmptyType::Undefined });
-        }
-        return *m_nullObjectID;
-    }
-
-    auto it = m_apiObjectsInMap.find(object);
-    if (it != m_apiObjectsInMap.end())
+    auto it = m_objectsInMap.find(object);
+    if (it != m_objectsInMap.end())
         return it->value;
 
     auto identifier = JSObjectID::generate();
-    m_apiObjectsInMap.set(object, identifier);
+    m_objectsInMap.set(object, identifier);
     m_map.add(identifier, toValue(object));
     return identifier;
 }
 
 RefPtr<API::Object> JavaScriptEvaluationResult::toAPI()
 {
+    HashMap<JSObjectID, RefPtr<API::Object>> instantiatedObjects;
+    APIInserter inserter;
+
     for (auto&& [identifier, value] : std::exchange(m_map, { }))
-        m_instantiatedObjects.add(identifier, toAPI(WTFMove(value)));
-    for (auto [vector, array] : std::exchange(m_arrays, { })) {
+        instantiatedObjects.add(identifier, inserter.toAPI(WTFMove(value)));
+
+    for (auto [vector, array] : inserter.takeArrays()) {
         for (auto identifier : vector) {
-            if (RefPtr object = m_instantiatedObjects.get(identifier))
+            if (RefPtr object = instantiatedObjects.get(identifier))
                 Ref { array }->append(object.releaseNonNull());
         }
     }
-    for (auto [map, dictionary] : std::exchange(m_dictionaries, { })) {
+
+    for (auto [map, dictionary] : inserter.takeDictionaries()) {
         for (auto [keyIdentifier, valueIdentifier] : map) {
-            RefPtr key = dynamicDowncast<API::String>(m_instantiatedObjects.get(keyIdentifier));
+            RefPtr key = dynamicDowncast<API::String>(instantiatedObjects.get(keyIdentifier));
             if (!key)
                 continue;
-            RefPtr value = m_instantiatedObjects.get(valueIdentifier);
+            RefPtr value = instantiatedObjects.get(valueIdentifier);
             if (!value)
                 continue;
             Ref { dictionary }->add(key->string(), WTFMove(value));
         }
     }
-    return std::exchange(m_instantiatedObjects, { }).take(m_root);
+
+    return std::exchange(instantiatedObjects, { }).take(m_root);
 }
 
-WKRetainPtr<WKTypeRef> JavaScriptEvaluationResult::toWK()
+JSObjectID JavaScriptEvaluationResult::JSExtractor::addObjectToMap(JSGlobalContextRef context, JSValueRef object)
 {
-    return WebKit::toAPI(toAPI().get());
-}
-
-JSObjectID JavaScriptEvaluationResult::addObjectToMap(JSGlobalContextRef context, JSValueRef object)
-{
-    if (!object) {
-        if (!m_nullObjectID) {
-            m_nullObjectID = JSObjectID::generate();
-            m_map.add(*m_nullObjectID, Value { EmptyType::Undefined });
-        }
-        return *m_nullObjectID;
-    }
+    ASSERT(context);
+    ASSERT(object);
 
     Protected<JSValueRef> value(context, object);
-    auto it = m_jsObjectsInMap.find(value);
-    if (it != m_jsObjectsInMap.end())
+    auto it = m_objectsInMap.find(value);
+    if (it != m_objectsInMap.end())
         return it->value;
 
     auto identifier = JSObjectID::generate();
-    m_jsObjectsInMap.set(WTFMove(value), identifier);
+    m_objectsInMap.set(WTFMove(value), identifier);
     m_map.add(identifier, toValue(context, object));
     return identifier;
 }
@@ -240,16 +274,27 @@ static std::optional<std::pair<JSGlobalContextRef, JSValueRef>> roundTripThrough
 
 std::optional<JavaScriptEvaluationResult> JavaScriptEvaluationResult::extract(JSGlobalContextRef context, JSValueRef value)
 {
+    if (!context || !value) {
+        ASSERT_NOT_REACHED();
+        return std::nullopt;
+    }
+
     JSRetainPtr deserializationContext = API::SerializedScriptValue::deserializationContext();
 
     auto result = roundTripThroughSerializedScriptValue(context, deserializationContext.get(), value);
     if (!result)
         return std::nullopt;
-    return { JavaScriptEvaluationResult { result->first, result->second } };
+
+    if (!result->first || !result->second)
+        return jsUndefined();
+
+    JSExtractor extractor;
+    auto root = extractor.addObjectToMap(result->first, result->second);
+    return JavaScriptEvaluationResult { root, extractor.takeMap() };
 }
 
 // Similar to JSValue's valueToObjectWithoutCopy.
-auto JavaScriptEvaluationResult::toValue(JSGlobalContextRef context, JSValueRef value) -> Value
+auto JavaScriptEvaluationResult::JSExtractor::toValue(JSGlobalContextRef context, JSValueRef value) -> Value
 {
     if (!JSValueIsObject(context, value)) {
         if (JSValueIsBoolean(context, value))
@@ -302,7 +347,7 @@ auto JavaScriptEvaluationResult::toValue(JSGlobalContextRef context, JSValueRef 
 
     JSPropertyNameArrayRef names = JSObjectCopyPropertyNames(context, object);
     size_t length = JSPropertyNameArrayGetCount(names);
-    HashMap<JSObjectID, JSObjectID> map;
+    ObjectMap map;
     for (size_t i = 0; i < length; i++) {
         JSRetainPtr<JSStringRef> key = JSPropertyNameArrayGetNameAtIndex(names, i);
         SUPPRESS_UNCOUNTED_ARG map.add(addObjectToMap(context, JSValueMakeString(context, key.get())), addObjectToMap(context, JSObjectGetPropertyForKey(context, object, JSValueMakeString(context, key.get()), nullptr)));
@@ -311,14 +356,7 @@ auto JavaScriptEvaluationResult::toValue(JSGlobalContextRef context, JSValueRef 
     return { WTFMove(map) };
 }
 
-JavaScriptEvaluationResult::JavaScriptEvaluationResult(JSGlobalContextRef context, JSValueRef value)
-    : m_root(addObjectToMap(context, value))
-{
-    m_jsObjectsInMap.clear();
-    m_nullObjectID = std::nullopt;
-}
-
-JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Value&& root)
+JSValueRef JavaScriptEvaluationResult::JSInserter::toJS(JSGlobalContextRef context, Value&& root)
 {
     auto globalObjectTuple = [] (auto context) {
         auto* lexicalGlobalObject = ::toJS(context);
@@ -348,11 +386,11 @@ JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Value&& 
         return JSObjectMakeDate(context, 1, &argument, 0);
     }, [&] (Vector<JSObjectID>&& vector) -> JSValueRef {
         JSValueRef array = JSObjectMakeArray(context, 0, nullptr, 0);
-        m_jsArrays.append({ WTFMove(vector), Protected<JSValueRef>(context, array) });
+        m_arrays.append({ WTFMove(vector), Protected<JSValueRef>(context, array) });
         return array;
-    }, [&] (HashMap<JSObjectID, JSObjectID>&& map) -> JSValueRef {
+    }, [&] (ObjectMap&& map) -> JSValueRef {
         JSObjectRef dictionary = JSObjectMake(context, 0, 0);
-        m_jsDictionaries.append({ WTFMove(map), Protected<JSObjectRef>(context, dictionary) });
+        m_dictionaries.append({ WTFMove(map), Protected<JSObjectRef>(context, dictionary) });
         return dictionary;
     }, [&] (JSHandleInfo&& info) -> JSValueRef {
         auto [originalDocument, object] = WebCore::WebKitJSHandle::objectForIdentifier(info.identifier);
@@ -370,32 +408,38 @@ JSValueRef JavaScriptEvaluationResult::toJS(JSGlobalContextRef context, Value&& 
 
 Protected<JSValueRef> JavaScriptEvaluationResult::toJS(JSGlobalContextRef context)
 {
+    HashMap<JSObjectID, Protected<JSValueRef>> instantiatedJSObjects;
+    JSInserter inserter;
+
     for (auto&& [identifier, value] : std::exchange(m_map, { }))
-        m_instantiatedJSObjects.add(identifier, Protected<JSValueRef>(context, toJS(context, WTFMove(value))));
-    for (auto& [vector, array] : std::exchange(m_jsArrays, { })) {
+        instantiatedJSObjects.add(identifier, Protected<JSValueRef>(context, inserter.toJS(context, WTFMove(value))));
+
+    for (auto& [vector, array] : inserter.takeArrays()) {
         JSObjectRef jsArray = JSValueToObject(context, array.get(), 0);
         for (size_t index = 0; index < vector.size(); ++index) {
             auto identifier = vector[index];
-            if (Protected<JSValueRef> element = m_instantiatedJSObjects.get(identifier))
+            if (Protected<JSValueRef> element = instantiatedJSObjects.get(identifier))
                 JSObjectSetPropertyAtIndex(context, jsArray, index, element.get(), 0);
         }
     }
-    for (auto& [map, dictionary] : std::exchange(m_jsDictionaries, { })) {
+
+    for (auto& [map, dictionary] : inserter.takeDictionaries()) {
         for (auto [keyIdentifier, valueIdentifier] : map) {
-            Protected<JSValueRef> key = m_instantiatedJSObjects.get(keyIdentifier);
+            Protected<JSValueRef> key = instantiatedJSObjects.get(keyIdentifier);
             if (!key)
                 continue;
             ASSERT(JSValueIsString(context, key.get()));
             SUPPRESS_UNCOUNTED_ARG auto keyString = adopt(JSValueToStringCopy(context, key.get(), nullptr));
             if (!keyString)
                 continue;
-            Protected<JSValueRef> value = m_instantiatedJSObjects.get(valueIdentifier);
+            Protected<JSValueRef> value = instantiatedJSObjects.get(valueIdentifier);
             if (!value)
                 continue;
             SUPPRESS_UNCOUNTED_ARG JSObjectSetProperty(context, dictionary.get(), keyString.get(), value.get(), 0, 0);
         }
     }
-    return std::exchange(m_instantiatedJSObjects, { }).take(m_root);
+
+    return std::exchange(instantiatedJSObjects, { }).take(m_root);
 }
 
 JavaScriptEvaluationResult::JavaScriptEvaluationResult(JavaScriptEvaluationResult&&) = default;
@@ -413,6 +457,14 @@ String JavaScriptEvaluationResult::toString() const
     if (!string)
         return { };
     return *string;
+}
+
+JavaScriptEvaluationResult JavaScriptEvaluationResult::jsUndefined()
+{
+    auto root = JSObjectID::generate();
+    Map map;
+    map.set(root, EmptyType::Undefined);
+    return { root, WTFMove(map) };
 }
 
 } // namespace WebKit

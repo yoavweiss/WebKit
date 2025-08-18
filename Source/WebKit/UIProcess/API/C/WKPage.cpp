@@ -2774,7 +2774,7 @@ void WKPageEvaluateJavaScriptInFrame(WKPageRef pageRef, WKFrameInfoRef frame, WK
         if (!callback)
             return;
         if (result)
-            callback(result->toWK().get(), nullptr, context);
+            callback(toAPI(result->toAPI().get()), nullptr, context);
         else
             callback(nullptr, nullptr, context);
     });
@@ -2807,7 +2807,7 @@ void WKPageCallAsyncJavaScript(WKPageRef page, WKStringRef script, WKDictionaryR
         if (!callback)
             return;
         if (result)
-            callback(result->toWK().get(), nullptr, context);
+            callback(toAPI(result->toAPI().get()), nullptr, context);
         else
             callback(nullptr, nullptr, context);
     });
