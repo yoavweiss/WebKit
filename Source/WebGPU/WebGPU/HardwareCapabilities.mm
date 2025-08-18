@@ -51,10 +51,11 @@ static constexpr auto multipleOf4(auto input)
 }
 static uint64_t maxBufferSize(id<MTLDevice> device)
 {
+    constexpr auto maxBuffersToAllow = 3;
 #if PLATFORM(MAC) || PLATFORM(MACCATALYST)
-    auto result = std::max<uint64_t>(std::min<uint64_t>(device.maxBufferLength, GB), std::min<uint64_t>(INT_MAX, device.maxBufferLength / 10));
+    auto result = std::max<uint64_t>(std::min<uint64_t>(device.maxBufferLength, GB), std::min<uint64_t>(INT_MAX, device.maxBufferLength / maxBuffersToAllow));
 #else
-    auto result = std::max<uint64_t>(defaultMaxBufferSize, std::min<uint64_t>(INT_MAX, device.maxBufferLength / 10));
+    auto result = std::max<uint64_t>(defaultMaxBufferSize, std::min<uint64_t>(GB, device.maxBufferLength / maxBuffersToAllow));
 #endif
     return multipleOf4(result);
 }
