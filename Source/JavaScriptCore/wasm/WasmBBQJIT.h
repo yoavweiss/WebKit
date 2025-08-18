@@ -1156,7 +1156,7 @@ public:
             m_jit.zeroExtend32ToWord(pointerLocation.asGPR(), wasmScratchGPR);
             if (boundary)
                 m_jit.addPtr(TrustedImmPtr(boundary), wasmScratchGPR);
-            throwExceptionIf(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchPtr(RelationalCondition::AboveOrEqual, wasmScratchGPR, wasmBoundsCheckingSizeRegister));
+            recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchPtr(RelationalCondition::AboveOrEqual, wasmScratchGPR, wasmBoundsCheckingSizeRegister));
             break;
         }
 
@@ -1176,7 +1176,7 @@ public:
                 m_jit.zeroExtend32ToWord(pointerLocation.asGPR(), wasmScratchGPR);
                 if (boundary)
                     m_jit.addPtr(TrustedImmPtr(boundary), wasmScratchGPR);
-                throwExceptionIf(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchPtr(RelationalCondition::AboveOrEqual, wasmScratchGPR, TrustedImmPtr(static_cast<int64_t>(maximum))));
+                recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchPtr(RelationalCondition::AboveOrEqual, wasmScratchGPR, TrustedImmPtr(static_cast<int64_t>(maximum))));
             }
             break;
         }
@@ -1437,6 +1437,8 @@ public:
 
     PartialResult WARN_UNUSED_RETURN addStructSet(Value structValue, const StructType& structType, uint32_t fieldIndex, Value value);
 
+    void emitRefTestOrCast(GPRReg, bool allowNull, int32_t toHeapType, JumpList& failureCases);
+
     PartialResult WARN_UNUSED_RETURN addRefTest(ExpressionType reference, bool allowNull, int32_t heapType, bool shouldNegate, ExpressionType& result);
 
     PartialResult WARN_UNUSED_RETURN addRefCast(ExpressionType reference, bool allowNull, int32_t heapType, ExpressionType& result);
@@ -1601,7 +1603,8 @@ public:
 
     void emitThrowException(ExceptionType type);
 
-    void throwExceptionIf(ExceptionType type, Jump jump);
+    void recordJumpToThrowException(ExceptionType, Jump);
+    void recordJumpToThrowException(ExceptionType, const JumpList&);
 
     void emitThrowOnNullReference(ExceptionType type, Location ref);
 

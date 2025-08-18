@@ -3668,8 +3668,9 @@ auto OMGIRGenerator::addRefCast(ExpressionType reference, bool allowNull, int32_
 
 void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType reference, bool allowNull, int32_t toHeapType, bool shouldNegate, ExpressionType& result)
 {
+    Value* value = get(reference);
     if (castKind == CastKind::Cast)
-        result = push(get(reference));
+        result = push(value);
 
     BasicBlock* continuation = m_proc.addBlock();
     BasicBlock* trueBlock = nullptr;
@@ -3689,7 +3690,7 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
         BasicBlock* nonNullCase = m_proc.addBlock();
 
         Value* isNull = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(),
-            get(reference), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull())));
+            value, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull())));
         m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), isNull,
             FrequentedBlock(nullCase), FrequentedBlock(nonNullCase));
         nullCase->addPredecessor(m_currentBlock);
@@ -3744,9 +3745,9 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
             BasicBlock* checkObject = m_proc.addBlock();
 
             // The eqref case chains together checks for i31, array, and struct with disjunctions so the control flow is more complicated, and requires some extra basic blocks to be created.
-            Value* tag = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), get(reference));
+            Value* tag = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), value);
             emitCheckOrBranchForCast(CastKind::Test, m_currentBlock->appendNew<Value>(m_proc, Below, origin(), tag, constant(pointerType(), JSValue::Int32Tag)), nop, checkObject);
-            Value* untagged = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), get(reference));
+            Value* untagged = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), value);
             emitCheckOrBranchForCast(CastKind::Test, m_currentBlock->appendNew<Value>(m_proc, GreaterThan, origin(), untagged, constant(Int32, Wasm::maxI31ref)), nop, checkObject);
             emitCheckOrBranchForCast(CastKind::Test, m_currentBlock->appendNew<Value>(m_proc, LessThan, origin(), untagged, constant(Int32, Wasm::minI31ref)), nop, checkObject);
             m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), endBlock);
@@ -3755,25 +3756,25 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
 
             m_currentBlock = checkObject;
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), tag, constant(pointerType(), JSValue::CellTag)), castFailure, falseBlock);
-            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), truncate(get(reference)), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), truncate(value), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
             break;
         }
         case Wasm::TypeKind::I31ref: {
-            Value* tag = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), get(reference));
+            Value* tag = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), value);
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), tag, constant(pointerType(), JSValue::Int32Tag)), castFailure, falseBlock);
-            Value* untagged = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), get(reference));
+            Value* untagged = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), value);
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, GreaterThan, origin(), untagged, constant(Int32, Wasm::maxI31ref)), castFailure, falseBlock);
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, LessThan, origin(), untagged, constant(Int32, Wasm::minI31ref)), castFailure, falseBlock);
             break;
         }
         case Wasm::TypeKind::Arrayref:
         case Wasm::TypeKind::Structref: {
-            Value* tag = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), get(reference));
+            Value* tag = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), value);
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), tag, constant(pointerType(), JSValue::CellTag)), castFailure, falseBlock);
-            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), truncate(get(reference)), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), truncate(value), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
-            Value* rtt = emitLoadRTTFromObject(truncate(get(reference)));
+            Value* rtt = emitLoadRTTFromObject(truncate(value));
             emitCheckOrBranchForCast(castKind, emitNotRTTKind(rtt, static_cast<TypeKind>(toHeapType) == Wasm::TypeKind::Arrayref ? RTTKind::Array : RTTKind::Struct), castFailure, falseBlock);
             break;
         }
@@ -3786,15 +3787,14 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
 
         Value* rtt;
         if (signature.expand().is<Wasm::FunctionSignature>())
-            rtt = emitLoadRTTFromFuncref(truncate(get(reference)));
+            rtt = emitLoadRTTFromFuncref(truncate(value));
         else {
             // The cell check is only needed for non-functions, as the typechecker does not allow non-Cell values for funcref casts.
-            Value* tag = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), get(reference));
+            Value* tag = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), value);
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), tag, constant(Int32, JSValue::CellTag)), castFailure, falseBlock);
-            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), truncate(get(reference)), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), truncate(value), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
-            rtt = emitLoadRTTFromObject(truncate(get(reference)));
-            emitCheckOrBranchForCast(castKind, emitNotRTTKind(rtt, signature.expand().is<Wasm::ArrayType>() ? RTTKind::Array : RTTKind::Struct), castFailure, falseBlock);
+            rtt = emitLoadRTTFromObject(truncate(value));
         }
 
         Value* targetRTT = m_currentBlock->appendNew<ConstPtrValue>(m_proc, origin(), m_info.rtts[toHeapType].ptr());

@@ -837,7 +837,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addTableSet(unsigned tableIndex, Value 
 
     LOG_INSTRUCTION("TableSet", tableIndex, index, value);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     consume(shouldThrow);
 
@@ -864,7 +864,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addTableInit(unsigned elementIndex, uns
 
     LOG_INSTRUCTION("TableInit", tableIndex, dstOffset, srcOffset, length);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     consume(shouldThrow);
 
@@ -928,7 +928,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addTableFill(unsigned tableIndex, Value
 
     LOG_INSTRUCTION("TableFill", tableIndex, fill, offset, count);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     consume(shouldThrow);
 
@@ -953,7 +953,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addTableCopy(unsigned dstTableIndex, un
 
     LOG_INSTRUCTION("TableCopy", dstTableIndex, srcTableIndex, dstOffset, srcOffset, length);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     consume(shouldThrow);
 
@@ -1126,7 +1126,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addMemoryFill(Value dstAddress, Value t
     emitCCall(&operationWasmMemoryFill, arguments, shouldThrow);
     Location shouldThrowLocation = loadIfNecessary(shouldThrow);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     LOG_INSTRUCTION("MemoryFill", dstAddress, targetValue, count);
 
@@ -1149,7 +1149,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addMemoryCopy(Value dstAddress, Value s
     emitCCall(&operationWasmMemoryCopy, arguments, shouldThrow);
     Location shouldThrowLocation = loadIfNecessary(shouldThrow);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     LOG_INSTRUCTION("MemoryCopy", dstAddress, srcAddress, count);
 
@@ -1173,7 +1173,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addMemoryInit(unsigned dataSegmentIndex
     emitCCall(&operationWasmMemoryInit, arguments, shouldThrow);
     Location shouldThrowLocation = loadIfNecessary(shouldThrow);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     LOG_INSTRUCTION("MemoryInit", dataSegmentIndex, dstAddress, srcAddress, length);
 
@@ -1280,7 +1280,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::atomicWait(ExtAtomicOpType op, Expressi
 
     LOG_INSTRUCTION(makeString(op), pointer, value, timeout, uoffset, RESULT(result));
 
-    throwExceptionIf(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branch32(RelationalCondition::LessThan, resultLocation.asGPR(), TrustedImm32(0)));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branch32(RelationalCondition::LessThan, resultLocation.asGPR(), TrustedImm32(0)));
     return { };
 }
 
@@ -1298,7 +1298,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::atomicNotify(ExtAtomicOpType op, Expres
 
     LOG_INSTRUCTION(makeString(op), pointer, count, uoffset, RESULT(result));
 
-    throwExceptionIf(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branch32(RelationalCondition::LessThan, resultLocation.asGPR(), TrustedImm32(0)));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsMemoryAccess, m_jit.branch32(RelationalCondition::LessThan, resultLocation.asGPR(), TrustedImm32(0)));
     return { };
 }
 
@@ -1489,7 +1489,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayCopy(uint32_t dstTypeIndex, Exp
 
     LOG_INSTRUCTION("ArrayCopy", dstTypeIndex, dst, dstOffset, srcTypeIndex, src, srcOffset, size);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsArrayCopy, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsArrayCopy, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     consume(shouldThrow);
 
@@ -1526,7 +1526,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitElem(uint32_t dstTypeIndex,
 
     LOG_INSTRUCTION("ArrayInitElem", dstTypeIndex, dst, dstOffset, srcElementIndex, srcOffset, size);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsArrayInitElem, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsArrayInitElem, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     consume(shouldThrow);
 
@@ -1563,26 +1563,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitData(uint32_t dstTypeIndex,
 
     LOG_INSTRUCTION("ArrayInitData", dstTypeIndex, dst, dstOffset, srcDataIndex, srcOffset, size);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsArrayInitData, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsArrayInitData, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     consume(shouldThrow);
-
-    return { };
-}
-
-PartialResult WARN_UNUSED_RETURN BBQJIT::addRefTest(ExpressionType reference, bool allowNull, int32_t heapType, bool shouldNegate, ExpressionType& result)
-{
-    Vector<Value, 8> arguments = {
-        instanceValue(),
-        reference,
-        Value::fromI32(allowNull),
-        Value::fromI32(heapType),
-        Value::fromI32(shouldNegate),
-    };
-    result = topValue(TypeKind::I32);
-    emitCCall(operationWasmRefTest, arguments, result);
-
-    LOG_INSTRUCTION("RefTest", reference, allowNull, heapType, shouldNegate, RESULT(result));
 
     return { };
 }
@@ -1863,9 +1846,14 @@ void BBQJIT::emitThrowException(ExceptionType type)
     m_jit.jumpThunk(CodeLocationLabel<JITThunkPtrTag>(Thunks::singleton().stub(throwExceptionFromWasmThunkGenerator).code()));
 }
 
-void BBQJIT::throwExceptionIf(ExceptionType type, Jump jump)
+void BBQJIT::recordJumpToThrowException(ExceptionType type, Jump jump)
 {
     m_exceptions[static_cast<unsigned>(type)].append(jump);
+}
+
+void BBQJIT::recordJumpToThrowException(ExceptionType type, const JumpList& jumps)
+{
+    m_exceptions[static_cast<unsigned>(type)].append(jumps);
 }
 
 template<typename IntType>
@@ -4524,7 +4512,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallIndirect(unsigned tableIndex, co
             ASSERT(calleeIndexLocation.isGPR());
 
             JIT_COMMENT(m_jit, "Check the index we are looking for is valid");
-            throwExceptionIf(ExceptionType::OutOfBoundsCallIndirect, m_jit.branch32(RelationalCondition::AboveOrEqual, calleeIndexLocation.asGPR(), callableFunctionBufferLength));
+            recordJumpToThrowException(ExceptionType::OutOfBoundsCallIndirect, m_jit.branch32(RelationalCondition::AboveOrEqual, calleeIndexLocation.asGPR(), callableFunctionBufferLength));
 
             // Neither callableFunctionBuffer nor callableFunctionBufferLength are used before any of these
             // are def'd below, so we can reuse the registers and save some pressure.
@@ -4573,7 +4561,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallIndirect(unsigned tableIndex, co
             auto calleeSignatureIndexTmp = scratches.gpr(2);
             m_jit.loadPairPtr(calleeSignatureIndex, TrustedImm32(FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfEntrypointLoadLocation()), calleeCode, calleeSignatureIndexTmp);
 
-            throwExceptionIf(ExceptionType::NullTableEntry, m_jit.branchTestPtr(ResultCondition::Zero, calleeSignatureIndexTmp, calleeSignatureIndexTmp));
+            recordJumpToThrowException(ExceptionType::NullTableEntry, m_jit.branchTestPtr(ResultCondition::Zero, calleeSignatureIndexTmp, calleeSignatureIndexTmp));
 
             {
                 auto calleeTmp = calleeInstance;
@@ -4590,8 +4578,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallIndirect(unsigned tableIndex, co
                 auto targetRTT = TypeInformation::getCanonicalRTT(originalSignature.index());
                 JIT_COMMENT(m_jit, "RTT::isStrictSubRTT()");
                 m_jit.loadPtr(Address(calleeRTT, FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfRTT()), calleeRTT);
-                throwExceptionIf(ExceptionType::BadSignature, m_jit.branch32(CCallHelpers::BelowOrEqual, Address(calleeRTT, RTT::offsetOfDisplaySizeExcludingThis()), TrustedImm32(targetRTT->displaySizeExcludingThis())));
-                throwExceptionIf(ExceptionType::BadSignature, m_jit.branchPtr(CCallHelpers::NotEqual, CCallHelpers::Address(calleeRTT, RTT::offsetOfData() + targetRTT->displaySizeExcludingThis() * sizeof(const RTT*)), TrustedImmPtr(targetRTT.ptr())));
+                recordJumpToThrowException(ExceptionType::BadSignature, m_jit.branch32(CCallHelpers::BelowOrEqual, Address(calleeRTT, RTT::offsetOfDisplaySizeExcludingThis()), TrustedImm32(targetRTT->displaySizeExcludingThis())));
+                recordJumpToThrowException(ExceptionType::BadSignature, m_jit.branchPtr(CCallHelpers::NotEqual, CCallHelpers::Address(calleeRTT, RTT::offsetOfData() + targetRTT->displaySizeExcludingThis() * sizeof(const RTT*)), TrustedImmPtr(targetRTT.ptr())));
             } else
                 emitThrowException(ExceptionType::BadSignature);
 

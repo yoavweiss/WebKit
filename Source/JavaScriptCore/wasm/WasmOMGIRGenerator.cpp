@@ -3605,8 +3605,9 @@ auto OMGIRGenerator::addRefCast(ExpressionType reference, bool allowNull, int32_
 
 void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType reference, bool allowNull, int32_t toHeapType, bool shouldNegate, ExpressionType& result)
 {
+    Value* value = get(reference);
     if (castKind == CastKind::Cast)
-        result = push(get(reference));
+        result = push(value);
 
     BasicBlock* continuation = m_proc.addBlock();
     BasicBlock* trueBlock = nullptr;
@@ -3625,8 +3626,7 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
         BasicBlock* nullCase = m_proc.addBlock();
         BasicBlock* nonNullCase = m_proc.addBlock();
 
-        Value* isNull = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(),
-            get(reference), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull())));
+        Value* isNull = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), value, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull())));
         m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), isNull,
             FrequentedBlock(nullCase), FrequentedBlock(nonNullCase));
         nullCase->addPredecessor(m_currentBlock);
@@ -3681,8 +3681,8 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
             BasicBlock* checkObject = m_proc.addBlock();
 
             // The eqref case chains together checks for i31, array, and struct with disjunctions so the control flow is more complicated, and requires some extra basic blocks to be created.
-            emitCheckOrBranchForCast(CastKind::Test, m_currentBlock->appendNew<Value>(m_proc, Below, origin(), get(reference), constant(pointerType(), JSValue::NumberTag)), nop, checkObject);
-            Value* untagged = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), get(reference));
+            emitCheckOrBranchForCast(CastKind::Test, m_currentBlock->appendNew<Value>(m_proc, Below, origin(), value, constant(pointerType(), JSValue::NumberTag)), nop, checkObject);
+            Value* untagged = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), value);
             emitCheckOrBranchForCast(CastKind::Test, m_currentBlock->appendNew<Value>(m_proc, GreaterThan, origin(), untagged, constant(Int32, Wasm::maxI31ref)), nop, checkObject);
             emitCheckOrBranchForCast(CastKind::Test, m_currentBlock->appendNew<Value>(m_proc, LessThan, origin(), untagged, constant(Int32, Wasm::minI31ref)), nop, checkObject);
             m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), endBlock);
@@ -3690,24 +3690,24 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
             endBlock->addPredecessor(m_currentBlock);
 
             m_currentBlock = checkObject;
-            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), get(reference), constant(pointerType(), JSValue::NotCellMask)), castFailure, falseBlock);
-            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), get(reference), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), value, constant(pointerType(), JSValue::NotCellMask)), castFailure, falseBlock);
+            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
             break;
         }
         case Wasm::TypeKind::I31ref: {
-            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, Below, origin(), get(reference), constant(pointerType(), JSValue::NumberTag)), castFailure, falseBlock);
-            Value* untagged = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), get(reference));
+            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, Below, origin(), value, constant(pointerType(), JSValue::NumberTag)), castFailure, falseBlock);
+            Value* untagged = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), value);
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, GreaterThan, origin(), untagged, constant(Int32, Wasm::maxI31ref)), castFailure, falseBlock);
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, LessThan, origin(), untagged, constant(Int32, Wasm::minI31ref)), castFailure, falseBlock);
             break;
         }
         case Wasm::TypeKind::Arrayref:
         case Wasm::TypeKind::Structref: {
-            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), get(reference), constant(pointerType(), JSValue::NotCellMask)), castFailure, falseBlock);
-            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), get(reference), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), value, constant(pointerType(), JSValue::NotCellMask)), castFailure, falseBlock);
+            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
-            Value* rtt = emitLoadRTTFromObject(get(reference));
+            Value* rtt = emitLoadRTTFromObject(value);
             emitCheckOrBranchForCast(castKind, emitNotRTTKind(rtt, static_cast<TypeKind>(toHeapType) == Wasm::TypeKind::Arrayref ? RTTKind::Array : RTTKind::Struct), castFailure, falseBlock);
             break;
         }
@@ -3720,34 +3720,37 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
 
         Value* rtt;
         if (signature.expand().is<Wasm::FunctionSignature>())
-            rtt = emitLoadRTTFromFuncref(get(reference));
+            rtt = emitLoadRTTFromFuncref(value);
         else {
             // The cell check is only needed for non-functions, as the typechecker does not allow non-Cell values for funcref casts.
             // FIXME: We only need this check if reference has a type that could include non-cells.
-            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), get(reference), constant(Int64, JSValue::NotCellMask)), castFailure, falseBlock);
-            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), get(reference), safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
+            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), value, constant(Int64, JSValue::NotCellMask)), castFailure, falseBlock);
+            Value* jsType = m_currentBlock->appendNew<MemoryValue>(m_proc, Load8Z, Int32, origin(), value, safeCast<int32_t>(JSCell::typeInfoTypeOffset()));
             emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), jsType, constant(Int32, JSType::WebAssemblyGCObjectType)), castFailure, falseBlock);
-            rtt = emitLoadRTTFromObject(get(reference));
-            emitCheckOrBranchForCast(castKind, emitNotRTTKind(rtt, signature.expand().is<Wasm::ArrayType>() ? RTTKind::Array : RTTKind::Struct), castFailure, falseBlock);
+            rtt = emitLoadRTTFromObject(value);
         }
 
         Ref targetRTT = m_info.rtts[toHeapType];
         auto* targetRTTPointer = constant(pointerType(), std::bit_cast<uintptr_t>(targetRTT.ptr()));
-        Value* rttsAreEqual = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), rtt, targetRTTPointer);
         BasicBlock* equalBlock;
         if (castKind == CastKind::Cast)
             equalBlock = continuation;
         else
             equalBlock = trueBlock;
-        m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), rttsAreEqual, FrequentedBlock(equalBlock), FrequentedBlock(slowPath));
+        m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), rtt, targetRTTPointer), FrequentedBlock(equalBlock), FrequentedBlock(slowPath));
         equalBlock->addPredecessor(m_currentBlock);
         slowPath->addPredecessor(m_currentBlock);
 
         m_currentBlock = slowPath;
-        auto* displaySizeExcludingThis = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, Int32, origin(), rtt, safeCast<int32_t>(RTT::offsetOfDisplaySizeExcludingThis()));
-        emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BelowEqual, origin(), displaySizeExcludingThis, constant(Int32, targetRTT->displaySizeExcludingThis())), castFailure, falseBlock);
-        auto* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), rtt, safeCast<uint32_t>(RTT::offsetOfData() + targetRTT->displaySizeExcludingThis() * sizeof(const RTT*)));
-        emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), pointer, targetRTTPointer), castFailure, falseBlock);
+        if (signature.isFinalType()) {
+            // If signature is final type and pointer equality failed, this value must not be a subtype.
+            emitCheckOrBranchForCast(castKind, constant(Int32, 1), castFailure, falseBlock);
+        } else {
+            auto* displaySizeExcludingThis = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, Int32, origin(), rtt, safeCast<int32_t>(RTT::offsetOfDisplaySizeExcludingThis()));
+            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, BelowEqual, origin(), displaySizeExcludingThis, constant(Int32, targetRTT->displaySizeExcludingThis())), castFailure, falseBlock);
+            auto* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, B3::Load, pointerType(), origin(), rtt, safeCast<uint32_t>(RTT::offsetOfData() + targetRTT->displaySizeExcludingThis() * sizeof(const RTT*)));
+            emitCheckOrBranchForCast(castKind, m_currentBlock->appendNew<Value>(m_proc, NotEqual, origin(), pointer, targetRTTPointer), castFailure, falseBlock);
+        }
     }
 
     if (castKind == CastKind::Cast) {

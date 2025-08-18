@@ -178,7 +178,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addTableGet(unsigned tableIndex, Value 
 
     LOG_INSTRUCTION("TableGet", tableIndex, index, RESULT(result));
 
-    throwExceptionIf(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest64(ResultCondition::Zero, resultLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTableAccess, m_jit.branchTest64(ResultCondition::Zero, resultLocation.asGPR()));
     return { };
 }
 
@@ -643,7 +643,7 @@ Value WARN_UNUSED_RETURN BBQJIT::emitAtomicLoadOp(ExtAtomicOpType loadOp, Type v
     Address address = Address(pointer.asGPR());
 
     if (accessWidth(loadOp) != Width8)
-        throwExceptionIf(ExceptionType::UnalignedMemoryAccess, m_jit.branchTest64(ResultCondition::NonZero, pointer.asGPR(), TrustedImm64(sizeOfAtomicOpMemoryAccess(loadOp) - 1)));
+        recordJumpToThrowException(ExceptionType::UnalignedMemoryAccess, m_jit.branchTest64(ResultCondition::NonZero, pointer.asGPR(), TrustedImm64(sizeOfAtomicOpMemoryAccess(loadOp) - 1)));
 
     Value result = topValue(valueType.kind);
     Location resultLocation = allocate(result);
@@ -735,7 +735,7 @@ void BBQJIT::emitAtomicStoreOp(ExtAtomicOpType storeOp, Type, Location pointer, 
     Address address = Address(pointer.asGPR());
 
     if (accessWidth(storeOp) != Width8)
-        throwExceptionIf(ExceptionType::UnalignedMemoryAccess, m_jit.branchTest64(ResultCondition::NonZero, pointer.asGPR(), TrustedImm64(sizeOfAtomicOpMemoryAccess(storeOp) - 1)));
+        recordJumpToThrowException(ExceptionType::UnalignedMemoryAccess, m_jit.branchTest64(ResultCondition::NonZero, pointer.asGPR(), TrustedImm64(sizeOfAtomicOpMemoryAccess(storeOp) - 1)));
 
     GPRReg scratch1GPR = InvalidGPRReg;
     GPRReg scratch2GPR = InvalidGPRReg;
@@ -836,7 +836,7 @@ Value BBQJIT::emitAtomicBinaryRMWOp(ExtAtomicOpType op, Type valueType, Location
     Address address = Address(pointer.asGPR());
 
     if (accessWidth(op) != Width8)
-        throwExceptionIf(ExceptionType::UnalignedMemoryAccess, m_jit.branchTest64(ResultCondition::NonZero, pointer.asGPR(), TrustedImm64(sizeOfAtomicOpMemoryAccess(op) - 1)));
+        recordJumpToThrowException(ExceptionType::UnalignedMemoryAccess, m_jit.branchTest64(ResultCondition::NonZero, pointer.asGPR(), TrustedImm64(sizeOfAtomicOpMemoryAccess(op) - 1)));
 
     Value result = topValue(valueType.kind);
     Location resultLocation = allocate(result);
@@ -1200,7 +1200,7 @@ Value WARN_UNUSED_RETURN BBQJIT::emitAtomicCompareExchange(ExtAtomicOpType op, T
     Width accessWidth = this->accessWidth(op);
 
     if (accessWidth != Width8)
-        throwExceptionIf(ExceptionType::UnalignedMemoryAccess, m_jit.branchTest64(ResultCondition::NonZero, pointer.asGPR(), TrustedImm64(sizeOfAtomicOpMemoryAccess(op) - 1)));
+        recordJumpToThrowException(ExceptionType::UnalignedMemoryAccess, m_jit.branchTest64(ResultCondition::NonZero, pointer.asGPR(), TrustedImm64(sizeOfAtomicOpMemoryAccess(op) - 1)));
 
     Value result = topValue(expected.type());
     Location resultLocation = allocate(result);
@@ -1372,12 +1372,12 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::truncTrapping(OpType truncationOp, Valu
     Jump belowMin = operandType == Types::F32
         ? m_jit.branchFloat(minCondition, operandLocation.asFPR(), minFloat.asFPR())
         : m_jit.branchDouble(minCondition, operandLocation.asFPR(), minFloat.asFPR());
-    throwExceptionIf(ExceptionType::OutOfBoundsTrunc, belowMin);
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTrunc, belowMin);
 
     Jump aboveMax = operandType == Types::F32
         ? m_jit.branchFloat(DoubleCondition::DoubleGreaterThanOrEqualOrUnordered, operandLocation.asFPR(), maxFloat.asFPR())
         : m_jit.branchDouble(DoubleCondition::DoubleGreaterThanOrEqualOrUnordered, operandLocation.asFPR(), maxFloat.asFPR());
-    throwExceptionIf(ExceptionType::OutOfBoundsTrunc, aboveMax);
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTrunc, aboveMax);
 
     truncInBounds(kind, operandLocation, resultLocation, scratches.fpr(0), scratches.fpr(1));
 
@@ -1809,11 +1809,11 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayGet(ExtGCOpType arrayGetKind, u
     Location indexLocation;
     if (index.isConst()) {
         m_jit.load32(MacroAssembler::Address(arrayLocation.asGPR(), JSWebAssemblyArray::offsetOfSize()), wasmScratchGPR);
-        throwExceptionIf(ExceptionType::OutOfBoundsArrayGet,
+        recordJumpToThrowException(ExceptionType::OutOfBoundsArrayGet,
             m_jit.branch32(MacroAssembler::BelowOrEqual, wasmScratchGPR, TrustedImm32(index.asI32())));
     } else {
         indexLocation = loadIfNecessary(index);
-        throwExceptionIf(ExceptionType::OutOfBoundsArrayGet,
+        recordJumpToThrowException(ExceptionType::OutOfBoundsArrayGet,
             m_jit.branch32(MacroAssembler::AboveOrEqual, indexLocation.asGPR(), MacroAssembler::Address(arrayLocation.asGPR(), JSWebAssemblyArray::offsetOfSize())));
         m_jit.zeroExtend32ToWord(indexLocation.asGPR(), indexLocation.asGPR());
     }
@@ -1994,11 +1994,11 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArraySet(uint32_t typeIndex, Express
     ASSERT(index.type() == TypeKind::I32);
     if (index.isConst()) {
         m_jit.load32(MacroAssembler::Address(arrayLocation.asGPR(), JSWebAssemblyArray::offsetOfSize()), wasmScratchGPR);
-        throwExceptionIf(ExceptionType::OutOfBoundsArraySet,
+        recordJumpToThrowException(ExceptionType::OutOfBoundsArraySet,
             m_jit.branch32(MacroAssembler::BelowOrEqual, wasmScratchGPR, TrustedImm32(index.asI32())));
     } else {
         Location indexLocation = loadIfNecessary(index);
-        throwExceptionIf(ExceptionType::OutOfBoundsArraySet,
+        recordJumpToThrowException(ExceptionType::OutOfBoundsArraySet,
             m_jit.branch32(MacroAssembler::AboveOrEqual, indexLocation.asGPR(), MacroAssembler::Address(arrayLocation.asGPR(), JSWebAssemblyArray::offsetOfSize())));
         m_jit.zeroExtend32ToWord(indexLocation.asGPR(), indexLocation.asGPR());
     }
@@ -2091,7 +2091,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayFill(uint32_t typeIndex, Expres
 
     LOG_INSTRUCTION("ArrayFill", typeIndex, arrayref, offset, value, size);
 
-    throwExceptionIf(ExceptionType::OutOfBoundsArrayFill, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
+    recordJumpToThrowException(ExceptionType::OutOfBoundsArrayFill, m_jit.branchTest32(ResultCondition::Zero, shouldThrowLocation.asGPR()));
 
     consume(shouldThrow);
 
@@ -2350,22 +2350,135 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addStructSet(Value structValue, const S
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addRefCast(ExpressionType reference, bool allowNull, int32_t heapType, ExpressionType& result)
+void BBQJIT::emitRefTestOrCast(GPRReg valueGPR, bool allowNull, int32_t toHeapType, JumpList& failureCases)
 {
-    Vector<Value, 8> arguments = {
-        instanceValue(),
-        reference,
-        Value::fromI32(allowNull),
-        Value::fromI32(heapType),
-    };
+    JumpList doneCases;
+    if (allowNull)
+        doneCases.append(m_jit.branchIfNull(valueGPR));
+    else
+        failureCases.append(m_jit.branchIfNull(valueGPR));
+
+    if (typeIndexIsType(static_cast<Wasm::TypeIndex>(toHeapType))) {
+        switch (static_cast<TypeKind>(toHeapType)) {
+        case Wasm::TypeKind::Funcref:
+        case Wasm::TypeKind::Externref:
+        case Wasm::TypeKind::Anyref:
+        case Wasm::TypeKind::Exn:
+            // Casts to these types cannot fail as they are the top types of their respective hierarchies, and static type-checking does not allow cross-hierarchy casts.
+            break;
+        case Wasm::TypeKind::Nullref:
+        case Wasm::TypeKind::Nullfuncref:
+        case Wasm::TypeKind::Nullexternref:
+        case Wasm::TypeKind::Nullexn:
+            // Casts to any bottom type should always fail.
+            failureCases.append(m_jit.jump());
+            break;
+        case Wasm::TypeKind::Eqref: {
+            auto checkObjectCase = m_jit.branchIfNotInt32(valueGPR, DoNotHaveTagRegisters);
+            failureCases.append(m_jit.branch32(CCallHelpers::GreaterThan, valueGPR, TrustedImm32(Wasm::maxI31ref)));
+            failureCases.append(m_jit.branch32(CCallHelpers::LessThan, valueGPR, TrustedImm32(Wasm::minI31ref)));
+            doneCases.append(m_jit.jump());
+
+            checkObjectCase.link(m_jit);
+            failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
+            failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
+            break;
+        }
+        case Wasm::TypeKind::I31ref: {
+            failureCases.append(m_jit.branchIfNotInt32(valueGPR, DoNotHaveTagRegisters));
+            failureCases.append(m_jit.branch32(CCallHelpers::GreaterThan, valueGPR, TrustedImm32(Wasm::maxI31ref)));
+            failureCases.append(m_jit.branch32(CCallHelpers::LessThan, valueGPR, TrustedImm32(Wasm::minI31ref)));
+            break;
+        }
+        case Wasm::TypeKind::Arrayref:
+        case Wasm::TypeKind::Structref: {
+            failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
+            failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
+            m_jit.emitLoadStructure(valueGPR, wasmScratchGPR);
+            m_jit.loadPtr(Address(wasmScratchGPR, WebAssemblyGCStructure::offsetOfRTT()), wasmScratchGPR);
+            failureCases.append(m_jit.branch8(CCallHelpers::NotEqual, Address(wasmScratchGPR, RTT::offsetOfKind()), TrustedImm32(static_cast<int32_t>(static_cast<TypeKind>(toHeapType) == Wasm::TypeKind::Arrayref ? RTTKind::Array : RTTKind::Struct))));
+            break;
+        }
+        default:
+            RELEASE_ASSERT_NOT_REACHED();
+        }
+    } else {
+        Wasm::TypeDefinition& signature = m_info.typeSignatures[toHeapType];
+        if (signature.expand().is<Wasm::FunctionSignature>())
+            m_jit.loadPtr(Address(valueGPR, WebAssemblyFunctionBase::offsetOfRTT()), wasmScratchGPR);
+        else {
+            // The cell check is only needed for non-functions, as the typechecker does not allow non-Cell values for funcref casts.
+            // FIXME: We only need this check if reference has a type that could include non-cells.
+            failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
+            failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
+            m_jit.emitLoadStructure(valueGPR, wasmScratchGPR);
+            m_jit.loadPtr(Address(wasmScratchGPR, WebAssemblyGCStructure::offsetOfRTT()), wasmScratchGPR);
+        }
+
+        Ref targetRTT = m_info.rtts[toHeapType];
+        if (signature.isFinalType()) {
+            // If signature is final type and pointer equality failed, this value must not be a subtype.
+            failureCases.append(m_jit.branchPtr(CCallHelpers::NotEqual, wasmScratchGPR, TrustedImmPtr(targetRTT.ptr())));
+        } else {
+            doneCases.append(m_jit.branchPtr(CCallHelpers::Equal, wasmScratchGPR, TrustedImmPtr(targetRTT.ptr())));
+            failureCases.append(m_jit.branch32(CCallHelpers::BelowOrEqual, Address(wasmScratchGPR, RTT::offsetOfDisplaySizeExcludingThis()), TrustedImm32(targetRTT->displaySizeExcludingThis())));
+            failureCases.append(m_jit.branchPtr(CCallHelpers::NotEqual, Address(wasmScratchGPR, (RTT::offsetOfData() + targetRTT->displaySizeExcludingThis() * sizeof(const RTT*))), TrustedImmPtr(targetRTT.ptr())));
+        }
+    }
+
+    doneCases.link(m_jit);
+}
+
+PartialResult WARN_UNUSED_RETURN BBQJIT::addRefCast(ExpressionType value, bool allowNull, int32_t toHeapType, ExpressionType& result)
+{
+    Location valueLocation;
+    if (value.isConst()) {
+        valueLocation = Location::fromGPR(wasmScratchGPR);
+        emitMoveConst(value, valueLocation);
+    } else
+        valueLocation = loadIfNecessary(value);
+    ASSERT(valueLocation.isGPR());
+    consume(value);
+
     result = topValue(TypeKind::Ref);
-    emitCCall(operationWasmRefCast, arguments, result);
-    Location resultLocation = loadIfNecessary(result);
+    Location resultLocation = allocate(result);
 
-    throwExceptionIf(ExceptionType::CastFailure, m_jit.branchTest64(MacroAssembler::Zero, resultLocation.asGPR()));
+    JumpList failureCases;
+    emitRefTestOrCast(valueLocation.asGPR(), allowNull, toHeapType, failureCases);
+    recordJumpToThrowException(ExceptionType::CastFailure, failureCases);
+    emitMove(TypeKind::Ref, valueLocation, resultLocation);
 
-    LOG_INSTRUCTION("RefCast", reference, allowNull, heapType, RESULT(result));
+    LOG_INSTRUCTION("RefCast", value, allowNull, toHeapType, RESULT(result));
+    return { };
+}
 
+PartialResult WARN_UNUSED_RETURN BBQJIT::addRefTest(ExpressionType value, bool allowNull, int32_t toHeapType, bool shouldNegate, ExpressionType& result)
+{
+    Location valueLocation;
+    if (value.isConst()) {
+        valueLocation = Location::fromGPR(wasmScratchGPR);
+        emitMoveConst(value, valueLocation);
+    } else
+        valueLocation = loadIfNecessary(value);
+    ASSERT(valueLocation.isGPR());
+    consume(value);
+
+    result = topValue(TypeKind::I32);
+    Location resultLocation = allocate(result);
+
+    JumpList doneCases;
+    JumpList failureCases;
+
+    emitRefTestOrCast(valueLocation.asGPR(), allowNull, toHeapType, failureCases);
+    emitMoveConst(Value::fromI32(shouldNegate ? 0 : 1), resultLocation);
+    doneCases.append(m_jit.jump());
+
+    failureCases.link(m_jit);
+    emitMoveConst(Value::fromI32(shouldNegate ? 1 : 0), resultLocation);
+
+    doneCases.link(m_jit);
+
+    LOG_INSTRUCTION("RefTest", value, allowNull, toHeapType, RESULT(result));
     return { };
 }
 
@@ -2425,7 +2538,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addI64Mul(Value lhs, Value rhs, Value& 
 
 void BBQJIT::emitThrowOnNullReference(ExceptionType type, Location ref)
 {
-    throwExceptionIf(type, m_jit.branch64(MacroAssembler::Equal, ref.asGPR(), TrustedImm64(JSValue::encode(jsNull()))));
+    recordJumpToThrowException(type, m_jit.branchIfNull(ref.asGPR()));
 }
 
 PartialResult WARN_UNUSED_RETURN BBQJIT::addI64And(Value lhs, Value rhs, Value& result)
@@ -2991,7 +3104,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addRefAsNonNull(Value value, Value& res
     result = topValue(TypeKind::Ref);
     Location resultLocation = allocate(result);
     ASSERT(JSValue::encode(jsNull()) >= 0 && JSValue::encode(jsNull()) <= INT32_MAX);
-    throwExceptionIf(ExceptionType::NullRefAsNonNull, m_jit.branch64(RelationalCondition::Equal, valueLocation.asGPR(), TrustedImm32(static_cast<int32_t>(JSValue::encode(jsNull())))));
+    emitThrowOnNullReference(ExceptionType::NullRefAsNonNull, valueLocation);
     emitMove(TypeKind::Ref, valueLocation, resultLocation);
 
     return { };
