@@ -1085,7 +1085,7 @@ public:
 
     void emitNops(size_t memoryToFillWithNopsInBytes)
     {
-#if CPU(ARM64)
+#if CPU(ARM64) || CPU(ARM)
         RELEASE_ASSERT(memoryToFillWithNopsInBytes % 4 == 0);
         for (unsigned i = 0; i < memoryToFillWithNopsInBytes / 4; ++i)
             m_assembler.nop();
@@ -1094,7 +1094,7 @@ public:
         size_t startCodeSize = buffer.codeSize();
         size_t targetCodeSize = startCodeSize + memoryToFillWithNopsInBytes;
         buffer.ensureSpace(memoryToFillWithNopsInBytes);
-        AssemblerType::template fillNops<MachineCodeCopyMode::Memcpy>(static_cast<char*>(buffer.data()) + startCodeSize, memoryToFillWithNopsInBytes);
+        AssemblerType::fillNops(static_cast<char*>(buffer.data()) + startCodeSize, memoryToFillWithNopsInBytes);
         buffer.setCodeSize(targetCodeSize);
 #endif
     }
@@ -1250,4 +1250,3 @@ void printInternal(PrintStream& out, JSC::AbstractMacroAssemblerBase::StatusCond
 } // namespace WTF
 
 #endif // ENABLE(ASSEMBLER)
-
