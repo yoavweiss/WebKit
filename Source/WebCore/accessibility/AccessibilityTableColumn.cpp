@@ -72,7 +72,7 @@ void AccessibilityTableColumn::setColumnIndex(unsigned columnIndex)
     m_columnIndex = columnIndex;
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    if (auto* cache = axObjectCache())
+    if (CheckedPtr cache = axObjectCache())
         cache->columnIndexChanged(*this);
 #endif
 }
@@ -83,7 +83,7 @@ bool AccessibilityTableColumn::computeIsIgnored() const
     return true;
 #endif
 
-    return !m_parent || m_parent->isIgnored();
+    return !m_parent || RefPtr { *m_parent }->isIgnored();
 }
 
 void AccessibilityTableColumn::addChildren()

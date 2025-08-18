@@ -127,7 +127,7 @@ void AccessibilityTableRow::setRowIndex(unsigned rowIndex)
     m_rowIndex = rowIndex;
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    if (auto* cache = axObjectCache())
+    if (CheckedPtr cache = axObjectCache())
         cache->rowIndexChanged(*this);
 #endif
 }

@@ -84,7 +84,7 @@ AccessibilityObject* AccessibilitySVGObject::targetForUseElement() const
     if (href.isEmpty())
         href = getAttribute(HTMLNames::hrefAttr);
 
-    auto target = SVGURIReference::targetElementFromIRIString(href, use->treeScopeForSVGReferences());
+    auto target = SVGURIReference::targetElementFromIRIString(href, Ref { use->treeScopeForSVGReferences() });
     CheckedPtr cache = axObjectCache();
     return cache ? cache->getOrCreate(target.element.get()) : nullptr;
 }
@@ -251,8 +251,8 @@ bool AccessibilitySVGObject::computeIsIgnored() const
 
     // The SVG AAM states text elements should also be included, if they have content.
     if (m_renderer->isRenderSVGText() || m_renderer->isRenderSVGTextPath()) {
-        for (auto& child : childrenOfType<RenderText>(downcast<RenderElement>(*m_renderer))) {
-            if (!child.containsOnlyCollapsibleWhitespace())
+        for (CheckedRef child : childrenOfType<RenderText>(downcast<RenderElement>(*m_renderer))) {
+            if (!child->containsOnlyCollapsibleWhitespace())
                 return false;
         }
     }

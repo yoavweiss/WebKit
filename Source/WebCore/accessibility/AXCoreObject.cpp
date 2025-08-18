@@ -1726,8 +1726,8 @@ std::partial_ordering AXCoreObject::partialOrder(const AXCoreObject& other)
 
 LineDecorationStyle::LineDecorationStyle(RenderObject& renderer)
 {
-    const auto& style = renderer.style();
-    auto decor = style.textDecorationLineInEffect();
+    const CheckedRef style = renderer.style();
+    auto decor = style->textDecorationLineInEffect();
     if (decor & TextDecorationLine::Underline || decor & TextDecorationLine::LineThrough) {
         auto decorationStyles = TextDecorationPainter::stylesForRenderer(renderer, decor);
         if (decor & TextDecorationLine::Underline) {
