@@ -446,10 +446,9 @@ void NetworkStorageSession::setThirdPartyCookieBlockingMode(ThirdPartyCookieBloc
     m_thirdPartyCookieBlockingMode = blockingMode;
 }
 
-#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
-void NetworkStorageSession::setOptInCookiePartitioningEnabled(bool enabled)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES) && !PLATFORM(COCOA)
+void NetworkStorageSession::setOptInCookiePartitioningEnabled(bool)
 {
-    m_isOptInCookiePartitioningEnabled = enabled;
 }
 #endif
 

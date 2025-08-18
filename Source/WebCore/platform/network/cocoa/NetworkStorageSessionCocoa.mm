@@ -269,7 +269,7 @@ void NetworkStorageSession::deleteHTTPCookie(CFHTTPCookieStorageRef cookieStorag
 
 static RetainPtr<NSDictionary> policyProperties(const SameSiteInfo& sameSiteInfo, NSURL *url, NSString *partition, ThirdPartyCookieBlockingDecision thirdPartyCookieBlockingDecision)
 {
-#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES) && defined(CFN_COOKIE_ACCEPTS_POLICY_PARTITION) && CFN_COOKIE_ACCEPTS_POLICY_PARTITION
     BOOL shouldAllowOnlyPartitioned = thirdPartyCookieBlockingDecision == ThirdPartyCookieBlockingDecision::AllExceptPartitioned;
     RetainPtr policyProperties = adoptNS([[NSMutableDictionary alloc] init]);
     policyProperties.get()[@"_kCFHTTPCookiePolicyPropertySiteForCookies"] = sameSiteInfo.isSameSite ? url : URL::emptyNSURL();
@@ -343,7 +343,7 @@ RetainPtr<NSArray> NetworkStorageSession::httpCookiesForURL(CFHTTPCookieStorageR
     // FIXME: Stop creating a new NSHTTPCookieStorage object each time we want to query the cookie jar.
     // NetworkStorageSession could instead keep a NSHTTPCookieStorage object for us.
     RetainPtr<NSHTTPCookieStorage> nsCookieStorage = adoptNS([[NSHTTPCookieStorage alloc] _initWithCFHTTPCookieStorage:cookieStorage]);
-#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES) && defined(CFN_COOKIE_ACCEPTS_POLICY_PARTITION) && CFN_COOKIE_ACCEPTS_POLICY_PARTITION
     RetainPtr partitionKey = isOptInCookiePartitioningEnabled() ? cookiePartitionIdentifier(firstParty).createNSString() : nil;
 #else
     RetainPtr<NSString> partitionKey;
@@ -365,7 +365,7 @@ RetainPtr<NSHTTPCookie> NetworkStorageSession::capExpiryOfPersistentCookie(NSHTT
     return cookie;
 }
 
-#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES) && defined(CFN_COOKIE_ACCEPTS_POLICY_PARTITION) && CFN_COOKIE_ACCEPTS_POLICY_PARTITION
 NSHTTPCookie *NetworkStorageSession::setCookiePartition(NSHTTPCookie *cookie, NSString* partitionKey)
 {
     if (!cookie)
@@ -531,7 +531,7 @@ void NetworkStorageSession::setCookiesFromDOM(const URL& firstParty, const SameS
 
     auto cookieCap = clientSideCookieCap(RegistrableDomain { firstParty }, requiresScriptTrackingPrivacy, pageID);
 
-#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES) && defined(CFN_COOKIE_ACCEPTS_POLICY_PARTITION) && CFN_COOKIE_ACCEPTS_POLICY_PARTITION
     String partitionKey = isOptInCookiePartitioningEnabled() ? cookiePartitionIdentifier(firstParty) : String { };
 #else
     String partitionKey;
@@ -561,7 +561,7 @@ bool NetworkStorageSession::setCookieFromDOM(const URL& firstParty, const SameSi
     if (!nshttpCookie)
         return false;
 
-#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES) && defined(CFN_COOKIE_ACCEPTS_POLICY_PARTITION) && CFN_COOKIE_ACCEPTS_POLICY_PARTITION
     NSString *partition = isOptInCookiePartitioningEnabled() ? nsStringNilIfEmpty(cookiePartitionIdentifier(firstParty)) : nil;
 #else
     NSString *partition = nil;
@@ -758,7 +758,7 @@ Vector<Cookie> NetworkStorageSession::domCookiesForHost(const URL& firstParty)
     RetainPtr<NSArray> unpartitionedCookies = [nsCookieStorage() _getCookiesForDomain:host.get()];
     RetainPtr nsCookies = adoptNS([[NSMutableArray alloc] initWithArray:unpartitionedCookies.get()]);
 
-#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES) && defined(CFN_COOKIE_ACCEPTS_POLICY_PARTITION) && CFN_COOKIE_ACCEPTS_POLICY_PARTITION
     if (isOptInCookiePartitioningEnabled()) {
         // Next, get all cookies in the partition for this site. However, we
         // only want the cookies for this host, so we filter all cookies that
@@ -793,6 +793,18 @@ Vector<Cookie> NetworkStorageSession::domCookiesForHost(const URL& firstParty)
 
     return nsCookiesToCookieVector(nsCookies.get(), [](NSHTTPCookie *cookie) { return !cookie.HTTPOnly; });
 }
+
+#if ENABLE(OPT_IN_PARTITIONED_COOKIES)
+void NetworkStorageSession::setOptInCookiePartitioningEnabled(bool enabled)
+{
+#if defined(CFN_COOKIE_ACCEPTS_POLICY_PARTITION) && CFN_COOKIE_ACCEPTS_POLICY_PARTITION
+    m_isOptInCookiePartitioningEnabled = enabled;
+#else
+    RELEASE_ASSERT(m_thirdPartyCookieBlockingMode != WebCore::ThirdPartyCookieBlockingMode::AllExceptPartitioned);
+    UNUSED_PARAM(enabled);
+#endif
+}
+#endif
 
 #if HAVE(COOKIE_CHANGE_LISTENER_API)
 
