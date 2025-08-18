@@ -1,7 +1,7 @@
 # Longstanding SPI used by JavaScriptCore before we started auditing SPI use.
 # NEVER add to this list, only remove!
 
-[legacy.legacy]
+[[legacy]]
 selectors = [
     { name = "_web_looksLikeIPAddress", class = "?" },
     { name = "matchedLanguagesFromAvailableLanguages:forPreferredLanguages:", class = "?" },
