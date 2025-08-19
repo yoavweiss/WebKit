@@ -69,9 +69,7 @@ Shared/mac/AuxiliaryProcessMac.mm
 Shared/mac/ScrollingAccelerationCurveMac.mm
 UIProcess/API/C/mac/WKNotificationPrivateMac.mm
 UIProcess/API/C/mac/WKProtectionSpaceNS.mm
-UIProcess/API/Cocoa/APIAttachmentCocoa.mm
 UIProcess/API/Cocoa/NSAttributedString.mm
-UIProcess/API/Cocoa/WKContentRuleListStore.mm
 UIProcess/API/Cocoa/WKDownload.mm
 UIProcess/API/Cocoa/WKFrameInfo.mm
 UIProcess/API/Cocoa/WKNSURLAuthenticationChallenge.mm
@@ -148,7 +146,6 @@ UIProcess/Cocoa/WebPageProxyCocoa.mm
 UIProcess/Cocoa/WebProcessPoolCocoa.mm
 UIProcess/Cocoa/WebProcessProxyCocoa.mm
 UIProcess/Cocoa/_WKWarningView.mm
-UIProcess/Extensions/Cocoa/WebExtensionCocoa.mm
 UIProcess/Extensions/WebExtensionController.h
 UIProcess/Gamepad/mac/UIGamepadProviderMac.mm
 UIProcess/Inspector/Cocoa/InspectorExtensionDelegate.mm
@@ -194,7 +191,6 @@ UIProcess/mac/WKQuickLookPreviewController.mm
 UIProcess/mac/WKRevealItemPresenter.mm
 UIProcess/mac/WKSharingServicePickerDelegate.mm
 UIProcess/mac/WKTextAnimationManagerMac.mm
-UIProcess/mac/WKTextFinderClient.mm
 UIProcess/mac/WebColorPickerMac.mm
 UIProcess/mac/WebContextMenuProxyMac.mm
 UIProcess/mac/WebDataListSuggestionsDropdownMac.mm
