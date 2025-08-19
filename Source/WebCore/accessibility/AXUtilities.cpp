@@ -30,6 +30,7 @@
 #include "Document.h"
 #include "Element.h"
 #include "HTMLImageElement.h"
+#include "HTMLMapElement.h"
 #include "HTMLMediaElement.h"
 #include "HTMLNames.h"
 #include "Node.h"
@@ -54,13 +55,13 @@ ContainerNode* composedParentIgnoringDocumentFragments(const Node* node)
     return node ? composedParentIgnoringDocumentFragments(*node) : nullptr;
 }
 
-ElementName elementName(Node* node)
+NodeName elementName(Node* node)
 {
     auto* element = dynamicDowncast<Element>(node);
     return element ? element->elementName() : ElementName::Unknown;
 }
 
-ElementName elementName(Node& node)
+NodeName elementName(Node& node)
 {
     auto* element = dynamicDowncast<Element>(node);
     return element ? element->elementName() : ElementName::Unknown;

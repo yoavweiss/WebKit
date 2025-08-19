@@ -26,6 +26,16 @@
 
 namespace WebCore {
 
+enum class AXNotification : uint8_t;
+enum class NodeName : uint16_t;
+class ContainerNode;
+class Document;
+class Element;
+class Node;
+class RenderImage;
+class RenderStyle;
+class RenderObject;
+
 bool hasRole(Element&, StringView role);
 bool hasAnyRole(Element&, Vector<StringView>&& roles);
 bool hasAnyRole(Element*, Vector<StringView>&& roles);
@@ -37,8 +47,9 @@ bool isRowGroup(Node*);
 ContainerNode* composedParentIgnoringDocumentFragments(const Node&);
 ContainerNode* composedParentIgnoringDocumentFragments(const Node*);
 
-ElementName elementName(Node*);
-ElementName elementName(Node&);
+// Returns NodeName and not ElementName because it's impossible to forward declare ElementName.
+NodeName elementName(Node*);
+NodeName elementName(Node&);
 
 RenderImage* toSimpleImage(RenderObject&);
 
