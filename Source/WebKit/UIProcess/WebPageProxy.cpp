@@ -10039,6 +10039,24 @@ void WebPageProxy::backForwardGoToItemShared(BackForwardItemIdentifier itemID, C
     completionHandler(m_backForwardList->counts());
 }
 
+void WebPageProxy::backForwardAllItems(FrameIdentifier frameID, CompletionHandler<void(Vector<Ref<FrameState>>&&)>&& completionHandler)
+{
+    Vector<Ref<FrameState>> allItems;
+
+    for (Ref item : m_backForwardList->allItems()) {
+        RefPtr<FrameState> frameState;
+
+        if (RefPtr frameItem = item->protectedMainFrameItem()->childItemForFrameID(frameID))
+            frameState = frameItem->copyFrameStateWithChildren();
+        else
+            frameState = item->mainFrameState();
+
+        allItems.append(frameState.releaseNonNull());
+    }
+
+    completionHandler(WTFMove(allItems));
+}
+
 void WebPageProxy::backForwardItemAtIndex(int32_t index, FrameIdentifier frameID, CompletionHandler<void(RefPtr<FrameState>&&)>&& completionHandler)
 {
     // FIXME: This should verify that the web process requesting the item hosts the specified frame.
