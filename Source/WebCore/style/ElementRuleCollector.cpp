@@ -748,26 +748,38 @@ std::pair<bool, std::optional<Vector<ElementRuleCollector::ScopingRootWithDistan
                 return false;
 
             auto appendImplicitScopingRoot = [&](const auto* client) {
-                // Verify that the node is in the current document
-                if (client->ownerDocument() != &this->element().document())
-                    return;
-                // The owner node should be the <style> node
+
+                auto addScopingRootWithDistance = [&](auto* scopingRoot) {
+                    const auto* ancestor = &element();
+                    unsigned distance = 0;
+                    while (ancestor) {
+                        if (ancestor == scopingRoot)
+                            break;
+                        ancestor = ancestor->parentElement();
+                        ++distance;
+                    }
+                    scopingRoots.append({ scopingRoot, distance });
+                };
+
                 const auto* owner = client->ownerNode();
-                if (!owner)
-                    return;
-                // Find the parent node of the <style>
-                const auto* implicitParentNode = owner->parentOrShadowHostElement();
-                if (!implicitParentNode)
-                    return;
-                const auto* ancestor = &element();
-                unsigned distance = 0;
-                while (ancestor) {
-                    if (ancestor == implicitParentNode)
-                        break;
-                    ancestor = ancestor->parentElement();
-                    ++distance;
+                if (owner) {
+                    // Regular stylesheet with owner node (e.g., <style> element).
+                    // Find the parent node of the <style>.
+                    const auto* implicitParentNode = owner->parentOrShadowHostElement();
+                    if (!implicitParentNode)
+                        return;
+                    addScopingRootWithDistance(implicitParentNode);
+                } else {
+                    // Constructed stylesheet without owner node.
+                    // Check if it's adopted by shadow roots and use the shadow host as scoping root.
+                    for (const auto& adoptingTreeScope : client->adoptingTreeScopes()) {
+                        if (auto* shadowRoot = dynamicDowncast<ShadowRoot>(adoptingTreeScope)) {
+                            const auto* shadowHost = shadowRoot->host();
+                            if (shadowHost && &shadowHost->document() == &this->element().document())
+                                addScopingRootWithDistance(shadowHost);
+                        }
+                    }
                 }
-                scopingRoots.append({ implicitParentNode, distance });
             };
 
             // Each client might act as a scoping root.
