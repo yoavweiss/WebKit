@@ -48,6 +48,7 @@
 #include "Quirks.h"
 #include "ResourceLoadObserver.h"
 #include "ScriptController.h"
+#include "ScriptWrappableInlines.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"
 #include "ShareData.h"

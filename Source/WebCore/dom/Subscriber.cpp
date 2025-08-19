@@ -29,6 +29,7 @@
 #include "Document.h"
 #include "InternalObserver.h"
 #include "JSDOMExceptionHandling.h"
+#include "ScriptWrappableInlines.h"
 #include "SubscriberCallback.h"
 #include "SubscriptionObserverCallback.h"
 #include <wtf/TZoneMallocInlines.h>
@@ -171,6 +172,8 @@ void Subscriber::visitAdditionalChildren(JSC::AbstractSlotVisitor& visitor)
 
     observerConcurrently()->visitAdditionalChildren(visitor);
 }
+
+Subscriber::~Subscriber() = default;
 
 WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(Subscriber);
 

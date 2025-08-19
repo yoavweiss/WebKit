@@ -37,6 +37,7 @@
 #include "Logging.h"
 #include "PeerConnectionBackend.h"
 #include "RTCRtpCapabilities.h"
+#include "ScriptWrappableInlines.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {

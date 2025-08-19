@@ -132,4 +132,6 @@ String TrustedTypePolicyFactory::getPropertyType(const String& tagName, const St
     return nullString();
 }
 
+TrustedTypePolicyFactory::~TrustedTypePolicyFactory() = default;
+
 }

@@ -42,4 +42,6 @@ TrustedScriptURL::TrustedScriptURL(const String& data)
 {
 }
 
+TrustedScriptURL::~TrustedScriptURL() = default;
+
 } // namespace WebCore

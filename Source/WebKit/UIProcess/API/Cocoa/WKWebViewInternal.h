@@ -27,6 +27,7 @@
 #import <WebKit/_WKTextExtraction.h>
 
 #ifdef __cplusplus
+#if !__has_feature(modules)
 
 #import "PDFPluginIdentifier.h"
 #import <WebCore/CocoaView.h>
@@ -624,6 +625,7 @@ RetainPtr<NSError> nsErrorFromExceptionDetails(const std::optional<WebCore::Exce
 
 WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContainerEdges&, WebCore::BoxSide);
 
+#endif // !__has_feature(modules)
 #endif // __cplusplus
 
 @interface WKWebView (NonCpp)

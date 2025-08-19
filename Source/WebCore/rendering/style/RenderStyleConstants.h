@@ -28,6 +28,7 @@
 #include <initializer_list>
 #include <limits>
 #include <optional>
+#include <type_traits>
 #include <wtf/EnumTraits.h>
 
 namespace WTF {

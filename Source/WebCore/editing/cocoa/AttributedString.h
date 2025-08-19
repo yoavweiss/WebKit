@@ -25,8 +25,8 @@
 
 #pragma once
 
-#import "Color.h"
-#import "TextAttachmentForSerialization.h"
+#import <WebCore/Color.h>
+#import <WebCore/TextAttachmentForSerialization.h>
 #import <wtf/ObjectIdentifier.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/URL.h>

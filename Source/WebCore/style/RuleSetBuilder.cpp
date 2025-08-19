@@ -47,6 +47,7 @@
 #include "StyleSheetContents.h"
 #include <ranges>
 #include <wtf/CryptographicallyRandomNumber.h>
+#include <wtf/SetForScope.h>
 
 namespace WebCore {
 namespace Style {

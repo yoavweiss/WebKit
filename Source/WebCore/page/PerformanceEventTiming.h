@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include "DOMHighResTimeStamp.h"
-#include "EventNames.h"
-#include "EventTarget.h"
-#include "PerformanceEntry.h"
+#include <WebCore/DOMHighResTimeStamp.h>
+#include <WebCore/EventNames.h>
+#include <WebCore/EventTarget.h>
+#include <WebCore/PerformanceEntry.h>
 #include <wtf/WeakPtr.h>
 
 namespace WebCore {

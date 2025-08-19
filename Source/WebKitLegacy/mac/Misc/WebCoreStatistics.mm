@@ -33,6 +33,7 @@
 #import "WebFrameInternal.h"
 #import <JavaScriptCore/JSLock.h>
 #import <JavaScriptCore/MemoryStatistics.h>
+#import <JavaScriptCore/VM.h>
 #import <WebCore/BackForwardCache.h>
 #import <WebCore/CommonVM.h>
 #import <WebCore/FontCache.h>

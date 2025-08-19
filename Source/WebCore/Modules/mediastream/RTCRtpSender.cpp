@@ -41,6 +41,7 @@
 #include "RTCPeerConnection.h"
 #include "RTCRtpCapabilities.h"
 #include "RTCRtpTransceiver.h"
+#include "ScriptWrappableInlines.h"
 #include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {

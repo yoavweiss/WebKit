@@ -50,6 +50,8 @@ public:
     static Ref<RTCSessionDescription> create(RTCSessionDescriptionInit&&);
     static Ref<RTCSessionDescription> create(RTCSdpType, String&& sdp);
 
+    ~RTCSessionDescription();
+
     RTCSdpType type() const { return m_type; }
 
     const String& sdp() const { return m_sdp; }

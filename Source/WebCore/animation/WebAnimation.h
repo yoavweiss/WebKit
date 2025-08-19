@@ -27,7 +27,7 @@
 
 #include <WebCore/ActiveDOMObject.h>
 #include <WebCore/AnimationFrameRate.h>
-#include "AnimationFrameRatePreset.h"
+#include <WebCore/AnimationFrameRatePreset.h>
 #include <WebCore/CSSKeywordValue.h>
 #include <WebCore/CSSNumericValue.h>
 #include <WebCore/ContextDestructionObserverInlines.h>

@@ -29,6 +29,7 @@
 #include "JSArrayBufferView.h"
 #include "JSCellInlines.h"
 #include "WaiterListManager.h"
+#include "WeakInlines.h"
 #include <wtf/Gigacage.h>
 #include <wtf/SafeStrerror.h>
 
@@ -537,6 +538,8 @@ RefPtr<ArrayBuffer> ArrayBuffer::tryCreateShared(VM& vm, size_t numElements, uns
     auto* memory = static_cast<uint8_t*>(handle->memory());
     return createShared(SharedArrayBufferContents::create({ memory, sizeInBytes.value() }, maxByteLength, WTFMove(handle), nullptr, SharedArrayBufferContents::Mode::Default));
 }
+
+ArrayBuffer::~ArrayBuffer() { }
 
 Expected<int64_t, GrowFailReason> SharedArrayBufferContents::grow(VM& vm, size_t newByteLength)
 {

@@ -23,12 +23,14 @@
 #include <initializer_list>
 #include <wtf/Compiler.h>
 #include <wtf/Forward.h>
+#include <wtf/HashFunctions.h>
 #include <wtf/HashIterators.h>
 #include <wtf/HashTable.h>
 #include <wtf/HashTraits.h>
 #include <wtf/IteratorRange.h>
 #include <wtf/KeyValuePair.h>
 #include <wtf/OptionSetHash.h>
+#include <wtf/Packed.h>
 
 namespace WTF {
 
