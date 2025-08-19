@@ -108,7 +108,7 @@ protected:
     template<typename T>
     IPC::Error send(T&& message) const
     {
-        return Ref { *m_streamConnection }->send(std::forward<T>(message), m_graphicsContextGLIdentifier);
+        return m_connection->send(std::forward<T>(message), m_identifier);
     }
 
     // GraphicsContextGL::Client overrides.
@@ -156,10 +156,6 @@ protected:
     void framebufferDiscard(uint32_t target, std::span<const uint32_t> attachments);
 #endif
 
-#if ENABLE(VIDEO)
-    Ref<RemoteVideoFrameObjectHeap> protectedVideoFrameObjectHeap() const;
-#endif
-
 #if PLATFORM(COCOA)
     using GCGLContext = WebCore::GraphicsContextGLCocoa;
 #elif USE(GBM)
@@ -174,25 +170,23 @@ private:
     void paintNativeImageToImageBuffer(WebCore::NativeImage&, WebCore::RenderingResourceIdentifier);
     bool webXREnabled() const;
     bool webXRPromptAccepted() const;
-    Ref<IPC::StreamConnectionWorkQueue> protectedWorkQueue() const { return m_workQueue; }
     RefPtr<GCGLContext> protectedContext();
 
 protected:
     ThreadSafeWeakPtr<GPUConnectionToWebProcess> m_gpuConnectionToWebProcess;
-    Ref<IPC::StreamConnectionWorkQueue> m_workQueue;
-    RefPtr<IPC::StreamServerConnection> m_streamConnection;
+    const Ref<IPC::StreamConnectionWorkQueue> m_workQueue;
+    const Ref<IPC::StreamServerConnection> m_connection;
     RefPtr<GCGLContext> m_context WTF_GUARDED_BY_CAPABILITY(workQueue());
-    GraphicsContextGLIdentifier m_graphicsContextGLIdentifier;
-    Ref<RemoteRenderingBackend> m_renderingBackend;
-    Ref<RemoteSharedResourceCache> m_sharedResourceCache;
+    const GraphicsContextGLIdentifier m_identifier;
+    const Ref<RemoteRenderingBackend> m_renderingBackend;
+    const Ref<RemoteSharedResourceCache> m_sharedResourceCache;
 #if ENABLE(VIDEO)
-    Ref<RemoteVideoFrameObjectHeap> m_videoFrameObjectHeap;
+    const Ref<RemoteVideoFrameObjectHeap> m_videoFrameObjectHeap;
 #if PLATFORM(COCOA)
     SharedVideoFrameReader m_sharedVideoFrameReader;
 #endif
 #endif
     ScopedWebGLRenderingResourcesRequest m_renderingResourcesRequest;
-    WebCore::ProcessIdentifier m_webProcessIdentifier;
     SharedPreferencesForWebProcess m_sharedPreferencesForWebProcess;
     HashMap<uint32_t, PlatformGLObject, IntHash<uint32_t>, WTF::UnsignedWithZeroKeyHashTraits<uint32_t>> m_objectNames;
 };
