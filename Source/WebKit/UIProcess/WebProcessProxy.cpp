@@ -1333,11 +1333,6 @@ void WebProcessProxy::didReceiveInvalidMessage(IPC::Connection& connection, IPC:
 
     WebProcessPool::didReceiveInvalidMessage(messageName);
 
-#if ENABLE(IPC_TESTING_API)
-    if (connection.ignoreInvalidMessageForTesting())
-        return;
-#endif
-
     // Terminate the WebContent process.
     terminate();
 
