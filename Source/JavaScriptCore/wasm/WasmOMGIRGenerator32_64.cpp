@@ -114,7 +114,6 @@ class OMGIRGenerator {
 public:
     using ExpressionType = Variable*;
     using ResultList = Vector<ExpressionType, 8>;
-    using ArgumentList = Vector<ExpressionType, 8>;
     using CallType = CallLinkInfo::CallType;
     using CallPatchpointData = std::tuple<B3::PatchpointValue*, Box<PatchpointExceptionHandle>, RefPtr<B3::StackmapGenerator>>;
     using WasmConstRefValue = Const64Value;
@@ -339,6 +338,7 @@ public:
     using Stack = FunctionParser<OMGIRGenerator>::Stack;
     using TypedExpression = FunctionParser<OMGIRGenerator>::TypedExpression;
     using CatchHandler = FunctionParser<OMGIRGenerator>::CatchHandler;
+    using ArgumentList = FunctionParser<OMGIRGenerator>::ArgumentList;
 
     static_assert(std::is_same_v<ResultList, FunctionParser<OMGIRGenerator>::ResultList>);
 
@@ -5601,7 +5601,7 @@ auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex,
 {
     Vector<Value*> getArgs;
 
-    for (auto* arg : args)
+    for (auto& arg : args)
         getArgs.append(m_currentBlock->appendNew<VariableValue>(m_proc, B3::Get, origin(), arg));
 
     BasicBlock* continuation = m_proc.addBlock();

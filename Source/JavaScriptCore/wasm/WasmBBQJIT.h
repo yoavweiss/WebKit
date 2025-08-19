@@ -914,12 +914,12 @@ public:
     using ControlType = ControlData;
     using CallType = CallLinkInfo::CallType;
     using ResultList = Vector<ExpressionType, 8>;
-    using ArgumentList = Vector<ExpressionType, 8>;
     using ControlEntry = typename FunctionParserTypes<ControlType, ExpressionType, CallType>::ControlEntry;
     using TypedExpression = typename FunctionParserTypes<ControlType, ExpressionType, CallType>::TypedExpression;
     using Stack = FunctionParser<BBQJIT>::Stack;
     using ControlStack = FunctionParser<BBQJIT>::ControlStack;
     using CatchHandler = FunctionParser<BBQJIT>::CatchHandler;
+    using ArgumentList = FunctionParser<BBQJIT>::ArgumentList;
 
     unsigned stackCheckSize() const { return alignedFrameSize(m_maxCalleeStackSize + m_frameSize); }
 
@@ -1377,9 +1377,9 @@ public:
     // GC
     PartialResult WARN_UNUSED_RETURN addRefI31(ExpressionType value, ExpressionType& result);
 
-    PartialResult WARN_UNUSED_RETURN addI31GetS(ExpressionType value, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addI31GetS(TypedExpression value, ExpressionType& result);
 
-    PartialResult WARN_UNUSED_RETURN addI31GetU(ExpressionType value, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addI31GetU(TypedExpression value, ExpressionType& result);
 
     const Ref<TypeDefinition> getTypeDefinition(uint32_t typeIndex);
 
@@ -1412,19 +1412,19 @@ public:
 
     void emitArrayGetPayload(StorageType, GPRReg arrayGPR, GPRReg payloadGPR);
 
-    PartialResult WARN_UNUSED_RETURN addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, TypedExpression arrayref, ExpressionType index, ExpressionType& result);
 
-    PartialResult WARN_UNUSED_RETURN addArraySet(uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType value);
+    PartialResult WARN_UNUSED_RETURN addArraySet(uint32_t typeIndex, TypedExpression arrayref, ExpressionType index, ExpressionType value);
 
-    PartialResult WARN_UNUSED_RETURN addArrayLen(ExpressionType arrayref, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addArrayLen(TypedExpression arrayref, ExpressionType& result);
 
-    PartialResult WARN_UNUSED_RETURN addArrayFill(uint32_t typeIndex, ExpressionType arrayref, ExpressionType offset, ExpressionType value, ExpressionType size);
+    PartialResult WARN_UNUSED_RETURN addArrayFill(uint32_t typeIndex, TypedExpression arrayref, ExpressionType offset, ExpressionType value, ExpressionType size);
 
-    PartialResult WARN_UNUSED_RETURN addArrayCopy(uint32_t dstTypeIndex, ExpressionType dst, ExpressionType dstOffset, uint32_t srcTypeIndex, ExpressionType src, ExpressionType srcOffset, ExpressionType size);
+    PartialResult WARN_UNUSED_RETURN addArrayCopy(uint32_t dstTypeIndex, TypedExpression dst, ExpressionType dstOffset, uint32_t srcTypeIndex, TypedExpression src, ExpressionType srcOffset, ExpressionType size);
 
-    PartialResult WARN_UNUSED_RETURN addArrayInitElem(uint32_t dstTypeIndex, ExpressionType dst, ExpressionType dstOffset, uint32_t srcElementIndex, ExpressionType srcOffset, ExpressionType size);
+    PartialResult WARN_UNUSED_RETURN addArrayInitElem(uint32_t dstTypeIndex, TypedExpression dst, ExpressionType dstOffset, uint32_t srcElementIndex, ExpressionType srcOffset, ExpressionType size);
 
-    PartialResult WARN_UNUSED_RETURN addArrayInitData(uint32_t dstTypeIndex, ExpressionType dst, ExpressionType dstOffset, uint32_t srcDataIndex, ExpressionType srcOffset, ExpressionType size);
+    PartialResult WARN_UNUSED_RETURN addArrayInitData(uint32_t dstTypeIndex, TypedExpression dst, ExpressionType dstOffset, uint32_t srcDataIndex, ExpressionType srcOffset, ExpressionType size);
 
     // Returns true if a writeBarrier/mutatorFence is needed.
     bool WARN_UNUSED_RETURN emitStructSet(GPRReg structGPR, const StructType& structType, uint32_t fieldIndex, Value value);
@@ -1433,15 +1433,15 @@ public:
     PartialResult WARN_UNUSED_RETURN addStructNewDefault(uint32_t typeIndex, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addStructNew(uint32_t typeIndex, ArgumentList& args, Value& result);
 
-    PartialResult WARN_UNUSED_RETURN addStructGet(ExtGCOpType structGetKind, Value structValue, const StructType& structType, uint32_t fieldIndex, Value& result);
+    PartialResult WARN_UNUSED_RETURN addStructGet(ExtGCOpType structGetKind, TypedExpression structValue, const StructType& structType, uint32_t fieldIndex, Value& result);
 
-    PartialResult WARN_UNUSED_RETURN addStructSet(Value structValue, const StructType& structType, uint32_t fieldIndex, Value value);
+    PartialResult WARN_UNUSED_RETURN addStructSet(TypedExpression structValue, const StructType& structType, uint32_t fieldIndex, Value value);
 
-    void emitRefTestOrCast(GPRReg, bool allowNull, int32_t toHeapType, JumpList& failureCases);
+    void emitRefTestOrCast(const TypedExpression&, GPRReg, bool allowNull, int32_t toHeapType, JumpList& failureCases);
 
-    PartialResult WARN_UNUSED_RETURN addRefTest(ExpressionType reference, bool allowNull, int32_t heapType, bool shouldNegate, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addRefTest(TypedExpression reference, bool allowNull, int32_t heapType, bool shouldNegate, ExpressionType& result);
 
-    PartialResult WARN_UNUSED_RETURN addRefCast(ExpressionType reference, bool allowNull, int32_t heapType, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addRefCast(TypedExpression reference, bool allowNull, int32_t heapType, ExpressionType& result);
 
     PartialResult WARN_UNUSED_RETURN addAnyConvertExtern(ExpressionType reference, ExpressionType& result);
 
@@ -2014,8 +2014,8 @@ public:
 
     void flushRegisters();
 
-    template<size_t N>
-    void saveValuesAcrossCallAndPassArguments(const Vector<Value, N>& arguments, const CallInformation& callInfo, const TypeDefinition& signature);
+    template<typename Args>
+    void saveValuesAcrossCallAndPassArguments(const Args& arguments, const CallInformation& callInfo, const TypeDefinition& signature);
 
     void slowPathSpillBindings(const RegisterBindings& bindings);
     void slowPathRestoreBindings(const RegisterBindings&);

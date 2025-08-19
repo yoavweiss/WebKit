@@ -197,7 +197,6 @@ public:
     using ExpressionType = Value;
     using CallType = CallLinkInfo::CallType;
     using ResultList = Vector<Value, 8>;
-    using ArgumentList = Vector<Value, 8>;
 
     using ExpressionList = Vector<Value, 1>;
     using ControlEntry = FunctionParser<IPIntGenerator>::ControlEntry;
@@ -205,6 +204,7 @@ public:
     using Stack = FunctionParser<IPIntGenerator>::Stack;
     using TypedExpression = FunctionParser<IPIntGenerator>::TypedExpression;
     using CatchHandler = FunctionParser<IPIntGenerator>::CatchHandler;
+    using ArgumentList = FunctionParser<IPIntGenerator>::ArgumentList;
 
     static ExpressionType emptyExpression() { return { }; };
     PartialResult WARN_UNUSED_RETURN addDrop(ExpressionType);

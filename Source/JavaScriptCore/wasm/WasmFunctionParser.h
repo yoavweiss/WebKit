@@ -125,7 +125,7 @@ struct FunctionParserTypes {
 
     using ResultList = Vector<ExpressionType, 8>;
 
-    using ArgumentList = Vector<ExpressionType, 8>;
+    using ArgumentList = Vector<TypedExpression, 8>;
 
     struct CatchHandler {
         CatchKind type;

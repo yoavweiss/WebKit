@@ -1455,8 +1455,10 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayNewElem(uint32_t typeIndex, uin
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayCopy(uint32_t dstTypeIndex, ExpressionType dst, ExpressionType dstOffset, uint32_t srcTypeIndex, ExpressionType src, ExpressionType srcOffset, ExpressionType size)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayCopy(uint32_t dstTypeIndex, TypedExpression typedDst, ExpressionType dstOffset, uint32_t srcTypeIndex, TypedExpression typedSrc, ExpressionType srcOffset, ExpressionType size)
 {
+    auto dst = typedDst.value();
+    auto src = typedSrc.value();
     if (dst.isConst() || src.isConst()) {
         ASSERT_IMPLIES(dst.isConst(), dst.asI64() == JSValue::encode(jsNull()));
         ASSERT_IMPLIES(src.isConst(), src.asI64() == JSValue::encode(jsNull()));
@@ -1472,8 +1474,10 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayCopy(uint32_t dstTypeIndex, Exp
         return { };
     }
 
-    emitThrowOnNullReference(ExceptionType::NullArrayCopy, loadIfNecessary(dst));
-    emitThrowOnNullReference(ExceptionType::NullArrayCopy, loadIfNecessary(src));
+    if (typedDst.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullArrayCopy, loadIfNecessary(dst));
+    if (typedSrc.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullArrayCopy, loadIfNecessary(src));
 
     Vector<Value, 8> arguments = {
         instanceValue(),
@@ -1496,8 +1500,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayCopy(uint32_t dstTypeIndex, Exp
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitElem(uint32_t dstTypeIndex, ExpressionType dst, ExpressionType dstOffset, uint32_t srcElementIndex, ExpressionType srcOffset, ExpressionType size)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitElem(uint32_t dstTypeIndex, TypedExpression typedDst, ExpressionType dstOffset, uint32_t srcElementIndex, ExpressionType srcOffset, ExpressionType size)
 {
+    auto dst = typedDst.value();
     if (dst.isConst()) {
         ASSERT(dst.asI64() == JSValue::encode(jsNull()));
 
@@ -1510,7 +1515,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitElem(uint32_t dstTypeIndex,
         return { };
     }
 
-    emitThrowOnNullReference(ExceptionType::NullArrayInitElem, loadIfNecessary(dst));
+    if (typedDst.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullArrayInitElem, loadIfNecessary(dst));
 
     Vector<Value, 8> arguments = {
         instanceValue(),
@@ -1533,8 +1539,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitElem(uint32_t dstTypeIndex,
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitData(uint32_t dstTypeIndex, ExpressionType dst, ExpressionType dstOffset, uint32_t srcDataIndex, ExpressionType srcOffset, ExpressionType size)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitData(uint32_t dstTypeIndex, TypedExpression typedDst, ExpressionType dstOffset, uint32_t srcDataIndex, ExpressionType srcOffset, ExpressionType size)
 {
+    auto dst = typedDst.value();
     if (dst.isConst()) {
         ASSERT(dst.asI64() == JSValue::encode(jsNull()));
 
@@ -1547,7 +1554,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayInitData(uint32_t dstTypeIndex,
         return { };
     }
 
-    emitThrowOnNullReference(ExceptionType::NullArrayInitData, loadIfNecessary(dst));
+    if (typedDst.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullArrayInitData, loadIfNecessary(dst));
 
     Vector<Value, 8> arguments = {
         instanceValue(),
@@ -2640,7 +2648,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addI32Popcnt(Value operand, Value& resu
                 // We avoid this by consuming the result before passing it to emitCCall, which also saves us the mov for spilling.
                 consume(result);
                 auto arg = Value::pinned(TypeKind::I32, operandLocation);
-                emitCCall(&operationPopcount32, ArgumentList { arg }, result);
+                emitCCall(&operationPopcount32, Vector<Value, 8> { arg }, result);
             }
         )
     )
@@ -2665,7 +2673,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addI64Popcnt(Value operand, Value& resu
                 // We avoid this by consuming the result before passing it to emitCCall, which also saves us the mov for spilling.
                 consume(result);
                 auto arg = Value::pinned(TypeKind::I64, operandLocation);
-                emitCCall(&operationPopcount64, ArgumentList { arg }, result);
+                emitCCall(&operationPopcount64, Vector<Value, 8> { arg }, result);
             }
         )
     )
@@ -3617,7 +3625,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addThrow(unsigned exceptionIndex, Argum
         Location stackLocation = Location::fromStackArgument(offset * sizeof(uint64_t));
         emitMove(arg, stackLocation);
         consume(arg);
-        offset += arg.type() == TypeKind::V128 ? 2 : 1;
+        offset += arg.value().type() == TypeKind::V128 ? 2 : 1;
     }
     Checked<int32_t> calleeStackSize = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(offset * sizeof(uint64_t));
     m_maxCalleeStackSize = std::max<int>(calleeStackSize, m_maxCalleeStackSize);
@@ -4029,15 +4037,16 @@ void BBQJIT::slowPathRestoreBindings(const RegisterBindings& bindings)
     }
 }
 
-template<size_t N>
-void BBQJIT::saveValuesAcrossCallAndPassArguments(const Vector<Value, N>& arguments, const CallInformation& callInfo, const TypeDefinition& signature)
+template<typename Args>
+void BBQJIT::saveValuesAcrossCallAndPassArguments(const Args& arguments, const CallInformation& callInfo, const TypeDefinition& signature)
 {
     // First, we resolve all the locations of the passed arguments, before any spillage occurs. For constants,
     // we store their normal values; for all other values, we store pinned values with their current location.
     // We'll directly use these when passing parameters, since no other instructions we emit here should
     // overwrite registers currently occupied by values.
 
-    auto resolvedArguments = WTF::map<N>(arguments, [&](auto& argument) {
+    auto resolvedArguments = WTF::map<8>(arguments, [&](auto& input) {
+        auto argument = Value(input);
         auto value = argument.isConst() ? argument : Value::pinned(argument.type(), locationOf(argument));
         // Like other value uses, we count this as a use here, and end the lifetimes of any temps we passed.
         // This saves us the work of having to spill them to their canonical slots.
@@ -4077,7 +4086,7 @@ void BBQJIT::saveValuesAcrossCallAndPassArguments(const Vector<Value, N>& argume
     }
 
     // Finally, we parallel-move arguments to the parameter locations.
-    WTF::Vector<Location, N> parameterLocations;
+    WTF::Vector<Location, 8> parameterLocations;
     parameterLocations.reserveInitialCapacity(callInfo.params.size());
     for (unsigned i = 0; i < callInfo.params.size(); i++) {
         auto type = signature.as<FunctionSignature>()->argumentType(i);
@@ -4152,7 +4161,7 @@ void BBQJIT::emitTailCall(FunctionSpaceIndex functionIndex, const TypeDefinition
     ASSERT(callInfo.results.size() == wasmCallerInfo.results.size());
     ASSERT(arguments.size() == callInfo.params.size());
 
-    ArgumentList resolvedArguments;
+    Vector<Value, 8> resolvedArguments;
     resolvedArguments.reserveInitialCapacity(arguments.size() + isX86());
     Vector<Location, 8> parameterLocations;
     parameterLocations.reserveInitialCapacity(arguments.size() + isX86());
@@ -4178,10 +4187,10 @@ void BBQJIT::emitTailCall(FunctionSpaceIndex functionIndex, const TypeDefinition
     // We don't need to restore any callee saves because we don't use them with the current register allocator.
     // If we did we'd want to do that here because we could clobber their stack slots when shuffling the parameters into place below.
     for (unsigned i = 0; i < arguments.size(); i ++) {
-        if (arguments[i].isConst())
-            resolvedArguments.append(arguments[i]);
+        if (arguments[i].value().isConst())
+            resolvedArguments.append(arguments[i].value());
         else
-            resolvedArguments.append(Value::pinned(arguments[i].type(), locationOf(arguments[i])));
+            resolvedArguments.append(Value::pinned(arguments[i].value().type(), locationOf(arguments[i])));
 
         consume(arguments[i]);
     }
@@ -4371,7 +4380,7 @@ void BBQJIT::emitIndirectTailCall(const char* opcode, const Value& callee, GPRRe
     ASSERT(callInfo.results.size() == wasmCallerInfo.results.size());
     ASSERT(arguments.size() == callInfo.params.size());
 
-    ArgumentList resolvedArguments;
+    Vector<Value, 8> resolvedArguments;
     const unsigned calleeArgument = 1;
     resolvedArguments.reserveInitialCapacity(arguments.size() + calleeArgument + isX86() * 2);
     Vector<Location, 8> parameterLocations;
@@ -4404,10 +4413,10 @@ void BBQJIT::emitIndirectTailCall(const char* opcode, const Value& callee, GPRRe
 #endif
 
     for (unsigned i = 0; i < arguments.size(); i ++) {
-        if (arguments[i].isConst())
-            resolvedArguments.append(arguments[i]);
+        if (arguments[i].value().isConst())
+            resolvedArguments.append(arguments[i].value());
         else
-            resolvedArguments.append(Value::pinned(arguments[i].type(), locationOf(arguments[i])));
+            resolvedArguments.append(Value::pinned(arguments[i].value().type(), locationOf(arguments[i])));
 
         // This isn't really needed but it's nice to have good book keeping.
         consume(arguments[i]);

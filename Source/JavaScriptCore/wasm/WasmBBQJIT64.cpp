@@ -1517,8 +1517,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addRefI31(ExpressionType value, Express
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addI31GetS(ExpressionType value, ExpressionType& result)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addI31GetS(TypedExpression typedValue, ExpressionType& result)
 {
+    auto value = typedValue.value();
     if (value.isConst()) {
         if (JSValue::decode(value.asI64()).isNumber())
             result = Value::fromI32((value.asI64() << 33) >> 33);
@@ -1534,7 +1535,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addI31GetS(ExpressionType value, Expres
 
 
     Location initialValue = loadIfNecessary(value);
-    emitThrowOnNullReference(ExceptionType::NullI31Get, initialValue);
+    if (typedValue.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullI31Get, initialValue);
     consume(value);
 
     result = topValue(TypeKind::I32);
@@ -1547,8 +1549,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addI31GetS(ExpressionType value, Expres
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addI31GetU(ExpressionType value, ExpressionType& result)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addI31GetU(TypedExpression typedValue, ExpressionType& result)
 {
+    auto value = typedValue.value();
     if (value.isConst()) {
         if (JSValue::decode(value.asI64()).isNumber())
             result = Value::fromI32(value.asI64() & 0x7fffffffu);
@@ -1564,7 +1567,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addI31GetU(ExpressionType value, Expres
 
 
     Location initialValue = loadIfNecessary(value);
-    emitThrowOnNullReference(ExceptionType::NullI31Get, initialValue);
+    if (typedValue.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullI31Get, initialValue);
     consume(value);
 
     result = topValue(TypeKind::I32);
@@ -1790,8 +1794,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayNewDefault(uint32_t typeIndex, 
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType& result)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, TypedExpression typedArray, ExpressionType index, ExpressionType& result)
 {
+    auto arrayref = typedArray.value();
     StorageType elementType = getArrayElementType(typeIndex);
     Type resultType = elementType.unpacked();
 
@@ -1804,7 +1809,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayGet(ExtGCOpType arrayGetKind, u
     }
 
     Location arrayLocation = loadIfNecessary(arrayref);
-    emitThrowOnNullReference(ExceptionType::NullArrayGet, arrayLocation);
+    if (typedArray.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullArrayGet, arrayLocation);
 
     Location indexLocation;
     if (index.isConst()) {
@@ -1977,8 +1983,9 @@ void BBQJIT::emitArraySetUnchecked(uint32_t typeIndex, Value arrayref, Value ind
     consume(value);
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addArraySet(uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType value)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addArraySet(uint32_t typeIndex, TypedExpression typedArray, ExpressionType index, ExpressionType value)
 {
+    auto arrayref = typedArray.value();
     if (arrayref.isConst()) {
         ASSERT(arrayref.asI64() == JSValue::encode(jsNull()));
 
@@ -1989,7 +1996,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArraySet(uint32_t typeIndex, Express
     }
 
     Location arrayLocation = loadIfNecessary(arrayref);
-    emitThrowOnNullReference(ExceptionType::NullArraySet, arrayLocation);
+    if (typedArray.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullArraySet, arrayLocation);
 
     ASSERT(index.type() == TypeKind::I32);
     if (index.isConst()) {
@@ -2013,8 +2021,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArraySet(uint32_t typeIndex, Express
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayLen(ExpressionType arrayref, ExpressionType& result)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayLen(TypedExpression typedArray, ExpressionType& result)
 {
+    auto arrayref = typedArray.value();
     if (arrayref.isConst()) {
         ASSERT(arrayref.asI64() == JSValue::encode(jsNull()));
         emitThrowException(ExceptionType::NullArrayLen);
@@ -2025,7 +2034,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayLen(ExpressionType arrayref, Ex
 
     Location arrayLocation = loadIfNecessary(arrayref);
     consume(arrayref);
-    emitThrowOnNullReference(ExceptionType::NullArrayLen, arrayLocation);
+    if (typedArray.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullArrayLen, arrayLocation);
 
     result = topValue(TypeKind::I32);
     Location resultLocation = allocateWithHint(result, arrayLocation);
@@ -2035,8 +2045,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayLen(ExpressionType arrayref, Ex
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayFill(uint32_t typeIndex, ExpressionType arrayref, ExpressionType offset, ExpressionType value, ExpressionType size)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayFill(uint32_t typeIndex, TypedExpression typedArray, ExpressionType offset, ExpressionType value, ExpressionType size)
 {
+    auto arrayref = typedArray.value();
     if (arrayref.isConst()) {
         ASSERT(arrayref.asI64() == JSValue::encode(jsNull()));
 
@@ -2049,7 +2060,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addArrayFill(uint32_t typeIndex, Expres
         return { };
     }
 
-    emitThrowOnNullReference(ExceptionType::NullArrayFill, loadIfNecessary(arrayref));
+    if (typedArray.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullArrayFill, loadIfNecessary(arrayref));
 
     Value shouldThrow = topValue(TypeKind::I32);
     if (value.type() != TypeKind::V128) {
@@ -2239,8 +2251,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addStructNew(uint32_t typeIndex, Argume
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addStructGet(ExtGCOpType structGetKind, Value structValue, const StructType& structType, uint32_t fieldIndex, Value& result)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addStructGet(ExtGCOpType structGetKind, TypedExpression typedStruct, const StructType& structType, uint32_t fieldIndex, Value& result)
 {
+    auto structValue = typedStruct.value();
     TypeKind resultKind = structType.field(fieldIndex).type.unpacked().kind;
     if (structValue.isConst()) {
         // This is the only constant struct currently possible.
@@ -2252,7 +2265,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addStructGet(ExtGCOpType structGetKind,
     }
 
     Location structLocation = loadIfNecessary(structValue);
-    emitThrowOnNullReference(ExceptionType::NullStructGet, structLocation);
+    if (typedStruct.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullStructGet, structLocation);
 
     unsigned fieldOffset = JSWebAssemblyStruct::offsetOfData() + structType.offsetOfFieldInPayload(fieldIndex);
     RELEASE_ASSERT((std::numeric_limits<int32_t>::max() & fieldOffset) == fieldOffset);
@@ -2324,8 +2338,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addStructGet(ExtGCOpType structGetKind,
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addStructSet(Value structValue, const StructType& structType, uint32_t fieldIndex, Value value)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addStructSet(TypedExpression typedStruct, const StructType& structType, uint32_t fieldIndex, Value value)
 {
+    auto structValue = typedStruct.value();
     if (structValue.isConst()) {
         // This is the only constant struct currently possible.
         ASSERT(JSValue::decode(structValue.asRef()).isNull());
@@ -2337,7 +2352,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addStructSet(Value structValue, const S
     }
 
     Location structLocation = loadIfNecessary(structValue);
-    emitThrowOnNullReference(ExceptionType::NullStructSet, structLocation);
+    if (typedStruct.type().isNullable())
+        emitThrowOnNullReference(ExceptionType::NullStructSet, structLocation);
 
     bool needsWriteBarrier = emitStructSet(structLocation.asGPR(), structType, fieldIndex, value);
     if (needsWriteBarrier)
@@ -2350,13 +2366,15 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addStructSet(Value structValue, const S
     return { };
 }
 
-void BBQJIT::emitRefTestOrCast(GPRReg valueGPR, bool allowNull, int32_t toHeapType, JumpList& failureCases)
+void BBQJIT::emitRefTestOrCast(const TypedExpression& typedValue, GPRReg valueGPR, bool allowNull, int32_t toHeapType, JumpList& failureCases)
 {
     JumpList doneCases;
-    if (allowNull)
-        doneCases.append(m_jit.branchIfNull(valueGPR));
-    else
-        failureCases.append(m_jit.branchIfNull(valueGPR));
+    if (typedValue.type().isNullable()) {
+        if (allowNull)
+            doneCases.append(m_jit.branchIfNull(valueGPR));
+        else
+            failureCases.append(m_jit.branchIfNull(valueGPR));
+    }
 
     if (typeIndexIsType(static_cast<Wasm::TypeIndex>(toHeapType))) {
         switch (static_cast<TypeKind>(toHeapType)) {
@@ -2429,8 +2447,9 @@ void BBQJIT::emitRefTestOrCast(GPRReg valueGPR, bool allowNull, int32_t toHeapTy
     doneCases.link(m_jit);
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addRefCast(ExpressionType value, bool allowNull, int32_t toHeapType, ExpressionType& result)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addRefCast(TypedExpression typedValue, bool allowNull, int32_t toHeapType, ExpressionType& result)
 {
+    auto value = typedValue.value();
     Location valueLocation;
     if (value.isConst()) {
         valueLocation = Location::fromGPR(wasmScratchGPR);
@@ -2444,7 +2463,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addRefCast(ExpressionType value, bool a
     Location resultLocation = allocate(result);
 
     JumpList failureCases;
-    emitRefTestOrCast(valueLocation.asGPR(), allowNull, toHeapType, failureCases);
+    emitRefTestOrCast(typedValue, valueLocation.asGPR(), allowNull, toHeapType, failureCases);
     recordJumpToThrowException(ExceptionType::CastFailure, failureCases);
     emitMove(TypeKind::Ref, valueLocation, resultLocation);
 
@@ -2452,8 +2471,9 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addRefCast(ExpressionType value, bool a
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addRefTest(ExpressionType value, bool allowNull, int32_t toHeapType, bool shouldNegate, ExpressionType& result)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addRefTest(TypedExpression typedValue, bool allowNull, int32_t toHeapType, bool shouldNegate, ExpressionType& result)
 {
+    auto value = typedValue.value();
     Location valueLocation;
     if (value.isConst()) {
         valueLocation = Location::fromGPR(wasmScratchGPR);
@@ -2469,7 +2489,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addRefTest(ExpressionType value, bool a
     JumpList doneCases;
     JumpList failureCases;
 
-    emitRefTestOrCast(valueLocation.asGPR(), allowNull, toHeapType, failureCases);
+    emitRefTestOrCast(typedValue, valueLocation.asGPR(), allowNull, toHeapType, failureCases);
     emitMoveConst(Value::fromI32(shouldNegate ? 0 : 1), resultLocation);
     doneCases.append(m_jit.jump());
 
