@@ -429,7 +429,7 @@ static gboolean wpeDisplayDRMConnect(WPEDisplay* display, GError** error)
 static WPEView* wpeDisplayDRMCreateView(WPEDisplay* display)
 {
     auto* displayDRM = WPE_DISPLAY_DRM(display);
-    auto* view = wpe_view_drm_new(displayDRM);
+    auto* view = WPE_VIEW(g_object_new(WPE_TYPE_VIEW_DRM, "display", display, nullptr));
 
     if (wpe_settings_get_boolean(wpe_display_get_settings(display), WPE_SETTING_CREATE_VIEWS_WITH_A_TOPLEVEL, nullptr)) {
         GRefPtr<WPEToplevel> toplevel = adoptGRef(wpe_toplevel_drm_new(displayDRM));

@@ -570,18 +570,3 @@ static void wpe_view_drm_class_init(WPEViewDRMClass* viewDRMClass)
     viewClass->set_cursor_from_name = wpeViewDRMSetCursorFromName;
     viewClass->set_cursor_from_bytes = wpeViewDRMSetCursorFromBytes;
 }
-
-/**
- * wpe_view_drm_new:
- * @display: a #WPEDisplayDRM
- *
- * Create a new #WPEViewDRM
- *
- * Returns: (transfer full): a #WPEView
- */
-WPEView* wpe_view_drm_new(WPEDisplayDRM* display)
-{
-    g_return_val_if_fail(WPE_IS_DISPLAY_DRM(display), nullptr);
-
-    return WPE_VIEW(g_object_new(WPE_TYPE_VIEW_DRM, "display", display, nullptr));
-}

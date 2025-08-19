@@ -490,11 +490,10 @@ static gboolean wpeDisplayWaylandConnect(WPEDisplay* display, GError** error)
 
 static WPEView* wpeDisplayWaylandCreateView(WPEDisplay* display)
 {
-    auto* displayWayland = WPE_DISPLAY_WAYLAND(display);
-    auto* view = wpe_view_wayland_new(displayWayland);
+    auto* view = WPE_VIEW(g_object_new(WPE_TYPE_VIEW_WAYLAND, "display", display, nullptr));
 
     if (wpe_settings_get_boolean(wpe_display_get_settings(display), WPE_SETTING_CREATE_VIEWS_WITH_A_TOPLEVEL, nullptr)) {
-        GRefPtr<WPEToplevel> toplevel = adoptGRef(wpe_toplevel_wayland_new(displayWayland, 1));
+        GRefPtr<WPEToplevel> toplevel = adoptGRef(wpe_toplevel_wayland_new(WPE_DISPLAY_WAYLAND(display), 1));
         wpe_view_set_toplevel(view, toplevel.get());
     }
 
