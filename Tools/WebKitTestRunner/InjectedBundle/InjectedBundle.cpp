@@ -550,7 +550,7 @@ unsigned InjectedBundle::userMediaPermissionRequestCount() const
 
 void InjectedBundle::resetUserMediaPermissionRequestCount()
 {
-    postPageMessage("ResetUserMediaPermissionRequestCount");
+    WKBundlePagePostSynchronousMessageForTesting(page()->page(), toWK("ResetUserMediaPermissionRequestCount").get(), 0, 0);
 }
 
 void InjectedBundle::setCustomPolicyDelegate(bool enabled, bool permissive)
