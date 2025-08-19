@@ -30,7 +30,7 @@
 #include <wtf/SentinelLinkedList.h>
 
 #if ENABLE(C_LOOP)
-#include "CLoopStack.h"
+#include <JavaScriptCore/CLoopStack.h>
 #endif
 
 namespace JSC {
