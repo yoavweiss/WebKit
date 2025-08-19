@@ -23,3 +23,5 @@ fast/forms/datalist/input-appearance-range-with-datalist-rtl.html [ Pass ]
 imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/sharedworker-import-data.https.html [ Skip ]
 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/sharedworker-import-data.https.html [ Skip ]
 imported/w3c/web-platform-tests/mixed-content/gen/top.meta/unset/sharedworker-import-data.https.html [ Skip ]
+
+webkit.org/b/288847 imported/w3c/web-platform-tests/cookiestore/cookieStore_event_delete.https.window.html [ Pass Failure ]
