@@ -847,7 +847,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     accessibility/AXTreeStore.h
     accessibility/AXTreeStoreInlines.h
     accessibility/AXUtilities.h
-    accessibility/AccessibilityListBox.h
     accessibility/AccessibilityMenuListPopup.h
     accessibility/AccessibilityMockObject.h
     accessibility/AccessibilityNodeObject.h

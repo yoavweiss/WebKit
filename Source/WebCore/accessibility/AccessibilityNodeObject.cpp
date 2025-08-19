@@ -38,7 +38,6 @@
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityLabel.h"
-#include "AccessibilityListBox.h"
 #include "AccessibilityMediaHelpers.h"
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTable.h"
@@ -89,6 +88,7 @@
 #include "ProgressTracker.h"
 #include "RenderElementInlines.h"
 #include "RenderImage.h"
+#include "RenderListBox.h"
 #include "RenderListItem.h"
 #include "RenderStyleInlines.h"
 #include "RenderTableCell.h"
@@ -777,19 +777,34 @@ bool AccessibilityNodeObject::canHaveChildren() const
 AXCoreObject::AccessibilityChildrenVector AccessibilityNodeObject::visibleChildren()
 {
     // Only listboxes are asked for their visible children.
-    // Native list boxes would be AccessibilityListBoxes, so only check for aria list boxes.
-    if (ariaRoleAttribute() != AccessibilityRole::ListBox)
-        return { };
-
-    if (!childrenInitialized())
-        addChildren();
-
-    AccessibilityChildrenVector result;
-    for (const auto& child : unignoredChildren()) {
-        if (!child->isOffScreen())
-            result.append(child);
+    CheckedPtr renderListBox = dynamicDowncast<RenderListBox>(renderer());
+    if (!renderListBox && ariaRoleAttribute() == AccessibilityRole::ListBox) {
+        if (!childrenInitialized())
+            addChildren();
+        AccessibilityChildrenVector result;
+        for (const auto& child : unignoredChildren()) {
+            if (!child->isOffScreen())
+                result.append(child);
+        }
+        return result;
     }
-    return result;
+
+    // Handle native listboxes (RenderListBox).
+    if (renderListBox && role() == AccessibilityRole::ListBox) {
+        if (!childrenInitialized())
+            addChildren();
+
+        const auto& children = const_cast<AccessibilityNodeObject*>(this)->unignoredChildren();
+        AXCoreObject::AccessibilityChildrenVector result;
+        size_t size = children.size();
+        for (size_t i = 0; i < size; i++) {
+            if (renderListBox->listIndexIsVisible(i))
+                result.append(children[i]);
+        }
+        return result;
+    }
+
+    return { };
 }
 
 bool AccessibilityNodeObject::computeIsIgnored() const
@@ -2972,6 +2987,23 @@ AccessibilityRole AccessibilityNodeObject::remapAriaRoleDueToParent(Accessibilit
     }
 
     return role;
+}
+
+void AccessibilityNodeObject::setSelectedChildren(const AccessibilityChildrenVector& children)
+{
+    if (role() != AccessibilityRole::ListBox || !canSetSelectedChildren())
+        return;
+
+    // Unselect any selected option.
+    for (const auto& child : unignoredChildren()) {
+        if (child->isSelected())
+            child->setSelected(false);
+    }
+
+    for (const auto& object : children) {
+        if (object->isListBoxOption())
+            object->setSelected(true);
+    }
 }
 
 bool AccessibilityNodeObject::canSetSelectedAttribute() const

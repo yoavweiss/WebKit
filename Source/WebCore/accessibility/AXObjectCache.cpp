@@ -44,7 +44,6 @@
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityLabel.h"
-#include "AccessibilityListBox.h"
 #include "AccessibilityListBoxOption.h"
 #include "AccessibilityMathMLElement.h"
 #include "AccessibilityMenuList.h"
@@ -666,8 +665,6 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
         return AccessibilityMathMLElement::create(AXID::generate(), renderer, *this, isAnonymousOperator);
 #endif
 
-    if (is<RenderListBox>(renderer))
-        return AccessibilityListBox::create(AXID::generate(), renderer, *this);
     if (CheckedPtr renderMenuList = dynamicDowncast<RenderMenuList>(renderer))
         return AccessibilityMenuList::create(AXID::generate(), *renderMenuList, *this);
 

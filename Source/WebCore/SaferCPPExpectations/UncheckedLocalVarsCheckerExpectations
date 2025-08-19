@@ -17,7 +17,6 @@ Modules/webaudio/AudioWorkletGlobalScope.cpp
 Modules/webdatabase/SQLStatement.cpp
 Modules/websockets/WebSocket.cpp
 accessibility/AXObjectCache.cpp
-accessibility/AccessibilityListBox.cpp
 accessibility/AccessibilityListBoxOption.cpp
 accessibility/AccessibilityMathMLElement.cpp
 accessibility/AccessibilityNodeObject.cpp

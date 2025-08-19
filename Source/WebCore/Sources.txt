@@ -569,7 +569,6 @@ accessibility/AXAttachmentHelpers.cpp
 accessibility/AXListHelpers.cpp
 accessibility/AccessibilityImageMapLink.cpp
 accessibility/AccessibilityLabel.cpp
-accessibility/AccessibilityListBox.cpp
 accessibility/AccessibilityListBoxOption.cpp
 accessibility/AccessibilityMathMLElement.cpp
 accessibility/AccessibilityMenuList.cpp

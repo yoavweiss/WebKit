@@ -36,7 +36,6 @@
 #include "AXObjectCache.h"
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
-#include "AccessibilityListBox.h"
 #include "AccessibilityMediaHelpers.h"
 #include "AccessibilitySVGObject.h"
 #include "AccessibilitySpinButton.h"
@@ -2168,6 +2167,29 @@ AccessibilityObject* AccessibilityRenderObject::elementAccessibilityHitTest(cons
     if (isSVGImage())
         return remoteSVGElementHitTest(point);
 
+    if (role() == AccessibilityRole::ListBox) {
+        if (CheckedPtr renderListBox = dynamicDowncast<RenderListBox>(m_renderer.get())) {
+            LayoutRect parentRect = boundingBoxRect();
+
+            RefPtr<AccessibilityObject> listBoxOption;
+            const auto& children = const_cast<AccessibilityRenderObject*>(this)->unignoredChildren();
+            unsigned length = children.size();
+            for (unsigned i = 0; i < length; ++i) {
+                LayoutRect rect = renderListBox->itemBoundingBoxRect(parentRect.location(), i);
+                if (rect.contains(point)) {
+                    listBoxOption = downcast<AccessibilityObject>(children[i].get());
+                    break;
+                }
+            }
+
+            if (listBoxOption && !listBoxOption->isIgnored())
+                return listBoxOption.get();
+
+            CheckedPtr cache = axObjectCache();
+            return cache ? cache->getOrCreate(*renderListBox) : nullptr;
+        }
+    }
+
     return AccessibilityObject::elementAccessibilityHitTest(point);
 }
 
@@ -2327,6 +2349,8 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
         return AccessibilityRole::TextArea;
     if (m_renderer->isRenderMenuList())
         return AccessibilityRole::PopUpButton;
+    if (m_renderer->isRenderListBox())
+        return AccessibilityRole::ListBox;
 
     if (m_renderer->isRenderOrLegacyRenderSVGRoot())
         return AccessibilityRole::SVGRoot;
@@ -2741,6 +2765,9 @@ void AccessibilityRenderObject::addChildren()
 
     auto clearDirtySubtree = makeScopeExit([&] {
         m_subtreeDirty = false;
+#ifndef NDEBUG
+        verifyChildrenIndexInParent();
+#endif
     });
 
     auto addChildIfNeeded = [this](AccessibilityObject& object) {
@@ -2758,11 +2785,24 @@ void AccessibilityRenderObject::addChildren()
             addChild(cache->getOrCreate(*marker));
     };
 
+    auto addListBoxChildrenIfNecessary = [&](Node& node) -> bool {
+        if (role() == AccessibilityRole::ListBox) {
+            if (RefPtr selectElement = dynamicDowncast<HTMLSelectElement>(node)) {
+                for (const auto& listItem : selectElement->listItems())
+                    addChild(cache->getOrCreate(listItem.get()), AccessibilityObject::DescendIfIgnored::No);
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    RefPtr node = dynamicDowncast<ContainerNode>(this->node());
+
 #if !USE(ATSPI)
     // Non-ATSPI platforms walk the DOM to build the accessibility tree.
     // Ideally this would be the case for all platforms, but there are GLib tests that rely on anonymous renderers
     // being part of the accessibility tree.
-    RefPtr node = dynamicDowncast<ContainerNode>(this->node());
     RefPtr element = dynamicDowncast<Element>(node);
 
     // ::before and ::after pseudos should be the first and last children of the element
@@ -2776,6 +2816,9 @@ void AccessibilityRenderObject::addChildren()
     addListItemMarker();
 
     if (node && !(element && element->isPseudoElement()) && cache) {
+        if (addListBoxChildrenIfNecessary(*node))
+            return;
+
         // If we have a DOM node, use the DOM to find accessible children.
         //
         // The ComposedTreeIterator is extremely large by default, and will cause a stack
@@ -2806,6 +2849,9 @@ void AccessibilityRenderObject::addChildren()
     addListItemMarker();
     // to build the accessibility tree.
     // FIXME: Consider removing this ATSPI-only branch with https://bugs.webkit.org/show_bug.cgi?id=282117.
+    if (node && addListBoxChildrenIfNecessary(*node))
+        return;
+
     for (auto& object : AXChildIterator(*this))
         addChildIfNeeded(object);
 
@@ -2824,10 +2870,6 @@ void AccessibilityRenderObject::addChildren()
 
     m_subtreeDirty = false;
     updateRoleAfterChildrenCreation();
-
-#ifndef NDEBUG
-    verifyChildrenIndexInParent();
-#endif
 }
 
 void AccessibilityRenderObject::setAccessibleName(const AtomString& name)

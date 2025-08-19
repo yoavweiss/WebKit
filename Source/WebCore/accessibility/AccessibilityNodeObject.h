@@ -173,6 +173,7 @@ protected:
     void clearChildren() override;
     void updateChildrenIfNecessary() override;
     bool canHaveChildren() const override;
+    void setSelectedChildren(const AccessibilityChildrenVector&) final;
     AccessibilityChildrenVector visibleChildren() override;
     bool isDescendantOfBarrenParent() const final;
     void updateOwnedChildren();
