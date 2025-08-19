@@ -1,5 +1,3 @@
 
-
-PASS CommandEvent propagates across shadow boundaries retargeting source
-PASS cross shadow CommandEvent retargets source to host element
+FAIL cross shadow CommandEvent retargets source to host element null is not an object (evaluating 'document.body.append')
 
