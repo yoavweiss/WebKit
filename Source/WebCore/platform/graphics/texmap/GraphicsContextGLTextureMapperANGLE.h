@@ -76,9 +76,11 @@ private:
     GLContextWrapper::Type type() const override;
     bool makeCurrentImpl() override;
     bool unmakeCurrentImpl() override;
+    unsigned glVersion() const override;
 
     GCGLuint m_compositorTexture { 0 };
     bool m_isCompositorTextureInitialized { false };
+    mutable unsigned m_version { 0 };
 
 #if USE(COORDINATED_GRAPHICS) && USE(LIBEPOXY)
     GCGLuint m_textureID { 0 };

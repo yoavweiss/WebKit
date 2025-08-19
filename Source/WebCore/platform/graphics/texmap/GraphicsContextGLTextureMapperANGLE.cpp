@@ -385,7 +385,8 @@ void GraphicsContextGLTextureMapperANGLE::prepareForDisplay()
     if (contextAttributes().alpha)
         flags.add(TextureMapperFlags::ShouldBlend);
     auto fboSize = getInternalFramebufferSize();
-    m_layerContentsDisplayDelegate->setDisplayBuffer(CoordinatedPlatformLayerBufferRGB::create(m_compositorTextureID, fboSize, flags, GLFence::create()));
+    auto fence = GLFence::create(PlatformDisplay::sharedDisplay().glDisplay());
+    m_layerContentsDisplayDelegate->setDisplayBuffer(CoordinatedPlatformLayerBufferRGB::create(m_compositorTextureID, fboSize, flags, WTFMove(fence)));
 #endif
 }
 
@@ -402,6 +403,15 @@ bool GraphicsContextGLTextureMapperANGLE::makeCurrentImpl()
 bool GraphicsContextGLTextureMapperANGLE::unmakeCurrentImpl()
 {
     return !!EGL_MakeCurrent(m_displayObj, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+}
+
+unsigned GraphicsContextGLTextureMapperANGLE::glVersion() const
+{
+    if (!m_version) {
+        auto* versionString = byteCast<char>(GL_GetString(GL_VERSION));
+        m_version = GLContext::versionFromString(versionString);
+    }
+    return m_version;
 }
 
 #if ENABLE(WEBXR)
