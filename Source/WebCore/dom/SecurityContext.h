@@ -29,7 +29,6 @@
 
 #include <WebCore/CrossOriginEmbedderPolicy.h>
 #include <WebCore/CrossOriginOpenerPolicy.h>
-#include <WebCore/IPAddressSpace.h>
 #include <WebCore/ReferrerPolicy.h>
 #include <memory>
 #include <wtf/CheckedPtr.h>
@@ -95,9 +94,6 @@ public:
     virtual ReferrerPolicy referrerPolicy() const { return m_referrerPolicy; }
     void setReferrerPolicy(ReferrerPolicy);
 
-    IPAddressSpace ipAddressSpace() const { return m_ipAddressSpace; }
-    void setIPAddressSpace(IPAddressSpace ipAddressSpace) { m_ipAddressSpace = ipAddressSpace; }
-
     WEBCORE_EXPORT PolicyContainer policyContainer() const;
     virtual void inheritPolicyContainerFrom(const PolicyContainer&);
 
@@ -146,7 +142,6 @@ private:
     SandboxFlags m_creationSandboxFlags;
     SandboxFlags m_sandboxFlags;
     ReferrerPolicy m_referrerPolicy { ReferrerPolicy::Default };
-    IPAddressSpace m_ipAddressSpace { IPAddressSpace::Public };
     bool m_haveInitializedSecurityOrigin { false };
     bool m_geolocationAccessed { false };
     bool m_secureCookiesAccessed { false };

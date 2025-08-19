@@ -29,7 +29,6 @@
 #if ENABLE(MEDIA_SESSION_COORDINATOR)
 
 #include "Document.h"
-#include "Event.h"
 #include "EventNames.h"
 #include "EventTargetInlines.h"
 #include "JSDOMException.h"

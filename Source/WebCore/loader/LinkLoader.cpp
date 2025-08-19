@@ -40,13 +40,11 @@
 #include "ContainerNode.h"
 #include "CrossOriginAccessControl.h"
 #include "DefaultResourceLoadPriority.h"
-#include "DocumentLoader.h"
 #include "DocumentInlines.h"
 #include "DocumentLoader.h"
 #include "FetchRequestDestination.h"
 #include "FrameLoader.h"
 #include "HTMLSrcsetParser.h"
-#include <JavaScriptCore/ConsoleTypes.h>
 #include "JSFetchRequestDestination.h"
 #include "LinkHeader.h"
 #include "LinkPreloadResourceClients.h"

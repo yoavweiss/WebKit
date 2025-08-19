@@ -2136,6 +2136,7 @@ imported/w3c/web-platform-tests/fetch/private-network-access/xhr.https.window.ht
 imported/w3c/web-platform-tests/fetch/private-network-access/iframe.tentative.https.window.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/fetch/private-network-access/xhr.window.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/fetch/private-network-access/nested-worker.https.window.html [ DumpJSConsoleLogInStdErr ]
+imported/w3c/web-platform-tests/fetch/private-network-access/mixed-content-fetch.tentative.https.window.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/fetch/private-network-access/preflight-cache.https.window.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/fetch/private-network-access/worker-fetch.window.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/fetch/private-network-access/worker-fetch.https.window.html [ DumpJSConsoleLogInStdErr ]
