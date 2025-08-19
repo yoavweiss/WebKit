@@ -46,6 +46,7 @@ typedef NS_ENUM(NSInteger, _WKTextExtractionAction) {
     _WKTextExtractionActionSelectText,
     _WKTextExtractionActionSelectMenuItem,
     _WKTextExtractionActionTextInput,
+    _WKTextExtractionActionKeyPress,
 } WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
 
 WK_CLASS_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA))

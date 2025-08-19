@@ -38,6 +38,7 @@
 #include "EventTargetInlines.h"
 #include "ExceptionCode.h"
 #include "ExceptionOr.h"
+#include "FocusController.h"
 #include "FrameSelection.h"
 #include "HTMLAnchorElement.h"
 #include "HTMLBodyElement.h"
@@ -54,6 +55,7 @@
 #include "ImageOverlay.h"
 #include "LocalFrame.h"
 #include "Page.h"
+#include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PositionInlines.h"
 #include "RenderBox.h"
@@ -1061,6 +1063,59 @@ static void selectText(NodeIdentifier identifier, const String& searchText, Comp
     completion(foundNode->protectedDocument()->selection().setSelectedRange(*targetRange, Affinity::Downstream, FrameSelection::ShouldCloseTyping::Yes, UserTriggered::Yes));
 }
 
+static bool simulateKeyPress(LocalFrame& frame, const String& key)
+{
+    auto keyDown = PlatformKeyboardEvent::syntheticEventFromText(PlatformEvent::Type::KeyDown, key);
+    if (!keyDown)
+        return false;
+
+    auto keyUp = PlatformKeyboardEvent::syntheticEventFromText(PlatformEvent::Type::KeyUp, key);
+    if (!keyUp)
+        return false;
+
+    frame.eventHandler().keyEvent(*keyDown);
+    frame.eventHandler().keyEvent(*keyUp);
+    return true;
+}
+
+static void simulateKeyPress(Page& page, std::optional<NodeIdentifier>&& identifier, const String& text, CompletionHandler<void(bool)>&& completion)
+{
+    if (identifier) {
+        RefPtr focusTarget = dynamicDowncast<Element>(Node::fromIdentifier(*identifier));
+        if (!focusTarget)
+            return completion(false);
+
+        if (focusTarget != focusTarget->protectedDocument()->activeElement())
+            focusTarget->focus();
+    }
+
+    RefPtr targetFrame = page.focusController().focusedOrMainFrame();
+    if (!targetFrame)
+        return completion(false);
+
+    String canonicalKey = text;
+    if (text == "\n"_s || text == "Return"_s)
+        canonicalKey = "Enter"_s;
+    else if (text == "Left"_s || text == "Right"_s || text == "Up"_s || text == "Down"_s)
+        canonicalKey = makeString("Arrow"_s, text);
+
+    if (simulateKeyPress(*targetFrame, canonicalKey))
+        return completion(true);
+
+    if (!text.is8Bit()) {
+        // FIXME: Consider falling back to simulating text insertion.
+        return completion(false);
+    }
+
+    bool succeeded = true;
+    for (auto character : text.span8()) {
+        if (!simulateKeyPress(*targetFrame, { std::span { &character, 1 } }))
+            succeeded = false;
+    }
+
+    completion(succeeded);
+}
+
 static void focusAndInsertText(NodeIdentifier identifier, String&& text, bool replaceAll, CompletionHandler<void(bool)>&& completion)
 {
     RefPtr foundNode = Node::fromIdentifier(identifier);
@@ -1143,6 +1198,8 @@ void handleInteraction(Interaction&& interaction, Page& page, CompletionHandler<
 
         return completion(false);
     }
+    case Action::KeyPress:
+        return simulateKeyPress(page, WTFMove(interaction.nodeIdentifier), interaction.text, WTFMove(completion));
     default:
         ASSERT_NOT_REACHED();
         break;

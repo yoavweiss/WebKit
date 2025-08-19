@@ -388,6 +388,8 @@ void UIScriptControllerCocoa::performTextExtractionInteraction(JSStringRef jsAct
         action = _WKTextExtractionActionSelectMenuItem;
     if (equalLettersIgnoringASCIICase(actionName, "textinput"))
         action = _WKTextExtractionActionTextInput;
+    if (equalLettersIgnoringASCIICase(actionName, "keypress"))
+        action = _WKTextExtractionActionKeyPress;
 
     if (!action) {
         ASSERT_NOT_REACHED();

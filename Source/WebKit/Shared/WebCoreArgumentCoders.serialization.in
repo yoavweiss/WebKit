@@ -7053,7 +7053,8 @@ header: <WebCore/TextExtractionTypes.h>
     Click,
     SelectText,
     SelectMenuItem,
-    TextInput
+    TextInput,
+    KeyPress
 };
 
 header: <WebCore/TextExtractionTypes.h>

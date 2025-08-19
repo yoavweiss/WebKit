@@ -6429,6 +6429,8 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
             return WebCore::TextExtraction::Action::SelectMenuItem;
         case _WKTextExtractionActionTextInput:
             return WebCore::TextExtraction::Action::TextInput;
+        case _WKTextExtractionActionKeyPress:
+            return WebCore::TextExtraction::Action::KeyPress;
         default:
             ASSERT_NOT_REACHED();
             return WebCore::TextExtraction::Action::Click;
