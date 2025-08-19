@@ -1,8 +1,9 @@
 # WPE Mock Platform
 set(WPEPlatformMock_SOURCES
     ${TOOLS_DIR}/TestWebKitAPI/glib/WPEPlatform/mock/WPEDisplayMock.cpp
-    ${TOOLS_DIR}/TestWebKitAPI/glib/WPEPlatform/mock/WPEViewMock.cpp
     ${TOOLS_DIR}/TestWebKitAPI/glib/WPEPlatform/mock/WPEScreenMock.cpp
+    ${TOOLS_DIR}/TestWebKitAPI/glib/WPEPlatform/mock/WPEToplevelMock.cpp
+    ${TOOLS_DIR}/TestWebKitAPI/glib/WPEPlatform/mock/WPEViewMock.cpp
 )
 
 set(WPEPlatformMock_PRIVATE_INCLUDE_DIRECTORIES
