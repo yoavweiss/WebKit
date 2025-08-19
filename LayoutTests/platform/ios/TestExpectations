@@ -8230,3 +8230,5 @@ http/tests/iframe-monitor/workers/service-worker-not-count-twice.html [ Timeout 
 http/tests/iframe-monitor/iframe-unload.html [ Timeout ]
 http/tests/iframe-monitor/eligibility.html [ Timeout ]
 http/tests/iframe-monitor/dark-mode.html [ Timeout ]
+
+webkit.org/b/261344 [ Release ] requestidlecallback/requestidlecallback-does-not-block-timer.html [ Pass Failure ]
