@@ -14385,8 +14385,11 @@ void WebPageProxy::callAfterNextPresentationUpdate(CompletionHandler<void()>&& c
 #if PLATFORM(COCOA)
     Ref aggregator = CallbackAggregator::create(WTFMove(callback));
     auto drawingAreaIdentifier = m_drawingArea->identifier();
-    for (Ref process : webContentProcessesWithFrame())
-        process->sendWithAsyncReply(Messages::DrawingArea::DispatchAfterEnsuringDrawing(), [aggregator] { }, drawingAreaIdentifier);
+    for (Ref process : webContentProcessesWithFrame()) {
+        auto callbackID = process->sendWithAsyncReply(Messages::DrawingArea::DispatchAfterEnsuringDrawing(), [aggregator] { }, drawingAreaIdentifier);
+        if (callbackID && process->hasConnection())
+            protectedDrawingArea()->addOutstandingPresentationUpdateCallback(process->protectedConnection(), *callbackID);
+    }
 #elif USE(COORDINATED_GRAPHICS)
     downcast<DrawingAreaProxyCoordinatedGraphics>(*m_drawingArea).dispatchAfterEnsuringDrawing(WTFMove(callback));
 #else
