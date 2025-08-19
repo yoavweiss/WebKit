@@ -2415,3 +2415,5 @@ webkit.org/b/297551 imported/w3c/web-platform-tests/event-timing/buffered-and-du
 webkit.org/b/296202 imported/w3c/web-platform-tests/service-workers/service-worker/skip-waiting-installed.https.html [ Pass Failure ]
 
 webkit.org/b/297613 [ Debug ] fast/scrolling/mac/stateless-user-scroll-scrollend.html [ Pass Failure ]
+
+webkit.org/b/297614 [ Sequoia Debug x86_64 ] fast/canvas/hdr/float16-canvas-imagedata.html [ Timeout ]
