@@ -35,5 +35,6 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(WPEToplevelMock, wpe_toplevel_mock, WPE, TOPLEVEL_MOCK, WPEToplevel)
 
 WPEToplevel* wpeToplevelMockNew(WPEDisplayMock*, guint);
-
+void wpeToplevelMockSwitchToScreen(WPEToplevelMock*, guint);
+void wpeToplevelMockSetActive(WPEToplevelMock*, gboolean);
 G_END_DECLS

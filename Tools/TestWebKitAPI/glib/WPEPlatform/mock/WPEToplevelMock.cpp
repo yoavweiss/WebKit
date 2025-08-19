@@ -30,14 +30,132 @@
 #include <wtf/glib/WTFGType.h>
 
 struct _WPEToplevelMockPrivate {
+    unsigned currentScreen;
+    int savedWidth;
+    int savedHeight;
+    bool isActive;
+    bool isFullscreen;
+    bool isMaximized;
 };
 WEBKIT_DEFINE_FINAL_TYPE(WPEToplevelMock, wpe_toplevel_mock, WPE_TYPE_TOPLEVEL, WPEToplevel)
 
-static void wpe_toplevel_mock_class_init(WPEToplevelMockClass*)
+static void wpeToplevelMockUpdateState(WPEToplevelMock* toplevel)
 {
+    unsigned state = WPE_TOPLEVEL_STATE_NONE;
+    if (toplevel->priv->isActive)
+        state |= WPE_TOPLEVEL_STATE_ACTIVE;
+    if (toplevel->priv->isFullscreen)
+        state |= WPE_TOPLEVEL_STATE_FULLSCREEN;
+    if (toplevel->priv->isMaximized)
+        state |= WPE_TOPLEVEL_STATE_MAXIMIZED;
+    wpe_toplevel_state_changed(WPE_TOPLEVEL(toplevel), static_cast<WPEToplevelState>(state));
+}
+
+static void wpeToplevelMockSetTitle(WPEToplevel*, const char*)
+{
+}
+
+static WPEScreen* wpeToplevelMockGetScreen(WPEToplevel* toplevel)
+{
+    auto* priv = WPE_TOPLEVEL_MOCK(toplevel)->priv;
+    if (auto* display = wpe_toplevel_get_display(toplevel))
+        return wpe_display_get_screen(display, priv->currentScreen);
+    return nullptr;
+}
+
+static gboolean wpeToplevelMockResize(WPEToplevel* toplevel, int width, int height)
+{
+    wpe_toplevel_resized(toplevel, width, height);
+    wpe_toplevel_foreach_view(toplevel, [](WPEToplevel* toplevel, WPEView* view, gpointer) -> gboolean {
+        int width, height;
+        wpe_toplevel_get_size(toplevel, &width, &height);
+        wpe_view_resized(view, width, height);
+        return FALSE;
+    }, nullptr);
+    return TRUE;
+}
+
+static gboolean wpeToplevelMockSetFullscreen(WPEToplevel* toplevel, gboolean fullscreen)
+{
+    auto* mockToplevel = WPE_TOPLEVEL_MOCK(toplevel);
+    auto* priv = mockToplevel->priv;
+    if (fullscreen) {
+        if (!priv->isFullscreen && !priv->isMaximized)
+            wpe_toplevel_get_size(toplevel, &priv->savedWidth, &priv->savedHeight);
+        priv->isFullscreen = true;
+        wpe_toplevel_resize(toplevel, 1920, 1080);
+    } else {
+        priv->isFullscreen = false;
+        if (!priv->isMaximized) {
+            wpe_toplevel_resize(toplevel, priv->savedWidth, priv->savedHeight);
+            priv->savedWidth = 0;
+            priv->savedHeight = 0;
+        }
+    }
+    wpeToplevelMockUpdateState(mockToplevel);
+
+    return TRUE;
+}
+
+static gboolean wpeToplevelMockSetMaximized(WPEToplevel* toplevel, gboolean maximized)
+{
+    auto* mockToplevel = WPE_TOPLEVEL_MOCK(toplevel);
+    auto* priv = mockToplevel->priv;
+    if (maximized) {
+        if (!priv->isFullscreen && !priv->isMaximized)
+            wpe_toplevel_get_size(toplevel, &priv->savedWidth, &priv->savedHeight);
+        priv->isMaximized = true;
+        wpe_toplevel_resize(toplevel, 1920, 1040);
+    } else {
+        priv->isMaximized = false;
+        if (!priv->isFullscreen) {
+            wpe_toplevel_resize(toplevel, priv->savedWidth, priv->savedHeight);
+            priv->savedWidth = 0;
+            priv->savedHeight = 0;
+        }
+    }
+    wpeToplevelMockUpdateState(mockToplevel);
+
+    return TRUE;
+}
+
+static gboolean wpeToplevelMockSetMinimized(WPEToplevel*)
+{
+    return FALSE;
+}
+
+static WPEBufferDMABufFormats* wpeToplevelMockGetPreferredDMABufFormats(WPEToplevel*)
+{
+    return nullptr;
+}
+
+static void wpe_toplevel_mock_class_init(WPEToplevelMockClass* toplevelMockClass)
+{
+    WPEToplevelClass* toplevelClass = WPE_TOPLEVEL_CLASS(toplevelMockClass);
+    toplevelClass->set_title = wpeToplevelMockSetTitle;
+    toplevelClass->get_screen = wpeToplevelMockGetScreen;
+    toplevelClass->resize = wpeToplevelMockResize;
+    toplevelClass->set_fullscreen = wpeToplevelMockSetFullscreen;
+    toplevelClass->set_maximized = wpeToplevelMockSetMaximized;
+    toplevelClass->set_minimized = wpeToplevelMockSetMinimized;
+    toplevelClass->get_preferred_dma_buf_formats = wpeToplevelMockGetPreferredDMABufFormats;
 }
 
 WPEToplevel* wpeToplevelMockNew(WPEDisplayMock* display, guint maxViews)
 {
     return WPE_TOPLEVEL(g_object_new(WPE_TYPE_TOPLEVEL_MOCK, "display", display, "max-views", maxViews, nullptr));
+}
+
+void wpeToplevelMockSwitchToScreen(WPEToplevelMock* toplevel, guint screen)
+{
+    toplevel->priv->currentScreen = screen;
+    if (auto* screen = wpeToplevelMockGetScreen(WPE_TOPLEVEL(toplevel)))
+        wpe_toplevel_scale_changed(WPE_TOPLEVEL(toplevel), wpe_screen_get_scale(screen));
+    wpe_toplevel_screen_changed(WPE_TOPLEVEL(toplevel));
+}
+
+void wpeToplevelMockSetActive(WPEToplevelMock* toplevel, gboolean active)
+{
+    toplevel->priv->isActive = !!active;
+    wpeToplevelMockUpdateState(toplevel);
 }
