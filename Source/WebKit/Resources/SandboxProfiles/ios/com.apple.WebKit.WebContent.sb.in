@@ -1266,7 +1266,6 @@
     (kernel-mig-routine
         host_get_special_port
         host_info
-        io_server_version
         (when (defined? 'mach_vm_range_create) mach_vm_range_create) ;; <rdar://105161083>
         task_restartable_ranges_register
         task_set_special_port))
@@ -1278,6 +1277,7 @@
         host_get_io_master
         io_registry_entry_from_path
         io_registry_entry_get_property_bin_buf
+        io_server_version
         mach_memory_entry_ownership
         mach_port_extract_right
         mach_port_get_context_from_user
@@ -1346,7 +1346,6 @@
 
 (allow syscall-mig
     (kernel-mig-routine-blocked-in-lockdown-mode)
-    (kernel-mig-routine-only-in-use-during-launch)
     (kernel-mig-routine-in-use))
 
 #if PLATFORM(WATCHOS)
@@ -1358,7 +1357,7 @@
     (allow syscall-mig
         (kernel-mig-routine-only-in-use-during-launch)))
 (with-filter (webcontent-process-launched)
-    (allow syscall-mig
+    (deny syscall-mig
         (with telemetry)
         (with message "kernel mig routine used after launch")
         (kernel-mig-routine-only-in-use-during-launch)))
