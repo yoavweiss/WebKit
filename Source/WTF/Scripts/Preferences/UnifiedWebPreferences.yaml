@@ -8292,7 +8292,7 @@ VerticalFormControlsEnabled:
 
 VideoFullsceenPrefersMostVisibleHeuristic:
   type: bool
-  status: testable
+  status: stable
   category: media
   humanReadableName: "Prefers most visible video in element fullscreen."
   humanReadableDescription: "Prefers most visible video in element fullscreen."
@@ -8301,9 +8301,9 @@ VideoFullsceenPrefersMostVisibleHeuristic:
     WebKitLegacy:
       default: false
     WebKit:
-      default: false
+      default: true
     WebCore:
-      default: false
+      default: true
 
 VideoFullscreenRequiresElementFullscreen:
   type: bool
