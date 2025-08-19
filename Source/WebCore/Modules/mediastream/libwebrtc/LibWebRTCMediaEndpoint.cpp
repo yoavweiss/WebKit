@@ -893,11 +893,10 @@ void LibWebRTCMediaEndpoint::OnStatsDelivered(const webrtc::scoped_refptr<const 
             }
 #endif
 
-            if (logger().willLog(logChannel(), WTFLogLevel::Debug)) {
-                // Stats are very verbose, let's only display them in inspector console in verbose mode.
-                logger().debug(LogWebRTC, Logger::LogSiteIdentifier("LibWebRTCMediaEndpoint"_s, "OnStatsDelivered"_s, logIdentifier()), statsLogger);
-            } else
-                logger().logAlways(LogWebRTCStats, Logger::LogSiteIdentifier("LibWebRTCMediaEndpoint"_s, "OnStatsDelivered"_s, logIdentifier()), statsLogger);
+            // Stats are very verbose, let's only display them in inspector console in verbose mode.
+            logger().toObservers(LogWebRTC, WTFLogLevel::Debug, Logger::LogSiteIdentifier("LibWebRTCMediaEndpoint"_s, "OnStatsDelivered"_s, logIdentifier()), statsLogger);
+
+            RELEASE_LOG_FORWARDABLE(WebRTCStats, LIBWEBRTCMEDIAENDPOINT_ONSTATSDELIVERED, logIdentifier(), statsLogger.toJSONString().utf8().data());
         }
     });
 #else // !RELEASE_LOG_DISABLED

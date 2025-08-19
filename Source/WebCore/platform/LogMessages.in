@@ -160,9 +160,19 @@ PERFORMANCEMONITOR_MEASURE_CPUUSAGE_IN_ACTIVITYSTATE, "PerformanceMonitor::measu
 POLICYCHECKIER_CHECKNAVIGATIONPOLICY_CONTINUE_LOAD_IN_ANOTHER_PROCESS, "[pageID=%" PRIu64 ", frameID=%" PRIu64 "] PolicyChecker::checkNavigationPolicy: stopping because policyAction from dispatchDecidePolicyForNavigationAction is LoadWillContinueInAnotherProcess", (uint64_t, uint64_t), DEFAULT, Loading
 POLICYCHECKIER_CHECKNAVIGATIONPOLICY_CONTINUE_INITIAL_EMPTY_DOCUMENT, "[pageID=%" PRIu64 ", frameID=%" PRIu64 "] PolicyChecker::checkNavigationPolicy: continuing because this is an initial empty document", (uint64_t, uint64_t), DEFAULT, Loading
 
+LIBWEBRTCMEDIAENDPOINT_ONSTATSDELIVERED, "RTCStats (%" PRIu64 ") %s", (uint64_t, CString), DEFAULT, WebRTCStats
+LIBWEBRTC_LOG_ERROR, "LibWebRTC error: %s", (CString), DEFAULT, WebRTC
+LIBWEBRTC_LOG_MESSAGE, "LibWebRTC message: %s", (CString), DEFAULT, WebRTC
+
 LOCALFRAMEVIEW_FIRING_FIRST_VISUALLY_NON_EMPTY_LAYOUT_MILESTONE, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] LocalFrameView::fireLayoutRelatedMilestonesIfNeeded: Firing first visually non-empty layout milestone on the main frame", (uint64_t, uint64_t, int), DEFAULT, Layout
 LOCALFRAMEVIEW_FIRING_RESIZE_EVENTS_DISABLED_FOR_PAGE, "[pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] LocalFrameView::scheduleResizeEventIfNeeded: Not firing resize events because they are temporarily disabled for this page", (uint64_t, uint64_t, int), DEFAULT, Events
 LOCALFRAMEVIEW_NOT_PAINTING_LAYOUT_NEEDED, "    [pageID=%" PRIu64 ", frameID=%" PRIu64 ", isMainFrame=%d] LocalFrameView::paintContents: Not painting because render tree needs layout", (uint64_t, uint64_t, int), DEFAULT, Layout
+
+PEERCONNECTIONBACKEND_CREATEOFFERSUCCEEDED, "PeerConnectionBackend::createOfferSucceeded (%" PRIu64 ") to: '%s'", (uint64_t, CString), DEFAULT, WebRTC
+PEERCONNECTIONBACKEND_CREATEANSWERSUCCEEDED, "PeerConnectionBackend::createAnswerSucceeded (%" PRIu64 ") to: '%s'", (uint64_t, CString), DEFAULT, WebRTC
+
+RTCPEERCONNECTION_SETLOCALDESCRIPTION, "RTCPeerConnection::setLocalDescription (%" PRIu64 ") to: '%s'", (uint64_t, CString), DEFAULT, WebRTC
+RTCPEERCONNECTION_SETREMOTEDESCRIPTION, "RTCPeerConnection::setRemoteDescription (%" PRIu64 ") to: '%s'", (uint64_t, CString), DEFAULT, WebRTC
 
 SERVICEWORKERTHREADPROXY_REMOVEFETCH, "ServiceWorkerThreadProxy::removeFetch %" PRIu64, (uint64_t), DEFAULT, ServiceWorker
 

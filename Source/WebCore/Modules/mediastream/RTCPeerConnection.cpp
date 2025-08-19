@@ -403,7 +403,10 @@ void RTCPeerConnection::setLocalDescription(std::optional<RTCLocalSessionDescrip
         return;
     }
 
-    ALWAYS_LOG(LOGIDENTIFIER, "Setting local description to:\n", localDescription ? localDescription->sdp : "''"_s);
+    String sdp = localDescription.value_or(RTCLocalSessionDescriptionInit { }).sdp;
+    logger().toObservers(LogWebRTC, WTFLogLevel::Always, LOGIDENTIFIER, "Setting local description to:\n", sdp);
+    RELEASE_LOG_FORWARDABLE(WebRTC, RTCPEERCONNECTION_SETLOCALDESCRIPTION, logIdentifier(), sdp.utf8().data());
+
     chainOperation(WTFMove(promise), [this, localDescription = WTFMove(localDescription)](Ref<DeferredPromise>&& promise) mutable {
         auto type = typeForSetLocalDescription(localDescription, m_signalingState);
         String sdp;
@@ -432,7 +435,9 @@ void RTCPeerConnection::setRemoteDescription(RTCSessionDescriptionInit&& remoteD
         return;
     }
 
-    ALWAYS_LOG(LOGIDENTIFIER, "Setting remote description to:\n", remoteDescription.sdp);
+    logger().toObservers(LogWebRTC, WTFLogLevel::Always, LOGIDENTIFIER, "Setting remote description to:\n", remoteDescription.sdp);
+    RELEASE_LOG_FORWARDABLE(WebRTC, RTCPEERCONNECTION_SETREMOTEDESCRIPTION, logIdentifier(), remoteDescription.sdp.utf8().data());
+
     chainOperation(WTFMove(promise), [this, remoteDescription = WTFMove(remoteDescription)](Ref<DeferredPromise>&& promise) mutable {
         auto description = RTCSessionDescription::create(WTFMove(remoteDescription));
         if (description->type() == RTCSdpType::Offer && m_signalingState != RTCSignalingState::Stable && m_signalingState != RTCSignalingState::HaveRemoteOffer) {
