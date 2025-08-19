@@ -19,3 +19,7 @@ fast/text/international/hindi-spacing.html [ Pass ]
 
 # Tests which pass only with form control refresh disabled (support added in Tahoe)
 fast/forms/datalist/input-appearance-range-with-datalist-rtl.html [ Pass ]
+
+imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/sharedworker-import-data.https.html [ Skip ]
+imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/sharedworker-import-data.https.html [ Skip ]
+imported/w3c/web-platform-tests/mixed-content/gen/top.meta/unset/sharedworker-import-data.https.html [ Skip ]
