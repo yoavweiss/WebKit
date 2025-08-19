@@ -93,7 +93,7 @@ namespace ShapeDetection {
 class ObjectHeap;
 }
 
-class RemoteRenderingBackend : private IPC::MessageSender, public IPC::StreamMessageReceiver, public CanMakeWeakPtr<RemoteRenderingBackend> {
+class RemoteRenderingBackend : public IPC::StreamMessageReceiver, public CanMakeWeakPtr<RemoteRenderingBackend> {
 public:
     static Ref<RemoteRenderingBackend> create(GPUConnectionToWebProcess&, RenderingBackendIdentifier, Ref<IPC::StreamServerConnection>&&);
     virtual ~RemoteRenderingBackend();
@@ -131,10 +131,11 @@ private:
     void startListeningForIPC();
     void workQueueInitialize();
     void workQueueUninitialize();
-
-    // IPC::MessageSender.
-    IPC::Connection* messageSenderConnection() const override;
-    uint64_t messageSenderDestinationID() const override;
+    template<typename T>
+    IPC::Error send(T&& message) const
+    {
+        return m_streamConnection->send(std::forward<T>(message), m_renderingBackendIdentifier);
+    }
 
     // Messages to be received.
     void createImageBuffer(const WebCore::FloatSize& logicalSize, WebCore::RenderingMode, WebCore::RenderingPurpose, float resolutionScale, const WebCore::DestinationColorSpace&, WebCore::ImageBufferFormat, WebCore::RenderingResourceIdentifier, RemoteDisplayListRecorderIdentifier);

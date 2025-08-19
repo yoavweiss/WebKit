@@ -34,7 +34,6 @@
 #include "GPUProcessProxyMessages.h"
 #include "ImageBufferShareableBitmapBackend.h"
 #include "Logging.h"
-#include "MessageSenderInlines.h"
 #include "RemoteBarcodeDetector.h"
 #include "RemoteBarcodeDetectorMessages.h"
 #include "RemoteDisplayListRecorder.h"
@@ -148,7 +147,7 @@ void RemoteRenderingBackend::workQueueInitialize()
 
     streamConnection->open(m_workQueue.get());
     streamConnection->startReceivingMessages(*this, Messages::RemoteRenderingBackend::messageReceiverName(), m_renderingBackendIdentifier.toUInt64());
-    send(Messages::RemoteRenderingBackendProxy::DidInitialize(workQueue().wakeUpSemaphore(), streamConnection->clientWaitSemaphore()), m_renderingBackendIdentifier);
+    send(Messages::RemoteRenderingBackendProxy::DidInitialize(workQueue().wakeUpSemaphore(), streamConnection->clientWaitSemaphore()));
 }
 
 void RemoteRenderingBackend::workQueueUninitialize()
@@ -167,16 +166,6 @@ void RemoteRenderingBackend::workQueueUninitialize()
 void RemoteRenderingBackend::dispatch(Function<void()>&& task)
 {
     m_workQueue->dispatch(WTFMove(task));
-}
-
-IPC::Connection* RemoteRenderingBackend::messageSenderConnection() const
-{
-    return &m_streamConnection->connection();
-}
-
-uint64_t RemoteRenderingBackend::messageSenderDestinationID() const
-{
-    return m_renderingBackendIdentifier.toUInt64();
 }
 
 void RemoteRenderingBackend::moveToSerializedBuffer(RenderingResourceIdentifier identifier, RemoteSerializedImageBufferIdentifier serializedIdentifier)
@@ -531,12 +520,12 @@ void RemoteRenderingBackend::markSurfacesVolatile(MarkSurfacesAsVolatileRequestI
     }
 
     LOG_WITH_STREAM(RemoteLayerBuffers, stream << "GPU Process: markSurfacesVolatile - surfaces marked volatile " << markedBufferSets);
-    send(Messages::RemoteRenderingBackendProxy::DidMarkLayersAsVolatile(requestIdentifier, WTFMove(markedBufferSets), allSucceeded), m_renderingBackendIdentifier);
+    send(Messages::RemoteRenderingBackendProxy::DidMarkLayersAsVolatile(requestIdentifier, WTFMove(markedBufferSets), allSucceeded));
 }
 
 void RemoteRenderingBackend::finalizeRenderingUpdate(RenderingUpdateID renderingUpdateID)
 {
-    send(Messages::RemoteRenderingBackendProxy::DidFinalizeRenderingUpdate(renderingUpdateID), m_renderingBackendIdentifier);
+    send(Messages::RemoteRenderingBackendProxy::DidFinalizeRenderingUpdate(renderingUpdateID));
 }
 
 void RemoteRenderingBackend::createRemoteBarcodeDetector(ShapeDetectionIdentifier identifier, const WebCore::ShapeDetection::BarcodeDetectorOptions& barcodeDetectorOptions)
