@@ -640,6 +640,7 @@ end
 
 if $architecture == "arm"
     $runJITlessWasm = false # TODO: re-enable this when these tests pass <rdar://146100752>.
+    $skipLockdown = true
 end
 
 # This is meant for skipping execution of tests than require a lot of address
