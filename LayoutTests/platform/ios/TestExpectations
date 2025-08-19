@@ -8224,3 +8224,11 @@ webkit.org/b/286318 http/tests/iframe-monitor [ Pass ]
 webkit.org/b/294931 ipc/LocalSampleBufferDisplayLayer-LogIdentifier-data-race-uaf.html [ Skip ]
 
 webkit.org/b/289010 imported/w3c/web-platform-tests/html/semantics/disabled-elements/event-propagate-disabled-keyboard.tentative.html [ Failure ]
+
+# webkit.org/b/297599 [ iOS ] 6x http/tests/iframe-monitor (layout-tests) tests are constantly timing out 
+http/tests/iframe-monitor/workers/shared-worker.html [ Timeout ]
+http/tests/iframe-monitor/workers/service-worker.html [ Timeout ]
+http/tests/iframe-monitor/workers/service-worker-not-count-twice.html [ Timeout ]
+http/tests/iframe-monitor/iframe-unload.html [ Timeout ]
+http/tests/iframe-monitor/eligibility.html [ Timeout ]
+http/tests/iframe-monitor/dark-mode.html [ Timeout ]
