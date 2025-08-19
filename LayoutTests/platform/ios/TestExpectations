@@ -8198,8 +8198,6 @@ fast/forms/form-control-refresh/accent-color-contrast-does-not-affect-inactive-w
 
 webkit.org/b/297144 fast/forms/state-restore-to-non-edited-controls.html [ Pass Timeout ]
 
-webkit.org/b/297218 http/tests/in-app-browser-privacy/sub-frame-redirect-to-non-app-bound-domain-blocked.html [ Failure ]
-
 webkit.org/b/297240 http/tests/site-isolation/edge-sampling-commit-root-frame-load.html [ Failure ]
 
 webkit.org/b/297131 [ Debug ] imported/w3c/web-platform-tests/web-locks/storage-buckets.tentative.https.any.worker.html [ Pass Failure ]
