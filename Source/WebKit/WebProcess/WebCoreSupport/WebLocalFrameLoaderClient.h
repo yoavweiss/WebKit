@@ -286,6 +286,8 @@ private:
     void didExceedNetworkUsageThreshold();
 #endif
 
+    void removeStorageAccess();
+
 #if ENABLE(PDF_PLUGIN)
     RefPtr<PluginView> m_pluginView;
     bool m_hasSentResponseToPluginView { false };
