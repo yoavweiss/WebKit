@@ -338,7 +338,6 @@ http/tests/security/contentSecurityPolicy/object-redirect-blocked2.html
 http/tests/security/contentSecurityPolicy/object-redirect-blocked3.html
 
 # Pointer-lock not supported on iOS: https://bugs.webkit.org/show_bug.cgi?id=216621
-http/tests/pointer-lock
 fast/shadow-dom/pointerlockelement-in-shadow-tree.html
 fast/shadow-dom/pointerlockelement-in-slot.html
 fast/js-promise/js-promise-invalid-context-access.html [ Skip ]
