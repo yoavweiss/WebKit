@@ -1,8 +1,0 @@
-
-PASS :writeTexture:
-PASS :copyTextureToTexture:
-PASS :copyBufferToTexture:
-PASS :copyTextureToBuffer:
-PASS :setBindGroup:
-PASS :beginRenderPass:
-

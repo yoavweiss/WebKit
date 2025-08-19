@@ -674,15 +674,6 @@ FAIL :values:stage="override";type="vec2%3Cf16%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=0.00006103515625;b=-65504
     Expected validation error
       at (elided: only 2 shown)
-  - EXPECTATION FAILED: subcase: a=0.00006103515625;b=65504
-    Expected validation error
-      at (elided: only 2 shown)
-  - EXPECTATION FAILED: subcase: a=0.062469482421875;b=-65504
-    Expected validation error
-      at (elided: only 2 shown)
-  - EXPECTATION FAILED: subcase: a=0.062469482421875;b=65504
-    Expected validation error
-      at (elided: only 2 shown)
   - INFO: subcase: a=-65504;b=-65504
     OK
   - INFO: subcase: a=-65504;b=-63.96875
@@ -713,12 +704,15 @@ FAIL :values:stage="override";type="vec2%3Cf16%3E" assert_unreached:
     OK
   - INFO: subcase: a=0.00006103515625;b=-65504
     OK
-  - INFO: subcase: a=0.00006103515625;b=65504
-    OK
-  - INFO: subcase: a=0.062469482421875;b=-65504
-    OK
-  - INFO: subcase: a=0.062469482421875;b=65504
-    OK
+  - EXPECTATION FAILED: subcase: a=0.00006103515625;b=65504
+    Expected validation error
+      at (elided: only 2 shown)
+  - EXPECTATION FAILED: subcase: a=0.062469482421875;b=-65504
+    Expected validation error
+      at (elided: only 2 shown)
+  - EXPECTATION FAILED: subcase: a=0.062469482421875;b=65504
+    Expected validation error
+      at (elided: only 2 shown)
   - EXPECTATION FAILED: subcase: a=63.96875;b=-65504
     Expected validation error
       at (elided: only 2 shown)
@@ -731,14 +725,6 @@ FAIL :values:stage="override";type="vec2%3Cf16%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=63.96875;b=65504
     Expected validation error
       at (elided: only 2 shown)
-  - INFO: subcase: a=63.96875;b=-65504
-    OK
-  - INFO: subcase: a=63.96875;b=-63.96875
-    OK
-  - INFO: subcase: a=63.96875;b=63.96875
-    OK
-  - INFO: subcase: a=63.96875;b=65504
-    OK
   - EXPECTATION FAILED: subcase: a=65504;b=-65504
     Expected validation error
       at (elided: only 2 shown)
@@ -751,6 +737,20 @@ FAIL :values:stage="override";type="vec2%3Cf16%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=65504;b=65504
     Expected validation error
       at (elided: only 2 shown)
+  - INFO: subcase: a=0.00006103515625;b=65504
+    OK
+  - INFO: subcase: a=0.062469482421875;b=-65504
+    OK
+  - INFO: subcase: a=0.062469482421875;b=65504
+    OK
+  - INFO: subcase: a=63.96875;b=-65504
+    OK
+  - INFO: subcase: a=63.96875;b=-63.96875
+    OK
+  - INFO: subcase: a=63.96875;b=63.96875
+    OK
+  - INFO: subcase: a=63.96875;b=65504
+    OK
   - INFO: subcase: a=65504;b=-65504
     OK
   - INFO: subcase: a=65504;b=-63.96875
@@ -1043,21 +1043,6 @@ FAIL :values:stage="override";type="vec3%3Cf32%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=-1.1754943508222875e-38;b=3.4028234663852886e+38
     Expected validation error
       at (elided: only 2 shown)
-  - EXPECTATION FAILED: subcase: a=-1.1754942106924411e-38;b=-3.4028234663852886e+38
-    Expected validation error
-      at (elided: only 2 shown)
-  - EXPECTATION FAILED: subcase: a=-1.1754942106924411e-38;b=3.4028234663852886e+38
-    Expected validation error
-      at (elided: only 2 shown)
-  - EXPECTATION FAILED: subcase: a=1.1754943508222875e-38;b=-3.4028234663852886e+38
-    Expected validation error
-      at (elided: only 2 shown)
-  - EXPECTATION FAILED: subcase: a=1.1754943508222875e-38;b=3.4028234663852886e+38
-    Expected validation error
-      at (elided: only 2 shown)
-  - EXPECTATION FAILED: subcase: a=2147483520;b=-3.4028234663852886e+38
-    Expected validation error
-      at (elided: only 2 shown)
   - INFO: subcase: a=-3.4028234663852886e+38;b=-3.4028234663852886e+38
     OK
   - INFO: subcase: a=-3.4028234663852886e+38;b=-11728123330560
@@ -1082,6 +1067,24 @@ FAIL :values:stage="override";type="vec3%3Cf32%3E" assert_unreached:
     OK
   - INFO: subcase: a=-1.1754943508222875e-38;b=3.4028234663852886e+38
     OK
+  - EXPECTATION FAILED: subcase: a=-1.1754942106924411e-38;b=-3.4028234663852886e+38
+    Expected validation error
+      at (elided: only 2 shown)
+  - EXPECTATION FAILED: subcase: a=-1.1754942106924411e-38;b=3.4028234663852886e+38
+    Expected validation error
+      at (elided: only 2 shown)
+  - EXPECTATION FAILED: subcase: a=1.1754943508222875e-38;b=-3.4028234663852886e+38
+    Expected validation error
+      at (elided: only 2 shown)
+  - EXPECTATION FAILED: subcase: a=1.1754943508222875e-38;b=3.4028234663852886e+38
+    Expected validation error
+      at (elided: only 2 shown)
+  - EXPECTATION FAILED: subcase: a=2147483520;b=-3.4028234663852886e+38
+    Expected validation error
+      at (elided: only 2 shown)
+  - EXPECTATION FAILED: subcase: a=2147483520;b=3.4028234663852886e+38
+    Expected validation error
+      at (elided: only 2 shown)
   - INFO: subcase: a=-1.1754942106924411e-38;b=-3.4028234663852886e+38
     OK
   - INFO: subcase: a=-1.1754942106924411e-38;b=3.4028234663852886e+38
@@ -1092,9 +1095,6 @@ FAIL :values:stage="override";type="vec3%3Cf32%3E" assert_unreached:
     OK
   - INFO: subcase: a=2147483520;b=-3.4028234663852886e+38
     OK
-  - EXPECTATION FAILED: subcase: a=2147483520;b=3.4028234663852886e+38
-    Expected validation error
-      at (elided: only 2 shown)
   - INFO: subcase: a=2147483520;b=3.4028234663852886e+38
     OK
   - EXPECTATION FAILED: subcase: a=4294967040;b=-3.4028234663852886e+38
@@ -1393,16 +1393,6 @@ FAIL :values:stage="override";type="vec3%3Cf16%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=-63.96875;b=-65504
     Expected validation error
       at (elided: only 2 shown)
-  - INFO: subcase: a=-65504;b=-65504
-    OK
-  - INFO: subcase: a=-65504;b=-63.96875
-    OK
-  - INFO: subcase: a=-65504;b=63.96875
-    OK
-  - INFO: subcase: a=-65504;b=65504
-    OK
-  - INFO: subcase: a=-63.96875;b=-65504
-    OK
   - EXPECTATION FAILED: subcase: a=-63.96875;b=-63.96875
     Expected validation error
       at (elided: only 2 shown)
@@ -1421,6 +1411,28 @@ FAIL :values:stage="override";type="vec3%3Cf16%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=-0.00006103515625;b=-65504
     Expected validation error
       at (elided: only 2 shown)
+  - INFO: subcase: a=-65504;b=-65504
+    OK
+  - INFO: subcase: a=-65504;b=-63.96875
+    OK
+  - INFO: subcase: a=-65504;b=63.96875
+    OK
+  - INFO: subcase: a=-65504;b=65504
+    OK
+  - INFO: subcase: a=-63.96875;b=-65504
+    OK
+  - INFO: subcase: a=-63.96875;b=-63.96875
+    OK
+  - INFO: subcase: a=-63.96875;b=63.96875
+    OK
+  - INFO: subcase: a=-63.96875;b=65504
+    OK
+  - INFO: subcase: a=-0.062469482421875;b=-65504
+    OK
+  - INFO: subcase: a=-0.062469482421875;b=65504
+    OK
+  - INFO: subcase: a=-0.00006103515625;b=-65504
+    OK
   - EXPECTATION FAILED: subcase: a=-0.00006103515625;b=65504
     Expected validation error
       at (elided: only 2 shown)
@@ -1442,18 +1454,6 @@ FAIL :values:stage="override";type="vec3%3Cf16%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=0.062469482421875;b=65504
     Expected validation error
       at (elided: only 2 shown)
-  - INFO: subcase: a=-63.96875;b=-63.96875
-    OK
-  - INFO: subcase: a=-63.96875;b=63.96875
-    OK
-  - INFO: subcase: a=-63.96875;b=65504
-    OK
-  - INFO: subcase: a=-0.062469482421875;b=-65504
-    OK
-  - INFO: subcase: a=-0.062469482421875;b=65504
-    OK
-  - INFO: subcase: a=-0.00006103515625;b=-65504
-    OK
   - INFO: subcase: a=-0.00006103515625;b=65504
     OK
   - INFO: subcase: a=-0.00006097555160522461;b=-65504
@@ -1771,6 +1771,16 @@ FAIL :values:stage="override";type="vec4%3Cf32%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=-3.4028234663852886e+38;b=3.4028234663852886e+38
     Expected validation error
       at (elided: only 2 shown)
+  - INFO: subcase: a=-3.4028234663852886e+38;b=-3.4028234663852886e+38
+    OK
+  - INFO: subcase: a=-3.4028234663852886e+38;b=-11728123330560
+    OK
+  - INFO: subcase: a=-3.4028234663852886e+38;b=2147483520
+    OK
+  - INFO: subcase: a=-3.4028234663852886e+38;b=4294967040
+    OK
+  - INFO: subcase: a=-3.4028234663852886e+38;b=3.4028234663852886e+38
+    OK
   - EXPECTATION FAILED: subcase: a=-11728123330560;b=-3.4028234663852886e+38
     Expected validation error
       at (elided: only 2 shown)
@@ -1810,16 +1820,6 @@ FAIL :values:stage="override";type="vec4%3Cf32%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=2147483520;b=3.4028234663852886e+38
     Expected validation error
       at (elided: only 2 shown)
-  - INFO: subcase: a=-3.4028234663852886e+38;b=-3.4028234663852886e+38
-    OK
-  - INFO: subcase: a=-3.4028234663852886e+38;b=-11728123330560
-    OK
-  - INFO: subcase: a=-3.4028234663852886e+38;b=2147483520
-    OK
-  - INFO: subcase: a=-3.4028234663852886e+38;b=4294967040
-    OK
-  - INFO: subcase: a=-3.4028234663852886e+38;b=3.4028234663852886e+38
-    OK
   - INFO: subcase: a=-11728123330560;b=-3.4028234663852886e+38
     OK
   - INFO: subcase: a=-11728123330560;b=-11728123330560
@@ -2126,8 +2126,6 @@ FAIL :values:stage="override";type="vec4%3Cf16%3E" assert_unreached:
     expectPipelineResult@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/shader_validation_test.js:205:24
     validateConstOrOverrideBuiltinEval@http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/call/builtin/const_override_validation.js:194:31
     @http://127.0.0.1:8000/webgpu/webgpu/shader/validation/expression/call/builtin/reflect.spec.js:83:37
-  - INFO: subcase: a=-65504;b=-65504
-    OK
   - EXPECTATION FAILED: subcase: a=-65504;b=-63.96875
     Expected validation error
     eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
@@ -2183,6 +2181,8 @@ FAIL :values:stage="override";type="vec4%3Cf16%3E" assert_unreached:
   - EXPECTATION FAILED: subcase: a=0.062469482421875;b=65504
     Expected validation error
       at (elided: only 2 shown)
+  - INFO: subcase: a=-65504;b=-65504
+    OK
   - INFO: subcase: a=-65504;b=-63.96875
     OK
   - INFO: subcase: a=-65504;b=63.96875

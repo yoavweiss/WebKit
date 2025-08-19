@@ -1,6 +1,0 @@
-
-PASS :stage:stage="vertex"
-PASS :stage:stage="fragment"
-PASS :stage:stage="compute"
-PASS :barrier:
-

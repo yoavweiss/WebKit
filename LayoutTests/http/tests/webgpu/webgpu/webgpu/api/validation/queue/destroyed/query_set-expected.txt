@@ -1,5 +1,0 @@
-
-PASS :beginOcclusionQuery:
-PASS :timestamps:
-PASS :resolveQuerySet:
-

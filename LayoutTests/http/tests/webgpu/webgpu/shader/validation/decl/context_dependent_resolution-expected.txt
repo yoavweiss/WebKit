@@ -62,8 +62,6 @@ FAIL :diagnostic_severity_names:case="error" assert_unreached:
         }
 
       at (elided: below max severity)
-  - INFO: subcase: decl="const"
-    OK
   - VALIDATION FAILED: subcase: decl="var<private>"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -80,12 +78,14 @@ FAIL :diagnostic_severity_names:case="error" assert_unreached:
         }
 
       at (elided: only 2 shown)
+  - INFO: subcase: decl="const"
+    OK
   - INFO: subcase: decl="var<private>"
     OK
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     4:2: invalid attribute for function declaration
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    @http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
  Reached unreachable code
 FAIL :diagnostic_severity_names:case="warning" assert_unreached:
   - VALIDATION FAILED: subcase: decl="override"
@@ -145,7 +145,7 @@ FAIL :diagnostic_severity_names:case="warning" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     4:2: invalid attribute for function declaration
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    @http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
  Reached unreachable code
 FAIL :diagnostic_severity_names:case="off" assert_unreached:
   - VALIDATION FAILED: subcase: decl="override"
@@ -182,8 +182,6 @@ FAIL :diagnostic_severity_names:case="off" assert_unreached:
         }
 
       at (elided: below max severity)
-  - INFO: subcase: decl="const"
-    OK
   - VALIDATION FAILED: subcase: decl="var<private>"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -200,12 +198,14 @@ FAIL :diagnostic_severity_names:case="off" assert_unreached:
         }
 
       at (elided: only 2 shown)
+  - INFO: subcase: decl="const"
+    OK
   - INFO: subcase: decl="var<private>"
     OK
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     4:2: invalid attribute for function declaration
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    @http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
  Reached unreachable code
 FAIL :diagnostic_severity_names:case="info" assert_unreached:
   - VALIDATION FAILED: subcase: decl="override"
@@ -224,8 +224,6 @@ FAIL :diagnostic_severity_names:case="info" assert_unreached:
         }
 
       at (elided: below max severity)
-  - INFO: subcase: decl="override"
-    OK
   - VALIDATION FAILED: subcase: decl="const"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -258,6 +256,8 @@ FAIL :diagnostic_severity_names:case="info" assert_unreached:
         }
 
       at (elided: only 2 shown)
+  - INFO: subcase: decl="override"
+    OK
   - INFO: subcase: decl="const"
     OK
   - INFO: subcase: decl="var<private>"
@@ -265,7 +265,7 @@ FAIL :diagnostic_severity_names:case="info" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     4:2: invalid attribute for function declaration
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    @http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
  Reached unreachable code
 FAIL :diagnostic_rule_names:case="derivative_uniformity" assert_unreached:
   - VALIDATION FAILED: subcase: decl="override"
@@ -283,6 +283,8 @@ FAIL :diagnostic_rule_names:case="derivative_uniformity" assert_unreached:
         }
 
       at (elided: below max severity)
+  - INFO: subcase: decl="override"
+    OK
   - VALIDATION FAILED: subcase: decl="const"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -298,6 +300,8 @@ FAIL :diagnostic_rule_names:case="derivative_uniformity" assert_unreached:
         }
 
       at (elided: below max severity)
+  - INFO: subcase: decl="const"
+    OK
   - VALIDATION FAILED: subcase: decl="var<private>"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -313,16 +317,12 @@ FAIL :diagnostic_rule_names:case="derivative_uniformity" assert_unreached:
         }
 
       at (elided: only 2 shown)
-  - INFO: subcase: decl="override"
-    OK
-  - INFO: subcase: decl="const"
-    OK
   - INFO: subcase: decl="var<private>"
     OK
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     4:2: invalid attribute for function declaration
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    @http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
  Reached unreachable code
 FAIL :diagnostic_rule_names:case="unknown_rule" assert_unreached:
   - VALIDATION FAILED: subcase: decl="override"
@@ -379,7 +379,7 @@ FAIL :diagnostic_rule_names:case="unknown_rule" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     4:2: invalid attribute for function declaration
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    @http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
  Reached unreachable code
 FAIL :diagnostic_rule_names:case="unknown" assert_unreached:
   - VALIDATION FAILED: subcase: decl="override"
@@ -397,6 +397,8 @@ FAIL :diagnostic_rule_names:case="unknown" assert_unreached:
         }
 
       at (elided: below max severity)
+  - INFO: subcase: decl="override"
+    OK
   - VALIDATION FAILED: subcase: decl="const"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -412,6 +414,8 @@ FAIL :diagnostic_rule_names:case="unknown" assert_unreached:
         }
 
       at (elided: below max severity)
+  - INFO: subcase: decl="const"
+    OK
   - VALIDATION FAILED: subcase: decl="var<private>"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -427,16 +431,12 @@ FAIL :diagnostic_rule_names:case="unknown" assert_unreached:
         }
 
       at (elided: only 2 shown)
-  - INFO: subcase: decl="override"
-    OK
-  - INFO: subcase: decl="const"
-    OK
   - INFO: subcase: decl="var<private>"
     OK
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     4:2: invalid attribute for function declaration
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    @http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
  Reached unreachable code
 FAIL :diagnostic_rule_names:case="rule" assert_unreached:
   - VALIDATION FAILED: subcase: decl="override"
@@ -454,6 +454,8 @@ FAIL :diagnostic_rule_names:case="rule" assert_unreached:
         }
 
       at (elided: below max severity)
+  - INFO: subcase: decl="override"
+    OK
   - VALIDATION FAILED: subcase: decl="const"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -469,6 +471,8 @@ FAIL :diagnostic_rule_names:case="rule" assert_unreached:
         }
 
       at (elided: below max severity)
+  - INFO: subcase: decl="const"
+    OK
   - VALIDATION FAILED: subcase: decl="var<private>"
     Unexpected compilationInfo 'error' message.
     4:3: error: invalid attribute for function declaration
@@ -484,16 +488,12 @@ FAIL :diagnostic_rule_names:case="rule" assert_unreached:
         }
 
       at (elided: only 2 shown)
-  - INFO: subcase: decl="override"
-    OK
-  - INFO: subcase: decl="const"
-    OK
   - INFO: subcase: decl="var<private>"
     OK
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     4:2: invalid attribute for function declaration
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    @http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
  Reached unreachable code
 PASS :enable_names:case="f16"
 PASS :language_names:case="readonly_and_readwrite_storage_textures"

@@ -1,4 +1,0 @@
-
-PASS :sampled:
-PASS :depth:
-

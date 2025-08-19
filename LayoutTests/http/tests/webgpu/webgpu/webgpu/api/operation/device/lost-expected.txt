@@ -1,5 +1,0 @@
-
-PASS :not_lost_on_gc:
-PASS :lost_on_destroy:
-PASS :same_object:
-

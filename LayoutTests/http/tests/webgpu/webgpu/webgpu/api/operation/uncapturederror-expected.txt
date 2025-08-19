@@ -1,6 +1,0 @@
-
-PASS :iff_uncaptured:errorType="out-of-memory"
-PASS :iff_uncaptured:errorType="validation"
-PASS :only_original_device_is_event_target:
-PASS :uncapturederror_from_non_originating_thread:
-

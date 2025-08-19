@@ -173,6 +173,11 @@ FAIL :buffer_offset_and_size_for_bind_groups_match: assert_unreached:
     OK
   - INFO: subcase: offset=768;size="_undef_"
     OK
+  - VALIDATION FAILED: subcase: offset=128;size=256
+    Validation succeeded unexpectedly.
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
+    expectValidationError@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:1310:36
+    @http://127.0.0.1:8000/webgpu/webgpu/api/validation/createBindGroup.spec.js:500:28
   - INFO: subcase: offset=0;size=0
     OK
   - INFO: subcase: offset=256;size=0
@@ -185,11 +190,6 @@ FAIL :buffer_offset_and_size_for_bind_groups_match: assert_unreached:
     OK
   - INFO: subcase: offset=1;size="_undef_"
     OK
-  - VALIDATION FAILED: subcase: offset=128;size=256
-    Validation succeeded unexpectedly.
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    expectValidationError@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:1310:36
-    @http://127.0.0.1:8000/webgpu/webgpu/api/validation/createBindGroup.spec.js:500:28
   - INFO: subcase: offset=128;size=256
     OK
   - INFO: subcase: offset=255;size=256

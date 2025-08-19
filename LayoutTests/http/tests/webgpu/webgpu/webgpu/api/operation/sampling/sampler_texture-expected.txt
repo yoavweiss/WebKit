@@ -1,3 +1,0 @@
-
-PASS :sample_texture_combos:
-
