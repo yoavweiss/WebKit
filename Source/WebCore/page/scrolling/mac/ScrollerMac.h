@@ -94,6 +94,7 @@ public:
     double knobAlpha();
     double trackAlpha();
     bool hasScrollerImp();
+    RecursiveLock& scrollerImpLock() const { return m_scrollerImpLock; }
 
 private:
     int m_minimumKnobLength { 0 };

@@ -125,6 +125,7 @@ public:
 
     void setScrollbarWidth(ScrollbarWidth);
 
+    void updateScrollbarPainters();
 private:
     ScrollerPairMac(ScrollingTreeScrollingNode&);
 

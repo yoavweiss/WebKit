@@ -389,7 +389,6 @@ void ScrollerMac::updateScrollbarStyle()
     Locker locker { m_scrollerImpLock };
 
     RefPtr pair = m_pair.get();
-
     setScrollerImp([NSScrollerImp scrollerImpWithStyle:nsScrollerStyle(pair->scrollbarStyle()) controlSize:nsControlSizeFromScrollbarWidth(pair->scrollbarWidthStyle()) horizontal:m_orientation == ScrollbarOrientation::Horizontal replacingScrollerImp:nil]);
     [m_scrollerImp setDelegate:m_scrollerImpDelegate.get()];
 
@@ -491,6 +490,7 @@ void ScrollerMac::setScrollbarLayoutDirection(UserInterfaceLayoutDirection scrol
 
     if (m_scrollbarLayoutDirection == scrollbarLayoutDirection)
         return;
+
     m_scrollbarLayoutDirection = scrollbarLayoutDirection;
     updateScrollbarStyle();
     [m_scrollerImp setUserInterfaceLayoutDirection: scrollbarLayoutDirection == UserInterfaceLayoutDirection::RTL ? NSUserInterfaceLayoutDirectionRightToLeft : NSUserInterfaceLayoutDirectionLeftToRight];
