@@ -7839,7 +7839,7 @@ void WebPageProxy::mainFramePluginHandlesPageScaleGestureDidChange(bool mainFram
 }
 
 #if !PLATFORM(COCOA)
-void WebPageProxy::beginSafeBrowsingCheck(const URL&, RefPtr<API::Navigation>, WebFrameProxy&)
+void WebPageProxy::beginSafeBrowsingCheck(const URL&, API::Navigation&, bool forMainFrameNavigation)
 {
 }
 #endif
@@ -8135,7 +8135,7 @@ void WebPageProxy::decidePolicyForNavigationAction(Ref<WebProcessProxy>&& proces
 
     }, ShouldExpectSafeBrowsingResult::No, shouldExpectAppBoundDomainResult, shouldWaitForInitialLinkDecorationFilteringData);
     if (shouldExpectSafeBrowsingResult == ShouldExpectSafeBrowsingResult::Yes)
-        beginSafeBrowsingCheck(request.url(), navigation, frame);
+        beginSafeBrowsingCheck(request.url(), *navigation, frame.isMainFrame());
     if (shouldWaitForInitialLinkDecorationFilteringData == ShouldWaitForInitialLinkDecorationFilteringData::Yes)
         waitForInitialLinkDecorationFilteringData(listener);
 #if ENABLE(APP_BOUND_DOMAINS)
