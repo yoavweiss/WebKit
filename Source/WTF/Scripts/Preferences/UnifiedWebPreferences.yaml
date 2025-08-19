@@ -4440,6 +4440,7 @@ LocalFileContentSniffingEnabled:
 LocalNetworkAccessEnabled:
   type: bool
   status: unstable
+  category: networking
   humanReadableName: "Local Network Access"
   humanReadableDescription: "Enable Local Network Access"
   webKitLegacyPreferenceKey: WebKitLocalNetworkAccessEnabledPreferenceKey
