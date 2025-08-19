@@ -31,7 +31,6 @@
 #import "APIFrameTreeNode.h"
 #import "APIPageConfiguration.h"
 #import "APISecurityOrigin.h"
-#import "APISerializedScriptValue.h"
 #import "AboutSchemeHandler.h"
 #import "BrowsingWarning.h"
 #import "CocoaImage.h"

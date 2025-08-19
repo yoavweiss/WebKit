@@ -90,6 +90,10 @@ TEST(JSHandle, Basic)
     result = [webView objectByEvaluatingJavaScript:@"window.WebKitJSHandle"];
     EXPECT_NULL(result);
 
+    result = [webView objectByCallingAsyncFunction:@"return {'arg':window.webkit.createJSHandle(onlydiv)}" withArguments:nil inFrame:nil inContentWorld:world.get()];
+    result = [webView objectByCallingAsyncFunction:@"return arg.outerHTML" withArguments:result.get()];
+    EXPECT_WK_STREQ(result.get(), "<div id=\"onlydiv\"></div>");
+
     result = [webView objectByCallingAsyncFunction:@"return n === undefined" withArguments:@{ @"n" : iframeRef.get() } inFrame:[webView firstChildFrame] inContentWorld:WKContentWorld.pageWorld];
     EXPECT_EQ(result.get(), @YES);
 

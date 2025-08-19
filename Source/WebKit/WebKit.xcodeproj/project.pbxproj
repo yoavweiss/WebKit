@@ -7440,7 +7440,6 @@
 		A5EC6AD22151BD6900677D17 /* WebPageDebuggable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebPageDebuggable.cpp; sourceTree = "<group>"; };
 		A5EC6AD32151BD6900677D17 /* WebPageDebuggable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebPageDebuggable.h; sourceTree = "<group>"; };
 		A5EFD38B16B0E88C00B2F0E8 /* WKPageVisibilityTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKPageVisibilityTypes.h; sourceTree = "<group>"; };
-		A72D5D7F1236CBA800A88B15 /* APISerializedScriptValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APISerializedScriptValue.h; sourceTree = "<group>"; };
 		A73E66BC2AB107BB005FC327 /* IPCEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPCEvent.h; sourceTree = "<group>"; };
 		A73E66BE2AB10958005FC327 /* IPCEventDarwin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPCEventDarwin.cpp; sourceTree = "<group>"; };
 		A78A5FE32B0EB39E005036D3 /* RemoteImageBufferSetIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteImageBufferSetIdentifier.h; sourceTree = "<group>"; };
@@ -8653,7 +8652,6 @@
 		FA4368C62B811BA3001B993D /* CoreIPCNSURLCredential.serialization.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CoreIPCNSURLCredential.serialization.in; sourceTree = "<group>"; };
 		FA45FA392E4545E500057B45 /* NodeHitTestResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NodeHitTestResult.h; sourceTree = "<group>"; };
 		FA45FA3B2E45462200057B45 /* NodeHitTestResult.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = NodeHitTestResult.serialization.in; sourceTree = "<group>"; };
-		FA4899BD2C5C56E800B04660 /* APISerializedScriptValue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APISerializedScriptValue.cpp; sourceTree = "<group>"; };
 		FA4EFC4E2E024493005DADAF /* RemotePagePlaybackSessionManagerProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemotePagePlaybackSessionManagerProxy.h; sourceTree = "<group>"; };
 		FA4EFC4F2E024493005DADAF /* RemotePagePlaybackSessionManagerProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemotePagePlaybackSessionManagerProxy.cpp; sourceTree = "<group>"; };
 		FA4FE2642B75EAFF0016E671 /* CoreIPCNull.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CoreIPCNull.mm; sourceTree = "<group>"; };
@@ -15887,8 +15885,6 @@
 				1AC1336B18565C7A00F3EC05 /* APIPageHandle.h */,
 				7AE42B452954EDC200B20510 /* APIPageHandle.serialization.in */,
 				F634445512A885C8000612D8 /* APISecurityOrigin.h */,
-				FA4899BD2C5C56E800B04660 /* APISerializedScriptValue.cpp */,
-				A72D5D7F1236CBA800A88B15 /* APISerializedScriptValue.h */,
 				BCF04C8E11FF9F6E00F86A58 /* APIString.h */,
 				FA9AFA672B2251D100953DC5 /* APIString.serialization.in */,
 				BCDB86C01200FB97007254BE /* APIURL.h */,

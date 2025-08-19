@@ -27,7 +27,6 @@
 #import "WKUserContentControllerInternal.h"
 
 #import "APIContentWorld.h"
-#import "APISerializedScriptValue.h"
 #import "InjectUserScriptImmediately.h"
 #import "JavaScriptEvaluationResult.h"
 #import "WKContentRuleListInternal.h"

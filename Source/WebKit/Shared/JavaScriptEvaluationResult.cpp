@@ -31,7 +31,6 @@
 #include "APIJSHandle.h"
 #include "APINumber.h"
 #include "APISerializedNode.h"
-#include "APISerializedScriptValue.h"
 #include "APIString.h"
 #include "WKSharedAPICast.h"
 #include "WebFrame.h"
@@ -47,9 +46,9 @@ namespace WebKit {
 class JavaScriptEvaluationResult::JSExtractor {
 public:
     Map takeMap() { return WTFMove(m_map); }
-    JSObjectID addObjectToMap(JSGlobalContextRef, JSValueRef);
+    std::optional<JSObjectID> addObjectToMap(JSGlobalContextRef, JSValueRef);
 private:
-    Value toValue(JSGlobalContextRef, JSValueRef);
+    std::optional<Value> toValue(JSGlobalContextRef, JSValueRef);
 
     Map m_map;
     HashMap<Protected<JSValueRef>, JSObjectID> m_objectsInMap;
@@ -241,34 +240,23 @@ RefPtr<API::Object> JavaScriptEvaluationResult::toAPI()
     return std::exchange(instantiatedObjects, { }).take(m_root);
 }
 
-JSObjectID JavaScriptEvaluationResult::JSExtractor::addObjectToMap(JSGlobalContextRef context, JSValueRef object)
+std::optional<JSObjectID> JavaScriptEvaluationResult::JSExtractor::addObjectToMap(JSGlobalContextRef context, JSValueRef object)
 {
     ASSERT(context);
     ASSERT(object);
 
-    Protected<JSValueRef> value(context, object);
-    auto it = m_objectsInMap.find(value);
+    Protected<JSValueRef> jsValue(context, object);
+    auto it = m_objectsInMap.find(jsValue);
     if (it != m_objectsInMap.end())
         return it->value;
 
     auto identifier = JSObjectID::generate();
-    m_objectsInMap.set(WTFMove(value), identifier);
-    m_map.add(identifier, toValue(context, object));
-    return identifier;
-}
-
-static std::optional<std::pair<JSGlobalContextRef, JSValueRef>> roundTripThroughSerializedScriptValue(JSGlobalContextRef serializationContext, JSGlobalContextRef deserializationContext, JSValueRef value)
-{
-    // FIXME: Make the SerializedScriptValue roundtrip allow JSWebKitJSHandle and JSWebKitSerializedNode to allow arrays of WebKitJSHandle and WebKitSerializedNode.
-    auto* globalObject = ::toJS(serializationContext);
-    JSC::JSValue jsValue = ::toJS(globalObject, value);
-    if (auto* object = jsValue.isObject() ? jsValue.toObject(globalObject) : nullptr) {
-        if (object->inherits<WebCore::JSWebKitJSHandle>() || object->inherits<WebCore::JSWebKitSerializedNode>())
-            return { { serializationContext, value } };
+    m_objectsInMap.set(WTFMove(jsValue), identifier);
+    if (auto value = toValue(context, object)) {
+        m_map.add(identifier, WTFMove(*value));
+        return identifier;
     }
-
-    if (RefPtr serialized = WebCore::SerializedScriptValue::create(serializationContext, value, nullptr))
-        return { { deserializationContext, serialized->deserialize(deserializationContext, nullptr) } };
+    m_objectsInMap.remove(Protected<JSValueRef>(context, object));
     return std::nullopt;
 }
 
@@ -279,23 +267,17 @@ std::optional<JavaScriptEvaluationResult> JavaScriptEvaluationResult::extract(JS
         return std::nullopt;
     }
 
-    JSRetainPtr deserializationContext = API::SerializedScriptValue::deserializationContext();
-
-    auto result = roundTripThroughSerializedScriptValue(context, deserializationContext.get(), value);
-    if (!result)
-        return std::nullopt;
-
-    if (!result->first || !result->second)
-        return jsUndefined();
-
     JSExtractor extractor;
-    auto root = extractor.addObjectToMap(result->first, result->second);
-    return JavaScriptEvaluationResult { root, extractor.takeMap() };
+    if (auto root = extractor.addObjectToMap(context, value))
+        return JavaScriptEvaluationResult { *root, extractor.takeMap() };
+    return std::nullopt;
 }
 
 // Similar to JSValue's valueToObjectWithoutCopy.
-auto JavaScriptEvaluationResult::JSExtractor::toValue(JSGlobalContextRef context, JSValueRef value) -> Value
+auto JavaScriptEvaluationResult::JSExtractor::toValue(JSGlobalContextRef context, JSValueRef value) -> std::optional<Value>
 {
+    using namespace WebCore;
+
     if (!JSValueIsObject(context, value)) {
         if (JSValueIsBoolean(context, value))
             return JSValueToBoolean(context, value);
@@ -314,15 +296,17 @@ auto JavaScriptEvaluationResult::JSExtractor::toValue(JSGlobalContextRef context
     }
 
     JSObjectRef object = JSValueToObject(context, value, 0);
+    JSC::JSGlobalObject* globalObject = ::toJS(context);
+    JSC::JSObject* jsObject = ::toJS(globalObject, object).toObject(globalObject);
 
-    if (auto* info = jsDynamicCast<WebCore::JSWebKitJSHandle*>(::toJS(::toJS(context), object))) {
+    if (auto* info = jsDynamicCast<JSWebKitJSHandle*>(jsObject)) {
         Ref ref { info->wrapped() };
         return JSHandleInfo { ref->identifier(), ref->windowFrameIdentifier() };
     }
 
-    if (auto* node = jsDynamicCast<WebCore::JSWebKitSerializedNode*>(::toJS(::toJS(context), object))) {
+    if (auto* node = jsDynamicCast<JSWebKitSerializedNode*>(jsObject)) {
         Ref serializedNode { node->wrapped() };
-        return makeUniqueRef<WebCore::SerializedNode>(serializedNode->serializedNode());
+        return makeUniqueRef<SerializedNode>(serializedNode->serializedNode());
     }
 
     if (JSValueIsDate(context, object))
@@ -340,9 +324,24 @@ auto JavaScriptEvaluationResult::JSExtractor::toValue(JSGlobalContextRef context
         if (!vector.tryReserveInitialCapacity(length))
             return EmptyType::Undefined;
 
-        for (size_t i = 0; i < length; ++i)
-            vector.append(addObjectToMap(context, JSObjectGetPropertyAtIndex(context, object, i, nullptr)));
+        for (size_t i = 0; i < length; ++i) {
+            if (auto identifier = addObjectToMap(context, JSObjectGetPropertyAtIndex(context, object, i, nullptr)))
+                vector.append(*identifier);
+        }
         return { WTFMove(vector) };
+    }
+
+    switch (SerializedScriptValue::deserializationBehavior(*jsObject)) {
+    case SerializedScriptValue::DeserializationBehavior::Fail:
+        return std::nullopt;
+    case SerializedScriptValue::DeserializationBehavior::Succeed:
+        break;
+    case SerializedScriptValue::DeserializationBehavior::LegacyMapToNull:
+        return EmptyType::Null;
+    case SerializedScriptValue::DeserializationBehavior::LegacyMapToUndefined:
+        return EmptyType::Undefined;
+    case SerializedScriptValue::DeserializationBehavior::LegacyMapToEmptyObject:
+        return { { ObjectMap { } } };
     }
 
     JSPropertyNameArrayRef names = JSObjectCopyPropertyNames(context, object);
@@ -350,7 +349,10 @@ auto JavaScriptEvaluationResult::JSExtractor::toValue(JSGlobalContextRef context
     ObjectMap map;
     for (size_t i = 0; i < length; i++) {
         JSRetainPtr<JSStringRef> key = JSPropertyNameArrayGetNameAtIndex(names, i);
-        SUPPRESS_UNCOUNTED_ARG map.add(addObjectToMap(context, JSValueMakeString(context, key.get())), addObjectToMap(context, JSObjectGetPropertyForKey(context, object, JSValueMakeString(context, key.get()), nullptr)));
+        SUPPRESS_UNCOUNTED_ARG auto keyID = addObjectToMap(context, JSValueMakeString(context, key.get()));
+        SUPPRESS_UNCOUNTED_ARG auto valueID = addObjectToMap(context, JSObjectGetPropertyForKey(context, object, JSValueMakeString(context, key.get()), nullptr));
+        if (keyID && valueID)
+            map.add(*keyID, *valueID);
     }
     JSPropertyNameArrayRelease(names);
     return { WTFMove(map) };

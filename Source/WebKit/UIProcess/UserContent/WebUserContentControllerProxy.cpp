@@ -28,7 +28,6 @@
 
 #include "APIArray.h"
 #include "APIContentWorld.h"
-#include "APISerializedScriptValue.h"
 #include "APIUserScript.h"
 #include "APIUserStyleSheet.h"
 #include "InjectUserScriptImmediately.h"

@@ -64,6 +64,8 @@ Platform/glib/ModuleGlib.cpp
 
 Platform/unix/LoggingUnix.cpp
 
+Shared/API/APISerializedScriptValue.cpp
+
 Shared/API/c/cairo/WKImageCairo.cpp
 
 Shared/API/glib/WebKitContextMenu.cpp @no-unify
