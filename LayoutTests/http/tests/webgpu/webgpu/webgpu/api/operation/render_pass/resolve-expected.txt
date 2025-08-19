@@ -1,0 +1,4 @@
+
+PASS :render_pass_resolve:storeOperation="discard"
+PASS :render_pass_resolve:storeOperation="store"
+

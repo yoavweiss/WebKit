@@ -1,0 +1,104 @@
+
+FAIL :scalar_i32_increment: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :scalar_i32_increment_overflow: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :scalar_u32_increment: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :scalar_u32_increment_overflow: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :scalar_i32_decrement: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :scalar_i32_decrement_underflow: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :scalar_u32_decrement: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :scalar_u32_decrement_underflow: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :vec2_element_increment: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :vec3_element_increment: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :vec4_element_increment: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :vec2_element_decrement: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :vec3_element_decrement: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :vec4_element_decrement: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :frexp_exp_increment: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :single_eval_increment: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+FAIL :single_eval_decrement: assert_unreached:
+  - EXCEPTION: OperationError: map async was not successful
+  - EXCEPTION: Error: Device was unexpectedly lost. Reason: unknown, Message:
+    assert@http://127.0.0.1:8000/webgpu/common/util/util.js:37:20
+    release@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:106:13
+ Reached unreachable code
+

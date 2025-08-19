@@ -1,0 +1,14 @@
+
+PASS :texture_intra_invocation_coherence:format="r32uint";dim="1d"
+PASS :texture_intra_invocation_coherence:format="r32uint";dim="2d"
+PASS :texture_intra_invocation_coherence:format="r32uint";dim="2d-array"
+PASS :texture_intra_invocation_coherence:format="r32uint";dim="3d"
+PASS :texture_intra_invocation_coherence:format="r32sint";dim="1d"
+PASS :texture_intra_invocation_coherence:format="r32sint";dim="2d"
+PASS :texture_intra_invocation_coherence:format="r32sint";dim="2d-array"
+PASS :texture_intra_invocation_coherence:format="r32sint";dim="3d"
+PASS :texture_intra_invocation_coherence:format="r32float";dim="1d"
+PASS :texture_intra_invocation_coherence:format="r32float";dim="2d"
+PASS :texture_intra_invocation_coherence:format="r32float";dim="2d-array"
+PASS :texture_intra_invocation_coherence:format="r32float";dim="3d"
+
