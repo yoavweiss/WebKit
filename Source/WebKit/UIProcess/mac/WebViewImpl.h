@@ -501,13 +501,17 @@ public:
     void accessibilityRegisterUIProcessTokens();
     void updateRemoteAccessibilityRegistration(bool registerProcess);
     id accessibilityFocusedUIElement();
-    NSUInteger accessibilityRemoteChildTokenHash();
-    NSUInteger accessibilityUIProcessLocalTokenHash();
     bool accessibilityIsIgnored() const { return false; }
     id accessibilityHitTest(CGPoint);
     void enableAccessibilityIfNecessary(NSString *attribute = nil);
     id accessibilityAttributeValue(NSString *, id parameter = nil);
     RetainPtr<NSAccessibilityRemoteUIElement> remoteAccessibilityChildIfNotSuspended();
+
+    // Accessibility info for debugging
+    NSUInteger accessibilityRemoteChildTokenHash();
+    NSUInteger accessibilityUIProcessLocalTokenHash();
+    NSArray<NSNumber *> *registeredRemoteAccessibilityPids();
+    bool hasRemoteAccessibilityChild();
 
     void updatePrimaryTrackingAreaOptions(NSTrackingAreaOptions);
 
@@ -1009,6 +1013,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     RetainPtr<NSData> m_remoteAccessibilityChildToken;
     RetainPtr<NSData> m_remoteAccessibilityTokenGeneratedByUIProcess;
     RetainPtr<NSMutableDictionary> m_remoteAccessibilityFrameCache;
+    HashSet<pid_t> m_registeredRemoteAccessibilityPids;
 
     RefPtr<WebCore::Image> m_promisedImage;
     String m_promisedFilename;

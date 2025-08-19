@@ -6346,6 +6346,17 @@ static Vector<Ref<API::TargetedElementInfo>> elementsFromWKElements(NSArray<_WKT
 {
     return _impl->accessibilityUIProcessLocalTokenHash();
 }
+
+- (NSArray<NSNumber *> *)registeredRemoteAccessibilityPids
+{
+    return _impl->registeredRemoteAccessibilityPids();
+}
+
+- (bool)hasRemoteAccessibilityChild
+{
+    return _impl->hasRemoteAccessibilityChild();
+}
+
 #endif // PLATFORM(MAC)
 
 #if PLATFORM(MAC)

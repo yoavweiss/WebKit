@@ -634,6 +634,8 @@ typedef NS_OPTIONS(NSUInteger, _WKWebViewDataType) {
 #if TARGET_OS_OSX
 - (NSUInteger)accessibilityRemoteChildTokenHash;
 - (NSUInteger)accessibilityUIProcessLocalTokenHash;
+- (NSArray<NSNumber *> *)registeredRemoteAccessibilityPids;
+- (bool)hasRemoteAccessibilityChild;
 #endif
 
 - (void)_debugTextWithConfiguration:(_WKTextExtractionConfiguration *)configuration completionHandler:(WK_SWIFT_UI_ACTOR void(^)(NSString *))completionHandler WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA)) NS_SWIFT_NAME(_debugText(with:completionHandler:));
