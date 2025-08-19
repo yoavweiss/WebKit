@@ -184,41 +184,6 @@ SVGLengthValue SVGLengthValue::construct(SVGLengthMode lengthMode, StringView va
     return length;
 }
 
-SVGLengthValue SVGLengthValue::blend(const SVGLengthValue& from, const SVGLengthValue& to, float progress)
-{
-    if ((from.isZero() && to.isZero())
-        || from.lengthType() == SVGLengthType::Unknown
-        || to.lengthType() == SVGLengthType::Unknown
-        || (!from.isZero() && from.lengthType() != SVGLengthType::Percentage && to.lengthType() == SVGLengthType::Percentage)
-        || (!to.isZero() && from.lengthType() == SVGLengthType::Percentage && to.lengthType() != SVGLengthType::Percentage)
-        || (!from.isZero() && !to.isZero() && (from.lengthType() == SVGLengthType::Ems || from.lengthType() == SVGLengthType::Exs) && from.lengthType() != to.lengthType()))
-        return to;
-
-    if (from.lengthType() == SVGLengthType::Percentage || to.lengthType() == SVGLengthType::Percentage) {
-        auto fromPercent = from.valueAsPercentage() * 100;
-        auto toPercent = to.valueAsPercentage() * 100;
-        return { WebCore::blend(fromPercent, toPercent, { progress }), SVGLengthType::Percentage };
-    }
-
-    if (from.lengthType() == to.lengthType() || from.isZero() || to.isZero() || from.isRelative()) {
-        auto fromValue = from.valueInSpecifiedUnits();
-        auto toValue = to.valueInSpecifiedUnits();
-        return { WebCore::blend(fromValue, toValue, { progress }), to.isZero() ? from.lengthType() : to.lengthType() };
-    }
-
-    SVGLengthContext nonRelativeLengthContext(nullptr);
-    auto fromValueInUserUnits = nonRelativeLengthContext.convertValueToUserUnits(from.valueInSpecifiedUnits(), from.lengthType(), from.lengthMode());
-    if (fromValueInUserUnits.hasException())
-        return { };
-
-    auto fromValue = nonRelativeLengthContext.convertValueFromUserUnits(fromValueInUserUnits.releaseReturnValue(), to.lengthType(), to.lengthMode());
-    if (fromValue.hasException())
-        return { };
-
-    float toValue = to.valueInSpecifiedUnits();
-    return { WebCore::blend(fromValue.releaseReturnValue(), toValue, { progress }), to.lengthType() };
-}
-
 ExceptionOr<void> SVGLengthValue::setValueAsString(StringView valueAsString, SVGLengthMode lengthMode)
 {
     m_lengthMode = lengthMode;
