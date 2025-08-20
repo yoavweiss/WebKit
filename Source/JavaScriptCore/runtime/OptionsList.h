@@ -647,6 +647,7 @@ bool hasCapacityToUseLargeGigacage();
     v(Bool, useTemporal, false, Normal, "Expose the Temporal object."_s) \
     v(Bool, useTrustedTypes, true, Normal, "Enable trusted types eval protection feature."_s) \
     v(Bool, useWasmJSStringBuiltins, false, Normal, "Enable the implementation of the JS String Builtins proposal."_s) \
+    v(Bool, useWasmMemoryToBufferAPIs, false, Normal, "Enable the toFixedLengthBuffer() and toResizableBuffer() Wasm Memory.prototype functions."_s) \
     v(Bool, useWasmSIMD, true, Normal, "Allow the new simd instructions and types from the wasm simd spec."_s) \
     v(Bool, useWasmRelaxedSIMD, false, Normal, "Allow the relaxed simd instructions and types from the wasm relaxed simd spec."_s) \
     v(Bool, useWasmTailCalls, true, Normal, "Allow the new instructions from the wasm tail calls spec."_s) \
