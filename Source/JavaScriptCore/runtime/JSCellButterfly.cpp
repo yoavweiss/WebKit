@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Apple Inc. All rights reserved.
+ * Copyright (C) 2018-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#include "JSImmutableButterfly.h"
+#include "JSCellButterfly.h"
 
 #include "ButterflyInlines.h"
 #include "ClonedArguments.h"
@@ -37,10 +37,10 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
 namespace JSC {
 
-const ClassInfo JSImmutableButterfly::s_info = { "Immutable Butterfly"_s, nullptr, nullptr, nullptr, CREATE_METHOD_TABLE(JSImmutableButterfly) };
+const ClassInfo JSCellButterfly::s_info = { "Cell Butterfly"_s, nullptr, nullptr, nullptr, CREATE_METHOD_TABLE(JSCellButterfly) };
 
 template<typename Visitor>
-void JSImmutableButterfly::visitChildrenImpl(JSCell* cell, Visitor& visitor)
+void JSCellButterfly::visitChildrenImpl(JSCell* cell, Visitor& visitor)
 {
     ASSERT_GC_OBJECT_INHERITS(cell, info());
     Base::visitChildren(cell, visitor);
@@ -49,13 +49,13 @@ void JSImmutableButterfly::visitChildrenImpl(JSCell* cell, Visitor& visitor)
         return;
     }
 
-    Butterfly* butterfly = jsCast<JSImmutableButterfly*>(cell)->toButterfly();
+    Butterfly* butterfly = jsCast<JSCellButterfly*>(cell)->toButterfly();
     visitor.appendValuesHidden(butterfly->contiguous().data(), butterfly->publicLength());
 }
 
-DEFINE_VISIT_CHILDREN(JSImmutableButterfly);
+DEFINE_VISIT_CHILDREN(JSCellButterfly);
 
-void JSImmutableButterfly::copyToArguments(JSGlobalObject*, JSValue* firstElementDest, unsigned offset, unsigned length)
+void JSCellButterfly::copyToArguments(JSGlobalObject*, JSValue* firstElementDest, unsigned offset, unsigned length)
 {
     for (unsigned i = 0; i < length; ++i) {
         if ((i + offset) < publicLength())
@@ -65,9 +65,9 @@ void JSImmutableButterfly::copyToArguments(JSGlobalObject*, JSValue* firstElemen
     }
 }
 
-static_assert(JSImmutableButterfly::offsetOfData() == sizeof(JSImmutableButterfly), "m_header needs to be adjacent to Data");
+static_assert(JSCellButterfly::offsetOfData() == sizeof(JSCellButterfly), "m_header needs to be adjacent to Data");
 
-JSImmutableButterfly* JSImmutableButterfly::createFromClonedArguments(JSGlobalObject* globalObject, ClonedArguments* arguments)
+JSCellButterfly* JSCellButterfly::createFromClonedArguments(JSGlobalObject* globalObject, ClonedArguments* arguments)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
@@ -76,7 +76,7 @@ JSImmutableButterfly* JSImmutableButterfly::createFromClonedArguments(JSGlobalOb
     unsigned vectorLength = arguments->getVectorLength();
     RETURN_IF_EXCEPTION(scope, nullptr);
 
-    JSImmutableButterfly* result = JSImmutableButterfly::tryCreate(vm, vm.immutableButterflyStructure(CopyOnWriteArrayWithContiguous), length);
+    JSCellButterfly* result = JSCellButterfly::tryCreate(vm, vm.cellButterflyStructure(CopyOnWriteArrayWithContiguous), length);
     if (!result) [[unlikely]] {
         throwOutOfMemoryError(globalObject, scope);
         return nullptr;
@@ -117,14 +117,14 @@ JSImmutableButterfly* JSImmutableButterfly::createFromClonedArguments(JSGlobalOb
 }
 
 template<typename Arguments>
-static ALWAYS_INLINE JSImmutableButterfly* createFromNonClonedArguments(JSGlobalObject* globalObject, Arguments* arguments)
+static ALWAYS_INLINE JSCellButterfly* createFromNonClonedArguments(JSGlobalObject* globalObject, Arguments* arguments)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
 
     unsigned length = arguments->internalLength();
 
-    JSImmutableButterfly* result = JSImmutableButterfly::tryCreate(vm, vm.immutableButterflyStructure(CopyOnWriteArrayWithContiguous), length);
+    JSCellButterfly* result = JSCellButterfly::tryCreate(vm, vm.cellButterflyStructure(CopyOnWriteArrayWithContiguous), length);
     if (!result) [[unlikely]] {
         throwOutOfMemoryError(globalObject, scope);
         return nullptr;
@@ -148,17 +148,17 @@ static ALWAYS_INLINE JSImmutableButterfly* createFromNonClonedArguments(JSGlobal
     return result;
 }
 
-JSImmutableButterfly* JSImmutableButterfly::createFromDirectArguments(JSGlobalObject* globalObject, DirectArguments* arguments)
+JSCellButterfly* JSCellButterfly::createFromDirectArguments(JSGlobalObject* globalObject, DirectArguments* arguments)
 {
     return createFromNonClonedArguments(globalObject, arguments);
 }
 
-JSImmutableButterfly* JSImmutableButterfly::createFromScopedArguments(JSGlobalObject* globalObject, ScopedArguments* arguments)
+JSCellButterfly* JSCellButterfly::createFromScopedArguments(JSGlobalObject* globalObject, ScopedArguments* arguments)
 {
     return createFromNonClonedArguments(globalObject, arguments);
 }
 
-JSImmutableButterfly* JSImmutableButterfly::createFromString(JSGlobalObject* globalObject, JSString* string)
+JSCellButterfly* JSCellButterfly::createFromString(JSGlobalObject* globalObject, JSString* string)
 {
     VM& vm = globalObject->vm();
     auto scope = DECLARE_THROW_SCOPE(vm);
@@ -168,7 +168,7 @@ JSImmutableButterfly* JSImmutableButterfly::createFromString(JSGlobalObject* glo
 
     unsigned length = holder->length();
     if (holder->is8Bit()) {
-        JSImmutableButterfly* result = JSImmutableButterfly::tryCreate(vm, vm.immutableButterflyStructure(CopyOnWriteArrayWithContiguous), length);
+        JSCellButterfly* result = JSCellButterfly::tryCreate(vm, vm.cellButterflyStructure(CopyOnWriteArrayWithContiguous), length);
         if (!result) [[unlikely]] {
             throwOutOfMemoryError(globalObject, scope);
             return nullptr;
@@ -211,7 +211,7 @@ JSImmutableButterfly* JSImmutableButterfly::createFromString(JSGlobalObject* glo
         return IterationStatus::Continue;
     });
 
-    JSImmutableButterfly* result = JSImmutableButterfly::tryCreate(vm, vm.immutableButterflyStructure(CopyOnWriteArrayWithContiguous), codePointLength);
+    JSCellButterfly* result = JSCellButterfly::tryCreate(vm, vm.cellButterflyStructure(CopyOnWriteArrayWithContiguous), codePointLength);
     if (!result) [[unlikely]] {
         throwOutOfMemoryError(globalObject, scope);
         return nullptr;
@@ -238,9 +238,9 @@ JSImmutableButterfly* JSImmutableButterfly::createFromString(JSGlobalObject* glo
     return result;
 }
 
-JSImmutableButterfly* JSImmutableButterfly::tryCreateFromArgList(VM& vm, ArgList argList)
+JSCellButterfly* JSCellButterfly::tryCreateFromArgList(VM& vm, ArgList argList)
 {
-    JSImmutableButterfly* result = JSImmutableButterfly::tryCreate(vm, vm.immutableButterflyStructure(CopyOnWriteArrayWithContiguous), argList.size());
+    JSCellButterfly* result = JSCellButterfly::tryCreate(vm, vm.cellButterflyStructure(CopyOnWriteArrayWithContiguous), argList.size());
     if (!result) [[unlikely]]
         return nullptr;
     gcSafeMemcpy(std::bit_cast<EncodedJSValue*>(result->toButterfly()->contiguous().data()), argList.data(), argList.size() * sizeof(EncodedJSValue));

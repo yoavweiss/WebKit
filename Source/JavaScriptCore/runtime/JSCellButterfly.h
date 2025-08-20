@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2018-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,7 +41,12 @@ class ClonedArguments;
 class DirectArguments;
 class ScopedArguments;
 
-class JSImmutableButterfly : public JSCell {
+// This is essentially a normal butterfly but it can also be handled as a cell since it has a cell header.
+// The main use is for immutable, shared Butterflies for Array literals but JSCellButterflies are also used
+// as a trailing array storage in JS Map/Set.
+//
+// Note: the name JSCellButterfly doesn't necessarily mean its contents are cells although they could be.
+class JSCellButterfly : public JSCell {
     using Base = JSCell;
 
 public:
@@ -51,46 +56,46 @@ public:
 
     inline static Structure* createStructure(VM&, JSGlobalObject*, JSValue, IndexingType);
 
-    ALWAYS_INLINE static JSImmutableButterfly* tryCreate(VM& vm, Structure* structure, unsigned length)
+    ALWAYS_INLINE static JSCellButterfly* tryCreate(VM& vm, Structure* structure, unsigned length)
     {
         if (length > IndexingHeader::maximumLength) [[unlikely]]
             return nullptr;
 
         // Because of the above maximumLength requirement, allocationSize can never overflow.
-        void* buffer = tryAllocateCell<JSImmutableButterfly>(vm, allocationSize(length));
+        void* buffer = tryAllocateCell<JSCellButterfly>(vm, allocationSize(length));
         if (!buffer) [[unlikely]]
             return nullptr;
-        JSImmutableButterfly* result = new (NotNull, buffer) JSImmutableButterfly(vm, structure, length);
+        JSCellButterfly* result = new (NotNull, buffer) JSCellButterfly(vm, structure, length);
         result->finishCreation(vm);
         return result;
     }
 
-    static JSImmutableButterfly* tryCreate(VM& vm, IndexingType indexingType, unsigned length)
+    static JSCellButterfly* tryCreate(VM& vm, IndexingType indexingType, unsigned length)
     {
-        return tryCreate(vm, vm.immutableButterflyStructure(indexingType), length);
+        return tryCreate(vm, vm.cellButterflyStructure(indexingType), length);
     }
 
-    static JSImmutableButterfly* create(VM& vm, IndexingType indexingType, unsigned length)
+    static JSCellButterfly* create(VM& vm, IndexingType indexingType, unsigned length)
     {
         auto* array = tryCreate(vm, indexingType, length);
         RELEASE_ASSERT_RESOURCE_AVAILABLE(array, MemoryExhaustion, "Crash intentionally because memory is exhausted.");
         return array;
     }
 
-    ALWAYS_INLINE static JSImmutableButterfly* createFromArray(JSGlobalObject* globalObject, VM& vm, JSArray* array)
+    ALWAYS_INLINE static JSCellButterfly* createFromArray(JSGlobalObject* globalObject, VM& vm, JSArray* array)
     {
         auto throwScope = DECLARE_THROW_SCOPE(vm);
 
         IndexingType indexingType = array->indexingType() & IndexingShapeMask;
         unsigned length = array->length();
 
-        // FIXME: JSImmutableButterfly::createFromArray should support re-using non contiguous indexing types as well.
+        // FIXME: JSCellButterfly::createFromArray should support re-using non contiguous indexing types as well.
         if (isCopyOnWrite(indexingType)) {
             if (hasContiguous(indexingType))
-                return JSImmutableButterfly::fromButterfly(array->butterfly());
+                return JSCellButterfly::fromButterfly(array->butterfly());
         }
 
-        JSImmutableButterfly* result = JSImmutableButterfly::tryCreate(vm, vm.immutableButterflyStructure(CopyOnWriteArrayWithContiguous), length);
+        JSCellButterfly* result = JSCellButterfly::tryCreate(vm, vm.cellButterflyStructure(CopyOnWriteArrayWithContiguous), length);
         if (!result) [[unlikely]] {
             throwOutOfMemoryError(globalObject, throwScope);
             return nullptr;
@@ -138,21 +143,21 @@ public:
         return result;
     }
 
-    static JSImmutableButterfly* createFromClonedArguments(JSGlobalObject*, ClonedArguments*);
-    static JSImmutableButterfly* createFromDirectArguments(JSGlobalObject*, DirectArguments*);
-    static JSImmutableButterfly* createFromScopedArguments(JSGlobalObject*, ScopedArguments*);
-    static JSImmutableButterfly* createFromString(JSGlobalObject*, JSString*);
-    static JSImmutableButterfly* tryCreateFromArgList(VM&, ArgList);
+    static JSCellButterfly* createFromClonedArguments(JSGlobalObject*, ClonedArguments*);
+    static JSCellButterfly* createFromDirectArguments(JSGlobalObject*, DirectArguments*);
+    static JSCellButterfly* createFromScopedArguments(JSGlobalObject*, ScopedArguments*);
+    static JSCellButterfly* createFromString(JSGlobalObject*, JSString*);
+    static JSCellButterfly* tryCreateFromArgList(VM&, ArgList);
 
     unsigned publicLength() const { return m_header.publicLength(); }
     unsigned vectorLength() const { return m_header.vectorLength(); }
     unsigned length() const { return m_header.publicLength(); }
 
     Butterfly* toButterfly() const { return std::bit_cast<Butterfly*>(std::bit_cast<char*>(this) + offsetOfData()); }
-    static JSImmutableButterfly* fromButterfly(Butterfly* butterfly) { return std::bit_cast<JSImmutableButterfly*>(std::bit_cast<char*>(butterfly) - offsetOfData()); }
+    static JSCellButterfly* fromButterfly(Butterfly* butterfly) { return std::bit_cast<JSCellButterfly*>(std::bit_cast<char*>(butterfly) - offsetOfData()); }
     static bool isOnlyAtomStringsStructure(VM& vm, Butterfly* butterfly)
     {
-        return fromButterfly(butterfly)->structure() == vm.immutableButterflyOnlyAtomStringsStructure.get();
+        return fromButterfly(butterfly)->structure() == vm.cellButterflyOnlyAtomStringsStructure.get();
     }
 
     JSValue get(unsigned index) const
@@ -187,17 +192,17 @@ public:
 
     static constexpr size_t offsetOfData()
     {
-        return WTF::roundUpToMultipleOf<sizeof(WriteBarrier<Unknown>)>(sizeof(JSImmutableButterfly));
+        return WTF::roundUpToMultipleOf<sizeof(WriteBarrier<Unknown>)>(sizeof(JSCellButterfly));
     }
 
     static constexpr ptrdiff_t offsetOfPublicLength()
     {
-        return OBJECT_OFFSETOF(JSImmutableButterfly, m_header) + IndexingHeader::offsetOfPublicLength();
+        return OBJECT_OFFSETOF(JSCellButterfly, m_header) + IndexingHeader::offsetOfPublicLength();
     }
 
     static constexpr ptrdiff_t offsetOfVectorLength()
     {
-        return OBJECT_OFFSETOF(JSImmutableButterfly, m_header) + IndexingHeader::offsetOfVectorLength();
+        return OBJECT_OFFSETOF(JSCellButterfly, m_header) + IndexingHeader::offsetOfVectorLength();
     }
 
     static Checked<size_t> allocationSize(Checked<size_t> numItems)
@@ -206,7 +211,7 @@ public:
     }
 
 private:
-    JSImmutableButterfly(VM& vm, Structure* structure, unsigned length)
+    JSCellButterfly(VM& vm, Structure* structure, unsigned length)
         : Base(vm, structure)
     {
         m_header.setVectorLength(length);

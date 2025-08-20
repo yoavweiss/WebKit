@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2018-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "JSImmutableButterfly.h"
+#include "JSCellButterfly.h"
 
 namespace JSC {
 
-inline Structure* JSImmutableButterfly::createStructure(VM& vm, JSGlobalObject* globalObject, JSValue prototype, IndexingType indexingType)
+inline Structure* JSCellButterfly::createStructure(VM& vm, JSGlobalObject* globalObject, JSValue prototype, IndexingType indexingType)
 {
-    return Structure::create(vm, globalObject, prototype, TypeInfo(JSImmutableButterflyType, StructureFlags), info(), indexingType);
+    return Structure::create(vm, globalObject, prototype, TypeInfo(JSCellButterflyType, StructureFlags), info(), indexingType);
 }
 
 } // namespace JSC
