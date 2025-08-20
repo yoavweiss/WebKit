@@ -40,6 +40,7 @@
 #include "ExceptionOr.h"
 #include "FocusController.h"
 #include "FrameSelection.h"
+#include "GeometryUtilities.h"
 #include "HTMLAnchorElement.h"
 #include "HTMLBodyElement.h"
 #include "HTMLButtonElement.h"
@@ -869,17 +870,14 @@ static Vector<std::pair<String, FloatRect>> extractAllTextAndRectsRecursive(Docu
         if (!renderer)
             continue;
 
-        IntRect absoluteBounds;
+        FloatRect absoluteBounds;
         auto textRange = iterator.range();
         if (!textRange.collapsed()) {
-            auto textRects = RenderObject::absoluteTextRects(textRange, {
+            absoluteBounds = enclosingIntRect(unionRectIgnoringZeroRects(RenderObject::absoluteBorderAndTextRects(textRange, {
                 RenderObject::BoundingRectBehavior::IgnoreTinyRects,
                 RenderObject::BoundingRectBehavior::IgnoreEmptyTextSelections,
                 RenderObject::BoundingRectBehavior::UseSelectionHeight,
-            });
-
-            for (auto textRect : textRects)
-                absoluteBounds.unite(textRect);
+            })));
         }
 
         if (absoluteBounds.isEmpty())
