@@ -1362,8 +1362,6 @@ test/staging/sm/RegExp/unicode-braced.js:
   default: 'SyntaxError: Invalid regular expression: regular expression too large'
 test/staging/sm/RegExp/unicode-class-braced.js:
   default: 'SyntaxError: Invalid regular expression: regular expression too large'
-test/staging/sm/Symbol/enumeration-order.js:
-  default: 'Test262Error: Expected ["string", "symbol", "string", "symbol", "symbol", "string"] to be structurally equal to ["string", "string", "string", "symbol", "symbol", "symbol"]. '
 test/staging/sm/TypedArray/constructor-buffer-sequence.js:
   default: 'Error: Assertion failed: expected exception ExpectedError, got Error: Poisoned Value'
 test/staging/sm/TypedArray/iterator-next-with-detached.js:

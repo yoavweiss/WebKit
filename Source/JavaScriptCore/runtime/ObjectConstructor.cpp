@@ -869,6 +869,7 @@ static JSValue defineProperties(JSGlobalObject* globalObject, JSObject* object, 
     if (!hasIndexedProperties(properties->indexingType())) {
         Structure* propertiesStructure = properties->structure();
         if (!properties->hasNonReifiedStaticProperties() && propertiesStructure->canPerformFastPropertyEnumerationCommon()) {
+            bool hasSymbol = false;
             canUseFastPath = true;
             propertiesStructure->forEachProperty(vm, [&](const PropertyTableEntry& entry) -> bool {
                 if (entry.attributes() & PropertyAttribute::DontEnum)
@@ -878,11 +879,34 @@ static JSValue defineProperties(JSGlobalObject* globalObject, JSObject* object, 
                 if (propertyName.isPrivateName())
                     return true;
 
+                if (propertyName.isSymbol()) {
+                    hasSymbol = true;
+                    return true;
+                }
+
                 propertyNames.append(entry.key());
                 values.appendWithCrashOnOverflow(properties->getDirect(entry.offset()));
 
                 return true;
             });
+
+            // https://tc39.es/ecma262/#sec-ordinaryownpropertykeys
+            // symbol should come last in the order
+            if (hasSymbol) {
+                propertiesStructure->forEachProperty(vm, [&](const PropertyTableEntry& entry) -> bool {
+                    if (entry.attributes() & PropertyAttribute::DontEnum)
+                        return true;
+
+                    PropertyName propertyName(entry.key());
+                    if (propertyName.isPrivateName() || !propertyName.isSymbol())
+                        return true;
+
+                    propertyNames.append(entry.key());
+                    values.appendWithCrashOnOverflow(properties->getDirect(entry.offset()));
+
+                    return true;
+                });
+            }
         }
     }
     if (!canUseFastPath) [[unlikely]]
