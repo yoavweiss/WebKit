@@ -45,6 +45,7 @@ std::optional<WebAssemblyCompileOptions> WebAssemblyCompileOptions::tryCreate(JS
 
     // Check for the 'importedStringConstants' entry
     JSValue importedStringConstantsValue = optionsObject->get(globalObject, PropertyName(Identifier::fromString(vm, "importedStringConstants"_s)));
+    RETURN_IF_EXCEPTION(scope, std::nullopt);
     if (importedStringConstantsValue.isString()) {
         auto importedStringConstants = asString(importedStringConstantsValue)->value(globalObject);
         options.m_importedStringConstants = makeString(StringView(importedStringConstants));
@@ -56,6 +57,7 @@ std::optional<WebAssemblyCompileOptions> WebAssemblyCompileOptions::tryCreate(JS
 
     // Check for the 'builtins' entry, qualifying builtin set names in the process.
     JSValue builtinsValue = optionsObject->get(globalObject, PropertyName(Identifier::fromString(vm, "builtins"_s)));
+    RETURN_IF_EXCEPTION(scope, std::nullopt);
     if (builtinsValue.isObject()) {
         bool sawBadEntries = false;
         forEachInIterable(globalObject, builtinsValue, [&] (VM&, JSGlobalObject* globalObject, JSValue nextValue) {
@@ -66,6 +68,7 @@ std::optional<WebAssemblyCompileOptions> WebAssemblyCompileOptions::tryCreate(JS
             } else
                 sawBadEntries = true;
         });
+        RETURN_IF_EXCEPTION(scope, std::nullopt);
         if (sawBadEntries) {
             auto error = createTypeError(globalObject, "builtins list option values must be strings"_s);
             throwException(globalObject, scope, error);
