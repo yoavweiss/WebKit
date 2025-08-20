@@ -3496,24 +3496,31 @@ WGPUExtent3D Texture::physicalMiplevelSpecificTextureExtent(uint32_t mipLevel)
 
 WGPUExtent3D Texture::physicalTextureExtent(WGPUTextureDimension dimension, WGPUTextureFormat format, WGPUExtent3D logicalExtent)
 {
-    ASSERT(texelBlockWidth(format));
-    ASSERT(texelBlockHeight(format));
+    auto blockWidth = texelBlockWidth(format);
+    auto blockHeight = texelBlockHeight(format);
+    if (!blockWidth || !blockHeight) {
+        return WGPUExtent3D {
+            .width = 1,
+            .height = 1,
+            .depthOrArrayLayers = 1
+        };
+    }
 
     switch (dimension) {
     case WGPUTextureDimension_1D:
         return {
-            .width = roundUpToMultipleOfNonPowerOfTwo(texelBlockWidth(format), logicalExtent.width),
+            .width = roundUpToMultipleOfNonPowerOfTwo(blockWidth, logicalExtent.width),
             .height = 1,
             .depthOrArrayLayers = logicalExtent.depthOrArrayLayers };
     case WGPUTextureDimension_2D:
         return {
-            .width = roundUpToMultipleOfNonPowerOfTwo(texelBlockWidth(format), logicalExtent.width),
-            .height = roundUpToMultipleOfNonPowerOfTwo(texelBlockHeight(format), logicalExtent.height),
+            .width = roundUpToMultipleOfNonPowerOfTwo(blockWidth, logicalExtent.width),
+            .height = roundUpToMultipleOfNonPowerOfTwo(blockHeight, logicalExtent.height),
             .depthOrArrayLayers = logicalExtent.depthOrArrayLayers };
     case WGPUTextureDimension_3D:
         return {
-            .width = roundUpToMultipleOfNonPowerOfTwo(texelBlockWidth(format), logicalExtent.width),
-            .height = roundUpToMultipleOfNonPowerOfTwo(texelBlockHeight(format), logicalExtent.height),
+            .width = roundUpToMultipleOfNonPowerOfTwo(blockWidth, logicalExtent.width),
+            .height = roundUpToMultipleOfNonPowerOfTwo(blockHeight, logicalExtent.height),
             .depthOrArrayLayers = logicalExtent.depthOrArrayLayers };
     case WGPUTextureDimension_Force32:
         ASSERT_NOT_REACHED();
