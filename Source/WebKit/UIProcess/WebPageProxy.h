@@ -2618,7 +2618,7 @@ public:
     void takeSnapshotForTargetedElement(const API::TargetedElementInfo&, CompletionHandler<void(std::optional<WebCore::ShareableBitmapHandle>&&)>&&);
 
     void requestTextExtraction(WebCore::TextExtraction::Request&&, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&&);
-    void handleTextExtractionInteraction(WebCore::TextExtraction::Interaction&&, CompletionHandler<void(bool)>&&);
+    void handleTextExtractionInteraction(WebCore::TextExtraction::Interaction&&, CompletionHandler<void(bool, String&&)>&&);
 
     void hasVideoInPictureInPictureDidChange(bool);
 

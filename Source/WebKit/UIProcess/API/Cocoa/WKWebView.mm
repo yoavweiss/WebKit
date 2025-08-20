@@ -6412,11 +6412,14 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
     return WebCore::NodeIdentifier { *rawValue };
 }
 
-- (void)_performInteraction:(_WKTextExtractionInteraction *)wkInteraction completionHandler:(void(^)(BOOL success))completionHandler
+- (void)_performInteraction:(_WKTextExtractionInteraction *)wkInteraction completionHandler:(void(^)(_WKTextExtractionInteractionResult *))completionHandler
 {
 #if USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
-    if (!self._isValid || !_page->protectedPreferences()->textExtractionEnabled())
-        return completionHandler(NO);
+    if (!self._isValid)
+        return completionHandler(adoptNS([[_WKTextExtractionInteractionResult alloc] initWithErrorDescription:@"Web view is invalid"]).get());
+
+    if (!_page->protectedPreferences()->textExtractionEnabled())
+        return completionHandler(adoptNS([[_WKTextExtractionInteractionResult alloc] initWithErrorDescription:@"Text extraction is unavailable"]).get());
 
     WebCore::TextExtraction::Interaction interaction;
     interaction.action = [&] {
@@ -6452,26 +6455,36 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
 #if PLATFORM(MAC)
     RetainPtr nativePopup = [self _activePopupButtonCell];
     if (nativePopup && interaction.action == WebCore::TextExtraction::Action::SelectMenuItem && !interaction.text.isEmpty()) {
-        [nativePopup selectItemWithTitle:interaction.text.createNSString().get()];
-        [[nativePopup menu] cancelTrackingWithoutAnimation];
-        page->callAfterNextPresentationUpdate([completionHandler = makeBlockPtr(WTFMove(completionHandler))] {
-            completionHandler(YES);
+        RetainPtr title = interaction.text.createNSString();
+        BOOL foundItem = [nativePopup indexOfItemWithTitle:title.get()] != -1;
+        if (foundItem) {
+            [nativePopup selectItemWithTitle:title.get()];
+            [[nativePopup menu] cancelTrackingWithoutAnimation];
+        }
+        page->callAfterNextPresentationUpdate([title, foundItem, completionHandler = makeBlockPtr(WTFMove(completionHandler))] {
+            RetainPtr<NSString> errorDescription = foundItem ? nil : [NSString stringWithFormat:@"No popup menu item with title '%@'", title.get()];
+            RetainPtr result = adoptNS([[_WKTextExtractionInteractionResult alloc] initWithErrorDescription:errorDescription.get()]);
+            completionHandler(result.get());
         });
         return;
     }
 #endif // PLATFORM(MAC)
 
-    page->handleTextExtractionInteraction(WTFMove(interaction), [weakSelf = WeakObjCPtr<WKWebView>(self), weakPage = WeakPtr { *page }, completionHandler = makeBlockPtr(WTFMove(completionHandler))](bool success) {
+    page->handleTextExtractionInteraction(WTFMove(interaction), [weakSelf = WeakObjCPtr<WKWebView>(self), weakPage = WeakPtr { *page }, completionHandler = makeBlockPtr(WTFMove(completionHandler))](bool success, String&& description) {
+        RetainPtr<NSString> errorDescription;
+        if (!success)
+            errorDescription = description.createNSString();
+        RetainPtr result = adoptNS([[_WKTextExtractionInteractionResult alloc] initWithErrorDescription:errorDescription.get()]);
         RetainPtr strongSelf = weakSelf.get();
         if (!strongSelf)
-            return completionHandler(success);
+            return completionHandler(result.get());
 
         RefPtr strongPage = weakPage.get();
         if (!strongPage)
-            return completionHandler(success);
+            return completionHandler(result.get());
 
-        strongPage->callAfterNextPresentationUpdate([completionHandler = WTFMove(completionHandler), success] {
-            completionHandler(success);
+        strongPage->callAfterNextPresentationUpdate([completionHandler = WTFMove(completionHandler), result] {
+            completionHandler(result.get());
         });
     });
 #endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))

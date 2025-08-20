@@ -16527,10 +16527,12 @@ void WebPageProxy::requestTextExtraction(WebCore::TextExtraction::Request&& requ
     sendWithAsyncReply(Messages::WebPage::RequestTextExtraction(WTFMove(request)), WTFMove(completion));
 }
 
-void WebPageProxy::handleTextExtractionInteraction(TextExtraction::Interaction&& interaction, CompletionHandler<void(bool)>&& completion)
+void WebPageProxy::handleTextExtractionInteraction(TextExtraction::Interaction&& interaction, CompletionHandler<void(bool, String&&)>&& completion)
 {
-    if (!hasRunningProcess())
-        return completion(false);
+    if (!hasRunningProcess()) {
+        ASSERT_NOT_REACHED();
+        return completion(false, "Internal inconsistency / unexpected state. Please file a bug"_s);
+    }
 
     sendWithAsyncReply(Messages::WebPage::HandleTextExtractionInteraction(WTFMove(interaction)), WTFMove(completion));
 }

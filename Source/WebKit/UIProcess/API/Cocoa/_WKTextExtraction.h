@@ -67,4 +67,13 @@ NS_REQUIRES_PROPERTY_DEFINITIONS
 
 @end
 
+WK_CLASS_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA))
+WK_SWIFT_UI_ACTOR
+NS_REQUIRES_PROPERTY_DEFINITIONS
+@interface _WKTextExtractionInteractionResult : NSObject
+
+@property (nonatomic, readonly, nullable) NSError *error;
+
+@end
+
 NS_HEADER_AUDIT_END(nullability, sendability)

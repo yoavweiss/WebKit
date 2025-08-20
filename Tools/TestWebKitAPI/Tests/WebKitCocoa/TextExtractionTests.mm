@@ -92,14 +92,14 @@ TEST(TextExtractionTests, SelectPopupMenu)
 
     __block bool doneSelectingOption = false;
     __block RetainPtr<NSString> debugTextAfterClickingSelect;
-    [webView _performInteraction:click.get() completionHandler:^(BOOL clickSuccess) {
-        EXPECT_TRUE(clickSuccess);
+    [webView _performInteraction:click.get() completionHandler:^(_WKTextExtractionInteractionResult *clickResult) {
+        EXPECT_FALSE(clickResult.error);
         EXPECT_TRUE([[webView synchronouslyGetDebugText:nil] containsString:@"nativePopupMenu"]);
 
         RetainPtr selectOption = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionSelectMenuItem]);
         [selectOption setText:@"Three"];
-        [webView _performInteraction:selectOption.get() completionHandler:^(BOOL selectOptionSuccess) {
-            EXPECT_TRUE(selectOptionSuccess);
+        [webView _performInteraction:selectOption.get() completionHandler:^(_WKTextExtractionInteractionResult *selectOptionResult) {
+            EXPECT_FALSE(selectOptionResult.error);
             doneSelectingOption = true;
         }];
     }];

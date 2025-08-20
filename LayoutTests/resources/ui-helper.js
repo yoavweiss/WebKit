@@ -2483,12 +2483,10 @@ window.UIHelper = class UIHelper {
             return Promise.resolve(false);
 
         return new Promise(resolve => {
-            testRunner.runUIScript(`
-                uiController.performTextExtractionInteraction("${action}"
-                    , ${JSON.stringify(options)}
-                    , result => uiController.uiScriptComplete(result));`, (result) => {
-                        resolve(result === "true")
-                    });
+            const scriptToRun = `uiController.performTextExtractionInteraction("${action}", ${JSON.stringify(options)}, result => {
+                uiController.uiScriptComplete(result)
+            })`;
+            testRunner.runUIScript(scriptToRun, resolve);
         });
     }
 }

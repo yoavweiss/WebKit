@@ -2585,7 +2585,7 @@ private:
     void requestAllTargetableElements(float, CompletionHandler<void(Vector<Vector<WebCore::TargetedElementInfo>>&&)>&&);
 
     void requestTextExtraction(WebCore::TextExtraction::Request&&, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&&);
-    void handleTextExtractionInteraction(WebCore::TextExtraction::Interaction&&, CompletionHandler<void(bool)>&&);
+    void handleTextExtractionInteraction(WebCore::TextExtraction::Interaction&&, CompletionHandler<void(bool, String&&)>&&);
 
 #if HAVE(SANDBOX_STATE_FLAGS)
     static void setHasLaunchedWebContentProcess();
