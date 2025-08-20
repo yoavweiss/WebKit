@@ -37,6 +37,7 @@
 #include "WebKitWebViewPrivate.h"
 #include "WebKitWebsiteDataAccessPermissionRequestPrivate.h"
 #include "WebKitWindowPropertiesPrivate.h"
+#include "WebKitXRPermissionRequestPrivate.h"
 #include "WebPageProxy.h"
 #include "WebProcessProxy.h"
 #include "WebsiteDataStore.h"
@@ -372,6 +373,12 @@ private:
         auto* query = webkitPermissionStateQueryCreate(permissionName, origin, WTFMove(completionHandler));
         webkitWebViewPermissionStateQuery(m_webView, query);
         webkit_permission_state_query_unref(query);
+    }
+
+    void requestPermissionOnXRSessionFeatures(WebKit::WebPageProxy&, const WebCore::SecurityOriginData& origin, PlatformXR::SessionMode mode, const PlatformXR::Device::FeatureList& granted, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, CompletionHandler<void(std::optional<PlatformXR::Device::FeatureList>&&)>&& completionHandler) final
+    {
+        GRefPtr<WebKitXRPermissionRequest> request = webkitXRPermissionRequestCreate(origin, mode, granted, WTFMove(completionHandler));
+        webkitWebViewMakePermissionRequest(m_webView, WEBKIT_PERMISSION_REQUEST(request.get()));
     }
 
 #if ENABLE(WEBXR) && USE(OPENXR)
