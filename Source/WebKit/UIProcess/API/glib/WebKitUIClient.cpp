@@ -375,13 +375,13 @@ private:
         webkit_permission_state_query_unref(query);
     }
 
+#if ENABLE(WEBXR) && USE(OPENXR)
     void requestPermissionOnXRSessionFeatures(WebKit::WebPageProxy&, const WebCore::SecurityOriginData& origin, PlatformXR::SessionMode mode, const PlatformXR::Device::FeatureList& granted, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, const PlatformXR::Device::FeatureList&, CompletionHandler<void(std::optional<PlatformXR::Device::FeatureList>&&)>&& completionHandler) final
     {
         GRefPtr<WebKitXRPermissionRequest> request = webkitXRPermissionRequestCreate(origin, mode, granted, WTFMove(completionHandler));
         webkitWebViewMakePermissionRequest(m_webView, WEBKIT_PERMISSION_REQUEST(request.get()));
     }
 
-#if ENABLE(WEBXR) && USE(OPENXR)
     void didStartXRSession(WebPageProxy&) final
     {
         webkitWebViewSetIsImmersiveModeEnabled(m_webView, true);

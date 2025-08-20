@@ -23,4 +23,8 @@
 #include <WebCore/PlatformXR.h>
 #include <wtf/CompletionHandler.h>
 
+#if ENABLE(WEBXR)
+
 WebKitXRPermissionRequest* webkitXRPermissionRequestCreate(const WebCore::SecurityOriginData&, PlatformXR::SessionMode, const PlatformXR::Device::FeatureList& granted, CompletionHandler<void(std::optional<PlatformXR::Device::FeatureList>&&)>&&);
+
+#endif // ENABLE(WEBXR)

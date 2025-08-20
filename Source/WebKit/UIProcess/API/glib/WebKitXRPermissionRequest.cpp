@@ -20,6 +20,8 @@
 #include "config.h"
 #include "WebKitXRPermissionRequest.h"
 
+#if ENABLE(WEBXR)
+
 #include "WebKitPermissionRequest.h"
 #include "WebKitSecurityOriginPrivate.h"
 #include "WebKitXRPermissionRequestPrivate.h"
@@ -156,3 +158,18 @@ WebKitXRPermissionRequest* webkitXRPermissionRequestCreate(const WebCore::Securi
     xrPermissionRequest->priv->completionHandler = WTFMove(completionHandler);
     return xrPermissionRequest;
 }
+#else
+#include <WebCore/NotImplemented.h>
+
+WebKitSecurityOrigin* webkit_xr_permission_request_get_security_origin(WebKitXRPermissionRequest* request)
+{
+    notImplemented();
+    return nullptr;
+}
+
+WebKitXRSessionMode webkit_xr_permission_request_get_session_mode(WebKitXRPermissionRequest* request)
+{
+    notImplemented();
+    return WebKitXRSessionMode::WEBKIT_XR_SESSION_MODE_INLINE;
+}
+#endif // ENABLE(WEBXR)
