@@ -2418,3 +2418,5 @@ webkit.org/b/297613 [ Debug ] fast/scrolling/mac/stateless-user-scroll-scrollend
 webkit.org/b/297614 [ Sequoia Debug x86_64 ] fast/canvas/hdr/float16-canvas-imagedata.html [ Timeout ]
 
 webkit.org/b/297623 [ Release arm64 ] http/wpt/webcodecs/webcodecs-message-gc.html [ Pass Failure ]
+
+webkit.org/b/297674 [ Sonoma Release ] http/wpt/mediarecorder/MediaRecorder-matroska-AV-audio-video-dataavailable.html [ Pass Failure ]

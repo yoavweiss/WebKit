@@ -8233,3 +8233,5 @@ http/tests/iframe-monitor/dark-mode.html [ Timeout ]
 webkit.org/b/261344 [ Release ] requestidlecallback/requestidlecallback-does-not-block-timer.html [ Pass Failure ]
 
 webkit.org/b/297669 [ Release ] http/tests/site-isolation/edge-sampling-viewport-constrained-object.html [ Pass Failure ]
+
+webkit.org/b/297674 [ Release ] http/wpt/mediarecorder/MediaRecorder-matroska-AV-audio-video-dataavailable.html [ Pass Failure ]
