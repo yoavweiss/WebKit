@@ -128,7 +128,7 @@
 #include "UnlinkedProgramCodeBlockInlines.h"
 #include "VMEntryScopeInlines.h"
 #include "VMInlines.h"
-#include "VMInspector.h"
+#include "VMManager.h"
 #include "VariableEnvironment.h"
 #include "WaiterListManager.h"
 #include "WasmWorklist.h"
@@ -242,7 +242,7 @@ VM::VM(VMType vmType, HeapType heapType, WTF::RunLoop* runLoop, bool* success)
     if (vmCreationShouldCrash || g_jscConfig.vmCreationDisallowed) [[unlikely]]
         CRASH_WITH_EXTRA_SECURITY_IMPLICATION_AND_INFO(VMCreationDisallowed, "VM creation disallowed"_s, 0x4242424220202020, 0xbadbeef0badbeef, 0x1234123412341234, 0x1337133713371337);
 
-    VMInspector::singleton().add(this);
+    VMManager::add(this);
 
     // Set up lazy initializers.
     {
@@ -506,7 +506,7 @@ VM::~VM()
 
     JSRunLoopTimer::Manager::singleton().unregisterVM(*this);
 
-    VMInspector::singleton().remove(this);
+    VMManager::remove(this);
 
     delete emptyList;
 

@@ -1375,6 +1375,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/VMEntryScope.h
     runtime/VMEntryScopeInlines.h
     runtime/VMInlines.h
+    runtime/VMManager.h
     runtime/VMTraps.h
     runtime/VMTrapsInlines.h
     runtime/WaiterListManager.h

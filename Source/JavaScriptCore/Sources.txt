@@ -1097,6 +1097,7 @@ runtime/TypedArrayType.cpp
 runtime/TypeofType.cpp
 runtime/VM.cpp
 runtime/VMEntryScope.cpp
+runtime/VMManager.cpp
 runtime/VMTraps.cpp
 runtime/VarOffset.cpp
 runtime/WaiterListManager.cpp

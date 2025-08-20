@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2016-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,7 +36,7 @@
 #include "LLIntThunks.h"
 #include "NativeCalleeRegistry.h"
 #include "PCToCodeOriginMap.h"
-#include "VMInspector.h"
+#include "VMManager.h"
 #include "WasmCallingConvention.h"
 #include "WasmModuleInformation.h"
 #include "WebAssemblyBuiltin.h"
@@ -78,8 +78,7 @@ Callee::Callee(Wasm::CompilationMode compilationMode, FunctionSpaceIndex index, 
 void Callee::reportToVMsForDestruction()
 {
     // We don't know which VMs a Module has ever run on so we just report to all of them.
-    Locker locker(VMInspector::singleton().getLock());
-    VMInspector::singleton().iterate([&] (VM& vm) {
+    VMManager::forEachVM([&] (VM& vm) {
         vm.heap.reportWasmCalleePendingDestruction(Ref(*this));
         return IterationStatus::Continue;
     });

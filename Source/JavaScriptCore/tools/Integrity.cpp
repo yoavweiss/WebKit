@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2019-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +33,7 @@
 #include "JSCellInlines.h"
 #include "JSGlobalObject.h"
 #include "Options.h"
-#include "VMInspectorInlines.h"
+#include "VMManager.h"
 #include <wtf/DataLog.h>
 
 #if OS(DARWIN)
@@ -179,10 +179,10 @@ JSValue doAudit(JSValue value)
 
 bool Analyzer::analyzeVM(VM& vm, Analyzer::Action action)
 {
-    IA_ASSERT_WITH_ACTION(VMInspector::isValidVM(&vm), {
-        VMInspector::dumpVMs();
+    IA_ASSERT_WITH_ACTION(VMManager::isValidVM(&vm), {
+        VMManager::dumpVMs();
         if (action == Action::LogAndCrash)
-            RELEASE_ASSERT(VMInspector::isValidVM(&vm));
+            RELEASE_ASSERT(VMManager::isValidVM(&vm));
         else
             return false;
     }, "Invalid VM %p", &vm);
