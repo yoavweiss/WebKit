@@ -260,6 +260,9 @@ public:
 
     bool needsLimitedMatroskaSupport() const;
 
+    bool needsCustomUserAgentData() const;
+    bool needsNavigatorUserAgentDataQuirk() const;
+
     WEBCORE_EXPORT bool needsNowPlayingFullscreenSwapQuirk() const;
 
     bool needsWebKitMediaTextTrackDisplayQuirk() const;

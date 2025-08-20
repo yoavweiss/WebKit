@@ -1896,6 +1896,16 @@ bool Quirks::needsLimitedMatroskaSupport() const
 #endif
 }
 
+bool Quirks::needsCustomUserAgentData() const
+{
+    return needsQuirks() && m_quirksData.needsCustomUserAgentData;
+}
+
+bool Quirks::needsNavigatorUserAgentDataQuirk() const
+{
+    return needsQuirks() && m_quirksData.needsNavigatorUserAgentDataQuirk;
+}
+
 bool Quirks::needsNowPlayingFullscreenSwapQuirk() const
 {
     return needsQuirks() && m_quirksData.needsNowPlayingFullscreenSwapQuirk;
@@ -2180,6 +2190,18 @@ static void handleICloudQuirks(QuirksData& quirksData, const URL& quirksURL, con
 #endif
 }
 #endif
+
+static void handleTMobileQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
+{
+    UNUSED_PARAM(quirksDomainString);
+    UNUSED_PARAM(documentURL);
+    auto topDocumentHost = quirksURL.host();
+    if (topDocumentHost != "digits.t-mobile.com")
+        return;
+
+    quirksData.needsNavigatorUserAgentDataQuirk = true;
+    quirksData.needsCustomUserAgentData = true;
+}
 
 #if PLATFORM(MAC)
 static void handleCEACStateGovQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
@@ -2509,7 +2531,7 @@ static void handleGoogleQuirks(QuirksData& quirksData, const URL& quirksURL, con
         quirksData.needsDeferKeyDownAndKeyPressTimersUntilNextEditingCommandQuirk = startsWithLettersIgnoringASCIICase(quirksURL.path(), "/spreadsheets/"_s);
     } else if (topDocumentHost == "mail.google.com"_s) {
         // mail.google.com rdar://49403416
-        quirksData.needsGMailOverflowScrollQuirk =true;
+        quirksData.needsGMailOverflowScrollQuirk = true;
     } else if (topDocumentHost == "translate.google.com"_s) {
         // translate.google.com rdar://106539018
         quirksData.needsGoogleTranslateScrollingQuirk = true;
@@ -2995,6 +3017,7 @@ void Quirks::determineRelevantQuirks()
         { "digitaltrends"_s, &handleDigitalTrendsQuirks },
         { "steampowered"_s, &handleSteamQuirks },
 #endif
+        { "t-mobile"_s, &handleTMobileQuirks },
         { "descript"_s, &handleDescriptQuirks },
 #if PLATFORM(IOS_FAMILY)
         { "disneyplus"_s, &handleDisneyPlusQuirks },
@@ -3041,7 +3064,7 @@ void Quirks::determineRelevantQuirks()
         { "ralphlauren"_s, &handleRalphLaurenQuirks },
 #endif
 #if ENABLE(VIDEO_PRESENTATION_MODE)
-        { "reddit"_s, & handleRedditQuirks },
+        { "reddit"_s, &handleRedditQuirks },
 #endif
         { "sfusd"_s, &handleSFUSDQuirks },
 #if PLATFORM(IOS_FAMILY)
