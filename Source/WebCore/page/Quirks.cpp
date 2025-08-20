@@ -1192,6 +1192,7 @@ bool Quirks::requiresUserGestureToPauseInPictureInPicture() const
 }
 
 // bbc.co.uk: rdar://126494734
+// bbc.com: rdar://157499149
 bool Quirks::returnNullPictureInPictureElementDuringFullscreenChange() const
 {
     return needsQuirks() && m_quirksData.returnNullPictureInPictureElementDuringFullscreenChangeQuirk;
@@ -2421,8 +2422,9 @@ static void handleBBCQuirks(QuirksData& quirksData, const URL& quirksURL, const 
     UNUSED_PARAM(quirksURL);
     UNUSED_PARAM(documentURL);
 
-    if (quirksDomainString == "bbc.co.uk"_s) {
+    if (quirksDomainString == "bbc.co.uk"_s || quirksDomainString == "bbc.com"_s) {
         // bbc.co.uk rdar://126494734
+        // bbc.com rdar://157499149
         quirksData.returnNullPictureInPictureElementDuringFullscreenChangeQuirk = true;
     }
 }
