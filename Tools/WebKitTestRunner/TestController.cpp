@@ -2529,6 +2529,9 @@ void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messag
         return WKWebsiteDataStoreSetStorageAccessPermissionForTesting(websiteDataStore(), page, value, mainFrameURL.get(), subFrameURL, completionHandler.leak(), adoptAndCallCompletionHandler);
     }
 
+    if (WKStringIsEqualToUTF8CString(messageName, "SetStorageAccess"))
+        return WKWebsiteDataStoreSetStorageAccessForTesting(websiteDataStore(), booleanValue(messageBody), completionHandler.leak(), adoptAndCallCompletionHandler);
+
     ASSERT_NOT_REACHED();
 }
 

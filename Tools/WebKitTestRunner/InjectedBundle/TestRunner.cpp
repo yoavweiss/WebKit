@@ -1566,6 +1566,11 @@ void TestRunner::setStorageAccessPermission(JSContextRef context, bool granted, 
     }), callback);
 }
 
+void TestRunner::setStorageAccess(JSContextRef context, bool blocked, JSValueRef callback)
+{
+    postMessageWithAsyncReply(context, "SetStorageAccess", adoptWK(WKBooleanCreate(blocked)), callback);
+}
+
 void TestRunner::loadedSubresourceDomains(JSContextRef context, JSValueRef callback)
 {
     postMessageWithAsyncReply(context, "LoadedSubresourceDomains", callback);

@@ -371,6 +371,7 @@ interface TestRunner {
     undefined getAllStorageAccessEntries(object callback);
     undefined setRequestStorageAccessThrowsExceptionUntilReload(boolean enabled);
     Promise<undefined> setStorageAccessPermission(boolean value, DOMString subFrameURL);
+    Promise<undefined> setStorageAccess(boolean value);
 
     // Open panel
     undefined setOpenPanelFiles(object filesArray);
