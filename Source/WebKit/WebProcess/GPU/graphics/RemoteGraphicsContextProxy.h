@@ -27,7 +27,7 @@
 
 #if ENABLE(GPU_PROCESS)
 
-#include "RemoteDisplayListRecorderIdentifier.h"
+#include "RemoteGraphicsContextIdentifier.h"
 #include <WebCore/DisplayListRecorder.h>
 #include <WebCore/GraphicsContext.h>
 #include <wtf/TZoneMalloc.h>
@@ -46,13 +46,13 @@ class RemoteRenderingBackendProxy;
 class RemoteImageBufferProxy;
 class SharedVideoFrameWriter;
 
-class RemoteDisplayListRecorderProxy : public WebCore::DisplayList::Recorder {
-    WTF_MAKE_TZONE_ALLOCATED(RemoteDisplayListRecorderProxy);
+class RemoteGraphicsContextProxy : public WebCore::DisplayList::Recorder {
+    WTF_MAKE_TZONE_ALLOCATED(RemoteGraphicsContextProxy);
 public:
-    RemoteDisplayListRecorderProxy(const WebCore::DestinationColorSpace&, WebCore::RenderingMode, const WebCore::FloatRect& initialClip, const WebCore::AffineTransform&, RemoteRenderingBackendProxy&);
-    RemoteDisplayListRecorderProxy(const WebCore::DestinationColorSpace&, WebCore::ContentsFormat, WebCore::RenderingMode, const WebCore::FloatRect& initialClip, const WebCore::AffineTransform&, RemoteDisplayListRecorderIdentifier, RemoteRenderingBackendProxy&);
-    ~RemoteDisplayListRecorderProxy();
-    RemoteDisplayListRecorderIdentifier identifier() const { return m_identifier; }
+    RemoteGraphicsContextProxy(const WebCore::DestinationColorSpace&, WebCore::RenderingMode, const WebCore::FloatRect& initialClip, const WebCore::AffineTransform&, RemoteRenderingBackendProxy&);
+    RemoteGraphicsContextProxy(const WebCore::DestinationColorSpace&, WebCore::ContentsFormat, WebCore::RenderingMode, const WebCore::FloatRect& initialClip, const WebCore::AffineTransform&, RemoteGraphicsContextIdentifier, RemoteRenderingBackendProxy&);
+    ~RemoteGraphicsContextProxy();
+    RemoteGraphicsContextIdentifier identifier() const { return m_identifier; }
 
     // Called when rendering backend connection is lost.
     void disconnect();
@@ -167,7 +167,7 @@ private:
 #endif
 
     const WebCore::RenderingMode m_renderingMode;
-    const RemoteDisplayListRecorderIdentifier m_identifier;
+    const RemoteGraphicsContextIdentifier m_identifier;
     RefPtr<IPC::StreamClientConnection> m_connection;
     WeakPtr<RemoteRenderingBackendProxy> m_renderingBackend;
     std::optional<WebCore::ContentsFormat> m_contentsFormat;
@@ -185,7 +185,7 @@ private:
     bool m_hasDrawn { true };
 };
 
-inline bool RemoteDisplayListRecorderProxy::consumeHasDrawn()
+inline bool RemoteGraphicsContextProxy::consumeHasDrawn()
 {
     return std::exchange(m_hasDrawn, false);
 }

@@ -29,7 +29,7 @@
 #include "GPUConnectionToWebProcess.h"
 #include "ImageBufferBackendHandleSharing.h"
 #include "Logging.h"
-#include "RemoteDisplayListRecorder.h"
+#include "RemoteGraphicsContext.h"
 #include "RemoteImageBufferSetMessages.h"
 #include "RemoteImageBufferSetProxyMessages.h"
 #include "RemoteRenderingBackend.h"
@@ -44,14 +44,14 @@
 
 namespace WebKit {
 
-Ref<RemoteImageBufferSet> RemoteImageBufferSet::create(RemoteImageBufferSetIdentifier identifier, RemoteDisplayListRecorderIdentifier contextIdentifier, RemoteRenderingBackend& renderingBackend)
+Ref<RemoteImageBufferSet> RemoteImageBufferSet::create(RemoteImageBufferSetIdentifier identifier, RemoteGraphicsContextIdentifier contextIdentifier, RemoteRenderingBackend& renderingBackend)
 {
     auto instance = adoptRef(*new RemoteImageBufferSet(identifier, contextIdentifier, renderingBackend));
     instance->startListeningForIPC();
     return instance;
 }
 
-RemoteImageBufferSet::RemoteImageBufferSet(RemoteImageBufferSetIdentifier identifier, RemoteDisplayListRecorderIdentifier contextIdentifier, RemoteRenderingBackend& renderingBackend)
+RemoteImageBufferSet::RemoteImageBufferSet(RemoteImageBufferSetIdentifier identifier, RemoteGraphicsContextIdentifier contextIdentifier, RemoteRenderingBackend& renderingBackend)
     : m_identifier(identifier)
     , m_contextIdentifier(contextIdentifier)
     , m_renderingBackend(renderingBackend)
@@ -155,7 +155,7 @@ void RemoteImageBufferSet::ensureBufferForDisplay(ImageBufferSetPrepareBufferFor
             imageBuffer = WebCore::ImageBuffer::create<WebCore::NullImageBufferBackend>({ 0, 0 }, 1, WebCore::DestinationColorSpace::SRGB(), { WebCore::ImageBufferPixelFormat::BGRA8 }, WebCore::RenderingPurpose::Unspecified, { });
             RELEASE_ASSERT(imageBuffer);
         }
-        m_context = RemoteDisplayListRecorder::create(*imageBuffer, m_contextIdentifier, m_renderingBackend);
+        m_context = RemoteGraphicsContext::create(*imageBuffer, m_contextIdentifier, m_renderingBackend);
     }
 }
 

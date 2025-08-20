@@ -31,8 +31,8 @@
 
 namespace WebKit {
 
-struct RemoteDisplayListRecorderIdentifierType;
-using RemoteDisplayListRecorderIdentifier = AtomicObjectIdentifier<RemoteDisplayListRecorderIdentifierType>;
+struct RemoteGraphicsContextIdentifierType;
+using RemoteGraphicsContextIdentifier = AtomicObjectIdentifier<RemoteGraphicsContextIdentifierType>;
 
 } // namespace WebKit
 

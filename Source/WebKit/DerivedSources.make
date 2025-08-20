@@ -279,11 +279,11 @@ MESSAGE_RECEIVERS = \
 	GPUProcess/ShapeDetection/RemoteBarcodeDetector \
 	GPUProcess/ShapeDetection/RemoteFaceDetector \
 	GPUProcess/ShapeDetection/RemoteTextDetector \
-	GPUProcess/graphics/RemoteDisplayListRecorder \
+	GPUProcess/graphics/RemoteGraphicsContext \
+	GPUProcess/graphics/RemoteGraphicsContextGL \
 	GPUProcess/graphics/RemoteImageBuffer \
 	GPUProcess/graphics/RemoteImageBufferSet \
 	GPUProcess/graphics/RemoteRenderingBackend \
-	GPUProcess/graphics/RemoteGraphicsContextGL \
 	GPUProcess/graphics/WebGPU/RemoteAdapter \
 	GPUProcess/graphics/WebGPU/RemoteBindGroup \
 	GPUProcess/graphics/WebGPU/RemoteBindGroupLayout \

@@ -27,7 +27,7 @@
     DispatchedFrom=WebContent,
     DispatchedTo=GPU
 ]
-messages -> RemoteDisplayListRecorder Stream {
+messages -> RemoteGraphicsContext Stream {
     Save() StreamBatched
     Restore() StreamBatched
     Translate(float x, float y) StreamBatched
