@@ -557,6 +557,10 @@ public:
     void setResourceMonitorRuleLists(RefPtr<WebCompiledContentRuleList>, CompletionHandler<void()>&&);
 #endif
 
+    std::optional<SandboxExtension::Handle> sandboxExtensionForFile(const String& fileName) const;
+    void addSandboxExtensionForFile(const String& fileName, SandboxExtension::Handle);
+    void clearSandboxExtensions();
+
 private:
     Type type() const final { return Type::WebContent; }
 
@@ -863,6 +867,8 @@ private:
 #if ENABLE(REMOTE_INSPECTOR) && PLATFORM(COCOA)
     HashMap<WebCore::ServiceWorkerIdentifier, Ref<ServiceWorkerDebuggableProxy>> m_serviceWorkerDebuggableProxies;
 #endif
+
+    HashMap<String, SandboxExtension::Handle> m_fileSandboxExtensions;
 };
 
 WTF::TextStream& operator<<(WTF::TextStream&, const WebProcessProxy&);

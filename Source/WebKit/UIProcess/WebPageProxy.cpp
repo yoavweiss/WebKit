@@ -1934,13 +1934,18 @@ void WebPageProxy::maybeInitializeSandboxExtensionHandle(WebProcessProxy& proces
 #endif
 
     auto createSandboxExtension = [protectedProcess = Ref { process }] (const String& path) {
+        if (auto handle = protectedProcess->sandboxExtensionForFile(path))
+            return handle;
+        std::optional<SandboxExtension::Handle> handle;
 #if HAVE(AUDIT_TOKEN)
-        auto token = protectedProcess->protectedConnection()->getAuditToken();
-        ASSERT(token);
-        if (token)
-            return SandboxExtension::createHandleForReadByAuditToken(path, *token);
+        if (auto token = protectedProcess->protectedConnection()->getAuditToken())
+            handle = SandboxExtension::createHandleForReadByAuditToken(path, *token);
+        else
 #endif
-        return SandboxExtension::createHandle(path, SandboxExtension::Type::ReadOnly);
+        handle = SandboxExtension::createHandle(path, SandboxExtension::Type::ReadOnly);
+        if (handle)
+            protectedProcess->addSandboxExtensionForFile(path, *handle);
+        return handle;
     };
 
     if (!resourceDirectoryURL.isEmpty()) {

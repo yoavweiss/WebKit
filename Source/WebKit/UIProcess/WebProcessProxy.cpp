@@ -3102,6 +3102,21 @@ void WebProcessProxy::setResourceMonitorRuleLists(RefPtr<WebCompiledContentRuleL
 }
 #endif
 
+std::optional<SandboxExtension::Handle> WebProcessProxy::sandboxExtensionForFile(const String& fileName) const
+{
+    return m_fileSandboxExtensions.getOptional(fileName);
+}
+
+void WebProcessProxy::addSandboxExtensionForFile(const String& fileName, SandboxExtension::Handle handle)
+{
+    m_fileSandboxExtensions.add(fileName, handle);
+}
+
+void WebProcessProxy::clearSandboxExtensions()
+{
+    m_fileSandboxExtensions.clear();
+}
+
 } // namespace WebKit
 
 #undef MESSAGE_CHECK

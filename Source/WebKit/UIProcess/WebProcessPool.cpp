@@ -1483,6 +1483,9 @@ void WebProcessPool::handleMemoryPressureWarning(Critical)
     if (RefPtr prewarmedProcess = m_prewarmedProcess.get())
         prewarmedProcess->shutDown();
     ASSERT(!m_prewarmedProcess);
+
+    for (Ref process : m_processes)
+        process->clearSandboxExtensions();
 }
 
 ProcessID WebProcessPool::prewarmedProcessID()
