@@ -8213,7 +8213,7 @@ webkit.org/b/297346 workers/message-port-gc.html [ Crash ]
 imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-002.xhtml [ Failure ]
 imported/w3c/web-platform-tests/css/css-flexbox/flexbox-align-self-vert-rtl-001.xhtml [ Failure ]
 
-webkit.org/b/297462 [ Debug ] imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-size-containment-001.html [ Failure ]
+webkit.org/b/297462 imported/w3c/web-platform-tests/css/css-contain/content-visibility/content-visibility-size-containment-001.html [ Failure ]
 
 webkit.org/b/295599 [ Release ] http/tests/webcodecs/audio-decoder-callbacks-do-not-leak.html [ Pass Failure ]
 webkit.org/b/286318 http/tests/iframe-monitor [ Pass ]
