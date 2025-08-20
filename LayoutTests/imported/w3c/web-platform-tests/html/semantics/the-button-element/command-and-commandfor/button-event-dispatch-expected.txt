@@ -1,23 +1,23 @@
 
 
-FAIL event dispatches on click with addEventListener assert_equals: composed expected false but got true
-FAIL event dispatches on click with oncommand property assert_equals: composed expected false but got true
-FAIL setting custom command property to --foo (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command attribute to --foo (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command property to --foo- (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command attribute to --foo- (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command property to --cAsE-cArRiEs (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command attribute to --cAsE-cArRiEs (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command property to -- (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command attribute to -- (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command property to --a- (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command attribute to --a- (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command property to --a-b (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command attribute to --a-b (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command property to --- (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command attribute to --- (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command property to --show-picker (must include dash) sets event command assert_equals: composed expected false but got true
-FAIL setting custom command attribute to --show-picker (must include dash) sets event command assert_equals: composed expected false but got true
+PASS event dispatches on click with addEventListener
+PASS event dispatches on click with oncommand property
+PASS setting custom command property to --foo (must include dash) sets event command
+PASS setting custom command attribute to --foo (must include dash) sets event command
+PASS setting custom command property to --foo- (must include dash) sets event command
+PASS setting custom command attribute to --foo- (must include dash) sets event command
+PASS setting custom command property to --cAsE-cArRiEs (must include dash) sets event command
+PASS setting custom command attribute to --cAsE-cArRiEs (must include dash) sets event command
+PASS setting custom command property to -- (must include dash) sets event command
+PASS setting custom command attribute to -- (must include dash) sets event command
+PASS setting custom command property to --a- (must include dash) sets event command
+PASS setting custom command attribute to --a- (must include dash) sets event command
+PASS setting custom command property to --a-b (must include dash) sets event command
+PASS setting custom command attribute to --a-b (must include dash) sets event command
+PASS setting custom command property to --- (must include dash) sets event command
+PASS setting custom command attribute to --- (must include dash) sets event command
+PASS setting custom command property to --show-picker (must include dash) sets event command
+PASS setting custom command attribute to --show-picker (must include dash) sets event command
 PASS setting custom command property to -foo (no dash) did not dispatch an event
 PASS setting custom command attribute to -foo (no dash) did not dispatch an event
 PASS setting custom command property to -foo- (no dash) did not dispatch an event
@@ -35,7 +35,7 @@ PASS event does not dispatch on input[type=button]
 PASS event does not dispatch if invoker is disabled
 PASS event does NOT dispatch if button is form associated, with implicit type
 PASS event does NOT dispatch if button is form associated, with explicit type=invalid
-FAIL event dispatches if button is form associated, with explicit type=button assert_equals: composed expected false but got true
+PASS event dispatches if button is form associated, with explicit type=button
 PASS event does NOT dispatch if button is form associated, with explicit type=submit
 PASS event does NOT dispatch if button is form associated, with explicit type=reset
 PASS event dispatches if invokee is non-HTML Element
