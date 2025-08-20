@@ -858,7 +858,8 @@ private:
     void sendToolTipMouseEntered();
 
     void reparentLayerTreeInThumbnailView();
-    void updateThumbnailViewLayer();
+    // Returns true if the thumbnail view consumed the layer.
+    bool updateThumbnailViewLayer();
 
     void setUserInterfaceItemState(NSString *commandName, bool enabled, int state);
 
