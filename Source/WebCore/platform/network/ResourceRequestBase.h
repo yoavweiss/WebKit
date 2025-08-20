@@ -38,6 +38,8 @@
 
 namespace WebCore {
 
+enum class IPAddressSpace : bool;
+
 enum class ResourceRequestCachePolicy : uint8_t {
     UseProtocolCachePolicy, // normal load, equivalent to fetch "default" cache mode.
     ReloadIgnoringCacheData, // reload, equivalent to fetch "reload"cache mode.
@@ -68,7 +70,7 @@ public:
     struct RequestData {
         RequestData() { }
 
-        RequestData(URL&& url, URL&& firstPartyForCookies, double timeoutInterval, String&& httpMethod, HTTPHeaderMap&& httpHeaderFields, Vector<String>&& responseContentDispositionEncodingFallbackArray, ResourceRequestCachePolicy cachePolicy, SameSiteDisposition sameSiteDisposition, ResourceLoadPriority priority, ResourceRequestRequester requester, bool allowCookies, bool isTopSite, bool isAppInitiated = true, bool privacyProxyFailClosedForUnreachableNonMainHosts = false, bool useAdvancedPrivacyProtections = false, bool didFilterLinkDecoration = false, bool isPrivateTokenUsageByThirdPartyAllowed = false, bool wasSchemeOptimisticallyUpgraded = false)
+        RequestData(URL&& url, URL&& firstPartyForCookies, double timeoutInterval, String&& httpMethod, HTTPHeaderMap&& httpHeaderFields, Vector<String>&& responseContentDispositionEncodingFallbackArray, ResourceRequestCachePolicy cachePolicy, SameSiteDisposition sameSiteDisposition, ResourceLoadPriority priority, ResourceRequestRequester requester, bool allowCookies, bool isTopSite, bool isAppInitiated = true, bool privacyProxyFailClosedForUnreachableNonMainHosts = false, bool useAdvancedPrivacyProtections = false, bool didFilterLinkDecoration = false, bool isPrivateTokenUsageByThirdPartyAllowed = false, bool wasSchemeOptimisticallyUpgraded = false, IPAddressSpace targetAddressSpace = IPAddressSpace::Public)
             : m_url(WTFMove(url))
             , m_firstPartyForCookies(WTFMove(firstPartyForCookies))
             , m_timeoutInterval(timeoutInterval)
@@ -87,6 +89,7 @@ public:
             , m_didFilterLinkDecoration(didFilterLinkDecoration)
             , m_isPrivateTokenUsageByThirdPartyAllowed(isPrivateTokenUsageByThirdPartyAllowed)
             , m_wasSchemeOptimisticallyUpgraded(wasSchemeOptimisticallyUpgraded)
+            , m_targetAddressSpace(targetAddressSpace)
         {
         }
 
@@ -114,6 +117,7 @@ public:
         bool m_didFilterLinkDecoration : 1 { false };
         bool m_isPrivateTokenUsageByThirdPartyAllowed : 1 { false };
         bool m_wasSchemeOptimisticallyUpgraded : 1 { false };
+        IPAddressSpace m_targetAddressSpace { IPAddressSpace::Public };
     };
 
     ResourceRequestBase(RequestData&& requestData)
@@ -247,6 +251,9 @@ public:
     ResourceRequestRequester requester() const { return m_requestData.m_requester; }
     void setRequester(ResourceRequestRequester requester) { m_requestData.m_requester = requester; }
     
+    IPAddressSpace targetAddressSpace() const { return m_requestData.m_targetAddressSpace; }
+    void setTargetAddressSpace(IPAddressSpace targetAddressSpace) { m_requestData.m_targetAddressSpace = targetAddressSpace; }
+
     // Who initiated the request so the Inspector can associate it with a context. E.g. a Web Worker.
     String initiatorIdentifier() const { return m_initiatorIdentifier; }
     void setInitiatorIdentifier(const String& identifier) { m_initiatorIdentifier = identifier; }
