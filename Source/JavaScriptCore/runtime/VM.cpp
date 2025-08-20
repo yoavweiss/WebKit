@@ -1426,7 +1426,7 @@ void VM::verifyExceptionCheckNeedIsSatisfied(unsigned recursionDepth, ExceptionE
         out.println(StackTracePrinter { *currentTrace, "    " });
 
         dataLog(out.toCString());
-        RELEASE_ASSERT(!m_needExceptionCheck);
+        RELEASE_ASSERT_NOT_REACHED_WITH_MESSAGE("exception check validation failed");
     }
 }
 #endif
