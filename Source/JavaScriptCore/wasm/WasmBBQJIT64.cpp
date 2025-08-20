@@ -1601,7 +1601,7 @@ void BBQJIT::emitAllocateGCArrayUninitialized(GPRReg resultGPR, uint32_t typeInd
     JumpList slowPath;
     const ArrayType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<ArrayType>();
     MacroAssembler::Address allocatorBufferBase(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfAllocatorForGCObject(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), m_info.typeCount(), 0));
-    MacroAssembler::Address structureAddress(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfGCObjectStructure(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex));
+    MacroAssembler::Address structureIDAddress(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex));
     Location sizeLocation;
     size_t elementSize = typeDefinition->elementType().type.elementSize();
     if (size.isConst()) {
@@ -1612,9 +1612,11 @@ void BBQJIT::emitAllocateGCArrayUninitialized(GPRReg resultGPR, uint32_t typeInd
             m_jit.loadPtr(allocatorBufferBase.withOffset(sizeClassIndex * sizeof(Allocator)), scratchGPR2);
             JIT_COMMENT(m_jit, "Do array allocation constant sized");
             m_jit.emitAllocateWithNonNullAllocator(resultGPR, JITAllocator::variableNonNull(), scratchGPR2, scratchGPR, slowPath, AssemblyHelpers::SlowAllocationResult::UndefinedBehavior);
+            m_jit.load32(structureIDAddress, scratchGPR);
+            m_jit.move(TrustedImm32(JSWebAssemblyArray::typeInfoBlob().blob()), scratchGPR2);
+            static_assert(JSCell::structureIDOffset() + sizeof(int32_t) == JSCell::indexingTypeAndMiscOffset());
+            m_jit.storePair32(scratchGPR, scratchGPR2, MacroAssembler::Address(resultGPR, JSCell::structureIDOffset()));
             m_jit.storePtr(TrustedImmPtr(nullptr), MacroAssembler::Address(resultGPR, JSObject::butterflyOffset()));
-            m_jit.loadPtr(structureAddress, scratchGPR);
-            m_jit.emitStoreStructureWithTypeInfo(scratchGPR, resultGPR, scratchGPR2);
             m_jit.store32(TrustedImm32(size.asI32()), MacroAssembler::Address(resultGPR, JSWebAssemblyArray::offsetOfSize()));
         } else {
             // FIXME: emitCCall can't handle being passed a destination... which is why we just jump to the slow path here.
@@ -1632,9 +1634,11 @@ void BBQJIT::emitAllocateGCArrayUninitialized(GPRReg resultGPR, uint32_t typeInd
         m_jit.add64(TrustedImm64(sizeof(JSWebAssemblyArray)), scratchGPR);
 
         m_jit.emitAllocateVariableSized(resultGPR, JITAllocator::variableNonNull(), allocatorBufferBase, scratchGPR, scratchGPR, scratchGPR2, slowPath, AssemblyHelpers::SlowAllocationResult::UndefinedBehavior);
+        m_jit.load32(structureIDAddress, scratchGPR);
+        m_jit.move(TrustedImm32(JSWebAssemblyArray::typeInfoBlob().blob()), scratchGPR2);
+        static_assert(JSCell::structureIDOffset() + sizeof(int32_t) == JSCell::indexingTypeAndMiscOffset());
+        m_jit.storePair32(scratchGPR, scratchGPR2, MacroAssembler::Address(resultGPR, JSCell::structureIDOffset()));
         m_jit.storePtr(TrustedImmPtr(nullptr), MacroAssembler::Address(resultGPR, JSObject::butterflyOffset()));
-        m_jit.loadPtr(structureAddress, scratchGPR);
-        m_jit.emitStoreStructureWithTypeInfo(scratchGPR, resultGPR, scratchGPR2);
         m_jit.store32(sizeLocation.asGPR(), MacroAssembler::Address(resultGPR, JSWebAssemblyArray::offsetOfSize()));
     }
 
@@ -2135,7 +2139,7 @@ void BBQJIT::emitAllocateGCStructUninitialized(GPRReg resultGPR, uint32_t typeIn
     JumpList slowPath;
     const StructType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<StructType>();
     MacroAssembler::Address allocatorBufferBase(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfAllocatorForGCObject(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), m_info.typeCount(), 0));
-    MacroAssembler::Address structureAddress(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfGCObjectStructure(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex));
+    MacroAssembler::Address structureIDAddress(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex));
     Location sizeLocation;
 
     size_t sizeInBytes = JSWebAssemblyStruct::allocationSize(typeDefinition->instancePayloadSize());
@@ -2145,9 +2149,11 @@ void BBQJIT::emitAllocateGCStructUninitialized(GPRReg resultGPR, uint32_t typeIn
         m_jit.loadPtr(allocatorBufferBase.withOffset(sizeClassIndex * sizeof(Allocator)), scratchGPR2);
         JIT_COMMENT(m_jit, "Do struct allocation");
         m_jit.emitAllocateWithNonNullAllocator(resultGPR, JITAllocator::variableNonNull(), scratchGPR2, scratchGPR, slowPath, AssemblyHelpers::SlowAllocationResult::UndefinedBehavior);
+        m_jit.load32(structureIDAddress, scratchGPR);
+        m_jit.move(TrustedImm32(JSWebAssemblyStruct::typeInfoBlob().blob()), scratchGPR2);
+        static_assert(JSCell::structureIDOffset() + sizeof(int32_t) == JSCell::indexingTypeAndMiscOffset());
+        m_jit.storePair32(scratchGPR, scratchGPR2, MacroAssembler::Address(resultGPR, JSCell::structureIDOffset()));
         m_jit.storePtr(TrustedImmPtr(nullptr), MacroAssembler::Address(resultGPR, JSObject::butterflyOffset()));
-        m_jit.loadPtr(structureAddress, scratchGPR);
-        m_jit.emitStoreStructureWithTypeInfo(scratchGPR, resultGPR, scratchGPR2);
         m_jit.store32(TrustedImm32(typeDefinition->instancePayloadSize()), MacroAssembler::Address(resultGPR, JSWebAssemblyStruct::offsetOfSize()));
     } else {
         // FIXME: emitCCall can't handle being passed a destination... which is why we just jump to the slow path here.

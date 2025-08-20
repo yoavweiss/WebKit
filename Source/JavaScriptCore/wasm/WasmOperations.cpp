@@ -1624,7 +1624,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmStructNewEmpty, EncodedJSValue, (
     assertCalleeIsReferenced(callFrame, instance);
     VM& vm = instance->vm();
     NativeCallFrameTracer tracer(vm, callFrame);
-    WebAssemblyGCStructure* structure = instance->gcObjectStructure(typeIndex).get();
+    WebAssemblyGCStructure* structure = instance->gcObjectStructure(typeIndex);
     auto* result = JSWebAssemblyStruct::tryCreate(vm, structure);
     if (!result) [[unlikely]]
         return JSValue::encode(jsNull());
@@ -1835,7 +1835,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmArrayNewEmpty, EncodedJSValue, (J
     NativeCallFrameTracer tracer(vm, callFrame);
 
     ASSERT(typeIndex < instance->module().moduleInformation().typeCount());
-    WebAssemblyGCStructure* structure = instance->gcObjectStructure(typeIndex).get();
+    WebAssemblyGCStructure* structure = instance->gcObjectStructure(typeIndex);
     auto* array = JSWebAssemblyArray::tryCreate(vm, structure, size);
     if (!array) [[unlikely]]
         return JSValue::encode(jsNull());

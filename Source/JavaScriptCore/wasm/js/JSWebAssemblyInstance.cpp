@@ -108,7 +108,7 @@ JSWebAssemblyInstance::JSWebAssemblyInstance(VM& vm, Structure* structure, JSWeb
     }
 
     if (moduleInformation.hasGCObjectTypes()) {
-        memset(reinterpret_cast<char*>(&gcObjectStructure(0)), 0, moduleInformation.typeCount() * sizeof(std::decay_t<decltype(gcObjectStructure(0))>));
+        memset(reinterpret_cast<char*>(&gcObjectStructureID(0)), 0, moduleInformation.typeCount() * sizeof(std::decay_t<decltype(gcObjectStructureID(0))>));
 
         CompleteSubspace* subspace = JSWebAssemblyArray::subspaceFor<JSWebAssemblyArray, SubspaceAccess::OnMainThread>(vm);
         CompleteSubspace* structSubspace = JSWebAssemblyStruct::subspaceFor<JSWebAssemblyStruct, SubspaceAccess::OnMainThread>(vm);
@@ -132,9 +132,9 @@ void JSWebAssemblyInstance::finishCreation(VM& vm)
     for (unsigned i = 0; i < moduleInformation.typeCount(); ++i) {
         Ref rtt = moduleInformation.rtts[i];
         if (rtt->kind() == RTTKind::Array)
-            gcObjectStructure(i).setWithoutWriteBarrier(JSWebAssemblyArray::createStructure(vm, globalObject, moduleInformation.typeSignatures[i]->expand(), WTFMove(rtt)));
+            gcObjectStructureID(i).setWithoutWriteBarrier(JSWebAssemblyArray::createStructure(vm, globalObject, moduleInformation.typeSignatures[i]->expand(), WTFMove(rtt)));
         else if (rtt->kind() == RTTKind::Struct)
-            gcObjectStructure(i).setWithoutWriteBarrier(JSWebAssemblyStruct::createStructure(vm, globalObject, moduleInformation.typeSignatures[i]->expand(), WTFMove(rtt)));
+            gcObjectStructureID(i).setWithoutWriteBarrier(JSWebAssemblyStruct::createStructure(vm, globalObject, moduleInformation.typeSignatures[i]->expand(), WTFMove(rtt)));
     }
     if (moduleInformation.typeCount())
         vm.writeBarrier(this);
@@ -185,7 +185,7 @@ void JSWebAssemblyInstance::visitChildrenImpl(JSCell* cell, Visitor& visitor)
     const auto& moduleInformation = thisObject->moduleInformation();
     if (moduleInformation.hasGCObjectTypes()) {
         for (unsigned i = 0; i < moduleInformation.typeCount(); ++i)
-            visitor.append(thisObject->gcObjectStructure(thisObject->numImportFunctions(), moduleInformation.tableCount(), moduleInformation.globalCount(), i));
+            visitor.append(thisObject->gcObjectStructureID(thisObject->numImportFunctions(), moduleInformation.tableCount(), moduleInformation.globalCount(), i));
     }
 
     Locker locker { cell->cellLock() };
@@ -278,13 +278,11 @@ size_t JSWebAssemblyInstance::allocationSize(const Wasm::ModuleInformation& info
     Checked<size_t> size = offsetOfTail();
     size += sizeof(WasmOrJSImportableFunctionCallLinkInfo) * info.importFunctionCount();
     size += sizeof(Wasm::Table*) * info.tableCount();
-    size = roundUpToMultipleOf<sizeof(Wasm::Global::Value)>(size);
-    size += sizeof(Wasm::Global::Value) * info.globalCount();
+    size = roundUpToMultipleOf<alignof(Wasm::Global::Value)>(size) + sizeof(Wasm::Global::Value) * info.globalCount();
     if (info.hasGCObjectTypes()) {
-        size += sizeof(WriteBarrier<Structure>) * info.typeCount();
-        size += sizeof(Allocator) * MarkedSpace::numSizeClasses;
+        size = roundUpToMultipleOf<alignof(WriteBarrierStructureID)>(size) + sizeof(WriteBarrierStructureID) * info.typeCount();
+        size = roundUpToMultipleOf<alignof(Allocator)>(size) + sizeof(Allocator) * MarkedSpace::numSizeClasses;
     }
-
     return size;
 }
 

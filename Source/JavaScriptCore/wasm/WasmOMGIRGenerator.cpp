@@ -834,7 +834,7 @@ private:
 
     Value* allocatorForWasmGCHeapCellSize(Value* size, BasicBlock* slowPath);
     Value* allocateWasmGCHeapCell(Value* allocator, BasicBlock* slowPath);
-    Value* allocateWasmGCObject(Value* allocator, Value* structure, Value* typeInfo, BasicBlock* slowPath);
+    Value* allocateWasmGCObject(Value* allocator, Value* structureID, Value* typeInfo, BasicBlock* slowPath);
     Value* allocateWasmGCArrayUninitialized(uint32_t typeIndex, Value* size);
     Value* allocateWasmGCStructUninitialized(uint32_t typeIndex);
 
@@ -3888,7 +3888,7 @@ Value* OMGIRGenerator::allocateWasmGCHeapCell(Value* allocator, BasicBlock* slow
             // AssemblyHelpers::emitAllocate(). That way, the same optimized path is shared by
             // all of the compiler tiers.
             jit.emitAllocateWithNonNullAllocator(
-                params[0].gpr(), JITAllocator::variable(), allocatorGPR, params.gpScratch(0),
+                params[0].gpr(), JITAllocator::variableNonNull(), allocatorGPR, params.gpScratch(0),
                 jumpToSlowPath, CCallHelpers::SlowAllocationResult::UndefinedBehavior);
 
             CCallHelpers::Jump jumpToSuccess;
@@ -3912,10 +3912,9 @@ Value* OMGIRGenerator::allocateWasmGCHeapCell(Value* allocator, BasicBlock* slow
     return patchpoint;
 }
 
-Value* OMGIRGenerator::allocateWasmGCObject(Value* allocator, Value* structure, Value* typeInfo, BasicBlock* slowPath)
+Value* OMGIRGenerator::allocateWasmGCObject(Value* allocator, Value* structureID, Value* typeInfo, BasicBlock* slowPath)
 {
     auto* cell = allocateWasmGCHeapCell(allocator, slowPath);
-    auto* structureID = encodeStructureID(structure);
     m_currentBlock->appendNew<B3::MemoryValue>(m_proc, B3::Store, origin(), structureID, cell, safeCast<int32_t>(JSCell::structureIDOffset()));
     m_currentBlock->appendNew<B3::MemoryValue>(m_proc, B3::Store, origin(), typeInfo, cell, safeCast<int32_t>(JSCell::indexingTypeAndMiscOffset()));
     m_currentBlock->appendNew<B3::MemoryValue>(m_proc, B3::Store, origin(), constant(pointerType(), 0), cell, safeCast<int32_t>(JSObject::butterflyOffset()));
@@ -3927,7 +3926,7 @@ Value* OMGIRGenerator::allocateWasmGCArrayUninitialized(uint32_t typeIndex, Valu
     auto* slowPath = m_proc.addBlock();
     auto* continuation = m_proc.addBlock();
 
-    auto* structure = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructure(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex)));
+    auto* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex)));
     const ArrayType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<ArrayType>();
     size_t elementSize = typeDefinition->elementType().type.elementSize();
     auto* extended = m_currentBlock->appendNew<Value>(m_proc, ZExt32, origin(), size);
@@ -3935,7 +3934,7 @@ Value* OMGIRGenerator::allocateWasmGCArrayUninitialized(uint32_t typeIndex, Valu
     auto* sizeInBytes = m_currentBlock->appendNew<Value>(m_proc, Add, pointerType(), origin(), shifted, constant(pointerType(), sizeof(JSWebAssemblyArray)));
     auto* allocator = allocatorForWasmGCHeapCellSize(sizeInBytes, slowPath);
     auto* typeInfo = constant(Int32, JSWebAssemblyArray::typeInfoBlob().blob());
-    auto* cell = allocateWasmGCObject(allocator, structure, typeInfo, slowPath);
+    auto* cell = allocateWasmGCObject(allocator, structureID, typeInfo, slowPath);
     auto* fastValue = m_currentBlock->appendNew<UpsilonValue>(m_proc, origin(), cell);
     m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), continuation);
     continuation->addPredecessor(m_currentBlock);
@@ -3962,12 +3961,12 @@ Value* OMGIRGenerator::allocateWasmGCStructUninitialized(uint32_t typeIndex)
     auto* slowPath = m_proc.addBlock();
     auto* continuation = m_proc.addBlock();
 
-    auto* structure = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructure(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex)));
+    auto* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex)));
     const StructType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<StructType>();
     Value* sizeInBytes = constant(pointerType(), JSWebAssemblyStruct::allocationSize(typeDefinition->instancePayloadSize()));
     auto* allocator = allocatorForWasmGCHeapCellSize(sizeInBytes, slowPath);
     auto* typeInfo = constant(Int32, JSWebAssemblyStruct::typeInfoBlob().blob());
-    auto* cell = allocateWasmGCObject(allocator, structure, typeInfo, slowPath);
+    auto* cell = allocateWasmGCObject(allocator, structureID, typeInfo, slowPath);
     auto* fastValue = m_currentBlock->appendNew<UpsilonValue>(m_proc, origin(), cell);
     m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), continuation);
     continuation->addPredecessor(m_currentBlock);
