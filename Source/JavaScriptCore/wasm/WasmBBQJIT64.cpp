@@ -2404,8 +2404,10 @@ void BBQJIT::emitRefTestOrCast(const TypedExpression& typedValue, GPRReg valueGP
             doneCases.append(m_jit.jump());
 
             checkObjectCase.link(m_jit);
-            failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
-            failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
+            if (!typedValue.type().definitelyIsCellOrNull())
+                failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
+            if (!typedValue.type().definitelyIsWasmGCObjectOrNull())
+                failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
             break;
         }
         case Wasm::TypeKind::I31ref: {
@@ -2416,8 +2418,10 @@ void BBQJIT::emitRefTestOrCast(const TypedExpression& typedValue, GPRReg valueGP
         }
         case Wasm::TypeKind::Arrayref:
         case Wasm::TypeKind::Structref: {
-            failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
-            failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
+            if (!typedValue.type().definitelyIsCellOrNull())
+                failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
+            if (!typedValue.type().definitelyIsWasmGCObjectOrNull())
+                failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
             m_jit.emitLoadStructure(valueGPR, wasmScratchGPR);
             m_jit.loadPtr(Address(wasmScratchGPR, WebAssemblyGCStructure::offsetOfRTT()), wasmScratchGPR);
             failureCases.append(m_jit.branch8(CCallHelpers::NotEqual, Address(wasmScratchGPR, RTT::offsetOfKind()), TrustedImm32(static_cast<int32_t>(static_cast<TypeKind>(toHeapType) == Wasm::TypeKind::Arrayref ? RTTKind::Array : RTTKind::Struct))));
@@ -2432,9 +2436,10 @@ void BBQJIT::emitRefTestOrCast(const TypedExpression& typedValue, GPRReg valueGP
             m_jit.loadPtr(Address(valueGPR, WebAssemblyFunctionBase::offsetOfRTT()), wasmScratchGPR);
         else {
             // The cell check is only needed for non-functions, as the typechecker does not allow non-Cell values for funcref casts.
-            // FIXME: We only need this check if reference has a type that could include non-cells.
-            failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
-            failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
+            if (!typedValue.type().definitelyIsCellOrNull())
+                failureCases.append(m_jit.branchIfNotCell(valueGPR, DoNotHaveTagRegisters));
+            if (!typedValue.type().definitelyIsWasmGCObjectOrNull())
+                failureCases.append(m_jit.branchIfNotType(valueGPR, JSType::WebAssemblyGCObjectType));
             m_jit.emitLoadStructure(valueGPR, wasmScratchGPR);
             m_jit.loadPtr(Address(wasmScratchGPR, WebAssemblyGCStructure::offsetOfRTT()), wasmScratchGPR);
         }

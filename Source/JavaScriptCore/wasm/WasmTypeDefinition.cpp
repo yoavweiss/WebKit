@@ -1176,6 +1176,48 @@ void TypeInformation::tryCleanup()
     } while (changed);
 }
 
+bool Type::definitelyIsCellOrNull() const
+{
+    if (!isRefType(*this))
+        return false;
+
+    if (typeIndexIsType(index)) {
+        switch (static_cast<TypeKind>(index)) {
+        case TypeKind::Funcref:
+        case TypeKind::Arrayref:
+        case TypeKind::Structref:
+        case TypeKind::Exn:
+            return true;
+        default:
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Type::definitelyIsWasmGCObjectOrNull() const
+{
+    if (!isRefType(*this))
+        return false;
+
+    if (typeIndexIsType(index)) {
+        switch (static_cast<TypeKind>(index)) {
+        case TypeKind::Arrayref:
+        case TypeKind::Structref:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    const TypeDefinition& def = TypeInformation::get(index).expand();
+    if (def.is<Wasm::StructType>())
+        return true;
+    if (def.is<Wasm::ArrayType>())
+        return true;
+    return false;
+}
+
 } } // namespace JSC::Wasm
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
