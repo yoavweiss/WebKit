@@ -60,9 +60,9 @@ public:
     ASCIILiteral entryType() const final;
 
     static constexpr DOMHighResTimeStamp durationResolutionInMilliseconds = 8;
-    static constexpr Seconds durationResolution = Seconds::fromMilliseconds(8);
-    static constexpr Seconds minimumDurationThreshold = Seconds::fromMilliseconds(16);
-    static constexpr Seconds defaultDurationThreshold = Seconds::fromMilliseconds(104);
+    static constexpr Seconds durationResolution = 8_ms;
+    static constexpr Seconds minimumDurationThreshold = 16_ms;
+    static constexpr Seconds defaultDurationThreshold = 104_ms;
 
 private:
     PerformanceEventTiming(const Candidate&, Seconds duration, bool isFirst);
