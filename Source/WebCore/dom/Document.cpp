@@ -9233,7 +9233,7 @@ void Document::didRemoveTouchEventHandler(Node& handler, EventHandlerRemoval rem
     removeHandlerFromSet(m_touchEventTargets, handler, removal);
 
     if (RefPtr parent = parentDocument())
-        parent->didRemoveTouchEventHandler(*this);
+        parent->didRemoveTouchEventHandler(*this, removal);
 
 #if ENABLE(TOUCH_EVENT_REGIONS)
     wheelOrTouchEventHandlersChanged(&handler);
@@ -11089,6 +11089,11 @@ const FixedVector<CSSPropertyID>& Document::exposedComputedCSSPropertyIDs()
 void Document::detachFromFrame()
 {
     observeFrame(nullptr);
+}
+
+void Document::willBeDisconnectedFromFrame(Document& parentDocument)
+{
+    parentDocument.didRemoveTouchEventHandler(*this, EventHandlerRemoval::All);
 }
 
 bool Document::hitTest(const HitTestRequest& request, HitTestResult& result)
