@@ -47,7 +47,6 @@
 #import "AccessibilityRenderObject.h"
 #import "AccessibilityScrollView.h"
 #import "AccessibilitySpinButton.h"
-#import "AccessibilityTable.h"
 #import "AccessibilityTableCell.h"
 #import "AccessibilityTableColumn.h"
 #import "AccessibilityTableRow.h"
@@ -455,10 +454,10 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     if (backingObject->supportsDropping())
         [additional addObject:NSAccessibilityDropEffectsAttribute];
 
-    if (backingObject->isTable() && backingObject->isExposable() && backingObject->supportsSelectedRows())
+    if (backingObject->isExposableTable() && backingObject->supportsSelectedRows())
         [additional addObject:NSAccessibilitySelectedRowsAttribute];
 
-    if (backingObject->isTreeGrid() && backingObject->isExposable())
+    if (backingObject->isTreeGrid() && backingObject->isExposableTable())
         [additional addObject:NSAccessibilityOrientationAttribute];
 
     if (backingObject->supportsSetSize())
@@ -907,7 +906,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
         objectAttributes = imageAttrs.get().get();
     else if (backingObject->isTree())
         objectAttributes = outlineAttrs.get().get();
-    else if (backingObject->isTable() && backingObject->isExposable())
+    else if (backingObject->isExposableTable())
         objectAttributes = tableAttrs.get().get();
     else if (backingObject->isTableColumn())
         objectAttributes = tableColAttrs.get().get();
@@ -1431,7 +1430,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
     if ([attributeName isEqualToString:NSAccessibilityContentsAttribute])
         return makeNSArray(backingObject->contents());
 
-    if (backingObject->isTable() && backingObject->isExposable()) {
+    if (backingObject->isExposableTable()) {
         if ([attributeName isEqualToString:NSAccessibilityRowsAttribute])
             return makeNSArray(backingObject->rows());
 
@@ -1459,7 +1458,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
             return makeNSArray(backingObject->columnHeaders());
 
         if ([attributeName isEqualToString:NSAccessibilityHeaderAttribute]) {
-            RefPtr headerContainer = backingObject->headerContainer();
+            RefPtr headerContainer = backingObject->tableHeaderContainer();
             return headerContainer ? headerContainer->wrapper() : nil;
         }
 
@@ -2290,7 +2289,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
     if (backingObject->isTextControl())
         return textParamAttrs;
 
-    if (backingObject->isTable() && backingObject->isExposable())
+    if (backingObject->isExposableTable())
         return tableParamAttrs;
 
     if (backingObject->isWebArea())
@@ -2598,7 +2597,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_END
     else if ([attributeName isEqualToString:NSAccessibilitySelectedRowsAttribute]) {
         AccessibilityObject::AccessibilityChildrenVector selectedRows;
         convertToVector(array, selectedRows);
-        if (backingObject->isTree() || (backingObject->isTable() && backingObject->isExposable()))
+        if (backingObject->isTree() || backingObject->isExposableTable())
             backingObject->setSelectedRows(WTFMove(selectedRows));
     } else if ([attributeName isEqualToString:NSAccessibilityGrabbedAttribute])
         backingObject->setARIAGrabbed([number boolValue]);
@@ -3466,7 +3465,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
         return @(length);
     }
 
-    if (backingObject->isTable() && backingObject->isExposable()) {
+    if (backingObject->isExposableTable()) {
         if ([attribute isEqualToString:NSAccessibilityCellForColumnAndRowParameterizedAttribute]) {
             if (array == nil || [array count] != 2)
                 return nil;

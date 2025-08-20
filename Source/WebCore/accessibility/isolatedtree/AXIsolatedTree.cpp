@@ -35,7 +35,6 @@
 #include "AXTreeStore.h"
 #include "AXTreeStoreInlines.h"
 #include "AXUtilities.h"
-#include "AccessibilityTable.h"
 #include "AccessibilityTableCell.h"
 #include "AccessibilityTableRow.h"
 #include "DocumentInlines.h"
@@ -922,7 +921,7 @@ void AXIsolatedTree::updateDependentProperties(AccessibilityObject& axObject)
     updateTableAncestorColumns = updateTableAncestorColumns || isRowGroup(axObject.node());
 #endif
     for (RefPtr ancestor = axObject.parentObject(); ancestor; ancestor = ancestor->parentObject()) {
-        if (updateTableAncestorColumns && is<AccessibilityTable>(*ancestor)) {
+        if (updateTableAncestorColumns && ancestor->isTable()) {
             // Only `updateChildren` if the table is unignored, because otherwise `updateChildren` will ascend and update the next highest unignored ancestor, which doesn't accomplish our goal of updating table columns.
             if (ancestor->isIgnored())
                 break;
@@ -1977,7 +1976,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
 
         if (object.isTable()) {
             setProperty(AXProperty::IsTable, true);
-            setProperty(AXProperty::IsExposable, object.isExposable());
+            setProperty(AXProperty::IsExposableTable, object.isExposableTable());
             setObjectVectorProperty(AXProperty::Columns, object.columns());
             setObjectVectorProperty(AXProperty::Rows, object.rows());
             setObjectVectorProperty(AXProperty::Cells, object.cells());

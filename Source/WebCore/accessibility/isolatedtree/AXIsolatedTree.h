@@ -196,7 +196,7 @@ enum class AXProperty : uint16_t {
     IsChecked,
     IsColumnHeader,
     IsExpanded,
-    IsExposable,
+    IsExposableTable,
     IsFieldset,
     IsIndeterminate,
     IsMathElement,

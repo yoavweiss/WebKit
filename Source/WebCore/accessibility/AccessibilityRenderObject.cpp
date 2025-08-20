@@ -39,7 +39,6 @@
 #include "AccessibilityMediaHelpers.h"
 #include "AccessibilitySVGObject.h"
 #include "AccessibilitySpinButton.h"
-#include "AccessibilityTable.h"
 #include "CachedImage.h"
 #include "Chrome.h"
 #include "ChromeClient.h"
@@ -1132,6 +1131,9 @@ bool AccessibilityRenderObject::computeIsIgnored() const
     if (widget() && widget()->accessibilityObject())
         return false;
 #endif
+
+    if (isExposableTable())
+        return false;
 
     // ignore popup menu items because AppKit does
     if (m_renderer && ancestorsOfType<RenderMenuList>(*m_renderer).first())
@@ -2286,7 +2288,6 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
     if (isAccessibilityList()) {
         if (!m_childrenDirty && childrenInitialized())
             return determineListRoleWithCleanChildren();
-        m_ariaRole = determineAriaRoleAttribute();
         return isDescriptionList() ? AccessibilityRole::DescriptionList : AccessibilityRole::List;
     }
 
@@ -2308,8 +2309,11 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
 
     // Sometimes we need to ignore the attribute role. Like if a tree is malformed,
     // we want to ignore the treeitem's attribute role.
-    if ((m_ariaRole = determineAriaRoleAttribute()) != AccessibilityRole::Unknown && !shouldIgnoreAttributeRole())
+    if (m_ariaRole != AccessibilityRole::Unknown && !shouldIgnoreAttributeRole())
         return m_ariaRole;
+
+    if (isExposableTable())
+        return AccessibilityRole::Table;
 
     RefPtr node = m_renderer->node();
     if (m_renderer->isRenderListItem()) {
@@ -2376,7 +2380,7 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
 #endif // USE(ATSPI)
 
     if (is<RenderTableCell>(m_renderer.get()))
-        return Accessibility::layoutTableCellRole;
+        return AXTableHelpers::layoutTableCellRole;
     if (m_renderer->isRenderTableSection())
         return AccessibilityRole::Ignored;
 
@@ -2763,12 +2767,20 @@ void AccessibilityRenderObject::addChildren()
     AX_DEBUG_ASSERT(!m_childrenInitialized);
     m_childrenInitialized = true;
 
-    auto clearDirtySubtree = makeScopeExit([&] {
+    auto scopeExit = makeScopeExit([&] {
         m_subtreeDirty = false;
 #ifndef NDEBUG
         verifyChildrenIndexInParent();
 #endif
     });
+
+#if !ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+    if (isExposableTable()) {
+        // See comment in AccessibilityNodeObject::addChildren() explaing this #if ... branch.
+        addTableChildrenAndCellSlots();
+        return;
+    }
+#endif
 
     auto addChildIfNeeded = [this](AccessibilityObject& object) {
 #if USE(ATSPI)
@@ -2868,8 +2880,12 @@ void AccessibilityRenderObject::addChildren()
 #endif
     updateOwnedChildren();
 
-    m_subtreeDirty = false;
     updateRoleAfterChildrenCreation();
+
+#if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+    if (isExposableTable())
+        addTableChildrenAndCellSlots();
+#endif
 }
 
 void AccessibilityRenderObject::setAccessibleName(const AtomString& name)
