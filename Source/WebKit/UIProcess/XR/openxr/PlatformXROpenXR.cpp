@@ -38,6 +38,7 @@
 #include <WebCore/PlatformDisplaySurfaceless.h>
 #include <openxr/openxr_platform.h>
 #include <wtf/RunLoop.h>
+#include <wtf/WorkQueue.h>
 
 namespace WebKit {
 
