@@ -578,17 +578,6 @@ end
     loadp Callee[cfr], ws0 # WebAssemblyFunction*
     loadp WebAssemblyFunction::m_instance[ws0], wasmInstance
 
-    # Memory
-    if ARM64 or ARM64E
-        loadpairq JSWebAssemblyInstance::m_cachedMemory[wasmInstance], memoryBase, boundsCheckingSize
-    elsif X86_64
-        loadp JSWebAssemblyInstance::m_cachedMemory[wasmInstance], memoryBase
-        loadp JSWebAssemblyInstance::m_cachedBoundsCheckingSize[wasmInstance], boundsCheckingSize
-    end
-    if not ARMv7
-        cagedPrimitiveMayBeNull(memoryBase, wa0)
-    end
-
     # Allocate stack space
     loadi WebAssemblyFunction::m_frameSize[ws0], wa0
     subp sp, wa0, wa0
@@ -608,14 +597,50 @@ if ASSERT_ENABLED
     end)
 end
 
+    # a0 = current stack frame position
+    move sp, a0
+
+    # Save wasmInstance and put the correct Callee into the stack for building the frame
+    storep wasmInstance, CodeBlock[cfr]
+
+if JSVALUE64
+    loadp Callee[cfr], memoryBase
+    transferp WebAssemblyFunction::m_boxedJSToWasmCallee[ws0], Callee[cfr]
+else
+    # Store old Callee to the stack temporarily
+    loadp Callee[cfr], ws1
+    push ws1, ws1
+    loadp WebAssemblyFunction::m_boxedJSToWasmCallee[ws0], ws1
+    storep ws1, Callee[cfr]
+end
+
     # Prepare frame
     move ws0, a2
     move cfr, a1
-    move sp, a0
     cCall3(_operationJSToWasmEntryWrapperBuildFrame)
+
+    # Restore Callee slot
+if JSVALUE64
+    storep memoryBase, Callee[cfr]
+else
+    loadp [sp], ws0
+    addp 2 * SlotSize, sp
+    storep ws0, Callee[cfr]
+end
 
     btpnz r1, .buildEntryFrameThrew
     move r0, ws0
+
+    # Memory
+    if ARM64 or ARM64E
+        loadpairq JSWebAssemblyInstance::m_cachedMemory[wasmInstance], memoryBase, boundsCheckingSize
+    elsif X86_64
+        loadp JSWebAssemblyInstance::m_cachedMemory[wasmInstance], memoryBase
+        loadp JSWebAssemblyInstance::m_cachedBoundsCheckingSize[wasmInstance], boundsCheckingSize
+    end
+    if not ARMv7
+        cagedPrimitiveMayBeNull(memoryBase, wa0)
+    end
 
     # Arguments
 
