@@ -403,6 +403,8 @@ bool LineLayout::boxContentWillChange(const RenderBox& renderer)
 
 void LineLayout::updateOverflow()
 {
+    if (!m_inlineContent)
+        return;
     InlineContentBuilder { flow() }.updateLineOverflow(*m_inlineContent);
 }
 
