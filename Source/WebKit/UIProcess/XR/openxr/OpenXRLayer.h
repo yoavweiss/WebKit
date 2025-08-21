@@ -30,10 +30,6 @@
 #include <wtf/UniqueRef.h>
 #include <wtf/Vector.h>
 
-namespace WebCore {
-class PlatformDisplay;
-}
-
 namespace WebKit {
 
 struct XRDeviceLayer;

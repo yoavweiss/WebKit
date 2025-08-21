@@ -31,7 +31,7 @@
 
 namespace WebCore {
 class GLContext;
-class PlatformDisplay;
+class GLDisplay;
 }
 
 namespace WebKit {
@@ -59,6 +59,7 @@ public:
 
 private:
     void createInstance();
+    RefPtr<WebCore::GLDisplay> createGLDisplay() const;
     void initializeDevice();
     void initializeSystem();
     void initializeBlendModes();
@@ -98,7 +99,7 @@ private:
     XrEnvironmentBlendMode m_vrBlendMode;
     XrEnvironmentBlendMode m_arBlendMode;
     PlatformXR::SessionMode m_sessionMode;
-    std::unique_ptr<WebCore::PlatformDisplay> m_platformDisplay;
+    RefPtr<WebCore::GLDisplay> m_glDisplay;
 
     XrSession m_session { XR_NULL_HANDLE };
     XrSessionState m_sessionState { XR_SESSION_STATE_UNKNOWN };

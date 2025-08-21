@@ -29,7 +29,6 @@
 #include "XRDeviceLayer.h"
 #include <WebCore/GLContext.h>
 #include <WebCore/GLDisplay.h>
-#include <WebCore/PlatformDisplay.h>
 #include <wtf/Scope.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/unix/UnixFileDescriptor.h>
