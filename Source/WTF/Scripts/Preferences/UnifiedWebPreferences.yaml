@@ -1356,6 +1356,21 @@ CSSScrollbarWidthEnabled:
     WebCore:
       default: true
 
+CSSSelectorJITCompilerEnabled:
+  type: bool
+  status: internal
+  category: css
+  humanReadableName: "CSS Selector JIT Compiler"
+  humanReadableDescription: "Enable the JIT compiler for CSS selectors"
+  condition: ENABLE(CSS_SELECTOR_JIT)
+  defaultValue:
+    WebKitLegacy:
+      default: true
+    WebKit:
+      default: true
+    WebCore:
+      default: true
+
 CSSShapeFunctionEnabled:
   type: bool
   status: stable
