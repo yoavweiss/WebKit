@@ -513,14 +513,31 @@ void TestController::tooltipDidChange(WKPageRef, WKStringRef tooltip, const void
 
 void TestController::tooltipDidChange(WKStringRef tooltip)
 {
-    if (m_state != RunningTest)
+    m_tooltipCallbacks.notifyListeners(tooltip);
+}
+
+void TestController::Callbacks::notifyListeners(WKStringRef parameter)
+{
+    if (TestController::singleton().m_state != RunningTest)
         return;
 
-    for (auto& listener : m_framesListeningForTooltipChange) {
+    for (auto& listener : m_callbacks) {
         auto arguments = adoptWK(WKMutableDictionaryCreate());
         setValue(arguments, "callback", listener.callbackHandle);
-        setValue(arguments, "tooltip", tooltip);
-        WKPageCallAsyncJavaScript(WKFrameInfoGetPage(listener.frame.get()), toWK("return callback(tooltip)").get(), arguments.get(), listener.frame.get(), nullptr, nullptr);
+        setValue(arguments, "parameter", parameter);
+        WKPageCallAsyncJavaScript(WKFrameInfoGetPage(listener.frame.get()), toWK("return callback(parameter)").get(), arguments.get(), listener.frame.get(), nullptr, nullptr);
+    }
+}
+
+void TestController::Callbacks::notifyListeners()
+{
+    if (TestController::singleton().m_state != RunningTest)
+        return;
+
+    for (auto& listener : m_callbacks) {
+        auto arguments = adoptWK(WKMutableDictionaryCreate());
+        setValue(arguments, "callback", listener.callbackHandle);
+        WKPageCallAsyncJavaScript(WKFrameInfoGetPage(listener.frame.get()), toWK("return callback()").get(), arguments.get(), listener.frame.get(), nullptr, nullptr);
     }
 }
 
@@ -1116,11 +1133,6 @@ void TestController::simulateClickBackgroundFetch(WKStringRef)
 }
 #endif
 
-void TestController::listenForTooltipChanges(WKFrameInfoRef frame, WKTypeRef callbackHandle)
-{
-    m_framesListeningForTooltipChange.append({ frame, callbackHandle });
-}
-
 void TestController::createWebViewWithOptions(const TestOptions& options)
 {
     auto applicationBundleIdentifier = options.applicationBundleIdentifier();
@@ -1572,7 +1584,12 @@ bool TestController::resetStateToConsistentValues(const TestOptions& options, Re
     m_scrollDuringEnterFullscreen = false;
     if (m_finishExitFullscreenHandler)
         m_finishExitFullscreenHandler();
-    m_framesListeningForTooltipChange.clear();
+
+    m_tooltipCallbacks.clear();
+    m_beginSwipeCallbacks.clear();
+    m_willEndSwipeCallbacks.clear();
+    m_didEndSwipeCallbacks.clear();
+    m_didRemoveSwipeSnapshotCallbacks.clear();
 
     return m_doneResetting;
 }
@@ -1843,30 +1860,75 @@ static WKFindOptions findOptionsFromArray(WKArrayRef array)
 
 constexpr auto testRunnerJS = R"testRunnerJS(
 if (window.testRunner) {
-    testRunner.installTooltipDidChangeCallback = (callback) => window.webkit.messageHandlers.webkitTestRunner.postMessage(window.webkit.createJSHandle(callback));
-    testRunner.findString = (target, options) => window.webkit.messageHandlers.webkitTestRunner.postMessage([target, options]);
+    let post = window.webkit.messageHandlers.webkitTestRunner.postMessage.bind(window.webkit.messageHandlers.webkitTestRunner);
+    let createHandle = window.webkit.createJSHandle.bind(window.webkit);
+
+    testRunner.installTooltipDidChangeCallback = callback => post(['InstallTooltipCallback', createHandle(callback)]);
+    testRunner.installDidBeginSwipeCallback = callback => post(['InstallBeginSwipeCallback', createHandle(callback)]);
+    testRunner.installWillEndSwipeCallback = callback => post(['InstallWillEndSwipeCallback', createHandle(callback)]);
+    testRunner.installDidEndSwipeCallback = callback => post(['InstallDidEndSwipeCallback', createHandle(callback)]);
+    testRunner.installDidRemoveSwipeSnapshotCallback = callback => post(['InstallDidRemoveSwipeSnapshotCallback', createHandle(callback)]);
+    testRunner.findString = (target, options) => post(['FindString', target, options]);
 }
 )testRunnerJS";
 
-static void didReceiveScriptMessage(WKScriptMessageRef message, WKCompletionListenerRef listener, const void *)
+void TestController::didReceiveScriptMessage(WKScriptMessageRef message, WKCompletionListenerRef listener, const void *)
 {
-    // FIXME: Make JSHandle able to be sent as a member of a dictionary and use something other than WKGetTypeID to distinguish different messages.
+    TestController::singleton().didReceiveScriptMessage(message, [listener = WKRetainPtr { listener }] (WKTypeRef result) {
+        WKCompletionListenerComplete(listener.get(), result);
+    });
+}
+
+void TestController::didReceiveScriptMessage(WKScriptMessageRef message, CompletionHandler<void(WKTypeRef)>&& completionHandler)
+{
+    if (m_state != RunningTest)
+        return completionHandler(nullptr);
+
     WKTypeRef messageBody = WKScriptMessageGetBody(message);
-    if (WKGetTypeID(messageBody) == WKArrayGetTypeID()) {
-        auto array = (WKArrayRef)messageBody;
-        auto target = (WKStringRef)WKArrayGetItemAtIndex(array, 0);
+    ASSERT(WKGetTypeID(messageBody) == WKArrayGetTypeID());
+    WKArrayRef array = (WKArrayRef)messageBody;
+    WKStringRef command = (WKStringRef)WKArrayGetItemAtIndex(array, 0);
+    WKTypeRef argument = WKArrayGetSize(array) > 1 ? WKArrayGetItemAtIndex(array, 1) : nullptr;
+    WKFrameInfoRef frame = WKScriptMessageGetFrameInfo(message);
+
+    if (WKStringIsEqualToUTF8CString(command, "FindString")) {
+        WKStringRef target = (WKStringRef)argument;
         ASSERT(WKGetTypeID(target) == WKStringGetTypeID());
-        ASSERT(WKGetTypeID(WKArrayGetItemAtIndex(array, 1)) == WKArrayGetTypeID());
-        auto options = findOptionsFromArray((WKArrayRef)WKArrayGetItemAtIndex(array, 1));
-        WKPageFindStringForTesting(TestController::singleton().mainWebView()->page(), (void*)WKRetain(listener), target, options, 0, [] (bool found, void* context) {
-            auto listener = (WKCompletionListenerRef)context;
-            WKCompletionListenerComplete(listener, adoptWK(WKBooleanCreate(found)).get());
-            WKRelease(listener);
+        WKArrayRef optionsArray = (WKArrayRef)WKArrayGetItemAtIndex(array, 2);
+        ASSERT(WKGetTypeID(optionsArray) == WKArrayGetTypeID());
+        WKFindOptions options = findOptionsFromArray(optionsArray);
+        return WKPageFindStringForTesting(mainWebView()->page(), completionHandler.leak(), target, options, 0, [] (bool found, void* context) {
+            auto completionHandler = WTF::adopt(static_cast<CompletionHandler<void(WKTypeRef)>::Impl*>(context));
+            completionHandler(adoptWK(WKBooleanCreate(found)).get());
         });
-        return;
     }
-    TestController::singleton().listenForTooltipChanges(WKScriptMessageGetFrameInfo(message), messageBody);
-    WKCompletionListenerComplete(listener, nullptr);
+
+    if (WKStringIsEqualToUTF8CString(command, "InstallTooltipCallback")) {
+        m_tooltipCallbacks.append(frame, argument);
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "InstallBeginSwipeCallback")) {
+        m_beginSwipeCallbacks.append(frame, argument);
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "InstallWillEndSwipeCallback")) {
+        m_willEndSwipeCallbacks.append(frame, argument);
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "InstallDidEndSwipeCallback")) {
+        m_didEndSwipeCallbacks.append(frame, argument);
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "InstallDidRemoveSwipeSnapshotCallback")) {
+        m_didRemoveSwipeSnapshotCallbacks.append(frame, argument);
+        return completionHandler(nullptr);
+    }
+
+    ASSERT_NOT_REACHED();
 }
 
 void TestController::installUserScript(const TestInvocation& test)
@@ -3194,22 +3256,22 @@ void TestController::webProcessDidTerminate(WKProcessTerminationReason reason)
 
 void TestController::didBeginNavigationGesture(WKPageRef)
 {
-    protectedCurrentInvocation()->didBeginSwipe();
+    m_beginSwipeCallbacks.notifyListeners();
 }
 
 void TestController::willEndNavigationGesture(WKPageRef, WKBackForwardListItemRef)
 {
-    protectedCurrentInvocation()->willEndSwipe();
+    m_willEndSwipeCallbacks.notifyListeners();
 }
 
 void TestController::didEndNavigationGesture(WKPageRef, WKBackForwardListItemRef)
 {
-    protectedCurrentInvocation()->didEndSwipe();
+    m_didEndSwipeCallbacks.notifyListeners();
 }
 
 void TestController::didRemoveNavigationGestureSnapshot(WKPageRef)
 {
-    protectedCurrentInvocation()->didRemoveSwipeSnapshot();
+    m_didRemoveSwipeSnapshotCallbacks.notifyListeners();
 }
 
 void TestController::simulateWebNotificationClick(WKDataRef notificationID)
