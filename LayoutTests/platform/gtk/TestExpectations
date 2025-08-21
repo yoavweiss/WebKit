@@ -1635,7 +1635,6 @@ webkit.org/b/264680 scrollbars/scrollbar-selectors.html [ Pass Timeout ]
 fast/dom/no-scroll-when-command-click-fragment-URL.html [ Skip ]
 
 imported/w3c/web-platform-tests/html/semantics/popovers/popover-focus-2.html [ Failure ]
-imported/w3c/web-platform-tests/html/semantics/popovers/popover-focus-harness.html [ Failure ]
 
 webkit.org/b/273196 imported/w3c/web-platform-tests/html/semantics/popovers/popover-top-layer-combinations.html [ Failure ]
 

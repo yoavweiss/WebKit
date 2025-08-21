@@ -447,7 +447,7 @@ editing/execCommand/insert-nested-lists.html [ Skip ]
 editing/execCommand/selectAll.html [ Skip ]
 editing/style/preserve-selection-direction.html [ Skip ]
 editing/style/stylewithcss-without-selection.html [ Skip ]
-  
+
 webkit.org/b/213131 editing/pasteboard [ Skip ]
 webkit.org/b/213131 editing/secure-input [ Skip ]
 webkit.org/b/213131 editing/spelling [ Skip ]
@@ -1155,7 +1155,6 @@ webkit.org/b/268917 [ Debug ] imported/w3c/web-platform-tests/webaudio/the-audio
 webkit.org/b/268917 [ Debug ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audioworklet-interface/audioworkletglobalscope-sample-rate.https.html [ Pass Crash ]
 
 imported/w3c/web-platform-tests/html/semantics/popovers/popover-focus-2.html [ Failure ]
-imported/w3c/web-platform-tests/html/semantics/popovers/popover-focus-harness.html [ Failure ]
 
 webkit.org/b/273196 imported/w3c/web-platform-tests/html/semantics/popovers/popover-top-layer-combinations.html [ Failure ]
 
