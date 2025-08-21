@@ -1741,6 +1741,8 @@ fast/scrolling/sync-scroll-overscroll-behavior-unscrollable-iframe.html [ Skip ]
 # Fetch tests that only timeout in WK1.
 imported/w3c/web-platform-tests/fetch/metadata/unload.https.sub.html [ Skip ]
 
+css3/filters/drop-shadow-current-color.html [ ImageOnlyFailure ]
+
 ### END OF (2) Failures without bug reports
 ########################################
 
