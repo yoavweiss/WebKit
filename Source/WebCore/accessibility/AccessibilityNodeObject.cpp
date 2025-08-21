@@ -38,7 +38,6 @@
 #include "AXTableHelpers.h"
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
-#include "AccessibilityLabel.h"
 #include "AccessibilityMediaHelpers.h"
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTableCell.h"
@@ -685,6 +684,11 @@ void AccessibilityNodeObject::clearChildren()
 {
     AccessibilityObject::clearChildren();
     m_childrenDirty = false;
+
+    if (isNativeLabel()) {
+        m_containsOnlyStaticText = false;
+        m_containsOnlyStaticTextDirty = false;
+    }
 
     CheckedPtr rareData = isTable() ? this->rareData() : nullptr;
     if (!rareData)
@@ -2449,7 +2453,7 @@ String AccessibilityNodeObject::textAsLabelFor(const AccessibilityObject& labele
     if (!labelAttribute.isEmpty())
         return labelAttribute;
 
-    if (isAccessibilityLabelInstance()) {
+    if (isNativeLabel()) {
         StringBuilder builder;
         for (const auto& child : const_cast<AccessibilityNodeObject*>(this)->unignoredChildren()) {
             if (child.ptr() == &labeledObject)
@@ -2511,7 +2515,7 @@ String AccessibilityNodeObject::textForLabelElements(Vector<Ref<HTMLElement>>&& 
         if (!ariaLabeledBy.isEmpty())
             appendNameToStringBuilder(result, WTFMove(ariaLabeledBy));
 #if PLATFORM(COCOA)
-        else if (RefPtr axLabel = dynamicDowncast<AccessibilityLabel>(*label))
+        else if (RefPtr axLabel = dynamicDowncast<AccessibilityNodeObject>(*label); axLabel && axLabel->isNativeLabel())
             appendNameToStringBuilder(result, axLabel->textAsLabelFor(*this));
 #endif
         else
@@ -3703,6 +3707,41 @@ bool AccessibilityNodeObject::isOrderedList() const
 bool AccessibilityNodeObject::isDescriptionList() const
 {
     return elementName() == ElementName::HTML_dl;
+}
+
+static bool childrenContainOnlyStaticText(const AccessibilityObject::AccessibilityChildrenVector& children)
+{
+    if (children.isEmpty())
+        return false;
+    for (const auto& child : children) {
+        if (child->role() == AccessibilityRole::StaticText)
+            continue;
+        if (child->isGroup()) {
+            if (!childrenContainOnlyStaticText(child->unignoredChildren()))
+                return false;
+        } else
+            return false;
+    }
+    return true;
+}
+
+bool AccessibilityNodeObject::isLabelContainingOnlyStaticText() const
+{
+    ASSERT(isNativeLabel());
+
+    // m_containsOnlyStaticTextDirty is set (if necessary) by addChildren(), so update our children before checking the flag.
+    const_cast<AccessibilityNodeObject*>(this)->updateChildrenIfNecessary();
+    if (m_containsOnlyStaticTextDirty) {
+        m_containsOnlyStaticTextDirty = false;
+        m_containsOnlyStaticText = childrenContainOnlyStaticText(const_cast<AccessibilityNodeObject*>(this)->unignoredChildren());
+    }
+    return m_containsOnlyStaticText;
+}
+
+bool AccessibilityNodeObject::isNativeLabel() const
+{
+    RefPtr labelElement = dynamicDowncast<HTMLLabelElement>(node());
+    return labelElement && hasRole(*labelElement, nullAtom());
 }
 
 namespace Accessibility {

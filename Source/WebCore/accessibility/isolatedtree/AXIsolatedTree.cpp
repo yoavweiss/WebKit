@@ -29,6 +29,7 @@
 #include "AXIsolatedTree.h"
 
 #include "AXAttributeCacheScope.h"
+#include "AXGeometryManager.h"
 #include "AXIsolatedObject.h"
 #include "AXLogger.h"
 #include "AXNotifications.h"

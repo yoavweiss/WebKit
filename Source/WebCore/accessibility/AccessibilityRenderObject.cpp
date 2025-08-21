@@ -763,6 +763,9 @@ String AccessibilityRenderObject::stringValue() const
         return localizedMediaTimeDescription(element->currentTime());
 #endif
 
+    if (isNativeLabel())
+        return isLabelContainingOnlyStaticText() ? textUnderElement() : AccessibilityNodeObject::stringValue();
+
     if (!m_renderer)
         return AccessibilityNodeObject::stringValue();
 
@@ -2767,8 +2770,10 @@ void AccessibilityRenderObject::addChildren()
     AX_DEBUG_ASSERT(!m_childrenInitialized);
     m_childrenInitialized = true;
 
-    auto scopeExit = makeScopeExit([&] {
+    auto scopeExit = makeScopeExit([this, protectedThis = Ref { *this }] {
         m_subtreeDirty = false;
+        if (isNativeLabel())
+            m_containsOnlyStaticTextDirty = true;
 #ifndef NDEBUG
         verifyChildrenIndexInParent();
 #endif

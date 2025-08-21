@@ -174,6 +174,9 @@ public:
 
     LayoutRect elementRect() const override;
 
+    bool isLabelContainingOnlyStaticText() const;
+    bool isNativeLabel() const override;
+
 #if ENABLE(AX_THREAD_TEXT_APIS)
     TextEmissionBehavior textEmissionBehavior() const final;
 #endif
@@ -189,6 +192,11 @@ protected:
     bool m_isARIAGridCell { false };
     // Only used by AccessibilitySVGObject, but placed here to use space that would otherwise be taken by padding.
     bool m_isSVGRoot { false };
+
+    // Only used by isNativeLabel() objects. Placed here to use space that would otherwise be taken by padding.
+    mutable bool m_containsOnlyStaticTextDirty { false };
+    mutable bool m_containsOnlyStaticText { false };
+
 #ifndef NDEBUG
     bool m_initialized { false };
 #endif

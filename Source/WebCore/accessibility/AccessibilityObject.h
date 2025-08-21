@@ -119,7 +119,6 @@ public:
     virtual bool isAccessibilitySVGRoot() const { return false; }
     virtual bool isAccessibilitySVGObjectInstance() const { return false; }
     virtual bool isAccessibilityTableColumnInstance() const { return false; }
-    virtual bool isAccessibilityLabelInstance() const { return false; }
     virtual bool isAccessibilityListBoxInstance() const { return false; }
     virtual bool isAccessibilityListBoxOptionInstance() const { return false; }
     bool isAXIsolatedObjectInstance() const final { return false; }
@@ -134,7 +133,9 @@ public:
 #endif
     bool isMediaTimeline() const { return false; }
     virtual bool isSliderThumb() const { return false; }
-    bool isLabel() const { return isAccessibilityLabelInstance() || labelForObjects().size(); }
+    virtual bool isNativeLabel() const { return false; }
+    bool isLabelByRelation() const { return labelForObjects().size(); }
+    bool isLabel() const { return isNativeLabel() || isLabelByRelation(); }
     // FIXME: Re-evaluate what this means when site isolation is enabled (is this method name accurate?)
     virtual bool isRoot() const { return false; }
 

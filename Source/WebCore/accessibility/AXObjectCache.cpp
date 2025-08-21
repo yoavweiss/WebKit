@@ -43,7 +43,6 @@
 #include "AXTreeStoreInlines.h"
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
-#include "AccessibilityLabel.h"
 #include "AccessibilityListBoxOption.h"
 #include "AccessibilityMathMLElement.h"
 #include "AccessibilityMenuList.h"
@@ -608,11 +607,6 @@ static bool isAccessibilityARIAGridCell(Element& element)
     return hasCellARIARole(element);
 }
 
-static bool shouldCreateAccessibilityLabel(Element& element)
-{
-    return is<HTMLLabelElement>(element) && hasRole(element, nullAtom());
-}
-
 Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObject& renderer)
 {
     RefPtr node = renderer.node();
@@ -629,9 +623,6 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
             return AccessibilityTree::create(AXID::generate(), renderer, *this);
         if (isAccessibilityTreeItem(*element))
             return AccessibilityTreeItem::create(AXID::generate(), renderer, *this);
-
-        if (shouldCreateAccessibilityLabel(*element))
-            return AccessibilityLabel::create(AXID::generate(), renderer, *this);
     }
 
     if (renderer.isRenderOrLegacyRenderSVGRoot())
@@ -702,8 +693,6 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
             return AccessibilityProgressIndicator::create(AXID::generate(), *element, *this);
         if (is<SVGElement>(*element))
             return AccessibilitySVGObject::create(AXID::generate(), *element, *this);
-        if (shouldCreateAccessibilityLabel(*element))
-            return AccessibilityLabel::create(AXID::generate(), *element, *this);
     }
     return AccessibilityRenderObject::create(AXID::generate(), node, *this);
 }
@@ -4982,7 +4971,7 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
             break;
         case AXNotification::TextUnderElementChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::AccessibilityText });
-            if (notification.first->isAccessibilityLabelInstance() || notification.first->role() == AccessibilityRole::TextField)
+            if (notification.first->isNativeLabel() || notification.first->role() == AccessibilityRole::TextField)
                 tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::StringValue });
             break;
 #if ENABLE(AX_THREAD_TEXT_APIS)
