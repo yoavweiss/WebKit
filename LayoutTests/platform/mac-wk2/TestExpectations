@@ -2421,3 +2421,5 @@ webkit.org/b/297613 [ Debug ] fast/scrolling/mac/stateless-user-scroll-scrollend
 webkit.org/b/297623 [ Release arm64 ] http/wpt/webcodecs/webcodecs-message-gc.html [ Pass Failure ]
 
 webkit.org/b/297674 [ Sonoma Release ] http/wpt/mediarecorder/MediaRecorder-matroska-AV-audio-video-dataavailable.html [ Pass Failure ]
+
+webkit.org/b/297737 [ Debug ] ipc/send-gradient.html [ Skip ]
