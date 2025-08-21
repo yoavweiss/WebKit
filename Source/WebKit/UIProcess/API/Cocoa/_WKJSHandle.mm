@@ -47,10 +47,10 @@
     RefPtr webFrame = WebKit::WebFrameProxy::webFrame(_ref->info().windowProxyFrameIdentifier);
     if (!webFrame)
         return completionHandler(nil);
-    webFrame->getFrameInfo([completionHandler = makeBlockPtr(completionHandler), page = RefPtr { webFrame->page() }] (auto&& data) mutable {
+    webFrame->getFrameInfo([completionHandler = makeBlockPtr(completionHandler)] (auto&& data) mutable {
         if (!data)
             return completionHandler(nil);
-        completionHandler(wrapper(API::FrameInfo::create(WTFMove(*data), WTFMove(page))).get());
+        completionHandler(wrapper(API::FrameInfo::create(WTFMove(*data))).get());
     });
 }
 

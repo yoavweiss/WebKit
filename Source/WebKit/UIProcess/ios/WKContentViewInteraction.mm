@@ -987,7 +987,7 @@ inline static RetainPtr<NSString> textRelativeToSelectionStart(WKRelativeTextRan
     _placeholder = information.placeholder.createNSString().get();
     _label = information.label.createNSString().get();
     if (information.frame)
-        _frame = wrapper(API::FrameInfo::create(WebKit::FrameInfoData { *information.frame }, [webView _page].get()));
+        _frame = wrapper(API::FrameInfo::create(WebKit::FrameInfoData { *information.frame }));
     return self;
 }
 
@@ -9676,7 +9676,7 @@ static bool canUseQuickboardControllerFor(UITextContentType type)
     auto webView = _webView.get();
     id <WKUIDelegatePrivate> uiDelegate = static_cast<id <WKUIDelegatePrivate>>([webView UIDelegate]);
     return [uiDelegate respondsToSelector:@selector(_webView:fileUploadPanelContentIsManagedWithInitiatingFrame:)]
-        && [uiDelegate _webView:webView.get() fileUploadPanelContentIsManagedWithInitiatingFrame:_frameInfoForFileUploadPanel ? wrapper(API::FrameInfo::create(*std::exchange(_frameInfoForFileUploadPanel, std::nullopt), _page.get())).get() : nil];
+        && [uiDelegate _webView:webView.get() fileUploadPanelContentIsManagedWithInitiatingFrame:_frameInfoForFileUploadPanel ? wrapper(API::FrameInfo::create(*std::exchange(_frameInfoForFileUploadPanel, std::nullopt))).get() : nil];
 }
 
 #if HAVE(PHOTOS_UI)
