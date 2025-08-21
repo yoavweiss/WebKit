@@ -1459,6 +1459,15 @@ static WKDragSessionContext *ensureLocalDragSessionContext(id <UIDragSession> se
     [_keyboardDismissalGestureRecognizer setEnabled:_page->preferences().keyboardDismissalGestureEnabled()];
     [self addGestureRecognizer:_keyboardDismissalGestureRecognizer.get()];
 
+#if ENABLE(GAMEPAD)
+    _gamepadInteractionGestureRecognizer = adoptNS([[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(_gamepadInteractionGestureRecognized:)]);
+    [_gamepadInteractionGestureRecognizer setDelegate:self];
+    [_gamepadInteractionGestureRecognizer setName:@"Gamepad interaction menu gesture"];
+    _gamepadInteractionGestureRecognizer.get().allowedTouchTypes = @[];
+    _gamepadInteractionGestureRecognizer.get().allowedPressTypes = @[@(UIPressTypeMenu)];
+    [self addGestureRecognizer:_gamepadInteractionGestureRecognizer.get()];
+#endif
+
 #if HAVE(UI_PASTE_CONFIGURATION)
     self.pasteConfiguration = adoptNS([[UIPasteConfiguration alloc] initWithAcceptableTypeIdentifiers:[&] {
         if (_page->preferences().attachmentElementEnabled())
@@ -1772,6 +1781,10 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     [self addGestureRecognizer:_touchActionUpSwipeGestureRecognizer.get()];
     [self addGestureRecognizer:_touchActionDownSwipeGestureRecognizer.get()];
     [self addGestureRecognizer:_keyboardDismissalGestureRecognizer.get()];
+
+#if ENABLE(GAMEPAD)
+    [self addGestureRecognizer:_gamepadInteractionGestureRecognizer.get()];
+#endif
 }
 
 - (void)_didChangeLinkPreviewAvailability
@@ -3055,6 +3068,13 @@ static inline bool isSamePair(UIGestureRecognizer *a, UIGestureRecognizer *b, UI
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
+#if ENABLE(GAMEPAD)
+    if (gestureRecognizer == _gamepadInteractionGestureRecognizer || otherGestureRecognizer == _gamepadInteractionGestureRecognizer) {
+        if (WebKit::UIGamepadProvider::singleton().platformWebPageProxyForGamepadInput() == _page)
+            return NO;
+    }
+#endif
+
     if (gestureRecognizer == _keyboardDismissalGestureRecognizer || otherGestureRecognizer == _keyboardDismissalGestureRecognizer)
         return YES;
 
@@ -3168,6 +3188,13 @@ static inline bool isSamePair(UIGestureRecognizer *a, UIGestureRecognizer *b, UI
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
+#if ENABLE(GAMEPAD)
+    if (gestureRecognizer == _gamepadInteractionGestureRecognizer || otherGestureRecognizer == _gamepadInteractionGestureRecognizer) {
+        if (WebKit::UIGamepadProvider::singleton().platformWebPageProxyForGamepadInput() == _page)
+            return NO;
+    }
+#endif
+
     if ([gestureRecognizer isKindOfClass:WKDeferringGestureRecognizer.class])
         return [(WKDeferringGestureRecognizer *)gestureRecognizer shouldDeferGestureRecognizer:otherGestureRecognizer];
 
@@ -3943,6 +3970,13 @@ static void cancelPotentialTapIfNecessary(WKContentView* contentView)
     RELEASE_LOG(ViewGestures, "Synthetic click completed. (%p, pageProxyID=%llu)", self, _page->identifier().toUInt64());
     [self stopDeferringInputViewUpdates:WebKit::InputViewUpdateDeferralSource::TapGesture];
 }
+
+#if ENABLE(GAMEPAD)
+- (void)_gamepadInteractionGestureRecognized:(UITapGestureRecognizer *)gestureRecognizer
+{
+    // This space intentionally left blank.
+}
+#endif
 
 #if ENABLE(MODEL_PROCESS)
 - (void)_modelInteractionPanGestureRecognized:(UIPanGestureRecognizer *)gestureRecognizer
