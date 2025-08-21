@@ -4956,6 +4956,7 @@ void WebPageProxy::receivedNavigationActionPolicyDecision(WebProcessProxy& proce
                 auto error = WebKit::cancelledError(URL { navigation->currentRequest().url() });
                 error.setType(WebCore::ResourceError::Type::Cancellation);
                 m_navigationClient->didFailProvisionalNavigationWithError(*this, FrameInfoData { frameInfo }, navigation, requestURL, error, nullptr);
+                receivedPolicyDecision(PolicyAction::Ignore, navigation, websitePolicies.get(), WTFMove(navigationAction), WillContinueLoadInNewProcess::No, std::nullopt, WTFMove(message), WTFMove(completionHandler));
                 return;
             }
 #endif
