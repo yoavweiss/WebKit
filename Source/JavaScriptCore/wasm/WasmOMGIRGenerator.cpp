@@ -4398,7 +4398,7 @@ auto OMGIRGenerator::addLoop(BlockSignature signature, Stack& enclosingStack, Co
             ASSERT(&data != &block);
             Variable* exceptionVariable = ControlType::isAnyCatch(data) ? data.exception() : nullptr;
             connectValuesAtEntrypoint(indexInBuffer, pointer, expressionStack, exceptionVariable);
-            if (Options::useWasmIPInt() && ControlType::isTry(data))
+            if (ControlType::isTry(data))
                 ++indexInBuffer;
         }
         connectValuesAtEntrypoint(indexInBuffer, pointer, enclosingStack, nullptr);

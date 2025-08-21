@@ -210,11 +210,10 @@ void OMGPlan::work()
                 Locker locker { bbqCallee->tierUpCounter().getLock() };
                 bbqCallee->tierUpCounter().setCompilationStatusForOMG(mode(), TierUpCount::CompilationStatus::Compiled);
             }
-            if (Options::useWasmIPInt() && m_calleeGroup->m_ipintCallees) {
-                IPIntCallee& ipintCallee = m_calleeGroup->m_ipintCallees->at(m_functionIndex).get();
-                Locker locker { ipintCallee.tierUpCounter().m_lock };
-                ipintCallee.tierUpCounter().setCompilationStatus(mode(), IPIntTierUpCounter::CompilationStatus::Compiled);
-            }
+            ASSERT(m_calleeGroup->m_ipintCallees);
+            IPIntCallee& ipintCallee = m_calleeGroup->m_ipintCallees->at(m_functionIndex).get();
+            Locker locker { ipintCallee.tierUpCounter().m_lock };
+            ipintCallee.tierUpCounter().setCompilationStatus(mode(), IPIntTierUpCounter::CompilationStatus::Compiled);
         }
     }
 
