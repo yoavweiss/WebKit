@@ -796,7 +796,6 @@ struct UnlinkedWasmToWasmCall {
     WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(UnlinkedWasmToWasmCall);
     CodeLocationNearCall<WasmEntryPtrTag> callLocation;
     FunctionSpaceIndex functionIndexSpace;
-    CodeLocationDataLabelPtr<WasmEntryPtrTag> calleeLocation;
 
 };
 

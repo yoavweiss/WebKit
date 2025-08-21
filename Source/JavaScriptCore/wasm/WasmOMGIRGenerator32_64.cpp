@@ -1894,7 +1894,7 @@ auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, 
             } else
                 callee = params[patchArgsIndex + 1].gpr();
 
-            jit.storeWasmCalleeCallee(callee, sizeof(CallerFrameAndPC) - prologueStackPointerDelta());
+            jit.storeWasmCalleeToCalleeCallFrame(callee, sizeof(CallerFrameAndPC) - prologueStackPointerDelta());
 
             if (is32Bit() && params[patchArgsIndex].isStack()) {
                 callTarget = MacroAssembler::addressTempRegister;
@@ -1927,7 +1927,7 @@ auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, 
         if (handle)
             handle->generate(jit, params, this);
 
-        jit.storeWasmCalleeCallee(params[patchArgsIndex + 1].gpr());
+        jit.storeWasmCalleeToCalleeCallFrame(params[patchArgsIndex + 1].gpr());
         jit.call(params[patchArgsIndex].gpr(), WasmEntryPtrTag);
     });
     fillCallResults(patchpoint, signature, results);
@@ -5778,12 +5778,19 @@ auto OMGIRGenerator::addCall(FunctionSpaceIndex functionIndexSpace, const TypeDe
             if (handle)
                 handle->generate(jit, params, this);
 
-            auto calleeMove = jit.storeWasmCalleeCalleePatchable(isTailCall ? sizeof(CallerFrameAndPC) - prologueStackPointerDelta() : 0);
+            ASSERT(!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace));
+            RefPtr<IPIntCallee> callee;
+            {
+                Locker locker { m_calleeGroup.m_lock };
+                callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(locker, functionIndexSpace);
+            }
+            jit.storeWasmCalleeToCalleeCallFrame(CCallHelpers::TrustedImmPtr(CalleeBits::boxNativeCallee(callee.get())), isTailCall ? sizeof(CallerFrameAndPC) - prologueStackPointerDelta() : 0);
             auto call = isTailCall ? jit.threadSafePatchableNearTailCall() : jit.threadSafePatchableNearCall();
 
-            jit.addLinkTask([unlinkedWasmToWasmCalls, call, functionIndexSpace, calleeMove](LinkBuffer& linkBuffer) {
-                unlinkedWasmToWasmCalls->append({ linkBuffer.locationOfNearCall<WasmEntryPtrTag>(call), functionIndexSpace, linkBuffer.locationOf<WasmEntryPtrTag>(calleeMove) });
+            jit.addLinkTask([unlinkedWasmToWasmCalls, call, functionIndexSpace](LinkBuffer& linkBuffer) {
+                unlinkedWasmToWasmCalls->append({ linkBuffer.locationOfNearCall<WasmEntryPtrTag>(call), functionIndexSpace });
             });
+            jit.addPtr(CCallHelpers::TrustedImm32(-params.code().frameSize()), GPRInfo::callFrameRegister, MacroAssembler::stackPointerRegister);
         });
     };
 
