@@ -4789,6 +4789,20 @@ MediaControlsContextMenusEnabled:
   sharedPreferenceForWebProcess: true
   mediaPlaybackRelated: true
 
+MediaControlsMacInlineSizeSpecsEnabled:
+  type: bool
+  status: testable
+  category: media
+  humanReadableName: "Media Controls Rounded Corners"
+  humanReadableDescription: "Adopt new size specs for media controls"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 MediaControlsScaleWithPageZoom:
   type: bool
   status: embedder
