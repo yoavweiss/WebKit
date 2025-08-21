@@ -30,6 +30,7 @@
 #include <WebCore/RegistrableDomain.h>
 #include <optional>
 #include <wtf/Forward.h>
+#include <wtf/Platform.h>
 #include <wtf/TZoneMalloc.h>
 
 namespace WebCore {

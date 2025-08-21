@@ -27,6 +27,7 @@
 
 #include <WebCore/ContentsFormat.h>
 #include <wtf/Forward.h>
+#include <wtf/Platform.h>
 
 #if PLATFORM(MAC)
 OBJC_CLASS NSScreen;

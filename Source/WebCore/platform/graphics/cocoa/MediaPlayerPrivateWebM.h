@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <wtf/Platform.h>
 #if ENABLE(COCOA_WEBM_PLAYER)
 
 #include <WebCore/MediaPlayerPrivate.h>

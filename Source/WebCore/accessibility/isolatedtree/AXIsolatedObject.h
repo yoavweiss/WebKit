@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <wtf/Platform.h>
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 
 #include <WebCore/AXCoreObject.h>

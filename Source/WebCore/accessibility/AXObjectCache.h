@@ -36,6 +36,7 @@
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
 #include <wtf/ListHashSet.h>
+#include <wtf/Platform.h>
 #include <wtf/WeakHashMap.h>
 #include <wtf/WeakHashSet.h>
 

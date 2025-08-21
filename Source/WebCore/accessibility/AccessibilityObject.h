@@ -40,6 +40,7 @@
 #include <wtf/CompactUniquePtrTuple.h>
 #include <wtf/Forward.h>
 #include <wtf/Function.h>
+#include <wtf/Platform.h>
 #include <wtf/RefPtr.h>
 #include <wtf/RuntimeApplicationChecks.h>
 #include <wtf/Vector.h>

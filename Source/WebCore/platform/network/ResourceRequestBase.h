@@ -33,6 +33,7 @@
 #include <WebCore/IntRect.h>
 #include <WebCore/ResourceLoadPriority.h>
 #include <wtf/EnumTraits.h>
+#include <wtf/Platform.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/URL.h>
 

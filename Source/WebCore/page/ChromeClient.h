@@ -43,6 +43,7 @@
 #include <wtf/CompletionHandler.h>
 #include <wtf/Forward.h>
 #include <wtf/MonotonicTime.h>
+#include <wtf/Platform.h>
 #include <wtf/Seconds.h>
 #include <wtf/URL.h>
 #include <wtf/Vector.h>
