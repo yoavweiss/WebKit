@@ -613,12 +613,14 @@ static String percentEncodeCharacters(const StringType& input, bool(*shouldEncod
 {
     auto encode = [shouldEncode] (const StringType& input) {
         auto result = input.tryGetUTF8([&](std::span<const char8_t> span) -> String {
-            StringBuilder builder;
+            StringBuilder builder(OverflowPolicy::RecordOverflow);
             for (char c : span) {
                 if (shouldEncode(c))
                     builder.append('%', upperNibbleToASCIIHexDigit(c), lowerNibbleToASCIIHexDigit(c));
                 else
                     builder.append(c);
+                if (builder.hasOverflowed())
+                    return { };
             }
             return builder.toString();
         });

@@ -1206,6 +1206,10 @@ imported/w3c/web-platform-tests/webauthn/remote-desktop-client-override.tentativ
 # This test adds a lot of iframes and is slow to run.
 fast/dom/connected-subframe-counter-overflow.html [ Slow ]
 
+# These tests normally timeout on mac-AS-debug-wk2.
+fast/dom/DOMURL/url-very-large-username-no-crash.html [ Slow ]
+fast/dom/DOMURL/url-very-large-password-no-crash.html [ Slow ]
+
 http/wpt/service-workers/basic-fetch-with-contentfilter-allow-after-adding-data.html [ Skip ]
 http/wpt/service-workers/basic-fetch-with-contentfilter.https.html [ Skip ]
 
