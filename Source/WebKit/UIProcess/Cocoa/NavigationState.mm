@@ -75,6 +75,7 @@
 #import "_WKSameDocumentNavigationTypeInternal.h"
 #import <JavaScriptCore/ConsoleTypes.h>
 #import <WebCore/AuthenticationMac.h>
+#import <WebCore/ContentRuleListMatchedRule.h>
 #import <WebCore/ContentRuleListResults.h>
 #import <WebCore/Credential.h>
 #import <WebCore/SecurityOriginData.h>
@@ -91,10 +92,6 @@
 #if ENABLE(WK_WEB_EXTENSIONS)
 #import "WKWebViewConfigurationPrivate.h"
 #import "WebExtensionController.h"
-#endif
-
-#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
-#import <WebCore/ContentRuleListMatchedRule.h>
 #endif
 
 #if PLATFORM(IOS_FAMILY) && !PLATFORM(MACCATALYST)
@@ -761,16 +758,16 @@ void NavigationState::NavigationClient::contentRuleListNotification(WebPageProxy
             [static_cast<id<WKNavigationDelegatePrivate>>(navigationDelegate) _webView:protectedNavigationState()->webView().get() contentRuleListWithIdentifier:pair.first.createNSString().get() performedAction:wrapper(API::ContentRuleListAction::create(WTFMove(pair.second)).get()) forURL:url.createNSURL().get()];
     }
 }
-#endif
 
-#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
 void NavigationState::NavigationClient::contentRuleListMatchedRule(WebPageProxy& page, WebCore::ContentRuleListMatchedRule&& matchedRule)
 {
     if (!m_navigationState)
         return;
 
+#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
     if (RefPtr extensionController = page.webExtensionController())
         extensionController->handleContentRuleListMatchedRule(page.identifier(), matchedRule);
+#endif
 }
 #endif
     

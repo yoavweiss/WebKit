@@ -6147,10 +6147,6 @@ struct WebCore::ContentRuleListResults {
     Vector<std::pair<String, WebCore::ContentRuleListResults::Result>> results;
 };
 
-#endif
-
-#if ENABLE(DNR_ON_RULE_MATCHED_DEBUG)
-
 struct WebCore::ContentRuleListMatchedRule {
     WebCore::ContentRuleListMatchedRule::Request request;
     WebCore::ContentRuleListMatchedRule::MatchedRule rule;
