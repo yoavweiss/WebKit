@@ -6614,13 +6614,17 @@ imported/w3c/web-platform-tests/css/css-counter-styles/counter-style-at-rule/fal
 # Missing counter-style integration with symbols() rdar://106084071
 imported/w3c/web-platform-tests/css/css-counter-styles/counter-style-at-rule/symbols-function.html [ ImageOnlyFailure ]
 
+webkit.org/b/297734 imported/w3c/web-platform-tests/css/css-counter-styles/counter-style-at-rule/descriptor-calc.html [ ImageOnlyFailure ]
+
 imported/w3c/web-platform-tests/css/css-counter-styles/counter-suffix.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-counter-styles/hebrew/counter-hebrew-nested.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-counter-styles/japanese-formal/counter-japanese-formal.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-counter-styles/japanese-informal/counter-japanese-informal.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-counter-styles/korean-hangul-formal/counter-korean-hangul-formal.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-counter-styles/korean-hanja-formal/counter-korean-hanja-formal.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-counter-styles/korean-hanja-informal/counter-korean-hanja-informal.html [ ImageOnlyFailure ]
+
+# Missing support for extended range
+imported/w3c/web-platform-tests/css/css-counter-styles/korean-hanja-informal/counter-korean-hanja-informal-extended.html
+imported/w3c/web-platform-tests/css/css-counter-styles/japanese-informal/counter-japanese-informal-extended.html
+imported/w3c/web-platform-tests/css/css-counter-styles/japanese-formal/counter-japanese-formal-extended.html
+imported/w3c/web-platform-tests/css/css-counter-styles/korean-hanja-formal/counter-korean-hanja-formal-extended.html
+imported/w3c/web-platform-tests/css/css-counter-styles/korean-hangul-formal/counter-korean-hangul-formal-extended.html
 imported/w3c/web-platform-tests/css/css-counter-styles/simp-chinese-formal/counter-simp-chinese-formal.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-counter-styles/simp-chinese-informal/counter-simp-chinese-informal.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-counter-styles/trad-chinese-formal/counter-trad-chinese-formal.html [ ImageOnlyFailure ]
