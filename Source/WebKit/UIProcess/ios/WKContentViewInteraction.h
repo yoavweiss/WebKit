@@ -596,6 +596,7 @@ struct ImageAnalysisContextMenuActionData {
 
     BOOL _waitingForEditorStateAfterScrollingSelectionContainer;
     std::optional<WebCore::IntPoint> _lastSelectionChildScrollViewContentOffset;
+    std::optional<CGPoint> _lastSelectionContainerViewOrigin;
 
     BOOL _hasSetUpInteractions;
     std::optional<BOOL> _cachedHasCustomTintColor;
