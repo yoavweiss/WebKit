@@ -102,7 +102,6 @@ struct WEBCORE_EXPORT QuirksData {
     bool needsGMailOverflowScrollQuirk : 1 { false };
     bool needsGoogleMapsScrollingQuirk : 1 { false };
     bool needsGoogleTranslateScrollingQuirk : 1 { false };
-    bool needsIPadSkypeOverflowScrollQuirk : 1 { false };
     bool needsPreloadAutoQuirk : 1 { false };
     bool needsScriptToEvaluateBeforeRunningScriptFromURLQuirk : 1 { false };
     bool needsYouTubeMouseOutQuirk : 1 { false };

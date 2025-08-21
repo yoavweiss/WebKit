@@ -537,16 +537,6 @@ bool Quirks::needsGMailOverflowScrollQuirk() const
 #endif
 }
 
-// web.skype.com webkit.org/b/275941
-bool Quirks::needsIPadSkypeOverflowScrollQuirk() const
-{
-#if PLATFORM(IOS_FAMILY)
-    return needsQuirks() && m_quirksData.needsIPadSkypeOverflowScrollQuirk;
-#else
-    return false;
-#endif
-}
-
 // FIXME: Remove after the site is fixed, <rdar://problem/50374311>
 // youtube.com rdar://49582231
 bool Quirks::needsYouTubeOverflowScrollQuirk() const
@@ -2107,18 +2097,6 @@ static void handleRalphLaurenQuirks(QuirksData& quirksData, const URL& quirksURL
     quirksData.shouldIgnoreAriaForFastPathContentObservationCheckQuirk = true;
 }
 
-static void handleSkypeQuirks(QuirksData& quirksData, const URL& quirksURL, const String& quirksDomainString, const URL& documentURL)
-{
-    UNUSED_PARAM(quirksDomainString);
-    UNUSED_PARAM(documentURL);
-    auto topDocumentHost = quirksURL.host();
-    if (topDocumentHost != "web.skype.com"_s)
-        return;
-
-    // web.skype.com webkit.org/b/275941
-    quirksData.needsIPadSkypeOverflowScrollQuirk = true;
-}
-
 static void handleSlackQuirks(QuirksData& quirksData, const URL&, const String& quirksDomainString, const URL&)
 {
     if (quirksDomainString != "slack.com"_s)
@@ -3073,9 +3051,6 @@ void Quirks::determineRelevantQuirks()
         { "slack"_s, &handleSlackQuirks },
 #endif
         { "sharepoint"_s, &handleSharePointQuirks },
-#if PLATFORM(IOS_FAMILY)
-        { "skype"_s, &handleSkypeQuirks },
-#endif
         { "soundcloud"_s, &handleSoundCloudQuirks },
 #if ENABLE(TOUCH_EVENTS)
         { "soylent"_s, &handleSoylentQuirks },
