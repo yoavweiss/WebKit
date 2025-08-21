@@ -3022,6 +3022,7 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
 
 - (void)_updateScrollGeometryWithContentOffset:(CGPoint)contentOffset contentSize:(CGSize)contentSize
 {
+#if ENABLE(SWIFTUI)
     CGSize containerSize = self.frame.size;
     auto contentInsets = _page->obscuredContentInsets();
 #if PLATFORM(IOS_FAMILY)
@@ -3042,6 +3043,7 @@ WebCore::CocoaColor *sampledFixedPositionContentColor(const WebCore::FixedContai
 
     _currentScrollGeometry = newScrollGeometry;
     [uiDelegate _webView:self geometryDidChange:newScrollGeometry.get()];
+#endif // ENABLE(SWIFTUI)
 }
 
 - (void)_updateFixedContainerEdges:(const WebCore::FixedContainerEdges&)edges
