@@ -40,6 +40,12 @@
 #include <wtf/RunLoop.h>
 #include <wtf/WorkQueue.h>
 
+#if USE(GBM)
+#include "DRMMainDevice.h"
+#include <WebCore/DRMDevice.h>
+#include <WebCore/GBMDevice.h>
+#endif
+
 namespace WebKit {
 
 struct OpenXRCoordinator::RenderState {
@@ -183,8 +189,13 @@ void OpenXRCoordinator::createLayerProjection(uint32_t width, uint32_t height, b
                     return;
                 }
 
-                if (auto layer = OpenXRLayerProjection::create(WTFMove(swapchain)))
+                if (auto layer = OpenXRLayerProjection::create(WTFMove(swapchain))) {
+#if USE(GBM)
+                    if (m_gbmDevice)
+                        layer->setGBMDevice(m_gbmDevice);
+#endif
                     m_layers.add(defaultLayerHandle(), WTFMove(layer));
+                }
             });
         });
 }
@@ -344,15 +355,32 @@ RefPtr<WebCore::GLDisplay> OpenXRCoordinator::createGLDisplay() const
     ASSERT(!m_glDisplay);
 
     const char* extensions = eglQueryString(nullptr, EGL_EXTENSIONS);
-    if (!WebCore::GLContext::isExtensionSupported(extensions, "EGL_MESA_platform_surfaceless"))
+    auto tryCreateDisplay = [&](EGLenum platform, void *native) -> RefPtr<WebCore::GLDisplay> {
+        if (WebCore::GLContext::isExtensionSupported(extensions, "EGL_EXT_platform_base"))
+            return WebCore::GLDisplay::create(eglGetPlatformDisplayEXT(platform, native, nullptr));
+        if (WebCore::GLContext::isExtensionSupported(extensions, "EGL_KHR_platform_base"))
+            return WebCore::GLDisplay::create(eglGetPlatformDisplay(platform, native, nullptr));
         return nullptr;
+    };
 
-    if (WebCore::GLContext::isExtensionSupported(extensions, "EGL_EXT_platform_base"))
-        return WebCore::GLDisplay::create(eglGetPlatformDisplayEXT(EGL_PLATFORM_SURFACELESS_MESA, EGL_DEFAULT_DISPLAY, nullptr));
-    if (WebCore::GLContext::isExtensionSupported(extensions, "EGL_KHR_platform_base"))
-        return WebCore::GLDisplay::create(eglGetPlatformDisplay(EGL_PLATFORM_SURFACELESS_MESA, EGL_DEFAULT_DISPLAY, nullptr));
+    RefPtr<WebCore::GLDisplay> glDisplay;
+    if (WebCore::GLContext::isExtensionSupported(extensions, "EGL_MESA_platform_surfaceless")) {
+        glDisplay = tryCreateDisplay(EGL_PLATFORM_SURFACELESS_MESA, EGL_DEFAULT_DISPLAY);
+        if (glDisplay && !glDisplay->extensions().MESA_image_dma_buf_export)
+            glDisplay = nullptr;
+    }
 
-    return nullptr;
+#if USE(GBM)
+    if (!glDisplay && WebCore::GLContext::isExtensionSupported(extensions, "EGL_KHR_platform_gbm")) {
+        const auto& mainDevice = drmMainDevice();
+        if (!mainDevice.isNull()) {
+            m_gbmDevice = WebCore::GBMDevice::create(!mainDevice.renderNode.isNull() ? mainDevice.renderNode : mainDevice.primaryNode);
+            glDisplay = tryCreateDisplay(EGL_PLATFORM_GBM_KHR, m_gbmDevice->device());
+        }
+    }
+#endif
+
+    return glDisplay;
 }
 
 void OpenXRCoordinator::collectViewConfigurations()
@@ -473,7 +501,12 @@ void OpenXRCoordinator::tryInitializeGraphicsBinding()
     }
 
     if (!m_glContext) {
-        m_glContext = WebCore::GLContext::create(*m_glDisplay, WebCore::GLContext::Target::Surfaceless);
+#if USE(GBM)
+        const WebCore::GLContext::Target target = m_gbmDevice ? WebCore::GLContext::Target::Default : WebCore::GLContext::Target::Surfaceless;
+#else
+        static const WebCore::GLContext::Target target = WebCore::GLContext::Target::Surfaceless;
+#endif
+        m_glContext = WebCore::GLContext::create(*m_glDisplay, target);
         if (!m_glContext) {
             LOG(XR, "Failed to create the GL context for OpenXR.");
             return;

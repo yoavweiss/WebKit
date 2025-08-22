@@ -30,6 +30,7 @@
 #include <wtf/Threading.h>
 
 namespace WebCore {
+class GBMDevice;
 class GLContext;
 class GLDisplay;
 }
@@ -100,6 +101,9 @@ private:
     XrEnvironmentBlendMode m_arBlendMode;
     PlatformXR::SessionMode m_sessionMode;
     RefPtr<WebCore::GLDisplay> m_glDisplay;
+#if USE(GBM)
+    mutable RefPtr<WebCore::GBMDevice> m_gbmDevice;
+#endif
 
     XrSession m_session { XR_NULL_HANDLE };
     XrSessionState m_sessionState { XR_SESSION_STATE_UNKNOWN };

@@ -30,6 +30,12 @@
 #include <wtf/UniqueRef.h>
 #include <wtf/Vector.h>
 
+namespace WebCore {
+class GBMDevice;
+class GLContext;
+class GLDisplay;
+}
+
 namespace WebKit {
 
 struct XRDeviceLayer;
@@ -38,13 +44,22 @@ class OpenXRLayer {
     WTF_MAKE_TZONE_ALLOCATED(OpenXRLayer);
     WTF_MAKE_NONCOPYABLE(OpenXRLayer);
 public:
-    virtual ~OpenXRLayer() = default;
+    virtual ~OpenXRLayer();
 
     virtual std::optional<PlatformXR::FrameData::LayerData> startFrame() = 0;
     virtual XrCompositionLayerBaseHeader* endFrame(const XRDeviceLayer&, XrSpace, const Vector<XrView>&) = 0;
 
+#if USE(GBM)
+    void setGBMDevice(RefPtr<WebCore::GBMDevice>);
+#endif
+
 protected:
     OpenXRLayer(UniqueRef<OpenXRSwapchain>&&);
+    std::optional<PlatformXR::FrameData::ExternalTexture> exportOpenXRTextureDMABuf(WebCore::GLDisplay&, WebCore::GLContext&, PlatformGLObject);
+#if USE(GBM)
+    std::optional<PlatformXR::FrameData::ExternalTexture> exportOpenXRTextureGBM(WebCore::GLDisplay&, PlatformGLObject);
+    void blitTexture() const;
+#endif
     std::optional<PlatformXR::FrameData::ExternalTexture> exportOpenXRTexture(PlatformGLObject);
 
     UniqueRef<OpenXRSwapchain> m_swapchain;
@@ -53,6 +68,11 @@ protected:
     using ReusableTextureIndex = uint64_t;
     HashMap<PlatformGLObject, ReusableTextureIndex> m_exportedTextures;
     ReusableTextureIndex m_nextReusableTextureIndex { 0 };
+#if USE(GBM)
+    RefPtr<WebCore::GBMDevice> m_gbmDevice;
+    HashMap<PlatformGLObject, PlatformGLObject> m_exportedTexturesMap;
+    PlatformGLObject m_fbosForBlitting[2] { 0, 0 };
+#endif
 };
 
 class OpenXRLayerProjection final: public OpenXRLayer  {
