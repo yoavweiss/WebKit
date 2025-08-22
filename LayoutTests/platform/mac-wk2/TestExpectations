@@ -2424,3 +2424,5 @@ webkit.org/b/297674 [ Sonoma Release ] http/wpt/mediarecorder/MediaRecorder-matr
 [ Debug ] ipc/send-gradient.html [ Skip ]
 [ Debug ] ipc/send-filter.html [ Skip ]
 [ Debug ] ipc/send-ignored-network-message.html [ Skip ]
+
+# webkit.org/b/297806 http/tests/permissions/storage-access-permissions-query.html [ Pass Timeout ]
