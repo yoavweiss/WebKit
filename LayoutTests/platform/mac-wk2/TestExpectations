@@ -2131,7 +2131,7 @@ webkit.org/b/291119 [ Debug ] imported/w3c/web-platform-tests/html/semantics/emb
 
 webkit.org/b/291394 [ Debug ] imported/w3c/web-platform-tests/wasm/webapi/esm-integration/script-src-blocks-wasm.tentative.sub.html [ Pass Failure ]
 
-webkit.org/b/291710 [ Debug ] swipe/basic-cached-back-swipe.html [ Pass Timeout ]
+webkit.org/b/291710 swipe/basic-cached-back-swipe.html [ Pass Timeout ]
 
 webkit.org/b/291878 [ Sequoia ] http/tests/webgpu/webgpu/shader/validation/expression/call/builtin/textureSampleBias.html [ Pass Failure Timeout ]
 
