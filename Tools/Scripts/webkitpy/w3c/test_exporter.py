@@ -356,7 +356,7 @@ class WebPlatformTestExporter(object):
 
         try:
             pr = None
-            if self.push_to_wpt_fork():
+            if not self._options.dry_run and self.push_to_wpt_fork():
                 if self._options.create_pull_request:
                     pr = self.make_pull_request()
         except Exception:
@@ -400,6 +400,7 @@ def parse_args(args):
     parser.add_argument('--no-linter', action='store_false', dest='use_linter', default=True, help='Disable linter.')
     parser.add_argument('--no-clean', action='store_false', dest='clean', help='Do not clean up.')
     parser.add_argument('--clean-on-failure', action='store_true', dest='clean_on_failure', help='Do not clean up on failure.')
+    parser.add_argument('--dry-run', action='store_true', dest='dry_run', default=False, help='Create local branch and commit but do not push to remote.')
 
     options, args = parser.parse_known_args(args)
 
