@@ -3279,7 +3279,6 @@ class CompileWebKit(shell.Compile, AddToLogMixin, ShellMixin):
     name = 'compile-webkit'
     description = ['compiling']
     descriptionDone = ['Compiled WebKit']
-    env = {'MFLAGS': ''}
     warningPattern = '.*arning: .*'
     haltOnFailure = False
     build_command = ['perl', 'Tools/Scripts/build-webkit']
