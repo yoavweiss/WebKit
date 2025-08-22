@@ -169,20 +169,24 @@ void Navigation::initializeForNewWindow(std::optional<NavigationNavigationType> 
     }
 
     // https://html.spec.whatwg.org/multipage/browsing-the-web.html#getting-session-history-entries-for-the-navigation-api
-    Vector<Ref<HistoryItem>> items;
     auto rawEntries = page->backForward().itemsForFrame(frame()->frameID());
     auto startingIndex = rawEntries.find(*currentItem);
-    if (startingIndex != notFound) {
+
+    Vector<Ref<HistoryItem>> items;
+
+    if (startingIndex == notFound)
+        items.append(*currentItem);
+    else {
         Ref startingOrigin = SecurityOrigin::create(Ref { rawEntries[startingIndex] }->url());
 
-        for (size_t i = 0; i < startingIndex; i++) {
+        for (int i = (int)startingIndex - 1; i >= 0; i--) {
             Ref item = rawEntries[i];
-
             if (!SecurityOrigin::create(item->url())->isSameOriginAs(startingOrigin))
                 break;
             items.append(WTFMove(item));
         }
 
+        items.reverse();
         items.append(*currentItem);
 
         for (size_t i = startingIndex + 1; i < rawEntries.size(); i++) {
@@ -191,8 +195,7 @@ void Navigation::initializeForNewWindow(std::optional<NavigationNavigationType> 
                 break;
             items.append(WTFMove(item));
         }
-    } else
-        items.append(*currentItem);
+    }
 
     size_t start = m_entries.size();
 
