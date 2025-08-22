@@ -23,21 +23,19 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <WebKit/WKFoundation.h>
+#include "config.h"
+#include "WKJSHandleRef.h"
 
-@class WKFrameInfo;
+#include "APIFrameInfo.h"
+#include "APIJSHandle.h"
+#include "WKAPICast.h"
 
-NS_ASSUME_NONNULL_BEGIN
+WKTypeID WKJSHandleGetTypeID()
+{
+    return WebKit::toAPI(API::Object::Type::JSHandle);
+}
 
-WK_CLASS_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA))
-@interface _WKJSHandle : NSObject
-
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (WKFrameInfo *)frame;
-- (void)windowFrameInfo:(void (^)(WKFrameInfo * _Nullable))completionHandler;
-
-@end
-
-NS_ASSUME_NONNULL_END
+WKFrameInfoRef WKJSHandleCopyFrameInfo(WKJSHandleRef handle)
+{
+    return WebKit::toAPILeakingRef(API::FrameInfo::create(WebKit::FrameInfoData { WebKit::toProtectedImpl(handle)->info().frameInfo }));
+}

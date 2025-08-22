@@ -796,7 +796,7 @@ public:
     void clearAXObjectCache();
 
     WEBCORE_EXPORT std::optional<PageIdentifier> pageID() const;
-    std::optional<FrameIdentifier> frameID() const;
+    std::optional<FrameIdentifier> frameID() const { return m_frameIdentifier; }
 
     // to get visually ordered hebrew and arabic pages right
     void setVisuallyOrdered();

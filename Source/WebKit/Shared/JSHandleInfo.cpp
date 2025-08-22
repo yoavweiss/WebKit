@@ -23,21 +23,16 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <WebKit/WKFoundation.h>
+#include "config.h"
+#include "JSHandleInfo.h"
 
-@class WKFrameInfo;
+namespace WebKit {
 
-NS_ASSUME_NONNULL_BEGIN
+WTF_MAKE_STRUCT_TZONE_ALLOCATED_IMPL(JSHandleInfo);
 
-WK_CLASS_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA))
-@interface _WKJSHandle : NSObject
+JSHandleInfo::JSHandleInfo(WebCore::JSHandleIdentifier identifier, FrameInfoData&& frameInfo, Markable<WebCore::FrameIdentifier> windowProxyFrameIdentifier)
+    : identifier(identifier)
+    , frameInfo(WTFMove(frameInfo))
+    , windowProxyFrameIdentifier(windowProxyFrameIdentifier) { }
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (WKFrameInfo *)frame;
-- (void)windowFrameInfo:(void (^)(WKFrameInfo * _Nullable))completionHandler;
-
-@end
-
-NS_ASSUME_NONNULL_END
+} // namespace WebKit

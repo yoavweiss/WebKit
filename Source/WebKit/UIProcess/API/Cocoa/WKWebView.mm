@@ -4278,15 +4278,15 @@ static RetainPtr<NSArray> wkTextManipulationErrors(NSArray<_WKTextManipulationIt
     });
 }
 
-- (void)_hitTestAtPoint:(CGPoint)point inFrameCoordinateSpace:(WKFrameInfo *)frame completionHandler:(void (^)(_WKJSHandle *, WKFrameInfo *, NSError *))completionHandler
+- (void)_hitTestAtPoint:(CGPoint)point inFrameCoordinateSpace:(WKFrameInfo *)frame completionHandler:(void (^)(_WKJSHandle *, NSError *))completionHandler
 {
     RefPtr mainFrame = _page->mainFrame();
     if (!frame && !mainFrame)
-        return completionHandler(nil, nil, unknownError().get());
+        return completionHandler(nil, unknownError().get());
     _page->hitTestAtPoint(frame ? frame->_frameInfo->frameInfoData().frameID : mainFrame->frameID(), point, [completionHandler = makeBlockPtr(completionHandler)] (auto&& result) mutable {
         if (!result)
-            return completionHandler(nil, nil, unknownError().get());
-        completionHandler(wrapper(API::JSHandle::create(WTFMove(result->node))).get(), wrapper(API::FrameInfo::create(WTFMove(result->frame))).get(), nil);
+            return completionHandler(nil, unknownError().get());
+        completionHandler(wrapper(API::JSHandle::create(WTFMove(*result))).get(), nil);
     });
 }
 

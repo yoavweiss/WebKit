@@ -47,6 +47,7 @@
 #include <WebKit/WKFrameInfoRef.h>
 #include <WebKit/WKHTTPCookieStoreRef.h>
 #include <WebKit/WKIconDatabase.h>
+#include <WebKit/WKJSHandleRef.h>
 #include <WebKit/WKMediaKeySystemPermissionCallback.h>
 #include <WebKit/WKMessageListener.h>
 #include <WebKit/WKMockMediaDevice.h>
@@ -516,16 +517,23 @@ void TestController::tooltipDidChange(WKStringRef tooltip)
     m_tooltipCallbacks.notifyListeners(tooltip);
 }
 
+void TestController::Callbacks::append(WKTypeRef handle)
+{
+    ASSERT(WKGetTypeID(handle) == WKJSHandleGetTypeID());
+    m_callbacks.append((WKJSHandleRef)handle);
+}
+
 void TestController::Callbacks::notifyListeners(WKStringRef parameter)
 {
     if (TestController::singleton().m_state != RunningTest)
         return;
 
-    for (auto& listener : m_callbacks) {
-        auto arguments = adoptWK(WKMutableDictionaryCreate());
-        setValue(arguments, "callback", listener.callbackHandle);
+    for (auto& callback : m_callbacks) {
+        WKRetainPtr arguments = adoptWK(WKMutableDictionaryCreate());
+        setValue(arguments, "callback", callback);
         setValue(arguments, "parameter", parameter);
-        WKPageCallAsyncJavaScript(WKFrameInfoGetPage(listener.frame.get()), toWK("return callback(parameter)").get(), arguments.get(), listener.frame.get(), nullptr, nullptr);
+        WKRetainPtr frame = adoptWK(WKJSHandleCopyFrameInfo(callback.get()));
+        WKPageCallAsyncJavaScript(WKFrameInfoGetPage(frame.get()), toWK("return callback(parameter)").get(), arguments.get(), frame.get(), nullptr, nullptr);
     }
 }
 
@@ -534,10 +542,11 @@ void TestController::Callbacks::notifyListeners()
     if (TestController::singleton().m_state != RunningTest)
         return;
 
-    for (auto& listener : m_callbacks) {
-        auto arguments = adoptWK(WKMutableDictionaryCreate());
-        setValue(arguments, "callback", listener.callbackHandle);
-        WKPageCallAsyncJavaScript(WKFrameInfoGetPage(listener.frame.get()), toWK("return callback()").get(), arguments.get(), listener.frame.get(), nullptr, nullptr);
+    for (auto& callback : m_callbacks) {
+        WKRetainPtr arguments = adoptWK(WKMutableDictionaryCreate());
+        setValue(arguments, "callback", callback);
+        WKRetainPtr frame = adoptWK(WKJSHandleCopyFrameInfo(callback.get()));
+        WKPageCallAsyncJavaScript(WKFrameInfoGetPage(frame.get()), toWK("return callback()").get(), arguments.get(), frame.get(), nullptr, nullptr);
     }
 }
 
@@ -1889,7 +1898,6 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
     WKArrayRef array = (WKArrayRef)messageBody;
     WKStringRef command = (WKStringRef)WKArrayGetItemAtIndex(array, 0);
     WKTypeRef argument = WKArrayGetSize(array) > 1 ? WKArrayGetItemAtIndex(array, 1) : nullptr;
-    WKFrameInfoRef frame = WKScriptMessageGetFrameInfo(message);
 
     if (WKStringIsEqualToUTF8CString(command, "FindString")) {
         WKStringRef target = (WKStringRef)argument;
@@ -1904,27 +1912,27 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallTooltipCallback")) {
-        m_tooltipCallbacks.append(frame, argument);
+        m_tooltipCallbacks.append(argument);
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallBeginSwipeCallback")) {
-        m_beginSwipeCallbacks.append(frame, argument);
+        m_beginSwipeCallbacks.append(argument);
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallWillEndSwipeCallback")) {
-        m_willEndSwipeCallbacks.append(frame, argument);
+        m_willEndSwipeCallbacks.append(argument);
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallDidEndSwipeCallback")) {
-        m_didEndSwipeCallbacks.append(frame, argument);
+        m_didEndSwipeCallbacks.append(argument);
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallDidRemoveSwipeSnapshotCallback")) {
-        m_didRemoveSwipeSnapshotCallbacks.append(frame, argument);
+        m_didRemoveSwipeSnapshotCallbacks.append(argument);
         return completionHandler(nullptr);
     }
 

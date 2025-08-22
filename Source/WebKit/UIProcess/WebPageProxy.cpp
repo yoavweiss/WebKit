@@ -13191,7 +13191,7 @@ Awaitable<std::optional<WebCore::FloatRect>> WebPageProxy::convertRectToMainFram
     } };
 }
 
-void WebPageProxy::hitTestAtPoint(WebCore::FrameIdentifier frameID, WebCore::FloatPoint point, CompletionHandler<void(std::optional<NodeAndFrameInfo>&&)>&& completionHandler)
+void WebPageProxy::hitTestAtPoint(WebCore::FrameIdentifier frameID, WebCore::FloatPoint point, CompletionHandler<void(std::optional<JSHandleInfo>&&)>&& completionHandler)
 {
     sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::HitTestAtPoint(frameID, point), [weakThis = WeakPtr { *this }, completionHandler = WTFMove(completionHandler)] (auto&& result) mutable {
         WTF::switchOn(WTFMove(result.variant), [&] (std::monostate) {
@@ -13201,7 +13201,7 @@ void WebPageProxy::hitTestAtPoint(WebCore::FrameIdentifier frameID, WebCore::Flo
             if (!protectedThis)
                 return completionHandler(std::nullopt);
             protectedThis->hitTestAtPoint(info.remoteFrameIdentifier, info.transformedPoint, WTFMove(completionHandler));
-        }, [&] (NodeAndFrameInfo&& nodeAndFrame) {
+        }, [&] (JSHandleInfo&& nodeAndFrame) {
             completionHandler(WTFMove(nodeAndFrame));
         });
     });

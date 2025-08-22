@@ -42,6 +42,11 @@
     [super dealloc];
 }
 
+- (WKFrameInfo *)frame
+{
+    return wrapper(API::FrameInfo::create(WebKit::FrameInfoData { _ref->info().frameInfo })).autorelease();
+}
+
 - (void)windowFrameInfo:(void (^)(WKFrameInfo *))completionHandler
 {
     RefPtr webFrame = WebKit::WebFrameProxy::webFrame(_ref->info().windowProxyFrameIdentifier);

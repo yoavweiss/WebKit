@@ -803,16 +803,12 @@ private:
 
     class Callbacks {
     public:
-        void append(WKFrameInfoRef frame, WKTypeRef callbackHandle) { m_callbacks.append({ frame, callbackHandle }); }
+        void append(WKTypeRef);
         void clear() { m_callbacks.clear(); }
         void notifyListeners(WKStringRef);
         void notifyListeners();
     private:
-        struct Info {
-            WKRetainPtr<WKFrameInfoRef> frame;
-            WKRetainPtr<WKTypeRef> callbackHandle;
-        };
-        Vector<Info> m_callbacks;
+        Vector<WKRetainPtr<WKJSHandleRef>> m_callbacks;
     };
     Callbacks m_tooltipCallbacks;
     Callbacks m_beginSwipeCallbacks;

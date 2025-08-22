@@ -23,21 +23,18 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <WebKit/WKFoundation.h>
+#pragma once
 
-@class WKFrameInfo;
+#include <WebKit/WKBase.h>
 
-NS_ASSUME_NONNULL_BEGIN
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-WK_CLASS_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA))
-@interface _WKJSHandle : NSObject
+WK_EXPORT WKTypeID WKJSHandleGetTypeID();
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
+WK_EXPORT WKFrameInfoRef WKJSHandleCopyFrameInfo(WKJSHandleRef handle);
 
-- (WKFrameInfo *)frame;
-- (void)windowFrameInfo:(void (^)(WKFrameInfo * _Nullable))completionHandler;
-
-@end
-
-NS_ASSUME_NONNULL_END
+#ifdef __cplusplus
+}
+#endif

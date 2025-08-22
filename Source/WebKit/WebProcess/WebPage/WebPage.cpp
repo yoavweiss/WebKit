@@ -10186,7 +10186,7 @@ void WebPage::hitTestAtPoint(WebCore::FrameIdentifier frameID, WebCore::FloatPoi
         JSLockHolder locker(lexicalGlobalObject);
         return WebCore::WebKitJSHandle::create(document, WebCore::toJS(lexicalGlobalObject, domGlobalObject, *node).toObject(lexicalGlobalObject));
     }();
-    completionHandler({ NodeAndFrameInfo { { nodeHandle->identifier(), nodeHandle->windowFrameIdentifier() }, { nodeWebFrame->info() } } });
+    completionHandler({ JSHandleInfo { nodeHandle->identifier(), nodeWebFrame->info(), nodeHandle->windowFrameIdentifier() } });
 }
 
 void WebPage::adjustVisibilityForTargetedElements(Vector<TargetedElementAdjustment>&& adjustments, CompletionHandler<void(bool)>&& completion)

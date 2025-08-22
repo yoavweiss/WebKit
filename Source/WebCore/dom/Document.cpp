@@ -10514,11 +10514,6 @@ std::optional<PageIdentifier> Document::pageID() const
     return std::nullopt;
 }
 
-std::optional<FrameIdentifier> Document::frameID() const
-{
-    return m_frameIdentifier;
-}
-
 void Document::registerArticleElement(Element& article)
 {
     m_articleElements.add(article);
