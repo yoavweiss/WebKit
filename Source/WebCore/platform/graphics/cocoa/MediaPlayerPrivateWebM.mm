@@ -1035,7 +1035,7 @@ bool MediaPlayerPrivateWebM::isReadyForMoreSamples(TrackID trackId)
 {
     if (isEnabledVideoTrackID(trackId)) {
 #if PLATFORM(IOS_FAMILY)
-        if (m_displayLayerWasInterrupted)
+        if (m_layerRequiresFlush)
             return false;
 #endif
         return protectedVideoRenderer()->isReadyForMoreMediaData();
@@ -1301,10 +1301,10 @@ void MediaPlayerPrivateWebM::flush()
 void MediaPlayerPrivateWebM::flushIfNeeded()
 {
 #if PLATFORM(IOS_FAMILY)
-    if (!m_displayLayerWasInterrupted)
+    if (!m_layerRequiresFlush)
         return;
 
-    m_displayLayerWasInterrupted = false;
+    m_layerRequiresFlush = false;
 #endif
 
     if (m_videoTracks.size())
@@ -1639,22 +1639,6 @@ bool MediaPlayerPrivateWebM::hasSelectedVideo() const
     return !!m_enabledVideoTrackID;
 }
 
-void MediaPlayerPrivateWebM::videoRendererDidReceiveError(WebSampleBufferVideoRendering *renderer, NSError *error)
-{
-#if PLATFORM(IOS_FAMILY)
-    if (renderer.status == AVQueuedSampleBufferRenderingStatusFailed && [error.domain isEqualToString:@"AVFoundationErrorDomain"] && error.code == AVErrorOperationInterrupted) {
-        m_displayLayerWasInterrupted = true;
-        return;
-    }
-#else
-    UNUSED_PARAM(renderer);
-    UNUSED_PARAM(error);
-#endif
-    setNetworkState(MediaPlayer::NetworkState::DecodeError);
-    setReadyState(MediaPlayer::ReadyState::HaveNothing);
-    m_errored = true;
-}
-
 void MediaPlayerPrivateWebM::audioRendererDidReceiveError(AVSampleBufferAudioRenderer *, NSError*)
 {
     setNetworkState(MediaPlayer::NetworkState::DecodeError);
@@ -1890,7 +1874,7 @@ void MediaPlayerPrivateWebM::setVideoRenderer(WebSampleBufferVideoRendering *ren
     m_videoRenderer = videoRenderer;
     videoRenderer->setPreferences(VideoMediaSampleRendererPreference::PrefersDecompressionSession);
     videoRenderer->setTimebase([m_synchronizer timebase]);
-    videoRenderer->notifyWhenDecodingErrorOccurred([weakThis = WeakPtr { *this }](OSStatus) {
+    videoRenderer->notifyWhenDecodingErrorOccurred([weakThis = WeakPtr { *this }](NSError *) {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
@@ -2030,7 +2014,7 @@ void MediaPlayerPrivateWebM::setLayerRequiresFlush()
 {
     ALWAYS_LOG(LOGIDENTIFIER);
 #if PLATFORM(IOS_FAMILY)
-    m_displayLayerWasInterrupted = true;
+    m_layerRequiresFlush = true;
     if (m_applicationIsActive)
         flushIfNeeded();
 #else

@@ -1106,10 +1106,6 @@ Ref<VideoMediaSampleRenderer> MediaPlayerPrivateMediaSourceAVFObjC::createVideoM
 {
     Ref videoRenderer = VideoMediaSampleRenderer::create(renderer);
     videoRenderer->setTimebase([m_synchronizer timebase]);
-    videoRenderer->notifyWhenDecodingErrorOccurred([weakThis = WeakPtr { *this }](OSStatus) {
-        if (RefPtr protectedThis = weakThis.get())
-            protectedThis->setNetworkState(MediaPlayer::NetworkState::DecodeError);
-    });
     videoRenderer->notifyFirstFrameAvailable([weakThis = WeakPtr { *this }](const MediaTime&, double) {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->setHasAvailableVideoFrame(true);
