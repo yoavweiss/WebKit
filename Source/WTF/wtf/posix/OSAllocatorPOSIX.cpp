@@ -55,7 +55,7 @@
 
 namespace WTF {
 
-void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
     // All POSIX reservations start out logically committed.
     int protection = PROT_READ;
@@ -83,7 +83,7 @@ void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, bool writable,
     int fd = -1;
 #endif
 
-    auto result = MallocSpan<uint8_t, Mmap>::mmap(bytes, protection, flags, fd);
+    auto result = MallocSpan<uint8_t, Mmap>::mmap(address, bytes, protection, flags, fd);
     if (result && includesGuardPages) {
         // We use mmap to remap the guardpages rather than using mprotect as
         // mprotect results in multiple references to the code region. This
@@ -95,7 +95,7 @@ void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, bool writable,
     return result.leakSpan().data();
 }
 
-void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
 #if OS(LINUX) || OS(HAIKU)
     UNUSED_PARAM(usage);
@@ -107,13 +107,13 @@ void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, bool writabl
     if (executable)
         protection |= PROT_EXEC;
 
-    void* result = mmap(0, bytes, protection, MAP_NORESERVE | MAP_PRIVATE | MAP_ANON, -1, 0);
+    void* result = mmap(address, bytes, protection, MAP_NORESERVE | MAP_PRIVATE | MAP_ANON, -1, 0);
     if (result == MAP_FAILED)
         result = nullptr;
     if (result)
         while (madvise(result, bytes, MADV_DONTNEED) == -1 && errno == EAGAIN) { }
 #else
-    void* result = tryReserveAndCommit(bytes, usage, writable, executable, jitCageEnabled, includesGuardPages);
+    void* result = tryReserveAndCommit(bytes, usage, address, writable, executable, jitCageEnabled, includesGuardPages);
 #if HAVE(MADV_FREE_REUSE)
     if (result) {
         // To support the "reserve then commit" model, we have to initially decommit.
@@ -126,14 +126,14 @@ void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, bool writabl
     return result;
 }
 
-void* OSAllocator::reserveUncommitted(size_t bytes, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::reserveUncommitted(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
-    void* result = tryReserveUncommitted(bytes, usage, writable, executable, jitCageEnabled, includesGuardPages);
+    void* result = tryReserveUncommitted(bytes, usage, address, writable, executable, jitCageEnabled, includesGuardPages);
     RELEASE_ASSERT(result);
     return result;
 }
 
-void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
     ASSERT(hasOneBitSet(alignment) && alignment >= pageSize());
 
@@ -151,7 +151,7 @@ void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, 
     const bool copy = false;
     const int flags = VM_FLAGS_ANYWHERE;
 
-    void* aligned = nullptr;
+    void* aligned = address;
     kern_return_t result = mach_vm_map(mach_task_self(), reinterpret_cast<mach_vm_address_t*>(&aligned), bytes, alignment - 1, flags, MEMORY_OBJECT_NULL, 0, copy, protections, protections, childProcessInheritance);
     ASSERT_UNUSED(result, result == KERN_SUCCESS || !aligned);
 #if HAVE(MADV_FREE_REUSE)
@@ -176,7 +176,7 @@ void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, 
     if (executable)
         protection |= PROT_EXEC;
 
-    void* result = mmap(0, bytes, protection, MAP_NORESERVE | MAP_PRIVATE | MAP_ANON | MAP_ALIGNED(getLSBSet(alignment)), -1, 0);
+    void* result = mmap(address, bytes, protection, MAP_NORESERVE | MAP_PRIVATE | MAP_ANON | MAP_ALIGNED(getLSBSet(alignment)), -1, 0);
     if (result == MAP_FAILED)
         return nullptr;
     if (result)
@@ -186,7 +186,7 @@ void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, 
 
     // Add the alignment so we can ensure enough mapped memory to get an aligned start.
     size_t mappedSize = bytes + alignment;
-    auto* rawMapped = reinterpret_cast<uint8_t*>(tryReserveUncommitted(mappedSize, usage, writable, executable, jitCageEnabled, includesGuardPages));
+    auto* rawMapped = reinterpret_cast<uint8_t*>(tryReserveUncommitted(mappedSize, usage, address, writable, executable, jitCageEnabled, includesGuardPages));
     if (!rawMapped)
         return nullptr;
     auto mappedSpan = unsafeMakeSpan(rawMapped, mappedSize);
@@ -205,9 +205,9 @@ void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, 
 #endif // PLATFORM(MAC) || USE(APPLE_INTERNAL_SDK)
 }
 
-void* OSAllocator::reserveAndCommit(size_t bytes, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::reserveAndCommit(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
-    void* result = tryReserveAndCommit(bytes, usage, writable, executable, jitCageEnabled, includesGuardPages);
+    void* result = tryReserveAndCommit(bytes, usage, address, writable, executable, jitCageEnabled, includesGuardPages);
     RELEASE_ASSERT(result);
     return result;
 }

@@ -84,7 +84,7 @@ public:
     static PageAllocation allocate(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, bool writable = true, bool executable = false)
     {
         ASSERT(isPageAligned(size));
-        return PageAllocation(OSAllocator::reserveAndCommit(size, usage, writable, executable), size);
+        return PageAllocation(OSAllocator::reserveAndCommit(size, usage, nullptr, writable, executable), size);
     }
 
     void deallocate()

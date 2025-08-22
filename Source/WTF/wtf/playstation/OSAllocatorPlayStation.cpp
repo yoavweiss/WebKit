@@ -38,11 +38,12 @@
 
 namespace WTF {
 
-void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
     ASSERT_UNUSED(includesGuardPages, !includesGuardPages);
     ASSERT_UNUSED(jitCageEnabled, !jitCageEnabled);
     ASSERT_UNUSED(executable, !executable);
+    ASSERT_UNUSED(address, !address);
 
     void* result = memory_extra::vss::reserve(bytes);
     if (!result)
@@ -57,13 +58,14 @@ void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, bool writable,
     return result;
 }
 
-void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
     UNUSED_PARAM(usage);
     UNUSED_PARAM(writable);
     ASSERT_UNUSED(includesGuardPages, !includesGuardPages);
     ASSERT_UNUSED(jitCageEnabled, !jitCageEnabled);
     ASSERT_UNUSED(executable, !executable);
+    ASSERT_UNUSED(address, !address);
 
     void* result = memory_extra::vss::reserve(bytes);
     if (!result)
@@ -72,18 +74,19 @@ void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, bool writabl
     return result;
 }
 
-void* OSAllocator::reserveUncommitted(size_t bytes, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::reserveUncommitted(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
-    void* result = tryReserveUncommitted(bytes, usage, writable, executable, jitCageEnabled, includesGuardPages);
+    void* result = tryReserveUncommitted(bytes, usage, address, writable, executable, jitCageEnabled, includesGuardPages);
     RELEASE_ASSERT(result);
     return result;
 }
 
-void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
     ASSERT_UNUSED(includesGuardPages, !includesGuardPages);
     ASSERT_UNUSED(jitCageEnabled, !jitCageEnabled);
     ASSERT_UNUSED(executable, !executable);
+    ASSERT_UNUSED(address, !address);
     UNUSED_PARAM(usage);
     UNUSED_PARAM(writable);
     ASSERT(hasOneBitSet(alignment) && alignment >= pageSize());
@@ -95,9 +98,9 @@ void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, 
     return result;
 }
 
-void* OSAllocator::reserveAndCommit(size_t bytes, Usage usage, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::reserveAndCommit(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
 {
-    void* result = tryReserveAndCommit(bytes, usage, writable, executable, jitCageEnabled, includesGuardPages);
+    void* result = tryReserveAndCommit(bytes, usage, address, writable, executable, jitCageEnabled, includesGuardPages);
     RELEASE_ASSERT(result);
     return result;
 }
