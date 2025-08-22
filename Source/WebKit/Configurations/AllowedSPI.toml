@@ -101,10 +101,7 @@ requires = ["HAVE_WEB_TRANSPORT"]
 request = "rdar://157886016"
 cleanup = "rdar://157886056"
 selectors = [
-    { name = "_cookieTransformCallback", class = "NSURLSessionTask" },
-    { name = "_setAllowOnlyPartitionedCookies:", class = "NSURLRequest" },
     { name = "set_cookieTransformCallback:", class = "NSURLSessionTask" },
-    { name = "set_storagePartitionIdentifier:", class = "NSURLRequest" },
 ]
 requires = ["HAVE_ALLOW_ONLY_PARTITIONED_COOKIES"]
 
@@ -138,14 +135,6 @@ selectors = [
 ]
 requires = ["HAVE_LIQUID_GLASS"]
 
-[[temporary-usage]]
-cleanup = "rdar://156271879"
-selectors = [
-    {name = "_pocketForEdge:makeIfNeeded:", class = "UIScrollView"},
-    {name = "invalidateAllElements", class = "_UIScrollPocket"},
-]
-requires = ["HAVE_LIQUID_GLASS"]
-
 [[not-web-essential]]
 # This is not really a permanent exception request; it's a bug to change
 # audit-spi to stop tracking WebPrivacy as SPI and instead treat it as a
@@ -171,7 +160,7 @@ selectors = [
     { name = "_setUseEnhancedPrivacyMode:", class = "NSURLRequest" },
     { name = "_setWebSearchContent:", class = "NSURLRequest" },
 ]
-requires = ["HAVE_STRICT_FAIL_CLOSED"]
+requires = ["HAVE_SYSTEM_SUPPORT_FOR_ADVANCED_PRIVACY_PROTECTIONS"]
 
 [[temporary-usage]]
 request = "rdar://157889218"
@@ -183,3 +172,32 @@ requires = [
     "HAVE_COREVIDEO_COMPRESSED_PIXEL_FORMAT_TYPES",
     "HAVE_LOSSLESS_COMPRESSED_IOSURFACE_CG_SUPPORT",
 ]
+
+[[temporary-usage]]
+request = "rdar://158633667"
+cleanup = "rdar://158634037"
+symbols = [
+    "_CARenderServerSnapshot",
+    "_kCASnapshotContextId",
+    "_kCASnapshotDestination",
+    "_kCASnapshotDisplayName",
+    "_kCASnapshotLayerId",
+    "_kCASnapshotMode",
+    "_kCASnapshotModeLayer",
+    "_kCASnapshotOriginX",
+    "_kCASnapshotOriginY",
+    "_kCASnapshotTimeOffset",
+    "_kCASnapshotTransform",
+]
+
+
+[[temporary-usage]]
+request = "rdar://140314886"
+cleanup = "rdar://158878742"
+selectors = [
+    { name = "_horizontalScrollIndicatorColor", class = "UIScrollView" },
+    { name = "_setHorizontalScrollIndicatorColor:", class = "UIScrollView" },
+    { name = "_setVerticalScrollIndicatorColor:", class = "UIScrollView" },
+    { name = "_verticalScrollIndicatorColor", class = "UIScrollView" },
+]
+requires = ["HAVE_UIKIT_SCROLLBAR_COLOR_SPI"]

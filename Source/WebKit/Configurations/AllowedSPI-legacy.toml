@@ -28,7 +28,7 @@ requires = [ "!HAVE_UI_SCROLL_VIEW_APIS_ADDED_IN_RADAR_112474145" ]
 selectors = [
     { name = "isInteractivelyResizing", class = "UIWindowSceneGeometry" }, # Staging_143004359
 ]
-requires = ["_IOS_BEFORE_26"]
+requires = ["!HAVE_UI_WINDOW_SCENE_LIVE_RESIZE_API_143004359"]
 
 [[legacy]]
 selectors = [
@@ -425,7 +425,6 @@ selectors = [
     { name = "interactionDidStartForURL:", class = "?" },
     { name = "invalidateURLTokenForInfo:completion:", class = "?" },
     { name = "isAutofilleSIMIdAllowedForDomain:error:", class = "?" },
-    { name = "isChecked", class = "?" },
     { name = "isErrorStatusCode:", class = "?" },
     { name = "isInHardwareKeyboardMode", class = "?" },
     { name = "isLiveCameraOnlyAction", class = "?" },
@@ -769,8 +768,6 @@ symbols = [
     "_BKSDisplayBrightnessGetCurrent",
     "_BKSHIDEventSetDigitizerInfo",
     "_CABackingStoreCollectBlocking",
-    "_CARenderServerRenderDisplayLayerWithTransformAndTimeOffset",
-    "_CARenderServerRenderLayerWithTransform",
     "_CFHTTPCookieStorageCreateFromFile",
     "_CFHTTPCookieStorageCreateFromIdentifyingData",
     "_CFHTTPCookieStorageCreateIdentifyingData",

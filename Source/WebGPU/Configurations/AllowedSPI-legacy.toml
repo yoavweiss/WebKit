@@ -3,6 +3,5 @@
 
 [[legacy]]
 selectors = [
-    { name = "newSharedEventWithMachPort:", class = "?" },
     { name = "setSampleMask:", class = "?" },
 ]
