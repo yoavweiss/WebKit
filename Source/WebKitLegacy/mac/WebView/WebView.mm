@@ -171,8 +171,8 @@
 #import <WebCore/FrameLoader.h>
 #import <WebCore/FrameSelection.h>
 #import <WebCore/FrameTree.h>
-#import <WebCore/GCController.h>
 #import <WebCore/GameControllerGamepadProvider.h>
+#import <WebCore/GarbageCollectionController.h>
 #import <WebCore/GeolocationController.h>
 #import <WebCore/GeolocationError.h>
 #import <WebCore/HTMLNames.h>
@@ -2513,7 +2513,7 @@ static bool fastDocumentTeardownEnabled()
 #ifndef NDEBUG
     // Need this to make leak messages accurate.
     if (applicationIsTerminating) {
-        WebCore::GCController::singleton().garbageCollectNow();
+        WebCore::GarbageCollectionController::singleton().garbageCollectNow();
         [WebCache setDisabled:YES];
     }
 #endif

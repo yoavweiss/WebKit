@@ -913,7 +913,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     bindings/js/DOMPromiseProxy.h
     bindings/js/DOMWrapperWorld.h
     bindings/js/ExceptionDetails.h
-    bindings/js/GCController.h
+    bindings/js/GarbageCollectionController.h
     bindings/js/IDBBindingUtilities.h
     bindings/js/JSCSSRuleCustom.h
     bindings/js/JSCSSStyleDeclarationCustom.h

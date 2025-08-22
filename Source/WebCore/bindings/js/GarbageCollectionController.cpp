@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#include "GCController.h"
+#include "GarbageCollectionController.h"
 
 #include "CommonVM.h"
 #include "JSHTMLDocument.h"
@@ -50,43 +50,43 @@ static void collect()
     commonVM().heap.collectNow(Async, CollectionScope::Full);
 }
 
-WTF_MAKE_TZONE_ALLOCATED_IMPL(GCController);
+WTF_MAKE_TZONE_ALLOCATED_IMPL(GarbageCollectionController);
 
-GCController& GCController::singleton()
+GarbageCollectionController& GarbageCollectionController::singleton()
 {
-    static NeverDestroyed<GCController> controller;
+    static NeverDestroyed<GarbageCollectionController> controller;
     return controller;
 }
 
-GCController::GCController()
-    : m_GCTimer(*this, &GCController::gcTimerFired)
+GarbageCollectionController::GarbageCollectionController()
+    : m_GCTimer(*this, &GarbageCollectionController::gcTimerFired)
 {
     static std::once_flag onceFlag;
     std::call_once(onceFlag, [] {
         PAL::registerNotifyCallback("com.apple.WebKit.dumpGCHeap"_s, [] {
-            GCController::singleton().dumpHeap();
+            GarbageCollectionController::singleton().dumpHeap();
         });
     });
 }
 
-void GCController::garbageCollectSoon()
+void GarbageCollectionController::garbageCollectSoon()
 {
     JSLockHolder lock(commonVM());
     commonVM().heap.reportAbandonedObjectGraph();
 }
 
-void GCController::garbageCollectOnNextRunLoop()
+void GarbageCollectionController::garbageCollectOnNextRunLoop()
 {
     if (!m_GCTimer.isActive())
         m_GCTimer.startOneShot(0_s);
 }
 
-void GCController::gcTimerFired()
+void GarbageCollectionController::gcTimerFired()
 {
     collect();
 }
 
-void GCController::garbageCollectNow()
+void GarbageCollectionController::garbageCollectNow()
 {
     JSLockHolder lock(commonVM());
     if (!commonVM().heap.currentThreadIsDoingGCWork()) {
@@ -95,16 +95,16 @@ void GCController::garbageCollectNow()
     }
 }
 
-void GCController::garbageCollectNowIfNotDoneRecently()
+void GarbageCollectionController::garbageCollectNowIfNotDoneRecently()
 {
     JSLockHolder lock(commonVM());
     if (!commonVM().heap.currentThreadIsDoingGCWork())
         commonVM().heap.collectNowFullIfNotDoneRecently(Async);
 }
 
-void GCController::garbageCollectOnAlternateThreadForDebugging(bool waitUntilDone)
+void GarbageCollectionController::garbageCollectOnAlternateThreadForDebugging(bool waitUntilDone)
 {
-    auto thread = Thread::create("WebCore: GCController"_s, &collect, ThreadType::GarbageCollection);
+    auto thread = Thread::create("WebCore: GarbageCollectionController"_s, &collect, ThreadType::GarbageCollection);
 
     if (waitUntilDone) {
         thread->waitForCompletion();
@@ -114,24 +114,24 @@ void GCController::garbageCollectOnAlternateThreadForDebugging(bool waitUntilDon
     thread->detach();
 }
 
-void GCController::setJavaScriptGarbageCollectorTimerEnabled(bool enable)
+void GarbageCollectionController::setJavaScriptGarbageCollectorTimerEnabled(bool enable)
 {
     commonVM().heap.setGarbageCollectionTimerEnabled(enable);
 }
 
-void GCController::deleteAllCode(DeleteAllCodeEffort effort)
+void GarbageCollectionController::deleteAllCode(DeleteAllCodeEffort effort)
 {
     JSLockHolder lock(commonVM());
     commonVM().deleteAllCode(effort);
 }
 
-void GCController::deleteAllLinkedCode(DeleteAllCodeEffort effort)
+void GarbageCollectionController::deleteAllLinkedCode(DeleteAllCodeEffort effort)
 {
     JSLockHolder lock(commonVM());
     commonVM().deleteAllLinkedCode(effort);
 }
 
-void GCController::dumpHeapForVM(VM& vm)
+void GarbageCollectionController::dumpHeapForVM(VM& vm)
 {
     auto [tempFilePath, fileHandle] = FileSystem::openTemporaryFile("GCHeap"_s);
     if (!fileHandle) {
@@ -158,7 +158,7 @@ void GCController::dumpHeapForVM(VM& vm)
     WTFLogAlways("Dumped GC heap to %s%s", tempFilePath.utf8().data(), isMainThread() ? "" : " for Worker");
 }
 
-void GCController::dumpHeap()
+void GarbageCollectionController::dumpHeap()
 {
     dumpHeapForVM(commonVM());
     WorkerGlobalScope::dumpGCHeapForWorkers();

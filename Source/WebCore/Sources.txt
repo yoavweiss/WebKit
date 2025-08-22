@@ -635,7 +635,7 @@ bindings/js/CachedScriptFetcher.cpp
 bindings/js/CommonVM.cpp
 bindings/js/DOMGCOutputConstraint.cpp
 bindings/js/DOMWrapperWorld.cpp
-bindings/js/GCController.cpp
+bindings/js/GarbageCollectionController.cpp
 bindings/js/IDBBindingUtilities.cpp
 bindings/js/InternalReadableStream.cpp
 bindings/js/InternalWritableStream.cpp

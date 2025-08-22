@@ -37,12 +37,12 @@ class VM;
 
 namespace WebCore {
 
-class GCController {
-    WTF_MAKE_TZONE_ALLOCATED(GCController);
-    WTF_MAKE_NONCOPYABLE(GCController);
-    friend class WTF::NeverDestroyed<GCController>;
+class GarbageCollectionController {
+    WTF_MAKE_TZONE_ALLOCATED(GarbageCollectionController);
+    WTF_MAKE_NONCOPYABLE(GarbageCollectionController);
+    friend class WTF::NeverDestroyed<GarbageCollectionController>;
 public:
-    WEBCORE_EXPORT static GCController& singleton();
+    WEBCORE_EXPORT static GarbageCollectionController& singleton();
     WEBCORE_EXPORT static void dumpHeapForVM(JSC::VM&);
 
     // Do nothing since this is a singleton.
@@ -62,7 +62,7 @@ public:
     WEBCORE_EXPORT void dumpHeap();
 
 private:
-    GCController(); // Use singleton() instead.
+    GarbageCollectionController(); // Use singleton() instead.
 
     void gcTimerFired();
     Timer m_GCTimer;
