@@ -4196,6 +4196,7 @@ imported/w3c/web-platform-tests/css/css-color/body-opacity-0-to-1-stacking-conte
 
 # Flakily crashing on GTK and WPE bots
 webkit.org/b/262949 media/media-garbage-collection.html [ Pass Crash Timeout Failure ]
+webkit.org/b/286131 imported/w3c/web-platform-tests/css/css-transforms/transform-box/cssbox-content-box-002.html [ Pass Crash ]
 
 imported/w3c/web-platform-tests/css/css-overscroll-behavior/overscroll-behavior.html [ Skip ]
 imported/w3c/web-platform-tests/css/css-scroll-snap/input/snap-area-overflow-boundary.html [ Skip ]
