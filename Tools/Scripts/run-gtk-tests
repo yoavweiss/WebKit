@@ -95,7 +95,7 @@ class GtkTestRunner(TestRunner):
 if __name__ == "__main__":
     runner_args = get_runner_args(sys.argv)
     flatpakutils.run_in_sandbox_if_available(runner_args)
-    if not flatpakutils.is_sandboxed() and not jhbuildutils.enter_jhbuild_environment_if_available("gtk"):
+    if not flatpakutils.is_sandboxed() and not jhbuildutils.enter_jhbuild_environment_if_available("gtk") and os.environ.get('WEBKIT_BUILD_USE_SYSTEM_LIBRARIES') != '1':
         print('***')
         print('*** Warning: jhbuild environment not present and not running in flatpak.')
         print('*** Run update-webkitgtk-libs or update-webkit-flatpak before build-webkit to ensure proper testing..')
