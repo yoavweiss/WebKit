@@ -2329,7 +2329,7 @@ imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/
 [ Sequoia arm64 ] http/tests/media/fairplay/fps-init-data-cenc.html [ Failure ]
 [ Sequoia arm64 ] http/tests/media/fairplay/fps-init-data-sinf.html [ Failure ]
 [ Sequoia arm64 ] http/tests/media/fairplay/fps-init-data-skd.html [ Failure ]
-[ Sequoia ] http/tests/media/fairplay/fps-mse-play-while-not-in-dom.html [ Pass Failure ]
+http/tests/media/fairplay/fps-mse-play-while-not-in-dom.html [ Pass Failure ]
 [ Sequoia arm64 ] http/tests/media/fairplay/fps-mse-unmuxed-audio-only.html [ Failure ]
 [ Sequoia arm64 ] http/tests/media/fairplay/fps-mse-unmuxed-key-renewal.html [ Failure ]
 [ Sequoia arm64 ] http/tests/media/fairplay/fps-mse-unmuxed-multiple-keys.html [ Failure ]
