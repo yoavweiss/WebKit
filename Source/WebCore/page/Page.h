@@ -637,7 +637,7 @@ public:
     float initialScaleIgnoringContentSize() const { return m_initialScaleIgnoringContentSize; }
     WEBCORE_EXPORT void setInitialScaleIgnoringContentSize(float);
 
-    WEBCORE_EXPORT void screenPropertiesDidChange();
+    WEBCORE_EXPORT void screenPropertiesDidChange(bool affectsStyle = true);
     void windowScreenDidChange(PlatformDisplayID, std::optional<FramesPerSecond> nominalFramesPerSecond);
     PlatformDisplayID displayID() const { return m_displayID; }
     std::optional<FramesPerSecond> displayNominalFramesPerSecond() const { return m_displayNominalFramesPerSecond; }

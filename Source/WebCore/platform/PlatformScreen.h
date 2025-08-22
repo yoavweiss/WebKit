@@ -106,7 +106,7 @@ struct ScreenData;
     
 WEBCORE_EXPORT ScreenProperties collectScreenProperties();
 WEBCORE_EXPORT void setScreenProperties(const ScreenProperties&);
-const ScreenProperties& getScreenProperties();
+WEBCORE_EXPORT const ScreenProperties& getScreenProperties();
 WEBCORE_EXPORT const ScreenData* screenData(PlatformDisplayID screendisplayID);
 WEBCORE_EXPORT PlatformDisplayID primaryScreenDisplayID();
 

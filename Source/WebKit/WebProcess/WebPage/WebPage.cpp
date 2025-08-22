@@ -2752,9 +2752,9 @@ void WebPage::enableAccessibility()
         WebCore::AXObjectCache::enableAccessibility();
 }
 
-void WebPage::screenPropertiesDidChange()
+void WebPage::screenPropertiesDidChange(bool affectsStyle)
 {
-    protectedCorePage()->screenPropertiesDidChange();
+    protectedCorePage()->screenPropertiesDidChange(affectsStyle);
 }
 
 void WebPage::setUseFixedLayout(bool fixed)
