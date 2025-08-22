@@ -240,6 +240,7 @@ private:
     bool shouldEnsureLayerOrVideoRenderer() const;
     void ensureLayer();
     void destroyLayer();
+    void destroyVideoLayerIfNeeded();
     void ensureVideoRenderer();
     void destroyVideoRenderer();
 
@@ -413,6 +414,7 @@ private:
     String m_defaultSpatialTrackingLabel;
     String m_spatialTrackingLabel;
 #endif
+    bool m_needsDestroyVideoLayer { false };
 #if ENABLE(LINEAR_MEDIA_PLAYER)
     bool m_usingLinearMediaPlayer { false };
     RetainPtr<FigVideoTargetRef> m_videoTarget;

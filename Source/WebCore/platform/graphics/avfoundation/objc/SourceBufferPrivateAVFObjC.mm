@@ -1311,6 +1311,8 @@ void SourceBufferPrivateAVFObjC::setVideoRenderer(VideoMediaSampleRenderer* rend
     if (m_videoRenderer && m_videoRenderer == renderer) {
         if (RefPtr expiringVideoRenderer = std::exchange(m_expiringVideoRenderer, nullptr))
             invalidateVideoRenderer(*expiringVideoRenderer);
+        else
+            configureVideoRenderer(*renderer);
         return;
     }
 

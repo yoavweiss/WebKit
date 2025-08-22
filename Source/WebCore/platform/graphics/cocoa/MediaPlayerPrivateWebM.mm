@@ -1359,12 +1359,22 @@ void MediaPlayerPrivateWebM::addTrackBuffer(TrackID trackId, RefPtr<MediaDescrip
     m_trackBufferMap.try_emplace(trackId, WTFMove(trackBuffer));
 }
 
+void MediaPlayerPrivateWebM::destroyVideoLayerIfNeeded()
+{
+    if (!m_needsDestroyVideoLayer)
+        return;
+    m_needsDestroyVideoLayer = false;
+    m_videoLayerManager->didDestroyVideoLayer();
+}
+
 void MediaPlayerPrivateWebM::ensureLayer()
 {
     if (m_sampleBufferDisplayLayer)
         return;
 
     ALWAYS_LOG(LOGIDENTIFIER);
+
+    destroyVideoLayerIfNeeded();
 
     m_sampleBufferDisplayLayer = adoptNS([PAL::allocAVSampleBufferDisplayLayerInstance() init]);
     if (!m_sampleBufferDisplayLayer)
@@ -1460,6 +1470,7 @@ void MediaPlayerPrivateWebM::destroyLayer()
 
     m_videoLayerManager->didDestroyVideoLayer();
     m_sampleBufferDisplayLayer = nullptr;
+    m_needsDestroyVideoLayer = false;
 }
 
 void MediaPlayerPrivateWebM::ensureVideoRenderer()
@@ -1912,6 +1923,7 @@ void MediaPlayerPrivateWebM::stageVideoRenderer(WebSampleBufferVideoRendering *r
         switch (acceleratedVideoMode()) {
         case AcceleratedVideoMode::Layer:
             renderersToExpire.append(std::exchange(m_sampleBufferVideoRenderer, { }));
+            m_needsDestroyVideoLayer = true;
             break;
         case AcceleratedVideoMode::VideoRenderer:
             if (m_sampleBufferDisplayLayer)
@@ -2004,6 +2016,7 @@ void MediaPlayerPrivateWebM::isInFullscreenOrPictureInPictureChanged(bool isInFu
     ALWAYS_LOG(LOGIDENTIFIER, isInFullscreenOrPictureInPicture);
     if (!m_usingLinearMediaPlayer)
         return;
+    destroyVideoLayerIfNeeded();
     updateDisplayLayer();
 #else
     UNUSED_PARAM(isInFullscreenOrPictureInPicture);
