@@ -494,6 +494,7 @@ class ViewSnapshot;
 class VisibleContentRectUpdateInfo;
 class VisitedLinkStore;
 class WebAuthenticatorCoordinatorProxy;
+class WebAutomationSession;
 class WebBackForwardCache;
 class WebBackForwardList;
 class WebBackForwardListFrameItem;
@@ -761,6 +762,8 @@ public:
 
     bool isControlledByAutomation() const { return m_controlledByAutomation; }
     void setControlledByAutomation(bool);
+
+    RefPtr<WebAutomationSession> activeAutomationSession() const;
 
     WebPageInspectorController& inspectorController() { return m_inspectorController.get(); }
 
