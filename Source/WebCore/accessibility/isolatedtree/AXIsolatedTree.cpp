@@ -47,6 +47,7 @@
 #include <wtf/MonotonicTime.h>
 #include <wtf/NeverDestroyed.h>
 #include <wtf/SetForScope.h>
+#include <wtf/SystemTracing.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/MakeString.h>
 
@@ -160,6 +161,10 @@ RefPtr<AXIsolatedTree> AXIsolatedTree::create(AXObjectCache& axObjectCache)
     RefPtr document = axObjectCache.document();
     if (!document)
         return nullptr;
+
+    if (AXObjectCache::isAppleInternalInstall()) [[unlikely]]
+        WTFBeginSignpostAlways(tree.ptr(), InitialAccessibilityIsolatedTreeBuild, "building isolated tree for AXObjectCache: %" PRIVATE_LOG_STRING ", is the top-document: %d", axObjectCache.debugDescription().utf8().data(), document->isTopDocument());
+
     if (!Accessibility::inRenderTreeOrStyleUpdate(*document))
         document->updateLayoutIgnorePendingStylesheets();
 
@@ -187,6 +192,9 @@ RefPtr<AXIsolatedTree> AXIsolatedTree::create(AXObjectCache& axObjectCache)
 
     // Now that the tree is ready to take client requests, add it to the tree maps so that it can be found.
     storeTree(axObjectCache, tree);
+
+    if (AXObjectCache::isAppleInternalInstall()) [[unlikely]]
+        WTFEndSignpostAlways(tree.ptr(), InitialAccessibilityIsolatedTreeBuild);
     return tree;
 }
 
@@ -1578,6 +1586,9 @@ void AXIsolatedTree::processQueuedNodeUpdates()
     if (!cache)
         return;
 
+    if (AXObjectCache::isAppleInternalInstall()) [[unlikely]]
+        WTFBeginSignpostAlways(this, UpdateAccessibilityIsolatedTree, "updating isolated tree for AXObjectCache: %" PRIVATE_LOG_STRING "", axObjectCache() ? axObjectCache()->debugDescription().utf8().data() : "null");
+
     for (const auto& nodeIDs : m_needsNodeRemoval)
         removeNode(nodeIDs.key, nodeIDs.value);
     m_needsNodeRemoval.clear();
@@ -1617,6 +1628,9 @@ void AXIsolatedTree::processQueuedNodeUpdates()
     }
 
     queueRemovalsAndUnresolvedChanges();
+
+    if (AXObjectCache::isAppleInternalInstall()) [[unlikely]]
+        WTFEndSignpostAlways(this, UpdateAccessibilityIsolatedTree);
 }
 
 #if ENABLE(AX_THREAD_TEXT_APIS)
