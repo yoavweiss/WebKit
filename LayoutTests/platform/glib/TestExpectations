@@ -2645,12 +2645,16 @@ imported/w3c/web-platform-tests/webrtc/protocol/candidate-exchange.https.html [ 
 imported/w3c/web-platform-tests/webrtc/protocol/crypto-suite.https.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/dtls-fingerprint-validation.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/dtls-setup.https.html [ Failure ]
-imported/w3c/web-platform-tests/webrtc/protocol/ice-state.https.html [ Failure ]
-imported/w3c/web-platform-tests/webrtc/protocol/ice-ufragpwd.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/msid-parse.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/rtp-payloadtypes.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/h264-profile-levels.https.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/handover-datachannel.html [ Failure ]
+
+# Expected to pass when our SDK ships GStreamer 1.28. See also:
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/80e663d5605124fbd7e4b69e69060749a541e491
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/ea69849cd89a9d1a69c98bd9c640452a5deb72c2
+imported/w3c/web-platform-tests/webrtc/protocol/ice-state.https.html [ Failure ]
+imported/w3c/web-platform-tests/webrtc/protocol/ice-ufragpwd.html [ Failure ]
 
 # Missing support for multiple MediaStreams per track/transceiver.
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3954
