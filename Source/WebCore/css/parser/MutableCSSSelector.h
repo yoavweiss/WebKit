@@ -34,13 +34,6 @@ using MutableCSSSelectorList = Vector<std::unique_ptr<MutableCSSSelector>>;
 class MutableCSSSelector {
     WTF_MAKE_TZONE_ALLOCATED(MutableCSSSelector);
 public:
-    enum class Combinator {
-        Child,
-        DescendantSpace,
-        DirectAdjacent,
-        IndirectAdjacent
-    };
-
     static std::unique_ptr<MutableCSSSelector> parsePseudoClassSelector(StringView, const CSSSelectorParserContext&);
     static std::unique_ptr<MutableCSSSelector> parsePseudoElementSelector(StringView, const CSSSelectorParserContext&);
     static std::unique_ptr<MutableCSSSelector> parsePagePseudoSelector(StringView);
@@ -106,7 +99,6 @@ public:
     void clearTagHistory() { m_tagHistory.reset(); }
     void insertTagHistory(CSSSelector::Relation before, std::unique_ptr<MutableCSSSelector>, CSSSelector::Relation after);
     void appendTagHistory(CSSSelector::Relation, std::unique_ptr<MutableCSSSelector>);
-    void appendTagHistory(Combinator, std::unique_ptr<MutableCSSSelector>);
     void appendTagHistoryAsRelative(std::unique_ptr<MutableCSSSelector>);
     void prependTagSelector(const QualifiedName&, bool tagIsForNamespaceRule = false);
     std::unique_ptr<MutableCSSSelector> releaseTagHistory();

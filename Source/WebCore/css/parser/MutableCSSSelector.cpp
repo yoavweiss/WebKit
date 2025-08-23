@@ -239,31 +239,6 @@ void MutableCSSSelector::appendTagHistoryAsRelative(std::unique_ptr<MutableCSSSe
     appendTagHistory(relation, WTFMove(selector));
 }
 
-void MutableCSSSelector::appendTagHistory(Combinator relation, std::unique_ptr<MutableCSSSelector> selector)
-{
-    auto* end = this;
-    while (end->tagHistory())
-        end = end->tagHistory();
-
-    CSSSelector::Relation selectorRelation;
-    switch (relation) {
-    case Combinator::Child:
-        selectorRelation = CSSSelector::Relation::Child;
-        break;
-    case Combinator::DescendantSpace:
-        selectorRelation = CSSSelector::Relation::DescendantSpace;
-        break;
-    case Combinator::DirectAdjacent:
-        selectorRelation = CSSSelector::Relation::DirectAdjacent;
-        break;
-    case Combinator::IndirectAdjacent:
-        selectorRelation = CSSSelector::Relation::IndirectAdjacent;
-        break;
-    }
-    end->setRelation(selectorRelation);
-    end->setTagHistory(WTFMove(selector));
-}
-
 void MutableCSSSelector::prependTagSelector(const QualifiedName& tagQName, bool tagIsForNamespaceRule)
 {
     auto second = makeUnique<MutableCSSSelector>();
