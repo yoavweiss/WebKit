@@ -4553,7 +4553,7 @@ webkit.org/b/278719 fast/events/touch/multi-touch-grouped-targets.html [ Failure
 webkit.org/b/278719 fast/events/touch/multi-touch-inside-nested-iframes.html [ Timeout ]
 webkit.org/b/278719 fast/events/touch/multi-touch-some-without-handlers.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/ontouchstart-active-selector.html [ Failure ]
-webkit.org/b/278719 fast/events/touch/page-scaled-touch-gesture-click.html [ Failure ]
+webkit.org/b/278719 fast/events/touch/page-scaled-touch-gesture-click.html [ Timeout ]
 webkit.org/b/278719 fast/events/touch/prevent-default-touchmove-prevents-scrolling.html [ Crash ]
 webkit.org/b/278719 fast/events/touch/scroll-without-mouse-lacks-mousemove-events.html [ Failure ]
 webkit.org/b/278719 fast/events/touch/send-oncancel-event.html [ Timeout ]
