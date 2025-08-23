@@ -2170,7 +2170,7 @@ static bool paintTextAreaOrTextField(const RenderObject& box, const PaintInfo& p
 #endif
 
     const auto styleColorOptions = box.styleColorOptions();
-    auto backgroundColor = RenderTheme::singleton().systemColor(CSSValueCanvas, styleColorOptions);
+    auto backgroundColor = style->visitedDependentColor(CSSPropertyBackgroundColor);
 #if PLATFORM(MAC)
     const auto prefersContrast = Theme::singleton().userPrefersContrast();
     auto borderColor = prefersContrast ? highContrastOutlineColor(styleColorOptions) : RenderTheme::singleton().systemColor(CSSValueAppleSystemContainerBorder, styleColorOptions);
