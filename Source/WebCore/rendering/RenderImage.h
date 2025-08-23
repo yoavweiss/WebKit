@@ -79,6 +79,7 @@ public:
     bool isShowingAltText() const;
 
     virtual bool shouldDisplayBrokenImageIcon() const;
+    bool shouldRespectZeroIntrinsicWidth() const override;
 
     String accessibilityDescription() const { return imageResource().image()->accessibilityDescription(); }
 
