@@ -5757,8 +5757,6 @@ webkit.org/b/279424 [ Debug ] imported/w3c/web-platform-tests/css/css-conditiona
 
 # CSS containment tests that fail
 imported/w3c/web-platform-tests/css/css-contain/contain-inline-size-bfc-floats-001.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-contain/contain-layout-button-001.tentative.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-contain/contain-layout-button-002.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-contain/contain-style-counters-002.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-contain/contain-style-counters-004.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-contain/contain-style-counters-005.html [ ImageOnlyFailure ]
