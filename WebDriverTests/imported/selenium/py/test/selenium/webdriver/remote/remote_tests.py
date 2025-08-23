@@ -15,7 +15,18 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import re
 
-def pytest_generate_tests(metafunc):
-    if "driver" in metafunc.fixturenames and metafunc.config.option.drivers:
-        metafunc.parametrize("driver", metafunc.config.option.drivers, indirect=True)
+import pytest
+
+from selenium import webdriver
+
+
+def test_remote_webdriver_requires_options_parameter():
+    msg = "missing 1 required keyword-only argument: 'options' (instance of driver `options.Options` class)"
+    with pytest.raises(TypeError, match=re.escape(msg)):
+        webdriver.Remote()
+    with pytest.raises(TypeError, match=re.escape(msg)):
+        webdriver.Remote(None)
+    with pytest.raises(TypeError, match=re.escape(msg)):
+        webdriver.Remote(options=None)
