@@ -29,6 +29,7 @@
 #include "CSSPropertyParserConsumer+LengthPercentageDefinitions.h"
 #include "CSSPropertyParserConsumer+MetaConsumer.h"
 #include "CSSPropertyParserConsumer+NumberDefinitions.h"
+#include "CSSToLengthConversionData.h"
 #include "CSSTokenizer.h"
 #include "ExceptionOr.h"
 #include "SVGElement.h"
@@ -272,18 +273,13 @@ ExceptionOr<float> SVGLengthValue::valueForBindings(const SVGLengthContext& cont
     return WTF::switchOn(m_value,
         [&](const CSS::Number<>& number) -> ExceptionOr<float> {
             if (auto raw = number.raw())
-                return context.convertValueToUserUnits(raw->value, SVGLengthType::Number, m_lengthMode);
+                return raw->value;
 
             return Exception { ExceptionCode::NotFoundError };
         },
         [&](const CSS::LengthPercentage<>& length) -> ExceptionOr<float> {
-            if (length.isCalc())
-                return Exception { ExceptionCode::NotSupportedError };
-
-            if (auto raw = length.raw()) {
-                auto lengthType = cssLengthUnitToSVGLengthType(raw->unit);
-                return context.convertValueToUserUnits(raw->value, lengthType, m_lengthMode);
-            }
+            if (auto raw = length.raw())
+                return context.resolveValueToUserUnits(raw->value, raw->unit, m_lengthMode);
 
             return Exception { ExceptionCode::NotFoundError };
         }
@@ -307,26 +303,25 @@ void SVGLengthValue::setValueInSpecifiedUnits(float value)
 
 ExceptionOr<void> SVGLengthValue::setValue(const SVGLengthContext& context, float value)
 {
-    auto svgLengthType = lengthType();
-    auto adjustedValue = adjustValueForPercentageStorage(value, svgLengthType);
-
-    auto convertedValue = context.convertValueFromUserUnits(adjustedValue, svgLengthType, m_lengthMode);
-    if (convertedValue.hasException())
-        return convertedValue.releaseException();
-
-    m_value = WTF::switchOn(m_value,
-        [&](const CSS::Number<>&) -> decltype(m_value) {
-            return CSS::Number<>(convertedValue.releaseReturnValue());
+    return WTF::switchOn(m_value,
+        [&](const CSS::Number<>&) -> ExceptionOr<void> {
+            m_value = CSS::Number<>(value);
+            return { };
         },
-        [&](const CSS::LengthPercentage<>& current) -> decltype(m_value) {
-            if (auto raw = current.raw())
-                return CSS::LengthPercentage<>(raw->unit, convertedValue.releaseReturnValue());
+        [&](const CSS::LengthPercentage<>& current) -> ExceptionOr<void> {
+            if (auto raw = current.raw()) {
+                auto resolvedValue = context.resolveValueFromUserUnits(value, raw->unit, m_lengthMode);
+                if (resolvedValue.hasException())
+                    return resolvedValue.releaseException();
 
-            return CSS::Number<>(convertedValue.releaseReturnValue());
+                m_value = resolvedValue.releaseReturnValue();
+                return { };
+            }
+
+            m_value = CSS::Number<>(value);
+            return { };
         }
     );
-
-    return { };
 }
 
 ExceptionOr<void> SVGLengthValue::setValue(const SVGLengthContext& context, float value, SVGLengthType lengthType, SVGLengthMode lengthMode)
