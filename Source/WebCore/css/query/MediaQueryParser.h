@@ -25,11 +25,12 @@
 #pragma once
 
 #include "GenericMediaQueryParser.h"
-#include "MediaQuery.h"
 #include "MediaQueryParserContext.h"
 
 namespace WebCore {
 namespace MQ {
+
+struct MediaQuery;
 
 struct MediaQueryParser : public GenericMediaQueryParser<MediaQueryParser>  {
     static MediaQueryList parse(const String&, const CSSParserContext&);

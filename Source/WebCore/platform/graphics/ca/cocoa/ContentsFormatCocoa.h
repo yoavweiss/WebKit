@@ -28,9 +28,9 @@
 #import <wtf/Platform.h>
 #if PLATFORM(COCOA)
 
-#import "ContentsFormat.h"
+#import <WebCore/ContentsFormat.h>
 #if HAVE(IOSURFACE)
-#import "IOSurface.h"
+#import <WebCore/IOSurface.h>
 #endif
 #import <pal/spi/cocoa/QuartzCoreSPI.h>
 

@@ -26,7 +26,7 @@
 #pragma once
 
 #include <WebCore/FormattingContext.h>
-#include "LayoutBoxGeometry.h"
+#include <WebCore/LayoutBoxGeometry.h>
 
 namespace WebCore {
 

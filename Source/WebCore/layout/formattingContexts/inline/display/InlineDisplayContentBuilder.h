@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <WebCore/InlineFormattingContext.h>
+#include "InlineFormattingContext.h"
 #include "InlineLineBuilder.h"
 #include <WebCore/LayoutUnits.h>
 #include <wtf/Range.h>

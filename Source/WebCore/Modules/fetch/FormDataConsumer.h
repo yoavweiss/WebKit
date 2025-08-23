@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "ScriptExecutionContextIdentifier.h"
+#include <WebCore/ScriptExecutionContextIdentifier.h>
 #include <span>
 #include <wtf/Function.h>
 #include <wtf/RefCountedAndCanMakeWeakPtr.h>

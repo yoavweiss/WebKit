@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "PseudoElementIdentifier.h"
 #include "StyleExtractorState.h"
+#include <WebCore/PseudoElementIdentifier.h>
 #include <span>
 #include <wtf/RefPtr.h>
 

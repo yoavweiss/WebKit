@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include <WebCore/FloatRect.h>
-#include <WebCore/InlineDamage.h>
-#include <WebCore/InlineFormattingConstraints.h>
-#include <WebCore/InlineFormattingContext.h>
+#include "InlineDamage.h"
+#include "InlineFormattingContext.h"
 #include "InlineIteratorInlineBox.h"
+#include <WebCore/FloatRect.h>
+#include <WebCore/InlineFormattingConstraints.h>
 #include <WebCore/InlineIteratorLineBox.h>
 #include <WebCore/InlineIteratorTextBox.h>
 #include <WebCore/LayoutIntegrationBoxGeometryUpdater.h>

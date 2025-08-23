@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "AXCoreObject.h"
-#include "AccessibilityObject.h"
+#include <WebCore/AXCoreObject.h>
+#include <WebCore/AccessibilityObject.h>
 #include <wtf/CheckedPtr.h>
 #include <wtf/TZoneMalloc.h>
 

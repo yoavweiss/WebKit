@@ -29,9 +29,9 @@
 
 #if ENABLE(DATA_DETECTION)
 
-#import "DataDetectorType.h"
-#import "FloatRect.h"
-#import "SimpleRange.h"
+#import <WebCore/DataDetectorType.h>
+#import <WebCore/FloatRect.h>
+#import <WebCore/SimpleRange.h>
 #import <wtf/OptionSet.h>
 
 #import <wtf/RetainPtr.h>

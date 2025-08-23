@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "EventTarget.h"
-#include "EventTimingInteractionID.h"
+#include <WebCore/EventTarget.h>
+#include <WebCore/EventTimingInteractionID.h>
 #include <wtf/WeakPtr.h>
 
 namespace WebCore {

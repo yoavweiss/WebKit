@@ -26,6 +26,7 @@
 #pragma once
 
 #include <WebCore/ColorTypes.h>
+#include <WebCore/PlatformExportMacros.h>
 #include <functional>
 #include <wtf/Forward.h>
 

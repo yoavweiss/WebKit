@@ -25,9 +25,9 @@
 
 #pragma once
 
+#include "InlineFormattingUtils.h"
 #include <WebCore/InlineDisplayContent.h>
 #include <WebCore/InlineFormattingConstraints.h>
-#include <WebCore/InlineFormattingUtils.h>
 #include <WebCore/InlineLayoutState.h>
 #include <WebCore/InlineQuirks.h>
 #include <WebCore/IntrinsicWidthHandler.h>

@@ -30,10 +30,11 @@
 
 #pragma once
 
+#include "CSSFontFaceSrcValue.h"
+#include "StyleBuilderState.h"
 #include <WebCore/AnchorPositionEvaluator.h>
 #include <WebCore/CSSCalcSymbolTable.h>
 #include <WebCore/CSSCalcValue.h>
-#include "CSSFontFaceSrcValue.h"
 #include <WebCore/CSSPrimitiveValue.h>
 #include <WebCore/CSSToLengthConversionData.h>
 #include <WebCore/CSSValueKeywords.h>
@@ -45,7 +46,6 @@
 #include <WebCore/SVGRenderStyleDefs.h>
 #include <WebCore/ScrollAxis.h>
 #include <WebCore/ScrollTypes.h>
-#include "StyleBuilderState.h"
 #include <WebCore/StyleScrollBehavior.h>
 #include <WebCore/StyleWebKitOverflowScrolling.h>
 #include <WebCore/StyleWebKitTouchCallout.h>

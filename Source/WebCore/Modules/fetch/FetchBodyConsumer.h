@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <WebCore/FetchBodySource.h>
+#include "FetchBodySource.h"
 #include "FormDataConsumer.h"
 #include <WebCore/JSDOMPromiseDeferredForward.h>
 #include <WebCore/ReadableStreamSink.h>
