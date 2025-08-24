@@ -616,18 +616,20 @@ static inline void extractRecursive(Node& node, Item& parentItem, TraversalConte
     if (!item)
         return;
 
-    if (context.mergeParagraphs) {
-        if (parentItem.children.isEmpty()) {
-            if (canMerge(parentItem, *item))
-                return merge(parentItem, WTFMove(*item));
-        } else if (auto& lastChild = parentItem.children.last(); canMerge(lastChild, *item))
+    if (context.mergeParagraphs && parentItem.children.isEmpty()) {
+        if (canMerge(parentItem, *item))
+            return merge(parentItem, WTFMove(*item));
+    }
+
+    if (!parentItem.children.isEmpty()) {
+        if (auto& lastChild = parentItem.children.last(); canMerge(lastChild, *item))
             return merge(lastChild, WTFMove(*item));
     }
 
     parentItem.children.append(WTFMove(*item));
 }
 
-static void pruneRedundantItemsRecursive(Item& item)
+static void pruneWhitespaceRecursive(Item& item)
 {
     item.children.removeAllMatching([](auto& child) {
         if (!child.children.isEmpty() || !std::holds_alternative<TextItemData>(child.data))
@@ -638,7 +640,33 @@ static void pruneRedundantItemsRecursive(Item& item)
     });
 
     for (auto& child : item.children)
-        pruneRedundantItemsRecursive(child);
+        pruneWhitespaceRecursive(child);
+}
+
+static void pruneEmptyContainersRecursive(Item& item)
+{
+    for (auto& child : item.children)
+        pruneEmptyContainersRecursive(child);
+
+    item.children.removeAllMatching([](auto& child) {
+        if (!child.children.isEmpty())
+            return false;
+
+        if (!child.eventListeners.isEmpty())
+            return false;
+
+        if (!child.ariaAttributes.isEmpty())
+            return false;
+
+        if (!child.accessibilityRole.isEmpty())
+            return false;
+
+        if (!std::holds_alternative<ContainerType>(child.data))
+            return false;
+
+        auto containerType = std::get<ContainerType>(child.data);
+        return containerType != ContainerType::Button;
+    });
 }
 
 Item extractItem(Request&& request, Page& page)
@@ -673,7 +701,8 @@ Item extractItem(Request&& request, Page& page)
         extractRecursive(*bodyElement, root, context);
     }
 
-    pruneRedundantItemsRecursive(root);
+    pruneWhitespaceRecursive(root);
+    pruneEmptyContainersRecursive(root);
 
     return root;
 }
