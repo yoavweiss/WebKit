@@ -26,8 +26,6 @@ trySettingLength(" ", "'0'");
 trySettingLength("foo", "'0'");
 trySettingLength("10foo", "'0'");
 trySettingLength("px", "'0'");
-trySettingLength("10px ", "'0'");
-trySettingLength("10% ", "'0'");
 trySettingLength("10 % ", "'0'");
 trySettingLength("10 %", "'0'");
 trySettingLength("10 px ", "'0'");
@@ -41,6 +39,8 @@ trySettingLength("10cm", "'10cm'");
 trySettingLength("10mm", "'10mm'");
 trySettingLength("10pt", "'10pt'");
 trySettingLength("10pc", "'10pc'");
+trySettingLength("10px ", "'10px'");
+trySettingLength("10% ", "'10%'");
 
 document.documentElement.removeChild(svgRoot);
 

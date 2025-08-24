@@ -338,12 +338,6 @@ ExceptionOr<void> SVGLengthValue::setValueAsString(StringView string)
     if (string.isEmpty())
         return { };
 
-    // FIXME: Allow leading and trailing whitespace in SVG attributes
-    // using <integer>, <angle>, <number>, <length>, and <percentage>
-    // rdar://115963075
-    if (isASCIIWhitespace(string[string.length() - 1]))
-        return Exception { ExceptionCode::SyntaxError };
-
     // CSS::Range only clamps to boundaries, but we historically handled
     // overflow values like "-45e58" to 0 instead of FLT_MAX.
     // FIXME: Consider setting to a proper value
