@@ -75,8 +75,8 @@ public:
 
     static bool canUseFor(const RenderBlockFlow&);
     static bool canUseForPreferredWidthComputation(const RenderBlockFlow&);
-    static bool shouldInvalidateLineLayoutPathAfterContentChange(const RenderBlockFlow& parent, const RenderObject& rendererWithNewContent, const LineLayout&);
-    static bool shouldInvalidateLineLayoutPathAfterTreeMutation(const RenderBlockFlow& parent, const RenderObject& renderer, const LineLayout&, bool isRemoval);
+    static bool shouldInvalidateLineLayoutAfterContentChange(const RenderBlockFlow& parent, const RenderObject& rendererWithNewContent, const LineLayout&);
+    static bool shouldInvalidateLineLayoutAfterTreeMutation(const RenderBlockFlow& parent, const RenderObject& renderer, const LineLayout&, bool isRemoval);
 
     void updateFormattingContexGeometries(LayoutUnit availableLogicalWidth);
     void updateOverflow();

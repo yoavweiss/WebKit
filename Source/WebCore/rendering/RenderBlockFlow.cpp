@@ -2445,13 +2445,6 @@ void RenderBlockFlow::styleWillChange(StyleDifference diff, const RenderStyle& n
     RenderBlock::styleWillChange(diff, newStyle);
 }
 
-void RenderBlockFlow::deleteLines()
-{
-    m_lineLayout = std::monostate();
-
-    RenderBlock::deleteLines();
-}
-
 void RenderBlockFlow::addFloatsToNewParent(RenderBlockFlow& toBlockFlow) const
 {
     // When a portion of the render tree is being detached, anonymous blocks
@@ -3804,8 +3797,15 @@ bool RenderBlockFlow::hasLines() const
     return childrenInline() ? lineCount() : false;
 }
 
-void RenderBlockFlow::invalidateLineLayoutPath(InvalidationReason invalidationReason)
+void RenderBlockFlow::invalidateLineLayout(InvalidationReason invalidationReason)
 {
+    if (invalidationReason == InvalidationReason::InternalMove) {
+        m_lineLayout = std::monostate();
+        if (AXObjectCache* cache = protectedDocument()->existingAXObjectCache())
+            cache->deferRecomputeIsIgnored(protectedElement().get());
+        return;
+    }
+
     switch (lineLayoutPath()) {
     case UndeterminedPath:
         return;

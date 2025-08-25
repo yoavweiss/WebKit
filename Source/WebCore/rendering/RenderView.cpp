@@ -105,8 +105,12 @@ RenderView::RenderView(Document& document, RenderStyle&& style)
 RenderView::~RenderView()
 {
     ASSERT_WITH_MESSAGE(!m_rendererCount, "All renderers should be in the process of being deleted.");
+}
 
-    deleteLines();
+void RenderView::willBeDestroyed()
+{
+    invalidateLineLayout(InvalidationReason::InsertionOrRemoval);
+    RenderBlockFlow::willBeDestroyed();
 }
 
 void RenderView::styleDidChange(StyleDifference diff, const RenderStyle* oldStyle)
