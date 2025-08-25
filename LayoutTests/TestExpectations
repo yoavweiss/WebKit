@@ -2298,7 +2298,6 @@ webkit.org/b/201110 imported/w3c/web-platform-tests/svg/extensibility/foreignObj
 webkit.org/b/201110 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/will-change-in-transformed-foreign-object.html [ Skip ]
 webkit.org/b/201946 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/composited-inside-object.html [ Skip ]
 webkit.org/b/201946 imported/w3c/web-platform-tests/svg/extensibility/foreignObject/compositing-backface-visibility.html [ Skip ]
-webkit.org/b/201918 imported/w3c/web-platform-tests/svg/render/reftests/change-sync-for-nested-use.html [ Skip ]
 webkit.org/b/173154 imported/w3c/web-platform-tests/svg/linking/reftests/use-keyframes.html [ Skip ]
 webkit.org/b/201992 imported/w3c/web-platform-tests/svg/linking/reftests/href-filter-element.html [ Skip ]
 
