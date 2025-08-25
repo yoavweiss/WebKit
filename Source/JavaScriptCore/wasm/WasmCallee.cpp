@@ -294,13 +294,13 @@ RegisterAtOffsetList* IPIntCallee::calleeSaveRegistersImpl()
         RegisterSet registers;
         registers.add(GPRInfo::regCS0, IgnoreVectors); // JSWebAssemblyInstance
 #if CPU(X86_64)
-        registers.add(GPRInfo::regCS1, IgnoreVectors); // PM (pointer to metadata)
+        registers.add(GPRInfo::regCS1, IgnoreVectors); // MC (pointer to metadata)
         registers.add(GPRInfo::regCS2, IgnoreVectors); // PB
 #elif CPU(ARM64) || CPU(RISCV64)
-        registers.add(GPRInfo::regCS6, IgnoreVectors); // PM
+        registers.add(GPRInfo::regCS6, IgnoreVectors); // MC
         registers.add(GPRInfo::regCS7, IgnoreVectors); // PB
 #elif CPU(ARM)
-        registers.add(GPRInfo::regCS0, IgnoreVectors); // PM
+        registers.add(GPRInfo::regCS0, IgnoreVectors); // MC
         registers.add(GPRInfo::regCS1, IgnoreVectors); // PB
 #else
 #error Unsupported architecture.

@@ -136,6 +136,8 @@ static inline RefPtr<Wasm::JITCallee> jitCompileAndSetHeuristics(Wasm::IPIntCall
             break;
         case Wasm::IPIntTierUpCounter::CompilationStatus::Compiled:
             break;
+        case Wasm::IPIntTierUpCounter::CompilationStatus::Failed:
+            return nullptr;
         }
     }
 
@@ -154,7 +156,7 @@ static inline RefPtr<Wasm::JITCallee> jitCompileAndSetHeuristics(Wasm::IPIntCall
     return getReplacement();
 }
 
-static inline Expected<RefPtr<Wasm::JITCallee>, Wasm::Plan::Error> jitCompileSIMDFunction(Wasm::IPIntCallee* callee, JSWebAssemblyInstance* instance)
+static inline Expected<RefPtr<Wasm::JITCallee>, Wasm::CompilationError> jitCompileSIMDFunction(Wasm::IPIntCallee* callee, JSWebAssemblyInstance* instance)
 {
     Wasm::IPIntTierUpCounter& tierUpCounter = callee->tierUpCounter();
 
@@ -190,6 +192,8 @@ static inline Expected<RefPtr<Wasm::JITCallee>, Wasm::Plan::Error> jitCompileSIM
                 return replacement;
             }
         }
+        case Wasm::IPIntTierUpCounter::CompilationStatus::Failed:
+            return makeUnexpected(tierUpCounter.compilationError(memoryMode));
         }
     }
 
@@ -227,7 +231,7 @@ WASM_IPINT_EXTERN_CPP_DECL(simd_go_straight_to_bbq, CallFrame* cfr)
         WASM_RETURN_TWO(result.value()->entrypoint().taggedPtr(), nullptr);
 
     switch (result.error()) {
-    case Wasm::Plan::Error::OutOfMemory:
+    case Wasm::CompilationError::OutOfMemory:
         IPINT_THROW(Wasm::ExceptionType::OutOfMemory);
     default:
         break;

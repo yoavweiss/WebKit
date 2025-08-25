@@ -77,6 +77,8 @@ private:
         runCompletionTasks();
     }
 
+    void fail(String&& errorMessage, CompilationError);
+
     const Ref<CalleeGroup> m_calleeGroup;
     FunctionCodeIndex m_functionIndex;
     bool m_completed { false };
