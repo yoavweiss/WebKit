@@ -2796,12 +2796,6 @@ std::optional<SimpleRange> WebPage::rangeForGranularityAtPoint(LocalFrame& frame
     return std::nullopt;
 }
 
-static inline bool rectIsTooBigForSelection(const IntRect& blockRect, const LocalFrame& frame)
-{
-    const float factor = 0.97;
-    return blockRect.height() > frame.view()->unobscuredContentRect().height() * factor;
-}
-
 void WebPage::updateFocusBeforeSelectingTextAtLocation(const IntPoint& point)
 {
     static constexpr OptionSet hitType { HitTestRequest::Type::ReadOnly, HitTestRequest::Type::Active, HitTestRequest::Type::AllowVisibleChildFrameContentOnly };
@@ -3685,12 +3679,6 @@ static void selectionPositionInformation(WebPage& page, const InteractionInforma
         if (RefPtr element = dynamicDowncast<Element>(*hitNode)) {
             if (isAssistableElement(*element))
                 return InteractionInformationAtPosition::Selectability::UnselectableDueToFocusableElement;
-
-            if (rectIsTooBigForSelection(info.bounds, *result.innerNodeFrame())) {
-                // We don't want to select blocks that are larger than 97% of the visible area of the document.
-                // FIXME: Is this heuristic still needed, now that block selection has been removed?
-                return InteractionInformationAtPosition::Selectability::UnselectableDueToLargeElementBounds;
-            }
 
             if (hostVideoElementIgnoringImageOverlay(*hitNode))
                 return InteractionInformationAtPosition::Selectability::UnselectableDueToMediaControls;
