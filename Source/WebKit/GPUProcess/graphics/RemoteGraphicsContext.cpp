@@ -30,6 +30,7 @@
 
 #include "GPUConnectionToWebProcess.h"
 #include "ImageBufferShareableAllocator.h"
+#include "Logging.h"
 #include "RemoteGraphicsContextMessages.h"
 #include "RemoteImageBuffer.h"
 #include "RemoteSharedResourceCache.h"
@@ -48,6 +49,8 @@
 #include "IPCSemaphore.h"
 #include "RemoteVideoFrameObjectHeap.h"
 #endif
+
+#define MESSAGE_CHECK(assertion) MESSAGE_CHECK_BASE(assertion, m_renderingBackend->streamConnection());
 
 namespace WebKit {
 using namespace WebCore;
@@ -148,10 +151,7 @@ void RemoteGraphicsContext::setFillColor(const Color& color)
 void RemoteGraphicsContext::setFillCachedGradient(RenderingResourceIdentifier identifier, const AffineTransform& spaceTransform)
 {
     RefPtr gradient = resourceCache().cachedGradient(identifier);
-    if (!gradient) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
+    MESSAGE_CHECK(gradient);
     context().setFillGradient(gradient.releaseNonNull(), spaceTransform);
 }
 
@@ -163,10 +163,7 @@ void RemoteGraphicsContext::setFillGradient(Ref<Gradient>&& gradient, const Affi
 void RemoteGraphicsContext::setFillPattern(RenderingResourceIdentifier tileImageIdentifier, const PatternParameters& parameters)
 {
     auto tileImage = sourceImage(tileImageIdentifier);
-    if (!tileImage) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
+    MESSAGE_CHECK(tileImage);
     context().setFillPattern(Pattern::create(WTFMove(*tileImage), parameters));
 }
 
@@ -188,10 +185,7 @@ void RemoteGraphicsContext::setStrokeColor(const WebCore::Color& color)
 void RemoteGraphicsContext::setStrokeCachedGradient(RenderingResourceIdentifier identifier, const AffineTransform& spaceTransform)
 {
     RefPtr gradient = resourceCache().cachedGradient(identifier);
-    if (!gradient) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
+    MESSAGE_CHECK(gradient);
     context().setStrokeGradient(gradient.releaseNonNull(), spaceTransform);
 }
 
@@ -203,10 +197,7 @@ void RemoteGraphicsContext::setStrokeGradient(Ref<Gradient>&& gradient, const Af
 void RemoteGraphicsContext::setStrokePattern(RenderingResourceIdentifier tileImageIdentifier, const PatternParameters& parameters)
 {
     auto tileImage = sourceImage(tileImageIdentifier);
-    if (!tileImage) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
+    MESSAGE_CHECK(tileImage);
     context().setStrokePattern(Pattern::create(WTFMove(*tileImage), parameters));
 }
 
@@ -327,11 +318,7 @@ void RemoteGraphicsContext::clipOutRoundedRect(const FloatRoundedRect& rect)
 void RemoteGraphicsContext::clipToImageBuffer(RenderingResourceIdentifier imageBufferIdentifier, const FloatRect& destinationRect)
 {
     RefPtr clipImage = imageBuffer(imageBufferIdentifier);
-    if (!clipImage) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
-
+    MESSAGE_CHECK(clipImage);
     context().clipToImageBuffer(*clipImage, destinationRect);
 }
 
@@ -356,21 +343,14 @@ void RemoteGraphicsContext::drawFilteredImageBufferInternal(std::optional<Render
 
     if (sourceImageIdentifier) {
         sourceImageBuffer = imageBuffer(*sourceImageIdentifier);
-        if (!sourceImageBuffer) {
-            ASSERT_NOT_REACHED();
-            return;
-        }
+        MESSAGE_CHECK(sourceImageBuffer);
     }
 
     for (auto& effect : filter.effectsOfType(FilterEffect::Type::FEImage)) {
         Ref feImage = downcast<FEImage>(effect.get());
 
         auto effectImage = sourceImage(feImage->sourceImage().imageIdentifier());
-        if (!effectImage) {
-            ASSERT_NOT_REACHED();
-            return;
-        }
-
+        MESSAGE_CHECK(effectImage);
         feImage->setImageSource(WTFMove(*effectImage));
     }
 
@@ -389,10 +369,7 @@ void RemoteGraphicsContext::drawFilteredImageBuffer(std::optional<RenderingResou
 
     RefPtr cachedFilter = resourceCache().cachedFilter(filter->renderingResourceIdentifier());
     RefPtr cachedSVGFilter = dynamicDowncast<SVGFilter>(WTFMove(cachedFilter));
-    if (!cachedSVGFilter) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
+    MESSAGE_CHECK(cachedSVGFilter);
 
     cachedSVGFilter->mergeEffects(svgFilter->effects());
 
@@ -407,49 +384,30 @@ void RemoteGraphicsContext::drawFilteredImageBuffer(std::optional<RenderingResou
 void RemoteGraphicsContext::drawGlyphs(RenderingResourceIdentifier fontIdentifier, IPC::ArrayReferenceTuple<GlyphBufferGlyph, FloatSize> glyphsAdvances, FloatPoint localAnchor, FontSmoothingMode fontSmoothingMode)
 {
     RefPtr font = resourceCache().cachedFont(fontIdentifier);
-    if (!font) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
-
+    MESSAGE_CHECK(font);
     context().drawGlyphs(*font, glyphsAdvances.span<0>(), Vector<GlyphBufferAdvance>(glyphsAdvances.span<1>()), localAnchor, fontSmoothingMode);
 }
 
 void RemoteGraphicsContext::drawDecomposedGlyphs(RenderingResourceIdentifier fontIdentifier, RenderingResourceIdentifier decomposedGlyphsIdentifier)
 {
     RefPtr font = resourceCache().cachedFont(fontIdentifier);
-    if (!font) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
-
+    MESSAGE_CHECK(font);
     RefPtr decomposedGlyphs = resourceCache().cachedDecomposedGlyphs(decomposedGlyphsIdentifier);
-    if (!decomposedGlyphs) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
+    MESSAGE_CHECK(decomposedGlyphs);
     context().drawDecomposedGlyphs(*font, *decomposedGlyphs);
 }
 
 void RemoteGraphicsContext::drawImageBuffer(RenderingResourceIdentifier imageBufferIdentifier, const FloatRect& destinationRect, const FloatRect& srcRect, ImagePaintingOptions options)
 {
     RefPtr sourceImage = imageBuffer(imageBufferIdentifier);
-    if (!sourceImage) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
-
+    MESSAGE_CHECK(sourceImage);
     context().drawImageBuffer(*sourceImage, destinationRect, srcRect, options);
 }
 
 void RemoteGraphicsContext::drawNativeImage(RenderingResourceIdentifier imageIdentifier, const FloatRect& destRect, const FloatRect& srcRect, ImagePaintingOptions options)
 {
     RefPtr image = resourceCache().cachedNativeImage(imageIdentifier);
-    if (!image) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
-
+    MESSAGE_CHECK(image);
     context().drawNativeImage(*image, destRect, srcRect, options);
 }
 
@@ -458,10 +416,7 @@ void RemoteGraphicsContext::drawSystemImage(Ref<SystemImage>&& systemImage, cons
 #if USE(SYSTEM_PREVIEW)
     if (auto* badge = dynamicDowncast<ARKitBadgeSystemImage>(systemImage.get())) {
         RefPtr nativeImage = resourceCache().cachedNativeImage(badge->imageIdentifier());
-        if (!nativeImage) {
-            ASSERT_NOT_REACHED();
-            return;
-        }
+        MESSAGE_CHECK(nativeImage);
         badge->setImage(BitmapImage::create(nativeImage.releaseNonNull()));
     }
 #endif
@@ -471,20 +426,14 @@ void RemoteGraphicsContext::drawSystemImage(Ref<SystemImage>&& systemImage, cons
 void RemoteGraphicsContext::drawPatternNativeImage(RenderingResourceIdentifier imageIdentifier, const FloatRect& destRect, const FloatRect& tileRect, const AffineTransform& transform, const FloatPoint& phase, const FloatSize& spacing, ImagePaintingOptions options)
 {
     RefPtr image = resourceCache().cachedNativeImage(imageIdentifier);
-    if (!image) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
+    MESSAGE_CHECK(image);
     context().drawPattern(*image, destRect, tileRect, transform, phase, spacing, options);
 }
 
 void RemoteGraphicsContext::drawPatternImageBuffer(RenderingResourceIdentifier imageIdentifier, const FloatRect& destRect, const FloatRect& tileRect, const AffineTransform& transform, const FloatPoint& phase, const FloatSize& spacing, ImagePaintingOptions options)
 {
     RefPtr image = imageBuffer(imageIdentifier);
-    if (!image) {
-        ASSERT_NOT_REACHED();
-        return;
-    }
+    MESSAGE_CHECK(image);
     context().drawPattern(*image, destRect, tileRect, transform, phase, spacing, options);
 }
 
@@ -768,5 +717,7 @@ std::optional<SharedPreferencesForWebProcess> RemoteGraphicsContext::sharedPrefe
 }
 
 } // namespace WebKit
+
+#undef MESSAGE_CHECK
 
 #endif // ENABLE(GPU_PROCESS)
