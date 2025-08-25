@@ -202,8 +202,7 @@ TEST(WebTransport, Unidirectional)
     EXPECT_TRUE(challenged);
 }
 
-// FIXME: Fix and enable this test.
-TEST(WebTransport, DISABLED_ServerBidirectional)
+TEST(WebTransport, ServerBidirectional)
 {
     WebTransportServer echoServer([](ConnectionGroup group) -> ConnectionTask {
         auto connection = co_await group.receiveIncomingConnection();
