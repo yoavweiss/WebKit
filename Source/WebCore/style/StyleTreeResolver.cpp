@@ -217,11 +217,15 @@ ResolvedStyle TreeResolver::styleForStyleable(const Styleable& styleable, Resolu
     // Preserve the last successful fallback by propagating it from the old to new style.
     style->setLastSuccessfulPositionTryFallbackIndex(lastSuccessfulPositionTryFallbackIndex(existingStyle, style.get()));
 
-    return {
+    ResolvedStyle resolvedStyle {
         .style = WTFMove(style),
         .relations = { },
         .matchResult = WTFMove(unadjustedStyle.matchResult)
     };
+
+    generatePositionOptionsIfNeeded(resolvedStyle, styleable, resolutionContext);
+
+    return resolvedStyle;
 }
 
 static void resetStyleForNonRenderedDescendants(Element& current)
@@ -315,7 +319,6 @@ auto TreeResolver::resolveElement(Element& element, const RenderStyle* existingS
     Styleable styleable { element, { } };
     auto resolvedStyle = styleForStyleable(styleable, resolutionType, resolutionContext, existingStyle);
 
-    generatePositionOptionsIfNeeded(resolvedStyle, styleable, resolutionContext);
     updateForPositionVisibility(*resolvedStyle.style, styleable);
 
     auto update = createAnimatedElementUpdate(WTFMove(resolvedStyle), styleable, parent().changes, resolutionContext, parent().isInDisplayNoneTree);
