@@ -4838,6 +4838,9 @@ imported/w3c/web-platform-tests/css/selectors/invalidation/media-pseudo-classes-
 
 imported/w3c/web-platform-tests/selection/caret/move-around-generated-content.html [ Crash ]
 
+# Needs rebaseline.
+fast/text/glyph-display-lists [ Skip ]
+
 # End: Common failures between GTK and WPE.
 
 #////////////////////////////////////////////////////////////////////////////////////////
