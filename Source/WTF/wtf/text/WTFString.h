@@ -27,6 +27,7 @@
 #include <span>
 
 #include <wtf/Compiler.h>
+#include <wtf/SwiftBridging.h>
 #include <wtf/text/IntegerToStringConversion.h>
 #include <wtf/text/StringImpl.h>
 
@@ -313,7 +314,7 @@ private:
     WTF_EXPORT_PRIVATE explicit String(const char* characters);
 
     RefPtr<StringImpl> m_impl;
-};
+} SWIFT_ESCAPABLE;
 
 static_assert(sizeof(String) == sizeof(void*), "String should effectively be a pointer to a StringImpl, and efficient to pass by value");
 

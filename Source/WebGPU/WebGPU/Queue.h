@@ -114,8 +114,11 @@ private:
     void removeMTLCommandBufferInternal(id<MTLCommandBuffer>);
 
     NSString* errorValidatingWriteTexture(const WGPUImageCopyTexture&, const WGPUTextureDataLayout&, const WGPUExtent3D&, size_t, const Texture&) const;
-    std::pair<id<MTLBuffer>, uint64_t> newTemporaryBufferWithBytes(std::span<uint8_t> data, bool noCopy);
 
+private PUBLIC_IN_WEBGPU_SWIFT:
+    std::pair<id<MTLBuffer>, uint64_t> newTemporaryBufferWithBytes(const std::span<uint8_t> data, bool noCopy);
+
+private:
     id<MTLCommandQueue> m_commandQueue { nil };
     id<MTLCommandBuffer> m_commandBuffer { nil };
     id<MTLBlitCommandEncoder> m_blitCommandEncoder { nil };
