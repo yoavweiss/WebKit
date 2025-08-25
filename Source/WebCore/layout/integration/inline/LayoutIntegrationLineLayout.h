@@ -26,18 +26,18 @@
 #pragma once
 
 #include "InlineDamage.h"
+#include "InlineFormattingConstraints.h"
 #include "InlineFormattingContext.h"
 #include "InlineIteratorInlineBox.h"
+#include "LayoutIntegrationBoxGeometryUpdater.h"
+#include "LayoutIntegrationBoxTreeUpdater.h"
+#include "SVGTextChunk.h"
 #include <WebCore/FloatRect.h>
-#include <WebCore/InlineFormattingConstraints.h>
 #include <WebCore/InlineIteratorLineBox.h>
 #include <WebCore/InlineIteratorTextBox.h>
-#include <WebCore/LayoutIntegrationBoxGeometryUpdater.h>
-#include <WebCore/LayoutIntegrationBoxTreeUpdater.h>
 #include <WebCore/LayoutPoint.h>
 #include <WebCore/LayoutState.h>
 #include <WebCore/RenderObjectEnums.h>
-#include "SVGTextChunk.h"
 #include <wtf/CheckedPtr.h>
 
 namespace WebCore {

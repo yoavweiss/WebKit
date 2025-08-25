@@ -27,8 +27,13 @@
 
 #if PLATFORM(MAC)
 
+#import <AppKit/NSView.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/WeakObjCPtr.h>
+
+@class NSResponder;
+@class NSTextField;
+@class NSVisualEffectView;
 
 WEBCORE_EXPORT @interface WebCoreFullScreenPlaceholderView : NSView {
 @private

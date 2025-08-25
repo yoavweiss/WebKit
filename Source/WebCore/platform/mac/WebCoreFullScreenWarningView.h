@@ -27,7 +27,11 @@
 
 #if PLATFORM(MAC) && ENABLE(FULLSCREEN_API)
 
+#import <AppKit/NSBox.h>
+#import <WebCore/PlatformExportMacros.h>
 #import <wtf/RetainPtr.h>
+
+@class NSTextField;
 
 WEBCORE_EXPORT @interface WebCoreFullScreenWarningView : NSBox {
 @private

@@ -25,8 +25,8 @@
 
 #pragma once
 
+#include "InlineContentCache.h"
 #include <WebCore/AbstractLineBuilder.h>
-#include <WebCore/InlineContentCache.h>
 
 namespace WebCore {
 namespace Layout {

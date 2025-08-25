@@ -25,8 +25,9 @@
 
 #if PLATFORM(MAC)
 
-#import "RenderThemeCocoa.h"
+#import <WebCore/RenderThemeCocoa.h>
 
+OBJC_CLASS NSPopUpButtonCell;
 OBJC_CLASS WebCoreRenderThemeNotificationObserver;
 
 namespace WebCore {
