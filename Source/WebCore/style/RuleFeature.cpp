@@ -357,8 +357,14 @@ PseudoClassInvalidationKey makePseudoClassInvalidationKey(CSSSelector::PseudoCla
     };
 };
 
+bool unlikelyToHaveSelectorForAttribute(const AtomString& name)
+{
+    return name == HTMLNames::classAttr->localName() || name == HTMLNames::idAttr->localName() || name == HTMLNames::styleAttr->localName();
+}
+
 static PseudoClassInvalidationKey makePseudoClassInvalidationKey(CSSSelector::PseudoClass pseudoClass, const CSSSelector& selector)
 {
+    AtomString attributeName;
     AtomString className;
     AtomString tagName;
     for (auto* simpleSelector = selector.firstInCompound(); simpleSelector; simpleSelector = simpleSelector->tagHistory()) {
@@ -371,9 +377,15 @@ static PseudoClassInvalidationKey makePseudoClassInvalidationKey(CSSSelector::Ps
         if (simpleSelector->match() == CSSSelector::Match::Tag)
             tagName = simpleSelector->tagLowercaseLocalName();
 
+        if (simpleSelector->isAttributeSelector() && !unlikelyToHaveSelectorForAttribute(simpleSelector->attribute().localNameLowercase()))
+            attributeName = simpleSelector->attribute().localNameLowercase();
+
         if (simpleSelector->relation() != CSSSelector::Relation::Subselector)
             break;
     }
+    if (!attributeName.isEmpty())
+        return makePseudoClassInvalidationKey(pseudoClass, InvalidationKeyType::Attribute, attributeName);
+
     if (!className.isEmpty())
         return makePseudoClassInvalidationKey(pseudoClass, InvalidationKeyType::Class, className);
 
