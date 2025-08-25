@@ -4622,9 +4622,18 @@ void MediaPlayerPrivateGStreamer::audioOutputDeviceChanged()
         return;
     }
 
-    bool changed = false;
     auto deviceId = player->audioOutputDeviceId();
+    if (deviceId == "default"_s) {
+        const auto& devices = GStreamerAudioCaptureDeviceManager::singleton().speakerDevices();
+        if (!devices.isEmpty()) [[likely]] {
+            const auto defaultDeviceIndex = devices.findIf([](const CaptureDevice& device) {
+                return device.isDefault();
+            });
+            deviceId = (defaultDeviceIndex == notFound) ? devices.first().persistentId() : devices[defaultDeviceIndex].persistentId();
+        }
+    }
 
+    bool changed = false;
     if (auto captureDevice = GStreamerAudioCaptureDeviceManager::singleton().gstreamerDeviceWithUID(deviceId)) {
         auto* device = captureDevice->device();
         GUniquePtr<char> deviceName(gst_device_get_display_name(device));
