@@ -102,8 +102,6 @@ private:
     RemoteGPU& operator=(const RemoteGPU&) = delete;
     RemoteGPU& operator=(RemoteGPU&&) = delete;
 
-    RefPtr<IPC::Connection> connection() const;
-
     void initialize();
     IPC::StreamConnectionWorkQueue& workQueue() const { return m_workQueue; }
     Ref<IPC::StreamConnectionWorkQueue> protectedWorkQueue() const { return m_workQueue; }
