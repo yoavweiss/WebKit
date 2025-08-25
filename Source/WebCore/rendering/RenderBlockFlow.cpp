@@ -741,25 +741,24 @@ LayoutUnit RenderBlockFlow::shiftForAlignContent(LayoutUnit intrinsicLogicalHeig
     if (alignment.isCentered())
         space = space / 2;
 
-    // Alright, now shift all our content.
-    if (!childrenInline()) {
-        for (CheckedPtr<RenderBox> child = firstChildBox(); child; child = child->nextSiblingBox()) {
+    // Now shift all our content.
+    if (CheckedPtr inlineLayout = this->inlineLayout())
+        inlineLayout->shiftLinesBy(space);
+    else if (auto* svgTextLayout = this->svgTextLayout()) {
+        if (isHorizontalWritingMode())
+            svgTextLayout->shiftLineBy(0, space);
+        else
+            svgTextLayout->shiftLineBy(-space, 0);
+    } else {
+        for (CheckedPtr child = firstChildBox(); child; child = child->nextSiblingBox()) {
             setLogicalTopForChild(*child, logicalTopForChild(*child) + space);
-            if (child->isOutOfFlowPositioned()) {
-                if (child->style().hasStaticBlockPosition(isHorizontalWritingMode())) {
-                    ASSERT(child->layer());
-                    child->layer()->setStaticBlockPosition(child->layer()->staticBlockPosition() + space);
-                    child->setChildNeedsLayout(MarkOnlyThis);
-                }
+            if (child->isOutOfFlowPositioned() && child->style().hasStaticBlockPosition(isHorizontalWritingMode())) {
+                ASSERT(child->layer());
+                child->layer()->setStaticBlockPosition(child->layer()->staticBlockPosition() + space);
+                child->setChildNeedsLayout(MarkOnlyThis);
             }
         }
-    } else if (svgTextLayout()) {
-        if (isHorizontalWritingMode())
-            svgTextLayout()->shiftLineBy(0, space);
-        else
-            svgTextLayout()->shiftLineBy(-space, 0);
-    } else if (inlineLayout())
-        inlineLayout()->shiftLinesBy(space);
+    }
     if (m_floatingObjects)
         m_floatingObjects->shiftFloatsBy(space);
 
