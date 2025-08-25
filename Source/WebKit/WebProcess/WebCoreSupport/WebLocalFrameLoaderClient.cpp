@@ -1884,7 +1884,7 @@ Ref<FrameNetworkingContext> WebLocalFrameLoaderClient::createNetworkingContext()
 
 #if ENABLE(CONTENT_FILTERING)
 
-void WebLocalFrameLoaderClient::contentFilterDidBlockLoad(WebCore::ContentFilterUnblockHandler unblockHandler)
+void WebLocalFrameLoaderClient::contentFilterDidBlockLoad(WebCore::ContentFilterUnblockHandler&& unblockHandler)
 {
     if (!unblockHandler.needsUIProcess()) {
         m_localFrame->loader().policyChecker().setContentFilterUnblockHandler(WTFMove(unblockHandler));
@@ -1892,7 +1892,7 @@ void WebLocalFrameLoaderClient::contentFilterDidBlockLoad(WebCore::ContentFilter
     }
 
     if (RefPtr webPage = m_frame->page())
-        webPage->send(Messages::WebPageProxy::ContentFilterDidBlockLoadForFrame(unblockHandler, m_frame->frameID()));
+        webPage->send(Messages::WebPageProxy::ContentFilterDidBlockLoadForFrame(WTFMove(unblockHandler), m_frame->frameID()));
 }
 
 #endif

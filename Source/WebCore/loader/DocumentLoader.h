@@ -473,7 +473,7 @@ public:
     void setSubstituteDataFromContentFilter(SubstituteData&& substituteDataFromContentFilter) { m_substituteDataFromContentFilter = WTFMove(substituteDataFromContentFilter); }
     ContentFilter* contentFilter() const { return m_contentFilter.get(); }
 
-    WEBCORE_EXPORT ResourceError handleContentFilterDidBlock(ContentFilterUnblockHandler, String&& unblockRequestDeniedScript);
+    WEBCORE_EXPORT ResourceError handleContentFilterDidBlock(ContentFilterUnblockHandler&&, String&& unblockRequestDeniedScript);
 #endif
 
     void startIconLoading();
@@ -594,7 +594,7 @@ private:
 #if ENABLE(CONTENT_FILTERING)
     // ContentFilterClient
     WEBCORE_EXPORT void dataReceivedThroughContentFilter(const SharedBuffer&) final;
-    WEBCORE_EXPORT ResourceError contentFilterDidBlock(ContentFilterUnblockHandler, String&& unblockRequestDeniedScript) final;
+    WEBCORE_EXPORT ResourceError contentFilterDidBlock(ContentFilterUnblockHandler&&, String&& unblockRequestDeniedScript) final;
     WEBCORE_EXPORT void cancelMainResourceLoadForContentFilter(const ResourceError&) final;
     WEBCORE_EXPORT void handleProvisionalLoadFailureFromContentFilter(const URL& blockedPageURL, SubstituteData&&) final;
 #if HAVE(WEBCONTENTRESTRICTIONS)

@@ -328,7 +328,7 @@ public:
 #endif
 
 #if ENABLE(CONTENT_FILTERING)
-    virtual void contentFilterDidBlockLoad(ContentFilterUnblockHandler) { }
+    virtual void contentFilterDidBlockLoad(ContentFilterUnblockHandler&&) { }
 #endif
 
     virtual void prefetchDNS(const String&) = 0;
