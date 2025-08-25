@@ -575,10 +575,10 @@ UGPRPair SYSV_ABI llint_check_stack_and_vm_traps(CallFrame* callFrame, const JSI
 #if ENABLE(C_LOOP)
     Register* newTopOfStackRegister = reinterpret_cast<Register*>(newTopOfStack);
     if (newTopOfStackRegister < reinterpret_cast<Register*>(callFrame)) {
-        ASSERT(!vm.cloopStack().containsAddress(newTopOfStackRegister));
         if (!vm.ensureJSStackCapacityFor(newTopOfStackRegister))
             imminentOverflowDetected = true;
-    }
+    } else
+        imminentOverflowDetected = true; // Stack underflow == overflow.
 #else // not C_LOOP case
 
     void* softStackLimit = vm.softStackLimit();
