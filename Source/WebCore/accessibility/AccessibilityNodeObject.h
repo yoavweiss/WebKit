@@ -79,6 +79,7 @@ public:
     bool canSetSelectedAttribute() const override;
 
     Node* node() const final { return m_node.get(); }
+    CheckedPtr<Node> checkedNode() const { return node(); }
     Document* document() const override;
     LocalFrameView* documentFrameView() const override;
 

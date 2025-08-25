@@ -56,7 +56,6 @@ accessibility/AccessibilityScrollView.cpp
 accessibility/AccessibilityScrollbar.cpp
 accessibility/AccessibilitySlider.cpp
 accessibility/AccessibilitySpinButton.cpp
-accessibility/AccessibilityTableCell.cpp
 accessibility/cocoa/AccessibilityObjectCocoa.mm
 accessibility/isolatedtree/AXIsolatedTree.cpp
 accessibility/mac/AXObjectCacheMac.mm

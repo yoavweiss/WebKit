@@ -106,8 +106,8 @@ AccessibilityObject* AccessibilityTableCell::parentTable() const
     // always be the case when AT clients access a table.
     // https://bugs.webkit.org/show_bug.cgi?id=42652
     RefPtr<AccessibilityObject> tableFromRenderTree;
-    if (auto* renderTableCell = dynamicDowncast<RenderTableCell>(renderer()))
-        tableFromRenderTree = cache->get(renderTableCell->table());
+    if (CheckedPtr renderTableCell = dynamicDowncast<RenderTableCell>(renderer()))
+        tableFromRenderTree = cache->get(renderTableCell->checkedTable().get());
 
     if (!tableFromRenderTree || !tableFromRenderTree->isTable()) {
         if (node()) {
@@ -302,7 +302,7 @@ void AccessibilityTableCell::setRowIndex(unsigned index)
     m_rowIndex = index;
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    if (auto* cache = axObjectCache())
+    if (CheckedPtr cache = axObjectCache())
         cache->rowIndexChanged(*this);
 #endif
 }
@@ -314,7 +314,7 @@ void AccessibilityTableCell::setColumnIndex(unsigned index)
     m_columnIndex = index;
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    if (auto* cache = axObjectCache())
+    if (CheckedPtr cache = axObjectCache())
         cache->columnIndexChanged(*this);
 #endif
 }
@@ -341,31 +341,32 @@ AccessibilityObject* AccessibilityTableCell::titleUIElement() const
 
     // Table cells that are th cannot have title ui elements, since by definition
     // they are title ui elements
-    if (WebCore::elementName(node()) == ElementName::HTML_th)
+    if (WebCore::elementName(checkedNode().get()) == ElementName::HTML_th)
         return nullptr;
 
-    RenderTableCell& renderCell = downcast<RenderTableCell>(*m_renderer);
+    CheckedRef renderCell = downcast<RenderTableCell>(*m_renderer);
 
     // If this cell is in the first column, there is no need to continue.
-    int col = renderCell.col();
+    int col = renderCell->col();
     if (!col)
         return nullptr;
 
-    int row = renderCell.rowIndex();
+    int row = renderCell->rowIndex();
 
-    RenderTableSection* section = renderCell.section();
+    CheckedPtr section = renderCell->section();
     if (!section)
         return nullptr;
 
-    RenderTableCell* headerCell = section->primaryCellAt(row, 0);
-    if (!headerCell || headerCell == &renderCell)
+    CheckedPtr headerCell = section->primaryCellAt(row, 0);
+    if (!headerCell || headerCell.get() == renderCell.ptr())
         return nullptr;
 
     RefPtr element = headerCell->element();
     if (!element || element->elementName() != ElementName::HTML_th)
         return nullptr;
 
-    return axObjectCache()->getOrCreate(*headerCell);
+    CheckedPtr cache = axObjectCache();
+    return cache ? cache->getOrCreate(*headerCell) : nullptr;
 }
 
 std::optional<unsigned> AccessibilityTableCell::axColumnIndex() const
