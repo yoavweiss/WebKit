@@ -77,7 +77,7 @@ public:
 #if ENABLE(EXTENSION_CAPABILITIES)
         virtual bool setCurrentMediaEnvironment(WebCore::PageIdentifier) { return false; };
 #endif
-        virtual void startProducingData(WebCore::CaptureDevice::DeviceType) { }
+        virtual void startProducingData(WebCore::CaptureDevice::DeviceType, WebCore::PageIdentifier) { }
         virtual RemoteVideoFrameObjectHeap* remoteVideoFrameObjectHeap() { return nullptr; }
 
         virtual void startMonitoringCaptureDeviceRotation(WebCore::PageIdentifier, const String&) { }

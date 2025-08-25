@@ -37,6 +37,10 @@
 #include <wtf/HashCountedSet.h>
 #include <wtf/TZoneMallocInlines.h>
 
+#if PLATFORM(IOS_FAMILY)
+#include <WebCore/MediaSessionHelperIOS.h>
+#endif
+
 namespace WebKit {
 
 using namespace WebCore;
@@ -168,6 +172,38 @@ bool RemoteAudioSessionProxyManager::hasActiveNotInterruptedProxy()
     return false;
 }
 
+#if PLATFORM(IOS_FAMILY)
+static void providePresentingApplicationPID(RemoteAudioSessionProxy& proxy)
+{
+    ProcessID pid;
+
+#if PLATFORM(APPLETV)
+    pid = GPUProcess::singleton().parentProcessConnection()->remoteProcessID();
+#else
+    RefPtr webProcessConnection = proxy.gpuConnectionToWebProcess();
+    if (!webProcessConnection)
+        return;
+
+    auto& auditTokens = webProcessConnection->presentingApplicationAuditTokens();
+    ASSERT(!auditTokens.isEmpty());
+    if (auditTokens.isEmpty())
+        return;
+
+    // Presenting application audit tokens are per-page, but AudioSessions are per-web-process,
+    // and it's not straightforward to know in the GPU process which page is responsible for activating
+    // the shared AVAudioSession. In reality, all pages in a given web process share a presenting
+    // application, so it's sufficient to use the first page's audit token.
+    pid = webProcessConnection->presentingApplicationPID(*auditTokens.keys().begin());
+#ifndef NDEBUG
+    for (auto& pageIdentifier : auditTokens.keys())
+        ASSERT(pid == webProcessConnection->presentingApplicationPID(pageIdentifier));
+#endif
+#endif
+
+    MediaSessionHelper::sharedHelper().providePresentingApplicationPID(pid);
+}
+#endif
+
 bool RemoteAudioSessionProxyManager::tryToSetActiveForProcess(RemoteAudioSessionProxy& proxy, bool active)
 {
     ASSERT(m_proxies.contains(proxy));
@@ -184,6 +220,10 @@ bool RemoteAudioSessionProxyManager::tryToSetActiveForProcess(RemoteAudioSession
         // was sucessful.
         return AudioSession::singleton().tryToSetActive(false);
     }
+
+#if PLATFORM(IOS_FAMILY)
+    providePresentingApplicationPID(proxy);
+#endif
 
     if (!hasActiveNotInterruptedProxy()) {
         // This proxy and only this proxy wants to become active. Activate

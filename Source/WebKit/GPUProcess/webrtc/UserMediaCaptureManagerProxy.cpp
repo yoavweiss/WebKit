@@ -642,7 +642,7 @@ void UserMediaCaptureManagerProxy::startProducingData(RealtimeMediaSourceIdentif
         return;
     }
 #endif // ENABLE(EXTENSION_CAPABILITIES) && !PLATFORM(IOS_FAMILY_SIMULATOR)
-    m_connectionProxy->startProducingData(source->deviceType());
+    m_connectionProxy->startProducingData(source->deviceType(), pageIdentifier);
     proxy->start();
 }
 

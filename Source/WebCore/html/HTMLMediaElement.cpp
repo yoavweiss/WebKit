@@ -9961,20 +9961,6 @@ void HTMLMediaElement::isActiveNowPlayingSessionChanged()
         page->hasActiveNowPlayingSessionChanged();
 }
 
-std::optional<ProcessID> HTMLMediaElement::mediaSessionPresentingApplicationPID() const
-{
-    RefPtr page = protectedDocument()->page();
-    if (!page)
-        return std::nullopt;
-
-#if ENABLE(EXTENSION_CAPABILITIES)
-    if (page->settings().mediaCapabilityGrantsEnabled())
-        return std::nullopt;
-#endif
-
-    return page->presentingApplicationPID();
-}
-
 #if HAVE(SPATIAL_TRACKING_LABEL)
 void HTMLMediaElement::updateSpatialTrackingLabel()
 {

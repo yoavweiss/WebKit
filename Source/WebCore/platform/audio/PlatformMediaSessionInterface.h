@@ -107,8 +107,6 @@ public:
 
     virtual void isActiveNowPlayingSessionChanged() = 0;
 
-    virtual std::optional<ProcessID> mediaSessionPresentingApplicationPID() const = 0;
-
 #if !RELEASE_LOG_DISABLED
     virtual const Logger& logger() const = 0;
     Ref<const Logger> protectedLogger() const { return logger(); }
@@ -231,8 +229,6 @@ public:
 
     virtual bool isActiveNowPlayingSession() const = 0;
     virtual void setActiveNowPlayingSession(bool) = 0;
-
-    virtual std::optional<ProcessID> presentingApplicationPID() const { return client().mediaSessionPresentingApplicationPID(); }
 
     virtual void audioSessionCategoryChanged(AudioSessionCategory, AudioSessionMode, RouteSharingPolicy) { }
 
