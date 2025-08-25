@@ -81,8 +81,10 @@ void GPUQueue::submit(Vector<Ref<GPUCommandBuffer>>&& commandBuffers)
     m_backing->submit(WTFMove(result));
 
     if (RefPtr device = m_device.get()) {
-        for (Ref commandBuffer : commandBuffers)
+        for (Ref commandBuffer : commandBuffers) {
+            commandBuffer->setOverrideLabel(commandBuffer->label());
             commandBuffer->setBacking(device->invalidCommandEncoder(), device->invalidCommandBuffer());
+        }
     }
 }
 
