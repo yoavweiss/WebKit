@@ -570,7 +570,7 @@ WI.SpreadsheetTextField = class SpreadsheetTextField
         let caretPosition = this._getCaretPosition();
         let value = this.valueWithoutSuggestion();
 
-        this._pendingValue = value.slice(0, caretPosition - this._completionPrefix.length) + this._completionText + value.slice(caretPosition + 1, value.length);
+        this._pendingValue = value.slice(0, caretPosition - this._completionPrefix.length) + this._completionText + value.slice(caretPosition, value.length);
     }
 
     _reAttachSuggestionHint()
