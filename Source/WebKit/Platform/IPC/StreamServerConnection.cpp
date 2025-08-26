@@ -118,11 +118,10 @@ void StreamServerConnection::didReceiveMessage(Connection&, Decoder&)
     // All messages go to message queue.
     ASSERT_NOT_REACHED();
 }
-bool StreamServerConnection::didReceiveSyncMessage(Connection&, Decoder&, UniqueRef<Encoder>&)
+void StreamServerConnection::didReceiveSyncMessage(Connection&, Decoder&, UniqueRef<Encoder>&)
 {
     // All messages go to message queue.
     ASSERT_NOT_REACHED();
-    return false;
 }
 
 void StreamServerConnection::didClose(Connection&)

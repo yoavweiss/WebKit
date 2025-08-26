@@ -132,7 +132,7 @@ private:
 
     // Connection::Client
     void didReceiveMessage(Connection&, Decoder&) final;
-    bool didReceiveSyncMessage(Connection&, Decoder&, UniqueRef<Encoder>&) final;
+    void didReceiveSyncMessage(Connection&, Decoder&, UniqueRef<Encoder>&) final;
     void didClose(Connection&) final;
     void didReceiveInvalidMessage(Connection&, MessageName, const Vector<uint32_t>& indicesOfObjectsFailingDecoding) final;
 

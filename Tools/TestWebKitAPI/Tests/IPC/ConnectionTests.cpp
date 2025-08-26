@@ -1104,7 +1104,7 @@ TEST_P(ConnectionRunLoopTest, SyncMessageNotHandledIsCancelled)
             gotDestination = decoder.destinationID();
             // Unhandled message.
             if (decoder.destinationID() == 77)
-                return false; // Message destination was unknown, unhandled message.
+                return true; // Message destination was unknown, unhandled message.
             if (decoder.destinationID() == 99) {
                 b()->sendSyncReply(WTFMove(encoder));
                 return true;

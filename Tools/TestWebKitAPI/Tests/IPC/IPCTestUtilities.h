@@ -211,12 +211,12 @@ private:
             return;
         addMessage(decoder);
     }
-    bool didReceiveSyncMessage(IPC::Connection& connection, IPC::Decoder& decoder, UniqueRef<IPC::Encoder>& encoder) override
+    void didReceiveSyncMessage(IPC::Connection& connection, IPC::Decoder& decoder, UniqueRef<IPC::Encoder>& encoder) override
     {
-        if (m_syncMessageHandler)
-            return m_syncMessageHandler(connection, decoder, encoder);
+        if (m_syncMessageHandler && m_syncMessageHandler(connection, decoder, encoder))
+            return;
         addMessage(decoder);
-        return false;
+        return;
     }
 
     void didClose(IPC::Connection&) override

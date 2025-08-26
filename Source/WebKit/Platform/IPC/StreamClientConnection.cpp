@@ -44,9 +44,9 @@ void StreamClientConnection::DedicatedConnectionClient::didReceiveMessage(Connec
     m_receiver->didReceiveMessage(connection, decoder);
 }
 
-bool StreamClientConnection::DedicatedConnectionClient::didReceiveSyncMessage(Connection& connection, Decoder& decoder, UniqueRef<Encoder>& replyEncoder)
+void StreamClientConnection::DedicatedConnectionClient::didReceiveSyncMessage(Connection& connection, Decoder& decoder, UniqueRef<Encoder>& replyEncoder)
 {
-    return m_receiver->didReceiveSyncMessage(connection, decoder, replyEncoder);
+    m_receiver->didReceiveSyncMessage(connection, decoder, replyEncoder);
 }
 
 void StreamClientConnection::DedicatedConnectionClient::didClose(Connection& connection)
