@@ -25,8 +25,11 @@
 
 #pragma once
 
+#include <wtf/Platform.h>
+
 #if ENABLE(WEBGL)
 
+#include <WebCore/WebGLExtension.h>
 #include <wtf/Ref.h>
 
 namespace WebCore {
