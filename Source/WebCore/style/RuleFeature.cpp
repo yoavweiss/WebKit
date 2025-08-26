@@ -58,6 +58,8 @@ static bool isSiblingOrSubject(MatchElement matchElement)
     case MatchElement::HasChild:
     case MatchElement::HasDescendant:
     case MatchElement::HasSiblingDescendant:
+    case MatchElement::HasChildParent:
+    case MatchElement::HasChildAncestor:
     case MatchElement::HasNonSubject:
     case MatchElement::HasScopeBreaking:
         return false;
@@ -104,6 +106,8 @@ static bool isScopeBreaking(MatchElement matchElement)
     case MatchElement::HasChild:
     case MatchElement::HasDescendant:
     case MatchElement::HasSiblingDescendant:
+    case MatchElement::HasChildParent:
+    case MatchElement::HasChildAncestor:
     case MatchElement::HasNonSubject:
         return false;
     }
@@ -230,6 +234,8 @@ MatchElement computeHasPseudoClassMatchElement(const CSSSelector& hasSelector)
     case MatchElement::HasSibling:
     case MatchElement::HasSiblingDescendant:
     case MatchElement::HasAnySibling:
+    case MatchElement::HasChildParent:
+    case MatchElement::HasChildAncestor:
     case MatchElement::HasNonSubject:
     case MatchElement::HasScopeBreaking:
     case MatchElement::Host:
@@ -258,9 +264,21 @@ static MatchElement computeSubSelectorMatchElement(MatchElement matchElement, co
             return MatchElement::Host;
 
         if (type == CSSSelector::PseudoClass::Has) {
+            auto hasSelectorMatchElement = computeHasPseudoClassMatchElement(childSelector);
+
+            if (hasSelectorMatchElement == MatchElement::HasChild) {
+                // :has(> .changed) > .subject
+                if (matchElement == MatchElement::Parent)
+                    return MatchElement::HasChildParent;
+                // :has(> .changed) .subject
+                if (matchElement == MatchElement::Ancestor)
+                    return MatchElement::HasChildAncestor;
+            }
+
             if (matchElement != MatchElement::Subject)
                 return MatchElement::HasNonSubject;
-            return computeHasPseudoClassMatchElement(childSelector);
+
+            return hasSelectorMatchElement;
         }
 
     }
