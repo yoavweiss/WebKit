@@ -133,7 +133,6 @@ public:
     static TabSize convertTabSize(BuilderState&, const CSSValue&);
     template<typename T> static T convertComputedLength(BuilderState&, const CSSValue&);
     template<typename T> static T convertLineWidth(BuilderState&, const CSSValue&);
-    static OptionSet<TextDecorationLine> convertTextDecorationLine(BuilderState&, const CSSValue&);
     static OptionSet<TextTransform> convertTextTransform(BuilderState&, const CSSValue&);
     template<typename T> static T convertNumber(BuilderState&, const CSSValue&);
     static RefPtr<StyleImage> convertImageOrNone(BuilderState&, CSSValue&);
@@ -333,22 +332,6 @@ inline T BuilderConverter::convertLineWidth(BuilderState& builderState, const CS
     }
 }
 
-inline OptionSet<TextDecorationLine> BuilderConverter::convertTextDecorationLine(BuilderState&, const CSSValue& value)
-{
-    // none or spelling-error
-    if (auto* primitiveValue = dynamicDowncast<CSSPrimitiveValue>(value)) {
-        if (primitiveValue->valueID() == CSSValueNone)
-            return { };
-        if (primitiveValue->valueID() == CSSValueSpellingError)
-            return TextDecorationLine::SpellingError;
-    }
-    auto result = RenderStyle::initialTextDecorationLine();
-    if (auto* list = dynamicDowncast<CSSValueList>(value)) {
-        for (auto& currentValue : *list)
-            result.add(fromCSSValue<TextDecorationLine>(currentValue));
-    }
-    return result;
-}
 
 inline OptionSet<TextTransform> BuilderConverter::convertTextTransform(BuilderState&, const CSSValue& value)
 {

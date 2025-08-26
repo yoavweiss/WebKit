@@ -36,6 +36,7 @@
 #include <WebCore/StyleOpacity.h>
 #include <WebCore/StyleOrder.h>
 #include <WebCore/StyleSelfAlignmentData.h>
+#include <WebCore/StyleTextDecorationLine.h>
 #include <memory>
 #include <wtf/DataRef.h>
 #include <wtf/FixedVector.h>
@@ -98,6 +99,7 @@ public:
     StyleSelfAlignmentData justifySelf;
     Style::ObjectPosition objectPosition;
     Style::Order order;
+    Style::TextDecorationLine textDecorationLine;
 
     PREFERRED_TYPE(bool) unsigned hasAttrContent : 1 { false };
     PREFERRED_TYPE(bool) unsigned hasDisplayAffectedByAnimations : 1 { false };

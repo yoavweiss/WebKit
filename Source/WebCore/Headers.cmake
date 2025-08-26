@@ -3356,6 +3356,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/text/StyleHyphenateLimitLines.h
     style/values/text/StyleTextIndent.h
 
+    style/values/text-decoration/StyleTextDecorationLine.h
     style/values/text-decoration/StyleTextDecorationThickness.h
     style/values/text-decoration/StyleTextEmphasisStyle.h
     style/values/text-decoration/StyleTextShadow.h

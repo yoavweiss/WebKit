@@ -69,6 +69,7 @@
 #include "Settings.h"
 #include "ShadowRoot.h"
 #include "StyleSelfAlignmentData.h"
+#include "StyleTextDecorationLine.h"
 #include "StyleUpdate.h"
 #include "Styleable.h"
 #include "Text.h"
@@ -659,7 +660,7 @@ void Adjuster::adjust(RenderStyle& style) const
     if (shouldInheritTextDecorationsInEffect(style, m_element.get()))
         style.addToTextDecorationLineInEffect(style.textDecorationLine());
     else
-        style.setTextDecorationLineInEffect(style.textDecorationLine());
+        style.setTextDecorationLineInEffect(Style::TextDecorationLine { style.textDecorationLine() });
 
     bool overflowIsClipOrVisible = isOverflowClipOrVisible(style.overflowY()) && isOverflowClipOrVisible(style.overflowX());
 

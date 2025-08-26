@@ -133,6 +133,7 @@ inline ScrollbarGutter forwardInheritedValue(const ScrollbarGutter& value) { aut
 inline ShapeMargin forwardInheritedValue(const ShapeMargin& value) { auto copy = value; return copy; }
 inline ShapeOutside forwardInheritedValue(const ShapeOutside& value) { auto copy = value; return copy; }
 inline StrokeWidth forwardInheritedValue(const StrokeWidth& value) { auto copy = value; return copy; }
+inline TextDecorationLine forwardInheritedValue(const TextDecorationLine& value) { auto copy = value; return copy; }
 inline TextDecorationThickness forwardInheritedValue(const TextDecorationThickness& value) { auto copy = value; return copy; }
 inline TextEmphasisStyle forwardInheritedValue(const TextEmphasisStyle& value) { auto copy = value; return copy; }
 inline TextIndent forwardInheritedValue(const TextIndent& value) { auto copy = value; return copy; }

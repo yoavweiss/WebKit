@@ -41,6 +41,7 @@ StyleInheritedData::StyleInheritedData()
     , fontData(StyleFontData::create())
     , color(RenderStyle::initialColor())
     , visitedLinkColor(RenderStyle::initialColor())
+    , textDecorationLineInEffect(RenderStyle::initialTextDecorationLineInEffect())
 {
 }
 
@@ -55,6 +56,7 @@ inline StyleInheritedData::StyleInheritedData(const StyleInheritedData& o)
     , fontData(o.fontData)
     , color(o.color)
     , visitedLinkColor(o.visitedLinkColor)
+    , textDecorationLineInEffect(o.textDecorationLineInEffect)
 {
     ASSERT(o == *this, "StyleInheritedData should be properly copied.");
 }
@@ -85,7 +87,8 @@ bool StyleInheritedData::nonFastPathInheritedEqual(const StyleInheritedData& oth
 #endif
         && fontData == other.fontData
         && borderHorizontalSpacing == other.borderHorizontalSpacing
-        && borderVerticalSpacing == other.borderVerticalSpacing;
+        && borderVerticalSpacing == other.borderVerticalSpacing
+        && textDecorationLineInEffect == other.textDecorationLineInEffect;
 }
 
 void StyleInheritedData::fastPathInheritFrom(const StyleInheritedData& inheritParent)
@@ -109,6 +112,7 @@ void StyleInheritedData::dumpDifferences(TextStream& ts, const StyleInheritedDat
 
     LOG_IF_DIFFERENT(color);
     LOG_IF_DIFFERENT(visitedLinkColor);
+    LOG_IF_DIFFERENT(textDecorationLineInEffect);
 }
 #endif
 

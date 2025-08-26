@@ -1728,14 +1728,14 @@ LineDecorationStyle::LineDecorationStyle(RenderObject& renderer)
 {
     const CheckedRef style = renderer.style();
     auto decor = style->textDecorationLineInEffect();
-    if (decor & TextDecorationLine::Underline || decor & TextDecorationLine::LineThrough) {
+    if (decor.containsAny({ TextDecorationLineFlags::Underline, TextDecorationLineFlags::LineThrough })) {
         auto decorationStyles = TextDecorationPainter::stylesForRenderer(renderer, decor);
-        if (decor & TextDecorationLine::Underline) {
+        if (decor.hasUnderline()) {
             hasUnderline = true;
             underlineColor = decorationStyles.underline.color;
         }
 
-        if (decor & TextDecorationLine::LineThrough) {
+        if (decor.hasLineThrough()) {
             hasLinethrough = true;
             linethroughColor = decorationStyles.linethrough.color;
         }

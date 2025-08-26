@@ -188,7 +188,6 @@ public:
     static Ref<CSSValue> convertPosition(ExtractorState&, const LengthPoint&);
     static Ref<CSSValue> convertTouchAction(ExtractorState&, OptionSet<TouchAction>);
     static Ref<CSSValue> convertTextTransform(ExtractorState&, OptionSet<TextTransform>);
-    static Ref<CSSValue> convertTextDecorationLine(ExtractorState&, OptionSet<TextDecorationLine>);
     static Ref<CSSValue> convertTextUnderlinePosition(ExtractorState&, OptionSet<TextUnderlinePosition>);
     static Ref<CSSValue> convertTextEmphasisPosition(ExtractorState&, OptionSet<TextEmphasisPosition>);
     static Ref<CSSValue> convertSpeakAs(ExtractorState&, OptionSet<SpeakAs>);
@@ -909,27 +908,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTextTransform(ExtractorState&, O
     if (textTransform.contains(TextTransform::FullSizeKana))
         list.append(CSSPrimitiveValue::create(CSSValueFullSizeKana));
 
-    if (list.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-    return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTextDecorationLine(ExtractorState&, OptionSet<TextDecorationLine> textDecorationLine)
-{
-    if (textDecorationLine.isEmpty())
-        return CSSPrimitiveValue::create(CSSValueNone);
-    if (textDecorationLine & TextDecorationLine::SpellingError)
-        return CSSPrimitiveValue::create(CSSValueSpellingError);
-
-    CSSValueListBuilder list;
-    if (textDecorationLine & TextDecorationLine::Underline)
-        list.append(CSSPrimitiveValue::create(CSSValueUnderline));
-    if (textDecorationLine & TextDecorationLine::Overline)
-        list.append(CSSPrimitiveValue::create(CSSValueOverline));
-    if (textDecorationLine & TextDecorationLine::LineThrough)
-        list.append(CSSPrimitiveValue::create(CSSValueLineThrough));
-    if (textDecorationLine & TextDecorationLine::Blink)
-        list.append(CSSPrimitiveValue::create(CSSValueBlink));
     if (list.isEmpty())
         return CSSPrimitiveValue::create(CSSValueNone);
     return CSSValueList::createSpaceSeparated(WTFMove(list));

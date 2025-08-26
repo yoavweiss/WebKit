@@ -190,8 +190,6 @@ public:
 
     Style::ClipPath clipPath;
 
-    Style::Color textDecorationColor;
-
     DataRef<Style::CustomPropertyData> customProperties;
     HashSet<AtomString> customPaintWatchedProperties;
 
@@ -213,6 +211,7 @@ public:
     Style::OffsetAnchor offsetAnchor;
     Style::OffsetRotate offsetRotate;
 
+    Style::Color textDecorationColor;
     Style::TextDecorationThickness textDecorationThickness;
 
     Style::ScrollTimelines scrollTimelines;

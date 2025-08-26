@@ -1222,8 +1222,8 @@ template<> constexpr TextJustify fromCSSValueID(CSSValueID valueID)
     return TextJustify::Auto;
 }
 
-#define TYPE TextDecorationLine
-#define FOR_EACH(CASE) CASE(Underline) CASE(Overline) CASE(LineThrough) CASE(Blink) CASE(SpellingError)
+#define TYPE TextDecorationLineFlags
+#define FOR_EACH(CASE) CASE(Underline) CASE(Overline) CASE(LineThrough) CASE(Blink)
 DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef TYPE
 #undef FOR_EACH

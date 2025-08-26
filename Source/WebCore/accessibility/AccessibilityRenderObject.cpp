@@ -2937,7 +2937,7 @@ bool AccessibilityRenderObject::hasPlainText() const
     const RenderStyle& style = m_renderer->style();
     return style.fontDescription().weight() == normalWeightValue()
         && !isItalic(style.fontDescription().italic())
-        && style.textDecorationLineInEffect().isEmpty();
+        && style.textDecorationLineInEffect().isNone();
 }
 
 bool AccessibilityRenderObject::hasSameFont(AXCoreObject& object)
@@ -2988,7 +2988,7 @@ bool AccessibilityRenderObject::hasUnderline() const
     if (!m_renderer)
         return false;
 
-    return m_renderer->style().textDecorationLineInEffect().contains(TextDecorationLine::Underline);
+    return m_renderer->style().textDecorationLineInEffect().hasUnderline();
 }
 
 String AccessibilityRenderObject::secureFieldValue() const

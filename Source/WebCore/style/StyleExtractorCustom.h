@@ -2754,7 +2754,7 @@ inline void ExtractorCustom::extractTextBoxShorthandSerialization(ExtractorState
 
 inline RefPtr<CSSValue> ExtractorCustom::extractTextDecorationShorthand(ExtractorState& state)
 {
-    bool hasDefaultTextDecorationLine = state.style.textDecorationLine().isEmpty();
+    bool hasDefaultTextDecorationLine = state.style.textDecorationLine().isNone();
     bool hasDefaultTextDecorationThickness = state.style.textDecorationThickness() == RenderStyle::initialTextDecorationThickness();
     bool hasDefaultTextDecorationStyle = state.style.textDecorationStyle() == RenderStyle::initialTextDecorationStyle();
     bool hasDefaultTextDecorationColor = state.style.textDecorationColor().isCurrentColor();
@@ -2764,7 +2764,7 @@ inline RefPtr<CSSValue> ExtractorCustom::extractTextDecorationShorthand(Extracto
 
     CSSValueListBuilder list;
     if (!hasDefaultTextDecorationLine)
-        list.append(ExtractorConverter::convertTextDecorationLine(state, state.style.textDecorationLine()));
+        list.append(ExtractorConverter::convertStyleType<TextDecorationLine>(state, state.style.textDecorationLine()));
     if (!hasDefaultTextDecorationThickness)
         list.append(ExtractorConverter::convertStyleType<TextDecorationThickness>(state, state.style.textDecorationThickness()));
     if (!hasDefaultTextDecorationStyle)
@@ -2777,7 +2777,7 @@ inline RefPtr<CSSValue> ExtractorCustom::extractTextDecorationShorthand(Extracto
 
 inline void ExtractorCustom::extractTextDecorationShorthandSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
-    bool hasDefaultTextDecorationLine = state.style.textDecorationLine().isEmpty();
+    bool hasDefaultTextDecorationLine = state.style.textDecorationLine().isNone();
     bool hasDefaultTextDecorationThickness = state.style.textDecorationThickness() == RenderStyle::initialTextDecorationThickness();
     bool hasDefaultTextDecorationStyle = state.style.textDecorationStyle() == RenderStyle::initialTextDecorationStyle();
     bool hasDefaultTextDecorationColor = state.style.textDecorationColor().isCurrentColor();
@@ -2788,7 +2788,7 @@ inline void ExtractorCustom::extractTextDecorationShorthandSerialization(Extract
     }
 
     if (!hasDefaultTextDecorationLine)
-        ExtractorSerializer::serializeTextDecorationLine(state, builder, context, state.style.textDecorationLine());
+        ExtractorSerializer::serialize(state, builder, context, state.style.textDecorationLine());
     if (!hasDefaultTextDecorationThickness) {
         if (!builder.isEmpty())
             builder.append(' ');

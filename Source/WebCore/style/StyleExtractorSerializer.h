@@ -110,7 +110,6 @@ public:
     static void serializePosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const LengthPoint&);
     static void serializeTouchAction(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TouchAction>);
     static void serializeTextTransform(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextTransform>);
-    static void serializeTextDecorationLine(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextDecorationLine>);
     static void serializeTextUnderlinePosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextUnderlinePosition>);
     static void serializeTextEmphasisPosition(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<TextEmphasisPosition>);
     static void serializeSpeakAs(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<SpeakAs>);
@@ -1101,34 +1100,6 @@ inline void ExtractorSerializer::serializeTextTransform(ExtractorState& state, S
         serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
 }
 
-inline void ExtractorSerializer::serializeTextDecorationLine(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<TextDecorationLine> textDecorationLine)
-{
-    if (textDecorationLine.isEmpty()) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-    if (textDecorationLine & TextDecorationLine::SpellingError) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::SpellingError { });
-        return;
-    }
-    bool listEmpty = true;
-    auto appendOption = [&](TextDecorationLine test, CSSValueID value) {
-        if (textDecorationLine & test) {
-            if (!listEmpty)
-                builder.append(' ');
-            builder.append(nameLiteralForSerialization(value));
-            listEmpty = false;
-        }
-    };
-    appendOption(TextDecorationLine::Underline, CSSValueUnderline);
-    appendOption(TextDecorationLine::Overline, CSSValueOverline);
-    appendOption(TextDecorationLine::LineThrough, CSSValueLineThrough);
-    // Blink value is ignored for rendering but not for the computed value.
-    appendOption(TextDecorationLine::Blink, CSSValueBlink);
-
-    if (listEmpty)
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-}
 
 inline void ExtractorSerializer::serializeTextUnderlinePosition(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<TextUnderlinePosition> textUnderlinePosition)
 {

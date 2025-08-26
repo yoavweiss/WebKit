@@ -205,7 +205,6 @@ enum class TextAlignLast : uint8_t;
 enum class TextAlignMode : uint8_t;
 enum class TextBoxTrim : uint8_t;
 enum class TextCombine : bool;
-enum class TextDecorationLine : uint8_t;
 enum class TextDecorationSkipInk : uint8_t;
 enum class TextDecorationStyle : uint8_t;
 enum class TextEmphasisPosition : uint8_t;
@@ -349,6 +348,7 @@ struct ShapeMargin;
 struct ShapeOutside;
 struct StrokeMiterlimit;
 struct StrokeWidth;
+struct TextDecorationLine;
 struct TextDecorationThickness;
 struct TextEmphasisStyle;
 struct TextIndent;
@@ -402,7 +402,6 @@ using WebkitBorderSpacing = Length<CSS::Nonnegative>;
 }
 
 constexpr auto PublicPseudoIDBits = 17;
-constexpr auto TextDecorationLineBits = 5;
 constexpr auto TextTransformBits = 5;
 constexpr auto PseudoElementTypeBits = 5;
 
@@ -729,8 +728,8 @@ public:
     inline TextAlignLast textAlignLast() const;
     inline TextGroupAlign textGroupAlign() const;
     inline OptionSet<TextTransform> textTransform() const;
-    inline OptionSet<TextDecorationLine> textDecorationLineInEffect() const;
-    inline OptionSet<TextDecorationLine> textDecorationLine() const;
+    inline const Style::TextDecorationLine& textDecorationLineInEffect() const;
+    inline const Style::TextDecorationLine& textDecorationLine() const;
     inline TextDecorationStyle textDecorationStyle() const;
     inline TextDecorationSkipInk textDecorationSkipInk() const;
     inline OptionSet<TextUnderlinePosition> textUnderlinePosition() const;
@@ -1384,9 +1383,9 @@ public:
     void setTextAlign(TextAlignMode v) { m_inheritedFlags.textAlign = static_cast<unsigned>(v); }
     inline void setTextAlignLast(TextAlignLast);
     inline void setTextGroupAlign(TextGroupAlign);
-    inline void addToTextDecorationLineInEffect(OptionSet<TextDecorationLine>);
-    inline void setTextDecorationLineInEffect(OptionSet<TextDecorationLine>);
-    inline void setTextDecorationLine(OptionSet<TextDecorationLine>);
+    inline void addToTextDecorationLineInEffect(const Style::TextDecorationLine&);
+    inline void setTextDecorationLineInEffect(Style::TextDecorationLine&&);
+    inline void setTextDecorationLine(Style::TextDecorationLine&&);
     inline void setTextDecorationStyle(TextDecorationStyle);
     inline void setTextDecorationSkipInk(TextDecorationSkipInk);
     inline void setTextDecorationThickness(Style::TextDecorationThickness&&);
@@ -2031,7 +2030,8 @@ public:
     static constexpr TextAlignMode initialTextAlign();
     static constexpr TextAlignLast initialTextAlignLast();
     static constexpr TextGroupAlign initialTextGroupAlign();
-    static constexpr OptionSet<TextDecorationLine> initialTextDecorationLine();
+    static inline Style::TextDecorationLine initialTextDecorationLine();
+    static inline Style::TextDecorationLine initialTextDecorationLineInEffect();
     static constexpr TextDecorationStyle initialTextDecorationStyle();
     static constexpr TextDecorationSkipInk initialTextDecorationSkipInk();
     static constexpr OptionSet<TextUnderlinePosition> initialTextUnderlinePosition();
@@ -2418,7 +2418,6 @@ private:
         PREFERRED_TYPE(bool) unsigned isLink : 1;
         PREFERRED_TYPE(PseudoId) unsigned pseudoElementType : PseudoElementTypeBits;
         unsigned pseudoBits : PublicPseudoIDBits;
-        PREFERRED_TYPE(OptionSet<TextDecorationLine>) unsigned textDecorationLine : TextDecorationLineBits; // Text decorations defined *only* by this element.
 
         // If you add more style bits here, you will also need to update RenderStyle::NonInheritedFlags::copyNonInheritedFrom().
     };
@@ -2440,7 +2439,6 @@ private:
         PREFERRED_TYPE(TextWrapStyle) unsigned char textWrapStyle : 2;
         PREFERRED_TYPE(OptionSet<TextTransform>) unsigned char textTransform : TextTransformBits;
         unsigned char : 1; // byte alignment
-        PREFERRED_TYPE(OptionSet<TextDecorationLine>) unsigned char textDecorationLineInEffect : TextDecorationLineBits;
 
         // Cursors and Visibility = 13 bits aligned onto 4 bits + 1 byte + 1 bit
         PREFERRED_TYPE(PointerEvents) unsigned char pointerEvents : 4;

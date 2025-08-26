@@ -512,7 +512,8 @@ constexpr TextAlignLast RenderStyle::initialTextAlignLast() { return TextAlignLa
 constexpr TextBoxTrim RenderStyle::initialTextBoxTrim() { return TextBoxTrim::None; }
 constexpr TextCombine RenderStyle::initialTextCombine() { return TextCombine::None; }
 inline Style::Color RenderStyle::initialTextDecorationColor() { return Style::Color::currentColor(); }
-constexpr OptionSet<TextDecorationLine> RenderStyle::initialTextDecorationLine() { return { }; }
+inline Style::TextDecorationLine RenderStyle::initialTextDecorationLine() { return CSS::Keyword::None { }; }
+inline Style::TextDecorationLine RenderStyle::initialTextDecorationLineInEffect() { return initialTextDecorationLine(); }
 constexpr TextDecorationSkipInk RenderStyle::initialTextDecorationSkipInk() { return TextDecorationSkipInk::Auto; }
 constexpr TextDecorationStyle RenderStyle::initialTextDecorationStyle() { return TextDecorationStyle::Solid; }
 inline Style::TextDecorationThickness RenderStyle::initialTextDecorationThickness() { return CSS::Keyword::Auto { }; }
@@ -754,11 +755,11 @@ inline TextAlignLast RenderStyle::textAlignLast() const { return static_cast<Tex
 inline TextBoxTrim RenderStyle::textBoxTrim() const { return static_cast<TextBoxTrim>(m_nonInheritedData->rareData->textBoxTrim); }
 inline TextCombine RenderStyle::textCombine() const { return static_cast<TextCombine>(m_rareInheritedData->textCombine); }
 inline const Style::Color& RenderStyle::textDecorationColor() const { return m_nonInheritedData->rareData->textDecorationColor; }
-inline OptionSet<TextDecorationLine> RenderStyle::textDecorationLine() const { return OptionSet<TextDecorationLine>::fromRaw(m_nonInheritedFlags.textDecorationLine); }
+inline const Style::TextDecorationLine& RenderStyle::textDecorationLine() const { return m_nonInheritedData->miscData->textDecorationLine; }
 inline TextDecorationSkipInk RenderStyle::textDecorationSkipInk() const { return static_cast<TextDecorationSkipInk>(m_rareInheritedData->textDecorationSkipInk); }
 inline TextDecorationStyle RenderStyle::textDecorationStyle() const { return static_cast<TextDecorationStyle>(m_nonInheritedData->rareData->textDecorationStyle); }
 inline const Style::TextDecorationThickness& RenderStyle::textDecorationThickness() const { return m_nonInheritedData->rareData->textDecorationThickness; }
-inline OptionSet<TextDecorationLine> RenderStyle::textDecorationLineInEffect() const { return OptionSet<TextDecorationLine>::fromRaw(m_inheritedFlags.textDecorationLineInEffect); }
+inline const Style::TextDecorationLine& RenderStyle::textDecorationLineInEffect() const { return m_inheritedData->textDecorationLineInEffect; }
 inline const Style::Color& RenderStyle::textEmphasisColor() const { return m_rareInheritedData->textEmphasisColor; }
 inline const Style::TextEmphasisStyle& RenderStyle::textEmphasisStyle() const { return m_rareInheritedData->textEmphasisStyle; }
 inline OptionSet<TextEmphasisPosition> RenderStyle::textEmphasisPosition() const { return OptionSet<TextEmphasisPosition>::fromRaw(m_rareInheritedData->textEmphasisPosition); }

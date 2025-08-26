@@ -10781,7 +10781,7 @@
                 }
             ],
             "codegen-properties": {
-                "style-converter": "TextDecorationLine",
+                "style-converter": "StyleType<TextDecorationLine>",
                 "aliases": [
                     "-webkit-text-decoration-line"
                 ],
@@ -10926,7 +10926,7 @@
             "inherited": true,
             "codegen-properties": {
                 "skip-style-builder": true,
-                "style-extractor-converter": "TextDecorationLine",
+                "style-extractor-converter": "StyleType<TextDecorationLine>",
                 "render-style-name-for-methods": "TextDecorationLineInEffect",
                 "parser-grammar": "none | [ underline || overline || line-through || blink ]@(no-single-item-opt) | spelling-error@(settings-flag=cssTextDecorationLineErrorValues)",
                 "comment": "FIXME: Should this be an alias of text-decoration-line?"
