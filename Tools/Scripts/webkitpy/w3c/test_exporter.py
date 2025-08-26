@@ -219,7 +219,7 @@ class WebPlatformTestExporter(object):
 
         self._remote = self._init_wpt_remote()
         if not self._remote:
-            return
+            return 1
         self._linter = self._linter(self._options.repository_directory, self._host.filesystem)
         return True
 
@@ -268,7 +268,7 @@ class WebPlatformTestExporter(object):
         _log.info(f'Pushing branch {self._branch_name} to {self._wpt_fork_remote}...')
         if self._run_wpt_git(['push', self._wpt_fork_remote, self._branch_name + ':' + self._public_branch_name, '-f']).returncode:
             _log.error('Failed to push to WPT fork')
-            return
+            return 1
         _log.info(f'Branch available at {self._wpt_fork_branch_github_url}')
         return True
 
@@ -325,11 +325,11 @@ class WebPlatformTestExporter(object):
         git_patch_file = self.write_git_patch_file()
         if not git_patch_file:
             _log.error("Unable to create a patch to apply to web-platform-tests repository")
-            return
+            return 1
 
         if not self._ensure_wpt_repository():
             _log.error(f'Could not find WPT repository')
-            return
+            return 1
 
         _log.info('Fetching web-platform-tests repository')
         self._run_wpt_git(['fetch', 'origin', '--prune'])
@@ -337,12 +337,12 @@ class WebPlatformTestExporter(object):
 
         if not self.set_up_wpt_fork():
             self.delete_local_branch(is_success=False)
-            return
+            return 1
 
         if not self.create_branch_with_patch(git_patch_file):
             _log.error(f'Cannot create web-platform-tests local branch from the patch {git_patch_file!r}')
             self.delete_local_branch(is_success=False)
-            return
+            return 1
 
         if git_patch_file and self.clean:
             self._filesystem.remove(git_patch_file)
@@ -352,13 +352,22 @@ class WebPlatformTestExporter(object):
             if lint_errors:
                 _log.error(f'The wpt linter detected {lint_errors} linting error(s). Please address the above errors before attempting to export changes to the web-platform-test repository.')
                 self.delete_local_branch(is_success=False)
-                return
+                return 1
+
+        if self._options.dry_run:
+            _log.info('Skipping pushing to remote since this is a dry run')
+            self.delete_local_branch(is_success=True)
+            return 0
 
         try:
             pr = None
-            if not self._options.dry_run and self.push_to_wpt_fork():
+            if self.push_to_wpt_fork():
                 if self._options.create_pull_request:
                     pr = self.make_pull_request()
+                    if not pr:
+                        return 1
+            else:
+                return 1
         except Exception:
             self.delete_local_branch(is_success=False)
             raise
@@ -433,10 +442,10 @@ def main(_argv, _stdout, _stderr):
         test_exporter = WebPlatformTestExporter(Host(), options)
     except Exception as e:
         _log.error(f'{e}\nExiting...')
-        return
+        return 1
 
     if not test_exporter.has_wpt_changes():
         _log.info('No changes to upstream. Exiting...')
-        return
+        return 0
 
-    test_exporter.do_export()
+    return test_exporter.do_export()
