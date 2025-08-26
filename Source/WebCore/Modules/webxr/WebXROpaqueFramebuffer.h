@@ -112,7 +112,7 @@ private:
 
     bool setupFramebuffer(GraphicsContextGL&, const PlatformXR::FrameData::LayerSetupData&);
     const std::array<WebXRExternalAttachments, 2>* reusableDisplayAttachments(const PlatformXR::FrameData::ExternalTextureData&) const;
-    void bindCompositorTexturesForDisplay(GraphicsContextGL&, const PlatformXR::FrameData::LayerData&);
+    void bindCompositorTexturesForDisplay(GraphicsContextGL&, PlatformXR::FrameData::LayerData&);
     const std::array<WebXRExternalAttachments, 2>* reusableDisplayAttachmentsAtIndex(size_t);
     void releaseDisplayAttachmentsAtIndex(size_t);
     void allocateRenderbufferStorage(GraphicsContextGL&, GCGLOwnedRenderbuffer&, GCGLsizei, GCGLenum, IntSize);

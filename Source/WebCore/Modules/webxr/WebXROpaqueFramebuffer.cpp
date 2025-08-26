@@ -71,14 +71,12 @@ static void createAndBindCompositorBuffer(GL& gl, WebXRExternalRenderbuffer& buf
     LOG(XR, "WebXROpaqueFramebuffer::createAndBindCompositorBuffer(): created and bound external image to renderbuffer");
 }
 
-static GL::ExternalImageSource makeExternalImageSource(const PlatformXR::FrameData::ExternalTexture& imageSource, WebCore::IntSize size)
+static GL::ExternalImageSource makeExternalImageSource(PlatformXR::FrameData::ExternalTexture& imageSource, WebCore::IntSize size)
 {
     return GraphicsContextGLExternalImageSource {
-        .fds = imageSource.fds.map([](const UnixFileDescriptor& fd) {
-            return fd.duplicate();
-        }),
-        .strides = imageSource.strides,
-        .offsets = imageSource.offsets,
+        .fds = WTFMove(imageSource.fds),
+        .strides = WTFMove(imageSource.strides),
+        .offsets = WTFMove(imageSource.offsets),
         .fourcc = imageSource.fourcc,
         .modifier = imageSource.modifier,
         .size = size
@@ -438,7 +436,7 @@ const std::array<WebXRExternalAttachments, 2>* WebXROpaqueFramebuffer::reusableD
     return &m_displayAttachmentsSets[reusableTextureIndex];
 }
 
-void WebXROpaqueFramebuffer::bindCompositorTexturesForDisplay(GraphicsContextGL& gl, const PlatformXR::FrameData::LayerData& layerData)
+void WebXROpaqueFramebuffer::bindCompositorTexturesForDisplay(GraphicsContextGL& gl, PlatformXR::FrameData::LayerData& layerData)
 {
     int layerCount = (m_displayLayout == PlatformXR::Layout::Layered) ? 2 : 1;
 
