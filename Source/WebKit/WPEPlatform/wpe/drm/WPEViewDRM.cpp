@@ -355,6 +355,8 @@ static bool wpeViewDRMCommitAtomic(WPEViewDRM* view, WPE::DRM::Buffer* buffer, s
         return false;
     }
 
+    wpeScreenDRMDestroyDumbBufferIfNeeded(screen, fd);
+
     return true;
 }
 
@@ -380,6 +382,8 @@ static bool wpeViewDRMCommitLegacy(WPEViewDRM* view, const WPE::DRM::Buffer& buf
         g_set_error_literal(error, WPE_VIEW_ERROR, WPE_VIEW_ERROR_RENDER_FAILED, "Failed to render buffer: failed to request page flip");
         return false;
     }
+
+    wpeScreenDRMDestroyDumbBufferIfNeeded(screen, fd);
 
     return true;
 }
