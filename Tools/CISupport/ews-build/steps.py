@@ -3990,7 +3990,7 @@ class CleanBuild(shell.Compile):
     command = ['python3', 'Tools/CISupport/clean-build', WithProperties('--platform=%(fullPlatform)s'), WithProperties('--%(configuration)s')]
 
 
-class KillOldProcesses(shell.Compile):
+class KillOldProcesses(shell.CompileNewStyle):
     name = 'kill-old-processes'
     description = ['killing old processes']
     descriptionDone = ['Killed old processes']
@@ -4000,7 +4000,7 @@ class KillOldProcesses(shell.Compile):
         super().__init__(timeout=2 * 60, logEnviron=False, **kwargs)
 
     def evaluateCommand(self, cmd):
-        rc = shell.Compile.evaluateCommand(self, cmd)
+        rc = super().evaluateCommand(cmd)
         if rc in [FAILURE, EXCEPTION]:
             self.build.buildFinished(['Failed to kill old processes, retrying build'], RETRY)
         return rc
@@ -4008,10 +4008,10 @@ class KillOldProcesses(shell.Compile):
     def getResultSummary(self):
         if self.results in [FAILURE, EXCEPTION]:
             return {'step': 'Failed to kill old processes'}
-        return shell.Compile.getResultSummary(self)
+        return super().getResultSummary()
 
 
-class TriggerCrashLogSubmission(shell.Compile):
+class TriggerCrashLogSubmission(shell.CompileNewStyle):
     name = 'trigger-crash-log-submission'
     description = ['triggering crash log submission']
     descriptionDone = ['Triggered crash log submission']
@@ -4025,10 +4025,10 @@ class TriggerCrashLogSubmission(shell.Compile):
     def getResultSummary(self):
         if self.results in [FAILURE, EXCEPTION]:
             return {'step': 'Failed to trigger crash log submission'}
-        return shell.Compile.getResultSummary(self)
+        return super().getResultSummary()
 
 
-class WaitForCrashCollection(shell.Compile):
+class WaitForCrashCollection(shell.CompileNewStyle):
     name = 'wait-for-crash-collection'
     description = ['waiting-for-crash-collection-to-quiesce']
     descriptionDone = ['Crash collection has quiesced']
@@ -4042,7 +4042,7 @@ class WaitForCrashCollection(shell.Compile):
     def getResultSummary(self):
         if self.results in [FAILURE, EXCEPTION]:
             return {'step': 'Crash log collection process still running'}
-        return shell.Compile.getResultSummary(self)
+        return super().getResultSummary()
 
 
 class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
