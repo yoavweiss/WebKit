@@ -566,17 +566,6 @@ SocketPair createPlatformConnection(unsigned options)
 {
     int sockets[2];
 
-#if USE(GLIB) && OS(LINUX)
-    auto setPasscredIfNeeded = [options, &sockets] {
-        if (options & SetPasscredOnServer) {
-            int enable = 1;
-            RELEASE_ASSERT(!setsockopt(sockets[1], SOL_SOCKET, SO_PASSCRED, &enable, sizeof(enable)));
-        }
-    };
-#else
-    auto setPasscredIfNeeded = [] { };
-#endif
-
 #if OS(LINUX)
     if ((options & SetCloexecOnServer) || (options & SetCloexecOnClient)) {
         RELEASE_ASSERT(socketpair(AF_UNIX, SOCKET_TYPE | SOCK_CLOEXEC, 0, sockets) != -1);
@@ -585,8 +574,6 @@ SocketPair createPlatformConnection(unsigned options)
             RELEASE_ASSERT(unsetCloseOnExec(sockets[1]));
         if (!(options & SetCloexecOnClient))
             RELEASE_ASSERT(unsetCloseOnExec(sockets[0]));
-
-        setPasscredIfNeeded();
 
         return { { sockets[0], UnixFileDescriptor::Adopt }, { sockets[1], UnixFileDescriptor::Adopt } };
     }
@@ -599,8 +586,6 @@ SocketPair createPlatformConnection(unsigned options)
     if (options & SetCloexecOnClient)
         RELEASE_ASSERT(setCloseOnExec(sockets[0]));
 
-    setPasscredIfNeeded();
-
     return { { sockets[0], UnixFileDescriptor::Adopt }, { sockets[1], UnixFileDescriptor::Adopt } };
 }
 
@@ -610,73 +595,35 @@ std::optional<Connection::ConnectionIdentifierPair> Connection::createConnection
     return { { Identifier { WTFMove(socketPair.server) }, ConnectionHandle { WTFMove(socketPair.client) } } };
 }
 
-#if USE(GLIB) && OS(LINUX)
-void sendPIDToPeer(int socket)
+#if USE(GLIB)
+void Connection::sendCredentials() const
 {
-    char buffer[1] = { 0 };
-    struct msghdr message = { };
-    struct iovec iov = { buffer, sizeof(buffer) };
+    ASSERT(m_socket);
+    g_socket_set_blocking(m_socket.get(), TRUE);
+    GRefPtr<GUnixConnection> connection = adoptGRef(G_UNIX_CONNECTION(g_object_new(G_TYPE_UNIX_CONNECTION, "socket", m_socket.get(), nullptr)));
+    GUniqueOutPtr<GError> error;
+    if (!g_unix_connection_send_credentials(connection.get(), nullptr, &error.outPtr())) {
+        if (g_error_matches(error.get(), G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED))
+            return;
 
-    // Write one null byte. Credentials will be attached regardless of what we send.
-    message.msg_iov = &iov;
-    message.msg_iovlen = 1;
-
-    int ret;
-    do {
-        ret = sendmsg(socket, &message, 0);
-    } while (ret == -1 && errno == EINTR);
-
-    if (ret == -1) {
-        // Don't crash if the parent process merely closed its pid socket.
-        // That's equivalent to canceling the process launch.
-        if (errno == EPIPE)
-            exit(1);
-        g_error("sendPIDToPeer: Failed to send pid: %s", g_strerror(errno));
+        g_error("Connection: Failed to send crendentials: %s", error->message);
     }
+    g_socket_set_blocking(m_socket.get(), FALSE);
 }
 
-// The goal here is to receive the pid of the sandboxed child in the parent process's pid namespace.
-// It's impossible for the child to know this, but the kernel will translate it for us.
-//
-// Based on read_pid_from_socket() from bubblewrap's utils.c
-// SPDX-License-Identifier: LGPL-2.0-or-later
-pid_t readPIDFromPeer(int socket)
+pid_t Connection::remoteProcessID(GSocket* socket)
 {
-    char receiveBuffer[1] = { 0 };
-    struct msghdr message = { };
-    struct iovec iov = { receiveBuffer, sizeof(receiveBuffer) };
-    const ssize_t controlLength = CMSG_SPACE(sizeof(struct ucred));
-    union {
-        char buffer[controlLength];
-        cmsghdr forceAlignment;
-    } controlMessage;
+    GRefPtr<GUnixConnection> connection = adoptGRef(G_UNIX_CONNECTION(g_object_new(G_TYPE_UNIX_CONNECTION, "socket", socket, nullptr)));
+    GUniqueOutPtr<GError> error;
+    GRefPtr<GCredentials> credentials = adoptGRef(g_unix_connection_receive_credentials(connection.get(), nullptr, &error.outPtr()));
+    if (!credentials)
+        g_error("Connection: failed to receive credentials: %s", error->message);
 
-    message.msg_iov = &iov;
-    message.msg_iovlen = 1;
-    message.msg_control = controlMessage.buffer;
-    message.msg_controllen = controlLength;
+    pid_t processID = g_credentials_get_unix_pid(credentials.get(), &error.outPtr());
+    if (error)
+        g_error("Connection: failed to get pid from credentials: %s", error->message);
 
-    int ret;
-    do {
-        ret = recvmsg(socket, &message, 0);
-    } while (ret == -1 && errno == EINTR);
-
-    if (ret == -1)
-        g_error("readPIDFromPeer: Failed to read pid from PID socket: %s", g_strerror(errno));
-
-    if (message.msg_controllen <= 0)
-        g_error("readPIDFromPeer: Unexpected short read from PID socket. (This usually means the auxiliary process crashed immediately. Investigate that instead!)");
-
-    for (cmsghdr* header = CMSG_FIRSTHDR(&message); header; header = CMSG_NXTHDR(&message, header)) {
-        const unsigned payloadLength = header->cmsg_len - CMSG_LEN(0);
-        if (header->cmsg_level == SOL_SOCKET && header->cmsg_type == SCM_CREDENTIALS && payloadLength == sizeof(struct ucred)) {
-            struct ucred credentials;
-            memcpy(&credentials, CMSG_DATA(header), sizeof(struct ucred));
-            return credentials.pid;
-        }
-    }
-
-    g_error("readPIDFromPeer: No pid returned on PID socket");
+    return processID;
 }
 #endif
 

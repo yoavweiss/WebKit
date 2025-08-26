@@ -340,6 +340,11 @@ public:
     pid_t remoteProcessID() const;
 #endif
 
+#if USE(GLIB)
+    void sendCredentials() const;
+    static pid_t remoteProcessID(GSocket*);
+#endif
+
     static Ref<Connection> createServerConnection(Identifier&&, Thread::QOS = Thread::QOS::Default);
     static Ref<Connection> createClientConnection(Identifier&&);
 
