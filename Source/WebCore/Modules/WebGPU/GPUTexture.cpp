@@ -83,18 +83,9 @@ void GPUTexture::setLabel(String&& label)
 
 static WebGPU::TextureViewDescriptor convertToBacking(const std::optional<GPUTextureViewDescriptor>& textureViewDescriptor)
 {
-    if (!textureViewDescriptor) {
-        return {
-            { },
-            std::nullopt,
-            std::nullopt,
-            WebGPU::TextureAspect::All,
-            0,
-            std::nullopt,
-            0,
-            std::nullopt
-        };
-    }
+    if (!textureViewDescriptor)
+        return WebGPU::TextureViewDescriptor { };
+
     return textureViewDescriptor->convertToBacking();
 }
 

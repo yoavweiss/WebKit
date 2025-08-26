@@ -3271,6 +3271,11 @@ Ref<TextureView> Texture::createView(const WGPUTextureViewDescriptor& inputDescr
         return TextureView::createInvalid(*this, device.get());
     }
 
+    if (inputDescriptor.usage && (~usage() & inputDescriptor.usage)) {
+        device->generateAValidationError([NSString stringWithFormat:@"GPUTexture.createView: when the view's usage(%u) is specified it must be a subset of the Texture's usage(%u)", inputDescriptor.usage, usage()]);
+        return TextureView::createInvalid(*this, device.get());
+    }
+
     MTLTextureType textureType;
     switch (descriptor->dimension) {
     case WGPUTextureViewDimension_Undefined:
