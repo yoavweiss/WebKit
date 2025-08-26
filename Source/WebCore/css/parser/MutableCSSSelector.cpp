@@ -207,15 +207,6 @@ bool MutableCSSSelector::matchesPseudoElement() const
     return m_selector->matchesPseudoElement() || selectorListMatchesPseudoElement(m_selector->selectorList());
 }
 
-void MutableCSSSelector::insertTagHistory(CSSSelector::Relation before, std::unique_ptr<MutableCSSSelector> selector, CSSSelector::Relation after)
-{
-    if (m_tagHistory)
-        selector->setTagHistory(WTFMove(m_tagHistory));
-    setRelation(before);
-    selector->setRelation(after);
-    m_tagHistory = WTFMove(selector);
-}
-
 void MutableCSSSelector::appendTagHistory(CSSSelector::Relation relation, std::unique_ptr<MutableCSSSelector> selector)
 {
     auto* end = this;
@@ -255,8 +246,6 @@ std::unique_ptr<MutableCSSSelector> MutableCSSSelector::releaseTagHistory()
     setRelation(CSSSelector::Relation::Subselector);
     return WTFMove(m_tagHistory);
 }
-
-
 
 bool MutableCSSSelector::startsWithExplicitCombinator() const
 {

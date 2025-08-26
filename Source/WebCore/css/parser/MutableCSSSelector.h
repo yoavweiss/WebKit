@@ -96,8 +96,6 @@ public:
     const MutableCSSSelector* leftmostSimpleSelector() const;
     bool startsWithExplicitCombinator() const;
     void setTagHistory(std::unique_ptr<MutableCSSSelector> selector) { m_tagHistory = WTFMove(selector); }
-    void clearTagHistory() { m_tagHistory.reset(); }
-    void insertTagHistory(CSSSelector::Relation before, std::unique_ptr<MutableCSSSelector>, CSSSelector::Relation after);
     void appendTagHistory(CSSSelector::Relation, std::unique_ptr<MutableCSSSelector>);
     void appendTagHistoryAsRelative(std::unique_ptr<MutableCSSSelector>);
     void prependTagSelector(const QualifiedName&, bool tagIsForNamespaceRule = false);
