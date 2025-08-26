@@ -856,6 +856,52 @@ static WGPUTextureFormat convertFormat(WGSL::TexelFormat format)
         return WGPUTextureFormat_RGBA8Uint;
     case WGSL::TexelFormat::RGBA8unorm:
         return WGPUTextureFormat_RGBA8Unorm;
+    case WGSL::TexelFormat::RG16unorm:
+        return WGPUTextureFormat_RG16Unorm;
+    case WGSL::TexelFormat::RG16snorm:
+        return WGPUTextureFormat_RG16Snorm;
+    case WGSL::TexelFormat::RGBA16unorm:
+        return WGPUTextureFormat_RGBA16Unorm;
+    case WGSL::TexelFormat::RGBA16snorm:
+        return WGPUTextureFormat_RGBA16Snorm;
+    case WGSL::TexelFormat::R16unorm:
+        return WGPUTextureFormat_R16Unorm;
+    case WGSL::TexelFormat::R16snorm:
+        return WGPUTextureFormat_R16Snorm;
+    case WGSL::TexelFormat::R16float:
+        return WGPUTextureFormat_R16Float;
+    case WGSL::TexelFormat::RG16float:
+        return WGPUTextureFormat_RG16Float;
+    case WGSL::TexelFormat::RGB10A2uint:
+        return WGPUTextureFormat_RGB10A2Uint;
+    case WGSL::TexelFormat::RGB10A2unorm:
+        return WGPUTextureFormat_RGB10A2Unorm;
+    case WGSL::TexelFormat::R16uint:
+        return WGPUTextureFormat_R16Uint;
+    case WGSL::TexelFormat::R16sint:
+        return WGPUTextureFormat_R16Sint;
+    case WGSL::TexelFormat::R8sint:
+        return WGPUTextureFormat_R8Sint;
+    case WGSL::TexelFormat::R8snorm:
+        return WGPUTextureFormat_R8Snorm;
+    case WGSL::TexelFormat::R8uint:
+        return WGPUTextureFormat_R8Uint;
+    case WGSL::TexelFormat::R8unorm:
+        return WGPUTextureFormat_R8Unorm;
+    case WGSL::TexelFormat::RG8sint:
+        return WGPUTextureFormat_RG8Sint;
+    case WGSL::TexelFormat::RG8snorm:
+        return WGPUTextureFormat_RG8Snorm;
+    case WGSL::TexelFormat::RG8uint:
+        return WGPUTextureFormat_RG8Uint;
+    case WGSL::TexelFormat::RG8unorm:
+        return WGPUTextureFormat_RG8Unorm;
+    case WGSL::TexelFormat::RG16uint:
+        return WGPUTextureFormat_RG16Uint;
+    case WGSL::TexelFormat::RG16sint:
+        return WGPUTextureFormat_RG16Sint;
+    case WGSL::TexelFormat::RG11B10ufloat:
+        return WGPUTextureFormat_RG11B10Ufloat;
     }
 }
 
@@ -1100,6 +1146,10 @@ static bool hasAlphaChannel(WGPUTextureFormat format)
     case WGPUTextureFormat_R8Sint:
     case WGPUTextureFormat_R16Uint:
     case WGPUTextureFormat_R16Sint:
+    case WGPUTextureFormat_R16Unorm:
+    case WGPUTextureFormat_R16Snorm:
+    case WGPUTextureFormat_RG16Unorm:
+    case WGPUTextureFormat_RG16Snorm:
     case WGPUTextureFormat_R16Float:
     case WGPUTextureFormat_RG8Unorm:
     case WGPUTextureFormat_RG8Snorm:
@@ -1121,6 +1171,8 @@ static bool hasAlphaChannel(WGPUTextureFormat format)
     case WGPUTextureFormat_BGRA8UnormSrgb:
     case WGPUTextureFormat_RGB10A2Uint:
     case WGPUTextureFormat_RGB10A2Unorm:
+    case WGPUTextureFormat_RGBA16Unorm:
+    case WGPUTextureFormat_RGBA16Snorm:
         return true;
     case WGPUTextureFormat_RG11B10Ufloat:
     case WGPUTextureFormat_RGB9E5Ufloat:
@@ -1214,21 +1266,30 @@ static bool textureFormatAllowedForRetunType(WGPUTextureFormat format, MTLDataTy
         return false;
 
     switch (format) {
+    case WGPUTextureFormat_R8Snorm:
     case WGPUTextureFormat_R8Unorm:
+    case WGPUTextureFormat_R16Snorm:
+    case WGPUTextureFormat_R16Unorm:
     case WGPUTextureFormat_R16Float:
     case WGPUTextureFormat_R32Float:
         return dataType == MTLDataTypeFloat || dataType == MTLDataTypeFloat2 || dataType == MTLDataTypeFloat3 || dataType == MTLDataTypeFloat4;
 
+    case WGPUTextureFormat_RG8Snorm:
     case WGPUTextureFormat_RG8Unorm:
+    case WGPUTextureFormat_RG16Snorm:
+    case WGPUTextureFormat_RG16Unorm:
     case WGPUTextureFormat_RG16Float:
     case WGPUTextureFormat_RG32Float:
         return dataType == MTLDataTypeFloat2 || dataType == MTLDataTypeFloat3 || dataType == MTLDataTypeFloat4;
 
+    case WGPUTextureFormat_RGBA8Snorm:
     case WGPUTextureFormat_RGBA8Unorm:
     case WGPUTextureFormat_RGBA8UnormSrgb:
     case WGPUTextureFormat_BGRA8Unorm:
     case WGPUTextureFormat_BGRA8UnormSrgb:
     case WGPUTextureFormat_RGB10A2Unorm:
+    case WGPUTextureFormat_RGBA16Snorm:
+    case WGPUTextureFormat_RGBA16Unorm:
     case WGPUTextureFormat_RGBA16Float:
     case WGPUTextureFormat_RGBA32Float:
         return dataType == MTLDataTypeFloat4;
@@ -1559,7 +1620,7 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
         }
 
         if (bytesPerSample > deviceLimits.maxColorAttachmentBytesPerSample)
-            return returnInvalidRenderPipeline(*this, isAsync, "Bytes per sample exceeded maximum allowed limit"_s);
+            return returnInvalidRenderPipeline(*this, isAsync, [NSString stringWithFormat:@"Bytes per sample(%u) exceeded maximum allowed limit(%u)", bytesPerSample, deviceLimits.maxColorAttachmentBytesPerSample]);
     }
 
     MTLDepthStencilDescriptor *depthStencilDescriptor = nil;

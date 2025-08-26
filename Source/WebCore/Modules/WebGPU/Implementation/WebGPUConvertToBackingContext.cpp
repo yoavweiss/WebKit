@@ -234,6 +234,8 @@ WGPUFeatureName ConvertToBackingContext::convertToBacking(FeatureName featureNam
         return WGPUFeatureName_DualSourceBlending;
     case FeatureName::CoreFeaturesAndLimits:
         return WGPUFeatureName_CoreFeaturesAndLimits;
+    case FeatureName::TextureFormatsTier1:
+        return WGPUFeatureName_TextureFormatsTier1;
     }
 }
 
@@ -416,6 +418,18 @@ WGPUTextureFormat ConvertToBackingContext::convertToBacking(TextureFormat textur
         return WGPUTextureFormat_R8Sint;
     case TextureFormat::R16uint:
         return WGPUTextureFormat_R16Uint;
+    case TextureFormat::R16unorm:
+        return WGPUTextureFormat_R16Unorm;
+    case TextureFormat::R16snorm:
+        return WGPUTextureFormat_R16Snorm;
+    case TextureFormat::Rg16unorm:
+        return WGPUTextureFormat_RG16Unorm;
+    case TextureFormat::Rg16snorm:
+        return WGPUTextureFormat_RG16Snorm;
+    case TextureFormat::Rgba16unorm:
+        return WGPUTextureFormat_RGBA16Unorm;
+    case TextureFormat::Rgba16snorm:
+        return WGPUTextureFormat_RGBA16Snorm;
     case TextureFormat::R16sint:
         return WGPUTextureFormat_R16Sint;
     case TextureFormat::R16float:

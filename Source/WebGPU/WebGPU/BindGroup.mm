@@ -643,6 +643,13 @@ static std::underlying_type<FormatType>::type formatType(WGPUTextureFormat forma
         return FormatType_UnsignedInt;
     case WGPUTextureFormat_R16Sint:
         return FormatType_SignedInt;
+    case WGPUTextureFormat_R16Unorm:
+    case WGPUTextureFormat_R16Snorm:
+    case WGPUTextureFormat_RG16Unorm:
+    case WGPUTextureFormat_RG16Snorm:
+    case WGPUTextureFormat_RGBA16Unorm:
+    case WGPUTextureFormat_RGBA16Snorm:
+        return FormatType_Float | FormatType_UnfilterableFloat;
     case WGPUTextureFormat_R16Float:
     case WGPUTextureFormat_RG8Unorm:
     case WGPUTextureFormat_RG8Snorm:

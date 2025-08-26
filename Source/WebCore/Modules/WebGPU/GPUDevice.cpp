@@ -174,12 +174,20 @@ ExceptionOr<Ref<GPUBuffer>> GPUDevice::createBuffer(const GPUBufferDescriptor& b
     return GPUBuffer::create(buffer.releaseNonNull(), bufferSize, usage, mappedAtCreation, *this);
 }
 
-bool GPUDevice::isSupportedFormat(GPUTextureFormat format) const
+static std::optional<String> validateFeature(const auto& featureContainer, const String& featureName, String&& error)
+{
+    if (!featureContainer.contains(featureName))
+        return error;
+
+    return std::nullopt;
+}
+
+std::optional<String> GPUDevice::errorValidatingSupportedFormat(GPUTextureFormat format) const
 {
     const auto& featureContainer = m_backing->features().features();
     switch (format) {
     case GPUTextureFormat::Depth32floatStencil8:
-        return featureContainer.contains("depth32float-stencil8"_s);
+        return validateFeature(featureContainer, "depth32float-stencil8"_s, convertToString(format));
 
     // BC compressed formats usable if texture-compression-bc is both
     // supported by the device/user agent and enabled in requestDevice.
@@ -197,7 +205,7 @@ bool GPUDevice::isSupportedFormat(GPUTextureFormat format) const
     case GPUTextureFormat::Bc6hRgbFloat:
     case GPUTextureFormat::Bc7RgbaUnorm:
     case GPUTextureFormat::Bc7RgbaUnormSRGB:
-        return featureContainer.contains("texture-compression-bc"_s);
+        return validateFeature(featureContainer, "texture-compression-bc"_s, convertToString(format));
 
     // ETC2 compressed formats usable if texture-compression-etc2 is both
     // supported by the device/user agent and enabled in requestDevice.
@@ -211,7 +219,7 @@ bool GPUDevice::isSupportedFormat(GPUTextureFormat format) const
     case GPUTextureFormat::EacR11snorm:
     case GPUTextureFormat::EacRg11unorm:
     case GPUTextureFormat::EacRg11snorm:
-        return featureContainer.contains("texture-compression-etc2"_s);
+        return validateFeature(featureContainer, "texture-compression-etc2"_s, convertToString(format));
 
     // ASTC compressed formats usable if texture-compression-astc is both
     // supported by the device/user agent and enabled in requestDevice.
@@ -243,17 +251,25 @@ bool GPUDevice::isSupportedFormat(GPUTextureFormat format) const
     case GPUTextureFormat::Astc12x10UnormSRGB:
     case GPUTextureFormat::Astc12x12Unorm:
     case GPUTextureFormat::Astc12x12UnormSRGB:
-        return featureContainer.contains("texture-compression-astc"_s);
+        return validateFeature(featureContainer, "texture-compression-astc"_s, convertToString(format));
+
+    case GPUTextureFormat::R16unorm:
+    case GPUTextureFormat::R16snorm:
+    case GPUTextureFormat::Rg16unorm:
+    case GPUTextureFormat::Rg16snorm:
+    case GPUTextureFormat::Rgba16unorm:
+    case GPUTextureFormat::Rgba16snorm:
+        return validateFeature(featureContainer, "texture-formats-tier1"_s, convertToString(format));
 
     default:
-        return true;
+        return std::nullopt;
     }
 }
 
 ExceptionOr<Ref<GPUTexture>> GPUDevice::createTexture(const GPUTextureDescriptor& textureDescriptor)
 {
-    if (!isSupportedFormat(textureDescriptor.format))
-        return Exception { ExceptionCode::TypeError, "GPUDevice.createTexture: Unsupported texture format."_s };
+    if (auto error = errorValidatingSupportedFormat(textureDescriptor.format))
+        return Exception { ExceptionCode::TypeError, makeString("GPUDevice.createTexture: Unsupported texture format: "_s, *error) };
 
     RefPtr texture = m_backing->createTexture(textureDescriptor.convertToBacking());
     if (!texture)
@@ -415,8 +431,8 @@ ExceptionOr<Ref<GPUBindGroupLayout>> GPUDevice::createBindGroupLayout(const GPUB
 {
     for (auto& entry : bindGroupLayoutDescriptor.entries) {
         if (entry.storageTexture) {
-            if (!isSupportedFormat(entry.storageTexture->format))
-                return Exception { ExceptionCode::TypeError, "GPUDevice.createBindGroupLayout: Unsupported texture format."_s };
+            if (auto error = errorValidatingSupportedFormat(entry.storageTexture->format))
+                return Exception { ExceptionCode::TypeError, makeString("GPUDevice.createBindGroupLayout: Unsupported texture format: "_s, *error) };
         }
     }
 
@@ -508,14 +524,14 @@ ExceptionOr<Ref<GPURenderPipeline>> GPUDevice::createRenderPipeline(const GPURen
     if (renderPipelineDescriptor.fragment) {
         for (auto& colorState : renderPipelineDescriptor.fragment->targets) {
             if (colorState) {
-                if (!isSupportedFormat(colorState->format))
-                    return Exception { ExceptionCode::TypeError, "GPUDevice.createRenderPipeline: Unsupported texture format for color target."_s };
+                if (auto error = errorValidatingSupportedFormat(colorState->format))
+                    return Exception { ExceptionCode::TypeError, makeString("GPUDevice.createRenderPipeline: Unsupported texture format for color target: "_s, *error) };
             }
         }
     }
     if (renderPipelineDescriptor.depthStencil) {
-        if (!isSupportedFormat(renderPipelineDescriptor.depthStencil->format))
-            return Exception { ExceptionCode::TypeError, "GPUDevice.createRenderPipeline: Unsupported texture format for depth target."_s };
+        if (auto error = errorValidatingSupportedFormat(renderPipelineDescriptor.depthStencil->format))
+            return Exception { ExceptionCode::TypeError, makeString("GPUDevice.createRenderPipeline: Unsupported texture format for depth target: "_s, *error) };
     }
 
     if (!m_autoPipelineLayout)
@@ -545,14 +561,14 @@ ExceptionOr<void> GPUDevice::createRenderPipelineAsync(const GPURenderPipelineDe
     if (renderPipelineDescriptor.fragment) {
         for (auto& colorState : renderPipelineDescriptor.fragment->targets) {
             if (colorState) {
-                if (!isSupportedFormat(colorState->format))
-                    return Exception { ExceptionCode::TypeError, "GPUDevice.createRenderBundleEncoder: Unsupported texture format for color format."_s };
+                if (auto error = errorValidatingSupportedFormat(colorState->format))
+                    return Exception { ExceptionCode::TypeError, makeString("GPUDevice.createRenderBundleEncoder: Unsupported texture format for color format: "_s, *error) };
             }
         }
     }
     if (renderPipelineDescriptor.depthStencil) {
-        if (!isSupportedFormat(renderPipelineDescriptor.depthStencil->format))
-            return Exception { ExceptionCode::TypeError, "GPUDevice.createRenderBundleEncoder: Unsupported texture format for color format."_s };
+        if (auto error = errorValidatingSupportedFormat(renderPipelineDescriptor.depthStencil->format))
+            return Exception { ExceptionCode::TypeError, makeString("GPUDevice.createRenderBundleEncoder: Unsupported texture format for color format: "_s, *error) };
     }
 
     if (!m_autoPipelineLayout)
@@ -587,13 +603,13 @@ ExceptionOr<Ref<GPURenderBundleEncoder>> GPUDevice::createRenderBundleEncoder(co
 {
     for (auto& colorFormat : renderBundleEncoderDescriptor.colorFormats) {
         if (colorFormat) {
-            if (!isSupportedFormat(*colorFormat))
-                return Exception { ExceptionCode::TypeError, "GPUDevice.createRenderBundleEncoder: Unsupported texture format for color format."_s };
+            if (auto error = errorValidatingSupportedFormat(*colorFormat))
+                return Exception { ExceptionCode::TypeError, makeString("GPUDevice.createRenderBundleEncoder: Unsupported texture format for color format."_s, *error) };
         }
     }
     if (renderBundleEncoderDescriptor.depthStencilFormat) {
-        if (!isSupportedFormat(*renderBundleEncoderDescriptor.depthStencilFormat))
-            return Exception { ExceptionCode::TypeError, "GPUDevice.createRenderBundleEncoder: Unsupported texture format for depth format."_s };
+        if (auto error = errorValidatingSupportedFormat(*renderBundleEncoderDescriptor.depthStencilFormat))
+            return Exception { ExceptionCode::TypeError, makeString("GPUDevice.createRenderBundleEncoder: Unsupported texture format for depth format."_s, *error) };
     }
 
     RefPtr encoder = m_backing->createRenderBundleEncoder(renderBundleEncoderDescriptor.convertToBacking());

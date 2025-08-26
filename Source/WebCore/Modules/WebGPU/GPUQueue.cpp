@@ -257,6 +257,8 @@ static PixelFormat toPixelFormat(GPUTextureFormat textureFormat)
     case GPUTextureFormat::R8snorm:
     case GPUTextureFormat::R8uint:
     case GPUTextureFormat::R8sint:
+    case GPUTextureFormat::R16unorm:
+    case GPUTextureFormat::R16snorm:
     case GPUTextureFormat::R16uint:
     case GPUTextureFormat::R16sint:
     case GPUTextureFormat::R16float:
@@ -267,6 +269,8 @@ static PixelFormat toPixelFormat(GPUTextureFormat textureFormat)
     case GPUTextureFormat::R32uint:
     case GPUTextureFormat::R32sint:
     case GPUTextureFormat::R32float:
+    case GPUTextureFormat::Rg16unorm:
+    case GPUTextureFormat::Rg16snorm:
     case GPUTextureFormat::Rg16uint:
     case GPUTextureFormat::Rg16sint:
     case GPUTextureFormat::Rg16float:
@@ -288,6 +292,8 @@ static PixelFormat toPixelFormat(GPUTextureFormat textureFormat)
     case GPUTextureFormat::Rg32uint:
     case GPUTextureFormat::Rg32sint:
     case GPUTextureFormat::Rg32float:
+    case GPUTextureFormat::Rgba16unorm:
+    case GPUTextureFormat::Rgba16snorm:
     case GPUTextureFormat::Rgba16uint:
     case GPUTextureFormat::Rgba16sint:
     case GPUTextureFormat::Rgba16float:
@@ -917,6 +923,8 @@ static MallocSpan<uint8_t> copyToDestinationFormat(std::span<const uint8_t> rgba
     case GPUTextureFormat::R8snorm:
     case GPUTextureFormat::R8uint:
     case GPUTextureFormat::R8sint:
+    case GPUTextureFormat::R16unorm:
+    case GPUTextureFormat::R16snorm:
     case GPUTextureFormat::R16uint:
     case GPUTextureFormat::R16sint:
     case GPUTextureFormat::Rg8snorm:
@@ -924,6 +932,8 @@ static MallocSpan<uint8_t> copyToDestinationFormat(std::span<const uint8_t> rgba
     case GPUTextureFormat::Rg8sint:
     case GPUTextureFormat::R32uint:
     case GPUTextureFormat::R32sint:
+    case GPUTextureFormat::Rg16unorm:
+    case GPUTextureFormat::Rg16snorm:
     case GPUTextureFormat::Rg16uint:
     case GPUTextureFormat::Rg16sint:
     case GPUTextureFormat::Rgba32uint:
@@ -936,6 +946,8 @@ static MallocSpan<uint8_t> copyToDestinationFormat(std::span<const uint8_t> rgba
     case GPUTextureFormat::Rg11b10ufloat:
     case GPUTextureFormat::Rg32uint:
     case GPUTextureFormat::Rg32sint:
+    case GPUTextureFormat::Rgba16unorm:
+    case GPUTextureFormat::Rgba16snorm:
     case GPUTextureFormat::Rgba16uint:
     case GPUTextureFormat::Rgba16sint:
     case GPUTextureFormat::Stencil8:

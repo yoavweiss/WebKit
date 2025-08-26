@@ -10,11 +10,11 @@ FAIL :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -27,11 +27,11 @@ FAIL :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -44,11 +44,11 @@ FAIL :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -61,11 +61,11 @@ FAIL :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-vp8-bt601.webm";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -82,11 +82,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -99,11 +99,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -116,11 +116,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -133,11 +133,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-h264-bt601.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -154,11 +154,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -171,11 +171,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -188,11 +188,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -205,11 +205,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-vp9-bt601.webm";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -226,11 +226,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                         0,0,245,255                     117,251,76,255                   255,255,84,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      1,0,9,0                       -117,4,-74,0                       -1,0,-84,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -243,11 +243,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                        0,255,0,255
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     0,0,2,0
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -260,11 +260,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                   255,255,84,255                      234,51,35,255                         0,0,245,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                -1,0,-84,0                       21,-50,-35,0                             1,0,9,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -277,11 +277,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoEl
             exp. normal-ULPs-from-zero == R,G,B,A:                        0,255,0,255
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     0,0,2,0
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-vp9-bt709.webm";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -298,11 +298,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -315,11 +315,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -332,11 +332,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -349,11 +349,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-h264-bt601-rotate-90.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -370,11 +370,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceTy
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -387,11 +387,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceTy
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -404,11 +404,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceTy
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -421,11 +421,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceTy
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-h264-bt601-rotate-180.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -442,11 +442,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceTy
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -459,11 +459,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceTy
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -476,11 +476,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceTy
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -493,11 +493,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceTy
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-h264-bt601-rotate-270.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -514,11 +514,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -531,11 +531,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -548,11 +548,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -565,11 +565,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-rotate-90.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -586,11 +586,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -603,11 +603,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -620,11 +620,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -637,11 +637,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-rotate-180.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -658,11 +658,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                     127,248,73,255                      254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 -28,-34,8,0                       -126,7,-73,0                           0,2,-80,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -675,11 +675,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                       63,251,0,255                       254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               -26,-35,-1,0                          -62,4,0,0                             0,2,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -692,11 +692,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    0,2,-80,0                       26,-62,-34,0                        -28,-34,8,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -709,11 +709,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceTyp
             exp. normal-ULPs-from-zero == R,G,B,A:                       254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      0,2,1,0                         6,-36,0,0                      -26,-35,-1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-rotate-270.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -730,11 +730,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="V
             exp. normal-ULPs-from-zero == R,G,B,A:                      127,248,73,255                      28,34,246,255                      228,62,34,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                  127,7,-72,0                     226,-34,-246,0                     -228,-62,220,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -747,11 +747,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="V
             exp. normal-ULPs-from-zero == R,G,B,A:                        63,251,0,255                     26,35,255,255                      248,36,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    191,4,1,0                    228,-35,-255,0                    -248,-36,254,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -764,11 +764,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="V
             exp. normal-ULPs-from-zero == R,G,B,A:                      228,62,34,255                     254,253,81,255                      127,248,73,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              -228,-62,220,0                       -253,2,-81,0                         127,7,-72,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -781,11 +781,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="V
             exp. normal-ULPs-from-zero == R,G,B,A:                      248,36,0,255                      254,253,0,255                        63,251,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                             -248,-36,254,0                         -253,2,0,0                           191,4,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-h264-bt601-hflip.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -802,11 +802,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="V
             exp. normal-ULPs-from-zero == R,G,B,A:                     254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                -253,2,-81,0                     -228,-62,220,0                     226,-34,-246,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -819,11 +819,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="V
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                  -253,2,0,0                    -248,-36,254,0                    228,-35,-255,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -836,11 +836,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="V
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                      127,248,73,255                     254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              226,-34,-246,0                         127,7,-72,0                       -253,2,-81,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -853,11 +853,11 @@ FAIL :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="V
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                        63,251,0,255                      254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                             228,-35,-255,0                           191,4,1,0                         -253,2,0,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-h264-bt601-vflip.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -874,11 +874,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="Vi
             exp. normal-ULPs-from-zero == R,G,B,A:                      127,248,73,255                      28,34,246,255                      228,62,34,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                  127,7,-72,0                     226,-34,-246,0                     -228,-62,220,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -891,11 +891,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="Vi
             exp. normal-ULPs-from-zero == R,G,B,A:                        63,251,0,255                     26,35,255,255                      248,36,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                    191,4,1,0                    228,-35,-255,0                    -248,-36,254,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -908,11 +908,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="Vi
             exp. normal-ULPs-from-zero == R,G,B,A:                      228,62,34,255                     254,253,81,255                      127,248,73,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              -228,-62,220,0                       -253,2,-81,0                         127,7,-72,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -925,11 +925,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="Vi
             exp. normal-ULPs-from-zero == R,G,B,A:                      248,36,0,255                      254,253,0,255                        63,251,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                             -248,-36,254,0                         -253,2,0,0                           191,4,1,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-hflip.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"
@@ -946,11 +946,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="Vi
             exp. normal-ULPs-from-zero == R,G,B,A:                     254,253,81,255                      228,62,34,255                      28,34,246,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                -253,2,-81,0                     -228,-62,220,0                     226,-34,-246,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=true;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -963,11 +963,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="Vi
             exp. normal-ULPs-from-zero == R,G,B,A:                      254,253,0,255                      248,36,0,255                     26,35,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                  -253,2,0,0                    -248,-36,254,0                    228,-35,-255,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:104:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:105:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="display-p3" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -980,11 +980,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="Vi
             exp. normal-ULPs-from-zero == R,G,B,A:                      28,34,246,255                      127,248,73,255                     254,253,81,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              226,-34,-246,0                         127,7,-72,0                       -253,2,-81,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 FAIL :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="VideoElement";srcDoFlipYDuringCopy=false;dstColorSpace="srgb" assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -997,11 +997,11 @@ FAIL :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="Vi
             exp. normal-ULPs-from-zero == R,G,B,A:                     26,35,255,255                        63,251,0,255                      254,253,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                             228,-35,-255,0                           191,4,1,0                         -253,2,0,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:127:51
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:63:60
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:128:53
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/video.spec.js:64:60
  Reached unreachable code
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="display-p3"
 PASS :copy_from_video:videoName="four-colors-vp9-bt601-vflip.mp4";sourceType="VideoFrame";srcDoFlipYDuringCopy=true;dstColorSpace="srgb"

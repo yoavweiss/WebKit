@@ -127,7 +127,7 @@ public:
     void setPreviouslyCleared(uint32_t mipLevel, uint32_t slice, bool = true);
     bool isDestroyed() const { return m_destroyed; }
 
-    static bool hasStorageBindingCapability(WGPUTextureFormat, const Device&, WGPUStorageTextureAccess = WGPUStorageTextureAccess_Undefined);
+    static bool hasStorageBindingCapability(WGPUTextureFormat, const Device&, std::optional<WGPUStorageTextureAccess> = std::nullopt);
     static bool supportsMultisampling(WGPUTextureFormat, const Device&);
     static bool supportsResolve(WGPUTextureFormat, const Device&);
     static bool supportsBlending(WGPUTextureFormat, const Device&);

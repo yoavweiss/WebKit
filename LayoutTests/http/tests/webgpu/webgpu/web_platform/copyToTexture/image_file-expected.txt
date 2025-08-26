@@ -14,10 +14,10 @@ FAIL :from_orientation_metadata_file:imageName="four-colors.jpg";objectTypeFromF
             exp. normal-ULPs-from-zero == R,G,B,A:                     0,0,255,255                      0,255,0,255                    255,255,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                           255,255,-255,0                     254,-255,0,0                  -255,-255,254,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:82:49
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:83:51
  Reached unreachable code
 PASS :from_orientation_metadata_file:imageName="four-colors.jpg";objectTypeFromFile="Image";srcDoFlipYDuringCopy=false
 PASS :from_orientation_metadata_file:imageName="four-colors-rotate-90-cw.jpg";objectTypeFromFile="ImageBitmap-from-Blob";srcDoFlipYDuringCopy=true
@@ -38,7 +38,7 @@ FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-90-cw.jpg";ob
       at (elided: below max severity)
   - EXCEPTION: Error: Unexpected validation error occurred: GPUQueue.writeTexture: GPUTexture.validateLinearTextureData: bytesPerRow(960) is less than bytesInLastRow(1280)
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-90-cw.jpg";objectTypeFromFile="Image";srcDoFlipYDuringCopy=false assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -54,7 +54,7 @@ FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-90-cw.jpg";ob
       at (elided: below max severity)
   - EXCEPTION: Error: Unexpected validation error occurred: GPUQueue.writeTexture: GPUTexture.validateLinearTextureData: bytesPerRow(960) is less than bytesInLastRow(1280)
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :from_orientation_metadata_file:imageName="four-colors-rotate-180-cw.jpg";objectTypeFromFile="ImageBitmap-from-Blob";srcDoFlipYDuringCopy=true
 PASS :from_orientation_metadata_file:imageName="four-colors-rotate-180-cw.jpg";objectTypeFromFile="ImageBitmap-from-Blob";srcDoFlipYDuringCopy=false
@@ -71,10 +71,10 @@ FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-180-cw.jpg";o
             exp. normal-ULPs-from-zero == R,G,B,A:                        0,0,255,255                      0,255,0,255                    255,255,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                0,255,-254,0                     0,-255,254,0                      -1,-255,0,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:82:49
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:83:51
  Reached unreachable code
 FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-180-cw.jpg";objectTypeFromFile="Image";srcDoFlipYDuringCopy=false assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -87,10 +87,10 @@ FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-180-cw.jpg";o
             exp. normal-ULPs-from-zero == R,G,B,A:                      255,255,0,255                      255,0,0,255                      0,0,255,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                  -255,0,1,0                     -255,0,254,0                     254,0,-255,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:105:49
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:106:51
  Reached unreachable code
 PASS :from_orientation_metadata_file:imageName="four-colors-rotate-270-cw.jpg";objectTypeFromFile="ImageBitmap-from-Blob";srcDoFlipYDuringCopy=true
 PASS :from_orientation_metadata_file:imageName="four-colors-rotate-270-cw.jpg";objectTypeFromFile="ImageBitmap-from-Blob";srcDoFlipYDuringCopy=false
@@ -110,7 +110,7 @@ FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-270-cw.jpg";o
       at (elided: below max severity)
   - EXCEPTION: Error: Unexpected validation error occurred: GPUQueue.writeTexture: GPUTexture.validateLinearTextureData: bytesPerRow(960) is less than bytesInLastRow(1280)
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-270-cw.jpg";objectTypeFromFile="Image";srcDoFlipYDuringCopy=false assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -126,7 +126,7 @@ FAIL :from_orientation_metadata_file:imageName="four-colors-rotate-270-cw.jpg";o
       at (elided: below max severity)
   - EXCEPTION: Error: Unexpected validation error occurred: GPUQueue.writeTexture: GPUTexture.validateLinearTextureData: bytesPerRow(960) is less than bytesInLastRow(1280)
     TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:442:44
+    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :from_multiple_formats:imageName="four-colors.jpg";srcDoFlipYDuringCopy=true assert_unreached:
   - EXPECTATION FAILED: Texture level had unexpected contents:
@@ -139,10 +139,10 @@ FAIL :from_multiple_formats:imageName="four-colors.jpg";srcDoFlipYDuringCopy=tru
             exp. normal-ULPs-from-zero == R,G,B,A:                     0,0,255,255                      0,255,0,255                    255,255,0,255 ...
              tolerance ± 1 normal-ULPs
        diff (act - exp) in normal-ULPs ==                           255,255,-255,0                     254,-255,0,0                  -255,-255,254,0 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:189:51
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:190:53
  Reached unreachable code
 PASS :from_multiple_formats:imageName="four-colors.jpg";srcDoFlipYDuringCopy=false
 PASS :from_multiple_formats:imageName="four-colors.png";srcDoFlipYDuringCopy=true
@@ -161,32 +161,17 @@ FAIL :from_multiple_formats:imageName="four-colors.svg";srcDoFlipYDuringCopy=tru
   - EXPECTATION FAILED: Texture level had unexpected contents:
      between 80,60,0 and 240,180,0 inclusive:
                                 coords ==   X,Y,Z:                         80,60,0                        240,60,0                        80,180,0 ...
-      act. texel bytes (little-endian) ==      0x:                     00 00 00 00                     00 00 00 00                     00 00 00 00 ...
-                           act. colors == R,G,B,A: 0.00000,0.00000,0.00000,0.00000 0.00000,0.00000,0.00000,0.00000 0.00000,0.00000,0.00000,0.00000 ...
+      act. texel bytes (little-endian) ==      0x:                     ff ff 00 ff                     ff 00 00 ff                     00 00 ff ff ...
+                           act. colors == R,G,B,A: 1.00000,1.00000,0.00000,1.00000 1.00000,0.00000,0.00000,1.00000 0.00000,0.00000,1.00000,1.00000 ...
                            exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,1.00000 0.00000,1.00000,0.00000,1.00000 1.00000,1.00000,0.00000,1.00000 ...
-            act. normal-ULPs-from-zero == R,G,B,A:                         0,0,0,0                         0,0,0,0                         0,0,0,0 ...
+            act. normal-ULPs-from-zero == R,G,B,A:                   255,255,0,255                     255,0,0,255                     0,0,255,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                     0,0,255,255                     0,255,0,255                   255,255,0,255 ...
              tolerance ± 1 normal-ULPs
-       diff (act - exp) in normal-ULPs ==                            0,0,-255,-255                   0,-255,0,-255                -255,-255,0,-255 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:189:51
+       diff (act - exp) in normal-ULPs ==                           255,255,-255,0                    255,-255,0,0                 -255,-255,255,0 ...
+    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:258:33
+    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:414:34
+    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/texture_test_utils.js:238:21
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:190:53
  Reached unreachable code
-FAIL :from_multiple_formats:imageName="four-colors.svg";srcDoFlipYDuringCopy=false assert_unreached:
-  - EXPECTATION FAILED: Texture level had unexpected contents:
-     between 80,60,0 and 240,180,0 inclusive:
-                                coords ==   X,Y,Z:                         80,60,0                        240,60,0                        80,180,0 ...
-      act. texel bytes (little-endian) ==      0x:                     00 00 00 00                     00 00 00 00                     00 00 00 00 ...
-                           act. colors == R,G,B,A: 0.00000,0.00000,0.00000,0.00000 0.00000,0.00000,0.00000,0.00000 0.00000,0.00000,0.00000,0.00000 ...
-                           exp. colors == R,G,B,A: 1.00000,1.00000,0.00000,1.00000 1.00000,0.00000,0.00000,1.00000 0.00000,0.00000,1.00000,1.00000 ...
-            act. normal-ULPs-from-zero == R,G,B,A:                         0,0,0,0                         0,0,0,0                         0,0,0,0 ...
-            exp. normal-ULPs-from-zero == R,G,B,A:                   255,255,0,255                     255,0,0,255                     0,0,255,255 ...
-             tolerance ± 1 normal-ULPs
-       diff (act - exp) in normal-ULPs ==                         -255,-255,0,-255                   -255,0,0,-255                   0,0,-255,-255 ...
-    eventualAsyncExpectation@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:254:33
-    eventualExpectOK@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:396:34
-    expectSinglePixelComparisonsAreOkInTexture@http://127.0.0.1:8000/webgpu/webgpu/gpu_test.js:2158:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/copyToTexture/image_file.spec.js:212:51
- Reached unreachable code
+PASS :from_multiple_formats:imageName="four-colors.svg";srcDoFlipYDuringCopy=false
 

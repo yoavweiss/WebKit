@@ -1,11 +1,5 @@
 CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
 CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
-CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
-CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
-CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
-CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
-CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
-CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
 CONSOLE MESSAGE: Canvas area exceeds the maximum limit (width * height > 268435456).
 
 PASS :onscreenCanvas,snapshot:format="bgra8unorm";alphaMode="opaque";colorSpace="srgb";snapshotType="toDataURL"
@@ -19,38 +13,7 @@ PASS :onscreenCanvas,snapshot:format="bgra8unorm";alphaMode="premultiplied";colo
 PASS :onscreenCanvas,snapshot:format="bgra8unorm";alphaMode="premultiplied";colorSpace="srgb";snapshotType="imageBitmap"
 PASS :onscreenCanvas,snapshot:format="bgra8unorm";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="toDataURL"
 PASS :onscreenCanvas,snapshot:format="bgra8unorm";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="toBlob"
-FAIL :onscreenCanvas,snapshot:format="bgra8unorm";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="imageBitmap" assert_unreached:
-  - EXPECTATION FAILED: Canvas had unexpected contents:
-     between 0,0,0 and 1,1,0 inclusive:
-                                coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
-      act. texel bytes (little-endian) ==      0x:                      00 00 00 00                      00 00 00 00                      00 00 00 00 ...
-                           act. colors == R,G,B,A:  0.00000,0.00000,0.00000,0.00000  0.00000,0.00000,0.00000,0.00000  0.00000,0.00000,0.00000,0.00000 ...
-                           exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,0.400000 0.00000,1.00000,0.00000,0.400000 1.00000,0.00000,0.00000,0.400000 ...
-            act. normal-ULPs-from-zero == R,G,B,A:                          0,0,0,0                          0,0,0,0                          0,0,0,0 ...
-            exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,255,102                      0,255,0,102                      255,0,0,102 ...
-             tolerance ± 0 normal-ULPs
-       diff (act - exp) in normal-ULPs ==                             0,0,-255,-102                    0,-255,0,-102                    -255,0,0,-102 ...
-    ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
-  - EXPECTATION FAILED: Canvas had unexpected contents:
-     between 0,0,0 and 1,1,0 inclusive:
-                                coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
-      act. texel bytes (little-endian) ==      0x:                      00 00 00 00                      00 00 00 00                      00 00 00 00 ...
-                           act. colors == R,G,B,A:  0.00000,0.00000,0.00000,0.00000  0.00000,0.00000,0.00000,0.00000  0.00000,0.00000,0.00000,0.00000 ...
-                           exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,0.400000 0.00000,1.00000,0.00000,0.400000 1.00000,0.00000,0.00000,0.400000 ...
-            act. normal-ULPs-from-zero == R,G,B,A:                          0,0,0,0                          0,0,0,0                          0,0,0,0 ...
-            exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,255,102                      0,255,0,102                      255,0,0,102 ...
-             tolerance ± 2 normal-ULPs
-       diff (act - exp) in normal-ULPs ==                             0,0,-255,-102                    0,-255,0,-102                    -255,0,0,-102 ...
-    ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
- Reached unreachable code
+PASS :onscreenCanvas,snapshot:format="bgra8unorm";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="imageBitmap"
 PASS :onscreenCanvas,snapshot:format="rgba8unorm";alphaMode="opaque";colorSpace="srgb";snapshotType="toDataURL"
 PASS :onscreenCanvas,snapshot:format="rgba8unorm";alphaMode="opaque";colorSpace="srgb";snapshotType="toBlob"
 PASS :onscreenCanvas,snapshot:format="rgba8unorm";alphaMode="opaque";colorSpace="srgb";snapshotType="imageBitmap"
@@ -75,10 +38,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 1,0,0 and 1,0,0 inclusive:
                                 coords ==   X,Y,Z:                               1,0,0
@@ -87,13 +50,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
                            exp. colors == R,G,B,A: 0.168627,0.392157,0.0980392,1.00000
             act. normal-ULPs-from-zero == R,G,B,A:                       45,100,33,255
             exp. normal-ULPs-from-zero == R,G,B,A:                       43,100,25,255
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      2,0,8,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="srgb";snapshotType="toBlob" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -107,10 +70,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 1,0,0 and 1,0,0 inclusive:
                                 coords ==   X,Y,Z:                               1,0,0
@@ -119,13 +82,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
                            exp. colors == R,G,B,A: 0.168627,0.392157,0.0980392,1.00000
             act. normal-ULPs-from-zero == R,G,B,A:                       45,100,33,255
             exp. normal-ULPs-from-zero == R,G,B,A:                       43,100,25,255
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      2,0,8,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="srgb";snapshotType="imageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -139,10 +102,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 1,0,0 and 1,0,0 inclusive:
                                 coords ==   X,Y,Z:                               1,0,0
@@ -151,13 +114,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
                            exp. colors == R,G,B,A: 0.168627,0.392157,0.0980392,1.00000
             act. normal-ULPs-from-zero == R,G,B,A:                       45,100,33,255
             exp. normal-ULPs-from-zero == R,G,B,A:                       43,100,25,255
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      2,0,8,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="display-p3";snapshotType="toDataURL" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -171,10 +134,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="display-p3";snapshotType="toBlob" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -188,10 +151,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="display-p3";snapshotType="imageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -205,10 +168,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";snapshotType="toDataURL" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -222,10 +185,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                             0,0,0                               1,0,0                                0,1,0 ...
@@ -234,13 +197,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
                            exp. colors == R,G,B,A: 0.00000,0.00000,0.960784,0.400000 0.462745,0.980392,0.294118,0.400000  0.921569,0.196078,0.137255,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                        0,0,97,255                       45,100,33,255                          93,14,7,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                       0,0,245,102                      118,250,75,102                        235,50,35,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               0,0,-148,153                    -73,-150,-42,153                     -142,-36,-28,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";snapshotType="toBlob" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -254,10 +217,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                             0,0,0                               1,0,0                                0,1,0 ...
@@ -266,13 +229,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
                            exp. colors == R,G,B,A: 0.00000,0.00000,0.960784,0.400000 0.462745,0.980392,0.294118,0.400000  0.921569,0.196078,0.137255,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                        0,0,97,255                       45,100,33,255                          93,14,7,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                       0,0,245,102                      118,250,75,102                        235,50,35,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               0,0,-148,153                    -73,-150,-42,153                     -142,-36,-28,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";snapshotType="imageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -286,10 +249,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                             0,0,0                               1,0,0                                0,1,0 ...
@@ -298,13 +261,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
                            exp. colors == R,G,B,A: 0.00000,0.00000,0.960784,0.400000 0.462745,0.980392,0.294118,0.400000  0.921569,0.196078,0.137255,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                        0,0,97,255                       45,100,33,255                          93,14,7,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                       0,0,245,102                      118,250,75,102                        235,50,35,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               0,0,-148,153                    -73,-150,-42,153                     -142,-36,-28,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="toDataURL" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -318,10 +281,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
@@ -330,13 +293,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
                            exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,0.400000 0.00000,1.00000,0.00000,0.400000 1.00000,0.00000,0.00000,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                      0,0,107,255                      0,104,0,255                      112,0,0,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,255,102                      0,255,0,102                      255,0,0,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="toBlob" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -350,10 +313,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
@@ -362,13 +325,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
                            exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,0.400000 0.00000,1.00000,0.00000,0.400000 1.00000,0.00000,0.00000,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                      0,0,107,255                      0,104,0,255                      112,0,0,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,255,102                      0,255,0,102                      255,0,0,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="imageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -382,10 +345,10 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
@@ -394,13 +357,13 @@ FAIL :onscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";col
                            exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,0.400000 0.00000,1.00000,0.00000,0.400000 1.00000,0.00000,0.00000,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                      0,0,107,255                      0,104,0,255                      112,0,0,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,255,102                      0,255,0,102                      255,0,0,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:303:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:311:19
  Reached unreachable code
 PASS :onscreenCanvas,uploadToWebGL:format="bgra8unorm";alphaMode="opaque";webgl="webgl";upload="texImage2D"
 PASS :onscreenCanvas,uploadToWebGL:format="bgra8unorm";alphaMode="opaque";webgl="webgl";upload="texSubImage2D"
@@ -426,7 +389,7 @@ FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="opaque";webgl
      expected ==     ff 00 66 00 ff
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
     failCheckElements@http://127.0.0.1:8000/webgpu/webgpu/util/check_contents.js:265:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:427:32
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:435:32
  Reached unreachable code
 FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="opaque";webgl="webgl";upload="texSubImage2D" assert_unreached:
   - EXPECTATION FAILED: Array had unexpected contents at indices 4 through 6.
@@ -436,7 +399,7 @@ FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="opaque";webgl
      expected ==     ff 00 66 00 ff
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
     failCheckElements@http://127.0.0.1:8000/webgpu/webgpu/util/check_contents.js:265:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:427:32
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:435:32
  Reached unreachable code
 FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="opaque";webgl="webgl2";upload="texImage2D" assert_unreached:
   - EXPECTATION FAILED: Array had unexpected contents at indices 4 through 6.
@@ -446,7 +409,7 @@ FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="opaque";webgl
      expected ==     ff 00 66 00 ff
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
     failCheckElements@http://127.0.0.1:8000/webgpu/webgpu/util/check_contents.js:265:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:427:32
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:435:32
  Reached unreachable code
 FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="opaque";webgl="webgl2";upload="texSubImage2D" assert_unreached:
   - EXPECTATION FAILED: Array had unexpected contents at indices 4 through 6.
@@ -456,7 +419,7 @@ FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="opaque";webgl
      expected ==     ff 00 66 00 ff
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
     failCheckElements@http://127.0.0.1:8000/webgpu/webgpu/util/check_contents.js:265:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:427:32
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:435:32
  Reached unreachable code
 FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="premultiplied";webgl="webgl";upload="texImage2D" assert_unreached:
   - EXPECTATION FAILED: Array had unexpected contents at indices 2 through 15.
@@ -466,7 +429,7 @@ FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="premultiplied
      expected ==     00 ff 66 00 ff 00 66 ff 00 00 66 ff ff 00 66
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
     failCheckElements@http://127.0.0.1:8000/webgpu/webgpu/util/check_contents.js:265:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:427:32
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:435:32
  Reached unreachable code
 FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="premultiplied";webgl="webgl";upload="texSubImage2D" assert_unreached:
   - EXPECTATION FAILED: Array had unexpected contents at indices 2 through 15.
@@ -476,7 +439,7 @@ FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="premultiplied
      expected ==     00 ff 66 00 ff 00 66 ff 00 00 66 ff ff 00 66
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
     failCheckElements@http://127.0.0.1:8000/webgpu/webgpu/util/check_contents.js:265:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:427:32
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:435:32
  Reached unreachable code
 FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="premultiplied";webgl="webgl2";upload="texImage2D" assert_unreached:
   - EXPECTATION FAILED: Array had unexpected contents at indices 2 through 15.
@@ -486,7 +449,7 @@ FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="premultiplied
      expected ==     00 ff 66 00 ff 00 66 ff 00 00 66 ff ff 00 66
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
     failCheckElements@http://127.0.0.1:8000/webgpu/webgpu/util/check_contents.js:265:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:427:32
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:435:32
  Reached unreachable code
 FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="premultiplied";webgl="webgl2";upload="texSubImage2D" assert_unreached:
   - EXPECTATION FAILED: Array had unexpected contents at indices 2 through 15.
@@ -496,7 +459,7 @@ FAIL :onscreenCanvas,uploadToWebGL:format="rgba16float";alphaMode="premultiplied
      expected ==     00 ff 66 00 ff 00 66 ff 00 00 66 ff ff 00 66
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
     failCheckElements@http://127.0.0.1:8000/webgpu/webgpu/util/check_contents.js:265:28
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:427:32
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:435:32
  Reached unreachable code
 PASS :offscreenCanvas,snapshot:format="bgra8unorm";alphaMode="opaque";colorSpace="srgb";snapshotType="convertToBlob"
 PASS :offscreenCanvas,snapshot:format="bgra8unorm";alphaMode="opaque";colorSpace="srgb";snapshotType="transferToImageBitmap"
@@ -534,10 +497,10 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 1,0,0 and 1,0,0 inclusive:
                                 coords ==   X,Y,Z:                               1,0,0
@@ -546,13 +509,13 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
                            exp. colors == R,G,B,A: 0.168627,0.392157,0.0980392,1.00000
             act. normal-ULPs-from-zero == R,G,B,A:                       45,100,33,255
             exp. normal-ULPs-from-zero == R,G,B,A:                       43,100,25,255
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      2,0,8,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="srgb";snapshotType="transferToImageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -566,11 +529,11 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                0,0,-102,0                       0,-102,0,0                       -102,0,0,0 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:326:11
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:334:11
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                            0,0,0                               1,0,0                                0,1,0 ...
@@ -579,14 +542,14 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
                            exp. colors == R,G,B,A: 0.00000,0.00000,0.380392,1.00000 0.168627,0.392157,0.0980392,1.00000 0.364706,0.0549020,0.0274510,1.00000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                        0,0,0,255                           0,0,0,255                            0,0,0,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                       0,0,97,255                       43,100,25,255                          93,14,7,255 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                 0,0,-97,0                      -43,-100,-25,0                         -93,-14,-7,0 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:326:11
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:334:11
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="srgb";snapshotType="imageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -600,10 +563,10 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 1,0,0 and 1,0,0 inclusive:
                                 coords ==   X,Y,Z:                               1,0,0
@@ -612,13 +575,13 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
                            exp. colors == R,G,B,A: 0.168627,0.392157,0.0980392,1.00000
             act. normal-ULPs-from-zero == R,G,B,A:                       45,100,33,255
             exp. normal-ULPs-from-zero == R,G,B,A:                       43,100,25,255
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                      2,0,8,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="display-p3";snapshotType="convertToBlob" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -632,10 +595,10 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="display-p3";snapshotType="transferToImageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -649,11 +612,11 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                0,0,-102,0                       0,-102,0,0                       -102,0,0,0 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:326:11
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:334:11
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
@@ -662,14 +625,14 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
                            exp. colors == R,G,B,A: 0.00000,0.00000,0.419608,1.00000 0.00000,0.407843,0.00000,1.00000 0.439216,0.00000,0.00000,1.00000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                        0,0,0,255                        0,0,0,255                        0,0,0,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,107,255                      0,104,0,255                      112,0,0,255 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                0,0,-107,0                       0,-104,0,0                       -112,0,0,0 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:326:11
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:334:11
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpace="display-p3";snapshotType="imageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -683,10 +646,10 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="opaque";colorSpac
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";snapshotType="convertToBlob" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -700,10 +663,10 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                             0,0,0                               1,0,0                                0,1,0 ...
@@ -712,13 +675,13 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
                            exp. colors == R,G,B,A: 0.00000,0.00000,0.960784,0.400000 0.462745,0.980392,0.294118,0.400000  0.921569,0.196078,0.137255,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                        0,0,97,255                       45,100,33,255                          93,14,7,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                       0,0,245,102                      118,250,75,102                        235,50,35,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               0,0,-148,153                    -73,-150,-42,153                     -142,-36,-28,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";snapshotType="transferToImageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -732,11 +695,11 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                             0,0,-255,-102                    0,-255,0,-102                    -255,0,0,-102 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:326:11
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:334:11
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                             0,0,0                               1,0,0                               0,1,0 ...
@@ -745,14 +708,14 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
                            exp. colors == R,G,B,A: 0.00000,0.00000,0.960784,0.400000 0.462745,0.980392,0.294118,0.400000 0.921569,0.196078,0.137255,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                           0,0,0,0                             0,0,0,0                             0,0,0,0 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                       0,0,245,102                      118,250,75,102                       235,50,35,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-245,-102                  -118,-250,-75,-102                   -235,-50,-35,-102 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:326:11
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:334:11
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";snapshotType="imageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -766,10 +729,10 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                             0,0,0                               1,0,0                                0,1,0 ...
@@ -778,13 +741,13 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
                            exp. colors == R,G,B,A: 0.00000,0.00000,0.960784,0.400000 0.462745,0.980392,0.294118,0.400000  0.921569,0.196078,0.137255,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                        0,0,97,255                       45,100,33,255                          93,14,7,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                       0,0,245,102                      118,250,75,102                        235,50,35,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                               0,0,-148,153                    -73,-150,-42,153                     -142,-36,-28,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="convertToBlob" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -798,10 +761,10 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
@@ -810,13 +773,13 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
                            exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,0.400000 0.00000,1.00000,0.00000,0.400000 1.00000,0.00000,0.00000,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                      0,0,107,255                      0,104,0,255                      112,0,0,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,255,102                      0,255,0,102                      255,0,0,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="transferToImageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -830,11 +793,11 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                             0,0,-255,-102                    0,-255,0,-102                    -255,0,0,-102 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:326:11
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:334:11
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
@@ -843,14 +806,14 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
                            exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,0.400000 0.00000,1.00000,0.00000,0.400000 1.00000,0.00000,0.00000,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                          0,0,0,0                          0,0,0,0                          0,0,0,0 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,255,102                      0,255,0,102                      255,0,0,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                             0,0,-255,-102                    0,-255,0,-102                    -255,0,0,-102 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:326:11
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:334:11
  Reached unreachable code
 FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";snapshotType="imageBitmap" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -864,10 +827,10 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:164:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:195:43
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithSameColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:167:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:203:43
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
   - EXPECTATION FAILED: Canvas had unexpected contents:
      between 0,0,0 and 1,1,0 inclusive:
                                 coords ==   X,Y,Z:                            0,0,0                            1,0,0                            0,1,0 ...
@@ -876,13 +839,13 @@ FAIL :offscreenCanvas,snapshot:format="rgba16float";alphaMode="premultiplied";co
                            exp. colors == R,G,B,A: 0.00000,0.00000,1.00000,0.400000 0.00000,1.00000,0.00000,0.400000 1.00000,0.00000,0.00000,0.400000 ...
             act. normal-ULPs-from-zero == R,G,B,A:                      0,0,107,255                      0,104,0,255                      112,0,0,255 ...
             exp. normal-ULPs-from-zero == R,G,B,A:                      0,0,255,102                      0,255,0,102                      255,0,0,102 ...
-             tolerance ± 2 normal-ULPs
+             tolerance ± 3 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:184:35
-    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:199:48
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:362:19
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    checkImageResultWithDifferentColorSpaceCanvas@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:187:35
+    checkImageResult@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:207:48
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:370:19
  Reached unreachable code
 PASS :drawTo2DCanvas:format="bgra8unorm";alphaMode="opaque";colorSpace="srgb";webgpuCanvasType="onscreen";canvas2DType="onscreen"
 PASS :drawTo2DCanvas:format="bgra8unorm";alphaMode="opaque";colorSpace="srgb";webgpuCanvasType="onscreen";canvas2DType="offscreen"
@@ -928,8 +891,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="srgb";w
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="srgb";webgpuCanvasType="onscreen";canvas2DType="offscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -943,8 +906,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="srgb";w
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="srgb";webgpuCanvasType="offscreen";canvas2DType="onscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -958,8 +921,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="srgb";w
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="srgb";webgpuCanvasType="offscreen";canvas2DType="offscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -973,8 +936,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="srgb";w
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                                     12,0,18,0
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 PASS :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="display-p3";webgpuCanvasType="onscreen";canvas2DType="onscreen"
 PASS :drawTo2DCanvas:format="rgba16float";alphaMode="opaque";colorSpace="display-p3";webgpuCanvasType="onscreen";canvas2DType="offscreen"
@@ -992,8 +955,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";webgpuCanvasType="onscreen";canvas2DType="offscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -1007,8 +970,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";webgpuCanvasType="offscreen";canvas2DType="onscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -1022,8 +985,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="srgb";webgpuCanvasType="offscreen";canvas2DType="offscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -1037,8 +1000,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-153,153                       12,-153,18,153                     -153,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";webgpuCanvasType="onscreen";canvas2DType="onscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -1052,8 +1015,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";webgpuCanvasType="onscreen";canvas2DType="offscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -1067,8 +1030,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";webgpuCanvasType="offscreen";canvas2DType="onscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -1082,8 +1045,8 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="display-p3";webgpuCanvasType="offscreen";canvas2DType="offscreen" assert_unreached:
   - EXPECTATION FAILED: Canvas had unexpected contents:
@@ -1097,20 +1060,20 @@ FAIL :drawTo2DCanvas:format="rgba16float";alphaMode="premultiplied";colorSpace="
              tolerance ± 0 normal-ULPs
        diff (act - exp) in normal-ULPs ==                              0,0,-148,153                     0,-151,0,153                     -143,0,0,153 ...
     ErrorWithExtra@http://127.0.0.1:8000/webgpu/common/util/util.js:23:10
-    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:236:25
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:482:35
+    readPixelsFrom2DCanvasAndCompare@http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:244:25
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:490:35
  Reached unreachable code
 PASS :transferToImageBitmap_unconfigured_nonzero_size:readbackCanvasType="onscreen"
 PASS :transferToImageBitmap_unconfigured_nonzero_size:readbackCanvasType="offscreen"
 FAIL :transferToImageBitmap_zero_size:configure=true assert_unreached:
   - EXPECTATION FAILED: unexpectedly did not throw
-    shouldThrow@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:333:45
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:544:16
+    shouldThrow@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:337:45
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:552:16
  Reached unreachable code
 FAIL :transferToImageBitmap_zero_size:configure=false assert_unreached:
   - EXPECTATION FAILED: unexpectedly did not throw
-    shouldThrow@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:333:45
-    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:544:16
+    shouldThrow@http://127.0.0.1:8000/webgpu/common/framework/fixture.js:337:45
+    @http://127.0.0.1:8000/webgpu/webgpu/web_platform/canvas/readbackFromWebGPUCanvas.spec.js:552:16
  Reached unreachable code
 PASS :transferToImageBitmap_huge_size:
 

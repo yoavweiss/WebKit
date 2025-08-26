@@ -390,6 +390,7 @@ typedef enum WGPUFeatureName {
     WGPUFeatureName_Float16Renderable = 0x00000011,
     WGPUFeatureName_Float32Renderable = 0x00000012,
     WGPUFeatureName_CoreFeaturesAndLimits = 0x00000013,
+    WGPUFeatureName_TextureFormatsTier1 = 0x00000014,
     WGPUFeatureName_Force32 = 0x7FFFFFFF
 } WGPUFeatureName WGPU_ENUM_ATTRIBUTE;
 
@@ -640,6 +641,12 @@ typedef enum WGPUTextureFormat {
     WGPUTextureFormat_ASTC12x10UnormSrgb = 0x0000005D,
     WGPUTextureFormat_ASTC12x12Unorm = 0x0000005E,
     WGPUTextureFormat_ASTC12x12UnormSrgb = 0x0000005F,
+    WGPUTextureFormat_R16Unorm = 0x00000060,
+    WGPUTextureFormat_R16Snorm = 0x00000061,
+    WGPUTextureFormat_RG16Unorm = 0x00000062,
+    WGPUTextureFormat_RG16Snorm = 0x00000063,
+    WGPUTextureFormat_RGBA16Unorm = 0x00000064,
+    WGPUTextureFormat_RGBA16Snorm = 0x00000065,
     WGPUTextureFormat_Force32 = 0x7FFFFFFF
 } WGPUTextureFormat WGPU_ENUM_ATTRIBUTE;
 
