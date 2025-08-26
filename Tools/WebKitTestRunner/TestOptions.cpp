@@ -98,6 +98,7 @@ const TestFeatures& TestOptions::defaults()
             { "DeveloperExtrasEnabled", true },
             { "DirectoryUploadEnabled", true },
             { "EncryptedMediaAPIEnabled", true },
+            { "EnumeratedARIAAttributeReflectionEnabled", false },
             { "EventHandlerDrivenSmoothKeyboardScrollingEnabled", eventHandlerDrivenSmoothKeyboardScrollingEnabledValue },
             { "ExposeSpeakersEnabled", true },
             { "FullScreenEnabled", true },

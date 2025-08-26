@@ -2643,6 +2643,20 @@ EnterKeyHintEnabled:
     WebCore:
       default: false
 
+EnumeratedARIAAttributeReflectionEnabled:
+  type: bool
+  status: developer
+  category: javascript
+  humanReadableName: "Enumerated ARIA Attribute Reflection"
+  humanReadableDescription: "Enable enumerated ARIA attributes"
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 EnumeratingAllNetworkInterfacesEnabled:
   type: bool
   status: internal
