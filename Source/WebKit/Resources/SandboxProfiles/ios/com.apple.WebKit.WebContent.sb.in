@@ -401,11 +401,24 @@
 (allow mach-lookup (log-services))
 #endif
 
-(deny mach-lookup NO_REPORT
-    (global-name "com.apple.distributed_notifications@1v3"))
+(deny mach-lookup (xpc-service-name-prefix ""))
 
 (deny mach-lookup NO_REPORT
-    (global-name "com.apple.lsd.mapdb")) 
+    (global-name
+        "com.apple.SystemConfiguration.configd"
+        "com.apple.aggregated"
+        "com.apple.analyticsd"
+        "com.apple.audio.AudioComponentRegistrar"
+        "com.apple.containermanagerd"
+        "com.apple.containermanagerd.system"
+        "com.apple.diagnosticd"
+        "com.apple.distributed_notifications@1v3"
+        "com.apple.fontservicesd"
+        "com.apple.lsd.mapdb"
+        "com.apple.runningboard"))
+
+(deny mach-lookup NO_REPORT
+    (xpc-service-name "com.apple.audio.toolbox.reporting.service"))
 
 ;; <rdar://problem/12413942>
 (allow file-read*
@@ -413,9 +426,6 @@
 
 (allow iokit-get-properties
        (iokit-property "IORegistryEntryPropertyKeys"))
-
-(deny mach-lookup NO_REPORT
-    (global-name "com.apple.runningboard"))
 
 (allow system-sched
        (require-entitlement "com.apple.private.kernel.override-cpumon"))
@@ -473,7 +483,6 @@
 (allow process-info-dirtycontrol (target self))
 (allow process-info-rusage (target self))
 
-(deny mach-lookup (xpc-service-name-prefix ""))
 (deny iokit-get-properties)
 (deny lsopen)
 
@@ -729,14 +738,6 @@
 
 (media-accessibility-support)
 
-(deny mach-lookup NO_REPORT
-    (global-name
-        "com.apple.SystemConfiguration.configd"
-        "com.apple.aggregated"
-        "com.apple.analyticsd"
-        "com.apple.diagnosticd"
-        "com.apple.fontservicesd"))
-
 ;; Allow loading injected bundles.
 (with-filter (require-not (webcontent-process-launched))
     (allow file-map-executable))
@@ -751,21 +752,6 @@
 ;; <rdar://problem/60983812>
 (deny file-write* NO_REPORT
     (home-subpath "/Library/Preferences/"))
-
-(deny mach-lookup NO_REPORT
-    (global-name
-        "com.apple.containermanagerd"
-        "com.apple.containermanagerd.system"))
-
-(with-filter (require-not (sandbox-version-2))
-    (allow mach-lookup (with telemetry)
-        (require-all
-            (require-not (webcontent-process-launched))
-            (extension "com.apple.webkit.extension.mach")
-            (global-name "com.apple.mobilegestalt.xpc"))))
-
-(deny mach-lookup NO_REPORT
-    (xpc-service-name "com.apple.audio.toolbox.reporting.service"))
 
 #if !ENABLE(WEBCONTENT_GPU_SANDBOX_EXTENSIONS_BLOCKING)
 (allow iokit-open-user-client
@@ -818,19 +804,6 @@
         (require-all
             (extension "com.apple.webkit.extension.mach")
             (global-name "com.apple.mobileassetd.v2"))))
-
-(with-filter (require-not (sandbox-version-2))
-    (allow mach-lookup
-        (require-all
-            (extension "com.apple.webkit.extension.mach")
-            (system-attribute apple-internal)
-            (global-name "com.apple.webinspector"))))
-
-;; Silence warnings about these connections if we have decided not to extend access to them:
-(deny mach-lookup NO_REPORT
-    (require-all
-        (require-not (extension "com.apple.webkit.extension.mach"))
-        (global-name "com.apple.audio.AudioComponentRegistrar")))
 
 (disable-syscall-inference)
 
