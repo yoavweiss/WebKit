@@ -107,6 +107,10 @@ public:
 
     void releaseAllDisplayAttachments();
 
+#if USE(OPENXR)
+    WTF::UnixFileDescriptor takeFenceFD();
+#endif
+
 private:
     WebXROpaqueFramebuffer(PlatformXR::LayerHandle, Ref<WebGLFramebuffer>&&, WebGLRenderingContextBase&, Attributes&&, IntSize);
 
@@ -142,6 +146,9 @@ private:
     size_t m_currentDisplayAttachmentIndex { 0 };
 #if PLATFORM(COCOA)
     MachSendRight m_completionSyncEvent;
+#endif
+#if USE(OPENXR)
+    WTF::UnixFileDescriptor m_fenceFD;
 #endif
     uint64_t m_renderingFrameIndex { ~0u };
     bool m_usingFoveation { false };

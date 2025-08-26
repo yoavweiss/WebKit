@@ -36,6 +36,7 @@
 #endif
 #include <WebCore/GLContext.h>
 #include <WebCore/GLDisplay.h>
+#include <WebCore/GLFence.h>
 #include <openxr/openxr_platform.h>
 #include <wtf/RunLoop.h>
 #include <wtf/WorkQueue.h>
@@ -789,6 +790,12 @@ void OpenXRCoordinator::endFrame(Box<RenderState> renderState, Vector<XRDeviceLa
             LOG(XR, "Didn't find a OpenXRLayer with %d handle", layer.handle);
             continue;
         }
+
+        if (layer.fenceFD) {
+            if (auto fence = WebCore::GLFence::importFD(*m_glDisplay, WTFMove(layer.fenceFD)))
+                fence->serverWait();
+        }
+
         auto header = it->value->endFrame(layer, m_localSpace, m_views);
         if (!header) {
             LOG(XR, "endFrame() call failed in OpenXRLayer with %d handle", layer.handle);

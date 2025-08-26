@@ -139,6 +139,8 @@ WebXROpaqueFramebuffer::~WebXROpaqueFramebuffer()
 
 void WebXROpaqueFramebuffer::startFrame(PlatformXR::FrameData::LayerData& data)
 {
+    ASSERT(!m_fenceFD);
+
     RefPtr gl = m_context->graphicsContextGL();
     if (!gl)
         return;
@@ -223,7 +225,16 @@ void WebXROpaqueFramebuffer::endFrame()
         break;
     }
 
-    gl->finish();
+    if (auto sync = gl->createExternalSync({ })) {
+        m_fenceFD = gl->exportExternalSync(sync);
+        gl->deleteExternalSync(sync);
+    } else
+        gl->finish();
+}
+
+WTF::UnixFileDescriptor WebXROpaqueFramebuffer::takeFenceFD()
+{
+    return std::exchange(m_fenceFD, { });
 }
 
 bool WebXROpaqueFramebuffer::usesLayeredMode() const
