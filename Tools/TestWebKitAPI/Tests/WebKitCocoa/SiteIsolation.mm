@@ -5549,4 +5549,32 @@ TEST(SiteIsolation, DragSourceEndedAtCoordinateTransformation)
 }
 #endif // ENABLE(DRAG_SUPPORT) && PLATFORM(MAC)
 
+TEST(SiteIsolation, AlternateRequest)
+{
+    auto alertLocation = "<script>alert(window.location)</script>"_s;
+    HTTPServer server({
+        { "/example1"_s, { "<script>window.location = 'https://example.com/example2'</script>"_s } },
+        { "/example2"_s, { alertLocation } },
+        { "/example3"_s, { alertLocation } },
+        { "/webkit1"_s, { "<script>window.location = 'https://example.com/example4'</script>"_s } },
+        { "/webkit2"_s, { alertLocation } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto [webView, navigationDelegate] = siteIsolatedViewAndDelegate(server);
+    navigationDelegate.get().decidePolicyForNavigationActionWithPreferences = ^(WKNavigationAction *action, WKWebpagePreferences *preferences, void (^completionHandler)(WKNavigationActionPolicy, WKWebpagePreferences *)) {
+        NSString *url = action.request.URL.absoluteString;
+        if ([url isEqualToString:@"https://example.com/example2"])
+            preferences._alternateRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example3"]];
+        if ([url isEqualToString:@"https://example.com/example3"])
+            EXPECT_FALSE(true);
+        if ([url isEqualToString:@"https://example.com/example4"])
+            preferences._alternateRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:@"https://webkit.org/webkit2"]];
+        completionHandler(WKNavigationActionPolicyAllow, preferences);
+    };
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://example.com/example1"]]];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "https://example.com/example3");
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://webkit.org/webkit1"]]];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "https://webkit.org/webkit2");
+}
+
 }

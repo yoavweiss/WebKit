@@ -348,7 +348,7 @@ public:
 
     void startLoadingMainResource();
     WEBCORE_EXPORT void cancelMainResourceLoad(const ResourceError&, LoadWillContinueInAnotherProcess = LoadWillContinueInAnotherProcess::No);
-    void willContinueMainResourceLoadAfterRedirect(const ResourceRequest&);
+    WEBCORE_EXPORT void willContinueMainResourceLoadAfterRedirect(const ResourceRequest&);
 
     bool isLoadingMainResource() const { return m_loadingMainResource; }
     bool isLoadingMultipartContent() const { return m_isLoadingMultipartContent; }
