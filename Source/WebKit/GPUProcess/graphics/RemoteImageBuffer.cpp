@@ -28,7 +28,6 @@
 
 #if ENABLE(GPU_PROCESS)
 
-#include "GPUConnectionToWebProcess.h"
 #include "IPCSemaphore.h"
 #include "ImageBufferBackendHandleSharing.h"
 #include "Logging.h"
@@ -41,7 +40,7 @@
 #include <WebCore/GraphicsContext.h>
 #include <wtf/StdLibExtras.h>
 
-#define MESSAGE_CHECK(assertion, message) MESSAGE_CHECK_WITH_MESSAGE_BASE(assertion, &m_renderingBackend->gpuConnectionToWebProcess().connection(), message)
+#define MESSAGE_CHECK(assertion, message) MESSAGE_CHECK_WITH_MESSAGE_BASE(assertion, m_renderingBackend->streamConnection(), message)
 
 namespace WebKit {
 
@@ -221,8 +220,8 @@ IPC::StreamConnectionWorkQueue& RemoteImageBuffer::workQueue() const
     return m_renderingBackend->workQueue();
 }
 
-#undef MESSAGE_CHECK
-
 } // namespace WebKit
+
+#undef MESSAGE_CHECK
 
 #endif // ENABLE(GPU_PROCESS)
