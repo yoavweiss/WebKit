@@ -752,17 +752,6 @@ symbols = [
     "_$s5UIKit28UIDirectionalLightEffectViewC13ConfigurationV9fillColorSo7UIColorCvg",
     "_$s5UIKit28UIDirectionalLightEffectViewC13ConfigurationV9ponderingAEvgZ",
     "_$s5UIKit28UIDirectionalLightEffectViewC13ConfigurationVMa",
-
-    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C5chunk4view8delegate9fromColorAeA0bcF5ChunkC_AcE8Delegate_pSo7UIColorCtcfC",
-    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegateP015performAnimatedE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaFTq",
-    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegateP07performE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaFTq",
-    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegatePAAE015performAnimatedE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaF",
-    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegatePAAE015performAnimatedE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaFTu",
-    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegatePAAE07performE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaF",
-    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegatePAAE07performE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaFTu",
-    "_$s5UIKit16UITextEffectViewC09PonderingC0C5chunk4view18lightConfigurationAeA0bC9TextChunkC_AcA018UIDirectionalLightcD0C0I0VtcfC",
-    "_$s5UIKit16UITextEffectViewC6sourceAcA0bcD6Source_p_tcfC",
-
     "_APSEnvironmentProduction",
     "_ASCAuthorizationErrorDomain",
     "_BKSDisplayBrightnessGetCurrent",
@@ -950,6 +939,35 @@ symbols = [
     "_kAXSEnhanceTextLegibilityChangedNotification",
     "_kGSEventHardwareKeyboardAvailabilityChangedNotification",
 ]
+
+# Some of the TextEffectView SPI symbols WebKit uses change between Debug and Release builds. This appears to be an
+# implementation detail of Swift's ABI in different optimization modes. Perhaps
+# audit-spi should have a higher level way to declare usage of Swift types that
+# allows use of both kinds of symbols. (rdar://158963645)
+[[legacy]]
+symbols = [
+    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegateP015performAnimatedE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaFTq",
+    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegateP07performE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaFTq",
+    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegatePAAE015performAnimatedE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaF",
+    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegatePAAE015performAnimatedE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaFTu",
+    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegatePAAE07performE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaF",
+    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C8DelegatePAAE07performE03for6effect9animationyAA0bcF5ChunkC_A2E19AnimationParametersVtYaFTu",
+]
+[[legacy]]
+symbols = [
+    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C5chunk4view8delegate9fromColorAeA0bcF5ChunkC_AcE8Delegate_pSo7UIColorCtcfC",
+    "_$s5UIKit16UITextEffectViewC09PonderingC0C5chunk4view18lightConfigurationAeA0bC9TextChunkC_AcA018UIDirectionalLightcD0C0I0VtcfC",
+    "_$s5UIKit16UITextEffectViewC6sourceAcA0bcD6Source_p_tcfC",
+]
+requires = ["!NDEBUG"]
+[[legacy]]
+symbols = [
+    "_$s5UIKit16UITextEffectViewC015ReplacementTextC0C5chunk4view8delegate9fromColorAeA0bcF5ChunkC_AcE8Delegate_pSo7UIColorCtcfc",
+    "_$s5UIKit16UITextEffectViewC09PonderingC0C5chunk4view18lightConfigurationAeA0bC9TextChunkC_AcA018UIDirectionalLightcD0C0I0Vtcfc",
+    "_$s5UIKit16UITextEffectViewC0C2IDVSQAAMc",
+    "_$s5UIKit16UITextEffectViewC6sourceAcA0bcD6Source_p_tcfc",
+]
+requires = ["NDEBUG"]
 
 [[legacy]]
 selectors = [
