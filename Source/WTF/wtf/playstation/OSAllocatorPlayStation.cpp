@@ -38,9 +38,9 @@
 
 namespace WTF {
 
-void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, unsigned numGuardPagesToAddOnEachEnd)
 {
-    ASSERT_UNUSED(includesGuardPages, !includesGuardPages);
+    UNUSED_PARAM(numGuardPagesToAddOnEachEnd); // Guard pages not supported, and will be ignored.
     ASSERT_UNUSED(jitCageEnabled, !jitCageEnabled);
     ASSERT_UNUSED(executable, !executable);
     ASSERT_UNUSED(address, !address);
@@ -58,11 +58,11 @@ void* OSAllocator::tryReserveAndCommit(size_t bytes, Usage usage, void* address,
     return result;
 }
 
-void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, unsigned numGuardPagesToAddOnEachEnd)
 {
     UNUSED_PARAM(usage);
     UNUSED_PARAM(writable);
-    ASSERT_UNUSED(includesGuardPages, !includesGuardPages);
+    UNUSED_PARAM(numGuardPagesToAddOnEachEnd); // Guard pages not supported, and will be ignored.
     ASSERT_UNUSED(jitCageEnabled, !jitCageEnabled);
     ASSERT_UNUSED(executable, !executable);
     ASSERT_UNUSED(address, !address);
@@ -74,16 +74,16 @@ void* OSAllocator::tryReserveUncommitted(size_t bytes, Usage usage, void* addres
     return result;
 }
 
-void* OSAllocator::reserveUncommitted(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::reserveUncommitted(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, unsigned numGuardPagesToAddOnEachEnd)
 {
-    void* result = tryReserveUncommitted(bytes, usage, address, writable, executable, jitCageEnabled, includesGuardPages);
+    void* result = tryReserveUncommitted(bytes, usage, address, writable, executable, jitCageEnabled, numGuardPagesToAddOnEachEnd);
     RELEASE_ASSERT(result);
     return result;
 }
 
-void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, unsigned numGuardPagesToAddOnEachEnd)
 {
-    ASSERT_UNUSED(includesGuardPages, !includesGuardPages);
+    ASSERT_UNUSED(numGuardPagesToAddOnEachEnd, !numGuardPagesToAddOnEachEnd);
     ASSERT_UNUSED(jitCageEnabled, !jitCageEnabled);
     ASSERT_UNUSED(executable, !executable);
     ASSERT_UNUSED(address, !address);
@@ -98,9 +98,9 @@ void* OSAllocator::tryReserveUncommittedAligned(size_t bytes, size_t alignment, 
     return result;
 }
 
-void* OSAllocator::reserveAndCommit(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, bool includesGuardPages)
+void* OSAllocator::reserveAndCommit(size_t bytes, Usage usage, void* address, bool writable, bool executable, bool jitCageEnabled, unsigned numGuardPagesToAddOnEachEnd)
 {
-    void* result = tryReserveAndCommit(bytes, usage, address, writable, executable, jitCageEnabled, includesGuardPages);
+    void* result = tryReserveAndCommit(bytes, usage, address, writable, executable, jitCageEnabled, numGuardPagesToAddOnEachEnd);
     RELEASE_ASSERT(result);
     return result;
 }
@@ -124,8 +124,9 @@ void OSAllocator::hintMemoryNotNeededSoon(void* address, size_t bytes)
     UNUSED_PARAM(bytes);
 }
 
-void OSAllocator::releaseDecommitted(void* address, size_t bytes)
+void OSAllocator::releaseDecommitted(void* address, size_t bytes, unsigned numGuardPagesToAddOnEachEnd)
 {
+    UNUSED_PARAM(numGuardPagesToAddOnEachEnd); // Guard pages not supported, and will be ignored.
     bool success = memory_extra::vss::release(address, bytes);
     RELEASE_ASSERT(success);
 }

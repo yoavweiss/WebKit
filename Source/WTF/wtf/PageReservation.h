@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2022 Apple Inc. All rights reserved.
+ * Copyright (C) 2010-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -89,46 +89,40 @@ public:
         return m_committed;
     }
 
-    static PageReservation reserve(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, std::optional<uintptr_t> address = { }, bool writable = true, bool executable = false, bool commit = false, bool jitCageEnabled = false)
+    static PageReservation reserve(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, void* addressHint = nullptr, bool writable = true, bool executable = false, bool commit = false, bool jitCageEnabled = false)
     {
         ASSERT(isPageAligned(size));
-        ASSERT(isPageAligned(address.value_or(0)));
+        ASSERT(isPageAligned(addressHint));
         if (commit)
-            return PageReservation(OSAllocator::reserveAndCommit(size, usage, std::bit_cast<void*>(address.value_or(0)), writable, executable, jitCageEnabled, false), size, writable, executable, jitCageEnabled, false);
-        return PageReservation(OSAllocator::reserveUncommitted(size, usage, std::bit_cast<void*>(address.value_or(0)), writable, executable, jitCageEnabled, false), size, writable, executable, jitCageEnabled, false);
+            return PageReservation(OSAllocator::reserveAndCommit(size, usage, addressHint, writable, executable, jitCageEnabled), size, writable, executable, jitCageEnabled);
+        return PageReservation(OSAllocator::reserveUncommitted(size, usage, addressHint, writable, executable, jitCageEnabled), size, writable, executable, jitCageEnabled);
     }
 
-    static PageReservation tryReserve(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, std::optional<uintptr_t> address = { }, bool writable = true, bool executable = false, bool commit = false, bool jitCageEnabled = false)
+    static PageReservation tryReserve(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, void* addressHint = nullptr, bool writable = true, bool executable = false, bool commit = false, bool jitCageEnabled = false)
     {
         ASSERT(isPageAligned(size));
-        ASSERT(isPageAligned(address.value_or(0)));
+        ASSERT(isPageAligned(addressHint));
         if (commit)
-            return PageReservation(OSAllocator::tryReserveAndCommit(size, usage, std::bit_cast<void*>(address.value_or(0)), writable, executable, jitCageEnabled, false), size, writable, executable, jitCageEnabled, false);
-        return PageReservation(OSAllocator::tryReserveUncommitted(size, usage, std::bit_cast<void*>(address.value_or(0)), writable, executable, jitCageEnabled, false), size, writable, executable, jitCageEnabled, false);
+            return PageReservation(OSAllocator::tryReserveAndCommit(size, usage, addressHint, writable, executable, jitCageEnabled), size, writable, executable, jitCageEnabled);
+        return PageReservation(OSAllocator::tryReserveUncommitted(size, usage, addressHint, writable, executable, jitCageEnabled), size, writable, executable, jitCageEnabled);
     }
 
-    static PageReservation reserveWithGuardPages(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, std::optional<uintptr_t> address = { }, bool writable = true, bool executable = false, bool commit = false, bool jitCageEnabled = false)
+    static PageReservation reserveWithGuardPages(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, void* addressHint = nullptr, bool writable = true, bool executable = false, bool commit = false, bool jitCageEnabled = false)
     {
         ASSERT(isPageAligned(size));
-        ASSERT(isPageAligned(address.value_or(0)));
-        // Account for guard pages
-        if (address.has_value() && address.value() >= pageSize())
-            address.value() -= pageSize();
+        ASSERT(isPageAligned(addressHint));
         if (commit)
-            return PageReservation(OSAllocator::reserveAndCommit(size + pageSize() * 2, usage, std::bit_cast<void*>(address.value_or(0)), writable, executable, jitCageEnabled, true), size, writable, executable, jitCageEnabled, true);
-        return PageReservation(OSAllocator::reserveUncommitted(size + pageSize() * 2, usage, std::bit_cast<void*>(address.value_or(0)), writable, executable, jitCageEnabled, true), size, writable, executable, jitCageEnabled, true);
+            return PageReservation(OSAllocator::reserveAndCommit(size, usage, addressHint, writable, executable, jitCageEnabled, 1), size, writable, executable, jitCageEnabled, 1);
+        return PageReservation(OSAllocator::reserveUncommitted(size, usage, addressHint, writable, executable, jitCageEnabled, 1), size, writable, executable, jitCageEnabled, 1);
     }
 
-    static PageReservation tryReserveWithGuardPages(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, std::optional<uintptr_t> address = { }, bool writable = true, bool executable = false, bool commit = false, bool jitCageEnabled = false)
+    static PageReservation tryReserveWithGuardPages(size_t size, OSAllocator::Usage usage = OSAllocator::UnknownUsage, void* addressHint = nullptr, bool writable = true, bool executable = false, bool commit = false, bool jitCageEnabled = false)
     {
         ASSERT(isPageAligned(size));
-        ASSERT(isPageAligned(address.value_or(0)));
-        // Account for guard pages
-        if (address.has_value() && address.value() >= pageSize())
-            address.value() -= pageSize();
+        ASSERT(isPageAligned(addressHint));
         if (commit)
-            return PageReservation(OSAllocator::tryReserveAndCommit(size + pageSize() * 2, usage, std::bit_cast<void*>(address.value_or(0)), writable, executable, jitCageEnabled, true), size, writable, executable, jitCageEnabled, true);
-        return PageReservation(OSAllocator::tryReserveUncommitted(size + pageSize() * 2, usage, std::bit_cast<void*>(address.value_or(0)), writable, executable, jitCageEnabled, true), size, writable, executable, jitCageEnabled, true);
+            return PageReservation(OSAllocator::tryReserveAndCommit(size, usage, addressHint, writable, executable, jitCageEnabled, 1), size, writable, executable, jitCageEnabled, 1);
+        return PageReservation(OSAllocator::tryReserveUncommitted(size, usage, addressHint, writable, executable, jitCageEnabled, 1), size, writable, executable, jitCageEnabled, 1);
     }
 
 
@@ -144,21 +138,23 @@ public:
         ASSERT(tmp);
         ASSERT(!*this);
 
-        OSAllocator::releaseDecommitted(tmp.base(), tmp.size());
+        OSAllocator::releaseDecommitted(tmp.base(), tmp.size(), tmp.m_numberOfGuardPagesOnEachEnd);
     }
 
 private:
-    PageReservation(void* base, size_t size, bool writable, bool executable, bool, bool hasGuardPages)
-        : PageBlock(base, size, hasGuardPages)
+    PageReservation(void* base, size_t size, bool writable, bool executable, bool, unsigned numberOfGuardPagesOnEachEnd = 0)
+        : PageBlock(base, size)
         , m_committed(0)
         , m_writable(writable)
         , m_executable(executable)
+        , m_numberOfGuardPagesOnEachEnd(numberOfGuardPagesOnEachEnd)
     {
     }
 
     size_t m_committed { 0 };
     bool m_writable { false };
     bool m_executable { false };
+    unsigned m_numberOfGuardPagesOnEachEnd { 0 };
 };
 
 }
