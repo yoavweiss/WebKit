@@ -3799,51 +3799,46 @@ bool RenderBlockFlow::hasLines() const
 
 void RenderBlockFlow::invalidateLineLayout(InvalidationReason invalidationReason)
 {
-    if (invalidationReason == InvalidationReason::InternalMove) {
-        m_lineLayout = std::monostate();
-        if (AXObjectCache* cache = protectedDocument()->existingAXObjectCache())
-            cache->deferRecomputeIsIgnored(protectedElement().get());
-        return;
-    }
-
-    switch (lineLayoutPath()) {
-    case UndeterminedPath:
-        return;
-    case SvgTextPath:
-        setLineLayoutPath(UndeterminedPath);
-        return;
-    case InlinePath: {
-        // FIXME: Implement partial invalidation.
-        if (inlineLayout()) {
-            ASSERT(!m_previousInlineLayoutContentTopAndBottomIncludingInkOverflow);
-            m_previousInlineLayoutContentTopAndBottomIncludingInkOverflow = inlineContentTopAndBottomIncludingInkOverflow();
-            if (invalidationReason != InvalidationReason::InsertionOrRemoval) {
-                auto repaintAndSetNeedsLayoutIncludingOutOfFlowBoxes = [&] {
-                    // Since we eagerly remove the display content here, repaints issued between this invalidation (triggered by style change/content mutation) and the subsequent layout would produce empty rects.
-                    repaint();
-                    for (auto walker = InlineWalker(*this); !walker.atEnd(); walker.advance()) {
-                        auto& renderer = *walker.current();
-                        if (!renderer.everHadLayout())
-                            continue;
-                        if (!renderer.isInFlow() && inlineLayout()->contains(downcast<RenderElement>(renderer)))
-                            renderer.repaint();
-                        renderer.setNeedsPreferredWidthsUpdate();
-                    }
-                };
-                repaintAndSetNeedsLayoutIncludingOutOfFlowBoxes();
-            }
-        }
-        m_lineLayout = std::monostate();
-        if (invalidationReason == InvalidationReason::InsertionOrRemoval)
-            setLineLayoutPath(UndeterminedPath);
+    auto issueNeedsLayoutIfApplicable = [&] {
         if (selfNeedsLayout() || normalChildNeedsLayout())
             return;
         // FIXME: We should just kick off a subtree layout here (if needed at all) see webkit.org/b/172947.
         setNeedsLayout();
-        return;
+    };
+
+    if (inlineLayout()) {
+        ASSERT(!m_previousInlineLayoutContentTopAndBottomIncludingInkOverflow);
+        m_previousInlineLayoutContentTopAndBottomIncludingInkOverflow = inlineContentTopAndBottomIncludingInkOverflow();
     }
+
+    switch (invalidationReason) {
+    case InvalidationReason::InternalMove:
+        if (AXObjectCache* cache = protectedDocument()->existingAXObjectCache())
+            cache->deferRecomputeIsIgnored(protectedElement().get());
+        break;
+    case InvalidationReason::ContentChange: {
+        // Since we eagerly remove the display content here, repaints issued between this invalidation (triggered by style change/content mutation) and the subsequent layout would produce empty rects.
+        repaint();
+        for (auto walker = InlineWalker(*this); !walker.atEnd(); walker.advance()) {
+            auto& renderer = *walker.current();
+            if (!renderer.everHadLayout())
+                continue;
+            if (!renderer.isInFlow() && inlineLayout()->contains(downcast<RenderElement>(renderer)))
+                renderer.repaint();
+            renderer.setNeedsPreferredWidthsUpdate();
+        }
+        issueNeedsLayoutIfApplicable();
+        break;
     }
-    ASSERT_NOT_REACHED();
+    case InvalidationReason::InsertionOrRemoval:
+        setLineLayoutPath(UndeterminedPath);
+        issueNeedsLayoutIfApplicable();
+        break;
+    default:
+        break;
+    }
+
+    m_lineLayout = std::monostate();
 }
 
 static bool hasSimpleStaticPositionForInlineLevelOutOfFlowChildrenByStyle(const RenderStyle& rootStyle)
@@ -3880,6 +3875,9 @@ std::pair<float, float> RenderBlockFlow::inlineContentTopAndBottomIncludingInkOv
 {
     if (m_previousInlineLayoutContentTopAndBottomIncludingInkOverflow)
         return *m_previousInlineLayoutContentTopAndBottomIncludingInkOverflow;
+
+    if (!inlineLayout())
+        return { };
 
     auto firstLineBox = InlineIterator::firstLineBoxFor(*this);
     auto lastLineBox = InlineIterator::lastLineBoxFor(*this);
