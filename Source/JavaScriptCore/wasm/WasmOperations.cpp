@@ -214,19 +214,15 @@ JSC_DEFINE_JIT_OPERATION(operationJSToWasmEntryWrapperBuildReturnFrame, EncodedJ
             break;
         }
     }
-    ObjectInitializationScope initializationScope(vm);
-    DeferGCForAWhile deferGCForAWhile(vm);
 
-    JSArray* resultArray = JSArray::tryCreateUninitializedRestricted(initializationScope, nullptr, instance->globalObject()->arrayStructureForIndexingTypeDuringAllocation(indexingType), functionSignature.returnCount());
-    OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
+    JSGlobalObject* globalObject = instance->globalObject();
+    JSArray* resultArray = JSArray::tryCreate(vm, globalObject->arrayStructureForIndexingTypeDuringAllocation(indexingType), functionSignature.returnCount());
+    if (!resultArray) [[unlikely]] {
+        throwOutOfMemoryError(globalObject, scope);
+        OPERATION_RETURN(scope, encodedJSValue());
+    }
 
     auto calleeSPOffsetFromFP = -(static_cast<intptr_t>(callee->frameSize()) + JSEntrypointCallee::SpillStackSpaceAligned - JSEntrypointCallee::RegisterStackSpaceAligned);
-
-    auto fillArrayRemainderWithUndefined = [&](unsigned start) -> EncodedJSValue {
-        for (unsigned i = start; i < functionSignature.returnCount(); i++)
-            resultArray->initializeIndex(initializationScope, i, jsUndefined());
-        return encodedJSValue();
-    };
 
     for (unsigned i = 0; i < functionSignature.returnCount(); ++i) {
         ValueLocation loc = wasmFrameConvention.results[i].location;
@@ -238,8 +234,8 @@ JSC_DEFINE_JIT_OPERATION(operationJSToWasmEntryWrapperBuildReturnFrame, EncodedJ
                 result = jsNumber(*access.operator()<int32_t>(registerSpace, GPRInfo::toArgumentIndex(loc.jsr().payloadGPR()) * sizeof(UCPURegister)));
                 break;
             case TypeKind::I64:
-                result = JSBigInt::makeHeapBigIntOrBigInt32(instance->globalObject(), *access.operator()<int64_t>(registerSpace, GPRInfo::toArgumentIndex(loc.jsr().payloadGPR()) * sizeof(UCPURegister)));
-                OPERATION_RETURN_IF_EXCEPTION(scope, fillArrayRemainderWithUndefined(i));
+                result = JSBigInt::makeHeapBigIntOrBigInt32(globalObject, *access.operator()<int64_t>(registerSpace, GPRInfo::toArgumentIndex(loc.jsr().payloadGPR()) * sizeof(UCPURegister)));
+                OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
                 break;
             case TypeKind::F32:
                 result = jsNumber(purifyNaN(*access.operator()<float>(registerSpace, GPRInfo::numberOfArgumentRegisters * sizeof(UCPURegister) + FPRInfo::toArgumentIndex(loc.fpr()) * bytesForWidth(Width::Width64))));
@@ -251,7 +247,7 @@ JSC_DEFINE_JIT_OPERATION(operationJSToWasmEntryWrapperBuildReturnFrame, EncodedJ
                 result = *access.operator()<JSValue>(registerSpace, GPRInfo::toArgumentIndex(loc.jsr().payloadGPR()) * sizeof(UCPURegister));
                 break;
             }
-            resultArray->initializeIndex(initializationScope, i, result);
+            resultArray->putDirectIndex(globalObject, i, result);
         } else {
             JSValue result;
             switch (type.kind) {
@@ -259,8 +255,8 @@ JSC_DEFINE_JIT_OPERATION(operationJSToWasmEntryWrapperBuildReturnFrame, EncodedJ
                 result = jsNumber(*access.operator()<int32_t>(callFrame, calleeSPOffsetFromFP + loc.offsetFromSP()));
                 break;
             case TypeKind::I64:
-                result = JSBigInt::makeHeapBigIntOrBigInt32(instance->globalObject(), *access.operator()<int64_t>(callFrame, calleeSPOffsetFromFP + loc.offsetFromSP()));
-                OPERATION_RETURN_IF_EXCEPTION(scope, fillArrayRemainderWithUndefined(i));
+                result = JSBigInt::makeHeapBigIntOrBigInt32(globalObject, *access.operator()<int64_t>(callFrame, calleeSPOffsetFromFP + loc.offsetFromSP()));
+                OPERATION_RETURN_IF_EXCEPTION(scope, encodedJSValue());
                 break;
             case TypeKind::F32:
                 result = jsNumber(purifyNaN(*access.operator()<float>(callFrame, calleeSPOffsetFromFP + loc.offsetFromSP())));
@@ -272,7 +268,7 @@ JSC_DEFINE_JIT_OPERATION(operationJSToWasmEntryWrapperBuildReturnFrame, EncodedJ
                 result = *access.operator()<JSValue>(callFrame, calleeSPOffsetFromFP + loc.offsetFromSP());
                 break;
             }
-            resultArray->initializeIndex(initializationScope, i, result);
+            resultArray->putDirectIndex(globalObject, i, result);
         }
     }
 
