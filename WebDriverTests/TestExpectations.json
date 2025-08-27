@@ -215,22 +215,10 @@
                 "expected": {"all": {"status": ["FAIL"], "bug": "webkit.org/b/184967"}}
             },
             "test_context_click": {
-                "expected": {"all": {"status": ["FAIL"], "bug": "webkit.org/b/291615"}}
+                "expected": {"all": {"status": ["FAIL"], "bug": "webkit.org/b/272354"}}
             },
             "test_double_click": {
                 "expected": {"wpe": {"status": ["FAIL"], "bug": "webkit.org/b/174674"}}
-            },
-            "test_drag_and_drop": {
-                "expected": {"all": {"status": ["FAIL"], "bug": "webkit.org/b/291615"}}
-            },
-            "test_dragging_element_with_mouse_fires_events": {
-                "expected": {"all": {"status": ["FAIL"], "bug": "webkit.org/b/291615"}}
-            },
-            "test_dragging_element_with_mouse_moves_it_to_another_list": {
-                "expected": {"all": {"status": ["FAIL"], "bug": "webkit.org/b/291615"}}
-            },
-            "test_move_and_click": {
-                "expected": {"all": {"status": ["FAIL"], "bug": "webkit.org/b/291615"}}
             },
             "test_selecting_multiple_items": {
                 "expected": {"all": {"status": ["FAIL"], "bug": "webkit.org/b/184967"}}
