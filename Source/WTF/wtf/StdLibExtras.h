@@ -630,12 +630,12 @@ template<typename... Ts> struct HoldsAlternative<Variant<Ts...>> {
     }
 };
 
-template<typename T, typename V> bool holdsAlternative(const V& v)
+template<typename T, typename V> constexpr bool holdsAlternative(const V& v)
 {
     return HoldsAlternative<V>::template holdsAlternative<T>(v);
 }
 
-template<size_t I, typename V> bool holdsAlternative(const V& v)
+template<size_t I, typename V> constexpr bool holdsAlternative(const V& v)
 {
     return HoldsAlternative<V>::template holdsAlternative<I>(v);
 }

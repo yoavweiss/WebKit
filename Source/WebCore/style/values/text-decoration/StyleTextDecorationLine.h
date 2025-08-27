@@ -68,7 +68,7 @@ struct TextDecorationLine {
     {
     }
 
-    bool isNone() const { return WTF::holdsAlternative<CSS::Keyword::None>(m_value); }
+    constexpr bool isNone() const { return WTF::holdsAlternative<CSS::Keyword::None>(m_value); }
     bool isSpellingError() const { return WTF::holdsAlternative<CSS::Keyword::SpellingError>(m_value); }
     bool isGrammarError() const { return WTF::holdsAlternative<CSS::Keyword::GrammarError>(m_value); }
     bool isFlags() const { return WTF::holdsAlternative<OptionSet<TextDecorationLineFlags>>(m_value); }
