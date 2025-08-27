@@ -82,6 +82,7 @@
 #import "TextIterator.h"
 #import "VisibleUnits.h"
 #import "WebCoreFrameView.h"
+#import <AppKit/NSAccessibilityConstants.h>
 #import <pal/spi/cocoa/NSAccessibilitySPI.h>
 #import <wtf/ObjCRuntimeExtras.h>
 #import <wtf/RuntimeApplicationChecks.h>

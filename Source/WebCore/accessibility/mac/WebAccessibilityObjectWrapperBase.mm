@@ -63,6 +63,7 @@
 #import <wtf/cocoa/VectorCocoa.h>
 
 #if PLATFORM(MAC)
+#import <AppKit/NSAccessibilityConstants.h>
 #import "WebAccessibilityObjectWrapperMac.h"
 #else
 #import "WebAccessibilityObjectWrapperIOS.h"
