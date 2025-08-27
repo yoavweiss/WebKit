@@ -53,7 +53,7 @@ CSSSelectorList::CSSSelectorList(MutableCSSSelectorList&& selectorVector)
 
     size_t flattenedSize = 0;
     for (size_t i = 0; i < selectorVector.size(); ++i) {
-        for (auto* selector = selectorVector[i].get(); selector; selector = selector->tagHistory())
+        for (auto* selector = selectorVector[i].get(); selector; selector = selector->precedingInComplexSelector())
             ++flattenedSize;
     }
     ASSERT(flattenedSize);
@@ -74,14 +74,14 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
                 operator delete (currentSelector);
             }
             if (current != first)
-                m_selectorArray[arrayIndex].m_isFirstInTagHistory = false;
-            current = current->tagHistory();
+                m_selectorArray[arrayIndex].m_isFirstInComplexSelector = false;
+            current = current->precedingInComplexSelector();
             ASSERT(!m_selectorArray[arrayIndex].isLastInSelectorList() || (flattenedSize == arrayIndex + 1));
             if (current)
-                m_selectorArray[arrayIndex].m_isLastInTagHistory = false;
+                m_selectorArray[arrayIndex].m_isLastInComplexSelector = false;
             ++arrayIndex;
         }
-        ASSERT(m_selectorArray[arrayIndex - 1].isLastInTagHistory());
+        ASSERT(m_selectorArray[arrayIndex - 1].isLastInComplexSelector());
     }
     ASSERT(flattenedSize == arrayIndex);
     m_selectorArray[arrayIndex - 1].m_isLastInSelectorList = true;
@@ -92,8 +92,8 @@ CSSSelectorList CSSSelectorList::makeCopyingSimpleSelector(const CSSSelector& si
     auto selectorArray = makeUniqueArray<CSSSelector>(1);
 
     new (NotNull, &selectorArray[0]) CSSSelector(simpleSelector);
-    selectorArray[0].m_isFirstInTagHistory = true;
-    selectorArray[0].m_isLastInTagHistory = true;
+    selectorArray[0].m_isFirstInComplexSelector = true;
+    selectorArray[0].m_isLastInComplexSelector = true;
     selectorArray[0].m_isLastInSelectorList = true;
 
     return CSSSelectorList { WTFMove(selectorArray) };
@@ -102,13 +102,13 @@ CSSSelectorList CSSSelectorList::makeCopyingSimpleSelector(const CSSSelector& si
 CSSSelectorList CSSSelectorList::makeCopyingComplexSelector(const CSSSelector& complexSelector)
 {
     size_t length = 0;
-    for (auto* selector = &complexSelector; selector; selector = selector->tagHistory())
+    for (auto* selector = &complexSelector; selector; selector = selector->precedingInComplexSelector())
         ++length;
 
     auto selectorArray = makeUniqueArray<CSSSelector>(length);
 
     size_t i = 0;
-    for (auto* selector = &complexSelector; selector; selector = selector->tagHistory(), ++i)
+    for (auto* selector = &complexSelector; selector; selector = selector->precedingInComplexSelector(), ++i)
         new (NotNull, &selectorArray[i]) CSSSelector(*selector);
     selectorArray[length - 1].m_isLastInSelectorList = true;
 
@@ -181,7 +181,7 @@ unsigned CSSSelectorList::listSize() const
     unsigned size = 1;
     CSSSelector* current = m_selectorArray.get();
     while (!current->isLastInSelectorList()) {
-        if (current->isLastInTagHistory())
+        if (current->isLastInComplexSelector())
             ++size;
         ++current;
     }
@@ -215,7 +215,7 @@ static bool forEachTagSelector(Functor& functor, const CSSSelector* selector)
                     return true;
             }
         }
-    } while ((selector = selector->tagHistory()));
+    } while ((selector = selector->precedingInComplexSelector()));
 
     return false;
 }
@@ -251,7 +251,7 @@ bool CSSSelectorList::hasOnlyNestingSelector() const
         return false;
     
     // Selector should be a single selector
-    if (singleSelector->tagHistory())
+    if (singleSelector->precedingInComplexSelector())
         return false;
 
     return singleSelector->match() == CSSSelector::Match::NestingParent;

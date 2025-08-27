@@ -91,19 +91,19 @@ public:
     // special case, since it will be covered by this function once again.
     bool needsImplicitShadowCombinatorForMatching() const;
 
-    MutableCSSSelector* tagHistory() const { return m_tagHistory.get(); }
+    MutableCSSSelector* precedingInComplexSelector() const { return m_precedingInComplexSelector.get(); }
     MutableCSSSelector* leftmostSimpleSelector();
     const MutableCSSSelector* leftmostSimpleSelector() const;
     bool startsWithExplicitCombinator() const;
-    void setTagHistory(std::unique_ptr<MutableCSSSelector> selector) { m_tagHistory = WTFMove(selector); }
-    void appendTagHistory(CSSSelector::Relation, std::unique_ptr<MutableCSSSelector>);
-    void appendTagHistoryAsRelative(std::unique_ptr<MutableCSSSelector>);
-    void prependTagSelector(const QualifiedName&, bool tagIsForNamespaceRule = false);
-    std::unique_ptr<MutableCSSSelector> releaseTagHistory();
+    void setPrecedingInComplexSelector(std::unique_ptr<MutableCSSSelector> selector) { m_precedingInComplexSelector = WTFMove(selector); }
+    void prependInComplexSelector(CSSSelector::Relation, std::unique_ptr<MutableCSSSelector>);
+    void prependInComplexSelectorAsRelative(std::unique_ptr<MutableCSSSelector>);
+    void appendTagInComplexSelector(const QualifiedName&, bool tagIsForNamespaceRule = false);
+    std::unique_ptr<MutableCSSSelector> releaseFromComplexSelector();
 
 private:
     std::unique_ptr<CSSSelector> m_selector;
-    std::unique_ptr<MutableCSSSelector> m_tagHistory;
+    std::unique_ptr<MutableCSSSelector> m_precedingInComplexSelector;
 };
 
 // FIXME: WebKitUnknown is listed below as otherwise @supports does the wrong thing, but there ought

@@ -211,7 +211,7 @@ static MatchElement computeNextHasPseudoClassMatchElement(MatchElement matchElem
 MatchElement computeHasPseudoClassMatchElement(const CSSSelector& hasSelector)
 {
     auto hasMatchElement = MatchElement::Subject;
-    for (auto* simpleSelector = &hasSelector; simpleSelector->tagHistory(); simpleSelector = simpleSelector->tagHistory())
+    for (auto* simpleSelector = &hasSelector; simpleSelector->precedingInComplexSelector(); simpleSelector = simpleSelector->precedingInComplexSelector())
         hasMatchElement = computeNextMatchElement(hasMatchElement, simpleSelector->relation());
 
     switch (hasMatchElement) {
@@ -347,7 +347,7 @@ DoesBreakScope RuleFeatureSet::recursivelyCollectFeaturesFromSelector(SelectorFe
             }
         }
 
-        if (!selector->tagHistory())
+        if (!selector->precedingInComplexSelector())
             break;
 
         matchElement = [&] {
@@ -359,7 +359,7 @@ DoesBreakScope RuleFeatureSet::recursivelyCollectFeaturesFromSelector(SelectorFe
         if (isScopeBreaking(matchElement))
             doesBreakScope = DoesBreakScope::Yes;
 
-        selector = selector->tagHistory();
+        selector = selector->precedingInComplexSelector();
     };
 
     return doesBreakScope;
@@ -385,7 +385,7 @@ static PseudoClassInvalidationKey makePseudoClassInvalidationKey(CSSSelector::Ps
     AtomString attributeName;
     AtomString className;
     AtomString tagName;
-    for (auto* simpleSelector = selector.firstInCompound(); simpleSelector; simpleSelector = simpleSelector->tagHistory()) {
+    for (auto* simpleSelector = selector.firstInCompound(); simpleSelector; simpleSelector = simpleSelector->precedingInComplexSelector()) {
         if (simpleSelector->match() == CSSSelector::Match::Id)
             return makePseudoClassInvalidationKey(pseudoClass, InvalidationKeyType::Id, simpleSelector->value());
 

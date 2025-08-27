@@ -287,7 +287,7 @@ CSSSelectorList CSSParser::parsePageSelector(CSSParserTokenRange range, StyleShe
                 return { };
         }
         if (!typeSelector.isNull())
-            selector->prependTagSelector(QualifiedName(nullAtom(), typeSelector, styleSheet->defaultNamespace()));
+            selector->appendTagInComplexSelector(QualifiedName(nullAtom(), typeSelector, styleSheet->defaultNamespace()));
     }
 
     selector->setForPage();

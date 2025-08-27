@@ -111,12 +111,12 @@ static bool isHostSelectorMatchingInShadowTree(const CSSSelector& startSelector)
 
     bool hasOnlyOneCompound = true;
     bool hasHostInLastCompound = false;
-    for (auto* selector = &startSelector; selector; selector = selector->tagHistory()) {
+    for (auto* selector = &startSelector; selector; selector = selector->precedingInComplexSelector()) {
         if (selector->match() == CSSSelector::Match::PseudoClass && selector->pseudoClass() == CSSSelector::PseudoClass::Host)
             hasHostInLastCompound = true;
         if (isHostSelectorMatchingInShadowTreeInSelectorList(selector->selectorList()))
             return true;
-        if (selector->tagHistory() && selector->relation() != CSSSelector::Relation::Subselector) {
+        if (selector->precedingInComplexSelector() && selector->relation() != CSSSelector::Relation::Subselector) {
             hasOnlyOneCompound = false;
             hasHostInLastCompound = false;
         }
@@ -277,7 +277,7 @@ void RuleSet::addRule(RuleData&& ruleData, CascadeLayerIdentifier cascadeLayerId
         // We only process the subject (rightmost compound selector).
         if (selector->relation() != CSSSelector::Relation::Subselector)
             break;
-        selector = selector->tagHistory();
+        selector = selector->precedingInComplexSelector();
     } while (selector);
 
     if (!m_hasHostPseudoClassRulesMatchingInShadowTree)
@@ -308,7 +308,7 @@ void RuleSet::addRule(RuleData&& ruleData, CascadeLayerIdentifier cascadeLayerId
         // FIXME: Custom pseudo elements are handled by the shadow tree's selector filter. It doesn't know about the main DOM.
         ruleData.disableSelectorFiltering();
 
-        auto* nextSelector = customPseudoElementSelector->tagHistory();
+        auto* nextSelector = customPseudoElementSelector->precedingInComplexSelector();
         if (nextSelector && nextSelector->match() == CSSSelector::Match::PseudoElement && nextSelector->pseudoElement() == CSSSelector::PseudoElement::Part) {
             // Handle selectors like ::part(foo)::placeholder with the part codepath.
             m_partPseudoElementRules.append(ruleData);
