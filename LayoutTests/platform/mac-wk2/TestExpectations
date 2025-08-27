@@ -2421,3 +2421,7 @@ webkit.org/b/297806 http/tests/permissions/storage-access-permissions-query.html
 webkit.org/b/297860 http/tests/site-isolation/edge-sampling-viewport-constrained-object.html [ Skip ]
 
 webkit.org/b/297006 [ Debug ] http/tests/media/media-element-frame-destroyed-crash.html [ Skip ]
+
+# webkit.org/b/297974 [ macOS wk2 ] 2x http/wpt/service-workers/ (layout-tests) tests are constant failures 
+[ Release ] http/wpt/service-workers/service-worker-spinning-install.https.html [ Failure ]
+http/wpt/service-workers/service-worker-spinning-activate.https.html [ Failure ]
