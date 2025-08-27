@@ -1795,11 +1795,6 @@ void TestRunner::setOriginQuotaRatioEnabled(bool enabled)
     postSynchronousPageMessage("SetOriginQuotaRatioEnabled", enabled);
 }
 
-void TestRunner::getApplicationManifestThen(JSContextRef context, JSValueRef callback)
-{
-    postMessageWithAsyncReply(context, "GetApplicationManifest", callback);
-}
-
 void TestRunner::installFakeHelvetica(JSStringRef configuration)
 {
     WTR::installFakeHelvetica(toWK(configuration).get());
@@ -1839,14 +1834,6 @@ void TestRunner::cleanUpKeychain(JSStringRef attrLabel, JSStringRef applicationL
         return;
     }
     postSynchronousMessage("CleanUpKeychain", createWKDictionary({
-        { "AttrLabel", toWK(attrLabel) },
-        { "ApplicationLabel", toWK(applicationLabelBase64) },
-    }));
-}
-
-bool TestRunner::keyExistsInKeychain(JSStringRef attrLabel, JSStringRef applicationLabelBase64)
-{
-    return postSynchronousMessageReturningBoolean("KeyExistsInKeychain", createWKDictionary({
         { "AttrLabel", toWK(attrLabel) },
         { "ApplicationLabel", toWK(applicationLabelBase64) },
     }));
@@ -2039,26 +2026,6 @@ void TestRunner::flushConsoleLogs(JSContextRef context, JSValueRef callback)
 void TestRunner::updatePresentation(JSContextRef context, JSValueRef callback)
 {
     postMessageWithAsyncReply(context, "UpdatePresentation", callback);
-}
-
-void TestRunner::waitBeforeFinishingFullscreenExit()
-{
-    postPageMessage("WaitBeforeFinishingFullscreenExit");
-}
-
-void TestRunner::scrollDuringEnterFullscreen()
-{
-    postPageMessage("ScrollDuringEnterFullscreen");
-}
-
-void TestRunner::finishFullscreenExit()
-{
-    postPageMessage("FinishFullscreenExit");
-}
-
-void TestRunner::requestExitFullscreenFromUIProcess()
-{
-    postPageMessage("RequestExitFullscreenFromUIProcess");
 }
 
 void TestRunner::setPageScaleFactor(JSContextRef context, double scaleFactor, long x, long y, JSValueRef callback)

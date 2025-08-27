@@ -200,7 +200,7 @@ public:
     void waitBeforeFinishingFullscreenExit() { m_waitBeforeFinishingFullscreenExit = true; }
     void scrollDuringEnterFullscreen() { m_scrollDuringEnterFullscreen = true; }
     void finishFullscreenExit();
-    void requestExitFullscreenFromUIProcess(WKPageRef);
+    void requestExitFullscreenFromUIProcess();
 
     static void willEnterFullScreen(WKPageRef, WKCompletionListenerRef, const void*);
     void willEnterFullScreen(WKPageRef, WKCompletionListenerRef);

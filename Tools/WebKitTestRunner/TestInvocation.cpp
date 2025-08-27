@@ -683,26 +683,6 @@ void TestInvocation::didReceiveMessageFromInjectedBundle(WKStringRef messageName
         return;
     }
 
-    if (WKStringIsEqualToUTF8CString(messageName, "WaitBeforeFinishingFullscreenExit")) {
-        TestController::singleton().waitBeforeFinishingFullscreenExit();
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "ScrollDuringEnterFullscreen")) {
-        TestController::singleton().scrollDuringEnterFullscreen();
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "FinishFullscreenExit")) {
-        TestController::singleton().finishFullscreenExit();
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "RequestExitFullscreenFromUIProcess")) {
-        TestController::singleton().requestExitFullscreenFromUIProcess(TestController::singleton().mainWebView()->page());
-        return;
-    }
-
     if (WKStringIsEqualToUTF8CString(messageName, "ShowWebInspector")) {
         WKPageShowWebInspectorForTesting(TestController::singleton().mainWebView()->page());
         return;
@@ -1296,14 +1276,6 @@ WKRetainPtr<WKTypeRef> TestInvocation::didReceiveSynchronousMessageFromInjectedB
         auto applicationLabelWK = stringValue(testDictionary, "ApplicationLabel");
         TestController::singleton().cleanUpKeychain(toWTFString(attrLabelWK), applicationLabelWK ? toWTFString(applicationLabelWK) : String());
         return nullptr;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "KeyExistsInKeychain")) {
-        auto testDictionary = dictionaryValue(messageBody);
-        auto attrLabelWK = stringValue(testDictionary, "AttrLabel");
-        auto applicationLabelWK = stringValue(testDictionary, "ApplicationLabel");
-        bool keyExistsInKeychain = TestController::singleton().keyExistsInKeychain(toWTFString(attrLabelWK), toWTFString(applicationLabelWK));
-        return adoptWK(WKBooleanCreate(keyExistsInKeychain));
     }
 
     if (WKStringIsEqualToUTF8CString(messageName, "ServerTrustEvaluationCallbackCallsCount"))

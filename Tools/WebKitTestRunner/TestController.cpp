@@ -666,9 +666,9 @@ void TestController::finishFullscreenExit()
     m_finishExitFullscreenHandler();
 }
 
-void TestController::requestExitFullscreenFromUIProcess(WKPageRef page)
+void TestController::requestExitFullscreenFromUIProcess()
 {
-    WKPageRequestExitFullScreen(page);
+    WKPageRequestExitFullScreen(mainWebView()->page());
 }
 
 PlatformWebView* TestController::createOtherPlatformWebView(PlatformWebView* parentView, WKPageConfigurationRef configuration, WKNavigationActionRef, WKWindowFeaturesRef)
@@ -1870,6 +1870,12 @@ static WKFindOptions findOptionsFromArray(WKArrayRef array)
     return options;
 }
 
+static void adoptAndCallCompletionHandler(void* context)
+{
+    auto completionHandler = WTF::adopt(static_cast<CompletionHandler<void(WKTypeRef)>::Impl*>(context));
+    completionHandler(nullptr);
+}
+
 struct UIScriptInvocationData {
     UIScriptInvocationData(unsigned callbackID, WebKit::WKRetainPtr<WKStringRef>&& scriptString, WeakPtr<TestInvocation>&& testInvocation)
         : callbackID(callbackID)
@@ -1913,6 +1919,12 @@ if (window.testRunner) {
     testRunner.findString = (target, options) => post(['FindString', target, options]);
     testRunner.runUIScript = (script, callback) => post(['RunUIScript', script, createHandle(callback)]);
     testRunner.runUIScriptImmediately = (script, callback) => post(['RunUIScriptImmediately', script, createHandle(callback)]);
+    testRunner.getApplicationManifestThen = async (callback) => { await post(['GetApplicationManifest']); callback() }; // NOLINT
+    testRunner.scrollDuringEnterFullscreen = () => post(['ScrollDuringEnterFullscreen']);
+    testRunner.waitBeforeFinishingFullscreenExit = () => post(['WaitBeforeFinishingFullscreenExit']);
+    testRunner.finishFullscreenExit = () => post(['FinishFullscreenExit']);
+    testRunner.requestExitFullscreenFromUIProcess = () => post(['RequestExitFullscreenFromUIProcess']);
+    testRunner.keyExistsInKeychain = (attrLabel, applicationLabelBase64) => post(['KeyExistsInKeychain', attrLabel, applicationLabelBase64]);
 }
 )testRunnerJS";
 
@@ -1989,6 +2001,32 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
         runUISideScriptImmediately(invocationData);
         return completionHandler(nullptr);
     }
+
+    if (WKStringIsEqualToUTF8CString(command, "GetApplicationManifest"))
+        return WKPageGetApplicationManifest(mainWebView()->page(), completionHandler.leak(), adoptAndCallCompletionHandler);
+
+    if (WKStringIsEqualToUTF8CString(command, "WaitBeforeFinishingFullscreenExit")) {
+        waitBeforeFinishingFullscreenExit();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "ScrollDuringEnterFullscreen")) {
+        scrollDuringEnterFullscreen();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "FinishFullscreenExit")) {
+        finishFullscreenExit();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "RequestExitFullscreenFromUIProcess")) {
+        requestExitFullscreenFromUIProcess();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "KeyExistsInKeychain"))
+        return completionHandler(adoptWK(WKBooleanCreate(keyExistsInKeychain(toWTFString(argument), toWTFString(argument2)))).get());
 
     ASSERT_NOT_REACHED();
 }
@@ -2392,12 +2430,6 @@ RefPtr<TestInvocation> TestController::protectedCurrentInvocation()
     return m_currentInvocation;
 }
 
-static void adoptAndCallCompletionHandler(void* context)
-{
-    auto completionHandler = WTF::adopt(static_cast<CompletionHandler<void(WKTypeRef)>::Impl*>(context));
-    completionHandler(nullptr);
-}
-
 void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messageName, WKTypeRef messageBody, WKMessageListenerRef listener)
 {
     CompletionHandler<void(WKTypeRef)> completionHandler = [listener = retainWK(listener)] (WKTypeRef reply) {
@@ -2601,11 +2633,6 @@ void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messag
 
     if (WKStringIsEqualToUTF8CString(messageName, "LoadedSubresourceDomains"))
         return loadedSubresourceDomains(WTFMove(completionHandler));
-
-    if (WKStringIsEqualToUTF8CString(messageName, "GetApplicationManifest")) {
-        WKPageGetApplicationManifest(mainWebView()->page(), completionHandler.leak(), adoptAndCallCompletionHandler);
-        return;
-    }
 
     if (WKStringIsEqualToUTF8CString(messageName, "RemoveChromeInputField")) {
         mainWebView()->removeChromeInputField();
