@@ -528,7 +528,12 @@ bool WebPage::platformCanHandleRequest(const WebCore::ResourceRequest& request)
         return true;
 
     // FIXME: Return true if this scheme is any one WebKit2 knows how to handle.
+#if ENABLE(SWIFT_DEMO_URI_SCHEME)
+    return request.url().protocolIs("applewebdata"_s)
+        || request.url().protocolIs("x-swift-demo"_s);
+#else
     return request.url().protocolIs("applewebdata"_s);
+#endif
 }
 
 void WebPage::shouldDelayWindowOrderingEvent(const WebKit::WebMouseEvent& event, CompletionHandler<void(bool)>&& completionHandler)

@@ -128,6 +128,7 @@
 #include "SpeechRecognitionRemoteRealtimeMediaSource.h"
 #include "SpeechRecognitionRemoteRealtimeMediaSourceManager.h"
 #include "SuspendedPageProxy.h"
+#include "SwiftDemoLogoConfirmation.h"
 #include "SyntheticEditingCommandType.h"
 #include "TextChecker.h"
 #include "TextCheckerState.h"
@@ -447,6 +448,10 @@
 
 #if PLATFORM(IOS_FAMILY) && ENABLE(MODEL_PROCESS)
 #include "ModelPresentationManagerProxy.h"
+#endif
+
+#if ENABLE(SWIFT_DEMO_URI_SCHEME)
+#include "WebKit-Swift-CPP.h"
 #endif
 
 #define MESSAGE_CHECK(process, assertion) MESSAGE_CHECK_BASE(assertion, process->connection())
@@ -8186,6 +8191,24 @@ void WebPageProxy::decidePolicyForNavigationAction(Ref<WebProcessProxy>&& proces
     auto host = shouldSendSecurityOriginData ? frameInfo.securityOrigin.host() : request.url().host();
     auto protocol = shouldSendSecurityOriginData ? frameInfo.securityOrigin.protocol() : request.url().protocol();
     protectedWebsiteDataStore()->beginAppBoundDomainCheck(host.toString(), protocol.toString(), listener);
+#endif
+
+#if ENABLE(SWIFT_DEMO_URI_SCHEME)
+    if (navigationAction->request().url().protocolIs("x-swift-demo"_s) && !m_shouldSuppressSwiftDemoInNextNavigationPolicyDecision) {
+        auto logo = getSwiftLogoData();
+        WTF::Vector<uint8_t> logo2;
+        logo2.reserveCapacity(logo.getCount());
+        for (swift::Int i = 0; i < logo.getCount(); i++)
+            logo2.append(logo[i]);
+        auto mimeType = "image/png"_s;
+        auto charset = "US-ASCII"_s;
+        auto baseURL = "x-swift-demo://"_s;
+        auto data2 = SharedBuffer::create(WTFMove(logo2));
+        m_shouldSuppressSwiftDemoInNextNavigationPolicyDecision = true;
+        loadData(WTFMove(data2), mimeType, charset, baseURL);
+        listener->ignore(WasNavigationIntercepted::Yes);
+        return;
+    }
 #endif
 
     auto wasPotentiallyInitiatedByUser = navigation->isLoadedWithNavigationShared() || navigation->wasUserInitiated();
@@ -16816,6 +16839,18 @@ bool WebPageProxy::canStartNavigationSwipeAtLastInteractionLocation() const
 Ref<AboutSchemeHandler> WebPageProxy::protectedAboutSchemeHandler()
 {
     return m_aboutSchemeHandler;
+}
+
+// See SwiftDemoLogo.swift for the rationale here
+bool shouldShowSwiftDemoLogo()
+{
+#if ENABLE(SWIFT_DEMO_URI_SCHEME)
+    return true;
+#else
+    // This shouldn't even be called if ENABLE_SWIFT_DEMO_URI_SCHEME
+    // isn't enabled
+    RELEASE_ASSERT_NOT_REACHED();
+#endif
 }
 
 } // namespace WebKit
