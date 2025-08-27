@@ -615,30 +615,41 @@ private:
     Type m_type;
 };
 
-struct Segment {
-    WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(Segment);
-
+class Segment final : public TrailingArray<Segment, uint8_t> {
+    WTF_DEPRECATED_MAKE_FAST_ALLOCATED(Segment);
+    WTF_MAKE_NONCOPYABLE(Segment);
+    WTF_MAKE_NONMOVABLE(Segment);
+    using Base = TrailingArray<Segment, uint8_t>;
+    friend Base;
+public:
     enum class Kind : uint8_t {
         Active,
         Passive,
     };
 
-    Kind kind;
-    uint32_t sizeInBytes;
-    std::optional<I32InitExpr> offsetIfActive;
-    // Bytes are allocated at the end.
     uint8_t& byte(uint32_t pos)
     {
-        ASSERT(pos < sizeInBytes);
-        return *(reinterpret_cast<uint8_t*>(this) + sizeof(Segment) + pos);
+        return Base::at(pos);
+    }
+    uint32_t sizeInBytes() const { return Base::size(); }
+
+    Segment(size_t sizeInBytes, Kind passedKind, std::optional<I32InitExpr>&& passedOffsetIfActive)
+        : Base(sizeInBytes)
+        , m_kind(passedKind)
+        , m_offsetIfActive(WTFMove(passedOffsetIfActive))
+    {
     }
 
-    static void destroy(Segment*);
-    typedef std::unique_ptr<Segment, decltype(&Segment::destroy)> Ptr;
-    static Segment::Ptr create(std::optional<I32InitExpr>, uint32_t, Kind);
+    static std::unique_ptr<Segment> tryCreate(std::optional<I32InitExpr>, uint32_t, Kind);
 
-    bool isActive() const { return kind == Kind::Active; }
-    bool isPassive() const { return kind == Kind::Passive; }
+    bool isActive() const { return m_kind == Kind::Active; }
+    bool isPassive() const { return m_kind == Kind::Passive; }
+    Kind kind() const { return m_kind; }
+    std::optional<I32InitExpr> offsetIfActive() const { return m_offsetIfActive; }
+
+private:
+    const Kind m_kind;
+    const std::optional<I32InitExpr> m_offsetIfActive;
 };
 
 struct Element {

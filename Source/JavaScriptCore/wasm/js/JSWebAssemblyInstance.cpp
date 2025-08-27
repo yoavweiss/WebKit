@@ -468,8 +468,8 @@ bool JSWebAssemblyInstance::memoryInit(uint32_t dstAddress, uint32_t srcAddress,
     if (sumOverflows<uint32_t>(srcAddress, length))
         return false;
 
-    const Segment::Ptr& segment = module().moduleInformation().data[dataSegmentIndex];
-    const uint32_t segmentSizeInBytes = m_passiveDataSegments.quickGet(dataSegmentIndex) ? segment->sizeInBytes : 0U;
+    auto& segment = module().moduleInformation().data[dataSegmentIndex];
+    const uint32_t segmentSizeInBytes = m_passiveDataSegments.quickGet(dataSegmentIndex) ? segment->sizeInBytes() : 0U;
     if (srcAddress + length > segmentSizeInBytes)
         return false;
 
@@ -599,8 +599,8 @@ bool JSWebAssemblyInstance::copyDataSegment(JSWebAssemblyArray* array, uint32_t 
     // Fail if the data segment index is out of bounds
     RELEASE_ASSERT(segmentIndex < module().moduleInformation().dataSegmentsCount());
     // Otherwise, get the `segmentIndex`th data segment
-    const Segment::Ptr& segment = module().moduleInformation().data[segmentIndex];
-    const uint32_t segmentSizeInBytes = m_passiveDataSegments.quickGet(segmentIndex) ? segment->sizeInBytes : 0U;
+    auto& segment = module().moduleInformation().data[segmentIndex];
+    const uint32_t segmentSizeInBytes = m_passiveDataSegments.quickGet(segmentIndex) ? segment->sizeInBytes() : 0U;
 
     // Caller checks that the (offset + lengthInBytes) calculation doesn't overflow
     if ((offset + lengthInBytes) > segmentSizeInBytes) {
