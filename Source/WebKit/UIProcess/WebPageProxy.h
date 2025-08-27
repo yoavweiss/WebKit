@@ -1114,6 +1114,7 @@ public:
     WebCore::FloatRect unobscuredContentRectRespectingInputViewBounds() const;
     // When visual viewports are enabled, this is the layout viewport rect.
     WebCore::FloatRect layoutViewportRect() const;
+    WebCore::FloatBoxExtent computedObscuredInset() const;
 
     void resendLastVisibleContentRects();
 

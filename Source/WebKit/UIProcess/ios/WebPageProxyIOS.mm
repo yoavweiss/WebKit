@@ -1793,6 +1793,14 @@ FloatRect WebPageProxy::layoutViewportRect() const
     return { };
 }
 
+FloatBoxExtent WebPageProxy::computedObscuredInset() const
+{
+    if (RefPtr pageClient = this->pageClient())
+        return pageClient->computedObscuredInset();
+
+    return { };
+}
+
 FloatSize WebPageProxy::viewLayoutSize() const
 {
     return internals().viewportConfigurationViewLayoutSize;
