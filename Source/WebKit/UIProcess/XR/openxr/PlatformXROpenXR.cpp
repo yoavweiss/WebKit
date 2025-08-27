@@ -24,6 +24,7 @@
 
 #include "APIUIClient.h"
 #include "OpenXRExtensions.h"
+#include "OpenXRInput.h"
 #include "OpenXRLayer.h"
 #include "OpenXRUtils.h"
 #include "WebPageProxy.h"
@@ -103,7 +104,7 @@ void OpenXRCoordinator::getPrimaryDeviceInfo(WebPageProxy&, DeviceInfoCallback&&
     deviceInfo.vrFeatures.append(PlatformXR::SessionFeature::ReferenceSpaceTypeLocal);
     deviceInfo.arFeatures.append(PlatformXR::SessionFeature::ReferenceSpaceTypeLocal);
 
-    if (m_extensions->isExtensionSupported(XR_MSFT_UNBOUNDED_REFERENCE_SPACE_EXTENSION_NAME ""_span)) {
+    if (OpenXRExtensions::singleton().isExtensionSupported(XR_MSFT_UNBOUNDED_REFERENCE_SPACE_EXTENSION_NAME ""_span)) {
         deviceInfo.vrFeatures.append(PlatformXR::SessionFeature::ReferenceSpaceTypeUnbounded);
         deviceInfo.arFeatures.append(PlatformXR::SessionFeature::ReferenceSpaceTypeUnbounded);
     }
@@ -227,6 +228,7 @@ void OpenXRCoordinator::startSession(WebPageProxy& page, WeakPtr<PlatformXRCoord
                     LOG(XR, "OpenXRCoordinator: failed to create the session");
                     return;
                 }
+                m_input = OpenXRInput::create(m_instance, m_session);
                 renderLoop(renderState);
             });
         },
@@ -334,11 +336,15 @@ void OpenXRCoordinator::createInstance()
 
     Vector<char *, 2> extensions;
 #if defined(XR_USE_PLATFORM_EGL)
-    if (m_extensions->isExtensionSupported(XR_MNDX_EGL_ENABLE_EXTENSION_NAME ""_span))
+    if (OpenXRExtensions::singleton().isExtensionSupported(XR_MNDX_EGL_ENABLE_EXTENSION_NAME ""_span))
         extensions.append(const_cast<char*>(XR_MNDX_EGL_ENABLE_EXTENSION_NAME));
 #endif
 #if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     extensions.append(const_cast<char*>(XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME));
+#endif
+#if defined(XR_EXT_hand_interaction)
+    if (OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_HAND_INTERACTION_EXTENSION_NAME))
+        extensions.append(const_cast<char*>(XR_EXT_HAND_INTERACTION_EXTENSION_NAME));
 #endif
 
     XrInstanceCreateInfo createInfo = createOpenXRStruct<XrInstanceCreateInfo, XR_TYPE_INSTANCE_CREATE_INFO >();
@@ -437,19 +443,13 @@ void OpenXRCoordinator::initializeDevice()
         return;
     }
 
-    m_extensions = OpenXRExtensions::create();
-    if (!m_extensions) {
-        LOG(XR, "Failed to create OpenXRExtensions.");
-        return;
-    }
-
     createInstance();
     if (m_instance == XR_NULL_HANDLE) {
         LOG(XR, "Failed to create OpenXR instance.");
         return;
     }
 
-    if (!m_extensions->loadMethods(m_instance)) {
+    if (!OpenXRExtensions::singleton().loadMethods(m_instance)) {
         LOG(XR, "Failed to load extension methods.");
         return;
     }
@@ -496,7 +496,7 @@ void OpenXRCoordinator::initializeBlendModes()
 
 void OpenXRCoordinator::tryInitializeGraphicsBinding()
 {
-    if (!m_extensions->isExtensionSupported(XR_MNDX_EGL_ENABLE_EXTENSION_NAME ""_span)) {
+    if (!OpenXRExtensions::singleton().isExtensionSupported(XR_MNDX_EGL_ENABLE_EXTENSION_NAME ""_span)) {
         LOG(XR, "OpenXR MNDX_EGL_ENABLE extension is not supported.");
         return;
     }
@@ -518,7 +518,7 @@ void OpenXRCoordinator::tryInitializeGraphicsBinding()
     m_graphicsBinding.display = m_glDisplay->eglDisplay();
     m_graphicsBinding.context = m_glContext->platformContext();
     m_graphicsBinding.config = m_glContext->config();
-    m_graphicsBinding.getProcAddress = m_extensions->methods().getProcAddressFunc;
+    m_graphicsBinding.getProcAddress = OpenXRExtensions::singleton().methods().getProcAddressFunc;
 }
 
 void OpenXRCoordinator::createSessionIfNeeded()
@@ -531,7 +531,7 @@ void OpenXRCoordinator::createSessionIfNeeded()
 
 #if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     auto requirements = createOpenXRStruct<XrGraphicsRequirementsOpenGLESKHR, XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR>();
-    CHECK_XRCMD(m_extensions->methods().xrGetOpenGLESGraphicsRequirementsKHR(m_instance, m_systemId, &requirements));
+    CHECK_XRCMD(OpenXRExtensions::singleton().methods().xrGetOpenGLESGraphicsRequirementsKHR(m_instance, m_systemId, &requirements));
 #endif
 
     tryInitializeGraphicsBinding();
@@ -561,6 +561,7 @@ void OpenXRCoordinator::cleanupSessionAndAssociatedResources()
 
     m_layers.clear();
     m_views.clear();
+    m_input.reset();
 
     if (m_session != XR_NULL_HANDLE) {
         CHECK_XRCMD(xrDestroySession(m_session));
@@ -601,7 +602,6 @@ void OpenXRCoordinator::handleSessionStateChange()
         cleanupSessionAndAssociatedResources();
         break;
     default:
-        LOG(XR, "OpenXR session state changed to %s", toString(m_sessionState));
         break;
     }
 }
@@ -623,6 +623,13 @@ OpenXRCoordinator::PollResult OpenXRCoordinator::pollEvents()
             m_sessionState = event->state;
             handleSessionStateChange();
             return m_session == XR_NULL_HANDLE ? PollResult::Stop : PollResult::Continue;
+        }
+        case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED: {
+            auto* event = reinterpret_cast<XrEventDataInteractionProfileChanged*>(&runtimeEvent);
+            LOG(XR, "OpenXR interaction profile changed for session %p", static_cast<void*>(event->session));
+            if (m_input && event->session == m_session)
+                m_input->updateInteractionProfile();
+            break;
         }
         default:
             LOG(XR, "Unhandled OpenXR event type %d\n", runtimeEvent.type);
@@ -660,6 +667,9 @@ PlatformXR::FrameData OpenXRCoordinator::populateFrameData(Box<RenderState> rend
     frameData.isTrackingValid = viewState.viewStateFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT;
     frameData.isPositionValid = viewState.viewStateFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT;
     frameData.isPositionEmulated = !(viewState.viewStateFlags & XR_SPACE_LOCATION_POSITION_TRACKED_BIT);
+
+    if (m_input)
+        frameData.inputSources = m_input->collectInputSources(renderState->frameState, m_floorSpace);
 
     frameData.origin = XrIdentityPose();
 
@@ -716,7 +726,7 @@ void OpenXRCoordinator::createReferenceSpacesIfNeeded(Box<RenderState> renderSta
     m_localSpace = createReferenceSpace(XR_REFERENCE_SPACE_TYPE_LOCAL);
 
 #if defined(XR_EXT_local_floor)
-    if (supportedSpaces.contains(XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT) && m_extensions->isExtensionSupported(XR_EXT_LOCAL_FLOOR_EXTENSION_NAME ""_span)) {
+    if (supportedSpaces.contains(XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT) && OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_LOCAL_FLOOR_EXTENSION_NAME ""_span)) {
         m_floorSpace = createReferenceSpace(XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT);
         LOG(XR, "OpenXRCoordinator: created LOCAL_FLOOR reference space");
     }

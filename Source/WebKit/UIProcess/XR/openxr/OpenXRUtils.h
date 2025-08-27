@@ -71,6 +71,15 @@ inline XrResult checkXrResult(XrResult res, const char* originator = nullptr, co
 
 #define CHECK_XRCMD(cmd) checkXrResult(cmd, #cmd, FILE_AND_LINE);
 
+#define RETURN_RESULT_IF_FAILED(call, ...) \
+{ \
+    auto xrResult = call; \
+    if (XR_FAILED(xrResult)) { \
+        LOG(XR, "%s %s: %s\n", __func__, #call, toString(xrResult)); \
+        return xrResult; \
+    } \
+}
+
 inline PlatformXR::FrameData::Pose XrIdentityPose()
 {
     return { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } };
@@ -85,6 +94,20 @@ inline PlatformXR::FrameData::View XrViewToView(XrView view)
 {
     return { XrPosefToPose(view.pose), PlatformXR::FrameData::Fov { std::abs(view.fov.angleUp), std::abs(view.fov.angleDown), std::abs(view.fov.angleLeft), std::abs(view.fov.angleRight) } };
 }
+
+inline ASCIILiteral handednessToString(PlatformXR::XRHandedness handedness)
+{
+    switch (handedness) {
+    case PlatformXR::XRHandedness::Left:
+        return "left"_s;
+    case PlatformXR::XRHandedness::Right:
+        return "right"_s;
+    default:
+        ASSERT_NOT_REACHED();
+        return { };
+    }
+}
+
 
 } // namespace WebKit
 

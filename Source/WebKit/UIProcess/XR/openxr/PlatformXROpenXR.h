@@ -37,6 +37,7 @@ class GLDisplay;
 
 namespace WebKit {
 
+class OpenXRInput;
 class OpenXRLayer;
 class OpenXRSwapchain;
 
@@ -94,7 +95,6 @@ private:
     XrInstance m_instance { XR_NULL_HANDLE };
     XrSystemId m_systemId { XR_NULL_SYSTEM_ID };
     State m_state;
-    std::unique_ptr<OpenXRExtensions> m_extensions;
     Vector<XrViewConfigurationView> m_viewConfigurationViews;
     XrViewConfigurationType m_currentViewConfiguration;
     XrEnvironmentBlendMode m_vrBlendMode;
@@ -104,6 +104,7 @@ private:
 #if USE(GBM)
     mutable RefPtr<WebCore::GBMDevice> m_gbmDevice;
 #endif
+    std::unique_ptr<OpenXRInput> m_input;
 
     XrSession m_session { XR_NULL_HANDLE };
     XrSessionState m_sessionState { XR_SESSION_STATE_UNKNOWN };

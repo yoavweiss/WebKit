@@ -35,33 +35,32 @@
 
 namespace WebKit {
 
-std::unique_ptr<OpenXRExtensions> OpenXRExtensions::create()
+WTF_MAKE_TZONE_ALLOCATED_IMPL(OpenXRExtensions);
+
+OpenXRExtensions& OpenXRExtensions::singleton()
+{
+    static NeverDestroyed<OpenXRExtensions> sharedExtensions;
+    return sharedExtensions;
+}
+
+OpenXRExtensions::OpenXRExtensions()
+    : m_methods(WTF::makeUnique<OpenXRExtensionMethods>())
 {
     uint32_t extensionCount;
     XrResult result = xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr);
 
     if (XR_FAILED(result) || !extensionCount) {
         LOG(XR, "xrEnumerateInstanceExtensionProperties(): no extensions\n");
-        return nullptr;
+        return;
     }
 
-    Vector<XrExtensionProperties> extensions(extensionCount, [] {
-        return createOpenXRStruct<XrExtensionProperties, XR_TYPE_EXTENSION_PROPERTIES>();
-    }());
+    m_extensions.fill(createOpenXRStruct<XrExtensionProperties, XR_TYPE_EXTENSION_PROPERTIES>(), extensionCount);
 
-    result = xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, extensions.mutableSpan().data());
+    result = xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, m_extensions.mutableSpan().data());
     if (XR_FAILED(result)) {
         LOG(XR, "xrEnumerateInstanceExtensionProperties() failed: %d\n", result);
-        return nullptr;
+        return;
     }
-
-    return makeUnique<OpenXRExtensions>(WTFMove(extensions));
-}
-
-OpenXRExtensions::OpenXRExtensions(Vector<XrExtensionProperties>&& extensions)
-    : m_extensions(WTFMove(extensions))
-    , m_methods(makeUnique<OpenXRExtensionMethods>())
-{
 }
 
 // Destructor must be explicitly defined here because at this point OpenXRExtensionMethods is already defined.

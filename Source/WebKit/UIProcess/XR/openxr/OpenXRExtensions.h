@@ -52,8 +52,8 @@ class OpenXRExtensions final {
     WTF_MAKE_TZONE_ALLOCATED(OpenXRExtensions);
     WTF_MAKE_NONCOPYABLE(OpenXRExtensions);
 public:
-    static std::unique_ptr<OpenXRExtensions> create();
-    OpenXRExtensions(Vector<XrExtensionProperties>&&);
+    static OpenXRExtensions& singleton();
+
     ~OpenXRExtensions();
 
     bool loadMethods(XrInstance);
@@ -61,6 +61,8 @@ public:
     const OpenXRExtensionMethods& methods() const { return *m_methods; }
 
 private:
+    friend class NeverDestroyed<OpenXRExtensions>;
+    OpenXRExtensions();
     Vector<XrExtensionProperties> m_extensions;
     std::unique_ptr<OpenXRExtensionMethods> m_methods;
 };
