@@ -164,7 +164,7 @@ CaptionUserPreferencesMediaAF::~CaptionUserPreferencesMediaAF()
 CaptionUserPreferences::CaptionDisplayMode CaptionUserPreferencesMediaAF::captionDisplayMode() const
 {
     CaptionDisplayMode internalMode = CaptionUserPreferences::captionDisplayMode();
-    if (internalMode == CaptionDisplayMode::Manual || testingMode() || !MediaAccessibilityLibrary())
+    if (internalMode == CaptionDisplayMode::Manual || testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile())
         return internalMode;
 
     if (cachedCaptionDisplayMode().has_value())
@@ -196,7 +196,7 @@ void CaptionUserPreferencesMediaAF::platformSetCaptionDisplayMode(CaptionDisplay
 
 void CaptionUserPreferencesMediaAF::setCaptionDisplayMode(CaptionUserPreferences::CaptionDisplayMode mode)
 {
-    if (testingMode() || !MediaAccessibilityLibrary()) {
+    if (testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile()) {
         CaptionUserPreferences::setCaptionDisplayMode(mode);
         return;
     }
@@ -238,7 +238,7 @@ void CaptionUserPreferencesMediaAF::setCachedCaptionDisplayMode(CaptionDisplayMo
 bool CaptionUserPreferencesMediaAF::userPrefersCaptions() const
 {
     bool captionSetting = CaptionUserPreferences::userPrefersCaptions();
-    if (captionSetting || testingMode() || !MediaAccessibilityLibrary())
+    if (captionSetting || testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile())
         return captionSetting;
 
     RetainPtr captioningMediaCharacteristics = adoptCF(MACaptionAppearanceCopyPreferredCaptioningMediaCharacteristics(kMACaptionAppearanceDomainUser));
@@ -248,7 +248,7 @@ bool CaptionUserPreferencesMediaAF::userPrefersCaptions() const
 bool CaptionUserPreferencesMediaAF::userPrefersSubtitles() const
 {
     bool subtitlesSetting = CaptionUserPreferences::userPrefersSubtitles();
-    if (subtitlesSetting || testingMode() || !MediaAccessibilityLibrary())
+    if (subtitlesSetting || testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile())
         return subtitlesSetting;
     
     RetainPtr captioningMediaCharacteristics = adoptCF(MACaptionAppearanceCopyPreferredCaptioningMediaCharacteristics(kMACaptionAppearanceDomainUser));
@@ -258,7 +258,7 @@ bool CaptionUserPreferencesMediaAF::userPrefersSubtitles() const
 bool CaptionUserPreferencesMediaAF::userPrefersTextDescriptions() const
 {
     bool prefersTextDescriptions = CaptionUserPreferences::userPrefersTextDescriptions();
-    if (prefersTextDescriptions || testingMode() || !MediaAccessibilityLibrary())
+    if (prefersTextDescriptions || testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile())
         return prefersTextDescriptions;
 
     RetainPtr preferDescriptiveVideo = adoptCF(MAAudibleMediaPrefCopyPreferDescriptiveVideo());
@@ -500,7 +500,7 @@ String CaptionUserPreferencesMediaAF::captionsDefaultFontCSS() const
 
 float CaptionUserPreferencesMediaAF::captionFontSizeScaleAndImportance(bool& important) const
 {
-    if (testingMode() || !MediaAccessibilityLibrary())
+    if (testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile())
         return CaptionUserPreferences::captionFontSizeScaleAndImportance(important);
 
     MACaptionAppearanceBehavior behavior;
@@ -528,7 +528,7 @@ void CaptionUserPreferencesMediaAF::setPreferredLanguage(const String& language)
     if (CaptionUserPreferences::captionDisplayMode() == CaptionDisplayMode::Manual)
         return;
 
-    if (testingMode() || !MediaAccessibilityLibrary()) {
+    if (testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile()) {
         CaptionUserPreferences::setPreferredLanguage(language);
         return;
     }
@@ -544,7 +544,7 @@ void CaptionUserPreferencesMediaAF::setPreferredLanguage(const String& language)
 Vector<String> CaptionUserPreferencesMediaAF::preferredLanguages() const
 {
     auto preferredLanguages = CaptionUserPreferences::preferredLanguages();
-    if (testingMode() || !MediaAccessibilityLibrary())
+    if (testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile())
         return preferredLanguages;
 
     if (cachedPreferredLanguages().has_value())
@@ -574,13 +574,13 @@ void CaptionUserPreferencesMediaAF::setCachedPreferredLanguages(const Vector<Str
 
 void CaptionUserPreferencesMediaAF::setPreferredAudioCharacteristic(const String& characteristic)
 {
-    if (testingMode() || !MediaAccessibilityLibrary())
+    if (testingMode() || !MediaAccessibilityLibrary() || hasNullCaptionProfile())
         CaptionUserPreferences::setPreferredAudioCharacteristic(characteristic);
 }
 
 Vector<String> CaptionUserPreferencesMediaAF::preferredAudioCharacteristics() const
 {
-    if (testingMode() || !MediaAccessibilityLibrary() || !canLoad_MediaAccessibility_MAAudibleMediaCopyPreferredCharacteristics())
+    if (testingMode() || !MediaAccessibilityLibrary() || !canLoad_MediaAccessibility_MAAudibleMediaCopyPreferredCharacteristics() || hasNullCaptionProfile())
         return CaptionUserPreferences::preferredAudioCharacteristics();
 
     CFIndex characteristicCount = 0;
@@ -593,11 +593,21 @@ Vector<String> CaptionUserPreferencesMediaAF::preferredAudioCharacteristics() co
 
     return makeVector<String>(characteristics.get());
 }
+
+bool CaptionUserPreferencesMediaAF::hasNullCaptionProfile() const
+{
+    if (!canLoad_MediaAccessibility_MACaptionAppearanceCopyActiveProfileID())
+        return false;
+
+    String captionProfile = adoptCF(MACaptionAppearanceCopyActiveProfileID()).get();
+
+    return captionProfile.isEmpty();
+}
 #endif // HAVE(MEDIA_ACCESSIBILITY_FRAMEWORK)
 
 String CaptionUserPreferencesMediaAF::captionsStyleSheetOverride() const
 {
-    if (testingMode())
+    if (testingMode() || hasNullCaptionProfile())
         return CaptionUserPreferences::captionsStyleSheetOverride();
     
     StringBuilder captionsOverrideStyleSheet;

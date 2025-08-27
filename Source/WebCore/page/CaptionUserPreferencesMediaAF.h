@@ -97,6 +97,7 @@ private:
 
 #if HAVE(MEDIA_ACCESSIBILITY_FRAMEWORK)
     void updateTimerFired();
+    bool hasNullCaptionProfile() const;
 
     String captionsWindowCSS() const;
     String captionsBackgroundCSS() const;
