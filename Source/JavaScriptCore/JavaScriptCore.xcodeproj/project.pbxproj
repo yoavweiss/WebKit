@@ -2071,7 +2071,7 @@
 		E39FEBE32339C5D900B40AB0 /* JSAsyncGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = E39FEBE22339C5D400B40AB0 /* JSAsyncGenerator.h */; };
 		E3A0531A21342B680022EC14 /* WasmStreamingParser.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A0531621342B660022EC14 /* WasmStreamingParser.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E3A0531C21342B680022EC14 /* WasmSectionParser.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A0531821342B670022EC14 /* WasmSectionParser.h */; };
-		E3A107282B7F2F8100ED24A3 /* ProfilerSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A107272B7F2F7E00ED24A3 /* ProfilerSupport.h */; };
+		E3A107282B7F2F8100ED24A3 /* ProfilerSupport.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A107272B7F2F7E00ED24A3 /* ProfilerSupport.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		E3A32BC71FC83147007D7E76 /* WeakMapImpl.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A32BC61FC8312E007D7E76 /* WeakMapImpl.h */; };
 		E3A421431D6F58930007C617 /* PreciseJumpTargetsInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = E3A421421D6F588F0007C617 /* PreciseJumpTargetsInlines.h */; };
 		E3AC277721FDB4940024452C /* RegExpCachedResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 86F75EFC151C062F007C9BA3 /* RegExpCachedResult.h */; settings = {ATTRIBUTES = (Private, ); }; };

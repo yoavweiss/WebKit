@@ -1275,6 +1275,7 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/ParseInt.h
     runtime/PrivateFieldPutKind.h
     runtime/PrivateName.h
+    runtime/ProfilerSupport.h
     runtime/ProgramExecutable.h
     runtime/PropertyDescriptor.h
     runtime/PropertyName.h

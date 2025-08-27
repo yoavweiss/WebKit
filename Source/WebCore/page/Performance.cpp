@@ -57,6 +57,7 @@
 #include "ResourceResponse.h"
 #include "ScriptExecutionContext.h"
 #include "dom/DOMHighResTimeStamp.h"
+#include <JavaScriptCore/ProfilerSupport.h>
 #include <ranges>
 #include <wtf/SystemTracing.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -485,19 +486,27 @@ ExceptionOr<Ref<PerformanceMeasure>> Performance::measure(JSC::JSGlobalObject& g
     if (isSignpostEnabled()) {
 #if OS(DARWIN)
         Ref entry { measure.returnValue() };
-        auto startTime = m_continuousTimeOrigin + Seconds::fromMilliseconds(entry->startTime());
-        auto endTime = m_continuousTimeOrigin + Seconds::fromMilliseconds(entry->startTime() + entry->duration());
-        uint64_t platformStartTime = startTime.toMachContinuousTime();
-        uint64_t platformEndTime = endTime.toMachContinuousTime();
-        uint64_t correctedStartTime = std::min(platformStartTime, platformEndTime);
-        uint64_t correctedEndTime = std::max(platformStartTime, platformEndTime);
-        // Because signpost intervals are closed invervals [start, end], we decrease the endTime by 1 if startTime and endTime is not the same.
-        if (correctedStartTime != correctedEndTime)
-            correctedEndTime -= 1;
         auto message = measureName.utf8();
+        {
+            auto startTime = m_continuousTimeOrigin + Seconds::fromMilliseconds(entry->startTime());
+            auto endTime = m_continuousTimeOrigin + Seconds::fromMilliseconds(entry->startTime() + entry->duration());
+            uint64_t platformStartTime = startTime.toMachContinuousTime();
+            uint64_t platformEndTime = endTime.toMachContinuousTime();
+            uint64_t correctedStartTime = std::min(platformStartTime, platformEndTime);
+            uint64_t correctedEndTime = std::max(platformStartTime, platformEndTime);
+            // Because signpost intervals are closed invervals [start, end], we decrease the endTime by 1 if startTime and endTime is not the same.
+            if (correctedStartTime != correctedEndTime)
+                correctedEndTime -= 1;
 
-        WTFBeginSignpostAlwaysWithSpecificTime(entry.ptr(), WebKitPerformance, correctedStartTime, "%" PUBLIC_LOG_STRING, message.data());
-        WTFEndSignpostAlwaysWithSpecificTime(entry.ptr(), WebKitPerformance, correctedEndTime, "%" PUBLIC_LOG_STRING, message.data());
+            WTFBeginSignpostAlwaysWithSpecificTime(entry.ptr(), WebKitPerformance, correctedStartTime, "%" PUBLIC_LOG_STRING, message.data());
+            WTFEndSignpostAlwaysWithSpecificTime(entry.ptr(), WebKitPerformance, correctedEndTime, "%" PUBLIC_LOG_STRING, message.data());
+        }
+        {
+            auto timeOrigin = m_continuousTimeOrigin.approximateMonotonicTime();
+            auto startTime = timeOrigin + Seconds::fromMilliseconds(entry->startTime());
+            auto endTime = timeOrigin + Seconds::fromMilliseconds(entry->startTime() + entry->duration());
+            JSC::ProfilerSupport::markInterval(entry.ptr(), JSC::ProfilerSupport::Category::WebKitPerformanceSignpost, startTime, endTime, WTFMove(message));
+        }
 #endif
     }
 
