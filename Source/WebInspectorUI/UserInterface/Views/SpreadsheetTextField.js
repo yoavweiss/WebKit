@@ -30,14 +30,7 @@ WI.SpreadsheetTextField = class SpreadsheetTextField
         this._delegate = delegate;
         this._element = element;
         this._pendingValue = null;
-
         this._completionProvider = completionProvider || null;
-        if (this._completionProvider) {
-            this._suggestionHintElement = document.createElement("span");
-            this._suggestionHintElement.contentEditable = false;
-            this._suggestionHintElement.classList.add("completion-hint");
-            this._suggestionsView = new WI.CompletionSuggestionsView(this, {preventBlur: true});
-        }
 
         this._element.classList.add("spreadsheet-text-field");
 
@@ -89,7 +82,7 @@ WI.SpreadsheetTextField = class SpreadsheetTextField
 
     get suggestionHint()
     {
-        return this._suggestionHintElement.textContent;
+        return this._suggestionHintElement?.textContent || "";
     }
 
     set suggestionHint(value)
@@ -114,6 +107,13 @@ WI.SpreadsheetTextField = class SpreadsheetTextField
 
         if (this._delegate && typeof this._delegate.spreadsheetTextFieldWillStartEditing === "function")
             this._delegate.spreadsheetTextFieldWillStartEditing(this);
+
+        if (this._completionProvider && !this._suggestionsView) {
+            this._suggestionHintElement = document.createElement("span");
+            this._suggestionHintElement.contentEditable = false;
+            this._suggestionHintElement.classList.add("completion-hint");
+            this._suggestionsView = new WI.CompletionSuggestionsView(this, {preventBlur: true});
+        }
 
         this._editing = true;
         this._valueBeforeEditing = this.value;
@@ -147,7 +147,7 @@ WI.SpreadsheetTextField = class SpreadsheetTextField
 
     discardCompletion()
     {
-        if (!this._completionProvider)
+        if (!this._completionProvider || !this._suggestionsView)
             return;
 
         this._suggestionsView.hide();
