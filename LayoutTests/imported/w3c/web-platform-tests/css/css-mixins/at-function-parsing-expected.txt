@@ -1,0 +1,88 @@
+
+FAIL @function --foo() is valid assert_equals: expected 1 but got 0
+FAIL @function --foo( ) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo( --x ) is valid assert_equals: expected 1 but got 0
+PASS @function --foo () is invalid
+PASS @function --foo (--x) is invalid
+FAIL @function --foo(--x auto) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <angle>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <color>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <custom-ident>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <image>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <integer>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <length>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <length-percentage>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <number>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <percentage>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <resolution>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <string>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <time>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <url>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <transform-function>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <transform-list>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(auto)) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(<length>)) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(<length> | auto)) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(none | auto)) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(*)) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x, --y) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x, --y, --z) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <length>, --y, --z) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x, --y <number>, --z <angle>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x : 10px) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(*): 10px) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <length>: 10px) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <length>: 10px, --y) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x, --y <length>: 10px) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(<length> | auto): auto) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(<length> | auto) : auto) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x:1px, --y, --z:2px) is valid assert_equals: expected 1 but got 0
+PASS @function --foo(--x: 10px !important) is invalid
+PASS @function --foo(--x <length>: 10deg) is invalid
+PASS @function --foo(--x <angle>: 10px) is invalid
+PASS @function --foo(--x <color>: 10px) is invalid
+PASS @function --foo(--x type(<color>+): red 5) is invalid
+PASS @function --foo(--x type(auto | none): thing) is invalid
+FAIL @function --foo(--x <length>#) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <length>+) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x type(<length>+)) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <transform-function>#) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x <transform-function>+) is valid assert_equals: expected 1 but got 0
+PASS @function --foo(--x <transform-list>#) is invalid
+PASS @function --foo(--x <transform-list>+) is invalid
+PASS @function --foo(--x *) is invalid
+PASS @function --foo(--x !) is invalid
+PASS @function --foo(--x 50px) is invalid
+PASS @function --foo(--x <length> | auto) is invalid
+PASS @function --foo(--x none | auto) is invalid
+PASS @function --foo(--x <dino>) is invalid
+PASS @function --foo(!) is invalid
+PASS @function --foo(--x: !) is invalid
+PASS @function --foo(--x type(!)) is invalid
+PASS @function --foo(,) is invalid
+PASS @function --foo(,,,) is invalid
+PASS @function --foo(--x, ;) is invalid
+PASS @function --foo(;) is invalid
+PASS @function --foo(]) is invalid
+PASS @function --foo(, --x]) is invalid
+FAIL @function --foo(--x) returns type(*) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x) returns <length> is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x) returns <length>+ is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x) returns type(<length>) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x) returns type(<length> | auto) is valid assert_equals: expected 1 but got 0
+FAIL @function --foo(--x) returns type(foo | bar) is valid assert_equals: expected 1 but got 0
+PASS @function --foo(--x) ! is invalid
+PASS @function --foo(--x) ! <length> is invalid
+PASS @function --foo(--x) returns <length>! is invalid
+PASS @function --foo(--x) length is invalid
+PASS @function --foo(--x) returns is invalid
+PASS @function --foo(--x) returns  is invalid
+PASS @function --foo(--x) returns * is invalid
+PASS @function --foo(--x) returns <transform-list># is invalid
+PASS @function --foo(--x) returns <transform-list>+ is invalid
+PASS @function --foo(--x) returns auto | none is invalid
+PASS @function --foo(--x): <length> is invalid
+PASS @function --foo(--x): length is invalid
+PASS @function --foo(--x) returneth <length> is invalid
+
