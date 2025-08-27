@@ -1245,6 +1245,7 @@ public:
     void setIsolatedTree(Ref<WebCore::AXIsolatedTree>&&);
 #endif
     NSObject *accessibilityObjectForMainFramePlugin();
+    bool shouldFallbackToWebContentAXObjectForMainFramePlugin() const;
     const WebCore::FloatPoint& accessibilityPosition() const { return m_accessibilityPosition; }
 
     void setTextAsync(const String&);

@@ -221,17 +221,6 @@ void WebPage::handleAcceptedCandidate(WebCore::TextCheckingResult acceptedCandid
         frame->protectedEditor()->handleAcceptedCandidate(acceptedCandidate);
 }
 
-NSObject *WebPage::accessibilityObjectForMainFramePlugin()
-{
-    if (!m_page)
-        return nil;
-    
-    if (RefPtr pluginView = mainFramePlugIn())
-        return pluginView->accessibilityObject();
-
-    return nil;
-}
-
 static String commandNameForSelectorName(const String& selectorName)
 {
     // Map selectors into Editor command names.
