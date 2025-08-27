@@ -369,6 +369,20 @@ bool CocoaApplication::isAppleApplication()
     return isAppleApplication;
 }
 
+bool CocoaApplication::shouldOSFaultLogForAppleApplicationUsingWebKit1()
+{
+    static bool bundleIdentifierShouldLog;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        if (!isAppleApplication())
+            return;
+
+        bundleIdentifierShouldLog = !applicationBundleIdentifier().startsWith("com.apple.InstallerRemotePluginService."_s);
+    });
+
+    return bundleIdentifierShouldLog && !((rand() * 100) % 100);
+}
+
 #if PLATFORM(MAC)
 
 bool MacApplication::isSafari()

@@ -153,6 +153,7 @@ namespace CocoaApplication {
 WTF_EXPORT_PRIVATE bool isAppleApplication();
 WTF_EXPORT_PRIVATE bool isAppleBooks();
 WTF_EXPORT_PRIVATE bool isWebkitTestRunner();
+WTF_EXPORT_PRIVATE bool shouldOSFaultLogForAppleApplicationUsingWebKit1();
 
 }
 
