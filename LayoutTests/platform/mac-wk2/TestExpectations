@@ -2427,3 +2427,5 @@ webkit.org/b/297006 [ Debug ] http/tests/media/media-element-frame-destroyed-cra
 http/wpt/service-workers/service-worker-spinning-activate.https.html [ Failure ]
 
 webkit.org/b/297428 http/tests/navigation/ping-attribute/anchor-cookie.html [ Pass Failure ]
+
+webkit.org/b/267778 [ Release ] fast/forms/listbox-padding-clip-selected.html [ Pass ImageOnlyFailure ]
