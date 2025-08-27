@@ -282,10 +282,6 @@ interface TestRunner {
 
     unsigned long imageCountInGeneralPasteboard();
 
-    // UI Process Testing
-    undefined runUIScript(DOMString script, object callback);
-    undefined runUIScriptImmediately(DOMString script, object callback);
-
     undefined accummulateLogsForChannel(DOMString channel);
 
     // Contextual menu actions

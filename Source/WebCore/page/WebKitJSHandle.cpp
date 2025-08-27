@@ -33,7 +33,7 @@
 namespace WebCore {
 
 // FIXME: Make PairHashTraits work with PeekTypes and use a map<identifier, pair> instead of 2 hash lookups.
-using HandleMap = HashMap<JSHandleIdentifier, JSC::Weak<JSC::JSObject>>;
+using HandleMap = HashMap<JSHandleIdentifier, JSC::Strong<JSC::JSObject>>;
 static HandleMap& handleMap()
 {
     static MainThreadNeverDestroyed<HandleMap> map;
@@ -55,7 +55,7 @@ void WebKitJSHandle::jsHandleDestroyed(JSHandleIdentifier identifier)
 
 std::pair<RefPtr<Document>, JSC::JSObject*> WebKitJSHandle::objectForIdentifier(JSHandleIdentifier identifier)
 {
-    return { documentMap().get(identifier).get(), handleMap().get(identifier) };
+    return { documentMap().get(identifier).get(), handleMap().get(identifier).get() };
 }
 
 static Markable<FrameIdentifier> windowFrameIdentifier(JSC::JSObject* object)
@@ -71,7 +71,7 @@ WebKitJSHandle::WebKitJSHandle(Document& document, JSC::JSObject* object)
     : m_identifier(JSHandleIdentifier::generate())
     , m_windowFrameIdentifier(WebCore::windowFrameIdentifier(object))
 {
-    handleMap().add(m_identifier, JSC::Weak<JSC::JSObject> { object });
+    handleMap().add(m_identifier, JSC::Strong<JSC::JSObject> { document.vm(), object });
     documentMap().add(m_identifier, WeakPtr { document });
 }
 

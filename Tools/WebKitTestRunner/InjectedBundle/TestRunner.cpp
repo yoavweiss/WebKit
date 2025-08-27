@@ -599,7 +599,6 @@ enum {
     TextDidChangeInTextFieldCallbackID = 1,
     TextFieldDidBeginEditingCallbackID,
     TextFieldDidEndEditingCallbackID,
-    FirstUIScriptCallbackID = 100
 };
 
 static void cacheTestRunnerCallback(JSContextRef context, unsigned index, JSValueRef callback)
@@ -1073,37 +1072,6 @@ void TestRunner::terminateServiceWorkers()
 void TestRunner::setUseSeparateServiceWorkerProcess(bool value)
 {
     postSynchronousPageMessage("SetUseSeparateServiceWorkerProcess", value);
-}
-
-static unsigned nextUIScriptCallbackID()
-{
-    static unsigned callbackID = FirstUIScriptCallbackID;
-    return callbackID++;
-}
-
-void TestRunner::runUIScript(JSContextRef context, JSStringRef script, JSValueRef callback)
-{
-    unsigned callbackID = nextUIScriptCallbackID();
-    cacheTestRunnerCallback(context, callbackID, callback);
-    postPageMessage("RunUIProcessScript", createWKDictionary({
-        { "Script", toWK(script) },
-        { "CallbackID", adoptWK(WKUInt64Create(callbackID)).get() },
-    }));
-}
-
-void TestRunner::runUIScriptImmediately(JSContextRef context, JSStringRef script, JSValueRef callback)
-{
-    unsigned callbackID = nextUIScriptCallbackID();
-    cacheTestRunnerCallback(context, callbackID, callback);
-    postPageMessage("RunUIProcessScriptImmediately", createWKDictionary({
-        { "Script", toWK(script) },
-        { "CallbackID", adoptWK(WKUInt64Create(callbackID)).get() },
-    }));
-}
-
-void TestRunner::runUIScriptCallback(unsigned callbackID, JSStringRef result)
-{
-    callTestRunnerCallback(callbackID, result);
 }
 
 void TestRunner::setAllowedMenuActions(JSContextRef context, JSValueRef actions)

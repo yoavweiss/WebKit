@@ -623,26 +623,6 @@ void TestInvocation::didReceiveMessageFromInjectedBundle(WKStringRef messageName
         return;
     }
 
-    if (WKStringIsEqualToUTF8CString(messageName, "RunUIProcessScript")) {
-        auto messageBodyDictionary = dictionaryValue(messageBody);
-        auto invocationData = new UIScriptInvocationData;
-        invocationData->testInvocation = this;
-        invocationData->callbackID = uint64Value(messageBodyDictionary, "CallbackID");
-        invocationData->scriptString = stringValue(messageBodyDictionary, "Script");
-        WKPageCallAfterNextPresentationUpdate(TestController::singleton().mainWebView()->page(), invocationData, runUISideScriptAfterUpdateCallback);
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "RunUIProcessScriptImmediately")) {
-        auto messageBodyDictionary = dictionaryValue(messageBody);
-        auto invocationData = new UIScriptInvocationData;
-        invocationData->testInvocation = this;
-        invocationData->callbackID = uint64Value(messageBodyDictionary, "CallbackID");
-        invocationData->scriptString = stringValue(messageBodyDictionary, "Script");
-        runUISideScriptImmediately(nullptr, invocationData);
-        return;
-    }
-
     if (WKStringIsEqualToUTF8CString(messageName, "SetAllowedMenuActions")) {
         auto messageBodyArray = static_cast<WKArrayRef>(messageBody);
         auto size = WKArrayGetSize(messageBodyArray);
@@ -1479,21 +1459,6 @@ WKRetainPtr<WKTypeRef> TestInvocation::didReceiveSynchronousMessageFromInjectedB
     return nullptr;
 }
 
-void TestInvocation::runUISideScriptImmediately(WKErrorRef, void* context)
-{
-    UIScriptInvocationData* data = static_cast<UIScriptInvocationData*>(context);
-    if (TestInvocation* invocation = data->testInvocation.get()) {
-        RELEASE_ASSERT(TestController::singleton().isCurrentInvocation(invocation));
-        invocation->runUISideScript(data->scriptString.get(), data->callbackID);
-    }
-    delete data;
-}
-
-void TestInvocation::runUISideScriptAfterUpdateCallback(WKErrorRef error, void* context)
-{
-    runUISideScriptImmediately(error, context);
-}
-
 void TestInvocation::runUISideScript(WKStringRef script, unsigned scriptCallbackID)
 {
     if (!m_UIScriptContext)
@@ -1504,10 +1469,7 @@ void TestInvocation::runUISideScript(WKStringRef script, unsigned scriptCallback
 
 void TestInvocation::uiScriptDidComplete(const String& result, unsigned scriptCallbackID)
 {
-    auto messageBody = adoptWK(WKMutableDictionaryCreate());
-    setValue(messageBody, "Result", result);
-    setValue(messageBody, "CallbackID", static_cast<uint64_t>(scriptCallbackID));
-    postPageMessage("CallUISideScriptCallback", messageBody);
+    TestController::singleton().uiScriptDidComplete(result, scriptCallbackID);
 }
 
 void TestInvocation::outputText(const WTF::String& text)

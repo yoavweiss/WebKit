@@ -2779,7 +2779,7 @@ void WKPageEvaluateJavaScriptInFrame(WKPageRef pageRef, WKFrameInfoRef frame, WK
     });
 }
 
-void WKPageCallAsyncJavaScript(WKPageRef page, WKStringRef script, WKDictionaryRef arguments, WKFrameInfoRef frame, void* context, WKPageEvaluateJavaScriptFunction callback)
+static void callAsyncJavaScript(bool withUserGesture, WKPageRef page, WKStringRef script, WKDictionaryRef arguments, WKFrameInfoRef frame, void* context, WKPageEvaluateJavaScriptFunction callback)
 {
     auto extractArguments = [] (API::Dictionary* dictionary) -> std::optional<Vector<std::pair<String, JavaScriptEvaluationResult>>> {
         if (!dictionary)
@@ -2800,7 +2800,7 @@ void WKPageCallAsyncJavaScript(WKPageRef page, WKStringRef script, WKDictionaryR
         URL { },
         WebCore::RunAsAsyncFunction::Yes,
         extractArguments(toProtectedImpl(arguments).get()),
-        WebCore::ForceUserGesture::Yes,
+        withUserGesture ? WebCore::ForceUserGesture::Yes : WebCore::ForceUserGesture::No,
         RemoveTransientActivation::Yes
     }, frameID, API::ContentWorld::pageContentWorldSingleton(), !!callback, [context, callback] (auto&& result) {
         if (!callback)
@@ -2810,6 +2810,16 @@ void WKPageCallAsyncJavaScript(WKPageRef page, WKStringRef script, WKDictionaryR
         else
             callback(nullptr, nullptr, context);
     });
+}
+
+void WKPageCallAsyncJavaScript(WKPageRef page, WKStringRef script, WKDictionaryRef arguments, WKFrameInfoRef frame, void* context, WKPageEvaluateJavaScriptFunction callback)
+{
+    callAsyncJavaScript(true, page, script, arguments, frame, context, callback);
+}
+
+void WKPageCallAsyncJavaScriptWithoutUserGesture(WKPageRef page, WKStringRef script, WKDictionaryRef arguments, WKFrameInfoRef frame, void* context, WKPageEvaluateJavaScriptFunction callback)
+{
+    callAsyncJavaScript(false, page, script, arguments, frame, context, callback);
 }
 
 static CompletionHandler<void(const String&)> toStringCallback(void* context, void(*callback)(WKStringRef, WKErrorRef, void*))

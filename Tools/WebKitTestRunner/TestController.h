@@ -467,6 +467,8 @@ public:
 
     void setHasMouseDeviceForTesting(bool);
 
+    void uiScriptDidComplete(const String& result, unsigned scriptCallbackID);
+
 private:
     WKRetainPtr<WKPageConfigurationRef> generatePageConfiguration(const TestOptions&);
     WKRetainPtr<WKContextConfigurationRef> generateContextConfiguration(const TestOptions&) const;
@@ -815,6 +817,7 @@ private:
     Callbacks m_willEndSwipeCallbacks;
     Callbacks m_didEndSwipeCallbacks;
     Callbacks m_didRemoveSwipeSnapshotCallbacks;
+    HashMap<unsigned, Callbacks> m_uiScriptCallbacks;
 
     uint64_t m_serverTrustEvaluationCallbackCallsCount { 0 };
     bool m_shouldDismissJavaScriptAlertsAsynchronously { false };

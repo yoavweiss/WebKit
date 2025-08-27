@@ -83,6 +83,8 @@ public:
 
     void dumpResourceLoadStatisticsIfNecessary();
 
+    void runUISideScript(WKStringRef, unsigned callbackID);
+
 private:
     TestInvocation(WKURLRef, const TestOptions&);
 
@@ -113,18 +115,9 @@ private:
     bool compareActualHashToExpectedAndDumpResults(const std::string&);
 
     static void forceRepaintDoneCallback(WKErrorRef, void* context);
-    
-    struct UIScriptInvocationData {
-        unsigned callbackID;
-        WebKit::WKRetainPtr<WKStringRef> scriptString;
-        WeakPtr<TestInvocation> testInvocation;
-    };
-    static void runUISideScriptAfterUpdateCallback(WKErrorRef, void* context);
-    static void runUISideScriptImmediately(WKErrorRef, void* context);
 
     bool shouldLogHistoryClientCallbacks() const;
 
-    void runUISideScript(WKStringRef, unsigned callbackID);
     // UIScriptContextDelegate
     void uiScriptDidComplete(const String& result, unsigned callbackID) override;
 

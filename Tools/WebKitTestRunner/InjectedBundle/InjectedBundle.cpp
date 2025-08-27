@@ -260,15 +260,6 @@ void InjectedBundle::didReceiveMessageToPage(WKBundlePageRef page, WKStringRef m
         return;
     }
 
-    if (WKStringIsEqualToUTF8CString(messageName, "CallUISideScriptCallback")) {
-        auto messageBodyDictionary = dictionaryValue(messageBody);
-        auto callbackID = uint64Value(messageBodyDictionary, "CallbackID");
-        auto resultString = stringValue(messageBodyDictionary, "Result");
-        if (m_testRunner)
-            m_testRunner->runUIScriptCallback(callbackID, toJS(resultString).get());
-        return;
-    }
-
     if (WKStringIsEqualToUTF8CString(messageName, "WorkQueueProcessedCallback")) {
         if (!topLoadingFrame() && m_testRunner && !m_testRunner->shouldWaitUntilDone())
             InjectedBundle::page()->dump(m_testRunner->shouldForceRepaint());

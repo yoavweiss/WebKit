@@ -385,10 +385,6 @@ public:
     bool didCancelClientRedirect() const { return m_didCancelClientRedirect; }
     void setDidCancelClientRedirect(bool value) { m_didCancelClientRedirect = value; }
 
-    void runUIScript(JSContextRef, JSStringRef script, JSValueRef callback);
-    void runUIScriptImmediately(JSContextRef, JSStringRef script, JSValueRef callback);
-    void runUIScriptCallback(unsigned callbackID, JSStringRef result);
-
     // Contextual menu actions
     void setAllowedMenuActions(JSContextRef, JSValueRef);
 
