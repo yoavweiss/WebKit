@@ -56,8 +56,8 @@
                   { "name": "bot1021", "platform": "mac-sequoia" },
                   { "name": "bot1025", "platform": "mac-sequoia" },
                   { "name": "bot1026", "platform": "mac-sequoia" },
-                  { "name": "bot1027", "platform": "mac-sequoia" },
-                  { "name": "bot1028", "platform": "mac-sequoia" },
+                  { "name": "bot1027", "platform": "*" },
+                  { "name": "bot1028", "platform": "*" },
 
                   { "name": "bot304", "platform": "ios-18" },
                   { "name": "bot305", "platform": "ios-simulator-18" },
@@ -190,7 +190,7 @@
                   { "name": "Apple-Sequoia-Release-World-Leaks-Tests", "factory": "TestWorldLeaksFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
                   "additionalArguments": ["--no-retry-failures"],
-                  "workernames": ["bot1027", "bot1028"]
+                  "workernames": ["bot303"]
                   },
                   { "name": "Apple-Sequoia-Release-AppleSilicon-WK2-Tests", "factory": "TestAllButJSCFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
@@ -223,7 +223,7 @@
                   { "name": "Apple-Sequoia-Release-WK2-Site-Isolation-Tree-Tests", "factory": "TestLayoutFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
                   "additionalArguments": ["--no-retry-failures", "--site-isolation", "--load-in-cross-origin-iframe"],
-                  "workernames": ["bot2000", "bot2001", "bot303"]
+                  "workernames": ["bot2000", "bot2001"]
                   },
                   { "name": "Apple-Sequoia-Debug-Build", "factory": "BuildFactory",
                   "platform": "mac-sequoia", "configuration": "debug", "architectures": ["x86_64", "arm64"],
