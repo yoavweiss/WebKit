@@ -2425,3 +2425,5 @@ webkit.org/b/297006 [ Debug ] http/tests/media/media-element-frame-destroyed-cra
 # webkit.org/b/297974 [ macOS wk2 ] 2x http/wpt/service-workers/ (layout-tests) tests are constant failures 
 [ Release ] http/wpt/service-workers/service-worker-spinning-install.https.html [ Failure ]
 http/wpt/service-workers/service-worker-spinning-activate.https.html [ Failure ]
+
+webkit.org/b/297428 http/tests/navigation/ping-attribute/anchor-cookie.html [ Pass Failure ]
