@@ -123,8 +123,7 @@ LLINT_DECLARE_ROUTINE_VALIDATE(wasm_to_wasm_ipint_wrapper_entry);
 LLINT_DECLARE_ROUTINE_VALIDATE(wasm_to_js_wrapper_entry);
 LLINT_DECLARE_ROUTINE_VALIDATE(ipint_trampoline);
 LLINT_DECLARE_ROUTINE_VALIDATE(ipint_entry);
-LLINT_DECLARE_ROUTINE_VALIDATE(ipint_function_prologue_simd_trampoline);
-LLINT_DECLARE_ROUTINE_VALIDATE(ipint_function_prologue_simd);
+LLINT_DECLARE_ROUTINE_VALIDATE(ipint_simd_entry);
 LLINT_DECLARE_ROUTINE_VALIDATE(ipint_catch_entry);
 LLINT_DECLARE_ROUTINE_VALIDATE(ipint_catch_all_entry);
 LLINT_DECLARE_ROUTINE_VALIDATE(ipint_table_catch_entry);
@@ -187,8 +186,7 @@ static LLIntOperations llintOperations()
             LLINT_ROUTINE(wasm_to_js_wrapper_entry)
             LLINT_ROUTINE(ipint_trampoline)
             LLINT_ROUTINE(ipint_entry)
-            LLINT_ROUTINE(ipint_function_prologue_simd_trampoline)
-            LLINT_ROUTINE(ipint_function_prologue_simd)
+            LLINT_ROUTINE(ipint_simd_entry)
             LLINT_ROUTINE(ipint_catch_entry)
             LLINT_ROUTINE(ipint_catch_all_entry)
             LLINT_ROUTINE(ipint_table_catch_entry)

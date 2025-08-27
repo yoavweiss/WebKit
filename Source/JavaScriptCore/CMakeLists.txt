@@ -214,7 +214,6 @@ set(LLINT_ASM
     llint/LowLevelInterpreter.asm
     llint/LowLevelInterpreter32_64.asm
     llint/LowLevelInterpreter64.asm
-    llint/WebAssembly.asm
 )
 
 set(OFFLINE_ASM
