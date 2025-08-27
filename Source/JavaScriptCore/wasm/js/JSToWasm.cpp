@@ -227,7 +227,7 @@ MacroAssemblerCodeRef<JITThunkPtrTag> createJSToWasmJITShared()
     static std::once_flag onceKey;
     std::call_once(onceKey, [&] {
         // JIT version of js_to_wasm_wrapper_entry
-        // If you change this, make sure to modify WebAssembly.asm:op(js_to_wasm_wrapper_entry)
+        // If you change this, make sure to modify InPlaceInterpreter.asm:op(js_to_wasm_wrapper_entry)
         CCallHelpers jit;
 
         CCallHelpers::JumpList exceptionChecks;
