@@ -60,6 +60,7 @@ private:
     ParentalControlsURLFilter();
 #endif
     WCRBrowserEngineClient* effectiveWCRBrowserEngineClient();
+    bool isWCRBrowserEngineClientEnabled() const;
 
     mutable std::optional<bool> m_isEnabled;
     const RetainPtr<WCRBrowserEngineClient> m_wcrBrowserEngineClient;

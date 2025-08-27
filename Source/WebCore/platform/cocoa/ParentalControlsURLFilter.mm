@@ -120,14 +120,24 @@ void ParentalControlsURLFilter::resetIsEnabled()
     m_isEnabled = std::nullopt;
 }
 
+bool ParentalControlsURLFilter::isWCRBrowserEngineClientEnabled() const
+{
+#if HAVE(WEBCONTENTRESTRICTIONS_PATH_SPI)
+    return wcrBrowserEngineClientEnabled(m_configurationPath);
+#else
+    return wcrBrowserEngineClientEnabled();
+#endif
+}
+
 bool ParentalControlsURLFilter::isEnabled() const
 {
-    if (!m_isEnabled) {
-#if HAVE(WEBCONTENTRESTRICTIONS_PATH_SPI)
-        m_isEnabled = wcrBrowserEngineClientEnabled(m_configurationPath);
-#else
-        m_isEnabled = wcrBrowserEngineClientEnabled();
+#if PLATFORM(MAC)
+    // FIXME: This can be removed after rdar://159207397 is fixed.
+    return isWCRBrowserEngineClientEnabled();
 #endif
+
+    if (!m_isEnabled) {
+        m_isEnabled = isWCRBrowserEngineClientEnabled();
         RELEASE_LOG(ContentFiltering, "%p - ParentalControlsURLFilter::isEnabled %d", this, *m_isEnabled);
     }
 
