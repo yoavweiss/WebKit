@@ -175,25 +175,25 @@ bool RemoteAudioSessionProxyManager::hasActiveNotInterruptedProxy()
 #if PLATFORM(IOS_FAMILY)
 static void providePresentingApplicationPID(RemoteAudioSessionProxy& proxy)
 {
-    ProcessID pid;
-
-#if PLATFORM(APPLETV)
-    pid = GPUProcess::singleton().parentProcessConnection()->remoteProcessID();
-#else
     RefPtr webProcessConnection = proxy.gpuConnectionToWebProcess();
     if (!webProcessConnection)
         return;
 
-    auto& auditTokens = webProcessConnection->presentingApplicationAuditTokens();
-    ASSERT(!auditTokens.isEmpty());
-    if (auditTokens.isEmpty())
+#if ENABLE(EXTENSION_CAPABILITIES)
+    if (webProcessConnection->sharedPreferencesForWebProcessValue().mediaCapabilityGrantsEnabled)
         return;
+#endif
 
+    ProcessID pid = GPUProcess::singleton().parentProcessConnection()->remoteProcessID();
+
+#if !PLATFORM(APPLETV)
     // Presenting application audit tokens are per-page, but AudioSessions are per-web-process,
     // and it's not straightforward to know in the GPU process which page is responsible for activating
     // the shared AVAudioSession. In reality, all pages in a given web process share a presenting
     // application, so it's sufficient to use the first page's audit token.
-    pid = webProcessConnection->presentingApplicationPID(*auditTokens.keys().begin());
+    auto& auditTokens = webProcessConnection->presentingApplicationAuditTokens();
+    if (!auditTokens.isEmpty())
+        pid = webProcessConnection->presentingApplicationPID(*auditTokens.keys().begin());
 #ifndef NDEBUG
     for (auto& pageIdentifier : auditTokens.keys())
         ASSERT(pid == webProcessConnection->presentingApplicationPID(pageIdentifier));

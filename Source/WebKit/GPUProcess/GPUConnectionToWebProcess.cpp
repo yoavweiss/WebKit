@@ -178,6 +178,20 @@ namespace WebKit {
 using namespace WebCore;
 
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
+
+#if PLATFORM(IOS_FAMILY)
+static void providePresentingApplicationPID(GPUConnectionToWebProcess& process, WebCore::PageIdentifier pageIdentifier)
+{
+#if ENABLE(EXTENSION_CAPABILITIES)
+    if (process.sharedPreferencesForWebProcessValue().mediaCapabilityGrantsEnabled)
+        return;
+#endif
+
+    ASSERT(process.presentingApplicationPID(pageIdentifier));
+    MediaSessionHelper::sharedHelper().providePresentingApplicationPID(process.presentingApplicationPID(pageIdentifier));
+}
+#endif
+
 class GPUProxyForCapture final : public UserMediaCaptureManagerProxy::ConnectionProxy {
     WTF_MAKE_TZONE_ALLOCATED_INLINE(GPUProxyForCapture);
 public:
@@ -240,8 +254,7 @@ private:
             process->startCapturingAudio();
 #if PLATFORM(IOS_FAMILY)
         else if (type == CaptureDevice::DeviceType::Camera) {
-            ASSERT(process->presentingApplicationPID(pageIdentifier));
-            MediaSessionHelper::sharedHelper().providePresentingApplicationPID(process->presentingApplicationPID(pageIdentifier));
+            providePresentingApplicationPID(*process, pageIdentifier);
 #if HAVE(AVCAPTUREDEVICEROTATIONCOORDINATOR)
             AVVideoCaptureSource::setUseAVCaptureDeviceRotationCoordinatorAPI(process->sharedPreferencesForWebProcess() && process->sharedPreferencesForWebProcess()->useAVCaptureDeviceRotationCoordinatorAPI);
 #endif
