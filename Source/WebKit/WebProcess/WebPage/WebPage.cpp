@@ -700,6 +700,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 #if PLATFORM(IOS_FAMILY)
     , m_updateLayoutViewportHeightExpansionTimer(*this, &WebPage::updateLayoutViewportHeightExpansionTimerFired, updateLayoutViewportHeightExpansionTimerInterval)
 #endif
+    , m_overrideReferrerForAllRequests(parameters.overrideReferrerForAllRequests)
 #if ENABLE(IPC_TESTING_API)
     , m_visitedLinkTableID(parameters.visitedLinkTableID)
 #endif

@@ -400,12 +400,14 @@ static void addParametersShared(const LocalFrame* frame, NetworkResourceLoadPara
         parameters.pageHasResourceLoadClient = page->hasResourceLoadClient();
         page->logMediaDiagnosticMessage(parameters.request.httpBody());
 
-#if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
         if (RefPtr webPage = WebPage::fromCorePage(*page)) {
+            if (!webPage->overrideReferrerForAllRequests().isNull())
+                parameters.request.setHTTPHeaderField(HTTPHeaderName::Referer, webPage->overrideReferrerForAllRequests());
+#if ENABLE(WK_WEB_EXTENSIONS) && PLATFORM(COCOA)
             if (RefPtr extensionControllerProxy = webPage->webExtensionControllerProxy())
                 parameters.pageHasLoadedWebExtensions = extensionControllerProxy->hasLoadedContexts();
-        }
 #endif
+        }
     }
 
     if (RefPtr ownerElement = frame->ownerElement()) {

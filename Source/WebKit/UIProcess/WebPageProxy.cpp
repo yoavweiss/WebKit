@@ -11909,6 +11909,7 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
         .webPageProxyIdentifier = identifier(),
         .pageGroupData = m_pageGroup->data(),
         .visitedLinkTableID = m_visitedLinkStore->identifier(),
+        .overrideReferrerForAllRequests = m_configuration->overrideReferrerForAllRequests(),
         .userContentControllerParameters = userContentController->parameters(),
         .mainFrameIdentifier = mainFrameIdentifier,
         .openedMainFrameName = m_openedMainFrameName,

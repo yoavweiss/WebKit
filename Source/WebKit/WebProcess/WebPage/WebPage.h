@@ -2020,6 +2020,8 @@ public:
 
     WebHistoryItemClient& historyItemClient() const { return m_historyItemClient.get(); }
 
+    const String& overrideReferrerForAllRequests() const { return m_overrideReferrerForAllRequests; }
+
     bool isAlwaysOnLoggingAllowed() const;
 
     void callAfterPendingSyntheticClick(CompletionHandler<void(WebCore::SyntheticClickResult)>&&);
@@ -3103,6 +3105,7 @@ private:
     bool m_textManipulationIncludesSubframes { false };
 
     Vector<String> m_corsDisablingPatterns;
+    const String m_overrideReferrerForAllRequests;
 
     std::unique_ptr<WebCore::CachedPage> m_cachedPage;
 

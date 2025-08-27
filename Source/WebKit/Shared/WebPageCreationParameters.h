@@ -178,6 +178,7 @@ struct WebPageCreationParameters {
     bool hasResourceLoadClient { false };
 
     Vector<String> mimeTypesWithCustomContentProviders { };
+    String overrideReferrerForAllRequests;
 
     bool controlledByAutomation { false };
     bool isProcessSwap { false };

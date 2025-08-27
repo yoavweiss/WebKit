@@ -765,6 +765,16 @@ static NSString *defaultApplicationNameForUserAgent()
     [self setShowsSystemScreenTimeBlockingView:shows];
 }
 
+- (void)_setOverrideReferrerForAllRequests:(NSString *)referrer
+{
+    _pageConfiguration->setOverrideReferrerForAllRequests(referrer);
+}
+
+- (NSString *)_overrideReferrerForAllRequests
+{
+    return _pageConfiguration->overrideReferrerForAllRequests().createNSString().autorelease();
+}
+
 - (BOOL)_allowTopNavigationToDataURLs
 {
     return _pageConfiguration->allowTopNavigationToDataURLs();
