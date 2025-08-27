@@ -887,8 +887,8 @@ private:
 
     unsigned m_barrierThreshold { Options::forceFencedBarrier() ? tautologicalThreshold : blackThreshold };
 
-    Seconds m_lastFullGCLength { 10_ms };
-    Seconds m_lastEdenGCLength { 10_ms };
+    Seconds m_lastFullGCLength { 2_ms };
+    Seconds m_lastEdenGCLength { 2_ms };
 
     Vector<WeakBlock*> m_logicallyEmptyWeakBlocks;
     size_t m_indexOfNextLogicallyEmptyWeakBlockToSweep { WTF::notFound };
