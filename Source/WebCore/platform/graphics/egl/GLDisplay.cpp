@@ -162,15 +162,14 @@ static Vector<GLDisplay::DMABufFormat> queryDMABufFormats(EGLDisplay eglDisplay,
     if (!s_eglQueryDmaBufFormatsEXT(eglDisplay, formatsCount, reinterpret_cast<EGLint*>(formats.mutableSpan().data()), &formatsCount))
         return { };
 
-    static PFNEGLQUERYDMABUFMODIFIERSEXTPROC s_eglQueryDmaBufModifiersEXT = supportModifiers ?
-        reinterpret_cast<PFNEGLQUERYDMABUFMODIFIERSEXTPROC>(eglGetProcAddress("eglQueryDmaBufModifiersEXT")) : nullptr;
+    static PFNEGLQUERYDMABUFMODIFIERSEXTPROC s_eglQueryDmaBufModifiersEXT = reinterpret_cast<PFNEGLQUERYDMABUFMODIFIERSEXTPROC>(eglGetProcAddress("eglQueryDmaBufModifiersEXT"));
 
     return WTF::compactMap(supportedFormats, [&](auto format) -> std::optional<GLDisplay::DMABufFormat> {
         if (!formats.contains(format))
             return std::nullopt;
 
         Vector<uint64_t, 1> dmabufModifiers = { DRM_FORMAT_MOD_INVALID };
-        if (s_eglQueryDmaBufModifiersEXT) {
+        if (supportModifiers && s_eglQueryDmaBufModifiersEXT) {
             EGLint modifiersCount;
             if (s_eglQueryDmaBufModifiersEXT(eglDisplay, format, 0, nullptr, nullptr, &modifiersCount) && modifiersCount) {
                 Vector<EGLuint64KHR> modifiers(modifiersCount);
