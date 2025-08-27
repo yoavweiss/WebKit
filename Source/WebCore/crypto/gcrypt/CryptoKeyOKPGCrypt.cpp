@@ -100,13 +100,13 @@ static std::optional<std::pair<Vector<uint8_t>, Vector<uint8_t>>> gcryptGenerate
     // private key is just 32 random bytes
     PAL::GCrypt::Handle<gcry_mpi_t> mpi(gcry_mpi_new(256));
     gcry_mpi_randomize(mpi, 256, GCRY_STRONG_RANDOM);
-    auto q = mpiData(mpi);
-    if (!q) [[unlikely]]
+    auto d = mpiData(mpi);
+    if (!d) [[unlikely]]
         return std::nullopt;
 
     // public key being X25519(a, 9), as defined in [RFC7748], section 6.1.
-    auto d = GCrypt::RFC7748::X25519(*q, GCrypt::RFC7748::c_X25519BasePointU);
-    if (!d) [[unlikely]]
+    auto q = GCrypt::RFC7748::X25519(*d, GCrypt::RFC7748::c_X25519BasePointU);
+    if (!q) [[unlikely]]
         return std::nullopt;
 
     return std::make_pair(WTFMove(*q), WTFMove(*d));
