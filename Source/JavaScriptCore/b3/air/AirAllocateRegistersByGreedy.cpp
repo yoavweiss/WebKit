@@ -2136,7 +2136,7 @@ private:
 
 void allocateRegistersByGreedy(Code& code)
 {
-    PhaseScope phaseScope(code, "allocateRegistersAndStackByGreedy"_s);
+    PhaseScope phaseScope(code, "allocateRegistersByGreedy"_s);
     dataLogIf(Greedy::verbose(), "Air before greedy register allocation:\n", code);
     Greedy::GreedyAllocator allocator(code);
     allocator.run();
