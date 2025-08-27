@@ -4664,9 +4664,7 @@ mintAlign(_end)
     move mintRetDst, sp
 
     push MC
-    loadp Callee[cfr], ws0
-    unboxWasmCallee(ws0, ws1)
-    storep ws0, UnboxedWasmCalleeStackSlot[cfr]
+    getIPIntCallee()
     pop MC
 
     # Restore memory

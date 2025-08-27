@@ -6010,6 +6010,7 @@
 		F6F1501B2693D33E004B98EF /* TemporalNow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TemporalNow.cpp; sourceTree = "<group>"; };
 		F6F150202693D450004B98EF /* TemporalObject.lut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TemporalObject.lut.h; sourceTree = "<group>"; };
 		F73926918DC64330AFCDF0D7 /* JSSourceCode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSSourceCode.cpp; sourceTree = "<group>"; };
+		FE00262223F3AF33003A358F /* WebAssembly.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = WebAssembly.asm; path = llint/WebAssembly.asm; sourceTree = "<group>"; };
 		FE041552252EC0730091EB5D /* SlotVisitorMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SlotVisitorMacros.h; sourceTree = "<group>"; };
 		FE05D3A42E53FBE5007668DD /* VMManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMManager.h; sourceTree = "<group>"; };
 		FE05D3A52E53FBE5007668DD /* VMManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VMManager.cpp; sourceTree = "<group>"; };
@@ -6477,6 +6478,7 @@
 				0F4680C814BBB16900BFE272 /* LowLevelInterpreter.h */,
 				86A054471556451B00445157 /* LowLevelInterpreter32_64.asm */,
 				86A054481556451B00445157 /* LowLevelInterpreter64.asm */,
+				FE00262223F3AF33003A358F /* WebAssembly.asm */,
 			);
 			name = llint;
 			sourceTree = "<group>";

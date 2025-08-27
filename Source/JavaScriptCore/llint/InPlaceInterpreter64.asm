@@ -6514,9 +6514,7 @@ if X86_64
 end
 
     # Restore PC / MC
-    loadp Callee[cfr], ws0
-    unboxWasmCallee(ws0, ws1)
-    storep ws0, UnboxedWasmCalleeStackSlot[cfr]
+    getIPIntCallee()
 if X86_64
     move sc2, wasmInstance
     loadq 8[sc3], PL
