@@ -2419,3 +2419,5 @@ webkit.org/b/297674 [ Sonoma Release ] http/wpt/mediarecorder/MediaRecorder-matr
 webkit.org/b/297806 http/tests/permissions/storage-access-permissions-query.html [ Pass Timeout ]
 
 webkit.org/b/297860 http/tests/site-isolation/edge-sampling-viewport-constrained-object.html [ Skip ]
+
+webkit.org/b/297006 [ Debug ] http/tests/media/media-element-frame-destroyed-crash.html [ Skip ]
