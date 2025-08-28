@@ -6020,7 +6020,13 @@ void ObjectPatternNode::toString(StringBuilder& builder) const
     
 void ObjectPatternNode::bindValue(BytecodeGenerator& generator, RegisterID* rhs) const
 {
-    generator.emitRequireObjectCoercible(rhs, "Right side of assignment cannot be destructured"_s);
+    const Identifier* firstPropertyName = nullptr;
+    if (!m_targetPatterns.isEmpty()) {
+        const auto& firstTarget = m_targetPatterns[0];
+        if (!firstTarget.propertyExpression && !firstTarget.propertyName.isNull() && !firstTarget.propertyName.isPrivateName())
+            firstPropertyName = &firstTarget.propertyName;
+    }
+    generator.emitRequireObjectCoercibleForDestructuring(rhs, firstPropertyName);
 
     BytecodeGenerator::PreservedTDZStack preservedTDZStack;
     generator.preserveTDZStack(preservedTDZStack);

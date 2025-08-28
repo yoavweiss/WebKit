@@ -1,6 +1,6 @@
 
 
-FAIL With Create: Policy to use: null, is cross-origin: false, is allowed by policy: true promise_test: Unhandled rejection with value: object "TypeError: Right side of assignment cannot be destructured"
+FAIL With Create: Policy to use: null, is cross-origin: false, is allowed by policy: true promise_test: Unhandled rejection with value: object "TypeError: Cannot destructure property 'name' from null or undefined value"
 PASS With Create: Policy to use: null, is cross-origin: true, is allowed by policy: false
 PASS With Create: Policy to use: digital-credentials-create, is cross-origin: false, is allowed by policy: true
 PASS With Create: Policy to use: digital-credentials-create, is cross-origin: true, is allowed by policy: true

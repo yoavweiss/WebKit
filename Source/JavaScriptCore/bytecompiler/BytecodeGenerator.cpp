@@ -4937,6 +4937,19 @@ void BytecodeGenerator::emitRequireObjectCoercible(RegisterID* value, ASCIILiter
     emitLabel(target.get());
 }
 
+void BytecodeGenerator::emitRequireObjectCoercibleForDestructuring(RegisterID* value, const Identifier* propertyName)
+{
+    Ref<Label> target = newLabel();
+    OpJnundefinedOrNull::emit(this, value, target->bind(this));
+
+    if (propertyName && !propertyName->isNull())
+        emitThrowTypeError(Identifier::fromString(m_vm, makeString("Cannot destructure property '"_s, propertyName->string(), "' from null or undefined value"_s)));
+    else
+        emitThrowTypeError("Cannot destructure null or undefined value"_s);
+
+    emitLabel(target.get());
+}
+
 void BytecodeGenerator::emitYieldPoint(RegisterID* argument, JSAsyncGenerator::AsyncGeneratorSuspendReason result)
 {
     Ref<Label> mergePoint = newLabel();

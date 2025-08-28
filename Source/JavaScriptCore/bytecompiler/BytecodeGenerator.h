@@ -947,6 +947,7 @@ namespace JSC {
         RegisterID* emitIsDisposableStack(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, DisposableStackType); }
         RegisterID* emitIsAsyncDisposableStack(RegisterID* dst, RegisterID* src) { return emitIsCellWithType(dst, src, AsyncDisposableStackType); }
         void emitRequireObjectCoercible(RegisterID* value, ASCIILiteral error);
+        void emitRequireObjectCoercibleForDestructuring(RegisterID* value, const Identifier* propertyName);
 
         void emitIteratorOpen(RegisterID* iterator, RegisterID* nextOrIndex, RegisterID* symbolIterator, CallArguments& iterable, const ThrowableExpressionData*);
         void emitIteratorNext(RegisterID* done, RegisterID* value, RegisterID* iterable, RegisterID* nextOrIndex, CallArguments& iterator, const ThrowableExpressionData*);
