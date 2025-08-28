@@ -235,6 +235,8 @@ void RuleSetBuilder::addChildRule(Ref<StyleRuleBase> rule)
     case StyleRuleType::Margin:
     case StyleRuleType::Namespace:
     case StyleRuleType::FontFeatureValuesBlock:
+    case StyleRuleType::Function:
+    case StyleRuleType::FunctionDeclarations:
         return;
 
     case StyleRuleType::Charset:

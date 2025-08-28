@@ -587,6 +587,8 @@ bool StyleSheetContents::traverseSubresources(NOESCAPE const Function<bool(const
         case StyleRuleType::StartingStyle:
         case StyleRuleType::ViewTransition:
         case StyleRuleType::PositionTry:
+        case StyleRuleType::Function:
+        case StyleRuleType::FunctionDeclarations:
             return false;
         };
         ASSERT_NOT_REACHED();
@@ -662,6 +664,8 @@ bool StyleSheetContents::mayDependOnBaseURL() const
         case StyleRuleType::StartingStyle:
         case StyleRuleType::ViewTransition:
         case StyleRuleType::PositionTry:
+        case StyleRuleType::Function:
+        case StyleRuleType::FunctionDeclarations:
             return false;
         };
         ASSERT_NOT_REACHED();

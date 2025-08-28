@@ -12798,6 +12798,18 @@
                 }
             }
         },
+        "@function": {
+            "result": {
+                "codegen-properties": {
+                    "settings-flag": "cssFunctionAtRuleEnabled",
+                    "parser-grammar": "<declaration-value>?"
+                },
+                "specification": {
+                    "category": "css-mixins",
+                    "url": "https://www.w3.org/TR/css-mixins-1/#descdef-function-result"
+                }
+            }
+        },
         "@view-transition": {
             "navigation": {
                 "values": [
@@ -12976,6 +12988,11 @@
             "shortname": "CSS Masking",
             "longname": "CSS Masking Module",
             "url": "https://drafts.fxtf.org/css-masking-1/"
+        },
+        "css-mixins": {
+            "shortname": "CSS Functions and Mixins",
+            "longname": "CSS Functions and Mixins Module",
+            "url": "https://www.w3.org/TR/css-mixins-1"
         },
         "css-motion-path": {
             "shortname": "CSS Motion Path",
