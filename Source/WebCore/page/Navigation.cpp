@@ -430,8 +430,9 @@ Navigation::Result Navigation::navigate(const String& url, NavigateOptions&& opt
     if (!newURL.isValid())
         return createErrorResult(WTFMove(committed), WTFMove(finished), ExceptionCode::SyntaxError, "Invalid URL"_s);
 
-    if (options.history == HistoryBehavior::Push && newURL.protocolIsJavaScript())
-        return createErrorResult(WTFMove(committed), WTFMove(finished), ExceptionCode::NotSupportedError, "A \"push\" navigation was explicitly requested, but only a \"replace\" navigation is possible when navigating to a javascript: URL."_s);
+    // Reject all JavaScript URLs in Navigation API.
+    if (newURL.protocolIsJavaScript())
+        return createErrorResult(WTFMove(committed), WTFMove(finished), ExceptionCode::NotSupportedError, "Navigation API does not support javascript: URLs."_s);
 
     if (options.history == HistoryBehavior::Push && currentURL.isAboutBlank())
         return createErrorResult(WTFMove(committed), WTFMove(finished), ExceptionCode::NotSupportedError, "A \"push\" navigation was explicitly requested, but only a \"replace\" navigation is possible while on an about:blank document."_s);
