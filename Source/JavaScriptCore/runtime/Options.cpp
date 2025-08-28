@@ -819,6 +819,12 @@ void Options::notifyOptionsChanged()
     if (!Options::useWasmIPInt())
         Options::thresholdForBBQOptimizeAfterWarmUp() = 0; // Trigger immediate BBQ tier up.
 
+#if CPU(ARM_THUMB2)
+    // WasmIPInt is not supported on ARM32, so disable wasm if BBQJIT is disabled.
+    if (Options::useWasm() && !Options::useBBQJIT())
+        Options::useWasm() = false;
+#endif
+
     // At initialization time, we may decide that useJIT should be false for any
     // number of reasons (including failing to allocate JIT memory), and therefore,
     // will / should not be able to enable any JIT related services.
