@@ -29,10 +29,6 @@
 #include <WebCore/Widget.h>
 #include <wtf/Platform.h>
 
-#if PLATFORM(COCOA)
-typedef struct objc_object* id;
-#endif
-
 namespace WebCore {
 
 class Element;

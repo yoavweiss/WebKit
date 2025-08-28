@@ -48,7 +48,6 @@
 
 #if PLATFORM(COCOA)
 #import <wtf/RetainPtr.h>
-typedef struct objc_object* id;
 #endif
 
 namespace WebCore {
