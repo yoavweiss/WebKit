@@ -131,7 +131,6 @@ symbols = [
     "_kCAFilterLuminosityBlendMode",
     "_kCAFilterSaturationBlendMode",
     "_kCVPixelBufferPreferRealTimeCacheModeIfEveryoneDoesKey",
-    "_kMRMediaRemoteCommandInfoPreferredIntervalsKey",
 ]
 
 [[legacy]]
