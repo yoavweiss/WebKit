@@ -35,7 +35,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <gio/gunixconnection.h>
 #include <poll.h>
 #include <wtf/Assertions.h>
 #include <wtf/MallocSpan.h>
@@ -46,6 +45,7 @@
 
 #if USE(GLIB)
 #include <gio/gio.h>
+#include <gio/gunixconnection.h>
 #include <wtf/glib/GUniquePtr.h>
 #endif
 
