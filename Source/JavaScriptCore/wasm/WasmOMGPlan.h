@@ -48,7 +48,7 @@ public:
     static FunctionAllowlist& ensureGlobalOMGAllowlist();
 
     // Note: CompletionTask should not hold a reference to the Plan otherwise there will be a reference cycle.
-    OMGPlan(VM&, Ref<Module>&&, FunctionCodeIndex functionIndex, std::optional<bool> hasExceptionHandlers, MemoryMode, CompletionTask&&);
+    OMGPlan(VM&, Ref<Module>&&, FunctionCodeIndex functionIndex, bool hasExceptionHandlers, MemoryMode, CompletionTask&&);
 
 private:
     // For some reason friendship doesn't extend to parent classes...
@@ -65,7 +65,7 @@ private:
     const Ref<Module> m_module;
     const Ref<CalleeGroup> m_calleeGroup;
     bool m_completed { false };
-    std::optional<bool> m_hasExceptionHandlers;
+    bool m_hasExceptionHandlers;
     FunctionCodeIndex m_functionIndex;
 };
 

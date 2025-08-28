@@ -52,7 +52,7 @@ class BBQPlan final : public Plan {
 public:
     using Base = Plan;
 
-    static Ref<BBQPlan> create(VM& vm, Ref<ModuleInformation>&& info, FunctionCodeIndex functionIndex, std::optional<bool> hasExceptionHandlers, Ref<CalleeGroup>&& calleeGroup, CompletionTask&& completionTask)
+    static Ref<BBQPlan> create(VM& vm, Ref<ModuleInformation>&& info, FunctionCodeIndex functionIndex, bool hasExceptionHandlers, Ref<CalleeGroup>&& calleeGroup, CompletionTask&& completionTask)
     {
         return adoptRef(*new BBQPlan(vm, WTFMove(info), functionIndex, hasExceptionHandlers, WTFMove(calleeGroup), WTFMove(completionTask)));
     }
@@ -65,7 +65,7 @@ public:
 
 
 private:
-    BBQPlan(VM&, Ref<ModuleInformation>&&, FunctionCodeIndex functionIndex, std::optional<bool> hasExceptionHandlers, Ref<CalleeGroup>&&, CompletionTask&&);
+    BBQPlan(VM&, Ref<ModuleInformation>&&, FunctionCodeIndex functionIndex, bool hasExceptionHandlers, Ref<CalleeGroup>&&, CompletionTask&&);
 
     bool dumpDisassembly(CompilationContext&, LinkBuffer&, const TypeDefinition&, FunctionSpaceIndex functionIndexSpace);
 
@@ -82,7 +82,7 @@ private:
     const Ref<CalleeGroup> m_calleeGroup;
     FunctionCodeIndex m_functionIndex;
     bool m_completed { false };
-    std::optional<bool> m_hasExceptionHandlers;
+    bool m_hasExceptionHandlers;
 };
 
 
