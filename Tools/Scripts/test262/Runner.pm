@@ -882,7 +882,7 @@ sub processResult {
         # expectation fail and (there is no expected failure OR the failure
         # has changed).
         my $isnewfailure = $exitSignalNumber || !$expect
-            || !$expectedfailure || $expectedfailure ne $currentfailure;
+            || !$expectedfailure || (rindex $currentfailure, $expectedfailure, 0) < 0;
 
         # Print the failure if we haven't loaded an expectation file
         # or the failure is new.
