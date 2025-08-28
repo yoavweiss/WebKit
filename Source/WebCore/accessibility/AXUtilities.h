@@ -24,6 +24,11 @@
 
 #pragma once
 
+#include "AXObjectCache.h"
+#include "Element.h"
+#include "Node.h"
+#include "RenderImage.h"
+
 namespace WebCore {
 
 enum class AXNotification : uint8_t;

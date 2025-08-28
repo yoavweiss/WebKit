@@ -26,10 +26,15 @@
 #pragma once
 
 #include <wtf/Expected.h>
+#include <wtf/Noncopyable.h>
 
 namespace JSC {
 
+class CodeBlock;
 class CallFrame;
+class Heap;
+class JSCell;
+class JSValue;
 class VM;
 
 class VMInspector {

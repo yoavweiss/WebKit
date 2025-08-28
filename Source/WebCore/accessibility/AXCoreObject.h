@@ -71,6 +71,7 @@ OBJC_CLASS NSMutableAttributedString;
 namespace WebCore {
 class AccessibilityObjectAtspi;
 }
+
 typedef WebCore::AccessibilityObjectAtspi AccessibilityObjectWrapper;
 
 #elif PLATFORM(PLAYSTATION)
@@ -265,6 +266,12 @@ enum class AccessibilityRole : uint8_t {
     WebApplication,
     WebArea,
 };
+
+namespace AXTableHelpers {
+// This value is what will be used if AccessibilityTableCell determines the cell
+// should not be treated as a cell (e.g. because it is in a layout table).
+static constexpr AccessibilityRole layoutTableCellRole = AccessibilityRole::TextGroup;
+}
 
 using AccessibilityRoleSet = HashSet<AccessibilityRole, IntHash<AccessibilityRole>, WTF::StrongEnumHashTraits<AccessibilityRole>>;
 

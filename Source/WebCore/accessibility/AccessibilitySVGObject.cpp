@@ -29,6 +29,7 @@
 #include "AccessibilitySVGObject.h"
 
 #include "AXObjectCache.h"
+#include "AXUtilities.h"
 #include "ElementChildIteratorInlines.h"
 #include "ElementInlines.h"
 #include "EventTargetInlines.h"

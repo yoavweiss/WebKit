@@ -29,7 +29,7 @@
 #if ENABLE(WEBASSEMBLY)
 
 #include "JITExceptions.h"
-#include "JSString.h"
+#include "JSStringInlines.h"
 #include "JSWebAssemblyArrayInlines.h"
 #include "JSWebAssemblyInstance.h"
 #include "JSWebAssemblyRuntimeError.h"

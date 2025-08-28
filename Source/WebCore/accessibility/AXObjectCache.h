@@ -27,11 +27,14 @@
 
 #include <WebCore/AXTextMarker.h>
 #include <WebCore/AXTreeStore.h>
+#include <WebCore/Document.h>
+#include <WebCore/RenderView.h>
 #include <WebCore/SimpleRange.h>
 #include <WebCore/StyleChange.h>
 #include <WebCore/Timer.h>
 #include <WebCore/VisibleUnits.h>
 #include <limits.h>
+#include <wtf/CheckedPtr.h>
 #include <wtf/Deque.h>
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
@@ -75,10 +78,12 @@ class VisiblePosition;
 class Widget;
 
 struct AXTextStateChangeIntent;
+struct TextMarkerData;
 
 enum class AXNotification : uint8_t;
 enum class AXStreamOptions : uint16_t;
 enum class AXProperty : uint16_t;
+enum class TextMarkerOrigin : uint16_t;
 
 struct CharacterOffset {
     RefPtr<Node> node;
@@ -421,8 +426,8 @@ public:
 #endif
 
     // Text marker utilities.
-    std::optional<TextMarkerData> textMarkerDataForVisiblePosition(const VisiblePosition&, TextMarkerOrigin = TextMarkerOrigin::Unknown);
-    TextMarkerData textMarkerDataForCharacterOffset(const CharacterOffset&, TextMarkerOrigin = TextMarkerOrigin::Unknown);
+    std::optional<TextMarkerData> textMarkerDataForVisiblePosition(const VisiblePosition&, TextMarkerOrigin = static_cast<TextMarkerOrigin>(0));
+    TextMarkerData textMarkerDataForCharacterOffset(const CharacterOffset&, TextMarkerOrigin = static_cast<TextMarkerOrigin>(0));
     TextMarkerData textMarkerDataForNextCharacterOffset(const CharacterOffset&);
     AXTextMarker nextTextMarker(const AXTextMarker&);
     TextMarkerData textMarkerDataForPreviousCharacterOffset(const CharacterOffset&);

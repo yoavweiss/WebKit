@@ -968,11 +968,6 @@ private:
 #endif
 };
 
-inline AXObjectCache* AccessibilityObject::axObjectCache() const
-{
-    return m_axObjectCache.get();
-}
-
 inline bool AccessibilityObject::hasDisplayContents() const
 {
     RefPtr element = this->element();

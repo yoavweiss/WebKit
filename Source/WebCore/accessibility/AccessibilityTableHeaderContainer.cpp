@@ -30,6 +30,7 @@
 #include "AccessibilityTableHeaderContainer.h"
 
 #include "AXObjectCache.h"
+#include "AccessibilityNodeObject.h"
 
 namespace WebCore {
 

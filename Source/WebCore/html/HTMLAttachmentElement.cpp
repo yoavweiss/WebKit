@@ -31,6 +31,7 @@
 #include "AddEventListenerOptions.h"
 #include "AttachmentAssociatedElement.h"
 #include "AttachmentElementClient.h"
+#include "ContainerNodeInlines.h"
 #include "CSSPropertyNames.h"
 #include "CSSUnits.h"
 #include "DOMRectReadOnly.h"

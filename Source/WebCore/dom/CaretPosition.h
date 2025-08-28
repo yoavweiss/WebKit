@@ -27,6 +27,8 @@
 
 #include "ScriptWrappable.h"
 
+#include <wtf/RefCounted.h>
+
 namespace WebCore {
 
 class DOMRect;

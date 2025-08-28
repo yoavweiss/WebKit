@@ -143,6 +143,11 @@ void AccessibilityObject::init()
         ensureRareData();
 }
 
+AXObjectCache* AccessibilityObject::axObjectCache() const
+{
+    return m_axObjectCache.get();
+}
+
 std::optional<AXID> AccessibilityObject::treeID() const
 {
     auto* cache = axObjectCache();

@@ -35,6 +35,8 @@
 
 namespace JSC {
 
+class VM;
+
 class StackManager {
 public:
     class Mirror : public BasicRawSentinelNode<Mirror> {

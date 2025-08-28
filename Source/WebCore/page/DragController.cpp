@@ -35,6 +35,7 @@
 #include "CachedImage.h"
 #include "CachedResourceLoader.h"
 #include "ColorSerialization.h"
+#include "ContainerNodeInlines.h"
 #include "DataTransfer.h"
 #include "Document.h"
 #include "DocumentFragment.h"

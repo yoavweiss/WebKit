@@ -39,6 +39,7 @@
 #include "SVGURIReference.h"
 #include "StyleCachedImage.h"
 #include <wtf/RobinHoodHashSet.h>
+#include <wtf/SetForScope.h>
 #include <wtf/TZoneMallocInlines.h>
 
 #if ENABLE(TREE_DEBUGGING)

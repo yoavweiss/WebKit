@@ -28,7 +28,7 @@
 #include "AXLoggerBase.h"
 #include "AXObjectCache.h"
 #include "Document.h"
-#include "Element.h"
+#include "ElementInlines.h"
 #include "HTMLImageElement.h"
 #include "HTMLMapElement.h"
 #include "HTMLMediaElement.h"

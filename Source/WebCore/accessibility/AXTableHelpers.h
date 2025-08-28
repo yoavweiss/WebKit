@@ -33,6 +33,7 @@ class Node;
 class Element;
 class HTMLTableElement;
 class HTMLTableSectionElement;
+class RenderObject;
 class RenderStyle;
 struct AccessibilityText;
 
@@ -44,10 +45,6 @@ HTMLTableElement* tableElementIncludingAncestors(Node*, RenderObject*);
 bool tableElementIndicatesAccessibleTable(HTMLTableElement&);
 bool tableSectionIndicatesAccessibleTable(HTMLTableSectionElement&, AXObjectCache&);
 bool isDataTableWithTraversal(HTMLTableElement&, AXObjectCache&);
-
-// This value is what will be used if AccessibilityTableCell determines the cell
-// should not be treated as a cell (e.g. because it is in a layout table).
-static constexpr AccessibilityRole layoutTableCellRole = AccessibilityRole::TextGroup;
 
 } // namespace AXTableHelpers
 

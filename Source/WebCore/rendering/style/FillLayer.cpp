@@ -23,6 +23,8 @@
 #include "FillLayer.h"
 
 #include "CachedImage.h"
+#include "Length.h"
+#include "StylePrimitiveNumericTypes+Logging.h"
 #include <wtf/PointerComparison.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/TextStream.h>

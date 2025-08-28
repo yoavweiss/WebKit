@@ -34,6 +34,7 @@
 namespace WebCore {
 
 class Document;
+class DoublePoint;
 class Element;
 class EventTarget;
 class IntPoint;

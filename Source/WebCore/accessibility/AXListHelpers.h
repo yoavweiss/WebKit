@@ -33,6 +33,7 @@
 namespace WebCore {
 
 class AccessibilityObject;
+class Element;
 class Node;
 enum class AccessibilityRole : uint8_t;
 

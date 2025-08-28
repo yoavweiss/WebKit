@@ -43,6 +43,7 @@
 #include "WasmTable.h"
 #include "WebAssemblyBuiltin.h"
 #include "WebAssemblyFunction.h"
+#include "WebAssemblyGCStructure.h"
 #include "WriteBarrier.h"
 #include <wtf/BitVector.h>
 #include <wtf/FixedVector.h>
@@ -57,7 +58,6 @@ namespace JSC {
 class JSModuleNamespaceObject;
 class JSWebAssemblyArray;
 class JSWebAssemblyModule;
-class WebAssemblyGCStructure;
 class WebAssemblyModuleRecord;
 
 // The layout of a JSWebAssemblyInstance is

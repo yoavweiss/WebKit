@@ -50,6 +50,7 @@
 #include "StyleProperties.h"
 #include "TransformState.h"
 #include <ranges>
+#include <wtf/SetForScope.h>
 #include <wtf/StackStats.h>
 #include <wtf/TZoneMallocInlines.h>
 

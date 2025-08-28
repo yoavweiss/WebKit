@@ -26,6 +26,9 @@
 #include "config.h"
 #include "WebKitJSHandle.h"
 
+#include "DOMWindow.h"
+#include "Document.h"
+#include "Frame.h"
 #include "JSWindowProxy.h"
 #include <JavaScriptCore/JSCellInlines.h>
 #include <JavaScriptCore/JSObject.h>

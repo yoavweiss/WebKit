@@ -76,6 +76,7 @@
 #include "HTMLSummaryElement.h"
 #include "HTMLTableCaptionElement.h"
 #include "HTMLTableCellElement.h"
+#include "HTMLTableElement.h"
 #include "HTMLTableRowElement.h"
 #include "HTMLTableSectionElement.h"
 #include "HTMLTextAreaElement.h"

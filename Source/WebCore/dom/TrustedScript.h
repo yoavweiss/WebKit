@@ -26,6 +26,7 @@
 #pragma once
 
 #include <WebCore/ScriptWrappable.h>
+#include <wtf/text/WTFString.h>
 
 namespace WebCore {
 

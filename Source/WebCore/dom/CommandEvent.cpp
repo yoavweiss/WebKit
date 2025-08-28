@@ -26,6 +26,7 @@
 #include "config.h"
 #include "CommandEvent.h"
 
+#include "Document.h"
 #include "Element.h"
 #include "TreeScope.h"
 
