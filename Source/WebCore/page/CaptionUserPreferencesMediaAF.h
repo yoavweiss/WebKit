@@ -78,6 +78,8 @@ public:
     bool shouldFilterTrackMenu() const { return true; }
     
     WEBCORE_EXPORT static void setCaptionPreferencesDelegate(std::unique_ptr<CaptionPreferencesDelegate>&&);
+
+    bool testingMode() const final;
 #else
     bool shouldFilterTrackMenu() const { return false; }
 #endif
