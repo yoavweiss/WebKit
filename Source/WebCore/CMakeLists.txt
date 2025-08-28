@@ -548,6 +548,7 @@ set(WebCore_NON_SVG_IDL_FILES
     Modules/mediastream/RTCDtlsTransport.idl
     Modules/mediastream/RTCDtlsTransportState.idl
     Modules/mediastream/RTCEncodedAudioFrame.idl
+    Modules/mediastream/RTCEncodedStreams.idl
     Modules/mediastream/RTCEncodedVideoFrame.idl
     Modules/mediastream/RTCError.idl
     Modules/mediastream/RTCErrorDetailType.idl
