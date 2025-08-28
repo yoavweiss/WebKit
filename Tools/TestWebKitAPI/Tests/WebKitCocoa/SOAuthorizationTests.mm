@@ -444,7 +444,9 @@ static void configureSOAuthorizationWebView(TestWKWebView *webView, TestSOAuthor
 static String generateHtml(const char* templateHtml, const String& substitute, const String& optionalSubstitute1 = emptyString(), const String& optionalSubstitute2 = emptyString())
 {
     StringPrintStream stream;
+    ALLOW_NONLITERAL_FORMAT_BEGIN
     stream.printf(templateHtml, substitute.utf8().data(), optionalSubstitute1.utf8().data(), optionalSubstitute2.utf8().data());
+    ALLOW_NONLITERAL_FORMAT_END
     return stream.toString();
 }
 

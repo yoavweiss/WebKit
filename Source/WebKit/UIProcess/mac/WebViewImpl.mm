@@ -5269,7 +5269,7 @@ void WebViewImpl::insertText(id string, NSRange replacementRange)
     ASSERT(isAttributedString || [string isKindOfClass:[NSString class]]);
 
     if (replacementRange.location != NSNotFound)
-        LOG(TextInput, "insertText:\"%@\" replacementRange:(%u, %u)", isAttributedString ? [string string] : string, replacementRange.location, replacementRange.length);
+        LOG(TextInput, "insertText:\"%@\" replacementRange:(%zu, %zu)", isAttributedString ? [string string] : string, replacementRange.location, replacementRange.length);
     else
         LOG(TextInput, "insertText:\"%@\"", isAttributedString ? [string string] : string);
 
@@ -5336,9 +5336,9 @@ void WebViewImpl::selectedRangeWithCompletionHandler(void(^completionHandlerPtr)
 
         NSRange result = editingRangeResult;
         if (result.location == NSNotFound)
-            LOG(TextInput, "    -> selectedRange returned (NSNotFound, %llu)", result.length);
+            LOG(TextInput, "    -> selectedRange returned (NSNotFound, %zu)", result.length);
         else
-            LOG(TextInput, "    -> selectedRange returned (%llu, %llu)", result.location, result.length);
+            LOG(TextInput, "    -> selectedRange returned (%zu, %zu)", result.location, result.length);
         completionHandlerBlock(result);
     });
 }
@@ -5352,9 +5352,9 @@ void WebViewImpl::markedRangeWithCompletionHandler(void(^completionHandlerPtr)(N
         void (^completionHandlerBlock)(NSRange) = (void (^)(NSRange))completionHandler.get();
         NSRange result = editingRangeResult;
         if (result.location == NSNotFound)
-            LOG(TextInput, "    -> markedRange returned (NSNotFound, %llu)", result.length);
+            LOG(TextInput, "    -> markedRange returned (NSNotFound, %zu)", result.length);
         else
-            LOG(TextInput, "    -> markedRange returned (%llu, %llu)", result.location, result.length);
+            LOG(TextInput, "    -> markedRange returned (%zu, %zu)", result.location, result.length);
         completionHandlerBlock(result);
     });
 }
@@ -5370,7 +5370,7 @@ void WebViewImpl::hasMarkedTextWithCompletionHandler(void(^completionHandler)(BO
 
 void WebViewImpl::attributedSubstringForProposedRange(NSRange proposedRange, void(^completionHandler)(NSAttributedString *attrString, NSRange actualRange))
 {
-    LOG(TextInput, "attributedSubstringFromRange:(%u, %u)", proposedRange.location, proposedRange.length);
+    LOG(TextInput, "attributedSubstringFromRange:(%zu, %zu)", proposedRange.location, proposedRange.length);
     m_page->attributedSubstringForCharacterRangeAsync(proposedRange, [completionHandler = makeBlockPtr(completionHandler)](const WebCore::AttributedString& string, const EditingRange& actualRange) {
         auto attributedString = string.nsAttributedString();
         LOG(TextInput, "    -> attributedSubstringFromRange returned %@", attributedString.get());
@@ -5380,7 +5380,7 @@ void WebViewImpl::attributedSubstringForProposedRange(NSRange proposedRange, voi
 
 void WebViewImpl::firstRectForCharacterRange(NSRange range, void(^completionHandler)(NSRect firstRect, NSRange actualRange))
 {
-    LOG(TextInput, "firstRectForCharacterRange:(%u, %u)", range.location, range.length);
+    LOG(TextInput, "firstRectForCharacterRange:(%zu, %zu)", range.location, range.length);
 
     // Just to match NSTextView's behavior. Regression tests cannot detect this;
     // to reproduce, use a test application from http://bugs.webkit.org/show_bug.cgi?id=4682
@@ -5421,7 +5421,7 @@ void WebViewImpl::characterIndexForPoint(NSPoint point, void(^completionHandler)
     m_page->characterIndexForPointAsync(WebCore::IntPoint(point), [completionHandler = makeBlockPtr(completionHandler)](uint64_t result) {
         if (result == notFound)
             result = NSNotFound;
-        LOG(TextInput, "    -> characterIndexForPoint returned %lu", result);
+        LOG(TextInput, "    -> characterIndexForPoint returned %llu", result);
         completionHandler(result);
     });
 }
@@ -5579,7 +5579,7 @@ void WebViewImpl::setMarkedText(id string, NSRange selectedRange, NSRange replac
     BOOL isAttributedString = [string isKindOfClass:[NSAttributedString class]];
     ASSERT(isAttributedString || [string isKindOfClass:[NSString class]]);
 
-    LOG(TextInput, "setMarkedText:\"%@\" selectedRange:(%u, %u) replacementRange:(%u, %u)", string, selectedRange.location, selectedRange.length, replacementRange.location, replacementRange.length);
+    LOG(TextInput, "setMarkedText:\"%@\" selectedRange:(%zu, %zu) replacementRange:(%zu, %zu)", string, selectedRange.location, selectedRange.length, replacementRange.location, replacementRange.length);
 
 #if HAVE(INLINE_PREDICTIONS)
     if (RetainPtr attributedString = dynamic_objc_cast<NSAttributedString>(string)) {

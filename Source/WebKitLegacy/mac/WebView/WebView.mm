@@ -7820,13 +7820,13 @@ static NSAppleEventDescriptor* aeDescFromJSValue(JSC::JSGlobalObject* lexicalGlo
 
 - (void)addObserver:(NSObject *)anObserver forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options context:(void *)context
 {
-    LOG (Bindings, "addObserver:%p forKeyPath:%@ options:%x context:%p", anObserver, keyPath, options, context);
+    LOG(Bindings, "addObserver:%p forKeyPath:%@ options:%zx context:%p", anObserver, keyPath, options, context);
     [super addObserver:anObserver forKeyPath:keyPath options:options context:context];
 }
 
 - (void)removeObserver:(NSObject *)anObserver forKeyPath:(NSString *)keyPath
 {
-    LOG (Bindings, "removeObserver:%p forKeyPath:%@", anObserver, keyPath);
+    LOG(Bindings, "removeObserver:%p forKeyPath:%@", anObserver, keyPath);
     [super removeObserver:anObserver forKeyPath:keyPath];
 }
 
