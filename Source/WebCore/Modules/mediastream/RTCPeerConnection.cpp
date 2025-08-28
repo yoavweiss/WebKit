@@ -86,16 +86,13 @@ WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(RTCPeerConnection);
 
 ExceptionOr<Ref<RTCPeerConnection>> RTCPeerConnection::create(Document& document, RTCConfiguration&& configuration)
 {
-    if (!document.frame())
+    if (!document.frame() || !document.settings().peerConnectionEnabled())
         return Exception { ExceptionCode::NotSupportedError };
 
     auto peerConnection = adoptRef(*new RTCPeerConnection(document));
     peerConnection->suspendIfNeeded();
 
-    if (!peerConnection->m_backend)
-        return Exception { ExceptionCode::NotSupportedError };
-
-    auto exception = peerConnection->initializeConfiguration(WTFMove(configuration));
+    auto exception = peerConnection->initializeWithConfiguration(WTFMove(configuration));
     if (exception.hasException())
         return exception.releaseException();
 
@@ -129,18 +126,6 @@ RTCPeerConnection::RTCPeerConnection(Document& document)
 {
     ALWAYS_LOG(LOGIDENTIFIER);
     relaxAdoptionRequirement();
-
-    if (document.settings().peerConnectionEnabled())
-        lazyInitialize(m_backend, PeerConnectionBackend::create(*this));
-
-#if !RELEASE_LOG_DISABLED
-    auto* page = document.page();
-    if (page && !page->settings().webRTCEncryptionEnabled())
-        ALWAYS_LOG(LOGIDENTIFIER, "encryption is disabled");
-#endif
-
-    if (!m_backend)
-        m_connectionState = RTCPeerConnectionState::Closed;
 }
 
 RTCPeerConnection::~RTCPeerConnection()
@@ -588,9 +573,15 @@ ExceptionOr<Vector<MediaEndpointConfiguration::CertificatePEM>> RTCPeerConnectio
     return certificates;
 }
 
-ExceptionOr<void> RTCPeerConnection::initializeConfiguration(RTCConfiguration&& configuration)
+ExceptionOr<void> RTCPeerConnection::initializeWithConfiguration(RTCConfiguration&& configuration)
 {
     INFO_LOG(LOGIDENTIFIER);
+
+#if !RELEASE_LOG_DISABLED
+    RefPtr document = this->document();
+    RefPtr page = document->page();
+    ALWAYS_LOG_IF(page && !page->settings().webRTCEncryptionEnabled(), LOGIDENTIFIER, "encryption is disabled");
+#endif
 
     auto servers = iceServersFromConfiguration(configuration, nullptr, false);
     if (servers.hasException())
@@ -600,7 +591,9 @@ ExceptionOr<void> RTCPeerConnection::initializeConfiguration(RTCConfiguration&& 
     if (certificates.hasException())
         return certificates.releaseException();
 
-    if (!protectedBackend()->setConfiguration({ servers.releaseReturnValue(), configuration.iceTransportPolicy, configuration.bundlePolicy, configuration.rtcpMuxPolicy, configuration.iceCandidatePoolSize, certificates.releaseReturnValue() }))
+    lazyInitialize(m_backend, PeerConnectionBackend::create(*this, { servers.releaseReturnValue(), configuration.iceTransportPolicy, configuration.bundlePolicy, configuration.rtcpMuxPolicy, configuration.iceCandidatePoolSize, certificates.releaseReturnValue() }));
+
+    if (!m_backend)
         return Exception { ExceptionCode::InvalidAccessError, "Bad Configuration Parameters"_s };
 
     m_configuration = WTFMove(configuration);

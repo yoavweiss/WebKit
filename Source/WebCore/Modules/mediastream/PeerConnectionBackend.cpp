@@ -88,7 +88,7 @@ std::optional<RTCRtpCapabilities> PeerConnectionBackend::senderCapabilities(Scri
 
 #else
 
-static std::unique_ptr<PeerConnectionBackend> createNoPeerConnectionBackend(RTCPeerConnection&)
+static std::unique_ptr<PeerConnectionBackend> createNoPeerConnectionBackend(RTCPeerConnection&, MediaEndpointConfiguration&&)
 {
     return nullptr;
 }

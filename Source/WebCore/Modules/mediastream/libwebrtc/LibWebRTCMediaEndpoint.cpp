@@ -70,13 +70,43 @@ IGNORE_CLANG_WARNINGS_END
 
 namespace WebCore {
 
-LibWebRTCMediaEndpoint::LibWebRTCMediaEndpoint(LibWebRTCPeerConnectionBackend& peerConnection, LibWebRTCProvider& client)
-    : m_peerConnectionBackend(peerConnection)
-    , m_peerConnectionFactory(*client.factory())
+static void prepareConfiguration(webrtc::PeerConnectionInterface::RTCConfiguration& configuration)
+{
+    configuration.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
+    configuration.crypto_options = webrtc::CryptoOptions { };
+    configuration.crypto_options->srtp.enable_gcm_crypto_suites = true;
+}
+
+RefPtr<LibWebRTCMediaEndpoint> LibWebRTCMediaEndpoint::create(RTCPeerConnection& peerConnection, LibWebRTCProvider& client, Document& document, webrtc::PeerConnectionInterface::RTCConfiguration&& configuration)
+{
+    prepareConfiguration(configuration);
+
+    Ref endpoint = adoptRef(*new LibWebRTCMediaEndpoint(peerConnection, client, document));
+    RefPtr backend = toRefPtr(client.createPeerConnection(document.identifier(), endpoint, endpoint->m_rtcSocketFactory.get(), WTFMove(configuration)));
+    if (!backend)
+        return { };
+
+    lazyInitialize(endpoint->m_backend, backend.releaseNonNull());
+    return endpoint;
+}
+
+static std::unique_ptr<LibWebRTCProvider::SuspendableSocketFactory> createLibWebRTCMediaEndpointSocketFactory(LibWebRTCProvider& client, Document& document)
+{
+    RegistrableDomain domain { document.url() };
+    bool isFirstParty = domain == RegistrableDomain(document.firstPartyForCookies());
+    auto rtcSocketFactory = client.createSocketFactory(document.userAgent(document.url()), document.identifier(), isFirstParty, WTFMove(domain));
+    if (!client.isSupportingMDNS() && rtcSocketFactory)
+        rtcSocketFactory->disableRelay();
+    return rtcSocketFactory;
+}
+
+LibWebRTCMediaEndpoint::LibWebRTCMediaEndpoint(RTCPeerConnection& peerConnection, LibWebRTCProvider& client, Document& document)
+    : m_peerConnectionFactory(*client.factory())
     , m_createSessionDescriptionObserver(*this)
     , m_setLocalSessionDescriptionObserver(*this)
     , m_setRemoteSessionDescriptionObserver(*this)
     , m_statsLogTimer(*this, &LibWebRTCMediaEndpoint::gatherStatsForLogging)
+    , m_rtcSocketFactory(createLibWebRTCMediaEndpointSocketFactory(client, document))
 #if !RELEASE_LOG_DISABLED
     , m_logger(peerConnection.logger())
     , m_logIdentifier(peerConnection.logIdentifier())
@@ -85,11 +115,17 @@ LibWebRTCMediaEndpoint::LibWebRTCMediaEndpoint(LibWebRTCPeerConnectionBackend& p
     ASSERT(isMainThread());
     ASSERT(client.factory());
 
-    if (!peerConnection.shouldEnableWebRTCL4S())
+    if (!document.settings().webRTCL4SEnabled())
         return;
 
     auto fieldTrials = "WebRTC-RFC8888CongestionControlFeedback/Enabled,force_send:true/"_s;
     webrtc::field_trial::InitFieldTrialsFromString(fieldTrials.characters());
+}
+
+void LibWebRTCMediaEndpoint::setPeerConnectionBackend(LibWebRTCPeerConnectionBackend& peerConnectionBackend)
+{
+    ASSERT(!m_peerConnectionBackend);
+    m_peerConnectionBackend = peerConnectionBackend;
 }
 
 void LibWebRTCMediaEndpoint::restartIce()
@@ -98,25 +134,9 @@ void LibWebRTCMediaEndpoint::restartIce()
         protectedBackend->RestartIce();
 }
 
-bool LibWebRTCMediaEndpoint::setConfiguration(LibWebRTCProvider& client, webrtc::PeerConnectionInterface::RTCConfiguration&& configuration)
+bool LibWebRTCMediaEndpoint::setConfiguration(webrtc::PeerConnectionInterface::RTCConfiguration&& configuration)
 {
-    configuration.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
-    configuration.crypto_options = webrtc::CryptoOptions { };
-    configuration.crypto_options->srtp.enable_gcm_crypto_suites = true;
-
-    if (!m_backend) {
-        Ref peerConnectionBackend = *m_peerConnectionBackend;
-        Ref document = *downcast<Document>(peerConnectionBackend->protectedConnection()->scriptExecutionContext());
-        if (!m_rtcSocketFactory) {
-            RegistrableDomain domain { document->url() };
-            bool isFirstParty = domain == RegistrableDomain(document->firstPartyForCookies());
-            lazyInitialize(m_rtcSocketFactory, client.createSocketFactory(document->userAgent(document->url()), document->identifier(), isFirstParty, WTFMove(domain)));
-            if (!peerConnectionBackend->shouldFilterICECandidates() && m_rtcSocketFactory)
-                m_rtcSocketFactory->disableRelay();
-        }
-        m_backend = toRefPtr(client.createPeerConnection(document->identifier(), *this, m_rtcSocketFactory.get(), WTFMove(configuration)));
-        return !!m_backend;
-    }
+    prepareConfiguration(configuration);
 
     auto oldConfiguration = m_backend->GetConfiguration();
     configuration.certificates = oldConfiguration.certificates;
