@@ -305,10 +305,9 @@ std::optional<PlatformXR::FrameData::LayerData> OpenXRLayerProjection::startFram
     m_nextReusableTextureIndex++;
 
     auto externalTexture = exportOpenXRTexture(*texture);
-    if (!externalTexture) {
-        m_swapchain->releaseImage();
+    if (!externalTexture)
         return std::nullopt;
-    }
+
     layerData.textureData->colorTexture = WTFMove(externalTexture.value());
 
     auto halfWidth = m_swapchain->width() / 2;
