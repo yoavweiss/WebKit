@@ -100,18 +100,12 @@ requires = ["HAVE_WEB_TRANSPORT"]
 # ------------------------------------------------------------------------
 
 [[legacy]]
-classes = [
-    "NSTextBlock",
-]
 selectors = [
-    { name = "allowsHeadTrackedSpatialAudio", class = "?" },
     { name = "borderColorForEdge:", class = "?" },
     { name = "collapsesBorders", class = "?" },
     { name = "hidesEmptyCells", class = "?" },
     { name = "layoutAlgorithm", class = "?" },
-    { name = "newSharedEventWithMachPort:", class = "?" },
     { name = "setBrowserAuditToken:", class = "?" },
-    { name = "supportsHeadTrackedSpatialAudio", class = "?" },
     { name = "transferVideoViewTo:", class = "?" },
     { name = "valueForDimension:", class = "?" },
     { name = "verticalAlignment", class = "?" },
@@ -119,19 +113,27 @@ selectors = [
 ]
 symbols = [
     "_CAIOSurfaceReloadColorAttributes",
-    "_CGIOSurfaceContextGetSurface",
     "_CGIOSurfaceContextInvalidateSurface",
     "_CGPathAddContinuousRoundedRect",
-    "_DDResultGetRange",
-    "_PFMetadataImageSourceIsSpatialMedia",
-    "_VTGetHEVCCapabilitesForFormatDescription",
-    "__UIKitGetTextEffectsCatalog",
     "_kCAFilterColorBlendMode",
     "_kCAFilterHueBlendMode",
     "_kCAFilterLuminosityBlendMode",
     "_kCAFilterSaturationBlendMode",
     "_kCVPixelBufferPreferRealTimeCacheModeIfEveryoneDoesKey",
 ]
+
+[[legacy]]
+selectors = [
+    # In cross-platform cocoa code, but dead-stripped unless ENABLE_WEBXR is active.
+    { name = "newSharedEventWithMachPort:", class = "?" },
+]
+requires = ["!NDEBUG"]
+
+[[legacy]]
+symbols = [
+    "_CGIOSurfaceContextGetSurface",
+]
+requires = ["ASSERT_ENABLED"]
 
 [[legacy]]
 selectors = [
