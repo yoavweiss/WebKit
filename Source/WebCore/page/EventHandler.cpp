@@ -1247,7 +1247,7 @@ bool EventHandler::handleMouseReleaseEvent(const MouseEventWithHitTestResults& e
     // editing, place the caret.
     if (m_mouseDownWasSingleClickInSelection && m_selectionInitiationState != ExtendedSelection
 #if ENABLE(DRAG_SUPPORT)
-            && m_dragStartPosition == event.event().position()
+            && m_dragStartPosition == flooredIntPoint(event.event().position())
 #endif
             && frame->selection().isRange()
             && event.event().button() != MouseButton::Right) {
