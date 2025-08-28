@@ -2529,3 +2529,5 @@ webkit.org/b/297609 compositing/backing/backing-store-attachment-empty-keyframe.
 [ x86_64 ] imported/w3c/web-platform-tests/web-animations/timing-model/animations/reverse-running-animation.html [ Skip ]
 
 webkit.org/b/297691 fast/canvas/webgl/tex-image-and-sub-image-2d-with-video.html [ Pass Failure ]
+
+webkit.org/b/298042 http/tests/security/clipboard/copy-paste-html-cross-origin-iframe-across-origin.html [ Pass Failure ]
