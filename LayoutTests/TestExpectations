@@ -7084,9 +7084,7 @@ imported/w3c/web-platform-tests/html/semantics/interactive-elements/the-dialog-e
 # -- Navigation API -- #
 
 imported/w3c/web-platform-tests/navigation-api/navigate-event/cross-origin-traversal-redirect.html [ Timeout ]
-webkit.org/b/291451 imported/w3c/web-platform-tests/navigation-api/navigation-methods/return-value/navigate-intercept-interrupted.html [ Pass Crash ]
 webkit.org/b/297477 imported/w3c/web-platform-tests/navigation-api/navigate-event/navigate-history-back-bfcache.html [ Timeout Pass Failure ]
-webkit.org/b/297793 imported/w3c/web-platform-tests/navigation-api/navigation-methods/return-value/navigate-intercept.html [ Crash Pass ]
 
 # These cross-window needs --allowed-host=www1.localhost, so tested manually.
 imported/w3c/web-platform-tests/navigation-api/navigate-event/cross-window/click-crossdocument-crossorigin-sameorigindomain.sub.html [ Skip ]
