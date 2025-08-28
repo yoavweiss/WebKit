@@ -67,7 +67,7 @@ TEST(JSHandle, Basic)
     [navigationDelegate waitForDidFinishNavigation];
 
     RetainPtr worldConfiguration = adoptNS([_WKContentWorldConfiguration new]);
-    worldConfiguration.get().allowNodeInfo = YES;
+    worldConfiguration.get().allowJSHandleCreation = YES;
     RetainPtr world = [WKContentWorld _worldWithConfiguration:worldConfiguration.get()];
 
     RetainPtr<id> result = [webView objectByEvaluatingJavaScript:@"window.webkit.createJSHandle(onlyframe.contentWindow)" inFrame:nil inContentWorld:world.get()];

@@ -134,8 +134,10 @@ InjectedBundleScriptWorld* WebUserContentController::addContentWorld(const Conte
             scriptWorld->setAllowElementUserInfo();
         if (world.options.contains(ContentWorldOption::DisableLegacyBuiltinOverrides))
             scriptWorld->disableOverrideBuiltinsBehavior();
-        if (world.options.contains(ContentWorldOption::AllowNodeInfo))
-            scriptWorld->setNodeInfoEnabled();
+        if (world.options.contains(ContentWorldOption::AllowJSHandleCreation))
+            scriptWorld->setAllowJSHandleCreation();
+        if (world.options.contains(ContentWorldOption::AllowNodeSerialization))
+            scriptWorld->setAllowNodeSerialization();
         return scriptWorld.ptr();
     }
     return nullptr;
