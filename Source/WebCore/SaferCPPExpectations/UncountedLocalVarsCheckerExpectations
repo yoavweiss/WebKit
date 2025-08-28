@@ -365,7 +365,6 @@ platform/ScrollableArea.cpp
 platform/ScrollbarsController.cpp
 platform/ThreadGlobalData.cpp
 platform/ThreadGlobalData.h
-platform/audio/PlatformMediaSessionManager.cpp
 platform/cocoa/PlaybackSessionModelMediaElement.mm
 platform/graphics/ComplexTextController.cpp
 platform/graphics/DisplayRefreshMonitorManager.cpp

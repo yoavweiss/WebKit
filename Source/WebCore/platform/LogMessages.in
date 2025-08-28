@@ -88,11 +88,11 @@ MEDIASESSIONMANAGERCOCOA_SESSIONCANPRODUCEAUDIOCHANGED, "MediaSessionManagerCoco
 MEDIASESSIONMANAGERCOCOA_CLIENTCHARACTERISTICSCHANGED, "MediaSessionManagerCocoa::clientCharacteristicsChanged, session ID = %" PRIu64, (uint64_t), DEFAULT, Media
 MEDIASESSIONMANAGERCOCOA_UPDATESESSIONSTATE, "MediaSessionManagerCocoa::updateSessionState: AudioCapture(%d), AudioTrack(%d), Video(%d), Audio(%d), VideoAudio(%d), WebAudio(%d)", (int, int, int, int, int, int), DEFAULT, Media
 
-PLATFORMMEDIASESSIONMANAGER_REMOVESESSION, "PlatformMediaSessionManager::removeSession, session ID = %" PRIu64 "", (uint64_t), DEFAULT, Media
-PLATFORMMEDIASESSIONMANAGER_SESSIONWILLENDPLAYBACK, "PlatformMediaSessionManager::sessionWillEndPlayback, session ID = %" PRIu64 "", (uint64_t), DEFAULT, Media
-PLATFORMMEDIASESSIONMANAGER_SESSIONCANPRODUCEAUDIOCHANGED, "PlatformMediaSessionManager::sessionCanProduceAudioChanged", (), DEFAULT, Media
-PLATFORMMEDIASESSIONMANAGER_ADDSESSION, "PlatformMediaSessionManager::addSession, session ID = %" PRIu64 "", (uint64_t), DEFAULT, Media
-PLATFORMMEDIASESSIONMANAGER_MAYBEACTIVATEAUDIOSESSION_ACTIVE_SESSION_NOT_REQUIRED, "PlatformMediaSessionManager::maybeActivateAudioSession:  active audio session not required", (), DEFAULT, Media
+MEDIASESSIONMANAGERINTERFACE_REMOVESESSION, "MediaSessionManagerInterface::removeSession, session ID = %" PRIu64 "", (uint64_t), DEFAULT, Media
+MEDIASESSIONMANAGERINTERFACE_SESSIONWILLENDPLAYBACK, "MediaSessionManagerInterface::sessionWillEndPlayback, session ID = %" PRIu64 "", (uint64_t), DEFAULT, Media
+MEDIASESSIONMANAGERINTERFACE_SESSIONCANPRODUCEAUDIOCHANGED, "MediaSessionManagerInterface::sessionCanProduceAudioChanged", (), DEFAULT, Media
+MEDIASESSIONMANAGERINTERFACE_ADDSESSION, "MediaSessionManagerInterface::addSession, session ID = %" PRIu64 "", (uint64_t), DEFAULT, Media
+MEDIASESSIONMANAGERINTERFACE_MAYBEACTIVATEAUDIOSESSION_ACTIVE_SESSION_NOT_REQUIRED, "MediaSessionManagerInterface::maybeActivateAudioSession:  active audio session not required", (), DEFAULT, Media
 
 HTMLMEDIAELEMENT_CONSTRUCTOR, "HTMLMediaElement::HTMLMediaElement(%" PRIX64 ")", (uint64_t), DEFAULT, Media
 HTMLMEDIAELEMENT_DESTRUCTOR, "HTMLMediaElement::~HTMLMediaElement(%" PRIX64 ")", (uint64_t), DEFAULT, Media
