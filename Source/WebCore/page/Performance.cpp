@@ -484,9 +484,9 @@ ExceptionOr<Ref<PerformanceMeasure>> Performance::measure(JSC::JSGlobalObject& g
         return measure.releaseException();
 
     if (isSignpostEnabled()) {
-#if OS(DARWIN)
         Ref entry { measure.returnValue() };
         auto message = measureName.utf8();
+#if OS(DARWIN)
         {
             auto startTime = m_continuousTimeOrigin + Seconds::fromMilliseconds(entry->startTime());
             auto endTime = m_continuousTimeOrigin + Seconds::fromMilliseconds(entry->startTime() + entry->duration());
@@ -501,13 +501,13 @@ ExceptionOr<Ref<PerformanceMeasure>> Performance::measure(JSC::JSGlobalObject& g
             WTFBeginSignpostAlwaysWithSpecificTime(entry.ptr(), WebKitPerformance, correctedStartTime, "%" PUBLIC_LOG_STRING, message.data());
             WTFEndSignpostAlwaysWithSpecificTime(entry.ptr(), WebKitPerformance, correctedEndTime, "%" PUBLIC_LOG_STRING, message.data());
         }
+#endif
         {
             auto timeOrigin = m_continuousTimeOrigin.approximateMonotonicTime();
             auto startTime = timeOrigin + Seconds::fromMilliseconds(entry->startTime());
             auto endTime = timeOrigin + Seconds::fromMilliseconds(entry->startTime() + entry->duration());
             JSC::ProfilerSupport::markInterval(entry.ptr(), JSC::ProfilerSupport::Category::WebKitPerformanceSignpost, startTime, endTime, WTFMove(message));
         }
-#endif
     }
 
     queueEntry(measure.returnValue().get());

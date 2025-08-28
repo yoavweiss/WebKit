@@ -173,7 +173,7 @@ private:
     bool m_hasScheduledTimingBufferDeliveryTask { false };
 
     MonotonicTime m_timeOrigin;
-    UNUSED_MEMBER_VARIABLE ContinuousTime m_continuousTimeOrigin;
+    ContinuousTime m_continuousTimeOrigin;
 
     RefPtr<PerformanceNavigationTiming> m_navigationTiming;
     RefPtr<PerformancePaintTiming> m_firstContentfulPaint;
