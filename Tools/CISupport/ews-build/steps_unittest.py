@@ -6980,7 +6980,7 @@ class TestPushCommitToWebKitRepo(BuildStepMixinAdditions, unittest.TestCase):
                         logEnviron=False,
                         env=dict(GIT_USER='webkit-commit-queue', GIT_PASSWORD='password'),
                         command=['git', 'push', 'origin', 'HEAD:main']) +
-            ExpectShell.log('stdio', stdout=' 4c3bac1de151...b94dc426b331 ') +
+            ExpectShell.log('stdio', stdout=' 4c3bac1de151...b94dc426b331 \n') +
             0,
         )
         self.expectOutcome(result=SUCCESS, state_string='')
@@ -7521,7 +7521,7 @@ class TestShowIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                         timeout=300,
                         logEnviron=False,
                         command=['python3', 'Tools/Scripts/git-webkit', 'find', '51a6aec9f664']) +
-            ExpectShell.log('stdio', stdout='Identifier: 233175@main') +
+            ExpectShell.log('stdio', stdout='Identifier: 233175@main\n') +
             0,
         )
         self.expectOutcome(result=SUCCESS, state_string='Identifier: 233175@main')
@@ -7546,7 +7546,7 @@ class TestShowIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                         timeout=300,
                         logEnviron=False,
                         command=['python3', 'Tools/Scripts/git-webkit', 'find', '51a6aec9f664']) +
-            ExpectShell.log('stdio', stdout='Identifier: 233175@main') +
+            ExpectShell.log('stdio', stdout='Identifier: 233175@main\n') +
             0,
         )
         self.expectOutcome(result=SUCCESS, state_string='Identifier: 233175@main')
@@ -7567,7 +7567,7 @@ class TestShowIdentifier(BuildStepMixinAdditions, unittest.TestCase):
                         timeout=300,
                         logEnviron=False,
                         command=['python3', 'Tools/Scripts/git-webkit', 'find', '51a6aec9f664']) +
-            ExpectShell.log('stdio', stdout='Identifier: 233175@main') +
+            ExpectShell.log('stdio', stdout='Identifier: 233175@main\n') +
             0,
         )
         self.expectOutcome(result=SUCCESS, state_string='Identifier: 233175@main')
