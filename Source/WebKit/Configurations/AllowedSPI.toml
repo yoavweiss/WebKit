@@ -143,6 +143,7 @@ request = "rdar://157886589"
 selectors = [
     {name = "allowedCategories", class = "WPFingerprintingScript"},
 ]
+requires = ["ENABLE_SCRIPT_TRACKING_PRIVACY_PROTECTIONS"]
 
 [[temporary-usage]]
 request = "rdar://157888734"
@@ -155,12 +156,19 @@ selectors = [
     { name = "_setPrivacyProxyFailClosed:", class = "NSURLRequest" },
     { name = "_setPrivacyProxyFailClosedForUnreachableHosts:", class = "NSURLRequest" },
     { name = "_setPrivacyProxyFailClosedForUnreachableNonMainHosts:", class = "NSURLRequest" },
-    { name = "_setPrivacyProxyStrictFailClosed:", class = "NSURLRequest" },
     { name = "_setProhibitPrivacyProxy:", class = "NSURLRequest" },
     { name = "_setUseEnhancedPrivacyMode:", class = "NSURLRequest" },
     { name = "_setWebSearchContent:", class = "NSURLRequest" },
 ]
 requires = ["HAVE_SYSTEM_SUPPORT_FOR_ADVANCED_PRIVACY_PROTECTIONS"]
+
+[[temporary-usage]]
+request = "rdar://157888734"
+cleanup = "rdar://157888769"
+selectors = [
+    { name = "_setPrivacyProxyStrictFailClosed:", class = "NSURLRequest" },
+]
+requires = ["HAVE_STRICT_FAIL_CLOSED"]
 
 [[temporary-usage]]
 request = "rdar://157889218"
