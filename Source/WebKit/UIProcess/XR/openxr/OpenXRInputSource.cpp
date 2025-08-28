@@ -85,7 +85,7 @@ XrResult OpenXRInputSource::initialize()
     RETURN_RESULT_IF_FAILED(createActionSpace(m_pointerAction, m_pointerSpace));
 
 #if defined(XR_EXT_hand_interaction)
-    if (OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_HAND_INTERACTION_EXTENSION_NAME)) {
+    if (OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_HAND_INTERACTION_EXTENSION_NAME ""_span)) {
         RETURN_RESULT_IF_FAILED(createAction(XR_ACTION_TYPE_POSE_INPUT, makeString(prefix, "_pinch_ext"_s), m_pinchPoseAction));
         RETURN_RESULT_IF_FAILED(createActionSpace(m_pinchPoseAction, m_pinchSpace), m_instance);
         RETURN_RESULT_IF_FAILED(createAction(XR_ACTION_TYPE_POSE_INPUT, makeString(prefix, "_poke_ext"_s), m_pokePoseAction));
@@ -130,7 +130,7 @@ XrResult OpenXRInputSource::suggestBindings(SuggestedBindings& bindings) const
         CHECK_XRCMD(createBinding(profile.path, m_pointerAction, makeString(m_subactionPathName, s_inputAimPath), bindings));
 
 #if defined(XR_EXT_hand_interaction)
-        if (OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_HAND_INTERACTION_EXTENSION_NAME)) {
+        if (OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_HAND_INTERACTION_EXTENSION_NAME ""_span)) {
             RETURN_RESULT_IF_FAILED(createBinding(profile.path, m_pinchPoseAction, makeString(m_subactionPathName, s_inputPinchPath), bindings));
             RETURN_RESULT_IF_FAILED(createBinding(profile.path, m_pokePoseAction, makeString(m_subactionPathName, s_inputPokePath), bindings));
         }
