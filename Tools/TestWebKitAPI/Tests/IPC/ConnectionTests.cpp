@@ -827,7 +827,12 @@ TEST_P(ConnectionRunLoopTest, SendAsyncAndInvalidateOnDispatcher)
 
 // Tests that all sent messages are received, even if sender invalidates
 // without synchronizing with the receiver.
+// FIXME when rdar://159131152 is resolved
+#if PLATFORM(IOS)
+TEST_P(ConnectionRunLoopTest, DISABLED_SendAndInvalidate)
+#else
 TEST_P(ConnectionRunLoopTest, SendAndInvalidate)
+#endif
 {
     constexpr uint64_t messageCount = 1777;
     ASSERT_TRUE(openA());
