@@ -6332,7 +6332,7 @@ class CheckStatusOnEWSQueues(buildstep.BuildStep, BugzillaMixin):
 
     @defer.inlineCallbacks
     def get_change_status(self, change_id, queue):
-        url = '{}status/{}/'.format(EWS_URL, change_id)
+        url = f'{EWS_URL}status/{change_id}/'
         try:
             response = yield TwistedAdditions.request(url, logger=lambda content: self._addToLog('stdio', content))
             if response.status_code != 200:
@@ -6354,7 +6354,19 @@ class CheckStatusOnEWSQueues(buildstep.BuildStep, BugzillaMixin):
         change_status_on_mac_wk2 = yield self.get_change_status(change_id, 'mac-wk2')
         if change_status_on_mac_wk2 == SUCCESS:
             self.setProperty('passed_mac_wk2', True)
+        elif change_status_on_mac_wk2 == FAILURE:
+            self.setProperty('passed_mac_wk2', False)
+        else:
+            self.setProperty('passed_mac_wk2', None)
         defer.returnValue(SUCCESS)
+
+    def getResultSummary(self):
+        passed_mac_wk2 = self.getProperty('passed_mac_wk2')
+        if passed_mac_wk2 is True:
+            return {'step': 'mac-wk2 tests already passed'}
+        if passed_mac_wk2 is False:
+            return {'step': 'mac-wk2 tests failed'}
+        return {'step': "mac-wk2 tests haven't completed"}
 
 
 class ValidateRemote(shell.ShellCommandNewStyle):

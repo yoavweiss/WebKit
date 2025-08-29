@@ -6936,26 +6936,23 @@ class TestCheckStatusOnEWSQueues(BuildStepMixinAdditions, unittest.TestCase):
     def test_success(self):
         CheckStatusOnEWSQueues.get_change_status = lambda cls, change_id, queue: SUCCESS
         self.setupStep(CheckStatusOnEWSQueues())
-        self.setProperty('patch_id', '1234')
-        self.expectOutcome(result=SUCCESS, state_string='Checked change status on other queues')
-        rc = self.runStep()
-        self.assertEqual(self.getProperty('passed_mac_wk2'), True)
-        return rc
-
-    def test_success_hash(self):
-        CheckStatusOnEWSQueues.get_change_status = lambda cls, change_id, queue: SUCCESS
-        self.setupStep(CheckStatusOnEWSQueues())
-        self.setProperty('github.head.sha', '0e5b5facb6445ca7a1feb46cee6322189df5282c')
-        self.expectOutcome(result=SUCCESS, state_string='Checked change status on other queues')
+        self.expectOutcome(result=SUCCESS, state_string='mac-wk2 tests already passed')
         rc = self.runStep()
         self.assertEqual(self.getProperty('passed_mac_wk2'), True)
         return rc
 
     def test_failure(self):
         self.setupStep(CheckStatusOnEWSQueues())
-        self.setProperty('patch_id', '1234')
         CheckStatusOnEWSQueues.get_change_status = lambda cls, change_id, queue: FAILURE
-        self.expectOutcome(result=SUCCESS, state_string='Checked change status on other queues')
+        self.expectOutcome(result=SUCCESS, state_string='mac-wk2 tests failed')
+        rc = self.runStep()
+        self.assertEqual(self.getProperty('passed_mac_wk2'), False)
+        return rc
+
+    def test_mac_wk2_not_finished_yet(self):
+        self.setupStep(CheckStatusOnEWSQueues())
+        CheckStatusOnEWSQueues.get_change_status = lambda cls, change_id, queue: None
+        self.expectOutcome(result=SUCCESS, state_string="mac-wk2 tests haven't completed")
         rc = self.runStep()
         self.assertEqual(self.getProperty('passed_mac_wk2'), None)
         return rc
