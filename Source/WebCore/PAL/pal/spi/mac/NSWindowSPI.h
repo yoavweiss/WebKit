@@ -61,10 +61,10 @@ enum {
 
 #endif
 
-extern NSNotificationName NSWindowDidOrderOffScreenNotification;
-extern NSNotificationName NSWindowDidOrderOnScreenNotification;
-extern NSNotificationName NSWindowWillOrderOffScreenNotification;
-extern NSNotificationName NSWindowWillOrderOnScreenNotification;
+extern NSNotificationName const NSWindowDidOrderOffScreenNotification;
+extern NSNotificationName const NSWindowDidOrderOnScreenNotification;
+extern NSNotificationName const NSWindowWillOrderOffScreenNotification;
+extern NSNotificationName const NSWindowWillOrderOnScreenNotification;
 extern NSNotificationName const _NSWindowDidChangeContentsHostedInLayerSurfaceNotification;
 
 #endif // PLATFORM(MAC)
