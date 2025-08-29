@@ -8033,3 +8033,5 @@ imported/w3c/web-platform-tests/mixed-content/gen/top.meta/opt-in/video-tag.http
 webkit.org/b/293973 [ Debug ] http/tests/ipc/gpu-load-error-empty-user-info-crssh.html [ Skip ]
 
 webkit.org/b/297505 ipc/LocalSampleBufferDisplayLayer-LogIdentifier-data-race-uaf.html [ Skip ]
+
+webkit.org/b/298003 imported/w3c/web-platform-tests/css/css-text/text-indent/below-float.html [ ImageOnlyFailure ]
