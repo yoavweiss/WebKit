@@ -779,7 +779,7 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     PageConfiguration pageConfiguration(
         pageID,
         WebProcess::singleton().sessionID(),
-        makeUniqueRef<WebEditorClient>(this),
+        makeUniqueRef<WebEditorClient>(*this),
         WebSocketProvider::create(parameters.webPageProxyIdentifier),
         createLibWebRTCProvider(*this),
         WebProcess::singleton().cacheStorageProvider(),
