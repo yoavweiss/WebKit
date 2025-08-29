@@ -499,7 +499,7 @@ sub main {
             SetFailureForTest(\%failed, $test);
 
             # If an unexpected failure
-            if (!$expectedFailure || ($expectedFailure ne $test->{error})) {
+            if (!$expectedFailure || (rindex $test->{error}, $expectedFailure, 0)) {
                 $newfailcount++;
 
                 if ($verbose) {

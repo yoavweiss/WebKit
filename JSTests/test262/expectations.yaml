@@ -1109,8 +1109,8 @@ test/intl402/Intl/supportedValuesOf/calendars-accepted-by-DateTimeFormat.js:
   default: 'RangeError: calendar is not a well-formed calendar value'
   strict mode: 'RangeError: calendar is not a well-formed calendar value'
 test/intl402/Intl/supportedValuesOf/calendars-accepted-by-DisplayNames.js:
-  default: 'RangeError: argument is not a calendar code'
-  strict mode: 'RangeError: argument is not a calendar code'
+  default: 'Test262Error: bangla is supported by DisplayNames Expected SameValue(«"undefined"», «"string"») to be true'
+  strict mode: 'Test262Error: bangla is supported by DisplayNames Expected SameValue(«"undefined"», «"string"») to be true'
 test/intl402/Intl/supportedValuesOf/calendars.js:
   default: "Test262Error: malayalam matches the 'type' production"
   strict mode: "Test262Error: malayalam matches the 'type' production"
