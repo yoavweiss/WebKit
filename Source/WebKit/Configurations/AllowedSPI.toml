@@ -71,17 +71,6 @@ classes = [
 ]
 
 [[temporary-usage]]
-request = "rdar://157880054"
-cleanup = "rdar://157880263"
-classes = [
-    "_UITraitHDRHeadroomUsage",
-]
-selectors = [
-    { name = "_headroomUsage", class = "UITraitCollection" },
-]
-requires = ["HAVE_SUPPORT_HDR_DISPLAY_APIS"]
-
-[[temporary-usage]]
 request = "rdar://157884624"
 cleanup = "rdar://157884972"
 selectors = [
