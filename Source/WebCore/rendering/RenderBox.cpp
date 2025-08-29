@@ -2335,23 +2335,25 @@ LayoutUnit RenderBox::shrinkLogicalWidthToAvoidFloats(LayoutUnit childMarginStar
 
 LayoutUnit RenderBox::containingBlockLogicalWidthForContent() const
 {
+    CheckedPtr containingBlock = this->containingBlock();
+    if (!containingBlock) {
+        // Should not be called on detached renderer (e.g. during initial style setting).
+        ASSERT_NOT_REACHED();
+        return { };
+    }
+
     if (isOutOfFlowPositioned()) {
         PositionedLayoutConstraints constraints(*this, LogicalBoxAxis::Inline);
         return constraints.containingInlineSize();
     }
 
     if (isGridItem()) {
-        if (auto gridAreaContentLogicalWidth = this->gridAreaContentLogicalWidth()) {
-            ASSERT(is<RenderGrid>(containingBlock()));
+        ASSERT(is<RenderGrid>(containingBlock));
+        if (auto gridAreaContentLogicalWidth = this->gridAreaContentLogicalWidth())
             return gridAreaContentLogicalWidth->value_or(0_lu);
-        }
     }
 
-    if (auto* containingBlock = this->containingBlock())
-        return containingBlock->contentBoxLogicalWidth();
-
-    ASSERT_NOT_REACHED();
-    return 0_lu;
+    return containingBlock->contentBoxLogicalWidth();
 }
 
 LayoutUnit RenderBox::containingBlockLogicalHeightForContent(AvailableLogicalHeightType heightType) const
