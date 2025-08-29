@@ -34,13 +34,13 @@
 // Roles
 //
 
-#if !HAVE(HAVE_ADDITIONAL_NS_ACCESSIBILITY_CONSTANTS)
+#if !HAVE(ADDITIONAL_NS_ACCESSIBILITY_CONSTANTS)
+#define NSAccessibilityDateTimeAreaRole @"AXDateTimeArea"
 #define NSAccessibilityHeadingRole @"AXHeading"
 #define NSAccessibilityListMarkerRole @"AXListMarker"
 #define NSAccessibilityWebAreaRole @"AXWebArea"
 #endif
 
-#define NSAccessibilityDateTimeAreaRole @"AXDateTimeArea"
 #define NSAccessibilityImageMapRole @"AXImageMap"
 #define NSAccessibilityIncrementorArrowRole @"AXIncrementorArrow"
 

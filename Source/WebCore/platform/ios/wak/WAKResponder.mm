@@ -70,7 +70,7 @@
     [self _forwardEvent:event];
 }
 - (void)keyUp:(WebEvent *)event
-{ 
+{
     [self _forwardEvent:event];
 }
 
@@ -143,7 +143,7 @@
     UNUSED_PARAM(sender);
 }
 
-- (void)mouseUp:(WebEvent *)event 
+- (void)mouseUp:(WebEvent *)event
 {
     [self _forwardEvent:event];
 }
@@ -157,13 +157,13 @@
 - (BOOL)becomeFirstResponder { return true; }
 - (BOOL)resignFirstResponder { return true; }
 
-- (BOOL)tryToPerform:(SEL)anAction with:(id)anObject 
-{ 
+- (BOOL)tryToPerform:(SEL)anAction with:(id)anObject
+{
     if ([self respondsToSelector:anAction]) {
         [self performSelector:anAction withObject:anObject];
         return YES;
     }
-    return NO; 
+    return NO;
 }
 
 @end

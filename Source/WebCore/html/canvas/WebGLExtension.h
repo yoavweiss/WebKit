@@ -31,6 +31,7 @@
 
 #include <atomic>
 #include <wtf/RefCounted.h>
+
 namespace WebCore {
 
 class WebCoreOpaqueRoot;

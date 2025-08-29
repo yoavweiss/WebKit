@@ -1267,6 +1267,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/ActiveDOMCallback.h
     dom/ActiveDOMObject.h
     dom/AddEventListenerOptions.h
+    dom/AddEventListenerOptionsInlines.h
     dom/AsyncNodeDeletionQueue.h
     dom/AsyncNodeDeletionQueueInlines.h
     dom/Attr.h

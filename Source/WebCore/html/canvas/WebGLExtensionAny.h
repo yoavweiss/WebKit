@@ -34,8 +34,6 @@
 
 namespace WebCore {
 
-class WebGLExtensionBase;
-
 using WebGLExtensionAny = Ref<WebGLExtensionBase>;
 
 }

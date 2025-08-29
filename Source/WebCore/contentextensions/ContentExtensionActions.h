@@ -25,9 +25,12 @@
 
 #pragma once
 
+#include <wtf/Platform.h>
+
 #if ENABLE(CONTENT_EXTENSIONS)
 
 #include <WebCore/ContentExtensionStringSerialization.h>
+#include <system_error>
 #include <wtf/JSONValues.h>
 #include <wtf/Hasher.h>
 

@@ -8130,6 +8130,11 @@ sub WriteData
             push @{$implIncludeConditions{$codeGenerator->GenerateConditionalStringFromAttributeValue($condition)}}, $include;
         }
     }
+
+    if ($name eq "AddEventListenerOptions" or $name eq "EventTarget") {
+        push @includes, "\"AddEventListenerOptionsInlines.h\"";
+    }
+
     foreach my $include (sort @includes) {
         $contents .= "#include $include\n";
     }

@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "AssemblerCommon.h"
+#include <JavaScriptCore/AssemblerCommon.h>
 #include <wtf/Platform.h>
 
 #if ENABLE(ASSEMBLER) && CPU(ARM_THUMB2)

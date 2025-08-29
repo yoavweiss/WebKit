@@ -69,7 +69,7 @@ void WAKRelease(const void *o)
         const WKClassInfo *info = object->classInfo;
         while (info) {
             if (info->dealloc)
-                info->dealloc((void *)(uintptr_t)object);
+                info->dealloc(object);
             info = info->parent;
         }
     }
@@ -77,7 +77,7 @@ void WAKRelease(const void *o)
 
 static void WAKObjectDealloc(WAKObjectRef v)
 {
-    free (v);
+    free(v);
 }
 
 WKClassInfo WAKObjectClass = { 0, "WAKObject", WAKObjectDealloc };

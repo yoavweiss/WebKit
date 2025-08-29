@@ -29,7 +29,7 @@
 
 #include "MediaControlsHost.h"
 
-#include "AddEventListenerOptions.h"
+#include "AddEventListenerOptionsInlines.h"
 #include "AudioTrackList.h"
 #include "CaptionUserPreferences.h"
 #include "Chrome.h"
