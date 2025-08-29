@@ -397,6 +397,11 @@ void WebUserContentControllerProxy::didPostMessage(WebPageProxyIdentifier pagePr
     handler->client().didPostMessage(*page, WTFMove(frameInfoData), handler->world(), WTFMove(message), WTFMove(reply));
 }
 
+void WebUserContentControllerProxy::didPostLegacySynchronousMessage(WebPageProxyIdentifier webPageProxyID, FrameInfoData&& frameInfoData, ScriptMessageHandlerIdentifier messageHandlerID, JavaScriptEvaluationResult&& message, CompletionHandler<void(Expected<JavaScriptEvaluationResult, String>&&)>&& reply)
+{
+    didPostMessage(webPageProxyID, WTFMove(frameInfoData), messageHandlerID, WTFMove(message), WTFMove(reply));
+}
+
 #if ENABLE(CONTENT_EXTENSIONS)
 void WebUserContentControllerProxy::addContentRuleList(API::ContentRuleList& contentRuleList, const WTF::URL& extensionBaseURL)
 {

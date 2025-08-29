@@ -1187,6 +1187,8 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 
     if (parameters.allowJSHandleInPageContentWorld)
         InjectedBundleScriptWorld::normalWorldSingleton().setAllowJSHandleCreation();
+    if (parameters.allowPostingLegacySynchronousMessages)
+        InjectedBundleScriptWorld::normalWorldSingleton().setAllowPostingLegacySynchronousMessages();
 }
 
 void WebPage::updateAfterDrawingAreaCreation(const WebPageCreationParameters& parameters)

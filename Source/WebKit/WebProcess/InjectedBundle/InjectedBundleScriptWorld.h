@@ -62,6 +62,7 @@ public:
     void disableOverrideBuiltinsBehavior();
     void setAllowJSHandleCreation();
     void setAllowNodeSerialization();
+    void setAllowPostingLegacySynchronousMessages();
 
     const String& name() const { return m_name; }
 

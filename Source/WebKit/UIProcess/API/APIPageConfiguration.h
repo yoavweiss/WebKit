@@ -459,6 +459,9 @@ public:
     void setAllowJSHandleInPageContentWorld(bool);
     bool allowJSHandleInPageContentWorld() const;
 
+    void setAllowPostingLegacySynchronousMessages(bool);
+    bool allowPostingLegacySynchronousMessages() const;
+
     void setContentSecurityPolicyModeForExtension(WebCore::ContentSecurityPolicyModeForExtension mode) { m_data.contentSecurityPolicyModeForExtension = mode; }
     WebCore::ContentSecurityPolicyModeForExtension contentSecurityPolicyModeForExtension() const { return m_data.contentSecurityPolicyModeForExtension; }
 
@@ -644,6 +647,7 @@ private:
         bool showsSystemScreenTimeBlockingView { true };
         bool shouldSendConsoleLogsToUIProcessForTesting { false };
         bool allowJSHandleInPageContentWorld { false };
+        bool allowPostingLegacySynchronousMessages { false };
 
 #if PLATFORM(VISION)
 

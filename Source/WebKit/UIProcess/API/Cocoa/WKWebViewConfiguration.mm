@@ -665,6 +665,23 @@ static NSString *defaultApplicationNameForUserAgent()
         _pageConfiguration->setRelatedPage(nullptr);
 }
 
+- (void)_setAllowPostingLegacySynchronousMessages:(BOOL)allow
+{
+    RetainPtr bundleID = (__bridge NSString *)CFBundleGetIdentifier(CFBundleGetMainBundle());
+    RELEASE_ASSERT([bundleID isEqualToString:@"com.apple.WebKit.TestWebKitAPI"]
+#if PLATFORM(MAC)
+        || [bundleID isEqualToString:@"com.apple.TV"]
+        || [bundleID isEqualToString:@"com.apple.Music"]
+#endif
+    );
+    self._protectedPageConfiguration->setAllowPostingLegacySynchronousMessages(allow);
+}
+
+- (BOOL)_allowPostingLegacySynchronousMessages
+{
+    return self._protectedPageConfiguration->allowPostingLegacySynchronousMessages();
+}
+
 - (WKWebView *)_webViewToCloneSessionStorageFrom
 {
     if (RefPtr page = self._protectedPageConfiguration->pageToCloneSessionStorageFrom())

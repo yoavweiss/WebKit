@@ -131,6 +131,11 @@ void InjectedBundleScriptWorld::setAllowNodeSerialization()
     m_world->setAllowNodeSerialization();
 }
 
+void InjectedBundleScriptWorld::setAllowPostingLegacySynchronousMessages()
+{
+    m_world->setAllowPostLegacySynchronousMessage();
+}
+
 void InjectedBundleScriptWorld::setAllowElementUserInfo()
 {
     m_world->setAllowElementUserInfo();

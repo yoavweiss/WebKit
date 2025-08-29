@@ -75,6 +75,9 @@ public:
     void disableLegacyOverrideBuiltInsBehavior() { m_shouldDisableLegacyOverrideBuiltInsBehavior = true; }
     bool shouldDisableLegacyOverrideBuiltInsBehavior() const { return m_shouldDisableLegacyOverrideBuiltInsBehavior; }
 
+    void setAllowPostLegacySynchronousMessage() { m_allowPostLegacySynchronousMessage = true; }
+    bool allowPostLegacySynchronousMessage() const { return m_allowPostLegacySynchronousMessage; }
+
     DOMObjectWrapperMap& wrappers() { return m_wrappers; }
 
     Type type() const { return m_type; }
@@ -103,6 +106,7 @@ private:
     bool m_shouldDisableLegacyOverrideBuiltInsBehavior : 1 { false };
     bool m_allowJSHandleCreation : 1 { false };
     bool m_allowNodeSerialization : 1 { false };
+    bool m_allowPostLegacySynchronousMessage : 1 { false };
 };
 
 DOMWrapperWorld& normalWorld(JSC::VM&);
