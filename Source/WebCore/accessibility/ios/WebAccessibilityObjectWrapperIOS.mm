@@ -64,6 +64,7 @@
 #import "WAKWindow.h"
 #import "WebCoreThread.h"
 #import <CoreText/CoreText.h>
+#import <wtf/HashFunctions.h>
 #import <wtf/RuntimeApplicationChecks.h>
 #import <wtf/cocoa/VectorCocoa.h>
 
@@ -499,7 +500,7 @@ static AccessibilityObjectWrapper* AccessibilityUnignoredAncestor(AccessibilityO
     if (![self _prepareAccessibilityCall])
         return nil;
 
-    return accessibilityRoleToString(self.axBackingObject->role()).createNSString().autorelease();
+    return roleToString(self.axBackingObject->role()).createNSString().autorelease();
 }
 
 - (BOOL)accessibilityHasPopup
@@ -578,6 +579,7 @@ static AccessibilityObjectWrapper* AccessibilityUnignoredAncestor(AccessibilityO
     return roleValue == AccessibilityRole::ApplicationDialog || roleValue == AccessibilityRole::ApplicationAlertDialog;
 }
 
+using AccessibilityRoleSet = HashSet<AccessibilityRole, IntHash<AccessibilityRole>, WTF::StrongEnumHashTraits<AccessibilityRole>>;
 static AccessibilityObjectWrapper *ancestorWithRole(const AXCoreObject& descendant, const AccessibilityRoleSet& roles)
 {
     auto* ancestor = Accessibility::findAncestor(descendant, false, [&roles] (const auto& object) {

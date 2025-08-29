@@ -856,6 +856,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     accessibility/AccessibilityNodeObject.h
     accessibility/AccessibilityObject.h
     accessibility/AccessibilityRenderObject.h
+    accessibility/AccessibilityRole.h
     accessibility/AccessibilityScrollView.h
     accessibility/ForcedAccessibilityValue.h
     accessibility/isolatedtree/AXIsolatedObject.h

@@ -37,6 +37,7 @@
 #include "AXSearchManager.h"
 #include "AXTextMarker.h"
 #include "AXTextRun.h"
+#include "AXUtilities.h"
 #include "AccessibilityNodeObject.h"
 #include "DateComponents.h"
 #include "HTMLNames.h"
@@ -81,7 +82,7 @@ String AXIsolatedObject::debugDescriptionInternal(bool verbose, std::optional<Op
 {
     StringBuilder result;
     result.append("{"_s);
-    result.append("role: "_s, accessibilityRoleToString(role()));
+    result.append("role: "_s, roleToString(role()));
     result.append(", ID "_s, objectID().loggingString());
 
     if (debugOptions) {

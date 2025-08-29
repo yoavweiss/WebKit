@@ -258,7 +258,7 @@ void AXLogger::log(const String& collectionName, const AXObjectCache::DeferredCo
 
 TextStream& operator<<(TextStream& stream, AccessibilityRole role)
 {
-    stream << accessibilityRoleToString(role);
+    stream << roleToString(role);
     return stream;
 }
 

@@ -25,9 +25,10 @@
 
 #pragma once
 
+#include <WebCore/AccessibilityRole.h>
+
 namespace WebCore {
 
-enum class AccessibilityRole : uint8_t;
 class AXObjectCache;
 class Node;
 class Element;
@@ -45,6 +46,10 @@ HTMLTableElement* tableElementIncludingAncestors(Node*, RenderObject*);
 bool tableElementIndicatesAccessibleTable(HTMLTableElement&);
 bool tableSectionIndicatesAccessibleTable(HTMLTableSectionElement&, AXObjectCache&);
 bool isDataTableWithTraversal(HTMLTableElement&, AXObjectCache&);
+
+// This value is what will be used if AccessibilityTableCell determines the cell
+// should not be treated as a cell (e.g. because it is in a layout table).
+static constexpr AccessibilityRole layoutTableCellRole = AccessibilityRole::TextGroup;
 
 } // namespace AXTableHelpers
 
