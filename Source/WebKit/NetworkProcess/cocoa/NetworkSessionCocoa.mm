@@ -1854,7 +1854,7 @@ static CompletionHandler<void(WebKit::AuthenticationChallengeDisposition disposi
     WebCore::AuthenticationChallenge authenticationChallenge { challenge };
     return [completionHandler = WTFMove(completionHandler), networkProcess = WTFMove(networkProcess), sessionID, authenticationChallenge, taskIdentifier, partition](WebKit::AuthenticationChallengeDisposition disposition, const WebCore::Credential& credential) mutable {
 #if !LOG_DISABLED
-        LOG(NetworkSession, "%llu didReceiveChallenge completionHandler %d", taskIdentifier, disposition);
+        LOG(NetworkSession, "%llu didReceiveChallenge completionHandler %hhu", taskIdentifier, disposition);
 #else
         UNUSED_PARAM(taskIdentifier);
 #endif
