@@ -67,13 +67,16 @@ static const NSTimeInterval DefaultWatchdogTimerInterval = 1;
 #if HAVE(LIQUID_GLASS)
     RetainPtr<NSScrollPocket> _scrollPocket;
     RetainPtr<NSHashTable<NSView *>> _scrollPocketContainers;
-    CGFloat _topContentInset;
 #endif
+    WebCore::FloatBoxExtent _obscuredContentInsets;
 }
 
 - (NSRect)scrollViewFrame
 {
-    return [self convertRect:self.bounds toView:nil];
+    WebCore::FloatRect boundsAdjustedByHorizontalInsets = self.bounds;
+    boundsAdjustedByHorizontalInsets.shiftXEdgeBy(_obscuredContentInsets.left());
+    boundsAdjustedByHorizontalInsets.shiftMaxXEdgeBy(-_obscuredContentInsets.right());
+    return [self convertRect:boundsAdjustedByHorizontalInsets toView:nil];
 }
 
 - (BOOL)hasScrolledContentsUnderTitlebar
@@ -83,14 +86,14 @@ static const NSTimeInterval DefaultWatchdogTimerInterval = 1;
 
 #if HAVE(LIQUID_GLASS)
 
-- (void)setTopScrollPocket:(NSScrollPocket *)scrollPocket topContentInset:(CGFloat)topContentInset
+- (void)setTopScrollPocket:(NSScrollPocket *)scrollPocket obscuredContentInsets:(const WebCore::FloatBoxExtent&)obscuredContentInsets
 {
     _scrollPocket = scrollPocket;
     if (!_scrollPocket)
         return;
 
     _scrollPocketContainers = [NSHashTable<NSView *> weakObjectsHashTable];
-    _topContentInset = topContentInset;
+    _obscuredContentInsets = obscuredContentInsets;
     [self _recomputeScrollPocketFrame];
     [self addSubview:_scrollPocket.get()];
 }
@@ -125,7 +128,7 @@ static const NSTimeInterval DefaultWatchdogTimerInterval = 1;
 
 - (void)_recomputeScrollPocketFrame
 {
-    [_scrollPocket setFrame:NSMakeRect(0, NSHeight(self.bounds) - _topContentInset, NSWidth(self.bounds), _topContentInset)];
+    [_scrollPocket setFrame:NSMakeRect(0, NSHeight(self.bounds) - _obscuredContentInsets.top(), NSWidth(self.bounds), _obscuredContentInsets.top())];
 }
 
 - (BOOL)scrollViewDrawsMagicPocket
@@ -412,7 +415,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     [self _saveConstraintsOf:[_webView superview]];
     [self _replaceView:_webView.get().get() with:_webViewPlaceholder.get()];
 #if HAVE(LIQUID_GLASS)
-    [_webViewPlaceholder setTopScrollPocket:scrollPocketForPlaceholder.get() topContentInset:_savedObscuredContentInsets.top()];
+    [_webViewPlaceholder setTopScrollPocket:scrollPocketForPlaceholder.get() obscuredContentInsets:_savedObscuredContentInsets];
     [[_webViewPlaceholder window] registerScrollViewSeparatorTrackingAdapter:_webViewPlaceholder.get()];
 #endif
     
