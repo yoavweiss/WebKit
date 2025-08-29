@@ -2272,25 +2272,6 @@ webkit.org/b/296300 [ Sequoia Debug arm64 ] webgl/2.0.y/conformance2/offscreenca
 
 webkit.org/b/296297 fast/images/image-map-outline-with-paint-root-offset.html [ Pass Failure ]
 
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.http-rp/opt-in/fetch.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.http-rp/opt-in/websocket.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.http-rp/opt-in/xhr.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.meta/opt-in/fetch.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.meta/opt-in/websocket.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.meta/opt-in/xhr.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.meta/unset/fetch.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.meta/unset/websocket.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-classic-data.meta/unset/xhr.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.http-rp/opt-in/fetch.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.http-rp/opt-in/websocket.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.http-rp/opt-in/xhr.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.meta/opt-in/fetch.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.meta/opt-in/websocket.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.meta/opt-in/xhr.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.meta/unset/fetch.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.meta/unset/websocket.https.html [ Failure ]
-webkit.org/b/296326 imported/w3c/web-platform-tests/mixed-content/gen/sharedworker-module-data.meta/unset/xhr.https.html [ Failure ]
-
 webkit.org/b/296344 imported/w3c/web-platform-tests/webrtc/RTCRtpSender-replaceTrack.https.html [ Pass Failure ]
 
 webkit.org/b/296348 [ Sequoia ] http/tests/cache/disk-cache/shattered-deduplication.html [ Pass Failure ] 
