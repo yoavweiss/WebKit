@@ -187,7 +187,7 @@ struct TextDecorationLine {
             m_packed = packFlags(flags);
     }
 
-    constexpr explicit operator bool() const { return !isNone(); }
+    operator bool() const { return !isNone(); }
     bool operator==(const TextDecorationLine& other) const { return m_packed == other.m_packed; }
 
     uint8_t toRaw() const { return m_packed; }
