@@ -27,8 +27,11 @@
 #ifndef JSCallbackObject_h
 #define JSCallbackObject_h
 
-#if JSC_OBJC_API_ENABLED
+#if JSC_OBJC_API_ENABLED || defined(JSC_GLIB_API_ENABLED)
 #include "JSAPIWrapperObject.h"
+#endif
+#if defined(JSC_GLIB_API_ENABLED)
+#include "JSAPIWrapperGlobalObject.h"
 #endif
 #include "JSObjectRef.h"
 #include "JSValueRef.h"
@@ -254,7 +257,11 @@ void JSCallbackObject<Parent>::visitChildrenImpl(JSCell* cell, Visitor& visitor)
 template<> const ClassInfo JSCallbackObject<JSGlobalObject>::s_info;
 template<> const ClassInfo JSCallbackObject<JSNonFinalObject>::s_info;
 
-#if JSC_OBJC_API_ENABLED
+#if defined(JSC_GLIB_API_ENABLED)
+template<> const ClassInfo JSCallbackObject<JSAPIWrapperGlobalObject>::s_info;
+#endif
+
+#if JSC_OBJC_API_ENABLED || defined(JSC_GLIB_API_ENABLED)
 template<> const ClassInfo JSCallbackObject<JSAPIWrapperObject>::s_info;
 #endif
 
