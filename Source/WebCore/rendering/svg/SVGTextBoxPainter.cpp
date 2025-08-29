@@ -221,9 +221,9 @@ void SVGTextBoxPainter<TextBoxPath>::paint()
         // Spec: All text decorations except line-through should be drawn before the text is filled and stroked; thus, the text is rendered on top of these decorations.
         auto decorations = style.textDecorationLineInEffect();
         if (decorations.hasUnderline())
-            paintDecoration(TextDecorationLineFlags::Underline, fragment);
+            paintDecoration(Style::TextDecorationLine::Flag::Underline, fragment);
         if (decorations.hasOverline())
-            paintDecoration(TextDecorationLineFlags::Overline, fragment);
+            paintDecoration(Style::TextDecorationLine::Flag::Overline, fragment);
 
         for (auto type : RenderStyle::paintTypesForPaintOrder(style.paintOrder())) {
             switch (type) {
@@ -248,7 +248,7 @@ void SVGTextBoxPainter<TextBoxPath>::paint()
 
         // Spec: Line-through should be drawn after the text is filled and stroked; thus, the line-through is rendered on top of the text.
         if (decorations.hasLineThrough())
-            paintDecoration(TextDecorationLineFlags::LineThrough, fragment);
+            paintDecoration(Style::TextDecorationLine::Flag::LineThrough, fragment);
 
         m_paintingResourceMode = { };
     }
@@ -401,11 +401,11 @@ static inline float positionOffsetForDecoration(Style::TextDecorationLine decora
     // FIXME: For SVG Fonts we need to use the attributes defined in the <font-face> if specified.
     // Compatible with Batik/Opera.
     const float ascent = fontMetrics.ascent();
-    if (decoration == TextDecorationLineFlags::Underline)
+    if (decoration == Style::TextDecorationLine::Flag::Underline)
         return ascent + thickness * 1.5f;
-    if (decoration == TextDecorationLineFlags::Overline)
+    if (decoration == Style::TextDecorationLine::Flag::Overline)
         return thickness;
-    if (decoration == TextDecorationLineFlags::LineThrough)
+    if (decoration == Style::TextDecorationLine::Flag::LineThrough)
         return ascent * 5 / 8.0f;
 
     ASSERT_NOT_REACHED();

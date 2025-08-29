@@ -1728,7 +1728,7 @@ LineDecorationStyle::LineDecorationStyle(RenderObject& renderer)
 {
     const CheckedRef style = renderer.style();
     auto decor = style->textDecorationLineInEffect();
-    if (decor.containsAny({ TextDecorationLineFlags::Underline, TextDecorationLineFlags::LineThrough })) {
+    if (decor.containsAny({ Style::TextDecorationLine::Flag::Underline, Style::TextDecorationLine::Flag::LineThrough })) {
         auto decorationStyles = TextDecorationPainter::stylesForRenderer(renderer, decor);
         if (decor.hasUnderline()) {
             hasUnderline = true;

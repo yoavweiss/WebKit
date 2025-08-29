@@ -199,7 +199,7 @@ void TextDecorationPainter::paintBackgroundDecorations(const RenderStyle& style,
 
         if (underlineStyle == TextDecorationStyle::Wavy)
             strokeWavyTextDecoration(m_context, rect, m_isPrinting, decorationGeometry.wavyStrokeParameters, strokeStyle);
-        else if (decoration == TextDecorationLineFlags::Underline || decoration == TextDecorationLineFlags::Overline) {
+        else if (decoration == Style::TextDecorationLine::Flag::Underline || decoration == Style::TextDecorationLine::Flag::Overline) {
             if ((style.textDecorationSkipInk() == TextDecorationSkipInk::Auto
                 || style.textDecorationSkipInk() == TextDecorationSkipInk::All)
                 && !m_writingMode.isVerticalTypographic()) {
@@ -256,9 +256,9 @@ void TextDecorationPainter::paintBackgroundDecorations(const RenderStyle& style,
 
     auto draw = [&](const Style::TextShadow* shadow) {
         if (decorationType.hasUnderline() && !underlineRect.isEmpty())
-            paintDecoration(TextDecorationLineFlags::Underline, decorationStyle.underline.decorationStyle, decorationStyle.underline.color, underlineRect);
+            paintDecoration(Style::TextDecorationLine::Flag::Underline, decorationStyle.underline.decorationStyle, decorationStyle.underline.color, underlineRect);
         if (decorationType.hasOverline() && !overlineRect.isEmpty())
-            paintDecoration(TextDecorationLineFlags::Overline, decorationStyle.overline.decorationStyle, decorationStyle.overline.color, overlineRect);
+            paintDecoration(Style::TextDecorationLine::Flag::Overline, decorationStyle.overline.decorationStyle, decorationStyle.overline.color, overlineRect);
         // We only want to paint the shadow, hence the transparent color, not the actual line-through,
         // which will be painted in paintForegroundDecorations().
         if (shadow && decorationType.hasLineThrough())
@@ -316,24 +316,24 @@ void TextDecorationPainter::paintLineThrough(const ForegroundDecorationGeometry&
 static void collectStylesForRenderer(TextDecorationPainter::Styles& result, const RenderObject& renderer, Style::TextDecorationLine remainingDecorations, bool firstLineStyle, OptionSet<PaintBehavior> paintBehavior, PseudoId pseudoId)
 {
     auto extractDecorations = [&] (const RenderStyle& style, Style::TextDecorationLine decorations) {
-        if (!decorations.containsAny({ TextDecorationLineFlags::Underline, TextDecorationLineFlags::Overline, TextDecorationLineFlags::LineThrough }))
+        if (!decorations.containsAny({ Style::TextDecorationLine::Flag::Underline, Style::TextDecorationLine::Flag::Overline, Style::TextDecorationLine::Flag::LineThrough }))
             return;
 
         auto color = TextDecorationPainter::decorationColor(style, paintBehavior);
         auto decorationStyle = style.textDecorationStyle();
 
         if (decorations.hasUnderline()) {
-            remainingDecorations.remove(TextDecorationLineFlags::Underline);
+            remainingDecorations.remove(Style::TextDecorationLine::Flag::Underline);
             result.underline.color = color;
             result.underline.decorationStyle = decorationStyle;
         }
         if (decorations.hasOverline()) {
-            remainingDecorations.remove(TextDecorationLineFlags::Overline);
+            remainingDecorations.remove(Style::TextDecorationLine::Flag::Overline);
             result.overline.color = color;
             result.overline.decorationStyle = decorationStyle;
         }
         if (decorations.hasLineThrough()) {
-            remainingDecorations.remove(TextDecorationLineFlags::LineThrough);
+            remainingDecorations.remove(Style::TextDecorationLine::Flag::LineThrough);
             result.linethrough.color = color;
             result.linethrough.decorationStyle = decorationStyle;
         }
@@ -397,13 +397,13 @@ auto TextDecorationPainter::stylesForRenderer(const RenderObject& renderer, Styl
 
 Style::TextDecorationLine TextDecorationPainter::textDecorationsInEffectForStyle(const TextDecorationPainter::Styles& style)
 {
-    OptionSet<TextDecorationLineFlags> decorations;
+    OptionSet<Style::TextDecorationLine::Flag> decorations;
     if (style.underline.color.isValid())
-        decorations.add(TextDecorationLineFlags::Underline);
+        decorations.add(Style::TextDecorationLine::Flag::Underline);
     if (style.overline.color.isValid())
-        decorations.add(TextDecorationLineFlags::Overline);
+        decorations.add(Style::TextDecorationLine::Flag::Overline);
     if (style.linethrough.color.isValid())
-        decorations.add(TextDecorationLineFlags::LineThrough);
+        decorations.add(Style::TextDecorationLine::Flag::LineThrough);
     return decorations;
 }
 

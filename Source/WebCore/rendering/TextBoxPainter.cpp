@@ -607,8 +607,8 @@ static inline bool isDecoratingBoxForBackground(const InlineIterator::InlineBox&
         // <font> and <a> are always considered decorating boxes.
         return true;
     }
-    return styleToUse.textDecorationLine().containsAny({ TextDecorationLineFlags::Underline, TextDecorationLineFlags::Overline })
-        || (inlineBox.isRootInlineBox() && styleToUse.textDecorationLineInEffect().containsAny({ TextDecorationLineFlags::Underline, TextDecorationLineFlags::Overline }));
+    return styleToUse.textDecorationLine().containsAny({ Style::TextDecorationLine::Flag::Underline, Style::TextDecorationLine::Flag::Overline })
+        || (inlineBox.isRootInlineBox() && styleToUse.textDecorationLineInEffect().containsAny({ Style::TextDecorationLine::Flag::Underline, Style::TextDecorationLine::Flag::Overline }));
 }
 
 void TextBoxPainter::collectDecoratingBoxesForBackgroundPainting(DecoratingBoxList& decoratingBoxList, const InlineIterator::TextBoxIterator& textBox, FloatPoint textBoxLocation, const TextDecorationPainter::Styles& overrideDecorationStyle)

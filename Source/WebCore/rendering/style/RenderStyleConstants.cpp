@@ -1187,17 +1187,6 @@ TextStream& operator<<(TextStream& ts, TextCombine textCombine)
     return ts;
 }
 
-TextStream& operator<<(TextStream& ts, TextDecorationLineFlags line)
-{
-    switch (line) {
-    case TextDecorationLineFlags::Underline: ts << "underline"_s; break;
-    case TextDecorationLineFlags::Overline: ts << "overline"_s; break;
-    case TextDecorationLineFlags::LineThrough: ts << "line-through"_s; break;
-    case TextDecorationLineFlags::Blink: ts << "blink"_s; break;
-    }
-    return ts;
-}
-
 TextStream& operator<<(TextStream& ts, TextDecorationSkipInk skip)
 {
     switch (skip) {

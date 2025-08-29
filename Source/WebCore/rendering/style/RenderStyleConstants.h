@@ -656,13 +656,6 @@ enum class TextTransform : uint8_t {
 };
 constexpr auto maxTextTransformValue = TextTransform::FullWidth;
 
-enum class TextDecorationLineFlags : uint8_t {
-    Underline     = 1 << 0,
-    Overline      = 1 << 1,
-    LineThrough   = 1 << 2,
-    Blink         = 1 << 3,
-};
-
 enum class TextDecorationStyle : uint8_t {
     Solid,
     Double,
@@ -1340,7 +1333,6 @@ WTF::TextStream& operator<<(WTF::TextStream&, TableLayoutType);
 WTF::TextStream& operator<<(WTF::TextStream&, TextAlignMode);
 WTF::TextStream& operator<<(WTF::TextStream&, TextAlignLast);
 WTF::TextStream& operator<<(WTF::TextStream&, TextCombine);
-WTF::TextStream& operator<<(WTF::TextStream&, TextDecorationLineFlags);
 WTF::TextStream& operator<<(WTF::TextStream&, TextDecorationSkipInk);
 WTF::TextStream& operator<<(WTF::TextStream&, TextDecorationStyle);
 WTF::TextStream& operator<<(WTF::TextStream&, TextEmphasisFill);

@@ -47,6 +47,7 @@
 #include <WebCore/ScrollAxis.h>
 #include <WebCore/ScrollTypes.h>
 #include <WebCore/StyleScrollBehavior.h>
+#include <WebCore/StyleTextDecorationLine.h>
 #include <WebCore/StyleWebKitOverflowScrolling.h>
 #include <WebCore/StyleWebKitTouchCallout.h>
 #include <WebCore/TextFlags.h>
@@ -1222,7 +1223,7 @@ template<> constexpr TextJustify fromCSSValueID(CSSValueID valueID)
     return TextJustify::Auto;
 }
 
-#define TYPE TextDecorationLineFlags
+#define TYPE Style::TextDecorationLine::Flag
 #define FOR_EACH(CASE) CASE(Underline) CASE(Overline) CASE(LineThrough) CASE(Blink)
 DEFINE_TO_FROM_CSS_VALUE_ID_FUNCTIONS
 #undef TYPE

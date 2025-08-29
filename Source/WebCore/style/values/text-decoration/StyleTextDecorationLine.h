@@ -62,11 +62,18 @@ struct TextDecorationLine {
         GrammarError
     };
 
+    enum class Flag : uint8_t {
+        Underline     = 1 << 0,
+        Overline      = 1 << 1,
+        LineThrough   = 1 << 2,
+        Blink         = 1 << 3,
+    };
+
     // Values when Type is Flags
-    static constexpr uint8_t UnderlineBit   = static_cast<uint8_t>(TextDecorationLineFlags::Underline);
-    static constexpr uint8_t OverlineBit    = static_cast<uint8_t>(TextDecorationLineFlags::Overline);
-    static constexpr uint8_t LineThroughBit = static_cast<uint8_t>(TextDecorationLineFlags::LineThrough);
-    static constexpr uint8_t BlinkBit       = static_cast<uint8_t>(TextDecorationLineFlags::Blink);
+    static constexpr uint8_t UnderlineBit   = static_cast<uint8_t>(TextDecorationLine::Flag::Underline);
+    static constexpr uint8_t OverlineBit    = static_cast<uint8_t>(TextDecorationLine::Flag::Overline);
+    static constexpr uint8_t LineThroughBit = static_cast<uint8_t>(TextDecorationLine::Flag::LineThrough);
+    static constexpr uint8_t BlinkBit       = static_cast<uint8_t>(TextDecorationLine::Flag::Blink);
 
     static constexpr uint8_t SingleValueNone          = static_cast<uint8_t>(Type::SingleValue) | static_cast<uint8_t>(SingleValue::None);
     static constexpr uint8_t SingleValueSpellingError = static_cast<uint8_t>(Type::SingleValue) | static_cast<uint8_t>(SingleValue::SpellingError);
@@ -94,13 +101,13 @@ struct TextDecorationLine {
     {
     }
 
-    TextDecorationLine(OptionSet<TextDecorationLineFlags> flags)
+    TextDecorationLine(OptionSet<TextDecorationLine::Flag> flags)
         : m_packed(flags.isEmpty() ? SingleValueNone : packFlags(flags))
     {
     }
 
-    TextDecorationLine(TextDecorationLineFlags flag)
-        : TextDecorationLine(OptionSet<TextDecorationLineFlags>(flag))
+    TextDecorationLine(TextDecorationLine::Flag flag)
+        : TextDecorationLine(OptionSet<TextDecorationLine::Flag>(flag))
     {
     }
 
@@ -130,21 +137,21 @@ struct TextDecorationLine {
         return (isFlags()) && (m_packed & BlinkBit);
     }
 
-    bool containsAny(OptionSet<TextDecorationLineFlags> options) const
+    bool containsAny(OptionSet<TextDecorationLine::Flag> options) const
     {
         if (!isFlags())
             return false;
         return (m_packed & packFlags(options));
     }
 
-    bool contains(TextDecorationLineFlags option) const
+    bool contains(TextDecorationLine::Flag option) const
     {
         if (!isFlags())
             return false;
         return (m_packed & packFlagValue(option));
     }
 
-    void remove(TextDecorationLineFlags option)
+    void remove(TextDecorationLine::Flag option)
     {
         if (type() == Type::Flags) {
             m_packed &= ~packFlagValue(option);
@@ -179,7 +186,7 @@ struct TextDecorationLine {
     void setNone() { m_packed = SingleValueNone; }
     void setSpellingError() { m_packed = SingleValueSpellingError; }
     void setGrammarError() { m_packed = SingleValueGrammarError; }
-    void setFlags(OptionSet<TextDecorationLineFlags> flags)
+    void setFlags(OptionSet<TextDecorationLine::Flag> flags)
     {
         if (isFlags())
             m_packed |= packFlags(flags);
@@ -191,16 +198,16 @@ struct TextDecorationLine {
     bool operator==(const TextDecorationLine& other) const { return m_packed == other.m_packed; }
 
     uint8_t toRaw() const { return m_packed; }
-    static constexpr uint8_t packFlags(OptionSet<TextDecorationLineFlags> flags)
+    static constexpr uint8_t packFlags(OptionSet<TextDecorationLine::Flag> flags)
     {
         uint8_t result = static_cast<uint8_t>(Type::Flags);
-        if (flags.contains(TextDecorationLineFlags::Underline))
+        if (flags.contains(TextDecorationLine::Flag::Underline))
             result |= UnderlineBit;
-        if (flags.contains(TextDecorationLineFlags::Overline))
+        if (flags.contains(TextDecorationLine::Flag::Overline))
             result |= OverlineBit;
-        if (flags.contains(TextDecorationLineFlags::LineThrough))
+        if (flags.contains(TextDecorationLine::Flag::LineThrough))
             result |= LineThroughBit;
-        if (flags.contains(TextDecorationLineFlags::Blink))
+        if (flags.contains(TextDecorationLine::Flag::Blink))
             result |= BlinkBit;
         return result;
     }
@@ -210,34 +217,34 @@ private:
     inline uint8_t rawValue() const { return m_packed & ValuesMask; }
 
     // Note that this function packs only the 'Value' bit, ignoring the Type. This is useful for bitwise operations.
-    static constexpr uint8_t packFlagValue(TextDecorationLineFlags flag)
+    static constexpr uint8_t packFlagValue(TextDecorationLine::Flag flag)
     {
         switch (flag) {
-        case TextDecorationLineFlags::Underline:
+        case TextDecorationLine::Flag::Underline:
             return UnderlineBit;
-        case TextDecorationLineFlags::Overline:
+        case TextDecorationLine::Flag::Overline:
             return OverlineBit;
-        case TextDecorationLineFlags::LineThrough:
+        case TextDecorationLine::Flag::LineThrough:
             return LineThroughBit;
-        case TextDecorationLineFlags::Blink:
+        case TextDecorationLine::Flag::Blink:
             return BlinkBit;
         }
         ASSERT_NOT_REACHED();
         return 0;
     }
 
-    OptionSet<TextDecorationLineFlags> unpackFlags() const
+    OptionSet<TextDecorationLine::Flag> unpackFlags() const
     {
         ASSERT(isFlags());
-        OptionSet<TextDecorationLineFlags> flags;
+        OptionSet<TextDecorationLine::Flag> flags;
         if (m_packed & UnderlineBit)
-            flags.add(TextDecorationLineFlags::Underline);
+            flags.add(TextDecorationLine::Flag::Underline);
         if (m_packed & OverlineBit)
-            flags.add(TextDecorationLineFlags::Overline);
+            flags.add(TextDecorationLine::Flag::Overline);
         if (m_packed & LineThroughBit)
-            flags.add(TextDecorationLineFlags::LineThrough);
+            flags.add(TextDecorationLine::Flag::LineThrough);
         if (m_packed & BlinkBit)
-            flags.add(TextDecorationLineFlags::Blink);
+            flags.add(TextDecorationLine::Flag::Blink);
         return flags;
     }
 
@@ -250,19 +257,22 @@ template<> struct CSSValueConversion<TextDecorationLine> {
     auto operator()(BuilderState&, const CSSValue&) -> TextDecorationLine;
 };
 
-template<> struct CSSValueCreation<OptionSet<TextDecorationLineFlags>> {
-    auto operator()(CSSValuePool&, const RenderStyle&, const  OptionSet<TextDecorationLineFlags>&) -> Ref<CSSValue>;
+template<> struct CSSValueCreation<OptionSet<TextDecorationLine::Flag>> {
+    auto operator()(CSSValuePool&, const RenderStyle&, const  OptionSet<TextDecorationLine::Flag>&) -> Ref<CSSValue>;
 };
 
 // MARK: Serialization
 
-template<> struct Serialize<OptionSet<TextDecorationLineFlags>> {
-    void operator()(StringBuilder&, const CSS::SerializationContext&, const RenderStyle&, const OptionSet<TextDecorationLineFlags>&);
+template<> struct Serialize<OptionSet<TextDecorationLine::Flag>> {
+    void operator()(StringBuilder&, const CSS::SerializationContext&, const RenderStyle&, const OptionSet<TextDecorationLine::Flag>&);
 };
 
 WTF::TextStream& operator<<(WTF::TextStream&, const TextDecorationLine&);
 
 } // namespace Style
+
+WTF::TextStream& operator<<(WTF::TextStream&, Style::TextDecorationLine::Flag);
+
 } // namespace WebCore
 
 DEFINE_VARIANT_LIKE_CONFORMANCE(WebCore::Style::TextDecorationLine)

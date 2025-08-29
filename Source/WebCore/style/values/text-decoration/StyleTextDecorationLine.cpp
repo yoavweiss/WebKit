@@ -35,6 +35,17 @@
 #include <wtf/Assertions.h>
 
 namespace WebCore {
+
+TextStream& operator<<(TextStream& ts, Style::TextDecorationLine::Flag flag)
+{
+    switch (flag) {
+    case Style::TextDecorationLine::Flag::Underline: ts << "underline"_s; break;
+    case Style::TextDecorationLine::Flag::Overline: ts << "overline"_s; break;
+    case Style::TextDecorationLine::Flag::LineThrough: ts << "line-through"_s; break;
+    case Style::TextDecorationLine::Flag::Blink: ts << "blink"_s; break;
+    }
+    return ts;
+}
 namespace Style {
 
 uint8_t TextDecorationLine::addOrReplaceIfNotNone(const TextDecorationLine& value)
@@ -48,7 +59,7 @@ uint8_t TextDecorationLine::addOrReplaceIfNotNone(const TextDecorationLine& valu
         [&](CSS::Keyword::GrammarError) {
             setGrammarError();
         },
-        [&](const OptionSet<TextDecorationLineFlags>& newValue) {
+        [&](const OptionSet<TextDecorationLine::Flag>& newValue) {
             setFlags(newValue);
         }
     );
@@ -81,7 +92,7 @@ auto CSSValueConversion<TextDecorationLine>::operator()(BuilderState& state, con
     }
 
     if (RefPtr valueList = dynamicDowncast<CSSValueList>(value)) {
-        OptionSet<TextDecorationLineFlags> flags;
+        OptionSet<TextDecorationLine::Flag> flags;
 
         for (Ref item : *valueList) {
             RefPtr primitiveValue = requiredDowncast<CSSPrimitiveValue>(state, item);
@@ -90,16 +101,16 @@ auto CSSValueConversion<TextDecorationLine>::operator()(BuilderState& state, con
 
             switch (primitiveValue->valueID()) {
             case CSSValueUnderline:
-                flags.add(TextDecorationLineFlags::Underline);
+                flags.add(TextDecorationLine::Flag::Underline);
                 break;
             case CSSValueOverline:
-                flags.add(TextDecorationLineFlags::Overline);
+                flags.add(TextDecorationLine::Flag::Overline);
                 break;
             case CSSValueLineThrough:
-                flags.add(TextDecorationLineFlags::LineThrough);
+                flags.add(TextDecorationLine::Flag::LineThrough);
                 break;
             case CSSValueBlink:
-                flags.add(TextDecorationLineFlags::Blink);
+                flags.add(TextDecorationLine::Flag::Blink);
                 break;
             default:
                 return invalidValue();
@@ -115,30 +126,30 @@ auto CSSValueConversion<TextDecorationLine>::operator()(BuilderState& state, con
     return invalidValue();
 }
 
-Ref<CSSValue> CSSValueCreation<OptionSet<TextDecorationLineFlags>>::operator()(CSSValuePool&, const RenderStyle&, const OptionSet<TextDecorationLineFlags>& value)
+Ref<CSSValue> CSSValueCreation<OptionSet<TextDecorationLine::Flag>>::operator()(CSSValuePool&, const RenderStyle&, const OptionSet<TextDecorationLine::Flag>& value)
 {
     ASSERT(!value.isEmpty());
 
     CSSValueListBuilder list;
-    if (value.contains(TextDecorationLineFlags::Underline))
+    if (value.contains(TextDecorationLine::Flag::Underline))
         list.append(CSSPrimitiveValue::create(CSSValueUnderline));
-    if (value.contains(TextDecorationLineFlags::Overline))
+    if (value.contains(TextDecorationLine::Flag::Overline))
         list.append(CSSPrimitiveValue::create(CSSValueOverline));
-    if (value.contains(TextDecorationLineFlags::LineThrough))
+    if (value.contains(TextDecorationLine::Flag::LineThrough))
         list.append(CSSPrimitiveValue::create(CSSValueLineThrough));
-    if (value.contains(TextDecorationLineFlags::Blink))
+    if (value.contains(TextDecorationLine::Flag::Blink))
         list.append(CSSPrimitiveValue::create(CSSValueBlink));
     return CSSValueList::createSpaceSeparated(WTFMove(list));
 }
 
 // MARK: - Serialization
 
-void Serialize<OptionSet<TextDecorationLineFlags>>::operator()(StringBuilder& builder, const CSS::SerializationContext&, const RenderStyle&, const OptionSet<TextDecorationLineFlags>& value)
+void Serialize<OptionSet<TextDecorationLine::Flag>>::operator()(StringBuilder& builder, const CSS::SerializationContext&, const RenderStyle&, const OptionSet<TextDecorationLine::Flag>& value)
 {
     ASSERT(!value.isEmpty());
 
     bool needsSpace = false;
-    auto appendOption = [&](TextDecorationLineFlags option, CSSValueID valueID) {
+    auto appendOption = [&](TextDecorationLine::Flag option, CSSValueID valueID) {
         if (value.contains(option)) {
             if (needsSpace)
                 builder.append(' ');
@@ -146,11 +157,11 @@ void Serialize<OptionSet<TextDecorationLineFlags>>::operator()(StringBuilder& bu
             needsSpace = true;
         }
     };
-    appendOption(TextDecorationLineFlags::Underline, CSSValueUnderline);
-    appendOption(TextDecorationLineFlags::Overline, CSSValueOverline);
-    appendOption(TextDecorationLineFlags::LineThrough, CSSValueLineThrough);
+    appendOption(TextDecorationLine::Flag::Underline, CSSValueUnderline);
+    appendOption(TextDecorationLine::Flag::Overline, CSSValueOverline);
+    appendOption(TextDecorationLine::Flag::LineThrough, CSSValueLineThrough);
     // Blink value is ignored for rendering but not for the computed value.
-    appendOption(TextDecorationLineFlags::Blink, CSSValueBlink);
+    appendOption(TextDecorationLine::Flag::Blink, CSSValueBlink);
 }
 
 // MARK: - Logging
@@ -167,9 +178,9 @@ WTF::TextStream& operator<<(WTF::TextStream& ts, const TextDecorationLine& decor
         [&](CSS::Keyword::GrammarError) {
             ts << "grammar-error";
         },
-        [&](const OptionSet<TextDecorationLineFlags>& flags) {
+        [&](const OptionSet<TextDecorationLine::Flag>& flags) {
             bool needsSpace = false;
-            auto streamFlag = [&](TextDecorationLineFlags flag, CSSValueID valueID) {
+            auto streamFlag = [&](TextDecorationLine::Flag flag, CSSValueID valueID) {
                 if (flags.contains(flag)) {
                     if (needsSpace)
                         ts << ' ';
@@ -177,10 +188,10 @@ WTF::TextStream& operator<<(WTF::TextStream& ts, const TextDecorationLine& decor
                     needsSpace = true;
                 }
             };
-            streamFlag(TextDecorationLineFlags::Underline, CSSValueUnderline);
-            streamFlag(TextDecorationLineFlags::Overline, CSSValueOverline);
-            streamFlag(TextDecorationLineFlags::LineThrough, CSSValueLineThrough);
-            streamFlag(TextDecorationLineFlags::Blink, CSSValueBlink);
+            streamFlag(TextDecorationLine::Flag::Underline, CSSValueUnderline);
+            streamFlag(TextDecorationLine::Flag::Overline, CSSValueOverline);
+            streamFlag(TextDecorationLine::Flag::LineThrough, CSSValueLineThrough);
+            streamFlag(TextDecorationLine::Flag::Blink, CSSValueBlink);
         }
     );
     return ts;

@@ -1027,7 +1027,7 @@ static float logicalBottomForTextDecorationContent(const InlineDisplay::Boxes& b
             logicalBottom = logicalBottom ? std::max(*logicalBottom, contentLogicalBottom) : contentLogicalBottom;
         }
     }
-    // This function is not called unless there's at least one run on the line with TextDecorationLineFlags::Underline.
+    // This function is not called unless there's at least one run on the line with Style::TextDecorationLine::Flag::Underline.
     ASSERT(logicalBottom);
     return logicalBottom.value_or(0.f);
 }
