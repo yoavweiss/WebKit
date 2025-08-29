@@ -413,6 +413,13 @@ Vector<String, 2> RenderThemeCocoa::mediaControlsScripts()
     };
 }
 
+RefPtr<FragmentedSharedBuffer> RenderThemeCocoa::mediaControlsImageDataForIconNameAndType(const String& iconName, const String& iconType)
+{
+    NSString *directory = @"modern-media-controls/images";
+    NSBundle *bundle = [NSBundle bundleForClass:[WebCoreRenderThemeBundle class]];
+    return SharedBuffer::create([NSData dataWithContentsOfFile:[bundle pathForResource:iconName.createNSString().get() ofType:iconType.createNSString().get() inDirectory:directory]]);
+}
+
 String RenderThemeCocoa::mediaControlsBase64StringForIconNameAndType(const String& iconName, const String& iconType)
 {
     NSString *directory = @"modern-media-controls/images";

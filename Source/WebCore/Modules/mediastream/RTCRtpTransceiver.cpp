@@ -36,6 +36,7 @@
 
 #include "Logging.h"
 #include "RTCPeerConnection.h"
+#include "ScriptWrappableInlines.h"
 #include <wtf/NeverDestroyed.h>
 #include <wtf/TZoneMallocInlines.h>
 

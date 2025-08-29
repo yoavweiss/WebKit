@@ -78,6 +78,9 @@ public:
     void setAllowPostLegacySynchronousMessage() { m_allowPostLegacySynchronousMessage = true; }
     bool allowPostLegacySynchronousMessage() const { return m_allowPostLegacySynchronousMessage; }
 
+    void setIsMediaControls() { m_isMediaControls = true; }
+    bool isMediaControls() const { return m_isMediaControls; }
+
     DOMObjectWrapperMap& wrappers() { return m_wrappers; }
 
     Type type() const { return m_type; }
@@ -107,6 +110,7 @@ private:
     bool m_allowJSHandleCreation : 1 { false };
     bool m_allowNodeSerialization : 1 { false };
     bool m_allowPostLegacySynchronousMessage : 1 { false };
+    bool m_isMediaControls : 1 { false };
 };
 
 DOMWrapperWorld& normalWorld(JSC::VM&);

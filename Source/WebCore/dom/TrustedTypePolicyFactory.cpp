@@ -35,6 +35,7 @@
 #include "JSTrustedScriptURL.h"
 #include "SVGNames.h"
 #include "ScriptExecutionContext.h"
+#include "ScriptWrappableInlines.h"
 #include "TrustedType.h"
 #include "TrustedTypePolicyOptions.h"
 #include "XLinkNames.h"

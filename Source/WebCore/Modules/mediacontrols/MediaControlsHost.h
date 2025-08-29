@@ -28,6 +28,7 @@
 #if ENABLE(VIDEO)
 
 #include "HTMLMediaElement.h"
+#include "JSValueInWrappedObject.h"
 #include "MediaSession.h"
 #include <wtf/Ref.h>
 #include <wtf/RefCounted.h>
@@ -113,7 +114,6 @@ public:
 
     Vector<String, 2> shadowRootStyleSheets() const;
     static String base64StringForIconNameAndType(const String& iconName, const String& iconType);
-    static String formattedStringForDuration(double);
 #if ENABLE(MEDIA_CONTROLS_CONTEXT_MENUS)
     bool showMediaControlsContextMenu(HTMLElement&, String&& optionsJSONString, Ref<VoidCallback>&&);
 #endif // ENABLE(MEDIA_CONTROLS_CONTEXT_MENUS)
@@ -126,6 +126,9 @@ public:
 #if ENABLE(MEDIA_SESSION)
     void ensureMediaSessionObserver();
 #endif
+
+    const JSValueInWrappedObject& controllerWrapper() const { return m_controllerWrapper; }
+    JSValueInWrappedObject& controllerWrapper() { return m_controllerWrapper; }
 
 private:
     explicit MediaControlsHost(HTMLMediaElement&);
@@ -147,6 +150,8 @@ private:
 #if ENABLE(MEDIA_CONTROLS_CONTEXT_MENUS)
     RefPtr<VoidCallback> m_showMediaControlsContextMenuCallback;
 #endif // ENABLE(MEDIA_CONTROLS_CONTEXT_MENUS)
+
+    JSValueInWrappedObject m_controllerWrapper;
 };
 
 } // namespace WebCore

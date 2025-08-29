@@ -33,6 +33,7 @@
 #include "JSDOMGlobalObject.h"
 #include "LocalDOMWindow.h"
 #include "Performance.h"
+#include "ScriptWrappableInlines.h"
 #include "UserGestureIndicator.h"
 #include "WorkerGlobalScope.h"
 #include <wtf/HexNumber.h>

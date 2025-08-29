@@ -5816,11 +5816,6 @@ void Internals::systemBeep()
 
 #if ENABLE(VIDEO)
 
-String Internals::getCurrentMediaControlsStatusForElement(HTMLMediaElement& mediaElement)
-{
-    return mediaElement.getCurrentMediaControlsStatus();
-}
-
 void Internals::setMediaControlsMaximumRightContainerButtonCountOverride(HTMLMediaElement& mediaElement, size_t count)
 {
     mediaElement.setMediaControlsMaximumRightContainerButtonCountOverride(count);

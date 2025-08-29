@@ -43,6 +43,7 @@
 #include "ReadableStream.h"
 #include "ReadableStreamSource.h"
 #include "ScriptExecutionContext.h"
+#include "ScriptWrappableInlines.h"
 #include "SecurityOrigin.h"
 #include "SharedBuffer.h"
 #include "ThreadableBlobRegistry.h"

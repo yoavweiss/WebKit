@@ -219,7 +219,9 @@ Modules/indexeddb/shared/IndexKey.cpp
 Modules/mediacapabilities/MediaCapabilities.cpp
 Modules/mediacapabilities/NavigatorMediaCapabilities.cpp
 Modules/mediacapabilities/WorkerNavigatorMediaCapabilities.cpp
+Modules/mediacontrols/LocalDOMWindowMediaControls.cpp
 Modules/mediacontrols/MediaControlsHost.cpp
+Modules/mediacontrols/MediaControlsUtils.cpp
 Modules/mediarecorder/BlobEvent.cpp
 Modules/mediarecorder/MediaRecorder.cpp
 Modules/mediarecorder/MediaRecorderErrorEvent.cpp
@@ -720,6 +722,7 @@ bindings/js/JSIntersectionObserverEntryCustom.cpp
 bindings/js/JSKeyframeEffectCustom.cpp
 bindings/js/JSLazyEventListener.cpp
 bindings/js/JSLocationCustom.cpp
+bindings/js/JSMediaControlsHostCustom.cpp
 bindings/js/JSMediaSessionCustom.cpp
 bindings/js/JSMediaSourceCustom.cpp
 bindings/js/JSMediaStreamTrackCustom.cpp
@@ -1240,6 +1243,7 @@ dom/DocumentFontLoader.cpp
 dom/DocumentFragment.cpp
 dom/DocumentFullscreen.cpp
 dom/DocumentMarkerController.cpp
+dom/DocumentMediaElement.cpp
 dom/DocumentOrShadowRootFullscreen.cpp
 dom/DocumentParser.cpp
 dom/DocumentSharedObjectPool.cpp
@@ -4302,6 +4306,7 @@ JSMediaCapabilitiesEncodingInfo.cpp
 JSMediaCapabilitiesInfo.cpp
 JSMediaController.cpp
 JSMediaControlsHost.cpp
+JSMediaControlsUtils.cpp
 JSMediaDecodingConfiguration.cpp
 JSMediaDecodingType.cpp
 JSMediaDeviceInfo.cpp

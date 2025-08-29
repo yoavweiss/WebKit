@@ -426,11 +426,6 @@ String MediaControlsHost::base64StringForIconNameAndType(const String& iconName,
     return RenderTheme::singleton().mediaControlsBase64StringForIconNameAndType(iconName, iconType);
 }
 
-String MediaControlsHost::formattedStringForDuration(double durationInSeconds)
-{
-    return RenderTheme::singleton().mediaControlsFormattedStringForDuration(durationInSeconds);
-}
-
 #if ENABLE(MEDIA_CONTROLS_CONTEXT_MENUS)
 
 #if ENABLE(CONTEXT_MENUS) && USE(ACCESSIBILITY_CONTEXT_MENUS)

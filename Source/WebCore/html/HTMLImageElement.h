@@ -150,6 +150,8 @@ public:
     bool isDroppedImagePlaceholder() const { return m_isDroppedImagePlaceholder; }
     void setIsDroppedImagePlaceholder() { m_isDroppedImagePlaceholder = true; }
 
+    void setIsUserAgentShadowRootResource();
+
     void evaluateDynamicMediaQueryDependencies();
 
     String referrerPolicyForBindings() const;

@@ -588,7 +588,6 @@ public:
 
     void pageScaleFactorChanged();
     void userInterfaceLayoutDirectionChanged();
-    WEBCORE_EXPORT String getCurrentMediaControlsStatus();
     WEBCORE_EXPORT void setMediaControlsMaximumRightContainerButtonCountOverride(size_t);
     WEBCORE_EXPORT void setMediaControlsHidePlaybackRates(bool);
     MediaControlsHost* mediaControlsHost() { return m_mediaControlsHost.get(); }
@@ -1047,8 +1046,6 @@ private:
     enum class SleepType : uint8_t { None, Display, System };
     SleepType shouldDisableSleep() const;
 
-    DOMWrapperWorld& ensureIsolatedWorld();
-
     RefPtr<MediaSessionManagerInterface> sessionManager() const final;
     PlatformMediaSession::MediaType mediaType() const override;
     PlatformMediaSession::MediaType presentationType() const override;
@@ -1094,11 +1091,7 @@ private:
     void initializeMediaSession();
     void invalidateMediaSession();
 
-    void updateCaptionContainer();
     bool ensureMediaControls();
-
-    using JSSetupFunction = Function<bool(JSDOMGlobalObject&, JSC::JSGlobalObject&, ScriptController&, DOMWrapperWorld&)>;
-    bool setupAndCallJS(NOESCAPE const JSSetupFunction&);
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
     void prepareForDocumentSuspension() final;
@@ -1330,7 +1323,6 @@ private:
     bool m_hasEverHadVideo : 1;
 
     bool m_mediaControlsDependOnPageScaleFactor : 1;
-    bool m_haveSetUpCaptionContainer : 1;
 
     bool m_isScrubbingRemotely : 1;
     bool m_waitingToEnterFullscreen : 1;
@@ -1413,7 +1405,6 @@ private:
 
     friend class MediaControlsHost;
     RefPtr<MediaControlsHost> m_mediaControlsHost;
-    RefPtr<DOMWrapperWorld> m_isolatedWorld;
 
 #if ENABLE(MEDIA_STREAM)
     RefPtr<MediaStream> m_mediaStreamSrcObject;

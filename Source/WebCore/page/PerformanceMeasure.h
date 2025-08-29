@@ -38,6 +38,7 @@ namespace WebCore {
 
 class SerializedScriptValue;
 class ScriptExecutionContext;
+template<typename> class ExceptionOr;
 
 class PerformanceMeasure final : public PerformanceEntry {
 public:

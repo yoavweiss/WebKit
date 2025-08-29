@@ -84,7 +84,7 @@ class TimeLabel extends LayoutNode
         if (propertyName === "value") {
             this.element.textContent = this._formattedTime();
 
-            const timeAsString = formattedStringForDuration(this.value);
+            const timeAsString = utils.formattedStringForDuration(this.value);
             switch (this._type) {
             case TimeLabel.Type.Elapsed:
                 this.element.setAttribute("aria-label", UIString("Elapsed: %s", timeAsString));
