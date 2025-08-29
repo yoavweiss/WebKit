@@ -282,6 +282,7 @@ Modules/mediastream/RTCRtpSFrameTransformer.cpp
 Modules/mediastream/RTCRtpScriptTransform.cpp
 Modules/mediastream/RTCRtpScriptTransformer.cpp
 Modules/mediastream/RTCRtpSender.cpp
+Modules/mediastream/RTCEncodedStreamProducer.cpp
 Modules/mediastream/RTCRtpTransceiver.cpp
 Modules/mediastream/RTCRtpTransform.cpp
 Modules/mediastream/RTCSctpTransport.cpp
@@ -4553,6 +4554,7 @@ JSRTCIceServerTransportProtocol.cpp
 JSRTCIceTcpCandidateType.cpp
 JSRTCIceTransport.cpp
 JSRTCIceTransportState.cpp
+JSRTCEncodedStreams.cpp
 JSRTCLocalSessionDescriptionInit.cpp
 JSRTCLogsCallback.cpp
 JSRTCOfferAnswerOptions.cpp
