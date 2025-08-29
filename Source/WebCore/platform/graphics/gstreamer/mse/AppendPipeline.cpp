@@ -489,12 +489,12 @@ void AppendPipeline::appsinkNewSample(const Track& track, GRefPtr<GstSample>&& s
 {
     ASSERT(isMainThread());
 
-    if (!gst_sample_get_buffer(sample.get())) [[unlikely]] {
+    auto buffer = gst_sample_get_buffer(sample.get());
+    if (!buffer) [[unlikely]] {
         GST_WARNING_OBJECT(pipeline(), "Received sample without buffer from appsink.");
         return;
     }
 
-    auto* buffer = gst_sample_get_buffer(sample.get());
     auto hasValidPTS = GST_BUFFER_PTS_IS_VALID(buffer);
     if (!hasValidPTS && track.streamType != StreamType::Text) {
         // When demuxing Vorbis, matroskademux creates several PTS-less frames with header information. We don't need those.
@@ -1202,15 +1202,14 @@ void AppendPipeline::hookTrackEvents(Track& track)
         Track& track;
     };
 
-    g_signal_connect_data(track.appsinkPad.get(), "notify::caps", G_CALLBACK(+[](GObject*, GParamSpec*, Closure* closure) {
+    g_signal_connect_data(track.appsinkPad.get(), "notify::caps", G_CALLBACK(+[]([[maybe_unused]] GObject* object, GParamSpec*, Closure* closure) {
         AppendPipeline& appendPipeline = closure->appendPipeline;
         Track& track = closure->track;
         if (isMainThread()) {
             // When changing the pipeline state down to READY the demuxer is unlinked and this triggers a caps notification
             // because the appsink loses its previously negotiated caps. We are not interested in these unnegotiated caps.
-#ifndef NDEBUG
-            GRefPtr<GstPad> pad = adoptGRef(gst_element_get_static_pad(track.appsink.get(), "sink"));
-            GRefPtr<GstCaps> caps = adoptGRef(gst_pad_get_current_caps(pad.get()));
+#if ASSERT_ENABLED
+            GRefPtr<GstCaps> caps = adoptGRef(gst_pad_get_current_caps(GST_PAD_CAST(object)));
             ASSERT(!caps);
 #endif
             return;
