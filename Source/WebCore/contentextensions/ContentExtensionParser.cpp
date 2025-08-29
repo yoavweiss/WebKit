@@ -310,11 +310,13 @@ static std::optional<Expected<ContentExtensionRule, std::error_code>> loadRuleId
     if (!identifier.has_value())
         return makeUnexpected(ContentExtensionError::JSONInvalidRuleIdentifier);
 
+    auto rulesetIdentifier = ruleObject.getString("_rulesetIdentifier"_s);
+
     auto trigger = loadTrigger(ruleObject);
     if (!trigger.has_value())
         return makeUnexpected(trigger.error());
 
-    return { { { WTFMove(trigger.value()), Action { ReportIdentifierAction { identifier.value() } } } } };
+    return { { { WTFMove(trigger.value()), Action { ReportIdentifierAction { rulesetIdentifier, identifier.value() } } } } };
 }
 
 static Expected<Vector<ContentExtensionRule>, std::error_code> loadEncodedRules(const String& ruleJSON, CSSSelectorsAllowed selectorsAllowed)
