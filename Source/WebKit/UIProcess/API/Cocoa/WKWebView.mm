@@ -4301,11 +4301,6 @@ static RetainPtr<NSArray> wkTextManipulationErrors(NSArray<_WKTextManipulationIt
     });
 }
 
-+ (NSString *)_userVisibleStringForURL:(NSURL *)url
-{
-    return WTF::userVisibleString(url);
-}
-
 - (void)_toggleInWindow
 {
     THROW_IF_SUSPENDED;

@@ -2790,6 +2790,16 @@ framework module WebKit_Private [system] {
     export *
   }
 
+  explicit module _WKNSStringExtras {
+    header "_WKNSStringExtras.h"
+    export *
+  }
+
+  explicit module _WKNSURLExtras {
+    header "_WKNSURLExtras.h"
+    export *
+  }
+
   explicit module _WKNSWindowExtras {
     header "_WKNSWindowExtras.h"
     export *

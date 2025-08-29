@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,62 +24,15 @@
  */
 
 #import "config.h"
-#import "_WKTextInputContext.h"
+#import "_WKNSURLExtras.h"
 
-#import "_WKTextInputContextInternal.h"
-#import <WebCore/ElementContext.h>
-#import <wtf/cocoa/TypeCastsCocoa.h>
+#import <wtf/cocoa/NSURLExtras.h>
 
-@implementation _WKTextInputContext {
-    WebCore::ElementContext _textInputContext;
-}
+@implementation NSURL (WKExtras)
 
-- (instancetype)init
+- (NSString *)_wk_userVisibleString
 {
-    return nil;
-}
-
-- (instancetype)_initWithTextInputContext:(const WebCore::ElementContext&)context
-{
-    self = [super init];
-    if (!self)
-        return nil;
-
-    _textInputContext = context;
-
-    return self;
-}
-
-- (CGRect)boundingRect
-{
-    return _textInputContext.boundingRect;
-}
-
-- (const WebCore::ElementContext&)_textInputContext
-{
-    return _textInputContext;
-}
-
-- (BOOL)isEqual:(id)otherObject
-{
-    if (self == otherObject)
-        return YES;
-
-    auto *other = dynamic_objc_cast<_WKTextInputContext>(otherObject);
-    if (!other)
-        return NO;
-
-    return _textInputContext == other->_textInputContext;
-}
-
-- (NSUInteger)hash
-{
-    return _textInputContext.nodeIdentifier ? _textInputContext.nodeIdentifier->toUInt64() : 0;
-}
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    return [self retain];
+    return WTF::userVisibleString(self);
 }
 
 @end

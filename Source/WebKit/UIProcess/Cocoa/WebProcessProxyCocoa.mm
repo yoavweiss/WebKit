@@ -36,6 +36,9 @@
 #import "SharedBufferReference.h"
 #import "WKAPICast.h"
 #import "WKBrowsingContextHandleInternal.h"
+#import "WKMouseDeviceObserver.h"
+#import "WKStylusDeviceObserver.h"
+#import "WebPageProxy.h"
 #import "WebProcessMessages.h"
 #import "WebProcessPool.h"
 #import <WebCore/ActivityState.h>

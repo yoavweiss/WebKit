@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,63 +23,10 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "config.h"
-#import "_WKTextInputContext.h"
+#import <WebKit/WKFoundation.h>
 
-#import "_WKTextInputContextInternal.h"
-#import <WebCore/ElementContext.h>
-#import <wtf/cocoa/TypeCastsCocoa.h>
+@interface NSString (WKExtras)
 
-@implementation _WKTextInputContext {
-    WebCore::ElementContext _textInputContext;
-}
-
-- (instancetype)init
-{
-    return nil;
-}
-
-- (instancetype)_initWithTextInputContext:(const WebCore::ElementContext&)context
-{
-    self = [super init];
-    if (!self)
-        return nil;
-
-    _textInputContext = context;
-
-    return self;
-}
-
-- (CGRect)boundingRect
-{
-    return _textInputContext.boundingRect;
-}
-
-- (const WebCore::ElementContext&)_textInputContext
-{
-    return _textInputContext;
-}
-
-- (BOOL)isEqual:(id)otherObject
-{
-    if (self == otherObject)
-        return YES;
-
-    auto *other = dynamic_objc_cast<_WKTextInputContext>(otherObject);
-    if (!other)
-        return NO;
-
-    return _textInputContext == other->_textInputContext;
-}
-
-- (NSUInteger)hash
-{
-    return _textInputContext.nodeIdentifier ? _textInputContext.nodeIdentifier->toUInt64() : 0;
-}
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    return [self retain];
-}
+- (NSString *)_wk_decodeHostName WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
 
 @end

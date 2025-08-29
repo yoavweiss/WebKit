@@ -2618,6 +2618,8 @@
 		F634445612A885C8000612D8 /* APISecurityOrigin.h in Headers */ = {isa = PBXBuildFile; fileRef = F634445512A885C8000612D8 /* APISecurityOrigin.h */; };
 		FA0B9DB32E4DAA4D0029560E /* APICompletionListener.h in Headers */ = {isa = PBXBuildFile; fileRef = FA0B9DB22E4DA71F0029560E /* APICompletionListener.h */; };
 		FA1ED3F42B76B93700C90F3B /* CoreIPCCFType.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA1ED3F32B76B90700C90F3B /* CoreIPCCFType.mm */; };
+		FA2F854F2E60CBDD00D0ECA8 /* _WKNSURLExtras.h in Headers */ = {isa = PBXBuildFile; fileRef = FA2F854D2E60CA7D00D0ECA8 /* _WKNSURLExtras.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		FA2F85502E60CBE700D0ECA8 /* _WKNSStringExtras.h in Headers */ = {isa = PBXBuildFile; fileRef = FA2F854B2E60CA7D00D0ECA8 /* _WKNSStringExtras.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		FA39AE682B23972B008F93CD /* CoreIPCAuditToken.h in Headers */ = {isa = PBXBuildFile; fileRef = FA39AE662B23972A008F93CD /* CoreIPCAuditToken.h */; };
 		FA4066E02D44733200A2E622 /* WKPageFullScreenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = FA4066DF2D4472CE00A2E622 /* WKPageFullScreenClient.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		FA4FE2662B75EB290016E671 /* CoreIPCNull.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA4FE2642B75EAFF0016E671 /* CoreIPCNull.mm */; };
@@ -8647,6 +8649,10 @@
 		FA1A7DE42E012DB3005E394B /* RemotePageVideoPresentationManagerProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemotePageVideoPresentationManagerProxy.h; sourceTree = "<group>"; };
 		FA1A7DE52E012DB3005E394B /* RemotePageVideoPresentationManagerProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RemotePageVideoPresentationManagerProxy.cpp; sourceTree = "<group>"; };
 		FA1ED3F32B76B90700C90F3B /* CoreIPCCFType.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CoreIPCCFType.mm; sourceTree = "<group>"; };
+		FA2F854B2E60CA7D00D0ECA8 /* _WKNSStringExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _WKNSStringExtras.h; sourceTree = "<group>"; };
+		FA2F854C2E60CA7D00D0ECA8 /* _WKNSStringExtras.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = _WKNSStringExtras.mm; sourceTree = "<group>"; };
+		FA2F854D2E60CA7D00D0ECA8 /* _WKNSURLExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = _WKNSURLExtras.h; sourceTree = "<group>"; };
+		FA2F854E2E60CA7D00D0ECA8 /* _WKNSURLExtras.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = _WKNSURLExtras.mm; sourceTree = "<group>"; };
 		FA39AE4B2B2269C4008F93CD /* APIDictionary.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = APIDictionary.serialization.in; sourceTree = "<group>"; };
 		FA39AE4C2B229187008F93CD /* WebImage.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebImage.serialization.in; sourceTree = "<group>"; };
 		FA39AE4D2B22D766008F93CD /* APIObject.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = APIObject.serialization.in; sourceTree = "<group>"; };
@@ -12208,6 +12214,10 @@
 				51130EC7294466AF00E076C5 /* _WKNotificationData.h */,
 				51130EC6294466AF00E076C5 /* _WKNotificationData.mm */,
 				51130EC5294466AE00E076C5 /* _WKNotificationDataInternal.h */,
+				FA2F854B2E60CA7D00D0ECA8 /* _WKNSStringExtras.h */,
+				FA2F854C2E60CA7D00D0ECA8 /* _WKNSStringExtras.mm */,
+				FA2F854D2E60CA7D00D0ECA8 /* _WKNSURLExtras.h */,
+				FA2F854E2E60CA7D00D0ECA8 /* _WKNSURLExtras.mm */,
 				9323611D1B015DA800FA9232 /* _WKOverlayScrollbarStyle.h */,
 				9B12A4D42C73C155008A9AAB /* _WKPageLoadTiming.h */,
 				9B12A4D52C73C155008A9AAB /* _WKPageLoadTiming.mm */,
@@ -16991,6 +17001,8 @@
 				51130ECA294466AF00E076C5 /* _WKNotificationData.h in Headers */,
 				51130EC8294466AF00E076C5 /* _WKNotificationDataInternal.h in Headers */,
 				A118A9F31908B8EA00F7C92B /* _WKNSFileManagerExtras.h in Headers */,
+				FA2F85502E60CBE700D0ECA8 /* _WKNSStringExtras.h in Headers */,
+				FA2F854F2E60CBDD00D0ECA8 /* _WKNSURLExtras.h in Headers */,
 				A5C0F0A72000654D00536536 /* _WKNSWindowExtras.h in Headers */,
 				9323611E1B015DA800FA9232 /* _WKOverlayScrollbarStyle.h in Headers */,
 				9B12A4D62C73C155008A9AAB /* _WKPageLoadTiming.h in Headers */,
