@@ -29,6 +29,7 @@
 #include <WebCore/BoxExtents.h>
 #include <WebCore/PseudoElementIdentifier.h>
 #include <WebCore/StylePrimitiveNumeric+Forward.h>
+#include <WebCore/StyleTextDecorationLine.h>
 #include <WebCore/WritingMode.h>
 #include <unicode/utypes.h>
 #include <wtf/CheckedRef.h>
@@ -348,7 +349,6 @@ struct ShapeMargin;
 struct ShapeOutside;
 struct StrokeMiterlimit;
 struct StrokeWidth;
-struct TextDecorationLine;
 struct TextDecorationThickness;
 struct TextEmphasisStyle;
 struct TextIndent;
@@ -402,6 +402,7 @@ using WebkitBorderSpacing = Length<CSS::Nonnegative>;
 }
 
 constexpr auto PublicPseudoIDBits = 17;
+constexpr auto TextDecorationLineBits = 5;
 constexpr auto TextTransformBits = 5;
 constexpr auto PseudoElementTypeBits = 5;
 
@@ -728,8 +729,8 @@ public:
     inline TextAlignLast textAlignLast() const;
     inline TextGroupAlign textGroupAlign() const;
     inline OptionSet<TextTransform> textTransform() const;
-    inline const Style::TextDecorationLine& textDecorationLineInEffect() const;
-    inline const Style::TextDecorationLine& textDecorationLine() const;
+    inline Style::TextDecorationLine textDecorationLineInEffect() const;
+    inline Style::TextDecorationLine textDecorationLine() const;
     inline TextDecorationStyle textDecorationStyle() const;
     inline TextDecorationSkipInk textDecorationSkipInk() const;
     inline OptionSet<TextUnderlinePosition> textUnderlinePosition() const;
@@ -2418,6 +2419,7 @@ private:
         PREFERRED_TYPE(bool) unsigned isLink : 1;
         PREFERRED_TYPE(PseudoId) unsigned pseudoElementType : PseudoElementTypeBits;
         unsigned pseudoBits : PublicPseudoIDBits;
+        PREFERRED_TYPE(Style::TextDecorationLine) unsigned textDecorationLine : TextDecorationLineBits; // Text decorations defined *only* by this element.
 
         // If you add more style bits here, you will also need to update RenderStyle::NonInheritedFlags::copyNonInheritedFrom().
     };
@@ -2439,6 +2441,7 @@ private:
         PREFERRED_TYPE(TextWrapStyle) unsigned char textWrapStyle : 2;
         PREFERRED_TYPE(OptionSet<TextTransform>) unsigned char textTransform : TextTransformBits;
         unsigned char : 1; // byte alignment
+        PREFERRED_TYPE(Style::TextDecorationLine) unsigned char textDecorationLineInEffect : TextDecorationLineBits;
 
         // Cursors and Visibility = 13 bits aligned onto 4 bits + 1 byte + 1 bit
         PREFERRED_TYPE(PointerEvents) unsigned char pointerEvents : 4;

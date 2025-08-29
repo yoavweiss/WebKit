@@ -28,7 +28,6 @@
 #include <WebCore/Length.h>
 #include <WebCore/StyleColor.h>
 #include <WebCore/StyleFontData.h>
-#include <WebCore/StyleTextDecorationLine.h>
 #include <WebCore/StyleWebKitBorderSpacing.h>
 #include <wtf/DataRef.h>
 
@@ -66,8 +65,6 @@ public:
     DataRef<StyleFontData> fontData;
     Color color;
     Color visitedLinkColor;
-
-    Style::TextDecorationLine textDecorationLineInEffect;
 
 private:
     StyleInheritedData();

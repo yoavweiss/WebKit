@@ -35,7 +35,6 @@
 #include "StyleFlexibleBoxData.h"
 #include "StyleMultiColData.h"
 #include "StylePrimitiveNumericTypes+Logging.h"
-#include "StyleTextDecorationLine.h"
 #include "StyleTransformData.h"
 #include "StyleVisitedLinkColorData.h"
 #include <wtf/PointerComparison.h>
@@ -64,7 +63,6 @@ StyleMiscNonInheritedData::StyleMiscNonInheritedData()
     , justifySelf(RenderStyle::initialSelfAlignment())
     , objectPosition(RenderStyle::initialObjectPosition())
     , order(RenderStyle::initialOrder())
-    , textDecorationLine(RenderStyle::initialTextDecorationLine())
     , tableLayout(static_cast<unsigned>(RenderStyle::initialTableLayout()))
     , appearance(static_cast<unsigned>(RenderStyle::initialAppearance()))
     , usedAppearance(static_cast<unsigned>(RenderStyle::initialAppearance()))
@@ -98,7 +96,6 @@ StyleMiscNonInheritedData::StyleMiscNonInheritedData(const StyleMiscNonInherited
     , justifySelf(o.justifySelf)
     , objectPosition(o.objectPosition)
     , order(o.order)
-    , textDecorationLine(o.textDecorationLine)
     , hasAttrContent(o.hasAttrContent)
     , hasDisplayAffectedByAnimations(o.hasDisplayAffectedByAnimations)
 #if ENABLE(DARK_MODE_CSS)
@@ -146,7 +143,6 @@ bool StyleMiscNonInheritedData::operator==(const StyleMiscNonInheritedData& o) c
         && justifySelf == o.justifySelf
         && objectPosition == o.objectPosition
         && order == o.order
-        && textDecorationLine == o.textDecorationLine
         && hasAttrContent == o.hasAttrContent
         && hasDisplayAffectedByAnimations == o.hasDisplayAffectedByAnimations
 #if ENABLE(DARK_MODE_CSS)
@@ -199,7 +195,6 @@ void StyleMiscNonInheritedData::dumpDifferences(TextStream& ts, const StyleMiscN
     LOG_IF_DIFFERENT(justifySelf);
     LOG_IF_DIFFERENT(objectPosition);
     LOG_IF_DIFFERENT(order);
-    LOG_IF_DIFFERENT(textDecorationLine);
 
     LOG_IF_DIFFERENT_WITH_CAST(bool, hasAttrContent);
     LOG_IF_DIFFERENT_WITH_CAST(bool, hasDisplayAffectedByAnimations);

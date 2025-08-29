@@ -37,25 +37,22 @@
 namespace WebCore {
 namespace Style {
 
-void TextDecorationLine::addOrReplaceIfNotNone(const TextDecorationLine& value)
+uint8_t TextDecorationLine::addOrReplaceIfNotNone(const TextDecorationLine& value)
 {
     value.switchOn(
         [&](CSS::Keyword::None) {
         },
-        [&](CSS::Keyword::SpellingError keyword) {
-            m_value = keyword;
+        [&](CSS::Keyword::SpellingError) {
+            setSpellingError();
         },
         [&](CSS::Keyword::GrammarError) {
-            ASSERT_NOT_IMPLEMENTED_YET();
+            setGrammarError();
         },
         [&](const OptionSet<TextDecorationLineFlags>& newValue) {
-            if (auto* currentValue = std::get_if<OptionSet<TextDecorationLineFlags>>(&m_value)) {
-                m_value = *currentValue | newValue;
-                return;
-            }
-            m_value = newValue;
+            setFlags(newValue);
         }
     );
+    return m_packed;
 }
 
 // MARK: - Conversion
@@ -80,7 +77,6 @@ auto CSSValueConversion<TextDecorationLine>::operator()(BuilderState& state, con
                 break;
             }
         }
-
         return invalidValue();
     }
 
@@ -141,13 +137,13 @@ void Serialize<OptionSet<TextDecorationLineFlags>>::operator()(StringBuilder& bu
 {
     ASSERT(!value.isEmpty());
 
-    bool listEmpty = true;
+    bool needsSpace = false;
     auto appendOption = [&](TextDecorationLineFlags option, CSSValueID valueID) {
         if (value.contains(option)) {
-            if (!listEmpty)
+            if (needsSpace)
                 builder.append(' ');
             builder.append(nameLiteralForSerialization(valueID));
-            listEmpty = false;
+            needsSpace = true;
         }
     };
     appendOption(TextDecorationLineFlags::Underline, CSSValueUnderline);
@@ -176,7 +172,7 @@ WTF::TextStream& operator<<(WTF::TextStream& ts, const TextDecorationLine& decor
             auto streamFlag = [&](TextDecorationLineFlags flag, CSSValueID valueID) {
                 if (flags.contains(flag)) {
                     if (needsSpace)
-                        ts << " ";
+                        ts << ' ';
                     ts << nameLiteralForSerialization(valueID);
                     needsSpace = true;
                 }
