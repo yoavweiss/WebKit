@@ -33,10 +33,10 @@
 const CFArrayCallBacks WKCollectionArrayCallBacks = { 0, WKCollectionRetain, WKCollectionRelease, NULL, NULL };
 const CFSetCallBacks WKCollectionSetCallBacks = { 0, WKCollectionRetain, WKCollectionRelease, NULL, NULL, NULL };
 
-const void *WKCollectionRetain (CFAllocatorRef allocator, const void *value)
+const void *WKCollectionRetain(CFAllocatorRef allocator, const void *value)
 {
     UNUSED_PARAM(allocator);
-    return WAKRetain (value);
+    return WAKRetain(value);
 }
 
 const void *WAKRetain(const void *o)
@@ -48,7 +48,7 @@ const void *WAKRetain(const void *o)
     return object;
 }
 
-void WKCollectionRelease (CFAllocatorRef allocator, const void *value)
+void WKCollectionRelease(CFAllocatorRef allocator, const void *value)
 {
     UNUSED_PARAM(allocator);
     WAKRelease (value);
@@ -58,18 +58,18 @@ void WAKRelease(const void *o)
 {
     WAKObjectRef object = (WAKObjectRef)(uintptr_t)o;
 
-    if (object->referenceCount == 0) {
-        WKError ("attempt to release invalid object");
+    if (!object->referenceCount) {
+        WTFLogAlways("WAKRelease: attempt to release invalid object");
         return;
     }
     
     object->referenceCount--;
 
-    if (object->referenceCount == 0) {
+    if (!object->referenceCount) {
         const WKClassInfo *info = object->classInfo;
         while (info) {
             if (info->dealloc)
-                info->dealloc ((void *)(uintptr_t)object);
+                info->dealloc((void *)(uintptr_t)object);
             info = info->parent;
         }
     }
@@ -82,7 +82,7 @@ static void WAKObjectDealloc(WAKObjectRef v)
 
 WKClassInfo WAKObjectClass = { 0, "WAKObject", WAKObjectDealloc };
 
-const void *WKCreateObjectWithSize (size_t size, WKClassInfo *info)
+const void *WKCreateObjectWithSize(size_t size, WKClassInfo *info)
 {
     WAKObjectRef object = (WAKObjectRef)calloc(size, 1);
     if (!object)
@@ -95,24 +95,13 @@ const void *WKCreateObjectWithSize (size_t size, WKClassInfo *info)
     return object;
 }
 
-WTF_ATTRIBUTE_PRINTF(4, 5)
-void WKReportError(const char *file, int line, const char *function, const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    fprintf(stderr, "%s:%d %s:  ", file, line, function);
-    vfprintf(stderr, format, args);
-    va_end(args);
-    fprintf(stderr, "\n");
-}
-
-CFIndex WKArrayIndexOfValue (CFArrayRef array, const void *value)
+CFIndex WKArrayIndexOfValue(CFArrayRef array, const void *value)
 {
     CFIndex i, count, index = -1;
 
-    count = CFArrayGetCount (array);
+    count = CFArrayGetCount(array);
     for (i = 0; i < count; i++) {
-        if (CFArrayGetValueAtIndex (array, i) == value) {
+        if (CFArrayGetValueAtIndex(array, i) == value) {
             index = i;
             break;
         }
