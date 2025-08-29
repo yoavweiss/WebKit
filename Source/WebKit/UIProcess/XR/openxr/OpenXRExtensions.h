@@ -46,6 +46,11 @@ public:
 #if defined(XR_USE_GRAPHICS_API_OPENGL_ES)
     PFN_xrGetOpenGLESGraphicsRequirementsKHR xrGetOpenGLESGraphicsRequirementsKHR { nullptr };
 #endif
+#if defined(XR_EXT_hand_tracking)
+    PFN_xrCreateHandTrackerEXT xrCreateHandTrackerEXT { nullptr };
+    PFN_xrDestroyHandTrackerEXT xrDestroyHandTrackerEXT { nullptr };
+    PFN_xrLocateHandJointsEXT xrLocateHandJointsEXT { nullptr };
+#endif
 };
 
 class OpenXRExtensions final {

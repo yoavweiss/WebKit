@@ -81,11 +81,7 @@ void OpenXRCoordinator::getPrimaryDeviceInfo(WebPageProxy&, DeviceInfoCallback&&
         return;
     }
 
-    auto supportsOrientationTracking = [instance = m_instance, system = m_systemId]() -> bool {
-        XrSystemProperties systemProperties = createOpenXRStruct<XrSystemProperties, XR_TYPE_SYSTEM_PROPERTIES>();
-        CHECK_XRCMD(xrGetSystemProperties(instance, system, &systemProperties));
-        return systemProperties.trackingProperties.orientationTracking == XR_TRUE;
-    };
+    auto runtimeProperties = systemProperties(m_instance, m_systemId);
 
     auto recommendedResolution = [&views = m_viewConfigurationViews]() -> WebCore::IntSize {
         // OpenXR is very flexible wrt views resolution, but the current WebKit architecture expects a single resolution for all views.
@@ -93,7 +89,7 @@ void OpenXRCoordinator::getPrimaryDeviceInfo(WebPageProxy&, DeviceInfoCallback&&
     };
 
     XRDeviceInfo deviceInfo { .identifier = m_deviceIdentifier, .vrFeatures = { }, .arFeatures = { } };
-    deviceInfo.supportsOrientationTracking = supportsOrientationTracking();
+    deviceInfo.supportsOrientationTracking = runtimeProperties.supportsOrientationTracking;
     deviceInfo.supportsStereoRendering = m_currentViewConfiguration == XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
     deviceInfo.recommendedResolution = recommendedResolution();
     LOG(XR, "OpenXR device info:\n\tOrientation tracking: %s\n\tStereo rendering: %s\n\tRecommended resolution: %dx%d", deviceInfo.supportsOrientationTracking ? "yes" : "no", deviceInfo.supportsStereoRendering ? "yes" : "no", deviceInfo.recommendedResolution.width(), deviceInfo.recommendedResolution.height());
@@ -108,6 +104,13 @@ void OpenXRCoordinator::getPrimaryDeviceInfo(WebPageProxy&, DeviceInfoCallback&&
         deviceInfo.vrFeatures.append(PlatformXR::SessionFeature::ReferenceSpaceTypeUnbounded);
         deviceInfo.arFeatures.append(PlatformXR::SessionFeature::ReferenceSpaceTypeUnbounded);
     }
+
+#if ENABLE(WEBXR_HANDS) && defined(XR_EXT_hand_tracking)
+    if (runtimeProperties.supportsHandTracking && OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_HAND_TRACKING_EXTENSION_NAME ""_span)) {
+        deviceInfo.vrFeatures.append(PlatformXR::SessionFeature::HandTracking);
+        deviceInfo.arFeatures.append(PlatformXR::SessionFeature::HandTracking);
+    }
+#endif
 
     // In order to get the supported reference space types, we need the session to be created. However at this point we shouldn't do it.
     // Instead, we report ReferenceSpaceTypeLocalFloor as available, because we can supoport it via either the STAGE reference space, the
@@ -228,7 +231,7 @@ void OpenXRCoordinator::startSession(WebPageProxy& page, WeakPtr<PlatformXRCoord
                     LOG(XR, "OpenXRCoordinator: failed to create the session");
                     return;
                 }
-                m_input = OpenXRInput::create(m_instance, m_session);
+                m_input = OpenXRInput::create(m_instance, m_session, systemProperties(m_instance, m_systemId));
                 renderLoop(renderState);
             });
         },
@@ -345,6 +348,10 @@ void OpenXRCoordinator::createInstance()
 #if defined(XR_EXT_hand_interaction)
     if (OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_HAND_INTERACTION_EXTENSION_NAME ""_span))
         extensions.append(const_cast<char*>(XR_EXT_HAND_INTERACTION_EXTENSION_NAME));
+#endif
+#if ENABLE(WEBXR_HANDS) && defined(XR_EXT_hand_tracking)
+    if (OpenXRExtensions::singleton().isExtensionSupported(XR_EXT_HAND_TRACKING_EXTENSION_NAME ""_span))
+        extensions.append(const_cast<char*>(XR_EXT_HAND_TRACKING_EXTENSION_NAME));
 #endif
 
     XrInstanceCreateInfo createInfo = createOpenXRStruct<XrInstanceCreateInfo, XR_TYPE_INSTANCE_CREATE_INFO >();

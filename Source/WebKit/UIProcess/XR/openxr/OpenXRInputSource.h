@@ -34,7 +34,7 @@ class OpenXRInputSource {
     WTF_MAKE_NONCOPYABLE(OpenXRInputSource);
 public:
     using SuggestedBindings = HashMap<const char*, Vector<XrActionSuggestedBinding>>;
-    static std::unique_ptr<OpenXRInputSource> create(XrInstance, XrSession, PlatformXR::XRHandedness, PlatformXR::InputSourceHandle);
+    static std::unique_ptr<OpenXRInputSource> create(XrInstance, XrSession, PlatformXR::XRHandedness, PlatformXR::InputSourceHandle, OpenXRSystemProperties&&);
     ~OpenXRInputSource();
 
     XrResult suggestBindings(SuggestedBindings&) const;
@@ -51,7 +51,7 @@ private:
         XrAction value { XR_NULL_HANDLE };
     };
 
-    XrResult initialize();
+    XrResult initialize(OpenXRSystemProperties&&);
     XrResult createAction(XrActionType, const String& name, XrAction&) const;
     XrResult createActionSpace(XrAction, XrSpace&) const;
     XrResult createBinding(const char* profilePath, XrAction, const String& bindingPath, SuggestedBindings&) const;
@@ -60,6 +60,9 @@ private:
     XrResult getPose(XrSpace, XrSpace, const XrFrameState&, PlatformXR::FrameData::InputSourcePose&) const;
     std::optional<PlatformXR::FrameData::InputSourceButton> collectButton(OpenXRButtonType) const;
     std::optional<XrVector2f> collectAxis(OpenXRAxisType) const;
+#if ENABLE(WEBXR_HANDS) && defined(XR_EXT_hand_tracking)
+    std::optional<PlatformXR::FrameData::HandJointsVector> collectHandTrackingData(XrSpace, const XrFrameState&) const;
+#endif
     XrResult getActionState(XrAction, bool*) const;
     XrResult getActionState(XrAction, float*) const;
     XrResult getActionState(XrAction, XrVector2f*) const;
@@ -84,6 +87,12 @@ private:
     using OpenXRAxesMap = HashMap<OpenXRAxisType, XrAction, IntHash<OpenXRAxisType>, WTF::StrongEnumHashTraits<OpenXRAxisType>>;
     OpenXRAxesMap m_axisActions;
     Vector<String> m_profiles;
+#if defined(XR_EXT_hand_tracking)
+    XrHandTrackerEXT m_handTracker { XR_NULL_HANDLE };
+#endif
+#if defined(XR_EXT_hand_joints_motion_range)
+    bool m_supportsHandJointsMotionRange { false };
+#endif
 };
 
 } // namespace WebKit

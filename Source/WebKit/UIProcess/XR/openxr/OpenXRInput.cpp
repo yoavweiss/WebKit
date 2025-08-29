@@ -29,10 +29,10 @@ namespace WebKit {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(OpenXRInput);
 
-std::unique_ptr<OpenXRInput> OpenXRInput::create(XrInstance instance, XrSession session)
+std::unique_ptr<OpenXRInput> OpenXRInput::create(XrInstance instance, XrSession session, OpenXRSystemProperties&& systemProperties)
 {
     auto input = std::unique_ptr<OpenXRInput>(new OpenXRInput(instance, session));
-    if (XR_FAILED(input->initialize()))
+    if (XR_FAILED(input->initialize(WTFMove(systemProperties))))
         return nullptr;
     return input;
 }
@@ -45,11 +45,11 @@ OpenXRInput::OpenXRInput(XrInstance instance, XrSession session)
 
 OpenXRInput::~OpenXRInput() = default;
 
-XrResult OpenXRInput::initialize()
+XrResult OpenXRInput::initialize(OpenXRSystemProperties&& systemProperties)
 {
     for (auto handedness : { PlatformXR::XRHandedness::Left, PlatformXR::XRHandedness::Right }) {
         m_handleIndex++;
-        if (auto inputSource = OpenXRInputSource::create(m_instance, m_session, handedness, m_handleIndex))
+        if (auto inputSource = OpenXRInputSource::create(m_instance, m_session, handedness, m_handleIndex, WTFMove(systemProperties)))
             m_inputSources.append(makeUniqueRefFromNonNullUniquePtr(WTFMove(inputSource)));
     }
 

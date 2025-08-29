@@ -36,7 +36,7 @@ class OpenXRInput {
     WTF_MAKE_TZONE_ALLOCATED(OpenXRInput);
     WTF_MAKE_NONCOPYABLE(OpenXRInput);
 public:
-    static std::unique_ptr<OpenXRInput> create(XrInstance, XrSession);
+    static std::unique_ptr<OpenXRInput> create(XrInstance, XrSession, OpenXRSystemProperties&&);
     ~OpenXRInput();
 
     Vector<PlatformXR::FrameData::InputSource> collectInputSources(const XrFrameState&, XrSpace) const;
@@ -44,7 +44,7 @@ public:
 
 private:
     OpenXRInput(XrInstance, XrSession);
-    XrResult initialize();
+    XrResult initialize(OpenXRSystemProperties&&);
 
     XrInstance m_instance { XR_NULL_HANDLE };
     XrSession m_session { XR_NULL_HANDLE };

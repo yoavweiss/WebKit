@@ -108,6 +108,33 @@ inline ASCIILiteral handednessToString(PlatformXR::XRHandedness handedness)
     }
 }
 
+struct OpenXRSystemProperties {
+    bool supportsOrientationTracking { false };
+    bool supportsHandTracking { false };
+};
+
+inline OpenXRSystemProperties systemProperties(XrInstance instance, XrSystemId systemId)
+{
+    XrSystemProperties xrSystemProperties = createOpenXRStruct<XrSystemProperties, XR_TYPE_SYSTEM_PROPERTIES>();
+
+#if defined(XR_EXT_hand_tracking)
+    XrSystemHandTrackingPropertiesEXT handTrackingProperties = createOpenXRStruct<XrSystemHandTrackingPropertiesEXT, XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT>();
+    handTrackingProperties.supportsHandTracking = XR_FALSE;
+    handTrackingProperties.next = xrSystemProperties.next;
+    xrSystemProperties.next = &handTrackingProperties;
+#endif
+
+    CHECK_XRCMD(xrGetSystemProperties(instance, systemId, &xrSystemProperties));
+
+    return {
+        .supportsOrientationTracking = xrSystemProperties.trackingProperties.orientationTracking == XR_TRUE,
+#if defined(XR_EXT_hand_tracking)
+        .supportsHandTracking = handTrackingProperties.supportsHandTracking == XR_TRUE
+#else
+        .supportsHandTracking = false
+#endif
+    };
+}
 
 } // namespace WebKit
 

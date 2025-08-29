@@ -84,6 +84,16 @@ bool OpenXRExtensions::loadMethods(XrInstance instance)
         return false;
     }
 #endif
+#if defined(XR_EXT_hand_tracking)
+    if (isExtensionSupported(XR_EXT_HAND_TRACKING_EXTENSION_NAME ""_span)) {
+        xrGetInstanceProcAddr(instance, "xrCreateHandTrackerEXT", reinterpret_cast<PFN_xrVoidFunction*>(&m_methods->xrCreateHandTrackerEXT));
+        xrGetInstanceProcAddr(instance, "xrDestroyHandTrackerEXT", reinterpret_cast<PFN_xrVoidFunction*>(&m_methods->xrDestroyHandTrackerEXT));
+        xrGetInstanceProcAddr(instance, "xrLocateHandJointsEXT", reinterpret_cast<PFN_xrVoidFunction*>(&m_methods->xrLocateHandJointsEXT));
+        RELEASE_ASSERT(m_methods->xrCreateHandTrackerEXT);
+        RELEASE_ASSERT(m_methods->xrDestroyHandTrackerEXT);
+        RELEASE_ASSERT(m_methods->xrLocateHandJointsEXT);
+    }
+#endif
     return true;
 }
 
