@@ -8,6 +8,9 @@ PASS "::search-text.a" should be an invalid selector
 PASS "::search-text div" should be an invalid selector
 PASS "::search-text::after" should be an invalid selector
 PASS "::search-text:hover" should be an invalid selector
+PASS "::search-text:current(*)" should be an invalid selector
+PASS "::search-text:past" should be an invalid selector
+PASS "::search-text:future" should be an invalid selector
 PASS ":not(::search-text)" should be an invalid selector
 FAIL "::search-text:current" should be a valid selector '::search-text:current' is not a valid selector.
 FAIL ".a::search-text:current" should be a valid selector '.a::search-text:current' is not a valid selector.
@@ -18,6 +21,9 @@ PASS "::search-text:current.a" should be an invalid selector
 PASS "::search-text:current div" should be an invalid selector
 PASS "::search-text:current::after" should be an invalid selector
 PASS "::search-text:current:hover" should be an invalid selector
+PASS "::search-text:current:current(*)" should be an invalid selector
+PASS "::search-text:current:past" should be an invalid selector
+PASS "::search-text:current:future" should be an invalid selector
 PASS ":not(::search-text:current)" should be an invalid selector
 FAIL "::search-text:not(:current)" should be a valid selector '::search-text:not(:current)' is not a valid selector.
 FAIL ".a::search-text:not(:current)" should be a valid selector '.a::search-text:not(:current)' is not a valid selector.
@@ -28,5 +34,8 @@ PASS "::search-text:not(:current).a" should be an invalid selector
 PASS "::search-text:not(:current) div" should be an invalid selector
 PASS "::search-text:not(:current)::after" should be an invalid selector
 PASS "::search-text:not(:current):hover" should be an invalid selector
+PASS "::search-text:not(:current):current(*)" should be an invalid selector
+PASS "::search-text:not(:current):past" should be an invalid selector
+PASS "::search-text:not(:current):future" should be an invalid selector
 PASS ":not(::search-text:not(:current))" should be an invalid selector
 
