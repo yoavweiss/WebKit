@@ -1437,7 +1437,7 @@ bool BindGroup::updateExternalTextures(ExternalTexture& externalTexture)
 
 bool BindGroup::makeSubmitInvalid(ShaderStage stage, const BindGroupLayout* pipelineLayout) const
 {
-    if (!pipelineLayout)
+    if (!pipelineLayout || pipelineLayout->entries().isEmpty())
         return false;
 
     if (!m_bindGroupLayout)
