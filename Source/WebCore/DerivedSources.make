@@ -2122,6 +2122,7 @@ MODERN_MEDIA_CONTROLS_STYLE_SHEETS = \
     $(WebCore)/Modules/modern-media-controls/controls/slider.css \
     $(WebCore)/Modules/modern-media-controls/controls/status-label.css \
     $(WebCore)/Modules/modern-media-controls/controls/text-tracks.css \
+    $(WebCore)/Modules/modern-media-controls/controls/time-control.css \
     $(WebCore)/Modules/modern-media-controls/controls/time-label.css \
     $(WebCore)/Modules/modern-media-controls/controls/tvos-media-controls.css \
     $(WebCore)/Modules/modern-media-controls/controls/vision-media-controls.css \

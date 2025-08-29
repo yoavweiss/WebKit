@@ -63,10 +63,11 @@ function formatTimeByUnit(value)
 {
     const time = value || 0;
     const absTime = Math.abs(time);
+    const sign = Math.sign(time);
     return {
-        seconds: Math.floor(absTime % 60).toFixed(0),
-        minutes: Math.floor((absTime / 60) % 60).toFixed(0),
-        hours: Math.floor(absTime / (60 * 60)).toFixed(0)
+        seconds: sign * Math.floor(absTime % 60).toFixed(0),
+        minutes: sign * Math.floor((absTime / 60) % 60).toFixed(0),
+        hours: sign * Math.floor(absTime / (60 * 60)).toFixed(0)
     };
 }
 

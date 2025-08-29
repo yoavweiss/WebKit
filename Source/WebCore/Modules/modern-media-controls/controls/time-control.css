@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,63 +23,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-.activity-indicator {
-    position: absolute;
-    mix-blend-mode: plus-lighter;
-    width: 14px;
-    height: 14px;
+.time-control {
+    display: flex;
+    column-gap: 5px;
+    container: time-control-container / size;
+    justify-content: space-between;
 }
 
-.activity-indicator > div {
-    position: absolute;
-    left: 6px;
-    width: 2px;
-    height: 4px;
-    border-radius: 1px;
-    background-color: white;
-    animation-name: activity-indicator-pulse;
-    animation-duration: 1s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    transform-origin: 50% 7px;
+.time-control .scrubber {
+    flex-grow: 1;
 }
 
-.activity-indicator > .ne {
-    transform: rotate(45deg);
-    animation-delay: -875ms;
+/* Support displaying the time labels above or below the scrubber, rather than side-by-side: */
+.time-control.above,
+.time-control.below {
+
+    flex-wrap: wrap;
+    .scrubber { width: 100%; }
+}
+.time-control.above {
+    .scrubber { order: 2; }
+    .time-label { order: 1; }
+}
+.time-control.below {
+    .scrubber { order: 1; }
+    .time-label { order: 2; }
 }
 
-.activity-indicator > .e {
-    transform: rotate(90deg);
-    animation-delay: -750ms;
-}
+/* Support toggling the duration and remaining time labels: */
+.time-control.duration > #time-label-remaining { display: none; }
+.time-control.remaining > #time-label-duration { display: none; }
 
-.activity-indicator > .se {
-    transform: rotate(135deg);
-    animation-delay: -625ms;
-}
-
-.activity-indicator > .s {
-    transform: rotate(180deg);
-    animation-delay: -500ms;
-}
-
-.activity-indicator > .sw {
-    transform: rotate(-135deg);
-    animation-delay: -375ms;
-}
-
-.activity-indicator > .w {
-    transform: rotate(-90deg);
-    animation-delay: -250ms;
-}
-
-.activity-indicator > .nw {
-    transform: rotate(-45deg);
-    animation-delay: -125ms;
-}
-
-@keyframes activity-indicator-pulse {
-    from { opacity: 0.9  }
-    to   { opacity: 0.25 }
+@container time-control-container (width < 160px) {
+    .time-control > #time-label-duration,
+    .time-control > #time-label-elapsed {
+        display: none;
+    }
+    /* Override the duration/remaining toggle when in small control mode: */
+    .time-control.duration > #time-label-remaining { display: revert; }
 }

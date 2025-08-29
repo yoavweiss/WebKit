@@ -734,6 +734,7 @@ $(PROJECT_DIR)/Modules/modern-media-controls/controls/slider.js
 $(PROJECT_DIR)/Modules/modern-media-controls/controls/status-label.css
 $(PROJECT_DIR)/Modules/modern-media-controls/controls/status-label.js
 $(PROJECT_DIR)/Modules/modern-media-controls/controls/text-tracks.css
+$(PROJECT_DIR)/Modules/modern-media-controls/controls/time-control.css
 $(PROJECT_DIR)/Modules/modern-media-controls/controls/time-control.js
 $(PROJECT_DIR)/Modules/modern-media-controls/controls/time-label.css
 $(PROJECT_DIR)/Modules/modern-media-controls/controls/time-label.js
