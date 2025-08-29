@@ -67,6 +67,10 @@
 #include <wtf/WorkQueue.h>
 #include <wtf/text/CString.h>
 
+#if OS(ANDROID)
+#include <wtf/android/RefPtrAndroid.h>
+#endif
+
 #if OS(DARWIN)
 #include <mach/mach_port.h>
 #include <wtf/OSObjectPtr.h>
@@ -726,6 +730,15 @@ private:
     Vector<uint8_t> m_readBuffer;
     Vector<int> m_fileDescriptors;
     std::unique_ptr<UnixMessage> m_pendingOutputMessage;
+
+#if OS(ANDROID)
+    bool sendOutgoingHardwareBuffers();
+    bool receiveIncomingHardwareBuffers();
+
+    size_t m_pendingIncomingHardwareBufferCount { 0 };
+    Vector<RefPtr<AHardwareBuffer>, 2> m_incomingHardwareBuffers;
+    Vector<RefPtr<AHardwareBuffer>, 2> m_outgoingHardwareBuffers;
+#endif
 #if USE(GLIB)
     GRefPtr<GSocket> m_socket;
     GSocketMonitor m_readSocketMonitor;

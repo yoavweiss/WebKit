@@ -387,6 +387,7 @@ list(APPEND WebKit_PRIVATE_INCLUDE_DIRECTORIES
     "${FORWARDING_HEADERS_WPE_EXTENSION_DIR}"
     "${WEBKIT_DIR}/NetworkProcess/glib"
     "${WEBKIT_DIR}/NetworkProcess/soup"
+    "${WEBKIT_DIR}/Platform/IPC/android"
     "${WEBKIT_DIR}/Platform/IPC/glib"
     "${WEBKIT_DIR}/Platform/IPC/unix"
     "${WEBKIT_DIR}/Platform/classifier"
