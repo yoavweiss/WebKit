@@ -39,6 +39,9 @@ namespace WebKit {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(OpenXRInputSource);
 
+// Pinch values vary between [0, 1]. We consider a pinch is active when the value is above this threshold.
+constexpr auto s_handInteractionPinchPressThreshold { 0.9f };
+
 std::unique_ptr<OpenXRInputSource> OpenXRInputSource::create(XrInstance instance, XrSession session, PlatformXR::XRHandedness handedness, PlatformXR::InputSourceHandle handle, OpenXRSystemProperties&& systemProperties)
 {
     auto input = std::unique_ptr<OpenXRInputSource>(new OpenXRInputSource(instance, session, handedness, handle));
@@ -300,6 +303,7 @@ XrResult OpenXRInputSource::updateInteractionProfile()
     m_profiles.clear();
     for (auto& profile : openXRInteractionProfiles) {
         if (equalSpans(profile.path.span(), unsafeSpan(buffer))) {
+            m_usingHandInteractionProfile = equalSpans(profile.path.span(), handInteractionProfileName.span());
             LOG(XR, "Input source %s using interaction profile %s", m_subactionPathName.utf8().data(), profile.path.span().data());
             for (const auto& id : profile.profileIds)
                 m_profiles.append(String::fromUTF8(id));
@@ -395,8 +399,9 @@ std::optional<PlatformXR::FrameData::InputSourceButton> OpenXRInputSource::colle
     queryActionState(actions.press, result.pressed, false);
     queryActionState(actions.touch, result.touched, result.pressed);
     queryActionState(actions.value, result.pressedValue, result.pressed ? 1.0 : 0.0);
-    // When using hand interaction profiles, press and touch are not valid paths, so use the value for everything.
-    if (result.pressedValue > 0.0f)
+
+    // When using hand interaction profiles there is only value (no press or touch actions).
+    if (m_usingHandInteractionProfile && result.pressedValue > s_handInteractionPinchPressThreshold)
         result.pressed = result.touched = true;
 
     return hasValue ?  std::make_optional(result) : std::nullopt;

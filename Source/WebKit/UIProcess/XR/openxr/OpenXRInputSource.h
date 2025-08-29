@@ -93,6 +93,7 @@ private:
 #if defined(XR_EXT_hand_joints_motion_range)
     bool m_supportsHandJointsMotionRange { false };
 #endif
+    bool m_usingHandInteractionProfile { false };
 };
 
 } // namespace WebKit
