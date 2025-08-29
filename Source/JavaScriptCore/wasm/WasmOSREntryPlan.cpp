@@ -48,12 +48,11 @@ namespace WasmOSREntryPlanInternal {
 static constexpr bool verbose = false;
 }
 
-OSREntryPlan::OSREntryPlan(VM& vm, Ref<Module>&& module, Ref<Callee>&& callee, FunctionCodeIndex functionIndex, bool hasExceptionHandlers, uint32_t loopIndex, MemoryMode mode, CompletionTask&& task)
+OSREntryPlan::OSREntryPlan(VM& vm, Ref<Module>&& module, Ref<Callee>&& callee, FunctionCodeIndex functionIndex, uint32_t loopIndex, MemoryMode mode, CompletionTask&& task)
     : Base(vm, const_cast<ModuleInformation&>(module->moduleInformation()), WTFMove(task))
     , m_module(WTFMove(module))
     , m_calleeGroup(*m_module->calleeGroupFor(mode))
     , m_callee(WTFMove(callee))
-    , m_hasExceptionHandlers(hasExceptionHandlers)
     , m_functionIndex(functionIndex)
     , m_loopIndex(loopIndex)
 {
@@ -104,12 +103,17 @@ void OSREntryPlan::work()
     TypeIndex typeIndex = m_moduleInformation->internalFunctionTypeIndices[m_functionIndex];
     const TypeDefinition& signature = TypeInformation::get(typeIndex).expand();
 
+    RefPtr<IPIntCallee> profiledCallee;
+    {
+        Locker locker { m_calleeGroup->m_lock };
+        profiledCallee = m_calleeGroup->ipintCalleeFromFunctionIndexSpace(locker, functionIndexSpace);
+    }
     Ref<OMGOSREntryCallee> callee = OMGOSREntryCallee::create(functionIndexSpace, m_moduleInformation->nameSection->get(functionIndexSpace), m_loopIndex);
 
     beginCompilerSignpost(callee.get());
     Vector<UnlinkedWasmToWasmCall> unlinkedCalls;
     CompilationContext context;
-    auto parseAndCompileResult = parseAndCompileOMG(context, callee.get(), function, signature, unlinkedCalls, m_calleeGroup.get(), m_moduleInformation.get(), m_mode, CompilationMode::OMGForOSREntryMode, m_functionIndex, m_hasExceptionHandlers, m_loopIndex);
+    auto parseAndCompileResult = parseAndCompileOMG(context, *profiledCallee, callee.get(), function, signature, unlinkedCalls, m_calleeGroup.get(), m_moduleInformation.get(), m_mode, CompilationMode::OMGForOSREntryMode, m_functionIndex, m_loopIndex);
     endCompilerSignpost(callee.get());
 
     if (!parseAndCompileResult) [[unlikely]] {

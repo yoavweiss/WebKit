@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,34 +25,29 @@
 
 #pragma once
 
-#if ENABLE(WEBASSEMBLY_OMGJIT)
+#if ENABLE(WEBASSEMBLY)
 
-#include "B3Common.h"
-#include "B3Procedure.h"
-#include "CCallHelpers.h"
-#include "JITCompilation.h"
-#include "JITOpaqueByproducts.h"
-#include "PCToCodeOriginMap.h"
-#include "WasmBBQDisassembler.h"
-#include "WasmCompilationContext.h"
-#include "WasmCompilationMode.h"
-#include "WasmJS.h"
-#include "WasmMemory.h"
-#include "WasmModuleInformation.h"
-#include "WasmTierUpCount.h"
-#include <wtf/Box.h>
+#include <JavaScriptCore/WasmCallingConvention.h>
 #include <wtf/Expected.h>
+#include <wtf/text/WTFString.h>
 
-extern "C" void SYSV_ABI dumpProcedure(void*);
+namespace JSC::Wasm {
 
-namespace JSC {
+class CallSlot {
+public:
+    uint32_t count() const { return m_count; }
 
-namespace Wasm {
+    void incrementCount()
+    {
+        ++m_count;
+    }
 
-class IPIntCallee;
+    uint32_t* addressOfCount() { return &m_count; }
 
-Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileOMG(CompilationContext&, IPIntCallee&, OptimizingJITCallee&, const FunctionData&, const TypeDefinition&, Vector<UnlinkedWasmToWasmCall>&, CalleeGroup&, const ModuleInformation&, MemoryMode, CompilationMode, FunctionCodeIndex functionIndex, uint32_t loopIndexForOSREntry);
+private:
+    uint32_t m_count { 0 };
+};
 
-} } // namespace JSC::Wasm
+} // namespace JSC::Wasm
 
-#endif // ENABLE(WEBASSEMBLY_OMGJIT)
+#endif // ENABLE(WEBASSEMBLY)

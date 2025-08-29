@@ -37,6 +37,7 @@
 #include "NativeCalleeRegistry.h"
 #include "PCToCodeOriginMap.h"
 #include "VMManager.h"
+#include "WasmCallSlot.h"
 #include "WasmCallingConvention.h"
 #include "WasmModuleInformation.h"
 #include "WebAssemblyBuiltin.h"
@@ -244,6 +245,7 @@ IPIntCallee::IPIntCallee(FunctionIPIntMetadataGenerator& generator, FunctionSpac
     , m_numLocals(generator.m_numLocals)
     , m_numArgumentsOnStack(generator.m_numArgumentsOnStack)
     , m_maxFrameSizeInV128(generator.m_maxFrameSizeInV128)
+    , m_callSlots(generator.m_numCallSlots)
     , m_tierUpCounter(WTFMove(generator.m_tierUpCounter))
 {
     if (size_t count = generator.m_exceptionHandlers.size()) {

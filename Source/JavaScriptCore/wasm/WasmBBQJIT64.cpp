@@ -3340,7 +3340,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addThrowRef(Value exception, Stack&)
     consume(exception);
 
     ++m_callSiteIndex;
-    if (m_hasExceptionHandlers) {
+    if (m_profiledCallee.hasExceptionHandlers()) {
         m_jit.store32(CCallHelpers::TrustedImm32(m_callSiteIndex), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
         flushRegisters();
     }
@@ -3364,7 +3364,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addRethrow(unsigned, ControlType& data)
     LOG_INSTRUCTION("Rethrow", exception(data));
 
     ++m_callSiteIndex;
-    if (m_hasExceptionHandlers) {
+    if (m_profiledCallee.hasExceptionHandlers()) {
         m_jit.store32(CCallHelpers::TrustedImm32(m_callSiteIndex), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
         flushRegisters();
     }
@@ -5448,8 +5448,9 @@ void BBQJIT::emitMove(StorageType type, Value src, Address dst)
         emitStore(type, srcLocation, dst);
 }
 
-PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType)
+PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callSlotIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType)
 {
+    emitIncrementCallSlotCount(callSlotIndex);
     Value callee = args.takeLast();
     const TypeDefinition& signature = originalSignature.expand();
     ASSERT(signature.as<FunctionSignature>()->argumentCount() == args.size());

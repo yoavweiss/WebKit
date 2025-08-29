@@ -57,6 +57,7 @@ class PCToOriginMap;
 
 namespace Wasm {
 
+class CallSlot;
 class CalleeGroup;
 
 class Callee : public NativeCallee {
@@ -456,6 +457,9 @@ public:
         return *m_signatures[index];
     }
 
+    FixedVector<CallSlot>& callSlots() { return m_callSlots; }
+    const FixedVector<CallSlot>& callSlots() const { return m_callSlots; }
+
     IPIntTierUpCounter& tierUpCounter() { return m_tierUpCounter; }
 
     using OutOfLineJumpTargets = UncheckedKeyHashMap<unsigned, int>;
@@ -484,6 +488,8 @@ private:
     unsigned m_numLocals;
     unsigned m_numArgumentsOnStack;
     unsigned m_maxFrameSizeInV128;
+
+    FixedVector<CallSlot> m_callSlots;
 
     IPIntTierUpCounter m_tierUpCounter;
 };

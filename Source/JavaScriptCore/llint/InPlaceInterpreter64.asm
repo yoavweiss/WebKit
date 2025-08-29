@@ -529,16 +529,16 @@ ipintOp(_call, macro()
     loadb IPInt::CallMetadata::length[MC], t0
     advancePCByReg(t0)
 
-    # get function index
-    loadi IPInt::CallMetadata::functionIndex[MC], a1
+    move cfr, a1
+    move MC, a2
     advanceMC(IPInt::CallMetadata::signature)
 
     subq 16, sp
-    move sp, a2
+    move sp, a3
 
     # operation returns the entrypoint in r0 and the target instance in r1
     # operation stores the target callee to sp[0] and target function info to sp[1]
-    operationCall(macro() cCall3(_ipint_extern_prepare_call) end)
+    operationCall(macro() cCall4(_ipint_extern_prepare_call) end)
     loadq [sp], IPIntCallCallee
     loadq 8[sp], IPIntCallFunctionSlot
     addq 16, sp
@@ -578,15 +578,14 @@ ipintOp(_return_call, macro()
     loadb IPInt::TailCallMetadata::length[MC], t0
     advancePCByReg(t0)
 
-    # get function index
-    loadi IPInt::TailCallMetadata::functionIndex[MC], a1
-
+    move cfr, a1
+    move MC, a2
     subq 16, sp
-    move sp, a2
+    move sp, a3
 
     # operation returns the entrypoint in r0 and the target instance in r1
     # this operation stores the boxed Callee into *r2
-    operationCall(macro() cCall3(_ipint_extern_prepare_call) end)
+    operationCall(macro() cCall4(_ipint_extern_prepare_call) end)
 
     loadq [sp], IPIntCallCallee
     loadq 8[sp], IPIntCallFunctionSlot
@@ -626,7 +625,7 @@ ipintOp(_call_ref, macro()
     saveCallSiteIndex()
 
     move cfr, a1
-    loadi IPInt::CallRefMetadata::typeIndex[MC], a2
+    move MC, a2
     move sp, a3
 
     operationCallMayThrow(macro() cCall4(_ipint_extern_prepare_call_ref) end)
@@ -649,7 +648,7 @@ ipintOp(_return_call_ref, macro()
     advancePCByReg(t2)
 
     move cfr, a1
-    loadi IPInt::TailCallRefMetadata::typeIndex[MC], a2
+    move MC, a2
     move sp, a3
     operationCallMayThrow(macro() cCall4(_ipint_extern_prepare_call_ref) end)
     loadq [sp], IPIntCallCallee

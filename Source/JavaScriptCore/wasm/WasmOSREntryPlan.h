@@ -48,7 +48,7 @@ public:
     bool multiThreaded() const final { return false; }
 
     // Note: CompletionTask should not hold a reference to the Plan otherwise there will be a reference cycle.
-    OSREntryPlan(VM&, Ref<Module>&&, Ref<Callee>&&, FunctionCodeIndex functionIndex, bool hasExceptionHandlers, uint32_t loopIndex, MemoryMode, CompletionTask&&);
+    OSREntryPlan(VM&, Ref<Module>&&, Ref<Callee>&&, FunctionCodeIndex functionIndex, uint32_t loopIndex, MemoryMode, CompletionTask&&);
 
 private:
     // For some reason friendship doesn't extend to parent classes...
@@ -66,7 +66,6 @@ private:
     const Ref<CalleeGroup> m_calleeGroup;
     const Ref<Callee> m_callee;
     bool m_completed { false };
-    bool m_hasExceptionHandlers;
     FunctionCodeIndex m_functionIndex;
     uint32_t m_loopIndex;
 };

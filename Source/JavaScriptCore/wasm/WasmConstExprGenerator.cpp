@@ -674,9 +674,9 @@ public:
         return { };
     }
 
-    PartialResult WARN_UNUSED_RETURN addCall(unsigned, const TypeDefinition&, ArgumentList&, ResultList&, CallType = CallType::Call) CONST_EXPR_STUB
-    PartialResult WARN_UNUSED_RETURN addCallIndirect(unsigned, const TypeDefinition&, ArgumentList&, ResultList&, CallType = CallType::Call) CONST_EXPR_STUB
-    PartialResult WARN_UNUSED_RETURN addCallRef(const TypeDefinition&, ArgumentList&, ResultList&, CallType = CallType::Call) CONST_EXPR_STUB
+    PartialResult WARN_UNUSED_RETURN addCall(unsigned, FunctionSpaceIndex, const TypeDefinition&, ArgumentList&, ResultList&, CallType = CallType::Call) CONST_EXPR_STUB
+    PartialResult WARN_UNUSED_RETURN addCallIndirect(unsigned, unsigned, const TypeDefinition&, ArgumentList&, ResultList&, CallType = CallType::Call) CONST_EXPR_STUB
+    PartialResult WARN_UNUSED_RETURN addCallRef(unsigned, const TypeDefinition&, ArgumentList&, ResultList&, CallType = CallType::Call) CONST_EXPR_STUB
     PartialResult WARN_UNUSED_RETURN addUnreachable() CONST_EXPR_STUB
     PartialResult WARN_UNUSED_RETURN addCrash() CONST_EXPR_STUB
     bool usesSIMD() { return false; }

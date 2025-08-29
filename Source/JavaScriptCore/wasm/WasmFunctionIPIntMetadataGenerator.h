@@ -132,6 +132,7 @@ private:
     unsigned m_numArguments { 0 };
     unsigned m_numArgumentsOnStack { 0 };
     unsigned m_nonArgLocalOffset { 0 };
+    unsigned m_numCallSlots { 0 };
     Vector<uint8_t, 16> m_argumINTBytecode { };
 
     Vector<const TypeDefinition*> m_signatures;

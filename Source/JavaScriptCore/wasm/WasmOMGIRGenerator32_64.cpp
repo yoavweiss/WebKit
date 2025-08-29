@@ -736,9 +736,9 @@ public:
     PartialResult WARN_UNUSED_RETURN addFusedIfCompare(OpType, ExpressionType, ExpressionType, BlockSignature, Stack&, ControlType&, Stack&) { RELEASE_ASSERT_NOT_REACHED(); }
 
     // Calls
-    PartialResult WARN_UNUSED_RETURN addCall(FunctionSpaceIndex functionIndexSpace, const TypeDefinition&, ArgumentList& args, ResultList& results, CallType = CallType::Call);
-    PartialResult WARN_UNUSED_RETURN addCallIndirect(unsigned tableIndex, const TypeDefinition&, ArgumentList& args, ResultList& results, CallType = CallType::Call);
-    PartialResult WARN_UNUSED_RETURN addCallRef(const TypeDefinition&, ArgumentList& args, ResultList& results, CallType = CallType::Call);
+    PartialResult WARN_UNUSED_RETURN addCall(unsigned, FunctionSpaceIndex functionIndexSpace, const TypeDefinition&, ArgumentList& args, ResultList& results, CallType = CallType::Call);
+    PartialResult WARN_UNUSED_RETURN addCallIndirect(unsigned, unsigned tableIndex, const TypeDefinition&, ArgumentList& args, ResultList& results, CallType = CallType::Call);
+    PartialResult WARN_UNUSED_RETURN addCallRef(unsigned, const TypeDefinition&, ArgumentList& args, ResultList& results, CallType = CallType::Call);
     PartialResult WARN_UNUSED_RETURN addUnreachable();
     PartialResult WARN_UNUSED_RETURN addCrash();
     void fillCallResults(Value* callResult, const TypeDefinition& signature, ResultList& results);
@@ -5651,7 +5651,7 @@ auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex,
     return { };
 }
 
-auto OMGIRGenerator::addCall(FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::addCall(unsigned, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
     if (!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace)) {
         // Record the callee so the callee knows to look for it in updateCallsitesToCallUs.
@@ -5837,7 +5837,7 @@ auto OMGIRGenerator::addCall(FunctionSpaceIndex functionIndexSpace, const TypeDe
     return { };
 }
 
-auto OMGIRGenerator::addCallIndirect(unsigned tableIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::addCallIndirect(unsigned, unsigned tableIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
     Value* calleeIndex = get(args.takeLast());
     const TypeDefinition& signature = originalSignature.expand();
@@ -5945,7 +5945,7 @@ auto OMGIRGenerator::addCallIndirect(unsigned tableIndex, const TypeDefinition& 
     return emitIndirectCall(calleeInstance, calleeCode, calleeCallee, signature, args, results, callType);
 }
 
-auto OMGIRGenerator::addCallRef(const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::addCallRef(unsigned, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
     Value* callee = get(args.takeLast());
     TRACE_VALUE(Wasm::Types::Void, callee, "call_ref: ", originalSignature);
@@ -6062,8 +6062,9 @@ static bool shouldDumpIRFor(uint32_t functionIndex)
     return dumpAllowlist->shouldDumpWasmFunction(functionIndex);
 }
 
-Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileOMG(CompilationContext& compilationContext, OptimizingJITCallee& callee, const FunctionData& function, const TypeDefinition& signature, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, CalleeGroup& calleeGroup, const ModuleInformation& info, MemoryMode mode, CompilationMode compilationMode, FunctionCodeIndex functionIndex, bool hasExceptionHandlers, uint32_t loopIndexForOSREntry)
+Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileOMG(CompilationContext& compilationContext, IPIntCallee& profiledCallee, OptimizingJITCallee& callee, const FunctionData& function, const TypeDefinition& signature, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, CalleeGroup& calleeGroup, const ModuleInformation& info, MemoryMode mode, CompilationMode compilationMode, FunctionCodeIndex functionIndex, uint32_t loopIndexForOSREntry)
 {
+    bool hasExceptionHandlers = profiledCallee.hasExceptionHandlers();
     CompilerTimingScope totalScope("B3"_s, "Total OMG compilation"_s);
 
     Wasm::Thunks::singleton().stub(Wasm::catchInWasmThunkGenerator);
