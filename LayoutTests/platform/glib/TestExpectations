@@ -2699,9 +2699,6 @@ imported/w3c/web-platform-tests/webrtc/simulcast/setParameters-active.https.html
 # Expected to fail when SDKs are updated to GStreamer 1.26. Skipping until then.
 imported/w3c/web-platform-tests/webrtc/simulcast/getStats.https.html [ Skip ]
 
-# We don't have a RTP header extension for video orientation handling yet.
-imported/w3c/web-platform-tests/webrtc/protocol/rtp-extension-support.html [ Failure ]
-
 # This test expects the backend to not fill codecs encoding parameters, which we do, at least in the
 # GstWebRTC backend case.
 webrtc/video-getParameters.html [ Failure ]

@@ -1001,6 +1001,15 @@ void GStreamerMediaEndpoint::setDescription(const RTCSessionDescription* descrip
             failureCallback(&error);
             return;
         }
+        if (descriptionType == DescriptionType::Remote) {
+            GUniqueOutPtr<GstWebRTCSessionDescription> currentDescription;
+
+            g_object_get(m_webrtcBin.get(), "current-remote-description", &currentDescription.outPtr(), nullptr);
+            if (currentDescription && !validateRTPHeaderExtensions(currentDescription->sdp, message.get())) {
+                failureCallback(nullptr);
+                return;
+            }
+        }
     } else if (gst_sdp_message_new(&message.outPtr()) != GST_SDP_OK) {
         failureCallback(nullptr);
         return;
