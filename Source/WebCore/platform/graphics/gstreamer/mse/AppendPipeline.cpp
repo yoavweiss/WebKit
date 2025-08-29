@@ -848,6 +848,7 @@ GRefPtr<GstElement> createOptionalParserForFormat([[maybe_unused]] GstBin* bin, 
     // more orthogonal.
     ASCIILiteral elementClass = "identity"_s;
 
+    GRefPtr<GstElement> result;
     if (mediaType == "audio/x-opus"_s) {
         // Necessary for: metadata filling.
         // Frame durations are optional in Matroska/WebM. Although frame durations are not required
@@ -881,13 +882,23 @@ GRefPtr<GstElement> createOptionalParserForFormat([[maybe_unused]] GstBin* bin, 
         case 2:
             // MPEG-2 Part 7 Advanced Audio Coding (ISO 13818-7) -- MPEG-2 AAC, the original AAC format, widely used,
             // has extensions retrofitted.
-        case 4:
+        case 4: {
             // MPEG-4 Part 3 Audio (ISO 14496-3) -- MPEG-4 Audio, which more often than not also contains AAC audio,
             // defines several extensions to the original AAC, also widely used.
             // Not to be confused with the MP4 file format, which is a container format, not an audio stream format,
             // and can incidentally contain MPEG-4 audio.
-            elementClass = "aacparse"_s;
+            // Make sure each frame has a header, as mandated by the frame() syntax element
+            // specified in Section 2.4.1.2 of ISO 11172-3. Without specifying a stream-format,
+            // aacparse will fallback to raw, which might confuse some decoders (avdec) leading to
+            // garbled audio rendering.
+            GUniqueOutPtr<GError> error;
+            result = gst_parse_bin_from_description("aacparse ! capsfilter caps=\"audio/mpeg, stream-format=(string)adts\"", TRUE, &error.outPtr());
+            if (result)
+                gst_object_set_name(GST_OBJECT_CAST(result.get()), parserName.ascii().data());
+            else
+                GST_WARNING_OBJECT(bin, "Unable to create AAC parser: %s", error->message);
             break;
+        }
         default:
             GST_WARNING_OBJECT(bin, "Unsupported audio mpeg caps: %" GST_PTR_FORMAT, caps);
         }
@@ -901,8 +912,10 @@ GRefPtr<GstElement> createOptionalParserForFormat([[maybe_unused]] GstBin* bin, 
         elementClass = "ccconverter"_s;
     }
 
-    GST_DEBUG_OBJECT(bin, "Creating %s parser for stream with caps %" GST_PTR_FORMAT, elementClass.characters(), caps);
-    GRefPtr<GstElement> result(makeGStreamerElement(elementClass, parserName));
+    if (!result) {
+        GST_DEBUG_OBJECT(bin, "Creating %s parser for stream with caps %" GST_PTR_FORMAT, elementClass.characters(), caps);
+        result = makeGStreamerElement(elementClass, parserName);
+    }
     if (!result && elementClass != "identity"_s) {
         GST_WARNING_OBJECT(bin, "Couldn't create %s, there might be problems processing some MSE streams. "
             "Continue at your own risk and consider adding %s to your build.", elementClass.characters(), elementClass.characters());
@@ -1122,18 +1135,16 @@ void AppendPipeline::Track::emplaceOptionalElementsForFormat(GstBin* bin, const 
     gst_bin_add_many(bin, parser.get(), encoder.get(), nullptr);
     GST_INFO_OBJECT(bin, "linking elements...");
     auto linkingOk = gst_element_link_many(parser.get(), encoder.get(), appsink.get(), nullptr);
-    if (!linkingOk)
+    if (!linkingOk) {
         GST_ERROR_OBJECT(bin, "linking elements failed!");
-
+        return;
+    }
     gst_element_sync_state_with_parent(encoder.get());
     gst_element_sync_state_with_parent(parser.get());
 
-    encoderPad = adoptGRef(gst_element_get_static_pad(encoder.get(), "sink"));
     entryPad = adoptGRef(gst_element_get_static_pad(parser.get(), "sink"));
 
-    ASSERT(encoderPad);
     ASSERT(GST_PAD_IS_LINKED(appsinkPad.get()));
-    ASSERT(GST_PAD_IS_LINKED(encoderPad.get()));
 
     if (streamType == StreamType::Text)
         finalCaps = adoptGRef(gst_caps_new_empty_simple("application/x-subtitle-vtt"));

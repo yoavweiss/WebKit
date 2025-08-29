@@ -1511,6 +1511,8 @@ webkit.org/b/254514 media/media-source/media-source-seek-unbuffered.html [ Failu
 # MSE failures
 webkit.org/b/167108 imported/w3c/web-platform-tests/media-source/URL-createObjectURL-revoke.html [ Failure ]
 
+webkit.org/b/297905 media/media-source/media-managedmse-append.html [ Timeout ]
+
 # Need changes in the demuxers and AppendPipeline to enable aborts not followed by an initialization segment:
 
 webkit.org/b/224767 imported/w3c/web-platform-tests/media-source/mediasource-changetype-play-implicit.html [ Crash Pass ]
