@@ -39,6 +39,59 @@
 
 namespace WebCore {
 
+static StrokeStyle textDecorationStyleToStrokeStyle(TextDecorationStyle decorationStyle)
+{
+    StrokeStyle strokeStyle = StrokeStyle::SolidStroke;
+    switch (decorationStyle) {
+    case TextDecorationStyle::Solid:
+        strokeStyle = StrokeStyle::SolidStroke;
+        break;
+    case TextDecorationStyle::Double:
+        strokeStyle = StrokeStyle::DoubleStroke;
+        break;
+    case TextDecorationStyle::Dotted:
+        strokeStyle = StrokeStyle::DottedStroke;
+        break;
+    case TextDecorationStyle::Dashed:
+        strokeStyle = StrokeStyle::DashedStroke;
+        break;
+    case TextDecorationStyle::Wavy:
+        strokeStyle = StrokeStyle::WavyStroke;
+        break;
+    }
+
+    return strokeStyle;
+}
+
+static void adjustLineToPixelBoundaries(FloatPoint& p1, FloatPoint& p2, float strokeWidth, StrokeStyle penStyle)
+{
+    // For odd widths, we add in 0.5 to the appropriate x/y so that the float arithmetic
+    // works out. For example, with a border width of 3, WebKit will pass us (y1+y2)/2, e.g.,
+    // (50+53)/2 = 103/2 = 51 when we want 51.5. It is always true that an even width gave
+    // us a perfect position, but an odd width gave us a position that is off by exactly 0.5.
+    if (penStyle == StrokeStyle::DottedStroke || penStyle == StrokeStyle::DashedStroke) {
+        if (p1.x() == p2.x()) {
+            p1.setY(p1.y() + strokeWidth);
+            p2.setY(p2.y() - strokeWidth);
+        } else {
+            p1.setX(p1.x() + strokeWidth);
+            p2.setX(p2.x() - strokeWidth);
+        }
+    }
+
+    if (static_cast<int>(strokeWidth) % 2) {
+        if (p1.x() == p2.x()) {
+            // We're a vertical line. Adjust our x.
+            p1.setX(p1.x() + 0.5f);
+            p2.setX(p2.x() + 0.5f);
+        } else {
+            // We're a horizontal line. Adjust our y.
+            p1.setY(p1.y() + 0.5f);
+            p2.setY(p2.y() + 0.5f);
+        }
+    }
+}
+
 /*
  * Draw one cubic Bezier curve and repeat the same pattern along the the decoration's axis.
  * The start point (p1), controlPoint1, controlPoint2 and end point (p2) of the Bezier curve
@@ -66,11 +119,12 @@ namespace WebCore {
  *             |-----------|
  *                 step
  */
-static void strokeWavyTextDecoration(GraphicsContext& context, const FloatRect& rect, WavyStrokeParameters wavyStrokeParameters)
+static void strokeWavyTextDecoration(GraphicsContext& context, const FloatRect& rect, bool isPrinting, WavyStrokeParameters wavyStrokeParameters, StrokeStyle strokeStyle)
 {
     if (rect.isEmpty() || !wavyStrokeParameters.step)
         return;
 
+    // 1. Calculate the endpoints.
     FloatPoint p1 = rect.minXMinYCorner();
     FloatPoint p2 = rect.maxXMinYCorner();
 
@@ -78,27 +132,26 @@ static void strokeWavyTextDecoration(GraphicsContext& context, const FloatRect& 
     p1.setX(p1.x() - 2 * wavyStrokeParameters.step);
     p2.setX(p2.x() + 2 * wavyStrokeParameters.step);
 
-    auto bounds = rect;
-    // Offset the bounds and set extra height to ensure the whole wavy line is covered.
-    bounds.setY(bounds.y() - wavyStrokeParameters.controlPointDistance);
-    bounds.setHeight(bounds.height() + 2 * wavyStrokeParameters.controlPointDistance);
-    // Clip the extra wavy line added before
-    GraphicsContextStateSaver stateSaver(context);
-    context.clip(bounds);
-
-    context.adjustLineToPixelBoundaries(p1, p2, rect.height(), context.strokeStyle());
-
-    Path path;
-    path.moveTo(p1);
+    adjustLineToPixelBoundaries(p1, p2, rect.height(), context.strokeStyle());
 
     ASSERT(p1.y() == p2.y());
-
-    float yAxis = p1.y();
     float x1 = std::min(p1.x(), p2.x());
     float x2 = std::max(p1.x(), p2.x());
 
+    // Ensure the wavy underline path will not have too many segments.
+    static constexpr unsigned maxTextDecorationWaves = 1024;
+    if (wavyStrokeParameters.step < 1 || (x2 - x1) / (2 * wavyStrokeParameters.step) > maxTextDecorationWaves) {
+        context.drawLineForText(rect, isPrinting, false, strokeStyle);
+        return;
+    }
+
+    // 2. Contruct the wavy underline path.
+    float yAxis = p1.y();
     FloatPoint controlPoint1(0, yAxis + wavyStrokeParameters.controlPointDistance);
     FloatPoint controlPoint2(0, yAxis - wavyStrokeParameters.controlPointDistance);
+
+    Path path;
+    path.moveTo(p1);
 
     for (double x = x1; x + 2 * wavyStrokeParameters.step <= x2;) {
         controlPoint1.setX(x + wavyStrokeParameters.step);
@@ -107,33 +160,17 @@ static void strokeWavyTextDecoration(GraphicsContext& context, const FloatRect& 
         path.addBezierCurveTo(controlPoint1, controlPoint2, FloatPoint(x, yAxis));
     }
 
+    // Offset the bounds and set extra height to ensure the whole wavy line is covered.
+    auto bounds = rect;
+    bounds.inflateY(wavyStrokeParameters.controlPointDistance);
+
+    // 3. Draw the wavy underline path and clip the extra wavy line added before.
+    GraphicsContextStateSaver stateSaver(context);
+    context.clip(bounds);
+
     context.setShouldAntialias(true);
     context.setStrokeThickness(rect.height());
     context.strokePath(path);
-}
-
-static StrokeStyle textDecorationStyleToStrokeStyle(TextDecorationStyle decorationStyle)
-{
-    StrokeStyle strokeStyle = StrokeStyle::SolidStroke;
-    switch (decorationStyle) {
-    case TextDecorationStyle::Solid:
-        strokeStyle = StrokeStyle::SolidStroke;
-        break;
-    case TextDecorationStyle::Double:
-        strokeStyle = StrokeStyle::DoubleStroke;
-        break;
-    case TextDecorationStyle::Dotted:
-        strokeStyle = StrokeStyle::DottedStroke;
-        break;
-    case TextDecorationStyle::Dashed:
-        strokeStyle = StrokeStyle::DashedStroke;
-        break;
-    case TextDecorationStyle::Wavy:
-        strokeStyle = StrokeStyle::WavyStroke;
-        break;
-    }
-
-    return strokeStyle;
 }
 
 bool TextDecorationPainter::Styles::operator==(const Styles& other) const
@@ -161,7 +198,7 @@ void TextDecorationPainter::paintBackgroundDecorations(const RenderStyle& style,
         auto strokeStyle = textDecorationStyleToStrokeStyle(underlineStyle);
 
         if (underlineStyle == TextDecorationStyle::Wavy)
-            strokeWavyTextDecoration(m_context, rect, decorationGeometry.wavyStrokeParameters);
+            strokeWavyTextDecoration(m_context, rect, m_isPrinting, decorationGeometry.wavyStrokeParameters, strokeStyle);
         else if (decoration == TextDecorationLineFlags::Underline || decoration == TextDecorationLineFlags::Overline) {
             if ((style.textDecorationSkipInk() == TextDecorationSkipInk::Auto
                 || style.textDecorationSkipInk() == TextDecorationSkipInk::All)
@@ -271,7 +308,7 @@ void TextDecorationPainter::paintLineThrough(const ForegroundDecorationGeometry&
     auto strokeStyle = textDecorationStyleToStrokeStyle(style);
 
     if (style == TextDecorationStyle::Wavy)
-        strokeWavyTextDecoration(m_context, rect, foregroundDecorationGeometry.wavyStrokeParameters);
+        strokeWavyTextDecoration(m_context, rect, m_isPrinting, foregroundDecorationGeometry.wavyStrokeParameters, strokeStyle);
     else
         m_context.drawLineForText(rect, m_isPrinting, style == TextDecorationStyle::Double, strokeStyle);
 }
