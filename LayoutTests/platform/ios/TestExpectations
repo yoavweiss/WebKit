@@ -8253,3 +8253,5 @@ webkit.org/b/295435 compositing/layer-creation/overlap-animation-container.html 
 webkit.org/b/297984 [ Release ] imported/w3c/web-platform-tests/html/cross-origin-opener-policy/navigate-top-to-aboutblank.https.html [ Failure ]
 
 webkit.org/b/298042 [ Release ] http/tests/security/clipboard/copy-paste-html-cross-origin-iframe-across-origin.html [ Pass Failure ]
+
+webkit.org/b/298106 [ Debug ] http/wpt/mediasession/gpuProcessCrash-voiceDetection.html [ Crash ]
