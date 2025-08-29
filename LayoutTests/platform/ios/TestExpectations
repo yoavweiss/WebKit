@@ -8255,3 +8255,5 @@ webkit.org/b/297984 [ Release ] imported/w3c/web-platform-tests/html/cross-origi
 webkit.org/b/298042 [ Release ] http/tests/security/clipboard/copy-paste-html-cross-origin-iframe-across-origin.html [ Pass Failure ]
 
 webkit.org/b/298106 [ Debug ] http/wpt/mediasession/gpuProcessCrash-voiceDetection.html [ Crash ]
+
+webkit.org/b/298125 imported/w3c/web-platform-tests/mediacapture-streams/parallel-capture-requests.https.html [ Pass Failure ]
