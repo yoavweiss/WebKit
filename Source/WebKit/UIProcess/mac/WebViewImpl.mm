@@ -227,20 +227,20 @@ WTF_DECLARE_CF_TYPE_TRAIT(CGImage);
 
 - (void)mouseMoved:(NSEvent *)event
 {
-    if (CheckedPtr impl = _impl.get())
-        impl->mouseMoved(event);
+    if (_impl)
+        _impl->mouseMoved(event);
 }
 
 - (void)mouseEntered:(NSEvent *)event
 {
-    if (CheckedPtr impl = _impl.get())
-        impl->mouseEntered(event);
+    if (_impl)
+        _impl->mouseEntered(event);
 }
 
 - (void)mouseExited:(NSEvent *)event
 {
-    if (CheckedPtr impl = _impl.get())
-        impl->mouseExited(event);
+    if (_impl)
+        _impl->mouseExited(event);
 }
 
 @end
@@ -637,7 +637,7 @@ static void* keyValueObservingContext = &keyValueObservingContext;
 @end
 
 @interface WKResponderChainSink : NSResponder {
-    WeakObjCPtr<NSResponder> _lastResponderInChain;
+    NSResponder *_lastResponderInChain;
     bool _didReceiveUnhandledCommand;
 }
 
@@ -666,7 +666,7 @@ static void* keyValueObservingContext = &keyValueObservingContext;
     // -initWithResponderChain: was called, or was modified in such a way
     // that _lastResponderInChain is still in the chain, and self was not
     // moved earlier in the chain than _lastResponderInChain.
-    RetainPtr responderBeforeSelf = _lastResponderInChain.get();
+    RetainPtr responderBeforeSelf = _lastResponderInChain;
     RetainPtr next = [responderBeforeSelf nextResponder];
     for (; next && next != self; next = [next nextResponder])
         responderBeforeSelf = next;
@@ -839,8 +839,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)_selectList:(id)sender
 {
-    CheckedPtr webViewImpl = _webViewImpl.get();
-    if (!webViewImpl)
+    if (!_webViewImpl)
         return;
 
     RetainPtr insertListControl = dynamic_objc_cast<NSSegmentedControl>(self.view);
@@ -850,19 +849,19 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         // behave as toggles, so we can invoke the appropriate edit command depending on our _currentListType
         // to remove an existing list. We don't have to do anything if _currentListType is NoList.
         if (_currentListType == WebKit::ListType::OrderedList)
-            webViewImpl->page().executeEditCommand(@"InsertOrderedList", @"");
+            _webViewImpl->page().executeEditCommand(@"InsertOrderedList", @"");
         else if (_currentListType == WebKit::ListType::UnorderedList)
-            webViewImpl->page().executeEditCommand(@"InsertUnorderedList", @"");
+            _webViewImpl->page().executeEditCommand(@"InsertUnorderedList", @"");
         break;
     case unorderedListSegment:
-        webViewImpl->page().executeEditCommand(@"InsertUnorderedList", @"");
+        _webViewImpl->page().executeEditCommand(@"InsertUnorderedList", @"");
         break;
     case orderedListSegment:
-        webViewImpl->page().executeEditCommand(@"InsertOrderedList", @"");
+        _webViewImpl->page().executeEditCommand(@"InsertOrderedList", @"");
         break;
     }
 
-    webViewImpl->dismissTextTouchBarPopoverItemWithIdentifier(NSTouchBarItemIdentifierTextList);
+    _webViewImpl->dismissTextTouchBarPopoverItemWithIdentifier(NSTouchBarItemIdentifierTextList);
 }
 
 - (void)setCurrentListType:(WebKit::ListType)listType
@@ -971,7 +970,6 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     if (index == NSNotFound)
         return;
 
-    CheckedPtr webViewImpl = _webViewImpl.get();
     if (!_webViewImpl)
         return;
 
@@ -980,31 +978,29 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         return;
 
     RetainPtr candidate = checked_objc_cast<NSTextCheckingResult>(candidates.get()[index]);
-    webViewImpl->handleAcceptedCandidate(candidate.get());
+    _webViewImpl->handleAcceptedCandidate(candidate.get());
 }
 
 - (void)candidateListTouchBarItem:(NSCandidateListTouchBarItem *)anItem changedCandidateListVisibility:(BOOL)isVisible
 {
-    CheckedPtr webViewImpl = _webViewImpl.get();
-    if (!webViewImpl)
+    if (!_webViewImpl)
         return;
 
     if (isVisible)
-        webViewImpl->requestCandidatesForSelectionIfNeeded();
+        _webViewImpl->requestCandidatesForSelectionIfNeeded();
 
-    webViewImpl->updateTouchBar();
+    _webViewImpl->updateTouchBar();
 }
 
 #pragma mark NSNotificationCenter observers
 
 - (void)touchBarDidExitCustomization:(NSNotification *)notification
 {
-    CheckedPtr webViewImpl = _webViewImpl.get();
-    if (!webViewImpl)
+    if (!_webViewImpl)
         return;
 
-    webViewImpl->setIsCustomizingTouchBar(false);
-    webViewImpl->updateTouchBar();
+    _webViewImpl->setIsCustomizingTouchBar(false);
+    _webViewImpl->updateTouchBar();
 }
 
 - (void)touchBarWillEnterCustomization:(NSNotification *)notification
@@ -1017,11 +1013,10 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)didChangeAutomaticTextCompletion:(NSNotification *)notification
 {
-    CheckedPtr webViewImpl = _webViewImpl.get();
-    if (!webViewImpl)
+    if (!_webViewImpl)
         return;
 
-    webViewImpl->updateTouchBarAndRefreshTextBarIdentifiers();
+    _webViewImpl->updateTouchBarAndRefreshTextBarIdentifiers();
 }
 
 
@@ -1082,33 +1077,32 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 - (void)_wkChangeTextAlignment:(id)sender
 {
-    CheckedPtr webViewImpl = _webViewImpl.get();
-    if (!webViewImpl)
+    if (!_webViewImpl)
         return;
 
     NSTextAlignment alignment = (NSTextAlignment)[self.textAlignments.cell tagForSegment:self.textAlignments.selectedSegment];
     switch (alignment) {
     case NSTextAlignmentLeft:
         _currentTextAlignment = NSTextAlignmentLeft;
-        webViewImpl->page().executeEditCommand("AlignLeft"_s, emptyString());
+        _webViewImpl->page().executeEditCommand("AlignLeft"_s, emptyString());
         break;
     case NSTextAlignmentRight:
         _currentTextAlignment = NSTextAlignmentRight;
-        webViewImpl->page().executeEditCommand("AlignRight"_s, emptyString());
+        _webViewImpl->page().executeEditCommand("AlignRight"_s, emptyString());
         break;
     case NSTextAlignmentCenter:
         _currentTextAlignment = NSTextAlignmentCenter;
-        webViewImpl->page().executeEditCommand("AlignCenter"_s, emptyString());
+        _webViewImpl->page().executeEditCommand("AlignCenter"_s, emptyString());
         break;
     case NSTextAlignmentJustified:
         _currentTextAlignment = NSTextAlignmentJustified;
-        webViewImpl->page().executeEditCommand("AlignJustified"_s, emptyString());
+        _webViewImpl->page().executeEditCommand("AlignJustified"_s, emptyString());
         break;
     default:
         break;
     }
 
-    webViewImpl->dismissTextTouchBarPopoverItemWithIdentifier(NSTouchBarItemIdentifierTextAlignment);
+    _webViewImpl->dismissTextTouchBarPopoverItemWithIdentifier(NSTouchBarItemIdentifierTextAlignment);
 }
 
 - (NSColor *)textColor
