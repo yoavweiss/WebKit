@@ -924,13 +924,6 @@ bool Quirks::shouldEnableEnumerateDeviceQuirk() const
 }
 #endif
 
-#if ENABLE(WEB_RTC)
-bool Quirks::shouldEnableRTCEncodedStreamsQuirk() const
-{
-    return needsQuirks() && m_quirksData.shouldEnableRTCEncodedStreamsQuirk;
-}
-#endif
-
 bool Quirks::shouldUnloadHeavyFrame() const
 {
     return needsQuirks() && m_quirksData.shouldUnloadHeavyFrames;

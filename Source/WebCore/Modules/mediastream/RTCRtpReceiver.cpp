@@ -36,7 +36,6 @@
 #include "JSDOMPromiseDeferred.h"
 #include "Logging.h"
 #include "PeerConnectionBackend.h"
-#include "RTCEncodedStreamProducer.h"
 #include "RTCRtpCapabilities.h"
 #include "ScriptWrappableInlines.h"
 #include <wtf/TZoneMallocInlines.h>
@@ -122,22 +121,6 @@ std::optional<RTCRtpTransform::Internal> RTCRtpReceiver::transform()
     if (!m_transform)
         return { };
     return m_transform->internalTransform();
-}
-
-ExceptionOr<RTCEncodedStreams> RTCRtpReceiver::createEncodedStreams(ScriptExecutionContext& context)
-{
-    if (!m_backend)
-        return Exception { ExceptionCode::InvalidStateError };
-
-    if (!m_encodedStreamProducer) {
-        auto producerOrException = RTCEncodedStreamProducer::create(context, m_backend->rtcRtpTransformBackend(), m_track->isVideo());
-        if (producerOrException.hasException())
-            return producerOrException.releaseException();
-
-        lazyInitialize(m_encodedStreamProducer, producerOrException.releaseReturnValue());
-    }
-
-    return m_encodedStreamProducer->streams();
 }
 
 #if !RELEASE_LOG_DISABLED

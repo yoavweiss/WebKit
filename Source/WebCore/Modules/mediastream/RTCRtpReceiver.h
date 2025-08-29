@@ -43,9 +43,6 @@ namespace WebCore {
 
 class DeferredPromise;
 class PeerConnectionBackend;
-class RTCEncodedStreamProducer;
-
-struct RTCEncodedStreams;
 struct RTCRtpCapabilities;
 
 class RTCRtpReceiver final : public RefCounted<RTCRtpReceiver>
@@ -82,8 +79,6 @@ public:
     std::optional<RTCRtpTransform::Internal> transform();
     ExceptionOr<void> setTransform(std::unique_ptr<RTCRtpTransform>&&);
 
-    ExceptionOr<RTCEncodedStreams> createEncodedStreams(ScriptExecutionContext&);
-
     const Vector<WeakPtr<MediaStream>>& associatedStreams() const { return m_associatedStreams; }
     void setAssociatedStreams(Vector<WeakPtr<MediaStream>>&& streams) { m_associatedStreams = WTFMove(streams); }
 private:
@@ -101,7 +96,6 @@ private:
     std::unique_ptr<RTCRtpReceiverBackend> m_backend;
     WeakPtr<PeerConnectionBackend> m_connection;
     std::unique_ptr<RTCRtpTransform> m_transform;
-    const RefPtr<RTCEncodedStreamProducer> m_encodedStreamProducer;
     Vector<WeakPtr<MediaStream>> m_associatedStreams;
 #if !RELEASE_LOG_DISABLED
     const Ref<const Logger> m_logger;

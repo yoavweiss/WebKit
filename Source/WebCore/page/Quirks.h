@@ -150,10 +150,6 @@ public:
     bool shouldEnableSpeakerSelectionPermissionsPolicyQuirk() const;
     bool shouldEnableEnumerateDeviceQuirk() const;
 #endif
-#if ENABLE(WEB_RTC)
-    bool shouldEnableRTCEncodedStreamsQuirk() const;
-#endif
-
     bool shouldUnloadHeavyFrame() const;
 
     bool needsCanPlayAfterSeekedQuirk() const;

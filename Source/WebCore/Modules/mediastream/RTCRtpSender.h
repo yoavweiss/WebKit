@@ -45,10 +45,7 @@ namespace WebCore {
 
 class MediaStream;
 class RTCDTMFSender;
-class RTCEncodedStreamProducer;
 class RTCPeerConnection;
-
-struct RTCEncodedStreams;
 struct RTCRtpCapabilities;
 
 class RTCRtpSender final : public RefCounted<RTCRtpSender>
@@ -99,8 +96,6 @@ public:
     std::optional<RTCRtpTransform::Internal> transform();
     ExceptionOr<void> setTransform(std::unique_ptr<RTCRtpTransform>&&);
 
-    ExceptionOr<RTCEncodedStreams> createEncodedStreams(ScriptExecutionContext&);
-
 private:
     RTCRtpSender(RTCPeerConnection&, String&& trackKind, std::unique_ptr<RTCRtpSenderBackend>&&);
 
@@ -119,7 +114,6 @@ private:
     WeakPtr<RTCPeerConnection, WeakPtrImplWithEventTargetData> m_connection;
     RefPtr<RTCDTMFSender> m_dtmfSender;
     std::unique_ptr<RTCRtpTransform> m_transform;
-    const RefPtr<RTCEncodedStreamProducer> m_encodedStreamProducer;
 #if !RELEASE_LOG_DISABLED
     const Ref<const Logger> m_logger;
     uint64_t m_logIdentifier { 0 };

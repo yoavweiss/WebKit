@@ -612,7 +612,6 @@ $(PROJECT_DIR)/Modules/mediastream/RTCDegradationPreference.idl
 $(PROJECT_DIR)/Modules/mediastream/RTCDtlsTransport.idl
 $(PROJECT_DIR)/Modules/mediastream/RTCDtlsTransportState.idl
 $(PROJECT_DIR)/Modules/mediastream/RTCEncodedAudioFrame.idl
-$(PROJECT_DIR)/Modules/mediastream/RTCEncodedStreams.idl
 $(PROJECT_DIR)/Modules/mediastream/RTCEncodedVideoFrame.idl
 $(PROJECT_DIR)/Modules/mediastream/RTCError.idl
 $(PROJECT_DIR)/Modules/mediastream/RTCErrorDetailType.idl

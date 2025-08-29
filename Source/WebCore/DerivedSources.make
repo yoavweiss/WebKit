@@ -483,7 +483,6 @@ JS_BINDING_IDLS := \
     $(WebCore)/Modules/mediastream/RTCDtlsTransport.idl \
     $(WebCore)/Modules/mediastream/RTCDtlsTransportState.idl \
     $(WebCore)/Modules/mediastream/RTCEncodedAudioFrame.idl \
-    $(WebCore)/Modules/mediastream/RTCEncodedStreams.idl \
     $(WebCore)/Modules/mediastream/RTCEncodedVideoFrame.idl \
     $(WebCore)/Modules/mediastream/RTCError.idl \
     $(WebCore)/Modules/mediastream/RTCErrorDetailType.idl \

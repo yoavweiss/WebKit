@@ -38,7 +38,6 @@
 #include "Logging.h"
 #include "RTCDTMFSender.h"
 #include "RTCDTMFSenderBackend.h"
-#include "RTCEncodedStreamProducer.h"
 #include "RTCPeerConnection.h"
 #include "RTCRtpCapabilities.h"
 #include "RTCRtpTransceiver.h"
@@ -256,22 +255,6 @@ std::optional<RTCRtpTransform::Internal> RTCRtpSender::transform()
     if (!m_transform)
         return { };
     return m_transform->internalTransform();
-}
-
-ExceptionOr<RTCEncodedStreams> RTCRtpSender::createEncodedStreams(ScriptExecutionContext& context)
-{
-    if (!m_backend)
-        return Exception { ExceptionCode::InvalidStateError };
-
-    if (!m_encodedStreamProducer) {
-        auto producerOrException = RTCEncodedStreamProducer::create(context, m_backend->rtcRtpTransformBackend(), m_trackKind == "video"_s);
-        if (producerOrException.hasException())
-            return producerOrException.releaseException();
-
-        lazyInitialize(m_encodedStreamProducer, producerOrException.releaseReturnValue());
-    }
-
-    return m_encodedStreamProducer->streams();
 }
 
 #if !RELEASE_LOG_DISABLED

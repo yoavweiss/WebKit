@@ -2410,8 +2410,6 @@ $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCDtlsTransportState.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCDtlsTransportState.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCEncodedAudioFrame.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCEncodedAudioFrame.h
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCEncodedStreams.cpp
-$(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCEncodedStreams.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCEncodedVideoFrame.cpp
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCEncodedVideoFrame.h
 $(BUILT_PRODUCTS_DIR)/DerivedSources/WebCore/JSRTCError.cpp
