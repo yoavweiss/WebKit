@@ -1000,13 +1000,13 @@ inline bool strncasecmp(const char* str1, const char* str2, size_t n)
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 
-void Options::initialize()
+void Options::initializeWithOptionsCustomization(const ScopedLambda<void()>& optionsCustomizationCallback)
 {
     static std::once_flag initializeOptionsOnceFlag;
     
     std::call_once(
         initializeOptionsOnceFlag,
-        [] {
+        [&] {
             AllowUnfinalizedAccessScope scope;
 
             // Sanity check that options address computation is working.
@@ -1074,6 +1074,9 @@ void Options::initialize()
                 (hwPhysicalCPUMax() >= 4) && (hwL3CacheSize() >= static_cast<int64_t>(6 * MB));
 #endif
 
+            // Client gets the last word on what options they want to override.
+            optionsCustomizationCallback();
+
             // No more options changes after this point. notifyOptionsChanged() will
             // do sanity checks and fix up options as needed.
             notifyOptionsChanged();
@@ -1084,7 +1087,6 @@ void Options::initialize()
             if (Options::useMachForExceptions())
                 handleSignalsWithMach();
 #endif
-
     });
 }
 

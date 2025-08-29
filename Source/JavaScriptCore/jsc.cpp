@@ -4071,12 +4071,12 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 void CommandLine::parseArguments(int argc, char** argv)
 {
     Options::AllowUnfinalizedAccessScope scope;
-    Options::initialize();
-    Options::useSharedArrayBuffer() = true;
-
+    Options::initialize([] {
+        Options::useSharedArrayBuffer() = true;
 #if PLATFORM(IOS_FAMILY) && !PLATFORM(APPLETV) && !PLATFORM(WATCHOS)
-    Options::crashIfCantAllocateJITMemory() = true;
+        Options::crashIfCantAllocateJITMemory() = true;
 #endif
+    });
 
     if (Options::dumpOptions()) {
         printf("Command line:");
