@@ -140,7 +140,7 @@ static void initializeBuiltinImport(VM& vm, WriteBarrier<JSWebAssemblyInstance>&
     info->boxedCallee = builtin->callee(); // boxed by operator=
     instance->setBuiltinCalleeBits(builtin->id(), info->boxedCallee);
     info->boxedWasmCalleeLoadLocation = &info->boxedCallee;
-    info->importFunctionStub = CodePtr<CFunctionPtrTag>::fromTaggedPtr((void*) builtin->implementation()).retagged<WasmEntryPtrTag>();
+    info->importFunctionStub = builtin->callee()->entrypointImpl();
     info->entrypointLoadLocation = &info->importFunctionStub;
     info->targetInstance.set(vm, instance.get(), instance.get());
     info->typeIndex = instance->moduleInformation().importFunctionTypeIndices[import.kindIndex];

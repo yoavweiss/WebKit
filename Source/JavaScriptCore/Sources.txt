@@ -1196,6 +1196,7 @@ wasm/js/WasmToJS.h
 wasm/js/WebAssemblyArrayConstructor.cpp
 wasm/js/WebAssemblyArrayPrototype.cpp
 wasm/js/WebAssemblyBuiltin.cpp
+wasm/js/WebAssemblyBuiltinTrampoline.cpp
 wasm/js/WebAssemblyCompileErrorConstructor.cpp
 wasm/js/WebAssemblyCompileErrorPrototype.cpp
 wasm/js/WebAssemblyCompileOptions.cpp

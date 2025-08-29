@@ -639,6 +639,11 @@ public:
         return OBJECT_OFFSETOF(VM, m_exception);
     }
 
+    static constexpr ptrdiff_t offsetOfTopCallFrame()
+    {
+        return OBJECT_OFFSETOF(VM, topCallFrame);
+    }
+
     static constexpr ptrdiff_t callFrameForCatchOffset()
     {
         return OBJECT_OFFSETOF(VM, callFrameForCatch);

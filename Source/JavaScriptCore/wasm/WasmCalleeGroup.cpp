@@ -338,6 +338,7 @@ TriState CalleeGroup::calleeIsReferenced(const AbstractLocker&, Wasm::Callee* ca
     // FIXME: These are owned by JS, it's not clear how to verify they're still alive here.
     case CompilationMode::JSToWasmICMode:
     case CompilationMode::WasmToJSMode:
+    case CompilationMode::WasmBuiltinMode:
         return TriState::True;
     default:
         RELEASE_ASSERT_NOT_REACHED();

@@ -805,6 +805,7 @@
 		233D768F2E288BCA00EB9FFB /* missingImport.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = 233D767B2E288A8600EB9FFB /* missingImport.js */; };
 		233D76902E288BCA00EB9FFB /* referenceError.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = 233D767C2E288A8600EB9FFB /* referenceError.js */; };
 		233D76912E288BCA00EB9FFB /* syntaxError.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = 233D767D2E288A8600EB9FFB /* syntaxError.js */; };
+		23863EEB2E5EC93E00E57879 /* WebAssemblyBuiltinTrampoline.h in Headers */ = {isa = PBXBuildFile; fileRef = 23863EEA2E5EC92900E57879 /* WebAssemblyBuiltinTrampoline.h */; };
 		2392A1302DD51DB100DD1CB9 /* WebAssemblyBuiltin.h in Headers */ = {isa = PBXBuildFile; fileRef = 2392A12A2DD51DB100DD1CB9 /* WebAssemblyBuiltin.h */; };
 		2392A1312DD51DB100DD1CB9 /* WebAssemblyCompileOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2392A12C2DD51DB100DD1CB9 /* WebAssemblyCompileOptions.h */; };
 		2600B5A7152BAAA70091EE5F /* JSStringJoiner.h in Headers */ = {isa = PBXBuildFile; fileRef = 2600B5A5152BAAA70091EE5F /* JSStringJoiner.h */; };
@@ -3898,6 +3899,8 @@
 		233D767D2E288A8600EB9FFB /* syntaxError.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = syntaxError.js; sourceTree = "<group>"; };
 		233D767F2E288A8600EB9FFB /* testapi.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = testapi.js; sourceTree = "<group>"; };
 		233D76802E288A8600EB9FFB /* testapi-function-overrides.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "testapi-function-overrides.js"; sourceTree = "<group>"; };
+		23863EE92E5EC91500E57879 /* WebAssemblyBuiltinTrampoline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WebAssemblyBuiltinTrampoline.cpp; path = js/WebAssemblyBuiltinTrampoline.cpp; sourceTree = "<group>"; };
+		23863EEA2E5EC92900E57879 /* WebAssemblyBuiltinTrampoline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WebAssemblyBuiltinTrampoline.h; path = js/WebAssemblyBuiltinTrampoline.h; sourceTree = "<group>"; };
 		2392A12A2DD51DB100DD1CB9 /* WebAssemblyBuiltin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WebAssemblyBuiltin.h; path = js/WebAssemblyBuiltin.h; sourceTree = "<group>"; };
 		2392A12B2DD51DB100DD1CB9 /* WebAssemblyBuiltin.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WebAssemblyBuiltin.cpp; path = js/WebAssemblyBuiltin.cpp; sourceTree = "<group>"; };
 		2392A12C2DD51DB100DD1CB9 /* WebAssemblyCompileOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WebAssemblyCompileOptions.h; path = js/WebAssemblyCompileOptions.h; sourceTree = "<group>"; };
@@ -10186,6 +10189,8 @@
 				55579D8D28DD640F00153DAE /* WebAssemblyArrayPrototype.h */,
 				2392A12B2DD51DB100DD1CB9 /* WebAssemblyBuiltin.cpp */,
 				2392A12A2DD51DB100DD1CB9 /* WebAssemblyBuiltin.h */,
+				23863EE92E5EC91500E57879 /* WebAssemblyBuiltinTrampoline.cpp */,
+				23863EEA2E5EC92900E57879 /* WebAssemblyBuiltinTrampoline.h */,
 				AD2FCBB01DB58DA400B3E736 /* WebAssemblyCompileErrorConstructor.cpp */,
 				AD2FCBB11DB58DA400B3E736 /* WebAssemblyCompileErrorConstructor.h */,
 				AD2FCBB21DB58DA400B3E736 /* WebAssemblyCompileErrorPrototype.cpp */,
@@ -12186,6 +12191,7 @@
 				55579D9128DD641000153DAE /* WebAssemblyArrayConstructor.h in Headers */,
 				55579D9028DD641000153DAE /* WebAssemblyArrayPrototype.h in Headers */,
 				2392A1302DD51DB100DD1CB9 /* WebAssemblyBuiltin.h in Headers */,
+				23863EEB2E5EC93E00E57879 /* WebAssemblyBuiltinTrampoline.h in Headers */,
 				AD2FCBED1DB58DAD00B3E736 /* WebAssemblyCompileErrorConstructor.h in Headers */,
 				AD2FCBEF1DB58DAD00B3E736 /* WebAssemblyCompileErrorPrototype.h in Headers */,
 				2392A1312DD51DB100DD1CB9 /* WebAssemblyCompileOptions.h in Headers */,

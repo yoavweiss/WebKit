@@ -32,6 +32,7 @@
 #include "LLIntData.h"
 #include "Opcode.h"
 #include "Options.h"
+#include "WebAssemblyBuiltin.h"
 
 #if HAVE(DLADDR)
 #include <cxxabi.h>
@@ -156,6 +157,27 @@ LLINT_DECLARE_ROUTINE_VALIDATE(ipint_table_catch_allref_entry);
 #define LLINT_RETURN_LOCATION(name, ...) \
     LLINT_OP(name##_return_location)
 
+#if ENABLE(JIT_OPERATION_VALIDATION) && !ENABLE(JIT_CAGE)
+// In this configuration the validation function is a static constexpr equal to the original function.
+// It is not visible here and does not produce a linkable symbol.
+#define BUILTIN_WASM_ENTRY_VALIDATE_NAME(setName, builtinName) BUILTIN_WASM_ENTRY_NAME(setName, builtinName)
+#else
+#define BUILTIN_WASM_ENTRY_VALIDATE_NAME(setName, builtinName) CONCAT(BUILTIN_WASM_ENTRY_NAME(setName, builtinName), Validate)
+#endif
+
+#define DECLARE_WASM_BUILTIN_ENTRY(setName, builtinName, signature) \
+    extern "C" EncodedJSValue BUILTIN_WASM_ENTRY_NAME(setName, builtinName)(); \
+    extern "C" EncodedJSValue BUILTIN_WASM_ENTRY_VALIDATE_NAME(setName, builtinName)();
+
+FOR_EACH_WASM_BUILTIN(DECLARE_WASM_BUILTIN_ENTRY)
+
+#undef DECLARE_WASM_BUILTIN_ENTRY
+
+#define WASM_BUILTIN_RECORD(setName, builtinName, signature) { \
+        std::bit_cast<void*>(&BUILTIN_WASM_ENTRY_NAME(setName, builtinName)), \
+        LLINT_OP_EXTRAS(BUILTIN_WASM_ENTRY_VALIDATE_NAME(setName, builtinName)) \
+    },
+
 struct LLIntOperations {
     const JITOperationAnnotation* operations;
     size_t numberOfOperations;
@@ -194,6 +216,8 @@ static LLIntOperations llintOperations()
             LLINT_ROUTINE(ipint_table_catch_all_entry)
             LLINT_ROUTINE(ipint_table_catch_allref_entry)
 
+            FOR_EACH_WASM_BUILTIN(WASM_BUILTIN_RECORD)
+
             LLINT_OP(op_catch)
             LLINT_OP(llint_generic_return_point)
 
@@ -212,6 +236,7 @@ static LLIntOperations llintOperations()
 #undef LLINT_OP
 #undef LLINT_RETURN_LOCATION
 #undef LLINT_OP_EXTRAS
+#undef WASM_BUILTIN_RECORD
 
 #if ENABLE(JIT_OPERATION_VALIDATION)
 

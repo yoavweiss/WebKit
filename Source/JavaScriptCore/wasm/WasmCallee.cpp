@@ -41,6 +41,7 @@
 #include "WasmCallingConvention.h"
 #include "WasmModuleInformation.h"
 #include "WebAssemblyBuiltin.h"
+#include "WebAssemblyBuiltinTrampoline.h"
 
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/MakeString.h>
@@ -496,17 +497,20 @@ BBQCallee::~BBQCallee()
 
 #endif
 
-WasmBuiltinCallee::WasmBuiltinCallee(const WebAssemblyBuiltin* builtin, FunctionSpaceIndex index, std::pair<const Name*, RefPtr<NameSection>>&& name)
-    : Callee(Wasm::CompilationMode::WasmBuiltinMode, index, WTFMove(name))
+WasmBuiltinCallee::WasmBuiltinCallee(const WebAssemblyBuiltin* builtin, std::pair<const Name*, RefPtr<NameSection>>&& name)
+    : Callee(Wasm::CompilationMode::WasmBuiltinMode, Wasm::FunctionSpaceIndex(0xDEAD), WTFMove(name))
     , m_builtin(builtin, { })
 {
-    void* cFunctionPtr = std::bit_cast<void*>(m_builtin->implementation());
-    m_hostFunction = CodePtr<CFunctionPtrTag>::fromTaggedPtr(cFunctionPtr).retagged<WasmEntryPtrTag>();
-}
-
-CodePtr<WasmEntryPtrTag> WasmBuiltinCallee::entrypointImpl() const
-{
-    return CodePtr<CFunctionPtrTag>(m_builtin->implementation()).retagged<WasmEntryPtrTag>();
+#if ENABLE(JIT_CAGE)
+    if (Options::useJITCage()) {
+        auto jitCode = generateWasmBuiltinTrampoline(*builtin);
+        RELEASE_ASSERT(!!jitCode);
+        m_code = jitCode.value(); // hold onto it to retain the code
+        m_trampoline = m_code.code();
+        return;
+    }
+#endif
+    m_trampoline = m_builtin->wasmTrampoline();
 }
 
 } // namespace JSC::Wasm

@@ -1569,14 +1569,12 @@ end)
 # Naming dependencies:
 #
 # In the following two macros, certain identifiers replicate naming conventions
-# defined by C macros in wasm/js/WebAssemblyBuiltin.cpp.
+# defined by C macros in wasm/js/WebAssemblyBuiltin.{h, cpp}.
 # These dependencies are marked with "[!]".
 
 # wasmInstanceArgGPR is the GPR used to pass the Wasm instance pointer.
 # It must map onto the argument following the actual arguments of the builtin.
-# WARNING: t5 is used as a scratch register by this macro, which is a choice that
-# works both on ARM and X86. That limits builtins to at most 4 "real" arguments (a0-a3),
-# with wasmInstance passed as a4. Higher arity builtins would require revising the macro.
+# IMPORTANT: Any changes to the trampoline logic must be replicated in its JIT counterpart in WebAssemblyBuiltinThunk.cpp.
 macro wasmBuiltinCallTrampoline(setName, builtinName, wasmInstanceArgGPR)
     functionPrologue()
 
@@ -1585,12 +1583,14 @@ macro wasmBuiltinCallTrampoline(setName, builtinName, wasmInstanceArgGPR)
     loadp WasmBuiltinCalleeOffsets::%setName%__%builtinName%[t5], t5  # [!] BUILTIN_FULL_NAME(setName, builtinName)
     storep t5, Callee[cfr]
     storep wasmInstance, CodeBlock[cfr]
+
     # Set VM topCallFrame to null to not build an unnecessary stack trace if the function throws an exception.
     loadp JSWebAssemblyInstance::m_vm[wasmInstance], t5
     storep 0, VM::topCallFrame[t5]
 
+    # Add the extra wasmInstance arg
     move wasmInstance, wasmInstanceArgGPR
-    call _wasm_builtin__%setName%__%builtinName%  # [!] BUILTIN_WASM_ENTRY(setName, builtinName)
+    call _wasm_builtin__%setName%__%builtinName%  # [!] BUILTIN_WASM_ENTRY_NAME(setName, builtinName)
 
     loadp JSWebAssemblyInstance::m_vm[wasmInstance], t5
     btpnz VM::m_exception[t5], .handleException
@@ -1609,7 +1609,7 @@ end
 end
 
 macro defineWasmBuiltinTrampoline(setName, builtinName, wasmInstanceArgGPR)
-global _wasm_builtin_trampoline__%setName%__%builtinName%    # [!] BUILTIN_TRAMPOLINE(setName, builtinName)
+global _wasm_builtin_trampoline__%setName%__%builtinName%    # [!] BUILTIN_TRAMPOLINE_NAME(setName, builtinName)
 _wasm_builtin_trampoline__%setName%__%builtinName%:
     wasmBuiltinCallTrampoline(setName, builtinName, wasmInstanceArgGPR)
 end
