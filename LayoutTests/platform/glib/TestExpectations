@@ -2645,10 +2645,19 @@ imported/w3c/web-platform-tests/webrtc/protocol/candidate-exchange.https.html [ 
 imported/w3c/web-platform-tests/webrtc/protocol/crypto-suite.https.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/dtls-fingerprint-validation.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/dtls-setup.https.html [ Failure ]
-imported/w3c/web-platform-tests/webrtc/protocol/msid-parse.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/rtp-payloadtypes.html [ Failure ]
+
+# Our video encoder is not enforcing video resolution capping based on the configured H.264 level.
+# See also: https://en.wikipedia.org/wiki/Advanced_Video_Coding#Levels
 imported/w3c/web-platform-tests/webrtc/protocol/h264-profile-levels.https.html [ Failure ]
+
+# offerPc doesn't receive a datachannel event for the "second back" channel created by
+# answerPcSecond, leading to the test timing out.
 imported/w3c/web-platform-tests/webrtc/protocol/handover-datachannel.html [ Failure ]
+
+# The first test here times out, we don't fire track events because there's no actual p2p streaming
+# set-up, so rtpbin doesn't create src pads and thus neither is webrtcbin.
+imported/w3c/web-platform-tests/webrtc/protocol/msid-parse.html [ Failure ]
 
 # Expected to pass when our SDK ships GStreamer 1.28. See also:
 # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/commit/80e663d5605124fbd7e4b69e69060749a541e491
