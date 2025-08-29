@@ -1466,6 +1466,8 @@ bool Quirks::needsIPhoneUserAgent(const URL& url)
 #if PLATFORM(IOS_FAMILY)
     if (url.host() == "shopee.sg"_s && url.path() == "/payment/account-linking/landing"_s)
         return true;
+    if (url.host() == "spotify.com"_s || url.host().endsWith(".spotify.com"_s) || url.host().endsWith(".spotifycdn.com"_s))
+        return true;
 #else
     UNUSED_PARAM(url);
 #endif
