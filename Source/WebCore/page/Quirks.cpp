@@ -913,6 +913,13 @@ bool Quirks::shouldDisableImageCaptureQuirk() const
     return needsQuirks() && m_quirksData.shouldDisableImageCaptureQuirk;
 }
 
+#if ENABLE(MEDIA_STREAM)
+bool Quirks::shouldEnableCameraAndMicrophonePermissionStateQuirk() const
+{
+    return needsQuirks() && m_quirksData.shouldEnableCameraAndMicrophonePermissionStateQuirk;
+}
+#endif
+
 bool Quirks::shouldEnableSpeakerSelectionPermissionsPolicyQuirk() const
 {
     return needsQuirks() && m_quirksData.shouldEnableSpeakerSelectionPermissionsPolicyQuirk;
@@ -2363,6 +2370,14 @@ static void handleFacebookQuirks(QuirksData& quirksData, const URL& quirksURL, c
 #if ENABLE(VIDEO_PRESENTATION_MODE)
     // facebook.com rdar://67273166
     quirksData.requiresUserGestureToPauseInPictureInPictureQuirk = true;
+#endif
+#if ENABLE(MEDIA_STREAM)
+    // facebook.com rdar://158736355
+    quirksData.shouldEnableCameraAndMicrophonePermissionStateQuirk = true;
+#endif
+#if ENABLE(WEB_RTC)
+    // facebook.com rdar://158736355
+    quirksData.shouldEnableRTCEncodedStreamsQuirk = true;
 #endif
 }
 
