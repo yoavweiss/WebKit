@@ -142,7 +142,10 @@ String StackFrame::sourceURL(VM& vm) const
             return processSourceURL(vm, *this, jsFrame.codeBlock->ownerExecutable()->sourceURL());
         },
         [](const WasmFrameData& wasmFrame) -> String {
-            return makeString(wasmFrame.functionIndexOrName.moduleName(), ":wasm-function["_s, wasmFrame.functionIndex, ']');
+            auto moduleName = wasmFrame.functionIndexOrName.moduleName();
+            if (moduleName.empty())
+                return makeString("wasm-function["_s, wasmFrame.functionIndex, ']');
+            return makeString(moduleName, ":wasm-function["_s, wasmFrame.functionIndex, ']');
         }
     );
 }
@@ -156,7 +159,10 @@ String StackFrame::sourceURLStripped(VM& vm) const
             return processSourceURL(vm, *this, jsFrame.codeBlock->ownerExecutable()->sourceURLStripped());
         },
         [](const WasmFrameData& wasmFrame) -> String {
-            return makeString(wasmFrame.functionIndexOrName.moduleName(), ":wasm-function["_s, wasmFrame.functionIndex, ']');
+            auto moduleName = wasmFrame.functionIndexOrName.moduleName();
+            if (moduleName.empty())
+                return makeString("wasm-function["_s, wasmFrame.functionIndex, ']');
+            return makeString(moduleName, ":wasm-function["_s, wasmFrame.functionIndex, ']');
         }
     );
 }
