@@ -3721,7 +3721,7 @@ std::optional<size_t> RenderStyle::lastSuccessfulPositionTryFallbackIndex() cons
     return m_nonInheritedData->rareData->lastSuccessfulPositionTryFallbackIndex;
 }
 
-void RenderStyle::setLastSuccessfulPositionTryFallbackIndex(std::optional<size_t>&& index)
+void RenderStyle::setLastSuccessfulPositionTryFallbackIndex(std::optional<size_t> index)
 {
     SET_NESTED_VAR(m_nonInheritedData, rareData, lastSuccessfulPositionTryFallbackIndex, WTFMove(index));
 }

@@ -2371,7 +2371,7 @@ public:
     void setPositionTryFallbacks(FixedVector<Style::PositionTryFallback>&&);
 
     std::optional<size_t> lastSuccessfulPositionTryFallbackIndex() const;
-    void setLastSuccessfulPositionTryFallbackIndex(std::optional<size_t>&&);
+    void setLastSuccessfulPositionTryFallbackIndex(std::optional<size_t>);
 
     static constexpr OptionSet<PositionVisibility> initialPositionVisibility();
     inline OptionSet<PositionVisibility> positionVisibility() const;
