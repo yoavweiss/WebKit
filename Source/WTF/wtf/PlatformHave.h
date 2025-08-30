@@ -717,12 +717,8 @@
 #endif
 #endif
 
-#if defined(__has_attribute)
-#if __has_attribute(objc_direct)
-#if !defined(HAVE_NS_DIRECT_SUPPORT)
+#if !defined(HAVE_NS_DIRECT_SUPPORT) && COMPILER_HAS_ATTRIBUTE(objc_direct)
 #define HAVE_NS_DIRECT_SUPPORT 1
-#endif
-#endif
 #endif
 
 #if PLATFORM(COCOA) && !PLATFORM(WATCHOS) && !PLATFORM(APPLETV)
