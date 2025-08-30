@@ -10969,8 +10969,9 @@ static inline Vector<JSONLogValue> crossThreadCopy(Vector<JSONLogValue>&& source
 void Document::didLogMessage(const WTFLogChannel& channel, WTFLogLevel level, Vector<JSONLogValue>&& logMessages)
 {
     if (!isMainThread()) {
-        postTask([this, channel, level, logMessages = crossThreadCopy(WTFMove(logMessages))](auto&) mutable {
-            didLogMessage(channel, level, WTFMove(logMessages));
+        postTask([weakThis = WeakPtr<Document, WeakPtrImplWithEventTargetData> { *this }, channel, level, logMessages = crossThreadCopy(WTFMove(logMessages))](auto&) mutable {
+            if (RefPtr document = weakThis.get())
+                document->didLogMessage(channel, level, WTFMove(logMessages));
         });
         return;
     }
@@ -11070,7 +11071,7 @@ const FixedVector<CSSPropertyID>& Document::exposedComputedCSSPropertyIDs()
 {
     if (!m_exposedComputedCSSPropertyIDs.has_value()) {
         std::remove_const_t<decltype(computedPropertyIDs)> exposed;
-        auto end = std::copy_if(computedPropertyIDs.begin(), computedPropertyIDs.end(), exposed.begin(), [&](auto property) {
+        auto end = std::copy_if(computedPropertyIDs.begin(), computedPropertyIDs.end(), exposed.begin(), [this, protectedThis = Ref { *this }](auto property) {
             if (!isExposed(property, m_settings.ptr()))
                 return false;
             // If the standard property is exposed no need to expose the alias.

@@ -37,12 +37,9 @@ css/CSSPendingSubstitutionValue.cpp
 css/CSSValue.cpp
 css/CSSVariableReferenceValue.cpp
 css/StyleRule.cpp
-dom/BroadcastChannel.cpp
 dom/ContentVisibilityDocumentState.cpp
 dom/CustomElementDefaultARIA.cpp
-dom/Document.cpp
 dom/RejectedPromiseTracker.cpp
-dom/Subscriber.cpp
 editing/Editor.cpp
 html/FormAssociatedCustomElement.cpp
 html/track/TrackBase.cpp

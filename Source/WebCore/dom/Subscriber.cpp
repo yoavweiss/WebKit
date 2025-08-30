@@ -47,6 +47,7 @@ Subscriber::Subscriber(ScriptExecutionContext& context, Ref<InternalObserver>&& 
     , m_observer(observer)
     , m_options(options)
 {
+    relaxAdoptionRequirement();
     followSignal(m_signal);
     if (RefPtr signal = options.signal)
         followSignal(*signal);
@@ -103,8 +104,9 @@ void Subscriber::followSignal(AbortSignal& signal)
     if (signal.aborted())
         close(signal.reason().getValue());
     else {
-        signal.addAlgorithm([this](JSC::JSValue reason) {
-            close(reason);
+        signal.addAlgorithm([weakThis = WeakPtr { *this }](JSC::JSValue reason) {
+            if (RefPtr subscriber = weakThis.get())
+                subscriber->close(reason);
         });
     }
 }
