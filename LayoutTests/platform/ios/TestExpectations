@@ -8257,3 +8257,5 @@ webkit.org/b/298042 [ Release ] http/tests/security/clipboard/copy-paste-html-cr
 webkit.org/b/298106 [ Debug ] http/wpt/mediasession/gpuProcessCrash-voiceDetection.html [ Crash ]
 
 webkit.org/b/298125 imported/w3c/web-platform-tests/mediacapture-streams/parallel-capture-requests.https.html [ Pass Failure ]
+
+imported/w3c/web-platform-tests/css/css-break/block-in-inline-012.html [ ImageOnlyFailure ]
