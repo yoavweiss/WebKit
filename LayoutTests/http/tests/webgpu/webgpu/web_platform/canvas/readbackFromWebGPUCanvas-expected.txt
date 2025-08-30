@@ -1,5 +1,11 @@
 CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
 CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
+CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
+CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
+CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
+CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
+CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
+CONSOLE MESSAGE: There are too many active WebGL contexts on this page, the oldest context will be lost.
 CONSOLE MESSAGE: Canvas area exceeds the maximum limit (width * height > 268435456).
 
 PASS :onscreenCanvas,snapshot:format="bgra8unorm";alphaMode="opaque";colorSpace="srgb";snapshotType="toDataURL"

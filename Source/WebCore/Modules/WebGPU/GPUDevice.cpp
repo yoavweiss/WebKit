@@ -162,8 +162,12 @@ RefPtr<WebGPU::XRBinding> GPUDevice::createXRBinding(const WebXRSession&)
 ExceptionOr<Ref<GPUBuffer>> GPUDevice::createBuffer(const GPUBufferDescriptor& bufferDescriptor)
 {
     auto bufferSize = bufferDescriptor.size;
-    if (bufferDescriptor.mappedAtCreation && bufferSize > limits()->maxBufferSize())
-        return Exception { ExceptionCode::RangeError };
+    if (bufferDescriptor.mappedAtCreation) {
+        if (bufferSize > limits()->maxBufferSize())
+            return Exception { ExceptionCode::RangeError, makeString("GPUDevice.createBuffer: mappedAtCreation = true and bufferSize("_s, bufferSize, ") exceeds max buffer size"_s) };
+        if (bufferSize % 4)
+            return Exception { ExceptionCode::RangeError, makeString("GPUDevice.createBuffer: mappedAtCreation = true and bufferSize("_s, bufferSize, ") is not a multiple of 4"_s) };
+    }
 
     auto usage = bufferDescriptor.usage;
     auto mappedAtCreation = bufferDescriptor.mappedAtCreation;

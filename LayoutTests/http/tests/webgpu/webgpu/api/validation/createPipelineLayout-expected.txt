@@ -1,24 +1,5 @@
 
-FAIL :number_of_dynamic_buffers_exceeds_the_maximum_value: assert_unreached:
-  - (in subcase: visibility=0;type="uniform") SKIP: binding limit for uniform === 0
-  - (in subcase: visibility=0;type="uniform") INFO: subcase skipped
-  - (in subcase: visibility=0;type="storage") SKIP: subcase skipped: binding limit for storage === 0
-  - (in subcase: visibility=0;type="storage") INFO: subcase skipped
-  - (in subcase: visibility=0;type="read-only-storage") SKIP: subcase skipped: binding limit for read-only-storage === 0
-  - (in subcase: visibility=0;type="read-only-storage") INFO: subcase skipped
-  - (in subcase: visibility=2;type="uniform") INFO: subcase ran
-  - (in subcase: visibility=2;type="storage") INFO: subcase ran
-  - (in subcase: visibility=2;type="read-only-storage") INFO: subcase ran
-  - (in subcase: visibility=4;type="uniform") INFO: subcase ran
-  - (in subcase: visibility=4;type="storage") INFO: subcase ran
-  - (in subcase: visibility=4;type="read-only-storage") INFO: subcase ran
-  - (in subcase: visibility=6;type="uniform") INFO: subcase ran
-  - (in subcase: visibility=6;type="storage") INFO: subcase ran
-  - (in subcase: visibility=6;type="read-only-storage") INFO: subcase ran
-  - EXCEPTION: Error: Unexpected validation error occurred: Storage buffers count(45) exceeded max count per stage(44)
-    TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :number_of_dynamic_buffers_exceeds_the_maximum_value:
 PASS :number_of_bind_group_layouts_exceeds_the_maximum_value:
 PASS :bind_group_layouts,device_mismatch:
 PASS :bind_group_layouts,null_bind_group_layouts:

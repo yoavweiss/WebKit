@@ -352,6 +352,14 @@ void RenderPassEncoder::addResourceToActiveResources(const TextureView& texture,
     addTextureToActiveResources(&texture.apiParentTexture(), texture.parentTexture(), resourceUsage, texture.baseMipLevel(), texture.baseArrayLayer(), WGPUTextureAspect_StencilOnly);
 }
 
+void RenderPassEncoder::addResourceToActiveResources(const Texture& texture, OptionSet<BindGroupEntryUsage> resourceUsage)
+{
+    constexpr uint32_t baseMipLevel = 0;
+    constexpr uint32_t baseArrayLayer = 0;
+    addTextureToActiveResources(&texture, texture.texture(), resourceUsage, baseMipLevel, baseArrayLayer, WGPUTextureAspect_DepthOnly);
+    addTextureToActiveResources(&texture, texture.texture(), resourceUsage, baseMipLevel, baseArrayLayer, WGPUTextureAspect_StencilOnly);
+}
+
 void RenderPassEncoder::addResourceToActiveResources(const BindGroupEntryUsageData::Resource& resource, OptionSet<BindGroupEntryUsage> resourceUsage)
 {
     WTF::switchOn(resource, [&](const RefPtr<Buffer>& buffer) {
@@ -360,6 +368,9 @@ void RenderPassEncoder::addResourceToActiveResources(const BindGroupEntryUsageDa
                 buffer->indirectBufferInvalidated(m_parentEncoder);
             addResourceToActiveResources(buffer.get(), resourceUsage);
         }
+        }, [&](const RefPtr<const Texture>& texture) {
+            if (texture.get())
+                addResourceToActiveResources(*texture.get(), resourceUsage);
         }, [&](const RefPtr<const TextureView>& textureView) {
             if (textureView.get())
                 addResourceToActiveResources(*textureView.get(), resourceUsage);
@@ -1163,6 +1174,9 @@ bool RenderPassEncoder::setCommandEncoder(const BindGroupEntryUsageData::Resourc
     WTF::switchOn(resource, [&](const RefPtr<Buffer>& buffer) {
         if (buffer)
             buffer->setCommandEncoder(m_parentEncoder);
+        }, [&](const RefPtr<const Texture>& texture) {
+            if (texture)
+                texture->setCommandEncoder(m_parentEncoder);
         }, [&](const RefPtr<const TextureView>& textureView) {
             if (textureView)
                 textureView->setCommandEncoder(m_parentEncoder);

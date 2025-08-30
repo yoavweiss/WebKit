@@ -143,13 +143,15 @@ public:
     uint64_t sharedEventSignalValue() const;
     void setRasterizationRateMaps(std::pair<id<MTLRasterizationRateMap>, id<MTLRasterizationRateMap>>&& rateMaps) { m_leftRightRasterizationMaps = WTFMove(rateMaps); }
     id<MTLRasterizationRateMap> rasterizationMapForSlice(uint32_t slice) { return slice ? m_leftRightRasterizationMaps.second : m_leftRightRasterizationMaps.first; }
+    uint32_t arrayLayerCount() const;
+    WGPUTextureAspect aspect() const { return WGPUTextureAspect_All; }
+    bool is2DTexture() const { return dimension() == WGPUTextureDimension_2D; }
 
 private:
     Texture(id<MTLTexture>, const WGPUTextureDescriptor&, Vector<WGPUTextureFormat>&& viewFormats, Device&);
     Texture(Device&);
 
     std::optional<WGPUTextureViewDescriptor> resolveTextureViewDescriptorDefaults(const WGPUTextureViewDescriptor&) const;
-    uint32_t arrayLayerCount() const;
     NSString* errorValidatingTextureViewCreation(const WGPUTextureViewDescriptor&) const;
 
     id<MTLTexture> m_texture { nil };

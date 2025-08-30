@@ -819,6 +819,7 @@ typedef struct WGPUBindGroupEntry {
     uint64_t offset;
     uint64_t size;
     WGPU_NULLABLE WGPUSampler sampler;
+    WGPU_NULLABLE WGPUTexture texture;
     WGPU_NULLABLE WGPUTextureView textureView;
 } WGPUBindGroupEntry WGPU_STRUCTURE_ATTRIBUTE;
 

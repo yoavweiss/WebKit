@@ -1,19 +1,6 @@
 
 PASS :size:mappedAtCreation=false
-FAIL :size:mappedAtCreation=true assert_unreached:
-  - (in subcase: size=0) INFO: subcase ran
-  - (in subcase: size=2) EXPECTATION FAILED: unexpectedly did not throw
-      at (elided: below max severity)
-  - (in subcase: size=2) INFO: subcase ran
-  - (in subcase: size=4) INFO: subcase ran
-  - (in subcase: size=6) EXPECTATION FAILED: unexpectedly did not throw
-      at (elided: below max severity)
-  - (in subcase: size=6) INFO: subcase ran
-  - (in subcase: size=8) INFO: subcase ran
-  - EXCEPTION: Error: Unexpected validation error occurred: Validation failure.
-    TestFailedButDeviceReusable@
-    attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
- Reached unreachable code
+PASS :size:mappedAtCreation=true
 PASS :limit:
 PASS :usage:usage1=0;usage2=0
 PASS :usage:usage1=0;usage2=1
