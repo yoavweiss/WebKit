@@ -1214,6 +1214,8 @@ set(JavaScriptCore_PRIVATE_FRAMEWORK_HEADERS
     runtime/JSSetInlines.h
     runtime/JSSetIterator.h
     runtime/JSSetIteratorInlines.h
+    runtime/SetIteratorPrototype.h
+    runtime/SetIteratorPrototypeInlines.h
     runtime/JSSourceCode.h
     runtime/JSSourceCodeInlines.h
     runtime/JSString.h

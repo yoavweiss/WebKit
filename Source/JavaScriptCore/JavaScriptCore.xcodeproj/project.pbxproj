@@ -866,7 +866,7 @@
 		276B389B2A71D1A900252F4E /* ShadowRealmObjectInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38952A71D1A800252F4E /* ShadowRealmObjectInlines.h */; };
 		276B389C2A71D1A900252F4E /* SetPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38962A71D1A800252F4E /* SetPrototypeInlines.h */; };
 		276B389D2A71D1A900252F4E /* SetConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38972A71D1A800252F4E /* SetConstructorInlines.h */; };
-		276B389E2A71D1A900252F4E /* SetIteratorPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38982A71D1A800252F4E /* SetIteratorPrototypeInlines.h */; };
+		276B389E2A71D1A900252F4E /* SetIteratorPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38982A71D1A800252F4E /* SetIteratorPrototypeInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		276B389F2A71D1A900252F4E /* WeakMapConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38992A71D1A800252F4E /* WeakMapConstructorInlines.h */; };
 		276B38A32A71D1B600252F4E /* RegExpPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38A02A71D1B600252F4E /* RegExpPrototypeInlines.h */; };
 		276B38A42A71D1B600252F4E /* RegExpConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38A12A71D1B600252F4E /* RegExpConstructorInlines.h */; };
@@ -1680,7 +1680,7 @@
 		A78A9779179738B8009DF744 /* DFGJITFinalizer.h in Headers */ = {isa = PBXBuildFile; fileRef = A78A9771179738B8009DF744 /* DFGJITFinalizer.h */; };
 		A78A977B179738B8009DF744 /* DFGPlan.h in Headers */ = {isa = PBXBuildFile; fileRef = A78A9773179738B8009DF744 /* DFGPlan.h */; };
 		A78A9781179738D5009DF744 /* FTLJITFinalizer.h in Headers */ = {isa = PBXBuildFile; fileRef = A78A977E179738D5009DF744 /* FTLJITFinalizer.h */; };
-		A790DD6E182F499700588807 /* SetIteratorPrototype.h in Headers */ = {isa = PBXBuildFile; fileRef = A790DD68182F499700588807 /* SetIteratorPrototype.h */; };
+		A790DD6E182F499700588807 /* SetIteratorPrototype.h in Headers */ = {isa = PBXBuildFile; fileRef = A790DD68182F499700588807 /* SetIteratorPrototype.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A790DD70182F499700588807 /* JSSetIterator.h in Headers */ = {isa = PBXBuildFile; fileRef = A790DD6A182F499700588807 /* JSSetIterator.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A79D3ED9C5064DD0A8466A3A /* ModuleScopeData.h in Headers */ = {isa = PBXBuildFile; fileRef = 000BEAF0DF604481AF6AB68C /* ModuleScopeData.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A7A8AF3517ADB5F3005AB174 /* ArrayBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = A7A8AF2617ADB5F3005AB174 /* ArrayBuffer.h */; settings = {ATTRIBUTES = (Private, ); }; };
