@@ -123,6 +123,12 @@
 #define WTF_ATTRIBUTE_PRINTF(formatStringArgument, extraArguments)
 #endif
 
+#if COMPILER_HAS_ATTRIBUTE(format_matches)
+#define WTF_ATTRIBUTE_PRINTF_MATCHES(formatStringArgument, formatStringTemplate) __attribute__((format_matches(printf, formatStringArgument, formatStringTemplate)))
+#else
+#define WTF_ATTRIBUTE_PRINTF_MATCHES(formatStringArgument, formatStringTemplate)
+#endif
+
 #if PLATFORM(IOS_FAMILY)
 /* For a project that uses WTF but has no config.h, we need to explicitly set the export defines here. */
 #ifndef WTF_EXPORT_PRIVATE

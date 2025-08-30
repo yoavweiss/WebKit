@@ -68,7 +68,7 @@ static BlockPtr<void(NSNotification *)> gNotificationCallback;
 #endif
 static RetainPtr<WKWebView> gNewWindow;
 
-static const char* openerTemplate =
+static constexpr auto openerTemplate =
 "<html>"
 "<button onclick='clickMe()' style='width:400px;height:400px'>window.open</button>"
 "<script>"
@@ -96,7 +96,7 @@ static const char* openerTemplate =
 "</script>"
 "</html>";
 
-static const char* newWindowResponseTemplate =
+static constexpr auto newWindowResponseTemplate =
 "<html>"
 "<script>"
 "window.opener.postMessage('Hello.', '*');"
@@ -104,7 +104,7 @@ static const char* newWindowResponseTemplate =
 "</script>"
 "</html>";
 
-static const char* parentTemplate =
+static constexpr auto parentTemplate =
 "<html>"
 "<meta name='referrer' content='origin' />"
 "<iframe src='%s'></iframe>"
@@ -118,7 +118,7 @@ static const char* parentTemplate =
 "</script>"
 "</html>";
 
-static const char* iframeTemplate =
+static constexpr auto iframeTemplate =
 "<html>"
 "<script>"
 "parent.postMessage('Hello.', '*');"
@@ -126,7 +126,7 @@ static const char* iframeTemplate =
 "</script>"
 "</html>";
 
-static const char* samlResponse =
+static constexpr auto samlResponse =
 "<html>"
 "<script>"
 "window.webkit.messageHandlers.testHandler.postMessage('SAML');"
@@ -441,14 +441,30 @@ static void configureSOAuthorizationWebView(TestWKWebView *webView, TestSOAuthor
     delegate.shouldOpenExternalSchemes = policy == OpenExternalSchemesPolicy::Allow;
 }
 
-static String generateHtml(const char* templateHtml, const String& substitute, const String& optionalSubstitute1 = emptyString(), const String& optionalSubstitute2 = emptyString())
+#if !COMPILER_HAS_ATTRIBUTE(format_matches)
+// FIXME: Remove when oldest macOS supported is (__MAC_OS_X_VERSION_MIN_REQUIRED >= 260000).
+ALLOW_NONLITERAL_FORMAT_BEGIN
+#endif
+
+WTF_ATTRIBUTE_PRINTF_MATCHES(1, "%s")
+static String generateHTML(const char* templateHTML, const String& substitute)
 {
     StringPrintStream stream;
-    ALLOW_NONLITERAL_FORMAT_BEGIN
-    stream.printf(templateHtml, substitute.utf8().data(), optionalSubstitute1.utf8().data(), optionalSubstitute2.utf8().data());
-    ALLOW_NONLITERAL_FORMAT_END
+    stream.printf(templateHTML, substitute.utf8().data());
     return stream.toString();
 }
+
+WTF_ATTRIBUTE_PRINTF_MATCHES(1, "%s %s %s")
+static String generateOpenerHTML(const char* templateHTML, const String& substitute, const String& optionalSubstitute1 = emptyString(), const String& optionalSubstitute2 = emptyString())
+{
+    StringPrintStream stream;
+    stream.printf(templateHTML, substitute.utf8().data(), optionalSubstitute1.utf8().data(), optionalSubstitute2.utf8().data());
+    return stream.toString();
+}
+
+#if !COMPILER_HAS_ATTRIBUTE(format_matches)
+ALLOW_NONLITERAL_FORMAT_END
+#endif
 
 static void checkAuthorizationOptions(bool userActionInitiated, String initiatorOrigin, int initiatingAction)
 {
@@ -1967,7 +1983,7 @@ TEST(SOAuthorizationPopUp, NoInterceptions)
     resetState();
 
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"];
-    auto testHtml = generateHtml(openerTemplate, testURL.get().absoluteString);
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.get().absoluteString);
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -1998,7 +2014,7 @@ TEST(SOAuthorizationPopUp, NoInterceptionsSubFrame)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"];
-    auto iframeTestHtml = generateHtml(openerTemplate, testURL.get().absoluteString);
+    auto iframeTestHtml = generateOpenerHTML(openerTemplate, testURL.get().absoluteString);
     auto testHtml = makeString("<iframe style='width:400px;height:400px' srcdoc=\""_s, iframeTestHtml, "\" />"_s);
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]);
@@ -2042,7 +2058,7 @@ TEST(SOAuthorizationPopUp, InterceptionError)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"];
-    auto testHtml = generateHtml(openerTemplate, testURL.get().absoluteString);
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.get().absoluteString);
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2079,7 +2095,7 @@ TEST(SOAuthorizationPopUp, InterceptionCancel)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"];
-    auto testHtml = generateHtml(openerTemplate, testURL.get().absoluteString);
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.get().absoluteString);
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"WindowClosed."]]);
@@ -2115,7 +2131,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedCloseByItself)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"Hello.", @"WindowClosed."]]);
@@ -2138,7 +2154,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedCloseByItself)
     EXPECT_TRUE(policyForAppSSOPerformed);
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, "window.close();"_s).utf8(); // The pop up closes itself.
+    auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, "window.close();"_s).utf8(); // The pop up closes itself.
     // The secret WKWebView needs to be destroyed right the way.
     @autoreleasepool {
         [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
@@ -2153,7 +2169,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedCloseByParent)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string(), emptyString(), "event.source.close();"_s); // The parent closes the pop up.
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string(), emptyString(), "event.source.close();"_s); // The parent closes the pop up.
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"Hello.", @"WindowClosed."]]);
@@ -2176,7 +2192,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedCloseByParent)
     EXPECT_TRUE(policyForAppSSOPerformed);
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, emptyString()).utf8();
+    auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, emptyString()).utf8();
     // The secret WKWebView needs to be destroyed right the way.
     @autoreleasepool {
         [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
@@ -2191,7 +2207,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedCloseByWebKit)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"Hello.", @"WindowClosed."]]);
@@ -2214,7 +2230,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedCloseByWebKit)
     EXPECT_TRUE(policyForAppSSOPerformed);
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, emptyString()).utf8();
+    auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, emptyString()).utf8();
     // The secret WKWebView needs to be destroyed right the way.
     @autoreleasepool {
         [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
@@ -2229,7 +2245,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedWithOtherHttpStatusCode)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"simple" withExtension:@"html"];
-    auto testHtml = generateHtml(openerTemplate, testURL.get().absoluteString);
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.get().absoluteString);
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2253,7 +2269,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedWithOtherHttpStatusCode)
     authorizationPerformed = false;
     policyForAppSSOPerformed = false;
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.get() statusCode:400 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, emptyString()).utf8();
+    auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, emptyString()).utf8();
     [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
     Util::run(&newWindowCreated);
     Util::run(&navigationCompleted);
@@ -2270,7 +2286,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedWithCookie)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"Hello.", @"WindowClosed."]]);
@@ -2293,7 +2309,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedWithCookie)
     EXPECT_TRUE(policyForAppSSOPerformed);
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:@{ @"Set-Cookie" : @"sessionid=38afes7a8;" }]);
-    auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, emptyString()).utf8();
+    auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, emptyString()).utf8();
     // The secret WKWebView needs to be destroyed right the way.
     @autoreleasepool {
         [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
@@ -2308,7 +2324,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedTwice)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[]]);
@@ -2336,7 +2352,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedTwice)
         [messageHandler resetExpectations:@[@"Hello.", @"WindowClosed."]];
 
         auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-        auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, emptyString()).utf8();
+        auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, emptyString()).utf8();
         // The secret WKWebView needs to be destroyed right the way.
         @autoreleasepool {
             [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
@@ -2352,7 +2368,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedSuppressActiveSession)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2403,7 +2419,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedSuppressActiveSession)
     Util::run(&navigationCompleted);
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, emptyString()).utf8();
+    auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, emptyString()).utf8();
     // The secret WKWebView needs to be destroyed right the way.
     @autoreleasepool {
         [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
@@ -2418,7 +2434,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedNewWindowNavigation)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string(), makeString("newWindow.location = '"_s, unsafeSpan(baseURL.get().absoluteString.UTF8String), "';"_s)); // Starts a new navigation on the new window.
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string(), makeString("newWindow.location = '"_s, unsafeSpan(baseURL.get().absoluteString.UTF8String), "';"_s)); // Starts a new navigation on the new window.
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"Hello.", @"WindowClosed."]]);
@@ -2441,7 +2457,7 @@ TEST(SOAuthorizationPopUp, InterceptionSucceedNewWindowNavigation)
     EXPECT_TRUE(policyForAppSSOPerformed);
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, emptyString()).utf8();
+    auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, emptyString()).utf8();
     // The secret WKWebView needs to be destroyed right the way.
     @autoreleasepool {
         [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
@@ -2455,7 +2471,7 @@ TEST(SOAuthorizationPopUp, AuthorizationOptions)
     SWIZZLE_SOAUTH(PAL::getSOAuthorizationClass());
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2480,7 +2496,7 @@ TEST(SOAuthorizationPopUp, SOAuthorizationLoadPolicyIgnore)
     SWIZZLE_SOAUTH(PAL::getSOAuthorizationClass());
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 500)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2507,7 +2523,7 @@ TEST(SOAuthorizationPopUp, SOAuthorizationLoadPolicyAllowAsync)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"Hello.", @"WindowClosed."]]);
@@ -2531,7 +2547,7 @@ TEST(SOAuthorizationPopUp, SOAuthorizationLoadPolicyAllowAsync)
     EXPECT_TRUE(policyForAppSSOPerformed);
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto resonseHtmlCString = generateHtml(newWindowResponseTemplate, "window.close();"_s).utf8(); // The pop up closes itself.
+    auto resonseHtmlCString = generateHTML(newWindowResponseTemplate, "window.close();"_s).utf8(); // The pop up closes itself.
     // The secret WKWebView needs to be destroyed right the way.
     @autoreleasepool {
         [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:resonseHtmlCString.data() length:resonseHtmlCString.length()]).get()];
@@ -2546,7 +2562,7 @@ TEST(SOAuthorizationPopUp, SOAuthorizationLoadPolicyIgnoreAsync)
     SWIZZLE_SOAUTH(PAL::getSOAuthorizationClass());
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(openerTemplate, testURL.string());
+    auto testHtml = generateOpenerHTML(openerTemplate, testURL.string());
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 500)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2572,7 +2588,7 @@ TEST(SOAuthorizationSubFrame, NoInterceptions)
     resetState();
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"GetSessionCookie" withExtension:@"html"];
-    auto testHtml = generateHtml(parentTemplate, testURL.get().absoluteString);
+    auto testHtml = generateHTML(parentTemplate, testURL.get().absoluteString);
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@""]]);
@@ -2592,7 +2608,7 @@ TEST(SOAuthorizationSubFrame, NoInterceptionsNonAppleFirstPartyMainFrame)
     resetState();
     SWIZZLE_SOAUTH(PAL::getSOAuthorizationClass());
 
-    auto testHtml = generateHtml(parentTemplate, URL { "http://www.example.com"_str }.string());
+    auto testHtml = generateHTML(parentTemplate, URL { "http://www.example.com"_str }.string());
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 500)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2614,7 +2630,7 @@ TEST(SOAuthorizationSubFrame, InterceptionError)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"GetSessionCookie" withExtension:@"html"];
-    auto testHtml = generateHtml(parentTemplate, testURL.get().absoluteString);
+    auto testHtml = generateHTML(parentTemplate, testURL.get().absoluteString);
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[[NSNull null], @"SOAuthorizationDidStart"]]);
@@ -2646,7 +2662,7 @@ TEST(SOAuthorizationSubFrame, InterceptionCancel)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"GetSessionCookie" withExtension:@"html"];
-    auto testHtml = generateHtml(parentTemplate, testURL.get().absoluteString);
+    auto testHtml = generateHTML(parentTemplate, testURL.get().absoluteString);
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[[NSNull null], @"SOAuthorizationDidStart"]]);
@@ -2677,7 +2693,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSuccess)
     SWIZZLE_AKAUTH();
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"http://www.example.com", @"SOAuthorizationDidStart"]]);
@@ -2696,7 +2712,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSuccess)
     [messageHandler extendExpectations:@[@"http://www.example.com", @"Hello."]];
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto iframeHtmlCString = generateHtml(iframeTemplate, emptyString()).utf8();
+    auto iframeHtmlCString = generateHTML(iframeTemplate, emptyString()).utf8();
     [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:iframeHtmlCString.data() length:iframeHtmlCString.length()]).get()];
     Util::run(&allMessagesReceived);
 }
@@ -2709,7 +2725,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSucceedWithOtherHttpStatusCode)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"GetSessionCookie" withExtension:@"html"];
-    auto testHtml = generateHtml(parentTemplate, testURL.get().absoluteString);
+    auto testHtml = generateHTML(parentTemplate, testURL.get().absoluteString);
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[[NSNull null], @"SOAuthorizationDidStart"]]);
@@ -2729,7 +2745,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSucceedWithOtherHttpStatusCode)
 
     // Will fallback to web path.
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.get() statusCode:400 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto iframeHtmlCString = generateHtml(iframeTemplate, emptyString()).utf8();
+    auto iframeHtmlCString = generateHTML(iframeTemplate, emptyString()).utf8();
     [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:iframeHtmlCString.data() length:iframeHtmlCString.length()]).get()];
     Util::run(&allMessagesReceived);
     // Make sure we don't load the request of the iframe to the main frame.
@@ -2744,7 +2760,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSucceedWithCookie)
     SWIZZLE_AKAUTH();
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"http://www.example.com", @"SOAuthorizationDidStart"]]);
@@ -2762,7 +2778,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSucceedWithCookie)
     [messageHandler extendExpectations:@[@"http://www.example.com", @"Hello.", @"http://www.example.com", @"Cookies: sessionid=38afes7a8"]];
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:@{ @"Set-Cookie" : @"sessionid=38afes7a8;" }]);
-    auto iframeHtmlCString = generateHtml(iframeTemplate, "parent.postMessage('Cookies: ' + document.cookie, '*');"_s).utf8();
+    auto iframeHtmlCString = generateHTML(iframeTemplate, "parent.postMessage('Cookies: ' + document.cookie, '*');"_s).utf8();
     [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:iframeHtmlCString.data() length:iframeHtmlCString.length()]).get()];
     Util::run(&allMessagesReceived);
 }
@@ -2774,7 +2790,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSucceedWithCookieButCSPDeny)
     SWIZZLE_AKAUTH();
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"http://www.example.com", @"SOAuthorizationDidStart"]]);
@@ -2793,7 +2809,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSucceedWithCookieButCSPDeny)
     [messageHandler extendExpectations:@[@"http://www.example.com", @"SOAuthorizationDidCancel"]];
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:@{ @"Set-Cookie" : @"sessionid=38afes7a8;", @"Content-Security-Policy" : @"frame-ancestors 'none';" }]);
-    auto iframeHtmlCString = generateHtml(iframeTemplate, "parent.postMessage('Cookies: ' + document.cookie, '*');"_s).utf8();
+    auto iframeHtmlCString = generateHTML(iframeTemplate, "parent.postMessage('Cookies: ' + document.cookie, '*');"_s).utf8();
     [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:iframeHtmlCString.data() length:iframeHtmlCString.length()]).get()];
     Util::run(&allMessagesReceived);
 }
@@ -2805,7 +2821,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSucceedWithCookieButXFrameDeny)
     SWIZZLE_AKAUTH();
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"http://www.example.com", @"SOAuthorizationDidStart"]]);
@@ -2824,7 +2840,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSucceedWithCookieButXFrameDeny)
     [messageHandler extendExpectations:@[@"http://www.example.com", @"SOAuthorizationDidCancel"]];
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:@{ @"Set-Cookie" : @"sessionid=38afes7a8;", @"X-Frame-Options" : @"DENY" }]);
-    auto iframeHtmlCString = generateHtml(iframeTemplate, "parent.postMessage('Cookies: ' + document.cookie, '*');"_s).utf8();
+    auto iframeHtmlCString = generateHTML(iframeTemplate, "parent.postMessage('Cookies: ' + document.cookie, '*');"_s).utf8();
     [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:iframeHtmlCString.data() length:iframeHtmlCString.length()]).get()];
     Util::run(&allMessagesReceived);
 }
@@ -2836,7 +2852,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSuccessTwice)
     SWIZZLE_AKAUTH();
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[]]);
@@ -2862,7 +2878,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSuccessTwice)
         [messageHandler extendExpectations:@[@"http://www.example.com", @"Hello."]];
 
         auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-        auto iframeHtmlCString = generateHtml(iframeTemplate, emptyString()).utf8();
+        auto iframeHtmlCString = generateHTML(iframeTemplate, emptyString()).utf8();
         [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:iframeHtmlCString.data() length:iframeHtmlCString.length()]).get()];
         Util::run(&allMessagesReceived);
     }
@@ -2875,7 +2891,7 @@ TEST(SOAuthorizationSubFrame, AuthorizationOptions)
     SWIZZLE_AKAUTH();
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"http://www.example.com", @"SOAuthorizationDidStart"]]);
@@ -2897,7 +2913,7 @@ TEST(SOAuthorizationSubFrame, SOAuthorizationLoadPolicyIgnore)
     SWIZZLE_SOAUTH(PAL::getSOAuthorizationClass());
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 500)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2923,7 +2939,7 @@ TEST(SOAuthorizationSubFrame, SOAuthorizationLoadPolicyAllowAsync)
     SWIZZLE_AKAUTH();
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[@"http://www.example.com", @"SOAuthorizationDidStart"]]);
@@ -2943,7 +2959,7 @@ TEST(SOAuthorizationSubFrame, SOAuthorizationLoadPolicyAllowAsync)
     [messageHandler extendExpectations:@[@"http://www.example.com", @"Hello."]];
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto iframeHtmlCString = generateHtml(iframeTemplate, emptyString()).utf8();
+    auto iframeHtmlCString = generateHTML(iframeTemplate, emptyString()).utf8();
     [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:iframeHtmlCString.data() length:iframeHtmlCString.length()]).get()];
     Util::run(&allMessagesReceived);
 }
@@ -2954,7 +2970,7 @@ TEST(SOAuthorizationSubFrame, SOAuthorizationLoadPolicyIgnoreAsync)
     SWIZZLE_SOAUTH(PAL::getSOAuthorizationClass());
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 500)]);
     auto delegate = adoptNS([[TestSOAuthorizationDelegate alloc] init]);
@@ -2976,7 +2992,7 @@ TEST(SOAuthorizationSubFrame, InterceptionErrorWithReferrer)
     SWIZZLE_SOAUTH(PAL::getSOAuthorizationClass());
     SWIZZLE_AKAUTH();
 
-    HTTPServer server([parentHtml = generateHtml(parentTemplate, "simple.html"_s), frameHtml = generateHtml(iframeTemplate, "parent.postMessage('Referrer: ' + document.referrer, '*');"_s)] (const Connection& connection) {
+    HTTPServer server([parentHtml = generateHTML(parentTemplate, "simple.html"_s), frameHtml = generateHTML(iframeTemplate, "parent.postMessage('Referrer: ' + document.referrer, '*');"_s)] (const Connection& connection) {
         RetainPtr<NSString> firstResponse = [NSString stringWithFormat:
             @"HTTP/1.1 200 OK\r\n"
             "Content-Length: %d\r\n\r\n"
@@ -3027,7 +3043,7 @@ TEST(SOAuthorizationSubFrame, InterceptionErrorMessageOrder)
 
     RetainPtr<NSURL> baseURL = [NSBundle.test_resourcesBundle URLForResource:@"simple2" withExtension:@"html"];
     RetainPtr<NSURL> testURL = [NSBundle.test_resourcesBundle URLForResource:@"GetSessionCookie" withExtension:@"html"];
-    auto testHtml = generateHtml(parentTemplate, testURL.get().absoluteString);
+    auto testHtml = generateHTML(parentTemplate, testURL.get().absoluteString);
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[[NSNull null], @"SOAuthorizationDidStart", [NSNull null], @"SOAuthorizationDidCancel", @""]]);
@@ -3051,7 +3067,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSuccessMessageOrder)
     SWIZZLE_AKAUTH();
 
     URL testURL { "http://www.example.com"_str };
-    auto testHtml = generateHtml(parentTemplate, testURL.string());
+    auto testHtml = generateHTML(parentTemplate, testURL.string());
 
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
     auto messageHandler = adoptNS([[TestSOAuthorizationScriptMessageHandler alloc] initWithExpectation:@[[NSNull null], @"SOAuthorizationDidStart", [NSNull null], @"Hello."]]);
@@ -3066,7 +3082,7 @@ TEST(SOAuthorizationSubFrame, InterceptionSuccessMessageOrder)
     EXPECT_TRUE(policyForAppSSOPerformed);
 
     auto response = adoptNS([[NSHTTPURLResponse alloc] initWithURL:testURL.createNSURL().get() statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:nil]);
-    auto iframeHtmlCString = generateHtml(iframeTemplate, emptyString()).utf8();
+    auto iframeHtmlCString = generateHTML(iframeTemplate, emptyString()).utf8();
     [gDelegate authorization:gAuthorization didCompleteWithHTTPResponse:response.get() httpBody:adoptNS([[NSData alloc] initWithBytes:iframeHtmlCString.data() length:iframeHtmlCString.length()]).get()];
     Util::run(&allMessagesReceived);
 }
