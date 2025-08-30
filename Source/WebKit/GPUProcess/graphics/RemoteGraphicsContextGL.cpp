@@ -100,6 +100,7 @@ RemoteGraphicsContextGL::RemoteGraphicsContextGL(GPUConnectionToWebProcess& gpuC
     assertIsMainRunLoop();
 }
 
+// <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=121717>
 IGNORE_GCC_WARNINGS_BEGIN("free-nonheap-object")
 RemoteGraphicsContextGL::~RemoteGraphicsContextGL()
 {
