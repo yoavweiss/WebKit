@@ -544,11 +544,11 @@ static inline WebKit::WebExtensionContext::PermissionState toImpl(WKWebExtension
 
 - (void)loadBackgroundContentWithCompletionHandler:(void (^)(NSError *error))completionHandler
 {
-    Ref { *_webExtensionContext }->loadBackgroundContent([&](RefPtr<API::Error> error) {
+    Ref { *_webExtensionContext }->loadBackgroundContent([capturedBlock = makeBlockPtr(completionHandler)](RefPtr<API::Error> error) {
         if (error)
-            completionHandler(wrapper(error));
+            capturedBlock(wrapper(error));
 
-        completionHandler(nil);
+        capturedBlock(nil);
     });
 }
 
