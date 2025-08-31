@@ -168,10 +168,10 @@ Ref<GenericPromise> VideoMediaSampleRenderer::changeRenderer(WebSampleBufferVide
     assertIsMainThread();
 
     ASSERT(m_rendererIsThreadSafe);
-    ASSERT(useDecompressionSessionForProtectedContent());
-    ASSERT(isUsingDecompressionSession());
+    ASSERT(useDecompressionSessionForProtectedContent() || !m_wasProtected);
 
     RetainPtr currentRenderer = this->renderer();
+    ASSERT(isUsingDecompressionSession() || !currentRenderer);
 
     RetainPtr videoRenderer = videoRendererFor(renderer);
     if (std::exchange(m_mainRenderer, videoRenderer) == videoRenderer)
@@ -193,7 +193,6 @@ Ref<GenericPromise> VideoMediaSampleRenderer::changeRenderer(WebSampleBufferVide
             protectedThis->purgeDecodedSampleQueue(protectedThis->m_flushId);
             for (Ref sample : protectedThis->m_decodedSampleQueue)
                 [renderer enqueueSampleBuffer:sample->platformSample().sample.cmSampleBuffer];
-            protectedThis->maybeBecomeReadyForMoreMediaData();
         }
         return GenericPromise::createAndResolve();
     });
@@ -301,10 +300,16 @@ void VideoMediaSampleRenderer::maybeBecomeReadyForMoreMediaData()
     if (!areSamplesQueuesReadyForMoreMediaData(SampleQueueLowWaterMark))
         return;
 
+    if (m_waitingForMoreMediaDataPending.exchange(true))
+        return;
+
     callOnMainThread([weakThis = ThreadSafeWeakPtr { *this }] {
         assertIsMainThread();
-        if (RefPtr protectedThis = weakThis.get(); protectedThis && protectedThis->m_readyForMoreMediaDataFunction)
-            protectedThis->m_readyForMoreMediaDataFunction();
+        if (RefPtr protectedThis = weakThis.get()) {
+            protectedThis->m_waitingForMoreMediaDataPending = false;
+            if (protectedThis->m_readyForMoreMediaDataFunction)
+                protectedThis->m_readyForMoreMediaDataFunction();
+        }
     });
 }
 
@@ -873,6 +878,7 @@ void VideoMediaSampleRenderer::flush()
             assertIsCurrent(protectedThis->dispatcher().get());
             protectedThis->flushDecodedSampleQueue();
             protectedThis->m_notifiedFirstFrameAvailable = false;
+            protectedThis->m_waitingForMoreMediaData = false;
             protectedThis->maybeBecomeReadyForMoreMediaData();
         }
     });
@@ -1254,7 +1260,7 @@ void VideoMediaSampleRenderer::videoRendererReadyForDisplayChanged(WebSampleBuff
     assertIsMainThread();
     if (renderer != this->renderer() || !isReadyForDisplay)
         return;
-    if (m_hasFirstFrameAvailableCallback)
+    if (!isUsingDecompressionSession() && m_hasFirstFrameAvailableCallback)
         m_hasFirstFrameAvailableCallback({ }, { });
 }
 

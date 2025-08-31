@@ -1333,7 +1333,7 @@ void MediaPlayerPrivateAVFoundationObjC::setVideoFullscreenLayer(PlatformLayer* 
         completion();
 }
 
-void MediaPlayerPrivateAVFoundationObjC::setVideoFullscreenFrame(FloatRect frame)
+void MediaPlayerPrivateAVFoundationObjC::setVideoFullscreenFrame(const FloatRect& frame)
 {
     ALWAYS_LOG(LOGIDENTIFIER, "width = ", frame.size().width(), ", height = ", frame.size().height());
     m_videoLayerManager->setVideoFullscreenFrame(frame);

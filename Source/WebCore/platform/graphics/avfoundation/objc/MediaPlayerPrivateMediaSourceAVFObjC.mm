@@ -1720,7 +1720,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::setVideoFullscreenLayer(PlatformLayer
     m_videoLayerManager->setVideoFullscreenLayer(videoFullscreenLayer, WTFMove(completionHandler), lastImage ? lastImage->platformImage() : nullptr);
 }
 
-void MediaPlayerPrivateMediaSourceAVFObjC::setVideoFullscreenFrame(FloatRect frame)
+void MediaPlayerPrivateMediaSourceAVFObjC::setVideoFullscreenFrame(const FloatRect& frame)
 {
     m_videoLayerManager->setVideoFullscreenFrame(frame);
 }

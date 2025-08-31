@@ -922,7 +922,7 @@ void MediaPlayer::updateVideoFullscreenInlineImage()
     protectedPrivate()->updateVideoFullscreenInlineImage();
 }
 
-void MediaPlayer::setVideoFullscreenFrame(FloatRect frame)
+void MediaPlayer::setVideoFullscreenFrame(const FloatRect& frame)
 {
     protectedPrivate()->setVideoFullscreenFrame(frame);
 }

@@ -125,7 +125,7 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
 #if ENABLE(VIDEO_PRESENTATION_MODE)
     RetainPtr<PlatformLayer> createVideoFullscreenLayer() override;
     void setVideoFullscreenLayer(PlatformLayer*, Function<void()>&& completionHandler) override;
-    void setVideoFullscreenFrame(FloatRect) override;
+    void setVideoFullscreenFrame(const FloatRect&) override;
 #endif
 
     void setTextTrackRepresentation(TextTrackRepresentation*) override;

@@ -2456,6 +2456,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     platform/graphics/AnimationFrameRate.h
     platform/graphics/AudioTrackPrivate.h
     platform/graphics/AudioTrackPrivateClient.h
+    platform/graphics/AudioVideoRenderer.h
     platform/graphics/BifurcatedGraphicsContext.h
     platform/graphics/BitmapImage.h
     platform/graphics/ByteArrayPixelBuffer.h
