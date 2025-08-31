@@ -1713,8 +1713,24 @@ RegisterID* BytecodeGenerator::emitBinaryOp(OpcodeID opcodeID, RegisterID* dst, 
         return emitBinaryOp<OpLess>(dst, src1, src2, types);
     case op_lesseq:
         return emitBinaryOp<OpLesseq>(dst, src1, src2, types);
-    case op_greater:
+    case op_greater: {
+        // We treat `typeof x > "u"` as `typeof x === "undefined"`
+        if (canDoPeepholeOptimization() && m_lastInstruction->is<OpTypeof>()) {
+            auto op = m_lastInstruction->as<OpTypeof>();
+            if (src1->virtualRegister() == op.m_dst
+                && src1->isTemporary()
+                && src2->virtualRegister().isConstant()
+                && m_codeBlock->constantRegister(src2->virtualRegister()).get().isString()) {
+                String value = asString(m_codeBlock->constantRegister(src2->virtualRegister()).get())->tryGetValue();
+                if (value == "u"_s) {
+                    rewind();
+                    OpTypeofIsUndefined::emit(this, dst, op.m_value);
+                    return dst;
+                }
+            }
+        }
         return emitBinaryOp<OpGreater>(dst, src1, src2, types);
+    }
     case op_greatereq:
         return emitBinaryOp<OpGreatereq>(dst, src1, src2, types);
     case op_below:
