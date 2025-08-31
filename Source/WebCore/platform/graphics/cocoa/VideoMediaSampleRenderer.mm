@@ -1232,10 +1232,11 @@ void VideoMediaSampleRenderer::videoRendererDidReceiveError(WebSampleBufferVideo
     if (renderer != this->renderer())
         return;
 #if PLATFORM(IOS_FAMILY)
-    if (renderer.status == AVQueuedSampleBufferRenderingStatusFailed && [error.domain isEqualToString:@"AVFoundationErrorDomain"] && error.code == AVErrorOperationInterrupted) {
+    if ((renderer.status == AVQueuedSampleBufferRenderingStatusFailed || renderer.status == AVQueuedSampleBufferRenderingStatusUnknown) && [error.domain isEqualToString:@"AVFoundationErrorDomain"] && error.code == AVErrorOperationInterrupted) {
         notifyVideoRendererRequiresFlushToResumeDecoding();
         return;
     }
+    RELEASE_LOG_ERROR(Media, "VideoMediaSampleRenderer::videoRendererDidReceiveError status: %d domain: %s errorCode: %d", int(renderer.status), [error.domain UTF8String], int(error.code));
 #endif
     notifyErrorHasOccurred(error);
 }
