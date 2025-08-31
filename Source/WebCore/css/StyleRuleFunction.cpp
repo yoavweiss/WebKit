@@ -26,7 +26,7 @@
 #include "config.h"
 #include "StyleRuleFunction.h"
 
-#include "StyleProperties.h"
+#include "StylePropertiesInlines.h"
 
 namespace WebCore {
 

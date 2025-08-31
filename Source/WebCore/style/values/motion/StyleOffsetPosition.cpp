@@ -28,7 +28,9 @@
 #include "CSSPositionValue.h"
 #include "RenderStyleInlines.h"
 #include "StyleBuilderChecking.h"
+#include "StyleLengthWrapper+Blending.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
+#include <WebCore/StylePosition.h>
 #include <wtf/text/TextStream.h>
 
 namespace WebCore {

@@ -30,6 +30,7 @@
 #include "CSSPrimitiveValue.h"
 #include "CSSPrimitiveValueMappings.h"
 #include "CSSValueList.h"
+#include "CSSValuePool.h"
 #include "StyleBuilderChecking.h"
 #include "StyleValueTypes.h"
 #include <wtf/Assertions.h>
