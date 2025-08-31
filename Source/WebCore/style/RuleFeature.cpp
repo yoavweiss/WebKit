@@ -31,6 +31,7 @@
 
 #include "CSSSelector.h"
 #include "CSSSelectorList.h"
+#include "HTMLNames.h"
 #include "RuleSet.h"
 #include "StyleRule.h"
 

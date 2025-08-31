@@ -28,6 +28,10 @@
 
 #if ENABLE(WEBASSEMBLY) && ENABLE(JIT)
 
+#include "JSWebAssemblyInstance.h"
+#include "WasmBinding.h"
+#include "WasmOperations.h"
+
 namespace JSC {
 namespace Wasm {
 

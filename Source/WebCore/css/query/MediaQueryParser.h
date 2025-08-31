@@ -25,6 +25,7 @@
 #pragma once
 
 #include "GenericMediaQueryParser.h"
+#include "MediaQuery.h"
 #include "MediaQueryParserContext.h"
 
 namespace WebCore {

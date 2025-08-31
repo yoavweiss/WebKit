@@ -25,6 +25,7 @@
 #include "config.h"
 #include "RenderBlockFlow.h"
 
+#include "AXObjectCache.h"
 #include "BlockStepSizing.h"
 #include "Editor.h"
 #include "ElementInlines.h"

@@ -33,6 +33,7 @@
 #include "JSRTCEncodedVideoFrame.h"
 #include "ReadableStreamSource.h"
 #include "WritableStreamSink.h"
+#include <wtf/TZoneMallocInlines.h>
 
 namespace WebCore {
 

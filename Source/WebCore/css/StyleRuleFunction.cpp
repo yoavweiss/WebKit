@@ -26,6 +26,8 @@
 #include "config.h"
 #include "StyleRuleFunction.h"
 
+#include "StyleProperties.h"
+
 namespace WebCore {
 
 Ref<StyleRuleFunction> StyleRuleFunction::create(const AtomString& name, Vector<Parameter>&& parameters, CSSCustomPropertySyntax&& returnType, Vector<Ref<StyleRuleBase>>&& rules)

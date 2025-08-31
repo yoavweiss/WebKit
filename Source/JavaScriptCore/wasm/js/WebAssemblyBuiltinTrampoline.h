@@ -35,6 +35,8 @@
 namespace JSC {
 namespace Wasm {
 
+enum class BindingFailure;
+
 Expected<MacroAssemblerCodeRef<WasmEntryPtrTag>, BindingFailure> generateWasmBuiltinTrampoline(const WebAssemblyBuiltin&);
 
 } // namespace Wasm
