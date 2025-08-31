@@ -2516,6 +2516,8 @@ imported/w3c/web-platform-tests/css/css-text-decor/text-emphasis-position-over-r
 imported/w3c/web-platform-tests/css/css-text-decor/text-emphasis-position-under-left-001.xht [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-text-decor/text-emphasis-position-under-right-001.xht [ ImageOnlyFailure ]
 
+[ Debug ] imported/w3c/web-platform-tests/html/semantics/the-button-element/command-and-commandfor/interface.html [ Skip ]
+
 webkit.org/b/297346 workers/message-port-gc.html [ Pass Crash ]
 
 webkit.org/b/297434 imported/w3c/web-platform-tests/event-timing/retrievability.html [ Pass Failure ]

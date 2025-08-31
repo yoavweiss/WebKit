@@ -2196,10 +2196,10 @@ webkit.org/b/295743 [ Debug ] media/video-display-aspect-ratio.html [ Pass Failu
 [ Sequoia+ ] webgl/1.0.x/conformance/textures/misc/gl-teximage.html [ Failure ]
 [ Sequoia+ ] webgl/2.0.y/conformance/textures/misc/gl-teximage.html [ Failure ]
 
-# # rdar://155272309 (New Test (294762@main): [ Tahoe wk2 ] 3 digital-credentials are a consistent failure)
-imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-get.https.html [ Failure ]
-imported/w3c/web-platform-tests/digital-credentials/get.tentative.https.html [ Failure ]
-imported/w3c/web-platform-tests/digital-credentials/user-activation.https.html [ Failure ]
+# Digital Credentials tests timeout.
+[ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-get.https.html [ Skip ]
+[ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/get.tentative.https.html [ Skip ]
+[ Sequoia ] imported/w3c/web-platform-tests/digital-credentials/user-activation.https.html [ Skip ]
 
 # FIXME: Needs bug.
 http/tests/resourceLoadStatistics/website-data-removal-for-site-navigated-to-with-unfiltered-link-decoration-before-short-deletion.html [ Failure ]
