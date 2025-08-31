@@ -2461,6 +2461,8 @@ webkit.org/b/264803 fast/mediastream/mediastreamtrack-video-resize-event.html [ 
 
 webkit.org/b/265865 imported/w3c/web-platform-tests/webrtc-stats/rtp-stats-creation.html [ Pass Failure ]
 
+# Missing support for RTP header encryption support:
+# https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/4625
 webrtc/encrypted-rtp-header-extensions.html [ Failure ]
 
 # Requires video scaling adaptation.
@@ -2487,6 +2489,7 @@ fast/mediastream/image-capture-grabFrame.html [ Failure ]
 
 # No AudioSession category handling in WPE/GTK ports.
 fast/mediastream/microphone-interruption-and-audio-session.html [ Skip ]
+http/tests/webrtc/audioSessionInFrames.html [ Failure ]
 
 webrtc/clone-audio-track.html [ Pass Failure ]
 
@@ -2548,6 +2551,9 @@ webkit.org/b/193641 webkit.org/b/235885 webrtc/video-setDirection.html [ Skip ]
 webkit.org/b/235885 webrtc/direction-change.html [ Failure ]
 webkit.org/b/235885 webrtc/remove-track.html [ Crash Failure ]
 
+# Stopping a transceiver is unsupported in GstWebRTC.
+imported/w3c/web-platform-tests/webrtc/protocol/transceiver-mline-recycling.html [ Failure ]
+
 # Specific to LibWebRTC:
 webkit.org/b/235885 webrtc/disable-encryption.html [ Skip ]
 webkit.org/b/235885 webrtc/libwebrtc/release-while-getting-stats.html [ Skip ]
@@ -2602,6 +2608,7 @@ webkit.org/b/235885 webrtc/video-replace-muted-track.html [ Skip ]
 webkit.org/b/235885 webrtc/video-stats.html [ Failure ]
 webkit.org/b/235885 webrtc/video-unmute.html [ Pass Timeout ]
 webkit.org/b/235885 webrtc/vp8-then-h264.html [ Failure Timeout Crash ]
+http/tests/webrtc/muted-video-mediastream-invisible-autoplay.html [ Failure Timeout Pass ]
 
 webkit.org/b/187064 webrtc/video-addTrack.html [ Failure Pass Timeout ]
 webkit.org/b/187064 webrtc/video-with-data-channel.html [ Failure ]
@@ -2640,7 +2647,7 @@ imported/w3c/web-platform-tests/webrtc/RTCRtpParameters-rtcp.html [ Pass ]
 # https://github.com/web-platform-tests/wpt/commit/9833e981ddad9411990c4767fcdafbc1dbe61791
 # GLib baselines updated accordingly. The RTCRtpParameters-transactionId.html baselines can't be updated
 # because the transactionId mentioned in test failures is not stable across test runs.
-#imported/w3c/web-platform-tests/webrtc/RTCRtpSender-setParameters.html [ Failure ]
+imported/w3c/web-platform-tests/webrtc/RTCRtpSender-setParameters.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/RTCRtpParameters-transactionId.html [ Failure ]
 
 imported/w3c/web-platform-tests/webrtc/protocol/ [ Pass ]
@@ -2677,9 +2684,10 @@ imported/w3c/web-platform-tests/webrtc/protocol/msid-generate.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/additional-codecs.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/codecs-subsequent-offer.https.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/protocol/pt-no-bundle.html [ Failure ]
-imported/w3c/web-platform-tests/webrtc/protocol/transceiver-mline-recycling.html [ Failure ]
 imported/w3c/web-platform-tests/webrtc/RTCRtpParameters-codecs.html [ Failure ]
 
+# The 'Can demux two video tracks with the same payload type on an unbundled connection' test times
+# out, the metadataToBeLoaded promise never resolves. The skia crash seems to be a consequence of the timeout.
 webkit.org/b/286481 imported/w3c/web-platform-tests/webrtc/protocol/rtp-demuxing.html [ Crash ]
 
 # webrtcbin expects mid in its offer/answer SDP, this is not spec compliant, it's an optional field.
@@ -2695,13 +2703,11 @@ webkit.org/b/235885 imported/w3c/web-platform-tests/webrtc/protocol/simulcast-of
 
 # RTP sender de-activation is not working as expected due to internal queues in rtpbin. The valve we
 # use in our RTPPacketizer is not sufficient, we would need it to be further downstream.
-# Expected to fail/crash when SDKs are updated to GStreamer 1.26. Skipping until then.
-imported/w3c/web-platform-tests/webrtc/simulcast/setParameters-active.https.html [ Skip ]
+imported/w3c/web-platform-tests/webrtc/simulcast/setParameters-active.https.html [ Failure Crash ]
 
 # For simulcast outbound streams webrtcbin currently returns the stats for the merged stream.
 # Instead it should create one outbound-rtp stat structure per configured rid.
-# Expected to fail when SDKs are updated to GStreamer 1.26. Skipping until then.
-imported/w3c/web-platform-tests/webrtc/simulcast/getStats.https.html [ Skip ]
+imported/w3c/web-platform-tests/webrtc/simulcast/getStats.https.html [ Failure ]
 
 # This test expects the backend to not fill codecs encoding parameters, which we do, at least in the
 # GstWebRTC backend case.
@@ -2728,16 +2734,17 @@ imported/w3c/web-platform-tests/webrtc/RTCDTMFSender-ontonechange.https.html [ P
 imported/w3c/web-platform-tests/webrtc/RTCDTMFSender-ontonechange-long.https.html [ Pass ]
 
 # This test is buggy, has duplicate (copy/paste?) addTransceiver calls. That issue was fixed in upstream WPT.
-imported/w3c/web-platform-tests/webrtc-extensions/RTCRtpReceiver-jitterBufferTarget-stats.html [ Crash Pass ]
+# This test was rewritten and split as webrtc/RTCRtpReceiver-{audio,video}-jitterBufferTarget-stats.https.html
+imported/w3c/web-platform-tests/webrtc-extensions/RTCRtpReceiver-jitterBufferTarget-stats.html [ Skip ]
+imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-audio-jitterBufferTarget-stats.https.html [ Pass ]
+# This test hasn't been imported yet.
+#imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-video-jitterBufferTarget-stats.https.html [ Pass ]
 
 webkit.org/b/235885 webrtc/vp9.html [ Slow Failure ]
 webrtc/vp9-sw.html [ Failure ]
 
 # Also skipped on mac, timing out because relying on MediaStream::onactive event which is not exposed.
 webkit.org/b/151344 fast/mediastream/MediaStream-add-ended-tracks.html [ Skip ]
-
-# Flakes moved from wpe/TestExpectations -- if they're flaky in WPE they're very likely to be flaky in GTK
-http/tests/webrtc/muted-video-mediastream-invisible-autoplay.html [ Failure Timeout Pass ]
 
 # webrtcbin doesn't emit "outbound-rtp" stats until it's in connected state
 webkit.org/b/280117 webrtc/audio-muted-stats.html [ Failure ]
@@ -2760,7 +2767,6 @@ webkit.org/b/286859 webrtc/captureCanvas-webrtc-with-video-scaling-adaptation.ht
 # The main difference is that in this test an additional message is sent on the data-channel.
 webkit.org/b/264936 imported/w3c/web-platform-tests/webrtc-extensions/transfer-datachannel-service-worker.https.html [ Failure ]
 
-http/tests/webrtc/audioSessionInFrames.html [ Failure ]
 http/wpt/webrtc/rtcNetworkInterface.html [ Failure ]
 
 webkit.org/b/276587 webrtc/video-av1.html [ Pass Timeout ]
