@@ -729,58 +729,48 @@ PASS :bgl_resource_type_mismatch:encoderType="render%20bundle";call="drawIndexed
 PASS :bgl_resource_type_mismatch:encoderType="render%20bundle";call="drawIndexedIndirect";callWithZero=false
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=3;computeCommand="dispatchIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=3;computeCommand="dispatch" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=4;computeCommand="dispatchIndirect"
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=4;computeCommand="dispatch"
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=3;computeCommand="dispatchIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=3;computeCommand="dispatch" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=4;computeCommand="dispatchIndirect"
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=4;computeCommand="dispatch"
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=3;computeCommand="dispatchIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=3;computeCommand="dispatch" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=4;computeCommand="dispatchIndirect"
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,compute_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=4;computeCommand="dispatch"
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=3;renderCommand="draw" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=3;renderCommand="drawIndexed" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=3;renderCommand="drawIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=3;renderCommand="drawIndexedIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=4;renderCommand="draw"
@@ -789,22 +779,18 @@ PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:empt
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Null";bindGroupLayoutEntryCount=4;renderCommand="drawIndexedIndirect"
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=3;renderCommand="draw" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=3;renderCommand="drawIndexed" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=3;renderCommand="drawIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=3;renderCommand="drawIndexedIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=4;renderCommand="draw"
@@ -813,22 +799,18 @@ PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:empt
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Undefined";bindGroupLayoutEntryCount=4;renderCommand="drawIndexedIndirect"
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=3;renderCommand="draw" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=3;renderCommand="drawIndexed" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=3;renderCommand="drawIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=3;renderCommand="drawIndexedIndirect" assert_unreached:
   - EXCEPTION: Error: Unexpected validation error occurred: number of bind groups set(3) is less than the pipeline uses(4)
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :empty_bind_group_layouts_never_requires_empty_bind_groups,render_pass:emptyBindGroupLayoutType="Empty";bindGroupLayoutEntryCount=4;renderCommand="draw"

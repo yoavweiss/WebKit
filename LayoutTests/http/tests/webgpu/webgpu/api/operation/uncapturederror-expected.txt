@@ -19,7 +19,6 @@ PASS :only_original_device_is_event_target:
 PASS :uncapturederror_from_non_originating_thread:
 FAIL :onuncapturederror_order_wrt_addEventListener: assert_unreached:
   - EXCEPTION: Error: timeout1
-    PromiseTimeoutError@
     @http://127.0.0.1:8000/webgpu/common/util/util.js:141:37
     @http://127.0.0.1:8000/resources/testharness.js:983:20
  Reached unreachable code

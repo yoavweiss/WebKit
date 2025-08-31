@@ -4,7 +4,6 @@ FAIL :shift_left_abstract:inputSource="const";vectorize="_undef_" assert_unreach
       at (elided: below max severity)
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     48:49: shift left value must be less than the bit width of the shifted value, which is 64
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :shift_left_abstract:inputSource="const";vectorize=2 assert_unreached:
@@ -12,7 +11,6 @@ FAIL :shift_left_abstract:inputSource="const";vectorize=2 assert_unreached:
       at (elided: below max severity)
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     48:61: shift left value must be less than the bit width of the shifted value, which is 64
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :shift_left_abstract:inputSource="const";vectorize=3 assert_unreached:
@@ -20,7 +18,6 @@ FAIL :shift_left_abstract:inputSource="const";vectorize=3 assert_unreached:
       at (elided: below max severity)
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     48:64: shift left value must be less than the bit width of the shifted value, which is 64
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :shift_left_abstract:inputSource="const";vectorize=4 assert_unreached:
@@ -28,7 +25,6 @@ FAIL :shift_left_abstract:inputSource="const";vectorize=4 assert_unreached:
       at (elided: below max severity)
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     38:67: shift left value must be less than the bit width of the shifted value, which is 64
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :shift_left_concrete:type="i32";inputSource="const";vectorize="_undef_"
@@ -118,7 +114,6 @@ FAIL :shift_right_abstract:inputSource="const";vectorize="_undef_" assert_unreac
       at (elided: only 2 shown)
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     48:49: shift right value must be less than the bit width of the shifted value, which is 64
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :shift_right_abstract:inputSource="const";vectorize=2 assert_unreached:
@@ -142,7 +137,6 @@ FAIL :shift_right_abstract:inputSource="const";vectorize=2 assert_unreached:
       at (elided: only 2 shown)
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     48:61: shift right value must be less than the bit width of the shifted value, which is 64
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :shift_right_abstract:inputSource="const";vectorize=3 assert_unreached:
@@ -162,7 +156,6 @@ FAIL :shift_right_abstract:inputSource="const";vectorize=3 assert_unreached:
       at (elided: only 2 shown)
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     363:65: shift right value must be less than the bit width of the shifted value, which is 64
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :shift_right_abstract:inputSource="const";vectorize=4 assert_unreached:
@@ -178,7 +171,6 @@ FAIL :shift_right_abstract:inputSource="const";vectorize=4 assert_unreached:
       at (elided: only 2 shown)
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     358:68: shift right value must be less than the bit width of the shifted value, which is 64
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :shift_right_concrete:type="i32";inputSource="const";vectorize="_undef_"

@@ -43,7 +43,6 @@ FAIL :blankspace:blankspace=["%C2%85","next_line"] assert_unreached:
   - (in subcase: ) INFO: subcase ran
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     1:5: Expected a Identifier, but got a Invalid
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :blankspace:blankspace=["%E2%80%8E","left_to_right_mark"] assert_unreached:
@@ -56,7 +55,6 @@ FAIL :blankspace:blankspace=["%E2%80%8E","left_to_right_mark"] assert_unreached:
   - (in subcase: ) INFO: subcase ran
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     1:5: Expected a Identifier, but got a Invalid
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :blankspace:blankspace=["%E2%80%8F","right_to_left_mark"] assert_unreached:
@@ -69,7 +67,6 @@ FAIL :blankspace:blankspace=["%E2%80%8F","right_to_left_mark"] assert_unreached:
   - (in subcase: ) INFO: subcase ran
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     1:5: Expected a Identifier, but got a Invalid
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :blankspace:blankspace=["%E2%80%A8","line_separator"] assert_unreached:
@@ -82,7 +79,6 @@ FAIL :blankspace:blankspace=["%E2%80%A8","line_separator"] assert_unreached:
   - (in subcase: ) INFO: subcase ran
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     1:5: Expected a Identifier, but got a Invalid
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 FAIL :blankspace:blankspace=["%E2%80%A9","paragraph_separator"] assert_unreached:
@@ -95,7 +91,6 @@ FAIL :blankspace:blankspace=["%E2%80%A9","paragraph_separator"] assert_unreached
   - (in subcase: ) INFO: subcase ran
   - EXCEPTION: Error: Unexpected validation error occurred: 1 error generated while compiling the shader:
     1:5: Expected a Identifier, but got a Invalid
-    TestFailedButDeviceReusable@
     attemptEndTestScope@http://127.0.0.1:8000/webgpu/webgpu/util/device_pool.js:457:44
  Reached unreachable code
 PASS :bom:include_bom=true
