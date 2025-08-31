@@ -92,6 +92,7 @@
 #include "JSMapIterator.h"
 #include "JSSetIterator.h"
 #include "JSWebAssemblyInstance.h"
+#include "JSWrapForValidIterator.h"
 #include "LLIntThunks.h"
 #include "MegamorphicCache.h"
 #include "OperandsInlines.h"
@@ -9387,6 +9388,9 @@ IGNORE_CLANG_WARNINGS_END
             break;
         case JSIteratorHelperType:
             compileNewInternalFieldObjectImpl<JSIteratorHelper>(operationNewIteratorHelper);
+            break;
+        case JSWrapForValidIteratorType:
+            compileNewInternalFieldObjectImpl<JSWrapForValidIterator>(operationNewWrapForValidIterator);
             break;
         case JSPromiseType:
             if (m_node->structure()->classInfoForCells() == JSInternalPromise::info())

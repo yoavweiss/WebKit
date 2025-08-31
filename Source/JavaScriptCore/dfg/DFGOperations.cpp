@@ -71,6 +71,7 @@
 #include "JSSetIterator.h"
 #include "JSWeakMapInlines.h"
 #include "JSWeakSet.h"
+#include "JSWrapForValidIterator.h"
 #include "NumberConstructor.h"
 #include "NumberObject.h"
 #include "NumberPrototype.h"
@@ -2335,6 +2336,16 @@ JSC_DEFINE_JIT_OPERATION(operationNewIteratorHelper, JSCell*, (VM* vmPointer, St
     auto scope = DECLARE_THROW_SCOPE(vm);
 
     OPERATION_RETURN(scope, JSIteratorHelper::createWithInitialValues(vm, structure));
+}
+
+JSC_DEFINE_JIT_OPERATION(operationNewWrapForValidIterator, JSCell*, (VM* vmPointer, Structure* structure))
+{
+    VM& vm = *vmPointer;
+    CallFrame* callFrame = DECLARE_CALL_FRAME(vm);
+    JITOperationPrologueCallFrameTracer tracer(vm, callFrame);
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    OPERATION_RETURN(scope, JSWrapForValidIterator::createWithInitialValues(vm, structure));
 }
 
 JSC_DEFINE_JIT_OPERATION(operationCreateActivationDirect, JSCell*, (VM* vmPointer, Structure* structure, JSScope* jsScope, SymbolTable* table, EncodedJSValue initialValueEncoded))

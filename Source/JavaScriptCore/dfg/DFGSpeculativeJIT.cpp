@@ -68,6 +68,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "JSPropertyNameEnumerator.h"
 #include "JSSetIterator.h"
 #include "JSWebAssemblyInstance.h"
+#include "JSWrapForValidIterator.h"
 #include "LLIntEntrypoint.h"
 #include "LLIntThunks.h"
 #include "MaxFrameExtentForSlowPathCall.h"
@@ -15541,6 +15542,9 @@ void SpeculativeJIT::compileNewInternalFieldObject(Node* node)
         break;
     case JSIteratorHelperType:
         compileNewInternalFieldObjectImpl<JSIteratorHelper>(node, operationNewIteratorHelper);
+        break;
+    case JSWrapForValidIteratorType:
+        compileNewInternalFieldObjectImpl<JSWrapForValidIterator>(node, operationNewWrapForValidIterator);
         break;
     case JSPromiseType: {
         if (node->structure()->classInfoForCells() == JSInternalPromise::info())

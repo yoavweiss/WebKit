@@ -74,6 +74,7 @@
 #include "JSModuleNamespaceObject.h"
 #include "JSPromiseConstructor.h"
 #include "JSSetIterator.h"
+#include "JSWrapForValidIterator.h"
 #include "MapConstructor.h"
 #include "NullSetterFunction.h"
 #include "NumberConstructor.h"
@@ -4463,6 +4464,21 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
             addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSIteratorHelper::Field::Generator)), iteratorHelper, generator);
             addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSIteratorHelper::Field::UnderlyingIterator)), iteratorHelper, underlyingIterator);
             setResult(iteratorHelper);
+            return CallOptimizationResult::Inlined;
+        }
+
+        case WrapForValidIteratorCreateIntrinsic: {
+            if (argumentCountIncludingThis < 3)
+                return CallOptimizationResult::DidNothing;
+
+            insertChecks();
+            JSGlobalObject* globalObject = m_graph.globalObjectFor(currentNodeOrigin().semantic);
+            Node* iterator = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
+            Node* nextMethod = get(virtualRegisterForArgumentIncludingThis(2, registerOffset));
+            Node* wrapperObject = addToGraph(NewInternalFieldObject, OpInfo(m_graph.registerStructure(globalObject->wrapForValidIteratorStructure())));
+            addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSWrapForValidIterator::Field::IteratedIterator)), wrapperObject, iterator);
+            addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSWrapForValidIterator::Field::IteratedNextMethod)), wrapperObject, nextMethod);
+            setResult(wrapperObject);
             return CallOptimizationResult::Inlined;
         }
 
