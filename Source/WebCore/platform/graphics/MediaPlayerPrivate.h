@@ -382,6 +382,8 @@ public:
 
     virtual void setMessageClientForTesting(WeakPtr<MessageClientForTesting>) { }
 
+    virtual void elementIdChanged(const String&) const { }
+
 protected:
     mutable PlatformTimeRanges m_seekable;
     bool m_shouldCheckHardwareSupport { false };

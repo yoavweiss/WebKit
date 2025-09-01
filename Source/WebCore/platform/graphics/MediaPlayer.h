@@ -816,6 +816,8 @@ public:
     void setMessageClientForTesting(WeakPtr<MessageClientForTesting>);
     MessageClientForTesting* messageClientForTesting() const;
 
+    void elementIdChanged(const String&) const;
+
 private:
     MediaPlayer(MediaPlayerClient&);
     MediaPlayer(MediaPlayerClient&, MediaPlayerEnums::MediaEngineIdentifier);

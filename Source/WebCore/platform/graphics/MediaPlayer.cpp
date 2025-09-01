@@ -2079,6 +2079,12 @@ MessageClientForTesting* MediaPlayer::messageClientForTesting() const
     return m_internalMessageClient.get();
 }
 
+void MediaPlayer::elementIdChanged(const String& id) const
+{
+    if (RefPtr playerPrivate = m_private)
+        playerPrivate->elementIdChanged(id);
+}
+
 String convertEnumerationToString(MediaPlayer::ReadyState enumerationValue)
 {
     static const std::array<NeverDestroyed<String>, 5> values {
