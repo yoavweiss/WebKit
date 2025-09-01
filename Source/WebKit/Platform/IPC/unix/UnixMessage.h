@@ -29,6 +29,7 @@
 
 #include "Attachment.h"
 #include "Encoder.h"
+#include <WebCore/SharedMemory.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/Vector.h>
@@ -142,6 +143,22 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
     void appendAttachment(Attachment&& attachment)
     {
         m_attachments.append(WTFMove(attachment));
+    }
+
+    bool setBodyOutOfLine()
+    {
+        RefPtr oolMessageBody = WebCore::SharedMemory::allocate(bodySize());
+        if (!oolMessageBody)
+            return false;
+
+        auto handle = oolMessageBody->createHandle(WebCore::SharedMemory::Protection::ReadOnly);
+        if (!handle)
+            return false;
+
+        m_messageInfo.setBodyOutOfLine();
+        memcpySpan(oolMessageBody->mutableSpan(), m_body);
+        m_attachments.append(handle->releaseHandle());
+        return true;
     }
 
 private:

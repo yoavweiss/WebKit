@@ -44,31 +44,17 @@
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/UniStdExtras.h>
 
-#if USE(GLIB)
-#include <gio/gio.h>
-#include <gio/gunixconnection.h>
-#include <wtf/glib/GUniquePtr.h>
-#endif
-
-#if OS(ANDROID)
-#include <android/hardware_buffer.h>
-#endif
-
 #if OS(DARWIN)
 #define MSG_NOSIGNAL 0
 #endif
 
 // Although it's available on Darwin, SOCK_SEQPACKET seems to work differently
-// than in traditional Unix so fallback to STREAM on that platform.
+// than in traditional Unix so fallback to DGRAM on that platform.
 #if defined(SOCK_SEQPACKET) && !OS(DARWIN)
 #define SOCKET_TYPE SOCK_SEQPACKET
 #else
-#if USE(GLIB)
-#define SOCKET_TYPE SOCK_STREAM
-#else
 #define SOCKET_TYPE SOCK_DGRAM
 #endif
-#endif // SOCK_SEQPACKET
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN // Unix port
 
@@ -99,73 +85,32 @@ public:
     void setNull() { m_isNull = true; }
     bool isNull() const { return m_isNull; }
 
-#if OS(ANDROID)
-    enum class Type : uint8_t {
-        Unset = 0,
-        FileDescriptor,
-        HardwareBuffer,
-    };
-
-    Type type() const { return m_type; }
-    void setType(Type type) { m_type = type; }
-#endif // OS(ANDROID)
-
 private:
     // The AttachmentInfo will be copied using memcpy, so all members must be trivially copyable.
     bool m_isNull;
-
-#if OS(ANDROID)
-    Type m_type;
-#endif
 };
 
 static_assert(sizeof(MessageInfo) + sizeof(AttachmentInfo) * attachmentMaxAmount <= messageMaxSize, "messageMaxSize is too small.");
 
 int Connection::socketDescriptor() const
 {
-#if USE(GLIB)
-    return g_socket_get_fd(m_socket.get());
-#else
     return m_socketDescriptor.value();
-#endif
 }
 
 void Connection::platformInitialize(Identifier&& identifier)
 {
-#if USE(GLIB)
-    GUniqueOutPtr<GError> error;
-    m_socket = adoptGRef(g_socket_new_from_fd(identifier.handle.release(), &error.outPtr()));
-    if (!m_socket) {
-        // Note: g_socket_new_from_fd() takes ownership of the fd only on success, so if this error
-        // were not fatal, we would need to close it here.
-        g_error("Failed to adopt IPC::Connection socket: %s", error->message);
-    }
-#else
     m_socketDescriptor = WTFMove(identifier.handle);
-#endif
     m_readBuffer.reserveInitialCapacity(messageMaxSize);
     m_fileDescriptors.reserveInitialCapacity(attachmentMaxAmount);
 }
 
 void Connection::platformInvalidate()
 {
-#if USE(GLIB)
-    GUniqueOutPtr<GError> error;
-    g_socket_close(m_socket.get(), &error.outPtr());
-    if (error)
-        g_warning("Failed to close WebKit IPC socket: %s", error->message);
-#else
     if (m_socketDescriptor.value() != -1)
         closeWithRetry(m_socketDescriptor.release());
-#endif
 
     if (!m_isConnected)
         return;
-
-#if USE(GLIB)
-    m_readSocketMonitor.stop();
-    m_writeSocketMonitor.stop();
-#endif
 
 #if PLATFORM(PLAYSTATION)
     if (m_socketMonitor) {
@@ -199,30 +144,11 @@ bool Connection::processMessage()
     size_t attachmentCount = messageInfo.attachmentCount();
     Vector<AttachmentInfo> attachmentInfo(attachmentCount);
 
-#if OS(ANDROID)
-    [[maybe_unused]] size_t attachmentHardwareBufferCount = 0;
-#endif
-
     if (attachmentCount) {
         memcpySpan(asMutableByteSpan(attachmentInfo.mutableSpan()), consumeSpan(messageData, sizeof(AttachmentInfo) * attachmentCount));
         for (size_t i = 0; i < attachmentCount; ++i) {
-#if OS(ANDROID)
-            switch (attachmentInfo[i].type()) {
-            case AttachmentInfo::Type::FileDescriptor:
-                if (!attachmentInfo[i].isNull())
-                    attachmentFileDescriptorCount++;
-                break;
-            case AttachmentInfo::Type::HardwareBuffer:
-                if (!attachmentInfo[i].isNull())
-                    attachmentHardwareBufferCount++;
-                break;
-            case AttachmentInfo::Type::Unset:
-                RELEASE_ASSERT_NOT_REACHED();
-            }
-#else
             if (!attachmentInfo[i].isNull())
                 attachmentFileDescriptorCount++;
-#endif // OS(ANDROID)
         }
 
         if (messageInfo.isBodyOutOfLine())
@@ -232,37 +158,11 @@ bool Connection::processMessage()
     Vector<Attachment> attachments(attachmentCount);
     RefPtr<WebCore::SharedMemory> oolMessageBody;
 
-#if OS(ANDROID)
-    RELEASE_ASSERT(attachmentHardwareBufferCount == messageInfo.hardwareBufferCount());
-    size_t fdIndex = 0;
-    for (size_t i = 0; i < attachmentCount; ++i) {
-        switch (attachmentInfo[i].type()) {
-        case AttachmentInfo::Type::FileDescriptor:
-            attachments[attachmentCount - i - 1] = UnixFileDescriptor {
-                attachmentInfo[i].isNull() ? -1 : m_fileDescriptors[fdIndex++],
-                UnixFileDescriptor::Adopt
-            };
-            break;
-        case AttachmentInfo::Type::HardwareBuffer:
-            if (attachmentInfo[i].isNull())
-                attachments[attachmentCount - i - 1] = nullptr;
-            else {
-                RELEASE_ASSERT(!m_incomingHardwareBuffers.isEmpty());
-                attachments[attachmentCount - i - 1] = WTFMove(m_incomingHardwareBuffers.first());
-                m_incomingHardwareBuffers.removeAt(0);
-            }
-            break;
-        case AttachmentInfo::Type::Unset:
-            RELEASE_ASSERT_NOT_REACHED();
-        }
-    }
-#else
     size_t fdIndex = 0;
     for (size_t i = 0; i < attachmentCount; ++i) {
         int fd = !attachmentInfo[i].isNull() ? m_fileDescriptors[fdIndex++] : -1;
         attachments[attachmentCount - i - 1] = UnixFileDescriptor { fd, UnixFileDescriptor::Adopt };
     }
-#endif // OS(ANDROID)
 
     if (messageInfo.isBodyOutOfLine()) {
         ASSERT(messageInfo.bodySize());
@@ -386,14 +286,6 @@ static ssize_t readBytesFromSocket(int socketDescriptor, Vector<uint8_t>& buffer
 
 void Connection::readyReadHandler()
 {
-#if OS(ANDROID)
-    if (m_pendingIncomingHardwareBufferCount) {
-        if (receiveIncomingHardwareBuffers())
-            RELEASE_ASSERT(processMessage());
-        return;
-    }
-#endif
-
     while (true) {
         ssize_t bytesRead = readBytesFromSocket(socketDescriptor(), m_readBuffer, m_fileDescriptors);
 
@@ -419,18 +311,6 @@ void Connection::readyReadHandler()
             return;
         }
 
-#if OS(ANDROID)
-        RELEASE_ASSERT(m_readBuffer.size() >= sizeof(MessageInfo));
-        const auto& messageInfo = reinterpretCastSpanStartTo<MessageInfo>(m_readBuffer.span());
-        if (auto hardwareBufferCount = messageInfo.hardwareBufferCount()) {
-            RELEASE_ASSERT(m_incomingHardwareBuffers.isEmpty());
-            RELEASE_ASSERT(!m_pendingIncomingHardwareBufferCount);
-            m_pendingIncomingHardwareBufferCount = hardwareBufferCount;
-            if (!receiveIncomingHardwareBuffers())
-                return;
-        }
-#endif // OS(ANDROID)
-
         // Process messages from data received.
         while (true) {
             if (!processMessage())
@@ -451,22 +331,6 @@ void Connection::platformOpen()
 {
     RefPtr<Connection> protectedThis(this);
     m_isConnected = true;
-#if USE(GLIB)
-    m_readSocketMonitor.start(m_socket.get(), G_IO_IN, m_connectionQueue->runLoop(), [protectedThis] (GIOCondition condition) -> gboolean {
-        if (condition & G_IO_HUP || condition & G_IO_ERR || condition & G_IO_NVAL) {
-            protectedThis->connectionDidClose();
-            return G_SOURCE_REMOVE;
-        }
-
-        if (condition & G_IO_IN) {
-            protectedThis->readyReadHandler();
-            return G_SOURCE_CONTINUE;
-        }
-
-        ASSERT_NOT_REACHED();
-        return G_SOURCE_REMOVE;
-    });
-#endif
 
 #if PLATFORM(PLAYSTATION)
     m_socketMonitor = Thread::create("SocketMonitor"_s, [protectedThis] {
@@ -497,11 +361,7 @@ void Connection::platformOpen()
 
 bool Connection::platformCanSendOutgoingMessages() const
 {
-#if OS(ANDROID)
-    return !m_pendingOutputMessage && m_outgoingHardwareBuffers.isEmpty();
-#else
-    return !m_pendingOutputMessage;
-#endif
+    return true;
 }
 
 bool Connection::sendOutgoingMessage(UniqueRef<Encoder>&& encoder)
@@ -516,33 +376,15 @@ bool Connection::sendOutgoingMessage(UniqueRef<Encoder>&& encoder)
 
     size_t messageSizeWithBodyInline = sizeof(MessageInfo) + (outputMessage.attachments().size() * sizeof(AttachmentInfo)) + outputMessage.bodySize();
     if (messageSizeWithBodyInline > messageMaxSize && outputMessage.bodySize()) {
-        RefPtr oolMessageBody = WebCore::SharedMemory::allocate(outputMessage.bodySize());
-        if (!oolMessageBody)
+        if (!outputMessage.setBodyOutOfLine())
             return false;
-
-        auto handle = oolMessageBody->createHandle(WebCore::SharedMemory::Protection::ReadOnly);
-        if (!handle)
-            return false;
-
-        outputMessage.messageInfo().setBodyOutOfLine();
-
-        memcpySpan(oolMessageBody->mutableSpan(), outputMessage.body());
-
-        outputMessage.appendAttachment(handle->releaseHandle());
     }
 
-    return sendOutputMessage(outputMessage);
+    return sendOutputMessage(WTFMove(outputMessage));
 }
 
-bool Connection::sendOutputMessage(UnixMessage& outputMessage)
+bool Connection::sendOutputMessage(UnixMessage&& outputMessage)
 {
-    ASSERT(!m_pendingOutputMessage);
-
-#if OS(ANDROID)
-    RELEASE_ASSERT(m_outgoingHardwareBuffers.isEmpty());
-    Vector<RefPtr<AHardwareBuffer>, 2> hardwareBuffers;
-#endif
-
     auto& messageInfo = outputMessage.messageInfo();
     struct msghdr message;
     memset(&message, 0, sizeof(message));
@@ -563,26 +405,10 @@ bool Connection::sendOutputMessage(UnixMessage& outputMessage)
     if (!attachments.isEmpty()) {
         int* fdPtr = 0;
 
-#if OS(ANDROID)
-        size_t attachmentFDBufferLength = 0;
-        for (const auto& attachment : attachments) {
-            switchOn(attachment,
-                [&attachmentFDBufferLength](const UnixFileDescriptor& fd) {
-                    if (!!fd)
-                        ++attachmentFDBufferLength;
-                },
-                [&hardwareBuffers](const RefPtr<AHardwareBuffer>& buffer) {
-                    if (buffer)
-                        hardwareBuffers.append(buffer);
-                }
-            );
-        }
-#else
         size_t attachmentFDBufferLength = std::count_if(attachments.begin(), attachments.end(),
             [](const Attachment& attachment) {
                 return !!attachment;
             });
-#endif // OS(ANDROID)
 
         if (attachmentFDBufferLength) {
             attachmentFDBuffer = MallocSpan<char>::zeroedMalloc(CMSG_SPACE(sizeof(int) * attachmentFDBufferLength));
@@ -601,30 +427,11 @@ bool Connection::sendOutputMessage(UnixMessage& outputMessage)
         attachmentInfo.resize(attachments.size());
         int fdIndex = 0;
         for (size_t i = 0; i < attachments.size(); ++i) {
-#if OS(ANDROID)
-            RELEASE_ASSERT(attachmentInfo[i].type() == AttachmentInfo::Type::Unset);
-
-            if (holdsAlternative<RefPtr<AHardwareBuffer>>(attachments[i])) {
-                attachmentInfo[i].setType(AttachmentInfo::Type::HardwareBuffer);
-                if (!get<RefPtr<AHardwareBuffer>>(attachments[i]))
-                    attachmentInfo[i].setNull();
-            } else if (holdsAlternative<UnixFileDescriptor>(attachments[i])) {
-                attachmentInfo[i].setType(AttachmentInfo::Type::FileDescriptor);
-                if (!!get<UnixFileDescriptor>(attachments[i]))
-                    fdPtr[fdIndex++] = get<UnixFileDescriptor>(attachments[i]).value();
-                else
-                    attachmentInfo[i].setNull();
-            } else
-                RELEASE_ASSERT_NOT_REACHED();
-
-            RELEASE_ASSERT(attachmentInfo[i].type() != AttachmentInfo::Type::Unset);
-#else
             if (!!attachments[i]) {
                 ASSERT(fdPtr);
                 fdPtr[fdIndex++] = attachments[i].value();
             } else
                 attachmentInfo[i].setNull();
-#endif // OS(ANDROID)
         }
 
         iov[iovLength].iov_base = attachmentInfo.mutableSpan().data();
@@ -644,25 +451,6 @@ bool Connection::sendOutputMessage(UnixMessage& outputMessage)
         if (errno == EINTR)
             continue;
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
-#if USE(GLIB)
-            m_pendingOutputMessage = makeUnique<UnixMessage>(WTFMove(outputMessage));
-            m_writeSocketMonitor.start(m_socket.get(), G_IO_OUT, m_connectionQueue->runLoop(), [this, protectedThis = Ref { *this }] (GIOCondition condition) -> gboolean {
-                if (condition & G_IO_OUT) {
-                    ASSERT(m_pendingOutputMessage);
-                    // We can't stop the monitor from this lambda, because stop destroys the lambda.
-                    m_connectionQueue->dispatch([this, protectedThis = Ref { *this }] {
-                        m_writeSocketMonitor.stop();
-                        auto message = WTFMove(m_pendingOutputMessage);
-                        if (m_isConnected) {
-                            sendOutputMessage(*message);
-                            sendOutgoingMessages();
-                        }
-                    });
-                }
-                return G_SOURCE_REMOVE;
-            });
-            return false;
-#else
             struct pollfd pollfd;
 
             pollfd.fd = socketDescriptor();
@@ -670,7 +458,6 @@ bool Connection::sendOutputMessage(UnixMessage& outputMessage)
             pollfd.revents = 0;
             poll(&pollfd, 1, -1);
             continue;
-#endif
         }
 
 #if OS(LINUX)
@@ -775,70 +562,11 @@ bool Connection::receiveIncomingHardwareBuffers()
 }
 #endif // OS(ANDROID)
 
-SocketPair createPlatformConnection(unsigned options)
-{
-    int sockets[2];
-
-#if OS(LINUX)
-    if ((options & SetCloexecOnServer) || (options & SetCloexecOnClient)) {
-        RELEASE_ASSERT(socketpair(AF_UNIX, SOCKET_TYPE | SOCK_CLOEXEC, 0, sockets) != -1);
-
-        if (!(options & SetCloexecOnServer))
-            RELEASE_ASSERT(unsetCloseOnExec(sockets[1]));
-        if (!(options & SetCloexecOnClient))
-            RELEASE_ASSERT(unsetCloseOnExec(sockets[0]));
-
-        return { { sockets[0], UnixFileDescriptor::Adopt }, { sockets[1], UnixFileDescriptor::Adopt } };
-    }
-#endif
-
-    RELEASE_ASSERT(socketpair(AF_UNIX, SOCKET_TYPE, 0, sockets) != -1);
-
-    if (options & SetCloexecOnServer)
-        RELEASE_ASSERT(setCloseOnExec(sockets[1]));
-    if (options & SetCloexecOnClient)
-        RELEASE_ASSERT(setCloseOnExec(sockets[0]));
-
-    return { { sockets[0], UnixFileDescriptor::Adopt }, { sockets[1], UnixFileDescriptor::Adopt } };
-}
-
 std::optional<Connection::ConnectionIdentifierPair> Connection::createConnectionIdentifierPair()
 {
-    SocketPair socketPair = createPlatformConnection();
+    SocketPair socketPair = createPlatformConnection(SOCKET_TYPE);
     return { { Identifier { WTFMove(socketPair.server) }, ConnectionHandle { WTFMove(socketPair.client) } } };
 }
-
-#if USE(GLIB)
-void Connection::sendCredentials() const
-{
-    ASSERT(m_socket);
-    g_socket_set_blocking(m_socket.get(), TRUE);
-    GRefPtr<GUnixConnection> connection = adoptGRef(G_UNIX_CONNECTION(g_object_new(G_TYPE_UNIX_CONNECTION, "socket", m_socket.get(), nullptr)));
-    GUniqueOutPtr<GError> error;
-    if (!g_unix_connection_send_credentials(connection.get(), nullptr, &error.outPtr())) {
-        if (g_error_matches(error.get(), G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED))
-            return;
-
-        g_error("Connection: Failed to send crendentials: %s", error->message);
-    }
-    g_socket_set_blocking(m_socket.get(), FALSE);
-}
-
-pid_t Connection::remoteProcessID(GSocket* socket)
-{
-    GRefPtr<GUnixConnection> connection = adoptGRef(G_UNIX_CONNECTION(g_object_new(G_TYPE_UNIX_CONNECTION, "socket", socket, nullptr)));
-    GUniqueOutPtr<GError> error;
-    GRefPtr<GCredentials> credentials = adoptGRef(g_unix_connection_receive_credentials(connection.get(), nullptr, &error.outPtr()));
-    if (!credentials)
-        g_error("Connection: failed to receive credentials: %s", error->message);
-
-    pid_t processID = g_credentials_get_unix_pid(credentials.get(), &error.outPtr());
-    if (error)
-        g_error("Connection: failed to get pid from credentials: %s", error->message);
-
-    return processID;
-}
-#endif
 
 } // namespace IPC
 

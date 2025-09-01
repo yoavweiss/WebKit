@@ -62,7 +62,7 @@ enum PlatformConnectionOptions {
     SetCloexecOnServer = 1 << 1,
 };
 
-SocketPair createPlatformConnection(unsigned options = SetCloexecOnClient | SetCloexecOnServer);
+SocketPair createPlatformConnection(int socketType, unsigned options = SetCloexecOnClient | SetCloexecOnServer);
 
 #endif
 

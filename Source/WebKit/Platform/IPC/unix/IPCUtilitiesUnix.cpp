@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Igalia S.L.
+ * Copyright (C) 2011, 2025 Igalia S.L.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,38 +23,39 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "config.h"
+#include "IPCUtilities.h"
 
-#include <glib.h>
-#include <wtf/Forward.h>
-#include <wtf/Noncopyable.h>
-#include <wtf/RunLoop.h>
-#include <wtf/glib/GRefPtr.h>
+#include <sys/socket.h>
+#include <wtf/UniStdExtras.h>
 
-typedef struct _GSocket GSocket;
+namespace IPC {
 
-namespace WTF {
+SocketPair createPlatformConnection(int socketType, unsigned options)
+{
+    int sockets[2];
 
-class GSocketMonitor {
-    WTF_MAKE_NONCOPYABLE(GSocketMonitor);
-public:
-    GSocketMonitor() = default;
-    WTF_EXPORT_PRIVATE ~GSocketMonitor();
+#if OS(LINUX)
+    if ((options & SetCloexecOnServer) || (options & SetCloexecOnClient)) {
+        RELEASE_ASSERT(socketpair(AF_UNIX, socketType | SOCK_CLOEXEC, 0, sockets) != -1);
 
-    WTF_EXPORT_PRIVATE void start(GSocket*, GIOCondition, RunLoop&, GCancellable*, Function<gboolean(GIOCondition)>&&);
-    WTF_EXPORT_PRIVATE void stop();
-    bool isActive() const { return !!m_source; }
+        if (!(options & SetCloexecOnServer))
+            RELEASE_ASSERT(unsetCloseOnExec(sockets[1]));
+        if (!(options & SetCloexecOnClient))
+            RELEASE_ASSERT(unsetCloseOnExec(sockets[0]));
 
-private:
-    static gboolean socketSourceCallback(GSocket*, GIOCondition, GSocketMonitor*);
+        return { { sockets[0], UnixFileDescriptor::Adopt }, { sockets[1], UnixFileDescriptor::Adopt } };
+    }
+#endif
 
-    GRefPtr<GSource> m_source;
-    GRefPtr<GCancellable> m_cancellable;
-    Function<gboolean(GIOCondition)> m_callback;
-    bool m_isExecutingCallback { false };
-    bool m_shouldDestroyCallback { false };
-};
+    RELEASE_ASSERT(socketpair(AF_UNIX, socketType, 0, sockets) != -1);
 
-} // namespace WTF
+    if (options & SetCloexecOnServer)
+        RELEASE_ASSERT(setCloseOnExec(sockets[1]));
+    if (options & SetCloexecOnClient)
+        RELEASE_ASSERT(setCloseOnExec(sockets[0]));
 
-using WTF::GSocketMonitor;
+    return { { sockets[0], UnixFileDescriptor::Adopt }, { sockets[1], UnixFileDescriptor::Adopt } };
+}
+
+} // namespace IPC

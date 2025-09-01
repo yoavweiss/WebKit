@@ -55,11 +55,14 @@ gboolean GSocketMonitor::socketSourceCallback(GSocket*, GIOCondition condition, 
     return result;
 }
 
-void GSocketMonitor::start(GSocket* socket, GIOCondition condition, RunLoop& runLoop, Function<gboolean(GIOCondition)>&& callback)
+void GSocketMonitor::start(GSocket* socket, GIOCondition condition, RunLoop& runLoop, GCancellable* cancellable, Function<gboolean(GIOCondition)>&& callback)
 {
     stop();
 
-    m_cancellable = adoptGRef(g_cancellable_new());
+    if (cancellable)
+        m_cancellable = cancellable;
+    else
+        m_cancellable = adoptGRef(g_cancellable_new());
     m_source = adoptGRef(g_socket_create_source(socket, condition, m_cancellable.get()));
     g_source_set_name(m_source.get(), "[WebKit] Socket monitor");
     m_callback = WTFMove(callback);

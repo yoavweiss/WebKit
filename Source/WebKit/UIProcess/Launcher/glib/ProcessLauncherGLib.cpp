@@ -35,6 +35,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <glib.h>
+#include <sys/socket.h>
 #include <wtf/FileSystem.h>
 #include <wtf/RunLoop.h>
 #include <wtf/UniStdExtras.h>
@@ -100,7 +101,7 @@ void ProcessLauncher::launchProcess()
 
     GUniquePtr<gchar> processIdentifier(g_strdup_printf("%" PRIu64, m_launchOptions.processIdentifier.toUInt64()));
 
-    IPC::SocketPair webkitSocketPair = IPC::createPlatformConnection(connectionOptions());
+    IPC::SocketPair webkitSocketPair = IPC::createPlatformConnection(SOCK_SEQPACKET, connectionOptions());
     GUniquePtr<gchar> webkitSocket(g_strdup_printf("%d", webkitSocketPair.client.value()));
 
 #if USE(LIBWPE) && !ENABLE(BUBBLEWRAP_SANDBOX)
@@ -244,7 +245,7 @@ void ProcessLauncher::launchProcess()
         // We need to get the pid of the actual WebKit auxiliary process, not the bwrap or flatpak-spawn
         // intermediate process. And do it without blocking, because process launching is slow.
         g_socket_set_blocking(socket.get(), FALSE);
-        m_socketMonitor.start(socket.get(), G_IO_IN, RunLoop::mainSingleton(), [protectedThis = Ref { *this }, this, socket](GIOCondition condition) mutable -> gboolean {
+        m_socketMonitor.start(socket.get(), G_IO_IN, RunLoop::mainSingleton(), nullptr, [protectedThis = Ref { *this }, this, socket](GIOCondition condition) mutable -> gboolean {
             if (!(condition & G_IO_IN))
                 g_error("Failed to read pid from child process");
 

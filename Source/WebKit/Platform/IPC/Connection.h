@@ -723,14 +723,19 @@ private:
 #if USE(UNIX_DOMAIN_SOCKETS)
     // Called on the connection queue.
     void readyReadHandler();
-    bool processMessage();
-    bool sendOutputMessage(UnixMessage&);
-    int socketDescriptor() const;
+    bool sendOutputMessage(UnixMessage&&);
 
     Vector<uint8_t> m_readBuffer;
-    Vector<int> m_fileDescriptors;
-    std::unique_ptr<UnixMessage> m_pendingOutputMessage;
 
+#if USE(GLIB)
+    std::unique_ptr<Decoder> createMessageDecoder();
+
+    GRefPtr<GSocket> m_socket;
+    GRefPtr<GCancellable> m_cancellable;
+    GSocketMonitor m_readSocketMonitor;
+    GSocketMonitor m_writeSocketMonitor;
+    Vector<UnixFileDescriptor> m_fileDescriptors;
+    bool m_hasPendingOutputMessage { false };
 #if OS(ANDROID)
     bool sendOutgoingHardwareBuffers();
     bool receiveIncomingHardwareBuffers();
@@ -739,11 +744,11 @@ private:
     Vector<RefPtr<AHardwareBuffer>, 2> m_incomingHardwareBuffers;
     Vector<RefPtr<AHardwareBuffer>, 2> m_outgoingHardwareBuffers;
 #endif
-#if USE(GLIB)
-    GRefPtr<GSocket> m_socket;
-    GSocketMonitor m_readSocketMonitor;
-    GSocketMonitor m_writeSocketMonitor;
 #else
+    bool processMessage();
+    int socketDescriptor() const;
+
+    Vector<int> m_fileDescriptors;
     UnixFileDescriptor m_socketDescriptor;
 #endif
 #if PLATFORM(PLAYSTATION)
