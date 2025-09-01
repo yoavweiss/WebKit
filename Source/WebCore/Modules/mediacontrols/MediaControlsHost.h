@@ -50,17 +50,20 @@ class TextTrackRepresentation;
 class VoidCallback;
 
 class MediaControlsHost final
-    : public RefCounted<MediaControlsHost>
+    : public CanMakeWeakPtr<MediaControlsHost>
 #if ENABLE(MEDIA_SESSION)
     , private MediaSessionObserver
 #endif
-    , public CanMakeWeakPtr<MediaControlsHost> {
+    {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED(MediaControlsHost);
 public:
     USING_CAN_MAKE_WEAKPTR(CanMakeWeakPtr<MediaControlsHost>);
 
-    static Ref<MediaControlsHost> create(HTMLMediaElement&);
+    explicit MediaControlsHost(HTMLMediaElement&);
     ~MediaControlsHost();
+
+    void ref() const;
+    void deref() const;
 
     static const AtomString& automaticKeyword();
     static const AtomString& forcedOnlyKeyword();
@@ -131,8 +134,6 @@ public:
     JSValueInWrappedObject& controllerWrapper() { return m_controllerWrapper; }
 
 private:
-    explicit MediaControlsHost(HTMLMediaElement&);
-
     void savePreviouslySelectedTextTrackIfNecessary();
     void restorePreviouslySelectedTextTrackIfNecessary();
 

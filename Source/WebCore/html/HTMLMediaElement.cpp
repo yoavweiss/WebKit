@@ -1186,7 +1186,7 @@ inline void HTMLMediaElement::updateRenderer()
     if (CheckedPtr renderer = this->renderer())
         renderer->updateFromElement();
 
-    if (RefPtr mediaControlsHost = m_mediaControlsHost)
+    if (RefPtr mediaControlsHost = m_mediaControlsHost.get())
         mediaControlsHost->updateCaptionDisplaySizes();
 
     if (RefPtr player = m_player)
@@ -5384,7 +5384,7 @@ void HTMLMediaElement::layoutSizeChanged()
         if (RefPtr root = element.userAgentShadowRoot())
             root->dispatchEvent(Event::create(eventNames().resizeEvent, Event::CanBubble::No, Event::IsCancelable::No));
 
-        if (RefPtr mediaControlsHost = element.m_mediaControlsHost)
+        if (RefPtr mediaControlsHost = element.m_mediaControlsHost.get())
             mediaControlsHost->updateCaptionDisplaySizes();
     });
 
@@ -7845,7 +7845,7 @@ void HTMLMediaElement::captionPreferencesChanged()
     if (!isVideo())
         return;
 
-    if (RefPtr mediaControlsHost = m_mediaControlsHost)
+    if (RefPtr mediaControlsHost = m_mediaControlsHost.get())
         mediaControlsHost->updateCaptionDisplaySizes(MediaControlsHost::ForceUpdate::Yes);
 
     if (RefPtr player = m_player)
@@ -8701,10 +8701,10 @@ bool HTMLMediaElement::ensureMediaControls()
                 return false;
 
             if (!m_mediaControlsHost)
-                m_mediaControlsHost = MediaControlsHost::create(*this);
+                lazyInitialize(m_mediaControlsHost, makeUniqueWithoutRefCountedCheck<MediaControlsHost>(*this));
 
             auto mediaJSWrapper = toJS(&lexicalGlobalObject, &globalObject, *this);
-            auto mediaControlsHostJSWrapper = toJS(&lexicalGlobalObject, &globalObject, *m_mediaControlsHost.copyRef());
+            auto mediaControlsHostJSWrapper = toJS(&lexicalGlobalObject, &globalObject, *m_mediaControlsHost);
 
             JSC::MarkedArgumentBuffer argList;
             argList.append(toJS(&lexicalGlobalObject, &globalObject, Ref { ensureUserAgentShadowRoot() }));
@@ -8752,10 +8752,10 @@ bool HTMLMediaElement::ensureMediaControls()
                 return false;
 
             if (!m_mediaControlsHost)
-                m_mediaControlsHost = MediaControlsHost::create(*this);
+                lazyInitialize(m_mediaControlsHost, makeUniqueWithoutRefCountedCheck<MediaControlsHost>(*this));
 
             auto mediaJSWrapper = toJS(&lexicalGlobalObject, &globalObject, *this);
-            auto mediaControlsHostJSWrapper = toJS(&lexicalGlobalObject, &globalObject, *m_mediaControlsHost.copyRef());
+            auto mediaControlsHostJSWrapper = toJS(&lexicalGlobalObject, &globalObject, *m_mediaControlsHost);
 
             JSC::MarkedArgumentBuffer argList;
             argList.append(toJS(&lexicalGlobalObject, &globalObject, Ref { ensureUserAgentShadowRoot() }));
