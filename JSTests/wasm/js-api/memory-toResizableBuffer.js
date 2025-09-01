@@ -111,5 +111,6 @@ function assertSharedGrowableBufferOfPageSize(pageCount, buffer, maxPageCount) {
 {
     let memory = new WebAssembly.Memory({ initial: 0 });
     let buffer = memory.toResizableBuffer();
-    assertEq(buffer.maxByteLength, pageSize * 65536);
+    const expectedPageCount = is32BitPlatform() ? 32767 : 65536;
+    assertEq(buffer.maxByteLength, pageSize * expectedPageCount);
 }

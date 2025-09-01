@@ -91,8 +91,9 @@ void JSWebAssemblyMemory::associateArrayBuffer(JSGlobalObject* globalObject, boo
             // If sizeof(size_t) == 8 we use the proper spec value because it's representable.
             constexpr size_t defaultMaxByteLengthIfMemoryHasNoMax = 65536ULL * 65536ULL;
 #else
-            // If sizeof(size_t) == 4, we say it's 2^16-1 pages which is not right but at least it still builds for ARMv7.
-            constexpr size_t defaultMaxByteLengthIfMemoryHasNoMax = static_cast<size_t>(65535) * 65536;
+            // If sizeof(size_t) == 4, compute the largest page-aligned size that fits within MAX_ARRAY_BUFFER_SIZE.
+            uint32_t maxPages = MAX_ARRAY_BUFFER_SIZE / PageCount::pageSize;
+            const size_t defaultMaxByteLengthIfMemoryHasNoMax = static_cast<size_t>(PageCount(maxPages).bytes());
 #endif
             PageCount memoryMax = m_memory->maximum();
             size_t maxByteLength = memoryMax.isValid() ? memoryMax.bytes() : defaultMaxByteLengthIfMemoryHasNoMax;
