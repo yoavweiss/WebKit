@@ -70,7 +70,6 @@ class LayoutRoundedRect;
 class LayoutSize;
 class LayoutUnit;
 class LengthBox;
-class LineClampValue;
 class NinePieceImage;
 class OutlineValue;
 class PathOperation;
@@ -362,6 +361,7 @@ struct ViewTimelineInsets;
 struct ViewTimelines;
 struct ViewTransitionClasses;
 struct ViewTransitionName;
+struct WebkitLineClamp;
 struct WebkitLineGrid;
 struct WebkitTextStrokeWidth;
 struct Widows;
@@ -1144,7 +1144,7 @@ public:
     inline PageSizeType pageSizeType() const;
 
     inline OptionSet<Style::LineBoxContain> lineBoxContain() const;
-    inline const LineClampValue& lineClamp() const;
+    inline const Style::WebkitLineClamp& lineClamp() const;
     inline const Style::BlockEllipsis& blockEllipsis() const;
     inline Style::MaximumLines maxLines() const;
     inline OverflowContinue overflowContinue() const;
@@ -1677,8 +1677,8 @@ public:
     inline void resetPageSizeType();
 
     inline void setLineBoxContain(OptionSet<Style::LineBoxContain>);
-    inline void setLineClamp(LineClampValue);
-    
+    inline void setLineClamp(Style::WebkitLineClamp&&);
+
     inline void setMaxLines(Style::MaximumLines);
     inline void setOverflowContinue(OverflowContinue);
     inline void setBlockEllipsis(Style::BlockEllipsis&&);
@@ -2213,7 +2213,7 @@ public:
     static constexpr LineAlign initialLineAlign();
 
     static constexpr FloatSize initialInitialLetter();
-    static constexpr LineClampValue initialLineClamp();
+    static constexpr Style::WebkitLineClamp initialLineClamp();
     static inline Style::BlockEllipsis initialBlockEllipsis();
     static OverflowContinue initialOverflowContinue();
     static constexpr Style::MaximumLines initialMaxLines();

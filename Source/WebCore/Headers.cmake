@@ -3104,7 +3104,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/FillLayer.h
     rendering/style/GridArea.h
     rendering/style/GridSpan.h
-    rendering/style/LineClampValue.h
     rendering/style/NameScope.h
     rendering/style/OutlineValue.h
     rendering/style/PositionArea.h
@@ -3278,6 +3277,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/multicol/StyleColumnWidth.h
 
     style/values/non-standard/StyleWebKitBorderSpacing.h
+    style/values/non-standard/StyleWebKitLineClamp.h
     style/values/non-standard/StyleWebKitOverflowScrolling.h
     style/values/non-standard/StyleWebKitTextStrokeWidth.h
     style/values/non-standard/StyleWebKitTouchCallout.h
