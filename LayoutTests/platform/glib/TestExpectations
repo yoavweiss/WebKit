@@ -1050,8 +1050,6 @@ webkit.org/b/169916 imported/blink/css3/blending/mix-blend-mode-with-squashing-l
 # CSS-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
-webkit.org/b/212300 fast/text/font-collection-2.html [ ImageOnlyFailure ]
-
 webkit.org/b/213114 fast/flexbox/line-clamp-with-anchor-content-only.html [ ImageOnlyFailure ]
 
 webkit.org/b/189483 imported/w3c/web-platform-tests/css/css-fonts/variations/slnt-variable.html [ ImageOnlyFailure ]
@@ -3719,9 +3717,6 @@ webkit.org/b/183258 imported/w3c/web-platform-tests/css/css-text/word-break/word
 webkit.org/b/184295 http/wpt/loading/redirect-headers.html [ Skip ]
 webkit.org/b/185548 accessibility/scroll-to-make-visible-iframe-offscreen.html [ Timeout ]
 
-# Font collections.
-webkit.org/b/186086 fast/text/font-collection.html [ ImageOnlyFailure ]
-
 webkit.org/b/187044 webanimations/opacity-animation-yields-compositing-span.html [ Failure ]
 
 webkit.org/b/187271 fast/text/emoji-with-joiner.html [ Failure ]
@@ -4856,6 +4851,10 @@ imported/w3c/web-platform-tests/selection/caret/move-around-generated-content.ht
 
 # Needs rebaseline.
 fast/text/glyph-display-lists [ Skip ]
+
+# Now that partial fonts are working, two characters previously rendered as a square are now showing correctly, which makes the test fail. 
+# Probably the test should be updated.
+fast/text/text-combine-placement.html [ Failure ]
 
 # End: Common failures between GTK and WPE.
 

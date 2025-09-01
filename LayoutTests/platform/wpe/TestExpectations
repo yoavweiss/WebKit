@@ -899,7 +899,6 @@ Bug(WPE) svg/zoom/page/zoom-zoom-coords.xhtml [ Failure ]
 
 svg/text/kerning.svg [ Pass ]
 svg/text/multichar-glyph.svg [ Pass ]
-svg/text/text-overflow-ellipsis-svgfont-kerning-ligatures.html [ Pass ]
 
 webkit.org/b/188433 svg/custom/href-svg-namespace-static.svg [ ImageOnlyFailure ]
 
