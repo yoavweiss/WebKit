@@ -72,7 +72,7 @@ TextBoxPainter::TextBoxPainter(const LayoutIntegration::InlineContent& inlineCon
     , m_selectableRange(m_textBox.selectableRange())
     , m_paintOffset(paintOffset)
     , m_paintRect(computePaintRect(paintOffset))
-    , m_isFirstLine(m_textBox.isFirstLine())
+    , m_isFirstLine(m_textBox.isFirstFormattedLine())
     , m_isCombinedText([&] {
         auto* combineTextRenderer = dynamicDowncast<RenderCombineText>(m_renderer);
         return combineTextRenderer && combineTextRenderer->isCombined();

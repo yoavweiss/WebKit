@@ -79,6 +79,8 @@ private:
 
     bool isLineFullyTruncatedInBlockDirection() const { return m_lineIsFullyTruncatedInBlockDirection; }
 
+    bool isFirstFormattedLine() const { return lineBox().isFirstFormattedLine(); }
+
     const LineBox& lineBox() const { return m_lineBox; }
     size_t lineIndex() const { return lineBox().lineIndex(); }
     const ConstraintsForInlineContent& constraints() const { return m_constraints; }

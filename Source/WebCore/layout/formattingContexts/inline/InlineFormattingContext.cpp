@@ -306,6 +306,8 @@ InlineLayoutResult InlineFormattingContext::lineLayout(AbstractLineBuilder& line
     auto previousLineEnd = std::optional<InlineItemPosition> { };
     auto leadingInlineItemPosition = needsLayoutRange.start;
     auto partialLayoutStartIndex = previousLine ? std::make_optional(previousLine->lineIndex) : std::nullopt;
+    auto isFirstFormattedLineCandidate = true;
+    auto hasEverSeenInlineContent = false;
     size_t numberOfContentfulLines = partialLayoutStartIndex ? *partialLayoutStartIndex + 1 : 0lu;
     while (true) {
 
@@ -313,7 +315,7 @@ InlineLayoutResult InlineFormattingContext::lineLayout(AbstractLineBuilder& line
         auto lineInput = LineInput { { leadingInlineItemPosition, needsLayoutRange.end }, lineInitialRect };
         auto lineIndex = previousLine ? (previousLine->lineIndex + 1) : 0lu;
 
-        auto lineLayoutResult = lineBuilder.layoutInlineContent(lineInput, previousLine);
+        auto lineLayoutResult = lineBuilder.layoutInlineContent(lineInput, previousLine, isFirstFormattedLineCandidate);
         auto lineBox = LineBoxBuilder { *this, lineLayoutResult }.build(lineIndex);
         auto lineLogicalRect = createDisplayContentForInlineContent(lineBox, lineLayoutResult, constraints, layoutResult.displayContent, numberOfContentfulLines);
         updateBoxGeometryForPlacedFloats(lineLayoutResult.floatContent.placedFloats);
@@ -340,9 +342,10 @@ InlineLayoutResult InlineFormattingContext::lineLayout(AbstractLineBuilder& line
         }
 
         auto lineHasInlineContent = !lineLayoutResult.inlineContent.isEmpty();
-        auto hasEverSeenInlineContent = lineHasInlineContent || (previousLine && previousLine->hasInlineContent);
+        hasEverSeenInlineContent = hasEverSeenInlineContent || lineHasInlineContent;
         previousLine = PreviousLine { lineIndex, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineHasInlineContent && lineLayoutResult.inlineContent.last().isLineBreak(), hasEverSeenInlineContent, lineLayoutResult.directionality.inlineBaseDirection, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
         previousLineEnd = lineContentEnd;
+        isFirstFormattedLineCandidate = !hasEverSeenInlineContent;
         lineLogicalTop = formattingUtils().logicalTopForNextLine(lineLayoutResult, lineLogicalRect, floatingContext);
     }
     InlineDisplayLineBuilder::addLegacyLineClampTrailingLinkBoxIfApplicable(*this, layoutState(), layoutResult.displayContent);

@@ -77,12 +77,7 @@ struct LineLayoutResult {
     Directionality directionality { };
 
     struct IsFirstLast {
-        enum class FirstFormattedLine : uint8_t {
-            No,
-            WithinIFC,
-            WithinBFC
-        };
-        FirstFormattedLine isFirstFormattedLine { FirstFormattedLine::WithinIFC };
+        bool isFirstFormattedLine { true };
         bool isLastLineWithInlineContent { true };
     };
     IsFirstLast isFirstLast { };

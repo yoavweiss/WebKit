@@ -158,12 +158,12 @@ void InlineDisplayContentBuilder::appendTextDisplayBox(const Line::Run& lineRun,
     ASSERT(lineRun.textContent() && is<InlineTextBox>(lineRun.layoutBox()));
 
     auto& inlineTextBox = downcast<InlineTextBox>(lineRun.layoutBox());
-    auto& style = !lineIndex() ? inlineTextBox.firstLineStyle() : inlineTextBox.style();
+    auto& style = isFirstFormattedLine() ? inlineTextBox.firstLineStyle() : inlineTextBox.style();
     auto& content = inlineTextBox.content();
     auto& text = lineRun.textContent();
     auto isContentful = true;
 
-    m_hasSeenTextDecoration = m_hasSeenTextDecoration || (!lineIndex() ? inlineTextBox.parent().firstLineStyle().textDecorationLineInEffect() : inlineTextBox.parent().style().textDecorationLineInEffect());
+    m_hasSeenTextDecoration = m_hasSeenTextDecoration || (isFirstFormattedLine() ? inlineTextBox.parent().firstLineStyle().textDecorationLineInEffect() : inlineTextBox.parent().style().textDecorationLineInEffect());
 
     auto inkOverflow = [&] {
         auto inkOverflow = textRunRect;
@@ -223,6 +223,7 @@ void InlineDisplayContentBuilder::appendTextDisplayBox(const Line::Run& lineRun,
             , lineRun.bidiLevel()
             , textRunRect
             , inkOverflow
+            , isFirstFormattedLine()
             , lineRun.expansion()
             , InlineDisplay::Box::Text { text->start, 1, objectReplacementCharacterString, content }
             , isContentful
@@ -240,6 +241,7 @@ void InlineDisplayContentBuilder::appendTextDisplayBox(const Line::Run& lineRun,
         , lineRun.bidiLevel()
         , textRunRect
         , inkOverflow
+        , isFirstFormattedLine()
         , lineRun.expansion()
         , InlineDisplay::Box::Text { text->start, text->length, content, adjustedContentToRender(), text->needsHyphen }
         , isContentful
@@ -261,6 +263,7 @@ void InlineDisplayContentBuilder::appendSoftLineBreakDisplayBox(const Line::Run&
         , lineRun.bidiLevel()
         , softLineBreakRunRect
         , softLineBreakRunRect
+        , isFirstFormattedLine()
         , lineRun.expansion()
         , InlineDisplay::Box::Text { text->start, text->length, downcast<InlineTextBox>(layoutBox).content() }
         , isContentful
@@ -277,6 +280,7 @@ void InlineDisplayContentBuilder::appendHardLineBreakDisplayBox(const Line::Run&
         , lineRun.bidiLevel()
         , lineBreakBoxRect
         , lineBreakBoxRect
+        , isFirstFormattedLine()
         , lineRun.expansion()
         , { }
         , isContentful
@@ -292,7 +296,7 @@ void InlineDisplayContentBuilder::appendAtomicInlineLevelDisplayBox(const Line::
     auto isContentful = true;
     auto inkOverflow = [&] {
         auto inkOverflow = FloatRect { borderBoxRect };
-        auto& style = !lineIndex() ? layoutBox.firstLineStyle() : layoutBox.style();
+        auto& style = isFirstFormattedLine() ? layoutBox.firstLineStyle() : layoutBox.style();
         computeInkOverflowForInlineLevelBox(style, inkOverflow);
         // Atomic inline box contribute to their inline box parents ink overflow at all times (e.g. <span><img></span>).
         m_contentHasInkOverflow = m_contentHasInkOverflow || &layoutBox.parent() != &root();
@@ -305,6 +309,7 @@ void InlineDisplayContentBuilder::appendAtomicInlineLevelDisplayBox(const Line::
         , lineRun.bidiLevel()
         , borderBoxRect
         , inkOverflow()
+        , isFirstFormattedLine()
         , lineRun.expansion()
         , { }
         , isContentful
@@ -320,6 +325,7 @@ void InlineDisplayContentBuilder::appendRootInlineBoxDisplayBox(const InlineRect
         , UBIDI_DEFAULT_LTR
         , rootInlineBoxVisualRect
         , rootInlineBoxVisualRect
+        , isFirstFormattedLine()
         , { }
         , { }
         , lineHasContent
@@ -327,12 +333,12 @@ void InlineDisplayContentBuilder::appendRootInlineBoxDisplayBox(const InlineRect
     });
 }
 
-static inline bool isNestedInlineBoxWithDifferentFontCascadeFromParent(const Box& layoutBox, bool isFirstLine)
+static inline bool isNestedInlineBoxWithDifferentFontCascadeFromParent(const Box& layoutBox, bool isFirstFormattedLine)
 {
     if (!layoutBox.parent().isInlineBox())
         return false;
-    auto& style = isFirstLine ? layoutBox.firstLineStyle() : layoutBox.style();
-    auto& parentStyle = isFirstLine ? layoutBox.parent().firstLineStyle() : layoutBox.parent().style();
+    auto& style = isFirstFormattedLine ? layoutBox.firstLineStyle() : layoutBox.style();
+    auto& parentStyle = isFirstFormattedLine ? layoutBox.parent().firstLineStyle() : layoutBox.parent().style();
     return style.fontCascade() != parentStyle.fontCascade();
 }
 
@@ -344,10 +350,10 @@ void InlineDisplayContentBuilder::appendInlineBoxDisplayBox(const Line::Run& lin
 
     auto& layoutBox = lineRun.layoutBox();
     m_hasSeenRubyBase = m_hasSeenRubyBase || layoutBox.isRubyBase();
-    m_hasSeenNestedInlineBoxesWithDifferentFontCascade = m_hasSeenNestedInlineBoxesWithDifferentFontCascade || isNestedInlineBoxWithDifferentFontCascadeFromParent(layoutBox, !lineIndex());
+    m_hasSeenNestedInlineBoxesWithDifferentFontCascade = m_hasSeenNestedInlineBoxesWithDifferentFontCascade || isNestedInlineBoxWithDifferentFontCascadeFromParent(layoutBox, isFirstFormattedLine());
 
     auto inkOverflow = [&] {
-        auto& style = !lineIndex() ? layoutBox.firstLineStyle() : layoutBox.style();
+        auto& style = isFirstFormattedLine() ? layoutBox.firstLineStyle() : layoutBox.style();
         auto inkOverflow = FloatRect { inlineBoxBorderBox };
         m_contentHasInkOverflow = computeInkOverflowForInlineBox(inlineBox, style, inkOverflow) || m_contentHasInkOverflow;
         return inkOverflow;
@@ -359,6 +365,7 @@ void InlineDisplayContentBuilder::appendInlineBoxDisplayBox(const Line::Run& lin
         , lineRun.bidiLevel()
         , inlineBoxBorderBox
         , inkOverflow()
+        , isFirstFormattedLine()
         , { }
         , { }
         , inlineBox.hasContent()
@@ -378,6 +385,7 @@ void InlineDisplayContentBuilder::appendInlineDisplayBoxAtBidiBoundary(const Box
         , UBIDI_DEFAULT_LTR
         , { }
         , { }
+        , isFirstFormattedLine()
         , { }
         , { }
         , isContentful
@@ -393,6 +401,7 @@ void InlineDisplayContentBuilder::insertRubyAnnotationBox(const Box& annotationB
         , UBIDI_DEFAULT_LTR
         , borderBoxRect
         , borderBoxRect
+        , isFirstFormattedLine()
         , { }
         , { }
         , true
@@ -685,7 +694,7 @@ void InlineDisplayContentBuilder::adjustVisualGeometryForDisplayBox(size_t displ
     ASSERT(inlineBox);
     auto computeInkOverflow = [&] {
         auto inkOverflow = FloatRect { displayBox.visualRectIgnoringBlockDirection() };
-        m_contentHasInkOverflow = computeInkOverflowForInlineBox(*inlineBox, !lineIndex() ? layoutBox.firstLineStyle() : layoutBox.style(), inkOverflow) || m_contentHasInkOverflow;
+        m_contentHasInkOverflow = computeInkOverflowForInlineBox(*inlineBox, isFirstFormattedLine() ? layoutBox.firstLineStyle() : layoutBox.style(), inkOverflow) || m_contentHasInkOverflow;
         displayBox.adjustInkOverflow(inkOverflow);
     };
     computeInkOverflow();
