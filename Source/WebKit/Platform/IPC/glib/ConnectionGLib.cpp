@@ -241,7 +241,7 @@ void Connection::readyReadHandler()
         if (!receiveIncomingHardwareBuffers())
             return;
 
-        if (auto decoder = createMessageDecoder()
+        if (auto decoder = createMessageDecoder())
             processIncomingMessage(makeUniqueRefFromNonNullUniquePtr(WTFMove(decoder)));
     }
 #endif
