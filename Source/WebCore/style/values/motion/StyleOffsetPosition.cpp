@@ -30,6 +30,7 @@
 #include "StyleBuilderChecking.h"
 #include "StyleLengthWrapper+Blending.h"
 #include "StylePrimitiveNumericTypes+Blending.h"
+#include "StylePrimitiveNumericTypes+Logging.h"
 #include <WebCore/StylePosition.h>
 #include <wtf/text/TextStream.h>
 

@@ -466,11 +466,7 @@ void Adjuster::adjustFromBuilder(RenderStyle& style)
     } else if (style.position() != PositionType::Static)
         style.setUsedZIndex(style.specifiedZIndex());
 
-    // Cull out any useless layers and also repeat patterns into additional layers.
-    style.adjustBackgroundLayers();
-    style.adjustMaskLayers();
-
-    // Do the same for animations and transitions.
+    // Cull out any useless animations and transitions.
     style.adjustAnimations();
     style.adjustTransitions();
 

@@ -861,7 +861,6 @@ rendering/RenderTextControlSingleLine.h
 rendering/RenderTextFragment.cpp
 rendering/RenderTheme.cpp
 rendering/RenderTreeAsText.cpp
-rendering/RenderView.cpp
 rendering/RenderWidget.cpp
 rendering/TextBoxPainter.cpp
 rendering/mathml/MathOperator.cpp
@@ -874,10 +873,8 @@ rendering/mathml/RenderMathMLToken.cpp
 rendering/mathml/RenderMathMLUnderOver.cpp
 rendering/shapes/ShapeOutsideInfo.cpp
 rendering/shapes/ShapeOutsideInfo.h
-rendering/style/FillLayer.cpp
 rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleInlines.h
-rendering/style/RenderStyleSetters.h
 rendering/style/SVGRenderStyle.cpp
 rendering/style/SVGRenderStyle.h
 rendering/style/StyleCachedImage.cpp
@@ -966,6 +963,7 @@ style/Styleable.cpp
 style/Styleable.h
 style/TransformOperationsBuilder.cpp
 style/UserAgentStyle.cpp
+style/values/backgrounds/StyleFillLayers.h
 style/values/primitives/StyleLengthWrapperData.cpp
 style/values/transforms/StyleRotate.cpp
 style/values/transforms/StyleScale.cpp

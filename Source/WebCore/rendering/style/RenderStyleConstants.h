@@ -349,6 +349,17 @@ enum class FillBox : uint8_t {
     NoClip
 };
 
+constexpr inline FillBox clipMax(FillBox clipA, FillBox clipB)
+{
+    if (clipA == FillBox::BorderBox || clipB == FillBox::BorderBox)
+        return FillBox::BorderBox;
+    if (clipA == FillBox::PaddingBox || clipB == FillBox::PaddingBox)
+        return FillBox::PaddingBox;
+    if (clipA == FillBox::ContentBox || clipB == FillBox::ContentBox)
+        return FillBox::ContentBox;
+    return FillBox::NoClip;
+}
+
 enum class FillRepeat : uint8_t {
     Repeat,
     NoRepeat,

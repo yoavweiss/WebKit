@@ -127,18 +127,10 @@ public:
 
     // MARK: FillLayer serializations
 
-    static void serializeFillLayerAttachment(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FillAttachment);
-    static void serializeFillLayerBlendMode(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, BlendMode);
-    static void serializeFillLayerClip(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FillBox);
-    static void serializeFillLayerOrigin(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FillBox);
-    static void serializeFillLayerRepeat(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FillRepeatXY);
-    static void serializeFillLayerBackgroundSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FillSize);
-    static void serializeFillLayerMaskSize(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FillSize);
     static void serializeFillLayerMaskComposite(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, CompositeOperator);
     static void serializeFillLayerWebkitMaskComposite(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, CompositeOperator);
     static void serializeFillLayerMaskMode(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, MaskMode);
     static void serializeFillLayerWebkitMaskSourceType(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, MaskMode);
-    static void serializeFillLayerImage(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StyleImage*);
 
     // MARK: Font serializations
 
@@ -1381,92 +1373,6 @@ inline void ExtractorSerializer::serializePositionVisibility(ExtractorState& sta
 
 // MARK: - FillLayer serializations
 
-inline void ExtractorSerializer::serializeFillLayerAttachment(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, FillAttachment attachment)
-{
-    serialize(state, builder, context, attachment);
-}
-
-inline void ExtractorSerializer::serializeFillLayerBlendMode(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, BlendMode blendMode)
-{
-    serialize(state, builder, context, blendMode);
-}
-
-inline void ExtractorSerializer::serializeFillLayerClip(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, FillBox clip)
-{
-    serialize(state, builder, context, clip);
-}
-
-inline void ExtractorSerializer::serializeFillLayerOrigin(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, FillBox origin)
-{
-    serialize(state, builder, context, origin);
-}
-
-inline void ExtractorSerializer::serializeFillLayerRepeat(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, FillRepeatXY repeat)
-{
-    if (repeat.x == repeat.y) {
-        serialize(state, builder, context, repeat.x);
-        return;
-    }
-
-    if (repeat.x == FillRepeat::Repeat && repeat.y == FillRepeat::NoRepeat) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::RepeatX { });
-        return;
-    }
-
-    if (repeat.x == FillRepeat::NoRepeat && repeat.y == FillRepeat::Repeat) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::RepeatY { });
-        return;
-    }
-
-    serialize(state, builder, context, repeat.x);
-    builder.append(' ');
-    serialize(state, builder, context, repeat.y);
-}
-
-inline void ExtractorSerializer::serializeFillLayerBackgroundSize(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, FillSize size)
-{
-    if (size.type == FillSizeType::Contain) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Contain { });
-        return;
-    }
-
-    if (size.type == FillSizeType::Cover) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Cover { });
-        return;
-    }
-
-    if (size.size.height.isAuto() && size.size.width.isAuto()) {
-        serializeLength(state, builder, context, size.size.width);
-        return;
-    }
-
-    serializeLength(state, builder, context, size.size.width);
-    builder.append(' ');
-    serializeLength(state, builder, context, size.size.height);
-}
-
-inline void ExtractorSerializer::serializeFillLayerMaskSize(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, FillSize size)
-{
-    if (size.type == FillSizeType::Contain) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Contain { });
-        return;
-    }
-
-    if (size.type == FillSizeType::Cover) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::Cover { });
-        return;
-    }
-
-    if (size.size.height.isAuto()) {
-        serializeLength(state, builder, context, size.size.width);
-        return;
-    }
-
-    serializeLength(state, builder, context, size.size.width);
-    builder.append(' ');
-    serializeLength(state, builder, context, size.size.height);
-}
-
 inline void ExtractorSerializer::serializeFillLayerMaskComposite(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext&, CompositeOperator composite)
 {
     builder.append(nameLiteralForSerialization(toCSSValueID(composite, CSSPropertyMaskComposite)));
@@ -1508,11 +1414,6 @@ inline void ExtractorSerializer::serializeFillLayerWebkitMaskSourceType(Extracto
         return;
     }
     RELEASE_ASSERT_NOT_REACHED();
-}
-
-inline void ExtractorSerializer::serializeFillLayerImage(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const StyleImage* image)
-{
-    serializeImageOrNone(state, builder, context, image);
 }
 
 // MARK: - Font serializations

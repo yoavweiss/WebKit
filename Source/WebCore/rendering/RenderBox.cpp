@@ -263,7 +263,7 @@ void RenderBox::styleWillChange(StyleDifference diff, const RenderStyle& newStyl
         // the canvas. Issue full repaint, when our style changes substantially.
         if (diff >= StyleDifference::Repaint && (isDocumentElementRenderer() || isBody())) {
             view().repaintRootContents();
-            if (oldStyle->hasEntirelyFixedBackground() != newStyle.hasEntirelyFixedBackground())
+            if (oldStyle->backgroundLayers().hasEntirelyFixedBackground() != newStyle.backgroundLayers().hasEntirelyFixedBackground())
                 view().compositor().rootLayerConfigurationChanged();
         }
         
@@ -1811,12 +1811,12 @@ bool RenderBox::getBackgroundPaintedExtent(const LayoutPoint& paintOffset, Layou
     }
 
     auto& layers = style().backgroundLayers();
-    if (!layers.image() || layers.next()) {
+    if (!layers.first().hasImage() || layers.size() > 1) {
         paintedExtent =  backgroundRect;
         return true;
     }
 
-    auto geometry = BackgroundPainter::calculateBackgroundImageGeometry(*this, nullptr, layers, paintOffset, backgroundRect);
+    auto geometry = BackgroundPainter::calculateFillLayerImageGeometry(*this, nullptr, layers.first(), paintOffset, backgroundRect);
     paintedExtent = geometry.destinationRect;
     return !geometry.hasNonLocalGeometry;
 }
@@ -1846,10 +1846,10 @@ bool RenderBox::backgroundIsKnownToBeOpaqueInRect(const LayoutRect& localRect) c
         return false;
     
     // FIXME: The background color clip is defined by the last layer.
-    if (style().backgroundLayers().next())
+    if (style().backgroundLayers().size() > 1)
         return false;
     LayoutRect backgroundRect;
-    switch (style().backgroundClip()) {
+    switch (style().backgroundLayers().first().clip()) {
     case FillBox::BorderBox:
         backgroundRect = borderBoxRect();
         break;
@@ -1944,19 +1944,19 @@ bool RenderBox::computeBackgroundIsKnownToBeObscured(const LayoutPoint& paintOff
 
 bool RenderBox::backgroundHasOpaqueTopLayer() const
 {
-    auto& fillLayer = style().backgroundLayers();
-    if (fillLayer.clip() != FillBox::BorderBox)
+    auto& topLayer = style().backgroundLayers().first();
+    if (topLayer.clip() != FillBox::BorderBox)
         return false;
 
     // Clipped with local scrolling
-    if (hasNonVisibleOverflow() && fillLayer.attachment() == FillAttachment::LocalBackground)
+    if (hasNonVisibleOverflow() && topLayer.attachment() == FillAttachment::LocalBackground)
         return false;
 
-    if (fillLayer.hasOpaqueImage(*this) && fillLayer.hasRepeatXY() && fillLayer.image()->canRender(this, style().usedZoom()))
+    if (topLayer.hasOpaqueImage(*this) && topLayer.hasRepeatXY() && topLayer.image().tryStyleImage()->canRender(this, style().usedZoom()))
         return true;
 
     // If there is only one layer and no image, check whether the background color is opaque.
-    if (!fillLayer.next() && !fillLayer.hasImage()) {
+    if (style().backgroundLayers().size() == 1 && !topLayer.hasImage()) {
         Color bgColor = style().visitedDependentColorWithColorFilter(CSSPropertyBackgroundColor);
         if (bgColor.isOpaque())
             return true;
@@ -2036,20 +2036,20 @@ LayoutRect RenderBox::maskClipRect(const LayoutPoint& paintOffset)
     
     LayoutRect result;
     LayoutRect borderBox = borderBoxRect();
-    for (auto* maskLayer = &style().maskLayers(); maskLayer; maskLayer = maskLayer->next()) {
-        if (maskLayer->image()) {
+    for (auto& maskLayer : style().maskLayers()) {
+        if (maskLayer.hasImage()) {
             // Masks should never have fixed attachment, so it's OK for paintContainer to be null.
-            result.unite(BackgroundPainter::calculateBackgroundImageGeometry(*this, nullptr, *maskLayer, paintOffset, borderBox).destinationRect);
+            result.unite(BackgroundPainter::calculateFillLayerImageGeometry(*this, nullptr, maskLayer, paintOffset, borderBox).destinationRect);
         }
     }
     return result;
 }
 
-static StyleImage* findLayerUsedImage(WrappedImagePtr image, const FillLayer& layers)
+static RefPtr<StyleImage> findLayerUsedImage(WrappedImagePtr image, const auto& layers)
 {
-    for (auto* layer = &layers; layer; layer = layer->next()) {
-        if (layer->image() && image == layer->image()->data())
-            return layer->image();
+    for (auto& layer : layers) {
+        if (RefPtr layerImage = layer.image().tryStyleImage(); layerImage && layerImage->data() == image)
+            return layerImage;
     }
     return nullptr;
 }
@@ -2098,8 +2098,8 @@ void RenderBox::imageChanged(WrappedImagePtr image, const IntRect*)
     if (layer()->hasCompositedMask() && findLayerUsedImage(image, style().maskLayers()))
         layer()->contentChanged(ContentChangeType::MaskImage);
     
-    if (auto* styleImage = findLayerUsedImage(image, style().backgroundLayers())) {
-        layer()->contentChanged(ContentChangeType::BackgroundIImage);
+    if (RefPtr styleImage = findLayerUsedImage(image, style().backgroundLayers())) {
+        layer()->contentChanged(ContentChangeType::BackgroundImage);
         incrementVisuallyNonEmptyPixelCountIfNeeded(flooredIntSize(styleImage->imageSize(this, style().usedZoom())));
     }
 }
@@ -2113,13 +2113,14 @@ void RenderBox::incrementVisuallyNonEmptyPixelCountIfNeeded(const IntSize& size)
     setDidContibuteToVisuallyNonEmptyPixelCount();
 }
 
-bool RenderBox::repaintLayerRectsForImage(WrappedImagePtr image, const FillLayer& layers, bool drawingBackground)
+template<typename Layers>
+bool RenderBox::repaintLayerRectsForImage(WrappedImagePtr image, const Layers& layers, bool drawingBackground)
 {
     LayoutRect rendererRect;
     RenderBox* layerRenderer = nullptr;
 
-    for (auto* layer = &layers; layer; layer = layer->next()) {
-        if (layer->image() && image == layer->image()->data() && (layer->image()->isLoaded(this) || layer->image()->canRender(this, style().usedZoom()))) {
+    for (auto& layer : layers) {
+        if (RefPtr layerImage = layer.image().tryStyleImage(); layerImage && layerImage->data() == image && (layerImage->isLoaded(this) || layerImage->canRender(this, style().usedZoom()))) {
             // Now that we know this image is being used, compute the renderer and the rect if we haven't already.
             bool drawingRootBackground = drawingBackground && (isDocumentElementRenderer() || (isBody() && !document().documentElement()->renderer()->hasBackground()));
             if (!layerRenderer) {
@@ -2147,8 +2148,8 @@ bool RenderBox::repaintLayerRectsForImage(WrappedImagePtr image, const FillLayer
                     rendererRect = borderBoxRect();
                 }
             }
-            // FIXME: Figure out how to pass absolute position to calculateBackgroundImageGeometry (for pixel snapping)
-            auto geometry = BackgroundPainter::calculateBackgroundImageGeometry(*layerRenderer, nullptr, *layer, LayoutPoint(), rendererRect);
+            // FIXME: Figure out how to pass absolute position to calculateFillLayerImageGeometry (for pixel snapping)
+            auto geometry = BackgroundPainter::calculateFillLayerImageGeometry(*layerRenderer, nullptr, layer, LayoutPoint(), rendererRect);
             if (geometry.hasNonLocalGeometry) {
                 // Rather than incur the costs of computing the paintContainer for renderers with fixed backgrounds
                 // in order to get the right destRect, just repaint the entire renderer.

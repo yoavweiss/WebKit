@@ -128,7 +128,6 @@ css/CSSStyleProperties.cpp
 css/CSSStyleRule.cpp
 css/CSSStyleSheet.cpp
 css/CSSStyleSheetObservableArray.cpp
-css/CSSToStyleMap.cpp
 css/CSSValue.cpp
 css/CSSValueList.cpp
 css/CSSValueList.h
@@ -412,11 +411,9 @@ platform/text/BidiContext.cpp
 platform/text/BidiResolver.h
 plugins/PluginData.cpp
 plugins/PluginInfoProvider.cpp
-rendering/BackgroundPainter.cpp
 rendering/GlyphDisplayListCache.cpp
 rendering/HitTestResult.cpp
 rendering/ImageQualityController.cpp
-rendering/InlineBoxPainter.cpp
 rendering/MarkedText.cpp
 rendering/ReferencedSVGResources.cpp
 rendering/RenderAttachment.cpp
@@ -450,7 +447,6 @@ rendering/RenderWidget.cpp
 rendering/TextBoxPainter.cpp
 rendering/mac/RenderThemeMac.mm
 rendering/mathml/MathMLStyle.cpp
-rendering/style/FillLayer.cpp
 rendering/style/RenderStyle.cpp
 rendering/style/RenderStyleSetters.h
 rendering/style/StyleCachedImage.cpp

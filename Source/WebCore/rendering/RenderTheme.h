@@ -39,7 +39,6 @@ struct AttachmentLayout;
 class BorderData;
 class Element;
 class FileList;
-class FillLayer;
 class HTMLInputElement;
 class HTMLMeterElement;
 class Icon;

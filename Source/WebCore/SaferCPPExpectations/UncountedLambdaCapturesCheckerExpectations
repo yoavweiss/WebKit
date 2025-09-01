@@ -96,6 +96,7 @@ rendering/updating/RenderTreeUpdater.cpp
 style/StyleCustomProperty.cpp
 style/Styleable.cpp
 style/values/StyleValueTypes.h
+style/values/backgrounds/StyleFillLayers.h
 style/values/images/StyleGradient.cpp
 testing/MockMediaSessionCoordinator.cpp
 workers/Worker.cpp

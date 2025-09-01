@@ -4177,10 +4177,10 @@ LocalFrameView::ExtendedBackgroundMode LocalFrameView::calculateExtendedBackgrou
         return ExtendedBackgroundModeNone;
 
     ExtendedBackgroundMode mode = ExtendedBackgroundModeNone;
-    auto backgroundRepeat = rootBackgroundRenderer->style().backgroundRepeat();
-    if (backgroundRepeat.x == FillRepeat::Repeat)
+    auto backgroundRepeat = rootBackgroundRenderer->style().backgroundLayers().first().repeat();
+    if (backgroundRepeat.x() == FillRepeat::Repeat)
         mode |= ExtendedBackgroundModeHorizontal;
-    if (backgroundRepeat.y == FillRepeat::Repeat)
+    if (backgroundRepeat.y() == FillRepeat::Repeat)
         mode |= ExtendedBackgroundModeVertical;
 
     return mode;

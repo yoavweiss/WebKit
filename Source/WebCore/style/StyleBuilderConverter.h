@@ -216,6 +216,8 @@ public:
 
     static FixedVector<PositionTryFallback> convertPositionTryFallbacks(BuilderState&, const CSSValue&);
 
+    static MaskMode convertFillLayerMaskMode(BuilderState&, const CSSValue&);
+
 private:
     friend class BuilderCustom;
 
@@ -1792,6 +1794,23 @@ inline FixedVector<PositionTryFallback> BuilderConverter::convertPositionTryFall
         auto fallback = convertFallback(item);
         return fallback ? *fallback : PositionTryFallback { };
     });
+}
+
+inline MaskMode BuilderConverter::convertFillLayerMaskMode(BuilderState& builderState, const CSSValue& value)
+{
+    switch (value.valueID()) {
+    case CSSValueAlpha:
+        return MaskMode::Alpha;
+    case CSSValueLuminance:
+        return MaskMode::Luminance;
+    case CSSValueMatchSource:
+        return MaskMode::MatchSource;
+    case CSSValueAuto: // -webkit-mask-source-type
+        return MaskMode::MatchSource;
+    default:
+        builderState.setCurrentPropertyInvalidAtComputedValueTime();
+        return MaskMode::MatchSource;
+    }
 }
 
 } // namespace Style

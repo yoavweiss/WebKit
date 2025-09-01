@@ -784,7 +784,7 @@ bool RenderImage::foregroundIsKnownToBeOpaqueInRect(const LayoutRect& localRect,
         return false;
     if (!contentBoxRect().contains(localRect))
         return false;
-    auto backgroundClip = style().backgroundClip();
+    auto backgroundClip = style().backgroundLayers().first().clip();
     // Background paints under borders.
     if (backgroundClip == FillBox::BorderBox && style().hasBorder() && !borderObscuresBackground())
         return false;

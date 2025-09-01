@@ -659,7 +659,7 @@ bool RenderStyle::isIdempotentTextAutosizingCandidate(AutosizeStatus status) con
         return false;
     }
 
-    if (hasBackgroundImage() && backgroundRepeat() == FillRepeatXY { FillRepeat::NoRepeat, FillRepeat::NoRepeat })
+    if (hasBackgroundImage() && backgroundLayers().first().repeat() == FillRepeat::NoRepeat)
         return false;
 
     return true;
@@ -2404,24 +2404,6 @@ void RenderStyle::setColor(Color&& v)
 void RenderStyle::setVisitedLinkColor(Color&& v)
 {
     SET_VAR(m_inheritedData, visitedLinkColor, WTFMove(v));
-}
-
-bool RenderStyle::hasEntirelyFixedBackground() const
-{
-    for (auto* layer = &backgroundLayers(); layer; layer = layer->next()) {
-        if (!(layer->image() && layer->attachment() == FillAttachment::FixedBackground))
-            return false;
-    }
-    return true;
-}
-
-bool RenderStyle::hasAnyBackgroundClipText() const
-{
-    for (auto* layer = &backgroundLayers(); layer; layer = layer->next()) {
-        if (layer->clip() == FillBox::Text)
-            return true;
-    }
-    return false;
 }
 
 const CounterDirectiveMap& RenderStyle::counterDirectives() const
