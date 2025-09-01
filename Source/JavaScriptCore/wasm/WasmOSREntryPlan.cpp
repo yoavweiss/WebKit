@@ -163,7 +163,7 @@ void OSREntryPlan::work()
                 entrypoint = wasmCallee->entrypoint().retagged<WasmEntryPtrTag>();
             }
 
-            MacroAssembler::repatchNearCall(call.callLocation, CodeLocationLabel<WasmEntryPtrTag>(entrypoint));
+            MacroAssembler::repatchNearCall<jitMemcpyRepatchAtomic>(call.callLocation, CodeLocationLabel<WasmEntryPtrTag>(entrypoint));
         }
 
         resetInstructionCacheOnAllThreads();

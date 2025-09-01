@@ -198,9 +198,7 @@ void OMGPlan::work()
                 entrypoint = calleeCallee->entrypoint().retagged<WasmEntryPtrTag>();
             }
 
-            // FIXME: This does an icache flush for each of these... which doesn't make any sense since this code isn't runnable here
-            // and any stale cache will be evicted when updateCallsitesToCallUs is called.
-            MacroAssembler::repatchNearCall(call.callLocation, CodeLocationLabel<WasmEntryPtrTag>(entrypoint));
+            MacroAssembler::repatchNearCall<jitMemcpyRepatchAtomic>(call.callLocation, CodeLocationLabel<WasmEntryPtrTag>(entrypoint));
         }
 
         m_calleeGroup->updateCallsitesToCallUs(locker, CodeLocationLabel<WasmEntryPtrTag>(entrypoint), m_functionIndex);

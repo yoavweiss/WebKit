@@ -2346,7 +2346,7 @@ public:
     template<RepatchingInfo repatch>
     ALWAYS_INLINE static void fillNops(void* base, size_t size)
     {
-        static_assert(!(*repatch).contains(RepatchingFlag::Flush));
+        static_assert(!repatch->contains(RepatchingFlag::Flush));
         RELEASE_ASSERT(!(size % sizeof(int32_t)));
         size_t n = size / sizeof(int32_t);
         int32_t* ptr = static_cast<int32_t*>(base);
@@ -2360,7 +2360,7 @@ public:
     template<RepatchingInfo repatch>
     ALWAYS_INLINE static void fillNearTailCall(void* from, void* to)
     {
-        static_assert((*repatch).contains(RepatchingFlag::Flush));
+        static_assert(repatch->contains(RepatchingFlag::Flush));
         RELEASE_ASSERT(roundUpToMultipleOf<instructionSize>(from) == from);
         intptr_t offset = (std::bit_cast<intptr_t>(to) - std::bit_cast<intptr_t>(from)) >> 2;
         ASSERT(static_cast<int>(offset) == offset);
@@ -3587,13 +3587,13 @@ public:
     static void linkJump(void* code, AssemblerLabel from, void* to)
     {
         ASSERT(from.isSet());
-        relinkJumpOrCall<BranchType_JMP>(addressOf(code, from), addressOf(code, from), to);
+        relinkJumpOrCall<BranchType_JMP, jitMemcpyRepatch>(addressOf(code, from), addressOf(code, from), to);
     }
 
     static void linkCall(void* code, AssemblerLabel from, void* to)
     {
         ASSERT(from.isSet());
-        linkJumpOrCall<BranchType_CALL>(addressOf(code, from) - 1, addressOf(code, from) - 1, to);
+        linkJumpOrCall<BranchType_CALL, jitMemcpyRepatch>(addressOf(code, from) - 1, addressOf(code, from) - 1, to);
     }
 
     static void linkPointer(void* code, AssemblerLabel where, void* valuePtr)
@@ -3629,9 +3629,11 @@ public:
         cacheFlush(where, sizeof(int));
     }
 
+    template<RepatchingInfo repatch>
     static void replaceWithNops(void* where, size_t memoryToFillWithNopsInBytes)
     {
-        fillNops<jitMemcpyRepatch>(where, memoryToFillWithNopsInBytes);
+        static_assert(repatch->contains(RepatchingFlag::Flush));
+        fillNops<noFlush(repatch)>(where, memoryToFillWithNopsInBytes);
         cacheFlush(where, memoryToFillWithNopsInBytes);
     }
 
@@ -3664,7 +3666,7 @@ public:
         RELEASE_ASSERT(roundUpToMultipleOf<instructionSize>(address) == address);
         performJITMemcpy<noFlush(repatch)>(address, buffer, sizeof(int) * NUMBER_OF_ADDRESS_ENCODING_INSTRUCTIONS);
 
-        if constexpr ((*repatch).contains(RepatchingFlag::Flush))
+        if constexpr (repatch->contains(RepatchingFlag::Flush))
             cacheFlush(address, sizeof(int) * NUMBER_OF_ADDRESS_ENCODING_INSTRUCTIONS);
     }
 
@@ -3712,21 +3714,26 @@ public:
     // and jump patching as they're modifying existing (linked) code,
     // so the address being provided is correct for relative address
     // computation.
+    template <RepatchingInfo repatch>
     static void relinkJump(void* from, void* to)
     {
-        relinkJumpOrCall<BranchType_JMP>(reinterpret_cast<int*>(from), reinterpret_cast<const int*>(from), to);
-        cacheFlush(from, sizeof(int));
-    }
-    
-    static void relinkCall(void* from, void* to)
-    {
-        relinkJumpOrCall<BranchType_CALL>(reinterpret_cast<int*>(from) - 1, reinterpret_cast<const int*>(from) - 1, to);
-        cacheFlush(reinterpret_cast<int*>(from) - 1, sizeof(int));
+        relinkJumpOrCall<BranchType_JMP, noFlush(repatch)>(reinterpret_cast<int*>(from), reinterpret_cast<const int*>(from), to);
+        if constexpr(repatch->contains(RepatchingFlag::Flush))
+            cacheFlush(from, sizeof(int));
     }
 
+    template <RepatchingInfo repatch>
+    static void relinkCall(void* from, void* to)
+    {
+        relinkJumpOrCall<BranchType_CALL, noFlush(repatch)>(reinterpret_cast<int*>(from) - 1, reinterpret_cast<const int*>(from) - 1, to);
+        if constexpr(repatch->contains(RepatchingFlag::Flush))
+            cacheFlush(reinterpret_cast<int*>(from) - 1, sizeof(int));
+    }
+
+    template <RepatchingInfo repatch>
     static void relinkTailCall(void* from, void* to)
     {
-        relinkJump(from, to);
+        relinkJump<repatch>(from, to);
     }
 
 #if ENABLE(JUMP_ISLANDS)
@@ -3961,7 +3968,7 @@ protected:
         setPointer<repatch>(address, valuePtr, rd);
     }
 
-    template<BranchType type, RepatchingInfo repatch = jitMemcpyRepatch>
+    template<BranchType type, RepatchingInfo repatch>
     static void linkJumpOrCall(int* from, const int* fromInstruction, void* to)
     {
         static_assert(type == BranchType_JMP || type == BranchType_CALL);
@@ -3982,7 +3989,7 @@ protected:
 
 #if ENABLE(JUMP_ISLANDS)
         if (!isInt<26>(offset)) {
-            if constexpr (!(*repatch).contains(RepatchingFlag::Memcpy))
+            if constexpr (!repatch->contains(RepatchingFlag::Memcpy))
                 to = ExecutableAllocator::singleton().getJumpIslandToUsingJITMemcpy(std::bit_cast<void*>(fromInstruction), to);
             else
                 to = ExecutableAllocator::singleton().getJumpIslandToUsingMemcpy(std::bit_cast<void*>(fromInstruction), to);
@@ -3996,7 +4003,7 @@ protected:
         machineCodeCopy<repatch>(from, &insn, sizeof(int));
     }
 
-    template<BranchTargetType type, RepatchingInfo repatch = jitMemcpyRepatch>
+    template<BranchTargetType type, RepatchingInfo repatch>
     static void linkCompareAndBranch(Condition condition, bool is64Bit, RegisterID rt, int* from, const int* fromInstruction, void* to)
     {
         RELEASE_ASSERT(roundUpToMultipleOf<instructionSize>(from) == from);
@@ -4022,7 +4029,7 @@ protected:
         }
     }
 
-    template<BranchTargetType type, RepatchingInfo repatch = jitMemcpyRepatch>
+    template<BranchTargetType type, RepatchingInfo repatch>
     static void linkConditionalBranch(Condition condition, int* from, const int* fromInstruction, void* to)
     {
         RELEASE_ASSERT(roundUpToMultipleOf<instructionSize>(from) == from);
@@ -4048,7 +4055,7 @@ protected:
         }
     }
 
-    template<BranchTargetType type, RepatchingInfo repatch = jitMemcpyRepatch>
+    template<BranchTargetType type, RepatchingInfo repatch>
     static void linkTestAndBranch(Condition condition, unsigned bitNumber, RegisterID rt, int* from, const int* fromInstruction, void* to)
     {
         RELEASE_ASSERT(roundUpToMultipleOf<instructionSize>(from) == from);
@@ -4075,7 +4082,8 @@ protected:
         }
     }
 
-    template<BranchType type>
+    // This repatching flag is always jitMemcpyRepatch today, but is included to be consistent with other repatching methods.
+    template<BranchType type, RepatchingInfo repatch>
     static void relinkJumpOrCall(int* from, const int* fromInstruction, void* to)
     {
         static_assert(type == BranchType_JMP || type == BranchType_CALL);
@@ -4092,7 +4100,7 @@ protected:
                 if (imm19 == 8)
                     condition = invert(condition);
 
-                linkConditionalBranch<IndirectBranch>(condition, from - 1, fromInstruction - 1, to);
+                linkConditionalBranch<IndirectBranch, repatch>(condition, from - 1, fromInstruction - 1, to);
                 return;
             }
 
@@ -4105,7 +4113,7 @@ protected:
                 if (imm19 == 8)
                     op = !op;
 
-                linkCompareAndBranch<IndirectBranch>(op ? ConditionNE : ConditionEQ, opSize == Datasize_64, rt, from - 1, fromInstruction - 1, to);
+                linkCompareAndBranch<IndirectBranch, repatch>(op ? ConditionNE : ConditionEQ, opSize == Datasize_64, rt, from - 1, fromInstruction - 1, to);
                 return;
             }
 
@@ -4117,12 +4125,12 @@ protected:
                 if (imm14 == 8)
                     op = !op;
 
-                linkTestAndBranch<IndirectBranch>(op ? ConditionNE : ConditionEQ, bitNumber, rt, from - 1, fromInstruction - 1, to);
+                linkTestAndBranch<IndirectBranch, repatch>(op ? ConditionNE : ConditionEQ, bitNumber, rt, from - 1, fromInstruction - 1, to);
                 return;
             }
         }
 
-        linkJumpOrCall<type>(from, fromInstruction, to);
+        linkJumpOrCall<type, repatch>(from, fromInstruction, to);
     }
 
     static int* addressOf(void* code, AssemblerLabel label)

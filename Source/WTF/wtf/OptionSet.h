@@ -102,6 +102,8 @@ public:
     {
     }
 
+    constexpr const OptionSet<E>* operator->() const { return this; }
+
     constexpr StorageType toRaw() const { return m_storage; }
 
     constexpr bool isEmpty() const { return !m_storage; }
@@ -235,6 +237,7 @@ struct ConstexprOptionSet {
     }
 
     ALWAYS_INLINE constexpr OptionSet<E> operator*() const { return OptionSet<E>::fromRaw(storage); }
+    ALWAYS_INLINE constexpr OptionSet<E> operator->() const { return OptionSet<E>::fromRaw(storage); }
 
     const OptionSet<E>::StorageType storage;
 };
