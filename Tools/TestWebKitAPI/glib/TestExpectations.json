@@ -415,25 +415,6 @@
             }
         }
     },
-    "TestDisplayWayland": {
-        "subtests": {
-            "/wpe-platform/DisplayWayland/available-input-devices": {
-                "expected": {"wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/297780"}}
-            },
-            "/wpe-platform/DisplayWayland/connect": {
-                "expected": {"wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/297780"}}
-            },
-            "/wpe-platform/DisplayWayland/create-view": {
-                "expected": {"wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/297780"}}
-            },
-            "/wpe-platform/DisplayWayland/keymap": {
-                "expected": {"wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/297780"}}
-            },
-            "/wpe-platform/DisplayWayland/screens": {
-                "expected": {"wpe": {"status": ["FAIL", "PASS"], "bug": "webkit.org/b/297780"}}
-            }
-        }
-    },
     "TestDownloads": {
         "subtests": {
             "/webkit/Downloads/remote-file-error": {
