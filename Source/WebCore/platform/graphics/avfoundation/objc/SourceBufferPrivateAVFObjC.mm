@@ -98,7 +98,7 @@ static inline bool supportsAttachContentKey()
 
 static inline bool shouldAddContentKeyRecipients()
 {
-    return MediaSessionManagerCocoa::shouldUseModernAVContentKeySession() && !supportsAttachContentKey();
+    return !supportsAttachContentKey();
 }
 
 Ref<SourceBufferPrivateAVFObjC> SourceBufferPrivateAVFObjC::create(MediaSourcePrivateAVFObjC& parent, Ref<SourceBufferParser>&& parser)
@@ -314,10 +314,6 @@ void SourceBufferPrivateAVFObjC::didProvideContentKeyRequestInitializationDataFo
     mediaSource->sourceBufferKeyNeeded(this, initData);
 
     if (RefPtr session = player->cdmSession()) {
-        if (MediaSessionManagerCocoa::shouldUseModernAVContentKeySession()) {
-            // no-op.
-        } else if (auto parser = this->streamDataParser())
-            session->addParser(parser);
         if (hasSessionSemaphore)
             hasSessionSemaphore->signal();
         return;
@@ -344,10 +340,6 @@ void SourceBufferPrivateAVFObjC::didProvideContentKeyRequestInitializationDataFo
 
     if (RefPtr cdmInstance = m_cdmInstance) {
         if (RefPtr instanceSession = cdmInstance->sessionForKeyIDs(keyIDs.value())) {
-            if (MediaSessionManagerCocoa::shouldUseModernAVContentKeySession()) {
-                // no-op.
-            } else if (auto parser = this->streamDataParser())
-                [instanceSession->contentKeySession() addContentKeyRecipient:parser];
             if (m_hasSessionSemaphore) {
                 m_hasSessionSemaphore->signal();
                 m_hasSessionSemaphore = nullptr;
@@ -375,14 +367,11 @@ bool SourceBufferPrivateAVFObjC::needsVideoLayer() const
     if (!m_protectedTrackID)
         return false;
 
-    if (!isEnabledVideoTrackID(*m_protectedTrackID))
-        return false;
-
     // When video content is protected and keys are assigned through
     // the renderers, decoding content through decompression sessions
     // will fail. In this scenario, ask the player to create a layer
     // instead.
-    return MediaSessionManagerCocoa::shouldUseModernAVContentKeySession();
+    return !isEnabledVideoTrackID(*m_protectedTrackID);
 }
 
 Ref<MediaPromise> SourceBufferPrivateAVFObjC::appendInternal(Ref<SharedBuffer>&& data)
@@ -747,11 +736,6 @@ void SourceBufferPrivateAVFObjC::attemptToDecrypt()
         RefPtr instanceSession = cdmInstance->sessionForKeyIDs(m_keyIDs);
         if (!instanceSession)
             return;
-
-        if (!MediaSessionManagerCocoa::shouldUseModernAVContentKeySession()) {
-            if (auto parser = this->streamDataParser())
-                [instanceSession->contentKeySession() addContentKeyRecipient:parser];
-        }
     } else if (!m_session.get())
         return;
 
@@ -952,10 +936,6 @@ bool SourceBufferPrivateAVFObjC::canEnqueueSample(TrackID trackID, const MediaSa
     if (!sample.isProtected())
         return true;
 
-    // If sample buffers don't support modern AVContentKeySession: enqueue sample
-    if (!MediaSessionManagerCocoa::shouldUseModernAVContentKeySession())
-        return true;
-
     // if sample is encrypted, but we are not attached to a CDM: do not enqueue sample.
     if (!m_cdmInstance && !m_session.get())
         return false;
@@ -1121,7 +1101,7 @@ void SourceBufferPrivateAVFObjC::enqueueSampleBuffer(MediaSampleAVFObjC& sample,
 
 void SourceBufferPrivateAVFObjC::attachContentKeyToSampleIfNeeded(const MediaSampleAVFObjC& sample)
 {
-    if (!MediaSessionManagerCocoa::shouldUseModernAVContentKeySession() || !supportsAttachContentKey())
+    if (!supportsAttachContentKey())
         return;
 
     if (RefPtr cdmInstance = m_cdmInstance)

@@ -981,11 +981,6 @@ void MediaPlayerPrivateAVFoundationObjC::createAVAssetForURL(const URL& url, Ret
         [options setObject:nsTypes.get() forKey:AVURLAssetAllowableCaptionFormatsKey];
     }
 
-#if HAVE(AVCONTENTKEYREQUEST_COMPATABILITIY_MODE)
-    if (!MediaSessionManagerCocoa::shouldUseModernAVContentKeySession() && PAL::canLoad_AVFoundation_AVURLAssetShouldEnableLegacyWebKitCompatibilityModeForContentKeyRequests())
-        [options setObject:@YES forKey:AVURLAssetShouldEnableLegacyWebKitCompatibilityModeForContentKeyRequests];
-#endif
-
     RetainPtr nsURL = canonicalURL(url);
 
     @try {

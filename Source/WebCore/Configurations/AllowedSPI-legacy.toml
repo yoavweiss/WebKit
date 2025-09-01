@@ -298,7 +298,6 @@ selectors = [
     { name = "columnSpan", class = "?" },
     { name = "containsAttachments", class = "?" },
     { name = "contentDispositionEncodingFallbackArray", class = "?" },
-    { name = "contentKeySessionWithLegacyWebKitCompatibilityModeAndKeySystem:storageDirectoryAtURL:", class = "?" },
     { name = "coreResult", class = "?" },
     { name = "createFencePort", class = "?" },
     { name = "createPluginBindingsInstance:", class = "?" },

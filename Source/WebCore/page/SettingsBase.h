@@ -165,9 +165,6 @@ protected:
     void mockCaptureDevicesEnabledChanged();
 #endif
     void layerBasedSVGEngineEnabledChanged();
-#if USE(MODERN_AVCONTENTKEYSESSION)
-    void shouldUseModernAVContentKeySessionChanged();
-#endif
     void useSystemAppearanceChanged();
     void fontFallbackPrefersPictographsChanged();
     void updateDisplayEDRHeadroom();

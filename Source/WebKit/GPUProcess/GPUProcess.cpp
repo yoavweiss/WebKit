@@ -280,11 +280,6 @@ void GPUProcess::initializeGPUProcess(GPUProcessCreationParameters&& parameters,
 
 void GPUProcess::updateGPUProcessPreferences(GPUProcessPreferences&& preferences)
 {
-#if USE(MODERN_AVCONTENTKEYSESSION)
-    if (updatePreference(m_preferences.shouldUseModernAVContentKeySession, preferences.shouldUseModernAVContentKeySession))
-        MediaSessionManagerCocoa::setShouldUseModernAVContentKeySession(*m_preferences.shouldUseModernAVContentKeySession);
-#endif
-
 #if ENABLE(VP9)
     if (updatePreference(m_preferences.vp9DecoderEnabled, preferences.vp9DecoderEnabled)) {
         VP9TestingOverrides::singleton().setShouldEnableVP9Decoder(*m_preferences.vp9DecoderEnabled);

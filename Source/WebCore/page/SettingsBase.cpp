@@ -55,9 +55,6 @@
 #if ENABLE(MEDIA_STREAM)
 #include "MockRealtimeMediaSourceCenter.h"
 #endif
-#if USE(MODERN_AVCONTENTKEYSESSION)
-#include "MediaSessionManagerCocoa.h"
-#endif
 
 namespace WebCore {
 
@@ -524,14 +521,6 @@ void SettingsBase::resourceUsageOverlayVisibleChanged()
         m_page->setResourceUsageOverlayVisible(m_page->settings().resourceUsageOverlayVisible());
 #endif
 }
-
-#if USE(MODERN_AVCONTENTKEYSESSION)
-void SettingsBase::shouldUseModernAVContentKeySessionChanged()
-{
-    if (m_page)
-        MediaSessionManagerCocoa::setShouldUseModernAVContentKeySession(m_page->settings().shouldUseModernAVContentKeySession());
-}
-#endif
 
 void SettingsBase::useSystemAppearanceChanged()
 {

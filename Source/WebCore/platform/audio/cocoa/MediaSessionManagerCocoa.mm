@@ -77,17 +77,6 @@ MediaSessionManagerCocoa::MediaSessionManagerCocoa()
 {
 }
 
-static bool s_shouldUseModernAVContentKeySession;
-void MediaSessionManagerCocoa::setShouldUseModernAVContentKeySession(bool enabled)
-{
-    s_shouldUseModernAVContentKeySession = enabled;
-}
-
-bool MediaSessionManagerCocoa::shouldUseModernAVContentKeySession()
-{
-    return s_shouldUseModernAVContentKeySession;
-}
-
 void MediaSessionManagerCocoa::updateSessionState()
 {
     constexpr auto delayBeforeSettingCategoryNone = 2_s;
