@@ -146,7 +146,7 @@ InlineRect InlineFormattingUtils::flipVisualRectToLogicalForWritingMode(const In
     return visualRect;
 }
 
-InlineLayoutUnit InlineFormattingUtils::computedTextIndent(IsIntrinsicWidthMode isIntrinsicWidthMode, PreviousLineState previousLineState, InlineLayoutUnit availableWidth) const
+InlineLayoutUnit InlineFormattingUtils::computedTextIndent(IsIntrinsicWidthMode isIntrinsicWidthMode, std::optional<LineEndsWithLineBreak> previousLineEndsWithLineBreak, InlineLayoutUnit availableWidth) const
 {
     auto& root = formattingContext().root();
 
@@ -157,8 +157,7 @@ InlineLayoutUnit InlineFormattingUtils::computedTextIndent(IsIntrinsicWidthMode 
     // If 'each-line' is specified, indentation also applies to all lines where the previous line ends with a hard break.
     // [Integration] root()->parent() would normally produce a valid layout box.
     bool shouldIndent = false;
-    switch (previousLineState) {
-    case PreviousLineState::NoPreviousLine:
+    if (!previousLineEndsWithLineBreak) {
         shouldIndent = !root.isAnonymous();
         if (root.isAnonymous()) {
             if (!root.isInlineIntegrationRoot())
@@ -166,14 +165,8 @@ InlineLayoutUnit InlineFormattingUtils::computedTextIndent(IsIntrinsicWidthMode 
             else
                 shouldIndent = root.isFirstChildForIntegration();
         }
-        break;
-    case PreviousLineState::EndsWithLineBreak:
+    } else if (*previousLineEndsWithLineBreak == LineEndsWithLineBreak::Yes)
         shouldIndent = root.style().textIndent().eachLine.has_value();
-        break;
-    case PreviousLineState::DoesNotEndWithLineBreak:
-        shouldIndent = false;
-        break;
-    }
 
     // Specifying 'hanging' inverts whether the line should be indented or not.
     if (root.style().textIndent().hanging.has_value())
