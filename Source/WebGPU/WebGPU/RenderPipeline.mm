@@ -623,7 +623,7 @@ static bool matchesFormat(const ShaderModule::VertexStageIn& stageIn, uint32_t s
     return formatType(it->value) == formatType(format);
 }
 
-static MTLVertexDescriptor *createVertexDescriptor(WGPUVertexState vertexState, const WGPULimits& limits, const ShaderModule::VertexStageIn& stageIn, RenderPipeline::RequiredBufferIndicesContainer& requiredBufferIndices, NSString** error)
+static MTLVertexDescriptor *createVertexDescriptor(WGPUVertexState vertexState, const WGPULimits& limits, const ShaderModule::VertexStageIn& stageIn, RenderPipeline::RequiredBufferIndicesContainer& requiredBufferIndices, NSString** error, ShaderModule::VertexStageIn& outShaderLocations)
 {
     MTLVertexDescriptor *vertexDescriptor = [MTLVertexDescriptor new];
     Checked<uint32_t> totalAttributeCount = 0;
@@ -722,6 +722,11 @@ static MTLVertexDescriptor *createVertexDescriptor(WGPUVertexState vertexState, 
         *error = @"totalAttributeCount > limits.maxVertexAttributes";
         return nil;
     }
+#if !defined(NDEBUG) || (defined(ENABLE_LIBFUZZER) && ENABLE_LIBFUZZER && defined(ASAN_ENABLED) && ASAN_ENABLED)
+    outShaderLocations = shaderLocations;
+#else
+    UNUSED_PARAM(outShaderLocations);
+#endif
 
     return vertexDescriptor;
 }
@@ -1489,6 +1494,8 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
     const ShaderModule::VertexOutputs* vertexOutputs = nullptr;
     BufferBindingSizesForPipeline minimumBufferSizes;
     uint32_t vertexShaderBindingCount = 0;
+    String vertexShaderSource, fragmentShaderSource;
+    ShaderModule::VertexStageIn shaderLocations;
     {
         if (descriptor.vertex.nextInChain)
             return returnInvalidRenderPipeline(*this, isAsync, "Vertex module has an invalid chain"_s);
@@ -1504,7 +1511,7 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
         if (NSString* error = errorValidatingVertexStageIn(vertexStageIn, *this))
             return returnInvalidRenderPipeline(*this, isAsync, error);
         NSError *error = nil;
-        auto libraryCreationResult = createLibrary(m_device, vertexModule, pipelineLayout.get(), vertexEntryPoint, label.get(), descriptor.vertex.constantsSpan(), minimumBufferSizes, &error);
+        auto libraryCreationResult = createLibrary(m_device, vertexModule, pipelineLayout.get(), vertexEntryPoint, label.get(), descriptor.vertex.constantsSpan(), minimumBufferSizes, &error, vertexShaderSource);
         if (!libraryCreationResult)
             return returnInvalidRenderPipeline(*this, isAsync, error.localizedDescription ?: @"Vertex library failed creation");
 
@@ -1547,7 +1554,7 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
         usesFragDepth = fragmentModule->usesFragDepth(fragmentEntryPoint);
         usesSampleMask = fragmentModule->usesSampleMaskInOutput(fragmentEntryPoint);
         NSError *error = nil;
-        auto libraryCreationResult = createLibrary(m_device, *fragmentModule, pipelineLayout.get(), fragmentEntryPoint, label.get(), fragmentDescriptor.constantsSpan(), minimumBufferSizes, &error);
+        auto libraryCreationResult = createLibrary(m_device, *fragmentModule, pipelineLayout.get(), fragmentEntryPoint, label.get(), fragmentDescriptor.constantsSpan(), minimumBufferSizes, &error, fragmentShaderSource);
         if (!libraryCreationResult)
             return returnInvalidRenderPipeline(*this, isAsync, error.localizedDescription ?: @"Fragment library could not be created");
 
@@ -1680,7 +1687,7 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
         if (!vertexStageIn)
             return returnInvalidRenderPipeline(*this, isAsync, [NSString stringWithFormat:@"Vertex shader has no stageIn parameters but buffer count was %zu and attribute count was %zu", descriptor.vertex.bufferCount, descriptor.vertex.buffers[0].attributeCount]);
         NSString *error = nil;
-        MTLVertexDescriptor *vertexDecriptor = createVertexDescriptor(descriptor.vertex, deviceLimits, *vertexStageIn, requiredBufferIndices, &error);
+        MTLVertexDescriptor *vertexDecriptor = createVertexDescriptor(descriptor.vertex, deviceLimits, *vertexStageIn, requiredBufferIndices, &error, shaderLocations);
         if (error)
             return returnInvalidRenderPipeline(*this, isAsync, [NSString stringWithFormat:@"vertex descriptor creation failed %@", error]);
 
@@ -1719,7 +1726,13 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
     auto mtlCullMode = cullMode(descriptor.primitive.cullMode);
 
     NSError *error = nil;
+#if !defined(NDEBUG) || (defined(ENABLE_LIBFUZZER) && ENABLE_LIBFUZZER && defined(ASAN_ENABLED) && ASAN_ENABLED)
+    dumpMetalReproCaseRenderPSO(WTFMove(vertexShaderSource), mtlRenderPipelineDescriptor.vertexFunction.name, WTFMove(fragmentShaderSource), mtlRenderPipelineDescriptor.fragmentFunction.name, mtlRenderPipelineDescriptor, shaderLocations, *this);
+#endif
     id<MTLRenderPipelineState> renderPipelineState = [m_device newRenderPipelineStateWithDescriptor:mtlRenderPipelineDescriptor error:&error];
+#if !defined(NDEBUG) || (defined(ENABLE_LIBFUZZER) && ENABLE_LIBFUZZER && defined(ASAN_ENABLED) && ASAN_ENABLED)
+    clearMetalPSORepro();
+#endif
     if (error || !renderPipelineState)
         return returnInvalidRenderPipeline(*this, isAsync, error.localizedDescription);
 
