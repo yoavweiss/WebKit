@@ -359,14 +359,14 @@ std::optional<CSSSelector::PseudoElement> CSSSelector::parsePseudoElementName(St
 }
 
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-const CSSSelector* CSSSelector::firstInCompound() const
+const CSSSelector* CSSSelector::lastInCompound() const
 {
     auto* selector = this;
-    while (!selector->isFirstInComplexSelector()) {
-        auto* previousSelector = selector - 1;
-        if (previousSelector->relation() != Relation::Subselector)
+    while (!selector->isLastInComplexSelector()) {
+        auto* next = selector - 1;
+        if (next->relation() != Relation::Subselector)
             break;
-        selector = previousSelector;
+        selector = next;
     }
     return selector;
 }

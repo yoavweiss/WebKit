@@ -50,17 +50,17 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(SelectorQueryCache);
 #if ASSERT_ENABLED
 static bool isSingleTagNameSelector(const CSSSelector& selector)
 {
-    return selector.isLastInComplexSelector() && selector.match() == CSSSelector::Match::Tag;
+    return selector.isFirstInComplexSelector() && selector.match() == CSSSelector::Match::Tag;
 }
 
 static bool isSingleClassNameSelector(const CSSSelector& selector)
 {
-    return selector.isLastInComplexSelector() && selector.match() == CSSSelector::Match::Class;
+    return selector.isFirstInComplexSelector() && selector.match() == CSSSelector::Match::Class;
 }
 
 static bool isSingleAttributeExactSelector(const CSSSelector& selector)
 {
-    return selector.isLastInComplexSelector() && selector.match() == CSSSelector::Match::Exact;
+    return selector.isFirstInComplexSelector() && selector.match() == CSSSelector::Match::Exact;
 }
 
 #endif // ASSERT_ENABLED
@@ -132,7 +132,7 @@ SelectorDataList::SelectorDataList(const CSSSelectorList& selectorList)
 
     if (selectorCount == 1) {
         const CSSSelector& selector = *m_selectors.first().selector;
-        if (selector.isLastInComplexSelector()) {
+        if (selector.isFirstInComplexSelector()) {
             switch (selector.match()) {
             case CSSSelector::Match::Tag:
                 m_matchType = TagNameMatch;

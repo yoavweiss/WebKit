@@ -60,12 +60,12 @@ CSSSelectorList::CSSSelectorList(MutableCSSSelectorList&& selectorVector)
     m_selectorArray = makeUniqueArray<CSSSelector>(flattenedSize);
     size_t arrayIndex = 0;
     for (size_t i = 0; i < selectorVector.size(); ++i) {
-        auto* first = selectorVector[i].get();
-        auto* current = first;
+        auto* last = selectorVector[i].get();
+        auto* current = last;
         while (current) {
             {
                 // Move item from the parser selector vector into m_selectorArray without invoking destructor (Ugh.)
-                CSSSelector* currentSelector = current->releaseSelector().release();
+                auto* currentSelector = current->releaseSelector().release();
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
                 memcpy(static_cast<void*>(&m_selectorArray[arrayIndex]), static_cast<void*>(currentSelector), sizeof(CSSSelector));
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
@@ -73,15 +73,15 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
                 // Free the underlying memory without invoking the destructor.
                 operator delete (currentSelector);
             }
-            if (current != first)
-                m_selectorArray[arrayIndex].m_isFirstInComplexSelector = false;
+            if (current != last)
+                m_selectorArray[arrayIndex].m_isLastInComplexSelector = false;
             current = current->precedingInComplexSelector();
             ASSERT(!m_selectorArray[arrayIndex].isLastInSelectorList() || (flattenedSize == arrayIndex + 1));
             if (current)
-                m_selectorArray[arrayIndex].m_isLastInComplexSelector = false;
+                m_selectorArray[arrayIndex].m_isFirstInComplexSelector = false;
             ++arrayIndex;
         }
-        ASSERT(m_selectorArray[arrayIndex - 1].isLastInComplexSelector());
+        ASSERT(m_selectorArray[arrayIndex - 1].isFirstInComplexSelector());
     }
     ASSERT(flattenedSize == arrayIndex);
     m_selectorArray[arrayIndex - 1].m_isLastInSelectorList = true;
@@ -181,7 +181,7 @@ unsigned CSSSelectorList::listSize() const
     unsigned size = 1;
     CSSSelector* current = m_selectorArray.get();
     while (!current->isLastInSelectorList()) {
-        if (current->isLastInComplexSelector())
+        if (current->isFirstInComplexSelector())
             ++size;
         ++current;
     }

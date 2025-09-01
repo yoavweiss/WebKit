@@ -83,7 +83,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
         const_iterator& operator++()
         {
             // Skip subparts of compound selectors.
-            while (!m_ptr->isLastInComplexSelector())
+            while (!m_ptr->isFirstInComplexSelector())
                 ++m_ptr;
             m_ptr = m_ptr->isLastInSelectorList() ? nullptr : m_ptr + 1;
             return *this;

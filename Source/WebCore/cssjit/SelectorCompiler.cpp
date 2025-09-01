@@ -1550,7 +1550,7 @@ static FunctionType constructFragmentsInternal(const CSSSelector* rootSelector, 
         if (relation == CSSSelector::Relation::Subselector)
             continue;
 
-        if ((relation == CSSSelector::Relation::ShadowDescendant || relation == CSSSelector::Relation::ShadowPartDescendant) && !selector->isLastInComplexSelector())
+        if ((relation == CSSSelector::Relation::ShadowDescendant || relation == CSSSelector::Relation::ShadowPartDescendant) && !selector->isFirstInComplexSelector())
             return FunctionType::CannotCompile;
 
         if (relation == CSSSelector::Relation::ShadowSlotted)

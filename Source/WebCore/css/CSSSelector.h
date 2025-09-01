@@ -133,12 +133,12 @@ public:
     static const ASCIILiteral nameForUserAgentPartLegacyAlias(StringView);
 
     // Selectors are kept in an array by CSSSelectorList.
-    // The next component of the selector is the next item in the array.
+    // The left component of the selector is the next item in the array.
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
-    const CSSSelector* precedingInComplexSelector() const { return m_isLastInComplexSelector ? nullptr : this + 1; }
+    const CSSSelector* precedingInComplexSelector() const { return m_isFirstInComplexSelector ? nullptr : this + 1; }
 WTF_ALLOW_UNSAFE_BUFFER_USAGE_END
 
-    const CSSSelector* firstInCompound() const;
+    const CSSSelector* lastInCompound() const;
 
     const QualifiedName& tagQName() const;
     const AtomString& tagLowercaseLocalName() const;
@@ -217,8 +217,11 @@ private:
     mutable unsigned m_pseudoType : 8 { 0 }; // PseudoType.
     // 17 bits
     unsigned m_isLastInSelectorList : 1 { false };
+
+    // These are in logical order, which is reversed from the memory order.
     unsigned m_isFirstInComplexSelector : 1 { true };
     unsigned m_isLastInComplexSelector : 1 { true };
+
     unsigned m_hasRareData : 1 { false };
     unsigned m_isForPage : 1 { false };
     unsigned m_tagIsForNamespaceRule : 1 { false };

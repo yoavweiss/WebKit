@@ -386,7 +386,7 @@ static PseudoClassInvalidationKey makePseudoClassInvalidationKey(CSSSelector::Ps
     AtomString attributeName;
     AtomString className;
     AtomString tagName;
-    for (auto* simpleSelector = selector.firstInCompound(); simpleSelector; simpleSelector = simpleSelector->precedingInComplexSelector()) {
+    for (auto* simpleSelector = selector.lastInCompound(); simpleSelector; simpleSelector = simpleSelector->precedingInComplexSelector()) {
         if (simpleSelector->match() == CSSSelector::Match::Id)
             return makePseudoClassInvalidationKey(pseudoClass, InvalidationKeyType::Id, simpleSelector->value());
 
