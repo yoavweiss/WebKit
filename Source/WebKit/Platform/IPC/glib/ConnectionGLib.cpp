@@ -31,6 +31,7 @@
 #include "Logging.h"
 #include "UnixMessage.h"
 #include <gio/gio.h>
+#include <gio/gunixconnection.h>
 #include <gio/gunixfdmessage.h>
 #include <sys/socket.h>
 #include <wtf/StdLibExtras.h>

@@ -27,6 +27,7 @@
 #import "_WKTextExtractionInternal.h"
 
 #import <WebKit/WKError.h>
+#import <wtf/RetainPtr.h>
 
 @implementation _WKTextExtractionConfiguration
 
