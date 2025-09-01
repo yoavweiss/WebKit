@@ -277,6 +277,16 @@ LineLayoutResult LineBuilder::layoutInlineContent(const LineInput& lineInput, co
             , { WTFMove(m_placedFloats), WTFMove(m_suspendedFloats), { } }
             , { { }, result.contentLogicalWidth, { }, lineContent->overflowLogicalWidth }
             , { m_lineLogicalRect.topLeft(), { }, { }, { } }
+            , { }
+            , { }
+            , { }
+            , { }
+            , result.hasInlineContent
+            , { }
+            , { }
+            , { }
+            , { }
+            , { }
         };
     }
 
@@ -290,7 +300,6 @@ LineLayoutResult LineBuilder::layoutInlineContent(const LineInput& lineInput, co
     Vector<int32_t> visualOrderList;
     if (result.contentNeedsBidiReordering)
         computedVisualOrder(result.runs, visualOrderList);
-    auto lineHasInlineContent = !result.runs.isEmpty();
 
     return { lineContent->range
         , WTFMove(result.runs)
@@ -299,8 +308,9 @@ LineLayoutResult LineBuilder::layoutInlineContent(const LineInput& lineInput, co
         , { m_lineLogicalRect.topLeft(), m_lineLogicalRect.width(), m_lineInitialLogicalRect.left() + m_initialIntrusiveFloatsWidth, m_initialLetterClearGap }
         , { !result.isHangingTrailingContentWhitespace, result.hangingTrailingContentWidth, result.hangablePunctuationStartWidth }
         , { WTFMove(visualOrderList), inlineBaseDirection }
-        , { isFirstFormattedLineCandidate && lineHasInlineContent, isLastInlineContent }
+        , { isFirstFormattedLineCandidate && result.hasInlineContent, isLastInlineContent }
         , { WTFMove(lineContent->rubyBaseAlignmentOffsetList), lineContent->rubyAnnotationOffset }
+        , result.hasInlineContent
         , lineContent->endsWithHyphen
         , result.nonSpanningInlineLevelBoxCount
         , { }

@@ -112,7 +112,6 @@ LineLayoutResult TextOnlySimpleLineBuilder::layoutInlineContent(const LineInput&
 
     auto isLastInlineContent = isLastLineWithInlineContent(placedContentEnd, lineInput.needsLayoutRange.endIndex());
     auto contentLogicalLeft = InlineFormattingUtils::horizontalAlignmentOffset(rootStyle, result.contentLogicalRight, m_lineLogicalRect.width(), result.hangingTrailingContentWidth, result.runs, isLastInlineContent);
-    auto lineHasInlineContent = !result.runs.isEmpty();
 
     return { { lineInput.needsLayoutRange.start, placedContentEnd }
         , WTFMove(result.runs)
@@ -121,11 +120,14 @@ LineLayoutResult TextOnlySimpleLineBuilder::layoutInlineContent(const LineInput&
         , { m_lineLogicalRect.topLeft(), m_lineLogicalRect.width(), m_lineLogicalRect.left() }
         , { !result.isHangingTrailingContentWhitespace, result.hangingTrailingContentWidth }
         , { }
-        , { isFirstFormattedLineCandidate && lineHasInlineContent, isLastInlineContent }
+        , { isFirstFormattedLineCandidate && result.hasInlineContent, isLastInlineContent }
         , { }
+        , result.hasInlineContent
         , { }
         , { }
         , m_trimmedTrailingWhitespaceWidth
+        , { }
+        , { }
     };
 }
 

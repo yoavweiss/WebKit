@@ -267,6 +267,7 @@ void InlineContentConstrainer::initialize()
     auto previousLineEnd = std::optional<InlineItemPosition> { };
     auto previousLine = std::optional<PreviousLine> { };
     auto isFirstFormattedLine = true;
+    auto hasEverSeenInlineContent = false;
     auto lineIndex = 0lu;
     while (!layoutRange.isEmpty()) {
         auto lineInitialRect = InlineRect { 0.f, m_horizontalConstraints.logicalLeft, m_horizontalConstraints.logicalWidth, 0.f };
@@ -288,8 +289,8 @@ void InlineContentConstrainer::initialize()
 
         layoutRange.start = InlineFormattingUtils::leadingInlineItemPositionForNextLine(lineLayoutResult.inlineItemRange.end, previousLineEnd, !lineLayoutResult.floatContent.hasIntrusiveFloat.isEmpty() || !lineLayoutResult.floatContent.placedFloats.isEmpty(), layoutRange.end);
         previousLineEnd = layoutRange.start;
-        auto hasSeenInlineContent = previousLine ? previousLine->hasInlineContent || !lineLayoutResult.inlineAndOpaqueContent.isEmpty() : !lineLayoutResult.inlineAndOpaqueContent.isEmpty();
-        isFirstFormattedLine = !hasSeenInlineContent;
+        hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent;
+        isFirstFormattedLine = !hasEverSeenInlineContent;
         previousLine = buildPreviousLine(lineIndex, lineLayoutResult);
         lineIndex++;
     }

@@ -341,9 +341,8 @@ InlineLayoutResult InlineFormattingContext::lineLayout(AbstractLineBuilder& line
             break;
         }
 
-        auto lineHasInlineContent = !lineLayoutResult.inlineAndOpaqueContent.isEmpty();
-        hasEverSeenInlineContent = hasEverSeenInlineContent || lineHasInlineContent;
-        previousLine = PreviousLine { lineIndex, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineHasInlineContent && lineLayoutResult.inlineAndOpaqueContent.last().isLineBreak(), hasEverSeenInlineContent, lineLayoutResult.directionality.inlineBaseDirection, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
+        hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent;
+        previousLine = PreviousLine { lineIndex, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, !lineLayoutResult.inlineAndOpaqueContent.isEmpty() && lineLayoutResult.inlineAndOpaqueContent.last().isLineBreak(), hasEverSeenInlineContent, lineLayoutResult.directionality.inlineBaseDirection, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
         previousLineEnd = lineContentEnd;
         isFirstFormattedLineCandidate = !hasEverSeenInlineContent;
         lineLogicalTop = formattingUtils().logicalTopForNextLine(lineLayoutResult, lineLogicalRect, floatingContext);
@@ -419,7 +418,7 @@ InlineRect InlineFormattingContext::createDisplayContentForInlineContent(const L
     auto isLegacyLineClamp = lineClamp && lineClamp->isLegacy;
     auto numberOfVisibleLinesAllowed = lineClamp ? std::make_optional(lineClamp->maximumLines) : std::nullopt;
 
-    auto numberOfLinesWithInlineContent = numberOfPreviousLContentfulLines + (!lineLayoutResult.inlineAndOpaqueContent.isEmpty() ? 1 : 0);
+    auto numberOfLinesWithInlineContent = numberOfPreviousLContentfulLines + (lineLayoutResult.hasInlineContent ? 1 : 0);
     auto lineIsFullyTruncatedInBlockDirection = numberOfLinesWithInlineContent > numberOfVisibleLinesAllowed.value_or(numberOfLinesWithInlineContent);
     auto displayLine = InlineDisplayLineBuilder { *this, constraints }.build(lineLayoutResult, lineBox, lineIsFullyTruncatedInBlockDirection);
     auto boxes = InlineDisplayContentBuilder { *this, constraints, lineBox, displayLine }.build(lineLayoutResult);

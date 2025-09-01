@@ -89,6 +89,7 @@ struct LineLayoutResult {
     Ruby ruby { };
 
     // Misc
+    bool hasInlineContent { false };
     bool endsWithHyphen { false };
     size_t nonSpanningInlineLevelBoxCount { 0 };
     InlineLayoutUnit trimmedTrailingWhitespaceWidth { 0.f }; // only used for line-break: after-white-space currently

@@ -66,8 +66,12 @@ LineLayoutResult RangeBasedLineBuilder::layoutInlineContent(const LineInput& lin
             , { }
             , { isFirstFormattedLineCandidate, { } }
             , { }
+            , true
             , { }
             , m_inlineBoxCount
+            , { }
+            , { }
+            , { }
         };
     }
 
