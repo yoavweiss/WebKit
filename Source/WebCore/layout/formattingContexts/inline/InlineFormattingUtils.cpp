@@ -53,9 +53,9 @@ InlineLayoutUnit InlineFormattingUtils::logicalTopForNextLine(const LineLayoutRe
     if (didManageToPlaceInlineContentOrFloat) {
         // Normally the next line's logical top is the previous line's logical bottom, but when the line ends
         // with the clear property set, the next line needs to clear the existing floats.
-        if (lineLayoutResult.inlineContent.isEmpty())
+        if (lineLayoutResult.inlineAndOpaqueContent.isEmpty())
             return lineLogicalRect.bottom();
-        auto& lastRunLayoutBox = lineLayoutResult.inlineContent.last().layoutBox();
+        auto& lastRunLayoutBox = lineLayoutResult.inlineAndOpaqueContent.last().layoutBox();
         if (!lastRunLayoutBox.hasFloatClear() || lastRunLayoutBox.isOutOfFlowPositioned())
             return lineLogicalRect.bottom();
         auto blockAxisPositionWithClearance = floatingContext.blockAxisPositionWithClearance(lastRunLayoutBox, formattingContext().geometryForBox(lastRunLayoutBox));
@@ -67,7 +67,7 @@ InlineLayoutUnit InlineFormattingUtils::logicalTopForNextLine(const LineLayoutRe
     auto intrusiveFloatBottom = [&]() -> std::optional<InlineLayoutUnit> {
         // Floats must have prevented us placing any content on the line.
         // Move next line below the intrusive float(s).
-        ASSERT(lineLayoutResult.inlineContent.isEmpty() || lineLayoutResult.inlineContent[0].isLineSpanningInlineBoxStart());
+        ASSERT(lineLayoutResult.inlineAndOpaqueContent.isEmpty() || lineLayoutResult.inlineAndOpaqueContent[0].isLineSpanningInlineBoxStart());
         auto nextLineLogicalTop = [&]() -> LayoutUnit {
             if (auto nextLineLogicalTopCandidate = lineLayoutResult.hintForNextLineTopToAvoidIntrusiveFloat)
                 return LayoutUnit { *nextLineLogicalTopCandidate };

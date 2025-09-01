@@ -99,12 +99,12 @@ LineLayoutResult RangeBasedLineBuilder::layoutInlineContent(const LineInput& lin
 
         if (isFirstFormattedLineCandidate) {
             ASSERT(!previousLine);
-            lineLayoutResult.inlineContent.insert(0, { leadingInlineItem, leadingInlineItem.firstLineStyle(), { } });
+            lineLayoutResult.inlineAndOpaqueContent.insert(0, { leadingInlineItem, leadingInlineItem.firstLineStyle(), { } });
             lineLayoutResult.inlineItemRange.start = lineInput.needsLayoutRange.start;
             return;
         }
         // Subsequent lines need leading spanning inline box run.
-        lineLayoutResult.inlineContent.insert(0, { leadingInlineItem, { }, { } });
+        lineLayoutResult.inlineAndOpaqueContent.insert(0, { leadingInlineItem, { }, { } });
     };
     insertLeadingInlineBoxRun();
 
@@ -112,7 +112,7 @@ LineLayoutResult RangeBasedLineBuilder::layoutInlineContent(const LineInput& lin
         if (lineLayoutResult.inlineItemRange.end != needsLayoutRange.end)
             return;
         auto& trailingInlineItem = m_inlineItemList.back();
-        lineLayoutResult.inlineContent.append({ trailingInlineItem, isFirstFormattedLineCandidate ? trailingInlineItem.firstLineStyle() : trailingInlineItem.style(), lineLayoutResult.contentGeometry.logicalWidth });
+        lineLayoutResult.inlineAndOpaqueContent.append({ trailingInlineItem, isFirstFormattedLineCandidate ? trailingInlineItem.firstLineStyle() : trailingInlineItem.style(), lineLayoutResult.contentGeometry.logicalWidth });
         lineLayoutResult.inlineItemRange.end = lineInput.needsLayoutRange.end;
     };
     appendTrailingInlineBoxRunIfNeeded();

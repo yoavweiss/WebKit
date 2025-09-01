@@ -38,7 +38,7 @@ struct LineLayoutResult {
     using SuspendedFloatList = Vector<const Box*>;
 
     InlineItemRange inlineItemRange;
-    Line::RunList inlineContent;
+    Line::RunList inlineAndOpaqueContent;
 
     struct FloatContent {
         PlacedFloatList placedFloats;
