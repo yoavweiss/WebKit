@@ -453,6 +453,8 @@ static auto callWithColorFunction(CSSValueID id, Functor&& functor) -> decltype(
         return functor.template operator()<ColorRGBFunction<ExtendedA98RGB<float>>>();
     case CSSValueDisplayP3:
         return functor.template operator()<ColorRGBFunction<ExtendedDisplayP3<float>>>();
+    case CSSValueDisplayP3Linear:
+        return functor.template operator()<ColorRGBFunction<ExtendedLinearDisplayP3<float>>>();
     case CSSValueProphotoRgb:
         return functor.template operator()<ColorRGBFunction<ExtendedProPhotoRGB<float>>>();
     case CSSValueRec2020:
