@@ -31,7 +31,6 @@
 #import "AXAttributeCacheScope.h"
 #import "AXLogger.h"
 #import "AXNotifications.h"
-#import "AXObjectCache.h"
 #import "AXObjectCacheInlines.h"
 #import "AXSearchManager.h"
 #import "AXUtilities.h"

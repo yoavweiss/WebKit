@@ -30,7 +30,6 @@
 #import "WebAccessibilityObjectWrapperMac.h"
 
 #import "AXIsolatedTree.h"
-#import "AXObjectCache.h"
 #import "AXObjectCacheInlines.h"
 
 #if PLATFORM(MAC)

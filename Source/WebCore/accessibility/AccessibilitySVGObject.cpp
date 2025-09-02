@@ -28,7 +28,7 @@
 #include "config.h"
 #include "AccessibilitySVGObject.h"
 
-#include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "AXUtilities.h"
 #include "ElementChildIteratorInlines.h"
 #include "ElementInlines.h"

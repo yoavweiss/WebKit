@@ -705,18 +705,33 @@ void AXObjectCache::cacheAndInitializeWrapper(AccessibilityObject& newObject, DO
         [&] (RenderObject* typedValue) {
             CheckedPtr node = typedValue->node();
             if (!node)
-                m_renderObjectMapping.set(*typedValue, axID);
-            else
-                m_nodeObjectMapping.set(*node, axID);
+                m_renderObjectIdMapping.set(*typedValue, axID);
+            else {
+                m_nodeIdMapping.set(*node, axID);
+                m_nodeObjectMapping.set(*node, newObject);
+            }
         },
-        [&] (Node* typedValue) { m_nodeObjectMapping.set(*typedValue, axID); },
-        [&] (Widget* typedValue) { m_widgetObjectMapping.set(*typedValue, axID); },
+        [&] (Node* typedValue) {
+            m_nodeIdMapping.set(*typedValue, axID);
+            m_nodeObjectMapping.set(*typedValue, newObject);
+        },
+        [&] (Widget* typedValue) { m_widgetIdMapping.set(*typedValue, axID); },
         [] (auto&) { }
     );
 
     m_objects.set(axID, newObject);
     newObject.init();
     attachWrapper(newObject);
+}
+
+AccessibilityObject* AXObjectCache::exportedGetOrCreate(Node* node)
+{
+    return node ? exportedGetOrCreate(*node) : nullptr;
+}
+
+AccessibilityObject* AXObjectCache::exportedGetOrCreate(Node& node)
+{
+    return getOrCreate(node, IsPartOfRelation::No);
 }
 
 AccessibilityObject* AXObjectCache::getOrCreate(Widget& widget)
@@ -742,10 +757,10 @@ AccessibilityObject* AXObjectCache::getOrCreate(Widget& widget)
     return newObject.get();
 }
 
-AccessibilityObject* AXObjectCache::getOrCreate(Node& node, IsPartOfRelation isPartOfRelation)
+AccessibilityObject* AXObjectCache::getOrCreateSlow(Node& node, IsPartOfRelation isPartOfRelation)
 {
-    if (RefPtr object = get(node))
-        return object.get();
+    // `get` for this Node should've been attempted before calling this method.
+    ASSERT(!get(node));
 
     CheckedPtr renderer = node.renderer();
     if (renderer) {
@@ -977,21 +992,18 @@ AccessibilityObject* AXObjectCache::create(AccessibilityRole role)
     return object.get();
 }
 
-void AXObjectCache::remove(std::optional<AXID> axID)
+void AXObjectCache::remove(AXID axID)
 {
     AXTRACE(makeString("AXObjectCache::remove 0x"_s, hex(reinterpret_cast<uintptr_t>(this))));
-    AXLOG(makeString("AXID "_s, axID ? axID->loggingString() : ""_s));
+    AXLOG(makeString("AXID "_s, axID.loggingString()));
 
-    if (!axID)
-        return;
-
-    RefPtr object = m_objects.take(*axID);
+    RefPtr object = m_objects.take(axID);
     if (!object)
         return;
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    unsigned liveRegionsRemoved = m_sortedLiveRegionIDs.removeAll(*axID);
-    unsigned webAreasRemoved = m_sortedNonRootWebAreaIDs.removeAll(*axID);
+    unsigned liveRegionsRemoved = m_sortedLiveRegionIDs.removeAll(axID);
+    unsigned webAreasRemoved = m_sortedNonRootWebAreaIDs.removeAll(axID);
 
     if (RefPtr tree = AXIsolatedTree::treeForPageID(m_pageID)) {
         tree->queueNodeRemoval(*object);
@@ -1003,18 +1015,18 @@ void AXObjectCache::remove(std::optional<AXID> axID)
     }
 #endif // ENABLE(ACCESSIBILITY_ISOLATED_TREE)
 
-    removeAllRelations(*axID);
+    removeAllRelations(axID);
     object->detach(AccessibilityDetachmentType::ElementDestroyed);
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    m_geometryManager->remove(*axID);
+    m_geometryManager->remove(axID);
 #endif
 }
 
 void AXObjectCache::remove(RenderObject& renderer)
 {
     AXTRACE(makeString("AXObjectCache::remove RenderObject* 0x"_s, hex(reinterpret_cast<uintptr_t>(this))));
-    ASSERT(!renderer.node() || !m_renderObjectMapping.contains(renderer));
+    ASSERT(!renderer.node() || !m_renderObjectIdMapping.contains(renderer));
 
     if (RefPtr node = renderer.node()) {
         // We only delete objects with nodes when their DOM node is destroyed, not their renderer.
@@ -1025,14 +1037,16 @@ void AXObjectCache::remove(RenderObject& renderer)
             }
         }
     } else
-        remove(m_renderObjectMapping.takeOptional(renderer));
+        remove(m_renderObjectIdMapping.takeOptional(renderer));
 }
 
 void AXObjectCache::remove(Node& node)
 {
     AXTRACE(makeString("AXObjectCache::remove Node& 0x"_s, hex(reinterpret_cast<uintptr_t>(this))));
 
-    remove(m_nodeObjectMapping.take(node));
+    m_nodeObjectMapping.remove(node);
+    remove(m_nodeIdMapping.take(node));
+
     if (auto* renderer = node.renderer())
         remove(*renderer);
 
@@ -1064,7 +1078,7 @@ void AXObjectCache::remove(Node& node)
 
 void AXObjectCache::remove(Widget& view)
 {
-    remove(m_widgetObjectMapping.takeOptional(view));
+    remove(m_widgetIdMapping.takeOptional(view));
     if (auto* scrollView = dynamicDowncast<ScrollView>(view))
         m_deferredScrollbarUpdateChangeList.remove(*scrollView);
 }
@@ -5077,7 +5091,7 @@ void AXObjectCache::onPaint(const Widget& widget, IntRect&& paintRect) const
 {
     if (!m_pageID)
         return;
-    if (std::optional axID = m_widgetObjectMapping.getOptional(const_cast<Widget&>(widget)))
+    if (std::optional axID = m_widgetIdMapping.getOptional(const_cast<Widget&>(widget)))
         std::ignore = m_geometryManager->cacheRectIfNeeded(*axID, WTFMove(paintRect));
 }
 

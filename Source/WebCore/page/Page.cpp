@@ -22,7 +22,6 @@
 
 #include "AXIsolatedTree.h"
 #include "AXLogger.h"
-#include "AXObjectCache.h"
 #include "AXObjectCacheInlines.h"
 #include "ActivityStateChangeObserver.h"
 #include "AdvancedPrivacyProtections.h"

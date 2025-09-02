@@ -35,7 +35,6 @@
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
 #include "AXNotifications.h"
-#include "AXObjectCache.h"
 #include "AXObjectCacheInlines.h"
 #include "AXObjectRareData.h"
 #include "AXRemoteFrame.h"

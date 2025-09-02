@@ -26,7 +26,7 @@
 #import "config.h"
 #import "AccessibilityObject.h"
 
-#import "AXObjectCache.h"
+#import "AXObjectCacheInlines.h"
 #import "AXRemoteFrame.h"
 #import "ColorCocoa.h"
 #import "CompositionHighlight.h"

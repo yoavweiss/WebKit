@@ -29,7 +29,7 @@
 #include "config.h"
 #include "AXListHelpers.h"
 
-#include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "AXUtilities.h"
 #include "AccessibilityObject.h"
 #include "AccessibilityRenderObject.h"

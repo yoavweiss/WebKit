@@ -27,7 +27,7 @@
 #include "config.h"
 #include "Internals.h"
 
-#include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "AddEventListenerOptionsInlines.h"
 #include "AnimationTimeline.h"
 #include "AnimationTimelinesController.h"
@@ -7769,7 +7769,7 @@ AccessibilityObject* Internals::axObjectForElement(Element& element) const
 
     if (CheckedPtr cache = document->axObjectCache()) {
         cache->performDeferredCacheUpdate(ForceLayout::No);
-        return cache->getOrCreate(element);
+        return cache->exportedGetOrCreate(element);
     }
     return nullptr;
 }

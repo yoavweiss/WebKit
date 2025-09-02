@@ -34,7 +34,7 @@
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
 #include "AXNotifications.h"
-#include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "AXTableHelpers.h"
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"

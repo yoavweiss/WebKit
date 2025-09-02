@@ -31,7 +31,7 @@
 #include "config.h"
 #include "InspectorDOMAgent.h"
 
-#include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "AccessibilityNodeObject.h"
 #include "AddEventListenerOptionsInlines.h"
 #include "Attr.h"

@@ -32,7 +32,6 @@
 #include "AXIsolatedTree.h"
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
-#include "AXObjectCache.h"
 #include "AXObjectCacheInlines.h"
 #include "AXSearchManager.h"
 #include "AXTextMarker.h"

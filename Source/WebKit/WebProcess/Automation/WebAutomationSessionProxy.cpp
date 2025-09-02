@@ -367,7 +367,7 @@ WebCore::AccessibilityObject* WebAutomationSessionProxy::getAccessibilityObjectF
         // the accessibility object for this element will not be created (because it doesn't yet have its renderer).
         axObjectCache->performDeferredCacheUpdate(ForceLayout::Yes);
 
-        if (RefPtr<WebCore::AccessibilityObject> axObject = axObjectCache->getOrCreate(coreElement.get()))
+        if (RefPtr<WebCore::AccessibilityObject> axObject = axObjectCache->exportedGetOrCreate(*coreElement))
             return axObject.get();
     }
 

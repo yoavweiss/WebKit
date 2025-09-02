@@ -33,7 +33,7 @@
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
 #include "AXNotifications.h"
-#include "AXObjectCache.h"
+#include "AXObjectCacheInlines.h"
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityMediaHelpers.h"
@@ -452,7 +452,7 @@ AccessibilityObject* AccessibilityRenderObject::nextSibling() const
     if (nextSibling->node() && nextSibling->node() == m_renderer->node()) {
         if (RefPtr nextObject = cache->getOrCreate(*nextSibling)) {
             if (nextObject.get() == this) {
-                // WebKit accessibility objects use DOM nodes as the "primary key" (i.e. in m_nodeObjectMapping).
+                // WebKit accessibility objects use DOM nodes as the "primary key" (i.e. in m_nodeIdMapping).
                 // This can cause a bit of trouble for continuations, which result in multiple renderers being associated
                 // with the same node. That can cause us to get into this branch — if nextSibling or us is a continuation,
                 // we will be different renderers with the same node, and thus `nextObject` will be us.
