@@ -5688,7 +5688,7 @@ static void selectionChangedWithTouch(WKTextInteractionWrapper *interaction, con
                 return;
             }
 
-            auto cgImage = imageBitmap->makeCGImage();
+            RetainPtr cgImage = imageBitmap->createPlatformImage(WebCore::DontCopyBackingStore);
             if (!cgImage) {
                 completion();
                 return;
@@ -11761,7 +11761,7 @@ static RetainPtr<UITargetedPreview> createFallbackTargetedPreview(UIView *rootVi
 
         targetedPreview = [self _createTargetedPreviewFromTextIndicator:WTFMove(textIndicator) previewContainer:self.containerForContextMenuHintPreviews];
     } else if ((_positionInformation.isAttachment || _positionInformation.isImage) && _positionInformation.image) {
-        auto cgImage = _positionInformation.image->makeCGImageCopy();
+        RetainPtr cgImage = _positionInformation.image->createPlatformImage();
         auto image = adoptNS([[UIImage alloc] initWithCGImage:cgImage.get()]);
         targetedPreview = createTargetedPreview(image.get(), self, self.containerForContextMenuHintPreviews, _positionInformation.bounds, { }, nil);
     }
@@ -13008,7 +13008,7 @@ static RetainPtr<NSItemProvider> createItemProvider(const WebKit::WebPageProxy& 
         return;
     }
 
-    auto cgImage = imageBitmap->makeCGImage();
+    RetainPtr cgImage = imageBitmap->createPlatformImage(WebCore::DontCopyBackingStore);
     if (!cgImage) {
         completion({ });
         return;
@@ -13077,7 +13077,7 @@ static RetainPtr<NSItemProvider> createItemProvider(const WebKit::WebPageProxy& 
             return;
         }
 
-        auto cgImage = information.image->makeCGImageCopy();
+        RetainPtr cgImage = information.image->createPlatformImage();
         if (!cgImage) {
             [strongSelf _invokeAllActionsToPerformAfterPendingImageAnalysis:WebKit::ProceedWithTextSelectionInImage::No];
             return;
@@ -13333,7 +13333,7 @@ static BOOL shouldUseMachineReadableCodeMenuFromImageAnalysisResult(CocoaImageAn
     if (!imageBitmap)
         return;
 
-    auto cgImage = imageBitmap->makeCGImage();
+    RetainPtr cgImage = imageBitmap->createPlatformImage(WebCore::DontCopyBackingStore);
     if (!cgImage)
         return;
 
@@ -13379,7 +13379,7 @@ static BOOL shouldUseMachineReadableCodeMenuFromImageAnalysisResult(CocoaImageAn
     if (!imageBitmap)
         return;
 
-    auto image = imageBitmap->makeCGImage();
+    RetainPtr image = imageBitmap->createPlatformImage(WebCore::DontCopyBackingStore);
     if (!image)
         return;
 
@@ -14899,7 +14899,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     } else if (_positionInformation.isImage && _positionInformation.image) {
         RetainPtr nsURL = url.createNSURL();
         RetainPtr<NSDictionary> imageInfo;
-        auto cgImage = _positionInformation.image->makeCGImageCopy();
+        RetainPtr cgImage = _positionInformation.image->createPlatformImage();
         auto uiImage = adoptNS([[UIImage alloc] initWithCGImage:cgImage.get()]);
 
         if ([uiDelegate respondsToSelector:@selector(_webView:alternateURLFromImage:userInfo:)]) {
@@ -15109,7 +15109,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
         ASSERT_IMPLIES(strongSelf->_positionInformation.isImage, strongSelf->_positionInformation.image);
         if (strongSelf->_positionInformation.isImage && strongSelf->_positionInformation.image && !canShowHTTPLinkOrDataDetectorPreview) {
-            auto cgImage = strongSelf->_positionInformation.image->makeCGImageCopy();
+            RetainPtr cgImage = strongSelf->_positionInformation.image->createPlatformImage();
 
             strongSelf->_contextMenuActionProviderDelegateNeedsOverride = NO;
 
@@ -15627,7 +15627,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
         RetainPtr<NSURL> alternateURL = targetURL;
         RetainPtr<NSDictionary> imageInfo;
-        RetainPtr<CGImageRef> cgImage = _positionInformation.image->makeCGImageCopy();
+        RetainPtr<CGImageRef> cgImage = _positionInformation.image->createPlatformImage();
         RetainPtr<UIImage> uiImage = adoptNS([[UIImage alloc] initWithCGImage:cgImage.get()]);
         if ([uiDelegate respondsToSelector:@selector(_webView:alternateURLFromImage:userInfo:)]) {
             NSDictionary *userInfo;

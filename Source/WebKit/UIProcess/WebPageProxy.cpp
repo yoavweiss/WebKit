@@ -13884,7 +13884,7 @@ void WebPageProxy::takeSnapshot(const IntRect& rect, const IntSize& bitmapSize, 
         WTF::switchOn(*imageHandle,
             [&image] (WebCore::ShareableBitmap::Handle& handle) {
                 if (RefPtr bitmap = WebCore::ShareableBitmap::create(WTFMove(handle), WebCore::SharedMemory::Protection::ReadOnly))
-                    image = bitmap->makeCGImage();
+                    image = bitmap->createPlatformImage(DontCopyBackingStore);
             }
             , [&image] (MachSendRight& machSendRight) {
                 if (auto surface = WebCore::IOSurface::createFromSendRight(WTFMove(machSendRight)))

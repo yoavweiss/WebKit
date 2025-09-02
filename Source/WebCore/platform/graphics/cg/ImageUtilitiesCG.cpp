@@ -282,7 +282,7 @@ RefPtr<SharedBuffer> createIconDataFromBitmaps(Vector<Ref<ShareableBitmap>>&& bi
     RetainPtr destination = adoptCF(CGImageDestinationCreateWithData(destinationData.get(), cfUTI.get(), bitmaps.size(), nullptr));
 
     for (Ref bitmap : bitmaps) {
-        RetainPtr cgImage = bitmap->makeCGImageCopy();
+        RetainPtr cgImage = bitmap->createPlatformImage();
         if (!cgImage) {
             RELEASE_LOG_ERROR(Images, "createIconDataFromBitmaps: Fails to create CGImage with size { %d , %d }", bitmap->size().width(), bitmap->size().height());
             return nullptr;
