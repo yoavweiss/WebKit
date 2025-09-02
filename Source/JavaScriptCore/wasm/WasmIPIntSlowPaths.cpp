@@ -96,7 +96,7 @@ static inline bool shouldJIT(Wasm::IPIntCallee* callee)
     return true;
 }
 
-enum class OSRFor { Call, Loop };
+enum class OSRFor { Prologue, Epilogue, Loop };
 
 static inline RefPtr<Wasm::JITCallee> jitCompileAndSetHeuristics(Wasm::IPIntCallee& callee, JSWebAssemblyInstance* instance, OSRFor osrFor)
 {
@@ -110,11 +110,25 @@ static inline RefPtr<Wasm::JITCallee> jitCompileAndSetHeuristics(Wasm::IPIntCall
     Wasm::CalleeGroup& calleeGroup = *instance->calleeGroup();
     ASSERT(instance->memoryMode() == memoryMode);
     ASSERT(memoryMode == calleeGroup.mode());
+
     auto getReplacement = [&] () -> RefPtr<Wasm::JITCallee> {
-        Locker locker { calleeGroup.m_lock };
-        if (osrFor == OSRFor::Call)
+        switch (osrFor) {
+        case OSRFor::Prologue: {
+            if (Options::useWasmIPInt()) [[likely]]
+                return nullptr;
+            Locker locker { calleeGroup.m_lock };
             return calleeGroup.replacement(locker, callee.index());
-        return calleeGroup.tryGetBBQCalleeForLoopOSR(locker, instance->vm(), callee.functionIndex());
+        }
+        case OSRFor::Epilogue: {
+            return nullptr;
+        }
+        case OSRFor::Loop: {
+            Locker locker { calleeGroup.m_lock };
+            return calleeGroup.tryGetBBQCalleeForLoopOSR(locker, instance->vm(), callee.functionIndex());
+        }
+        }
+        RELEASE_ASSERT_NOT_REACHED();
+        return nullptr;
     };
 
     if (RefPtr replacement = getReplacement()) {
@@ -254,7 +268,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prologue_osr, CallFrame* callFrame)
 
     dataLogLnIf(Options::verboseOSR(), *callee, ": Entered prologue_osr with tierUpCounter = ", callee->tierUpCounter());
 
-    if (RefPtr replacement = jitCompileAndSetHeuristics(*callee, instance, OSRFor::Call))
+    if (RefPtr replacement = jitCompileAndSetHeuristics(*callee, instance, OSRFor::Prologue))
         WASM_RETURN_TWO(replacement->entrypoint().taggedPtr(), nullptr);
     WASM_RETURN_TWO(nullptr, nullptr);
 }
@@ -328,7 +342,7 @@ WASM_IPINT_EXTERN_CPP_DECL(epilogue_osr, CallFrame* callFrame)
 
     dataLogLnIf(Options::verboseOSR(), *callee, ": Entered epilogue_osr with tierUpCounter = ", callee->tierUpCounter());
 
-    jitCompileAndSetHeuristics(*callee, instance, OSRFor::Call);
+    jitCompileAndSetHeuristics(*callee, instance, OSRFor::Epilogue);
     WASM_RETURN_TWO(nullptr, nullptr);
 }
 #endif
