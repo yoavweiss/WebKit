@@ -227,7 +227,7 @@ InlineLayoutUnit IntrinsicWidthHandler::computedIntrinsicWidthForConstraint(Intr
         previousLineEnd = layoutRange.start;
         hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent();
         isFirstFormattedLine = !hasEverSeenInlineContent;
-        previousLine = PreviousLine { lineIndex++, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineLayoutResult.endsWithLineBreak(), hasEverSeenInlineContent, { }, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
+        previousLine = PreviousLine { lineIndex++, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineLayoutResult.endsWithLineBreak(), { }, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
     }
     m_maximumContentWidthBetweenLineBreaks = std::max(contentWidthBetweenLineBreaks.current, contentWidthBetweenLineBreaks.maximum);
     return maximumContentWidth;
@@ -289,8 +289,24 @@ InlineLayoutUnit IntrinsicWidthHandler::simplifiedMaximumWidth(MayCacheLayoutRes
     line.initialize({ }, true);
     line.appendTextFast(inlineTextItem, style, contentLogicalWidth);
     auto lineContent = line.close();
+
     ASSERT(contentLogicalWidth == lineContent.contentLogicalWidth);
-    m_maximumIntrinsicWidthResultForSingleLine = LineLayoutResult { { 0, 1 }, WTFMove(lineContent.runs), { }, { { }, lineContent.contentLogicalWidth, lineContent.contentLogicalRight, { } } };
+
+    m_maximumIntrinsicWidthResultForSingleLine = LineLayoutResult { { 0, 1 }
+        , WTFMove(lineContent.runs)
+        , { }
+        , { { }, lineContent.contentLogicalWidth, lineContent.contentLogicalRight, { } }
+        , { }
+        , { }
+        , { }
+        , { IsFirstFormattedLine::Yes, true }
+        , { }
+        , { LineLayoutResult::InlineContentEnding::Generic }
+        , { }
+        , { }
+        , { }
+        , { }
+    };
     return contentLogicalWidth;
 }
 
