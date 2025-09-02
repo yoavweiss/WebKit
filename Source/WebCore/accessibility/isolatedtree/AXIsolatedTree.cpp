@@ -1726,11 +1726,25 @@ std::optional<AXPropertyFlag> convertToPropertyFlag(AXProperty property)
 
 void setPropertyIn(AXProperty property, AXPropertyValueVariant&& value, AXPropertyVector& properties, OptionSet<AXPropertyFlag>& propertyFlags)
 {
-    if (const bool* boolValue = std::get_if<bool>(&value); boolValue && *boolValue) {
-        if (std::optional propertyFlag = convertToPropertyFlag(property)) {
-            propertyFlags.add(*propertyFlag);
+    if (const bool* boolValue = std::get_if<bool>(&value)) {
+        if (!*boolValue) {
+            // Because this function is only for building the initial set of properties,
+            // we don't need to handle a false value, as there never should be an attempt
+            // to un-set (with false) a bool property that has already been set.
+            // These asserts verify this.
+            ASSERT(!properties.containsIf([&property] (const auto& propertyPair) {
+                return propertyPair.first == property;
+            }));
+            ASSERT(!convertToPropertyFlag(property) || !propertyFlags.contains(*convertToPropertyFlag(property)));
             return;
         }
+
+        if (std::optional propertyFlag = convertToPropertyFlag(property))
+            propertyFlags.add(*propertyFlag);
+        else
+            properties.append(std::pair(property, WTFMove(value)));
+
+        return;
     }
 
     if (!isDefaultValue(property, value))
