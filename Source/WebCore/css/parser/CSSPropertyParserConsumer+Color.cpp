@@ -582,15 +582,15 @@ static std::optional<CSS::Color> consumeColorMixFunction(CSSParserTokenRange& ra
 
     auto args = consumeFunction(range);
 
-    if (args.peek().id() != CSSValueIn)
-        return std::nullopt;
+    std::optional<ColorInterpolationMethod> colorInterpolationMethod = CSS::defaultInterpolationMethodForColorMix;
+    if (args.peek().id() == CSSValueIn) {
+        colorInterpolationMethod = consumeColorInterpolationMethod(args, state.propertyParserState);
+        if (!colorInterpolationMethod)
+            return std::nullopt;
 
-    auto colorInterpolationMethod = consumeColorInterpolationMethod(args, state.propertyParserState);
-    if (!colorInterpolationMethod)
-        return std::nullopt;
-
-    if (!consumeCommaIncludingWhitespace(args))
-        return std::nullopt;
+        if (!consumeCommaIncludingWhitespace(args))
+            return std::nullopt;
+    }
 
     auto mixComponent1 = consumeColorMixComponent(args, state);
     if (!mixComponent1)
