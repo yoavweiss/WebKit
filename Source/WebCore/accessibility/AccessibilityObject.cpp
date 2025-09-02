@@ -633,7 +633,7 @@ AccessibilityObject* firstAccessibleObjectFromNode(const Node* node, NOESCAPE co
     if (!cache)
         return nullptr;
 
-    RefPtr accessibleObject = cache->getOrCreate(axNode->renderer());
+    RefPtr accessibleObject = cache->getOrCreate(const_cast<Node&>(*axNode));
     while (accessibleObject && !isAccessible(*accessibleObject)) {
         axNode = NodeTraversal::next(*axNode);
 
@@ -643,7 +643,7 @@ AccessibilityObject* firstAccessibleObjectFromNode(const Node* node, NOESCAPE co
         if (!axNode)
             return nullptr;
 
-        accessibleObject = cache->getOrCreate(axNode->renderer());
+        accessibleObject = cache->getOrCreate(const_cast<Node&>(*axNode));
     }
 
     return accessibleObject.get();
@@ -2321,9 +2321,9 @@ AccessibilityObject* AccessibilityObject::anchorElementForNode(Node& node)
         return nullptr;
 
     WeakPtr cache = renderer->document().axObjectCache();
-    RefPtr axObject = cache ? cache->getOrCreate(renderer.get()) : nullptr;
+    RefPtr axObject = cache ? cache->getOrCreate(node) : nullptr;
     RefPtr anchor = axObject ? axObject->anchorElement() : nullptr;
-    return anchor ? cache->getOrCreate(anchor->renderer()) : nullptr;
+    return anchor ? cache->getOrCreate(*anchor) : nullptr;
 }
 
 AccessibilityObject* AccessibilityObject::headingElementForNode(Node* node)
@@ -2335,7 +2335,7 @@ AccessibilityObject* AccessibilityObject::headingElementForNode(Node* node)
     if (!renderObject)
         return nullptr;
 
-    RefPtr axObject = renderObject->document().axObjectCache()->getOrCreate(*renderObject);
+    RefPtr axObject = renderObject->document().axObjectCache()->getOrCreate(*node);
 
     return Accessibility::findAncestor<AccessibilityObject>(*axObject, true, [] (const AccessibilityObject& object) {
         return object.role() == AccessibilityRole::Heading;
@@ -3086,7 +3086,7 @@ bool AccessibilityObject::isTabItemSelected() const
 
     auto elements = elementsFromAttribute(aria_controlsAttr);
     for (auto& element : elements) {
-        RefPtr tabPanel = cache->getOrCreate(element.ptr());
+        RefPtr tabPanel = cache->getOrCreate(element.get());
 
         // A tab item should only control tab panels.
         if (!tabPanel || tabPanel->role() != AccessibilityRole::TabPanel)

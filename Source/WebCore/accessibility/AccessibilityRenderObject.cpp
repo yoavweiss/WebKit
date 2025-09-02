@@ -565,7 +565,7 @@ AccessibilityObject* AccessibilityRenderObject::parentObject() const
     // Expose markers that are not direct children of a list item too.
     if (m_renderer->isRenderListMarker()) {
         for (auto& listItemAncestor : ancestorsOfType<RenderListItem>(*m_renderer)) {
-            RefPtr parent = dynamicDowncast<AccessibilityRenderObject>(axObjectCache()->getOrCreate(&listItemAncestor));
+            RefPtr parent = dynamicDowncast<AccessibilityRenderObject>(axObjectCache()->getOrCreate(listItemAncestor));
             if (parent && parent->markerRenderer() == m_renderer)
                 return parent.get();
         }
@@ -642,7 +642,7 @@ Element* AccessibilityRenderObject::anchorElement() const
         if (auto* anchor = dynamicDowncast<HTMLAnchorElement>(node.get()))
             return anchor;
 
-        RefPtr object = cache ? cache->getOrCreate(node->renderer()) : nullptr;
+        RefPtr object = cache ? cache->getOrCreate(*node) : nullptr;
         if (object && object->isLink())
             return dynamicDowncast<Element>(*node);
     }
@@ -1838,8 +1838,8 @@ AXCoreObject::AccessibilityChildrenVector AccessibilityRenderObject::documentLin
         return { };
 
     for (unsigned i = 0; RefPtr current = links->item(i); ++i) {
-        if (CheckedPtr renderer = current->renderer()) {
-            RefPtr axObject = cache->getOrCreate(*renderer);
+        if (current->renderer()) {
+            RefPtr axObject = cache->getOrCreate(*current);
             ASSERT(axObject);
             if (!axObject->isIgnored() && axObject->isLink())
                 result.append(axObject.releaseNonNull());
@@ -1847,8 +1847,7 @@ AXCoreObject::AccessibilityChildrenVector AccessibilityRenderObject::documentLin
             RefPtr parent = current->parentNode();
             if (RefPtr parentMap = dynamicDowncast<HTMLMapElement>(parent); parentMap && is<HTMLAreaElement>(*current)) {
                 RefPtr parentImage = parentMap->imageElement();
-                CheckedPtr parentImageRenderer = parentImage ? parentImage->renderer() : nullptr;
-                if (RefPtr parentImageAxObject = cache->getOrCreate(parentImageRenderer.get())) {
+                if (RefPtr parentImageAxObject = cache->getOrCreate(parentImage.get())) {
                     for (const auto& child : parentImageAxObject->unignoredChildren()) {
                         if (is<AccessibilityImageMapLink>(child) && !result.contains(child))
                             result.append(child);
@@ -2226,9 +2225,8 @@ AccessibilityObject* AccessibilityRenderObject::accessibilityHitTest(const IntPo
     if (RefPtr option = dynamicDowncast<HTMLOptionElement>(*node))
         node = option->ownerSelectElement();
 
-    auto* renderer = node->renderer();
-    auto* cache = renderer ? renderer->document().axObjectCache() : nullptr;
-    RefPtr result = cache ? cache->getOrCreate(*renderer) : nullptr;
+    auto* cache = node ? node->document().axObjectCache() : nullptr;
+    RefPtr result = cache ? cache->getOrCreate(*node) : nullptr;
     if (!result)
         return nullptr;
 
