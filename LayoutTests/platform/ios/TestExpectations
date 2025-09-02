@@ -8263,3 +8263,5 @@ webkit.org/b/298125 imported/w3c/web-platform-tests/mediacapture-streams/paralle
 imported/w3c/web-platform-tests/css/css-break/block-in-inline-012.html [ ImageOnlyFailure ]
 
 webkit.org/b/298244 imported/w3c/web-platform-tests/css/css-scroll-anchoring/shadow-dom-subscroller.html [ Pass Failure ]
+
+webkit.org/b/298256 [ Debug ] fast/dom/document-all.html [ Timeout ]
