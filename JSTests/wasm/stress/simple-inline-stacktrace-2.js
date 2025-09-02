@@ -1,4 +1,3 @@
-//@ skip if !$isWasmPlatform
 //@ skip if $memoryLimited
 //@ runDefault("--maximumWasmDepthForInlining=10", "--maximumWasmCalleeSizeForInlining=10000000", "--maximumWasmCallerSizeForInlining=10000000", "--useBBQJIT=0")
 var wasm_code = read('simple-inline-stacktrace.wasm', 'binary')
