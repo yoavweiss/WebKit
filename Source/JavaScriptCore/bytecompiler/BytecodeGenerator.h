@@ -669,6 +669,10 @@ namespace JSC {
 
     private:
         void emitTypeProfilerExpressionInfo(const JSTextPosition& startDivot, const JSTextPosition& endDivot);
+
+        enum class IsNotTypeofUndefined : uint8_t { Yes, No };
+        template<IsNotTypeofUndefined isNotTypeofUndefined>
+        bool tryEmitTypeofIsUndefinedForStringComparison(RegisterID* dst, RegisterID* src1, RegisterID* src2);
     public:
 
         // This doesn't emit expression info. If using this, make sure you shouldn't be emitting text offset.
