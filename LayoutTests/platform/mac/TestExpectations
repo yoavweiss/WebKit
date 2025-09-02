@@ -2533,3 +2533,5 @@ webkit.org/b/297609 compositing/backing/backing-store-attachment-empty-keyframe.
 webkit.org/b/297691 fast/canvas/webgl/tex-image-and-sub-image-2d-with-video.html [ Pass Failure ]
 
 webkit.org/b/298042 http/tests/security/clipboard/copy-paste-html-cross-origin-iframe-across-origin.html [ Pass Failure ]
+
+webkit.org/b/298255 http/tests/media/modern-media-controls/time-control/less-than-10-minutes.html [ Timeout ]
