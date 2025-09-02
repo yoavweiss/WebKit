@@ -61,6 +61,7 @@ public:
     const Properties& properties() const { return m_properties; }
 
     bool modeIsCurrent(drmModeModeInfo*) const;
+    void setCurrentMode(drmModeModeInfo*);
 
 private:
     uint32_t m_id { 0 };

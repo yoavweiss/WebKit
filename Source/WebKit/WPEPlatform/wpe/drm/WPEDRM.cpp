@@ -86,6 +86,11 @@ bool Crtc::modeIsCurrent(drmModeModeInfo* mode) const
     return !memcmp(&m_currentMode.value(), mode, sizeof(drmModeModeInfo));
 }
 
+void Crtc::setCurrentMode(drmModeModeInfo* mode)
+{
+    m_currentMode = *mode;
+}
+
 std::unique_ptr<Connector> Connector::create(int fd, drmModeConnector* connector)
 {
     WPE::DRM::UniquePtr<drmModeObjectProperties> properties(drmModeObjectGetProperties(fd, connector->connector_id, DRM_MODE_OBJECT_CONNECTOR));

@@ -315,7 +315,7 @@ static bool wpeViewDRMCommitAtomic(WPEViewDRM* view, WPE::DRM::Buffer* buffer, s
 
     auto* display = WPE_DISPLAY_DRM(wpe_view_get_display(WPE_VIEW(view)));
     auto* screen = WPE_SCREEN_DRM(wpeDisplayDRMGetScreen(display));
-    const auto& crtc = wpeScreenDRMGetCrtc(screen);
+    auto& crtc = wpeScreenDRMGetCrtc(screen);
     auto* mode = wpeScreenDRMGetMode(screen);
     auto fd = gbm_device_get_fd(wpe_display_drm_get_device(display));
     if (!crtc.modeIsCurrent(mode)) {
@@ -355,6 +355,9 @@ static bool wpeViewDRMCommitAtomic(WPEViewDRM* view, WPE::DRM::Buffer* buffer, s
         return false;
     }
 
+    if (flags & DRM_MODE_ATOMIC_ALLOW_MODESET)
+        crtc.setCurrentMode(mode);
+
     wpeScreenDRMDestroyDumbBufferIfNeeded(screen, fd);
 
     return true;
@@ -364,7 +367,7 @@ static bool wpeViewDRMCommitLegacy(WPEViewDRM* view, const WPE::DRM::Buffer& buf
 {
     auto* display = WPE_DISPLAY_DRM(wpe_view_get_display(WPE_VIEW(view)));
     auto* screen = WPE_SCREEN_DRM(wpeDisplayDRMGetScreen(display));
-    const auto& crtc = wpeScreenDRMGetCrtc(screen);
+    auto& crtc = wpeScreenDRMGetCrtc(screen);
     auto* mode = wpeScreenDRMGetMode(screen);
     auto fd = gbm_device_get_fd(wpe_display_drm_get_device(display));
     if (!crtc.modeIsCurrent(mode)) {
@@ -374,6 +377,8 @@ static bool wpeViewDRMCommitLegacy(WPEViewDRM* view, const WPE::DRM::Buffer& buf
             g_set_error_literal(error, WPE_VIEW_ERROR, WPE_VIEW_ERROR_RENDER_FAILED, "Failed to render buffer: failed to set CRTC");
             return false;
         }
+
+        crtc.setCurrentMode(mode);
     }
 
     // FIXME: support cursors in legacy mode.

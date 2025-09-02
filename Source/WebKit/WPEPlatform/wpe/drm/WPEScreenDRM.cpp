@@ -140,7 +140,7 @@ drmModeModeInfo* wpeScreenDRMGetMode(WPEScreenDRM* screen)
     return &screen->priv->mode;
 }
 
-const WPE::DRM::Crtc wpeScreenDRMGetCrtc(WPEScreenDRM* screen)
+WPE::DRM::Crtc& wpeScreenDRMGetCrtc(WPEScreenDRM* screen)
 {
     return *screen->priv->crtc;
 }
@@ -218,6 +218,8 @@ void wpeScreenDRMCreateDumbBufferIfNeeded(WPEScreenDRM* screen, int fd, uint32_t
         drmModeDestroyDumbBuffer(fd, handle);
         return;
     }
+
+    priv->crtc->setCurrentMode(&priv->mode);
 
     priv->dumb.bufferID = handle;
     priv->dumb.frameBufferID = frameBufferID;
