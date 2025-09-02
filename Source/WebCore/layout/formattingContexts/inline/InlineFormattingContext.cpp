@@ -341,7 +341,7 @@ InlineLayoutResult InlineFormattingContext::lineLayout(AbstractLineBuilder& line
             break;
         }
 
-        hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent;
+        hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent();
         previousLine = PreviousLine { lineIndex, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, !lineLayoutResult.inlineAndOpaqueContent.isEmpty() && lineLayoutResult.inlineAndOpaqueContent.last().isLineBreak(), hasEverSeenInlineContent, lineLayoutResult.directionality.inlineBaseDirection, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
         previousLineEnd = lineContentEnd;
         isFirstFormattedLineCandidate = !hasEverSeenInlineContent;
@@ -392,7 +392,7 @@ void InlineFormattingContext::updateInlineLayoutStateWithLineLayoutResult(const 
     if (lineLayoutResult.isFirstLast.isLastLineWithInlineContent)
         layoutState.setClearGapAfterLastLine(formattingUtils().logicalTopForNextLine(lineLayoutResult, lineLogicalRect, floatingContext) - lineLogicalRect.bottom());
 
-    lineLayoutResult.endsWithHyphen ? layoutState.incrementSuccessiveHyphenatedLineCount() : layoutState.resetSuccessiveHyphenatedLineCount();
+    lineLayoutResult.endsWithHyphen() ? layoutState.incrementSuccessiveHyphenatedLineCount() : layoutState.resetSuccessiveHyphenatedLineCount();
     layoutState.setFirstLineStartTrimForInitialLetter(lineLayoutResult.firstLineStartTrim);
 }
 
@@ -418,7 +418,7 @@ InlineRect InlineFormattingContext::createDisplayContentForInlineContent(const L
     auto isLegacyLineClamp = lineClamp && lineClamp->isLegacy;
     auto numberOfVisibleLinesAllowed = lineClamp ? std::make_optional(lineClamp->maximumLines) : std::nullopt;
 
-    auto numberOfLinesWithInlineContent = numberOfPreviousLContentfulLines + (lineLayoutResult.hasInlineContent ? 1 : 0);
+    auto numberOfLinesWithInlineContent = numberOfPreviousLContentfulLines + (lineLayoutResult.hasInlineContent() ? 1 : 0);
     auto lineIsFullyTruncatedInBlockDirection = numberOfLinesWithInlineContent > numberOfVisibleLinesAllowed.value_or(numberOfLinesWithInlineContent);
     auto displayLine = InlineDisplayLineBuilder { *this, constraints }.build(lineLayoutResult, lineBox, lineIsFullyTruncatedInBlockDirection);
     auto boxes = InlineDisplayContentBuilder { *this, constraints, lineBox, displayLine }.build(lineLayoutResult);

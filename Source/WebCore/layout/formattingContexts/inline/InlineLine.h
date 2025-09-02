@@ -213,7 +213,6 @@ public:
         InlineLayoutUnit hangingTrailingContentWidth { 0.f };
         InlineLayoutUnit hangablePunctuationStartWidth { 0.f };
         bool contentNeedsBidiReordering { false };
-        bool hasInlineContent { false };
         size_t nonSpanningInlineLevelBoxCount { 0 };
     };
     Result close();

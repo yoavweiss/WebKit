@@ -226,7 +226,7 @@ InlineLayoutUnit IntrinsicWidthHandler::computedIntrinsicWidthForConstraint(Intr
         // Support single line only.
         mayCacheLayoutResult = MayCacheLayoutResult::No;
         previousLineEnd = layoutRange.start;
-        hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent;
+        hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent();
         isFirstFormattedLine = !hasEverSeenInlineContent;
         previousLine = PreviousLine { lineIndex++, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineEndsWithLineBreak, hasEverSeenInlineContent, { }, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
     }

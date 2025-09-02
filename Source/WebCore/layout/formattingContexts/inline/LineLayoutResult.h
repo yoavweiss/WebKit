@@ -89,8 +89,11 @@ struct LineLayoutResult {
     Ruby ruby { };
 
     // Misc
-    bool hasInlineContent { false };
-    bool endsWithHyphen { false };
+    enum InlineContentEnding : uint8_t { Generic, Hyphen };
+    std::optional<InlineContentEnding> inlineContentEnding { }; // No value means line does not have any inline content (either float or out-of-flow)
+    bool hasInlineContent() const { return inlineContentEnding.has_value(); }
+    bool endsWithHyphen() const { return inlineContentEnding && *inlineContentEnding == InlineContentEnding::Hyphen; }
+
     size_t nonSpanningInlineLevelBoxCount { 0 };
     InlineLayoutUnit trimmedTrailingWhitespaceWidth { 0.f }; // only used for line-break: after-white-space currently
     InlineLayoutUnit firstLineStartTrim { 0.f }; // This is how much text-box-trim: start adjusts the first line box. We only need it to adjust the initial letter float position (which will not be needed once we drop the float behavior)

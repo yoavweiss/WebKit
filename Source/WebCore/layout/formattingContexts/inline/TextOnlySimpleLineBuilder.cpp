@@ -111,6 +111,7 @@ LineLayoutResult TextOnlySimpleLineBuilder::layoutInlineContent(const LineInput&
     auto result = m_line.close();
 
     auto isLastInlineContent = isLastLineWithInlineContent(placedContentEnd, lineInput.needsLayoutRange.endIndex());
+    auto inlineContentEnding = InlineFormattingUtils::inlineContentEnding(result);
     auto contentLogicalLeft = InlineFormattingUtils::horizontalAlignmentOffset(rootStyle, result.contentLogicalRight, m_lineLogicalRect.width(), result.hangingTrailingContentWidth, result.runs, isLastInlineContent);
 
     return { { lineInput.needsLayoutRange.start, placedContentEnd }
@@ -120,10 +121,9 @@ LineLayoutResult TextOnlySimpleLineBuilder::layoutInlineContent(const LineInput&
         , { m_lineLogicalRect.topLeft(), m_lineLogicalRect.width(), m_lineLogicalRect.left() }
         , { !result.isHangingTrailingContentWhitespace, result.hangingTrailingContentWidth }
         , { }
-        , { isFirstFormattedLineCandidate && result.hasInlineContent, isLastInlineContent }
+        , { isFirstFormattedLineCandidate && inlineContentEnding.has_value(), isLastInlineContent }
         , { }
-        , result.hasInlineContent
-        , { }
+        , inlineContentEnding
         , { }
         , m_trimmedTrailingWhitespaceWidth
         , { }

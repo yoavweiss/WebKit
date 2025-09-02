@@ -47,7 +47,6 @@ struct LineContent {
     WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(LineContent);
 
     InlineItemRange range;
-    bool endsWithHyphen { false };
     size_t partialTrailingContentLength { 0 };
     std::optional<InlineLayoutUnit> overflowLogicalWidth { };
     HashMap<const Box*, InlineLayoutUnit> rubyBaseAlignmentOffsetList { };
@@ -269,6 +268,7 @@ LineLayoutResult LineBuilder::layoutInlineContent(const LineInput& lineInput, co
     initialize(lineInput.initialLogicalRect, lineInput.needsLayoutRange, previousLine, isFirstFormattedLineCandidate);
     auto lineContent = placeInlineAndFloatContent(lineInput.needsLayoutRange);
     auto result = m_line.close();
+    auto inlineContentEnding = InlineFormattingUtils::inlineContentEnding(result);
 
     if (isInIntrinsicWidthMode()) {
         return { lineContent->range
@@ -280,8 +280,7 @@ LineLayoutResult LineBuilder::layoutInlineContent(const LineInput& lineInput, co
             , { }
             , { }
             , { }
-            , result.hasInlineContent
-            , { }
+            , inlineContentEnding
             , { }
             , { }
             , { }
@@ -307,10 +306,9 @@ LineLayoutResult LineBuilder::layoutInlineContent(const LineInput& lineInput, co
         , { m_lineLogicalRect.topLeft(), m_lineLogicalRect.width(), m_lineInitialLogicalRect.left() + m_initialIntrusiveFloatsWidth, m_initialLetterClearGap }
         , { !result.isHangingTrailingContentWhitespace, result.hangingTrailingContentWidth, result.hangablePunctuationStartWidth }
         , { WTFMove(visualOrderList), inlineBaseDirection }
-        , { isFirstFormattedLineCandidate && result.hasInlineContent, isLastInlineContent }
+        , { isFirstFormattedLineCandidate && inlineContentEnding.has_value(), isLastInlineContent }
         , { WTFMove(lineContent->rubyBaseAlignmentOffsetList), lineContent->rubyAnnotationOffset }
-        , result.hasInlineContent
-        , lineContent->endsWithHyphen
+        , inlineContentEnding
         , result.nonSpanningInlineLevelBoxCount
         , { }
         , { }
@@ -602,8 +600,6 @@ UniqueRef<LineContent> LineBuilder::placeInlineAndFloatContent(const InlineItemR
                     lineContent->rubyBaseAlignmentOffsetList = RubyFormattingContext::applyRubyAlign(m_line, formattingContext());
             };
             applyRunBasedAlignmentIfApplicable();
-            auto& lastTextContent = m_line.runs().last().textContent();
-            lineContent->endsWithHyphen = lastTextContent && lastTextContent->needsHyphen;
         }
     };
     handleLineEnding();

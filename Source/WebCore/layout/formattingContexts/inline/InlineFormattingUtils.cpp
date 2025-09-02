@@ -53,7 +53,7 @@ InlineLayoutUnit InlineFormattingUtils::logicalTopForNextLine(const LineLayoutRe
     if (didManageToPlaceInlineContentOrFloat) {
         // Normally the next line's logical top is the previous line's logical bottom, but when the line ends
         // with the clear property set, the next line needs to clear the existing floats.
-        if (!lineLayoutResult.hasInlineContent)
+        if (!lineLayoutResult.hasInlineContent())
             return lineLogicalRect.bottom();
         auto& lastRunLayoutBox = lineLayoutResult.inlineAndOpaqueContent.last().layoutBox();
         if (!lastRunLayoutBox.hasFloatClear() || lastRunLayoutBox.isOutOfFlowPositioned())
@@ -67,7 +67,7 @@ InlineLayoutUnit InlineFormattingUtils::logicalTopForNextLine(const LineLayoutRe
     auto intrusiveFloatBottom = [&]() -> std::optional<InlineLayoutUnit> {
         // Floats must have prevented us placing any content on the line.
         // Move next line below the intrusive float(s).
-        ASSERT(!lineLayoutResult.hasInlineContent || lineLayoutResult.inlineAndOpaqueContent[0].isLineSpanningInlineBoxStart());
+        ASSERT(!lineLayoutResult.hasInlineContent() || lineLayoutResult.inlineAndOpaqueContent[0].isLineSpanningInlineBoxStart());
         auto nextLineLogicalTop = [&]() -> LayoutUnit {
             if (auto nextLineLogicalTopCandidate = lineLayoutResult.hintForNextLineTopToAvoidIntrusiveFloat)
                 return LayoutUnit { *nextLineLogicalTopCandidate };
@@ -604,6 +604,19 @@ LineEndingTruncationPolicy InlineFormattingUtils::lineEndingTruncationPolicy(con
     if (rootStyle.overflowX() != Overflow::Visible && rootStyle.textOverflow() == TextOverflow::Ellipsis)
         return LineEndingTruncationPolicy::WhenContentOverflowsInInlineDirection;
     return LineEndingTruncationPolicy::NoTruncation;
+}
+
+std::optional<LineLayoutResult::InlineContentEnding> InlineFormattingUtils::inlineContentEnding(const Line::Result& lineContent)
+{
+    for (auto& run : makeReversedRange(lineContent.runs)) {
+        if (run.isOpaque())
+            continue;
+
+        if (auto& textContent = run.textContent(); textContent && textContent->needsHyphen)
+            return { LineLayoutResult::InlineContentEnding::Hyphen };
+        return { LineLayoutResult::InlineContentEnding::Generic };
+    }
+    return { };
 }
 
 bool InlineFormattingUtils::shouldDiscardRemainingContentInBlockDirection(size_t numberOfLinesWithInlineContent) const

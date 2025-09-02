@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "InlineLine.h"
 #include "InlineLineBuilder.h"
 #include <WebCore/InlineLineTypes.h>
 
@@ -69,6 +70,8 @@ public:
     static std::pair<InlineLayoutUnit, InlineLayoutUnit> textEmphasisForInlineBox(const Box&, const ElementBox& rootBox);
 
     static LineEndingTruncationPolicy lineEndingTruncationPolicy(const RenderStyle& rootStyle, size_t numberOfContentfulLines, std::optional<size_t> numberOfVisibleLinesAllowed, bool currentLineIsContentful);
+
+    static std::optional<LineLayoutResult::InlineContentEnding> inlineContentEnding(const Line::Result&);
 
     bool shouldDiscardRemainingContentInBlockDirection(size_t numberOfLinesWithInlineContent) const;
 

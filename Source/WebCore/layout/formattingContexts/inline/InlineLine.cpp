@@ -94,14 +94,6 @@ Line::Result Line::close()
         return decorationWidth;
     }();
 
-    auto hasInlineContent = [&] {
-        for (auto& run : m_runs) {
-            if (!run.isOpaque())
-                return true;
-        }
-        return false;
-    }();
-
     auto contentLogicalRight = this->contentLogicalRight() + m_rubyAlignContentRightOffset;
     return { WTFMove(m_runs)
         , contentLogicalWidth() + trailingClonedDecorationWidth
@@ -110,7 +102,6 @@ Line::Result Line::close()
         , m_hangingContent.trailingWidth()
         , m_hangingContent.leadingPunctuationWidth()
         , m_hasNonDefaultBidiLevelRun
-        , hasInlineContent
         , m_nonSpanningInlineLevelBoxCount
     };
 }
