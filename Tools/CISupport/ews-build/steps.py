@@ -6121,24 +6121,6 @@ class CleanGitRepo(steps.ShellSequence, ShellMixin):
         return {'step': 'Cleaned up git repository'}
 
 
-class ApplyWatchList(shell.ShellCommandNewStyle):
-    name = 'apply-watch-list'
-    description = ['applying watchilist']
-    descriptionDone = ['Applied WatchList']
-    bug_id = WithProperties('%(bug_id)s')
-    command = ['python3', 'Tools/Scripts/webkit-patch', 'apply-watchlist-local', bug_id]
-    haltOnFailure = True
-    flunkOnFailure = True
-
-    def __init__(self, **kwargs):
-        super().__init__(timeout=2 * 60, logEnviron=False, **kwargs)
-
-    def getResultSummary(self):
-        if self.results != SUCCESS:
-            return {'step': 'Failed to apply watchlist'}
-        return super().getResultSummary()
-
-
 class PushCommitToWebKitRepo(shell.ShellCommandNewStyle):
     name = 'push-commit-to-webkit-repo'
     descriptionDone = ['Pushed commit to WebKit repository']
