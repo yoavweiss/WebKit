@@ -4126,6 +4126,18 @@
    },
    {
       "emails" : [
+         "youngjoo.lee.seoul@apple.com",
+         "jlee999283@apple.com"
+      ],
+      "expertise" : "Security",
+      "github" : "jayleeapple",
+      "name" : "Jay Lee",
+      "nicks" : [
+         "jlee999283"
+      ]
+   },
+   {
+      "emails" : [
          "j_stfleur@apple.com",
          "jstsaintfleur@gmail.com"
       ],
