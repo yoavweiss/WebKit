@@ -38,6 +38,7 @@
 #include "AXTreeStoreInlines.h"
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
+#include "AccessibilityObjectInlines.h"
 #include "AccessibilityTableCell.h"
 #include "AccessibilityTableRow.h"
 #include "DocumentInlines.h"

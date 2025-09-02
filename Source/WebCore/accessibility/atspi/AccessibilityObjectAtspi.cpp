@@ -24,6 +24,7 @@
 #include "AXCoreObject.h"
 #include "AXObjectCache.h"
 #include "AccessibilityAtspiInterfaces.h"
+#include "AccessibilityObjectInlines.h"
 #include "AccessibilityRootAtspi.h"
 #include "AccessibilityTableCell.h"
 #include "ElementInlines.h"

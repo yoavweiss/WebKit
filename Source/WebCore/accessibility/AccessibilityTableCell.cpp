@@ -31,6 +31,7 @@
 
 #include "AXObjectCacheInlines.h"
 #include "AXUtilities.h"
+#include "AccessibilityObjectInlines.h"
 #include "AccessibilityTableRow.h"
 #include "HTMLParserIdioms.h"
 #include "HTMLTableCellElement.h"

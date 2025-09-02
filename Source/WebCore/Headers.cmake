@@ -844,6 +844,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     accessibility/AXNotifications.h
     accessibility/AXObjectCache.h
     accessibility/AXObjectCacheInlines.h
+    accessibility/AXObjectRareData.h
     accessibility/AXSearchManager.h
     accessibility/AXTextMarker.h
     accessibility/AXTextRun.h
@@ -855,6 +856,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     accessibility/AccessibilityMockObject.h
     accessibility/AccessibilityNodeObject.h
     accessibility/AccessibilityObject.h
+    accessibility/AccessibilityObjectInlines.h
     accessibility/AccessibilityRenderObject.h
     accessibility/AccessibilityRole.h
     accessibility/AccessibilityScrollView.h

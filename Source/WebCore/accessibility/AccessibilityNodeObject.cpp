@@ -39,6 +39,7 @@
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityMediaHelpers.h"
+#include "AccessibilityObjectInlines.h"
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTableCell.h"
 #include "AccessibilityTableColumn.h"
