@@ -8265,3 +8265,5 @@ imported/w3c/web-platform-tests/css/css-break/block-in-inline-012.html [ ImageOn
 webkit.org/b/298244 imported/w3c/web-platform-tests/css/css-scroll-anchoring/shadow-dom-subscroller.html [ Pass Failure ]
 
 webkit.org/b/298256 [ Debug ] fast/dom/document-all.html [ Timeout ]
+
+webkit.org/b/298269 [ Release ] imported/w3c/web-platform-tests/html/anonymous-iframe/session-storage.tentative.https.window.html [ Pass Failure ]

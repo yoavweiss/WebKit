@@ -2416,3 +2416,5 @@ webkit.org/b/267778 [ Release ] fast/forms/listbox-padding-clip-selected.html [ 
 webkit.org/b/298044 [ arm64 ] fast/scrolling/mac/scrollbars/overflow-in-iframe-overlay-scrollbar-reveal.html [ Pass Failure ]
 
 webkit.org/b/298256 [ Debug ] fast/dom/document-all.html [ Pass Timeout ]
+
+webkit.org/b/298269 imported/w3c/web-platform-tests/html/anonymous-iframe/session-storage.tentative.https.window.html [ Pass Failure ]
