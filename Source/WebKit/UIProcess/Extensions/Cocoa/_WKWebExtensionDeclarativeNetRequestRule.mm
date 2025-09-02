@@ -38,6 +38,7 @@ NSString * const dynamicRulesetID = @"_dynamic";
 #import "CocoaHelpers.h"
 #import "WKContentRuleListInternal.h"
 #import "WebExtensionUtilities.h"
+#import <WebCore/LocalizedStrings.h>
 
 // If any changes are made to the rule translation logic here, make sure to increment currentDeclarativeNetRequestRuleTranslatorVersion in WebExtensionContextCocoa.
 
@@ -133,7 +134,6 @@ using namespace WebKit;
         declarativeNetRequestRuleConditionKey: NSDictionary.class,
     };
 
-    // FIXME: <rdar://72159785> Make sure every rule ID is unique.
     _ruleID = objectForKey<NSNumber>(ruleDictionary, declarativeNetRequestRuleIDKey).integerValue;
     if (!_ruleID) {
         if (outErrorString)
