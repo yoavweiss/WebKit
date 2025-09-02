@@ -3276,7 +3276,7 @@ class BuildLogLineObserver(ParseByLineLogObserver):
             self.error_context_buffer = []
 
 
-class CompileWebKit(shell.Compile, AddToLogMixin, ShellMixin):
+class CompileWebKit(shell.CompileNewStyle, AddToLogMixin, ShellMixin):
     name = 'compile-webkit'
     description = ['compiling']
     descriptionDone = ['Compiled WebKit']
@@ -3296,7 +3296,8 @@ class CompileWebKit(shell.Compile, AddToLogMixin, ShellMixin):
     def doStepIf(self, step):
         return not (self.getProperty('fast_commit_queue') and self.getProperty('buildername', '').lower() == 'commit-queue')
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         platform = self.getProperty('platform')
         buildOnly = self.getProperty('buildOnly')
         architecture = self.getProperty('architecture')
@@ -3335,16 +3336,17 @@ class CompileWebKit(shell.Compile, AddToLogMixin, ShellMixin):
 
         # filter-build-webkit is specifically designed for Xcode and doesn't work generally
         if platform in self.APPLE_PLATFORMS:
-            self.setCommand(self.shell_command(f"{' '.join(build_command)} 2>&1 | {' '.join(self.filter_command)}"))
+            self.command = self.shell_command(f"{' '.join(build_command)} 2>&1 | {' '.join(self.filter_command)}")
         else:
-            self.setCommand(build_command)
+            self.command = build_command
 
-        return shell.Compile.start(self)
+        rc = yield super().run()
+        defer.returnValue(rc)
 
     def errorReceived(self, error):
         # Temporary workaround for catching silent failures: https://bugs.webkit.org/show_bug.cgi?id=276081
         self.build_failed = True
-        self._addToLog('errors', error + '\n')
+        # FIXME: Re-enable error filtering from logs.
 
     def handleExcessiveLogging(self):
         build_url = f'{self.master.config.buildbotURL}#/builders/{self.build._builderid}/builds/{self.build.number}'
@@ -3419,7 +3421,7 @@ class CompileWebKit(shell.Compile, AddToLogMixin, ShellMixin):
             return {'step': 'Skipped compiling WebKit'}
         if self.results == CANCELLED and self.cancelled_due_to_huge_logs:
             return {'step': 'Cancelled step due to huge logs', 'build': 'Cancelled build due to huge logs'}
-        return shell.Compile.getResultSummary(self)
+        return super().getResultSummary()
 
 
 class CompileWebKitWithoutChange(CompileWebKit):
@@ -3431,7 +3433,7 @@ class CompileWebKitWithoutChange(CompileWebKit):
         super().__init__(**kwargs)
 
     def evaluateCommand(self, cmd):
-        rc = shell.Compile.evaluateCommand(self, cmd)
+        rc = shell.CompileNewStyle.evaluateCommand(self, cmd)
 
         self.build.addStepsAfterCurrentStep(self.follow_up_steps())
 
@@ -3665,7 +3667,7 @@ class CompileJSC(CompileWebKit):
     def getResultSummary(self):
         if self.results == FAILURE:
             return {'step': 'Failed to compile JSC'}
-        return shell.Compile.getResultSummary(self)
+        return shell.CompileNewStyle.getResultSummary(self)
 
 
 class CompileJSC32(CompileWebKit):
@@ -3680,21 +3682,21 @@ class CompileJSC32(CompileWebKit):
     def getResultSummary(self):
         if self.results == FAILURE:
             return {'step': 'Failed to compile JSC'}
-        return shell.Compile.getResultSummary(self)
+        return shell.CompileNewStyle.getResultSummary(self)
 
 
 class CompileJSCWithoutChange(CompileJSC):
     name = 'compile-jsc-without-change'
 
     def evaluateCommand(self, cmd):
-        return shell.Compile.evaluateCommand(self, cmd)
+        return shell.CompileNewStyle.evaluateCommand(self, cmd)
 
 
 class CompileJSCWithoutChange32(CompileJSC32):
     name = 'compile-jsc-32bit-without-change'
 
     def evaluateCommand(self, cmd):
-        return shell.Compile.evaluateCommand(self, cmd)
+        return shell.CompileNewStyle.evaluateCommand(self, cmd)
 
 
 class RunJavaScriptCoreTests(shell.Test, AddToLogMixin, ShellMixin):
