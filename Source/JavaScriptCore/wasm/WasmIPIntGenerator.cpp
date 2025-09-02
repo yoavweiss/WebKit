@@ -596,7 +596,7 @@ public:
         return m_cachedCallInformation;
     }
 
-    static constexpr bool tierSupportsSIMD = false;
+    static bool tierSupportsSIMD() { return Options::useWasmIPIntSIMD(); }
     static constexpr bool validateFunctionBodySize = true;
 
 private:

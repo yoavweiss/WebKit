@@ -119,7 +119,7 @@ public:
     using WasmConstRefValue = Const64Value;
 
     static constexpr bool shouldFuseBranchCompare = false;
-    static constexpr bool tierSupportsSIMD = true;
+    static constexpr bool tierSupportsSIMD() { return true; }
     static constexpr bool validateFunctionBodySize = true;
 
     struct ControlData {
