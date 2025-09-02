@@ -3312,8 +3312,6 @@ void WebPage::pageDidScroll()
     if (!m_inDynamicSizeUpdate)
         m_internals->dynamicSizeUpdateHistory.clear();
 #endif
-    m_uiClient->pageDidScroll(this);
-
     m_pageScrolledHysteresis.impulse();
 
     if (RefPtr view = protectedCorePage()->protectedMainFrame()->virtualView())

@@ -154,7 +154,6 @@ void PageConsoleClient::addMessage(std::unique_ptr<Inspector::ConsoleMessage>&& 
             message = consoleMessage->message();
 
         page->chrome().client().addMessageToConsole(consoleMessage->source(), consoleMessage->level(), message, consoleMessage->line(), consoleMessage->column(), consoleMessage->url());
-        page->chrome().client().addMessageWithArgumentsToConsole(consoleMessage->source(), consoleMessage->level(), message, additionalArguments, consoleMessage->line(), consoleMessage->column(), consoleMessage->url());
 
         if (page->settings().logsPageMessagesToSystemConsoleEnabled() || shouldPrintExceptions()) [[unlikely]]
             logMessageToSystemConsole(*consoleMessage);
@@ -224,7 +223,6 @@ void PageConsoleClient::messageWithTypeAndLevel(MessageType type, MessageLevel l
 
     if (!messageArgumentsVector.isEmpty()) {
         page->chrome().client().addMessageToConsole(MessageSource::ConsoleAPI, level, messageText, lineNumber, columnNumber, url);
-        page->chrome().client().addMessageWithArgumentsToConsole(MessageSource::ConsoleAPI, level, messageText, additionalArguments, lineNumber, columnNumber, url);
     }
 
     if (page->settings().logsPageMessagesToSystemConsoleEnabled() || PageConsoleClient::shouldPrintExceptions())

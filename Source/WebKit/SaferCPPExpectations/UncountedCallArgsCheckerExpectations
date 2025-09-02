@@ -96,7 +96,6 @@ WebProcess/InjectedBundle/API/mac/WKWebProcessPlugIn.mm
 WebProcess/InjectedBundle/API/mac/WKWebProcessPlugInBrowserContextController.mm
 WebProcess/InjectedBundle/InjectedBundleDOMWindowExtension.cpp
 WebProcess/InjectedBundle/InjectedBundleHitTestResult.cpp
-WebProcess/InjectedBundle/InjectedBundlePageUIClient.cpp
 WebProcess/Inspector/WebInspectorUI.cpp
 WebProcess/Inspector/WebInspectorUIExtensionController.cpp
 WebProcess/Storage/WebSWClientConnection.cpp
