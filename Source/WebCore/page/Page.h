@@ -374,6 +374,7 @@ public:
     WEBCORE_EXPORT static Ref<Page> create(PageConfiguration&&);
     WEBCORE_EXPORT ~Page();
 
+    static void updateControlTintsForAllPages();
     WEBCORE_EXPORT static void updateStyleForAllPagesAfterGlobalChangeInEnvironment();
     WEBCORE_EXPORT static void clearPreviousItemFromAllPages(BackForwardItemIdentifier);
 
@@ -1445,6 +1446,8 @@ private:
     void clearSampledPageTopColor();
 
     bool hasLocalMainFrame();
+
+    void updateControlTints();
 
     struct Internals;
     const UniqueRef<Internals> m_internals;

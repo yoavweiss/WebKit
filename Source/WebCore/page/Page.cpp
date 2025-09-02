@@ -1088,6 +1088,12 @@ void Page::updateStyleForAllPagesAfterGlobalChangeInEnvironment()
         Ref { page.get() }->updateStyleAfterChangeInEnvironment();
 }
 
+void Page::updateControlTintsForAllPages()
+{
+    for (auto& page : allPages())
+        Ref { page.get() }->updateControlTints();
+}
+
 void Page::setNeedsRecalcStyleInAllFrames()
 {
     // FIXME: Figure out what this function is actually trying to add in different call sites.
@@ -5974,5 +5980,13 @@ void Page::updateDisplayEDRHeadroom()
 }
 
 #endif
+
+void Page::updateControlTints()
+{
+    forEachLocalFrame([] (LocalFrame& frame) {
+        if (RefPtr view = frame.view())
+            view->updateControlTints();
+    });
+}
 
 } // namespace WebCore

@@ -99,19 +99,28 @@
     if (!self)
         return nil;
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-        selector:@selector(systemColorsDidChange:) name:NSSystemColorsDidChangeNotification object:nil];
+    RetainPtr systemColorsChangedNotification = NSSystemColorsDidChangeNotification;
+    RetainPtr accessibilityDisplayOptionsChangedNotification = NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification;
 
+    [[NSNotificationCenter defaultCenter] addObserver:self
+        selector:@selector(systemColorsDidChange:) name:systemColorsChangedNotification.get() object:nil];
     [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
-        selector:@selector(systemColorsDidChange:) name:NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification object:nil];
+        selector:@selector(accessibilityDisplayOptionsDidChange:) name:accessibilityDisplayOptionsChangedNotification.get() object:nil];
 
     return self;
+}
+
+- (void)accessibilityDisplayOptionsDidChange:(NSNotification *)notification
+{
+    UNUSED_PARAM(notification);
+    WebCore::RenderTheme::singleton().platformColorsDidChange();
 }
 
 - (void)systemColorsDidChange:(NSNotification *)notification
 {
     UNUSED_PARAM(notification);
     WebCore::RenderTheme::singleton().platformColorsDidChange();
+    WebCore::Page::updateControlTintsForAllPages();
 }
 
 @end

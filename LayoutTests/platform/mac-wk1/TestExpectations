@@ -1179,7 +1179,6 @@ http/tests/security/contentSecurityPolicy/navigate-self-to-data-url.html [ Skip 
 accessibility/color-well.html [ Skip ]
 accessibility/color-well-legacy.html [ Skip ]
 accessibility/color-input-value-changes.html [ Skip ]
-accessibility/mac/media-query-values-change.html [ Skip ]
 editing/pasteboard/drag-and-drop-color-input-events.html [ Skip ]
 editing/pasteboard/drag-and-drop-color-input.html [ Skip ]
 fast/css/pseudo-visited-background-color-on-input.html [ ImageOnlyFailure ]
@@ -3223,5 +3222,9 @@ js/dom/lockdown-mode [ Skip ]
 
 # The decimal portion of the coordinates changes slightly between runs
 webkit.org/b/297993 imported/w3c/web-platform-tests/pointerevents/pointerlock/pointerevent_coordinates_when_locked.html [ Skip ]
+
+# Accessibility setting injection is unavailable in WK1.
+webkit.org/b/298211 accessibility/mac/media-query-values-change.html [ Skip ]
+webkit.org/b/298211 accessibility/mac/increase-contrast-system-color-changes.html [ Skip ]
 
 webkit.org/b/289382 fast/canvas/offscreen-no-script-context-crash.html [ Skip ]
