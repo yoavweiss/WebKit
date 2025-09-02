@@ -271,6 +271,10 @@ public:
     RemoteAudioSessionProxy& audioSessionProxy();
 #endif
 
+#if PLATFORM(IOS_FAMILY)
+    void providePresentingApplicationPID(WebCore::PageIdentifier) const;
+#endif
+
 private:
     GPUConnectionToWebProcess(GPUProcess&, WebCore::ProcessIdentifier, PAL::SessionID, IPC::Connection::Handle&&, GPUProcessConnectionParameters&&);
 

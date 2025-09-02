@@ -105,7 +105,7 @@ bool AudioSessionCocoa::tryToSetActiveInternal(bool active)
     // means that AVAudioSession may synchronously unduck previously ducked clients. Activation needs to complete before this method
     // returns, so do it synchronously on the same serial queue.
     if (active) {
-#if PLATFORM(IOS_FAMILY)
+#if PLATFORM(IOS_FAMILY) && !ENABLE(EXTENSION_CAPABILITIES)
         ASSERT(!isInAuxiliaryProcess() || MediaSessionHelper::sharedHelper().presentedApplicationPID());
 #endif
 

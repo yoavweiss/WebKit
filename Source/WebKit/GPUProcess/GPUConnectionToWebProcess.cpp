@@ -179,19 +179,6 @@ using namespace WebCore;
 
 #if PLATFORM(COCOA) && ENABLE(MEDIA_STREAM)
 
-#if PLATFORM(IOS_FAMILY)
-static void providePresentingApplicationPID(GPUConnectionToWebProcess& process, WebCore::PageIdentifier pageIdentifier)
-{
-#if ENABLE(EXTENSION_CAPABILITIES)
-    if (process.sharedPreferencesForWebProcessValue().mediaCapabilityGrantsEnabled)
-        return;
-#endif
-
-    ASSERT(process.presentingApplicationPID(pageIdentifier));
-    MediaSessionHelper::sharedHelper().providePresentingApplicationPID(process.presentingApplicationPID(pageIdentifier));
-}
-#endif
-
 class GPUProxyForCapture final : public UserMediaCaptureManagerProxy::ConnectionProxy {
     WTF_MAKE_TZONE_ALLOCATED_INLINE(GPUProxyForCapture);
 public:
@@ -247,6 +234,13 @@ private:
     }
 #endif
 
+#if PLATFORM(IOS_FAMILY)
+    void providePresentingApplicationPID(WebCore::PageIdentifier pageIdentifier) const final
+    {
+        m_process.get()->providePresentingApplicationPID(pageIdentifier);
+    }
+#endif
+
     void startProducingData(CaptureDevice::DeviceType type, WebCore::PageIdentifier pageIdentifier) final
     {
         RefPtr process = m_process.get();
@@ -254,7 +248,7 @@ private:
             process->startCapturingAudio();
 #if PLATFORM(IOS_FAMILY)
         else if (type == CaptureDevice::DeviceType::Camera) {
-            providePresentingApplicationPID(*process, pageIdentifier);
+            providePresentingApplicationPID(pageIdentifier);
 #if HAVE(AVCAPTUREDEVICEROTATIONCOORDINATOR)
             AVVideoCaptureSource::setUseAVCaptureDeviceRotationCoordinatorAPI(process->sharedPreferencesForWebProcess() && process->sharedPreferencesForWebProcess()->useAVCaptureDeviceRotationCoordinatorAPI);
 #endif
@@ -687,6 +681,20 @@ RemoteAudioSessionProxy& GPUConnectionToWebProcess::audioSessionProxy()
 Ref<RemoteAudioSessionProxy> GPUConnectionToWebProcess::protectedAudioSessionProxy()
 {
     return audioSessionProxy();
+}
+#endif
+
+#if PLATFORM(IOS_FAMILY)
+void GPUConnectionToWebProcess::providePresentingApplicationPID(WebCore::PageIdentifier pageIdentifier) const
+{
+#if ENABLE(EXTENSION_CAPABILITIES)
+    if (sharedPreferencesForWebProcessValue().mediaCapabilityGrantsEnabled)
+        return;
+#endif
+
+    ProcessID processID = presentingApplicationPID(pageIdentifier);
+    ASSERT(processID);
+    MediaSessionHelper::sharedHelper().providePresentingApplicationPID(processID);
 }
 #endif
 

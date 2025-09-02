@@ -77,6 +77,9 @@ public:
 #if ENABLE(EXTENSION_CAPABILITIES)
         virtual bool setCurrentMediaEnvironment(WebCore::PageIdentifier) { return false; };
 #endif
+#if PLATFORM(IOS_FAMILY)
+        virtual void providePresentingApplicationPID(WebCore::PageIdentifier) const = 0;
+#endif
         virtual void startProducingData(WebCore::CaptureDevice::DeviceType, WebCore::PageIdentifier) { }
         virtual RemoteVideoFrameObjectHeap* remoteVideoFrameObjectHeap() { return nullptr; }
 
