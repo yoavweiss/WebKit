@@ -53,6 +53,7 @@ private:
     Function<gboolean(GIOCondition)> m_callback;
     bool m_isExecutingCallback { false };
     bool m_shouldDestroyCallback { false };
+    bool m_shouldCancelOnStop { false };
 };
 
 } // namespace WTF
