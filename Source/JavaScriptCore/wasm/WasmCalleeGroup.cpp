@@ -262,9 +262,12 @@ void CalleeGroup::updateCallsitesToCallUs(const AbstractLocker& locker, CodeLoca
 
     m_wasmIndirectCallEntryPoints[functionIndex] = entrypoint;
 
+    // FIXME: This does an icache flush for each repatch but we
+    // 1) only need one at the end.
+    // 2) probably don't need one at all because we don't compile wasm on mutator threads so we don't have to worry about cache coherency.
     for (auto& callsite : callsites) {
         dataLogLnIf(verbose, "Repatching call at: ", RawPointer(callsite.callLocation.dataLocation()), " to ", RawPointer(entrypoint.taggedPtr()));
-        MacroAssembler::repatchNearCall<jitMemcpyRepatchAtomic>(callsite.callLocation, callsite.target);
+        MacroAssembler::repatchNearCall(callsite.callLocation, callsite.target);
     }
 }
 
