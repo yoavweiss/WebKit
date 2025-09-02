@@ -97,6 +97,9 @@ public:
     WEBCORE_EXPORT void setPictographFontFamily(const String&, UScriptCode = USCRIPT_COMMON);
     WEBCORE_EXPORT const String& pictographFontFamily(UScriptCode = USCRIPT_COMMON) const;
 
+    WEBCORE_EXPORT void setMathFontFamily(const String&, UScriptCode = USCRIPT_COMMON);
+    WEBCORE_EXPORT const String& mathFontFamily(UScriptCode = USCRIPT_COMMON) const;
+
     WEBCORE_EXPORT void setMinimumDOMTimerInterval(Seconds); // Initialized to DOMTimer::defaultMinimumInterval().
     Seconds minimumDOMTimerInterval() const { return m_minimumDOMTimerInterval; }
 

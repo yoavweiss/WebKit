@@ -186,6 +186,18 @@ void SettingsBase::setPictographFontFamily(const String& family, UScriptCode scr
         invalidateAfterGenericFamilyChange(m_page.get());
 }
 
+const String& SettingsBase::mathFontFamily(UScriptCode script) const
+{
+    return fontGenericFamilies().mathFontFamily(script);
+}
+
+void SettingsBase::setMathFontFamily(const String& family, UScriptCode script)
+{
+    bool changes = fontGenericFamilies().setMathFontFamily(family, script);
+    if (changes)
+        invalidateAfterGenericFamilyChange(m_page.get());
+}
+
 void SettingsBase::setMinimumDOMTimerInterval(Seconds interval)
 {
     auto oldTimerInterval = std::exchange(m_minimumDOMTimerInterval, interval);

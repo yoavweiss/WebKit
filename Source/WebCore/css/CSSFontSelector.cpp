@@ -443,12 +443,20 @@ FontRanges CSSFontSelector::fontRangesForFamily(const FontDescription& fontDescr
 
     // Handle the generic math font family a bit differently.
     if (familyName == m_fontFamilyNames.at(FamilyNamesIndex::MathFamily)) {
-        // TODO: Check if the user has defined a preference (http://webkit.org/b/156843).
-        // Iterate through the font list to find a valid fallback.
+        // First check if the user has defined a preference.
+        const auto& settings = protectedScriptExecutionContext()->settingsValues();
+        const String& preferredMathFamily = settings.fontGenericFamilies.mathFontFamily(fontDescription.script());
+        if (!preferredMathFamily.isEmpty() && familyName != preferredMathFamily) {
+            auto ranges = fontRangesForFamily(fontDescription, AtomString(preferredMathFamily));
+            if (!ranges.isNull())
+                return { WTFMove(ranges), IsGenericFontFamily::Yes };
+        }
+
+        // Otherwise, iterate through the font list to find a valid fallback.
         for (auto& family : mathFontList()) {
             auto ranges = fontRangesForFamily(fontDescription, family);
             if (!ranges.isNull())
-                return FontRanges(WTFMove(ranges), IsGenericFontFamily::Yes);
+                return { WTFMove(ranges), IsGenericFontFamily::Yes };
         }
     }
 

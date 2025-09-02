@@ -4670,6 +4670,19 @@ ManagedMediaSourceNeedsAirPlay:
     WebCore:
       default: false
 
+MathFontFamily:
+  type: String
+  status: embedder
+  webKitLegacyPreferenceKey: WebKitMathFont
+  webcoreImplementation: custom
+  defaultValue:
+    WebKitLegacy:
+      default: '""_str'
+    WebKit:
+      default: '""_str'
+    WebCore:
+      default: '""_str'
+
 MathMLEnabled:
   type: bool
   status: embedder
