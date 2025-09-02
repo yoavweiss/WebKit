@@ -186,7 +186,7 @@ enum class AXProperty : uint16_t {
     HorizontalScrollBar,
     IdentifierAttribute,
     IncrementButton,
-    InitialFrameRect,
+    InitialLocalRect,
     InnerHTML,
     InternalLinkElement,
     IsARIAGridRow,

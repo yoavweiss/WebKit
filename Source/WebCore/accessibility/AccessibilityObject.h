@@ -817,7 +817,7 @@ public:
     void setLastPresentedTextPrediction(Node&, CompositionState, const String&, size_t, bool);
 #endif // PLATFORM(IOS_FAMILY)
 
-    virtual FloatRect frameRect() const { return { }; }
+    virtual FloatRect localRect() const { return { }; }
     virtual bool isNonLayerSVGObject() const { return false; }
 
     // When using the previousSibling and nextSibling methods, we can alternate between walking the DOM and the

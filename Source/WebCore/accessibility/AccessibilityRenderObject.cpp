@@ -1467,7 +1467,7 @@ AXTextRuns AccessibilityRenderObject::textRuns()
 
     if (isReplacedElement()) {
         auto* containingBlock = renderer ? renderer->containingBlock() : nullptr;
-        FloatRect rect = frameRect();
+        FloatRect rect = localRect();
         uint16_t width = static_cast<uint16_t>(rect.width());
         uint16_t height = static_cast<uint16_t>(rect.height());
         if (!containingBlock)
@@ -3030,10 +3030,14 @@ void AccessibilityRenderObject::scrollTo(const IntPoint& point) const
     box->layer()->scrollableArea()->scrollToOffset(point);
 }
 
-FloatRect AccessibilityRenderObject::frameRect() const
+FloatRect AccessibilityRenderObject::localRect() const
 {
-    auto* box = dynamicDowncast<RenderBox>(renderer());
-    return box ? convertFrameToSpace(box->frameRect(), AccessibilityConversionSpace::Page) : FloatRect();
+    CheckedPtr renderer = this->renderer();
+    if (CheckedPtr box = dynamicDowncast<RenderBox>(renderer.get()))
+        return box ? convertFrameToSpace(box->frameRect(), AccessibilityConversionSpace::Page) : FloatRect();
+
+    CheckedPtr renderText = dynamicDowncast<RenderText>(renderer.get());
+    return renderText ? renderText->linesBoundingBox() : FloatRect();
 }
 
 #if ENABLE(MATHML)

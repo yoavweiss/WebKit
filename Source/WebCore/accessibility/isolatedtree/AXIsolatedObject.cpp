@@ -1096,10 +1096,10 @@ FloatRect AXIsolatedObject::relativeFrame() const
         if (rectFromLabels && !rectFromLabels->isEmpty())
             relativeFrame = *rectFromLabels;
         else {
-            // InitialFrameRect stores the correct size, but not position, of the element before it is painted.
+            // InitialLocalRect stores the correct size, but not position, of the element before it is painted.
             // We find the position of the nearest painted ancestor to use as the position until the object's frame
             // is cached during painting.
-            relativeFrame = rectAttributeValue<FloatRect>(AXProperty::InitialFrameRect);
+            relativeFrame = rectAttributeValue<FloatRect>(AXProperty::InitialLocalRect);
 
             std::optional<IntRect> ancestorRelativeFrame;
             Accessibility::findAncestor<AXIsolatedObject>(*this, false, [&] (const auto& object) {

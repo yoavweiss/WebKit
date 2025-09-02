@@ -834,8 +834,8 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::IncrementButton:
         stream << "IncrementButton";
         break;
-    case AXProperty::InitialFrameRect:
-        stream << "InitialFrameRect";
+    case AXProperty::InitialLocalRect:
+        stream << "InitialLocalRect";
         break;
     case AXProperty::InnerHTML:
         stream << "InnerHTML";
