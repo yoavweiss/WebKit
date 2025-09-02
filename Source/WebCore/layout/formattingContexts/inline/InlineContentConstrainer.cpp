@@ -154,7 +154,7 @@ static bool cannotConstrainInlineItem(const InlineItem& inlineItem)
 
 static PreviousLine buildPreviousLine(size_t lineIndex, LineLayoutResult lineLayoutResult)
 {
-    return PreviousLine { lineIndex, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, !lineLayoutResult.inlineAndOpaqueContent.isEmpty() && lineLayoutResult.inlineAndOpaqueContent.last().isLineBreak(), !lineLayoutResult.inlineAndOpaqueContent.isEmpty(), lineLayoutResult.directionality.inlineBaseDirection, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
+    return PreviousLine { lineIndex, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineLayoutResult.endsWithLineBreak(), !lineLayoutResult.inlineAndOpaqueContent.isEmpty(), lineLayoutResult.directionality.inlineBaseDirection, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
 }
 
 InlineContentConstrainer::InlineContentConstrainer(InlineFormattingContext& inlineFormattingContext, const InlineItemList& inlineItemList, HorizontalConstraints horizontalConstraints)
@@ -275,7 +275,7 @@ void InlineContentConstrainer::initialize()
 
         // Record relevant geometry measurements from one line layout
         m_originalLineInlineItemRanges.append(lineLayoutResult.inlineItemRange);
-        m_originalLineEndsWithForcedBreak.append(!lineLayoutResult.inlineAndOpaqueContent.isEmpty() && lineLayoutResult.inlineAndOpaqueContent.last().isLineBreak());
+        m_originalLineEndsWithForcedBreak.append(lineLayoutResult.endsWithLineBreak());
         bool useFirstLineStyle = !lineIndex;
         bool isFirstLineInChunk = !lineIndex || m_originalLineEndsWithForcedBreak[lineIndex - 1];
         SlidingWidth lineSlidingWidth { *this, m_inlineItemList, lineLayoutResult.inlineItemRange.startIndex(), lineLayoutResult.inlineItemRange.endIndex(), useFirstLineStyle, isFirstLineInChunk };

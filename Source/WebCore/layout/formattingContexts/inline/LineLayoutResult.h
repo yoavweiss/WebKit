@@ -89,10 +89,11 @@ struct LineLayoutResult {
     Ruby ruby { };
 
     // Misc
-    enum InlineContentEnding : uint8_t { Generic, Hyphen };
+    enum InlineContentEnding : uint8_t { Generic, Hyphen, LineBreak };
     std::optional<InlineContentEnding> inlineContentEnding { }; // No value means line does not have any inline content (either float or out-of-flow)
     bool hasInlineContent() const { return inlineContentEnding.has_value(); }
     bool endsWithHyphen() const { return inlineContentEnding && *inlineContentEnding == InlineContentEnding::Hyphen; }
+    bool endsWithLineBreak() const { return inlineContentEnding && *inlineContentEnding == InlineContentEnding::LineBreak; }
 
     size_t nonSpanningInlineLevelBoxCount { 0 };
     InlineLayoutUnit trimmedTrailingWhitespaceWidth { 0.f }; // only used for line-break: after-white-space currently

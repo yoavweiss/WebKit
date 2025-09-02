@@ -612,6 +612,8 @@ std::optional<LineLayoutResult::InlineContentEnding> InlineFormattingUtils::inli
         if (run.isOpaque())
             continue;
 
+        if (run.isLineBreak())
+            return { LineLayoutResult::InlineContentEnding::LineBreak };
         if (auto& textContent = run.textContent(); textContent && textContent->needsHyphen)
             return { LineLayoutResult::InlineContentEnding::Hyphen };
         return { LineLayoutResult::InlineContentEnding::Generic };

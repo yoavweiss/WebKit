@@ -204,11 +204,10 @@ InlineLayoutUnit IntrinsicWidthHandler::computedIntrinsicWidthForConstraint(Intr
             return InlineLayoutUnit { leftWidth + rightWidth };
         };
 
-        auto lineEndsWithLineBreak = !lineLayoutResult.inlineAndOpaqueContent.isEmpty() && lineLayoutResult.inlineAndOpaqueContent.last().isLineBreak();
         auto lineContentLogicalWidth = lineLayoutResult.lineGeometry.logicalTopLeft.x() + lineLayoutResult.contentGeometry.logicalWidth + floatContentWidth();
         maximumContentWidth = std::max(maximumContentWidth, lineContentLogicalWidth);
         contentWidthBetweenLineBreaks.current += (lineContentLogicalWidth + lineLayoutResult.hangingContent.logicalWidth);
-        if (lineEndsWithLineBreak)
+        if (lineLayoutResult.endsWithLineBreak())
             contentWidthBetweenLineBreaks = { std::max(contentWidthBetweenLineBreaks.maximum, contentWidthBetweenLineBreaks.current), { } };
 
         layoutRange.start = InlineFormattingUtils::leadingInlineItemPositionForNextLine(lineLayoutResult.inlineItemRange.end, previousLineEnd, !lineLayoutResult.floatContent.hasIntrusiveFloat.isEmpty() || !lineLayoutResult.floatContent.placedFloats.isEmpty(), layoutRange.end);
@@ -228,7 +227,7 @@ InlineLayoutUnit IntrinsicWidthHandler::computedIntrinsicWidthForConstraint(Intr
         previousLineEnd = layoutRange.start;
         hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent();
         isFirstFormattedLine = !hasEverSeenInlineContent;
-        previousLine = PreviousLine { lineIndex++, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineEndsWithLineBreak, hasEverSeenInlineContent, { }, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
+        previousLine = PreviousLine { lineIndex++, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineLayoutResult.endsWithLineBreak(), hasEverSeenInlineContent, { }, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
     }
     m_maximumContentWidthBetweenLineBreaks = std::max(contentWidthBetweenLineBreaks.current, contentWidthBetweenLineBreaks.maximum);
     return maximumContentWidth;
