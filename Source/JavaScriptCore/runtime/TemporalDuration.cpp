@@ -212,6 +212,22 @@ static double totalNanoseconds(ISO8601::Duration& duration)
     return 1000 * microseconds + duration.nanoseconds();
 }
 
+// https://tc39.es/proposal-temporal/#sec-temporal-add24hourdaystonormalizedtimeduration
+static Int128 add24HourDaysToTimeDuration(JSGlobalObject* globalObject, Int128 d, double days)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    CheckedInt128 daysInNanoseconds = checkedCastDoubleToInt128(days) * ISO8601::ExactTime::nsPerDay;
+    CheckedInt128 result = d + daysInNanoseconds;
+    ASSERT(!result.hasOverflowed());
+    if (absInt128(result) > ISO8601::InternalDuration::maxTimeDuration) [[unlikely]] {
+        throwRangeError(globalObject, scope, "Total time in duration is out of range"_s);
+        return { };
+    }
+    return result;
+}
+
 JSValue TemporalDuration::compare(JSGlobalObject* globalObject, JSValue valueOne, JSValue valueTwo)
 {
     VM& vm = globalObject->vm();
@@ -302,6 +318,47 @@ static TemporalUnit largestSubduration(const ISO8601::Duration& duration)
     while (index < numberOfTemporalUnits - 1 && !duration[index])
         index++;
     return static_cast<TemporalUnit>(index);
+}
+
+// https://tc39.es/proposal-temporal/#sec-temporal-timedurationfromcomponents
+Int128 TemporalDuration::timeDurationFromComponents(double hours, double minutes, double seconds, double milliseconds, double microseconds, double nanoseconds)
+{
+    CheckedInt128 min = checkedCastDoubleToInt128(minutes) + checkedCastDoubleToInt128(hours) * Int128 { 60 };
+    CheckedInt128 sec = checkedCastDoubleToInt128(seconds) + min * Int128 { 60 };
+    CheckedInt128 millis = checkedCastDoubleToInt128(milliseconds) + sec * Int128 { 1000 };
+    CheckedInt128 micros = checkedCastDoubleToInt128(microseconds) + millis * Int128 { 1000 };
+    CheckedInt128 nanos = checkedCastDoubleToInt128(nanoseconds) + micros * Int128 { 1000 };
+    // The components come from a TemporalDuration, so as per
+    // TemporalDuration::tryCreateIfValid(), these components can at most add up
+    // to ISO8601::InternalDuration::maxTimeDuration
+    ASSERT(!nanos.hasOverflowed());
+    ASSERT(absInt128(nanos) <= ISO8601::InternalDuration::maxTimeDuration);
+    return nanos;
+}
+
+ISO8601::InternalDuration TemporalDuration::toInternalDurationRecordWith24HourDays(JSGlobalObject* globalObject, ISO8601::Duration d)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    Int128 timeDuration = timeDurationFromComponents(d.hours(), d.minutes(), d.seconds(), d.milliseconds(), d.microseconds(), d.nanoseconds());
+    timeDuration = add24HourDaysToTimeDuration(globalObject, timeDuration, d.days());
+    RETURN_IF_EXCEPTION(scope, { });
+    ISO8601::Duration dateDuration = ISO8601::Duration { d.years(), d.months(), d.weeks(), 0, 0, 0, 0, 0, 0, 0 };
+    return ISO8601::InternalDuration::combineDateAndTimeDuration(dateDuration, timeDuration);
+}
+
+// https://tc39.es/proposal-temporal/#sec-temporal-todatedurationrecordwithouttime
+// ToDateDurationRecordWithoutTime ( duration )
+ISO8601::Duration TemporalDuration::toDateDurationRecordWithoutTime(JSGlobalObject* globalObject, const ISO8601::Duration& duration)
+{
+    VM& vm = globalObject->vm();
+    auto scope = DECLARE_THROW_SCOPE(vm);
+
+    auto internalDuration = toInternalDurationRecordWith24HourDays(globalObject, duration);
+    RETURN_IF_EXCEPTION(scope, { });
+    auto days = internalDuration.time() / ISO8601::ExactTime::nsPerDay;
+    return ISO8601::Duration { internalDuration.dateDuration().years(), internalDuration.dateDuration().months(), internalDuration.dateDuration().weeks(), static_cast<double>(days), 0, 0, 0, 0, 0, 0 };
 }
 
 // BalanceDuration ( days, hours, minutes, seconds, milliseconds, microseconds, nanoseconds, largestUnit [ , relativeTo ] )

@@ -329,6 +329,10 @@ bool isYearWithinLimits(double year);
 
 } // namespace ISO8601
 
+using CheckedInt128 = Checked<Int128, RecordOverflow>;
+
+CheckedInt128 checkedCastDoubleToInt128(double n);
+
 static constexpr Int128 absInt128(const Int128& value)
 {
     if (value < 0)
