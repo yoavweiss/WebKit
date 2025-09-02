@@ -454,6 +454,8 @@ void PeerConnectionBackend::setRemoteDescriptionSucceeded(std::optional<Descript
     ASSERT(m_setDescriptionCallback);
 
     ActiveDOMObject::queueTaskKeepingObjectAlive(protectedPeerConnection().get(), TaskSource::Networking, [this, callback = WTFMove(m_setDescriptionCallback), descriptionStates = WTFMove(descriptionStates), transceiverStates = WTFMove(transceiverStates), sctpBackend = WTFMove(sctpBackend), maxMessageSize](auto& peerConnection) mutable {
+        UNUSED_PARAM(this);
+
         if (peerConnection.isClosed())
             return;
 
