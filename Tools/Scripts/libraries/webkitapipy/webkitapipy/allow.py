@@ -64,7 +64,12 @@ class AllowedSPI:
 class AllowedReason(StrEnum):
     LEGACY = 'legacy'
 
+    # For SPI that we intend to replace with API before the next release.
     TEMPORARY_USAGE = 'temporary-usage'
+
+    # For pre-adopting new API before it is available in the SDK. There should
+    # be no active `staging` entries when WebKit ships.
+    STAGING = 'staging'
 
     # For SPI implementing non-essential web engine features that a browser
     # vendor would either not use or provide their own implementation.
@@ -110,9 +115,11 @@ class AllowList:
                         raise ValueError('Allowlist entries marked '
                                          'temporary-usage must have a '
                                          f'"cleanup" bug: {allow}')
-                elif reason != AllowedReason.LEGACY and not bugs.request:
-                    raise ValueError('Allowlist entries must have a "request" '
-                                     f'bug: {allow}')
+                elif reason not in (AllowedReason.LEGACY,
+                                    AllowedReason.STAGING):
+                    if not bugs.request:
+                        raise ValueError('Allowlist entries must have a '
+                                         f'"request" bug: {allow}')
 
                 if entry:
                     raise ValueError('Unrecognized items in allowlist entry: '

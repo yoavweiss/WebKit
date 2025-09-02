@@ -51,3 +51,9 @@ symbols = [
     "_nw_path_evaluator_copy_path",
     "_nw_resolver_create_with_path",
 ]
+
+[[staging]]
+symbols = [
+    "_MACaptionAppearanceCopyActiveProfileID",
+]
+requires = ["!HAVE_MEDIA_ACCESSIBILITY_PROFILES_API"]
