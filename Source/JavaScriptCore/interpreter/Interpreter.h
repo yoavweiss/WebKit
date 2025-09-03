@@ -70,7 +70,6 @@ using JSOrWasmInstruction = Variant<const JSInstruction*, uintptr_t /* IPIntOffs
     class ProgramExecutable;
     class ModuleProgramExecutable;
     class Register;
-    class JSGenerator;
     class JSObject;
     class JSScope;
     class SourceCode;
@@ -157,7 +156,6 @@ using JSOrWasmInstruction = Variant<const JSInstruction*, uintptr_t /* IPIntOffs
         static JSValue checkVMEntryPermission();
 
     private:
-        void getAsyncStackTrace(JSCell* owner, Vector<StackFrame>& results, JSGenerator* initialGenerator, size_t maxStackSize);
         enum ExecutionFlag { Normal, InitializeAndReturn };
         
         CodeBlock* prepareForCachedCall(CachedCall&, JSFunction*);

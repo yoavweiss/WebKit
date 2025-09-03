@@ -1877,9 +1877,6 @@ capitalName ## Constructor* lowerName ## Constructor = featureFlag ? capitalName
     m_performProxyObjectSetByValStrictFunction.set(vm, this, jsCast<JSFunction*>(linkTimeConstant(LinkTimeConstant::performProxyObjectSetByValStrict)));
     m_performProxyObjectSetByValSloppyFunction.set(vm, this, jsCast<JSFunction*>(linkTimeConstant(LinkTimeConstant::performProxyObjectSetByValSloppy)));
 
-    m_promiseReactionJobFunction.set(vm, this, jsCast<JSFunction*>(linkTimeConstant(LinkTimeConstant::promiseReactionJob)));
-    m_promiseReactionJobWithoutPromiseFunction.set(vm, this, jsCast<JSFunction*>(linkTimeConstant(LinkTimeConstant::promiseReactionJobWithoutPromise)));
-
     if (Options::exposeProfilersOnGlobalObject()) {
 #if ENABLE(SAMPLING_PROFILER)
         putDirectWithoutTransition(vm, Identifier::fromString(vm, "__enableSamplingProfiler"_s), JSFunction::create(vm, this, 1, "enableSamplingProfiler"_s, enableSamplingProfiler, ImplementationVisibility::Public), PropertyAttribute::DontEnum | PropertyAttribute::DontDelete | PropertyAttribute::ReadOnly);
@@ -2629,8 +2626,6 @@ void JSGlobalObject::visitChildrenImpl(JSCell* cell, Visitor& visitor)
     thisObject->m_arrayProtoValuesFunction.visit(visitor);
     thisObject->m_promiseResolveFunction.visit(visitor);
     visitor.append(thisObject->m_objectProtoValueOfFunction);
-    visitor.append(thisObject->m_promiseReactionJobFunction);
-    visitor.append(thisObject->m_promiseReactionJobWithoutPromiseFunction);
     thisObject->m_numberProtoToStringFunction.visit(visitor);
     visitor.append(thisObject->m_functionProtoHasInstanceSymbolFunction);
     visitor.append(thisObject->m_performProxyObjectHasFunction);
