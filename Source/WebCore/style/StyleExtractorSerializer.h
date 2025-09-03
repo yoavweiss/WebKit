@@ -1058,7 +1058,6 @@ inline void ExtractorSerializer::serializeTextTransform(ExtractorState& state, S
         serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
 }
 
-
 inline void ExtractorSerializer::serializeTextUnderlinePosition(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, OptionSet<TextUnderlinePosition> textUnderlinePosition)
 {
     ASSERT(!((textUnderlinePosition & TextUnderlinePosition::FromFont) && (textUnderlinePosition & TextUnderlinePosition::Under)));

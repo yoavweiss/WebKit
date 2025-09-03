@@ -10794,17 +10794,15 @@
                     "value": "blink",
                     "comment": "The value is parsed and computed but ignored for rendering."
                 },
-                {
-                    "value": "spelling-error",
-                    "settings-flag": "cssTextDecorationLineErrorValues"
-                }
+                "spelling-error",
+                "grammar-error"
             ],
             "codegen-properties": {
                 "style-converter": "StyleType<TextDecorationLine>",
                 "aliases": [
                     "-webkit-text-decoration-line"
                 ],
-                "parser-grammar": "none | [ underline || overline || line-through || blink ]@(no-single-item-opt) | spelling-error@(settings-flag=cssTextDecorationLineErrorValues)",
+                "parser-grammar": "none | [ underline || overline || line-through || blink ]@(no-single-item-opt) | spelling-error@(settings-flag=cssTextDecorationLineErrorValues) | grammar-error@(settings-flag=cssTextDecorationLineErrorValues)",
                 "parser-exported": true
             },
             "specification": {
