@@ -3140,7 +3140,7 @@ sub GenerateHeader
     }
 
     $headerIncludes{"JSWindowProxy.h"} = 1 if $interfaceName eq "DOMWindow";
-    $headerIncludes{"EventTargetInlines.h"} = 1 if $parentClassName eq "JSEventTarget";
+    $headerIncludes{"EventTarget.h"} = 1 if $parentClassName eq "JSEventTarget";
 
     my $exportMacro = GetExportMacroForJSClass($interface);
 
