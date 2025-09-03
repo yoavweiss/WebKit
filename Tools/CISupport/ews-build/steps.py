@@ -1354,26 +1354,24 @@ class CheckChangeRelevance(AnalyzeChange):
                 return False
         return False
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         patch = self._get_patch()
         if not patch:
             # This build doesn't have a patch, it might be a force build.
-            self.finished(SUCCESS)
-            return None
+            defer.returnValue(SUCCESS)
 
         if self._patch_is_relevant(patch, self.getProperty('buildername', '')):
-            self._addToLog('stdio', 'This {} contains relevant changes.'.format(self.change_type.lower()))
-            self.finished(SUCCESS)
-            return None
+            self._addToLog('stdio', f'This {self.change_type.lower()} contains relevant changes.')
+            defer.returnValue(SUCCESS)
 
-        self._addToLog('stdio', 'This {} does not have relevant changes.'.format(self.change_type.lower()))
-        self.finished(FAILURE)
+        yield self._addToLog('stdio', f'This {self.change_type.lower()} does not have relevant changes.')
         self.build.results = SKIPPED
         self.build.buildFinished(['{} {} doesn\'t have relevant changes'.format(
             self.change_type,
             self.getProperty('patch_id', '') or self.getProperty('github.number', ''),
         )], SKIPPED)
-        return None
+        defer.returnValue(FAILURE)
 
 
 class GetTestExpectationsBaseline(shell.ShellCommandNewStyle, ShellMixin):
