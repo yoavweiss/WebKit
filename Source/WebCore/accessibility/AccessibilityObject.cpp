@@ -603,7 +603,7 @@ bool AccessibilityObject::isDescendantOfRole(AccessibilityRole role) const
 
 static bool isTableComponent(AXCoreObject& axObject)
 {
-    return axObject.isTable() || axObject.isTableColumn() || axObject.isTableRow() || axObject.isTableCell();
+    return axObject.isTable() || axObject.isTableColumn() || axObject.isExposedTableRow() || axObject.isTableCell();
 }
 
 void AccessibilityObject::insertChild(AccessibilityObject& child, unsigned index, DescendIfIgnored descendIfIgnored)
@@ -4089,13 +4089,20 @@ String AccessibilityObject::outerHTML() const
 
 bool AccessibilityObject::ignoredByRowAncestor() const
 {
-    RefPtr ancestor = Accessibility::findAncestor<AccessibilityObject>(*this, false, [] (const AccessibilityObject& ancestor) {
+    bool wasExposedRow = false;
+    RefPtr ancestor = Accessibility::findAncestor<AccessibilityObject>(*this, false, [&wasExposedRow] (const AccessibilityObject& ancestor) {
         // If an object has a table cell ancestor (before a table row), that is a cell's contents, so don't ignore it.
         // Similarly, if an object has a table ancestor (before a row), that could be a row, row group or other container, so don't ignore it.
-        return ancestor.isTableCell() || ancestor.isTableRow() || ancestor.isTable();
+        if (ancestor.isTableCell() || ancestor.isTable())
+            return true;
+
+        if (ancestor.isExposedTableRow())
+            wasExposedRow = true;
+
+        return wasExposedRow;
     });
 
-    return ancestor && ancestor->isTableRow();
+    return ancestor && wasExposedRow;
 }
 
 AccessibilityObject* AccessibilityObject::containingWebArea() const

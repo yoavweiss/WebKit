@@ -32,7 +32,6 @@
 #include "AXObjectCacheInlines.h"
 #include "AXUtilities.h"
 #include "AccessibilityObjectInlines.h"
-#include "AccessibilityTableRow.h"
 #include "HTMLParserIdioms.h"
 #include "HTMLTableCellElement.h"
 #include "RenderElementInlines.h"
@@ -285,9 +284,10 @@ AXCoreObject::AccessibilityChildrenVector AccessibilityTableCell::rowHeaders()
     return headers;
 }
 
-AccessibilityTableRow* AccessibilityTableCell::parentRow() const
+AccessibilityRenderObject* AccessibilityTableCell::parentRow() const
 {
-    return dynamicDowncast<AccessibilityTableRow>(parentObjectUnignored());
+    RefPtr parent = parentObjectUnignored();
+    return parent && parent->isExposedTableRow() ? dynamicDowncast<AccessibilityRenderObject>(parent.get()) : nullptr;
 }
 
 void AccessibilityTableCell::ensureIndexesUpToDate() const

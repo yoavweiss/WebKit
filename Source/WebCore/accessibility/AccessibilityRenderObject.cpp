@@ -39,6 +39,7 @@
 #include "AccessibilityMediaHelpers.h"
 #include "AccessibilitySVGObject.h"
 #include "AccessibilitySpinButton.h"
+#include "AccessibilityTableCell.h"
 #include "CachedImage.h"
 #include "Chrome.h"
 #include "ChromeClient.h"
@@ -1391,6 +1392,9 @@ bool AccessibilityRenderObject::computeIsIgnored() const
     if (controlObject && controlObject->isCheckboxOrRadio() && !controlObject->titleUIElement())
         return true;
 
+    if (isExposedTableRow())
+        return isRenderHidden() || ignoredFromPresentationalRole();
+
     // By default, objects should be ignored so that the AX hierarchy is not
     // filled with unnecessary items.
     return true;
@@ -2267,6 +2271,10 @@ bool AccessibilityRenderObject::renderObjectIsObservable(RenderObject& renderer)
 
 AccessibilityObject* AccessibilityRenderObject::observableObject() const
 {
+    // This allows the table to be the one who sends notifications about tables.
+    if (RefPtr parentTable = parentTableIfExposedTableRow())
+        return dynamicDowncast<AccessibilityObject>(parentTable.get());
+
     // Find the object going up the parent chain that is used in accessibility to monitor certain notifications.
     for (RenderObject* renderer = this->renderer(); renderer && renderer->node(); renderer = renderer->parent()) {
         if (renderObjectIsObservable(*renderer)) {
@@ -2315,6 +2323,9 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
 
     if (isExposableTable())
         return AccessibilityRole::Table;
+
+    if (isExposedTableRow())
+        return AccessibilityRole::Row;
 
     RefPtr node = m_renderer->node();
     if (m_renderer->isRenderListItem()) {
@@ -2881,7 +2892,19 @@ void AccessibilityRenderObject::addChildren()
 #if PLATFORM(MAC)
     updateAttachmentViewParents();
 #endif
-    updateOwnedChildren();
+    updateOwnedChildrenIfNecessary();
+
+    // Handle aria-colindex for all table rows (whether using owned objects or not).
+    if (isExposedTableRow()) {
+        if (std::optional colIndex = axColumnIndex()) {
+            unsigned index = 0;
+            for (const auto& cell : unignoredChildren()) {
+                if (RefPtr tableCell = dynamicDowncast<AccessibilityTableCell>(cell.get()))
+                    tableCell->setAXColIndexFromRow(*colIndex + index);
+                index++;
+            }
+        }
+    }
 
     updateRoleAfterChildrenCreation();
 

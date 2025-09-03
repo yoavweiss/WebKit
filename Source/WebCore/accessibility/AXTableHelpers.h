@@ -42,6 +42,8 @@ namespace AXTableHelpers {
 
 bool appendCaptionTextIfNecessary(Element&, Vector<AccessibilityText>&);
 bool isTableRole(AccessibilityRole);
+bool isTableRowElement(Element&);
+bool hasRowRole(Element&);
 HTMLTableElement* tableElementIncludingAncestors(Node*, RenderObject*);
 bool tableElementIndicatesAccessibleTable(HTMLTableElement&);
 bool tableSectionIndicatesAccessibleTable(HTMLTableSectionElement&, AXObjectCache&);

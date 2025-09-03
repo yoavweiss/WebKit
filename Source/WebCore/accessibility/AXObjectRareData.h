@@ -58,7 +58,16 @@ public:
     void resetChildrenDependentTableFields();
     // End table-related methods.
 
+    // Begin table-row-related methods.
+    unsigned rowIndex() const { return m_rowIndex; }
+    void setRowIndex(unsigned rowIndex) { m_rowIndex = rowIndex; }
+    // End table-row-related methods.
+
 private:
+    // Begin table-row-related fields.
+    unsigned m_rowIndex;
+    // End table-row-related fields.
+
     // Begin table-related fields.
     AXCoreObject::AccessibilityChildrenVector m_tableRows;
     AXCoreObject::AccessibilityChildrenVector m_tableColumns;
@@ -69,7 +78,6 @@ private:
     RefPtr<AccessibilityObject> m_tableHeaderContainer;
     bool m_isExposableTable { false };
     // End table-related fields.
-
 }; // class AXObjectRareData
 
 } // namespace WebCore

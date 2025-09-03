@@ -101,7 +101,7 @@ public:
     bool hasRareData() const { return !!m_rareDataWithBitfields.pointer(); }
     AXObjectRareData* rareData() const { return m_rareDataWithBitfields.pointer(); }
     AXObjectRareData& ensureRareData();
-    bool needsRareData() const { return isTable(); }
+    bool needsRareData() const { return isTable() || isExposedTableRow(); }
 
     bool hasDirtySubtree() const { return m_subtreeDirty; }
 
@@ -112,7 +112,7 @@ public:
 
     bool isDetached() const override;
 
-    virtual bool isAccessibilityNodeObject() const { return false; }
+    bool isAccessibilityNodeObject() const override { return false; }
     bool isAccessibilityRenderObject() const override { return false; }
     virtual bool isAccessibilityScrollbar() const { return false; }
     bool isAXRemoteFrame() const override { return false; }
@@ -185,13 +185,15 @@ public:
 
     // Table row support.
     bool isTableRow() const override { return false; }
+    AXCoreObject* parentTableIfExposedTableRow() const override { return nullptr; };
+    bool isExposedTableRow() const override { return false; }
     unsigned rowIndex() const override { return 0; }
     bool ignoredByRowAncestor() const;
 
     // ARIA tree/grid row support.
     bool isARIAGridRow() const override { return false; }
     bool isARIATreeGridRow() const override { return false; }
-    AccessibilityChildrenVector disclosedRows() override; // ARIATreeItem implementation. AccessibilityTableRow overrides this method for grid rows.
+    AccessibilityChildrenVector disclosedRows() override; // ARIATreeItem implementation. Table rows are handled in AccessibilityNodeObject();
     AccessibilityObject* disclosedByRow() const override { return nullptr; }
 
     void postMenuClosedNotificationIfNecessary() const;

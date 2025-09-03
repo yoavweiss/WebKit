@@ -712,7 +712,7 @@ AXCoreObject::AccessibilityChildrenVector AXCoreObject::selectedRows()
     AccessibilityChildrenVector result;
     // Prefer active descendant over aria-selected.
     RefPtr activeDescendant = this->activeDescendant();
-    if (activeDescendant && (activeDescendant->isTreeItem() || activeDescendant->isTableRow())) {
+    if (activeDescendant && (activeDescendant->isTreeItem() || activeDescendant->isExposedTableRow())) {
         result.append(*activeDescendant);
         if (!isMulti)
             return result;

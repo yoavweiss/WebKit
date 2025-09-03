@@ -43,7 +43,6 @@
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTableCell.h"
 #include "AccessibilityTableColumn.h"
-#include "AccessibilityTableRow.h"
 #include "ComposedTreeIterator.h"
 #include "ContainerNodeInlines.h"
 #include "DateComponents.h"
@@ -409,6 +408,9 @@ AccessibilityRole AccessibilityNodeObject::determineAccessibilityRole()
     if (isExposableTable())
         return AccessibilityRole::Table;
 
+    if (isExposedTableRow())
+        return AccessibilityRole::Row;
+
     return determineAccessibilityRoleFromNode();
 }
 
@@ -698,10 +700,13 @@ void AccessibilityNodeObject::clearChildren()
     rareData->resetChildrenDependentTableFields();
 }
 
-void AccessibilityNodeObject::updateOwnedChildren()
+void AccessibilityNodeObject::updateOwnedChildrenIfNecessary()
 {
     bool didRemoveChild = false;
     auto ownedObjects = this->ownedObjects();
+    if (ownedObjects.isEmpty())
+        return;
+
     for (const auto& child : ownedObjects) {
         if (m_children.removeFirst(child)) {
             // If the child already exists as a DOM child, but is also in the owned objects, then
@@ -764,7 +769,7 @@ void AccessibilityNodeObject::addChildren()
     }
 #endif // USE(ATSPI)
 
-    updateOwnedChildren();
+    updateOwnedChildrenIfNecessary();
 
 #if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
     if (isExposableTable())
@@ -1982,7 +1987,7 @@ AXCoreObject::AccessibilityChildrenVector AccessibilityNodeObject::rowHeaders()
     AccessibilityChildrenVector headers;
     auto rowsCopy = rows();
     for (const auto& row : rowsCopy) {
-        if (RefPtr header = downcast<AccessibilityTableRow>(row.get()).rowHeader())
+        if (RefPtr header = row->rowHeader())
             headers.append(header.releaseNonNull());
     }
     return headers;
@@ -2093,7 +2098,7 @@ unsigned AccessibilityNodeObject::computeCellSlots()
 
     HashSet<AccessibilityObject*> processedRows;
     // https://html.spec.whatwg.org/multipage/tables.html#algorithm-for-processing-rows
-    auto processRow = [&] (AccessibilityTableRow* row) {
+    auto processRow = [&] (AccessibilityRenderObject* row) {
         if (!row || processedRows.contains(row))
             return;
         processedRows.add(row);
@@ -2211,8 +2216,8 @@ unsigned AccessibilityNodeObject::computeCellSlots()
         if (needsToDescend(axObject)) {
             for (const auto& child : axObject.unignoredChildren())
                 processRowDescendingIfNeeded(child.get());
-        } else
-            processRow(dynamicDowncast<AccessibilityTableRow>(axObject));
+        } else if (axObject.isTableRow())
+            processRow(dynamicDowncast<AccessibilityRenderObject>(axObject));
     };
     // https://html.spec.whatwg.org/multipage/tables.html#algorithm-for-ending-a-row-group
     auto endRowGroup = [&] () {
@@ -2234,8 +2239,8 @@ unsigned AccessibilityNodeObject::computeCellSlots()
         // in tree order, run the algorithm for processing rows.
         if (RefPtr tableSection = dynamicDowncast<HTMLTableSectionElement>(sectionElement)) {
             for (Ref row : childrenOfType<HTMLTableRowElement>(*tableSection)) {
-                RefPtr tableRow = dynamicDowncast<AccessibilityTableRow>(cache->getOrCreate(row.get()));
-                processRow(tableRow.get());
+                if (RefPtr tableRow = cache->getOrCreate(row.get()); tableRow && tableRow->isTableRow())
+                    processRow(dynamicDowncast<AccessibilityRenderObject>(tableRow).get());
             }
         } else if (RefPtr sectionAxObject = cache->getOrCreate(sectionElement)) {
             ASSERT_WITH_MESSAGE(hasRole(sectionElement, "rowgroup"_s), "processRowGroup should only be called with native table section elements, or role=rowgroup elements");
@@ -2306,7 +2311,7 @@ unsigned AccessibilityNodeObject::computeCellSlots()
         // Step 13: If the current element is a tr, then run the algorithm for processing rows,
         // advance the current element to the next child of the table, and return to the step labeled rows.
         if (descendantIsRow)
-            processRow(dynamicDowncast<AccessibilityTableRow>(cache->getOrCreate(element)));
+            processRow(dynamicDowncast<AccessibilityRenderObject>(cache->getOrCreate(element)));
 
         // Step 14: Run the algorithm for ending a row group.
         if (!withinImplicitRowGroup)
@@ -2359,6 +2364,161 @@ void AccessibilityNodeObject::recomputeIsExposableIfNecessary()
 
         m_childrenDirty = true;
     }
+}
+
+AccessibilityObject* AccessibilityNodeObject::parentTable() const
+{
+    RefPtr element = this->element();
+    if (!element || !AXTableHelpers::isTableRowElement(*element))
+        return nullptr;
+
+    // The parent table might not be the direct ancestor of the row unfortunately. ARIA states that role="grid" should
+    // only have "row" elements, but if not, we still should handle it gracefully by finding the right table.
+    for (RefPtr ancestor = parentObject(); ancestor; ancestor = ancestor->parentObject()) {
+        if (ancestor->isTable()) {
+            bool isNonGridRowOrValidAriaTable = !isARIAGridRow() || ancestor->isAriaTable() || elementName() == ElementName::HTML_tr;
+            if (ancestor->isExposableTable() && isNonGridRowOrValidAriaTable)
+                return ancestor.get();
+
+            // If this is a non-anonymous table object, but not an accessibility table, we should stop because we don't want to
+            // choose another ancestor table as this row's table.
+            // Don't exit for ARIA grids, since they could have <table>'s between rows and the owning grid (see aria-grid-with-strange-hierarchy.html).
+            if (!isARIAGridRow() && ancestor->node())
+                break;
+        }
+    }
+    return nullptr;
+}
+
+void AccessibilityNodeObject::setRowIndex(unsigned rowIndex)
+{
+    if (role() != AccessibilityRole::Row)
+        return;
+
+    CheckedRef rareData = ensureRareData();
+    if (rareData->rowIndex() == rowIndex)
+        return;
+    rareData->setRowIndex(rowIndex);
+
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    if (CheckedPtr cache = axObjectCache())
+        cache->rowIndexChanged(*this);
+#endif
+}
+
+std::optional<unsigned> AccessibilityNodeObject::axColumnIndex() const
+{
+    if (role() != AccessibilityRole::Row)
+        return std::nullopt;
+
+    int value = integralAttribute(aria_colindexAttr);
+    return value >= 1 ? std::optional(value) : std::nullopt;
+}
+
+std::optional<unsigned> AccessibilityNodeObject::axRowIndex() const
+{
+    if (role() != AccessibilityRole::Row)
+        return std::nullopt;
+
+    int value = integralAttribute(aria_rowindexAttr);
+    return value >= 1 ? std::optional(value) : std::nullopt;
+}
+
+String AccessibilityNodeObject::axRowIndexText() const
+{
+    return getAttribute(aria_rowindextextAttr);
+}
+
+AccessibilityObject::AccessibilityChildrenVector AccessibilityNodeObject::disclosedRows()
+{
+    if (!isARIATreeGridRow())
+        return AccessibilityObject::disclosedRows();
+
+    // The contiguous disclosed rows will be the rows in the table that
+    // have an aria-level of plus 1 from this row.
+    RefPtr parent = parentObjectUnignored();
+    if (!parent || !parent->isExposableTable())
+        return { };
+
+    AccessibilityChildrenVector disclosedRows;
+
+    // Search for rows that match the correct level.
+    // Only take the subsequent rows from this one that are +1 from this row's level.
+    int rowIndex = this->rowIndex();
+    if (rowIndex < 0)
+        return disclosedRows;
+
+    unsigned level = hierarchicalLevel();
+    auto allRows = parent->rows();
+    for (int k = rowIndex + 1; k < (int)allRows.size(); ++k) {
+        Ref row = allRows[k];
+        // Stop at the first row that doesn't match the correct level.
+        if (row->hierarchicalLevel() != level + 1)
+            break;
+
+        disclosedRows.append(row);
+    }
+    return disclosedRows;
+}
+
+AccessibilityObject* AccessibilityNodeObject::disclosedByRow() const
+{
+    if (!isARIATreeGridRow())
+        return AccessibilityObject::disclosedByRow();
+
+    // The row that discloses this one is the row in the table
+    // that is aria-level subtract 1 from this row.
+    RefPtr parent = dynamicDowncast<AccessibilityNodeObject>(parentObjectUnignored());
+    if (!parent || !parent->isExposableTable())
+        return nullptr;
+
+    // If the level is 1 or less, than nothing discloses this row.
+    unsigned level = hierarchicalLevel();
+    if (level <= 1)
+        return nullptr;
+
+    // Search for the previous row that matches the correct level.
+    int index = rowIndex();
+    auto allRows = parent->rows();
+    if (index >= (int)allRows.size())
+        return nullptr;
+
+    for (int k = index - 1; k >= 0; --k) {
+        if (allRows[k]->hierarchicalLevel() == level - 1)
+            return downcast<AccessibilityObject>(allRows[k]).ptr();
+    }
+    return nullptr;
+}
+
+bool AccessibilityNodeObject::isARIAGridRow() const
+{
+    RefPtr element = this->element();
+    return element ? AXTableHelpers::hasRowRole(*element) : false;
+}
+
+bool AccessibilityNodeObject::isARIATreeGridRow() const
+{
+    if (!isARIAGridRow())
+        return false;
+
+    RefPtr parent = parentTable();
+    return parent && parent->isTreeGrid();
+}
+
+bool AccessibilityNodeObject::isTableRow() const
+{
+    RefPtr element = this->element();
+    return element && AXTableHelpers::isTableRowElement(*element);
+}
+
+AXCoreObject* AccessibilityNodeObject::parentTableIfExposedTableRow() const
+{
+    RefPtr element = this->element();
+    if (!element || !AXTableHelpers::isTableRowElement(*element))
+        return nullptr;
+
+    RefPtr table = parentTable();
+    return table && table->isExposableTable() ? table.get() : nullptr;
 }
 
 bool AccessibilityNodeObject::isTable() const

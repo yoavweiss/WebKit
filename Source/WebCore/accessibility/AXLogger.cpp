@@ -966,8 +966,8 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::IsTable:
         stream << "IsTable";
         break;
-    case AXProperty::IsTableRow:
-        stream << "IsTableRow";
+    case AXProperty::IsExposedTableRow:
+        stream << "IsExposedTableRow";
         break;
     case AXProperty::IsTextEmissionBehaviorDoubleNewline:
         stream << "IsTextEmissionBehaviorDoubleNewline";

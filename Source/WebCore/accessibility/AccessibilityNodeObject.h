@@ -113,6 +113,24 @@ public:
     void setCellSlotsDirty();
     // End table-related methods.
 
+    // Start table-row-related methods.
+    // FIXME: this method (and all references) should be renamed to something more accurate, like "containingTable".
+    AccessibilityObject* parentTable() const;
+    void setRowIndex(unsigned);
+    unsigned rowIndex() const final { return hasRareData() ? rareData()->rowIndex() : 0; }
+
+    std::optional<unsigned> axColumnIndex() const override;
+    std::optional<unsigned> axRowIndex() const override;
+    String axRowIndexText() const override;
+
+    AccessibilityChildrenVector disclosedRows() final;
+    AccessibilityObject* disclosedByRow() const final;
+
+    AXCoreObject* parentTableIfExposedTableRow() const final;
+    bool isExposedTableRow() const final { return parentTableIfExposedTableRow(); }
+    bool isTableRow() const final;
+    // End table-row-related methods.
+
     void setFocused(bool) override;
     bool isFocused() const final;
     bool canSetFocusAttribute() const override;
@@ -219,7 +237,7 @@ protected:
     void setSelectedChildren(const AccessibilityChildrenVector&) final;
     AccessibilityChildrenVector visibleChildren() override;
     bool isDescendantOfBarrenParent() const final;
-    void updateOwnedChildren();
+    void updateOwnedChildrenIfNecessary();
     AccessibilityObject* ownerParentObject() const;
 
     enum class StepAction : bool { Decrement, Increment };
@@ -292,6 +310,11 @@ private:
     bool isDataTable() const;
     void updateRowDescendantRoles();
 
+    // Start of private table-row-related methods.
+    bool isARIAGridRow() const final;
+    bool isARIATreeGridRow() const final;
+    // End of private table-row-related methods.
+
 protected:
     WeakPtr<Node, WeakPtrImplWithEventTargetData> m_node;
 };
@@ -305,6 +328,4 @@ Vector<Ref<HTMLElement>> labelsForElement(Element*);
 
 } // namespace WebCore
 
-SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::AccessibilityNodeObject) \
-    static bool isType(const WebCore::AccessibilityObject& object) { return object.isAccessibilityNodeObject(); } \
-SPECIALIZE_TYPE_TRAITS_END()
+SPECIALIZE_TYPE_TRAITS_ACCESSIBILITY(AccessibilityNodeObject, isAccessibilityNodeObject())

@@ -76,6 +76,33 @@ bool isTableRole(AccessibilityRole role)
     }
 }
 
+bool hasRowRole(Element& element)
+{
+    return hasRole(element, "row"_s);
+}
+
+bool isTableRowElement(Element& element)
+{
+    if (hasRowRole(element))
+        return true;
+
+    if (!hasRole(element, nullAtom())) {
+        // This has a non-row role, so it shouldn't be considered a row.
+        return false;
+    }
+
+    bool isAnonymous = false;
+    CheckedPtr renderer = element.renderer();
+#if USE(ATSPI)
+    isAnonymous = renderer && renderer->isAnonymous();
+#endif
+
+    if (is<RenderTableRow>(renderer.get()) && !isAnonymous)
+        return true;
+
+    return is<HTMLTableRowElement>(element);
+}
+
 HTMLTableElement* tableElementIncludingAncestors(Node* node, RenderObject* renderer)
 {
     if (auto* tableElement = dynamicDowncast<HTMLTableElement>(node))

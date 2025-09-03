@@ -259,7 +259,9 @@ private:
     unsigned columnIndex() const final { return unsignedAttributeValue(AXProperty::ColumnIndex); }
 
     // Table row support.
-    bool isTableRow() const final { return boolAttributeValue(AXProperty::IsTableRow); }
+    bool isTableRow() const final;
+    AXCoreObject* parentTableIfExposedTableRow() const final;
+    bool isExposedTableRow() const final { return boolAttributeValue(AXProperty::IsExposedTableRow); }
     unsigned rowIndex() const final { return unsignedAttributeValue(AXProperty::RowIndex); }
 
     // ARIA tree/grid row support.
@@ -493,6 +495,7 @@ private:
 
     // Functions that should never be called on an isolated tree object. ASSERT that these are not reached;
     bool isAccessibilityRenderObject() const final;
+    bool isAccessibilityNodeObject() const final;
     bool isAXRemoteFrame() const final { return false; }
     bool isNativeTextControl() const final;
     bool isMockObject() const final;

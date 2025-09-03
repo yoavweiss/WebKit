@@ -32,8 +32,6 @@
 
 namespace WebCore {
 
-class AccessibilityTableRow;
-
 class AccessibilityTableCell : public AccessibilityRenderObject {
 public:
     static Ref<AccessibilityTableCell> create(AXID, RenderObject&, AXObjectCache&, bool isARIAGridCell = false);
@@ -79,7 +77,7 @@ protected:
     explicit AccessibilityTableCell(AXID, RenderObject&, AXObjectCache&, bool isARIAGridCell = false);
     explicit AccessibilityTableCell(AXID, Node&, AXObjectCache&, bool isARIAGridCell = false);
 
-    AccessibilityTableRow* parentRow() const;
+    AccessibilityRenderObject* parentRow() const;
     AccessibilityRole determineAccessibilityRole() final;
 
 private:

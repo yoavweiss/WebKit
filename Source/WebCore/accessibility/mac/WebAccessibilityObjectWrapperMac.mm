@@ -48,7 +48,6 @@
 #import "AccessibilitySpinButton.h"
 #import "AccessibilityTableCell.h"
 #import "AccessibilityTableColumn.h"
-#import "AccessibilityTableRow.h"
 #import "CGUtilities.h"
 #import "Chrome.h"
 #import "ChromeClient.h"
@@ -912,7 +911,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
         objectAttributes = tableColAttrs.get().get();
     else if (backingObject->isExposedTableCell())
         objectAttributes = tableCellAttrs.get().get();
-    else if (backingObject->isTableRow()) {
+    else if (backingObject->isExposedTableRow()) {
         // An ARIA table row can be collapsed and expanded, so it needs the extra attributes.
         if (backingObject->isARIATreeGridRow())
             objectAttributes = outlineRowAttrs.get().get();
@@ -1570,7 +1569,7 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
             return nil;
         }
 
-        if (backingObject->isTableRow())
+        if (backingObject->isExposedTableRow())
             return @(backingObject->rowIndex());
     }
 
