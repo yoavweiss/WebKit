@@ -28,6 +28,12 @@
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET) && !PLATFORM(IOS_FAMILY)
 
+#if PLATFORM(MAC)
+#import <Cocoa/Cocoa.h>
+#else
+#import <UIKit/UIKit.h>
+#endif
+
 #include "FloatRect.h"
 #include "Logging.h"
 #include "MediaPlaybackTargetPickerMock.h"
@@ -171,13 +177,13 @@ void WebMediaSessionManager::setMockMediaPlaybackTargetPickerEnabled(bool enable
 void WebMediaSessionManager::setMockMediaPlaybackTargetPickerState(const String& name, MediaPlaybackTargetContext::MockState state)
 {
     ALWAYS_LOG_MEDIASESSIONMANAGER(__func__);
-    mockPicker().setState(name, state);
+    checkedMockPicker()->setState(name, state);
 }
 
 void WebMediaSessionManager::mockMediaPlaybackTargetPickerDismissPopup()
 {
     ALWAYS_LOG_MEDIASESSIONMANAGER(__func__);
-    mockPicker().dismissPopup();
+    checkedMockPicker()->dismissPopup();
 }
 
 MediaPlaybackTargetPickerMock& WebMediaSessionManager::mockPicker()
@@ -188,12 +194,22 @@ MediaPlaybackTargetPickerMock& WebMediaSessionManager::mockPicker()
     return *m_pickerOverride.get();
 }
 
+CheckedRef<WebCore::MediaPlaybackTargetPickerMock> WebMediaSessionManager::checkedMockPicker()
+{
+    return mockPicker();
+}
+
 WebCore::MediaPlaybackTargetPicker& WebMediaSessionManager::targetPicker()
 {
     if (m_mockPickerEnabled)
         return mockPicker();
 
     return platformPicker();
+}
+
+CheckedRef<WebCore::MediaPlaybackTargetPicker> WebMediaSessionManager::checkedTargetPicker()
+{
+    return targetPicker();
 }
 
 WebMediaSessionManager::WebMediaSessionManager()
@@ -263,7 +279,7 @@ void WebMediaSessionManager::showPlaybackTargetPicker(WebMediaSessionManagerClie
     ALWAYS_LOG_MEDIASESSIONMANAGER(__func__, m_clientState[index].get());
 
     bool hasActiveRoute = flagsAreSet(m_clientState[index]->flags, MediaProducerMediaState::IsPlayingToExternalDevice);
-    targetPicker().showPlaybackTargetPicker(client.platformView().get(), FloatRect(rect), hasActiveRoute, useDarkAppearance);
+    checkedTargetPicker()->showPlaybackTargetPicker(client.platformView().get(), FloatRect(rect), hasActiveRoute, useDarkAppearance);
 }
 
 void WebMediaSessionManager::clientStateDidChange(WebMediaSessionManagerClient& client, PlaybackTargetClientContextIdentifier contextId, MediaProducerMediaStateFlags newFlags)
@@ -293,7 +309,8 @@ void WebMediaSessionManager::clientStateDidChange(WebMediaSessionManagerClient& 
         scheduleDelayedTask(ConfigurationTaskFlags::WatchdogTimerConfiguration);
     }
 
-    if (!m_playbackTarget || !m_playbackTarget->hasActiveRoute() || !flagsAreSet(newFlags, MediaProducerMediaState::ExternalDeviceAutoPlayCandidate))
+    RefPtr playbackTarget = m_playbackTarget;
+    if (!playbackTarget || !playbackTarget->hasActiveRoute() || !flagsAreSet(newFlags, MediaProducerMediaState::ExternalDeviceAutoPlayCandidate))
         return;
 
     // Do not interrupt another element already playing to a device.
@@ -373,7 +390,8 @@ void WebMediaSessionManager::configurePlaybackTargetClients()
     size_t indexOfClientThatRequestedPicker = notFound;
     size_t indexOfLastClientToRequestPicker = notFound;
     size_t indexOfClientWillPlayToTarget = notFound;
-    bool haveActiveRoute = m_playbackTarget && m_playbackTarget->hasActiveRoute();
+    RefPtr playbackTarget = m_playbackTarget;
+    bool haveActiveRoute = playbackTarget && playbackTarget->hasActiveRoute();
 
     for (size_t i = 0; i < m_clientState.size(); ++i) {
         auto& state = m_clientState[i];
@@ -449,10 +467,10 @@ void WebMediaSessionManager::configurePlaybackTargetMonitoring()
 
     if (monitoringRequired || (hasAvailabilityListener && haveClientWithMedia)) {
         ALWAYS_LOG_MEDIASESSIONMANAGER(__func__, "starting monitoring");
-        targetPicker().startingMonitoringPlaybackTargets();
+        checkedTargetPicker()->startingMonitoringPlaybackTargets();
     } else {
         ALWAYS_LOG_MEDIASESSIONMANAGER(__func__, "stopping monitoring");
-        targetPicker().stopMonitoringPlaybackTargets();
+        checkedTargetPicker()->stopMonitoringPlaybackTargets();
     }
 }
 
@@ -491,7 +509,8 @@ void WebMediaSessionManager::configureWatchdogTimer()
     static const Seconds watchdogTimerIntervalAfterPausing { 1_h };
     static const Seconds watchdogTimerIntervalAfterPlayingToEnd { 8_min };
 
-    if (!m_playbackTarget || !m_playbackTarget->hasActiveRoute()) {
+    RefPtr playbackTarget = m_playbackTarget;
+    if (!playbackTarget || !playbackTarget->hasActiveRoute()) {
         if (m_watchdogTimer.isActive()) {
             ALWAYS_LOG_MEDIASESSIONMANAGER(__func__, "stopping timer");
             m_currentWatchdogInterval = { };
@@ -520,9 +539,8 @@ void WebMediaSessionManager::configureWatchdogTimer()
         m_watchdogTimer.stop();
     } else {
         Seconds interval = didPlayToEnd ? watchdogTimerIntervalAfterPlayingToEnd : watchdogTimerIntervalAfterPausing;
-        if (interval != m_currentWatchdogInterval || !m_watchdogTimer.isActive()) {
+        if (interval != m_currentWatchdogInterval || !m_watchdogTimer.isActive())
             m_watchdogTimer.startOneShot(interval);
-        }
         ALWAYS_LOG_MEDIASESSIONMANAGER(__func__, "timer scheduled for ", interval.value(), " seconds");
         m_currentWatchdogInterval = interval;
     }
@@ -534,7 +552,7 @@ void WebMediaSessionManager::watchdogTimerFired()
         return;
 
     ALWAYS_LOG_MEDIASESSIONMANAGER(__func__);
-    targetPicker().invalidatePlaybackTargets();
+    checkedTargetPicker()->invalidatePlaybackTargets();
 }
 
 } // namespace WebCore
