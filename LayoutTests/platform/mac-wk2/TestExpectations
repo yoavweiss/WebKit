@@ -2422,3 +2422,7 @@ webkit.org/b/298269 imported/w3c/web-platform-tests/html/anonymous-iframe/sessio
 webkit.org/b/298278 imported/w3c/web-platform-tests/html/anonymous-iframe/local-storage.tentative.https.window.html [ Pass Failure ]
 
 webkit.org/b/298292 [ Sequoia ] http/tests/webgpu/webgpu/api/operation/sampling/sampler_texture.html [ Pass Crash ]
+
+# webkit.org/b/298330 REGRESSION(299282@main): [macOS iOS Debug] ASSERTION FAILED: WebCore::HTMLDocumentParser::attemptToRunDeferredScriptsAndEnd
+[ Debug ] imported/w3c/web-platform-tests/html/semantics/the-button-element/command-and-commandfor/on-dialog-behavior.html [ Pass Crash ]
+[ Debug ] imported/w3c/web-platform-tests/custom-elements/pseudo-class-defined-customized-builtins.html [ Pass Crash ]

@@ -8269,3 +8269,6 @@ webkit.org/b/298256 [ Debug ] fast/dom/document-all.html [ Timeout ]
 webkit.org/b/298269 [ Release ] imported/w3c/web-platform-tests/html/anonymous-iframe/session-storage.tentative.https.window.html [ Pass Failure ]
 
 webkit.org/b/298278 imported/w3c/web-platform-tests/html/anonymous-iframe/local-storage.tentative.https.window.html [ Pass Failure ]
+
+# webkit.org/b/298330 REGRESSION(299282@main): [macOS iOS Debug] ASSERTION FAILED: WebCore::HTMLDocumentParser::attemptToRunDeferredScriptsAndEnd
+[ Debug ] imported/w3c/web-platform-tests/html/semantics/the-button-element/command-and-commandfor/on-dialog-behavior.html [ Pass Crash ]
