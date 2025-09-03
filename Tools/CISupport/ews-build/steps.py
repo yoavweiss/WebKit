@@ -1376,7 +1376,7 @@ class CheckChangeRelevance(AnalyzeChange):
         return None
 
 
-class GetTestExpectationsBaseline(shell.ShellCommand, ShellMixin):
+class GetTestExpectationsBaseline(shell.ShellCommandNewStyle, ShellMixin):
     name = 'get-test-expectations-baseline'
     description = 'get-test-expectations-baseline running'
     descriptionDone = 'Found baseline expectations for layout tests'
@@ -1388,17 +1388,17 @@ class GetTestExpectationsBaseline(shell.ShellCommand, ShellMixin):
         self.addLogObserver('stdio', self.log_observer)
 
         platform = self.getProperty('platform')
-        self.setCommand(self.command + customBuildFlag(platform, self.getProperty('fullPlatform')))
+        self.command += customBuildFlag(platform, self.getProperty('fullPlatform'))
 
         patch_author = self.getProperty('patch_author')
         if patch_author in ['webkit-wpt-import-bot@igalia.com']:
-            self.setCommand(self.command + ['imported/w3c/web-platform-tests'])
+            self.command += ['imported/w3c/web-platform-tests']
 
         additionalArguments = self.getProperty('additionalArguments', '')
         if additionalArguments:
-            self.setCommand(self.command + additionalArguments)
+            self.command += additionalArguments
 
-        self.setCommand(self.shell_command(' '.join(self.command) + ' > base-expectations.txt'))
+        self.command = self.shell_command(' '.join(self.command) + ' > base-expectations.txt')
         rc = yield super().run()
 
         log_text = log_text = self.log_observer.getStdout() + self.log_observer.getStderr()
