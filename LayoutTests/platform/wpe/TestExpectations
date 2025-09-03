@@ -779,8 +779,12 @@ Bug(WPE) security/contentSecurityPolicy/video-with-blob-url-allowed-by-media-src
 # WPT: css
 # ========
 
-Bug(WPE) imported/w3c/web-platform-tests/css/css-color [ Skip ]
-Bug(WPE) imported/w3c/web-platform-tests/css/css-multicol [ Skip ]
+imported/w3c/web-platform-tests/css/css-color/system-color-consistency.html [ Failure ]
+imported/w3c/web-platform-tests/css/css-color/system-color-support.html [ Failure ]
+imported/w3c/web-platform-tests/css/css-color/t32-opacity-offscreen-multiple-boxes-1-c.xht [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/css-color/t32-opacity-offscreen-multiple-boxes-2-c.xht [ ImageOnlyFailure ]
+
+imported/w3c/web-platform-tests/css/css-multicol/multicol-fill-balance-021.html [ Failure ]
 
 webkit.org/b/186262 imported/w3c/web-platform-tests/css/css-text/word-break/word-break-break-all-007.html [ ImageOnlyFailure ]
 webkit.org/b/186262 imported/w3c/web-platform-tests/css/css-text/word-break/word-break-normal-lo-000.html [ ImageOnlyFailure ]
