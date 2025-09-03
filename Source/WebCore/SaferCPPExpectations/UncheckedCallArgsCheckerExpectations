@@ -59,7 +59,6 @@ accessibility/cocoa/AccessibilityObjectCocoa.mm
 accessibility/isolatedtree/AXIsolatedTree.cpp
 accessibility/mac/AXObjectCacheMac.mm
 accessibility/mac/AccessibilityObjectMac.mm
-accessibility/mac/WebAccessibilityObjectWrapperMac.mm
 animation/AnimationTimelinesController.cpp
 animation/BlendingKeyframes.cpp
 animation/DocumentTimeline.cpp

@@ -2107,14 +2107,17 @@ static RenderObject* rendererForView(WAKView* view)
 
 - (id)_accessibilityParentForSubview:(id)subview
 {
-    RenderObject* renderer = rendererForView(subview);
+    CheckedPtr renderer = rendererForView(subview);
     if (!renderer)
         return nil;
 
-    AccessibilityObject* obj = renderer->document().axObjectCache()->getOrCreate(*renderer);
-    if (obj)
-        return obj->parentObjectUnignored()->wrapper();
-    return nil;
+    CheckedPtr cache = renderer->protectedDocument()->axObjectCache();
+    if (!cache)
+        return nil;
+
+    RefPtr object = cache->getOrCreate(*renderer);
+    RefPtr parent = object ? object->parentObjectUnignored() : nullptr;
+    return parent ? parent->wrapper() : nil;
 }
 
 // These will be used by the UIKit wrapper to calculate an appropriate description of scroll status.

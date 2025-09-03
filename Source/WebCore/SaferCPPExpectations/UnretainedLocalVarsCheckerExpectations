@@ -4,7 +4,6 @@ accessibility/cocoa/AccessibilityObjectCocoa.mm
 accessibility/mac/AXObjectCacheMac.mm
 accessibility/mac/AccessibilityObjectMac.mm
 accessibility/mac/WebAccessibilityObjectWrapperBase.mm
-accessibility/mac/WebAccessibilityObjectWrapperMac.mm
 bindings/js/ScriptControllerMac.mm
 bindings/js/SerializedScriptValue.cpp
 bridge/objc/WebScriptObject.mm

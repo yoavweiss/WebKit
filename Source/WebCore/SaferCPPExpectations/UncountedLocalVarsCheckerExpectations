@@ -51,7 +51,6 @@ Modules/webdatabase/DatabaseManager.cpp
 Modules/webdatabase/SQLCallbackWrapper.h
 StyleBuilderGenerated.cpp
 accessibility/AXObjectCache.cpp
-accessibility/mac/WebAccessibilityObjectWrapperMac.mm
 animation/KeyframeEffect.cpp
 bindings/js/CommonVM.cpp
 bindings/js/DOMWrapperWorld.cpp
