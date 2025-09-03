@@ -36,6 +36,7 @@
 #include <WebKit/WKBundlePage.h>
 #include <WebKit/WKBundlePagePrivate.h>
 #include <WebKit/WKBundlePrivate.h>
+#include <WebKit/WKCast.h>
 #include <WebKit/WKRetainPtr.h>
 #include <WebKit/WebKit2_C.h>
 #include <wtf/CompletionHandler.h>
@@ -273,10 +274,7 @@ void InjectedBundle::didReceiveMessageToPage(WKBundlePageRef page, WKStringRef m
     }
 
     if (WKStringIsEqualToUTF8CString(messageName, "WheelEventMarker")) {
-        ASSERT(messageBody);
-        ASSERT(WKGetTypeID(messageBody) == WKStringGetTypeID());
-
-        auto bodyString = toWTFString(static_cast<WKStringRef>(messageBody));
+        auto bodyString = toWTFString(dynamic_wk_cast<WKStringRef>(messageBody));
         // These match the strings in EventSenderProxy::sendWheelEvent().
         if (bodyString == "SentWheelPhaseEndOrCancel"_s)
             m_eventSendingController->sentWheelPhaseEndOrCancel();
@@ -290,10 +288,8 @@ void InjectedBundle::didReceiveMessageToPage(WKBundlePageRef page, WKStringRef m
 
 void InjectedBundle::setAllowedHosts(WKDictionaryRef settings)
 {
-    auto allowedHostsValue = value(settings, "AllowedHosts");
-    if (allowedHostsValue && WKGetTypeID(allowedHostsValue) == WKArrayGetTypeID()) {
+    if (auto array = dynamic_wk_cast<WKArrayRef>(value(settings, "AllowedHosts"))) {
         m_allowedHosts.clear();
-        auto array = static_cast<WKArrayRef>(allowedHostsValue);
         for (size_t i = 0, size = WKArrayGetSize(array); i < size; ++i)
             m_allowedHosts.append(toWTFString(WKArrayGetItemAtIndex(array, i)));
     }
@@ -755,12 +751,10 @@ void postSynchronousPageMessage(const char* name, bool value)
 
 static JSValueRef stringArrayToJS(JSContextRef context, WKArrayRef strings)
 {
-    ASSERT(WKGetTypeID(strings) == WKArrayGetTypeID());
     const size_t count = WKArrayGetSize(strings);
     auto array = JSObjectMakeArray(context, 0, 0, nullptr);
     for (size_t i = 0; i < count; ++i) {
-        auto stringRef = static_cast<WKStringRef>(WKArrayGetItemAtIndex(strings, i));
-        ASSERT(WKGetTypeID(stringRef) == WKStringGetTypeID());
+        auto stringRef = dynamic_wk_cast<WKStringRef>(WKArrayGetItemAtIndex(strings, i));
         JSObjectSetPropertyAtIndex(context, array, i, JSValueMakeString(context, toJS(stringRef).get()), nullptr);
     }
     return array;
@@ -779,12 +773,12 @@ void postMessageWithAsyncReply(JSContextRef context, const char* messageName, WK
         JSValueRef resultJS { nullptr };
 
         if (result) {
-            if (WKGetTypeID(result) == WKArrayGetTypeID())
-                resultJS = stringArrayToJS(context, static_cast<WKArrayRef>(result));
-            else if (WKGetTypeID(result) == WKStringGetTypeID())
-                resultJS = JSValueMakeString(context, toJS(static_cast<WKStringRef>(result)).get());
-            else if (WKGetTypeID(result) == WKBooleanGetTypeID())
-                resultJS = JSValueMakeBoolean(context, booleanValue(static_cast<WKBooleanRef>(result)));
+            if (auto array = dynamic_wk_cast<WKArrayRef>(result))
+                resultJS = stringArrayToJS(context, array);
+            else if (auto string = dynamic_wk_cast<WKStringRef>(result))
+                resultJS = JSValueMakeString(context, toJS(string).get());
+            else if (auto boolean = dynamic_wk_cast<WKBooleanRef>(result))
+                resultJS = JSValueMakeBoolean(context, booleanValue(boolean));
             else
                 RELEASE_ASSERT_NOT_REACHED();
             arguments = &resultJS;

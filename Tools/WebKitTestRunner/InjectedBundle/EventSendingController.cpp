@@ -34,6 +34,7 @@
 #include <WebKit/WKBundleFrame.h>
 #include <WebKit/WKBundlePagePrivate.h>
 #include <WebKit/WKBundlePrivate.h>
+#include <WebKit/WKCast.h>
 #include <WebKit/WKContextMenuItem.h>
 #include <WebKit/WKMutableDictionary.h>
 #include <WebKit/WKNumber.h>
@@ -458,9 +459,7 @@ JSValueRef EventSendingController::contextClick(JSContextRef context)
 
     size_t entriesSize = WKArrayGetSize(menuEntries.get());
     for (size_t i = 0; i < entriesSize; ++i) {
-        ASSERT(WKGetTypeID(WKArrayGetItemAtIndex(menuEntries.get(), i)) == WKContextMenuItemGetTypeID());
-
-        WKContextMenuItemRef item = static_cast<WKContextMenuItemRef>(WKArrayGetItemAtIndex(menuEntries.get(), i));
+        WKContextMenuItemRef item = dynamic_wk_cast<WKContextMenuItemRef>(WKArrayGetItemAtIndex(menuEntries.get(), i));
         MenuItemPrivateData* privateData = new MenuItemPrivateData(page, item);
         JSObjectSetPropertyAtIndex(context, array, i, JSObjectMake(context, getMenuItemClass(), privateData), 0);
     }

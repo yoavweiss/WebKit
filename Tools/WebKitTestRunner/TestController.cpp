@@ -38,6 +38,7 @@
 #include <WebKit/WKArray.h>
 #include <WebKit/WKAuthenticationChallenge.h>
 #include <WebKit/WKAuthenticationDecisionListener.h>
+#include <WebKit/WKCast.h>
 #include <WebKit/WKContextConfigurationRef.h>
 #include <WebKit/WKContextPrivate.h>
 #include <WebKit/WKCredential.h>
@@ -517,12 +518,11 @@ void TestController::tooltipDidChange(WKStringRef tooltip)
     m_tooltipCallbacks.notifyListeners(tooltip);
 }
 
-void TestController::Callbacks::append(WKTypeRef handle)
+void TestController::Callbacks::append(WKJSHandleRef handle)
 {
     if (!handle)
         return;
-    ASSERT(WKGetTypeID(handle) == WKJSHandleGetTypeID());
-    m_callbacks.append((WKJSHandleRef)handle);
+    m_callbacks.append(handle);
 }
 
 void TestController::Callbacks::notifyListeners(WKStringRef parameter)
@@ -1853,8 +1853,7 @@ static WKFindOptions findOptionsFromArray(WKArrayRef array)
     auto length = WKArrayGetSize(array);
     WKFindOptions options { };
     for (unsigned i = 0; i < length; ++i) {
-        auto optionName = (WKStringRef)WKArrayGetItemAtIndex(array, i);
-        ASSERT(WKGetTypeID(optionName) == WKStringGetTypeID());
+        WKStringRef optionName = dynamic_wk_cast<WKStringRef>(WKArrayGetItemAtIndex(array, i));
         if (WKStringIsEqualToUTF8CString(optionName, "CaseInsensitive"))
             options |= kWKFindOptionsCaseInsensitive;
         else if (WKStringIsEqualToUTF8CString(optionName, "AtWordStarts"))
@@ -1942,17 +1941,14 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
         return completionHandler(nullptr);
 
     WKTypeRef messageBody = WKScriptMessageGetBody(message);
-    ASSERT(WKGetTypeID(messageBody) == WKArrayGetTypeID());
-    WKArrayRef array = (WKArrayRef)messageBody;
+    WKArrayRef array = dynamic_wk_cast<WKArrayRef>(messageBody);
     WKStringRef command = (WKStringRef)WKArrayGetItemAtIndex(array, 0);
     WKTypeRef argument = WKArrayGetSize(array) > 1 ? WKArrayGetItemAtIndex(array, 1) : nullptr;
     WKTypeRef argument2 = WKArrayGetSize(array) > 2 ? WKArrayGetItemAtIndex(array, 2) : nullptr;
 
     if (WKStringIsEqualToUTF8CString(command, "FindString")) {
-        WKStringRef target = (WKStringRef)argument;
-        ASSERT(WKGetTypeID(target) == WKStringGetTypeID());
-        WKArrayRef optionsArray = (WKArrayRef)WKArrayGetItemAtIndex(array, 2);
-        ASSERT(WKGetTypeID(optionsArray) == WKArrayGetTypeID());
+        WKStringRef target = dynamic_wk_cast<WKStringRef>(argument);
+        WKArrayRef optionsArray = dynamic_wk_cast<WKArrayRef>(WKArrayGetItemAtIndex(array, 2));
         WKFindOptions options = findOptionsFromArray(optionsArray);
         return WKPageFindStringForTesting(mainWebView()->page(), completionHandler.leak(), target, options, 0, [] (bool found, void* context) {
             auto completionHandler = WTF::adopt(static_cast<CompletionHandler<void(WKTypeRef)>::Impl*>(context));
@@ -1961,34 +1957,34 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallTooltipCallback")) {
-        m_tooltipCallbacks.append(argument);
+        m_tooltipCallbacks.append(dynamic_wk_cast<WKJSHandleRef>(argument));
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallBeginSwipeCallback")) {
-        m_beginSwipeCallbacks.append(argument);
+        m_beginSwipeCallbacks.append(dynamic_wk_cast<WKJSHandleRef>(argument));
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallWillEndSwipeCallback")) {
-        m_willEndSwipeCallbacks.append(argument);
+        m_willEndSwipeCallbacks.append(dynamic_wk_cast<WKJSHandleRef>(argument));
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallDidEndSwipeCallback")) {
-        m_didEndSwipeCallbacks.append(argument);
+        m_didEndSwipeCallbacks.append(dynamic_wk_cast<WKJSHandleRef>(argument));
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "InstallDidRemoveSwipeSnapshotCallback")) {
-        m_didRemoveSwipeSnapshotCallbacks.append(argument);
+        m_didRemoveSwipeSnapshotCallbacks.append(dynamic_wk_cast<WKJSHandleRef>(argument));
         return completionHandler(nullptr);
     }
 
     if (WKStringIsEqualToUTF8CString(command, "RunUIScript")) {
         unsigned callbackID = UIScriptInvocationData::nextCallbackID++;
-        auto invocationData = new UIScriptInvocationData(callbackID, (WKStringRef)argument, m_currentInvocation);
-        m_uiScriptCallbacks.add(callbackID, Callbacks { }).iterator->value.append(argument2);
+        auto invocationData = new UIScriptInvocationData(callbackID, dynamic_wk_cast<WKStringRef>(argument), m_currentInvocation);
+        m_uiScriptCallbacks.add(callbackID, Callbacks { }).iterator->value.append(dynamic_wk_cast<WKJSHandleRef>(argument2));
         WKPageCallAfterNextPresentationUpdate(mainWebView()->page(), invocationData, [] (WKErrorRef, void* context) {
             runUISideScriptImmediately(context);
         });
@@ -1997,8 +1993,8 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
 
     if (WKStringIsEqualToUTF8CString(command, "RunUIScriptImmediately")) {
         unsigned callbackID = UIScriptInvocationData::nextCallbackID++;
-        auto invocationData = new UIScriptInvocationData(callbackID, (WKStringRef)argument, m_currentInvocation);
-        m_uiScriptCallbacks.add(callbackID, Callbacks { }).iterator->value.append(argument2);
+        auto invocationData = new UIScriptInvocationData(callbackID, dynamic_wk_cast<WKStringRef>(argument), m_currentInvocation);
+        m_uiScriptCallbacks.add(callbackID, Callbacks { }).iterator->value.append(dynamic_wk_cast<WKJSHandleRef>(argument2));
         runUISideScriptImmediately(invocationData);
         return completionHandler(nullptr);
     }
@@ -2365,8 +2361,7 @@ void TestController::didReceiveLiveDocumentsList(WKArrayRef liveDocumentList)
 void TestController::didReceiveMessageFromInjectedBundle(WKStringRef messageName, WKTypeRef messageBody)
 {
     if (WKStringIsEqualToUTF8CString(messageName, "LiveDocuments")) {
-        ASSERT(WKGetTypeID(messageBody) == WKArrayGetTypeID());
-        didReceiveLiveDocumentsList(static_cast<WKArrayRef>(messageBody));
+        didReceiveLiveDocumentsList(dynamic_wk_cast<WKArrayRef>(messageBody));
         AsyncTask::currentTask()->taskComplete();
         return;
     }

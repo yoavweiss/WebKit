@@ -1332,14 +1332,12 @@ WKRetainPtr<WKTypeRef> TestInvocation::didReceiveSynchronousMessageFromInjectedB
     }
 
     if (WKStringIsEqualToUTF8CString(messageName, "SetPrivateClickMeasurementTokenPublicKeyURLForTesting")) {
-        ASSERT(WKGetTypeID(messageBody) == WKURLGetTypeID());
-        TestController::singleton().setPrivateClickMeasurementTokenPublicKeyURLForTesting(static_cast<WKURLRef>(messageBody));
+        TestController::singleton().setPrivateClickMeasurementTokenPublicKeyURLForTesting(dynamic_wk_cast<WKURLRef>(messageBody));
         return nullptr;
     }
 
     if (WKStringIsEqualToUTF8CString(messageName, "SetPrivateClickMeasurementTokenSignatureURLForTesting")) {
-        ASSERT(WKGetTypeID(messageBody) == WKURLGetTypeID());
-        TestController::singleton().setPrivateClickMeasurementTokenSignatureURLForTesting(static_cast<WKURLRef>(messageBody));
+        TestController::singleton().setPrivateClickMeasurementTokenSignatureURLForTesting(dynamic_wk_cast<WKURLRef>(messageBody));
         return nullptr;
     }
 
