@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Apple Inc. All rights reserved.
+# Copyright (C) 2025 Apple Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -101,16 +101,16 @@ class SetBuildSummary(buildstep.BuildStep):
     def hideStepIf(self, results, step):
         return not self.doStepIf(step)
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         build_summary = self.getProperty('build_summary', 'build successful')
-        self.finished(SUCCESS)
         previous_build_summary = self.getProperty('build_summary', '')
         if self.FAILURE_MSG_IN_STRESS_MODE in previous_build_summary:
             self.build.results = FAILURE
         elif any(s in previous_build_summary for s in ('Committed ', '@', 'Passed', 'Ignored pre-existing failure')):
             self.build.results = SUCCESS
         self.build.buildFinished([build_summary], self.build.results)
-        return defer.succeed(None)
+        return defer.returnValue(SUCCESS)
 
 
 class InstallCMake(shell.ShellCommandNewStyle):
