@@ -224,7 +224,7 @@ def ipint_state(debugger, command, exe_ctx, output, internal_dict):
                 mc_data = '???'
         print(f'MC = 0x{mc:x} -> {CYAN}{mc_data}{RESET}', file=output)
     else:
-        print('MC = {RED}<none>{RESET} (no metadata generated)', file=output)
+        print(f'MC = {RED}<none>{RESET} (no metadata generated)', file=output)
 
     if instr_index < 0:
         print("Stack unknown: not in IPInt", file=output)
