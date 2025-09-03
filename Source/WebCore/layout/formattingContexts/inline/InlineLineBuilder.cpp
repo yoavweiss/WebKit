@@ -860,7 +860,7 @@ LineBuilder::RectAndFloatConstraints LineBuilder::adjustedLineRectWithCandidateI
 
 std::optional<LineBuilder::InitialLetterOffsets> LineBuilder::adjustLineRectForInitialLetterIfApplicable(const Box& floatBox)
 {
-    auto drop = floatBox.style().initialLetterDrop();
+    auto drop = floatBox.style().initialLetter().drop();
     auto isInitialLetter = floatBox.isFloatingPositioned() && floatBox.style().pseudoElementType() == PseudoId::FirstLetter && drop;
     if (!isInitialLetter)
         return { };
@@ -885,7 +885,7 @@ std::optional<LineBuilder::InitialLetterOffsets> LineBuilder::adjustLineRectForI
     }
 
     auto sunkenBelowFirstLineOffset = LayoutUnit { };
-    auto letterHeight = floatBox.style().initialLetterHeight();
+    auto letterHeight = floatBox.style().initialLetter().height();
     if (drop < letterHeight) {
         // Sunken/raised initial letter pushes contents of the first line down.
         auto numberOfSunkenLines = letterHeight - drop;

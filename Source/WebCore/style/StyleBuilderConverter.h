@@ -149,7 +149,6 @@ public:
     static OptionSet<TextUnderlinePosition> convertTextUnderlinePosition(BuilderState&, const CSSValue&);
     static RefPtr<StyleReflection> convertReflection(BuilderState&, const CSSValue&);
     static TextEdge convertTextEdge(BuilderState&, const CSSValue&);
-    static FloatSize convertInitialLetter(BuilderState&, const CSSValue&);
     static OptionSet<LineBoxContain> convertLineBoxContain(BuilderState&, const CSSValue&);
     static ScrollSnapType convertScrollSnapType(BuilderState&, const CSSValue&);
     static ScrollSnapAlign convertScrollSnapAlign(BuilderState&, const CSSValue&);
@@ -650,23 +649,6 @@ inline TextEdge BuilderConverter::convertTextEdge(BuilderState& builderState, co
     return {
         overValue(pair->first->valueID()),
         underValue(pair->second->valueID())
-    };
-}
-
-inline FloatSize BuilderConverter::convertInitialLetter(BuilderState& builderState, const CSSValue& value)
-{
-    if (value.valueID() == CSSValueNormal)
-        return { };
-
-    auto& conversionData = builderState.cssToLengthConversionData();
-
-    auto pair = requiredPairDowncast<CSSPrimitiveValue>(builderState, value);
-    if (!pair)
-        return { };
-
-    return {
-        pair->second->resolveAsNumber<float>(conversionData),
-        pair->first->resolveAsNumber<float>(conversionData)
     };
 }
 

@@ -3215,6 +3215,7 @@ style/values/images/StyleGradient.cpp
 style/values/images/StyleImageOrNone.cpp
 style/values/images/StyleImageWrapper.cpp
 style/values/inline/StyleVerticalAlign.cpp
+style/values/inline/StyleWebKitInitialLetter.cpp
 style/values/lists/StyleListStyleType.cpp
 style/values/masking/StyleClip.cpp
 style/values/masking/StyleClipPath.cpp

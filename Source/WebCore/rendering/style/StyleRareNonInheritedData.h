@@ -73,6 +73,7 @@
 #include <WebCore/StyleViewTimelines.h>
 #include <WebCore/StyleViewTransitionClass.h>
 #include <WebCore/StyleViewTransitionName.h>
+#include <WebCore/StyleWebKitInitialLetter.h>
 #include <WebCore/StyleWebKitLineClamp.h>
 #include <WebCore/TouchAction.h>
 #include <memory>
@@ -157,7 +158,7 @@ public:
     OptionSet<MarginTrimType> marginTrim;
     OptionSet<Containment> contain;
 
-    FloatSize initialLetter;
+    Style::WebkitInitialLetter initialLetter;
 
     DataRef<StyleMarqueeData> marquee; // Marquee properties
 

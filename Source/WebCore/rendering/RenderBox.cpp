@@ -5062,7 +5062,7 @@ bool RenderBox::isUnsplittableForPagination() const
         || (is<HTMLFormControlElement>(element()) && !is<HTMLFieldSetElement>(element()))
         || hasUnsplittableScrollingOverflow()
         || (parent() && isWritingModeRoot())
-        || (isFloating() && style().pseudoElementType() == PseudoId::FirstLetter && style().initialLetterDrop() > 0)
+        || (isFloating() && style().pseudoElementType() == PseudoId::FirstLetter && style().initialLetter().drop() > 0)
         || shouldApplySizeContainment();
 }
 

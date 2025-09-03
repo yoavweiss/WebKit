@@ -93,7 +93,6 @@ public:
     static void serializeImageOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, ImageOrientation);
     static void serializeContain(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<Containment>);
     static void serializeSmoothScrolling(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, bool);
-    static void serializeInitialLetter(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, FloatSize);
     static void serializeTextSpacingTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextSpacingTrim);
     static void serializeTextAutospace(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextAutospace);
     static void serializeReflection(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StyleReflection*);
@@ -720,25 +719,6 @@ inline void ExtractorSerializer::serializeContain(ExtractorState& state, StringB
     appendOption(Containment::Layout, CSSValueLayout);
     appendOption(Containment::Style, CSSValueStyle);
     appendOption(Containment::Paint, CSSValuePaint);
-}
-
-inline void ExtractorSerializer::serializeInitialLetter(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, FloatSize initialLetter)
-{
-    auto append = [&](auto axis) {
-        if (!axis)
-            serializationForCSS(builder, context, state.style, CSS::Keyword::Normal { });
-        else
-            CSS::serializationForCSS(builder, context, CSS::NumberRaw<> { axis });
-    };
-
-    if (initialLetter.width() == initialLetter.height()) {
-        append(initialLetter.width());
-        return;
-    }
-
-    append(initialLetter.width());
-    builder.append(' ');
-    append(initialLetter.height());
 }
 
 inline void ExtractorSerializer::serializeTextSpacingTrim(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, TextSpacingTrim textSpacingTrim)

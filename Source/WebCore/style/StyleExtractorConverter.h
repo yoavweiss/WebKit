@@ -171,7 +171,6 @@ public:
     static Ref<CSSValue> convertWebkitTextCombine(ExtractorState&, TextCombine);
     static Ref<CSSValue> convertImageOrientation(ExtractorState&, ImageOrientation);
     static Ref<CSSValue> convertContain(ExtractorState&, OptionSet<Containment>);
-    static Ref<CSSValue> convertInitialLetter(ExtractorState&, FloatSize);
     static Ref<CSSValue> convertTextSpacingTrim(ExtractorState&, TextSpacingTrim);
     static Ref<CSSValue> convertTextAutospace(ExtractorState&, TextAutospace);
     static Ref<CSSValue> convertReflection(ExtractorState&, const StyleReflection*);
@@ -623,14 +622,6 @@ inline Ref<CSSValue> ExtractorConverter::convertContain(ExtractorState&, OptionS
     if (containment & Containment::Paint)
         list.append(CSSPrimitiveValue::create(CSSValuePaint));
     return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertInitialLetter(ExtractorState&, FloatSize initialLetter)
-{
-    return CSSValuePair::create(
-        !initialLetter.width() ? CSSPrimitiveValue::create(CSSValueNormal) : CSSPrimitiveValue::create(initialLetter.width()),
-        !initialLetter.height() ? CSSPrimitiveValue::create(CSSValueNormal) : CSSPrimitiveValue::create(initialLetter.height())
-    );
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertTextSpacingTrim(ExtractorState&, TextSpacingTrim textSpacingTrim)

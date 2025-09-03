@@ -349,6 +349,7 @@ struct ViewTimelineInsets;
 struct ViewTimelines;
 struct ViewTransitionClasses;
 struct ViewTransitionName;
+struct WebkitInitialLetter;
 struct WebkitLineClamp;
 struct WebkitLineGrid;
 struct WebkitTextStrokeWidth;
@@ -1120,9 +1121,7 @@ public:
     inline const Style::BlockEllipsis& blockEllipsis() const;
     inline Style::MaximumLines maxLines() const;
     inline OverflowContinue overflowContinue() const;
-    inline const FloatSize& initialLetter() const;
-    inline float initialLetterDrop() const;
-    inline float initialLetterHeight() const;
+    inline const Style::WebkitInitialLetter& initialLetter() const;
 
     inline OptionSet<TouchAction> touchActions() const;
     // 'touch-action' behavior depends on values in ancestors. We use an additional inherited property to implement that.
@@ -1639,8 +1638,8 @@ public:
     inline void setOverflowContinue(OverflowContinue);
     inline void setBlockEllipsis(Style::BlockEllipsis&&);
 
-    inline void setInitialLetter(const FloatSize&);
-    
+    inline void setInitialLetter(Style::WebkitInitialLetter&&);
+
     inline void setTouchActions(OptionSet<TouchAction>);
     inline void setUsedTouchActions(OptionSet<TouchAction>);
     inline void setEventListenerRegionTypes(OptionSet<EventListenerRegionType>);
@@ -2168,7 +2167,7 @@ public:
     static constexpr LineSnap initialLineSnap();
     static constexpr LineAlign initialLineAlign();
 
-    static constexpr FloatSize initialInitialLetter();
+    static constexpr Style::WebkitInitialLetter initialInitialLetter();
     static constexpr Style::WebkitLineClamp initialLineClamp();
     static inline Style::BlockEllipsis initialBlockEllipsis();
     static OverflowContinue initialOverflowContinue();
