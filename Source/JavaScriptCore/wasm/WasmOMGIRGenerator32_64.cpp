@@ -616,7 +616,7 @@ public:
     // References
     PartialResult WARN_UNUSED_RETURN addRefIsNull(ExpressionType value, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addRefFunc(FunctionSpaceIndex index, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addRefAsNonNull(ExpressionType, ExpressionType&);
+    PartialResult WARN_UNUSED_RETURN addRefAsNonNull(TypedExpression, ExpressionType&);
     PartialResult WARN_UNUSED_RETURN addRefEq(ExpressionType, ExpressionType, ExpressionType&);
 
     // Tables
@@ -663,26 +663,26 @@ public:
 
     // GC
     PartialResult WARN_UNUSED_RETURN addRefI31(ExpressionType value, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addI31GetS(ExpressionType ref, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addI31GetU(ExpressionType ref, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addI31GetS(TypedExpression ref, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addI31GetU(TypedExpression ref, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addArrayNew(uint32_t index, ExpressionType size, ExpressionType value, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addArrayNewDefault(uint32_t index, ExpressionType size, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addArrayNewFixed(uint32_t typeIndex, ArgumentList& args, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, TypedExpression arrayref, ExpressionType index, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addArrayNewData(uint32_t typeIndex, uint32_t dataIndex, ExpressionType size, ExpressionType offset, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addArrayNewElem(uint32_t typeIndex, uint32_t elemSegmentIndex, ExpressionType size, ExpressionType offset, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addArraySet(uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType value);
-    PartialResult WARN_UNUSED_RETURN addArrayLen(ExpressionType arrayref, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addArrayFill(uint32_t, ExpressionType, ExpressionType, ExpressionType, ExpressionType);
-    PartialResult WARN_UNUSED_RETURN addArrayCopy(uint32_t, ExpressionType, ExpressionType, uint32_t, ExpressionType, ExpressionType, ExpressionType);
-    PartialResult WARN_UNUSED_RETURN addArrayInitElem(uint32_t, ExpressionType, ExpressionType, uint32_t, ExpressionType, ExpressionType);
-    PartialResult WARN_UNUSED_RETURN addArrayInitData(uint32_t, ExpressionType, ExpressionType, uint32_t, ExpressionType, ExpressionType);
+    PartialResult WARN_UNUSED_RETURN addArraySet(uint32_t typeIndex, TypedExpression arrayref, ExpressionType index, ExpressionType value);
+    PartialResult WARN_UNUSED_RETURN addArrayLen(TypedExpression arrayref, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addArrayFill(uint32_t, TypedExpression, ExpressionType, ExpressionType, ExpressionType);
+    PartialResult WARN_UNUSED_RETURN addArrayCopy(uint32_t, TypedExpression, ExpressionType, uint32_t, TypedExpression, ExpressionType, ExpressionType);
+    PartialResult WARN_UNUSED_RETURN addArrayInitElem(uint32_t, TypedExpression, ExpressionType, uint32_t, ExpressionType, ExpressionType);
+    PartialResult WARN_UNUSED_RETURN addArrayInitData(uint32_t, TypedExpression, ExpressionType, uint32_t, ExpressionType, ExpressionType);
     PartialResult WARN_UNUSED_RETURN addStructNew(uint32_t typeIndex, ArgumentList& args, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addStructNewDefault(uint32_t index, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addStructGet(ExtGCOpType structGetKind, ExpressionType structReference, const StructType&, uint32_t fieldIndex, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addStructSet(ExpressionType structReference, const StructType&, uint32_t fieldIndex, ExpressionType value);
-    PartialResult WARN_UNUSED_RETURN addRefTest(ExpressionType reference, bool allowNull, int32_t heapType, bool shouldNegate, ExpressionType& result);
-    PartialResult WARN_UNUSED_RETURN addRefCast(ExpressionType reference, bool allowNull, int32_t heapType, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addStructGet(ExtGCOpType structGetKind, TypedExpression structReference, const StructType&, uint32_t fieldIndex, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addStructSet(TypedExpression structReference, const StructType&, uint32_t fieldIndex, ExpressionType value);
+    PartialResult WARN_UNUSED_RETURN addRefTest(TypedExpression reference, bool allowNull, int32_t heapType, bool shouldNegate, ExpressionType& result);
+    PartialResult WARN_UNUSED_RETURN addRefCast(TypedExpression reference, bool allowNull, int32_t heapType, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addAnyConvertExtern(ExpressionType reference, ExpressionType& result);
     PartialResult WARN_UNUSED_RETURN addExternConvertAny(ExpressionType reference, ExpressionType& result);
 
@@ -716,13 +716,13 @@ public:
     PartialResult WARN_UNUSED_RETURN addDelegateToUnreachable(ControlType&, ControlType&);
     PartialResult WARN_UNUSED_RETURN addThrow(unsigned exceptionIndex, ArgumentList& args, Stack&);
     PartialResult WARN_UNUSED_RETURN addRethrow(unsigned, ControlType&);
-    PartialResult WARN_UNUSED_RETURN addThrowRef(ExpressionType exception, Stack&);
+    PartialResult WARN_UNUSED_RETURN addThrowRef(TypedExpression exception, Stack&);
 
     PartialResult WARN_UNUSED_RETURN addInlinedReturn(const Stack& returnValues);
     PartialResult WARN_UNUSED_RETURN addReturn(const ControlData&, const Stack& returnValues);
     PartialResult WARN_UNUSED_RETURN addBranch(ControlData&, ExpressionType condition, const Stack& returnValues);
     PartialResult WARN_UNUSED_RETURN addBranchNull(ControlType&, ExpressionType, const Stack&, bool, ExpressionType&);
-    PartialResult WARN_UNUSED_RETURN addBranchCast(ControlType&, ExpressionType, const Stack&, bool, int32_t, bool);
+    PartialResult WARN_UNUSED_RETURN addBranchCast(ControlType&, TypedExpression, const Stack&, bool, int32_t, bool);
     PartialResult WARN_UNUSED_RETURN addSwitch(ExpressionType condition, const Vector<ControlData*>& targets, ControlData& defaultTargets, const Stack& expressionStack);
     PartialResult WARN_UNUSED_RETURN endBlock(ControlEntry&, Stack& expressionStack);
     PartialResult WARN_UNUSED_RETURN addEndToUnreachable(ControlEntry&, const Stack& = { });
@@ -833,14 +833,14 @@ private:
     Value* decodeNonNullStructure(Value* structureID);
 
     Value* emitGetArrayPayloadBase(Wasm::StorageType, Value*);
-    void emitArrayNullCheck(Value*, ExceptionType);
+    void emitNullCheck(Value*, ExceptionType);
     void emitArraySetUnchecked(uint32_t, Value*, Value*, Value*);
     // Returns true if a writeBarrier/mutatorFence is needed.
     bool WARN_UNUSED_RETURN emitStructSet(Value*, uint32_t, const StructType&, Value*);
     ExpressionType WARN_UNUSED_RETURN pushArrayNew(uint32_t typeIndex, Value* initValue, ExpressionType size);
     using ArraySegmentOperation = EncodedJSValue SYSV_ABI (&)(JSC::JSWebAssemblyInstance*, uint32_t, uint32_t, uint32_t, uint32_t);
     ExpressionType WARN_UNUSED_RETURN pushArrayNewFromSegment(ArraySegmentOperation, uint32_t typeIndex, uint32_t segmentIndex, ExpressionType arraySize, ExpressionType offset, ExceptionType);
-    void emitRefTestOrCast(CastKind, ExpressionType, bool, int32_t, bool, ExpressionType&);
+    void emitRefTestOrCast(CastKind, TypedExpression, bool, int32_t, bool, ExpressionType&);
     template <typename Generator>
     void emitCheckOrBranchForCast(CastKind, Value*, const Generator&, BasicBlock*);
     Value* emitLoadRTTFromFuncref(Value*);
@@ -1636,16 +1636,12 @@ auto OMGIRGenerator::addRefFunc(FunctionSpaceIndex index, ExpressionType& result
     return { };
 }
 
-auto OMGIRGenerator::addRefAsNonNull(ExpressionType reference, ExpressionType& result) -> PartialResult
+auto OMGIRGenerator::addRefAsNonNull(TypedExpression reference, ExpressionType& result) -> PartialResult
 {
-    result = push(get(reference));
-    {
-        CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(reference), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
-        check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-            this->emitExceptionCheck(jit, origin, ExceptionType::NullRefAsNonNull);
-        });
-    }
+    auto value = get(reference);
+    result = push(value);
+    if (reference.type().isNullable())
+        emitNullCheck(value, ExceptionType::NullRefAsNonNull);
     return { };
 }
 
@@ -3090,34 +3086,26 @@ auto OMGIRGenerator::addRefI31(ExpressionType value, ExpressionType& result) -> 
     return { };
 }
 
-auto OMGIRGenerator::addI31GetS(ExpressionType ref, ExpressionType& result) -> PartialResult
+auto OMGIRGenerator::addI31GetS(TypedExpression reference, ExpressionType& result) -> PartialResult
 {
     // Trap on null reference.
-    {
-        CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(ref), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
-        check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-            this->emitExceptionCheck(jit, origin, ExceptionType::NullI31Get);
-        });
-    }
+    Value* value = get(reference);
+    if (reference.type().isNullable())
+        emitNullCheck(value, ExceptionType::NullI31Get);
 
-    result = push(m_currentBlock->appendNew<Value>(m_proc, B3::Trunc, origin(), get(ref)));
+    result = push(m_currentBlock->appendNew<Value>(m_proc, B3::Trunc, origin(), value));
 
     return { };
 }
 
-auto OMGIRGenerator::addI31GetU(ExpressionType ref, ExpressionType& result) -> PartialResult
+auto OMGIRGenerator::addI31GetU(TypedExpression reference, ExpressionType& result) -> PartialResult
 {
     // Trap on null reference.
-    {
-        CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(ref), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
-        check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-            this->emitExceptionCheck(jit, origin, ExceptionType::NullI31Get);
-        });
-    }
+    Value* value = get(reference);
+    if (reference.type().isNullable())
+        emitNullCheck(value, ExceptionType::NullI31Get);
 
-    Value* masked = m_currentBlock->appendNew<Value>(m_proc, B3::BitAnd, origin(), truncate(get(ref)), constant(Int32, 0x7fffffff));
+    Value* masked = m_currentBlock->appendNew<Value>(m_proc, B3::BitAnd, origin(), truncate(value), constant(Int32, 0x7fffffff));
     result = push(masked);
     return { };
 }
@@ -3188,7 +3176,7 @@ auto OMGIRGenerator::addArrayNew(uint32_t typeIndex, ExpressionType size, Expres
 
     result = pushArrayNew(typeIndex, initValue, size);
 
-    emitArrayNullCheck(get(result), ExceptionType::BadArrayNew);
+    emitNullCheck(get(result), ExceptionType::BadArrayNew);
 
     return { };
 }
@@ -3201,7 +3189,7 @@ Variable* OMGIRGenerator::pushArrayNewFromSegment(ArraySegmentOperation operatio
         get(arraySize), get(offset));
 
     // Indicates out of bounds for the segment or allocation failure.
-    emitArrayNullCheck(resultValue, exceptionType);
+    emitNullCheck(resultValue, exceptionType);
 
     return push(resultValue);
 }
@@ -3214,7 +3202,7 @@ auto OMGIRGenerator::addArrayNewDefault(uint32_t typeIndex, ExpressionType size,
     result = push(callWasmOperation(m_currentBlock, toB3Type(resultType), operationWasmArrayNewEmpty,
         instanceValue(), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), typeIndex), get(size)));
 
-    emitArrayNullCheck(get(result), ExceptionType::BadArrayNew);
+    emitNullCheck(get(result), ExceptionType::BadArrayNew);
 
     return { };
 }
@@ -3246,7 +3234,7 @@ auto OMGIRGenerator::addArrayNewFixed(uint32_t typeIndex, ArgumentList& args, Ex
         instanceValue(), m_currentBlock->appendNew<Const32Value>(m_proc, origin(), typeIndex),
         m_currentBlock->appendNew<Const32Value>(m_proc, origin(), args.size()));
 
-    emitArrayNullCheck(arrayValue, ExceptionType::BadArrayNew);
+    emitNullCheck(arrayValue, ExceptionType::BadArrayNew);
 
     for (uint32_t i = 0; i < args.size(); ++i) {
         // Emit the array set code -- note that this omits the bounds check, since
@@ -3258,20 +3246,17 @@ auto OMGIRGenerator::addArrayNewFixed(uint32_t typeIndex, ArgumentList& args, Ex
     return { };
 }
 
-auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType& result) -> PartialResult
+auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, TypedExpression arrayref, ExpressionType index, ExpressionType& result) -> PartialResult
 {
+    auto arrayValue = get(arrayref);
+    auto indexValue = get(index);
     StorageType elementType;
     getArrayElementType(typeIndex, elementType);
     Wasm::Type resultType = elementType.unpacked();
 
     // Ensure arrayref is non-null.
-    {
-        CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(arrayref), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
-        check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-            this->emitExceptionCheck(jit, origin, ExceptionType::NullArrayGet);
-        });
-    }
+    if (arrayref.type().isNullable())
+        emitNullCheck(arrayValue, ExceptionType::NullArrayGet);
 
     // Check array bounds.
     Value* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(),
@@ -3284,8 +3269,8 @@ auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, E
         });
     }
 
-    Value* payloadBase = emitGetArrayPayloadBase(elementType, get(arrayref));
-    Value* indexValue = is32Bit() ? get(index) : m_currentBlock->appendNew<Value>(m_proc, ZExt32, origin(), get(index));
+    Value* payloadBase = emitGetArrayPayloadBase(elementType, arrayValue);
+    indexValue = is32Bit() ? indexValue : m_currentBlock->appendNew<Value>(m_proc, ZExt32, origin(), indexValue);
     Value* indexedAddress = m_currentBlock->appendNew<Value>(m_proc, Add, pointerType(), origin(), payloadBase,
         m_currentBlock->appendNew<Value>(m_proc, Mul, pointerType(), origin(), indexValue, constant(pointerType(), elementType.elementSize())));
 
@@ -3325,7 +3310,7 @@ auto OMGIRGenerator::addArrayGet(ExtGCOpType arrayGetKind, uint32_t typeIndex, E
     return { };
 }
 
-void OMGIRGenerator::emitArrayNullCheck(Value* arrayref, ExceptionType exceptionType)
+void OMGIRGenerator::emitNullCheck(Value* arrayref, ExceptionType exceptionType)
 {
     CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
         m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), arrayref, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
@@ -3379,15 +3364,19 @@ void OMGIRGenerator::emitArraySetUnchecked(uint32_t typeIndex, Value* arrayref, 
     return;
 }
 
-auto OMGIRGenerator::addArraySet(uint32_t typeIndex, ExpressionType arrayref, ExpressionType index, ExpressionType value) -> PartialResult
+auto OMGIRGenerator::addArraySet(uint32_t typeIndex, TypedExpression arrayref, ExpressionType index, ExpressionType value) -> PartialResult
 {
 #if ASSERT_ENABLED
     const ArrayType* arrayType = getArrayTypeDefinition(typeIndex);
     UNUSED_VARIABLE(arrayType);
 #endif
 
-    // Check for null array
-    emitArrayNullCheck(get(arrayref), ExceptionType::NullArraySet);
+    auto arrayValue = get(arrayref);
+    auto indexValue = get(index);
+    auto valueValue = get(value);
+
+    if (arrayref.type().isNullable())
+        emitNullCheck(arrayValue, ExceptionType::NullArraySet);
 
     // Check array bounds.
     Value* arraySize = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(),
@@ -3400,43 +3389,45 @@ auto OMGIRGenerator::addArraySet(uint32_t typeIndex, ExpressionType arrayref, Ex
         });
     }
 
-    emitArraySetUnchecked(typeIndex, get(arrayref), get(index), get(value));
+    emitArraySetUnchecked(typeIndex, arrayValue, indexValue, valueValue);
 
     return { };
 }
 
-auto OMGIRGenerator::addArrayLen(ExpressionType arrayref, ExpressionType& result) -> PartialResult
+auto OMGIRGenerator::addArrayLen(TypedExpression arrayref, ExpressionType& result) -> PartialResult
 {
-    // Ensure arrayref is non-null.
-    {
-        CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(arrayref), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
-        check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-            this->emitExceptionCheck(jit, origin, ExceptionType::NullArrayLen);
-        });
-    }
+    auto arrayValue = get(arrayref);
+
+    if (arrayref.type().isNullable())
+        emitNullCheck(arrayValue, ExceptionType::NullArrayLen);
 
     result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), truncate(get(arrayref)), safeCast<int32_t>(JSWebAssemblyArray::offsetOfSize())));
 
     return { };
 }
 
-auto OMGIRGenerator::addArrayFill(uint32_t typeIndex, ExpressionType arrayref, ExpressionType offset, ExpressionType value, ExpressionType size) -> PartialResult
+auto OMGIRGenerator::addArrayFill(uint32_t typeIndex, TypedExpression arrayref, ExpressionType offset, ExpressionType value, ExpressionType size) -> PartialResult
 {
     StorageType elementType;
     getArrayElementType(typeIndex, elementType);
 
-    emitArrayNullCheck(get(arrayref), ExceptionType::NullArrayFill);
+    auto arrayValue = get(arrayref);
+    auto offsetValue = get(offset);
+    auto valueValue = get(value);
+    auto sizeValue = get(size);
+
+    if (arrayref.type().isNullable())
+        emitNullCheck(arrayValue, ExceptionType::NullArrayFill);
 
     Value* resultValue;
     RELEASE_ASSERT(!elementType.unpacked().isV128());
-    Value* adjustedValue = get(value);
+    Value* adjustedValue = valueValue;
     if (adjustedValue->type().isFloat())
         adjustedValue = m_currentBlock->appendNew<Value>(m_proc, BitwiseCast, origin(), adjustedValue);
     if (adjustedValue->type() == Int32)
         adjustedValue = m_currentBlock->appendNew<Value>(m_proc, ZExt32, origin(), adjustedValue);
     resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayFill,
-        instanceValue(), get(arrayref), get(offset), adjustedValue, get(size));
+        instanceValue(), arrayValue, offsetValue, adjustedValue, sizeValue);
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
@@ -3450,16 +3441,24 @@ auto OMGIRGenerator::addArrayFill(uint32_t typeIndex, ExpressionType arrayref, E
     return { };
 }
 
-auto OMGIRGenerator::addArrayCopy(uint32_t, ExpressionType dst, ExpressionType dstOffset, uint32_t, ExpressionType src, ExpressionType srcOffset, ExpressionType size) -> PartialResult
+auto OMGIRGenerator::addArrayCopy(uint32_t, TypedExpression dst, ExpressionType dstOffset, uint32_t, TypedExpression src, ExpressionType srcOffset, ExpressionType size) -> PartialResult
 {
-    emitArrayNullCheck(get(dst), ExceptionType::NullArrayCopy);
-    emitArrayNullCheck(get(src), ExceptionType::NullArrayCopy);
+    auto dstValue = get(dst);
+    auto dstOffsetValue = get(dstOffset);
+    auto srcValue = get(src);
+    auto srcOffsetValue = get(srcOffset);
+    auto sizeValue = get(size);
+
+    if (dst.type().isNullable())
+        emitNullCheck(dstValue, ExceptionType::NullArrayCopy);
+    if (src.type().isNullable())
+        emitNullCheck(srcValue, ExceptionType::NullArrayCopy);
 
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayCopy,
         instanceValue(),
-        get(dst), get(dstOffset),
-        get(src), get(srcOffset),
-        get(size));
+        dstValue, dstOffsetValue,
+        srcValue, srcOffsetValue,
+        sizeValue);
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
@@ -3473,15 +3472,21 @@ auto OMGIRGenerator::addArrayCopy(uint32_t, ExpressionType dst, ExpressionType d
     return { };
 }
 
-auto OMGIRGenerator::addArrayInitElem(uint32_t, ExpressionType dst, ExpressionType dstOffset, uint32_t srcElementIndex, ExpressionType srcOffset, ExpressionType size) -> PartialResult
+auto OMGIRGenerator::addArrayInitElem(uint32_t, TypedExpression dst, ExpressionType dstOffset, uint32_t srcElementIndex, ExpressionType srcOffset, ExpressionType size) -> PartialResult
 {
-    emitArrayNullCheck(get(dst), ExceptionType::NullArrayInitElem);
+    auto dstValue = get(dst);
+    auto dstOffsetValue = get(dstOffset);
+    auto srcOffsetValue = get(srcOffset);
+    auto sizeValue = get(size);
+
+    if (dst.type().isNullable())
+        emitNullCheck(dstValue, ExceptionType::NullArrayInitElem);
 
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayInitElem,
         instanceValue(),
-        get(dst), get(dstOffset),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), srcElementIndex), get(srcOffset),
-        get(size));
+        dstValue, dstOffsetValue,
+        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), srcElementIndex), srcOffsetValue,
+        sizeValue);
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
@@ -3495,15 +3500,21 @@ auto OMGIRGenerator::addArrayInitElem(uint32_t, ExpressionType dst, ExpressionTy
     return { };
 }
 
-auto OMGIRGenerator::addArrayInitData(uint32_t, ExpressionType dst, ExpressionType dstOffset, uint32_t srcDataIndex, ExpressionType srcOffset, ExpressionType size) -> PartialResult
+auto OMGIRGenerator::addArrayInitData(uint32_t, TypedExpression dst, ExpressionType dstOffset, uint32_t srcDataIndex, ExpressionType srcOffset, ExpressionType size) -> PartialResult
 {
-    emitArrayNullCheck(get(dst), ExceptionType::NullArrayInitData);
+    auto dstValue = get(dst);
+    auto dstOffsetValue = get(dstOffset);
+    auto srcOffsetValue = get(srcOffset);
+    auto sizeValue = get(size);
+
+    if (dst.type().isNullable())
+        emitNullCheck(dstValue, ExceptionType::NullArrayInitData);
 
     Value* resultValue = callWasmOperation(m_currentBlock, toB3Type(Types::I32), operationWasmArrayInitData,
         instanceValue(),
-        get(dst), get(dstOffset),
-        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), srcDataIndex), get(srcOffset),
-        get(size));
+        dstValue, dstOffsetValue,
+        m_currentBlock->appendNew<Const32Value>(m_proc, origin(), srcDataIndex), srcOffsetValue,
+        sizeValue);
 
     {
         CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
@@ -3585,20 +3596,17 @@ auto OMGIRGenerator::addStructNewDefault(uint32_t typeIndex, ExpressionType& res
     return { };
 }
 
-auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, ExpressionType structReference, const StructType& structType, uint32_t fieldIndex, ExpressionType& result) -> PartialResult
+auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, TypedExpression structReference, const StructType& structType, uint32_t fieldIndex, ExpressionType& result) -> PartialResult
 {
     auto fieldType = structType.field(fieldIndex).type;
     auto resultType = fieldType.unpacked();
 
-    {
-        CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(structReference), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
-        check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-            this->emitExceptionCheck(jit, origin, ExceptionType::NullStructGet);
-        });
-    }
+    Value* structValue = get(structReference);
 
-    Value* structValue = truncate(get(structReference));
+    if (structReference.type().isNullable())
+        emitNullCheck(structValue, ExceptionType::NullStructGet);
+
+    structValue = truncate(structValue);
     int32_t fieldOffset = fixupPointerPlusOffset(structValue, JSWebAssemblyStruct::offsetOfData() + structType.offsetOfFieldInPayload(fieldIndex));
 
     if (fieldType.is<PackedType>()) {
@@ -3635,36 +3643,33 @@ auto OMGIRGenerator::addStructGet(ExtGCOpType structGetKind, ExpressionType stru
     return { };
 }
 
-auto OMGIRGenerator::addStructSet(ExpressionType structReference, const StructType& structType, uint32_t fieldIndex, ExpressionType value) -> PartialResult
+auto OMGIRGenerator::addStructSet(TypedExpression structReference, const StructType& structType, uint32_t fieldIndex, ExpressionType value) -> PartialResult
 {
-    {
-        CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-            m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), get(structReference), m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull()))));
-        check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-            this->emitExceptionCheck(jit, origin, ExceptionType::NullStructSet);
-        });
-    }
-
     Value* structValue = get(structReference);
-    bool needsWriteBarrier = emitStructSet(structValue, fieldIndex, structType, get(value));
+    Value* valueValue = get(value);
+
+    if (structReference.type().isNullable())
+        emitNullCheck(structValue, ExceptionType::NullStructSet);
+
+    bool needsWriteBarrier = emitStructSet(structValue, fieldIndex, structType, valueValue);
     if (needsWriteBarrier)
         emitWriteBarrier(truncate(structValue), instanceValue());
     return { };
 }
 
-auto OMGIRGenerator::addRefTest(ExpressionType reference, bool allowNull, int32_t heapType, bool shouldNegate, ExpressionType& result) -> PartialResult
+auto OMGIRGenerator::addRefTest(TypedExpression reference, bool allowNull, int32_t heapType, bool shouldNegate, ExpressionType& result) -> PartialResult
 {
     emitRefTestOrCast(CastKind::Test, reference, allowNull, heapType, shouldNegate, result);
     return { };
 }
 
-auto OMGIRGenerator::addRefCast(ExpressionType reference, bool allowNull, int32_t heapType, ExpressionType& result) -> PartialResult
+auto OMGIRGenerator::addRefCast(TypedExpression reference, bool allowNull, int32_t heapType, ExpressionType& result) -> PartialResult
 {
     emitRefTestOrCast(CastKind::Cast, reference, allowNull, heapType, false, result);
     return { };
 }
 
-void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType reference, bool allowNull, int32_t toHeapType, bool shouldNegate, ExpressionType& result)
+void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, TypedExpression reference, bool allowNull, int32_t toHeapType, bool shouldNegate, ExpressionType& result)
 {
     Value* value = get(reference);
     if (castKind == CastKind::Cast)
@@ -3687,10 +3692,13 @@ void OMGIRGenerator::emitRefTestOrCast(CastKind castKind, ExpressionType referen
         BasicBlock* nullCase = m_proc.addBlock();
         BasicBlock* nonNullCase = m_proc.addBlock();
 
-        Value* isNull = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(),
-            value, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull())));
-        m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), isNull,
-            FrequentedBlock(nullCase), FrequentedBlock(nonNullCase));
+        Value* isNull = nullptr;
+        if (reference.type().isNullable())
+            isNull = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), value, m_currentBlock->appendNew<WasmConstRefValue>(m_proc, origin(), JSValue::encode(jsNull())));
+        else
+            isNull = constant(Int32, 0);
+
+        m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), isNull, FrequentedBlock(nullCase), FrequentedBlock(nonNullCase));
         nullCase->addPredecessor(m_currentBlock);
         nonNullCase->addPredecessor(m_currentBlock);
 
@@ -4642,7 +4650,7 @@ auto OMGIRGenerator::addThrow(unsigned exceptionIndex, ArgumentList& args, Stack
     return { };
 }
 
-auto WARN_UNUSED_RETURN OMGIRGenerator::addThrowRef(ExpressionType exnref, Stack&) -> PartialResult
+auto WARN_UNUSED_RETURN OMGIRGenerator::addThrowRef(TypedExpression exnref, Stack&) -> PartialResult
 {
     TRACE_CF("THROW_REF");
 
@@ -4655,12 +4663,8 @@ auto WARN_UNUSED_RETURN OMGIRGenerator::addThrowRef(ExpressionType exnref, Stack
     Value* exceptionHi = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), exception);
     patch->append(exceptionLo, ValueRep::reg(GPRInfo::argumentGPR2));
     patch->append(exceptionHi, ValueRep::reg(GPRInfo::argumentGPR3));
-    CheckValue* check = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(),
-        m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), exception, constant(Wasm::toB3Type(exnrefType()), JSValue::encode(jsNull()))));
-
-    check->setGenerator([=, this, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams&) {
-        this->emitExceptionCheck(jit, origin, ExceptionType::NullExnrefReference);
-    });
+    if (exnref.type().isNullable())
+        emitNullCheck(exception, ExceptionType::NullExnrefReference);
     PatchpointExceptionHandle handle = preparePatchpointForExceptions(m_currentBlock, patch);
     patch->setGenerator([this, handle, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
         AllowMacroScratchRegisterUsage allowScratch(jit);
@@ -4809,7 +4813,7 @@ auto OMGIRGenerator::addBranchNull(ControlData& data, ExpressionType reference, 
     return { };
 }
 
-auto OMGIRGenerator::addBranchCast(ControlData& data, ExpressionType reference, const Stack& returnValues, bool allowNull, int32_t heapType, bool shouldNegate) -> PartialResult
+auto OMGIRGenerator::addBranchCast(ControlData& data, TypedExpression reference, const Stack& returnValues, bool allowNull, int32_t heapType, bool shouldNegate) -> PartialResult
 {
     ExpressionType condition;
     emitRefTestOrCast(CastKind::Test, reference, allowNull, heapType, shouldNegate, condition);
