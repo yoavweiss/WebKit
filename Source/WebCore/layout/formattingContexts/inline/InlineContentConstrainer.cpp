@@ -266,12 +266,11 @@ void InlineContentConstrainer::initialize()
     auto lineBuilder = LineBuilder { m_inlineFormattingContext, m_horizontalConstraints, m_inlineItemList };
     auto previousLineEnd = std::optional<InlineItemPosition> { };
     auto previousLine = std::optional<PreviousLine> { };
-    auto isFirstFormattedLine = true;
-    auto hasEverSeenInlineContent = false;
+    auto isFirstFormattedLineCandidate = true;
     auto lineIndex = 0lu;
     while (!layoutRange.isEmpty()) {
         auto lineInitialRect = InlineRect { 0.f, m_horizontalConstraints.logicalLeft, m_horizontalConstraints.logicalWidth, 0.f };
-        auto lineLayoutResult = lineBuilder.layoutInlineContent({ layoutRange, lineInitialRect }, previousLine, isFirstFormattedLine);
+        auto lineLayoutResult = lineBuilder.layoutInlineContent({ layoutRange, lineInitialRect }, previousLine, isFirstFormattedLineCandidate);
 
         // Record relevant geometry measurements from one line layout
         m_originalLineInlineItemRanges.append(lineLayoutResult.inlineItemRange);
@@ -280,7 +279,7 @@ void InlineContentConstrainer::initialize()
         bool isFirstLineInChunk = !lineIndex || m_originalLineEndsWithForcedBreak[lineIndex - 1];
         SlidingWidth lineSlidingWidth { *this, m_inlineItemList, lineLayoutResult.inlineItemRange.startIndex(), lineLayoutResult.inlineItemRange.endIndex(), useFirstLineStyle, isFirstLineInChunk };
         auto previousLineEndsWithLineBreak = lineIndex ? std::make_optional(m_originalLineEndsWithForcedBreak[lineIndex - 1] ? InlineFormattingUtils::LineEndsWithLineBreak::Yes : InlineFormattingUtils::LineEndsWithLineBreak::No) : std::nullopt;
-        auto textIndent = m_inlineFormattingContext.formattingUtils().computedTextIndent(InlineFormattingUtils::IsIntrinsicWidthMode::No, isFirstFormattedLine ? IsFirstFormattedLine::Yes : IsFirstFormattedLine::No, previousLineEndsWithLineBreak, m_maximumLineWidthConstraint);
+        auto textIndent = m_inlineFormattingContext.formattingUtils().computedTextIndent(InlineFormattingUtils::IsIntrinsicWidthMode::No, isFirstFormattedLineCandidate ? IsFirstFormattedLine::Yes : IsFirstFormattedLine::No, previousLineEndsWithLineBreak, m_maximumLineWidthConstraint);
         m_originalLineConstraints.append(computeLineWidthFromSlidingWidth(textIndent, lineSlidingWidth));
 
         // If next line count would match (or exceed) the number of visible lines due to line-clamp, we can bail out early.
@@ -289,8 +288,7 @@ void InlineContentConstrainer::initialize()
 
         layoutRange.start = InlineFormattingUtils::leadingInlineItemPositionForNextLine(lineLayoutResult.inlineItemRange.end, previousLineEnd, !lineLayoutResult.floatContent.hasIntrusiveFloat.isEmpty() || !lineLayoutResult.floatContent.placedFloats.isEmpty(), layoutRange.end);
         previousLineEnd = layoutRange.start;
-        hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent();
-        isFirstFormattedLine = !hasEverSeenInlineContent;
+        isFirstFormattedLineCandidate &= !lineLayoutResult.hasInlineContent();
         previousLine = buildPreviousLine(lineIndex, lineLayoutResult);
         lineIndex++;
     }

@@ -184,12 +184,11 @@ InlineLayoutUnit IntrinsicWidthHandler::computedIntrinsicWidthForConstraint(Intr
     auto previousLineEnd = std::optional<InlineItemPosition> { };
     auto previousLine = std::optional<PreviousLine> { };
     auto lineIndex = 0lu;
-    auto isFirstFormattedLine = true;
-    auto hasEverSeenInlineContent = false;
+    auto isFirstFormattedLineCandidate = true;
     lineBuilder.setIntrinsicWidthMode(intrinsicWidthMode);
 
     while (true) {
-        auto lineLayoutResult = lineBuilder.layoutInlineContent({ layoutRange, { 0.f, 0.f, horizontalConstraints.logicalWidth, 0.f } }, previousLine, isFirstFormattedLine);
+        auto lineLayoutResult = lineBuilder.layoutInlineContent({ layoutRange, { 0.f, 0.f, horizontalConstraints.logicalWidth, 0.f } }, previousLine, isFirstFormattedLineCandidate);
         auto floatContentWidth = [&] {
             auto leftWidth = LayoutUnit { };
             auto rightWidth = LayoutUnit { };
@@ -225,9 +224,8 @@ InlineLayoutUnit IntrinsicWidthHandler::computedIntrinsicWidthForConstraint(Intr
         // Support single line only.
         mayCacheLayoutResult = MayCacheLayoutResult::No;
         previousLineEnd = layoutRange.start;
-        hasEverSeenInlineContent = hasEverSeenInlineContent || lineLayoutResult.hasInlineContent();
-        isFirstFormattedLine = !hasEverSeenInlineContent;
         previousLine = PreviousLine { lineIndex++, lineLayoutResult.contentGeometry.trailingOverflowingContentWidth, lineLayoutResult.endsWithLineBreak(), { }, WTFMove(lineLayoutResult.floatContent.suspendedFloats) };
+        isFirstFormattedLineCandidate &= !lineLayoutResult.hasInlineContent();
     }
     m_maximumContentWidthBetweenLineBreaks = std::max(contentWidthBetweenLineBreaks.current, contentWidthBetweenLineBreaks.maximum);
     return maximumContentWidth;
