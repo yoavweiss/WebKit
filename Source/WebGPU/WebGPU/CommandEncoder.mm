@@ -518,13 +518,7 @@ Ref<RenderPassEncoder> CommandEncoder::beginRenderPass(const WGPURenderPassDescr
         return CommandEncoder_beginRenderPass_thunk(this, descriptor);
 #endif
 
-    auto maxDrawCount = UINT64_MAX;
-    if (descriptor.nextInChain) {
-        if (descriptor.nextInChain->sType != WGPUSType_RenderPassDescriptorMaxDrawCount)
-            return RenderPassEncoder::createInvalid(*this, m_device, @"descriptor is corrupted");
-        auto* maxDrawCountStruct = reinterpret_cast<const WGPURenderPassDescriptorMaxDrawCount*>(descriptor.nextInChain);
-        maxDrawCount = maxDrawCountStruct->maxDrawCount;
-    }
+    auto maxDrawCount = descriptor.maxDrawCount;
 
     if (!prepareTheEncoderState()) {
         GENERATE_INVALID_ENCODER_STATE_ERROR();

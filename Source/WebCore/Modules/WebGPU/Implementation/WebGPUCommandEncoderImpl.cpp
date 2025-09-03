@@ -105,15 +105,8 @@ RefPtr<RenderPassEncoder> CommandEncoderImpl::beginRenderPass(const RenderPassDe
         .endOfPassWriteIndex = descriptor.timestampWrites ? descriptor.timestampWrites->endOfPassWriteIndex : 0
     };
 
-    WGPURenderPassDescriptorMaxDrawCount maxDrawCount {
-        .chain = {
-            nullptr,
-            WGPUSType_RenderPassDescriptorMaxDrawCount,
-        },
-        .maxDrawCount = descriptor.maxDrawCount.value_or(0)
-    };
     WGPURenderPassDescriptor backingDescriptor {
-        .nextInChain = descriptor.maxDrawCount ? &maxDrawCount.chain : nullptr,
+        .maxDrawCount = descriptor.maxDrawCount.value_or(UINT64_MAX),
         .label = label.data(),
         .colorAttachmentCount = colorAttachments.size(),
         .colorAttachments = colorAttachments.size() ? colorAttachments.span().data() : nullptr,
