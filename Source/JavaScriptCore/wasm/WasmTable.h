@@ -136,11 +136,6 @@ public:
         WasmOrJSImportableFunctionCallLinkInfo* m_callLinkInfo { nullptr };
         JSWebAssemblyInstance* m_instance { nullptr };
         WriteBarrier<Unknown> m_value { NullWriteBarrierTag };
-        // In the case when we do not JIT, we cannot use the WasmToJSCallee singleton.
-        // This callee gives the jitless wasm_to_js thunk the info it needs to call the imported
-        // function with the correct wasm type.
-        RefPtr<WasmToJSCallee> m_protectedJSCallee;
-
         static constexpr ptrdiff_t offsetOfFunction() { return OBJECT_OFFSETOF(Function, m_function); }
         static constexpr ptrdiff_t offsetOfCallLinkInfo() { return OBJECT_OFFSETOF(Function, m_callLinkInfo); }
         static constexpr ptrdiff_t offsetOfInstance() { return OBJECT_OFFSETOF(Function, m_instance); }

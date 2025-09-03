@@ -213,12 +213,6 @@ WasmToJSCallee::WasmToJSCallee()
     NativeCalleeRegistry::singleton().registerCallee(this);
 }
 
-WasmToJSCallee::WasmToJSCallee(FunctionSpaceIndex index, std::pair<const Name*, RefPtr<NameSection>>&& name)
-    : Callee(Wasm::CompilationMode::WasmToJSMode, index, WTFMove(name))
-{
-    NativeCalleeRegistry::singleton().registerCallee(this);
-}
-
 WasmToJSCallee& WasmToJSCallee::singleton()
 {
     static LazyNeverDestroyed<Ref<WasmToJSCallee>> callee;

@@ -335,7 +335,6 @@ private:
     BitVector m_passiveElements;
     BitVector m_passiveDataSegments;
     FixedVector<RefPtr<const Wasm::Tag>> m_tags;
-    Vector<Ref<Wasm::WasmToJSCallee>> importCallees;
     void* m_faultPC { nullptr };
     // Used by builtin trampolines to quickly fetch callee bits to store in the call frame.
     // The actual callees are owned by builtins. Populated by WebAssemblyModuleRecord::initializeImports().
