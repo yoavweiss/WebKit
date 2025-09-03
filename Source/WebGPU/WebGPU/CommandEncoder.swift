@@ -878,6 +878,7 @@ extension WebGPU.CommandEncoder {
         var depthSlices: [UInt64: Set<UInt64>] = [:]
         // FIXME: it shouldn't be necessary to pass colorAttachmentCount here
         let attachments = wgpuGetRenderPassDescriptorColorAttachments(descriptorSpan, descriptor.colorAttachmentCount)
+        var compositorTextureSlice: UInt32 = 0
         for i in 0..<attachments.count {
             let attachment = attachments[i]
 
@@ -972,8 +973,15 @@ extension WebGPU.CommandEncoder {
                 textureToClear = mtlAttachment.texture
             }
 
+            if let rateMap = texture.rasterizationMapForSlice(texture.parentRelativeSlice()) {
+                mtlDescriptor.rasterizationRateMap = rateMap
+            }
+
+            var compositorTexture = texture
             if attachment.resolveTarget != nil {
                 let resolveTarget = WebGPU.fromAPI(attachment.resolveTarget)
+                compositorTexture = resolveTarget
+
                 if !WebGPU_Internal.isValidToUseWithTextureViewCommandEncoder(resolveTarget, self) {
                     return WebGPU.RenderPassEncoder.createInvalid(self, m_device.ptr(), "resolve target created from different device")
                 }
@@ -994,6 +1002,12 @@ extension WebGPU.CommandEncoder {
                     return WebGPU.RenderPassEncoder.createInvalid(self, m_device.ptr(), "resolve target dimensions are invalid")
                 }
             }
+
+            if let rateMap = compositorTexture.rasterizationMapForSlice(compositorTexture.parentRelativeSlice()) {
+                mtlDescriptor.rasterizationRateMap = rateMap
+                compositorTextureSlice = compositorTexture.parentRelativeSlice()
+            }
+
             if textureToClear != nil {
                 let textureWithResolve = TextureAndClearColor(texture: textureToClear!)
                 attachmentsToClear[i as NSNumber] = textureWithResolve
@@ -1044,6 +1058,14 @@ extension WebGPU.CommandEncoder {
                 mtlAttachment!.level = 0
                 mtlAttachment!.loadAction = loadAction(loadOp: attachment.depthLoadOp)
                 mtlAttachment!.storeAction = storeAction(storeOp: attachment.depthStoreOp)
+
+                if mtlDescriptor.rasterizationRateMap != nil && metalDepthStencilTexture?.sampleCount ?? 1 > 1 {
+                    if let depthTexture = m_device.ptr().getXRViewSubImageDepthTexture() {
+                        mtlAttachment?.resolveTexture = depthTexture
+                        mtlAttachment?.storeAction = storeAction(storeOp: attachment.depthStoreOp, hasResolveTarget: true)
+                        mtlAttachment?.resolveSlice = Int(compositorTextureSlice)
+                    }
+                }
 
                 if mtlAttachment!.loadAction == MTLLoadAction.load && mtlAttachment!.storeAction == MTLStoreAction.dontCare && !textureView.previouslyCleared() {
                     depthStencilAttachmentToClear = mtlAttachment!.texture

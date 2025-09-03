@@ -419,6 +419,16 @@ RefPtr<XRSubImage> Device::getXRViewSubImage() const
     return m_xrSubImage;
 }
 
+id<MTLTexture> Device::getXRViewSubImageDepthTexture() const
+{
+    if (auto subImage = getXRViewSubImage()) {
+        if (RefPtr depthTexture = subImage->depthTexture())
+            return depthTexture->texture();
+    }
+
+    return nil;
+}
+
 void Device::makeInvalid()
 {
     m_device = nil;
