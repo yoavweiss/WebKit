@@ -3660,9 +3660,11 @@ class CompileJSC(CompileWebKit):
     descriptionDone = ['Compiled JSC']
     build_command = ['perl', 'Tools/Scripts/build-jsc']
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         self.setProperty('group', 'jsc')
-        return CompileWebKit.start(self)
+        rc = yield super().run()
+        defer.returnValue(rc)
 
     def getResultSummary(self):
         if self.results == FAILURE:
@@ -3675,9 +3677,11 @@ class CompileJSC32(CompileWebKit):
     descriptionDone = ['Compiled JSC']
     build_command = ["linux32", "perl", "Tools/Scripts/build-jsc", "--32-bit", "--cmakeargs", "-DUSE_LIBBACKTRACE=OFF -DDEVELOPER_MODE=ON -DENABLE_OFFLINE_ASM_ALT_ENTRY=1 -DCMAKE_CXX_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DCMAKE_C_FLAGS='-fuse-ld=gold -Wl,--no-map-whole-files -Wl,--no-keep-memory -Wl,--no-keep-files-mapped -Wl,--no-mmap-output-file -fno-omit-frame-pointer' -DUSE_LD_LLD=OFF"]
 
-    def start(self):
+    @defer.inlineCallbacks
+    def run(self):
         self.setProperty('group', 'jsc')
-        return CompileWebKit.start(self)
+        rc = yield super().run()
+        defer.returnValue(rc)
 
     def getResultSummary(self):
         if self.results == FAILURE:
