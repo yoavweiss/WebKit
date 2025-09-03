@@ -6868,7 +6868,7 @@ sub GenerateCallbackHeaderContent
         if ($generateIsReachable ne "ImplScriptExecutionContext") {
             assert("\"ImplScriptExecutionContext\" is the only valid value for \"GenerateIsReachable\" for callbacks.");
         }
-        $includesRef->{"WebCoreOpaqueRootInlines.h"} = 1;
+        $includesRef->{"WebCoreOpaqueRoot.h"} = 1;
     }
 
     my $name = $interfaceOrCallback->type->name;
