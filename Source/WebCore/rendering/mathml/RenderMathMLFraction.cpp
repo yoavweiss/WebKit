@@ -283,8 +283,6 @@ void RenderMathMLFraction::layoutBlock(RelayoutChildren relayoutChildren, Layout
     adjustLayoutForBorderAndPadding();
 
     layoutOutOfFlowBoxes(relayoutChildren);
-
-    updateScrollInfoAfterLayout();
 }
 
 void RenderMathMLFraction::paint(PaintInfo& info, const LayoutPoint& paintOffset)

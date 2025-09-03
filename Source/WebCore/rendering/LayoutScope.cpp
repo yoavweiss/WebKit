@@ -26,6 +26,8 @@
 #include "config.h"
 #include "LayoutScope.h"
 
+#include "RenderBlock.h"
+
 namespace WebCore {
 
 LayoutScope::LayoutScope(RenderElement& renderer)
@@ -35,6 +37,8 @@ LayoutScope::LayoutScope(RenderElement& renderer)
 
 LayoutScope::~LayoutScope()
 {
+    if (auto* block = dynamicDowncast<RenderBlock>(m_renderer.get()))
+        block->updateScrollInfoAfterLayout();
     m_renderer->clearNeedsLayout();
 }
 

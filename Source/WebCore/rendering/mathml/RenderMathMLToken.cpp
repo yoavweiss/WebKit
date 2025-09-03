@@ -600,8 +600,6 @@ void RenderMathMLToken::layoutBlock(RelayoutChildren relayoutChildren, LayoutUni
     adjustLayoutForBorderAndPadding();
 
     layoutOutOfFlowBoxes(relayoutChildren);
-
-    updateScrollInfoAfterLayout();
 }
 
 void RenderMathMLToken::paint(PaintInfo& info, const LayoutPoint& paintOffset)

@@ -107,8 +107,6 @@ void RenderMathMLSpace::layoutBlock(RelayoutChildren relayoutChildren, LayoutUni
     applySizeToMathContent(LayoutPhase::Layout, sizes);
 
     adjustLayoutForBorderAndPadding();
-
-    updateScrollInfoAfterLayout();
 }
 
 std::optional<LayoutUnit> RenderMathMLSpace::firstLineBaseline() const

@@ -483,7 +483,6 @@ void RenderBlockFlow::layoutBlockWithNoChildren()
 
     auto updateLayerProperties = [&] {
         updateLayerTransform();
-        updateScrollInfoAfterLayout();
     };
     if (hasLayer())
         updateLayerProperties();
@@ -642,10 +641,6 @@ void RenderBlockFlow::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit 
         setPageLogicalOffset(state->pageLogicalOffset(this, logicalTop()));
 
     updateLayerTransform();
-
-    // Update our scroll information if we're overflow:auto/scroll/hidden now that we know if
-    // we overflow or not.
-    updateScrollInfoAfterLayout();
 
     // FIXME: This repaint logic should be moved into a separate helper function!
     // Repaint with our new bounds if they are different from our old bounds.

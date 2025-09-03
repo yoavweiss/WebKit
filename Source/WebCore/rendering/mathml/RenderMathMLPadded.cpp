@@ -133,8 +133,6 @@ void RenderMathMLPadded::layoutBlock(RelayoutChildren relayoutChildren, LayoutUn
     adjustLayoutForBorderAndPadding();
 
     layoutOutOfFlowBoxes(relayoutChildren);
-
-    updateScrollInfoAfterLayout();
 }
 
 std::optional<LayoutUnit> RenderMathMLPadded::firstLineBaseline() const

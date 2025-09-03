@@ -214,7 +214,6 @@ void RenderMathMLBlock::layoutBlock(RelayoutChildren relayoutChildren, LayoutUni
 
     repainter.repaintAfterLayout();
 
-    updateScrollInfoAfterLayout();
 }
 
 void RenderMathMLBlock::computeAndSetBlockDirectionMarginsOfChildren()
