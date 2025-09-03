@@ -165,6 +165,16 @@ bool isShaderValidationEnabled(id<MTLDevice> device)
     return result;
 }
 
+bool isWebGPUSwiftEnabled()
+{
+    static std::once_flag onceFlag;
+    static bool isWebGPUSwiftEnabled;
+    std::call_once(onceFlag, [&] {
+        isWebGPUSwiftEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"WebKitWebGPUSwiftEnabled"];
+    });
+    return isWebGPUSwiftEnabled;
+}
+
 static HardwareCapabilities apple4(id<MTLDevice> device)
 {
     auto baseCapabilities = WebGPU::baseCapabilities(device);
