@@ -308,6 +308,7 @@ function createResolvingFunctions(promise)
 }
 
 @linkTimeConstant
+@neverInline
 function promiseReactionJobWithoutPromise(handler, argument, context)
 {
     "use strict";
@@ -423,6 +424,7 @@ function createResolvingFunctionsWithoutPromise(onFulfilled, onRejected, context
 }
 
 @linkTimeConstant
+@neverInline
 function promiseReactionJob(promiseOrCapability, handler, argument, contextOrState)
 {
     // Promise Reaction has four types.

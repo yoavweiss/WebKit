@@ -299,6 +299,8 @@ public:
     WriteBarrier<JSFunction> m_performProxyObjectSetSloppyFunction;
     WriteBarrier<JSFunction> m_performProxyObjectSetByValStrictFunction;
     WriteBarrier<JSFunction> m_performProxyObjectSetByValSloppyFunction;
+    WriteBarrier<JSFunction> m_promiseReactionJobFunction;
+    WriteBarrier<JSFunction> m_promiseReactionJobWithoutPromiseFunction;
     WriteBarrier<JSObject> m_regExpProtoSymbolReplace;
     LazyProperty<JSGlobalObject, GetterSetter> m_throwTypeErrorArgumentsCalleeGetterSetter;
 
@@ -726,6 +728,8 @@ public:
     JSFunction* parseIntFunction() const { return m_parseIntFunction.get(this); }
     JSFunction* parseFloatFunction() const { return m_parseFloatFunction.get(this); }
 
+    JSFunction* promiseReactionJobFunction() const { return m_promiseReactionJobFunction.get(); }
+    JSFunction* promiseReactionJobWithoutPromiseFunction() const { return m_promiseReactionJobWithoutPromiseFunction.get(); }
     JSFunction* evalFunction() const;
     JSFunction* throwTypeErrorFunction() const;
     JSFunction* objectProtoToStringFunction() const { return m_objectProtoToStringFunction.get(this); }

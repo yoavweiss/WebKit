@@ -44,6 +44,7 @@ struct JSFrameData {
     WriteBarrier<JSCell> callee;
     WriteBarrier<CodeBlock> codeBlock;
     BytecodeIndex bytecodeIndex;
+    bool m_isAsyncFrameWithoutCodeBlock { false };
 };
 
 struct WasmFrameData {
@@ -58,6 +59,7 @@ public:
     StackFrame(VM&, JSCell* owner, JSCell* callee);
     StackFrame(VM&, JSCell* owner, JSCell* callee, CodeBlock*, BytecodeIndex);
     StackFrame(VM&, JSCell* owner, CodeBlock*, BytecodeIndex);
+    StackFrame(VM&, JSCell* owner, JSCell* callee, bool isAsyncFrameWithoutCodeBlock);
     StackFrame(Wasm::IndexOrName);
     StackFrame(Wasm::IndexOrName, size_t functionIndex);
     StackFrame() = default;
