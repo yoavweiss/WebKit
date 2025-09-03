@@ -530,41 +530,6 @@ void TestInvocation::didReceiveMessageFromInjectedBundle(WKStringRef messageName
         return;
     }
 
-    if (WKStringIsEqualToUTF8CString(messageName, "SetRejectsProtectionSpaceAndContinueForAuthenticationChallenges")) {
-        TestController::singleton().setRejectsProtectionSpaceAndContinueForAuthenticationChallenges(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetHandlesAuthenticationChallenges")) {
-        TestController::singleton().setHandlesAuthenticationChallenges(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldLogCanAuthenticateAgainstProtectionSpace")) {
-        TestController::singleton().setShouldLogCanAuthenticateAgainstProtectionSpace(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldLogDownloadCallbacks")) {
-        TestController::singleton().setShouldLogDownloadCallbacks(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldDownloadContentDispositionAttachments")) {
-        TestController::singleton().setShouldDownloadContentDispositionAttachments(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldLogDownloadSize")) {
-        TestController::singleton().setShouldLogDownloadSize(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldLogDownloadExpectedSize")) {
-        TestController::singleton().setShouldLogDownloadExpectedSize(booleanValue(messageBody));
-        return;
-    }
-
     if (WKStringIsEqualToUTF8CString(messageName, "SetAuthenticationUsername")) {
         WKStringRef username = stringValue(messageBody);
         TestController::singleton().setAuthenticationUsername(toWTFString(username));
@@ -577,49 +542,9 @@ void TestInvocation::didReceiveMessageFromInjectedBundle(WKStringRef messageName
         return;
     }
 
-    if (WKStringIsEqualToUTF8CString(messageName, "SetBlockAllPlugins")) {
-        TestController::singleton().setBlockAllPlugins(booleanValue(messageBody));
-        return;
-    }
-
     if (WKStringIsEqualToUTF8CString(messageName, "SetPluginSupportedMode")) {
         WKStringRef mode = stringValue(messageBody);
         TestController::singleton().setPluginSupportedMode(toWTFString(mode));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldDecideNavigationPolicyAfterDelay")) {
-        TestController::singleton().setShouldDecideNavigationPolicyAfterDelay(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldDecideResponsePolicyAfterDelay")) {
-        TestController::singleton().setShouldDecideResponsePolicyAfterDelay(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetNavigationGesturesEnabled")) {
-        TestController::singleton().setNavigationGesturesEnabled(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetIgnoresViewportScaleLimits")) {
-        TestController::singleton().setIgnoresViewportScaleLimits(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetUseDarkAppearanceForTesting")) {
-        TestController::singleton().setUseDarkAppearanceForTesting(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldDownloadUndisplayableMIMETypes")) {
-        TestController::singleton().setShouldDownloadUndisplayableMIMETypes(booleanValue(messageBody));
-        return;
-    }
-
-    if (WKStringIsEqualToUTF8CString(messageName, "SetShouldAllowDeviceOrientationAndMotionAccess")) {
-        TestController::singleton().setShouldAllowDeviceOrientationAndMotionAccess(booleanValue(messageBody));
         return;
     }
 

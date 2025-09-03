@@ -43,10 +43,6 @@ interface TestRunner {
 
     // Downloads.
     undefined waitUntilDownloadFinished();
-    undefined setShouldLogDownloadCallbacks(boolean value);
-    undefined setShouldLogDownloadSize(boolean value);
-    undefined setShouldLogDownloadExpectedSize(boolean value);
-    undefined setShouldDownloadContentDispositionAttachments(boolean value);
 
     const unsigned short RENDER_TREE_SHOW_ALL_LAYERS            = 1;
     const unsigned short RENDER_TREE_SHOW_LAYER_NESTING         = 2;
@@ -100,12 +96,6 @@ interface TestRunner {
     undefined setCacheModel(long model);
     undefined setAsynchronousSpellCheckingEnabled(boolean value);
     undefined setPrinting();
-    undefined setShouldDecideNavigationPolicyAfterDelay(boolean value);
-    undefined setShouldDecideResponsePolicyAfterDelay(boolean value);
-    undefined setNavigationGesturesEnabled(boolean value);
-    undefined setIgnoresViewportScaleLimits(boolean value);
-    undefined setUseDarkAppearanceForTesting(boolean useDarkAppearance);
-    undefined setShouldDownloadUndisplayableMIMETypes(boolean value);
     undefined stopLoading();
 
     // Special DOM functions.
@@ -113,9 +103,6 @@ interface TestRunner {
     undefined execCommand(DOMString name, DOMString showUI, DOMString value);
     boolean isCommandEnabled(DOMString name);
     unsigned long windowCount();
-
-    // Device Orientation Motion.
-    undefined setShouldAllowDeviceOrientationAndMotionAccess(boolean value);
 
     // Special DOM variables.
     attribute boolean globalFlag;
@@ -256,9 +243,6 @@ interface TestRunner {
     undefined queueNonLoadingScript(DOMString script);
 
     // Authentication
-    undefined setRejectsProtectionSpaceAndContinueForAuthenticationChallenges(boolean value);
-    undefined setHandlesAuthenticationChallenges(boolean value);
-    undefined setShouldLogCanAuthenticateAgainstProtectionSpace(boolean value);
     undefined setAuthenticationUsername(DOMString username);
     undefined setAuthenticationPassword(DOMString password);
 
@@ -271,7 +255,6 @@ interface TestRunner {
     readonly attribute boolean secureEventInputIsEnabled;
     
     // Override plugin load policy.
-    undefined setBlockAllPlugins(boolean shouldBlock);
     undefined setPluginSupportedMode(DOMString mode);
 
     // Hooks to the JSC compiler.
