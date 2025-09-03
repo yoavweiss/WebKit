@@ -139,7 +139,6 @@ public:
         // In the case when we do not JIT, we cannot use the WasmToJSCallee singleton.
         // This callee gives the jitless wasm_to_js thunk the info it needs to call the imported
         // function with the correct wasm type.
-        // Note that wasm to js calls will have m_function's boxedWasmCalleeLoadLocation already set.
         RefPtr<WasmToJSCallee> m_protectedJSCallee;
 
         static constexpr ptrdiff_t offsetOfFunction() { return OBJECT_OFFSETOF(Function, m_function); }

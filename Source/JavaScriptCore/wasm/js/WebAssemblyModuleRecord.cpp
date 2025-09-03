@@ -139,7 +139,6 @@ static void initializeBuiltinImport(VM& vm, WriteBarrier<JSWebAssemblyInstance>&
     auto* info = instance->importFunctionInfo(import.kindIndex);
     info->boxedCallee = builtin->callee(); // boxed by operator=
     instance->setBuiltinCalleeBits(builtin->id(), info->boxedCallee);
-    info->boxedWasmCalleeLoadLocation = &info->boxedCallee;
     info->importFunctionStub = builtin->callee()->entrypointImpl();
     info->entrypointLoadLocation = &info->importFunctionStub;
     info->targetInstance.set(vm, instance.get(), instance.get());
@@ -256,7 +255,7 @@ void WebAssemblyModuleRecord::initializeImports(JSGlobalObject* globalObject, JS
 
             JSWebAssemblyInstance* calleeInstance = nullptr;
             WasmToWasmImportableFunction::LoadLocation entrypointLoadLocation = nullptr;
-            const CalleeBits* boxedWasmCalleeLoadLocation = &Wasm::NullWasmCallee;
+            CalleeBits boxedCallee { };
             JSObject* function = jsCast<JSObject*>(value);
 
             // ii. If v is an Exported Function Exotic Object:
@@ -269,12 +268,12 @@ void WebAssemblyModuleRecord::initializeImports(JSGlobalObject* globalObject, JS
                     importedTypeIndex = wasmFunction->typeIndex();
                     calleeInstance = wasmFunction->instance();
                     entrypointLoadLocation = wasmFunction->entrypointLoadLocation();
-                    boxedWasmCalleeLoadLocation = wasmFunction->boxedWasmCalleeLoadLocation();
+                    boxedCallee = wasmFunction->boxedCallee();
                 } else {
                     importedTypeIndex = wasmWrapperFunction->typeIndex();
                     // b. Let closure be v.[[Closure]].
                     function = wasmWrapperFunction->function();
-                    boxedWasmCalleeLoadLocation = wasmWrapperFunction->boxedWasmCalleeLoadLocation();
+                    boxedCallee = wasmWrapperFunction->boxedCallee();
                 }
                 Wasm::TypeIndex expectedTypeIndex = moduleInformation.importFunctionTypeIndices[import.kindIndex];
                 if (!Wasm::isSubtypeIndex(importedTypeIndex, expectedTypeIndex))
@@ -287,7 +286,7 @@ void WebAssemblyModuleRecord::initializeImports(JSGlobalObject* globalObject, JS
             // Note: adding the JSCell to the instance list fulfills closure requirements b. above (the WebAssembly.Instance wil be kept alive) and v. below (the JSFunction).
 
             auto* info = m_instance->importFunctionInfo(import.kindIndex);
-            info->boxedWasmCalleeLoadLocation = boxedWasmCalleeLoadLocation;
+            info->boxedCallee = boxedCallee;
             info->targetInstance.setMayBeNull(vm, m_instance.get(), calleeInstance);
             info->entrypointLoadLocation = entrypointLoadLocation;
             info->typeIndex = moduleInformation.importFunctionTypeIndices[import.kindIndex];

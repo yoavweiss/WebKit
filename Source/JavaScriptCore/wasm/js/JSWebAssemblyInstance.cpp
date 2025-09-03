@@ -235,9 +235,7 @@ void JSWebAssemblyInstance::finalizeCreation(VM& vm, JSGlobalObject* globalObjec
             // the import is a JS function
             info->importFunctionStub = module().importFunctionStub(functionSpaceIndex);
             importCallees.append(adoptRef(*new WasmToJSCallee(functionSpaceIndex, { nullptr, nullptr })));
-            ASSERT(*info->boxedWasmCalleeLoadLocation == CalleeBits::nullCallee());
             info->boxedCallee = CalleeBits::encodeNativeCallee(importCallees.last().ptr());
-            info->boxedWasmCalleeLoadLocation = &info->boxedCallee;
 
             auto callLinkInfo = makeUnique<DataOnlyCallLinkInfo>();
             callLinkInfo->initialize(vm, nullptr, CallLinkInfo::CallType::Call, CodeOrigin { });
@@ -246,14 +244,12 @@ void JSWebAssemblyInstance::finalizeCreation(VM& vm, JSGlobalObject* globalObjec
             vm.writeBarrier(this); // Materialized CallLinkInfo and we need rescan of JSWebAssemblyInstance.
         } else {
             // the import is a Wasm function or a builtin
-            auto calleeBits = *info->boxedWasmCalleeLoadLocation;
+            auto calleeBits = info->boxedCallee;
             if (calleeBits.isNativeCallee()) {
                 auto* callee = std::bit_cast<Callee*>(calleeBits.asNativeCallee());
                 // if the callee is a builtin, info->importFunctionStub has already been set
-                if (callee->compilationMode() != CompilationMode::WasmBuiltinMode) {
+                if (callee->compilationMode() != CompilationMode::WasmBuiltinMode)
                     info->importFunctionStub = wasmCalleeGroup->wasmToWasmExitStub(functionSpaceIndex);
-                    ASSERT(info->boxedWasmCalleeLoadLocation && *info->boxedWasmCalleeLoadLocation);
-                }
             }
         }
     }

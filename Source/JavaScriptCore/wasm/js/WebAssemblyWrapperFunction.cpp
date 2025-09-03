@@ -61,7 +61,7 @@ WebAssemblyWrapperFunction* WebAssemblyWrapperFunction::create(VM& vm, JSGlobalO
         Wasm::WasmOrJSImportableFunction {
             {
                 {
-                    &Wasm::NullWasmCallee,
+                    CalleeBits(),
                     { },
                     &instance->importFunctionInfo(importIndex)->importFunctionStub
                 },

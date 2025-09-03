@@ -298,9 +298,9 @@ void FuncRefTable::setFunction(uint32_t index, WebAssemblyFunctionBase* function
     slot.m_function = function->importableFunction();
     if (!slot.m_function.targetInstance) {
         // This is a JS function.
-        ASSERT(!*slot.m_function.boxedWasmCalleeLoadLocation);
+        ASSERT(!slot.m_function.boxedCallee);
         slot.m_protectedJSCallee = adoptRef(*new WasmToJSCallee(FunctionSpaceIndex(index), { nullptr, nullptr }));
-        slot.m_function.boxedWasmCalleeLoadLocation = slot.m_protectedJSCallee->boxedWasmCalleeLoadLocation();
+        slot.m_function.boxedCallee = CalleeBits::encodeNativeCallee(slot.m_protectedJSCallee.get());
     }
     slot.m_callLinkInfo = function->callLinkInfo();
     slot.m_instance = function->instance();

@@ -38,8 +38,6 @@
 
 namespace JSC { namespace Wasm {
 
-constexpr CalleeBits NullWasmCallee = CalleeBits::nullCallee();
-
 std::unique_ptr<Segment> Segment::tryCreate(std::optional<I32InitExpr> offset, uint32_t sizeInBytes, Kind kind)
 {
     auto result = tryFastZeroedMalloc(allocationSize(sizeInBytes));

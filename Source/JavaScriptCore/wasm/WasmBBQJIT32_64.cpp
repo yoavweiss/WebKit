@@ -3780,8 +3780,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callSlotIndex, cons
 
         {
             auto calleeTmp = calleeInstance;
-            m_jit.loadPtr(Address(calleePtr, WebAssemblyFunctionBase::offsetOfBoxedWasmCalleeLoadLocation()), calleeTmp);
-            m_jit.loadPtr(Address(calleeTmp), calleeTmp);
+            m_jit.loadPtr(Address(calleePtr, WebAssemblyFunctionBase::offsetOfBoxedCallee()), calleeTmp);
             m_jit.storeWasmCalleeToCalleeCallFrame(calleeTmp);
         }
 

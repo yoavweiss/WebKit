@@ -209,14 +209,12 @@ void JSToWasmICCallee::setEntrypoint(MacroAssemblerCodeRef<JSEntryPtrTag>&& entr
 
 WasmToJSCallee::WasmToJSCallee()
     : Callee(Wasm::CompilationMode::WasmToJSMode)
-    , m_boxedThis(CalleeBits::encodeNativeCallee(this))
 {
     NativeCalleeRegistry::singleton().registerCallee(this);
 }
 
 WasmToJSCallee::WasmToJSCallee(FunctionSpaceIndex index, std::pair<const Name*, RefPtr<NameSection>>&& name)
     : Callee(Wasm::CompilationMode::WasmToJSMode, index, WTFMove(name))
-    , m_boxedThis(CalleeBits::encodeNativeCallee(this))
 {
     NativeCalleeRegistry::singleton().registerCallee(this);
 }

@@ -924,7 +924,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call, CallFrame* callFrame, CallMetadata* cal
     if (functionIndex < importFunctionCount) {
         auto* functionInfo = instance->importFunctionInfo(functionIndex);
         codePtr = functionInfo->importFunctionStub;
-        calleeReturn = *std::bit_cast<uintptr_t*>(functionInfo->boxedWasmCalleeLoadLocation);
+        calleeReturn = functionInfo->boxedCallee.encodedBits();
         if (!functionInfo->targetInstance)
             // The imported function is a JS function
             wasmInstanceReturn = reinterpret_cast<uintptr_t>(functionInfo);
@@ -966,12 +966,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
         IPINT_THROW(Wasm::ExceptionType::BadSignature);
 
     Register* calleeReturn = std::bit_cast<Register*>(functionIndex);
-    if (function.m_function.boxedWasmCalleeLoadLocation)
-        *calleeReturn = function.m_function.boxedWasmCalleeLoadLocation->encodedBits();
-    else {
-        auto callee = function.m_instance->calleeGroup()->wasmCalleeFromFunctionIndexSpace(*functionIndex);
-        *calleeReturn = CalleeBits::encodeNativeCallee(callee.get());
-    }
+    *calleeReturn = function.m_function.boxedCallee.encodedBits();
 
     Register& functionInfoSlot = calleeReturn[1];
     if (!function.m_function.targetInstance)
@@ -1002,13 +997,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetada
     auto* wasmFunction = jsCast<WebAssemblyFunctionBase*>(referenceAsObject);
     auto& function = wasmFunction->importableFunction();
     JSWebAssemblyInstance* calleeInstance = wasmFunction->instance();
-
-    ASSERT(function.boxedWasmCalleeLoadLocation);
-    if (function.boxedWasmCalleeLoadLocation)
-        sp->ref = function.boxedWasmCalleeLoadLocation->encodedBits();
-    else
-        sp->ref = CalleeBits::nullCallee().encodedBits();
-
+    sp->ref = function.boxedCallee.encodedBits();
     Register& functionInfoSlot = std::bit_cast<Register*>(sp)[1];
     if (!function.targetInstance)
         functionInfoSlot = reinterpret_cast<uintptr_t>(wasmFunction->callLinkInfo());

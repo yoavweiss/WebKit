@@ -4575,8 +4575,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallIndirect(unsigned callSlotIndex,
 
             {
                 auto calleeTmp = calleeInstance;
-                m_jit.loadPtr(Address(calleeSignatureIndex, FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfBoxedWasmCalleeLoadLocation()), calleeTmp);
-                m_jit.loadPtr(Address(calleeTmp), calleeTmp);
+                m_jit.loadPtr(Address(calleeSignatureIndex, FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfBoxedCallee()), calleeTmp);
                 m_jit.storeWasmCalleeToCalleeCallFrame(calleeTmp);
             }
 
