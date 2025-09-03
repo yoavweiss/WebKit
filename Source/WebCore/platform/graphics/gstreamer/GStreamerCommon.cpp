@@ -1026,14 +1026,12 @@ IGNORE_WARNINGS_END
 
 GstElement* /* (transfer floating) */ createPlatformAudioSink(const String& role)
 {
-    GstElement* audioSink = webkitAudioSinkNew();
+    GstElement* audioSink = webkitAudioSinkNew(role);
     if (!audioSink) {
         // This means the WebKit audio sink configuration failed. It can happen for the following reasons:
         // - audio mixing was not requested using the WEBKIT_GST_ENABLE_AUDIO_MIXER
         // - audio mixing was requested using the WEBKIT_GST_ENABLE_AUDIO_MIXER but the audio mixer
         //   runtime requirements are not fullfilled.
-        // - the sink was created for the WPE port, audio mixing was not requested and no
-        //   WPEBackend-FDO audio receiver has been registered at runtime.
         audioSink = createAutoAudioSink(role);
     }
 
