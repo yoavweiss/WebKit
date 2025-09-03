@@ -175,7 +175,8 @@ std::optional<LibraryCreationResult> createLibrary(id<MTLDevice> device, const S
 
     auto library = ShaderModule::createLibrary(device, msl, label, error, WGSL::DeviceState {
         .appleGPUFamily = shaderModule.device().appleGPUFamily(),
-        .shaderValidationEnabled = shaderModule.device().isShaderValidationEnabled()
+        .shaderValidationEnabled = shaderModule.device().isShaderValidationEnabled(),
+        .usesInvariant = entryPointInformation.usesInvariant
     });
     if (error && *error)
         return { };

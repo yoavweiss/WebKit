@@ -1436,9 +1436,10 @@ static NSString* errorValidatingInterstageShaderInterfaces(WebGPU::Device &devic
         }
 
         if (fragmentOutputs) {
+            auto maxColorAttachments = device.limits().maxColorAttachments;
             for (auto& [location, _] : *fragmentOutputs) {
-                if (location >= maxInterStageShaderVariables)
-                    return @"location >= maxInterStageShaderVariables";
+                if (location >= maxColorAttachments)
+                    return [NSString stringWithFormat:@"location(%u) >= maxColorAttachments(%u)", location, maxColorAttachments];
             }
         }
     }
@@ -1553,26 +1554,18 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
         const auto& fragmentEntryPoint = fragmentDescriptor.entryPoint ? fromAPI(fragmentDescriptor.entryPoint) : fragmentModule->defaultFragmentEntryPoint();
         usesFragDepth = fragmentModule->usesFragDepth(fragmentEntryPoint);
         usesSampleMask = fragmentModule->usesSampleMaskInOutput(fragmentEntryPoint);
-        NSError *error = nil;
-        auto libraryCreationResult = createLibrary(m_device, *fragmentModule, pipelineLayout.get(), fragmentEntryPoint, label.get(), fragmentDescriptor.constantsSpan(), minimumBufferSizes, &error, fragmentShaderSource);
-        if (!libraryCreationResult)
-            return returnInvalidRenderPipeline(*this, isAsync, error.localizedDescription ?: @"Fragment library could not be created");
 
-        const auto& entryPointInformation = libraryCreationResult->entryPointInformation;
-        if (!pipelineLayout) {
-            if (NSString* error = addPipelineLayouts(bindGroupEntries, entryPointInformation.defaultLayout))
-                return returnInvalidRenderPipeline(*this, isAsync, error);
-        }
-
-        auto fragmentFunction = createFunction(libraryCreationResult->library, entryPointInformation, label.get());
-        if (!fragmentFunction || fragmentFunction.functionType != MTLFunctionTypeFragment || entryPointInformation.specializationConstants.size() != libraryCreationResult->wgslConstantValues.size())
-            return returnInvalidRenderPipeline(*this, isAsync, "Fragment function failed creation"_s);
-        mtlRenderPipelineDescriptor.fragmentFunction = fragmentFunction;
-
-        uint32_t bytesPerSample = 0;
         fragmentInputs = fragmentModule->fragmentInputsForEntryPoint(fragmentEntryPoint);
         fragmentReturnTypes = fragmentModule->fragmentReturnTypeForEntryPoint(fragmentEntryPoint);
         colorAttachmentCount = fragmentDescriptor.targetCount;
+    }
+
+    if (NSString* error = errorValidatingInterstageShaderInterfaces(*this, descriptor, vertexOutputs, fragmentInputs, fragmentReturnTypes, fragmentModule.get(), descriptor.fragment))
+        return returnInvalidRenderPipeline(*this, isAsync, error);
+
+    if (descriptor.fragment) {
+        uint32_t bytesPerSample = 0;
+        const auto& fragmentDescriptor = *descriptor.fragment;
         for (auto [ i, targetDescriptor ] : indexedRange(fragmentDescriptor.targetsSpan())) {
             if (targetDescriptor.format == WGPUTextureFormat_Undefined)
                 continue;
@@ -1628,6 +1621,23 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
 
         if (bytesPerSample > deviceLimits.maxColorAttachmentBytesPerSample)
             return returnInvalidRenderPipeline(*this, isAsync, [NSString stringWithFormat:@"Bytes per sample(%u) exceeded maximum allowed limit(%u)", bytesPerSample, deviceLimits.maxColorAttachmentBytesPerSample]);
+
+        NSError *error = nil;
+        const auto& fragmentEntryPoint = fragmentDescriptor.entryPoint ? fromAPI(fragmentDescriptor.entryPoint) : fragmentModule->defaultFragmentEntryPoint();
+        auto libraryCreationResult = createLibrary(m_device, *fragmentModule, pipelineLayout.get(), fragmentEntryPoint, label.get(), fragmentDescriptor.constantsSpan(), minimumBufferSizes, &error, fragmentShaderSource);
+        if (!libraryCreationResult)
+            return returnInvalidRenderPipeline(*this, isAsync, error.localizedDescription ?: @"Fragment library could not be created");
+
+        const auto& entryPointInformation = libraryCreationResult->entryPointInformation;
+        if (!pipelineLayout) {
+            if (NSString* error = addPipelineLayouts(bindGroupEntries, entryPointInformation.defaultLayout))
+                return returnInvalidRenderPipeline(*this, isAsync, error);
+        }
+
+        auto fragmentFunction = createFunction(libraryCreationResult->library, entryPointInformation, label.get());
+        if (!fragmentFunction || fragmentFunction.functionType != MTLFunctionTypeFragment || entryPointInformation.specializationConstants.size() != libraryCreationResult->wgslConstantValues.size())
+            return returnInvalidRenderPipeline(*this, isAsync, "Fragment function failed creation"_s);
+        mtlRenderPipelineDescriptor.fragmentFunction = fragmentFunction;
     }
 
     MTLDepthStencilDescriptor *depthStencilDescriptor = nil;
@@ -1671,6 +1681,7 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
         if (descriptor.multisample.count == 1)
             return returnInvalidRenderPipeline(*this, isAsync, "Using alphaToCoverage requires multisampling"_s);
     }
+
     RELEASE_ASSERT([mtlRenderPipelineDescriptor respondsToSelector:@selector(setSampleMask:)]);
     uint32_t sampleMask = RenderBundleEncoder::defaultSampleMask;
     if (auto mask = descriptor.multisample.mask; mask != sampleMask) {
@@ -1678,9 +1689,6 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
             [mtlRenderPipelineDescriptor setSampleMask:mask];
         sampleMask = mask;
     }
-
-    if (NSString* error = errorValidatingInterstageShaderInterfaces(*this, descriptor, vertexOutputs, fragmentInputs, fragmentReturnTypes, fragmentModule.get(), descriptor.fragment))
-        return returnInvalidRenderPipeline(*this, isAsync, error);
 
     RenderPipeline::RequiredBufferIndicesContainer requiredBufferIndices;
     if (descriptor.vertex.bufferCount) {

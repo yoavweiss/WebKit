@@ -94,6 +94,10 @@ ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     options.fastMathEnabled = !requireSafeMath;
 ALLOW_DEPRECATED_DECLARATIONS_END
 #endif
+
+    if (deviceState.usesInvariant)
+        options.preserveInvariance = true;
+
     // FIXME(PERFORMANCE): Run the asynchronous version of this
     id<MTLLibrary> library = [device newLibraryWithSource:msl.createNSString().get() options:options error:error];
     if (error && *error) {
@@ -384,15 +388,15 @@ void ShaderModule::populateOutputState(const String& entryPoint, WGSL::Builtin b
     }
 }
 
-ShaderModule::FragmentOutputs ShaderModule::parseFragmentReturnType(const WGSL::Type& type, const String& entryPoint)
+ShaderModule::FragmentOutputs ShaderModule::parseFragmentReturnType(const WGSL::Type& type, const WGSL::CallGraph::EntryPoint& entryPoint)
 {
     ShaderModule::FragmentOutputs fragmentOutputs;
     if (auto* returnPrimitive = std::get_if<WGSL::Types::Primitive>(&type)) {
-        fragmentOutputs.add(0, metalDataTypeFromPrimitive(returnPrimitive));
+        fragmentOutputs.add(entryPoint.function.returnTypeLocation().value_or(0), metalDataTypeFromPrimitive(returnPrimitive));
         return fragmentOutputs;
     }
     if (std::get_if<WGSL::Types::Vector>(&type)) {
-        fragmentOutputs.add(0, metalDataTypeForStructMember(&type));
+        fragmentOutputs.add(entryPoint.function.returnTypeLocation().value_or(0), metalDataTypeForStructMember(&type));
         return fragmentOutputs;
     }
     auto* returnStruct = std::get_if<WGSL::Types::Struct>(&type);
@@ -401,13 +405,13 @@ ShaderModule::FragmentOutputs ShaderModule::parseFragmentReturnType(const WGSL::
 
     for (auto& member : returnStruct->structure.members()) {
         if (member.builtin())
-            populateOutputState(entryPoint, *member.builtin());
+            populateOutputState(entryPoint.originalName, *member.builtin());
 
         for (auto& attribute : member.attributes()) {
             auto* builtinAttribute = dynamicDowncast<WGSL::AST::BuiltinAttribute>(attribute);
             if (!builtinAttribute)
                 continue;
-            populateOutputState(entryPoint, builtinAttribute->builtin());
+            populateOutputState(entryPoint.originalName, builtinAttribute->builtin());
         }
 
         if (!member.location() || member.builtin())
@@ -630,7 +634,7 @@ ShaderModule::ShaderModule(Variant<WGSL::SuccessfulCheck, WGSL::FailedCheck>&& c
                 m_fragmentInputsForEntryPoint.add(entryPoint.originalName, parseFragmentInputs(entryPoint.function));
                 if (auto expression = entryPoint.function.maybeReturnType()) {
                     if (auto* inferredType = expression->inferredType())
-                        m_fragmentReturnTypeForEntryPoint.add(entryPoint.originalName, parseFragmentReturnType(*inferredType, entryPoint.originalName));
+                        m_fragmentReturnTypeForEntryPoint.add(entryPoint.originalName, parseFragmentReturnType(*inferredType, entryPoint));
                 }
                 if (!allowFragmentDefault || m_defaultFragmentEntryPoint.length()) {
                     allowFragmentDefault = false;
