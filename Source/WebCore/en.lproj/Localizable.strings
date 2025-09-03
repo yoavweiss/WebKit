@@ -1360,8 +1360,8 @@
 /* Show fonts context menu item */
 "Show Fonts" = "Show Fonts";
 
-/* Media stats context menu item */
-"Show Media Stats" = "Show Media Stats";
+/* Media statistics context menu item */
+"Show Media Statistics" = "Show Media Statistics";
 
 /* menu item title */
 "Show Spelling and Grammar" = "Show Spelling and Grammar";
