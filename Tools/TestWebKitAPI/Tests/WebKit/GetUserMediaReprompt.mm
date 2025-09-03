@@ -38,6 +38,10 @@
 #import <WebKit/WKWebViewConfigurationPrivate.h>
 #import <WebKit/_WKProcessPoolConfiguration.h>
 
+#if PLATFORM(IOS_FAMILY)
+#include <pal/system/ios/UserInterfaceIdiom.h>
+#endif
+
 @interface GetUserMediaRepromptTestView : TestWKWebView
 - (BOOL)haveStream:(BOOL)expected;
 @end
@@ -140,6 +144,31 @@ TEST(WebKit2, MultipleGetUserMediaSynchronously)
     [webView stringByEvaluatingJavaScript:@"doMultipleGetUserMediaSynchronously()"];
     [delegate waitUntilPrompted];
     EXPECT_EQ([delegate numberOfPrompts], 2);
+}
+
+TEST(WebKit2, GetUserMediaDefaultInactiveCaptureRepromptInterval)
+{
+    auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    auto processPoolConfig = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
+    auto preferences = [configuration preferences];
+    initializeMediaCaptureConfiguration(configuration.get());
+    auto webView = adoptNS([[GetUserMediaRepromptTestView alloc] initWithFrame:CGRectMake(0, 0, 320, 500) configuration:configuration.get() processPoolConfiguration:processPoolConfig.get()]);
+    auto delegate = adoptNS([[UserMediaCaptureUIDelegate alloc] init]);
+    [webView setUIDelegate:delegate.get()];
+
+    [webView loadTestPageNamed:@"getUserMedia"];
+    [delegate waitUntilPrompted];
+
+    EXPECT_TRUE([webView haveStream:YES]);
+
+    auto expectedInactiveMediaCaptureStreamRepromptInterval = []() -> double {
+#if PLATFORM(IOS_FAMILY)
+        if (!PAL::currentUserInterfaceIdiomIsDesktop())
+            return 1;
+#endif
+        return 10;
+    };
+    EXPECT_EQ(preferences._inactiveMediaCaptureStreamRepromptIntervalInMinutes, expectedInactiveMediaCaptureStreamRepromptInterval());
 }
 
 } // namespace TestWebKitAPI

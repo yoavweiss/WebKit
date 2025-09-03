@@ -3570,12 +3570,12 @@ InWindowFullscreenEnabled:
 InactiveMediaCaptureStreamRepromptIntervalInMinutes:
   type: double
   status: embedder
+  condition: ENABLE(MEDIA_STREAM)
   webcoreBinding: none
   exposed: [ WebKit ]
   defaultValue:
     WebKit:
-      "PLATFORM(IOS_FAMILY)": 1
-      default: 10
+      default: defaultInactiveMediaCaptureStreamRepromptIntervalInMinutes()
 
 IncludeIgnoredInCoreAXTree:
   type: bool

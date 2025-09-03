@@ -133,6 +133,19 @@ bool defaultManageCaptureStatusBarInGPUProcessEnabled()
 #endif
 }
 
+double defaultInactiveMediaCaptureStreamRepromptIntervalInMinutes()
+{
+    constexpr double inactiveMediaCaptureStreamRepromptIntervalForDesktop = 10;
+
+#if PLATFORM(IOS_FAMILY)
+    constexpr double inactiveMediaCaptureStreamRepromptIntervalForiOS = 1;
+    if (!PAL::currentUserInterfaceIdiomIsDesktop())
+        return inactiveMediaCaptureStreamRepromptIntervalForiOS;
+#endif
+
+    return inactiveMediaCaptureStreamRepromptIntervalForDesktop;
+}
+
 #endif // ENABLE(MEDIA_STREAM)
 
 #if ENABLE(MEDIA_SOURCE)
