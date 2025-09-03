@@ -489,8 +489,6 @@ void RenderBlockFlow::layoutBlockWithNoChildren()
         updateLayerProperties();
 
     repainter.repaintAfterLayout();
-
-    clearNeedsLayout();
 }
 
 void RenderBlockFlow::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit pageLogicalHeight)
@@ -686,8 +684,6 @@ void RenderBlockFlow::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit 
                 repaintRectangle(reflectedRect(repaintRect));
         }
     }
-
-    clearNeedsLayout();
 }
 
 void RenderBlockFlow::dirtyForLayoutFromPercentageHeightDescendants()

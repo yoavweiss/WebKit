@@ -493,8 +493,6 @@ void RenderMathMLScripts::layoutBlock(RelayoutChildren relayoutChildren, LayoutU
     layoutOutOfFlowBoxes(relayoutChildren);
 
     updateScrollInfoAfterLayout();
-
-    clearNeedsLayout();
 }
 
 std::optional<LayoutUnit> RenderMathMLScripts::firstLineBaseline() const

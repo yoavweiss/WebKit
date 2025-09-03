@@ -253,8 +253,6 @@ void RenderMathMLOperator::layoutBlock(RelayoutChildren relayoutChildren, Layout
     }
 
     updateScrollInfoAfterLayout();
-
-    clearNeedsLayout();
 }
 
 void RenderMathMLOperator::updateMathOperator()

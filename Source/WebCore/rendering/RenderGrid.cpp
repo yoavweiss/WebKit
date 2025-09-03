@@ -533,8 +533,6 @@ void RenderGrid::layoutGrid(RelayoutChildren relayoutChildren)
 
     repainter.repaintAfterLayout();
 
-    clearNeedsLayout();
-
     m_trackSizingAlgorithm.clearBaselineItemsCache();
     m_baselineItemsCached = false;
 }
@@ -669,8 +667,6 @@ void RenderGrid::layoutMasonry(RelayoutChildren relayoutChildren)
     updateScrollInfoAfterLayout();
 
     repainter.repaintAfterLayout();
-
-    clearNeedsLayout();
 
     m_trackSizingAlgorithm.clearBaselineItemsCache();
     m_baselineItemsCached = false;

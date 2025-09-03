@@ -212,8 +212,6 @@ void RenderMathMLMenclose::layoutBlock(RelayoutChildren relayoutChildren, Layout
     layoutOutOfFlowBoxes(relayoutChildren);
 
     updateScrollInfoAfterLayout();
-
-    clearNeedsLayout();
 }
 
 // GraphicsContext::drawLine does not seem appropriate to draw menclose lines.

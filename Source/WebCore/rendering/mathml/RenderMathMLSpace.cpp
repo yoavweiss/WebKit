@@ -109,8 +109,6 @@ void RenderMathMLSpace::layoutBlock(RelayoutChildren relayoutChildren, LayoutUni
     adjustLayoutForBorderAndPadding();
 
     updateScrollInfoAfterLayout();
-
-    clearNeedsLayout();
 }
 
 std::optional<LayoutUnit> RenderMathMLSpace::firstLineBaseline() const

@@ -456,8 +456,6 @@ void RenderFlexibleBox::layoutBlock(RelayoutChildren relayoutChildren, LayoutUni
     updateScrollInfoAfterLayout();
 
     repainter.repaintAfterLayout();
-
-    clearNeedsLayout();
     
     m_inLayout = oldInLayout;
 }

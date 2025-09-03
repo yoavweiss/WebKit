@@ -190,8 +190,6 @@ void RenderMathMLRow::layoutBlock(RelayoutChildren relayoutChildren, LayoutUnit)
     layoutOutOfFlowBoxes(relayoutChildren);
 
     updateScrollInfoAfterLayout();
-
-    clearNeedsLayout();
 }
 
 }

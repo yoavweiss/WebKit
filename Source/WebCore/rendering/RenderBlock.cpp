@@ -43,6 +43,7 @@
 #include "ImageBuffer.h"
 #include "InlineIteratorInlineBox.h"
 #include "LayoutRepainter.h"
+#include "LayoutScope.h"
 #include "LocalFrame.h"
 #include "LocalFrameView.h"
 #include "Logging.h"
@@ -503,7 +504,10 @@ void RenderBlock::layout()
 
     // Table cells call layoutBlock directly, so don't add any logic here.  Put code into
     // layoutBlock().
-    layoutBlock(RelayoutChildren::No);
+    {
+        auto scope = LayoutScope { *this };
+        layoutBlock(RelayoutChildren::No);
+    }
     
     // It's safe to check for control clip here, since controls can never be table cells.
     // If we have a lightweight clip, there can never be any overflow from children.
@@ -556,7 +560,6 @@ bool RenderBlock::recomputeLogicalWidth()
 void RenderBlock::layoutBlock(RelayoutChildren, LayoutUnit)
 {
     ASSERT_NOT_REACHED();
-    clearNeedsLayout();
 }
 
 void RenderBlock::addOverflowFromChildren()

@@ -398,8 +398,6 @@ void RenderDeprecatedFlexibleBox::layoutBlock(RelayoutChildren relayoutChildren,
 
     // Repaint with our new bounds if they are different from our old bounds.
     repainter.repaintAfterLayout();
-
-    clearNeedsLayout();
 }
 
 // The first walk over our kids is to find out if we have any flexible children.
@@ -753,8 +751,6 @@ void RenderDeprecatedFlexibleBox::layoutSingleClampedFlexItem()
     updateScrollInfoAfterLayout();
 
     repainter.repaintAfterLayout();
-
-    clearNeedsLayout();
 }
 
 void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChildren)
