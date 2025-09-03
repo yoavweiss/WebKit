@@ -1925,6 +1925,7 @@ if (window.testRunner) {
     testRunner.finishFullscreenExit = () => post(['FinishFullscreenExit']);
     testRunner.requestExitFullscreenFromUIProcess = () => post(['RequestExitFullscreenFromUIProcess']);
     testRunner.keyExistsInKeychain = (attrLabel, applicationLabelBase64) => post(['KeyExistsInKeychain', attrLabel, applicationLabelBase64]);
+    testRunner.indicateFindMatch = index => post(['IndicateFindMatch', index]);
 }
 )testRunnerJS";
 
@@ -2004,6 +2005,12 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
 
     if (WKStringIsEqualToUTF8CString(command, "GetApplicationManifest"))
         return WKPageGetApplicationManifest(mainWebView()->page(), completionHandler.leak(), adoptAndCallCompletionHandler);
+
+    if (WKStringIsEqualToUTF8CString(command, "IndicateFindMatch")) {
+        auto index = static_cast<uint32_t>(WKDoubleGetValue(static_cast<WKDoubleRef>(argument)));
+        WKPageIndicateFindMatch(mainWebView()->page(), index);
+        return completionHandler(nullptr);
+    }
 
     if (WKStringIsEqualToUTF8CString(command, "WaitBeforeFinishingFullscreenExit")) {
         waitBeforeFinishingFullscreenExit();
