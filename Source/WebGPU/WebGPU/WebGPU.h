@@ -1294,6 +1294,7 @@ typedef struct WGPUProgrammableStageDescriptor {
 
 typedef struct WGPURenderPassColorAttachment {
     WGPUChainedStruct const * nextInChain;
+    WGPU_NULLABLE WGPUTexture texture;
     WGPU_NULLABLE WGPUTextureView view;
     std::optional<uint32_t> depthSlice;
     WGPU_NULLABLE WGPUTextureView resolveTarget;

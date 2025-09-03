@@ -59,9 +59,12 @@ RefPtr<RenderPassEncoder> CommandEncoderImpl::beginRenderPass(const RenderPassDe
     Ref convertToBackingContext = m_convertToBackingContext;
     for (const auto& colorAttachment : descriptor.colorAttachments) {
         if (colorAttachment) {
+            RefPtr texture = colorAttachment->protectedTexture().get();
+            RefPtr textureView = colorAttachment->protectedView().get();
             colorAttachments.append(WGPURenderPassColorAttachment {
                 .nextInChain = nullptr,
-                .view = convertToBackingContext->convertToBacking(colorAttachment->protectedView().get()),
+                .texture = texture ? convertToBackingContext->convertToBacking(*texture) : nullptr,
+                .view = textureView ? convertToBackingContext->convertToBacking(*textureView) : nullptr,
                 .depthSlice = colorAttachment->depthSlice,
                 .resolveTarget = colorAttachment->resolveTarget ? convertToBackingContext->convertToBacking(*colorAttachment->protectedResolveTarget()) : nullptr,
                 .loadOp = convertToBackingContext->convertToBacking(colorAttachment->loadOp),
@@ -71,6 +74,7 @@ RefPtr<RenderPassEncoder> CommandEncoderImpl::beginRenderPass(const RenderPassDe
         } else
             colorAttachments.append(WGPURenderPassColorAttachment {
                 .nextInChain = nullptr,
+                .texture = nullptr,
                 .view = nullptr,
                 .depthSlice = std::nullopt,
                 .resolveTarget = nullptr,
