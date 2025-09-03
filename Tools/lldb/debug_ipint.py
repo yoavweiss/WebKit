@@ -71,13 +71,7 @@ IPINT_INSTRUCTIONS = [
     # 0xD0
     'ref_null_t', 'ref_is_null', 'ref_func', 'ref_eq', 'ref_as_non_null', 'br_on_null', 'br_on_non_null',
     # 0xFB
-    # The four instructions starting with 0xFB are in transition. The names appearing below are their current
-    # names in InPlaceInterpreter64.asm.
-    'fb_block', 'fc_block', 'simd', 'atomic',
-    # There was an attempted PR that would change their names: https://bugs.webkit.org/show_bug.cgi?id=292725
-    # The PR has been reverted, but if it's reintroduced after fixes, the names above should be changed
-    # to the commented out names below:
-    # 'gc_prefix', 'conversion_prefix', 'simd_prefix', 'atomic_prefix',
+    'gc_prefix', 'conversion_prefix', 'simd_prefix', 'atomic_prefix',
 
     # extended
     'struct_new', 'struct_new_default', 'struct_get',
@@ -331,7 +325,7 @@ def ipint_continue_on_all_breakpoints(debugger, command, exec_ctx, output, inter
         brk.SetAutoContinue(True)
 
 
-def set_breakpoints(debugger, command, exe_ctx, output, internal_dict):
+def ipint_set_all_breakpoints(debugger, command, exe_ctx, output, internal_dict):
     if not breakpoints:
         print("Initializing internal breakpoints...", file=output)
         set_breakpoints_internal(debugger, True)
@@ -350,5 +344,5 @@ def __lldb_init_module(debugger, internal_dict):
     debugger.HandleCommand('command script add -f debug_ipint.ipint_disable_all_breakpoints ipint_disable_all_breakpoints')
     debugger.HandleCommand('command script add -f debug_ipint.ipint_reenable_all_breakpoints ipint_reenable_all_breakpoints')
     debugger.HandleCommand('command script add -f debug_ipint.ipint_continue_on_all_breakpoints ipint_autocontinue')
-    debugger.HandleCommand('command script add -f debug_ipint.set_breakpoints set_breakpoints')
+    debugger.HandleCommand('command script add -f debug_ipint.ipint_set_all_breakpoints ipint_set_all_breakpoints')
     print("IPInt debugger ready")
