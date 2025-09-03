@@ -87,7 +87,7 @@ class AddToLogMixin(object):
         log.addStdout(message)
 
 
-class SetBuildSummary(buildstep.BuildStep):
+class SetBuildSummary(buildstep.BuildStep, AddToLogMixin):
     name = 'set-build-summary'
     descriptionDone = ['Set build summary']
     alwaysRun = True
@@ -104,6 +104,7 @@ class SetBuildSummary(buildstep.BuildStep):
     @defer.inlineCallbacks
     def run(self):
         build_summary = self.getProperty('build_summary', 'build successful')
+        yield self._addToLog('stdio', f'Setting build summary as: {build_summary}')
         previous_build_summary = self.getProperty('build_summary', '')
         if self.FAILURE_MSG_IN_STRESS_MODE in previous_build_summary:
             self.build.results = FAILURE
