@@ -268,7 +268,7 @@ LineLayoutResult LineBuilder::layoutInlineContent(const LineInput& lineInput, co
     initialize(lineInput.initialLogicalRect, lineInput.needsLayoutRange, previousLine, isFirstFormattedLineCandidate);
     auto lineContent = placeInlineAndFloatContent(lineInput.needsLayoutRange);
     auto result = m_line.close();
-    auto inlineContentEnding = InlineFormattingUtils::inlineContentEnding(result);
+    auto inlineContentEnding = result.isContentful ? InlineFormattingUtils::inlineContentEnding(result) : std::nullopt;
 
     if (isInIntrinsicWidthMode()) {
         return { lineContent->range
