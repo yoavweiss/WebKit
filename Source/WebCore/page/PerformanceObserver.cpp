@@ -110,8 +110,9 @@ ExceptionOr<void> PerformanceObserver::observe(Init&& init)
         protectedPerformance()->registerPerformanceObserver(*this);
         m_registered = true;
     }
-    if (isBuffered)
-        deliver();
+
+    if (isBuffered && m_entriesToDeliver.size())
+        protectedPerformance()->scheduleTaskIfNeeded();
 
     return { };
 }
