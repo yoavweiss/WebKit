@@ -1030,26 +1030,17 @@ static const std::span<const IntSize, 4> switchSizes()
     return sizes;
 }
 
-static std::span<const int, 4> switchMargins(NSControlSize controlSize)
-{
-    static constexpr std::array margins {
-        // top right bottom left
-        std::array { 2, 2, 1, 2 },
-        std::array { 2, 2, 1, 2 },
-        std::array { 1, 1, 0, 1 },
-        std::array { 2, 2, 1, 2 },
-    };
-    return margins[controlSize];
-}
-
 static std::span<const int, 4> visualSwitchMargins(NSControlSize controlSize, bool isVertical)
 {
-    auto margins = switchMargins(controlSize);
-    if (isVertical) {
-        static const std::array verticalMargins { margins[3], margins[0], margins[1], margins[2] };
-        return verticalMargins;
-    }
-    return margins;
+    static constexpr std::array switchMarginsNonMini { 2, 2, 1, 2 };
+    static constexpr std::array switchMarginsMini { 1, 1, 0, 1 };
+    static constexpr std::array switchMarginsNonMiniVertical { switchMarginsNonMini[3], switchMarginsNonMini[0], switchMarginsNonMini[1], switchMarginsNonMini[2] };
+    static constexpr std::array switchMarginsMiniVertical { switchMarginsMini[3], switchMarginsMini[0], switchMarginsMini[1], switchMarginsMini[2] };
+
+    if (controlSize == NSControlSizeMini)
+        return isVertical ? switchMarginsMiniVertical : switchMarginsMini;
+
+    return isVertical ? switchMarginsNonMiniVertical : switchMarginsNonMini;
 }
 
 static Style::PreferredSizePair switchSize(const Style::PreferredSizePair& zoomedSize, float zoomFactor)
