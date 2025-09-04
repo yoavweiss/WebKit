@@ -120,6 +120,7 @@ namespace WebCore {
     macro(PressDidSucceed) \
     macro(PressDidFail) \
     macro(PressedStateChanged) \
+    macro(RadioGroupMembershipChanged) \
     macro(ReadOnlyStatusChanged) \
     macro(RequiredStatusChanged) \
     macro(SortDirectionChanged) \

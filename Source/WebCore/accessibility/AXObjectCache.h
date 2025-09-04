@@ -302,6 +302,7 @@ public:
     void onFocusChange(Element* oldElement, Element* newElement);
     void onInertOrVisibilityChange(RenderElement&);
     void onPopoverToggle(const HTMLElement&);
+    void onRadioGroupMembershipChanged(HTMLElement&);
     void onScrollbarFrameRectChange(const Scrollbar&);
     void onSelectedOptionChanged(Element&);
     void onSelectedOptionChanged(RenderObject&, int);

@@ -261,7 +261,7 @@ enum class AXProperty : uint16_t {
 #endif
     PosInSet,
     PreventKeyboardDOMEventDispatch,
-    RadioButtonGroup,
+    RadioButtonGroupMembers,
     RelativeFrame,
     RemoteFrameOffset,
     RemoteFramePlatformElement,

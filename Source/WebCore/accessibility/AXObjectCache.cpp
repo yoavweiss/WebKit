@@ -1929,6 +1929,19 @@ void AXObjectCache::onDetailsSummarySlotChange(const HTMLDetailsElement& details
     }
 }
 
+void AXObjectCache::onRadioGroupMembershipChanged(HTMLElement& radio)
+{
+    if (auto* radioElement = dynamicDowncast<HTMLInputElement>(radio)) {
+        for (auto& sibling : radioElement->radioButtonGroup()) {
+            if (sibling.ptr() == &radio)
+                continue;
+
+            if (auto* axObject = get(sibling.ptr()))
+                postNotification(axObject, &sibling->document(), AXNotification::RadioGroupMembershipChanged);
+        }
+    }
+}
+
 static bool isContentVisibilityHidden(const RenderStyle& style)
 {
     return style.usedContentVisibility() == ContentVisibility::Hidden;
@@ -4940,6 +4953,9 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
             break;
         case AXNotification::IdAttributeChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::IdentifierAttribute });
+            break;
+        case AXNotification::RadioGroupMembershipChanged:
+            tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::RadioButtonGroupMembers });
             break;
         case AXNotification::ReadOnlyStatusChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::CanSetValueAttribute });

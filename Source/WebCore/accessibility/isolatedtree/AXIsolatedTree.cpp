@@ -787,6 +787,9 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
         case AXProperty::CellScope:
             properties.append({ AXProperty::CellScope, axObject.cellScope().isolatedCopy() });
             break;
+        case AXProperty::RadioButtonGroupMembers:
+            properties.append({ AXProperty::RadioButtonGroupMembers, axIDs(axObject.radioButtonGroup()) });
+            break;
         case AXProperty::ScreenRelativePosition:
             properties.append({ AXProperty::ScreenRelativePosition, axObject.screenRelativePosition() });
             break;
@@ -2072,8 +2075,7 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
         setProperty(AXProperty::IsTree, object.isTree());
         if (object.isRadioButton()) {
             setProperty(AXProperty::NameAttribute, object.nameAttribute().isolatedCopy());
-            // FIXME: This property doesn't get updated when a page changes dynamically.
-            setObjectVectorProperty(AXProperty::RadioButtonGroup, object.radioButtonGroup());
+            setObjectVectorProperty(AXProperty::RadioButtonGroupMembers, object.radioButtonGroup());
         }
 
         if (object.isImage())
