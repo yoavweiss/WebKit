@@ -136,14 +136,8 @@ namespace WebCore {
     macro(DraggingExitedDropZone) \
 
 
-#if ENABLE(AX_THREAD_TEXT_APIS)
-#define WEBCORE_AXNOTIFICATION_KEYS(macro) \
-    WEBCORE_AXNOTIFICATION_KEYS_DEFAULT(macro) \
-    macro(TextRunsChanged)
-#else
 #define WEBCORE_AXNOTIFICATION_KEYS(macro) \
     WEBCORE_AXNOTIFICATION_KEYS_DEFAULT(macro)
-#endif
 
 enum class AXNotification : uint8_t {
 #define WEBCORE_DEFINE_AXNOTIFICATION_ENUM(name) name,

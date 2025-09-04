@@ -105,9 +105,11 @@
 #include "Range.h"
 #include "RenderAttachment.h"
 #include "RenderImage.h"
+#include "RenderInline.h"
 #include "RenderLayer.h"
 #include "RenderLineBreak.h"
 #include "RenderListBox.h"
+#include "RenderListMarker.h"
 #include "RenderMathMLOperator.h"
 #include "RenderMenuList.h"
 #include "RenderMeter.h"
@@ -1400,7 +1402,15 @@ void AXObjectCache::handleRowspanChanged(AccessibilityTableCell& axCell)
 #if ENABLE(AX_THREAD_TEXT_APIS)
 void AXObjectCache::onTextRunsChanged(const RenderObject& renderer)
 {
-    updateIsolatedTree(get(const_cast<RenderObject&>(renderer)), AXNotification::TextRunsChanged);
+    if (is<RenderInline>(renderer) || is<RenderListMarker>(renderer)) {
+        // Fast-path exit for common renderers that will never produce text runs.
+        return;
+    }
+
+    if (std::optional axID = getAXID(const_cast<RenderObject&>(renderer))) {
+        if (RefPtr tree = AXIsolatedTree::treeForPageID(m_pageID))
+            tree->queueNodeUpdate(*axID, { AXProperty::TextRuns });
+    }
 }
 #endif
 
@@ -4969,11 +4979,6 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
             if (notification.first->isNativeLabel() || notification.first->role() == AccessibilityRole::TextField)
                 tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::StringValue });
             break;
-#if ENABLE(AX_THREAD_TEXT_APIS)
-        case AXNotification::TextRunsChanged:
-            tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::TextRuns });
-            break;
-#endif
         case AXNotification::URLChanged:
             tree->queueNodeUpdate(notification.first->objectID(), { { AXProperty::URL, AXProperty::InternalLinkElement } });
             break;
