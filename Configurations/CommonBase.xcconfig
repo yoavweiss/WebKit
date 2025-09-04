@@ -75,7 +75,11 @@ WK_COMMON_OTHER_TAPI_FLAGS = -x objective-c++ -std=c++2b -fno-rtti $(WK_SANITIZE
 OTHER_TAPI_FLAGS = $(inherited) $(WK_COMMON_OTHER_TAPI_FLAGS);
 
 WK_DEFAULT_WK_AUDIT_SPI[sdk=iphoneos*] = YES;
+// Explicitly disable auditing on visionOS, because some SDKs fall back to
+// reading settings for iOS.
+WK_DEFAULT_WK_AUDIT_SPI[sdk=xros*] = ;
 WK_AUDIT_SPI = $(WK_DEFAULT_WK_AUDIT_SPI);
+
 WK_OTHER_AUDIT_SPI_FLAGS = -DSDKDB_HAS_148943382 $(WK_OTHER_AUDIT_SPI_FLAGS_$(CONFIGURATION));
 WK_OTHER_AUDIT_SPI_FLAGS[sdk=iphoneos18*] = $(WK_OTHER_AUDIT_SPI_FLAGS_$(CONFIGURATION));
 WK_OTHER_AUDIT_SPI_FLAGS_Release = -DNDEBUG;
