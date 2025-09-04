@@ -2895,7 +2895,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addCallIndirect(unsigned callSl
             .length = safeCast<uint8_t>(getCurrentInstructionLength()),
             .callSlotIndex = callSlotIndex,
             .tableIndex = tableIndex,
-            .typeIndex = m_metadata->addSignature(originalSignature),
+            .rtt = m_metadata->addSignature(originalSignature),
             .callerStackArgSize = static_cast<int32_t>(callerStackArgs * sizeof(Register)),
             .argumentBytecode = { }
         };
@@ -2913,7 +2913,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addCallIndirect(unsigned callSl
         .length = safeCast<uint8_t>(getCurrentInstructionLength()),
         .callSlotIndex = callSlotIndex,
         .tableIndex = tableIndex,
-        .typeIndex = m_metadata->addSignature(originalSignature),
+        .rtt = m_metadata->addSignature(originalSignature),
         .signature = {
             static_cast<uint32_t>(callConvention.headerAndArgumentStackSizeInBytes),
             static_cast<uint16_t>(signature.returnCount() > signature.argumentCount() ? signature.returnCount() - signature.argumentCount() : 0),
@@ -2948,7 +2948,6 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addCallRef(unsigned callSlotInd
         IPInt::TailCallRefMetadata callMetadata {
             .length = safeCast<uint8_t>(getCurrentInstructionLength()),
             .callSlotIndex = callSlotIndex,
-            .typeIndex = m_metadata->addSignature(originalSignature),
             .callerStackArgSize = static_cast<int32_t>(callerStackArgs * sizeof(Register)),
             .argumentBytecode = { }
         };
@@ -2965,7 +2964,6 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addCallRef(unsigned callSlotInd
     IPInt::CallRefMetadata callMetadata {
         .length = safeCast<uint8_t>(getCurrentInstructionLength()),
         .callSlotIndex = callSlotIndex,
-        .typeIndex = m_metadata->addSignature(originalSignature),
         .signature = {
             static_cast<uint32_t>(callConvention.headerAndArgumentStackSizeInBytes),
             static_cast<uint16_t>(signature.returnCount() > signature.argumentCount() ? signature.returnCount() - signature.argumentCount() : 0),

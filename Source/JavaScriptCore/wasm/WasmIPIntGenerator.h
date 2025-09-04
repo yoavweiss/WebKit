@@ -213,7 +213,7 @@ struct CallIndirectMetadata {
     uint8_t length; // 1B for length
     uint32_t callSlotIndex; // 4B for call slot index
     uint32_t tableIndex; // 4B for table index
-    uint32_t typeIndex; // 4B for type index
+    SUPPRESS_UNCOUNTED_MEMBER const Wasm::RTT* rtt; // 8B for RTT
     CallSignatureMetadata signature;
     CallArgumentBytecode argumentBytecode[0];
 };
@@ -222,7 +222,7 @@ struct TailCallIndirectMetadata {
     uint8_t length; // 1B for instruction length
     uint32_t callSlotIndex; // 4B for call slot index
     uint32_t tableIndex; // 4B for table index
-    uint32_t typeIndex; // 4B for type index
+    SUPPRESS_UNCOUNTED_MEMBER const Wasm::RTT* rtt; // 8B for RTT
     int32_t callerStackArgSize; // 4B for caller stack size
     CallArgumentBytecode argumentBytecode[0];
 };
@@ -230,7 +230,6 @@ struct TailCallIndirectMetadata {
 struct CallRefMetadata {
     uint8_t length; // 1B for length
     uint32_t callSlotIndex; // 4B for call slot index
-    uint32_t typeIndex; // 4B for type index
     CallSignatureMetadata signature;
     CallArgumentBytecode argumentBytecode[0];
 };
@@ -238,7 +237,6 @@ struct CallRefMetadata {
 struct TailCallRefMetadata {
     uint8_t length; // 1B for length
     uint32_t callSlotIndex; // 4B for call slot index
-    uint32_t typeIndex; // 4B for type index
     int32_t callerStackArgSize; // 4B for caller stack size
     CallArgumentBytecode argumentBytecode[0];
 };

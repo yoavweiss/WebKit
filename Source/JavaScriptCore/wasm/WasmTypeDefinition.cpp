@@ -649,6 +649,8 @@ RefPtr<RTT> RTT::tryCreate(RTTKind kind, const RTT& supertype)
 
 bool RTT::isSubRTT(const RTT& parent) const
 {
+    if (this == &parent)
+        return true;
     if (displaySizeExcludingThis() < parent.displaySizeExcludingThis())
         return false;
     return &parent == displayEntry(parent.displaySizeExcludingThis());

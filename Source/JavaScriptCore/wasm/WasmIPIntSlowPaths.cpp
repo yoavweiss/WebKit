@@ -949,20 +949,18 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
     callee->callSlots()[call->callSlotIndex].incrementCount();
 
     unsigned tableIndex = call->tableIndex;
-    unsigned typeIndex = call->typeIndex;
 
     Wasm::FuncRefTable* table = instance->table(tableIndex)->asFuncrefTable();
 
-    if (*functionIndex >= table->length())
+    if (*functionIndex >= table->length()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::OutOfBoundsCallIndirect);
 
     const Wasm::FuncRefTable::Function& function = table->function(*functionIndex);
 
-    if (function.m_function.typeIndex == Wasm::TypeDefinition::invalidIndex)
+    if (!function.m_function.rtt) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullTableEntry);
 
-    const auto& callSignature = callee->signature(typeIndex);
-    if (!Wasm::isSubtypeIndex(function.m_function.typeIndex, callSignature.index()))
+    if (!function.m_function.rtt->isSubRTT(*call->rtt)) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadSignature);
 
     Register* calleeReturn = std::bit_cast<Register*>(functionIndex);
@@ -970,7 +968,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
 
     Register& functionInfoSlot = calleeReturn[1];
     if (function.m_function.isJS())
-        functionInfoSlot = reinterpret_cast<uintptr_t>(function.m_callLinkInfo);
+        functionInfoSlot = reinterpret_cast<uintptr_t>(jsCast<WebAssemblyFunctionBase*>(function.m_value.get())->callLinkInfo());
     else
         functionInfoSlot = function.m_function.targetInstance.get();
 
@@ -987,7 +985,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetada
 
     JSValue targetReference = JSValue::decode(sp->ref);
 
-    if (targetReference.isNull())
+    if (targetReference.isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullReference);
 
     ASSERT(targetReference.isObject());
@@ -1004,7 +1002,6 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetada
     else
         functionInfoSlot = function.targetInstance.get();
 
-    ASSERT(Wasm::isSubtypeIndex(function.typeIndex, callee->signature(call->typeIndex).index()));
     auto callTarget = *function.entrypointLoadLocation;
     WASM_CALL_RETURN(calleeInstance, callTarget);
 }

@@ -447,11 +447,6 @@ public:
     unsigned localSizeToAlloc() const { return m_localSizeToAlloc; }
     unsigned rethrowSlots() const { return m_numRethrowSlotsToAlloc; }
 
-    const TypeDefinition& signature(unsigned index) const
-    {
-        return *m_signatures[index];
-    }
-
     FixedVector<CallSlot>& callSlots() { return m_callSlots; }
     const FixedVector<CallSlot>& callSlots() const { return m_callSlots; }
 
@@ -468,7 +463,6 @@ private:
 
     FunctionCodeIndex m_functionIndex;
     CodePtr<WasmEntryPtrTag> m_entrypoint;
-    FixedVector<const TypeDefinition*> m_signatures;
 
     const uint8_t* m_bytecode;
     const uint8_t* m_bytecodeEnd;

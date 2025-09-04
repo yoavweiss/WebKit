@@ -132,10 +132,8 @@ public:
 
     struct Function {
         WasmOrJSImportableFunction m_function;
-        WasmOrJSImportableFunctionCallLinkInfo* m_callLinkInfo { nullptr };
         WriteBarrier<Unknown> m_value { NullWriteBarrierTag };
         static constexpr ptrdiff_t offsetOfFunction() { return OBJECT_OFFSETOF(Function, m_function); }
-        static constexpr ptrdiff_t offsetOfCallLinkInfo() { return OBJECT_OFFSETOF(Function, m_callLinkInfo); }
         static constexpr ptrdiff_t offsetOfValue() { return OBJECT_OFFSETOF(Function, m_value); }
     };
 
