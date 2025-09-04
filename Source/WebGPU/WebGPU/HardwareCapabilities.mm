@@ -139,7 +139,9 @@ static Vector<WGPUFeatureName> baseFeatures(id<MTLDevice> device, const Hardware
     features.append(WGPUFeatureName_RG11B10UfloatRenderable);
     features.append(WGPUFeatureName_ShaderF16);
     features.append(WGPUFeatureName_BGRA8UnormStorage);
+#if CPU(ARM64)
     features.append(WGPUFeatureName_TextureFormatsTier1);
+#endif
 
 #if !PLATFORM(WATCHOS)
     if (device.supports32BitFloatFiltering)
