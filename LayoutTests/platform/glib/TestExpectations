@@ -1201,6 +1201,9 @@ imported/w3c/web-platform-tests/css/css-transforms/transform3d-translate3d-001.h
 
 imported/w3c/web-platform-tests/focus/activeelement-after-nested-loses-focus.html [ Skip ]
 
+# Assertion failure in Release build with ASSERT_ENABLED
+webkit.org/b/279421 imported/w3c/web-platform-tests/css/css-multicol/crashtests/inline-float-parallel-flow.html [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of CSS-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
