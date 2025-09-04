@@ -28,7 +28,8 @@
 
 #include "CSSFunctionDescriptors.h"
 #include "CSSSerializationContext.h"
-#include "StyleProperties.h"
+#include "MutableStyleProperties.h"
+#include "StylePropertiesInlines.h"
 #include "StyleRuleFunction.h"
 
 namespace WebCore {

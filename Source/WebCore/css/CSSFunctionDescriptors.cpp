@@ -26,6 +26,7 @@
 #include "config.h"
 #include "CSSFunctionDescriptors.h"
 
+#include "CSSFunctionDeclarations.h"
 #include "ExceptionOr.h"
 #include <wtf/TZoneMallocInlines.h>
 
