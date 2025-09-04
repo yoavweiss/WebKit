@@ -231,11 +231,9 @@ void JSWebAssemblyInstance::finalizeCreation(VM& vm, JSGlobalObject* globalObjec
     for (unsigned importFunctionNum = 0; importFunctionNum < numImportFunctions(); ++importFunctionNum) {
         auto functionSpaceIndex = FunctionSpaceIndex(importFunctionNum);
         auto* info = importFunctionInfo(importFunctionNum);
-        if (!info->targetInstance) {
+        if (!info->boxedCallee || info->isJS()) {
             // the import is a JS function
             info->importFunctionStub = module().importFunctionStub(functionSpaceIndex);
-            info->boxedCallee = CalleeBits::encodeNativeCallee(&WasmToJSCallee::singleton());
-
             auto callLinkInfo = makeUnique<DataOnlyCallLinkInfo>();
             callLinkInfo->initialize(vm, nullptr, CallLinkInfo::CallType::Call, CodeOrigin { });
             WTF::storeStoreFence(); // CallLinkInfo is visited by concurrent GC already, thus, when we add it, we must ensure that it is fully initialized.

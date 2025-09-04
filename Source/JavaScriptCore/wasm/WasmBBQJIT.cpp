@@ -4579,7 +4579,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallIndirect(unsigned callSlotIndex,
                 m_jit.storeWasmCalleeToCalleeCallFrame(calleeTmp);
             }
 
-            m_jit.loadPtr(Address(calleeSignatureIndex, FuncRefTable::Function::offsetOfInstance()), calleeInstance);
+            m_jit.loadPtr(Address(calleeSignatureIndex, FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfTargetInstance()), calleeInstance);
 
             auto indexEqual = m_jit.branchPtr(CCallHelpers::Equal, calleeSignatureIndexTmp, TrustedImmPtr(TypeInformation::get(originalSignature)));
 

@@ -925,8 +925,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call, CallFrame* callFrame, CallMetadata* cal
         auto* functionInfo = instance->importFunctionInfo(functionIndex);
         codePtr = functionInfo->importFunctionStub;
         calleeReturn = functionInfo->boxedCallee.encodedBits();
-        if (!functionInfo->targetInstance)
-            // The imported function is a JS function
+        if (functionInfo->isJS())
             wasmInstanceReturn = reinterpret_cast<uintptr_t>(functionInfo);
         else
             wasmInstanceReturn = functionInfo->targetInstance.get();
@@ -969,13 +968,13 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
     *calleeReturn = function.m_function.boxedCallee.encodedBits();
 
     Register& functionInfoSlot = calleeReturn[1];
-    if (!function.m_function.targetInstance)
+    if (function.m_function.isJS())
         functionInfoSlot = reinterpret_cast<uintptr_t>(function.m_callLinkInfo);
     else
-        functionInfoSlot = function.m_instance;
+        functionInfoSlot = function.m_function.targetInstance.get();
 
     auto callTarget = *function.m_function.entrypointLoadLocation;
-    WASM_CALL_RETURN(function.m_instance, callTarget);
+    WASM_CALL_RETURN(function.m_function.targetInstance.get(), callTarget);
 }
 
 WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetadata* call, IPIntStackEntry* sp)
@@ -999,7 +998,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetada
     JSWebAssemblyInstance* calleeInstance = wasmFunction->instance();
     sp->ref = function.boxedCallee.encodedBits();
     Register& functionInfoSlot = std::bit_cast<Register*>(sp)[1];
-    if (!function.targetInstance)
+    if (function.isJS())
         functionInfoSlot = reinterpret_cast<uintptr_t>(wasmFunction->callLinkInfo());
     else
         functionInfoSlot = function.targetInstance.get();

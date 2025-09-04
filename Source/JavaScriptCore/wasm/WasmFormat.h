@@ -840,8 +840,11 @@ struct InternalFunction {
 struct alignas(8) WasmCallableFunction {
     WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(WasmCallableFunction);
     using LoadLocation = CodePtr<WasmEntryPtrTag>*;
-    static constexpr ptrdiff_t offsetOfEntrypointLoadLocation() { return OBJECT_OFFSETOF(WasmCallableFunction, entrypointLoadLocation); }
     static constexpr ptrdiff_t offsetOfBoxedCallee() { return OBJECT_OFFSETOF(WasmCallableFunction, boxedCallee); }
+    static constexpr ptrdiff_t offsetOfTargetInstance() { return OBJECT_OFFSETOF(WasmCallableFunction, targetInstance); }
+    static constexpr ptrdiff_t offsetOfEntrypointLoadLocation() { return OBJECT_OFFSETOF(WasmCallableFunction, entrypointLoadLocation); }
+
+    bool isJS() const;
 
     CalleeBits boxedCallee { };
     // Target instance and entrypoint are only set for wasm->wasm calls, and are otherwise nullptr. The js-specific logic occurs through import function.

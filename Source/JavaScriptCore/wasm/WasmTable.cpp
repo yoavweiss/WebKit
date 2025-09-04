@@ -271,7 +271,6 @@ FuncRefTable::FuncRefTable(uint32_t initial, std::optional<uint32_t> maximum, Ty
     for (uint32_t i = 0; i < allocatedLength(m_length); ++i) {
         new (&m_importableFunctions.get()[i]) Function();
         ASSERT(m_importableFunctions.get()[i].m_function.typeIndex == Wasm::TypeDefinition::invalidIndex); // We rely on this in compiled code.
-        ASSERT(!m_importableFunctions.get()[i].m_instance);
         ASSERT(m_importableFunctions.get()[i].m_value.isNull());
     }
 }
@@ -297,7 +296,6 @@ void FuncRefTable::setFunction(uint32_t index, WebAssemblyFunctionBase* function
     auto& slot = m_importableFunctions.get()[index];
     slot.m_function = function->importableFunction();
     slot.m_callLinkInfo = function->callLinkInfo();
-    slot.m_instance = function->instance();
     slot.m_value.set(function->instance()->vm(), m_owner, function);
 }
 
@@ -324,7 +322,6 @@ void FuncRefTable::clear(uint32_t index)
     ASSERT(wasmType().isNullable());
     m_importableFunctions.get()[index] = FuncRefTable::Function { };
     ASSERT(m_importableFunctions.get()[index].m_function.typeIndex == Wasm::TypeDefinition::invalidIndex); // We rely on this in compiled code.
-    ASSERT(!m_importableFunctions.get()[index].m_instance);
     ASSERT(m_importableFunctions.get()[index].m_value.isNull());
 }
 

@@ -818,7 +818,7 @@ end
     # Load data from the entry callee
     # This was written by doVMEntry
     loadp Callee[cfr], ws0 # WebAssemblyFunction*
-    loadp WebAssemblyFunction::m_instance[ws0], wasmInstance
+    loadp WebAssemblyFunction::m_importableFunction + Wasm::WasmOrJSImportableFunction::targetInstance[ws0], wasmInstance
 
     # Allocate stack space
     loadi WebAssemblyFunction::m_frameSize[ws0], wa0

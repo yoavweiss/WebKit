@@ -5488,7 +5488,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callSlotIndex, cons
             m_jit.storeWasmCalleeToCalleeCallFrame(calleeTmp);
         }
 
-        m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfInstance()), calleeInstance);
+        m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfTargetInstance()), calleeInstance);
         m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfEntrypointLoadLocation()), calleeCode);
 
     }

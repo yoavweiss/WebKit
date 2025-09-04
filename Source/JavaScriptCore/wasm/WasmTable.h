@@ -130,15 +130,12 @@ public:
 
     JS_EXPORT_PRIVATE ~FuncRefTable();
 
-    // call_indirect needs to do an Instance check to potentially context switch when calling a function to another instance. We can hold raw pointers to JSWebAssemblyInstance here because the js ensures that Table keeps all the instances alive.
     struct Function {
         WasmOrJSImportableFunction m_function;
         WasmOrJSImportableFunctionCallLinkInfo* m_callLinkInfo { nullptr };
-        JSWebAssemblyInstance* m_instance { nullptr };
         WriteBarrier<Unknown> m_value { NullWriteBarrierTag };
         static constexpr ptrdiff_t offsetOfFunction() { return OBJECT_OFFSETOF(Function, m_function); }
         static constexpr ptrdiff_t offsetOfCallLinkInfo() { return OBJECT_OFFSETOF(Function, m_callLinkInfo); }
-        static constexpr ptrdiff_t offsetOfInstance() { return OBJECT_OFFSETOF(Function, m_instance); }
         static constexpr ptrdiff_t offsetOfValue() { return OBJECT_OFFSETOF(Function, m_value); }
     };
 

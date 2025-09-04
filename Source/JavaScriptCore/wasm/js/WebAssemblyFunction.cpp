@@ -98,7 +98,7 @@ Structure* WebAssemblyFunction::createStructure(VM& vm, JSGlobalObject* globalOb
 }
 
 WebAssemblyFunction::WebAssemblyFunction(VM& vm, NativeExecutable* executable, JSGlobalObject* globalObject, Structure* structure, JSWebAssemblyInstance* instance, Wasm::JSEntrypointCallee& jsEntrypoint, Wasm::IPIntCallee& wasmCallee, Wasm::WasmToWasmImportableFunction::LoadLocation wasmToWasmEntrypointLoadLocation, Wasm::TypeIndex typeIndex, Ref<const Wasm::RTT>&& rtt)
-    : Base { vm, executable, globalObject, structure, instance, Wasm::WasmOrJSImportableFunction { { { CalleeBits(&wasmCallee), { vm, globalObject, instance }, wasmToWasmEntrypointLoadLocation }, typeIndex, rtt.ptr() }, { }, { } }, nullptr }
+    : Base { vm, executable, globalObject, structure, Wasm::WasmOrJSImportableFunction { { { CalleeBits(&wasmCallee), { instance, WriteBarrierEarlyInit }, wasmToWasmEntrypointLoadLocation }, typeIndex, rtt.ptr() }, { }, { } }, nullptr }
     , m_boxedWasmCallee(wasmCallee)
     , m_boxedJSToWasmCallee(jsEntrypoint)
     , m_frameSize(jsEntrypoint.frameSize())

@@ -240,7 +240,7 @@ MacroAssemblerCodeRef<JITThunkPtrTag> createJSToWasmJITShared()
         jit.emitSaveCalleeSavesFor(calleeSaves);
 
         jit.loadPtr(CCallHelpers::addressFor(CallFrameSlot::callee), GPRInfo::regWS0);
-        jit.loadPtr(CCallHelpers::Address(GPRInfo::regWS0, WebAssemblyFunction::offsetOfInstance()), GPRInfo::wasmContextInstancePointer);
+        jit.loadPtr(CCallHelpers::Address(GPRInfo::regWS0, WebAssemblyFunction::offsetOfTargetInstance()), GPRInfo::wasmContextInstancePointer);
 
         // Now, the current frame is fully set up for exceptions.
         // Allocate stack space
@@ -577,7 +577,7 @@ CodePtr<JSEntryPtrTag> FunctionSignature::jsToWasmICEntrypoint() const
 
     jit.loadPtr(CCallHelpers::addressFor(CallFrameSlot::callee), GPRInfo::wasmContextInstancePointer);
     jit.loadPtr(CCallHelpers::Address(GPRInfo::wasmContextInstancePointer, WebAssemblyFunction::offsetOfBoxedCallee()), scratchJSR.payloadGPR());
-    jit.loadPtr(CCallHelpers::Address(GPRInfo::wasmContextInstancePointer, WebAssemblyFunction::offsetOfInstance()), GPRInfo::wasmContextInstancePointer);
+    jit.loadPtr(CCallHelpers::Address(GPRInfo::wasmContextInstancePointer, WebAssemblyFunction::offsetOfTargetInstance()), GPRInfo::wasmContextInstancePointer);
     if (totalFrameSize >= trampolineReservedStackSize()) {
         JIT_COMMENT(jit, "stack overflow check");
         jit.loadPtr(MacroAssembler::Address(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfSoftStackLimit()), stackLimitGPR);
