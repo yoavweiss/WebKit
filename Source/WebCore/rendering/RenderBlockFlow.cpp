@@ -3783,6 +3783,9 @@ bool RenderBlockFlow::hasLines() const
 
 void RenderBlockFlow::invalidateLineLayout(InvalidationReason invalidationReason)
 {
+    if (lineLayoutPath() == UndeterminedPath)
+        return;
+
     auto issueNeedsLayoutIfApplicable = [&] {
         if (selfNeedsLayout() || normalChildNeedsLayout())
             return;
