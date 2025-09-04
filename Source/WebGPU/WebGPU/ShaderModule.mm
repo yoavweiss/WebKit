@@ -890,24 +890,70 @@ static WGSL::TexelFormat wgslFormat(WGPUTextureFormat format)
     switch (format) {
     case WGPUTextureFormat_BGRA8Unorm:
         return WGSL::TexelFormat::BGRA8unorm;
+    case WGPUTextureFormat_R16Float:
+        return WGSL::TexelFormat::R16float;
+    case WGPUTextureFormat_R16Sint:
+        return WGSL::TexelFormat::R16sint;
+    case WGPUTextureFormat_R16Snorm:
+        return WGSL::TexelFormat::R16snorm;
+    case WGPUTextureFormat_R16Uint:
+        return WGSL::TexelFormat::R16uint;
+    case WGPUTextureFormat_R16Unorm:
+        return WGSL::TexelFormat::R16unorm;
     case WGPUTextureFormat_R32Float:
         return WGSL::TexelFormat::R32float;
     case WGPUTextureFormat_R32Sint:
         return WGSL::TexelFormat::R32sint;
     case WGPUTextureFormat_R32Uint:
         return WGSL::TexelFormat::R32uint;
+    case WGPUTextureFormat_R8Sint:
+        return WGSL::TexelFormat::R8sint;
+    case WGPUTextureFormat_R8Snorm:
+        return WGSL::TexelFormat::R8snorm;
+    case WGPUTextureFormat_R8Uint:
+        return WGSL::TexelFormat::R8uint;
+    case WGPUTextureFormat_R8Unorm:
+        return WGSL::TexelFormat::R8unorm;
+    case WGPUTextureFormat_RG11B10Ufloat:
+        return WGSL::TexelFormat::RG11B10ufloat;
+    case WGPUTextureFormat_RG16Float:
+        return WGSL::TexelFormat::RG16float;
+    case WGPUTextureFormat_RG16Sint:
+        return WGSL::TexelFormat::RG16sint;
+    case WGPUTextureFormat_RG16Snorm:
+        return WGSL::TexelFormat::RG16snorm;
+    case WGPUTextureFormat_RG16Uint:
+        return WGSL::TexelFormat::RG16uint;
+    case WGPUTextureFormat_RG16Unorm:
+        return WGSL::TexelFormat::RG16unorm;
     case WGPUTextureFormat_RG32Float:
         return WGSL::TexelFormat::RG32float;
     case WGPUTextureFormat_RG32Sint:
         return WGSL::TexelFormat::RG32sint;
     case WGPUTextureFormat_RG32Uint:
         return WGSL::TexelFormat::RG32uint;
+    case WGPUTextureFormat_RG8Sint:
+        return WGSL::TexelFormat::RG8sint;
+    case WGPUTextureFormat_RG8Snorm:
+        return WGSL::TexelFormat::RG8snorm;
+    case WGPUTextureFormat_RG8Uint:
+        return WGSL::TexelFormat::RG8uint;
+    case WGPUTextureFormat_RG8Unorm:
+        return WGSL::TexelFormat::RG8unorm;
+    case WGPUTextureFormat_RGB10A2Uint:
+        return WGSL::TexelFormat::RGB10A2uint;
+    case WGPUTextureFormat_RGB10A2Unorm:
+        return WGSL::TexelFormat::RGB10A2unorm;
     case WGPUTextureFormat_RGBA16Float:
         return WGSL::TexelFormat::RGBA16float;
     case WGPUTextureFormat_RGBA16Sint:
         return WGSL::TexelFormat::RGBA16sint;
+    case WGPUTextureFormat_RGBA16Snorm:
+        return WGSL::TexelFormat::RGBA16snorm;
     case WGPUTextureFormat_RGBA16Uint:
         return WGSL::TexelFormat::RGBA16uint;
+    case WGPUTextureFormat_RGBA16Unorm:
+        return WGSL::TexelFormat::RGBA16unorm;
     case WGPUTextureFormat_RGBA32Float:
         return WGSL::TexelFormat::RGBA32float;
     case WGPUTextureFormat_RGBA32Sint:
