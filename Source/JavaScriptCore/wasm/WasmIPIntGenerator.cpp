@@ -1045,7 +1045,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addI31GetU(ExpressionType, Expr
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNew(uint32_t index, ExpressionType, ExpressionType, ExpressionType&)
 {
     m_metadata->appendMetadata<IPInt::ArrayNewMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
     changeStackSize(-1);
@@ -1055,7 +1055,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNew(uint32_t index, Exp
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNewData(uint32_t index, uint32_t dataSegmentIndex, ExpressionType, ExpressionType, ExpressionType&)
 {
     m_metadata->appendMetadata<IPInt::ArrayNewDataMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         dataSegmentIndex,
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
@@ -1066,7 +1066,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNewData(uint32_t index,
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNewElem(uint32_t index, uint32_t elemSegmentIndex, ExpressionType, ExpressionType, ExpressionType&)
 {
     m_metadata->appendMetadata<IPInt::ArrayNewElemMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         elemSegmentIndex,
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
@@ -1077,7 +1077,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNewElem(uint32_t index,
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNewFixed(uint32_t index, ArgumentList& args, ExpressionType&)
 {
     m_metadata->appendMetadata<IPInt::ArrayNewFixedMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         static_cast<uint32_t>(args.size()),
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
@@ -1088,7 +1088,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNewFixed(uint32_t index
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNewDefault(uint32_t index, ExpressionType, ExpressionType&)
 {
     m_metadata->appendMetadata<IPInt::ArrayNewMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
     return { };
@@ -1097,7 +1097,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayNewDefault(uint32_t ind
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayGet(ExtGCOpType, uint32_t index, ExpressionType, ExpressionType, ExpressionType&)
 {
     m_metadata->appendMetadata<IPInt::ArrayGetSetMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
     changeStackSize(-1);
@@ -1107,7 +1107,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArrayGet(ExtGCOpType, uint32
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addArraySet(uint32_t index, ExpressionType, ExpressionType, ExpressionType)
 {
     m_metadata->appendMetadata<IPInt::ArrayGetSetMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
     changeStackSize(-3);
@@ -1162,7 +1162,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addStructNew(uint32_t index, Ar
 {
     const StructType& type = *m_info.typeSignatures[index]->expand().as<StructType>();
     m_metadata->appendMetadata<IPInt::StructNewMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         static_cast<uint16_t>(type.fieldCount()),
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
@@ -1173,7 +1173,7 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addStructNew(uint32_t index, Ar
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addStructNewDefault(uint32_t index, ExpressionType&)
 {
     m_metadata->appendMetadata<IPInt::StructNewDefaultMetadata>({
-        static_cast<Wasm::TypeIndex>(index),
+        index,
         static_cast<uint8_t>(getCurrentInstructionLength())
     });
     changeStackSize(1);

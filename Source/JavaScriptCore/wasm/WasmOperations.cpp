@@ -568,7 +568,7 @@ JSC_DEFINE_JIT_OPERATION(operationWasmToJSExitMarshalReturnValues, void, (void* 
                     // operationConvertToAnyref
                     JSValue value = JSValue::decode(std::bit_cast<EncodedJSValue>(returned));
                     value = Wasm::internalizeExternref(value);
-                    if (!Wasm::TypeInformation::castReference(value, returnType.isNullable(), returnType.index)) [[unlikely]] {
+                    if (!Wasm::TypeInformation::isReferenceValueAssignable(value, returnType.isNullable(), returnType.index)) [[unlikely]] {
                         throwTypeError(globalObject, scope, "Argument value did not match the reference type"_s);
                         OPERATION_RETURN(scope);
                     }
@@ -702,7 +702,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmToJSExitIterateResults, bool, (JS
                     }
                 } else {
                     value = Wasm::internalizeExternref(value);
-                    if (!Wasm::TypeInformation::castReference(value, returnType.isNullable(), returnType.index)) [[unlikely]] {
+                    if (!Wasm::TypeInformation::isReferenceValueAssignable(value, returnType.isNullable(), returnType.index)) [[unlikely]] {
                         throwTypeError(globalObject, scope, "Argument value did not match the reference type"_s);
                         return true;
                     }
@@ -1353,7 +1353,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationConvertToAnyref, EncodedJSValue, (JSW
 
     JSValue value = JSValue::decode(v);
     value = Wasm::internalizeExternref(value);
-    if (!Wasm::TypeInformation::castReference(value, resultType.isNullable(), resultType.index)) [[unlikely]] {
+    if (!Wasm::TypeInformation::isReferenceValueAssignable(value, resultType.isNullable(), resultType.index)) [[unlikely]] {
         throwTypeError(globalObject, scope, "Argument value did not match the reference type"_s);
         return { };
     }
@@ -1448,7 +1448,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationIterateResults, bool, (JSWebAssemblyI
                     }
                 } else {
                     value = Wasm::internalizeExternref(value);
-                    if (!Wasm::TypeInformation::castReference(value, returnType.isNullable(), returnType.index)) [[unlikely]] {
+                    if (!Wasm::TypeInformation::isReferenceValueAssignable(value, returnType.isNullable(), returnType.index)) [[unlikely]] {
                         throwTypeError(globalObject, scope, "Argument value did not match the reference type"_s);
                         return true;
                     }
@@ -1751,7 +1751,8 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmArrayNew, EncodedJSValue, (JSWebA
     assertCalleeIsReferenced(callFrame, instance);
     VM& vm = instance->vm();
     NativeCallFrameTracer tracer(vm, callFrame);
-    return JSValue::encode(arrayNew(instance, typeIndex, size, value));
+    auto* structure = instance->gcObjectStructure(typeIndex);
+    return JSValue::encode(arrayNew(instance, structure, size, value));
 }
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmArrayNewVector, EncodedJSValue, (JSWebAssemblyInstance* instance, uint32_t typeIndex, uint32_t size, uint64_t lane0, uint64_t lane1))
@@ -1760,7 +1761,8 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmArrayNewVector, EncodedJSValue, (
     assertCalleeIsReferenced(callFrame, instance);
     VM& vm = instance->vm();
     NativeCallFrameTracer tracer(vm, callFrame);
-    return JSValue::encode(arrayNew(instance, typeIndex, size, v128_t { lane0, lane1 }));
+    auto* structure = instance->gcObjectStructure(typeIndex);
+    return JSValue::encode(arrayNew(instance, structure, size, v128_t { lane0, lane1 }));
 }
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmArrayNewData, EncodedJSValue, (JSWebAssemblyInstance* instance, uint32_t typeIndex, uint32_t dataSegmentIndex, uint32_t arraySize, uint32_t offset))
@@ -1845,25 +1847,30 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmAnyConvertExtern, EncodedJSValue,
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmRefTest, UCPUStrictInt32, (JSWebAssemblyInstance* instance, EncodedJSValue reference, uint32_t allowNull, int32_t heapType, bool shouldNegate))
 {
-    Wasm::TypeIndex typeIndex;
-    if (Wasm::typeIndexIsType(static_cast<Wasm::TypeIndex>(heapType)))
-        typeIndex = static_cast<Wasm::TypeIndex>(heapType);
-    else
-        typeIndex = instance->module().moduleInformation().typeSignatures[heapType]->index();
+    // Explicitly return 1 or 0 because bool in C++ only reqiures that the bottom bit match the other bits can be anything.
     int32_t truth = shouldNegate ? 0 : 1;
     int32_t falsity = shouldNegate ? 1 : 0;
-    // Explicitly return 1 or 0 because bool in C++ only reqiures that the bottom bit match the other bits can be anything.
-    return toUCPUStrictInt32(Wasm::refCast(reference, static_cast<bool>(allowNull), typeIndex) ? truth : falsity);
+
+    if (Wasm::typeIndexIsType(static_cast<Wasm::TypeIndex>(heapType))) {
+        bool result = Wasm::refCast(reference, static_cast<bool>(allowNull), static_cast<Wasm::TypeIndex>(heapType), nullptr);
+        return toUCPUStrictInt32(result ? truth : falsity);
+    }
+
+    auto& info = instance->module().moduleInformation();
+    bool result = Wasm::refCast(reference, static_cast<bool>(allowNull), info.typeSignatures[heapType]->index(), info.rtts[heapType].ptr());
+    return toUCPUStrictInt32(result ? truth : falsity);
 }
 
 JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmRefCast, EncodedJSValue, (JSWebAssemblyInstance* instance, EncodedJSValue reference, uint32_t allowNull, int32_t heapType))
 {
-    Wasm::TypeIndex typeIndex;
-    if (Wasm::typeIndexIsType(static_cast<Wasm::TypeIndex>(heapType)))
-        typeIndex = static_cast<Wasm::TypeIndex>(heapType);
-    else
-        typeIndex = instance->module().moduleInformation().typeSignatures[heapType]->index();
-    if (!Wasm::refCast(reference, static_cast<bool>(allowNull), typeIndex))
+    if (Wasm::typeIndexIsType(static_cast<Wasm::TypeIndex>(heapType))) {
+        if (!Wasm::refCast(reference, static_cast<bool>(allowNull), static_cast<Wasm::TypeIndex>(heapType), nullptr)) [[unlikely]]
+            return encodedJSValue();
+        return reference;
+    }
+
+    auto& info = instance->module().moduleInformation();
+    if (!Wasm::refCast(reference, static_cast<bool>(allowNull), info.typeSignatures[heapType]->index(), info.rtts[heapType].ptr())) [[unlikely]]
         return encodedJSValue();
     return reference;
 }

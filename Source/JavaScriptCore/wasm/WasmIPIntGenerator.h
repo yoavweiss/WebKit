@@ -282,13 +282,13 @@ enum class UIntBytecode: uint8_t {
 // GC Metadata
 
 struct StructNewMetadata {
-    Wasm::TypeIndex typeIndex;
+    uint32_t type;
     uint16_t params;
     uint8_t length;
 };
 
 struct StructNewDefaultMetadata {
-    Wasm::TypeIndex typeIndex;
+    uint32_t type;
     uint8_t length;
 };
 
@@ -298,30 +298,30 @@ struct StructGetSetMetadata {
 };
 
 struct ArrayNewMetadata {
-    Wasm::TypeIndex typeIndex;
+    uint32_t type;
     uint8_t length;
 };
 
 struct ArrayNewFixedMetadata {
-    Wasm::TypeIndex typeIndex;
+    uint32_t type;
     uint32_t arraySize;
     uint8_t length;
 };
 
 struct ArrayNewDataMetadata {
-    Wasm::TypeIndex typeIndex;
+    uint32_t type;
     uint32_t dataSegmentIndex;
     uint8_t length;
 };
 
 struct ArrayNewElemMetadata {
-    Wasm::TypeIndex typeIndex;
+    uint32_t type;
     uint32_t elemSegmentIndex;
     uint8_t length;
 };
 
 struct ArrayGetSetMetadata {
-    Wasm::TypeIndex typeIndex;
+    uint32_t type;
     uint8_t length;
 };
 
@@ -344,7 +344,7 @@ struct ArrayInitElemMetadata {
 };
 
 struct RefTestCastMetadata {
-    int32_t typeIndex;
+    int32_t toHeapType;
     uint8_t length;
 };
 

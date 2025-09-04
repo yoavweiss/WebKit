@@ -950,7 +950,7 @@ public:
     static RefPtr<const RTT> tryGetCanonicalRTT(TypeIndex);
     static Ref<const RTT> getCanonicalRTT(TypeIndex);
 
-    static bool castReference(JSValue, bool, TypeIndex);
+    static bool isReferenceValueAssignable(JSValue, bool, TypeIndex, const RTT* = nullptr);
 
     static const TypeDefinition& get(TypeIndex);
     static TypeIndex get(const TypeDefinition&);

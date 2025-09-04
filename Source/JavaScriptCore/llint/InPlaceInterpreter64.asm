@@ -3259,7 +3259,7 @@ reservedOpcode(0xff)
     #####################
 
 ipintOp(_struct_new, macro()
-    loadp IPInt::StructNewMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::StructNewMetadata::type[MC], a1  # type
     move sp, a2
     operationCallMayThrow(macro() cCall3(_ipint_extern_struct_new) end)
     loadh IPInt::StructNewMetadata::params[MC], t1  # number of parameters popped
@@ -3273,7 +3273,7 @@ ipintOp(_struct_new, macro()
 end)
 
 ipintOp(_struct_new_default, macro()
-    loadp IPInt::StructNewDefaultMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::StructNewDefaultMetadata::type[MC], a1  # type
     operationCallMayThrow(macro() cCall2(_ipint_extern_struct_new_default) end)
     pushQuad(r0)
     loadb IPInt::StructNewDefaultMetadata::length[MC], t0
@@ -3332,7 +3332,7 @@ ipintOp(_struct_set, macro()
 end)
 
 ipintOp(_array_new, macro()
-    loadi IPInt::ArrayNewMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::ArrayNewMetadata::type[MC], a1  # type
     popInt32(a3, t0)  # length
     popQuad(a2)  # default value
     operationCallMayThrow(macro() cCall4(_ipint_extern_array_new) end)
@@ -3346,7 +3346,7 @@ ipintOp(_array_new, macro()
 end)
 
 ipintOp(_array_new_default, macro()
-    loadi IPInt::ArrayNewMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::ArrayNewMetadata::type[MC], a1  # type
     popInt32(a2, t0)  # length
     operationCallMayThrow(macro() cCall3(_ipint_extern_array_new_default) end)
 
@@ -3359,7 +3359,7 @@ ipintOp(_array_new_default, macro()
 end)
 
 ipintOp(_array_new_fixed, macro()
-    loadi IPInt::ArrayNewFixedMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::ArrayNewFixedMetadata::type[MC], a1  # type
     loadi IPInt::ArrayNewFixedMetadata::arraySize[MC], a2  # array length
     move sp, a3  # arguments
     operationCallMayThrow(macro() cCall4(_ipint_extern_array_new_fixed) end)
@@ -3406,7 +3406,7 @@ ipintOp(_array_new_elem, macro()
 end)
 
 ipintOp(_array_get, macro()
-    loadi IPInt::ArrayGetSetMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::ArrayGetSetMetadata::type[MC], a1  # type
     popInt32(a3, a0)  # index
     popQuad(a2)  # array
     operationCallMayThrow(macro() cCall4(_ipint_extern_array_get) end)
@@ -3420,7 +3420,7 @@ ipintOp(_array_get, macro()
 end)
 
 ipintOp(_array_get_s, macro()
-    loadi IPInt::ArrayGetSetMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::ArrayGetSetMetadata::type[MC], a1  # type
     popInt32(a3, a0)  # index
     popQuad(a2)  # array
     operationCallMayThrow(macro() cCall4(_ipint_extern_array_get_s) end)
@@ -3434,7 +3434,7 @@ ipintOp(_array_get_s, macro()
 end)
 
 ipintOp(_array_get_u, macro()
-    loadi IPInt::ArrayGetSetMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::ArrayGetSetMetadata::type[MC], a1  # type
     popInt32(a3, a0)  # index
     popQuad(a2)  # array
     operationCallMayThrow(macro() cCall4(_ipint_extern_array_get) end)
@@ -3448,7 +3448,7 @@ ipintOp(_array_get_u, macro()
 end)
 
 ipintOp(_array_set, macro()
-    loadi IPInt::ArrayGetSetMetadata::typeIndex[MC], a1  # type index
+    loadi IPInt::ArrayGetSetMetadata::type[MC], a1  # type
     move sp, a2  # stack pointer with all the arguments
     operationCallMayThrow(macro() cCall3(_ipint_extern_array_set) end)
 
@@ -3523,7 +3523,7 @@ ipintOp(_array_init_elem, macro()
 end)
 
 ipintOp(_ref_test, macro()
-    loadi IPInt::RefTestCastMetadata::typeIndex[MC], a1
+    loadi IPInt::RefTestCastMetadata::toHeapType[MC], a1
     move 0, a2  # allowNull
     popQuad(a3)
     operationCall(macro() cCall3(_ipint_extern_ref_test) end)
@@ -3537,7 +3537,7 @@ ipintOp(_ref_test, macro()
 end)
 
 ipintOp(_ref_test_nullable, macro()
-    loadi IPInt::RefTestCastMetadata::typeIndex[MC], a1
+    loadi IPInt::RefTestCastMetadata::toHeapType[MC], a1
     move 1, a2  # allowNull
     popQuad(a3)
     operationCall(macro() cCall3(_ipint_extern_ref_test) end)
@@ -3551,7 +3551,7 @@ ipintOp(_ref_test_nullable, macro()
 end)
 
 ipintOp(_ref_cast, macro()
-    loadi IPInt::RefTestCastMetadata::typeIndex[MC], a1
+    loadi IPInt::RefTestCastMetadata::toHeapType[MC], a1
     move 0, a2  # allowNull
     popQuad(a3)
     operationCallMayThrow(macro() cCall3(_ipint_extern_ref_cast) end)
@@ -3565,7 +3565,7 @@ ipintOp(_ref_cast, macro()
 end)
 
 ipintOp(_ref_cast_nullable, macro()
-    loadi IPInt::RefTestCastMetadata::typeIndex[MC], a1
+    loadi IPInt::RefTestCastMetadata::toHeapType[MC], a1
     move 1, a2  # allowNull
     popQuad(a3)
     operationCallMayThrow(macro() cCall3(_ipint_extern_ref_cast) end)
@@ -3580,7 +3580,7 @@ end)
 
 ipintOp(_br_on_cast, macro()
     validateOpcodeConfig(a1)
-    loadi IPInt::RefTestCastMetadata::typeIndex[MC], a1
+    loadi IPInt::RefTestCastMetadata::toHeapType[MC], a1
     # fb 18 FLAGS
     loadb 2[PC], a2
     rshifti 1, a2  # bit 1 = null2
@@ -3598,7 +3598,7 @@ end)
 
 ipintOp(_br_on_cast_fail, macro()
     validateOpcodeConfig(a1)
-    loadi IPInt::RefTestCastMetadata::typeIndex[MC], a1
+    loadi IPInt::RefTestCastMetadata::toHeapType[MC], a1
     loadb 2[PC], a2
     # fb 19 FLAGS
     rshifti 1, a2  # bit 1 = null2

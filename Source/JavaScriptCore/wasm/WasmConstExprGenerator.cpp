@@ -305,14 +305,14 @@ public:
     PartialResult WARN_UNUSED_RETURN addI31GetS(ExpressionType, ExpressionType&) CONST_EXPR_STUB
     PartialResult WARN_UNUSED_RETURN addI31GetU(ExpressionType, ExpressionType&) CONST_EXPR_STUB
 
-    ExpressionType createNewArray(uint32_t typeIndex, uint32_t size, ExpressionType value)
+    ExpressionType createNewArray(WebAssemblyGCStructure* structure, uint32_t size, ExpressionType value)
     {
         VM& vm = m_instance->vm();
         JSValue result;
         if (value.type() == ConstExprValue::Vector)
-            result = arrayNew(m_instance, typeIndex, size, value.getVector());
+            result = arrayNew(m_instance, structure, size, value.getVector());
         else
-            result = arrayNew(m_instance, typeIndex, size, value.getValue());
+            result = arrayNew(m_instance, structure, size, value.getValue());
         if (result.isNull()) [[unlikely]]
             return ConstExprValue(InvalidConstExpr);
         return ConstExprValue(Strong<JSObject>(vm, asObject(result)));
@@ -321,7 +321,8 @@ public:
     PartialResult WARN_UNUSED_RETURN addArrayNew(uint32_t typeIndex, ExpressionType size, ExpressionType value, ExpressionType& result)
     {
         if (m_mode == Mode::Evaluate) {
-            result = createNewArray(typeIndex, static_cast<uint32_t>(size.getValue()), value);
+            auto* structure = m_instance->gcObjectStructure(typeIndex);
+            result = createNewArray(structure, static_cast<uint32_t>(size.getValue()), value);
             WASM_PARSER_FAIL_IF(result.isInvalid(), "Failed to allocate new array"_s);
         }
 
@@ -331,15 +332,15 @@ public:
     PartialResult WARN_UNUSED_RETURN addArrayNewDefault(uint32_t typeIndex, ExpressionType size, ExpressionType& result)
     {
         if (m_mode == Mode::Evaluate) {
-            Ref<TypeDefinition> typeDef = m_info.typeSignatures[typeIndex];
-            const TypeDefinition& arraySignature = typeDef->expand();
-            auto elementType = arraySignature.as<ArrayType>()->elementType().type.unpacked();
+            auto* structure = m_instance->gcObjectStructure(typeIndex);
+            const Wasm::TypeDefinition& arraySignature = structure->typeDefinition();
+            auto elementType = arraySignature.as<Wasm::ArrayType>()->elementType().type.unpacked();
             ExpressionType initValue = { 0 };
             if (isRefType(elementType))
                 initValue = { static_cast<uint64_t>(JSValue::encode(jsNull())) };
             if (elementType == Wasm::Types::V128)
                 initValue = { vectorAllZeros() };
-            result = createNewArray(typeIndex, static_cast<uint32_t>(size.getValue()), initValue);
+            result = createNewArray(structure, static_cast<uint32_t>(size.getValue()), initValue);
             WASM_PARSER_FAIL_IF(result.isInvalid(), "Failed to allocate new array"_s);
         }
 
@@ -349,15 +350,16 @@ public:
     PartialResult WARN_UNUSED_RETURN addArrayNewFixed(uint32_t typeIndex, ArgumentList& args, ExpressionType& result)
     {
         if (m_mode == Mode::Evaluate) {
-            auto* arrayType = m_info.typeSignatures[typeIndex]->expand().as<ArrayType>();
-            if (arrayType->elementType().type.unpacked().isV128()) {
-                result = createNewArray(typeIndex, args.size(), { vectorAllZeros() });
+            auto* structure = m_instance->gcObjectStructure(typeIndex);
+            const Wasm::TypeDefinition& arraySignature = structure->typeDefinition();
+            if (arraySignature.as<Wasm::ArrayType>()->elementType().type.unpacked().isV128()) {
+                result = createNewArray(structure, args.size(), { vectorAllZeros() });
                 WASM_PARSER_FAIL_IF(result.isInvalid(), "Failed to allocate new array"_s);
                 JSWebAssemblyArray* arrayObject = jsCast<JSWebAssemblyArray*>(JSValue::decode(result.getValue()));
                 for (size_t i = 0; i < args.size(); i++)
                     arrayObject->set(arrayObject->vm(), i, args[i].value().getVector());
             } else {
-                result = createNewArray(typeIndex, args.size(), { });
+                result = createNewArray(structure, args.size(), { });
                 WASM_PARSER_FAIL_IF(result.isInvalid(), "Failed to allocate new array"_s);
                 JSWebAssemblyArray* arrayObject = jsCast<JSWebAssemblyArray*>(JSValue::decode(result.getValue()));
                 for (size_t i = 0; i < args.size(); i++)
@@ -381,7 +383,8 @@ public:
     ExpressionType createNewStruct(uint32_t typeIndex)
     {
         VM& vm = m_instance->vm();
-        EncodedJSValue obj = structNew(m_instance, typeIndex, static_cast<bool>(UseDefaultValue::Yes), nullptr);
+        auto* structure = m_instance->gcObjectStructure(typeIndex);
+        EncodedJSValue obj = structNew(m_instance, structure, static_cast<bool>(UseDefaultValue::Yes), nullptr);
         if (!obj) [[unlikely]]
             return ConstExprValue(InvalidConstExpr);
         return ConstExprValue(Strong<JSObject>(vm, JSValue::decode(obj).getObject()));

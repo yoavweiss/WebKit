@@ -613,24 +613,27 @@ WASM_IPINT_EXTERN_CPP_DECL(table_size, int32_t tableIndex)
 }
 
 // Wasm-GC
-WASM_IPINT_EXTERN_CPP_DECL(struct_new, Wasm::TypeIndex typeIndex, IPIntStackEntry* sp)
+WASM_IPINT_EXTERN_CPP_DECL(struct_new, uint32_t type, IPIntStackEntry* sp)
 {
-    const Wasm::StructType& structTypeDefinition = *instance->module().moduleInformation().typeSignatures[typeIndex]->expand().as<Wasm::StructType>();
+    WebAssemblyGCStructure* structure = instance->gcObjectStructure(type);
+    ASSERT(structure->typeDefinition().is<Wasm::StructType>());
+    const auto& structTypeDefinition = *structure->typeDefinition().as<Wasm::StructType>();
     Vector<uint64_t, 8> arguments(structTypeDefinition.fieldCount());
 
     for (unsigned i = 0; i < structTypeDefinition.fieldCount(); ++i)
         arguments[i] = sp[i].i64;
 
-    EncodedJSValue result = Wasm::structNew(instance, typeIndex, false, arguments.mutableSpan().data());
-    if (JSValue::decode(result).isNull())
+    EncodedJSValue result = Wasm::structNew(instance, structure, false, arguments.mutableSpan().data());
+    if (JSValue::decode(result).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadStructNew);
     IPINT_RETURN(result);
 }
 
-WASM_IPINT_EXTERN_CPP_DECL(struct_new_default, Wasm::TypeIndex typeIndex)
+WASM_IPINT_EXTERN_CPP_DECL(struct_new_default, uint32_t type)
 {
-    EncodedJSValue result = Wasm::structNew(instance, typeIndex, true, nullptr);
-    if (JSValue::decode(result).isNull())
+    WebAssemblyGCStructure* structure = instance->gcObjectStructure(type);
+    EncodedJSValue result = Wasm::structNew(instance, structure, true, nullptr);
+    if (JSValue::decode(result).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadStructNew);
     IPINT_RETURN(result);
 }
@@ -638,7 +641,7 @@ WASM_IPINT_EXTERN_CPP_DECL(struct_new_default, Wasm::TypeIndex typeIndex)
 WASM_IPINT_EXTERN_CPP_DECL(struct_get, EncodedJSValue object, uint32_t fieldIndex)
 {
     UNUSED_PARAM(instance);
-    if (JSValue::decode(object).isNull())
+    if (JSValue::decode(object).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullStructGet);
     IPINT_RETURN(Wasm::structGet(object, fieldIndex));
 }
@@ -646,7 +649,7 @@ WASM_IPINT_EXTERN_CPP_DECL(struct_get, EncodedJSValue object, uint32_t fieldInde
 WASM_IPINT_EXTERN_CPP_DECL(struct_get_s, EncodedJSValue object, uint32_t fieldIndex)
 {
     UNUSED_PARAM(instance);
-    if (JSValue::decode(object).isNull())
+    if (JSValue::decode(object).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullStructGet);
 
     EncodedJSValue value = Wasm::structGet(object, fieldIndex);
@@ -666,51 +669,53 @@ WASM_IPINT_EXTERN_CPP_DECL(struct_get_s, EncodedJSValue object, uint32_t fieldIn
 WASM_IPINT_EXTERN_CPP_DECL(struct_set, EncodedJSValue object, uint32_t fieldIndex, IPIntStackEntry* sp)
 {
     UNUSED_PARAM(instance);
-    if (JSValue::decode(object).isNull())
+    if (JSValue::decode(object).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullStructSet);
     Wasm::structSet(object, fieldIndex, sp->i64);
     IPINT_END();
 }
 
-WASM_IPINT_EXTERN_CPP_DECL(array_new, Wasm::TypeIndex type, EncodedJSValue defaultValue, uint32_t size)
+WASM_IPINT_EXTERN_CPP_DECL(array_new, uint32_t type, EncodedJSValue defaultValue, uint32_t size)
 {
-    UNUSED_PARAM(instance);
-    JSValue result = Wasm::arrayNew(instance, type, size, defaultValue);
-    if (result.isNull())
+    WebAssemblyGCStructure* structure = instance->gcObjectStructure(type);
+    JSValue result = Wasm::arrayNew(instance, structure, size, defaultValue);
+    if (result.isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadArrayNew);
     IPINT_RETURN(JSValue::encode(result));
 }
 
-WASM_IPINT_EXTERN_CPP_DECL(array_new_default, Wasm::TypeIndex type, uint32_t size)
+WASM_IPINT_EXTERN_CPP_DECL(array_new_default, uint32_t type, uint32_t size)
 {
     UNUSED_PARAM(instance);
-    const Wasm::TypeDefinition& arraySignature = instance->module().moduleInformation().typeSignatures[type]->expand();
+    WebAssemblyGCStructure* structure = instance->gcObjectStructure(type);
+    const Wasm::TypeDefinition& arraySignature = structure->typeDefinition();
     Wasm::StorageType elementType = arraySignature.as<Wasm::ArrayType>()->elementType().type;
     EncodedJSValue defaultValue = 0;
 
     if (Wasm::isRefType(elementType)) {
         defaultValue = JSValue::encode(jsNull());
     } else if (elementType.unpacked().isV128()) {
-        JSValue result = Wasm::arrayNew(instance, type, size, vectorAllZeros());
+        JSValue result = Wasm::arrayNew(instance, structure, size, vectorAllZeros());
         if (result.isNull()) [[unlikely]]
             IPINT_THROW(Wasm::ExceptionType::BadArrayNew);
         IPINT_RETURN(JSValue::encode(result));
     }
 
-    JSValue result = Wasm::arrayNew(instance, type, size, defaultValue);
-    if (result.isNull())
+    JSValue result = Wasm::arrayNew(instance, structure, size, defaultValue);
+    if (result.isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadArrayNew);
     IPINT_RETURN(JSValue::encode(result));
 }
 
-WASM_IPINT_EXTERN_CPP_DECL(array_new_fixed, Wasm::TypeIndex type, uint32_t size, IPIntStackEntry* sp)
+WASM_IPINT_EXTERN_CPP_DECL(array_new_fixed, uint32_t type, uint32_t size, IPIntStackEntry* sp)
 {
-    Vector<uint64_t> arguments(size);
+    WebAssemblyGCStructure* structure = instance->gcObjectStructure(type);
+    Vector<uint64_t, 8> arguments(size);
 
     for (unsigned i = 0; i < size; ++i)
         arguments[i] = sp[i].i64;
 
-    JSValue result = Wasm::arrayNewFixed(instance, type, size, arguments.mutableSpan().data());
+    JSValue result = Wasm::arrayNewFixed(instance, structure, size, arguments.mutableSpan().data());
     if (result.isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadArrayNew);
 
@@ -719,7 +724,7 @@ WASM_IPINT_EXTERN_CPP_DECL(array_new_fixed, Wasm::TypeIndex type, uint32_t size,
 
 WASM_IPINT_EXTERN_CPP_DECL(array_new_data, IPInt::ArrayNewDataMetadata* metadata, uint32_t offset, uint32_t size)
 {
-    EncodedJSValue result = Wasm::arrayNewData(instance, static_cast<uint32_t>(metadata->typeIndex), metadata->dataSegmentIndex, size, offset);
+    EncodedJSValue result = Wasm::arrayNewData(instance, metadata->type, metadata->dataSegmentIndex, size, offset);
     if (JSValue::decode(result).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadArrayNewInitData);
 
@@ -728,42 +733,40 @@ WASM_IPINT_EXTERN_CPP_DECL(array_new_data, IPInt::ArrayNewDataMetadata* metadata
 
 WASM_IPINT_EXTERN_CPP_DECL(array_new_elem, IPInt::ArrayNewElemMetadata* metadata, uint32_t offset, uint32_t size)
 {
-    EncodedJSValue result = Wasm::arrayNewElem(instance, static_cast<uint32_t>(metadata->typeIndex), metadata->elemSegmentIndex, size, offset);
+    EncodedJSValue result = Wasm::arrayNewElem(instance, metadata->type, metadata->elemSegmentIndex, size, offset);
     if (JSValue::decode(result).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadArrayNewInitElem);
 
     IPINT_RETURN(result);
 }
 
-WASM_IPINT_EXTERN_CPP_DECL(array_get, Wasm::TypeIndex typeIndex, EncodedJSValue array, uint32_t index)
+WASM_IPINT_EXTERN_CPP_DECL(array_get, uint32_t type, EncodedJSValue array, uint32_t index)
 {
-    UNUSED_PARAM(instance);
-    if (JSValue::decode(array).isNull())
+    if (JSValue::decode(array).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullArrayGet);
     JSValue arrayValue = JSValue::decode(array);
     ASSERT(arrayValue.isObject());
     JSWebAssemblyArray* arrayObject = jsCast<JSWebAssemblyArray*>(arrayValue.getObject());
-    if (index >= arrayObject->size())
+    if (index >= arrayObject->size()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::OutOfBoundsArrayGet);
-    IPINT_RETURN(Wasm::arrayGet(instance, typeIndex, array, index));
+    IPINT_RETURN(Wasm::arrayGet(instance, type, array, index));
 }
 
-WASM_IPINT_EXTERN_CPP_DECL(array_get_s, Wasm::TypeIndex typeIndex, EncodedJSValue array, uint32_t index)
+WASM_IPINT_EXTERN_CPP_DECL(array_get_s, uint32_t type, EncodedJSValue array, uint32_t index)
 {
-    UNUSED_PARAM(instance);
-    if (JSValue::decode(array).isNull())
+    if (JSValue::decode(array).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullArrayGet);
     JSValue arrayValue = JSValue::decode(array);
     ASSERT(arrayValue.isObject());
     JSWebAssemblyArray* arrayObject = jsCast<JSWebAssemblyArray*>(arrayValue.getObject());
-    if (index >= arrayObject->size())
+    if (index >= arrayObject->size()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::OutOfBoundsArrayGet);
-    EncodedJSValue value = Wasm::arrayGet(instance, typeIndex, array, index);
+    EncodedJSValue value = Wasm::arrayGet(instance, type, array, index);
 
     // sign extension
-    Wasm::StorageType type = arrayObject->elementType().type;
-    ASSERT(type.is<Wasm::PackedType>());
-    size_t elementSize = type.as<Wasm::PackedType>() == Wasm::PackedType::I8 ? sizeof(uint8_t) : sizeof(uint16_t);
+    Wasm::StorageType elementType = arrayObject->elementType().type;
+    ASSERT(elementType.is<Wasm::PackedType>());
+    size_t elementSize = elementType.as<Wasm::PackedType>() == Wasm::PackedType::I8 ? sizeof(uint8_t) : sizeof(uint16_t);
     uint8_t bitShift = (sizeof(uint32_t) - elementSize) * 8;
     int32_t result = static_cast<int32_t>(value);
     result = result << bitShift;
@@ -771,12 +774,12 @@ WASM_IPINT_EXTERN_CPP_DECL(array_get_s, Wasm::TypeIndex typeIndex, EncodedJSValu
     IPINT_RETURN(static_cast<EncodedJSValue>(result >> bitShift));
 }
 
-WASM_IPINT_EXTERN_CPP_DECL(array_set, Wasm::TypeIndex typeIndex, IPIntStackEntry* sp)
+WASM_IPINT_EXTERN_CPP_DECL(array_set, uint32_t type, IPIntStackEntry* sp)
 {
     // sp[0] = value
     // sp[1] = index
     // sp[2] = array ref
-    if (JSValue::decode(sp[2].ref).isNull())
+    if (JSValue::decode(sp[2].ref).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullArraySet);
 
     JSValue arrayValue = JSValue::decode(sp[2].ref);
@@ -784,10 +787,10 @@ WASM_IPINT_EXTERN_CPP_DECL(array_set, Wasm::TypeIndex typeIndex, IPIntStackEntry
     JSWebAssemblyArray* arrayObject = jsCast<JSWebAssemblyArray*>(arrayValue.getObject());
     uint32_t index = static_cast<uint32_t>(sp[1].i32);
 
-    if (index >= arrayObject->size())
+    if (index >= arrayObject->size()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::OutOfBoundsArraySet);
 
-    Wasm::arraySet(instance, typeIndex, sp[2].ref, index, sp[0].i64);
+    Wasm::arraySet(instance, type, sp[2].ref, index, sp[0].i64);
     IPINT_END();
 }
 
@@ -799,13 +802,13 @@ WASM_IPINT_EXTERN_CPP_DECL(array_fill, IPIntStackEntry* sp)
     // sp[3] = array
 
     EncodedJSValue arrayref = sp[3].ref;
-    if (JSValue::decode(arrayref).isNull())
+    if (JSValue::decode(arrayref).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullArrayFill);
     uint32_t offset = sp[2].i32;
     EncodedJSValue value = sp[1].ref;
     uint32_t size = sp[0].i32;
 
-    if (!Wasm::arrayFill(instance->vm(), arrayref, offset, value, size))
+    if (!Wasm::arrayFill(instance->vm(), arrayref, offset, value, size)) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::OutOfBoundsArrayFill);
 
     IPINT_END();
@@ -825,10 +828,10 @@ WASM_IPINT_EXTERN_CPP_DECL(array_copy, IPIntStackEntry* sp)
     uint32_t srcOffset = sp[1].i32;
     uint32_t size = sp[0].i32;
 
-    if (JSValue::decode(dst).isNull() || JSValue::decode(src).isNull())
+    if (JSValue::decode(dst).isNull() || JSValue::decode(src).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullArrayCopy);
 
-    if (!Wasm::arrayCopy(instance, dst, dstOffset, src, srcOffset, size))
+    if (!Wasm::arrayCopy(instance, dst, dstOffset, src, srcOffset, size)) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::OutOfBoundsArrayCopy);
     IPINT_END();
 }
@@ -845,9 +848,9 @@ WASM_IPINT_EXTERN_CPP_DECL(array_init_data, uint32_t dataIndex, IPIntStackEntry*
     uint32_t srcOffset = sp[1].i32;
     uint32_t size = sp[0].i32;
 
-    if (JSValue::decode(dst).isNull())
+    if (JSValue::decode(dst).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullArrayInitData);
-    if (!Wasm::arrayInitData(instance, dst, dstOffset, dataIndex, srcOffset, size))
+    if (!Wasm::arrayInitData(instance, dst, dstOffset, dataIndex, srcOffset, size)) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::OutOfBoundsArrayInitData);
     IPINT_END();
 }
@@ -864,9 +867,9 @@ WASM_IPINT_EXTERN_CPP_DECL(array_init_elem, uint32_t elemIndex, IPIntStackEntry*
     uint32_t srcOffset = sp[1].i32;
     uint32_t size = sp[0].i32;
 
-    if (JSValue::decode(dst).isNull())
+    if (JSValue::decode(dst).isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::NullArrayInitElem);
-    if (!Wasm::arrayInitElem(instance, dst, dstOffset, elemIndex, srcOffset, size))
+    if (!Wasm::arrayInitElem(instance, dst, dstOffset, elemIndex, srcOffset, size)) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::OutOfBoundsArrayInitElem);
     IPINT_END();
 }
@@ -879,25 +882,26 @@ WASM_IPINT_EXTERN_CPP_DECL(any_convert_extern, EncodedJSValue value)
 
 WASM_IPINT_EXTERN_CPP_DECL(ref_test, int32_t heapType, bool allowNull, EncodedJSValue value)
 {
-    UNUSED_PARAM(instance);
-    Wasm::TypeIndex typeIndex;
-    if (Wasm::typeIndexIsType(static_cast<Wasm::TypeIndex>(heapType)))
-        typeIndex = static_cast<Wasm::TypeIndex>(heapType);
-    else
-        typeIndex = instance->module().moduleInformation().typeSignatures[heapType]->index();
-    bool result = Wasm::refCast(value, allowNull, typeIndex);
+    if (Wasm::typeIndexIsType(static_cast<Wasm::TypeIndex>(heapType))) {
+        bool result = Wasm::refCast(value, allowNull, static_cast<Wasm::TypeIndex>(heapType), nullptr);
+        IPINT_RETURN(static_cast<uint64_t>(result));
+    }
+
+    auto& info = instance->module().moduleInformation();
+    bool result = Wasm::refCast(value, allowNull, info.typeSignatures[heapType]->index(), info.rtts[heapType].ptr());
     IPINT_RETURN(static_cast<uint64_t>(result));
 }
 
 WASM_IPINT_EXTERN_CPP_DECL(ref_cast, int32_t heapType, bool allowNull, EncodedJSValue value)
 {
-    UNUSED_PARAM(instance);
-    Wasm::TypeIndex typeIndex;
-    if (Wasm::typeIndexIsType(static_cast<Wasm::TypeIndex>(heapType)))
-        typeIndex = static_cast<Wasm::TypeIndex>(heapType);
-    else
-        typeIndex = instance->module().moduleInformation().typeSignatures[heapType]->index();
-    if (!Wasm::refCast(value, allowNull, typeIndex))
+    if (Wasm::typeIndexIsType(static_cast<Wasm::TypeIndex>(heapType))) {
+        if (!Wasm::refCast(value, allowNull, static_cast<Wasm::TypeIndex>(heapType), nullptr)) [[unlikely]]
+            IPINT_THROW(Wasm::ExceptionType::CastFailure);
+        IPINT_RETURN(value);
+    }
+
+    auto& info = instance->module().moduleInformation();
+    if (!Wasm::refCast(value, allowNull, info.typeSignatures[heapType]->index(), info.rtts[heapType].ptr())) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::CastFailure);
     IPINT_RETURN(value);
 }
