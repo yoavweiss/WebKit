@@ -625,7 +625,8 @@ RTT::RTT(RTTKind kind, const RTT& supertype)
     , m_displaySizeExcludingThis(size() - 1)
 {
     ASSERT(supertype.size() == (supertype.displaySizeExcludingThis() + 1));
-    memcpySpan(span(), supertype.span());
+    for (size_t i = 0; i < supertype.span().size(); ++i)
+        span()[i] = supertype.span()[i];
     at(supertype.size()) = this;
 }
 
