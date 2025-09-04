@@ -386,8 +386,6 @@ void RenderDeprecatedFlexibleBox::layoutBlock(RelayoutChildren relayoutChildren,
         computeOverflow(oldClientAfterEdge);
     }
 
-    updateLayerTransform();
-
     auto* layoutState = view().frameView().layoutContext().layoutState();
     if (layoutState && layoutState->pageLogicalHeight())
         setPageLogicalOffset(layoutState->pageLogicalOffset(this, logicalTop()));
@@ -741,8 +739,6 @@ void RenderDeprecatedFlexibleBox::layoutSingleClampedFlexItem()
     computeOverflow({ });
 
     endAndCommitUpdateScrollInfoAfterLayoutTransaction();
-
-    updateLayerTransform();
 
     repainter.repaintAfterLayout();
 }
