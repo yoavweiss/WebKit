@@ -73,6 +73,7 @@ public:
 
     bool hasExplicitNestingParent() const;
     bool hasExplicitPseudoClassScope() const;
+    bool hasScope() const;
     void resolveNestingParentSelectors(const CSSSelectorList& parent);
     void replaceNestingParentByPseudoClassScope();
 
