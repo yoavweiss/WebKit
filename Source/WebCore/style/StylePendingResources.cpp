@@ -90,7 +90,7 @@ void loadPendingResources(RenderStyle& style, Document& document, const Element*
             loadPendingImage(document, cursorImage.image.ptr(), element);
     }
 
-    loadPendingImage(document, style.listStyleImage(), element);
+    loadPendingImage(document, style.listStyleImage().tryStyleImage().get(), element);
     loadPendingImage(document, style.borderImageSource().tryStyleImage().get(), element);
     loadPendingImage(document, style.maskBorderSource().tryStyleImage().get(), element);
 

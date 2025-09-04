@@ -5046,9 +5046,9 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "StyleImageWrapper",
-                "style-converter": "ImageOrNone",
-                "parser-grammar": "none | <image>"
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<ImageOrNone>",
+                "parser-grammar": "<image> | none"
             },
             "specification": {
                 "category": "css-lists",

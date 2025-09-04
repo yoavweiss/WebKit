@@ -160,7 +160,6 @@ public:
 
     // MARK: Shared conversions
 
-    static Ref<CSSValue> convertImageOrNone(ExtractorState&, const StyleImage*);
     static Ref<CSSValue> convertGlyphOrientation(ExtractorState&, GlyphOrientation);
     static Ref<CSSValue> convertGlyphOrientationOrAuto(ExtractorState&, GlyphOrientation);
     static Ref<CSSValue> convertMarginTrim(ExtractorState&, OptionSet<MarginTrimType>);
@@ -490,13 +489,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTransformOperation(const RenderS
 }
 
 // MARK: - Shared conversions
-
-inline Ref<CSSValue> ExtractorConverter::convertImageOrNone(ExtractorState& state, const StyleImage* image)
-{
-    if (image)
-        return image->computedStyleValue(state.style);
-    return CSSPrimitiveValue::create(CSSValueNone);
-}
 
 inline Ref<CSSValue> ExtractorConverter::convertGlyphOrientation(ExtractorState&, GlyphOrientation orientation)
 {

@@ -420,6 +420,7 @@ constexpr LineBreak RenderStyle::initialLineBreak() { return LineBreak::Auto; }
 constexpr Style::WebkitLineClamp RenderStyle::initialLineClamp() { return CSS::Keyword::None { }; }
 inline Style::WebkitLineGrid RenderStyle::initialLineGrid() { return CSS::Keyword::None { }; }
 constexpr LineSnap RenderStyle::initialLineSnap() { return LineSnap::None; }
+inline Style::ImageOrNone RenderStyle::initialListStyleImage() { return CSS::Keyword::None { }; }
 constexpr ListStylePosition RenderStyle::initialListStylePosition() { return ListStylePosition::Outside; }
 inline Style::ListStyleType RenderStyle::initialListStyleType() { return CSS::Keyword::Disc { }; }
 inline Style::MarginEdge RenderStyle::initialMargin() { return 0_css_px; }
@@ -597,6 +598,7 @@ inline LineBreak RenderStyle::lineBreak() const { return static_cast<LineBreak>(
 inline const Style::WebkitLineClamp& RenderStyle::lineClamp() const { return m_nonInheritedData->rareData->lineClamp; }
 inline const Style::WebkitLineGrid& RenderStyle::lineGrid() const { return m_rareInheritedData->lineGrid; }
 inline LineSnap RenderStyle::lineSnap() const { return static_cast<LineSnap>(m_rareInheritedData->lineSnap); }
+inline const Style::ImageOrNone& RenderStyle::listStyleImage() const { return m_rareInheritedData->listStyleImage; }
 inline const Style::ListStyleType& RenderStyle::listStyleType() const { return m_rareInheritedData->listStyleType; }
 inline const Style::InsetEdge& RenderStyle::logicalBottom() const { return m_nonInheritedData->surroundData->inset.after(writingMode()); }
 inline const Style::PreferredSize& RenderStyle::logicalHeight() const { return logicalHeight(writingMode()); }

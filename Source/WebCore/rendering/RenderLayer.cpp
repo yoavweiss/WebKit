@@ -6023,7 +6023,7 @@ static bool rendererHasHDRContent(const RenderElement& renderer)
             }
         }
 
-        if (auto image = style.listStyleImage()) {
+        if (RefPtr image = style.listStyleImage().tryStyleImage()) {
             if (auto* cachedImage = image->cachedImage()) {
                 if (cachedImage->hasHDRContent())
                     return true;

@@ -81,7 +81,6 @@ public:
 
     // MARK: Shared serializations
 
-    static void serializeImageOrNone(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StyleImage*);
     static void serializeGlyphOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeGlyphOrientationOrAuto(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeMarginTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<MarginTrimType>);
@@ -548,16 +547,6 @@ inline void ExtractorSerializer::serializeTransformOperation(const RenderStyle& 
 }
 
 // MARK: - Shared serializations
-
-inline void ExtractorSerializer::serializeImageOrNone(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const StyleImage* image)
-{
-    if (!image) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    builder.append(image->computedStyleValue(state.style)->cssText(context));
-}
 
 inline void ExtractorSerializer::serializeGlyphOrientation(ExtractorState&, StringBuilder& builder, const CSS::SerializationContext& context, GlyphOrientation orientation)
 {

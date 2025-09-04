@@ -134,7 +134,6 @@ public:
     template<typename T> static T convertLineWidth(BuilderState&, const CSSValue&);
     static OptionSet<TextTransform> convertTextTransform(BuilderState&, const CSSValue&);
     template<typename T> static T convertNumber(BuilderState&, const CSSValue&);
-    static RefPtr<StyleImage> convertImageOrNone(BuilderState&, CSSValue&);
     static ImageOrientation convertImageOrientation(BuilderState&, const CSSValue&);
     static TransformOperations convertTransform(BuilderState&, const CSSValue&);
     template<CSSValueID> static AtomString convertCustomIdentAtomOrKeyword(BuilderState&, const CSSValue&);
@@ -348,11 +347,6 @@ inline T BuilderConverter::convertNumber(BuilderState& builderState, const CSSVa
     if (!primitiveValue)
         return { };
     return primitiveValue->resolveAsNumber<T>(builderState.cssToLengthConversionData());
-}
-
-inline RefPtr<StyleImage> BuilderConverter::convertImageOrNone(BuilderState& builderState, CSSValue& value)
-{
-    return builderState.createStyleImage(value);
 }
 
 inline ImageOrientation BuilderConverter::convertImageOrientation(BuilderState& builderState, const CSSValue& value)

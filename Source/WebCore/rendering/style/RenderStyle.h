@@ -72,7 +72,6 @@ class RenderStyle;
 class SVGRenderStyle;
 class ScrollTimeline;
 class StyleContentAlignmentData;
-class StyleImage;
 class StyleInheritedData;
 class StyleNonInheritedData;
 class StylePathData;
@@ -284,6 +283,7 @@ struct GridTrackSizes;
 struct HyphenateCharacter;
 struct HyphenateLimitEdge;
 struct HyphenateLimitLines;
+struct ImageOrNone;
 struct InsetEdge;
 struct LineWidth;
 struct ListStyleType;
@@ -787,7 +787,7 @@ public:
     CaptionSide captionSide() const { return static_cast<CaptionSide>(m_inheritedFlags.captionSide); }
 
     inline const Style::ListStyleType& listStyleType() const;
-    StyleImage* listStyleImage() const;
+    inline const Style::ImageOrNone& listStyleImage() const;
     ListStylePosition listStylePosition() const { return static_cast<ListStylePosition>(m_inheritedFlags.listStylePosition); }
     inline bool isFixedTableLayout() const;
 
@@ -1421,7 +1421,7 @@ public:
     inline void setUsedContentVisibility(ContentVisibility);
 
     inline void setListStyleType(Style::ListStyleType&&);
-    void setListStyleImage(RefPtr<StyleImage>&&);
+    void setListStyleImage(Style::ImageOrNone&&);
     void setListStylePosition(ListStylePosition v) { m_inheritedFlags.listStylePosition = static_cast<unsigned>(v); }
 
     inline void resetMargin();
@@ -1958,7 +1958,7 @@ public:
     static inline Color initialColor();
     static inline Style::Color initialTextStrokeColor();
     static inline Style::Color initialTextDecorationColor();
-    static StyleImage* initialListStyleImage() { return 0; }
+    static inline Style::ImageOrNone initialListStyleImage();
     static constexpr Style::LineWidth initialBorderWidth();
     static constexpr Style::LineWidth initialColumnRuleWidth();
     static constexpr Style::LineWidth initialOutlineWidth();
