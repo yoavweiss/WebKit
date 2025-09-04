@@ -200,7 +200,7 @@ static std::optional<Seconds>& transientActivationDurationOverrideForTesting()
     return overrideForTesting;
 }
 
-static Seconds transientActivationDuration()
+Seconds LocalDOMWindow::transientActivationDuration()
 {
     if (auto override = transientActivationDurationOverrideForTesting())
         return *override;
@@ -1589,6 +1589,19 @@ bool LocalDOMWindow::consumeHistoryActionUserActivation()
     }
 
     return true;
+}
+
+void LocalDOMWindow::updateLastUserClickEvent(OptionSet<PlatformEventModifier> modifiers)
+{
+    m_lastUserClickEvent = ClickEventData {
+        MonotonicTime::now(),
+        modifiers
+    };
+}
+
+std::optional<LocalDOMWindow::ClickEventData> LocalDOMWindow::consumeLastUserClickEvent()
+{
+    return std::exchange(m_lastUserClickEvent, std::nullopt);
 }
 
 // https://html.spec.whatwg.org/multipage/interaction.html#activation-notification

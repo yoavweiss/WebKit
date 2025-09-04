@@ -3083,6 +3083,10 @@ bool EventHandler::dispatchMouseEvent(const AtomString& eventType, Node* targetN
 {
     Ref frame = m_frame.get();
 
+    if (eventType == eventNames().clickEvent) {
+        if (RefPtr window = frame->window())
+            window->updateLastUserClickEvent(platformMouseEvent.modifiers());
+    }
     updateMouseEventTargetNode(eventType, targetNode, platformMouseEvent, fireMouseOverOut);
 
     bool isMouseDownEvent = eventType == eventNames().mousedownEvent;

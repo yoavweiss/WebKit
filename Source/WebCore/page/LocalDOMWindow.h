@@ -65,6 +65,7 @@ class LocalFrame;
 struct ScrollToOptions;
 struct WindowPostMessageOptions;
 
+enum class PlatformEventModifier : uint8_t;
 using ReducedResolutionSeconds = Seconds;
 
 template<typename> class ExceptionOr;
@@ -152,6 +153,14 @@ public:
     WEBCORE_EXPORT bool consumeTransientActivation();
     WEBCORE_EXPORT bool hasHistoryActionActivation() const;
     WEBCORE_EXPORT bool consumeHistoryActionUserActivation();
+    WEBCORE_EXPORT static Seconds transientActivationDuration();
+
+    struct ClickEventData {
+        MonotonicTime time;
+        OptionSet<PlatformEventModifier> modifiers;
+    };
+    void updateLastUserClickEvent(OptionSet<PlatformEventModifier>);
+    WEBCORE_EXPORT std::optional<ClickEventData> consumeLastUserClickEvent();
 
     DOMSelection* getSelection();
 
@@ -487,6 +496,8 @@ private:
     // value is positive infinity.
     MonotonicTime m_lastActivationTimestamp { MonotonicTime::infinity() };
     MonotonicTime m_lastHistoryActionActivationTimestamp { MonotonicTime::infinity() };
+
+    std::optional<ClickEventData> m_lastUserClickEvent;
 
     bool m_wasWrappedWithoutInitializedSecurityOrigin { false };
     bool m_mayReuseForNavigation { true };
