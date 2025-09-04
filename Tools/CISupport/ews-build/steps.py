@@ -3744,7 +3744,7 @@ class RunJavaScriptCoreTests(shell.Test, AddToLogMixin, ShellMixin):
         if self.getProperty('architecture') in ["armv7"]:
             self.command = ["linux32"] + self.command
 
-        self.setCommand(self.command + customBuildFlag(self.getProperty('platform'), self.getProperty('fullPlatform')))
+        self.command += customBuildFlag(self.getProperty('platform'), self.getProperty('fullPlatform'))
         self.command.extend(self.command_extra)
         self.command = self.shell_command(' '.join(quote(str(c)) for c in self.command) + ' 2>&1 | Tools/Scripts/filter-test-logs jsc')
         return super().start()
@@ -4082,38 +4082,38 @@ class RunWebKitTests(shell.Test, AddToLogMixin, ShellMixin):
 
     def setLayoutTestCommand(self):
         platform = self.getProperty('platform')
-        self.setCommand(self.command + customBuildFlag(platform, self.getProperty('fullPlatform')))
+        self.command += customBuildFlag(platform, self.getProperty('fullPlatform'))
 
         if self.getProperty('use-dump-render-tree', False):
-            self.setCommand(self.command + ['--dump-render-tree'])
+            self.command += ['--dump-render-tree']
 
-        self.setCommand(self.command + ['--results-directory', self.resultDirectory])
-        self.setCommand(self.command + ['--debug-rwt-logging'])
+        self.command += ['--results-directory', self.resultDirectory]
+        self.command += ['--debug-rwt-logging']
 
         patch_author = self.getProperty('patch_author')
         self.maxTime = None
         if patch_author in ['webkit-wpt-import-bot@igalia.com']:
-            self.setCommand(self.command + ['imported/w3c/web-platform-tests'])
+            self.command += ['imported/w3c/web-platform-tests']
         elif GitHub.NO_FAILURE_LIMITS_LABEL in self.getProperty('github_labels', []):
-            self.setCommand(self.command + ['--no-retry'])
+            self.command += ['--no-retry']
             self.maxTime = 60 * 90
         else:
             if self.EXIT_AFTER_FAILURES is not None:
-                self.setCommand(self.command + ['--exit-after-n-failures', '{}'.format(self.EXIT_AFTER_FAILURES)])
+                self.command += ['--exit-after-n-failures', f'{self.EXIT_AFTER_FAILURES}']
             if not self.STRESS_MODE:
-                self.setCommand(self.command + ['--skip-failing-tests'])
+                self.command += ['--skip-failing-tests']
             else:
-                self.setCommand(self.command + ['--skipped', 'always'])
+                self.command += ['--skipped', 'always']
 
         if platform in ['gtk', 'wpe']:
-            self.setCommand(self.command + ['--enable-core-dumps-nolimit'])
+            self.command += ['--enable-core-dumps-nolimit']
 
         additionalArguments = self.getProperty('additionalArguments')
         if additionalArguments and self.ENABLE_ADDITIONAL_ARGUMENTS:
-            self.setCommand(self.command + additionalArguments)
+            self.command += additionalArguments
 
         if self.ENABLE_GUARD_MALLOC:
-            self.setCommand(self.command + ['--guard-malloc'])
+            self.command += ['--guard-malloc']
 
     def buildCommandKwargs(self, warnings):
         result = super().buildCommandKwargs(warnings)
@@ -4343,10 +4343,10 @@ class RunWebKitTestsInStressMode(RunWebKitTests):
             self.setProperty('use-dump-render-tree', True)
         RunWebKitTests.setLayoutTestCommand(self)
 
-        self.setCommand(self.command + ['--iterations', self.num_iterations])
+        self.command += ['--iterations', self.num_iterations]
         modified_tests = self.getProperty('modified_tests')
         if modified_tests:
-            self.setCommand(self.command + modified_tests)
+            self.command += modified_tests
 
     def evaluateCommand(self, cmd):
         rc = self.evaluateResult(cmd)
@@ -4561,15 +4561,13 @@ class RunWebKitTestsWithoutChange(RunWebKitTests):
     def setLayoutTestCommand(self):
         super().setLayoutTestCommand()
         if CURRENT_HOSTNAME in EWS_BUILD_HOSTNAMES and self.getProperty('github.base.ref', DEFAULT_BRANCH) == DEFAULT_BRANCH:
-            self.setCommand(
-                self.command + [
-                    '--builder-name', self.getProperty('buildername', ''),
-                    '--build-number', self.getProperty('buildnumber', ''),
-                    '--buildbot-worker', self.getProperty('workername', ''),
-                    '--buildbot-master', CURRENT_HOSTNAME,
-                    '--report', RESULTS_DB_URL,
-                ]
-            )
+            self.command += [
+                '--builder-name', self.getProperty('buildername', ''),
+                '--build-number', self.getProperty('buildnumber', ''),
+                '--buildbot-worker', self.getProperty('workername', ''),
+                '--buildbot-master', CURRENT_HOSTNAME,
+                '--report', RESULTS_DB_URL,
+            ]
 
         # In order to speed up testing, on the step that retries running the layout tests without change
         # only run the subset of tests that failed on the previous steps.
@@ -4586,7 +4584,7 @@ class RunWebKitTestsWithoutChange(RunWebKitTests):
             second_results_failing_tests = set(self.getProperty('second_run_failures', set()))
             list_failed_tests_with_change = sorted(first_results_failing_tests.union(second_results_failing_tests))
             if list_failed_tests_with_change:
-                self.setCommand(self.command + ['--skipped=always'] + list_failed_tests_with_change)
+                self.command += ['--skipped=always'] + list_failed_tests_with_change
 
 
 class AnalyzeLayoutTestsResults(buildstep.BuildStep, BugzillaMixin, GitHubMixin):
@@ -4945,9 +4943,9 @@ class RunWebKitTestsRepeatFailuresRedTree(RunWebKitTestsRedTree):
     def setLayoutTestCommand(self):
         super().setLayoutTestCommand()
         # On the repeat steps we don't enable coredump generation (makes the run much slower if there are crashes)
-        self.setCommand([arg for arg in self.command if arg != '--enable-core-dumps-nolimit'])
+        self.command = [arg for arg in self.command if arg != '--enable-core-dumps-nolimit']
         first_results_failing_tests = set(self.getProperty('first_run_failures', []))
-        self.setCommand(self.command + ['--fully-parallel', '--repeat-each=%s' % self.NUM_REPEATS_PER_TEST] + sorted(first_results_failing_tests))
+        self.command += ['--fully-parallel', '--repeat-each=%s' % self.NUM_REPEATS_PER_TEST] + sorted(first_results_failing_tests)
 
     def evaluateCommand(self, cmd):
         with_change_repeat_failures_results_nonflaky_failures = set(self.getProperty('with_change_repeat_failures_results_nonflaky_failures', []))
@@ -5025,7 +5023,7 @@ class RunWebKitTestsRepeatFailuresWithoutChangeRedTree(RunWebKitTestsRedTree):
     def setLayoutTestCommand(self):
         super().setLayoutTestCommand()
         # On the repeat steps we don't enable coredump generation (makes the run much slower if there are crashes)
-        self.setCommand([arg for arg in self.command if arg != '--enable-core-dumps-nolimit'])
+        self.command = [arg for arg in self.command if arg != '--enable-core-dumps-nolimit']
         with_change_nonflaky_failures = set(self.getProperty('with_change_repeat_failures_results_nonflaky_failures', []))
         first_run_failures = set(self.getProperty('first_run_failures', []))
         with_change_repeat_failures_timedout = self.getProperty('with_change_repeat_failures_timedout', False)
@@ -5034,7 +5032,7 @@ class RunWebKitTestsRepeatFailuresWithoutChangeRedTree(RunWebKitTestsRedTree):
         # is skipped anyways if is marked as such on the Expectation files or if is marked
         # as failure (since we are passing also '--skip-failing-tests'). That way we ensure
         # to report the case of a change removing an expectation that still fails with it.
-        self.setCommand(self.command + ['--fully-parallel', '--repeat-each=%s' % self.NUM_REPEATS_PER_TEST, '--skipped=always'] + sorted(failures_to_repeat))
+        self.command += ['--fully-parallel', '--repeat-each=%s' % self.NUM_REPEATS_PER_TEST, '--skipped=always'] + sorted(failures_to_repeat)
 
     def evaluateCommand(self, cmd):
         rc = self.evaluateResult(cmd)
