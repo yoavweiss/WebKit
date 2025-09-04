@@ -134,6 +134,9 @@ namespace WebCore {
     macro(CSSCounterStyleRule) \
     macro(CSSColor) \
     macro(CSSColorValue) \
+    macro(CSSFunctionDeclarations) \
+    macro(CSSFunctionDescriptors) \
+    macro(CSSFunctionRule) \
     macro(CSSHSL) \
     macro(CSSHWB) \
     macro(CSSImageValue) \

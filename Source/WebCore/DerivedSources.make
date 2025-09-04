@@ -984,6 +984,9 @@ JS_BINDING_IDLS := \
     $(WebCore)/css/CSSFontFaceRule.idl \
     $(WebCore)/css/CSSFontFeatureValuesRule.idl \
     $(WebCore)/css/CSSFontPaletteValuesRule.idl \
+    $(WebCore)/css/CSSFunctionDeclarations.idl \
+    $(WebCore)/css/CSSFunctionDescriptors.idl \
+    $(WebCore)/css/CSSFunctionRule.idl \
     $(WebCore)/css/CSSGroupingRule.idl \
     $(WebCore)/css/CSSImportRule.idl \
     $(WebCore)/css/CSSLayerBlockRule.idl \
