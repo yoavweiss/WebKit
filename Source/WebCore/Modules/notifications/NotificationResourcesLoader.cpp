@@ -44,6 +44,7 @@ namespace WebCore {
 // https://notifications.spec.whatwg.org/#resources
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(NotificationResourcesLoader);
+DEFINE_ALLOCATOR_WITH_HEAP_IDENTIFIER(ResourceLoader);
 
 NotificationResourcesLoader::NotificationResourcesLoader(Notification& notification)
     : m_notification(notification)
