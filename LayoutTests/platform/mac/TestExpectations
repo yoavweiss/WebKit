@@ -1352,7 +1352,6 @@ imported/w3c/web-platform-tests/pointerevents/pointerevent_iframe-touch-action-n
 imported/w3c/web-platform-tests/pointerevents/pointerevent_movementxy.html?touch [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerId_scope.html [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointercancel_touch.html [ Skip ]
-imported/w3c/web-platform-tests/pointerevents/pointerevent_pointercapture_in_frame.html [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointercapture_in_frame.html?pen [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointercapture_in_frame.html?touch [ Skip ]
 imported/w3c/web-platform-tests/pointerevents/pointerevent_pointerleave_after_pointercancel_touch.html [ Skip ]
