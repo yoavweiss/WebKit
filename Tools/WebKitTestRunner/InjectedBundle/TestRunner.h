@@ -125,7 +125,6 @@ public:
     void dumpEditingCallbacks() { m_dumpEditingCallbacks = true; }
     void dumpSelectionRect() { m_dumpSelectionRect = true; }
     void dumpTitleChanges() { m_dumpTitleChanges = true; }
-    void dumpFullScreenCallbacks();
     void dumpFrameLoadCallbacks() { setShouldDumpFrameLoadCallbacks(true); }
     void dumpProgressFinishedCallback() { setShouldDumpProgressFinishedCallback(true); }
     void dumpResourceLoadCallbacks() { m_dumpResourceLoadCallbacks = true; }
@@ -361,8 +360,6 @@ public:
     JSValueRef failNextNewCodeBlock(JSContextRef);
     JSValueRef numberOfDFGCompiles(JSContextRef, JSValueRef function);
     JSValueRef neverInlineFunction(JSContextRef, JSValueRef function);
-
-    void stopLoading();
 
     bool didCancelClientRedirect() const { return m_didCancelClientRedirect; }
     void setDidCancelClientRedirect(bool value) { m_didCancelClientRedirect = value; }

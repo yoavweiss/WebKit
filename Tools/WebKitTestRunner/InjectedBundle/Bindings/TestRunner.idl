@@ -58,7 +58,6 @@ interface TestRunner {
     undefined dumpEditingCallbacks();
     undefined dumpSelectionRect();
     undefined dumpTitleChanges();
-    undefined dumpFullScreenCallbacks();
     undefined dumpFrameLoadCallbacks();
     undefined dumpProgressFinishedCallback();
     undefined dumpResourceLoadCallbacks();
@@ -96,7 +95,6 @@ interface TestRunner {
     undefined setCacheModel(long model);
     undefined setAsynchronousSpellCheckingEnabled(boolean value);
     undefined setPrinting();
-    undefined stopLoading();
 
     // Special DOM functions.
     Promise<undefined> clearBackForwardList();

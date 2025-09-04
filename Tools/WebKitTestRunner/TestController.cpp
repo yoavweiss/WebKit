@@ -1940,6 +1940,8 @@ if (window.testRunner) {
     testRunner.setHandlesAuthenticationChallenges = value => post(['SetHandlesAuthenticationChallenges', value]);
     testRunner.setShouldLogCanAuthenticateAgainstProtectionSpace = value => post(['SetShouldLogCanAuthenticateAgainstProtectionSpace', value]);
     testRunner.setBlockAllPlugins = value => post(['SetBlockAllPlugins', value]);
+    testRunner.stopLoading = () => post(['StopLoading']);
+    testRunner.dumpFullScreenCallbacks = () => post(['DumpFullScreenCallbacks']);
 }
 )testRunnerJS";
 
@@ -2040,6 +2042,16 @@ void TestController::didReceiveScriptMessage(WKScriptMessageRef message, Complet
 
     if (WKStringIsEqualToUTF8CString(command, "RequestExitFullscreenFromUIProcess")) {
         requestExitFullscreenFromUIProcess();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "DumpFullScreenCallbacks")) {
+        dumpFullScreenCallbacks();
+        return completionHandler(nullptr);
+    }
+
+    if (WKStringIsEqualToUTF8CString(command, "StopLoading")) {
+        WKPageStopLoading(mainWebView()->page());
         return completionHandler(nullptr);
     }
 
