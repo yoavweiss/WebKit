@@ -125,8 +125,10 @@ void InjectedBundle::didCreatePage(WKBundlePageRef page)
     ALLOW_DEPRECATED_DECLARATIONS_END
     auto initializationDictionary = adoptWK(dictionaryValue(result));
 
-    if (booleanValue(initializationDictionary.get(), "ResumeTesting"))
+    if (booleanValue(initializationDictionary.get(), "ResumeTesting")) {
+        m_testIdentifier = uint64Value(initializationDictionary.get(), "TestIdentifier");
         beginTesting(initializationDictionary.get(), BegingTestingMode::Resume);
+    }
 }
 
 void InjectedBundle::willDestroyPage(WKBundlePageRef page)
@@ -200,6 +202,7 @@ void InjectedBundle::didReceiveMessageToPage(WKBundlePageRef page, WKStringRef m
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
         m_accessibilityIsolatedTreeMode = booleanValue(messageBodyDictionary, "IsAccessibilityIsolatedTreeEnabled");
 #endif
+        m_testIdentifier = uint64Value(messageBodyDictionary, "TestIdentifier");
         WKBundlePagePostMessage(page, toWK("Ack").get(), toWK("BeginTest").get());
         beginTesting(messageBodyDictionary, BegingTestingMode::New);
         return;
@@ -307,7 +310,13 @@ void InjectedBundle::beginTesting(WKDictionaryRef settings, BegingTestingMode te
 
     m_testRunner = TestRunner::create();
     m_gcController = GCController::create();
-    m_eventSendingController = EventSendingController::create();
+
+    // Make sure the EventSendingController from the previous test stops trying
+    // to message the UIProcess now that we've started a new test.
+    if (RefPtr eventSendingController = std::exchange(m_eventSendingController, nullptr))
+        eventSendingController->disable();
+    m_eventSendingController = EventSendingController::create(m_testIdentifier);
+
     m_textInputController = TextInputController::create();
     m_accessibilityController = AccessibilityController::create();
     m_accessibilityController->setForceDeferredSpellChecking(false);

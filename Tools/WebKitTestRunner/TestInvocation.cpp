@@ -83,8 +83,11 @@ Ref<TestInvocation> TestInvocation::create(WKURLRef url, const TestOptions& opti
     return adoptRef(*new TestInvocation(url, options));
 }
 
+static uint64_t currentTestIdentifier = 0;
+
 TestInvocation::TestInvocation(WKURLRef url, const TestOptions& options)
     : m_options(options)
+    , m_identifier(++currentTestIdentifier)
     , m_url(url)
     , m_waitToDumpWatchdogTimer(RunLoop::mainSingleton(), "TestInvocation::WaitToDumpWatchdogTimer"_s, this, &TestInvocation::waitToDumpWatchdogTimerFired)
     , m_waitForPostDumpWatchdogTimer(RunLoop::mainSingleton(), "TestInvocation::WaitForPostDumpWatchdogTimer"_s, this, &TestInvocation::waitForPostDumpWatchdogTimerFired)
@@ -134,6 +137,7 @@ WKRetainPtr<WKMutableDictionaryRef> TestInvocation::createTestSettingsDictionary
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
     setValue(beginTestMessageBody, "IsAccessibilityIsolatedTreeEnabled", options().accessibilityIsolatedTreeMode());
 #endif
+    setValue(beginTestMessageBody, "TestIdentifier", m_identifier);
     setValue(beginTestMessageBody, "UseFlexibleViewport", options().useFlexibleViewport());
     setValue(beginTestMessageBody, "DumpPixels", m_dumpPixels);
     setValue(beginTestMessageBody, "Timeout", static_cast<uint64_t>(m_timeout.milliseconds()));
@@ -616,6 +620,7 @@ WKRetainPtr<WKTypeRef> TestInvocation::didReceiveSynchronousMessageFromInjectedB
     if (WKStringIsEqualToUTF8CString(messageName, "Initialization")) {
         auto settings = createTestSettingsDictionary();
         setValue(settings, "ResumeTesting", m_startedTesting);
+        setValue(settings, "TestIdentifier", m_identifier);
         return settings;
     }
 

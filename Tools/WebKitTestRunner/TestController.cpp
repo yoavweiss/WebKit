@@ -2457,10 +2457,17 @@ void TestController::didReceiveMessageFromInjectedBundle(WKStringRef messageName
     }
 
     if (WKStringIsEqualToUTF8CString(messageName, "EventSender")) {
-        if (m_state != RunningTest)
+        if (m_state != RunningTest || !m_currentInvocation)
             return;
 
         auto dictionary = dictionaryValue(messageBody);
+        uint64_t testIdentifier = uint64Value(dictionary, "TestIdentifier");
+
+        // This EventSender message was meant for another test, discard it
+        // to prevent potential flakiness.
+        if (testIdentifier != m_currentInvocation->identifier())
+            return;
+
         auto subMessageName = stringValue(dictionary, "SubMessage");
 
         if (WKStringIsEqualToUTF8CString(subMessageName, "MouseDown")) {
@@ -2529,7 +2536,17 @@ void TestController::didReceiveAsyncMessageFromInjectedBundle(WKStringRef messag
     };
 
     if (WKStringIsEqualToUTF8CString(messageName, "EventSender")) {
+        if (!m_currentInvocation)
+            return completionHandler(nullptr);
+
         auto dictionary = dictionaryValue(messageBody);
+        uint64_t testIdentifier = uint64Value(dictionary, "TestIdentifier");
+
+        // This EventSender message was meant for another test, discard it
+        // to prevent potential flakiness.
+        if (testIdentifier != m_currentInvocation->identifier())
+            return completionHandler(nullptr);
+
         auto subMessageName = stringValue(dictionary, "SubMessage");
 
         if (WKStringIsEqualToUTF8CString(subMessageName, "MouseDown"))
@@ -2785,10 +2802,17 @@ void TestController::didReceiveSynchronousMessageFromInjectedBundle(WKStringRef 
     };
 
     if (WKStringIsEqualToUTF8CString(messageName, "EventSender")) {
-        if (m_state != RunningTest)
+        if (m_state != RunningTest || !m_currentInvocation)
             return completionHandler(nullptr);
 
         auto dictionary = dictionaryValue(messageBody);
+        uint64_t testIdentifier = uint64Value(dictionary, "TestIdentifier");
+
+        // This EventSender message was meant for another test, discard it
+        // to prevent potential flakiness.
+        if (testIdentifier != m_currentInvocation->identifier())
+            return completionHandler(nullptr);
+
         auto subMessageName = stringValue(dictionary, "SubMessage");
 
         if (WKStringIsEqualToUTF8CString(subMessageName, "KeyDown")) {
