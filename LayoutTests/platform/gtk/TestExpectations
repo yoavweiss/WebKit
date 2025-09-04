@@ -102,11 +102,6 @@ webkit.org/b/285993 imported/w3c/web-platform-tests/html/canvas/offscreen/manual
 # Times out, possibly missing automation:
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/interactionid-auxclick.html [ Skip ]
 
-# Crash mentioning WTR::UIScriptController::notImplemented() with the EventTimingEnabled feature flag
-webkit.org/b/296246 imported/w3c/web-platform-tests/event-timing/first-input-interactionid-key.html [ Crash ]
-webkit.org/b/296246 imported/w3c/web-platform-tests/event-timing/interaction-count-tap.html [ Crash ]
-webkit.org/b/296246 imported/w3c/web-platform-tests/event-timing/TapToStopFling.html [ Crash ]
-
 # GStreamer - GTK-Only. Most GStreamer issues probably will go in the glib expectations
 webkit.org/b/210528 media/video-supports-fullscreen.html [ Pass ]
 
@@ -790,8 +785,6 @@ webkit.org/b/207605 [ Debug ] http/tests/websocket/tests/hybi/no-subprotocol.htm
 webkit.org/b/286466 imported/w3c/web-platform-tests/css/css-text/hyphens/hyphens-character.html [ Crash ]
 webkit.org/b/286466 imported/w3c/web-platform-tests/css/css-text/hyphens/i18n/hyphens-i18n-auto-002.html [ Crash ]
 webkit.org/b/286466 imported/w3c/web-platform-tests/css/css-text/hyphens/i18n/hyphens-i18n-auto-001.html [ Crash ]
-
-webkit.org/b/286930 media/modern-media-controls/scrubber-support/scrubber-support-seek-back.html [ Crash ]
 
 # Tests crashing due to failing assertions
 

@@ -544,34 +544,6 @@ webkit.org/b/204112 editing/async-clipboard/clipboard-change-data-while-getting-
 webkit.org/b/204112 editing/async-clipboard/clipboard-change-data-while-reading.html [ Timeout ]
 webkit.org/b/204112 editing/async-clipboard/clipboard-get-type-with-old-items.html [ Timeout Pass ]
 
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchmove-event-listener-on-body.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchmove-event-listener-on-div.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchmove-event-listener-on-document.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchmove-event-listener-on-root.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchmove-event-listener-on-window.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchstart-event-listener-on-body.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchstart-event-listener-on-div.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchstart-event-listener-on-document.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchstart-event-listener-on-root.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/non-passive-touchstart-event-listener-on-window.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchmove-event-listener-on-body.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchmove-event-listener-on-div.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchmove-event-listener-on-document.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchmove-event-listener-on-root.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchmove-event-listener-on-window.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchstart-event-listener-on-body.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchstart-event-listener-on-div.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchstart-event-listener-on-document.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchstart-event-listener-on-root.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/dom/events/non-cancelable-when-passive/passive-touchstart-event-listener-on-window.html [ Crash ]
-
-webkit.org/b/286930 media/modern-media-controls/scrubber-support/scrubber-support-seek-back.html [ Crash ]
-
-# Crashes with WTR::UIScriptController::notImplemented():
-webkit.org/b/296246 imported/w3c/web-platform-tests/event-timing/first-input-interactionid-key.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/interaction-count-tap.html [ Crash ]
-webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/TapToStopFling.html [ Crash ]
-
 # Event timing: times out, probably missing automation
 webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/click-timing.html [ Skip ]
 webkit.org/b/244186 imported/w3c/web-platform-tests/event-timing/contextmenu.html [ Skip ]
