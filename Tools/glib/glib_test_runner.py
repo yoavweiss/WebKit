@@ -290,7 +290,7 @@ class GLibTestRunner(object):
             errors = self._read_from_stderr(self._stderr_fd)
             sys.stdout.write('Test program shutdown failed.')
             self._subtest_stderr(errors)
-            self._results[SHUTDOWN_SUBTEST_STR] = 'CRASH'
+            self._results[SHUTDOWN_FAILED_STR] = 'CRASH'
             return self._results
 
         if len(self._results) == 0:
