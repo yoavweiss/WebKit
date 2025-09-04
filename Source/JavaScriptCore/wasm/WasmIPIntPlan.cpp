@@ -140,10 +140,10 @@ void IPIntPlan::compileFunction(FunctionCodeIndex functionIndex)
         CodePtr<WasmEntryPtrTag> entrypoint { };
 #if ENABLE(JIT)
         if (Options::useJIT()) {
-            if (usesSIMD)
-                entrypoint = LLInt::inPlaceInterpreterSIMDEntryThunk().retaggedCode<WasmEntryPtrTag>();
-            else
+            if (!usesSIMD || Options::useWasmIPIntSIMD())
                 entrypoint = LLInt::inPlaceInterpreterEntryThunk().retaggedCode<WasmEntryPtrTag>();
+            else
+                entrypoint = LLInt::inPlaceInterpreterSIMDEntryThunk().retaggedCode<WasmEntryPtrTag>();
         }
 #endif
         if (!entrypoint)

@@ -171,8 +171,9 @@ static inline RefPtr<Wasm::JITCallee> jitCompileAndSetHeuristics(Wasm::IPIntCall
     return getReplacement();
 }
 
-static inline Expected<RefPtr<Wasm::JITCallee>, Wasm::CompilationError> jitCompileSIMDFunction(Wasm::IPIntCallee& callee, JSWebAssemblyInstance* instance)
+static inline Expected<RefPtr<Wasm::JITCallee>, Wasm::CompilationError> jitCompileSIMDFunctionSynchronously(Wasm::IPIntCallee& callee, JSWebAssemblyInstance* instance)
 {
+    ASSERT(Options::useWasmSIMD() && !Options::useWasmIPIntSIMD());
     Wasm::IPIntTierUpCounter& tierUpCounter = callee.tierUpCounter();
 
     MemoryMode memoryMode = instance->memory()->mode();
@@ -235,13 +236,13 @@ WASM_IPINT_EXTERN_CPP_DECL(simd_go_straight_to_bbq, CallFrame* cfr)
 {
     auto* callee = IPINT_CALLEE(cfr);
 
-    if (!Options::useWasmSIMD())
-        RELEASE_ASSERT_NOT_REACHED();
+    RELEASE_ASSERT(Options::useWasmSIMD());
+    RELEASE_ASSERT(!Options::useWasmIPIntSIMD());
     RELEASE_ASSERT(shouldJIT(callee));
 
     dataLogLnIf(Options::verboseOSR(), *callee, ": Entered simd_go_straight_to_bbq_osr with tierUpCounter = ", callee->tierUpCounter());
 
-    auto result = jitCompileSIMDFunction(*callee, instance);
+    auto result = jitCompileSIMDFunctionSynchronously(*callee, instance);
     if (result.has_value()) [[likely]]
         WASM_RETURN_TWO(result.value()->entrypoint().taggedPtr(), nullptr);
 

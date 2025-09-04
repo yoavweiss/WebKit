@@ -3877,6 +3877,7 @@ void BBQJIT::restoreWebAssemblyGlobalStateAfterWasmCall()
 
 void BBQJIT::notifyFunctionUsesSIMD()
 {
+    ASSERT(m_info.usesSIMD(m_functionIndex));
     m_usesSIMD = true;
 }
 
