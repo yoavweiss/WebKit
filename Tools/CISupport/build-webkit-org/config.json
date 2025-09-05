@@ -56,10 +56,14 @@
                   { "name": "bot1021", "platform": "mac-sequoia" },
                   { "name": "bot1025", "platform": "mac-sequoia" },
                   { "name": "bot1026", "platform": "mac-sequoia" },
+                  { "name": "bot605", "platform": "mac-sequoia" },
                   { "name": "bot616", "platform": "mac-sequoia" },
+                  { "name": "bot621", "platform": "*" },
+                  { "name": "bot665", "platform": "mac-sequoia" },
                   { "name": "bot669", "platform": "mac-sequoia" },
                   { "name": "bot675", "platform": "mac-sequoia" },
                   { "name": "bot676", "platform": "mac-sequoia" },
+                  { "name": "bot678", "platform": "*" },
                   { "name": "bot1027", "platform": "*" },
                   { "name": "bot1028", "platform": "*" },
 
@@ -184,7 +188,7 @@
                       "sequoia-applesilicon-release-tests-test262", "sequoia-release-tests-wk2-accessibility-isolated-tree", 
                       "sequoia-release-tests-wk2-site-isolation-tree", "sequoia-release-world-leaks-tests"
                   ],
-                  "workernames": ["bot279", "bot198"]
+                  "workernames": ["bot605", "bot279", "bot198"]
                   },
                   { "name": "Apple-Sequoia-Release-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
                   "platform": "mac-sequoia", "configuration": "release", "architectures": ["x86_64", "arm64"],
@@ -235,7 +239,7 @@
                       "sequoia-debug-tests-wk1", "sequoia-debug-tests-wk2", "sequoia-debug-applesilicon-tests-wk1",
                       "sequoia-debug-applesilicon-tests-wk2"
                   ],
-                  "workernames": ["bot131", "bot141"]
+                  "workernames": ["bot665", "bot131", "bot141"]
                   },
                   { "name": "Apple-Sequoia-Debug-WK1-Tests", "factory": "TestWebKit1AllButJSCFactory",
                   "platform": "mac-sequoia", "configuration": "debug", "architectures": ["x86_64", "arm64"],
