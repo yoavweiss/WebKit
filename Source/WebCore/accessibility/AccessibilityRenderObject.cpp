@@ -1099,6 +1099,13 @@ bool AccessibilityRenderObject::isAllowedChildOfTree() const
     return true;
 }
 
+AccessibilityObject* AccessibilityRenderObject::containingTree() const
+{
+    return Accessibility::findAncestor<AccessibilityObject>(*this, false, [] (const auto& ancestor) {
+        return ancestor.isTree();
+    });
+}
+
 static AccessibilityObjectInclusion objectInclusionFromAltText(const String& altText)
 {
     // Don't ignore an image that has alt text.
@@ -2337,6 +2344,9 @@ AccessibilityObject* AccessibilityRenderObject::observableObject() const
 
 bool AccessibilityRenderObject::shouldIgnoreAttributeRole() const
 {
+    if (hasTreeItemRole())
+        return hasRareData() && !rareData()->isTreeItemValid();
+
     return m_ariaRole == AccessibilityRole::Document && hasContentEditableAttributeSet();
 }
 
@@ -2348,6 +2358,9 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
             return determineListRoleWithCleanChildren();
         return isDescriptionList() ? AccessibilityRole::DescriptionList : AccessibilityRole::List;
     }
+
+    if (hasTreeItemRole())
+        ensureRareData().setIsTreeItemValid(containingTree());
 
     if (!m_renderer)
         return AccessibilityNodeObject::determineAccessibilityRole();

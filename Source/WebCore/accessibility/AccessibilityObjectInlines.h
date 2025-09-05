@@ -65,6 +65,12 @@ inline bool AccessibilityObject::isNonNativeTextControl() const
     return (isARIATextControl() || hasContentEditableAttributeSet()) && !isNativeTextControl();
 }
 
+inline bool AccessibilityObject::hasTreeItemRole() const
+{
+    RefPtr element = this->element();
+    return element && hasRole(*element, "treeitem"_s);
+}
+
 inline AXTextMarkerRange AccessibilityObject::textMarkerRange() const
 {
     return simpleRange();
@@ -240,16 +246,6 @@ inline const AccessibilityObject::AccessibilityChildrenVector& AccessibilityObje
         updateChildrenIfNecessary();
 
     return m_children;
-}
-
-inline bool AccessibilityObject::supportsCheckedState() const
-{
-    auto role = this->role();
-    return isCheckboxOrRadio()
-    || role == AccessibilityRole::MenuItemCheckbox
-    || role == AccessibilityRole::MenuItemRadio
-    || role == AccessibilityRole::Switch
-    || isToggleButton();
 }
 
 inline bool AccessibilityObject::supportsAutoComplete() const

@@ -73,6 +73,10 @@ public:
     void resetEffectiveRowSpan() { m_effectiveRowSpan = 1; }
     // End table-cell-related methods.
 
+    // Begin tree-grid-item related fields.
+    bool isTreeItemValid() const { return m_isValidTreeItem; }
+    void setIsTreeItemValid(bool isValid) { m_isValidTreeItem = isValid; }
+    // End tree-grid-item related fields.
 private:
     // Begin table-row-related fields.
     unsigned m_rowIndex;
@@ -88,6 +92,10 @@ private:
     RefPtr<AccessibilityObject> m_tableHeaderContainer;
     bool m_isExposableTable { false };
     // End table-related fields.
+
+    // Begin tree-grid-item related fields.
+    bool m_isValidTreeItem;
+    // End tree-grid-item related fields.
 
     // Begin table-cell-related fields.
     unsigned m_columnIndex { 0 };

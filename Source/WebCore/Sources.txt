@@ -593,7 +593,6 @@ accessibility/AccessibilitySpinButtonPart.cpp
 accessibility/AccessibilityTableColumn.cpp
 accessibility/AccessibilityTableHeaderContainer.cpp
 accessibility/AccessibilityTree.cpp
-accessibility/AccessibilityTreeItem.cpp
 accessibility/isolatedtree/AXIsolatedObject.cpp
 accessibility/isolatedtree/AXIsolatedTree.cpp
 animation/AcceleratedEffectStackUpdater.cpp

@@ -1210,6 +1210,19 @@ bool AccessibilityObject::isARIAControl(AccessibilityRole ariaRole)
     }
 }
 
+bool AccessibilityObject::supportsCheckedState() const
+{
+    if (hasTreeItemRole())
+        return hasAttribute(aria_checkedAttr);
+
+    auto role = this->role();
+    return isCheckboxOrRadio()
+    || role == AccessibilityRole::MenuItemCheckbox
+    || role == AccessibilityRole::MenuItemRadio
+    || role == AccessibilityRole::Switch
+    || isToggleButton();
+}
+
 bool AccessibilityObject::isRangeControl() const
 {
     switch (role()) {

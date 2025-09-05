@@ -59,7 +59,6 @@
 #include "AccessibilityTableColumn.h"
 #include "AccessibilityTableHeaderContainer.h"
 #include "AccessibilityTree.h"
-#include "AccessibilityTreeItem.h"
 #include "CaretRectComputation.h"
 #include "ContainerNodeInlines.h"
 #include "CustomElementDefaultARIA.h"
@@ -583,10 +582,6 @@ static bool isAccessibilityTree(Element& element)
     return hasRole(element, "tree"_s);
 }
 
-static bool isAccessibilityTreeItem(Element& element)
-{
-    return hasRole(element, "treeitem"_s);
-}
 
 Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObject& renderer)
 {
@@ -598,8 +593,6 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
 
         if (isAccessibilityTree(*element))
             return AccessibilityTree::create(AXID::generate(), renderer, *this);
-        if (isAccessibilityTreeItem(*element))
-            return AccessibilityTreeItem::create(AXID::generate(), renderer, *this);
     }
 
     if (renderer.isRenderOrLegacyRenderSVGRoot())
@@ -643,8 +636,6 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
             return AccessibilityRenderObject::create(AXID::generate(), *element, *this);
         if (isAccessibilityTree(*element))
             return AccessibilityTree::create(AXID::generate(), *element, *this);
-        if (isAccessibilityTreeItem(*element))
-            return AccessibilityTreeItem::create(AXID::generate(), *element, *this);
         if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*element))
             return AccessibilityImageMapLink::create(AXID::generate(), *areaElement, *this);
         if (is<HTMLProgressElement>(*element) || is<HTMLMeterElement>(*element))
