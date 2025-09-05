@@ -8268,7 +8268,6 @@
 		E326E356284E580E00157372 /* AuxiliaryProcessProxyCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AuxiliaryProcessProxyCocoa.mm; sourceTree = "<group>"; };
 		E326F4D92CA6C44F00182187 /* LogStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogStream.h; sourceTree = "<group>"; };
 		E326F4DA2CA6C44F00182187 /* LogStream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LogStream.cpp; sourceTree = "<group>"; };
-		E33072F42E5A1B6300D5E45D /* webcontent-defines.sb */ = {isa = PBXFileReference; lastKnownFileType = text; path = "webcontent-defines.sb"; sourceTree = "<group>"; };
 		E33E8FFC2C7FD2980002BEB3 /* UseDownloadPlaceholder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UseDownloadPlaceholder.h; sourceTree = "<group>"; };
 		E3439B632345463A0011DE0B /* NetworkProcessConnectionInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NetworkProcessConnectionInfo.h; path = Network/NetworkProcessConnectionInfo.h; sourceTree = "<group>"; };
 		E34B110C27C46BC6006D2F2E /* libWebCoreTestShim.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = libWebCoreTestShim.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -8285,7 +8284,6 @@
 		E36D701D27B718EF006531B7 /* WebAttachmentElementClient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebAttachmentElementClient.cpp; sourceTree = "<group>"; };
 		E36FF00127F36FBD004BE21A /* SandboxStateVariables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SandboxStateVariables.h; sourceTree = "<group>"; };
 		E36FF00227F36FBD004BE21A /* preferences.sb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = preferences.sb; sourceTree = "<group>"; };
-		E374E1C62E6251EE00614D31 /* gpu-defines.sb */ = {isa = PBXFileReference; lastKnownFileType = text; path = "gpu-defines.sb"; sourceTree = "<group>"; };
 		E37726002D0DF248000BCBA6 /* AdditionalFonts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AdditionalFonts.h; sourceTree = "<group>"; };
 		E37726012D0DF248000BCBA6 /* AdditionalFonts.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = AdditionalFonts.serialization.in; sourceTree = "<group>"; };
 		E37A2F1A2B8523300087F394 /* NetworkingProcessExtension.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = NetworkingProcessExtension.entitlements; sourceTree = "<group>"; };
@@ -8296,6 +8294,9 @@
 		E3816B3B27E24639005EAFC0 /* WebMockContentFilterManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WebMockContentFilterManager.cpp; path = Network/WebMockContentFilterManager.cpp; sourceTree = "<group>"; };
 		E3816B3C27E24639005EAFC0 /* WebMockContentFilterManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebMockContentFilterManager.h; path = Network/WebMockContentFilterManager.h; sourceTree = "<group>"; };
 		E382D57E2C21D500005F7653 /* DownloadProxyCocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DownloadProxyCocoa.mm; sourceTree = "<group>"; };
+		E385982C2E68CAA80012AD39 /* gpu-defines.sb */ = {isa = PBXFileReference; lastKnownFileType = text; path = "gpu-defines.sb"; sourceTree = "<group>"; };
+		E385982D2E68CAA80012AD39 /* networking-defines.sb */ = {isa = PBXFileReference; lastKnownFileType = text; path = "networking-defines.sb"; sourceTree = "<group>"; };
+		E385982E2E68CAA80012AD39 /* webcontent-defines.sb */ = {isa = PBXFileReference; lastKnownFileType = text; path = "webcontent-defines.sb"; sourceTree = "<group>"; };
 		E3866AE42397400400F88FE9 /* WebDeviceOrientationUpdateProviderProxy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WebDeviceOrientationUpdateProviderProxy.mm; path = ios/WebDeviceOrientationUpdateProviderProxy.mm; sourceTree = "<group>"; };
 		E3866AE62397405300F88FE9 /* WebDeviceOrientationUpdateProviderProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WebDeviceOrientationUpdateProviderProxy.h; path = ios/WebDeviceOrientationUpdateProviderProxy.h; sourceTree = "<group>"; };
 		E3866AED2398471A00F88FE9 /* WebDeviceOrientationUpdateProviderProxy.messages.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = WebDeviceOrientationUpdateProviderProxy.messages.in; path = ios/WebDeviceOrientationUpdateProviderProxy.messages.in; sourceTree = "<group>"; };
@@ -8327,7 +8328,6 @@
 		E3D80CA22E43AA3000D285E0 /* com.apple.WebKit.WebContent.Development.sb.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = com.apple.WebKit.WebContent.Development.sb.in; sourceTree = "<group>"; };
 		E3DC5B1A2C9AE09700D73BB3 /* LogStreamIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogStreamIdentifier.h; sourceTree = "<group>"; };
 		E3DCC9AA2DA07FA0008712FE /* WebKitServiceNames.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebKitServiceNames.h; sourceTree = "<group>"; };
-		E3E0A3E02E5B5BB6002B81D6 /* networking-defines.sb */ = {isa = PBXFileReference; lastKnownFileType = text; path = "networking-defines.sb"; sourceTree = "<group>"; };
 		E3E6297C2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServiceWorkerDebuggableProxy.h; sourceTree = "<group>"; };
 		E3E6297D2D5FA8F200DAE50C /* ServiceWorkerDebuggableProxy.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ServiceWorkerDebuggableProxy.cpp; sourceTree = "<group>"; };
 		E3E84BED2AE1AA5A0091B3C2 /* ExtensionKitSPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtensionKitSPI.h; sourceTree = "<group>"; };
@@ -16681,9 +16681,9 @@
 			isa = PBXGroup;
 			children = (
 				E350A7C82934F75F00A06C29 /* common.sb */,
-				E374E1C62E6251EE00614D31 /* gpu-defines.sb */,
-				E3E0A3E02E5B5BB6002B81D6 /* networking-defines.sb */,
-				E33072F42E5A1B6300D5E45D /* webcontent-defines.sb */,
+				E385982C2E68CAA80012AD39 /* gpu-defines.sb */,
+				E385982D2E68CAA80012AD39 /* networking-defines.sb */,
+				E385982E2E68CAA80012AD39 /* webcontent-defines.sb */,
 			);
 			path = iOS;
 			sourceTree = "<group>";

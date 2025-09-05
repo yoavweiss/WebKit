@@ -104,6 +104,7 @@
     (iokit-registry-entry-class "AppleKeyStore"))
 
 (allow darwin-notification-post (darwin-notification-post-allowed))
+(allow darwin-notification-post (darwin-notification-post-prefix-allowed))
 
 (allow file-clone
     (subpath
@@ -153,24 +154,18 @@
            (literal "/private/var/Managed Preferences/mobile/.GlobalPreferences.plist"))
     (allow managed-preference-read (preference-domain "kCFPreferencesAnyApplication"))
 
-    (deny file-read-metadata 
+    (deny file-read-metadata
         (home-literal "/Library/Caches/powerlog.launchd"))
 
     (allow-read-and-issue-generic-extensions (executable-bundle))
     (allow file-map-executable  (executable-bundle))
-
-    (deny file-read-data file-issue-extension file-map-executable
-        (require-all
-            (executable-bundle)
-            (regex #"/[^/]+/SC_Info/")))
 
     (with-filter (global-name-prefix "")
         (deny mach-lookup 
                (extension "com.apple.security.exception.mach-lookup.global-name")))
     (with-filter (local-name-prefix "")
         (deny mach-lookup 
-               (extension "com.apple.security.exception.mach-lookup.local-name"))
-    )
+               (extension "com.apple.security.exception.mach-lookup.local-name")))
     (allow managed-preference-read
            (extension "com.apple.security.exception.managed-preference.read-only"))
     (allow user-preference-read
@@ -210,8 +205,6 @@
 (allow mach-lookup 
     (global-name "com.apple.runningboard")) ;; Needed by process assertion code (ProcessTaskStateObserver).
 
-(allow-multi-instance-xpc-services)
-
 (allow system-sched
     (require-entitlement "com.apple.private.kernel.override-cpumon"))
 
@@ -222,7 +215,7 @@
            (sysctl-name "vm.footprint_suspend")))
 
 ;; Needed by WebKit LOG macros and ASL logging.
-(deny file-read-metadata 
+(deny file-read-metadata
        (literal "/private/var/run/syslog"))
 
 ;; ObjC map_images needs to send logging data to syslog. <rdar://problem/39778918>
@@ -235,13 +228,7 @@
 (allow ipc-posix-shm-read*
     (ipc-posix-name "apple.shm.notification_center")) ;; Needed by os_log_create
 
-(deny mach-lookup 
-    (global-name "com.apple.distributed_notifications@1v3"))
-
 (managed-configuration-read-public)
-
-(deny mach-lookup 
-    (global-name "com.apple.ctkd.token-client"))
 
 (deny system-info NO_REPORT
     (info-type "net.link.addr"))
@@ -281,18 +268,6 @@
 (allow file-read* file-write* (extension "com.apple.app-sandbox.read-write"))
 (allow file-read* (extension "com.apple.app-sandbox.read"))
 
-;; FIXME: <rdar://problem/17909681> SSO expects to be able to walk the parent
-;; bundle to find Info plists, so we jump through a few hoops here to provide
-;; enough access to make it possible.
-
-;; IOKit user clients
-(deny iokit-open-user-client
-    (iokit-user-client-class "RootDomainUserClient")) ;; Needed by PowerObserver
-
-;; Various services required by CFNetwork and other frameworks
-(deny mach-lookup 
-       (global-name "com.apple.PowerManagement.control"))
-
 (network-client (remote tcp) (remote udp))
 
 ;; allow 3rd party applications to access nsurlstoraged's top level domain data cache
@@ -302,26 +277,17 @@
 (allow file-read-data
     (literal "/usr/local/lib/log")) ; <rdar://problem/36629495>
 
-;; Security framework
-(deny mach-lookup
-    (global-name "com.apple.ocspd")
-    (global-name "com.apple.securityd"))
-
 ;; PassKit framework
 (allow mach-lookup
     (global-name "com.apple.passd.in-app-payment")
     (global-name "com.apple.passd.library"))
 
-(deny mach-lookup 
-    (global-name "com.apple.FileCoordination")
-    (global-name "com.apple.dmd.policy"))
-
-(allow mach-lookup 
+(allow mach-lookup
     (global-name "com.apple.siri.context.service")
     (global-name "com.apple.ctcategories.service"))
 
 (deny file-write-create
-      (vnode-type SYMLINK))
+    (vnode-type SYMLINK))
 
 (deny file-read* NO_REPORT
     (literal "/private/etc/group"))
@@ -392,9 +358,6 @@
 (allow mach-lookup (with telemetry) (global-name "com.apple.webkit.adattributiond.service"))
 (allow mach-lookup (with telemetry) (global-name "com.apple.webkit.webpushd.service"))
 
-;; Access to MobileGestalt
-(deny mach-lookup 
-    (global-name "com.apple.mobilegestalt.xpc"))
 (allow file-read*
     (well-known-system-group-container-literal "/systemgroup.com.apple.mobilegestaltcache/Library/Caches/com.apple.MobileGestalt.plist"))
 (allow iokit-get-properties
