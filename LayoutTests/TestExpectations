@@ -7702,7 +7702,6 @@ imported/w3c/web-platform-tests/css/css-viewport/zoom/letter-spacing.html [ Imag
 imported/w3c/web-platform-tests/css/css-viewport/zoom/line-height.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-viewport/zoom/list-style-image.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-viewport/zoom/relative-units-from-parent.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-viewport/zoom/svg.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-viewport/zoom/text-indent.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-viewport/zoom/text-shadow.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-viewport/zoom/text-stroke-width.html [ ImageOnlyFailure ]
