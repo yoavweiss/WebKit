@@ -71,6 +71,16 @@ StackFrame::StackFrame(Wasm::IndexOrName indexOrName, size_t functionIndex)
 {
 }
 
+StackFrame::StackFrame(VM& vm, JSCell* owner, JSCell* callee, bool isAsyncFrameWithoutCodeBlock)
+    : m_frameData(JSFrameData {
+        WriteBarrier<JSCell>(vm, owner, callee),
+        WriteBarrier<CodeBlock>(),
+        BytecodeIndex(),
+        isAsyncFrameWithoutCodeBlock
+    })
+{
+}
+
 bool StackFrame::hasBytecodeIndex() const
 {
     if (auto* jsFrame = std::get_if<JSFrameData>(&m_frameData))
@@ -137,6 +147,13 @@ String StackFrame::sourceURL(VM& vm) const
 {
     return WTF::switchOn(m_frameData,
         [&vm, this](const JSFrameData& jsFrame) -> String {
+            if (jsFrame.m_isAsyncFrameWithoutCodeBlock) {
+                ASSERT(jsFrame.callee);
+                ASSERT(!jsFrame.codeBlock);
+                JSFunction* calleeFn = jsDynamicCast<JSFunction*>(jsFrame.callee.get());
+                return processSourceURL(vm, *this, calleeFn->jsExecutable()->sourceURL());
+            }
+
             if (!jsFrame.codeBlock)
                 return "[native code]"_s;
             return processSourceURL(vm, *this, jsFrame.codeBlock->ownerExecutable()->sourceURL());
@@ -154,6 +171,13 @@ String StackFrame::sourceURLStripped(VM& vm) const
 {
     return WTF::switchOn(m_frameData,
         [&vm, this](const JSFrameData& jsFrame) -> String {
+            if (jsFrame.m_isAsyncFrameWithoutCodeBlock) {
+                ASSERT(jsFrame.callee);
+                ASSERT(!jsFrame.codeBlock);
+                JSFunction* calleeFn = jsDynamicCast<JSFunction*>(jsFrame.callee.get());
+                return processSourceURL(vm, *this, calleeFn->jsExecutable()->sourceURLStripped());
+            }
+
             if (!jsFrame.codeBlock)
                 return "[native code]"_s;
             return processSourceURL(vm, *this, jsFrame.codeBlock->ownerExecutable()->sourceURLStripped());
