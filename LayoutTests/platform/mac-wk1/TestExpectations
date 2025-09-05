@@ -2961,8 +2961,6 @@ imported/w3c/web-platform-tests/workers/modules/dedicated-worker-import-referrer
 
 webkit.org/b/272939 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/module/referrer-strict-policies.sub.html [ Pass Failure ]
 
-webkit.org/b/273279 fonts/font-fallback-prefers-pictographs.html [ Skip ]
-
 # rdar://127055453 ([ EWS MacOS WK1 ] http/tests/media/hls/hls-webvtt-style.html is a flaky timeout (273251))
 http/tests/media/hls/hls-webvtt-style.html [ Pass Timeout ]
 
@@ -3058,8 +3056,7 @@ webkit.org/b/284486 imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid
 webkit.org/b/284486 imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-baseline-006.html [ Pass Failure ]
 webkit.org/b/284486 imported/w3c/web-platform-tests/css/css-grid/subgrid/subgrid-baseline-007.html [ Pass Failure ]
 
-webkit.org/b/284898 fonts/font-weight-invalid-crash.html [ Pass Failure ]
-webkit.org/b/284898 fonts/ligature.html [ Pass Failure ImageOnlyFailure ]
+webkit.org/b/284898 fonts/font-cache-memory-pressure-crash.html [ Skip ]
 
 webkit.org/b/284954 imported/w3c/web-platform-tests/css/css-box/margin-trim/computed-margin-values/block-container-block-start-child-with-border.html [ Pass Failure ]
 
