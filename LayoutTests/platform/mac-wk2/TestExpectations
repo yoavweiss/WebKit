@@ -2415,6 +2415,6 @@ webkit.org/b/298269 imported/w3c/web-platform-tests/html/anonymous-iframe/sessio
 
 webkit.org/b/298278 imported/w3c/web-platform-tests/html/anonymous-iframe/local-storage.tentative.https.window.html [ Pass Failure ]
 
-webkit.org/b/298292 [ Sequoia ] http/tests/webgpu/webgpu/api/operation/sampling/sampler_texture.html [ Pass Crash ]
+webkit.org/b/298292 [ Sequoia ] http/tests/webgpu/webgpu/api/operation/sampling/sampler_texture.html [ Pass ]
 
 webkit.org/b/298416 [ Debug ] http/tests/websocket/web-socket-loads-captured-in-per-page-domains.html [ Pass Crash ]

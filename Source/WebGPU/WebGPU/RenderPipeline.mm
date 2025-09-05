@@ -1476,8 +1476,6 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
 #endif
 
     auto label = fromAPI(descriptor.label).createNSString();
-    // FIXME: https://bugs.webkit.org/show_bug.cgi?id=249345 don't unconditionally set this to YES
-    mtlRenderPipelineDescriptor.supportIndirectCommandBuffers = YES;
     auto& deviceLimits = limits();
 
     RefPtr<PipelineLayout> pipelineLayout;
@@ -1735,13 +1733,14 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
 
     NSError *error = nil;
 #if !defined(NDEBUG) || (defined(ENABLE_LIBFUZZER) && ENABLE_LIBFUZZER && defined(ASAN_ENABLED) && ASAN_ENABLED)
-    dumpMetalReproCaseRenderPSO(WTFMove(vertexShaderSource), mtlRenderPipelineDescriptor.vertexFunction.name, WTFMove(fragmentShaderSource), mtlRenderPipelineDescriptor.fragmentFunction.name, mtlRenderPipelineDescriptor, shaderLocations, *this);
+    if (dumpMetalReproCaseRenderPSO(WTFMove(vertexShaderSource), mtlRenderPipelineDescriptor.vertexFunction.name, WTFMove(fragmentShaderSource), mtlRenderPipelineDescriptor.fragmentFunction.name, mtlRenderPipelineDescriptor, shaderLocations, *this)) {
+        mtlRenderPipelineDescriptor.supportIndirectCommandBuffers = YES;
+        id<MTLRenderPipelineState> renderPipelineState = [m_device newRenderPipelineStateWithDescriptor:mtlRenderPipelineDescriptor error:&error];
+        UNUSED_PARAM(renderPipelineState);
+        clearMetalPSORepro();
+    }
 #endif
-    id<MTLRenderPipelineState> renderPipelineState = [m_device newRenderPipelineStateWithDescriptor:mtlRenderPipelineDescriptor error:&error];
-#if !defined(NDEBUG) || (defined(ENABLE_LIBFUZZER) && ENABLE_LIBFUZZER && defined(ASAN_ENABLED) && ASAN_ENABLED)
-    clearMetalPSORepro();
-#endif
-    if (error || !renderPipelineState)
+    if (error)
         return returnInvalidRenderPipeline(*this, isAsync, error.localizedDescription);
 
     if (m_renderPipelineId == Device::maxPipelines) {
@@ -1753,10 +1752,10 @@ std::pair<Ref<RenderPipeline>, NSString*> Device::createRenderPipeline(const WGP
         if (!generatedPipelineLayout->isValid())
             return returnInvalidRenderPipeline(*this, isAsync, "Generated pipeline layout is not valid"_s);
 
-        return std::make_pair(RenderPipeline::create(renderPipelineState, mtlPrimitiveType, mtlIndexType, mtlFrontFace, mtlCullMode, mtlDepthClipMode, depthStencilDescriptor, WTFMove(generatedPipelineLayout), depthBias, depthBiasSlopeScale, depthBiasClamp, sampleMask, mtlRenderPipelineDescriptor, colorAttachmentCount, descriptor, WTFMove(requiredBufferIndices), WTFMove(minimumBufferSizes), ++m_renderPipelineId, vertexShaderBindingCount, *this), nil);
+        return std::make_pair(RenderPipeline::create(mtlPrimitiveType, mtlIndexType, mtlFrontFace, mtlCullMode, mtlDepthClipMode, depthStencilDescriptor, WTFMove(generatedPipelineLayout), depthBias, depthBiasSlopeScale, depthBiasClamp, sampleMask, mtlRenderPipelineDescriptor, colorAttachmentCount, descriptor, WTFMove(requiredBufferIndices), WTFMove(minimumBufferSizes), ++m_renderPipelineId, vertexShaderBindingCount, *this), nil);
     }
 
-    return std::make_pair(RenderPipeline::create(renderPipelineState, mtlPrimitiveType, mtlIndexType, mtlFrontFace, mtlCullMode, mtlDepthClipMode, depthStencilDescriptor, const_cast<PipelineLayout&>(*pipelineLayout), depthBias, depthBiasSlopeScale, depthBiasClamp, sampleMask, mtlRenderPipelineDescriptor, colorAttachmentCount, descriptor, WTFMove(requiredBufferIndices), WTFMove(minimumBufferSizes), ++m_renderPipelineId, vertexShaderBindingCount, *this), nil);
+    return std::make_pair(RenderPipeline::create(mtlPrimitiveType, mtlIndexType, mtlFrontFace, mtlCullMode, mtlDepthClipMode, depthStencilDescriptor, const_cast<PipelineLayout&>(*pipelineLayout), depthBias, depthBiasSlopeScale, depthBiasClamp, sampleMask, mtlRenderPipelineDescriptor, colorAttachmentCount, descriptor, WTFMove(requiredBufferIndices), WTFMove(minimumBufferSizes), ++m_renderPipelineId, vertexShaderBindingCount, *this), nil);
 }
 
 void Device::createRenderPipelineAsync(const WGPURenderPipelineDescriptor& descriptor, CompletionHandler<void(WGPUCreatePipelineAsyncStatus, Ref<RenderPipeline>&&, String&& message)>&& callback)
@@ -1772,9 +1771,8 @@ void Device::createRenderPipelineAsync(const WGPURenderPipelineDescriptor& descr
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RenderPipeline);
 
-RenderPipeline::RenderPipeline(id<MTLRenderPipelineState> renderPipelineState, MTLPrimitiveType primitiveType, std::optional<MTLIndexType> indexType, MTLWinding frontFace, MTLCullMode cullMode, MTLDepthClipMode clipMode, MTLDepthStencilDescriptor *depthStencilDescriptor, Ref<PipelineLayout>&& pipelineLayout, float depthBias, float depthBiasSlopeScale, float depthBiasClamp, uint32_t sampleMask, MTLRenderPipelineDescriptor* renderPipelineDescriptor, uint32_t colorAttachmentCount, const WGPURenderPipelineDescriptor& descriptor, RequiredBufferIndicesContainer&& requiredBufferIndices, BufferBindingSizesForPipeline&& minimumBufferSizes, uint64_t uniqueId, uint32_t vertexShaderBindingCount, Device& device)
-    : m_renderPipelineState(renderPipelineState)
-    , m_device(device)
+RenderPipeline::RenderPipeline(MTLPrimitiveType primitiveType, std::optional<MTLIndexType> indexType, MTLWinding frontFace, MTLCullMode cullMode, MTLDepthClipMode clipMode, MTLDepthStencilDescriptor *depthStencilDescriptor, Ref<PipelineLayout>&& pipelineLayout, float depthBias, float depthBiasSlopeScale, float depthBiasClamp, uint32_t sampleMask, MTLRenderPipelineDescriptor* renderPipelineDescriptor, uint32_t colorAttachmentCount, const WGPURenderPipelineDescriptor& descriptor, RequiredBufferIndicesContainer&& requiredBufferIndices, BufferBindingSizesForPipeline&& minimumBufferSizes, uint64_t uniqueId, uint32_t vertexShaderBindingCount, Device& device)
+    : m_device(device)
     , m_primitiveType(primitiveType)
     , m_indexType(indexType)
     , m_frontFace(frontFace)
@@ -1983,18 +1981,29 @@ RefPtr<RenderPipeline> RenderPipeline::recomputeLastStrideAsStride() const
         }
     }
 
-    NSError *error = nil;
-    RELEASE_ASSERT(m_device->device());
-    id<MTLRenderPipelineState> renderPipelineState = [m_device->device() newRenderPipelineStateWithDescriptor:clonedRenderPipelineDescriptor error:&error];
-    if (!renderPipelineState) {
-        if (error)
-            WTFLogAlways("Cloning RenderPipeline state failed: %@", error.localizedDescription); // NOLINT
-        return nullptr;
-    }
-
     auto minimumBufferSizes = m_minimumBufferSizes;
-    m_lastStrideAsStridePipeline = RenderPipeline::create(renderPipelineState, m_primitiveType, m_indexType, m_frontFace, m_cullMode, m_clipMode, m_depthStencilDescriptor, m_pipelineLayout.copyRef(), m_depthBias, m_depthBiasSlopeScale, m_depthBiasClamp, m_sampleMask, clonedRenderPipelineDescriptor, m_colorAttachmentCount, m_descriptor, WTFMove(requiredBufferIndices), WTFMove(minimumBufferSizes), m_uniqueId, m_vertexShaderBindingCount, m_device);
+    m_lastStrideAsStridePipeline = RenderPipeline::create(m_primitiveType, m_indexType, m_frontFace, m_cullMode, m_clipMode, m_depthStencilDescriptor, m_pipelineLayout.copyRef(), m_depthBias, m_depthBiasSlopeScale, m_depthBiasClamp, m_sampleMask, clonedRenderPipelineDescriptor, m_colorAttachmentCount, m_descriptor, WTFMove(requiredBufferIndices), WTFMove(minimumBufferSizes), m_uniqueId, m_vertexShaderBindingCount, m_device);
+
     return m_lastStrideAsStridePipeline;
+}
+
+id<MTLRenderPipelineState> RenderPipeline::renderPipelineState() const
+{
+    if (m_renderPipelineState)
+        return m_renderPipelineState;
+
+    m_renderPipelineState = [m_device->device() newRenderPipelineStateWithDescriptor:m_renderPipelineDescriptor error:nil];
+    return m_renderPipelineState;
+}
+
+id<MTLRenderPipelineState> RenderPipeline::icbRenderPipelineState() const
+{
+    if (m_renderPipelineState && m_renderPipelineDescriptor.supportIndirectCommandBuffers)
+        return m_renderPipelineState;
+
+    m_renderPipelineDescriptor.supportIndirectCommandBuffers = YES;
+    m_renderPipelineState = [m_device->device() newRenderPipelineStateWithDescriptor:m_renderPipelineDescriptor error:nil];
+    return m_renderPipelineState;
 }
 
 } // namespace WebGPU
