@@ -2529,8 +2529,6 @@ webkit.org/b/297691 fast/canvas/webgl/tex-image-and-sub-image-2d-with-video.html
 
 webkit.org/b/298042 http/tests/security/clipboard/copy-paste-html-cross-origin-iframe-across-origin.html [ Pass Failure ]
 
-webkit.org/b/298255 http/tests/media/modern-media-controls/time-control/less-than-10-minutes.html [ Timeout ]
-
 webkit.org/b/298402 inspector/worker/dom-debugger-event-after-terminate-crash.html [ Pass Crash ]
 
 webkit.org/b/298418 [ Debug ] imported/w3c/web-platform-tests/eventsource/eventsource-constructor-empty-url.any.html [ Pass Failure ]
