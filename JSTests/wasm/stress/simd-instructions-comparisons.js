@@ -1,6 +1,6 @@
 //@ requireOptions("--useWasmSIMD=1")
 //@ skip if !$isSIMDPlatform
-import { instantiate } from "../wabt-wrapper.js"
+import { runSIMDTests } from "./simd-instructions-lib.js"
 import * as assert from "../assert.js"
 
 const verbose = false;
@@ -459,89 +459,4 @@ const comparisonTests = [
     ]
 ];
 
-// Generate WebAssembly module with test functions
-function generateWat() {
-    let wat = `
-(module
-    (memory (export "memory") 1)
-    
-    ;; Helper function to store v128 result to memory
-    (func (export "store_result") (param $addr i32) (param $value v128)
-        (v128.store (local.get $addr) (local.get $value))
-    )
-`;
-
-    // Generate a test function for each comparison test
-    comparisonTests.forEach((test, index) => {
-        const [instruction, input0, input1, expected] = test;
-        wat += `
-    (func (export "test_${index}") (param $addr i32)
-        (v128.store (local.get $addr)
-            (${instruction} ${input0} ${input1}))
-    )
-`;
-    });
-
-    wat += `
-)
-`;
-    return wat;
-}
-
-async function test() {
-    const wat = generateWat();
-    const instance = await instantiate(wat, {}, { simd: true });
-    const memory = instance.exports.memory;
-    const buffer = memory.buffer;
-    const u8 = new Uint8Array(buffer);
-    const u16 = new Uint16Array(buffer);
-    const u32 = new Uint32Array(buffer);
-    const u64 = new BigUint64Array(buffer);
-
-    function clearMemory() {
-        u8.fill(0);
-    }
-
-    for (let i = 0; i < wasmTestLoopCount; ++i) {
-        // Test each comparison instruction
-        comparisonTests.forEach((test, testIndex) => {
-            const [instruction, input0, input1, expected] = test;
-            
-            if (verbose)
-                print(`Testing ${instruction} test ${testIndex}...`);
-            
-            clearMemory();
-            
-            // Call the test function
-            const testFunc = instance.exports[`test_${testIndex}`];
-            testFunc(0);
-            
-            // Verify the result using appropriate data type
-            if (instruction.startsWith('i8x16.')) {
-                // i8x16 instructions: verify as bytes
-                for (let j = 0; j < 16; j++)
-                    assert.eq(u8[j], expected[j]);
-            } else if (instruction.startsWith('i16x8.')) {
-                // i16x8 instructions: verify as 16-bit words
-                for (let j = 0; j < 8; j++)
-                    assert.eq(u16[j], expected[j]);
-            } else if (instruction.startsWith('i32x4.') || instruction.startsWith('f32x4.')) {
-                // i32x4 and f32x4 instructions: verify as 32-bit words
-                for (let j = 0; j < 4; j++)
-                    assert.eq(u32[j], expected[j]);
-            } else if (instruction.startsWith('f64x2.')) {
-                // f64x2 instructions: verify as 64-bit words
-                for (let j = 0; j < 2; j++)
-                    assert.eq(u64[j], expected[j]);
-            }
-            
-            if (verbose)
-                print(`✓ ${instruction} test ${testIndex} passed`);
-        });
-    }
-    
-    if (verbose)
-        print(`All ${comparisonTests.length} SIMD comparison tests passed!`);
-}
-
-await assert.asyncTest(test())
+await runSIMDTests(comparisonTests, verbose, "SIMD comparison");

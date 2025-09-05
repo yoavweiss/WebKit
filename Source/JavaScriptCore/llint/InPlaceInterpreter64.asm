@@ -5019,12 +5019,90 @@ unimplementedInstruction(_simd_f32x4_nearest)
 unimplementedInstruction(_simd_i8x16_shl)
 unimplementedInstruction(_simd_i8x16_shr_s)
 unimplementedInstruction(_simd_i8x16_shr_u)
-unimplementedInstruction(_simd_i8x16_add)
-unimplementedInstruction(_simd_i8x16_add_sat_s)
-unimplementedInstruction(_simd_i8x16_add_sat_u)
-unimplementedInstruction(_simd_i8x16_sub)
-unimplementedInstruction(_simd_i8x16_sub_sat_s)
-unimplementedInstruction(_simd_i8x16_sub_sat_u)
+
+ipintOp(_simd_i8x16_add, macro()
+    # i8x16.add - add 16 8-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "add v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_add_sat_s, macro()
+    # i8x16.add_sat_s - add 16 8-bit signed integers with saturation
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "sqadd v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_add_sat_u, macro()
+    # i8x16.add_sat_u - add 16 8-bit unsigned integers with saturation
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "uqadd v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_sub, macro()
+    # i8x16.sub - subtract 16 8-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "sub v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_sub_sat_s, macro()
+    # i8x16.sub_sat_s - subtract 16 8-bit signed integers with saturation
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "sqsub v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_sub_sat_u, macro()
+    # i8x16.sub_sat_u - subtract 16 8-bit unsigned integers with saturation
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "uqsub v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x74 - 0xFD 0x75: f64x2 operations
 unimplementedInstruction(_simd_f64x2_ceil)
@@ -5064,12 +5142,90 @@ unimplementedInstruction(_simd_i16x8_extend_high_i8x16_u)
 unimplementedInstruction(_simd_i16x8_shl)
 unimplementedInstruction(_simd_i16x8_shr_s)
 unimplementedInstruction(_simd_i16x8_shr_u)
-unimplementedInstruction(_simd_i16x8_add)
-unimplementedInstruction(_simd_i16x8_add_sat_s)
-unimplementedInstruction(_simd_i16x8_add_sat_u)
-unimplementedInstruction(_simd_i16x8_sub)
-unimplementedInstruction(_simd_i16x8_sub_sat_s)
-unimplementedInstruction(_simd_i16x8_sub_sat_u)
+
+ipintOp(_simd_i16x8_add, macro()
+    # i16x8.add - add 8 16-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "add v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_add_sat_s, macro()
+    # i16x8.add_sat_s - add 8 16-bit signed integers with saturation
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "sqadd v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_add_sat_u, macro()
+    # i16x8.add_sat_u - add 8 16-bit unsigned integers with saturation
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "uqadd v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_sub, macro()
+    # i16x8.sub - subtract 8 16-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "sub v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_sub_sat_s, macro()
+    # i16x8.sub_sat_s - subtract 8 16-bit signed integers with saturation
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "sqsub v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_sub_sat_u, macro()
+    # i16x8.sub_sat_u - subtract 8 16-bit unsigned integers with saturation
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "uqsub v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x94 0x01: f64x2.nearest
 
@@ -5077,7 +5233,20 @@ unimplementedInstruction(_simd_f64x2_nearest)
 
 # 0xFD 0x95 0x01 - 0xFD 0x9F 0x01: i16x8 operations
 
-unimplementedInstruction(_simd_i16x8_mul)
+ipintOp(_simd_i16x8_mul, macro()
+    # i16x8.mul - multiply 8 16-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "mul v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 unimplementedInstruction(_simd_i16x8_min_s)
 unimplementedInstruction(_simd_i16x8_min_u)
 unimplementedInstruction(_simd_i16x8_max_s)
@@ -5105,14 +5274,56 @@ unimplementedInstruction(_simd_i32x4_extend_high_i16x8_u)
 unimplementedInstruction(_simd_i32x4_shl)
 unimplementedInstruction(_simd_i32x4_shr_s)
 unimplementedInstruction(_simd_i32x4_shr_u)
-unimplementedInstruction(_simd_i32x4_add)
+
+ipintOp(_simd_i32x4_add, macro()
+    # i32x4.add - add 4 32-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "add v16.4s, v16.4s, v17.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 reservedOpcode(0xfdaf01)
 reservedOpcode(0xfdb001)
-unimplementedInstruction(_simd_i32x4_sub)
+
+ipintOp(_simd_i32x4_sub, macro()
+    # i32x4.sub - subtract 4 32-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "sub v16.4s, v16.4s, v17.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 reservedOpcode(0xfdb201)
 reservedOpcode(0xfdb301)
 reservedOpcode(0xfdb401)
-unimplementedInstruction(_simd_i32x4_mul)
+
+ipintOp(_simd_i32x4_mul, macro()
+    # i32x4.mul - multiply 4 32-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "mul v16.4s, v16.4s, v17.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 unimplementedInstruction(_simd_i32x4_min_s)
 unimplementedInstruction(_simd_i32x4_min_u)
 unimplementedInstruction(_simd_i32x4_max_s)
@@ -5140,14 +5351,63 @@ unimplementedInstruction(_simd_i64x2_extend_high_i32x4_u)
 unimplementedInstruction(_simd_i64x2_shl)
 unimplementedInstruction(_simd_i64x2_shr_s)
 unimplementedInstruction(_simd_i64x2_shr_u)
-unimplementedInstruction(_simd_i64x2_add)
+
+ipintOp(_simd_i64x2_add, macro()
+    # i64x2.add - add 2 64-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "add v16.2d, v16.2d, v17.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 reservedOpcode(0xfdcf01)
 reservedOpcode(0xfdd001)
-unimplementedInstruction(_simd_i64x2_sub)
+
+ipintOp(_simd_i64x2_sub, macro()
+    # i64x2.sub - subtract 2 64-bit integers
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "sub v16.2d, v16.2d, v17.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 reservedOpcode(0xfdd201)
 reservedOpcode(0xfdd301)
 reservedOpcode(0xfdd401)
-unimplementedInstruction(_simd_i64x2_mul)
+
+ipintOp(_simd_i64x2_mul, macro()
+    # i64x2.mul - multiply 2 64-bit integers (low 64 bits of result)
+
+    # Extract and multiply lane 0 (first 64-bit element)
+    loadq [sp], t0            # Load lane 0 of vector1
+    loadq 16[sp], t1          # Load lane 0 of vector0
+    mulq t1, t0               # Multiply: t0 = t0 * t1
+    storeq t0, 16[sp]         # Store result back to vector0
+
+    # Extract and multiply lane 1 (second 64-bit element)
+    loadq 8[sp], t0           # Load lane 1 of vector1
+    loadq 24[sp], t1          # Load lane 1 of vector0
+    mulq t1, t0               # Multiply: t0 = t0 * t1
+    storeq t0, 24[sp]         # Store result back to vector0
+
+    # Pop vector1, result in vector0
+    addp V128ISize, sp        # Remove first vector from stack, leaving result
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 unimplementedInstruction(_simd_i64x2_eq)
 unimplementedInstruction(_simd_i64x2_ne)
 unimplementedInstruction(_simd_i64x2_lt_s)
