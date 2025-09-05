@@ -815,6 +815,9 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
     case AXProperty::IsEditableWebArea:
         stream << "IsEditableWebArea";
         break;
+    case AXProperty::IsHiddenUntilFoundContainer:
+        stream << "IsHiddenUntilFoundContainer";
+        break;
     case AXProperty::IsSubscript:
         stream << "IsSubscript";
         break;
@@ -1106,6 +1109,9 @@ TextStream& operator<<(WTF::TextStream& stream, AXProperty property)
         stream << "RemoteParent";
         break;
 #endif
+    case AXProperty::RevealableText:
+        stream << "RevealableText";
+        break;
     case AXProperty::RolePlatformString:
         stream << "RolePlatformString";
         break;

@@ -65,6 +65,7 @@ namespace WebCore {
     macro(FrameLoadComplete) \
     macro(GrabbedStateChanged) \
     macro(HasPopupChanged) \
+    macro(HiddenStateChanged) \
     macro(IdAttributeChanged) \
     macro(ImageOverlayChanged) \
     macro(InertOrVisibilityChanged) \

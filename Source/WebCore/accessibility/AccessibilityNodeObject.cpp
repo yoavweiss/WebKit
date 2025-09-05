@@ -36,6 +36,7 @@
 #include "AXNotifications.h"
 #include "AXObjectCacheInlines.h"
 #include "AXTableHelpers.h"
+#include "AXTreeStore.h"
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityMediaHelpers.h"
@@ -52,6 +53,7 @@
 #include "Event.h"
 #include "EventHandler.h"
 #include "EventNames.h"
+#include "FindRevealAlgorithms.h"
 #include "FloatRect.h"
 #include "FrameLoader.h"
 #include "FrameSelection.h"
@@ -1409,6 +1411,20 @@ bool AccessibilityNodeObject::toggleDetailsAncestor()
         }
     }
     return false;
+}
+
+void AccessibilityNodeObject::revealAncestors()
+{
+    RefPtr node = this->node();
+    if (!node)
+        return;
+    revealClosedDetailsAndHiddenUntilFoundAncestors(*node);
+}
+
+bool AccessibilityNodeObject::isHiddenUntilFoundContainer() const
+{
+    RefPtr element = dynamicDowncast<HTMLElement>(node());
+    return element && element->isHiddenUntilFound();
 }
 
 static RefPtr<Element> nodeActionElement(Node& node)
@@ -3671,6 +3687,20 @@ String AccessibilityNodeObject::textUnderElement(TextUnderElementMode mode) cons
     return mode.trimWhitespace == TrimWhitespace::Yes
         ? result.trim(isASCIIWhitespace).simplifyWhiteSpace(isHTMLSpaceButNotLineBreak)
         : result;
+}
+
+String AccessibilityNodeObject::revealableText() const
+{
+    if (!isStaticText())
+        return nullString();
+
+    CheckedPtr<const RenderStyle> style = this->style();
+    if (!style || !style->autoRevealsWhenFound())
+        return nullString();
+
+    if (RefPtr characterData = dynamicDowncast<CharacterData>(node()))
+        return characterData->data().trim(isASCIIWhitespace).simplifyWhiteSpace(isASCIIWhitespace);
+    return nullString();
 }
 
 String AccessibilityNodeObject::text() const

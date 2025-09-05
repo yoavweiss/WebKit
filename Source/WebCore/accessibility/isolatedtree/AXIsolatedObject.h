@@ -323,6 +323,7 @@ private:
     bool supportsDropping() const final { return boolAttributeValue(AXProperty::SupportsDropping); }
     bool supportsDragging() const final { return boolAttributeValue(AXProperty::SupportsDragging); }
     bool isGrabbed() final { return boolAttributeValue(AXProperty::IsGrabbed); }
+    bool isHiddenUntilFoundContainer() const final { return boolAttributeValue(AXProperty::IsHiddenUntilFoundContainer); }
     Vector<String> determineDropEffects() const final;
     AXIsolatedObject* accessibilityHitTest(const IntPoint&) const final;
     AXIsolatedObject* focusedUIElement() const final;
@@ -542,6 +543,7 @@ private:
 
     String text() const final;
     unsigned textLength() const final;
+    String revealableText() const final { return stringAttributeValue(AXProperty::RevealableText); }
 #if PLATFORM(COCOA)
     RetainPtr<NSAttributedString> attributedStringForTextMarkerRange(AXTextMarkerRange&&, SpellCheck) const final;
 #endif

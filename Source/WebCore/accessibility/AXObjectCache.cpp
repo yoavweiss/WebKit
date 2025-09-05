@@ -2970,6 +2970,8 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
         postNotification(element, AXNotification::DatetimeChanged);
     else if (attrName == abbrAttr)
         postNotification(element, AXNotification::AbbreviationChanged);
+    else if (attrName == hiddenAttr)
+        postNotification(element, AXNotification::HiddenStateChanged);
 
     if (!attrName.localName().string().startsWith("aria-"_s))
         return;
@@ -4515,16 +4517,6 @@ bool AXObjectCache::elementIsTextControl(const Element& element)
     return axObject && axObject->isTextControl();
 }
 
-static bool documentNeedsLayoutOrStyleRecalc(Document& document)
-{
-    if (RefPtr frameView = document.view()) {
-        if (frameView->needsLayout() || frameView->layoutContext().isLayoutPending())
-            return true;
-    }
-
-    return document.hasPendingStyleRecalc();
-}
-
 void AXObjectCache::performDeferredCacheUpdate(ForceLayout forceLayout)
 {
     AXTRACE(makeString("AXObjectCache::performDeferredCacheUpdate 0x"_s, hex(reinterpret_cast<uintptr_t>(this))));
@@ -4544,7 +4536,7 @@ void AXObjectCache::performDeferredCacheUpdate(ForceLayout forceLayout)
     if (!document->view())
         return;
 
-    if (documentNeedsLayoutOrStyleRecalc(*document)) {
+    if (needsLayoutOrStyleRecalc(*document)) {
         // Layout became dirty while waiting to performDeferredCacheUpdate, and we require clean layout
         // to update the accessibility tree correctly in this function.
         if ((m_cacheUpdateDeferredCount >= 3 || forceLayout == ForceLayout::Yes) && !Accessibility::inRenderTreeOrStyleUpdate(*document)) {
@@ -4564,7 +4556,7 @@ void AXObjectCache::performDeferredCacheUpdate(ForceLayout forceLayout)
         for (; frame; frame = frame->tree().traverseNext()) {
             auto* localFrame = dynamicDowncast<LocalFrame>(frame.get());
             RefPtr subDocument = localFrame ? localFrame->document() : nullptr;
-            if (subDocument && documentNeedsLayoutOrStyleRecalc(*subDocument))
+            if (subDocument && needsLayoutOrStyleRecalc(*subDocument))
                 subDocument->updateLayoutIgnorePendingStylesheets();
         }
     }
@@ -4882,6 +4874,9 @@ void AXObjectCache::updateIsolatedTree(const Vector<std::pair<Ref<AccessibilityO
             break;
         case AXNotification::FontChanged:
             tree->updatePropertiesForSelfAndDescendants(notification.first.get(), { AXProperty::Font });
+            break;
+        case AXNotification::HiddenStateChanged:
+            tree->queueNodeUpdate(notification.first->objectID(), { AXProperty::IsHiddenUntilFoundContainer });
             break;
         case AXNotification::InertOrVisibilityChanged:
             tree->updatePropertiesForSelfAndDescendants(notification.first.get(), { AXProperty::IsIgnored });

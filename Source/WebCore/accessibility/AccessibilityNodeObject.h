@@ -180,6 +180,8 @@ public:
     String accessibilityDescriptionForChildren() const;
     String description() const override;
     String helpText() const override;
+    String revealableText() const final;
+    bool isHiddenUntilFoundContainer() const final;
     String text() const final;
     void alternativeText(Vector<AccessibilityText>&) const;
     void helpText(Vector<AccessibilityText>&) const;
@@ -213,6 +215,7 @@ public:
     void increment() override;
     void decrement() override;
     bool toggleDetailsAncestor() final;
+    void revealAncestors() final;
 
     LayoutRect elementRect() const override;
 

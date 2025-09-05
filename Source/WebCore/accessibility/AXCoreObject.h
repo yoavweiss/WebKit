@@ -48,6 +48,7 @@
 #include <wtf/RefCounted.h>
 #include <wtf/ThreadSafeWeakPtr.h>
 #include <wtf/WallTime.h>
+#include <wtf/threads/BinarySemaphore.h>
 
 #if PLATFORM(WIN)
 #include "AccessibilityObjectWrapperWin.h"
@@ -247,6 +248,7 @@ enum class AccessibilityOrientation : uint8_t {
     Vertical
 };
 
+enum class DidTimeout : bool { No, Yes };
 enum class IncludeListMarkerText : bool { No, Yes };
 enum class TrimWhitespace : bool { No, Yes };
 
@@ -815,6 +817,13 @@ public:
     virtual String textUnderElement(TextUnderElementMode = { }) const = 0;
     virtual String text() const = 0;
     virtual unsigned textLength() const = 0;
+    AccessibilityChildrenVector revealableContainers();
+    // Text of objects within revealable containers (e.g. hidden="until-found" or collapsed details elements).
+    // Returns empty string for text that is already revealed / visible.
+    virtual String revealableText() const = 0;
+    // The word "container" is significant in this method name. This should only be true for elements / objects
+    // that actually have the hidden-until-found markup, not descendants of hidden-until-found elements / objects.
+    virtual bool isHiddenUntilFoundContainer() const = 0;
 #if PLATFORM(COCOA)
     enum class SpellCheck : bool { No, Yes };
     virtual RetainPtr<NSAttributedString> attributedStringForTextMarkerRange(AXTextMarkerRange&&, SpellCheck) const = 0;
@@ -1195,6 +1204,7 @@ public:
     virtual AXCoreObject* editableAncestor() const = 0;
     virtual AXCoreObject* highestEditableAncestor() = 0;
     virtual AXCoreObject* exposedTableAncestor(bool includeSelf = false) const = 0;
+    AXCoreObject* detailsAncestor() const;
 
     virtual AccessibilityChildrenVector documentLinks() = 0;
 
@@ -1572,6 +1582,41 @@ template<typename U> inline void performFunctionOnMainThread(U&& lambda)
     ensureOnMainThread([lambda = std::forward<U>(lambda)] () mutable {
         lambda();
     });
+}
+
+template<typename U>
+inline DidTimeout performFunctionOnMainThreadAndWaitWithTimeout(U&& lambda, Seconds timeout)
+{
+    if (isMainThread()) {
+        std::forward<U>(lambda)();
+        return DidTimeout::No;
+    }
+
+    // Because this is ref-counted, we can give it to the lambda to keep alive
+    // even if this thread gave up due to a timeout and moved on (which would normally destroy
+    // the semaphore, causing a use-after-free).
+    struct TimeoutSafeSemaphore : RefCounted<TimeoutSafeSemaphore> {
+        BinarySemaphore semaphore;
+        std::atomic<bool> shouldSignal { true };
+
+        void signal() { semaphore.signal(); }
+        bool wait(Seconds timeout) { return semaphore.waitFor(timeout); }
+    };
+
+    Ref<TimeoutSafeSemaphore> semaphore = adoptRef(*new TimeoutSafeSemaphore);
+    ensureOnMainThread([semaphore, lambda = std::forward<U>(lambda)] () mutable {
+        lambda();
+        // Only signal if the calling thread didn't timeout waiting for the main-thread to complete the lambda.
+        if (semaphore->shouldSignal.exchange(false, std::memory_order_acq_rel))
+            semaphore->signal();
+    });
+
+    bool completedInTime = semaphore->wait(timeout);
+    if (!completedInTime) {
+        // If we timed out, prevent a later signal attempt from the lambda.
+        semaphore->shouldSignal.exchange(false, std::memory_order_acq_rel);
+    }
+    return completedInTime ? DidTimeout::No : DidTimeout::Yes;
 }
 
 template<typename T, typename U> inline T retrieveValueFromMainThread(U&& lambda)

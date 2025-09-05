@@ -728,6 +728,9 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
         case AXProperty::IsExpanded:
             properties.append({ AXProperty::IsExpanded, axObject.isExpanded() });
             break;
+        case AXProperty::IsHiddenUntilFoundContainer:
+            properties.append({ AXProperty::IsHiddenUntilFoundContainer, axObject.isHiddenUntilFoundContainer() });
+            break;
         case AXProperty::IsIgnored:
             properties.append({ AXProperty::IsIgnored, axObject.isIgnored() });
             break;
@@ -858,6 +861,12 @@ void AXIsolatedTree::updateNodeProperties(AccessibilityObject& axObject, const A
             break;
         case AXProperty::LinethroughColor:
             properties.append({ AXProperty::LinethroughColor, axObject.lineDecorationStyle().linethroughColor });
+            break;
+        case AXProperty::RevealableText:
+            // We should only cache this property for ignored objects.
+            ASSERT(axObject.isIgnored());
+            if (String text = axObject.revealableText(); !text.isEmpty())
+                properties.append({ AXProperty::RevealableText, WTFMove(text).isolatedCopy() });
             break;
         case AXProperty::TextColor: {
             if (RefPtr parent = axObject.parentObject()) {
@@ -1696,6 +1705,8 @@ std::optional<AXPropertyFlag> convertToPropertyFlag(AXProperty property)
         return AXPropertyFlag::IsExposedTableCell;
     case AXProperty::IsGrabbed:
         return AXPropertyFlag::IsGrabbed;
+    case AXProperty::IsHiddenUntilFoundContainer:
+        return AXPropertyFlag::IsHiddenUntilFoundContainer;
     case AXProperty::IsIgnored:
         return AXPropertyFlag::IsIgnored;
     case AXProperty::IsInlineText:
@@ -1868,14 +1879,19 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
         if (!language.isEmpty())
             setProperty(AXProperty::Language, WTFMove(language).isolatedCopy());
         setProperty(AXProperty::IsEnabled, object.isEnabled());
+        setProperty(AXProperty::IsHiddenUntilFoundContainer, object.isHiddenUntilFoundContainer());
         appendBasePlatformProperties(properties, propertyFlags, axObject);
     };
 
     bool needsAllProperties = true;
 #if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+    bool isIgnored = true;
     if (object.includeIgnoredInCoreTree()) {
-        bool isIgnored = object.isIgnored();
+        isIgnored = object.isIgnored();
         setProperty(AXProperty::IsIgnored, isIgnored);
+
+        // Do not set any properties in this block, as this is before we reserve capacity for the property vector.
+
         // Maintain full properties for objects meeting this criteria:
         //   - Unconnected objects, which are involved in relations or outgoing notifications
         //   - Static text. We sometimes ignore static text (e.g. because it descends from a text field),
@@ -2199,6 +2215,16 @@ IsolatedObjectData createIsolatedObjectData(const Ref<AccessibilityObject>& axOb
 
     RefPtr axParent = object.parentInCoreTree();
     Markable<AXID> parentID = axParent ? std::optional(axParent->objectID()) : std::nullopt;
+
+#if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
+    if (isIgnored) {
+        if (String text = axObject->revealableText(); !text.isEmpty()) {
+            // We only need to cache this for ignored objects, as unignored objects
+            // have no need to be revealed.
+            setProperty(AXProperty::RevealableText, WTFMove(text).isolatedCopy());
+        }
+    }
+#endif // ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
 
     properties.shrinkToFit();
     return {

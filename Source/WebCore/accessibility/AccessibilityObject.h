@@ -406,6 +406,8 @@ public:
     String textUnderElement(TextUnderElementMode = { }) const override { return { }; }
     String text() const override { return { }; }
     unsigned textLength() const final;
+    String revealableText() const override { return nullString(); }
+    bool isHiddenUntilFoundContainer() const override { return false; }
 #if ENABLE(AX_THREAD_TEXT_APIS)
     virtual AXTextRuns textRuns() { return { }; }
     bool hasTextRuns() final { return textRuns().size(); }
@@ -540,6 +542,8 @@ public:
     void increment() override { }
     void decrement() override { }
     virtual bool toggleDetailsAncestor() { return false; }
+    // Reveals details elements and hidden="until-found" elements.
+    virtual void revealAncestors() { }
 
     void updateRole();
     bool childrenInitialized() const { return m_childrenInitialized; }

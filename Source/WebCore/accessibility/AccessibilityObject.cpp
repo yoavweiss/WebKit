@@ -3816,11 +3816,16 @@ String AccessibilityObject::validationMessage() const
 
 AccessibilityObjectInclusion AccessibilityObject::defaultObjectInclusion() const
 {
+    bool isHiddenUntilFound = false;
     if (const auto* style = this->style()) {
         if (style->effectiveInert())
             return AccessibilityObjectInclusion::IgnoreObject;
-        if (isVisibilityHidden(*style))
-            return AccessibilityObjectInclusion::IgnoreObject;
+        if (isVisibilityHidden(*style)) {
+            isHiddenUntilFound = isHiddenUntilFoundContainer();
+            if (!isHiddenUntilFound)
+                return AccessibilityObjectInclusion::IgnoreObject;
+            // We handle the `isHiddenUntilFound == true` case below.
+        }
     }
 
     bool useParentData = !m_isIgnoredFromParentData.isNull();
@@ -3850,6 +3855,12 @@ AccessibilityObjectInclusion AccessibilityObject::defaultObjectInclusion() const
     if (role() == AccessibilityRole::ApplicationDialog)
         return AccessibilityObjectInclusion::IncludeObject;
 
+    if (isHiddenUntilFound) {
+        // We don't want to ignore hidden-until-found containers because we
+        // want AXSearchManager::findMatchingObjects to walk over them in order
+        // to search within them for revealable text matching the search query string.
+        return AccessibilityObjectInclusion::IncludeObject;
+    }
     return accessibilityPlatformIncludesObject();
 }
 
