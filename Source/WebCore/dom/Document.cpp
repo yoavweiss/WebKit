@@ -4346,6 +4346,11 @@ bool Document::supportsPaintTiming() const
     return protectedSecurityOrigin()->isSameOriginDomain(topOrigin());
 }
 
+bool Document::supportsLargestContentfulPaint() const
+{
+    return settings().largestContentfulPaintEnabled();
+}
+
 // https://w3c.github.io/paint-timing/#ref-for-mark-paint-timing
 void Document::enqueuePaintTimingEntryIfNeeded()
 {

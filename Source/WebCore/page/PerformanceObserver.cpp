@@ -164,6 +164,9 @@ Vector<String> PerformanceObserver::supportedEntryTypes(ScriptExecutionContext& 
         entryTypes.append("first-input"_s);
     }
 
+    if (document && document->supportsLargestContentfulPaint())
+        entryTypes.append("largest-contentful-paint"_s);
+
     entryTypes.append("mark"_s);
     entryTypes.append("measure"_s);
     entryTypes.append("navigation"_s);
