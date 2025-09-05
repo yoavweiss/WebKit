@@ -38,7 +38,6 @@
 #import "AccessibilityRenderObject.h"
 #import "AccessibilityScrollView.h"
 #import "AccessibilitySpinButton.h"
-#import "AccessibilityTableCell.h"
 #import "AccessibilityTableColumn.h"
 #import "BoundaryPointInlines.h"
 #import "ColorMac.h"

@@ -243,6 +243,7 @@ private:
     // Table cell support.
     bool isTableCell() const final;
     bool isExposedTableCell() const final { return boolAttributeValue(AXProperty::IsExposedTableCell); }
+    AXCoreObject* parentTableIfTableCell() const final;
     // Returns the start location and row span of the cell.
     std::pair<unsigned, unsigned> rowIndexRange() const final { return indexRangePairAttributeValue(AXProperty::RowIndexRange); }
     // Returns the start location and column span of the cell.
@@ -259,6 +260,7 @@ private:
     unsigned columnIndex() const final { return unsignedAttributeValue(AXProperty::ColumnIndex); }
 
     // Table row support.
+    AXCoreObject* parentTable() const final;
     bool isTableRow() const final;
     AXCoreObject* parentTableIfExposedTableRow() const final;
     bool isExposedTableRow() const final { return boolAttributeValue(AXProperty::IsExposedTableRow); }

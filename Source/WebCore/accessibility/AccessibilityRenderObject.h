@@ -96,7 +96,7 @@ public:
     AccessibilityObject* nextSibling() const final;
     AccessibilityObject* parentObject() const override;
     AccessibilityObject* observableObject() const override;
-    AccessibilityObject* titleUIElement() const override;
+    AccessibilityObject* titleUIElement() const final;
 
     // Should be called on the root accessibility object to kick off a hit test.
     AccessibilityObject* accessibilityHitTest(const IntPoint&) const final;

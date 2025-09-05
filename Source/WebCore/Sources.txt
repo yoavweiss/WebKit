@@ -590,7 +590,6 @@ accessibility/AccessibilityScrollbar.cpp
 accessibility/AccessibilitySlider.cpp
 accessibility/AccessibilitySpinButton.cpp
 accessibility/AccessibilitySpinButtonPart.cpp
-accessibility/AccessibilityTableCell.cpp
 accessibility/AccessibilityTableColumn.cpp
 accessibility/AccessibilityTableHeaderContainer.cpp
 accessibility/AccessibilityTree.cpp

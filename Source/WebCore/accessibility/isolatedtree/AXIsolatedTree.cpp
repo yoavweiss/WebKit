@@ -39,7 +39,6 @@
 #include "AXUtilities.h"
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityObjectInlines.h"
-#include "AccessibilityTableCell.h"
 #include "DocumentInlines.h"
 #include "FrameSelection.h"
 #include "HTMLNames.h"
@@ -568,16 +567,14 @@ void AXIsolatedTree::objectChangedIgnoredState(const AccessibilityObject& object
 #if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
     ASSERT(isMainThread());
 
-    if (RefPtr cell = dynamicDowncast<AccessibilityTableCell>(object)) {
-        if (RefPtr parentTable = cell->parentTable()) {
-            // FIXME: This should be as simple as:
-            //     queueNodeUpdate(*parentTable->objectID(), { { AXProperty::Cells, AXProperty::CellSlots, AXProperty::Columns } });
-            // As these are the table properties that depend on cells. But we can't do that, because we compute "new" column accessibility objects
-            // every time we clearChildren() and addChildren(), so just re-computing AXProperty::Columns means that we won't have AXIsolatedObjects
-            // for the columns. Instead we have to do a significantly more wasteful children update.
-            queueNodeUpdate(parentTable->objectID(), NodeUpdateOptions::childrenUpdate());
-            queueNodeUpdate(parentTable->objectID(), { { AXProperty::Cells, AXProperty::CellSlots } });
-        }
+    if (RefPtr parentTable = object.parentTableIfTableCell()) {
+        // FIXME: This should be as simple as:
+        //     queueNodeUpdate(*parentTable->objectID(), { { AXProperty::Cells, AXProperty::CellSlots, AXProperty::Columns } });
+        // As these are the table properties that depend on cells. But we can't do that, because we compute "new" column accessibility objects
+        // every time we clearChildren() and addChildren(), so just re-computing AXProperty::Columns means that we won't have AXIsolatedObjects
+        // for the columns. Instead we have to do a significantly more wasteful children update.
+        queueNodeUpdate(parentTable->objectID(), NodeUpdateOptions::childrenUpdate());
+        queueNodeUpdate(parentTable->objectID(), { { AXProperty::Cells, AXProperty::CellSlots } });
     }
 
     if (object.isLink()) {

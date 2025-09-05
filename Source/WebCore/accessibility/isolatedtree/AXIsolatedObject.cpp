@@ -1638,6 +1638,18 @@ bool AXIsolatedObject::isTableCell() const
     return false;
 }
 
+AXCoreObject* AXIsolatedObject::parentTableIfTableCell() const
+{
+    ASSERT_NOT_REACHED();
+    return nullptr;
+}
+
+AXCoreObject* AXIsolatedObject::parentTable() const
+{
+    ASSERT_NOT_REACHED();
+    return nullptr;
+}
+
 bool AXIsolatedObject::isTableRow() const
 {
     ASSERT_NOT_REACHED();

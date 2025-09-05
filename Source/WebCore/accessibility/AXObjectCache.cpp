@@ -56,7 +56,6 @@
 #include "AccessibilityScrollbar.h"
 #include "AccessibilitySlider.h"
 #include "AccessibilitySpinButton.h"
-#include "AccessibilityTableCell.h"
 #include "AccessibilityTableColumn.h"
 #include "AccessibilityTableHeaderContainer.h"
 #include "AccessibilityTree.h"
@@ -589,16 +588,6 @@ static bool isAccessibilityTreeItem(Element& element)
     return hasRole(element, "treeitem"_s);
 }
 
-static bool isAccessibilityTableCell(Node* node)
-{
-    return is<HTMLTableCellElement>(node);
-}
-
-static bool isAccessibilityARIAGridCell(Element& element)
-{
-    return hasCellARIARole(element);
-}
-
 Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObject& renderer)
 {
     RefPtr node = renderer.node();
@@ -606,8 +595,6 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
         // Lists shouldn't fallthrough to table components, so explicitly create a render object.
         if (AXListHelpers::isAccessibilityList(*element))
             return AccessibilityRenderObject::create(AXID::generate(), renderer, *this);
-        if (isAccessibilityARIAGridCell(*element))
-            return AccessibilityTableCell::create(AXID::generate(), renderer, *this, /* isARIAGridCell */ true);
 
         if (isAccessibilityTree(*element))
             return AccessibilityTree::create(AXID::generate(), renderer, *this);
@@ -636,15 +623,6 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
     if (CheckedPtr renderMenuList = dynamicDowncast<RenderMenuList>(renderer))
         return AccessibilityMenuList::create(AXID::generate(), *renderMenuList, *this);
 
-    bool isAnonymous = false;
-#if USE(ATSPI)
-    // This branch is only necessary because ATSPI walks the render tree rather than the DOM to build the accessibility tree.
-    // FIXME: Consider removing this with https://bugs.webkit.org/show_bug.cgi?id=282117.
-    isAnonymous = renderer.isAnonymous();
-#endif
-    if ((is<RenderTableCell>(renderer) && !isAnonymous) || isAccessibilityTableCell(node.get()))
-        return AccessibilityTableCell::create(AXID::generate(), renderer, *this);
-
     // Progress indicator.
     if (is<RenderProgress>(renderer) || is<RenderMeter>(renderer)
         || is<HTMLProgressElement>(node) || is<HTMLMeterElement>(node))
@@ -663,14 +641,10 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
         // Lists shouldn't fallthrough to table components, so explicitly create a render object.
         if (AXListHelpers::isAccessibilityList(*element))
             return AccessibilityRenderObject::create(AXID::generate(), *element, *this);
-        if (isAccessibilityTableCell(element.get()))
-            return AccessibilityTableCell::create(AXID::generate(), *element, *this);
         if (isAccessibilityTree(*element))
             return AccessibilityTree::create(AXID::generate(), *element, *this);
         if (isAccessibilityTreeItem(*element))
             return AccessibilityTreeItem::create(AXID::generate(), *element, *this);
-        if (isAccessibilityARIAGridCell(*element))
-            return AccessibilityTableCell::create(AXID::generate(), *element, *this, /* isARIAGridCell */ true);
         if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*element))
             return AccessibilityImageMapLink::create(AXID::generate(), *areaElement, *this);
         if (is<HTMLProgressElement>(*element) || is<HTMLMeterElement>(*element))
@@ -1393,7 +1367,7 @@ void AXObjectCache::onRemoteFrameInitialized(AXRemoteFrame& remoteFrame)
 }
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-void AXObjectCache::handleRowspanChanged(AccessibilityTableCell& axCell)
+void AXObjectCache::handleRowspanChanged(AccessibilityNodeObject& axCell)
 {
     updateIsolatedTree(axCell, AXNotification::RowSpanChanged);
 }
@@ -2884,12 +2858,12 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
 
         if (!properties.contains(TableProperty::CellSlots)) {
             // If we're re-computing the exposed state of the table, we only need to do work for non-ARIA tables, allowing us to
-            // do a cheap dynamicDowncast check for an HTMLTablePartElement rather than calling AccessibilityTableCell::parentTable().
+            // do a cheap dynamicDowncast check for an HTMLTablePartElement rather than calling AccessibilityNodeObject::parentTable().
             // (ARIA tables are inherently always exposed).
             if (auto* tablePartElement = dynamicDowncast<HTMLTablePartElement>(element))
                 deferRecomputeTableIsExposed(const_cast<HTMLTableElement*>(tablePartElement->findParentTable().get()));
-        } else if (RefPtr axCell = dynamicDowncast<AccessibilityTableCell>(getOrCreate(element))) {
-            if (RefPtr parentTable = dynamicDowncast<AccessibilityNodeObject>(axCell->parentTable())) {
+        } else if (RefPtr object = getOrCreate(element); object && object->isTableCell()) {
+            if (RefPtr parentTable = dynamicDowncast<AccessibilityNodeObject>(object->parentTable())) {
                 if (properties.contains(TableProperty::Exposed) && !parentTable->isAriaTable())
                     deferRecomputeTableIsExposed(parentTable->element());
                 if (properties.contains(TableProperty::CellSlots))
@@ -5160,11 +5134,11 @@ void AXObjectCache::deferRecomputeTableCellSlots(AccessibilityNodeObject& axTabl
 void AXObjectCache::deferRowspanChange(AccessibilityObject* axObject)
 {
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
-    auto* axTableCell = dynamicDowncast<AccessibilityTableCell>(axObject);
-    if (!axTableCell)
+    RefPtr nodeObject = dynamicDowncast<AccessibilityNodeObject>(axObject);
+    if (!nodeObject || !nodeObject->isTableCell())
         return;
 
-    m_deferredRowspanChanges.add(*axTableCell);
+    m_deferredRowspanChanges.add(*nodeObject);
     if (!m_performCacheUpdateTimer.isActive())
         m_performCacheUpdateTimer.startOneShot(0_s);
 #else

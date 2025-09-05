@@ -115,13 +115,13 @@ public:
 
     // Start table-row-related methods.
     // FIXME: this method (and all references) should be renamed to something more accurate, like "containingTable".
-    AccessibilityObject* parentTable() const;
+    AccessibilityObject* parentTable() const final;
     void setRowIndex(unsigned);
     unsigned rowIndex() const final { return hasRareData() ? rareData()->rowIndex() : 0; }
 
     std::optional<unsigned> axColumnIndex() const override;
     std::optional<unsigned> axRowIndex() const override;
-    String axRowIndexText() const override;
+    String axRowIndexText() const final;
 
     AccessibilityChildrenVector disclosedRows() final;
     AccessibilityObject* disclosedByRow() const final;
@@ -130,6 +130,29 @@ public:
     bool isExposedTableRow() const final { return parentTableIfExposedTableRow(); }
     bool isTableRow() const final;
     // End table-row-related methods.
+
+    // Start table-cell-related methods.
+    bool isTableCell() const final;
+    bool isARIAGridCell() const;
+    bool isExposedTableCell() const final;
+    AccessibilityObject* parentTableIfTableCell() const final;
+    bool isTableHeaderCell() const;
+    bool isColumnHeader() const final;
+    bool isRowHeader() const final;
+    std::pair<unsigned, unsigned> rowIndexRange() const final;
+    std::pair<unsigned, unsigned> columnIndexRange() const final;
+    String axColumnIndexText() const final;
+    unsigned colSpan() const;
+    unsigned rowSpan() const;
+    void incrementEffectiveRowSpan();
+    void resetEffectiveRowSpan();
+    void setAXColIndexFromRow(int);
+    void setColumnIndex(unsigned);
+#if USE(ATSPI)
+    int axColumnSpan() const;
+    int axRowSpan() const;
+#endif
+    // End table-cell-related methods.
 
     void setFocused(bool) override;
     bool isFocused() const final;
@@ -207,8 +230,6 @@ protected:
     AccessibilityRole m_ariaRole { AccessibilityRole::Unknown };
 
     // FIXME: These `is_` member variables should be replaced with an enum or be computed on demand.
-    // Only used by AccessibilityTableCell, but placed here to use space that would otherwise be taken by padding.
-    bool m_isARIAGridCell { false };
     // Only used by AccessibilitySVGObject, but placed here to use space that would otherwise be taken by padding.
     bool m_isSVGRoot { false };
 
@@ -280,6 +301,10 @@ protected:
     HTMLVideoElement* videoElement() const;
 #endif
     void addTableChildrenAndCellSlots();
+
+    // Start of table-cell-related methods.
+    AccessibilityNodeObject* parentRow() const;
+    // End of table-cell-related methods.
 private:
     bool isAccessibilityNodeObject() const final { return true; }
     void accessibilityText(Vector<AccessibilityText>&) const override;
@@ -314,6 +339,10 @@ private:
     bool isARIAGridRow() const final;
     bool isARIATreeGridRow() const final;
     // End of private table-row-related methods.
+
+    // Start of private table-cell-related methods.
+    void ensureIndexesUpToDate() const;
+    // End of private table-cell-related methods.
 
 protected:
     WeakPtr<Node, WeakPtrImplWithEventTargetData> m_node;

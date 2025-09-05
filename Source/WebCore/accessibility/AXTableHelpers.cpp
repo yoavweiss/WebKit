@@ -104,6 +104,22 @@ bool isTableRowElement(Element& element)
     return is<HTMLTableRowElement>(element);
 }
 
+bool isTableCellElement(Element& element)
+{
+    if (hasCellARIARole(element))
+        return true;
+
+    if (is<HTMLTableCellElement>(element) && hasRole(element, nullAtom()))
+        return true;
+
+    bool isAnonymous = false;
+    CheckedPtr renderer = element.renderer();
+#if USE(ATSPI)
+    isAnonymous = renderer && renderer->isAnonymous();
+#endif
+    return is<RenderTableCell>(renderer) && !isAnonymous;
+}
+
 HTMLTableElement* tableElementIncludingAncestors(Node* node, RenderObject* renderer)
 {
     if (auto* tableElement = dynamicDowncast<HTMLTableElement>(node))

@@ -40,8 +40,8 @@
 #include "AccessibilityImageMapLink.h"
 #include "AccessibilityMediaHelpers.h"
 #include "AccessibilityObjectInlines.h"
+#include "AccessibilityRenderObject.h"
 #include "AccessibilitySpinButton.h"
-#include "AccessibilityTableCell.h"
 #include "AccessibilityTableColumn.h"
 #include "ComposedTreeIterator.h"
 #include "ContainerNodeInlines.h"
@@ -411,7 +411,15 @@ AccessibilityRole AccessibilityNodeObject::determineAccessibilityRole()
     if (isExposedTableRow())
         return AccessibilityRole::Row;
 
-    return determineAccessibilityRoleFromNode();
+    auto roleFromNode = determineAccessibilityRoleFromNode();
+
+    if (isTableCell() && (roleFromNode != AccessibilityRole::ColumnHeader && roleFromNode != AccessibilityRole::RowHeader && roleFromNode != AccessibilityRole::Cell && roleFromNode != AccessibilityRole::GridCell)) {
+        RefPtr parentTable = this->parentTable();
+        if (parentTable && parentTable->isExposableTable())
+            return parentTable->hasGridRole() ? AccessibilityRole::GridCell : AccessibilityRole::Cell;
+    }
+
+    return roleFromNode;
 }
 
 bool AccessibilityNodeObject::matchesTextAreaRole() const
@@ -885,6 +893,10 @@ bool AccessibilityNodeObject::computeIsIgnored() const
         // Only allow display:none / hidden-visibility node-only objects for canvas subtrees.
         return true;
     }
+
+    if (isTableCell())
+        return !isExposedTableCell();
+
     return false;
 }
 
@@ -1985,11 +1997,35 @@ bool AccessibilityNodeObject::isDataTable() const
 AXCoreObject::AccessibilityChildrenVector AccessibilityNodeObject::rowHeaders()
 {
     AccessibilityChildrenVector headers;
-    auto rowsCopy = rows();
-    for (const auto& row : rowsCopy) {
-        if (RefPtr header = row->rowHeader())
-            headers.append(header.releaseNonNull());
+
+    if (isTableRow() || isTable()) {
+        auto rowsCopy = rows();
+        for (const auto& row : rowsCopy) {
+            if (RefPtr header = row->rowHeader())
+                headers.append(header.releaseNonNull());
+        }
+    } else if (isTableCell()) {
+        RefPtr parent = parentTable();
+        if (!parent)
+            return headers;
+
+        auto rowRange = rowIndexRange();
+        auto columnRange = columnIndexRange();
+
+        for (unsigned column = 0; column < columnRange.first; column++) {
+            RefPtr tableCell = parent->cellForColumnAndRow(column, rowRange.first);
+            if (!tableCell || tableCell == this || headers.containsIf([&tableCell] (const auto& header) {
+                return header.ptr() == tableCell.get();
+            }))
+                continue;
+
+            if (tableCell->cellScope() == "rowgroup"_s && isTableCellInSameRowGroup(*tableCell))
+                headers.append(tableCell.releaseNonNull());
+            else if (tableCell->isRowHeader())
+                headers.append(tableCell.releaseNonNull());
+        }
     }
+
     return headers;
 }
 
@@ -2070,7 +2106,7 @@ unsigned AccessibilityNodeObject::computeCellSlots()
 #endif
 
     struct DownwardGrowingCell {
-        WeakRef<AccessibilityTableCell> axObject;
+        WeakRef<AccessibilityRenderObject> axObject;
         // The column the cell starts in.
         unsigned x;
         // The number of columns the cell spans (called "width" in the spec).
@@ -2120,8 +2156,8 @@ unsigned AccessibilityNodeObject::computeCellSlots()
 
         // Step 4: If the tr element being processed has no td or th element children, then increase ycurrent by 1, abort this set of steps, and return to the algorithm above.
         for (const auto& child : row->unignoredChildren()) {
-            RefPtr currentCell = dynamicDowncast<AccessibilityTableCell>(child.get());
-            if (!currentCell)
+            RefPtr currentCell = dynamicDowncast<AccessibilityRenderObject>(child.get());
+            if (!currentCell || !currentCell->isTableCell())
                 continue;
             // (Not specified): As part of beginning to process this cell, reset its effective rowspan in case it had a non-default value set from a previous call to AccessibilityTable::addChildren().
             currentCell->resetEffectiveRowSpan();
@@ -2368,31 +2404,82 @@ void AccessibilityNodeObject::recomputeIsExposableIfNecessary()
 
 AccessibilityObject* AccessibilityNodeObject::parentTable() const
 {
-    RefPtr element = this->element();
-    if (!element || !AXTableHelpers::isTableRowElement(*element))
+    CheckedPtr cache = axObjectCache();
+    // If the document no longer exists, we might not have an axObjectCache.
+    if (!cache)
         return nullptr;
 
-    // The parent table might not be the direct ancestor of the row unfortunately. ARIA states that role="grid" should
-    // only have "row" elements, but if not, we still should handle it gracefully by finding the right table.
-    for (RefPtr ancestor = parentObject(); ancestor; ancestor = ancestor->parentObject()) {
-        if (ancestor->isTable()) {
-            bool isNonGridRowOrValidAriaTable = !isARIAGridRow() || ancestor->isAriaTable() || elementName() == ElementName::HTML_tr;
-            if (ancestor->isExposableTable() && isNonGridRowOrValidAriaTable)
-                return ancestor.get();
+    // ARIA gridcells may have multiple levels of unignored ancestors that are not the parent table,
+    // including rows and interactive rowgroups. In addition, poorly-formed grids may contain elements
+    // which pass the tests for inclusion.
+    if (isARIAGridCell()) {
+        return Accessibility::findAncestor<AccessibilityObject>(*this, false, [] (const auto& ancestor) {
+            return ancestor.isExposableTable() && !ancestor.isIgnored();
+        });
+    }
 
-            // If this is a non-anonymous table object, but not an accessibility table, we should stop because we don't want to
-            // choose another ancestor table as this row's table.
-            // Don't exit for ARIA grids, since they could have <table>'s between rows and the owning grid (see aria-grid-with-strange-hierarchy.html).
-            if (!isARIAGridRow() && ancestor->node())
-                break;
+    if (isTableCell()) {
+        // Do not use getOrCreate. parentTable() can be called while the render tree is being modified
+        // by javascript, and creating a table element may try to access the render tree while in a bad state.
+        // By using only get() implies that the AXTable must be created before AXTableCells. This should
+        // always be the case when AT clients access a table.
+        // https://bugs.webkit.org/show_bug.cgi?id=42652
+        RefPtr<AccessibilityObject> tableFromRenderTree;
+        if (CheckedPtr renderTableCell = dynamicDowncast<RenderTableCell>(renderer()))
+            tableFromRenderTree = cache->get(renderTableCell->checkedTable().get());
+
+        if (!tableFromRenderTree || !tableFromRenderTree->isTable()) {
+            if (node()) {
+                return Accessibility::findAncestor<AccessibilityObject>(*this, false, [] (const auto& ancestor) {
+                    return ancestor.isTable();
+                });
+            }
+            return nullptr;
+        }
+
+        // The RenderTableCell's table() object might be anonymous sometimes. We should handle it gracefully
+        // by finding the right table.
+        if (!tableFromRenderTree->node()) {
+            for (RefPtr ancestor = parentObject(); ancestor; ancestor = ancestor->parentObject()) {
+                // If this is a non-anonymous table object, but not an accessibility table, we should stop because
+                // we don't want to choose another ancestor table as this cell's table.
+                if (ancestor->isTable()) {
+                    if (ancestor->isExposableTable())
+                        return ancestor.get();
+                    if (ancestor->node())
+                        break;
+                }
+            }
+            return nullptr;
+        }
+
+        return tableFromRenderTree.get();
+    }
+
+    if (isTableRow()) {
+        // The parent table might not be the direct ancestor of the row unfortunately. ARIA states that role="grid" should
+        // only have "row" elements, but if not, we still should handle it gracefully by finding the right table.
+        for (RefPtr ancestor = parentObject(); ancestor; ancestor = ancestor->parentObject()) {
+            if (ancestor->isTable()) {
+                bool isNonGridRowOrValidAriaTable = !isARIAGridRow() || ancestor->isAriaTable() || elementName() == ElementName::HTML_tr;
+                if (ancestor->isExposableTable() && isNonGridRowOrValidAriaTable)
+                    return ancestor.get();
+
+                // If this is a non-anonymous table object, but not an accessibility table, we should stop because we don't want to
+                // choose another ancestor table as this row's table.
+                // Don't exit for ARIA grids, since they could have <table>'s between rows and the owning grid (see aria-grid-with-strange-hierarchy.html).
+                if (!isARIAGridRow() && ancestor->node())
+                    break;
+            }
         }
     }
+
     return nullptr;
 }
 
 void AccessibilityNodeObject::setRowIndex(unsigned rowIndex)
 {
-    if (role() != AccessibilityRole::Row)
+    if (!hasCellOrRowRole())
         return;
 
     CheckedRef rareData = ensureRareData();
@@ -2408,25 +2495,46 @@ void AccessibilityNodeObject::setRowIndex(unsigned rowIndex)
 
 std::optional<unsigned> AccessibilityNodeObject::axColumnIndex() const
 {
-    if (role() != AccessibilityRole::Row)
+    if (!hasCellOrRowRole())
         return std::nullopt;
 
-    int value = integralAttribute(aria_colindexAttr);
-    return value >= 1 ? std::optional(value) : std::nullopt;
+    if (int value = integralAttribute(aria_colindexAttr); value >= 1)
+        return value;
+
+    // "ARIA 1.1: If the set of columns which is present in the DOM is contiguous, and if there are no cells which span more than one row
+    // or column in that set, then authors may place aria-colindex on each row, setting the value to the index of the first column of the set."
+    // Here, we let its parent row to set its index beforehand, so we don't have to go through the siblings to calculate the index.
+    if (hasRareData() && rareData()->axColIndexFromRow() != -1 && parentRow())
+        return rareData()->axColIndexFromRow();
+
+    return std::nullopt;
 }
 
 std::optional<unsigned> AccessibilityNodeObject::axRowIndex() const
 {
-    if (role() != AccessibilityRole::Row)
+    if (!hasCellOrRowRole())
         return std::nullopt;
 
-    int value = integralAttribute(aria_rowindexAttr);
-    return value >= 1 ? std::optional(value) : std::nullopt;
+    // ARIA 1.1: Authors should place aria-rowindex on each row. Authors may also place
+    // aria-rowindex on all of the children or owned elements of each row.
+    if (int value = integralAttribute(aria_rowindexAttr); value >= 1)
+        return value;
+
+    if (RefPtr parentRow = this->parentRow())
+        return parentRow->axRowIndex();
+
+    return { };
 }
 
 String AccessibilityNodeObject::axRowIndexText() const
 {
-    return getAttribute(aria_rowindextextAttr);
+    if (String text = getAttribute(aria_rowindextextAttr); !text.isNull())
+        return text;
+
+    if (RefPtr parentRow = isTableCell() ? this->parentRow() : nullptr)
+        return parentRow->axRowIndexText();
+
+    return { };
 }
 
 AccessibilityObject::AccessibilityChildrenVector AccessibilityNodeObject::disclosedRows()
@@ -2519,6 +2627,253 @@ AXCoreObject* AccessibilityNodeObject::parentTableIfExposedTableRow() const
 
     RefPtr table = parentTable();
     return table && table->isExposableTable() ? table.get() : nullptr;
+}
+
+bool AccessibilityNodeObject::isTableCell() const
+{
+    RefPtr element = this->element();
+    return element ? AXTableHelpers::isTableCellElement(*element) : false;
+}
+
+bool AccessibilityNodeObject::isARIAGridCell() const
+{
+    RefPtr element = this->element();
+    return element && hasCellARIARole(*element);
+}
+
+bool AccessibilityNodeObject::isExposedTableCell() const
+{
+    // If the parent table is an accessibility table, then we are a table cell.
+    // This used to check if the unignoredParent was a row, but that exploded performance if
+    // this was in nested tables. This check should be just as good.
+    if (!isTableCell())
+        return false;
+
+    RefPtr parentTable = this->parentTable();
+    return parentTable && parentTable->isExposableTable();
+}
+
+AccessibilityObject* AccessibilityNodeObject::parentTableIfTableCell() const
+{
+    return isTableCell() ? parentTable() : nullptr;
+}
+
+bool AccessibilityNodeObject::isTableHeaderCell() const
+{
+    RefPtr element = this->element();
+    if (!element)
+        return false;
+
+    auto elementName = WebCore::elementName(*element);
+    if (elementName == ElementName::HTML_th)
+        return true;
+
+    if (elementName == ElementName::HTML_td) {
+        RefPtr current = element->parentNode();
+        // i < 2 is used here because in a properly structured table, the thead should be 2 levels away from the td.
+        for (int i = 0; i < 2 && current; i++) {
+            if (WebCore::elementName(*current) == ElementName::HTML_thead)
+                return true;
+            current = current->parentNode();
+        }
+    }
+    return false;
+}
+
+bool AccessibilityNodeObject::isColumnHeader() const
+{
+    if (role() == AccessibilityRole::ColumnHeader)
+        return true;
+    const AtomString& scope = getAttribute(scopeAttr);
+    if (scope == "col"_s || scope == "colgroup"_s)
+        return true;
+    if (scope == "row"_s || scope == "rowgroup"_s)
+        return false;
+    if (!isTableHeaderCell())
+        return false;
+
+    // We are in a situation after checking the scope attribute.
+    // It is an attempt to resolve the type of th element without support in the specification.
+    // Checking tableTag and tbodyTag allows to check the case of direct row placement in the table and lets stop the loop at the table level.
+    RefPtr element = this->element();
+    for (RefPtr ancestor = element->parentNode(); ancestor; ancestor = ancestor->parentNode()) {
+        auto elementName = WebCore::elementName(*ancestor);
+        if (elementName == ElementName::HTML_thead)
+            return true;
+        if (elementName == ElementName::HTML_tfoot)
+            return false;
+        if (elementName == ElementName::HTML_table || elementName == ElementName::HTML_tbody) {
+            // If we're in the first row, we're a column header.
+            if (!rowIndexRange().first)
+                return true;
+            return false;
+        }
+    }
+    return false;
+}
+
+bool AccessibilityNodeObject::isRowHeader() const
+{
+    if (role() == AccessibilityRole::RowHeader)
+        return true;
+    const AtomString& scope = getAttribute(scopeAttr);
+    if (scope == "row"_s || scope == "rowgroup"_s)
+        return true;
+    if (scope == "col"_s || scope == "colgroup"_s)
+        return false;
+    if (!isTableHeaderCell())
+        return false;
+
+    // We are in a situation after checking the scope attribute.
+    // It is an attempt to resolve the type of th element without support in the specification.
+    // Checking tableTag allows to check the case of direct row placement in the table and lets stop the loop at the table level.
+    RefPtr element = this->element();
+    for (RefPtr ancestor = element->parentNode(); ancestor; ancestor = ancestor->parentNode()) {
+        auto elementName = WebCore::elementName(*ancestor);
+        if (elementName == ElementName::HTML_tfoot || elementName == ElementName::HTML_tbody || elementName == ElementName::HTML_table) {
+            // If we're in the first column, we're a row header.
+            if (!columnIndexRange().first)
+                return true;
+            return false;
+        }
+
+        if (elementName == ElementName::HTML_thead)
+            return false;
+    }
+    return false;
+}
+
+std::pair<unsigned, unsigned> AccessibilityNodeObject::rowIndexRange() const
+{
+    ensureIndexesUpToDate();
+    return hasRareData() ? std::make_pair(rareData()->rowIndex(), rareData()->effectiveRowSpan()) : std::make_pair(0u, 1u);
+}
+
+std::pair<unsigned, unsigned> AccessibilityNodeObject::columnIndexRange() const
+{
+    ensureIndexesUpToDate();
+    return hasRareData() ? std::make_pair(rareData()->columnIndex(), colSpan()) : std::make_pair(0u, 1u);
+}
+
+String AccessibilityNodeObject::axColumnIndexText() const
+{
+    return getAttribute(aria_colindextextAttr);
+}
+
+unsigned AccessibilityNodeObject::colSpan() const
+{
+    if (!isTableCell())
+        return 1;
+
+    if (auto colSpan = parseHTMLInteger(getAttribute(colspanAttr)); colSpan && *colSpan >= 1) {
+        // https://html.spec.whatwg.org/multipage/tables.html
+        // If colspan is greater than 1000, let it be 1000 instead.
+        return std::min(std::max(*colSpan, 1), 1000);
+    }
+    if (auto ariaColSpan = parseHTMLInteger(getAttribute(aria_colspanAttr)); ariaColSpan && *ariaColSpan >= 1)
+        return std::min(std::max(*ariaColSpan, 1), 1000);
+    return 1;
+}
+
+unsigned AccessibilityNodeObject::rowSpan() const
+{
+    if (!isTableCell())
+        return 1;
+    // According to the ARIA spec, "If aria-rowspan is used on an element for which the host language
+    // provides an equivalent attribute, user agents must ignore the value of aria-rowspan."
+    if (auto rowSpan = parseHTMLInteger(getAttribute(rowspanAttr))) {
+        if (*rowSpan < 0)
+            return 1;
+        return std::min(static_cast<unsigned>(*rowSpan), HTMLTableCellElement::maxRowspan);
+    }
+
+    if (auto ariaRowSpan = parseHTMLInteger(getAttribute(aria_rowspanAttr))) {
+        if (*ariaRowSpan < 0)
+            return 1;
+        return std::min(static_cast<unsigned>(*ariaRowSpan), HTMLTableCellElement::maxRowspan);
+    }
+
+    return 1;
+}
+
+void AccessibilityNodeObject::incrementEffectiveRowSpan()
+{
+    if (hasRareData())
+        rareData()->incrementEffectiveRowSpan();
+}
+
+void AccessibilityNodeObject::resetEffectiveRowSpan()
+{
+    if (hasRareData())
+        rareData()->resetEffectiveRowSpan();
+}
+
+void AccessibilityNodeObject::setAXColIndexFromRow(int index)
+{
+    if (!hasRareData() && index == -1)
+        return;
+    ensureRareData().setAXColIndexFromRow(index);
+}
+
+void AccessibilityNodeObject::setColumnIndex(unsigned index)
+{
+    if (!isTableCell())
+        return;
+
+    CheckedRef rareData = ensureRareData();
+    if (rareData->columnIndex() == index)
+        return;
+    rareData->setColumnIndex(index);
+
+#if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
+    if (CheckedPtr cache = axObjectCache())
+        cache->columnIndexChanged(*this);
+#endif
+}
+
+AccessibilityNodeObject* AccessibilityNodeObject::parentRow() const
+{
+    RefPtr parent = isTableCell() ? parentObjectUnignored() : nullptr;
+    return parent && parent->isExposedTableRow() ? dynamicDowncast<AccessibilityRenderObject>(parent.get()) : nullptr;
+}
+
+#if USE(ATSPI)
+int AccessibilityNodeObject::axColumnSpan() const
+{
+    // According to the ARIA spec, "If aria-colpan is used on an element for which the host language
+    // provides an equivalent attribute, user agents must ignore the value of aria-colspan."
+    if (hasAttribute(colspanAttr))
+        return -1;
+
+    // ARIA 1.1: Authors must set the value of aria-colspan to an integer greater than or equal to 1.
+    if (int value = integralAttribute(aria_colspanAttr); value >= 1)
+        return value;
+
+    return -1;
+}
+
+int AccessibilityNodeObject::axRowSpan() const
+{
+    // According to the ARIA spec, "If aria-rowspan is used on an element for which the host language
+    // provides an equivalent attribute, user agents must ignore the value of aria-rowspan."
+    if (hasAttribute(rowspanAttr))
+        return -1;
+
+    // ARIA 1.1: Authors must set the value of aria-rowspan to an integer greater than or equal to 0.
+    // Setting the value to 0 indicates that the cell or gridcell is to span all the remaining rows in the row group.
+    if (getAttribute(aria_rowspanAttr) == "0"_s)
+        return 0;
+    if (int value = integralAttribute(aria_rowspanAttr); value >= 1)
+        return value;
+
+    return -1;
+}
+#endif // USE(ATSPI)
+
+void AccessibilityNodeObject::ensureIndexesUpToDate() const
+{
+    if (RefPtr parentTable = this->parentTable())
+        parentTable->ensureCellIndexesUpToDate();
 }
 
 bool AccessibilityNodeObject::isTable() const

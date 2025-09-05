@@ -194,6 +194,11 @@ bool AXCoreObject::hasCellRole() const
     return role == AccessibilityRole::Cell || role == AccessibilityRole::GridCell || role == AccessibilityRole::ColumnHeader || role == AccessibilityRole::RowHeader;
 }
 
+bool AXCoreObject::hasCellOrRowRole() const
+{
+    return hasCellRole() || role() == AccessibilityRole::Row;
+}
+
 bool AXCoreObject::isButton() const
 {
     switch (role()) {

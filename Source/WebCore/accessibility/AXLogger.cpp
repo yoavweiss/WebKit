@@ -242,7 +242,6 @@ void AXLogger::log(const String& collectionName, const AXObjectCache::DeferredCo
         [&size] (const WeakHashSet<HTMLTableElement, WeakPtrImplWithEventTargetData>& typedCollection) { size = typedCollection.computeSize(); },
         [&size] (const WeakHashSet<AccessibilityObject>& typedCollection) { size = typedCollection.computeSize(); },
         [&size] (const WeakHashSet<AccessibilityNodeObject>& typedCollection) { size = typedCollection.computeSize(); },
-        [&size] (const WeakHashSet<AccessibilityTableCell>& typedCollection) { size = typedCollection.computeSize(); },
         [&size] (const WeakListHashSet<Node, WeakPtrImplWithEventTargetData>& typedCollection) { size = typedCollection.computeSize(); },
         [&size] (const WeakListHashSet<Element, WeakPtrImplWithEventTargetData>& typedCollection) { size = typedCollection.computeSize(); },
         [&size] (const WeakHashMap<Element, String, WeakPtrImplWithEventTargetData>& typedCollection) { size = typedCollection.computeSize(); },

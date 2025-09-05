@@ -63,6 +63,16 @@ public:
     void setRowIndex(unsigned rowIndex) { m_rowIndex = rowIndex; }
     // End table-row-related methods.
 
+    // Begin table-cell-related methods.
+    unsigned columnIndex() const { return m_columnIndex; }
+    void setColumnIndex(unsigned columnIndex) { m_columnIndex = columnIndex; }
+    int axColIndexFromRow() const { return m_axColIndexFromRow; }
+    void setAXColIndexFromRow(int index) { m_axColIndexFromRow = index; }
+    unsigned effectiveRowSpan() const { return m_effectiveRowSpan; }
+    void incrementEffectiveRowSpan() { ++m_effectiveRowSpan; }
+    void resetEffectiveRowSpan() { m_effectiveRowSpan = 1; }
+    // End table-cell-related methods.
+
 private:
     // Begin table-row-related fields.
     unsigned m_rowIndex;
@@ -78,6 +88,12 @@ private:
     RefPtr<AccessibilityObject> m_tableHeaderContainer;
     bool m_isExposableTable { false };
     // End table-related fields.
+
+    // Begin table-cell-related fields.
+    unsigned m_columnIndex { 0 };
+    int m_axColIndexFromRow { -1 };
+    unsigned m_effectiveRowSpan { 1 };
+    // End table-cell-related fields.
 }; // class AXObjectRareData
 
 } // namespace WebCore

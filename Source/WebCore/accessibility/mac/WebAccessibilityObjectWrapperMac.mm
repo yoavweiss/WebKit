@@ -46,7 +46,6 @@
 #import "AccessibilityRenderObject.h"
 #import "AccessibilityScrollView.h"
 #import "AccessibilitySpinButton.h"
-#import "AccessibilityTableCell.h"
 #import "AccessibilityTableColumn.h"
 #import "CGUtilities.h"
 #import "Chrome.h"

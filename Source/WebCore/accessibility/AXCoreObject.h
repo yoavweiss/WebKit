@@ -476,6 +476,7 @@ public:
     unsigned tableLevel() const;
     bool hasGridRole() const;
     bool hasCellRole() const;
+    bool hasCellOrRowRole() const;
     bool supportsSelectedRows() const { return hasGridRole(); }
     virtual AccessibilityChildrenVector columns() = 0;
     virtual AccessibilityChildrenVector rows() = 0;
@@ -495,6 +496,7 @@ public:
 
     // Table cell support.
     virtual bool isTableCell() const = 0;
+    virtual AXCoreObject* parentTableIfTableCell() const = 0;
     virtual bool isExposedTableCell() const = 0;
     virtual bool isColumnHeader() const { return false; }
     virtual bool isRowHeader() const { return false; }
@@ -517,6 +519,7 @@ public:
     AXCoreObject* columnHeader();
 
     // Table row support.
+    virtual AXCoreObject* parentTable() const = 0;
     virtual bool isTableRow() const = 0;
     virtual AXCoreObject* parentTableIfExposedTableRow() const = 0;
     virtual bool isExposedTableRow() const = 0;

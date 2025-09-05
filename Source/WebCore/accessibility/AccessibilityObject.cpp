@@ -2013,7 +2013,15 @@ bool AccessibilityObject::supportsReadOnly() const
 
 String AccessibilityObject::readOnlyValue() const
 {
-    if (!hasAttribute(aria_readonlyAttr))
+    bool hasReadOnlyAttribute = hasAttribute(aria_readonlyAttr);
+    if (!hasReadOnlyAttribute && isTableCell()) {
+        // ARIA 1.1 requires user agents to propagate the grid's aria-readonly value to all
+        // gridcell elements if the property is not present on the gridcell element itself.
+        if (RefPtr parent = parentTable())
+            return parent->readOnlyValue();
+    }
+
+    if (!hasReadOnlyAttribute)
         return ariaRoleAttribute() != AccessibilityRole::Unknown && supportsReadOnly() ? "false"_s : String();
 
     return getAttribute(aria_readonlyAttr).string().convertToASCIILowercase();

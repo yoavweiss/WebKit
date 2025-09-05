@@ -171,6 +171,7 @@ public:
     // Table cell support.
     bool isTableCell() const override { return false; }
     bool isExposedTableCell() const override { return false; }
+    AXCoreObject* parentTableIfTableCell() const override { return nullptr; }
     // Returns the start location and row span of the cell.
     std::pair<unsigned, unsigned> rowIndexRange() const override { return { 0, 1 }; }
     // Returns the start location and column span of the cell.
@@ -184,6 +185,7 @@ public:
     unsigned columnIndex() const override { return 0; }
 
     // Table row support.
+    AccessibilityObject* parentTable() const override { return nullptr; }
     bool isTableRow() const override { return false; }
     AXCoreObject* parentTableIfExposedTableRow() const override { return nullptr; };
     bool isExposedTableRow() const override { return false; }
