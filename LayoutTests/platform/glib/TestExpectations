@@ -2327,10 +2327,7 @@ webkit.org/b/132995 transitions/cancel-transition.html [ Failure Pass ]
 # WebAnimations-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
-webkit.org/b/211948 webanimations/accelerated-animation-playback-rate.html [ ImageOnlyFailure ]
 webkit.org/b/212020 webanimations/accelerated-animation-single-keyframe.html [ Skip ]
-
-webkit.org/b/216539 webanimations/accelerated-animation-easing-and-direction-update.html [ ImageOnlyFailure ]
 
 webkit.org/b/221021 webanimations/accelerated-animation-immediate-prevetion-direction-reverse.html [ Skip ]
 webkit.org/b/221021 webanimations/combining-transform-animations-with-different-acceleration-capabilities-2.html [ Skip ]
