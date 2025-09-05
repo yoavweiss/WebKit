@@ -3575,7 +3575,17 @@ InactiveMediaCaptureStreamRepromptIntervalInMinutes:
   exposed: [ WebKit ]
   defaultValue:
     WebKit:
-      default: defaultInactiveMediaCaptureStreamRepromptIntervalInMinutes()
+      default: 10
+
+InactiveMediaCaptureStreamRepromptWithoutUserGestureIntervalInMinutes:
+  type: double
+  status: embedder
+  condition: ENABLE(MEDIA_STREAM)
+  webcoreBinding: none
+  exposed: [ WebKit ]
+  defaultValue:
+    WebKit:
+      default: defaultInactiveMediaCaptureStreamRepromptWithoutUserGestureIntervalInMinutes()
 
 IncludeIgnoredInCoreAXTree:
   type: bool

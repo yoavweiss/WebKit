@@ -113,7 +113,6 @@ bool defaultAppleMailPaginationQuirkEnabled()
 #endif
 
 #if ENABLE(MEDIA_STREAM)
-
 bool defaultCaptureAudioInGPUProcessEnabled()
 {
 #if ENABLE(GPU_PROCESS_BY_DEFAULT)
@@ -133,7 +132,7 @@ bool defaultManageCaptureStatusBarInGPUProcessEnabled()
 #endif
 }
 
-double defaultInactiveMediaCaptureStreamRepromptIntervalInMinutes()
+double defaultInactiveMediaCaptureStreamRepromptWithoutUserGestureIntervalInMinutes()
 {
     constexpr double inactiveMediaCaptureStreamRepromptIntervalForDesktop = 10;
 

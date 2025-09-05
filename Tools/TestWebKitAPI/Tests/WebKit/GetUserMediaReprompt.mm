@@ -108,6 +108,45 @@ TEST(WebKit2, GetUserMediaReprompt)
     [delegate waitUntilPrompted];
 }
 
+TEST(WebKit2, GetUserMediaRepromptWithoutUserGesture)
+{
+    auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    auto processPoolConfig = adoptNS([[_WKProcessPoolConfiguration alloc] init]);
+    auto preferences = [configuration preferences];
+    preferences._inactiveMediaCaptureStreamRepromptWithoutUserGestureIntervalInMinutes = 0.5 / 60;
+
+    initializeMediaCaptureConfiguration(configuration.get());
+    auto webView = adoptNS([[GetUserMediaRepromptTestView alloc] initWithFrame:CGRectMake(0, 0, 320, 500) configuration:configuration.get() processPoolConfiguration:processPoolConfig.get()]);
+    auto delegate = adoptNS([[UserMediaCaptureUIDelegate alloc] init]);
+    [webView setUIDelegate:delegate.get()];
+
+    [webView loadTestPageNamed:@"getUserMedia"];
+    [delegate waitUntilPrompted];
+
+    EXPECT_TRUE([webView haveStream:YES]);
+
+    [webView stringByEvaluatingJavaScript:@"stop()"];
+    EXPECT_TRUE([webView haveStream:NO]);
+
+    // Sleep a bit but not long enough for reprompting capture without user gesture.
+    Util::runFor(0.1_s);
+
+    EXPECT_FALSE([delegate wasPrompted]);
+    [webView objectByEvaluatingJavaScript:@"promptForCapture()"];
+    EXPECT_TRUE([webView haveStream:YES]);
+    EXPECT_FALSE([delegate wasPrompted]);
+
+    [webView stringByEvaluatingJavaScript:@"stop()"];
+    EXPECT_TRUE([webView haveStream:NO]);
+
+    // Sleep long enough for the time without capture to be above 0.5s.
+    Util::runFor(1_s);
+
+    // Start capture without user gesture.
+    [webView objectByEvaluatingJavaScript:@"promptForCapture()"];
+    [delegate waitUntilPrompted];
+}
+
 TEST(WebKit2, GetUserMediaRepromptAfterAudioVideoBeingDenied)
 {
     auto configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
@@ -168,7 +207,7 @@ TEST(WebKit2, GetUserMediaDefaultInactiveCaptureRepromptInterval)
 #endif
         return 10;
     };
-    EXPECT_EQ(preferences._inactiveMediaCaptureStreamRepromptIntervalInMinutes, expectedInactiveMediaCaptureStreamRepromptInterval());
+    EXPECT_EQ(preferences._inactiveMediaCaptureStreamRepromptWithoutUserGestureIntervalInMinutes, expectedInactiveMediaCaptureStreamRepromptInterval());
 }
 
 } // namespace TestWebKitAPI
