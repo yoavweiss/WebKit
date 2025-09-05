@@ -1260,7 +1260,8 @@ webkit.org/b/239345 editing/execCommand/insert-ordered-list-and-delete.html [ Fa
 
 webkit.org/b/179605 editing/execCommand/underline-selection-containing-image.html [ Failure ]
 
-webkit.org/b/286128 editing/inserting/insert-list-user-select-none-crash.html [ Crash ]
+# Assertion failure if ASSERT_ENABLED
+webkit.org/b/286128 [ Release ] editing/inserting/insert-list-user-select-none-crash.html [ Crash Pass ]
 
 webkit.org/b/179261 editing/selection/drag-to-contenteditable-iframe.html [ Timeout ]
 
@@ -1424,9 +1425,6 @@ webkit.org/b/152247 fast/forms/listbox-scrollbar-hit-test.html [ Skip ]
 
 webkit.org/b/209403 fast/forms/placeholder-content-center-line-height-greater-than-content-height.html [ ImageOnlyFailure ]
 
-# This test assumes that color on sliders is not reversed for RTL, so failing is good.
-fast/forms/range/input-appearance-range-rtl.html [ ImageOnlyFailure ]
-
 webkit.org/b/209727 fast/forms/single-text-line-content-clipping.html [ ImageOnlyFailure ]
 
 fast/forms/listbox-typeahead-cyrillic.html [ Failure ]
@@ -1445,7 +1443,9 @@ webkit.org/b/181662 fast/forms/auto-fill-button/input-strong-password-viewable-b
 
 webkit.org/b/182103 fast/forms/focus-selection-textarea.html [ Failure ]
 
-webkit.org/b/286129 fast/forms/textarea-node-removed-from-document-crash.html [ Crash ]
+# Assertion failure if ASSERT_ENABLED
+webkit.org/b/286129 [ Debug ] fast/forms/textarea-node-removed-from-document-crash.html [ Skip ]
+webkit.org/b/286129 [ Release ] fast/forms/textarea-node-removed-from-document-crash.html [ Crash Pass ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Forms-related bugs
@@ -1982,7 +1982,7 @@ webkit.org/b/273396 fast/clip/overflow-hidden-with-border-radius-overflow-clippi
 webkit.org/b/273396 fast/css/ignore-empty-focus-ring-rects.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/css3-text/css3-text-decoration/text-decoration-skip/text-decoration-skip-ink-svg.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/encoding/denormalised-voiced-japanese-chars.html [ ImageOnlyFailure ]
-webkit.org/b/273396 fast/images/animated-avif.html [ ImageOnlyFailure ]
+webkit.org/b/273396 fast/images/animated-avif.html [ ImageOnlyFailure Pass ]
 webkit.org/b/273396 fast/inline/hidpi-outline-inline-box-writing-modes.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/masking/clip-path-inset-large-radii.html [ ImageOnlyFailure ]
 webkit.org/b/273396 fast/multicol/clipped-video-in-second-column.html [ ImageOnlyFailure ]
@@ -2805,8 +2805,12 @@ webkit.org/b/215912 http/tests/websocket/tests/hybi/handshake-fail-by-no-cr.html
 #////////////////////////////////////////////////////////////////////////////////////////
 
 webkit.org/b/208988 http/tests/webxr/webxr-third-party-iframe-requestsession-denied-by-insufficient-feature-policy.html [ Timeout ]
-webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xrViewport_valid.https.html [ Failure ]
-webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xrWebGLLayer_viewports.https.html [ Failure ]
+
+# Assertion failure if ASSERT_ENABLED
+webkit.org/b/298434 [ Debug ] imported/w3c/web-platform-tests/webxr/xrViewport_valid.https.html [ Skip ]
+webkit.org/b/298434 [ Release ] imported/w3c/web-platform-tests/webxr/xrViewport_valid.https.html [ Crash Pass ]
+webkit.org/b/298434 [ Debug ] imported/w3c/web-platform-tests/webxr/xrWebGLLayer_viewports.https.html [ Skip ]
+webkit.org/b/298434 [ Release ] imported/w3c/web-platform-tests/webxr/xrWebGLLayer_viewports.https.html [ Crash Pass ]
 
 # WebXROpaqueFramebuffer is not able to properly setup gfx resources
 webkit.org/b/296681 imported/w3c/web-platform-tests/webxr [ Skip ]
@@ -2851,9 +2855,7 @@ imported/w3c/web-platform-tests/content-security-policy/frame-ancestors/frame-an
 imported/w3c/web-platform-tests/content-security-policy/frame-src/frame-src-blocked-path-matching.sub.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/generic/image-document-ignores-csp.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/generic/policy-inherited-correctly-by-plznavigate.html [ Failure ]
-imported/w3c/web-platform-tests/content-security-policy/generic/src-trailing-dot.sub.any.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/generic/src-trailing-dot.sub.any.sharedworker.html [ Failure ]
-imported/w3c/web-platform-tests/content-security-policy/generic/src-trailing-dot.sub.any.worker.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/generic/wildcard-host-part.sub.window.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/img-src/img-src-port-wildcard-allowed.sub.html [ Failure ]
 imported/w3c/web-platform-tests/content-security-policy/reporting/report-original-url-on-mixed-content-frame.https.sub.html [ Failure ]
@@ -4216,8 +4218,6 @@ webkit.org/b/245032 imported/w3c/web-platform-tests/css/compositing/root-element
 imported/w3c/web-platform-tests/css/css-color/system-color-hightlights-vs-getSelection-001.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-color/system-color-hightlights-vs-getSelection-002.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-color/parsing/color-valid-relative-color.html [ ImageOnlyFailure ]
-imported/w3c/web-platform-tests/css/css-color/parsing/color-computed-rgb.html [ Failure ]
-imported/w3c/web-platform-tests/css/css-color/parsing/color-valid-rgb.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-color/body-opacity-0-to-1-stacking-context.html [ Pass ImageOnlyFailure ]
 
 # Flakily crashing on GTK and WPE bots
@@ -4858,7 +4858,9 @@ imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/js
 
 imported/w3c/web-platform-tests/css/selectors/invalidation/media-pseudo-classes-in-has.html [ Failure ]
 
-imported/w3c/web-platform-tests/selection/caret/move-around-generated-content.html [ Crash ]
+# Assertion failure if ASSERT_ENABLED
+webkit.org/b/298433 [ Debug ] imported/w3c/web-platform-tests/selection/caret/move-around-generated-content.html [ Skip ]
+webkit.org/b/298433 [ Release ] imported/w3c/web-platform-tests/selection/caret/move-around-generated-content.html [ Crash Pass Failure ]
 
 # Needs rebaseline.
 fast/text/glyph-display-lists [ Skip ]
