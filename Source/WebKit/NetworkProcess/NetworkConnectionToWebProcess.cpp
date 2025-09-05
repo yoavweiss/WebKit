@@ -1319,11 +1319,11 @@ void NetworkConnectionToWebProcess::requestStorageAccess(RegistrableDomain&& sub
     completionHandler({ WebCore::StorageAccessWasGranted::Yes, WebCore::StorageAccessPromptWasShown::No, scope, topFrameDomain, subFrameDomain });
 }
 
-void NetworkConnectionToWebProcess::queryStorageAccessPermission(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, CompletionHandler<void(WebCore::PermissionState)>&& completionHandler)
+void NetworkConnectionToWebProcess::queryStorageAccessPermission(RegistrableDomain&& subFrameDomain, RegistrableDomain&& topFrameDomain, std::optional<WebPageProxyIdentifier> webPageProxyID, CompletionHandler<void(WebCore::PermissionState)>&& completionHandler)
 {
     if (CheckedPtr networkSession = this->networkSession()) {
         if (RefPtr resourceLoadStatistics = networkSession->resourceLoadStatistics()) {
-            resourceLoadStatistics->queryStorageAccessPermission(WTFMove(subFrameDomain), WTFMove(topFrameDomain), WTFMove(completionHandler));
+            resourceLoadStatistics->queryStorageAccessPermission(WTFMove(subFrameDomain), WTFMove(topFrameDomain), webPageProxyID, WTFMove(completionHandler));
             return;
         }
     }
