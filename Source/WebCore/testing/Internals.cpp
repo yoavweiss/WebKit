@@ -394,6 +394,10 @@
 #include <wtf/spi/darwin/SandboxSPI.h>
 #endif
 
+#if PLATFORM(WPE)
+#include <wtf/glib/GResources.h>
+#endif
+
 #if ENABLE(MEDIA_SESSION_COORDINATOR)
 #include "MediaSessionCoordinator.h"
 #include "MockMediaSessionCoordinator.h"
@@ -3281,6 +3285,10 @@ RefPtr<WindowProxy> Internals::openDummyInspectorFrontend(const String& url)
     RefPtr window = localMainFrame->document()->window();
     if (!window)
         return nullptr;
+
+#if PLATFORM(WPE)
+    WTF::registerInspectorResourceIfNeeded();
+#endif
 
     auto frontendWindowProxy = window->open(*window, *window, url, emptyAtom(), emptyString()).releaseReturnValue();
     m_inspectorFrontend = makeUnique<InspectorStubFrontend>(*inspectedPage, downcast<LocalDOMWindow>(frontendWindowProxy->window()));
