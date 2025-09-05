@@ -113,11 +113,11 @@ macro popQuad(reg)
 end
 
 macro pushVec(reg)
-    push reg
+    pushv reg
 end
 
 macro popVec(reg)
-    pop reg
+    popv reg
 end
 
 # Typed push/pop to make code pretty
@@ -4067,24 +4067,184 @@ const ImmLaneIdx2Mask = 0x1
 
 # 0xFD 0x00 - 0xFD 0x0B: memory
 
-unimplementedInstruction(_simd_v128_load_mem)
-unimplementedInstruction(_simd_v128_load_8x8s_mem)
-unimplementedInstruction(_simd_v128_load_8x8u_mem)
-unimplementedInstruction(_simd_v128_load_16x4s_mem)
-unimplementedInstruction(_simd_v128_load_16x4u_mem)
-unimplementedInstruction(_simd_v128_load_32x2s_mem)
-unimplementedInstruction(_simd_v128_load_32x2u_mem)
-unimplementedInstruction(_simd_v128_load8_splat_mem)
-unimplementedInstruction(_simd_v128_load16_splat_mem)
-unimplementedInstruction(_simd_v128_load32_splat_mem)
-unimplementedInstruction(_simd_v128_load64_splat_mem)
-unimplementedInstruction(_simd_v128_store_mem)
+# Wrapper for SIMD load/store operations. Places linear address in t0 for memOp()
+macro simdMemoryOp(accessSize, memOp)
+    popMemoryIndex(t0, t2)
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, accessSize)
+
+    memOp()
+
+    loadb IPInt::Const32Metadata::instructionLength[MC], t0
+    advancePCByReg(t0)
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end
+
+ipintOp(_simd_v128_load_mem, macro()
+    # v128.load
+    simdMemoryOp(16, macro()
+        loadv [memoryBase, t0], v0
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load_8x8s_mem, macro()
+    # v128.load8x8_s - load 8 8-bit values, sign-extend each to i16
+    simdMemoryOp(8, macro()
+        loadd [memoryBase, t0], ft0
+        if ARM64 or ARM64E
+            # offlineasm ft0 = ARM v0
+            # offlineasm v0 = ARM v16
+            emit "sxtl v16.8h, v0.8b"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load_8x8u_mem, macro()
+    # v128.load8x8_u - load 8 8-bit values, zero-extend each to i16
+    simdMemoryOp(8, macro()
+        loadd [memoryBase, t0], ft0
+        if ARM64 or ARM64E
+            # offlineasm ft0 = ARM v0
+            # offlineasm v0 = ARM v16
+            emit "uxtl v16.8h, v0.8b"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load_16x4s_mem, macro()
+    # v128.load16x4_s - load 4 16-bit values, sign-extend each to i32
+    simdMemoryOp(8, macro()
+        loadd [memoryBase, t0], ft0
+        if ARM64 or ARM64E
+            # offlineasm ft0 = ARM v0
+            # offlineasm v0 = ARM v16
+            emit "sxtl v16.4s, v0.4h"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load_16x4u_mem, macro()
+    # v128.load16x4_u - load 4 16-bit values, zero-extend each to i32
+    simdMemoryOp(8, macro()
+        loadd [memoryBase, t0], ft0
+        if ARM64 or ARM64E
+            # offlineasm ft0 = ARM v0
+            # offlineasm v0 = ARM v16
+            emit "uxtl v16.4s, v0.4h"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load_32x2s_mem, macro()
+    # v128.load32x2_s - load 2 32-bit values, sign-extend each to i64
+    simdMemoryOp(8, macro()
+        loadd [memoryBase, t0], ft0
+        if ARM64 or ARM64E
+            # offlineasm ft0 = ARM v0
+            # offlineasm v0 = ARM v16
+            emit "sxtl v16.2d, v0.2s"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load_32x2u_mem, macro()
+    # v128.load32x2_u - load 2 32-bit values, zero-extend each to i64
+    simdMemoryOp(8, macro()
+        loadd [memoryBase, t0], ft0
+        if ARM64 or ARM64E
+            # offlineasm ft0 = ARM v0
+            # offlineasm v0 = ARM v16
+            emit "uxtl v16.2d, v0.2s"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load8_splat_mem, macro()
+    # v128.load8_splat - load 1 8-bit value and splat to all 16 lanes
+    simdMemoryOp(1, macro()
+        loadb [memoryBase, t0], t1
+        if ARM64 or ARM64E
+            emit "dup v16.16b, w1"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load16_splat_mem, macro()
+    # v128.load16_splat - load 1 16-bit value and splat to all 8 lanes
+    simdMemoryOp(2, macro()
+        loadh [memoryBase, t0], t1
+        if ARM64 or ARM64E
+            emit "dup v16.8h, w1"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load32_splat_mem, macro()
+    # v128.load32_splat - load 1 32-bit value and splat to all 4 lanes
+    simdMemoryOp(4, macro()
+        loadi [memoryBase, t0], t1
+        if ARM64 or ARM64E
+            emit "dup v16.4s, w1"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_load64_splat_mem, macro()
+    # v128.load64_splat - load 1 64-bit value and splat to all 2 lanes
+    simdMemoryOp(8, macro()
+        loadq [memoryBase, t0], t1
+        if ARM64 or ARM64E
+            emit "dup v16.2d, x1"
+        else
+            break # Not implemented
+        end
+        pushVec(v0)
+    end)
+end)
+
+ipintOp(_simd_v128_store_mem, macro()
+    # v128.store
+    popVec(v0)
+    simdMemoryOp(16, macro()
+        storev v0, [memoryBase, t0]
+    end)
+end)
 
 # 0xFD 0x0C: v128.const
 ipintOp(_simd_v128_const, macro()
     # v128.const
     loadv 2[PC], v0
-    pushv v0
+    pushVec(v0)
     advancePC(18)
     nextIPIntInstruction()
 end)
