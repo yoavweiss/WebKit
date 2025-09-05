@@ -870,6 +870,7 @@ accessibility/dynamically-changing-iframe-remains-accessible.html [ Skip ]
 accessibility/ignore-modals-without-any-content.html [ Skip ]
 accessibility/iframe-tree-update-with-dirty-layout.html [ Skip ]
 accessibility/iframe-with-role.html [ Skip ]
+accessibility/missing-content-inside-expanded-details.html [ Skip ]
 
 accessibility/editable-webpage-focused-ui-element.html [ Skip ]
 

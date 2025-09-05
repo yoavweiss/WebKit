@@ -2970,6 +2970,7 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
             if (RefPtr object = get(*element)) {
                 postNotification(*object, AXNotification::ExpandedChanged);
                 childrenChanged(object.get());
+                object->recomputeIsIgnoredForDescendants();
             }
 
 #if ENABLE(ACCESSIBILITY_ISOLATED_TREE)
@@ -3097,11 +3098,8 @@ void AXObjectCache::handleAttributeChange(Element* element, const QualifiedName&
         postNotification(element, AXNotification::HasPopupChanged);
     else if (attrName == aria_hiddenAttr) {
 #if ENABLE(INCLUDE_IGNORED_IN_CORE_AX_TREE)
-        if (RefPtr axObject = getOrCreate(*element)) {
-            Accessibility::enumerateDescendantsIncludingIgnored<AXCoreObject>(*axObject, /* includeSelf */ true, [] (auto& descendant) {
-                downcast<AccessibilityObject>(descendant).recomputeIsIgnored();
-            });
-        }
+        if (RefPtr axObject = getOrCreate(*element))
+            axObject->recomputeIsIgnoredForDescendants(/* includeSelf */ true);
 #else
         if (RefPtr parent = get(element->parentNode()))
             childrenChanged(parent.get());

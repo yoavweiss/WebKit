@@ -3924,6 +3924,13 @@ bool AccessibilityObject::isIgnoredWithoutCache(AXObjectCache* cache) const
     return ignored;
 }
 
+void AccessibilityObject::recomputeIsIgnoredForDescendants(bool includeSelf)
+{
+    Accessibility::enumerateDescendantsIncludingIgnored<AXCoreObject>(*this, includeSelf, [] (auto& descendant) {
+        downcast<AccessibilityObject>(descendant).recomputeIsIgnored();
+    });
+}
+
 Vector<Ref<Element>> AccessibilityObject::elementsFromAttribute(const QualifiedName& attribute) const
 {
     RefPtr element = dynamicDowncast<Element>(node());
