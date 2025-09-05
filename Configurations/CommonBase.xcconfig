@@ -78,6 +78,9 @@ WK_DEFAULT_WK_AUDIT_SPI[sdk=iphoneos*] = YES;
 // Explicitly disable auditing on visionOS, because some SDKs fall back to
 // reading settings for iOS.
 WK_DEFAULT_WK_AUDIT_SPI[sdk=xros*] = ;
+// Disable auditing on internal builds of already-shipped releases.
+WK_DEFAULT_WK_AUDIT_SPI[sdk=iphoneos18*.internal] = ;
+
 WK_AUDIT_SPI = $(WK_DEFAULT_WK_AUDIT_SPI);
 
 WK_OTHER_AUDIT_SPI_FLAGS = -DSDKDB_HAS_148943382 $(WK_OTHER_AUDIT_SPI_FLAGS_$(CONFIGURATION));
