@@ -1180,10 +1180,10 @@ static Frame* incrementFrame(Frame* current, bool forward, CanWrap canWrap, DidW
         : current->tree().traversePrevious(canWrap, didWrap);
 }
 
-std::optional<FrameIdentifier> Page::findString(const String& target, FindOptions options, DidWrap* didWrap)
+Page::FindStringData Page::findString(const String& target, FindOptions options, DidWrap* didWrap)
 {
     if (target.isEmpty())
-        return std::nullopt;
+        return { std::nullopt, std::nullopt };
 
     CanWrap canWrap = options.contains(FindOption::WrapAround) ? CanWrap::Yes : CanWrap::No;
     RefPtr frame = m_focusController->focusedFrame() ? m_focusController->focusedFrame() : m_mainFrame.ptr();
@@ -1195,13 +1195,14 @@ std::optional<FrameIdentifier> Page::findString(const String& target, FindOption
             frame = incrementFrame(frame.get(), !options.contains(FindOption::Backwards), canWrap, didWrap);
             continue;
         }
-        if (localFrame->protectedEditor()->findString(target, (options - FindOption::WrapAround) | FindOption::StartInSelection)) {
+        auto foundRange = localFrame->protectedEditor()->findString(target, (options - FindOption::WrapAround) | FindOption::StartInSelection);
+        if (foundRange) {
             if (!options.contains(FindOption::DoNotSetSelection)) {
                 if (focusedLocalFrame && localFrame != focusedLocalFrame)
                     focusedLocalFrame->checkedSelection()->clear();
                 m_focusController->setFocusedFrame(localFrame.get());
             }
-            return localFrame->frameID();
+            return { std::make_optional(localFrame->frameID()), foundRange };
         }
         frame = incrementFrame(frame.get(), !options.contains(FindOption::Backwards), canWrap, didWrap);
     } while (frame && frame != startFrame);
@@ -1211,13 +1212,15 @@ std::optional<FrameIdentifier> Page::findString(const String& target, FindOption
     if (canWrap == CanWrap::Yes && focusedLocalFrame && !focusedLocalFrame->selection().isNone()) {
         if (didWrap)
             *didWrap = DidWrap::Yes;
-        bool found = focusedLocalFrame->protectedEditor()->findString(target, options | FindOption::WrapAround | FindOption::StartInSelection);
+        auto foundRange = focusedLocalFrame->protectedEditor()->findString(target, options | FindOption::WrapAround | FindOption::StartInSelection);
         if (!options.contains(FindOption::DoNotSetSelection))
             m_focusController->setFocusedFrame(frame.get());
-        return found ? std::make_optional(focusedLocalFrame->frameID()) : std::nullopt;
+        if (!foundRange)
+            return { std::nullopt, std::nullopt };
+        return { std::make_optional(focusedLocalFrame->frameID()), foundRange };
     }
 
-    return std::nullopt;
+    return { std::nullopt, std::nullopt };
 }
 
 #if ENABLE(IMAGE_ANALYSIS)
