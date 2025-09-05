@@ -1524,6 +1524,8 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
     _selectionInteractionType = SelectionInteractionType::None;
 
+    _editingEndedByUser = YES;
+
     _hasSetUpInteractions = YES;
 }
 
@@ -2059,6 +2061,8 @@ typedef NS_ENUM(NSInteger, EndEditingReason) {
 
 - (void)endEditingAndUpdateFocusAppearanceWithReason:(EndEditingReason)reason
 {
+    _editingEndedByUser = YES;
+
     if (!self.webView._retainingActiveFocusedState) {
         // We need to complete the editing operation before we blur the element.
         [self _endEditing];
@@ -6154,6 +6158,9 @@ static void logTextInteraction(const char* methodName, UIGestureRecognizer *loup
 #endif
 
     [_textInteractionWrapper reset];
+
+    _keyboardDismissedInCurrentPresentationUpdate = NO;
+    _editingEndedByUser = YES;
 }
 
 - (void)_nextAccessoryTabForWebView:(id)sender
@@ -8168,6 +8175,12 @@ static UITextAutocapitalizationType toUITextAutocapitalize(WebCore::Autocapitali
 {
     SetForScope isHidingKeyboardScope { _isHidingKeyboard, YES };
 
+    _keyboardDismissedInCurrentPresentationUpdate = YES;
+    _page->callAfterNextPresentationUpdate([weakSelf = WeakObjCPtr<WKContentView>(self)] {
+        if (RetainPtr strongSelf = weakSelf.get())
+            strongSelf->_keyboardDismissedInCurrentPresentationUpdate = NO;
+    });
+
     self.inputDelegate = nil;
     [self setUpTextSelectionAssistant];
     
@@ -8365,6 +8378,9 @@ static RetainPtr<NSObject <WKFormPeripheral>> createInputPeripheralWithView(WebK
             if (userIsInteracting)
                 return YES;
 
+            if (_keyboardDismissedInCurrentPresentationUpdate && !_editingEndedByUser)
+                return YES;
+
             if (self.isFirstResponder || _becomingFirstResponder) {
                 // When the software keyboard is being used to enter an url, only the focus activity state is changing.
                 // In this case, auto focus on the page being navigated to should be disabled, unless a hardware
@@ -8404,6 +8420,9 @@ static RetainPtr<NSObject <WKFormPeripheral>> createInputPeripheralWithView(WebK
         [self startDeferringInputViewUpdates:WebKit::InputViewUpdateDeferralSource::ChangingFocusedElement];
         [self _elementDidBlur];
     }
+
+    if (shouldShowInputView)
+        _editingEndedByUser = NO;
 
     if (!shouldShowInputView || information.elementType == WebKit::InputType::None) {
         _page->setIsShowingInputViewForFocusedElement(false);
