@@ -356,7 +356,14 @@ add_custom_command(
     VERBATIM
 )
 
-set(WebKitResources
+set(WebKitResources "")
+list(APPEND WebKitResources "        <file alias='css/wpe-theme.css'>wpe-theme.css</file>\n"
+  "        <file alias='images/missingImage@2x'>missingImage@2x.png</file>\n"
+  "        <file alias='images/missingImage@3x'>missingImage@3x.png</file>\n"
+  "        <file alias='images/missingImage'>missingImage.png</file>\n"
+  "        <file alias='images/panIcon'>panIcon.png</file>\n"
+  "        <file alias='images/textAreaResizeCorner@2x'>textAreaResizeCorner@2x.png</file>\n"
+  "        <file alias='images/textAreaResizeCorner'>textAreaResizeCorner.png</file>\n"
 )
 
 if (ENABLE_WEB_AUDIO)
@@ -379,6 +386,7 @@ GLIB_COMPILE_RESOURCES(
     SOURCE_XML    ${WebKit_DERIVED_SOURCES_DIR}/WebKitResourcesGResourceBundle.xml
     RESOURCE_DIRS ${CMAKE_SOURCE_DIR}/Source/WebCore/Resources
                   ${CMAKE_SOURCE_DIR}/Source/WebCore/platform/audio/resources
+                  ${CMAKE_SOURCE_DIR}/Source/WebKit/Resources/wpe
 )
 
 list(APPEND WebKit_PRIVATE_INCLUDE_DIRECTORIES

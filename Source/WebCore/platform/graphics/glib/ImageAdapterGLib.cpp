@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Igalia S.L
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,49 +27,35 @@
 #include "ImageAdapter.h"
 
 #include "BitmapImage.h"
-#include <wtf/TZoneMallocInlines.h>
+#include "SharedBuffer.h"
+#include <wtf/glib/GSpanExtras.h>
+#include <wtf/glib/GUniquePtr.h>
+
+#if PLATFORM(GTK)
+#define IMAGES_GRESOURCE_PATH "/org/webkitgtk/resources/images"
+#else
+#define IMAGES_GRESOURCE_PATH "/org/webkitwpe/resources/images"
+#endif
 
 namespace WebCore {
 
-WTF_MAKE_TZONE_ALLOCATED_IMPL(ImageAdapter);
-
-#if !PLATFORM(COCOA) && !PLATFORM(GTK) && !PLATFORM(WIN) && !PLATFORM(WPE)
-Ref<Image> ImageAdapter::loadPlatformResource(const char* resource)
+static Ref<Image> loadImageFromGResource(const char* iconName)
 {
-    WTFLogAlways("WARNING: trying to load platform resource '%s'", resource);
-    return BitmapImage::create();
+    auto icon = BitmapImage::create();
+    GUniquePtr<char> path(g_strdup_printf(IMAGES_GRESOURCE_PATH "/%s", iconName));
+    GRefPtr<GBytes> data = adoptGRef(g_resources_lookup_data(path.get(), G_RESOURCE_LOOKUP_FLAGS_NONE, nullptr));
+    ASSERT(data);
+    icon->setData(SharedBuffer::create(span(data)), true);
+    return icon;
+}
+
+Ref<Image> ImageAdapter::loadPlatformResource(const char* name)
+{
+    return loadImageFromGResource(name);
 }
 
 void ImageAdapter::invalidate()
 {
-}
-#endif // !PLATFORM(COCOA) && !PLATFORM(GTK) && !PLATFORM(WIN)
-
-RefPtr<NativeImage> ImageAdapter::nativeImageOfSize(const IntSize& size)
-{
-    unsigned count = image().frameCount();
-
-    for (unsigned i = 0; i < count; ++i) {
-        RefPtr nativeImage = image().nativeImageAtIndex(i);
-        if (nativeImage && nativeImage->size() == size)
-            return nativeImage;
-    }
-
-    // Fallback to the first frame image if we can't find the right size
-    return image().nativeImageAtIndex(0);
-}
-
-Vector<Ref<NativeImage>> ImageAdapter::allNativeImages()
-{
-    Vector<Ref<NativeImage>> nativeImages;
-    unsigned count = image().frameCount();
-
-    for (unsigned i = 0; i < count; ++i) {
-        if (RefPtr nativeImage = image().nativeImageAtIndex(i))
-            nativeImages.append(nativeImage.releaseNonNull());
-    }
-
-    return nativeImages;
 }
 
 } // namespace WebCore
