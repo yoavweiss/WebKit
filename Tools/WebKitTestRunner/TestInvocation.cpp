@@ -846,7 +846,8 @@ WKRetainPtr<WKTypeRef> TestInvocation::didReceiveSynchronousMessageFromInjectedB
         auto axisCount = uint64Value(messageBodyDictionary, "AxisCount");
         auto buttonCount = uint64Value(messageBodyDictionary, "ButtonCount");
         bool supportsDualRumble = booleanValue(messageBodyDictionary, "SupportsDualRumble");
-        WebCoreTestSupport::setMockGamepadDetails(gamepadIndex, toWTFString(gamepadID), toWTFString(mapping), axisCount, buttonCount, supportsDualRumble);
+        bool wasConnected = booleanValue(messageBodyDictionary, "WasConnected");
+        WebCoreTestSupport::setMockGamepadDetails(gamepadIndex, toWTFString(gamepadID), toWTFString(mapping), axisCount, buttonCount, supportsDualRumble, wasConnected);
         return nullptr;
     }
 

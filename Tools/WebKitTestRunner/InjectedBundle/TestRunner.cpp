@@ -1549,7 +1549,7 @@ void TestRunner::disconnectMockGamepad(unsigned index)
     postSynchronousMessage("DisconnectMockGamepad", index);
 }
 
-void TestRunner::setMockGamepadDetails(unsigned index, JSStringRef gamepadID, JSStringRef mapping, unsigned axisCount, unsigned buttonCount, bool supportsDualRumble)
+void TestRunner::setMockGamepadDetails(unsigned index, JSStringRef gamepadID, JSStringRef mapping, unsigned axisCount, unsigned buttonCount, bool supportsDualRumble, bool wasConnected)
 {
     postSynchronousMessage("SetMockGamepadDetails", createWKDictionary({
         { "GamepadID", toWK(gamepadID) },
@@ -1558,6 +1558,7 @@ void TestRunner::setMockGamepadDetails(unsigned index, JSStringRef gamepadID, JS
         { "AxisCount", adoptWK(WKUInt64Create(axisCount)) },
         { "ButtonCount", adoptWK(WKUInt64Create(buttonCount)) },
         { "SupportsDualRumble", adoptWK(WKBooleanCreate(supportsDualRumble)) },
+        { "WasConnected", adoptWK(WKBooleanCreate(wasConnected)) },
     }));
 }
 
@@ -1589,7 +1590,7 @@ void TestRunner::disconnectMockGamepad(unsigned)
 {
 }
 
-void TestRunner::setMockGamepadDetails(unsigned, JSStringRef, JSStringRef, unsigned, unsigned, bool)
+void TestRunner::setMockGamepadDetails(unsigned, JSStringRef, JSStringRef, unsigned, unsigned, bool, bool)
 {
 }
 

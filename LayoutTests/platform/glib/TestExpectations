@@ -3536,8 +3536,6 @@ imported/w3c/web-platform-tests/html/semantics/embedded-content/the-embed-elemen
 # Remove console message: 'Navigator.getGamepads() will be removed from insecure contexts in a future release'.
 imported/w3c/web-platform-tests/gamepad/gamepad-secure-context.html [ DumpJSConsoleLogInStdErr ]
 
-webkit.org/b/259104 gamepad/gamepad-visibility-1.html [ Failure ]
-
 # ENABLE(DRAGGABLE_REGION) is disabled
 Bug(GLIB) fast/css/draggable-region-parser.html [ Failure ]
 
