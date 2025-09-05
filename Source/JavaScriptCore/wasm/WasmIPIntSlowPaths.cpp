@@ -962,7 +962,7 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
     const Wasm::FuncRefTable::Function& function = table->function(*functionIndex);
 
     if (!function.m_function.rtt) [[unlikely]]
-        IPINT_THROW(Wasm::ExceptionType::NullTableEntry);
+        IPINT_THROW(Wasm::ExceptionType::BadSignature);
 
     if (!function.m_function.rtt->isSubRTT(*call->rtt)) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadSignature);

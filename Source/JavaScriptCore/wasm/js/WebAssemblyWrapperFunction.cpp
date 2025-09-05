@@ -65,8 +65,8 @@ WebAssemblyWrapperFunction* WebAssemblyWrapperFunction::create(VM& vm, JSGlobalO
                     { instance, WriteBarrierEarlyInit },
                     &instance->importFunctionInfo(importIndex)->importFunctionStub
                 },
-                typeIndex,
-                rtt.ptr()
+                rtt.ptr(),
+                typeIndex
             },
             { },
             { }
