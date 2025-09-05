@@ -2532,8 +2532,8 @@ webkit.org/b/283954 imported/w3c/web-platform-tests/svg/text/reftests/transform-
 [ Debug ] fast/loader/document-with-fragment-url-4.html [ Pass Timeout ]
 
 webkit.org/b/85902 [ Debug ] fast/overflow/lots-of-sibling-inline-boxes.html [ Slow ]
-webkit.org/b/121452 [ Debug ] fast/frames/lots-of-objects.html [ Slow ]
-webkit.org/b/121452 [ Debug ] fast/frames/lots-of-iframes.html [ Slow ]
+webkit.org/b/298471 fast/frames/lots-of-objects.html [ Pass Timeout ]
+webkit.org/b/298471 fast/frames/lots-of-iframes.html [ Pass Timeout ]
 webkit.org/b/135053 [ Debug ] html5lib/webkit-resumer.html [ Slow ]
 [ Debug ] js/dfg-double-vote-fuzz.html [ Slow ]
 [ Debug ] js/array-sort-small-sparse-array-with-large-length.html [ Slow ]
