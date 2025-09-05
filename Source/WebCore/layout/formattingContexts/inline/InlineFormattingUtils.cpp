@@ -159,15 +159,10 @@ InlineLayoutUnit InlineFormattingUtils::computedTextIndent(IsIntrinsicWidthMode 
     auto shouldIndent = false;
     if (root.style().textIndent().eachLine.has_value())
         shouldIndent = isFirstFormattedLine == IsFirstFormattedLine::Yes || (previousLineEndsWithLineBreak && *previousLineEndsWithLineBreak == LineEndsWithLineBreak::Yes);
-    else {
-        shouldIndent = isFirstFormattedLine == IsFirstFormattedLine::Yes;
-        if (root.isAnonymous()) {
-            if (!root.isInlineIntegrationRoot())
-                shouldIndent = root.parent().firstInFlowChild() == &root;
-            else
-                shouldIndent = root.isFirstChildForIntegration();
-        }
-    }
+    else if (root.isAnonymousTextIndentCandidateForIntegration()
+        || !root.isAnonymous()
+        || (!root.isInlineIntegrationRoot() && root.parent().firstInFlowChild() == &root))
+            shouldIndent = isFirstFormattedLine == IsFirstFormattedLine::Yes;
 
     // Specifying 'hanging' inverts whether the line should be indented or not.
     if (root.style().textIndent().hanging.has_value())
