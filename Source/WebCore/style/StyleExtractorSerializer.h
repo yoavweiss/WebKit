@@ -94,7 +94,6 @@ public:
     static void serializeSmoothScrolling(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, bool);
     static void serializeTextSpacingTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextSpacingTrim);
     static void serializeTextAutospace(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, TextAutospace);
-    static void serializeReflection(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StyleReflection*);
     static void serializeLineFitEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextEdge&);
     static void serializeTextBoxEdge(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const TextEdge&);
     static void serializePositionTryFallbacks(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<PositionTryFallback>&);
@@ -760,36 +759,6 @@ inline void ExtractorSerializer::serializeTextAutospace(ExtractorState& state, S
         serializationForCSS(builder, context, state.style, CSS::Keyword::IdeographNumeric { });
         return;
     }
-}
-
-inline void ExtractorSerializer::serializeReflection(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const StyleReflection* reflection)
-{
-    if (!reflection) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    // FIXME: Consider omitting 0px when the mask is null.
-
-    auto offset = [&] -> Ref<CSSPrimitiveValue> {
-        auto& reflectionOffset = reflection->offset();
-        if (reflectionOffset.isPercentOrCalculated())
-            return CSSPrimitiveValue::create(reflectionOffset.percent(), CSSUnitType::CSS_PERCENTAGE);
-        return ExtractorConverter::convertNumberAsPixels(state, reflectionOffset.value());
-    }();
-
-    auto mask = [&] -> RefPtr<CSSValue> {
-        auto& reflectionMask = reflection->mask();
-        if (reflectionMask.source().isNone())
-            return CSSPrimitiveValue::create(CSSValueNone);
-        return createCSSValue(state.pool, state.style, reflectionMask);
-    }();
-
-    builder.append(CSSReflectValue::create(
-        toCSSValueID(reflection->direction()),
-        WTFMove(offset),
-        WTFMove(mask)
-    )->cssText(context));
 }
 
 inline void ExtractorSerializer::serializeLineFitEdge(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const TextEdge& textEdge)

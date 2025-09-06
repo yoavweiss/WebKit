@@ -9001,7 +9001,7 @@
             "animation-type": "not animatable (legacy)",
             "initial": "none",
             "codegen-properties": {
-                "style-converter": "Reflection",
+                "style-converter": "StyleType<WebkitBoxReflect>",
                 "parser-function": "consumeWebkitBoxReflect",
                 "parser-grammar-unused": "none | [ [ above | below | left | right ] <length-percentage>? <border-image>? ]",
                 "parser-grammar-unused-reason": "Needs support for default values on optionals and property references."

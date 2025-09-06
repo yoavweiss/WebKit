@@ -3234,6 +3234,7 @@ style/values/motion/StyleOffsetRotate.cpp
 style/values/motion/StyleRayFunction.cpp
 style/values/multicol/StyleColumnCount.cpp
 style/values/multicol/StyleColumnWidth.cpp
+style/values/non-standard/StyleWebKitBoxReflect.cpp
 style/values/non-standard/StyleWebKitLineClamp.cpp
 style/values/non-standard/StyleWebKitOverflowScrolling.cpp
 style/values/non-standard/StyleWebKitTextStrokeWidth.cpp

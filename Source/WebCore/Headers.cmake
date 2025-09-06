@@ -3137,7 +3137,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/StylePathData.h
     rendering/style/StyleRareInheritedData.h
     rendering/style/StyleRareNonInheritedData.h
-    rendering/style/StyleReflection.h
     rendering/style/StyleScrollSnapPoints.h
     rendering/style/StyleSelfAlignmentData.h
     rendering/style/StyleSurroundData.h
@@ -3285,6 +3284,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/multicol/StyleColumnWidth.h
 
     style/values/non-standard/StyleWebKitBorderSpacing.h
+    style/values/non-standard/StyleWebKitBoxReflect.h
     style/values/non-standard/StyleWebKitLineClamp.h
     style/values/non-standard/StyleWebKitOverflowScrolling.h
     style/values/non-standard/StyleWebKitTextStrokeWidth.h

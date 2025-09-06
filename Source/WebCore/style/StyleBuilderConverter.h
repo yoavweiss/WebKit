@@ -46,7 +46,6 @@
 #include "CSSPrimitiveValue.h"
 #include "CSSPrimitiveValueMappings.h"
 #include "CSSPropertyParserConsumer+Font.h"
-#include "CSSReflectValue.h"
 #include "CSSSubgridValue.h"
 #include "CSSURLValue.h"
 #include "CSSValuePair.h"
@@ -93,7 +92,6 @@
 #include "StylePrimitiveNumericTypes+CSSValueConversion.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
 #include "StyleRayFunction.h"
-#include "StyleReflection.h"
 #include "StyleResolveForFont.h"
 #include "StyleRotate.h"
 #include "StyleSVGPaint.h"
@@ -146,7 +144,6 @@ public:
     static int convertMarqueeRepetition(BuilderState&, const CSSValue&);
     static int convertMarqueeSpeed(BuilderState&, const CSSValue&);
     static OptionSet<TextUnderlinePosition> convertTextUnderlinePosition(BuilderState&, const CSSValue&);
-    static RefPtr<StyleReflection> convertReflection(BuilderState&, const CSSValue&);
     static TextEdge convertTextEdge(BuilderState&, const CSSValue&);
     static OptionSet<LineBoxContain> convertLineBoxContain(BuilderState&, const CSSValue&);
     static ScrollSnapType convertScrollSnapType(BuilderState&, const CSSValue&);
@@ -554,32 +551,6 @@ inline OptionSet<TextUnderlinePosition> BuilderConverter::convertTextUnderlinePo
     auto position = valueToUnderlinePosition(pair->first);
     position.add(valueToUnderlinePosition(pair->second));
     return position;
-}
-
-inline RefPtr<StyleReflection> BuilderConverter::convertReflection(BuilderState& builderState, const CSSValue& value)
-{
-    if (is<CSSPrimitiveValue>(value)) {
-        ASSERT(value.valueID() == CSSValueNone);
-        return nullptr;
-    }
-
-    auto* reflectValue = requiredDowncast<CSSReflectValue>(builderState, value);
-    if (!reflectValue)
-        return { };
-
-    Style::MaskBorder mask { };
-    if (RefPtr maskValue = reflectValue->mask())
-        mask = toStyleFromCSSValue<Style::MaskBorder>(builderState, *maskValue);
-
-    auto maskSlice = mask.slice();
-    maskSlice.fill = CSS::Keyword::Fill { };
-    mask.setSlice(WTFMove(maskSlice));
-
-    auto reflection = StyleReflection::create();
-    reflection->setDirection(fromCSSValueID<ReflectionDirection>(reflectValue->direction()));
-    reflection->setOffset(convertLength(builderState, reflectValue->offset()));
-    reflection->setMask(WTFMove(mask));
-    return reflection;
 }
 
 inline TextEdge BuilderConverter::convertTextEdge(BuilderState& builderState, const CSSValue& value)

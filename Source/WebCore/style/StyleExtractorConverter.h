@@ -102,7 +102,6 @@
 #include "StylePrimitiveKeyword+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+CSSValueCreation.h"
 #include "StylePrimitiveNumericTypes+Conversions.h"
-#include "StyleReflection.h"
 #include "StyleRotate.h"
 #include "StyleScale.h"
 #include "StyleScrollMargin.h"
@@ -172,7 +171,6 @@ public:
     static Ref<CSSValue> convertContain(ExtractorState&, OptionSet<Containment>);
     static Ref<CSSValue> convertTextSpacingTrim(ExtractorState&, TextSpacingTrim);
     static Ref<CSSValue> convertTextAutospace(ExtractorState&, TextAutospace);
-    static Ref<CSSValue> convertReflection(ExtractorState&, const StyleReflection*);
     static Ref<CSSValue> convertLineFitEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertTextBoxEdge(ExtractorState&, const TextEdge&);
     static Ref<CSSValue> convertPositionTryFallbacks(ExtractorState&, const FixedVector<PositionTryFallback>&);
@@ -648,34 +646,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTextAutospace(ExtractorState&, T
         list.append(CSSPrimitiveValue::create(CSSValueIdeographNumeric));
 
     return CSSValueList::createSpaceSeparated(WTFMove(list));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertReflection(ExtractorState& state, const StyleReflection* reflection)
-{
-    if (!reflection)
-        return CSSPrimitiveValue::create(CSSValueNone);
-
-    // FIXME: Consider omitting 0px when the mask is null.
-
-    auto offset = [&] -> Ref<CSSPrimitiveValue> {
-        auto& reflectionOffset = reflection->offset();
-        if (reflectionOffset.isPercentOrCalculated())
-            return CSSPrimitiveValue::create(reflectionOffset.percent(), CSSUnitType::CSS_PERCENTAGE);
-        return convertNumberAsPixels(state, reflectionOffset.value());
-    }();
-
-    auto mask = [&] -> RefPtr<CSSValue> {
-        auto& reflectionMask = reflection->mask();
-        if (reflectionMask.source().isNone())
-            return CSSPrimitiveValue::create(CSSValueNone);
-        return createCSSValue(state.pool, state.style, reflectionMask);
-    }();
-
-    return CSSReflectValue::create(
-        toCSSValueID(reflection->direction()),
-        WTFMove(offset),
-        WTFMove(mask)
-    );
 }
 
 inline Ref<CSSValue> ExtractorConverter::convertLineFitEdge(ExtractorState& state, const TextEdge& textEdge)

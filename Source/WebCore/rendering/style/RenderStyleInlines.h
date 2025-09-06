@@ -153,7 +153,8 @@ inline BoxLines RenderStyle::boxLines() const { return static_cast<BoxLines>(m_n
 inline unsigned RenderStyle::boxOrdinalGroup() const { return m_nonInheritedData->miscData->deprecatedFlexibleBox->ordinalGroup; }
 inline BoxOrient RenderStyle::boxOrient() const { return static_cast<BoxOrient>(m_nonInheritedData->miscData->deprecatedFlexibleBox->orient); }
 inline BoxPack RenderStyle::boxPack() const { return static_cast<BoxPack>(m_nonInheritedData->miscData->deprecatedFlexibleBox->pack); }
-inline StyleReflection* RenderStyle::boxReflect() const { return m_nonInheritedData->rareData->boxReflect.get(); }
+inline const Style::WebkitBoxReflect& RenderStyle::boxReflect() const { return m_nonInheritedData->rareData->boxReflect; }
+inline bool RenderStyle::hasBoxReflect() const { return !boxReflect().isNone(); }
 inline const Style::BoxShadows& RenderStyle::boxShadow() const { return m_nonInheritedData->miscData->boxShadow; }
 inline bool RenderStyle::hasBoxShadow() const { return !boxShadow().isNone(); }
 inline BoxSizing RenderStyle::boxSizing() const { return m_nonInheritedData->boxData->boxSizing(); }
@@ -351,6 +352,7 @@ constexpr BoxOrient RenderStyle::initialBoxOrient() { return BoxOrient::Horizont
 constexpr BoxPack RenderStyle::initialBoxPack() { return BoxPack::Start; }
 inline Style::BoxShadows RenderStyle::initialBoxShadow() { return CSS::Keyword::None { }; }
 constexpr BoxSizing RenderStyle::initialBoxSizing() { return BoxSizing::ContentBox; }
+inline Style::WebkitBoxReflect RenderStyle::initialBoxReflect() { return CSS::Keyword::None { }; }
 constexpr BreakBetween RenderStyle::initialBreakBetween() { return BreakBetween::Auto; }
 constexpr BreakInside RenderStyle::initialBreakInside() { return BreakInside::Auto; }
 constexpr LineCap RenderStyle::initialCapStyle() { return LineCap::Butt; }

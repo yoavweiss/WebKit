@@ -830,7 +830,7 @@ static bool rareDataChangeRequiresLayout(const StyleRareNonInheritedData& first,
     if (first.columnGap != second.columnGap || first.rowGap != second.rowGap)
         return true;
 
-    if (!arePointingToEqualData(first.boxReflect, second.boxReflect))
+    if (first.boxReflect != second.boxReflect)
         return true;
 
     // If the counter directives change, trigger a relayout to re-calculate counter values and rebuild the counter node tree.

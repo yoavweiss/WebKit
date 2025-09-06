@@ -506,7 +506,6 @@ style/StyleExtractorCustom.h
 style/StyleInterpolationWrappers.h
 style/StyleInvalidationFunctions.h
 style/StyleInvalidator.cpp
-style/StylePendingResources.cpp
 style/StyleRelations.cpp
 style/StyleResolver.cpp
 style/StyleScope.cpp

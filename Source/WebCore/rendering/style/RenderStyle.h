@@ -76,7 +76,6 @@ class StyleInheritedData;
 class StyleNonInheritedData;
 class StylePathData;
 class StyleRareInheritedData;
-class StyleReflection;
 class StyleSelfAlignmentData;
 class TextAutospace;
 class TextSpacingTrim;
@@ -349,6 +348,7 @@ struct ViewTimelineInsets;
 struct ViewTimelines;
 struct ViewTransitionClasses;
 struct ViewTransitionName;
+struct WebkitBoxReflect;
 struct WebkitInitialLetter;
 struct WebkitLineClamp;
 struct WebkitLineGrid;
@@ -938,7 +938,9 @@ public:
 
     inline BoxDecorationBreak boxDecorationBreak() const;
 
-    inline StyleReflection* boxReflect() const;
+    inline const Style::WebkitBoxReflect& boxReflect() const;
+    inline bool hasBoxReflect() const;
+
     inline BoxSizing boxSizing() const;
     inline BoxSizing boxSizingForAspectRatio() const;
     inline const Length& marqueeIncrement() const;
@@ -1493,7 +1495,7 @@ public:
     inline void setBoxOrient(BoxOrient);
     inline void setBoxPack(BoxPack);
     inline void setBoxShadow(Style::BoxShadows&&);
-    inline void setBoxReflect(RefPtr<StyleReflection>&&);
+    inline void setBoxReflect(Style::WebkitBoxReflect&&);
     inline void setBoxSizing(BoxSizing);
     inline void setFlexGrow(Style::FlexGrow);
     inline void setFlexShrink(Style::FlexShrink);
@@ -2010,7 +2012,7 @@ public:
     static unsigned initialBoxOrdinalGroup() { return 1; }
     static inline Style::BoxShadows initialBoxShadow();
     static constexpr BoxSizing initialBoxSizing();
-    static StyleReflection* initialBoxReflect() { return 0; }
+    static inline Style::WebkitBoxReflect initialBoxReflect();
     static constexpr Style::FlexGrow initialFlexGrow();
     static constexpr Style::FlexShrink initialFlexShrink();
     static inline Style::FlexBasis initialFlexBasis();
