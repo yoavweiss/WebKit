@@ -2862,7 +2862,7 @@ private:
     };
     std::optional<DeferredDidReceiveMouseEvent> m_deferredDidReceiveMouseEvent;
 
-    HashMap<WebCore::FrameIdentifier, unsigned> m_networkResourceRequestCountForPageLoadTiming;
+    HashMap<WebCore::FrameIdentifier, HashSet<WebCore::ResourceLoaderIdentifier>> m_networkResourceRequestIdentifiersForPageLoadTiming;
     HashSet<WebCore::ResourceLoaderIdentifier> m_trackedNetworkResourceRequestIdentifiers;
 
     WebCore::IntSize m_minimumSizeForAutoLayout;

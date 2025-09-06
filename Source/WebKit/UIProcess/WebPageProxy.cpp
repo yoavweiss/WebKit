@@ -7293,8 +7293,7 @@ void WebPageProxy::didCommitLoadForFrame(IPC::Connection& connection, FrameIdent
     if (frame->isMainFrame()) {
         protectedPageLoadState->didCommitLoad(transaction, certificateInfo, markPageInsecure, usedLegacyTLS, wasPrivateRelayed, WTFMove(proxyName), source, frameInfo.securityOrigin);
         m_shouldSuppressNextAutomaticNavigationSnapshot = false;
-        if (preferences->siteIsolationEnabled())
-            m_framesWithSubresourceLoadingForPageLoadTiming.clear();
+        m_framesWithSubresourceLoadingForPageLoadTiming.clear();
     }
 
 #if USE(APPKIT)

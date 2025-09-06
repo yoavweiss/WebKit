@@ -6806,15 +6806,23 @@ void WebPage::drawPagesForPrinting(FrameIdentifier frameID, const PrintInfo& pri
 
 void WebPage::addResourceRequest(WebCore::ResourceLoaderIdentifier identifier, bool isMainResourceLoad, const WebCore::ResourceRequest& request, const DocumentLoader* loader, LocalFrame* frame)
 {
-    if (frame && !isMainResourceLoad) {
+    bool isHTTPRequest = request.url().protocolIsInHTTPFamily();
+
+    // Ignore main resource loads here, since they can start in one process and end up in another.
+    // See 283102@main for an explanation for how we handle main resource loads. We also ignore
+    // very low priority loads like ping and beacon requests to match previous PLT heuristics.
+    // We consider file requests as part of the PLT network heuristic for ease of API testing.
+    if (frame && !isMainResourceLoad && request.priority() != WebCore::ResourceLoadPriority::VeryLow && (isHTTPRequest || request.url().protocolIsFile())) {
         auto frameID = frame->frameID();
-        auto addResult = m_networkResourceRequestCountForPageLoadTiming.add(frameID, 0);
-        if (!addResult.iterator->value)
+        auto& identifiers = m_networkResourceRequestIdentifiersForPageLoadTiming.ensure(frameID, [] {
+            return HashSet<WebCore::ResourceLoaderIdentifier> { };
+        }).iterator->value;
+        if (identifiers.isEmpty())
             send(Messages::WebPageProxy::StartNetworkRequestsForPageLoadTiming(frameID));
-        ++addResult.iterator->value;
+        identifiers.add(identifier);
     }
 
-    if (!request.url().protocolIsInHTTPFamily())
+    if (!isHTTPRequest)
         return;
 
     if (m_mainFrameProgressCompleted && !UserGestureIndicator::processingUserGesture())
@@ -6827,15 +6835,14 @@ void WebPage::addResourceRequest(WebCore::ResourceLoaderIdentifier identifier, b
         send(Messages::WebPageProxy::SetNetworkRequestsInProgress(true));
 }
 
-void WebPage::removeResourceRequest(WebCore::ResourceLoaderIdentifier identifier, bool isMainResourceLoad, LocalFrame* frame)
+void WebPage::removeResourceRequest(WebCore::ResourceLoaderIdentifier identifier, bool, LocalFrame* frame)
 {
-    if (frame && !isMainResourceLoad) {
+    if (frame) {
         auto frameID = frame->frameID();
-        auto it = m_networkResourceRequestCountForPageLoadTiming.find(frameID);
-        ASSERT(it != m_networkResourceRequestCountForPageLoadTiming.end());
-        --it->value;
-        if (!it->value)
-            send(Messages::WebPageProxy::EndNetworkRequestsForPageLoadTiming(frameID, WallTime::now()));
+        if (auto it = m_networkResourceRequestIdentifiersForPageLoadTiming.find(frameID); it != m_networkResourceRequestIdentifiersForPageLoadTiming.end()) {
+            if (it->value.remove(identifier) && it->value.isEmpty())
+                send(Messages::WebPageProxy::EndNetworkRequestsForPageLoadTiming(frameID, WallTime::now()));
+        }
     }
 
     if (!m_trackedNetworkResourceRequestIdentifiers.remove(identifier))
@@ -8030,6 +8037,9 @@ void WebPage::didCommitLoad(WebFrame* frame)
     m_needsFixedContainerEdgesUpdate = true;
 
     flushDeferredDidReceiveMouseEvent();
+
+    if (frame && frame->isMainFrame())
+        m_networkResourceRequestIdentifiersForPageLoadTiming.clear();
 }
 
 void WebPage::didFinishDocumentLoad(WebFrame& frame)
