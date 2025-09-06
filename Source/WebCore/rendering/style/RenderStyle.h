@@ -391,6 +391,9 @@ using TransformOriginXY = Position;
 using TransformOriginY = PositionY;
 using TransformOriginZ = Length<>;
 using WebkitBorderSpacing = Length<CSS::Nonnegative>;
+using WebkitBoxFlex = Number<CSS::All, float>;
+using WebkitBoxFlexGroup = Integer<CSS::Nonnegative>;
+using WebkitBoxOrdinalGroup = Integer<CSS::Positive>;
 }
 
 constexpr auto PublicPseudoIDBits = 17;
@@ -887,10 +890,10 @@ public:
 
     inline BoxAlignment boxAlign() const;
     BoxDirection boxDirection() const { return static_cast<BoxDirection>(m_inheritedFlags.boxDirection); }
-    inline float boxFlex() const;
-    inline unsigned boxFlexGroup() const;
+    inline Style::WebkitBoxFlex boxFlex() const;
+    inline Style::WebkitBoxFlexGroup boxFlexGroup() const;
     inline BoxLines boxLines() const;
-    inline unsigned boxOrdinalGroup() const;
+    inline Style::WebkitBoxOrdinalGroup boxOrdinalGroup() const;
     inline BoxOrient boxOrient() const;
     inline BoxPack boxPack() const;
 
@@ -1488,10 +1491,10 @@ public:
     inline void setUsedAppearance(StyleAppearance);
     inline void setBoxAlign(BoxAlignment);
     void setBoxDirection(BoxDirection d) { m_inheritedFlags.boxDirection = static_cast<unsigned>(d); }
-    inline void setBoxFlex(float);
-    inline void setBoxFlexGroup(unsigned);
+    inline void setBoxFlex(Style::WebkitBoxFlex);
+    inline void setBoxFlexGroup(Style::WebkitBoxFlexGroup);
     inline void setBoxLines(BoxLines);
-    inline void setBoxOrdinalGroup(unsigned);
+    inline void setBoxOrdinalGroup(Style::WebkitBoxOrdinalGroup);
     inline void setBoxOrient(BoxOrient);
     inline void setBoxPack(BoxPack);
     inline void setBoxShadow(Style::BoxShadows&&);
@@ -2007,9 +2010,9 @@ public:
     static constexpr BoxLines initialBoxLines();
     static constexpr BoxOrient initialBoxOrient();
     static constexpr BoxPack initialBoxPack();
-    static float initialBoxFlex() { return 0.0f; }
-    static unsigned initialBoxFlexGroup() { return 1; }
-    static unsigned initialBoxOrdinalGroup() { return 1; }
+    static constexpr Style::WebkitBoxFlex initialBoxFlex();
+    static constexpr Style::WebkitBoxFlexGroup initialBoxFlexGroup();
+    static constexpr Style::WebkitBoxOrdinalGroup initialBoxOrdinalGroup();
     static inline Style::BoxShadows initialBoxShadow();
     static constexpr BoxSizing initialBoxSizing();
     static inline Style::WebkitBoxReflect initialBoxReflect();

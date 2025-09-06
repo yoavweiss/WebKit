@@ -147,10 +147,10 @@ inline Style::WebkitBorderSpacing RenderStyle::borderHorizontalSpacing() const {
 inline Style::WebkitBorderSpacing RenderStyle::borderVerticalSpacing() const { return m_inheritedData->borderVerticalSpacing; }
 inline const Style::InsetEdge& RenderStyle::bottom() const { return m_nonInheritedData->surroundData->inset.bottom(); }
 inline BoxAlignment RenderStyle::boxAlign() const { return static_cast<BoxAlignment>(m_nonInheritedData->miscData->deprecatedFlexibleBox->align); }
-inline float RenderStyle::boxFlex() const { return m_nonInheritedData->miscData->deprecatedFlexibleBox->flex; }
-inline unsigned RenderStyle::boxFlexGroup() const { return m_nonInheritedData->miscData->deprecatedFlexibleBox->flexGroup; }
+inline Style::WebkitBoxFlex RenderStyle::boxFlex() const { return m_nonInheritedData->miscData->deprecatedFlexibleBox->flex; }
+inline Style::WebkitBoxFlexGroup RenderStyle::boxFlexGroup() const { return m_nonInheritedData->miscData->deprecatedFlexibleBox->flexGroup; }
 inline BoxLines RenderStyle::boxLines() const { return static_cast<BoxLines>(m_nonInheritedData->miscData->deprecatedFlexibleBox->lines); }
-inline unsigned RenderStyle::boxOrdinalGroup() const { return m_nonInheritedData->miscData->deprecatedFlexibleBox->ordinalGroup; }
+inline Style::WebkitBoxOrdinalGroup RenderStyle::boxOrdinalGroup() const { return m_nonInheritedData->miscData->deprecatedFlexibleBox->ordinalGroup; }
 inline BoxOrient RenderStyle::boxOrient() const { return static_cast<BoxOrient>(m_nonInheritedData->miscData->deprecatedFlexibleBox->orient); }
 inline BoxPack RenderStyle::boxPack() const { return static_cast<BoxPack>(m_nonInheritedData->miscData->deprecatedFlexibleBox->pack); }
 inline const Style::WebkitBoxReflect& RenderStyle::boxReflect() const { return m_nonInheritedData->rareData->boxReflect; }
@@ -347,7 +347,10 @@ constexpr Style::LineWidth RenderStyle::initialBorderWidth() { return CSS::Keywo
 constexpr BoxAlignment RenderStyle::initialBoxAlign() { return BoxAlignment::Stretch; }
 constexpr BoxDecorationBreak RenderStyle::initialBoxDecorationBreak() { return BoxDecorationBreak::Slice; }
 constexpr BoxDirection RenderStyle::initialBoxDirection() { return BoxDirection::Normal; }
+constexpr Style::WebkitBoxFlex RenderStyle::initialBoxFlex() { return 0; }
+constexpr Style::WebkitBoxFlexGroup RenderStyle::initialBoxFlexGroup() { return 1; }
 constexpr BoxLines RenderStyle::initialBoxLines() { return BoxLines::Single; }
+constexpr Style::WebkitBoxOrdinalGroup RenderStyle::initialBoxOrdinalGroup() { return 1; }
 constexpr BoxOrient RenderStyle::initialBoxOrient() { return BoxOrient::Horizontal; }
 constexpr BoxPack RenderStyle::initialBoxPack() { return BoxPack::Start; }
 inline Style::BoxShadows RenderStyle::initialBoxShadow() { return CSS::Keyword::None { }; }

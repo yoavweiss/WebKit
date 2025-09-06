@@ -3236,6 +3236,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/flexbox/StyleFlexBasis.h
     style/values/flexbox/StyleFlexGrow.h
     style/values/flexbox/StyleFlexShrink.h
+    style/values/flexbox/StyleWebKitBoxFlex.h
+    style/values/flexbox/StyleWebKitBoxFlexGroup.h
+    style/values/flexbox/StyleWebKitBoxOrdinalGroup.h
 
     style/values/grid/StyleGridNamedAreaMap.h
     style/values/grid/StyleGridNamedLinesMap.h

@@ -62,7 +62,7 @@ public:
             RenderBox* child = m_box->firstChildBox();
             while (child) {
                 if (child->style().boxOrdinalGroup() > m_largestOrdinal)
-                    m_largestOrdinal = child->style().boxOrdinalGroup();
+                    m_largestOrdinal = child->style().boxOrdinalGroup().value;
                 child = child->nextSiblingBox();
             }
         }
@@ -107,7 +107,7 @@ public:
                 m_currentChild = m_forward ? m_currentChild->nextSiblingBox() : m_currentChild->previousSiblingBox();
 
             if (m_currentChild && notFirstOrdinalValue())
-                m_ordinalValues.add(m_currentChild->style().boxOrdinalGroup());
+                m_ordinalValues.add(m_currentChild->style().boxOrdinalGroup().value);
         } while (!m_currentChild || m_currentChild->isExcludedFromNormalLayout() || (!m_currentChild->isAnonymous()
                  && m_currentChild->style().boxOrdinalGroup() != m_currentOrdinal));
         return m_currentChild;
@@ -406,7 +406,7 @@ static void gatherFlexChildrenInfo(FlexBoxIterator& iterator, RelayoutChildren r
             if (relayoutChildren == RelayoutChildren::No)
                 child->setChildNeedsLayout(MarkOnlyThis);
             haveFlex = true;
-            unsigned flexGroup = child->style().boxFlexGroup();
+            unsigned flexGroup = child->style().boxFlexGroup().value;
             if (lowestFlexGroup == 0)
                 lowestFlexGroup = flexGroup;
             if (flexGroup < lowestFlexGroup)
@@ -597,13 +597,13 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
                     float totalFlex = 0.0f;
                     for (RenderBox* child = iterator.first(); child; child = iterator.next()) {
                         if (allowedChildFlex(child, expanding, i))
-                            totalFlex += child->style().boxFlex();
+                            totalFlex += child->style().boxFlex().value;
                     }
                     LayoutUnit spaceAvailableThisPass = groupRemainingSpace;
                     for (RenderBox* child = iterator.first(); child; child = iterator.next()) {
                         LayoutUnit allowedFlex = allowedChildFlex(child, expanding, i);
                         if (allowedFlex) {
-                            LayoutUnit projectedFlex = (allowedFlex == LayoutUnit::max()) ? allowedFlex : LayoutUnit(allowedFlex * (totalFlex / child->style().boxFlex()));
+                            LayoutUnit projectedFlex = (allowedFlex == LayoutUnit::max()) ? allowedFlex : LayoutUnit(allowedFlex * (totalFlex / child->style().boxFlex().value));
                             spaceAvailableThisPass = expanding ? std::min(spaceAvailableThisPass, projectedFlex) : std::max(spaceAvailableThisPass, projectedFlex);
                         }
                     }
@@ -618,7 +618,7 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
                     // Now distribute the space to objects.
                     for (RenderBox* child = iterator.first(); child && spaceAvailableThisPass && totalFlex; child = iterator.next()) {
                         if (allowedChildFlex(child, expanding, i)) {
-                            LayoutUnit spaceAdd = LayoutUnit(spaceAvailableThisPass * (child->style().boxFlex() / totalFlex));
+                            LayoutUnit spaceAdd = LayoutUnit(spaceAvailableThisPass * (child->style().boxFlex().value / totalFlex));
                             if (spaceAdd) {
                                 child->setOverridingBorderBoxLogicalWidth(widthForChild(child) + spaceAdd);
                                 flexingChildren = true;
@@ -629,7 +629,7 @@ void RenderDeprecatedFlexibleBox::layoutHorizontalBox(RelayoutChildren relayoutC
                             remainingSpace -= spaceAdd;
                             groupRemainingSpace -= spaceAdd;
 
-                            totalFlex -= child->style().boxFlex();
+                            totalFlex -= child->style().boxFlex().value;
                         }
                     }
                     if (groupRemainingSpace == groupRemainingSpaceAtBeginning) {
@@ -875,13 +875,13 @@ void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChi
                     float totalFlex = 0.0f;
                     for (RenderBox* child = iterator.first(); child; child = iterator.next()) {
                         if (allowedChildFlex(child, expanding, i))
-                            totalFlex += child->style().boxFlex();
+                            totalFlex += child->style().boxFlex().value;
                     }
                     LayoutUnit spaceAvailableThisPass = groupRemainingSpace;
                     for (RenderBox* child = iterator.first(); child; child = iterator.next()) {
                         LayoutUnit allowedFlex = allowedChildFlex(child, expanding, i);
                         if (allowedFlex) {
-                            LayoutUnit projectedFlex = (allowedFlex == LayoutUnit::max()) ? allowedFlex : LayoutUnit(allowedFlex * (totalFlex / child->style().boxFlex()));
+                            LayoutUnit projectedFlex = (allowedFlex == LayoutUnit::max()) ? allowedFlex : LayoutUnit(allowedFlex * (totalFlex / child->style().boxFlex().value));
                             spaceAvailableThisPass = expanding ? std::min(spaceAvailableThisPass, projectedFlex) : std::max(spaceAvailableThisPass, projectedFlex);
                         }
                     }
@@ -896,7 +896,7 @@ void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChi
                     // Now distribute the space to objects.
                     for (RenderBox* child = iterator.first(); child && spaceAvailableThisPass && totalFlex; child = iterator.next()) {
                         if (allowedChildFlex(child, expanding, i)) {
-                            LayoutUnit spaceAdd { spaceAvailableThisPass * (child->style().boxFlex() / totalFlex) };
+                            LayoutUnit spaceAdd { spaceAvailableThisPass * (child->style().boxFlex().value / totalFlex) };
                             if (spaceAdd) {
                                 child->setOverridingBorderBoxLogicalHeight(heightForChild(child) + spaceAdd);
                                 flexingChildren = true;
@@ -907,7 +907,7 @@ void RenderDeprecatedFlexibleBox::layoutVerticalBox(RelayoutChildren relayoutChi
                             remainingSpace -= spaceAdd;
                             groupRemainingSpace -= spaceAdd;
 
-                            totalFlex -= child->style().boxFlex();
+                            totalFlex -= child->style().boxFlex().value;
                         }
                     }
                     if (groupRemainingSpace == groupRemainingSpaceAtBeginning) {

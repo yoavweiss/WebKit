@@ -108,10 +108,10 @@ inline void RenderStyle::setBorderHorizontalSpacing(Style::WebkitBorderSpacing b
 inline void RenderStyle::setBorderVerticalSpacing(Style::WebkitBorderSpacing borderSpacing) { SET(m_inheritedData, borderVerticalSpacing, borderSpacing); }
 inline void RenderStyle::setBottom(Style::InsetEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, inset.bottom(), WTFMove(edge)); }
 inline void RenderStyle::setBoxAlign(BoxAlignment alignment) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, align, static_cast<unsigned>(alignment)); }
-inline void RenderStyle::setBoxFlex(float flex) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, flex, flex); }
-inline void RenderStyle::setBoxFlexGroup(unsigned group) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, flexGroup, group); }
+inline void RenderStyle::setBoxFlex(Style::WebkitBoxFlex flex) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, flex, flex); }
+inline void RenderStyle::setBoxFlexGroup(Style::WebkitBoxFlexGroup group) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, flexGroup, group); }
 inline void RenderStyle::setBoxLines(BoxLines lines) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, lines, static_cast<unsigned>(lines)); }
-inline void RenderStyle::setBoxOrdinalGroup(unsigned group) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, ordinalGroup, group); }
+inline void RenderStyle::setBoxOrdinalGroup(Style::WebkitBoxOrdinalGroup group) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, ordinalGroup, group); }
 inline void RenderStyle::setBoxOrient(BoxOrient orientation) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, orient, static_cast<unsigned>(orientation)); }
 inline void RenderStyle::setBoxPack(BoxPack packing) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, deprecatedFlexibleBox, pack, static_cast<unsigned>(packing)); }
 inline void RenderStyle::setBoxShadow(Style::BoxShadows&& boxShadow) { SET_NESTED(m_nonInheritedData, miscData, boxShadow, WTFMove(boxShadow)); }

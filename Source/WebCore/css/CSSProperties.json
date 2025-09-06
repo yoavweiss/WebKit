@@ -8913,6 +8913,7 @@
             "animation-type": "not animatable (legacy)",
             "initial": "0",
             "codegen-properties": {
+                "style-converter": "StyleType<WebkitBoxFlex>",
                 "parser-grammar": "<number>"
             },
             "status": "obsolete",
@@ -8925,6 +8926,7 @@
             "animation-type": "not animatable (legacy)",
             "initial": "1",
             "codegen-properties": {
+                "style-converter": "StyleType<WebkitBoxFlexGroup>",
                 "parser-grammar": "<integer [0,inf]>"
             },
             "status": "obsolete",
@@ -8953,6 +8955,7 @@
             "animation-type": "not animatable (legacy)",
             "initial": "1",
             "codegen-properties": {
+                "style-converter": "StyleType<WebkitBoxOrdinalGroup>",
                 "parser-grammar": "<integer [1,inf]>"
             },
             "status": "obsolete",
