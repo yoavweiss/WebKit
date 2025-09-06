@@ -684,3 +684,23 @@
         "vendor-id"
         "udid-version" ;; <rdar://problem/52903475>
         "ui-pip")) ;; <rdar://problem/48867037>
+
+(define (system-fcntl-allowed)
+    (fcntl-command
+        F_ADDFILESIGS_RETURN ;; ImageLoaderMachO::loadCodeSignature
+        F_BARRIERFSYNC
+        F_CHECK_LV ;; ImageLoaderMachO::loadCodeSignature
+        F_GETCONFINED
+        F_GETFD ;; libwebrtc.dylib (no backtrace)
+        F_GETFL ;; LibJPEGReadPlugin::copyImageBlockSetStandard
+        F_GETLK
+        F_GETPATH ;; used by dyld4 and CGFontURLCreate, getcwd (at least)
+        F_GETPROTECTIONCLASS
+        F_GETSIGSINFO
+        F_OFD_SETLK
+        F_RDADVISE
+        F_SETCONFINED
+        F_SETFD ;; libwebrtc.dylib (no backtrace)
+        F_SETFL ;; CMCapture uses when camera is enabled
+        F_SETNOSIGPIPE
+        F_SETPROTECTIONCLASS)) ;; CMCapture uses when camera is enabled
