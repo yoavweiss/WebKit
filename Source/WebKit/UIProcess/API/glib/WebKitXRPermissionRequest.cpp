@@ -33,6 +33,7 @@
 typedef WebKitPermissionRequestIface WebKitPermissionRequestInterface;
 #endif
 
+#if ENABLE(WEBXR)
 static PlatformXR::Device::FeatureList toFeatureList(WebKitXRSessionFeatures features)
 {
     PlatformXR::Device::FeatureList result;
@@ -52,6 +53,7 @@ static PlatformXR::Device::FeatureList toFeatureList(WebKitXRSessionFeatures fea
 #endif
     return result;
 }
+#endif // ENABLE(WEBXR)
 
 /**
  * WebKitXRPermissionRequest:
