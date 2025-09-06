@@ -196,9 +196,6 @@
         "com.apple.Metal")) ;; <rdar://problem/25535471>
 
 (define-once (device-access)
-    (deny file-read* file-write*
-          (vnode-type BLOCK-DEVICE CHARACTER-DEVICE))
-
     (allow file-read* file-write-data file-ioctl
            (literal "/dev/dtracehelper"))
 

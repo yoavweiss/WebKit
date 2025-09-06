@@ -90,12 +90,6 @@
         (require-all
             (extension-class "com.apple.mediaserverd.read")
             (subpath "/System/Library")))
-    (let ((hw-identifying-paths
-            (require-any
-                (literal "/System/Library/Caches/apticket.der")
-                (subpath "/System/Library/Caches/com.apple.kernelcaches")
-                (subpath "/System/Library/Caches/com.apple.factorydata"))))
-        (deny file-issue-extension file-read* hw-identifying-paths))
     
     (allow file-map-executable
            (subpath "/System/Library")
@@ -117,12 +111,6 @@
     (allow managed-preference-read (preference-domain "kCFPreferencesAnyApplication"))
 
     (allow-read-and-issue-generic-extensions (executable-bundle))
-
-    ;; <rdar://problem/13963294>
-    (deny file-read-data file-issue-extension file-map-executable
-        (require-all
-            (executable-bundle)
-            (regex #"/[^/]+/SC_Info/")))
 
     (unless (defined? 'restrictive-extension)
         (with-filter
@@ -355,13 +343,6 @@
 (deny mach-lookup NO_REPORT
     (global-name "com.apple.audio.AudioComponentRegistrar"))
 
-(deny mach-lookup
-    (xpc-service-name "com.apple.iconservices")
-    (global-name
-        "com.apple.PowerManagement.control"
-        "com.apple.iconservices"
-        "com.apple.frontboard.systemappservices"))
-
 (allow mach-lookup
     (global-name "com.apple.systemstatus.activityattribution"))
 
@@ -369,13 +350,6 @@
 
 (allow mach-lookup
     (global-name "com.apple.audio.AudioQueueServer"))
-
-;; These services have been identified as unused during living-on.
-;; This list overrides some definitions above and in common.sb.
-;; FIXME: remove overridden rules once the final list has been
-;; established, see https://bugs.webkit.org/show_bug.cgi?id=193840
-(deny mach-lookup
-    (global-name "com.apple.webkit.camera"))
 
 (deny syscall-unix (with telemetry))
 (when (defined? 'SYS_crossarch_trap)
