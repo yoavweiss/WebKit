@@ -96,8 +96,6 @@ private:
 
     CodePtr<JSEntryPtrTag> jsCallEntrypointSlow();
 
-    // This is the callee needed by IPInt
-    Ref<Wasm::IPIntCallee, BoxedNativeCalleePtrTraits<Wasm::IPIntCallee>> m_boxedWasmCallee;
     // This let's the JS->Wasm interpreter find its metadata
     Ref<Wasm::JSEntrypointCallee, BoxedNativeCalleePtrTraits<Wasm::JSEntrypointCallee>> m_boxedJSToWasmCallee;
     uint32_t m_frameSize;
