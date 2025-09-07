@@ -71,6 +71,12 @@ inline bool AccessibilityObject::hasTreeItemRole() const
     return element && hasRole(*element, "treeitem"_s);
 }
 
+inline bool AccessibilityObject::hasTreeRole() const
+{
+    RefPtr element = this->element();
+    return element && hasRole(*element, "tree"_s);
+}
+
 inline AXTextMarkerRange AccessibilityObject::textMarkerRange() const
 {
     return simpleRange();

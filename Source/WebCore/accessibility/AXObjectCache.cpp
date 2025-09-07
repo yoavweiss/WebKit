@@ -58,7 +58,6 @@
 #include "AccessibilitySpinButton.h"
 #include "AccessibilityTableColumn.h"
 #include "AccessibilityTableHeaderContainer.h"
-#include "AccessibilityTree.h"
 #include "CaretRectComputation.h"
 #include "ContainerNodeInlines.h"
 #include "CustomElementDefaultARIA.h"
@@ -577,11 +576,6 @@ void AXObjectCache::setIsolatedTreeFocusedObject(AccessibilityObject* focus)
 }
 #endif
 
-static bool isAccessibilityTree(Element& element)
-{
-    return hasRole(element, "tree"_s);
-}
-
 
 Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObject& renderer)
 {
@@ -590,9 +584,6 @@ Ref<AccessibilityRenderObject> AXObjectCache::createObjectFromRenderer(RenderObj
         // Lists shouldn't fallthrough to table components, so explicitly create a render object.
         if (AXListHelpers::isAccessibilityList(*element))
             return AccessibilityRenderObject::create(AXID::generate(), renderer, *this);
-
-        if (isAccessibilityTree(*element))
-            return AccessibilityTree::create(AXID::generate(), renderer, *this);
     }
 
     if (renderer.isRenderOrLegacyRenderSVGRoot())
@@ -634,8 +625,6 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
         // Lists shouldn't fallthrough to table components, so explicitly create a render object.
         if (AXListHelpers::isAccessibilityList(*element))
             return AccessibilityRenderObject::create(AXID::generate(), *element, *this);
-        if (isAccessibilityTree(*element))
-            return AccessibilityTree::create(AXID::generate(), *element, *this);
         if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*element))
             return AccessibilityImageMapLink::create(AXID::generate(), *areaElement, *this);
         if (is<HTMLProgressElement>(*element) || is<HTMLMeterElement>(*element))

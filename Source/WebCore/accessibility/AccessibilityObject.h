@@ -147,6 +147,7 @@ public:
     virtual bool isOrderedList() const { return false; }
     bool isDescriptionList() const override { return false; }
 
+    bool hasTreeRole() const;
     bool hasTreeItemRole() const;
 
     // Table support.

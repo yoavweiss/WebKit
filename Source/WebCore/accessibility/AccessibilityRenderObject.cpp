@@ -1138,6 +1138,9 @@ bool AccessibilityRenderObject::computeIsIgnored() const
     if (!m_renderer)
         return AccessibilityNodeObject::computeIsIgnored();
 
+    if (isTree())
+        return isIgnoredByDefault();
+
     // Check first if any of the common reasons cause this element to be ignored.
     // Then process other use cases that need to be applied to all the various roles
     // that AccessibilityRenderObjects take on.
@@ -2361,6 +2364,9 @@ AccessibilityRole AccessibilityRenderObject::determineAccessibilityRole()
 
     if (hasTreeItemRole())
         ensureRareData().setIsTreeItemValid(containingTree());
+
+    if (hasTreeRole())
+        return isValidTree() ? AccessibilityRole::Tree : AccessibilityRole::Generic;
 
     if (!m_renderer)
         return AccessibilityNodeObject::determineAccessibilityRole();

@@ -308,6 +308,8 @@ protected:
     // Start of table-cell-related methods.
     AccessibilityNodeObject* parentRow() const;
     // End of table-cell-related methods.
+
+    bool isValidTree() const;
 private:
     bool isAccessibilityNodeObject() const final { return true; }
     void accessibilityText(Vector<AccessibilityText>&) const override;

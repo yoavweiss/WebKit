@@ -859,6 +859,35 @@ AXCoreObject::AccessibilityChildrenVector AccessibilityNodeObject::visibleChildr
     return { };
 }
 
+bool AccessibilityNodeObject::isValidTree() const
+{
+    // A valid tree can only have treeitem or group of treeitems as a child.
+    // https://www.w3.org/TR/wai-aria/#tree
+    RefPtr node = this->node();
+    if (!node)
+        return false;
+
+    Deque<Ref<Node>> queue;
+    for (RefPtr child = node->firstChild(); child; child = queue.last()->nextSibling())
+        queue.append(child.releaseNonNull());
+
+    while (!queue.isEmpty()) {
+        Ref child = queue.takeFirst();
+
+        RefPtr childElement = dynamicDowncast<Element>(child);
+        if (!childElement)
+            continue;
+        if (hasRole(*childElement, "treeitem"_s))
+            continue;
+        if (!hasAnyRole(*childElement, { "group"_s, "presentation"_s }))
+            return false;
+
+        for (RefPtr groupChild = child->firstChild(); groupChild; groupChild = queue.last()->nextSibling())
+            queue.append(groupChild.releaseNonNull());
+    }
+    return true;
+}
+
 bool AccessibilityNodeObject::computeIsIgnored() const
 {
 #ifndef NDEBUG
@@ -866,6 +895,9 @@ bool AccessibilityNodeObject::computeIsIgnored() const
     // it's been initialized.
     ASSERT(m_initialized);
 #endif
+    if (isTree())
+        return isIgnoredByDefault();
+
     RefPtr node = this->node();
     if (!node)
         return true;
