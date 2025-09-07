@@ -6981,6 +6981,9 @@ imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-pl
 imported/w3c/web-platform-tests/css/compositing/root-element-background-transparency.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/compositing/root-element-opacity.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/compositing/svg/mix-blend-mode-in-svg-image.html [ ImageOnlyFailure ]
+webkit.org/b/249117 imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-parent-element-overflow-hidden-and-border-radius-2.html [ Skip ]
+imported/w3c/web-platform-tests/css/compositing/root-element-background-margin-opacity.html [ ImageOnlyFailure ]
+imported/w3c/web-platform-tests/css/compositing/mix-blend-mode/mix-blend-mode-stacking-context-002.html [ ImageOnlyFailure ]
 
 # webkit.org/b/261464 - Import WPT css/css-inline
 

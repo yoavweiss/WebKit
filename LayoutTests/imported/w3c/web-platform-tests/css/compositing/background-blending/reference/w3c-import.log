@@ -14,6 +14,5 @@ Property values requiring vendor prefixes:
 None
 ------------------------------------------------------------------------
 List of files:
-/LayoutTests/imported/w3c/web-platform-tests/css/compositing/isolation/blend-isolation.html
-/LayoutTests/imported/w3c/web-platform-tests/css/compositing/isolation/isolation-establishes-stacking-context-expected.xht
-/LayoutTests/imported/w3c/web-platform-tests/css/compositing/isolation/isolation-establishes-stacking-context.html
+/LayoutTests/imported/w3c/web-platform-tests/css/compositing/background-blending/reference/background-blend-mode-gradient-image-ref.html
+/LayoutTests/imported/w3c/web-platform-tests/css/compositing/background-blending/reference/background-blend-mode-plus-lighter-ref.html
