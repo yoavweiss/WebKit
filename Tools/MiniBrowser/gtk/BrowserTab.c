@@ -345,18 +345,16 @@ static gchar *WebKitXRSessionFeaturesToString(WebKitXRSessionFeatures features)
 {
     unsigned count = 0;
     GString *str = g_string_new(NULL);
-    if (features & WEBKIT_XR_SESSION_FEATURES_VIEWER)
-        g_string_append(str, " viewer" + !(count++));
-    if (features & WEBKIT_XR_SESSION_FEATURES_LOCAL)
-        g_string_append(str, " local" + !(count++));
-    if (features & WEBKIT_XR_SESSION_FEATURES_LOCAL_FLOOR)
-        g_string_append(str, " local-floor" + !(count++));
-    if (features & WEBKIT_XR_SESSION_FEATURES_BOUNDED_FLOOR)
-        g_string_append(str, " bounded-floor" + !(count++));
-    if (features & WEBKIT_XR_SESSION_FEATURES_UNBOUNDED)
-        g_string_append(str, " unbounded" + !(count++));
-    if (features & WEBKIT_XR_SESSION_FEATURES_HAND_TRACKING)
-        g_string_append(str, " hand-tracking" + !(count++));
+#define APPEND_FEATURE(feature, name) \
+    if (features & feature) \
+        g_string_append(str, (" " name) + !(count++));
+    APPEND_FEATURE(WEBKIT_XR_SESSION_FEATURES_VIEWER, "viewer");
+    APPEND_FEATURE(WEBKIT_XR_SESSION_FEATURES_LOCAL, "local");
+    APPEND_FEATURE(WEBKIT_XR_SESSION_FEATURES_LOCAL_FLOOR, "local-floor");
+    APPEND_FEATURE(WEBKIT_XR_SESSION_FEATURES_BOUNDED_FLOOR, "bounded-floor");
+    APPEND_FEATURE(WEBKIT_XR_SESSION_FEATURES_UNBOUNDED, "unbounded");
+    APPEND_FEATURE(WEBKIT_XR_SESSION_FEATURES_HAND_TRACKING, "hand_tracking");
+#undef APPEND_FEATURE
     gchar *result = str->str;
     g_string_free(str, FALSE);
     return result;
