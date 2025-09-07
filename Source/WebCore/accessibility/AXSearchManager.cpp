@@ -28,6 +28,7 @@
 #include "AXLogger.h"
 #include "AXLoggerBase.h"
 #include "AXObjectCacheInlines.h"
+#include "AXUtilities.h"
 #include "AccessibilityObject.h"
 #include "Logging.h"
 #include "TextIterator.h"

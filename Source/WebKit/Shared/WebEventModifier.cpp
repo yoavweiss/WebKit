@@ -54,7 +54,7 @@ OptionSet<WebEventModifier> modifiersForNavigationAction(const WebCore::Navigati
 {
     OptionSet<WebEventModifier> modifiers;
     if (auto keyStateEventData = navigationAction.keyStateEventData()) {
-        RefPtr document = navigationAction.requester() ? Document::allDocumentsMap().get(navigationAction.requester()->documentIdentifier) : nullptr;
+        RefPtr document = navigationAction.requester() ? WebCore::Document::allDocumentsMap().get(navigationAction.requester()->documentIdentifier) : nullptr;
         RefPtr domWindow = document ? document->window() : nullptr;
         auto lastMouseClickEvent = domWindow ? domWindow->consumeLastUserClickEvent() : std::nullopt;
         // For security reasons, we normally only set modifiers when the navigation comes from a trusted event.

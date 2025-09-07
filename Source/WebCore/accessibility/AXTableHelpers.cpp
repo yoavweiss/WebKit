@@ -43,6 +43,7 @@
 #include "RenderObject.h"
 #include "RenderStyle.h"
 #include "RenderTable.h"
+#include "RenderTableCell.h"
 #include "RenderTableRow.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"
 #include <queue>
