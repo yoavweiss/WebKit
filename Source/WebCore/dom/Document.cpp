@@ -8020,7 +8020,7 @@ void Document::setHasHDRContent()
 
 bool Document::drawsHDRContent() const
 {
-    if (!(settings().supportHDRDisplayEnabled() || settings().canvasPixelFormatEnabled()))
+    if (!(settings().supportHDRDisplayEnabled() || settings().canvasColorTypeEnabled()))
         return false;
 
     if (!hasHDRContent())

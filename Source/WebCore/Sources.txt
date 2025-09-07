@@ -4279,7 +4279,7 @@ JSImageBitmapRenderingContextSettings.cpp
 JSImageCapture.cpp
 JSImageData.cpp
 JSImageDataSettings.cpp
-JSImageDataStorageFormat.cpp
+JSImageDataPixelFormat.cpp
 JSImageResource.cpp
 JSImageSmoothingQuality.cpp
 JSImportNodeOptions.cpp

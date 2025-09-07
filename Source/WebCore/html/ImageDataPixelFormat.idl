@@ -23,8 +23,8 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// https://github.com/w3c/ColorWeb-CG/blob/main/canvas_float.md with Chromium renaming (subject to change)
-enum ImageDataStorageFormat {
-    "uint8",
-    "float16",
+// https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#imagedatapixelformat
+enum ImageDataPixelFormat {
+    "rgba-unorm8",
+    "rgba-float16",
 };

@@ -30,17 +30,17 @@
 
 namespace WebCore {
 
-enum class ImageDataStorageFormat : bool {
-    Uint8,
-    Float16,
+enum class ImageDataPixelFormat : bool {
+    RgbaUnorm8,
+    RgbaFloat16,
 };
 
-constexpr PixelFormat toPixelFormat(ImageDataStorageFormat storageFormat)
+constexpr PixelFormat toPixelFormat(ImageDataPixelFormat pixelFormat)
 {
-    switch (storageFormat) {
-    case ImageDataStorageFormat::Uint8:
+    switch (pixelFormat) {
+    case ImageDataPixelFormat::RgbaUnorm8:
         break;
-    case ImageDataStorageFormat::Float16:
+    case ImageDataPixelFormat::RgbaFloat16:
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
         return PixelFormat::RGBA16F;
 #else
@@ -50,11 +50,11 @@ constexpr PixelFormat toPixelFormat(ImageDataStorageFormat storageFormat)
     return PixelFormat::RGBA8;
 }
 
-constexpr std::optional<ImageDataStorageFormat> toImageDataStorageFormat(JSC::TypedArrayType typedArrayType)
+constexpr std::optional<ImageDataPixelFormat> toImageDataPixelFormat(JSC::TypedArrayType typedArrayType)
 {
     switch (typedArrayType) {
-    case JSC::TypeUint8Clamped: return ImageDataStorageFormat::Uint8;
-    case JSC::TypeFloat16: return ImageDataStorageFormat::Float16;
+    case JSC::TypeUint8Clamped: return ImageDataPixelFormat::RgbaUnorm8;
+    case JSC::TypeFloat16: return ImageDataPixelFormat::RgbaFloat16;
     default: return std::nullopt;
     }
 }
