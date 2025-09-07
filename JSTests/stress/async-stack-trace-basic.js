@@ -85,8 +85,8 @@ function shouldThrowAsync(run, errorType, message, stackFunctions) {
             }, Error, "error",
             [
                 ["two", "78:24"],
-                ["one", "69:18"],
-                ["test", "84:26"],
+                ["async one", "69:18"],
+                ["async test", "84:26"],
                 ["drainMicrotasks", "[native code]"],
                 ["shouldThrowAsync", "19:20"],
                 ["global code", "82:25"]
@@ -121,8 +121,8 @@ function shouldThrowAsync(run, errorType, message, stackFunctions) {
             }, TypeError, "Cannot convert a symbol to a number",
             [
                 ["two", "114:16"],
-                ["one", "105:25"],
-                ["test", "120:26"],
+                ["async one", "105:25"],
+                ["async test", "120:26"],
                 ["drainMicrotasks", "[native code]"],
                 ["shouldThrowAsync", "19:20"],
                 ["global code", "118:25"]
@@ -168,8 +168,8 @@ function shouldThrowAsync(run, errorType, message, stackFunctions) {
             }, Error, "error",
             [
                 ["two", "161:24"],
-                ["one", "156:29"],
-                ["test", "167:30"],
+                ["async one", "156:29"],
+                ["async test", "167:30"],
                 ["drainMicrotasks", "[native code]"],
                 ["shouldThrowAsync", "19:20"],
                 ["global code", "165:25"]
@@ -209,8 +209,8 @@ function shouldThrowAsync(run, errorType, message, stackFunctions) {
                 ["throwError", "200:24"],
                 ["throwError", "199:35"],
                 ["two", "196:25"],
-                ["one", "187:18"],
-                ["test", "206:26"],
+                ["async one", "187:18"],
+                ["async test", "206:26"],
                 ["drainMicrotasks", "[native code]"],
                 ["shouldThrowAsync", "19:20"],
                 ["global code", "204:25"]

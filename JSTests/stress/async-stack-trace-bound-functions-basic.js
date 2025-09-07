@@ -94,9 +94,9 @@ function shouldThrowAsync(run, errorType, message, stackFunctions) {
             }, Error, "error from baz",
             [
                 ["baz", "87:24"],
-                ["bar", "80:29"],
-                ["foo", "71:29"],
-                ["test", "93:26"],
+                ["async bar", "80:29"],
+                ["async foo", "71:29"],
+                ["async test", "93:26"],
                 ["drainMicrotasks", "[native code]"],
                 ["shouldThrowAsync", "19:20"],
                 ["global code", "91:25"]
