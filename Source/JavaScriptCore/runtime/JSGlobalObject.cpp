@@ -2775,6 +2775,7 @@ void JSGlobalObject::visitChildrenImpl(JSCell* cell, Visitor& visitor)
     visitor.append(thisObject->m_typedArraySpeciesGetterSetter);
     visitor.append(thisObject->m_arrayBufferSpeciesGetterSetter);
     visitor.append(thisObject->m_sharedArrayBufferSpeciesGetterSetter);
+    visitor.append(thisObject->m_unhandledRejectionCallback);
 
     thisObject->m_typedArrayProto.visit(visitor);
     thisObject->m_typedArraySuperConstructor.visit(visitor);

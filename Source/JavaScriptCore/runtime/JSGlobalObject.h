@@ -439,6 +439,7 @@ public:
     WriteBarrier<GetterSetter> m_typedArraySpeciesGetterSetter;
     WriteBarrier<GetterSetter> m_arrayBufferSpeciesGetterSetter;
     WriteBarrier<GetterSetter> m_sharedArrayBufferSpeciesGetterSetter;
+    WriteBarrier<JSObject> m_unhandledRejectionCallback;
 
     LazyProperty<JSGlobalObject, JSTypedArrayViewPrototype> m_typedArrayProto;
     LazyProperty<JSGlobalObject, JSTypedArrayViewConstructor> m_typedArraySuperConstructor;
@@ -454,8 +455,6 @@ public:
     StructureCache m_structureCache;
 
     String m_name;
-
-    Strong<JSObject> m_unhandledRejectionCallback;
 
     Debugger* m_debugger;
 
