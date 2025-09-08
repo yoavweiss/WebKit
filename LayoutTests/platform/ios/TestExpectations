@@ -8270,3 +8270,5 @@ webkit.org/b/298278 imported/w3c/web-platform-tests/html/anonymous-iframe/local-
 [ Debug ] imported/w3c/web-platform-tests/html/semantics/the-button-element/command-and-commandfor/on-dialog-behavior.html [ Pass Crash ]
 
 webkit.org/b/298555 imported/w3c/web-platform-tests/selection/stringifier_editable_element.tentative.html [ Failure ]
+
+webkit.org/b/298557 [ Debug ] imported/w3c/web-platform-tests/scroll-to-text-fragment/percent-encoding.html [ Pass Failure ]
