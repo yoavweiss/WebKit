@@ -112,7 +112,7 @@ void ImageBufferBackend::getPixelBuffer(const IntRect& sourceRect, std::span<con
     if (destinationRect.size() != sourceRect.size())
         destinationPixelBuffer.zeroFill();
 
-    auto sourcePixelFormat = pixelFormat();
+    auto sourcePixelFormat = convertToPixelFormat(pixelFormat());
     unsigned sourceBytesPerRow = bytesPerRow();
     ConstPixelBufferConversionView source {
         { AlphaPremultiplication::Premultiplied, sourcePixelFormat, colorSpace() },
@@ -158,7 +158,7 @@ void ImageBufferBackend::putPixelBuffer(const PixelBufferSourceView& sourcePixel
         sourcePixelBuffer.bytes().subspan(sourceRectClipped.y() * sourceBytesPerRow + sourceRectClipped.x() * sourceBytesPerPixel)
     };
 
-    auto destinationPixelFormat = pixelFormat();
+    auto destinationPixelFormat = convertToPixelFormat(pixelFormat());
     unsigned destinationBytesPerRow = bytesPerRow();
     PixelBufferConversionView destination {
         { destinationAlphaFormat, destinationPixelFormat, colorSpace() },

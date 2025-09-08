@@ -1125,7 +1125,7 @@ RefPtr<ImageBuffer> WebChromeClient::createImageBuffer(const FloatSize& size, Re
     }
 
     if (purpose == RenderingPurpose::ShareableSnapshot || purpose == RenderingPurpose::ShareableLocalSnapshot)
-        return ImageBuffer::create<ImageBufferShareableBitmapBackend>(size, resolutionScale, colorSpace, { PixelFormat::BGRA8 }, purpose, { });
+        return ImageBuffer::create<ImageBufferShareableBitmapBackend>(size, resolutionScale, colorSpace, { ImageBufferPixelFormat::BGRA8 }, purpose, { });
 
     return nullptr;
 }

@@ -2128,7 +2128,7 @@ ExceptionOr<RefPtr<ImageData>> Internals::snapshotNode(Node& node)
 
     document->updateLayoutIgnorePendingStylesheets();
 
-    SnapshotOptions options { { SnapshotFlags::DraggableElement }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() };
+    SnapshotOptions options { { SnapshotFlags::DraggableElement }, ImageBufferPixelFormat::BGRA8, DestinationColorSpace::SRGB() };
 
     RefPtr imageBuffer = WebCore::snapshotNode(*document->frame(), node, WTFMove(options));
     if (!imageBuffer)
@@ -7920,7 +7920,7 @@ std::optional<RenderingMode> Internals::getEffectiveRenderingModeOfNewlyCreatedA
     if (!document || !document->page())
         return std::nullopt;
 
-    if (RefPtr imageBuffer = ImageBuffer::create({ 100, 100 }, RenderingMode::Accelerated, RenderingPurpose::DOM, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8,  &document->page()->chrome())) {
+    if (RefPtr imageBuffer = ImageBuffer::create({ 100, 100 }, RenderingMode::Accelerated, RenderingPurpose::DOM, 1, DestinationColorSpace::SRGB(), ImageBufferPixelFormat::BGRA8,  &document->page()->chrome())) {
         imageBuffer->ensureBackendCreated();
         if (imageBuffer->hasBackend())
             return imageBuffer->renderingMode();

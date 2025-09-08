@@ -41,10 +41,10 @@ Ref<WebImage> WebImage::createEmpty()
 
 Ref<WebImage> WebImage::create(const IntSize& size, ImageOptions options, const DestinationColorSpace& colorSpace, ChromeClient* client)
 {
-    auto pixelFormat = PixelFormat::BGRA8;
+    auto pixelFormat = ImageBufferPixelFormat::BGRA8;
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
     if (options.contains(ImageOption::AllowHDR) && colorSpace.usesExtendedRange())
-        pixelFormat = PixelFormat::RGBA16F;
+        pixelFormat = ImageBufferPixelFormat::RGBA16F;
 #endif
 
     if (client) {

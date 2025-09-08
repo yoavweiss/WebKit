@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <WebCore/PixelFormat.h>
+#include <WebCore/ImageBufferPixelFormat.h>
 #include <WebCore/PixelFormat.h>
 
 #include <wtf/Forward.h>
@@ -33,7 +33,7 @@
 namespace WebCore {
 
 struct ImageBufferFormat {
-    PixelFormat pixelFormat;
+    ImageBufferPixelFormat pixelFormat;
     UseLosslessCompression useLosslessCompression { UseLosslessCompression::No };
 };
 

@@ -504,13 +504,13 @@ ExceptionOr<RefPtr<GPUTexture>> GPUCanvasContextCocoa::getCurrentTexture()
     return currentTexture;
 }
 
-PixelFormat GPUCanvasContextCocoa::pixelFormat() const
+ImageBufferPixelFormat GPUCanvasContextCocoa::pixelFormat() const
 {
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
     if (m_configuration)
-        return m_configuration->toneMapping.mode == GPUCanvasToneMappingMode::Extended ? PixelFormat::RGBA16F : PixelFormat::BGRA8;
+        return m_configuration->toneMapping.mode == GPUCanvasToneMappingMode::Extended ? ImageBufferPixelFormat::RGBA16F : ImageBufferPixelFormat::BGRA8;
 #endif
-    return PixelFormat::BGRX8;
+    return ImageBufferPixelFormat::BGRX8;
 }
 
 bool GPUCanvasContextCocoa::isOpaque() const

@@ -225,7 +225,7 @@ static Vector<Ref<ShareableBitmap>> createBitmapsFromNativeImage(NativeImage& im
 
 static RefPtr<NativeImage> createNativeImageFromSVGImage(SVGImage& image, const IntSize& size)
 {
-    RefPtr buffer = ImageBuffer::create(size, RenderingMode::Unaccelerated, RenderingPurpose::Unspecified, 1, DestinationColorSpace::SRGB(), PixelFormat::BGRA8);
+    RefPtr buffer = ImageBuffer::create(size, RenderingMode::Unaccelerated, RenderingPurpose::Unspecified, 1, DestinationColorSpace::SRGB(), ImageBufferPixelFormat::BGRA8);
     if (!buffer)
         return nullptr;
 

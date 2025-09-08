@@ -129,9 +129,9 @@ RefPtr<ImageBuffer> CanvasRenderingContext::transferToImageBuffer()
     return nullptr;
 }
 
-PixelFormat CanvasRenderingContext::pixelFormat() const
+ImageBufferPixelFormat CanvasRenderingContext::pixelFormat() const
 {
-    return PixelFormat::BGRA8;
+    return ImageBufferPixelFormat::BGRA8;
 }
 
 bool CanvasRenderingContext::isOpaque() const

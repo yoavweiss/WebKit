@@ -3064,17 +3064,17 @@ FloatPoint CanvasRenderingContext2DBase::textOffset(float width, TextDirection d
     return offset;
 }
 
-PixelFormat CanvasRenderingContext2DBase::pixelFormat() const
+ImageBufferPixelFormat CanvasRenderingContext2DBase::pixelFormat() const
 {
     // FIXME: Take m_settings.alpha into account here and add PixelFormat::BGRX8.
     switch (m_settings.colorType) {
     case CanvasRenderingContext2DSettings::ColorType::Unorm8:
-        return PixelFormat::BGRA8;
+        return ImageBufferPixelFormat::BGRA8;
     case CanvasRenderingContext2DSettings::ColorType::Float16:
 #if ENABLE(PIXEL_FORMAT_RGBA16F)
-        return PixelFormat::RGBA16F;
+        return ImageBufferPixelFormat::RGBA16F;
 #else
-        return PixelFormat::BGRA8;
+        return ImageBufferPixelFormat::BGRA8;
 #endif
     }
 }
