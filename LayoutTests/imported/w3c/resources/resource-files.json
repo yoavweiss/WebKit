@@ -7854,6 +7854,7 @@
         "web-platform-tests/css/css-transitions/reference/transition-test-ref.html",
         "web-platform-tests/css/css-transitions/render-blocking/no-transition-from-ua-to-blocking-stylesheet-ref.html",
         "web-platform-tests/css/css-transitions/root-color-transition-ref.html",
+        "web-platform-tests/css/css-transitions/support/transition-in-iframe-001-iframe.html",
         "web-platform-tests/css/css-typed-om/rotate-by-added-angle-ref.html",
         "web-platform-tests/css/css-ui/accent-color-checkbox-checked-001-notref.html",
         "web-platform-tests/css/css-ui/accent-color-invalidation-currentcolor-ref.html",

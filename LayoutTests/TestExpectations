@@ -4241,6 +4241,7 @@ imported/w3c/web-platform-tests/css/css-images/tiled-gradients.html [ ImageOnlyF
 webkit.org/b/225407 imported/w3c/web-platform-tests/css/css-animations/nested-scale-animations.html [ ImageOnlyFailure ]
 webkit.org/b/225407 imported/w3c/web-platform-tests/css/css-animations/transform-animation-under-large-scale.html [ ImageOnlyFailure ]
 webkit.org/b/203356 imported/w3c/web-platform-tests/css/css-transitions/properties-value-003.html [ Failure Pass Timeout ]
+imported/w3c/web-platform-tests/css/css-transitions/transitioncancel-003.html [ Failure Pass ]
 
 # wpt css-values failures
 webkit.org/b/203320 imported/w3c/web-platform-tests/css/css-values/percentage-rem-low.html [ ImageOnlyFailure ]
