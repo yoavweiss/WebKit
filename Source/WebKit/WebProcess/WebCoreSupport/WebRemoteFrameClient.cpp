@@ -82,8 +82,7 @@ void WebRemoteFrameClient::postMessageToRemote(FrameIdentifier source, const Str
 
 void WebRemoteFrameClient::changeLocation(FrameLoadRequest&& request)
 {
-    // FIXME: FrameLoadRequest and NavigationAction can probably be refactored to share more. <rdar://116202911>
-    NavigationAction action(request.requester(), request.resourceRequest(), request.initiatedByMainFrame(), request.isRequestFromClientOrUserInput());
+    NavigationAction action(request);
     // FIXME: action.request and request are probably duplicate information. <rdar://116203126>
     // FIXME: Get more parameters correct and add tests for each one. <rdar://116203354>
     dispatchDecidePolicyForNavigationAction(action, action.originalRequest(), ResourceResponse(), nullptr, { }, { }, { }, { }, IsPerformingHTTPFallback::No, { }, PolicyDecisionMode::Asynchronous, [protectedFrame = Ref { m_frame }, request = WTFMove(request)] (PolicyAction policyAction) mutable {
