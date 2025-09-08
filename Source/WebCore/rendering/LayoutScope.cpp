@@ -37,7 +37,7 @@ LayoutScope::LayoutScope(RenderElement& renderer)
 
 LayoutScope::~LayoutScope()
 {
-    if (auto* block = dynamicDowncast<RenderBlock>(m_renderer.get())) {
+    if (CheckedPtr block = dynamicDowncast<RenderBlock>(m_renderer.get())) {
         block->updateLayerTransform();
         block->updateScrollInfoAfterLayout();
     }

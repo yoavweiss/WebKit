@@ -36,7 +36,7 @@ public:
     ~LayoutScope();
 
 private:
-    CheckedPtr<RenderElement> m_renderer;
+    const CheckedRef<RenderElement> m_renderer;
 };
 
 }
