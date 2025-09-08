@@ -586,6 +586,8 @@ void Internals::resetToConsistentState(Page& page)
     page.setDefersLoading(false);
     page.setResourceCachingDisabledByWebInspector(false);
 
+    page.console().setConsoleMessageListener(nullptr);
+
     RefPtr localMainFrame = page.localMainFrame();
     if (!localMainFrame)
         return;
@@ -749,8 +751,6 @@ Internals::Internals(Document& document)
         setAutomaticLinkDetectionEnabled(false);
         setAutomaticTextReplacementEnabled(true);
     }
-
-    setConsoleMessageListener(nullptr);
 
 #if ENABLE(APPLE_PAY)
     auto* frame = document.frame();
@@ -6662,10 +6662,11 @@ void Internals::updateQuotaBasedOnSpaceUsage()
 
 void Internals::setConsoleMessageListener(RefPtr<StringCallback>&& listener)
 {
-    if (!contextDocument())
+    RefPtr page = contextDocument() ? contextDocument()->page() : nullptr;
+    if (!page)
         return;
 
-    contextDocument()->setConsoleMessageListener(WTFMove(listener));
+    page->console().setConsoleMessageListener(WTFMove(listener));
 }
 
 void Internals::setResponseSizeWithPadding(FetchResponse& response, uint64_t size)

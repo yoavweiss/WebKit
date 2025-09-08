@@ -1370,6 +1370,9 @@ imported/w3c/web-platform-tests/css/css-pseudo/highlight-custom-properties-dynam
 imported/w3c/web-platform-tests/css/css-view-transitions/start-skip-start.html [ Failure ]
 imported/w3c/web-platform-tests/css/css-view-transitions/start-view-transtion-skips-active.html [ Failure ]
 
+# Not supported on this platform.
+security/contentSecurityPolicy/plugins-types-allows-youtube-plugin-replacement.html [ Skip ]
+
 # These tests are passing in WebKitGTK, but failing on WPE (timeout).
 http/tests/websocket/tests/hybi/inspector/before-load.html [ Skip ]
 http/tests/websocket/tests/hybi/inspector/binary.html [ Skip ]
