@@ -88,6 +88,7 @@ public:
     virtual bool isWorkerGlobalScopeCaches() const { return false; }
     virtual bool isLocalDOMWindowMediaControls() const { return false; }
     virtual bool isDocumentMediaElement() const { return false; }
+    virtual bool isGeolocationController() const { return false; }
 };
 
 template<typename T>
