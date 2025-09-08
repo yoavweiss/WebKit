@@ -4082,6 +4082,26 @@ NSString* Texture::errorValidatingLinearTextureData(const WGPUTextureDataLayout&
     return nil;
 }
 
+bool Texture::previouslyCleared() const
+{
+    for (uint32_t m = 0; m < mipLevelCount(); ++m) {
+        for (uint32_t s = 0; s < arrayLayerCount(); ++s) {
+            if (!previouslyCleared(m, s))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+void Texture::setPreviouslyCleared()
+{
+    for (uint32_t m = 0; m < mipLevelCount(); ++m) {
+        for (uint32_t s = 0; s < arrayLayerCount(); ++s)
+            setPreviouslyCleared(m, s);
+    }
+}
+
 bool Texture::previouslyCleared(uint32_t mipLevel, uint32_t slice) const
 {
     if (isDestroyed())

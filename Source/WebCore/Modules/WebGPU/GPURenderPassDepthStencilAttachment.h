@@ -34,12 +34,17 @@
 
 namespace WebCore {
 
+using GPURenderPassDepthAttachmentView = Variant<RefPtr<GPUTexture>, RefPtr<GPUTextureView>>;
+
 struct GPURenderPassDepthStencilAttachment {
     WebGPU::RenderPassDepthStencilAttachment convertToBacking() const
     {
-        ASSERT(view);
         return {
-            view->backing(),
+            WTF::switchOn(view, [&](const RefPtr<GPUTexture>& texture) -> WebGPU::RenderPassDepthAttachmentView {
+                return texture->backing();
+            }, [&](const RefPtr<GPUTextureView>& view) -> WebGPU::RenderPassDepthAttachmentView {
+                return view->backing();
+            }),
             depthClearValue.value_or(-1.f),
             depthLoadOp ? std::optional { WebCore::convertToBacking(*depthLoadOp) } : std::nullopt,
             depthStoreOp ? std::optional { WebCore::convertToBacking(*depthStoreOp) } : std::nullopt,
@@ -51,7 +56,7 @@ struct GPURenderPassDepthStencilAttachment {
         };
     }
 
-    WeakPtr<GPUTextureView> view;
+    GPURenderPassDepthAttachmentView view;
 
     std::optional<float> depthClearValue;
     std::optional<GPULoadOp> depthLoadOp;

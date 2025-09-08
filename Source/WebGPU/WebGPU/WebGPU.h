@@ -1005,6 +1005,7 @@ typedef struct WGPURenderBundleEncoderDescriptor {
 } WGPURenderBundleEncoderDescriptor WGPU_STRUCTURE_ATTRIBUTE;
 
 typedef struct WGPURenderPassDepthStencilAttachment {
+    WGPUTexture texture;
     WGPUTextureView view;
     WGPULoadOp depthLoadOp;
     WGPUStoreOp depthStoreOp;
@@ -1289,6 +1290,7 @@ typedef struct WGPURenderPassColorAttachment {
     WGPU_NULLABLE WGPUTexture texture;
     WGPU_NULLABLE WGPUTextureView view;
     std::optional<uint32_t> depthSlice;
+    WGPU_NULLABLE WGPUTexture resolveTexture;
     WGPU_NULLABLE WGPUTextureView resolveTarget;
     WGPULoadOp loadOp;
     WGPUStoreOp storeOp;
