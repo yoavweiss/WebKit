@@ -302,7 +302,7 @@ void DocumentLoader::mainReceivedError(const ResourceError& error, LoadWillConti
 
     if (m_identifierForLoadWithoutResourceLoader) {
         ASSERT(!mainResourceLoader());
-        protectedFrameLoader()->protectedClient()->dispatchDidFailLoading(this, IsMainResourceLoad::Yes, *m_identifierForLoadWithoutResourceLoader, error);
+        protectedFrameLoader()->protectedClient()->dispatchDidFailLoading(this, *m_identifierForLoadWithoutResourceLoader, error);
     }
 
     // There is a bug in CFNetwork where callbacks can be dispatched even when loads are deferred.
@@ -488,7 +488,7 @@ void DocumentLoader::finishedLoading()
         // cancel the already-finished substitute load.
         NetworkLoadMetrics emptyMetrics;
         ResourceLoaderIdentifier identifier = *std::exchange(m_identifierForLoadWithoutResourceLoader, std::nullopt);
-        protectedFrameLoader()->notifier().dispatchDidFinishLoading(this, IsMainResourceLoad::Yes, identifier, emptyMetrics, nullptr);
+        protectedFrameLoader()->notifier().dispatchDidFinishLoading(this, identifier, emptyMetrics, nullptr);
     }
 
     maybeFinishLoadingMultipartContent();
@@ -845,7 +845,7 @@ bool DocumentLoader::tryLoadingSubstituteData()
 
     DOCUMENTLOADER_RELEASE_LOG("startLoadingMainResource: Returning substitute data");
     m_identifierForLoadWithoutResourceLoader = ResourceLoaderIdentifier::generate();
-    protectedFrameLoader()->notifier().assignIdentifierToInitialRequest(*m_identifierForLoadWithoutResourceLoader, IsMainResourceLoad::No, this, m_request);
+    protectedFrameLoader()->notifier().assignIdentifierToInitialRequest(*m_identifierForLoadWithoutResourceLoader, this, m_request);
     protectedFrameLoader()->notifier().dispatchWillSendRequest(this, *m_identifierForLoadWithoutResourceLoader, m_request, ResourceResponse(), nullptr);
 
     if (!m_deferMainResourceDataLoad || protectedFrameLoader()->loadsSynchronously())
@@ -2384,7 +2384,7 @@ void DocumentLoader::loadMainResource(ResourceRequest&& request)
 
     if (!mainResourceLoader()) {
         m_identifierForLoadWithoutResourceLoader = ResourceLoaderIdentifier::generate();
-        protectedFrameLoader()->notifier().assignIdentifierToInitialRequest(*m_identifierForLoadWithoutResourceLoader, IsMainResourceLoad::Yes, this, mainResourceRequest.resourceRequest());
+        protectedFrameLoader()->notifier().assignIdentifierToInitialRequest(*m_identifierForLoadWithoutResourceLoader, this, mainResourceRequest.resourceRequest());
         protectedFrameLoader()->notifier().dispatchWillSendRequest(this, *m_identifierForLoadWithoutResourceLoader, mainResourceRequest.resourceRequest(), ResourceResponse(), nullptr);
     }
 

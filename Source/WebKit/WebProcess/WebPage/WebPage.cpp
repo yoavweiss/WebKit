@@ -6804,7 +6804,7 @@ void WebPage::drawPagesForPrinting(FrameIdentifier frameID, const PrintInfo& pri
 }
 #endif
 
-void WebPage::addResourceRequest(WebCore::ResourceLoaderIdentifier identifier, bool isMainResourceLoad, const WebCore::ResourceRequest& request, const DocumentLoader* loader, LocalFrame* frame)
+void WebPage::addResourceRequest(WebCore::ResourceLoaderIdentifier identifier, const WebCore::ResourceRequest& request, const DocumentLoader* loader, LocalFrame* frame)
 {
     bool isHTTPRequest = request.url().protocolIsInHTTPFamily();
 
@@ -6812,7 +6812,7 @@ void WebPage::addResourceRequest(WebCore::ResourceLoaderIdentifier identifier, b
     // See 283102@main for an explanation for how we handle main resource loads. We also ignore
     // very low priority loads like ping and beacon requests to match previous PLT heuristics.
     // We consider file requests as part of the PLT network heuristic for ease of API testing.
-    if (frame && !isMainResourceLoad && request.priority() != WebCore::ResourceLoadPriority::VeryLow && (isHTTPRequest || request.url().protocolIsFile())) {
+    if (frame && request.requester() != ResourceRequestRequester::Main && request.priority() != WebCore::ResourceLoadPriority::VeryLow && (isHTTPRequest || request.url().protocolIsFile())) {
         auto frameID = frame->frameID();
         auto& identifiers = m_networkResourceRequestIdentifiersForPageLoadTiming.ensure(frameID, [] {
             return HashSet<WebCore::ResourceLoaderIdentifier> { };
@@ -6835,7 +6835,7 @@ void WebPage::addResourceRequest(WebCore::ResourceLoaderIdentifier identifier, b
         send(Messages::WebPageProxy::SetNetworkRequestsInProgress(true));
 }
 
-void WebPage::removeResourceRequest(WebCore::ResourceLoaderIdentifier identifier, bool, LocalFrame* frame)
+void WebPage::removeResourceRequest(WebCore::ResourceLoaderIdentifier identifier, LocalFrame* frame)
 {
     if (frame) {
         auto frameID = frame->frameID();

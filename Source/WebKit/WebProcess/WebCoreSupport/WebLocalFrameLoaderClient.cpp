@@ -219,7 +219,7 @@ void WebLocalFrameLoaderClient::documentLoaderDetached(WebCore::NavigationIdenti
         page->send(Messages::WebPageProxy::DidDestroyNavigation(navigationID));
 }
 
-void WebLocalFrameLoaderClient::assignIdentifierToInitialRequest(ResourceLoaderIdentifier identifier, WebCore::IsMainResourceLoad isMainResourceLoad, DocumentLoader* loader, const ResourceRequest& request)
+void WebLocalFrameLoaderClient::assignIdentifierToInitialRequest(ResourceLoaderIdentifier identifier, DocumentLoader* loader, const ResourceRequest& request)
 {
     RefPtr webPage = m_frame->page();
     if (!webPage)
@@ -236,7 +236,7 @@ void WebLocalFrameLoaderClient::assignIdentifierToInitialRequest(ResourceLoaderI
     webPage->send(Messages::WebPageProxy::DidInitiateLoadForResource(identifier, m_frame->frameID(), request));
 #endif
 
-    webPage->addResourceRequest(identifier, isMainResourceLoad == WebCore::IsMainResourceLoad::Yes, request, loader, frameLoader ? frameLoader->protectedFrame().ptr() : nullptr);
+    webPage->addResourceRequest(identifier, request, loader, frameLoader ? frameLoader->protectedFrame().ptr() : nullptr);
 }
 
 void WebLocalFrameLoaderClient::dispatchWillSendRequest(DocumentLoader*, ResourceLoaderIdentifier identifier, ResourceRequest& request, const ResourceResponse& redirectResponse)
@@ -315,7 +315,7 @@ void WebLocalFrameLoaderClient::dispatchDidFinishDataDetection(NSArray *detectio
 }
 #endif
 
-void WebLocalFrameLoaderClient::dispatchDidFinishLoading(DocumentLoader* loader, WebCore::IsMainResourceLoad isMainResourceLoad, ResourceLoaderIdentifier identifier)
+void WebLocalFrameLoaderClient::dispatchDidFinishLoading(DocumentLoader* loader, ResourceLoaderIdentifier identifier)
 {
     RefPtr webPage = m_frame->page();
     if (!webPage)
@@ -327,10 +327,10 @@ void WebLocalFrameLoaderClient::dispatchDidFinishLoading(DocumentLoader* loader,
     webPage->send(Messages::WebPageProxy::DidFinishLoadForResource(identifier, m_frame->frameID(), { }));
 #endif
 
-    webPage->removeResourceRequest(identifier, isMainResourceLoad == IsMainResourceLoad::Yes, loader && loader->frameLoader() ? loader->protectedFrameLoader()->protectedFrame().ptr() : nullptr);
+    webPage->removeResourceRequest(identifier, loader && loader->frameLoader() ? loader->protectedFrameLoader()->protectedFrame().ptr() : nullptr);
 }
 
-void WebLocalFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader, WebCore::IsMainResourceLoad isMainResourceLoad, ResourceLoaderIdentifier identifier, const ResourceError& error)
+void WebLocalFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader, ResourceLoaderIdentifier identifier, const ResourceError& error)
 {
     RefPtr webPage = m_frame->page();
     if (!webPage)
@@ -342,7 +342,7 @@ void WebLocalFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader, W
     webPage->send(Messages::WebPageProxy::DidFinishLoadForResource(identifier, m_frame->frameID(), error));
 #endif
 
-    webPage->removeResourceRequest(identifier, isMainResourceLoad == IsMainResourceLoad::Yes, loader && loader->frameLoader() ? loader->protectedFrameLoader()->protectedFrame().ptr() : nullptr);
+    webPage->removeResourceRequest(identifier, loader && loader->frameLoader() ? loader->protectedFrameLoader()->protectedFrame().ptr() : nullptr);
 }
 
 bool WebLocalFrameLoaderClient::dispatchDidLoadResourceFromMemoryCache(DocumentLoader*, const ResourceRequest&, const ResourceResponse&, int /*length*/)
@@ -775,7 +775,7 @@ void WebLocalFrameLoaderClient::dispatchDidFinishLoad()
 #endif
 
     // Notify the UIProcess.
-    webPage->send(Messages::WebPageProxy::DidFinishLoadForFrame(m_frame->frameID(), m_frame->info(), documentLoader->request(), documentLoader->navigationID(), UserData(WebProcess::singleton().transformObjectsToHandles(userData.get()).get())));
+    webPage->send(Messages::WebPageProxy::DidFinishLoadForFrame(m_frame->frameID(), m_frame->info(), documentLoader->request(), documentLoader->navigationID(), UserData(WebProcess::singleton().transformObjectsToHandles(userData.get()).get()), WallTime::now()));
 
     webPage->didFinishLoad(m_frame);
 }

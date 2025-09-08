@@ -544,16 +544,6 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(WebPageProxyFrameLoadStateObserver);
 
 #endif // #if ENABLE(WINDOW_PROXY_PROPERTY_ACCESS_NOTIFICATION)
 
-void PageLoadTimingFrameLoadStateObserver::ref() const
-{
-    m_page->ref();
-}
-
-void PageLoadTimingFrameLoadStateObserver::deref() const
-{
-    m_page->deref();
-}
-
 void WebPageProxy::forMostVisibleWebPageIfAny(PAL::SessionID sessionID, const SecurityOriginData& origin, CompletionHandler<void(WebPageProxy*)>&& completionHandler)
 {
     // FIXME: If not finding right away a visible page, we might want to try again for a given period of time when there is a change of visibility.
@@ -774,7 +764,6 @@ WebPageProxy::Internals::Internals(WebPageProxy& page)
 #if ENABLE(VIDEO_PRESENTATION_MODE)
     , fullscreenVideoTextRecognitionTimer(RunLoop::mainSingleton(), "WebPageProxy::Internals::FullscreenVideoTextRecognitionTimer"_s, &page, &WebPageProxy::fullscreenVideoTextRecognitionTimerFired)
 #endif
-    , pageLoadTimingFrameLoadStateObserver(page)
 #if PLATFORM(GTK) || PLATFORM(WPE)
     , activityStateChangeTimer(RunLoop::mainSingleton(), "WebPageProxy::Internals::activityStateChangeTimer"_s, &page, &WebPageProxy::dispatchActivityStateChange)
 #endif
@@ -1456,7 +1445,6 @@ bool WebPageProxy::suspendCurrentPageIfPossible(API::Navigation& navigation, Ref
 
     WEBPAGEPROXY_RELEASE_LOG(ProcessSwapping, "suspendCurrentPageIfPossible: Suspending current page for process pid %i", m_legacyMainFrameProcess->processID());
     mainFrame->frameLoadState().didSuspend();
-    mainFrame->frameLoadState().removeObserver(internals().protectedPageLoadTimingFrameLoadStateObserver());
 
     Ref suspendedPage = SuspendedPageProxy::create(*this, protectedLegacyMainFrameProcess(), mainFrame.releaseNonNull(), std::exchange(m_browsingContextGroup, BrowsingContextGroup::create()), shouldDelayClosingUntilFirstLayerFlush);
 
@@ -1539,9 +1527,6 @@ void WebPageProxy::swapToProvisionalPage(Ref<ProvisionalPageProxy>&& provisional
     m_mainFrame = provisionalPage->mainFrame();
     ASSERT(!m_drawingArea);
     setDrawingArea(provisionalPage->takeDrawingArea());
-
-    if (provisionalPage->needsMainFrameObserver())
-        m_mainFrame->frameLoadState().addObserver(internals().protectedPageLoadTimingFrameLoadStateObserver());
 
     // FIXME: Think about what to do if the provisional page didn't get its browsing context group from the SuspendedPageProxy.
     // We do need to clear it at some point for navigations that aren't from back/forward navigations. Probably in the same place as PSON?
@@ -1779,7 +1764,6 @@ void WebPageProxy::initializeWebPage(const Site& site, WebCore::SandboxFlags eff
     internals().frameLoadStateObserver = WebPageProxyFrameLoadStateObserver::create();
     m_mainFrame->frameLoadState().addObserver(*internals().protectedFrameLoadStateObserver());
 #endif
-    m_mainFrame->frameLoadState().addObserver(internals().protectedPageLoadTimingFrameLoadStateObserver());
 
     process->addVisitedLinkStoreUser(m_visitedLinkStore, identifier());
 
@@ -6730,19 +6714,33 @@ void WebPageProxy::generatePageLoadingTimingSoon()
     m_generatePageLoadTimingTimer.stop();
     if (!m_pageLoadTiming)
         return;
-    if (internals().pageLoadTimingFrameLoadStateObserver.hasLoadingFrame())
-        return;
     if (m_framesWithSubresourceLoadingForPageLoadTiming.size())
         return;
+
+    WallTime lastTimestamp;
     if (!m_pageLoadTiming->firstVisualLayout())
         return;
+    lastTimestamp = std::max(lastTimestamp, m_pageLoadTiming->firstVisualLayout());
+
     if (!m_pageLoadTiming->firstMeaningfulPaint())
         return;
+    lastTimestamp = std::max(lastTimestamp, m_pageLoadTiming->firstMeaningfulPaint());
+
     if (!m_pageLoadTiming->documentFinishedLoading())
         return;
+    lastTimestamp = std::max(lastTimestamp, m_pageLoadTiming->documentFinishedLoading());
+
+    if (!m_pageLoadTiming->finishedLoading())
+        return;
+    lastTimestamp = std::max(lastTimestamp, m_pageLoadTiming->finishedLoading());
+
     if (!m_pageLoadTiming->allSubresourcesFinishedLoading())
         return;
-    m_generatePageLoadTimingTimer.startOneShot(100_ms);
+    lastTimestamp = std::max(lastTimestamp, m_pageLoadTiming->allSubresourcesFinishedLoading());
+
+    // Stop waiting for page load to end 100 ms after the last of the timestamps we care about.
+    Seconds interval = std::max(0_ms, lastTimestamp + 100_ms - WallTime::now());
+    m_generatePageLoadTimingTimer.startOneShot(interval);
 }
 
 void WebPageProxy::didEndNetworkRequestsForPageLoadTimingTimerFired()
@@ -7455,8 +7453,6 @@ void WebPageProxy::forEachWebContentProcess(NOESCAPE Function<void(WebProcessPro
 
 void WebPageProxy::observeAndCreateRemoteSubframesInOtherProcesses(WebFrameProxy& newFrame, const String& frameName)
 {
-    newFrame.frameLoadState().addObserver(internals().protectedPageLoadTimingFrameLoadStateObserver());
-
     if (!protectedPreferences()->siteIsolationEnabled())
         return;
 
@@ -7491,7 +7487,7 @@ void WebPageProxy::broadcastTopDocumentSyncData(IPC::Connection& connection, Ref
     });
 }
 
-void WebPageProxy::didFinishLoadForFrame(IPC::Connection& connection, FrameIdentifier frameID, FrameInfoData&& frameInfo, ResourceRequest&& request, std::optional<WebCore::NavigationIdentifier> navigationID, const UserData& userData)
+void WebPageProxy::didFinishLoadForFrame(IPC::Connection& connection, FrameIdentifier frameID, FrameInfoData&& frameInfo, ResourceRequest&& request, std::optional<WebCore::NavigationIdentifier> navigationID, const UserData& userData, WallTime timestamp)
 {
     LOG(Loading, "WebPageProxy::didFinishLoadForFrame - WebPageProxy %p with navigationID %" PRIu64 " didFinishLoad", this, navigationID ? navigationID->toUInt64() : 0);
 
@@ -7526,7 +7522,6 @@ void WebPageProxy::didFinishLoadForFrame(IPC::Connection& connection, FrameIdent
         }
 
         frame->didFinishLoad();
-        generatePageLoadingTimingSoon();
 
         frame->notifyParentOfLoadCompletion(frame->protectedProcess());
 
@@ -7558,6 +7553,11 @@ void WebPageProxy::didFinishLoadForFrame(IPC::Connection& connection, FrameIdent
             notifyProcessPoolToPrewarm();
 
         callLoadCompletionHandlersIfNecessary(true);
+
+        if (m_pageLoadTiming && !frame->url().isAboutBlank()) {
+            m_pageLoadTiming->setFinishedLoading(timestamp);
+            generatePageLoadingTimingSoon();
+        }
     }
 
     m_isLoadingAlternateHTMLStringForFailingProvisionalLoad = false;
@@ -7595,7 +7595,6 @@ void WebPageProxy::didFailLoadForFrame(IPC::Connection& connection, FrameIdentif
     }
 
     frame->didFailLoad();
-    generatePageLoadingTimingSoon();
     protectedPageLoadState->commitChanges();
 #if ENABLE(WEBDRIVER_BIDI)
     if (RefPtr automationSession = activeAutomationSession())
