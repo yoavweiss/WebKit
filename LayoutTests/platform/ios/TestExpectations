@@ -8268,3 +8268,5 @@ webkit.org/b/298278 imported/w3c/web-platform-tests/html/anonymous-iframe/local-
 
 # webkit.org/b/298330 REGRESSION(299282@main): [macOS iOS Debug] ASSERTION FAILED: WebCore::HTMLDocumentParser::attemptToRunDeferredScriptsAndEnd
 [ Debug ] imported/w3c/web-platform-tests/html/semantics/the-button-element/command-and-commandfor/on-dialog-behavior.html [ Pass Crash ]
+
+webkit.org/b/298555 imported/w3c/web-platform-tests/selection/stringifier_editable_element.tentative.html [ Failure ]
