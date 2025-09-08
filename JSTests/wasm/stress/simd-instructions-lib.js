@@ -4,6 +4,37 @@ import { instantiate } from "../wabt-wrapper.js"
 import * as assert from "../assert.js"
 
 /**
+ * Convert array to v128.const string based on instruction type
+ * @param {Array} array - Input array
+ * @param {string} instruction - SIMD instruction name
+ * @returns {string} - v128.const string
+ */
+function arrayToV128Const(array, instruction) {
+    if (instruction.startsWith('i8x16.')) {
+        const hexValues = array.map(val => `0x${val.toString(16).padStart(2, '0').toUpperCase()}`);
+        return `(v128.const i8x16 ${hexValues.join(' ')})`;
+    } else if (instruction.startsWith('i16x8.')) {
+        const hexValues = array.map(val => `0x${val.toString(16).padStart(4, '0').toUpperCase()}`);
+        return `(v128.const i16x8 ${hexValues.join(' ')})`;
+    } else if (instruction.startsWith('i32x4.')) {
+        const hexValues = array.map(val => `0x${val.toString(16).padStart(8, '0').toUpperCase()}`);
+        return `(v128.const i32x4 ${hexValues.join(' ')})`;
+    } else if (instruction.startsWith('i64x2.')) {
+        const hexValues = array.map(val => {
+            const bigIntVal = typeof val === 'bigint' ? val : BigInt(val);
+            return `0x${bigIntVal.toString(16).padStart(16, '0').toUpperCase()}`;
+        });
+        return `(v128.const i64x2 ${hexValues.join(' ')})`;
+    } else if (instruction.startsWith('f32x4.')) {
+        return `(v128.const f32x4 ${array.join(' ')})`;
+    } else if (instruction.startsWith('f64x2.')) {
+        return `(v128.const f64x2 ${array.join(' ')})`;
+    }
+    // Default fallback - assume it's already a string
+    return array;
+}
+
+/**
  * Run SIMD instruction tests with given test data
  * @param {Array} testData - Array of test cases, each containing [instruction, input0, input1, expected]
  * @param {boolean} verbose - Whether to print verbose output
@@ -18,10 +49,13 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
 
     testData.forEach((test, index) => {
         const [instruction, input0, input1, expected] = test;
+        const input0Str = Array.isArray(input0) ? arrayToV128Const(input0, instruction) : input0;
+        const input1Str = Array.isArray(input1) ? arrayToV128Const(input1, instruction) : input1;
+
         wat += `
     (func (export "test_${index}") (param $addr i32)
         (v128.store (local.get $addr)
-            (${instruction} ${input0} ${input1}))
+            (${instruction} ${input0Str} ${input1Str}))
     )
 `;
     });
