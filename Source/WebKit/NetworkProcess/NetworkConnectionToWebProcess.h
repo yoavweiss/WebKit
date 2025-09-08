@@ -124,7 +124,7 @@ struct NetworkResourceLoadParameters;
 struct WebTransportSessionIdentifierType;
 struct MessageBatchIdentifierType;
 
-using WebTransportSessionIdentifier = ObjectIdentifier<WebTransportSessionIdentifierType>;
+using WebTransportSessionIdentifier = AtomicObjectIdentifier<WebTransportSessionIdentifierType>;
 using MessageBatchIdentifier = ObjectIdentifier<MessageBatchIdentifierType>;
 
 enum class PrivateRelayed : bool;
@@ -435,7 +435,7 @@ private:
     void navigatorGetPushPermissionState(URL&& scopeURL, CompletionHandler<void(Expected<uint8_t, WebCore::ExceptionData>&&)>&&);
 #endif
 
-    void initializeWebTransportSession(URL&&, WebPageProxyIdentifier&&, WebCore::ClientOrigin&&, CompletionHandler<void(std::optional<WebTransportSessionIdentifier>)>&&);
+    void initializeWebTransportSession(WebTransportSessionIdentifier, URL&&, WebPageProxyIdentifier&&, WebCore::ClientOrigin&&, CompletionHandler<void(bool)>&&);
     void destroyWebTransportSession(WebTransportSessionIdentifier);
 
     struct ResourceNetworkActivityTracker {

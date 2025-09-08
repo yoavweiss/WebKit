@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,12 +25,14 @@
 
 #pragma once
 
-#include <WebCore/SocketProvider.h>
+#if HAVE(WEB_TRANSPORT)
 
-class LegacySocketProvider final : public WebCore::SocketProvider {
-public:
-    static Ref<LegacySocketProvider> create() { return adoptRef(*new LegacySocketProvider); }
-private:
-    RefPtr<WebCore::ThreadableWebSocketChannel> createWebSocketChannel(WebCore::Document&, WebCore::WebSocketChannelClient&) final;
-    std::pair<RefPtr<WebCore::WebTransportSession>, Ref<WebCore::WebTransportSessionPromise>> initializeWebTransportSession(WebCore::ScriptExecutionContext&, WebCore::WebTransportSessionClient&, const URL&) final;
-};
+#import <pal/spi/cocoa/NetworkSPI.h>
+#import <wtf/SoftLinking.h>
+
+SOFT_LINK_FRAMEWORK_FOR_HEADER(WebKit, Network)
+
+// FIXME: Replace this soft linking with a HAVE macro once rdar://158191390 is available on all tested OS builds.
+SOFT_LINK_FUNCTION_MAY_FAIL_FOR_HEADER(WebKit, Network, nw_webtransport_options_set_allow_joining_before_ready, void, (nw_protocol_options_t options, bool allow), (options, allow))
+
+#endif // HAVE(WEB_TRANSPORT)

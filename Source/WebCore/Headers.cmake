@@ -829,6 +829,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/webtransport/WebTransportSendStreamStats.h
     Modules/webtransport/WebTransportSession.h
     Modules/webtransport/WebTransportSessionClient.h
+    Modules/webtransport/WorkerWebTransportSession.h
 
     Modules/webxr/XRCanvasConfiguration.h
     Modules/webxr/XRGPUProjectionLayerInit.h
