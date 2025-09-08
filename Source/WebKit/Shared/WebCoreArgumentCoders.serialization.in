@@ -6626,6 +6626,8 @@ header: <WebCore/ISOVTTCue.h>
 
 [Nested] struct WebCore::MockWebAuthenticationConfiguration::HidConfiguration {
     Vector<String> payloadBase64;
+    Vector<String> expectedCommandsBase64;
+    bool validateExpectedCommands;
     WebCore::MockWebAuthenticationConfiguration::HidStage stage;
     WebCore::MockWebAuthenticationConfiguration::HidSubStage subStage;
     WebCore::MockWebAuthenticationConfiguration::HidError error;

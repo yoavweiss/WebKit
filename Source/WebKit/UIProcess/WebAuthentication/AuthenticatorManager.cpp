@@ -303,14 +303,9 @@ void AuthenticatorManager::respondReceived(Respond&& respond)
         auto code = std::get<ExceptionData>(respond).code;
         shouldComplete = code == ExceptionCode::InvalidStateError || code == ExceptionCode::NotSupportedError;
     }
-    if (shouldComplete) {
-        invokePendingCompletionHandler(WTFMove(respond));
-        clearStateAsync();
-        m_requestTimeOutTimer.stop();
-        return;
-    }
-    respondReceivedInternal(WTFMove(respond));
-    restartDiscovery();
+    respondReceivedInternal(WTFMove(respond), shouldComplete);
+    if (!shouldComplete)
+        restartDiscovery();
 }
 
 void AuthenticatorManager::downgrade(Authenticator& id, Ref<Authenticator>&& downgradedAuthenticator)
