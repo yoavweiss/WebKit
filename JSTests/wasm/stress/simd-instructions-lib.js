@@ -112,32 +112,52 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
             // Call the test function
             const testFunc = instance.exports[`test_${testIndex}`];
             testFunc(0);
+            
+            // Backtraces for table driven test cases is not helpful, so print test case context on failure.
+            function assertEqWithContext(actual, expectedValue, lane, actualArray) {
+                try {
+                    assert.eq(actual, expectedValue);
+                } catch (e) {
+                    print(`\n=== TEST CASE FAILURE ===`);
+                    print(`Test Index: ${testIndex}`);
+                    print(`Instruction: ${instruction}`);
+                    print(`Input 0: ${Array.isArray(input0) ? `[${input0.join(', ')}]` : input0}`);
+                    print(`Input 1: ${Array.isArray(input1) ? `[${input1.join(', ')}]` : input1}`);
+                    print(`Expected Array: [${expected.join(', ')}]`);
+                    print(`Actual Array: [${Array.from(actualArray).join(', ')}]`);
+                    print(`Lane: ${lane}`);
+                    print(`Expected Value: ${expectedValue}`);
+                    print(`Actual Value: ${actual}`);
+                    print(`========================`);
+                    throw e;
+                }
+            }
 
             // Verify the result using appropriate data type
             if (instruction.startsWith('i8x16.') || instruction.startsWith('v128.')) {
                 for (let j = 0; j < 16; j++)
-                    assert.eq(u8[j], expected[j]);
+                    assertEqWithContext(u8[j], expected[j], j, u8.slice(0, 16));
             } else if (instruction.startsWith('i16x8.')) {
                 for (let j = 0; j < 8; j++)
-                    assert.eq(u16[j], expected[j]);
+                    assertEqWithContext(u16[j], expected[j], j, u16.slice(0, 8));
             } else if (instruction.startsWith('i32x4.') ||
                         (instruction === 'f32x4.eq' || instruction === 'f32x4.ne' ||
                          instruction === 'f32x4.lt' || instruction === 'f32x4.gt' ||
                          instruction === 'f32x4.le' || instruction === 'f32x4.ge')) {
                 for (let j = 0; j < 4; j++)
-                    assert.eq(u32[j], expected[j]);
+                    assertEqWithContext(u32[j], expected[j], j, u32.slice(0, 4));
             } else if (instruction.startsWith('f32x4.')) {
                 for (let j = 0; j < 4; j++)
-                    assert.eq(f32[j], expected[j]);
+                    assertEqWithContext(f32[j], expected[j], j, f32.slice(0, 4));
             } else if (instruction.startsWith('i64x2.') ||
                         (instruction === 'f64x2.eq' || instruction === 'f64x2.ne' ||
                          instruction === 'f64x2.lt' || instruction === 'f64x2.gt' ||
                          instruction === 'f64x2.le' || instruction === 'f64x2.ge')) {
                 for (let j = 0; j < 2; j++)
-                    assert.eq(u64[j], expected[j]);
+                    assertEqWithContext(u64[j], expected[j], j, u64.slice(0, 2));
             } else if (instruction.startsWith('f64x2.')) {
                 for (let j = 0; j < 2; j++)
-                    assert.eq(f64[j], expected[j]);
+                    assertEqWithContext(f64[j], expected[j], j, f64.slice(0, 2));
             } else {
                 assert.fail(`Unhandled instruction format: ${instruction}`);
             }

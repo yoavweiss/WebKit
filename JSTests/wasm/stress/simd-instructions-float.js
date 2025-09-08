@@ -133,6 +133,34 @@ const floatTests = [
         [Number.NaN, Number.NaN, Number.POSITIVE_INFINITY, 2.0]
     ],
 
+    // f32x4.pmin tests (pseudo-minimum, b < a ? b : a)
+    [
+        "f32x4.pmin",
+        [1.0, 2.0, -3.0, 0.0],
+        [2.0, 1.0, -2.0, -0.0],
+        [1.0, 1.0, -3.0, 0.0]
+    ],
+    [
+        "f32x4.pmin",
+        [Number.NaN, 1.0, 2.0, Number.POSITIVE_INFINITY],
+        [1.0, Number.NaN, Number.NEGATIVE_INFINITY, 2.0],
+        [Number.NaN, 1.0, Number.NEGATIVE_INFINITY, 2.0]
+    ],
+
+    // f32x4.pmax tests (pseudo-maximum, a < b ? b : a)
+    [
+        "f32x4.pmax",
+        [1.0, 2.0, -3.0, -0.0],
+        [2.0, 1.0, -2.0, 0.0],
+        [2.0, 2.0, -2.0, -0.0]
+    ],
+    [
+        "f32x4.pmax",
+        [Number.NaN, 1.0, 2.0, Number.NEGATIVE_INFINITY],
+        [1.0, Number.NaN, Number.POSITIVE_INFINITY, 2.0],
+        [Number.NaN, 1.0, Number.POSITIVE_INFINITY, 2.0]
+    ],
+
     // f64x2.add tests
     [
         "f64x2.add",
@@ -257,6 +285,34 @@ const floatTests = [
         [Number.NaN, 1.0],
         [1.0, Number.NaN],
         [Number.NaN, Number.NaN]
+    ],
+
+     // f64x2.pmin tests (pseudo-minimum, b < a ? b : a)
+    [
+        "f64x2.pmin",
+        [1.0, 0.0],
+        [2.0, -0.0],
+        [1.0, 0.0]
+    ],
+    [
+        "f64x2.pmin",
+        [Number.NaN, 1.0],
+        [1.0, Number.NaN],
+        [Number.NaN, 1.0]
+    ],
+
+    // f64x2.pmax tests (pseudo-maximum, a < b ? b : a)
+    [
+        "f64x2.pmax",
+        [1.0, -0.0],
+        [2.0, 0.0],
+        [2.0, -0.0]
+    ],
+    [
+        "f64x2.pmax",
+        [Number.NaN, 1.0],
+        [1.0, Number.NaN],
+        [Number.NaN, 1.0]
     ]
 ];
 

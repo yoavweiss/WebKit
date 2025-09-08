@@ -5939,8 +5939,39 @@ ipintOp(_simd_f32x4_max, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_f32x4_pmin)
-unimplementedInstruction(_simd_f32x4_pmax)
+ipintOp(_simd_f32x4_pmin, macro()
+    # f32x4.pmin - pseudo-minimum of 4 32-bit floats (b < a ? b : a)
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Use fcmgt to compare v0 > v1, then use bsl to select
+        emit "fcmgt v18.4s, v16.4s, v17.4s"
+        emit "bsl v18.16b, v17.16b, v16.16b"
+        emit "mov v16.16b, v18.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f32x4_pmax, macro()
+    # f32x4.pmax - pseudo-maximum of 4 32-bit floats (a < b ? b : a)
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Use fcmgt to compare v1 > v0, then use bsl to select
+        emit "fcmgt v18.4s, v17.4s, v16.4s"
+        emit "bsl v18.16b, v17.16b, v16.16b"
+        emit "mov v16.16b, v18.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0xEC 0x01 - 0xFD 0xF7 0x01: f64x2 operations
 
@@ -6069,8 +6100,40 @@ ipintOp(_simd_f64x2_max, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_f64x2_pmin)
-unimplementedInstruction(_simd_f64x2_pmax)
+ipintOp(_simd_f64x2_pmin, macro()
+    # f64x2.pmin - pseudo-minimum of 2 64-bit floats (b < a ? b : a)
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Use fcmgt to compare v0 > v1, then use bsl to select
+        emit "fcmgt v18.2d, v16.2d, v17.2d"
+        emit "bsl v18.16b, v17.16b, v16.16b"
+        emit "mov v16.16b, v18.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f64x2_pmax, macro()
+    # f64x2.pmax - pseudo-maximum of 2 64-bit floats (a < b ? b : a)
+    popVec(v1)
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Use fcmgt to compare v1 > v0, then use bsl to select
+        emit "fcmgt v18.2d, v17.2d, v16.2d"
+        emit "bsl v18.16b, v17.16b, v16.16b"
+        emit "mov v16.16b, v18.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 # 0xFD 0xF8 0x01 - 0xFD 0xFF 0x01: trunc/convert
 
 unimplementedInstruction(_simd_i32x4_trunc_sat_f32x4_s)
