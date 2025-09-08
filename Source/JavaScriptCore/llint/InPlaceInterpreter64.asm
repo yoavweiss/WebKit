@@ -24,31 +24,27 @@
 # Callee save
 
 macro saveIPIntRegisters()
-    # NOTE: We intentionally don't restore memoryBase and boundsCheckingSize here. These are saved
+    # NOTE: We intentionally don't restore pinned wasm registers here. These are saved
     # and restored when entering Wasm by the JSToWasm wrapper and changes to them are meant
     # to be observable within the same Wasm module.
     subp IPIntCalleeSaveSpaceStackAligned, sp
     if ARM64 or ARM64E
-        storepairq MC, PC, -0x10[cfr]
-        storeq wasmInstance, -0x18[cfr]
+        storepairq MC, PC, -2 * SlotSize[cfr]
     elsif X86_64 or RISCV64
-        storep PC, -0x8[cfr]
-        storep MC, -0x10[cfr]
-        storep wasmInstance, -0x18[cfr]
+        storep PC, -1 * SlotSize[cfr]
+        storep MC, -2 * SlotSize[cfr]
     end
 end
 
 macro restoreIPIntRegisters()
-    # NOTE: We intentionally don't restore memoryBase and boundsCheckingSize here. These are saved
+    # NOTE: We intentionally don't restore pinned wasm registers here. These are saved
     # and restored when entering Wasm by the JSToWasm wrapper and changes to them are meant
     # to be observable within the same Wasm module.
     if ARM64 or ARM64E
-        loadpairq -0x10[cfr], MC, PC
-        loadq -0x18[cfr], wasmInstance
+        loadpairq -2 * SlotSize[cfr], MC, PC
     elsif X86_64 or RISCV64
-        loadp -0x8[cfr], PC
-        loadp -0x10[cfr], MC
-        loadp -0x18[cfr], wasmInstance
+        loadp -1 * SlotSize[cfr], PC
+        loadp -2 * SlotSize[cfr], MC
     end
     addp IPIntCalleeSaveSpaceStackAligned, sp
 end
@@ -3452,7 +3448,7 @@ ipintOp(_array_set, macro()
     move sp, a2  # stack pointer with all the arguments
     operationCallMayThrow(macro() cCall3(_ipint_extern_array_set) end)
 
-    addq StackValueSize*3, sp
+    addq StackValueSize * 3, sp
 
     loadb IPInt::ArrayGetSetMetadata::length[MC], t0
     advancePCByReg(t0)
@@ -3476,7 +3472,7 @@ ipintOp(_array_fill, macro()
     move sp, a1
     operationCallMayThrow(macro() cCall2(_ipint_extern_array_fill) end)
 
-    addp 4*StackValueSize, sp
+    addp StackValueSize * 4, sp
 
     loadb IPInt::ArrayFillMetadata::length[MC], t0
     advancePCByReg(t0)
@@ -3488,7 +3484,7 @@ ipintOp(_array_copy, macro()
     move sp, a1
     operationCallMayThrow(macro() cCall2(_ipint_extern_array_copy) end)
 
-    addp 5*StackValueSize, sp
+    addp StackValueSize * 5, sp
 
     loadb IPInt::ArrayFillMetadata::length[MC], t0
     advancePCByReg(t0)
@@ -3501,7 +3497,7 @@ ipintOp(_array_init_data, macro()
     move sp, a2
     operationCallMayThrow(macro() cCall3(_ipint_extern_array_init_data) end)
 
-    addp 4*StackValueSize, sp
+    addp StackValueSize * 4, sp
 
     loadb IPInt::ArrayInitDataMetadata::length[MC], t0
     advancePCByReg(t0)
@@ -3514,7 +3510,7 @@ ipintOp(_array_init_elem, macro()
     move sp, a2
     operationCallMayThrow(macro() cCall3(_ipint_extern_array_init_elem) end)
 
-    addp 4*StackValueSize, sp
+    addp StackValueSize * 4, sp
 
     loadb IPInt::ArrayInitElemMetadata::length[MC], t0
     advancePCByReg(t0)
@@ -4024,7 +4020,7 @@ ipintOp(_table_grow, macro()
     move sp, a1
     move MC, a2 # IPInt::tableGrowMetadata
     operationCall(macro() cCall3(_ipint_extern_table_grow) end)
-    addp 2*StackValueSize, sp
+    addp StackValueSize * 2, sp
     pushQuad(r0)
     loadb IPInt::TableGrowMetadata::instructionLength[MC], t0
     advancePCByReg(t0)
@@ -7401,9 +7397,9 @@ _wasm_ipint_call_return_location_wide32:
     leap [sp, mintRetSrc], mintRetSrc
 
 if ARM64 or ARM64E
-    loadp 2*SlotSize[sc3], mintRetDst
+    loadp (2 * SlotSize)[sc3], mintRetDst
 elsif X86_64
-    loadp 3*SlotSize[sc3], mintRetDst
+    loadp (3 * SlotSize)[sc3], mintRetDst
 end
 
     # on x86, we'll use PC again for our PC base
@@ -7566,7 +7562,7 @@ end
 if X86_64
     move sc2, wasmInstance
     loadq 8[sc3], PL
-    loadp 2*SlotSize[sc3], PC
+    loadp (2 * SlotSize)[sc3], PC
 end
 
     # Restore memory

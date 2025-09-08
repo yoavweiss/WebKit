@@ -517,7 +517,7 @@ private:
     mutable RefPtr<JSToWasmICCallee> m_jsToWasmICCallee;
     // FIXME: We should have a WTF::Once that uses ParkingLot and the low bits of a pointer as a lock and use that here.
     mutable Lock m_jitCodeLock;
-    // FIXME: Support caching wasmToJSEntrypoints too.
+    // FIXME: Support caching wasmToJS too.
 #endif
     bool m_hasRecursiveReference : 1 { false };
     bool m_argumentsOrResultsIncludeI64 : 1 { false };

@@ -52,7 +52,7 @@ namespace JSC::Wasm {
 
 WTF_MAKE_COMPACT_TZONE_ALLOCATED_IMPL(Callee);
 WTF_MAKE_COMPACT_TZONE_ALLOCATED_IMPL(JITCallee);
-WTF_MAKE_COMPACT_TZONE_ALLOCATED_IMPL(JSEntrypointCallee);
+WTF_MAKE_COMPACT_TZONE_ALLOCATED_IMPL(JSToWasmCallee);
 WTF_MAKE_COMPACT_TZONE_ALLOCATED_IMPL(WasmToJSCallee);
 WTF_MAKE_COMPACT_TZONE_ALLOCATED_IMPL(JSToWasmICCallee);
 WTF_MAKE_COMPACT_TZONE_ALLOCATED_IMPL(OptimizingJITCallee);
@@ -93,8 +93,8 @@ inline void Callee::runWithDowncast(const Func& func)
     case CompilationMode::IPIntMode:
         func(static_cast<IPIntCallee*>(this));
         break;
-    case CompilationMode::JSToWasmEntrypointMode:
-        func(static_cast<JSEntrypointCallee*>(this));
+    case CompilationMode::JSToWasmMode:
+        func(static_cast<JSToWasmCallee*>(this));
         break;
 #if ENABLE(WEBASSEMBLY_BBQJIT)
     case CompilationMode::BBQMode:
@@ -159,9 +159,9 @@ std::tuple<void*, void*> Callee::range() const
     return result;
 }
 
-RegisterAtOffsetList* Callee::calleeSaveRegisters()
+const RegisterAtOffsetList* Callee::calleeSaveRegisters()
 {
-    RegisterAtOffsetList* result = nullptr;
+    const RegisterAtOffsetList* result = nullptr;
     runWithDowncast([&](auto* derived) {
         result = derived->calleeSaveRegistersImpl();
     });
@@ -280,29 +280,10 @@ void IPIntCallee::setEntrypoint(CodePtr<WasmEntryPtrTag> entrypoint)
     NativeCalleeRegistry::singleton().registerCallee(this);
 }
 
-RegisterAtOffsetList* IPIntCallee::calleeSaveRegistersImpl()
+const RegisterAtOffsetList* IPIntCallee::calleeSaveRegistersImpl()
 {
-    static LazyNeverDestroyed<RegisterAtOffsetList> calleeSaveRegisters;
-    static std::once_flag initializeFlag;
-    std::call_once(initializeFlag, [] {
-        RegisterSet registers;
-        registers.add(GPRInfo::regCS0, IgnoreVectors); // JSWebAssemblyInstance
-#if CPU(X86_64)
-        registers.add(GPRInfo::regCS1, IgnoreVectors); // MC (pointer to metadata)
-        registers.add(GPRInfo::regCS2, IgnoreVectors); // PB
-#elif CPU(ARM64) || CPU(RISCV64)
-        registers.add(GPRInfo::regCS6, IgnoreVectors); // MC
-        registers.add(GPRInfo::regCS7, IgnoreVectors); // PB
-#elif CPU(ARM)
-        registers.add(GPRInfo::regCS0, IgnoreVectors); // MC
-        registers.add(GPRInfo::regCS1, IgnoreVectors); // PB
-#else
-#error Unsupported architecture.
-#endif
-        ASSERT(registers.numberOfSetRegisters() == numberOfIPIntCalleeSaveRegisters);
-        calleeSaveRegisters.construct(WTFMove(registers));
-    });
-    return &calleeSaveRegisters.get();
+    ASSERT(RegisterAtOffsetList::ipintCalleeSaveRegisters().registerCount() == numberOfIPIntCalleeSaveRegisters);
+    return &RegisterAtOffsetList::ipintCalleeSaveRegisters();
 }
 
 #if ENABLE(WEBASSEMBLY_OMGJIT)
@@ -418,8 +399,8 @@ Box<PCToCodeOriginMap> OptimizingJITCallee::materializePCToOriginMap(B3::PCToOri
 
 #endif
 
-JSEntrypointCallee::JSEntrypointCallee(TypeIndex typeIndex, bool)
-    : Callee(Wasm::CompilationMode::JSToWasmEntrypointMode)
+JSToWasmCallee::JSToWasmCallee(TypeIndex typeIndex, bool)
+    : Callee(Wasm::CompilationMode::JSToWasmMode)
     , m_typeIndex(typeIndex)
 {
     const TypeDefinition& signature = TypeInformation::get(typeIndex).expand();
@@ -428,12 +409,12 @@ JSEntrypointCallee::JSEntrypointCallee(TypeIndex typeIndex, bool)
     RegisterAtOffsetList savedResultRegisters = wasmFrameConvention.computeResultsOffsetList();
     size_t totalFrameSize = wasmFrameConvention.headerAndArgumentStackSizeInBytes;
     totalFrameSize += savedResultRegisters.sizeOfAreaInBytes();
-    totalFrameSize += JSEntrypointCallee::RegisterStackSpaceAligned;
+    totalFrameSize += JSToWasmCallee::RegisterStackSpaceAligned;
     totalFrameSize = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(totalFrameSize);
     m_frameSize = totalFrameSize;
 }
 
-CodePtr<WasmEntryPtrTag> JSEntrypointCallee::entrypointImpl() const
+CodePtr<WasmEntryPtrTag> JSToWasmCallee::entrypointImpl() const
 {
 #if ENABLE(JIT)
     if (Options::useJIT())
@@ -442,26 +423,19 @@ CodePtr<WasmEntryPtrTag> JSEntrypointCallee::entrypointImpl() const
     return LLInt::getCodeFunctionPtr<CFunctionPtrTag>(js_to_wasm_wrapper_entry);
 }
 
-RegisterAtOffsetList* JSEntrypointCallee::calleeSaveRegistersImpl()
+const RegisterAtOffsetList* JSToWasmCallee::calleeSaveRegistersImpl()
 {
     // This must be the same to JSToWasm's callee save registers.
     // The reason is that we may use m_replacementCallee which can be set at any time.
     // So, we must store the same callee save registers at the same location to the JIT version.
-    static LazyNeverDestroyed<RegisterAtOffsetList> calleeSaveRegisters;
-    static std::once_flag initializeFlag;
-    std::call_once(initializeFlag, [] {
-        RegisterSet registers = RegisterSetBuilder::wasmPinnedRegisters();
-#if CPU(X86_64)
-#elif CPU(ARM64) || CPU(RISCV64)
-        ASSERT(registers.numberOfSetRegisters() == 3);
+#if CPU(X86_64) || CPU(ARM64) || CPU(RISCV64)
+    ASSERT(RegisterAtOffsetList::wasmPinnedRegisters().registerCount() == 3);
 #elif CPU(ARM)
 #else
 #error Unsupported architecture.
 #endif
-        calleeSaveRegisters.construct(WTFMove(registers));
-    });
-    ASSERT(WTF::roundUpToMultipleOf<stackAlignmentBytes()>(calleeSaveRegisters->sizeOfAreaInBytes()) == SpillStackSpaceAligned);
-    return &calleeSaveRegisters.get();
+    ASSERT(WTF::roundUpToMultipleOf<stackAlignmentBytes()>(RegisterAtOffsetList::wasmPinnedRegisters().sizeOfAreaInBytes()) == SpillStackSpaceAligned);
+    return &RegisterAtOffsetList::wasmPinnedRegisters();
 }
 
 #if ENABLE(WEBASSEMBLY_BBQJIT)

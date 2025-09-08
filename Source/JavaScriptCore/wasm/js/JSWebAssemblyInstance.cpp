@@ -535,7 +535,7 @@ void JSWebAssemblyInstance::initElementSegment(uint32_t tableIndex, const Elemen
                 continue;
             }
 
-            auto& jsEntrypointCallee = calleeGroup()->jsEntrypointCalleeFromFunctionIndexSpace(functionIndex);
+            auto& jsToWasmCallee = calleeGroup()->jsToWasmCalleeFromFunctionIndexSpace(functionIndex);
             auto wasmCallee = calleeGroup()->wasmCalleeFromFunctionIndexSpace(functionIndex);
             ASSERT(wasmCallee);
             WasmToWasmImportableFunction::LoadLocation entrypointLoadLocation = calleeGroup()->entrypointLoadLocationFromFunctionIndexSpace(functionIndex);
@@ -551,7 +551,7 @@ void JSWebAssemblyInstance::initElementSegment(uint32_t tableIndex, const Elemen
                 signature.argumentCount(),
                 WTF::makeString(functionIndex.rawIndex()),
                 this,
-                jsEntrypointCallee,
+                jsToWasmCallee,
                 *wasmCallee,
                 entrypointLoadLocation,
                 typeIndex,

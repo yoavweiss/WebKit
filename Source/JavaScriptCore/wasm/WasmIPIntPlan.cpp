@@ -173,7 +173,7 @@ bool IPIntPlan::ensureEntrypoint(IPIntCallee&, FunctionCodeIndex functionIndex)
     if (m_entrypoints[functionIndex])
         return true;
 
-    m_entrypoints[functionIndex] = JSEntrypointCallee::create(m_moduleInformation->internalFunctionTypeIndices[functionIndex], m_moduleInformation->usesSIMD(functionIndex));
+    m_entrypoints[functionIndex] = JSToWasmCallee::create(m_moduleInformation->internalFunctionTypeIndices[functionIndex], m_moduleInformation->usesSIMD(functionIndex));
     return true;
 }
 
@@ -202,9 +202,8 @@ void IPIntPlan::didCompleteCompilation()
             }
         }
         if (auto& callee = m_entrypoints[functionIndex]) {
-            if (callee->compilationMode() == CompilationMode::JSToWasmEntrypointMode)
-                static_cast<JSEntrypointCallee*>(callee.get())->setWasmCallee(CalleeBits::encodeNativeCallee(&m_callees[functionIndex].get()));
-            m_jsEntrypointCallees.add(functionIndex, callee);
+            callee->setWasmCallee(CalleeBits::encodeNativeCallee(&m_callees[functionIndex].get()));
+            m_jsToWasmCallees.add(functionIndex, callee);
         }
     }
 
