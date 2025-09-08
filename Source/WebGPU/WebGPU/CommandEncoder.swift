@@ -923,28 +923,9 @@ extension WebGPU.CommandEncoder {
                         return WebGPU.RenderPassEncoder.createInvalid(self, m_device.ptr(), "color attachment is not renderable")
                     }
 
-            mtlAttachment.depthPlane = Int(textureDimension == WGPUTextureViewDimension_3D ? depthSliceOrArrayLayer : 0)
-            mtlAttachment.slice = 0
-            mtlAttachment.loadAction = loadAction(loadOp: attachment.loadOp)
-            mtlAttachment.storeAction = storeAction(storeOp: attachment.storeOp, hasResolveTarget: attachment.resolveTarget != nil)
-
-            zeroColorTargets = false
-            var textureToClear: MTLTexture? = nil
-            if mtlAttachment.loadAction == MTLLoadAction.load && !texture.previouslyCleared() {
-                textureToClear = mtlAttachment.texture
-            }
-
-            if let rateMap = texture.rasterizationMapForSlice(texture.parentRelativeSlice()) {
-                mtlDescriptor.rasterizationRateMap = rateMap
-            }
-
-            var compositorTexture = texture
-            if attachment.resolveTarget != nil {
-                let resolveTarget = WebGPU.fromAPI(attachment.resolveTarget)
-                compositorTexture = resolveTarget
-
-                if !WebGPU_Internal.isValidToUseWithTextureViewCommandEncoder(resolveTarget, self) {
-                    return WebGPU.RenderPassEncoder.createInvalid(self, m_device.ptr(), "resolve target created from different device")
+                    if !isRenderableTextureView(texture: texture) {
+                        return WebGPU.RenderPassEncoder.createInvalid(self, m_device.ptr(), "texture view is not renderable")
+                    }
                 }
                 texture.setCommandEncoder(self)
 
@@ -996,19 +977,9 @@ extension WebGPU.CommandEncoder {
                 if mtlAttachment.loadAction == MTLLoadAction.load && !texture.previouslyCleared() {
                     textureToClear = mtlAttachment.texture
                 }
-            }
 
-            if let rateMap = compositorTexture.rasterizationMapForSlice(compositorTexture.parentRelativeSlice()) {
-                mtlDescriptor.rasterizationRateMap = rateMap
-                compositorTextureSlice = compositorTexture.parentRelativeSlice()
-            }
-
-            if textureToClear != nil {
-                let textureWithResolve = TextureAndClearColor(texture: textureToClear!)
-                attachmentsToClear[i as NSNumber] = textureWithResolve
-                if textureToClear != nil {
-                    // FIXME: rdar://138042799 remove default argument.
-                    texture.setPreviouslyCleared(0, 0)
+                if let rateMap = texture.rasterizationMapForSlice(texture.parentRelativeSlice()) {
+                    mtlDescriptor.rasterizationRateMap = rateMap
                 }
 
                 var compositorTexture = texture
@@ -1206,8 +1177,8 @@ extension WebGPU.CommandEncoder {
         }
         setExistingEncoder(mtlRenderCommandEncoder)
         return WebGPU.RenderPassEncoder.create(mtlRenderCommandEncoder, descriptor, visibilityResultBufferSize, depthReadOnly, stencilReadOnly, self, visibilityResultBuffer, maxDrawCount, m_device.ptr(), mtlDescriptor)
-
     }
+
     static func hasValidDimensions(dimension: WGPUTextureDimension, width: UInt, height: UInt, depth: UInt) -> Bool {
         switch (dimension.rawValue) {
             case WGPUTextureDimension_1D.rawValue:
