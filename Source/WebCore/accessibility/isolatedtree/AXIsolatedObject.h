@@ -61,6 +61,8 @@ public:
     std::optional<AXID> treeID() const final { return tree()->treeID(); }
     String debugDescriptionInternal(bool, std::optional<OptionSet<AXDebugStringOption>> = std::nullopt) const final;
 
+    void updateFromData(IsolatedObjectData&&);
+
     void attachPlatformWrapper(AccessibilityObjectWrapper*);
     bool isDetached() const final;
     bool isTable() const final { return boolAttributeValue(AXProperty::IsTable); }

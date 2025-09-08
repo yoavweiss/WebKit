@@ -765,6 +765,7 @@ accessibility/clip-path-bounding-box.html [ Skip ]
 accessibility/dynamic-expanded-text.html [ Skip ]
 
 accessibility/dynamic-content-visibility.html [ Skip ]
+accessibility/dynamic-selected-radio-button.html [ Skip ]
 accessibility/password-notifications-timing.html [ Skip ]
 
 # Timed out since it was introduced.
