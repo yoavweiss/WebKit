@@ -4,13 +4,27 @@ import { instantiate } from "../wabt-wrapper.js"
 import * as assert from "../assert.js"
 
 /**
+ * Convert a floating point value to WebAssembly text format
+ * @param {number} val - JavaScript number value
+ * @returns {string} - WebAssembly text format representation
+ */
+function floatToWasmText(val) {
+    if (val === Number.POSITIVE_INFINITY) return 'inf';
+    if (val === Number.NEGATIVE_INFINITY) return '-inf';
+    if (Number.isNaN(val)) return 'nan';
+    // Handle signed zero: -0.0 should be represented as "-0.0" in WebAssembly text
+    if (val === 0 && 1/val === -Infinity) return '-0.0';
+    return val.toString();
+}
+
+/**
  * Convert array to v128.const string based on instruction type
  * @param {Array} array - Input array
  * @param {string} instruction - SIMD instruction name
  * @returns {string} - v128.const string
  */
 function arrayToV128Const(array, instruction) {
-    if (instruction.startsWith('i8x16.')) {
+    if (instruction.startsWith('i8x16.') || instruction.startsWith('v128.')) {
         const hexValues = array.map(val => `0x${val.toString(16).padStart(2, '0').toUpperCase()}`);
         return `(v128.const i8x16 ${hexValues.join(' ')})`;
     } else if (instruction.startsWith('i16x8.')) {
@@ -26,9 +40,11 @@ function arrayToV128Const(array, instruction) {
         });
         return `(v128.const i64x2 ${hexValues.join(' ')})`;
     } else if (instruction.startsWith('f32x4.')) {
-        return `(v128.const f32x4 ${array.join(' ')})`;
+        const wasmValues = array.map(floatToWasmText);
+        return `(v128.const f32x4 ${wasmValues.join(' ')})`;
     } else if (instruction.startsWith('f64x2.')) {
-        return `(v128.const f64x2 ${array.join(' ')})`;
+        const wasmValues = array.map(floatToWasmText);
+        return `(v128.const f64x2 ${wasmValues.join(' ')})`;
     }
     // Default fallback - assume it's already a string
     return array;
@@ -51,11 +67,12 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
         const [instruction, input0, input1, expected] = test;
         const input0Str = Array.isArray(input0) ? arrayToV128Const(input0, instruction) : input0;
         const input1Str = Array.isArray(input1) ? arrayToV128Const(input1, instruction) : input1;
-
+        const isUnaryOp = instruction.includes('.abs') || instruction.includes('.neg') || instruction.includes('.sqrt') || instruction.includes('.not');
+        
         wat += `
     (func (export "test_${index}") (param $addr i32)
         (v128.store (local.get $addr)
-            (${instruction} ${input0Str} ${input1Str}))
+            (${instruction} ${input0Str}${isUnaryOp ? '' : ' ' + input1Str}))
     )
 `;
     });
@@ -64,6 +81,11 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
 )
 `;
 
+    if (verbose) {
+        print("Generated WebAssembly text:");
+        print(wat);
+    }
+
     const instance = await instantiate(wat, {}, { simd: true });
     const memory = instance.exports.memory;
     const buffer = memory.buffer;
@@ -71,6 +93,8 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
     const u16 = new Uint16Array(buffer);
     const u32 = new Uint32Array(buffer);
     const u64 = new BigUint64Array(buffer);
+    const f32 = new Float32Array(buffer);
+    const f64 = new Float64Array(buffer);
 
     function clearMemory() {
         u8.fill(0);
@@ -88,20 +112,34 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
             // Call the test function
             const testFunc = instance.exports[`test_${testIndex}`];
             testFunc(0);
-            
+
             // Verify the result using appropriate data type
-            if (instruction.startsWith('i8x16.')) {
+            if (instruction.startsWith('i8x16.') || instruction.startsWith('v128.')) {
                 for (let j = 0; j < 16; j++)
                     assert.eq(u8[j], expected[j]);
             } else if (instruction.startsWith('i16x8.')) {
                 for (let j = 0; j < 8; j++)
                     assert.eq(u16[j], expected[j]);
-            } else if (instruction.startsWith('i32x4.') || instruction.startsWith('f32x4.')) {
+            } else if (instruction.startsWith('i32x4.') ||
+                        (instruction === 'f32x4.eq' || instruction === 'f32x4.ne' ||
+                         instruction === 'f32x4.lt' || instruction === 'f32x4.gt' ||
+                         instruction === 'f32x4.le' || instruction === 'f32x4.ge')) {
                 for (let j = 0; j < 4; j++)
                     assert.eq(u32[j], expected[j]);
-            } else if (instruction.startsWith('i64x2.') || instruction.startsWith('f64x2.')) {
+            } else if (instruction.startsWith('f32x4.')) {
+                for (let j = 0; j < 4; j++)
+                    assert.eq(f32[j], expected[j]);
+            } else if (instruction.startsWith('i64x2.') ||
+                        (instruction === 'f64x2.eq' || instruction === 'f64x2.ne' ||
+                         instruction === 'f64x2.lt' || instruction === 'f64x2.gt' ||
+                         instruction === 'f64x2.le' || instruction === 'f64x2.ge')) {
                 for (let j = 0; j < 2; j++)
                     assert.eq(u64[j], expected[j]);
+            } else if (instruction.startsWith('f64x2.')) {
+                for (let j = 0; j < 2; j++)
+                    assert.eq(f64[j], expected[j]);
+            } else {
+                assert.fail(`Unhandled instruction format: ${instruction}`);
             }
             
             if (verbose)
