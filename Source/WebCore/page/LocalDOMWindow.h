@@ -27,7 +27,7 @@
 #pragma once
 
 #include <JavaScriptCore/HandleForward.h>
-#include <WebCore/ContextDestructionObserverInlines.h>
+#include <WebCore/ContextDestructionObserver.h>
 #include <WebCore/DOMHighResTimeStamp.h>
 #include <WebCore/DOMWindow.h>
 #include <WebCore/EventTargetInterfaces.h>
@@ -40,6 +40,7 @@
 #include <wtf/HashSet.h>
 #include <wtf/MonotonicTime.h>
 #include <wtf/Platform.h>
+#include <wtf/WeakHashSet.h>
 #include <wtf/WeakPtr.h>
 
 namespace WebCore {
@@ -62,6 +63,7 @@ namespace WebCore {
 
 class CloseWatcherManager;
 class LocalFrame;
+class SecurityOriginData;
 struct ScrollToOptions;
 struct WindowPostMessageOptions;
 
@@ -390,7 +392,7 @@ public:
 private:
     explicit LocalDOMWindow(Document&);
 
-    ScriptExecutionContext* scriptExecutionContext() const final { return ContextDestructionObserver::scriptExecutionContext(); }
+    ScriptExecutionContext* scriptExecutionContext() const final;
 
     void closePage() final;
     void eventListenersDidChange() final;

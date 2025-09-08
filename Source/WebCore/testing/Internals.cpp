@@ -60,6 +60,7 @@
 #include "ColorSerialization.h"
 #include "ComposedTreeIterator.h"
 #include "ContainerNodeInlines.h"
+#include "ContextDestructionObserverInlines.h"
 #include "CookieJar.h"
 #include "CrossOriginPreflightResultCache.h"
 #include "Cursor.h"

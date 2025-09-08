@@ -58,6 +58,7 @@
 #include "CryptoClient.h"
 #include "DOMRect.h"
 #include "DOMRectList.h"
+#include "DOMTimer.h"
 #include "DatabaseProvider.h"
 #include "DebugOverlayRegions.h"
 #include "DebugPageOverlays.h"

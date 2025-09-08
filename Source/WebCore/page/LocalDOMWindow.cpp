@@ -40,6 +40,7 @@
 #include "ContentExtensionActions.h"
 #include "ContentExtensionRule.h"
 #include "ContentRuleListResults.h"
+#include "ContextDestructionObserverInlines.h"
 #include "CookieStore.h"
 #include "CrossOriginMode.h"
 #include "CrossOriginOpenerPolicy.h"
@@ -434,6 +435,11 @@ LocalDOMWindow::LocalDOMWindow(Document& document)
 {
     ASSERT(frame());
     addLanguageChangeObserver(this, &languagesChangedCallback);
+}
+
+ScriptExecutionContext* LocalDOMWindow::scriptExecutionContext() const
+{
+    return ContextDestructionObserver::scriptExecutionContext();
 }
 
 void LocalDOMWindow::didSecureTransitionTo(Document& document)

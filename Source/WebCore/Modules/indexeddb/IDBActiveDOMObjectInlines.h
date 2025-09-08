@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,37 +25,45 @@
 
 #pragma once
 
-#include <WebCore/ActiveDOMObject.h>
-#include <wtf/Threading.h>
+#include <WebCore/ContextDestructionObserverInlines.h>
+#include <WebCore/IDBActiveDOMObject.h>
+#include <WebCore/ScriptExecutionContextInlines.h>
 
 namespace WebCore {
 
-class IDBActiveDOMObject : public ActiveDOMObject {
-public:
-    Thread& originThread() const { return m_originThread.get(); }
+template<typename T, typename... Parameters, typename... Arguments>
+void IDBActiveDOMObject::performCallbackOnOriginThread(T& object, void (T::*method)(Parameters...), Arguments&&... arguments)
+{
+    ASSERT(&originThread() == &object.originThread());
 
-    void contextDestroyed() final {
-        ASSERT(canCurrentThreadAccessThreadLocalData(originThread()));
-
-        Locker<Lock> lock(m_scriptExecutionContextLock);
-        ActiveDOMObject::contextDestroyed();
+    if (canCurrentThreadAccessThreadLocalData(object.originThread())) {
+        (object.*method)(std::forward<Arguments>(arguments)...);
+        return;
     }
 
-    template<typename T, typename... Parameters, typename... Arguments>
-    inline void performCallbackOnOriginThread(T&, void (T::*)(Parameters...), Arguments&&...);
+    Locker<Lock> lock(m_scriptExecutionContextLock);
 
-    inline void callFunctionOnOriginThread(Function<void()>&&);
+    ScriptExecutionContext* context = scriptExecutionContext();
+    if (!context)
+        return;
 
-protected:
-    IDBActiveDOMObject(ScriptExecutionContext* context)
-        : ActiveDOMObject(context)
-    {
-        ASSERT(context);
+    context->postCrossThreadTask(object, method, arguments...);
+}
+
+inline void IDBActiveDOMObject::callFunctionOnOriginThread(Function<void()>&& function)
+{
+    if (canCurrentThreadAccessThreadLocalData(originThread())) {
+        function();
+        return;
     }
 
-private:
-    const Ref<Thread> m_originThread { Thread::currentSingleton() };
-    Lock m_scriptExecutionContextLock;
-};
+    Locker<Lock> lock(m_scriptExecutionContextLock);
 
-} // namespace WebCore
+    ScriptExecutionContext* context = scriptExecutionContext();
+    if (!context)
+        return;
+
+    context->postTask(WTFMove(function));
+}
+
+}

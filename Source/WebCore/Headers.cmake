@@ -495,6 +495,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     Modules/identity/protocols/openid/OpenID4VPRequest.h
 
     Modules/indexeddb/IDBActiveDOMObject.h
+    Modules/indexeddb/IDBActiveDOMObjectInlines.h
     Modules/indexeddb/IDBCursor.h
     Modules/indexeddb/IDBDatabase.h
     Modules/indexeddb/IDBDatabaseIdentifier.h

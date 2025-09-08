@@ -1,5 +1,5 @@
 Modules/applicationmanifest/ApplicationManifestParser.cpp
-Modules/indexeddb/IDBActiveDOMObject.h
+Modules/indexeddb/IDBActiveDOMObjectInlines.h
 Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBIndex.cpp
 Modules/indexeddb/IDBObjectStore.cpp

@@ -274,7 +274,7 @@ bool LibWebRTCMediaEndpoint::addTrack(LibWebRTCRtpSenderBackend& sender, MediaSt
     case RealtimeMediaSource::Type::Video: {
         auto videoSource = RealtimeOutgoingVideoSource::create(track.privateTrack());
 
-        RefPtr context = protectedPeerConnectionBackend()->connection().scriptExecutionContext();
+        RefPtr context = protectedPeerConnectionBackend()->protectedConnection()->scriptExecutionContext();
         if (context && context->settingsValues().peerConnectionVideoScalingAdaptationDisabled)
             videoSource->disableVideoScaling();
 
@@ -451,7 +451,7 @@ std::pair<LibWebRTCRtpSenderBackend::Source, Ref<webrtc::MediaStreamTrackInterfa
     case RealtimeMediaSource::Type::Video: {
         Ref videoSource = RealtimeOutgoingVideoSource::create(track.privateTrack());
 
-        RefPtr context = protectedPeerConnectionBackend()->connection().scriptExecutionContext();
+        RefPtr context = protectedPeerConnectionBackend()->protectedConnection()->scriptExecutionContext();
         if (context && context->settingsValues().peerConnectionVideoScalingAdaptationDisabled)
             videoSource->disableVideoScaling();
 
@@ -805,7 +805,7 @@ static Vector<LibWebRTCMediaEndpointTransceiverState> transceiverStatesFromPeerC
 
 Vector<Ref<MediaStream>> LibWebRTCMediaEndpoint::mediaStreamsFromRTCStreamIds(const Vector<String>& receiverStreamIds)
 {
-    Ref document = downcast<Document>(*protectedPeerConnectionBackend()->connection().scriptExecutionContext());
+    Ref document = downcast<Document>(*protectedPeerConnectionBackend()->protectedConnection()->scriptExecutionContext());
     return WTF::map(receiverStreamIds, [this, &document](auto& id) -> Ref<MediaStream> {
         auto addResult = m_remoteStreamsById.ensure(id, [id, &document]() {
             return MediaStream::create(document, MediaStreamPrivate::create(document->logger(), { }, String(id)), MediaStream::AllowEventTracks::Yes);

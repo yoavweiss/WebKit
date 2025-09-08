@@ -26,6 +26,7 @@
 #include "config.h"
 #include "PerformanceObserver.h"
 
+#include "ContextDestructionObserverInlines.h"
 #include "Document.h"
 #include "InspectorInstrumentation.h"
 #include "LocalDOMWindow.h"
