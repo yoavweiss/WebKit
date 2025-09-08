@@ -2759,6 +2759,21 @@ ExposeDefaultSpeakerAsSpecificDeviceEnabled:
     WebCore:
       default: true
 
+ExposeRollAngleAsTwistEnabled:
+  type: bool
+  status: unstable
+  category: dom
+  humanReadableName: "Expose Apple Pencil rotation for twist PointerEvent Property"
+  humanReadableDescription: "Expose Apple Pencil rotation for the `twist` PointerEvent Property"
+  condition: PLATFORM(IOS_FAMILY)
+  defaultValue:
+    WebKitLegacy:
+     default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 ExposeSpeakersEnabled:
   type: bool
   status: internal

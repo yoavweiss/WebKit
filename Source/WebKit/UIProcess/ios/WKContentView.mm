@@ -1124,6 +1124,11 @@ static void storeAccessibilityRemoteConnectionInformation(id element, pid_t pid,
     _page->setScreenIsBeingCaptured([self screenIsBeingCaptured]);
 }
 
+- (BOOL)_shouldExposeRollAngleAsTwist
+{
+    return _page->preferences().exposeRollAngleAsTwistEnabled();
+}
+
 @end
 
 #pragma mark Printing

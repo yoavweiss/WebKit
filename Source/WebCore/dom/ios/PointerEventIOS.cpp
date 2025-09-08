@@ -32,6 +32,8 @@
 #import "EventTargetInlines.h"
 #import "MouseEventTypes.h"
 
+#import <wtf/MathExtras.h>
+
 namespace WebCore {
 
 static const AtomString& pointerEventType(PlatformTouchPoint::TouchPhaseType phase)
@@ -84,6 +86,12 @@ PointerEvent::PointerEvent(const AtomString& type, const PlatformTouchEvent& eve
     , m_coalescedEvents(coalescedEvents)
     , m_predictedEvents(predictedEvents)
 {
+    // The rotation angle is currently in the range
+    // [-π, π). Convert it to range [0°, 359°]
+    // and flip the direction to clockwise.
+    const auto twistInDegrees = rad2deg(event.twistAtIndex(index));
+    m_twist = std::floor(180 - twistInDegrees);
+
     m_azimuthAngle = event.azimuthAngleAtIndex(index);
     m_altitudeAngle = m_pointerType == penPointerEventType() ? event.altitudeAngleAtIndex(index) : piOverTwoDouble;
     auto tilt = tiltFromAngle(m_altitudeAngle, m_azimuthAngle);

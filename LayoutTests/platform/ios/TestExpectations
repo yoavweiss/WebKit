@@ -389,6 +389,7 @@ platform/ios/ios/fast/forms/range-input-container-touches.html [ Skip ]
 platform/ios/ios/fast/forms/range-input-readonly-and-disabled.html [ Skip ]
 platform/ios/ios/fast/forms/range-input-touches.html [ Skip ]
 platform/ios/ios/touch [ Skip ]
+pointerevents/pointer-event-twist-on-tap-or-click.html [ Skip ]
 media/modern-media-controls/css/pointer-events-none.html [ Skip ]
 
 # Calls into the Opportunistic Task Scheduler which is currently disabled on IOS

@@ -290,6 +290,7 @@ public:
         static constexpr double radiusXDefaultValue = 1;
         static constexpr double radiusYDefaultValue = 1;
         static constexpr float rotationAngleDefaultValue = 0.0f;
+        static constexpr double twistDefaultValue = 0;
         static constexpr float forceDefaultValue = 1.0f;
 
         m_id = idDefaultValue; // There is only one active TouchPoint.
@@ -297,6 +298,7 @@ public:
         m_pos = event.position();
         m_radius = { radiusXDefaultValue, radiusYDefaultValue };
         m_rotationAngle = rotationAngleDefaultValue;
+        m_twist = twistDefaultValue;
         m_force = forceDefaultValue;
 
         PlatformEvent::Type type = event.type();

@@ -110,6 +110,7 @@ Vector<WebPlatformTouchPoint> NativeWebTouchEvent::extractWebTouchPoints(const W
         platformTouchPoint.setRadiusY(radius);
         // FIXME (259068): Add support for Touch.rotationAngle.
         platformTouchPoint.setRotationAngle(0);
+        platformTouchPoint.setTwist(touchPoint.twist);
         platformTouchPoint.setForce(touchPoint.force);
         platformTouchPoint.setAltitudeAngle(touchPoint.altitudeAngle);
         platformTouchPoint.setAzimuthAngle(touchPoint.azimuthAngle);
