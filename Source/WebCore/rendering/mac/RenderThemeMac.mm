@@ -1147,14 +1147,6 @@ void RenderThemeMac::inflateRectForControlRenderer(const RenderObject& renderer,
     }
 }
 
-void RenderThemeMac::adjustRepaintRect(const RenderBox& renderer, FloatRect& rect)
-{
-    auto repaintRect = rect;
-    inflateRectForControlRenderer(renderer, repaintRect);
-    renderer.flipForWritingMode(repaintRect);
-    rect = repaintRect;
-}
-
 bool RenderThemeMac::controlSupportsTints(const RenderObject& o) const
 {
 #if ENABLE(FORM_CONTROL_REFRESH)
