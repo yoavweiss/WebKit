@@ -243,6 +243,15 @@ static CGPoint mapRootViewToViewport(CGPoint pointInRootView, WKContentView *con
 // A roll angle of pi will be converted to the default twist angle value (0 degrees).
 static constexpr auto defaultRollAngle = std::numbers::pi;
 
+static CGFloat rollAngleOrDefault(UITouch *touch, bool shouldReadRollAngle)
+{
+#if HAVE(UITOUCH_ROLLANGLE)
+    if (shouldReadRollAngle)
+        return touch.rollAngle;
+#endif
+    return defaultRollAngle;
+}
+
 - (WebKit::WKTouchEvent)_touchEventForChildTouch:(UITouch *)touch withParent:(const WebKit::WKTouchPoint&)parentTouchPoint
 {
     auto locationInWindow = [touch locationInView:nil];
@@ -262,8 +271,7 @@ static constexpr auto defaultRollAngle = std::numbers::pi;
         touchPoint.touchType = WebKit::WKTouchPointType::Stylus;
         touchPoint.altitudeAngle = touch.altitudeAngle;
         touchPoint.azimuthAngle = [touch azimuthAngleInView:self.view.window];
-        if (contentView)
-            touchPoint.twist = [contentView _shouldExposeRollAngleAsTwist] ? touch.rollAngle : defaultRollAngle;
+        touchPoint.twist = rollAngleOrDefault(touch, [contentView _shouldExposeRollAngleAsTwist]);
     } else {
         touchPoint.touchType = WebKit::WKTouchPointType::Direct;
         touchPoint.altitudeAngle = 0;
@@ -348,8 +356,7 @@ static constexpr auto defaultRollAngle = std::numbers::pi;
             touchPoint.touchType = WebKit::WKTouchPointType::Stylus;
             touchPoint.altitudeAngle = touch.altitudeAngle;
             touchPoint.azimuthAngle = [touch azimuthAngleInView:self.view.window];
-            if (contentView)
-                touchPoint.twist = [contentView _shouldExposeRollAngleAsTwist] ? touch.rollAngle : defaultRollAngle;
+            touchPoint.twist = rollAngleOrDefault(touch, [contentView _shouldExposeRollAngleAsTwist]);
         } else {
             touchPoint.touchType = WebKit::WKTouchPointType::Direct;
             touchPoint.altitudeAngle = 0;

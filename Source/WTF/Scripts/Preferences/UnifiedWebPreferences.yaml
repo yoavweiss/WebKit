@@ -2765,7 +2765,7 @@ ExposeRollAngleAsTwistEnabled:
   category: dom
   humanReadableName: "Expose Apple Pencil rotation for twist PointerEvent Property"
   humanReadableDescription: "Expose Apple Pencil rotation for the `twist` PointerEvent Property"
-  condition: PLATFORM(IOS_FAMILY)
+  condition: HAVE(UITOUCH_ROLLANGLE)
   defaultValue:
     WebKitLegacy:
      default: false
