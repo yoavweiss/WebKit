@@ -623,19 +623,19 @@ WASM_IPINT_EXTERN_CPP_DECL(struct_new, uint32_t type, IPIntStackEntry* sp)
     for (unsigned i = 0; i < structTypeDefinition.fieldCount(); ++i)
         arguments[i] = sp[i].i64;
 
-    EncodedJSValue result = Wasm::structNew(instance, structure, false, arguments.mutableSpan().data());
-    if (JSValue::decode(result).isNull()) [[unlikely]]
+    JSValue result = Wasm::structNew(instance, structure, false, arguments.mutableSpan().data());
+    if (result.isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadStructNew);
-    IPINT_RETURN(result);
+    IPINT_RETURN(JSValue::encode(result));
 }
 
 WASM_IPINT_EXTERN_CPP_DECL(struct_new_default, uint32_t type)
 {
     WebAssemblyGCStructure* structure = instance->gcObjectStructure(type);
-    EncodedJSValue result = Wasm::structNew(instance, structure, true, nullptr);
-    if (JSValue::decode(result).isNull()) [[unlikely]]
+    JSValue result = Wasm::structNew(instance, structure, true, nullptr);
+    if (result.isNull()) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadStructNew);
-    IPINT_RETURN(result);
+    IPINT_RETURN(JSValue::encode(result));
 }
 
 WASM_IPINT_EXTERN_CPP_DECL(struct_get, EncodedJSValue object, uint32_t fieldIndex)

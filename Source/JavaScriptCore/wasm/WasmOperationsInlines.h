@@ -448,7 +448,7 @@ inline bool arrayInitData(JSWebAssemblyInstance* instance, EncodedJSValue dst, u
 }
 
 // structNew() expects the `arguments` array (when used) to be in reverse order
-inline EncodedJSValue structNew(JSWebAssemblyInstance* instance, WebAssemblyGCStructure* structure, bool useDefault, uint64_t* arguments)
+inline JSValue structNew(JSWebAssemblyInstance* instance, WebAssemblyGCStructure* structure, bool useDefault, uint64_t* arguments)
 {
     JSGlobalObject* globalObject = instance->globalObject();
     VM& vm = globalObject->vm();
@@ -476,7 +476,7 @@ inline EncodedJSValue structNew(JSWebAssemblyInstance* instance, WebAssemblyGCSt
             structValue->set(dstIndex, arguments[srcIndex]);
         }
     }
-    return JSValue::encode(structValue);
+    return structValue;
 }
 
 inline EncodedJSValue structGet(EncodedJSValue encodedStructReference, uint32_t fieldIndex)
