@@ -435,7 +435,9 @@ webkit.org/b/213131 editing/pasteboard [ Skip ]
 webkit.org/b/213131 editing/secure-input [ Skip ]
 webkit.org/b/213131 editing/spelling [ Skip ]
 
-webkit.org/b/298086 inspector/ [ Skip ]
+# WPE Legacy doesn't support inspector.
+inspector [ Skip ]
+http/tests/inspector [ Skip ]
 
 Bug(WPE) fast/autoresize [ Skip ]
 
@@ -484,7 +486,6 @@ fast/repaint/fixed-move-after-keyboard-scroll.html [ Skip ]
 Bug(WPE) fast/text/woff2-totalsfntsize.html [ Pass ]
 Bug(WPE) fast/text/woff2.html [ Pass ]
 
-http/tests/inspector [ Skip ]
 http/tests/navigation/ping-attribute/ [ Skip ]
 http/tests/pointer-lock [ Skip ]
 http/tests/security [ Skip ]
@@ -682,8 +683,6 @@ webkit.org/b/168164 fast/picture/viewport-resize.html [ Timeout ]
 webkit.org/b/142292 fast/images/animated-gif-window-resizing.html [ Timeout ]
 
 webkit.org/b/207711 [ Debug ] http/tests/workers/service/serviceworkerclients-matchAll.https.html [ Timeout ]
-
-webkit.org/b/208000 [ Release ] http/tests/inspector/network/contentextensions/blocked-websocket-crash.html [ Skip ] # Timeout.
 
 webkit.org/b/208932 scrollbars/scroll-rtl-or-bt-layer.html [ Timeout Pass ]
 
@@ -1372,12 +1371,3 @@ imported/w3c/web-platform-tests/css/css-view-transitions/start-view-transtion-sk
 
 # Not supported on this platform.
 security/contentSecurityPolicy/plugins-types-allows-youtube-plugin-replacement.html [ Skip ]
-
-# These tests are passing in WebKitGTK, but failing on WPE (timeout).
-http/tests/websocket/tests/hybi/inspector/before-load.html [ Skip ]
-http/tests/websocket/tests/hybi/inspector/binary.html [ Skip ]
-http/tests/websocket/tests/hybi/inspector/client-close.html [ Skip ]
-http/tests/websocket/tests/hybi/inspector/resolveWebSocket.html [ Skip ]
-http/tests/websocket/tests/hybi/inspector/send-and-receive.html [ Skip ]
-http/tests/websocket/tests/hybi/inspector/send-and-recieve-debugger.html [ Skip ]
-http/tests/websocket/tests/hybi/inspector/server-close.html [ Skip ]
