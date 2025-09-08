@@ -364,14 +364,11 @@ void SourceBufferPrivateAVFObjC::didProvideContentKeyRequestInitializationDataFo
 
 bool SourceBufferPrivateAVFObjC::needsVideoLayer() const
 {
-    if (!m_protectedTrackID)
-        return false;
-
     // When video content is protected and keys are assigned through
     // the renderers, decoding content through decompression sessions
     // will fail. In this scenario, ask the player to create a layer
     // instead.
-    return !isEnabledVideoTrackID(*m_protectedTrackID);
+    return m_protectedTrackID && isEnabledVideoTrackID(*m_protectedTrackID);
 }
 
 Ref<MediaPromise> SourceBufferPrivateAVFObjC::appendInternal(Ref<SharedBuffer>&& data)
