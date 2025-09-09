@@ -880,7 +880,7 @@ webkit.org/b/285098 imported/w3c/web-platform-tests/subresource-integrity/integr
 
 # WebKitLegacy is flaky on reporting API
 webkit.org/b/246350 imported/w3c/web-platform-tests/content-security-policy/reporting-api/reporting-api-sends-reports-on-violation.https.sub.html [ Pass Failure ]
-webkit.org/b/246350 imported/w3c/web-platform-tests/content-security-policy/reporting-api/report-to-directive-allowed-in-meta.https.sub.html [ Pass Failure DumpJSConsoleLogInStdErr ]
+webkit.org/b/246350 imported/w3c/web-platform-tests/content-security-policy/reporting-api/report-to-directive-allowed-in-meta.https.sub.html [ Pass Failure ]
 
 webkit.org/b/251618 imported/w3c/web-platform-tests/editing/other/exec-command-with-text-editor.tentative.html [ Failure ]
 webkit.org/b/251618 imported/w3c/web-platform-tests/editing/other/exec-command-without-editable-element.tentative.html [ Failure ]
@@ -1805,11 +1805,6 @@ imported/w3c/web-platform-tests/html/browsers/history/the-history-interface/hist
 imported/w3c/web-platform-tests/html/browsers/history/the-location-interface/assign_after_load.html [ Pass Failure ]
 imported/w3c/web-platform-tests/html/browsers/history/the-location-interface/assign_before_load.html [ Pass Failure ]
 
-# Console logs are flaky.
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/module/integrity.html [ DumpJSConsoleLogInStdErr ]
-
-imported/w3c/web-platform-tests/secure-contexts/basic-dedicated-worker.html [ DumpJSConsoleLogInStdErr ]
-
 # testRunner.setShouldDownloadUndisplayableMIMETypes() is not supported on WK1.
 fast/dom/HTMLAnchorElement/anchor-file-blob-convert-to-download.html [ Skip ]
 fast/dom/HTMLAnchorElement/anchor-file-blob-convert-to-download-async-delegate.html [ Skip ]
@@ -2647,7 +2642,6 @@ http/tests/security/basic-auth-subresource.html [ Failure Pass ]
 http/tests/security/contentSecurityPolicy/image-with-https-url-allowed-by-csp-img-src-star.html [ DumpJSConsoleLogInStdErr ]
 http/tests/security/contentSecurityPolicy/video-with-https-url-allowed-by-csp-media-src-star.html [ Failure Pass ]
 http/tests/security/contentSecurityPolicy/script-src-parsing-implicit-and-explicit-port-number.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webmessaging/broadcastchannel/cross-partition.https.tentative.html [ DumpJSConsoleLogInStdErr ]
 http/tests/security/mixedContent/secure-redirect-to-secure-redirect-to-basic-auth-secure-image.https.html [ DumpJSConsoleLogInStdErr ]
 
 # These tests have been flaky on WK1 since their import.

@@ -172,14 +172,13 @@ webkit.org/b/212975 http/tests/ssl/applepay/PaymentRequest.https.html [ Pass Tim
 http/tests/paymentrequest/ApplePayModifier-disbursementRequest.https.html [ Skip ]
 http/tests/paymentrequest [ Pass ]
 imported/w3c/web-platform-tests/payment-request [ Pass ]
-imported/w3c/web-platform-tests/payment-request/show-method-optional-promise-rejects.https.html [ DumpJSConsoleLogInStdErr ]
 
 # This test is failing due to lack of user activation.
 imported/w3c/web-platform-tests/payment-request/payment-is-showing.https.html [ Skip ]
 
 # Timeouts
 imported/w3c/web-platform-tests/payment-request/payment-request-canmakepayment-method.https.html [ Skip ]
-imported/w3c/web-platform-tests/payment-request/payment-request-hasenrolledinstrument-method.tentative.https.html [ Skip DumpJSConsoleLogInStdErr ]
+imported/w3c/web-platform-tests/payment-request/payment-request-hasenrolledinstrument-method.tentative.https.html [ Skip ]
 imported/w3c/web-platform-tests/digital-credentials/allow-attribute-with-create.https.html [ Skip ]
 
 # skip in favor of tests in http/tests/paymentrequest
@@ -2869,7 +2868,6 @@ imported/w3c/web-platform-tests/storage-access-api/requestStorageAccess-cross-or
 imported/w3c/web-platform-tests/storage-access-api/storage-access-beyond-cookies.BlobURLDedicatedWorker.sub.https.tentative.window.html [ Skip ]
 imported/w3c/web-platform-tests/storage-access-api/storage-access-beyond-cookies.BlobURLSharedWorker.sub.https.tentative.window.html [ Skip ]
 imported/w3c/web-platform-tests/storage-access-api/storage-access-beyond-cookies.thirdPartyBlobStorage.sub.https.window.html [ Skip ]
-imported/w3c/web-platform-tests/storage-access-api/storage-access-beyond-cookies.blobStorage.sub.https.window.html [ DumpJSConsoleLogInStdErr ]
 
 # Enable on appropriate platforms: rdar://140222322
 http/tests/storageAccess/grant-with-prompt-under-general-third-party-cookie-blocking-with-partitioned-cookies.https.html [ Skip ]
@@ -3311,7 +3309,7 @@ webkit.org/b/207768 http/wpt/service-workers/useragent.https.html [ Pass Failure
 webkit.org/b/254706 [ Release ] imported/w3c/web-platform-tests/html/dom/idlharness.https.html [ Pass Failure ]
 webkit.org/b/254706 [ Debug ] imported/w3c/web-platform-tests/html/dom/idlharness.https.html [ Slow Pass Failure ]
 
-webkit.org/b/205216 imported/w3c/web-platform-tests/content-security-policy/reporting/report-same-origin-with-cookies.html [ Pass Failure DumpJSConsoleLogInStdErr ]
+webkit.org/b/205216 imported/w3c/web-platform-tests/content-security-policy/reporting/report-same-origin-with-cookies.html [ Pass Failure ]
 
 webkit.org/b/207769 crypto/subtle/rsa-indexeddb-non-exportable.html [ Pass Timeout ]
 
@@ -3734,7 +3732,7 @@ webkit.org/b/240069 fast/css/continuationCrash.html [ Pass Failure ]
 
 webkit.org/b/240123 imported/w3c/web-platform-tests/webrtc/protocol/rtp-clockrate.html [ Pass Failure ]
 
-webkit.org/b/239568 imported/w3c/web-platform-tests/content-security-policy/inheritance/blob-url-in-main-window-self-navigate-inherits.sub.html [ Pass Failure DumpJSConsoleLogInStdErr ]
+webkit.org/b/239568 imported/w3c/web-platform-tests/content-security-policy/inheritance/blob-url-in-main-window-self-navigate-inherits.sub.html [ Pass Failure ]
 
 webkit.org/b/240148 fast/images/exif-orientation-background-image-repeat.html [ Pass Failure ImageOnlyFailure ]
 
@@ -3833,8 +3831,6 @@ imported/w3c/web-platform-tests/css/css-pseudo/highlight-cascade/highlight-casca
 imported/w3c/web-platform-tests/css/css-pseudo/highlight-styling-001.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-pseudo/highlight-styling-004.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/css-pseudo/highlight-custom-properties-dynamic-001.html [ Pass ]
-
-webkit.org/b/248100 imported/w3c/web-platform-tests/css/css-masking/clip-path-svg-content/clip-path-content-use-007.svg [ DumpJSConsoleLogInStdErr ]
 
 imported/w3c/web-platform-tests/css/css-transforms/ttwf-css-3d-polygon-cycle.html [ ImageOnlyFailure ]
 
@@ -4027,9 +4023,9 @@ imported/w3c/web-platform-tests/css/css-ui/compute-kind-widget-generated/kind-of
 imported/w3c/web-platform-tests/css/css-ui/compute-kind-widget-generated/kind-of-widget-fallback-textarea-border-top-width-001.html [ Pass ]
 
 # These tests are flaky due to "Blocked access to external URL" messages because we don't support WPT domains.
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-self.https.sub.html [ DumpJSConsoleLogInStdErr Failure Pass ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-some.https.sub.html [ DumpJSConsoleLogInStdErr Failure Pass ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-disallowed-for-all.https.sub.html [ DumpJSConsoleLogInStdErr Failure Pass ]
+imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-self.https.sub.html [ Failure Pass ]
+imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-some.https.sub.html [ Failure Pass ]
+imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-disallowed-for-all.https.sub.html [ Failure Pass ]
 
 # Close Watcher tests rely on sending escape keys from test_driver which doesn't work on iOS webkit.org/b/274832
 webkit.org/b/274832 imported/w3c/web-platform-tests/close-watcher/esc-key [ Skip ]
@@ -6648,7 +6644,7 @@ webkit.org/b/237348 pointerevents/mouse [ Skip ]
 webkit.org/b/275768 imported/w3c/web-platform-tests/inert/inert-iframe-hittest.html [ Skip ]
 
 # webkit.org/b/234410 Multiple semantics web-platform-tests have become flaky after r286944
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/iframe_sandbox_anchor_download_allow_downloads.tentative.html [ DumpJSConsoleLogInStdErr Pass Failure ]
+imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/iframe_sandbox_anchor_download_allow_downloads.tentative.html [ Pass Failure ]
 imported/w3c/web-platform-tests/html/semantics/text-level-semantics/the-a-element/a-download-click-404.html [ Pass Failure ]
 http/wpt/html/semantics/text-level-semantics/the-a-element/a-download-click-404.html [ Pass Failure ]
 
@@ -7501,10 +7497,10 @@ imported/w3c/web-platform-tests/intersection-observer/svg-clipped-rect-target.ht
 imported/w3c/web-platform-tests/intersection-observer/svg-intersection-with-fractional-bounds.html [ Skip ]
 
 # webkit.org/b/276562 ([ iOS18 ] 3 wpt/webcodecs/* layout tests are constantly failing.)
-imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.html?h264_annexb [ Failure DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.html?h264_avc [ Failure DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.worker.html?h264_annexb [ Failure DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webcodecs/videoDecoder-codec-specific.https.any.html?h264_annexb [ Failure DumpJSConsoleLogInStdErr ]
+imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.html?h264_annexb [ Failure ]
+imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.html?h264_avc [ Failure ]
+imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.worker.html?h264_annexb [ Failure ]
+imported/w3c/web-platform-tests/webcodecs/videoDecoder-codec-specific.https.any.html?h264_annexb [ Failure ]
 
 webkit.org/b/276624 fast/dynamic/layer-hit-test-crash.html [ Pass Failure ]
 

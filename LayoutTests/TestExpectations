@@ -548,78 +548,6 @@ http/tests/security/window-opened-from-sandboxed-iframe-should-inherit-sandbox.h
 http/wpt/html/cross-origin-embedder-policy/require-corp.https.html [ DumpJSConsoleLogInStdErr ]
 http/wpt/webauthn/public-key-credential-create-failure.https.html [ DumpJSConsoleLogInStdErr ]
 http/wpt/webauthn/public-key-credential-get-failure.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/FileAPI/url/sandboxed-iframe.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/WebIDL/current-realm.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/css/cssom/stylesheet-same-origin.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/eventsource/format-mime-bogus.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-all.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-self.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-allowed-for-some.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-disallowed-for-all.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/feature-policy/feature-policy-frame-policy-timing.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/anonymous-iframe/embedding.tentative.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/browsers/browsing-the-web/navigating-across-documents/failure-check-sequence.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/browsers/browsing-the-web/navigating-across-documents/redirect-to-data.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/browsers/browsing-the-web/navigating-across-documents/top-level-data-url.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/browsers/history/the-location-interface/location-protocol-setter-non-broken.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/browsers/history/the-location-interface/location-protocol-setter-non-broken-weird.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/browsers/origin/cross-origin-objects/cross-origin-objects.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/browsers/sandboxing/sandbox-disallow-popups.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/capability-delegation/delegate-fullscreen-request-popup-same-origin.https.tentative.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/multi-globals/workers-coep-report.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/reporting-navigation.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/reporting-to-document-reporting-endpoint.https.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/require-corp-cached-images.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/require-corp-revalidated-images.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-opener-policy/coop-csp-sandbox.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-opener-policy/coop-navigated-history-popup.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-opener-policy/navigate-to-aboutblank.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-opener-policy/navigate-top-to-aboutblank.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-opener-policy/popup-coop-by-sw.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-opener-policy/reporting/navigation-reporting/reporting-coop-navigated-popup.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-opener-policy/coop-noopener-allow-popups.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/infrastructure/urls/resolving-urls/query-encoding/utf-8.html?include=css [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/infrastructure/urls/resolving-urls/query-encoding/windows-1251.html?include=css [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/infrastructure/urls/resolving-urls/query-encoding/windows-1252.html?include=css [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/media-elements/autoplay-allowed-by-feature-policy-attribute.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-embed-element/embed-network-error.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/iframe-network-error.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/iframe_sandbox_anchor_download_allow_downloads.tentative.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-top-navigation-escalate-privileges.tentative.sub.window.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/canvas/element/manual/imagebitmap/createImageBitmap-invalid-args.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/user-activation/no-activation-thru-escape-key.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/webappapis/scripting/processing-model-2/unhandled-promise-rejections/promise-rejection-event-during-parse.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/webappapis/timers/negative-settimeout.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/webappapis/timers/negative-settimeout.any.worker.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/webappapis/user-prompts/print-during-beforeunload.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/mixed-content/gen/top.http-rp/opt-in/xhr.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/notifications/instance.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/preload/preload-referrer-policy.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/screen-wake-lock/wakelock-disabled-by-feature-policy.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/screen-wake-lock/wakelock-enabled-on-self-origin-by-feature-policy.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/service-workers/service-worker/fetch-request-resources.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/streams/readable-streams/patched-global.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/streams/transform-streams/terminate.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/streams/writable-streams/write.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/streams/writable-streams/error.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/trusted-types/trusted-types-eval-reporting.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/upgrade-insecure-requests/gen/top.meta/unset/xhr.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/wasm/webapi/rejected-arg.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/workers/WorkerGlobalScope_ErrorEvent_lineno.htm [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/web-locks/acquire.https.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/web-locks/mode-mixed.https.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/web-locks/steal.https.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webaudio/the-audio-api/the-analysernode-interface/test-analyser-minimum.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audionode-interface/audionode-disconnect-audioparam.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/workers/same-origin-check.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/mixed-content [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/upgrade-insecure-requests [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/x-frame-options/deny.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/x-frame-options/get-decode-split.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/x-frame-options/invalid.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/x-frame-options/multiple.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/x-frame-options/sameorigin.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/cookiestore/cookieStore_event_basic.https.window.html [ DumpJSConsoleLogInStdErr ]
 
 # We need to fix our WebVTT implementation to pass most of the WebVTT rendering WPT (https://bugs.webkit.org/show_bug.cgi?id=277975).
 imported/w3c/web-platform-tests/webvtt/rendering/cues-with-video [ ImageOnlyFailure ]
@@ -741,11 +669,6 @@ imported/w3c/web-platform-tests/upgrade-insecure-requests/gen/top.http-rp/upgrad
 imported/w3c/web-platform-tests/upgrade-insecure-requests/gen/worker-classic-data.meta/unset/xhr.https.html [ Skip ]
 imported/w3c/web-platform-tests/upgrade-insecure-requests/link-upgrade.sub.https.html [ Skip ]
 
-imported/w3c/web-platform-tests/reporting/disconnect.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/reporting/document-reporting-destroy-after-document-close.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/reporting/reporting-api-honors-limits.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/block-local-documents-inheriting-none.https.html [ DumpJSConsoleLogInStdErr ]
-
 # Skip some reporting tests that now timeout
 imported/w3c/web-platform-tests/reporting/cross-origin-same-site-credentials.https.sub.html [ Skip ]
 imported/w3c/web-platform-tests/reporting/document-reporting-bypass-report-to.https.sub.html [ Skip ]
@@ -758,11 +681,6 @@ imported/w3c/web-platform-tests/reporting/document-reporting-path-absolute.https
 imported/w3c/web-platform-tests/preload/preconnect-onerror-event.html [ Skip ]
 imported/w3c/web-platform-tests/preload/preconnect.html [ Skip ]
 imported/w3c/web-platform-tests/preload/prefetch-events.html [ Skip ]
-
-imported/w3c/web-platform-tests/preload/dynamic-adding-preload-nonce.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/preload/preload-csp.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/preload/preload-default-csp.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/preload/preload-strict-dynamic.sub.html [ DumpJSConsoleLogInStdErr ]
 
 imported/w3c/web-platform-tests/preload/preload-error.sub.html [ Pass Failure ]
 
@@ -1115,22 +1033,7 @@ imported/w3c/web-platform-tests/user-timing/measure_associated_with_navigation_t
 imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/anonymous-iframe/sharedworker-partitioning.tentative.https.window.html [ Failure Pass ]
 imported/w3c/web-platform-tests/service-workers/service-worker/navigation-timing-extended.https.html [ Failure Pass ]
 
-imported/w3c/web-platform-tests/html/semantics/document-metadata/the-link-element/link-load-error-events.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/document-metadata/the-link-element/link-load-error-events.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/document-metadata/the-link-element/link-style-error-01.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/document-metadata/the-link-element/link-style-error-limited-quirks.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/document-metadata/the-link-element/link-style-error-quirks.html [ DumpJSConsoleLogInStdErr ]
-[ Release ] imported/w3c/web-platform-tests/html/dom/idlharness.https.html [ DumpJSConsoleLogInStdErr ]
-[ Release ] imported/w3c/web-platform-tests/html/dom/idlharness.worker.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/module/errorhandling.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/module/error-type-1.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/cross-origin-embedder-policy/sandbox.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/IndexedDB/fire-error-event-exception.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/IndexedDB/fire-success-event-exception.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/css/css-properties-values-api/url-resolution.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/subresource-integrity [ DumpJSConsoleLogInStdErr ]
-
-webkit.org/b/222750 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/css-module/css-module-worker-test.html [ Pass Failure Crash DumpJSConsoleLogInStdErr ]
+webkit.org/b/222750 imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/css-module/css-module-worker-test.html [ Pass Failure Crash ]
 
 [ Debug ] imported/w3c/web-platform-tests/service-workers/service-worker/clients-matchall-order.https.html [ Slow Pass Failure ]
 webkit.org/b/217617 [ Release ] imported/w3c/web-platform-tests/service-workers/service-worker/clients-matchall-order.https.html [ Pass Failure ]
@@ -1240,9 +1143,6 @@ imported/w3c/web-platform-tests/xhr/event-timeout-order.any.html [ Pass Failure 
 imported/w3c/web-platform-tests/css/css-ui/caret-color-018.html [ Skip ]
 imported/w3c/web-platform-tests/css/css-ui/caret-color-019.html [ Skip ]
 imported/w3c/web-platform-tests/css/css-ui/caret-color-020.html [ Skip ]
-
-# Dump console messages to stderr for all the imported Content Security Policy tests to avoid flakiness.
-imported/w3c/web-platform-tests/content-security-policy [ DumpJSConsoleLogInStdErr ]
 
 # FIXME: Skip Content Security Policy tests that are dumping the render tree instead of text:
 imported/w3c/web-platform-tests/content-security-policy/svg/scripted.svg [ Skip ]
@@ -1407,8 +1307,6 @@ webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/first-input-int
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/event-click-visibilitychange.html [ Skip ]
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/selection-autoscroll.html [ Skip ]
 
-imported/w3c/web-platform-tests/mediacapture-streams/MediaStream-default-feature-policy.https.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/mediacapture-streams/MediaStreamTrack-applyConstraints.https.html [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/mediacapture-streams/MediaStreamTrack-MediaElement-disabled-video-is-black.https.html [ Pass Failure ]
 imported/w3c/web-platform-tests/mediacapture-streams/MediaDevices-enumerateDevices-per-origin-ids.sub.https.html [ Skip ]
 
@@ -2813,7 +2711,6 @@ fast/text/user-installed-fonts/extended-character-with-user-font.html [ Pass Ima
 
 [ Debug ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audioparam-interface/audioparam-large-endtime.html [ Skip ]
 [ Debug ] imported/w3c/web-platform-tests/webaudio/the-audio-api/the-audionode-interface/audionode-disconnect.html [ Skip ]
-imported/w3c/web-platform-tests/webaudio/the-audio-api/the-channelmergernode-interface/audiochannelmerger-disconnect.html [ DumpJSConsoleLogInStdErr ]
 
 webkit.org/b/148922 svg/as-object/svg-in-object-dynamic-attribute-change.html [ Pass ImageOnlyFailure ]
 
@@ -3077,9 +2974,6 @@ webkit.org/b/168066 performance-api/performance-now-api.html [ Pass Failure ]
 webkit.org/b/168005 performance-api/performance-now-time-origin-in-worker.html [ Pass Failure ]
 
 webkit.org/b/168238 imported/w3c/web-platform-tests/dom/events/EventListener-invoke-legacy.html [ Pass Failure ]
-
-# Ignore MIME type refused console messages when comparing nosniff tests results as their ordering is non-deterministic.
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-ascii-case-insensitive.html [ DumpJSConsoleLogInStdErr ]
 
 # text-spacing: These tests generate a bunch of render tree dumps
 imported/w3c/web-platform-tests/css/css-text/text-spacing-trim [ Skip ]
@@ -5845,9 +5739,6 @@ webkit.org/b/227084 http/wpt/webxr/xrSession_ended_by_system.https.html [ Skip ]
 # rdar://79367325
 webkit.org/b/227086 imported/w3c/web-platform-tests/webxr/xrWebGLLayer_constructor.https.html [ Skip ]
 
-# Extra logging that needs to be silenced:
-imported/w3c/web-platform-tests/webxr/webxr_availability.http.sub.html [ DumpJSConsoleLogInStdErr ]
-
 http/tests/local/blob/navigate-blob.html [ DumpJSConsoleLogInStdErr ]
 
 http/tests/webshare/navigator-share-files-fail-access-control-checks-crash.html [ DumpJSConsoleLogInStdErr ]
@@ -5965,16 +5856,9 @@ webkit.org/b/198230 imported/w3c/web-platform-tests/css/css-overflow/overflow-cl
 # hundreds of extra lines in test expectation files.
 http/wpt/crypto/aes-cbc-crash.any.html [ DumpJSConsoleLogInStdErr ]
 http/wpt/crypto/aes-ctr-crash.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/WebCryptoAPI/encrypt_decrypt/aes_cbc.https.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/WebCryptoAPI/encrypt_decrypt/aes_ctr.https.any.html [ DumpJSConsoleLogInStdErr ]
 
 webkit.org/b/228176 fast/text/variable-system-font.html [ Pass ImageOnlyFailure ]
 webkit.org/b/228176 fast/text/variable-system-font-2.html [ Pass ImageOnlyFailure ]
-
-# Console message from workers sometimes don't make their way to test output, so disable them to avoid flakiness.
-imported/w3c/web-platform-tests/workers/interfaces/WorkerUtils/importScripts/ [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/FileAPI/file/File-constructor.any.worker.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/webappapis/microtask-queuing/queue-microtask-exceptions.any.worker.html [ DumpJSConsoleLogInStdErr ]
 
 webkit.org/b/230237 imported/w3c/web-platform-tests/css/cssom-view/scrollIntoView-inline-image.html [ Failure ]
 
@@ -6095,8 +5979,6 @@ imported/w3c/web-platform-tests/css/filter-effects/empty-element-with-filter-004
 imported/w3c/web-platform-tests/css/filter-effects/filter-region-html-content-viewport.tentative.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/filter-effects/svg-feimage-003.html [ ImageOnlyFailure ]
 
-imported/w3c/web-platform-tests/content-security-policy/script-src/ [ DumpJSConsoleLogInStdErr ]
-
 # CSS motion path URL support.
 imported/w3c/web-platform-tests/css/motion/offset-path-url-002.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/css/motion/offset-path-url-003.html [ ImageOnlyFailure ]
@@ -6135,7 +6017,7 @@ imported/w3c/web-platform-tests/workers/modules/dedicated-worker-import-csp.html
 
 # Test is flaky because MessagePort messages may get received in a different order when several MessagePorts are involved,
 # due to how MessagePort::dispatchMessages() is implemented.
-imported/w3c/web-platform-tests/workers/shared-worker-name-via-options.html [ DumpJSConsoleLogInStdErr Failure Pass ]
+imported/w3c/web-platform-tests/workers/shared-worker-name-via-options.html [ Failure Pass ]
 
 webkit.org/b/242983 imported/w3c/web-platform-tests/css/css-scroll-anchoring/fullscreen-crash.html [ Skip ]
 webkit.org/b/261849 imported/w3c/web-platform-tests/css/css-scroll-anchoring/heuristic-with-offset-update-from-scroll-event-listener.html [ Skip ]
@@ -6347,16 +6229,12 @@ imported/w3c/web-platform-tests/html/semantics/scripting-1/the-script-element/cs
 imported/w3c/web-platform-tests/import-maps/acquiring/modulepreload.html [ Skip ]
 imported/w3c/web-platform-tests/import-maps/acquiring/modulepreload-link-header.html [ Skip ]
 
-imported/w3c/web-platform-tests/import-maps/ [ DumpJSConsoleLogInStdErr ]
-
 # WebKit2 Only
 fullscreen/fullscreen-enter-bottom-padding-animation.html [ Skip ]
 
 # Extra logging needed to be silenced:
 http/tests/loading/oauth.html [ DumpJSConsoleLogInStdErr ]
 http/tests/security/contentSecurityPolicy/video-with-https-url-allowed-by-csp-media-src-star.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/clipboard-apis/feature-policy/clipboard-write/clipboard-write-disabled-by-feature-policy.tentative.https.sub.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/html/infrastructure/urls/terminology-0/document-base-url-initiated-grand-parent.https.window.html [ DumpJSConsoleLogInStdErr ]
 
 # text-shadow
 imported/w3c/web-platform-tests/css/css-text-decor/text-shadow/decorations-multiple-zorder.html [ ImageOnlyFailure ]
@@ -6551,13 +6429,6 @@ imported/w3c/web-platform-tests/service-workers/service-worker/tentative/static-
 # This test needs proper promise handling in fullscreen to avoid the flaky console message:
 imported/w3c/web-platform-tests/html/capability-delegation/delegate-fullscreen-request-subframe-same-origin.https.tentative.html [ Pass Failure ]
 imported/w3c/web-platform-tests/fullscreen/api/element-request-fullscreen-and-move-to-iframe.html [ Pass Failure ]
-
-imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.html?h264_annexb [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.html?h264_avc [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webcodecs/videoFrame-createImageBitmap.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webcodecs/videoFrame-createImageBitmap.https.any.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webcodecs/video-encoder.https.any.worker.html [ DumpJSConsoleLogInStdErr ]
-imported/w3c/web-platform-tests/webcodecs/video-encoder.https.any.html [ DumpJSConsoleLogInStdErr ]
 
 webkit.org/b/258192 imported/w3c/web-platform-tests/webcodecs/full-cycle-test.https.any.worker.html?h264_avc [ Pass Failure ]
 
@@ -6823,9 +6694,9 @@ imported/w3c/web-platform-tests/css/css-overflow/scrollable-overflow-input-002.h
 imported/w3c/web-platform-tests/css/css-overflow/scrollable-overflow-padding.html [ Skip ]
 
 # These tests have been flaky since their import.
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-top-navigation-child-special-cases.tentative.sub.window.html [ DumpJSConsoleLogInStdErr Pass Failure ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-top-navigation-child.tentative.sub.window.html [ DumpJSConsoleLogInStdErr Pass Failure ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-top-navigation-grandchild.tentative.sub.window.html [ DumpJSConsoleLogInStdErr Pass Failure ]
+imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-top-navigation-child-special-cases.tentative.sub.window.html [ Pass Failure ]
+imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-top-navigation-child.tentative.sub.window.html [ Pass Failure ]
+imported/w3c/web-platform-tests/html/semantics/embedded-content/the-iframe-element/sandbox-top-navigation-grandchild.tentative.sub.window.html [ Pass Failure ]
 
 webkit.org/b/257336 imported/w3c/web-platform-tests/css/css-tables/visibility-collapse-row-003-dynamic.html [ Pass Failure ]
 
