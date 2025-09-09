@@ -391,7 +391,7 @@ static String interactionRegionTextContentForNode(Node& node)
 }
 #endif
 
-std::optional<InteractionRegion> interactionRegionForRenderedRegion(RenderObject& regionRenderer, const FloatRect& bounds, const FloatSize& clipOffset, const std::optional<AffineTransform>& transform)
+std::optional<InteractionRegion> interactionRegionForRenderedRegion(const RenderObject& regionRenderer, const FloatRect& bounds, const FloatSize& clipOffset, const std::optional<AffineTransform>& transform)
 {
     if (bounds.isEmpty())
         return std::nullopt;
