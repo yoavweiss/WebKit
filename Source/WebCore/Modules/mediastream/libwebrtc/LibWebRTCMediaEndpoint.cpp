@@ -115,11 +115,7 @@ LibWebRTCMediaEndpoint::LibWebRTCMediaEndpoint(RTCPeerConnection& peerConnection
     ASSERT(isMainThread());
     ASSERT(client.factory());
 
-    if (!document.settings().webRTCL4SEnabled())
-        return;
-
-    auto fieldTrials = "WebRTC-RFC8888CongestionControlFeedback/Enabled,force_send:true/"_s;
-    webrtc::field_trial::InitFieldTrialsFromString(fieldTrials.characters());
+    client.setUseL4S(document.settings().webRTCL4SEnabled());
 }
 
 LibWebRTCMediaEndpoint::~LibWebRTCMediaEndpoint()

@@ -93,13 +93,13 @@
 		293842F62E258DFC006DF6A9 /* chacha20_poly1305_x86_64-apple.S in Sources */ = {isa = PBXBuildFile; fileRef = 293842D92E258DFC006DF6A9 /* chacha20_poly1305_x86_64-apple.S */; };
 		293843002E259009006DF6A9 /* cpu_intel.cc in Sources */ = {isa = PBXBuildFile; fileRef = 293842FF2E259009006DF6A9 /* cpu_intel.cc */; };
 		293843012E259009006DF6A9 /* cpu_aarch64_apple.cc in Sources */ = {isa = PBXBuildFile; fileRef = 293842FE2E259009006DF6A9 /* cpu_aarch64_apple.cc */; };
+		295762D42E1DBF01006C2416 /* pitch_neon_intr.c in Sources */ = {isa = PBXBuildFile; fileRef = 295762D12E1DBF01006C2416 /* pitch_neon_intr.c */; };
+		295762D92E1DBF01006C2416 /* celt_neon_intr.c in Sources */ = {isa = PBXBuildFile; fileRef = 295762C72E1DBF01006C2416 /* celt_neon_intr.c */; };
+		295762E02E1DBF01006C2416 /* pitch_arm.h in Headers */ = {isa = PBXBuildFile; fileRef = 295762D02E1DBF01006C2416 /* pitch_arm.h */; };
 		29A573662E25BEAD0073CB92 /* fiat_p256_adx_sqr.S in Sources */ = {isa = PBXBuildFile; fileRef = 29A573642E25BEAD0073CB92 /* fiat_p256_adx_sqr.S */; };
 		29A573672E25BEAD0073CB92 /* fiat_curve25519_adx_mul.S in Sources */ = {isa = PBXBuildFile; fileRef = 29A573612E25BEAD0073CB92 /* fiat_curve25519_adx_mul.S */; };
 		29A573682E25BEAD0073CB92 /* fiat_curve25519_adx_square.S in Sources */ = {isa = PBXBuildFile; fileRef = 29A573622E25BEAD0073CB92 /* fiat_curve25519_adx_square.S */; };
 		29A573692E25BEAD0073CB92 /* fiat_p256_adx_mul.S in Sources */ = {isa = PBXBuildFile; fileRef = 29A573632E25BEAD0073CB92 /* fiat_p256_adx_mul.S */; };
-		295762D42E1DBF01006C2416 /* pitch_neon_intr.c in Sources */ = {isa = PBXBuildFile; fileRef = 295762D12E1DBF01006C2416 /* pitch_neon_intr.c */; };
-		295762D92E1DBF01006C2416 /* celt_neon_intr.c in Sources */ = {isa = PBXBuildFile; fileRef = 295762C72E1DBF01006C2416 /* celt_neon_intr.c */; };
-		295762E02E1DBF01006C2416 /* pitch_arm.h in Headers */ = {isa = PBXBuildFile; fileRef = 295762D02E1DBF01006C2416 /* pitch_arm.h */; };
 		29FAED1B2E1EE70C00F5645C /* fixed_arm64.h in Headers */ = {isa = PBXBuildFile; fileRef = 29FAED1A2E1EE70C00F5645C /* fixed_arm64.h */; };
 		29FAED2F2E1EE83200F5645C /* macros_arm64.h in Headers */ = {isa = PBXBuildFile; fileRef = 29FAED212E1EE83200F5645C /* macros_arm64.h */; };
 		29FAED3A2E1EE8BC00F5645C /* LPC_inv_pred_gain_arm.h in Headers */ = {isa = PBXBuildFile; fileRef = 29FAED392E1EE8BC00F5645C /* LPC_inv_pred_gain_arm.h */; };
@@ -1933,7 +1933,7 @@
 		41659C14216597B700CCBDC2 /* variance.c in Sources */ = {isa = PBXBuildFile; fileRef = 413309F4212E2BD700280939 /* variance.c */; };
 		4166F97E2C231F510010C70D /* enable_media_with_defaults.h in Headers */ = {isa = PBXBuildFile; fileRef = 4166F97A2C231F500010C70D /* enable_media_with_defaults.h */; };
 		4166F97F2C231F510010C70D /* enable_media.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4166F97B2C231F500010C70D /* enable_media.cc */; };
-		4166F9812C231F510010C70D /* enable_media.h in Headers */ = {isa = PBXBuildFile; fileRef = 4166F97D2C231F510010C70D /* enable_media.h */; };
+		4166F9812C231F510010C70D /* enable_media.h in Headers */ = {isa = PBXBuildFile; fileRef = 4166F97D2C231F510010C70D /* enable_media.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4166F9832C231FAF0010C70D /* rtp_packet_send_info.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4166F9822C231FAF0010C70D /* rtp_packet_send_info.cc */; };
 		4166F98A2C2364CA0010C70D /* h26x_packet_buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4166F9882C2364C90010C70D /* h26x_packet_buffer.cc */; };
 		4166F98B2C2364CA0010C70D /* h26x_packet_buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4166F9892C2364C90010C70D /* h26x_packet_buffer.h */; };
@@ -5860,13 +5860,13 @@
 		293842E02E258DFC006DF6A9 /* md5-x86_64-apple.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "md5-x86_64-apple.S"; sourceTree = "<group>"; };
 		293842FE2E259009006DF6A9 /* cpu_aarch64_apple.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cpu_aarch64_apple.cc; sourceTree = "<group>"; };
 		293842FF2E259009006DF6A9 /* cpu_intel.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = cpu_intel.cc; sourceTree = "<group>"; };
+		295762C72E1DBF01006C2416 /* celt_neon_intr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = celt_neon_intr.c; sourceTree = "<group>"; };
+		295762D02E1DBF01006C2416 /* pitch_arm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pitch_arm.h; sourceTree = "<group>"; };
+		295762D12E1DBF01006C2416 /* pitch_neon_intr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pitch_neon_intr.c; sourceTree = "<group>"; };
 		29A573612E25BEAD0073CB92 /* fiat_curve25519_adx_mul.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = fiat_curve25519_adx_mul.S; sourceTree = "<group>"; };
 		29A573622E25BEAD0073CB92 /* fiat_curve25519_adx_square.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = fiat_curve25519_adx_square.S; sourceTree = "<group>"; };
 		29A573632E25BEAD0073CB92 /* fiat_p256_adx_mul.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = fiat_p256_adx_mul.S; sourceTree = "<group>"; };
 		29A573642E25BEAD0073CB92 /* fiat_p256_adx_sqr.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = fiat_p256_adx_sqr.S; sourceTree = "<group>"; };
-		295762C72E1DBF01006C2416 /* celt_neon_intr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = celt_neon_intr.c; sourceTree = "<group>"; };
-		295762D02E1DBF01006C2416 /* pitch_arm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pitch_arm.h; sourceTree = "<group>"; };
-		295762D12E1DBF01006C2416 /* pitch_neon_intr.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = pitch_neon_intr.c; sourceTree = "<group>"; };
 		29FAED1A2E1EE70C00F5645C /* fixed_arm64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fixed_arm64.h; sourceTree = "<group>"; };
 		29FAED212E1EE83200F5645C /* macros_arm64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macros_arm64.h; sourceTree = "<group>"; };
 		29FAED392E1EE8BC00F5645C /* LPC_inv_pred_gain_arm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LPC_inv_pred_gain_arm.h; sourceTree = "<group>"; };
@@ -11770,17 +11770,6 @@
 			path = bcm;
 			sourceTree = "<group>";
 		};
-		29A573652E25BEAD0073CB92 /* asm */ = {
-			isa = PBXGroup;
-			children = (
-				29A573612E25BEAD0073CB92 /* fiat_curve25519_adx_mul.S */,
-				29A573622E25BEAD0073CB92 /* fiat_curve25519_adx_square.S */,
-				29A573632E25BEAD0073CB92 /* fiat_p256_adx_mul.S */,
-				29A573642E25BEAD0073CB92 /* fiat_p256_adx_sqr.S */,
-			);
-			path = asm;
-			sourceTree = "<group>";
-		};
 		295762D22E1DBF01006C2416 /* arm */ = {
 			isa = PBXGroup;
 			children = (
@@ -11790,6 +11779,17 @@
 				295762D12E1DBF01006C2416 /* pitch_neon_intr.c */,
 			);
 			path = arm;
+			sourceTree = "<group>";
+		};
+		29A573652E25BEAD0073CB92 /* asm */ = {
+			isa = PBXGroup;
+			children = (
+				29A573612E25BEAD0073CB92 /* fiat_curve25519_adx_mul.S */,
+				29A573622E25BEAD0073CB92 /* fiat_curve25519_adx_square.S */,
+				29A573632E25BEAD0073CB92 /* fiat_p256_adx_mul.S */,
+				29A573642E25BEAD0073CB92 /* fiat_p256_adx_sqr.S */,
+			);
+			path = asm;
 			sourceTree = "<group>";
 		};
 		29FAED2A2E1EE83200F5645C /* arm */ = {
