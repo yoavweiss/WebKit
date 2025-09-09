@@ -830,25 +830,15 @@ static FloatRect snapRectToDevicePixelsInDirection(const FloatRect& rect, float 
     }
 }
 
-enum class LayoutBoxLocation : uint8_t {
-    OnlyBox,
-    StartOfSequence,
-    EndOfSequence,
-    MiddleOfSequence,
-    Unknown,
-};
-
-static LayoutBoxLocation layoutBoxSequenceLocation(const InlineIterator::BoxModernPath& textBox)
+enum class TextBoxFragmentLocationWithinLayoutBox : uint8_t { First = 1 << 0, Last = 1 << 1 };
+static OptionSet<TextBoxFragmentLocationWithinLayoutBox> textBoxFragmentLocationWithinLayoutBox(const InlineIterator::BoxModernPath& textBox)
 {
-    auto isFirstForLayoutBox = textBox.box().isFirstForLayoutBox();
-    auto isLastForLayoutBox = textBox.box().isLastForLayoutBox();
-    if (isFirstForLayoutBox && isLastForLayoutBox)
-        return LayoutBoxLocation::OnlyBox;
-    if (isFirstForLayoutBox)
-        return LayoutBoxLocation::StartOfSequence;
-    if (isLastForLayoutBox)
-        return LayoutBoxLocation::EndOfSequence;
-    return LayoutBoxLocation::MiddleOfSequence;
+    OptionSet<TextBoxFragmentLocationWithinLayoutBox> location;
+    if (textBox.box().isFirstForLayoutBox())
+        location.add(TextBoxFragmentLocationWithinLayoutBox::First);
+    if (textBox.box().isLastForLayoutBox())
+        location.add(TextBoxFragmentLocationWithinLayoutBox::Last);
+    return location;
 }
 #endif
 
@@ -921,32 +911,19 @@ void TextBoxPainter::fillCompositionUnderline(float start, float width, const Co
     // As a mitigation, we consult the textbox path to understand the current rect's position in the textbox path.
     // If we're the only box in the path, then we fallback to unconditionally drawing rounded edges.
     // If not, we flatten out the right, left, or both edges depending on whether we're at the start, end, or middle of a path, respectively.
-
+    auto fragmentLocation = textBoxFragmentLocationWithinLayoutBox(m_textBox);
     auto deviceScaleFactor = m_document.deviceScaleFactor();
-
-    switch (layoutBoxSequenceLocation(m_textBox)) {
-    case LayoutBoxLocation::Unknown:
-    case LayoutBoxLocation::OnlyBox: {
+    if (fragmentLocation.containsAll({ TextBoxFragmentLocationWithinLayoutBox::First, TextBoxFragmentLocationWithinLayoutBox::Last }))
         context.fillRoundedRect(FloatRoundedRect { rect, radii }, underlineColor);
-        return;
+    else if (fragmentLocation == TextBoxFragmentLocationWithinLayoutBox::First)
+        context.fillRoundedRect(FloatRoundedRect { snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Right), trimRadii(radii, TrimSide::Right) }, underlineColor);
+    else if (fragmentLocation == TextBoxFragmentLocationWithinLayoutBox::Last)
+        context.fillRoundedRect(FloatRoundedRect { snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Left), trimRadii(radii, TrimSide::Left) }, underlineColor);
+    else {
+        ASSERT(fragmentLocation.isEmpty());
+        // This text fragment is right in the middle of the box content.
+        context.fillRect(snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Both), underlineColor);
     }
-    case LayoutBoxLocation::StartOfSequence: {
-        auto snappedRectRight = snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Right);
-        context.fillRoundedRect(FloatRoundedRect { snappedRectRight, trimRadii(radii, TrimSide::Right) }, underlineColor);
-        return;
-    }
-    case LayoutBoxLocation::EndOfSequence: {
-        auto snappedRectLeft = snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Left);
-        context.fillRoundedRect(FloatRoundedRect { snappedRectLeft, trimRadii(radii, TrimSide::Left) }, underlineColor);
-        return;
-    }
-    case LayoutBoxLocation::MiddleOfSequence: {
-        auto snappedRectBoth = snapRectToDevicePixelsInDirection(rect, deviceScaleFactor, SnapDirection::Both);
-        context.fillRect(snappedRectBoth, underlineColor);
-        return;
-    }
-    }
-    ASSERT_NOT_REACHED("Unexpected LayoutBoxLocation value, underline not drawn");
 #else
     UNUSED_PARAM(radii);
     UNUSED_PARAM(hasLiveConversion);
