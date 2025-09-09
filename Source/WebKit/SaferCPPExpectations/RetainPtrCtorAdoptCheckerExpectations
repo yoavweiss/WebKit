@@ -30,7 +30,6 @@ UIProcess/API/Cocoa/_WKWebAuthenticationPanel.mm
 UIProcess/Authentication/cocoa/AuthenticationChallengeProxyCocoa.mm
 UIProcess/Cocoa/ModelElementControllerCocoa.mm
 UIProcess/Cocoa/PageClientImplCocoa.mm
-UIProcess/Cocoa/WebProcessPoolCocoa.mm
 UIProcess/Launcher/cocoa/ProcessLauncherCocoa.mm
 UIProcess/WebAuthentication/Cocoa/LocalAuthenticator.mm
 UIProcess/WebAuthentication/Cocoa/LocalConnection.mm

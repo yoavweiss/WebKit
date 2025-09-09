@@ -155,13 +155,13 @@
 #import <WebKitAdditions/WebProcessPoolAdditions.h>
 #endif
 
-NSString *WebServiceWorkerRegistrationDirectoryDefaultsKey = @"WebServiceWorkerRegistrationDirectory";
-NSString *WebKitLocalCacheDefaultsKey = @"WebKitLocalCache";
-NSString *WebKitJSCJITEnabledDefaultsKey = @"WebKitJSCJITEnabledDefaultsKey";
-NSString *WebKitJSCFTLJITEnabledDefaultsKey = @"WebKitJSCFTLJITEnabledDefaultsKey";
+static NSString * const WebServiceWorkerRegistrationDirectoryDefaultsKey = @"WebServiceWorkerRegistrationDirectory";
+static NSString * const WebKitLocalCacheDefaultsKey = @"WebKitLocalCache";
+static NSString * const WebKitJSCJITEnabledDefaultsKey = @"WebKitJSCJITEnabledDefaultsKey";
+static NSString * const WebKitJSCFTLJITEnabledDefaultsKey = @"WebKitJSCFTLJITEnabledDefaultsKey";
 
 #if !PLATFORM(IOS_FAMILY) || PLATFORM(MACCATALYST)
-static NSString *WebKitApplicationDidChangeAccessibilityEnhancedUserInterfaceNotification = @"NSApplicationDidChangeAccessibilityEnhancedUserInterfaceNotification";
+static NSString * const WebKitApplicationDidChangeAccessibilityEnhancedUserInterfaceNotification = @"NSApplicationDidChangeAccessibilityEnhancedUserInterfaceNotification";
 static CFStringRef AppleColorPreferencesChangedNotification = CFSTR("AppleColorPreferencesChangedNotification");
 #endif
 
@@ -241,6 +241,25 @@ static std::optional<bool>& cachedLockdownModeEnabledGlobally()
     return cachedLockdownModeEnabledGlobally;
 }
 
+static dispatch_queue_t globalQueueSingleton()
+{
+    return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+}
+
+#if !PLATFORM(IOS_FAMILY)
+static dispatch_queue_t mainQueueSingleton()
+{
+    return dispatch_get_main_queue();
+}
+#endif
+
+#if PLATFORM(MAC)
+static NSApplication* NSAppSingleton()
+{
+    return NSApp;
+}
+#endif
+
 void WebProcessPool::updateProcessSuppressionState()
 {
     bool enabled = processSuppressionEnabled();
@@ -285,7 +304,7 @@ void WebProcessPool::setMediaAccessibilityPreferences(WebProcessProxy& process)
     static LazyNeverDestroyed<RetainPtr<dispatch_queue_t>> mediaAccessibilityQueue;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        mediaAccessibilityQueue.construct(dispatch_queue_create("MediaAccessibility queue", DISPATCH_QUEUE_SERIAL));
+        mediaAccessibilityQueue.construct(adoptNS(dispatch_queue_create("MediaAccessibility queue", DISPATCH_QUEUE_SERIAL)));
     });
 
     dispatch_async(mediaAccessibilityQueue.get().get(), [weakProcess = WeakPtr { process }] {
@@ -345,7 +364,7 @@ void WebProcessPool::platformInitialize(NeedsGlobalStaticInitialization needsGlo
 
 #if PLATFORM(IOS_FAMILY) && !PLATFORM(MACCATALYST)
     if (!_MGCacheValid()) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(globalQueueSingleton(), ^{
             [adoptNS([[objc_getClass("MobileGestaltHelperProxy") alloc] init]) proxyRebuildCache];
         });
     }
@@ -380,7 +399,7 @@ void WebProcessPool::platformInitializeWebProcess(const WebProcessProxy& process
 #if PLATFORM(MAC)
 ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     ASSERT(hasProcessPrivilege(ProcessPrivilege::CanCommunicateWithWindowServer));
-    parameters.accessibilityEnhancedUserInterfaceEnabled = [[NSApp accessibilityAttributeValue:@"AXEnhancedUserInterface"] boolValue];
+    parameters.accessibilityEnhancedUserInterfaceEnabled = [[NSAppSingleton() accessibilityAttributeValue:@"AXEnhancedUserInterface"] boolValue];
 ALLOW_DEPRECATED_DECLARATIONS_END
 #else
     parameters.accessibilityEnhancedUserInterfaceEnabled = false;
@@ -715,7 +734,7 @@ void WebProcessPool::hardwareKeyboardAvailabilityChanged()
 
 void WebProcessPool::initializeHardwareKeyboardAvailability()
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), makeBlockPtr([weakThis = WeakPtr { *this }] {
+    dispatch_async(globalQueueSingleton(), makeBlockPtr([weakThis = WeakPtr { *this }] {
         auto keyboardState = currentHardwareKeyboardState();
         callOnMainRunLoop([weakThis = WTFMove(weakThis), keyboardState] {
             RefPtr protectedThis = weakThis.get();
@@ -733,7 +752,7 @@ void WebProcessPool::startObservingPreferenceChanges()
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(globalQueueSingleton(), ^{
             // Start observing preference changes.
             [WKPreferenceObserver sharedInstance];
         });
@@ -772,8 +791,7 @@ void WebProcessPool::registerNotificationObservers()
 
     m_notifyTokens = WTF::compactMap(notificationMessages, [weakThis = WeakPtr { *this }](const ASCIILiteral& message) -> std::optional<int> {
         int notifyToken = 0;
-        auto queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        auto registerStatus = notify_register_dispatch(message, &notifyToken, queue, [weakThis, message](int token) {
+        auto registerStatus = notify_register_dispatch(message, &notifyToken, globalQueueSingleton(), [weakThis, message](int token) {
             uint64_t state = 0;
             auto status = notify_get_state(token, &state);
             callOnMainRunLoop([weakThis, message, state, status] {
@@ -859,25 +877,25 @@ void WebProcessPool::registerNotificationObservers()
         sendToAllProcesses(Messages::WebProcess::ScrollerStylePreferenceChanged(scrollbarStyle));
     }];
 
-    m_activationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidBecomeActiveNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
+    m_activationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidBecomeActiveNotification object:NSAppSingleton() queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
 #if ENABLE(CFPREFS_DIRECT_MODE)
         startObservingPreferenceChanges();
 #endif
         setApplicationIsActive(true);
     }];
 
-    m_deactivationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidResignActiveNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
+    m_deactivationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidResignActiveNotification object:NSAppSingleton() queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
         setApplicationIsActive(false);
     }];
 
-    m_didChangeScreenParametersNotificationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidChangeScreenParametersNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
+    m_didChangeScreenParametersNotificationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationDidChangeScreenParametersNotification object:NSAppSingleton() queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
         screenPropertiesChanged();
     }];
 #if HAVE(SUPPORT_HDR_DISPLAY_APIS)
-    m_didBeginSuppressingHighDynamicRange = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldBeginSuppressingHighDynamicRangeContentNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
+    m_didBeginSuppressingHighDynamicRange = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldBeginSuppressingHighDynamicRangeContentNotification object:NSAppSingleton() queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
         suppressEDR(true);
     }];
-    m_didEndSuppressingHighDynamicRange = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldEndSuppressingHighDynamicRangeContentNotification object:NSApp queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
+    m_didEndSuppressingHighDynamicRange = [[NSNotificationCenter defaultCenter] addObserverForName:NSApplicationShouldEndSuppressingHighDynamicRangeContentNotification object:NSAppSingleton() queue:[NSOperationQueue currentQueue] usingBlock:^(NSNotification *notification) {
         suppressEDR(false);
     }];
 #endif
@@ -888,7 +906,7 @@ void WebProcessPool::registerNotificationObservers()
     m_openDirectoryNotifyTokens.reserveInitialCapacity(std::size(messages));
     for (auto* message : messages) {
         int notifyToken;
-        notify_register_dispatch(message, &notifyToken, dispatch_get_main_queue(), ^(int token) {
+        notify_register_dispatch(message, &notifyToken, mainQueueSingleton(), ^(int token) {
             RELEASE_LOG(Notifications, "OpenDirectory invalidated cache");
 #if ENABLE(GPU_PROCESS)
             auto handle = SandboxExtension::createHandleForMachLookup("com.apple.system.opendirectoryd.libinfo"_s, std::nullopt);
@@ -1092,11 +1110,12 @@ void WebProcessPool::setCookieStoragePartitioningEnabled(bool enabled)
 void WebProcessPool::clearPermanentCredentialsForProtectionSpace(WebCore::ProtectionSpace&& protectionSpace)
 {
     RetainPtr sharedStorage = [NSURLCredentialStorage sharedCredentialStorage];
-    RetainPtr credentials = [sharedStorage credentialsForProtectionSpace:protectionSpace.nsSpace()];
+    RetainPtr space = protectionSpace.nsSpace();
+    RetainPtr credentials = [sharedStorage credentialsForProtectionSpace:space.get()];
     for (NSString* user in credentials.get()) {
         RetainPtr<NSURLCredential> credential = credentials.get()[user];
         if (credential.get().persistence == NSURLCredentialPersistencePermanent)
-            [sharedStorage removeCredential:credentials.get()[user] forProtectionSpace:protectionSpace.nsSpace()];
+            [sharedStorage removeCredential:credentials.get()[user] forProtectionSpace:space.get()];
     }
 }
 
@@ -1630,7 +1649,7 @@ void WebProcessPool::registerAssetFonts(WebProcessProxy& process)
         return true;
     });
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), [descriptions = RetainPtr<NSArray>(descriptions), blockPtr] {
+    dispatch_async(globalQueueSingleton(), [descriptions = RetainPtr<NSArray>(descriptions), blockPtr] {
         CTFontDescriptorMatchFontDescriptorsWithProgressHandler((__bridge CFArrayRef)descriptions.get(), nullptr, blockPtr.get());
     });
 }
