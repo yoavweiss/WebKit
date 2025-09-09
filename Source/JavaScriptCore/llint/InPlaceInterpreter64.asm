@@ -4246,14 +4246,129 @@ ipintOp(_simd_v128_const, macro()
 end)
 
 # 0xFD 0x0D - 0xFD 0x14: splat (+ shuffle/swizzle)
-unimplementedInstruction(_simd_i8x16_shuffle)
-unimplementedInstruction(_simd_i8x16_swizzle)
-unimplementedInstruction(_simd_i8x16_splat)
-unimplementedInstruction(_simd_i16x8_splat)
-unimplementedInstruction(_simd_i32x4_splat)
-unimplementedInstruction(_simd_i64x2_splat)
-unimplementedInstruction(_simd_f32x4_splat)
-unimplementedInstruction(_simd_f64x2_splat)
+
+ipintOp(_simd_i8x16_shuffle, macro()
+    # i8x16.shuffle - shuffle bytes from two vectors using 16 immediate indices
+    popVec(v1)
+    popVec(v0)
+    
+    if ARM64 or ARM64E
+        loadv ImmLaneIdxOffset[PC], v2  # Load 16 immediate bytes as a vector
+        emit "tbl v16.16b, {v16.16b, v17.16b}, v18.16b"
+    else
+        break # Not implemented
+    end
+    
+    pushVec(v0)
+    advancePC(18)  # 2 bytes opcode + 16 bytes immediate
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_swizzle, macro()
+    # i8x16.swizzle - swizzle bytes from first vector using indices from second vector
+    popVec(v1)
+    popVec(v0)
+    
+    if ARM64 or ARM64E
+        emit "tbl v16.16b, {v16.16b}, v17.16b"
+    else
+        break # Not implemented
+    end
+    
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_splat, macro()
+    # i8x16.splat - splat i32 value to all 16 8-bit lanes
+    popInt32(t0, t1)
+    
+    if ARM64 or ARM64E
+        emit "dup v16.16b, w0"
+    else
+        break # Not implemented
+    end
+    
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_splat, macro()
+    # i16x8.splat - splat i32 value to all 8 16-bit lanes
+    popInt32(t0, t1)
+    
+    if ARM64 or ARM64E
+        emit "dup v16.8h, w0"
+    else
+        break # Not implemented
+    end
+    
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i32x4_splat, macro()
+    # i32x4.splat - splat i32 value to all 4 32-bit lanes
+    popInt32(t0, t1)
+    
+    if ARM64 or ARM64E
+        emit "dup v16.4s, w0"
+    else
+        break # Not implemented
+    end
+    
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i64x2_splat, macro()
+    # i64x2.splat - splat i64 value to all 2 64-bit lanes
+    popInt64(t0, t1)
+    
+    if ARM64 or ARM64E
+        emit "dup v16.2d, x0"
+    else
+        break # Not implemented
+    end
+    
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f32x4_splat, macro()
+    # f32x4.splat - splat f32 value to all 4 32-bit float lanes
+    popFloat32(ft0)
+    
+    if ARM64 or ARM64E
+        emit "dup v16.4s, v0.s[0]"
+    else
+        break # Not implemented
+    end
+    
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f64x2_splat, macro()
+    # f64x2.splat - splat f64 value to all 2 64-bit float lanes
+    popFloat64(ft0)
+    
+    if ARM64 or ARM64E
+        emit "dup v16.2d, v0.d[0]"
+    else
+        break # Not implemented
+    end
+    
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x15 - 0xFD 0x22: extract and replace lanes
 ipintOp(_simd_i8x16_extract_lane_s, macro()

@@ -65,6 +65,31 @@ function arrayToV128Const(array, instruction) {
 }
 
 /**
+ * Convert scalar value to WebAssembly text format based on instruction type
+ * @param {*} val - Scalar value
+ * @param {string} instruction - SIMD instruction name
+ * @returns {string} - WebAssembly text format representation
+ */
+function scalarToWasmText(val, instruction) {
+    if (instruction.startsWith('i8x16.') || instruction.startsWith('i16x8.') || instruction.startsWith('i32x4.')) {
+        // Integer splat instructions take i32 constants
+        return `(i32.const ${val})`;
+    } else if (instruction.startsWith('i64x2.')) {
+        // i64 splat instruction takes i64 constant
+        const bigIntVal = typeof val === 'bigint' ? val : BigInt(val);
+        return `(i64.const ${bigIntVal})`;
+    } else if (instruction.startsWith('f32x4.')) {
+        // f32 splat instruction takes f32 constant
+        return `(f32.const ${floatToWasmText(val)})`;
+    } else if (instruction.startsWith('f64x2.')) {
+        // f64 splat instruction takes f64 constant
+        return `(f64.const ${floatToWasmText(val)})`;
+    }
+    // Default fallback
+    return val.toString();
+}
+
+/**
  * Run SIMD instruction tests with given test data
  * @param {Array} testData - Array of test cases, each containing [instruction, input0, input1, expected]
  * @param {boolean} verbose - Whether to print verbose output
@@ -73,8 +98,8 @@ function arrayToV128Const(array, instruction) {
 export async function runSIMDTests(testData, verbose = false, testType = "SIMD") {
 
     const numInputs = instruction =>
-        instruction.includes('.bitselect') ? 3 :
-        ['.abs', '.neg', '.sqrt', '.not', '.any_true', '.popcnt', '.all_true', '.bitmask'].some(pattern => instruction.includes(pattern)) ? 1 : 2;
+        ['.bitselect', '.shuffle'].some(pattern => instruction.includes(pattern)) ? 3 :
+        ['.abs', '.neg', '.sqrt', '.not', '.any_true', '.popcnt', '.all_true', '.bitmask', '.splat'].some(pattern => instruction.includes(pattern)) ? 1 : 2;
 
     const returnsI32 = instruction => ['.any_true', '.all_true', '.bitmask'].some(pattern => instruction.includes(pattern));
 
@@ -89,7 +114,8 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
 
         const numArgs = numInputs(instruction);
 
-        const input0Str = Array.isArray(arg0) ? arrayToV128Const(arg0, instruction) : arg0;
+        const input0Str = Array.isArray(arg0) ? arrayToV128Const(arg0, instruction) :
+                         (instruction.includes('.splat') ? scalarToWasmText(arg0, instruction) : arg0);
         
         if (returnsI32(instruction)) {
             // Instructions that return i32 (like v128.any_true) store to i32 memory location
@@ -112,8 +138,15 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
             wat += `            (${instruction} ${input0Str} ${input1Str})`;
         } else if (numArgs === 3) {
             const input1Str = Array.isArray(arg1) ? arrayToV128Const(arg1, instruction) : arg1;
-            const input2Str = Array.isArray(arg2) ? arrayToV128Const(arg2, instruction) : arg2;
-            wat += `            (${instruction} ${input0Str} ${input1Str} ${input2Str})`;
+            if (instruction.includes('.shuffle')) {
+                // For shuffle, arg2 contains the 16 immediate indices that come right after instruction name
+                const indices = arg2.join(' ');
+                wat += `            (${instruction} ${indices} ${input0Str} ${input1Str})`;
+            } else {
+                // For other 3-arg instructions like bitselect
+                const input2Str = Array.isArray(arg2) ? arrayToV128Const(arg2, instruction) : arg2;
+                wat += `            (${instruction} ${input0Str} ${input1Str} ${input2Str})`;
+            }
         } else
             assert.fail(`Unsupported number of arguments: ${numArgs} for instruction: ${instruction}`);
 
@@ -154,9 +187,10 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
                 expected = arg1;
             else if (numArgs === 2)
                 expected = arg2;
-            else if (numArgs === 3)
+            else if (numArgs === 3) {
+                // For all 3-arg instructions (shuffle, bitselect), expected result is arg3
                 expected = arg3;
-            else
+            } else
                 assert.fail(`Unsupported number of arguments: ${numArgs} for instruction: ${instruction}`);
 
             if (verbose)
