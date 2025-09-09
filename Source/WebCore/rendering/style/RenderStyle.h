@@ -352,6 +352,9 @@ struct WebkitBoxReflect;
 struct WebkitInitialLetter;
 struct WebkitLineClamp;
 struct WebkitLineGrid;
+struct WebkitMarqueeIncrement;
+struct WebkitMarqueeRepetition;
+struct WebkitMarqueeSpeed;
 struct WebkitTextStrokeWidth;
 struct Widows;
 struct ZIndex;
@@ -946,9 +949,9 @@ public:
 
     inline BoxSizing boxSizing() const;
     inline BoxSizing boxSizingForAspectRatio() const;
-    inline const Length& marqueeIncrement() const;
-    inline int marqueeSpeed() const;
-    inline int marqueeLoopCount() const;
+    inline const Style::WebkitMarqueeIncrement& marqueeIncrement() const;
+    inline Style::WebkitMarqueeRepetition marqueeRepetition() const;
+    inline Style::WebkitMarqueeSpeed marqueeSpeed() const;
     inline MarqueeBehavior marqueeBehavior() const;
     inline MarqueeDirection marqueeDirection() const;
     inline UserModify usedUserModify() const;
@@ -1530,11 +1533,11 @@ public:
     inline void setGridItemRowStart(Style::GridPosition&&);
     inline void setGridItemRowEnd(Style::GridPosition&&);
 
-    inline void setMarqueeIncrement(Length&&);
-    inline void setMarqueeSpeed(int);
-    inline void setMarqueeDirection(MarqueeDirection);
     inline void setMarqueeBehavior(MarqueeBehavior);
-    inline void setMarqueeLoopCount(int);
+    inline void setMarqueeDirection(MarqueeDirection);
+    inline void setMarqueeIncrement(Style::WebkitMarqueeIncrement&&);
+    inline void setMarqueeRepetition(Style::WebkitMarqueeRepetition);
+    inline void setMarqueeSpeed(Style::WebkitMarqueeSpeed);
     inline void setUserModify(UserModify);
     inline void setUserDrag(UserDrag);
     inline void setUserSelect(UserSelect);
@@ -2026,11 +2029,11 @@ public:
     static constexpr StyleContentAlignmentData initialContentAlignment();
     static constexpr FlexDirection initialFlexDirection();
     static constexpr FlexWrap initialFlexWrap();
-    static int initialMarqueeLoopCount() { return -1; }
-    static int initialMarqueeSpeed() { return 85; }
-    static inline Length initialMarqueeIncrement();
     static constexpr MarqueeBehavior initialMarqueeBehavior();
     static constexpr MarqueeDirection initialMarqueeDirection();
+    static inline Style::WebkitMarqueeIncrement initialMarqueeIncrement();
+    static constexpr Style::WebkitMarqueeRepetition initialMarqueeRepetition();
+    static constexpr Style::WebkitMarqueeSpeed initialMarqueeSpeed();
     static constexpr UserModify initialUserModify();
     static constexpr UserDrag initialUserDrag();
     static constexpr UserSelect initialUserSelect();
