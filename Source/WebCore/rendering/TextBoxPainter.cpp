@@ -1020,25 +1020,33 @@ void TextBoxPainter::paintCompositionUnderline(const CompositionUnderline& under
     fillCompositionUnderline(start, width, underline, radii, hasLiveConversion);
 }
 
+static void removeMarkersPaintedByTextDecorationPainter(const RenderText& renderer, Vector<MarkedText>& markedTexts)
+{
+    // SpellingError marked text that is styled via ::spelling-error is removed from being painted here and it is painted as regular text-decoration at TextDecorationPainter
+    auto spellingErrorPseudoStyle = renderer.spellingErrorPseudoStyle();
+    if (spellingErrorPseudoStyle && !spellingErrorPseudoStyle->textDecorationLineInEffect().isNone()) {
+        markedTexts.removeAllMatching([] (auto&& markedText) {
+            return markedText.type == MarkedText::Type::SpellingError;
+        });
+    }
+
+    // GrammarError marked text that is styled via ::grammar-error is removed from being painted here and it is painted as regular text-decoration at TextDecorationPainter
+    auto grammarErrorPseudoStyle = renderer.grammarErrorPseudoStyle();
+    if (grammarErrorPseudoStyle && !grammarErrorPseudoStyle->textDecorationLineInEffect().isNone()) {
+        markedTexts.removeAllMatching([] (auto&& markedText) {
+            return markedText.type == MarkedText::Type::GrammarError;
+        });
+    }
+}
+
 void TextBoxPainter::paintPlatformDocumentMarkers()
 {
     auto markedTexts = MarkedText::collectForDocumentMarkers(m_renderer, m_selectableRange, MarkedText::PaintPhase::Decoration);
     if (markedTexts.isEmpty())
         return;
 
-    auto spellingErrorStyle = m_renderer.spellingErrorPseudoStyle();
-    if (spellingErrorStyle && !spellingErrorStyle->textDecorationLineInEffect().isNone()) {
-        markedTexts.removeAllMatching([] (auto&& markedText) {
-            return markedText.type == MarkedText::Type::SpellingError;
-        });
-    }
-
-    auto grammarErrorStyle = m_renderer.grammarErrorPseudoStyle();
-    if (grammarErrorStyle && !grammarErrorStyle->textDecorationLineInEffect().isNone()) {
-        markedTexts.removeAllMatching([] (auto&& markedText) {
-            return markedText.type == MarkedText::Type::GrammarError;
-        });
-    }
+    // Defer painting to TextDecorationPainter if needed
+    removeMarkersPaintedByTextDecorationPainter(m_renderer, markedTexts);
 
     auto transparentContentMarkedTexts = MarkedText::collectForDraggedAndTransparentContent(DocumentMarkerType::TransparentContent, m_renderer, m_selectableRange);
 
