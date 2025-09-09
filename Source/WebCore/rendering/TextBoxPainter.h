@@ -111,7 +111,6 @@ protected:
     const bool m_haveSelection;
     bool m_containsComposition { false };
     bool m_useCustomUnderlines { false };
-    std::optional<bool> m_emphasisMarkExistsAndIsAbove { };
 };
 
 inline FloatSize TextBoxPainter::rotateShadowOffset(const SpaceSeparatedPoint<Style::Length<>>& offset, WritingMode writingMode)

@@ -61,6 +61,39 @@ namespace WebCore {
 
 static FloatRect calculateDocumentMarkerBounds(const InlineIterator::TextBoxIterator&, const MarkedText&);
 
+static std::optional<bool> emphasisMarkExistsAndIsAbove(const RenderText& renderer, const RenderStyle& style)
+{
+    // This function returns true if there are text emphasis marks and they are suppressed by ruby text.
+    if (style.textEmphasisStyle().isNone())
+        return { };
+
+    auto emphasisPosition = style.textEmphasisPosition();
+    bool isAbove = !emphasisPosition.contains(TextEmphasisPosition::Under);
+    if (style.writingMode().isVerticalTypographic())
+        isAbove = !emphasisPosition.contains(TextEmphasisPosition::Left);
+
+    auto findRubyAnnotation = [&]() -> RenderBlockFlow* {
+        for (auto* baseCandidate = renderer.parent(); baseCandidate; baseCandidate = baseCandidate->parent()) {
+            if (!baseCandidate->isInline())
+                return { };
+            if (baseCandidate->style().display() == DisplayType::RubyBase) {
+                if (auto* annotationCandidate = dynamicDowncast<RenderBlockFlow>(baseCandidate->nextSibling()); annotationCandidate && annotationCandidate->style().display() == DisplayType::RubyAnnotation)
+                    return annotationCandidate;
+                return { };
+            }
+        }
+        return { };
+    };
+
+    if (auto* annotation = findRubyAnnotation()) {
+        // The emphasis marks are suppressed only if there is a ruby annotation box on the same side and it is not empty.
+        if (annotation->hasLines() && isAbove == (annotation->style().rubyPosition() == RubyPosition::Over))
+            return { };
+    }
+
+    return isAbove;
+}
+
 TextBoxPainter::TextBoxPainter(const LayoutIntegration::InlineContent& inlineContent, const InlineDisplay::Box& box, const RenderStyle& style, PaintInfo& paintInfo, const LayoutPoint& paintOffset)
     : m_textBox(InlineIterator::BoxModernPath { inlineContent, inlineContent.indexForBox(box) })
     , m_renderer(downcast<RenderText>(m_textBox.renderer()))
@@ -79,7 +112,6 @@ TextBoxPainter::TextBoxPainter(const LayoutIntegration::InlineContent& inlineCon
     }())
     , m_isPrinting(m_document.printing())
     , m_haveSelection(computeHaveSelection())
-    , m_emphasisMarkExistsAndIsAbove(RenderText::emphasisMarkExistsAndIsAbove(m_renderer, m_style))
 {
     ASSERT(paintInfo.phase == PaintPhase::Foreground || paintInfo.phase == PaintPhase::Selection || paintInfo.phase == PaintPhase::TextClip || paintInfo.phase == PaintPhase::EventRegion || paintInfo.phase == PaintPhase::Accessibility);
 
@@ -505,9 +537,10 @@ void TextBoxPainter::paintForeground(const StyledMarkedText& markedText)
     const FontCascade& font = fontCascade();
 
     float emphasisMarkOffset = 0;
-    auto& emphasisMark = m_emphasisMarkExistsAndIsAbove ? m_style.textEmphasisStyle().markString() : nullAtom();
+    auto emphasisExistsAndIsAbove = emphasisMarkExistsAndIsAbove(m_renderer, m_style);
+    auto& emphasisMark = emphasisExistsAndIsAbove ? m_style.textEmphasisStyle().markString() : nullAtom();
     if (!emphasisMark.isEmpty())
-        emphasisMarkOffset = *m_emphasisMarkExistsAndIsAbove ? -font.metricsOfPrimaryFont().intAscent() - font.emphasisMarkDescent(emphasisMark) : font.metricsOfPrimaryFont().intDescent() + font.emphasisMarkAscent(emphasisMark);
+        emphasisMarkOffset = *emphasisExistsAndIsAbove ? -font.metricsOfPrimaryFont().intAscent() - font.emphasisMarkDescent(emphasisMark) : font.metricsOfPrimaryFont().intDescent() + font.emphasisMarkAscent(emphasisMark);
 
     TextPainter textPainter {
         context,
