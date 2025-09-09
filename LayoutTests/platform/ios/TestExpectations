@@ -8272,3 +8272,5 @@ webkit.org/b/298560 [ Debug ] editing/selection/ios/clear-selection-after-tappin
 # webkit.org/b/298556 [iOS] Two tests in fast/images are flaky timeouts
 fast/images/async-image-intersect-different-size-for-drawing.html [ Pass Timeout ]
 fast/images/low-memory-decode.html [ Pass Timeout ]
+
+webkit.org/b/298608 imported/w3c/web-platform-tests/digital-credentials/create.tentative.https.html [ Pass Failure ]
