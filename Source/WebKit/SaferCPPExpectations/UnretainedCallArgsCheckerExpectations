@@ -10,7 +10,6 @@ NetworkProcess/cocoa/NetworkProcessCocoa.mm
 NetworkProcess/mac/NetworkProcessMac.mm
 NetworkProcess/webrtc/NetworkRTCTCPSocketCocoa.mm
 NetworkProcess/webrtc/NetworkRTCUDPSocketCocoa.mm
-NetworkProcess/webrtc/NetworkRTCUtilitiesCocoa.mm
 Platform/IPC/cocoa/ConnectionCocoa.mm
 Platform/IPC/cocoa/DaemonConnectionCocoa.mm
 Platform/cocoa/ImageAnalysisUtilities.mm

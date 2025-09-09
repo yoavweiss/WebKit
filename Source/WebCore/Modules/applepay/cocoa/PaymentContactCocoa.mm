@@ -42,7 +42,8 @@ namespace WebCore {
 
 static RetainPtr<PKContact> convert(unsigned version, const ApplePayPaymentContact& contact)
 {
-    auto result = adoptNS([PAL::allocPKContactInstance() init]);
+    // FIXME: This is a safer cpp false positive (rdar://160083438).
+    SUPPRESS_UNRETAINED_ARG auto result = adoptNS([PAL::allocPKContactInstance() init]);
 
     RetainPtr<NSString> familyName;
     RetainPtr<NSString> phoneticFamilyName;
@@ -76,11 +77,14 @@ static RetainPtr<PKContact> convert(unsigned version, const ApplePayPaymentConta
     if (!contact.emailAddress.isEmpty())
         [result setEmailAddress:contact.emailAddress.createNSString().get()];
 
-    if (!contact.phoneNumber.isEmpty())
-        [result setPhoneNumber:adoptNS([allocCNPhoneNumberInstance() initWithStringValue:contact.phoneNumber.createNSString().get()]).get()];
+    if (!contact.phoneNumber.isEmpty()) {
+        // FIXME: This is a safer cpp false positive (rdar://160083438).
+        SUPPRESS_UNRETAINED_ARG [result setPhoneNumber:adoptNS([allocCNPhoneNumberInstance() initWithStringValue:contact.phoneNumber.createNSString().get()]).get()];
+    }
 
     if (contact.addressLines && !contact.addressLines->isEmpty()) {
-        auto address = adoptNS([allocCNMutablePostalAddressInstance() init]);
+        // FIXME: This is a safer cpp false positive (rdar://160083438).
+        SUPPRESS_UNRETAINED_ARG auto address = adoptNS([allocCNMutablePostalAddressInstance() init]);
 
         StringBuilder builder;
         for (unsigned i = 0; i < contact.addressLines->size(); ++i) {

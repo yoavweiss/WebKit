@@ -138,19 +138,21 @@ static PKInstallmentRetailChannel platformRetailChannel(ApplePayInstallmentRetai
 static RetainPtr<id> makeNSArrayElement(const ApplePayInstallmentItem& item)
 {
     ASSERT(PAL::getPKPaymentInstallmentItemClass());
-    auto installmentItem = adoptNS([PAL::allocPKPaymentInstallmentItemInstance() init]);
+    // FIXME: This is a safer cpp false positive.
+    SUPPRESS_UNRETAINED_ARG auto installmentItem = adoptNS([PAL::allocPKPaymentInstallmentItemInstance() init]);
+
     [installmentItem setInstallmentItemType:platformItemType(item.type)];
-    [installmentItem setAmount:toDecimalNumber(item.amount)];
+    [installmentItem setAmount:toProtectedDecimalNumber(item.amount).get()];
     [installmentItem setCurrencyCode:item.currencyCode.createNSString().get()];
     [installmentItem setProgramIdentifier:item.programIdentifier.createNSString().get()];
-    [installmentItem setApr:toDecimalNumber(item.apr)];
+    [installmentItem setApr:toProtectedDecimalNumber(item.apr).get()];
     [installmentItem setProgramTerms:item.programTerms.createNSString().get()];
     return installmentItem;
 }
 
 static std::optional<ApplePayInstallmentItem> makeVectorElement(const ApplePayInstallmentItem*, id arrayElement)
 {
-    if (![arrayElement isKindOfClass:PAL::getPKPaymentInstallmentItemClass()])
+    if (![arrayElement isKindOfClass:RetainPtr { PAL::getPKPaymentInstallmentItemClass() }.get()])
         return std::nullopt;
 
     PKPaymentInstallmentItem *item = arrayElement;
@@ -183,14 +185,15 @@ static RetainPtr<PKPaymentInstallmentConfiguration> createPlatformConfiguration(
     if (!PAL::getPKPaymentInstallmentConfigurationClass())
         return nil;
 
-    auto configuration = adoptNS([PAL::allocPKPaymentInstallmentConfigurationInstance() init]);
+    // FIXME: This is a safer cpp false positive (rdar://160083438).
+    SUPPRESS_UNRETAINED_ARG auto configuration = adoptNS([PAL::allocPKPaymentInstallmentConfigurationInstance() init]);
 
     [configuration setFeature:platformFeatureType(coreConfiguration.featureType)];
 
-    [configuration setBindingTotalAmount:toDecimalNumber(coreConfiguration.bindingTotalAmount)];
+    [configuration setBindingTotalAmount:toProtectedDecimalNumber(coreConfiguration.bindingTotalAmount).get()];
     [configuration setCurrencyCode:coreConfiguration.currencyCode.createNSString().get()];
     [configuration setInStorePurchase:coreConfiguration.isInStorePurchase];
-    [configuration setOpenToBuyThresholdAmount:toDecimalNumber(coreConfiguration.openToBuyThresholdAmount)];
+    [configuration setOpenToBuyThresholdAmount:toProtectedDecimalNumber(coreConfiguration.openToBuyThresholdAmount).get()];
 
     auto merchandisingImageData = adoptNS([[NSData alloc] initWithBase64EncodedString:coreConfiguration.merchandisingImageData.createNSString().get() options:0]);
     [configuration setMerchandisingImageData:merchandisingImageData.get()];

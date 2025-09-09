@@ -246,7 +246,7 @@ static void* lib##Library() \
     _Pragma("clang diagnostic ignored \"-Wunused-function\"") \
     static className *alloc##className##Instance() NS_RETURNS_RETAINED \
     { \
-        return [get##className##Class() alloc]; \
+        SUPPRESS_UNRETAINED_ARG return [get##className##Class() alloc]; \
     } \
     _Pragma("clang diagnostic pop")
 
@@ -274,7 +274,7 @@ static void* lib##Library() \
     _Pragma("clang diagnostic ignored \"-Wunused-function\"") \
     static className *alloc##className##Instance() NS_RETURNS_RETAINED \
     { \
-        return [get##className##Class() alloc]; \
+        SUPPRESS_UNRETAINED_ARG return [get##className##Class() alloc]; \
     } \
     _Pragma("clang diagnostic pop")
 

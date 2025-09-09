@@ -28,6 +28,7 @@
 
 #if ENABLE(APPLE_PAY)
 
+#import <JavaScriptCore/JSGlobalObject.h>
 #import <JavaScriptCore/JSONObject.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
 
@@ -46,7 +47,8 @@ std::optional<PaymentMerchantSession> PaymentMerchantSession::fromJS(JSC::JSGlob
     if (!dictionary || ![dictionary isKindOfClass:[NSDictionary class]])
         return std::nullopt;
 
-    RetainPtr pkPaymentMerchantSession = adoptNS([PAL::allocPKPaymentMerchantSessionInstance() initWithDictionary:dictionary.get()]);
+    // FIXME: This is a safer cpp false positive (rdar://160083438).
+    SUPPRESS_UNRETAINED_ARG RetainPtr pkPaymentMerchantSession = adoptNS([PAL::allocPKPaymentMerchantSessionInstance() initWithDictionary:dictionary.get()]);
 
     return PaymentMerchantSession(WTFMove(pkPaymentMerchantSession));
 }
