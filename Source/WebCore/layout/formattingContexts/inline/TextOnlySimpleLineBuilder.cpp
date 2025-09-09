@@ -94,7 +94,6 @@ static inline bool consumeTrailingLineBreakIfApplicable(const TextOnlyLineBreakR
 
 TextOnlySimpleLineBuilder::TextOnlySimpleLineBuilder(InlineFormattingContext& inlineFormattingContext, const ElementBox& rootBox, HorizontalConstraints rootHorizontalConstraints, const InlineItemList& inlineItemList)
     : AbstractLineBuilder(inlineFormattingContext, rootBox, rootHorizontalConstraints, inlineItemList)
-    , m_isWrappingAllowed(TextUtil::isWrappingAllowed(rootStyle()))
 {
 }
 
@@ -107,7 +106,7 @@ LineLayoutResult TextOnlySimpleLineBuilder::layoutInlineContent(const LineInput&
 
     initialize(lineInput.needsLayoutRange, lineInput.initialLogicalRect, previousLine, isFirstFormattedLineCandidate);
     auto& rootStyle = this->rootStyle();
-    auto placedContentEnd = isWrappingAllowed() ? placeInlineTextContent(rootStyle, lineInput.needsLayoutRange) : placeNonWrappingInlineTextContent(rootStyle, lineInput.needsLayoutRange);
+    auto placedContentEnd = TextUtil::isWrappingAllowed(rootStyle) ? placeInlineTextContent(rootStyle, lineInput.needsLayoutRange) : placeNonWrappingInlineTextContent(rootStyle, lineInput.needsLayoutRange);
     auto result = m_line.close();
 
     auto isLastInlineContent = isLastLineWithInlineContent(placedContentEnd, lineInput.needsLayoutRange.endIndex());
