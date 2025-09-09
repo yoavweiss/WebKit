@@ -345,6 +345,7 @@ private:
 
 class BBQCallee final : public OptimizingJITCallee {
     WTF_MAKE_COMPACT_TZONE_ALLOCATED(BBQCallee);
+    friend class Callee;
 public:
     static constexpr unsigned extraOSRValuesForLoopIndex = 1;
 
@@ -406,6 +407,8 @@ private:
     {
     }
 
+    JS_EXPORT_PRIVATE const RegisterAtOffsetList* calleeSaveRegistersImpl();
+
     RefPtr<OMGOSREntryCallee> m_osrEntryCallee;
     TierUpCount m_tierUpCounter;
     std::optional<CodeLocationLabel<WasmEntryPtrTag>> m_sharedLoopEntrypoint;
@@ -440,6 +443,8 @@ public:
 
     FixedVector<CallSlot>& callSlots() { return m_callSlots; }
     const FixedVector<CallSlot>& callSlots() const { return m_callSlots; }
+
+    bool needsProfiling() const { return !m_callSlots.isEmpty(); }
 
     IPIntTierUpCounter& tierUpCounter() { return m_tierUpCounter; }
 
