@@ -63,7 +63,7 @@ inline void RenderStyle::resetBorderTopRightRadius() { SET_NESTED(m_nonInherited
 inline void RenderStyle::resetColumnRule() { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, multiCol, rule, BorderValue()); }
 inline void RenderStyle::resetMargin() { SET_NESTED(m_nonInheritedData, surroundData, margin, Style::MarginBox { 0_css_px }); }
 inline void RenderStyle::resetPadding() { SET_NESTED(m_nonInheritedData, surroundData, padding, Style::PaddingBox { 0_css_px }); }
-inline void RenderStyle::resetPageSizeType() { SET_NESTED(m_nonInheritedData, rareData, pageSizeType, static_cast<unsigned>(PageSizeType::Auto)); }
+inline void RenderStyle::resetPageSize() { SET_NESTED(m_nonInheritedData, rareData, pageSize, Style::PageSize { CSS::Keyword::Auto { } }); }
 inline void RenderStyle::setAccentColor(Style::Color&& color) { SET_PAIR(m_rareInheritedData, accentColor, WTFMove(color), hasAutoAccentColor, false); }
 inline void RenderStyle::setAlignContent(const StyleContentAlignmentData& data) { SET_NESTED(m_nonInheritedData, miscData, alignContent, data); }
 inline void RenderStyle::setAlignItems(const StyleSelfAlignmentData& data) { SET_NESTED(m_nonInheritedData, miscData, alignItems, data); }
@@ -247,8 +247,7 @@ inline void RenderStyle::setPaddingBox(Style::PaddingBox&& box) { SET_NESTED(m_n
 inline void RenderStyle::setPaddingLeft(Style::PaddingEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, padding.left(), WTFMove(edge)); }
 inline void RenderStyle::setPaddingRight(Style::PaddingEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, padding.right(), WTFMove(edge)); }
 inline void RenderStyle::setPaddingTop(Style::PaddingEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, padding.top(), WTFMove(edge)); }
-inline void RenderStyle::setPageSize(LengthSize size) { SET_NESTED(m_nonInheritedData, rareData, pageSize, WTFMove(size)); }
-inline void RenderStyle::setPageSizeType(PageSizeType type) { SET_NESTED(m_nonInheritedData, rareData, pageSizeType, static_cast<unsigned>(type)); }
+inline void RenderStyle::setPageSize(Style::PageSize&& pageSize) { SET_NESTED(m_nonInheritedData, rareData, pageSize, WTFMove(pageSize)); }
 inline void RenderStyle::setPaintOrder(PaintOrder order) { SET(m_rareInheritedData, paintOrder, static_cast<unsigned>(order)); }
 inline void RenderStyle::setPerspective(Style::Perspective&& perspective) { SET_NESTED(m_nonInheritedData, rareData, perspective, WTFMove(perspective)); }
 inline void RenderStyle::setPerspectiveOrigin(Style::PerspectiveOrigin&& origin) { SET_NESTED(m_nonInheritedData, rareData, perspectiveOrigin, WTFMove(origin)); }

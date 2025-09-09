@@ -62,7 +62,7 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , willChange(RenderStyle::initialWillChange())
     , boxReflect(RenderStyle::initialBoxReflect())
     , maskBorder(RenderStyle::initialMaskBorder())
-    // pageSize
+    , pageSize(RenderStyle::initialPageSize())
     , shapeOutside(RenderStyle::initialShapeOutside())
     , shapeMargin(RenderStyle::initialShapeMargin())
     , shapeImageThreshold(RenderStyle::initialShapeImageThreshold())
@@ -111,7 +111,6 @@ StyleRareNonInheritedData::StyleRareNonInheritedData()
     , blockStepRound(static_cast<unsigned>(RenderStyle::initialBlockStepRound()))
     , overscrollBehaviorX(static_cast<unsigned>(RenderStyle::initialOverscrollBehaviorX()))
     , overscrollBehaviorY(static_cast<unsigned>(RenderStyle::initialOverscrollBehaviorY()))
-    , pageSizeType(static_cast<unsigned>(PageSizeType::Auto))
     , transformStyle3D(static_cast<unsigned>(RenderStyle::initialTransformStyle3D()))
     , transformStyleForcedToFlat(false)
     , backfaceVisibility(static_cast<unsigned>(RenderStyle::initialBackfaceVisibility()))
@@ -218,7 +217,6 @@ inline StyleRareNonInheritedData::StyleRareNonInheritedData(const StyleRareNonIn
     , blockStepRound(o.blockStepRound)
     , overscrollBehaviorX(o.overscrollBehaviorX)
     , overscrollBehaviorY(o.overscrollBehaviorY)
-    , pageSizeType(o.pageSizeType)
     , transformStyle3D(o.transformStyle3D)
     , transformStyleForcedToFlat(o.transformStyleForcedToFlat)
     , backfaceVisibility(o.backfaceVisibility)
@@ -330,7 +328,6 @@ bool StyleRareNonInheritedData::operator==(const StyleRareNonInheritedData& o) c
         && blockStepRound == o.blockStepRound
         && overscrollBehaviorX == o.overscrollBehaviorX
         && overscrollBehaviorY == o.overscrollBehaviorY
-        && pageSizeType == o.pageSizeType
         && transformStyle3D == o.transformStyle3D
         && transformStyleForcedToFlat == o.transformStyleForcedToFlat
         && backfaceVisibility == o.backfaceVisibility
@@ -494,8 +491,6 @@ void StyleRareNonInheritedData::dumpDifferences(TextStream& ts, const StyleRareN
 
     LOG_IF_DIFFERENT_WITH_CAST(OverscrollBehavior, overscrollBehaviorX);
     LOG_IF_DIFFERENT_WITH_CAST(OverscrollBehavior, overscrollBehaviorY);
-
-    LOG_IF_DIFFERENT_WITH_CAST(PageSizeType, pageSizeType);
 
     LOG_IF_DIFFERENT_WITH_CAST(TransformStyle3D, transformStyle3D);
     LOG_IF_DIFFERENT_WITH_CAST(bool, transformStyleForcedToFlat);

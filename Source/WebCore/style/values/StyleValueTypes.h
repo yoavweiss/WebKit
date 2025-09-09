@@ -454,6 +454,7 @@ template<typename CSSType> struct CSSValueCreation<MinimallySerializingSpaceSepa
 //    template<> struct WebCore::Style::CSSValueConversion<StyleType> {
 //                   StyleType operator()(BuilderState&, const CSSValue&);
 //        [optional] StyleType operator()(BuilderState&, const CSSPrimitiveValue&);
+//        [optional] StyleType operator()(const CSSToLengthConversionData&, const CSSPrimitiveValue&);
 //    };
 
 template<typename StyleType> struct CSSValueConversion;
@@ -466,6 +467,10 @@ template<typename StyleType> struct CSSValueConversionInvoker {
     template<typename... Rest> StyleType operator()(BuilderState& builderState, const CSSPrimitiveValue& value, Rest&&... rest) const
     {
         return CSSValueConversion<StyleType>{}(builderState, value, std::forward<Rest>(rest)...);
+    }
+    template<typename... Rest> StyleType operator()(const CSSToLengthConversionData& conversionData, const CSSPrimitiveValue& value, Rest&&... rest) const
+    {
+        return CSSValueConversion<StyleType>{}(conversionData, value, std::forward<Rest>(rest)...);
     }
 };
 template<typename StyleType> inline constexpr CSSValueConversionInvoker<StyleType> toStyleFromCSSValue{};

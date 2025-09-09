@@ -164,7 +164,6 @@ enum class OverflowAnchor : bool;
 enum class OverflowContinue : bool;
 enum class OverflowWrap : uint8_t;
 enum class OverscrollBehavior : uint8_t;
-enum class PageSizeType : uint8_t;
 enum class PaginationMode : uint8_t;
 enum class PaintBehavior : uint32_t;
 enum class PaintOrder : uint8_t;
@@ -305,6 +304,7 @@ struct OffsetRotate;
 struct Opacity;
 struct Orphans;
 struct PaddingEdge;
+struct PageSize;
 struct Perspective;
 struct Position;
 struct PositionX;
@@ -1118,8 +1118,7 @@ public:
     inline const Style::PerspectiveOriginX& perspectiveOriginX() const;
     inline const Style::PerspectiveOriginY& perspectiveOriginY() const;
 
-    inline const LengthSize& pageSize() const;
-    inline PageSizeType pageSizeType() const;
+    inline const Style::PageSize& pageSize() const;
 
     inline OptionSet<Style::LineBoxContain> lineBoxContain() const;
     inline const Style::WebkitLineClamp& lineClamp() const;
@@ -1632,9 +1631,9 @@ public:
     inline void setPerspectiveOrigin(Style::PerspectiveOrigin&&);
     inline void setPerspectiveOriginX(Style::PerspectiveOriginX&&);
     inline void setPerspectiveOriginY(Style::PerspectiveOriginY&&);
-    inline void setPageSize(LengthSize);
-    inline void setPageSizeType(PageSizeType);
-    inline void resetPageSizeType();
+
+    inline void setPageSize(Style::PageSize&&);
+    inline void resetPageSize();
 
     inline void setLineBoxContain(OptionSet<Style::LineBoxContain>);
     inline void setLineClamp(Style::WebkitLineClamp&&);
@@ -1979,6 +1978,7 @@ public:
     static inline Style::MarginEdge initialMargin();
     static constexpr OptionSet<MarginTrimType> initialMarginTrim();
     static inline Style::PaddingEdge initialPadding();
+    static inline Style::PageSize initialPageSize();
     static inline Style::TextIndent initialTextIndent();
     static constexpr TextBoxTrim initialTextBoxTrim();
     static TextEdge initialTextBoxEdge();

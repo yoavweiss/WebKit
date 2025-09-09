@@ -3300,6 +3300,8 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/overflow/StyleScrollBehavior.h
     style/values/overflow/StyleScrollbarGutter.h
 
+    style/values/page/StylePageSize.h
+
     style/values/position/StyleInset.h
 
     style/values/primitives/StyleLengthWrapper+Blending.h

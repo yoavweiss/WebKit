@@ -3354,38 +3354,31 @@ void Document::pageSizeAndMarginsInPixels(int pageIndex, IntSize& pageSize, int&
     updateStyleIfNeeded();
     auto style = styleScope().resolver().styleForPage(pageIndex);
 
-    int width = pageSize.width();
-    int height = pageSize.height();
-    switch (style->pageSizeType()) {
-    case PageSizeType::Auto:
-        break;
-    case PageSizeType::AutoLandscape:
-        if (width < height)
-            std::swap(width, height);
-        break;
-    case PageSizeType::AutoPortrait:
-        if (width > height)
-            std::swap(width, height);
-        break;
-    case PageSizeType::Resolved: {
-        auto& size = style->pageSize();
-        ASSERT(size.width.isFixed());
-        ASSERT(size.height.isFixed());
-        width = valueForLength(size.width, 0);
-        height = valueForLength(size.height, 0);
-        break;
-    }
-    default:
-        ASSERT_NOT_REACHED();
-    }
-    pageSize = IntSize(width, height);
+    pageSize = WTF::switchOn(style->pageSize(),
+        [&](const CSS::Keyword::Auto&) {
+            return pageSize;
+        },
+        [&](const CSS::Keyword::Landscape&) {
+            if (pageSize.width() < pageSize.height())
+                return pageSize.transposedSize();
+            return pageSize;
+        },
+        [&](const CSS::Keyword::Portrait&) {
+            if (pageSize.width() > pageSize.height())
+                return pageSize.transposedSize();
+            return pageSize;
+        },
+        [&](const Style::PageSize::Lengths& lengths) -> IntSize {
+            return { static_cast<int>(lengths.width().value), static_cast<int>(lengths.height().value) };
+        }
+    );
 
     // The percentage is calculated with respect to the width even for margin top and bottom.
     // http://www.w3.org/TR/CSS2/box.html#margin-properties
-    marginTop = style->marginTop().isAuto() ? marginTop : Style::evaluate(style->marginTop(), width);
-    marginRight = style->marginRight().isAuto() ? marginRight : Style::evaluate(style->marginRight(), width);
-    marginBottom = style->marginBottom().isAuto() ? marginBottom : Style::evaluate(style->marginBottom(), width);
-    marginLeft = style->marginLeft().isAuto() ? marginLeft : Style::evaluate(style->marginLeft(), width);
+    marginTop = style->marginTop().isAuto() ? marginTop : Style::evaluate(style->marginTop(), pageSize.width());
+    marginRight = style->marginRight().isAuto() ? marginRight : Style::evaluate(style->marginRight(), pageSize.width());
+    marginBottom = style->marginBottom().isAuto() ? marginBottom : Style::evaluate(style->marginBottom(), pageSize.width());
+    marginLeft = style->marginLeft().isAuto() ? marginLeft : Style::evaluate(style->marginLeft(), pageSize.width());
 }
 
 void Document::fontsNeedUpdate(FontSelector&)

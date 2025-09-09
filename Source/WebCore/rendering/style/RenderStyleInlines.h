@@ -463,6 +463,7 @@ constexpr Overflow RenderStyle::initialOverflowY() { return Overflow::Visible; }
 constexpr OverscrollBehavior RenderStyle::initialOverscrollBehaviorX() { return OverscrollBehavior::Auto; }
 constexpr OverscrollBehavior RenderStyle::initialOverscrollBehaviorY() { return OverscrollBehavior::Auto; }
 inline Style::PaddingEdge RenderStyle::initialPadding() { return 0_css_px; }
+inline Style::PageSize RenderStyle::initialPageSize() { return CSS::Keyword::Auto { }; }
 constexpr PaintOrder RenderStyle::initialPaintOrder() { return PaintOrder::Normal; }
 inline Style::Perspective RenderStyle::initialPerspective() { return CSS::Keyword::None { }; }
 inline Style::PerspectiveOrigin RenderStyle::initialPerspectiveOrigin() { return { initialPerspectiveOriginX(), initialPerspectiveOriginY() }; }
@@ -690,8 +691,7 @@ inline const Style::PaddingEdge& RenderStyle::paddingRight() const { return padd
 inline const Style::PaddingEdge& RenderStyle::paddingStart() const { return paddingStart(writingMode()); }
 inline const Style::PaddingEdge& RenderStyle::paddingStart(const WritingMode writingMode) const { return paddingBox().start(writingMode); }
 inline const Style::PaddingEdge& RenderStyle::paddingTop() const { return paddingBox().top(); }
-inline const LengthSize& RenderStyle::pageSize() const { return m_nonInheritedData->rareData->pageSize; }
-inline PageSizeType RenderStyle::pageSizeType() const { return static_cast<PageSizeType>(m_nonInheritedData->rareData->pageSizeType); }
+inline const Style::PageSize& RenderStyle::pageSize() const { return m_nonInheritedData->rareData->pageSize; }
 inline PaintOrder RenderStyle::paintOrder() const { return static_cast<PaintOrder>(m_rareInheritedData->paintOrder); }
 inline const Style::Perspective& RenderStyle::perspective() const { return m_nonInheritedData->rareData->perspective; }
 inline const Style::PerspectiveOrigin& RenderStyle::perspectiveOrigin() const { return m_nonInheritedData->rareData->perspectiveOrigin; }

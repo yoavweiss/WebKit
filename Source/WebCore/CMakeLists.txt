@@ -227,6 +227,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/style/values/multicol"
     "${WEBCORE_DIR}/style/values/non-standard"
     "${WEBCORE_DIR}/style/values/overflow"
+    "${WEBCORE_DIR}/style/values/page"
     "${WEBCORE_DIR}/style/values/position"
     "${WEBCORE_DIR}/style/values/primitives"
     "${WEBCORE_DIR}/style/values/rhythm"

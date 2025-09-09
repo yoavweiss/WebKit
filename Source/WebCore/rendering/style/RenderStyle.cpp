@@ -2019,7 +2019,6 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
         // marquee
         // boxReflect
         // pageSize
-        // pageSizeType
         // overscrollBehaviorX
         // overscrollBehaviorY
         // applePayButtonStyle
