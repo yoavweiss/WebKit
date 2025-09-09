@@ -40,7 +40,7 @@ struct MockTestMessageWithConnection {
     static constexpr bool isSync = false;
     static constexpr bool canDispatchOutOfOrder = false;
     static constexpr bool replyCanDispatchOutOfOrder = false;
-    static constexpr IPC::MessageName name()  { return static_cast<IPC::MessageName>(123); }
+    static constexpr IPC::MessageName name()  { return IPC::MessageName::IPCTester_EmptyMessage; }
     MockTestMessageWithConnection(IPC::Connection::Handle&& handle)
         : m_handle(WTFMove(handle))
     {
