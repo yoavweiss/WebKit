@@ -37,7 +37,7 @@
 #include "IntRect.h"
 #include "LayoutRoundedRect.h"
 #include "SystemImage.h"
-#include "TextBoxIterator.h"
+#include "TextRunIterator.h"
 #include "VideoFrame.h"
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/TextStream.h>
@@ -185,14 +185,14 @@ void GraphicsContext::drawEmphasisMarks(const FontCascade& font, const TextRun& 
 
 void GraphicsContext::drawBidiText(const FontCascade& font, const TextRun& run, const FloatPoint& point, FontCascade::CustomFontNotReadyAction customFontNotReadyAction)
 {
-    BidiResolver<TextBoxIterator, BidiCharacterRun> bidiResolver;
+    BidiResolver<TextRunIterator, BidiCharacterRun> bidiResolver;
     bidiResolver.setStatus(BidiStatus(run.direction(), run.directionalOverride()));
-    bidiResolver.setPositionIgnoringNestedIsolates(TextBoxIterator(&run, 0));
+    bidiResolver.setPositionIgnoringNestedIsolates(TextRunIterator(&run, 0));
 
     // FIXME: This ownership should be reversed. We should pass BidiRunList
     // to BidiResolver in createBidiRunsForLine.
     BidiRunList<BidiCharacterRun>& bidiRuns = bidiResolver.runs();
-    bidiResolver.createBidiRunsForLine(TextBoxIterator(&run, run.length()));
+    bidiResolver.createBidiRunsForLine(TextRunIterator(&run, run.length()));
 
     if (!bidiRuns.runCount())
         return;

@@ -29,11 +29,11 @@
 
 namespace WebCore {
 
-class TextBoxIterator {
+class TextRunIterator {
 public:
-    TextBoxIterator() = default;
+    TextRunIterator() = default;
 
-    TextBoxIterator(const TextRun* textRun, unsigned offset)
+    TextRunIterator(const TextRun* textRun, unsigned offset)
         : m_textRun(textRun)
         , m_offset(offset)
     {
@@ -45,7 +45,7 @@ public:
     char16_t current() const { return (*m_textRun)[m_offset]; }
     UCharDirection direction() const { return atEnd() ? U_OTHER_NEUTRAL : u_charDirection(current()); }
 
-    friend bool operator==(const TextBoxIterator&, const TextBoxIterator&) = default;
+    friend bool operator==(const TextRunIterator&, const TextRunIterator&) = default;
 
 private:
     const TextRun* m_textRun { nullptr };
