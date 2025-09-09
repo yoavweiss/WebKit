@@ -154,7 +154,7 @@ void RemoteImageBufferSet::ensureBufferForDisplay(ImageBufferSetPrepareBufferFor
             imageBuffer = WebCore::ImageBuffer::create<WebCore::NullImageBufferBackend>({ 0, 0 }, 1, WebCore::DestinationColorSpace::SRGB(), { WebCore::ImageBufferPixelFormat::BGRA8 }, WebCore::RenderingPurpose::Unspecified, { });
             RELEASE_ASSERT(imageBuffer);
         }
-        m_context = RemoteGraphicsContext::create(*imageBuffer, m_contextIdentifier, m_renderingBackend);
+        m_context = RemoteImageBufferGraphicsContext::create(*imageBuffer, m_contextIdentifier, m_renderingBackend);
     }
 }
 

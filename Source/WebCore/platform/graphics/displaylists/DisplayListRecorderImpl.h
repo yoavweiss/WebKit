@@ -33,7 +33,7 @@ namespace WebCore {
 namespace DisplayList {
 
 class RecorderImpl : public Recorder {
-    WTF_MAKE_TZONE_ALLOCATED(RecorderImpl);
+    WTF_MAKE_TZONE_ALLOCATED_EXPORT(RecorderImpl, WEBCORE_EXPORT);
     WTF_MAKE_NONCOPYABLE(RecorderImpl);
 public:
     WEBCORE_EXPORT RecorderImpl(const GraphicsContextState&, const FloatRect& initialClip, const AffineTransform&, const DestinationColorSpace& = DestinationColorSpace::SRGB(), DrawGlyphsMode = DrawGlyphsMode::Normal);
@@ -95,7 +95,6 @@ public:
     void fillRectWithRoundedHole(const FloatRect&, const FloatRoundedRect&, const Color&) final;
     void drawGlyphs(const Font&, std::span<const GlyphBufferGlyph>, std::span<const GlyphBufferAdvance>, const FloatPoint& localAnchor, FontSmoothingMode) final;
     void drawGlyphsImmediate(const Font&, std::span<const GlyphBufferGlyph>, std::span<const GlyphBufferAdvance>, const FloatPoint& localAnchor, FontSmoothingMode) final;
-    void drawDecomposedGlyphs(const Font&, const DecomposedGlyphs&) final;
     void drawDisplayList(const DisplayList&, ControlFactory&) final;
 #if ENABLE(VIDEO)
     void drawVideoFrame(VideoFrame&, const FloatRect& destination, ImageOrientation, bool shouldDiscardAlpha) final;

@@ -34,6 +34,8 @@
 #include "MarkSurfacesAsVolatileRequestIdentifier.h"
 #include "MessageReceiver.h"
 #include "MessageSender.h"
+#include "RemoteDisplayListIdentifier.h"
+#include "RemoteDisplayListRecorderIdentifier.h"
 #include "RemoteGraphicsContextIdentifier.h"
 #include "RemoteImageBufferSetIdentifier.h"
 #include "RemoteResourceCache.h"
@@ -61,7 +63,6 @@ enum class Synchronous : bool;
 }
 
 namespace WebCore {
-class DecomposedGlyphs;
 class DestinationColorSpace;
 class Filter;
 class FloatSize;
@@ -82,6 +83,7 @@ struct FaceDetectorOptions;
 namespace WebKit {
 
 class GPUConnectionToWebProcess;
+class RemoteDisplayListRecorder;
 class RemoteImageBuffer;
 class RemoteImageBufferSet;
 struct BufferIdentifierSet;
@@ -147,14 +149,15 @@ private:
     void releaseImageBuffer(WebCore::RenderingResourceIdentifier);
     void moveToSerializedBuffer(WebCore::RenderingResourceIdentifier, RemoteSerializedImageBufferIdentifier);
     void moveToImageBuffer(RemoteSerializedImageBufferIdentifier, WebCore::RenderingResourceIdentifier, RemoteGraphicsContextIdentifier);
+    void createDisplayListRecorder(RemoteDisplayListRecorderIdentifier);
+    void sinkDisplayListRecorderIntoDisplayList(RemoteDisplayListRecorderIdentifier, RemoteDisplayListIdentifier);
+    void releaseDisplayList(RemoteDisplayListIdentifier);
 #if PLATFORM(COCOA)
     void didDrawRemoteToPDF(WebCore::PageIdentifier, WebCore::RenderingResourceIdentifier, WebCore::SnapshotIdentifier);
 #endif
     void destroyGetPixelBufferSharedMemory();
     void cacheNativeImage(WebCore::ShareableBitmap::Handle&&, WebCore::RenderingResourceIdentifier);
     void releaseNativeImage(WebCore::RenderingResourceIdentifier);
-    void cacheDecomposedGlyphs(IPC::ArrayReferenceTuple<WebCore::GlyphBufferGlyph, WebCore::FloatSize>, WebCore::FloatPoint localAnchor, WebCore::FontSmoothingMode, WebCore::RenderingResourceIdentifier);
-    void releaseDecomposedGlyphs(WebCore::RenderingResourceIdentifier);
     void cacheGradient(Ref<WebCore::Gradient>&&, WebCore::RenderingResourceIdentifier);
     void releaseGradient(WebCore::RenderingResourceIdentifier);
     void cacheFilter(Ref<WebCore::Filter>&&);
@@ -204,6 +207,7 @@ private:
     HashMap<WebCore::RenderingResourceIdentifier, IPC::ScopedActiveMessageReceiveQueue<RemoteImageBuffer>> m_remoteImageBuffers WTF_GUARDED_BY_CAPABILITY(workQueue());
     HashMap<RemoteImageBufferSetIdentifier, IPC::ScopedActiveMessageReceiveQueue<RemoteImageBufferSet>> m_remoteImageBufferSets WTF_GUARDED_BY_CAPABILITY(workQueue());
     const Ref<ShapeDetection::ObjectHeap> m_shapeDetectionObjectHeap;
+    HashMap<RemoteDisplayListRecorderIdentifier, IPC::ScopedActiveMessageReceiveQueue<RemoteDisplayListRecorder>> m_remoteDisplayListRecorders WTF_GUARDED_BY_CAPABILITY(workQueue());
 };
 
 bool isSmallLayerBacking(const WebCore::ImageBufferParameters&);

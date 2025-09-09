@@ -46,6 +46,7 @@
 #include <WebCore/SVGFilter.h>
 #include <wtf/MathExtras.h>
 #include <wtf/TZoneMallocInlines.h>
+#include <wtf/URL.h>
 #include <wtf/text/TextStream.h>
 
 #if USE(SYSTEM_PREVIEW)
@@ -58,15 +59,17 @@ using namespace WebCore;
 WTF_MAKE_TZONE_ALLOCATED_IMPL(RemoteGraphicsContextProxy);
 
 RemoteGraphicsContextProxy::RemoteGraphicsContextProxy(const DestinationColorSpace& colorSpace, RenderingMode renderingMode, const FloatRect& initialClip, const AffineTransform& initialCTM, RemoteRenderingBackendProxy& renderingBackend)
-    : DisplayList::Recorder(IsDeferred::No, { }, initialClip, initialCTM, colorSpace, DrawGlyphsMode::Deconstruct)
-    , m_renderingMode(renderingMode)
-    , m_identifier(RemoteGraphicsContextIdentifier::generate())
-    , m_renderingBackend(renderingBackend)
+    : RemoteGraphicsContextProxy(colorSpace, std::nullopt, renderingMode, initialClip, initialCTM, DrawGlyphsMode::Deconstruct, RemoteGraphicsContextIdentifier::generate(), renderingBackend)
 {
 }
 
 RemoteGraphicsContextProxy::RemoteGraphicsContextProxy(const DestinationColorSpace& colorSpace, WebCore::ContentsFormat contentsFormat, RenderingMode renderingMode, const FloatRect& initialClip, const AffineTransform& initialCTM, RemoteGraphicsContextIdentifier identifier, RemoteRenderingBackendProxy& renderingBackend)
-    : DisplayList::Recorder(IsDeferred::No, { }, initialClip, initialCTM, colorSpace, DrawGlyphsMode::Deconstruct)
+    : RemoteGraphicsContextProxy(colorSpace, contentsFormat, renderingMode, initialClip, initialCTM, DrawGlyphsMode::Deconstruct, identifier, renderingBackend)
+{
+}
+
+RemoteGraphicsContextProxy::RemoteGraphicsContextProxy(const DestinationColorSpace& colorSpace, std::optional<ContentsFormat> contentsFormat, RenderingMode renderingMode, const FloatRect& initialClip, const AffineTransform& initialCTM, DrawGlyphsMode drawGlyphsMode, RemoteGraphicsContextIdentifier identifier, RemoteRenderingBackendProxy& renderingBackend)
+    : DisplayList::Recorder(IsDeferred::No, { }, initialClip, initialCTM, colorSpace, drawGlyphsMode)
     , m_renderingMode(renderingMode)
     , m_identifier(identifier)
     , m_renderingBackend(renderingBackend)
@@ -274,12 +277,13 @@ void RemoteGraphicsContextProxy::drawGlyphsImmediate(const Font& font, std::span
     send(Messages::RemoteGraphicsContext::DrawGlyphs(font.renderingResourceIdentifier(), { glyphs.data(), Vector<FloatSize>(advances).span().data(), glyphs.size() }, localAnchor, smoothingMode));
 }
 
-void RemoteGraphicsContextProxy::drawDecomposedGlyphs(const Font& font, const DecomposedGlyphs& decomposedGlyphs)
+void RemoteGraphicsContextProxy::drawDisplayList(const DisplayList::DisplayList& displayList, ControlFactory&)
 {
+    auto identifier = recordResourceUse(displayList);
+    if (!identifier)
+        return;
     appendStateChangeItemIfNecessary();
-    recordResourceUse(const_cast<Font&>(font));
-    recordResourceUse(const_cast<DecomposedGlyphs&>(decomposedGlyphs));
-    send(Messages::RemoteGraphicsContext::DrawDecomposedGlyphs(font.renderingResourceIdentifier(), decomposedGlyphs.renderingResourceIdentifier()));
+    send(Messages::RemoteGraphicsContext::DrawDisplayList(*identifier));
 }
 
 void RemoteGraphicsContextProxy::drawImageBuffer(ImageBuffer& imageBuffer, const FloatRect& destRect, const FloatRect& srcRect, ImagePaintingOptions options)
@@ -687,18 +691,6 @@ bool RemoteGraphicsContextProxy::recordResourceUse(Font& font)
     return true;
 }
 
-bool RemoteGraphicsContextProxy::recordResourceUse(DecomposedGlyphs& decomposedGlyphs)
-{
-    RefPtr renderingBackend = m_renderingBackend.get();
-    if (!renderingBackend) [[unlikely]] {
-        ASSERT_NOT_REACHED();
-        return false;
-    }
-
-    renderingBackend->remoteResourceCacheProxy().recordDecomposedGlyphsUse(decomposedGlyphs);
-    return true;
-}
-
 bool RemoteGraphicsContextProxy::recordResourceUse(Gradient& gradient)
 {
     RefPtr renderingBackend = m_renderingBackend.get();
@@ -721,6 +713,16 @@ bool RemoteGraphicsContextProxy::recordResourceUse(Filter& filter)
 
     renderingBackend->remoteResourceCacheProxy().recordFilterUse(filter);
     return true;
+}
+
+std::optional<RemoteDisplayListIdentifier> RemoteGraphicsContextProxy::recordResourceUse(const DisplayList::DisplayList& displayList)
+{
+    RefPtr renderingBackend = m_renderingBackend.get();
+    if (!renderingBackend) [[unlikely]] {
+        ASSERT_NOT_REACHED();
+        return { };
+    }
+    return renderingBackend->remoteResourceCacheProxy().recordDisplayListUse(displayList);
 }
 
 RefPtr<ImageBuffer> RemoteGraphicsContextProxy::createImageBuffer(const FloatSize& size, float resolutionScale, const DestinationColorSpace& colorSpace, std::optional<RenderingMode> renderingMode, std::optional<RenderingMethod> renderingMethod, WebCore::ImageBufferFormat pixelFormat) const
@@ -884,6 +886,6 @@ void RemoteGraphicsContextProxy::abandon()
     m_renderingBackend = nullptr;
 }
 
-} // namespace WebCore
+}
 
-#endif // ENABLE(GPU_PROCESS)
+#endif

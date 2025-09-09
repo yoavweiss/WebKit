@@ -27,13 +27,14 @@
 
 #if ENABLE(GPU_PROCESS)
 
+#include "RemoteDisplayListIdentifier.h"
+#include <WebCore/DisplayList.h>
 #include <WebCore/RenderingResourceIdentifier.h>
 #include <wtf/HashMap.h>
 #include <wtf/RefPtr.h>
 
 namespace WebCore {
 
-class DecomposedGlyphs;
 class Filter;
 class Font;
 class Gradient;
@@ -58,10 +59,6 @@ public:
     bool releaseGradient(WebCore::RenderingResourceIdentifier);
     RefPtr<WebCore::Gradient> cachedGradient(WebCore::RenderingResourceIdentifier) const;
 
-    void cacheDecomposedGlyphs(Ref<WebCore::DecomposedGlyphs>&&);
-    bool releaseDecomposedGlyphs(WebCore::RenderingResourceIdentifier);
-    RefPtr<WebCore::DecomposedGlyphs> cachedDecomposedGlyphs(WebCore::RenderingResourceIdentifier) const;
-
     void cacheFilter(Ref<WebCore::Filter>&&);
     bool releaseFilter(WebCore::RenderingResourceIdentifier);
     RefPtr<WebCore::Filter> cachedFilter(WebCore::RenderingResourceIdentifier) const;
@@ -74,6 +71,10 @@ public:
     bool releaseFontCustomPlatformData(WebCore::RenderingResourceIdentifier);
     RefPtr<WebCore::FontCustomPlatformData> cachedFontCustomPlatformData(WebCore::RenderingResourceIdentifier) const;
 
+    bool cacheDisplayList(RemoteDisplayListIdentifier, Ref<const WebCore::DisplayList::DisplayList>);
+    RefPtr<const WebCore::DisplayList::DisplayList> cachedDisplayList(RemoteDisplayListIdentifier) const;
+    bool releaseDisplayList(RemoteDisplayListIdentifier);
+
     void releaseAllResources();
     void releaseMemory();
     void releaseNativeImages();
@@ -82,10 +83,10 @@ private:
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::ImageBuffer>> m_imageBuffers;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::NativeImage>> m_nativeImages;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::Gradient>> m_gradients;
-    HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::DecomposedGlyphs>> m_decomposedGlyphs;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::Filter>> m_filters;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::Font>> m_fonts;
     HashMap<WebCore::RenderingResourceIdentifier, Ref<WebCore::FontCustomPlatformData>> m_fontCustomPlatformDatas;
+    HashMap<RemoteDisplayListIdentifier, Ref<const WebCore::DisplayList::DisplayList>> m_displayLists;
 };
 
 } // namespace WebKit

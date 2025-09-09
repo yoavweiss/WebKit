@@ -28,7 +28,6 @@
 
 #if USE(SKIA)
 #include "AffineTransform.h"
-#include "DecomposedGlyphs.h"
 #include "FloatRect.h"
 #include "FloatRoundedRect.h"
 #include "FontRenderOptions.h"

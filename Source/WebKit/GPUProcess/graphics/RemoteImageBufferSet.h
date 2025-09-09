@@ -45,7 +45,7 @@
 
 namespace WebKit {
 
-class RemoteGraphicsContext;
+class RemoteImageBufferGraphicsContext;
 class RemoteRenderingBackend;
 
 class RemoteImageBufferSet : public IPC::StreamMessageReceiver, public ImageBufferSet {
@@ -96,7 +96,7 @@ private:
     const RemoteGraphicsContextIdentifier m_contextIdentifier;
     const Ref<RemoteRenderingBackend> m_renderingBackend;
     RemoteImageBufferSetConfiguration m_configuration;
-    IPC::ScopedActiveMessageReceiveQueue<RemoteGraphicsContext> m_context;
+    IPC::ScopedActiveMessageReceiveQueue<RemoteImageBufferGraphicsContext> m_context;
     std::optional<WebCore::IntRect> m_previouslyPaintedRect;
 #if ENABLE(RE_DYNAMIC_CONTENT_SCALING)
     WebCore::DynamicContentScalingResourceCache m_dynamicContentScalingResourceCache;

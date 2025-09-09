@@ -58,7 +58,6 @@ class DrawFilteredImageBuffer;
 class DrawFocusRingPath;
 class DrawFocusRingRects;
 class DrawGlyphs;
-class DrawDecomposedGlyphs;
 class DrawDisplayList;
 class DrawImageBuffer;
 class DrawLine;
@@ -124,7 +123,6 @@ using Item = Variant
     , DrawFocusRingPath
     , DrawFocusRingRects
     , DrawGlyphs
-    , DrawDecomposedGlyphs
     , DrawDisplayList
     , DrawImageBuffer
     , DrawLine

@@ -34,7 +34,7 @@
 #include "ImageBufferRemotePDFDocumentBackend.h"
 #include "ImageBufferShareableBitmapBackend.h"
 #include "Logging.h"
-#include "RemoteGraphicsContextProxy.h"
+#include "RemoteDisplayListRecorderProxy.h"
 #include "RemoteImageBufferMessages.h"
 #include "RemoteImageBufferProxy.h"
 #include "RemoteImageBufferProxyMessages.h"
@@ -438,18 +438,6 @@ void RemoteRenderingBackendProxy::releaseFontCustomPlatformData(RenderingResourc
     send(Messages::RemoteRenderingBackend::ReleaseFontCustomPlatformData(identifier));
 }
 
-void RemoteRenderingBackendProxy::cacheDecomposedGlyphs(const DecomposedGlyphs& glyphs)
-{
-    send(Messages::RemoteRenderingBackend::CacheDecomposedGlyphs({ glyphs.glyphs().data(), Vector<FloatSize>(glyphs.advances()).span().data(), glyphs.glyphs().size() }, glyphs.localAnchor(), glyphs.fontSmoothingMode(), glyphs.renderingResourceIdentifier()));
-}
-
-void RemoteRenderingBackendProxy::releaseDecomposedGlyphs(RenderingResourceIdentifier identifier)
-{
-    if (!m_connection)
-        return;
-    send(Messages::RemoteRenderingBackend::ReleaseDecomposedGlyphs(identifier));
-}
-
 void RemoteRenderingBackendProxy::cacheGradient(Ref<Gradient>&& gradient, RenderingResourceIdentifier identifier)
 {
     send(Messages::RemoteRenderingBackend::CacheGradient(WTFMove(gradient), identifier));
@@ -472,6 +460,22 @@ void RemoteRenderingBackendProxy::releaseFilter(RenderingResourceIdentifier iden
     if (!m_connection)
         return;
     send(Messages::RemoteRenderingBackend::ReleaseFilter(identifier));
+}
+
+void RemoteRenderingBackendProxy::cacheDisplayList(RemoteDisplayListIdentifier identifier, const DisplayList::DisplayList& displayList)
+{
+    RemoteDisplayListRecorderProxy recorder(*this);
+    auto recorderIdentifier = recorder.identifier();
+    send(Messages::RemoteRenderingBackend::CreateDisplayListRecorder(recorderIdentifier));
+    recorder.appendDisplayList(displayList);
+    send(Messages::RemoteRenderingBackend::SinkDisplayListRecorderIntoDisplayList(recorderIdentifier, identifier));
+}
+
+void RemoteRenderingBackendProxy::releaseDisplayList(RemoteDisplayListIdentifier identifier)
+{
+    if (!m_connection)
+        return;
+    send(Messages::RemoteRenderingBackend::ReleaseDisplayList(identifier));
 }
 
 void RemoteRenderingBackendProxy::releaseMemory()

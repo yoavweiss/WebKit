@@ -208,12 +208,6 @@ void RecorderImpl::drawGlyphsImmediate(const Font& font, std::span<const GlyphBu
     m_items.append(DrawGlyphs(Ref { font }, Vector(glyphs), Vector(advances), localAnchor, smoothingMode));
 }
 
-void RecorderImpl::drawDecomposedGlyphs(const Font& font, const DecomposedGlyphs& decomposedGlyphs)
-{
-    appendStateChangeItemIfNecessary();
-    m_items.append(DrawDecomposedGlyphs(Ref { font }, Ref { decomposedGlyphs }));
-}
-
 void RecorderImpl::drawDisplayList(const DisplayList& displayList, ControlFactory&)
 {
     appendStateChangeItemIfNecessary();

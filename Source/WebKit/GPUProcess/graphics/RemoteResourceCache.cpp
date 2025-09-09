@@ -28,7 +28,6 @@
 
 #if ENABLE(GPU_PROCESS)
 
-#include <WebCore/DecomposedGlyphs.h>
 #include <WebCore/Filter.h>
 #include <WebCore/Font.h>
 #include <WebCore/FontCustomPlatformData.h>
@@ -57,22 +56,6 @@ bool RemoteResourceCache::releaseNativeImage(RenderingResourceIdentifier identif
 RefPtr<NativeImage> RemoteResourceCache::cachedNativeImage(RenderingResourceIdentifier identifier) const
 {
     return m_nativeImages.get(identifier);
-}
-
-void RemoteResourceCache::cacheDecomposedGlyphs(Ref<DecomposedGlyphs>&& decomposedGlyphs)
-{
-    auto identifier = decomposedGlyphs->renderingResourceIdentifier();
-    m_decomposedGlyphs.add(identifier, WTFMove(decomposedGlyphs));
-}
-
-bool RemoteResourceCache::releaseDecomposedGlyphs(RenderingResourceIdentifier identifier)
-{
-    return m_decomposedGlyphs.remove(identifier);
-}
-
-RefPtr<DecomposedGlyphs> RemoteResourceCache::cachedDecomposedGlyphs(RenderingResourceIdentifier identifier) const
-{
-    return m_decomposedGlyphs.get(identifier);
 }
 
 bool RemoteResourceCache::cacheGradient(RenderingResourceIdentifier identifier, Ref<Gradient>&& gradient)
@@ -138,6 +121,21 @@ RefPtr<FontCustomPlatformData> RemoteResourceCache::cachedFontCustomPlatformData
     return m_fontCustomPlatformDatas.get(identifier);
 }
 
+bool RemoteResourceCache::cacheDisplayList(RemoteDisplayListIdentifier identifier, Ref<const DisplayList::DisplayList> displayList)
+{
+    return m_displayLists.add(identifier, displayList).isNewEntry;
+}
+
+RefPtr<const DisplayList::DisplayList> RemoteResourceCache::cachedDisplayList(RemoteDisplayListIdentifier identifier) const
+{
+    return m_displayLists.get(identifier);
+}
+
+bool RemoteResourceCache::releaseDisplayList(RemoteDisplayListIdentifier identifier)
+{
+    return m_displayLists.remove(identifier);
+}
+
 void RemoteResourceCache::releaseAllResources()
 {
     m_imageBuffers.clear();
@@ -148,10 +146,10 @@ void RemoteResourceCache::releaseMemory()
 {
     m_nativeImages.clear();
     m_gradients.clear();
-    m_decomposedGlyphs.clear();
     m_filters.clear();
     m_fonts.clear();
     m_fontCustomPlatformDatas.clear();
+    m_displayLists.clear();
 }
 
 void RemoteResourceCache::releaseNativeImages()

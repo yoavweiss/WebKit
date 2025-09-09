@@ -27,7 +27,6 @@
 #include "GraphicsContext.h"
 
 #include "BidiResolver.h"
-#include "DecomposedGlyphs.h"
 #include "DisplayList.h"
 #include "Filter.h"
 #include "FilterImage.h"
@@ -175,13 +174,8 @@ void GraphicsContext::drawGlyphs(const Font& font, std::span<const GlyphBufferGl
 
 void GraphicsContext::drawGlyphsImmediate(const Font& font, std::span<const GlyphBufferGlyph> glyphs, std::span<const GlyphBufferAdvance> advances, const FloatPoint& point, FontSmoothingMode fontSmoothingMode)
 {
-    // Called by implementations that transform drawGlyphs into drawGlyphsImmediate or drawDecomposedGlyphs.
+    // Called by implementations that transform drawGlyphs into drawGlyphsImmediate, drawImageBuffer, etc calls.
     drawGlyphs(font, glyphs, advances, point, fontSmoothingMode);
-}
-
-void GraphicsContext::drawDecomposedGlyphs(const Font& font, const DecomposedGlyphs& decomposedGlyphs)
-{
-    FontCascade::drawGlyphs(*this, font, decomposedGlyphs.glyphs(), decomposedGlyphs.advances(), decomposedGlyphs.localAnchor(), decomposedGlyphs.fontSmoothingMode());
 }
 
 void GraphicsContext::drawEmphasisMarks(const FontCascade& font, const TextRun& run, const AtomString& mark, const FloatPoint& point, unsigned from, std::optional<unsigned> to)

@@ -51,8 +51,7 @@ class DrawGlyphsRecorder {
     WTF_MAKE_NONCOPYABLE(DrawGlyphsRecorder);
 public:
     enum class DeriveFontFromContext : bool { No, Yes };
-    enum class DrawDecomposedGlyphs : bool { No, Yes };
-    explicit DrawGlyphsRecorder(GraphicsContext&, float scaleFactor, DeriveFontFromContext, DrawDecomposedGlyphs);
+    explicit DrawGlyphsRecorder(GraphicsContext&, float scaleFactor, DeriveFontFromContext);
 
     void drawGlyphs(const Font&, std::span<const GlyphBufferGlyph>, std::span<const GlyphBufferAdvance>, const FloatPoint& localAnchor, FontSmoothingMode);
 
@@ -98,7 +97,6 @@ private:
     const UniqueRef<GraphicsContext> m_internalContext;
     RetainPtr<CGColorRef> m_initialFillColor;
     RetainPtr<CGColorRef> m_initialStrokeColor;
-    const DrawDecomposedGlyphs m_drawDecomposedGlyphs;
     const DeriveFontFromContext m_deriveFontFromContext;
     FontSmoothingMode m_smoothingMode { FontSmoothingMode::AutoSmoothing };
 };

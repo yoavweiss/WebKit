@@ -538,14 +538,6 @@ void BifurcatedGraphicsContext::drawGlyphs(const Font& font, std::span<const Gly
     VERIFY_STATE_SYNCHRONIZATION();
 }
 
-void BifurcatedGraphicsContext::drawDecomposedGlyphs(const Font& font, const DecomposedGlyphs& decomposedGlyphs)
-{
-    m_primaryContext.drawDecomposedGlyphs(font, decomposedGlyphs);
-    m_secondaryContext.drawDecomposedGlyphs(font, decomposedGlyphs);
-
-    VERIFY_STATE_SYNCHRONIZATION();
-}
-
 void BifurcatedGraphicsContext::drawEmphasisMarks(const FontCascade& cascade, const TextRun& run, const AtomString& mark, const FloatPoint& point, unsigned from, std::optional<unsigned> to)
 {
     m_primaryContext.drawEmphasisMarks(cascade, run, mark, point, from, to);

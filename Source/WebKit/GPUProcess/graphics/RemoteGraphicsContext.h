@@ -28,23 +28,15 @@
 #if ENABLE(GPU_PROCESS)
 
 #include "ArrayReferenceTuple.h"
-#include "Decoder.h"
+#include "RemoteDisplayListIdentifier.h"
 #include "RemoteGraphicsContextIdentifier.h"
 #include "RemoteRenderingBackend.h"
 #include "StreamMessageReceiver.h"
 #include "StreamServerConnection.h"
 #include <WebCore/ControlFactory.h>
-#include <WebCore/DisplayListItems.h>
 #include <WebCore/ProcessIdentifier.h>
 #include <WebCore/RenderingResourceIdentifier.h>
-#include <wtf/RefCounted.h>
-#include <wtf/URL.h>
 #include <wtf/WeakPtr.h>
-
-#if !LOG_DISABLED
-#include "Logging.h"
-#include <wtf/text/TextStream.h>
-#endif
 
 namespace WebKit {
 
@@ -55,10 +47,7 @@ struct SharedPreferencesForWebProcess;
 
 class RemoteGraphicsContext : public IPC::StreamMessageReceiver, public CanMakeWeakPtr<RemoteGraphicsContext> {
 public:
-    static Ref<RemoteGraphicsContext> create(WebCore::ImageBuffer&, RemoteGraphicsContextIdentifier, RemoteRenderingBackend&);
     ~RemoteGraphicsContext();
-
-    void stopListeningForIPC();
 
     void save();
     void restore();
@@ -105,7 +94,7 @@ public:
     void clipPath(const WebCore::Path&, WebCore::WindRule);
     void resetClip();
     void drawGlyphs(WebCore::RenderingResourceIdentifier fontIdentifier, IPC::ArrayReferenceTuple<WebCore::GlyphBufferGlyph, WebCore::FloatSize>, WebCore::FloatPoint localAnchor, WebCore::FontSmoothingMode);
-    void drawDecomposedGlyphs(WebCore::RenderingResourceIdentifier fontIdentifier, WebCore::RenderingResourceIdentifier decomposedGlyphsIdentifier);
+    void drawDisplayList(RemoteDisplayListIdentifier);
     void drawFilteredImageBuffer(std::optional<WebCore::RenderingResourceIdentifier> sourceImageIdentifier, const WebCore::FloatRect& sourceImageRect, Ref<WebCore::Filter>&&);
     void drawImageBuffer(WebCore::RenderingResourceIdentifier imageBufferIdentifier, const WebCore::FloatRect& destinationRect, const WebCore::FloatRect& srcRect, WebCore::ImagePaintingOptions);
     void drawNativeImage(WebCore::RenderingResourceIdentifier imageIdentifier, const WebCore::FloatRect& destRect, const WebCore::FloatRect& srcRect, WebCore::ImagePaintingOptions);
@@ -169,17 +158,18 @@ public:
 
     void setURLForRect(const URL&, const WebCore::FloatRect&);
 
-private:
-    RemoteGraphicsContext(WebCore::ImageBuffer&, RemoteGraphicsContextIdentifier, RemoteRenderingBackend&);
+protected:
+    RemoteGraphicsContext(WebCore::GraphicsContext&, RemoteRenderingBackend&);
+
+    Ref<WebCore::ControlFactory> controlFactory();
 
     void drawFilteredImageBufferInternal(std::optional<WebCore::RenderingResourceIdentifier> sourceImageIdentifier, const WebCore::FloatRect& sourceImageRect, WebCore::Filter&, WebCore::FilterResults&);
 
     RemoteResourceCache& resourceCache() const;
-    WebCore::GraphicsContext& context() { return m_imageBuffer->context(); }
+    WebCore::GraphicsContext& context() { return m_context; }
     RefPtr<WebCore::ImageBuffer> imageBuffer(WebCore::RenderingResourceIdentifier) const;
     std::optional<WebCore::SourceImage> sourceImage(WebCore::RenderingResourceIdentifier) const;
 
-    void startListeningForIPC();
     void didReceiveStreamMessage(IPC::StreamServerConnection&, IPC::Decoder&) final;
 
 #if PLATFORM(COCOA) && ENABLE(VIDEO)
@@ -188,8 +178,7 @@ private:
     void setSharedVideoFrameMemory(WebCore::SharedMemory::Handle&&);
 #endif
 
-    const Ref<WebCore::ImageBuffer> m_imageBuffer;
-    const RemoteGraphicsContextIdentifier m_identifier;
+    WebCore::GraphicsContext& m_context;
     const Ref<RemoteRenderingBackend> m_renderingBackend;
     const Ref<RemoteSharedResourceCache> m_sharedResourceCache;
     RefPtr<WebCore::ControlFactory> m_controlFactory;

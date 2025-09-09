@@ -27,8 +27,8 @@
 
 #if ENABLE(GPU_PROCESS)
 
+#include "RemoteDisplayListIdentifier.h"
 #include "RenderingUpdateID.h"
-#include <WebCore/DecomposedGlyphs.h>
 #include <WebCore/FilterFunction.h>
 #include <WebCore/Gradient.h>
 #include <WebCore/NativeImage.h>
@@ -40,6 +40,9 @@ class Filter;
 class Font;
 class ImageBuffer;
 struct FontCustomPlatformData;
+namespace DisplayList {
+class DisplayList;
+}
 }
 
 namespace WebKit {
@@ -55,11 +58,10 @@ public:
 
     void recordNativeImageUse(WebCore::NativeImage&, const WebCore::DestinationColorSpace&);
     void recordFontUse(WebCore::Font&);
-    void recordDecomposedGlyphsUse(WebCore::DecomposedGlyphs&);
     void recordGradientUse(WebCore::Gradient&);
     void recordFilterUse(WebCore::Filter&);
     void recordFontCustomPlatformDataUse(const WebCore::FontCustomPlatformData&);
-
+    RemoteDisplayListIdentifier recordDisplayListUse(const WebCore::DisplayList::DisplayList&);
     void didPaintLayers();
 
     void releaseMemory();
@@ -71,8 +73,8 @@ private:
     // WebCore::RenderingResourceObserver.
     void willDestroyNativeImage(WebCore::RenderingResourceIdentifier) override;
     void willDestroyGradient(WebCore::RenderingResourceIdentifier) override;
-    void willDestroyDecomposedGlyphs(WebCore::RenderingResourceIdentifier) override;
     void willDestroyFilter(WebCore::RenderingResourceIdentifier) override;
+    void willDestroyDisplayList(const WebCore::DisplayList::DisplayList&) override;
 
     void finalizeRenderingUpdateForFonts();
     void prepareForNextRenderingUpdate();
@@ -81,9 +83,8 @@ private:
 
     HashSet<WebCore::RenderingResourceIdentifier> m_nativeImages;
     HashSet<WebCore::RenderingResourceIdentifier> m_gradients;
-    HashSet<WebCore::RenderingResourceIdentifier> m_decomposedGlyphs;
     HashSet<WebCore::RenderingResourceIdentifier> m_filters;
-
+    HashMap<const WebCore::DisplayList::DisplayList*, RemoteDisplayListIdentifier> m_displayLists;
     WeakPtrFactory<WebCore::RenderingResourceObserver> m_resourceObserverWeakFactory;
     WeakPtrFactory<WebCore::RenderingResourceObserver> m_nativeImageResourceObserverWeakFactory;
 

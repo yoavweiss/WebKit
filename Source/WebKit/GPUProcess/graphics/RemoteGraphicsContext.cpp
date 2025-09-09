@@ -40,6 +40,7 @@
 #include <WebCore/FEImage.h>
 #include <WebCore/FilterResults.h>
 #include <WebCore/SVGFilter.h>
+#include <wtf/URL.h>
 
 #if USE(SYSTEM_PREVIEW)
 #include <WebCore/ARKitBadgeSystemImage.h>
@@ -55,22 +56,21 @@
 namespace WebKit {
 using namespace WebCore;
 
-Ref<RemoteGraphicsContext> RemoteGraphicsContext::create(WebCore::ImageBuffer& imageBuffer, RemoteGraphicsContextIdentifier identifier, RemoteRenderingBackend& renderingBackend)
-{
-    auto instance = adoptRef(*new RemoteGraphicsContext(imageBuffer, identifier, renderingBackend));
-    instance->startListeningForIPC();
-    return instance;
-}
-
-RemoteGraphicsContext::RemoteGraphicsContext(ImageBuffer& imageBuffer, RemoteGraphicsContextIdentifier identifier, RemoteRenderingBackend& renderingBackend)
-    : m_imageBuffer(imageBuffer)
-    , m_identifier(identifier)
+RemoteGraphicsContext::RemoteGraphicsContext(GraphicsContext& context, RemoteRenderingBackend& renderingBackend)
+    : m_context(context)
     , m_renderingBackend(renderingBackend)
     , m_sharedResourceCache(renderingBackend.sharedResourceCache())
 {
 }
 
 RemoteGraphicsContext::~RemoteGraphicsContext() = default;
+
+Ref<ControlFactory> RemoteGraphicsContext::controlFactory()
+{
+    if (!m_controlFactory)
+        m_controlFactory = ControlFactory::create();
+    return *m_controlFactory;
+}
 
 RemoteResourceCache& RemoteGraphicsContext::resourceCache() const
 {
@@ -91,16 +91,6 @@ std::optional<SourceImage> RemoteGraphicsContext::sourceImage(RenderingResourceI
         return { { *sourceImageBuffer } };
 
     return std::nullopt;
-}
-
-void RemoteGraphicsContext::startListeningForIPC()
-{
-    m_renderingBackend->streamConnection().startReceivingMessages(*this, Messages::RemoteGraphicsContext::messageReceiverName(), m_identifier.toUInt64());
-}
-
-void RemoteGraphicsContext::stopListeningForIPC()
-{
-    m_renderingBackend->streamConnection().stopReceivingMessages(Messages::RemoteGraphicsContext::messageReceiverName(), m_identifier.toUInt64());
 }
 
 void RemoteGraphicsContext::save()
@@ -393,20 +383,19 @@ void RemoteGraphicsContext::drawGlyphs(RenderingResourceIdentifier fontIdentifie
     context().drawGlyphs(*font, glyphsAdvances.span<0>(), Vector<GlyphBufferAdvance>(glyphsAdvances.span<1>()), localAnchor, fontSmoothingMode);
 }
 
-void RemoteGraphicsContext::drawDecomposedGlyphs(RenderingResourceIdentifier fontIdentifier, RenderingResourceIdentifier decomposedGlyphsIdentifier)
-{
-    RefPtr font = resourceCache().cachedFont(fontIdentifier);
-    MESSAGE_CHECK(font);
-    RefPtr decomposedGlyphs = resourceCache().cachedDecomposedGlyphs(decomposedGlyphsIdentifier);
-    MESSAGE_CHECK(decomposedGlyphs);
-    context().drawDecomposedGlyphs(*font, *decomposedGlyphs);
-}
-
 void RemoteGraphicsContext::drawImageBuffer(RenderingResourceIdentifier imageBufferIdentifier, const FloatRect& destinationRect, const FloatRect& srcRect, ImagePaintingOptions options)
 {
     RefPtr sourceImage = imageBuffer(imageBufferIdentifier);
     MESSAGE_CHECK(sourceImage);
     context().drawImageBuffer(*sourceImage, destinationRect, srcRect, options);
+}
+
+
+void RemoteGraphicsContext::drawDisplayList(RemoteDisplayListIdentifier identifier)
+{
+    RefPtr displayList = resourceCache().cachedDisplayList(identifier);
+    MESSAGE_CHECK(displayList);
+    context().drawDisplayList(*displayList, controlFactory());
 }
 
 void RemoteGraphicsContext::drawNativeImage(RenderingResourceIdentifier imageIdentifier, const FloatRect& destRect, const FloatRect& srcRect, ImagePaintingOptions options)
@@ -675,9 +664,7 @@ void RemoteGraphicsContext::clearRect(const FloatRect& rect)
 
 void RemoteGraphicsContext::drawControlPart(Ref<ControlPart>&& part, const FloatRoundedRect& borderRect, float deviceScaleFactor, const ControlStyle& style)
 {
-    if (!m_controlFactory)
-        m_controlFactory = ControlFactory::create();
-    part->setOverrideControlFactory(m_controlFactory.get());
+    part->setOverrideControlFactory(controlFactory().ptr());
     context().drawControlPart(part, borderRect, deviceScaleFactor, style);
     part->setOverrideControlFactory(nullptr);
 }

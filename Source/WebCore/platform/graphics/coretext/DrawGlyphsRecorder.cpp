@@ -28,7 +28,6 @@
 
 #include "BitmapImage.h"
 #include "Color.h"
-#include "DecomposedGlyphs.h"
 #include "FloatPoint.h"
 #include "Font.h"
 #include "FontCascade.h"
@@ -93,10 +92,9 @@ UniqueRef<GraphicsContext> DrawGlyphsRecorder::createInternalContext()
     return makeUniqueRef<GraphicsContextCG>(context.get());
 }
 
-DrawGlyphsRecorder::DrawGlyphsRecorder(GraphicsContext& owner, float scaleFactor, DeriveFontFromContext deriveFontFromContext, DrawDecomposedGlyphs drawDecomposedGlyphs)
+DrawGlyphsRecorder::DrawGlyphsRecorder(GraphicsContext& owner, float scaleFactor, DeriveFontFromContext deriveFontFromContext)
     : m_owner(owner)
     , m_internalContext(createInternalContext())
-    , m_drawDecomposedGlyphs(drawDecomposedGlyphs)
     , m_deriveFontFromContext(deriveFontFromContext)
 {
     m_internalContext->applyDeviceScaleFactor(scaleFactor);
@@ -352,11 +350,7 @@ void DrawGlyphsRecorder::recordDrawGlyphs(CGRenderingStateRef, CGGStateRef gstat
     } else
         advances = computeHorizontalAdvancesFromPositions(positions, textMatrix);
 
-    if (m_drawDecomposedGlyphs == DrawDecomposedGlyphs::Yes) {
-        Ref decomposedGlyphs = DecomposedGlyphs::create(WTFMove(glyphs), WTFMove(advances.advances), advances.initialPosition, m_smoothingMode);
-        m_owner.drawDecomposedGlyphs(font, decomposedGlyphs);
-    } else
-        m_owner.drawGlyphsImmediate(font, glyphs, advances.advances.span(), advances.initialPosition, m_smoothingMode);
+    m_owner.drawGlyphsImmediate(font, glyphs, advances.advances.span(), advances.initialPosition, m_smoothingMode);
 
     m_owner.concatCTM(inverseCTMFixup);
 }

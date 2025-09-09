@@ -26,7 +26,6 @@
 #include "config.h"
 #include "DisplayListItems.h"
 
-#include "DecomposedGlyphs.h"
 #include "DisplayList.h"
 #include "Filter.h"
 #include "FilterResults.h"
@@ -286,32 +285,6 @@ void DrawGlyphs::dump(TextStream& ts, OptionSet<AsTextFlag>) const
     ts.dumpProperty("local-anchor"_s, localAnchor());
     ts.dumpProperty("font-smoothing-mode"_s, fontSmoothingMode());
     ts.dumpProperty("length"_s, glyphs().size());
-}
-
-void DrawDecomposedGlyphs::apply(GraphicsContext& context) const
-{
-    return context.drawDecomposedGlyphs(m_font, m_decomposedGlyphs);
-}
-
-void DrawDecomposedGlyphs::dump(TextStream& ts, OptionSet<AsTextFlag> flags) const
-{
-    {
-        // Currently not much platform-agnostic to print for font.
-        TextStream::GroupScope decomposedGlyphsScope { ts };
-        ts << "font"_s << ' ';
-        if (flags.contains(AsTextFlag::IncludeResourceIdentifiers))
-            ts.dumpProperty("identifier"_s, font()->renderingResourceIdentifier());
-    }
-    {
-        TextStream::GroupScope decomposedGlyphsScope { ts };
-        ts << "decomposedGlyphs"_s << ' ';
-        Ref decomposedGlyphs = this->decomposedGlyphs();
-        ts.dumpProperty("glyph-count"_s, decomposedGlyphs->glyphs().size());
-        ts.dumpProperty("local-anchor"_s, decomposedGlyphs->localAnchor());
-        ts.dumpProperty("font-smoothing-mode"_s, decomposedGlyphs->fontSmoothingMode());
-        if (flags.contains(AsTextFlag::IncludeResourceIdentifiers))
-            ts.dumpProperty("identifier"_s, decomposedGlyphs->renderingResourceIdentifier());
-    }
 }
 
 DrawDisplayList::DrawDisplayList(Ref<const DisplayList>&& displayList)
