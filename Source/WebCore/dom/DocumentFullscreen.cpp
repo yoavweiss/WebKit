@@ -67,6 +67,22 @@
 
 namespace WebCore {
 
+class DocumentFullscreen::CompletionHandlerScope final {
+public:
+    CompletionHandlerScope(CompletionHandler<void(ExceptionOr<void>)>&& completionHandler)
+        : m_completionHandler(WTFMove(completionHandler)) { }
+    CompletionHandlerScope(CompletionHandlerScope&&) = default;
+    CompletionHandlerScope& operator=(CompletionHandlerScope&&) = default;
+    ~CompletionHandlerScope()
+    {
+        if (m_completionHandler)
+            m_completionHandler({ });
+    }
+    CompletionHandler<void(ExceptionOr<void>)> release() { return WTFMove(m_completionHandler); }
+private:
+    CompletionHandler<void(ExceptionOr<void>)> m_completionHandler;
+};
+
 // MARK: - Constructor.
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(DocumentFullscreen);
@@ -423,6 +439,11 @@ bool DocumentFullscreen::isSimpleFullscreenDocument() const
         }
     }
     return foundFullscreenFlag;
+}
+
+Page* DocumentFullscreen::page() const
+{
+    return document().page();
 }
 
 // MARK: - Simple helper to get document frame

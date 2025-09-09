@@ -1388,6 +1388,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     dom/MouseRelatedEvent.h
     dom/MutationEvent.h
     dom/MutationObserver.h
+    dom/MutationObserverOptions.h
     dom/NameNodeList.h
     dom/NamedNodeMap.h
     dom/NativeNodeFilter.h

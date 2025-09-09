@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,37 +25,26 @@
 
 #pragma once
 
-#include <WebCore/Document.h>
+#include <wtf/OptionSet.h>
 
 namespace WebCore {
 
-class XMLDocument : public Document {
-    WTF_MAKE_TZONE_OR_ISO_ALLOCATED(XMLDocument);
-    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(XMLDocument);
-public:
-    static Ref<XMLDocument> create(LocalFrame* frame, const Settings& settings, const URL& url)
-    {
-        auto document = adoptRef(*new XMLDocument(frame, settings, url, { DocumentClass::XML }));
-        document->addToContextsMap();
-        return document;
-    }
+enum class MutationObserverOptionType : uint8_t {
+    // MutationType
+    ChildList = 1 << 0,
+    Attributes = 1 << 1,
+    CharacterData = 1 << 2,
 
-    WEBCORE_EXPORT static Ref<XMLDocument> createXHTML(LocalFrame*, const Settings&, const URL&);
+    // ObservationFlags
+    Subtree = 1 << 3,
+    AttributeFilter = 1 << 4,
 
-protected:
-    XMLDocument(LocalFrame* frame, const Settings& settings, const URL& url, DocumentClasses documentClasses = { })
-        : Document(frame, settings, url, documentClasses | DocumentClasses(DocumentClass::XML))
-    {
-    }
+    // DeliveryFlags
+    AttributeOldValue = 1 << 5,
+    CharacterDataOldValue = 1 << 6,
 };
 
-} // namespace WebCore
+using MutationObserverOptions = OptionSet<MutationObserverOptionType>;
+using MutationRecordDeliveryOptions = OptionSet<MutationObserverOptionType>;
 
-SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::XMLDocument)
-    static bool isType(const WebCore::Document& document) { return document.isXMLDocument(); }
-    static bool isType(const WebCore::Node& node)
-    {
-        auto* document = dynamicDowncast<WebCore::Document>(node);
-        return document && isType(*document);
-    }
-SPECIALIZE_TYPE_TRAITS_END()
+}

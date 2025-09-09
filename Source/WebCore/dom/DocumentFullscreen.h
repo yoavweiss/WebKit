@@ -27,7 +27,7 @@
 
 #if ENABLE(FULLSCREEN_API)
 
-#include <WebCore/DocumentInlines.h>
+#include <WebCore/Document.h>
 #include <WebCore/GCReachableRef.h>
 #include <WebCore/HTMLMediaElement.h>
 #include <WebCore/HTMLMediaElementEnums.h>
@@ -64,7 +64,6 @@ public:
     Document& document() { return m_document.get(); }
     const Document& document() const { return m_document.get(); }
     Ref<Document> protectedDocument() const { return m_document.get(); }
-    Page* page() const { return document().page(); }
     LocalFrame* frame() const;
     Element* documentElement() const { return document().documentElement(); }
     bool isSimpleFullscreenDocument() const;
@@ -117,6 +116,7 @@ private:
     WTFLogChannel& logChannel() const;
 #endif
 
+    Page* page() const;
     Document* mainFrameDocument() { return protectedDocument()->mainFrameDocument(); }
 
     RefPtr<Element> fullscreenOrPendingElement() const { return m_fullscreenElement ? m_fullscreenElement : m_pendingFullscreenElement; }
@@ -142,21 +142,7 @@ private:
     const uint64_t m_logIdentifier;
 #endif
 
-    class CompletionHandlerScope final {
-    public:
-        CompletionHandlerScope(CompletionHandler<void(ExceptionOr<void>)>&& completionHandler)
-            : m_completionHandler(WTFMove(completionHandler)) { }
-        CompletionHandlerScope(CompletionHandlerScope&&) = default;
-        CompletionHandlerScope& operator=(CompletionHandlerScope&&) = default;
-        ~CompletionHandlerScope()
-        {
-            if (m_completionHandler)
-                m_completionHandler({ });
-        }
-        CompletionHandler<void(ExceptionOr<void>)> release() { return WTFMove(m_completionHandler); }
-    private:
-        CompletionHandler<void(ExceptionOr<void>)> m_completionHandler;
-    };
+    class CompletionHandlerScope;
 };
 
 }

@@ -62,7 +62,6 @@
 #include "CSSValuePool.h"
 #include "CSSViewValue.h"
 #include "ContainerNodeInlines.h"
-#include "DocumentInlines.h"
 #include "FontCascade.h"
 #include "FontSelectionValueInlines.h"
 #include "HTMLFrameOwnerElement.h"

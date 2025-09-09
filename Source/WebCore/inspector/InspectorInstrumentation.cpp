@@ -1335,6 +1335,24 @@ InstrumentingAgents& InspectorInstrumentation::instrumentingAgents(ServiceWorker
     return globalScope.inspectorController().m_instrumentingAgents;
 }
 
+InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(const LocalFrameView& frameView)
+{
+    return instrumentingAgents(frameView.frame());
+}
+
+InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(const Frame& frame)
+{
+    return instrumentingAgents(frame.page());
+}
+
+InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(Document& document)
+{
+    Page* page = document.page();
+    if (!page && document.templateDocumentHost())
+        page = document.templateDocumentHost()->page();
+    return instrumentingAgents(page);
+}
+
 InstrumentingAgents& InspectorInstrumentation::instrumentingAgents(Page& page)
 {
     ASSERT(isMainThread());

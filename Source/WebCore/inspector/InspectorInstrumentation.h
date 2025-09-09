@@ -34,16 +34,12 @@
 #include "CSSSelector.h"
 #include "CanvasBase.h"
 #include "CanvasRenderingContext.h"
-#include "DocumentInlines.h"
-#include "DocumentThreadableLoader.h"
 #include "Element.h"
 #include "Event.h"
 #include "EventTarget.h"
 #include "FormData.h"
 #include "HitTestResult.h"
 #include "InspectorInstrumentationPublic.h"
-#include "LocalFrame.h"
-#include "LocalFrameView.h"
 #include "Page.h"
 #include "ResourceLoader.h"
 #include "ResourceLoaderIdentifier.h"
@@ -77,11 +73,14 @@ class LocalDOMWindow;
 class DOMWrapperWorld;
 class Document;
 class DocumentLoader;
+class DocumentThreadableLoader;
 class EventListener;
 class HTTPHeaderMap;
 class InspectorTimelineAgent;
 class InstrumentingAgents;
 class KeyframeEffect;
+class LocalFrame;
+class LocalFrameView;
 class NetworkLoadMetrics;
 class Node;
 class PseudoElement;
@@ -102,6 +101,8 @@ class WebSocketChannel;
 class WorkerOrWorkletGlobalScope;
 
 struct Styleable;
+
+enum class PlatformEventModifier : uint8_t;
 
 #if ENABLE(WEBGL)
 class WebGLProgram;
@@ -205,7 +206,7 @@ public:
     static void willSendRequest(LocalFrame*, ResourceLoaderIdentifier, DocumentLoader*, ResourceRequest&, const ResourceResponse& redirectResponse, const CachedResource*, ResourceLoader*);
     static void didLoadResourceFromMemoryCache(Page&, DocumentLoader*, CachedResource*);
     static void didReceiveResourceResponse(LocalFrame&, ResourceLoaderIdentifier, DocumentLoader*, const ResourceResponse&, ResourceLoader*);
-    static void didReceiveThreadableLoaderResponse(DocumentThreadableLoader&, ResourceLoaderIdentifier);
+    static void didReceiveThreadableLoaderResponse(Document&, DocumentThreadableLoader&, ResourceLoaderIdentifier);
     static void didReceiveData(LocalFrame*, ResourceLoaderIdentifier, const SharedBuffer*, int encodedDataLength);
     static void didFinishLoading(LocalFrame*, DocumentLoader*, ResourceLoaderIdentifier, const NetworkLoadMetrics&, ResourceLoader*);
     static void didFailLoading(LocalFrame*, DocumentLoader*, ResourceLoaderIdentifier, const ResourceError&);
@@ -539,6 +540,7 @@ private:
     static InstrumentingAgents& instrumentingAgents(WorkerOrWorkletGlobalScope&);
     static InstrumentingAgents& instrumentingAgents(ServiceWorkerGlobalScope&);
 
+    static InstrumentingAgents* instrumentingAgents(const LocalFrameView&);
     static InstrumentingAgents* instrumentingAgents(const Frame&);
     static InstrumentingAgents* instrumentingAgents(const Frame*);
     static InstrumentingAgents* instrumentingAgents(ScriptExecutionContext&);
@@ -623,7 +625,7 @@ inline void InspectorInstrumentation::didChangeRendererForDOMNode(Node& node)
 inline void InspectorInstrumentation::didAddOrRemoveScrollbars(LocalFrameView& frameView)
 {
     FAST_RETURN_IF_NO_FRONTENDS(void());
-    if (auto* agents = instrumentingAgents(frameView.frame().document()))
+    if (auto* agents = instrumentingAgents(frameView))
         didAddOrRemoveScrollbarsImpl(*agents, frameView);
 }
 
@@ -1152,10 +1154,10 @@ inline void InspectorInstrumentation::didReceiveResourceResponse(ServiceWorkerGl
     didReceiveResourceResponseImpl(instrumentingAgents(globalScope), identifier, nullptr, response, nullptr);
 }
 
-inline void InspectorInstrumentation::didReceiveThreadableLoaderResponse(DocumentThreadableLoader& documentThreadableLoader, ResourceLoaderIdentifier identifier)
+inline void InspectorInstrumentation::didReceiveThreadableLoaderResponse(Document& document, DocumentThreadableLoader& documentThreadableLoader, ResourceLoaderIdentifier identifier)
 {
     FAST_RETURN_IF_NO_FRONTENDS(void());
-    if (auto* agents = instrumentingAgents(documentThreadableLoader.document()))
+    if (auto* agents = instrumentingAgents(document))
         didReceiveThreadableLoaderResponseImpl(*agents, documentThreadableLoader, identifier);
 }
 
@@ -1785,22 +1787,9 @@ inline InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(const 
     return frame ? instrumentingAgents(*frame) : nullptr;
 }
 
-inline InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(const Frame& frame)
-{
-    return instrumentingAgents(frame.page());
-}
-
 inline InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(Document* document)
 {
     return document ? instrumentingAgents(*document) : nullptr;
-}
-
-inline InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(Document& document)
-{
-    Page* page = document.page();
-    if (!page && document.templateDocumentHost())
-        page = document.templateDocumentHost()->page();
-    return instrumentingAgents(page);
 }
 
 inline InstrumentingAgents* InspectorInstrumentation::instrumentingAgents(Page* page)

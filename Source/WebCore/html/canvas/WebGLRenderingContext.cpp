@@ -68,6 +68,7 @@
 #include "OESTextureHalfFloatLinear.h"
 #include "OESVertexArrayObject.h"
 #include "RenderBox.h"
+#include "Settings.h"
 #include "WebCodecsVideoFrame.h"
 #include "WebCoreOpaqueRootInlines.h"
 #include "WebGLBlendFuncExtended.h"

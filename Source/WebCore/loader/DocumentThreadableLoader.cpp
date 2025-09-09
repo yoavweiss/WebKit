@@ -415,7 +415,7 @@ void DocumentThreadableLoader::didReceiveResponse(ResourceLoaderIdentifier ident
         }
     }
 
-    InspectorInstrumentation::didReceiveThreadableLoaderResponse(*this, identifier);
+    InspectorInstrumentation::didReceiveThreadableLoaderResponse(document(), *this, identifier);
 
     if (m_delayCallbacksForIntegrityCheck)
         return;

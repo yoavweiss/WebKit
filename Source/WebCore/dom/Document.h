@@ -38,6 +38,7 @@
 #include <WebCore/FrameDestructionObserver.h>
 #include <WebCore/FrameIdentifier.h>
 #include <WebCore/HitTestSource.h>
+#include <WebCore/MutationObserverOptions.h>
 #include <WebCore/PageIdentifier.h>
 #include <WebCore/PlaybackTargetClientContextIdentifier.h>
 #include <WebCore/PseudoElementIdentifier.h>
@@ -1084,7 +1085,7 @@ public:
     void didConnectPluginElement() { ++m_connectedPluginElementCount; }
     void didDisconnectPluginElement() { ASSERT(m_connectedPluginElementCount); --m_connectedPluginElementCount; }
 
-    inline bool hasMutationObserversOfType(MutationObserverOptionType) const;
+    bool hasMutationObserversOfType(MutationObserverOptionType type) const { return m_mutationObserverTypes.containsAny(type); }
     bool hasMutationObservers() const { return !m_mutationObserverTypes.isEmpty(); }
     void addMutationObserverTypes(MutationObserverOptions types) { m_mutationObserverTypes.add(types); }
 
