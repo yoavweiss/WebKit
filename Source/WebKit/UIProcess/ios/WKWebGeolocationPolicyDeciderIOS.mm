@@ -38,6 +38,7 @@
 #import <wtf/Deque.h>
 #import <wtf/SoftLinking.h>
 #import <wtf/WeakObjCPtr.h>
+#import <wtf/cf/NotificationCenterCF.h>
 #import <wtf/spi/cf/CFBundleSPI.h>
 
 SOFT_LINK_FRAMEWORK(CoreLocation)
@@ -128,14 +129,14 @@ struct PermissionRequest {
 
     _diskDispatchQueue = adoptNS(dispatch_queue_create("com.apple.WebKit.WKWebGeolocationPolicyDecider", DISPATCH_QUEUE_SERIAL));
 
-    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), self, clearGeolocationCache, CLAppResetChangedNotification, NULL, CFNotificationSuspensionBehaviorCoalesce);
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenterSingleton(), self, clearGeolocationCache, CLAppResetChangedNotification, NULL, CFNotificationSuspensionBehaviorCoalesce);
 
     return self;
 }
 
 - (void)dealloc
 {
-    CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenter(), self, CLAppResetChangedNotification, NULL);
+    CFNotificationCenterRemoveObserver(CFNotificationCenterGetDarwinNotifyCenterSingleton(), self, CLAppResetChangedNotification, NULL);
     [super dealloc];
 }
 

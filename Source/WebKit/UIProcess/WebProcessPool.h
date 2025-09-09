@@ -87,6 +87,10 @@ OBJC_CLASS WKWebInspectorPreferenceObserver;
 #include "HardwareKeyboardState.h"
 #endif
 
+#if PLATFORM(COCOA)
+#include <wtf/cf/NotificationCenterCF.h>
+#endif
+
 namespace API {
 class AutomationClient;
 class DownloadClient;
@@ -677,8 +681,8 @@ private:
     void didReceiveSyncMessage(IPC::Connection&, IPC::Decoder&, UniqueRef<IPC::Encoder>&) override;
 
 #if PLATFORM(COCOA)
-    void addCFNotificationObserver(CFNotificationCallback, CFStringRef name, CFNotificationCenterRef = CFNotificationCenterGetDarwinNotifyCenter());
-    void removeCFNotificationObserver(CFStringRef name, CFNotificationCenterRef = CFNotificationCenterGetDarwinNotifyCenter());
+    void addCFNotificationObserver(CFNotificationCallback, CFStringRef name, CFNotificationCenterRef = CFNotificationCenterGetDarwinNotifyCenterSingleton());
+    void removeCFNotificationObserver(CFStringRef name, CFNotificationCenterRef = CFNotificationCenterGetDarwinNotifyCenterSingleton());
 
     void registerNotificationObservers();
     void unregisterNotificationObservers();

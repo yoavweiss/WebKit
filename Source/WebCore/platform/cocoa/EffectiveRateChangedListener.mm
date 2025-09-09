@@ -30,6 +30,7 @@
 #import <CoreMedia/CMTime.h>
 #import <pal/spi/cf/CFNotificationCenterSPI.h>
 #import <wtf/Function.h>
+#import <wtf/cf/NotificationCenterCF.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
 #import <wtf/spi/cocoa/NSObjCRuntimeSPI.h>
 
@@ -74,7 +75,7 @@ EffectiveRateChangedListener::EffectiveRateChangedListener(Function<void()>&& ca
     , m_timebase(timebase)
 {
     ASSERT(timebase);
-    CFNotificationCenterAddObserver(CFNotificationCenterGetLocalCenter(), m_objcAdapter.get(), timebaseEffectiveRateChangedCallback, kCMTimebaseNotification_EffectiveRateChanged, timebase, static_cast<CFNotificationSuspensionBehavior>(_CFNotificationObserverIsObjC));
+    CFNotificationCenterAddObserver(CFNotificationCenterGetLocalCenterSingleton(), m_objcAdapter.get(), timebaseEffectiveRateChangedCallback, kCMTimebaseNotification_EffectiveRateChanged, timebase, static_cast<CFNotificationSuspensionBehavior>(_CFNotificationObserverIsObjC));
 }
 
 EffectiveRateChangedListener::~EffectiveRateChangedListener()
@@ -91,7 +92,7 @@ void EffectiveRateChangedListener::stop()
 {
     if (m_stopped.exchange(true))
         return;
-    CFNotificationCenterRemoveObserver(CFNotificationCenterGetLocalCenter(), m_objcAdapter.get(), kCMTimebaseNotification_EffectiveRateChanged, m_timebase.get());
+    CFNotificationCenterRemoveObserver(CFNotificationCenterGetLocalCenterSingleton(), m_objcAdapter.get(), kCMTimebaseNotification_EffectiveRateChanged, m_timebase.get());
 }
 
 } // namespace WebCore

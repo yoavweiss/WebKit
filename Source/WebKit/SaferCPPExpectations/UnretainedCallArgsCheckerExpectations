@@ -99,7 +99,6 @@ UIProcess/API/Cocoa/_WKPublicKeyCredentialRequestOptions.mm
 UIProcess/API/Cocoa/_WKPublicKeyCredentialUserEntity.mm
 UIProcess/API/Cocoa/_WKRemoteWebInspectorViewController.mm
 UIProcess/API/Cocoa/_WKResourceLoadInfo.mm
-UIProcess/API/Cocoa/_WKSystemPreferences.mm
 UIProcess/API/Cocoa/_WKTextManipulationConfiguration.mm
 UIProcess/API/Cocoa/_WKTextManipulationToken.mm
 UIProcess/API/Cocoa/_WKThumbnailView.mm
@@ -170,7 +169,6 @@ UIProcess/WebAuthentication/Cocoa/WebAuthenticatorCoordinatorProxy.mm
 UIProcess/WebAuthentication/Mock/MockLocalConnection.mm
 UIProcess/WebAuthentication/Mock/MockNfcService.mm
 UIProcess/WebAuthentication/Virtual/VirtualLocalConnection.mm
-UIProcess/WebProcessPool.h
 UIProcess/WebsiteData/Cocoa/WebsiteDataStoreCocoa.mm
 UIProcess/mac/DisplayCaptureSessionManager.mm
 UIProcess/mac/PageClientImplMac.mm
