@@ -296,7 +296,7 @@ inline static String pointerType(UITouchType type)
         0,
         static_cast<int>(currentTouch.tapCount),
         modifiers,
-        MonotonicTime::fromRawSeconds(currentTouch.timestamp).approximateWallTime(),
+        MonotonicTime::fromRawSeconds(currentTouch.timestamp),
         0,
         cancelled ? WebKit::GestureWasCancelled::Yes : WebKit::GestureWasCancelled::No,
         pointerType(currentTouch.type)
@@ -499,7 +499,7 @@ inline static String pointerType(UITouchType type)
         0,
         0,
         WebKit::WebIOSEventFactory::webEventModifiersForUIKeyModifierFlags(0),
-        WallTime::now(),
+        MonotonicTime::now(),
         0,
         WebKit::GestureWasCancelled::No,
         WebCore::mousePointerEventType()

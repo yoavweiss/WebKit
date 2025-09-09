@@ -136,7 +136,7 @@ Vector<WebTouchEvent> NativeWebTouchEvent::extractPredictedWebTouchEvents(const 
 
 NativeWebTouchEvent::NativeWebTouchEvent(const WKTouchEvent& event, UIKeyModifierFlags flags)
     : WebTouchEvent(
-        { webEventTypeForWKTouchEventType(event.type), webEventModifierFlags(flags), WallTime::fromRawSeconds(event.timestamp) },
+        { webEventTypeForWKTouchEventType(event.type), webEventModifierFlags(flags), MonotonicTime::fromRawSeconds(event.timestamp) },
         extractWebTouchPoints(event),
         extractCoalescedWebTouchEvents(event, flags),
         extractPredictedWebTouchEvents(event, flags),

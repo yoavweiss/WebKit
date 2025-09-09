@@ -687,7 +687,7 @@ private:
     std::optional<DoublePoint> m_lastKnownMousePosition; // Same coordinates as PlatformMouseEvent::position().
     DoublePoint m_lastKnownMouseGlobalPosition;
     IntPoint m_mouseDownContentsPosition;
-    WallTime m_mouseDownTimestamp;
+    MonotonicTime m_mouseDownTimestamp;
     PlatformMouseEvent m_mouseDownEvent;
     PlatformMouseEvent m_lastPlatformMouseEvent;
 

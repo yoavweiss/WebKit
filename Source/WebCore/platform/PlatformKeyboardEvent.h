@@ -56,7 +56,7 @@ namespace WebCore {
         static std::optional<PlatformKeyboardEvent> syntheticEventFromText(Type, const String&);
 
         PlatformKeyboardEvent(Type type, const String& text, const String& unmodifiedText, const String& key, const String& code,
-        const String& keyIdentifier, int windowsVirtualKeyCode, bool isAutoRepeat, bool isKeypad, bool isSystemKey, OptionSet<Modifier> modifiers, WallTime timestamp)
+        const String& keyIdentifier, int windowsVirtualKeyCode, bool isAutoRepeat, bool isKeypad, bool isSystemKey, OptionSet<Modifier> modifiers, MonotonicTime timestamp)
             : PlatformEvent(type, modifiers, timestamp)
             , m_autoRepeat(isAutoRepeat)
             , m_isKeypad(isKeypad)
