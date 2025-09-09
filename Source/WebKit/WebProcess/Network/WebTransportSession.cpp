@@ -40,17 +40,15 @@
 
 namespace WebKit {
 
-std::pair<Ref<WebTransportSession>, Ref<WebCore::WebTransportSessionPromise>> WebTransportSession::initialize(Ref<IPC::Connection>&& connection, ThreadSafeWeakPtr<WebCore::WebTransportSessionClient>&& client, const URL& url, const WebPageProxyIdentifier& pageID, const WebCore::ClientOrigin& clientOrigin)
+Ref<WebCore::WebTransportSessionPromise> WebTransportSession::initialize(Ref<IPC::Connection>&& connection, ThreadSafeWeakPtr<WebCore::WebTransportSessionClient>&& client, const URL& url, const WebPageProxyIdentifier& pageID, const WebCore::ClientOrigin& clientOrigin)
 {
-    auto identifier = WebTransportSessionIdentifier::generate();
-    return {
-        adoptRef(*new WebTransportSession(connection.copyRef(), WTFMove(client), identifier)),
-        connection->sendWithPromisedReply(Messages::NetworkConnectionToWebProcess::InitializeWebTransportSession(identifier, url, pageID, clientOrigin))->whenSettled(RunLoop::mainSingleton(), [] (auto&& result) {
-            if (result && *result)
-                return WebCore::WebTransportSessionPromise::createAndResolve();
+    ASSERT(RunLoop::isMain());
+    return connection->sendWithPromisedReply(Messages::NetworkConnectionToWebProcess::InitializeWebTransportSession(url, pageID, clientOrigin))->whenSettled(RunLoop::mainSingleton(), [connection, client = WTFMove(client)] (auto&& identifier) mutable {
+        ASSERT(RunLoop::isMain());
+        if (!identifier || !*identifier)
             return WebCore::WebTransportSessionPromise::createAndReject();
-        })
-    };
+        return WebCore::WebTransportSessionPromise::createAndResolve(adoptRef(*new WebTransportSession(WTFMove(connection), WTFMove(client), **identifier)));
+    });
 }
 
 WebTransportSession::WebTransportSession(Ref<IPC::Connection>&& connection, ThreadSafeWeakPtr<WebCore::WebTransportSessionClient>&& client, WebTransportSessionIdentifier identifier)
@@ -58,12 +56,14 @@ WebTransportSession::WebTransportSession(Ref<IPC::Connection>&& connection, Thre
     , m_client(WTFMove(client))
     , m_identifier(identifier)
 {
+    ASSERT(RunLoop::isMain());
     RELEASE_ASSERT(WebProcess::singleton().isWebTransportEnabled());
     WebProcess::singleton().addWebTransportSession(m_identifier, *this);
 }
 
 WebTransportSession::~WebTransportSession()
 {
+    ASSERT(RunLoop::isMain());
     WebProcess::singleton().removeWebTransportSession(m_identifier);
     m_connection->send(Messages::NetworkConnectionToWebProcess::DestroyWebTransportSession(m_identifier), 0);
 }
@@ -187,5 +187,4 @@ void WebTransportSession::destroyStream(WebCore::WebTransportStreamIdentifier id
 {
     send(Messages::NetworkTransportSession::DestroyStream(identifier, errorCode));
 }
-
 }

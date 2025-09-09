@@ -27,26 +27,19 @@
 
 #include "WebPageProxyIdentifier.h"
 #include <WebCore/SocketProvider.h>
-#include <wtf/Lock.h>
-
-namespace IPC {
-class Connection;
-}
 
 namespace WebKit {
 
 class WebSocketProvider final : public WebCore::SocketProvider {
 public:
     static Ref<WebSocketProvider> create(WebPageProxyIdentifier webPageProxyID) { return adoptRef(*new WebSocketProvider(webPageProxyID)); }
-    ~WebSocketProvider();
 private:
     RefPtr<WebCore::ThreadableWebSocketChannel> createWebSocketChannel(WebCore::Document&, WebCore::WebSocketChannelClient&) final;
-    std::pair<RefPtr<WebCore::WebTransportSession>, Ref<WebCore::WebTransportSessionPromise>> initializeWebTransportSession(WebCore::ScriptExecutionContext&, WebCore::WebTransportSessionClient&, const URL&) final;
+    Ref<WebCore::WebTransportSessionPromise> initializeWebTransportSession(WebCore::ScriptExecutionContext&, WebCore::WebTransportSessionClient&, const URL&) final;
 
-    explicit WebSocketProvider(WebPageProxyIdentifier);
+    explicit WebSocketProvider(WebPageProxyIdentifier webPageProxyID)
+        : m_webPageProxyID(webPageProxyID) { }
     WebPageProxyIdentifier m_webPageProxyID;
-    Lock m_networkProcessConnectionLock;
-    Ref<IPC::Connection> m_networkProcessConnection WTF_GUARDED_BY_LOCK(m_networkProcessConnectionLock);
 };
 
 }

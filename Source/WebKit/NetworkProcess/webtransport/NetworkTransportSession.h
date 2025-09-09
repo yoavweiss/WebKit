@@ -56,19 +56,17 @@ enum class NetworkTransportStreamType : uint8_t;
 struct SharedPreferencesForWebProcess;
 struct WebTransportSessionIdentifierType;
 
-using WebTransportSessionIdentifier = AtomicObjectIdentifier<WebTransportSessionIdentifierType>;
+using WebTransportSessionIdentifier = ObjectIdentifier<WebTransportSessionIdentifierType>;
 
-class NetworkTransportSession : public RefCounted<NetworkTransportSession>, public IPC::MessageReceiver, public IPC::MessageSender {
+class NetworkTransportSession : public RefCounted<NetworkTransportSession>, public IPC::MessageReceiver, public IPC::MessageSender, public Identified<WebTransportSessionIdentifier> {
     WTF_MAKE_TZONE_ALLOCATED(NetworkTransportSession);
 public:
-    static RefPtr<NetworkTransportSession> create(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, URL&&, WebKit::WebPageProxyIdentifier&&, WebCore::ClientOrigin&&);
+    static void initialize(NetworkConnectionToWebProcess&, URL&&, WebKit::WebPageProxyIdentifier&&, WebCore::ClientOrigin&&, CompletionHandler<void(RefPtr<NetworkTransportSession>&&)>&&);
 
     ~NetworkTransportSession();
 
     void ref() const final { RefCounted::ref(); }
     void deref() const final { RefCounted::deref(); }
-
-    void initialize(CompletionHandler<void(bool)>&&);
 
     void sendDatagram(std::span<const uint8_t>, CompletionHandler<void(std::optional<WebCore::Exception>&&)>&&);
     void createOutgoingUnidirectionalStream(CompletionHandler<void(std::optional<WebCore::WebTransportStreamIdentifier>)>&&);
@@ -90,23 +88,20 @@ public:
     void didReceiveMessage(IPC::Connection&, IPC::Decoder&) final;
     std::optional<SharedPreferencesForWebProcess> sharedPreferencesForWebProcess() const;
 private:
+    template<typename... Args> static Ref<NetworkTransportSession> create(Args&&... args) { return adoptRef(*new NetworkTransportSession(std::forward<Args>(args)...)); }
 #if PLATFORM(COCOA)
-    static Ref<NetworkTransportSession> create(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, nw_connection_group_t, nw_endpoint_t);
-    NetworkTransportSession(NetworkConnectionToWebProcess&, WebTransportSessionIdentifier, nw_connection_group_t, nw_endpoint_t);
-#else
-    NetworkTransportSession();
+    NetworkTransportSession(NetworkConnectionToWebProcess&, nw_connection_group_t, nw_endpoint_t);
 #endif
 
     IPC::Connection* messageSenderConnection() const final;
     uint64_t messageSenderDestinationID() const final;
     void setupConnectionHandler();
-    void setupDatagramConnection(CompletionHandler<void(bool)>&&);
+    void setupDatagramConnection(CompletionHandler<void(RefPtr<NetworkTransportSession>&&)>&&);
     void receiveDatagramLoop();
     void createStream(NetworkTransportStreamType, CompletionHandler<void(std::optional<WebCore::WebTransportStreamIdentifier>)>&&);
 
     HashMap<WebCore::WebTransportStreamIdentifier, Ref<NetworkTransportStream>> m_streams;
     WeakPtr<NetworkConnectionToWebProcess> m_connectionToWebProcess;
-    const WebTransportSessionIdentifier m_identifier;
 
 #if PLATFORM(COCOA)
     const RetainPtr<nw_connection_group_t> m_connectionGroup;

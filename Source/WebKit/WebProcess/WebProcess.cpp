@@ -1429,12 +1429,7 @@ void WebProcess::networkProcessConnectionClosed(NetworkProcessConnection* connec
 
     m_cacheStorageProvider->networkProcessConnectionClosed();
 
-    Vector<ThreadSafeWeakPtr<WebTransportSession>> sessions;
-    {
-        Locker locker { m_webTransportSessionsLock };
-        sessions = copyToVector(m_webTransportSessions.values());
-    }
-    for (auto& weakSession : sessions) {
+    for (auto& weakSession : copyToVector(m_webTransportSessions.values())) {
         if (RefPtr webtransportSession = weakSession.get())
             webtransportSession->networkProcessCrashed();
     }
@@ -2564,20 +2559,20 @@ Ref<WebNotificationManager> WebProcess::protectedNotificationManager()
 
 RefPtr<WebTransportSession> WebProcess::webTransportSession(WebTransportSessionIdentifier identifier)
 {
-    Locker locker { m_webTransportSessionsLock };
+    ASSERT(RunLoop::isMain());
     return m_webTransportSessions.get(identifier).get();
 }
 
 void WebProcess::addWebTransportSession(WebTransportSessionIdentifier identifier, WebTransportSession& session)
 {
-    Locker locker { m_webTransportSessionsLock };
+    ASSERT(RunLoop::isMain());
     ASSERT(!m_webTransportSessions.contains(identifier));
     m_webTransportSessions.set(identifier, session);
 }
 
 void WebProcess::removeWebTransportSession(WebTransportSessionIdentifier identifier)
 {
-    Locker locker { m_webTransportSessionsLock };
+    ASSERT(RunLoop::isMain());
     ASSERT(m_webTransportSessions.contains(identifier));
     m_webTransportSessions.remove(identifier);
 }

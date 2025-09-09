@@ -626,7 +626,6 @@ def types_that_cannot_be_forward_declared():
         'WebKit::WebExtensionTabParameters',
         'WebKit::WebExtensionTabQueryParameters',
         'WebKit::WebExtensionWindowParameters',
-        'WebKit::WebTransportSessionIdentifier',
         'WebKit::XRDeviceIdentifier',
         'WTF::SystemMemoryPressureStatus',
     ] + types_that_must_be_moved())

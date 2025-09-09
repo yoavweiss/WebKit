@@ -2666,8 +2666,6 @@
 		FA580B4C2DA64B5F005E4965 /* UnifiedSource177.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA580B372DA64B5F005E4965 /* UnifiedSource177.cpp */; };
 		FA580B4D2DA64B5F005E4965 /* UnifiedSource179.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA580B392DA64B5F005E4965 /* UnifiedSource179.cpp */; };
 		FA580B4E2DA64B5F005E4965 /* UnifiedSource163.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA580B292DA64B5F005E4965 /* UnifiedSource163.cpp */; };
-		FA5AAE9B2E6A217A00FE693D /* NetworkSoftLink.h in Headers */ = {isa = PBXBuildFile; fileRef = FA5AAE992E6A217A00FE693D /* NetworkSoftLink.h */; };
-		FA5AAE9C2E6A217A00FE693D /* NetworkSoftLink.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA5AAE9A2E6A217A00FE693D /* NetworkSoftLink.mm */; };
 		FA84D6692E579F38004BDAA4 /* WKJSHandleRef.h in Headers */ = {isa = PBXBuildFile; fileRef = FA84D6672E579EA4004BDAA4 /* WKJSHandleRef.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		FA8B4F6D2E46AFFC00E419CD /* WKScriptMessageRef.h in Headers */ = {isa = PBXBuildFile; fileRef = FA8B4F6B2E46A93500E419CD /* WKScriptMessageRef.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		FA8B4F7C2E4A5F7C00E419CD /* _WKJSHandle.h in Headers */ = {isa = PBXBuildFile; fileRef = FA8B4F792E4A5F7300E419CD /* _WKJSHandle.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -8722,8 +8720,6 @@
 		FA58F4512E1DF3190098E1C8 /* APIJSHandle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = APIJSHandle.cpp; sourceTree = "<group>"; };
 		FA58F4562E1E030A0098E1C8 /* JSHandleInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSHandleInfo.h; sourceTree = "<group>"; };
 		FA58F47C2E1F318A0098E1C8 /* Protected.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Protected.h; sourceTree = "<group>"; };
-		FA5AAE992E6A217A00FE693D /* NetworkSoftLink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkSoftLink.h; sourceTree = "<group>"; };
-		FA5AAE9A2E6A217A00FE693D /* NetworkSoftLink.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkSoftLink.mm; sourceTree = "<group>"; };
 		FA5C22422DC5710500B13EF3 /* RemoteWebTouchEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemoteWebTouchEvent.h; sourceTree = "<group>"; };
 		FA5C22432DC5719D00B13EF3 /* RemoteWebTouchEvent.serialization.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = RemoteWebTouchEvent.serialization.in; sourceTree = "<group>"; };
 		FA6342192D9D98D300A6BECE /* WebFrame.messages.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebFrame.messages.in; sourceTree = "<group>"; };
@@ -14062,8 +14058,6 @@
 				7EC4F0F918E4A945008056AF /* NetworkProcessCocoa.mm */,
 				532159501DBAE6D70054AA3C /* NetworkSessionCocoa.h */,
 				5C20CB9B1BB0DCD200895BB1 /* NetworkSessionCocoa.mm */,
-				FA5AAE992E6A217A00FE693D /* NetworkSoftLink.h */,
-				FA5AAE9A2E6A217A00FE693D /* NetworkSoftLink.mm */,
 				D2E2FE6D29C8C30D00023E6B /* NetworkTaskCocoa.h */,
 				D2E2FE6F29C8C4F900023E6B /* NetworkTaskCocoa.mm */,
 				41287D4C225C05C5009A3E26 /* WebSocketTaskCocoa.h */,
@@ -17630,7 +17624,6 @@
 				5C20CBA01BB1ECD800895BB1 /* NetworkSession.h in Headers */,
 				532159551DBAE7290054AA3C /* NetworkSessionCocoa.h in Headers */,
 				417915B92257046F00D6F97E /* NetworkSocketChannel.h in Headers */,
-				FA5AAE9B2E6A217A00FE693D /* NetworkSoftLink.h in Headers */,
 				93085DE026E5BCFD000EC6A7 /* NetworkStorageManager.h in Headers */,
 				93085DE126E5BD13000EC6A7 /* NetworkStorageManagerMessages.h in Headers */,
 				D2E2FE6E29C8C30D00023E6B /* NetworkTaskCocoa.h in Headers */,
@@ -20833,7 +20826,6 @@
 				57B826452304F14000B72EB0 /* NearFieldSoftLink.mm in Sources */,
 				C1C1B30F2540F50D00D9100B /* NetworkConnectionToWebProcessMac.mm in Sources */,
 				41E242E026E0C908009A8C64 /* NetworkRTCUtilitiesCocoa.mm in Sources */,
-				FA5AAE9C2E6A217A00FE693D /* NetworkSoftLink.mm in Sources */,
 				DD4BDE7B2CA38213001A3339 /* ObjectiveCBlockConversions.swift in Sources */,
 				A1D4D2092B7DE6D00008C40E /* PlaybackSessionInterfaceLMK.mm in Sources */,
 				C15CBB3723F37ECB00300CC7 /* PreferenceObserver.mm in Sources */,

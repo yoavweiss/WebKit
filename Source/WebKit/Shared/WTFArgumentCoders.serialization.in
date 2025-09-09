@@ -166,6 +166,7 @@ template: struct WebKit::WebExtensionPortChannelIdentifierType
 template: struct WebKit::WebExtensionTabIdentifierType
 template: struct WebKit::WebExtensionWindowIdentifierType
 template: struct WebKit::WebPageProxyIdentifierType
+template: struct WebKit::WebTransportSessionIdentifierType
 template: struct WebKit::WebURLSchemeHandlerIdentifierType
 [WebKitPlatform, AdditionalEncoder=StreamConnectionEncoder] class WTF::ObjectIdentifier {
     [Validator='WTF::ObjectIdentifierGenericBase<uint64_t>::isValidIdentifier(*toUInt64)'] uint64_t toUInt64()
@@ -217,7 +218,6 @@ template: struct WebKit::QuotaIncreaseRequestIdentifierType
 template: struct WebKit::RenderingBackendIdentifierType
 template: struct WebKit::StorageAreaIdentifierType
 template: struct WebKit::WebGPUIdentifierType
-template: struct WebKit::WebTransportSessionIdentifierType
 [WebKitPlatform, CustomHeader, AdditionalEncoder=StreamConnectionEncoder] class WTF::AtomicObjectIdentifier {
     [Validator='WTF::ObjectIdentifierGenericBase<uint64_t>::isValidIdentifier(*toUInt64)'] uint64_t toUInt64()
 }

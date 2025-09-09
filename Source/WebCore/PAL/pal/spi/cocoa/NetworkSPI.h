@@ -73,7 +73,6 @@ uint32_t nw_webtransport_metadata_get_session_error_code(nw_protocol_metadata_t)
 void nw_webtransport_metadata_set_session_error_code(nw_protocol_metadata_t, uint32_t);
 const char* nw_webtransport_metadata_get_session_error_message(nw_protocol_metadata_t);
 void nw_webtransport_metadata_set_session_error_message(nw_protocol_metadata_t, const char*);
-void nw_webtransport_options_set_allow_joining_before_ready(nw_protocol_options_t, bool);
 
 WTF_EXTERN_C_END
 

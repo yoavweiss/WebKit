@@ -1198,7 +1198,7 @@ private:
 class EmptySocketProvider final : public SocketProvider {
 public:
     RefPtr<ThreadableWebSocketChannel> createWebSocketChannel(Document&, WebSocketChannelClient&) final { return nullptr; }
-    std::pair<RefPtr<WebTransportSession>, Ref<WebTransportSessionPromise>> initializeWebTransportSession(ScriptExecutionContext&, WebTransportSessionClient&, const URL&) { return { nullptr, WebTransportSessionPromise::createAndReject() }; }
+    Ref<WebTransportSessionPromise> initializeWebTransportSession(ScriptExecutionContext&, WebTransportSessionClient&, const URL&) { return WebTransportSessionPromise::createAndReject(); }
 };
 
 class EmptyHistoryItemClient final : public HistoryItemClient {
