@@ -946,29 +946,80 @@ TEST(WebKit, ToolbarVisible)
 }
 
 @interface MouseMoveOverElementDelegate : NSObject <WKUIDelegatePrivate>
+@property (nonatomic, copy) void (^mouseDidMoveOverElement)(_WKHitTestResult *, NSEventModifierFlags, id<NSSecureCoding>);
+@property (nonatomic, copy) WKWebView* (^createWebViewWithConfiguration)(WKWebViewConfiguration *, WKNavigationAction *, WKWindowFeatures *);
 @end
 
 @implementation MouseMoveOverElementDelegate
 
 - (void)_webView:(WKWebView *)webview mouseDidMoveOverElement:(_WKHitTestResult *)hitTestResult withFlags:(NSEventModifierFlags)flags userInfo:(id <NSSecureCoding>)userInfo
 {
-    EXPECT_STREQ(hitTestResult.absoluteLinkURL.absoluteString.UTF8String, "http://example.com/path");
-    EXPECT_STREQ(hitTestResult.linkLabel.UTF8String, "link label");
-    EXPECT_STREQ(hitTestResult.linkTitle.UTF8String, "link title");
-    EXPECT_EQ(flags, NSEventModifierFlagShift);
-    EXPECT_STREQ(NSStringFromClass([(NSObject *)userInfo class]).UTF8String, "_WKFrameHandle");
-    done = true;
+    _mouseDidMoveOverElement(hitTestResult, flags, userInfo);
+}
+
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+    return _createWebViewWithConfiguration(configuration, navigationAction, windowFeatures);
 }
 
 @end
 
 TEST(WebKit, MouseMoveOverElement)
 {
+    __block bool done { false };
     WKWebViewConfiguration *configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"FrameHandleSerialization"];
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration]);
-    auto uiDelegate = adoptNS([[MouseMoveOverElementDelegate alloc] init]);
+    auto uiDelegate = adoptNS([MouseMoveOverElementDelegate new]);
+    uiDelegate.get().mouseDidMoveOverElement = ^(_WKHitTestResult *hitTestResult, NSEventModifierFlags flags, id<NSSecureCoding> userInfo) {
+        EXPECT_STREQ(hitTestResult.absoluteLinkURL.absoluteString.UTF8String, "http://example.com/path");
+        EXPECT_STREQ(hitTestResult.linkLabel.UTF8String, "link label");
+        EXPECT_STREQ(hitTestResult.linkTitle.UTF8String, "link title");
+        EXPECT_EQ(flags, NSEventModifierFlagShift);
+        EXPECT_STREQ(NSStringFromClass([(NSObject *)userInfo class]).UTF8String, "_WKFrameHandle");
+        EXPECT_TRUE(hitTestResult.linkTargetFrameIsSameAsLinkFrame);
+        EXPECT_TRUE(hitTestResult.linkHasTargetFrame);
+        done = true;
+    };
     [webView setUIDelegate:uiDelegate.get()];
     [webView synchronouslyLoadHTMLString:@"<a href='http://example.com/path' title='link title'>link label</a>"];
+    [webView mouseMoveToPoint:NSMakePoint(20, 600 - 20) withFlags:NSEventModifierFlagShift];
+    TestWebKitAPI::Util::run(&done);
+
+    done = false;
+    uiDelegate.get().mouseDidMoveOverElement = ^(_WKHitTestResult *hitTestResult, NSEventModifierFlags, id<NSSecureCoding>) {
+        EXPECT_FALSE(hitTestResult.linkTargetFrameIsSameAsLinkFrame);
+        EXPECT_TRUE(hitTestResult.linkHasTargetFrame);
+        EXPECT_FALSE(hitTestResult.linkTargetFrameIsInDifferentWebView);
+        done = true;
+    };
+    [webView synchronouslyLoadHTMLString:@"<a href='http://example.com/path' title='link title' target='testiframe'>link label</a><iframe name='testiframe' style='height:1px;width:1px'></iframe>"];
+    [webView mouseMoveToPoint:NSMakePoint(20, 600 - 20) withFlags:NSEventModifierFlagShift];
+    TestWebKitAPI::Util::run(&done);
+
+    done = false;
+    uiDelegate.get().mouseDidMoveOverElement = ^(_WKHitTestResult *hitTestResult, NSEventModifierFlags, id<NSSecureCoding>) {
+        EXPECT_FALSE(hitTestResult.linkTargetFrameIsSameAsLinkFrame);
+        EXPECT_FALSE(hitTestResult.linkHasTargetFrame);
+        done = true;
+    };
+    [webView mouseMoveToPoint:NSMakePoint(300, 300) withFlags:NSEventModifierFlagShift];
+    TestWebKitAPI::Util::run(&done);
+
+    done = false;
+    uiDelegate.get().mouseDidMoveOverElement = ^(_WKHitTestResult *hitTestResult, NSEventModifierFlags, id<NSSecureCoding>) {
+        EXPECT_FALSE(hitTestResult.linkTargetFrameIsSameAsLinkFrame);
+        EXPECT_TRUE(hitTestResult.linkHasTargetFrame);
+        EXPECT_TRUE(hitTestResult.linkTargetFrameIsInDifferentWebView);
+        done = true;
+    };
+    __block bool opened { false };
+    uiDelegate.get().createWebViewWithConfiguration = ^WKWebView *(WKWebViewConfiguration * configuration, WKNavigationAction *navigationAction, WKWindowFeatures *) {
+        static RetainPtr<WKWebView> openedView = adoptNS([[WKWebView alloc] initWithFrame:CGRectZero configuration:configuration]);
+        opened = true;
+        return openedView.get();
+    };
+    [webView synchronouslyLoadHTMLString:@"<a href='http://example.com/path' title='link title' target='testtarget'>link label</a><script>window.open('about:blank', 'testtarget')</script>"];
+    TestWebKitAPI::Util::run(&opened);
     [webView mouseMoveToPoint:NSMakePoint(20, 600 - 20) withFlags:NSEventModifierFlagShift];
     TestWebKitAPI::Util::run(&done);
 }
@@ -1041,12 +1092,23 @@ TEST(WebKit, MouseMoveOverElementWithClosedWebView)
         return linkLocation;
     }));
 
+    __block bool done { false };
     @autoreleasepool {
         WKWebViewConfiguration *configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"FrameHandleSerialization"];
         auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 300) configuration:configuration]);
         [webView removeFromSuperview];
         [webView addToTestWindow];
-        auto uiDelegate = adoptNS([[MouseMoveOverElementDelegate alloc] init]);
+        auto uiDelegate = adoptNS([MouseMoveOverElementDelegate new]);
+        uiDelegate.get().mouseDidMoveOverElement = ^(_WKHitTestResult *hitTestResult, NSEventModifierFlags flags, id<NSSecureCoding> userInfo) {
+            EXPECT_STREQ(hitTestResult.absoluteLinkURL.absoluteString.UTF8String, "http://example.com/path");
+            EXPECT_STREQ(hitTestResult.linkLabel.UTF8String, "link label");
+            EXPECT_STREQ(hitTestResult.linkTitle.UTF8String, "link title");
+            EXPECT_EQ(flags, NSEventModifierFlagShift);
+            EXPECT_STREQ(NSStringFromClass([(NSObject *)userInfo class]).UTF8String, "_WKFrameHandle");
+            EXPECT_TRUE(hitTestResult.linkTargetFrameIsSameAsLinkFrame);
+            EXPECT_TRUE(hitTestResult.linkHasTargetFrame);
+            done = true;
+        };
         [webView setUIDelegate:uiDelegate.get()];
         [webView synchronouslyLoadHTMLString:@"<a id='link' href='http://example.com/path' style='font-size: 300px;' title='link title'>link label</a>"];
 
@@ -1063,6 +1125,7 @@ TEST(WebKit, MouseMoveOverElementWithClosedWebView)
     }
 
     TestWebKitAPI::Util::runFor(10_ms);
+    TestWebKitAPI::Util::run(&done);
 }
 
 static bool readyForClick;

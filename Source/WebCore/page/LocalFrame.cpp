@@ -385,6 +385,11 @@ void LocalFrame::changeLocation(FrameLoadRequest&& request)
     loader().changeLocation(WTFMove(request));
 }
 
+void LocalFrame::loadFrameRequest(FrameLoadRequest&& request, Event* event)
+{
+    loader().loadFrameRequest(WTFMove(request), event, { });
+}
+
 void LocalFrame::didFinishLoadInAnotherProcess()
 {
     loader().provisionalLoadFailedInAnotherProcess();

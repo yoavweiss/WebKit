@@ -208,7 +208,7 @@ LocalFrame* HitTestResult::frame() const
     return nullptr;
 }
 
-LocalFrame* HitTestResult::targetFrame() const
+Frame* HitTestResult::targetFrame() const
 {
     if (!m_innerURLElement)
         return nullptr;
@@ -217,7 +217,7 @@ LocalFrame* HitTestResult::targetFrame() const
     if (!frame)
         return nullptr;
 
-    return dynamicDowncast<LocalFrame>(frame->tree().findBySpecifiedName(m_innerURLElement->target(), *frame));
+    return frame->tree().findBySpecifiedName(m_innerURLElement->target(), *frame);
 }
 
 bool HitTestResult::isSelected() const
