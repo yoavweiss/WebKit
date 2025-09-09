@@ -525,6 +525,8 @@ void RenderGrid::layoutGrid(RelayoutChildren relayoutChildren)
         updateDescendantTransformsAfterLayout();
     }
 
+    updateLayerTransform();
+
     repainter.repaintAfterLayout();
 
     m_trackSizingAlgorithm.clearBaselineItemsCache();
@@ -653,6 +655,8 @@ void RenderGrid::layoutMasonry(RelayoutChildren relayoutChildren)
 
         updateDescendantTransformsAfterLayout();
     }
+
+    updateLayerTransform();
 
     repainter.repaintAfterLayout();
 
