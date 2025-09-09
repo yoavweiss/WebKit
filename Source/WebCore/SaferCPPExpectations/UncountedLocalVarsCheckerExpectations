@@ -1,14 +1,9 @@
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/indexeddb/IDBActiveDOMObjectInlines.h
-Modules/indexeddb/IDBCursor.cpp
-Modules/indexeddb/IDBIndex.cpp
 Modules/indexeddb/IDBObjectStore.cpp
-Modules/indexeddb/IDBTransaction.cpp
-Modules/indexeddb/client/IDBConnectionProxy.cpp
 Modules/indexeddb/server/IDBServer.cpp
 Modules/indexeddb/server/MemoryBackingStoreTransaction.cpp
 Modules/indexeddb/server/MemoryIDBBackingStore.cpp
-Modules/indexeddb/server/MemoryObjectStore.cpp
 Modules/indexeddb/server/UniqueIDBDatabase.cpp
 Modules/mediacapabilities/MediaCapabilities.cpp
 Modules/mediacontrols/MediaControlsHost.cpp

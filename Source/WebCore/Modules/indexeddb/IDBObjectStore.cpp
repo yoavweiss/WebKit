@@ -138,6 +138,11 @@ IDBTransaction& IDBObjectStore::transaction()
     return m_transaction.get();
 }
 
+Ref<IDBTransaction> IDBObjectStore::protectedTransaction()
+{
+    return transaction();
+}
+
 bool IDBObjectStore::autoIncrement() const
 {
     ASSERT(canCurrentThreadAccessThreadLocalData(m_transaction->database().originThread()));

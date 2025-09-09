@@ -560,7 +560,7 @@ static bool getDocumentAndIDBFactoryFromFrameOrSendFailure(LocalFrame* frame, Do
         return false;
     }
 
-    Inspector::Protocol::ErrorStringOr<IDBFactory*> idbFactory = IDBFactoryFromDocument(document.value());
+    Inspector::Protocol::ErrorStringOr<IDBFactory*> idbFactory = IDBFactoryFromDocument(RefPtr { document.value() }.get());
     if (!idbFactory.has_value()) {
         callback.sendFailure(idbFactory.error());
         return false;

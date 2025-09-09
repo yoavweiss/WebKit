@@ -1,14 +1,5 @@
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/credentialmanagement/CredentialsContainer.cpp
-Modules/indexeddb/IDBCursor.cpp
-Modules/indexeddb/IDBIndex.cpp
-Modules/indexeddb/IDBTransaction.cpp
-Modules/indexeddb/server/IDBConnectionToClient.cpp
-Modules/indexeddb/server/MemoryBackingStoreTransaction.cpp
-Modules/indexeddb/server/MemoryIndex.cpp
-Modules/indexeddb/server/MemoryObjectStore.cpp
-Modules/indexeddb/server/SQLiteIDBBackingStore.cpp
-Modules/indexeddb/server/SQLiteIDBCursor.cpp
 Modules/indexeddb/server/UniqueIDBDatabase.cpp
 Modules/mediacontrols/MediaControlsHost.cpp
 Modules/mediarecorder/MediaRecorder.cpp
@@ -316,7 +307,6 @@ inspector/agents/InspectorCSSAgent.cpp
 inspector/agents/InspectorCSSAgent.h
 inspector/agents/InspectorCanvasAgent.cpp
 inspector/agents/InspectorDOMAgent.cpp
-inspector/agents/InspectorIndexedDBAgent.cpp
 inspector/agents/InspectorLayerTreeAgent.cpp
 inspector/agents/InspectorNetworkAgent.cpp
 inspector/agents/InspectorPageAgent.cpp

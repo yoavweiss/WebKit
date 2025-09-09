@@ -8,17 +8,12 @@ Modules/entriesapi/FileSystemFileEntry.cpp
 Modules/filesystem/FileSystemFileHandle.cpp
 Modules/filesystem/WorkerFileSystemStorageConnection.cpp
 Modules/identity/CredentialRequestCoordinator.cpp
-Modules/indexeddb/IDBCursor.cpp
 Modules/indexeddb/IDBDatabase.cpp
-Modules/indexeddb/IDBIndex.cpp
 Modules/indexeddb/IDBKey.cpp
 Modules/indexeddb/IDBKeyRange.cpp
 Modules/indexeddb/IDBObjectStore.cpp
 Modules/indexeddb/IDBOpenDBRequest.cpp
 Modules/indexeddb/IDBRequest.cpp
-Modules/indexeddb/IDBTransaction.cpp
-Modules/indexeddb/client/IDBConnectionProxy.cpp
-Modules/indexeddb/server/MemoryObjectStore.cpp
 Modules/indexeddb/server/UniqueIDBDatabase.cpp
 Modules/indexeddb/server/UniqueIDBDatabaseTransaction.cpp
 Modules/mediacontrols/MediaControlsHost.cpp

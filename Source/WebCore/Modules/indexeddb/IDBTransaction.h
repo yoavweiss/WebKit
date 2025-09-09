@@ -147,6 +147,7 @@ public:
     bool didDispatchAbortOrCommit() const { return m_didDispatchAbortOrCommit; }
 
     IDBClient::IDBConnectionProxy& connectionProxy();
+    Ref<IDBClient::IDBConnectionProxy> protectedConnectionProxy();
     void connectionClosedFromServer(const IDBError&);
     void generateIndexKeyForRecord(const IDBResourceIdentifier& requestIdentifier, const IDBIndexInfo&, const std::optional<IDBKeyPath>&, const IDBKeyData&, const IDBValue&, std::optional<int64_t> recordID);
 
@@ -239,6 +240,8 @@ private:
     void trySchedulePendingOperationTimer();
     void addCursorRequest(IDBRequest&);
 
+    void assertCurrentThreadAccessThreadLocalData() const;
+
     const Ref<IDBDatabase> m_database;
     IDBTransactionInfo m_info;
 
@@ -292,5 +295,17 @@ public:
 private:
     RefPtr<IDBTransaction> m_transaction;
 };
+
+#if !ASSERT_ENABLED
+ALWAYS_INLINE void IDBTransaction::assertCurrentThreadAccessThreadLocalData() const
+{
+}
+#endif
+
+inline bool IDBTransaction::isActive() const
+{
+    assertCurrentThreadAccessThreadLocalData();
+    return m_state == IndexedDB::TransactionState::Active;
+}
 
 } // namespace WebCore

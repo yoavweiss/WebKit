@@ -92,7 +92,9 @@ protected:
 private:
     bool sourcesDeleted() const;
     IDBObjectStore& effectiveObjectStore() const;
+    Ref<IDBObjectStore> protectedEffectiveObjectStore() const;
     IDBTransaction& transaction() const;
+    Ref<IDBTransaction> protectedTransaction() const;
 
     void uncheckedIterateCursor(const IDBKeyData&, unsigned count);
     void uncheckedIterateCursor(const IDBKeyData&, const IDBKeyData&);

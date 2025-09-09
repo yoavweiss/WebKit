@@ -1,8 +1,6 @@
 Modules/WebGPU/Implementation/WebGPUDeviceImpl.cpp
 Modules/cache/DOMCache.cpp
 Modules/cache/DOMCacheStorage.cpp
-Modules/indexeddb/client/IDBConnectionProxy.cpp
-Modules/indexeddb/server/UniqueIDBDatabaseConnection.cpp
 Modules/mediacontrols/MediaControlsHost.cpp
 Modules/mediasession/MediaMetadata.cpp
 Modules/mediasource/MediaSource.cpp

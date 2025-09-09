@@ -75,6 +75,7 @@ public:
     const std::optional<IDBKeyPath>& keyPath() const;
     Ref<DOMStringList> indexNames() const;
     IDBTransaction& transaction();
+    Ref<IDBTransaction> protectedTransaction();
     bool autoIncrement() const;
 
     struct IndexParameters {

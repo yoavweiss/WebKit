@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <WebCore/EventNames.h>
 #include <WebCore/EventTarget.h>
 #include <WebCore/EventTargetInterfaces.h>
 #include <WebCore/IDBActiveDOMObject.h>
