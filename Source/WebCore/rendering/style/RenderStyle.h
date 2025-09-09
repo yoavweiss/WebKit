@@ -74,7 +74,6 @@ class ScrollTimeline;
 class StyleContentAlignmentData;
 class StyleInheritedData;
 class StyleNonInheritedData;
-class StylePathData;
 class StyleRareInheritedData;
 class StyleSelfAlignmentData;
 class TextAutospace;
@@ -320,6 +319,7 @@ struct SVGBaselineShift;
 struct SVGCenterCoordinateComponent;
 struct SVGCoordinateComponent;
 struct SVGPaint;
+struct SVGPathData;
 struct SVGRadius;
 struct SVGRadiusComponent;
 struct SVGStrokeDasharray;
@@ -1786,9 +1786,9 @@ public:
     inline const Style::SVGCoordinateComponent& y() const;
     inline void setY(Style::SVGCoordinateComponent&&);
 
-    inline void setD(RefPtr<StylePathData>&&);
-    inline StylePathData* d() const;
-    static StylePathData* initialD() { return nullptr; }
+    inline void setD(Style::SVGPathData&&);
+    inline const Style::SVGPathData& d() const;
+    static inline Style::SVGPathData initialD();
 
     inline Style::Opacity floodOpacity() const;
     inline void setFloodOpacity(Style::Opacity);

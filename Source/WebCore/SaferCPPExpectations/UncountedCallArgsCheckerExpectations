@@ -933,7 +933,6 @@ style/StyleExtractorConverter.h
 style/StyleExtractorCustom.h
 style/StyleExtractorSerializer.h
 style/StyleInterpolation.cpp
-style/StyleInterpolationWrappers.h
 style/StyleInvalidator.cpp
 style/StylePendingResources.cpp
 style/StyleResolveForDocument.cpp

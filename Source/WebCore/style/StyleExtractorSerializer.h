@@ -84,7 +84,6 @@ public:
     static void serializeGlyphOrientation(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeGlyphOrientationOrAuto(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, GlyphOrientation);
     static void serializeMarginTrim(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, OptionSet<MarginTrimType>);
-    static void serializeDPath(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const StylePathData*);
     static void serializeStrokeDashArray(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FixedVector<WebCore::Length>&);
     static void serializeFilterOperations(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FilterOperations&);
     static void serializeAppleColorFilterOperations(ExtractorState&, StringBuilder&, const CSS::SerializationContext&, const FilterOperations&);
@@ -632,15 +631,6 @@ inline void ExtractorSerializer::serializeMarginTrim(ExtractorState& state, Stri
     appendOption(MarginTrimType::InlineEnd, CSSValueInlineEnd);
 }
 
-inline void ExtractorSerializer::serializeDPath(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const StylePathData* path)
-{
-    if (!path) {
-        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
-        return;
-    }
-
-    serializationForCSS(builder, context, state.style, Ref { *path }->path(), PathConversion::ForceAbsolute);
-}
 
 inline void ExtractorSerializer::serializeStrokeDashArray(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context, const FixedVector<WebCore::Length>& dashes)
 {

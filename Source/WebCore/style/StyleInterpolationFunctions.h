@@ -282,13 +282,4 @@ inline std::optional<FontSelectionValue> blendFunc(std::optional<FontSelectionVa
     return normalizedFontItalicValue(blendFunc(valueOrDefault(from), valueOrDefault(to), context));
 }
 
-inline RefPtr<StylePathData> blendFunc(StylePathData* from, StylePathData* to, const Context& context)
-{
-    if (context.isDiscrete)
-        return context.progress < 0.5 ? from : to;
-    ASSERT(from);
-    ASSERT(to);
-    return from->blend(*to, context);
-}
-
 } // namespace WebCore::Style::Interpolation

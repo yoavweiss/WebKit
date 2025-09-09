@@ -127,6 +127,7 @@ inline PositionY forwardInheritedValue(const PositionY& value) { auto copy = val
 inline SVGBaselineShift forwardInheritedValue(const SVGBaselineShift& value) { auto copy = value; return copy; }
 inline SVGCenterCoordinateComponent forwardInheritedValue(const SVGCenterCoordinateComponent& value) { auto copy = value; return copy; }
 inline SVGCoordinateComponent forwardInheritedValue(const SVGCoordinateComponent& value) { auto copy = value; return copy; }
+inline SVGPathData forwardInheritedValue(const SVGPathData& value) { auto copy = value; return copy; }
 inline SVGPaint forwardInheritedValue(const SVGPaint& value) { auto copy = value; return copy; }
 inline SVGRadius forwardInheritedValue(const SVGRadius& value) { auto copy = value; return copy; }
 inline SVGRadiusComponent forwardInheritedValue(const SVGRadiusComponent& value) { auto copy = value; return copy; }

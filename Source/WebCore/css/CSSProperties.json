@@ -4348,9 +4348,8 @@
                 "none"
             ],
             "codegen-properties": {
-                "animation-wrapper": "DWrapper",
-                "animation-wrapper-requires-override-parameters": [],
-                "style-converter": "DPath",
+                "animation-wrapper": "StyleTypeWrapper",
+                "style-converter": "StyleType<SVGPathData>",
                 "parser-grammar": "none | <path()>",
                 "settings-flag": "cssDPropertyEnabled"
             },

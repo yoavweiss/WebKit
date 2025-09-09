@@ -498,7 +498,6 @@ style/StyleBuilderState.cpp
 style/StyleCustomPropertyRegistry.cpp
 style/StyleExtractor.cpp
 style/StyleExtractorCustom.h
-style/StyleInterpolationWrappers.h
 style/StyleInvalidationFunctions.h
 style/StyleInvalidator.cpp
 style/StyleRelations.cpp

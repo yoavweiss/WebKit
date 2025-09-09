@@ -3135,7 +3135,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/style/StyleMiscNonInheritedData.h
     rendering/style/StyleMultiColData.h
     rendering/style/StyleNonInheritedData.h
-    rendering/style/StylePathData.h
     rendering/style/StyleRareInheritedData.h
     rendering/style/StyleRareNonInheritedData.h
     rendering/style/StyleScrollSnapPoints.h
@@ -3367,6 +3366,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/svg/StyleSVGCenterCoordinateComponent.h
     style/values/svg/StyleSVGCoordinateComponent.h
     style/values/svg/StyleSVGPaint.h
+    style/values/svg/StyleSVGPathData.h
     style/values/svg/StyleSVGRadius.h
     style/values/svg/StyleSVGRadiusComponent.h
     style/values/svg/StyleSVGStrokeDasharray.h

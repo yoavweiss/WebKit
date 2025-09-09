@@ -85,7 +85,6 @@
 #include "StyleOffsetPosition.h"
 #include "StyleOffsetRotate.h"
 #include "StylePadding.h"
-#include "StylePathData.h"
 #include "StylePerspective.h"
 #include "StylePreferredSize.h"
 #include "StylePrimitiveKeyword+CSSValueConversion.h"
@@ -139,7 +138,6 @@ public:
     static OptionSet<TextEmphasisPosition> convertTextEmphasisPosition(BuilderState&, const CSSValue&);
     static TextAlignMode convertTextAlign(BuilderState&, const CSSValue&);
     static TextAlignLast convertTextAlignLast(BuilderState&, const CSSValue&);
-    static RefPtr<StylePathData> convertDPath(BuilderState&, const CSSValue&);
     static Resize convertResize(BuilderState&, const CSSValue&);
     static OptionSet<TextUnderlinePosition> convertTextUnderlinePosition(BuilderState&, const CSSValue&);
     static TextEdge convertTextEdge(BuilderState&, const CSSValue&);
@@ -460,16 +458,6 @@ inline TextAlignLast BuilderConverter::convertTextAlignLast(BuilderState& builde
     if (parentStyle.textAlignLast() == TextAlignLast::End)
         return parentStyle.writingMode().isBidiLTR() ? TextAlignLast::Right : TextAlignLast::Left;
     return parentStyle.textAlignLast();
-}
-
-inline RefPtr<StylePathData> BuilderConverter::convertDPath(BuilderState& builderState, const CSSValue& value)
-{
-    if (RefPtr pathValue = dynamicDowncast<CSSPathValue>(value))
-        return StylePathData::create(toStyle(pathValue->path(), builderState));
-
-    ASSERT(is<CSSPrimitiveValue>(value));
-    ASSERT(downcast<CSSPrimitiveValue>(value).valueID() == CSSValueNone);
-    return nullptr;
 }
 
 inline Resize BuilderConverter::convertResize(BuilderState& builderState, const CSSValue& value)

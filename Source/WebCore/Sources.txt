@@ -2995,7 +2995,6 @@ rendering/style/StyleMultiImage.cpp
 rendering/style/StyleNamedImage.cpp
 rendering/style/StyleNonInheritedData.cpp
 rendering/style/StylePaintImage.cpp
-rendering/style/StylePathData.cpp
 rendering/style/StyleRareInheritedData.cpp
 rendering/style/StyleRareNonInheritedData.cpp
 rendering/style/StyleScrollSnapPoints.cpp
@@ -3273,6 +3272,7 @@ style/values/sizing/StyleContainIntrinsicSize.cpp
 style/values/sizing/StylePreferredSize.cpp
 style/values/svg/StyleSVGBaselineShift.cpp
 style/values/svg/StyleSVGPaint.cpp
+style/values/svg/StyleSVGPathData.cpp
 style/values/svg/StyleSVGStrokeDasharray.cpp
 style/values/svg/StyleSVGStrokeDashoffset.cpp
 style/values/text-decoration/StyleTextDecorationLine.cpp

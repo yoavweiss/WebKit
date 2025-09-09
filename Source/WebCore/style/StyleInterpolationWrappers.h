@@ -1306,22 +1306,6 @@ DiscreteSVGWrapper(CSSPropertyID, T (SVGRenderStyle::*getter)() const, void (SVG
 template<typename T>
 DiscreteSVGWrapper(CSSPropertyID, const T& (SVGRenderStyle::*getter)() const, void (SVGRenderStyle::*setter)(T&&)) -> DiscreteSVGWrapper<T, const T&, T&&>;
 
-class DWrapper final : public RefCountedWrapper<StylePathData> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(DWrapper, Animation);
-public:
-    DWrapper()
-        : RefCountedWrapper(CSSPropertyD, &RenderStyle::d, &RenderStyle::setD)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const final
-    {
-        auto* fromValue = value(from);
-        auto* toValue = value(to);
-        return fromValue && toValue && fromValue->canBlend(*toValue);
-    }
-};
-
 // MARK: - FillLayer Wrappers
 
 // Wrapper base class for an animatable property in a FillLayer

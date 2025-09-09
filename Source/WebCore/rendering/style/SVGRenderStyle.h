@@ -115,7 +115,7 @@ public:
     void setRy(Style::SVGRadiusComponent&&);
     void setX(Style::SVGCoordinateComponent&&);
     void setY(Style::SVGCoordinateComponent&&);
-    void setD(RefPtr<StylePathData>&&);
+    void setD(Style::SVGPathData&&);
     void setFillOpacity(Style::Opacity);
     void setFill(Style::SVGPaint&&);
     void setVisitedLinkFill(Style::SVGPaint&&);
@@ -169,7 +169,7 @@ public:
     const Style::SVGRadiusComponent& ry() const { return m_layoutData->ry; }
     const Style::SVGCoordinateComponent& x() const { return m_layoutData->x; }
     const Style::SVGCoordinateComponent& y() const { return m_layoutData->y; }
-    StylePathData* d() const { return m_layoutData->d.get(); }
+    const Style::SVGPathData& d() const { return m_layoutData->d; }
     const Style::URL& markerStartResource() const { return m_inheritedResourceData->markerStart; }
     const Style::URL& markerMidResource() const { return m_inheritedResourceData->markerMid; }
     const Style::URL& markerEndResource() const { return m_inheritedResourceData->markerEnd; }
@@ -249,7 +249,7 @@ inline SVGRenderStyle& RenderStyle::accessSVGStyle() { return m_svgStyle.access(
 inline const Style::SVGBaselineShift& RenderStyle::baselineShift() const { return svgStyle().baselineShift(); }
 inline const Style::SVGCenterCoordinateComponent& RenderStyle::cx() const { return svgStyle().cx(); }
 inline const Style::SVGCenterCoordinateComponent& RenderStyle::cy() const { return svgStyle().cy(); }
-inline StylePathData* RenderStyle::d() const { return svgStyle().d(); }
+inline const Style::SVGPathData& RenderStyle::d() const { return svgStyle().d(); }
 inline Style::Opacity RenderStyle::fillOpacity() const { return svgStyle().fillOpacity(); }
 inline const Style::SVGPaint& RenderStyle::fill() const { return svgStyle().fill(); }
 inline const Style::SVGPaint& RenderStyle::visitedLinkFill() const { return svgStyle().visitedLinkFill(); }
@@ -264,7 +264,7 @@ inline const Style::SVGRadiusComponent& RenderStyle::ry() const { return svgStyl
 inline void RenderStyle::setBaselineShift(Style::SVGBaselineShift&& baselineShift) { accessSVGStyle().setBaselineShift(WTFMove(baselineShift)); }
 inline void RenderStyle::setCx(Style::SVGCenterCoordinateComponent&& cx) { accessSVGStyle().setCx(WTFMove(cx)); }
 inline void RenderStyle::setCy(Style::SVGCenterCoordinateComponent&& cy) { accessSVGStyle().setCy(WTFMove(cy)); }
-inline void RenderStyle::setD(RefPtr<StylePathData>&& d) { accessSVGStyle().setD(WTFMove(d)); }
+inline void RenderStyle::setD(Style::SVGPathData&& d) { accessSVGStyle().setD(WTFMove(d)); }
 inline void RenderStyle::setFillOpacity(Style::Opacity opacity) { accessSVGStyle().setFillOpacity(opacity); }
 inline void RenderStyle::setFill(Style::SVGPaint&& paint) { accessSVGStyle().setFill(WTFMove(paint)); }
 inline void RenderStyle::setVisitedLinkFill(Style::SVGPaint&& paint) { accessSVGStyle().setVisitedLinkFill(WTFMove(paint)); }
@@ -296,6 +296,7 @@ inline const Style::SVGCoordinateComponent& RenderStyle::y() const { return svgS
 
 inline Style::SVGCenterCoordinateComponent RenderStyle::initialCx() { return 0_css_px; }
 inline Style::SVGCenterCoordinateComponent RenderStyle::initialCy() { return 0_css_px; }
+inline Style::SVGPathData RenderStyle::initialD() { return CSS::Keyword::None { }; }
 inline Style::SVGRadius RenderStyle::initialR() { return 0_css_px; }
 inline Style::SVGRadiusComponent RenderStyle::initialRx() { return CSS::Keyword::Auto { }; }
 inline Style::SVGRadiusComponent RenderStyle::initialRy() { return CSS::Keyword::Auto { }; }
@@ -357,7 +358,7 @@ inline void SVGRenderStyle::setY(Style::SVGCoordinateComponent&& length)
         m_layoutData.access().y = WTFMove(length);
 }
 
-inline void SVGRenderStyle::setD(RefPtr<StylePathData>&& d)
+inline void SVGRenderStyle::setD(Style::SVGPathData&& d)
 {
     if (!(m_layoutData->d == d))
         m_layoutData.access().d = WTFMove(d);
