@@ -5041,8 +5041,45 @@ ipintOp(_simd_v128_xor, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_v128_bitselect)
-unimplementedInstruction(_simd_v128_any_true)
+ipintOp(_simd_v128_bitselect, macro()
+    # v128.bitselect - bitwise select: (a & c) | (b & ~c)
+    popVec(v2)  # selector c
+    popVec(v1)  # b
+    popVec(v0)  # a
+    if ARM64 or ARM64E
+        # Use BSL (Bit Select) instruction: bsl vd, vn, vm
+        # BSL performs: vd = (vd & vn) | (~vd & vm)
+        # We need: result = (a & c) | (b & ~c)
+        # So we put c in the destination, then BSL with a and b
+        emit "mov v18.16b, v18.16b"  # v2 -> v18 (selector)
+        emit "bsl v18.16b, v16.16b, v17.16b"  # (c & a) | (~c & b)
+        emit "mov v16.16b, v18.16b"  # result -> v0
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_any_true, macro()
+    # v128.any_true - return 1 if any bit is set, 0 otherwise
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Use UMAXV to find maximum across all bytes
+        emit "umaxv b16, v16.16b"
+        # Extract the result to general purpose register
+        emit "fmov w0, s16"
+        # Convert non-zero to 1
+        emit "cmp w0, #0"
+        emit "cset w0, ne"
+    else
+        break # Not implemented
+    end
+    pushInt32(t0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x54 - 0xFD 0x5D: v128 load/store lane
 unimplementedInstruction(_simd_v128_load8_lane_mem)
@@ -5088,9 +5125,65 @@ ipintOp(_simd_i8x16_neg, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_i8x16_popcnt)
-unimplementedInstruction(_simd_i8x16_all_true)
-unimplementedInstruction(_simd_i8x16_bitmask)
+ipintOp(_simd_i8x16_popcnt, macro()
+    # i8x16.popcnt - population count (count set bits) for 16 8-bit integers
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "cnt v16.16b, v16.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_all_true, macro()
+    # i8x16.all_true - return 1 if all 16 8-bit lanes are non-zero, 0 otherwise
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "cmeq v17.16b, v16.16b, #0"  # Compare each lane with 0
+        emit "umaxv b17, v17.16b"         # Find maximum (any zero lane will make this non-zero)
+        emit "fmov w0, s17"               # Move to general register
+        emit "cmp w0, #0"                 # Compare with 0
+        emit "cset w0, eq"                # Set to 1 if equal (all lanes non-zero), 0 otherwise
+    else
+        break # Not implemented
+    end
+    pushInt32(t0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_bitmask, macro()
+    # i8x16.bitmask - extract most significant bit from each 8-bit lane into a 16-bit integer
+    # Simple loop over the 16 bytes on the stack
+    
+    move 0, t0          # Initialize result
+    move 0, t1          # Byte counter
+    move sp, t2         # Pointer to vector data
+    
+.bitmask_i8x16_loop:
+    # Load byte and check sign bit
+    loadb [t2, t1], t3
+    andq 0x80, t3       # Extract sign bit
+    btiz t3, .bitmask_i8x16_next
+    
+    # Set corresponding bit in result
+    move 1, t3
+    lshiftq t1, t3      # Shift to bit position
+    orq t3, t0
+    
+.bitmask_i8x16_next:
+    addq 1, t1          # Next byte
+    bilt t1, 16, .bitmask_i8x16_loop
+    
+    addp V128ISize, sp  # Pop the vector
+    pushInt32(t0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 unimplementedInstruction(_simd_i8x16_narrow_i16x8_s)
 unimplementedInstruction(_simd_i8x16_narrow_i16x8_u)
 
@@ -5101,9 +5194,66 @@ unimplementedInstruction(_simd_f32x4_trunc)
 unimplementedInstruction(_simd_f32x4_nearest)
 
 # 0xFD 0x6B - 0xFD 0x73: i8x16 binary operations
-unimplementedInstruction(_simd_i8x16_shl)
-unimplementedInstruction(_simd_i8x16_shr_s)
-unimplementedInstruction(_simd_i8x16_shr_u)
+ipintOp(_simd_i8x16_shl, macro()
+    # i8x16.shl - left shift 16 8-bit integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-7 range for 8-bit elements
+        andi 7, t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.16b, w0"
+        # Perform left shift
+        emit "ushl v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_shr_s, macro()
+    # i8x16.shr_s - arithmetic right shift 16 8-bit signed integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-7 range for 8-bit elements
+        andi 7, t0
+        # Negate for right shift
+        negi t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.16b, w0"
+        # Perform arithmetic right shift
+        emit "sshl v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i8x16_shr_u, macro()
+    # i8x16.shr_u - logical right shift 16 8-bit unsigned integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-7 range for 8-bit elements
+        andi 7, t0
+        # Negate for right shift
+        negi t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.16b, w0"
+        # Perform logical right shift
+        emit "ushl v16.16b, v16.16b, v17.16b"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_i8x16_add, macro()
     # i8x16.add - add 16 8-bit integers
@@ -5291,17 +5441,120 @@ ipintOp(_simd_i16x8_neg, macro()
 end)
 
 unimplementedInstruction(_simd_i16x8_q15mulr_sat_s)
-unimplementedInstruction(_simd_i16x8_all_true)
-unimplementedInstruction(_simd_i16x8_bitmask)
+
+ipintOp(_simd_i16x8_all_true, macro()
+    # i16x8.all_true - return 1 if all 8 16-bit lanes are non-zero, 0 otherwise
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "cmeq v17.8h, v16.8h, #0"   # Compare each lane with 0
+        emit "umaxv h17, v17.8h"         # Find maximum (any zero lane will make this non-zero)
+        emit "fmov w0, s17"              # Move to general register
+        emit "cmp w0, #0"                # Compare with 0
+        emit "cset w0, eq"               # Set to 1 if equal (all lanes non-zero), 0 otherwise
+    else
+        break # Not implemented
+    end
+    pushInt32(t0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_bitmask, macro()
+    # i16x8.bitmask - extract most significant bit from each 16-bit lane into an 8-bit integer
+    # Simple loop over the 8 16-bit values on the stack
+    
+    move 0, t0          # Initialize result
+    move 0, t1          # Lane counter
+    move sp, t2         # Pointer to vector data
+    
+.bitmask_i16x8_loop:
+    # Load 16-bit value and check sign bit
+    loadh [t2, t1, 2], t3  # Load 16-bit value at offset t1*2
+    andq 0x8000, t3     # Extract sign bit (bit 15)
+    btiz t3, .bitmask_i16x8_next
+    
+    # Set corresponding bit in result
+    move 1, t3
+    lshiftq t1, t3      # Shift to bit position
+    orq t3, t0
+    
+.bitmask_i16x8_next:
+    addq 1, t1          # Next lane
+    bilt t1, 8, .bitmask_i16x8_loop
+    
+    addp V128ISize, sp  # Pop the vector
+    pushInt32(t0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 unimplementedInstruction(_simd_i16x8_narrow_i32x4_s)
 unimplementedInstruction(_simd_i16x8_narrow_i32x4_u)
 unimplementedInstruction(_simd_i16x8_extend_low_i8x16_s)
 unimplementedInstruction(_simd_i16x8_extend_high_i8x16_s)
 unimplementedInstruction(_simd_i16x8_extend_low_i8x16_u)
 unimplementedInstruction(_simd_i16x8_extend_high_i8x16_u)
-unimplementedInstruction(_simd_i16x8_shl)
-unimplementedInstruction(_simd_i16x8_shr_s)
-unimplementedInstruction(_simd_i16x8_shr_u)
+
+ipintOp(_simd_i16x8_shl, macro()
+    # i16x8.shl - left shift 8 16-bit integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-15 range for 16-bit elements
+        andi 15, t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.8h, w0"
+        # Perform left shift
+        emit "ushl v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_shr_s, macro()
+    # i16x8.shr_s - arithmetic right shift 8 16-bit signed integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-15 range for 16-bit elements
+        andi 15, t0
+        # Negate for right shift
+        negi t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.8h, w0"
+        # Perform arithmetic right shift
+        emit "sshl v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i16x8_shr_u, macro()
+    # i16x8.shr_u - logical right shift 8 16-bit unsigned integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-15 range for 16-bit elements
+        andi 15, t0
+        # Negate for right shift
+        negi t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.8h, w0"
+        # Perform logical right shift
+        emit "ushl v16.8h, v16.8h, v17.8h"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_i16x8_add, macro()
     # i16x8.add - add 8 16-bit integers
@@ -5499,17 +5752,120 @@ ipintOp(_simd_i32x4_neg, macro()
 end)
 
 reservedOpcode(0xfda201)
-unimplementedInstruction(_simd_i32x4_all_true)
-unimplementedInstruction(_simd_i32x4_bitmask)
+
+ipintOp(_simd_i32x4_all_true, macro()
+    # i32x4.all_true - return 1 if all 4 32-bit lanes are non-zero, 0 otherwise
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "cmeq v17.4s, v16.4s, #0"   # Compare each lane with 0
+        emit "umaxv s17, v17.4s"         # Find maximum (any zero lane will make this non-zero)
+        emit "fmov w0, s17"              # Move to general register
+        emit "cmp w0, #0"                # Compare with 0
+        emit "cset w0, eq"               # Set to 1 if equal (all lanes non-zero), 0 otherwise
+    else
+        break # Not implemented
+    end
+    pushInt32(t0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i32x4_bitmask, macro()
+    # i32x4.bitmask - extract most significant bit from each 32-bit lane into a 4-bit integer
+    # Simple loop over the 4 32-bit values on the stack
+    
+    move 0, t0          # Initialize result
+    move 0, t1          # Lane counter
+    move sp, t2         # Pointer to vector data
+    
+.bitmask_i32x4_loop:
+    # Load 32-bit value and check sign bit
+    loadi [t2, t1, 4], t3  # Load 32-bit value at offset t1*4
+    andq 0x80000000, t3 # Extract sign bit (bit 31)
+    btiz t3, .bitmask_i32x4_next
+    
+    # Set corresponding bit in result
+    move 1, t3
+    lshiftq t1, t3      # Shift to bit position
+    orq t3, t0
+    
+.bitmask_i32x4_next:
+    addq 1, t1          # Next lane
+    bilt t1, 4, .bitmask_i32x4_loop
+    
+    addp V128ISize, sp  # Pop the vector
+    pushInt32(t0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 reservedOpcode(0xfda501)
 reservedOpcode(0xfda601)
 unimplementedInstruction(_simd_i32x4_extend_low_i16x8_s)
 unimplementedInstruction(_simd_i32x4_extend_high_i16x8_s)
 unimplementedInstruction(_simd_i32x4_extend_low_i16x8_u)
 unimplementedInstruction(_simd_i32x4_extend_high_i16x8_u)
-unimplementedInstruction(_simd_i32x4_shl)
-unimplementedInstruction(_simd_i32x4_shr_s)
-unimplementedInstruction(_simd_i32x4_shr_u)
+
+ipintOp(_simd_i32x4_shl, macro()
+    # i32x4.shl - left shift 4 32-bit integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-31 range for 32-bit elements
+        andi 31, t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.4s, w0"
+        # Perform left shift
+        emit "ushl v16.4s, v16.4s, v17.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i32x4_shr_s, macro()
+    # i32x4.shr_s - arithmetic right shift 4 32-bit signed integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-31 range for 32-bit elements
+        andi 31, t0
+        # Negate for right shift
+        negi t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.4s, w0"
+        # Perform arithmetic right shift
+        emit "sshl v16.4s, v16.4s, v17.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i32x4_shr_u, macro()
+    # i32x4.shr_u - logical right shift 4 32-bit unsigned integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-31 range for 32-bit elements
+        andi 31, t0
+        # Negate for right shift
+        negi t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.4s, w0"
+        # Perform logical right shift
+        emit "ushl v16.4s, v16.4s, v17.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_i32x4_add, macro()
     # i32x4.add - add 4 32-bit integers
@@ -5652,17 +6008,121 @@ ipintOp(_simd_i64x2_neg, macro()
 end)
 
 reservedOpcode(0xfdc201)
-unimplementedInstruction(_simd_i64x2_all_true)
-unimplementedInstruction(_simd_i64x2_bitmask)
+
+ipintOp(_simd_i64x2_all_true, macro()
+    # i64x2.all_true - return 1 if all 2 64-bit lanes are non-zero, 0 otherwise
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "cmeq v17.2d, v16.2d, #0"   # Compare each lane with 0
+        emit "addp d17, v17.2d"          # Add pair - if any lane was 0, result will be non-zero
+        emit "fmov x0, d17"              # Move to general register
+        emit "cmp x0, #0"                # Compare with 0
+        emit "cset w0, eq"               # Set to 1 if equal (all lanes non-zero), 0 otherwise
+    else
+        break # Not implemented
+    end
+    pushInt32(t0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i64x2_bitmask, macro()
+    # i64x2.bitmask - extract most significant bit from each 64-bit lane into a 2-bit integer
+    # Handle both 64-bit values directly
+    
+    # Load both 64-bit values
+    loadq [sp], t0      # Load lane 0
+    loadq 8[sp], t1     # Load lane 1
+    addp V128ISize, sp  # Pop the vector
+    
+    # Initialize result
+    move 0, t2
+    
+    # Check lane 0 sign bit (bit 63)
+    move 0x8000000000000000, t3
+    andq t3, t0
+    btqz t0, .bitmask_i64x2_lane1
+    orq 1, t2           # Set bit 0
+    
+.bitmask_i64x2_lane1:
+    # Check lane 1 sign bit (bit 63)
+    andq t3, t1
+    btqz t1, .bitmask_i64x2_done
+    orq 2, t2           # Set bit 1
+    
+.bitmask_i64x2_done:
+    pushInt32(t2)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
 reservedOpcode(0xfdc501)
 reservedOpcode(0xfdc601)
 unimplementedInstruction(_simd_i64x2_extend_low_i32x4_s)
 unimplementedInstruction(_simd_i64x2_extend_high_i32x4_s)
 unimplementedInstruction(_simd_i64x2_extend_low_i32x4_u)
 unimplementedInstruction(_simd_i64x2_extend_high_i32x4_u)
-unimplementedInstruction(_simd_i64x2_shl)
-unimplementedInstruction(_simd_i64x2_shr_s)
-unimplementedInstruction(_simd_i64x2_shr_u)
+
+ipintOp(_simd_i64x2_shl, macro()
+    # i64x2.shl - left shift 2 64-bit integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-63 range for 64-bit elements
+        andi 63, t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.2d, x0"
+        # Perform left shift
+        emit "ushl v16.2d, v16.2d, v17.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i64x2_shr_s, macro()
+    # i64x2.shr_s - arithmetic right shift 2 64-bit signed integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-63 range for 64-bit elements
+        andi 63, t0
+        # Negate for right shift
+        negq t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.2d, x0"
+        # Perform arithmetic right shift
+        emit "sshl v16.2d, v16.2d, v17.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i64x2_shr_u, macro()
+    # i64x2.shr_u - logical right shift 2 64-bit unsigned integers
+    popInt32(t0, t1)  # shift count
+    popVec(v0)        # vector
+    if ARM64 or ARM64E
+        # Mask shift count to 0-63 range for 64-bit elements
+        andi 63, t0
+        # Negate for right shift
+        negq t0
+        # Duplicate shift count to all lanes of vector register
+        emit "dup v17.2d, x0"
+        # Perform logical right shift
+        emit "ushl v16.2d, v16.2d, v17.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_i64x2_add, macro()
     # i64x2.add - add 2 64-bit integers

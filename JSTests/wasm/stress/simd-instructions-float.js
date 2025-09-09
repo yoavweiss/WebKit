@@ -67,13 +67,11 @@ const floatTests = [
     [
         "f32x4.abs",
         [1.0, -2.5, 0.0, -0.0],
-        [0.0, 0.0, 0.0, 0.0], // Second operand ignored for unary ops
         [1.0, 2.5, 0.0, 0.0]
     ],
     [
         "f32x4.abs",
         [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, Number.NaN],
-        [0.0, 0.0, 0.0, 0.0],
         [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NaN, Number.NaN]
     ],
 
@@ -81,13 +79,11 @@ const floatTests = [
     [
         "f32x4.neg",
         [1.0, -2.5, 0.0, -0.0],
-        [0.0, 0.0, 0.0, 0.0], // Second operand ignored for unary ops
         [-1.0, 2.5, -0.0, 0.0]
     ],
     [
         "f32x4.neg",
         [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, Number.NaN],
-        [0.0, 0.0, 0.0, 0.0],
         [Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NaN, Number.NaN]
     ],
 
@@ -95,13 +91,11 @@ const floatTests = [
     [
         "f32x4.sqrt",
         [4.0, 9.0, 16.0, 25.0],
-        [0.0, 0.0, 0.0, 0.0], // Second operand ignored for unary ops
         [2.0, 3.0, 4.0, 5.0]
     ],
     [
         "f32x4.sqrt",
         [0.0, -0.0, Number.POSITIVE_INFINITY, Number.NaN],
-        [0.0, 0.0, 0.0, 0.0],
         [0.0, -0.0, Number.POSITIVE_INFINITY, Number.NaN]
     ],
 
@@ -221,13 +215,11 @@ const floatTests = [
     [
         "f64x2.abs",
         [1.0, -2.5],
-        [0.0, 0.0], // Second operand ignored for unary ops
         [1.0, 2.5]
     ],
     [
         "f64x2.abs",
         [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY],
-        [0.0, 0.0],
         [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY]
     ],
 
@@ -235,13 +227,11 @@ const floatTests = [
     [
         "f64x2.neg",
         [1.0, -2.5],
-        [0.0, 0.0], // Second operand ignored for unary ops
         [-1.0, 2.5]
     ],
     [
         "f64x2.neg",
         [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY],
-        [0.0, 0.0],
         [Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY]
     ],
 
@@ -249,13 +239,11 @@ const floatTests = [
     [
         "f64x2.sqrt",
         [4.0, 9.0],
-        [0.0, 0.0], // Second operand ignored for unary ops
         [2.0, 3.0]
     ],
     [
         "f64x2.sqrt",
         [0.0, -0.0],
-        [0.0, 0.0],
         [0.0, -0.0]
     ],
 
