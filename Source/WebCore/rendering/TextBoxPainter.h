@@ -58,16 +58,15 @@ protected:
     auto& textBox() const { return m_textBox; }
     InlineIterator::TextBoxIterator makeIterator() const;
 
-    void paintBackground();
+    void paintBackgroundFill();
+    enum class BackgroundStyle : bool { Normal, Rounded };
+    void paintBackgroundFillForRange(unsigned startOffset, unsigned endOffset, const Color&, BackgroundStyle);
+
     void paintForegroundAndDecorations();
-    void paintCompositionBackground();
     void paintCompositionUnderlines();
     void paintCompositionForeground(const StyledMarkedText&);
     void paintPlatformDocumentMarkers();
 
-    enum class BackgroundStyle { Normal, Rounded };
-    void paintBackground(unsigned startOffset, unsigned endOffset, const Color&, BackgroundStyle = BackgroundStyle::Normal);
-    void paintBackground(const StyledMarkedText&);
     void paintForeground(const StyledMarkedText&);
     TextDecorationPainter createDecorationPainter(const StyledMarkedText&, const FloatRect&);
     void paintBackgroundDecorations(TextDecorationPainter&, const StyledMarkedText&, const FloatRect&);
@@ -110,7 +109,7 @@ protected:
     const bool m_isPrinting;
     const bool m_haveSelection;
     bool m_containsComposition { false };
-    bool m_useCustomUnderlines { false };
+    bool m_compositionWithCustomUnderlines { false };
 };
 
 inline FloatSize TextBoxPainter::rotateShadowOffset(const SpaceSeparatedPoint<Style::Length<>>& offset, WritingMode writingMode)
