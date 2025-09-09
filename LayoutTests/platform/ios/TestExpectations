@@ -8274,3 +8274,7 @@ webkit.org/b/298555 imported/w3c/web-platform-tests/selection/stringifier_editab
 webkit.org/b/298557 [ Debug ] imported/w3c/web-platform-tests/scroll-to-text-fragment/percent-encoding.html [ Pass Failure ]
 
 webkit.org/b/298560 [ Debug ] editing/selection/ios/clear-selection-after-tapping-on-element-with-click-handler.html [ Pass Failure ]
+
+# webkit.org/b/298556 [iOS] Two tests in fast/images are flaky timeouts
+fast/images/async-image-intersect-different-size-for-drawing.html [ Pass Timeout ]
+fast/images/low-memory-decode.html [ Pass Timeout ]
