@@ -27,6 +27,7 @@
 #include "WebKitNamespace.h"
 
 #include "Element.h"
+#include "ExceptionOr.h"
 #include "FrameLoader.h"
 #include "LocalFrame.h"
 #include "LocalFrameLoaderClient.h"
@@ -73,8 +74,10 @@ Ref<WebKitJSHandle> WebKitNamespace::createJSHandle(Document& document, JSC::Str
     return WebKitJSHandle::create(document, object.get());
 }
 
-Ref<WebKitSerializedNode> WebKitNamespace::serializeNode(Node& node, SerializedNodeInit&& init)
+ExceptionOr<Ref<WebKitSerializedNode>> WebKitNamespace::serializeNode(Node& node, SerializedNodeInit&& init)
 {
+    if (node.isShadowRoot()) [[unlikely]]
+        return Exception { ExceptionCode::NotSupportedError };
     return WebKitSerializedNode::create(node, init.deep);
 }
 

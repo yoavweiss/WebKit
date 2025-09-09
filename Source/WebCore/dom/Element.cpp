@@ -636,6 +636,25 @@ Ref<Node> Element::cloneNodeInternal(Document& document, CloningOperation type, 
     return cloneElementWithChildren(document, fallbackRegistry);
 }
 
+template<typename ShadowRoot>
+std::optional<ShadowRoot> Element::serializeShadowRoot() const
+{
+    RefPtr oldShadowRoot = this->shadowRoot();
+    if (!oldShadowRoot || !oldShadowRoot->isClonable())
+        return std::nullopt;
+    return std::get<ShadowRoot>(oldShadowRoot->serializeNode(Node::CloningOperation::SelfWithTemplateContent).data);
+}
+template std::optional<SerializedNode::ShadowRoot> Element::serializeShadowRoot() const;
+
+template<typename Attribute>
+Vector<Attribute> Element::serializeAttributes() const
+{
+    return this->elementData() ? WTF::map(this->attributes(), [] (const auto& attribute) {
+        return Attribute { { attribute.name() }, attribute.value() };
+    }) : Vector<Attribute>();
+}
+template Vector<SerializedNode::Element::Attribute> Element::serializeAttributes() const;
+
 SerializedNode Element::serializeNode(CloningOperation type) const
 {
     Vector<SerializedNode> children;
@@ -648,13 +667,12 @@ SerializedNode Element::serializeNode(CloningOperation type) const
         break;
     }
 
-    // FIXME: Make an equivalent of cloneShadowTreeIfPossible.
-
-    auto attributes = this->elementData() ? WTF::map(this->attributes(), [] (const auto& attribute) {
-        return SerializedNode::Element::Attribute { { attribute.name() }, attribute.value() };
-    }) : Vector<SerializedNode::Element::Attribute>();
-
-    return { SerializedNode::Element { { WTFMove(children) }, { tagQName() }, WTFMove(attributes) } };
+    return { SerializedNode::Element {
+        { WTFMove(children) },
+        { tagQName() },
+        serializeAttributes<SerializedNode::Element::Attribute>(),
+        serializeShadowRoot<SerializedNode::ShadowRoot>()
+    } };
 }
 
 void Element::cloneShadowTreeIfPossible(Element& newHost) const
@@ -3358,22 +3376,22 @@ ExceptionOr<ShadowRoot&> Element::attachShadow(const ShadowRootInit& init, std::
     RefPtr registry = init.customElementRegistry;
     if (registry && !registry->isScoped() && registry != document().customElementRegistry())
         return Exception { ExceptionCode::NotSupportedError };
-    auto scopedRegistry = ShadowRoot::ScopedCustomElementRegistry::No;
+    auto scopedRegistry = ShadowRootScopedCustomElementRegistry::No;
     if (!registryKind)
         registryKind = !registry && usesNullCustomElementRegistry() ? CustomElementRegistryKind::Null : CustomElementRegistryKind::Window;
     if (registryKind == CustomElementRegistryKind::Null) {
         ASSERT(!registry);
-        scopedRegistry = ShadowRoot::ScopedCustomElementRegistry::Yes;
+        scopedRegistry = ShadowRootScopedCustomElementRegistry::Yes;
     } else if (registry) {
         ASSERT(registryKind == CustomElementRegistryKind::Window);
-        scopedRegistry = ShadowRoot::ScopedCustomElementRegistry::Yes;
+        scopedRegistry = ShadowRootScopedCustomElementRegistry::Yes;
     } else
         registry = CustomElementRegistry::registryForElement(*this);
     Ref shadow = ShadowRoot::create(document(), init.mode, init.slotAssignment,
-        init.delegatesFocus ? ShadowRoot::DelegatesFocus::Yes : ShadowRoot::DelegatesFocus::No,
+        init.delegatesFocus ? ShadowRootDelegatesFocus::Yes : ShadowRootDelegatesFocus::No,
         init.clonable ? ShadowRoot::Clonable::Yes : ShadowRoot::Clonable::No,
-        init.serializable ? ShadowRoot::Serializable::Yes : ShadowRoot::Serializable::No,
-        isPrecustomizedOrDefinedCustomElement() ? ShadowRoot::AvailableToElementInternals::Yes : ShadowRoot::AvailableToElementInternals::No,
+        init.serializable ? ShadowRootSerializable::Yes : ShadowRootSerializable::No,
+        isPrecustomizedOrDefinedCustomElement() ? ShadowRootAvailableToElementInternals::Yes : ShadowRootAvailableToElementInternals::No,
         WTFMove(registry), scopedRegistry);
     if (registryKind == CustomElementRegistryKind::Null)
         shadow->setUsesNullCustomElementRegistry(); // Set this flag for Element::insertedIntoAncestor.

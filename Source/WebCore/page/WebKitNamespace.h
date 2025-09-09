@@ -55,7 +55,7 @@ public:
     struct SerializedNodeInit {
         bool deep { false };
     };
-    Ref<WebKitSerializedNode> serializeNode(Node&, SerializedNodeInit&&);
+    ExceptionOr<Ref<WebKitSerializedNode>> serializeNode(Node&, SerializedNodeInit&&);
 
 private:
     explicit WebKitNamespace(LocalDOMWindow&, UserContentProvider&);

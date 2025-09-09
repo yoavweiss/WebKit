@@ -42,6 +42,7 @@
 #include "HTMLOptionsCollection.h"
 #include "HTMLSlotElement.h"
 #include "HTMLTableRowsCollection.h"
+#include "HTMLTemplateElement.h"
 #include "InspectorInstrumentation.h"
 #include "JSNodeCustom.h"
 #include "LabelsNodeList.h"
