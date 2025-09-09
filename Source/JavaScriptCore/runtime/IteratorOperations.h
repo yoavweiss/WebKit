@@ -110,7 +110,7 @@ static ALWAYS_INLINE void forEachInFastArray(JSGlobalObject* globalObject, JSVal
 }
 
 template<typename CallBackType>
-static ALWAYS_INLINE void forEachInIterationRecord(JSGlobalObject* globalObject, IterationRecord iterationRecord, NOESCAPE const CallBackType& callback)
+ALWAYS_INLINE void forEachInIterationRecord(JSGlobalObject* globalObject, IterationRecord iterationRecord, NOESCAPE const CallBackType& callback)
 {
     auto& vm = getVM(globalObject);
     auto scope = DECLARE_THROW_SCOPE(vm);
