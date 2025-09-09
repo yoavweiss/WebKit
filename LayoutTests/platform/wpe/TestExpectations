@@ -146,6 +146,9 @@ imported/w3c/web-platform-tests/css/css-contain/contain-size-inline-block-003.ht
 # Accessibility
 webkit.org/b/237820 accessibility/native-text-control-attributed-string.html [ Timeout ]
 
+# AutoResize
+webkit.org/b/99028 fast/autoresize [ Skip ]
+
 # CSS transitions
 webkit.org/b/221313 [ Debug ] imported/w3c/web-platform-tests/css/css-transitions/properties-value-001.html [ Timeout ]
 webkit.org/b/221313 [ Debug ] imported/w3c/web-platform-tests/css/css-transitions/properties-value-inherit-001.html [ Timeout ]
@@ -159,8 +162,26 @@ webkit.org/b/213829 css3/calc/background-position-parsing.html [ ImageOnlyFailur
 webkit.org/b/296415 editing/editability/user-modify-read-only-in-editable-view.html [ Failure ]
 webkit.org/b/296415 editing/editability/user-select-all-in-editable-view.html [ Failure ]
 
+webkit.org/b/298527 editing/spelling [ Skip ]
+
+# Forms
+webkit.org/b/298580 fast/forms/range/slider-delete-while-dragging-thumb.html [ Failure ]
+
+webkit.org/b/298585 fast/forms/validation-message-in-relative-body.html [ Failure ]
+webkit.org/b/298585 fast/forms/validation-message-on-range.html [ Failure ]
+webkit.org/b/298585 fast/forms/validation-message-on-textarea.html [ Failure ]
+
+# HTML Media Capture
+webkit.org/b/85958 fast/forms/file/file-input-capture.html [ Skip ]
+
 # Hyphenation
 webkit.org/b/221377 [ Debug ] fast/text/hyphenation-unknown-locale.html [ Skip ]
+
+# Input
+webkit.org/b/298525 fast/forms/date/date-validity-badinput.html [ Skip ]
+webkit.org/b/298525 fast/forms/datetimelocal/datetimelocal-validity-badinput.html [ Skip ]
+webkit.org/b/298525 fast/forms/time/time-validity-badinput.html [ Skip ]
+webkit.org/b/298525 fast/forms/time-input-svg-font.html [ Skip ]
 
 # Link target
 webkit.org/b/212083 loader/navigation-policy/should-open-external-urls/user-gesture-target-blank-with-flag-from-subframe.html
@@ -179,6 +200,16 @@ http/wpt/mediastream/mediastreamtrackprocessor-videoframe-timestamp.html [ Pass 
 # Media Queries
 webkit.org/b/226521 [ Release ] imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/source-media-outside-doc.html [ Pass Failure ]
 webkit.org/b/226521 [ Debug ] imported/w3c/web-platform-tests/html/semantics/embedded-content/the-img-element/source-media-outside-doc.html [ Pass ]
+
+webkit.org/b/298588 fast/media/mq-any-hover-matchMedia.html [ Skip ]
+webkit.org/b/298588 fast/media/mq-any-hover-styling.html [ Skip ]
+webkit.org/b/298588 fast/media/mq-any-pointer-matchMedia.html [ Skip ]
+webkit.org/b/298588 fast/media/mq-any-pointer-styling.html [ Skip ]
+webkit.org/b/298588 fast/media/mq-hover-matchMedia.html [ Skip ]
+webkit.org/b/298588 fast/media/mq-hover-styling.html [ Skip ]
+webkit.org/b/298588 fast/media/mq-pointer-matchMedia.html [ Skip ]
+webkit.org/b/298588 fast/media/mq-pointer-styling.html [ Skip ]
+webkit.org/b/298588 fast/media/mq-pointer.html [ Skip ]
 
 # Pending to create bug.
 [ Release ] fast/events/prevent-default-prevents-interaction-with-scrollbars.html [ Failure Pass ]
@@ -217,6 +248,10 @@ imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-worker-overridesexpir
 
 imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-synconmain.html?timeout_after_open [ DumpJSConsoleLogInStdErr ]
 imported/w3c/web-platform-tests/xhr/xmlhttprequest-timeout-synconmain.html?timeout_before_open [ DumpJSConsoleLogInStdErr ]
+
+# Ping attribute
+
+webkit.org/b/298589 http/tests/navigation/ping-attribute [ Skip ]
 
 # Repaint
 
@@ -293,6 +328,8 @@ fast/events/drag-customData.html [ Skip ]
 fast/events/drag-image-filename.html [ Skip ]
 fast/events/resources/drag-in-frames-left.html [ Skip ]
 fast/events/resources/drag-in-frames-right.html [ Skip ]
+fast/forms/drag-into-textarea.html [ Skip ]
+fast/forms/drag-out-of-textarea.html [ Skip ]
 http/tests/local/drag-over-remote-content.html [ Skip ]
 
 fast/loader/plain-text-document-dark-mode.html [ Pass ]
@@ -320,6 +357,8 @@ fast/events/file-input-hidden-in-ondrop.html
 fast/events/input-element-display-none-in-dragleave-crash.html
 fast/events/only-valid-drop-targets-receive-file-drop.html
 fast/events/prevent-drag-to-navigate.html
+fast/forms/file/file-input-empty-validation.html [ Skip ]
+fast/forms/file/file-input-reset-validation.html [ Skip ]
 
 # WebKitTestRunner needs textInputController
 # <https://bugs.webkit.org/show_bug.cgi?id=42337>
@@ -433,47 +472,14 @@ js/dom/lockdown-mode [ Skip ]
 
 webkit.org/b/213131 editing/pasteboard [ Skip ]
 webkit.org/b/213131 editing/secure-input [ Skip ]
-webkit.org/b/213131 editing/spelling [ Skip ]
 
 # WPE Legacy doesn't support inspector.
 inspector [ Skip ]
 http/tests/inspector [ Skip ]
 
-Bug(WPE) fast/autoresize [ Skip ]
-
-fast/forms/date/date-validity-badinput.html [ Skip ]
-fast/forms/datetimelocal/datetimelocal-validity-badinput.html [ Skip ]
-fast/forms/drag-into-textarea.html [ Skip ]
-fast/forms/drag-out-of-textarea.html [ Skip ]
-fast/forms/file/file-input-capture.html [ Skip ]
-fast/forms/file/file-input-empty-validation.html [ Skip ]
-fast/forms/file/file-input-reset-validation.html [ Skip ]
-fast/forms/listbox-onchange.html [ Skip ]
-fast/forms/number/number-min-max-spinbutton-appearance-none-percentage-width.html [ Skip ]
-fast/forms/range/slider-delete-while-dragging-thumb.html [ Skip ]
-fast/forms/range/slider-zoomed.html [ Skip ]
-fast/forms/search/search-zoom-computed-style-height.html [ Skip ]
-fast/forms/select/popup-closes-on-blur.html [ Skip ]
-fast/forms/textarea-metrics.html [ Skip ]
-fast/forms/time-input-svg-font.html [ Skip ]
-fast/forms/time/time-validity-badinput.html [ Skip ]
-fast/forms/validation-message-in-relative-body.html [ Skip ]
-fast/forms/validation-message-maxLength.html [ Skip ]
-fast/forms/validation-message-on-range.html [ Skip ]
-fast/forms/validation-message-on-textarea.html [ Skip ]
-
-fast/media/mq-any-hover-matchMedia.html [ Skip ]
-fast/media/mq-any-hover-styling.html [ Skip ]
-fast/media/mq-any-pointer-matchMedia.html [ Skip ]
-fast/media/mq-any-pointer-styling.html [ Skip ]
-fast/media/mq-hover-matchMedia.html [ Skip ]
-fast/media/mq-hover-styling.html [ Skip ]
-fast/media/mq-pointer-matchMedia.html [ Skip ]
-fast/media/mq-pointer-styling.html [ Skip ]
-fast/media/mq-pointer.html [ Skip ]
-fast/media/mq-inverted-colors-ua-style-on-to-off.html [ Skip ]
-
+# -webkit-overflow-scrolling (ENABLE_WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY) is only for iOS
 fast/repaint/overflow-scroll-touch-repaint.html [ Skip ]
+
 fast/repaint/vertical-overflow-child.html [ Skip ]
 fast/repaint/vertical-overflow-parent.html [ Skip ]
 fast/repaint/vertical-overflow-same.html [ Skip ]
@@ -486,7 +492,6 @@ fast/repaint/fixed-move-after-keyboard-scroll.html [ Skip ]
 Bug(WPE) fast/text/woff2-totalsfntsize.html [ Pass ]
 Bug(WPE) fast/text/woff2.html [ Pass ]
 
-http/tests/navigation/ping-attribute/ [ Skip ]
 http/tests/pointer-lock [ Skip ]
 http/tests/security [ Skip ]
 
@@ -1041,7 +1046,6 @@ fast/canvas/webgl/lose-context-on-timeout.html [ Skip ] # Timeout.
 fast/encoding/backslash-encoding-jp.html [ Skip ] # Timeout.
 fast/encoding/char-encoding-mac.html [ Skip ] # Timeout.
 fast/encoding/char-encoding.html [ Skip ] # Timeout.
-fast/html/transient-activation.html [ Skip ] # Timeout.
 fast/html/history-action-user-activation.html [ Skip ] # Timeout.
 fast/mediastream/video-srcObject-set-twice.html [ Skip ] # Timeout.
 fast/replaced/pdf-as-embed-with-no-mime-type-is-not-blank.html [ Skip ] # Timeout.

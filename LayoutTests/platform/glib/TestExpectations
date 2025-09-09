@@ -1417,6 +1417,8 @@ webkit.org/b/177294 fast/text/fitzpatrick-combination.html [ ImageOnlyFailure ]
 
 webkit.org/b/218349 fast/forms/focus2.html [ Failure ]
 
+webkit.org/b/298573 fast/forms/listbox-onchange.html [ Failure ]
+
 webkit.org/b/143703 fast/forms/listbox-visible-size.html [ Failure ]
 
 # This tests were moved on r188159 from platform/mac/fast/forms/
@@ -2194,6 +2196,8 @@ webkit.org/b/264805 imported/w3c/web-platform-tests/websockets/basic-auth.any.wo
 media/audioSession [ Skip ]
 
 webkit.org/b/292839 media/media-fullscreen-not-in-document.html [ Timeout ]
+
+webkit.org/b/298587 fast/media/mq-inverted-colors-ua-style-on-to-off.html [ ImageOnlyFailure ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Media-related bugs

@@ -39,6 +39,10 @@ fast/events/touch/touch-target-limited.html [ Skip ] # Timeout.
 fast/events/touch/multi-touch-inside-nested-iframes.html [ Skip ] # Timeout.
 fast/events/touch/multi-touch-grouped-targets.html [ Skip ] # Timeout.
 
+# These failures appear to be bugs in the EventSender
+fast/html/transient-activation.html [ Skip ] # Timeout
+fast/html/history-action-user-activation.html [ Skip ] # Timeout
+
 webkit.org/b/296369 editing/deleting/paste-with-transparent-background-color-live-range.html [ Failure ]
 webkit.org/b/296369 editing/deleting/paste-with-transparent-background-color.html [ Failure ]
 webkit.org/b/296369 editing/deleting/smart-delete-004.html [ Failure ]
