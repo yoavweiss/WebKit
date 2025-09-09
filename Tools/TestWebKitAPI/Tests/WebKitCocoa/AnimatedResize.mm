@@ -27,6 +27,7 @@
 
 #import "PlatformUtilities.h"
 #import "Test.h"
+#import "TestCocoa.h"
 #import "TestNavigationDelegate.h"
 #import "TestWKWebView.h"
 #import <WebKit/WKPreferences.h>
@@ -592,6 +593,25 @@ TEST(AnimatedResize, PinScrollPositionRelativeToTopEdgeOnPageScaleChange)
 
     EXPECT_NEAR([scrollView zoomScale], [webView frame].size.width / layoutWidth, 0.0001);
     EXPECT_TRUE(CGPointEqualToPoint([scrollView contentOffset], top));
+}
+
+TEST(AnimatedResize, PinScrollPositionRelativeToTopEdgeOnPageScaleChangeAfterIncreasedSize)
+{
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 320, 500)]);
+    RetainPtr scrollView = [webView scrollView];
+
+    static constexpr unsigned layoutWidth = 375;
+    [webView synchronouslyLoadHTMLString:[NSString stringWithFormat:@"<head><meta name='viewport' content='width=%u'></head><body style='height: 10000px'>Content</body>", layoutWidth]];
+
+    EXPECT_EQ([scrollView contentOffset], CGPointZero);
+
+    [webView _beginLiveResize];
+    [webView setFrame:CGRectMake(0, 0, layoutWidth, 600)];
+    [webView _endLiveResize];
+
+    [webView waitForNextPresentationUpdate];
+
+    EXPECT_EQ([scrollView contentOffset], CGPointZero);
 }
 
 TEST(AnimatedResize, ChangingWebViewGeometryDuringLiveResizeDoesNotHang)
