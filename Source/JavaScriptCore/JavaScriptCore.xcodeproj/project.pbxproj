@@ -851,10 +851,10 @@
 		276B387B2A71D11800252F4E /* JSONObjectInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38782A71D11700252F4E /* JSONObjectInlines.h */; };
 		276B387C2A71D11800252F4E /* JSRemoteFunctionInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38792A71D11700252F4E /* JSRemoteFunctionInlines.h */; };
 		276B387D2A71D11800252F4E /* JSPropertyNameEnumeratorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B387A2A71D11700252F4E /* JSPropertyNameEnumeratorInlines.h */; };
-		276B38822A71D12B00252F4E /* MapIteratorPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B387E2A71D12A00252F4E /* MapIteratorPrototypeInlines.h */; };
+		276B38822A71D12B00252F4E /* MapIteratorPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B387E2A71D12A00252F4E /* MapIteratorPrototypeInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		276B38832A71D12B00252F4E /* MathObjectInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B387F2A71D12A00252F4E /* MathObjectInlines.h */; };
 		276B38842A71D12B00252F4E /* MapConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38802A71D12B00252F4E /* MapConstructorInlines.h */; };
-		276B38852A71D12B00252F4E /* MapPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38812A71D12B00252F4E /* MapPrototypeInlines.h */; };
+		276B38852A71D12B00252F4E /* MapPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38812A71D12B00252F4E /* MapPrototypeInlines.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		276B38882A71D14500252F4E /* AggregateErrorConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38862A71D14500252F4E /* AggregateErrorConstructorInlines.h */; };
 		276B38892A71D14500252F4E /* ArrayConstructorInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B38872A71D14500252F4E /* ArrayConstructorInlines.h */; };
 		276B388B2A71D16F00252F4E /* ArrayIteratorPrototypeInlines.h in Headers */ = {isa = PBXBuildFile; fileRef = 276B388A2A71D16E00252F4E /* ArrayIteratorPrototypeInlines.h */; };
@@ -1660,7 +1660,7 @@
 		A741017F179DAF80002EB8BA /* DFGSaneStringGetByValSlowPathGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = A741017E179DAF80002EB8BA /* DFGSaneStringGetByValSlowPathGenerator.h */; };
 		A7482B9311671147003B0712 /* JSWeakObjectMapRefPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = A7482B791166CDEA003B0712 /* JSWeakObjectMapRefPrivate.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A7482E93116A7CAD003B0712 /* JSWeakObjectMapRefInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = A7482E37116A697B003B0712 /* JSWeakObjectMapRefInternal.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		A74DEF94182D991400522C22 /* MapIteratorPrototype.h in Headers */ = {isa = PBXBuildFile; fileRef = A74DEF8E182D991400522C22 /* MapIteratorPrototype.h */; };
+		A74DEF94182D991400522C22 /* MapIteratorPrototype.h in Headers */ = {isa = PBXBuildFile; fileRef = A74DEF8E182D991400522C22 /* MapIteratorPrototype.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A74DEF96182D991400522C22 /* JSMapIterator.h in Headers */ = {isa = PBXBuildFile; fileRef = A74DEF90182D991400522C22 /* JSMapIterator.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A75EE9B218AAB7E200AAD043 /* BuiltinNames.h in Headers */ = {isa = PBXBuildFile; fileRef = A75EE9B018AAB7E200AAD043 /* BuiltinNames.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A766B44F0EE8DCD1009518CA /* ExecutableAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = A7B48DB50EE74CFC00DCBDB6 /* ExecutableAllocator.h */; settings = {ATTRIBUTES = (Private, ); }; };
