@@ -531,7 +531,7 @@ bool Quirks::needsDeferKeyDownAndKeyPressTimersUntilNextEditingCommand() const
 // docs.google.com https://bugs.webkit.org/show_bug.cgi?id=199587
 bool Quirks::inputMethodUsesCorrectKeyEventOrder() const
 {
-    return needsQuirks() && m_quirksData.inputMethodUsesCorrectKeyEventOrder;
+    return false;
 }
 
 // FIXME: Remove after the site is fixed, <rdar://problem/50374200>
