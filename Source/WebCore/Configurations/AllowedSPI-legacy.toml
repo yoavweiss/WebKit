@@ -84,16 +84,6 @@ selectors = [
 ]
 requires = ["!HAVE_LINK_PRESENTATION_CHANGE_FOR_RADAR_115801517"]
 
-[[legacy]]
-symbols = [
-    "nw_webtransport_options_add_connect_request_header",
-    "nw_webtransport_metadata_get_session_error_code",
-    "nw_webtransport_metadata_set_session_error_code",
-    "nw_webtransport_metadata_get_session_error_message",
-    "nw_webtransport_metadata_set_session_error_message",
-]
-requires = ["HAVE_WEB_TRANSPORT"]
-
 # ------------------------------------------------------------------------
 # Below are uncategorized and unconditionally used SPI introduced in older
 # releases.

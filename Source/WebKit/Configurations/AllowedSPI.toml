@@ -81,6 +81,10 @@ symbols = [
     "nw_protocol_copy_webtransport_definition",
     "nw_webtransport_create_options",
     "nw_webtransport_metadata_get_is_unidirectional",
+    "nw_webtransport_metadata_set_session_error_code",
+    "nw_webtransport_metadata_set_session_error_message",
+    "nw_webtransport_options_add_connect_request_header",
+    "nw_webtransport_options_set_allow_joining_before_ready",
     "nw_webtransport_options_set_is_datagram",
     "nw_webtransport_options_set_is_unidirectional",
 ]
