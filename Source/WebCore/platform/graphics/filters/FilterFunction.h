@@ -93,7 +93,7 @@ public:
     static AtomString sourceGraphicName() { return filterName(Type::SourceGraphic); }
     AtomString filterName() const { return filterName(m_filterType); }
 
-    virtual OptionSet<FilterRenderingMode> supportedFilterRenderingModes() const { return FilterRenderingMode::Software; }
+    virtual OptionSet<FilterRenderingMode> supportedFilterRenderingModes(OptionSet<FilterRenderingMode>) const { return FilterRenderingMode::Software; }
     virtual RefPtr<FilterImage> apply(const Filter&, FilterImage&, FilterResults&) { return nullptr; }
     virtual FilterStyleVector createFilterStyles(GraphicsContext&, const Filter&, const FilterStyle&) const { return { }; }
 

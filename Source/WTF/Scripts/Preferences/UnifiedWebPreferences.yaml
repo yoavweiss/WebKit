@@ -3264,6 +3264,22 @@ GoogleAntiFlickerOptimizationQuirkEnabled:
     WebCore:
       default: true
 
+GraphicsContextBlurFilterEnabled:
+   type: bool
+   status: unstable
+   category: media
+   webcoreOnChange: setNeedsRelayoutAllFrames
+   humanReadableName: "GraphicsContext Blur Filter Rendering"
+   humanReadableDescription: "GraphicsContext Blur Filter Rendering"
+   condition: USE(GRAPHICS_CONTEXT_FILTERS)
+   defaultValue:
+     WebKitLegacy:
+       default: false
+     WebKit:
+       default: false
+     WebCore:
+       default: false
+
 GraphicsContextFiltersEnabled:
    type: bool
    status: mature

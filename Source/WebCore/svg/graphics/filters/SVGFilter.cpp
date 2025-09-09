@@ -255,12 +255,12 @@ FloatPoint3D SVGFilter::resolvedPoint3D(const FloatPoint3D& point) const
     return resolvedPoint;
 }
 
-OptionSet<FilterRenderingMode> SVGFilter::supportedFilterRenderingModes() const
+OptionSet<FilterRenderingMode> SVGFilter::supportedFilterRenderingModes(OptionSet<FilterRenderingMode> preferredFilterRenderingModes) const
 {
     OptionSet<FilterRenderingMode> modes = allFilterRenderingModes;
 
     for (auto& effect : m_effects)
-        modes = modes & effect->supportedFilterRenderingModes();
+        modes = modes & effect->supportedFilterRenderingModes(preferredFilterRenderingModes);
 
     ASSERT(modes);
     return modes;
@@ -312,7 +312,7 @@ RefPtr<FilterImage> SVGFilter::apply(const Filter&, FilterImage& sourceImage, Fi
 RefPtr<FilterImage> SVGFilter::apply(FilterImage* sourceImage, FilterResults& results)
 {
     ASSERT(!m_expression.isEmpty());
-    ASSERT(supportedFilterRenderingModes().contains(FilterRenderingMode::Software));
+    ASSERT(filterRenderingModes().contains(FilterRenderingMode::Software));
 
     FilterImageVector stack;
 
@@ -365,7 +365,7 @@ FilterStyleVector SVGFilter::createFilterStyles(GraphicsContext& context, const 
 FilterStyleVector SVGFilter::createFilterStyles(GraphicsContext& context, const FilterStyle& sourceStyle) const
 {
     ASSERT(!m_expression.isEmpty());
-    ASSERT(supportedFilterRenderingModes().contains(FilterRenderingMode::GraphicsContext));
+    ASSERT(filterRenderingModes().contains(FilterRenderingMode::GraphicsContext));
 
     FilterStyleVector styles;
     FilterStyle lastStyle = sourceStyle;

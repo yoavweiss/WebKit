@@ -4849,6 +4849,8 @@ OptionSet<FilterRenderingMode> Page::preferredFilterRenderingModes() const
 #if USE(GRAPHICS_CONTEXT_FILTERS)
     if (settings().graphicsContextFiltersEnabled())
         modes.add(FilterRenderingMode::GraphicsContext);
+    if (settings().graphicsContextBlurFilterEnabled())
+        modes.add(FilterRenderingMode::GraphicsContextBlur);
 #endif
     return modes;
 }

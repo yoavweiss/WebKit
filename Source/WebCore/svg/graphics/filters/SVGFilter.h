@@ -74,7 +74,7 @@ private:
     FloatSize resolvedSize(const FloatSize&) const final;
     FloatPoint3D resolvedPoint3D(const FloatPoint3D&) const final;
 
-    OptionSet<FilterRenderingMode> supportedFilterRenderingModes() const final;
+    OptionSet<FilterRenderingMode> supportedFilterRenderingModes(OptionSet<FilterRenderingMode> preferredFilterRenderingModes) const final;
 
     RefPtr<FilterImage> apply(const Filter&, FilterImage& sourceImage, FilterResults&) final;
     FilterStyleVector createFilterStyles(GraphicsContext&, const Filter&, const FilterStyle& sourceStyle) const final;

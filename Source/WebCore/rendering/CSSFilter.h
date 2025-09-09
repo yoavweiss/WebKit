@@ -64,7 +64,7 @@ private:
 
     bool buildFilterFunctions(RenderElement&, const FilterOperations&, OptionSet<FilterRenderingMode> preferredFilterRenderingModes, const FloatRect& targetBoundingBox, const GraphicsContext& destinationContext);
 
-    OptionSet<FilterRenderingMode> supportedFilterRenderingModes() const final;
+    OptionSet<FilterRenderingMode> supportedFilterRenderingModes(OptionSet<FilterRenderingMode> preferredFilterRenderingModes) const final;
 
     WTF::TextStream& externalRepresentation(WTF::TextStream&, FilterRepresentation) const final;
 

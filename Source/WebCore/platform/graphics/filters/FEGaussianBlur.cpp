@@ -153,7 +153,7 @@ bool FEGaussianBlur::resultIsAlphaImage(std::span<const Ref<FilterImage>> inputs
     return inputs[0]->isAlphaImage();
 }
 
-OptionSet<FilterRenderingMode> FEGaussianBlur::supportedFilterRenderingModes() const
+OptionSet<FilterRenderingMode> FEGaussianBlur::supportedFilterRenderingModes(OptionSet<FilterRenderingMode> preferredFilterRenderingModes) const
 {
     OptionSet<FilterRenderingMode> modes = FilterRenderingMode::Software;
 #if USE(SKIA)
@@ -161,11 +161,11 @@ OptionSet<FilterRenderingMode> FEGaussianBlur::supportedFilterRenderingModes() c
         modes.add(FilterRenderingMode::Accelerated);
 #endif
     // FIXME: Ensure the correctness of the CG GaussianBlur filter (http://webkit.org/b/243816).
-#if 0 && HAVE(CGSTYLE_COLORMATRIX_BLUR)
-    if (m_stdX == m_stdY)
+#if HAVE(CGSTYLE_COLORMATRIX_BLUR)
+    if (m_stdX == m_stdY && preferredFilterRenderingModes.contains(FilterRenderingMode::GraphicsContextBlur))
         modes.add(FilterRenderingMode::GraphicsContext);
 #endif
-    return modes;
+    return modes & preferredFilterRenderingModes;
 }
 
 std::unique_ptr<FilterEffectApplier> FEGaussianBlur::createAcceleratedApplier() const
@@ -188,7 +188,7 @@ std::unique_ptr<FilterEffectApplier> FEGaussianBlur::createSoftwareApplier() con
 
 std::optional<GraphicsStyle> FEGaussianBlur::createGraphicsStyle(GraphicsContext&, const Filter& filter) const
 {
-    auto radius = calculateUnscaledKernelSize(filter.resolvedSize({ m_stdX, m_stdY }));
+    auto radius = calculateKernelSize(filter, { m_stdX, m_stdY });
     return GraphicsGaussianBlur { radius };
 }
 

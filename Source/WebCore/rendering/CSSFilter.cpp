@@ -344,12 +344,12 @@ FilterEffectVector CSSFilter::effectsOfType(FilterFunction::Type filterType) con
     return effects;
 }
 
-OptionSet<FilterRenderingMode> CSSFilter::supportedFilterRenderingModes() const
+OptionSet<FilterRenderingMode> CSSFilter::supportedFilterRenderingModes(OptionSet<FilterRenderingMode> preferredFilterRenderingModes) const
 {
     OptionSet<FilterRenderingMode> modes = allFilterRenderingModes;
 
     for (auto& function : m_functions)
-        modes = modes & function->supportedFilterRenderingModes();
+        modes = modes & function->supportedFilterRenderingModes(preferredFilterRenderingModes);
 
     ASSERT(modes);
     return modes;
@@ -357,9 +357,11 @@ OptionSet<FilterRenderingMode> CSSFilter::supportedFilterRenderingModes() const
 
 RefPtr<FilterImage> CSSFilter::apply(FilterImage* sourceImage, FilterResults& results)
 {
+    ASSERT(filterRenderingModes().contains(FilterRenderingMode::Software));
+
     if (!sourceImage)
         return nullptr;
-    
+
     RefPtr<FilterImage> result = sourceImage;
 
     for (auto& function : m_functions) {
@@ -373,7 +375,7 @@ RefPtr<FilterImage> CSSFilter::apply(FilterImage* sourceImage, FilterResults& re
 
 FilterStyleVector CSSFilter::createFilterStyles(GraphicsContext& context, const FilterStyle& sourceStyle) const
 {
-    ASSERT(supportedFilterRenderingModes().contains(FilterRenderingMode::GraphicsContext));
+    ASSERT(filterRenderingModes().contains(FilterRenderingMode::GraphicsContext));
 
     FilterStyleVector styles;
     FilterStyle lastStyle = sourceStyle;
