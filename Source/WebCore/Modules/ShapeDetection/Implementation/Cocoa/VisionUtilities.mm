@@ -80,7 +80,7 @@ void configureRequestToUseCPUOrGPU(VNRequest *request)
     for (VNComputeStage computeStage in supportedComputeStageDevices) {
         bool set = false;
         for (id<MLComputeDeviceProtocol> device in supportedComputeStageDevices[computeStage]) {
-            if ([device isKindOfClass:PAL::getMLGPUComputeDeviceClass()]) {
+            if ([device isKindOfClass:RetainPtr { PAL::getMLGPUComputeDeviceClass() }.get()]) {
                 [request setComputeDevice:device forComputeStage:computeStage];
                 set = true;
                 break;
@@ -88,7 +88,7 @@ void configureRequestToUseCPUOrGPU(VNRequest *request)
         }
         if (!set) {
             for (id<MLComputeDeviceProtocol> device in supportedComputeStageDevices[computeStage]) {
-                if ([device isKindOfClass:PAL::getMLGPUComputeDeviceClass()]) {
+                if ([device isKindOfClass:RetainPtr { PAL::getMLGPUComputeDeviceClass() }.get()]) {
                     [request setComputeDevice:device forComputeStage:computeStage];
                     break;
                 }

@@ -1,7 +1,4 @@
 EventNames.h
-Modules/ShapeDetection/BarcodeDetector.cpp
-Modules/ShapeDetection/FaceDetector.cpp
-Modules/ShapeDetection/TextDetector.cpp
 Modules/applepay/ApplePaySession.cpp
 Modules/applepay/paymentrequest/ApplePayPaymentHandler.cpp
 Modules/applicationmanifest/ApplicationManifestParser.cpp

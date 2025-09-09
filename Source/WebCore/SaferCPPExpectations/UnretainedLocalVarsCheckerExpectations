@@ -1,4 +1,3 @@
-Modules/ShapeDetection/Implementation/Cocoa/BarcodeDetectorImplementation.mm
 accessibility/cocoa/AXCoreObjectCocoa.mm
 accessibility/cocoa/AccessibilityObjectCocoa.mm
 accessibility/mac/AXObjectCacheMac.mm

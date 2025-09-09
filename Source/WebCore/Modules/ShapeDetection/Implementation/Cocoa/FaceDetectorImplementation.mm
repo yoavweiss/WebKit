@@ -87,10 +87,12 @@ void FaceDetectorImpl::detect(Ref<ImageBuffer>&& imageBuffer, CompletionHandler<
         return;
     }
 
-    auto request = adoptNS([PAL::allocVNDetectFaceLandmarksRequestInstance() init]);
+    // FIXME: This is a safer cpp false positive (rdar://160083438).
+    SUPPRESS_UNRETAINED_ARG auto request = adoptNS([PAL::allocVNDetectFaceLandmarksRequestInstance() init]);
     configureRequestToUseCPUOrGPU(request.get());
 
-    auto imageRequestHandler = adoptNS([PAL::allocVNImageRequestHandlerInstance() initWithCGImage:platformImage.get() options:@{ }]);
+    // FIXME: This is a safer cpp false positive (rdar://160083438).
+    SUPPRESS_UNRETAINED_ARG auto imageRequestHandler = adoptNS([PAL::allocVNImageRequestHandlerInstance() initWithCGImage:platformImage.get() options:@{ }]);
 
     NSError *error = nil;
     auto result = [imageRequestHandler performRequests:@[request.get()] error:&error];

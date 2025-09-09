@@ -1,7 +1,3 @@
-Modules/ShapeDetection/Implementation/Cocoa/BarcodeDetectorImplementation.mm
-Modules/ShapeDetection/Implementation/Cocoa/FaceDetectorImplementation.mm
-Modules/ShapeDetection/Implementation/Cocoa/TextDetectorImplementation.mm
-Modules/ShapeDetection/Implementation/Cocoa/VisionUtilities.mm
 Modules/WebGPU/GPUQueue.cpp
 Modules/applepay/ApplePayLogoSystemImage.mm
 Modules/applepay/PaymentInstallmentConfiguration.mm
