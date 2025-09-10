@@ -113,11 +113,6 @@ AudioSession& AudioSession::singleton()
 
 void AudioSession::setSharedSession(Ref<AudioSession>&& session)
 {
-    Ref previousSession = sharedAudioSession() ? *sharedAudioSession() : dummyAudioSession().get();
-    previousSession->m_interruptionObservers.forEach([&](auto& observer) {
-        session->addInterruptionObserver(observer);
-    });
-
     sharedAudioSession() = session.copyRef();
 
     audioSessionChangedObservers().forEach([session] (auto& observer) {
