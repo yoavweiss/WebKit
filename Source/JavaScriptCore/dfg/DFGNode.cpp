@@ -268,14 +268,12 @@ void Node::convertToNewArrayWithSize()
     m_opInfo = indexingType;
 }
 
-void Node::convertToNewArrayWithButterfly(Graph&, Node* butterfly)
+void Node::convertToNewArrayWithConstantSize(Graph&, uint32_t size)
 {
     ASSERT(op() == NewArrayWithSize);
-    IndexingType indexingType = this->indexingType();
-    setOpAndDefaultFlags(NewArrayWithButterfly);
-    ASSERT(child1()->asInt32() < MIN_ARRAY_STORAGE_CONSTRUCTION_LENGTH);
-    children.child2() = Edge(butterfly);
-    ASSERT_UNUSED(indexingType, indexingType == this->indexingType());
+    ASSERT(size < MIN_ARRAY_STORAGE_CONSTRUCTION_LENGTH);
+    setOpAndDefaultFlags(NewArrayWithConstantSize);
+    m_opInfo2 = size;
 }
 
 void Node::convertToNewArrayWithSizeAndStructure(Graph& graph, RegisteredStructure structure)

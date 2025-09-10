@@ -1331,6 +1331,7 @@ private:
         case NewArrayWithSpread:
         case NewArray:
         case NewArrayWithSize:
+        case NewArrayWithConstantSize:
         case NewArrayWithSizeAndStructure:
         case CreateRest:
         case NewArrayBuffer:
@@ -1572,8 +1573,6 @@ private:
             break;
         }
 
-        case NewArrayWithButterfly:
-        case NewButterflyWithSize:
         case PutByValAlias:
         case DoubleAsInt32:
         case CheckTypeInfoFlags:
@@ -1594,8 +1593,7 @@ private:
         case Identity:
         case BooleanToNumber:
         case PhantomNewObject:
-        case PhantomNewArrayWithButterfly:
-        case PhantomNewButterflyWithSize:
+        case PhantomNewArrayWithConstantSize:
         case PhantomNewFunction:
         case PhantomNewGeneratorFunction:
         case PhantomNewAsyncGeneratorFunction:
@@ -1616,7 +1614,7 @@ private:
         case CheckStructureOrEmpty:
         case CheckArrayOrEmpty:
         case MaterializeNewObject:
-        case MaterializeNewButterflyWithSize:
+        case MaterializeNewArrayWithConstantSize:
         case MaterializeCreateActivation:
         case MaterializeNewInternalFieldObject:
         case PutStack:

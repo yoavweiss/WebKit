@@ -53,13 +53,10 @@ enum PromotedLocationKind {
     ArgumentCountPLoc,
     ArgumentPLoc,
     ArgumentsCalleePLoc,
-    // FIXME: All these Array/ArrayButterfly properties don't need to be exclusive to Arrays and could work just as well on objects.
     ArrayPLoc,
-    // The butterfly slot in the array.
-    ArrayButterflyPLoc,
-    // These are slots in the butterfly.
-    ArrayButterflyPublicLengthPLoc,
-    ArrayButterflyIndexedPropertyPLoc,
+    ArrayLengthPropertyPLoc,
+    ArrayButterflyPropertyPLoc,
+    ArrayIndexedPropertyPLoc,
     ClosureVarPLoc,
     InternalFieldObjectPLoc,
     FunctionActivationPLoc,
@@ -117,7 +114,6 @@ public:
     {
         switch (kind()) {
         case NamedPropertyPLoc:
-        case ArrayButterflyIndexedPropertyPLoc:
         case ClosureVarPLoc:
         case RegExpObjectLastIndexPLoc:
         case InternalFieldObjectPLoc:

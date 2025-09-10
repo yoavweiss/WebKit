@@ -863,8 +863,7 @@ bool LoopUnrollingPhase::LoopData::isMaterialNode(Graph& graph, Node* node)
     case ZombieHint:
     case ExitOK:
     case PhantomNewObject:
-    case PhantomNewArrayWithButterfly:
-    case PhantomNewButterflyWithSize:
+    case PhantomNewArrayWithConstantSize:
     case PhantomNewFunction:
     case PhantomNewGeneratorFunction:
     case PhantomNewAsyncGeneratorFunction:

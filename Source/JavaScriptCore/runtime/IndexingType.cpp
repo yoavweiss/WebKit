@@ -49,13 +49,13 @@ IndexingType leastUpperBoundOfIndexingTypeAndType(IndexingType indexingType, Spe
     case ALL_INT32_INDEXING_TYPES:
         if (isInt32Speculation(type))
             return (indexingType & ~IndexingShapeMask) | Int32Shape;
-        // Double storage uses PNaN as its "hole" value so we'd want to use a Contiguous storage if we saw one.
-        if (isBytecodeRealNumberSpeculation(type))
+        // FIXME: Should this really say that it wants a double for NaNs.
+        if (isFullNumberSpeculation(type))
             return (indexingType & ~IndexingShapeMask) | DoubleShape;
         return (indexingType & ~IndexingShapeMask) | ContiguousShape;
     case ALL_DOUBLE_INDEXING_TYPES:
-        // Double storage uses PNaN as its "hole" value so we'd want to use a Contiguous storage if we saw one.
-        if (isBytecodeRealNumberSpeculation(type))
+        // FIXME: Should this really say that it wants a double for NaNs.
+        if (isFullNumberSpeculation(type))
             return indexingType;
         return (indexingType & ~IndexingShapeMask) | ContiguousShape;
     case ALL_CONTIGUOUS_INDEXING_TYPES:

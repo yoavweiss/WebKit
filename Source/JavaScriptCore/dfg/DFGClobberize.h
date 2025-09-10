@@ -1924,20 +1924,12 @@ void clobberize(Graph& graph, Node* node, const ReadFunctor& read, const WriteFu
         write(HeapObjectCount);
         return;
 
-    case NewButterflyWithSize:
-    case PhantomNewArrayWithButterfly:
-    case PhantomNewButterflyWithSize:
-    case MaterializeNewButterflyWithSize: {
+    case NewArrayWithConstantSize:
+    case PhantomNewArrayWithConstantSize:
+    case MaterializeNewArrayWithConstantSize:
         read(HeapObjectCount);
         write(HeapObjectCount);
-        // FIXME: In this phase we say the Array is where the length of the array is def'd but this differs from ObjectAllocationSinking.
-        return;
-    }
-
-    case NewArrayWithButterfly:
-        read(HeapObjectCount);
-        write(HeapObjectCount);
-        def(HeapLocation(ArrayLengthLoc, Butterfly_publicLength, node), LazyNode(node->child1().node()));
+        def(HeapLocation(ArrayLengthLoc, Butterfly_publicLength, node), LazyNode(graph.freeze(jsNumber(node->newArraySize()))));
         return;
 
     case NewTypedArray:

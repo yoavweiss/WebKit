@@ -525,6 +525,7 @@ private:
         case NewTypedArray:
         case NewTypedArrayBuffer:
         case NewArrayWithSize:
+        case NewArrayWithConstantSize:
         case NewArrayWithSpecies:
         case NewArrayWithSizeAndStructure: {
             // Negative zero is not observable. NaN versus undefined are only observable

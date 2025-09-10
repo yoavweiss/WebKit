@@ -727,22 +727,17 @@ public:
         children.setChild1(index);
     }
 
-    void convertToPhantomNewArrayWithButterfly()
+    void convertToPhantomNewArrayWithConstantSize()
     {
-        ASSERT(m_op == NewArrayWithButterfly);
-        setOpAndDefaultFlags(PhantomNewArrayWithButterfly);
-        // OpInfo/children shouldn't change and are needed for OSR exit.
-        ASSERT(child1().useKind() == Int32Use);
+        ASSERT(m_op == NewArrayWithConstantSize);
+        m_op = PhantomNewArrayWithConstantSize;
+        m_flags &= ~NodeHasVarArgs;
+        m_flags |= NodeMustGenerate;
+        // No need to clear the infos, as the indexing type and array
+        // size are still required for materialization when an OSR exit occurs.
+        children = AdjacencyList();
     }
     
-    void convertToPhantomNewButterflyWithSize()
-    {
-        ASSERT(m_op == NewButterflyWithSize);
-        setOpAndDefaultFlags(PhantomNewButterflyWithSize);
-        // OpInfo/children shouldn't change and are needed for OSR exit.
-        ASSERT(child1().useKind() == Int32Use);
-    }
-
     void convertToPhantomNewObject()
     {
         ASSERT(m_op == NewObject);
@@ -921,7 +916,7 @@ public:
 
     void convertToNewArrayBuffer(FrozenValue* immutableButterfly);
     void convertToNewArrayWithSize();
-    void convertToNewArrayWithButterfly(Graph&, Node* butterfly);
+    void convertToNewArrayWithConstantSize(Graph&, uint32_t);
     void convertToNewArrayWithSizeAndStructure(Graph&, RegisteredStructure);
 
     void convertToNewBoundFunction(FrozenValue*);
@@ -1459,16 +1454,32 @@ public:
         return newArrayBufferData().vectorLengthHint;
     }
 
+    unsigned hasNewArraySize()
+    {
+        switch (op()) {
+        case NewArrayWithConstantSize:
+        case PhantomNewArrayWithConstantSize:
+        case MaterializeNewArrayWithConstantSize:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    unsigned newArraySize()
+    {
+        ASSERT(hasNewArraySize());
+        return op() == MaterializeNewArrayWithConstantSize ? objectMaterializationData().m_newArraySize : m_opInfo2.as<unsigned>();
+    }
+
     bool hasIndexingType()
     {
         switch (op()) {
         case NewArray:
         case NewArrayWithSize:
-        case NewArrayWithButterfly:
-        case NewButterflyWithSize:
-        case PhantomNewArrayWithButterfly:
-        case PhantomNewButterflyWithSize:
-        case MaterializeNewButterflyWithSize:
+        case NewArrayWithConstantSize:
+        case PhantomNewArrayWithConstantSize:
+        case MaterializeNewArrayWithConstantSize:
         case NewArrayBuffer:
         case PhantomNewArrayBuffer:
         case NewArrayWithSpecies:
@@ -2503,7 +2514,7 @@ public:
     {
         switch (op()) {
         case MaterializeNewObject:
-        case MaterializeNewButterflyWithSize:
+        case MaterializeNewArrayWithConstantSize:
         case MaterializeNewInternalFieldObject:
         case MaterializeCreateActivation:
             return true;
@@ -2591,8 +2602,7 @@ public:
     bool isPhantomAllocation()
     {
         switch (op()) {
-        case PhantomNewArrayWithButterfly:
-        case PhantomNewButterflyWithSize:
+        case PhantomNewArrayWithConstantSize:
         case PhantomNewObject:
         case PhantomDirectArguments:
         case PhantomCreateRest:

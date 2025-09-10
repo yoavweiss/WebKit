@@ -71,9 +71,8 @@ ExitMode mayExitImpl(Graph& graph, Node* node, StateType& state)
     case BottomValue:
     case PutHint:
     case PhantomNewObject:
-    case PhantomNewArrayWithButterfly:
+    case PhantomNewArrayWithConstantSize:
     case PhantomNewInternalFieldObject:
-    case PhantomNewButterflyWithSize:
     case PutStack:
     case KillStack:
     case GetStack:
@@ -173,7 +172,7 @@ ExitMode mayExitImpl(Graph& graph, Node* node, StateType& state)
     case CreateActivation:
     case MaterializeCreateActivation:
     case MaterializeNewObject:
-    case MaterializeNewButterflyWithSize:
+    case MaterializeNewArrayWithConstantSize:
     case MaterializeNewInternalFieldObject:
     case NewFunction:
     case NewGeneratorFunction:
@@ -185,8 +184,7 @@ ExitMode mayExitImpl(Graph& graph, Node* node, StateType& state)
     case NewRegExp:
     case NewMap:
     case NewSet:
-    case NewArrayWithButterfly:
-    case NewButterflyWithSize:
+    case NewArrayWithConstantSize:
     case ToNumber:
     case ToNumeric:
     case ToObject:

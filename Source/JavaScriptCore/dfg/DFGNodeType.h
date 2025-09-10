@@ -403,15 +403,13 @@ namespace JSC { namespace DFG {
     macro(NewObject, NodeResultJS) \
     macro(NewGenerator, NodeResultJS) \
     macro(NewAsyncGenerator, NodeResultJS) \
-    /* FIXME: A lot of these could likely be consolidated but there's some subtle differences between them, particularly when having a bad time. */ \
     macro(NewArray, NodeResultJS | NodeHasVarArgs) \
     macro(NewArrayWithSpread, NodeResultJS | NodeHasVarArgs) \
     macro(NewArrayWithSpecies, NodeResultJS | NodeMustGenerate) \
     macro(NewArrayWithSize, NodeResultJS | NodeMustGenerate) \
+    macro(NewArrayWithConstantSize, NodeResultJS | NodeMustGenerate) \
     macro(NewArrayWithSizeAndStructure, NodeResultJS | NodeMustGenerate) \
     macro(NewArrayBuffer, NodeResultJS) \
-    macro(NewArrayWithButterfly, NodeResultJS) \
-    macro(NewButterflyWithSize, NodeResultStorage) \
     macro(NewInternalFieldObject, NodeResultJS) \
     macro(NewTypedArray, NodeResultJS | NodeMustGenerate) \
     macro(NewTypedArrayBuffer, NodeResultJS | NodeMustGenerate) \
@@ -427,9 +425,8 @@ namespace JSC { namespace DFG {
     \
     macro(Spread, NodeResultJS | NodeMustGenerate) \
     /* Support for allocation sinking. */\
-    macro(PhantomNewButterflyWithSize, NodeResultStorage | NodeMustGenerate) \
-    macro(MaterializeNewButterflyWithSize, NodeResultStorage | NodeHasVarArgs) \
-    macro(PhantomNewArrayWithButterfly, NodeResultJS | NodeMustGenerate) \
+    macro(PhantomNewArrayWithConstantSize, NodeResultJS | NodeMustGenerate) \
+    macro(MaterializeNewArrayWithConstantSize, NodeResultJS | NodeHasVarArgs) \
     macro(PhantomNewObject, NodeResultJS | NodeMustGenerate) \
     macro(PutHint, NodeMustGenerate) \
     macro(CheckStructureImmediate, NodeMustGenerate) \
