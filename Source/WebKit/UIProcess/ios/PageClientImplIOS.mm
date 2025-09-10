@@ -46,6 +46,7 @@
 #import "RemoteLayerTreeNode.h"
 #import "RunningBoardServicesSPI.h"
 #import "TapHandlingResult.h"
+#import "TextExtractionFilter.h"
 #import "UIKitSPI.h"
 #import "UIKitUtilities.h"
 #import "UndoOrRedo.h"
@@ -339,6 +340,10 @@ void PageClientImpl::didCommitLoadForMainFrame(const String& mimeType, bool useC
     [webView _hidePasswordView];
     [webView _setHasCustomContentView:useCustomContentProvider loadedMIMEType:mimeType];
     [contentView() _didCommitLoadForMainFrame];
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+    if (RefPtr filter = TextExtractionFilter::singletonIfCreated())
+        filter->resetCache();
+#endif
 }
 
 void PageClientImpl::didChangeContentSize(const WebCore::IntSize&)

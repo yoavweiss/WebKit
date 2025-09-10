@@ -37,6 +37,7 @@
         return nil;
 
     _canIncludeIdentifiers = YES;
+    _shouldFilterText = YES;
     _targetRect = CGRectNull;
     return self;
 }

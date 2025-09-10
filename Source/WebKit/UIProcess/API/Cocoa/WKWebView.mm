@@ -62,6 +62,7 @@
 #import "ResourceLoadDelegate.h"
 #import "RunJavaScriptParameters.h"
 #import "SessionStateCoding.h"
+#import "TextExtractionFilter.h"
 #import "UIDelegate.h"
 #import "UIKitUtilities.h"
 #import "VideoPresentationManagerProxy.h"
@@ -6535,6 +6536,7 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
     bool mergeParagraphs = configuration.mergeParagraphs;
     bool canIncludeIdentifiers = configuration.canIncludeIdentifiers;
     bool skipNearlyTransparentContent = configuration.skipNearlyTransparentContent;
+    bool shouldFilterText = configuration.shouldFilterText;
     auto rectInRootView = [&]() -> std::optional<WebCore::FloatRect> {
         if (CGRectIsNull(rectInWebView))
             return std::nullopt;
@@ -6546,13 +6548,18 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
 #endif
     }();
 
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+    if (shouldFilterText)
+        WebKit::TextExtractionFilter::singleton().prewarm();
+#endif
+
     WebCore::TextExtraction::Request request {
         .collectionRectInRootView = WTFMove(rectInRootView),
         .mergeParagraphs = mergeParagraphs,
         .skipNearlyTransparentContent = skipNearlyTransparentContent,
         .canIncludeIdentifiers = canIncludeIdentifiers,
     };
-    _page->requestTextExtraction(WTFMove(request), [completionHandler = makeBlockPtr(completionHandler), weakSelf = WeakObjCPtr<WKWebView>(self)](auto&& item) {
+    _page->requestTextExtraction(WTFMove(request), [completionHandler = makeBlockPtr(completionHandler), weakSelf = WeakObjCPtr<WKWebView>(self), shouldFilterText](auto&& item) {
         RetainPtr strongSelf = weakSelf.get();
         if (!strongSelf)
             return completionHandler(nil);
@@ -6566,7 +6573,17 @@ static inline std::optional<WebCore::NodeIdentifier> toNodeIdentifier(const Stri
         });
         RetainPtr popupMenu = [strongSelf _popupMenuForTextExtractionResults];
         RetainPtr result = adoptNS([[WKTextExtractionResult alloc] initWithRootItem:rootItem.get() popupMenu:popupMenu.get()]);
+
+        if (!shouldFilterText)
+            return completionHandler(result.get());
+
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+        WebKit::filterText(rootItem.get(), [completionHandler = WTFMove(completionHandler), result] {
+            completionHandler(result.get());
+        });
+#else
         completionHandler(result.get());
+#endif
     });
 #endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
 }

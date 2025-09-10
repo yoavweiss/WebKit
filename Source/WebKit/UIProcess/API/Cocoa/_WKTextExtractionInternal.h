@@ -50,6 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL canIncludeIdentifiers;
 
+/*!
+ Defaults to `YES`.
+ */
+@property (nonatomic) BOOL shouldFilterText;
+
 @end
 
 @interface _WKTextExtractionInteraction ()
@@ -153,8 +158,8 @@ typedef NS_ENUM(NSInteger, WKTextExtractionEditableType) {
 - (instancetype)initWithContent:(NSString *)content selectedRange:(NSRange)selectedRange links:(NSArray<WKTextExtractionLink *> *)links editable:(WKTextExtractionEditable * _Nullable)editable rectInWebView:(CGRect)rectInWebView children:(NSArray<WKTextExtractionItem *> *)children eventListeners:(WKTextExtractionEventListenerTypes)eventListeners ariaAttributes:(NSDictionary<NSString *, NSString *> *)ariaAttributes accessibilityRole:(NSString *)accessibilityRole nodeIdentifier:(nullable NSString *)nodeIdentifier;
 @property (nonatomic, readonly) NSArray<WKTextExtractionLink *> *links;
 @property (nonatomic, readonly, nullable) WKTextExtractionEditable *editable;
-@property (nonatomic, readonly) NSString *content;
-@property (nonatomic, readonly) NSRange selectedRange;
+@property (nonatomic) NSRange selectedRange;
+@property (nonatomic, copy) NSString *content;
 @end
 
 @interface WKTextExtractionScrollableItem : WKTextExtractionItem

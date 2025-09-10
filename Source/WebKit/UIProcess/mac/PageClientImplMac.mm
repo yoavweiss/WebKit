@@ -39,6 +39,7 @@
 #import "NavigationState.h"
 #import "PlatformWritingToolsUtilities.h"
 #import "RemoteLayerTreeNode.h"
+#import "TextExtractionFilter.h"
 #import "UndoOrRedo.h"
 #import "ViewGestureController.h"
 #import "ViewSnapshotStore.h"
@@ -296,6 +297,10 @@ void PageClientImpl::didCommitLoadForMainFrame(const String&, bool)
     impl->pageDidScroll({ 0, 0 });
 #if ENABLE(WRITING_TOOLS)
     impl->hideTextAnimationView();
+#endif
+#if ENABLE(TEXT_EXTRACTION_FILTER)
+    if (RefPtr filter = TextExtractionFilter::singletonIfCreated())
+        filter->resetCache();
 #endif
 }
 

@@ -530,8 +530,8 @@ extension WKTextExtractionLink {
 
 @_objcImplementation
 extension WKTextExtractionTextItem {
-    let content: String
-    let selectedRange: NSRange
+    var content: String
+    var selectedRange: NSRange
     let links: [WKTextExtractionLink]
     let editable: WKTextExtractionEditable?
 

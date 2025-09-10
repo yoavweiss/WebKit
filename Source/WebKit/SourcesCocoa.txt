@@ -90,6 +90,7 @@ ModelProcess/cocoa/WKModelProcessModelLayer.mm
 ModelProcess/cocoa/ModelProcessModelPlayerProxy.mm
 ModelProcess/ios/ModelProcessIOS.mm
 
+Platform/classifier/cocoa/TextExtractionFilter.mm
 Platform/classifier/cocoa/ResourceLoadStatisticsClassifierCocoa.cpp
 Platform/classifier/ResourceLoadStatisticsClassifier.cpp
 

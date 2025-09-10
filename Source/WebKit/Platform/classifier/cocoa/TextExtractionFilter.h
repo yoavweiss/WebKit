@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,30 +25,51 @@
 
 #pragma once
 
-#if USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
+#if ENABLE(TEXT_EXTRACTION_FILTER)
 
-#import <wtf/Function.h>
+#import <wtf/CompletionHandler.h>
+#import <wtf/HashMap.h>
+#import <wtf/Lock.h>
+#import <wtf/Noncopyable.h>
 #import <wtf/RetainPtr.h>
+#import <wtf/ThreadSafeRefCounted.h>
+#import <wtf/WorkQueue.h>
 
-OBJC_CLASS WKTextExtractionItem;
-
-namespace WebCore {
-class FloatRect;
-
-namespace TextExtraction {
-struct Item;
-}
-}
+OBJC_CLASS NLTokenizer;
+OBJC_CLASS NSString;
+OBJC_CLASS MLModel;
 
 namespace WebKit {
 
-using RootViewToWebViewConverter = Function<WebCore::FloatRect(const WebCore::FloatRect&)>;
-RetainPtr<WKTextExtractionItem> createItem(const WebCore::TextExtraction::Item&, RootViewToWebViewConverter&&);
+class TextExtractionFilter : public ThreadSafeRefCounted<TextExtractionFilter> {
+    WTF_MAKE_TZONE_ALLOCATED(TextExtractionFilter);
+    WTF_MAKE_NONCOPYABLE(TextExtractionFilter);
+public:
+    static TextExtractionFilter& singleton();
+    static TextExtractionFilter* singletonIfCreated();
 
-#if ENABLE(TEXT_EXTRACTION_FILTER)
-void filterText(WKTextExtractionItem *, CompletionHandler<void()>&&);
-#endif
+    void shouldFilter(const String&, CompletionHandler<void(bool)>&&);
+    void prewarm();
+    void resetCache();
+
+private:
+    TextExtractionFilter();
+
+    static constexpr auto chunkSize = 120;
+
+    void initializeModelIfNeeded();
+    bool shouldFilter(const String&);
+    Vector<RetainPtr<NSString>> segmentText(const String&);
+
+    const Ref<WorkQueue> m_modelQueue;
+    RetainPtr<MLModel> m_model;
+    RetainPtr<NLTokenizer> m_tokenizer;
+    bool m_failedInitialization { false };
+
+    HashMap<unsigned /* String hash */, bool> m_cache WTF_GUARDED_BY_LOCK(m_cacheLock);
+    Lock m_cacheLock;
+};
 
 } // namespace WebKit
 
-#endif // USE(APPLE_INTERNAL_SDK) || (!PLATFORM(WATCHOS) && !PLATFORM(APPLETV))
+#endif // ENABLE(TEXT_EXTRACTION_FILTER)
