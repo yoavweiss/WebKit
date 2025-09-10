@@ -73,7 +73,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationPopulateObjectInOSR, void, (JSGlobalO
     DeferGCForAWhile deferGC(vm);
 
     switch (materialization->type()) {
-    case PhantomNewArrayWithConstantSize: {
+    case PhantomNewArrayWithButterfly: {
         JSArray* array = jsCast<JSArray*>(JSValue::decode(*encodedValue));
         for (unsigned i = materialization->properties().size(); i--;) {
             const ExitPropertyValue& property = materialization->properties()[i];
@@ -233,7 +233,13 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationMaterializeObjectInOSR, JSCell*, (JSG
     DeferGCForAWhile deferGC(vm);
 
     switch (materialization->type()) {
-    case PhantomNewArrayWithConstantSize: {
+    case PhantomNewButterflyWithSize: {
+
+        UNREACHABLE_FOR_PLATFORM();
+        return nullptr;
+    }
+
+    case PhantomNewArrayWithButterfly: {
         auto scope = DECLARE_THROW_SCOPE(vm);
 
         size_t size = materialization->size();
