@@ -48,7 +48,6 @@ VPATH = \
     $(WebKit2)/Shared/mac \
     $(WebKit2)/Shared/Notifications \
     $(WebKit2)/WebProcess/ApplePay \
-    $(WebKit2)/WebProcess/ApplicationCache \
     $(WebKit2)/WebProcess/Automation \
     $(WebKit2)/WebProcess/Cache \
     $(WebKit2)/WebProcess/Databases/IndexedDB \

@@ -466,7 +466,7 @@ ResourceLoadInfo NetworkResourceLoader::resourceLoadInfo()
         case ResourceResponse::Source::DiskCacheAfterValidation:
         case ResourceResponse::Source::MemoryCache:
         case ResourceResponse::Source::MemoryCacheAfterValidation:
-        case ResourceResponse::Source::ApplicationCache:
+        case ResourceResponse::Source::LegacyApplicationCachePlaceholder:
         case ResourceResponse::Source::DOMCache:
             return true;
         case ResourceResponse::Source::Unknown:

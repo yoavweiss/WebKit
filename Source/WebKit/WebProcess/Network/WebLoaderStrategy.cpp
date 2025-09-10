@@ -1102,7 +1102,7 @@ bool WebLoaderStrategy::havePerformedSecurityChecks(const ResourceResponse& resp
         return false;
     switch (response.source()) {
     case ResourceResponse::Source::DOMCache:
-    case ResourceResponse::Source::ApplicationCache:
+    case ResourceResponse::Source::LegacyApplicationCachePlaceholder:
     case ResourceResponse::Source::MemoryCache:
     case ResourceResponse::Source::MemoryCacheAfterValidation:
     case ResourceResponse::Source::ServiceWorker:

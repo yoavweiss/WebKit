@@ -133,7 +133,6 @@
 #import <JavaScriptCore/JSLock.h>
 #import <JavaScriptCore/JSValueRef.h>
 #import <WebCore/AlternativeTextUIController.h>
-#import <WebCore/ApplicationCacheStorage.h>
 #import <WebCore/BackForwardCache.h>
 #import <WebCore/BackForwardController.h>
 #import <WebCore/BroadcastChannelRegistry.h>
@@ -1362,35 +1361,6 @@ static void WebKitInitializeGamepadProviderIfNecessary()
 }
 #endif
 
-static NSString *applicationCacheBundleIdentifier()
-{
-    NSString *appName = [[NSBundle mainBundle] bundleIdentifier];
-    if (!appName)
-        appName = [[NSProcessInfo processInfo] processName];
-
-    ASSERT(appName);
-    return appName;
-}
-
-static NSString *applicationCachePath()
-{
-    return [NSString _webkit_localCacheDirectoryWithBundleIdentifier:applicationCacheBundleIdentifier()];
-}
-
-static WebCore::ApplicationCacheStorage& webApplicationCacheStorage()
-{
-    static std::once_flag onceFlag;
-    std::call_once(onceFlag, [] {
-        String applicationCacheDirectory = applicationCachePath();
-        auto applicationCacheDatabasePath = FileSystem::pathByAppendingComponent(applicationCacheDirectory, "ApplicationCache.db"_s);
-        WebCore::SQLiteFileSystem::deleteDatabaseFile(applicationCacheDatabasePath);
-        FileSystem::deleteNonEmptyDirectory(FileSystem::pathByAppendingComponent(applicationCacheDirectory, "ApplicationCache"_s));
-    });
-    static WebCore::ApplicationCacheStorage& storage = WebCore::ApplicationCacheStorage::create(emptyString(), emptyString()).leakRef();
-
-    return storage;
-}
-
 - (void)_commonInitializationWithFrameName:(NSString *)frameName groupName:(NSString *)groupName
 {
     WebCoreThreadViolationCheckRoundTwo();
@@ -1535,7 +1505,6 @@ static WebCore::ApplicationCacheStorage& webApplicationCacheStorage()
 #endif
 
     pageConfiguration.alternativeTextClient = makeUnique<WebAlternativeTextClient>(self);
-    pageConfiguration.applicationCacheStorage = webApplicationCacheStorage();
     pageConfiguration.databaseProvider = WebDatabaseProvider::singleton();
     pageConfiguration.pluginInfoProvider = WebPluginInfoProvider::singleton();
     pageConfiguration.storageNamespaceProvider = _private->group->storageNamespaceProvider();
@@ -1787,7 +1756,6 @@ static WebCore::ApplicationCacheStorage& webApplicationCacheStorage()
 #endif
 
     pageConfiguration.inspectorBackendClient = makeUnique<WebInspectorClient>(self);
-    pageConfiguration.applicationCacheStorage = webApplicationCacheStorage();
     pageConfiguration.databaseProvider = WebDatabaseProvider::singleton();
     pageConfiguration.storageNamespaceProvider = _private->group->storageNamespaceProvider();
     pageConfiguration.visitedLinkStore = _private->group->visitedLinkStore();

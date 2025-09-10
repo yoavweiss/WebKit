@@ -85,7 +85,6 @@ template<> struct IsDeprecatedWeakRefSmartPointerException<WebCore::DataLoadToke
 
 namespace WebCore {
 
-class ApplicationCacheHost;
 class ApplicationManifestLoader;
 class Archive;
 class ArchiveResource;
@@ -445,9 +444,6 @@ public:
     // The WebKit layer calls this function when it's ready for the data to actually be added to the document.
     WEBCORE_EXPORT void commitData(const SharedBuffer&);
 
-    ApplicationCacheHost& applicationCacheHost() const;
-    ApplicationCacheHost* applicationCacheHostUnlessBeingDestroyed() const;
-
     void checkLoadComplete();
 
     // The URL of the document resulting from this DocumentLoader.
@@ -617,9 +613,7 @@ private:
     bool isMultipartReplacingLoad() const;
     bool isPostOrRedirectAfterPost(const ResourceRequest&, const ResourceResponse&);
 
-    bool tryLoadingRequestFromApplicationCache();
     bool tryLoadingSubstituteData();
-    bool tryLoadingRedirectRequestFromApplicationCache(const ResourceRequest&);
     void continueAfterContentPolicy(PolicyAction);
 
     void stopLoadingForPolicyChange(LoadWillContinueInAnotherProcess = LoadWillContinueInAnotherProcess::No);
@@ -730,7 +724,6 @@ private:
 
     Vector<CustomHeaderFields> m_customHeaderFields;
 
-    std::unique_ptr<ApplicationCacheHost> m_applicationCacheHost;
     std::unique_ptr<ContentSecurityPolicy> m_contentSecurityPolicy;
     std::unique_ptr<IntegrityPolicy> m_integrityPolicy;
     std::unique_ptr<IntegrityPolicy> m_integrityPolicyReportOnly;
@@ -891,19 +884,6 @@ inline const String& DocumentLoader::currentContentType() const
 inline const URL& DocumentLoader::unreachableURL() const
 {
     return m_substituteData.failingURL();
-}
-
-inline ApplicationCacheHost& DocumentLoader::applicationCacheHost() const
-{
-    // For a short time while the document loader is being destroyed, m_applicationCacheHost is null.
-    // It's not acceptable to call this function during that time.
-    ASSERT(m_applicationCacheHost);
-    return *m_applicationCacheHost;
-}
-
-inline ApplicationCacheHost* DocumentLoader::applicationCacheHostUnlessBeingDestroyed() const
-{
-    return m_applicationCacheHost.get();
 }
 
 inline void DocumentLoader::didTellClientAboutLoad(const String& url)

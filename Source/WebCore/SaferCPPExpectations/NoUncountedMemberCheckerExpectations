@@ -42,7 +42,6 @@ inspector/InspectorStyleSheet.h
 inspector/InspectorWebAgentBase.h
 inspector/agents/worker/WorkerAuditAgent.h
 layout/formattingContexts/inline/InlineItemsBuilder.h
-loader/appcache/ApplicationCacheStorage.cpp
 page/FrameSnapshotting.cpp
 page/PerformanceLogging.h
 page/PointerLockController.h

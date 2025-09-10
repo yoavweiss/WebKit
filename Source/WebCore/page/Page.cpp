@@ -30,7 +30,6 @@
 #include "AnimationFrameRate.h"
 #include "AnimationTimelinesController.h"
 #include "AppHighlightStorage.h"
-#include "ApplicationCacheStorage.h"
 #include "ArchiveResource.h"
 #include "AsyncNodeDeletionQueueInlines.h"
 #include "AttachmentElementClient.h"
@@ -403,7 +402,6 @@ Page::Page(PageConfiguration&& pageConfiguration)
 #endif
     , m_socketProvider(WTFMove(pageConfiguration.socketProvider))
     , m_cookieJar(WTFMove(pageConfiguration.cookieJar))
-    , m_applicationCacheStorage(WTFMove(pageConfiguration.applicationCacheStorage))
     , m_cacheStorageProvider(WTFMove(pageConfiguration.cacheStorageProvider))
     , m_databaseProvider(*WTFMove(pageConfiguration.databaseProvider))
     , m_pluginInfoProvider(*WTFMove(pageConfiguration.pluginInfoProvider))

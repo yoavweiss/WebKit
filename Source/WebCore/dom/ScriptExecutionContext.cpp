@@ -872,7 +872,6 @@ ScriptExecutionContext::HasResourceAccess ScriptExecutionContext::canAccessResou
     case ResourceType::Cookies:
     case ResourceType::Geolocation:
         return HasResourceAccess::Yes;
-    case ResourceType::ApplicationCache:
     case ResourceType::Plugin:
     case ResourceType::WebSQL:
     case ResourceType::IndexedDB:

@@ -3670,7 +3670,7 @@ enum class WebCore::ResourceLoadPriority : uint8_t {
     MemoryCache,
     MemoryCacheAfterValidation,
     ServiceWorker,
-    ApplicationCache,
+    LegacyApplicationCachePlaceholder,
     DOMCache,
     InspectorOverride
 };

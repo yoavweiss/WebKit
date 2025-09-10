@@ -56,7 +56,6 @@
 namespace WebCore {
 
 class AlternativeTextClient;
-class ApplicationCacheStorage;
 class AttachmentElementClient;
 class AuthenticatorCoordinatorClient;
 class BackForwardClient;
@@ -189,7 +188,6 @@ public:
     RefPtr<SpeechSynthesisClient> speechSynthesisClient;
 #endif
 
-    RefPtr<ApplicationCacheStorage> applicationCacheStorage;
     RefPtr<DatabaseProvider> databaseProvider;
     Ref<CacheStorageProvider> cacheStorageProvider;
     RefPtr<PluginInfoProvider> pluginInfoProvider;

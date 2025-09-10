@@ -680,8 +680,6 @@ public:
     void setCanvasNoiseInjectionSalt(HTMLCanvasElement&, unsigned long long salt);
     bool doesCanvasHavePendingCanvasNoiseInjection(HTMLCanvasElement&) const;
 
-    WEBCORE_TESTSUPPORT_EXPORT void setApplicationCacheOriginQuota(unsigned long long);
-
     void registerURLSchemeAsBypassingContentSecurityPolicy(const String& scheme);
     void removeURLSchemeRegisteredAsBypassingContentSecurityPolicy(const String& scheme);
 

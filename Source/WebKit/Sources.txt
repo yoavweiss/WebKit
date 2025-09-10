@@ -510,7 +510,6 @@ UIProcess/API/APIWebPushDaemonConnection.cpp
 UIProcess/API/APIWebsitePolicies.cpp
 UIProcess/API/APIWindowFeatures.cpp
 
-UIProcess/API/C/WKApplicationCacheManager.cpp
 UIProcess/API/C/WKAuthenticationChallenge.cpp
 UIProcess/API/C/WKAuthenticationDecisionListener.cpp
 UIProcess/API/C/WKBackForwardListItemRef.cpp

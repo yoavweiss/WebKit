@@ -1947,9 +1947,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     loader/TextResourceDecoder.h
     loader/ThreadableLoader.h
     loader/ThreadableLoaderClient.h
-    loader/appcache/ApplicationCache.h
-    loader/appcache/ApplicationCacheHost.h
-    loader/appcache/ApplicationCacheStorage.h
     loader/archive/Archive.h
     loader/archive/ArchiveError.h
     loader/archive/ArchiveResource.h

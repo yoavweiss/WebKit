@@ -30,7 +30,6 @@
 #include "config.h"
 #include "ResourceLoader.h"
 
-#include "ApplicationCacheHost.h"
 #include "AuthenticationChallenge.h"
 #include "ContentRuleListResults.h"
 #include "DNS.h"
@@ -244,11 +243,6 @@ void ResourceLoader::start()
             return;
     }
 #endif
-
-    if (RefPtr documentLoader = m_documentLoader) {
-        if (documentLoader->applicationCacheHost().maybeLoadResource(*this, m_request, m_request.url()))
-            return;
-    }
 
     if (m_defersLoading) {
         m_deferredRequest = m_request;
@@ -554,7 +548,7 @@ static void logResourceResponseSource(LocalFrame* frame, ResourceResponse::Sourc
         sourceKey = DiagnosticLoggingKeys::memoryCacheAfterValidationKey();
         break;
     case ResourceResponse::Source::DOMCache:
-    case ResourceResponse::Source::ApplicationCache:
+    case ResourceResponse::Source::LegacyApplicationCachePlaceholder:
     case ResourceResponse::Source::InspectorOverride:
     case ResourceResponse::Source::Unknown:
         return;
@@ -803,11 +797,6 @@ ResourceError ResourceLoader::httpsUpgradeRedirectLoopError()
 void ResourceLoader::willSendRequestAsync(ResourceHandle* handle, ResourceRequest&& request, ResourceResponse&& redirectResponse, CompletionHandler<void(ResourceRequest&&)>&& completionHandler)
 {
     RefPtr protectedHandle { handle };
-    if (protectedDocumentLoader()->applicationCacheHost().maybeLoadFallbackForRedirect(this, request, redirectResponse)) {
-        RESOURCELOADER_RELEASE_LOG("willSendRequestAsync: exiting early because maybeLoadFallbackForRedirect returned false");
-        completionHandler(WTFMove(request));
-        return;
-    }
     willSendRequestInternal(WTFMove(request), redirectResponse, WTFMove(completionHandler));
 }
 
@@ -818,10 +807,6 @@ void ResourceLoader::didSendData(ResourceHandle*, unsigned long long bytesSent, 
 
 void ResourceLoader::didReceiveResponseAsync(ResourceHandle*, ResourceResponse&& response, CompletionHandler<void()>&& completionHandler)
 {
-    if (protectedDocumentLoader()->applicationCacheHost().maybeLoadFallbackForResponse(this, response)) {
-        completionHandler();
-        return;
-    }
     didReceiveResponse(WTFMove(response), WTFMove(completionHandler));
 }
 
@@ -842,8 +827,6 @@ void ResourceLoader::didFinishLoading(ResourceHandle*, const NetworkLoadMetrics&
 
 void ResourceLoader::didFail(ResourceHandle*, const ResourceError& error)
 {
-    if (protectedDocumentLoader()->applicationCacheHost().maybeLoadFallbackForError(this, error))
-        return;
     didFail(error);
 }
 

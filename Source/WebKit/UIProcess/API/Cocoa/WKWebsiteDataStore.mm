@@ -474,7 +474,6 @@ WK_OBJECT_DISABLE_DISABLE_KVC_IVAR_ACCESS;
             WKWebsiteDataTypeDiskCache,
             WKWebsiteDataTypeFetchCache,
             WKWebsiteDataTypeMemoryCache,
-            WKWebsiteDataTypeOfflineWebApplicationCache,
             WKWebsiteDataTypeCookies,
             WKWebsiteDataTypeSessionStorage,
             WKWebsiteDataTypeLocalStorage,

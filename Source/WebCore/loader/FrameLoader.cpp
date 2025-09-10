@@ -36,7 +36,6 @@
 #include "FrameLoader.h"
 
 #include "AXObjectCache.h"
-#include "ApplicationCacheHost.h"
 #include "BackForwardCache.h"
 #include "BackForwardController.h"
 #include "BeforeUnloadEvent.h"
@@ -3665,14 +3664,11 @@ ResourceLoaderIdentifier FrameLoader::loadResourceSynchronously(const ResourceRe
         ASSERT(!newRequest.isNull());
 
         RefPtr documentLoader = this->documentLoader();
-        if (!documentLoader->applicationCacheHost().maybeLoadSynchronously(newRequest, error, response, data)) {
-            Vector<uint8_t> buffer;
-            platformStrategies()->loaderStrategy()->loadResourceSynchronously(*this, identifier, newRequest, clientCredentialPolicy, options, originalRequestHeaders, error, response, buffer);
-            data = SharedBuffer::create(WTFMove(buffer));
-            documentLoader->applicationCacheHost().maybeLoadFallbackSynchronously(newRequest, error, response, data);
-            ResourceLoadObserver::shared().logSubresourceLoading(protectedFrame().ptr(), newRequest, response,
-                (isScriptLikeDestination(options.destination) ? ResourceLoadObserver::FetchDestinationIsScriptLike::Yes : ResourceLoadObserver::FetchDestinationIsScriptLike::No));
-        }
+        Vector<uint8_t> buffer;
+        platformStrategies()->loaderStrategy()->loadResourceSynchronously(*this, identifier, newRequest, clientCredentialPolicy, options, originalRequestHeaders, error, response, buffer);
+        data = SharedBuffer::create(WTFMove(buffer));
+        ResourceLoadObserver::shared().logSubresourceLoading(protectedFrame().ptr(), newRequest, response,
+            (isScriptLikeDestination(options.destination) ? ResourceLoadObserver::FetchDestinationIsScriptLike::Yes : ResourceLoadObserver::FetchDestinationIsScriptLike::No));
     }
 
     notifier().sendRemainingDelegateMessages(protectedDocumentLoader().get(), identifier, request, response, data.get(), data ? data->size() : 0, -1, error);

@@ -29,8 +29,6 @@
 
 #if ENABLE(VIDEO)
 
-#include "ApplicationCacheHost.h"
-#include "ApplicationCacheResource.h"
 #include "Attribute.h"
 #include "AudioTrackConfiguration.h"
 #include "AudioTrackList.h"
@@ -1859,17 +1857,6 @@ void HTMLMediaElement::loadResource(const URL& initialURL, const ContentType& in
     // The resource fetch algorithm
     m_networkState = NETWORK_LOADING;
 
-    // If the URL should be loaded from the application cache, pass the URL of the cached file to the media engine.
-    RefPtr<ApplicationCacheResource> resource;
-    if (!url.isEmpty() && frame->loader().documentLoader()->applicationCacheHost().shouldLoadResourceFromApplicationCache(ResourceRequest(URL { url }), resource)) {
-        // Resources that are not present in the manifest will always fail to load (at least, after the
-        // cache has been primed the first time), making the testing of offline applications simpler.
-        if (!resource || resource->path().isEmpty()) {
-            mediaLoadingFailed(MediaPlayer::NetworkState::FormatError);
-            return;
-        }
-    }
-
     // Log that we started loading a media element.
     page->diagnosticLoggingClient().logDiagnosticMessage(isVideo() ? DiagnosticLoggingKeys::videoKey() : DiagnosticLoggingKeys::audioKey(), DiagnosticLoggingKeys::loadingKey(), ShouldSample::No);
 
@@ -1878,11 +1865,6 @@ void HTMLMediaElement::loadResource(const URL& initialURL, const ContentType& in
     // Set m_currentSrc *before* changing to the cache URL, the fact that we are loading from the app
     // cache is an internal detail not exposed through the media element API.
     setCurrentSrc(url);
-
-    if (resource) {
-        url = ApplicationCacheHost::createFileURL(resource->path());
-        INFO_LOG(logSiteIdentifier, "will load from app cache ", url);
-    }
 
     INFO_LOG(logSiteIdentifier, "m_currentSrc is ", m_currentSrc);
 

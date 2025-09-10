@@ -354,7 +354,6 @@ public:
 
     void setStorageBlockingPolicy(StorageBlockingPolicy policy) { m_storageBlockingPolicy = policy; }
     enum class ResourceType : uint8_t {
-        ApplicationCache,
         Cookies,
         Geolocation,
         IndexedDB,

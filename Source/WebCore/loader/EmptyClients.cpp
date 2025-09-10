@@ -29,7 +29,6 @@
 #include "EmptyClients.h"
 
 #include "AppHighlight.h"
-#include "ApplicationCacheStorage.h"
 #include "BackForwardClient.h"
 #include "BadgeClient.h"
 #include "BroadcastChannelRegistry.h"
@@ -1258,7 +1257,6 @@ PageConfiguration pageConfigurationWithEmptyClients(std::optional<PageIdentifier
 
     pageConfiguration.diagnosticLoggingClient = makeUnique<EmptyDiagnosticLoggingClient>();
 
-    pageConfiguration.applicationCacheStorage = ApplicationCacheStorage::create({ }, { });
     pageConfiguration.databaseProvider = adoptRef(*new EmptyDatabaseProvider);
     pageConfiguration.pluginInfoProvider = adoptRef(*new EmptyPluginInfoProvider);
     pageConfiguration.storageNamespaceProvider = adoptRef(*new EmptyStorageNamespaceProvider);
