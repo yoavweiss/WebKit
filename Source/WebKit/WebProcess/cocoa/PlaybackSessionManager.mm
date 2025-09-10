@@ -620,7 +620,7 @@ void PlaybackSessionManager::actionHandlersChanged()
     if (RefPtr document = m_mediaSession->document(); document && document->quirks().shouldDisableAdSkippingInPip())
         skipAdIsDisabledQuirk = true;
 
-    if (RefPtr page = m_page.get() && !skipAdIsDisabledQuirk)
+    if (RefPtr page = m_page.get(); page && !skipAdIsDisabledQuirk)
         page->send(Messages::PlaybackSessionManagerProxy::CanSkipAdChanged(processQualify(*m_controlsManagerContextId), skipAdHasHandler));
 }
 
