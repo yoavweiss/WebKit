@@ -273,7 +273,12 @@ bool VideoMediaSampleRenderer::isReadyForMoreMediaData() const
 
 bool VideoMediaSampleRenderer::areSamplesQueuesReadyForMoreMediaData(size_t waterMark) const
 {
-    return m_compressedSamplesCount <= waterMark;
+    return compressedSamplesCount() <= waterMark;
+}
+
+size_t VideoMediaSampleRenderer::compressedSamplesCount() const
+{
+    return m_compressedSamplesCount + m_pendingSamplesCount;
 }
 
 void VideoMediaSampleRenderer::maybeBecomeReadyForMoreMediaData()
@@ -453,7 +458,7 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
             m_droppedVideoFramesOffset = m_droppedVideoFrames - numberOfDroppedVideoFrames;
 #endif
     }
-    ++m_compressedSamplesCount;
+    ++m_pendingSamplesCount;
     dispatcher()->dispatch([weakThis = ThreadSafeWeakPtr { *this }, sample = Ref { sample }, minimumUpcomingTime, flushId = m_flushId.load(), decompressionSessionBlocked = m_decompressionSessionBlocked]() mutable {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
@@ -462,12 +467,16 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
 
         if (flushId != protectedThis->m_flushId) {
             protectedThis->m_compressedSamplesCount = 0;
+            protectedThis->m_pendingSamplesCount = 0;
             protectedThis->m_compressedSampleQueue.clear();
             protectedThis->maybeBecomeReadyForMoreMediaData();
             return;
         }
+        ASSERT(protectedThis->m_pendingSamplesCount > 0);
         protectedThis->m_compressedSampleQueue.append({ WTFMove(sample), minimumUpcomingTime, flushId, decompressionSessionBlocked });
         protectedThis->decodeNextSampleIfNeeded();
+        --protectedThis->m_pendingSamplesCount;
+        protectedThis->m_compressedSamplesCount = protectedThis->m_compressedSampleQueue.size();
     });
 }
 
@@ -499,7 +508,7 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
                     if (m_lastMinimumUpcomingPresentationTime.isInvalid() || upcomingMinimum != m_lastMinimumUpcomingPresentationTime) {
                         ASSERT(m_lastMinimumUpcomingPresentationTime.isInvalid() || m_lastMinimumUpcomingPresentationTime < upcomingMinimum);
                         m_lastMinimumUpcomingPresentationTime = upcomingMinimum;
-                        LogPerformance("VideoMediaSampleRenderer::decodeNextSampleIfNeeded currentTime:%0.2f expectMinimumUpcomingSampleBufferPresentationTime:%0.2f decoded queued:%zu upcoming:%zu high watermark reached", currentTime.toDouble(), m_lastMinimumUpcomingPresentationTime.toDouble(), decodedSamplesCount(), m_compressedSampleQueue.size());
+                        LogPerformance("VideoMediaSampleRenderer::decodeNextSampleIfNeeded currentTime:%0.2f expectMinimumUpcomingSampleBufferPresentationTime:%0.2f decoded queued:%zu upcoming:%zu high watermark reached", currentTime.toDouble(), m_lastMinimumUpcomingPresentationTime.toDouble(), decodedSamplesCount(), compressedSamplesCount());
                         [rendererOrDisplayLayer() expectMinimumUpcomingSampleBufferPresentationTime:PAL::toCMTime(m_lastMinimumUpcomingPresentationTime)];
                     }
                     return;
@@ -507,7 +516,7 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
                 LogPerformance("Out of order frames detected, forcing extra decode");
             }
             if (endTime.isValid() && endTime >= lowWaterMarkTime && playbackRate > 0.9 && playbackRate < 1.1) {
-                LogPerformance("VideoMediaSampleRenderer::decodeNextSampleIfNeeded expectMinimumUpcomingSampleBufferPresentationTime:%0.2f decoded queued:%zu upcoming:%zu currentTime:%0.2f endTime:%0.2f low:%0.2f high:%0.2f low watermark reached", m_lastMinimumUpcomingPresentationTime.toDouble(), decodedSamplesCount(), m_compressedSampleQueue.size(), currentTime.toDouble(), endTime.toDouble(), lowWaterMarkTime.toDouble(), highWaterMarkTime.toDouble());
+                LogPerformance("VideoMediaSampleRenderer::decodeNextSampleIfNeeded expectMinimumUpcomingSampleBufferPresentationTime:%0.2f decoded queued:%zu upcoming:%zu currentTime:%0.2f endTime:%0.2f low:%0.2f high:%0.2f low watermark reached", m_lastMinimumUpcomingPresentationTime.toDouble(), decodedSamplesCount(), compressedSamplesCount(), currentTime.toDouble(), endTime.toDouble(), lowWaterMarkTime.toDouble(), highWaterMarkTime.toDouble());
                 decodingFlags.add(WebCoreDecompressionSession::DecodingFlag::RealTime);
             }
         }
@@ -602,7 +611,7 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
                     format = CVPixelBufferGetPixelFormatType(imageBuffer.get());
                     presentationTime = PAL::toMediaTime(PAL::CMSampleBufferGetOutputPresentationTimeStamp(firstFrame.get()));
                 }
-                LogPerformance("VideoMediaSampleRenderer pts:%0.2f minimum upcoming:%0.2f decoding rate:%0.1fHz rolling:%0.1f decoder rate:%0.1fHz compressed queue:%u decoded queue:%zu hw:%d format:%s", presentationTime.toDouble(), m_lastMinimumUpcomingPresentationTime.toDouble(), 1.0f / Seconds { now - std::exchange(m_timeSinceLastDecode, now) }.value(), m_frameRateMonitor.observedFrameRate(), 1.0f / Seconds { now - startTime }.value(), m_compressedSamplesCount.load(), decodedSamplesCount(), protectedThis->decompressionSession()->isHardwareAccelerated(), &FourCC(format).string()[0]);
+                LogPerformance("VideoMediaSampleRenderer pts:%0.2f minimum upcoming:%0.2f decoding rate:%0.1fHz rolling:%0.1f decoder rate:%0.1fHz compressed queue:%zu decoded queue:%zu hw:%d format:%s", presentationTime.toDouble(), m_lastMinimumUpcomingPresentationTime.toDouble(), 1.0f / Seconds { now - std::exchange(m_timeSinceLastDecode, now) }.value(), m_frameRateMonitor.observedFrameRate(), 1.0f / Seconds { now - startTime }.value(), compressedSamplesCount(), decodedSamplesCount(), protectedThis->decompressionSession()->isHardwareAccelerated(), &FourCC(format).string()[0]);
             }
 
             if (!decodingFlags.contains(WebCoreDecompressionSession::DecodingFlag::NonDisplaying)) {
@@ -726,6 +735,7 @@ void VideoMediaSampleRenderer::flushCompressedSampleQueue()
 
     ++m_flushId;
     m_compressedSamplesCount = 0;
+    m_pendingSamplesCount = 0;
     m_gotDecodingError = false;
 }
 
