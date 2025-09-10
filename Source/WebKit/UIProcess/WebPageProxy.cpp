@@ -10581,7 +10581,8 @@ void WebPageProxy::contextMenuItemSelected(const WebContextMenuItemData& item, c
 
     case ContextMenuItemTagInspectElement:
         // The web process can no longer demand Web Inspector to show, so handle that part here.
-        protectedInspector()->show();
+        if (RefPtr inspector = this->inspector())
+            inspector->show();
         // The actual element-selection is still handled in the web process, so we break instead of return.
         break;
 
