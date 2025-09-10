@@ -128,7 +128,6 @@ Tests/WebKitCocoa/FirstVisuallyNonEmptyMilestone.mm
 Tests/WebKitCocoa/FixedLayoutSize.mm
 Tests/WebKitCocoa/FontAttributes.mm
 Tests/WebKitCocoa/FormValidation.mm
-Tests/WebKitCocoa/FrameHandleSerialization.mm
 Tests/WebKitCocoa/FullscreenAlert.mm
 Tests/WebKitCocoa/FullscreenDelegate.mm
 Tests/WebKitCocoa/FullscreenLayoutConstraints.mm

@@ -47,18 +47,6 @@ InjectedBundlePageUIClient::InjectedBundlePageUIClient(const WKBundlePageUIClien
     initialize(client);
 }
 
-void InjectedBundlePageUIClient::mouseDidMoveOverElement(WebPage* page, const HitTestResult& coreHitTestResult, OptionSet<WebEventModifier> modifiers, RefPtr<API::Object>& userData)
-{
-    if (!m_client.mouseDidMoveOverElement)
-        return;
-
-    auto hitTestResult = InjectedBundleHitTestResult::create(coreHitTestResult);
-
-    WKTypeRef userDataToPass = 0;
-    m_client.mouseDidMoveOverElement(toAPI(page), toAPI(hitTestResult.ptr()), toAPI(modifiers), &userDataToPass, m_client.base.clientInfo);
-    userData = adoptRef(toImpl(userDataToPass));
-}
-
 static API::InjectedBundle::PageUIClient::UIElementVisibility toUIElementVisibility(WKBundlePageUIElementVisibility visibility)
 {
     switch (visibility) {

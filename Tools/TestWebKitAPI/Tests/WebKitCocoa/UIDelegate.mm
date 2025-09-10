@@ -967,15 +967,15 @@ TEST(WebKit, ToolbarVisible)
 TEST(WebKit, MouseMoveOverElement)
 {
     __block bool done { false };
-    WKWebViewConfiguration *configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"FrameHandleSerialization"];
-    auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration]);
-    auto uiDelegate = adoptNS([MouseMoveOverElementDelegate new]);
+    RetainPtr configuration = adoptNS([WKWebViewConfiguration new]);
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration.get()]);
+    RetainPtr uiDelegate = adoptNS([MouseMoveOverElementDelegate new]);
     uiDelegate.get().mouseDidMoveOverElement = ^(_WKHitTestResult *hitTestResult, NSEventModifierFlags flags, id<NSSecureCoding> userInfo) {
         EXPECT_STREQ(hitTestResult.absoluteLinkURL.absoluteString.UTF8String, "http://example.com/path");
         EXPECT_STREQ(hitTestResult.linkLabel.UTF8String, "link label");
         EXPECT_STREQ(hitTestResult.linkTitle.UTF8String, "link title");
         EXPECT_EQ(flags, NSEventModifierFlagShift);
-        EXPECT_STREQ(NSStringFromClass([(NSObject *)userInfo class]).UTF8String, "_WKFrameHandle");
+        EXPECT_NULL(userInfo);
         EXPECT_TRUE(hitTestResult.linkTargetFrameIsSameAsLinkFrame);
         EXPECT_TRUE(hitTestResult.linkHasTargetFrame);
         done = true;
@@ -1094,17 +1094,17 @@ TEST(WebKit, MouseMoveOverElementWithClosedWebView)
 
     __block bool done { false };
     @autoreleasepool {
-        WKWebViewConfiguration *configuration = [WKWebViewConfiguration _test_configurationWithTestPlugInClassName:@"FrameHandleSerialization"];
-        auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 300) configuration:configuration]);
+        RetainPtr configuration = adoptNS([WKWebViewConfiguration new]);
+        RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 400, 300) configuration:configuration.get()]);
         [webView removeFromSuperview];
         [webView addToTestWindow];
-        auto uiDelegate = adoptNS([MouseMoveOverElementDelegate new]);
+        RetainPtr uiDelegate = adoptNS([MouseMoveOverElementDelegate new]);
         uiDelegate.get().mouseDidMoveOverElement = ^(_WKHitTestResult *hitTestResult, NSEventModifierFlags flags, id<NSSecureCoding> userInfo) {
             EXPECT_STREQ(hitTestResult.absoluteLinkURL.absoluteString.UTF8String, "http://example.com/path");
             EXPECT_STREQ(hitTestResult.linkLabel.UTF8String, "link label");
             EXPECT_STREQ(hitTestResult.linkTitle.UTF8String, "link title");
             EXPECT_EQ(flags, NSEventModifierFlagShift);
-            EXPECT_STREQ(NSStringFromClass([(NSObject *)userInfo class]).UTF8String, "_WKFrameHandle");
+            EXPECT_NULL(userInfo);
             EXPECT_TRUE(hitTestResult.linkTargetFrameIsSameAsLinkFrame);
             EXPECT_TRUE(hitTestResult.linkHasTargetFrame);
             done = true;

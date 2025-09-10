@@ -47,8 +47,6 @@ class InjectedBundlePageUIClient : public API::Client<WKBundlePageUIClientBase>,
 public:
     explicit InjectedBundlePageUIClient(const WKBundlePageUIClientBase*);
 
-    void mouseDidMoveOverElement(WebPage*, const WebCore::HitTestResult&, OptionSet<WebEventModifier>, RefPtr<API::Object>& userData) override;
-
     UIElementVisibility statusBarIsVisible(WebPage*) override;
     UIElementVisibility menuBarIsVisible(WebPage*) override;
     UIElementVisibility toolbarsAreVisible(WebPage*) override;
