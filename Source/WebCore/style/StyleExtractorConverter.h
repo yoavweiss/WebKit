@@ -152,8 +152,6 @@ public:
 
     static Ref<CSSValue> convertTransformationMatrix(ExtractorState&, const TransformationMatrix&);
     static Ref<CSSValue> convertTransformationMatrix(const RenderStyle&, const TransformationMatrix&);
-    static Ref<CSSValue> convertTransformOperation(ExtractorState&, const TransformOperation&);
-    static Ref<CSSValue> convertTransformOperation(const RenderStyle&, const TransformOperation&);
 
     // MARK: Shared conversions
 
@@ -381,106 +379,6 @@ inline Ref<CSSValue> ExtractorConverter::convertTransformationMatrix(const Rende
     for (auto value : values)
         arguments.append(CSSPrimitiveValue::create(value));
     return CSSFunctionValue::create(CSSValueMatrix3d, WTFMove(arguments));
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTransformOperation(ExtractorState& state, const TransformOperation& operation)
-{
-    return convertTransformOperation(state.style, operation);
-}
-
-inline Ref<CSSValue> ExtractorConverter::convertTransformOperation(const RenderStyle& style, const TransformOperation& operation)
-{
-    auto translateLength = [&](const auto& length) -> Ref<CSSPrimitiveValue> {
-        if (length.isZero())
-            return CSSPrimitiveValue::create(0, CSSUnitType::CSS_PX);
-        return convertLength(style, length);
-    };
-
-    auto includeLength = [](const auto& length) -> bool {
-        return !length.isZero() || length.isPercent();
-    };
-
-    switch (operation.type()) {
-    case TransformOperation::Type::TranslateX:
-        return CSSFunctionValue::create(CSSValueTranslateX, translateLength(uncheckedDowncast<TranslateTransformOperation>(operation).x()));
-    case TransformOperation::Type::TranslateY:
-        return CSSFunctionValue::create(CSSValueTranslateY, translateLength(uncheckedDowncast<TranslateTransformOperation>(operation).y()));
-    case TransformOperation::Type::TranslateZ:
-        return CSSFunctionValue::create(CSSValueTranslateZ, translateLength(uncheckedDowncast<TranslateTransformOperation>(operation).z()));
-    case TransformOperation::Type::Translate:
-    case TransformOperation::Type::Translate3D: {
-        auto& translate = uncheckedDowncast<TranslateTransformOperation>(operation);
-        if (!translate.is3DOperation()) {
-            if (!includeLength(translate.y()))
-                return CSSFunctionValue::create(CSSValueTranslate, translateLength(translate.x()));
-            return CSSFunctionValue::create(CSSValueTranslate, translateLength(translate.x()),
-                translateLength(translate.y()));
-        }
-        return CSSFunctionValue::create(CSSValueTranslate3d,
-            translateLength(translate.x()),
-            translateLength(translate.y()),
-            translateLength(translate.z()));
-    }
-    case TransformOperation::Type::ScaleX:
-        return CSSFunctionValue::create(CSSValueScaleX, CSSPrimitiveValue::create(uncheckedDowncast<ScaleTransformOperation>(operation).x()));
-    case TransformOperation::Type::ScaleY:
-        return CSSFunctionValue::create(CSSValueScaleY, CSSPrimitiveValue::create(uncheckedDowncast<ScaleTransformOperation>(operation).y()));
-    case TransformOperation::Type::ScaleZ:
-        return CSSFunctionValue::create(CSSValueScaleZ, CSSPrimitiveValue::create(uncheckedDowncast<ScaleTransformOperation>(operation).z()));
-    case TransformOperation::Type::Scale:
-    case TransformOperation::Type::Scale3D: {
-        auto& scale = uncheckedDowncast<ScaleTransformOperation>(operation);
-        if (!scale.is3DOperation()) {
-            if (scale.x() == scale.y())
-                return CSSFunctionValue::create(CSSValueScale, CSSPrimitiveValue::create(scale.x()));
-            return CSSFunctionValue::create(CSSValueScale, CSSPrimitiveValue::create(scale.x()),
-                CSSPrimitiveValue::create(scale.y()));
-        }
-        return CSSFunctionValue::create(CSSValueScale3d,
-            CSSPrimitiveValue::create(scale.x()),
-            CSSPrimitiveValue::create(scale.y()),
-            CSSPrimitiveValue::create(scale.z()));
-    }
-    case TransformOperation::Type::RotateX:
-        return CSSFunctionValue::create(CSSValueRotateX, CSSPrimitiveValue::create(uncheckedDowncast<RotateTransformOperation>(operation).angle(), CSSUnitType::CSS_DEG));
-    case TransformOperation::Type::RotateY:
-        return CSSFunctionValue::create(CSSValueRotateY, CSSPrimitiveValue::create(uncheckedDowncast<RotateTransformOperation>(operation).angle(), CSSUnitType::CSS_DEG));
-    case TransformOperation::Type::RotateZ:
-        return CSSFunctionValue::create(CSSValueRotateZ, CSSPrimitiveValue::create(uncheckedDowncast<RotateTransformOperation>(operation).angle(), CSSUnitType::CSS_DEG));
-    case TransformOperation::Type::Rotate:
-        return CSSFunctionValue::create(CSSValueRotate, CSSPrimitiveValue::create(uncheckedDowncast<RotateTransformOperation>(operation).angle(), CSSUnitType::CSS_DEG));
-    case TransformOperation::Type::Rotate3D: {
-        auto& rotate = uncheckedDowncast<RotateTransformOperation>(operation);
-        return CSSFunctionValue::create(CSSValueRotate3d, CSSPrimitiveValue::create(rotate.x()), CSSPrimitiveValue::create(rotate.y()), CSSPrimitiveValue::create(rotate.z()), CSSPrimitiveValue::create(rotate.angle(), CSSUnitType::CSS_DEG));
-    }
-    case TransformOperation::Type::SkewX:
-        return CSSFunctionValue::create(CSSValueSkewX, CSSPrimitiveValue::create(uncheckedDowncast<SkewTransformOperation>(operation).angleX(), CSSUnitType::CSS_DEG));
-    case TransformOperation::Type::SkewY:
-        return CSSFunctionValue::create(CSSValueSkewY, CSSPrimitiveValue::create(uncheckedDowncast<SkewTransformOperation>(operation).angleY(), CSSUnitType::CSS_DEG));
-    case TransformOperation::Type::Skew: {
-        auto& skew = uncheckedDowncast<SkewTransformOperation>(operation);
-        if (!skew.angleY())
-            return CSSFunctionValue::create(CSSValueSkew, CSSPrimitiveValue::create(skew.angleX(), CSSUnitType::CSS_DEG));
-        return CSSFunctionValue::create(CSSValueSkew, CSSPrimitiveValue::create(skew.angleX(), CSSUnitType::CSS_DEG),
-            CSSPrimitiveValue::create(skew.angleY(), CSSUnitType::CSS_DEG));
-    }
-    case TransformOperation::Type::Perspective:
-        if (auto perspective = uncheckedDowncast<PerspectiveTransformOperation>(operation).perspective())
-            return CSSFunctionValue::create(CSSValuePerspective, convertLength(style, *perspective));
-        return CSSFunctionValue::create(CSSValuePerspective, CSSPrimitiveValue::create(CSSValueNone));
-    case TransformOperation::Type::Matrix:
-    case TransformOperation::Type::Matrix3D: {
-        TransformationMatrix transform;
-        operation.apply(transform, { });
-        return convertTransformationMatrix(style, transform);
-    }
-    case TransformOperation::Type::Identity:
-    case TransformOperation::Type::None:
-        break;
-    }
-
-    ASSERT_NOT_REACHED();
-    return CSSPrimitiveValue::create(CSSValueNone);
 }
 
 // MARK: - Shared conversions

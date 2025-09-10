@@ -1619,7 +1619,7 @@ void RenderStyle::conservativelyCollectChangedAnimatableProperties(const RenderS
             changingProperties.m_properties.set(CSSPropertyTransformOriginZ);
         if (first.transformBox != second.transformBox)
             changingProperties.m_properties.set(CSSPropertyTransformBox);
-        if (first.operations != second.operations)
+        if (first.transform != second.transform)
             changingProperties.m_properties.set(CSSPropertyTransform);
     };
 
@@ -2369,7 +2369,7 @@ void RenderStyle::setPageScaleTransform(float scale)
     if (scale == 1)
         return;
 
-    setTransform(TransformOperations { ScaleTransformOperation::create(scale, scale, TransformOperation::Type::Scale) });
+    setTransform(Style::Transform { Style::TransformFunction { ScaleTransformOperation::create(scale, scale, TransformOperation::Type::Scale) } });
     setTransformOriginX(0_css_px);
     setTransformOriginY(0_css_px);
 }

@@ -315,7 +315,7 @@ inline void RenderStyle::setTextUnderlinePosition(OptionSet<TextUnderlinePositio
 inline void RenderStyle::setTextZoom(TextZoom zoom) { SET(m_rareInheritedData, textZoom, static_cast<unsigned>(zoom)); }
 inline void RenderStyle::setTop(Style::InsetEdge&& edge) { SET_NESTED(m_nonInheritedData, surroundData, inset.top(), WTFMove(edge)); }
 inline void RenderStyle::setTouchActions(OptionSet<TouchAction> actions) { SET_NESTED(m_nonInheritedData, rareData, touchActions, actions); }
-inline void RenderStyle::setTransform(TransformOperations&& operations) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, transform, operations, WTFMove(operations)); }
+inline void RenderStyle::setTransform(Style::Transform&& transform) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, transform, transform, WTFMove(transform)); }
 inline void RenderStyle::setTransformBox(TransformBox box) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, transform, transformBox, box); }
 inline void RenderStyle::setTransformOrigin(Style::TransformOrigin&& origin) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, transform, origin, WTFMove(origin)); }
 inline void RenderStyle::setTransformOriginX(Style::TransformOriginX&& originX) { SET_DOUBLY_NESTED(m_nonInheritedData, miscData, transform, origin.x, WTFMove(originX)); }

@@ -144,9 +144,9 @@ public:
         return Style::equalsForBlending(this->value(from), this->value(to), from, to);
     }
 
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation) const override
+    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation operation) const override
     {
-        return Style::canBlend(this->value(from), this->value(to), from, to);
+        return Style::canBlend(this->value(from), this->value(to), from, to, operation);
     }
 
     bool requiresInterpolationForAccumulativeIteration(const RenderStyle& from, const RenderStyle& to) const override
@@ -654,32 +654,6 @@ public:
 };
 
 #endif
-
-class TransformOperationsWrapper final : public WrapperWithGetter<const TransformOperations&> {
-    WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(TransformOperationsWrapper, Animation);
-public:
-    TransformOperationsWrapper()
-        : WrapperWithGetter<const TransformOperations&>(CSSPropertyTransform, &RenderStyle::transform)
-    {
-    }
-
-    bool canInterpolate(const RenderStyle& from, const RenderStyle& to, CompositeOperation compositeOperation) const override
-    {
-        if (compositeOperation == CompositeOperation::Replace)
-            return !this->value(to).shouldFallBackToDiscreteAnimation(this->value(from), { });
-        return true;
-    }
-
-    bool requiresInterpolationForAccumulativeIteration(const RenderStyle&, const RenderStyle&) const final
-    {
-        return true;
-    }
-
-    void interpolate(RenderStyle& destination, const RenderStyle& from, const RenderStyle& to, const Context& context) const override
-    {
-        destination.setTransform(blendFunc(this->value(from), this->value(to), context));
-    }
-};
 
 class FilterWrapper final : public WrapperWithGetter<const FilterOperations&> {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED_WITH_HEAP_IDENTIFIER(FilterWrapper, Animation);

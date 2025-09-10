@@ -51,10 +51,10 @@ bool PerspectiveTransformOperation::operator==(const TransformOperation& other) 
     return m_p == downcast<PerspectiveTransformOperation>(other).m_p;
 }
 
-Ref<TransformOperation> PerspectiveTransformOperation::blend(const TransformOperation* from, const BlendingContext& context, bool blendToIdentity)
+Ref<TransformOperation> PerspectiveTransformOperation::blend(const TransformOperation* from, const BlendingContext& context, bool blendToIdentity) const
 {
     if (!sharedPrimitiveType(from))
-        return *this;
+        return const_cast<PerspectiveTransformOperation&>(*this);
 
     // https://drafts.csswg.org/css-transforms-2/#interpolation-of-transform-functions
     // says that we should run matrix decomposition and then run the rules for

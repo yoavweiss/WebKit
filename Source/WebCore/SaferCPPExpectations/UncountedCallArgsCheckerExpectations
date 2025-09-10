@@ -286,6 +286,7 @@ css/CSSStyleSheetObservableArray.cpp
 css/CSSValueList.cpp
 css/CSSViewValue.cpp
 css/CSSViewValue.h
+css/DOMMatrixReadOnly.cpp
 css/DeprecatedCSSOMPrimitiveValue.h
 css/DeprecatedCSSOMRGBColor.h
 css/FontFace.cpp
@@ -760,6 +761,7 @@ platform/graphics/filters/software/FELightingSoftwareParallelApplier.cpp
 platform/graphics/filters/software/FETurbulenceSoftwareApplier.cpp
 platform/graphics/mac/PDFDocumentImageMac.mm
 platform/graphics/opentype/OpenTypeMathData.cpp
+platform/graphics/transforms/TransformOperationsSharedPrimitivesPrefix.h
 platform/graphics/transforms/TransformOperations.cpp
 platform/libwebrtc/LibWebRTCVPXVideoEncoder.cpp
 platform/mac/PasteboardWriter.mm
@@ -942,12 +944,13 @@ style/StyleTreeResolver.cpp
 style/StyleUpdate.cpp
 style/Styleable.cpp
 style/Styleable.h
-style/TransformOperationsBuilder.cpp
 style/UserAgentStyle.cpp
 style/values/backgrounds/StyleFillLayers.h
 style/values/primitives/StyleLengthWrapperData.cpp
 style/values/transforms/StyleRotate.cpp
 style/values/transforms/StyleScale.cpp
+style/values/transforms/StyleTransformFunction.cpp
+style/values/transforms/StyleTransformList.cpp
 style/values/transforms/StyleTranslate.cpp
 svg/SVGAElement.cpp
 svg/SVGAElement.h

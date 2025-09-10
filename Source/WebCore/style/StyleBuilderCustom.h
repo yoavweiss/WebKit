@@ -150,6 +150,7 @@ inline FixedVector<PositionTryFallback> forwardInheritedValue(const FixedVector<
 inline ProgressTimelineAxes forwardInheritedValue(const ProgressTimelineAxes& value) { auto copy = value; return copy; }
 inline ProgressTimelineNames forwardInheritedValue(const ProgressTimelineNames& value) { auto copy = value; return copy; }
 inline ScrollTimelines forwardInheritedValue(const ScrollTimelines& value) { auto copy = value; return copy; }
+inline Transform forwardInheritedValue(const Transform& value) { auto copy = value; return copy; }
 inline VerticalAlign forwardInheritedValue(const VerticalAlign& value) { auto copy = value; return copy; }
 inline ViewTimelineInsets forwardInheritedValue(const ViewTimelineInsets& value) { auto copy = value; return copy; }
 inline ViewTimelines forwardInheritedValue(const ViewTimelines& value) { auto copy = value; return copy; }

@@ -74,7 +74,7 @@ public:
     bool operator==(const TranslateTransformOperation& other) const { return operator==(static_cast<const TransformOperation&>(other)); }
     bool operator==(const TransformOperation&) const final;
 
-    Ref<TransformOperation> blend(const TransformOperation* from, const BlendingContext&, bool blendToIdentity = false) final;
+    Ref<TransformOperation> blend(const TransformOperation* from, const BlendingContext&, bool blendToIdentity = false) const final;
 
     bool isRepresentableIn2D() const final { return m_z.isZero(); }
 

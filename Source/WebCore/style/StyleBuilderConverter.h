@@ -106,7 +106,6 @@
 #include "TextSpacing.h"
 #include "TimelineRange.h"
 #include "TouchAction.h"
-#include "TransformOperationsBuilder.h"
 #include "ViewTimeline.h"
 #include "WillChangeData.h"
 #include <ranges>
@@ -132,7 +131,6 @@ public:
     static OptionSet<TextTransform> convertTextTransform(BuilderState&, const CSSValue&);
     template<typename T> static T convertNumber(BuilderState&, const CSSValue&);
     static ImageOrientation convertImageOrientation(BuilderState&, const CSSValue&);
-    static TransformOperations convertTransform(BuilderState&, const CSSValue&);
     template<CSSValueID> static AtomString convertCustomIdentAtomOrKeyword(BuilderState&, const CSSValue&);
 
     static OptionSet<TextEmphasisPosition> convertTextEmphasisPosition(BuilderState&, const CSSValue&);
@@ -350,14 +348,6 @@ inline ImageOrientation BuilderConverter::convertImageOrientation(BuilderState& 
     if (primitiveValue->valueID() == CSSValueFromImage)
         return ImageOrientation::Orientation::FromImage;
     return ImageOrientation::Orientation::None;
-}
-
-inline TransformOperations BuilderConverter::convertTransform(BuilderState& builderState, const CSSValue& value)
-{
-    CSSToLengthConversionData conversionData = builderState.useSVGZoomRulesForLength() ?
-        builderState.cssToLengthConversionData().copyWithAdjustedZoom(1.0f)
-        : builderState.cssToLengthConversionData();
-    return createTransformOperations(value, builderState);
 }
 
 template<CSSValueID keyword> inline AtomString BuilderConverter::convertCustomIdentAtomOrKeyword(BuilderState& builderState, const CSSValue& value)

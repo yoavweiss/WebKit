@@ -136,7 +136,7 @@ static TransformationMatrix applyTransformAnimation(const TransformOperations& f
         return matrix;
     }
 
-    to.blend(from, progress, LayoutSize { boxSize }).apply(matrix, boxSize);
+    blend(from, to, progress, LayoutSize { boxSize }).apply(matrix, boxSize);
     return matrix;
 }
 

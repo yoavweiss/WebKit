@@ -2675,7 +2675,6 @@ platform/graphics/transforms/ScaleTransformOperation.cpp
 platform/graphics/transforms/SkewTransformOperation.cpp
 platform/graphics/transforms/TransformOperation.cpp
 platform/graphics/transforms/TransformOperations.cpp
-platform/graphics/transforms/TransformOperationsSharedPrimitivesPrefix.cpp
 platform/graphics/transforms/TransformState.cpp
 platform/graphics/transforms/TransformationMatrix.cpp
 platform/graphics/transforms/TranslateTransformOperation.cpp
@@ -3140,7 +3139,6 @@ style/StyleSheetContentsCache.cpp
 style/StyleTreeResolver.cpp
 style/StyleUpdate.cpp
 style/Styleable.cpp
-style/TransformOperationsBuilder.cpp
 style/UserAgentStyle.cpp
 style/values/backgrounds/StyleBackgroundLayer.cpp
 style/values/backgrounds/StyleBackgroundSize.cpp
@@ -3277,6 +3275,9 @@ style/values/text/StyleTextIndent.cpp
 style/values/transforms/StylePerspective.cpp
 style/values/transforms/StyleRotate.cpp
 style/values/transforms/StyleScale.cpp
+style/values/transforms/StyleTransform.cpp
+style/values/transforms/StyleTransformFunction.cpp
+style/values/transforms/StyleTransformList.cpp
 style/values/transforms/StyleTranslate.cpp
 style/values/ui/StyleCursor.cpp
 style/values/view-transitions/StyleViewTransitionName.cpp

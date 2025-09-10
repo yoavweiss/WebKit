@@ -78,7 +78,6 @@ class StyleRareInheritedData;
 class StyleSelfAlignmentData;
 class TextAutospace;
 class TextSpacingTrim;
-class TransformOperations;
 class TransformationMatrix;
 class ViewTimeline;
 class WillChangeData;
@@ -341,6 +340,7 @@ struct TextIndent;
 struct TextShadow;
 struct TextSizeAdjust;
 struct TextUnderlineOffset;
+struct Transform;
 struct TransformOrigin;
 struct Translate;
 struct VerticalAlign;
@@ -989,7 +989,7 @@ public:
     inline const Style::GapGutter& rowGap() const;
     inline const Style::GapGutter& gap(Style::GridTrackSizingDirection) const;
 
-    inline const TransformOperations& transform() const;
+    inline const Style::Transform& transform() const;
     inline bool hasTransform() const;
     inline const Style::TransformOrigin& transformOrigin() const;
     inline const Style::TransformOriginX& transformOriginX() const;
@@ -1566,7 +1566,7 @@ public:
     inline void setColumnSpan(ColumnSpan);
     inline void inheritColumnPropertiesFrom(const RenderStyle& parent);
 
-    inline void setTransform(TransformOperations&&);
+    inline void setTransform(Style::Transform&&);
     inline void setTransformOrigin(Style::TransformOrigin&&);
     inline void setTransformOriginX(Style::TransformOriginX&&);
     inline void setTransformOriginY(Style::TransformOriginY&&);
@@ -2074,7 +2074,7 @@ public:
     static inline Style::GapGutter initialColumnGap();
     static constexpr Style::ColumnWidth initialColumnWidth();
     static inline Style::GapGutter initialRowGap();
-    static inline TransformOperations initialTransform();
+    static inline Style::Transform initialTransform();
     static inline Style::TransformOrigin initialTransformOrigin();
     static inline Style::TransformOriginX initialTransformOriginX();
     static inline Style::TransformOriginY initialTransformOriginY();

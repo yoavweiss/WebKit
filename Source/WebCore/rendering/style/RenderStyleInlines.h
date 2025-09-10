@@ -302,7 +302,7 @@ inline bool RenderStyle::hasScale() const { return !scale().isNone(); }
 inline bool RenderStyle::hasStaticBlockPosition(bool horizontal) const { return horizontal ? hasAutoTopAndBottom() : hasAutoLeftAndRight(); }
 inline bool RenderStyle::hasStaticInlinePosition(bool horizontal) const { return horizontal ? hasAutoLeftAndRight() : hasAutoTopAndBottom(); }
 inline bool RenderStyle::hasTextCombine() const { return textCombine() != TextCombine::None; }
-inline bool RenderStyle::hasTransform() const { return !transform().isEmpty() || hasOffsetPath(); }
+inline bool RenderStyle::hasTransform() const { return !transform().isNone() || hasOffsetPath(); }
 inline bool RenderStyle::hasTransformRelatedProperty() const { return hasTransform() || hasRotate() || hasScale() || hasTranslate() || transformStyle3D() == TransformStyle3D::Preserve3D || hasPerspective(); }
 inline bool RenderStyle::hasTranslate() const { return !translate().isNone(); }
 inline bool RenderStyle::hasTransitions() const { return transitions() && transitions()->size(); }
@@ -537,7 +537,7 @@ constexpr TextWrapMode RenderStyle::initialTextWrapMode() { return TextWrapMode:
 constexpr TextWrapStyle RenderStyle::initialTextWrapStyle() { return TextWrapStyle::Auto; }
 constexpr TextZoom RenderStyle::initialTextZoom() { return TextZoom::Normal; }
 constexpr TouchAction RenderStyle::initialTouchActions() { return TouchAction::Auto; }
-inline TransformOperations RenderStyle::initialTransform() { return { }; }
+inline Style::Transform RenderStyle::initialTransform() { return CSS::Keyword::None { }; }
 constexpr TransformBox RenderStyle::initialTransformBox() { return TransformBox::ViewBox; }
 inline Style::Rotate RenderStyle::initialRotate() { return CSS::Keyword::None { }; }
 inline Style::Scale RenderStyle::initialScale() { return CSS::Keyword::None { }; }
@@ -770,7 +770,7 @@ inline OptionSet<TextUnderlinePosition> RenderStyle::textUnderlinePosition() con
 inline TextZoom RenderStyle::textZoom() const { return static_cast<TextZoom>(m_rareInheritedData->textZoom); }
 inline const Style::InsetEdge& RenderStyle::top() const { return m_nonInheritedData->surroundData->inset.top(); }
 inline OptionSet<TouchAction> RenderStyle::touchActions() const { return m_nonInheritedData->rareData->touchActions; }
-inline const TransformOperations& RenderStyle::transform() const { return m_nonInheritedData->miscData->transform->operations; }
+inline const Style::Transform& RenderStyle::transform() const { return m_nonInheritedData->miscData->transform->transform; }
 inline TransformBox RenderStyle::transformBox() const { return m_nonInheritedData->miscData->transform->transformBox; }
 inline const Style::TransformOrigin& RenderStyle::transformOrigin() const { return m_nonInheritedData->miscData->transform->origin; }
 inline const Style::TransformOriginX& RenderStyle::transformOriginX() const { return transformOrigin().x; }

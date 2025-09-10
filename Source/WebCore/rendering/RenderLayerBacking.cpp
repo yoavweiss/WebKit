@@ -4374,7 +4374,7 @@ bool RenderLayerBacking::startAnimation(double timeOffset, const Animation& anim
             translateVector.insert(makeUnique<TransformAnimationValue>(offset, Style::toPlatform(keyframeStyle->translate()).get(), tf));
 
         if (currentKeyframe.animatesProperty(CSSPropertyTransform))
-            transformVector.insert(makeUnique<TransformAnimationValue>(offset, keyframeStyle->transform(), tf));
+            transformVector.insert(makeUnique<TransformAnimationValue>(offset, Style::toPlatform(keyframeStyle->transform()), tf));
 
         if (currentKeyframe.animatesProperty(CSSPropertyOpacity))
             opacityVector.insert(makeUnique<FloatAnimationValue>(offset, keyframeStyle->opacity().value.value, tf));

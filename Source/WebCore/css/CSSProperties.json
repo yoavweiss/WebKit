@@ -11122,10 +11122,9 @@
                 "aliases": [
                     "-webkit-transform"
                 ],
-                "animation-wrapper": "TransformOperationsWrapper",
-                "animation-wrapper-requires-override-parameters": [],
+                "animation-wrapper": "StyleTypeWrapper",
                 "animation-wrapper-acceleration": "always",
-                "style-builder-converter": "Transform",
+                "style-converter": "StyleType<Transform>",
                 "style-extractor-custom": true,
                 "parser-grammar": "none | <transform-list>",
                 "parser-exported": true

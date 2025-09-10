@@ -73,7 +73,7 @@ private:
         return false;
     }
 
-    Ref<TransformOperation> blend(const TransformOperation* from, const BlendingContext&, bool blendToIdentity = false) override;
+    Ref<TransformOperation> blend(const TransformOperation* from, const BlendingContext&, bool blendToIdentity = false) const override;
 
     void dump(WTF::TextStream&) const final;
 

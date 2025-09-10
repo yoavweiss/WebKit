@@ -514,7 +514,6 @@ style/StyleBuilderStateInlines.h
 style/StyleCustomPropertyRegistry.cpp
 style/StyleExtractor.cpp
 style/StyleExtractorCustom.h
-style/StyleInterpolationFunctions.h
 style/StyleInvalidationFunctions.h
 style/StyleInvalidator.cpp
 style/StylePendingResources.cpp
@@ -527,6 +526,7 @@ style/StyleUpdate.cpp
 style/Styleable.cpp
 style/values/grid/StyleGridPositionsResolver.cpp
 style/values/primitives/StyleLengthResolution.cpp
+style/values/transforms/StyleTransformList.cpp
 svg/SVGAnimateMotionElement.cpp
 svg/SVGClipPathElement.cpp
 svg/SVGElement.cpp

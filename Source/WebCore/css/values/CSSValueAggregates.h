@@ -543,35 +543,35 @@ template<typename T> struct ListOrNone {
     using value_type = typename List::value_type;
 
     ListOrNone(List&& list)
-        : value { WTFMove(list) }
+        : m_value { WTFMove(list) }
     {
-        RELEASE_ASSERT(!value.isEmpty());
+        RELEASE_ASSERT(!m_value.isEmpty());
     }
 
     ListOrNone(CSS::Keyword::None)
-        : value { }
+        : m_value { }
     {
     }
 
-    const_iterator begin() const { return value.begin(); }
-    const_iterator end() const { return value.end(); }
-    const_reverse_iterator rbegin() const { return value.rbegin(); }
-    const_reverse_iterator rend() const { return value.rend(); }
+    const_iterator begin() const { return m_value.begin(); }
+    const_iterator end() const { return m_value.end(); }
+    const_reverse_iterator rbegin() const { return m_value.rbegin(); }
+    const_reverse_iterator rend() const { return m_value.rend(); }
 
-    const value_type& first() const LIFETIME_BOUND { return value.first(); }
-    const value_type& last() const LIFETIME_BOUND { return value.last(); }
+    const value_type& first() const LIFETIME_BOUND { return m_value.first(); }
+    const value_type& last() const LIFETIME_BOUND { return m_value.last(); }
 
-    size_t size() const { return value.size(); }
-    const value_type& operator[](size_t i) const { return value[i]; }
+    size_t size() const { return m_value.size(); }
+    const value_type& operator[](size_t i) const { return m_value[i]; }
 
-    bool contains(const auto& x) const { return value.contains(x); }
-    bool containsIf(NOESCAPE const Invocable<bool(const value_type&)> auto& f) const { return value.containsIf(f); }
+    bool contains(const auto& x) const { return m_value.contains(x); }
+    bool containsIf(NOESCAPE const Invocable<bool(const value_type&)> auto& f) const { return m_value.containsIf(f); }
 
     bool operator==(const ListOrNone&) const = default;
 
-    bool isNone() const { return value.isEmpty(); }
-    bool isList() const { return !value.isEmpty(); }
-    const List* tryList() const { return isList() ? &value : nullptr; }
+    bool isNone() const { return m_value.isEmpty(); }
+    bool isList() const { return !m_value.isEmpty(); }
+    const List* tryList() const { return isList() ? &m_value : nullptr; }
 
     template<typename... F> decltype(auto) switchOn(F&&... f) const
     {
@@ -579,13 +579,13 @@ template<typename T> struct ListOrNone {
 
         if (isNone())
             return visitor(CSS::Keyword::None { });
-        return visitor(value);
+        return visitor(m_value);
     }
 
-private:
+protected:
     // An empty list indicates the value `none`. This invariant is ensured
     // with a release assert in the constructor.
-    List value;
+    List m_value;
 };
 
 template<typename T> inline constexpr auto TreatAsVariantLike<ListOrNone<T>> = true;

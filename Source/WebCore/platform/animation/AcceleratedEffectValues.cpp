@@ -123,7 +123,7 @@ AcceleratedEffectValues::AcceleratedEffectValues(const RenderStyle& style, const
         transformOperationData = TransformOperationData(renderer->transformReferenceBoxRect(style), renderer);
 
     transformBox = style.transformBox();
-    transform = style.transform().selfOrCopyWithResolvedCalculatedValues(borderBoxSize);
+    transform = style.transform().resolvedCalculatedValues(borderBoxSize);
     translate = resolveCalculateValuesForTransformOperation(Style::toPlatform(style.translate()), borderBoxSize);
     scale = resolveCalculateValuesForTransformOperation(Style::toPlatform(style.scale()), borderBoxSize);
     rotate = resolveCalculateValuesForTransformOperation(Style::toPlatform(style.rotate()), borderBoxSize);

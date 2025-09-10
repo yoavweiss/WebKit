@@ -303,11 +303,9 @@ static void blend(AcceleratedEffectProperty property, AcceleratedEffectValues& o
     case AcceleratedEffectProperty::Opacity:
         output.opacity = blend(from.opacity, to.opacity, blendingContext);
         break;
-    case AcceleratedEffectProperty::Transform: {
-        LayoutSize boxSize { bounds.size() };
-        output.transform = to.transform.blend(from.transform, blendingContext, boxSize);
+    case AcceleratedEffectProperty::Transform:
+        output.transform = blend(from.transform, to.transform, blendingContext, LayoutSize { bounds.size() });
         break;
-    }
     case AcceleratedEffectProperty::Translate:
         if (auto& toTranslate = to.translate)
             output.translate = toTranslate->blend(from.translate.get(), blendingContext);

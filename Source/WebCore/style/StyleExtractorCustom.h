@@ -1878,7 +1878,7 @@ inline void ExtractorCustom::extractBorderImageWidthSerialization(ExtractorState
 inline Ref<CSSValue> ExtractorCustom::extractTransform(ExtractorState& state)
 {
     if (!state.style.hasTransform())
-        return CSSPrimitiveValue::create(CSSValueNone);
+        return createCSSValue(state.pool, state.style, CSS::Keyword::None { });
 
     if (state.renderer) {
         TransformationMatrix transform;
@@ -1890,21 +1890,15 @@ inline Ref<CSSValue> ExtractorCustom::extractTransform(ExtractorState& state)
     // If we don't have a renderer, then the value should be "none" if we're asking for the
     // resolved value (such as when calling getComputedStyle()).
     if (state.valueType == ExtractorState::PropertyValueType::Resolved)
-        return CSSPrimitiveValue::create(CSSValueNone);
+        return createCSSValue(state.pool, state.style, CSS::Keyword::None { });
 
-    CSSValueListBuilder list;
-    for (auto& operation : state.style.transform())
-        list.append(ExtractorConverter::convertTransformOperation(state, operation));
-    if (!list.isEmpty())
-        return CSSTransformListValue::create(WTFMove(list));
-
-    return CSSPrimitiveValue::create(CSSValueNone);
+    return createCSSValue(state.pool, state.style, state.style.transform());
 }
 
 inline void ExtractorCustom::extractTransformSerialization(ExtractorState& state, StringBuilder& builder, const CSS::SerializationContext& context)
 {
     if (!state.style.hasTransform()) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
+        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
         return;
     }
 
@@ -1919,18 +1913,11 @@ inline void ExtractorCustom::extractTransformSerialization(ExtractorState& state
     // If we don't have a renderer, then the value should be "none" if we're asking for the
     // resolved value (such as when calling getComputedStyle()).
     if (state.valueType == ExtractorState::PropertyValueType::Resolved) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
+        serializationForCSS(builder, context, state.style, CSS::Keyword::None { });
         return;
     }
 
-    if (state.style.transform().isEmpty()) {
-        CSS::serializationForCSS(builder, context, CSS::Keyword::None { });
-        return;
-    }
-
-    builder.append(interleave(state.style.transform(), [&](auto& builder, auto& transform) {
-        ExtractorSerializer::serializeTransformOperation(state, builder, context, transform);
-    }, ' '));
+    serializationForCSS(builder, context, state.style, state.style.transform());
 }
 
 inline Ref<CSSValue> ExtractorCustom::extractTranslate(ExtractorState& state)

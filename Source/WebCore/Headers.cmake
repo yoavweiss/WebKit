@@ -3169,6 +3169,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/StyleCustomProperty.h
     style/StyleForVisitedLink.h
     style/StyleInterpolationClient.h
+    style/StyleInterpolationContext.h
     style/StyleScope.h
     style/StyleScopeIdentifier.h
     style/StyleScopeOrdinal.h
@@ -3384,6 +3385,9 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     style/values/transforms/StylePerspectiveOrigin.h
     style/values/transforms/StyleRotate.h
     style/values/transforms/StyleScale.h
+    style/values/transforms/StyleTransform.h
+    style/values/transforms/StyleTransformFunction.h
+    style/values/transforms/StyleTransformList.h
     style/values/transforms/StyleTransformOperationWrapper.h
     style/values/transforms/StyleTransformOrigin.h
     style/values/transforms/StyleTranslate.h
