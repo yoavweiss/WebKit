@@ -50,7 +50,7 @@
 #include "StreamMessageReceiver.h"
 #include "StreamServerConnection.h"
 #include <WebCore/Font.h>
-#include <WebCore/ImageBufferPixelFormat.h>
+#include <WebCore/PixelFormat.h>
 #include <WebCore/ProcessIdentity.h>
 #include <WebCore/RenderingResourceIdentifier.h>
 #include <wtf/HashMap.h>

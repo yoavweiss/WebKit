@@ -129,14 +129,14 @@ RefPtr<ImageBuffer> CanvasRenderingContext::transferToImageBuffer()
     return nullptr;
 }
 
-ImageBufferPixelFormat CanvasRenderingContext::pixelFormat() const
+PixelFormat CanvasRenderingContext::pixelFormat() const
 {
-    return ImageBufferPixelFormat::BGRA8;
+    return PixelFormat::BGRA8;
 }
 
 bool CanvasRenderingContext::isOpaque() const
 {
-    return imageBufferPixelFormatIsOpaque(pixelFormat());
+    return pixelFormatIsOpaque(pixelFormat());
 }
 
 DestinationColorSpace CanvasRenderingContext::colorSpace() const
