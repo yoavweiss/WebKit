@@ -166,6 +166,8 @@ void AudioVideoRendererAVFObjC::enqueueSample(TrackIdentifier trackId, Ref<Media
         if (RetainPtr audioRenderer = audioRendererFor(trackId)) {
             RetainPtr cmSampleBuffer = sample->platformSample().sample.cmSampleBuffer;
             [audioRenderer enqueueSampleBuffer:cmSampleBuffer.get()];
+            if (!allRenderersHaveAvailableSamples() && !sample->isNonDisplaying())
+                setHasAvailableAudioSample(trackId, true);
         }
         break;
     default:
@@ -401,7 +403,7 @@ void AudioVideoRendererAVFObjC::prepareToSeek()
 
 Ref<MediaTimePromise> AudioVideoRendererAVFObjC::seekTo(const MediaTime& seekTime)
 {
-    ALWAYS_LOG(LOGIDENTIFIER, seekTime, "state: ", toString(m_seekState), " m_isSynchronizerSeeking: ", m_isSynchronizerSeeking, " m_hasAvailableVideoFrame: ", m_hasAvailableVideoFrame);
+    ALWAYS_LOG(LOGIDENTIFIER, seekTime, "state: ", toString(m_seekState), " m_isSynchronizerSeeking: ", m_isSynchronizerSeeking, " hasAvailableVideoFrame: ", m_hasAvailableVideoFrame);
 
     cancelSeekingPromiseIfNeeded();
     if (m_seekState == RequiresFlush)
@@ -779,8 +781,8 @@ void AudioVideoRendererAVFObjC::maybeCompleteSeek()
     if (m_seekState == SeekCompleted || !m_seekPromise)
         return;
 
-    if (m_videoRenderer && !m_hasAvailableVideoFrame) {
-        ALWAYS_LOG(LOGIDENTIFIER, "Waiting for first video frame");
+    if (m_videoRenderer && !allRenderersHaveAvailableSamples()) {
+        ALWAYS_LOG(LOGIDENTIFIER, "Waiting for all frames");
         m_seekState = WaitingForAvailableFame;
         return;
     }
@@ -802,7 +804,59 @@ void AudioVideoRendererAVFObjC::maybeCompleteSeek()
 
 bool AudioVideoRendererAVFObjC::shouldBePlaying() const
 {
-    return m_isPlaying && !seeking();
+    return m_isPlaying && !seeking() && allRenderersHaveAvailableSamples();
+}
+
+void AudioVideoRendererAVFObjC::setHasAvailableAudioSample(TrackIdentifier trackId, bool flag)
+{
+    if (flag && allRenderersHaveAvailableSamples())
+        return;
+
+    auto it = m_audioTracksMap.find(trackId);
+    if (it == m_audioTracksMap.end())
+        return;
+    auto& properties = it->value;
+    if (properties.hasAudibleSample == flag)
+        return;
+    ALWAYS_LOG(LOGIDENTIFIER, flag);
+    properties.hasAudibleSample = flag;
+
+    updateAllRenderersHaveAvailableSamples();
+}
+
+void AudioVideoRendererAVFObjC::updateAllRenderersHaveAvailableSamples()
+{
+    bool allRenderersHaveAvailableSamples = [&] {
+        if (m_enabledVideoTrackId && !m_hasAvailableVideoFrame)
+            return false;
+        for (auto& properties : m_audioTracksMap.values()) {
+            if (!properties.hasAudibleSample)
+                return false;
+        }
+        return true;
+    }();
+
+    if (m_allRenderersHaveAvailableSamples == allRenderersHaveAvailableSamples)
+        return;
+
+    DEBUG_LOG(LOGIDENTIFIER, allRenderersHaveAvailableSamples);
+    m_allRenderersHaveAvailableSamples = allRenderersHaveAvailableSamples;
+
+    if (allRenderersHaveAvailableSamples)
+        maybeCompleteSeek();
+    if (shouldBePlaying() && [m_synchronizer rate] != m_rate)
+        [m_synchronizer setRate:m_rate];
+    else if (!shouldBePlaying() && [m_synchronizer rate])
+        [m_synchronizer setRate:0]; // stall.
+}
+
+void AudioVideoRendererAVFObjC::setHasAvailableVideoFrame(bool hasAvailableVideoFrame)
+{
+    if (std::exchange(m_hasAvailableVideoFrame, hasAvailableVideoFrame) == hasAvailableVideoFrame)
+        return;
+    if (hasAvailableVideoFrame && m_firstFrameAvailableCallback)
+        m_firstFrameAvailableCallback();
+    updateAllRenderersHaveAvailableSamples();
 }
 
 std::optional<TracksRendererManager::TrackType> AudioVideoRendererAVFObjC::typeOf(TrackIdentifier trackId) const
@@ -983,12 +1037,8 @@ Ref<GenericPromise> AudioVideoRendererAVFObjC::setVideoRenderer(WebSampleBufferV
             protectedThis->notifyError(PlatformMediaError::VideoDecodingError);
     });
     videoRenderer->notifyFirstFrameAvailable([weakThis = WeakPtr { *this }](const MediaTime&, double) {
-        if (RefPtr protectedThis = weakThis.get()) {
-            protectedThis->m_hasAvailableVideoFrame = true;
-            if (protectedThis->m_firstFrameAvailableCallback)
-                protectedThis->m_firstFrameAvailableCallback();
-            protectedThis->maybeCompleteSeek();
-        }
+        if (RefPtr protectedThis = weakThis.get())
+            protectedThis->setHasAvailableVideoFrame(true);
     });
     if (m_hasAvailableVideoFrameCallback) {
         videoRenderer->notifyWhenHasAvailableVideoFrame([weakThis = WeakPtr { *this }](const MediaTime& presentationTime, double displayTime) {
@@ -1183,14 +1233,20 @@ bool AudioVideoRendererAVFObjC::hasSelectedVideo() const
 void AudioVideoRendererAVFObjC::flushVideo()
 {
     ALWAYS_LOG(LOGIDENTIFIER);
+    setHasAvailableVideoFrame(false);
+
+    // Flush may call immediately requestMediaDataWhenReady. Must clear m_readyToRequestVideoData before flushing renderer.
+    m_readyToRequestVideoData = true;
     if (RefPtr videoRenderer = m_videoRenderer)
         videoRenderer->flush();
-    m_hasAvailableVideoFrame = false;
-    m_readyToRequestVideoData = true;
 }
 
 void AudioVideoRendererAVFObjC::flushAudio()
 {
+    for (auto& properties : m_audioTracksMap.values())
+        properties.hasAudibleSample = false;
+    updateAllRenderersHaveAvailableSamples();
+
     applyOnAudioRenderers([&](auto *renderer) {
         [renderer flush];
     });
@@ -1204,6 +1260,7 @@ void AudioVideoRendererAVFObjC::flushAudioTrack(TrackIdentifier trackId)
     if (!audioRenderer)
         return;
     [audioRenderer flush];
+    setHasAvailableAudioSample(trackId, false);
 }
 
 void AudioVideoRendererAVFObjC::cancelSeekingPromiseIfNeeded()

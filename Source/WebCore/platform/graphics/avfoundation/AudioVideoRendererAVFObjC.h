@@ -131,6 +131,10 @@ private:
     MediaTime clampTimeToLastSeekTime(const MediaTime&) const;
     void maybeCompleteSeek();
     bool shouldBePlaying() const;
+    bool allRenderersHaveAvailableSamples() const { return m_allRenderersHaveAvailableSamples; }
+    void updateAllRenderersHaveAvailableSamples();
+    void setHasAvailableVideoFrame(bool);
+    void setHasAvailableAudioSample(TrackIdentifier, bool);
 
     std::optional<TrackType> typeOf(TrackIdentifier) const;
 
@@ -228,11 +232,17 @@ private:
     RetainPtr<id> m_timeJumpedObserver;
     bool m_isSynchronizerSeeking { false };
     bool m_hasAvailableVideoFrame { false };
+    bool m_allRenderersHaveAvailableSamples { false };
+
+    struct AudioTrackProperties {
+        bool hasAudibleSample { false };
+    };
+    HashMap<TrackIdentifier, AudioTrackProperties> m_audioTracksMap;
+    bool m_readyToRequestVideoData { true };
+    bool m_readyToRequestAudioData { true };
 
     HashMap<TrackIdentifier, TrackType> m_trackTypes;
     HashMap<TrackIdentifier, RetainPtr<AVSampleBufferAudioRenderer>> m_audioRenderers;
-    bool m_readyToRequestVideoData { true };
-    bool m_readyToRequestAudioData { true };
     RetainPtr<AVSampleBufferDisplayLayer> m_sampleBufferDisplayLayer;
     RetainPtr<AVSampleBufferVideoRenderer> m_sampleBufferVideoRenderer;
     RefPtr<VideoMediaSampleRenderer> m_videoRenderer;
