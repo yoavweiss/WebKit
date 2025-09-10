@@ -173,6 +173,12 @@ bool AXCoreObject::isGroup() const
     }
 }
 
+bool AXCoreObject::isImageMapLink() const
+{
+    RefPtr element = this->element();
+    return element && is<HTMLAreaElement>(*element);
+}
+
 bool AXCoreObject::hasHighlighting() const
 {
     for (RefPtr ancestor = this; ancestor; ancestor = ancestor->parentObject()) {

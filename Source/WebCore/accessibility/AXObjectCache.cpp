@@ -42,7 +42,6 @@
 #include "AXTextMarker.h"
 #include "AXTreeStoreInlines.h"
 #include "AXUtilities.h"
-#include "AccessibilityImageMapLink.h"
 #include "AccessibilityListBoxOption.h"
 #include "AccessibilityMathMLElement.h"
 #include "AccessibilityMenuList.h"
@@ -78,6 +77,7 @@
 #include "HTMLImageElement.h"
 #include "HTMLInputElement.h"
 #include "HTMLLabelElement.h"
+#include "HTMLMapElement.h"
 #include "HTMLMediaElement.h"
 #include "HTMLMeterElement.h"
 #include "HTMLNames.h"
@@ -519,9 +519,8 @@ AccessibilityObject* AXObjectCache::focusedImageMapUIElement(HTMLAreaElement& ar
         return nullptr;
 
     for (const auto& child : axRenderImage->unignoredChildren()) {
-        auto* imageMapLink = dynamicDowncast<AccessibilityImageMapLink>(child.get());
-        if (imageMapLink && imageMapLink->node() == &areaElement)
-            return imageMapLink;
+        if (child->isImageMapLink() && child->node() == &areaElement)
+            return dynamicDowncast<AccessibilityObject>(child.get());
     }
     return nullptr;
 }
@@ -626,7 +625,7 @@ Ref<AccessibilityNodeObject> AXObjectCache::createFromNode(Node& node)
         if (AXListHelpers::isAccessibilityList(*element))
             return AccessibilityRenderObject::create(AXID::generate(), *element, *this);
         if (RefPtr areaElement = dynamicDowncast<HTMLAreaElement>(*element))
-            return AccessibilityImageMapLink::create(AXID::generate(), *areaElement, *this);
+            return AccessibilityNodeObject::create(AXID::generate(), areaElement.get(), *this);
         if (is<HTMLProgressElement>(*element) || is<HTMLMeterElement>(*element))
             return AccessibilityProgressIndicator::create(AXID::generate(), *element, *this);
         if (is<SVGElement>(*element))

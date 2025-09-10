@@ -572,8 +572,8 @@ accessibility/AXTextRun.cpp
 accessibility/AXTreeStore.cpp
 accessibility/AXUtilities.cpp
 accessibility/AXAttachmentHelpers.cpp
+accessibility/AXImageMapHelpers.cpp
 accessibility/AXListHelpers.cpp
-accessibility/AccessibilityImageMapLink.cpp
 accessibility/AccessibilityListBoxOption.cpp
 accessibility/AccessibilityMathMLElement.cpp
 accessibility/AccessibilityMenuList.cpp

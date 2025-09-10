@@ -204,7 +204,6 @@ public:
     void postMenuClosedNotificationIfNecessary() const;
 
     bool isFieldset() const override { return false; }
-    virtual bool isImageMapLink() const { return false; }
     virtual bool isMenuList() const { return false; }
     virtual bool isMenuListPopup() const { return false; }
     virtual bool isMenuListOption() const { return false; }

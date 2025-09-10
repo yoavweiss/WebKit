@@ -535,6 +535,7 @@ public:
     virtual AXCoreObject* disclosedByRow() const = 0;
 
     virtual bool isFieldset() const = 0;
+    bool isImageMapLink() const;
     bool isGroup() const;
 #if PLATFORM(MAC)
     bool isEmptyGroup();
