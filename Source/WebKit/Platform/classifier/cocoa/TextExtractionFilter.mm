@@ -28,7 +28,6 @@
 
 #if ENABLE(TEXT_EXTRACTION_FILTER)
 
-#import "Logging.h"
 #import <CoreML/CoreML.h>
 #import <NaturalLanguage/NaturalLanguage.h>
 #import <wtf/ApproximateTime.h>
@@ -88,28 +87,19 @@ void TextExtractionFilter::initializeModelIfNeeded()
         RetainPtr compiledAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[compiledModelURL path] error:nil];
         RetainPtr modelTimestamp = [modelAttributes fileModificationDate];
         RetainPtr compiledTimestamp = [compiledAttributes fileModificationDate];
-        if (!compiledTimestamp || [modelTimestamp compare:compiledTimestamp.get()] == NSOrderedDescending) {
-            LOG(TextExtraction, "Recompiling filtering model (last compiled: %@ vs. %@)", compiledTimestamp.get(), modelTimestamp.get());
-            return true;
-        }
-
-        return false;
+        return !compiledTimestamp || [modelTimestamp compare:compiledTimestamp.get()] == NSOrderedDescending;
     }();
 
     NSError *error = nil;
     if (needsRecompile) {
         RetainPtr compiledURL = [MLModel compileModelAtURL:modelURL.get() error:&error];
-        if (error || !compiledURL) {
-            LOG_ERROR(TextExtraction, "Failed filtering model compilation with error: %@", error);
+        if (error || !compiledURL)
             return;
-        }
 
         if (![compiledURL isEqual:compiledModelURL.get()]) {
             [[NSFileManager defaultManager] removeItemAtURL:compiledModelURL.get() error:nil];
-            if (![[NSFileManager defaultManager] moveItemAtURL:compiledURL.get() toURL:compiledModelURL.get() error:&error]) {
-                LOG_ERROR(TextExtraction, "Failed to move compiled filtering model to: %@", compiledModelURL.get());
+            if (![[NSFileManager defaultManager] moveItemAtURL:compiledURL.get() toURL:compiledModelURL.get() error:&error])
                 return;
-            }
         }
     }
 
@@ -173,17 +163,14 @@ bool TextExtractionFilter::shouldFilter(const String& text)
         for (RetainPtr chunk : segmentText(line)) {
             NSError *error = nil;
             RetainPtr input = adoptNS([[MLDictionaryFeatureProvider alloc] initWithDictionary:@{ @"text": chunk.get() } error:&error]);
-            if (error) {
-                LOG_ERROR(TextExtraction, "Failed filtering model embedding with error: %@", error);
+            if (error)
                 break;
-            }
 
             RetainPtr output = [m_model predictionFromFeatures:input.get() error:&error];
             if (error)
                 break;
 
             if ([[output featureValueForName:@"label"].stringValue isEqualToString:@"positive"]) {
-                LOG(TextExtraction, "Filtered text: '%@'", chunk.get());
                 if (cacheKey) {
                     Locker locker { m_cacheLock };
                     m_cache.set(cacheKey, true);
