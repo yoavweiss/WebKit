@@ -3077,7 +3077,6 @@ ipintOp(_ref_is_null, macro()
 end)
 
 ipintOp(_ref_func, macro()
-    move wasmInstance, a0
     loadi IPInt::Const32Metadata::value[MC], a1
     operationCall(macro() cCall2(_ipint_extern_ref_func) end)
     pushQuad(r0)
@@ -7024,7 +7023,6 @@ ipintOp(_memory_atomic_notify, macro()
     # load offset
     loadi IPInt::Const32Metadata::value[MC], a2
 
-    move wasmInstance, a0
     operationCall(macro() cCall4(_ipint_extern_memory_atomic_notify) end)
     bilt r0, 0, .atomic_notify_throw
 
@@ -7050,7 +7048,6 @@ ipintOp(_memory_atomic_wait32, macro()
     # merge them since the slow path takes the combined pointer + offset.
     addq t0, a1
 
-    move wasmInstance, a0
     operationCall(macro() cCall4(_ipint_extern_memory_atomic_wait32) end)
     bilt r0, 0, .atomic_wait32_throw
 
@@ -7076,7 +7073,6 @@ ipintOp(_memory_atomic_wait64, macro()
     # merge them since the slow path takes the combined pointer + offset.
     addq t0, a1
 
-    move wasmInstance, a0
     operationCall(macro() cCall4(_ipint_extern_memory_atomic_wait64) end)
     bilt r0, 0, .atomic_wait64_throw
 
