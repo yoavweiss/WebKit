@@ -51,6 +51,7 @@
 #include "NodeInlines.h"
 #include "NodeRareData.h"
 #include "NodeRenderStyle.h"
+#include "Quirks.h"
 #include "RadioNodeList.h"
 #include "RenderBox.h"
 #include "RenderTheme.h"
@@ -1160,6 +1161,12 @@ ExceptionOr<Ref<NodeList>> ContainerNode::querySelectorAll(const String& selecto
     auto nodeList = query.releaseReturnValue().queryAll(*this);
     if (isCacheable)
         document->addResultForSelectorAll(*this, selectors, nodeList, classNameToMatch);
+
+#if ENABLE(MEDIA_STREAM)
+    if (document->quirks().shouldEnableFacebookFlagQuirk() && nodeList->length() && selectors == "script[data-sjs]:not([data-processed])"_s)
+        nodeList = document->quirks().applyFacebookFlagQuirk(document, nodeList);
+#endif
+
     return nodeList;
 }
 

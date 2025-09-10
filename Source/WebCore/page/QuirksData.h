@@ -149,6 +149,7 @@ struct WEBCORE_EXPORT QuirksData {
 #endif
 
 #if ENABLE(MEDIA_STREAM)
+    bool shouldEnableFacebookFlagQuirk : 1 { false };
     bool shouldDisableImageCaptureQuirk : 1 { false };
     bool shouldEnableLegacyGetUserMediaQuirk : 1 { false };
     bool shouldEnableSpeakerSelectionPermissionsPolicyQuirk : 1 { false };
