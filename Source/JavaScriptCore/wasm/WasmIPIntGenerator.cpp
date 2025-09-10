@@ -716,15 +716,29 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDLoadSplat(SIMDLaneOperat
     return addSIMDLoad(pointer, offset, result);
 }
 
-PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDLoadLane(SIMDLaneOperation, ExpressionType, ExpressionType, uint32_t, uint8_t, ExpressionType&) IPINT_UNIMPLEMENTED
-PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDStoreLane(SIMDLaneOperation, ExpressionType, ExpressionType, uint32_t, uint8_t) IPINT_UNIMPLEMENTED
+PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDLoadLane(SIMDLaneOperation, ExpressionType, ExpressionType, uint32_t offset, uint8_t, ExpressionType&)
+{
+    changeStackSize(-1);
+    m_metadata->addLEB128ConstantInt32AndLength(offset, getCurrentInstructionLength());
+    return { };
+}
+
+PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDStoreLane(SIMDLaneOperation, ExpressionType, ExpressionType, uint32_t offset, uint8_t)
+{
+    changeStackSize(-2);
+    m_metadata->addLEB128ConstantInt32AndLength(offset, getCurrentInstructionLength());
+    return { };
+}
 
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDLoadExtend(SIMDLaneOperation, ExpressionType pointer, uint32_t offset, ExpressionType& result)
 {
     return addSIMDLoad(pointer, offset, result);
 }
 
-PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDLoadPad(SIMDLaneOperation, ExpressionType, uint32_t, ExpressionType&) IPINT_UNIMPLEMENTED
+PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDLoadPad(SIMDLaneOperation, ExpressionType pointer, uint32_t offset, ExpressionType& result)
+{
+    return addSIMDLoad(pointer, offset, result);
+}
 
 IPIntGenerator::ExpressionType IPIntGenerator::addConstant(v128_t)
 {
@@ -737,7 +751,11 @@ PartialResult WARN_UNUSED_RETURN IPIntGenerator::addExtractLane(SIMDInfo, uint8_
     return { };
 }
 
-PartialResult WARN_UNUSED_RETURN IPIntGenerator::addReplaceLane(SIMDInfo, uint8_t, ExpressionType, ExpressionType, ExpressionType&) IPINT_UNIMPLEMENTED
+PartialResult WARN_UNUSED_RETURN IPIntGenerator::addReplaceLane(SIMDInfo, uint8_t, ExpressionType, ExpressionType, ExpressionType&)
+{
+    changeStackSize(-1);
+    return { };
+}
 
 PartialResult WARN_UNUSED_RETURN IPIntGenerator::addSIMDI_V(SIMDLaneOperation, SIMDInfo, ExpressionType, ExpressionType&)
 {

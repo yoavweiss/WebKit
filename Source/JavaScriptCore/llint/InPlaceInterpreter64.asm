@@ -4393,7 +4393,15 @@ ipintOp(_simd_i8x16_extract_lane_u, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_i8x16_replace_lane)
+ipintOp(_simd_i8x16_replace_lane, macro()
+    # i8x16.replace_lane (lane)
+    loadb ImmLaneIdxOffset[PC], t0
+    andi ImmLaneIdx16Mask, t0
+    popInt32(t1, t2)  # value to replace with
+    storeb t1, [sp, t0]  # replace the byte at lane index
+    advancePC(3)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_i16x8_extract_lane_s, macro()
     # i16x8.extract_lane_s (lane)
@@ -4417,7 +4425,15 @@ ipintOp(_simd_i16x8_extract_lane_u, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_i16x8_replace_lane)
+ipintOp(_simd_i16x8_replace_lane, macro()
+    # i16x8.replace_lane (lane)
+    loadb ImmLaneIdxOffset[PC], t0
+    andi ImmLaneIdx8Mask, t0
+    popInt32(t1, t2)  # value to replace with
+    storeh t1, [sp, t0, 2]  # replace the 16-bit value at lane index
+    advancePC(3)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_i32x4_extract_lane, macro()
     # i32x4.extract_lane (lane)
@@ -4430,7 +4446,15 @@ ipintOp(_simd_i32x4_extract_lane, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_i32x4_replace_lane)
+ipintOp(_simd_i32x4_replace_lane, macro()
+    # i32x4.replace_lane (lane)
+    loadb ImmLaneIdxOffset[PC], t0
+    andi ImmLaneIdx4Mask, t0
+    popInt32(t1, t2)  # value to replace with
+    storei t1, [sp, t0, 4]  # replace the 32-bit value at lane index
+    advancePC(3)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_i64x2_extract_lane, macro()
     # i64x2.extract_lane (lane)
@@ -4443,7 +4467,15 @@ ipintOp(_simd_i64x2_extract_lane, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_i64x2_replace_lane)
+ipintOp(_simd_i64x2_replace_lane, macro()
+    # i64x2.replace_lane (lane)
+    loadb ImmLaneIdxOffset[PC], t0
+    andi ImmLaneIdx2Mask, t0
+    popInt64(t1, t2)  # value to replace with
+    storeq t1, [sp, t0, 8]  # replace the 64-bit value at lane index
+    advancePC(3)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_f32x4_extract_lane, macro()
     # f32x4.extract_lane (lane)
@@ -4456,7 +4488,15 @@ ipintOp(_simd_f32x4_extract_lane, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_f32x4_replace_lane)
+ipintOp(_simd_f32x4_replace_lane, macro()
+    # f32x4.replace_lane (lane)
+    loadb ImmLaneIdxOffset[PC], t0
+    andi ImmLaneIdx4Mask, t0
+    popFloat32(ft0)  # value to replace with
+    storef ft0, [sp, t0, 4]  # replace the 32-bit float at lane index
+    advancePC(3)
+    nextIPIntInstruction()
+end)
 
 ipintOp(_simd_f64x2_extract_lane, macro()
     # f64x2.extract_lane (lane)
@@ -4469,7 +4509,15 @@ ipintOp(_simd_f64x2_extract_lane, macro()
     nextIPIntInstruction()
 end)
 
-unimplementedInstruction(_simd_f64x2_replace_lane)
+ipintOp(_simd_f64x2_replace_lane, macro()
+    # f64x2.replace_lane (lane)
+    loadb ImmLaneIdxOffset[PC], t0
+    andi ImmLaneIdx2Mask, t0
+    popFloat64(ft0)  # value to replace with
+    stored ft0, [sp, t0, 8]  # replace the 64-bit float at lane index
+    advancePC(3)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x23 - 0xFD 0x2C: i8x16 operations
 ipintOp(_simd_i8x16_eq, macro()
@@ -5197,16 +5245,232 @@ ipintOp(_simd_v128_any_true, macro()
 end)
 
 # 0xFD 0x54 - 0xFD 0x5D: v128 load/store lane
-unimplementedInstruction(_simd_v128_load8_lane_mem)
-unimplementedInstruction(_simd_v128_load16_lane_mem)
-unimplementedInstruction(_simd_v128_load32_lane_mem)
-unimplementedInstruction(_simd_v128_load64_lane_mem)
-unimplementedInstruction(_simd_v128_store8_lane_mem)
-unimplementedInstruction(_simd_v128_store16_lane_mem)
-unimplementedInstruction(_simd_v128_store32_lane_mem)
-unimplementedInstruction(_simd_v128_store64_lane_mem)
-unimplementedInstruction(_simd_v128_load32_zero_mem)
-unimplementedInstruction(_simd_v128_load64_zero_mem)
+
+ipintOp(_simd_v128_load8_lane_mem, macro()
+    # v128.load8_lane - load 8-bit value from memory and replace lane in existing vector
+
+    popVec(v0)
+    popMemoryIndex(t0, t2)
+
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, 1)
+    loadb [memoryBase, t0], t0
+
+    # The lane index comes after the variable length memory offset, so find it by
+    # advancing the PC and loading the byte before the next instruction.
+    loadb IPInt::Const32Metadata::instructionLength[MC], t1
+    advancePCByReg(t1)
+    loadb -1[PC], t1
+    andi ImmLaneIdx16Mask, t1
+
+    # Push the result and then replace one lane of the result with the loaded value
+    pushVec(v0)
+    storeb t0, [sp, t1]
+    
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_load16_lane_mem, macro()
+    # v128.load16_lane - load 16-bit value from memory and replace lane in existing vector
+
+    popVec(v0)
+    popMemoryIndex(t0, t2)
+
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, 2)
+    loadh [memoryBase, t0], t0
+
+    # The lane index comes after the variable length memory offset, so find it by
+    # advancing the PC and loading the byte before the next instruction.
+    loadb IPInt::Const32Metadata::instructionLength[MC], t1
+    advancePCByReg(t1)
+    loadb -1[PC], t1
+    andi ImmLaneIdx8Mask, t1
+
+    # Push the result and then replace one lane of the result with the loaded value
+    pushVec(v0)
+    storeh t0, [sp, t1, 2]
+    
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_load32_lane_mem, macro()
+    # v128.load32_lane - load 32-bit value from memory and replace lane in existing vector
+
+    popVec(v0)
+    popMemoryIndex(t0, t2)
+
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, 4)
+    loadi [memoryBase, t0], t0
+
+    # The lane index comes after the variable length memory offset, so find it by
+    # advancing the PC and loading the byte before the next instruction.
+    loadb IPInt::Const32Metadata::instructionLength[MC], t1
+    advancePCByReg(t1)
+    loadb -1[PC], t1
+    andi ImmLaneIdx4Mask, t1
+
+    # Push the result and then replace one lane of the result with the loaded value
+    pushVec(v0)
+    storei t0, [sp, t1, 4]
+    
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_load64_lane_mem, macro()
+    # v128.load64_lane - load 64-bit value from memory and replace lane in existing vector
+
+    popVec(v0)
+    popMemoryIndex(t0, t2)
+
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, 8)
+    loadq [memoryBase, t0], t0
+
+    # The lane index comes after the variable length memory offset, so find it by
+    # advancing the PC and loading the byte before the next instruction.
+    loadb IPInt::Const32Metadata::instructionLength[MC], t1
+    advancePCByReg(t1)
+    loadb -1[PC], t1
+    andi ImmLaneIdx2Mask, t1
+
+    # Push the result and then replace one lane of the result with the loaded value
+    pushVec(v0)
+    storeq t0, [sp, t1, 8]
+    
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_store8_lane_mem, macro()
+    # v128.store8_lane - extract 8-bit value from lane and store to memory
+
+    # The lane index comes after the variable length memory offset, so find it by
+    # advancing the PC and loading the byte before the next instruction.
+    loadb IPInt::Const32Metadata::instructionLength[MC], t0
+    advancePCByReg(t0)
+    loadb -1[PC], t1
+    andi ImmLaneIdx16Mask, t1
+
+    loadb [sp, t1], t1  # Load value from lane in vector on stack
+    addp V128ISize, sp  # Pop the vector
+
+    popMemoryIndex(t0, t2)
+
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, 1)
+       
+    storeb t1, [memoryBase, t0]
+    
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_store16_lane_mem, macro()
+    # v128.store16_lane - extract 16-bit value from lane and store to memory
+
+    # The lane index comes after the variable length memory offset, so find it by
+    # advancing the PC and loading the byte before the next instruction.
+    loadb IPInt::Const32Metadata::instructionLength[MC], t0
+    advancePCByReg(t0)
+    loadb -1[PC], t1
+    andi ImmLaneIdx8Mask, t1
+
+    loadh [sp, t1, 2], t1   # Load value from lane in vector on stack
+    addp V128ISize, sp      # Pop the vector
+
+    popMemoryIndex(t0, t2)
+
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, 2)
+       
+    storeh t1, [memoryBase, t0]
+    
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_store32_lane_mem, macro()
+    # v128.store32_lane - extract 32-bit value from lane and store to memory
+
+    # The lane index comes after the variable length memory offset, so find it by
+    # advancing the PC and loading the byte before the next instruction.
+    loadb IPInt::Const32Metadata::instructionLength[MC], t0
+    advancePCByReg(t0)
+    loadb -1[PC], t1
+    andi ImmLaneIdx4Mask, t1
+
+    loadi [sp, t1, 4], t1   # Load value from lane in vector on stack
+    addp V128ISize, sp      # Pop the vector
+
+    popMemoryIndex(t0, t2)
+
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, 4)
+       
+    storei t1, [memoryBase, t0]
+    
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_store64_lane_mem, macro()
+    # v128.store64_lane - extract 64-bit value from lane and store to memory
+
+    # The lane index comes after the variable length memory offset, so find it by
+    # advancing the PC and loading the byte before the next instruction.
+    loadb IPInt::Const32Metadata::instructionLength[MC], t0
+    advancePCByReg(t0)
+    loadb -1[PC], t1
+    andi ImmLaneIdx2Mask, t1
+
+    loadq [sp, t1, 8], t1   # Load value from lane in vector on stack
+    addp V128ISize, sp      # Pop the vector
+
+    popMemoryIndex(t0, t2)
+    loadi IPInt::Const32Metadata::value[MC], t2
+    addp t2, t0
+    ipintCheckMemoryBound(t0, t2, 8)
+       
+    storeq t1, [memoryBase, t0]
+    
+    advanceMC(constexpr (sizeof(IPInt::Const32Metadata)))
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_v128_load32_zero_mem, macro()
+    # v128.load32_zero - load 32-bit value from memory and zero-pad to 128 bits
+    simdMemoryOp(4, macro()
+        loadi [memoryBase, t0], t0
+        
+        subp V128ISize, sp
+        storei t0, [sp]
+        storei 0, 4[sp]
+        storeq 0, 8[sp]
+    end)
+end)
+
+ipintOp(_simd_v128_load64_zero_mem, macro()
+    # v128.load64_zero - load 64-bit value from memory and zero-pad to 128 bits
+    simdMemoryOp(8, macro()
+        loadq [memoryBase, t0], t0
+
+        subp V128ISize, sp
+        storeq t0, [sp]
+        storeq 0, 8[sp]
+    end)
+end)
 
 # 0xFD 0x5E - 0xFD 0x5F: f32x4/f64x2 conversion
 unimplementedInstruction(_simd_f32x4_demote_f64x2_zero)

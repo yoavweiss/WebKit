@@ -98,7 +98,7 @@ function scalarToWasmText(val, instruction) {
 export async function runSIMDTests(testData, verbose = false, testType = "SIMD") {
 
     const numInputs = instruction =>
-        ['.bitselect', '.shuffle'].some(pattern => instruction.includes(pattern)) ? 3 :
+        ['.bitselect', '.shuffle', '.replace_lane'].some(pattern => instruction.includes(pattern)) ? 3 :
         ['.abs', '.neg', '.sqrt', '.not', '.any_true', '.popcnt', '.all_true', '.bitmask', '.splat'].some(pattern => instruction.includes(pattern)) ? 1 : 2;
 
     const returnsI32 = instruction => ['.any_true', '.all_true', '.bitmask'].some(pattern => instruction.includes(pattern));
@@ -142,6 +142,11 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
                 // For shuffle, arg2 contains the 16 immediate indices that come right after instruction name
                 const indices = arg2.join(' ');
                 wat += `            (${instruction} ${indices} ${input0Str} ${input1Str})`;
+            } else if (instruction.includes('.replace_lane')) {
+                // For replace_lane, arg2 is the lane index (immediate), arg1 is the replacement value
+                const laneIndex = arg2;
+                const replacementStr = scalarToWasmText(arg1, instruction);
+                wat += `            (${instruction} ${laneIndex} ${input0Str} ${replacementStr})`;
             } else {
                 // For other 3-arg instructions like bitselect
                 const input2Str = Array.isArray(arg2) ? arrayToV128Const(arg2, instruction) : arg2;
