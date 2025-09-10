@@ -38,9 +38,9 @@
 
 namespace JSC { namespace Wasm {
 
-Ref<CalleeGroup> CalleeGroup::createFromIPInt(VM& vm, MemoryMode mode, ModuleInformation& moduleInformation, RefPtr<IPIntCallees> ipintCallees)
+Ref<CalleeGroup> CalleeGroup::createFromIPInt(VM& vm, MemoryMode mode, ModuleInformation& moduleInformation, Ref<IPIntCallees>&& ipintCallees)
 {
-    return adoptRef(*new CalleeGroup(vm, mode, moduleInformation, ipintCallees));
+    return adoptRef(*new CalleeGroup(vm, mode, moduleInformation, WTFMove(ipintCallees)));
 }
 
 Ref<CalleeGroup> CalleeGroup::createFromExisting(MemoryMode mode, const CalleeGroup& other)
@@ -62,10 +62,10 @@ CalleeGroup::CalleeGroup(MemoryMode mode, const CalleeGroup& other)
     setCompilationFinished();
 }
 
-CalleeGroup::CalleeGroup(VM& vm, MemoryMode mode, ModuleInformation& moduleInformation, RefPtr<IPIntCallees> ipintCallees)
+CalleeGroup::CalleeGroup(VM& vm, MemoryMode mode, ModuleInformation& moduleInformation, Ref<IPIntCallees>&& ipintCallees)
     : m_calleeCount(moduleInformation.internalFunctionCount())
     , m_mode(mode)
-    , m_ipintCallees(ipintCallees)
+    , m_ipintCallees(WTFMove(ipintCallees))
     , m_callers(m_calleeCount)
 {
     RefPtr<CalleeGroup> protectedThis = this;
@@ -169,8 +169,7 @@ void CalleeGroup::releaseBBQCallee(const AbstractLocker&, FunctionCodeIndex func
     // It's possible there are still a IPIntCallee around even when the BBQCallee
     // is destroyed. Since this function was clearly hot enough to get to OMG we should
     // tier it up soon.
-    if (m_ipintCallees)
-        m_ipintCallees->at(functionIndex)->tierUpCounter().resetAndOptimizeSoon(m_mode);
+    m_ipintCallees->at(functionIndex)->tierUpCounter().resetAndOptimizeSoon(m_mode);
 
     // We could have triggered a tier up from a BBQCallee has MemoryMode::BoundsChecking
     // but is currently running a MemoryMode::Signaling memory. In that case there may

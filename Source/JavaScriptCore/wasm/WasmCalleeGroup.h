@@ -54,7 +54,7 @@ class CalleeGroup final : public ThreadSafeRefCounted<CalleeGroup> {
 public:
     typedef void CallbackType(Ref<CalleeGroup>&&, bool);
     using AsyncCompilationCallback = RefPtr<WTF::SharedTask<CallbackType>>;
-    static Ref<CalleeGroup> createFromIPInt(VM&, MemoryMode, ModuleInformation&, RefPtr<IPIntCallees>);
+    static Ref<CalleeGroup> createFromIPInt(VM&, MemoryMode, ModuleInformation&, Ref<IPIntCallees>&&);
     static Ref<CalleeGroup> createFromExisting(MemoryMode, const CalleeGroup&);
 
     void waitUntilFinished();
@@ -130,7 +130,7 @@ public:
         return m_ipintCallees->at(calleeIndex).get();
     }
 
-    Ref<IPIntCallee> ipintCalleeFromFunctionIndexSpace(const AbstractLocker&, FunctionSpaceIndex functionIndexSpace) const WTF_REQUIRES_LOCK(m_lock)
+    Ref<IPIntCallee> ipintCalleeFromFunctionIndexSpace(FunctionSpaceIndex functionIndexSpace) const
     {
         ASSERT(functionIndexSpace >= functionImportCount());
         unsigned calleeIndex = functionIndexSpace - functionImportCount();
@@ -220,7 +220,7 @@ private:
     friend class OSREntryPlan;
 #endif
 
-    CalleeGroup(VM&, MemoryMode, ModuleInformation&, RefPtr<IPIntCallees>);
+    CalleeGroup(VM&, MemoryMode, ModuleInformation&, Ref<IPIntCallees>&&);
     CalleeGroup(MemoryMode, const CalleeGroup&);
     void setCompilationFinished();
 
@@ -232,7 +232,7 @@ private:
 #if ENABLE(WEBASSEMBLY_BBQJIT)
     FixedVector<ThreadSafeWeakOrStrongPtr<BBQCallee>> m_bbqCallees WTF_GUARDED_BY_LOCK(m_lock);
 #endif
-    RefPtr<IPIntCallees> m_ipintCallees WTF_GUARDED_BY_LOCK(m_lock);
+    const Ref<IPIntCallees> m_ipintCallees;
     UncheckedKeyHashMap<uint32_t, RefPtr<JSToWasmCallee>, DefaultHash<uint32_t>, WTF::UnsignedWithZeroKeyHashTraits<uint32_t>> m_jsToWasmCallees;
 #if ENABLE(WEBASSEMBLY_BBQJIT) || ENABLE(WEBASSEMBLY_OMGJIT)
     // FIXME: We should probably find some way to prune dead entries periodically.

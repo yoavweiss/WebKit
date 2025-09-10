@@ -4243,12 +4243,8 @@ void BBQJIT::emitTailCall(FunctionSpaceIndex functionIndexSpace, const TypeDefin
         // Emit the call.
         Vector<UnlinkedWasmToWasmCall>* unlinkedWasmToWasmCalls = &m_unlinkedWasmToWasmCalls;
         ASSERT(!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace));
-        RefPtr<IPIntCallee> callee;
-        {
-            Locker locker { m_calleeGroup.m_lock };
-            callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(locker, functionIndexSpace);
-        }
-        m_jit.storeWasmCalleeToCalleeCallFrame(TrustedImmPtr(CalleeBits::boxNativeCallee(callee.get())), sizeof(CallerFrameAndPC) - prologueStackPointerDelta());
+        Ref<IPIntCallee> callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(functionIndexSpace);
+        m_jit.storeWasmCalleeToCalleeCallFrame(TrustedImmPtr(CalleeBits::boxNativeCallee(callee.ptr())), sizeof(CallerFrameAndPC) - prologueStackPointerDelta());
         CCallHelpers::Call call = m_jit.threadSafePatchableNearTailCall();
 
         m_jit.addLinkTask([unlinkedWasmToWasmCalls, call, functionIndexSpace] (LinkBuffer& linkBuffer) {
@@ -4295,12 +4291,8 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCall(unsigned callSlotIndex, Functio
         // Emit the call.
         Vector<UnlinkedWasmToWasmCall>* unlinkedWasmToWasmCalls = &m_unlinkedWasmToWasmCalls;
         ASSERT(!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace));
-        RefPtr<IPIntCallee> callee;
-        {
-            Locker locker { m_calleeGroup.m_lock };
-            callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(locker, functionIndexSpace);
-        }
-        m_jit.storeWasmCalleeToCalleeCallFrame(TrustedImmPtr(CalleeBits::boxNativeCallee(callee.get())), 0);
+        Ref<IPIntCallee> callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(functionIndexSpace);
+        m_jit.storeWasmCalleeToCalleeCallFrame(TrustedImmPtr(CalleeBits::boxNativeCallee(callee.ptr())), 0);
         CCallHelpers::Call call = m_jit.threadSafePatchableNearCall();
 
         m_jit.addLinkTask([unlinkedWasmToWasmCalls, call, functionIndexSpace] (LinkBuffer& linkBuffer) {

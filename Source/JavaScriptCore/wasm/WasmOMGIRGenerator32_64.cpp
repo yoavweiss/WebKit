@@ -5835,12 +5835,8 @@ auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex,
     auto firstInlineCallSiteIndex = advanceCallSiteIndex();
 
     const FunctionData& function = m_info.functions[calleeFunctionIndex];
-    RefPtr<IPIntCallee> profiledCallee;
-    {
-        Locker locker { m_calleeGroup.m_lock };
-        profiledCallee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(locker, m_calleeGroup.toSpaceIndex(calleeFunctionIndex));
-    }
-    m_protectedInlineeGenerators.append(makeUnique<OMGIRGenerator>(m_context, *this, *m_inlineRoot, m_calleeGroup, calleeFunctionIndex, *profiledCallee, continuation, WTFMove(getArgs)));
+    Ref<IPIntCallee> profiledCallee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(m_calleeGroup.toSpaceIndex(calleeFunctionIndex));
+    m_protectedInlineeGenerators.append(makeUnique<OMGIRGenerator>(m_context, *this, *m_inlineRoot, m_calleeGroup, calleeFunctionIndex, profiledCallee.get(), continuation, WTFMove(getArgs)));
     auto& irGenerator = *m_protectedInlineeGenerators.last();
     m_protectedInlineeParsers.append(makeUnique<FunctionParser<OMGIRGenerator>>(irGenerator, function.data, calleeSignature, m_info));
     auto& parser = *m_protectedInlineeParsers.last();
@@ -6003,12 +5999,8 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
                 handle->generate(jit, params, this);
 
             ASSERT(!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace));
-            RefPtr<IPIntCallee> callee;
-            {
-                Locker locker { m_calleeGroup.m_lock };
-                callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(locker, functionIndexSpace);
-            }
-            jit.storeWasmCalleeToCalleeCallFrame(CCallHelpers::TrustedImmPtr(CalleeBits::boxNativeCallee(callee.get())), isTailCall ? sizeof(CallerFrameAndPC) - prologueStackPointerDelta() : 0);
+            Ref<IPIntCallee> callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(functionIndexSpace);
+            jit.storeWasmCalleeToCalleeCallFrame(CCallHelpers::TrustedImmPtr(CalleeBits::boxNativeCallee(callee.ptr())), isTailCall ? sizeof(CallerFrameAndPC) - prologueStackPointerDelta() : 0);
             auto call = isTailCall ? jit.threadSafePatchableNearTailCall() : jit.threadSafePatchableNearCall();
 
             jit.addLinkTask([unlinkedWasmToWasmCalls, call, functionIndexSpace](LinkBuffer& linkBuffer) {

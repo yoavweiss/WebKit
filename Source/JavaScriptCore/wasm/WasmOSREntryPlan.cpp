@@ -103,17 +103,13 @@ void OSREntryPlan::work()
     TypeIndex typeIndex = m_moduleInformation->internalFunctionTypeIndices[m_functionIndex];
     const TypeDefinition& signature = TypeInformation::get(typeIndex).expand();
 
-    RefPtr<IPIntCallee> profiledCallee;
-    {
-        Locker locker { m_calleeGroup->m_lock };
-        profiledCallee = m_calleeGroup->ipintCalleeFromFunctionIndexSpace(locker, functionIndexSpace);
-    }
+    Ref<IPIntCallee> profiledCallee = m_calleeGroup->ipintCalleeFromFunctionIndexSpace(functionIndexSpace);
     Ref<OMGOSREntryCallee> callee = OMGOSREntryCallee::create(functionIndexSpace, m_moduleInformation->nameSection->get(functionIndexSpace), m_loopIndex);
 
     beginCompilerSignpost(callee.get());
     Vector<UnlinkedWasmToWasmCall> unlinkedCalls;
     CompilationContext context;
-    auto parseAndCompileResult = parseAndCompileOMG(context, *profiledCallee, callee.get(), function, signature, unlinkedCalls, m_calleeGroup.get(), m_moduleInformation.get(), m_mode, CompilationMode::OMGForOSREntryMode, m_functionIndex, m_loopIndex);
+    auto parseAndCompileResult = parseAndCompileOMG(context, profiledCallee.get(), callee.get(), function, signature, unlinkedCalls, m_calleeGroup.get(), m_moduleInformation.get(), m_mode, CompilationMode::OMGForOSREntryMode, m_functionIndex, m_loopIndex);
     endCompilerSignpost(callee.get());
 
     if (!parseAndCompileResult) [[unlikely]] {
