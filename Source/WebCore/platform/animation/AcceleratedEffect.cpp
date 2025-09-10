@@ -37,6 +37,7 @@
 #include "FloatRect.h"
 #include "KeyframeEffect.h"
 #include "LayoutSize.h"
+#include "Settings.h"
 #include "StyleInterpolation.h"
 #include "StyleOffsetRotate.h"
 #include "StyleOriginatedAnimation.h"

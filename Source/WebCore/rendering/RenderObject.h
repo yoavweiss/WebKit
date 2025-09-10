@@ -427,7 +427,7 @@ public:
     void outputRegionsInformation(WTF::TextStream&) const;
 #endif
 
-    inline bool isPseudoElement() const; // Defined in RenderObjectInlines.h
+    inline bool isPseudoElement() const; // Defined in RenderObjectNode.h
 
     bool isRenderElement() const { return !isRenderText(); }
     bool isRenderReplaced() const { return m_typeSpecificFlags.kind() == TypeSpecificFlags::Kind::Replaced; }
@@ -437,7 +437,7 @@ public:
     bool isRenderInline() const { return m_typeFlags.contains(TypeFlag::IsRenderInline); }
     bool isRenderLayerModelObject() const { return m_typeFlags.contains(TypeFlag::IsLayerModelObject); }
 
-    inline bool isAtomicInlineLevelBox() const;
+    inline bool isAtomicInlineLevelBox() const; // Defined in RenderObjectStyle.h
     inline bool isNonReplacedAtomicInlineLevelBox() const;
 
     bool isRenderCounter() const { return type() == Type::Counter; }
@@ -499,8 +499,8 @@ public:
     bool isViewTransitionContainingBlock() const { return isRenderBlockFlow() && m_typeSpecificFlags.blockFlowFlags().contains(BlockFlowFlag::IsViewTransitionContainingBlock); }
 
     inline bool isDocumentElementRenderer() const; // Defined in RenderObjectInlines.h
-    inline bool isBody() const; // Defined in RenderObjectInlines.h
-    inline bool isHR() const; // Defined in RenderObjectInlines.h
+    inline bool isBody() const; // Defined in RenderObjectNode.h
+    inline bool isHR() const; // Defined in RenderObjectNode.h
     bool isLegend() const;
 
     bool isHTMLMarquee() const;
@@ -712,8 +712,8 @@ public:
     bool hasNonVisibleOverflow() const { return m_stateBitfields.hasFlag(StateFlag::HasNonVisibleOverflow); }
 
     bool hasTransformRelatedProperty() const { return m_stateBitfields.hasFlag(StateFlag::HasTransformRelatedProperty); } // Transform, perspective or transform-style: preserve-3d.
-    inline bool isTransformed() const;
-    inline bool hasTransformOrPerspective() const;
+    inline bool isTransformed() const; // Defined in RenderObjectStyle.h
+    inline bool hasTransformOrPerspective() const; // Defined in RenderObjectStyle.h
 
     bool capturedInViewTransition() const { return m_stateBitfields.hasFlag(StateFlag::CapturedInViewTransition); }
     bool setCapturedInViewTransition(bool);
@@ -722,7 +722,7 @@ public:
     // instead. Returns the capture state with this adjustment applied.
     bool effectiveCapturedInViewTransition() const;
 
-    inline RenderView& view() const; // Defined in RenderObjectInlines.h
+    inline RenderView& view() const; // Defined in RenderObjectDocument.h
     CheckedRef<RenderView> checkedView() const;
     inline LocalFrameViewLayoutContext& layoutContext() const;
 
@@ -731,13 +731,13 @@ public:
     // Returns true if this renderer is rooted.
     bool isRooted() const;
 
-    inline Node* node() const; // Defined in RenderObjectInlines.h
-    inline RefPtr<Node> protectedNode() const; // Defined in RenderObjectInlines.h
+    inline Node* node() const; // Defined in RenderObjectNode.h
+    inline RefPtr<Node> protectedNode() const; // Defined in RenderObjectNode.h
 
-    inline Node* nonPseudoNode() const; // Defined in RenderObjectInlines.h
+    inline Node* nonPseudoNode() const; // Defined in RenderObjectNode.h
 
-    inline Document& document() const; // Defined in RenderObjectInlines.h
-    inline Ref<Document> protectedDocument() const; // Defined in RenderObjectInlines.h
+    inline Document& document() const; // Defined in RenderObjectDocument.h
+    inline Ref<Document> protectedDocument() const; // Defined in RenderObjectDocument.h
     inline TreeScope& treeScopeForSVGReferences() const; // Defined in RenderObjectInlines.h
     inline Ref<TreeScope> protectedTreeScopeForSVGReferences() const; // Defined in RenderObjectInlines.h
     inline LocalFrame& frame() const; // Defined in RenderObjectInlines.h
@@ -862,16 +862,16 @@ public:
     // the rect that will be painted if this object is passed as the paintingRoot
     WEBCORE_EXPORT LayoutRect paintingRootRect(LayoutRect& topLevelRect);
 
-    const RenderStyle& style() const; // Defined in RenderObjectInlines.h.
-    inline CheckedRef<const RenderStyle> checkedStyle() const; // Defined in RenderObjectInlines.h.
+    inline const RenderStyle& style() const; // Defined in RenderObjectStyle.h.
+    inline CheckedRef<const RenderStyle> checkedStyle() const; // Defined in RenderObjectStyle.h.
     const RenderStyle& firstLineStyle() const;
-    inline WritingMode writingMode() const; // Defined in RenderObjectInlines.h.
+    inline WritingMode writingMode() const; // Defined in RenderObjectStyle.h.
     // writingMode().isHorizontal() is cached by isHorizontalWritingMode() above.
 
     // Anonymous blocks that are part of of a continuation chain will return their inline continuation's outline style instead.
     // This is typically only relevant when repainting.
-    virtual const RenderStyle& outlineStyleForRepaint() const { return style(); }
-    
+    virtual const RenderStyle& outlineStyleForRepaint() const;
+
     virtual CursorDirective getCursor(const LayoutPoint&, Cursor&) const;
 
     // Return the RenderLayerModelObject in the container chain which is responsible for painting this object, or nullptr

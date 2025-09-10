@@ -109,6 +109,7 @@
 #import <WebCore/RenderLayer.h>
 #import <WebCore/RenderLayerCompositor.h>
 #import <WebCore/RenderLayerScrollableArea.h>
+#import <WebCore/RenderObjectStyle.h>
 #import <WebCore/RenderStyleInlines.h>
 #import <WebCore/RenderTextControl.h>
 #import <WebCore/RenderView.h>

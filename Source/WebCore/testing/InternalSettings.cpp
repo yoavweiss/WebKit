@@ -31,7 +31,7 @@
 #include "DeprecatedGlobalSettings.h"
 #include "Document.h"
 #include "FontCache.h"
-#include "LocalFrame.h"
+#include "LocalFrameInlines.h"
 #include "LocalFrameView.h"
 #include "LocaleToScriptMapping.h"
 #include "Page.h"

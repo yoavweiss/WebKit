@@ -35,6 +35,7 @@
 #include "HTMLTableElement.h"
 #include "LocalFrame.h"
 #include "RenderElement.h"
+#include "RenderObjectStyle.h"
 #include "RenderStyleInlines.h"
 #include "RenderText.h"
 #include "Text.h"

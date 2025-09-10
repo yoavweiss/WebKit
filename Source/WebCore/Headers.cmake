@@ -3064,8 +3064,11 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     rendering/RenderMedia.h
     rendering/RenderModel.h
     rendering/RenderObject.h
+    rendering/RenderObjectDocument.h
     rendering/RenderObjectEnums.h
     rendering/RenderObjectInlines.h
+    rendering/RenderObjectNode.h
+    rendering/RenderObjectStyle.h
     rendering/RenderOverflow.h
     rendering/RenderPtr.h
     rendering/RenderReplaced.h

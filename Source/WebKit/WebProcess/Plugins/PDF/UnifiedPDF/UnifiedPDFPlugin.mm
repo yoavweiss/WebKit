@@ -107,6 +107,7 @@
 #include <WebCore/ScrollTypes.h>
 #include <WebCore/ScrollbarTheme.h>
 #include <WebCore/ScrollbarsController.h>
+#include <WebCore/Settings.h>
 #include <WebCore/ShadowRoot.h>
 #include <WebCore/StyleColorOptions.h>
 #include <WebCore/VoidCallback.h>

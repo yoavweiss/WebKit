@@ -2020,6 +2020,11 @@ PositionWithAffinity RenderObject::createPositionWithAffinity(const Position& po
     return createPositionWithAffinity(0, Affinity::Downstream);
 }
 
+const RenderStyle& RenderObject::outlineStyleForRepaint() const
+{
+    return style();
+}
+
 CursorDirective RenderObject::getCursor(const LayoutPoint&, Cursor&) const
 {
     return SetCursorBasedOnStyle;

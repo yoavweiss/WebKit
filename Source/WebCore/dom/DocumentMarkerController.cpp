@@ -31,6 +31,7 @@
 #include "Chrome.h"
 #include "ChromeClient.h"
 #include "DocumentInlines.h"
+#include "FloatQuad.h"
 #include "FontCascade.h"
 #include "LocalFrame.h"
 #include "NodeTraversal.h"

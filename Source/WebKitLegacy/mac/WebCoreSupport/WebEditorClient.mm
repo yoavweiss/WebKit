@@ -62,6 +62,7 @@
 #import <WebCore/Editor.h>
 #import <WebCore/Event.h>
 #import <WebCore/FloatQuad.h>
+#import <WebCore/FrameDestructionObserverInlines.h>
 #import <WebCore/FrameInlines.h>
 #import <WebCore/HTMLInputElement.h>
 #import <WebCore/HTMLNames.h>

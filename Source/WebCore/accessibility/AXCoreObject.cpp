@@ -30,7 +30,8 @@
 #include "AXCoreObject.h"
 
 #include "LocalFrameView.h"
-#include "RenderObject.h"
+#include "RenderObjectStyle.h"
+#include "Settings.h"
 #include "TextDecorationPainter.h"
 #include <wtf/Deque.h>
 #include <wtf/text/MakeString.h>

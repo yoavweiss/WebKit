@@ -31,6 +31,7 @@
 #include "IntRect.h"
 #include "LegacyRenderSVGResourceFilterInlines.h"
 #include "Logging.h"
+#include "RenderObjectInlines.h"
 #include "SVGElementTypeHelpers.h"
 #include "SVGRenderStyle.h"
 #include "SVGRenderingContext.h"

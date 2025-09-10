@@ -167,6 +167,7 @@
 #import <WebCore/FocusController.h>
 #import <WebCore/FontAttributes.h>
 #import <WebCore/FontCache.h>
+#import <WebCore/FrameDestructionObserverInlines.h>
 #import <WebCore/FrameLoader.h>
 #import <WebCore/FrameSelection.h>
 #import <WebCore/FrameTree.h>

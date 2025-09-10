@@ -80,6 +80,7 @@
 #import <WebCore/RenderLayerScrollableArea.h>
 #import <WebCore/ResourceResponse.h>
 #import <WebCore/ScrollAnimator.h>
+#import <WebCore/Settings.h>
 #import <WebCore/SharedBuffer.h>
 #import <WebCore/VoidCallback.h>
 #import <wtf/CheckedArithmetic.h>

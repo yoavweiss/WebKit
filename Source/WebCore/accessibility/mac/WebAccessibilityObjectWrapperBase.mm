@@ -47,6 +47,7 @@
 #import "FrameInlines.h"
 #import "FrameSelection.h"
 #import "LayoutRect.h"
+#import "LocalFrameInlines.h"
 #import "LocalizedStrings.h"
 #import "Page.h"
 #import "RenderTextControl.h"
