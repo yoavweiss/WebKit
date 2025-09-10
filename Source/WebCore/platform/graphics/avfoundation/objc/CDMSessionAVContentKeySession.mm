@@ -461,6 +461,13 @@ void CDMSessionAVContentKeySession::didProvideContentKeyRequest(AVContentKeyRequ
     m_hasKeyRequestSemaphore.signal();
 }
 
+RetainPtr<AVContentKeySession> CDMSessionAVContentKeySession::createContentKeySession(NSURL *storageURL)
+{
+    if ([PAL::getAVContentKeySessionClass() respondsToSelector:@selector(contentKeySessionWithKeySystem:storageDirectoryAtURL:)])
+        return [PAL::getAVContentKeySessionClass() contentKeySessionWithKeySystem:AVContentKeySystemFairPlayStreaming storageDirectoryAtURL:storageURL];
+    return adoptNS([PAL::allocAVContentKeySessionInstance() initWithStorageDirectoryAtURL:storageURL]);
+}
+
 AVContentKeySession* CDMSessionAVContentKeySession::contentKeySession()
 {
     if (m_contentKeySession)
@@ -470,7 +477,7 @@ AVContentKeySession* CDMSessionAVContentKeySession::contentKeySession()
         return nil;
 
     String storagePath = this->storagePath();
-    NSURL* storageURL = nil;
+    NSURL *storageURL = nil;
     if (!storagePath.isEmpty()) {
         String storageDirectory = FileSystem::parentPath(storagePath);
 
@@ -482,13 +489,9 @@ AVContentKeySession* CDMSessionAVContentKeySession::contentKeySession()
         storageURL = [NSURL fileURLWithPath:storagePath.createNSString().get()];
     }
 
-    if ([PAL::getAVContentKeySessionClass() respondsToSelector:@selector(contentKeySessionWithKeySystem:storageDirectoryAtURL:)])
-        m_contentKeySession = [PAL::getAVContentKeySessionClass() contentKeySessionWithKeySystem:AVContentKeySystemFairPlayStreaming storageDirectoryAtURL:storageURL];
-    else
-        m_contentKeySession = adoptNS([PAL::allocAVContentKeySessionInstance() initWithStorageDirectoryAtURL:storageURL]);
+    lazyInitialize(m_contentKeySession, createContentKeySession(storageURL));
 
     [m_contentKeySession setDelegate:m_contentKeySessionDelegate.get() queue:m_delegateQueue->dispatchQueue()];
-
     return m_contentKeySession.get();
 }
 
