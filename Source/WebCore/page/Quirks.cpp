@@ -1626,7 +1626,7 @@ static constexpr auto frozenVersion = "11_6_1"_s;
 #elif PLATFORM(APPLETV)
 static constexpr auto frozenVersion = "18_6"_s;
 #else
-static constexpr auto frozenVersion = "18_6_2"_s;
+static constexpr auto frozenVersion = "18_7"_s;
 #endif
 
 String Quirks::standardUserAgentWithApplicationNameIncludingCompatOverrides(const String& applicationName, const String& userAgentOSVersion, UserAgentType type)
