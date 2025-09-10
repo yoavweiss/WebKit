@@ -44,6 +44,7 @@
 #include <wtf/Forward.h>
 #include <wtf/RunLoop.h>
 #include <wtf/ThreadSafeRefCounted.h>
+#include <wtf/WallTime.h>
 #include <wtf/WeakPtr.h>
 
 #if ENABLE(REMOTE_INSPECTOR)
@@ -159,7 +160,8 @@ public:
     void setProcessPool(WebProcessPool*);
 
     void navigationOccurredForFrame(const WebFrameProxy&);
-    void documentLoadedForFrame(const WebFrameProxy&);
+    void documentLoadedForFrame(const WebFrameProxy&, std::optional<WebCore::NavigationIdentifier>, WallTime timestamp);
+    void loadCompletedForFrame(const WebFrameProxy&, std::optional<WebCore::NavigationIdentifier>, WallTime timestamp);
     void inspectorFrontendLoaded(const WebPageProxy&);
     void keyboardEventsFlushedForPage(const WebPageProxy&);
     void mouseEventsFlushedForPage(const WebPageProxy&);

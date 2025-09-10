@@ -897,8 +897,23 @@ void WebAutomationSession::navigationOccurredForFrame(const WebFrameProxy& frame
     }
 }
 
-void WebAutomationSession::documentLoadedForFrame(const WebFrameProxy& frame)
+#if ENABLE(WEBDRIVER_BIDI)
+static String navigationIDToProtocolString(std::optional<WebCore::NavigationIdentifier> navigationID)
 {
+    if (!navigationID)
+        return nullString();
+
+    uint64_t id = navigationID->toUInt64();
+    return WTF::UUID(id, id).toString();
+}
+#endif
+
+void WebAutomationSession::documentLoadedForFrame(const WebFrameProxy& frame, std::optional<WebCore::NavigationIdentifier> navigationID, WallTime timestamp)
+{
+#if ENABLE(WEBDRIVER_BIDI)
+    m_bidiProcessor->browsingContextDomainNotifier().domContentLoaded(handleForWebFrameProxy(frame), navigationIDToProtocolString(navigationID), std::trunc(timestamp.secondsSinceEpoch().milliseconds()), frame.url().string());
+#endif
+
     if (frame.isMainFrame()) {
         if (auto callback = m_pendingEagerNavigationInBrowsingContextCallbacksPerPage.take(frame.page()->identifier())) {
             m_loadTimer.stop();
@@ -914,6 +929,13 @@ void WebAutomationSession::documentLoadedForFrame(const WebFrameProxy& frame)
             callback({ });
         }
     }
+}
+
+void WebAutomationSession::loadCompletedForFrame(const WebFrameProxy& frame, std::optional<WebCore::NavigationIdentifier> navigationID, WallTime timestamp)
+{
+#if ENABLE(WEBDRIVER_BIDI)
+    m_bidiProcessor->browsingContextDomainNotifier().load(handleForWebFrameProxy(frame), navigationIDToProtocolString(navigationID), std::trunc(timestamp.secondsSinceEpoch().milliseconds()), frame.url().string());
+#endif
 }
 
 void WebAutomationSession::inspectorFrontendLoaded(const WebPageProxy& page)
@@ -956,15 +978,6 @@ void WebAutomationSession::wheelEventsFlushedForPage(const WebPageProxy& page)
 void WebAutomationSession::didCreatePage(WebPageProxy& page)
 {
     m_bidiProcessor->browserAgent().didCreatePage(page);
-}
-
-static String navigationIDToProtocolString(std::optional<WebCore::NavigationIdentifier> navigationID)
-{
-    if (!navigationID)
-        return nullString();
-
-    uint64_t id = navigationID->toUInt64();
-    return WTF::UUID(id, id).toString();
 }
 
 void WebAutomationSession::navigationStartedForFrame(const WebFrameProxy& frame, std::optional<WebCore::NavigationIdentifier> navigationID)

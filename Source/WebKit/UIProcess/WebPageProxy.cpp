@@ -7418,10 +7418,8 @@ void WebPageProxy::didFinishDocumentLoadForFrame(IPC::Connection& connection, Fr
 
     WEBPAGEPROXY_RELEASE_LOG(Loading, "didFinishDocumentLoadForFrame: frameID=%" PRIu64 ", isMainFrame=%d", frameID.toUInt64(), frame->isMainFrame());
 
-    if (m_controlledByAutomation) {
-        if (RefPtr automationSession = m_configuration->processPool().automationSession())
-            automationSession->documentLoadedForFrame(*frame);
-    }
+    if (RefPtr automationSession = activeAutomationSession())
+        automationSession->documentLoadedForFrame(*frame, navigationID, timestamp);
 
     // FIXME: We should message check that navigationID is not zero here, but it's currently zero for some navigations through the back/forward cache.
     RefPtr<API::Navigation> navigation;
@@ -7516,9 +7514,9 @@ void WebPageProxy::didFinishLoadForFrame(IPC::Connection& connection, FrameIdent
         if (isMainFrame)
             protectedPageLoadState->didFinishLoad(transaction);
 
-        if (m_controlledByAutomation) {
-            if (RefPtr automationSession = m_configuration->processPool().automationSession())
-                automationSession->navigationOccurredForFrame(*frame);
+        if (RefPtr automationSession = activeAutomationSession()) {
+            automationSession->navigationOccurredForFrame(*frame);
+            automationSession->loadCompletedForFrame(*frame, navigationID, WallTime::now());
         }
 
         frame->didFinishLoad();
