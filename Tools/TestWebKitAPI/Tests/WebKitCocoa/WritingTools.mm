@@ -4367,17 +4367,17 @@ TEST(WritingToolsContextGeneration, ContextWithNestedLists)
     DecomposedAttributedText expected { {
         DecomposedAttributedText::OrderedList { {
             DecomposedAttributedText::UnorderedList { DecomposedAttributedText::ListMarker::Circle, {
-                "T"_s,
+                "T\n"_s,
                 DecomposedAttributedText::OrderedList { {
-                    "I\nJ\nK"_s
+                    "I\nJ\nK\n"_s
                 } },
-                "U"_s,
+                "U\n"_s,
             } },
-            "B"_s,
+            "B\n"_s,
             DecomposedAttributedText::OrderedList { {
-                "V\nW"_s,
+                "V\nW\n"_s,
             } },
-            "C"_s,
+            "C\n"_s,
         } },
         "Z"_s,
     } };
@@ -4401,11 +4401,11 @@ TEST(WritingToolsContextGeneration, ContextWithDiscontiguousLists)
     )"""_s;
 
     DecomposedAttributedText expected { {
-        "Hello"_s,
+        "Hello\n"_s,
         DecomposedAttributedText::OrderedList { {
-            "A\nB\nC"_s,
+            "A\nB\nC\n"_s,
         } },
-        "World"_s,
+        "World\n"_s,
         DecomposedAttributedText::UnorderedList { {
             "X\nY\nZ"_s,
         } },
@@ -4451,15 +4451,15 @@ TEST(WritingToolsContextGeneration, ContextWithStyledContentChildrenInList)
 
     DecomposedAttributedText expected { {
         DecomposedAttributedText::UnorderedList { {
-            "The"_s,
+            "The "_s,
             DecomposedAttributedText::Italic { {
                 "quick"_s,
             } },
-            "brown fox\njumped"_s,
+            "\nbrown fox\njumped "_s,
             DecomposedAttributedText::Bold { {
                 "over"_s,
             } },
-            "the dog"_s,
+            " the dog"_s,
         } },
     } };
 

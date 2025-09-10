@@ -47,6 +47,7 @@
 #import "ElementRareData.h"
 #import "ElementTraversal.h"
 #import "File.h"
+#import "FontAttributes.h"
 #import "FontCascade.h"
 #import "FrameLoader.h"
 #import "HTMLAttachmentElement.h"
@@ -1859,23 +1860,26 @@ BOOL HTMLConverter::_processElement(Element& element, NSInteger depth)
                 _newParagraphForElement(element, element.tagName().createNSString().get(), YES, NO);
         }
     } else if (element.hasTagName(ulTag)) {
-        RetainPtr<NSTextList> list;
-        String listStyleType = _caches->propertyValueForNode(element, CSSPropertyListStyleType);
-        if (!listStyleType.length())
-            listStyleType = @"disc";
-        list = adoptNS([[PlatformNSTextList alloc] initWithMarkerFormat:makeString("{"_s, listStyleType, "}"_s).createNSString().get() options:0]);
-        [_textLists addObject:list.get()];
+        TextList textList;
+        textList.ordered = false;
+
+        if (CheckedPtr renderer = element.renderer())
+            textList.styleType = renderer->style().listStyleType();
+
+        [_textLists addObject:textList.createTextList().get()];
     } else if (element.hasTagName(olTag)) {
-        RetainPtr<NSTextList> list;
-        String listStyleType = _caches->propertyValueForNode(element, CSSPropertyListStyleType);
-        if (!listStyleType.length())
-            listStyleType = "decimal"_s;
-        list = adoptNS([[PlatformNSTextList alloc] initWithMarkerFormat:makeString('{', listStyleType, '}').createNSString().get() options:0]);
-        if (RefPtr olElement = dynamicDowncast<HTMLOListElement>(element)) {
-            auto startingItemNumber = olElement->start();
-            [list setStartingItemNumber:startingItemNumber];
-        }
-        [_textLists addObject:list.get()];
+        TextList textList;
+        textList.ordered = true;
+
+        if (CheckedPtr renderer = element.renderer())
+            textList.styleType = renderer->style().listStyleType();
+
+        if (RefPtr olElement = dynamicDowncast<HTMLOListElement>(element))
+            textList.startingItemNumber = olElement->start();
+        else
+            textList.startingItemNumber = 1;
+
+        [_textLists addObject:textList.createTextList().get()];
     } else if (element.hasTagName(qTag)) {
         _addQuoteForElement(element, YES, _quoteLevel++);
     } else if (element.hasTagName(inputTag)) {
