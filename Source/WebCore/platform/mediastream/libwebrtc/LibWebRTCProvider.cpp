@@ -45,6 +45,7 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_BEGIN
 
 #include <webrtc/api/audio_codecs/builtin_audio_decoder_factory.h>
 #include <webrtc/api/audio_codecs/builtin_audio_encoder_factory.h>
+#include <webrtc/api/create_modular_peer_connection_factory.h>
 #include <webrtc/api/enable_media.h>
 #include <webrtc/api/environment/environment_factory.h>
 IGNORE_CLANG_WARNINGS_BEGIN("nullability-completeness")

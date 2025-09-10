@@ -55,7 +55,6 @@ WTF_IGNORE_WARNINGS_IN_THIRD_PARTY_CODE_END
 namespace webrtc {
 class CreateSessionDescriptionObserver;
 class DataChannelInterface;
-class IceCandidateInterface;
 class MediaStreamInterface;
 class PeerConnectionObserver;
 class SessionDescriptionInterface;
@@ -98,7 +97,7 @@ public:
     void getStats(webrtc::RtpReceiverInterface&, Ref<DeferredPromise>&&);
     void getStats(webrtc::RtpSenderInterface&, Ref<DeferredPromise>&&);
     std::unique_ptr<RTCDataChannelHandler> createDataChannel(const String&, const RTCDataChannelInit&);
-    void addIceCandidate(std::unique_ptr<webrtc::IceCandidateInterface>&&, PeerConnectionBackend::AddIceCandidateCallback&&);
+    void addIceCandidate(std::unique_ptr<webrtc::IceCandidate>&&, PeerConnectionBackend::AddIceCandidateCallback&&);
 
     void close();
     void stop();
@@ -142,7 +141,7 @@ private:
     void OnNegotiationNeededEvent(uint32_t) final;
     void OnStandardizedIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState) final;
     void OnIceGatheringChange(webrtc::PeerConnectionInterface::IceGatheringState) final;
-    void OnIceCandidate(const webrtc::IceCandidateInterface*) final;
+    void OnIceCandidate(const webrtc::IceCandidate*) final;
     void OnIceCandidatesRemoved(const std::vector<webrtc::Candidate>&) final;
 
     void createSessionDescriptionSucceeded(std::unique_ptr<webrtc::SessionDescriptionInterface>&&);
