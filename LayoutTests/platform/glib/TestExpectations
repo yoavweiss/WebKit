@@ -449,7 +449,6 @@ http/tests/security/canvas-remote-read-remote-video-blocked-no-crossorigin.html 
 http/tests/security/canvas-remote-read-remote-video-redirect.html [ Pass ]
 http/tests/security/contentSecurityPolicy/audio-redirect-allowed.html [ Pass ]
 http/tests/security/contentSecurityPolicy/video-redirect-allowed.html [ Pass ]
-http/tests/security/video-cross-origin-caching.html [ Crash Pass ]
 media/media-can-play-webm.html [ Pass ]
 media/media-controller-time-constant.html [ Pass ]
 media/media-controller-time.html [ Pass ]
@@ -1923,7 +1922,37 @@ css3/scroll-snap/scroll-snap-discrete-wheel-events-with-layout.html [ Skip ]
 # Security-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
+webkit.org/b/257624 http/tests/security/video-cross-origin-caching.html [ Pass Timeout Crash ]
 
+webkit.org/b/201270 [ Release ] http/tests/security/navigate-when-restoring-cached-page.html [ Timeout ]
+webkit.org/b/201270 [ Debug ] http/tests/security/navigate-when-restoring-cached-page.html [ Crash ]
+webkit.org/b/201270 [ Release ] http/tests/security/showModalDialog-sync-cross-origin-page-load2.html [ Timeout ]
+webkit.org/b/201270 [ Debug ] http/tests/security/showModalDialog-sync-cross-origin-page-load2.html [ Crash ]
+
+webkit.org/b/263720 http/tests/security/redirect-BLOCKED-to-localURL.html [ Crash ]
+
+# WebKitTestRunner needs a more-complete implementation of eventSender
+# https://bugs.webkit.org/show_bug.cgi?id=42194
+webkit.org/b/42194 http/tests/security/drag-drop-same-unique-origin.html [ Failure ]
+
+# This test requires Mac ObjC bindings, although it currently passes
+http/tests/security/dataTransfer-set-data-file-url.html [ WontFix Pass ]
+
+webkit.org/b/132914 http/tests/security/drag-drop-local-file.html [ Failure ]
+
+# JSC does not support setIsolatedWorldSecurityOrigin
+webkit.org/b/61540 http/tests/security/isolatedWorld/cross-origin-xhr.html
+
+# Requires CACHE_PARTITIONING or an alternative implementation
+webkit.org/b/168366 http/tests/security/credentials-iframes.html
+
+# This is a Mac specific feature
+webkit.org/b/168466 http/tests/security/bypassing-cors-checks-for-extension-urls.html [ Skip ]
+
+webkit.org/b/95530 http/tests/security/inactive-document-with-empty-security-origin.html [ Timeout ]
+
+# CSP extensions are not available
+http/tests/security/contentSecurityPolicy/extensions/ [ Skip ]
 
 # Sometimes there's an extra error message:
 # - [Report Only] Refused to connect to http://localhost:8000/security/contentSecurityPolicy/resources/echo-report.py
@@ -2220,6 +2249,8 @@ webkit.org/b/160119 fast/repaint/selection-gap-fixed-child.html [ Failure ]
 webkit.org/b/160119 fast/repaint/selection-gap-flipped-fixed-child.html [ Failure ]
 
 webkit.org/b/296730 fast/repaint/no-animation-outside-viewport-subframe.html [ Failure Pass ]
+
+webkit.org/b/298636 fast/repaint/fixed-move-after-keyboard-scroll.html [ Skip ] # Timeout
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Repaint-related bugs

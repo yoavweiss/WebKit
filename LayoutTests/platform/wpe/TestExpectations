@@ -455,6 +455,13 @@ webkit.org/b/224596 fast/scrolling/rtl-scrollbars-listbox-scroll.html [ Skip ] #
 webkit.org/b/224596 imported/w3c/web-platform-tests/css/css-grid/grid-model/grid-container-scrollbar-vertical-lr-001.html [ ImageOnlyFailure ]
 webkit.org/b/224596 imported/w3c/web-platform-tests/css/css-grid/grid-model/grid-container-scrollbar-vertical-rl-001.html [ ImageOnlyFailure ]
 webkit.org/b/227061 imported/w3c/web-platform-tests/css/css-ui/outline-negative-offset-composited-scroll.html [ ImageOnlyFailure ]
+webkit.org/b/298634 fast/repaint/vertical-overflow-child.html [ Skip ]
+webkit.org/b/298634 fast/repaint/vertical-overflow-parent.html [ Skip ]
+webkit.org/b/298634 fast/repaint/vertical-overflow-same.html [ Skip ]
+webkit.org/b/298634 fast/repaint/horizontal-bt-overflow-child.html [ Skip ]
+webkit.org/b/298634 fast/repaint/horizontal-bt-overflow-parent.html [ Skip ]
+webkit.org/b/298634 fast/repaint/horizontal-bt-overflow-same.html [ Skip ]
+
 
 webkit.org/b/252954 imported/w3c/web-platform-tests/html/rendering/replaced-elements/attributes-for-embedded-content-and-images/video-default-object-height-constrained-by-max-width.html [ ImageOnlyFailure ]
 webkit.org/b/252954 imported/w3c/web-platform-tests/html/rendering/replaced-elements/attributes-for-embedded-content-and-images/video-default-object-width-constrained-by-max-height.html [ ImageOnlyFailure ]
@@ -480,20 +487,28 @@ http/tests/inspector [ Skip ]
 # -webkit-overflow-scrolling (ENABLE_WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY) is only for iOS
 fast/repaint/overflow-scroll-touch-repaint.html [ Skip ]
 
-fast/repaint/vertical-overflow-child.html [ Skip ]
-fast/repaint/vertical-overflow-parent.html [ Skip ]
-fast/repaint/vertical-overflow-same.html [ Skip ]
-
-fast/repaint/horizontal-bt-overflow-child.html [ Skip ]
-fast/repaint/horizontal-bt-overflow-parent.html [ Skip ]
-fast/repaint/horizontal-bt-overflow-same.html [ Skip ]
-fast/repaint/fixed-move-after-keyboard-scroll.html [ Skip ]
-
 Bug(WPE) fast/text/woff2-totalsfntsize.html [ Pass ]
 Bug(WPE) fast/text/woff2.html [ Pass ]
 
 http/tests/pointer-lock [ Skip ]
-http/tests/security [ Skip ]
+
+http/tests/security/contentSecurityPolicy/report-blocked-file-uri.py [ Failure ]
+http/tests/security/drag-over-remote-content-iframe.html [ Failure ]
+http/tests/security/frame-loading-via-document-write-async-delegates.html [ Failure ]
+http/tests/security/frame-loading-via-document-write.html [ Failure ]
+http/tests/security/local-CSS-from-remote.html [ Failure ]
+http/tests/security/local-JavaScript-from-remote.html [ Failure ]
+http/tests/security/local-iFrame-from-remote.html [ Failure ]
+http/tests/security/local-image-from-remote.html [ Failure ]
+http/tests/security/local-user-CSS-from-remote.html [ Failure ]
+http/tests/security/local-video-poster-from-remote.html [ Failure ]
+http/tests/security/local-video-source-from-remote.html [ Failure ]
+http/tests/security/local-video-src-from-remote.html [ Failure ]
+http/tests/security/module-no-mime-type.html [ Failure ]
+http/tests/security/video-cross-origin-accessfailure.html [ Failure ]
+http/tests/security/xss-ALLOWED-xsl-external-entity-xslt-docloader.html [ Failure ]
+http/tests/security/xss-DENIED-xsl-external-entity-redirect.xml [ Failure ]
+http/tests/security/xss-DENIED-xsl-external-entity.xml [ Failure ]
 
 Bug(WPE) fast/dom/Geolocation/page-reload-cancel-permission-requests.html [ Skip ]
 Bug(WPE) fast/dom/Geolocation/requestQueuingForHiddenPage.html [ Skip ]
