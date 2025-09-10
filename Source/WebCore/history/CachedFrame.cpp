@@ -347,7 +347,7 @@ UsedLegacyTLS CachedFrame::usedLegacyTLS() const
     return UsedLegacyTLS::No;
 }
 
-// FIXME: Remove all uses of HasInsecureContent and the related API property hasOnlySecureContent across the codebase since we no longer allow insecure content.
+// FIXME: Remove all uses of HasInsecureContent across the codebase since we no longer allow insecure content.
 HasInsecureContent CachedFrame::hasInsecureContent() const
 {
     if (auto* document = this->document()) {
