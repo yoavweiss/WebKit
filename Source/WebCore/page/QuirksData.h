@@ -199,6 +199,10 @@ struct WEBCORE_EXPORT QuirksData {
     bool shouldEnterNativeFullscreenWhenCallingElementRequestFullscreen : 1 { false };
     bool shouldDelayReloadWhenRegisteringServiceWorker : 1 { false };
     bool shouldDisableDOMAudioSession : 1 { false };
+
+#if HAVE(PIP_SKIP_PREROLL)
+    bool shouldDisableAdSkippingInPip : 1 { false };
+#endif
 };
 
 } // namespace WebCore

@@ -209,6 +209,9 @@ public:
     WEBCORE_EXPORT bool shouldDisableFullscreenVideoAspectRatioAdaptiveSizing() const;
 #endif
 
+#if HAVE(PIP_SKIP_PREROLL)
+    WEBCORE_EXPORT bool shouldDisableAdSkippingInPip() const;
+#endif
     bool shouldDisableLazyIframeLoadingQuirk() const;
 
     bool shouldBlockFetchWithNewlineAndLessThan() const;

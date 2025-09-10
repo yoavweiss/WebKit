@@ -1297,6 +1297,14 @@ bool Quirks::shouldEnableFontLoadingAPIQuirk() const
     return m_quirksData.shouldEnableFontLoadingAPIQuirk;
 }
 
+#if HAVE(PIP_SKIP_PREROLL)
+// play.hbomax.com rdar://158430821
+bool Quirks::shouldDisableAdSkippingInPip() const
+{
+    return needsQuirks() && m_quirksData.shouldDisableAdSkippingInPip;
+}
+#endif
+
 // hulu.com rdar://100199996
 bool Quirks::needsVideoShouldMaintainAspectRatioQuirk() const
 {
@@ -2597,6 +2605,11 @@ static void handleHBOMaxQuirks(QuirksData& quirksData, const URL& quirksURL, con
 
     // play.hbomax.com https://bugs.webkit.org/show_bug.cgi?id=244737
     quirksData.shouldEnableFontLoadingAPIQuirk = true;
+
+#if HAVE(PIP_SKIP_PREROLL)
+    // play.hbomax.com rdar://158430821
+    quirksData.shouldDisableAdSkippingInPip = true;
+#endif
 }
 
 static void handleHotelsQuirks(QuirksData& quirksData, const URL&, const String& quirksDomainString, const URL&)
