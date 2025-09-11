@@ -585,6 +585,70 @@ index 0000000..9fa2f9e
 +   dependency('libpanel-1', version: '>= 1.4'),
 + 
 +   libsysprof_static_dep,
+diff --git a/sources/meta-openembedded/meta-gnome/recipes-gnome/sysprof/sysprof/0007-libsysprof-capture-Disallow-unloading-the-capture-li.patch b/sources/meta-openembedded/meta-gnome/recipes-gnome/sysprof/sysprof/0007-libsysprof-capture-Disallow-unloading-the-capture-li.patch
+new file mode 100644
+index 0000000000..8c81011a18
+--- /dev/null
++++ b/sources/meta-openembedded/meta-gnome/recipes-gnome/sysprof/sysprof/0007-libsysprof-capture-Disallow-unloading-the-capture-li.patch
+@@ -0,0 +1,58 @@
++From e712ba35dc14e83bebde401720ec5cca894a2e82 Mon Sep 17 00:00:00 2001
++From: "Jan Alexander Steffens (heftig)" <heftig@archlinux.org>
++Date: Thu, 28 Aug 2025 00:18:01 +0200
++Subject: [PATCH] libsysprof-capture: Disallow unloading the capture library
++
++When a shared library with a built-in libsysprof-capture gets unloaded,
++the `sysprof_collector_free` function which was registered as a TSD
++destructor with `pthread_key_create` will also vanish, causing crashes
++when threads terminate.
++
++See: https://gitlab.freedesktop.org/mesa/mesa/-/issues/13571
++---
++ src/libsysprof-capture/meson.build | 8 ++++++++
++ 1 file changed, 8 insertions(+)
++
++diff --git a/src/libsysprof-capture/meson.build b/src/libsysprof-capture/meson.build
++index 828b8ed2..7a06ed25 100644
++--- a/src/libsysprof-capture/meson.build
+++++ b/src/libsysprof-capture/meson.build
++@@ -48,6 +48,11 @@ libsysprof_capture_deps = [
++   dependency('threads'),
++ ]
++ 
+++libsysprof_capture_link_args = []
+++if cc.has_link_argument('-Wl,-z,nodelete')
+++  libsysprof_capture_link_args += ['-Wl,-z,nodelete']
+++endif
+++
++ libsysprof_capture = static_library(
++   'sysprof-capture-@0@'.format(libsysprof_capture_api_version),
++   (libsysprof_capture_sources +
++@@ -55,6 +60,7 @@ libsysprof_capture = static_library(
++ 
++            dependencies: libsysprof_capture_deps,
++                  c_args: [ '-DSYSPROF_CAPTURE_COMPILATION' ],
+++              link_args: libsysprof_capture_link_args,
++                 install: install_static,
++   gnu_symbol_visibility: 'hidden',
++                     pic: true,
++@@ -66,6 +72,7 @@ libsysprof_capture_dep = declare_dependency(
++            link_whole: libsysprof_capture,
++          dependencies: libsysprof_capture_deps,
++   include_directories: libsysprof_capture_include_dirs,
+++            link_args: libsysprof_capture_link_args,
++ )
++ meson.override_dependency('sysprof-capture-@0@'.format(libsysprof_capture_api_version), libsysprof_capture_dep)
++ 
++@@ -75,6 +82,7 @@ if install_static
++         subdirs: [ sysprof_header_subdir ],
++     description: 'The static capture library for tools that generate profiling capture data',
++       variables: [ 'datadir=' + datadir_for_pc_file ],
+++    libraries: libsysprof_capture_link_args,
++     libraries_private: libsysprof_capture_deps,
++   )
++ endif
++-- 
++2.39.5
++
 diff --git a/sources/meta-openembedded/meta-gnome/recipes-gnome/sysprof/sysprof_3.44.0.bb b/sources/meta-openembedded/meta-gnome/recipes-gnome/sysprof/sysprof_3.44.0.bb
 deleted file mode 100644
 index 3523bad..0000000
@@ -636,10 +700,10 @@ index 3523bad..0000000
 -"
 diff --git a/sources/meta-openembedded/meta-gnome/recipes-gnome/sysprof/sysprof_48.1.bb b/sources/meta-openembedded/meta-gnome/recipes-gnome/sysprof/sysprof_48.1.bb
 new file mode 100644
-index 0000000..6ffb12d
+index 0000000000..871ec35633
 --- /dev/null
 +++ b/sources/meta-openembedded/meta-gnome/recipes-gnome/sysprof/sysprof_48.1.bb
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,55 @@
 +SUMMARY = "System-wide Performance Profiler for Linux"
 +HOMEPAGE = "http://www.sysprof.com"
 +LICENSE = "GPL-3.0-or-later"
@@ -666,6 +730,7 @@ index 0000000..6ffb12d
 +           file://0004-sysprof-greeter-fix-environ-with-shadowing.patch \
 +           file://0005-Make-elf-loader-search-for-debug-links-in-.debug-dir.patch \
 +           file://0006-build-Adjust-dependency-versions-in-meson-build-conf.patch \
++           file://0007-libsysprof-capture-Disallow-unloading-the-capture-li.patch \
 +           "
 +SRC_URI[archive.sha256sum] = "54f157fdfef1edf1e2f22e542c462d90e1c21fca8c30eba4127cee739039bbe2"
 +
@@ -694,3 +759,28 @@ index 0000000..6ffb12d
 +    ${datadir}/metainfo \
 +    ${libdir}/libsysprof-6*.so.* \
 +"
+diff --git a/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bb b/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bb
+index 4133ad7..2234c9b 100644
+--- a/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bb
++++ b/sources/meta-webkit/recipes-browser/images/webkit-dev-ci-tools.bb
+@@ -83,7 +83,6 @@ IMAGE_INSTALL:append = " \
+     pv \
+     rsync \
+     screen \
+-    sysprof \
+     smem \
+     systemd-analyze \
+     unifdef \
+diff --git a/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bb b/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bb
+index 2b9b30f..d2c5fa6 100644
+--- a/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bb
++++ b/sources/meta-webkit/recipes-browser/packagegroups/packagegroup-wpewebkit-depends.bb
+@@ -132,6 +132,8 @@ RDEPENDS:packagegroup-wpewebkit-depends-core = "\
+     icu \
+     jpeg \
+     sqlite3 \
++    sysprof \
++    sysprof-staticdev \
+     zlib \
+     libpng \
+     libsoup \
