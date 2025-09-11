@@ -60,7 +60,7 @@ static WKWebView *globalWebView = nil;
 
 @end
 
-static Class touchEventsGestureRecognizerClass()
+static Class touchEventsGestureRecognizerClassSingleton()
 {
     static Class result = nil;
     static dispatch_once_t onceToken;
@@ -103,7 +103,7 @@ static const WebKit::WKTouchEvent* simulatedTouchEvent(id, SEL)
 
 TEST(TouchEventTests, DestroyWebViewWhileHandlingTouchEnd)
 {
-    InstanceMethodSwizzler lastTouchEventSwizzler { touchEventsGestureRecognizerClass(), @selector(lastTouchEvent), reinterpret_cast<IMP>(simulatedTouchEvent) };
+    InstanceMethodSwizzler lastTouchEventSwizzler { touchEventsGestureRecognizerClassSingleton(), @selector(lastTouchEvent), reinterpret_cast<IMP>(simulatedTouchEvent) };
     @autoreleasepool {
         RetainPtr messageHandler = adoptNS([TouchEventScriptMessageHandler new]);
         RetainPtr controller = adoptNS([[WKUserContentController alloc] init]);

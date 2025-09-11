@@ -62,7 +62,7 @@ namespace WebCore {
 
 static UIPasteboard *generalUIPasteboard()
 {
-    return static_cast<UIPasteboard *>([PAL::getUIPasteboardClass() generalPasteboard]);
+    return static_cast<UIPasteboard *>([PAL::getUIPasteboardClassSingleton() generalPasteboard]);
 }
 
 PlatformPasteboard::PlatformPasteboard()
@@ -116,7 +116,7 @@ void PlatformPasteboard::performAsDataOwner(DataOwnerType type, NOESCAPE Functio
         break;
     }
 
-    [PAL::getUIPasteboardClass() _performAsDataOwner:dataOwner block:^{
+    [PAL::getUIPasteboardClassSingleton() _performAsDataOwner:dataOwner block:^{
         actions();
     }];
 }
@@ -321,7 +321,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 Color PlatformPasteboard::color()
 {
     NSData *data = [m_pasteboard dataForPasteboardType:UIColorPboardType];
-    UIColor *uiColor = [NSKeyedUnarchiver unarchivedObjectOfClass:PAL::getUIColorClass() fromData:data error:nil];
+    UIColor *uiColor = [NSKeyedUnarchiver unarchivedObjectOfClass:PAL::getUIColorClassSingleton() fromData:data error:nil];
     return roundAndClampToSRGBALossy(uiColor.CGColor);
 }
 
@@ -393,7 +393,7 @@ static void registerItemsToPasteboard(NSArray<WebItemProviderRegistrationInfoLis
 #if PLATFORM(MACCATALYST)
     // In macCatalyst, -[UIPasteboard setItemProviders:] is not yet supported, so we fall back to setting an item dictionary when
     // populating the pasteboard upon copy.
-    if ([pasteboard isKindOfClass:PAL::getUIPasteboardClass()]) {
+    if ([pasteboard isKindOfClass:PAL::getUIPasteboardClassSingleton()]) {
         auto itemDictionaries = adoptNS([[NSMutableArray alloc] initWithCapacity:itemLists.count]);
         for (WebItemProviderRegistrationInfoList *representationsToRegister in itemLists) {
             auto itemDictionary = adoptNS([[NSMutableDictionary alloc] initWithCapacity:representationsToRegister.numberOfItems]);

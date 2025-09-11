@@ -9557,7 +9557,7 @@ static NSTextAlignment nsTextAlignmentFromRenderStyle(const WebCore::RenderStyle
 
 + (BOOL)_canHandleContextMenuTranslation
 {
-    return PAL::isTranslationUIServicesFrameworkAvailable() && [PAL::getLTUITranslationViewControllerClass() isAvailable];
+    return PAL::isTranslationUIServicesFrameworkAvailable() && [PAL::getLTUITranslationViewControllerClassSingleton() isAvailable];
 }
 
 - (void)_handleContextMenuTranslation:(const WebCore::TranslationContextMenuInfo&)info

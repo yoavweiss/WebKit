@@ -95,14 +95,14 @@ static void swizzledSetAnalysis(VKCImageAnalysisInteraction *, SEL, VKCImageAnal
         return nil;
 
     _imageAnalysisRequestSwizzler = WTF::makeUnique<InstanceMethodSwizzler>(
-        PAL::getVKImageAnalyzerClass(),
+        PAL::getVKImageAnalyzerClassSingleton(),
         @selector(processRequest:progressHandler:completionHandler:),
         reinterpret_cast<IMP>(swizzledProcessRequest)
     );
 
 #if PLATFORM(IOS_FAMILY)
     _imageAnalysisInteractionSwizzler = WTF::makeUnique<InstanceMethodSwizzler>(
-        PAL::getVKCImageAnalysisInteractionClass(),
+        PAL::getVKCImageAnalysisInteractionClassSingleton(),
         @selector(setAnalysis:),
         reinterpret_cast<IMP>(swizzledSetAnalysis)
     );
@@ -116,7 +116,7 @@ static void swizzledSetAnalysis(VKCImageAnalysisInteraction *, SEL, VKCImageAnal
     );
 #else
     _imageAnalysisOverlaySwizzler = WTF::makeUnique<InstanceMethodSwizzler>(
-        PAL::getVKCImageAnalysisOverlayViewClass(),
+        PAL::getVKCImageAnalysisOverlayViewClassSingleton(),
         @selector(setAnalysis:),
         reinterpret_cast<IMP>(swizzledSetAnalysis)
     );
@@ -206,12 +206,12 @@ static void swizzledSetAnalysis(VKCImageAnalysisInteraction *, SEL, VKCImageAnal
 {
 #if PLATFORM(IOS_FAMILY)
     for (id<UIInteraction> interaction in self.textInputContentView.interactions) {
-        if ([interaction isKindOfClass:PAL::getVKCImageAnalysisInteractionClass()])
+        if ([interaction isKindOfClass:PAL::getVKCImageAnalysisInteractionClassSingleton()])
             return YES;
     }
 #else
     for (NSView *subview in self.subviews) {
-        if ([subview isKindOfClass:PAL::getVKCImageAnalysisOverlayViewClass()])
+        if ([subview isKindOfClass:PAL::getVKCImageAnalysisOverlayViewClassSingleton()])
             return YES;
     }
 #endif

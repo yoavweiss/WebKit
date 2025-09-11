@@ -599,7 +599,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 static NSArray<Class<NSItemProviderReading>> *allLoadableClasses()
 {
-    return @[ [PAL::getUIColorClass() class], [PAL::getUIImageClass() class], [NSURL class], [NSString class], [NSAttributedString class] ];
+    return @[ [PAL::getUIColorClassSingleton() class], [PAL::getUIImageClassSingleton() class], [NSURL class], [NSString class], [NSAttributedString class] ];
 }
 
 static Class classForTypeIdentifier(NSString *typeIdentifier, NSString *&outTypeIdentifierToLoad)

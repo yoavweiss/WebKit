@@ -249,7 +249,7 @@ void PlaybackSessionInterfaceMac::setPlayBackControlsManager(WebPlaybackControls
         return;
 
     NSTimeInterval anchorTimeStamp = ![manager rate] ? NAN : [[NSProcessInfo processInfo] systemUptime];
-    manager.timing = [getAVValueTimingClass() valueTimingWithAnchorValue:m_playbackSessionModel->currentTime() anchorTimeStamp:anchorTimeStamp rate:0];
+    manager.timing = [getAVValueTimingClassSingleton() valueTimingWithAnchorValue:m_playbackSessionModel->currentTime() anchorTimeStamp:anchorTimeStamp rate:0];
     double duration = m_playbackSessionModel->duration();
     manager.contentDuration = duration;
     manager.hasEnabledAudio = duration > 0;
@@ -294,7 +294,7 @@ void PlaybackSessionInterfaceMac::updatePlaybackControlsManagerTiming(double cur
         || (manager.rate < 0 && model->playbackStartedTime() <= currentTime))
         effectivePlaybackRate = 0;
 
-    manager.timing = [getAVValueTimingClass() valueTimingWithAnchorValue:currentTime anchorTimeStamp:effectiveAnchorTime rate:effectivePlaybackRate];
+    manager.timing = [getAVValueTimingClassSingleton() valueTimingWithAnchorValue:currentTime anchorTimeStamp:effectiveAnchorTime rate:effectivePlaybackRate];
 }
 
 uint32_t PlaybackSessionInterfaceMac::checkedPtrCount() const

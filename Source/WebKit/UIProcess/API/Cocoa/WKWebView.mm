@@ -2503,7 +2503,7 @@ static _WKSelectionAttributes selectionAttributes(const WebKit::EditorState& edi
         [_writingToolsTextSuggestions setObject:suggestion forKey:suggestion.uuid];
     }
 
-    NSInteger delta = [WebKit::getWKIntelligenceReplacementTextEffectCoordinatorClass() characterDeltaForReceivedSuggestions:suggestions];
+    NSInteger delta = [WebKit::getWKIntelligenceReplacementTextEffectCoordinatorClassSingleton() characterDeltaForReceivedSuggestions:suggestions];
 
     auto operation = makeBlockPtr([webSession, replacementData, range, webContext, finished, weakSelf = WeakObjCPtr<WKWebView>(self)](void (^completion)(void)) {
         auto strongSelf = weakSelf.get();
@@ -2995,7 +2995,7 @@ static _WKSelectionAttributes selectionAttributes(const WebKit::EditorState& edi
         return;
 
     if (allowGamepadsInput) {
-        _gamepadsRecentlyAccessedState = adoptNS([[WebCore::getGCEventInteractionClass() alloc] init]);
+        _gamepadsRecentlyAccessedState = adoptNS([[WebCore::getGCEventInteractionClassSingleton() alloc] init]);
         ((GCEventInteraction *)_gamepadsRecentlyAccessedState.get()).handledEventTypes = GCUIEventTypeGamepad;
         [self addInteraction:(id<UIInteraction>)_gamepadsRecentlyAccessedState.get()];
     } else {

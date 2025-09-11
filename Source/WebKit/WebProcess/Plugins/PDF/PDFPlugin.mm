@@ -511,7 +511,7 @@ WTF_MAKE_TZONE_ALLOCATED_IMPL(PDFPlugin);
 
 bool PDFPlugin::pdfKitLayerControllerIsAvailable()
 {
-    return getPDFLayerControllerClass();
+    return getPDFLayerControllerClassSingleton();
 }
 
 Ref<PDFPlugin> PDFPlugin::create(HTMLPlugInElement& pluginElement)
@@ -558,8 +558,8 @@ PDFPlugin::PDFPlugin(HTMLPlugInElement& element)
     if ([m_pdfLayerController respondsToSelector:@selector(setDeviceColorSpace:)])
         [m_pdfLayerController setDeviceColorSpace:screenColorSpace(frame->protectedCoreLocalFrame()->view()).platformColorSpace()];
     
-    if ([getPDFLayerControllerClass() respondsToSelector:@selector(setUseIOSurfaceForTiles:)])
-        [getPDFLayerControllerClass() setUseIOSurfaceForTiles:false];
+    if ([getPDFLayerControllerClassSingleton() respondsToSelector:@selector(setUseIOSurfaceForTiles:)])
+        [getPDFLayerControllerClassSingleton() setUseIOSurfaceForTiles:false];
 }
 
 PDFPlugin::~PDFPlugin() = default;

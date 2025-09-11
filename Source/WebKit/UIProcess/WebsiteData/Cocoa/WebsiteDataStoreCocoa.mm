@@ -828,14 +828,14 @@ void WebsiteDataStore::initializeManagedDomains(ForceReinitialization forceReini
         crossSiteTrackingPreventionRelaxedApps = [managedSitesPrefs objectForKey:kCrossSiteTrackingPreventionRelaxedAppsKey];
 #elif !PLATFORM(MACCATALYST)
         isSafari = WTF::IOSApplication::isMobileSafari();
-        if ([PAL::getMCProfileConnectionClass() instancesRespondToSelector:@selector(crossSiteTrackingPreventionRelaxedDomains)])
-            crossSiteTrackingPreventionRelaxedDomains = [(MCProfileConnection *)[PAL::getMCProfileConnectionClass() sharedConnection] crossSiteTrackingPreventionRelaxedDomains];
+        if ([PAL::getMCProfileConnectionClassSingleton() instancesRespondToSelector:@selector(crossSiteTrackingPreventionRelaxedDomains)])
+            crossSiteTrackingPreventionRelaxedDomains = [(MCProfileConnection *)[PAL::getMCProfileConnectionClassSingleton() sharedConnection] crossSiteTrackingPreventionRelaxedDomains];
         else
             crossSiteTrackingPreventionRelaxedDomains = @[];
 
         auto relaxedAppsSelector = NSSelectorFromString(@"crossSiteTrackingPreventionRelaxedApps");
-        if ([PAL::getMCProfileConnectionClass() instancesRespondToSelector:relaxedAppsSelector])
-            crossSiteTrackingPreventionRelaxedApps = [[PAL::getMCProfileConnectionClass() sharedConnection] performSelector:relaxedAppsSelector];
+        if ([PAL::getMCProfileConnectionClassSingleton() instancesRespondToSelector:relaxedAppsSelector])
+            crossSiteTrackingPreventionRelaxedApps = [[PAL::getMCProfileConnectionClassSingleton() sharedConnection] performSelector:relaxedAppsSelector];
         else
             crossSiteTrackingPreventionRelaxedApps = @[];
 #endif

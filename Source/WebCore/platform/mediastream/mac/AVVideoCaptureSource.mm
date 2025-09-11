@@ -221,7 +221,7 @@ void AVVideoCaptureSource::setUseAVCaptureDeviceRotationCoordinatorAPI(bool valu
 
 CaptureSourceOrError AVVideoCaptureSource::create(const CaptureDevice& device, MediaDeviceHashSalts&& hashSalts, const MediaConstraints* constraints, std::optional<PageIdentifier> pageIdentifier)
 {
-    auto *avDevice = [PAL::getAVCaptureDeviceClass() deviceWithUniqueID:device.persistentId().createNSString().get()];
+    auto *avDevice = [PAL::getAVCaptureDeviceClassSingleton() deviceWithUniqueID:device.persistentId().createNSString().get()];
     if (!avDevice)
         return CaptureSourceOrError({ "No AVVideoCaptureSource device"_s , MediaAccessDenialReason::PermissionDenied });
 
@@ -676,7 +676,7 @@ RetainPtr<AVCapturePhotoSettings> AVVideoCaptureSource::photoConfiguration(const
     if (photoSettings.imageHeight && photoSettings.imageWidth)
         requestedPhotoDimensions = { static_cast<int>(*photoSettings.imageWidth), static_cast<int>(*photoSettings.imageHeight) };
 
-    AVCapturePhotoSettings* avPhotoSettings = [PAL::getAVCapturePhotoSettingsClass() photoSettingsWithFormat:@{
+    AVCapturePhotoSettings* avPhotoSettings = [PAL::getAVCapturePhotoSettingsClassSingleton() photoSettingsWithFormat:@{
         AVVideoCodecKey : AVVideoCodecTypeJPEG,
         AVVideoCompressionPropertiesKey : @{ AVVideoQualityKey : @(1) }
     }];
@@ -1089,7 +1089,7 @@ bool AVVideoCaptureSource::setupSession()
     String mediaEnvironment = RealtimeMediaSourceCenter::singleton().currentMediaEnvironment();
     WARNING_LOG_IF(loggerPtr() && mediaEnvironment.isEmpty(), "Media environment is empty");
     // FIXME (119325252): Remove staging code for -[AVCaptureSession initWithMediaEnvironment:]
-    if (!mediaEnvironment.isEmpty() && [PAL::getAVCaptureSessionClass() instancesRespondToSelector:@selector(initWithMediaEnvironment:)])
+    if (!mediaEnvironment.isEmpty() && [PAL::getAVCaptureSessionClassSingleton() instancesRespondToSelector:@selector(initWithMediaEnvironment:)])
         m_session = adoptNS([PAL::allocAVCaptureSessionInstance() initWithMediaEnvironment:mediaEnvironment.createNSString().get()]);
 #endif
 
@@ -1098,7 +1098,7 @@ bool AVVideoCaptureSource::setupSession()
         auto identity = RealtimeMediaSourceCenter::singleton().identity();
         ERROR_LOG_IF(loggerPtr() && !identity, LOGIDENTIFIER, "RealtimeMediaSourceCenter::identity() returned null!");
 
-        if (identity && [PAL::getAVCaptureSessionClass() instancesRespondToSelector:@selector(initWithAssumedIdentity:)])
+        if (identity && [PAL::getAVCaptureSessionClassSingleton() instancesRespondToSelector:@selector(initWithAssumedIdentity:)])
             m_session = adoptNS([PAL::allocAVCaptureSessionInstance() initWithAssumedIdentity:identity.get()]);
     }
 #endif

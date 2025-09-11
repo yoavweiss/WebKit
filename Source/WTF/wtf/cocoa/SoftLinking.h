@@ -224,7 +224,7 @@ static void* lib##Library() \
 #define SOFT_LINK_CLASS(framework, className) \
     @class className; \
     static Class init##className(); \
-    static Class (*get##className##Class)() = init##className; \
+    static Class (*get##className##ClassSingleton)() = init##className; \
     struct Class##className##Wrapper { SUPPRESS_UNCOUNTED_MEMBER Class classObject; }; \
     static Class##className##Wrapper class##className; \
     \
@@ -239,21 +239,22 @@ static void* lib##Library() \
         _STORE_IN_GETCLASS_SECTION static char const auditedClassName[] = #className; \
         class##className.classObject = objc_getClass(auditedClassName); \
         RELEASE_ASSERT(class##className.classObject); \
-        get##className##Class = className##Function; \
+        get##className##ClassSingleton = className##Function; \
         return class##className.classObject; \
     } \
     _Pragma("clang diagnostic push") \
     _Pragma("clang diagnostic ignored \"-Wunused-function\"") \
     static className *alloc##className##Instance() NS_RETURNS_RETAINED \
     { \
-        SUPPRESS_UNRETAINED_ARG return [get##className##Class() alloc]; \
+        /* FIXME: This is a static analysis false positive (rdar://160259918). */ \
+        SUPPRESS_UNRETAINED_ARG return [get##className##ClassSingleton() alloc]; \
     } \
     _Pragma("clang diagnostic pop")
 
 #define SOFT_LINK_CLASS_OPTIONAL(framework, className) \
     @class className; \
     static Class init##className(); \
-    static Class (*get##className##Class)() = init##className; \
+    static Class (*get##className##ClassSingleton)() = init##className; \
     struct class##className##Wrapper { SUPPRESS_UNCOUNTED_MEMBER Class classObject; }; \
     static class##className##Wrapper class##className; \
     \
@@ -267,14 +268,15 @@ static void* lib##Library() \
         framework##Library(); \
         _STORE_IN_GETCLASS_SECTION static char const auditedClassName[] = #className; \
         class##className.classObject = objc_getClass(auditedClassName); \
-        get##className##Class = className##Function; \
+        get##className##ClassSingleton = className##Function; \
         return class##className.classObject; \
     } \
     _Pragma("clang diagnostic push") \
     _Pragma("clang diagnostic ignored \"-Wunused-function\"") \
     static className *alloc##className##Instance() NS_RETURNS_RETAINED \
     { \
-        SUPPRESS_UNRETAINED_ARG return [get##className##Class() alloc]; \
+        /* FIXME: This is a static analysis false positive (rdar://160259918). */ \
+        SUPPRESS_UNRETAINED_ARG return [get##className##ClassSingleton() alloc]; \
     } \
     _Pragma("clang diagnostic pop")
 
@@ -454,18 +456,18 @@ static void* lib##Library() \
 #define SOFT_LINK_CLASS_FOR_HEADER(functionNamespace, className) \
     @class className; \
     namespace functionNamespace { \
-    extern Class (*get##className##Class)(); \
+    extern Class (*get##className##ClassSingleton)(); \
     className *alloc##className##Instance() NS_RETURNS_RETAINED; \
     inline className *alloc##className##Instance() NS_RETURNS_RETAINED \
     { \
-        return [get##className##Class() alloc]; \
+        return [get##className##ClassSingleton() alloc]; \
     } \
     }
 
 #define SOFT_LINK_CLASS_FOR_HEADER_WITH_AVAILABILITY(functionNamespace, className, availability) \
     @class className; \
     namespace functionNamespace { \
-    extern Class (*get##className##Class)(); \
+    extern Class (*get##className##ClassSingleton)(); \
     className *alloc##className##Instance() availability; \
     }
 
@@ -473,7 +475,7 @@ static void* lib##Library() \
     @class className; \
     namespace functionNamespace { \
     static Class init##className(); \
-    export Class (*get##className##Class)() = init##className; \
+    export Class (*get##className##ClassSingleton)() = init##className; \
     SUPPRESS_UNRETAINED_LOCAL static Class class##className; \
     \
     static Class className##Function() \
@@ -490,7 +492,7 @@ static void* lib##Library() \
             class##className = objc_getClass(auditedClassName); \
             if (!isOptional) \
                 RELEASE_ASSERT(class##className); \
-            get##className##Class = className##Function; \
+            get##className##ClassSingleton = className##Function; \
         }); \
         return class##className; \
     } \
@@ -519,7 +521,7 @@ static void* lib##Library() \
     NS_RETURNS_RETAINED className *alloc##className##Instance() availability; \
     NS_RETURNS_RETAINED className *alloc##className##Instance() availability \
     { \
-        return [get##className##Class() alloc]; \
+        return [get##className##ClassSingleton() alloc]; \
     } \
 
 #define SOFT_LINK_CLASS_FOR_SOURCE_OPTIONAL_WITH_EXPORT_AND_AVAILABILITY(functionNamespace, framework, className, export, availability) \

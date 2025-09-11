@@ -1137,7 +1137,7 @@ void PageClientImpl::handleContextMenuWritingTools(WebCore::WritingTools::Reques
 {
     RetainPtr webView = this->webView();
 ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    [[PAL::getWTWritingToolsClass() sharedInstance] showTool:WebKit::convertToPlatformRequestedTool(tool) forSelectionRect:selectionRect ofView:m_view.get().get() forDelegate:webView.get()];
+    [[PAL::getWTWritingToolsClassSingleton() sharedInstance] showTool:WebKit::convertToPlatformRequestedTool(tool) forSelectionRect:selectionRect ofView:m_view.get().get() forDelegate:webView.get()];
 ALLOW_DEPRECATED_DECLARATIONS_END
 }
 

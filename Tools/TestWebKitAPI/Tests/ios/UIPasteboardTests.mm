@@ -467,7 +467,7 @@ TEST(UIPasteboardTests, PerformAsDataOwnerWithManagedURL)
     };
 
     auto managedConfigurationSwizzler = InstanceMethodSwizzler {
-        PAL::getMCProfileConnectionClass(),
+        PAL::getMCProfileConnectionClassSingleton(),
         @selector(isURLManaged:),
         [TestMCProfileConnection instanceMethodForSelector:@selector(isURLManaged:)]
     };

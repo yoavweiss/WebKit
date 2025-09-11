@@ -854,9 +854,9 @@ static void storeAccessibilityRemoteConnectionInformation(id element, pid_t pid,
         return;
 
     if (registerProcess)
-        [WebKit::getNSAccessibilityRemoteUIElementClass() registerRemoteUIProcessIdentifier:pid];
+        [WebKit::getNSAccessibilityRemoteUIElementClassSingleton() registerRemoteUIProcessIdentifier:pid];
     else
-        [WebKit::getNSAccessibilityRemoteUIElementClass() unregisterRemoteUIProcessIdentifier:pid];
+        [WebKit::getNSAccessibilityRemoteUIElementClassSingleton() unregisterRemoteUIProcessIdentifier:pid];
 #endif
 }
 

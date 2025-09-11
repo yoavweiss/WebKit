@@ -704,7 +704,7 @@ static NSArray * processDataDetectorScannerResults(DDScannerRef scanner, OptionS
     if (lastTextNodeToUpdate)
         lastTextNodeToUpdate->setData(lastNodeContent);
 
-    return [PAL::getDDScannerResultClass() resultsFromCoreResults:scannerResults.get()];
+    return [PAL::getDDScannerResultClassSingleton() resultsFromCoreResults:scannerResults.get()];
 }
 
 // This is the async version of `detectContentInRange` and should be preferred.

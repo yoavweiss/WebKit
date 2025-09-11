@@ -91,7 +91,7 @@ SOFT_LINK_CLASS_FOR_HEADER(WebCore, GCEventInteraction)
 SOFT_LINK_CLASS_FOR_HEADER(WebCore, GCMouse)
 SOFT_LINK_CONSTANT_FOR_HEADER(WebCore, GameController, GCMouseDidStopBeingCurrentNotification, NSString *)
 
-SPECIALIZE_OBJC_TYPE_TRAITS(GCMouse, WebCore::getGCMouseClass())
+SPECIALIZE_OBJC_TYPE_TRAITS(GCMouse, WebCore::getGCMouseClassSingleton())
 #endif
 
 #if USE(APPLE_INTERNAL_SDK) && __has_include(<WebKitAdditions/GameControllerSoftLinkAdditions.h>)

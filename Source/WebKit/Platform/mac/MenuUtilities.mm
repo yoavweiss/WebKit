@@ -91,7 +91,7 @@ using namespace WebCore;
 
 NSString *menuItemTitleForTelephoneNumberGroup()
 {
-    return [getTUCallClass() supplementalDialTelephonyCallString];
+    return [getTUCallClassSingleton() supplementalDialTelephonyCallString];
 }
 
 #if HAVE(DATA_DETECTORS_MAC_ACTION)
@@ -107,10 +107,10 @@ static DDAction *actionForMenuItem(NSMenuItem *item)
     id action = [representedObject objectForKey:@"DDAction"];
 
 #if HAVE(DATA_DETECTORS_MAC_ACTION)
-    if (![action isKindOfClass:PAL::getDDMacActionClass()])
+    if (![action isKindOfClass:PAL::getDDMacActionClassSingleton()])
         return nil;
 #else
-    if (![action isKindOfClass:PAL::getDDActionClass()])
+    if (![action isKindOfClass:PAL::getDDActionClassSingleton()])
         return nil;
 #endif
 
@@ -126,7 +126,7 @@ NSMenuItem *menuItemForTelephoneNumber(const String& telephoneNumber)
 
     [actionContext setAllowedActionUTIs:@[ @"com.apple.dial" ]];
 
-    RetainPtr<NSArray> proposedMenuItems = [[PAL::getDDActionsManagerClass() sharedManager] menuItemsForValue:telephoneNumber.createNSString().get() type:PAL::get_DataDetectorsCore_DDBinderPhoneNumberKey() service:nil context:actionContext.get()];
+    RetainPtr<NSArray> proposedMenuItems = [[PAL::getDDActionsManagerClassSingleton() sharedManager] menuItemsForValue:telephoneNumber.createNSString().get() type:PAL::get_DataDetectorsCore_DDBinderPhoneNumberKey() service:nil context:actionContext.get()];
     for (NSMenuItem *item in proposedMenuItems.get()) {
         RetainPtr action = actionForMenuItem(item);
         if ([action.get().actionUTI hasPrefix:@"com.apple.dial"]) {

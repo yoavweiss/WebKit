@@ -105,7 +105,7 @@ RetainPtr<NSTextList> TextList::createTextList() const
 #if PLATFORM(MAC)
     Class textListClass = NSTextList.class;
 #else
-    Class textListClass = PAL::getNSTextListClass();
+    Class textListClass = PAL::getNSTextListClassSingleton();
 #endif
     auto result = adoptNS([[textListClass alloc] initWithMarkerFormat:cocoaTextListMarkerName(styleType, ordered) options:0]);
     [result setStartingItemNumber:startingItemNumber];
@@ -135,7 +135,7 @@ RetainPtr<NSDictionary> FontAttributes::createDictionary() const
 #if PLATFORM(MAC)
     Class paragraphStyleClass = NSParagraphStyle.class;
 #else
-    Class paragraphStyleClass = PAL::getNSParagraphStyleClass();
+    Class paragraphStyleClass = PAL::getNSParagraphStyleClassSingleton();
 #endif
     auto style = adoptNS([[paragraphStyleClass defaultParagraphStyle] mutableCopy]);
 

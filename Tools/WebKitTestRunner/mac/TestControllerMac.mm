@@ -75,7 +75,7 @@ static PlatformWindow wtr_NSApplication_keyWindow(id self, SEL _cmd)
     return WTR::PlatformWebView::keyWindow();
 }
 
-static Class menuImplClass()
+static Class menuImplClassSingleton()
 {
     static dispatch_once_t onceToken;
     static Class menuImplClass;
@@ -153,7 +153,7 @@ void TestController::platformInitialize(const Options& options)
     static InstanceMethodSwizzler cancelTrackingSwizzler { NSMenu.class, @selector(cancelTracking), reinterpret_cast<IMP>(swizzledCancelTracking) };
     static ClassMethodSwizzler menuPopUpSwizzler { NSMenu.class, @selector(popUpContextMenu:withEvent:forView:), reinterpret_cast<IMP>(swizzledPopUpContextMenu) };
     static InstanceMethodSwizzler menuImplPopUpSwizzler {
-        menuImplClass(),
+        menuImplClassSingleton(),
         NSSelectorFromString(@"popUpMenu:atLocation:width:forView:withSelectedItem:withFont:withFlags:withOptions:"),
         reinterpret_cast<IMP>(swizzledPopUpMenu)
     };

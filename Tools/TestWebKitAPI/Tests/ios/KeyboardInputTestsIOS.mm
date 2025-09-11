@@ -1438,7 +1438,7 @@ TEST(KeyboardInputTests, DeviceEIDAndIMEIAutoFill)
 #if HAVE(DELAY_INIT_LINKING)
         CoreTelephonyClient.class,
 #else
-        PAL::getCoreTelephonyClientClass(),
+        PAL::getCoreTelephonyClientClassSingleton(),
 #endif
         @selector(isAutofilleSIMIdAllowedForDomain:error:),
         reinterpret_cast<IMP>(allowESIMAutoFillForWebKit)

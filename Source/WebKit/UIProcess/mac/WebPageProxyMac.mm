@@ -916,7 +916,7 @@ void WebPageProxy::handleContextMenuLookUpImage()
 
 void WebPageProxy::showImageInQuickLookPreviewPanel(ShareableBitmap& imageBitmap, const String& tooltip, const URL& imageURL, QuickLookPreviewActivity activity)
 {
-    if (!PAL::isQuickLookUIFrameworkAvailable() || !PAL::getQLPreviewPanelClass() || ![PAL::getQLItemClass() instancesRespondToSelector:@selector(initWithDataProvider:contentType:previewTitle:)])
+    if (!PAL::isQuickLookUIFrameworkAvailable() || !PAL::getQLPreviewPanelClassSingleton() || ![PAL::getQLItemClassSingleton() instancesRespondToSelector:@selector(initWithDataProvider:contentType:previewTitle:)])
         return;
 
     RetainPtr image = imageBitmap.createPlatformImage(DontCopyBackingStore);
@@ -940,7 +940,7 @@ void WebPageProxy::showImageInQuickLookPreviewPanel(ShareableBitmap& imageBitmap
     if (RefPtr pageClient = this->pageClient())
         pageClient->makeFirstResponder();
 
-    RetainPtr previewPanel = [PAL::getQLPreviewPanelClass() sharedPreviewPanel];
+    RetainPtr previewPanel = [PAL::getQLPreviewPanelClassSingleton() sharedPreviewPanel];
     [previewPanel makeKeyAndOrderFront:nil];
 
     if (![m_quickLookPreviewController isControlling:previewPanel.get()]) {

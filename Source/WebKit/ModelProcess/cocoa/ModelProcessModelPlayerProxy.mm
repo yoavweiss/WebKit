@@ -197,7 +197,7 @@ void RKModelLoaderUSD::load(CompletionHandler<void()>&& completionHandler)
     RetainPtr<NSString> attributionID;
     if (m_attributionTaskID.has_value())
         attributionID = m_attributionTaskID.value().createNSString();
-    [getWKRKEntityClass() loadFromData:m_model->data()->createNSData().get() withAttributionTaskID:attributionID.get() entityMemoryLimit:(m_entityMemoryLimit ? *m_entityMemoryLimit : 0) completionHandler:makeBlockPtr([weakThis = WeakPtr { *this }, completionHandler = WTFMove(completionHandler)] (WKRKEntity *entity) mutable {
+    [getWKRKEntityClassSingleton() loadFromData:m_model->data()->createNSData().get() withAttributionTaskID:attributionID.get() entityMemoryLimit:(m_entityMemoryLimit ? *m_entityMemoryLimit : 0) completionHandler:makeBlockPtr([weakThis = WeakPtr { *this }, completionHandler = WTFMove(completionHandler)] (WKRKEntity *entity) mutable {
         completionHandler();
 
         RefPtr protectedThis = weakThis.get();
@@ -585,7 +585,7 @@ void ModelProcessModelPlayerProxy::didFinishLoading(WebCore::REModelLoader& load
     dispatch_assert_queue(dispatch_get_main_queue());
     ASSERT(&loader == m_loader.get());
 
-    bool canLoadWithRealityKit = [getWKRKEntityClass() isLoadFromDataAvailable];
+    bool canLoadWithRealityKit = [getWKRKEntityClassSingleton() isLoadFromDataAvailable];
 
     m_loader = nullptr;
     if (canLoadWithRealityKit)
@@ -680,7 +680,7 @@ void ModelProcessModelPlayerProxy::load(WebCore::Model& model, WebCore::LayoutSi
 
     WKREEngine::shared().runWithSharedScene([this, protectedThis = Ref { *this }, model = Ref { model }] (RESceneRef scene) {
         m_scene = scene;
-        if ([getWKRKEntityClass() isLoadFromDataAvailable])
+        if ([getWKRKEntityClassSingleton() isLoadFromDataAvailable])
             m_loader = RKUSDModelLoadScheduler::singleton().scheduleModelLoad(model.get(), m_attributionTaskID, m_debugEntityMemoryLimit ? *m_debugEntityMemoryLimit : defaultEntityMemoryLimit, *this);
         else
             m_loader = WebCore::loadREModel(model.get(), *this);

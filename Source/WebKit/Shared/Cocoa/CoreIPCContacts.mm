@@ -44,7 +44,7 @@ CoreIPCCNPhoneNumber::CoreIPCCNPhoneNumber(CNPhoneNumber *cnPhoneNumber)
 
 RetainPtr<id> CoreIPCCNPhoneNumber::toID() const
 {
-    return [PAL::getCNPhoneNumberClass() phoneNumberWithDigits:m_digits.createNSString().get() countryCode:m_countryCode.createNSString().get()];
+    return [PAL::getCNPhoneNumberClassSingleton() phoneNumberWithDigits:m_digits.createNSString().get() countryCode:m_countryCode.createNSString().get()];
 }
 
 CoreIPCCNPostalAddress::CoreIPCCNPostalAddress(CNPostalAddress *cnPostalAddress)
@@ -62,7 +62,7 @@ CoreIPCCNPostalAddress::CoreIPCCNPostalAddress(CNPostalAddress *cnPostalAddress)
 
 RetainPtr<id> CoreIPCCNPostalAddress::toID() const
 {
-    RetainPtr<CNMutablePostalAddress> address = adoptNS([[PAL::getCNMutablePostalAddressClass() alloc] init]);
+    RetainPtr<CNMutablePostalAddress> address = adoptNS([[PAL::getCNMutablePostalAddressClassSingleton() alloc] init]);
 
     address.get().street = nsStringNilIfNull(m_street);
     address.get().subLocality = nsStringNilIfNull(m_subLocality);
@@ -151,13 +151,13 @@ static RetainPtr<NSArray> nsArrayFromVectorOfLabeledValues(const Vector<CoreIPCC
             return actualValue.toID();
         }, labeledValue.value);
 
-        return adoptNS([[PAL::getCNLabeledValueClass() alloc] initWithIdentifier:labeledValue.identifier.createNSString().get() label:labeledValue.label.createNSString().get() value:theValue.get()]);
+        return adoptNS([[PAL::getCNLabeledValueClassSingleton() alloc] initWithIdentifier:labeledValue.identifier.createNSString().get() label:labeledValue.label.createNSString().get() value:theValue.get()]);
     });
 }
 
 RetainPtr<id> CoreIPCCNContact::toID() const
 {
-    RetainPtr<CNMutableContact> result = adoptNS([[PAL::getCNMutableContactClass() alloc] initWithIdentifier:m_identifier.createNSString().get()]);
+    RetainPtr<CNMutableContact> result = adoptNS([[PAL::getCNMutableContactClassSingleton() alloc] initWithIdentifier:m_identifier.createNSString().get()]);
     result.get().contactType = m_personContactType ? CNContactTypePerson : CNContactTypeOrganization;
 
     if (!m_namePrefix.isNull())

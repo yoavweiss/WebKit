@@ -4032,7 +4032,7 @@ static bool isLockdownModeWarningNeeded()
 #if PLATFORM(MACCATALYST)
         return NO;
 #else
-        return [(MCProfileConnection *)[PAL::getMCProfileConnectionClass() sharedConnection] isURLManaged:self.URL];
+        return [(MCProfileConnection *)[PAL::getMCProfileConnectionClassSingleton() sharedConnection] isURLManaged:self.URL];
 #endif
     };
 

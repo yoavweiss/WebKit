@@ -526,7 +526,7 @@ static InterpolationType interpolationFromString(NSString *string)
         BKSHIDEventSetDigitizerInfo(strongEvent.get(), contextID, false, false, NULL, 0, 0);
 
         static auto canSetActiveModifiers = [&] {
-            return [getBKSHIDEventDigitizerAttributesClass() instancesRespondToSelector:@selector(setActiveModifiers:)];
+            return [getBKSHIDEventDigitizerAttributesClassSingleton() instancesRespondToSelector:@selector(setActiveModifiers:)];
         }();
 
         if (canSetActiveModifiers && IOHIDEventGetType(strongEvent.get()) == kIOHIDEventTypeDigitizer) {

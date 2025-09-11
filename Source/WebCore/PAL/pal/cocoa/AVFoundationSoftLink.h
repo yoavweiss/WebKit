@@ -34,7 +34,7 @@
 SOFT_LINK_FRAMEWORK_FOR_HEADER(PAL, AVFoundation)
 
 // Note: We don't define accessor macros for classes (e.g.
-//    #define AVAssetCache PAL::getAVAssetCacheClass()
+//    #define AVAssetCache PAL::getAVAssetCacheClassSingleton()
 // because they make it difficult to use the class name in source code.
 
 SOFT_LINK_CLASS_FOR_HEADER(PAL, AVAsset)
@@ -443,9 +443,9 @@ SOFT_LINK_CONSTANT_MAY_FAIL_FOR_HEADER(PAL, AVFoundation, AVContentKeyRequestSho
 SOFT_LINK_CONSTANT_MAY_FAIL_FOR_HEADER(PAL, AVFoundation, AVContentKeyRequestRandomDeviceIdentifierSeedKey, NSString *)
 #define AVContentKeyRequestRandomDeviceIdentifierSeedKey PAL::get_AVFoundation_AVContentKeyRequestRandomDeviceIdentifierSeedKey()
 
-SPECIALIZE_OBJC_TYPE_TRAITS(AVSampleBufferAudioRenderer, PAL::getAVSampleBufferAudioRendererClass())
-SPECIALIZE_OBJC_TYPE_TRAITS(AVSampleBufferDisplayLayer, PAL::getAVSampleBufferDisplayLayerClass())
-SPECIALIZE_OBJC_TYPE_TRAITS(AVSampleBufferVideoRenderer, PAL::getAVSampleBufferVideoRendererClass())
-SPECIALIZE_OBJC_TYPE_TRAITS(AVOutputContext, PAL::getAVOutputContextClass())
+SPECIALIZE_OBJC_TYPE_TRAITS(AVSampleBufferAudioRenderer, PAL::getAVSampleBufferAudioRendererClassSingleton())
+SPECIALIZE_OBJC_TYPE_TRAITS(AVSampleBufferDisplayLayer, PAL::getAVSampleBufferDisplayLayerClassSingleton())
+SPECIALIZE_OBJC_TYPE_TRAITS(AVSampleBufferVideoRenderer, PAL::getAVSampleBufferVideoRendererClassSingleton())
+SPECIALIZE_OBJC_TYPE_TRAITS(AVOutputContext, PAL::getAVOutputContextClassSingleton())
 
 #endif // USE(AVFOUNDATION)

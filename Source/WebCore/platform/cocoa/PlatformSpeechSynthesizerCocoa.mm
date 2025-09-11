@@ -137,7 +137,7 @@ static float getAVSpeechUtteranceMaximumSpeechRate()
     RetainPtr<NSString> voiceLanguage;
     if (!utteranceVoice || utteranceVoice->voiceURI().isEmpty()) {
         if (utterance->lang().isEmpty())
-            voiceLanguage = [PAL::getAVSpeechSynthesisVoiceClass() currentLanguageCode];
+            voiceLanguage = [PAL::getAVSpeechSynthesisVoiceClassSingleton() currentLanguageCode];
         else
             voiceLanguage = utterance->lang().createNSString();
     } else
@@ -145,12 +145,12 @@ static float getAVSpeechUtteranceMaximumSpeechRate()
 
     AVSpeechSynthesisVoice *avVoice = nil;
     if (utteranceVoice)
-        avVoice = [PAL::getAVSpeechSynthesisVoiceClass() voiceWithIdentifier:utteranceVoice->voiceURI().createNSString().get()];
+        avVoice = [PAL::getAVSpeechSynthesisVoiceClassSingleton() voiceWithIdentifier:utteranceVoice->voiceURI().createNSString().get()];
 
     if (!avVoice)
-        avVoice = [PAL::getAVSpeechSynthesisVoiceClass() voiceWithLanguage:voiceLanguage.get()];
+        avVoice = [PAL::getAVSpeechSynthesisVoiceClassSingleton() voiceWithLanguage:voiceLanguage.get()];
 
-    AVSpeechUtterance *avUtterance = [PAL::getAVSpeechUtteranceClass() speechUtteranceWithString:utterance->text().createNSString().get()];
+    AVSpeechUtterance *avUtterance = [PAL::getAVSpeechUtteranceClassSingleton() speechUtteranceWithString:utterance->text().createNSString().get()];
 
     [avUtterance setRate:[self mapSpeechRateToPlatformRate:utterance->rate()]];
     [avUtterance setVolume:utterance->volume()];
@@ -296,7 +296,7 @@ void PlatformSpeechSynthesizer::initializeVoiceList()
     // SpeechSynthesis replaces on-device compact with higher quality compact voices. These
     // are not available to WebKit so we're losing these default voices for WebSpeech.
     // Only show built-in voices when requesting through WebKit to reduce fingerprinting surface area.
-    for (AVSpeechSynthesisVoice *voice in [PAL::getAVSpeechSynthesisVoiceClass() speechVoicesIncludingSuperCompact]) {
+    for (AVSpeechSynthesisVoice *voice in [PAL::getAVSpeechSynthesisVoiceClassSingleton() speechVoicesIncludingSuperCompact]) {
         if (voice.isSystemVoice)
             m_voiceList.append(PlatformSpeechSynthesisVoice::create(voice.identifier, voice.name, voice.language, true, true));
     }

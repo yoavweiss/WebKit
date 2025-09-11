@@ -1194,7 +1194,7 @@ void HTMLConverter::_newTabForElement(Element& element)
     _flags.isSoft = YES;
 }
 
-static Class _WebMessageDocumentClass()
+static Class _WebMessageDocumentClassSingleton()
 {
     static Class _WebMessageDocumentClass = Nil;
     static BOOL lookedUpClass = NO;
@@ -1283,7 +1283,7 @@ BOOL HTMLConverter::_addAttachmentForElement(Element& element, NSURL *url, BOOL 
 #endif
     if (!fileWrapper && !notFound && url) {
         // Special handling for Mail attachments, until WebKit provides a standard way to get the data.
-        Class WebMessageDocumentClass = _WebMessageDocumentClass();
+        Class WebMessageDocumentClass = _WebMessageDocumentClassSingleton();
         if (WebMessageDocumentClass) {
             NSTextAttachment *mimeTextAttachment = nil;
             [WebMessageDocumentClass document:NULL attachment:&mimeTextAttachment forURL:url];

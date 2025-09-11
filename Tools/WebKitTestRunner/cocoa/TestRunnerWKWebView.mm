@@ -658,7 +658,7 @@ static bool isQuickboardViewController(UIViewController *viewController)
 
     [UIView performWithoutAnimation:^{
         for (id<UIInteraction> interaction in self.contentView.interactions) {
-            if ([interaction isKindOfClass:getUIEditMenuInteractionClass()])
+            if ([interaction isKindOfClass:getUIEditMenuInteractionClassSingleton()])
                 [(UIEditMenuInteraction *)interaction dismissMenu];
         }
     }];

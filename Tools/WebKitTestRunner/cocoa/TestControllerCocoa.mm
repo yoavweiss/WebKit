@@ -182,7 +182,7 @@ void TestController::cocoaPlatformInitialize(const Options& options)
 
 #if ENABLE(IMAGE_ANALYSIS)
     m_imageAnalysisRequestSwizzler = makeUnique<InstanceMethodSwizzler>(
-        PAL::getVKCImageAnalyzerClass(),
+        PAL::getVKCImageAnalyzerClassSingleton(),
         @selector(processRequest:progressHandler:completionHandler:),
         reinterpret_cast<IMP>(swizzledProcessImageAnalysisRequest)
     );

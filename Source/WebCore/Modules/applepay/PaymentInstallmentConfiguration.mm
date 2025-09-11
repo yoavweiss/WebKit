@@ -137,10 +137,9 @@ static PKInstallmentRetailChannel platformRetailChannel(ApplePayInstallmentRetai
 
 static RetainPtr<id> makeNSArrayElement(const ApplePayInstallmentItem& item)
 {
-    ASSERT(PAL::getPKPaymentInstallmentItemClass());
+    ASSERT(PAL::getPKPaymentInstallmentItemClassSingleton());
     // FIXME: This is a safer cpp false positive.
     SUPPRESS_UNRETAINED_ARG auto installmentItem = adoptNS([PAL::allocPKPaymentInstallmentItemInstance() init]);
-
     [installmentItem setInstallmentItemType:platformItemType(item.type)];
     [installmentItem setAmount:toProtectedDecimalNumber(item.amount).get()];
     [installmentItem setCurrencyCode:item.currencyCode.createNSString().get()];
@@ -152,7 +151,8 @@ static RetainPtr<id> makeNSArrayElement(const ApplePayInstallmentItem& item)
 
 static std::optional<ApplePayInstallmentItem> makeVectorElement(const ApplePayInstallmentItem*, id arrayElement)
 {
-    if (![arrayElement isKindOfClass:RetainPtr { PAL::getPKPaymentInstallmentItemClass() }.get()])
+    // FIXME: This is a static analysis false positive (rdar://160259918).
+    SUPPRESS_UNRETAINED_ARG if (![arrayElement isKindOfClass:PAL::getPKPaymentInstallmentItemClassSingleton()])
         return std::nullopt;
 
     PKPaymentInstallmentItem *item = arrayElement;
@@ -182,7 +182,7 @@ static String applicationMetadataString(NSDictionary *dictionary)
 
 static RetainPtr<PKPaymentInstallmentConfiguration> createPlatformConfiguration(const ApplePayInstallmentConfiguration& coreConfiguration)
 {
-    if (!PAL::getPKPaymentInstallmentConfigurationClass())
+    if (!PAL::getPKPaymentInstallmentConfigurationClassSingleton())
         return nil;
 
     // FIXME: This is a safer cpp false positive (rdar://160083438).
@@ -200,7 +200,7 @@ static RetainPtr<PKPaymentInstallmentConfiguration> createPlatformConfiguration(
     [configuration setInstallmentMerchantIdentifier:coreConfiguration.merchantIdentifier.createNSString().get()];
     [configuration setReferrerIdentifier:coreConfiguration.referrerIdentifier.createNSString().get()];
 
-    if (!PAL::getPKPaymentInstallmentItemClass())
+    if (!PAL::getPKPaymentInstallmentItemClassSingleton())
         return configuration;
 
     [configuration setInstallmentItems:createNSArray(coreConfiguration.items).get()];
@@ -257,7 +257,7 @@ std::optional<ApplePayInstallmentConfiguration> PaymentInstallmentConfiguration:
         return std::nullopt;
 
     ApplePayInstallmentConfiguration installmentConfiguration;
-    if (!PAL::getPKPaymentInstallmentConfigurationClass())
+    if (!PAL::getPKPaymentInstallmentConfigurationClassSingleton())
         return std::nullopt;
 
     if (auto featureType = applePaySetupFeatureType([configuration feature]))
@@ -274,7 +274,7 @@ std::optional<ApplePayInstallmentConfiguration> PaymentInstallmentConfiguration:
     installmentConfiguration.merchantIdentifier = [configuration installmentMerchantIdentifier];
     installmentConfiguration.referrerIdentifier = [configuration referrerIdentifier];
 
-    if (!PAL::getPKPaymentInstallmentItemClass())
+    if (!PAL::getPKPaymentInstallmentItemClassSingleton())
         return WTFMove(installmentConfiguration);
 
     installmentConfiguration.items = makeVector<ApplePayInstallmentItem>([configuration installmentItems]);

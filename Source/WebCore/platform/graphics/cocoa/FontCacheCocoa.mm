@@ -54,7 +54,7 @@ CFStringRef contentSizeCategory()
         return bridge_cast(contentSizeCategoryStorage().createNSString().autorelease());
     }
 #if PLATFORM(IOS_FAMILY)
-    return static_cast<CFStringRef>([[PAL::getUIApplicationClass() sharedApplication] preferredContentSizeCategory]);
+    return static_cast<CFStringRef>([[PAL::getUIApplicationClassSingleton() sharedApplication] preferredContentSizeCategory]);
 #else
     return kCTFontContentSizeCategoryL;
 #endif

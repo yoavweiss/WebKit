@@ -1322,9 +1322,9 @@ bool MediaPlayerPrivateWebM::isAvailable()
     return SourceBufferParserWebM::isAvailable()
         && PAL::isAVFoundationFrameworkAvailable()
         && PAL::isCoreMediaFrameworkAvailable()
-        && PAL::getAVSampleBufferAudioRendererClass()
-        && PAL::getAVSampleBufferRenderSynchronizerClass()
-        && class_getInstanceMethod(PAL::getAVSampleBufferAudioRendererClass(), @selector(setMuted:));
+        && PAL::getAVSampleBufferAudioRendererClassSingleton()
+        && PAL::getAVSampleBufferRenderSynchronizerClassSingleton()
+        && class_getInstanceMethod(PAL::getAVSampleBufferAudioRendererClassSingleton(), @selector(setMuted:));
 }
 
 bool MediaPlayerPrivateWebM::isEnabledVideoTrackID(TrackID trackID) const

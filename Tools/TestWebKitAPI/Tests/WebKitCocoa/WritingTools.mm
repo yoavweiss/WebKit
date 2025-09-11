@@ -158,7 +158,7 @@ using PlatformTextPlaceholder = NSTextPlaceholder;
 
 #if PLATFORM(MAC)
 #define FORCE_WRITING_TOOLS_AVAILABLE() \
-ClassMethodSwizzler availabilitySwizzler(PAL::getWTWritingToolsViewControllerClass(), @selector(isAvailable), imp_implementationWithBlock(^{ \
+ClassMethodSwizzler availabilitySwizzler(PAL::getWTWritingToolsViewControllerClassSingleton(), @selector(isAvailable), imp_implementationWithBlock(^{ \
     return YES; \
 }));
 #else
@@ -2648,7 +2648,7 @@ TEST(WritingTools, APIWithBehaviorNone)
     // If `CocoaWritingToolsBehaviorNone`, there should be no affordance, no context menu item, and no inline editing support.
 
 #if PLATFORM(MAC)
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
         didCallScheduleShowAffordanceForSelectionRect = true;
     }));
 #endif
@@ -2698,7 +2698,7 @@ TEST(WritingTools, APIWithBehaviorDefault)
     FORCE_WRITING_TOOLS_AVAILABLE()
 
 #if PLATFORM(MAC)
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
         didCallScheduleShowAffordanceForSelectionRect = true;
     }));
 #endif
@@ -2748,7 +2748,7 @@ TEST(WritingTools, APIWithBehaviorComplete)
     FORCE_WRITING_TOOLS_AVAILABLE()
 
 #if PLATFORM(MAC)
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
         didCallScheduleShowAffordanceForSelectionRect = true;
     }));
 #endif
@@ -2927,7 +2927,7 @@ TEST(WritingTools, ShowAffordance)
 {
     FORCE_WRITING_TOOLS_AVAILABLE()
 
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
         didCallScheduleShowAffordanceForSelectionRect = true;
     }));
 
@@ -2967,7 +2967,7 @@ TEST(WritingTools, DISABLED_ShowAffordanceForMultipleLines)
 
     __block int count = 0;
 
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(scheduleShowAffordanceForSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, NSRect rect, NSView *view, id delegate) {
 
         auto actualRect = WebCore::IntRect { rect };
         auto expectedRect = expectedRects[count];
@@ -2992,7 +2992,7 @@ TEST(WritingTools, ShowPanelWithNoSelection)
     __block WTRequestedTool requestedTool = WTRequestedToolIndex;
     __block NSRect selectionRect = NSZeroRect;
 
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
         requestedTool = tool;
         selectionRect = rect;
         done = true;
@@ -3017,7 +3017,7 @@ TEST(WritingTools, ShowPanelWithCaretSelection)
     __block WTRequestedTool requestedTool = WTRequestedToolIndex;
     __block NSRect selectionRect = NSZeroRect;
 
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
         requestedTool = tool;
         selectionRect = rect;
         done = true;
@@ -3058,7 +3058,7 @@ TEST(WritingTools, ShowPanelWithRangedSelection)
     __block WTRequestedTool requestedTool = WTRequestedToolIndex;
     __block NSRect selectionRect = NSZeroRect;
 
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
         requestedTool = tool;
         selectionRect = rect;
         done = true;
@@ -3085,7 +3085,7 @@ TEST(WritingTools, ShowToolWithRangedSelection)
     __block WTRequestedTool requestedTool = WTRequestedToolIndex;
     __block NSRect selectionRect = NSZeroRect;
 
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
         requestedTool = tool;
         selectionRect = rect;
         done = true;
@@ -3114,7 +3114,7 @@ TEST(WritingTools, ShowInvalidToolWithRangedSelection)
     __block WTRequestedTool requestedTool = WTRequestedToolIndex;
     __block NSRect selectionRect = NSZeroRect;
 
-    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClass(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
+    InstanceMethodSwizzler swizzler(PAL::getWTWritingToolsClassSingleton(), @selector(showTool:forSelectionRect:ofView:forDelegate:), imp_implementationWithBlock(^(id object, WTRequestedTool tool, NSRect rect, NSView *view, id delegate) {
         requestedTool = tool;
         selectionRect = rect;
         done = true;

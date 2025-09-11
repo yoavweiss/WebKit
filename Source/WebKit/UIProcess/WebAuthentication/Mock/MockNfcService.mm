@@ -227,22 +227,22 @@ void MockNfcService::platformStartDiscovery()
     if (!!m_configuration.nfc) {
         weakGlobalNfcService() = *this;
 
-        Method methodToSwizzle1 = class_getInstanceMethod(getNFReaderSessionClass(), @selector(setDelegate:));
+        Method methodToSwizzle1 = class_getInstanceMethod(getNFReaderSessionClassSingleton(), @selector(setDelegate:));
         method_setImplementation(methodToSwizzle1, (IMP)NFReaderSessionSetDelegate);
 
-        Method methodToSwizzle2 = class_getInstanceMethod(getNFReaderSessionClass(), @selector(connectTag:));
+        Method methodToSwizzle2 = class_getInstanceMethod(getNFReaderSessionClassSingleton(), @selector(connectTag:));
         if (m_configuration.nfc->error == Mock::NfcError::NoConnections)
             method_setImplementation(methodToSwizzle2, (IMP)NFReaderSessionConnectTagFail);
         else
             method_setImplementation(methodToSwizzle2, (IMP)NFReaderSessionConnectTag);
 
-        Method methodToSwizzle3 = class_getInstanceMethod(getNFReaderSessionClass(), @selector(transceive:));
+        Method methodToSwizzle3 = class_getInstanceMethod(getNFReaderSessionClassSingleton(), @selector(transceive:));
         method_setImplementation(methodToSwizzle3, (IMP)NFReaderSessionTransceive);
 
-        Method methodToSwizzle4 = class_getInstanceMethod(getNFReaderSessionClass(), @selector(stopPolling));
+        Method methodToSwizzle4 = class_getInstanceMethod(getNFReaderSessionClassSingleton(), @selector(stopPolling));
         method_setImplementation(methodToSwizzle4, (IMP)NFReaderSessionStopPolling);
 
-        Method methodToSwizzle5 = class_getInstanceMethod(getNFReaderSessionClass(), @selector(startPollingWithError:));
+        Method methodToSwizzle5 = class_getInstanceMethod(getNFReaderSessionClassSingleton(), @selector(startPollingWithError:));
         method_setImplementation(methodToSwizzle5, (IMP)NFReaderSessionStartPollingWithError);
 
         auto readerSession = adoptNS([allocNFReaderSessionInstance() initWithUIType:NFReaderSessionUINone]);

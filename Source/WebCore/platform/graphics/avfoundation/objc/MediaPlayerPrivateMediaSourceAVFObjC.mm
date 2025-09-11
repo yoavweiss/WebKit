@@ -217,10 +217,10 @@ bool MediaPlayerPrivateMediaSourceAVFObjC::isAvailable()
 {
     return PAL::isAVFoundationFrameworkAvailable()
         && PAL::isCoreMediaFrameworkAvailable()
-        && PAL::getAVStreamDataParserClass()
-        && PAL::getAVSampleBufferAudioRendererClass()
-        && PAL::getAVSampleBufferRenderSynchronizerClass()
-        && class_getInstanceMethod(PAL::getAVSampleBufferAudioRendererClass(), @selector(setMuted:));
+        && PAL::getAVStreamDataParserClassSingleton()
+        && PAL::getAVSampleBufferAudioRendererClassSingleton()
+        && PAL::getAVSampleBufferRenderSynchronizerClassSingleton()
+        && class_getInstanceMethod(PAL::getAVSampleBufferAudioRendererClassSingleton(), @selector(setMuted:));
 }
 
 void MediaPlayerPrivateMediaSourceAVFObjC::getSupportedTypes(HashSet<String>& types)
@@ -2015,7 +2015,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::updateSpatialTrackingLabel()
     // If there is no video renderer, use the default spatial tracking label if available, or
     // the session's spatial tracking label if not, and set the label directly on each audio
     // renderer.
-    AVAudioSession *session = [PAL::getAVAudioSessionClass() sharedInstance];
+    AVAudioSession *session = [PAL::getAVAudioSessionClassSingleton() sharedInstance];
     RetainPtr<NSString> defaultLabel;
     if (!m_defaultSpatialTrackingLabel.isNull()) {
         ALWAYS_LOG(LOGIDENTIFIER, "Default STSLabel: ", m_defaultSpatialTrackingLabel);

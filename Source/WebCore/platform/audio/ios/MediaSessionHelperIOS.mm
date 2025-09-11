@@ -248,7 +248,7 @@ void MediaSessionHelper::providePresentingApplicationPID(ProcessID)
 void MediaSessionHelper::updateActiveAudioRouteSupportsSpatialPlayback()
 {
 #if HAVE(AVAUDIOSESSION)
-    AVAudioSession* audioSession = [PAL::getAVAudioSessionClass() sharedInstance];
+    AVAudioSession* audioSession = [PAL::getAVAudioSessionClassSingleton() sharedInstance];
     for (AVAudioSessionPortDescription* output in audioSession.currentRoute.outputs) {
         if (output.spatialAudioEnabled) {
             setActiveAudioRouteSupportsSpatialPlayback(true);
@@ -295,7 +295,7 @@ void MediaSessionHelperIOS::providePresentingApplicationPID(ProcessID pid)
     m_presentedApplicationPID = pid;
 
     NSError *error = nil;
-    [[getAVSystemControllerClass() sharedAVSystemController] setAttribute:@(pid) forKey:getAVSystemController_PIDToInheritApplicationStateFrom() error:&error];
+    [[getAVSystemControllerClassSingleton() sharedAVSystemController] setAttribute:@(pid) forKey:getAVSystemController_PIDToInheritApplicationStateFrom() error:&error];
     if (error)
         RELEASE_LOG_ERROR(Media, "Failed to set AVSystemController_PIDToInheritApplicationStateFrom: %@", error.localizedDescription);
 #else
@@ -336,7 +336,7 @@ void MediaSessionHelperIOS::mediaServerConnectionDied()
 void MediaSessionHelperIOS::updateCarPlayIsConnected()
 {
 #if HAVE(AVAUDIOSESSION)
-    AVAudioSession *audioSession = [PAL::getAVAudioSessionClass() sharedInstance];
+    AVAudioSession *audioSession = [PAL::getAVAudioSessionClassSingleton() sharedInstance];
     for (AVAudioSessionPortDescription *output in audioSession.currentRoute.outputs) {
         if ([output.portType isEqualToString:AVAudioSessionPortCarAudio]) {
             setIsPlayingToAutomotiveHeadUnit(true);
@@ -407,7 +407,7 @@ void MediaSessionHelperIOS::externalOutputDeviceAvailableDidChange()
     // Now playing won't work unless we turn on the delivery of remote control events.
     RunLoop::mainSingleton().dispatch([] {
         BEGIN_BLOCK_OBJC_EXCEPTIONS
-        [[PAL::getUIApplicationClass() sharedApplication] beginReceivingRemoteControlEvents];
+        [[PAL::getUIApplicationClassSingleton() sharedApplication] beginReceivingRemoteControlEvents];
         END_BLOCK_OBJC_EXCEPTIONS
     });
 

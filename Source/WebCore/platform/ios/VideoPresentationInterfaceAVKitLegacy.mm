@@ -269,7 +269,7 @@ static WebAVPictureInPictureContentViewController* WebAVPictureInPictureContentV
     ASSERT(controller);
 
     WebAVPictureInPictureContentViewController *pipController = aSelf;
-    objc_super superClass { pipController, getAVPictureInPictureContentViewControllerClass() };
+    objc_super superClass { pipController, getAVPictureInPictureContentViewControllerClassSingleton() };
     auto super_init = reinterpret_cast<id(*)(objc_super*, SEL)>(objc_msgSendSuper);
     aSelf = super_init(&superClass, @selector(init));
     if (!aSelf)
@@ -309,7 +309,7 @@ static void WebAVPictureInPictureContentViewController_setPlayerLayer(id aSelf, 
 static void WebAVPictureInPictureContentViewController_viewWillLayoutSubviews(id aSelf, SEL)
 {
     WebAVPictureInPictureContentViewController *pipController = aSelf;
-    objc_super superClass { pipController, getAVPictureInPictureContentViewControllerClass() };
+    objc_super superClass { pipController, getAVPictureInPictureContentViewControllerClassSingleton() };
     auto super_viewWillLayoutSubviews = reinterpret_cast<void(*)(objc_super*, SEL)>(objc_msgSendSuper);
     super_viewWillLayoutSubviews(&superClass, @selector(viewWillLayoutSubviews));
     [[pipController playerLayer] setFrame:[pipController view].bounds];
@@ -320,7 +320,7 @@ static void WebAVPictureInPictureContentViewController_dealloc(id aSelf, SEL)
     WebAVPictureInPictureContentViewController *pipController = aSelf;
     [[pipController controller] release];
     [[pipController playerLayer] release];
-    objc_super superClass { pipController, getAVPictureInPictureContentViewControllerClass() };
+    objc_super superClass { pipController, getAVPictureInPictureContentViewControllerClassSingleton() };
     auto super_dealloc = reinterpret_cast<void(*)(objc_super*, SEL)>(objc_msgSendSuper);
     super_dealloc(&superClass, @selector(dealloc));
 }
@@ -330,7 +330,7 @@ static WebAVPictureInPictureContentViewController *allocWebAVPictureInPictureCon
     static Class theClass = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        theClass = objc_allocateClassPair(getAVPictureInPictureContentViewControllerClass(), "WebAVPictureInPictureContentViewController", 0);
+        theClass = objc_allocateClassPair(getAVPictureInPictureContentViewControllerClassSingleton(), "WebAVPictureInPictureContentViewController", 0);
         class_addMethod(theClass, @selector(initWithController:), (IMP)WebAVPictureInPictureContentViewController_initWithController, "v@:@");
         class_addMethod(theClass, @selector(controller), (IMP)WebAVPictureInPictureContentViewController_controller, "@@:");
         class_addMethod(theClass, @selector(playerController), (IMP)WebAVPictureInPictureContentViewController_controller, "@@:");
@@ -953,7 +953,7 @@ bool supportsPictureInPicture()
 #if ENABLE(VIDEO_PRESENTATION_MODE) && !PLATFORM(WATCHOS)
     if (isPictureInPictureSupported.has_value())
         return *isPictureInPictureSupported;
-    return [getAVPictureInPictureControllerClass() isPictureInPictureSupported];
+    return [getAVPictureInPictureControllerClassSingleton() isPictureInPictureSupported];
 #else
     return false;
 #endif

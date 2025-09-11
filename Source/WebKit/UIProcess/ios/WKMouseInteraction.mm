@@ -451,7 +451,7 @@ inline static String pointerType(UITouchType type)
         return;
 #endif
 
-    _pointerLockState.currentMouse = dynamic_objc_cast<GCMouse>([WebCore::getGCMouseClass() current]);
+    _pointerLockState.currentMouse = dynamic_objc_cast<GCMouse>([WebCore::getGCMouseClassSingleton() current]);
     if (!_pointerLockState.currentMouse)
         return;
 

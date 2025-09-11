@@ -111,9 +111,9 @@ void GraphicsContextCG::drawFocusRing(const Path& path, float, const Color& colo
     focusRingStyle.version = 0;
     focusRingStyle.tint = kCGFocusRingTintBlue;
     focusRingStyle.ordering = kCGFocusRingOrderingNone;
-    focusRingStyle.alpha = [PAL::getUIFocusRingStyleClass() maxAlpha];
-    focusRingStyle.radius = [PAL::getUIFocusRingStyleClass() borderThickness];
-    focusRingStyle.threshold = [PAL::getUIFocusRingStyleClass() alphaThreshold];
+    focusRingStyle.alpha = [PAL::getUIFocusRingStyleClassSingleton() maxAlpha];
+    focusRingStyle.radius = [PAL::getUIFocusRingStyleClassSingleton() borderThickness];
+    focusRingStyle.threshold = [PAL::getUIFocusRingStyleClassSingleton() alphaThreshold];
     focusRingStyle.bounds = CGRectZero;
 #endif
 

@@ -42,7 +42,7 @@ namespace WebKit {
 
 static bool hasActionsForResult(DDScannerResult *dataDetectorResult)
 {
-    RetainPtr ddActionsManagerClass = PAL::getDDActionsManagerClass();
+    RetainPtr ddActionsManagerClass = PAL::getDDActionsManagerClassSingleton();
     return [[ddActionsManagerClass.get() sharedManager] hasActionsForResult:RetainPtr { [dataDetectorResult coreResult] }.get() actionContext:nil];
 }
 

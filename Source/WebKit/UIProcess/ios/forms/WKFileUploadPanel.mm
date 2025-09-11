@@ -923,9 +923,9 @@ static NSSet<NSString *> *UTIsForMIMETypes(NSArray *mimeTypes)
 
     if (auto allowedImagePickerType = _allowedImagePickerTypes.toSingleValue()) {
         if (*allowedImagePickerType == WKFileUploadPanelImagePickerType::Image)
-            [configuration setFilter:[getPHPickerFilterClass() imagesFilter]];
+            [configuration setFilter:[getPHPickerFilterClassSingleton() imagesFilter]];
         else
-            [configuration setFilter:[getPHPickerFilterClass() videosFilter]];
+            [configuration setFilter:[getPHPickerFilterClassSingleton() videosFilter]];
     }
 
     _uploadFileManager = adoptNS([[NSFileManager alloc] init]);

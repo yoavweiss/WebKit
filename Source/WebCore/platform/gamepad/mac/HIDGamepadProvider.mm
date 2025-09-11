@@ -195,7 +195,7 @@ static GameControllerFrameworkHandlesDevice gameControllerFrameworkWillHandleHID
         return GameControllerFrameworkHandlesDevice::No;
 
 #if HAVE(GCCONTROLLER_HID_DEVICE_CHECK)
-    return [getGCControllerClass() supportsHIDDevice:device] ? GameControllerFrameworkHandlesDevice::Yes : GameControllerFrameworkHandlesDevice::No;
+    return [getGCControllerClassSingleton() supportsHIDDevice:device] ? GameControllerFrameworkHandlesDevice::Yes : GameControllerFrameworkHandlesDevice::No;
 #else
     CFNumberRef cfVendorID = (CFNumberRef)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDVendorIDKey));
     CFNumberRef cfProductID = (CFNumberRef)IOHIDDeviceGetProperty(device, CFSTR(kIOHIDProductIDKey));

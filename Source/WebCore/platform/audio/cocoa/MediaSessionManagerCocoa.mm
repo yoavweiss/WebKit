@@ -584,7 +584,7 @@ std::optional<bool> MediaSessionManagerCocoa::supportsSpatialAudioPlaybackForCon
 
 static id<MRNowPlayingActivityUIControllable> nowPlayingActivityController()
 {
-    static id<MRNowPlayingActivityUIControllable> controller = RetainPtr([getMRUIControllerProviderClass() nowPlayingActivityController]).leakRef();
+    static id<MRNowPlayingActivityUIControllable> controller = RetainPtr([getMRUIControllerProviderClassSingleton() nowPlayingActivityController]).leakRef();
     return controller;
 }
 

@@ -134,7 +134,7 @@ TextRecognitionResult makeTextRecognitionResult(CocoaImageAnalysis *analysis)
 #endif // ENABLE(DATA_DETECTION)
 
 #if ENABLE(IMAGE_ANALYSIS_ENHANCEMENTS)
-    if ([analysis isKindOfClass:PAL::getVKCImageAnalysisClass()])
+    if ([analysis isKindOfClass:PAL::getVKCImageAnalysisClassSingleton()])
         result.imageAnalysisData = TextRecognitionResult::encodeVKCImageAnalysis(analysis);
 #endif
 
@@ -159,7 +159,7 @@ bool languageIdentifierSupportsLiveText(NSString *languageIdentifier)
 
     static NeverDestroyed<MemoryCompactRobinHoodHashSet<String>> supportedLanguages = [] {
         MemoryCompactRobinHoodHashSet<String> set;
-        for (NSString *identifier in [PAL::getVKCImageAnalyzerClass() supportedRecognitionLanguages]) {
+        for (NSString *identifier in [PAL::getVKCImageAnalyzerClassSingleton() supportedRecognitionLanguages]) {
             if (auto code = languageCodeForLocale(identifier); !code.isEmpty())
                 set.add(WTFMove(code));
         }

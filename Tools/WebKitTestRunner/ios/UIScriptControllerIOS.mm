@@ -648,7 +648,7 @@ enum class IsKeyDown : bool { No, Yes };
 
 static UIPhysicalKeyboardEvent *createUIPhysicalKeyboardEvent(NSString *hidInputString, NSString *uiEventInputString, UIKeyModifierFlags modifierFlags, UIKeyboardInputFlags inputFlags, IsKeyDown isKeyDown)
 {
-    auto* keyboardEvent = [getUIPhysicalKeyboardEventClass() _eventWithInput:uiEventInputString inputFlags:inputFlags];
+    auto* keyboardEvent = [getUIPhysicalKeyboardEventClassSingleton() _eventWithInput:uiEventInputString inputFlags:inputFlags];
     [keyboardEvent _setModifierFlags:modifierFlags];
     auto hidEvent = createHIDKeyEvent(hidInputString, keyboardEvent.timestamp, isKeyDown == IsKeyDown::Yes);
     [keyboardEvent _setHIDEvent:hidEvent.get() keyboard:nullptr];

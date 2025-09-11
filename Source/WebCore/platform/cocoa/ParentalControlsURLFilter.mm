@@ -46,9 +46,9 @@ namespace WebCore {
 static bool wcrBrowserEngineClientEnabled(const String& path)
 {
     if (!path.isEmpty())
-        return [PAL::getWCRBrowserEngineClientClass() shouldEvaluateURLsForConfigurationAtPath:path.createNSString().get()];
+        return [PAL::getWCRBrowserEngineClientClassSingleton() shouldEvaluateURLsForConfigurationAtPath:path.createNSString().get()];
 
-    return [PAL::getWCRBrowserEngineClientClass() shouldEvaluateURLs];
+    return [PAL::getWCRBrowserEngineClientClassSingleton() shouldEvaluateURLs];
 }
 
 static HashMap<String, UniqueRef<ParentalControlsURLFilter>>& allFiltersWithConfigurationPath()
@@ -79,7 +79,7 @@ ParentalControlsURLFilter::ParentalControlsURLFilter(const String& configuration
 
 static bool wcrBrowserEngineClientEnabled()
 {
-    return [PAL::getWCRBrowserEngineClientClass() shouldEvaluateURLs];
+    return [PAL::getWCRBrowserEngineClientClassSingleton() shouldEvaluateURLs];
 }
 
 ParentalControlsURLFilter& ParentalControlsURLFilter::singleton()

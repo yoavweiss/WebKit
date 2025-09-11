@@ -108,7 +108,7 @@ using namespace WebCore;
     UNUSED_PARAM(keyPath);
     UNUSED_PARAM(change);
 
-    if (![object isKindOfClass:PAL::getAVSampleBufferDisplayLayerClass()])
+    if (![object isKindOfClass:PAL::getAVSampleBufferDisplayLayerClassSingleton()])
         return;
 
     if ([keyPath isEqualToString:@"status"]) {

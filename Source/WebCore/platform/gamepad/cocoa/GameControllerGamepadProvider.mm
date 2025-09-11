@@ -183,7 +183,7 @@ void GameControllerGamepadProvider::prewarmGameControllerDevicesIfNecessary()
         return;
 
     LOG(Gamepad, "GameControllerGamepadProvider explicitly starting GameController framework monitoring");
-    [getGCControllerClass() __openXPC_and_CBApplicationDidBecomeActive__];
+    [getGCControllerClassSingleton() __openXPC_and_CBApplicationDidBecomeActive__];
 
     init_GameController_GCInputButtonA();
     init_GameController_GCInputButtonB();
@@ -229,7 +229,7 @@ void GameControllerGamepadProvider::startMonitoringGamepads(GamepadProviderClien
         }];
     }
 
-    auto *controllers = [getGCControllerClass() controllers];
+    auto *controllers = [getGCControllerClassSingleton() controllers];
     if (!controllers || !controllers.count)
         LOG(Gamepad, "GameControllerGamepadProvider has no initial GCControllers attached");
 
