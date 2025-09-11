@@ -1412,6 +1412,7 @@ void MediaPlayerPrivateWebM::sceneIdentifierDidChange()
 void MediaPlayerPrivateWebM::applicationWillResignActive()
 {
     ALWAYS_LOG(LOGIDENTIFIER);
+    m_renderer->applicationWillResignActive();
     m_applicationIsActive = false;
 }
 

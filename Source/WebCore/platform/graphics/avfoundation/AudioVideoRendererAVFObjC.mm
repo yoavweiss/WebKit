@@ -323,6 +323,21 @@ void AudioVideoRendererAVFObjC::flushTrack(TrackIdentifier trackId)
     }
 }
 
+void AudioVideoRendererAVFObjC::applicationWillResignActive()
+{
+    RefPtr videoRenderer = m_videoRenderer;
+    if (!videoRenderer || !videoRenderer->isUsingDecompressionSession())
+        return;
+
+    if (!paused()) {
+        ALWAYS_LOG(LOGIDENTIFIER, "Playing; not invalidating VideoMediaSampleRenderer Decompression Session");
+        return;
+    }
+
+    videoRenderer->invalidateDecompressionSession();
+    ALWAYS_LOG(LOGIDENTIFIER, "Paused; invalidating VideoMediaSampleRenderer Decompression Session");
+}
+
 void AudioVideoRendererAVFObjC::notifyWhenErrorOccurs(Function<void(PlatformMediaError)>&& callback)
 {
     m_errorCallback = WTFMove(callback);

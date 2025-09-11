@@ -76,6 +76,8 @@ public:
     void flush() final;
     void flushTrack(TrackIdentifier) final;
 
+    void applicationWillResignActive() final;
+
     void notifyWhenErrorOccurs(Function<void(PlatformMediaError)>&&) final;
 
     // SynchronizerInterface

@@ -131,6 +131,8 @@ public:
     virtual void flush() = 0;
     virtual void flushTrack(TrackIdentifier) = 0;
 
+    virtual void applicationWillResignActive() { }
+
     virtual void notifyWhenErrorOccurs(Function<void(PlatformMediaError)>&&) = 0;
 
     using SoundStageSize = MediaPlayerSoundStageSize;
