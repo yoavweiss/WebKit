@@ -33,6 +33,7 @@
 #import "PlatformUtilities.h"
 #import "TestCocoa.h"
 #import "TestNavigationDelegate.h"
+#import "TestUIDelegate.h"
 #import "TestURLSchemeHandler.h"
 #import "TestWKWebView.h"
 #import "Utilities.h"
@@ -910,39 +911,14 @@ TEST(WebKit, NotificationPermission)
     TestWebKitAPI::Util::run(&done);
 }
 
-bool firstToolbarDone;
-
-@interface ToolbarDelegate : NSObject <WKUIDelegatePrivate>
-@end
-
-@implementation ToolbarDelegate
-
-- (void)_webView:(WKWebView *)webView getToolbarsAreVisibleWithCompletionHandler:(void(^)(BOOL))completionHandler
-{
-    completionHandler(firstToolbarDone);
-}
-
-- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler
-{
-    if (firstToolbarDone) {
-        EXPECT_STREQ(message.UTF8String, "visible:true");
-        done = true;
-    } else {
-        EXPECT_STREQ(message.UTF8String, "visible:false");
-        firstToolbarDone = true;
-    }
-    completionHandler();
-}
-
-@end
-
 TEST(WebKit, ToolbarVisible)
 {
     auto webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:adoptNS([[WKWebViewConfiguration alloc] init]).get()]);
-    auto delegate = adoptNS([[ToolbarDelegate alloc] init]);
-    [webView setUIDelegate:delegate.get()];
-    [webView synchronouslyLoadHTMLString:@"<script>alert('visible:' + window.toolbar.visible);alert('visible:' + window.toolbar.visible)</script>"];
-    TestWebKitAPI::Util::run(&done);
+    [webView loadHTMLString:@"<script>alert('visible:' + window.toolbar.visible)</script>" baseURL:nil];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "visible:true");
+    webView.get()._toolbarsAreVisible = NO;
+    [webView evaluateJavaScript:@"alert('visible:' + window.toolbar.visible)" completionHandler:nil];
+    EXPECT_WK_STREQ([webView _test_waitForAlert], "visible:false");
 }
 
 @interface MouseMoveOverElementDelegate : NSObject <WKUIDelegatePrivate>

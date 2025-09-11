@@ -47,10 +47,6 @@ class InjectedBundlePageUIClient : public API::Client<WKBundlePageUIClientBase>,
 public:
     explicit InjectedBundlePageUIClient(const WKBundlePageUIClientBase*);
 
-    UIElementVisibility statusBarIsVisible(WebPage*) override;
-    UIElementVisibility menuBarIsVisible(WebPage*) override;
-    UIElementVisibility toolbarsAreVisible(WebPage*) override;
-
     void didClickAutoFillButton(WebPage&, InjectedBundleNodeHandle&, RefPtr<API::Object>& userData) override;
 };
 

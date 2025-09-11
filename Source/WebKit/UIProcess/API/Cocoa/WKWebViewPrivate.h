@@ -438,6 +438,10 @@ for this property.
 - (void)_convertPoint:(CGPoint)point fromFrame:(WKFrameInfo *)frame toMainFrameCoordinates:(void (^)(CGPoint, NSError *error))completionHandler WK_API_AVAILABLE(macos(26.0), ios(26.0), visionos(26.0));
 - (void)_convertRect:(CGRect)rect fromFrame:(WKFrameInfo *)frame toMainFrameCoordinates:(void (^)(CGRect, NSError *error))completionHandler WK_API_AVAILABLE(macos(26.0), ios(26.0), visionos(26.0));
 
+@property (nonatomic, setter=_setStatusBarIsVisible:) BOOL _statusBarIsVisible WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+@property (nonatomic, setter=_setMenuBarIsVisible:) BOOL _menuBarIsVisible WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+@property (nonatomic, setter=_setToolbarsAreVisible:) BOOL _toolbarsAreVisible WK_API_AVAILABLE(macos(WK_MAC_TBA), ios(WK_IOS_TBA), visionos(WK_XROS_TBA));
+
 // If frame is nil, the main frame will be used if there is a main frame.
 // If frame is non-nil, not only will frame's coordinate space be used, but frame's subtree will be searched,
 // so a node from a parent node won't be returned, even if point is outside frame's rect.

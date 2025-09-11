@@ -2793,6 +2793,13 @@ public:
     void resetPointerLockState(void);
 #endif
 
+    bool statusBarIsVisible() const { return m_statusBarIsVisible; }
+    void setStatusBarIsVisible(bool);
+    bool menuBarIsVisible() const { return m_menuBarIsVisible; }
+    void setMenuBarIsVisible(bool);
+    bool toolbarsAreVisible() const { return m_toolbarsAreVisible; }
+    void setToolbarsAreVisible(bool);
+
 private:
     WebPageProxy(PageClient&, WebProcessProxy&, Ref<API::PageConfiguration>&&);
     void platformInitialize();
@@ -2917,12 +2924,6 @@ private:
     void setStatusText(const String&);
     void mouseDidMoveOverElement(WebHitTestResultData&&, OptionSet<WebEventModifier>);
 
-    void setToolbarsAreVisible(bool toolbarsAreVisible);
-    void getToolbarsAreVisible(CompletionHandler<void(bool)>&&);
-    void setMenuBarIsVisible(bool menuBarIsVisible);
-    void getMenuBarIsVisible(CompletionHandler<void(bool)>&&);
-    void setStatusBarIsVisible(bool statusBarIsVisible);
-    void getStatusBarIsVisible(CompletionHandler<void(bool)>&&);
     void getIsViewVisible(bool&);
     void setIsResizable(bool isResizable);
     void screenToRootView(const WebCore::IntPoint& screenPoint, CompletionHandler<void(const WebCore::IntPoint&)>&&);
@@ -3984,6 +3985,10 @@ private:
 
     const Ref<AboutSchemeHandler> m_aboutSchemeHandler;
     RefPtr<WebPageProxyTesting> m_pageForTesting;
+
+    bool m_statusBarIsVisible { true };
+    bool m_menuBarIsVisible { true };
+    bool m_toolbarsAreVisible { true };
 };
 
 } // namespace WebKit

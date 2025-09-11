@@ -124,12 +124,14 @@ public:
     virtual void didNotHandleKeyEvent(WebKit::WebPageProxy*, const WebKit::NativeWebKeyboardEvent&) { }
     virtual void didNotHandleWheelEvent(WebKit::WebPageProxy*, const WebKit::NativeWebWheelEvent&) { }
 
+#if !PLATFORM(COCOA)
     virtual void toolbarsAreVisible(WebKit::WebPageProxy&, Function<void(bool)>&& completionHandler) { completionHandler(true); }
     virtual void setToolbarsAreVisible(WebKit::WebPageProxy&, bool) { }
     virtual void menuBarIsVisible(WebKit::WebPageProxy&, Function<void(bool)>&& completionHandler) { completionHandler(true); }
     virtual void setMenuBarIsVisible(WebKit::WebPageProxy&, bool) { }
     virtual void statusBarIsVisible(WebKit::WebPageProxy&, Function<void(bool)>&& completionHandler) { completionHandler(true); }
     virtual void setStatusBarIsVisible(WebKit::WebPageProxy&, bool) { }
+#endif
     virtual void setIsResizable(WebKit::WebPageProxy&, bool) { }
 
     virtual void setWindowFrame(WebKit::WebPageProxy&, const WebCore::FloatRect&) { }

@@ -798,6 +798,16 @@ RefPtr<WebPageProxy> WebPageProxy::fromIdentifier(std::optional<WebPageProxyIden
     return identifier ? webPageProxyMap().get(*identifier).get() : nullptr;
 }
 
+static bool windowFeature(auto getter, const API::PageConfiguration& configuration)
+{
+    if (!configuration.windowFeatures())
+        return true;
+    auto optional = getter(*configuration.windowFeatures());
+    if (!optional)
+        return true;
+    return *optional;
+}
+
 WebPageProxy::WebPageProxy(PageClient& pageClient, WebProcessProxy& process, Ref<API::PageConfiguration>&& configuration)
     : m_internals(makeUniqueRefWithoutRefCountedCheck<Internals>(*this))
     , m_identifier(Identifier::generate())
@@ -861,6 +871,10 @@ WebPageProxy::WebPageProxy(PageClient& pageClient, WebProcessProxy& process, Ref
 #endif
     , m_aboutSchemeHandler(AboutSchemeHandler::create())
     , m_pageForTesting(WebPageProxyTesting::create(*this))
+    , m_statusBarIsVisible(windowFeature([] (auto& features) { return features.statusBarVisible; }, configuration))
+    , m_menuBarIsVisible(windowFeature([] (auto& features) { return features.menuBarVisible; }, configuration))
+    , m_toolbarsAreVisible(windowFeature([] (auto& features) { return features.toolBarVisible; }, configuration)
+        || windowFeature([] (auto& features) { return features.locationBarVisible; }, configuration))
 {
     WEBPAGEPROXY_RELEASE_LOG(Loading, "constructor, site isolation enabled %d", protectedPreferences()->siteIsolationEnabled());
 
@@ -9112,34 +9126,28 @@ void WebPageProxy::mouseDidMoveOverElement(WebHitTestResultData&& hitTestResultD
     setToolTip(hitTestResultData.tooltipText);
 }
 
-void WebPageProxy::setToolbarsAreVisible(bool toolbarsAreVisible)
+void WebPageProxy::setToolbarsAreVisible(bool visible)
 {
-    m_uiClient->setToolbarsAreVisible(*this, toolbarsAreVisible);
+    m_toolbarsAreVisible = visible;
+    forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        webProcess.send(Messages::WebPage::SetToolbarsAreVisible(visible), pageID);
+    });
 }
 
-void WebPageProxy::getToolbarsAreVisible(CompletionHandler<void(bool)>&& reply)
+void WebPageProxy::setMenuBarIsVisible(bool visible)
 {
-    m_uiClient->toolbarsAreVisible(*this, WTFMove(reply));
+    m_statusBarIsVisible = visible;
+    forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        webProcess.send(Messages::WebPage::SetMenuBarIsVisible(visible), pageID);
+    });
 }
 
-void WebPageProxy::setMenuBarIsVisible(bool menuBarIsVisible)
+void WebPageProxy::setStatusBarIsVisible(bool visible)
 {
-    m_uiClient->setMenuBarIsVisible(*this, menuBarIsVisible);
-}
-
-void WebPageProxy::getMenuBarIsVisible(CompletionHandler<void(bool)>&& reply)
-{
-    m_uiClient->menuBarIsVisible(*this, WTFMove(reply));
-}
-
-void WebPageProxy::setStatusBarIsVisible(bool statusBarIsVisible)
-{
-    m_uiClient->setStatusBarIsVisible(*this, statusBarIsVisible);
-}
-
-void WebPageProxy::getStatusBarIsVisible(CompletionHandler<void(bool)>&& reply)
-{
-    m_uiClient->statusBarIsVisible(*this, WTFMove(reply));
+    m_menuBarIsVisible = visible;
+    forEachWebContentProcess([&](auto& webProcess, auto pageID) {
+        webProcess.send(Messages::WebPage::SetStatusBarIsVisible(visible), pageID);
+    });
 }
 
 void WebPageProxy::setIsResizable(bool isResizable)
@@ -11940,7 +11948,10 @@ WebPageCreationParameters WebPageProxy::creationParameters(WebProcessProxy& proc
         .mainFrameIdentifier = mainFrameIdentifier,
         .openedMainFrameName = m_openedMainFrameName,
         .initialSandboxFlags = m_mainFrame ? m_mainFrame->effectiveSandboxFlags() : SandboxFlags { },
-        .shouldSendConsoleLogsToUIProcessForTesting = m_configuration->shouldSendConsoleLogsToUIProcessForTesting()
+        .statusBarIsVisible = m_statusBarIsVisible,
+        .menuBarIsVisible = m_menuBarIsVisible,
+        .toolbarsAreVisible = m_toolbarsAreVisible,
+        .shouldSendConsoleLogsToUIProcessForTesting = m_configuration->shouldSendConsoleLogsToUIProcessForTesting(),
     };
 
     parameters.processDisplayName = m_configuration->processDisplayName();

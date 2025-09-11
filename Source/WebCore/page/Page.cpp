@@ -5778,23 +5778,6 @@ bool Page::requiresScriptTrackingPrivacyProtections(const URL& scriptURL) const
 void Page::applyWindowFeatures(const WindowFeatures& features)
 {
     Ref frame = mainFrame();
-    chrome().setToolbarsVisible(features.toolBarVisible || features.locationBarVisible);
-
-    if (!frame->page())
-        return;
-    if (features.statusBarVisible)
-        chrome().setStatusbarVisible(*features.statusBarVisible);
-
-    if (!frame->page())
-        return;
-    if (features.scrollbarsVisible)
-        chrome().setScrollbarsVisible(*features.scrollbarsVisible);
-
-    if (!frame->page())
-        return;
-    if (features.menuBarVisible)
-        chrome().setMenubarVisible(*features.menuBarVisible);
-
     if (!frame->page())
         return;
     if (features.resizable)

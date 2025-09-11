@@ -1973,48 +1973,6 @@ void WKPageSetPageUIClient(WKPageRef pageRef, const WKPageUIClientBase* wkClient
             m_client.didNotHandleWheelEvent(toAPI(page), event.nativeEvent(), m_client.base.clientInfo);
         }
 
-        void toolbarsAreVisible(WebPageProxy& page, Function<void(bool)>&& completionHandler) final
-        {
-            if (!m_client.toolbarsAreVisible)
-                return completionHandler(true);
-            completionHandler(m_client.toolbarsAreVisible(toAPI(&page), m_client.base.clientInfo));
-        }
-
-        void setToolbarsAreVisible(WebPageProxy& page, bool visible) final
-        {
-            if (!m_client.setToolbarsAreVisible)
-                return;
-            m_client.setToolbarsAreVisible(toAPI(&page), visible, m_client.base.clientInfo);
-        }
-
-        void menuBarIsVisible(WebPageProxy& page, Function<void(bool)>&& completionHandler) final
-        {
-            if (!m_client.menuBarIsVisible)
-                return completionHandler(true);
-            completionHandler(m_client.menuBarIsVisible(toAPI(&page), m_client.base.clientInfo));
-        }
-
-        void setMenuBarIsVisible(WebPageProxy& page, bool visible) final
-        {
-            if (!m_client.setMenuBarIsVisible)
-                return;
-            m_client.setMenuBarIsVisible(toAPI(&page), visible, m_client.base.clientInfo);
-        }
-
-        void statusBarIsVisible(WebPageProxy& page, Function<void(bool)>&& completionHandler) final
-        {
-            if (!m_client.statusBarIsVisible)
-                return completionHandler(true);
-            completionHandler(m_client.statusBarIsVisible(toAPI(&page), m_client.base.clientInfo));
-        }
-
-        void setStatusBarIsVisible(WebPageProxy& page, bool visible) final
-        {
-            if (!m_client.setStatusBarIsVisible)
-                return;
-            m_client.setStatusBarIsVisible(toAPI(&page), visible, m_client.base.clientInfo);
-        }
-
         void setIsResizable(WebPageProxy& page, bool resizable) final
         {
             if (!m_client.setIsResizable)

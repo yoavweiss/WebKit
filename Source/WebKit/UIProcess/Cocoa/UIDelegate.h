@@ -144,7 +144,6 @@ private:
         void drawFooter(WebPageProxy&, WebFrameProxy&, WebCore::FloatRect&&) final;
 
         void didClickAutoFillButton(WebPageProxy&, API::Object*) final;
-        void toolbarsAreVisible(WebPageProxy&, Function<void(bool)>&&) final;
         void saveDataToFileInDownloadsFolder(WebPageProxy*, const WTF::String&, const WTF::String&, const URL&, API::Data&) final;
         Ref<API::InspectorConfiguration> configurationForLocalInspector(WebPageProxy&, WebInspectorUIProxy&) final;
         void didAttachLocalInspector(WebPageProxy&, WebInspectorUIProxy&) final;
@@ -259,7 +258,6 @@ private:
         bool webViewDrawHeaderInRectForPageWithTitleURL : 1;
         bool webViewDrawFooterInRectForPageWithTitleURL : 1;
         bool webViewGetWindowFrameWithCompletionHandler : 1;
-        bool webViewGetToolbarsAreVisibleWithCompletionHandler : 1;
         bool webViewSaveDataToFileSuggestedFilenameMimeTypeOriginatingURL : 1;
         bool webViewConfigurationForLocalInspector : 1;
         bool webViewDidAttachLocalInspector : 1;

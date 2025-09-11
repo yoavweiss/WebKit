@@ -44,12 +44,6 @@ messages -> WebPageProxy {
     FocusFromServiceWorker() -> ()
     FocusedFrameChanged(std::optional<WebCore::FrameIdentifier> frameID)
     SetRenderTreeSize(uint64_t treeSize)
-    SetToolbarsAreVisible(bool toolbarsAreVisible)
-    GetToolbarsAreVisible() -> (bool toolbarsAreVisible) Synchronous
-    SetMenuBarIsVisible(bool menuBarIsVisible)
-    GetMenuBarIsVisible() -> (bool menuBarIsVisible) Synchronous
-    SetStatusBarIsVisible(bool statusBarIsVisible)
-    GetStatusBarIsVisible() -> (bool statusBarIsVisible) Synchronous
     SetIsResizable(bool isResizable)
     SetWindowFrame(WebCore::FloatRect windowFrame)
     GetWindowFrame() -> (WebCore::FloatRect windowFrame) Synchronous

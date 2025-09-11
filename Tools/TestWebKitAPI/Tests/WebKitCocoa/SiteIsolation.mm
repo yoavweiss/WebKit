@@ -5577,4 +5577,24 @@ TEST(SiteIsolation, AlternateRequest)
     EXPECT_WK_STREQ([webView _test_waitForAlert], "https://webkit.org/webkit2");
 }
 
+TEST(SiteIsolation, StatusBarVisibility)
+{
+    HTTPServer server({
+        { "/example"_s, { "<script>w = window.open('https://webkit.org/webkit', '_blank', 'popup=no,menubar=no,status=no,toolbar=no,resizable=no,location=no,scrollbars=no,fullscreen=no')</script>"_s } },
+        { "/webkit"_s, { "<iframe src='https://apple.com/apple'></iframe>"_s } },
+        { "/apple"_s, { "hi"_s } },
+    }, HTTPServer::Protocol::HttpsProxy);
+
+    auto [opener, opened] = openerAndOpenedViews(server);
+    NSString *statusBarVisible = @"window.statusbar.visible";
+    EXPECT_TRUE([[opener.webView objectByEvaluatingJavaScript:statusBarVisible] boolValue]);
+    EXPECT_FALSE([[opened.webView objectByEvaluatingJavaScript:statusBarVisible] boolValue]);
+    EXPECT_FALSE([[opened.webView objectByEvaluatingJavaScript:statusBarVisible inFrame:[opened.webView firstChildFrame]] boolValue]);
+    EXPECT_TRUE([opener.webView _statusBarIsVisible]);
+    EXPECT_FALSE([opened.webView _statusBarIsVisible]);
+    [opened.webView _setStatusBarIsVisible:YES];
+    EXPECT_TRUE([[opened.webView objectByEvaluatingJavaScript:statusBarVisible] boolValue]);
+    EXPECT_TRUE([[opened.webView objectByEvaluatingJavaScript:statusBarVisible inFrame:[opened.webView firstChildFrame]] boolValue]);
+}
+
 }

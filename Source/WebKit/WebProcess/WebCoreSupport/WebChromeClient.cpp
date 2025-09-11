@@ -449,31 +449,12 @@ void WebChromeClient::reportProcessCPUTime(Seconds cpuTime, ActivityStateForCPUS
     WebProcess::singleton().send(Messages::WebProcessPool::ReportWebContentCPUTime(cpuTime, static_cast<uint64_t>(activityState)), 0);
 }
 
-void WebChromeClient::setToolbarsVisible(bool toolbarsAreVisible)
-{
-    if (RefPtr page = m_page.get())
-        page->send(Messages::WebPageProxy::SetToolbarsAreVisible(toolbarsAreVisible));
-}
-
 bool WebChromeClient::toolbarsVisible() const
 {
     RefPtr page = m_page.get();
     if (!page)
         return false;
-
-    API::InjectedBundle::PageUIClient::UIElementVisibility toolbarsVisibility = page->injectedBundleUIClient().toolbarsAreVisible(page.get());
-    if (toolbarsVisibility != API::InjectedBundle::PageUIClient::UIElementVisibility::Unknown)
-        return toolbarsVisibility == API::InjectedBundle::PageUIClient::UIElementVisibility::Visible;
-    
-    auto sendResult = WebProcess::singleton().parentProcessConnection()->sendSync(Messages::WebPageProxy::GetToolbarsAreVisible(), page->identifier());
-    auto [toolbarsAreVisible] = sendResult.takeReplyOr(true);
-    return toolbarsAreVisible;
-}
-
-void WebChromeClient::setStatusbarVisible(bool statusBarIsVisible)
-{
-    if (RefPtr page = m_page.get())
-        page->send(Messages::WebPageProxy::SetStatusBarIsVisible(statusBarIsVisible));
+    return page->toolbarsAreVisible();
 }
 
 bool WebChromeClient::statusbarVisible() const
@@ -481,19 +462,7 @@ bool WebChromeClient::statusbarVisible() const
     RefPtr page = m_page.get();
     if (!page)
         return false;
-
-    API::InjectedBundle::PageUIClient::UIElementVisibility statusbarVisibility = page->injectedBundleUIClient().statusBarIsVisible(page.get());
-    if (statusbarVisibility != API::InjectedBundle::PageUIClient::UIElementVisibility::Unknown)
-        return statusbarVisibility == API::InjectedBundle::PageUIClient::UIElementVisibility::Visible;
-
-    auto sendResult = WebProcess::singleton().parentProcessConnection()->sendSync(Messages::WebPageProxy::GetStatusBarIsVisible(), page->identifier());
-    auto [statusBarIsVisible] = sendResult.takeReplyOr(true);
-    return statusBarIsVisible;
-}
-
-void WebChromeClient::setScrollbarsVisible(bool)
-{
-    notImplemented();
+    return page->statusBarIsVisible();
 }
 
 bool WebChromeClient::scrollbarsVisible() const
@@ -502,25 +471,12 @@ bool WebChromeClient::scrollbarsVisible() const
     return true;
 }
 
-void WebChromeClient::setMenubarVisible(bool menuBarVisible)
-{
-    if (RefPtr page = m_page.get())
-        page->send(Messages::WebPageProxy::SetMenuBarIsVisible(menuBarVisible));
-}
-
 bool WebChromeClient::menubarVisible() const
 {
     RefPtr page = m_page.get();
     if (!page)
         return false;
-
-    API::InjectedBundle::PageUIClient::UIElementVisibility menubarVisibility = page->injectedBundleUIClient().menuBarIsVisible(page.get());
-    if (menubarVisibility != API::InjectedBundle::PageUIClient::UIElementVisibility::Unknown)
-        return menubarVisibility == API::InjectedBundle::PageUIClient::UIElementVisibility::Visible;
-    
-    auto sendResult = WebProcess::singleton().parentProcessConnection()->sendSync(Messages::WebPageProxy::GetMenuBarIsVisible(), page->identifier());
-    auto [menuBarIsVisible] = sendResult.takeReplyOr(true);
-    return menuBarIsVisible;
+    return page->menuBarIsVisible();
 }
 
 void WebChromeClient::setResizable(bool resizable)

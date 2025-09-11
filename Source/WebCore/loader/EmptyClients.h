@@ -73,16 +73,9 @@ class EmptyChromeClient : public ChromeClient {
     bool canRunModal() const final { return false; }
     void runModal() final { }
 
-    void setToolbarsVisible(bool) final { }
     bool toolbarsVisible() const final { return false; }
-
-    void setStatusbarVisible(bool) final { }
     bool statusbarVisible() const final { return false; }
-
-    void setScrollbarsVisible(bool) final { }
     bool scrollbarsVisible() const final { return false; }
-
-    void setMenubarVisible(bool) final { }
     bool menubarVisible() const final { return false; }
 
     void setResizable(bool) final { }

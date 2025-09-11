@@ -4302,6 +4302,36 @@ static RetainPtr<NSArray> wkTextManipulationErrors(NSArray<_WKTextManipulationIt
     });
 }
 
+- (void)_setStatusBarIsVisible:(BOOL)visible
+{
+    _page->setStatusBarIsVisible(visible);
+}
+
+- (BOOL)_statusBarIsVisible
+{
+    return _page->statusBarIsVisible();
+}
+
+- (void)_setMenuBarIsVisible:(BOOL)visible
+{
+    _page->setMenuBarIsVisible(visible);
+}
+
+- (BOOL)_menuBarIsVisible
+{
+    return _page->menuBarIsVisible();
+}
+
+- (void)_setToolbarsAreVisible:(BOOL)visible
+{
+    _page->setToolbarsAreVisible(visible);
+}
+
+- (BOOL)_toolbarsAreVisible
+{
+    return _page->toolbarsAreVisible();
+}
+
 - (void)_toggleInWindow
 {
     THROW_IF_SUSPENDED;

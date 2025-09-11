@@ -623,6 +623,10 @@ messages -> WebPage WantsAsyncDispatchMessage {
 
     PerformHitTestForMouseEvent(WebKit::WebMouseEvent event) -> (struct WebKit::WebHitTestResultData hitTestResult, OptionSet<WebKit::WebEventModifier> modifiers)
 
+    SetStatusBarIsVisible(bool visible)
+    SetMenuBarIsVisible(bool visible)
+    SetToolbarsAreVisible(bool visible)
+
     SetUseColorAppearance(bool useDarkAppearance, bool useElevatedUserInterfaceLevel)
 
 #if HAVE(APP_ACCENT_COLORS)

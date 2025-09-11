@@ -2058,6 +2058,13 @@ public:
     void setOverflowHeightForTopScrollEdgeEffect(double value) { m_overflowHeightForTopScrollEdgeEffect = value; }
 #endif
 
+    bool statusBarIsVisible() const { return m_statusBarIsVisible; }
+    void setStatusBarIsVisible(bool visible) { m_statusBarIsVisible = visible; }
+    bool menuBarIsVisible() const { return m_menuBarIsVisible; }
+    void setMenuBarIsVisible(bool visible) { m_menuBarIsVisible = visible; }
+    bool toolbarsAreVisible() const { return m_toolbarsAreVisible; }
+    void setToolbarsAreVisible(bool visible) { m_toolbarsAreVisible = visible; }
+
 private:
     WebPage(WebCore::PageIdentifier, WebPageCreationParameters&&);
 
@@ -3152,6 +3159,10 @@ private:
     std::unique_ptr<FrameInfoData> m_mainFrameNavigationInitiator;
 
     mutable RefPtr<Logger> m_logger;
+
+    bool m_statusBarIsVisible { true };
+    bool m_menuBarIsVisible { true };
+    bool m_toolbarsAreVisible { true };
 };
 
 #if !PLATFORM(IOS_FAMILY)

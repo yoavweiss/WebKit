@@ -712,6 +712,9 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 #if ENABLE(WRITING_TOOLS)
     , m_textAnimationController(makeUniqueRef<TextAnimationController>(*this))
 #endif
+    , m_statusBarIsVisible(parameters.statusBarIsVisible)
+    , m_menuBarIsVisible(parameters.menuBarIsVisible)
+    , m_toolbarsAreVisible(parameters.toolbarsAreVisible)
 {
     WEBPAGE_RELEASE_LOG(Loading, "constructor:");
 

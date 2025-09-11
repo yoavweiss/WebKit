@@ -55,16 +55,6 @@ public:
     virtual void willAddMessageToConsole(WebKit::WebPage*, JSC::MessageSource, JSC::MessageLevel, const WTF::String& message, unsigned lineNumber, unsigned columnNumber, const WTF::String& sourceID) { UNUSED_PARAM(message); UNUSED_PARAM(lineNumber); UNUSED_PARAM(columnNumber); UNUSED_PARAM(sourceID); }
 #endif
 
-    enum class UIElementVisibility {
-        Unknown,
-        Visible,
-        Hidden,
-    };
-
-    virtual UIElementVisibility statusBarIsVisible(WebKit::WebPage*) { return UIElementVisibility::Unknown; }
-    virtual UIElementVisibility menuBarIsVisible(WebKit::WebPage*) { return UIElementVisibility::Unknown; }
-    virtual UIElementVisibility toolbarsAreVisible(WebKit::WebPage*) { return UIElementVisibility::Unknown; }
-
     virtual void didClickAutoFillButton(WebKit::WebPage&, WebKit::InjectedBundleNodeHandle&, RefPtr<API::Object>&) { }
 };
 
