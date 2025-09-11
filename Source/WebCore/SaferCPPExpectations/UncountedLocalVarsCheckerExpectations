@@ -101,7 +101,6 @@ bindings/js/JSWorkerGlobalScopeCustom.cpp
 bindings/js/JSXMLHttpRequestCustom.cpp
 bindings/js/ScriptCachedFrameData.cpp
 bindings/js/ScriptModuleLoader.cpp
-bindings/js/SerializedScriptValue.cpp
 bindings/js/StructuredClone.cpp
 bridge/objc/objc_runtime.mm
 bridge/objc/objc_utility.mm
