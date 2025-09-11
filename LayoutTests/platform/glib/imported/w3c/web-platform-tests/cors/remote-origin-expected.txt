@@ -29,8 +29,8 @@ PASS Disallow origin: HTTP://not-web-platform.test
 PASS Disallow origin: http://NOT-WEB-PLATFORM.TEST
 PASS Disallow origin: -
 PASS Disallow origin: **
-FAIL Disallow origin: \0* assert_equals: expected "error" but got "load"
-FAIL Disallow origin: *\0 assert_equals: expected "error" but got "load"
+PASS Disallow origin: \0*
+PASS Disallow origin: *\0
 PASS Disallow origin: '*'
 PASS Disallow origin: "*"
 PASS Disallow origin: *_*

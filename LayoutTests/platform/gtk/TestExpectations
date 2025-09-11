@@ -981,6 +981,8 @@ webkit.org/b/252878 inspector/debugger/breakpoints/resolved-dump-all-pause-locat
 webkit.org/b/252878 inspector/debugger/breakpoints/resolved-dump-each-line.html [ Failure Timeout Pass ]
 webkit.org/b/252878 webaudio/audioworket-out-of-memory.html [ Pass Timeout ]
 
+imported/w3c/web-platform-tests/cors/remote-origin.htm [ Pass Failure ]
+
 # Flaky tests detected on May2023
 webkit.org/b/257624 fast/mediastream/MediaStream-video-element-track-stop.html [ Failure ]
 webkit.org/b/257624 http/tests/frame-throttling/raf-throttle-in-cross-origin-subframe.html [ Failure ]

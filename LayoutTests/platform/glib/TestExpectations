@@ -550,8 +550,6 @@ http/tests/workers/service/getnotifications.html [ Pass ]
 http/tests/websocket/tests/hybi/deflate-frame-parameter.html [ Pass ]
 http/tests/websocket/tests/hybi/extensions.html [ Pass ]
 
-http/wpt/resource-timing/rt-initiatorType-media.html [ Pass ]
-
 imported/mozilla/svg/text/textpath-multiline.svg [ Pass ]
 
 imported/w3c/web-platform-tests/css/css-align/baseline-rules/grid-item-input-type-number.html [ Pass ]
@@ -1165,6 +1163,8 @@ webkit.org/b/230926 imported/w3c/web-platform-tests/css/css-fonts/font-palette-r
 webkit.org/b/254359 imported/w3c/web-platform-tests/css/css-fonts/font-size-adjust-010.html [ ImageOnlyFailure ]
 webkit.org/b/230926 imported/w3c/web-platform-tests/css/css-fonts/palette-values-rule-add.html [ ImageOnlyFailure ]
 webkit.org/b/230926 imported/w3c/web-platform-tests/css/css-fonts/palette-values-rule-delete.html [ ImageOnlyFailure ]
+
+webkit.org/b/230080 imported/w3c/web-platform-tests/css/css-transforms/individual-transform/animation/individual-transform-ordering.html [ ImageOnlyFailure ]
 
 webkit.org/b/234819 imported/w3c/web-platform-tests/css/css-transforms/animation/transform-interpolation-matrix.html [ ImageOnlyFailure ]
 
@@ -1960,6 +1960,9 @@ http/tests/security/contentSecurityPolicy/extensions/ [ Skip ]
 # because it does not appear in the connect-src directive of the Content Security Policy.
 http/tests/security/contentSecurityPolicy/report-only-from-header.py [ DumpJSConsoleLogInStdErr ]
 
+webkit.org/b/298703 http/tests/security/webaudio-render-remote-audio-allowed-crossorigin-redirect.html [ Timeout Pass ]
+webkit.org/b/298703 http/tests/security/webaudio-render-remote-audio-blocked-no-crossorigin.html [ Timeout Pass ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Security-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -2272,6 +2275,8 @@ webkit.org/b/151949 streams/pipe-to.html [ Failure ]
 # SVG-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
+
+webkit.org/b/139322 imported/mozilla/svg/text/dynamic-non-scaling-stroke.svg [ ImageOnlyFailure ]
 
 webkit.org/b/189739 svg/gradients/spreadMethodClose2.svg [ ImageOnlyFailure ]
 
@@ -2945,6 +2950,8 @@ webkit.org/b/209080 imported/w3c/web-platform-tests/css/css-writing-modes/normal
 webkit.org/b/209080 imported/w3c/web-platform-tests/css/css-writing-modes/overconstrained-rel-pos-ltr-top-bottom-vrl-002.xht [ Pass ImageOnlyFailure ]
 webkit.org/b/209080 imported/w3c/web-platform-tests/css/css-writing-modes/overconstrained-rel-pos-rtl-left-right-vrl-008.xht [ Pass ImageOnlyFailure ]
 webkit.org/b/209080 imported/w3c/web-platform-tests/css/css-writing-modes/text-combine-upright-layout-rules-001.html [ Pass ImageOnlyFailure ]
+
+webkit.org/b/164510 imported/w3c/web-platform-tests/css/css-writing-modes/text-combine-upright-line-breaking-rules-001.html [ ImageOnlyFailure ]
 
 # Overrides over general expectations that are shared between GTK and WPE after updating css-text WPT tests
 webkit.org/b/214290 imported/w3c/web-platform-tests/css/css-text/hyphens/hyphens-none-011.html [ Pass ]

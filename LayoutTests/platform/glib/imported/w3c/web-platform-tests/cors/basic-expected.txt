@@ -1,5 +1,5 @@
 
-FAIL Same domain basic usage assert_true: Got CORS-allowed response expected true got false
+PASS Same domain basic usage
 PASS Cross domain basic usage
 PASS Same domain different port
 PASS Cross domain different port

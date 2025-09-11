@@ -16,10 +16,6 @@
 #       it picks as the valid rule the last one matching.
 #////////////////////////////////////////////////////////////////////////////////////////
 
-# Incorrect upstream, but seem to pass on the bots, possibly with a broken baseline.
-# https://github.com/w3c/web-platform-tests/issues/8407
-css2.1/20110323/replaced-intrinsic-002.htm [ Pass ]
-
 fast/events/constructors/keyboard-event-constructor.html [ Pass ]
 
 webkit.org/b/136754 imported/w3c/web-platform-tests/css/css-flexbox/flexbox_flex-natural-mixed-basis-auto.html [ Pass ]
