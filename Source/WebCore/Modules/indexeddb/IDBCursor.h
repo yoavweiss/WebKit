@@ -55,10 +55,12 @@ public:
     const Source& source() const;
     IDBCursorDirection direction() const;
 
-    IDBKey* key() { return m_key.get(); };
-    IDBKey* primaryKey() { return m_primaryKey.get(); };
-    IDBValue value() { return m_value; };
-    const std::optional<IDBKeyPath>& primaryKeyPath() { return m_keyPath; };
+    IDBKey* key() { return m_key.get(); }
+    RefPtr<IDBKey> protectedKey() { return m_key; }
+    IDBKey* primaryKey() { return m_primaryKey.get(); }
+    RefPtr<IDBKey> protectedPrimaryKey() { return m_primaryKey; }
+    IDBValue value() { return m_value; }
+    const std::optional<IDBKeyPath>& primaryKeyPath() { return m_keyPath; }
     JSValueInWrappedObject& keyWrapper() { return m_keyWrapper; }
     JSValueInWrappedObject& primaryKeyWrapper() { return m_primaryKeyWrapper; }
     JSValueInWrappedObject& valueWrapper() { return m_valueWrapper; }

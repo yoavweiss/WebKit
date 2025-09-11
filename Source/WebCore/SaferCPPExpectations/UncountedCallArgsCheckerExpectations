@@ -8,14 +8,6 @@ Modules/entriesapi/FileSystemFileEntry.cpp
 Modules/filesystem/FileSystemFileHandle.cpp
 Modules/filesystem/WorkerFileSystemStorageConnection.cpp
 Modules/identity/CredentialRequestCoordinator.cpp
-Modules/indexeddb/IDBDatabase.cpp
-Modules/indexeddb/IDBKey.cpp
-Modules/indexeddb/IDBKeyRange.cpp
-Modules/indexeddb/IDBObjectStore.cpp
-Modules/indexeddb/IDBOpenDBRequest.cpp
-Modules/indexeddb/IDBRequest.cpp
-Modules/indexeddb/server/UniqueIDBDatabase.cpp
-Modules/indexeddb/server/UniqueIDBDatabaseTransaction.cpp
 Modules/mediacontrols/MediaControlsHost.cpp
 Modules/mediasession/MediaMetadata.cpp
 Modules/mediasession/MediaSession.cpp
@@ -559,7 +551,6 @@ inspector/agents/InspectorCanvasAgent.cpp
 inspector/agents/InspectorDOMAgent.cpp
 inspector/agents/InspectorDOMDebuggerAgent.cpp
 inspector/agents/InspectorDOMStorageAgent.cpp
-inspector/agents/InspectorIndexedDBAgent.cpp
 inspector/agents/InspectorLayerTreeAgent.cpp
 inspector/agents/InspectorMemoryAgent.cpp
 inspector/agents/InspectorNetworkAgent.cpp

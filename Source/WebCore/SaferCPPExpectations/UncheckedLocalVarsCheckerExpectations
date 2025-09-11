@@ -1,6 +1,3 @@
-Modules/indexeddb/server/MemoryBackingStoreTransaction.cpp
-Modules/indexeddb/server/MemoryIDBBackingStore.cpp
-Modules/indexeddb/server/MemoryIndexCursor.cpp
 Modules/mediarecorder/MediaRecorder.cpp
 Modules/mediastream/RTCPeerConnection.cpp
 Modules/mediastream/UserMediaRequest.cpp
@@ -191,7 +188,6 @@ inspector/agents/InspectorCanvasAgent.cpp
 inspector/agents/InspectorDOMAgent.cpp
 inspector/agents/InspectorDOMDebuggerAgent.cpp
 inspector/agents/InspectorDOMStorageAgent.cpp
-inspector/agents/InspectorIndexedDBAgent.cpp
 inspector/agents/InspectorLayerTreeAgent.cpp
 inspector/agents/InspectorNetworkAgent.cpp
 inspector/agents/InspectorPageAgent.cpp

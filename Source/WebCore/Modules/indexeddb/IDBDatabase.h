@@ -126,6 +126,8 @@ private:
 
     void maybeCloseInServer();
 
+    RefPtr<IDBTransaction> protectedVersionChangeTransaction() const;
+
     const Ref<IDBClient::IDBConnectionProxy> m_connectionProxy;
     IDBDatabaseInfo m_info;
     IDBDatabaseConnectionIdentifier m_databaseConnectionIdentifier;

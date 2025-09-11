@@ -10,7 +10,6 @@ Modules/contact-picker/NavigatorContacts.cpp
 Modules/credentialmanagement/NavigatorCredentials.cpp
 Modules/encryptedmedia/MediaKeySystemController.cpp
 Modules/geolocation/NavigatorGeolocation.cpp
-Modules/indexeddb/WindowOrWorkerGlobalScopeIndexedDatabase.cpp
 Modules/mediacapabilities/NavigatorMediaCapabilities.cpp
 Modules/mediacapabilities/WorkerNavigatorMediaCapabilities.cpp
 Modules/mediasession/NavigatorMediaSession.cpp
@@ -82,7 +81,6 @@ html/NavigatorUserActivation.cpp
 html/track/TextTrackCueGeneric.cpp
 inspector/CommandLineAPIModule.cpp
 inspector/agents/InspectorCSSAgent.cpp
-inspector/agents/InspectorIndexedDBAgent.cpp
 layout/layouttree/LayoutIterator.h
 layout/layouttree/LayoutTreeBuilder.cpp
 loader/cache/CachedResourceClientWalker.h

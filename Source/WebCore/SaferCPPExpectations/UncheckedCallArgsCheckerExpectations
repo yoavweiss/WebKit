@@ -1,6 +1,5 @@
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/credentialmanagement/CredentialsContainer.cpp
-Modules/indexeddb/server/UniqueIDBDatabase.cpp
 Modules/mediacontrols/MediaControlsHost.cpp
 Modules/mediarecorder/MediaRecorder.cpp
 Modules/mediasession/MediaMetadata.cpp

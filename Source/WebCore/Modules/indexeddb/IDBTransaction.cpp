@@ -355,15 +355,6 @@ void IDBTransaction::stop()
     abortInternal();
 }
 
-bool IDBTransaction::isFinishedOrFinishing() const
-{
-    ASSERT(canCurrentThreadAccessThreadLocalData(m_database->originThread()));
-
-    return m_state == IndexedDB::TransactionState::Committing
-        || m_state == IndexedDB::TransactionState::Aborting
-        || m_state == IndexedDB::TransactionState::Finished;
-}
-
 void IDBTransaction::addRequest(IDBRequest& request)
 {
     ASSERT(canCurrentThreadAccessThreadLocalData(m_database->originThread()));

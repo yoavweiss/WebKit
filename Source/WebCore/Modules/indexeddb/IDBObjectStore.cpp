@@ -79,7 +79,8 @@ IDBObjectStore::~IDBObjectStore()
 
 bool IDBObjectStore::virtualHasPendingActivity() const
 {
-    return m_transaction->hasPendingActivity();
+    // Cannot ref the transaction here since this may get called on the GC thread.
+    SUPPRESS_UNCOUNTED_ARG return m_transaction->hasPendingActivity();
 }
 
 const String& IDBObjectStore::name() const
@@ -164,9 +165,9 @@ ExceptionOr<Ref<IDBRequest>> IDBObjectStore::doOpenCursor(IDBCursorDirection dir
     auto keyRange = function();
     if (keyRange.hasException())
         return keyRange.releaseException();
-    auto* keyRangePointer = keyRange.returnValue().get();
+    RefPtr keyRangePointer = keyRange.returnValue();
 
-    auto info = IDBCursorInfo::objectStoreCursor(transaction, m_info.identifier(), keyRangePointer, direction, IndexedDB::CursorType::KeyAndValue);
+    auto info = IDBCursorInfo::objectStoreCursor(transaction, m_info.identifier(), keyRangePointer.get(), direction, IndexedDB::CursorType::KeyAndValue);
     return transaction->requestOpenCursor(*this, info);
 }
 
@@ -204,8 +205,8 @@ ExceptionOr<Ref<IDBRequest>> IDBObjectStore::doOpenKeyCursor(IDBCursorDirection 
     if (keyRange.hasException())
         return keyRange.releaseException();
 
-    auto* keyRangePointer = keyRange.returnValue().get();
-    auto info = IDBCursorInfo::objectStoreCursor(transaction, m_info.identifier(), keyRangePointer, direction, IndexedDB::CursorType::KeyOnly);
+    RefPtr keyRangePointer = keyRange.returnValue();
+    auto info = IDBCursorInfo::objectStoreCursor(transaction, m_info.identifier(), keyRangePointer.get(), direction, IndexedDB::CursorType::KeyOnly);
     return transaction->requestOpenCursor(*this, info);
 }
 
@@ -333,8 +334,7 @@ ExceptionOr<Ref<IDBRequest>> IDBObjectStore::putOrAdd(JSGlobalObject& state, JSV
     Ref transaction = m_transaction.get();
     ASSERT(canCurrentThreadAccessThreadLocalData(transaction->database().originThread()));
 
-    auto context = scriptExecutionContext();
-    if (!context)
+    if (!scriptExecutionContext())
         return Exception { ExceptionCode::UnknownError, "Unable to store record in object store because it does not have a valid script execution context"_s };
 
     if (m_deleted)
@@ -523,7 +523,7 @@ ExceptionOr<Ref<IDBIndex>> IDBObjectStore::index(const String& indexName)
     if (!info)
         return Exception { ExceptionCode::NotFoundError, "Failed to execute 'index' on 'IDBObjectStore': The specified index was not found."_s };
 
-    auto index = IDBIndex::create(*scriptExecutionContext(), *info, *this);
+    auto index = IDBIndex::create(*protectedScriptExecutionContext(), *info, *this);
 
     Ref referencedIndex { index.get() };
 
@@ -624,8 +624,8 @@ ExceptionOr<Ref<IDBRequest>> IDBObjectStore::doGetAll(std::optional<uint32_t> co
     if (keyRange.hasException())
         return keyRange.releaseException();
 
-    auto* keyRangePointer = keyRange.returnValue().get();
-    return transaction->requestGetAllObjectStoreRecords(*this, keyRangePointer, IndexedDB::GetAllType::Values, count);
+    RefPtr keyRangePointer = keyRange.returnValue();
+    return transaction->requestGetAllObjectStoreRecords(*this, keyRangePointer.get(), IndexedDB::GetAllType::Values, count);
 }
 
 ExceptionOr<Ref<IDBRequest>> IDBObjectStore::getAll(RefPtr<IDBKeyRange>&& range, std::optional<uint32_t> count)
@@ -662,8 +662,8 @@ ExceptionOr<Ref<IDBRequest>> IDBObjectStore::doGetAllKeys(std::optional<uint32_t
     if (keyRange.hasException())
         return keyRange.releaseException();
 
-    auto* keyRangePointer = keyRange.returnValue().get();
-    return transaction->requestGetAllObjectStoreRecords(*this, keyRangePointer, IndexedDB::GetAllType::Keys, count);
+    RefPtr keyRangePointer = keyRange.returnValue();
+    return transaction->requestGetAllObjectStoreRecords(*this, keyRangePointer.get(), IndexedDB::GetAllType::Keys, count);
 }
 
 ExceptionOr<Ref<IDBRequest>> IDBObjectStore::getAllKeys(RefPtr<IDBKeyRange>&& range, std::optional<uint32_t> count)
@@ -744,17 +744,21 @@ void IDBObjectStore::rollbackForVersionChangeAbort()
 }
 
 template<typename Visitor>
-void IDBObjectStore::visitReferencedIndexes(Visitor& visitor) const
+void IDBObjectStore::visitReferencedIndexesConcurrently(Visitor& visitor) const
 {
     Locker locker { m_referencedIndexLock };
-    for (auto& index : m_referencedIndexes.values())
-        addWebCoreOpaqueRoot(visitor, index.get());
-    for (auto& index : m_deletedIndexes.values())
-        addWebCoreOpaqueRoot(visitor, index.get());
+    for (auto& index : m_referencedIndexes.values()) {
+        // Cannot ref `index` here since this may get called on the GC thread.
+        SUPPRESS_UNCOUNTED_ARG addWebCoreOpaqueRoot(visitor, index.get());
+    }
+    for (auto& index : m_deletedIndexes.values()) {
+        // Cannot ref `index` here since this may get called on the GC thread.
+        SUPPRESS_UNCOUNTED_ARG addWebCoreOpaqueRoot(visitor, index.get());
+    }
 }
 
-template void IDBObjectStore::visitReferencedIndexes(AbstractSlotVisitor&) const;
-template void IDBObjectStore::visitReferencedIndexes(SlotVisitor&) const;
+template void IDBObjectStore::visitReferencedIndexesConcurrently(AbstractSlotVisitor&) const;
+template void IDBObjectStore::visitReferencedIndexesConcurrently(SlotVisitor&) const;
 
 void IDBObjectStore::renameReferencedIndex(IDBIndex& index, const String& newName)
 {

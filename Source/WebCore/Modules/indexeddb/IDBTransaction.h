@@ -308,4 +308,12 @@ inline bool IDBTransaction::isActive() const
     return m_state == IndexedDB::TransactionState::Active;
 }
 
+inline bool IDBTransaction::isFinishedOrFinishing() const
+{
+    assertCurrentThreadAccessThreadLocalData();
+    return m_state == IndexedDB::TransactionState::Committing
+        || m_state == IndexedDB::TransactionState::Aborting
+        || m_state == IndexedDB::TransactionState::Finished;
+}
+
 } // namespace WebCore

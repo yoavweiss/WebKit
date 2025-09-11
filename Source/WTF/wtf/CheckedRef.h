@@ -38,6 +38,12 @@
 
 namespace WTF {
 
+#define USING_CAN_MAKE_CHECKEDPTR(BASE) \
+    using BASE::checkedPtrCount; \
+    using BASE::checkedPtrCountWithoutThreadCheck; \
+    using BASE::incrementCheckedPtrCount; \
+    using BASE::decrementCheckedPtrCount
+
 template<typename T, typename PtrTraits>
 class CheckedRef {
     WTF_DEPRECATED_MAKE_FAST_ALLOCATED(CheckedRef);
