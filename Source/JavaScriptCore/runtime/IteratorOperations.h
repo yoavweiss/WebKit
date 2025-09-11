@@ -105,8 +105,7 @@ static ALWAYS_INLINE void forEachInMapStorage(VM& vm, JSGlobalObject* globalObje
     }
 }
 
-template<typename CallBackType>
-static ALWAYS_INLINE void forEachInSetStorage(VM& vm, JSGlobalObject* globalObject, JSCell* storageCell, JSSet::Helper::Entry startEntry, NOESCAPE const CallBackType& callback)
+static ALWAYS_INLINE void forEachInSetStorage(VM& vm, JSGlobalObject* globalObject, JSCell* storageCell, JSSet::Helper::Entry startEntry, NOESCAPE const Invocable<void(VM&, JSGlobalObject*, JSValue)> auto& callback)
 {
     auto scope = DECLARE_THROW_SCOPE(vm);
 
@@ -127,8 +126,7 @@ static ALWAYS_INLINE void forEachInSetStorage(VM& vm, JSGlobalObject* globalObje
     }
 }
 
-template<typename CallBackType>
-static ALWAYS_INLINE void forEachInFastArray(JSGlobalObject* globalObject, JSValue iterable, JSArray* array, NOESCAPE const CallBackType& callback)
+static ALWAYS_INLINE void forEachInFastArray(JSGlobalObject* globalObject, JSValue iterable, JSArray* array, NOESCAPE const Invocable<void(VM&, JSGlobalObject*, JSValue)> auto& callback)
 {
     UNUSED_PARAM(iterable);
 
@@ -151,8 +149,7 @@ static ALWAYS_INLINE void forEachInFastArray(JSGlobalObject* globalObject, JSVal
     }
 }
 
-template<typename CallBackType>
-ALWAYS_INLINE void forEachInIterationRecord(JSGlobalObject* globalObject, IterationRecord iterationRecord, NOESCAPE const CallBackType& callback)
+ALWAYS_INLINE void forEachInIterationRecord(JSGlobalObject* globalObject, IterationRecord iterationRecord, NOESCAPE const Invocable<void(VM&, JSGlobalObject*, JSValue)> auto& callback)
 {
     auto& vm = getVM(globalObject);
     auto scope = DECLARE_THROW_SCOPE(vm);
@@ -176,8 +173,7 @@ ALWAYS_INLINE void forEachInIterationRecord(JSGlobalObject* globalObject, Iterat
     }
 }
 
-template<typename CallBackType>
-void forEachInIterable(JSGlobalObject* globalObject, JSValue iterable, NOESCAPE const CallBackType& callback)
+void forEachInIterable(JSGlobalObject* globalObject, JSValue iterable, NOESCAPE const Invocable<void(VM&, JSGlobalObject*, JSValue)> auto& callback)
 {
     auto& vm = getVM(globalObject);
     auto scope = DECLARE_THROW_SCOPE(vm);
@@ -215,8 +211,7 @@ void forEachInIterable(JSGlobalObject* globalObject, JSValue iterable, NOESCAPE 
     forEachInIterationRecord(globalObject, iterationRecord, callback);
 }
 
-template<typename CallBackType>
-void forEachInIterable(JSGlobalObject& globalObject, JSObject* iterable, JSValue iteratorMethod, NOESCAPE const CallBackType& callback)
+void forEachInIterable(JSGlobalObject& globalObject, JSObject* iterable, JSValue iteratorMethod, NOESCAPE const Invocable<void(VM&, JSGlobalObject&, JSValue)> auto& callback)
 {
     auto& vm = getVM(&globalObject);
     auto scope = DECLARE_THROW_SCOPE(vm);
@@ -259,8 +254,7 @@ void forEachInIterable(JSGlobalObject& globalObject, JSObject* iterable, JSValue
     }
 }
 
-template<typename CallBackType>
-void forEachInIteratorProtocol(JSGlobalObject* globalObject, JSValue iterable, NOESCAPE const CallBackType& callback)
+void forEachInIteratorProtocol(JSGlobalObject* globalObject, JSValue iterable, NOESCAPE const Invocable<void(VM&, JSGlobalObject*, JSValue)> auto& callback)
 {
     auto& vm = getVM(globalObject);
     auto scope = DECLARE_THROW_SCOPE(vm);
