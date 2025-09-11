@@ -45,6 +45,11 @@
 #import <objc/runtime.h>
 
 static const NSString * const kURLArgumentString = @"--url";
+static const NSString * const kSiteIsolationArgumentString = @"--force-site-isolation";
+
+// Force MiniBrowser to run with or without site isolation.
+static BOOL sForceSiteIsolationSetting = NO;
+static BOOL sShouldEnableSiteIsolation = NO;
 
 enum {
     WebKit1NewWindowTag = 1,
@@ -246,6 +251,20 @@ static NSNumber *_currentBadge;
                                                         andEventID:'OURL'];
 }
 
+- (void)_parseArguments
+{
+    NSArray *args = [[NSProcessInfo processInfo] arguments];
+    const NSUInteger siteIsolationIndex = [args indexOfObject:kSiteIsolationArgumentString];
+    sForceSiteIsolationSetting = (siteIsolationIndex != NSNotFound && siteIsolationIndex + 1 < [args count]);
+    if (sForceSiteIsolationSetting) {
+        sShouldEnableSiteIsolation = [[args objectAtIndex:siteIsolationIndex + 1] isEqualToString: @"YES"];
+        if (sShouldEnableSiteIsolation)
+            NSLog(@"Force enabling Site Isolation.");
+        else
+            NSLog(@"Force disabling Site Isolation.");
+    }
+}
+
 - (WKWebViewConfiguration *)defaultConfiguration
 {
     static WKWebViewConfiguration *configuration;
@@ -280,6 +299,11 @@ static NSNumber *_currentBadge;
         configuration.preferences._notificationsEnabled = YES;
         configuration.preferences._notificationEventEnabled = YES;
         configuration.preferences._appBadgeEnabled = YES;
+
+        [self _parseArguments];
+
+        if (sForceSiteIsolationSetting)
+            configuration.preferences._siteIsolationEnabled = sShouldEnableSiteIsolation;
     }
 
     configuration.suppressesIncrementalRendering = _settingsController.incrementalRenderingSuppressed;
