@@ -2500,7 +2500,12 @@ std::optional<PDFContextMenu> UnifiedPDFPlugin::createContextMenu(const WebMouse
         addSeparator();
     }
 
-    menuItems.append(contextMenuItem(ContextMenuItemTag::OpenWithDefaultViewer));
+    std::optional<int> openInDefaultViewerTag;
+    bool shouldPresentOpenWithDefaultViewerOption = !isInRecoveryOS();
+    if (shouldPresentOpenWithDefaultViewerOption) {
+        menuItems.append(contextMenuItem(ContextMenuItemTag::OpenWithDefaultViewer));
+        openInDefaultViewerTag = enumToUnderlyingType(ContextMenuItemTag::OpenWithDefaultViewer);
+    }
 
     addSeparator();
 
@@ -2519,7 +2524,7 @@ std::optional<PDFContextMenu> UnifiedPDFPlugin::createContextMenu(const WebMouse
 
     auto contextMenuPoint = frameView->contentsToScreen(IntRect(frameView->windowToContents(contextMenuEventRootViewPoint), IntSize())).location();
 
-    return PDFContextMenu { contextMenuPoint, WTFMove(menuItems), { enumToUnderlyingType(ContextMenuItemTag::OpenWithDefaultViewer) } };
+    return PDFContextMenu { contextMenuPoint, WTFMove(menuItems), WTFMove(openInDefaultViewerTag) };
 }
 
 bool UnifiedPDFPlugin::isDisplayModeContextMenuItemTag(ContextMenuItemTag tag) const

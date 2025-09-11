@@ -671,7 +671,7 @@ void WebPageProxy::showPDFContextMenu(const WebKit::PDFContextMenu& contextMenu,
 
     if (RetainPtr selectedMenuItem = [menuTarget selectedMenuItem]) {
         NSInteger tag = selectedMenuItem.get().tag;
-        if (contextMenu.openInPreviewTag && *contextMenu.openInPreviewTag == tag)
+        if (contextMenu.openInDefaultViewerTag == tag)
             pdfOpenWithPreview(identifier, frameID);
         return completionHandler(tag);
     }
@@ -835,6 +835,7 @@ void WebPageProxy::pdfSaveToPDF(PDFPluginIdentifier identifier, WebCore::FrameId
     } });
 }
 
+// FIXME: This is a misnomer since we conflate Preview.app with the default PDF viewer. Consider renaming.
 void WebPageProxy::pdfOpenWithPreview(PDFPluginIdentifier identifier, WebCore::FrameIdentifier frameID)
 {
     sendWithAsyncReplyToProcessContainingFrame(frameID, Messages::WebPage::OpenPDFWithPreview(identifier), Messages::WebPage::OpenPDFWithPreview::Reply { [this, protectedThis = Ref { *this }](String&& suggestedFilename, std::optional<FrameInfoData>&& frameInfo, std::span<const uint8_t> data) {
