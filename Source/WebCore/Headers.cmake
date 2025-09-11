@@ -1647,7 +1647,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     html/HTMLParagraphElement.h
     html/HTMLParamElement.h
     html/HTMLPlugInElement.h
-    html/HTMLPlugInImageElement.h
     html/HTMLPreElement.h
     html/HTMLQuoteElement.h
     html/HTMLScriptElement.h

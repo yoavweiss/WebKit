@@ -31,6 +31,7 @@
 #include "BitmapImage.h"
 #include "CSSValuePool.h"
 #include "CanvasRenderingContext.h"
+#include "ContextDestructionObserverInlines.h"
 #include "Chrome.h"
 #include "Document.h"
 #include "EventDispatcher.h"

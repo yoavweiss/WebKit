@@ -243,7 +243,6 @@ html/HTMLObjectElement.cpp
 html/HTMLOptionElement.cpp
 html/HTMLOptionsCollection.cpp
 html/HTMLPlugInElement.cpp
-html/HTMLPlugInImageElement.cpp
 html/HTMLSelectElement.cpp
 html/HTMLStyleElement.cpp
 html/HTMLTableCellElement.cpp

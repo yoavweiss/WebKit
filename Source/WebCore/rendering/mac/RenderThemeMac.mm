@@ -43,7 +43,7 @@
 #import "HTMLInputElement.h"
 #import "HTMLMeterElement.h"
 #import "HTMLNames.h"
-#import "HTMLPlugInImageElement.h"
+#import "HTMLPlugInElement.h"
 #import "Icon.h"
 #import "Image.h"
 #import "ImageControlsButtonMac.h"

@@ -54,8 +54,6 @@ editing/VisibleUnits.cpp
 html/HTMLMediaElement.cpp
 html/canvas/PlaceholderRenderingContext.cpp
 html/parser/HTMLConstructionSite.cpp
-html/parser/HTMLDocumentParser.cpp
-html/parser/HTMLTreeBuilder.h
 html/shadow/DateTimeEditElement.h
 html/track/InbandGenericTextTrack.cpp
 html/track/InbandWebVTTTextTrack.cpp

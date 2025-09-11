@@ -94,7 +94,7 @@
 #include <WebCore/HTMLInputElement.h>
 #include <WebCore/HTMLNames.h>
 #include <WebCore/HTMLParserIdioms.h>
-#include <WebCore/HTMLPlugInImageElement.h>
+#include <WebCore/HTMLPlugInElement.h>
 #include <WebCore/Icon.h>
 #include <WebCore/ImageBuffer.h>
 #include <WebCore/LocalFrame.h>

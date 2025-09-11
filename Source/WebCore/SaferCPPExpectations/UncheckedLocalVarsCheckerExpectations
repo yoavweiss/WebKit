@@ -154,7 +154,6 @@ html/HTMLMarqueeElement.cpp
 html/HTMLMediaElement.cpp
 html/HTMLPictureElement.cpp
 html/HTMLPlugInElement.cpp
-html/HTMLPlugInImageElement.cpp
 html/HTMLSlotElement.cpp
 html/HTMLStyleElement.cpp
 html/HTMLTableCellElement.cpp

@@ -1591,7 +1591,6 @@ html/HTMLParagraphElement.cpp
 html/HTMLParamElement.cpp
 html/HTMLPictureElement.cpp
 html/HTMLPlugInElement.cpp
-html/HTMLPlugInImageElement.cpp
 html/HTMLPreElement.cpp
 html/HTMLProgressElement.cpp
 html/HTMLQuoteElement.cpp

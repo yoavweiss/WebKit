@@ -72,7 +72,7 @@
 #import <WebCore/GraphicsLayer.h>
 #import <WebCore/HTMLInputElement.h>
 #import <WebCore/HTMLNames.h>
-#import <WebCore/HTMLPlugInImageElement.h>
+#import <WebCore/HTMLPlugInElement.h>
 #import <WebCore/HTMLVideoElement.h>
 #import <WebCore/HitTestResult.h>
 #import <WebCore/Icon.h>

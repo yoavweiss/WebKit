@@ -466,7 +466,6 @@ html/HTMLNameCollectionInlines.h
 html/HTMLObjectElement.cpp
 html/HTMLOptionsCollection.cpp
 html/HTMLPlugInElement.cpp
-html/HTMLPlugInImageElement.cpp
 html/HTMLTableCellElement.cpp
 html/HTMLTableElement.cpp
 html/HTMLTablePartElement.cpp

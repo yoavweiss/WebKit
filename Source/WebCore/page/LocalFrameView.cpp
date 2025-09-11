@@ -69,7 +69,7 @@
 #include "HTMLIFrameElement.h"
 #include "HTMLNames.h"
 #include "HTMLObjectElement.h"
-#include "HTMLPlugInImageElement.h"
+#include "HTMLPlugInElement.h"
 #include "HighlightRegistry.h"
 #include "ImageDocument.h"
 #include "InspectorBackendClient.h"
@@ -1528,7 +1528,7 @@ void LocalFrameView::addEmbeddedObjectToUpdate(RenderEmbeddedObject& embeddedObj
         m_embeddedObjectsToUpdate = makeUnique<ListHashSet<SingleThreadWeakRef<RenderEmbeddedObject>>>();
 
     auto& element = embeddedObject.frameOwnerElement();
-    if (RefPtr embedOrObject = dynamicDowncast<HTMLPlugInImageElement>(element))
+    if (RefPtr embedOrObject = dynamicDowncast<HTMLPlugInElement>(element))
         embedOrObject->setNeedsWidgetUpdate(true);
 
     m_embeddedObjectsToUpdate->add(embeddedObject);
@@ -4432,7 +4432,7 @@ void LocalFrameView::updateEmbeddedObject(const SingleThreadWeakPtr<RenderEmbedd
     if (embeddedObject->isPluginUnavailable())
         return;
 
-    if (RefPtr embedOrObject = dynamicDowncast<HTMLPlugInImageElement>(embeddedObject->frameOwnerElement())) {
+    if (RefPtr embedOrObject = dynamicDowncast<HTMLPlugInElement>(embeddedObject->frameOwnerElement())) {
         if (embedOrObject->needsWidgetUpdate())
             embedOrObject->updateWidget(CreatePlugins::Yes);
     } else
