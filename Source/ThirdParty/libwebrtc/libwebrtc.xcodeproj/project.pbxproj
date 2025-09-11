@@ -2129,6 +2129,7 @@
 		417C037323B210C400DE5D8B /* main_noop.c in Sources */ = {isa = PBXBuildFile; fileRef = 417C037223B210C400DE5D8B /* main_noop.c */; };
 		417E07772E71CB7200CFBD88 /* iterator_traits.h in Headers */ = {isa = PBXBuildFile; fileRef = 417E07762E71CB7200CFBD88 /* iterator_traits.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		417E07792E71CBC000CFBD88 /* weakly_mixed_integer.h in Headers */ = {isa = PBXBuildFile; fileRef = 417E07782E71CBC000CFBD88 /* weakly_mixed_integer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		417E077B2E71D1FA00CFBD88 /* extensions.c in Sources */ = {isa = PBXBuildFile; fileRef = 417E077A2E71D1FA00CFBD88 /* extensions.c */; };
 		418069892E128974002736ED /* utf8.cc in Sources */ = {isa = PBXBuildFile; fileRef = 418069882E128974002736ED /* utf8.cc */; };
 		41889D75216BB7B9004614DD /* RTCRtpEncodingParameters+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 41889D74216BB7B6004614DD /* RTCRtpEncodingParameters+Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41889D76216BC4EC004614DD /* RTCRtpEncodingParameters.h in Headers */ = {isa = PBXBuildFile; fileRef = 414FB869216BB767001F5492 /* RTCRtpEncodingParameters.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -8190,6 +8191,7 @@
 		417C037223B210C400DE5D8B /* main_noop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main_noop.c; sourceTree = "<group>"; };
 		417E07762E71CB7200CFBD88 /* iterator_traits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iterator_traits.h; sourceTree = "<group>"; };
 		417E07782E71CBC000CFBD88 /* weakly_mixed_integer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = weakly_mixed_integer.h; sourceTree = "<group>"; };
+		417E077A2E71D1FA00CFBD88 /* extensions.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = extensions.c; sourceTree = "<group>"; };
 		418069882E128974002736ED /* utf8.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utf8.cc; sourceTree = "<group>"; };
 		41889D74216BB7B6004614DD /* RTCRtpEncodingParameters+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RTCRtpEncodingParameters+Private.h"; sourceTree = "<group>"; };
 		418938BA242A3D37007FDC41 /* VQ_WMat_EC_sse4_1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = VQ_WMat_EC_sse4_1.c; sourceTree = "<group>"; };
@@ -18083,6 +18085,7 @@
 			children = (
 				5C4B4A931E42C52D002651C8 /* analysis.c */,
 				5C4B4A941E42C52D002651C8 /* analysis.h */,
+				417E077A2E71D1FA00CFBD88 /* extensions.c */,
 				5C4B4A961E42C52D002651C8 /* mlp.c */,
 				5C4B4A971E42C52D002651C8 /* mlp.h */,
 				5C4B4A951E42C52D002651C8 /* mlp_data.c */,
@@ -25364,6 +25367,7 @@
 				5CDD8D3D1E43C79C00621E92 /* entcode.c in Sources */,
 				5CDD8D3F1E43C79C00621E92 /* entdec.c in Sources */,
 				5CDD8D411E43C79C00621E92 /* entenc.c in Sources */,
+				417E077B2E71D1FA00CFBD88 /* extensions.c in Sources */,
 				5CDD8F3F1E43CB1E00621E92 /* find_LPC_FIX.c in Sources */,
 				5CDD8EE71E43C9F600621E92 /* find_LPC_FLP.c in Sources */,
 				5CDD8F401E43CB1E00621E92 /* find_LTP_FIX.c in Sources */,
