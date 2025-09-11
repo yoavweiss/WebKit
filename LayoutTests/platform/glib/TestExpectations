@@ -2786,7 +2786,6 @@ imported/w3c/web-platform-tests/webrtc/RTCDTMFSender-ontonechange-long.https.htm
 
 # This test is buggy, has duplicate (copy/paste?) addTransceiver calls. That issue was fixed in upstream WPT.
 # This test was rewritten and split as webrtc/RTCRtpReceiver-{audio,video}-jitterBufferTarget-stats.https.html
-imported/w3c/web-platform-tests/webrtc-extensions/RTCRtpReceiver-jitterBufferTarget-stats.html [ Skip ]
 imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-audio-jitterBufferTarget-stats.https.html [ Pass ]
 # This test hasn't been imported yet.
 #imported/w3c/web-platform-tests/webrtc/RTCRtpReceiver-video-jitterBufferTarget-stats.https.html [ Pass ]
