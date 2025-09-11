@@ -1022,9 +1022,10 @@ void TextBoxPainter::paintCompositionUnderline(const CompositionUnderline& under
 
 static void removeMarkersPaintedByTextDecorationPainter(const RenderText& renderer, Vector<MarkedText>& markedTexts)
 {
-    // SpellingError marked text that is styled via ::spelling-error is removed from being painted here and it is painted as regular text-decoration at TextDecorationPainter
+    // SpellingError marked text that is styled via ::spelling-error is removed from being painted here and it is painted as regular text-decoration at TextDecorationPainter,
+    // unless its text-decoration-line is spelling-error itself. In the latter case we should paint decoration with our native spelling error markers.
     auto spellingErrorPseudoStyle = renderer.spellingErrorPseudoStyle();
-    if (spellingErrorPseudoStyle && !spellingErrorPseudoStyle->textDecorationLineInEffect().isNone()) {
+    if (spellingErrorPseudoStyle && !spellingErrorPseudoStyle->textDecorationLineInEffect().isSpellingError()) {
         markedTexts.removeAllMatching([] (auto&& markedText) {
             return markedText.type == MarkedText::Type::SpellingError;
         });
@@ -1039,10 +1040,20 @@ static void removeMarkersPaintedByTextDecorationPainter(const RenderText& render
     }
 }
 
+static std::optional<MarkedText> markedTextForTextDecorationLine(const RenderText& renderer)
+{
+    if (!renderer.style().textDecorationLineInEffect().isSpellingError())
+        return std::nullopt;
+    return std::make_optional<MarkedText>({ 0, static_cast<unsigned>(renderer.length()), MarkedText::Type::SpellingError });
+}
+
 void TextBoxPainter::paintPlatformDocumentMarkers()
 {
     auto markedTexts = MarkedText::collectForDocumentMarkers(m_renderer, m_selectableRange, MarkedText::PaintPhase::Decoration);
-    if (markedTexts.isEmpty())
+    // We want to paint text-decoration-line: spelling-error the same way we natively paint text marked with spelling errors
+    auto textDecorationLineSpellingErrorAsMarkedText = markedTextForTextDecorationLine(m_renderer);
+
+    if (markedTexts.isEmpty() && !textDecorationLineSpellingErrorAsMarkedText)
         return;
 
     // Defer painting to TextDecorationPainter if needed
@@ -1055,6 +1066,8 @@ void TextBoxPainter::paintPlatformDocumentMarkers()
     Vector<MarkedText> allMarkedTexts;
     allMarkedTexts.appendVector(transparentContentMarkedTexts);
     allMarkedTexts.appendVector(markedTexts);
+    if (textDecorationLineSpellingErrorAsMarkedText)
+        allMarkedTexts.append(*textDecorationLineSpellingErrorAsMarkedText);
 
     for (auto& markedText : MarkedText::subdivide(allMarkedTexts, MarkedText::OverlapStrategy::Frontmost)) {
         switch (markedText.type) {

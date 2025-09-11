@@ -4567,3 +4567,7 @@ imported/w3c/web-platform-tests/css/css-mixins/function-attr.html [ Failure ]
 webgl/2.0.y/conformance2/wasm/teximage2d-2gb-in-4gb-wasm-memory.html [ Skip ]
 # Flaky crash due to running out of commit space
 workers/btoa-oom.html [ Skip ]
+
+webkit.org/b/298727 css3/text-decoration/text-decoration-line-spelling-error-1.html [ Skip ]
+webkit.org/b/298727 css3/text-decoration/text-decoration-line-spelling-error-2.html [ Skip ]
+webkit.org/b/298727 css3/text-decoration/text-decoration-line-spelling-error-3.html [ Skip ]

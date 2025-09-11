@@ -1386,3 +1386,7 @@ imported/w3c/web-platform-tests/css/css-view-transitions/start-view-transtion-sk
 
 # Not supported on this platform.
 security/contentSecurityPolicy/plugins-types-allows-youtube-plugin-replacement.html [ Skip ]
+
+webkit.org/b/298727 css3/text-decoration/text-decoration-line-spelling-error-1.html [ Skip ]
+webkit.org/b/298727 css3/text-decoration/text-decoration-line-spelling-error-2.html [ Skip ]
+webkit.org/b/298727 css3/text-decoration/text-decoration-line-spelling-error-3.html [ Skip ]
