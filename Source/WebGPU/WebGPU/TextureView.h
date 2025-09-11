@@ -35,7 +35,7 @@
 
 // FIXME(rdar://155970441): this annotation should be in WebGPU.h, move it once we support
 // annotating incomplete types
-struct __attribute__((swift_attr("@safe"))) SWIFT_SHARED_REFERENCE(wgpuTextureViewReference, wgpuTextureViewRelease) WGPUTextureViewImpl {
+struct SWIFT_SHARED_REFERENCE(wgpuTextureViewReference, wgpuTextureViewRelease) WGPUTextureViewImpl {
 };
 
 namespace WebGPU {
@@ -109,8 +109,7 @@ private:
     const Ref<Device> m_device;
     const Ref<Texture> m_parentTexture;
     mutable Vector<uint64_t> m_commandEncoders;
-// FIXME: remove @safe once rdar://151039766 lands
-} __attribute__((swift_attr("@safe"))) SWIFT_SHARED_REFERENCE(refTextureView, derefTextureView);
+} SWIFT_SHARED_REFERENCE(refTextureView, derefTextureView);
 
 } // namespace WebGPU
 

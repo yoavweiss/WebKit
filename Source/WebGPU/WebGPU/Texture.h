@@ -39,7 +39,7 @@
 
 // FIXME(rdar://155970441): this annotation should be in WebGPU.h, move it once we support
 // annotating incomplete types
-struct __attribute__((swift_attr("@safe"))) SWIFT_SHARED_REFERENCE(wgpuTextureReference, wgpuTextureRelease) WGPUTextureImpl {
+struct SWIFT_SHARED_REFERENCE(wgpuTextureReference, wgpuTextureRelease) WGPUTextureImpl {
 };
 
 namespace WebGPU {
@@ -188,8 +188,7 @@ private:
     std::pair<id<MTLRasterizationRateMap>, id<MTLRasterizationRateMap>> m_leftRightRasterizationMaps;
 
     uint64_t m_sharedEventSignalValue { 0 };
-// FIXME: remove @safe once rdar://151039766 lands
-} __attribute__((swift_attr("@safe"))) SWIFT_SHARED_REFERENCE(refTexture, derefTexture);
+} SWIFT_SHARED_REFERENCE(refTexture, derefTexture);
 
 } // namespace WebGPU
 

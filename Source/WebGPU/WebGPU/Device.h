@@ -355,8 +355,7 @@ private:
     bool m_supressAllErrors { false };
     const uint32_t m_maxVerticesPerDrawCall { 0 };
     bool m_shaderValidationEnabled { true };
-// FIXME: remove @safe once rdar://151039766 lands
-} __attribute__((swift_attr("@safe"))) SWIFT_SHARED_REFERENCE(refDevice, derefDevice);
+} SWIFT_SHARED_REFERENCE(refDevice, derefDevice);
 
 } // namespace WebGPU
 
