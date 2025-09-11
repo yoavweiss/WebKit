@@ -39,6 +39,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "LLIntData.h"
 #include "LLIntExceptions.h"
 #include "WasmBBQPlan.h"
+#include "WasmBaselineData.h"
 #include "WasmCallSlot.h"
 #include "WasmCallee.h"
 #include "WasmCallingConvention.h"
@@ -159,7 +160,7 @@ static inline RefPtr<Wasm::JITCallee> jitCompileAndSetHeuristics(Wasm::IPIntCall
     if (compile) {
         Wasm::FunctionCodeIndex functionIndex = callee.functionIndex();
         if (Wasm::BBQPlan::ensureGlobalBBQAllowlist().containsWasmFunction(functionIndex)) {
-            auto plan = Wasm::BBQPlan::create(instance->vm(), const_cast<Wasm::ModuleInformation&>(instance->module().moduleInformation()), functionIndex, Ref { callee }, Ref(*instance->calleeGroup()), Wasm::Plan::dontFinalize());
+            auto plan = Wasm::BBQPlan::create(instance->vm(), const_cast<Wasm::ModuleInformation&>(instance->module().moduleInformation()), functionIndex, Ref { callee }, Ref { instance->module() }, Ref(*instance->calleeGroup()), Wasm::Plan::dontFinalize());
             Wasm::ensureWorklist().enqueue(plan.get());
             if (!Options::useConcurrentJIT() || !Options::useWasmIPInt()) [[unlikely]]
                 plan->waitForCompletion();
@@ -215,7 +216,7 @@ static inline Expected<RefPtr<Wasm::JITCallee>, Wasm::CompilationError> jitCompi
 
     Wasm::FunctionCodeIndex functionIndex = callee.functionIndex();
     ASSERT(instance->module().moduleInformation().usesSIMD(functionIndex));
-    auto plan = Wasm::BBQPlan::create(instance->vm(), const_cast<Wasm::ModuleInformation&>(instance->module().moduleInformation()), functionIndex, Ref { callee }, Ref(*instance->calleeGroup()), Wasm::Plan::dontFinalize());
+    auto plan = Wasm::BBQPlan::create(instance->vm(), const_cast<Wasm::ModuleInformation&>(instance->module().moduleInformation()), functionIndex, Ref { callee }, Ref { instance->module() }, Ref(*instance->calleeGroup()), Wasm::Plan::dontFinalize());
     Wasm::ensureWorklist().enqueue(plan.get());
     plan->waitForCompletion();
     if (plan->failed())
@@ -269,8 +270,10 @@ WASM_IPINT_EXTERN_CPP_DECL(prologue_osr, CallFrame* callFrame)
 
     dataLogLnIf(Options::verboseOSR(), *callee, ": Entered prologue_osr with tierUpCounter = ", callee->tierUpCounter());
 
-    if (RefPtr replacement = jitCompileAndSetHeuristics(*callee, instance, OSRFor::Prologue))
+    if (RefPtr replacement = jitCompileAndSetHeuristics(*callee, instance, OSRFor::Prologue)) {
+        instance->ensureBaselineData(callee->functionIndex());
         WASM_RETURN_TWO(replacement->entrypoint().taggedPtr(), nullptr);
+    }
     WASM_RETURN_TWO(nullptr, nullptr);
 }
 
@@ -327,6 +330,7 @@ WASM_IPINT_EXTERN_CPP_DECL(loop_osr, CallFrame* callFrame, uint8_t* pc, IPIntLoc
     auto sharedLoopEntrypoint = bbqCallee->sharedLoopEntrypoint();
     RELEASE_ASSERT(sharedLoopEntrypoint);
 
+    instance->ensureBaselineData(callee->functionIndex());
     WASM_RETURN_TWO(buffer, sharedLoopEntrypoint->taggedPtr());
 }
 
@@ -917,7 +921,7 @@ WASM_IPINT_EXTERN_CPP_DECL(ref_cast, int32_t heapType, bool allowNull, EncodedJS
 WASM_IPINT_EXTERN_CPP_DECL(prepare_call, CallFrame* callFrame, CallMetadata* call, Register* calleeAndWasmInstanceReturn)
 {
     auto* callee = IPINT_CALLEE(callFrame);
-    callee->callSlots()[call->callSlotIndex].incrementCount();
+    instance->ensureBaselineData(callee->functionIndex()).at(call->callSlotIndex).incrementCount();
 
     Wasm::FunctionSpaceIndex functionIndex = call->functionIndex;
 
@@ -950,7 +954,8 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call, CallFrame* callFrame, CallMetadata* cal
 WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::FunctionSpaceIndex* functionIndex, CallIndirectMetadata* call)
 {
     auto* callee = IPINT_CALLEE(callFrame);
-    callee->callSlots()[call->callSlotIndex].incrementCount();
+    auto& callSlot = instance->ensureBaselineData(callee->functionIndex()).at(call->callSlotIndex);
+    callSlot.incrementCount();
 
     unsigned tableIndex = call->tableIndex;
 
@@ -967,14 +972,21 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
     if (!function.m_function.rtt->isSubRTT(*call->rtt)) [[unlikely]]
         IPINT_THROW(Wasm::ExceptionType::BadSignature);
 
+    auto boxedCallee = function.m_function.boxedCallee.encodedBits();
     Register* calleeReturn = std::bit_cast<Register*>(functionIndex);
-    *calleeReturn = function.m_function.boxedCallee.encodedBits();
+    *calleeReturn = boxedCallee;
 
     Register& functionInfoSlot = calleeReturn[1];
     if (function.m_function.isJS())
         functionInfoSlot = reinterpret_cast<uintptr_t>(jsCast<WebAssemblyFunctionBase*>(function.m_value.get())->callLinkInfo());
-    else
-        functionInfoSlot = function.m_function.targetInstance.get();
+    else {
+        auto* targetInstance = function.m_function.targetInstance.get();
+        functionInfoSlot = targetInstance;
+        if (instance != targetInstance)
+            callSlot.observeCrossInstanceCall();
+        else
+            callSlot.observeCallIndirect(boxedCallee);
+    }
 
     auto callTarget = *function.m_function.entrypointLoadLocation;
     WASM_CALL_RETURN(function.m_function.targetInstance.get(), callTarget);
@@ -983,9 +995,8 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_indirect, CallFrame* callFrame, Wasm::Fu
 WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetadata* call, IPIntStackEntry* sp)
 {
     auto* callee = IPINT_CALLEE(callFrame);
-    callee->callSlots()[call->callSlotIndex].incrementCount();
-
-    UNUSED_PARAM(instance);
+    auto& callSlot = instance->ensureBaselineData(callee->functionIndex()).at(call->callSlotIndex);
+    callSlot.incrementCount();
 
     JSValue targetReference = JSValue::decode(sp->ref);
 
@@ -999,12 +1010,19 @@ WASM_IPINT_EXTERN_CPP_DECL(prepare_call_ref, CallFrame* callFrame, CallRefMetada
     auto* wasmFunction = jsCast<WebAssemblyFunctionBase*>(referenceAsObject);
     auto& function = wasmFunction->importableFunction();
     JSWebAssemblyInstance* calleeInstance = wasmFunction->instance();
-    sp->ref = function.boxedCallee.encodedBits();
+    auto boxedCallee = function.boxedCallee.encodedBits();
+    sp->ref = boxedCallee;
     Register& functionInfoSlot = std::bit_cast<Register*>(sp)[1];
     if (function.isJS())
         functionInfoSlot = reinterpret_cast<uintptr_t>(wasmFunction->callLinkInfo());
-    else
-        functionInfoSlot = function.targetInstance.get();
+    else {
+        auto* targetInstance = function.targetInstance.get();
+        functionInfoSlot = targetInstance;
+        if (instance != targetInstance)
+            callSlot.observeCrossInstanceCall();
+        else
+            callSlot.observeCallIndirect(boxedCallee);
+    }
 
     auto callTarget = *function.entrypointLoadLocation;
     WASM_CALL_RETURN(calleeInstance, callTarget);

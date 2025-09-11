@@ -27,52 +27,51 @@
 
 #if ENABLE(WEBASSEMBLY)
 
-#include <JavaScriptCore/WasmCallingConvention.h>
-#include <wtf/Expected.h>
+#include <JavaScriptCore/WasmBaselineData.h>
+#include <JavaScriptCore/WasmCallSlot.h>
+#include <JavaScriptCore/WasmCallee.h>
 #include <wtf/text/WTFString.h>
 
 namespace JSC::Wasm {
 
-class CallSlot {
+class Module;
+
+class MergedProfile {
+    WTF_MAKE_TZONE_ALLOCATED(MergedProfile);
+    WTF_MAKE_NONMOVABLE(MergedProfile);
+    friend class Module;
 public:
-    uint32_t count() const { return m_count; }
+    class CallSite {
+    public:
+        void merge(const CallSlot&);
+        uint32_t count() const { return m_count; }
 
-    void incrementCount()
-    {
-        ++m_count;
-    }
-
-    void observeCrossInstanceCall()
-    {
-        m_boxedCallee = megamorphicCallee;
-    }
-
-    void observeCallIndirect(EncodedJSValue boxedCallee)
-    {
-        if (m_boxedCallee == boxedCallee)
-            return;
-
-        if (!m_boxedCallee) {
-            m_boxedCallee = boxedCallee;
-            return;
+        Callee* callee() const
+        {
+            if (m_callee == megamorphic)
+                return nullptr;
+            return std::bit_cast<Callee*>(m_callee);
         }
 
-        // Initially, we are giving up for polymorphic calls.
-        m_boxedCallee = megamorphicCallee;
-    }
+        bool isMegamorphic() const { return m_callee == megamorphic; }
 
-    EncodedJSValue boxedCallee() const { return m_boxedCallee; }
+    private:
+        static constexpr uintptr_t megamorphic = 1;
 
-    static constexpr ptrdiff_t offsetOfCount() { return OBJECT_OFFSETOF(CallSlot, m_count); }
-    static constexpr ptrdiff_t offsetOfBoxedCallee() { return OBJECT_OFFSETOF(CallSlot, m_boxedCallee); }
+        uint32_t m_count { 0 };
+        uintptr_t m_callee { 0 };
+    };
 
-    static constexpr EncodedJSValue initCallee = 0b00;
-    static constexpr EncodedJSValue polymorphicCallee = 0b01;
-    static constexpr EncodedJSValue megamorphicCallee = 0b11;
+    MergedProfile(const IPIntCallee&);
+    bool isCalled(size_t index) const { return !!m_callSites[index].count(); }
+    Callee* callee(size_t index) const { return m_callSites[index].callee(); }
+    bool isMegamorphic(size_t index) const { return m_callSites[index].isMegamorphic(); }
+
+    std::span<CallSite> mutableSpan() { return m_callSites.mutableSpan(); }
+    std::span<const CallSite> span() const { return m_callSites.span(); }
 
 private:
-    uint32_t m_count { 0 };
-    EncodedJSValue m_boxedCallee { initCallee };
+    Vector<CallSite> m_callSites;
 };
 
 } // namespace JSC::Wasm

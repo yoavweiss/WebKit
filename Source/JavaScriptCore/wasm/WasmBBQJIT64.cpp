@@ -187,7 +187,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::getGlobal(uint32_t index, Value& result
     const Wasm::GlobalInformation& global = m_info.globals[index];
     Type type = global.type;
 
-    int32_t offset = JSWebAssemblyInstance::offsetOfGlobalPtr(m_info.importFunctionCount(), m_info.tableCount(), index);
+    int32_t offset = JSWebAssemblyInstance::offsetOfGlobal(m_info, index);
     Value globalValue = Value::pinned(type.kind, Location::fromGlobal(offset));
 
     switch (global.bindingMode) {
@@ -254,7 +254,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::setGlobal(uint32_t index, Value value)
     const Wasm::GlobalInformation& global = m_info.globals[index];
     Type type = global.type;
 
-    int32_t offset = JSWebAssemblyInstance::offsetOfGlobalPtr(m_info.importFunctionCount(), m_info.tableCount(), index);
+    int32_t offset = JSWebAssemblyInstance::offsetOfGlobal(m_info, index);
     Location valueLocation = locationOf(value);
 
     switch (global.bindingMode) {
@@ -1600,8 +1600,8 @@ void BBQJIT::emitAllocateGCArrayUninitialized(GPRReg resultGPR, uint32_t typeInd
     RELEASE_ASSERT(m_info.hasGCObjectTypes());
     JumpList slowPath;
     const ArrayType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<ArrayType>();
-    MacroAssembler::Address allocatorBufferBase(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfAllocatorForGCObject(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), m_info.typeCount(), 0));
-    MacroAssembler::Address structureIDAddress(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex));
+    MacroAssembler::Address allocatorBufferBase(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfAllocatorForGCObject(m_info, 0));
+    MacroAssembler::Address structureIDAddress(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info, typeIndex));
     Location sizeLocation;
     size_t elementSize = typeDefinition->elementType().type.elementSize();
     if (size.isConst()) {
@@ -2138,8 +2138,8 @@ void BBQJIT::emitAllocateGCStructUninitialized(GPRReg resultGPR, uint32_t typeIn
     RELEASE_ASSERT(m_info.hasGCObjectTypes());
     JumpList slowPath;
     const StructType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<StructType>();
-    MacroAssembler::Address allocatorBufferBase(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfAllocatorForGCObject(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), m_info.typeCount(), 0));
-    MacroAssembler::Address structureIDAddress(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex));
+    MacroAssembler::Address allocatorBufferBase(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfAllocatorForGCObject(m_info, 0));
+    MacroAssembler::Address structureIDAddress(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info, typeIndex));
     Location sizeLocation;
 
     size_t sizeInBytes = JSWebAssemblyStruct::allocationSize(typeDefinition->instancePayloadSize());
@@ -5463,39 +5463,38 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callSlotIndex, cons
     GPRReg calleePtr;
     GPRReg calleeInstance;
     GPRReg calleeCode;
+    GPRReg boxedCallee;
     {
         ScratchScope<1, 0> calleeCodeScratch(*this, RegisterSetBuilder::argumentGPRs());
         calleeCode = calleeCodeScratch.gpr(0);
         calleeCodeScratch.unbindPreserved();
 
-        ScratchScope<1, 0> otherScratch(*this);
-
-        Location calleeLocation;
-        if (callee.isConst()) {
-            ASSERT(callee.asI64() == JSValue::encode(jsNull()));
-            // This is going to throw anyway. It's suboptimial but probably won't happen in practice anyway.
-            emitMoveConst(callee, calleeLocation = Location::fromGPR(otherScratch.gpr(0)));
-        } else
-            calleeLocation = loadIfNecessary(callee);
-        consume(callee);
-        emitThrowOnNullReference(ExceptionType::NullReference, calleeLocation);
-
-        calleePtr = calleeLocation.asGPR();
-        calleeInstance = otherScratch.gpr(0);
-
         {
-            auto calleeTmp = calleeInstance;
-            m_jit.loadPtr(Address(calleePtr, WebAssemblyFunctionBase::offsetOfBoxedCallee()), calleeTmp);
-            m_jit.storeWasmCalleeToCalleeCallFrame(calleeTmp);
+            ScratchScope<2, 0> otherScratch(*this);
+
+            Location calleeLocation;
+            if (callee.isConst()) {
+                ASSERT(callee.asI64() == JSValue::encode(jsNull()));
+                // This is going to throw anyway. It's suboptimial but probably won't happen in practice anyway.
+                emitMoveConst(callee, calleeLocation = Location::fromGPR(otherScratch.gpr(0)));
+            } else
+                calleeLocation = loadIfNecessary(callee);
+            consume(callee);
+            emitThrowOnNullReference(ExceptionType::NullReference, calleeLocation);
+
+            calleePtr = calleeLocation.asGPR();
+            calleeInstance = otherScratch.gpr(0);
+            boxedCallee = otherScratch.gpr(1);
+
+            m_jit.loadPtr(Address(calleePtr, WebAssemblyFunctionBase::offsetOfBoxedCallee()), boxedCallee);
+            m_jit.storeWasmCalleeToCalleeCallFrame(boxedCallee);
+            m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfTargetInstance()), calleeInstance);
+            m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfEntrypointLoadLocation()), calleeCode);
         }
-
-        m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfTargetInstance()), calleeInstance);
-        m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfEntrypointLoadLocation()), calleeCode);
-
     }
 
     if (callType == CallType::Call)
-        emitIndirectCall("CallRef", callee, calleeInstance, calleeCode, signature, args, results);
+        emitIndirectCall("CallRef", callSlotIndex, callee, boxedCallee, calleeInstance, calleeCode, signature, args, results);
     else
         emitIndirectTailCall("ReturnCallRef", callee, calleeInstance, calleeCode, signature, args);
     return { };

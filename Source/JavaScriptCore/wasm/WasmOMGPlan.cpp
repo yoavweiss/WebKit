@@ -134,7 +134,7 @@ void OMGPlan::work()
     beginCompilerSignpost(callee.get());
     Vector<UnlinkedWasmToWasmCall> unlinkedCalls;
     CompilationContext context;
-    auto parseAndCompileResult = parseAndCompileOMG(context, profiledCallee.get(), callee.get(), function, signature, unlinkedCalls, m_calleeGroup.get(), m_moduleInformation.get(), m_mode, CompilationMode::OMGMode, m_functionIndex, UINT32_MAX);
+    auto parseAndCompileResult = parseAndCompileOMG(context, profiledCallee.get(), callee.get(), function, signature, unlinkedCalls, m_module.get(), m_calleeGroup.get(), m_moduleInformation.get(), m_mode, CompilationMode::OMGMode, m_functionIndex, UINT32_MAX);
     endCompilerSignpost(callee.get());
 
     if (!parseAndCompileResult) [[unlikely]] {

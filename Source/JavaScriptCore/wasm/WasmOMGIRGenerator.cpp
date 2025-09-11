@@ -57,6 +57,7 @@
 #include "JSWebAssemblyStruct.h"
 #include "ProbeContext.h"
 #include "ScratchRegisterAllocator.h"
+#include "WasmBaselineData.h"
 #include "WasmBranchHints.h"
 #include "WasmCallSlot.h"
 #include "WasmCallingConvention.h"
@@ -65,6 +66,7 @@
 #include "WasmFunctionParser.h"
 #include "WasmIRGeneratorHelpers.h"
 #include "WasmMemory.h"
+#include "WasmMergedProfile.h"
 #include "WasmOSREntryData.h"
 #include "WasmOpcodeOrigin.h"
 #include "WasmOperations.h"
@@ -380,8 +382,8 @@ public:
         return m_callSiteIndex;
     }
 
-    OMGIRGenerator(CompilationContext&, CalleeGroup&, const ModuleInformation&, IPIntCallee&, OptimizingJITCallee&, Procedure&, Vector<UnlinkedWasmToWasmCall>&, FixedBitVector& outgoingDirectCallees, unsigned& osrEntryScratchBufferSize, MemoryMode, CompilationMode, unsigned functionIndex, unsigned loopIndexForOSREntry);
-    OMGIRGenerator(CompilationContext&, OMGIRGenerator& inlineCaller, OMGIRGenerator& inlineRoot, CalleeGroup&, unsigned functionIndex, IPIntCallee&, BasicBlock* returnContinuation, Vector<Value*> args);
+    OMGIRGenerator(CompilationContext&, Module&, CalleeGroup&, const ModuleInformation&, IPIntCallee&, OptimizingJITCallee&, Procedure&, Vector<UnlinkedWasmToWasmCall>&, FixedBitVector& outgoingDirectCallees, unsigned& osrEntryScratchBufferSize, MemoryMode, CompilationMode, unsigned functionIndex, unsigned loopIndexForOSREntry);
+    OMGIRGenerator(CompilationContext&, OMGIRGenerator& inlineCaller, OMGIRGenerator& inlineRoot, Module&, CalleeGroup&, unsigned functionIndex, IPIntCallee&, BasicBlock* returnContinuation, Vector<Value*> args);
 
     void computeStackCheckSize(bool& needsOverflowCheck, int32_t& checkSize);
 
@@ -717,7 +719,8 @@ public:
     PartialResult WARN_UNUSED_RETURN addRethrow(unsigned, ControlType&);
     PartialResult WARN_UNUSED_RETURN addThrowRef(TypedExpression exception, Stack&);
 
-    PartialResult WARN_UNUSED_RETURN addInlinedReturn(const Stack& returnValues);
+    PartialResult WARN_UNUSED_RETURN addInlinedReturn(const auto& returnValues);
+
     PartialResult WARN_UNUSED_RETURN addReturn(const ControlData&, const Stack& returnValues);
     PartialResult WARN_UNUSED_RETURN addBranch(ControlData&, ExpressionType condition, const Stack& returnValues);
     PartialResult WARN_UNUSED_RETURN addBranchNull(ControlType&, ExpressionType, const Stack&, bool, ExpressionType&);
@@ -741,14 +744,17 @@ public:
     PartialResult WARN_UNUSED_RETURN addUnreachable();
     PartialResult WARN_UNUSED_RETURN addCrash();
     void fillCallResults(Value* callResult, const TypeDefinition& signature, ResultList& results);
-    PartialResult WARN_UNUSED_RETURN emitIndirectCall(Value* calleeInstance, Value* calleeCode, Value* boxedCalleeCallee, const TypeDefinition&, const ArgumentList& args, ResultList&, CallType = CallType::Call);
+
+    using ValueResults = Vector<Value*, 16>;
+    PartialResult WARN_UNUSED_RETURN emitDirectCall(unsigned, FunctionSpaceIndex functionIndexSpace, const TypeDefinition&, ArgumentList& args, ValueResults&, CallType = CallType::Call);
+    PartialResult WARN_UNUSED_RETURN emitIndirectCall(Value* calleeInstance, Value* calleeCode, Value* boxedCalleeCallee, const TypeDefinition&, const ArgumentList& args, ValueResults&, CallType = CallType::Call);
 
     Vector<ConstrainedValue> createCallConstrainedArgs(BasicBlock*, const CallInformation& wasmCalleeInfo, const ArgumentList&);
     auto createCallPatchpoint(BasicBlock*, const TypeDefinition&, const CallInformation&, const ArgumentList& tmpArgs) -> CallPatchpointData;
     auto createTailCallPatchpoint(BasicBlock*, const TypeDefinition&, const CallInformation& wasmCallerInfoAsCallee, const CallInformation& wasmCalleeInfoAsCallee, const ArgumentList& tmpArgSourceLocations, Vector<B3::ConstrainedValue> patchArgs) -> CallPatchpointData;
 
     bool canInline(FunctionSpaceIndex functionIndexSpace, unsigned callSlotIndex) const;
-    PartialResult WARN_UNUSED_RETURN emitInlineDirectCall(FunctionCodeIndex calleeIndex, const TypeDefinition&, ArgumentList& args, ResultList& results);
+    PartialResult WARN_UNUSED_RETURN emitInlineDirectCall(FunctionCodeIndex calleeIndex, const TypeDefinition&, ArgumentList& args, ValueResults&);
 
     void dump(const ControlStack&, const Stack* expressionStack);
     void setParser(FunctionParser<OMGIRGenerator>* parser) { m_parser = parser; };
@@ -957,6 +963,7 @@ private:
 
     FunctionParser<OMGIRGenerator>* m_parser { nullptr };
     CompilationContext& m_context;
+    Module& m_module;
     CalleeGroup& m_calleeGroup;
     const ModuleInformation& m_info;
     const IPIntCallee& m_profiledCallee;
@@ -965,6 +972,7 @@ private:
     const CompilationMode m_compilationMode;
     const FunctionCodeIndex m_functionIndex;
     const unsigned m_loopIndexForOSREntry { UINT_MAX };
+    std::unique_ptr<MergedProfile> m_profile;
 
     struct RootBlock {
         BasicBlock* block;
@@ -1101,8 +1109,9 @@ void OMGIRGenerator::computeStackCheckSize(bool& needsOverflowCheck, int32_t& ch
     needsOverflowCheck = needsOverflowCheck || needUnderflowCheck;
 }
 
-OMGIRGenerator::OMGIRGenerator(CompilationContext& context, OMGIRGenerator& parentCaller, OMGIRGenerator& rootCaller, CalleeGroup& calleeGroup, unsigned functionIndex, IPIntCallee& profiledCallee, BasicBlock* returnContinuation, Vector<Value*> args)
+OMGIRGenerator::OMGIRGenerator(CompilationContext& context, OMGIRGenerator& parentCaller, OMGIRGenerator& rootCaller, Module& module, CalleeGroup& calleeGroup, unsigned functionIndex, IPIntCallee& profiledCallee, BasicBlock* returnContinuation, Vector<Value*> args)
     : m_context(context)
+    , m_module(module)
     , m_calleeGroup(calleeGroup)
     , m_info(rootCaller.m_info)
     , m_profiledCallee(profiledCallee)
@@ -1111,6 +1120,7 @@ OMGIRGenerator::OMGIRGenerator(CompilationContext& context, OMGIRGenerator& pare
     , m_compilationMode(CompilationMode::OMGMode)
     , m_functionIndex(functionIndex)
     , m_loopIndexForOSREntry(-1)
+    , m_profile(module.createMergedProfile(profiledCallee))
     , m_proc(rootCaller.m_proc)
     , m_returnContinuation(returnContinuation)
     , m_inlineRoot(&rootCaller)
@@ -1136,8 +1146,9 @@ OMGIRGenerator::OMGIRGenerator(CompilationContext& context, OMGIRGenerator& pare
         m_hasExceptionHandlers = true;
 }
 
-OMGIRGenerator::OMGIRGenerator(CompilationContext& context, CalleeGroup& calleeGroup, const ModuleInformation& info, IPIntCallee& profiledCallee, OptimizingJITCallee& callee, Procedure& procedure, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, FixedBitVector& outgoingDirectCallees, unsigned& osrEntryScratchBufferSize, MemoryMode mode, CompilationMode compilationMode, unsigned functionIndex, unsigned loopIndexForOSREntry)
+OMGIRGenerator::OMGIRGenerator(CompilationContext& context, Module& module, CalleeGroup& calleeGroup, const ModuleInformation& info, IPIntCallee& profiledCallee, OptimizingJITCallee& callee, Procedure& procedure, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, FixedBitVector& outgoingDirectCallees, unsigned& osrEntryScratchBufferSize, MemoryMode mode, CompilationMode compilationMode, unsigned functionIndex, unsigned loopIndexForOSREntry)
     : m_context(context)
+    , m_module(module)
     , m_calleeGroup(calleeGroup)
     , m_info(info)
     , m_profiledCallee(profiledCallee)
@@ -1146,6 +1157,7 @@ OMGIRGenerator::OMGIRGenerator(CompilationContext& context, CalleeGroup& calleeG
     , m_compilationMode(compilationMode)
     , m_functionIndex(functionIndex)
     , m_loopIndexForOSREntry(loopIndexForOSREntry)
+    , m_profile(module.createMergedProfile(profiledCallee))
     , m_proc(procedure)
     , m_inlineRoot(this)
     , m_inlinedBytes(m_info.functionWasmSize(m_functionIndex))
@@ -1725,14 +1737,12 @@ auto OMGIRGenerator::addCrash() -> PartialResult
     return { };
 }
 
-auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, Value* boxedCalleeCallee, const TypeDefinition& signature, const ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
+auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, Value* boxedCalleeCallee, const TypeDefinition& signature, const ArgumentList& args, ValueResults& results, CallType callType) -> PartialResult
 {
-    const bool isTailCallInlineCaller = callType == CallType::TailCall && m_inlineParent;
-    const bool isTailCall = callType == CallType::TailCall && !isTailCallInlineCaller;
-    ASSERT(callType == CallType::Call || isTailCall || isTailCallInlineCaller);
+    const bool isTailCallRootCaller = callType == CallType::TailCall && !m_inlineParent;
 
     m_makesCalls = true;
-    if (isTailCall || isTailCallInlineCaller)
+    if (callType == CallType::TailCall)
         m_makesTailCalls = true;
 
     // Do a context switch if needed.
@@ -1776,12 +1786,12 @@ auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, 
     CallInformation wasmCalleeInfo = callingConvention.callInformationFor(signature, CallRole::Caller);
     CallInformation wasmCalleeInfoAsCallee = callingConvention.callInformationFor(signature, CallRole::Callee);
     Checked<int32_t> calleeStackSize = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(wasmCalleeInfo.headerAndArgumentStackSizeInBytes);
-    if (isTailCall)
+    if (isTailCallRootCaller)
         calleeStackSize = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(wasmCalleeInfo.headerAndArgumentStackSizeInBytes * 2 + sizeof(Register));
 
     m_proc.requestCallArgAreaSizeInBytes(calleeStackSize);
 
-    if (isTailCall) {
+    if (isTailCallRootCaller) {
         const TypeIndex callerTypeIndex = m_info.internalFunctionTypeIndices[m_functionIndex];
         const TypeDefinition& callerTypeDefinition = TypeInformation::get(callerTypeIndex).expand();
         CallInformation wasmCallerInfoAsCallee = callingConvention.callInformationFor(callerTypeDefinition, CallRole::Callee);
@@ -1834,27 +1844,17 @@ auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, 
     case B3::Tuple: {
         const Vector<B3::Type>& tuple = m_proc.tupleForType(returnType);
         for (unsigned i = 0; i < signature.as<FunctionSignature>()->returnCount(); ++i)
-            results.append(push(m_currentBlock->appendNew<ExtractValue>(m_proc, origin(), tuple[i], callResult, i)));
+            results.append(m_currentBlock->appendNew<ExtractValue>(m_proc, origin(), tuple[i], callResult, i));
         break;
     }
     default: {
-        results.append(push(callResult));
+        results.append(callResult);
         break;
     }
     }
 
     // The call could have been to another WebAssembly instance, and / or could have modified our Memory.
     restoreWebAssemblyGlobalState(m_info.memory, instanceValue(), m_currentBlock);
-
-    if (isTailCallInlineCaller) {
-        Stack typedResults;
-        typedResults.reserveInitialCapacity(results.size());
-        for (unsigned i = 0; i < results.size(); ++i)
-            typedResults.append(TypedExpression { signature.as<FunctionSignature>()->returnType(i), results[i] });
-        ASSERT(m_returnContinuation);
-        return addInlinedReturn(WTFMove(typedResults));
-    }
-
     return { };
 }
 
@@ -2075,11 +2075,11 @@ auto OMGIRGenerator::getGlobal(uint32_t index, ExpressionType& result) -> Partia
     const Wasm::GlobalInformation& global = m_info.globals[index];
     switch (global.bindingMode) {
     case Wasm::GlobalInformation::BindingMode::EmbeddedInInstance:
-        result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, toB3Type(global.type), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobalPtr(m_numImportFunctions, m_info.tableCount(), index))));
+        result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, toB3Type(global.type), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index))));
         break;
     case Wasm::GlobalInformation::BindingMode::Portable: {
         ASSERT(global.mutability == Wasm::Mutability::Mutable);
-        Value* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobalPtr(m_numImportFunctions, m_info.tableCount(), index)));
+        Value* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index)));
         result = push(m_currentBlock->appendNew<MemoryValue>(m_proc, Load, toB3Type(global.type), origin(), pointer));
         break;
     }
@@ -2097,13 +2097,13 @@ auto OMGIRGenerator::setGlobal(uint32_t index, ExpressionType value) -> PartialR
 
     switch (global.bindingMode) {
     case Wasm::GlobalInformation::BindingMode::EmbeddedInInstance:
-        m_currentBlock->appendNew<MemoryValue>(m_proc, Store, origin(), get(value), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobalPtr(m_numImportFunctions, m_info.tableCount(), index)));
+        m_currentBlock->appendNew<MemoryValue>(m_proc, Store, origin(), get(value), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index)));
         if (isRefType(global.type))
             emitWriteBarrierForJSWrapper();
         break;
     case Wasm::GlobalInformation::BindingMode::Portable: {
         ASSERT(global.mutability == Wasm::Mutability::Mutable);
-        Value* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobalPtr(m_numImportFunctions, m_info.tableCount(), index)));
+        Value* pointer = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGlobal(m_info, index)));
         m_currentBlock->appendNew<MemoryValue>(m_proc, Store, origin(), get(value), pointer);
         // We emit a write-barrier onto JSWebAssemblyGlobal, not JSWebAssemblyInstance.
         if (isRefType(global.type)) {
@@ -3859,7 +3859,7 @@ Value* OMGIRGenerator::allocatorForWasmGCHeapCellSize(Value* sizeInBytes, BasicB
 {
     static_assert(!(MarkedSpace::sizeStep & (MarkedSpace::sizeStep - 1)), "MarkedSpace::sizeStep must be a power of two.");
 
-    ptrdiff_t allocatorBufferBaseOffset = JSWebAssemblyInstance::offsetOfAllocatorForGCObject(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), m_info.typeCount(), 0);
+    ptrdiff_t allocatorBufferBaseOffset = JSWebAssemblyInstance::offsetOfAllocatorForGCObject(m_info, 0);
 
     unsigned stepShift = getLSBSet(MarkedSpace::sizeStep);
 
@@ -3948,7 +3948,7 @@ Value* OMGIRGenerator::allocateWasmGCArrayUninitialized(uint32_t typeIndex, Valu
     auto* slowPath = m_proc.addBlock();
     auto* continuation = m_proc.addBlock();
 
-    auto* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex)));
+    auto* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info, typeIndex)));
     const ArrayType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<ArrayType>();
     size_t elementSize = typeDefinition->elementType().type.elementSize();
     auto* extended = m_currentBlock->appendNew<Value>(m_proc, ZExt32, origin(), size);
@@ -3983,7 +3983,7 @@ Value* OMGIRGenerator::allocateWasmGCStructUninitialized(uint32_t typeIndex)
     auto* slowPath = m_proc.addBlock();
     auto* continuation = m_proc.addBlock();
 
-    auto* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info.importFunctionCount(), m_info.tableCount(), m_info.globalCount(), typeIndex)));
+    auto* structureID = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, Int32, origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfGCObjectStructureID(m_info, typeIndex)));
     const StructType* typeDefinition = m_info.typeSignatures[typeIndex]->expand().template as<StructType>();
     Value* sizeInBytes = constant(pointerType(), JSWebAssemblyStruct::allocationSize(typeDefinition->instancePayloadSize()));
     auto* allocator = allocatorForWasmGCHeapCellSize(sizeInBytes, slowPath);
@@ -4844,7 +4844,7 @@ auto OMGIRGenerator::addRethrow(unsigned, ControlType& data) -> PartialResult
     return { };
 }
 
-auto OMGIRGenerator::addInlinedReturn(const Stack& returnValues) -> PartialResult
+auto OMGIRGenerator::addInlinedReturn(const auto& returnValues) -> PartialResult
 {
     dataLogLnIf(WasmOMGIRGeneratorInternal::verboseInlining, "Returning inline to BB ", *m_returnContinuation);
 
@@ -5600,7 +5600,7 @@ bool OMGIRGenerator::canInline(FunctionSpaceIndex functionIndexSpace, unsigned c
     // too small (then call sequence can be larger than the inlined content).
     // Also, we could eventually consider emitting OSR exit, and stop generating
     // the rest of the code for this and subsequent basic blocks.
-    if (!m_profiledCallee.callSlots()[callSlotIndex].count())
+    if (!m_profile->isCalled(callSlotIndex))
         return false;
 
     if (m_inlineDepth >= Options::maximumWasmDepthForInlining())
@@ -5619,7 +5619,7 @@ bool OMGIRGenerator::canInline(FunctionSpaceIndex functionIndexSpace, unsigned c
     return true;
 }
 
-auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex, const TypeDefinition& calleeSignature, ArgumentList& args, ResultList& resultList) -> PartialResult
+auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex, const TypeDefinition& calleeSignature, ArgumentList& args, ValueResults& results) -> PartialResult
 {
     Vector<Value*> getArgs;
 
@@ -5634,7 +5634,7 @@ auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex,
 
     const FunctionData& function = m_info.functions[calleeFunctionIndex];
     Ref<IPIntCallee> profiledCallee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(m_calleeGroup.toSpaceIndex(calleeFunctionIndex));
-    m_protectedInlineeGenerators.append(makeUnique<OMGIRGenerator>(m_context, *this, *m_inlineRoot, m_calleeGroup, calleeFunctionIndex, profiledCallee.get(), continuation, WTFMove(getArgs)));
+    m_protectedInlineeGenerators.append(makeUnique<OMGIRGenerator>(m_context, *this, *m_inlineRoot, m_module, m_calleeGroup, calleeFunctionIndex, profiledCallee.get(), continuation, WTFMove(getArgs)));
     auto& irGenerator = *m_protectedInlineeGenerators.last();
     m_protectedInlineeParsers.append(makeUnique<FunctionParser<OMGIRGenerator>>(irGenerator, function.data, calleeSignature, m_info));
     auto& parser = *m_protectedInlineeParsers.last();
@@ -5660,7 +5660,7 @@ auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex,
     m_currentBlock = continuation;
 
     for (unsigned i = 0; i < calleeSignature.as<FunctionSignature>()->returnCount(); ++i)
-        resultList.append(push(m_currentBlock->appendNew<VariableValue>(m_proc, B3::Get, origin(), irGenerator.m_inlinedResults[i])));
+        results.append(m_currentBlock->appendNew<VariableValue>(m_proc, B3::Get, origin(), irGenerator.m_inlinedResults[i]));
 
     auto lastInlineCallSiteIndex = advanceCallSiteIndex();
     advanceCallSiteIndex();
@@ -5673,6 +5673,28 @@ auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex,
 
 auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
 {
+    TRACE_CF("Call: entered with ", signature);
+
+    ValueResults values;
+    auto result = emitDirectCall(callSlotIndex, functionIndexSpace, signature, args, values, callType);
+    if (!result.has_value()) [[unlikely]]
+        return result;
+
+    const bool isTailCallRootCaller = callType == CallType::TailCall && !m_inlineParent;
+    const bool isTailCallInlineCaller = callType == CallType::TailCall && m_inlineParent;
+
+    if (!isTailCallRootCaller) {
+        for (Value* value : values)
+            results.append(push(value));
+        if (isTailCallInlineCaller)
+            return addInlinedReturn(results);
+    }
+
+    return { };
+}
+
+auto OMGIRGenerator::emitDirectCall(unsigned callSlotIndex, FunctionSpaceIndex functionIndexSpace, const TypeDefinition& signature, ArgumentList& args, ValueResults& results, CallType callType) -> PartialResult
+{
     if (!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace)) {
         // Record the callee so the callee knows to look for it in updateCallsitesToCallUs.
         // FIXME: This could only record the callees from inlined functions since BBQ should have reported any direct callees before so we don't do the extra
@@ -5680,20 +5702,15 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
         m_directCallees.testAndSet(m_info.toCodeIndex(functionIndexSpace));
     }
 
-    const bool isTailCallInlineCaller = callType == CallType::TailCall && m_inlineParent;
-    const bool isTailCall = callType == CallType::TailCall && !isTailCallInlineCaller;
-
-    ASSERT(callType == CallType::Call || isTailCall || isTailCallInlineCaller);
+    const bool isTailCallRootCaller = callType == CallType::TailCall && !m_inlineParent;
     ASSERT(signature.as<FunctionSignature>()->argumentCount() == args.size());
-
-    TRACE_CF("Call: entered with ", signature);
 
     const auto& callingConvention = wasmCallingConvention();
     Checked<int32_t> tailCallStackOffsetFromFP;
     CallInformation wasmCalleeInfo = callingConvention.callInformationFor(signature, CallRole::Caller);
     CallInformation wasmCalleeInfoAsCallee = callingConvention.callInformationFor(signature, CallRole::Callee);
     Checked<int32_t> calleeStackSize = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(wasmCalleeInfo.headerAndArgumentStackSizeInBytes);
-    if (isTailCall)
+    if (isTailCallRootCaller)
         calleeStackSize = WTF::roundUpToMultipleOf<stackAlignmentBytes()>(wasmCalleeInfo.headerAndArgumentStackSizeInBytes * 2 + sizeof(Register));
     const TypeIndex callerTypeIndex = m_info.internalFunctionTypeIndices[m_functionIndex];
     const TypeDefinition& callerTypeDefinition = TypeInformation::get(callerTypeIndex).expand();
@@ -5703,7 +5720,7 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
     Value* jumpDestination = nullptr;
 
     m_makesCalls = true;
-    if (isTailCall || isTailCallInlineCaller)
+    if (callType == CallType::TailCall)
         m_makesTailCalls = true;
 
     auto fillResults = [&] (Value* callResult) {
@@ -5717,11 +5734,11 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
             const Vector<B3::Type>& tuple = m_proc.tupleForType(returnType);
             ASSERT(signature.as<FunctionSignature>()->returnCount() == tuple.size());
             for (unsigned i = 0; i < signature.as<FunctionSignature>()->returnCount(); ++i)
-                results.append(push(m_currentBlock->appendNew<ExtractValue>(m_proc, origin(), tuple[i], callResult, i)));
+                results.append(m_currentBlock->appendNew<ExtractValue>(m_proc, origin(), tuple[i], callResult, i));
             break;
         }
         default: {
-            results.append(push(callResult));
+            results.append(callResult);
             break;
         }
         }
@@ -5738,14 +5755,14 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
             // FIXME: We shouldn't have to do this: https://bugs.webkit.org/show_bug.cgi?id=172181
             patchpoint->clobberLate(RegisterSetBuilder::wasmPinnedRegisters());
             patchArgsIndex += m_proc.resultCount(patchpoint->type());
-            patchpoint->setGenerator([this, patchArgsIndex, handle, isTailCall, tailCallStackOffsetFromFP, prepareForCall](CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
+            patchpoint->setGenerator([this, patchArgsIndex, handle, isTailCallRootCaller, tailCallStackOffsetFromFP, prepareForCall](CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
                 AllowMacroScratchRegisterUsage allowScratch(jit);
                 if (prepareForCall)
                     prepareForCall->run(jit, params);
-                ASSERT(!isTailCall || !handle);
+                ASSERT(!isTailCallRootCaller || !handle);
                 if (handle)
                     handle->generate(jit, params, this);
-                if (isTailCall)
+                if (isTailCallRootCaller)
                     jit.farJump(params[patchArgsIndex].gpr(), WasmEntryPtrTag);
                 else {
                     jit.call(params[patchArgsIndex].gpr(), WasmEntryPtrTag);
@@ -5763,7 +5780,7 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
         // https://bugs.webkit.org/show_bug.cgi?id=170375
         jumpDestination = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfImportFunctionStub(functionIndexSpace)));
 
-        if (isTailCall) {
+        if (isTailCallRootCaller) {
             auto [patchpoint, handle, prepareForCall] = createTailCallPatchpoint(m_currentBlock, signature, wasmCallerInfoAsCallee, wasmCalleeInfoAsCallee, args, { });
             emitCallToImport(patchpoint, handle, prepareForCall);
             return { };
@@ -5777,24 +5794,13 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
 
         // The call could have been to another WebAssembly instance, and / or could have modified our Memory.
         restoreWebAssemblyGlobalState(m_info.memory, instanceValue(), m_currentBlock);
-
-        if (isTailCallInlineCaller) {
-            Stack typedResults;
-            typedResults.reserveInitialCapacity(results.size());
-            for (unsigned i = 0; i < results.size(); ++i)
-                typedResults.append(TypedExpression { signature.as<FunctionSignature>()->returnType(i), results[i] });
-            ASSERT(m_returnContinuation);
-            return addInlinedReturn(WTFMove(typedResults));
-        }
-
         return { };
-
     } // isImportedFunctionFromFunctionIndexSpace
 
     Vector<UnlinkedWasmToWasmCall>* unlinkedWasmToWasmCalls = &m_unlinkedWasmToWasmCalls;
 
     auto emitUnlinkedWasmToWasmCall = [&, this](PatchpointValue* patchpoint, Box<PatchpointExceptionHandle> handle, RefPtr<B3::StackmapGenerator> prepareForCall) -> void {
-        patchpoint->setGenerator([this, handle, unlinkedWasmToWasmCalls, functionIndexSpace, isTailCall, tailCallStackOffsetFromFP, prepareForCall](CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
+        patchpoint->setGenerator([this, handle, unlinkedWasmToWasmCalls, functionIndexSpace, isTailCallRootCaller, tailCallStackOffsetFromFP, prepareForCall](CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
             AllowMacroScratchRegisterUsage allowScratch(jit);
             if (prepareForCall)
                 prepareForCall->run(jit, params);
@@ -5803,8 +5809,8 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
 
             ASSERT(!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace));
             Ref<IPIntCallee> callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(functionIndexSpace);
-            jit.storeWasmCalleeToCalleeCallFrame(CCallHelpers::TrustedImmPtr(CalleeBits::boxNativeCallee(callee.ptr())), isTailCall ? sizeof(CallerFrameAndPC) - prologueStackPointerDelta() : 0);
-            auto call = isTailCall ? jit.threadSafePatchableNearTailCall() : jit.threadSafePatchableNearCall();
+            jit.storeWasmCalleeToCalleeCallFrame(CCallHelpers::TrustedImmPtr(CalleeBits::boxNativeCallee(callee.ptr())), isTailCallRootCaller ? sizeof(CallerFrameAndPC) - prologueStackPointerDelta() : 0);
+            auto call = isTailCallRootCaller ? jit.threadSafePatchableNearTailCall() : jit.threadSafePatchableNearCall();
 
             jit.addLinkTask([unlinkedWasmToWasmCalls, call, functionIndexSpace](LinkBuffer& linkBuffer) {
                 unlinkedWasmToWasmCalls->append({ linkBuffer.locationOfNearCall<WasmEntryPtrTag>(call), functionIndexSpace });
@@ -5813,7 +5819,7 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
         });
     };
 
-    if (isTailCall) {
+    if (isTailCallRootCaller) {
         auto [patchpoint, handle, prepareForCall] = createTailCallPatchpoint(m_currentBlock, signature, wasmCallerInfoAsCallee, wasmCalleeInfoAsCallee, args, { });
         emitUnlinkedWasmToWasmCall(patchpoint, handle, prepareForCall);
         return { };
@@ -5843,15 +5849,6 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
         restoreWebAssemblyGlobalState(m_info.memory, instanceValue(), m_currentBlock);
     }
 
-    if (isTailCallInlineCaller) {
-        Stack typedResults;
-        typedResults.reserveInitialCapacity(results.size());
-        for (unsigned i = 0; i < results.size(); ++i)
-            typedResults.append(TypedExpression { signature.as<FunctionSignature>()->returnType(i), results[i] });
-        ASSERT(m_returnContinuation);
-        return addInlinedReturn(WTFMove(typedResults));
-    }
-
     return { };
 }
 
@@ -5860,6 +5857,8 @@ auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex
     UNUSED_PARAM(callSlotIndex);
     Value* calleeIndex = get(args.takeLast());
     const TypeDefinition& signature = originalSignature.expand();
+    const bool isTailCallRootCaller = callType == CallType::TailCall && !m_inlineParent;
+    const bool isTailCallInlineCaller = callType == CallType::TailCall && m_inlineParent;
     ASSERT(signature.as<FunctionSignature>()->argumentCount() == args.size());
 
     TRACE_CF("Call_indirect: entered with table index: ", tableIndex, " ", originalSignature);
@@ -5872,7 +5871,7 @@ auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex
     Value* callableFunctionBuffer = nullptr;
     Value* callableFunctionBufferLength;
     {
-        Value* table = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfTablePtr(m_numImportFunctions, tableIndex)));
+        Value* table = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfTable(m_info, tableIndex)));
         ASSERT(tableIndex < m_info.tableCount());
         auto& tableInformation = m_info.table(tableIndex);
 
@@ -5901,15 +5900,50 @@ auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex
 
     calleeIndex = m_currentBlock->appendNew<Value>(m_proc, ZExt32, origin(), calleeIndex);
 
+    BasicBlock* continuation = m_proc.addBlock();
+
     Value* callableFunction = m_currentBlock->appendNew<Value>(m_proc, Add, origin(), callableFunctionBuffer, m_currentBlock->appendNew<Value>(m_proc, Mul, origin(), calleeIndex, constant(pointerType(), sizeof(FuncRefTable::Function))));
 
     // Check that the WasmToWasmImportableFunction is initialized. We trap if it isn't. An "invalid" SignatureIndex indicates it's not initialized.
     // FIXME: when we have trap handlers, we can just let the call fail because Signature::invalidIndex is 0. https://bugs.webkit.org/show_bug.cgi?id=177210
     static_assert(sizeof(WasmToWasmImportableFunction::typeIndex) == sizeof(uintptr_t), "Load codegen assumes ptr");
     Value* calleeCallee = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callableFunction, safeCast<int32_t>(FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfBoxedCallee()));
+    Value* calleeInstance = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callableFunction, safeCast<int32_t>(FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfTargetInstance()));
+
+    ValueResults fastValues;
+    if (m_profile->isCalled(callSlotIndex)) {
+        if (auto* callee = m_profile->callee(callSlotIndex)) {
+            if (callee->compilationMode() == Wasm::CompilationMode::IPIntMode) {
+                BasicBlock* slowCase = m_proc.addBlock();
+                BasicBlock* directCall = m_proc.addBlock();
+
+                Value* isSameContextInstance = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), calleeInstance, instanceValue());
+                Value* isSameCallee = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), calleeCallee, constant(pointerType(), std::bit_cast<uintptr_t>(CalleeBits::boxNativeCallee(callee))));
+                m_currentBlock->appendNewControlValue(m_proc, Branch, origin(), m_currentBlock->appendNew<Value>(m_proc, BitAnd, origin(), isSameContextInstance, isSameCallee), FrequentedBlock(directCall), FrequentedBlock(slowCase, FrequencyClass::Rare));
+                directCall->addPredecessor(m_currentBlock);
+                slowCase->addPredecessor(m_currentBlock);
+
+                m_currentBlock = directCall;
+                auto result = emitDirectCall(callSlotIndex, callee->index(), signature, args, fastValues, callType);
+                if (!result.has_value()) [[unlikely]]
+                    return result;
+
+                if (!isTailCallRootCaller) {
+                    for (Value*& value : fastValues) {
+                        auto* input = value;
+                        value = m_currentBlock->appendNew<UpsilonValue>(m_proc, origin(), input);
+                    }
+                    m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), continuation);
+                    continuation->addPredecessor(m_currentBlock);
+                }
+
+                m_currentBlock = slowCase;
+            }
+        }
+    }
+
     Value* calleeCodeLocation = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callableFunction, safeCast<int32_t>(FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfEntrypointLoadLocation()));
     Value* calleeRTT = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callableFunction, safeCast<int32_t>(FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfRTT()));
-    Value* calleeInstance = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callableFunction, safeCast<int32_t>(FuncRefTable::Function::offsetOfFunction() + WasmToWasmImportableFunction::offsetOfTargetInstance()));
 
     auto signatureRTT = TypeInformation::getCanonicalRTT(originalSignature.index());
 
@@ -5921,13 +5955,13 @@ auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex
             this->emitExceptionCheck(jit, origin, ExceptionType::BadSignature);
         });
     } else {
-        BasicBlock* continuation = m_proc.addBlock();
+        BasicBlock* checkDone = m_proc.addBlock();
         BasicBlock* moreChecks = m_proc.addBlock();
 
         Value* hasEqualSignatures = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), calleeRTT, expectedRTT);
-        m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), hasEqualSignatures, FrequentedBlock(continuation), FrequentedBlock(moreChecks, FrequencyClass::Rare));
+        m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), hasEqualSignatures, FrequentedBlock(checkDone), FrequentedBlock(moreChecks, FrequencyClass::Rare));
         moreChecks->addPredecessor(m_currentBlock);
-        continuation->addPredecessor(m_currentBlock);
+        checkDone->addPredecessor(m_currentBlock);
 
         m_currentBlock = moreChecks;
         CheckValue* checkNull = m_currentBlock->appendNew<CheckValue>(m_proc, Check, origin(), m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), calleeRTT, constant(pointerType(), 0)));
@@ -5947,14 +5981,46 @@ auto OMGIRGenerator::addCallIndirect(unsigned callSlotIndex, unsigned tableIndex
             this->emitExceptionCheck(jit, origin, ExceptionType::BadSignature);
         });
 
+        m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), checkDone);
+        checkDone->addPredecessor(m_currentBlock);
+
+        m_currentBlock = checkDone;
+    }
+
+    Value* calleeCode = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), calleeCodeLocation);
+
+    ValueResults slowValues;
+    auto result = emitIndirectCall(calleeInstance, calleeCode, calleeCallee, signature, args, slowValues, callType);
+    if (!result.has_value()) [[unlikely]]
+        return result;
+
+    if (!isTailCallRootCaller) {
+        for (Value*& value : slowValues) {
+            auto* input = value;
+            value = m_currentBlock->appendNew<UpsilonValue>(m_proc, origin(), input);
+        }
         m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), continuation);
         continuation->addPredecessor(m_currentBlock);
 
         m_currentBlock = continuation;
+        for (unsigned i = 0; i < slowValues.size(); ++i) {
+            auto* slowValue = slowValues[i];
+            auto* phi = m_currentBlock->appendNew<Value>(m_proc, Phi, slowValue->child(0)->type(), origin());
+            slowValue->as<UpsilonValue>()->setPhi(phi);
+            if (!fastValues.isEmpty()) {
+                auto* fastValue = fastValues[i];
+                fastValue->as<UpsilonValue>()->setPhi(phi);
+            }
+            results.append(push(phi));
+        }
+
+        if (isTailCallInlineCaller) {
+            ASSERT(m_returnContinuation);
+            return addInlinedReturn(results);
+        }
     }
 
-    Value* calleeCode = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), calleeCodeLocation);
-    return emitIndirectCall(calleeInstance, calleeCode, calleeCallee, signature, args, results, callType);
+    return { };
 }
 
 auto OMGIRGenerator::addCallRef(unsigned callSlotIndex, const TypeDefinition& originalSignature, ArgumentList& args, ResultList& results, CallType callType) -> PartialResult
@@ -5964,6 +6030,8 @@ auto OMGIRGenerator::addCallRef(unsigned callSlotIndex, const TypeDefinition& or
     Value* callee = get(calleeArg);
     TRACE_VALUE(Wasm::Types::Void, callee, "call_ref: ", originalSignature);
     const TypeDefinition& signature = originalSignature.expand();
+    const bool isTailCallRootCaller = callType == CallType::TailCall && !m_inlineParent;
+    const bool isTailCallInlineCaller = callType == CallType::TailCall && m_inlineParent;
     ASSERT(signature.as<FunctionSignature>()->argumentCount() == args.size());
     m_makesCalls = true;
 
@@ -5977,17 +6045,77 @@ auto OMGIRGenerator::addCallRef(unsigned callSlotIndex, const TypeDefinition& or
     if (calleeArg.type().isNullable())
         emitNullCheck(callee, ExceptionType::NullReference);
 
-    Value* instanceOffset = constant(pointerType(), safeCast<int32_t>(WebAssemblyFunctionBase::offsetOfTargetInstance()));
-    Value* calleeInstance = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(),
-        m_currentBlock->appendNew<Value>(m_proc, Add, origin(), callee, instanceOffset));
-
-    Value* calleeCode = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(),
-        m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callee,
-        safeCast<int32_t>(WebAssemblyFunctionBase::offsetOfEntrypointLoadLocation())));
-
+    Value* calleeInstance = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callee, safeCast<int32_t>(WebAssemblyFunctionBase::offsetOfTargetInstance()));
     Value* calleeCallee = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callee, safeCast<int32_t>(WebAssemblyFunctionBase::offsetOfBoxedCallee()));
 
-    return emitIndirectCall(calleeInstance, calleeCode, calleeCallee, signature, args, results, callType);
+    BasicBlock* continuation = m_proc.addBlock();
+
+    ValueResults fastValues;
+    if (m_profile->isCalled(callSlotIndex)) {
+        if (auto* callee = m_profile->callee(callSlotIndex)) {
+            if (callee->compilationMode() == Wasm::CompilationMode::IPIntMode) {
+                BasicBlock* slowCase = m_proc.addBlock();
+                BasicBlock* directCall = m_proc.addBlock();
+
+                Value* isSameContextInstance = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), calleeInstance, instanceValue());
+                Value* isSameCallee = m_currentBlock->appendNew<Value>(m_proc, Equal, origin(), calleeCallee, constant(pointerType(), std::bit_cast<uintptr_t>(CalleeBits::boxNativeCallee(callee))));
+                m_currentBlock->appendNewControlValue(m_proc, B3::Branch, origin(), m_currentBlock->appendNew<Value>(m_proc, B3::BitAnd, origin(), isSameContextInstance, isSameCallee), FrequentedBlock(directCall), FrequentedBlock(slowCase));
+                directCall->addPredecessor(m_currentBlock);
+                slowCase->addPredecessor(m_currentBlock);
+
+                m_currentBlock = directCall;
+                auto result = emitDirectCall(callSlotIndex, callee->index(), signature, args, fastValues, callType);
+                if (!result.has_value()) [[unlikely]]
+                    return result;
+
+                if (!isTailCallRootCaller) {
+                    for (Value*& value : fastValues) {
+                        auto* input = value;
+                        value = m_currentBlock->appendNew<UpsilonValue>(m_proc, origin(), input);
+                    }
+                    m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), continuation);
+                    continuation->addPredecessor(m_currentBlock);
+                }
+
+                m_currentBlock = slowCase;
+            }
+        }
+    }
+
+    Value* calleeCodeLocation = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), callee, safeCast<int32_t>(WebAssemblyFunctionBase::offsetOfEntrypointLoadLocation()));
+    Value* calleeCode = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), calleeCodeLocation);
+
+    ValueResults slowValues;
+    auto result = emitIndirectCall(calleeInstance, calleeCode, calleeCallee, signature, args, slowValues, callType);
+    if (!result.has_value()) [[unlikely]]
+        return result;
+
+    if (!isTailCallRootCaller) {
+        for (Value*& value : slowValues) {
+            auto* input = value;
+            value = m_currentBlock->appendNew<UpsilonValue>(m_proc, origin(), input);
+        }
+        m_currentBlock->appendNewControlValue(m_proc, Jump, origin(), continuation);
+        continuation->addPredecessor(m_currentBlock);
+
+        m_currentBlock = continuation;
+        for (unsigned i = 0; i < slowValues.size(); ++i) {
+            auto* slowValue = slowValues[i];
+            auto* phi = m_currentBlock->appendNew<Value>(m_proc, Phi, slowValue->child(0)->type(), origin());
+            slowValue->as<B3::UpsilonValue>()->setPhi(phi);
+            if (!fastValues.isEmpty()) {
+                auto* fastValue = fastValues[i];
+                fastValue->as<B3::UpsilonValue>()->setPhi(phi);
+            }
+            results.append(push(phi));
+        }
+
+        if (isTailCallInlineCaller) {
+            ASSERT(m_returnContinuation);
+            return addInlinedReturn(results);
+        }
+    }
+    return { };
 }
 
 void OMGIRGenerator::unify(Value* phi, const ExpressionType source)
@@ -6068,7 +6196,7 @@ static bool shouldDumpIRFor(uint32_t functionIndex)
     return dumpAllowlist->shouldDumpWasmFunction(functionIndex);
 }
 
-Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileOMG(CompilationContext& compilationContext, IPIntCallee& profiledCallee, OptimizingJITCallee& callee, const FunctionData& function, const TypeDefinition& signature, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, CalleeGroup& calleeGroup, const ModuleInformation& info, MemoryMode mode, CompilationMode compilationMode, FunctionCodeIndex functionIndex, uint32_t loopIndexForOSREntry)
+Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileOMG(CompilationContext& compilationContext, IPIntCallee& profiledCallee, OptimizingJITCallee& callee, const FunctionData& function, const TypeDefinition& signature, Vector<UnlinkedWasmToWasmCall>& unlinkedWasmToWasmCalls, Module& module, CalleeGroup& calleeGroup, const ModuleInformation& info, MemoryMode mode, CompilationMode compilationMode, FunctionCodeIndex functionIndex, uint32_t loopIndexForOSREntry)
 {
     CompilerTimingScope totalScope("B3"_s, "Total OMG compilation"_s);
 
@@ -6100,7 +6228,7 @@ Expected<std::unique_ptr<InternalFunction>, String> parseAndCompileOMG(Compilati
     procedure.code().setForceIRCRegisterAllocation();
 
     result->outgoingJITDirectCallees = FixedBitVector(info.internalFunctionCount());
-    OMGIRGenerator irGenerator(compilationContext, calleeGroup, info, profiledCallee, callee, procedure, unlinkedWasmToWasmCalls, result->outgoingJITDirectCallees, result->osrEntryScratchBufferSize, mode, compilationMode, functionIndex, loopIndexForOSREntry);
+    OMGIRGenerator irGenerator(compilationContext, module, calleeGroup, info, profiledCallee, callee, procedure, unlinkedWasmToWasmCalls, result->outgoingJITDirectCallees, result->osrEntryScratchBufferSize, mode, compilationMode, functionIndex, loopIndexForOSREntry);
     FunctionParser<OMGIRGenerator> parser(irGenerator, function.data, signature, info);
     WASM_FAIL_IF_HELPER_FAILS(parser.parse());
 
