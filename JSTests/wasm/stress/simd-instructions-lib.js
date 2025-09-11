@@ -18,26 +18,22 @@ function floatToWasmText(val) {
 }
 
 /**
- * Get input vector type for an instructions
+ * Get input vector type for an instruction by parsing the instruction name
  * @param {string} instruction - SIMD instruction name
  * @returns {string} - Input vector type (e.g., 'f64x2', 'f32x4', 'i32x4')
  */
 function getInputVectorType(instruction) {
-    // Special handling for conversion instructions with different input/output types
-    if (instruction === 'f32x4.demote_f64x2_zero') return 'f64x2';
-    if (instruction === 'f64x2.promote_low_f32x4') return 'f32x4';
-    if (instruction === 'i32x4.trunc_sat_f64x2_s_zero' || instruction === 'i32x4.trunc_sat_f64x2_u_zero') return 'f64x2';
-    if (instruction === 'i32x4.trunc_sat_f32x4_s' || instruction === 'i32x4.trunc_sat_f32x4_u') return 'f32x4';
-    if (instruction === 'f32x4.convert_i32x4_s' || instruction === 'f32x4.convert_i32x4_u') return 'i32x4';
-    if (instruction === 'f64x2.convert_low_i32x4_s' || instruction === 'f64x2.convert_low_i32x4_u') return 'i32x4';
-
-    // Default: extract from instruction name
-    if (instruction.startsWith('i8x16.') || instruction.startsWith('v128.')) return 'i8x16';
-    if (instruction.startsWith('i16x8.')) return 'i16x8';
-    if (instruction.startsWith('i32x4.')) return 'i32x4';
-    if (instruction.startsWith('i64x2.')) return 'i64x2';
-    if (instruction.startsWith('f32x4.')) return 'f32x4';
-    if (instruction.startsWith('f64x2.')) return 'f64x2';
+    // Look for vector type pattern in the instruction name (after the operation)
+    const vectorTypeMatch = instruction.match(/\.(?:\w+_)*([if]\d+x\d+)(?:_[su])?(?:_zero)?$/);
+    if (vectorTypeMatch)
+        return vectorTypeMatch[1];
+    
+    // Default: input type is same as output type (extract from instruction prefix)
+    const prefixMatch = instruction.match(/^(v128|[if]\d+x\d+)\./);
+    if (prefixMatch) {
+        // v128 instruction inputs expressed as i8x16
+        return prefixMatch[1] === 'v128' ? 'i8x16' : prefixMatch[1];
+    }
 
     return 'unknown';
 }
@@ -133,12 +129,15 @@ function scalarToWasmText(val, instruction) {
  */
 export async function runSIMDTests(testData, verbose = false, testType = "SIMD") {
 
-    const numInputs = instruction =>
-        ['.bitselect', '.shuffle', '.replace_lane'].some(pattern => instruction.includes(pattern)) ? 3 :
-        ['.abs', '.neg', '.sqrt', '.not', '.any_true', '.popcnt', '.all_true', '.bitmask', '.splat',
-         '.demote_f64x2_zero', '.promote_low_f32x4', '.trunc_sat_f64x2_s_zero', '.trunc_sat_f64x2_u_zero',
-         '.convert_low_i32x4_s', '.convert_low_i32x4_u', '.trunc_sat_f32x4_s', '.trunc_sat_f32x4_u',
-         '.convert_i32x4_s', '.convert_i32x4_u', '.ceil', '.floor', '.trunc', '.nearest'].some(pattern => instruction.includes(pattern)) ? 1 : 2;
+    const numInputs = instruction => {
+        if (/\.(bitselect|shuffle|replace_lane)/.test(instruction)) return 3;
+        
+        if (/\.(abs|neg|sqrt|not|any_true|popcnt|all_true|bitmask|splat|ceil|floor|trunc|nearest)/.test(instruction)) return 1;
+        if (/\.(demote|promote|convert|extend|extadd_pairwise)/.test(instruction)) return 1;
+        
+        // Default: 2-input instructions (binary operations)
+        return 2;
+    };
 
     const returnsI32 = instruction => ['.any_true', '.all_true', '.bitmask'].some(pattern => instruction.includes(pattern));
 
