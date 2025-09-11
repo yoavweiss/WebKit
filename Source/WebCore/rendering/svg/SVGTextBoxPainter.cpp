@@ -37,6 +37,7 @@
 #include "SVGRenderStyle.h"
 #include "SVGResourcesCache.h"
 #include "SVGTextFragment.h"
+#include "Settings.h"
 #include "StyleTextShadow.h"
 #include "TextPainter.h"
 
