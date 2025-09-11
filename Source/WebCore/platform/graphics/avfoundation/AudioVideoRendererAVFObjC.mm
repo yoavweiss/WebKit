@@ -71,6 +71,7 @@ AudioVideoRendererAVFObjC::AudioVideoRendererAVFObjC(const Logger& originalLogge
     , m_videoLayerManager(makeUniqueRef<VideoLayerManagerObjC>(originalLogger, logSiteIdentifier))
     , m_synchronizer([adoptNS(PAL::allocAVSampleBufferRenderSynchronizerInstance()) init])
     , m_listener(WebAVSampleBufferListener::create(*this))
+    , m_startupTime(MonotonicTime::now())
 {
     // addPeriodicTimeObserverForInterval: throws an exception if you pass a non-numeric CMTime, so just use
     // an arbitrarily large time value of once an hour:
@@ -100,10 +101,31 @@ AudioVideoRendererAVFObjC::~AudioVideoRendererAVFObjC()
         [m_synchronizer removeTimeObserver:m_durationObserver.get()];
     if (m_timeJumpedObserver)
         [m_synchronizer removeTimeObserver:m_timeJumpedObserver.get()];
+    if (m_videoFrameMetadataGatheringObserver)
+        [m_synchronizer removeTimeObserver:m_videoFrameMetadataGatheringObserver.get()];
+
+    if (RefPtr videoRenderer = m_videoRenderer)
+        videoRenderer->shutdown();
 
     destroyLayer();
+    destroyVideoRenderer();
     destroyAudioRenderers();
     m_listener->invalidate();
+}
+
+void AudioVideoRendererAVFObjC::setPreferences(VideoMediaSampleRendererPreferences preferences)
+{
+    m_preferences = preferences;
+    if (RefPtr videoRenderer = m_videoRenderer)
+        videoRenderer->setPreferences(preferences);
+}
+
+void AudioVideoRendererAVFObjC::setHasProtectedVideoContent(bool protectedContent)
+{
+    ALWAYS_LOG(LOGIDENTIFIER, "protectedContent: ", protectedContent);
+
+    if (std::exchange(m_hasProtectedVideoContent, protectedContent) != protectedContent)
+        updateDisplayLayerIfNeeded();
 }
 
 TracksRendererManager::TrackIdentifier AudioVideoRendererAVFObjC::addTrack(TrackType type)
@@ -591,13 +613,7 @@ void AudioVideoRendererAVFObjC::notifyFirstFrameAvailable(Function<void()>&& cal
 void AudioVideoRendererAVFObjC::notifyWhenHasAvailableVideoFrame(Function<void(const MediaTime&, double)>&& callback)
 {
     m_hasAvailableVideoFrameCallback = WTFMove(callback);
-    RefPtr videoRenderer = m_videoRenderer;
-    if (m_hasAvailableVideoFrameCallback && videoRenderer) {
-        videoRenderer->notifyWhenHasAvailableVideoFrame([weakThis = WeakPtr { *this }](const MediaTime& presentationTime, double displayTime) {
-            if (RefPtr protectedThis = weakThis.get(); protectedThis && protectedThis->m_hasAvailableVideoFrameCallback)
-                protectedThis->m_hasAvailableVideoFrameCallback(presentationTime, displayTime);
-        });
-    }
+    configureHasAvailableVideoFrameCallbackIfNeeded();
 }
 
 void AudioVideoRendererAVFObjC::notifyWhenRequiresFlushToResume(Function<void()>&& callback)
@@ -927,6 +943,9 @@ Ref<GenericPromise> AudioVideoRendererAVFObjC::updateDisplayLayerIfNeeded()
 
 bool AudioVideoRendererAVFObjC::shouldEnsureLayerOrVideoRenderer() const
 {
+    if (!canUseDecompressionSession())
+        return true;
+
     return ((m_sampleBufferDisplayLayer && !CGRectIsEmpty([m_sampleBufferDisplayLayer bounds])) || (!m_presentationSize.isEmpty() && m_renderingCanBeAccelerated));
 }
 
@@ -1076,7 +1095,8 @@ Ref<GenericPromise> AudioVideoRendererAVFObjC::setVideoRenderer(WebSampleBufferV
 
     RefPtr videoRenderer = VideoMediaSampleRenderer::create(renderer);
     m_videoRenderer = videoRenderer;
-    videoRenderer->setPreferences(VideoMediaSampleRendererPreference::PrefersDecompressionSession);
+
+    videoRenderer->setPreferences(m_preferences);
     // False positive see webkit.org/b/298024
     SUPPRESS_UNRETAINED_ARG videoRenderer->setTimebase([m_synchronizer timebase]);
     videoRenderer->notifyWhenDecodingErrorOccurred([weakThis = WeakPtr { *this }](NSError *) {
@@ -1087,23 +1107,51 @@ Ref<GenericPromise> AudioVideoRendererAVFObjC::setVideoRenderer(WebSampleBufferV
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->setHasAvailableVideoFrame(true);
     });
-    if (m_hasAvailableVideoFrameCallback) {
+    configureHasAvailableVideoFrameCallbackIfNeeded();
+    videoRenderer->notifyWhenVideoRendererRequiresFlushToResumeDecoding([weakThis = WeakPtr { *this }] {
+        if (RefPtr protectedThis = weakThis.get())
+            protectedThis->notifyRequiresFlushToResume();
+    });
+    videoRenderer->setResourceOwner(m_resourceOwner);
+
+    return GenericPromise::createAndResolve();
+}
+
+void AudioVideoRendererAVFObjC::configureHasAvailableVideoFrameCallbackIfNeeded()
+{
+    if (RetainPtr observer = std::exchange(m_videoFrameMetadataGatheringObserver, nil))
+        [m_synchronizer removeTimeObserver:observer.get()];
+
+    if (!m_hasAvailableVideoFrameCallback)
+        return;
+
+    RefPtr videoRenderer = m_videoRenderer;
+    if (videoRenderer) {
         videoRenderer->notifyWhenHasAvailableVideoFrame([weakThis = WeakPtr { *this }](const MediaTime& presentationTime, double displayTime) {
             if (RefPtr protectedThis = weakThis.get(); protectedThis && protectedThis->m_hasAvailableVideoFrameCallback)
                 protectedThis->m_hasAvailableVideoFrameCallback(presentationTime, displayTime);
         });
     }
-    videoRenderer->notifyWhenVideoRendererRequiresFlushToResumeDecoding([weakThis = WeakPtr { *this }] {
-        if (RefPtr protectedThis = weakThis.get()) {
-            ALWAYS_LOG_WITH_THIS(protectedThis, LOGIDENTIFIER_WITH_THIS(protectedThis), "VideoRendererRequiresFlushToResumeDecoding");
-            protectedThis->m_readyToRequestVideoData = false;
-            if (protectedThis->m_notifyWhenRequiresFlushToResume)
-                protectedThis->m_notifyWhenRequiresFlushToResume();
-        }
-    });
-    videoRenderer->setResourceOwner(m_resourceOwner);
+    if (isUsingDecompressionSession())
+        return;
 
-    return GenericPromise::createAndResolve();
+    m_preferences |= VideoMediaSampleRendererPreference::PrefersDecompressionSession;
+    if (videoRenderer)
+        videoRenderer->setPreferences(m_preferences);
+
+    // Activating AvailableVideoFrame callback may force the use of decompression session.
+    updateDisplayLayerIfNeeded();
+
+    if (willUseDecompressionSessionIfNeeded())
+        return;
+
+    // False positive webkit.org/b/298037
+    SUPPRESS_UNRETAINED_ARG m_videoFrameMetadataGatheringObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::CMTimeMake(1, 60) queue:nullptr usingBlock:[weakThis = WeakPtr { *this }](CMTime currentCMTime) {
+        ensureOnMainThread([weakThis, currentCMTime] {
+            if (RefPtr protectedThis = weakThis.get(); protectedThis && protectedThis->m_hasAvailableVideoFrameCallback)
+                protectedThis->m_hasAvailableVideoFrameCallback(PAL::toMediaTime(currentCMTime), (MonotonicTime::now() - protectedThis->m_startupTime).seconds());
+        });
+    }];
 }
 
 void AudioVideoRendererAVFObjC::configureLayerOrVideoRenderer(WebSampleBufferVideoRendering *renderer)
@@ -1168,15 +1216,42 @@ void AudioVideoRendererAVFObjC::flushPendingSizeChanges()
     }
 }
 
+bool AudioVideoRendererAVFObjC::canUseDecompressionSession() const
+{
+    if (!m_preferences.contains(VideoMediaSampleRendererPreference::PrefersDecompressionSession))
+        return false;
+    if (m_preferences.contains(VideoMediaSampleRendererPreference::UseDecompressionSessionForProtectedContent))
+        return true;
+    return !m_hasProtectedVideoContent;
+}
+
+bool AudioVideoRendererAVFObjC::isUsingDecompressionSession() const
+{
+    return m_videoRenderer && m_videoRenderer->isUsingDecompressionSession();
+}
+
+bool AudioVideoRendererAVFObjC::willUseDecompressionSessionIfNeeded() const
+{
+    if (!canUseDecompressionSession())
+        return false;
+
+    return m_preferences.contains(VideoMediaSampleRendererPreference::PrefersDecompressionSession) || m_hasAvailableVideoFrameCallback;
+}
+
 Ref<GenericPromise> AudioVideoRendererAVFObjC::stageVideoRenderer(WebSampleBufferVideoRendering *renderer)
 {
     ASSERT(m_videoRenderer);
 
     RefPtr videoRenderer = m_videoRenderer;
-    if (renderer == videoRenderer->renderer())
+    RendererConfiguration newConfiguration {
+        .canUseDecompressionSession = willUseDecompressionSessionIfNeeded(),
+        .isProtected = m_hasProtectedVideoContent
+    };
+    if (renderer == videoRenderer->renderer()) {
+        if (std::exchange(m_previousRendererConfiguration, newConfiguration) != newConfiguration && renderer)
+            notifyRequiresFlushToResume();
         return GenericPromise::createAndResolve();
-
-    ALWAYS_LOG(LOGIDENTIFIER, "renderer: ", !!renderer);
+    }
     ASSERT(!renderer || hasSelectedVideo());
 
     Vector<RetainPtr<WebSampleBufferVideoRendering>> renderersToExpire { 2u };
@@ -1195,20 +1270,24 @@ Ref<GenericPromise> AudioVideoRendererAVFObjC::stageVideoRenderer(WebSampleBuffe
         destroyVideoRenderer();
     }
 
-    return videoRenderer->changeRenderer(renderer)->whenSettled(RunLoop::mainSingleton(), [weakThis = WeakPtr { *this }, renderersToExpire = WTFMove(renderersToExpire)]() mutable {
+    bool flushRequired = std::exchange(m_previousRendererConfiguration, newConfiguration) != newConfiguration;
+    m_readyToRequestVideoData = !flushRequired;
+    ALWAYS_LOG(LOGIDENTIFIER, "renderer: ", !!renderer, " flushRequired: ", flushRequired);
+
+    return videoRenderer->changeRenderer(renderer)->whenSettled(RunLoop::mainSingleton(), [weakThis = WeakPtr { *this }, renderersToExpire = WTFMove(renderersToExpire), flushRequired]() mutable {
         RefPtr protectedThis = weakThis.get();
+        if (!protectedThis)
+            return GenericPromise::createAndReject();
         for (auto& rendererToExpire : renderersToExpire) {
             if (!rendererToExpire)
                 continue;
-            if (protectedThis) {
-                // False positive see webkit.org/b/298024
-                SUPPRESS_UNRETAINED_ARG CMTime currentTime = PAL::CMTimebaseGetTime([protectedThis->m_synchronizer timebase]);
-                [protectedThis->m_synchronizer removeRenderer:rendererToExpire.get() atTime:currentTime completionHandler:nil];
-            }
+            // False positive see webkit.org/b/298024
+            SUPPRESS_UNRETAINED_ARG CMTime currentTime = PAL::CMTimebaseGetTime([protectedThis->m_synchronizer timebase]);
+            [protectedThis->m_synchronizer removeRenderer:rendererToExpire.get() atTime:currentTime completionHandler:nil];
         }
-        if (protectedThis)
-            return GenericPromise::createAndResolve();
-        return GenericPromise::createAndReject();
+        if (flushRequired)
+            protectedThis->notifyRequiresFlushToResume();
+        return GenericPromise::createAndResolve();
     });
 }
 
@@ -1315,6 +1394,7 @@ bool AudioVideoRendererAVFObjC::hasSelectedVideo() const
 void AudioVideoRendererAVFObjC::flushVideo()
 {
     ALWAYS_LOG(LOGIDENTIFIER);
+
     setHasAvailableVideoFrame(false);
     // Flush may call immediately requestMediaDataWhenReady. Must clear m_readyToRequestVideoData before flushing renderer.
     m_readyToRequestVideoData = true;
@@ -1343,6 +1423,14 @@ void AudioVideoRendererAVFObjC::flushAudioTrack(TrackIdentifier trackId)
         return;
     [audioRenderer flush];
     setHasAvailableAudioSample(trackId, false);
+}
+
+void AudioVideoRendererAVFObjC::notifyRequiresFlushToResume()
+{
+    ALWAYS_LOG(LOGIDENTIFIER);
+    m_readyToRequestVideoData = false;
+    if (m_notifyWhenRequiresFlushToResume)
+        m_notifyWhenRequiresFlushToResume();
 }
 
 void AudioVideoRendererAVFObjC::cancelSeekingPromiseIfNeeded()

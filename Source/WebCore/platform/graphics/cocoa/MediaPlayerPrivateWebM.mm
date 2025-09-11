@@ -135,6 +135,7 @@ MediaPlayerPrivateWebM::MediaPlayerPrivateWebM(MediaPlayer* player)
                 player->renderingModeChanged();
         }
     });
+    m_renderer->setPreferences(VideoMediaSampleRendererPreference::PrefersDecompressionSession);
 
     m_renderer->notifySizeChanged([weakThis = WeakPtr { *this }](const MediaTime&, FloatSize size) {
         if (RefPtr protectedThis = weakThis.get())
@@ -347,6 +348,7 @@ void MediaPlayerPrivateWebM::prepareToPlay()
 
 void MediaPlayerPrivateWebM::play()
 {
+    ALWAYS_LOG(LOGIDENTIFIER);
     flushVideoIfNeeded();
 
     m_renderer->play();
@@ -1195,10 +1197,8 @@ void MediaPlayerPrivateWebM::flushVideoIfNeeded()
 
     m_layerRequiresFlush = false;
 
-    if (m_enabledVideoTrackID) {
-        m_renderer->flushTrack(trackIdentifierFor(*m_enabledVideoTrackID));
-        reenqueSamples(*m_enabledVideoTrackID);
-    }
+    if (m_enabledVideoTrackID)
+        reenqueSamples(*m_enabledVideoTrackID, NeedsFlush::Yes);
 }
 
 void MediaPlayerPrivateWebM::addTrackBuffer(TrackID trackId, RefPtr<MediaDescription>&& description)
@@ -1440,8 +1440,6 @@ void MediaPlayerPrivateWebM::setLayerRequiresFlush()
 {
     ALWAYS_LOG(LOGIDENTIFIER);
     m_layerRequiresFlush = true;
-    if (m_enabledVideoTrackID)
-        setTrackForReenqueuing(*m_enabledVideoTrackID);
 #if PLATFORM(IOS_FAMILY)
     if (m_applicationIsActive)
         flushVideoIfNeeded();

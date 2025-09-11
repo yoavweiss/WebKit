@@ -88,6 +88,7 @@ public:
 #endif
 
     void flush();
+    void shutdown();
 
     void expectMinimumUpcomingSampleBufferPresentationTime(const MediaTime&);
 
