@@ -586,7 +586,6 @@ list(APPEND webrtc_SOURCES
     Source/webrtc/modules/audio_coding/neteq/tools/neteq_rtpplay.cc
     Source/webrtc/modules/audio_coding/neteq/tools/neteq_stats_getter.cc
     Source/webrtc/modules/audio_coding/neteq/tools/neteq_stats_plotter.cc
-    Source/webrtc/modules/audio_coding/neteq/tools/packet.cc
     Source/webrtc/modules/audio_coding/neteq/tools/packet_source.cc
     Source/webrtc/modules/audio_coding/neteq/tools/resample_input_audio_file.cc
     Source/webrtc/modules/audio_coding/neteq/tools/rtp_analyze.cc
@@ -767,7 +766,6 @@ list(APPEND webrtc_SOURCES
     Source/webrtc/modules/congestion_controller/goog_cc/goog_cc_network_control.cc
     Source/webrtc/modules/congestion_controller/goog_cc/inter_arrival_delta.cc
     Source/webrtc/modules/congestion_controller/goog_cc/link_capacity_estimator.cc
-    Source/webrtc/modules/congestion_controller/goog_cc/loss_based_bandwidth_estimation.cc
     Source/webrtc/modules/congestion_controller/goog_cc/loss_based_bwe_v2.cc
     Source/webrtc/modules/congestion_controller/goog_cc/probe_bitrate_estimator.cc
     Source/webrtc/modules/congestion_controller/goog_cc/probe_controller.cc
@@ -1084,7 +1082,6 @@ list(APPEND webrtc_SOURCES
     Source/webrtc/p2p/base/port.cc
     Source/webrtc/p2p/base/port_allocator.cc
     Source/webrtc/p2p/base/port_interface.cc
-    Source/webrtc/p2p/base/pseudo_tcp.cc
     Source/webrtc/p2p/base/regathering_controller.cc
     Source/webrtc/p2p/base/stun_dictionary.cc
     Source/webrtc/p2p/base/stun_port.cc
@@ -1201,7 +1198,6 @@ list(APPEND webrtc_SOURCES
     Source/webrtc/rtc_base/experiments/quality_scaler_settings.cc
     Source/webrtc/rtc_base/experiments/quality_scaling_experiment.cc
     Source/webrtc/rtc_base/experiments/rate_control_settings.cc
-    Source/webrtc/rtc_base/experiments/stable_target_rate_experiment.cc
     Source/webrtc/rtc_base/experiments/struct_parameters_parser.cc
     Source/webrtc/rtc_base/fake_clock.cc
     Source/webrtc/rtc_base/fake_ssl_identity.cc
@@ -1294,8 +1290,6 @@ list(APPEND webrtc_SOURCES
     Source/webrtc/stats/rtc_stats_report.cc
     Source/webrtc/stats/rtcstats_objects.cc
     Source/webrtc/system_wrappers/source/clock.cc
-    Source/webrtc/system_wrappers/source/cpu_features.cc
-    Source/webrtc/system_wrappers/source/cpu_features_linux.cc
     Source/webrtc/system_wrappers/source/field_trial.cc
     Source/webrtc/system_wrappers/source/metrics.cc
     Source/webrtc/video/adaptation/balanced_constraint.cc
@@ -1322,6 +1316,7 @@ list(APPEND webrtc_SOURCES
     Source/webrtc/video/corruption_detection/halton_frame_sampler.cc
     Source/webrtc/video/corruption_detection/halton_sequence.cc
     Source/webrtc/video/corruption_detection/utils.cc
+    Source/webrtc/video/corruption_detection/video_frame_sampler.cc
     Source/webrtc/video/decode_synchronizer.cc
     Source/webrtc/video/encoder_bitrate_adjuster.cc
     Source/webrtc/video/encoder_overshoot_detector.cc
@@ -2239,7 +2234,6 @@ else ()
 
             Source/webrtc/modules/video_coding/codecs/h264/h264_encoder_impl.cc
 
-            Source/webrtc/system_wrappers/source/cpu_features_linux.cc
         )
         set(WEBKIT_LIBWEBRTC_OPENH264_ENCODER 1)
     endif ()

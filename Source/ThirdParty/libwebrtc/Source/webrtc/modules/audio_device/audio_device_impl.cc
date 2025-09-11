@@ -28,7 +28,6 @@
 
 #if defined(WEBRTC_WIN)
 #include "modules/audio_device/win/audio_device_core_win.h"
-#endif
 #elif defined(WEBRTC_ANDROID)
 #include <stdlib.h>
 #include "webkit_sdk/android/native_api/audio_device_module/audio_device_android.h"
