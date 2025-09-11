@@ -8127,7 +8127,6 @@ imported/w3c/web-platform-tests/digital-credentials/user-activation.https.html [
 imported/w3c/web-platform-tests/shadow-dom/reference-target/tentative/interesttarget.tentative.html [ Failure ]
 imported/w3c/web-platform-tests/uievents/mouse/mousemove_after_mouseover_target_removed.html [ Failure ]
 platform/ipad/fast/viewport/viewport-overriden-by-minimum-effective-width-if-ignore-meta-viewport.html [ Failure ]
-editing/selection/ios/selection-handles-in-readonly-input.html [ Timeout ]
 fast/css/accent-color/button.html [ ImageOnlyFailure ]
 fast/css/accent-color/date.html [ ImageOnlyFailure ]
 fast/css/accent-color/select.html [ ImageOnlyFailure ]
@@ -8137,6 +8136,9 @@ imported/w3c/web-platform-tests/css/css-view-transitions/fractional-translation-
 
 # <rdar://156470462> RTL inputs with type=password have larger logical width than RTL inputs with type number, url, tel, & text
 fast/forms/input-password-logical-widths.html [ Failure ]
+
+# <rdar://160314418> Tap-and-half selection gesture is broken in WebKit
+editing/selection/ios/select-text-using-tap-and-half.html [ Skip ]
 
 webkit.org/b/296338 http/tests/site-isolation/fullscreen.html [ Pass Failure ]
 
