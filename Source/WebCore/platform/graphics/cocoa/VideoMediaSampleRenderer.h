@@ -117,6 +117,8 @@ public:
 
     static WorkQueue& queueSingleton();
 
+    void invalidateDecompressionSession();
+
 private:
     VideoMediaSampleRenderer(WebSampleBufferVideoRendering *);
 

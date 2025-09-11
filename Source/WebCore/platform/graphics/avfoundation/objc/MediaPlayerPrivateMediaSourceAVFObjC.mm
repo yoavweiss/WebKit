@@ -2100,6 +2100,18 @@ void MediaPlayerPrivateMediaSourceAVFObjC::applicationWillResignActive()
 {
     if (RefPtr mediaSourcePrivate = m_mediaSourcePrivate)
         mediaSourcePrivate->applicationWillResignActive();
+
+    RefPtr videoRenderer = m_videoRenderer;
+    if (!videoRenderer || !videoRenderer->isUsingDecompressionSession())
+        return;
+
+    if (!paused()) {
+        ALWAYS_LOG(LOGIDENTIFIER, "Playing; not invalidating VideoMediaSampleRenderer Decompression Session");
+        return;
+    }
+
+    videoRenderer->invalidateDecompressionSession();
+    ALWAYS_LOG(LOGIDENTIFIER, "Paused; invalidating VideoMediaSampleRenderer Decompression Session");
 }
 
 void MediaPlayerPrivateMediaSourceAVFObjC::applicationDidBecomeActive()

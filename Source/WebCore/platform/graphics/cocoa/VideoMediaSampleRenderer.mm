@@ -575,15 +575,7 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
             if (!result) {
                 if (result.error() == kVTInvalidSessionErr) {
                     RELEASE_LOG(Media, "VTDecompressionSession got invalidated, requesting flush");
-                    RefPtr decompressionSession = [&] {
-                        Locker lock { m_lock };
-                        return std::exchange(m_decompressionSession, nullptr);
-                    }();
-                    if (decompressionSession)
-                        decompressionSession->invalidate();
-                    callOnMainThread([protectedThis] {
-                        protectedThis->notifyVideoRendererRequiresFlushToResumeDecoding();
-                    });
+                    invalidateDecompressionSession();
                     return;
                 }
 
@@ -1106,6 +1098,22 @@ MediaTime VideoMediaSampleRenderer::totalFrameDelay() const
 void VideoMediaSampleRenderer::setResourceOwner(const ProcessIdentity& resourceOwner)
 {
     m_resourceOwner = resourceOwner;
+}
+
+void VideoMediaSampleRenderer::invalidateDecompressionSession()
+{
+    RefPtr decompressionSession = [&] {
+        Locker lock { m_lock };
+        return std::exchange(m_decompressionSession, nullptr);
+    }();
+
+    if (decompressionSession)
+        decompressionSession->invalidate();
+
+    ensureOnMainThread([weakThis = WeakRef { *this }] {
+        if (RefPtr protectedThis = weakThis.get())
+            protectedThis->notifyVideoRendererRequiresFlushToResumeDecoding();
+    });
 }
 
 void VideoMediaSampleRenderer::assignResourceOwner(const MediaSample& sample)
