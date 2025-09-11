@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Alliance for Open Media. All rights reserved.
+ * Copyright (c) 2025, Alliance for Open Media. All rights reserved.
  *
  * This source code is subject to the terms of the BSD 2 Clause License and
  * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
@@ -9,19 +9,22 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
-extern const int global_a[13];
+#ifndef AOM_AOM_PORTS_RISCV_H_
+#define AOM_AOM_PORTS_RISCV_H_
+#include <stdlib.h>
 
-const int global_b = 0;
+#include "config/aom_config.h"
 
-typedef struct S1 {
-  int x;
-} T1;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct S3 {
-  int x;
-} s3;
+#define HAS_RVV 0x01
 
-int func_global_1(int *a) {
-  *a = global_a[3];
-  return 0;
-}
+int riscv_simd_caps(void);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
+#endif  // AOM_AOM_PORTS_RISCV_H_
