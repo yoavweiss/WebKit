@@ -5472,8 +5472,35 @@ ipintOp(_simd_v128_load64_zero_mem, macro()
 end)
 
 # 0xFD 0x5E - 0xFD 0x5F: f32x4/f64x2 conversion
-unimplementedInstruction(_simd_f32x4_demote_f64x2_zero)
-unimplementedInstruction(_simd_f64x2_promote_low_f32x4)
+
+ipintOp(_simd_f32x4_demote_f64x2_zero, macro()
+    # f32x4.demote_f64x2_zero - demote 2 f64 values to f32, zero upper 2 lanes
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Convert the two f64 values in lanes 0,1 to f32 and store in lanes 0,1
+        emit "fcvtn v16.2s, v16.2d"
+        # Zero the upper 64 bits (lanes 2,3)
+        emit "mov v16.d[1], xzr"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f64x2_promote_low_f32x4, macro()
+    # f64x2.promote_low_f32x4 - promote lower 2 f32 values to f64
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "fcvtl v16.2d, v16.2s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x60 - 0x66: i8x16 operations
 
@@ -5566,10 +5593,58 @@ unimplementedInstruction(_simd_i8x16_narrow_i16x8_s)
 unimplementedInstruction(_simd_i8x16_narrow_i16x8_u)
 
 # 0xFD 0x67 - 0xFD 0x6A: f32x4 operations
-unimplementedInstruction(_simd_f32x4_ceil)
-unimplementedInstruction(_simd_f32x4_floor)
-unimplementedInstruction(_simd_f32x4_trunc)
-unimplementedInstruction(_simd_f32x4_nearest)
+
+ipintOp(_simd_f32x4_ceil, macro()
+    # f32x4.ceil - ceiling of 4 32-bit floats
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "frintp v16.4s, v16.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f32x4_floor, macro()
+    # f32x4.floor - floor of 4 32-bit floats
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "frintm v16.4s, v16.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f32x4_trunc, macro()
+    # f32x4.trunc - truncate 4 32-bit floats
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "frintz v16.4s, v16.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f32x4_nearest, macro()
+    # f32x4.nearest - round to nearest integer (ties to even) for 4 32-bit floats
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "frintn v16.4s, v16.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x6B - 0xFD 0x73: i8x16 binary operations
 ipintOp(_simd_i8x16_shl, macro()
@@ -5718,8 +5793,32 @@ ipintOp(_simd_i8x16_sub_sat_u, macro()
 end)
 
 # 0xFD 0x74 - 0xFD 0x75: f64x2 operations
-unimplementedInstruction(_simd_f64x2_ceil)
-unimplementedInstruction(_simd_f64x2_floor)
+
+ipintOp(_simd_f64x2_ceil, macro()
+    # f64x2.ceil - ceiling of 2 64-bit floats
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "frintp v16.2d, v16.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f64x2_floor, macro()
+    # f64x2.floor - floor of 2 64-bit floats
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "frintm v16.2d, v16.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x76 - 0xFD 0x79: i8x16 binary operations
 ipintOp(_simd_i8x16_min_s, macro()
@@ -5779,7 +5878,19 @@ ipintOp(_simd_i8x16_max_u, macro()
 end)
 
 # 0xFD 0x7A: f64x2 trunc
-unimplementedInstruction(_simd_f64x2_trunc)
+
+ipintOp(_simd_f64x2_trunc, macro()
+    # f64x2.trunc - truncate 2 64-bit floats
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "frintz v16.2d, v16.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x7B: i8x16 avgr_u
 unimplementedInstruction(_simd_i8x16_avgr_u)
@@ -6020,7 +6131,18 @@ end)
 
 # 0xFD 0x94 0x01: f64x2.nearest
 
-unimplementedInstruction(_simd_f64x2_nearest)
+ipintOp(_simd_f64x2_nearest, macro()
+    # f64x2.nearest - round to nearest integer (ties to even) for 2 64-bit floats
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "frintn v16.2d, v16.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
 # 0xFD 0x95 0x01 - 0xFD 0x9F 0x01: i16x8 operations
 
@@ -6974,14 +7096,123 @@ end)
 
 # 0xFD 0xF8 0x01 - 0xFD 0xFF 0x01: trunc/convert
 
-unimplementedInstruction(_simd_i32x4_trunc_sat_f32x4_s)
-unimplementedInstruction(_simd_i32x4_trunc_sat_f32x4_u)
-unimplementedInstruction(_simd_f32x4_convert_i32x4_s)
-unimplementedInstruction(_simd_f32x4_convert_i32x4_u)
-unimplementedInstruction(_simd_i32x4_trunc_sat_f64x2_s_zero)
-unimplementedInstruction(_simd_i32x4_trunc_sat_f64x2_u_zero)
-unimplementedInstruction(_simd_f64x2_convert_low_i32x4_s)
-unimplementedInstruction(_simd_f64x2_convert_low_i32x4_u)
+ipintOp(_simd_i32x4_trunc_sat_f32x4_s, macro()
+    # i32x4.trunc_sat_f32x4_s - truncate 4 f32 values to signed i32 with saturation
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "fcvtzs v16.4s, v16.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i32x4_trunc_sat_f32x4_u, macro()
+    # i32x4.trunc_sat_f32x4_u - truncate 4 f32 values to unsigned i32 with saturation
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "fcvtzu v16.4s, v16.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f32x4_convert_i32x4_s, macro()
+    # f32x4.convert_i32x4_s - convert 4 signed i32 values to f32
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "scvtf v16.4s, v16.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f32x4_convert_i32x4_u, macro()
+    # f32x4.convert_i32x4_u - convert 4 unsigned i32 values to f32
+    popVec(v0)
+    if ARM64 or ARM64E
+        emit "ucvtf v16.4s, v16.4s"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i32x4_trunc_sat_f64x2_s_zero, macro()
+    # i32x4.trunc_sat_f64x2_s_zero - truncate 2 f64 values to signed i32, zero upper 2 lanes
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Convert f64 to signed i64 first
+        emit "fcvtzs v16.2d, v16.2d"
+        # Signed saturating extract narrow from i64 to i32
+        emit "sqxtn v16.2s, v16.2d"
+        # Zero the upper 64 bits (lanes 2,3)
+        emit "mov v16.d[1], xzr"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_i32x4_trunc_sat_f64x2_u_zero, macro()
+    # i32x4.trunc_sat_f64x2_u_zero - truncate 2 f64 values to unsigned i32, zero upper 2 lanes
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Convert f64 to unsigned i64 first
+        emit "fcvtzu v16.2d, v16.2d"
+        # Unsigned saturating extract narrow from i64 to i32
+        emit "uqxtn v16.2s, v16.2d"
+        # Zero the upper 64 bits (lanes 2,3)
+        emit "mov v16.d[1], xzr"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f64x2_convert_low_i32x4_s, macro()
+    # f64x2.convert_low_i32x4_s - convert lower 2 signed i32 values to f64
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Sign-extend lower 2 i32 values to i64, then convert to f64
+        emit "sxtl v16.2d, v16.2s"
+        emit "scvtf v16.2d, v16.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
+
+ipintOp(_simd_f64x2_convert_low_i32x4_u, macro()
+    # f64x2.convert_low_i32x4_u - convert lower 2 unsigned i32 values to f64
+    popVec(v0)
+    if ARM64 or ARM64E
+        # Zero-extend lower 2 i32 values to i64, then convert to f64
+        emit "uxtl v16.2d, v16.2s"
+        emit "ucvtf v16.2d, v16.2d"
+    else
+        break # Not implemented
+    end
+    pushVec(v0)
+    advancePC(2)
+    nextIPIntInstruction()
+end)
 
     #########################
     ## Atomic instructions ##

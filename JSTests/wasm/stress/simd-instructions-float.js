@@ -301,6 +301,208 @@ const floatTests = [
         [Number.NaN, 1.0],
         [1.0, Number.NaN],
         [Number.NaN, 1.0]
+    ],
+
+    // f32x4 rounding operations
+    [
+        "f32x4.ceil",
+        [1.1, -2.7, 3.9, -0.5],
+        [2.0, -2.0, 4.0, -0.0]
+    ],
+    [
+        "f32x4.ceil",
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, 0.0],
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, 0.0]
+    ],
+
+    [
+        "f32x4.floor",
+        [1.1, -2.7, 3.9, -0.5],
+        [1.0, -3.0, 3.0, -1.0]
+    ],
+    [
+        "f32x4.floor",
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, -0.0],
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, -0.0]
+    ],
+
+    [
+        "f32x4.trunc",
+        [1.9, -2.1, 3.7, -0.8],
+        [1.0, -2.0, 3.0, -0.0]
+    ],
+    [
+        "f32x4.trunc",
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, 0.0],
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, 0.0]
+    ],
+
+    [
+        "f32x4.nearest",
+        [1.5, 2.5, -1.5, -2.5],
+        [2.0, 2.0, -2.0, -2.0]
+    ],
+    [
+        "f32x4.nearest",
+        [0.5, 1.4, Number.POSITIVE_INFINITY, Number.NaN],
+        [0.0, 1.0, Number.POSITIVE_INFINITY, Number.NaN]
+    ],
+
+    // f64x2 rounding operations
+    [
+        "f64x2.ceil",
+        [1.1, -2.7],
+        [2.0, -2.0]
+    ],
+    [
+        "f64x2.ceil",
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY],
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]
+    ],
+
+    [
+        "f64x2.floor",
+        [1.1, -2.7],
+        [1.0, -3.0]
+    ],
+    [
+        "f64x2.floor",
+        [Number.NaN, -0.0],
+        [Number.NaN, -0.0]
+    ],
+
+    [
+        "f64x2.trunc",
+        [1.9, -2.1],
+        [1.0, -2.0]
+    ],
+    [
+        "f64x2.trunc",
+        [Number.POSITIVE_INFINITY, Number.NaN],
+        [Number.POSITIVE_INFINITY, Number.NaN]
+    ],
+
+    [
+        "f64x2.nearest",
+        [1.5, -2.5],
+        [2.0, -2.0]
+    ],
+    [
+        "f64x2.nearest",
+        [0.5, Number.NEGATIVE_INFINITY],
+        [0.0, Number.NEGATIVE_INFINITY]
+    ],
+
+    // f32x4/f64x2 conversion operations
+    [
+        "f32x4.demote_f64x2_zero",
+        [1.5, 2.5],
+        [1.5, 2.5, 0.0, 0.0]
+    ],
+    [
+        "f32x4.demote_f64x2_zero",
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY],
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 0.0, 0.0]
+    ],
+
+    [
+        "f64x2.promote_low_f32x4",
+        [1.5, 2.5, 3.5, 4.5],
+        [1.5, 2.5]
+    ],
+    [
+        "f64x2.promote_low_f32x4",
+        [Number.POSITIVE_INFINITY, Number.NaN, 0.0, -0.0],
+        [Number.POSITIVE_INFINITY, Number.NaN]
+    ],
+
+    // Integer/float conversion operations
+    [
+        "i32x4.trunc_sat_f32x4_s",
+        [1.5, -2.7, 2147483647.0, -2147483648.0],
+        [0x00000001, 0xFFFFFFFE, 0x7FFFFFFF, 0x80000000] // 1, -2, 2147483647, -2147483648
+    ],
+    [
+        "i32x4.trunc_sat_f32x4_s",
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, 3000000000.0],
+        [0x7FFFFFFF, 0x80000000, 0x00000000, 0x7FFFFFFF] // 2147483647, -2147483648, 0, 2147483647
+    ],
+
+    [
+        "i32x4.trunc_sat_f32x4_u",
+        [1.5, 2.7, 4294967295.0, -1.0],
+        [0x00000001, 0x00000002, 0xFFFFFFFF, 0x00000000] // 1, 2, 4294967295, 0
+    ],
+    [
+        "i32x4.trunc_sat_f32x4_u",
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NaN, 5000000000.0],
+        [0xFFFFFFFF, 0x00000000, 0x00000000, 0xFFFFFFFF] // 4294967295, 0, 0, 4294967295
+    ],
+
+    [
+        "f32x4.convert_i32x4_s",
+        [1, -2, 2147483647, -2147483648],
+        [1.0, -2.0, 2147483648.0, -2147483648.0]
+    ],
+    [
+        "f32x4.convert_i32x4_s",
+        [0, -1, 1000000, -1000000],
+        [0.0, -1.0, 1000000.0, -1000000.0]
+    ],
+
+    [
+        "f32x4.convert_i32x4_u",
+        [1, 2, 4294967295, 0],
+        [1.0, 2.0, 4294967296.0, 0.0]
+    ],
+    [
+        "f32x4.convert_i32x4_u",
+        [1000000, 2000000, 3000000000, 4000000000],
+        [1000000.0, 2000000.0, 3000000000.0, 4000000000.0]
+    ],
+
+    [
+        "i32x4.trunc_sat_f64x2_s_zero",
+        [1.5, -2.7],
+        [0x00000001, 0xFFFFFFFE, 0x00000000, 0x00000000] // 1, -2, 0, 0
+    ],
+    [
+        "i32x4.trunc_sat_f64x2_s_zero",
+        [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY],
+        [0x7FFFFFFF, 0x80000000, 0x00000000, 0x00000000] // 2147483647, -2147483648, 0, 0
+    ],
+
+    [
+        "i32x4.trunc_sat_f64x2_u_zero",
+        [1.5, 2.7],
+        [1, 2, 0, 0]
+    ],
+    [
+        "i32x4.trunc_sat_f64x2_u_zero",
+        [Number.NaN, -1.0],
+        [0, 0, 0, 0]
+    ],
+
+    [
+        "f64x2.convert_low_i32x4_s",
+        [1, -2, 3, 4],
+        [1.0, -2.0]
+    ],
+    [
+        "f64x2.convert_low_i32x4_s",
+        [2147483647, -2147483648, 0, -1],
+        [2147483647.0, -2147483648.0]
+    ],
+
+    [
+        "f64x2.convert_low_i32x4_u",
+        [1, 2, 3, 4],
+        [1.0, 2.0]
+    ],
+    [
+        "f64x2.convert_low_i32x4_u",
+        [4294967295, 0, 1000000, 2000000],
+        [4294967295.0, 0.0]
     ]
 ];
 

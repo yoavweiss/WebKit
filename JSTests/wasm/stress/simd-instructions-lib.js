@@ -18,34 +18,59 @@ function floatToWasmText(val) {
 }
 
 /**
- * Convert array to v128.const string based on instruction type
- * @param {Array} array - Input array
+ * Get input vector type for an instructions
  * @param {string} instruction - SIMD instruction name
+ * @returns {string} - Input vector type (e.g., 'f64x2', 'f32x4', 'i32x4')
+ */
+function getInputVectorType(instruction) {
+    // Special handling for conversion instructions with different input/output types
+    if (instruction === 'f32x4.demote_f64x2_zero') return 'f64x2';
+    if (instruction === 'f64x2.promote_low_f32x4') return 'f32x4';
+    if (instruction === 'i32x4.trunc_sat_f64x2_s_zero' || instruction === 'i32x4.trunc_sat_f64x2_u_zero') return 'f64x2';
+    if (instruction === 'i32x4.trunc_sat_f32x4_s' || instruction === 'i32x4.trunc_sat_f32x4_u') return 'f32x4';
+    if (instruction === 'f32x4.convert_i32x4_s' || instruction === 'f32x4.convert_i32x4_u') return 'i32x4';
+    if (instruction === 'f64x2.convert_low_i32x4_s' || instruction === 'f64x2.convert_low_i32x4_u') return 'i32x4';
+
+    // Default: extract from instruction name
+    if (instruction.startsWith('i8x16.') || instruction.startsWith('v128.')) return 'i8x16';
+    if (instruction.startsWith('i16x8.')) return 'i16x8';
+    if (instruction.startsWith('i32x4.')) return 'i32x4';
+    if (instruction.startsWith('i64x2.')) return 'i64x2';
+    if (instruction.startsWith('f32x4.')) return 'f32x4';
+    if (instruction.startsWith('f64x2.')) return 'f64x2';
+
+    return 'unknown';
+}
+
+/**
+ * Convert array to v128.const string based on vector type
+ * @param {Array} array - Input array
+ * @param {string} vectorType - Vector type (e.g., 'f32x4', 'f64x2', 'i32x4')
  * @returns {string} - v128.const string
  */
-function arrayToV128Const(array, instruction) {
-    if (instruction.startsWith('i8x16.') || instruction.startsWith('v128.')) {
+function arrayToV128ConstByType(array, vectorType) {
+    if (vectorType === 'i8x16') {
         const hexValues = array.map(val => {
             // Convert to unsigned 8-bit
             const unsigned = (val & 0xFF) >>> 0;
             return `0x${unsigned.toString(16).padStart(2, '0').toUpperCase()}`;
         });
         return `(v128.const i8x16 ${hexValues.join(' ')})`;
-    } else if (instruction.startsWith('i16x8.')) {
+    } else if (vectorType === 'i16x8') {
         const hexValues = array.map(val => {
             // Convert to unsigned 16-bit
             const unsigned = (val & 0xFFFF) >>> 0;
             return `0x${unsigned.toString(16).padStart(4, '0').toUpperCase()}`;
         });
         return `(v128.const i16x8 ${hexValues.join(' ')})`;
-    } else if (instruction.startsWith('i32x4.')) {
+    } else if (vectorType === 'i32x4') {
         const hexValues = array.map(val => {
             // Convert to unsigned 32-bit
             const unsigned = val >>> 0;
             return `0x${unsigned.toString(16).padStart(8, '0').toUpperCase()}`;
         });
         return `(v128.const i32x4 ${hexValues.join(' ')})`;
-    } else if (instruction.startsWith('i64x2.')) {
+    } else if (vectorType === 'i64x2') {
         const hexValues = array.map(val => {
             let bigIntVal = typeof val === 'bigint' ? val : BigInt(val);
             // Convert to unsigned 64-bit using BigInt mask
@@ -53,15 +78,26 @@ function arrayToV128Const(array, instruction) {
             return `0x${unsigned.toString(16).padStart(16, '0').toUpperCase()}`;
         });
         return `(v128.const i64x2 ${hexValues.join(' ')})`;
-    } else if (instruction.startsWith('f32x4.')) {
+    } else if (vectorType === 'f32x4') {
         const wasmValues = array.map(floatToWasmText);
         return `(v128.const f32x4 ${wasmValues.join(' ')})`;
-    } else if (instruction.startsWith('f64x2.')) {
+    } else if (vectorType === 'f64x2') {
         const wasmValues = array.map(floatToWasmText);
         return `(v128.const f64x2 ${wasmValues.join(' ')})`;
     }
     // Default fallback - assume it's already a string
     return array;
+}
+
+/**
+ * Convert array to v128.const string based on instruction type
+ * @param {Array} array - Input array
+ * @param {string} instruction - SIMD instruction name
+ * @returns {string} - v128.const string
+ */
+function arrayToV128Const(array, instruction) {
+    const inputType = getInputVectorType(instruction);
+    return arrayToV128ConstByType(array, inputType);
 }
 
 /**
@@ -99,7 +135,10 @@ export async function runSIMDTests(testData, verbose = false, testType = "SIMD")
 
     const numInputs = instruction =>
         ['.bitselect', '.shuffle', '.replace_lane'].some(pattern => instruction.includes(pattern)) ? 3 :
-        ['.abs', '.neg', '.sqrt', '.not', '.any_true', '.popcnt', '.all_true', '.bitmask', '.splat'].some(pattern => instruction.includes(pattern)) ? 1 : 2;
+        ['.abs', '.neg', '.sqrt', '.not', '.any_true', '.popcnt', '.all_true', '.bitmask', '.splat',
+         '.demote_f64x2_zero', '.promote_low_f32x4', '.trunc_sat_f64x2_s_zero', '.trunc_sat_f64x2_u_zero',
+         '.convert_low_i32x4_s', '.convert_low_i32x4_u', '.trunc_sat_f32x4_s', '.trunc_sat_f32x4_u',
+         '.convert_i32x4_s', '.convert_i32x4_u', '.ceil', '.floor', '.trunc', '.nearest'].some(pattern => instruction.includes(pattern)) ? 1 : 2;
 
     const returnsI32 = instruction => ['.any_true', '.all_true', '.bitmask'].some(pattern => instruction.includes(pattern));
 
