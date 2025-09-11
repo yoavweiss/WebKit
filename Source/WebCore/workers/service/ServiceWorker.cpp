@@ -77,6 +77,9 @@ ServiceWorker::ServiceWorker(ScriptExecutionContext& context, ServiceWorkerData&
 
 ServiceWorker::~ServiceWorker()
 {
+    if (m_isStopped)
+        return;
+
     if (RefPtr context = scriptExecutionContext())
         context->unregisterServiceWorker(*this);
 }

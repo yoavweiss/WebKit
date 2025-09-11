@@ -713,11 +713,19 @@ void ScriptExecutionContext::registerServiceWorker(ServiceWorker& serviceWorker)
 {
     auto addResult = m_serviceWorkers.add(serviceWorker.identifier(), &serviceWorker);
     ASSERT_UNUSED(addResult, addResult.isNewEntry);
+
+    ensureOnMainThread([identifier = serviceWorker.identifier()] {
+        ServiceWorkerProvider::singleton().protectedServiceWorkerConnection()->registerServiceWorkerInServer(identifier);
+    });
 }
 
 void ScriptExecutionContext::unregisterServiceWorker(ServiceWorker& serviceWorker)
 {
     m_serviceWorkers.remove(serviceWorker.identifier());
+
+    ensureOnMainThread([identifier = serviceWorker.identifier()] {
+        ServiceWorkerProvider::singleton().protectedServiceWorkerConnection()->unregisterServiceWorkerInServer(identifier);
+    });
 }
 
 ServiceWorkerContainer* ScriptExecutionContext::serviceWorkerContainer()

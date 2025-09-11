@@ -2212,6 +2212,17 @@ bool WebProcess::removeServiceWorkerRegistration(WebCore::ServiceWorkerRegistrat
     return m_swRegistrationCounts.remove(identifier);
 }
 
+bool WebProcess::registerServiceWorker(WebCore::ServiceWorkerIdentifier identifier)
+{
+    return m_swServiceWorkerCounts.add(identifier).isNewEntry;
+}
+
+bool WebProcess::unregisterServiceWorker(WebCore::ServiceWorkerIdentifier identifier)
+{
+    ASSERT(m_swServiceWorkerCounts.contains(identifier));
+    return m_swServiceWorkerCounts.remove(identifier);
+}
+
 #if ENABLE(MEDIA_STREAM)
 void WebProcess::addMockMediaDevice(const WebCore::MockMediaDevice& device)
 {

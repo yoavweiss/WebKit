@@ -417,6 +417,18 @@ void SWServer::Connection::removeServiceWorkerRegistrationInServer(ServiceWorker
         server->removeClientServiceWorkerRegistration(*this, identifier);
 }
 
+void SWServer::Connection::registerServiceWorkerInServer(ServiceWorkerIdentifier identifier)
+{
+    if (RefPtr server = m_server.get())
+        server->registerServiceWorkerConnection(*this, identifier);
+}
+
+void SWServer::Connection::unregisterServiceWorkerInServer(ServiceWorkerIdentifier identifier)
+{
+    if (RefPtr server = m_server.get())
+        server->unregisterServiceWorkerConnection(*this, identifier);
+}
+
 SWServer::SWServer(SWServerDelegate& delegate, UniqueRef<SWOriginStore>&& originStore, bool processTerminationDelayEnabled, String&& registrationDatabaseDirectory, PAL::SessionID sessionID, bool shouldRunServiceWorkersOnMainThreadForTesting, bool hasServiceWorkerEntitlement, std::optional<unsigned> overrideServiceWorkerRegistrationCountTestingValue, ServiceWorkerIsInspectable inspectable)
     : m_delegate(delegate)
     , m_originStore(WTFMove(originStore))
@@ -848,6 +860,18 @@ void SWServer::removeClientServiceWorkerRegistration(Connection& connection, Ser
 {
     if (RefPtr registration = m_registrations.get(identifier))
         registration->removeClientServiceWorkerRegistration(connection.identifier());
+}
+
+void SWServer::registerServiceWorkerConnection(Connection& connection, ServiceWorkerIdentifier identifier)
+{
+    if (RefPtr worker = m_runningOrTerminatingWorkers.get(identifier))
+        worker->registerServiceWorkerConnection(connection.identifier());
+}
+
+void SWServer::unregisterServiceWorkerConnection(Connection& connection, ServiceWorkerIdentifier identifier)
+{
+    if (RefPtr worker = m_runningOrTerminatingWorkers.get(identifier))
+        worker->unregisterServiceWorkerConnection(connection.identifier());
 }
 
 void SWServer::updateWorker(const ServiceWorkerJobDataIdentifier& jobDataIdentifier, const std::optional<ProcessIdentifier>& requestingProcessIdentifier, SWServerRegistration& registration, const URL& url, const ScriptBuffer& script, const CertificateInfo& certificateInfo, const ContentSecurityPolicyResponseHeaders& contentSecurityPolicy, const CrossOriginEmbedderPolicy& coep, const String& referrerPolicy, WorkerType type, MemoryCompactRobinHoodHashMap<URL, ServiceWorkerContextData::ImportedScript>&& scriptResourceMap, std::optional<ScriptExecutionContextIdentifier> serviceWorkerPageIdentifier)

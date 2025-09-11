@@ -439,6 +439,9 @@ public:
     void addServiceWorkerRegistration(WebCore::ServiceWorkerRegistrationIdentifier);
     bool removeServiceWorkerRegistration(WebCore::ServiceWorkerRegistrationIdentifier);
 
+    bool registerServiceWorker(WebCore::ServiceWorkerIdentifier);
+    bool unregisterServiceWorker(WebCore::ServiceWorkerIdentifier);
+
     void grantAccessToAssetServices(Vector<WebKit::SandboxExtensionHandle>&& assetServicesHandles);
     void revokeAccessToAssetServices();
     void switchFromStaticFontRegistryToUserFontRegistry(Vector<SandboxExtension::Handle>&& fontMachExtensionHandles);
@@ -886,6 +889,7 @@ private:
 #endif
 
     HashCountedSet<WebCore::ServiceWorkerRegistrationIdentifier> m_swRegistrationCounts;
+    HashCountedSet<WebCore::ServiceWorkerIdentifier> m_swServiceWorkerCounts;
 
     HashMap<StorageAreaMapIdentifier, WeakPtr<StorageAreaMap>> m_storageAreaMaps;
 

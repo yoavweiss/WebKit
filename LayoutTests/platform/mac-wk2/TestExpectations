@@ -2398,10 +2398,6 @@ webkit.org/b/297860 http/tests/site-isolation/edge-sampling-viewport-constrained
 
 webkit.org/b/297006 [ Debug ] http/tests/media/media-element-frame-destroyed-crash.html [ Skip ]
 
-# webkit.org/b/297974 [ macOS wk2 ] 2x http/wpt/service-workers/ (layout-tests) tests are constant failures 
-[ Release ] http/wpt/service-workers/service-worker-spinning-install.https.html [ Failure ]
-http/wpt/service-workers/service-worker-spinning-activate.https.html [ Failure ]
-
 webkit.org/b/267778 [ Release ] fast/forms/listbox-padding-clip-selected.html [ Pass ImageOnlyFailure ]
 
 webkit.org/b/298256 [ Debug ] fast/dom/document-all.html [ Pass Timeout ]
