@@ -760,7 +760,7 @@ imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-005.html [ Pass
 accessibility/opacity-0-bounding-box.html [ Skip ]
 accessibility/clip-path-bounding-box.html [ Skip ]
 
-accessibility/dynamic-expanded-text.html [ Skip ]
+accessibility/dynamic-expanded-text.html [ Failure ]
 
 accessibility/dynamic-content-visibility.html [ Skip ]
 accessibility/dynamic-selected-radio-button.html [ Skip ]
@@ -776,16 +776,16 @@ accessibility/announcement-notification.html [ Skip ]
 accessibility/table-ancestry.html [ Skip ]
 
 # AccessibilityUIElement::speakAs is not implemented.
-accessibility/dynamic-speak-as.html [ Skip ]
+accessibility/dynamic-speak-as.html [ Failure ]
 
 # Failing since introduced, Atspi::State::Visited may not be set / updated properly?
-accessibility/link-becomes-visited.html [ Skip ]
+accessibility/link-becomes-visited.html [ Failure ]
 
 accessibility/search-misspellings.html [ Skip ]
 accessibility/shadow-dom-hit-test.html [ Skip ]
 
 # Missing AccessibilityUIElement::dateTimeValue() implementation.
-accessibility/dynamic-datetime-attribute.html [ Skip ]
+accessibility/dynamic-datetime-attribute.html [ Failure ]
 
 # AccessibilityUIElement::isAttributeSupported needs to be updated to handle AXSelectedRows.
 accessibility/aria-table-selection-support.html [ Skip ]
@@ -794,8 +794,8 @@ accessibility/aria-table-selection-support.html [ Skip ]
 accessibility/aria-expanded-links.html [ Skip ]
 
 # AccessibilityUIElement::customContent is not implemented.
-accessibility/dynamic-aria-describedby-subtree.html [ Skip ]
-accessibility/dynamic-aria-describedby-text.html [ Skip ]
+accessibility/dynamic-aria-describedby-subtree.html [ Failure ]
+accessibility/dynamic-aria-describedby-text.html [ Failure ]
 
 accessibility/button-in-deep-dom.html [ Skip ]
 
@@ -805,12 +805,12 @@ accessibility/focus-inside-modal.html [ Skip ]
 accessibility/progress-element-value-changes.html [ Skip ]
 
 accessibility/svg-font-face.html [ Skip ]
-accessibility/aria-labelledby-on-password-input.html [ Skip ]
+accessibility/aria-labelledby-on-password-input.html [ Failure ]
 accessibility/aria-labelledby-text.html [ Skip ]
 
 # Skipped because text marker APIs not implemented.
 accessibility/display-contents/end-text-marker.html [ Skip ]
-accessibility/select-whitespace-collapsed-text.html [ Skip ]
+accessibility/select-whitespace-collapsed-text.html [ Failure ]
 
 # Need to implement AccessibilityUIElement::insertText.
 accessibility/insert-text-into-password-field.html [ Skip ]
@@ -820,8 +820,8 @@ accessibility/mixed-contenteditable-visible-character-range-hang.html [ Skip ]
 accessibility/mixed-contenteditable-double-br-visible-character-range-hang.html [ Skip ]
 
 # Missing AccessibilityUIElement::brailleLabel and AccessibilityUIElement::brailleRoleDescription implementations.
-accessibility/aria-braillelabel.html [ Skip ]
-accessibility/aria-brailleroledescription.html [ Skip ]
+accessibility/aria-braillelabel.html [ Failure ]
+accessibility/aria-brailleroledescription.html [ Failure ]
 
 # Need to implement AccessibilityUIElement::domIdentifier() for this test to pass after webkit.org/b/234198.
 accessibility/focusable-div.html [ Skip ]
@@ -830,10 +830,10 @@ accessibility/focusable-div.html [ Skip ]
 accessibility/live-region-attributes-update-after-dynamic-change.html [ Skip ]
 
 # Missing AccessibilityUIElement::focusableAncestor implementation.
-accessibility/focusable-ancestor.html [ Skip ]
+accessibility/focusable-ancestor.html [ Failure ]
 
 # Missing AccessibilityUIElement::{editableAncestor, highestEditableAncestor} implementations.
-accessibility/editable-ancestor.html [ Skip ]
+accessibility/editable-ancestor.html [ Failure ]
 
 # Timing out since it was added in https://bugs.webkit.org/show_bug.cgi?id=239434.
 accessibility/text-updates-after-dynamic-change.html [ Skip ]
@@ -879,7 +879,7 @@ accessibility/visible-character-range-height-changes.html [ Skip ]
 accessibility/visible-character-range-scrolling.html [ Skip ]
 accessibility/visible-character-range-vertical-rl.html [ Skip ]
 
-accessibility/display-contents/tree-and-treeitems.html [ Skip ]
+accessibility/display-contents/tree-and-treeitems.html [ Failure ]
 
 webkit.org/b/212805 accessibility/svg-text.html [ Failure ]
 
@@ -898,7 +898,7 @@ accessibility/dismiss-action-returns-whether-keyevent-handled.html [ Skip ]
 accessibility/contenteditable-values.html [ Skip ]
 
 # Exposing aria-{row,col}indextext needs to be implemented on glib platforms.
-accessibility/aria-table-indextext.html [ Skip ]
+accessibility/aria-table-indextext.html [ Failure ]
 
 # Added in r263823. Both tests are timing out.
 webkit.org/b/213874 accessibility/keyevents-for-increment-actions-with-node-removal.html [ Skip ]
@@ -924,8 +924,8 @@ webkit.org/b/163383 accessibility/meter-element.html [ Failure ]
 
 webkit.org/b/98363 [ Release ] accessibility/canvas-fallback-content-2.html [ Failure ]
 webkit.org/b/98372 accessibility/onclick-handlers.html [ Failure ]
-webkit.org/b/98377 accessibility/textarea-insertion-point-line-number.html [ Timeout ]
-webkit.org/b/98382 accessibility/visible-elements.html [ Timeout ]
+webkit.org/b/98377 accessibility/textarea-insertion-point-line-number.html [ Failure ]
+webkit.org/b/98382 accessibility/visible-elements.html [ Failure ]
 
 webkit.org/b/215405 accessibility/roles-computedRoleString.html [ Failure ]
 webkit.org/b/215405 [ Release ] accessibility/roles-exposed.html [ Failure ]
@@ -945,17 +945,17 @@ webkit.org/b/220719 accessibility/braille-label-role.html [ Failure ]
 # Key events for AX actions seems to not be not being emitted
 webkit.org/b/221022 accessibility/keyevents-for-actions-mimic-real-key-events.html [ Timeout ]
 
-webkit.org/b/221447 accessibility/aria-current-state-changed-notification.html [ Timeout ]
+webkit.org/b/221447 accessibility/aria-current-state-changed-notification.html [ Failure ]
 
 webkit.org/b/221645 accessibility/aria-sort.html [ Failure ]
 webkit.org/b/221645 accessibility/aria-sort-changed-notification.html [ Skip ]
 
-webkit.org/b/228915 accessibility/selected-state-changed-notifications.html [ Timeout ]
+webkit.org/b/228915 accessibility/selected-state-changed-notifications.html [ Failure ]
 
 # Not supported
 accessibility/embedded-image-description.html [ Skip ]
 accessibility/aria-keyshortcuts.html [ Skip ]
-accessibility/radio-button-group-dynamic-changes.html [ Skip ]
+accessibility/radio-button-group-dynamic-changes.html [ Failure ]
 
 # Not supported. Skipped also in mac-wk1 and win ports.
 accessibility/nested-textareas-value-changed-notifications.html [ Skip ]
@@ -968,11 +968,11 @@ accessibility/ignored-textfield-still-accessible.html [ Skip ]
 
 webkit.org/b/229261 accessibility/element-line-rects-and-text.html [ DumpJSConsoleLogInStdErr ]
 
-webkit.org/b/232249 accessibility/video-element-url-attribute.html [ Failure Timeout ]
+webkit.org/b/232249 accessibility/video-element-url-attribute.html [ Failure ]
 
 webkit.org/b/232255 accessibility/math-has-non-presentational-children.html [ Failure ]
 
-webkit.org/b/232256 accessibility/auto-fill-crash.html [ Timeout ]
+webkit.org/b/232256 accessibility/auto-fill-crash.html [ Failure ]
 
 # Times out due to missing AccessibilityUIElement::takeFocus
 http/tests/accessibility/focus-text-field-in-iframe.html [ Skip ]
@@ -981,7 +981,7 @@ http/tests/accessibility/focus-text-field-in-iframe.html [ Skip ]
 accessibility/combobox/combobox-linked-listbox-destroyed.html [ Skip ]
 
 # Fails due to missing AccessibilityUIElement::indexInTable() implementation.
-accessibility/table-insert-second-thead.html [ Skip ]
+accessibility/table-insert-second-thead.html [ Failure ]
 
 # Fails due to missing AccessibilityUIElement::columns() implementation.
 accessibility/dynamic-table-row-column-indices.html [ Skip ]
@@ -999,6 +999,8 @@ accessibility/element-outside-modal-with-zindex.html [ Skip ]
 
 # Skipping because different hierarchy.
 accessibility/youtube-embed-accessibility-hierarchy.html [ Skip ]
+
+accessibility/datetime/input-time-field-labels-and-value-changes.html [ Skip ] # Timeout.
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Accessibility-related bugs
@@ -3594,7 +3596,7 @@ Bug(GLIB) http/tests/contentextensions/text-track-blocked.html [ Failure ]
 Bug(GLIB) http/tests/contentextensions/top-url.html [ Failure ]
 Bug(GLIB) http/tests/contentextensions/allowlist.html [ Failure ]
 
-webkit.org/b/68512 accessibility/aria-hidden-updates-alldescendants.html [ Failure Timeout ]
+webkit.org/b/68512 accessibility/aria-hidden-updates-alldescendants.html [ Failure ]
 
 # locale-specific shaping isn't implemented on any non-Cocoa port yet.
 webkit.org/b/77568 fast/text/locale-shaping-complex.html [ ImageOnlyFailure ]
@@ -3641,7 +3643,7 @@ webkit.org/b/136537 fast/sub-pixel/client-width-height-snapping.html [ Failure ]
 webkit.org/b/137096 svg/text/alt-glyph-for-surrogate-pair.svg [ ImageOnlyFailure ]
 webkit.org/b/144575 http/tests/loading/promote-img-preload-priority.html [ Failure ]
 webkit.org/b/146724 fast/text/word-break-keep-all.html [ ImageOnlyFailure ]
-webkit.org/b/148935 accessibility/scroll-to-make-visible-with-subfocus.html [ Timeout ]
+webkit.org/b/148935 accessibility/scroll-to-make-visible-with-subfocus.html [ Failure ]
 
 # The GTK+ test harness doesn't have support for overriding preferred languages.
 webkit.org/b/152618 fast/text/international/system-language/declarative-language.html [ Failure ]
@@ -3790,7 +3792,7 @@ webkit.org/b/199004 fast/events/fire-mousedown-while-pressing-mouse-button.html 
 webkit.org/b/199009 fast/text/variations/optical-sizing-units.html [ ImageOnlyFailure ]
 
 # Timeout since https://commits.webkit.org/295725@main.
-webkit.org/b/199001 accessibility/set-selected-text-range-after-newline.html [ Skip ]
+webkit.org/b/199001 accessibility/set-selected-text-range-after-newline.html [ Failure ]
 
 # Test expects a timeout of 20s.
 imported/w3c/web-platform-tests/websockets/keeping-connection-open/001.html?wss [ Slow ]
@@ -3838,7 +3840,7 @@ webkit.org/b/252878 imported/w3c/web-platform-tests/websockets/opening-handshake
 webkit.org/b/252878 imported/w3c/web-platform-tests/websockets/opening-handshake/005.html?wss [ Failure Pass ]
 
 webkit.org/b/201259 http/wpt/beacon/cors/crossorigin-arraybufferview-no-preflight.html [ Failure ]
-webkit.org/b/201268 accessibility/insert-newline.html [ Timeout ]
+webkit.org/b/201268 accessibility/insert-newline.html [ Failure ]
 webkit.org/b/201982 fast/images/exif-orientation-border-image.html [ ImageOnlyFailure ]
 webkit.org/b/202225 accessibility/misspelling-range.html [ Failure Timeout ]
 
@@ -4903,7 +4905,7 @@ webkit.org/b/298433 [ Release ] imported/w3c/web-platform-tests/selection/caret/
 # Needs rebaseline.
 fast/text/glyph-display-lists [ Skip ]
 
-# Now that partial fonts are working, two characters previously rendered as a square are now showing correctly, which makes the test fail. 
+# Now that partial fonts are working, two characters previously rendered as a square are now showing correctly, which makes the test fail.
 # Probably the test should be updated.
 fast/text/text-combine-placement.html [ Failure ]
 
