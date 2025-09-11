@@ -69,9 +69,9 @@ UserMessageHandlersNamespace* WebKitNamespace::messageHandlers()
     return &m_messageHandlerNamespace.get();
 }
 
-Ref<WebKitJSHandle> WebKitNamespace::createJSHandle(Document& document, JSC::Strong<JSC::JSObject> object)
+Ref<WebKitJSHandle> WebKitNamespace::jsHandle(JSC::JSGlobalObject& globalObject, JSC::Strong<JSC::JSObject> object)
 {
-    return WebKitJSHandle::create(document, object.get());
+    return WebKitJSHandle::getOrCreate(globalObject, object.get());
 }
 
 ExceptionOr<Ref<WebKitSerializedNode>> WebKitNamespace::serializeNode(Node& node, SerializedNodeInit&& init)
