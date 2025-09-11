@@ -70,6 +70,7 @@ public:
     virtual void notifyWhenRequiresFlushToResume(Function<void()>&&) { }
     virtual void notifyRenderingModeChanged(Function<void()>&&) { }
     virtual void setMinimumUpcomingPresentationTime(const MediaTime&) { }
+    virtual void notifySizeChanged(Function<void(const MediaTime&, FloatSize)>&&) { }
     virtual void setShouldDisableHDR(bool) { };
     virtual void setPlatformDynamicRangeLimit(const PlatformDynamicRangeLimit&) { };
     virtual void setResourceOwner(const ProcessIdentity&) { }

@@ -2232,6 +2232,22 @@ String convertVideoProjectionMetadataToString(const VideoProjectionMetadata& met
     return makeString('{', convertEnumerationToString(metadata.kind), '}');
 }
 
+String convertEnumerationToString(TrackInfoTrackType type)
+{
+    static const std::array<NeverDestroyed<String>, 4> values {
+        MAKE_STATIC_STRING_IMPL("Unknown"),
+        MAKE_STATIC_STRING_IMPL("Audio"),
+        MAKE_STATIC_STRING_IMPL("Video"),
+        MAKE_STATIC_STRING_IMPL("Text"),
+    };
+    static_assert(!static_cast<size_t>(TrackInfoTrackType::Unknown), "TrackInfoTrackType::Unknown is not 0 as expected");
+    static_assert(static_cast<size_t>(TrackInfoTrackType::Audio) == 1, "TrackInfoTrackType::Video is not 1 as expected");
+    static_assert(static_cast<size_t>(TrackInfoTrackType::Video) == 2, "TrackInfoTrackType::Audio is not 2 as expected");
+    static_assert(static_cast<size_t>(TrackInfoTrackType::Text) == 3, "TrackInfoTrackType::Text is not 3 as expected");
+    ASSERT(static_cast<size_t>(type) < std::size(values));
+    return values[static_cast<size_t>(type)];
+}
+
 } // namespace WebCore
 
 #endif // ENABLE(VIDEO)

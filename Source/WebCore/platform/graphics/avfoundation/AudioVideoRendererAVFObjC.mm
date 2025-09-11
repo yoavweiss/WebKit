@@ -27,6 +27,7 @@
 #import "AudioVideoRendererAVFObjC.h"
 
 #import "AudioMediaStreamTrackRenderer.h"
+#import "FormatDescriptionUtilities.h"
 #import "LayoutRect.h"
 #import "Logging.h"
 #import "PixelBufferConformerCV.h"
@@ -75,7 +76,7 @@ AudioVideoRendererAVFObjC::AudioVideoRendererAVFObjC(const Logger& originalLogge
     // an arbitrarily large time value of once an hour:
     __block WeakPtr weakThis { *this };
     // False positive webkit.org/b/298037
-    SUPPRESS_UNRETAINED_ARG m_timeJumpedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::toCMTime(MediaTime::createWithDouble(3600)) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+    SUPPRESS_UNRETAINED_ARG m_timeJumpedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::toCMTime(MediaTime::createWithDouble(3600)) queue:nullptr usingBlock:^(CMTime time) {
 #if LOG_DISABLED
         UNUSED_PARAM(time);
 #endif
@@ -157,11 +158,37 @@ void AudioVideoRendererAVFObjC::enqueueSample(TrackIdentifier trackId, Ref<Media
         return;
 
     switch (*type) {
-    case TrackType::Video:
+    case TrackType::Video: {
+        RetainPtr cmSampleBuffer = sample->platformSample().sample.cmSampleBuffer;
+        RetainPtr formatDescription = PAL::CMSampleBufferGetFormatDescription(cmSampleBuffer.get());
+        ASSERT(formatDescription);
+        if (!formatDescription) {
+            ERROR_LOG(LOGIDENTIFIER, "Received sample with a null formatDescription. Bailing.");
+            return;
+        }
+        auto mediaType = typeFromFormatDescription(formatDescription.get());
+        ASSERT(mediaType == TrackType::Video);
+        if (mediaType != TrackType::Video) {
+            ERROR_LOG(LOGIDENTIFIER, "Expected sample of type: video got: '", mediaType, "'. Bailing.");
+            return;
+        }
+
+        if (m_sizeChangedCallback) {
+            FloatSize formatSize = presentationSizeFromFormatDescription(formatDescription.get());
+            if (m_cachedSize != formatSize) {
+                DEBUG_LOG(LOGIDENTIFIER, "size changed from: ", m_cachedSize.value_or(FloatSize()), " to: ", formatSize);
+                if (!std::exchange(m_cachedSize, formatSize))
+                    m_sizeChangedCallback(sample->presentationTime(), formatSize);
+                else
+                    sizeWillChangeAtTime(sample->presentationTime(), formatSize);
+            }
+        }
+
         ASSERT(m_videoRenderer);
         if (RefPtr videoRenderer = m_videoRenderer; videoRenderer && isEnabledVideoTrackId(trackId))
             videoRenderer->enqueueSample(sample, minimumUpcomingTime.value_or(sample->presentationTime()));
         break;
+    }
     case TrackType::Audio:
         if (RetainPtr audioRenderer = audioRendererFor(trackId)) {
             RetainPtr cmSampleBuffer = sample->platformSample().sample.cmSampleBuffer;
@@ -369,7 +396,7 @@ void AudioVideoRendererAVFObjC::setDuration(MediaTime duration)
     UNUSED_PARAM(logSiteIdentifier);
 
     // False positive webkit.org/b/298037
-    SUPPRESS_UNRETAINED_ARG m_durationObserver = [m_synchronizer addBoundaryTimeObserverForTimes:times queue:dispatch_get_main_queue() usingBlock:[weakThis = WeakPtr { *this }, duration, logSiteIdentifier] {
+    SUPPRESS_UNRETAINED_ARG m_durationObserver = [m_synchronizer addBoundaryTimeObserverForTimes:times queue:nullptr usingBlock:[weakThis = WeakPtr { *this }, duration, logSiteIdentifier] {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
@@ -572,6 +599,11 @@ void AudioVideoRendererAVFObjC::setMinimumUpcomingPresentationTime(const MediaTi
 {
     // TODO: need to pass it to the videoRenderer. Not needed yet for webm or when decompression session is always in use
     ASSERT_NOT_REACHED();
+}
+
+void AudioVideoRendererAVFObjC::notifySizeChanged(Function<void(const MediaTime&, FloatSize)>&& callback)
+{
+    m_sizeChangedCallback = WTFMove(callback);
 }
 
 void AudioVideoRendererAVFObjC::setShouldDisableHDR(bool shouldDisable)
@@ -1086,6 +1118,41 @@ RefPtr<VideoMediaSampleRenderer> AudioVideoRendererAVFObjC::protectedVideoRender
     return m_videoRenderer;
 }
 
+void AudioVideoRendererAVFObjC::sizeWillChangeAtTime(const MediaTime& time, const FloatSize& size)
+{
+    if (!m_sizeChangedCallback)
+        return;
+
+    NSArray* times = @[[NSValue valueWithCMTime:PAL::toCMTime(time)]];
+    // False positive webkit.org/b/298037
+    SUPPRESS_UNRETAINED_ARG RetainPtr<id> observer = [m_synchronizer addBoundaryTimeObserverForTimes:times queue:nullptr usingBlock:makeBlockPtr([weakThis = WeakPtr { *this }, time, size] {
+        RefPtr protectedThis = weakThis.get();
+        if (!protectedThis)
+            return;
+
+        ASSERT(!protectedThis->m_sizeChangeObservers.isEmpty());
+        if (!protectedThis->m_sizeChangeObservers.isEmpty()) {
+            RetainPtr<id> observer = protectedThis->m_sizeChangeObservers.takeFirst();
+            [protectedThis->m_synchronizer removeTimeObserver:observer.get()];
+        }
+        if (protectedThis->m_sizeChangedCallback)
+            protectedThis->m_sizeChangedCallback(time, size);
+    }).get()];
+    m_sizeChangeObservers.append(WTFMove(observer));
+
+    if (currentTime() >= time && m_sizeChangedCallback)
+        m_sizeChangedCallback(currentTime(), size);
+}
+
+void AudioVideoRendererAVFObjC::flushPendingSizeChanges()
+{
+    m_cachedSize.reset();
+    while (!m_sizeChangeObservers.isEmpty()) {
+        RetainPtr<id> observer = m_sizeChangeObservers.takeFirst();
+        [m_synchronizer removeTimeObserver:observer.get()];
+    }
+}
+
 Ref<GenericPromise> AudioVideoRendererAVFObjC::stageVideoRenderer(WebSampleBufferVideoRendering *renderer)
 {
     ASSERT(m_videoRenderer);
@@ -1234,11 +1301,11 @@ void AudioVideoRendererAVFObjC::flushVideo()
 {
     ALWAYS_LOG(LOGIDENTIFIER);
     setHasAvailableVideoFrame(false);
-
     // Flush may call immediately requestMediaDataWhenReady. Must clear m_readyToRequestVideoData before flushing renderer.
     m_readyToRequestVideoData = true;
     if (RefPtr videoRenderer = m_videoRenderer)
         videoRenderer->flush();
+    flushPendingSizeChanges();
 }
 
 void AudioVideoRendererAVFObjC::flushAudio()

@@ -464,18 +464,15 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
         if (!protectedThis)
             return;
         assertIsCurrent(protectedThis->dispatcher().get());
-
+        --protectedThis->m_pendingSamplesCount;
         if (flushId != protectedThis->m_flushId) {
             protectedThis->m_compressedSamplesCount = 0;
-            protectedThis->m_pendingSamplesCount = 0;
             protectedThis->m_compressedSampleQueue.clear();
             protectedThis->maybeBecomeReadyForMoreMediaData();
             return;
         }
-        ASSERT(protectedThis->m_pendingSamplesCount > 0);
         protectedThis->m_compressedSampleQueue.append({ WTFMove(sample), minimumUpcomingTime, flushId, decompressionSessionBlocked });
         protectedThis->decodeNextSampleIfNeeded();
-        --protectedThis->m_pendingSamplesCount;
         protectedThis->m_compressedSamplesCount = protectedThis->m_compressedSampleQueue.size();
     });
 }
@@ -735,7 +732,6 @@ void VideoMediaSampleRenderer::flushCompressedSampleQueue()
 
     ++m_flushId;
     m_compressedSamplesCount = 0;
-    m_pendingSamplesCount = 0;
     m_gotDecodingError = false;
 }
 

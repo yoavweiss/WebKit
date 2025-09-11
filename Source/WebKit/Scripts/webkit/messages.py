@@ -1243,6 +1243,7 @@ def headers_for_type(type, for_implementation_file=False):
         'WebCore::TrackID': ['<WebCore/TrackBase.h>'],
         'WebCore::TrackInfo': ['<WebCore/MediaSample.h>'],
         'WebCore::TrackInfo::TrackType': ['<WebCore/MediaSample.h>'],
+        'WebCore::TrackInfoTrackType': ['<WebCore/MediaPlayerEnums.h>'],
         'WebCore::UserGestureTokenIdentifierID': ['"GeneratedSerializers.h"'],
         'WebCore::WindowIdentifier': ['<WebCore/GlobalWindowIdentifier.h>'],
         'WebCore::WritingTools::Context': ['<WebCore/WritingToolsTypes.h>'],

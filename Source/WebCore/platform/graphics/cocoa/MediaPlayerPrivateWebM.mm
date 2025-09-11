@@ -102,7 +102,7 @@ MediaPlayerPrivateWebM::MediaPlayerPrivateWebM(MediaPlayer* player)
     m_renderer->setVideoTarget(player->videoTarget());
 #endif
 
-    m_renderer->notifyWhenErrorOccurs([weakThis = ThreadSafeWeakPtr { *this }](PlatformMediaError) {
+    m_renderer->notifyWhenErrorOccurs([weakThis = WeakPtr { *this }](PlatformMediaError) {
         if (RefPtr protectedThis = weakThis.get()) {
             protectedThis->setNetworkState(MediaPlayer::NetworkState::DecodeError);
             protectedThis->setReadyState(MediaPlayer::ReadyState::HaveNothing);
@@ -124,16 +124,21 @@ MediaPlayerPrivateWebM::MediaPlayerPrivateWebM(MediaPlayer* player)
             protectedThis->setHasAvailableVideoFrame(true);
     });
 
-    m_renderer->notifyWhenRequiresFlushToResume([weakThis = ThreadSafeWeakPtr { *this }] {
+    m_renderer->notifyWhenRequiresFlushToResume([weakThis = WeakPtr { *this }] {
         if (RefPtr protectedThis = weakThis.get())
             protectedThis->setLayerRequiresFlush();
     });
 
-    m_renderer->notifyRenderingModeChanged([weakThis = ThreadSafeWeakPtr { *this }] {
+    m_renderer->notifyRenderingModeChanged([weakThis = WeakPtr { *this }] {
         if (RefPtr protectedThis = weakThis.get()) {
             if (RefPtr player = protectedThis->m_player.get())
                 player->renderingModeChanged();
         }
+    });
+
+    m_renderer->notifySizeChanged([weakThis = WeakPtr { *this }](const MediaTime&, FloatSize size) {
+        if (RefPtr protectedThis = weakThis.get())
+            protectedThis->setNaturalSize(size);
     });
 
 #if HAVE(SPATIAL_TRACKING_LABEL)
@@ -466,7 +471,7 @@ Ref<GenericPromise> MediaPlayerPrivateWebM::waitForTimeBuffered(const MediaTime&
 {
     ASSERT(!m_waitForTimeBufferedPromise);
 
-    if (m_buffered.contain(time)) {
+    if (m_buffered.containWithEpsilon(time, timeFudgeFactor())) {
         ALWAYS_LOG(LOGIDENTIFIER, "buffered contains seektime, resolving");
         return GenericPromise::createAndResolve();
     }
@@ -855,13 +860,7 @@ void MediaPlayerPrivateWebM::enqueueSample(Ref<MediaSample>&& sample, TrackID tr
             ERROR_LOG(logSiteIdentifier, "Expected sample of type '", FourCC(kCMMediaType_Video), "', got '", FourCC(mediaType), "'. Bailing.");
             return;
         }
-
-        FloatSize formatSize = FloatSize(PAL::CMVideoFormatDescriptionGetPresentationDimensions(formatDescription, true, true));
-        if (formatSize != m_naturalSize)
-            setNaturalSize(formatSize);
-
         m_renderer->enqueueSample(trackIdentifierFor(trackId), WTFMove(sample));
-
         return;
     }
     // AVSampleBufferAudioRenderer will throw an un-documented exception if passed a sample
@@ -950,12 +949,11 @@ void MediaPlayerPrivateWebM::appendCompleted(bool success)
     if (!m_errored)
         updateBufferedFromTrackBuffers(m_loadFinished && !m_pendingAppends);
 
-    if (m_waitForTimeBufferedPromise && m_buffered.contain(m_lastSeekTime)) {
+    if (m_waitForTimeBufferedPromise && m_buffered.containWithEpsilon(m_lastSeekTime, timeFudgeFactor())) {
         ALWAYS_LOG(LOGIDENTIFIER, "can continue seeking data is now buffered");
         m_waitForTimeBufferedPromise->resolve();
         m_waitForTimeBufferedPromise.reset();
     }
-
     maybeFinishLoading();
 }
 

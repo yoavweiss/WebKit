@@ -9266,11 +9266,12 @@ enum class WebCore::DOMAudioSessionType : uint8_t {
 };
 #endif
 
-header: <WebCore/MediaSample.h>
-[Nested] enum class WebCore::TrackInfo::TrackType : uint8_t {
+header: <WebCore/MediaPlayerEnums.h>
+[Nested] enum class WebCore::TrackInfoTrackType : uint8_t {
     Unknown,
     Audio,
-    Video
+    Video,
+    Text
 };
 
 header: <WebCore/MediaSample.h>

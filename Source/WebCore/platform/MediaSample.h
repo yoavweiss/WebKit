@@ -28,6 +28,7 @@
 #include <WebCore/FloatSize.h>
 #include <WebCore/FourCC.h>
 #include <WebCore/HdrMetadataType.h>
+#include <WebCore/MediaPlayerEnums.h>
 #include <WebCore/PlatformVideoColorSpace.h>
 #include <WebCore/SharedBuffer.h>
 #include <functional>
@@ -145,7 +146,7 @@ struct AudioInfo;
 struct VideoInfo;
 
 struct TrackInfo : public ThreadSafeRefCounted<TrackInfo> {
-    enum class TrackType : uint8_t { Unknown, Audio, Video };
+    using TrackType = TrackInfoTrackType;
 
     bool isAudio() const { return type() == TrackType::Audio; }
     bool isVideo() const { return type() == TrackType::Video; }

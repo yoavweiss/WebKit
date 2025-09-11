@@ -535,6 +535,7 @@ media/media-source/media-source-play-zero-playbackrate.html [ Pass ]
 webkit.org/b/263317 media/video-played-collapse.html [ Failure Pass ]
 webkit.org/b/263317 media/media-source/media-controller-media-source-play-then-pause.html [ Crash Pass Timeout ]
 webkit.org/b/263317 media/media-source/media-source-seek-and-play.html [ Pass Timeout ]
+webkit.org/b/298491 media/media-vp9-reschange-webm.html [ Timeout ]
 
 # NOTIFICATION_EVENT tests
 http/tests/workers/service/shownotification-allowed-document.html [ Pass ]

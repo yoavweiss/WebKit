@@ -40,6 +40,24 @@
 #import <pal/cf/VideoToolboxSoftLink.h>
 
 namespace WebCore {
+
+TrackInfoTrackType typeFromFormatDescription(CMFormatDescriptionRef formatDescription)
+{
+    auto mediaType = PAL::CMFormatDescriptionGetMediaType(formatDescription);
+    switch (mediaType) {
+    case kCMMediaType_Video:
+        return TrackInfoTrackType::Video;
+    case kCMMediaType_Audio:
+        return TrackInfoTrackType::Audio;
+    case kCMMediaType_Text:
+    case kCMMediaType_ClosedCaption:
+    case kCMMediaType_Subtitle:
+        return TrackInfoTrackType::Text;
+    default:
+        return TrackInfoTrackType::Unknown;
+    }
+}
+
 FloatSize presentationSizeFromFormatDescription(CMFormatDescriptionRef formatDescription)
 {
     if (!formatDescription)
