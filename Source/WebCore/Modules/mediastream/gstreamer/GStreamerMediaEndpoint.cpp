@@ -2048,12 +2048,32 @@ GstElement* GStreamerMediaEndpoint::requestAuxiliarySender(GRefPtr<GstWebRTCDTLS
     return estimator;
 }
 
-void GStreamerMediaEndpoint::close()
+void GStreamerMediaEndpoint::prepareForClose()
 {
-    // https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/2760
-    GST_DEBUG_OBJECT(m_pipeline.get(), "Closing");
     if (m_pipeline && GST_STATE(m_pipeline.get()) > GST_STATE_READY)
         gst_element_set_state(m_pipeline.get(), GST_STATE_READY);
+}
+
+void GStreamerMediaEndpoint::close()
+{
+    GST_DEBUG_OBJECT(m_pipeline.get(), "Closing");
+
+    // https://gitlab.freedesktop.org/gstreamer/gstreamer/-/merge_requests/9379
+#if GST_CHECK_VERSION(1, 27, 0)
+    auto promise = adoptGRef(gst_promise_new());
+    g_signal_emit_by_name(m_webrtcBin.get(), "close", promise.get());
+    auto result = gst_promise_wait(promise.get());
+    const auto reply = gst_promise_get_reply(promise.get());
+    if (result != GST_PROMISE_RESULT_REPLIED || (reply && gst_structure_has_field(reply, "error"))) {
+        if (reply) {
+            GUniqueOutPtr<GError> error;
+            gst_structure_get(reply, "error", G_TYPE_ERROR, &error.outPtr(), nullptr);
+            auto errorMessage = makeString("Unable to close connection, error: "_s, unsafeSpan(error->message));
+            GST_ERROR_OBJECT(m_webrtcBin.get(), "%s", errorMessage.utf8().data());
+        }
+        return;
+    }
+#endif
 
 #if !RELEASE_LOG_DISABLED
     stopLoggingStats();

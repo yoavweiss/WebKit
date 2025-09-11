@@ -213,6 +213,11 @@ void GStreamerPeerConnectionBackend::doCreateAnswer(RTCAnswerOptions&&)
     m_endpoint->doCreateAnswer();
 }
 
+void GStreamerPeerConnectionBackend::prepareForClose()
+{
+    m_endpoint->prepareForClose();
+}
+
 void GStreamerPeerConnectionBackend::close()
 {
     m_endpoint->close();
