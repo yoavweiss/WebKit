@@ -361,10 +361,10 @@ unsigned BuilderState::siblingIndex()
     return count;
 }
 
-void BuilderState::disableNativeAppearanceIfNeeded(CSSPropertyID propertyID, CascadeLevel cascadeLevel)
+void BuilderState::disableNativeAppearanceIfNeeded(CSSPropertyID propertyID, DeclarationOrigin declarationOrigin)
 {
     auto shouldDisable = [&] {
-        if (cascadeLevel != CascadeLevel::Author)
+        if (declarationOrigin != DeclarationOrigin::Author)
             return false;
         if (!CSSProperty::disablesNativeAppearance(propertyID))
             return false;

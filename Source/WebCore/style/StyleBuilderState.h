@@ -26,7 +26,7 @@
 #pragma once
 
 #include "CSSToStyleMap.h"
-#include "CascadeLevel.h"
+#include "DeclarationOrigin.h"
 #include "PropertyCascade.h"
 #include "RuleSet.h"
 #include "SelectorChecker.h"
@@ -136,7 +136,7 @@ public:
 
     bool isAuthorOrigin() const
     {
-        return m_currentProperty && m_currentProperty->cascadeLevel == CascadeLevel::Author;
+        return m_currentProperty && m_currentProperty->declarationOrigin == DeclarationOrigin::Author;
     }
 
     CSSPropertyID cssPropertyID() const;
@@ -201,7 +201,7 @@ public:
     void setFontDescriptionVariantNumericOrdinal(FontVariantNumericOrdinal);
     void setFontDescriptionVariantNumericSlashedZero(FontVariantNumericSlashedZero);
 
-    void disableNativeAppearanceIfNeeded(CSSPropertyID, CascadeLevel);
+    void disableNativeAppearanceIfNeeded(CSSPropertyID, DeclarationOrigin);
 
 private:
     // See the comment in maybeUpdateFontForLetterSpacing() about why this needs to be a friend.

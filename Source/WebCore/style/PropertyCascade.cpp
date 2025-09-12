@@ -43,10 +43,10 @@ namespace Style {
 
 WTF_MAKE_TZONE_ALLOCATED_IMPL(PropertyCascade);
 
-PropertyCascade::PropertyCascade(const MatchResult& matchResult, CascadeLevel maximumCascadeLevel, IncludedProperties&& includedProperties, const HashSet<AnimatableCSSProperty>* animatedProperties, const StyleProperties* positionTryFallbackProperties)
+PropertyCascade::PropertyCascade(const MatchResult& matchResult, DeclarationOrigin maximumDeclarationOrigin, IncludedProperties&& includedProperties, const HashSet<AnimatableCSSProperty>* animatedProperties, const StyleProperties* positionTryFallbackProperties)
     : m_matchResult(matchResult)
     , m_includedProperties(WTFMove(includedProperties))
-    , m_maximumCascadeLevel(maximumCascadeLevel)
+    , m_maximumDeclarationOrigin(maximumDeclarationOrigin)
     , m_animationLayer(animatedProperties ? std::optional { AnimationLayer { *animatedProperties } } : std::nullopt)
 {
     ASSERT(!m_includedProperties.isEmpty());
@@ -57,10 +57,10 @@ PropertyCascade::PropertyCascade(const MatchResult& matchResult, CascadeLevel ma
     buildCascade();
 }
 
-PropertyCascade::PropertyCascade(const PropertyCascade& parent, CascadeLevel maximumCascadeLevel, std::optional<ScopeOrdinal> rollbackScope, std::optional<CascadeLayerPriority> maximumCascadeLayerPriorityForRollback)
+PropertyCascade::PropertyCascade(const PropertyCascade& parent, DeclarationOrigin maximumDeclarationOrigin, std::optional<ScopeOrdinal> rollbackScope, std::optional<CascadeLayerPriority> maximumCascadeLayerPriorityForRollback)
     : m_matchResult(parent.m_matchResult)
     , m_includedProperties(normalProperties()) // Include all properties to the rollback cascade, lower prority layers may not get included otherwise.
-    , m_maximumCascadeLevel(maximumCascadeLevel)
+    , m_maximumDeclarationOrigin(maximumDeclarationOrigin)
     , m_rollbackScope(rollbackScope)
     , m_maximumCascadeLayerPriorityForRollback(maximumCascadeLayerPriorityForRollback)
     , m_animationLayer(parent.m_animationLayer)
@@ -84,53 +84,53 @@ PropertyCascade::AnimationLayer::AnimationLayer(const HashSet<AnimatableCSSPrope
 
 void PropertyCascade::buildCascade()
 {
-    OptionSet<CascadeLevel> cascadeLevelsWithImportant;
+    std::array<bool, 3> declarationOriginsWithImportant = { };
 
-    for (auto cascadeLevel : { CascadeLevel::UserAgent, CascadeLevel::User, CascadeLevel::Author }) {
-        if (cascadeLevel > m_maximumCascadeLevel)
+    for (auto declarationOrigin : { DeclarationOrigin::UserAgent, DeclarationOrigin::User, DeclarationOrigin::Author }) {
+        if (declarationOrigin > m_maximumDeclarationOrigin)
             break;
-        bool hasImportant = addNormalMatches(cascadeLevel);
+        bool hasImportant = addNormalMatches(declarationOrigin);
         if (hasImportant)
-            cascadeLevelsWithImportant.add(cascadeLevel);
+            declarationOriginsWithImportant[enumToUnderlyingType(declarationOrigin)] = true;
     }
 
     if (m_positionTryFallbackProperties)
         addPositionTryFallbackProperties();
 
-    for (auto cascadeLevel : { CascadeLevel::Author, CascadeLevel::User, CascadeLevel::UserAgent }) {
-        if (!cascadeLevelsWithImportant.contains(cascadeLevel))
+    for (auto declarationOrigin : { DeclarationOrigin::Author, DeclarationOrigin::User, DeclarationOrigin::UserAgent }) {
+        if (!declarationOriginsWithImportant[enumToUnderlyingType(declarationOrigin)])
             continue;
-        addImportantMatches(cascadeLevel);
+        addImportantMatches(declarationOrigin);
     }
 
     sortLogicalGroupPropertyIDs();
 }
 
-void PropertyCascade::setPropertyInternal(Property& property, CSSPropertyID id, CSSValue& cssValue, const MatchedProperties& matchedProperties, CascadeLevel cascadeLevel)
+void PropertyCascade::setPropertyInternal(Property& property, CSSPropertyID id, CSSValue& cssValue, const MatchedProperties& matchedProperties, DeclarationOrigin declarationOrigin)
 {
     ASSERT(matchedProperties.linkMatchType <= SelectorChecker::MatchAll);
     property.id = id;
-    property.cascadeLevel = cascadeLevel;
+    property.declarationOrigin = declarationOrigin;
     property.styleScopeOrdinal = matchedProperties.styleScopeOrdinal;
     property.cascadeLayerPriority = matchedProperties.cascadeLayerPriority;
     property.fromStyleAttribute = matchedProperties.fromStyleAttribute;
 
     if (matchedProperties.linkMatchType == SelectorChecker::MatchAll) {
-        property.cascadeLevels[SelectorChecker::MatchDefault] = cascadeLevel;
+        property.declarationOrigins[SelectorChecker::MatchDefault] = declarationOrigin;
         property.cssValue[SelectorChecker::MatchDefault] = &cssValue;
 
-        property.cascadeLevels[SelectorChecker::MatchLink] = cascadeLevel;
+        property.declarationOrigins[SelectorChecker::MatchLink] = declarationOrigin;
         property.cssValue[SelectorChecker::MatchLink] = &cssValue;
 
-        property.cascadeLevels[SelectorChecker::MatchVisited] = cascadeLevel;
+        property.declarationOrigins[SelectorChecker::MatchVisited] = declarationOrigin;
         property.cssValue[SelectorChecker::MatchVisited] = &cssValue;
     } else {
-        property.cascadeLevels[matchedProperties.linkMatchType] = cascadeLevel;
+        property.declarationOrigins[matchedProperties.linkMatchType] = declarationOrigin;
         property.cssValue[matchedProperties.linkMatchType] = &cssValue;
     }
 }
 
-void PropertyCascade::set(CSSPropertyID id, CSSValue& cssValue, const MatchedProperties& matchedProperties, CascadeLevel cascadeLevel)
+void PropertyCascade::set(CSSPropertyID id, CSSValue& cssValue, const MatchedProperties& matchedProperties, DeclarationOrigin declarationOrigin)
 {
     ASSERT(!CSSProperty::isInLogicalPropertyGroup(id));
     ASSERT(id < firstLogicalGroupProperty);
@@ -142,21 +142,21 @@ void PropertyCascade::set(CSSPropertyID id, CSSValue& cssValue, const MatchedPro
         auto result = m_customProperties.ensure(customValue.name(), [&]() {
             Property property;
             property.cssValue = { };
-            setPropertyInternal(property, id, cssValue, matchedProperties, cascadeLevel);
+            setPropertyInternal(property, id, cssValue, matchedProperties, declarationOrigin);
             return property;
         });
         if (!result.isNewEntry)
-            setPropertyInternal(result.iterator->value, id, cssValue, matchedProperties, cascadeLevel);
+            setPropertyInternal(result.iterator->value, id, cssValue, matchedProperties, declarationOrigin);
         return;
     }
 
     auto& property = m_properties[id];
     if (!m_propertyIsPresent.testAndSet(id))
         property.cssValue = { };
-    setPropertyInternal(property, id, cssValue, matchedProperties, cascadeLevel);
+    setPropertyInternal(property, id, cssValue, matchedProperties, declarationOrigin);
 }
 
-void PropertyCascade::setLogicalGroupProperty(CSSPropertyID id, CSSValue& cssValue, const MatchedProperties& matchedProperties, CascadeLevel cascadeLevel)
+void PropertyCascade::setLogicalGroupProperty(CSSPropertyID id, CSSValue& cssValue, const MatchedProperties& matchedProperties, DeclarationOrigin declarationOrigin)
 {
     ASSERT(id >= firstLogicalGroupProperty);
     ASSERT(id <= lastLogicalGroupProperty);
@@ -168,7 +168,7 @@ void PropertyCascade::setLogicalGroupProperty(CSSPropertyID id, CSSValue& cssVal
         m_highestSeenLogicalGroupProperty = std::max(m_highestSeenLogicalGroupProperty, id);
     }
     setLogicalGroupPropertyIndex(id, ++m_lastIndexForLogicalGroup);
-    setPropertyInternal(property, id, cssValue, matchedProperties, cascadeLevel);
+    setPropertyInternal(property, id, cssValue, matchedProperties, declarationOrigin);
 }
 
 bool PropertyCascade::hasProperty(CSSPropertyID propertyID, const CSSValue& value)
@@ -212,12 +212,12 @@ const PropertyCascade::Property* PropertyCascade::lastPropertyResolvingLogicalPr
     return nullptr;
 }
 
-bool PropertyCascade::addMatch(const MatchedProperties& matchedProperties, CascadeLevel cascadeLevel, IsImportant important)
+bool PropertyCascade::addMatch(const MatchedProperties& matchedProperties, DeclarationOrigin declarationOrigin, IsImportant important)
 {
     auto includePropertiesForRollback = [&] {
         if (m_rollbackScope && matchedProperties.styleScopeOrdinal > *m_rollbackScope)
             return true;
-        if (cascadeLevel < m_maximumCascadeLevel)
+        if (declarationOrigin < m_maximumDeclarationOrigin)
             return true;
         if (matchedProperties.fromStyleAttribute == FromStyleAttribute::Yes)
             return false;
@@ -288,9 +288,9 @@ bool PropertyCascade::addMatch(const MatchedProperties& matchedProperties, Casca
             continue;
 
         if (propertyID < firstLogicalGroupProperty)
-            set(propertyID, *current.value(), matchedProperties, cascadeLevel);
+            set(propertyID, *current.value(), matchedProperties, declarationOrigin);
         else
-            setLogicalGroupProperty(propertyID, *current.value(), matchedProperties, cascadeLevel);
+            setLogicalGroupProperty(propertyID, *current.value(), matchedProperties, declarationOrigin);
     }
 
     return hasImportantProperties;
@@ -344,30 +344,30 @@ void PropertyCascade::addPositionTryFallbackProperties()
     // a new cascade origin that lies between the Author Origin and the Animation Origin"
     // https://drafts.csswg.org/css-anchor-position-1/#fallback-rule
     // FIXME: Use own cascade origin. This matters for revert-layer.
-    if (m_maximumCascadeLevel < CascadeLevel::Author)
+    if (m_maximumDeclarationOrigin < DeclarationOrigin::Author)
         return;
 
     // "It is invalid to use !important on the properties in the <declaration-list>."
     // FIXME: "Doing so causes the property it is used on to become invalid."
-    addMatch(*m_positionTryFallbackProperties, CascadeLevel::Author, IsImportant::No);
+    addMatch(*m_positionTryFallbackProperties, DeclarationOrigin::Author, IsImportant::No);
 }
 
-static auto& declarationsForCascadeLevel(const MatchResult& matchResult, CascadeLevel cascadeLevel)
+static auto& declarationsForDeclarationOrigin(const MatchResult& matchResult, DeclarationOrigin declarationOrigin)
 {
-    switch (cascadeLevel) {
-    case CascadeLevel::UserAgent: return matchResult.userAgentDeclarations;
-    case CascadeLevel::User: return matchResult.userDeclarations;
-    case CascadeLevel::Author: return matchResult.authorDeclarations;
+    switch (declarationOrigin) {
+    case DeclarationOrigin::UserAgent: return matchResult.userAgentDeclarations;
+    case DeclarationOrigin::User: return matchResult.userDeclarations;
+    case DeclarationOrigin::Author: return matchResult.authorDeclarations;
     }
     ASSERT_NOT_REACHED();
     return matchResult.authorDeclarations;
 }
 
-bool PropertyCascade::addNormalMatches(CascadeLevel cascadeLevel)
+bool PropertyCascade::addNormalMatches(DeclarationOrigin declarationOrigin)
 {
     bool hasImportant = false;
-    for (auto& matchedDeclarations : declarationsForCascadeLevel(m_matchResult, cascadeLevel))
-        hasImportant |= addMatch(matchedDeclarations, cascadeLevel, IsImportant::No);
+    for (auto& matchedDeclarations : declarationsForDeclarationOrigin(m_matchResult, declarationOrigin))
+        hasImportant |= addMatch(matchedDeclarations, declarationOrigin, IsImportant::No);
 
     return hasImportant;
 }
@@ -381,7 +381,7 @@ static bool hasImportantProperties(const StyleProperties& properties)
     return false;
 }
 
-void PropertyCascade::addImportantMatches(CascadeLevel cascadeLevel)
+void PropertyCascade::addImportantMatches(DeclarationOrigin declarationOrigin)
 {
     struct ImportantMatch {
         unsigned index;
@@ -392,7 +392,7 @@ void PropertyCascade::addImportantMatches(CascadeLevel cascadeLevel)
     Vector<ImportantMatch> importantMatches;
     bool hasMatchesFromOtherScopesOrLayers = false;
 
-    auto& matchedDeclarations = declarationsForCascadeLevel(m_matchResult, cascadeLevel);
+    auto& matchedDeclarations = declarationsForDeclarationOrigin(m_matchResult, declarationOrigin);
 
     for (unsigned i = 0; i < matchedDeclarations.size(); ++i) {
         const MatchedProperties& matchedProperties = matchedDeclarations[i];
@@ -423,7 +423,7 @@ void PropertyCascade::addImportantMatches(CascadeLevel cascadeLevel)
     }
 
     for (auto& match : importantMatches)
-        addMatch(matchedDeclarations[match.index], cascadeLevel, IsImportant::Yes);
+        addMatch(matchedDeclarations[match.index], declarationOrigin, IsImportant::Yes);
 }
 
 void PropertyCascade::sortLogicalGroupPropertyIDs()

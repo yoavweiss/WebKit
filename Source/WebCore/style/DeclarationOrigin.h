@@ -30,25 +30,11 @@
 namespace WebCore {
 namespace Style {
 
-enum class CascadeLevel : uint8_t {
-    UserAgent   = 1 << 0,
-    User        = 1 << 1,
-    Author      = 1 << 2
+enum class DeclarationOrigin : uint8_t {
+    UserAgent,
+    User,
+    Author
 };
-
-inline CascadeLevel& operator--(CascadeLevel& level)
-{
-    switch (level) {
-    case CascadeLevel::Author:
-        return level = CascadeLevel::User;
-    case CascadeLevel::User:
-        return level = CascadeLevel::UserAgent;
-    case CascadeLevel::UserAgent:
-        ASSERT_NOT_REACHED();
-        return level;
-    }
-    RELEASE_ASSERT_NOT_REACHED();
-}
 
 }
 }

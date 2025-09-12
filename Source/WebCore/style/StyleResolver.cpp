@@ -426,7 +426,7 @@ std::unique_ptr<RenderStyle> Resolver::styleForKeyframe(Element& element, const 
         collector.matchUserRules();
     }
     collector.addAuthorKeyframeRules(keyframe);
-    Builder builder(*state.style(), builderContext(state), collector.matchResult(), CascadeLevel::Author);
+    Builder builder(*state.style(), builderContext(state), collector.matchResult(), DeclarationOrigin::Author);
     builder.state().setIsBuildingKeyframeStyle();
     builder.applyAllProperties();
 
@@ -620,7 +620,7 @@ std::unique_ptr<RenderStyle> Resolver::styleForPage(int pageIndex)
 
     auto& result = collector.matchResult();
 
-    Builder builder(*state.style(), builderContext(state), result, CascadeLevel::Author);
+    Builder builder(*state.style(), builderContext(state), result, DeclarationOrigin::Author);
     builder.applyAllProperties();
 
     // Now return the style.
@@ -733,7 +733,7 @@ void Resolver::applyMatchedProperties(State& state, const MatchResult& matchResu
             return;
     }
 
-    Builder builder(style, builderContext(state), matchResult, CascadeLevel::Author, WTFMove(includedProperties));
+    Builder builder(style, builderContext(state), matchResult, DeclarationOrigin::Author, WTFMove(includedProperties));
 
     // Top priority properties may affect resolution of high priority ones.
     builder.applyTopPriorityProperties();

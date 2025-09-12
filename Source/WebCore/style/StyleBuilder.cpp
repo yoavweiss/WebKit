@@ -95,8 +95,8 @@ static auto positionTryFallbackProperties(const BuilderContext& context)
     return context.positionTryFallback ? context.positionTryFallback->properties.get() : nullptr;
 }
 
-Builder::Builder(RenderStyle& style, BuilderContext&& context, const MatchResult& matchResult, CascadeLevel cascadeLevel, PropertyCascade::IncludedProperties&& includedProperties, const HashSet<AnimatableCSSProperty>* animatedPropertes)
-    : m_cascade(matchResult, cascadeLevel, WTFMove(includedProperties), animatedPropertes, positionTryFallbackProperties(context))
+Builder::Builder(RenderStyle& style, BuilderContext&& context, const MatchResult& matchResult, DeclarationOrigin declarationOrigin, PropertyCascade::IncludedProperties&& includedProperties, const HashSet<AnimatableCSSProperty>* animatedPropertes)
+    : m_cascade(matchResult, declarationOrigin, WTFMove(includedProperties), animatedPropertes, positionTryFallbackProperties(context))
     , m_state(style, WTFMove(context))
 {
 }
@@ -276,7 +276,7 @@ inline void Builder::applyCascadeProperty(const PropertyCascade::Property& prope
     auto applyWithLinkMatch = [&](SelectorChecker::LinkMatchMask linkMatch) {
         if (property.cssValue[linkMatch]) {
             SetForScope scopedLinkMatchMutation(m_state.m_linkMatch, linkMatch);
-            applyProperty(property.id, *property.cssValue[linkMatch], linkMatch, property.cascadeLevels[linkMatch]);
+            applyProperty(property.id, *property.cssValue[linkMatch], linkMatch, property.declarationOrigins[linkMatch]);
         }
     };
 
@@ -309,7 +309,7 @@ bool Builder::applyRollbackCascadeProperty(const PropertyCascade& rollbackCascad
 
     if (auto* value = rollbackProperty->cssValue[linkMatchMask]) {
         SetForScope levelScope(m_state.m_currentProperty, rollbackProperty);
-        applyProperty(propertyID, *value, linkMatchMask, rollbackProperty->cascadeLevel);
+        applyProperty(propertyID, *value, linkMatchMask, rollbackProperty->declarationOrigin);
     }
     return true;
 }
@@ -331,7 +331,7 @@ bool Builder::applyRollbackCascadeCustomProperty(const PropertyCascade& rollback
     return true;
 }
 
-void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::LinkMatchMask linkMatchMask, CascadeLevel cascadeLevel)
+void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::LinkMatchMask linkMatchMask, DeclarationOrigin declarationOrigin)
 {
     ASSERT_WITH_MESSAGE(!isShorthand(id), "Shorthand property id = %d wasn't expanded at parsing time", id);
     ASSERT_WITH_MESSAGE(id != CSSPropertyCustom, "Custom property should be handled by applyCustomProperty");
@@ -342,7 +342,7 @@ void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::
     if (CSSProperty::isDirectionAwareProperty(id)) {
         CSSPropertyID newId = CSSProperty::resolveDirectionAwareProperty(id, style.writingMode());
         ASSERT(newId != id);
-        return applyProperty(newId, valueToApply.get(), linkMatchMask, cascadeLevel);
+        return applyProperty(newId, valueToApply.get(), linkMatchMask, declarationOrigin);
     }
 
     if (m_state.positionTryFallback())
@@ -418,7 +418,7 @@ void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::
     BuilderGenerated::applyProperty(id, m_state, valueToApply.get(), valueType);
 
     if (!isRevertOrRevertLayer)
-        m_state.disableNativeAppearanceIfNeeded(id, cascadeLevel);
+        m_state.disableNativeAppearanceIfNeeded(id, declarationOrigin);
 
     if (!isUnset && !isRevertOrRevertLayer && m_state.isCurrentPropertyInvalidAtComputedValueTime()) {
         // https://drafts.csswg.org/css-variables-2/#invalid-variables
@@ -711,15 +711,22 @@ void Builder::applyPageSizeDescriptor(CSSValue& value)
 
 const PropertyCascade* Builder::ensureRollbackCascadeForRevert()
 {
-    auto rollbackCascadeLevel = m_state.m_currentProperty->cascadeLevel;
-    if (rollbackCascadeLevel == CascadeLevel::UserAgent)
+    auto rollbackDeclarationOrigin = m_state.m_currentProperty->declarationOrigin;
+
+    switch (rollbackDeclarationOrigin) {
+    case DeclarationOrigin::Author:
+        rollbackDeclarationOrigin = DeclarationOrigin::User;
+        break;
+    case DeclarationOrigin::User:
+        rollbackDeclarationOrigin = DeclarationOrigin::UserAgent;
+        break;
+    case DeclarationOrigin::UserAgent:
         return nullptr;
+    }
 
-    --rollbackCascadeLevel;
-
-    auto key = makeRollbackCascadeKey(rollbackCascadeLevel);
+    auto key = makeRollbackCascadeKey(rollbackDeclarationOrigin);
     return m_rollbackCascades.ensure(key, [&] {
-        return makeUnique<const PropertyCascade>(m_cascade, rollbackCascadeLevel);
+        return makeUnique<const PropertyCascade>(m_cascade, rollbackDeclarationOrigin);
     }).iterator->value.get();
 }
 
@@ -736,15 +743,15 @@ const PropertyCascade* Builder::ensureRollbackCascadeForRevertLayer()
     if (property.fromStyleAttribute == FromStyleAttribute::No)
         --rollbackLayerPriority;
 
-    auto key = makeRollbackCascadeKey(property.cascadeLevel, property.styleScopeOrdinal, rollbackLayerPriority);
+    auto key = makeRollbackCascadeKey(property.declarationOrigin, property.styleScopeOrdinal, rollbackLayerPriority);
     return m_rollbackCascades.ensure(key, [&] {
-        return makeUnique<const PropertyCascade>(m_cascade, property.cascadeLevel, property.styleScopeOrdinal, rollbackLayerPriority);
+        return makeUnique<const PropertyCascade>(m_cascade, property.declarationOrigin, property.styleScopeOrdinal, rollbackLayerPriority);
     }).iterator->value.get();
 }
 
-auto Builder::makeRollbackCascadeKey(CascadeLevel cascadeLevel, ScopeOrdinal scopeOrdinal, CascadeLayerPriority cascadeLayerPriority) -> RollbackCascadeKey
+auto Builder::makeRollbackCascadeKey(DeclarationOrigin declarationOrigin, ScopeOrdinal scopeOrdinal, CascadeLayerPriority cascadeLayerPriority) -> RollbackCascadeKey
 {
-    return { static_cast<unsigned>(cascadeLevel), static_cast<unsigned>(scopeOrdinal), static_cast<unsigned>(cascadeLayerPriority) };
+    return { static_cast<unsigned>(declarationOrigin), static_cast<unsigned>(scopeOrdinal), static_cast<unsigned>(cascadeLayerPriority) };
 }
 
 }

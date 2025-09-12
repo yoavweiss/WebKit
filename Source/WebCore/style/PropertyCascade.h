@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "CascadeLevel.h"
+#include "DeclarationOrigin.h"
 #include "MatchResult.h"
 #include "WebAnimationTypes.h"
 #include <wtf/BitSet.h>
@@ -65,19 +65,19 @@ public:
 
     static IncludedProperties normalProperties() { return { normalPropertyTypes() }; }
 
-    PropertyCascade(const MatchResult&, CascadeLevel, IncludedProperties&&, const HashSet<AnimatableCSSProperty>* = nullptr, const StyleProperties* positionTryFallbackProperties = nullptr);
-    PropertyCascade(const PropertyCascade&, CascadeLevel, std::optional<ScopeOrdinal> rollbackScope = { }, std::optional<CascadeLayerPriority> maximumCascadeLayerPriorityForRollback = { });
+    PropertyCascade(const MatchResult&, DeclarationOrigin, IncludedProperties&&, const HashSet<AnimatableCSSProperty>* = nullptr, const StyleProperties* positionTryFallbackProperties = nullptr);
+    PropertyCascade(const PropertyCascade&, DeclarationOrigin, std::optional<ScopeOrdinal> rollbackScope = { }, std::optional<CascadeLayerPriority> maximumCascadeLayerPriorityForRollback = { });
 
     ~PropertyCascade();
 
     struct Property {
         CSSPropertyID id;
-        CascadeLevel cascadeLevel;
+        DeclarationOrigin declarationOrigin;
         ScopeOrdinal styleScopeOrdinal;
         CascadeLayerPriority cascadeLayerPriority;
         FromStyleAttribute fromStyleAttribute;
         std::array<CSSValue*, 3> cssValue; // Values for link match states MatchDefault, MatchLink and MatchVisited
-        std::array<CascadeLevel, 3> cascadeLevels;
+        std::array<DeclarationOrigin, 3> declarationOrigins;
     };
 
     bool isEmpty() const { return m_propertyIsPresent.isEmpty() && !m_seenLogicalGroupPropertyCount; }
@@ -104,15 +104,15 @@ public:
 
 private:
     void buildCascade();
-    bool addNormalMatches(CascadeLevel);
-    void addImportantMatches(CascadeLevel);
-    bool addMatch(const MatchedProperties&, CascadeLevel, IsImportant);
+    bool addNormalMatches(DeclarationOrigin);
+    void addImportantMatches(DeclarationOrigin);
+    bool addMatch(const MatchedProperties&, DeclarationOrigin, IsImportant);
     bool shouldApplyAfterAnimation(const StyleProperties::PropertyReference&);
     void addPositionTryFallbackProperties();
 
-    void set(CSSPropertyID, CSSValue&, const MatchedProperties&, CascadeLevel);
-    void setLogicalGroupProperty(CSSPropertyID, CSSValue&, const MatchedProperties&, CascadeLevel);
-    static void setPropertyInternal(Property&, CSSPropertyID, CSSValue&, const MatchedProperties&, CascadeLevel);
+    void set(CSSPropertyID, CSSValue&, const MatchedProperties&, DeclarationOrigin);
+    void setLogicalGroupProperty(CSSPropertyID, CSSValue&, const MatchedProperties&, DeclarationOrigin);
+    static void setPropertyInternal(Property&, CSSPropertyID, CSSValue&, const MatchedProperties&, DeclarationOrigin);
 
     bool hasProperty(CSSPropertyID, const CSSValue&);
     bool mayOverrideExistingProperty(CSSPropertyID, const CSSValue&);
@@ -123,7 +123,7 @@ private:
 
     const MatchResult& m_matchResult;
     const IncludedProperties m_includedProperties;
-    const CascadeLevel m_maximumCascadeLevel;
+    const DeclarationOrigin m_maximumDeclarationOrigin;
     const std::optional<ScopeOrdinal> m_rollbackScope;
     const std::optional<CascadeLayerPriority> m_maximumCascadeLayerPriorityForRollback;
 
