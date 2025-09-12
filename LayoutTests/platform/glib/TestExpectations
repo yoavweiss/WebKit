@@ -26,6 +26,7 @@
 # * Cairo
 # * Clipboard API
 # * Compositing
+# * Cookie
 # * CSS
 # * DOM
 # * Editing
@@ -511,6 +512,8 @@ fast/css/accent-color/radio.html [ Pass ]
 fast/css/accent-color/range.html [ Pass ]
 fast/css/accent-color/text.html [ Pass ]
 
+fast/events/keyboardevent-modifier.html [ Pass ]
+
 # Support for VP9 encoded videos with transparency is only available on ports that use GStreamer.
 # Currently failing due to a different issue below.
 # media/video-with-alpha.html [ Pass ]
@@ -744,6 +747,8 @@ imported/w3c/web-platform-tests/quirks/line-height-in-list-item.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-003.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-004.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-fonts/font-variant-emoji-005.html [ Pass ]
+
+imported/w3c/web-platform-tests/service-workers/service-worker/fetch-audio-tainting.https.html [ Pass ]
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of PASSING tests.
@@ -1002,6 +1007,9 @@ accessibility/youtube-embed-accessibility-hierarchy.html [ Skip ]
 
 accessibility/datetime/input-time-field-labels-and-value-changes.html [ Skip ] # Timeout.
 
+# -webkit-overflow-scrolling (ENABLE_WEBKIT_OVERFLOW_SCROLLING_CSS_PROPERTY) is only for iOS
+fast/repaint/overflow-scroll-touch-repaint.html [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Accessibility-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -1046,6 +1054,19 @@ webkit.org/b/169916 imported/blink/css3/blending/mix-blend-mode-with-squashing-l
 
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of Compositing tests
+#////////////////////////////////////////////////////////////////////////////////////////
+
+
+#////////////////////////////////////////////////////////////////////////////////////////
+# Cookie-related bugs
+#////////////////////////////////////////////////////////////////////////////////////////
+
+http/tests/cookies/same-site/fetch-after-navigating-iframe-in-cross-origin-page.html [ Failure ]
+http/tests/cookies/same-site/fetch-in-cross-origin-service-worker.html [ Failure ]
+http/tests/cookies/same-site/popup-cross-site-post.html [ Failure ]
+
+#////////////////////////////////////////////////////////////////////////////////////////
+# End of Cookie-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1778,6 +1799,9 @@ webkit.org/b/212080 imported/w3c/web-platform-tests/mathml/presentation-markup/t
 imported/w3c/web-platform-tests/mathml/relations/css-styling/lengths-1.html [ ImageOnlyFailure ]
 imported/w3c/web-platform-tests/mathml/relations/css-styling/lengths-2.html [ Skip ]
 
+webkit.org/b/212080 mathml/presentation/href-enter.html [ ImageOnlyFailure ]
+webkit.org/b/212080 mathml/presentation/href-style.html [ ImageOnlyFailure ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of MathML-related bugs
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -1956,6 +1980,9 @@ webkit.org/b/95530 http/tests/security/inactive-document-with-empty-security-ori
 
 # CSP extensions are not available
 http/tests/security/contentSecurityPolicy/extensions/ [ Skip ]
+
+# Not supported on this platform.
+security/contentSecurityPolicy/plugins-types-allows-youtube-plugin-replacement.html [ Skip ]
 
 # Sometimes there's an extra error message:
 # - [Report Only] Refused to connect to http://localhost:8000/security/contentSecurityPolicy/resources/echo-report.py
@@ -3486,6 +3513,16 @@ dom/xsl/lockdown-mode [ Skip ]
 http/tests/lockdown-mode [ Skip ]
 js/dom/lockdown-mode [ Skip ]
 
+# Feature disabled, see: https://bugs.webkit.org/show_bug.cgi?id=85425
+webkit.org/b/98925 fast/viewport/viewport-legacy-handheldfriendly.html [ Skip ]
+webkit.org/b/98925 fast/viewport/viewport-legacy-mobileoptimized-2.html [ Skip ]
+webkit.org/b/98925 fast/viewport/viewport-legacy-mobileoptimized-3.html [ Skip ]
+webkit.org/b/98925 fast/viewport/viewport-legacy-mobileoptimized.html [ Skip ]
+webkit.org/b/98925 fast/viewport/viewport-legacy-ordering-5.html [ Skip ]
+webkit.org/b/98925 fast/viewport/viewport-legacy-ordering-6.html [ Skip ]
+webkit.org/b/98925 fast/viewport/viewport-legacy-xhtmlmp-remove-and-add.html [ Skip ]
+webkit.org/b/98925 fast/viewport/viewport-legacy-xhtmlmp.html [ Skip ]
+
 #////////////////////////////////////////////////////////////////////////////////////////
 # End of UNSUPPORTED tests.
 #////////////////////////////////////////////////////////////////////////////////////////
@@ -3502,8 +3539,6 @@ webkit.org/b/214455 imported/w3c/web-platform-tests/css/css-color-adjust/renderi
 webkit.org/b/264570 imported/w3c/web-platform-tests/css/css-flexbox/intrinsic-size/row-use-cases-001.html [ Failure ]
 
 webkit.org/b/264571 imported/w3c/web-platform-tests/css/css-lists/parsing/list-style-computed.sub.html [ Failure ]
-
-webkit.org/b/264572 imported/w3c/web-platform-tests/css/css-masking/clip-path/clip-path-descendant-text-mutated-001.html [ ImageOnlyFailure ]
 
 webkit.org/b/264573 imported/w3c/web-platform-tests/css/css-position/sticky/position-sticky-fixed-ancestor.html [ Pass ImageOnlyFailure ]
 
@@ -4445,7 +4480,6 @@ webkit.org/b/156148 svg/custom/glyph-selection-lang-attribute.svg [ Failure ]
 webkit.org/b/156148 svg/text/kerning.svg [ Failure ]
 webkit.org/b/156148 svg/text/multichar-glyph.svg [ Failure ]
 webkit.org/b/156148 svg/text/text-hkern.svg [ Failure ]
-webkit.org/b/156148 svg/text/text-overflow-ellipsis-svgfont-kerning-ligatures.html [ Failure ]
 webkit.org/b/156148 svg/text/text-text-04-t.svg [ Failure ]
 webkit.org/b/156148 svg/text/text-text-06-t.svg [ Failure ]
 webkit.org/b/156148 svg/text/text-vkern.svg [ Failure ]
@@ -4650,8 +4684,6 @@ webkit.org/b/210374 http/tests/media/user-gesture-preserved-across-xmlhttpreques
 
 webkit.org/b/213331 imported/w3c/web-platform-tests/webaudio/the-audio-api/the-mediaelementaudiosourcenode-interface/mediaElementAudioSourceToScriptProcessorTest.html [ Failure ]
 
-webkit.org/b/213508 [ Debug ] imported/w3c/web-platform-tests/service-workers/service-worker/fetch-audio-tainting.https.html [ Crash Pass ]
-
 webkit.org/b/213783 webanimations/accelerated-animation-with-easing.html [ Failure Pass ]
 
 # Seek on live streams not implemented.
@@ -4692,6 +4724,12 @@ fast/text/user-installed-fonts/system-ui.html [ Skip ]
 # This feature is only enabled on Mac and iOS right now.
 contentfiltering/ [ Skip ]
 http/tests/contentfiltering/ [ Skip ]
+
+# Only applicable on platforms with dark mode support
+editing/pasteboard/paste-dark-mode-color-filtered.html [ Pass ]
+fast/forms/number/number-dark-appearance.html [ Pass ]
+fast/loader/plain-text-document-dark-mode.html [ Pass ]
+inspector/css/overrideUserPreferenceMatchedStyles.html [ Pass ]
 
 css-dark-mode [ Pass ]
 css-dark-mode/older-systems [ Skip ]

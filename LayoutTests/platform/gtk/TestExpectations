@@ -22,37 +22,6 @@ editing/pasteboard/gtk [ Pass ]
 fast/scrolling/gtk [ Pass ]
 swipe [ Pass ]
 
-ietestcenter/css3/flexbox/flexbox-layout-001.htm [ Pass ]
-
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-embed-element/embed-represent-nothing-02.html [ Pass ]
-imported/w3c/web-platform-tests/html/semantics/embedded-content/the-area-element/area-coords.html [ Pass ]
-
-webkit.org/b/155132 http/tests/security/contentSecurityPolicy/video-with-https-url-allowed-by-csp-media-src-star.html [ Pass ]
-security/contentSecurityPolicy/plugins-types-allows-youtube-plugin-replacement.html [ Failure ]
-
-webkit.org/b/175290 imported/w3c/web-platform-tests/css/css-ui/text-overflow-005.html [ Pass ]
-
-webkit.org/b/191506 fast/css-grid-layout/grid-item-scroll-position.html [ Pass ]
-
-fast/loader/plain-text-document-dark-mode.html [ Pass ]
-
-imported/w3c/web-platform-tests/css/css-multicol/multicol-width-ch-001.xht [ Pass ]
-
-fast/events/keyboardevent-modifier.html [ Pass ]
-
-# PointerEvents not enabled globally, but enabled for GTK (EXPERIMENTAL_FEATURES)
-pointerevents/mouse [ Pass ]
-
-http/tests/cookies/same-site [ Pass ]
-
-imported/w3c/web-platform-tests/service-workers/service-worker/fetch-audio-tainting.https.html [ Pass ]
-
-imported/w3c/web-platform-tests/css/css-masking/clip-path/clip-path-descendant-text-mutated-001.html [ Pass ]
-
-webkit.org/b/256310 imported/w3c/web-platform-tests/css/css-fonts/parsing/font-face-src-tech.html [ Skip ]
-
-imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-composited-scrolling-006.html [ Pass ]
-imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-to-sticky-001.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-to-sticky-003.html [ Pass ]
 imported/w3c/web-platform-tests/css/css-anchor-position/anchor-scroll-to-sticky-004.html [ Pass ]
 
@@ -88,8 +57,6 @@ webkit.org/b/235941 accessibility/gtk/text-at-offset-embedded-objects.html [ Fai
 webkit.org/b/235941 accessibility/gtk/text-at-offset-special-chars.html [ Failure ]
 webkit.org/b/235941 accessibility/gtk/caret-offsets.html [ Timeout ]
 
-# CSS
-webkit.org/b/216161 imported/w3c/web-platform-tests/css/css-pseudo/text-selection.html [ Failure Pass ]
 # Scrollbar displays are different.
 webkit.org/b/266349 imported/w3c/web-platform-tests/css/css-contain/contain-size-block-003.html [ ImageOnlyFailure ]
 webkit.org/b/266349 imported/w3c/web-platform-tests/css/css-contain/contain-size-inline-block-003.html [ ImageOnlyFailure ]
@@ -102,18 +69,8 @@ webkit.org/b/285993 imported/w3c/web-platform-tests/html/canvas/offscreen/manual
 # Times out, possibly missing automation:
 webkit.org/b/214677 imported/w3c/web-platform-tests/event-timing/interactionid-auxclick.html [ Skip ]
 
-# GStreamer - GTK-Only. Most GStreamer issues probably will go in the glib expectations
-webkit.org/b/210528 media/video-supports-fullscreen.html [ Pass ]
-
 # Media controls
 accessibility/gtk/media-controls-panel-title.html [ Failure ]
-
-# MESA-related segfault
-webkit.org/b/216777 imported/w3c/web-platform-tests/css/css-text/writing-system/writing-system-segment-break-001.html [ ImageOnlyFailure Crash ]
-
-# Navigation
-webkit.org/b/218349 mathml/presentation/href-enter.html [ ImageOnlyFailure ]
-webkit.org/b/218349 mathml/presentation/href-style.html [ ImageOnlyFailure ]
 
 # WebInspector.
 webkit.org/b/217966 [ Release ] inspector/console/queryHolders.html [ Failure Timeout ]
@@ -134,12 +91,6 @@ webkit.org/b/254733 inspector/canvas/shaderProgram-add-remove-webgl.html [ Failu
 
 # Crash on EWS bot.
 webrtc/vp8-then-h264-gpu-process-crash.html [ Skip ]
-
-# ARIA description needs to be supported on GTK.
-accessibility/aria-description.html [ Skip ]
-
-# default ARIA for custom elements tests that timeout in GTK:
-accessibility/custom-elements/modal.html [ Skip ]
 
 #//////////////////////////////////////////////////////////////////////////////////////////
 # End of Triaged Expectations
@@ -196,29 +147,8 @@ accessibility/custom-elements/modal.html [ Skip ]
 # 2. EXPECTED FAILURES
 #////////////////////////////////////////////////////////////////////////////////////////
 
-# Accelerated overflow scrolling (ENABLE_ACCELERATED_OVERFLOW_SCROLLING) is not enabled.
-Bug(GTK) fast/repaint/overflow-scroll-touch-repaint.html [ Skip ]
-
-# Feature disabled, see: https://bugs.webkit.org/show_bug.cgi?id=85425
-webkit.org/b/98925 fast/viewport/viewport-legacy-handheldfriendly.html [ Skip ]
-webkit.org/b/98925 fast/viewport/viewport-legacy-mobileoptimized-2.html [ Skip ]
-webkit.org/b/98925 fast/viewport/viewport-legacy-mobileoptimized-3.html [ Skip ]
-webkit.org/b/98925 fast/viewport/viewport-legacy-mobileoptimized.html [ Skip ]
-webkit.org/b/98925 fast/viewport/viewport-legacy-ordering-5.html [ Skip ]
-webkit.org/b/98925 fast/viewport/viewport-legacy-ordering-6.html [ Skip ]
-webkit.org/b/98925 fast/viewport/viewport-legacy-xhtmlmp-remove-and-add.html [ Skip ]
-webkit.org/b/98925 fast/viewport/viewport-legacy-xhtmlmp.html [ Skip ]
-
 # WebKitGTK+ uses different keyboard accelerators than Safari (via Chromium).
 fast/events/option-tab.html [ WontFix Failure ]
-
-# Mac Safari under certain circumstances automatically places
-# a caret in editable document even when none was requested programatically.
-editing/selection/designmode-no-caret.html [ Skip ]
-
-# https://bugs.webkit.org/show_bug.cgi?id=81697 Skip file:// based notifications tests
-fast/history/page-cache-notification-showing.html
-fast/history/page-cache-notification-suspendable.html
 
 # UI pickers are not implemented for date and time inputs.
 webkit.org/b/224924 fast/forms/date/date-show-hide-picker.html [ Skip ]
@@ -1673,10 +1603,6 @@ webkit.org/b/278719 imported/w3c/web-platform-tests/touch-events/touch-globaleve
 
 fast/text/simple-line-layout-hyphenation-constrains.html [ ImageOnlyFailure ]
 editing/spelling/spelling-marker-includes-hyphen.html [ ImageOnlyFailure ]
-
-http/tests/cookies/same-site/fetch-after-navigating-iframe-in-cross-origin-page.html [ Failure ]
-http/tests/cookies/same-site/fetch-in-cross-origin-service-worker.html [ Failure ]
-http/tests/cookies/same-site/popup-cross-site-post.html [ Failure ]
 
 imported/w3c/web-platform-tests/css/css-view-transitions/element-is-grouping-during-animation.html [ ImageOnlyFailure Pass ]
 
