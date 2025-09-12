@@ -363,6 +363,7 @@ messages -> WebPageProxy {
 #endif
 #if USE(AUTOMATIC_TEXT_REPLACEMENT)
     toggleSmartInsertDelete()
+    toggleSmartLists()
     toggleAutomaticQuoteSubstitution()
     toggleAutomaticLinkDetection()
     toggleAutomaticDashSubstitution()

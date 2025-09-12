@@ -3340,6 +3340,35 @@ void WebViewImpl::toggleAutomaticTextReplacement()
     m_page->protectedLegacyMainFrameProcess()->updateTextCheckerState();
 }
 
+bool WebViewImpl::isSmartListsEnabled()
+{
+    if (!m_page->protectedPreferences()->smartListsEnabled() || !isEditable())
+        return false;
+
+    return TextChecker::state().contains(TextCheckerState::SmartListsEnabled);
+}
+
+void WebViewImpl::setSmartListsEnabled(bool flag)
+{
+    if (!m_page->protectedPreferences()->smartListsEnabled() || !isEditable())
+        return;
+
+    if (flag == TextChecker::state().contains(TextCheckerState::SmartListsEnabled))
+        return;
+
+    TextChecker::setSmartListsEnabled(flag);
+    m_page->protectedLegacyMainFrameProcess()->updateTextCheckerState();
+}
+
+void WebViewImpl::toggleSmartLists()
+{
+    if (!m_page->protectedPreferences()->smartListsEnabled() || !isEditable())
+        return;
+
+    TextChecker::setSmartListsEnabled(!TextChecker::state().contains(TextCheckerState::SmartListsEnabled));
+    m_page->protectedLegacyMainFrameProcess()->updateTextCheckerState();
+}
+
 void WebViewImpl::uppercaseWord()
 {
     m_page->uppercaseWord();

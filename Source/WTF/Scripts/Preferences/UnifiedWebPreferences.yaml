@@ -7344,6 +7344,20 @@ SmartInsertDeleteEnabled:
     WebCore:
       default: true
 
+SmartListsEnabled:
+  type: bool
+  status: embedder
+  category: dom
+  humanReadableName: "Smart Lists"
+  humanReadableDescription: "Enable Smart Lists"
+  defaultValue:
+    WebKit:
+      default: false
+    WebKitLegacy:
+      default: false
+    WebCore:
+      default: false
+
 SourceBufferChangeTypeEnabled:
   type: bool
   status: embedder

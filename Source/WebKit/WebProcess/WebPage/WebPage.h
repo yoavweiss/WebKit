@@ -1308,6 +1308,9 @@ public:
     bool isSmartInsertDeleteEnabled();
     void setSmartInsertDeleteEnabled(bool);
 
+    bool isSmartListsEnabled();
+    void setSmartListsEnabled(bool);
+
     bool isWebTransportEnabled() const;
 
     bool isSelectTrailingWhitespaceEnabled() const;

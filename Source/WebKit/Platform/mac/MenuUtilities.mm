@@ -222,6 +222,7 @@ static std::optional<SymbolNameWithType> symbolNameWithTypeForAction(const WebCo
     case WebCore::ContextMenuItemTagSmartCopyPaste:
     case WebCore::ContextMenuItemTagSmartDashes:
     case WebCore::ContextMenuItemTagSmartLinks:
+    case WebCore::ContextMenuItemTagSmartLists:
     case WebCore::ContextMenuItemTagSmartQuotes:
     case WebCore::ContextMenuItemTagSpeechMenu:
     case WebCore::ContextMenuItemTagSpellingGuess:

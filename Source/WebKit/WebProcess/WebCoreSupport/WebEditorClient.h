@@ -142,6 +142,8 @@ private:
     bool isAutomaticLinkDetectionEnabled() final;
     void toggleAutomaticLinkDetection() final;
     bool isAutomaticDashSubstitutionEnabled() final;
+    bool isSmartListsEnabled() final;
+    void toggleSmartLists() final;
     void toggleAutomaticDashSubstitution() final;
     bool isAutomaticTextReplacementEnabled() final;
     void toggleAutomaticTextReplacement() final;

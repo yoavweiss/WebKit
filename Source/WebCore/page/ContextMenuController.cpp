@@ -614,6 +614,9 @@ void ContextMenuController::contextMenuItemSelected(ContextMenuAction action, co
     case ContextMenuItemTagSmartLinks:
         frame->protectedEditor()->toggleAutomaticLinkDetection();
         break;
+    case ContextMenuItemTagSmartLists:
+        frame->protectedEditor()->toggleSmartLists();
+        break;
     case ContextMenuItemTagTextReplacement:
         frame->protectedEditor()->toggleAutomaticTextReplacement();
         break;
@@ -865,12 +868,17 @@ void ContextMenuController::createAndAppendSubstitutionsSubMenu(ContextMenuItem&
     ContextMenuItem smartQuotes(ContextMenuItemType::CheckableAction, ContextMenuItemTagSmartQuotes, contextMenuItemTagSmartQuotes());
     ContextMenuItem smartDashes(ContextMenuItemType::CheckableAction, ContextMenuItemTagSmartDashes, contextMenuItemTagSmartDashes());
     ContextMenuItem smartLinks(ContextMenuItemType::CheckableAction, ContextMenuItemTagSmartLinks, contextMenuItemTagSmartLinks());
+    ContextMenuItem smartLists(ContextMenuItemType::CheckableAction, ContextMenuItemTagSmartLists, contextMenuItemTagSmartLists());
     ContextMenuItem textReplacement(ContextMenuItemType::CheckableAction, ContextMenuItemTagTextReplacement, contextMenuItemTagTextReplacement());
 
     appendItem(showSubstitutions, &substitutionsMenu);
     appendItem(*separatorItem(), &substitutionsMenu);
     appendItem(smartCopyPaste, &substitutionsMenu);
     appendItem(smartQuotes, &substitutionsMenu);
+
+    if (m_page->settings().smartListsEnabled() && m_page->isEditable())
+        appendItem(smartLists, &substitutionsMenu);
+
     appendItem(smartDashes, &substitutionsMenu);
     appendItem(smartLinks, &substitutionsMenu);
     appendItem(textReplacement, &substitutionsMenu);
@@ -1671,6 +1679,9 @@ void ContextMenuController::checkOrEnableIfNeeded(ContextMenuItem& item) const
             break;
         case ContextMenuItemTagSmartDashes:
             shouldCheck = frame->editor().isAutomaticDashSubstitutionEnabled();
+            break;
+        case ContextMenuItemTagSmartLists:
+            shouldCheck = frame->editor().isSmartListsEnabled();
             break;
         case ContextMenuItemTagSmartLinks:
             shouldCheck = frame->editor().isAutomaticLinkDetectionEnabled();

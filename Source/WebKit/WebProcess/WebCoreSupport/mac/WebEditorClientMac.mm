@@ -194,6 +194,20 @@ void WebEditorClient::toggleAutomaticTextReplacement()
         page->send(Messages::WebPageProxy::toggleAutomaticTextReplacement());
 }
 
+bool WebEditorClient::isSmartListsEnabled()
+{
+    if (RefPtr page = m_page.get(); page && page->isControlledByAutomation())
+        return false;
+
+    return WebProcess::singleton().textCheckerState().contains(TextCheckerState::SmartListsEnabled);
+}
+
+void WebEditorClient::toggleSmartLists()
+{
+    if (RefPtr page = m_page.get())
+        page->send(Messages::WebPageProxy::toggleSmartLists());
+}
+
 bool WebEditorClient::isAutomaticSpellingCorrectionEnabled()
 {
     if (RefPtr page = m_page.get(); page && page->isControlledByAutomation())

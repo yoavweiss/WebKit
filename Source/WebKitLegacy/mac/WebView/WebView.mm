@@ -8186,6 +8186,15 @@ static NSAppleEventDescriptor* aeDescFromJSValue(JSC::JSGlobalObject* lexicalGlo
     [self setAutomaticSpellingCorrectionEnabled:![self isAutomaticSpellingCorrectionEnabled]];
 }
 
+- (BOOL)isSmartListsEnabled
+{
+    return NO;
+}
+
+- (void)setSmartListsEnabled:(BOOL)flag
+{
+}
+
 #endif // !PLATFORM(IOS_FAMILY)
 
 @end

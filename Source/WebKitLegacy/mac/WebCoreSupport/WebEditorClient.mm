@@ -579,6 +579,15 @@ void WebEditorClient::toggleAutomaticSpellingCorrection()
     [m_webView toggleAutomaticSpellingCorrection:nil];
 }
 
+bool WebEditorClient::isSmartListsEnabled()
+{
+    return false;
+}
+
+void WebEditorClient::toggleSmartLists()
+{
+}
+
 #endif // USE(AUTOMATIC_TEXT_REPLACEMENT)
 
 bool WebEditorClient::shouldInsertNode(Node& node, const std::optional<SimpleRange>& replacingRange, EditorInsertAction givenAction)

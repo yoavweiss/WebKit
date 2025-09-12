@@ -10535,6 +10535,11 @@ void WebPageProxy::contextMenuItemSelected(const WebContextMenuItemData& item, c
             protectedLegacyMainFrameProcess()->updateTextCheckerState();
         return;
 
+    case ContextMenuItemTagSmartLists:
+        TextChecker::setSmartListsEnabled(!TextChecker::state().contains(TextCheckerState::SmartListsEnabled));
+        protectedLegacyMainFrameProcess()->updateTextCheckerState();
+        return;
+
     case ContextMenuItemTagTextReplacement:
         TextChecker::setAutomaticTextReplacementEnabled(!TextChecker::state().contains(TextCheckerState::AutomaticTextReplacementEnabled));
             protectedLegacyMainFrameProcess()->updateTextCheckerState();
@@ -13542,6 +13547,12 @@ void WebPageProxy::toggleAutomaticDashSubstitution()
 {
     if (TextChecker::isTestingMode())
         TextChecker::setAutomaticDashSubstitutionEnabled(!TextChecker::state().contains(TextCheckerState::AutomaticDashSubstitutionEnabled));
+}
+
+void WebPageProxy::toggleSmartLists()
+{
+    if (TextChecker::isTestingMode())
+        TextChecker::setSmartListsEnabled(!TextChecker::state().contains(TextCheckerState::SmartListsEnabled));
 }
 
 void WebPageProxy::toggleAutomaticTextReplacement()

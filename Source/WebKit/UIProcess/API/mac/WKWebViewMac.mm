@@ -513,6 +513,21 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
     _impl->toggleAutomaticTextReplacement();
 }
 
+- (BOOL)isSmartListsEnabled
+{
+    return _impl->isSmartListsEnabled();
+}
+
+- (void)setSmartListsEnabled:(BOOL)flag
+{
+    _impl->setSmartListsEnabled(flag);
+}
+
+- (void)toggleSmartLists:(id)sender
+{
+    _impl->toggleSmartLists();
+}
+
 - (void)uppercaseWord:(id)sender
 {
     _impl->uppercaseWord();

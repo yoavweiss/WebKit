@@ -1990,6 +1990,17 @@ void Editor::toggleAutomaticSpellingCorrection()
         client()->toggleAutomaticSpellingCorrection();
 }
 
+bool Editor::isSmartListsEnabled()
+{
+    return client() && client()->isSmartListsEnabled();
+}
+
+void Editor::toggleSmartLists()
+{
+    if (client())
+        client()->toggleSmartLists();
+}
+
 #endif
 
 bool Editor::shouldEndEditing(const SimpleRange& range)

@@ -3143,6 +3143,7 @@ private:
 
 #if USE(AUTOMATIC_TEXT_REPLACEMENT)
     void toggleSmartInsertDelete();
+    void toggleSmartLists();
     void toggleAutomaticQuoteSubstitution();
     void toggleAutomaticLinkDetection();
     void toggleAutomaticDashSubstitution();

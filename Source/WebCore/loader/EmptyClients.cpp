@@ -370,6 +370,8 @@ private:
     void toggleAutomaticTextReplacement() final { }
     bool isAutomaticSpellingCorrectionEnabled() final { return false; }
     void toggleAutomaticSpellingCorrection() final { }
+    bool isSmartListsEnabled() final { return false; }
+    void toggleSmartLists() { }
 #endif
 
 #if PLATFORM(GTK)
