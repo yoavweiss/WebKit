@@ -119,7 +119,7 @@ MacroAssemblerCodeRef<JITThunkPtrTag> materializeBaselineDataGenerator(const Abs
     for (auto regs : wasmCallingConvention().jsrArgs)
         builder.add(regs, IgnoreVectors);
     for (auto reg : wasmCallingConvention().fprArgs)
-        builder.add(reg, Width128);
+        builder.add(reg, Options::useWasmSIMD() ? Width128 : Width64);
 
     auto registersToSpill = RegisterSetBuilder::registersToSaveForCCall(builder.buildWithLowerBits()).buildWithLowerBits();
     unsigned numberOfStackBytesUsedForRegisterPreservation = ScratchRegisterAllocator::preserveRegistersToStackForCall(jit, registersToSpill, extraPaddingBytes);
