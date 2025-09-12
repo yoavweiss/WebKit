@@ -28,6 +28,7 @@
 
 #include "FEGaussianBlurSoftwareApplier.h"
 #include "Filter.h"
+#include "GraphicsContext.h"
 #include <numbers>
 #include <wtf/text/TextStream.h>
 
@@ -186,9 +187,17 @@ std::unique_ptr<FilterEffectApplier> FEGaussianBlur::createSoftwareApplier() con
     return FilterEffectApplier::create<FEGaussianBlurSoftwareApplier>(*this);
 }
 
-std::optional<GraphicsStyle> FEGaussianBlur::createGraphicsStyle(GraphicsContext&, const Filter& filter) const
+std::optional<GraphicsStyle> FEGaussianBlur::createGraphicsStyle(GraphicsContext& context, const Filter& filter) const
 {
-    auto radius = calculateKernelSize(filter, { m_stdX, m_stdY });
+#if PLATFORM(COCOA) && !HAVE(FIX_FOR_RADAR_160309842)
+    if (context.renderingMode() == RenderingMode::Accelerated) {
+        auto radius = calculateKernelSize(filter, { m_stdX, m_stdY });
+        return GraphicsGaussianBlur { radius };
+    }
+#else
+    UNUSED_PARAM(context);
+#endif
+    auto radius = calculateUnscaledKernelSize(filter.resolvedSize({ m_stdX, m_stdY }));
     return GraphicsGaussianBlur { radius };
 }
 
