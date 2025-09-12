@@ -488,9 +488,6 @@ size_t Device::enumerateFeatures(WGPUFeatureName* features)
 
 bool Device::getLimits(WGPUSupportedLimits& limits)
 {
-    if (limits.nextInChain != nullptr)
-        return false;
-
     limits.limits = m_capabilities.limits;
     return true;
 }

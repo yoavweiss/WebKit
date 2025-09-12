@@ -100,7 +100,7 @@ static MTLStoreAction storeAction(WGPUStoreOp storeOp, bool hasResolveTarget = f
 
 Ref<CommandEncoder> Device::createCommandEncoder(const WGPUCommandEncoderDescriptor& descriptor)
 {
-    if (descriptor.nextInChain || !isValid())
+    if (!isValid())
         return CommandEncoder::createInvalid(*this);
 
     captureFrameIfNeeded();
@@ -258,9 +258,6 @@ Ref<ComputePassEncoder> CommandEncoder::beginComputePass(const WGPUComputePassDe
     if (isWebGPUSwiftEnabled())
         return CommandEncoder_beginComputePass_thunk(this, descriptor);
 #endif
-
-    if (descriptor.nextInChain)
-        return ComputePassEncoder::createInvalid(*this, m_device, @"descriptor is corrupted");
 
     if (!prepareTheEncoderState()) {
         GENERATE_INVALID_ENCODER_STATE_ERROR();
@@ -1056,9 +1053,6 @@ void CommandEncoder::copyBufferToTexture(const WGPUImageCopyBuffer& source, cons
     }
 #endif
 
-    if (source.nextInChain || source.layout.nextInChain || destination.nextInChain)
-        return;
-
     // https://gpuweb.github.io/gpuweb/#dom-gpucommandencoder-copybuffertotexture
 
     if (!prepareTheEncoderState()) {
@@ -1172,9 +1166,7 @@ void CommandEncoder::copyBufferToTexture(const WGPUImageCopyBuffer& source, cons
                 if (tripleSum.hasOverflowed())
                     return;
                 WGPUImageCopyBuffer newSource {
-                    .nextInChain = nullptr,
                     .layout = WGPUTextureDataLayout {
-                        .nextInChain = nullptr,
                         .offset = tripleSum.value(),
                         .bytesPerRow = WGPU_COPY_STRIDE_UNDEFINED,
                         .rowsPerImage = WGPU_COPY_STRIDE_UNDEFINED,
@@ -1185,7 +1177,6 @@ void CommandEncoder::copyBufferToTexture(const WGPUImageCopyBuffer& source, cons
                 if (destinationOriginPlusY.hasOverflowed())
                     return;
                 WGPUImageCopyTexture newDestination {
-                    .nextInChain = nullptr,
                     .texture = destination.texture,
                     .mipLevel = destination.mipLevel,
                     .origin = { .x = destination.origin.x, .y = destinationOriginPlusY.value(), .z = destinationOriginPlusZ.value() },
@@ -1588,9 +1579,6 @@ void CommandEncoder::copyTextureToBuffer(const WGPUImageCopyTexture& source, con
     }
 #endif
 
-    if (source.nextInChain || destination.nextInChain || destination.layout.nextInChain)
-        return;
-
     // https://gpuweb.github.io/gpuweb/#dom-gpucommandencoder-copytexturetobuffer
 
     if (!prepareTheEncoderState()) {
@@ -1680,7 +1668,6 @@ void CommandEncoder::copyTextureToBuffer(const WGPUImageCopyTexture& source, con
                 if (yPlusOriginY.hasOverflowed() || yTimesDestinationBytesPerImage.hasOverflowed())
                     return;
                 WGPUImageCopyTexture newSource {
-                    .nextInChain = nullptr,
                     .texture = source.texture,
                     .mipLevel = source.mipLevel,
                     .origin = { .x = source.origin.x, .y = yPlusOriginY, .z = zPlusOriginZ },
@@ -1690,9 +1677,7 @@ void CommandEncoder::copyTextureToBuffer(const WGPUImageCopyTexture& source, con
                 if (tripleSum.hasOverflowed())
                     return;
                 WGPUImageCopyBuffer newDestination {
-                    .nextInChain = nullptr,
                     .layout = WGPUTextureDataLayout {
-                        .nextInChain = nullptr,
                         .offset = tripleSum.value(),
                         .bytesPerRow = WGPU_COPY_STRIDE_UNDEFINED,
                         .rowsPerImage = WGPU_COPY_STRIDE_UNDEFINED,
@@ -1916,9 +1901,6 @@ void CommandEncoder::copyTextureToTexture(const WGPUImageCopyTexture& source, co
         return;
     }
 #endif
-
-    if (source.nextInChain || destination.nextInChain)
-        return;
 
     // https://gpuweb.github.io/gpuweb/#dom-gpucommandencoder-copytexturetotexture
 
@@ -2159,7 +2141,7 @@ Ref<CommandBuffer> CommandEncoder::finish(const WGPUCommandBufferDescriptor& des
         return CommandEncoder_finish_thunk(this, descriptor);
 #endif
 
-    if (descriptor.nextInChain || !isValid() || (m_existingCommandEncoder && m_existingCommandEncoder != m_blitCommandEncoder)) {
+    if (!isValid() || (m_existingCommandEncoder && m_existingCommandEncoder != m_blitCommandEncoder)) {
         m_state = EncoderState::Ended;
         discardCommandBuffer();
         protectedDevice()->generateAValidationError(m_lastErrorString ?: @"Invalid CommandEncoder.");

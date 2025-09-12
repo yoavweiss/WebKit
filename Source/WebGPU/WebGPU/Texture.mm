@@ -2910,7 +2910,7 @@ static MTLStorageMode storageMode(bool deviceHasUnifiedMemory, bool supportsNonP
 
 Ref<Texture> Device::createTexture(const WGPUTextureDescriptor& descriptor)
 {
-    if (descriptor.nextInChain || !isValid())
+    if (!isValid())
         return Texture::createInvalid(*this);
 
     // https://gpuweb.github.io/gpuweb/#dom-gpudevice-createtexture
@@ -3249,7 +3249,7 @@ Ref<TextureView> Texture::createView(const WGPUTextureViewDescriptor& inputDescr
 {
     auto device = m_device;
 
-    if (inputDescriptor.nextInChain || m_destroyed)
+    if (m_destroyed)
         return TextureView::createInvalid(*this, device.get());
 
     // https://gpuweb.github.io/gpuweb/#dom-gputexture-createview

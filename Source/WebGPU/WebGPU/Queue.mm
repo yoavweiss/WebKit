@@ -729,7 +729,7 @@ bool Queue::writeWillCompletelyClear(WGPUTextureDimension textureDimension, uint
 void Queue::writeTexture(const WGPUImageCopyTexture& destination, std::span<uint8_t> data, const WGPUTextureDataLayout& dataLayout, const WGPUExtent3D& size, bool skipValidation)
 {
     auto device = m_device.get();
-    if (destination.nextInChain || dataLayout.nextInChain || !device)
+    if (!device)
         return;
 
     // https://gpuweb.github.io/gpuweb/#dom-gpuqueue-writetexture
@@ -844,7 +844,6 @@ void Queue::writeTexture(const WGPUImageCopyTexture& destination, std::span<uint
 
         if (textureDimension != WGPUTextureDimension_1D && (heightForMetal > newSize.height || depthForMetal > newSize.depthOrArrayLayers)) {
             WGPUTextureDataLayout newDataLayout {
-                .nextInChain = nullptr,
                 .offset = 0,
                 .bytesPerRow = std::min<uint32_t>(maxRowBytes, dataLayout.bytesPerRow),
                 .rowsPerImage = newSize.height
