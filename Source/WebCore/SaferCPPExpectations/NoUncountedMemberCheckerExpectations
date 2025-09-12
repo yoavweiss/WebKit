@@ -27,7 +27,6 @@ css/values/primitives/CSSPrimitiveData.h
 dom/CollectionIndexCache.h
 dom/Node.cpp
 dom/Node.h
-dom/QualifiedName.h
 dom/TreeScope.h
 editing/cocoa/NodeHTMLConverter.mm
 html/FormListedElement.cpp
