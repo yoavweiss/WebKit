@@ -522,7 +522,6 @@ inspector/InspectorCanvas.h
 inspector/InspectorCanvasCallTracer.cpp
 inspector/InspectorController.cpp
 inspector/InspectorFrontendAPIDispatcher.cpp
-inspector/InspectorFrontendClientLocal.cpp
 inspector/InspectorFrontendHost.cpp
 inspector/InspectorInstrumentation.cpp
 inspector/InspectorInstrumentation.h
