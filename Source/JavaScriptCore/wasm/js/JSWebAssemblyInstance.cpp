@@ -686,7 +686,27 @@ void JSWebAssemblyInstance::tableInit(uint32_t dstOffset, uint32_t srcOffset, ui
 void JSWebAssemblyInstance::setTable(unsigned i, Ref<Table>&& table)
 {
     ASSERT(!this->table(i));
+    // table0 has special handling for optimization.
+    bool update = false;
+    if (!i) {
+        if (auto* funcTable = table->asFuncrefTable()) {
+            funcTable->registerInstance(*this);
+            update = true;
+        }
+    }
     tables()[i] = WTFMove(table);
+    if (update)
+        updateCachedTable0();
+}
+
+void JSWebAssemblyInstance::updateCachedTable0()
+{
+    RefPtr table0 = this->table(0);
+    ASSERT(table0);
+    RefPtr funcTable = table0->asFuncrefTable();
+    ASSERT(funcTable);
+    m_cachedTable0Buffer = funcTable->functions();
+    m_cachedTable0Length = funcTable->length();
 }
 
 void JSWebAssemblyInstance::linkGlobal(unsigned i, Ref<Global>&& global)
