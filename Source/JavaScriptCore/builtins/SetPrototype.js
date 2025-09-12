@@ -67,53 +67,6 @@ function getSetSizeAsInt(other)
     return sizeInt;
 }
 
-function difference(other)
-{
-    "use strict";
-
-    if (!@isSet(this))
-        @throwTypeError("Set operation called on non-Set object");
-
-    // Get Set Record
-    var size = @getSetSizeAsInt(other);
-
-    var has = other.has;
-    if (!@isCallable(has))
-        @throwTypeError("Set.prototype.difference expects other.has to be callable");
-
-    var keys = other.keys;
-    if (!@isCallable(keys))
-        @throwTypeError("Set.prototype.difference expects other.keys to be callable");
-
-    var result = @setClone(this);
-    if (this.@size <= size) {
-        var storage = @setStorage(result);
-        var entry = 0;
-
-        while (true) {
-            storage = @setIterationNext(storage, entry);
-            if (storage == @orderedHashTableSentinel)
-                break;
-            entry = @setIterationEntry(storage) + 1;
-            var key = @setIterationEntryKey(storage);
-
-            if (has.@call(other, key))
-                result.@delete(key);
-        }
-    } else {
-        var iterator = keys.@call(other);
-        var wrapper = {
-            @@iterator: function () { return iterator; }
-        };
-
-        for (var key of wrapper) {
-            if (result.@has(key))
-                result.@delete(key);
-        }
-    }
-
-    return result;
-}
 
 function symmetricDifference(other)
 {
