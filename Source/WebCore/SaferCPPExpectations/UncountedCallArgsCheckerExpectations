@@ -13,11 +13,7 @@ Modules/mediasession/MediaMetadata.cpp
 Modules/mediasession/MediaSession.cpp
 Modules/mediasession/MediaSessionCoordinator.cpp
 Modules/mediasession/MediaSessionCoordinator.h
-Modules/mediasource/ManagedMediaSource.cpp
-Modules/mediasource/MediaSource.cpp
 Modules/mediasource/MediaSourceHandle.cpp
-Modules/mediasource/SampleMap.cpp
-Modules/mediasource/SourceBuffer.cpp
 Modules/mediastream/MediaStreamTrack.cpp
 Modules/mediastream/MediaStreamTrackProcessor.cpp
 Modules/mediastream/PeerConnectionBackend.cpp
@@ -41,8 +37,6 @@ Modules/push-api/PushManager.cpp
 Modules/push-api/PushSubscription.cpp
 Modules/push-api/ServiceWorkerRegistrationPushAPI.cpp
 Modules/remoteplayback/RemotePlayback.cpp
-Modules/reporting/ReportingObserver.cpp
-Modules/reporting/ReportingScope.cpp
 Modules/speech/SpeechSynthesis.cpp
 Modules/storage/StorageManager.cpp
 Modules/storage/WorkerStorageConnection.cpp
@@ -203,7 +197,6 @@ bindings/js/JSPopStateEventCustom.cpp
 bindings/js/JSRTCRtpSFrameTransformCustom.cpp
 bindings/js/JSRangeCustom.cpp
 bindings/js/JSReadableStreamSourceCustom.cpp
-bindings/js/JSReportingObserverCustom.cpp
 bindings/js/JSResizeObserverCustom.cpp
 bindings/js/JSSVGViewSpecCustom.cpp
 bindings/js/JSShadowRootCustom.cpp

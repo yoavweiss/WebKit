@@ -3,8 +3,6 @@ Modules/cache/DOMCache.cpp
 Modules/cache/DOMCacheStorage.cpp
 Modules/mediacontrols/MediaControlsHost.cpp
 Modules/mediasession/MediaMetadata.cpp
-Modules/mediasource/MediaSource.cpp
-Modules/mediasource/SourceBuffer.cpp
 Modules/mediastream/PeerConnectionBackend.cpp
 Modules/mediastream/RTCDataChannel.cpp
 Modules/mediastream/RTCPeerConnection.cpp

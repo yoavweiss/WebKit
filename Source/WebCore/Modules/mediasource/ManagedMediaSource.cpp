@@ -102,8 +102,9 @@ void ManagedMediaSource::ensurePrefsRead()
 
     if (m_lowThreshold && m_highThreshold)
         return;
-    m_lowThreshold = scriptExecutionContext()->settingsValues().managedMediaSourceLowThreshold;
-    m_highThreshold = scriptExecutionContext()->settingsValues().managedMediaSourceHighThreshold;
+    RefPtr context = scriptExecutionContext();
+    m_lowThreshold = context->settingsValues().managedMediaSourceLowThreshold;
+    m_highThreshold = context->settingsValues().managedMediaSourceHighThreshold;
 }
 
 void ManagedMediaSource::monitorSourceBuffers()

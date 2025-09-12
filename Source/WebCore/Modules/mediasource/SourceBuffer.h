@@ -214,6 +214,10 @@ private:
     bool hasAudio() const;
 
     void rangeRemoval(const MediaTime&, const MediaTime&);
+    RefPtr<MediaSource> protectedSource() const;
+    RefPtr<VideoTrackList> protectedVideoTracks() const;
+    RefPtr<AudioTrackList> protectedAudioTracks() const;
+    RefPtr<TextTrackList> protectedTextTracks() const;
 
     friend class Internals;
     using SamplesPromise = NativePromise<Vector<String>, PlatformMediaError>;

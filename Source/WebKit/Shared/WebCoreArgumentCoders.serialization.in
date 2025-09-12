@@ -1536,7 +1536,7 @@ struct WebCore::PushSubscriptionData {
 [RefCounted] class WebCore::Report {
     String type()
     String url()
-    RefPtr<WebCore::ReportBody> body()
+    RefPtr<WebCore::ReportBody> protectedBody()
 };
 
 [RefCounted] class WebCore::TestReportBody {
