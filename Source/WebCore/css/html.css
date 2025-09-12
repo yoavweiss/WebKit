@@ -1418,3 +1418,7 @@ ins, del {
 :root::spelling-error {
     text-decoration-line: spelling-error;
 }
+
+:root::grammar-error {
+    text-decoration-line: grammar-error;
+}

@@ -3219,3 +3219,8 @@ webkit.org/b/298211 accessibility/mac/media-query-values-change.html [ Skip ]
 webkit.org/b/298211 accessibility/mac/increase-contrast-system-color-changes.html [ Skip ]
 
 webkit.org/b/289382 fast/canvas/offscreen-no-script-context-crash.html [ Skip ]
+
+webkit.org/b/298748 css3/text-decoration/text-decoration-line-grammar-error-1.html [ Skip ]
+webkit.org/b/298748 css3/text-decoration/text-decoration-line-grammar-error-2.html [ Skip ]
+webkit.org/b/298748 css3/text-decoration/text-decoration-line-grammar-error-3.html [ Skip ]
+

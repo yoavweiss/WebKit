@@ -1040,20 +1040,28 @@ static void removeMarkersPaintedByTextDecorationPainter(const RenderText& render
     }
 }
 
-static std::optional<MarkedText> markedTextForTextDecorationLine(const RenderText& renderer)
+static std::optional<MarkedText> markedTextForTextDecorationLineSpellingError(const RenderText& renderer)
 {
     if (!renderer.style().textDecorationLineInEffect().isSpellingError())
         return std::nullopt;
     return std::make_optional<MarkedText>({ 0, static_cast<unsigned>(renderer.length()), MarkedText::Type::SpellingError });
 }
 
+static std::optional<MarkedText> markedTextForTextDecorationLineGrammarError(const RenderText& renderer)
+{
+    if (!renderer.style().textDecorationLineInEffect().isGrammarError())
+        return std::nullopt;
+    return std::make_optional<MarkedText>({ 0, static_cast<unsigned>(renderer.length()), MarkedText::Type::GrammarError });
+}
+
 void TextBoxPainter::paintPlatformDocumentMarkers()
 {
     auto markedTexts = MarkedText::collectForDocumentMarkers(m_renderer, m_selectableRange, MarkedText::PaintPhase::Decoration);
-    // We want to paint text-decoration-line: spelling-error the same way we natively paint text marked with spelling errors
-    auto textDecorationLineSpellingErrorAsMarkedText = markedTextForTextDecorationLine(m_renderer);
+    // We want to paint text-decoration-line: spelling-error and grammar-error the same way we natively paint text marked with spelling errors
+    auto textDecorationLineSpellingErrorAsMarkedText = markedTextForTextDecorationLineSpellingError(m_renderer);
+    auto textDecorationLineGrammarErrorAsMarkedText = markedTextForTextDecorationLineGrammarError(m_renderer);
 
-    if (markedTexts.isEmpty() && !textDecorationLineSpellingErrorAsMarkedText)
+    if (markedTexts.isEmpty() && !textDecorationLineSpellingErrorAsMarkedText && !textDecorationLineGrammarErrorAsMarkedText)
         return;
 
     // Defer painting to TextDecorationPainter if needed
@@ -1068,6 +1076,8 @@ void TextBoxPainter::paintPlatformDocumentMarkers()
     allMarkedTexts.appendVector(markedTexts);
     if (textDecorationLineSpellingErrorAsMarkedText)
         allMarkedTexts.append(*textDecorationLineSpellingErrorAsMarkedText);
+    if (textDecorationLineGrammarErrorAsMarkedText)
+        allMarkedTexts.append(*textDecorationLineGrammarErrorAsMarkedText);
 
     for (auto& markedText : MarkedText::subdivide(allMarkedTexts, MarkedText::OverlapStrategy::Frontmost)) {
         switch (markedText.type) {
