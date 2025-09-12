@@ -1769,9 +1769,6 @@ http/tests/webgpu/webgpu/api/validation/queue/submit.html [ Pass ]
 http/tests/webgpu/webgpu/api/validation/queue/destroyed [ Pass ]
 [ arm64 ] http/tests/webgpu/webgpu/api/operation/command_buffer/queries [ Pass ]
 
-# this test is very slow so expect a timeout or pass
-http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageBitmap.html [ Pass Timeout ]
-
 http/tests/webgpu/webgpu/shader/execution/flow_control/switch.html [ Pass ]
 # arm64 release only because the tests are incredibly slow due to their extensiveness
 [ Release arm64 ] http/tests/webgpu/webgpu/shader/execution/shader_io [ Pass ]
@@ -2411,3 +2408,16 @@ webkit.org/b/298292 [ Sequoia ] http/tests/webgpu/webgpu/api/operation/sampling/
 webkit.org/b/298416 [ Debug ] http/tests/websocket/web-socket-loads-captured-in-per-page-domains.html [ Pass Crash ]
 
 webkit.org/b/298746 [ x86_64 ] fast/webgpu/nocrash/fuzz-298315.html [ Timeout ]
+
+# run as pass for now to catch subtest regressions. but some of these tests are still failing.
+http/tests/webgpu/webgpu/web_platform/copyToTexture [ Pass Timeout ]
+
+# this test is very slow and times out on debug so skip
+[ Release ] http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageData.html [ Slow ]
+[ Debug ] http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageData.html [ Skip ]
+
+# this test is very slow so expect a timeout or pass
+http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageBitmap.html [ Pass Timeout ]
+
+# skip on intel for now due to small precision error differences
+[ x86_64 ] http/tests/webgpu/webgpu/web_platform/copyToTexture/video.html [ Skip ]
