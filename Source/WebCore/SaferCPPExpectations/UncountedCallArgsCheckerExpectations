@@ -563,8 +563,6 @@ inspector/agents/worker/WorkerRuntimeAgent.cpp
 layout/integration/inline/LayoutIntegrationInlineContentBuilder.cpp
 layout/integration/inline/LayoutIntegrationLineLayout.cpp
 loader/ApplicationManifestLoader.cpp
-loader/CrossOriginAccessControl.cpp
-loader/CrossOriginOpenerPolicy.cpp
 loader/CrossOriginPreflightChecker.cpp
 loader/DocumentThreadableLoader.cpp
 loader/DocumentWriter.cpp

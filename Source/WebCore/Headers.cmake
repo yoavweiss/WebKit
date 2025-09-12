@@ -1953,6 +1953,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     loader/archive/mhtml/MHTMLArchive.h
     loader/cache/CachePolicy.h
     loader/cache/CachedApplicationManifest.h
+    loader/cache/CachedCSSStyleSheet.h
     loader/cache/CachedFontLoadRequest.h
     loader/cache/CachedImage.h
     loader/cache/CachedImageClient.h

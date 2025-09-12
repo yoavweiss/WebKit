@@ -76,7 +76,6 @@ layout/formattingContexts/inline/text/TextUtil.cpp
 layout/integration/inline/LayoutIntegrationLineLayout.h
 layout/layouttree/LayoutElementBox.h
 loader/cache/CachedImageClient.h
-loader/cache/CachedResourceHandle.h
 page/DOMWindow.cpp
 page/EventHandler.h
 page/Page.h

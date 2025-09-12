@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <WebCore/CachedImage.h>
 #include <WebCore/CachedResourceHandle.h>
 #include <WebCore/StyleImage.h>
 #include <wtf/TZoneMalloc.h>
