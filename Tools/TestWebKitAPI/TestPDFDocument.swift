@@ -120,16 +120,25 @@ typealias CocoaColor = NSColor
 
         CGContextDrawPDFPageWithAnnotations(context, cgPage, nil)
 
-        let pixels = UnsafeMutableRawBufferPointer(start: context.data, count: context.width * context.height * 4)
-
         let x = Int(point.x)
         let y = Int(point.y)
         let index = (y * x * 4) + (x * 4)
 
+        #if swift(>=6.2)
+        // FIXME: document safety invariants here. Is CGContext always guaranteed to
+        // contain a context.data of the right size at this point?
+        let pixels = unsafe UnsafeMutableRawBufferPointer(start: context.data, count: context.width * context.height * 4)
+        let r = unsafe pixels[index]
+        let g = unsafe pixels[index + 1]
+        let b = unsafe pixels[index + 2]
+        let a = unsafe pixels[index + 3]
+        #else
+        let pixels = UnsafeMutableRawBufferPointer(start: context.data, count: context.width * context.height * 4)
         let r = pixels[index]
         let g = pixels[index + 1]
         let b = pixels[index + 2]
         let a = pixels[index + 3]
+        #endif
 
         if a == 0 {
             return .clear
