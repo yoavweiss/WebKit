@@ -308,6 +308,15 @@ void AuthenticatorManager::respondReceived(Respond&& respond)
         restartDiscovery();
 }
 
+void AuthenticatorManager::respondReceivedInternal(Respond&& respond, bool shouldComplete)
+{
+    if (shouldComplete) {
+        invokePendingCompletionHandler(WTFMove(respond));
+        clearStateAsync();
+        m_requestTimeOutTimer.stop();
+    }
+}
+
 void AuthenticatorManager::downgrade(Authenticator& id, Ref<Authenticator>&& downgradedAuthenticator)
 {
     RunLoop::mainSingleton().dispatch([weakThis = WeakPtr { *this }, id = Ref { id }] {
