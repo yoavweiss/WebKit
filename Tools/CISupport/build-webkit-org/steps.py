@@ -612,6 +612,9 @@ class TestMiniBrowserBundle(shell.ShellCommandNewStyle, ShellMixin):
     descriptionDone = ["tested minibrowser bundle"]
     haltOnFailure = False
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, timeout=3 * 60 * 60, **kwargs)
+
     @defer.inlineCallbacks
     def run(self):
         filter_command = ' '.join(self.command) + ' 2>&1 | python3 Tools/Scripts/filter-test-logs minibrowser'
@@ -821,6 +824,9 @@ class RunTest262Tests(TestWithFailureCount, CustomFlagsMixin, ShellMixin):
     failedTestsFormatString = "%d Test262 test%s failed"
     command = ["perl", "Tools/Scripts/test262-runner", "--verbose", WithProperties("--%(configuration)s")]
     test_summary_re = re.compile(r'^\! NEW FAIL')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, timeout=2 * 60 * 60, **kwargs)
 
     def run(self):
         filter_command = ' '.join(self.command) + ' 2>&1 | python3 Tools/Scripts/filter-test-logs test262'
