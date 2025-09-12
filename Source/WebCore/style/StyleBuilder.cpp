@@ -95,8 +95,8 @@ static auto positionTryFallbackProperties(const BuilderContext& context)
     return context.positionTryFallback ? context.positionTryFallback->properties.get() : nullptr;
 }
 
-Builder::Builder(RenderStyle& style, BuilderContext&& context, const MatchResult& matchResult, DeclarationOrigin declarationOrigin, PropertyCascade::IncludedProperties&& includedProperties, const HashSet<AnimatableCSSProperty>* animatedPropertes)
-    : m_cascade(matchResult, declarationOrigin, WTFMove(includedProperties), animatedPropertes, positionTryFallbackProperties(context))
+Builder::Builder(RenderStyle& style, BuilderContext&& context, const MatchResult& matchResult, PropertyCascade::IncludedProperties&& includedProperties, const HashSet<AnimatableCSSProperty>* animatedPropertes)
+    : m_cascade(matchResult, WTFMove(includedProperties), animatedPropertes, positionTryFallbackProperties(context))
     , m_state(style, WTFMove(context))
 {
 }
@@ -276,7 +276,7 @@ inline void Builder::applyCascadeProperty(const PropertyCascade::Property& prope
     auto applyWithLinkMatch = [&](SelectorChecker::LinkMatchMask linkMatch) {
         if (property.cssValue[linkMatch]) {
             SetForScope scopedLinkMatchMutation(m_state.m_linkMatch, linkMatch);
-            applyProperty(property.id, *property.cssValue[linkMatch], linkMatch, property.declarationOrigins[linkMatch]);
+            applyProperty(property.id, *property.cssValue[linkMatch], linkMatch, property.origins[linkMatch]);
         }
     };
 
@@ -309,7 +309,7 @@ bool Builder::applyRollbackCascadeProperty(const PropertyCascade& rollbackCascad
 
     if (auto* value = rollbackProperty->cssValue[linkMatchMask]) {
         SetForScope levelScope(m_state.m_currentProperty, rollbackProperty);
-        applyProperty(propertyID, *value, linkMatchMask, rollbackProperty->declarationOrigin);
+        applyProperty(propertyID, *value, linkMatchMask, rollbackProperty->origin);
     }
     return true;
 }
@@ -331,7 +331,7 @@ bool Builder::applyRollbackCascadeCustomProperty(const PropertyCascade& rollback
     return true;
 }
 
-void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::LinkMatchMask linkMatchMask, DeclarationOrigin declarationOrigin)
+void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::LinkMatchMask linkMatchMask, PropertyCascade::Origin cascadeOrigin)
 {
     ASSERT_WITH_MESSAGE(!isShorthand(id), "Shorthand property id = %d wasn't expanded at parsing time", id);
     ASSERT_WITH_MESSAGE(id != CSSPropertyCustom, "Custom property should be handled by applyCustomProperty");
@@ -342,7 +342,7 @@ void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::
     if (CSSProperty::isDirectionAwareProperty(id)) {
         CSSPropertyID newId = CSSProperty::resolveDirectionAwareProperty(id, style.writingMode());
         ASSERT(newId != id);
-        return applyProperty(newId, valueToApply.get(), linkMatchMask, declarationOrigin);
+        return applyProperty(newId, valueToApply.get(), linkMatchMask, cascadeOrigin);
     }
 
     if (m_state.positionTryFallback())
@@ -418,7 +418,7 @@ void Builder::applyProperty(CSSPropertyID id, CSSValue& value, SelectorChecker::
     BuilderGenerated::applyProperty(id, m_state, valueToApply.get(), valueType);
 
     if (!isRevertOrRevertLayer)
-        m_state.disableNativeAppearanceIfNeeded(id, declarationOrigin);
+        m_state.disableNativeAppearanceIfNeeded(id, cascadeOrigin);
 
     if (!isUnset && !isRevertOrRevertLayer && m_state.isCurrentPropertyInvalidAtComputedValueTime()) {
         // https://drafts.csswg.org/css-variables-2/#invalid-variables
@@ -711,22 +711,25 @@ void Builder::applyPageSizeDescriptor(CSSValue& value)
 
 const PropertyCascade* Builder::ensureRollbackCascadeForRevert()
 {
-    auto rollbackDeclarationOrigin = m_state.m_currentProperty->declarationOrigin;
+    auto rollbackOrigin = m_state.m_currentProperty->origin;
 
-    switch (rollbackDeclarationOrigin) {
-    case DeclarationOrigin::Author:
-        rollbackDeclarationOrigin = DeclarationOrigin::User;
+    switch (rollbackOrigin) {
+    case PropertyCascade::Origin::PositionFallback:
+        // "Similar to the Animation Origin, use of the revert value acts as if the property was part of the Author Origin."
+        // https://drafts.csswg.org/css-anchor-position-1/#fallback-rule
+    case PropertyCascade::Origin::Author:
+        rollbackOrigin = PropertyCascade::Origin::User;
         break;
-    case DeclarationOrigin::User:
-        rollbackDeclarationOrigin = DeclarationOrigin::UserAgent;
+    case PropertyCascade::Origin::User:
+        rollbackOrigin = PropertyCascade::Origin::UserAgent;
         break;
-    case DeclarationOrigin::UserAgent:
+    case PropertyCascade::Origin::UserAgent:
         return nullptr;
     }
 
-    auto key = makeRollbackCascadeKey(rollbackDeclarationOrigin);
+    auto key = makeRollbackCascadeKey(rollbackOrigin);
     return m_rollbackCascades.ensure(key, [&] {
-        return makeUnique<const PropertyCascade>(m_cascade, rollbackDeclarationOrigin);
+        return makeUnique<const PropertyCascade>(m_cascade, rollbackOrigin);
     }).iterator->value.get();
 }
 
@@ -743,15 +746,15 @@ const PropertyCascade* Builder::ensureRollbackCascadeForRevertLayer()
     if (property.fromStyleAttribute == FromStyleAttribute::No)
         --rollbackLayerPriority;
 
-    auto key = makeRollbackCascadeKey(property.declarationOrigin, property.styleScopeOrdinal, rollbackLayerPriority);
+    auto key = makeRollbackCascadeKey(property.origin, property.styleScopeOrdinal, rollbackLayerPriority);
     return m_rollbackCascades.ensure(key, [&] {
-        return makeUnique<const PropertyCascade>(m_cascade, property.declarationOrigin, property.styleScopeOrdinal, rollbackLayerPriority);
+        return makeUnique<const PropertyCascade>(m_cascade, property.origin, property.styleScopeOrdinal, rollbackLayerPriority);
     }).iterator->value.get();
 }
 
-auto Builder::makeRollbackCascadeKey(DeclarationOrigin declarationOrigin, ScopeOrdinal scopeOrdinal, CascadeLayerPriority cascadeLayerPriority) -> RollbackCascadeKey
+auto Builder::makeRollbackCascadeKey(PropertyCascade::Origin cascadeOrigin, ScopeOrdinal scopeOrdinal, CascadeLayerPriority cascadeLayerPriority) -> RollbackCascadeKey
 {
-    return { static_cast<unsigned>(declarationOrigin), static_cast<unsigned>(scopeOrdinal), static_cast<unsigned>(cascadeLayerPriority) };
+    return { static_cast<unsigned>(cascadeOrigin), static_cast<unsigned>(scopeOrdinal), static_cast<unsigned>(cascadeLayerPriority) };
 }
 
 }

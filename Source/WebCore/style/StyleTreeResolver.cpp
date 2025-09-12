@@ -930,7 +930,6 @@ std::unique_ptr<RenderStyle> TreeResolver::resolveAgainInDifferentContext(const 
         *newStyle,
         WTFMove(builderContext),
         *resolvedStyle.matchResult,
-        DeclarationOrigin::Author,
         { properties }
     };
 
@@ -968,7 +967,6 @@ HashSet<AnimatableCSSProperty> TreeResolver::applyCascadeAfterAnimation(RenderSt
         animatedStyle,
         WTFMove(builderContext),
         matchResult,
-        DeclarationOrigin::Author,
         { isTransition ? PropertyCascade::PropertyType::AfterTransition : PropertyCascade::PropertyType::AfterAnimation },
         &animatedProperties
     };

@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "DeclarationOrigin.h"
 #include "MatchResult.h"
 #include "WebAnimationTypes.h"
 #include <wtf/BitSet.h>
@@ -52,6 +51,13 @@ public:
         NonCacheable = 1 << 6,
     };
 
+    enum class Origin : uint8_t {
+        UserAgent,
+        User,
+        Author,
+        PositionFallback
+    };
+
     static constexpr OptionSet<PropertyType> normalPropertyTypes() { return { PropertyType::NonInherited,  PropertyType::Inherited }; }
     static constexpr OptionSet<PropertyType> startingStylePropertyTypes() { return normalPropertyTypes() | PropertyType::StartingStyle; }
 
@@ -65,19 +71,19 @@ public:
 
     static IncludedProperties normalProperties() { return { normalPropertyTypes() }; }
 
-    PropertyCascade(const MatchResult&, DeclarationOrigin, IncludedProperties&&, const HashSet<AnimatableCSSProperty>* = nullptr, const StyleProperties* positionTryFallbackProperties = nullptr);
-    PropertyCascade(const PropertyCascade&, DeclarationOrigin, std::optional<ScopeOrdinal> rollbackScope = { }, std::optional<CascadeLayerPriority> maximumCascadeLayerPriorityForRollback = { });
+    PropertyCascade(const MatchResult&, IncludedProperties&&, const HashSet<AnimatableCSSProperty>* = nullptr, const StyleProperties* positionTryFallbackProperties = nullptr);
+    PropertyCascade(const PropertyCascade&, Origin, std::optional<ScopeOrdinal> rollbackScope = { }, std::optional<CascadeLayerPriority> maximumCascadeLayerPriorityForRollback = { });
 
     ~PropertyCascade();
 
     struct Property {
         CSSPropertyID id;
-        DeclarationOrigin declarationOrigin;
+        Origin origin;
         ScopeOrdinal styleScopeOrdinal;
         CascadeLayerPriority cascadeLayerPriority;
         FromStyleAttribute fromStyleAttribute;
         std::array<CSSValue*, 3> cssValue; // Values for link match states MatchDefault, MatchLink and MatchVisited
-        std::array<DeclarationOrigin, 3> declarationOrigins;
+        std::array<Origin, 3> origins;
     };
 
     bool isEmpty() const { return m_propertyIsPresent.isEmpty() && !m_seenLogicalGroupPropertyCount; }
@@ -104,15 +110,15 @@ public:
 
 private:
     void buildCascade();
-    bool addNormalMatches(DeclarationOrigin);
-    void addImportantMatches(DeclarationOrigin);
-    bool addMatch(const MatchedProperties&, DeclarationOrigin, IsImportant);
+    bool addNormalMatches(Origin);
+    void addImportantMatches(Origin);
+    bool addMatch(const MatchedProperties&, Origin, IsImportant);
     bool shouldApplyAfterAnimation(const StyleProperties::PropertyReference&);
     void addPositionTryFallbackProperties();
 
-    void set(CSSPropertyID, CSSValue&, const MatchedProperties&, DeclarationOrigin);
-    void setLogicalGroupProperty(CSSPropertyID, CSSValue&, const MatchedProperties&, DeclarationOrigin);
-    static void setPropertyInternal(Property&, CSSPropertyID, CSSValue&, const MatchedProperties&, DeclarationOrigin);
+    void set(CSSPropertyID, CSSValue&, const MatchedProperties&, Origin);
+    void setLogicalGroupProperty(CSSPropertyID, CSSValue&, const MatchedProperties&, Origin);
+    static void setPropertyInternal(Property&, CSSPropertyID, CSSValue&, const MatchedProperties&, Origin);
 
     bool hasProperty(CSSPropertyID, const CSSValue&);
     bool mayOverrideExistingProperty(CSSPropertyID, const CSSValue&);
@@ -123,7 +129,7 @@ private:
 
     const MatchResult& m_matchResult;
     const IncludedProperties m_includedProperties;
-    const DeclarationOrigin m_maximumDeclarationOrigin;
+    const Origin m_maximumOrigin;
     const std::optional<ScopeOrdinal> m_rollbackScope;
     const std::optional<CascadeLayerPriority> m_maximumCascadeLayerPriorityForRollback;
 
