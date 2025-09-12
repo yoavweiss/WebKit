@@ -1419,6 +1419,156 @@ FloatingPointRange BBQJIT::lookupTruncationRange(TruncationKind truncationKind)
     return FloatingPointRange { min, max, closedLowerEndpoint };
 }
 
+PartialResult WARN_UNUSED_RETURN BBQJIT::truncTrapping(OpType truncationOp, Value operand, Value& result, Type returnType, Type operandType)
+{
+    ScratchScope<0, 2> scratches(*this);
+
+    Location operandLocation;
+    if (operand.isConst()) {
+        operandLocation = Location::fromFPR(wasmScratchFPR);
+        emitMoveConst(operand, operandLocation);
+    } else
+        operandLocation = loadIfNecessary(operand);
+    ASSERT(operandLocation.isRegister());
+
+    consume(operand); // Allow temp operand location to be reused
+
+    result = topValue(returnType.kind);
+    Location resultLocation = allocate(result);
+    TruncationKind kind = truncationKind(truncationOp);
+    auto range = lookupTruncationRange(kind);
+    auto minFloatConst = range.min;
+    auto maxFloatConst = range.max;
+    Location minFloat = Location::fromFPR(scratches.fpr(0));
+    Location maxFloat = Location::fromFPR(scratches.fpr(1));
+
+    // FIXME: Can we do better isel here? Two floating-point constant materializations for every
+    // trunc seems costly.
+    emitMoveConst(minFloatConst, minFloat);
+    emitMoveConst(maxFloatConst, maxFloat);
+
+    LOG_INSTRUCTION("TruncTrapping", operand, operandLocation, RESULT(result));
+
+    DoubleCondition minCondition = range.closedLowerEndpoint ? DoubleCondition::DoubleLessThanOrUnordered : DoubleCondition::DoubleLessThanOrEqualOrUnordered;
+    Jump belowMin = operandType == Types::F32
+        ? m_jit.branchFloat(minCondition, operandLocation.asFPR(), minFloat.asFPR())
+        : m_jit.branchDouble(minCondition, operandLocation.asFPR(), minFloat.asFPR());
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTrunc, belowMin);
+
+    Jump aboveMax = operandType == Types::F32
+        ? m_jit.branchFloat(DoubleCondition::DoubleGreaterThanOrEqualOrUnordered, operandLocation.asFPR(), maxFloat.asFPR())
+        : m_jit.branchDouble(DoubleCondition::DoubleGreaterThanOrEqualOrUnordered, operandLocation.asFPR(), maxFloat.asFPR());
+    recordJumpToThrowException(ExceptionType::OutOfBoundsTrunc, aboveMax);
+
+    truncInBounds(kind, operandLocation, resultLocation, scratches.fpr(0), scratches.fpr(1));
+
+    return { };
+}
+
+PartialResult WARN_UNUSED_RETURN BBQJIT::truncSaturated(Ext1OpType truncationOp, Value operand, Value& result, Type returnType, Type operandType)
+{
+    ScratchScope<0, 2> scratches(*this);
+
+    TruncationKind kind = truncationKind(truncationOp);
+    auto range = lookupTruncationRange(kind);
+    auto minFloatConst = range.min;
+    auto maxFloatConst = range.max;
+    Location minFloat = Location::fromFPR(scratches.fpr(0));
+    Location maxFloat = Location::fromFPR(scratches.fpr(1));
+
+    // FIXME: Can we do better isel here? Two floating-point constant materializations for every
+    // trunc seems costly.
+    emitMoveConst(minFloatConst, minFloat);
+    emitMoveConst(maxFloatConst, maxFloat);
+
+    // Determine min/max integer results for saturation.
+    uint64_t minResult = 0;
+    uint64_t maxResult = 0;
+    switch (kind) {
+    case TruncationKind::I32TruncF32S:
+    case TruncationKind::I32TruncF64S:
+        maxResult = std::bit_cast<uint32_t>(INT32_MAX);
+        minResult = std::bit_cast<uint32_t>(INT32_MIN);
+        break;
+    case TruncationKind::I32TruncF32U:
+    case TruncationKind::I32TruncF64U:
+        maxResult = std::bit_cast<uint32_t>(UINT32_MAX);
+        minResult = std::bit_cast<uint32_t>(0U);
+        break;
+    case TruncationKind::I64TruncF32S:
+    case TruncationKind::I64TruncF64S:
+        maxResult = std::bit_cast<uint64_t>(INT64_MAX);
+        minResult = std::bit_cast<uint64_t>(INT64_MIN);
+        break;
+    case TruncationKind::I64TruncF32U:
+    case TruncationKind::I64TruncF64U:
+        maxResult = std::bit_cast<uint64_t>(UINT64_MAX);
+        minResult = std::bit_cast<uint64_t>(0ULL);
+        break;
+    }
+
+    Location operandLocation;
+    if (operand.isConst()) {
+        operandLocation = Location::fromFPR(wasmScratchFPR);
+        emitMoveConst(operand, operandLocation);
+    } else
+        operandLocation = loadIfNecessary(operand);
+    ASSERT(operandLocation.isRegister());
+
+    consume(operand); // Allow temp operand location to be reused
+
+    result = topValue(returnType.kind);
+    Location resultLocation = allocate(result);
+
+    LOG_INSTRUCTION("TruncSaturated", operand, operandLocation, RESULT(result));
+
+    Jump lowerThanMin = operandType == Types::F32
+        ? m_jit.branchFloat(DoubleCondition::DoubleLessThanOrEqualOrUnordered, operandLocation.asFPR(), minFloat.asFPR())
+        : m_jit.branchDouble(DoubleCondition::DoubleLessThanOrEqualOrUnordered, operandLocation.asFPR(), minFloat.asFPR());
+    Jump higherThanMax = operandType == Types::F32
+        ? m_jit.branchFloat(DoubleCondition::DoubleGreaterThanOrEqualOrUnordered, operandLocation.asFPR(), maxFloat.asFPR())
+        : m_jit.branchDouble(DoubleCondition::DoubleGreaterThanOrEqualOrUnordered, operandLocation.asFPR(), maxFloat.asFPR());
+
+    // In-bounds case. Emit normal truncation instructions.
+    truncInBounds(kind, operandLocation, resultLocation, scratches.fpr(0), scratches.fpr(1));
+
+    Jump afterInBounds = m_jit.jump();
+
+    // Below-minimum case.
+    lowerThanMin.link(&m_jit);
+
+    // As an optimization, if the min result is 0; we can unconditionally return
+    // that if the above-minimum-range check fails; otherwise, we need to check
+    // for NaN since it also will fail the above-minimum-range-check
+    if (!minResult) {
+        // Use emitMoveConst to handle 32-bit and 64-bit uniformly.
+        emitMoveConst(returnType == Types::I32 ? Value::fromI32(0) : Value::fromI64(0), resultLocation);
+    } else {
+        Jump isNotNaN = operandType == Types::F32
+            ? m_jit.branchFloat(DoubleCondition::DoubleEqualAndOrdered, operandLocation.asFPR(), operandLocation.asFPR())
+            : m_jit.branchDouble(DoubleCondition::DoubleEqualAndOrdered, operandLocation.asFPR(), operandLocation.asFPR());
+
+        // NaN case. Set result to zero.
+        emitMoveConst(returnType == Types::I32 ? Value::fromI32(0) : Value::fromI64(0), resultLocation);
+        Jump afterNaN = m_jit.jump();
+
+        // Non-NaN case. Set result to the minimum value.
+        isNotNaN.link(&m_jit);
+        emitMoveConst(returnType == Types::I32 ? Value::fromI32(static_cast<int32_t>(minResult)) : Value::fromI64(static_cast<int64_t>(minResult)), resultLocation);
+        afterNaN.link(&m_jit);
+    }
+    Jump afterMin = m_jit.jump();
+
+    // Above maximum case.
+    higherThanMax.link(&m_jit);
+    emitMoveConst(returnType == Types::I32 ? Value::fromI32(static_cast<int32_t>(maxResult)) : Value::fromI64(static_cast<int64_t>(maxResult)), resultLocation);
+
+    afterInBounds.link(&m_jit);
+    afterMin.link(&m_jit);
+
+    return { };
+}
+
 // GC
 
 const Ref<TypeDefinition> BBQJIT::getTypeDefinition(uint32_t typeIndex) { return m_info.typeSignatures[typeIndex]; }
