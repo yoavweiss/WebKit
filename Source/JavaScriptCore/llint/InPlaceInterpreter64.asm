@@ -1314,8 +1314,10 @@ ipintOp(_i64_store32_mem, macro()
 end)
 
 ipintOp(_memory_size, macro()
-    operationCall(macro() cCall2(_ipint_extern_current_memory) end)
-    pushInt32(r0)
+    loadp JSWebAssemblyInstance::m_cachedMemorySize[wasmInstance], t0
+    urshiftp 16, t0
+    zxi2q t0, t0
+    pushInt32(t0)
     advancePC(2)
     nextIPIntInstruction()
 end)

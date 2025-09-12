@@ -1872,10 +1872,7 @@ auto OMGIRGenerator::addCurrentMemory(ExpressionType& result) -> PartialResult
 {
     static_assert(sizeof(std::declval<Memory*>()->size()) == sizeof(uintptr_t), "codegen relies on this size");
 
-    Value* jsMemory = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfJSMemory()));
-    Value* memory = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), jsMemory, safeCast<int32_t>(JSWebAssemblyMemory::offsetOfMemory()));
-    Value* handle = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), memory, safeCast<int32_t>(Memory::offsetOfHandle()));
-    Value* size = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), handle, safeCast<int32_t>(BufferMemoryHandle::offsetOfSize()));
+    Value* size = m_currentBlock->appendNew<MemoryValue>(m_proc, Load, pointerType(), origin(), instanceValue(), safeCast<int32_t>(JSWebAssemblyInstance::offsetOfCachedMemorySize()));
 
     constexpr uint32_t shiftValue = 16;
     static_assert(PageCount::pageSize == 1ull << shiftValue, "This must hold for the code below to be correct.");

@@ -551,12 +551,6 @@ WASM_IPINT_EXTERN_CPP_DECL(table_grow, IPIntStackEntry* sp, TableGrowMetadata* m
     WASM_RETURN_TWO(std::bit_cast<void*>(Wasm::tableGrow(instance, metadata->tableIndex, fill, n)), 0);
 }
 
-WASM_IPINT_EXTERN_CPP_DECL_1P(current_memory)
-{
-    size_t size = instance->memory()->memory().handle().size() >> 16;
-    WASM_RETURN_TWO(std::bit_cast<void*>(size), 0);
-}
-
 WASM_IPINT_EXTERN_CPP_DECL(memory_grow, int32_t delta)
 {
     WASM_RETURN_TWO(reinterpret_cast<void*>(Wasm::growMemory(instance, delta)), 0);

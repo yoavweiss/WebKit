@@ -1114,10 +1114,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCurrentMemory(Value& result)
 {
     result = topValue(TypeKind::I32);
     Location resultLocation = allocate(result);
-    m_jit.loadPtr(Address(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfJSMemory()), wasmScratchGPR);
-    m_jit.loadPtr(Address(wasmScratchGPR, JSWebAssemblyMemory::offsetOfMemory()), wasmScratchGPR);
-    m_jit.loadPtr(Address(wasmScratchGPR, Memory::offsetOfHandle()), wasmScratchGPR);
-    m_jit.loadPtr(Address(wasmScratchGPR, BufferMemoryHandle::offsetOfSize()), wasmScratchGPR);
+    m_jit.loadPtr(Address(GPRInfo::wasmContextInstancePointer, JSWebAssemblyInstance::offsetOfCachedMemorySize()), wasmScratchGPR);
 
     constexpr uint32_t shiftValue = 16;
     static_assert(PageCount::pageSize == 1ull << shiftValue, "This must hold for the code below to be correct.");
