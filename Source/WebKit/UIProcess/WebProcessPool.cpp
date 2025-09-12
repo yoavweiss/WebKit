@@ -151,10 +151,6 @@
 #include <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
 #endif
 
-#ifndef NDEBUG
-#include <wtf/RefCountedLeakCounter.h>
-#endif
-
 #if ENABLE(IPC_TESTING_API)
 #include "IPCTesterMessages.h"
 #endif
@@ -179,8 +175,6 @@
 
 namespace WebKit {
 using namespace WebCore;
-
-DEFINE_DEBUG_ONLY_GLOBAL(WTF::RefCountedLeakCounter, processPoolCounter, ("WebProcessPool"));
 
 #if ENABLE(GPU_PROCESS)
 constexpr Seconds resetGPUProcessCrashCountDelay { 30_s };
@@ -322,10 +316,6 @@ WebProcessPool::WebProcessPool(API::ProcessPoolConfiguration& configuration)
     UIProcess::initializeLoggingIfNecessary();
 #endif // !LOG_DISABLED || !RELEASE_LOG_DISABLED
 
-#ifndef NDEBUG
-    processPoolCounter.increment();
-#endif
-
     ASSERT(RunLoop::isMain());
 
     updateBackForwardCacheCapacity();
@@ -384,10 +374,6 @@ WebProcessPool::~WebProcessPool()
     }
 
     platformInvalidateContext();
-
-#ifndef NDEBUG
-    processPoolCounter.decrement();
-#endif
 
 #if ENABLE(GAMEPAD)
     if (!m_processesUsingGamepads.isEmptyIgnoringNullReferences())

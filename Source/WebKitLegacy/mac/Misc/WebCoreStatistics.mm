@@ -180,16 +180,6 @@ static RetainPtr<NSCountedSet> createNSCountedSet(const HashCountedSet<ASCIILite
     [WebCache setDisabled:disabled];
 }
 
-+ (void)startIgnoringWebCoreNodeLeaks
-{
-    WebCore::Node::startIgnoringLeaks();
-}
-
-+ (void)stopIgnoringWebCoreNodeLeaks
-{
-    WebCore::Node::stopIgnoringLeaks();
-}
-
 + (NSDictionary *)memoryStatistics
 {
     auto fastMallocStatistics = WTF::fastMallocStatistics();

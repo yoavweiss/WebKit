@@ -119,7 +119,6 @@
 #include <JavaScriptCore/APICast.h>
 #include <JavaScriptCore/RegularExpression.h>
 #include <wtf/HexNumber.h>
-#include <wtf/RefCountedLeakCounter.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/text/MakeString.h>
 #include <wtf/text/StringBuilder.h>
@@ -143,8 +142,6 @@ using namespace HTMLNames;
 #if PLATFORM(IOS_FAMILY)
 static const Seconds scrollFrequency { 1000_s / 60. };
 #endif
-
-DEFINE_DEBUG_ONLY_GLOBAL(WTF::RefCountedLeakCounter, frameCounter, ("Frame"));
 
 struct OverrideScreenSize {
     WTF_DEPRECATED_MAKE_STRUCT_FAST_ALLOCATED(OverrideScreenSize);
@@ -198,10 +195,6 @@ LocalFrame::LocalFrame(Page& page, ClientCreator&& clientCreator, FrameIdentifie
     if (RefPtr localMainFrame = this->localMainFrame(); localMainFrame && parent)
         localMainFrame->selfOnlyRef();
 
-#ifndef NDEBUG
-    frameCounter.increment();
-#endif
-
     ASSERT(scrollingMode.has_value() ^ !!ownerElement);
     m_scrollingMode = scrollingMode ? *scrollingMode : ownerElement->scrollingMode();
 
@@ -247,10 +240,6 @@ LocalFrame::~LocalFrame()
     checkedScript()->updatePlatformScriptObjects();
 
     // FIXME: We should not be doing all this work inside the destructor
-
-#ifndef NDEBUG
-    frameCounter.decrement();
-#endif
 
     disconnectOwnerElement();
 

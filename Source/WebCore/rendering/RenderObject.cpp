@@ -91,7 +91,6 @@
 #include <algorithm>
 #include <stdio.h>
 #include <wtf/HexNumber.h>
-#include <wtf/RefCountedLeakCounter.h>
 #include <wtf/TZoneMallocInlines.h>
 #include <wtf/text/TextStream.h>
 
@@ -145,8 +144,6 @@ struct SameSizeAsRenderObject final : public CachedImageClient {
 static_assert(sizeof(RenderObject) == sizeof(SameSizeAsRenderObject), "RenderObject should stay small");
 #endif
 
-DEFINE_DEBUG_ONLY_GLOBAL(WTF::RefCountedLeakCounter, renderObjectCounter, ("RenderObject"));
-
 void RenderObjectDeleter::operator() (RenderObject* renderer) const
 {
     renderer->destroy();
@@ -165,17 +162,11 @@ RenderObject::RenderObject(Type type, Node& node, OptionSet<TypeFlag> typeFlags,
     ASSERT(!typeFlags.contains(TypeFlag::IsAnonymous));
     if (CheckedPtr renderView = node.document().renderView())
         renderView->didCreateRenderer();
-#ifndef NDEBUG
-    renderObjectCounter.increment();
-#endif
 }
 
 RenderObject::~RenderObject()
 {
     clearLayoutBox();
-#ifndef NDEBUG
-    renderObjectCounter.decrement();
-#endif
     ASSERT(!hasRareData());
 }
 

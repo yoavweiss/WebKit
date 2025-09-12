@@ -402,10 +402,6 @@
 #include <pal/spi/cf/CFUtilitiesSPI.h>
 #endif
 
-#ifndef NDEBUG
-#include <wtf/RefCountedLeakCounter.h>
-#endif
-
 #if ENABLE(DATA_DETECTION)
 #include <WebCore/DataDetection.h>
 #include <WebCore/DataDetectionResultsStorage.h>
@@ -527,8 +523,6 @@ public:
         WebProcess::singleton().protectedParentProcessConnection()->send(Messages::WebProcessProxy::StopResponsivenessTimer(), 0);
     }
 };
-
-DEFINE_DEBUG_ONLY_GLOBAL(WTF::RefCountedLeakCounter, webPageCounter, ("WebPage"));
 
 Ref<WebPage> WebPage::create(PageIdentifier pageID, WebPageCreationParameters&& parameters)
 {
@@ -1083,10 +1077,6 @@ WebPage::WebPage(PageIdentifier pageID, WebPageCreationParameters&& parameters)
     webProcess.addMessageReceiver(Messages::WebFullScreenManager::messageReceiverName(), m_identifier, *this);
 #endif
 
-#ifndef NDEBUG
-    webPageCounter.increment();
-#endif
-
 #if ENABLE(SCROLLING_THREAD)
     if (m_useAsyncScrolling)
         drawingArea->registerScrollingTree();
@@ -1475,10 +1465,6 @@ WebPage::~WebPage()
 #endif
 
     WebStorageNamespaceProvider::decrementUseCount(sessionStorageNamespaceIdentifier());
-
-#ifndef NDEBUG
-    webPageCounter.decrement();
-#endif
 
 #if ENABLE(GPU_PROCESS) && HAVE(VISIBILITY_PROPAGATION_VIEW)
     if (auto* gpuProcessConnection = WebProcess::singleton().existingGPUProcessConnection())

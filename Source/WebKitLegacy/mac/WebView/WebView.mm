@@ -274,7 +274,6 @@
 #import <wtf/MathExtras.h>
 #import <wtf/ProcessPrivilege.h>
 #import <wtf/RAMSize.h>
-#import <wtf/RefCountedLeakCounter.h>
 #import <wtf/RefPtr.h>
 #import <wtf/RunLoop.h>
 #import <wtf/RuntimeApplicationChecks.h>
@@ -1366,10 +1365,6 @@ static void WebKitInitializeGamepadProviderIfNecessary()
 {
     WebCoreThreadViolationCheckRoundTwo();
 
-#ifndef NDEBUG
-    WTF::RefCountedLeakCounter::suppressMessages(webViewIsOpen);
-#endif
-
     WebPreferences *standardPreferences = [WebPreferences standardPreferences];
     [standardPreferences willAddToWebView];
 
@@ -1695,10 +1690,6 @@ static void WebKitInitializeGamepadProviderIfNecessary()
         return nil;
 
     _private = [[WebViewPrivate alloc] init];
-
-#ifndef NDEBUG
-    WTF::RefCountedLeakCounter::suppressMessages(webViewIsOpen);
-#endif
 
     if (!preferences)
         preferences = [WebPreferences standardPreferences];
@@ -2342,10 +2333,6 @@ static NSMutableSet *knownPluginMIMETypes()
 
 - (void)_closeWithFastTeardown
 {
-#ifndef NDEBUG
-    WTF::RefCountedLeakCounter::suppressMessages("At least one WebView was closed with fast teardown.");
-#endif
-
 #if !PLATFORM(IOS_FAMILY)
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 #endif
@@ -2394,10 +2381,6 @@ static bool fastDocumentTeardownEnabled()
 
     _private->closed = YES;
     [self _removeFromAllWebViewsSet];
-
-#ifndef NDEBUG
-    WTF::RefCountedLeakCounter::cancelMessageSuppression(webViewIsOpen);
-#endif
 
     // To quit the apps fast we skip document teardown, except plugins
     // need to be destroyed and unloaded.

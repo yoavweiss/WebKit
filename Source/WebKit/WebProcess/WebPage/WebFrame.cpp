@@ -112,15 +112,9 @@
 #include <WebCore/LegacyWebArchive.h>
 #endif
 
-#ifndef NDEBUG
-#include <wtf/RefCountedLeakCounter.h>
-#endif
-
 namespace WebKit {
 using namespace JSC;
 using namespace WebCore;
-
-DEFINE_DEBUG_ONLY_GLOBAL(WTF::RefCountedLeakCounter, webFrameCounter, ("WebFrame"));
 
 static uint64_t generateListenerID()
 {
@@ -185,9 +179,6 @@ WebFrame::WebFrame(WebPage& page, WebCore::FrameIdentifier frameID)
     : m_page(page)
     , m_frameID(frameID)
 {
-#ifndef NDEBUG
-    webFrameCounter.increment();
-#endif
     ASSERT(!WebProcess::singleton().webFrame(m_frameID));
     WebProcess::singleton().addWebFrame(m_frameID, this);
 }
@@ -225,10 +216,6 @@ WebFrame::~WebFrame()
     ASSERT(!m_coreFrame);
 
     ASSERT_WITH_MESSAGE(WebProcess::singleton().webFrame(m_frameID) != this, "invalidate should have removed this WebFrame before destruction");
-
-#ifndef NDEBUG
-    webFrameCounter.decrement();
-#endif
 }
 
 WebPage* WebFrame::page() const

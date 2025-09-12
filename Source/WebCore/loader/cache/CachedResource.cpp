@@ -52,7 +52,6 @@
 #include "SubresourceLoader.h"
 #include <wtf/CompletionHandler.h>
 #include <wtf/MathExtras.h>
-#include <wtf/RefCountedLeakCounter.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/URL.h>
 #include <wtf/Vector.h>
@@ -81,8 +80,6 @@ static Seconds deadDecodedDataDeletionIntervalForResourceType(CachedResource::Ty
     return MemoryCache::singleton().deadDecodedDataDeletionInterval();
 }
 
-DEFINE_DEBUG_ONLY_GLOBAL(WTF::RefCountedLeakCounter, cachedResourceLeakCounter, ("CachedResource"));
-
 CachedResource::CachedResource(CachedResourceRequest&& request, Type type, PAL::SessionID sessionID, const CookieJar* cookieJar)
     : m_options(request.options())
     , m_resourceRequest(request.releaseResourceRequest())
@@ -101,9 +98,6 @@ CachedResource::CachedResource(CachedResourceRequest&& request, Type type, PAL::
     ASSERT(m_sessionID.isValid());
 
     setLoadPriority(request.priority(), request.fetchPriority());
-#ifndef NDEBUG
-    cachedResourceLeakCounter.increment();
-#endif
 
     // FIXME: We should have a better way of checking for Navigation loads, maybe FetchMode::Options::Navigate.
     ASSERT(m_origin || m_type == Type::MainResource);
@@ -126,9 +120,6 @@ CachedResource::CachedResource(const URL& url, Type type, PAL::SessionID session
     , m_ignoreForRequestCount(false)
 {
     ASSERT(m_sessionID.isValid());
-#ifndef NDEBUG
-    cachedResourceLeakCounter.increment();
-#endif
 }
 
 CachedResource::~CachedResource()
@@ -141,9 +132,6 @@ CachedResource::~CachedResource()
 
 #if ASSERT_ENABLED
     m_deleted = true;
-#endif
-#ifndef NDEBUG
-    cachedResourceLeakCounter.decrement();
 #endif
 }
 

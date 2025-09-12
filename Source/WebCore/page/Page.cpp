@@ -207,7 +207,6 @@
 #include <JavaScriptCore/VM.h>
 #include <ranges>
 #include <wtf/FileSystem.h>
-#include <wtf/RefCountedLeakCounter.h>
 #include <wtf/StdLibExtras.h>
 #include <wtf/SystemTracing.h>
 #include <wtf/TZoneMallocInlines.h>
@@ -273,8 +272,6 @@ unsigned Page::nonUtilityPageCount()
 {
     return gNonUtilityPageCount;
 }
-
-DEFINE_DEBUG_ONLY_GLOBAL(WTF::RefCountedLeakCounter, pageCounter, ("Page"));
 
 void Page::forEachPage(NOESCAPE const Function<void(Page&)>& function)
 {
@@ -492,10 +489,6 @@ Page::Page(PageConfiguration&& pageConfiguration)
         MemoryPressureHandler::setPageCount(gNonUtilityPageCount);
     }
 
-#ifndef NDEBUG
-    pageCounter.increment();
-#endif
-
     protectedStorageNamespaceProvider()->setSessionStorageQuota(m_settings->sessionStorageQuota());
 
 #if ENABLE(REMOTE_INSPECTOR)
@@ -561,10 +554,6 @@ Page::~Page()
     checkedBackForward()->close();
     if (!isUtilityPage())
         BackForwardCache::singleton().removeAllItemsForPage(*this);
-
-#ifndef NDEBUG
-    pageCounter.decrement();
-#endif
 
     protectedPluginInfoProvider()->removePage(*this);
     protectedUserContentProvider()->removePage(*this);

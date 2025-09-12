@@ -305,10 +305,6 @@
 #include "RemoteScrollingCoordinatorProxy.h"
 #endif
 
-#ifndef NDEBUG
-#include <wtf/RefCountedLeakCounter.h>
-#endif
-
 #if PLATFORM(COCOA)
 #include "InsertTextOptions.h"
 #include "NetworkIssueReporter.h"
@@ -477,8 +473,6 @@ static constexpr Seconds tryCloseTimeoutDelay = 50_ms;
 #if USE(RUNNINGBOARD)
 static constexpr Seconds audibleActivityClearDelay = 10_s;
 #endif
-
-DEFINE_DEBUG_ONLY_GLOBAL(WTF::RefCountedLeakCounter, webPageProxyCounter, ("WebPageProxy"));
 
 #if PLATFORM(COCOA)
 static WorkQueue& sharedFileQueueSingleton()
@@ -896,10 +890,6 @@ WebPageProxy::WebPageProxy(PageClient& pageClient, WebProcessProxy& process, Ref
 
     platformInitialize();
 
-#ifndef NDEBUG
-    webPageProxyCounter.increment();
-#endif
-
     WebProcessPool::statistics().wkPageCount++;
 
     protectedPreferences()->addPage(*this);
@@ -996,10 +986,6 @@ WebPageProxy::~WebPageProxy()
 
     Ref preferences = this->preferences();
     preferences->removePage(*this);
-
-#ifndef NDEBUG
-    webPageProxyCounter.decrement();
-#endif
 
 #if PLATFORM(MACCATALYST)
     EndowmentStateTracker::singleton().removeClient(internals());
