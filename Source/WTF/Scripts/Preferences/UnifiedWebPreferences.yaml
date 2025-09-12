@@ -1429,17 +1429,17 @@ CSSTextBoxTrimEnabled:
 
 CSSTextDecorationLineErrorValues:
   type: bool
-  status: testable
+  status: stable
   category: css
   humanReadableName: "CSS text-decoration-line: spelling-error/grammar-error"
   humanReadableDescription: "Enable support for spelling-error and grammar-error values on text-decoration-line"
   defaultValue:
     WebKitLegacy:
-      default: false
+      default: true
     WebKit:
-      default: false
+      default: true
     WebCore:
-      default: false
+      default: true
 
 CSSTextGroupAlignEnabled:
   type: bool
