@@ -1334,10 +1334,6 @@ test/staging/sm/RegExp/unicode-braced.js:
   default: 'SyntaxError: Invalid regular expression: regular expression too large'
 test/staging/sm/RegExp/unicode-class-braced.js:
   default: 'SyntaxError: Invalid regular expression: regular expression too large'
-test/staging/sm/Set/is-disjoint-from.js:
-  default: 'Test262Error: Actual [next] and expected [next, return] should have the same contents. '
-test/staging/sm/Set/is-superset-of.js:
-  default: 'Test262Error: Actual [next] and expected [next, return] should have the same contents. '
 test/staging/sm/TypedArray/constructor-buffer-sequence.js:
   default: 'Error: Assertion failed: expected exception ExpectedError, got Error: Poisoned Value'
 test/staging/sm/TypedArray/iterator-next-with-detached.js:

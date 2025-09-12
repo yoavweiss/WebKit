@@ -677,8 +677,11 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsSupersetOf, (JSGlobalObject* globalObject
 
         bool thisHasValue = thisSet->has(globalObject, value);
         RETURN_IF_EXCEPTION(scope, { });
-        if (!thisHasValue)
+        if (!thisHasValue) {
+            scope.release();
+            iteratorClose(globalObject, keysResult);
             return JSValue::encode(jsBoolean(false));
+        }
     }
 
     return JSValue::encode(jsBoolean(true));
@@ -846,8 +849,11 @@ JSC_DEFINE_HOST_FUNCTION(setProtoFuncIsDisjointFrom, (JSGlobalObject* globalObje
 
             bool thisHasValue = thisSet->has(globalObject, value);
             RETURN_IF_EXCEPTION(scope, { });
-            if (thisHasValue)
+            if (thisHasValue) {
+                scope.release();
+                iteratorClose(globalObject, keysResult);
                 return JSValue::encode(jsBoolean(false));
+            }
         }
     }
 
