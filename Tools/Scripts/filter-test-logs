@@ -30,7 +30,7 @@ def parser():
     parser = argparse.ArgumentParser(description='filter test output')
     parser.add_argument(
         'filter_type',
-        choices=['jsc', 'layout', 'scan-build', 'webdriver', 'minibrowser'],
+        choices=['jsc', 'layout', 'scan-build', 'webdriver', 'test262', 'minibrowser'],
         help='Choose which test logs to filter'
     )
     parser.add_argument(
