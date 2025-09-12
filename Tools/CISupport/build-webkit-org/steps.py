@@ -795,7 +795,7 @@ class RunJavaScriptCoreTests(TestWithFailureCount, CustomFlagsMixin, ShellMixin)
         return super().evaluateCommand(cmd)
 
 
-class RunTest262Tests(TestWithFailureCount, CustomFlagsMixin):
+class RunTest262Tests(TestWithFailureCount, CustomFlagsMixin, ShellMixin):
     name = "test262-test"
     description = ["test262-tests running"]
     descriptionDone = ["test262-tests"]
@@ -804,10 +804,28 @@ class RunTest262Tests(TestWithFailureCount, CustomFlagsMixin):
     test_summary_re = re.compile(r'^\! NEW FAIL')
 
     def run(self):
+        filter_command = ' '.join(self.command) + ' 2>&1 | python3 Tools/Scripts/filter-test-logs test262'
+        self.command = self.shell_command(filter_command)
+
         self.log_observer = ParseByLineLogObserver(self.parseOutputLine)
         self.addLogObserver('stdio', self.log_observer)
         self.failedTestCount = 0
         self.appendCustomBuildFlags(self.getProperty('platform'), self.getProperty('fullPlatform'))
+
+        steps_to_add = [
+            GenerateS3URL(
+                f"{self.getProperty('fullPlatform')}-{self.getProperty('architecture')}-{self.getProperty('configuration')}-{self.name}",
+                extension='txt',
+                content_type='text/plain',
+                additions=f'{self.build.number}',
+            ), UploadFileToS3(
+                'logs.txt',
+                links={self.name: 'Full logs'},
+                content_type='text/plain',
+            )
+        ]
+        self.build.addStepsAfterCurrentStep(steps_to_add)
+
         return super().run()
 
     def parseOutputLine(self, line):

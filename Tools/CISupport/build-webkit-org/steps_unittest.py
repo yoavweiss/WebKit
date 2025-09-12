@@ -2391,3 +2391,45 @@ class TestDisplaySaferCPPResults(BuildStepMixinAdditions, unittest.TestCase):
 
         self.expectOutcome(result=FAILURE, state_string='Unexpected failing files: 1 Unexpected passing files: 1')
         return self.runStep()
+
+
+class TestRunTest262Tests(BuildStepMixinAdditions, unittest.TestCase):
+    def setUp(self):
+        self.longMessage = True
+        return self.setUpBuildStep()
+
+    def tearDown(self):
+        return self.tearDownBuildStep()
+
+    def test_success(self):
+        self.setupStep(RunTest262Tests())
+        self.setProperty('fullPlatform', 'mac-sonoma')
+        self.setProperty('configuration', 'release')
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        timeout=1200,
+                        logEnviron=True,
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'perl Tools/Scripts/test262-runner --verbose --release 2>&1 | python3 Tools/Scripts/filter-test-logs test262'],
+                        )
+            + 0,
+        )
+        self.expectOutcome(result=SUCCESS, state_string='test262-test')
+        return self.runStep()
+
+    def test_failure(self):
+        self.setupStep(RunTest262Tests())
+        self.setProperty('fullPlatform', 'mac-sonoma')
+        self.setProperty('configuration', 'debug')
+        self.expectRemoteCommands(
+            ExpectShell(workdir='wkdir',
+                        timeout=1200,
+                        logEnviron=True,
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'perl Tools/Scripts/test262-runner --verbose --debug 2>&1 | python3 Tools/Scripts/filter-test-logs test262'],
+                        )
+            + ExpectShell.log('stdio', stdout='''! NEW FAIL: test/built-ins/Array/prototype/at/index-non-numeric.js
+! NEW FAIL: test/built-ins/Array/prototype/at/index-out-of-range.js
+! NEW FAIL: test/built-ins/Array/prototype/at/index-string.js''')
+            + 2,
+        )
+        self.expectOutcome(result=FAILURE, state_string='3 Test262 tests failed')
+        return self.runStep()
