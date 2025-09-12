@@ -604,7 +604,7 @@ class GenerateMiniBrowserBundle(shell.ShellCommandNewStyle):
         defer.returnValue(rc)
 
 
-class TestMiniBrowserBundle(shell.ShellCommandNewStyle):
+class TestMiniBrowserBundle(shell.ShellCommandNewStyle, ShellMixin):
     command = ["Tools/Scripts/test-bundle", WithProperties("--platform=%(fullPlatform)s"), "--bundle-type=universal",
                WithProperties("WebKitBuild/MiniBrowser_%(fullPlatform)s_%(configuration)s.tar.xz")]
     name = "test-minibrowser-bundle"
@@ -614,9 +614,28 @@ class TestMiniBrowserBundle(shell.ShellCommandNewStyle):
 
     @defer.inlineCallbacks
     def run(self):
+        filter_command = ' '.join(self.command) + ' 2>&1 | python3 Tools/Scripts/filter-test-logs minibrowser'
+        self.command = self.shell_command(filter_command)
+
         rc = yield super().run()
+
+        steps_to_add = [
+            GenerateS3URL(
+                f"{self.getProperty('fullPlatform')}-{self.getProperty('architecture')}-{self.getProperty('configuration')}-{self.name}",
+                extension='txt',
+                content_type='text/plain',
+                additions=f'{self.build.number}',
+            ), UploadFileToS3(
+                'logs.txt',
+                links={self.name: 'Full logs'},
+                content_type='text/plain',
+            )
+        ]
+
         if rc in (SUCCESS, WARNINGS):
-            self.build.addStepsAfterCurrentStep([UploadMiniBrowserBundleViaSftp()])
+            steps_to_add.append(UploadMiniBrowserBundleViaSftp())
+        self.build.addStepsAfterCurrentStep(steps_to_add)
+
         defer.returnValue(rc)
 
 class ExtractBuiltProduct(shell.ShellCommandNewStyle):

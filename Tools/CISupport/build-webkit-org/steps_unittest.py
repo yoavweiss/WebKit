@@ -1712,9 +1712,11 @@ class TestGenerateUploadBundleSteps(BuildStepMixinAdditions, unittest.TestCase):
     def test_success_test_minibrowser_bundle(self):
         self.setupStep(TestMiniBrowserBundle())
         self.setUpPropertiesForTest()
+        next_steps = []
+        self.patch(self.build, 'addStepsAfterCurrentStep', lambda s: next_steps.extend(s))
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
-                        command=['Tools/Scripts/test-bundle', '--platform=gtk', '--bundle-type=universal', 'WebKitBuild/MiniBrowser_gtk_release.tar.xz'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'Tools/Scripts/test-bundle --platform=gtk --bundle-type=universal WebKitBuild/MiniBrowser_gtk_release.tar.xz 2>&1 | python3 Tools/Scripts/filter-test-logs minibrowser'],
                         logEnviron=True,
                         timeout=1200,
                         )
@@ -1722,15 +1724,17 @@ class TestGenerateUploadBundleSteps(BuildStepMixinAdditions, unittest.TestCase):
         )
         self.expectOutcome(result=SUCCESS, state_string='tested minibrowser bundle')
         rc = self.runStep()
-        self.assertTrue(UploadMiniBrowserBundleViaSftp() in self.build.addedStepsAfterCurrentStep)
+        self.assertEqual([GenerateS3URL('gtk-None-release-test-minibrowser-bundle', extension='txt', content_type='text/plain', additions='13'), UploadFileToS3('logs.txt', links={'test-minibrowser-bundle': 'Full logs'}, content_type='text/plain'), UploadMiniBrowserBundleViaSftp()], next_steps)
         return rc
 
     def test_failure_test_minibrowser_bundle(self):
         self.setupStep(TestMiniBrowserBundle())
         self.setUpPropertiesForTest()
+        next_steps = []
+        self.patch(self.build, 'addStepsAfterCurrentStep', lambda s: next_steps.extend(s))
         self.expectRemoteCommands(
             ExpectShell(workdir='wkdir',
-                        command=['Tools/Scripts/test-bundle', '--platform=gtk', '--bundle-type=universal', 'WebKitBuild/MiniBrowser_gtk_release.tar.xz'],
+                        command=['/bin/bash', '--posix', '-o', 'pipefail', '-c', 'Tools/Scripts/test-bundle --platform=gtk --bundle-type=universal WebKitBuild/MiniBrowser_gtk_release.tar.xz 2>&1 | python3 Tools/Scripts/filter-test-logs minibrowser'],
                         logEnviron=True,
                         timeout=1200,
                         )
@@ -1738,7 +1742,7 @@ class TestGenerateUploadBundleSteps(BuildStepMixinAdditions, unittest.TestCase):
         )
         self.expectOutcome(result=FAILURE, state_string='tested minibrowser bundle (failure)')
         rc = self.runStep()
-        self.assertTrue(UploadMiniBrowserBundleViaSftp() not in self.build.addedStepsAfterCurrentStep)
+        self.assertEqual([GenerateS3URL('gtk-None-release-test-minibrowser-bundle', extension='txt', content_type='text/plain', additions='13'), UploadFileToS3('logs.txt', links={'test-minibrowser-bundle': 'Full logs'}, content_type='text/plain')], next_steps)
         return rc
 
     def test_success_generate_jsc_bundle(self):
