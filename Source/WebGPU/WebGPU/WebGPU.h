@@ -790,7 +790,7 @@ typedef void (*WGPURequestDeviceCallback)(WGPURequestDeviceStatus status, WGPUDe
 typedef struct WGPUChainedStruct {
     struct WGPUChainedStruct const * next;
     WGPUSType sType;
-} __attribute__((swift_attr("@safe"))) SWIFT_ESCAPABLE WGPUChainedStruct WGPU_STRUCTURE_ATTRIBUTE;
+} SWIFT_ESCAPABLE WGPUChainedStruct WGPU_STRUCTURE_ATTRIBUTE;
 
 typedef struct WGPUChainedStructOut {
     struct WGPUChainedStructOut * next;
@@ -848,7 +848,7 @@ typedef struct WGPUColor {
 
 typedef struct WGPUCommandBufferDescriptor {
     WGPU_NULLABLE WTF::String label;
-} __attribute__((swift_attr("@safe"))) SWIFT_ESCAPABLE WGPUCommandBufferDescriptor WGPU_STRUCTURE_ATTRIBUTE;
+} SWIFT_ESCAPABLE WGPUCommandBufferDescriptor WGPU_STRUCTURE_ATTRIBUTE;
 
 typedef struct WGPUCommandEncoderDescriptor {
     WGPU_NULLABLE char const * label;
@@ -1199,7 +1199,7 @@ inline std::span<const WGPUCompilationMessage> messagesSpan(const WGPUCompilatio
 typedef struct WGPUComputePassDescriptor {
     WGPU_NULLABLE WTF::String label;
     WGPU_NULLABLE WGPUComputePassTimestampWrites const * timestampWrites;
-} __attribute__((swift_attr("@safe"))) SWIFT_ESCAPABLE WGPUComputePassDescriptor WGPU_STRUCTURE_ATTRIBUTE;
+} SWIFT_ESCAPABLE WGPUComputePassDescriptor WGPU_STRUCTURE_ATTRIBUTE;
 
 static inline WGPU_NULLABLE WGPUComputePassTimestampWrites const * _Nullable __counted_by(1) wgpuGetComputePassDescriptorTimestampWrites(const WGPUComputePassDescriptor * __attribute__((lifetimebound)) __counted_by(1) __attribute__((noescape)) descriptor) {
     return descriptor->timestampWrites;
@@ -1332,7 +1332,7 @@ typedef struct WGPURenderPassDescriptor {
     WGPU_NULLABLE WGPURenderPassTimestampWrites const * timestampWrites;
 
     auto colorAttachmentsSpan() const { return unsafeMakeSpan(colorAttachments, colorAttachmentCount); }
-} __attribute__((swift_attr("@safe"))) SWIFT_ESCAPABLE WGPURenderPassDescriptor WGPU_STRUCTURE_ATTRIBUTE;
+} SWIFT_ESCAPABLE WGPURenderPassDescriptor WGPU_STRUCTURE_ATTRIBUTE;
 
 inline WGPURenderPassTimestampWrites const * _Nullable __counted_by(1) wgpuGetRenderPassDescriptorTimestampWrites(const WGPURenderPassDescriptor * __attribute__((lifetimebound)) __counted_by(1) __attribute__((noescape)) descriptor) {
     return descriptor->timestampWrites;
