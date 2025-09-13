@@ -460,6 +460,33 @@ TEST(WKWebView, AttributedStringFromList)
     checkListAtIndex(7, @"Four", secondList);
 }
 
+TEST(WKWebView, AttributedStringFromListWithNegativeStartValue)
+{
+    static constexpr auto html = R"""(
+    <body contenteditable dir='auto'>
+        <ol start='-4'>
+            <li>A</li>
+        </ol>
+    </body>
+    )"""_s;
+
+    const DecomposedAttributedText expected { {
+        DecomposedAttributedText::OrderedList { -4, {
+            "\t-4\tA\n"_s,
+        } },
+    } };
+
+    RetainPtr webView = adoptNS([TestWKWebView new]);
+    [webView synchronouslyLoadHTMLString:html.createNSString().get()];
+
+    RetainPtr string = [webView _contentsAsAttributedString];
+    auto actual = decompose(string.get());
+
+    TextStream stream;
+    stream << "expected " << actual << " to equal " << expected;
+    EXPECT_EQ(actual, expected) << stream.release().utf8().data();
+}
+
 TEST(WKWebView, AttributedStringFromListWithCustomListStyleTypes)
 {
     static constexpr auto html = R"""(

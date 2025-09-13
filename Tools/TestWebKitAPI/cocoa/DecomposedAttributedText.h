@@ -106,7 +106,14 @@ struct _DecomposedAttributedTextOrderedList {
 
     _DecomposedAttributedTextOrderedList(int startingItemNumber, DecomposedAttributedText::ListMarker marker, Vector<DecomposedAttributedText::Element>&& children)
         : marker(marker)
-        , startingItemNumber(startingItemNumber), children(children)
+        , startingItemNumber(startingItemNumber)
+        , children(children)
+    {
+    }
+
+    _DecomposedAttributedTextOrderedList(int startingItemNumber, Vector<DecomposedAttributedText::Element>&& children)
+        : startingItemNumber(startingItemNumber)
+        , children(children)
     {
     }
 

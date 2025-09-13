@@ -153,7 +153,7 @@ header: <WebCore/AttributedString.h>
 [CustomHeader] struct WebCore::ParagraphStyleTextList {
     WebCore::AttributedStringTextListID thisID
     String markerFormat;
-    [Validator='startingItemNumber >= 0'] int64_t startingItemNumber;
+    int64_t startingItemNumber;
 }
 
 header: <WebCore/AttributedString.h>
