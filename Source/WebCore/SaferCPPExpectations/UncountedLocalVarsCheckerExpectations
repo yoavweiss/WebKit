@@ -282,7 +282,6 @@ loader/EmptyClients.cpp
 mathml/MathMLSelectElement.cpp
 page/BarProp.cpp
 page/CaptionUserPreferences.cpp
-page/CaptionUserPreferencesMediaAF.cpp
 page/ContextMenuController.cpp
 page/DebugPageOverlays.cpp
 page/DeviceController.cpp

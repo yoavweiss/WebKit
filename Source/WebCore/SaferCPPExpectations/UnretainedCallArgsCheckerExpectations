@@ -47,7 +47,6 @@ inspector/agents/page/PageTimelineAgent.cpp
 inspector/mac/PageDebuggerMac.mm
 loader/cocoa/DiskCacheMonitorCocoa.mm
 loader/cocoa/PrivateClickMeasurementCocoa.mm
-page/CaptionUserPreferencesMediaAF.cpp
 page/cocoa/MemoryReleaseCocoa.mm
 page/cocoa/PageCocoa.mm
 page/cocoa/WebTextIndicatorLayer.mm
