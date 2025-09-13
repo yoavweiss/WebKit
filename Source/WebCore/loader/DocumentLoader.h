@@ -317,6 +317,8 @@ public:
 
     const NavigationAction& triggeringAction() const { return m_triggeringAction; }
     void setTriggeringAction(NavigationAction&&);
+    void setTriggeringNavigationAPIType(NavigationNavigationType type) { m_triggeringAction.setNavigationAPIType(type); };
+
     void setOverrideEncoding(const String& encoding) { m_overrideEncoding = encoding; }
     void setLastCheckedRequest(ResourceRequest&& request) { m_lastCheckedRequest = WTFMove(request); }
     const ResourceRequest& lastCheckedRequest()  { return m_lastCheckedRequest; }

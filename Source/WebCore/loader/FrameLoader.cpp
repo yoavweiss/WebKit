@@ -2064,6 +2064,7 @@ void FrameLoader::reload(OptionSet<ReloadOption> options, bool isRequestFromClie
         loader->setTriggeringAction({ m_frame->protectedDocument().releaseNonNull(), request, InitiatedByMainFrame::Unknown, loader->isRequestFromClientOrUserInput(), NavigationType::FormResubmitted });
 
     loader->setOverrideEncoding(documentLoader->overrideEncoding());
+    loader->setTriggeringNavigationAPIType(NavigationNavigationType::Reload);
 
     auto frameLoadTypeForReloadOptions = [] (auto options) {
         if (options & ReloadOption::FromOrigin)
