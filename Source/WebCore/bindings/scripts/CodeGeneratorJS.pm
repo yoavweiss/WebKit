@@ -724,6 +724,9 @@ sub AddToIncludes
 {
     my ($header, $includesRef, $conditional) = @_;
 
+    # Unquote string literals if needed.
+    $conditional = $codeGenerator->UnquoteStringLiteral($conditional) if $conditional && $conditional =~ /^['"]/;
+
     if (not $conditional) {
         $includesRef->{$header} = 1;
     } elsif (not exists($includesRef->{$header})) {
