@@ -191,6 +191,7 @@ void Frame::takeWindowProxyAndOpenerFrom(Frame& frame)
         opened->m_opener = *this;
         m_openedFrames.add(opened);
     }
+    frame.m_openedFrames.clear();
 }
 
 Ref<WindowProxy> Frame::protectedWindowProxy() const
