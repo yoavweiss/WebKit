@@ -62,8 +62,7 @@ struct WebPageNavigationTests {
         let expected: [WebPage.NavigationEvent] = [.startedProvisionalNavigation]
 
         await #expect(throws: (any Error).self) {
-            // Safety: this is actually safe; false positive is rdar://154775389
-            for try await unsafe event in sequence {
+            for try await event in sequence {
                 actual.append(event)
             }
         }
@@ -81,8 +80,7 @@ struct WebPageNavigationTests {
 
         // FIXME: `#expect` should work here, but due to a Swift Testing issue causes the test to hang.
         do {
-            // Safety: this is actually safe; false positive is rdar://154775389
-            for try await unsafe event in sequence where event == .startedProvisionalNavigation {
+            for try await event in sequence where event == .startedProvisionalNavigation {
                 page.stopLoading()
             }
             Issue.record("Stopping page load should trigger an error and therefore the loop should never finish.")
@@ -104,8 +102,7 @@ struct WebPageNavigationTests {
 
         await withCheckedContinuation { continuation in
             task = Task {
-                // Safety: this is actually safe; false positive is rdar://154775389
-                for try await unsafe event in sequence {
+                for try await event in sequence {
                     if event == .startedProvisionalNavigation {
                         continuation.resume()
                     } else {
@@ -122,8 +119,7 @@ struct WebPageNavigationTests {
 
         // FIXME: `#expect` should work here, but due to a Swift Testing issue causes the test to hang.
         do {
-            // Safety: this is actually safe; false positive is rdar://154775389
-            for try await unsafe event in allNavigations {
+            for try await event in allNavigations {
                 actualEvents.append(event)
             }
             Issue.record("The stream is indefinite and therefore should never reach here.")
@@ -144,8 +140,7 @@ struct WebPageNavigationTests {
 
         // FIXME: `#expect` should work here, but a Swift Testing issue causes the test to hang.
         do {
-            // Safety: this is actually safe; false positive is rdar://154775389
-            for try await unsafe event in sequence where event == .startedProvisionalNavigation {
+            for try await event in sequence where event == .startedProvisionalNavigation {
                 page.terminateWebContentProcess()
             }
             Issue.record("Terminating the web content process should trigger an error and therefore the loop should never finish.")
