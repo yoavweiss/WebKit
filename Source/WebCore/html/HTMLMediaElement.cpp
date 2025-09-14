@@ -42,6 +42,7 @@
 #include "CodecUtilities.h"
 #include "CommonAtomStrings.h"
 #include "CommonVM.h"
+#include "ContainerNodeInlines.h"
 #include "ContentRuleListResults.h"
 #include "ContentSecurityPolicy.h"
 #include "ContentType.h"

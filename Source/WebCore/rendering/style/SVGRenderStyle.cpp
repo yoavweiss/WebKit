@@ -34,6 +34,7 @@
 #include "NodeRenderStyle.h"
 #include "RenderStyleDifference.h"
 #include "SVGElement.h"
+#include "WebAnimationTypes.h"
 #include <wtf/NeverDestroyed.h>
 #include <wtf/text/TextStream.h>
 

@@ -29,6 +29,7 @@
 #include "Attr.h"
 #include "CDATASection.h"
 #include "Comment.h"
+#include "CustomElementRegistry.h"
 #include "DocumentInlines.h"
 #include "Document.h"
 #include "DocumentFragment.h"

@@ -46,6 +46,7 @@
 #include "PictureInPictureSupport.h"
 #include "RenderImage.h"
 #include "RenderLayerCompositor.h"
+#include "RenderObjectDocument.h"
 #include "RenderVideo.h"
 #include "RenderView.h"
 #include "ScriptController.h"

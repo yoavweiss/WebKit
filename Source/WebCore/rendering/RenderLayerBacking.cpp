@@ -35,6 +35,7 @@
 #include "CachedImage.h"
 #include "CanvasRenderingContext2DBase.h"
 #include "Chrome.h"
+#include "ContainerNodeInlines.h"
 #include "DebugOverlayRegions.h"
 #include "DebugPageOverlays.h"
 #include "DropShadowFilterOperationWithStyleColor.h"

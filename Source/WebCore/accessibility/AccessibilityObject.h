@@ -236,7 +236,7 @@ public:
     bool isVisited() const final;
     bool isRequired() const override { return false; }
     bool isExpanded() const final;
-    bool isVisible() const override { return !isHidden(); }
+    bool isVisible() const override;
     virtual bool isCollapsed() const { return false; }
     void setIsExpanded(bool) override { }
     FloatRect unobscuredContentRect() const;
@@ -280,10 +280,10 @@ public:
     // Use isIgnored as the word of law when determining if an object is ignored.
     virtual bool computeIsIgnored() const { return true; }
     bool isIgnored() const final;
-    void recomputeIsIgnored();
+    inline void recomputeIsIgnored();
     void recomputeIsIgnoredForDescendants(bool includeSelf = false);
     AccessibilityObjectInclusion defaultObjectInclusion() const;
-    bool isIgnoredByDefault() const;
+    inline bool isIgnoredByDefault() const;
     bool includeIgnoredInCoreTree() const;
     bool isARIAHidden() const;
 
@@ -459,7 +459,7 @@ public:
 
     String ariaRoleDescription() const final { return getAttributeTrimmed(HTMLNames::aria_roledescriptionAttr); };
 
-    AXObjectCache* axObjectCache() const;
+    inline AXObjectCache* axObjectCache() const;
 
     static AccessibilityObject* anchorElementForNode(Node&);
     static AccessibilityObject* headingElementForNode(Node*);
@@ -511,7 +511,7 @@ public:
     Document* document() const override;
     RefPtr<Document> protectedDocument() const;
     LocalFrameView* documentFrameView() const override;
-    LocalFrame* frame() const;
+    inline LocalFrame* frame() const;
     RefPtr<LocalFrame> localMainFrame() const;
     Document* topDocument() const;
     RenderView* topRenderer() const;
@@ -747,8 +747,8 @@ public:
 
     // Visibility.
     bool isAXHidden() const;
-    bool isRenderHidden() const;
-    bool isHidden() const { return isAXHidden() || isRenderHidden(); }
+    inline bool isRenderHidden() const;
+    inline bool isHidden() const;
     bool isOnScreen() const final;
 
 #if PLATFORM(MAC)
@@ -983,12 +983,6 @@ inline bool AccessibilityObject::hasDisplayContents() const
 {
     RefPtr element = this->element();
     return element && element->hasDisplayContents();
-}
-
-inline void AccessibilityObject::recomputeIsIgnored()
-{
-    // isIgnoredWithoutCache will update m_lastKnownIsIgnoredValue and perform any necessary actions if it has changed.
-    isIgnoredWithoutCache(axObjectCache());
 }
 
 inline std::optional<BoundaryPoint> AccessibilityObject::lastBoundaryPointContainedInRect(const Vector<BoundaryPoint>& boundaryPoints, const BoundaryPoint& startBoundaryPoint, const FloatRect& targetRect, bool isFlippedWritingMode) const

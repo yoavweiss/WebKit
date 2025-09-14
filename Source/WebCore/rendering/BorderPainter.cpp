@@ -37,6 +37,7 @@
 #include "PaintInfo.h"
 #include "PathUtilities.h"
 #include "RenderBox.h"
+#include "RenderObjectDocument.h"
 #include "RenderStyleInlines.h"
 #include "RenderTheme.h"
 #include "StylePrimitiveNumericTypes+Evaluation.h"

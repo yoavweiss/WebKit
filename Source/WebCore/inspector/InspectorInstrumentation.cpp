@@ -34,6 +34,7 @@
 
 #include "CachedResource.h"
 #include "ComputedEffectTiming.h"
+#include "ContextDestructionObserverInlines.h"
 #include "DOMWrapperWorld.h"
 #include "DocumentLoader.h"
 #include "Event.h"

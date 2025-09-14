@@ -26,6 +26,7 @@
 #include "config.h"
 #include "IDBOpenDBRequest.h"
 
+#include "ContextDestructionObserverInlines.h"
 #include "DOMException.h"
 #include "EventNames.h"
 #include "IDBConnectionProxy.h"

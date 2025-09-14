@@ -39,6 +39,7 @@
 #include "LegacyRenderSVGResourceFilter.h"
 #include "Logging.h"
 #include "ReferenceFilterOperation.h"
+#include "RenderObjectInlines.h"
 #include "RenderSVGShape.h"
 #include "RenderStyleInlines.h"
 #include <wtf/NeverDestroyed.h>

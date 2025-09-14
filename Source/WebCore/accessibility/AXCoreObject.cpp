@@ -29,6 +29,8 @@
 #include "config.h"
 #include "AXCoreObject.h"
 
+#include "DocumentInlines.h"
+#include "HTMLAreaElement.h"
 #include "LocalFrameView.h"
 #include "RenderObjectStyle.h"
 #include "Settings.h"

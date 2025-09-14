@@ -60,6 +60,7 @@
 #include "StyleResolver.h"
 #include "StyleScope.h"
 #include "StyleTextShadow.h"
+#include "TransformOperations.h"
 
 namespace WebCore {
 namespace Style {

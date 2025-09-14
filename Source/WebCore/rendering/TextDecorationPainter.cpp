@@ -31,6 +31,7 @@
 #include "InlineTextBoxStyle.h"
 #include "RenderBlock.h"
 #include "RenderElementInlines.h"
+#include "RenderObjectInlines.h"
 #include "RenderStyleInlines.h"
 #include "RenderText.h"
 #include "StyleTextDecorationLine.h"

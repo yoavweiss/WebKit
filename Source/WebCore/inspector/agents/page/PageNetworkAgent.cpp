@@ -26,14 +26,15 @@
 #include "config.h"
 #include "PageNetworkAgent.h"
 
-#include "Document.h"
+#include "DocumentInlines.h"
 #include "DocumentLoader.h"
 #include "FrameDestructionObserverInlines.h"
 #include "InspectorBackendClient.h"
 #include "InstrumentingAgents.h"
-#include "LocalFrame.h"
+#include "LocalFrameInlines.h"
 #include "Page.h"
 #include "PageConsoleClient.h"
+#include "Settings.h"
 #include "ThreadableWebSocketChannel.h"
 #include "WebSocket.h"
 #include <wtf/TZoneMallocInlines.h>

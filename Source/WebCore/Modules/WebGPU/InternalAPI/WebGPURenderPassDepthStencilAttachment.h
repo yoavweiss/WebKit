@@ -35,6 +35,7 @@
 namespace WebCore::WebGPU {
 
 class TextureView;
+class Texture;
 
 using RenderPassDepthAttachmentView = Variant<const WeakRef<Texture>, const WeakRef<TextureView>>;
 

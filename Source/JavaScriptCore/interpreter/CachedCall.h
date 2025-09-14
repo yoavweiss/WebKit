@@ -28,7 +28,7 @@
 #include "ArgList.h"
 #include "CallLinkInfoBase.h"
 #include "ExceptionHelpers.h"
-#include "JSFunction.h"
+#include "JSFunctionInlines.h"
 #include "Interpreter.h"
 #include "ProtoCallFrameInlines.h"
 #include "VMEntryScope.h"

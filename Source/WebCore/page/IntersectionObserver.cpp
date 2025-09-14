@@ -27,6 +27,7 @@
 #include "config.h"
 #include "IntersectionObserver.h"
 
+#include "ContextDestructionObserverInlines.h"
 #include "ContainerNodeInlines.h"
 #include "CSSParserTokenRange.h"
 #include "CSSPropertyParserConsumer+CSSPrimitiveValueResolver.h"

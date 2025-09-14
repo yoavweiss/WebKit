@@ -26,6 +26,8 @@
 #include "StyleTransformList.h"
 
 #include "LayoutSize.h"
+#include "Matrix3DTransformOperation.h"
+#include "RenderBox.h"
 #include "StyleInterpolationClient.h"
 #include "StyleInterpolationContext.h"
 #include "TransformOperations.h"

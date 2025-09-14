@@ -34,7 +34,7 @@
 
 #include "AddEventListenerOptionsInlines.h"
 #include "DOMStringList.h"
-#include "Document.h"
+#include "DocumentInlines.h"
 #include "Event.h"
 #include "EventListener.h"
 #include "EventNames.h"

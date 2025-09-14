@@ -27,6 +27,8 @@
 #include "config.h"
 #include "WorkletGlobalScope.h"
 
+#include "ContentSecurityPolicy.h"
+#include "DocumentInlines.h"
 #include "InspectorInstrumentation.h"
 #include "JSWorkletGlobalScope.h"
 #include "LocalFrame.h"

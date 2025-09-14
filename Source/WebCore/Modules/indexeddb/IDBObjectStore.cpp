@@ -26,6 +26,7 @@
 #include "config.h"
 #include "IDBObjectStore.h"
 
+#include "ContextDestructionObserverInlines.h"
 #include "DOMStringList.h"
 #include "Document.h"
 #include "IDBBindingUtilities.h"

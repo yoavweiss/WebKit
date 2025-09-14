@@ -28,6 +28,7 @@
 #include "GPUIntegralTypes.h"
 #include "GPULoadOp.h"
 #include "GPUStoreOp.h"
+#include "GPUTexture.h"
 #include "GPUTextureView.h"
 #include "WebGPURenderPassDepthStencilAttachment.h"
 #include <wtf/RefPtr.h>

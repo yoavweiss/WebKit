@@ -24,6 +24,7 @@
 
 #include "Document.h"
 #include "DocumentInlines.h"
+#include "ElementInlines.h"
 #include "Event.h"
 #include "NodeInlines.h"
 #include "ScriptElement.h"

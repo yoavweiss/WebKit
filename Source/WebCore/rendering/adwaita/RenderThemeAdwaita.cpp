@@ -39,7 +39,7 @@
 #include "Page.h"
 #include "PaintInfo.h"
 #include "RenderBox.h"
-#include "RenderObject.h"
+#include "RenderObjectInlines.h"
 #include "RenderProgress.h"
 #include "RenderStyleSetters.h"
 #include "StylePadding.h"

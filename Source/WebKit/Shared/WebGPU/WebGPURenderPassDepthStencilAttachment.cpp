@@ -28,9 +28,11 @@
 
 #if ENABLE(GPU_PROCESS)
 
+#include "RemoteImageBufferGraphicsContext.h"
 #include "WebGPUConvertFromBackingContext.h"
 #include "WebGPUConvertToBackingContext.h"
 #include <WebCore/WebGPURenderPassDepthStencilAttachment.h>
+#include <WebCore/WebGPUTexture.h>
 #include <WebCore/WebGPUTextureView.h>
 
 namespace WebKit::WebGPU {

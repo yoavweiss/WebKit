@@ -30,6 +30,7 @@
 #include "GraphicsContextStateSaver.h"
 #include "LegacyRenderSVGResourceSolidColor.h"
 #include "RenderInline.h"
+#include "RenderObjectDocument.h"
 #include "RenderSVGInlineText.h"
 #include "RenderSVGText.h"
 #include "SVGInlineTextBox.h"

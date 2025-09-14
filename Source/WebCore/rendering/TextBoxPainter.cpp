@@ -43,6 +43,7 @@
 #include "RenderBoxModelObjectInlines.h"
 #include "RenderCombineText.h"
 #include "RenderElementInlines.h"
+#include "RenderObjectInlines.h"
 #include "RenderText.h"
 #include "RenderTheme.h"
 #include "RenderView.h"

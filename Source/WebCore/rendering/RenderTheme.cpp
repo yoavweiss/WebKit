@@ -66,6 +66,7 @@
 #include "RenderElementInlines.h"
 #include "RenderProgress.h"
 #include "RenderStyleSetters.h"
+#include "RenderObjectInlines.h"
 #include "RenderView.h"
 #include "SearchFieldCancelButtonPart.h"
 #include "SearchFieldPart.h"

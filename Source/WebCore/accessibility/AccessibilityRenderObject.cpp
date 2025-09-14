@@ -36,6 +36,7 @@
 #include "AXNotifications.h"
 #include "AXObjectCacheInlines.h"
 #include "AXUtilities.h"
+#include "AccessibilityObjectInlines.h"
 #include "AccessibilityMediaHelpers.h"
 #include "AccessibilitySVGObject.h"
 #include "AccessibilitySpinButton.h"

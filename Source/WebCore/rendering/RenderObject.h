@@ -864,7 +864,7 @@ public:
 
     inline const RenderStyle& style() const; // Defined in RenderObjectStyle.h.
     inline CheckedRef<const RenderStyle> checkedStyle() const; // Defined in RenderObjectStyle.h.
-    const RenderStyle& firstLineStyle() const;
+    inline const RenderStyle& firstLineStyle() const;
     inline WritingMode writingMode() const; // Defined in RenderObjectStyle.h.
     // writingMode().isHorizontal() is cached by isHorizontalWritingMode() above.
 

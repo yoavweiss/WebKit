@@ -30,6 +30,7 @@
 #include "RenderListMarker.h"
 #include "RenderMenuList.h"
 #include "RenderMultiColumnFlow.h"
+#include "RenderObjectStyle.h"
 #include "RenderTable.h"
 #include <wtf/TZoneMallocInlines.h>
 

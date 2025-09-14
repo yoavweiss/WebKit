@@ -32,6 +32,7 @@
 #include "ResourceLoadNotifier.h"
 
 #include "DocumentLoader.h"
+#include "FrameInlines.h"
 #include "FrameLoader.h"
 #include "InspectorInstrumentation.h"
 #include "LocalFrame.h"

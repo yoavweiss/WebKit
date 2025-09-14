@@ -28,6 +28,7 @@
 
 #include "Document.h"
 #include "EditingInlines.h"
+#include "EditingStyle.h"
 #include "FrameSelection.h"
 #include "HTMLBRElement.h"
 #include "HTMLHRElement.h"
