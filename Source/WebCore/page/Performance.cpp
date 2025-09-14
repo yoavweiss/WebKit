@@ -573,13 +573,13 @@ void Performance::scheduleTaskIfNeeded()
     if (m_hasScheduledDeliveryTask)
         return;
 
-    auto* context = scriptExecutionContext();
+    RefPtr context = scriptExecutionContext();
     if (!context)
         return;
 
     m_hasScheduledDeliveryTask = true;
     context->eventLoop().queueTask(TaskSource::PerformanceTimeline, [protectedThis = Ref { *this }, this] {
-        auto* context = scriptExecutionContext();
+        RefPtr context = scriptExecutionContext();
         if (!context)
             return;
 

@@ -6,7 +6,6 @@ Modules/entriesapi/FileSystemDirectoryEntry.cpp
 Modules/entriesapi/FileSystemEntry.cpp
 Modules/entriesapi/FileSystemFileEntry.cpp
 Modules/filesystem/FileSystemFileHandle.cpp
-Modules/filesystem/WorkerFileSystemStorageConnection.cpp
 Modules/identity/CredentialRequestCoordinator.cpp
 Modules/mediacontrols/MediaControlsHost.cpp
 Modules/mediasession/MediaMetadata.cpp
@@ -19,7 +18,6 @@ Modules/mediastream/MediaStreamTrackProcessor.cpp
 Modules/mediastream/PeerConnectionBackend.cpp
 Modules/mediastream/RTCController.cpp
 Modules/mediastream/RTCDTMFSender.cpp
-Modules/mediastream/RTCDataChannel.cpp
 Modules/mediastream/RTCDataChannelRemoteHandler.cpp
 Modules/mediastream/RTCEncodedFrame.cpp
 Modules/mediastream/RTCPeerConnection.cpp
@@ -39,7 +37,6 @@ Modules/push-api/ServiceWorkerRegistrationPushAPI.cpp
 Modules/remoteplayback/RemotePlayback.cpp
 Modules/speech/SpeechSynthesis.cpp
 Modules/storage/StorageManager.cpp
-Modules/storage/WorkerStorageConnection.cpp
 Modules/webaudio/AnalyserNode.cpp
 Modules/webaudio/AudioBasicInspectorNode.cpp
 Modules/webaudio/AudioBasicProcessorNode.cpp
@@ -84,7 +81,6 @@ Modules/webdatabase/DatabaseManager.cpp
 Modules/webdatabase/DatabaseTask.cpp
 Modules/webdatabase/DatabaseThread.cpp
 Modules/webdatabase/LocalDOMWindowWebDatabase.cpp
-Modules/webdatabase/SQLCallbackWrapper.h
 Modules/webdatabase/SQLStatement.cpp
 Modules/webdatabase/SQLTransaction.cpp
 Modules/webdatabase/SQLTransactionBackend.cpp
@@ -135,7 +131,6 @@ bindings/js/DOMPromiseProxy.h
 bindings/js/DOMWrapperWorld.cpp
 bindings/js/JSAudioBufferCustom.cpp
 bindings/js/JSAudioBufferSourceNodeCustom.cpp
-bindings/js/JSAudioWorkletGlobalScopeCustom.cpp
 bindings/js/JSCSSRuleCustom.cpp
 bindings/js/JSCSSRuleCustom.h
 bindings/js/JSCSSRuleListCustom.cpp
@@ -152,7 +147,6 @@ bindings/js/JSDOMConvertBufferSource.h
 bindings/js/JSDOMConvertCallbacks.h
 bindings/js/JSDOMConvertEventListener.h
 bindings/js/JSDOMConvertInterface.h
-bindings/js/JSDOMExceptionHandling.cpp
 bindings/js/JSDOMGlobalObject.cpp
 bindings/js/JSDOMIterator.h
 bindings/js/JSDOMMapLike.h
@@ -234,7 +228,6 @@ bridge/runtime_root.cpp
 contentextensions/ContentExtension.cpp
 contentextensions/ContentExtensionStyleSheet.cpp
 contentextensions/ContentExtensionsBackend.cpp
-crypto/SubtleCrypto.cpp
 crypto/parameters/CryptoAlgorithmRsaKeyGenParams.h
 css/CSSCounterStyle.cpp
 css/CSSCounterStyleDescriptors.cpp
@@ -319,7 +312,6 @@ dom/ComposedTreeIterator.h
 dom/ContainerNode.cpp
 dom/ContainerNodeAlgorithms.cpp
 dom/ContentVisibilityDocumentState.cpp
-dom/ContextDestructionObserver.cpp
 dom/CurrentScriptIncrementer.h
 dom/CustomElementDefaultARIA.cpp
 dom/CustomElementReactionQueue.cpp
@@ -360,7 +352,6 @@ dom/ProcessingInstruction.cpp
 dom/QualifiedName.cpp
 dom/Range.cpp
 dom/RangeBoundaryPoint.h
-dom/RejectedPromiseTracker.cpp
 dom/ScriptExecutionContextInlines.h
 dom/ScriptRunner.cpp
 dom/SelectorQuery.cpp
@@ -481,7 +472,6 @@ html/MediaElementSession.cpp
 html/ModelDocument.cpp
 html/OffscreenCanvas.cpp
 html/PluginDocument.cpp
-html/PublicURLManager.cpp
 html/RadioNodeList.cpp
 html/ValidatedFormListedElement.cpp
 html/ValidationMessage.cpp
@@ -510,7 +500,6 @@ html/track/InbandWebVTTTextTrack.cpp
 html/track/LoadableTextTrack.cpp
 html/track/TextTrack.cpp
 html/track/TextTrackCue.cpp
-html/track/TrackBase.cpp
 html/track/VTTCue.cpp
 html/track/VideoTrack.cpp
 inspector/CommandLineAPIModule.cpp
@@ -533,7 +522,6 @@ inspector/NetworkResourcesData.cpp
 inspector/PageDebugger.cpp
 inspector/WebInjectedScriptManager.cpp
 inspector/WorkerDebugger.cpp
-inspector/WorkerInspectorController.cpp
 inspector/WorkerToPageFrontendChannel.h
 inspector/agents/InspectorAnimationAgent.cpp
 inspector/agents/InspectorCPUProfilerAgent.cpp
@@ -548,7 +536,6 @@ inspector/agents/InspectorNetworkAgent.cpp
 inspector/agents/InspectorPageAgent.cpp
 inspector/agents/InspectorTimelineAgent.cpp
 inspector/agents/InspectorWorkerAgent.cpp
-inspector/agents/WebDebuggerAgent.cpp
 inspector/agents/page/PageAuditAgent.cpp
 inspector/agents/page/PageCanvasAgent.cpp
 inspector/agents/page/PageConsoleAgent.cpp
@@ -740,8 +727,8 @@ platform/graphics/filters/software/FELightingSoftwareParallelApplier.cpp
 platform/graphics/filters/software/FETurbulenceSoftwareApplier.cpp
 platform/graphics/mac/PDFDocumentImageMac.mm
 platform/graphics/opentype/OpenTypeMathData.cpp
-platform/graphics/transforms/TransformOperationsSharedPrimitivesPrefix.h
 platform/graphics/transforms/TransformOperations.cpp
+platform/graphics/transforms/TransformOperationsSharedPrimitivesPrefix.h
 platform/libwebrtc/LibWebRTCVPXVideoEncoder.cpp
 platform/mac/PasteboardWriter.mm
 platform/mac/ScrollbarsControllerMac.mm
@@ -1056,7 +1043,6 @@ workers/WorkerOrWorkletThread.cpp
 workers/service/ServiceWorker.cpp
 workers/service/ServiceWorkerContainer.cpp
 workers/service/ServiceWorkerGlobalScope.cpp
-workers/service/ServiceWorkerRegistration.cpp
 workers/service/ServiceWorkerWindowClient.cpp
 workers/service/background-fetch/BackgroundFetch.cpp
 workers/service/background-fetch/BackgroundFetchEngine.cpp

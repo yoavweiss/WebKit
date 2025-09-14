@@ -78,6 +78,11 @@ EventTarget::~EventTarget()
         eventTargetData->clear();
 }
 
+RefPtr<ScriptExecutionContext> EventTarget::protectedScriptExecutionContext() const
+{
+    return scriptExecutionContext();
+}
+
 bool EventTarget::isPaymentRequest() const
 {
     return false;

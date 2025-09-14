@@ -471,7 +471,8 @@ void WebSWClientConnection::focusServiceWorkerClient(ScriptExecutionContextIdent
                 }
 
                 page->focusController().setFocusedFrame(frame.get());
-                callback(ServiceWorkerClientData::from(*document));
+                // FIXME: This is a safer cpp false positive.
+                SUPPRESS_UNCOUNTED_ARG callback(ServiceWorkerClientData::from(*document));
             });
         };
 

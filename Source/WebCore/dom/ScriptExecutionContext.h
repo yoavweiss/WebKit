@@ -125,7 +125,9 @@ enum class ScriptExecutionContextType : uint8_t {
     EmptyScriptExecutionContext
 };
 
-class ScriptExecutionContext : public SecurityContext, public TimerAlignment {
+class ScriptExecutionContext : public SecurityContext, public TimerAlignment, public CanMakeThreadSafeCheckedPtr<ScriptExecutionContext> {
+    WTF_MAKE_TZONE_ALLOCATED(ScriptExecutionContext);
+    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(ScriptExecutionContext);
 public:
     using Type = ScriptExecutionContextType;
 

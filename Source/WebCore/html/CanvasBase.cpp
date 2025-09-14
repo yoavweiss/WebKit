@@ -411,4 +411,14 @@ WebCoreOpaqueRoot root(CanvasBase* canvas)
     return WebCoreOpaqueRoot { canvas };
 }
 
+RefPtr<ScriptExecutionContext> CanvasBase::protectedCanvasBaseScriptExecutionContext() const
+{
+    return canvasBaseScriptExecutionContext();
+}
+
+RefPtr<ScriptExecutionContext> CanvasBase::protectedScriptExecutionContext() const
+{
+    return scriptExecutionContext();
+}
+
 } // namespace WebCore

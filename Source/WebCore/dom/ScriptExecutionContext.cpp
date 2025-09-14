@@ -126,6 +126,7 @@ public:
     RefPtr<ScriptCallStack> m_callStack;
 };
 
+WTF_MAKE_TZONE_ALLOCATED_IMPL(ScriptExecutionContext);
 WTF_MAKE_TZONE_ALLOCATED_IMPL(ScriptExecutionContext::PendingException);
 WTF_MAKE_TZONE_ALLOCATED_IMPL(ScriptExecutionContext::Task);
 

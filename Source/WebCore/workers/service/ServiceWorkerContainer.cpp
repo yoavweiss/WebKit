@@ -147,7 +147,8 @@ auto ServiceWorkerContainer::ready() -> ReadyPromise&
                 RefPtr context = container.scriptExecutionContext();
                 if (!context || !container.m_readyPromise)
                     return;
-                Ref registration = ServiceWorkerRegistration::getOrCreate(*context, container, WTFMove(registrationData));
+                // FIXME: This is a safer cpp false positive (rdar://160322553).
+                SUPPRESS_UNCOUNTED_ARG Ref registration = ServiceWorkerRegistration::getOrCreate(*context, container, WTFMove(registrationData));
                 container.m_readyPromise->resolve(WTFMove(registration));
             });
         });
@@ -164,7 +165,7 @@ ServiceWorker* ServiceWorkerContainer::controller() const
 
 void ServiceWorkerContainer::addRegistration(Variant<RefPtr<TrustedScriptURL>, String>&& relativeScriptURL, const RegistrationOptions& options, Ref<DeferredPromise>&& promise)
 {
-    auto stringValueHolder = trustedTypeCompliantString(*scriptExecutionContext(), WTFMove(relativeScriptURL), "ServiceWorkerContainer register"_s);
+    auto stringValueHolder = trustedTypeCompliantString(*protectedScriptExecutionContext(), WTFMove(relativeScriptURL), "ServiceWorkerContainer register"_s);
 
     if (stringValueHolder.hasException()) {
         promise->reject(stringValueHolder.releaseException());
@@ -336,7 +337,8 @@ void ServiceWorkerContainer::getRegistration(const String& clientURL, Ref<Deferr
                 promise->resolve();
                 return;
             }
-            promise->resolve<IDLInterface<ServiceWorkerRegistration>>(ServiceWorkerRegistration::getOrCreate(*container.protectedScriptExecutionContext(), container, WTFMove(result.value())));
+            // FIXME: This is a safer cpp false positive (rdar://160322553).
+            SUPPRESS_UNCOUNTED_ARG promise->resolve<IDLInterface<ServiceWorkerRegistration>>(ServiceWorkerRegistration::getOrCreate(*container.protectedScriptExecutionContext(), container, WTFMove(result.value())));
         });
     });
 }
@@ -348,8 +350,10 @@ void ServiceWorkerContainer::updateRegistrationState(ServiceWorkerRegistrationId
 
     queueTaskKeepingObjectAlive(*this, TaskSource::DOMManipulation, [identifier, state, serviceWorkerData = std::optional<ServiceWorkerData> { serviceWorkerData }](auto& container) mutable {
         RefPtr<ServiceWorker> serviceWorker;
-        if (serviceWorkerData)
-            serviceWorker = ServiceWorker::getOrCreate(*container.protectedScriptExecutionContext(), WTFMove(*serviceWorkerData));
+        if (serviceWorkerData) {
+            // FIXME: This is a safer cpp false positive (rdar://160322553).
+            SUPPRESS_UNCOUNTED_ARG serviceWorker = ServiceWorker::getOrCreate(*container.protectedScriptExecutionContext(), WTFMove(*serviceWorkerData));
+        }
 
         if (RefPtr registration = container.m_registrations.get(identifier))
             registration->updateStateFromServer(state, WTFMove(serviceWorker));
@@ -378,7 +382,8 @@ void ServiceWorkerContainer::getRegistrations(Ref<DeferredPromise>&& promise)
     ensureSWClientConnection().getRegistrations(SecurityOriginData { context->topOrigin().data() }, context->url(), [this, protectedThis = Ref { *this }, promise = WTFMove(promise)] (Vector<ServiceWorkerRegistrationData>&& registrationDatas) mutable {
         queueTaskKeepingObjectAlive(*this, TaskSource::DOMManipulation, [promise = WTFMove(promise), registrationDatas = WTFMove(registrationDatas)](auto& container) mutable {
             auto registrations = WTF::map(WTFMove(registrationDatas), [&](auto&& registrationData) {
-                return ServiceWorkerRegistration::getOrCreate(*container.protectedScriptExecutionContext(), container, WTFMove(registrationData));
+                // FIXME: This is a safer cpp false positive (rdar://160322553).
+                SUPPRESS_UNCOUNTED_ARG return ServiceWorkerRegistration::getOrCreate(*container.protectedScriptExecutionContext(), container, WTFMove(registrationData));
             });
             promise->resolve<IDLSequence<IDLInterface<ServiceWorkerRegistration>>>(WTFMove(registrations));
         });
@@ -464,7 +469,8 @@ void ServiceWorkerContainer::jobResolvedWithRegistration(ServiceWorkerJob& job, 
     queueTaskKeepingObjectAlive(*this, TaskSource::DOMManipulation, [promise = WTFMove(promise), jobIdentifier = job.identifier(), data = WTFMove(data), shouldNotifyWhenResolved, notifyIfExitEarly = WTFMove(notifyIfExitEarly)](auto& container) mutable {
         notifyIfExitEarly.release();
 
-        Ref registration = ServiceWorkerRegistration::getOrCreate(*container.protectedScriptExecutionContext(), container, WTFMove(data));
+        // FIXME: This is a safer cpp false positive (rdar://160322553).
+        SUPPRESS_UNCOUNTED_ARG Ref registration = ServiceWorkerRegistration::getOrCreate(*container.protectedScriptExecutionContext(), container, WTFMove(data));
 
         CONTAINER_RELEASE_LOG_WITH_THIS(&container, "jobResolvedWithRegistration: Resolving promise for job %" PRIu64 ". registrationID=%" PRIu64, jobIdentifier.toUInt64(), registration->identifier().toUInt64());
 

@@ -36,6 +36,7 @@
 #include "CSSTransition.h"
 #include "CSSValue.h"
 #include "CSSValuePool.h"
+#include "ContextDestructionObserverInlines.h"
 #include "DocumentInlines.h"
 #include "Element.h"
 #include "Event.h"
@@ -358,7 +359,7 @@ Inspector::Protocol::ErrorStringOr<Ref<Inspector::Protocol::Runtime::RemoteObjec
     if (!animation)
         return makeUnexpected(errorString);
 
-    auto* state = animation->scriptExecutionContext()->globalObject();
+    auto* state = animation->protectedScriptExecutionContext()->globalObject();
     auto injectedScript = m_injectedScriptManager.injectedScriptFor(state);
     ASSERT(!injectedScript.hasNoValue());
 

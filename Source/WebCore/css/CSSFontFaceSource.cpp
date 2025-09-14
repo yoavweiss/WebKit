@@ -155,7 +155,7 @@ void CSSFontFaceSource::load(Document* document)
 
     if (m_fontRequest) {
         ASSERT(m_fontSelector);
-        if (auto* context = m_fontSelector->scriptExecutionContext())
+        if (RefPtr context = m_fontSelector->scriptExecutionContext())
             context->beginLoadingFontSoon(*m_fontRequest);
     } else {
         bool success = false;

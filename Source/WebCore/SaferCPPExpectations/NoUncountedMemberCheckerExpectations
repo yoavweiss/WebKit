@@ -39,7 +39,6 @@ inspector/InspectorShaderProgram.h
 inspector/InspectorStyleSheet.cpp
 inspector/InspectorStyleSheet.h
 inspector/InspectorWebAgentBase.h
-inspector/agents/worker/WorkerAuditAgent.h
 layout/formattingContexts/inline/InlineItemsBuilder.h
 page/FrameSnapshotting.cpp
 page/PerformanceLogging.h

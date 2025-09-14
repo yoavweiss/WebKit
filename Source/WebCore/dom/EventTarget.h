@@ -96,6 +96,7 @@ public:
 
     virtual enum EventTargetInterfaceType eventTargetInterface() const = 0;
     virtual ScriptExecutionContext* scriptExecutionContext() const = 0;
+    RefPtr<ScriptExecutionContext> protectedScriptExecutionContext() const;
 
     virtual bool isPaymentRequest() const;
 

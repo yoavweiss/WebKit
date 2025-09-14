@@ -393,6 +393,7 @@ private:
     explicit LocalDOMWindow(Document&);
 
     ScriptExecutionContext* scriptExecutionContext() const final;
+    using ContextDestructionObserver::protectedScriptExecutionContext;
 
     void closePage() final;
     void eventListenersDidChange() final;

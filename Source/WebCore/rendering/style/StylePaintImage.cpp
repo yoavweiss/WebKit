@@ -75,7 +75,7 @@ RefPtr<Image> StylePaintImage::image(const RenderElement* renderer, const FloatS
     if (size.isEmpty())
         return nullptr;
 
-    auto* selectedGlobalScope = renderer->document().paintWorkletGlobalScopeForName(m_name);
+    RefPtr selectedGlobalScope = renderer->document().paintWorkletGlobalScopeForName(m_name);
     if (!selectedGlobalScope)
         return nullptr;
 
