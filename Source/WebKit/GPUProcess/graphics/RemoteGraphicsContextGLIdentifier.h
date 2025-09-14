@@ -25,15 +25,15 @@
 
 #pragma once
 
-#if ENABLE(GPU_PROCESS)
+#if ENABLE(GPU_PROCESS) && ENABLE(WEBGL)
 
 #include <wtf/ObjectIdentifier.h>
 
 namespace WebKit {
 
-struct RenderingBackendIdentifierType;
-using RenderingBackendIdentifier = AtomicObjectIdentifier<RenderingBackendIdentifierType>;
+struct RemoteGraphicsContextGLIdentifierType;
+using RemoteGraphicsContextGLIdentifier = AtomicObjectIdentifier<RemoteGraphicsContextGLIdentifierType>;
 
 } // namespace WebKit
 
-#endif // ENABLE(GPU_PROCESS)
+#endif

@@ -623,12 +623,12 @@ void RemoteRenderingBackendProxy::didFinalizeRenderingUpdate(RenderingUpdateID d
     m_didRenderingUpdateID = std::min(didRenderingUpdateID, m_renderingUpdateID);
 }
 
-RenderingBackendIdentifier RemoteRenderingBackendProxy::renderingBackendIdentifier() const
+RemoteRenderingBackendIdentifier RemoteRenderingBackendProxy::renderingBackendIdentifier() const
 {
     return m_identifier;
 }
 
-RenderingBackendIdentifier RemoteRenderingBackendProxy::ensureBackendCreated()
+RemoteRenderingBackendIdentifier RemoteRenderingBackendProxy::ensureBackendCreated()
 {
     ensureGPUProcessConnection();
     return m_identifier;

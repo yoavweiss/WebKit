@@ -38,10 +38,10 @@
 #include "RemoteDisplayListRecorderIdentifier.h"
 #include "RemoteGraphicsContextIdentifier.h"
 #include "RemoteImageBufferSetIdentifier.h"
+#include "RemoteRenderingBackendIdentifier.h"
 #include "RemoteResourceCache.h"
 #include "RemoteSerializedImageBufferIdentifier.h"
 #include "RemoteSharedResourceCache.h"
-#include "RenderingBackendIdentifier.h"
 #include "RenderingUpdateID.h"
 #include "ScopedActiveMessageReceiveQueue.h"
 #include "ScopedRenderingResourcesRequest.h"
@@ -101,7 +101,7 @@ class RemoteRenderingBackend : public CanMakeWeakPtr<RemoteRenderingBackend>, pu
     WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(RemoteRenderingBackend);
 
 public:
-    static Ref<RemoteRenderingBackend> create(GPUConnectionToWebProcess&, RenderingBackendIdentifier, Ref<IPC::StreamServerConnection>&&);
+    static Ref<RemoteRenderingBackend> create(GPUConnectionToWebProcess&, RemoteRenderingBackendIdentifier, Ref<IPC::StreamServerConnection>&&);
     virtual ~RemoteRenderingBackend();
     void stopListeningForIPC();
 
@@ -128,10 +128,10 @@ public:
 
     RefPtr<WebCore::ImageBuffer> allocateImageBuffer(const WebCore::FloatSize& logicalSize, WebCore::RenderingMode, WebCore::RenderingPurpose, float resolutionScale, const WebCore::DestinationColorSpace&, WebCore::ImageBufferFormat, WebCore::ImageBufferCreationContext);
 
-    RenderingBackendIdentifier identifier() { return m_renderingBackendIdentifier; }
+    RemoteRenderingBackendIdentifier identifier() { return m_renderingBackendIdentifier; }
 private:
     friend class RemoteImageBufferSet;
-    RemoteRenderingBackend(GPUConnectionToWebProcess&, RenderingBackendIdentifier, Ref<IPC::StreamServerConnection>&&);
+    RemoteRenderingBackend(GPUConnectionToWebProcess&, RemoteRenderingBackendIdentifier, Ref<IPC::StreamServerConnection>&&);
     void startListeningForIPC();
     void workQueueInitialize();
     void workQueueUninitialize();
@@ -201,7 +201,7 @@ private:
     const Ref<RemoteSharedResourceCache> m_sharedResourceCache;
     RemoteResourceCache m_remoteResourceCache;
     WebCore::ProcessIdentity m_resourceOwner;
-    RenderingBackendIdentifier m_renderingBackendIdentifier;
+    RemoteRenderingBackendIdentifier m_renderingBackendIdentifier;
     RefPtr<WebCore::SharedMemory> m_getPixelBufferSharedMemory;
 
     HashMap<WebCore::RenderingResourceIdentifier, IPC::ScopedActiveMessageReceiveQueue<RemoteImageBuffer>> m_remoteImageBuffers WTF_GUARDED_BY_CAPABILITY(workQueue());
