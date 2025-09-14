@@ -2160,6 +2160,11 @@ sub generateFileList(\%$$$\%)
                        && $file !~ /-expected(-mismatch)?\.html$/
                        && !scalar(grep(/^resources$/i, @components))
                        && !scalar(grep(/^script-tests$/i, @components));
+            } elsif ($components[0] eq "JSTests") {
+                push @addedRegressionTests, $file
+                    if isAddedStatus($status)
+                       && $file =~ /\.js$/
+                       && !scalar(grep(/^resources$/i, @components));
             } elsif (attributeCommand($attributeCache, $file, "test")) {
                 push @addedRegressionTests, $file;
             } elsif (attributeCommand($attributeCache, $file, "requiresTests")) {
