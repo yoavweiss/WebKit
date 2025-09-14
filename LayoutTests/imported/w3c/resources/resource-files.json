@@ -2740,6 +2740,7 @@
         "web-platform-tests/css/css-conditional/container-queries/container-for-cue-ref.html",
         "web-platform-tests/css/css-conditional/container-queries/container-units-gradient-ref.html",
         "web-platform-tests/css/css-conditional/container-queries/container-units-rule-cache-ref.html",
+        "web-platform-tests/css/css-conditional/container-queries/container-units-selection-pseudo-ref.html",
         "web-platform-tests/css/css-conditional/container-queries/container-units-sharing-via-rule-node-ref.html",
         "web-platform-tests/css/css-conditional/container-queries/counters-ref.html",
         "web-platform-tests/css/css-conditional/container-queries/display-in-container-ref.html",
