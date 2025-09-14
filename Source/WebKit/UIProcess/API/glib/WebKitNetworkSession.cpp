@@ -18,9 +18,9 @@
  */
 
 #include "config.h"
-#include "WebKitNetworkSession.h"
 
 #if ENABLE(2022_GLIB_API)
+#include "WebKitNetworkSession.h"
 
 #include "APIDownloadClient.h"
 #include "FrameInfoData.h"
