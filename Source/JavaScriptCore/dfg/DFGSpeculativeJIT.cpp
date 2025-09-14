@@ -67,6 +67,7 @@ WTF_ALLOW_UNSAFE_BUFFER_USAGE_BEGIN
 #include "JSLexicalEnvironment.h"
 #include "JSMapIterator.h"
 #include "JSPropertyNameEnumerator.h"
+#include "JSRegExpStringIterator.h"
 #include "JSSetIterator.h"
 #include "JSWebAssemblyInstance.h"
 #include "JSWrapForValidIterator.h"
@@ -15549,6 +15550,9 @@ void SpeculativeJIT::compileNewInternalFieldObject(Node* node)
         break;
     case JSAsyncFromSyncIteratorType:
         compileNewInternalFieldObjectImpl<JSAsyncFromSyncIterator>(node, operationNewAsyncFromSyncIterator);
+        break;
+    case JSRegExpStringIteratorType:
+        compileNewInternalFieldObjectImpl<JSRegExpStringIterator>(node, operationNewRegExpStringIterator);
         break;
     case JSPromiseType: {
         if (node->structure()->classInfoForCells() == JSInternalPromise::info())

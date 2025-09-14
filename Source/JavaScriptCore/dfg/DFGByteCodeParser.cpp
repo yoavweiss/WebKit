@@ -65,6 +65,7 @@
 #include "JSArrayIterator.h"
 #include "JSAsyncFromSyncIterator.h"
 #include "JSBoundFunction.h"
+#include "JSRegExpStringIterator.h"
 #include "JSCInlines.h"
 #include "JSCellButterfly.h"
 #include "JSInternalPromise.h"
@@ -4495,6 +4496,25 @@ auto ByteCodeParser::handleIntrinsicCall(Node* callee, Operand resultOperand, Ca
             addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSAsyncFromSyncIterator::Field::SyncIterator)), asyncIteratorObject, syncIterator);
             addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSAsyncFromSyncIterator::Field::NextMethod)), asyncIteratorObject, nextMethod);
             setResult(asyncIteratorObject);
+            return CallOptimizationResult::Inlined;
+        }
+
+        case RegExpStringIteratorCreateIntrinsic: {
+            if (argumentCountIncludingThis < 5)
+                return CallOptimizationResult::DidNothing;
+
+            insertChecks();
+            JSGlobalObject* globalObject = m_graph.globalObjectFor(currentNodeOrigin().semantic);
+            Node* regExp = get(virtualRegisterForArgumentIncludingThis(1, registerOffset));
+            Node* string = get(virtualRegisterForArgumentIncludingThis(2, registerOffset));
+            Node* global = get(virtualRegisterForArgumentIncludingThis(3, registerOffset));
+            Node* fullUnicode = get(virtualRegisterForArgumentIncludingThis(4, registerOffset));
+            Node* regExpStringIterator = addToGraph(NewInternalFieldObject, OpInfo(m_graph.registerStructure(globalObject->regExpStringIteratorStructure())));
+            addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSRegExpStringIterator::Field::RegExp)), regExpStringIterator, regExp);
+            addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSRegExpStringIterator::Field::String)), regExpStringIterator, string);
+            addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSRegExpStringIterator::Field::Global)), regExpStringIterator, global);
+            addToGraph(PutInternalField, OpInfo(static_cast<uint32_t>(JSRegExpStringIterator::Field::FullUnicode)), regExpStringIterator, fullUnicode);
+            setResult(regExpStringIterator);
             return CallOptimizationResult::Inlined;
         }
 

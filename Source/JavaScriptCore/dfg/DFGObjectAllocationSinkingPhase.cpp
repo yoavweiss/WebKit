@@ -45,6 +45,7 @@
 #include "JSInternalPromise.h"
 #include "JSIteratorHelper.h"
 #include "JSMapIterator.h"
+#include "JSRegExpStringIterator.h"
 #include "JSSetIterator.h"
 #include "JSWrapForValidIterator.h"
 #include "StructureInlines.h"
@@ -1144,6 +1145,9 @@ private:
                 break;
             case JSAsyncFromSyncIteratorType:
                 target = handleInternalFieldClass<JSAsyncFromSyncIterator>(node, writes);
+                break;
+            case JSRegExpStringIteratorType:
+                target = handleInternalFieldClass<JSRegExpStringIterator>(node, writes);
                 break;
             case JSPromiseType:
                 if (node->structure()->classInfoForCells() == JSInternalPromise::info())
