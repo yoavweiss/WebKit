@@ -88,7 +88,7 @@ static inline bool consumeTrailingLineBreakIfApplicable(const TextOnlyLineBreakR
         return false;
     auto& trailingLineBreak = inlineItemList[trailingInlineItemIndex];
     ASSERT(trailingLineBreak.isLineBreak());
-    line.append(trailingLineBreak, trailingLineBreak.style(), { });
+    line.appendLineBreak(trailingLineBreak, trailingLineBreak.style());
     return true;
 }
 
@@ -288,7 +288,7 @@ InlineItemPosition TextOnlySimpleLineBuilder::placeNonWrappingInlineTextContent(
     }
 
     if (trailingLineBreakIndex && candidateContent.startIndex == candidateContent.endIndex) {
-        m_line.append(m_inlineItemList[*trailingLineBreakIndex], m_inlineItemList[*trailingLineBreakIndex].style(), { });
+        m_line.appendLineBreak(m_inlineItemList[*trailingLineBreakIndex], m_inlineItemList[*trailingLineBreakIndex].style());
         return { *trailingLineBreakIndex + 1, { } };
     }
 

@@ -277,28 +277,6 @@ void Line::resetBidiLevelForTrailingWhitespace(UBiDiLevel rootBidiLevel)
     detachTrailingWhitespaceIfNeeded();
 }
 
-void Line::append(const InlineItem& inlineItem, const RenderStyle& style, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment)
-{
-    if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem))
-        appendTextContent(*inlineTextItem, style, logicalWidth);
-    else if (inlineItem.isLineBreak())
-        appendLineBreak(inlineItem, style);
-    else if (inlineItem.isWordBreakOpportunity())
-        appendWordBreakOpportunity(inlineItem, style);
-    else if (inlineItem.isInlineBoxStart())
-        appendInlineBoxStart(inlineItem, style, logicalWidth, textSpacingAdjustment);
-    else if (inlineItem.isInlineBoxEnd())
-        appendInlineBoxEnd(inlineItem, style, logicalWidth);
-    else if (inlineItem.isAtomicInlineBox())
-        appendAtomicInlineBox(inlineItem, style, logicalWidth);
-    else if (inlineItem.isOpaque()) {
-        ASSERT(!logicalWidth);
-        appendOpaqueBox(inlineItem, style);
-    } else
-        ASSERT_NOT_REACHED();
-    m_hasNonDefaultBidiLevelRun = m_hasNonDefaultBidiLevelRun || inlineItem.bidiLevel() != UBIDI_DEFAULT_LTR;
-}
-
 void Line::appendInlineBoxStart(const InlineItem& inlineItem, const RenderStyle& style, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment)
 {
     auto& inlineBoxGeometry = formattingContext().geometryForBox(inlineItem.layoutBox());
@@ -356,7 +334,7 @@ void Line::appendInlineBoxEnd(const InlineItem& inlineItem, const RenderStyle& s
     }
 }
 
-void Line::appendTextContent(const InlineTextItem& inlineTextItem, const RenderStyle& style, InlineLayoutUnit logicalWidth)
+void Line::appendText(const InlineTextItem& inlineTextItem, const RenderStyle& style, InlineLayoutUnit logicalWidth)
 {
     auto willCollapseCompletely = [&] {
         if (inlineTextItem.isEmpty()) {
@@ -669,7 +647,7 @@ Line::TrimmableTrailingContent::TrimmableTrailingContent(RunList& runs)
 
 void Line::TrimmableTrailingContent::addFullyTrimmableContent(size_t runIndex, InlineLayoutUnit trimmableContentOffset, InlineLayoutUnit trimmableWidth)
 {
-    // Any subsequent trimmable whitespace should collapse to zero advanced width and ignored at ::appendTextContent().
+    // Any subsequent trimmable whitespace should collapse to zero advanced width and ignored at ::appendText()
     ASSERT(!m_hasFullyTrimmableContent);
     m_fullyTrimmableWidth = trimmableContentOffset + trimmableWidth;
     m_trimmableContentOffset = trimmableContentOffset;

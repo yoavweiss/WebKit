@@ -480,7 +480,7 @@ UniqueRef<LineContent> LineBuilder::placeInlineAndFloatContent(const InlineItemR
                         if (auto* wordBreakOpportunity = inlineContent.trailingWordBreakOpportunity()) {
                             // <wbr> needs to be on the line as an empty run so that we can construct an inline box and compute basic geometry.
                             ++placedInlineItemCount;
-                            m_line.append(*wordBreakOpportunity, wordBreakOpportunity->style(), { });
+                            m_line.appendWordBreakOpportunity(*wordBreakOpportunity, wordBreakOpportunity->style());
                         }
                         if (inlineContent.trailingLineBreak()) {
                             // Fully placed (or empty) content followed by a line break means "end of line".
@@ -488,7 +488,9 @@ UniqueRef<LineContent> LineBuilder::placeInlineAndFloatContent(const InlineItemR
                             // could very well be at an earlier position. This has no visual implications at this point though (only geometry correctness on the line break box).
                             // e.g. <span style="border-right: 10px solid green">text<br></span> where the <br>'s horizontal position is before the right border and not after.
                             auto& trailingLineBreak = *inlineContent.trailingLineBreak();
-                            m_line.append(trailingLineBreak, trailingLineBreak.style(), { });
+                            m_line.appendLineBreak(trailingLineBreak, trailingLineBreak.style());
+                            if (trailingLineBreak.bidiLevel() != UBIDI_DEFAULT_LTR)
+                                m_line.setContentNeedsBidiReordering();
                             ++placedInlineItemCount;
                             isEndOfLine = true;
                         }
@@ -1197,6 +1199,92 @@ InlineContentBreaker::Result LineBuilder::handleInlineContentWithClonedDecoratio
     return inlineContentBreaker().processInlineContent(continuousInlineContent, lineStatus);
 }
 
+void LineBuilder::commitCanidateContent(const LineCandidate& lineCandidate, std::optional<InlineContentBreaker::Result::PartialTrailingContent> partialTrailingContent)
+{
+    auto& runs = lineCandidate.inlineContent.continuousContent().runs();
+    if (runs.isEmpty()) {
+        ASSERT(!partialTrailingContent);
+        return;
+    }
+
+    auto appendRun = [&](auto& index) {
+        auto& run = runs[index];
+        auto& inlineItem = run.inlineItem;
+
+        if (inlineItem.bidiLevel() != UBIDI_DEFAULT_LTR)
+            m_line.setContentNeedsBidiReordering();
+
+        if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem)) {
+            m_line.appendText(*inlineTextItem, run.style, run.contentWidth());
+            return;
+        }
+
+        if (inlineItem.isLineBreak()) {
+            m_line.appendLineBreak(inlineItem, run.style);
+            return;
+        }
+
+        if (inlineItem.isWordBreakOpportunity()) {
+            m_line.appendWordBreakOpportunity(inlineItem, run.style);
+            return;
+        }
+
+        if (inlineItem.isInlineBoxStart()) {
+            m_line.appendInlineBoxStart(inlineItem, run.style, run.contentWidth(), run.textSpacingAdjustment);
+            return;
+        }
+
+        if (inlineItem.isInlineBoxEnd()) {
+            m_line.appendInlineBoxEnd(inlineItem, run.style, run.contentWidth());
+            return;
+        }
+
+        if (inlineItem.isAtomicInlineBox()) {
+            m_line.appendAtomicInlineBox(inlineItem, run.style, run.contentWidth());
+            return;
+        }
+
+        if (inlineItem.isOpaque()) {
+            ASSERT(!run.contentWidth());
+            m_line.appendOpaqueBox(inlineItem, run.style);
+            return;
+        }
+
+        ASSERT_NOT_REACHED();
+    };
+
+    ASSERT(!partialTrailingContent || partialTrailingContent->trailingRunIndex <= runs.size());
+    auto endOfNonPartialContent = (partialTrailingContent ? std::min(partialTrailingContent->trailingRunIndex, runs.size()) : runs.size());
+    for (size_t index = 0; index < endOfNonPartialContent; ++index)
+        appendRun(index);
+
+    if (partialTrailingContent) {
+        auto trailingRunIndex = partialTrailingContent->trailingRunIndex;
+        if (trailingRunIndex >= runs.size()) {
+            ASSERT_NOT_REACHED();
+            return;
+        }
+
+        if (auto partialRun = partialTrailingContent->partialRun) {
+            // Create and commit partial trailing item.
+            if (auto* trailingInlineTextItem = dynamicDowncast<InlineTextItem>(runs[trailingRunIndex].inlineItem)) {
+                auto partialTrailingTextItem = trailingInlineTextItem->left(partialRun->length);
+                m_line.appendText(partialTrailingTextItem, trailingInlineTextItem->style(), partialRun->logicalWidth);
+                if (trailingInlineTextItem->bidiLevel() != UBIDI_DEFAULT_LTR)
+                    m_line.setContentNeedsBidiReordering();
+            } else
+                ASSERT_NOT_REACHED();
+
+            if (auto hyphenWidth = partialRun->hyphenWidth)
+                m_line.addTrailingHyphen(*hyphenWidth);
+        } else {
+            appendRun(trailingRunIndex);
+            if (auto hyphenWidth = partialTrailingContent->hyphenWidth)
+                m_line.addTrailingHyphen(*hyphenWidth);
+        }
+    }
+}
+
 LineBuilder::Result LineBuilder::processLineBreakingResult(const LineCandidate& lineCandidate, const InlineItemRange& layoutRange, const InlineContentBreaker::Result& lineBreakingResult)
 {
     auto& candidateRuns = lineCandidate.inlineContent.continuousContent().runs();
@@ -1204,8 +1292,7 @@ LineBuilder::Result LineBuilder::processLineBreakingResult(const LineCandidate& 
     switch (lineBreakingResult.action) {
     case InlineContentBreaker::Result::Action::Keep: {
         // This continuous content can be fully placed on the current line.
-        for (auto& run : candidateRuns)
-            m_line.append(run.inlineItem, run.style, run.contentWidth(), run.textSpacingAdjustment);
+        commitCanidateContent(lineCandidate, lineBreakingResult.partialTrailingContent);
         // We are keeping this content on the line but we need to check if we could have wrapped here
         // in order to be able to revert back to this position if needed.
         // Let's just ignore cases like collapsed leading whitespace for now.
@@ -1266,7 +1353,7 @@ LineBuilder::Result LineBuilder::processLineBreakingResult(const LineCandidate& 
         ASSERT(lineBreakingResult.isEndOfLine == InlineContentBreaker::IsEndOfLine::Yes);
         // Commit the combination of full and partial content on the current line.
         ASSERT(lineBreakingResult.partialTrailingContent);
-        commitPartialContent(candidateRuns, *lineBreakingResult.partialTrailingContent);
+        commitCanidateContent(lineCandidate, lineBreakingResult.partialTrailingContent);
         // When breaking multiple runs <span style="word-break: break-all">text</span><span>content</span>, we might end up breaking them at run boundary.
         // It simply means we don't really have a partial run. Partial content yes, but not partial run.
         auto trailingRunIndex = lineBreakingResult.partialTrailingContent->trailingRunIndex;
@@ -1283,31 +1370,6 @@ LineBuilder::Result LineBuilder::processLineBreakingResult(const LineCandidate& 
     }
     ASSERT_NOT_REACHED();
     return { InlineContentBreaker::IsEndOfLine::No };
-}
-
-void LineBuilder::commitPartialContent(const InlineContentBreaker::ContinuousContent::RunList& runs, const InlineContentBreaker::Result::PartialTrailingContent& partialTrailingContent)
-{
-    for (size_t index = 0; index < runs.size(); ++index) {
-        auto& run = runs[index];
-        if (partialTrailingContent.trailingRunIndex == index) {
-            // Create and commit partial trailing item.
-            if (auto partialRun = partialTrailingContent.partialRun) {
-                ASSERT(run.inlineItem.isText());
-                auto& trailingInlineTextItem = downcast<InlineTextItem>(runs[partialTrailingContent.trailingRunIndex].inlineItem);
-                auto partialTrailingTextItem = trailingInlineTextItem.left(partialRun->length);
-                m_line.append(partialTrailingTextItem, trailingInlineTextItem.style(), partialRun->logicalWidth);
-                if (auto hyphenWidth = partialRun->hyphenWidth)
-                    m_line.addTrailingHyphen(*hyphenWidth);
-                return;
-            }
-            // The partial run is the last content to commit.
-            m_line.append(run.inlineItem, run.style, run.contentWidth(), run.textSpacingAdjustment);
-            if (auto hyphenWidth = partialTrailingContent.hyphenWidth)
-                m_line.addTrailingHyphen(*hyphenWidth);
-            return;
-        }
-        m_line.append(run.inlineItem, run.style, run.contentWidth(), run.textSpacingAdjustment);
-    }
 }
 
 size_t LineBuilder::rebuildLineWithInlineContent(const InlineItemRange& layoutRange, const InlineItem& lastInlineItemToAdd)

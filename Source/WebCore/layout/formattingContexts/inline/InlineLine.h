@@ -48,9 +48,17 @@ public:
 
     void initialize(const Vector<InlineItem, 1>& lineSpanningInlineBoxes, bool isFirstFormattedLine);
 
-    void append(const InlineItem&, const RenderStyle&, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment = 0.f);
-    // Reserved for TextOnlySimpleLineBuilder
-    void appendTextFast(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalWidth);
+    enum class ShapingBoundary : uint8_t { Start, Middle, End };
+    void appendText(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalWidth);
+    void appendTextFast(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalWidth); // Reserved for TextOnlySimpleLineBuilder
+    void appendAtomicInlineBox(const InlineItem&, const RenderStyle&, InlineLayoutUnit marginBoxLogicalWidth);
+    void appendInlineBoxStart(const InlineItem&, const RenderStyle&, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment);
+    void appendInlineBoxEnd(const InlineItem&, const RenderStyle&, InlineLayoutUnit logicalWidth);
+    void appendLineBreak(const InlineItem&, const RenderStyle&);
+    void appendWordBreakOpportunity(const InlineItem&, const RenderStyle&);
+    void appendOpaqueBox(const InlineItem&, const RenderStyle&);
+
+    void setContentNeedsBidiReordering() { m_hasNonDefaultBidiLevelRun = true; }
 
     bool hasContent() const;
     bool hasContentOrListMarker() const;
@@ -222,14 +230,6 @@ public:
 
 private:
     InlineLayoutUnit lastRunLogicalRight() const { return m_runs.isEmpty() ? 0.0f : m_runs.last().logicalRight(); }
-
-    void appendTextContent(const InlineTextItem&, const RenderStyle&, InlineLayoutUnit logicalWidth);
-    void appendAtomicInlineBox(const InlineItem&, const RenderStyle&, InlineLayoutUnit marginBoxLogicalWidth);
-    void appendInlineBoxStart(const InlineItem&, const RenderStyle&, InlineLayoutUnit logicalWidth, InlineLayoutUnit textSpacingAdjustment = 0.f);
-    void appendInlineBoxEnd(const InlineItem&, const RenderStyle&, InlineLayoutUnit logicalWidth);
-    void appendLineBreak(const InlineItem&, const RenderStyle&);
-    void appendWordBreakOpportunity(const InlineItem&, const RenderStyle&);
-    void appendOpaqueBox(const InlineItem&, const RenderStyle&);
 
     void resetTrailingContent();
 
