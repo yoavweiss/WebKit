@@ -457,7 +457,8 @@ UniqueRef<LineContent> LineBuilder::placeInlineAndFloatContent(const InlineItemR
             // 2. Apply floats and shrink the available horizontal space e.g. <span>intru_<div style="float: left"></div>sive_float</span>.
             // 3. Check if the content fits the line and commit the content accordingly (full, partial or not commit at all).
             // 4. Return if we are at the end of the line either by not being able to fit more content or because of an explicit line break.
-            candidateContentForLine(lineCandidate, currentItemIndex, needsLayoutRange, m_line.contentLogicalRight());
+            auto canidateStartEndIndex = std::pair<size_t, size_t> { currentItemIndex, formattingContext().formattingUtils().nextWrapOpportunity(currentItemIndex, needsLayoutRange, m_inlineItemList) };
+            candidateContentForLine(lineCandidate, canidateStartEndIndex, needsLayoutRange, m_line.contentLogicalRight());
             // Now check if we can put this content on the current line.
             if (auto* floatItem = lineCandidate->floatItem) {
                 ASSERT(lineCandidate->inlineContent.isEmpty());
@@ -654,27 +655,22 @@ InlineLayoutUnit LineBuilder::trailingPunctuationOrStopOrCommaWidthForLineCandia
     return { };
 }
 
-void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, size_t currentInlineItemIndex, const InlineItemRange& layoutRange, InlineLayoutUnit currentLogicalRight)
+void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& layoutRange, InlineLayoutUnit currentLogicalRight)
 {
-    ASSERT(currentInlineItemIndex < layoutRange.endIndex());
+    ASSERT(startEndIndex.first < layoutRange.endIndex());
+    ASSERT(startEndIndex.second <= layoutRange.endIndex());
 
     auto isFirstFormattedLineCandidate = this->isFirstFormattedLineCandidate();
     lineCandidate.reset();
-    // 1. Simply add any overflow content from the previous line to the candidate content. It's always a text content.
-    // 2. Find the next soft wrap position or explicit line break.
-    // 3. Collect floats between the inline content.
-    auto softWrapOpportunityIndex = formattingContext().formattingUtils().nextWrapOpportunity(currentInlineItemIndex, layoutRange, m_inlineItemList);
-    // softWrapOpportunityIndex == layoutRange.end means we don't have any wrap opportunity in this content.
-    ASSERT(softWrapOpportunityIndex <= layoutRange.endIndex());
 
-    auto isLeadingPartiaContent = currentInlineItemIndex == layoutRange.startIndex() && m_partialLeadingTextItem;
+    auto isLeadingPartiaContent = startEndIndex.first == layoutRange.startIndex() && m_partialLeadingTextItem;
     if (isLeadingPartiaContent) {
         ASSERT(!m_overflowingLogicalWidth);
         // Handle leading partial content first (overflowing text from the previous line).
         auto itemWidth = formattingContext().formattingUtils().inlineItemWidth(*m_partialLeadingTextItem, currentLogicalRight, isFirstFormattedLineCandidate);
         lineCandidate.inlineContent.appendInlineItem(*m_partialLeadingTextItem, m_partialLeadingTextItem->style(), itemWidth);
         currentLogicalRight += itemWidth;
-        ++currentInlineItemIndex;
+        ++startEndIndex.first;
     }
 
     auto firstInlineTextItemIndex = std::optional<size_t> { };
@@ -683,7 +679,7 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, size_t c
     auto textSpacingAdjustment = InlineLayoutUnit { };
     auto contentHasInlineItemsWithDecorationClone = !m_line.inlineBoxListWithClonedDecorationEnd().isEmpty();
 
-    for (auto index = currentInlineItemIndex; index < softWrapOpportunityIndex; ++index) {
+    for (auto index = startEndIndex.first; index < startEndIndex.second; ++index) {
         auto& inlineItem = m_inlineItemList[index];
         auto& style = isFirstFormattedLineCandidate ? inlineItem.firstLineStyle() : inlineItem.style();
         if (inlineItem.isInlineBoxStart()) {
@@ -701,7 +697,7 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, size_t c
         if (inlineItem.isFloat()) {
             lineCandidate.floatItem = &inlineItem;
             // This is a soft wrap opportunity, must be the only item in the list.
-            ASSERT(currentInlineItemIndex + 1 == softWrapOpportunityIndex);
+            ASSERT(startEndIndex.first + 1 == startEndIndex.second);
             continue;
         }
         if (auto* inlineTextItem = dynamicDowncast<InlineTextItem>(inlineItem)) {
@@ -748,7 +744,7 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, size_t c
 #if ASSERT_ENABLED
             // Since both <br> and <wbr> are explicit word break opportunities they have to be trailing items in this candidate run list unless they are embedded in inline boxes.
             // e.g. <span><wbr></span>
-            for (auto i = index + 1; i < softWrapOpportunityIndex; ++i)
+            for (auto i = index + 1; i < startEndIndex.second; ++i)
                 ASSERT(m_inlineItemList[i].isInlineBoxEnd() || m_inlineItemList[i].isOpaque());
 #endif
             lineCandidate.inlineContent.appendInlineItem(inlineItem, style, { });
@@ -768,7 +764,7 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, size_t c
         if (!hangingContentWidth && lastInlineTextItemIndex)
             hangingContentWidth += trailingPunctuationOrStopOrCommaWidthForLineCandiate(*lastInlineTextItemIndex, layoutRange.endIndex());
         if (firstInlineTextItemIndex)
-            hangingContentWidth += leadingPunctuationWidthForLineCandiate(*firstInlineTextItemIndex, currentInlineItemIndex);
+            hangingContentWidth += leadingPunctuationWidthForLineCandiate(*firstInlineTextItemIndex, startEndIndex.first);
         if (hangingContentWidth)
             lineCandidate.inlineContent.setHangingContentWidth(hangingContentWidth);
     };
@@ -777,7 +773,7 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, size_t c
     auto setTrailingSoftHyphenWidth = [&] {
         if (!trailingSoftHyphenInlineTextItemIndex)
             return;
-        for (auto index = *trailingSoftHyphenInlineTextItemIndex; index < softWrapOpportunityIndex; ++index) {
+        for (auto index = *trailingSoftHyphenInlineTextItemIndex; index < startEndIndex.second; ++index) {
             if (!is<InlineTextItem>(m_inlineItemList[index]))
                 return;
         }
@@ -786,7 +782,7 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, size_t c
         lineCandidate.inlineContent.setTrailingSoftHyphenWidth(TextUtil::hyphenWidth(style));
     };
     setTrailingSoftHyphenWidth();
-    lineCandidate.inlineContent.setHasTrailingSoftWrapOpportunity(hasTrailingSoftWrapOpportunity(softWrapOpportunityIndex, layoutRange.endIndex(), m_inlineItemList));
+    lineCandidate.inlineContent.setHasTrailingSoftWrapOpportunity(hasTrailingSoftWrapOpportunity(startEndIndex.second, layoutRange.endIndex(), m_inlineItemList));
 }
 
 static inline InlineLayoutUnit availableWidth(const Line& line, InlineLayoutUnit lineWidth, std::optional<IntrinsicWidthMode> intrinsicWidthMode)
@@ -1320,6 +1316,7 @@ size_t LineBuilder::rebuildLineWithInlineContent(const InlineItemRange& layoutRa
     // We might already have added floats. They shrink the available horizontal space for the line.
     // Let's just reuse what the line has at this point.
     m_line.initialize(m_lineSpanningInlineBoxes, isFirstFormattedLineCandidate());
+
     if (m_partialLeadingTextItem) {
         m_line.append(*m_partialLeadingTextItem, m_partialLeadingTextItem->style(), formattingContext().formattingUtils().inlineItemWidth(*m_partialLeadingTextItem, { }, isFirstFormattedLineCandidate()));
         ++numberOfInlineItemsOnLine;
