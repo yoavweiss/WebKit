@@ -1798,7 +1798,11 @@ ExceptionOr<void> WebAnimation::commitStyles()
     // would be disregarded.
     auto* unsortedAnimations = styledElement->animations({ });
     ASSERT(unsortedAnimations && !unsortedAnimations->isEmpty());
-    auto sortedAnimations = copyToVector(*unsortedAnimations);
+    auto sortedAnimations = WTF::compactMap(*unsortedAnimations, [](auto& animation) -> RefPtr<WebAnimation> {
+        if (animation->playState() != WebAnimation::PlayState::Idle)
+            return animation.ptr();
+        return nullptr;
+    });
     std::ranges::stable_sort(sortedAnimations, [](auto& lhs, auto& rhs) {
         return compareAnimationsByCompositeOrder(lhs.get(), rhs.get());
     });
