@@ -2877,6 +2877,9 @@ webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xrViewport_valid.https
 webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xrWebGLLayer_viewports.https.html [ Failure ]
 
 webkit.org/b/296681 imported/w3c/web-platform-tests/webxr/ar-module/xrDevice_isSessionSupported_immersive-ar.https.html [ Pass ]
+webkit.org/b/296681 imported/w3c/web-platform-tests/webxr/ar-module/idlharness.https.window.html [ Pass ]
+webkit.org/b/296681 imported/w3c/web-platform-tests/webxr/ar-module/xrDevice_requestSession_immersive-ar.https.html [ Pass ]
+
 webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/events_referenceSpace_reset_immersive.https.html [ Pass ]
 webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/events_referenceSpace_reset_inline.https.html [ Pass ]
 webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xrDevice_disconnect_ends.https.html [ Pass ]
@@ -2885,6 +2888,7 @@ webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xrFrame_getViewerPose_
 webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xrSession_input_events_end.https.html [ Pass ]
 webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xrSession_requestReferenceSpace_features.https.html [ Pass ]
 webkit.org/b/227086 imported/w3c/web-platform-tests/webxr/xrWebGLLayer_constructor.https.html [ Pass ]
+webkit.org/b/208988 imported/w3c/web-platform-tests/webxr/xr_viewport_scale.https.html [ Pass ]
 
 imported/w3c/web-platform-tests/webxr/webGLCanvasContext_create_xrcompatible.https.html [ Failure ]
 
