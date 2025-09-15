@@ -318,7 +318,7 @@ void Performance::processEventEntry(const PerformanceEventTimingCandidate& candi
     static constexpr Seconds minDurationCutoffBeforeRounding = PerformanceEventTiming::minimumDurationThreshold - (PerformanceEventTiming::durationResolution / 2);
     static constexpr Seconds defaultDurationCutoffBeforeRounding = PerformanceEventTiming::defaultDurationThreshold - (PerformanceEventTiming::durationResolution / 2);
 
-    if (!m_firstInput && candidate.interactionID.value) {
+    if (!m_firstInput && !candidate.interactionID.isUnassigned()) {
         m_firstInput = PerformanceEventTiming::create(candidate, true);
         queueEntry(*m_firstInput);
     }

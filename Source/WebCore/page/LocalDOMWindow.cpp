@@ -83,6 +83,7 @@
 #include "JSDOMWindowBase.h"
 #include "JSExecState.h"
 #include "JSPushSubscription.h"
+#include "KeyboardEvent.h"
 #include "LocalFrame.h"
 #include "LocalFrameLoaderClient.h"
 #include "LocalFrameView.h"
@@ -92,6 +93,7 @@
 #include "MediaQueryMatcher.h"
 #include "MessageEvent.h"
 #include "MessageWithMessagePorts.h"
+#include "MouseEvent.h"
 #include "Navigation.h"
 #include "NavigationScheduler.h"
 #include "Navigator.h"
@@ -139,7 +141,6 @@
 #include "WindowFocusAllowedIndicator.h"
 #include "WindowPostMessageOptions.h"
 #include "WindowProxy.h"
-#include "page/EventTimingInteractionID.h"
 #include <JavaScriptCore/ScriptCallStack.h>
 #include <JavaScriptCore/ScriptCallStackFactory.h>
 #include <algorithm>
@@ -2479,7 +2480,7 @@ void LocalDOMWindow::finishedLoading()
     }
 }
 
-EventTimingInteractionID LocalDOMWindow::computeInteractionID(const Event& event, EventType type)
+EventTimingInteractionID LocalDOMWindow::computeInteractionID(Event& event, EventType type)
 {
     auto finalizePendingPointerDown = [this]() {
         auto interactionID = generateInteractionID();
@@ -2494,18 +2495,18 @@ EventTimingInteractionID LocalDOMWindow::computeInteractionID(const Event& event
     case EventType::keyup: {
         ASSERT(event.isKeyboardEvent());
         auto keyboardEvent = downcast<KeyboardEvent>(&event);
-        ASSERT(keyboardEvent);
         if (keyboardEvent->isComposing())
-            return EventTimingInteractionID();
+            return { };
 
         auto it = m_pendingKeyDowns.find(keyboardEvent->keyCode());
         if (it == m_pendingKeyDowns.end())
-            return EventTimingInteractionID();
+            return { };
 
-        auto interactionID = generateInteractionID();
+        auto interactionID = it->value.interactionID.isUnassigned() ? generateInteractionID() : it->value.interactionID;
         it->value.interactionID = interactionID;
         m_performanceEventTimingCandidates.append(it->value);
         m_pendingKeyDowns.remove(it);
+        keyboardEvent->setInteractionID(interactionID);
         return interactionID;
     }
     case EventType::compositionstart: {
@@ -2513,32 +2514,41 @@ EventTimingInteractionID LocalDOMWindow::computeInteractionID(const Event& event
             m_performanceEventTimingCandidates.append(pendingEntry.value);
 
         m_pendingKeyDowns.clear();
-        return EventTimingInteractionID();
+        return { };
     }
     case EventType::input: {
+        // Return early for events not related to text, such as checkbox toggling:
         if (!event.isInputEvent())
-            return EventTimingInteractionID();
+            return { };
 
-        ASSERT(event.isInputEvent());
         auto inputEvent = downcast<InputEvent>(&event);
-        ASSERT(inputEvent);
         if (!inputEvent->isInputMethodComposing())
-            return EventTimingInteractionID();
+            return { };
 
         return generateInteractionID();
     }
     case EventType::click: {
-        if (!m_pointerMap)
-            return EventTimingInteractionID();
+        auto clickEvent = downcast<MouseEvent>(&event);
+        bool isBeingSimulatedDuringDefaultDispatch = clickEvent->isSimulated() && clickEvent->underlyingEvent() && clickEvent->underlyingEvent()->isKeyboardEvent();
+        if (isBeingSimulatedDuringDefaultDispatch) {
+            auto keyboardEvent = downcast<KeyboardEvent>(clickEvent->underlyingEvent());
+            if (keyboardEvent->interactionID().isUnassigned())
+                keyboardEvent->setInteractionID(generateInteractionID());
 
-        auto interactionID = *m_pointerMap;
-        m_pointerMap.reset();
+            return keyboardEvent->interactionID();
+        }
+
+        if (m_pointerMap.isUnassigned())
+            return { };
+
+        auto interactionID = m_pointerMap;
+        m_pointerMap = { };
         return interactionID;
     }
     case EventType::pointerup: {
         if (!m_pendingPointerDown) {
             if (!m_contextMenuTriggered)
-                return EventTimingInteractionID();
+                return { };
 
             m_contextMenuTriggered = false;
             return currentInteractionID();
@@ -2551,7 +2561,7 @@ EventTimingInteractionID LocalDOMWindow::computeInteractionID(const Event& event
             m_performanceEventTimingCandidates.append(*m_pendingPointerDown);
             m_pendingPointerDown.reset();
         }
-        return EventTimingInteractionID();
+        return { };
     }
     case EventType::contextmenu: {
         if (!m_pendingPointerDown)
@@ -2561,7 +2571,7 @@ EventTimingInteractionID LocalDOMWindow::computeInteractionID(const Event& event
         return finalizePendingPointerDown();
     }
     default:
-        return EventTimingInteractionID();
+        return { };
     }
 }
 
@@ -2573,9 +2583,9 @@ EventTimingInteractionID LocalDOMWindow::currentInteractionID()
 EventTimingInteractionID& LocalDOMWindow::ensureUserInteractionValue()
 {
     // Should be initialized with a random number from 100 to 10000:
-    if (!m_userInteractionValue) [[unlikely]]
-        m_userInteractionValue = EventTimingInteractionID { .value = 100 + WTF::cryptographicallyRandomNumber<uint64_t>() % 9901 };
-    return *m_userInteractionValue;
+    if (m_userInteractionValue.isUnassigned()) [[unlikely]]
+        m_userInteractionValue.value = 100 + WTF::cryptographicallyRandomNumber<uint64_t>() % 9901;
+    return m_userInteractionValue;
 }
 
 EventTimingInteractionID LocalDOMWindow::generateInteractionID()
@@ -2592,7 +2602,7 @@ EventTimingInteractionID LocalDOMWindow::generateInteractionIDWithoutIncreasingI
     return ensureUserInteractionValue();
 }
 
-PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTimingEntry(const Event& event, EventType type)
+PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTimingEntry(Event& event, EventType type)
 {
     auto startTime = performance().relativeTimeFromTimeOriginInReducedResolutionSeconds(event.timeStamp());
     auto processingStart = performance().nowInReducedResolutionSeconds();
@@ -2612,12 +2622,14 @@ PerformanceEventTimingCandidate LocalDOMWindow::initializeEventTimingEntry(const
     };
 }
 
-void LocalDOMWindow::finalizeEventTimingEntry(PerformanceEventTimingCandidate& entry, const Event& event)
+void LocalDOMWindow::finalizeEventTimingEntry(PerformanceEventTimingCandidate& entry, const Event& event, EventType type)
 {
     auto processingEnd = performance().nowInReducedResolutionSeconds();
     entry.processingEnd = processingEnd;
     entry.target = event.target();
-    if (event.type() == eventNames().pointerdownEvent) [[unlikely]] {
+
+    switch (type) {
+    case EventType::pointerdown: {
         if (m_pendingPointerDown) {
             m_performanceEventTimingCandidates.append(*m_pendingPointerDown);
             LOG_WITH_STREAM(PerformanceTimeline, stream << "Repeated pointerdown entries at t=" << processingEnd);
@@ -2628,31 +2640,31 @@ void LocalDOMWindow::finalizeEventTimingEntry(PerformanceEventTimingCandidate& e
         m_contextMenuTriggered = false;
         return;
     }
-    if (event.type() == eventNames().keydownEvent) [[unlikely]] {
-        ASSERT(event.isKeyboardEvent());
+    case EventType::keydown: {
         auto keyboardEvent = downcast<KeyboardEvent>(&event);
-        ASSERT(keyboardEvent);
-        if (keyboardEvent->isComposing()) {
+        entry.interactionID = keyboardEvent->interactionID();
+        auto keyCode = keyboardEvent->keyCode();
+        // FIXME: checking for keyCode 229 (IME) is against the spec, but it's
+        // required because of https://bugs.webkit.org/show_bug.cgi?id=165004 ,
+        // which causes the last keypress of a composition to be issued after
+        // compositionend, making .isComposing() not be true:
+        if (keyCode == 229 || keyboardEvent->isComposing()) {
             m_performanceEventTimingCandidates.append(entry);
             return;
         }
-        auto code = keyboardEvent->keyCode();
-        auto it = m_pendingKeyDowns.find(code);
-        if (it == m_pendingKeyDowns.end()) {
-            m_pendingKeyDowns.set(code, entry);
+        auto it = m_pendingKeyDowns.find(keyCode);
+        if (it != m_pendingKeyDowns.end()) {
+            it->value.interactionID = generateInteractionIDWithoutIncreasingInteractionCount();
+            m_performanceEventTimingCandidates.append(it->value);
+            it->value = entry;
             return;
         }
-        // Code 229 corresponds to IME keyboard events
-        // (https://www.w3.org/TR/event-timing/#sec-fin-event-timing)
-        if (code != 229)
-            it->value.interactionID = generateInteractionIDWithoutIncreasingInteractionCount();
-
-        m_performanceEventTimingCandidates.append(it->value);
-        it->value = entry;
+        m_pendingKeyDowns.set(keyCode, entry);
         return;
     }
-
-    m_performanceEventTimingCandidates.append(entry);
+    default:
+        m_performanceEventTimingCandidates.append(entry);
+    }
 }
 
 void LocalDOMWindow::dispatchPendingEventTimingEntries()
