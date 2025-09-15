@@ -6940,6 +6940,8 @@ imported/w3c/web-platform-tests/navigation-api/precommit-handler/ [ Skip ]
 
 # -- View Transitions -- #
 
+imported/w3c/web-platform-tests/css/css-view-transitions/pseudo-element-overflow-clip-with-border-radius.html [ ImageOnlyFailure ]
+
 # Timeouts
 
 # {{domains[www]}} substitued incorrectly by WKTR

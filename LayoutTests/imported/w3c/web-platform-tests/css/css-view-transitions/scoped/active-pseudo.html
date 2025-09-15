@@ -18,10 +18,14 @@ body { margin: 20px }
   border: 5px solid blue; padding: 5px;
   width: 120px; height: 60px;
   left: 20px; top: 20px;
-  view-transition-name: foo;
 }
 
-#scope::view-transition { background: yellow; }
+body:has(> #scope:active-view-transition-type(baz)) #part {
+  view-transition-name: foo;
+}
+#scope:active-view-transition::view-transition { background: yellow; }
+#scope:active-view-transition-type(notme)::view-transition { background: red; }
+
 #scope::view-transition-group(foo) { animation-play-state: paused; }
 #scope::view-transition-new(foo) { animation: unset; opacity: 0; }
 #scope::view-transition-old(foo) { animation: unset; opacity: 1; }
@@ -41,7 +45,10 @@ failIfNot(scope.startViewTransition, "Missing element.startViewTransition");
 
 async function runTest() {
   await waitForCompositorReady();
-  scope.startViewTransition(() => requestAnimationFrame(takeScreenshot));
+  scope.startViewTransition({
+    update: () => requestAnimationFrame(takeScreenshot),
+    types: ["baz"]
+  });
 }
 onload = () => runTest();
 
