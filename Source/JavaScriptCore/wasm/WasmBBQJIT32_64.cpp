@@ -3609,7 +3609,7 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callSlotIndex, cons
             consume(callee);
             emitThrowOnNullReference(ExceptionType::NullReference, calleeLocation);
 
-            calleePtr = calleeLocation.asGPRLow();
+            calleePtr = calleeLocation.asGPRLo();
             calleeInstance = otherScratch.gpr(0);
             boxedCallee = otherScratch.gpr(1);
 
