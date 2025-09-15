@@ -25,6 +25,7 @@
 
 internal import SwiftUI
 @_spi(CrossImportOverlay) import WebKit
+internal import WebKit_Private.WKPreferencesPrivate
 
 #if !USE_APPLE_INTERNAL_SDK
 // Stubs for behavior not implemented in open source.
@@ -82,6 +83,25 @@ struct WebViewRepresentable {
 
         if let scrollInputBehavior = environment.webViewScrollInputBehaviorContext {
             webView.configureScrollInputBehavior(scrollInputBehavior.behavior, for: scrollInputBehavior.input)
+        }
+
+        #if os(macOS)
+        if let scrollEdgeEffectStyle = environment.webViewScrollEdgeEffectStyleContext {
+            webView._usesAutomaticContentInsetBackgroundFill = scrollEdgeEffectStyle.style != .hard
+            webView.obscuredContentInsets = .init(top: 0, left: 0, bottom: 0, right: 0)
+            webView._automaticallyAdjustsContentInsets = true
+        }
+        #endif
+
+        let preferencesContext = environment.webViewWebPreferenceContext
+        if !preferencesContext.isEmpty {
+            let wkPreferences = webView.configuration.preferences
+
+            for feature in WKPreferences._features() {
+                if let value = preferencesContext.get(feature.key, as: Bool.self) {
+                    wkPreferences._setEnabled(value, for: feature)
+                }
+            }
         }
 
         if EquatableScrollBounceBehavior(environment.verticalScrollBounceBehavior) == .always

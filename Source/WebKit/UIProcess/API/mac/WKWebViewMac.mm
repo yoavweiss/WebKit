@@ -513,21 +513,6 @@ ALLOW_DEPRECATED_IMPLEMENTATIONS_BEGIN
     _impl->toggleAutomaticTextReplacement();
 }
 
-- (BOOL)isSmartListsEnabled
-{
-    return _impl->isSmartListsEnabled();
-}
-
-- (void)setSmartListsEnabled:(BOOL)flag
-{
-    _impl->setSmartListsEnabled(flag);
-}
-
-- (void)toggleSmartLists:(id)sender
-{
-    _impl->toggleSmartLists();
-}
-
 - (void)uppercaseWord:(id)sender
 {
     _impl->uppercaseWord();
@@ -2057,6 +2042,21 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 #if ENABLE(WRITING_TOOLS)
     _impl->showWritingTools();
 #endif
+}
+
+- (BOOL)_isSmartListsEnabled
+{
+    return _impl->isSmartListsEnabled();
+}
+
+- (void)_setSmartListsEnabled:(BOOL)flag
+{
+    _impl->setSmartListsEnabled(flag);
+}
+
+- (void)_toggleSmartLists:(id)sender
+{
+    _impl->toggleSmartLists();
 }
 
 @end // WKWebView (WKPrivateMac)

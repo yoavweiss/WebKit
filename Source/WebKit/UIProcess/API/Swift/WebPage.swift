@@ -393,6 +393,24 @@ final public class WebPage {
         return webView
     }()
 
+    // SPI for testing.
+    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
+    @_spi(Testing)
+    public var isEditable: Bool {
+        get { backingWebView._isEditable }
+        set { backingWebView._isEditable = newValue }
+    }
+
+    #if os(macOS)
+    // SPI for testing.
+    // swift-format-ignore: AllPublicDeclarationsHaveDocumentation
+    @_spi(Testing)
+    public var smartListsEnabled: Bool {
+        get { backingWebView._isSmartListsEnabled() }
+        set { backingWebView._setSmartListsEnabled(newValue) }
+    }
+    #endif
+
     // MARK: Loading functions
     
     @ObservationIgnored

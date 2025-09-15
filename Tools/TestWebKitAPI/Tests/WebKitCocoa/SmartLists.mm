@@ -36,13 +36,6 @@
 #import <WebKit/WKWebViewPrivate.h>
 #import <WebKit/_WKFeature.h>
 
-// FIXME: Come up with a better testing infrastructure that doesn't rely on forward declarations.
-@interface WKWebView (SmartLists)
-- (BOOL)isSmartListsEnabled;
-- (void)setSmartListsEnabled:(BOOL)flag;
-- (void)toggleSmartLists:(id)sender;
-@end
-
 static NSString* const WebSmartListsEnabled = @"WebSmartListsEnabled";
 
 // MARK: Utilities
@@ -109,11 +102,11 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     setSmartListsPreference(configuration.get(), NO);
     resetUserDefaults();
 
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_NULL(userDefaultsValue());
 
-    [webView setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    [webView _setSmartListsEnabled:YES];
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_NULL(userDefaultsValue());
 
     // Case 2: _editable => true, user default => nil, preference => false
@@ -122,11 +115,11 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     setSmartListsPreference(configuration.get(), NO);
     resetUserDefaults();
 
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_NULL(userDefaultsValue());
 
-    [webView setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    [webView _setSmartListsEnabled:YES];
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_NULL(userDefaultsValue());
 
     // Case 3: _editable => false, user default => true, preference => false
@@ -135,11 +128,11 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     setSmartListsPreference(configuration.get(), NO);
     setUserDefaultsValue(YES);
 
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
-    [webView setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    [webView _setSmartListsEnabled:YES];
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
     // Case 4: _editable => true, user default => true, preference => false
@@ -148,11 +141,11 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     setSmartListsPreference(configuration.get(), NO);
     setUserDefaultsValue(YES);
 
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
-    [webView setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    [webView _setSmartListsEnabled:YES];
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
     // Case 5: _editable => false, user default => nil, preference => true
@@ -161,11 +154,11 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     setSmartListsPreference(configuration.get(), YES);
     resetUserDefaults();
 
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_NULL(userDefaultsValue());
 
-    [webView setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    [webView _setSmartListsEnabled:YES];
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_NULL(userDefaultsValue());
 
     // Case 6: _editable => true, user default => nil, preference => true
@@ -174,15 +167,15 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     setSmartListsPreference(configuration.get(), YES);
     resetUserDefaults();
 
-    EXPECT_TRUE([webView isSmartListsEnabled]);
+    EXPECT_TRUE([webView _isSmartListsEnabled]);
     EXPECT_NULL(userDefaultsValue());
 
-    [webView setSmartListsEnabled:NO];
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    [webView _setSmartListsEnabled:NO];
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_FALSE([userDefaultsValue() boolValue]);
 
-    [webView toggleSmartLists:nil];
-    EXPECT_TRUE([webView isSmartListsEnabled]);
+    [webView _toggleSmartLists:nil];
+    EXPECT_TRUE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
     // Case 7: _editable => false, user default => true, preference => true
@@ -191,11 +184,11 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     setSmartListsPreference(configuration.get(), YES);
     setUserDefaultsValue(YES);
 
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
-    [webView setSmartListsEnabled:YES];
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    [webView _setSmartListsEnabled:YES];
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
     // Case 8: _editable => true, user default => true, preference => true
@@ -204,11 +197,11 @@ TEST(SmartLists, EnablementIsLogicallyConsistentWhenInterfacedThroughResponder)
     setSmartListsPreference(configuration.get(), YES);
     setUserDefaultsValue(YES);
 
-    EXPECT_TRUE([webView isSmartListsEnabled]);
+    EXPECT_TRUE([webView _isSmartListsEnabled]);
     EXPECT_TRUE([userDefaultsValue() boolValue]);
 
-    [webView setSmartListsEnabled:NO];
-    EXPECT_FALSE([webView isSmartListsEnabled]);
+    [webView _setSmartListsEnabled:NO];
+    EXPECT_FALSE([webView _isSmartListsEnabled]);
     EXPECT_FALSE([userDefaultsValue() boolValue]);
 }
 

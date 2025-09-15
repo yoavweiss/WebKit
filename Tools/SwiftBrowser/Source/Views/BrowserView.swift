@@ -22,17 +22,34 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 import SwiftUI
+@_spi(Testing) import WebKit
+import _WebKit_SwiftUI
 
 struct BrowserView: View {
-    @Binding var url: URL?
+    @Binding
+    var url: URL?
+
+    let smartListsEnabled: Bool
+
+    @AppStorage(AppStorageKeys.isEditable)
+    private var isEditable = false
 
     let initialRequest: URLRequest
 
-    @State private var viewModel = BrowserViewModel()
+    @State
+    private var viewModel = BrowserViewModel()
 
     var body: some View {
         ContentView(url: $url, initialRequest: initialRequest)
             .environment(viewModel)
+            .onChange(of: isEditable, initial: true) {
+                viewModel.page.isEditable = isEditable
+            }
+            .onChange(of: smartListsEnabled, initial: true) {
+                #if os(macOS)
+                viewModel.page.smartListsEnabled = smartListsEnabled
+                #endif
+            }
     }
 }
 
@@ -46,6 +63,6 @@ struct BrowserView: View {
         return URLRequest(url: url)
     }()
 
-    BrowserView(url: $url, initialRequest: request)
+    BrowserView(url: $url, smartListsEnabled: true, initialRequest: request)
         .environment(viewModel)
 }
