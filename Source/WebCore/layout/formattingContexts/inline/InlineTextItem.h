@@ -54,6 +54,8 @@ public:
 
     const InlineTextBox& inlineTextBox() const { return downcast<InlineTextBox>(layoutBox()); }
 
+    String content() const { return inlineTextBox().content().substring(start(), length()); }
+
     InlineTextItem left(unsigned length) const;
     InlineTextItem right(unsigned length, std::optional<InlineLayoutUnit> width) const;
 
