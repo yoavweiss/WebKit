@@ -1830,10 +1830,17 @@ CommandResult<void> WebAutomationSession::generateTestReport(const String& brows
     return { };
 }
 
-void WebAutomationSession::setStorageAccessPermissionState(const String& browsingContextHandle, Inspector::Protocol::Automation::PermissionState state, const String& topFrameOrigin, const String& subFrameOrigin, CommandCallback<void>&& callback)
+void WebAutomationSession::setStorageAccessPermissionState(const Inspector::Protocol::Automation::BrowsingContextHandle& browsingContextHandle, const Inspector::Protocol::Automation::FrameHandle& frameHandle, Inspector::Protocol::Automation::PermissionState state, CommandCallback<void>&& callback)
 {
     auto page = webPageProxyForHandle(browsingContextHandle);
     ASYNC_FAIL_WITH_PREDEFINED_ERROR_IF(!page, WindowNotFound);
+
+    bool frameNotFound = false;
+    auto frameID = webFrameIDForHandle(frameHandle, frameNotFound);
+    ASYNC_FAIL_WITH_PREDEFINED_ERROR_IF(frameNotFound, FrameNotFound);
+
+    RefPtr frame = WebFrameProxy::webFrame(frameID);
+    ASYNC_FAIL_WITH_PREDEFINED_ERROR_IF(!frame, FrameNotFound);
 
     Ref callbackAggregator = CallbackAggregator::create([callback = WTFMove(callback)] {
         callback({ });
@@ -1843,7 +1850,7 @@ void WebAutomationSession::setStorageAccessPermissionState(const String& browsin
     bool granted = state == Inspector::Protocol::Automation::PermissionState::Granted;
     if (!granted)
         store->clearResourceLoadStatisticsInWebProcesses([callbackAggregator] { });
-    store->setStorageAccessPermissionForTesting(granted, page->identifier(), topFrameOrigin, subFrameOrigin, [callbackAggregator] { });
+    store->setStorageAccessPermissionForTesting(granted, page->identifier(), page->currentURL(), frame->url().string(), [callbackAggregator] { });
 }
 
 void WebAutomationSession::setStorageAccessPolicy(const String& browsingContextHandle, bool blocked, CommandCallback<void>&& callback)
