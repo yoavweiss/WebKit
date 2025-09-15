@@ -1,4 +1,3 @@
-EventNames.h
 Modules/applicationmanifest/ApplicationManifestParser.cpp
 Modules/cache/DOMCache.cpp
 Modules/credentialmanagement/CredentialsContainer.cpp
@@ -349,7 +348,6 @@ dom/PendingScript.cpp
 dom/Position.cpp
 dom/PositionIterator.cpp
 dom/ProcessingInstruction.cpp
-dom/QualifiedName.cpp
 dom/Range.cpp
 dom/RangeBoundaryPoint.h
 dom/ScriptExecutionContextInlines.h
@@ -564,7 +562,6 @@ loader/archive/cf/LegacyWebArchive.cpp
 loader/cache/CachedImage.cpp
 loader/cache/CachedImage.h
 loader/cache/CachedResourceRequest.cpp
-loader/cache/CachedResourceRequestInitiatorTypes.h
 loader/cache/CachedSVGFont.cpp
 loader/cocoa/BundleResourceLoader.mm
 mathml/MathMLElement.cpp
@@ -653,7 +650,6 @@ page/writing-tools/WritingToolsController.mm
 platform/Cursor.h
 platform/DragImage.cpp
 platform/Length.cpp
-platform/MIMETypeRegistry.cpp
 platform/ScrollAnimationSmooth.cpp
 platform/ScrollAnimator.cpp
 platform/ScrollView.cpp
@@ -1039,7 +1035,6 @@ workers/WorkerAnimationController.cpp
 workers/WorkerGlobalScope.cpp
 workers/WorkerInspectorProxy.cpp
 workers/WorkerMessagingProxy.cpp
-workers/WorkerOrWorkletThread.cpp
 workers/service/ServiceWorker.cpp
 workers/service/ServiceWorkerContainer.cpp
 workers/service/ServiceWorkerGlobalScope.cpp
