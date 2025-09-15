@@ -104,6 +104,7 @@
 #include "FontFaceSet.h"
 #include "FormController.h"
 #include "FragmentDirective.h"
+#include "FrameConsoleClient.h"
 #include "FrameLoader.h"
 #include "FrameMemoryMonitor.h"
 #include "GCReachableRef.h"
@@ -203,7 +204,6 @@
 #include "OrientationNotifier.h"
 #include "OverflowEvent.h"
 #include "OwnerPermissionsPolicyData.h"
-#include "PageConsoleClient.h"
 #include "PageGroup.h"
 #include "PageRevealEvent.h"
 #include "PageSwapEvent.h"
@@ -8554,8 +8554,8 @@ void Document::addConsoleMessage(std::unique_ptr<Inspector::ConsoleMessage>&& co
         return;
     }
 
-    if (RefPtr page = this->page())
-        page->console().addMessage(WTFMove(consoleMessage));
+    if (RefPtr frame = this->frame())
+        frame->console().addMessage(WTFMove(consoleMessage));
 }
 
 void Document::addConsoleMessage(MessageSource source, MessageLevel level, const String& message, unsigned long requestIdentifier)
@@ -8564,8 +8564,9 @@ void Document::addConsoleMessage(MessageSource source, MessageLevel level, const
         postTask(AddConsoleMessageTask(source, level, message));
         return;
     }
-    if (RefPtr page = this->page())
-        page->console().addMessage(source, level, message, requestIdentifier, this);
+
+    if (RefPtr frame = this->frame())
+        frame->console().addMessage(source, level, message, requestIdentifier, this);
 }
 
 void Document::addMessage(MessageSource source, MessageLevel level, const String& message, const String& sourceURL, unsigned lineNumber, unsigned columnNumber, RefPtr<Inspector::ScriptCallStack>&& callStack, JSC::JSGlobalObject* state, unsigned long requestIdentifier)
@@ -8575,8 +8576,8 @@ void Document::addMessage(MessageSource source, MessageLevel level, const String
         return;
     }
 
-    if (RefPtr page = this->page())
-        page->console().addMessage(source, level, message, sourceURL, lineNumber, columnNumber, WTFMove(callStack), state, requestIdentifier);
+    if (RefPtr frame = this->frame())
+        frame->console().addMessage(source, level, message, sourceURL, lineNumber, columnNumber, WTFMove(callStack), state, requestIdentifier);
 }
 
 void Document::postTask(Task&& task)

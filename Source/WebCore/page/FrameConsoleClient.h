@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Apple Inc. All rights reserved.
+ * Copyright (C) 2013-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -47,20 +47,20 @@ using JSC::MessageType;
 namespace WebCore {
 
 class Document;
-class Page;
+class Frame;
 class StringCallback;
 
-class WEBCORE_EXPORT PageConsoleClient final : public JSC::ConsoleClient, public CanMakeCheckedPtr<PageConsoleClient> {
-    WTF_MAKE_TZONE_ALLOCATED_EXPORT(PageConsoleClient, WEBCORE_EXPORT);
-    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(PageConsoleClient);
+class WEBCORE_EXPORT FrameConsoleClient final : public JSC::ConsoleClient, public CanMakeCheckedPtr<FrameConsoleClient> {
+    WTF_MAKE_TZONE_ALLOCATED_EXPORT(FrameConsoleClient, WEBCORE_EXPORT);
+    WTF_OVERRIDE_DELETE_FOR_CHECKED_PTR(FrameConsoleClient);
 public:
-    explicit PageConsoleClient(Page&);
-    virtual ~PageConsoleClient();
+    explicit FrameConsoleClient(Frame&);
+    virtual ~FrameConsoleClient();
 
-    PageConsoleClient(const PageConsoleClient&) = delete;
-    PageConsoleClient& operator=(const PageConsoleClient&) = delete;
-    PageConsoleClient(PageConsoleClient&&) = delete;
-    PageConsoleClient& operator=(PageConsoleClient&&) = delete;
+    FrameConsoleClient(const FrameConsoleClient&) = delete;
+    FrameConsoleClient& operator=(const FrameConsoleClient&) = delete;
+    FrameConsoleClient(FrameConsoleClient&&) = delete;
+    FrameConsoleClient& operator=(FrameConsoleClient&&) = delete;
 
     static bool shouldPrintExceptions();
     static void setShouldPrintExceptions(bool);
@@ -68,7 +68,6 @@ public:
     static void mute();
     static void unmute();
 
-    void setConsoleMessageListener(RefPtr<StringCallback>&&); // For testing.
     void addMessage(std::unique_ptr<Inspector::ConsoleMessage>&&);
 
     // The following addMessage function are deprecated.
@@ -94,10 +93,7 @@ private:
     void recordEnd(JSC::JSGlobalObject*, Ref<Inspector::ScriptArguments>&&) override;
     void screenshot(JSC::JSGlobalObject*, Ref<Inspector::ScriptArguments>&&) override;
 
-    Ref<Page> protectedPage() const;
-
-    WeakRef<Page> m_page;
-    RefPtr<StringCallback> m_consoleMessageListener;
+    WeakRef<Frame> m_frame;
 };
 
 } // namespace WebCore

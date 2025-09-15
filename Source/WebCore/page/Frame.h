@@ -40,6 +40,7 @@ namespace WebCore {
 
 class DOMWindow;
 class Event;
+class FrameConsoleClient;
 class FrameView;
 class FrameLoaderClient;
 class FrameLoadRequest;
@@ -144,6 +145,9 @@ public:
     FrameTreeSyncData& frameTreeSyncData() const { return m_frameTreeSyncData.get(); }
     WEBCORE_EXPORT virtual RefPtr<SecurityOrigin> frameDocumentSecurityOrigin() const = 0;
 
+    FrameConsoleClient& console() { return m_consoleClient.get(); }
+    const FrameConsoleClient& console() const { return m_consoleClient.get(); }
+
 protected:
     Frame(Page&, FrameIdentifier, FrameType, HTMLFrameOwnerElement*, Frame* parent, Frame* opener, Ref<FrameTreeSyncData>&&, AddToFrameTree = AddToFrameTree::Yes);
     void resetWindowProxy();
@@ -168,6 +172,8 @@ private:
     std::unique_ptr<OwnerPermissionsPolicyData> m_ownerPermisssionsPolicyOverride;
 
     Ref<FrameTreeSyncData> m_frameTreeSyncData;
+
+    const UniqueRef<FrameConsoleClient> m_consoleClient;
 };
 
 } // namespace WebCore

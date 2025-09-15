@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2023 Apple Inc. All rights reserved.
+ * Copyright (C) 2013-2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -27,7 +27,7 @@
  */
 
 #include "config.h"
-#include "PageConsoleClient.h"
+#include "FrameConsoleClient.h"
 
 #include "CachedImage.h"
 #include "CanvasRenderingContext2D.h"
@@ -35,6 +35,7 @@
 #include "ChromeClient.h"
 #include "Document.h"
 #include "ElementChildIteratorInlines.h"
+#include "Frame.h"
 #include "FrameSnapshotting.h"
 #include "HTMLCanvasElement.h"
 #include "HTMLImageElement.h"
@@ -59,7 +60,6 @@
 #include "JSNode.h"
 #include "LocalFrame.h"
 #include "Node.h"
-#include "Page.h"
 #include "ScriptableDocumentParser.h"
 #include "Settings.h"
 #include "StringCallback.h"
@@ -81,8 +81,8 @@
 #endif
 
 #if ENABLE(WEBGL)
-#include "JSWebGLRenderingContext.h"
 #include "JSWebGL2RenderingContext.h"
+#include "JSWebGLRenderingContext.h"
 #include "WebGL2RenderingContext.h"
 #include "WebGLRenderingContext.h"
 #endif
@@ -94,40 +94,40 @@
 namespace WebCore {
 using namespace Inspector;
 
-WTF_MAKE_TZONE_ALLOCATED_IMPL(PageConsoleClient);
+WTF_MAKE_TZONE_ALLOCATED_IMPL(FrameConsoleClient);
 
-PageConsoleClient::PageConsoleClient(Page& page)
-    : m_page(page)
+FrameConsoleClient::FrameConsoleClient(Frame& frame)
+    : m_frame(frame)
 {
 }
 
-PageConsoleClient::~PageConsoleClient() = default;
+FrameConsoleClient::~FrameConsoleClient() = default;
 
 static int muteCount = 0;
 static bool printExceptions = false;
 
-bool PageConsoleClient::shouldPrintExceptions()
+bool FrameConsoleClient::shouldPrintExceptions()
 {
     return printExceptions;
 }
 
-void PageConsoleClient::setShouldPrintExceptions(bool print)
+void FrameConsoleClient::setShouldPrintExceptions(bool print)
 {
     printExceptions = print;
 }
 
-void PageConsoleClient::mute()
+void FrameConsoleClient::mute()
 {
     muteCount++;
 }
 
-void PageConsoleClient::unmute()
+void FrameConsoleClient::unmute()
 {
     ASSERT(muteCount > 0);
     muteCount--;
 }
 
-void PageConsoleClient::logMessageToSystemConsole(const Inspector::ConsoleMessage& consoleMessage)
+void FrameConsoleClient::logMessageToSystemConsole(const Inspector::ConsoleMessage& consoleMessage)
 {
     if (consoleMessage.type() == MessageType::Image) {
         ASSERT(consoleMessage.arguments());
@@ -137,14 +137,16 @@ void PageConsoleClient::logMessageToSystemConsole(const Inspector::ConsoleMessag
     ConsoleClient::printConsoleMessage(consoleMessage.source(), consoleMessage.type(), consoleMessage.level(), consoleMessage.toString(), consoleMessage.url(), consoleMessage.line(), consoleMessage.column());
 }
 
-void PageConsoleClient::setConsoleMessageListener(RefPtr<StringCallback>&& listener)
+void FrameConsoleClient::addMessage(std::unique_ptr<Inspector::ConsoleMessage>&& consoleMessage)
 {
-    m_consoleMessageListener = listener;
-}
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
 
-void PageConsoleClient::addMessage(std::unique_ptr<Inspector::ConsoleMessage>&& consoleMessage)
-{
-    Ref page = m_page.get();
+    RefPtr page = frame->page();
+    if (!page)
+        return;
+
     if (!page->usesEphemeralSession()) {
         String message;
         std::span<const String> additionalArguments;
@@ -161,7 +163,7 @@ void PageConsoleClient::addMessage(std::unique_ptr<Inspector::ConsoleMessage>&& 
 
         page->chrome().client().addMessageToConsole(consoleMessage->source(), consoleMessage->level(), message, consoleMessage->line(), consoleMessage->column(), consoleMessage->url());
 
-        if (RefPtr consoleMessageListener = m_consoleMessageListener)
+        if (RefPtr consoleMessageListener = page->consoleMessageListenerForTesting())
             consoleMessageListener->invoke(message);
 
         if (page->settings().logsPageMessagesToSystemConsoleEnabled() || shouldPrintExceptions()) [[unlikely]]
@@ -171,10 +173,10 @@ void PageConsoleClient::addMessage(std::unique_ptr<Inspector::ConsoleMessage>&& 
 #if ENABLE(WEBDRIVER_BIDI)
     AutomationInstrumentation::addMessageToConsole(consoleMessage);
 #endif
-    InspectorInstrumentation::addMessageToConsole(page, WTFMove(consoleMessage));
+    InspectorInstrumentation::addMessageToConsole(*frame, WTFMove(consoleMessage));
 }
 
-void PageConsoleClient::addMessage(MessageSource source, MessageLevel level, const String& message, unsigned long requestIdentifier, Document* document)
+void FrameConsoleClient::addMessage(MessageSource source, MessageLevel level, const String& message, unsigned long requestIdentifier, Document* document)
 {
     String url;
     unsigned line = 0;
@@ -185,12 +187,12 @@ void PageConsoleClient::addMessage(MessageSource source, MessageLevel level, con
     addMessage(source, level, message, url, line, column, nullptr, JSExecState::currentState(), requestIdentifier);
 }
 
-void PageConsoleClient::addMessage(MessageSource source, MessageLevel level, const String& message, Ref<ScriptCallStack>&& callStack)
+void FrameConsoleClient::addMessage(MessageSource source, MessageLevel level, const String& message, Ref<ScriptCallStack>&& callStack)
 {
     addMessage(source, level, message, String(), 0, 0, WTFMove(callStack), 0);
 }
 
-void PageConsoleClient::addMessage(MessageSource source, MessageLevel level, const String& messageText, const String& suggestedURL, unsigned suggestedLineNumber, unsigned suggestedColumnNumber, RefPtr<ScriptCallStack>&& callStack, JSC::JSGlobalObject* lexicalGlobalObject, unsigned long requestIdentifier)
+void FrameConsoleClient::addMessage(MessageSource source, MessageLevel level, const String& messageText, const String& suggestedURL, unsigned suggestedLineNumber, unsigned suggestedColumnNumber, RefPtr<ScriptCallStack>&& callStack, JSC::JSGlobalObject* lexicalGlobalObject, unsigned long requestIdentifier)
 {
     if (muteCount && source != MessageSource::ConsoleAPI)
         return;
@@ -205,8 +207,12 @@ void PageConsoleClient::addMessage(MessageSource source, MessageLevel level, con
     addMessage(WTFMove(message));
 }
 
-void PageConsoleClient::messageWithTypeAndLevel(MessageType type, MessageLevel level, JSC::JSGlobalObject* lexicalGlobalObject, Ref<Inspector::ScriptArguments>&& arguments)
+void FrameConsoleClient::messageWithTypeAndLevel(MessageType type, MessageLevel level, JSC::JSGlobalObject* lexicalGlobalObject, Ref<Inspector::ScriptArguments>&& arguments)
 {
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
     String messageText;
     std::span<const String> additionalArguments;
     Vector<String> messageArgumentsVector = arguments->getArgumentsAsStrings();
@@ -224,8 +230,11 @@ void PageConsoleClient::messageWithTypeAndLevel(MessageType type, MessageLevel l
 #if ENABLE(WEBDRIVER_BIDI)
     AutomationInstrumentation::addMessageToConsole(message);
 #endif
-    Ref page = m_page.get();
-    InspectorInstrumentation::addMessageToConsole(page, WTFMove(message));
+    InspectorInstrumentation::addMessageToConsole(*frame, WTFMove(message));
+
+    RefPtr page = frame->page();
+    if (!page)
+        return;
 
     if (page->usesEphemeralSession())
         return;
@@ -233,59 +242,94 @@ void PageConsoleClient::messageWithTypeAndLevel(MessageType type, MessageLevel l
     if (!messageArgumentsVector.isEmpty()) {
         page->chrome().client().addMessageToConsole(MessageSource::ConsoleAPI, level, messageText, lineNumber, columnNumber, url);
 
-        if (RefPtr consoleMessageListener = m_consoleMessageListener)
+        if (RefPtr consoleMessageListener = page->consoleMessageListenerForTesting())
             consoleMessageListener->invoke(messageText);
     }
 
-    if (page->settings().logsPageMessagesToSystemConsoleEnabled() || PageConsoleClient::shouldPrintExceptions())
+    if (page->settings().logsPageMessagesToSystemConsoleEnabled() || FrameConsoleClient::shouldPrintExceptions())
         ConsoleClient::printConsoleMessageWithArguments(MessageSource::ConsoleAPI, type, level, lexicalGlobalObject, WTFMove(arguments));
 }
 
-void PageConsoleClient::count(JSC::JSGlobalObject* lexicalGlobalObject, const String& label)
+void FrameConsoleClient::count(JSC::JSGlobalObject* lexicalGlobalObject, const String& label)
 {
-    InspectorInstrumentation::consoleCount(protectedPage(), lexicalGlobalObject, label);
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
+    InspectorInstrumentation::consoleCount(*frame, lexicalGlobalObject, label);
 }
 
-void PageConsoleClient::countReset(JSC::JSGlobalObject* lexicalGlobalObject, const String& label)
+void FrameConsoleClient::countReset(JSC::JSGlobalObject* lexicalGlobalObject, const String& label)
 {
-    InspectorInstrumentation::consoleCountReset(protectedPage(), lexicalGlobalObject, label);
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
+    InspectorInstrumentation::consoleCountReset(*frame, lexicalGlobalObject, label);
 }
 
-void PageConsoleClient::profile(JSC::JSGlobalObject*, const String& title)
+void FrameConsoleClient::profile(JSC::JSGlobalObject*, const String& title)
 {
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
+    InspectorInstrumentation::startProfiling(*frame, title);
+}
+
+void FrameConsoleClient::profileEnd(JSC::JSGlobalObject*, const String& title)
+{
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
     // FIXME: <https://webkit.org/b/153499> Web Inspector: console.profile should use the new Sampling Profiler
-    InspectorInstrumentation::startProfiling(protectedPage(), title);
+    InspectorInstrumentation::stopProfiling(*frame, title);
 }
 
-void PageConsoleClient::profileEnd(JSC::JSGlobalObject*, const String& title)
+void FrameConsoleClient::takeHeapSnapshot(JSC::JSGlobalObject*, const String& title)
 {
-    // FIXME: <https://webkit.org/b/153499> Web Inspector: console.profile should use the new Sampling Profiler
-    InspectorInstrumentation::stopProfiling(protectedPage(), title);
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
+    InspectorInstrumentation::takeHeapSnapshot(*frame, title);
 }
 
-void PageConsoleClient::takeHeapSnapshot(JSC::JSGlobalObject*, const String& title)
+void FrameConsoleClient::time(JSC::JSGlobalObject* lexicalGlobalObject, const String& label)
 {
-    InspectorInstrumentation::takeHeapSnapshot(m_page->mainFrame(), title);
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
+    InspectorInstrumentation::startConsoleTiming(*frame, lexicalGlobalObject, label);
 }
 
-void PageConsoleClient::time(JSC::JSGlobalObject* lexicalGlobalObject, const String& label)
+void FrameConsoleClient::timeLog(JSC::JSGlobalObject* lexicalGlobalObject, const String& label, Ref<ScriptArguments>&& arguments)
 {
-    InspectorInstrumentation::startConsoleTiming(m_page->mainFrame(), lexicalGlobalObject, label);
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
+    InspectorInstrumentation::logConsoleTiming(*frame, lexicalGlobalObject, label, WTFMove(arguments));
 }
 
-void PageConsoleClient::timeLog(JSC::JSGlobalObject* lexicalGlobalObject, const String& label, Ref<ScriptArguments>&& arguments)
+void FrameConsoleClient::timeEnd(JSC::JSGlobalObject* lexicalGlobalObject, const String& label)
 {
-    InspectorInstrumentation::logConsoleTiming(m_page->mainFrame(), lexicalGlobalObject, label, WTFMove(arguments));
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
+
+    InspectorInstrumentation::stopConsoleTiming(*frame, lexicalGlobalObject, label);
 }
 
-void PageConsoleClient::timeEnd(JSC::JSGlobalObject* lexicalGlobalObject, const String& label)
+void FrameConsoleClient::timeStamp(JSC::JSGlobalObject*, Ref<ScriptArguments>&& arguments)
 {
-    InspectorInstrumentation::stopConsoleTiming(m_page->mainFrame(), lexicalGlobalObject, label);
-}
+    RefPtr frame = dynamicDowncast<LocalFrame>(m_frame.get());
+    if (!frame)
+        return;
 
-void PageConsoleClient::timeStamp(JSC::JSGlobalObject*, Ref<ScriptArguments>&& arguments)
-{
-    InspectorInstrumentation::consoleTimeStamp(m_page->mainFrame(), WTFMove(arguments));
+    InspectorInstrumentation::consoleTimeStamp(*frame, WTFMove(arguments));
 }
 
 static JSC::JSObject* objectArgumentAt(ScriptArguments& arguments, unsigned index)
@@ -316,7 +360,7 @@ static CanvasRenderingContext* canvasRenderingContext(JSC::VM& vm, JSC::JSValue 
     return nullptr;
 }
 
-void PageConsoleClient::record(JSC::JSGlobalObject* lexicalGlobalObject, Ref<ScriptArguments>&& arguments)
+void FrameConsoleClient::record(JSC::JSGlobalObject* lexicalGlobalObject, Ref<ScriptArguments>&& arguments)
 {
     if (!InspectorInstrumentation::hasFrontends()) [[likely]]
         return;
@@ -327,7 +371,7 @@ void PageConsoleClient::record(JSC::JSGlobalObject* lexicalGlobalObject, Ref<Scr
     }
 }
 
-void PageConsoleClient::recordEnd(JSC::JSGlobalObject* lexicalGlobalObject, Ref<ScriptArguments>&& arguments)
+void FrameConsoleClient::recordEnd(JSC::JSGlobalObject* lexicalGlobalObject, Ref<ScriptArguments>&& arguments)
 {
     if (!InspectorInstrumentation::hasFrontends()) [[likely]]
         return;
@@ -338,7 +382,7 @@ void PageConsoleClient::recordEnd(JSC::JSGlobalObject* lexicalGlobalObject, Ref<
     }
 }
 
-void PageConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Ref<ScriptArguments>&& arguments)
+void FrameConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Ref<ScriptArguments>&& arguments)
 {
     JSC::VM& vm = lexicalGlobalObject->vm();
     String dataURL;
@@ -390,8 +434,10 @@ void PageConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Ref
 
                 if (dataURL.isEmpty()) {
                     if (!snapshot) {
-                        if (RefPtr localMainFrame = m_page->localMainFrame())
-                            snapshot = WebCore::snapshotNode(*localMainFrame, *node, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() });
+                        if (RefPtr localFrame = dynamicDowncast<LocalFrame>(m_frame.get())) {
+                            if (RefPtr localMainFrame = localFrame->localMainFrame())
+                                snapshot = WebCore::snapshotNode(*localMainFrame, *node, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() });
+                        }
                     }
 
                     if (snapshot)
@@ -423,9 +469,11 @@ void PageConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Ref
         } else if (auto* rect = JSDOMRectReadOnly::toWrapped(vm, possibleTarget)) {
             target = possibleTarget;
             if (InspectorInstrumentation::hasFrontends()) [[unlikely]] {
-                if (RefPtr localMainFrame = dynamicDowncast<LocalFrame>(m_page->mainFrame())) {
-                    if (auto snapshot = WebCore::snapshotFrameRect(*localMainFrame, enclosingIntRect(rect->toFloatRect()), { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() }))
-                        dataURL = snapshot->toDataURL("image/png"_s, std::nullopt, PreserveResolution::Yes);
+                if (RefPtr localFrame = dynamicDowncast<LocalFrame>(m_frame.get())) {
+                    if (RefPtr localMainFrame = localFrame->localMainFrame()) {
+                        if (auto snapshot = WebCore::snapshotFrameRect(*localMainFrame, enclosingIntRect(rect->toFloatRect()), { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() }))
+                            dataURL = snapshot->toDataURL("image/png"_s, std::nullopt, PreserveResolution::Yes);
+                    }
                 }
             }
         } else {
@@ -439,11 +487,13 @@ void PageConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Ref
 
     if (InspectorInstrumentation::hasFrontends()) [[unlikely]] {
         if (!target) {
-            if (RefPtr localMainFrame = m_page->localMainFrame()) {
-                // If no target is provided, capture an image of the viewport.
-                auto viewportRect = localMainFrame->view()->unobscuredContentRect();
-                if (auto snapshot = WebCore::snapshotFrameRect(*localMainFrame, viewportRect, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() }))
-                    dataURL = snapshot->toDataURL("image/png"_s, std::nullopt, PreserveResolution::Yes);
+            if (RefPtr localFrame = dynamicDowncast<LocalFrame>(m_frame.get())) {
+                if (RefPtr localMainFrame = localFrame->localMainFrame()) {
+                    // If no target is provided, capture an image of the viewport.
+                    auto viewportRect = localMainFrame->view()->unobscuredContentRect();
+                    if (auto snapshot = WebCore::snapshotFrameRect(*localMainFrame, viewportRect, { { }, PixelFormat::BGRA8, DestinationColorSpace::SRGB() }))
+                        dataURL = snapshot->toDataURL("image/png"_s, std::nullopt, PreserveResolution::Yes);
+                }
             }
         }
 
@@ -459,11 +509,6 @@ void PageConsoleClient::screenshot(JSC::JSGlobalObject* lexicalGlobalObject, Ref
         adjustedArguments.append({ vm, arguments->argumentAt(i) });
     arguments = ScriptArguments::create(lexicalGlobalObject, WTFMove(adjustedArguments));
     addMessage(makeUnique<Inspector::ConsoleMessage>(MessageSource::ConsoleAPI, MessageType::Image, MessageLevel::Log, dataURL, WTFMove(arguments), lexicalGlobalObject, 0, timestamp));
-}
-
-Ref<Page> PageConsoleClient::protectedPage() const
-{
-    return m_page.get();
 }
 
 } // namespace WebCore

@@ -2024,6 +2024,7 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     page/FocusEventData.h
     page/FragmentDirective.h
     page/Frame.h
+    page/FrameConsoleClient.h
     page/FrameDestructionObserver.h
     page/FrameDestructionObserverInlines.h
     page/FrameIdentifier.h
@@ -2064,7 +2065,6 @@ set(WebCore_PRIVATE_FRAMEWORK_HEADERS
     page/Page.h
     page/PageColorSampler.h
     page/PageConfiguration.h
-    page/PageConsoleClient.h
     page/PageGroup.h
     page/PageInlines.h
     page/PageOverlay.h

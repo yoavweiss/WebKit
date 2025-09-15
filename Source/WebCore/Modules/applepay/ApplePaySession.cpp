@@ -56,7 +56,6 @@
 #include "LocalDOMWindow.h"
 #include "LocalFrame.h"
 #include "Page.h"
-#include "PageConsoleClient.h"
 #include "PaymentContact.h"
 #include "PaymentCoordinator.h"
 #include "PaymentMerchantSession.h"

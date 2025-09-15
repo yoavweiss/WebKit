@@ -39,6 +39,7 @@
 #include "Document.h"
 #include "DocumentInlines.h"
 #include "DocumentLoader.h"
+#include "FrameConsoleClient.h"
 #include "FrameDestructionObserverInlines.h"
 #include "FrameLoader.h"
 #include "HTMLFrameOwnerElement.h"
@@ -50,7 +51,6 @@
 #include "NetworkingContext.h"
 #include "OriginAccessPatterns.h"
 #include "Page.h"
-#include "PageConsoleClient.h"
 #include "PlatformStrategies.h"
 #include "ProgressTracker.h"
 #include "Quirks.h"
@@ -599,10 +599,8 @@ void ResourceLoader::didReceiveResponse(ResourceResponse&& r, CompletionHandler<
     if (r.usedLegacyTLS() && frame) {
         if (RefPtr document = frame->document()) {
             if (!document->usedLegacyTLS()) {
-                if (RefPtr page = document->page()) {
-                    RESOURCELOADER_RELEASE_LOG("usedLegacyTLS:");
-                    page->console().addMessage(MessageSource::Network, MessageLevel::Warning, makeString("Loaded resource from "_s, r.url().host(), " using TLS 1.0 or 1.1, which are deprecated protocols that will be removed. Please use TLS 1.2 or newer instead."_s), 0, document.get());
-                }
+                RESOURCELOADER_RELEASE_LOG("usedLegacyTLS:");
+                frame->console().addMessage(MessageSource::Network, MessageLevel::Warning, makeString("Loaded resource from "_s, r.url().host(), " using TLS 1.0 or 1.1, which are deprecated protocols that will be removed. Please use TLS 1.2 or newer instead."_s), 0, document.get());
                 document->setUsedLegacyTLS(true);
             }
         }

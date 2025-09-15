@@ -69,6 +69,7 @@
 #include "EventTargetInlines.h"
 #include "FloatRect.h"
 #include "FocusController.h"
+#include "FrameConsoleClient.h"
 #include "FrameLoadRequest.h"
 #include "FrameLoader.h"
 #include "FrameTree.h"
@@ -99,7 +100,6 @@
 #include "Navigator.h"
 #include "OriginAccessPatterns.h"
 #include "Page.h"
-#include "PageConsoleClient.h"
 #include "PageTransitionEvent.h"
 #include "Performance.h"
 #include "PerformanceEventTiming.h"
@@ -962,12 +962,12 @@ void LocalDOMWindow::processPostMessage(JSC::JSGlobalObject& lexicalGlobalObject
         if (targetOrigin) {
             // Check target origin now since the target document may have changed since the timer was scheduled.
             if (!targetOrigin->isSameSchemeHostPort(document->protectedSecurityOrigin())) {
-                if (CheckedPtr pageConsole = console()) {
+                if (CheckedPtr frameConsole = console()) {
                     auto message = makeString("Unable to post message to "_s, targetOrigin->toString(), ". Recipient has origin "_s, document->securityOrigin().toString(), ".\n"_s);
                     if (stackTrace)
-                        pageConsole->addMessage(MessageSource::Security, MessageLevel::Error, message, *stackTrace);
+                        frameConsole->addMessage(MessageSource::Security, MessageLevel::Error, message, *stackTrace);
                     else
-                        pageConsole->addMessage(MessageSource::Security, MessageLevel::Error, message);
+                        frameConsole->addMessage(MessageSource::Security, MessageLevel::Error, message);
                 }
 
                 InspectorInstrumentation::didFailPostMessage(frame, postMessageIdentifier);

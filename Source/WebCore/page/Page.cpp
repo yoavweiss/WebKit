@@ -85,6 +85,7 @@
 #include "FocusController.h"
 #include "FontCache.h"
 #include "FragmentDirectiveGenerator.h"
+#include "FrameConsoleClient.h"
 #include "FrameLoader.h"
 #include "FrameSelection.h"
 #include "FrameTree.h"
@@ -123,7 +124,6 @@
 #include "OpportunisticTaskScheduler.h"
 #include "PageColorSampler.h"
 #include "PageConfiguration.h"
-#include "PageConsoleClient.h"
 #include "PageDebuggable.h"
 #include "PageGroup.h"
 #include "PageOverlayController.h"
@@ -176,6 +176,7 @@
 #include "StorageNamespace.h"
 #include "StorageNamespaceProvider.h"
 #include "StorageProvider.h"
+#include "StringCallback.h"
 #include "StyleAdjuster.h"
 #include "StyleResolver.h"
 #include "StyleScope.h"
@@ -393,7 +394,6 @@ Page::Page(PageConfiguration&& pageConfiguration)
     , m_domTimerAlignmentIntervalIncreaseTimer(*this, &Page::domTimerAlignmentIntervalIncreaseTimerFired)
     , m_activityState(pageInitialActivityState())
     , m_alternativeTextClient(WTFMove(pageConfiguration.alternativeTextClient))
-    , m_consoleClient(makeUniqueRef<PageConsoleClient>(*this))
 #if ENABLE(REMOTE_INSPECTOR)
     , m_inspectorDebuggable(PageDebuggable::create(*this))
 #endif
@@ -774,6 +774,16 @@ Ref<DOMRectList> Page::passiveTouchEventListenerRectsForTesting()
         quads[i] = FloatRect(rects[i]);
 
     return DOMRectList::create(quads);
+}
+
+void Page::setConsoleMessageListenerForTesting(RefPtr<StringCallback>&& listener)
+{
+    m_consoleMessageListenerForTesting = listener;
+}
+
+RefPtr<StringCallback> Page::consoleMessageListenerForTesting() const
+{
+    return m_consoleMessageListenerForTesting;
 }
 
 void Page::settingsDidChange()
@@ -4875,8 +4885,7 @@ void Page::injectUserStyleSheet(UserStyleSheet& userStyleSheet)
 #if ENABLE(APP_BOUND_DOMAINS)
     if (RefPtr localMainFrame = dynamicDowncast<LocalFrame>(m_mainFrame.get())) {
         if (localMainFrame->loader().client().shouldEnableInAppBrowserPrivacyProtections()) {
-            if (RefPtr document = localMainFrame->document())
-                document->addConsoleMessage(MessageSource::Security, MessageLevel::Warning, "Ignoring user style sheet for non-app bound domain."_s);
+            localMainFrame->console().addMessage(MessageSource::Security, MessageLevel::Warning, "Ignoring user style sheet for non-app bound domain."_s);
             return;
         }
         localMainFrame->loader().client().notifyPageOfAppBoundBehavior();

@@ -579,6 +579,7 @@ page/ElementTargetingController.cpp
 page/EventHandler.cpp
 page/EventSource.cpp
 page/FocusController.cpp
+page/FrameConsoleClient.cpp
 page/FrameDestructionObserver.cpp
 page/FrameSnapshotting.cpp
 page/ImageAnalysisQueue.cpp
@@ -596,7 +597,6 @@ page/Navigator.cpp
 page/NavigatorLoginStatus.cpp
 page/Page.cpp
 page/PageColorSampler.cpp
-page/PageConsoleClient.cpp
 page/PageOverlay.cpp
 page/PageOverlayController.cpp
 page/PageSerializer.cpp

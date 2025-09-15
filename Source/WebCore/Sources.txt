@@ -2116,6 +2116,7 @@ page/EventHandler.cpp
 page/EventSource.cpp
 page/FocusController.cpp
 page/Frame.cpp
+page/FrameConsoleClient.cpp
 page/FrameDestructionObserver.cpp
 page/FrameIdentifier.cpp
 page/FrameSnapshotting.cpp
@@ -2155,7 +2156,6 @@ page/OriginAccessPatterns.cpp
 page/Page.cpp
 page/PageColorSampler.cpp
 page/PageConfiguration.cpp
-page/PageConsoleClient.cpp
 page/PageDebuggable.cpp
 page/PageGroup.cpp
 page/PageGroupLoadDeferrer.cpp

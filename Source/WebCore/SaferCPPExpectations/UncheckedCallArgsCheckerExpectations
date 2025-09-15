@@ -413,6 +413,7 @@ page/DragController.cpp
 page/ElementTargetingController.cpp
 page/EventHandler.cpp
 page/FocusController.cpp
+page/FrameConsoleClient.cpp
 page/FrameSnapshotting.cpp
 page/ImageOverlayController.cpp
 page/IntelligenceTextEffectsSupport.cpp
@@ -428,7 +429,6 @@ page/NavigateEvent.cpp
 page/Navigator.cpp
 page/Page.cpp
 page/PageColorSampler.cpp
-page/PageConsoleClient.cpp
 page/PageOverlay.cpp
 page/PageOverlayController.cpp
 page/PageSerializer.cpp
