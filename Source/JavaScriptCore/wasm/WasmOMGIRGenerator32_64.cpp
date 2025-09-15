@@ -5777,49 +5777,10 @@ auto OMGIRGenerator::createTailCallPatchpoint(BasicBlock* block, const TypeDefin
     return { patchpoint, nullptr, WTFMove(prepareForCall) };
 }
 
-bool OMGIRGenerator::canInline(FunctionSpaceIndex functionIndexSpace, unsigned callSlotIndex) const
+bool OMGIRGenerator::canInline(FunctionSpaceIndex, unsigned) const
 {
     ASSERT(!m_inlinedBytes || !m_inlineParent);
-    if (!Options::useOMGInlining())
-        return false;
-
-    size_t wasmSize = m_info.functionWasmSizeImportSpace(functionIndexSpace);
-    if (wasmSize >= Options::maximumWasmCalleeSizeForInlining())
-        return false;
-
-    {
-        unsigned selfRecursionCount = 0;
-        for (auto* cursor = this; cursor; cursor = cursor->m_inlineParent) {
-            if (&cursor->m_info == &m_info && cursor->m_info.toSpaceIndex(cursor->m_functionIndex) == functionIndexSpace) {
-                ++selfRecursionCount;
-                if (selfRecursionCount >= Options::maximumWasmSelfRecursionDepthForInlining())
-                    return false;
-            }
-        }
-    }
-
-    // If this callsite is never used by IPInt and BBQ, we should skip inlining. Likely a dead code.
-    // FIXME: This is still very naive. We can forcefully inline if wasm byte size is
-    // too small (then call sequence can be larger than the inlined content).
-    // Also, we could eventually consider emitting OSR exit, and stop generating
-    // the rest of the code for this and subsequent basic blocks.
-    if (!m_profiledCallee.baselineData().at(callSlotIndex).count())
-        return false;
-
-    if (m_inlineDepth >= Options::maximumWasmDepthForInlining())
-        return false;
-
-    if (m_inlineRoot->m_inlinedBytes.value() >= Options::maximumWasmCallerSizeForInlining())
-        return false;
-
-    if (m_inlineDepth > 1 && !StackCheck(Thread::currentSingleton().stack(), StackBounds::DefaultReservedZone * 2).isSafeToRecurse())
-        return false;
-
-    // FIXME: There's no fundamental reason we can't inline these including imports.
-    if (m_info.callCanClobberInstance(functionIndexSpace))
-        return false;
-
-    return true;
+    return false;
 }
 
 auto OMGIRGenerator::emitInlineDirectCall(FunctionCodeIndex calleeFunctionIndex, const TypeDefinition& calleeSignature, ArgumentList& args, ResultList& resultList) -> PartialResult

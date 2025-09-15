@@ -4514,9 +4514,9 @@ void BBQJIT::emitIndirectCall(const char* opcode, unsigned callSlotIndex, const 
 
         isSameInstanceBefore.link(&m_jit);
         m_jit.loadPtr(CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallSlot) * callSlotIndex + CallSlot::offsetOfBoxedCallee())), wasmScratchGPR);
-        profilingDone.append(m_jit.branch64(CCallHelpers::Equal, wasmScratchGPR, boxedCallee));
-        profilingDone.append(m_jit.branch64(CCallHelpers::Equal, wasmScratchGPR, TrustedImm32(CallSlot::megamorphicCallee)));
-        profilingGiveUp.append(m_jit.branchTest64(CCallHelpers::NonZero, wasmScratchGPR));
+        profilingDone.append(m_jit.branchPtr(CCallHelpers::Equal, wasmScratchGPR, boxedCallee));
+        profilingDone.append(m_jit.branchPtr(CCallHelpers::Equal, wasmScratchGPR, TrustedImmPtr(CallSlot::megamorphicCallee)));
+        profilingGiveUp.append(m_jit.branchTestPtr(CCallHelpers::NonZero, wasmScratchGPR));
         m_jit.move(boxedCallee, wasmScratchGPR);
         auto store = m_jit.jump();
 
@@ -4524,7 +4524,7 @@ void BBQJIT::emitIndirectCall(const char* opcode, unsigned callSlotIndex, const 
         m_jit.move(TrustedImm32(CallSlot::megamorphicCallee), wasmScratchGPR);
 
         store.link(m_jit);
-        m_jit.store64(wasmScratchGPR, CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallSlot) * callSlotIndex + CallSlot::offsetOfBoxedCallee()))); // Give up for cross-instance indirect calls.
+        m_jit.storePtr(wasmScratchGPR, CCallHelpers::Address(GPRInfo::jitDataRegister, safeCast<int32_t>(BaselineData::offsetOfData() + sizeof(CallSlot) * callSlotIndex + CallSlot::offsetOfBoxedCallee()))); // Give up for cross-instance indirect calls.
         profilingDone.link(m_jit);
     }
 

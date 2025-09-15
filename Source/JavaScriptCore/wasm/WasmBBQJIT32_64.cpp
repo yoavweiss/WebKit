@@ -3590,38 +3590,38 @@ PartialResult WARN_UNUSED_RETURN BBQJIT::addCallRef(unsigned callSlotIndex, cons
     GPRReg calleePtr;
     GPRReg calleeInstance;
     GPRReg calleeCode;
+    GPRReg boxedCallee;
     {
         ScratchScope<1, 0> calleeCodeScratch(*this, RegisterSetBuilder::argumentGPRs());
         calleeCode = calleeCodeScratch.gpr(0);
         calleeCodeScratch.unbindPreserved();
 
-        ScratchScope<2, 0> otherScratches(*this);
-
-        Location calleeLocation;
-        if (callee.isConst()) {
-            ASSERT(callee.asI64() == JSValue::encode(jsNull()));
-            // This is going to throw anyway. It's suboptimial but probably won't happen in practice anyway.
-            emitMoveConst(callee, calleeLocation = Location::fromGPR2(otherScratches.gpr(1), otherScratches.gpr(0)));
-        } else
-            calleeLocation = loadIfNecessary(callee);
-        consume(callee);
-        emitThrowOnNullReference(ExceptionType::NullReference, calleeLocation);
-
-        calleePtr = calleeLocation.asGPRlo();
-        calleeInstance = otherScratches.gpr(1);
-
         {
-            auto calleeTmp = calleeInstance;
-            m_jit.loadPtr(Address(calleePtr, WebAssemblyFunctionBase::offsetOfBoxedCallee()), calleeTmp);
-            m_jit.storeWasmCalleeToCalleeCallFrame(calleeTmp);
-        }
+            ScratchScope<2, 0> otherScratch(*this);
 
-        m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfTargetInstance()), calleeInstance);
-        m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfEntrypointLoadLocation()), calleeCode);
+            Location calleeLocation;
+            if (callee.isConst()) {
+                ASSERT(callee.asI64() == JSValue::encode(jsNull()));
+                // This is going to throw anyway. It's suboptimial but probably won't happen in practice anyway.
+                emitMoveConst(callee, calleeLocation = Location::fromGPR2(otherScratch.gpr(1), otherScratch.gpr(0)));
+            } else
+                calleeLocation = loadIfNecessary(callee);
+            consume(callee);
+            emitThrowOnNullReference(ExceptionType::NullReference, calleeLocation);
+
+            calleePtr = calleeLocation.asGPRLow();
+            calleeInstance = otherScratch.gpr(0);
+            boxedCallee = otherScratch.gpr(1);
+
+            m_jit.loadPtr(Address(calleePtr, WebAssemblyFunctionBase::offsetOfBoxedCallee()), boxedCallee);
+            m_jit.storeWasmCalleeToCalleeCallFrame(boxedCallee);
+            m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfTargetInstance()), calleeInstance);
+            m_jit.loadPtr(MacroAssembler::Address(calleePtr, WebAssemblyFunctionBase::offsetOfEntrypointLoadLocation()), calleeCode);
+        }
     }
 
     if (callType == CallType::Call)
-        emitIndirectCall("CallRef", callee, calleeInstance, calleeCode, signature, args, results);
+        emitIndirectCall("CallRef", callSlotIndex, callee, boxedCallee, calleeInstance, calleeCode, signature, args, results);
     else
         emitIndirectTailCall("ReturnCallRef", callee, calleeInstance, calleeCode, signature, args);
     return { };
