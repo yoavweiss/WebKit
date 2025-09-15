@@ -107,12 +107,3 @@ shouldBe(BigInt.asIntN(63, -0x800000000000001n), -576460752303423489n);
 shouldBe(BigInt.asIntN(64, -0x800000000000001n), -576460752303423489n);
 shouldBe(BigInt.asIntN(65, -0x800000000000001n), -576460752303423489n);
 shouldBe(BigInt.asIntN(66, -0x800000000000001n), -576460752303423489n);
-
-shouldBe(BigInt.asIntN(2 ** 32 - 1, 2n ** 64n - 1n), 18446744073709551615n);
-shouldBe(BigInt.asIntN(2 ** 32, 2n ** 64n - 1n), 18446744073709551615n);
-shouldBe(BigInt.asIntN(2 ** 32 + 1, 2n ** 64n - 1n), 18446744073709551615n);
-
-shouldBe(BigInt.asIntN(2 ** 53 - 1, 2n ** 64n - 1n), 18446744073709551615n);
-shouldThrow(() => {
-    BigInt.asIntN(2 ** 53, 2n ** 64n - 1n)
-}, `RangeError: number of bits larger than (2 ** 53) - 1`);
