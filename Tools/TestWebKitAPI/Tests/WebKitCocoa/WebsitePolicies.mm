@@ -56,6 +56,7 @@
 #import <wtf/MainThread.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/cocoa/SpanCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/text/MakeString.h>
 #import <wtf/text/StringHash.h>
 #import <wtf/text/WTFString.h>
@@ -229,7 +230,7 @@ TEST(WebpagePreferences, WebsitePoliciesContentBlockersEnabled)
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction preferences:(WKWebpagePreferences *)preferences decisionHandler:(void (^)(WKNavigationActionPolicy, WKWebpagePreferences *))decisionHandler
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(mainDispatchQueueSingleton(), ^{
         auto websitePolicies = adoptNS([[WKWebpagePreferences alloc] init]);
         if (_allowedAutoplayQuirksForURL)
             [websitePolicies _setAllowedAutoplayQuirks:_allowedAutoplayQuirksForURL(navigationAction.request.URL)];
@@ -1002,7 +1003,7 @@ static void respond(id <WKURLSchemeTask>task, NSString *html = nil)
     [preferences _setCustomHeaderFields:@[headerFields.get()]];
     
     if ([navigationAction.request.URL.path isEqualToString:@"/mainresource"]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             decisionHandler(WKNavigationActionPolicyAllow, preferences);
         });
     } else

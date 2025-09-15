@@ -29,6 +29,7 @@
 #import <Foundation/Foundation.h>
 #import <objc/objc.h>
 #import <objc/runtime.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #if JSC_OBJC_API_ENABLED
 
@@ -355,7 +356,7 @@ void runRegress141275()
 
         void (^showErrorIfNeeded)(NSError* error) = ^(NSError* error) {
             if (error) {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                dispatch_async(mainDispatchQueueSingleton(), ^{
                     NSLog(@"Error: %@", error);
                 });
             }
@@ -371,7 +372,7 @@ void runRegress141275()
             };
         } completion:^(NSError* error) {
             if (error) {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                dispatch_async(mainDispatchQueueSingleton(), ^{
                     NSLog(@"Error: %@", error);
                 });
             }

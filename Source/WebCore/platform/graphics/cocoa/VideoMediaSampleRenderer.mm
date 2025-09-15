@@ -43,6 +43,7 @@
 #import <wtf/MonotonicTime.h>
 #import <wtf/NativePromise.h>
 #import <wtf/cf/TypeCastsCF.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #if PLATFORM(VISION)
 #import "FormatDescriptionUtilities.h"
@@ -911,7 +912,7 @@ void VideoMediaSampleRenderer::resetReadyForMoreMediaData()
     }
 
     ThreadSafeWeakPtr weakThis { *this };
-    [renderer() requestMediaDataWhenReadyOnQueue:dispatch_get_main_queue() usingBlock:^{
+    [renderer() requestMediaDataWhenReadyOnQueue:mainDispatchQueueSingleton() usingBlock:^{
         assertIsMainThread();
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)

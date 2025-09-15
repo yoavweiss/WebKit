@@ -36,6 +36,7 @@
 #import "_WKWebExtensionSQLiteHelpers.h"
 #import "_WKWebExtensionSQLiteRow.h"
 #import <wtf/WeakObjCPtr.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 using namespace WebKit;
 
@@ -92,7 +93,7 @@ static const SchemaVersion currentDatabaseSchemaVersion = 1;
 
         NSString *errorMessage;
         if (![strongSelf _openDatabaseIfNecessaryReturningErrorMessage:&errorMessage]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(mainDispatchQueueSingleton(), ^{
                 completionHandler(errorMessage);
             });
 
@@ -123,7 +124,7 @@ static const SchemaVersion currentDatabaseSchemaVersion = 1;
             errorMessage = [NSString stringWithFormat:@"Failed to add %@ rules. Some rules do not have unique IDs (%@).", strongSelf->_storageType, [existingRuleIDs componentsJoinedByString:@", "]];
 
         if (errorMessage.length) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(mainDispatchQueueSingleton(), ^{
                 completionHandler(errorMessage);
             });
 
@@ -136,7 +137,7 @@ static const SchemaVersion currentDatabaseSchemaVersion = 1;
                 break;
         }
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             completionHandler(errorMessage);
         });
     });
@@ -157,7 +158,7 @@ static const SchemaVersion currentDatabaseSchemaVersion = 1;
 
         NSString *errorMessage;
         if (![strongSelf _openDatabaseIfNecessaryReturningErrorMessage:&errorMessage createIfNecessary:NO]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(mainDispatchQueueSingleton(), ^{
                 completionHandler(errorMessage);
             });
 
@@ -175,7 +176,7 @@ static const SchemaVersion currentDatabaseSchemaVersion = 1;
 
         NSString *deleteDatabaseErrorMessage = [strongSelf _deleteDatabaseIfEmpty];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             // Errors from opening the database or deleting keys take precedence over an error deleting the database.
             completionHandler(errorMessage.length ? errorMessage : deleteDatabaseErrorMessage);
         });
@@ -193,7 +194,7 @@ static const SchemaVersion currentDatabaseSchemaVersion = 1;
         NSString *errorMessage;
         NSArray<NSDictionary<NSString *, id> *> *rules = [strongSelf _getRulesWithRuleIDs:ruleIDs errorMessage:&errorMessage];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             completionHandler(rules, errorMessage);
         });
     });

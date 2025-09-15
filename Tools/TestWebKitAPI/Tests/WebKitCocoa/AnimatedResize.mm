@@ -38,6 +38,7 @@
 #import <WebKit/WKWebViewPrivateForTesting.h>
 #import <WebKit/_WKProcessPoolConfiguration.h>
 #import <wtf/RetainPtr.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #if PLATFORM(IOS_FAMILY)
 
@@ -139,7 +140,7 @@ TEST(AnimatedResize, AnimatedResizeDoesNotHang)
             [webView setFrame:CGRectMake(0, 0, [webView frame].size.width + 100, 400)];
         }];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             [webView _endAnimatedResize];
         });
 

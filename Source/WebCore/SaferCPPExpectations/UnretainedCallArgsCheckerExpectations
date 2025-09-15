@@ -1,6 +1,4 @@
 Modules/WebGPU/GPUQueue.cpp
-Modules/model-element/scenekit/SceneKitModelLoader.mm
-Modules/model-element/scenekit/SceneKitModelLoaderUSD.mm
 Modules/model-element/scenekit/SceneKitModelPlayer.mm
 Modules/notifications/NotificationDataCocoa.mm
 Modules/speech/cocoa/WebSpeechRecognizerTask.mm
@@ -45,9 +43,7 @@ editing/mac/TextAlternativeWithRange.mm
 editing/mac/TextUndoInsertionMarkupMac.mm
 inspector/agents/page/PageTimelineAgent.cpp
 inspector/mac/PageDebuggerMac.mm
-loader/cocoa/DiskCacheMonitorCocoa.mm
 loader/cocoa/PrivateClickMeasurementCocoa.mm
-page/cocoa/MemoryReleaseCocoa.mm
 page/cocoa/PageCocoa.mm
 page/cocoa/WebTextIndicatorLayer.mm
 page/mac/EventHandlerMac.mm
@@ -58,10 +54,7 @@ page/scrolling/mac/ScrollingTreePluginScrollingNodeMac.mm
 page/scrolling/mac/ScrollingTreeScrollingNodeDelegateMac.mm
 platform/audio/cocoa/AudioFileReaderCocoa.cpp
 platform/audio/cocoa/AudioSampleBufferConverter.mm
-platform/audio/cocoa/AudioSessionCocoa.mm
-platform/audio/cocoa/MediaSessionManagerCocoa.mm
 platform/audio/cocoa/PlatformRawAudioDataCocoa.cpp
-platform/audio/mac/AudioSessionMac.mm
 platform/audio/mac/SharedRoutingArbitrator.mm
 platform/cf/KeyedDecoderCF.cpp
 platform/cf/KeyedEncoderCF.cpp
@@ -76,7 +69,6 @@ platform/cocoa/NetworkExtensionContentFilter.mm
 platform/cocoa/ParentalControlsContentFilter.mm
 platform/cocoa/PlatformPasteboardCocoa.mm
 platform/cocoa/PlatformSpeechSynthesizerCocoa.mm
-platform/cocoa/PowerSourceNotifier.mm
 platform/cocoa/SearchPopupMenuCocoa.mm
 platform/cocoa/SystemBattery.mm
 platform/cocoa/TextRecognitionResultCocoa.mm

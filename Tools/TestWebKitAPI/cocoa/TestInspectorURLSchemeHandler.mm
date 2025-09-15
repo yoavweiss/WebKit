@@ -30,6 +30,7 @@
 #import <WebCore/MIMETypeRegistry.h>
 #import <WebKit/WKURLSchemeTask.h>
 #import <wtf/Assertions.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 // Note: this class is a simplified version of WKResourceURLSchemeHandler for testing purposes.
 
@@ -60,7 +61,7 @@
     }
 
     NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             [_fileLoadOperations removeObjectForKey:urlSchemeTask];
         });
 
@@ -103,7 +104,7 @@
 - (void)webView:(WKWebView *)webView stopURLSchemeTask:(id <WKURLSchemeTask>)urlSchemeTask
 {
     // Ensure that all blocks with pending removals are dispatched before doing a map lookup.
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(mainDispatchQueueSingleton(), ^{
         if (NSOperation *operation = [_fileLoadOperations objectForKey:urlSchemeTask]) {
             [operation cancel];
             [_fileLoadOperations removeObjectForKey:urlSchemeTask];

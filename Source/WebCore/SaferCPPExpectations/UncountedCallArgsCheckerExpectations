@@ -658,7 +658,6 @@ platform/Widget.cpp
 platform/animation/AcceleratedEffectValues.cpp
 platform/animation/Animation.cpp
 platform/animation/AnimationList.cpp
-platform/audio/PlatformMediaSessionManager.cpp
 platform/audio/cocoa/AudioFileReaderCocoa.cpp
 platform/cocoa/DragImageCocoa.mm
 platform/cocoa/PlaybackSessionModelMediaElement.mm

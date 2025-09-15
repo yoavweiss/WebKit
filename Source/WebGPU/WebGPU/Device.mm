@@ -50,6 +50,7 @@
 #import <wtf/StdLibExtras.h>
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/WeakPtr.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #define OBJC_STRINGIFYHELPER(x) @#x
 #define OBJC_STRINGIFY(x) OBJC_STRINGIFYHELPER(x)
@@ -73,7 +74,7 @@ struct GPUFrameCapture {
         static std::once_flag onceFlag;
         std::call_once(onceFlag, [] {
             int captureFrameToken;
-            notify_register_dispatch("com.apple.WebKit.WebGPU.CaptureFrame", &captureFrameToken, dispatch_get_main_queue(), ^(int token) {
+            notify_register_dispatch("com.apple.WebKit.WebGPU.CaptureFrame", &captureFrameToken, mainDispatchQueueSingleton(), ^(int token) {
                 uint64_t state;
                 notify_get_state(token, &state);
                 maxSubmitCallsToCapture = std::max<int>(1, state);
@@ -81,7 +82,7 @@ struct GPUFrameCapture {
             });
 
             int captureFirstFrameToken;
-            notify_register_dispatch("com.apple.WebKit.WebGPU.ToggleCaptureFirstFrame", &captureFirstFrameToken, dispatch_get_main_queue(), ^(int) {
+            notify_register_dispatch("com.apple.WebKit.WebGPU.ToggleCaptureFirstFrame", &captureFirstFrameToken, mainDispatchQueueSingleton(), ^(int) {
                 captureFirstFrame = !captureFirstFrame;
             });
         });
@@ -139,7 +140,7 @@ GPUShaderValidation Device::shaderValidationState() const
     static std::once_flag onceFlag;
     std::call_once(onceFlag, [] {
         int captureFirstFrameToken;
-        notify_register_dispatch("com.apple.WebKit.WebGPU.ToggleShaderValidationState", &captureFirstFrameToken, dispatch_get_main_queue(), ^(int) {
+        notify_register_dispatch("com.apple.WebKit.WebGPU.ToggleShaderValidationState", &captureFirstFrameToken, mainDispatchQueueSingleton(), ^(int) {
             shaderValidationState = (shaderValidationState == MTLShaderValidationEnabled ? MTLShaderValidationDefault : MTLShaderValidationEnabled);
         });
     });
@@ -156,7 +157,7 @@ bool Device::enableEncoderTimestamps() const
     static std::once_flag onceFlag;
     std::call_once(onceFlag, [] {
         int token;
-        notify_register_dispatch("com.apple.WebKit.WebGPU.EnableEncoderTimestamps", &token, dispatch_get_main_queue(), ^(int) {
+        notify_register_dispatch("com.apple.WebKit.WebGPU.EnableEncoderTimestamps", &token, mainDispatchQueueSingleton(), ^(int) {
             enable = !enable;
             WTFLogAlways("Encoder timestamps are %s", enable ? "ENABLED" : "DISABLED");
         });

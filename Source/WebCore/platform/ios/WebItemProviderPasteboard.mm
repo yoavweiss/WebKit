@@ -43,6 +43,7 @@
 #import <wtf/OSObjectPtr.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #import <pal/ios/UIKitSoftLink.h>
 
@@ -867,7 +868,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         return;
     }
 
-    dispatch_group_notify(fileLoadingGroup.get(), dispatch_get_main_queue(), itemLoadCompletion);
+    dispatch_group_notify(fileLoadingGroup.get(), mainDispatchQueueSingleton(), itemLoadCompletion);
 }
 
 - (NSItemProvider *)itemProviderAtIndex:(NSUInteger)index

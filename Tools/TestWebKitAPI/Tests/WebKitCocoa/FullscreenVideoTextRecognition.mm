@@ -38,6 +38,7 @@
 #import <pal/spi/cocoa/VisionKitCoreSPI.h>
 #import <wtf/BlockPtr.h>
 #import <wtf/RunLoop.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #import <pal/cocoa/VisionKitCoreSoftLink.h>
 
@@ -55,7 +56,7 @@ static void swizzledPresentViewController(UIViewController *, SEL, UIViewControl
 
 static int32_t swizzledProcessRequest(VKCImageAnalyzer *, SEL, id request, void (^)(double progress), void (^completion)(VKImageAnalysis *, NSError *))
 {
-    dispatch_async(dispatch_get_main_queue(), [completion = makeBlockPtr(completion)] {
+    dispatch_async(mainDispatchQueueSingleton(), [completion = makeBlockPtr(completion)] {
         completion(TestWebKitAPI::createImageAnalysisWithSimpleFixedResults().get(), nil);
     });
     return 100;

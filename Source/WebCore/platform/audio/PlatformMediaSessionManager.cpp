@@ -116,10 +116,10 @@ WeakPtr<PlatformMediaSessionInterface> PlatformMediaSessionManager::bestEligible
     if (eligibleAudioVideoSessions.isEmpty()) {
         if (eligibleWebAudioSessions.isEmpty())
             return nullptr;
-        return WeakPtr { eligibleWebAudioSessions[0].get() }->selectBestMediaSession(eligibleWebAudioSessions, purpose);
+        return RefPtr { eligibleWebAudioSessions[0].get() }->selectBestMediaSession(eligibleWebAudioSessions, purpose);
     }
 
-    return WeakPtr { eligibleAudioVideoSessions[0].get() }->selectBestMediaSession(eligibleAudioVideoSessions, purpose);
+    return RefPtr { eligibleAudioVideoSessions[0].get() }->selectBestMediaSession(eligibleAudioVideoSessions, purpose);
 }
 
 } // namespace WebCore

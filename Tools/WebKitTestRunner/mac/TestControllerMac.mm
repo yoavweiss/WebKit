@@ -46,6 +46,7 @@
 #import <WebKit/WKWebViewPrivate.h>
 #import <mach-o/dyld.h>
 #import <pal/spi/mac/NSApplicationSPI.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 @interface NSMenu ()
 - (id)_menuImpl;
@@ -97,7 +98,7 @@ static void setSwizzledPopUpMenu(NSMenu *menu)
 
     gCurrentPopUpMenu = menu;
 
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(mainDispatchQueueSingleton(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:NSMenuDidBeginTrackingNotification object:nil];
     });
 }
@@ -123,7 +124,7 @@ static void swizzledCancelTracking(NSMenu *menu, SEL)
     if ([menu.delegate respondsToSelector:@selector(menuDidClose:)])
         [menu.delegate menuDidClose:menu];
 
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(mainDispatchQueueSingleton(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:NSMenuDidEndTrackingNotification object:nil];
     });
 }

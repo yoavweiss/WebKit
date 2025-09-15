@@ -95,6 +95,7 @@
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/URLParser.h>
 #import <wtf/cocoa/VectorCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/text/MakeString.h>
 
 #if ENABLE(INSPECTOR_EXTENSIONS)
@@ -229,7 +230,7 @@ void WebExtensionContext::recordError(Ref<API::Error> error)
     m_errors.append(error);
     [wrapper() didChangeValueForKey:@"errors"];
 
-    dispatch_async(dispatch_get_main_queue(), makeBlockPtr([this, protectedThis = Ref { *this }]() {
+    dispatch_async(mainDispatchQueueSingleton(), makeBlockPtr([this, protectedThis = Ref { *this }]() {
         [NSNotificationCenter.defaultCenter postNotificationName:WKWebExtensionContextErrorsDidUpdateNotification object:wrapper() userInfo:nil];
     }).get());
 }
@@ -246,7 +247,7 @@ void WebExtensionContext::clearError(Error error)
     });
     [wrapper() didChangeValueForKey:@"errors"];
 
-    dispatch_async(dispatch_get_main_queue(), makeBlockPtr([this, protectedThis = Ref { *this }]() {
+    dispatch_async(mainDispatchQueueSingleton(), makeBlockPtr([this, protectedThis = Ref { *this }]() {
         [NSNotificationCenter.defaultCenter postNotificationName:WKWebExtensionContextErrorsDidUpdateNotification object:wrapper() userInfo:nil];
     }).get());
 }
@@ -849,7 +850,7 @@ void WebExtensionContext::permissionsDidChange(NSNotificationName notificationNa
             firePermissionsEventListenerIfNecessary(WebExtensionEventListenerType::PermissionsOnRemoved, permissions, { });
     }
 
-    dispatch_async(dispatch_get_main_queue(), makeBlockPtr([this, protectedThis = Ref { *this }, notificationName = retainPtr(notificationName), permissions] {
+    dispatch_async(mainDispatchQueueSingleton(), makeBlockPtr([this, protectedThis = Ref { *this }, notificationName = retainPtr(notificationName), permissions] {
         [NSNotificationCenter.defaultCenter postNotificationName:notificationName.get() object:wrapper() userInfo:@{ WKWebExtensionContextNotificationUserInfoKeyPermissions: toAPI(permissions) }];
     }).get());
 }
@@ -883,7 +884,7 @@ void WebExtensionContext::permissionsDidChange(NSNotificationName notificationNa
         }
     }
 
-    dispatch_async(dispatch_get_main_queue(), makeBlockPtr([this, protectedThis = Ref { *this }, notificationName = retainPtr(notificationName), matchPatterns] {
+    dispatch_async(mainDispatchQueueSingleton(), makeBlockPtr([this, protectedThis = Ref { *this }, notificationName = retainPtr(notificationName), matchPatterns] {
         [NSNotificationCenter.defaultCenter postNotificationName:notificationName.get() object:wrapper() userInfo:@{ WKWebExtensionContextNotificationUserInfoKeyMatchPatterns: toAPI(matchPatterns) }];
     }).get());
 }
@@ -1213,7 +1214,7 @@ void WebExtensionContext::requestPermissionMatchPatterns(const MatchPatternSet& 
     Ref callbackAggregator = EagerCallbackAggregator<void(NSSet *, NSDate *)>::create(WTFMove(internalCompletionHandler), nil, nil);
 
     // Timeout the request after a delay, denying all the requested match patterns.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, permissionRequestTimeout.nanosecondsAs<int64_t>()), dispatch_get_main_queue(), makeBlockPtr([callbackAggregator] {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, permissionRequestTimeout.nanosecondsAs<int64_t>()), mainDispatchQueueSingleton(), makeBlockPtr([callbackAggregator] {
         callbackAggregator.get()(NSSet.set, nil);
     }).get());
 
@@ -1292,7 +1293,7 @@ void WebExtensionContext::requestPermissionToAccessURLs(const URLVector& request
     Ref callbackAggregator = EagerCallbackAggregator<void(NSSet *, NSDate *)>::create(WTFMove(internalCompletionHandler), nil, nil);
 
     // Timeout the request after a delay, denying all the requested URLs.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, permissionRequestTimeout.nanosecondsAs<int64_t>()), dispatch_get_main_queue(), makeBlockPtr([callbackAggregator] {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, permissionRequestTimeout.nanosecondsAs<int64_t>()), mainDispatchQueueSingleton(), makeBlockPtr([callbackAggregator] {
         callbackAggregator.get()(NSSet.set, nil);
     }).get());
 
@@ -1352,7 +1353,7 @@ void WebExtensionContext::requestPermissions(const PermissionsSet& requestedPerm
     Ref callbackAggregator = EagerCallbackAggregator<void(NSSet *, NSDate *)>::create(WTFMove(internalCompletionHandler), nil, nil);
 
     // Timeout the request after a delay, denying all the requested permissions.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, permissionRequestTimeout.nanosecondsAs<int64_t>()), dispatch_get_main_queue(), makeBlockPtr([callbackAggregator] {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, permissionRequestTimeout.nanosecondsAs<int64_t>()), mainDispatchQueueSingleton(), makeBlockPtr([callbackAggregator] {
         callbackAggregator.get()(NSSet.set, nil);
     }).get());
 
@@ -2476,7 +2477,7 @@ void WebExtensionContext::didChangeTabProperties(WebExtensionTab& tab, OptionSet
     constexpr auto updatedEventDelay = 25_ms;
 
     // Fire the updated event after a small delay to coalesce relevant changes together.
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, updatedEventDelay.nanosecondsAs<int64_t>()), dispatch_get_main_queue(), makeBlockPtr([this, protectedThis = Ref { *this }, tabIdentifier = tab.identifier()] {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, updatedEventDelay.nanosecondsAs<int64_t>()), mainDispatchQueueSingleton(), makeBlockPtr([this, protectedThis = Ref { *this }, tabIdentifier = tab.identifier()] {
         if (!isLoaded())
             return;
 
@@ -4679,7 +4680,7 @@ void WebExtensionContext::compileDeclarativeNetRequestRules(NSDictionary *rulesD
 
         auto *webKitRules = encodeJSONString(allConvertedRules, JSONOptions::FragmentsAllowed);
         if (!webKitRules) {
-            dispatch_async(dispatch_get_main_queue(), makeBlockPtr([completionHandler = WTFMove(completionHandler)]() mutable {
+            dispatch_async(mainDispatchQueueSingleton(), makeBlockPtr([completionHandler = WTFMove(completionHandler)]() mutable {
                 completionHandler(false);
             }).get());
             return;
@@ -4688,7 +4689,7 @@ void WebExtensionContext::compileDeclarativeNetRequestRules(NSDictionary *rulesD
         RetainPtr previouslyLoadedHash = objectForKey<NSString>(m_state, lastLoadedDeclarativeNetRequestHashStateKey);
         RetainPtr hashOfWebKitRules = computeStringHashForContentBlockerRules(webKitRules);
 
-        dispatch_async(dispatch_get_main_queue(), makeBlockPtr([this, protectedThis = Ref { *this }, completionHandler = WTFMove(completionHandler), previouslyLoadedHash = WTFMove(previouslyLoadedHash), hashOfWebKitRules = WTFMove(hashOfWebKitRules), webKitRules = String { webKitRules }]() mutable {
+        dispatch_async(mainDispatchQueueSingleton(), makeBlockPtr([this, protectedThis = Ref { *this }, completionHandler = WTFMove(completionHandler), previouslyLoadedHash = WTFMove(previouslyLoadedHash), hashOfWebKitRules = WTFMove(hashOfWebKitRules), webKitRules = String { webKitRules }]() mutable {
             API::ContentRuleListStore::defaultStoreSingleton().lookupContentRuleListFile(declarativeNetRequestContentRuleListFilePath(), uniqueIdentifier().isolatedCopy(), [this, protectedThis = Ref { *this }, completionHandler = WTFMove(completionHandler), previouslyLoadedHash = WTFMove(previouslyLoadedHash), hashOfWebKitRules = WTFMove(hashOfWebKitRules), webKitRules](RefPtr<API::ContentRuleList> foundRuleList, std::error_code) mutable {
                 // The extension could have been unloaded before this was called.
                 if (!isLoaded()) {

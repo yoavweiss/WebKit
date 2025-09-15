@@ -67,6 +67,7 @@
 #import <wtf/WeakPtr.h>
 #import <wtf/WorkQueue.h>
 #import <wtf/cocoa/Entitlements.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/text/CString.h>
 
 #pragma mark - Soft Linking
@@ -619,7 +620,7 @@ void SourceBufferPrivateAVFObjC::trackDidChangeEnabled(AudioTrackPrivate& track,
 #endif
 
             ThreadSafeWeakPtr weakThis { *this };
-            [renderer requestMediaDataWhenReadyOnQueue:dispatch_get_main_queue() usingBlock:^{
+            [renderer requestMediaDataWhenReadyOnQueue:mainDispatchQueueSingleton() usingBlock:^{
                 if (RefPtr protectedThis = weakThis.get())
                     protectedThis->didBecomeReadyForMoreSamples(trackID);
             }];
@@ -1156,7 +1157,7 @@ void SourceBufferPrivateAVFObjC::notifyClientWhenReadyForMoreSamples(TrackID tra
         }
     } else if (auto renderer = audioRendererForTrackID(trackID)) {
         ThreadSafeWeakPtr weakThis { *this };
-        [renderer requestMediaDataWhenReadyOnQueue:dispatch_get_main_queue() usingBlock:^{
+        [renderer requestMediaDataWhenReadyOnQueue:mainDispatchQueueSingleton() usingBlock:^{
             if (RefPtr protectedThis = weakThis.get())
                 protectedThis->didBecomeReadyForMoreSamples(trackID);
         }];

@@ -48,7 +48,6 @@ page/ShareDataReader.cpp
 page/cocoa/ResourceUsageOverlayCocoa.mm
 page/csp/ContentSecurityPolicy.cpp
 page/writing-tools/WritingToolsController.mm
-platform/RemoteCommandListener.cpp
 platform/ScrollableArea.cpp
 platform/Timer.h
 platform/cocoa/NetworkExtensionContentFilter.mm

@@ -44,6 +44,7 @@
 #import <wtf/MonotonicTime.h>
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/cf/TypeCastsCF.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #import <pal/cf/CoreMediaSoftLink.h>
 #import <pal/cocoa/AVFoundationSoftLink.h>
@@ -496,7 +497,7 @@ void LocalSampleBufferDisplayLayer::requestNotificationWhenReadyForVideoData()
 
     ThreadSafeWeakPtr weakThis { *this };
 ALLOW_DEPRECATED_DECLARATIONS_BEGIN
-    [m_sampleBufferDisplayLayer requestMediaDataWhenReadyOnQueue:dispatch_get_main_queue() usingBlock:^{
+    [m_sampleBufferDisplayLayer requestMediaDataWhenReadyOnQueue:mainDispatchQueueSingleton() usingBlock:^{
         auto protectedThis = weakThis.get();
         if (!protectedThis)
             return;

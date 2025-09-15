@@ -52,6 +52,7 @@
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
 #import <wtf/cocoa/VectorCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/text/Base64.h>
 #import <wtf/text/StringHash.h>
 
@@ -274,7 +275,7 @@ AVContentKeySession* CDMInstanceFairPlayStreamingAVFObjC::contentKeySession()
     if (!m_delegate)
         lazyInitialize(m_delegate, adoptNS([[WebCoreFPSContentKeySessionDelegate alloc] initWithParent:*this]));
 
-    [m_session setDelegate:m_delegate.get() queue:dispatch_get_main_queue()];
+    [m_session setDelegate:m_delegate.get() queue:mainDispatchQueueSingleton()];
     return m_session.get();
 }
 
@@ -1751,7 +1752,7 @@ bool CDMInstanceSessionFairPlayStreamingAVFObjC::ensureSessionOrGroup(KeyGroupin
     if (!m_session)
         return false;
 
-    [m_session setDelegate:m_delegate.get() queue:dispatch_get_main_queue()];
+    [m_session setDelegate:m_delegate.get() queue:mainDispatchQueueSingleton()];
     return true;
 }
 

@@ -60,7 +60,6 @@ Shared/EntryPointUtilities/Cocoa/XPCService/XPCServiceMain.mm
 Shared/JavaScriptEvaluationResult.mm
 Shared/RemoteLayerTree/RemoteLayerTreePropertyApplier.mm
 Shared/mac/AuxiliaryProcessMac.mm
-Shared/mac/ScrollingAccelerationCurveMac.mm
 UIProcess/API/C/mac/WKNotificationPrivateMac.mm
 UIProcess/API/C/mac/WKProtectionSpaceNS.mm
 UIProcess/API/Cocoa/NSAttributedString.mm
@@ -143,7 +142,6 @@ UIProcess/Extensions/WebExtensionController.h
 UIProcess/Gamepad/mac/UIGamepadProviderMac.mm
 UIProcess/Inspector/Cocoa/InspectorExtensionDelegate.mm
 UIProcess/Inspector/mac/RemoteWebInspectorUIProxyMac.mm
-UIProcess/Inspector/mac/WKInspectorResourceURLSchemeHandler.mm
 UIProcess/Inspector/mac/WKInspectorViewController.mm
 UIProcess/Inspector/mac/WKInspectorWKWebView.mm
 UIProcess/Inspector/mac/WebInspectorUIProxyMac.mm
@@ -215,7 +213,6 @@ WebProcess/WebPage/mac/WebPageMac.mm
 WebProcess/cocoa/IdentityDocumentServices/DigitalCredentialsRequestValidatorBridge.mm
 WebProcess/cocoa/LaunchServicesDatabaseManager.mm
 WebProcess/cocoa/WebProcessCocoa.mm
-webpushd/ApplePushServiceConnection.mm
 webpushd/MockPushServiceConnection.mm
 webpushd/PushService.mm
 webpushd/WebPushDaemon.mm

@@ -93,6 +93,7 @@
 #import <wtf/cocoa/Entitlements.h>
 #import <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
 #import <wtf/cocoa/TypeCastsCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/spi/cocoa/NSObjCRuntimeSPI.h>
 #import <wtf/spi/cocoa/XTSPI.h>
 #import <wtf/spi/darwin/SandboxSPI.h>
@@ -245,13 +246,6 @@ static dispatch_queue_t globalQueueSingleton()
 {
     return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 }
-
-#if !PLATFORM(IOS_FAMILY)
-static dispatch_queue_t mainQueueSingleton()
-{
-    return dispatch_get_main_queue();
-}
-#endif
 
 #if PLATFORM(MAC)
 static NSApplication* NSAppSingleton()
@@ -917,7 +911,7 @@ void WebProcessPool::registerNotificationObservers()
     m_openDirectoryNotifyTokens.reserveInitialCapacity(std::size(messages));
     for (auto* message : messages) {
         int notifyToken;
-        notify_register_dispatch(message, &notifyToken, mainQueueSingleton(), ^(int token) {
+        notify_register_dispatch(message, &notifyToken, mainDispatchQueueSingleton(), ^(int token) {
             RELEASE_LOG(Notifications, "OpenDirectory invalidated cache");
 #if ENABLE(GPU_PROCESS)
             auto handle = SandboxExtension::createHandleForMachLookup("com.apple.system.opendirectoryd.libinfo"_s, std::nullopt);

@@ -49,6 +49,7 @@
 #import <WebKit/WKWebViewConfiguration.h>
 #import <WebKit/WKWebViewPrivateForTesting.h>
 #import <WebKit/WKWebViewPrivateForTestingMac.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #if ENABLE(POINTER_LOCK)
 #import <GameController/GameController.h>
@@ -1426,7 +1427,7 @@ static void synthesizeWheelEvents(NSView *view, int x, int y)
     [view scrollWheel:event];
     
     // Wheel events get coalesced sometimes. Make more events until one is not handled.
-    dispatch_async(dispatch_get_main_queue(), ^ {
+    dispatch_async(mainDispatchQueueSingleton(), ^{
         synthesizeWheelEvents(view, x, y);
     });
 }

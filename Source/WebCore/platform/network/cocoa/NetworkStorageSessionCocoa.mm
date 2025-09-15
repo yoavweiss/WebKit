@@ -43,6 +43,7 @@
 #import <wtf/ProcessPrivilege.h>
 #import <wtf/URL.h>
 #import <wtf/cocoa/VectorCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/text/MakeString.h>
 #import <wtf/text/StringBuilder.h>
 #import <wtf/text/cf/StringConcatenateCF.h>
@@ -827,7 +828,7 @@ void NetworkStorageSession::registerCookieChangeListenersIfNecessary()
             return;
         for (Ref observer : it->value)
             observer->cookiesAdded(host, cookies);
-    }).get() onQueue:dispatch_get_main_queue()];
+    }).get() onQueue:mainDispatchQueueSingleton()];
 
     [nsCookieStorage() _setCookiesRemovedHandler:makeBlockPtr([this, weakThis = WeakPtr { *this }](NSArray<NSHTTPCookie *> *removedCookies, NSString *domainForRemovedCookies, bool removeAllCookies) {
         if (!weakThis)
@@ -850,7 +851,7 @@ void NetworkStorageSession::registerCookieChangeListenersIfNecessary()
             return;
         for (Ref observer : it->value)
             observer->cookiesDeleted(host, cookies);
-    }).get() onQueue:dispatch_get_main_queue()];
+    }).get() onQueue:mainDispatchQueueSingleton()];
 }
 
 void NetworkStorageSession::unregisterCookieChangeListenersIfNecessary()

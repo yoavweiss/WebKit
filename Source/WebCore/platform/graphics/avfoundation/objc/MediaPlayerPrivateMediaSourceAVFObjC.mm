@@ -71,6 +71,7 @@
 #import <wtf/NeverDestroyed.h>
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/WeakPtr.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/spi/cocoa/NSObjCRuntimeSPI.h>
 
 #import "CoreVideoSoftLink.h"
@@ -129,7 +130,7 @@ MediaPlayerPrivateMediaSourceAVFObjC::MediaPlayerPrivateMediaSourceAVFObjC(Media
     // addPeriodicTimeObserverForInterval: throws an exception if you pass a non-numeric CMTime, so just use
     // an arbitrarily large time value of once an hour:
     __block WeakPtr weakThis { *this };
-    m_timeJumpedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::toCMTime(MediaTime::createWithDouble(3600)) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+    m_timeJumpedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::toCMTime(MediaTime::createWithDouble(3600)) queue:mainDispatchQueueSingleton() usingBlock:^(CMTime time) {
 #if LOG_DISABLED
         UNUSED_PARAM(time);
 #endif
@@ -441,7 +442,7 @@ bool MediaPlayerPrivateMediaSourceAVFObjC::setCurrentTimeDidChangeCallback(Media
     m_currentTimeDidChangeCallback = WTFMove(callback);
 
     if (m_currentTimeDidChangeCallback) {
-        m_timeChangedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::CMTimeMake(1, 10) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+        m_timeChangedObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::CMTimeMake(1, 10) queue:mainDispatchQueueSingleton() usingBlock:^(CMTime time) {
             if (!m_currentTimeDidChangeCallback)
                 return;
 
@@ -656,7 +657,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::bufferedChanged()
             auto logSiteIdentifier = LOGIDENTIFIER;
             UNUSED_PARAM(logSiteIdentifier);
 
-            m_gapObserver = [m_synchronizer addBoundaryTimeObserverForTimes:times queue:dispatch_get_main_queue() usingBlock:[weakThis = WeakPtr { *this }, logSiteIdentifier, gapStart] {
+            m_gapObserver = [m_synchronizer addBoundaryTimeObserverForTimes:times queue:mainDispatchQueueSingleton() usingBlock:[weakThis = WeakPtr { *this }, logSiteIdentifier, gapStart] {
                 RefPtr protectedThis = weakThis.get();
                 if (!protectedThis)
                     return;
@@ -1419,7 +1420,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::sizeWillChangeAtTime(const MediaTime&
 {
     auto weakThis = m_sizeChangeObserverWeakPtrFactory.createWeakPtr(*this);
     NSArray* times = @[[NSValue valueWithCMTime:PAL::toCMTime(time)]];
-    RetainPtr<id> observer = [m_synchronizer addBoundaryTimeObserverForTimes:times queue:dispatch_get_main_queue() usingBlock:[weakThis = WTFMove(weakThis), size] {
+    RetainPtr<id> observer = [m_synchronizer addBoundaryTimeObserverForTimes:times queue:mainDispatchQueueSingleton() usingBlock:[weakThis = WTFMove(weakThis), size] {
         RefPtr protectedThis = weakThis.get();
         if (!protectedThis)
             return;
@@ -1774,7 +1775,7 @@ bool MediaPlayerPrivateMediaSourceAVFObjC::performTaskAtTime(WTF::Function<void(
     if (m_performTaskObserver)
         [m_synchronizer removeTimeObserver:m_performTaskObserver.get()];
 
-    m_performTaskObserver = [m_synchronizer addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:PAL::toCMTime(time)]] queue:dispatch_get_main_queue() usingBlock:^{
+    m_performTaskObserver = [m_synchronizer addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:PAL::toCMTime(time)]] queue:mainDispatchQueueSingleton() usingBlock:^{
         taskIn();
     }];
     return true;
@@ -1829,7 +1830,7 @@ void MediaPlayerPrivateMediaSourceAVFObjC::startVideoFrameMetadataGathering()
         return;
 
     ASSERT(m_synchronizer);
-    m_videoFrameMetadataGatheringObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:[weakThis = WeakPtr { *this }](CMTime currentCMTime) {
+    m_videoFrameMetadataGatheringObserver = [m_synchronizer addPeriodicTimeObserverForInterval:PAL::CMTimeMake(1, 60) queue:mainDispatchQueueSingleton() usingBlock:[weakThis = WeakPtr { *this }](CMTime currentCMTime) {
         ensureOnMainThread([weakThis, currentCMTime] {
             if (!weakThis)
                 return;

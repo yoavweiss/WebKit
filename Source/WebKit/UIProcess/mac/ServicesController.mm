@@ -35,6 +35,7 @@
 #import <pal/spi/mac/NSSharingServiceSPI.h>
 #import <wtf/BlockPtr.h>
 #import <wtf/NeverDestroyed.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 namespace WebKit {
 
@@ -113,7 +114,7 @@ void ServicesController::refreshExistingServices(bool refreshImmediately)
             m_hasRichContentServices = hasServices;
         });
 
-        dispatch_group_notify(serviceLookupGroup.get(), dispatch_get_main_queue(), makeBlockPtr([this] {
+        dispatch_group_notify(serviceLookupGroup.get(), mainDispatchQueueSingleton(), makeBlockPtr([this] {
             bool availableServicesChanged = (m_lastSentHasImageServices != m_hasImageServices) || (m_lastSentHasSelectionServices != m_hasSelectionServices) || (m_lastSentHasRichContentServices != m_hasRichContentServices);
 
             m_lastSentHasSelectionServices = m_hasSelectionServices;

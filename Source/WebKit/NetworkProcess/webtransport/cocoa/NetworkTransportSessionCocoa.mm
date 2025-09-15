@@ -39,6 +39,7 @@
 #import <wtf/RetainPtr.h>
 #import <wtf/StdLibExtras.h>
 #import <wtf/cocoa/VectorCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #import "NetworkSoftLink.h"
 
@@ -81,7 +82,7 @@ static void didReceiveServerTrustChallenge(Ref<NetworkConnectionToWebProcess>&& 
         [[fallthrough]];
         case AuthenticationChallengeDisposition::RejectProtectionSpaceAndContinue:
         case AuthenticationChallengeDisposition::PerformDefaultHandling: {
-            OSStatus status = SecTrustEvaluateAsyncWithError(secTrust.get(), dispatch_get_main_queue(), makeBlockPtr([completion = completion](SecTrustRef trustRef, bool result, CFErrorRef error) {
+            OSStatus status = SecTrustEvaluateAsyncWithError(secTrust.get(), mainDispatchQueueSingleton(), makeBlockPtr([completion = completion](SecTrustRef trustRef, bool result, CFErrorRef error) {
                 completion(result);
             }).get());
             if (status != errSecSuccess)
@@ -130,7 +131,7 @@ static RetainPtr<nw_parameters_t> createParameters(NetworkConnectionToWebProcess
         sec_protocol_options_set_peer_authentication_required(securityOptions.get(), true);
         sec_protocol_options_set_verify_block(securityOptions.get(), makeBlockPtr([connectionToWebProcess = WTFMove(connectionToWebProcess), url = WTFMove(url), pageID = WTFMove(pageID), clientOrigin = WTFMove(clientOrigin)](sec_protocol_metadata_t metadata, sec_trust_t trust, sec_protocol_verify_complete_t completion) mutable {
             didReceiveServerTrustChallenge(WTFMove(connectionToWebProcess), WTFMove(url), WTFMove(pageID), WTFMove(clientOrigin), trust, completion);
-        }).get(), dispatch_get_main_queue());
+        }).get(), mainDispatchQueueSingleton());
         // FIXME: Pipe client cert auth into this too, probably.
     };
 
@@ -209,7 +210,7 @@ void NetworkTransportSession::initialize(CompletionHandler<void(bool)>&& complet
         RELEASE_ASSERT_NOT_REACHED();
     }).get());
 
-    nw_connection_group_set_queue(m_connectionGroup.get(), RetainPtr { dispatch_get_main_queue() }.get());
+    nw_connection_group_set_queue(m_connectionGroup.get(), RetainPtr { mainDispatchQueueSingleton() }.get());
     nw_connection_group_start(m_connectionGroup.get());
 
     if (canLoad_Network_nw_webtransport_options_set_allow_joining_before_ready())
@@ -275,7 +276,7 @@ void NetworkTransportSession::setupDatagramConnection(CompletionHandler<void(boo
         }
         RELEASE_ASSERT_NOT_REACHED();
     }).get());
-    nw_connection_set_queue(m_datagramConnection.get(), dispatch_get_main_queue());
+    nw_connection_set_queue(m_datagramConnection.get(), mainDispatchQueueSingleton());
     nw_connection_start(m_datagramConnection.get());
 
     if (canLoad_Network_nw_webtransport_options_set_allow_joining_before_ready())
@@ -351,7 +352,7 @@ void NetworkTransportSession::setupConnectionHandler()
             protectedThis->m_streams.set(identifier, stream);
             protectedThis->receiveBidirectionalStream(identifier);
         }).get());
-        nw_connection_set_queue(inboundConnection, dispatch_get_main_queue());
+        nw_connection_set_queue(inboundConnection, mainDispatchQueueSingleton());
         nw_connection_start(inboundConnection);
     }).get());
 #endif // HAVE(WEB_TRANSPORT)
@@ -410,7 +411,7 @@ void NetworkTransportSession::createStream(NetworkTransportStreamType streamType
         }
         RELEASE_ASSERT_NOT_REACHED();
     }).get());
-    nw_connection_set_queue(connection.get(), dispatch_get_main_queue());
+    nw_connection_set_queue(connection.get(), mainDispatchQueueSingleton());
     nw_connection_start(connection.get());
 #else
     completionHandler(std::nullopt);

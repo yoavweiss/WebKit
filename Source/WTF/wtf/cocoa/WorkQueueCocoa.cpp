@@ -28,6 +28,7 @@
 
 #include <wtf/BlockPtr.h>
 #include <wtf/Ref.h>
+#include <wtf/darwin/DispatchExtras.h>
 
 namespace WTF {
 
@@ -97,7 +98,7 @@ void WorkQueueBase::platformInvalidate()
 }
 
 WorkQueue::WorkQueue(MainTag)
-    : WorkQueueBase(dispatch_get_main_queue())
+    : WorkQueueBase(mainDispatchQueueSingleton())
 {
 }
 

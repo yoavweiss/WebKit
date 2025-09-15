@@ -39,6 +39,7 @@
 #import <wtf/Assertions.h>
 #import <wtf/MainThread.h>
 #import <wtf/NeverDestroyed.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/spi/darwin/SandboxSPI.h>
 #import <wtf/spi/darwin/XPCSPI.h>
 #import <wtf/text/WTFString.h>
@@ -115,7 +116,7 @@ RemoteInspector& RemoteInspector::singleton()
             if ([NSThread isMainThread])
                 shared->initialize();
             else {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                dispatch_async(mainDispatchQueueSingleton(), ^{
                     shared->initialize();
                 });
             }

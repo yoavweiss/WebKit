@@ -50,6 +50,7 @@
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/WeakPtr.h>
 #import <wtf/WorkQueue.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #pragma mark - Soft Linking
 #import "CoreVideoSoftLink.h"
@@ -276,8 +277,7 @@ void AudioVideoRendererAVFObjC::requestMediaDataWhenReady(TrackIdentifier trackI
                         DEBUG_LOG_WITH_THIS(protectedThis, LOGIDENTIFIER_WITH_THIS(protectedThis), "Not ready to request audio data, ignoring");
                 }
             });
-            // False positive webkit.org/b/298037
-            SUPPRESS_UNRETAINED_ARG [audioRenderer requestMediaDataWhenReadyOnQueue:dispatch_get_main_queue() usingBlock:handler.get()];
+            [audioRenderer requestMediaDataWhenReadyOnQueue:mainDispatchQueueSingleton() usingBlock:handler.get()];
         }
         break;
     default:

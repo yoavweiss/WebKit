@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Apple Inc. All rights reserved.
+ * Copyright (C) 2025 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,25 +23,17 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "config.h"
+#pragma once
 
-#import <WebKit/WKWebProcessPlugIn.h>
-#import <WebKit/WKWebProcessPlugInBrowserContextControllerPrivate.h>
-#import <wtf/RetainPtr.h>
-#import <wtf/darwin/DispatchExtras.h>
+#include <dispatch/dispatch.h>
 
-@interface BundleRetainPagePlugIn : NSObject <WKWebProcessPlugIn>
-@end
+namespace WTF {
 
-@implementation BundleRetainPagePlugIn
-
-- (void)webProcessPlugIn:(WKWebProcessPlugInController *)plugInController didCreateBrowserContextController:(WKWebProcessPlugInBrowserContextController *)browserContextController
+inline dispatch_queue_main_t mainDispatchQueueSingleton()
 {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), mainDispatchQueueSingleton(), [retainedPage = retainPtr(browserContextController)] { });
-
-    // Instantiate a _WKRemoteObjectRegistry to test that its existence does not conflict with the existence
-    // of the _WKRemoteObjectRegistry from the other WebPage that will be in this process.
-    [browserContextController _remoteObjectRegistry];
+    return dispatch_get_main_queue(); // NOLINT
 }
 
-@end
+} // namespace WTF
+
+using WTF::mainDispatchQueueSingleton;

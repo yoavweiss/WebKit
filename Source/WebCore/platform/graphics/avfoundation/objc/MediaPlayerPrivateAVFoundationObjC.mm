@@ -116,6 +116,7 @@
 #import <wtf/URL.h>
 #import <wtf/WorkQueue.h>
 #import <wtf/cocoa/VectorCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/text/CString.h>
 #import <wtf/threads/BinarySemaphore.h>
 
@@ -1124,7 +1125,7 @@ void MediaPlayerPrivateAVFoundationObjC::createAVPlayer()
 #endif
 
     ASSERT(!m_currentTimeObserver);
-    m_currentTimeObserver = [m_avPlayer addPeriodicTimeObserverForInterval:PAL::CMTimeMake(1, 10) queue:dispatch_get_main_queue() usingBlock:[weakThis = ThreadSafeWeakPtr { *this }, identifier = LOGIDENTIFIER] (CMTime cmTime) {
+    m_currentTimeObserver = [m_avPlayer addPeriodicTimeObserverForInterval:PAL::CMTimeMake(1, 10) queue:mainDispatchQueueSingleton() usingBlock:[weakThis = ThreadSafeWeakPtr { *this }, identifier = LOGIDENTIFIER] (CMTime cmTime) {
         ensureOnMainThread([weakThis, cmTime, identifier] {
             RefPtr protectedThis = weakThis.get();
             if (!protectedThis)
@@ -1198,7 +1199,7 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
     m_legibleOutput = adoptNS([PAL::allocAVPlayerItemLegibleOutputInstance() initWithMediaSubtypesForNativeRepresentation:subtypes.get()]);
     [m_legibleOutput setSuppressesPlayerRendering:YES];
 
-    [m_legibleOutput setDelegate:m_objcObserver.get() queue:dispatch_get_main_queue()];
+    [m_legibleOutput setDelegate:m_objcObserver.get() queue:mainDispatchQueueSingleton()];
     [m_legibleOutput setAdvanceIntervalForDelegateInvocation:avPlayerOutputAdvanceInterval];
     [m_legibleOutput setTextStylingResolution:AVPlayerItemLegibleOutputTextStylingResolutionSourceAndRulesOnly];
     [m_avPlayerItem addOutput:m_legibleOutput.get()];
@@ -1211,11 +1212,11 @@ ALLOW_NEW_API_WITHOUT_GUARDS_END
 #endif
 
     m_metadataCollector = adoptNS([PAL::allocAVPlayerItemMetadataCollectorInstance() initWithIdentifiers:nil classifyingLabels:nil]);
-    [m_metadataCollector setDelegate:m_objcObserver.get() queue:dispatch_get_main_queue()];
+    [m_metadataCollector setDelegate:m_objcObserver.get() queue:mainDispatchQueueSingleton()];
     [m_avPlayerItem addMediaDataCollector:m_metadataCollector.get()];
 
     m_metadataOutput = adoptNS([PAL::allocAVPlayerItemMetadataOutputInstance() initWithIdentifiers:nil]);
-    [m_metadataOutput setDelegate:m_objcObserver.get() queue:dispatch_get_main_queue()];
+    [m_metadataOutput setDelegate:m_objcObserver.get() queue:mainDispatchQueueSingleton()];
     [m_metadataOutput setAdvanceIntervalForDelegateInvocation:avPlayerOutputAdvanceInterval];
     [m_avPlayerItem addOutput:m_metadataOutput.get()];
 }
@@ -1267,7 +1268,7 @@ void MediaPlayerPrivateAVFoundationObjC::beginLoadingMetadata()
         });
     }];
 
-    dispatch_group_notify(metadataLoadingGroup.get(), dispatch_get_main_queue(), ^{
+    dispatch_group_notify(metadataLoadingGroup.get(), mainDispatchQueueSingleton(), ^{
         callOnMainThread([weakThis] {
             if (RefPtr protectedThis = weakThis.get())
                 [protectedThis->m_objcObserver metadataLoaded];
@@ -3970,7 +3971,7 @@ bool MediaPlayerPrivateAVFoundationObjC::performTaskAtTime(WTF::Function<void()>
     if (m_timeObserver)
         [m_avPlayer removeTimeObserver:m_timeObserver.get()];
 
-    m_timeObserver = [m_avPlayer addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:PAL::toCMTime(time)]] queue:dispatch_get_main_queue() usingBlock:^{
+    m_timeObserver = [m_avPlayer addBoundaryTimeObserverForTimes:@[[NSValue valueWithCMTime:PAL::toCMTime(time)]] queue:mainDispatchQueueSingleton() usingBlock:^{
         taskIn();
     }];
     return true;

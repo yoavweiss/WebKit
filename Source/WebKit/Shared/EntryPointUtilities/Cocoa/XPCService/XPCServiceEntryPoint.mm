@@ -34,6 +34,7 @@
 #import <wtf/StdLibExtras.h>
 #import <wtf/WTFProcess.h>
 #import <wtf/cocoa/Entitlements.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/darwin/XPCExtras.h>
 #import <wtf/spi/darwin/SandboxSPI.h>
 #import <wtf/text/StringToIntegerConversion.h>
@@ -182,7 +183,7 @@ void setOSTransaction(OSObjectPtr<os_transaction_t>&& transaction)
     // control our lifetime via process assertions instead of leaking this OS transaction.
     static dispatch_once_t flag;
     dispatch_once(&flag, ^{
-        globalSource.get() = adoptOSObject(dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, SIGTERM, 0, dispatch_get_main_queue()));
+        globalSource.get() = adoptOSObject(dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, SIGTERM, 0, mainDispatchQueueSingleton()));
         dispatch_source_set_event_handler(globalSource.get().get(), ^{
             exitProcess(0);
         });

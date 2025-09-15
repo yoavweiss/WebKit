@@ -45,6 +45,7 @@
 #import <wtf/BlockPtr.h>
 #import <wtf/RetainPtr.h>
 #import <wtf/SoftLinking.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 @interface ActionSheetObserver : NSObject<WKUIDelegatePrivate>
 @property (nonatomic) BlockPtr<NSArray *(_WKActivatedElementInfo *, NSArray *)> presentationHandler;
@@ -126,7 +127,7 @@ TEST(ActionSheetTests, DISABLED_DismissingActionSheetShouldNotDismissPresentingV
 
     __block bool done = false;
     [navigationDelegate setWebContentProcessDidTerminate:^(WKWebView *, _WKProcessTerminationReason) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             done = true;
         });
     }];

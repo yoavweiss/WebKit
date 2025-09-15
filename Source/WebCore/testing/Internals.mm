@@ -44,6 +44,7 @@
 #import "UTIUtilities.h"
 #import <AVFoundation/AVPlayer.h>
 #import <wtf/BlockPtr.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #if PLATFORM(MAC)
 #import "NSScrollerImpDetails.h"
@@ -284,7 +285,7 @@ bool Internals::emitWebCoreLogs(unsigned logCount, bool useMainThread) const
             RELEASE_LOG_FORWARDABLE(Testing, WEBCORE_TEST_LOG, i);
     });
     if (useMainThread)
-        dispatch_async(dispatch_get_main_queue(), blockPtr.get());
+        dispatch_async(mainDispatchQueueSingleton(), blockPtr.get());
     else
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), blockPtr.get());
     return true;
@@ -297,7 +298,7 @@ bool Internals::emitLogs(const String& logString, unsigned logCount, bool useMai
             RELEASE_LOG(Testing, "%s", logString.utf8().data());
     });
     if (useMainThread)
-        dispatch_async(dispatch_get_main_queue(), blockPtr.get());
+        dispatch_async(mainDispatchQueueSingleton(), blockPtr.get());
     else
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), blockPtr.get());
     return true;

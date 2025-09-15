@@ -34,6 +34,7 @@
 #import "UIKitSPIForTesting.h"
 #import "WKTouchEventsGestureRecognizer.h"
 #import <wtf/RetainPtr.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 @interface UIView (WKContentView)
 - (void)_touchEventsRecognized;
@@ -128,7 +129,7 @@ TEST(TouchEventTests, DestroyWebViewWhileHandlingTouchEnd)
     }
 
     __block bool done = false;
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(mainDispatchQueueSingleton(), ^{
         done = true;
     });
     TestWebKitAPI::Util::run(&done);

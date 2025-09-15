@@ -39,6 +39,7 @@
 #import <wtf/SoftLinking.h>
 #import <wtf/WeakObjCPtr.h>
 #import <wtf/cf/NotificationCenterCF.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/spi/cf/CFBundleSPI.h>
 
 SOFT_LINK_FRAMEWORK(CoreLocation)
@@ -263,7 +264,7 @@ static RetainPtr<NSMutableDictionary> createChallengeDictionary(NSData *data)
         else
             sites = adoptNS([[NSMutableDictionary alloc] init]);
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             if (!_sites)
                 _sites = sites;
             completionHandler();

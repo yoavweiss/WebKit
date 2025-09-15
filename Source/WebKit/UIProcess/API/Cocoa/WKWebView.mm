@@ -247,6 +247,7 @@
 #import <pal/spi/cocoa/QuartzCoreSPI.h>
 #import <pal/spi/ios/GraphicsServicesSPI.h>
 #import <wtf/cocoa/Entitlements.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #endif // PLATFORM(IOS_FAMILY)
 
@@ -1608,7 +1609,7 @@ static WKMediaPlaybackState toWKMediaPlaybackState(WebKit::MediaPlaybackState me
             // callSnapshotRect() calls the client callback which may call directly or indirectly addCommitHandler.
             // It is prohibited by CA to add a commit handler while processing a registered commit handler.
             // So postpone calling callSnapshotRect() till CATransaction processes its commit handlers.
-            dispatch_async(dispatch_get_main_queue(), [callSnapshotRect = WTFMove(callSnapshotRect)] {
+            dispatch_async(mainDispatchQueueSingleton(), [callSnapshotRect = WTFMove(callSnapshotRect)] {
                 callSnapshotRect();
             });
         } forPhase:kCATransactionPhasePostCommit];

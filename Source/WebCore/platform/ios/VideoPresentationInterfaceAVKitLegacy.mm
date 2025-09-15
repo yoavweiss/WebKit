@@ -45,6 +45,7 @@
 #import <wtf/BlockPtr.h>
 #import <wtf/TZoneMallocInlines.h>
 #import <wtf/WeakObjCPtr.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #if HAVE(PIP_CONTROLLER)
 #import <AVKit/AVPictureInPictureController.h>
@@ -559,7 +560,7 @@ static const NSTimeInterval startPictureInPictureTimeInterval = 5.0;
 
     [self removeObserver];
 
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(mainDispatchQueueSingleton(), ^{
         [self startPictureInPicture];
     });
 }
@@ -593,7 +594,7 @@ static const NSTimeInterval startPictureInPictureTimeInterval = 5.0;
         return;
 
     if ([self isPictureInPicturePossible]) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(mainDispatchQueueSingleton(), ^{
             [self startPictureInPicture];
         });
         return;

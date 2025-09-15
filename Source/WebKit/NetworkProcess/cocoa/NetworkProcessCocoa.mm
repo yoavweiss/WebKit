@@ -49,6 +49,7 @@
 #import <wtf/RetainPtr.h>
 #import <wtf/RuntimeApplicationChecks.h>
 #import <wtf/cocoa/RuntimeApplicationChecksCocoa.h>
+#import <wtf/darwin/DispatchExtras.h>
 
 #if ENABLE(CONTENT_FILTERING)
 #import <pal/spi/cocoa/NEFilterSourceSPI.h>
@@ -174,7 +175,7 @@ void NetworkProcess::clearDiskCache(WallTime modifiedSince, CompletionHandler<vo
         m_clearCacheDispatchGroup = adoptOSObject(dispatch_group_create());
 
     RetainPtr group = m_clearCacheDispatchGroup.get();
-    dispatch_group_async(group.get(), RetainPtr { dispatch_get_main_queue() }.get(), makeBlockPtr([this, protectedThis = Ref { *this }, modifiedSince, completionHandler = WTFMove(completionHandler)] () mutable {
+    dispatch_group_async(group.get(), RetainPtr { mainDispatchQueueSingleton() }.get(), makeBlockPtr([this, protectedThis = Ref { *this }, modifiedSince, completionHandler = WTFMove(completionHandler)] () mutable {
         auto aggregator = CallbackAggregator::create(WTFMove(completionHandler));
         forEachNetworkSession([modifiedSince, &aggregator](NetworkSession& session) {
             if (RefPtr cache = session.cache())

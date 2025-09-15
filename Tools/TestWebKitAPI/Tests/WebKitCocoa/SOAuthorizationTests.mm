@@ -44,6 +44,7 @@
 #import <wtf/StdLibExtras.h>
 #import <wtf/StringPrintStream.h>
 #import <wtf/URL.h>
+#import <wtf/darwin/DispatchExtras.h>
 #import <wtf/text/MakeString.h>
 #import <wtf/text/WTFString.h>
 
@@ -262,7 +263,7 @@ private:
     }
 
     auto allowSOAuthorizationLoad = self.allowSOAuthorizationLoad;
-    dispatch_async(dispatch_get_main_queue(), ^() {
+    dispatch_async(mainDispatchQueueSingleton(), ^() {
         if (allowSOAuthorizationLoad)
             completionHandler(_WKSOAuthorizationLoadPolicyAllow);
         else

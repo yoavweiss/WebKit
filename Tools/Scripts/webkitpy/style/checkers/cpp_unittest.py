@@ -2365,7 +2365,7 @@ class CppStyleTest(CppStyleTestBase):
         self.assert_lint('for{', 'Missing space before {'
                          '  [whitespace/braces] [5]')
         self.assert_lint('for {', '')
-        self.assert_lint('dispatch_async(dispatch_get_main_queue(), ^{', '')
+        self.assert_lint('dispatch_async(mainDispatchQueueSingleton(), ^{', '')
         self.assert_lint('[outOfBandTracks.get() addObject:@{', '')
         self.assert_lint('EXPECT_DEBUG_DEATH({', '')
         self.assert_lint('LOCAL_LOG(R"({ "url": "%{public}s",)", url.string().utf8().data());', '')
