@@ -6481,7 +6481,7 @@ class MapBranchAlias(shell.ShellCommandNewStyle):
         return not self.doStepIf(step)
 
 
-class ValidateSquashed(shell.ShellCommand):
+class ValidateSquashed(shell.ShellCommandNewStyle, AddToLogMixin):
     name = 'validate-squashed'
     haltOnFailure = False
     flunkOnFailure = True
@@ -6490,21 +6490,17 @@ class ValidateSquashed(shell.ShellCommand):
         self.summary = ''
         super().__init__(logEnviron=False, **kwargs)
 
-    def start(self, BufferLogObserverClass=logobserver.BufferLogObserver):
+    @defer.inlineCallbacks
+    def run(self, BufferLogObserverClass=logobserver.BufferLogObserver):
         base_ref = self.getProperty('github.base.ref', f'{DEFAULT_REMOTE}/{DEFAULT_BRANCH}')
         head_ref = self.getProperty('github.head.ref', 'HEAD')
-        self.command = ['git', 'log', '--format=format:"%H"', head_ref, f'^{base_ref}', f'--max-count={MAX_COMMITS_IN_PR_SERIES + 1}']
+        self.command = ['git', 'log', '--format=format:%H', head_ref, f'^{base_ref}', f'--max-count={MAX_COMMITS_IN_PR_SERIES + 1}']
 
         self.log_observer = BufferLogObserverClass(wantStderr=True)
         self.addLogObserver('stdio', self.log_observer)
 
-        return shell.ShellCommand.start(self)
-
-    def getResultSummary(self):
-        return {'step': self.summary}
-
-    def evaluateCommand(self, cmd):
-        rc = shell.ShellCommand.evaluateCommand(self, cmd)
+        rc = yield super().run()
+        yield self._addToLog('stdio', '\n')
 
         pr_number = self.getProperty('github.number')
         patch_id = self.getProperty('patch_id')
@@ -6523,9 +6519,9 @@ class ValidateSquashed(shell.ShellCommand):
                 LeaveComment(),
                 BlockPullRequest() if pr_number else SetCommitQueueMinusFlagOnPatch(),
             ])
-            return rc
+            return defer.returnValue(rc)
 
-        log_text = self.log_observer.getStdout()
+        log_text = self.log_observer.getStdout().rstrip()
         commit_count = len(log_text.splitlines())
         self.setProperty('commit_count', commit_count)
 
@@ -6536,7 +6532,7 @@ class ValidateSquashed(shell.ShellCommand):
         if ['Cherry-pick'] == classification:
             if commit_count > 0 and commit_count < MAX_COMMITS_IN_PR_SERIES:
                 self.summary = 'Commit sequence is entirely cherry-picks'
-                return SUCCESS
+                return defer.returnValue(SUCCESS)
 
             self.summary = 'Too many commits in a pull-request'
             comment = 'Policy allows for multiple cherry-picks to be landed simultaneously ' \
@@ -6545,7 +6541,7 @@ class ValidateSquashed(shell.ShellCommand):
         else:
             if commit_count == 1:
                 self.summary = 'Verified commit is squashed'
-                return SUCCESS
+                return defer.returnValue(SUCCESS)
 
             self.summary = 'Can only land squashed commits'
             comment = 'This change contains multiple commits which are not squashed together'
@@ -6561,7 +6557,10 @@ class ValidateSquashed(shell.ShellCommand):
             LeaveComment(),
             BlockPullRequest() if pr_number else SetCommitQueueMinusFlagOnPatch(),
         ])
-        return FAILURE
+        defer.returnValue(FAILURE)
+
+    def getResultSummary(self):
+        return {'step': self.summary}
 
 
 class AddReviewerMixin(object):
