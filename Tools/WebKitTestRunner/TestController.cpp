@@ -973,6 +973,8 @@ WKRetainPtr<WKPageConfigurationRef> TestController::generatePageConfiguration(co
 {
     if (!m_context || !m_mainWebView || !m_mainWebView->viewSupportsOptions(options)) {
         auto contextConfiguration = generateContextConfiguration(options);
+        if (options.siteIsolationEnabled() && options.runInCrossOriginFrame())
+            WKContextConfigurationSetPrewarmsProcessesAutomatically(contextConfiguration.get(), false);
         m_preferences = adoptWK(WKPreferencesCreate());
         m_context = adoptWK(WKContextCreateWithConfiguration(contextConfiguration.get()));
 
