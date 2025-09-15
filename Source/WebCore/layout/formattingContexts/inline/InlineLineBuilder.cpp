@@ -655,7 +655,7 @@ InlineLayoutUnit LineBuilder::trailingPunctuationOrStopOrCommaWidthForLineCandia
     return { };
 }
 
-void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& layoutRange, InlineLayoutUnit currentLogicalRight)
+void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pair<size_t, size_t> startEndIndex, const InlineItemRange& layoutRange, InlineLayoutUnit currentLogicalRight, SkipFloats skipFloats)
 {
     ASSERT(startEndIndex.first < layoutRange.endIndex());
     ASSERT(startEndIndex.second <= layoutRange.endIndex());
@@ -695,6 +695,8 @@ void LineBuilder::candidateContentForLine(LineCandidate& lineCandidate, std::pai
         }
 
         if (inlineItem.isFloat()) {
+            if (skipFloats == SkipFloats::Yes)
+                continue;
             lineCandidate.floatItem = &inlineItem;
             // This is a soft wrap opportunity, must be the only item in the list.
             ASSERT(startEndIndex.first + 1 == startEndIndex.second);
@@ -1311,36 +1313,26 @@ void LineBuilder::commitPartialContent(const InlineContentBreaker::ContinuousCon
 size_t LineBuilder::rebuildLineWithInlineContent(const InlineItemRange& layoutRange, const InlineItem& lastInlineItemToAdd)
 {
     ASSERT(!m_wrapOpportunityList.isEmpty());
-    size_t numberOfInlineItemsOnLine = 0;
-    size_t numberOfFloatsInRange = 0;
-    // We might already have added floats. They shrink the available horizontal space for the line.
-    // Let's just reuse what the line has at this point.
     m_line.initialize(m_lineSpanningInlineBoxes, isFirstFormattedLineCandidate());
 
-    if (m_partialLeadingTextItem) {
-        m_line.append(*m_partialLeadingTextItem, m_partialLeadingTextItem->style(), formattingContext().formattingUtils().inlineItemWidth(*m_partialLeadingTextItem, { }, isFirstFormattedLineCandidate()));
-        ++numberOfInlineItemsOnLine;
-        if (&m_partialLeadingTextItem.value() == &lastInlineItemToAdd)
-            return 1;
-    }
-
-    size_t index = layoutRange.startIndex() + numberOfInlineItemsOnLine;
-    for (; index < layoutRange.endIndex(); ++index) {
-        auto& inlineItem = m_inlineItemList[index];
-        if (inlineItem.isFloat()) {
+    size_t numberOfFloatsInRange = 0;
+    auto endOfCandidateContent = layoutRange.startIndex();
+    for (; endOfCandidateContent < layoutRange.endIndex(); ++endOfCandidateContent) {
+        if (m_inlineItemList[endOfCandidateContent].isFloat())
             ++numberOfFloatsInRange;
-            continue;
-        }
-        auto& style = isFirstFormattedLineCandidate() ? inlineItem.firstLineStyle() : inlineItem.style();
-        auto inlineItemWidth = !inlineItem.isOpaque() ? formattingContext().formattingUtils().inlineItemWidth(inlineItem, m_line.contentLogicalRight(), isFirstFormattedLineCandidate()) : InlineLayoutUnit();
-        if (inlineItem.isInlineBoxEnd() && inlineItem.layoutBox().isRubyBase())
-            inlineItemWidth += RubyFormattingContext::baseEndAdditionalLogicalWidth(inlineItem.layoutBox(), m_line.runs(), { }, formattingContext());
-
-        m_line.append(inlineItem, style, inlineItemWidth);
-        ++numberOfInlineItemsOnLine;
-        if (&inlineItem == &lastInlineItemToAdd)
+        if (&m_inlineItemList[endOfCandidateContent] == &lastInlineItemToAdd) {
+            ++endOfCandidateContent;
             break;
+        }
     }
+    ASSERT(endOfCandidateContent < layoutRange.endIndex());
+
+    LineCandidate lineCandidate;
+    auto canidateStartEndIndex = std::pair<size_t, size_t> { layoutRange.startIndex(), endOfCandidateContent };
+    // We might already have added floats. They shrink the available horizontal space for the line.
+    // Let's just reuse what the line has at this point.
+    candidateContentForLine(lineCandidate, canidateStartEndIndex, layoutRange, m_line.contentLogicalRight(), SkipFloats::Yes);
+    auto result = processLineBreakingResult(lineCandidate, layoutRange, { InlineContentBreaker::Result::Action::Keep, InlineContentBreaker::IsEndOfLine::Yes, { }, { } });
 
     // Remove floats that are outside of this "rebuild" range to ensure we don't add them twice.
     auto unplaceFloatBox = [&](const Box& floatBox) -> bool {
@@ -1349,13 +1341,13 @@ size_t LineBuilder::rebuildLineWithInlineContent(const InlineItemRange& layoutRa
         });
         return layoutState().placedFloats().remove(floatBox);
     };
-    for (; index < layoutRange.endIndex(); ++index) {
+    for (auto index = endOfCandidateContent; index < layoutRange.endIndex(); ++index) {
         auto& inlineItem = m_inlineItemList[index];
         if (inlineItem.isFloat() && unplaceFloatBox(inlineItem.layoutBox()))
             break;
     }
 
-    return numberOfInlineItemsOnLine + numberOfFloatsInRange;
+    return result.committedCount.value + numberOfFloatsInRange;
 }
 
 size_t LineBuilder::rebuildLineForTrailingSoftHyphen(const InlineItemRange& layoutRange)
