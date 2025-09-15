@@ -89,6 +89,13 @@ bool GStreamerVideoCapturer::isCapturingDisplay() const
     return deviceType == CaptureDevice::DeviceType::Screen || deviceType == CaptureDevice::DeviceType::Window;
 }
 
+void GStreamerVideoCapturer::tearDown(bool disconnectSignals)
+{
+    GStreamerCapturer::tearDown(disconnectSignals);
+    if (disconnectSignals)
+        m_videoSrcMIMETypeFilter = nullptr;
+}
+
 void GStreamerVideoCapturer::setupPipeline()
 {
     GStreamerCapturer::setupPipeline();
@@ -169,8 +176,9 @@ bool GStreamerVideoCapturer::setSize(const IntSize& size)
         return false;
 
     m_size = size;
-    m_caps = adoptGRef(gst_caps_copy(m_caps.get()));
-    gst_caps_set_simple(m_caps.get(), "width", G_TYPE_INT, width, "height", G_TYPE_INT, height, nullptr);
+    auto modifiedCaps = adoptGRef(gst_caps_make_writable(m_caps.leakRef()));
+    gst_caps_set_simple(modifiedCaps.get(), "width", G_TYPE_INT, width, "height", G_TYPE_INT, height, nullptr);
+    gst_caps_take(&m_caps.outPtr(), modifiedCaps.leakRef());
 
     g_object_set(m_capsfilter.get(), "caps", m_caps.get(), nullptr);
     return true;
@@ -200,8 +208,9 @@ bool GStreamerVideoCapturer::setFrameRate(double frameRate)
     if (!m_capsfilter) [[unlikely]]
         return false;
 
-    m_caps = adoptGRef(gst_caps_copy(m_caps.get()));
-    gst_caps_set_simple(m_caps.get(), "framerate", GST_TYPE_FRACTION, numerator, denominator, nullptr);
+    auto modifiedCaps = adoptGRef(gst_caps_make_writable(m_caps.leakRef()));
+    gst_caps_set_simple(modifiedCaps.get(), "framerate", GST_TYPE_FRACTION, numerator, denominator, nullptr);
+    gst_caps_take(&m_caps.outPtr(), modifiedCaps.leakRef());
 
     GST_INFO_OBJECT(m_pipeline.get(), "Setting framerate to %f fps", frameRate);
     g_object_set(m_capsfilter.get(), "caps", m_caps.get(), nullptr);

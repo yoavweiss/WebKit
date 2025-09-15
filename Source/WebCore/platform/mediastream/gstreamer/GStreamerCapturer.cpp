@@ -67,7 +67,7 @@ GStreamerCapturer::GStreamerCapturer(const PipeWireCaptureDevice& device)
 
 GStreamerCapturer::~GStreamerCapturer()
 {
-    tearDown();
+    tearDown(true);
 }
 
 void GStreamerCapturer::tearDown(bool disconnectSignals)
@@ -90,7 +90,9 @@ void GStreamerCapturer::tearDown(bool disconnectSignals)
     m_valve = nullptr;
     m_src = nullptr;
     m_capsfilter = nullptr;
+    m_sink = nullptr;
     m_pipeline = nullptr;
+    m_caps = nullptr;
 }
 
 GStreamerCapturerObserver::~GStreamerCapturerObserver()
@@ -212,7 +214,7 @@ GstElement* GStreamerCapturer::createSource()
             auto [rotation, isMirrored] = webkitGstBufferGetVideoRotation(buffer);
 
             auto modifiedBuffer = webkitGstBufferSetVideoFrameMetadata(GRefPtr(buffer), metadata, rotation, isMirrored);
-            GST_PAD_PROBE_INFO_DATA(info) = modifiedBuffer.leakRef();
+            gst_pad_probe_info_set_buffer(info, modifiedBuffer.leakRef());
             return GST_PAD_PROBE_OK;
         }, nullptr, nullptr);
     }

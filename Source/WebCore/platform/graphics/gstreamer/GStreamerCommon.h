@@ -471,4 +471,8 @@ private:
 GstBuffer* gst_buffer_new_memdup(gconstpointer data, gsize size);
 #endif
 
+#if !GST_CHECK_VERSION(1, 27, 0)
+void gst_pad_probe_info_set_buffer(GstPadProbeInfo*, GstBuffer*);
+#endif
+
 #endif // USE(GSTREAMER)

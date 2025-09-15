@@ -57,7 +57,7 @@ public:
     GStreamerCapturer(const PipeWireCaptureDevice&);
     virtual ~GStreamerCapturer();
 
-    void tearDown(bool disconnectSignals = true);
+    virtual void tearDown(bool disconnectSignals);
 
     void setDevice(std::optional<GStreamerCaptureDevice>&&);
 

@@ -319,7 +319,7 @@ void GStreamerIncomingTrackProcessor::installRtpBufferPadProbe(const GRefPtr<Gst
         }
 
         auto modifiedBuffer = webkitGstBufferSetVideoFrameMetadata(GRefPtr(buffer), videoFrameTimeMetadata);
-        GST_PAD_PROBE_INFO_DATA(info) = modifiedBuffer.leakRef();
+        gst_pad_probe_info_set_buffer(info, modifiedBuffer.leakRef());
         return GST_PAD_PROBE_OK;
     }, gst_caps_new_empty_simple("timestamp/x-ntp"), reinterpret_cast<GDestroyNotify>(gst_caps_unref));
 }

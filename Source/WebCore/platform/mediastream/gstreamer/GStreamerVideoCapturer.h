@@ -39,6 +39,7 @@ public:
     GStreamerVideoCapturer(const PipeWireCaptureDevice&);
     ~GStreamerVideoCapturer() = default;
 
+    void tearDown(bool disconnectSignals) final;
     void setupPipeline() final;
     GstElement* createConverter() final;
     const char* name() final { return "Video"; }
