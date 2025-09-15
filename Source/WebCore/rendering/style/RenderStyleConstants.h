@@ -349,6 +349,8 @@ enum class FillBox : uint8_t {
     NoClip
 };
 
+constexpr unsigned FillBoxBitWidth = 3;
+
 constexpr inline FillBox clipMax(FillBox clipA, FillBox clipB)
 {
     if (clipA == FillBox::BorderBox || clipB == FillBox::BorderBox)
