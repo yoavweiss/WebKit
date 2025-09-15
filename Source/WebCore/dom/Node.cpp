@@ -325,7 +325,6 @@ void Node::dumpStatistics()
         SAFE_PRINTF("  %s: %zu\n", stringForRareDataUseType(static_cast<NodeRareData::UseType>(it.key)), it.value);
     printf("\n");
 
-
     printf("NodeType distribution:\n");
     printf("  Number of Element nodes: %zu\n", elementNodes);
     printf("  Number of Attribute nodes: %zu\n", attrNodes);
