@@ -47,6 +47,8 @@
 
 namespace WebCore {
 
+WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(DNSResolveQueueCFNet);
+
 DNSResolveQueueCFNet::DNSResolveQueueCFNet() = default;
 
 DNSResolveQueueCFNet::~DNSResolveQueueCFNet() = default;

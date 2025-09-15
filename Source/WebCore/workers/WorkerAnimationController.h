@@ -41,7 +41,7 @@ class RequestAnimationFrameCallback;
 class WeakPtrImplWithEventTargetData;
 class WorkerGlobalScope;
 
-class WorkerAnimationController final : public ThreadSafeRefCounted<WorkerAnimationController>, public ActiveDOMObject {
+class WorkerAnimationController final : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<WorkerAnimationController>, public ActiveDOMObject {
 public:
     static Ref<WorkerAnimationController> create(WorkerGlobalScope&);
     ~WorkerAnimationController();
@@ -50,8 +50,8 @@ public:
     void cancelAnimationFrame(int);
 
     // ActiveDOMObject.
-    void ref() const final { ThreadSafeRefCounted::ref(); }
-    void deref() const final { ThreadSafeRefCounted::deref(); }
+    void ref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::ref(); }
+    void deref() const final { ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr::deref(); }
 
 private:
     WorkerAnimationController(WorkerGlobalScope&);

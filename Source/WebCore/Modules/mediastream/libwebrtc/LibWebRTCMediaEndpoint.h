@@ -73,7 +73,7 @@ class RTCSessionDescription;
 struct LibWebRTCMediaEndpointTransceiverState;
 
 class LibWebRTCMediaEndpoint final
-    : public ThreadSafeRefCounted<LibWebRTCMediaEndpoint, WTF::DestructionThread::Main>
+    : public ThreadSafeRefCountedAndCanMakeThreadSafeWeakPtr<LibWebRTCMediaEndpoint, WTF::DestructionThread::Main>
     , private webrtc::PeerConnectionObserver
     , private webrtc::RTCStatsCollectorCallback
 #if !RELEASE_LOG_DISABLED

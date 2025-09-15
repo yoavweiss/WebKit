@@ -42,6 +42,8 @@
 
 namespace WebCore {
 
+WTF_MAKE_TZONE_OR_ISO_ALLOCATED_IMPL(HIDGamepadProvider);
+
 static const Seconds connectionDelayInterval { 500_ms };
 static const Seconds hidInputNotificationDelay { 1_ms };
 

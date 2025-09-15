@@ -49,7 +49,6 @@ page/cocoa/ResourceUsageOverlayCocoa.mm
 page/csp/ContentSecurityPolicy.cpp
 page/writing-tools/WritingToolsController.mm
 platform/ScrollableArea.cpp
-platform/Timer.h
 platform/cocoa/NetworkExtensionContentFilter.mm
 platform/encryptedmedia/CDMProxy.cpp
 platform/encryptedmedia/clearkey/CDMClearKey.cpp

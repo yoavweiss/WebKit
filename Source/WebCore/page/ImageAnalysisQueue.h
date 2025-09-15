@@ -29,6 +29,7 @@
 
 #include <WebCore/Timer.h>
 #include <wtf/PriorityQueue.h>
+#include <wtf/RefCountedAndCanMakeWeakPtr.h>
 #include <wtf/TZoneMalloc.h>
 #include <wtf/URL.h>
 #include <wtf/URLHash.h>
@@ -47,7 +48,7 @@ class Page;
 class Timer;
 class WeakPtrImplWithEventTargetData;
 
-class ImageAnalysisQueue final : public RefCounted<ImageAnalysisQueue> {
+class ImageAnalysisQueue final : public RefCountedAndCanMakeWeakPtr<ImageAnalysisQueue> {
     WTF_MAKE_TZONE_ALLOCATED_EXPORT(ImageAnalysisQueue, WEBCORE_EXPORT);
 public:
     static Ref<ImageAnalysisQueue> create(Page&);
