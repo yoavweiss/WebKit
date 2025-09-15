@@ -1007,15 +1007,11 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmTriggerOSREntryNow, void, (Probe:
         return returnWithoutOSREntry();
     }
 
-    OMGCallee* replacement;
-    {
-        Locker locker { calleeGroup.m_lock };
-        replacement = calleeGroup.omgCallee(locker, functionIndex);
-    }
-    dataLogLnIf(Options::verboseOSR(), callee, ": Consider OSREntryPlan for functionCodeIndex=", osrEntryData.functionIndex(),  " loopIndex#", loopIndex, " with executeCounter = ", tierUp, " ", RawPointer(replacement));
+    RefPtr<OMGCallee> replacement = calleeGroup.tryGetOMGCalleeConcurrently(functionIndex);
+    dataLogLnIf(Options::verboseOSR(), callee, ": Consider OSREntryPlan for functionCodeIndex=", osrEntryData.functionIndex(),  " loopIndex#", loopIndex, " with executeCounter = ", tierUp, " ", RawPointer(replacement.get()));
 
     if (!Options::useWasmOSR()) {
-        if (shouldTriggerOMGCompile(tierUp, replacement, functionIndex))
+        if (shouldTriggerOMGCompile(tierUp, replacement.get(), functionIndex))
             triggerOMGReplacementCompile(tierUp, instance, calleeGroup, functionIndex);
 
         // We already have an OMG replacement.
@@ -1081,7 +1077,7 @@ JSC_DEFINE_NOEXCEPT_JIT_OPERATION(operationWasmTriggerOSREntryNow, void, (Probe:
         }
     }
 
-    if (!shouldTriggerOMGCompile(tierUp, replacement, functionIndex) && !triggeredSlowPathToStartCompilation)
+    if (!shouldTriggerOMGCompile(tierUp, replacement.get(), functionIndex) && !triggeredSlowPathToStartCompilation)
         return returnWithoutOSREntry();
 
     if (!triggeredSlowPathToStartCompilation) {

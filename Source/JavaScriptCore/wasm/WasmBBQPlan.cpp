@@ -129,30 +129,10 @@ void BBQPlan::work()
         if (context.pcToCodeOriginMap)
             NativeCalleeRegistry::singleton().addPCToCodeOriginMap(callee.ptr(), WTFMove(context.pcToCodeOriginMap));
 
-        // We want to make sure we publish our callee at the same time as we link our callsites. This enables us to ensure we
-        // always call the fastest code. Any function linked after us will see our new code and the new callsites, which they
-        // will update. It's also ok if they publish their code before we reset the instruction caches because after we release
-        // the lock our code is ready to be published too.
-        Locker locker { m_calleeGroup->m_lock };
-
-        m_calleeGroup->setBBQCallee(locker, m_functionIndex, callee.copyRef());
-        ASSERT(m_calleeGroup->replacement(locker, callee->index()) == callee.ptr());
-        m_calleeGroup->reportCallees(locker, callee.ptr(), function->outgoingJITDirectCallees);
-
-        for (auto& call : callee->wasmToWasmCallsites()) {
-            CodePtr<WasmEntryPtrTag> entrypoint;
-            if (call.functionIndexSpace < m_moduleInformation->importFunctionCount())
-                entrypoint = m_calleeGroup->m_wasmToWasmExitStubs[call.functionIndexSpace].code();
-            else {
-                Ref calleeCallee = m_calleeGroup->wasmEntrypointCalleeFromFunctionIndexSpace(locker, call.functionIndexSpace);
-                entrypoint = calleeCallee->entrypoint().retagged<WasmEntryPtrTag>();
-            }
-
-            MacroAssembler::repatchNearCall(call.callLocation, CodeLocationLabel<WasmEntryPtrTag>(entrypoint));
+        {
+            Locker locker { m_calleeGroup->m_lock };
+            m_calleeGroup->installOptimizedCallee(locker, m_moduleInformation, m_functionIndex, callee.copyRef(), function->outgoingJITDirectCallees);
         }
-
-        m_calleeGroup->updateCallsitesToCallUs(locker, CodeLocationLabel<WasmEntryPtrTag>(entrypoint), m_functionIndex);
-        WTF::storeStoreFence();
         {
             Locker locker { m_profiledCallee->tierUpCounter().m_lock };
             m_profiledCallee->tierUpCounter().setCompilationStatus(mode(), IPIntTierUpCounter::CompilationStatus::Compiled);

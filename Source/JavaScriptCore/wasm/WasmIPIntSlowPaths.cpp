@@ -117,15 +117,13 @@ static inline RefPtr<Wasm::JITCallee> jitCompileAndSetHeuristics(Wasm::IPIntCall
         case OSRFor::Prologue: {
             if (Options::useWasmIPInt()) [[likely]]
                 return nullptr;
-            Locker locker { calleeGroup.m_lock };
-            return calleeGroup.replacement(locker, callee.index());
+            return calleeGroup.tryGetReplacementConcurrently(callee.functionIndex());
         }
         case OSRFor::Epilogue: {
             return nullptr;
         }
         case OSRFor::Loop: {
-            Locker locker { calleeGroup.m_lock };
-            return calleeGroup.tryGetBBQCalleeForLoopOSR(locker, instance->vm(), callee.functionIndex());
+            return calleeGroup.tryGetBBQCalleeForLoopOSRConcurrently(instance->vm(), callee.functionIndex());
         }
         }
         RELEASE_ASSERT_NOT_REACHED();
