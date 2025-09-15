@@ -1710,9 +1710,9 @@ bool RenderLayerScrollableArea::hitTestResizerInFragments(const LayerFragments& 
 
     for (int i = layerFragments.size() - 1; i >= 0; --i) {
         const LayerFragment& fragment = layerFragments.at(i);
-        auto resizerRectInFragment = cornerRectInFragment(snappedIntRect(fragment.layerBounds), rects.resizer);
-        if (fragment.backgroundRect.intersects(hitTestLocation) && resizerRectInFragment.contains(hitTestLocation.roundedPoint())) {
-            pointInFragment = toLayoutPoint(hitTestLocation.point() - fragment.layerBounds.location());
+        auto resizerRectInFragment = cornerRectInFragment(snappedIntRect(fragment.layerBounds()), rects.resizer);
+        if (fragment.dirtyBackgroundRect().intersects(hitTestLocation) && resizerRectInFragment.contains(hitTestLocation.roundedPoint())) {
+            pointInFragment = toLayoutPoint(hitTestLocation.point() - fragment.layerBounds().location());
             return true;
         }
     }
