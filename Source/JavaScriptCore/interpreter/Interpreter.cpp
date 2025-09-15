@@ -794,12 +794,13 @@ public:
                     auto* wasmCallee = static_cast<Wasm::Callee*>(nativeCallee);
                     if (wasmCallee->hasExceptionHandlers()) {
                         JSWebAssemblyInstance* instance = m_callFrame->wasmInstance();
-                        unsigned exceptionHandlerIndex = m_callFrame->callSiteIndex().bits();
+                        unsigned exceptionHandlerIndex = visitor->wasmCallSiteIndex().bits();
                         auto* wasmHandler = wasmCallee->handlerForIndex(*instance, exceptionHandlerIndex, m_wasmTag.get());
                         m_handler = { wasmHandler, wasmCallee };
                         if (m_handler.m_valid) {
                             if (m_wasmTag == &Wasm::Tag::jsExceptionTag())
                                 m_exception->wrapValueForJSTag(instance->globalObject());
+                            m_callFrame->setCallSiteIndex(visitor->wasmCallSiteIndex());
                             return IterationStatus::Done;
                         }
                     }

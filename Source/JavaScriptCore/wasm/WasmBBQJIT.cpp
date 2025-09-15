@@ -3167,7 +3167,7 @@ ControlData WARN_UNUSED_RETURN BBQJIT::addTopLevel(BlockSignature signature)
     m_frameSizeLabels.append(m_jit.moveWithPatch(TrustedImmPtr(nullptr), wasmScratchGPR));
 
     if (m_profiledCallee.hasExceptionHandlers())
-        m_jit.store32(CCallHelpers::TrustedImm32(PatchpointExceptionHandle::s_invalidCallSiteIndex), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
+        m_jit.store32(CCallHelpers::TrustedImm32(wasmInvalidCallSiteIndex), CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
 
     // Because we compile in a single pass, we always need to pessimistically check for stack underflow/overflow.
     static_assert(wasmScratchGPR == GPRInfo::nonPreservedNonArgumentGPR0);

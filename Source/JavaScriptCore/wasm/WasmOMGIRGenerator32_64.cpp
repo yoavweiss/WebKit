@@ -116,7 +116,7 @@ public:
     using ExpressionType = Variable*;
     using ResultList = Vector<ExpressionType, 8>;
     using CallType = CallLinkInfo::CallType;
-    using CallPatchpointData = std::tuple<B3::PatchpointValue*, Box<PatchpointExceptionHandle>, RefPtr<B3::StackmapGenerator>>;
+    using CallPatchpointData = std::tuple<B3::PatchpointValue*, RefPtr<PatchpointExceptionHandle>, RefPtr<B3::StackmapGenerator>>;
     using WasmConstRefValue = Const64Value;
 
     static constexpr bool shouldFuseBranchCompare = false;
@@ -884,7 +884,7 @@ private:
     void connectControlAtEntrypoint(OSRBufferMode, unsigned& indexInBuffer, Value* pointer, ControlData&, Stack& expressionStack, ControlData& currentData, bool fillLoopPhis = false);
     Value* emitCatchImpl(CatchKind, ControlType&, unsigned exceptionIndex = 0);
     void emitCatchTableImpl(ControlData& entryData, const ControlData::TryTableTarget&, const Stack&);
-    PatchpointExceptionHandle preparePatchpointForExceptions(BasicBlock*, PatchpointValue*);
+    RefPtr<PatchpointExceptionHandle> preparePatchpointForExceptions(BasicBlock*, PatchpointValue*);
 
     Origin origin();
 
@@ -1428,19 +1428,7 @@ void OMGIRGenerator::insertEntrySwitch()
 
 void OMGIRGenerator::insertConstants()
 {
-    Value* invalidCallSiteIndex = nullptr;
-    if (m_hasExceptionHandlers)
-        invalidCallSiteIndex = constant(B3::Int32, PatchpointExceptionHandle::s_invalidCallSiteIndex, Origin());
     m_constantInsertionValues.execute(m_proc.at(0));
-
-    if (!m_hasExceptionHandlers)
-        return;
-
-    Value* storeCallSiteIndex = m_proc.add<B3::MemoryValue>(B3::Store, Origin(), invalidCallSiteIndex, framePointer(), safeCast<int32_t>(CallFrameSlot::argumentCountIncludingThis * sizeof(Register) + TagOffset));
-
-    BasicBlock* block = m_rootBlocks[0].block;
-    m_constantInsertionValues.insertValue(0, storeCallSiteIndex);
-    m_constantInsertionValues.execute(block);
 }
 
 B3::Type OMGIRGenerator::toB3ResultType(const TypeDefinition* returnType)
@@ -1944,7 +1932,7 @@ auto OMGIRGenerator::emitIndirectCall(Value* calleeInstance, Value* calleeCode, 
         if (prepareForCall)
             prepareForCall->run(jit, params);
         if (handle)
-            handle->generate(jit, params, this);
+            handle->collectStackMap(this, params);
 
         jit.storeWasmCalleeToCalleeCallFrame(params[patchArgsIndex + 1].gpr());
         jit.call(params[patchArgsIndex].gpr(), WasmEntryPtrTag);
@@ -4590,13 +4578,12 @@ auto OMGIRGenerator::addCatch(unsigned exceptionIndex, const TypeDefinition& sig
     return addCatchToUnreachable(exceptionIndex, signature, data, results);
 }
 
-PatchpointExceptionHandle OMGIRGenerator::preparePatchpointForExceptions(BasicBlock* block, PatchpointValue* patch)
+RefPtr<PatchpointExceptionHandle> OMGIRGenerator::preparePatchpointForExceptions(BasicBlock* block, PatchpointValue* patch)
 {
-    advanceCallSiteIndex();
     bool mustSaveState = m_tryCatchDepth;
 
     if (!mustSaveState)
-        return { m_hasExceptionHandlers, callSiteIndex() };
+        return nullptr;
 
     unsigned firstStackmapChildOffset = patch->numChildren();
     unsigned firstStackmapParamOffset = firstStackmapChildOffset + m_proc.resultCount(patch->type());
@@ -4637,7 +4624,7 @@ PatchpointExceptionHandle OMGIRGenerator::preparePatchpointForExceptions(BasicBl
     patch->effects.exitsSideways = true;
     patch->appendVectorWithRep(liveValues, ValueRep::LateColdAny);
 
-    return { m_hasExceptionHandlers, callSiteIndex(), static_cast<unsigned>(liveValues.size()), firstStackmapParamOffset, firstStackmapChildOffset };
+    return PatchpointExceptionHandle::create(m_hasExceptionHandlers, callSiteIndex(), static_cast<unsigned>(liveValues.size()), firstStackmapParamOffset, firstStackmapChildOffset);
 }
 
 auto OMGIRGenerator::addCatchToUnreachable(unsigned exceptionIndex, const TypeDefinition& signature, ControlType& data, ResultList& results) -> PartialResult
@@ -4832,6 +4819,7 @@ auto OMGIRGenerator::addThrow(unsigned exceptionIndex, ArgumentList& args, Stack
 {
     TRACE_CF("THROW");
 
+    advanceCallSiteIndex();
     PatchpointValue* patch = m_proc.add<PatchpointValue>(B3::Void, origin(), cloningForbidden(Patchpoint));
     patch->effects.terminal = true;
     patch->append(instanceValue(), ValueRep::reg(GPRInfo::argumentGPR0));
@@ -4842,10 +4830,11 @@ auto OMGIRGenerator::addThrow(unsigned exceptionIndex, ArgumentList& args, Stack
     }
     m_maxNumJSCallArguments = std::max(m_maxNumJSCallArguments, offset);
     patch->clobber(RegisterSetBuilder::registersToSaveForJSCall(m_proc.usesSIMD() ? RegisterSetBuilder::allRegisters() : RegisterSetBuilder::allScalarRegisters()));
-    PatchpointExceptionHandle handle = preparePatchpointForExceptions(m_currentBlock, patch);
-    patch->setGenerator([this, exceptionIndex, handle, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
+    auto handle = preparePatchpointForExceptions(m_currentBlock, patch);
+    patch->setGenerator([this, exceptionIndex, handle = WTFMove(handle), origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
         AllowMacroScratchRegisterUsage allowScratch(jit);
-        handle.generate(jit, params, this);
+        if (handle)
+            handle->collectStackMap(this, params);
         if (auto* omgOrigin = origin.omgOrigin()) {
             jit.move(CCallHelpers::TrustedImm32(omgOrigin->m_callSiteIndex.bits()), GPRInfo::nonPreservedNonArgumentGPR0);
             jit.store32(GPRInfo::nonPreservedNonArgumentGPR0, CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
@@ -4861,21 +4850,24 @@ auto WARN_UNUSED_RETURN OMGIRGenerator::addThrowRef(TypedExpression exnref, Stac
 {
     TRACE_CF("THROW_REF");
 
+    Value* exception = get(exnref);
+    Value* exceptionLo = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), exception);
+    Value* exceptionHi = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), exception);
+    if (exnref.type().isNullable())
+        emitNullCheck(exception, ExceptionType::NullExnrefReference);
+
+    advanceCallSiteIndex();
     PatchpointValue* patch = m_proc.add<PatchpointValue>(B3::Void, origin(), cloningForbidden(Patchpoint));
     patch->clobber(RegisterSetBuilder::registersToSaveForJSCall(m_proc.usesSIMD() ? RegisterSetBuilder::allRegisters() : RegisterSetBuilder::allScalarRegisters()));
     patch->effects.terminal = true;
     patch->append(instanceValue(), ValueRep::reg(GPRInfo::argumentGPR0));
-    Value* exception = get(exnref);
-    Value* exceptionLo = m_currentBlock->appendNew<Value>(m_proc, Trunc, origin(), exception);
-    Value* exceptionHi = m_currentBlock->appendNew<Value>(m_proc, TruncHigh, origin(), exception);
     patch->append(exceptionLo, ValueRep::reg(GPRInfo::argumentGPR2));
     patch->append(exceptionHi, ValueRep::reg(GPRInfo::argumentGPR3));
-    if (exnref.type().isNullable())
-        emitNullCheck(exception, ExceptionType::NullExnrefReference);
-    PatchpointExceptionHandle handle = preparePatchpointForExceptions(m_currentBlock, patch);
-    patch->setGenerator([this, handle, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
+    auto handle = preparePatchpointForExceptions(m_currentBlock, patch);
+    patch->setGenerator([this, handle = WTFMove(handle), origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
         AllowMacroScratchRegisterUsage allowScratch(jit);
-        handle.generate(jit, params, this);
+        if (handle)
+            handle->collectStackMap(this, params);
         if (auto* omgOrigin = origin.omgOrigin()) {
             jit.move(CCallHelpers::TrustedImm32(omgOrigin->m_callSiteIndex.bits()), GPRInfo::nonPreservedNonArgumentGPR0);
             jit.store32(GPRInfo::nonPreservedNonArgumentGPR0, CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
@@ -4890,17 +4882,20 @@ auto OMGIRGenerator::addRethrow(unsigned, ControlType& data) -> PartialResult
 {
     TRACE_CF("RETHROW");
 
+    Value* exception = get(data.exception());
+
+    advanceCallSiteIndex();
     PatchpointValue* patch = m_proc.add<PatchpointValue>(B3::Void, origin(), cloningForbidden(Patchpoint));
     patch->clobber(RegisterSetBuilder::registersToSaveForJSCall(m_proc.usesSIMD() ? RegisterSetBuilder::allRegisters() : RegisterSetBuilder::allScalarRegisters()));
     patch->effects.terminal = true;
     patch->append(instanceValue(), ValueRep::reg(GPRInfo::argumentGPR0));
-    Value* exception = get(data.exception());
     patch->append(exception, ValueRep::reg(GPRInfo::argumentGPR2));
     patch->append(constant(Int32, JSValue::CellTag), ValueRep::reg(GPRInfo::argumentGPR3));
-    PatchpointExceptionHandle handle = preparePatchpointForExceptions(m_currentBlock, patch);
-    patch->setGenerator([this, handle, origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
+    auto handle = preparePatchpointForExceptions(m_currentBlock, patch);
+    patch->setGenerator([this, handle = WTFMove(handle), origin = this->origin()] (CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
         AllowMacroScratchRegisterUsage allowScratch(jit);
-        handle.generate(jit, params, this);
+        if (handle)
+            handle->collectStackMap(this, params);
         if (auto* omgOrigin = origin.omgOrigin()) {
             jit.move(CCallHelpers::TrustedImm32(omgOrigin->m_callSiteIndex.bits()), GPRInfo::nonPreservedNonArgumentGPR0);
             jit.store32(GPRInfo::nonPreservedNonArgumentGPR0, CCallHelpers::tagFor(CallFrameSlot::argumentCountIncludingThis));
@@ -5165,16 +5160,14 @@ auto OMGIRGenerator::createCallPatchpoint(BasicBlock* block, const TypeDefinitio
 
     auto constrainedPatchArgs = createCallConstrainedArgs(block, wasmCalleeInfo, tmpArgs);
 
-    Box<PatchpointExceptionHandle> exceptionHandle = Box<PatchpointExceptionHandle>::create(m_hasExceptionHandlers, callSiteIndex());
-
+    advanceCallSiteIndex();
     PatchpointValue* patchpoint = m_proc.add<PatchpointValue>(returnType, origin());
     patchpoint->effects.writesPinned = true;
     patchpoint->effects.readsPinned = true;
     patchpoint->clobberEarly(RegisterSetBuilder::macroClobberedGPRs());
     patchpoint->clobberLate(RegisterSetBuilder::registersToSaveForJSCall(m_proc.usesSIMD() ? RegisterSetBuilder::allRegisters() : RegisterSetBuilder::allScalarRegisters()));
     patchpoint->appendVector(constrainedPatchArgs);
-
-    *exceptionHandle = preparePatchpointForExceptions(block, patchpoint);
+    auto exceptionHandle = preparePatchpointForExceptions(block, patchpoint);
 
     const Vector<ArgumentLocation, 1>& constrainedResultLocations = wasmCalleeInfo.results;
     if (returnType.isTuple() || returnType == Int64) {
@@ -5219,7 +5212,7 @@ auto OMGIRGenerator::createCallPatchpoint(BasicBlock* block, const TypeDefinitio
         patchpoint->resultConstraints = WTFMove(resultConstraints);
     }
     block->append(patchpoint);
-    return { patchpoint, exceptionHandle, nullptr };
+    return { patchpoint, WTFMove(exceptionHandle), nullptr };
 }
 
 // See createTailCallPatchpoint for the setup before this.
@@ -5873,7 +5866,7 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
     m_proc.requestCallArgAreaSizeInBytes(calleeStackSize + sizeof(Register));
 
     if (m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace)) {
-        auto emitCallToImport = [&, this](PatchpointValue* patchpoint, Box<PatchpointExceptionHandle> handle, RefPtr<B3::StackmapGenerator> prepareForCall) -> void {
+        auto emitCallToImport = [&, this](PatchpointValue* patchpoint, RefPtr<PatchpointExceptionHandle> handle, RefPtr<B3::StackmapGenerator> prepareForCall) -> void {
             unsigned patchArgsIndex = patchpoint->reps().size();
             if (is32Bit() && isTailCall)
                 patchpoint->append(jumpDestination, ValueRep::stackArgument(0));
@@ -5890,7 +5883,7 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
                     prepareForCall->run(jit, params);
                 ASSERT(!isTailCall || !handle);
                 if (handle)
-                    handle->generate(jit, params, this);
+                    handle->collectStackMap(this, params);
                 if (isTailCall) {
                     GPRReg callTarget;
                     if (is32Bit() && params[patchArgsIndex].isStack()) {
@@ -5952,13 +5945,13 @@ auto OMGIRGenerator::addCall(unsigned callSlotIndex, FunctionSpaceIndex function
 
     Vector<UnlinkedWasmToWasmCall>* unlinkedWasmToWasmCalls = &m_unlinkedWasmToWasmCalls;
 
-    auto emitUnlinkedWasmToWasmCall = [&, this](PatchpointValue* patchpoint, Box<PatchpointExceptionHandle> handle, RefPtr<B3::StackmapGenerator> prepareForCall) -> void {
+    auto emitUnlinkedWasmToWasmCall = [&, this](PatchpointValue* patchpoint, RefPtr<PatchpointExceptionHandle> handle, RefPtr<B3::StackmapGenerator> prepareForCall) -> void {
         patchpoint->setGenerator([this, handle, unlinkedWasmToWasmCalls, functionIndexSpace, isTailCall, tailCallStackOffsetFromFP, prepareForCall](CCallHelpers& jit, const B3::StackmapGenerationParams& params) {
             AllowMacroScratchRegisterUsage allowScratch(jit);
             if (prepareForCall)
                 prepareForCall->run(jit, params);
             if (handle)
-                handle->generate(jit, params, this);
+                handle->collectStackMap(this, params);
 
             ASSERT(!m_info.isImportedFunctionFromFunctionIndexSpace(functionIndexSpace));
             Ref<IPIntCallee> callee = m_calleeGroup.ipintCalleeFromFunctionIndexSpace(functionIndexSpace);
