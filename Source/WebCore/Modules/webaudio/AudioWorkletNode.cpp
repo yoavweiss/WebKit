@@ -45,6 +45,7 @@
 #include "AudioWorkletNodeOptions.h"
 #include "AudioWorkletProcessor.h"
 #include "BaseAudioContext.h"
+#include "ContextDestructionObserverInlines.h"
 #include "ErrorEvent.h"
 #include "EventNames.h"
 #include "JSAudioWorkletNodeOptions.h"
