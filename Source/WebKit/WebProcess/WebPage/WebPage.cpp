@@ -10064,6 +10064,11 @@ void WebPage::requestTextExtraction(TextExtraction::Request&& request, Completio
     completion(TextExtraction::extractItem(WTFMove(request), Ref { *corePage() }));
 }
 
+void WebPage::describeTextExtractionInteraction(TextExtraction::Interaction&& interaction, CompletionHandler<void(TextExtraction::InteractionDescription&&)>&& completion)
+{
+    completion(TextExtraction::interactionDescription(interaction));
+}
+
 void WebPage::handleTextExtractionInteraction(TextExtraction::Interaction&& interaction, CompletionHandler<void(bool, String&&)>&& completion)
 {
     TextExtraction::handleInteraction(WTFMove(interaction), Ref { *corePage() }, WTFMove(completion));

@@ -336,6 +336,7 @@ struct OpenID4VPRequest;
 #endif
 
 namespace TextExtraction {
+struct InteractionDescription;
 struct Interaction;
 struct Item;
 struct Request;
@@ -2622,6 +2623,7 @@ public:
 
     void requestTextExtraction(WebCore::TextExtraction::Request&&, CompletionHandler<void(WebCore::TextExtraction::Item&&)>&&);
     void handleTextExtractionInteraction(WebCore::TextExtraction::Interaction&&, CompletionHandler<void(bool, String&&)>&&);
+    void describeTextExtractionInteraction(WebCore::TextExtraction::Interaction&&, CompletionHandler<void(WebCore::TextExtraction::InteractionDescription&&)>&&);
 
     void hasVideoInPictureInPictureDidChange(bool);
 

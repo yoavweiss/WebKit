@@ -33,6 +33,11 @@
 
 @interface WKWebView (TextExtractionTests)
 - (NSString *)synchronouslyGetDebugText:(_WKTextExtractionConfiguration *)configuration;
+- (_WKTextExtractionInteractionResult *)synchronouslyPerformInteraction:(_WKTextExtractionInteraction *)interaction;
+@end
+
+@interface _WKTextExtractionInteraction (TextExtractionTests)
+- (NSString *)debugDescriptionInWebView:(WKWebView *)webView error:(NSError **)outError;
 @end
 
 @implementation WKWebView (TextExtractionTests)
@@ -53,11 +58,41 @@
     return result.autorelease();
 }
 
+- (_WKTextExtractionInteractionResult *)synchronouslyPerformInteraction:(_WKTextExtractionInteraction *)interaction
+{
+    __block bool done = false;
+    __block RetainPtr<_WKTextExtractionInteractionResult> result;
+    [self _performInteraction:interaction completionHandler:^(_WKTextExtractionInteractionResult *theResult) {
+        result = theResult;
+        done = true;
+    }];
+    TestWebKitAPI::Util::run(&done);
+    return result.autorelease();
+}
+
+@end
+
+@implementation _WKTextExtractionInteraction (TextExtractionTests)
+
+- (NSString *)debugDescriptionInWebView:(WKWebView *)webView error:(NSError **)outError
+{
+    __block bool done = false;
+    __block RetainPtr<NSString> result;
+    __block RetainPtr<NSError> error;
+    [self debugDescriptionInWebView:webView completionHandler:^(NSString *description, NSError *theError) {
+        result = description;
+        error = theError;
+        done = true;
+    }];
+    TestWebKitAPI::Util::run(&done);
+    if (outError)
+        *outError = error.autorelease();
+    return result.autorelease();
+}
+
 @end
 
 namespace TestWebKitAPI {
-
-#if PLATFORM(MAC)
 
 static NSString *extractNodeIdentifier(NSString *debugText, NSString *searchText)
 {
@@ -76,6 +111,8 @@ static NSString *extractNodeIdentifier(NSString *debugText, NSString *searchText
 
     return nil;
 }
+
+#if PLATFORM(MAC)
 
 TEST(TextExtractionTests, SelectPopupMenu)
 {
@@ -109,5 +146,66 @@ TEST(TextExtractionTests, SelectPopupMenu)
 }
 
 #endif // PLATFORM(MAC)
+
+TEST(TextExtractionTests, InteractionDebugDescription)
+{
+    RetainPtr configuration = adoptNS([[WKWebViewConfiguration alloc] init]);
+    [[configuration preferences] _setTextExtractionEnabled:YES];
+
+    RetainPtr webView = adoptNS([[TestWKWebView alloc] initWithFrame:CGRectMake(0, 0, 800, 600) configuration:configuration.get()]);
+    [webView synchronouslyLoadTestPageNamed:@"debug-text-extraction"];
+
+    RetainPtr debugText = [webView synchronouslyGetDebugText:nil];
+    RetainPtr testButtonID = extractNodeIdentifier(debugText.get(), @"Test");
+    RetainPtr emailID = extractNodeIdentifier(debugText.get(), @"email");
+    RetainPtr composeID = extractNodeIdentifier(debugText.get(), @"Compose");
+    RetainPtr selectID = extractNodeIdentifier(debugText.get(), @"select");
+
+    NSError *error = nil;
+    NSString *description = nil;
+    {
+        RetainPtr interaction = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionClick]);
+
+        [interaction setNodeIdentifier:testButtonID.get()];
+        description = [interaction debugDescriptionInWebView:webView.get() error:&error];
+        EXPECT_WK_STREQ("Click on button labeled 'Click Me', with rendered text 'Test'", description);
+        EXPECT_NULL(error);
+
+        [interaction setNodeIdentifier:emailID.get()];
+        description = [interaction debugDescriptionInWebView:webView.get() error:&error];
+        EXPECT_WK_STREQ("Click on input of type email with placeholder 'Recipient address'", description);
+        EXPECT_NULL(error);
+
+        [interaction setNodeIdentifier:composeID.get()];
+        description = [interaction debugDescriptionInWebView:webView.get() error:&error];
+        EXPECT_WK_STREQ("Click on editable div labeled 'Compose a new message', with rendered text 'Subject  Hello world.', containing child labeled 'Heading'", description);
+        EXPECT_NULL(error);
+    }
+    {
+        RetainPtr interaction = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionTextInput]);
+
+        [interaction setNodeIdentifier:emailID.get()];
+        [interaction setText:@"squirrelfish@webkit.org"];
+        [interaction setReplaceAll:YES];
+        description = [interaction debugDescriptionInWebView:webView.get() error:&error];
+        EXPECT_WK_STREQ("Enter text 'squirrelfish@webkit.org' into input of type email with placeholder 'Recipient address', replacing any existing content", description);
+        EXPECT_NULL(error);
+
+        [interaction setNodeIdentifier:composeID.get()];
+        [interaction setText:@"Hello world"];
+        [interaction setReplaceAll:NO];
+        description = [interaction debugDescriptionInWebView:webView.get() error:&error];
+        EXPECT_WK_STREQ("Enter text 'Hello world' into editable div labeled 'Compose a new message', with rendered text 'Subject  Hello world.', containing child labeled 'Heading'", description);
+        EXPECT_NULL(error);
+    }
+    {
+        RetainPtr interaction = adoptNS([[_WKTextExtractionInteraction alloc] initWithAction:_WKTextExtractionActionSelectMenuItem]);
+        [interaction setNodeIdentifier:selectID.get()];
+        [interaction setText:@"Three"];
+        description = [interaction debugDescriptionInWebView:webView.get() error:&error];
+        EXPECT_WK_STREQ("Select menu item 'Three' in select with role menu", description);
+        EXPECT_NULL(error);
+    }
+}
 
 } // namespace TestWebKitAPI

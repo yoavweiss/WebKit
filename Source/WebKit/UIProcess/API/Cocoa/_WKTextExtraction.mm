@@ -26,6 +26,7 @@
 #import "config.h"
 #import "_WKTextExtractionInternal.h"
 
+#import "WKWebViewInternal.h"
 #import <WebKit/WKError.h>
 #import <wtf/RetainPtr.h>
 
@@ -88,6 +89,11 @@
 {
     _hasSetLocation = YES;
     _location = location;
+}
+
+- (void)debugDescriptionInWebView:(WKWebView *)webView completionHandler:(void (^)(NSString *, NSError *))completionHandler
+{
+    [webView _describeInteraction:self completionHandler:completionHandler];
 }
 
 @end
