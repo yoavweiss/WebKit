@@ -44,7 +44,7 @@ public:
     ICUConverterWrapper& cachedConverterICU() { return m_cachedConverterICU; }
 
 protected:
-    PAL_EXPORT ThreadGlobalData();
+    PAL_EXPORT explicit ThreadGlobalData(Type);
 
 private:
     PAL_EXPORT friend ThreadGlobalData& threadGlobalDataSingleton();

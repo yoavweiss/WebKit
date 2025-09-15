@@ -88,7 +88,6 @@ page/scrolling/ScrollingStateScrollingNode.cpp
 platform/PODRedBlackTree.h
 platform/PlatformStrategies.h
 platform/Scrollbar.h
-platform/ThreadGlobalData.h
 platform/cocoa/TelephoneNumberDetectorCocoa.cpp
 platform/graphics/ImageBufferContextSwitcher.h
 platform/graphics/StringTruncator.cpp

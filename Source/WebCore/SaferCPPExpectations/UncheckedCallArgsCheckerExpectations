@@ -466,7 +466,6 @@ platform/ScrollView.cpp
 platform/Scrollbar.cpp
 platform/ScrollbarsController.cpp
 platform/ScrollingEffectsController.cpp
-platform/ThreadGlobalData.cpp
 platform/Widget.cpp
 platform/audio/PlatformMediaSession.cpp
 platform/audio/PlatformMediaSessionInterface.h

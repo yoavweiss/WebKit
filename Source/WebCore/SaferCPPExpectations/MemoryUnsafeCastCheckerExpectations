@@ -87,8 +87,6 @@ loader/cache/CachedResourceClientWalker.h
 mathml/MathMLRowElement.cpp
 page/NavigatorLoginStatus.cpp
 page/mac/EventHandlerMac.mm
-platform/ThreadGlobalData.cpp
-platform/ThreadGlobalData.h
 platform/graphics/GraphicsLayer.cpp
 platform/graphics/avfoundation/objc/CDMSessionAVContentKeySession.h
 platform/graphics/avfoundation/objc/CDMSessionMediaSourceAVFObjC.h
