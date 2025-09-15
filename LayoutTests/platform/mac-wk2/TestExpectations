@@ -2421,3 +2421,5 @@ http/tests/webgpu/webgpu/web_platform/copyToTexture/ImageBitmap.html [ Pass Time
 
 # skip on intel for now due to small precision error differences
 [ x86_64 ] http/tests/webgpu/webgpu/web_platform/copyToTexture/video.html [ Skip ]
+
+webkit.org/b/298903 webrtc/video-rotation-black.html [ Pass Failure ]
