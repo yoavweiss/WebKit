@@ -56,10 +56,21 @@
 
 static const size_t kLowPowerVideoBufferSize = 4096;
 
+#if RELEASE_LOG_DISABLED
+#define MEDIASESSIONMANAGER_RELEASE_LOG(formatString, ...)
+#else
 #define MEDIASESSIONMANAGER_RELEASE_LOG(formatString, ...) \
-if (willLog(WTFLogLevel::Always)) { \
-    RELEASE_LOG_FORWARDABLE(Media, MEDIASESSIONMANAGERCOCOA_##formatString, ##__VA_ARGS__); \
-} \
+do { \
+    if (willLog(WTFLogLevel::Always)) { \
+        RELEASE_LOG_FORWARDABLE(Media, MEDIASESSIONMANAGERCOCOA_##formatString, ##__VA_ARGS__); \
+        if (logger().hasEnabledInspector()) { \
+            char buffer[1024] = { 0 }; \
+            SAFE_SPRINTF(std::span { buffer }, MESSAGE_MEDIASESSIONMANAGERCOCOA_##formatString, ##__VA_ARGS__); \
+            logger().toObservers(logChannel(), WTFLogLevel::Always, String::fromUTF8(buffer)); \
+        } \
+    } \
+} while (0)
+#endif
 
 namespace WebCore {
 

@@ -145,9 +145,9 @@ static void doReleaseLogging(webrtc::LoggingSeverity severity, const char* messa
     UNUSED_PARAM(message);
 #else
     if (severity == webrtc::LS_ERROR)
-        RELEASE_LOG_ERROR_FORWARDABLE(WebRTC, LIBWEBRTC_LOG_ERROR, message);
+        RELEASE_LOG_ERROR_FORWARDABLE_UNSAFE_ARGS(WebRTC, LIBWEBRTC_LOG_ERROR, message);
     else
-        RELEASE_LOG_FORWARDABLE(WebRTC, LIBWEBRTC_LOG_MESSAGE, message);
+        RELEASE_LOG_FORWARDABLE_UNSAFE_ARGS(WebRTC, LIBWEBRTC_LOG_MESSAGE, message);
 #endif
 }
 

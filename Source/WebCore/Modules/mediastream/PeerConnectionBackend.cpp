@@ -253,7 +253,7 @@ void PeerConnectionBackend::createOfferSucceeded(String&& sdp)
     ASSERT(isMainThread());
 
     logger().toObservers(LogWebRTC, WTFLogLevel::Always, LOGIDENTIFIER, "to:\n", sdp);
-    RELEASE_LOG_FORWARDABLE(WebRTC, PEERCONNECTIONBACKEND_CREATEOFFERSUCCEEDED, logIdentifier(), sdp.utf8().data());
+    RELEASE_LOG_FORWARDABLE(WebRTC, PEERCONNECTIONBACKEND_CREATEOFFERSUCCEEDED, logIdentifier(), sdp.utf8());
 
     ASSERT(m_offerAnswerCallback);
     validateSDP(sdp);
@@ -287,7 +287,7 @@ void PeerConnectionBackend::createAnswerSucceeded(String&& sdp)
     ASSERT(isMainThread());
 
     logger().toObservers(LogWebRTC, WTFLogLevel::Always, LOGIDENTIFIER, "to:\n", sdp);
-    RELEASE_LOG_FORWARDABLE(WebRTC, PEERCONNECTIONBACKEND_CREATEANSWERSUCCEEDED, logIdentifier(), sdp.utf8().data());
+    RELEASE_LOG_FORWARDABLE(WebRTC, PEERCONNECTIONBACKEND_CREATEANSWERSUCCEEDED, logIdentifier(), sdp.utf8());
 
     ASSERT(m_offerAnswerCallback);
     ActiveDOMObject::queueTaskKeepingObjectAlive(protectedPeerConnection().get(), TaskSource::Networking, [callback = WTFMove(m_offerAnswerCallback), sdp = WTFMove(sdp)](auto&) mutable {
