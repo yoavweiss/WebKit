@@ -2,12 +2,11 @@
 PASS Nesting-selector in <scope-end>
 PASS Implicit :scope in <scope-end>
 PASS Relative selectors in <scope-end>
-PASS Nesting-selector in the scope's <stylesheet>
+PASS Nested nesting-selectors within scope's <stylesheet> select inclusive descendants of the scope root
 PASS Nesting-selector within :scope rule
 PASS Nesting-selector within :scope rule (double nested)
 PASS @scope nested within style rule
 PASS Parent pseudo class within scope-start
-PASS Parent pseudo class within scope-end
 PASS Parent pseudo class within body of nested @scope
 PASS Implicit rule within nested @scope
 PASS Implicit rule within nested @scope (proximity)
@@ -18,7 +17,7 @@ PASS :scope within nested and scoped rule (relative)
 PASS Scoped nested group rule
 PASS Scoped nested within another scope
 PASS Implicit (prelude-less) @scope as a nested group rule
-PASS Insert a nested style rule within @scope, &
+FAIL Insert a nested style rule within @scope, & assert_equals: expected "rgb(255, 0, 0)" but got "rgb(0, 128, 0)"
 PASS Insert a nested style rule within @scope, :scope
 PASS Insert a CSSNestedDeclarations rule directly in top-level @scope
 PASS Mutating selectorText on outer style rule causes correct inner specificity

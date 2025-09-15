@@ -24,5 +24,5 @@ PASS :nth-child() in scope root
 PASS :nth-child() in scope limit
 PASS Modifying selectorText invalidates affected elements
 PASS Modifying selectorText invalidates affected elements (>)
-PASS Relative selectors set with selectorText are relative to :scope, not &
+FAIL Relative selectors set with selectorText are relative to :scope and & assert_equals: expected "rgb(0, 128, 0)" but got "rgb(255, 0, 0)"
 
