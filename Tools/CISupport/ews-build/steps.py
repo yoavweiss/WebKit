@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2024 Apple Inc. All rights reserved.
+# Copyright (C) 2018-2025 Apple Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -3989,7 +3989,7 @@ class AnalyzeJSCTestsResults(buildstep.BuildStep, AddToLogMixin):
             print('Error in sending email for pre-existing failure: {}'.format(e))
 
 
-class CleanBuild(shell.Compile):
+class CleanBuild(shell.CompileNewStyle):
     name = 'delete-WebKitBuild-directory'
     description = ['deleting WebKitBuild directory']
     descriptionDone = ['Deleted WebKitBuild directory']
