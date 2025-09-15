@@ -2876,8 +2876,12 @@ void EventHandler::pointerCaptureElementDidChange(Element* element)
     if (element && m_clickNode)
         m_clickCaptureElement = element;
 
-    // Now that we have a new capture element, we need to dispatch boundary mouse events.
-    updateMouseEventTargetNode(eventNames().gotpointercaptureEvent, element, m_lastPlatformMouseEvent, FireMouseOverOut::Yes);
+    // Since `updateMouseEventTargetNode` will dispatch boundary events, call it only when
+    // pointer capture is received. When capture is released, the PointerCaptureController
+    // already handles the appropriate boundary events (pointerout and pointerleave from
+    // the captured element).
+    if (element)
+        updateMouseEventTargetNode(eventNames().gotpointercaptureEvent, element, m_lastPlatformMouseEvent, FireMouseOverOut::Yes);
 }
 
 MouseEventWithHitTestResults EventHandler::prepareMouseEvent(const HitTestRequest& request, const PlatformMouseEvent& mouseEvent)
