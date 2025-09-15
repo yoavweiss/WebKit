@@ -1265,7 +1265,8 @@ void UniqueIDBDatabase::abortTransaction(UniqueIDBDatabaseTransaction& transacti
         ASSERT(m_versionChangeTransaction == &transaction);
         ASSERT(!m_versionChangeDatabaseConnection || m_versionChangeTransaction->databaseConnection() == m_versionChangeDatabaseConnection);
         ASSERT(m_versionChangeTransaction->originalDatabaseInfo());
-        m_databaseInfo = makeUnique<IDBDatabaseInfo>(*m_versionChangeTransaction->originalDatabaseInfo());
+        RefPtr versionChangeTransaction = m_versionChangeTransaction;
+        m_databaseInfo = makeUnique<IDBDatabaseInfo>(*versionChangeTransaction->originalDatabaseInfo());
     }
 
     IDBError error;

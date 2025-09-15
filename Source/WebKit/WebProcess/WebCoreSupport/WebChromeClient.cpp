@@ -78,6 +78,7 @@
 #include <WebCore/AXObjectCache.h>
 #include <WebCore/BarcodeDetectorInterface.h>
 #include <WebCore/ColorChooser.h>
+#include <WebCore/ColorChooserClient.h>
 #include <WebCore/ContentRuleListMatchedRule.h>
 #include <WebCore/ContentRuleListResults.h>
 #include <WebCore/CookieConsentDecisionResult.h>

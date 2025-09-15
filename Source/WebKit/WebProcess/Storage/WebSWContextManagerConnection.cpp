@@ -50,6 +50,7 @@
 #include "WebPreferencesStore.h"
 #include "WebProcess.h"
 #include "WebProcessPoolMessages.h"
+#include "WebProcessProxyMessages.h"
 #include "WebSWContextManagerConnectionMessages.h"
 #include "WebSWServerToContextConnectionMessages.h"
 #include "WebServiceWorkerFetchTaskClient.h"
