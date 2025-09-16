@@ -3612,6 +3612,10 @@ def check_safer_cpp(clean_lines, line_number, error):
     if uses_strncmp:
         error(line_number, 'safercpp/strncmp', 4, "strncmp() is unsafe.")
 
+    uses_dispatch_get_global_queue = search(r'dispatch_get_global_queue\(', line)
+    if uses_dispatch_get_global_queue:
+        error(line_number, 'safercpp/dispatch_get_global_queue', 4, "use globalDispatchQueueSingleton() instead of dispatch_get_global_queue().")
+
     uses_dispatch_get_main_queue = search(r'dispatch_get_main_queue\(', line)
     if uses_dispatch_get_main_queue:
         error(line_number, 'safercpp/dispatch_get_main_queue', 4, "use mainDispatchQueueSingleton() instead of dispatch_get_main_queue().")
@@ -5011,6 +5015,7 @@ class CppChecker(object):
         'runtime/wtf_never_destroyed',
         'safercpp/atoi',
         'safercpp/checked_getter_for_init',
+        'safercpp/dispatch_get_global_queue',
         'safercpp/dispatch_get_main_queue',
         'safercpp/memchr',
         'safercpp/memcmp',

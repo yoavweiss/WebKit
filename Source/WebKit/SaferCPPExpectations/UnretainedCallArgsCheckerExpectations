@@ -113,7 +113,6 @@ UIProcess/Cocoa/LegacyDownloadClient.mm
 UIProcess/Cocoa/MediaPermissionUtilities.mm
 UIProcess/Cocoa/NavigationState.mm
 UIProcess/Cocoa/PageClientImplCocoa.mm
-UIProcess/Cocoa/PreferenceObserver.mm
 UIProcess/Cocoa/ResourceLoadDelegate.mm
 UIProcess/Cocoa/SOAuthorization/SOAuthorizationSession.mm
 UIProcess/Cocoa/UIDelegate.mm
@@ -139,7 +138,6 @@ UIProcess/RemoteLayerTree/RemoteLayerTreeNode.mm
 UIProcess/RemoteLayerTree/mac/RemoteLayerTreeDrawingAreaProxyMac.mm
 UIProcess/RemoteLayerTree/mac/RemoteLayerTreeEventDispatcher.mm
 UIProcess/WebAuthentication/Cocoa/CcidConnection.mm
-UIProcess/WebAuthentication/Cocoa/HidConnection.mm
 UIProcess/WebAuthentication/Cocoa/LocalAuthenticator.mm
 UIProcess/WebAuthentication/Cocoa/LocalConnection.mm
 UIProcess/WebAuthentication/Cocoa/WebAuthenticatorCoordinatorProxy.mm
