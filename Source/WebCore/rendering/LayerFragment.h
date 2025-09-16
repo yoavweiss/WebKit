@@ -51,6 +51,7 @@ public:
 
         LayoutRect layerBounds() const { return m_layerBounds; }
 
+        ClipRect backgroundRect() const { return m_backgroundRect; }
         ClipRect dirtyBackgroundRect() const { return intersection(m_paintDirtyRect, m_backgroundRect); }
         ClipRect dirtyForegroundRect() const { return intersection(m_paintDirtyRect, m_foregroundRect); }
 
@@ -93,6 +94,7 @@ public:
 
     LayoutRect layerBounds() const { return rects.layerBounds(); }
 
+    ClipRect backgroundRect() const { return rects.backgroundRect(); }
     ClipRect dirtyBackgroundRect() const { return rects.dirtyBackgroundRect(); }
     ClipRect dirtyForegroundRect() const { return rects.dirtyForegroundRect(); }
 

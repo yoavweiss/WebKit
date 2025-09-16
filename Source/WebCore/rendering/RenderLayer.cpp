@@ -3879,7 +3879,7 @@ void RenderLayer::paintLayerContents(GraphicsContext& context, const LayerPainti
             updatePaintingInfoForFragments(layerFragments, paintingInfo, localPaintFlags, shouldPaintContent, offsetFromRoot);
 
             // FIXME: Handle more than one fragment.
-            backgroundRect = layerFragments.isEmpty() ? ClipRect() : layerFragments[0].dirtyBackgroundRect();
+            backgroundRect = layerFragments.isEmpty() ? ClipRect() : layerFragments[0].backgroundRect();
 
             if (haveTransparency) {
                 // If we have a filter and transparency, we have to eagerly start a transparency layer here, rather than risk a child layer lazily starts one with the wrong context.
