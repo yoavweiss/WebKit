@@ -54,7 +54,7 @@ public:
 
     SampleFlags flags() const override;
     PlatformSample platformSample() const override;
-    PlatformSample::Type platformSampleType() const override { return PlatformSample::CMSampleBufferType; }
+    Type type() const override { return Type::CMSampleBuffer; }
     void offsetTimestampsBy(const MediaTime&) override;
     void setTimestamps(const MediaTime&, const MediaTime&) override;
     WEBCORE_EXPORT bool isDivisable() const override;
@@ -113,5 +113,5 @@ struct LogArgument<WebCore::MediaSampleAVFObjC> {
 } // namespace WTF
 
 SPECIALIZE_TYPE_TRAITS_BEGIN(WebCore::MediaSampleAVFObjC)
-static bool isType(const WebCore::MediaSample& sample) { return sample.platformSampleType() == WebCore::PlatformSample::CMSampleBufferType; }
+static bool isType(const WebCore::MediaSample& sample) { return sample.type() == WebCore::MediaSample::Type::CMSampleBuffer; }
 SPECIALIZE_TYPE_TRAITS_END()

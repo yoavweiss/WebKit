@@ -184,7 +184,7 @@ void AudioVideoRendererAVFObjC::enqueueSample(TrackIdentifier trackId, Ref<Media
 
     switch (*type) {
     case TrackType::Video: {
-        RetainPtr cmSampleBuffer = sample->platformSample().sample.cmSampleBuffer;
+        RetainPtr cmSampleBuffer = sample->platformSample().cmSampleBuffer();
         RetainPtr formatDescription = PAL::CMSampleBufferGetFormatDescription(cmSampleBuffer.get());
         ASSERT(formatDescription);
         if (!formatDescription) {
@@ -216,7 +216,7 @@ void AudioVideoRendererAVFObjC::enqueueSample(TrackIdentifier trackId, Ref<Media
     }
     case TrackType::Audio:
         if (RetainPtr audioRenderer = audioRendererFor(trackId)) {
-            RetainPtr cmSampleBuffer = sample->platformSample().sample.cmSampleBuffer;
+            RetainPtr cmSampleBuffer = sample->platformSample().cmSampleBuffer();
             [audioRenderer enqueueSampleBuffer:cmSampleBuffer.get()];
             if (!allRenderersHaveAvailableSamples() && !sample->isNonDisplaying())
                 setHasAvailableAudioSample(trackId, true);

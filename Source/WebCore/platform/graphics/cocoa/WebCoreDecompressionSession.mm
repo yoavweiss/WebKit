@@ -479,9 +479,9 @@ Ref<WebCoreDecompressionSession::DecodingPromise> WebCoreDecompressionSession::d
 
             Vector<Ref<VideoDecoder::DecodePromise>> promises;
             for (Ref sample : MediaSampleAVFObjC::create(cmSamples.get(), 0)->divide()) {
-                auto cmSample = sample->platformSample().sample.cmSampleBuffer;
-                MediaTime presentationTimestamp = PAL::toMediaTime(PAL::CMSampleBufferGetPresentationTimeStamp(cmSample));
-                CMBlockBufferRef rawBuffer = PAL::CMSampleBufferGetDataBuffer(cmSample);
+                RetainPtr cmSample = sample->platformSample().cmSampleBuffer();
+                MediaTime presentationTimestamp = PAL::toMediaTime(PAL::CMSampleBufferGetPresentationTimeStamp(cmSample.get()));
+                CMBlockBufferRef rawBuffer = PAL::CMSampleBufferGetDataBuffer(cmSample.get());
                 ASSERT(rawBuffer);
                 RetainPtr buffer = rawBuffer;
                 // Make sure block buffer is contiguous.

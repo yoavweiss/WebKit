@@ -400,7 +400,7 @@ void CDMSessionAVContentKeySession::attachContentKeyToSample(const MediaSampleAV
     ASSERT(contentKey);
 
     NSError *error = nil;
-    if (!AVSampleBufferAttachContentKey(sample.platformSample().sample.cmSampleBuffer, contentKey, &error))
+    if (!AVSampleBufferAttachContentKey(sample.platformSample().cmSampleBuffer(), contentKey, &error))
         ERROR_LOG(LOGIDENTIFIER, "Failed to attach content key with error: %{public}@", error);
 }
 

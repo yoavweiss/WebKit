@@ -62,7 +62,7 @@ private:
     size_t sizeInBytes() const override { return sizeof(m_box); }
     SampleFlags flags() const override;
     PlatformSample platformSample() const override;
-    PlatformSample::Type platformSampleType() const override { return PlatformSample::MockSampleBoxType; }
+    Type type() const override { return Type::MockSampleBox; }
     FloatSize presentationSize() const override { return FloatSize(); }
     void dump(PrintStream&) const override;
     void offsetTimestampsBy(const MediaTime& offset) override { m_box.offsetTimestampsBy(offset); }
@@ -87,8 +87,7 @@ MediaSample::SampleFlags MockMediaSample::flags() const
 
 PlatformSample MockMediaSample::platformSample() const
 {
-    PlatformSample sample = { PlatformSample::MockSampleBoxType, { &m_box } };
-    return sample;
+    return PlatformSample { &m_box };
 }
 
 void MockMediaSample::dump(PrintStream& out) const
@@ -234,11 +233,10 @@ void MockSourceBufferPrivate::enqueueSample(Ref<MediaSample>&& sample, TrackID)
     if (!mediaSource)
         return;
 
-    PlatformSample platformSample = sample->platformSample();
-    if (platformSample.type != PlatformSample::MockSampleBoxType)
+    if (sample->type() != MediaSample::Type::MockSampleBox)
         return;
 
-    auto* box = platformSample.sample.mockSampleBox;
+    auto* box = sample->platformSample().mockSampleBox();
     if (!box)
         return;
 

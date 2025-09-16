@@ -32,6 +32,7 @@
 #include <WebCore/PlatformVideoColorSpace.h>
 #include <WebCore/SharedBuffer.h>
 #include <functional>
+#include <variant>
 #include <wtf/MediaTime.h>
 #include <wtf/Platform.h>
 #include <wtf/PrintStream.h>
@@ -55,18 +56,29 @@ struct TrackInfo;
 
 using TrackID = uint64_t;
 
-struct PlatformSample {
-    enum Type {
-        None,
-        MockSampleBoxType,
-        CMSampleBufferType,
-        GStreamerSampleType,
-    } type;
-    union {
-        const MockSampleBox* mockSampleBox;
-        CMSampleBufferRef cmSampleBuffer;
-        GstSample* gstSample;
-    } sample;
+class PlatformSample {
+public:
+    using VariantType = std::variant<const MockSampleBox*
+#if PLATFORM(COCOA)
+        , RetainPtr<CMSampleBufferRef>
+#elif USE(GSTREAMER)
+        , GstSample*
+#endif
+    >;
+    PlatformSample(VariantType&& sample)
+        : m_sample(WTFMove(sample))
+    { }
+
+    const MockSampleBox* mockSampleBox() const { return std::get<const MockSampleBox*>(m_sample); }
+
+#if PLATFORM(COCOA)
+    CMSampleBufferRef cmSampleBuffer() const { return std::get<RetainPtr<CMSampleBufferRef>>(m_sample).get(); }
+#elif USE(GSTREAMER)
+    GstSample* gstSample() const { return std::get<GstSample*>(m_sample); }
+#endif
+
+private:
+    VariantType m_sample;
 };
 
 class MediaSample : public ThreadSafeRefCounted<MediaSample> {
@@ -105,7 +117,14 @@ public:
     };
     virtual SampleFlags flags() const = 0;
     virtual PlatformSample platformSample() const = 0;
-    virtual PlatformSample::Type platformSampleType() const = 0;
+
+    enum class Type : uint8_t {
+        None,
+        MockSampleBox,
+        CMSampleBuffer,
+        GStreamerSample,
+    };
+    virtual Type type() const = 0;
 
     virtual bool isImageDecoderAVFObjCSample() const { return false; }
 

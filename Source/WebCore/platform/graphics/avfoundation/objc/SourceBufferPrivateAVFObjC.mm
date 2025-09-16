@@ -255,7 +255,7 @@ bool SourceBufferPrivateAVFObjC::isMediaSampleAllowed(const MediaSample& sample)
 
         if (RefPtr textTrack = downcast<InbandTextTrackPrivateAVF>(result->second)) {
             PlatformSample platformSample = sample.platformSample();
-            textTrack->processVTTSample(platformSample.sample.cmSampleBuffer, sample.presentationTime());
+            textTrack->processVTTSample(platformSample.cmSampleBuffer(), sample.presentationTime());
         }
 
         return false;
@@ -987,7 +987,7 @@ void SourceBufferPrivateAVFObjC::enqueueSample(Ref<MediaSampleAVFObjC>&& sample,
 
     PlatformSample platformSample = sample->platformSample();
 
-    CMFormatDescriptionRef formatDescription = PAL::CMSampleBufferGetFormatDescription(platformSample.sample.cmSampleBuffer);
+    CMFormatDescriptionRef formatDescription = PAL::CMSampleBufferGetFormatDescription(platformSample.cmSampleBuffer());
     ASSERT(formatDescription);
     if (!formatDescription) {
         ERROR_LOG(logSiteIdentifier, "Received sample with a null formatDescription. Bailing.");
@@ -1037,7 +1037,7 @@ void SourceBufferPrivateAVFObjC::enqueueSample(Ref<MediaSampleAVFObjC>&& sample,
         attachContentKeyToSampleIfNeeded(sample);
 
         if (auto renderer = audioRendererForTrackID(trackID)) {
-            [renderer enqueueSampleBuffer:platformSample.sample.cmSampleBuffer];
+            [renderer enqueueSampleBuffer:platformSample.cmSampleBuffer()];
             if (RefPtr player = this->player(); player && !sample->isNonDisplaying())
                 player->setHasAvailableAudioSample(renderer.get(), true);
         }

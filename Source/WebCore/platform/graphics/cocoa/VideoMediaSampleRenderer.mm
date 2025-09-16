@@ -179,7 +179,7 @@ Ref<GenericPromise> VideoMediaSampleRenderer::changeRenderer(WebSampleBufferVide
 
             protectedThis->purgeDecodedSampleQueue(protectedThis->m_flushId);
             for (Ref sample : protectedThis->m_decodedSampleQueue)
-                [renderer enqueueSampleBuffer:sample->platformSample().sample.cmSampleBuffer];
+                [renderer enqueueSampleBuffer:sample->platformSample().cmSampleBuffer()];
         }
         return GenericPromise::createAndResolve();
     });
@@ -405,18 +405,18 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
 {
     assertIsMainThread();
 
-    ASSERT(sample.platformSampleType() == PlatformSample::Type::CMSampleBufferType);
-    if (sample.platformSampleType() != PlatformSample::Type::CMSampleBufferType)
+    ASSERT(sample.type() == MediaSample::Type::CMSampleBuffer);
+    if (sample.type() != MediaSample::Type::CMSampleBuffer)
         return;
 
     ASSERT(!m_needsFlushing);
-    auto cmSampleBuffer = sample.platformSample().sample.cmSampleBuffer;
+    RetainPtr cmSampleBuffer = sample.platformSample().cmSampleBuffer();
 
     bool needsDecompressionSession = false;
 #if ENABLE(VP9)
     if (!isUsingDecompressionSession() && !m_currentCodec) {
         // Only use a decompression session for vp8 or vp9 when software decoded.
-        CMVideoFormatDescriptionRef videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(cmSampleBuffer);
+        CMVideoFormatDescriptionRef videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(cmSampleBuffer.get());
         auto fourCC = PAL::CMFormatDescriptionGetMediaSubType(videoFormatDescription);
         needsDecompressionSession = fourCC == 'vp08' || (fourCC == 'vp09' && !vp9HardwareDecoderAvailable());
         m_currentCodec = fourCC;
@@ -428,7 +428,7 @@ void VideoMediaSampleRenderer::enqueueSample(const MediaSample& sample, const Me
         initializeDecompressionSession();
 
     if (!isUsingDecompressionSession()) {
-        [renderer enqueueSampleBuffer:cmSampleBuffer];
+        [renderer enqueueSampleBuffer:cmSampleBuffer.get()];
         return;
     }
 
@@ -532,12 +532,12 @@ void VideoMediaSampleRenderer::decodeNextSampleIfNeeded()
         if (useStereoDecoding())
             decodingFlags.add(WebCoreDecompressionSession::DecodingFlag::EnableStereo);
 
-        auto cmSample = sample->platformSample().sample.cmSampleBuffer;
-        auto decodePromise = decompressionSession->decodeSample(cmSample, decodingFlags);
+        RetainPtr cmSample = sample->platformSample().cmSampleBuffer();
+        auto decodePromise = decompressionSession->decodeSample(cmSample.get(), decodingFlags);
 
         m_isDecodingSample = true;
 
-        decodePromise->whenSettled(dispatcher(), [weakThis = ThreadSafeWeakPtr { *this }, this, decodingFlags, flushId = flushId, startTime = MonotonicTime::now(), numberOfSamples = PAL::CMSampleBufferGetNumSamples(cmSample)](auto&& result) {
+        decodePromise->whenSettled(dispatcher(), [weakThis = ThreadSafeWeakPtr { *this }, this, decodingFlags, flushId = flushId, startTime = MonotonicTime::now(), numberOfSamples = PAL::CMSampleBufferGetNumSamples(cmSample.get())](auto&& result) {
             RefPtr protectedThis = weakThis.get();
             if (!protectedThis)
                 return;
@@ -609,12 +609,12 @@ bool VideoMediaSampleRenderer::shouldDecodeSample(const MediaSample& sample)
     if (sample.presentationEndTime() >= currentTime)
         return true;
 
-    const CFArrayRef attachments = PAL::CMSampleBufferGetSampleAttachmentsArray(sample.platformSample().sample.cmSampleBuffer, false);
+    RetainPtr attachments = PAL::CMSampleBufferGetSampleAttachmentsArray(sample.platformSample().cmSampleBuffer(), false);
     if (!attachments)
         return true;
 
-    for (CFIndex index = 0, count = CFArrayGetCount(attachments); index < count; ++index) {
-        CFDictionaryRef attachmentDict = (CFDictionaryRef)CFArrayGetValueAtIndex(attachments, index);
+    for (CFIndex index = 0, count = CFArrayGetCount(attachments.get()); index < count; ++index) {
+        CFDictionaryRef attachmentDict = (CFDictionaryRef)CFArrayGetValueAtIndex(attachments.get(), index);
         if (CFDictionaryGetValue(attachmentDict, PAL::kCMSampleAttachmentKey_IsDependedOnByOthers) == kCFBooleanFalse)
             return false;
     }
@@ -655,7 +655,7 @@ void VideoMediaSampleRenderer::decodedFrameAvailable(Ref<const MediaSample>&& sa
 
     assignResourceOwner(sample);
 
-    [rendererOrDisplayLayer() enqueueSampleBuffer:sample->platformSample().sample.cmSampleBuffer];
+    [rendererOrDisplayLayer() enqueueSampleBuffer:sample->platformSample().cmSampleBuffer()];
 
     if (auto timebase = this->timebase()) {
         enqueueDecodedSample(WTFMove(sample));
@@ -1030,7 +1030,7 @@ auto VideoMediaSampleRenderer::copyDisplayedPixelBuffer() -> DisplayedPixelBuffe
         if (presentationTime > currentTime && (!m_lastDisplayedSample || presentationTime > *m_lastDisplayedSample))
             return;
 
-        imageBuffer = imageForSample(nextSample->platformSample().sample.cmSampleBuffer);
+        imageBuffer = imageForSample(nextSample->platformSample().cmSampleBuffer());
         presentationTimeStamp = presentationTime;
     });
 
@@ -1134,16 +1134,16 @@ void VideoMediaSampleRenderer::assignResourceOwner(const MediaSample& sample)
             IOSurface::setOwnershipIdentity(surface, m_resourceOwner);
     };
 
-    auto cmSample = sample.platformSample().sample.cmSampleBuffer;
-    RetainPtr videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(cmSample);
+    RetainPtr cmSample = sample.platformSample().cmSampleBuffer();
+    RetainPtr videoFormatDescription = PAL::CMSampleBufferGetFormatDescription(cmSample.get());
     if (PAL::CMFormatDescriptionGetMediaType(videoFormatDescription.get()) == kCMMediaType_TaggedBufferGroup) {
-        RetainPtr group = PAL::CMSampleBufferGetTaggedBufferGroup(cmSample);
+        RetainPtr group = PAL::CMSampleBufferGetTaggedBufferGroup(cmSample.get());
 
         for (CFIndex index = 0; index < PAL::CMTaggedBufferGroupGetCount(group.get()); ++index)
             assignImageBuffer(PAL::CMTaggedBufferGroupGetCVPixelBufferAtIndex(group.get(), index));
         return;
     }
-    assignImageBuffer(PAL::CMSampleBufferGetImageBuffer(cmSample));
+    assignImageBuffer(PAL::CMSampleBufferGetImageBuffer(cmSample.get()));
 }
 
 void VideoMediaSampleRenderer::notifyFirstFrameAvailable(Function<void(const MediaTime&, double)>&& callback)
