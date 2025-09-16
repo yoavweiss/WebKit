@@ -189,7 +189,6 @@ SOFT_LINK(BackBoardServices, BKSDisplayBrightnessGetCurrent, float, (), ());
 
 #if ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
 SOFT_LINK_LIBRARY_OPTIONAL(libAccessibility)
-SOFT_LINK_OPTIONAL(libAccessibility, _AXSReduceMotionAutoplayAnimatedImagesEnabled, Boolean, (), ());
 SOFT_LINK_CONSTANT_MAY_FAIL(libAccessibility, kAXSReduceMotionAutoplayAnimatedImagesChangedNotification, CFStringRef)
 #endif
 
@@ -272,22 +271,20 @@ NSMutableDictionary *WebProcessPool::ensureBundleParameters()
 static AccessibilityPreferences accessibilityPreferences()
 {
     AccessibilityPreferences preferences;
-#if HAVE(PER_APP_ACCESSIBILITY_PREFERENCES)
-    auto appId = applicationBundleIdentifier().createCFString();
 
-    preferences.reduceMotionEnabled = toWebKitAXValueState(_AXSReduceMotionEnabledApp(appId.get()));
-    preferences.increaseButtonLegibility = toWebKitAXValueState(_AXSIncreaseButtonLegibilityApp(appId.get()));
-    preferences.enhanceTextLegibility = toWebKitAXValueState(_AXSEnhanceTextLegibilityEnabledApp(appId.get()));
-    preferences.darkenSystemColors = toWebKitAXValueState(_AXDarkenSystemColorsApp(appId.get()));
-    preferences.invertColorsEnabled = toWebKitAXValueState(_AXSInvertColorsEnabledApp(appId.get()));
+#if HAVE(PER_APP_ACCESSIBILITY_PREFERENCES)
+    preferences.reduceMotionEnabled = AXPreferenceHelpers::reduceMotionEnabled();
+    preferences.increaseButtonLegibility = AXPreferenceHelpers::increaseButtonLegibility();
+    preferences.enhanceTextLegibility = AXPreferenceHelpers::enhanceTextLegibility();
+    preferences.darkenSystemColors = AXPreferenceHelpers::darkenSystemColors();
+    preferences.invertColorsEnabled = AXPreferenceHelpers::invertColorsEnabled();
 #endif
-    preferences.enhanceTextLegibilityOverall = _AXSEnhanceTextLegibilityEnabled();
+    preferences.enhanceTextLegibilityOverall = AXPreferenceHelpers::enhanceTextLegibilityOverall();
 #if ENABLE(ACCESSIBILITY_ANIMATION_CONTROL)
-    if (auto* functionPointer = _AXSReduceMotionAutoplayAnimatedImagesEnabledPtr())
-        preferences.imageAnimationEnabled = functionPointer();
+    preferences.imageAnimationEnabled = AXPreferenceHelpers::imageAnimationEnabled();
 #endif
 #if ENABLE(ACCESSIBILITY_NON_BLINKING_CURSOR)
-    preferences.prefersNonBlinkingCursor = _AXSPrefersNonBlinkingCursorIndicator();
+    preferences.prefersNonBlinkingCursor = AXPreferenceHelpers::prefersNonBlinkingCursor();
 #endif
     return preferences;
 }

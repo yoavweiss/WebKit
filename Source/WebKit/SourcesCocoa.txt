@@ -169,6 +169,7 @@ Shared/Extensions/Cocoa/WebExtensionFrameIdentifierCocoa.mm
 Shared/Cocoa/APIDataCocoa.mm
 Shared/Cocoa/APIObject.mm
 Shared/Cocoa/ARKitSoftLink.mm
+Shared/Cocoa/AccessibilityPreferences.mm
 Shared/Cocoa/AuxiliaryProcessCocoa.mm
 Shared/Cocoa/CodeSigning.mm
 Shared/Cocoa/CompletionHandlerCallChecker.mm
