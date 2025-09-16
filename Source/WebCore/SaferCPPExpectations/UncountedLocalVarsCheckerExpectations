@@ -302,7 +302,6 @@ page/PerformanceTiming.cpp
 page/PerformanceUserTiming.cpp
 page/PointerCaptureController.cpp
 page/PrintContext.cpp
-page/Quirks.cpp
 page/RemoteDOMWindow.cpp
 page/RemoteFrame.cpp
 page/ResizeObservation.cpp

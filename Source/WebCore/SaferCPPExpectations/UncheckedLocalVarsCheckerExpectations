@@ -277,7 +277,6 @@ page/LocalDOMWindow.cpp
 page/LocalFrame.cpp
 page/LocalFrameView.cpp
 page/LocalFrameViewLayoutContext.cpp
-page/Page.cpp
 page/PageColorSampler.cpp
 page/PageOverlay.cpp
 page/PageSerializer.cpp

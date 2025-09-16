@@ -593,7 +593,6 @@ page/NavigationDestination.cpp
 page/NavigationDestination.h
 page/Navigator.cpp
 page/NavigatorLoginStatus.cpp
-page/Page.cpp
 page/PageColorSampler.cpp
 page/PageOverlay.cpp
 page/PageOverlayController.cpp
@@ -606,7 +605,6 @@ page/PerformanceUserTiming.cpp
 page/PointerCaptureController.cpp
 page/PointerLockController.cpp
 page/PrintContext.cpp
-page/Quirks.cpp
 page/RemoteDOMWindow.cpp
 page/RemoteFrame.cpp
 page/RenderingUpdateScheduler.cpp
@@ -628,7 +626,6 @@ page/cocoa/PageCocoa.mm
 page/cocoa/ResourceUsageOverlayCocoa.mm
 page/cocoa/ResourceUsageThreadCocoa.mm
 page/cocoa/WebTextIndicatorLayer.mm
-page/csp/ContentSecurityPolicy.cpp
 page/mac/DragControllerMac.mm
 page/mac/EventHandlerMac.mm
 page/mac/ImageOverlayControllerMac.mm

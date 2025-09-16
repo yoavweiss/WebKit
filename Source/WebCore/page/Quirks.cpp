@@ -106,7 +106,7 @@ static constexpr auto chromeUserAgentScript = "(function() { let userAgent = nav
 
 static inline OptionSet<AutoplayQuirk> allowedAutoplayQuirks(Document& document)
 {
-    auto* loader = document.loader();
+    RefPtr loader = document.loader();
     if (!loader)
         return { };
 
@@ -179,9 +179,10 @@ bool Quirks::domainStartsWith(const String& prefix) const
 
 bool Quirks::isEmbedDomain(const String& domainString) const
 {
-    if (m_document->isTopDocument())
+    RefPtr document = m_document.get();
+    if (document->isTopDocument())
         return false;
-    return RegistrableDomain(m_document->url()).string() == domainString;
+    return RegistrableDomain(document->url()).string() == domainString;
 }
 
 // ceac.state.gov https://bugs.webkit.org/show_bug.cgi?id=193478
@@ -824,7 +825,7 @@ bool Quirks::shouldBypassBackForwardCache() const
     // because it changes the opacity of its body to 0 when navigating away and fails to restore the original opacity
     // when coming back from the back/forward cache (e.g. in 'pageshow' event handler). See <rdar://problem/56996057>.
     if (m_quirksData.isVimeo && topDocumentURL().protocolIs("https"_s)) {
-        if (auto* documentLoader = document->frame() ? document->frame()->loader().documentLoader() : nullptr)
+        if (RefPtr documentLoader = document->frame() ? document->frame()->loader().documentLoader() : nullptr)
             return documentLoader->response().cacheControlContainsNoStore();
     }
 
@@ -921,7 +922,7 @@ static Ref<Element> createFacebookFlagElement(Document& document, ASCIILiteral v
     Ref text = Text::create(document, makeString("{\"require\":[[\"HasteSupportData\",\"handle\",null,[{\"gkxData\":{\""_s, value, "\":{\"result\":true,\"hash\":null}}}]]]}"_s));
 
     Ref script = HTMLScriptElement::create(HTMLNames::scriptTag, document, false);
-    script->dataset().setNamedItem("contentLen"_s, AtomString { makeString(text->length()) });
+    Ref { script->dataset() }->setNamedItem("contentLen"_s, AtomString { makeString(text->length()) });
     script->appendChild(text);
 
     return script;
@@ -1123,9 +1124,9 @@ void Quirks::triggerOptionalStorageAccessIframeQuirk(const URL& frameURL, Comple
 {
     if (RefPtr document = m_document.get()) {
         if (document->frame() && !m_document->frame()->isMainFrame()) {
-            auto& mainFrame = document->frame()->mainFrame();
-            if (auto* localMainFrame = dynamicDowncast<LocalFrame>(mainFrame); localMainFrame && localMainFrame->document()) {
-                localMainFrame->document()->quirks().triggerOptionalStorageAccessIframeQuirk(frameURL, WTFMove(completionHandler));
+            Ref mainFrame = document->frame()->mainFrame();
+            if (RefPtr localMainFrame = dynamicDowncast<LocalFrame>(mainFrame); localMainFrame && localMainFrame->document()) {
+                localMainFrame->protectedDocument()->quirks().triggerOptionalStorageAccessIframeQuirk(frameURL, WTFMove(completionHandler));
                 return;
             }
         }
@@ -1199,7 +1200,7 @@ Quirks::StorageAccessResult Quirks::triggerOptionalStorageAccessQuirk(Element& e
                 return Quirks::StorageAccessResult::ShouldNotCancelEvent;
             auto proxy = proxyOrException.releaseReturnValue();
 
-            auto* abstractFrame = proxy->frame();
+            RefPtr abstractFrame = proxy->frame();
             if (RefPtr frame = dynamicDowncast<LocalFrame>(abstractFrame)) {
                 auto world = ScriptController::createWorld("kinjaComQuirkWorld"_s, ScriptController::WorldType::User);
                 frame->injectUserScriptImmediately(world.get(), kinjaLoginUserScript);

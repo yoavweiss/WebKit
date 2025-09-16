@@ -427,7 +427,6 @@ page/Location.cpp
 page/MemoryRelease.cpp
 page/NavigateEvent.cpp
 page/Navigator.cpp
-page/Page.cpp
 page/PageColorSampler.cpp
 page/PageOverlay.cpp
 page/PageOverlayController.cpp
@@ -437,7 +436,6 @@ page/PerformanceMonitor.cpp
 page/PointerCaptureController.cpp
 page/PointerLockController.cpp
 page/PrintContext.cpp
-page/Quirks.cpp
 page/RemoteFrame.cpp
 page/ResizeObservation.cpp
 page/ResizeObserver.cpp

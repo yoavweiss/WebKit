@@ -80,7 +80,6 @@ page/EventHandler.h
 page/Page.h
 page/PageOverlayController.cpp
 page/WheelEventTestMonitor.h
-page/csp/ContentSecurityPolicy.h
 page/mac/ImageOverlayControllerMac.mm
 page/mac/ServicesOverlayController.mm
 page/scrolling/ScrollingStateNode.h
