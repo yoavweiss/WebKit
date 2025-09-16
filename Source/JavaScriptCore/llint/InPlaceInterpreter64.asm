@@ -5740,6 +5740,8 @@ ipintOp(_simd_f32x4_demote_f64x2_zero, macro()
         emit "fcvtn v16.2s, v16.2d"
         # Zero the upper 64 bits (lanes 2,3)
         emit "mov v16.d[1], xzr"
+    elsif X86_64
+        emit "vcvtpd2ps %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5753,6 +5755,8 @@ ipintOp(_simd_f64x2_promote_low_f32x4, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcvtl v16.2d, v16.2s"
+    elsif X86_64
+        emit "vcvtps2pd %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5923,6 +5927,8 @@ ipintOp(_simd_f32x4_ceil, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "frintp v16.4s, v16.4s"
+    elsif X86_64
+        emit "vroundps $0x2, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5936,6 +5942,8 @@ ipintOp(_simd_f32x4_floor, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "frintm v16.4s, v16.4s"
+    elsif X86_64
+        emit "vroundps $0x1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5949,6 +5957,8 @@ ipintOp(_simd_f32x4_trunc, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "frintz v16.4s, v16.4s"
+    elsif X86_64
+        emit "vroundps $0x3, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -5962,6 +5972,8 @@ ipintOp(_simd_f32x4_nearest, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "frintn v16.4s, v16.4s"
+    elsif X86_64
+        emit "vroundps $0x0, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -6193,6 +6205,8 @@ ipintOp(_simd_f64x2_ceil, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "frintp v16.2d, v16.2d"
+    elsif X86_64
+        emit "vroundpd $0x2, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -6206,6 +6220,8 @@ ipintOp(_simd_f64x2_floor, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "frintm v16.2d, v16.2d"
+    elsif X86_64
+        emit "vroundpd $0x1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -6278,6 +6294,8 @@ ipintOp(_simd_f64x2_trunc, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "frintz v16.2d, v16.2d"
+    elsif X86_64
+        emit "vroundpd $0x3, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -6706,6 +6724,8 @@ ipintOp(_simd_f64x2_nearest, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "frintn v16.2d, v16.2d"
+    elsif X86_64
+        emit "vroundpd $0x0, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7687,6 +7707,12 @@ ipintOp(_simd_f32x4_abs, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fabs v16.4s, v16.4s"
+    elsif X86_64
+        # Clear sign bit by AND with 0x7FFFFFFF mask
+        emit "movabsq $0x7fffffff7fffffff, %rax"
+        emit "vmovq %rax, %xmm1"
+        emit "vpunpcklqdq %xmm1, %xmm1, %xmm1"
+        emit "vandps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7700,6 +7726,12 @@ ipintOp(_simd_f32x4_neg, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fneg v16.4s, v16.4s"
+    elsif X86_64
+        # Flip sign bit by XOR with 0x80000000 mask
+        emit "movabsq $0x8000000080000000, %rax"
+        emit "vmovq %rax, %xmm1"
+        emit "vpunpcklqdq %xmm1, %xmm1, %xmm1"
+        emit "vxorps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7715,6 +7747,8 @@ ipintOp(_simd_f32x4_sqrt, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fsqrt v16.4s, v16.4s"
+    elsif X86_64
+        emit "vsqrtps %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7729,6 +7763,8 @@ ipintOp(_simd_f32x4_add, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fadd v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vaddps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7743,6 +7779,8 @@ ipintOp(_simd_f32x4_sub, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fsub v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vsubps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7757,6 +7795,8 @@ ipintOp(_simd_f32x4_mul, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fmul v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vmulps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7771,6 +7811,8 @@ ipintOp(_simd_f32x4_div, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fdiv v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        emit "vdivps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7785,6 +7827,12 @@ ipintOp(_simd_f32x4_min, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fmin v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        # IEEE 754-2008 semantics: if either operand is NaN, result is NaN
+        # vminps doesn't handle NaN propagation correctly, so we need to check for NaN
+        emit "vcmpunordps %xmm1, %xmm0, %xmm2"  # Check for NaN in either operand
+        emit "vminps %xmm1, %xmm0, %xmm0"       # Compute min (may not handle NaN correctly)
+        emit "vorps %xmm2, %xmm0, %xmm0"        # OR with NaN mask to propagate NaN
     else
         break # Not implemented
     end
@@ -7799,6 +7847,12 @@ ipintOp(_simd_f32x4_max, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fmax v16.4s, v16.4s, v17.4s"
+    elsif X86_64
+        # IEEE 754-2008 semantics: if either operand is NaN, result is NaN
+        # vmaxps doesn't handle NaN propagation correctly, so we need to check for NaN
+        emit "vcmpunordps %xmm1, %xmm0, %xmm2"  # Check for NaN in either operand
+        emit "vmaxps %xmm1, %xmm0, %xmm0"       # Compute max (may not handle NaN correctly)
+        emit "vorps %xmm2, %xmm0, %xmm0"        # OR with NaN mask to propagate NaN
     else
         break # Not implemented
     end
@@ -7816,6 +7870,9 @@ ipintOp(_simd_f32x4_pmin, macro()
         emit "fcmgt v18.4s, v16.4s, v17.4s"
         emit "bsl v18.16b, v17.16b, v16.16b"
         emit "mov v16.16b, v18.16b"
+    elsif X86_64
+        emit "vcmpgtps %xmm1, %xmm0, %xmm2"          # xmm2 = (a > b) ? 0xFFFFFFFF : 0x00000000
+        emit "vblendvps %xmm2, %xmm1, %xmm0, %xmm0"  # select b if mask is true, a if false
     else
         break # Not implemented
     end
@@ -7833,6 +7890,9 @@ ipintOp(_simd_f32x4_pmax, macro()
         emit "fcmgt v18.4s, v17.4s, v16.4s"
         emit "bsl v18.16b, v17.16b, v16.16b"
         emit "mov v16.16b, v18.16b"
+    elsif X86_64
+        emit "vcmpgtps %xmm0, %xmm1, %xmm2"          # xmm2 = (b > a) ? 0xFFFFFFFF : 0x00000000
+        emit "vblendvps %xmm2, %xmm1, %xmm0, %xmm0"  # select b if mask is true, a if false
     else
         break # Not implemented
     end
@@ -7848,6 +7908,12 @@ ipintOp(_simd_f64x2_abs, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fabs v16.2d, v16.2d"
+    elsif X86_64
+        # Clear sign bit by AND with 0x7FFFFFFFFFFFFFFF mask
+        emit "movabsq $0x7fffffffffffffff, %rax"
+        emit "vmovq %rax, %xmm1"
+        emit "vpunpcklqdq %xmm1, %xmm1, %xmm1"
+        emit "vandpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7861,6 +7927,12 @@ ipintOp(_simd_f64x2_neg, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fneg v16.2d, v16.2d"
+    elsif X86_64
+        # Flip sign bit by XOR with 0x8000000000000000 mask
+        emit "movabsq $0x8000000000000000, %rax"
+        emit "vmovq %rax, %xmm1"
+        emit "vpunpcklqdq %xmm1, %xmm1, %xmm1"
+        emit "vxorpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7876,6 +7948,8 @@ ipintOp(_simd_f64x2_sqrt, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fsqrt v16.2d, v16.2d"
+    elsif X86_64
+        emit "vsqrtpd %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7890,6 +7964,8 @@ ipintOp(_simd_f64x2_add, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fadd v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vaddpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7904,6 +7980,8 @@ ipintOp(_simd_f64x2_sub, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fsub v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vsubpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7918,6 +7996,8 @@ ipintOp(_simd_f64x2_mul, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fmul v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vmulpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7932,6 +8012,8 @@ ipintOp(_simd_f64x2_div, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fdiv v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        emit "vdivpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -7946,6 +8028,12 @@ ipintOp(_simd_f64x2_min, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fmin v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        # IEEE 754-2008 semantics: if either operand is NaN, result is NaN
+        # vminpd doesn't handle NaN propagation correctly, so we need to check for NaN
+        emit "vcmpunordpd %xmm1, %xmm0, %xmm2"  # Check for NaN in either operand
+        emit "vminpd %xmm1, %xmm0, %xmm0"       # Compute min (may not handle NaN correctly)
+        emit "vorpd %xmm2, %xmm0, %xmm0"        # OR with NaN mask to propagate NaN
     else
         break # Not implemented
     end
@@ -7955,11 +8043,17 @@ ipintOp(_simd_f64x2_min, macro()
 end)
 
 ipintOp(_simd_f64x2_max, macro()
-    # f64x2.max - maximum of 2 64-bit floats (propagate NaN)
+    # f64x2.max - maximum of 2 64-bit floats (IEEE 754-2008 semantics)
     popVec(v1)
     popVec(v0)
     if ARM64 or ARM64E
         emit "fmax v16.2d, v16.2d, v17.2d"
+    elsif X86_64
+        # IEEE 754-2008 semantics: if either operand is NaN, result is NaN
+        # vmaxpd doesn't handle NaN propagation correctly, so we need to check for NaN
+        emit "vcmpunordpd %xmm1, %xmm0, %xmm2"  # Check for NaN in either operand
+        emit "vmaxpd %xmm1, %xmm0, %xmm0"       # Compute max (may not handle NaN correctly)
+        emit "vorpd %xmm2, %xmm0, %xmm0"        # OR with NaN mask to propagate NaN
     else
         break # Not implemented
     end
@@ -7977,6 +8071,9 @@ ipintOp(_simd_f64x2_pmin, macro()
         emit "fcmgt v18.2d, v16.2d, v17.2d"
         emit "bsl v18.16b, v17.16b, v16.16b"
         emit "mov v16.16b, v18.16b"
+    elsif X86_64
+        emit "vcmpgtpd %xmm1, %xmm0, %xmm2"          # xmm2 = (a > b) ? 0xFFFFFFFF : 0x00000000
+        emit "vblendvpd %xmm2, %xmm1, %xmm0, %xmm0"  # select b if mask is true, a if false
     else
         break # Not implemented
     end
@@ -7994,6 +8091,9 @@ ipintOp(_simd_f64x2_pmax, macro()
         emit "fcmgt v18.2d, v17.2d, v16.2d"
         emit "bsl v18.16b, v17.16b, v16.16b"
         emit "mov v16.16b, v18.16b"
+    elsif X86_64
+        emit "vcmpgtpd %xmm0, %xmm1, %xmm2"          # xmm2 = (b > a) ? 0xFFFFFFFF : 0x00000000
+        emit "vblendvpd %xmm2, %xmm1, %xmm0, %xmm0"  # select b if mask is true, a if false
     else
         break # Not implemented
     end
@@ -8009,6 +8109,20 @@ ipintOp(_simd_i32x4_trunc_sat_f32x4_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcvtzs v16.4s, v16.4s"
+    elsif X86_64
+        # Saturation logic following MacroAssembler implementation
+        emit "vmovaps %xmm0, %xmm1"                          # xmm1 = src
+        emit "vcmpunordps %xmm1, %xmm1, %xmm1"               # xmm1 = NaN mask
+        emit "vandnps %xmm0, %xmm1, %xmm1"                   # xmm1 = src with NaN lanes cleared
+        
+        # Load 0x1.0p+31f (2147483648.0f) constant
+        emit "movabsq $0x4f0000004f000000, %rax"             # 0x1.0p+31f in both lanes
+        emit "vmovq %rax, %xmm2"
+        emit "vpunpcklqdq %xmm2, %xmm2, %xmm2"               # Broadcast to all 4 lanes
+        
+        emit "vcmpnltps %xmm2, %xmm1, %xmm3"                 # xmm3 = positive overflow mask (src >= 0x80000000)
+        emit "vcvttps2dq %xmm1, %xmm1"                       # Convert with overflow saturated to 0x80000000
+        emit "vpxor %xmm3, %xmm1, %xmm0"                     # Convert positive overflow to 0x7FFFFFFF
     else
         break # Not implemented
     end
@@ -8022,6 +8136,27 @@ ipintOp(_simd_i32x4_trunc_sat_f32x4_u, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "fcvtzu v16.4s, v16.4s"
+    elsif X86_64
+        # Unsigned saturation logic following MacroAssembler implementation
+        emit "vxorps %xmm1, %xmm1, %xmm1"                    # xmm1 = 0
+        emit "vmaxps %xmm1, %xmm0, %xmm0"                    # Clear NaN and negatives
+        
+        # Load 2147483647.0f constant
+        emit "movabsq $0x4effffff4effffff, %rax"             # 2147483647.0f in both lanes
+        emit "vmovq %rax, %xmm2"
+        emit "vpunpcklqdq %xmm2, %xmm2, %xmm2"               # Broadcast to all 4 lanes
+        
+        emit "vmovaps %xmm0, %xmm3"                          # xmm3 = src copy
+        emit "vsubps %xmm2, %xmm3, %xmm3"                    # xmm3 = src - 2147483647.0f
+        emit "vcmpnltps %xmm2, %xmm3, %xmm1"                 # xmm1 = mask for overflow
+        emit "vcvttps2dq %xmm3, %xmm3"                       # Convert (src - 2147483647.0f)
+        emit "vpxor %xmm1, %xmm3, %xmm3"                     # Saturate positive overflow to 0x7FFFFFFF
+        
+        emit "vpxor %xmm4, %xmm4, %xmm4"                     # xmm4 = 0
+        emit "vpmaxsd %xmm4, %xmm3, %xmm3"                   # Clear negatives
+        
+        emit "vcvttps2dq %xmm0, %xmm0"                       # Convert original src
+        emit "vpaddd %xmm3, %xmm0, %xmm0"                    # Add correction
     else
         break # Not implemented
     end
@@ -8035,6 +8170,8 @@ ipintOp(_simd_f32x4_convert_i32x4_s, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "scvtf v16.4s, v16.4s"
+    elsif X86_64
+        emit "vcvtdq2ps %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -8048,6 +8185,16 @@ ipintOp(_simd_f32x4_convert_i32x4_u, macro()
     popVec(v0)
     if ARM64 or ARM64E
         emit "ucvtf v16.4s, v16.4s"
+    elsif X86_64
+        # See MacroAssembler::vectorConvertUnsigned
+        emit "vpxor %xmm1, %xmm1, %xmm1"                 # clear scratch
+        emit "vpblendw $0x55, %xmm0, %xmm1, %xmm1"       # i_low = low 16 bits of src
+        emit "vpsubd %xmm1, %xmm0, %xmm0"                # i_high = high 16 bits of src
+        emit "vcvtdq2ps %xmm1, %xmm1"                    # f_low = convertToF32(i_low)
+        emit "vpsrld $1, %xmm0, %xmm0"                   # i_half_high = i_high / 2
+        emit "vcvtdq2ps %xmm0, %xmm0"                    # f_half_high = convertToF32(i_half_high)
+        emit "vaddps %xmm0, %xmm0, %xmm0"                # dst = f_half_high + f_half_high + f_low
+        emit "vaddps %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -8066,6 +8213,17 @@ ipintOp(_simd_i32x4_trunc_sat_f64x2_s_zero, macro()
         emit "sqxtn v16.2s, v16.2d"
         # Zero the upper 64 bits (lanes 2,3)
         emit "mov v16.d[1], xzr"
+    elsif X86_64
+        emit "vcmppd $0, %xmm0, %xmm0, %xmm1"                # xmm1 = ordered comparison mask (not NaN)
+        
+        # Load 2147483647.0 constant
+        emit "movabsq $0x41dfffffffc00000, %rax"             # 2147483647.0 as double
+        emit "vmovq %rax, %xmm2"
+        emit "vpunpcklqdq %xmm2, %xmm2, %xmm2"               # Broadcast to both lanes
+        
+        emit "vandpd %xmm2, %xmm1, %xmm1"                    # xmm1 = 2147483647.0 where not NaN, 0 where NaN
+        emit "vminpd %xmm1, %xmm0, %xmm0"                    # Clamp to max value and handle NaN
+        emit "vcvttpd2dq %xmm0, %xmm0"                       # Convert to i32 (result in lower 64 bits, upper zeroed)
     else
         break # Not implemented
     end
@@ -8084,6 +8242,23 @@ ipintOp(_simd_i32x4_trunc_sat_f64x2_u_zero, macro()
         emit "uqxtn v16.2s, v16.2d"
         # Zero the upper 64 bits (lanes 2,3)
         emit "mov v16.d[1], xzr"
+    elsif X86_64
+        # See MacroAssembler::vectorTruncSatUnsignedFloat64
+        # Load constants: 4294967295.0 and 0x1.0p+52
+        emit "movabsq $0x41efffffffe00000, %rax"             # 4294967295.0 as double
+        emit "vmovq %rax, %xmm2"
+        emit "vpunpcklqdq %xmm2, %xmm2, %xmm2"               # xmm2 = [4294967295.0, 4294967295.0]
+        
+        emit "movabsq $0x4330000000000000, %rax"             # 0x1.0p+52 as double
+        emit "vmovq %rax, %xmm3"
+        emit "vpunpcklqdq %xmm3, %xmm3, %xmm3"               # xmm3 = [0x1.0p+52, 0x1.0p+52]
+        
+        emit "vxorpd %xmm1, %xmm1, %xmm1"                    # xmm1 = 0.0
+        emit "vmaxpd %xmm1, %xmm0, %xmm0"                    # Clear negatives
+        emit "vminpd %xmm2, %xmm0, %xmm0"                    # Clamp to 4294967295.0
+        emit "vroundpd $3, %xmm0, %xmm0"                     # Truncate toward zero
+        emit "vaddpd %xmm3, %xmm0, %xmm0"                    # Add 0x1.0p+52 (magic number conversion)
+        emit "vshufps $0x88, %xmm1, %xmm0, %xmm0"            # Pack to i32 and zero upper
     else
         break # Not implemented
     end
@@ -8099,6 +8274,8 @@ ipintOp(_simd_f64x2_convert_low_i32x4_s, macro()
         # Sign-extend lower 2 i32 values to i64, then convert to f64
         emit "sxtl v16.2d, v16.2s"
         emit "scvtf v16.2d, v16.2d"
+    elsif X86_64
+        emit "vcvtdq2pd %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -8114,6 +8291,22 @@ ipintOp(_simd_f64x2_convert_low_i32x4_u, macro()
         # Zero-extend lower 2 i32 values to i64, then convert to f64
         emit "uxtl v16.2d, v16.2s"
         emit "ucvtf v16.2d, v16.2d"
+    elsif X86_64
+        # See MacroAssembler::vectorConvertLowUnsignedInt32
+        # Load 0x43300000 (high32Bits) and splat to all lanes
+        emit "movl $0x43300000, %eax"
+        emit "vpbroadcastd %eax, %xmm1"                   # xmm1 = [0x43300000, 0x43300000, 0x43300000, 0x43300000]
+        
+        # Unpack lower 2 i32 with high32Bits
+        emit "vunpcklps %xmm1, %xmm0, %xmm0"              # Interleave: [i32_0, 0x43300000, i32_1, 0x43300000]
+        
+        # Load 0x1.0p+52 mask
+        emit "movabsq $0x4330000000000000, %rax"          # 0x1.0p+52 as double
+        emit "vmovq %rax, %xmm1"
+        emit "vpunpcklqdq %xmm1, %xmm1, %xmm1"            # xmm1 = [0x1.0p+52, 0x1.0p+52]
+        
+        # Subtract to get the correct unsigned values
+        emit "vsubpd %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
