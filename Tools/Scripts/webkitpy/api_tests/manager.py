@@ -211,7 +211,7 @@ class Manager(object):
             runner = Runner(self._port, self._stream)
             for i in range(self._options.iterations):
                 _log.debug('\nIteration {}'.format(i + 1))
-                runner.run(test_names, int(self._options.child_processes) if self._options.child_processes else self._port.default_child_processes())
+                runner.run(test_names, int(self._options.child_processes) if self._options.child_processes else self._options.child_processes)
         except KeyboardInterrupt:
             # If we receive a KeyboardInterrupt, print results.
             self._stream.writeln('')

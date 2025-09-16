@@ -135,7 +135,11 @@ class Runner(object):
             if Runner.instance:
                 raise RuntimeError('Cannot nest API test runners')
             Runner.instance = self
-            self._num_workers = min(num_workers, len(shards))
+            mutually_exclusive_groups = list(self.port.sharding_groups(suite='api-tests').keys())
+            if mutually_exclusive_groups:
+                self._num_workers = min(num_workers if num_workers else self.port.default_child_processes(), len(shards))
+            else:
+                self._num_workers = min(num_workers if num_workers else self._num_workers, len(shards))
 
             devices = None
             if getattr(self.port, 'DEVICE_MANAGER', None):
@@ -146,10 +150,25 @@ class Runner(object):
 
             with TaskPool(
                 workers=self._num_workers,
+                mutually_exclusive_groups=mutually_exclusive_groups,
                 setup=setup_shard, setupkwargs=dict(port=self.port, devices=devices, log_limit=self.log_limit), teardown=teardown_shard,
             ) as pool:
+                was_sent = set()
+
+                # Dispatch shards from groups first, so we start dedicated groups running before all our other shards
                 for name, tests in iteritems(shards):
+                    group = self.port.group_for_shard(type('Shard', (), {'name': name})(), suite='api-tests')
+                    if not group:
+                        continue
+
+                    was_sent.add(name)
+                    pool.do(run_shard, name, *tests, group=group)
+
+                for name, tests in iteritems(shards):
+                    if name in was_sent:
+                        continue
                     pool.do(run_shard, name, *tests)
+
                 pool.wait()
 
         finally:
