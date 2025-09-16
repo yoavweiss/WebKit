@@ -38,6 +38,8 @@
 #include "SystemSettings.h"
 #endif
 
+#include <skia/ports/SkFontScanner_FreeType.h>
+
 #if OS(ANDROID)
 #include <skia/ports/SkFontMgr_android.h>
 #elif PLATFORM(WIN)
@@ -57,12 +59,12 @@ SkFontMgr& FontCache::fontManager() const
 {
     if (!m_fontManager) {
 #if OS(ANDROID)
-        m_fontManager = SkFontMgr_New_Android(nullptr);
+        m_fontManager = SkFontMgr_New_Android(nullptr, SkFontScanner_Make_FreeType());
 #elif OS(WINDOWS)
         auto result = createDWriteFactory();
         m_fontManager = SkFontMgr_New_DirectWrite(result.factory.get(), result.fontCollection.get());
 #else
-        m_fontManager = SkFontMgr_New_FontConfig(FcConfigReference(nullptr));
+        m_fontManager = SkFontMgr_New_FontConfig(FcConfigReference(nullptr), SkFontScanner_Make_FreeType());
 #endif
     }
     RELEASE_ASSERT(m_fontManager);
