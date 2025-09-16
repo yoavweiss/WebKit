@@ -53,7 +53,7 @@ void DeprecatedGlobalSettings::setAVFoundationEnabled(bool enabled)
         return;
 
     shared().m_AVFoundationEnabled = enabled;
-    platformStrategies()->mediaStrategy().resetMediaEngines();
+    platformStrategies()->mediaStrategy()->resetMediaEngines();
 }
 #endif
 
@@ -66,7 +66,7 @@ void DeprecatedGlobalSettings::setGStreamerEnabled(bool enabled)
     shared().m_GStreamerEnabled = enabled;
 
 #if ENABLE(VIDEO)
-    platformStrategies()->mediaStrategy().resetMediaEngines();
+    platformStrategies()->mediaStrategy()->resetMediaEngines();
 #endif
 }
 #endif

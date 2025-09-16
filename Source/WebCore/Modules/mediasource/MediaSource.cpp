@@ -1709,7 +1709,7 @@ bool MediaSource::enabledForContext(ScriptExecutionContext& context)
     UNUSED_PARAM(context);
 #if ENABLE(MEDIA_SOURCE_IN_WORKERS)
     if (context.isWorkerGlobalScope())
-        return context.settingsValues().mediaSourceInWorkerEnabled && platformStrategies()->mediaStrategy().hasThreadSafeMediaSourceSupport();
+        return context.settingsValues().mediaSourceInWorkerEnabled && platformStrategies()->mediaStrategy()->hasThreadSafeMediaSourceSupport();
 #endif
 
     ASSERT(context.isDocument());
@@ -1746,7 +1746,7 @@ Ref<MediaSourceHandle> MediaSource::handle()
 
 bool MediaSource::canConstructInDedicatedWorker(ScriptExecutionContext& context)
 {
-    return context.settingsValues().mediaSourceInWorkerEnabled && platformStrategies()->mediaStrategy().hasThreadSafeMediaSourceSupport();
+    return context.settingsValues().mediaSourceInWorkerEnabled && platformStrategies()->mediaStrategy()->hasThreadSafeMediaSourceSupport();
 }
 
 #endif

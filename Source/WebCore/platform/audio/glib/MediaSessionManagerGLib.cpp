@@ -128,7 +128,7 @@ RefPtr<PlatformMediaSessionManager> PlatformMediaSessionManager::create(std::opt
 
 MediaSessionManagerGLib::MediaSessionManagerGLib(GRefPtr<GDBusNodeInfo>&& mprisInterface)
     : m_mprisInterface(WTFMove(mprisInterface))
-    , m_nowPlayingManager(platformStrategies()->mediaStrategy().createNowPlayingManager())
+    , m_nowPlayingManager(platformStrategies()->mediaStrategy()->createNowPlayingManager())
 {
 }
 

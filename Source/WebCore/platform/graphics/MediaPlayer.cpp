@@ -299,14 +299,14 @@ static void buildMediaEnginesVector() WTF_REQUIRES_LOCK(mediaEngineVectorLock)
 #if USE(AVFOUNDATION)
     auto& registerRemoteEngine = registerRemotePlayerCallback();
 #if ENABLE(MEDIA_SOURCE)
-    if (registerRemoteEngine && platformStrategies()->mediaStrategy().mockMediaSourceEnabled())
+    if (registerRemoteEngine && platformStrategies()->mediaStrategy()->mockMediaSourceEnabled())
         registerRemoteEngine(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::MockMSE);
 #endif
 
     if (DeprecatedGlobalSettings::isAVFoundationEnabled()) {
 
 #if ENABLE(COCOA_WEBM_PLAYER)
-        if (!hasPlatformStrategies() || platformStrategies()->mediaStrategy().enableWebMMediaPlayer()) {
+        if (!hasPlatformStrategies() || platformStrategies()->mediaStrategy()->enableWebMMediaPlayer()) {
             if (registerRemoteEngine)
                 registerRemoteEngine(addMediaEngine, MediaPlayerEnums::MediaEngineIdentifier::CocoaWebM);
             else

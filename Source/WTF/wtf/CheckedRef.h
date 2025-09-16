@@ -234,7 +234,7 @@ inline ExpectedType& downcast(CheckedRef<ArgType, ArgPtrTraits>& source)
 }
 
 template<typename ExpectedType, typename ArgType, typename ArgPtrTraits>
-inline const ExpectedType& downcast(const CheckedRef<ArgType, ArgPtrTraits>& source)
+inline ExpectedType& downcast(const CheckedRef<ArgType, ArgPtrTraits>& source)
 {
     return downcast<ExpectedType>(source.get());
 }

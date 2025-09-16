@@ -358,29 +358,29 @@ static RefPtr<SharedBuffer> readBufferAtPreferredItemIndex(const String& type, s
 
 void Pasteboard::read(PasteboardPlainText& text, PlainTextURLReadingPolicy allowURL, std::optional<size_t> itemIndex)
 {
-    auto& strategy = *platformStrategies()->pasteboardStrategy();
+    CheckedRef strategy = *platformStrategies()->pasteboardStrategy();
 
     Vector<String> types;
     if (itemIndex) {
-        if (auto itemInfo = strategy.informationForItemAtIndex(*itemIndex, m_pasteboardName, m_changeCount, context()))
+        if (auto itemInfo = strategy->informationForItemAtIndex(*itemIndex, m_pasteboardName, m_changeCount, context()))
             types = itemInfo->platformTypesByFidelity;
     } else
-        strategy.getTypes(types, m_pasteboardName, context());
+        strategy->getTypes(types, m_pasteboardName, context());
 
     if (types.contains(String(NSPasteboardTypeString))) {
-        text.text = readStringAtPreferredItemIndex(NSPasteboardTypeString, itemIndex, strategy, m_pasteboardName, context());
+        text.text = readStringAtPreferredItemIndex(NSPasteboardTypeString, itemIndex, strategy.get(), m_pasteboardName, context());
         text.isURL = false;
         return;
     }
 
     if (types.contains(String(legacyStringPasteboardType()))) {
-        text.text = readStringAtPreferredItemIndex(legacyStringPasteboardType(), itemIndex, strategy, m_pasteboardName, context());
+        text.text = readStringAtPreferredItemIndex(legacyStringPasteboardType(), itemIndex, strategy.get(), m_pasteboardName, context());
         text.isURL = false;
         return;
     }
     
     if (types.contains(String(legacyRTFDPasteboardType()))) {
-        if (auto data = readBufferAtPreferredItemIndex(legacyRTFDPasteboardType(), itemIndex, strategy, m_pasteboardName, context())) {
+        if (auto data = readBufferAtPreferredItemIndex(legacyRTFDPasteboardType(), itemIndex, strategy.get(), m_pasteboardName, context())) {
             if (auto attributedString = adoptNS([[NSAttributedString alloc] initWithRTFD:data->makeContiguous()->createNSData().get() documentAttributes:nil])) {
                 text.text = [attributedString string];
                 text.isURL = false;
@@ -427,7 +427,7 @@ void Pasteboard::read(PasteboardPlainText& text, PlainTextURLReadingPolicy allow
 
     if (types.contains(String(legacyFilenamesPasteboardType()))) {
         Vector<String> pathnames;
-        strategy.getPathnamesForType(pathnames, legacyFilenamesPasteboardType(), m_pasteboardName, context());
+        strategy->getPathnamesForType(pathnames, legacyFilenamesPasteboardType(), m_pasteboardName, context());
         text.text = joinPathnames(pathnames);
         text.isURL = false;
         return;
@@ -435,14 +435,14 @@ void Pasteboard::read(PasteboardPlainText& text, PlainTextURLReadingPolicy allow
 
     // FIXME: The code above looks at the types vector first, but this just gets the string without checking. Why the difference?
     if (allowURL == PlainTextURLReadingPolicy::AllowURL) {
-        text.text = readStringAtPreferredItemIndex(legacyURLPasteboardType(), itemIndex, strategy, m_pasteboardName, context());
+        text.text = readStringAtPreferredItemIndex(legacyURLPasteboardType(), itemIndex, strategy.get(), m_pasteboardName, context());
         text.isURL = !text.text.isNull();
     }
 }
 
 void Pasteboard::read(PasteboardWebContentReader& reader, WebContentReadingPolicy policy, std::optional<size_t> itemIndex)
 {
-    auto& strategy = *platformStrategies()->pasteboardStrategy();
+    CheckedRef strategy = *platformStrategies()->pasteboardStrategy();
     auto platformTypesFromItems = [](const Vector<PasteboardItemInfo>& items) {
         HashSet<String> types;
         for (auto& item : items) {
@@ -455,20 +455,20 @@ void Pasteboard::read(PasteboardWebContentReader& reader, WebContentReadingPolic
     HashSet<String> nonTranscodedTypes;
     Vector<String> types;
     if (itemIndex) {
-        if (auto itemInfo = strategy.informationForItemAtIndex(*itemIndex, m_pasteboardName, m_changeCount, context())) {
+        if (auto itemInfo = strategy->informationForItemAtIndex(*itemIndex, m_pasteboardName, m_changeCount, context())) {
             types = itemInfo->platformTypesByFidelity;
             nonTranscodedTypes = platformTypesFromItems({ *itemInfo });
         }
     } else {
-        strategy.getTypes(types, m_pasteboardName, context());
-        if (auto allItems = strategy.allPasteboardItemInfo(m_pasteboardName, m_changeCount, context()))
+        strategy->getTypes(types, m_pasteboardName, context());
+        if (auto allItems = strategy->allPasteboardItemInfo(m_pasteboardName, m_changeCount, context()))
             nonTranscodedTypes = platformTypesFromItems(*allItems);
     }
 
     reader.setContentOrigin(readOrigin());
 
     if (types.contains(WebArchivePboardType)) {
-        if (auto buffer = readBufferAtPreferredItemIndex(WebArchivePboardType, itemIndex, strategy, m_pasteboardName, context())) {
+        if (auto buffer = readBufferAtPreferredItemIndex(WebArchivePboardType, itemIndex, strategy.get(), m_pasteboardName, context())) {
             if (m_changeCount != changeCount() || reader.readWebArchive(*buffer))
                 return;
         }
@@ -476,7 +476,7 @@ void Pasteboard::read(PasteboardWebContentReader& reader, WebContentReadingPolic
 
 ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (types.contains(String(kUTTypeWebArchive))) {
-        if (auto buffer = readBufferAtPreferredItemIndex(kUTTypeWebArchive, itemIndex, strategy, m_pasteboardName, context())) {
+        if (auto buffer = readBufferAtPreferredItemIndex(kUTTypeWebArchive, itemIndex, strategy.get(), m_pasteboardName, context())) {
             if (m_changeCount != changeCount() || reader.readWebArchive(*buffer))
                 return;
         }
@@ -490,46 +490,46 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
     if (policy == WebContentReadingPolicy::AnyType && types.contains(String(legacyFilenamesPasteboardType()))) {
         Vector<String> paths;
-        strategy.getPathnamesForType(paths, legacyFilenamesPasteboardType(), m_pasteboardName, context());
+        strategy->getPathnamesForType(paths, legacyFilenamesPasteboardType(), m_pasteboardName, context());
         if (m_changeCount != changeCount() || reader.readFilePaths(paths))
             return;
     }
 
     if (types.contains(String(legacyHTMLPasteboardType()))) {
-        String string = readStringAtPreferredItemIndex(legacyHTMLPasteboardType(), itemIndex, strategy, m_pasteboardName, context());
+        String string = readStringAtPreferredItemIndex(legacyHTMLPasteboardType(), itemIndex, strategy.get(), m_pasteboardName, context());
         if (m_changeCount != changeCount() || (!string.isNull() && reader.readHTML(string)))
             return;
     }
 
     if (types.contains(String(NSPasteboardTypeHTML))) {
-        String string = readStringAtPreferredItemIndex(NSPasteboardTypeHTML, itemIndex, strategy, m_pasteboardName, context());
+        String string = readStringAtPreferredItemIndex(NSPasteboardTypeHTML, itemIndex, strategy.get(), m_pasteboardName, context());
         if (m_changeCount != changeCount() || (!string.isNull() && reader.readHTML(string)))
             return;
     }
 
     if (types.contains(String(legacyRTFDPasteboardType()))) {
-        if (auto buffer = readBufferAtPreferredItemIndex(legacyRTFDPasteboardType(), itemIndex, strategy, m_pasteboardName, context())) {
+        if (auto buffer = readBufferAtPreferredItemIndex(legacyRTFDPasteboardType(), itemIndex, strategy.get(), m_pasteboardName, context())) {
             if (m_changeCount != changeCount() || reader.readRTFD(*buffer))
                 return;
         }
     }
 
     if (types.contains(String(NSPasteboardTypeRTFD))) {
-        if (auto buffer = readBufferAtPreferredItemIndex(NSPasteboardTypeRTFD, itemIndex, strategy, m_pasteboardName, context())) {
+        if (auto buffer = readBufferAtPreferredItemIndex(NSPasteboardTypeRTFD, itemIndex, strategy.get(), m_pasteboardName, context())) {
             if (m_changeCount != changeCount() || reader.readRTFD(*buffer))
                 return;
         }
     }
 
     if (types.contains(String(legacyRTFPasteboardType()))) {
-        if (auto buffer = readBufferAtPreferredItemIndex(legacyRTFPasteboardType(), itemIndex, strategy, m_pasteboardName, context())) {
+        if (auto buffer = readBufferAtPreferredItemIndex(legacyRTFPasteboardType(), itemIndex, strategy.get(), m_pasteboardName, context())) {
             if (m_changeCount != changeCount() || reader.readRTF(*buffer))
                 return;
         }
     }
 
     if (types.contains(String(NSPasteboardTypeRTF))) {
-        if (auto buffer = readBufferAtPreferredItemIndex(NSPasteboardTypeRTF, itemIndex, strategy, m_pasteboardName, context())) {
+        if (auto buffer = readBufferAtPreferredItemIndex(NSPasteboardTypeRTF, itemIndex, strategy.get(), m_pasteboardName, context())) {
             if (m_changeCount != changeCount() || reader.readRTF(*buffer))
                 return;
         }
@@ -554,7 +554,7 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         if (!types.contains(pasteboardType))
             return false;
 
-        auto buffer = readBufferAtPreferredItemIndex(pasteboardType, itemIndex, strategy, m_pasteboardName, context());
+        auto buffer = readBufferAtPreferredItemIndex(pasteboardType, itemIndex, strategy.get(), m_pasteboardName, context());
         if (m_changeCount != changeCount())
             return true;
 
@@ -580,21 +580,21 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     }
 
     if (types.contains(String(legacyURLPasteboardType()))) {
-        URL url = strategy.url(m_pasteboardName, context());
-        String title = readStringAtPreferredItemIndex(WebURLNamePboardType, itemIndex, strategy, m_pasteboardName, context());
+        URL url = strategy->url(m_pasteboardName, context());
+        String title = readStringAtPreferredItemIndex(WebURLNamePboardType, itemIndex, strategy.get(), m_pasteboardName, context());
         if (m_changeCount != changeCount() || (!url.isNull() && reader.readURL(url, title)))
             return;
     }
 
     if (types.contains(String(legacyStringPasteboardType()))) {
-        String string = readStringAtPreferredItemIndex(legacyStringPasteboardType(), itemIndex, strategy, m_pasteboardName, context());
+        String string = readStringAtPreferredItemIndex(legacyStringPasteboardType(), itemIndex, strategy.get(), m_pasteboardName, context());
         if (m_changeCount != changeCount() || (!string.isNull() && reader.readPlainText(string)))
             return;
     }
 
 ALLOW_DEPRECATED_DECLARATIONS_BEGIN
     if (types.contains(String(kUTTypeUTF8PlainText))) {
-        String string = strategy.stringForType(kUTTypeUTF8PlainText, m_pasteboardName, context());
+        String string = strategy->stringForType(kUTTypeUTF8PlainText, m_pasteboardName, context());
         if (m_changeCount != changeCount() || (!string.isNull() && reader.readPlainText(string)))
             return;
     }
@@ -641,12 +641,12 @@ void Pasteboard::clear(const String& type)
 
 Vector<String> Pasteboard::readPlatformValuesAsStrings(const String& domType, int64_t changeCount, const String& pasteboardName)
 {
-    auto& strategy = *platformStrategies()->pasteboardStrategy();
+    CheckedRef strategy = *platformStrategies()->pasteboardStrategy();
     auto cocoaType = cocoaTypeFromHTMLClipboardType(domType);
     if (cocoaType.isEmpty())
         return { };
 
-    auto values = strategy.allStringsForType(cocoaType, pasteboardName, context());
+    auto values = strategy->allStringsForType(cocoaType, pasteboardName, context());
     if (cocoaType == String(legacyStringPasteboardType())) {
         values = values.map([&] (auto& value) -> String {
             return [value.createNSString() precomposedStringWithCanonicalMapping];
@@ -723,17 +723,17 @@ ALLOW_DEPRECATED_DECLARATIONS_END
 
 Vector<String> Pasteboard::readFilePaths()
 {
-    auto& strategy = *platformStrategies()->pasteboardStrategy();
+    CheckedRef strategy = *platformStrategies()->pasteboardStrategy();
 
     Vector<String> types;
-    strategy.getTypes(types, m_pasteboardName, context());
+    strategy->getTypes(types, m_pasteboardName, context());
 
     if (types.contains(String(legacyFilesPromisePasteboardType())))
         return m_promisedFilePaths;
 
     if (types.contains(String(legacyFilenamesPasteboardType()))) {
         Vector<String> filePaths;
-        strategy.getPathnamesForType(filePaths, legacyFilenamesPasteboardType(), m_pasteboardName, context());
+        strategy->getPathnamesForType(filePaths, legacyFilenamesPasteboardType(), m_pasteboardName, context());
         return filePaths;
     }
 

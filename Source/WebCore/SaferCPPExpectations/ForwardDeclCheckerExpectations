@@ -85,7 +85,6 @@ page/mac/ServicesOverlayController.mm
 page/scrolling/ScrollingStateNode.h
 page/scrolling/ScrollingStateScrollingNode.cpp
 platform/PODRedBlackTree.h
-platform/PlatformStrategies.h
 platform/Scrollbar.h
 platform/cocoa/TelephoneNumberDetectorCocoa.cpp
 platform/graphics/ImageBufferContextSwitcher.h
