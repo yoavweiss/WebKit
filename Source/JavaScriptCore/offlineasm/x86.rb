@@ -565,7 +565,8 @@ class Instruction
             $asm.puts "#{opcode} #{orderOperands(operands[0].x86Operand(:byte), operands[1].x86Operand(kind))}"
         else
             $asm.puts "xchg#{x86Suffix(:ptr)} #{operands[0].x86Operand(:ptr)}, #{x86GPRName("ecx", :ptr)}"
-            $asm.puts "#{opcode} #{orderOperands(register("cl"), operands[1].x86Operand(kind))}"
+            destIndex = operands[1].x86GPR == "ecx" ? 0 : 1;
+            $asm.puts "#{opcode} #{orderOperands(register("cl"), operands[destIndex].x86Operand(kind))}"
             $asm.puts "xchg#{x86Suffix(:ptr)} #{operands[0].x86Operand(:ptr)}, #{x86GPRName("ecx", :ptr)}"
         end
     end
