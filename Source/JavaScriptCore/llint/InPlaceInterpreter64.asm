@@ -4282,17 +4282,51 @@ end)
 
 ipintOp(_simd_i8x16_shuffle, macro()
     # i8x16.shuffle - shuffle bytes from two vectors using 16 immediate indices
-    popVec(v1)
-    popVec(v0)
-    
     if ARM64 or ARM64E
-        loadv ImmLaneIdxOffset[PC], v2  # Load 16 immediate bytes as a vector
+        popVec(v1)
+        popVec(v0)
+        loadv ImmLaneIdxOffset[PC], v2
         emit "tbl v16.16b, {v16.16b, v17.16b}, v18.16b"
+        pushVec(v0)
     else
-        break # Not implemented
+        # X86_64 doesn't natively support shuffle so emulate it
+        subp V128ISize, sp                # Allocate temp result
+
+        # Loop through 16 output positions
+        move 0, t0
+
+    .shuffleLoop:
+        loadb ImmLaneIdxOffset[PC, t0, 1], t1
+
+        bigt t1, 31, .outOfBounds
+        bigt t1, 15, .useRightVector
+
+    .useLeftVector:
+        loadb 32[sp, t1], t2
+        jmp .storeByte
+
+    .useRightVector:
+        subq t1, 16, t3
+        loadb 16[sp, t3], t2
+        jmp .storeByte
+
+    .outOfBounds:
+        move 0, t2
+
+    .storeByte:
+        storeb t2, [sp, t0]               # Store to temp result
+        addq 1, t0                        # Increment loop counter
+        bilt t0, 16, .shuffleLoop
+
+        # Copy temp result to final result location
+        loadq [sp], t0
+        loadq 8[sp], t1
+        storeq t0, 32[sp]
+        storeq t1, 40[sp]
+
+        addp 2 * V128ISize, sp            # Pop temp result and right vector
     end
-    
-    pushVec(v0)
+
     advancePC(18)  # 2 bytes opcode + 16 bytes immediate
     nextIPIntInstruction()
 end)
@@ -4304,6 +4338,8 @@ ipintOp(_simd_i8x16_swizzle, macro()
     
     if ARM64 or ARM64E
         emit "tbl v16.16b, {v16.16b}, v17.16b"
+    elsif X86_64
+        emit "vpshufb %xmm1, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -4319,6 +4355,9 @@ ipintOp(_simd_i8x16_splat, macro()
     
     if ARM64 or ARM64E
         emit "dup v16.16b, w0"
+    elsif X86_64
+        # t0 is eax on X86_64, move to xmm0 and broadcast to all 16 bytes
+        emit "vpbroadcastb %eax, %xmm0"
     else
         break # Not implemented
     end
@@ -4334,6 +4373,9 @@ ipintOp(_simd_i16x8_splat, macro()
     
     if ARM64 or ARM64E
         emit "dup v16.8h, w0"
+    elsif X86_64
+        # t0 is eax on X86_64
+        emit "vpbroadcastw %eax, %xmm0"
     else
         break # Not implemented
     end
@@ -4349,6 +4391,9 @@ ipintOp(_simd_i32x4_splat, macro()
     
     if ARM64 or ARM64E
         emit "dup v16.4s, w0"
+    elsif X86_64
+        # t0 is eax on X86_64
+        emit "vpbroadcastd %eax, %xmm0"
     else
         break # Not implemented
     end
@@ -4364,6 +4409,9 @@ ipintOp(_simd_i64x2_splat, macro()
     
     if ARM64 or ARM64E
         emit "dup v16.2d, x0"
+    elsif X86_64
+        # t0 is rax on X86_64, move to xmm0 and broadcast to both qwords
+        emit "vpbroadcastq %rax, %xmm0"
     else
         break # Not implemented
     end
@@ -4379,6 +4427,9 @@ ipintOp(_simd_f32x4_splat, macro()
     
     if ARM64 or ARM64E
         emit "dup v16.4s, v0.s[0]"
+    elsif X86_64
+        # ft0 is xmm0 on X86_64, broadcast to all 4 float lanes
+        emit "vshufps $0x00, %xmm0, %xmm0, %xmm0"
     else
         break # Not implemented
     end
@@ -4394,6 +4445,9 @@ ipintOp(_simd_f64x2_splat, macro()
     
     if ARM64 or ARM64E
         emit "dup v16.2d, v0.d[0]"
+    elsif X86_64
+        # ft0 is xmm0 on X86_64, duplicate lower 64-bit to both lanes
+        emit "vmovddup %xmm0, %xmm0"
     else
         break # Not implemented
     end
